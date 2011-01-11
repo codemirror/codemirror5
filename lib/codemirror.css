@@ -17,9 +17,15 @@
   height: 100px;
   width: 100%;
   font-family: monospace;
+  padding: .4em;
 }
 
 .CodeMirror-code div {
   height: 1em;
   min-width: 1px;
+}
+
+span.CodeMirror-selected {
+  background: #88f !important;
+  color: white !important;
 }
