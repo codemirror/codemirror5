@@ -1,0 +1,25 @@
+.CodeMirror {
+  position: relative;
+  border: 1px solid black;
+}
+
+.CodeMirror-cursor {
+  width: 1px;
+  height: 1em;
+  background: black;
+  position: absolute;
+}
+
+.CodeMirror-code {
+  position: relative;
+  white-space: pre;
+  overflow: auto;
+  height: 100px;
+  width: 100%;
+  font-family: monospace;
+}
+
+.CodeMirror-code div {
+  height: 1em;
+  min-width: 1px;
+}
