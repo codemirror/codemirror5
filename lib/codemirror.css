@@ -5,9 +5,10 @@
 
 .CodeMirror-cursor {
   width: 1px;
-  height: 1em;
+  height: 1.2em !important;
   background: black;
   position: absolute;
+  margin-top: -.1em;
 }
 
 .CodeMirror-code {
@@ -17,6 +18,7 @@
   height: 100px;
   width: 100%;
   font-family: monospace;
+  line-height: 1em;
   padding: .4em;
 }
 

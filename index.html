@@ -4,11 +4,13 @@
     <title>CodeMirror 2</title>
     <link rel="stylesheet" href="lib/codemirror.css">
     <script src="lib/codemirror.js"></script>
+    <script src="mode/javascript/javascript.js"></script>
+    <link rel="stylesheet" href="mode/javascript/javascript.css">
   </head>
   <body>
     <div id="code" style="font-family: monospace"></div>
     <script>
-      var editor = new CodeMirror(document.getElementById("code"), {value: "hello\ngoodbye\nline 3 3 3 3\nline 44444\n"});
+      var editor = new CodeMirror(document.getElementById("code"), {value: "function foo(a, b) {\n  var x = '100' + a;\n  return b ? x : 22.4;\n}\n"});
     </script>
   </body>
 </html>
