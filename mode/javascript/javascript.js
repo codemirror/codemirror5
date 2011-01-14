@@ -87,7 +87,7 @@ CodeMirror.addParser("javascript", (function() {
   function jsTokenComment(stream, state) {
     var maybeEnd = false, ch;
     while (ch = stream.next()) {
-      if (next == "/" && maybeEnd) {
+      if (ch == "/" && maybeEnd) {
         state.tokenize = jsTokenBase;
         break;
       }
