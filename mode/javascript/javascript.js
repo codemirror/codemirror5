@@ -58,7 +58,7 @@ CodeMirror.addParser("javascript", (function() {
         while (stream.next() != null);
         return {type: "comment", style: "js-comment"};
       }
-      else if (state.reAllowed) { // TODO update this
+      else if (state.reAllowed) {
         nextUntilUnescaped(stream, "/");
         while (stream.eat(/[gimy]/)); // 'y' is "sticky" option in Mozilla
         return {type: "regexp", style: "js-string"};
