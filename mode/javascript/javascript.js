@@ -260,7 +260,7 @@ CodeMirror.addParser("javascript", (function() {
     if (type == "variable") {cx.marked = "js-property"; return cx.cont();}
   }
   function objprop(cx, type) {
-    if (type == "variable") {cx.marked = "js-property"; return cx.cont();}
+    if (type == "variable") cx.marked = "js-property";
     if (atomicTypes.hasOwnProperty(type)) return cx.cont(expect(":"), expression);
   }
   function commasep(what, end) {
