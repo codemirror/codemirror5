@@ -9,6 +9,11 @@
   background: black;
   position: absolute;
   margin-top: -.1em;
+  display: none;
+}
+
+.CodeMirror-focused .CodeMirror-cursor {
+  display: block;
 }
 
 .CodeMirror-code {
@@ -27,6 +32,10 @@
 }
 
 span.CodeMirror-selected {
-  background: #88f !important;
+  background: #bbb !important;
   color: white !important;
+}
+
+.CodeMirror-focused .CodeMirror-selected {
+  background: #88f !important;
 }
