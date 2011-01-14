@@ -33,9 +33,8 @@ CodeMirror.addParser("javascript", (function() {
   }
 
   function jsTokenBase(stream, state) {
-    function readOperator() {
-      while (stream.eat(isOperatorChar));
-      return {type: "operator", style: "js-operator"};
+    function readOperator(ch) {
+      return {type: "operator", style: "js-operator", content: ch + stream.eatWhile(isOperatorChar)};
     }
 
     var ch = stream.next();
@@ -64,10 +63,10 @@ CodeMirror.addParser("javascript", (function() {
         while (stream.eat(/[gimy]/)); // 'y' is "sticky" option in Mozilla
         return {type: "regexp", style: "js-string"};
       }
-      else return readOperator();
+      else return readOperator(ch);
     }
     else if (isOperatorChar.test(ch))
-      return readOperator();
+      return readOperator(ch);
     else {
       var word = ch + stream.eatWhile(/[\w\$_]/);
       var known = keywords.propertyIsEnumerable(word) && keywords[word];
@@ -320,6 +319,7 @@ CodeMirror.addParser("javascript", (function() {
       if (stream.column() == 0)
         var indent = stream.eatSpace();
       var token = state.tokenize(stream, state);
+      state.reAllowed = token.type == "operator" || token.type == "keyword c" || token.type.match(/^[\[{}\(,;:]$/);
       stream.eatSpace();
       return parseJS(token, stream.column(), indent, state);
     },
