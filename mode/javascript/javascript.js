@@ -114,31 +114,6 @@ CodeMirror.addParser("javascript", (function() {
     if (align != null) this.align = align;
   }
 
-  function indentJS(state, textAfter) {
-    var firstChar = textAfter && textAfter.charAt(0), lexical = state.lexical,
-        type = lexical.type, closing = firstChar == type, iu = state.indentUnit;
-    if (type == "vardef") return lexical.indented + 4;
-    else if (type == "form" && firstChar == "{") return lexical.indented;
-    else if (type == "stat" || type == "form") return lexical.indented + iu;
-    else if (lexical.info == "switch" && !closing)
-      return lexical.indented + (/^(?:case|default)\b/.test(textAfter) ? iu : 2 * iu);
-    else if (lexical.align) return lexical.column - (closing ? 1 : 0);
-    else return lexical.indented + (closing ? 0 : iu);
-  }
-
-  function startState(basecolumn, indentUnit) {
-    if (!indentUnit) indentUnit = 2;
-    return {
-      tokenize: jsTokenBase,
-      reAllowed: true,
-      cc: [],
-      lexical: new JSLexical((basecolumn || 0) - indentUnit, 0, "block", false),
-      context: null,
-      indented: 0,
-      indentUnit: indentUnit
-    };
-  }
-
   function inScope(state, varname) {
     var cursor = state.context;
     while (cursor) {
@@ -317,7 +292,19 @@ CodeMirror.addParser("javascript", (function() {
   // Interface
 
   return {
-    startState: startState,
+    startState: function(basecolumn, indentUnit) {
+      if (!indentUnit) indentUnit = 2;
+      return {
+        tokenize: jsTokenBase,
+        reAllowed: true,
+        cc: [],
+        lexical: new JSLexical((basecolumn || 0) - indentUnit, 0, "block", false),
+        context: null,
+        indented: 0,
+        indentUnit: indentUnit
+      };
+    },
+
     token: function(stream, state) {
       var atStart = stream.column() == 0, spaces = stream.eatSpace();
       if (atStart) {
@@ -331,6 +318,17 @@ CodeMirror.addParser("javascript", (function() {
       state.reAllowed = type == "operator" || type == "keyword c" || type.match(/^[\[{}\(,;:]$/);
       return parseJS(state, style, type, content, stream.column());
     },
-    indent: indentJS
+
+    indent: function(state, textAfter) {
+      var firstChar = textAfter && textAfter.charAt(0), lexical = state.lexical,
+        type = lexical.type, closing = firstChar == type, iu = state.indentUnit;
+      if (type == "vardef") return lexical.indented + 4;
+      else if (type == "form" && firstChar == "{") return lexical.indented;
+      else if (type == "stat" || type == "form") return lexical.indented + iu;
+      else if (lexical.info == "switch" && !closing)
+        return lexical.indented + (/^(?:case|default)\b/.test(textAfter) ? iu : 2 * iu);
+      else if (lexical.align) return lexical.column - (closing ? 1 : 0);
+      else return lexical.indented + (closing ? 0 : iu);
+    }
   };
 })());
