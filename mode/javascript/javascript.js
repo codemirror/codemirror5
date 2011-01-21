@@ -1,3 +1,5 @@
+// TODO profile whether using linked objects rather than an array for cc speeds things up
+
 CodeMirror.addParser("javascript", (function() {
   // Tokenizer
 
@@ -41,10 +43,6 @@ CodeMirror.addParser("javascript", (function() {
   }
 
   function jsTokenBase(stream, state) {
-    function readOperator(ch) {
-      return ret("operator", null, ch + stream.eatWhile(isOperatorChar));
-    }
-
     var ch = stream.next();
     if (ch == '"' || ch == "'")
       return chain(stream, state, jsTokenString(ch));
@@ -71,10 +69,10 @@ CodeMirror.addParser("javascript", (function() {
         while (stream.eat(/[gimy]/)); // 'y' is "sticky" option in Mozilla
         return ret("regexp", "js-string");
       }
-      else return readOperator(ch);
+      else return ret("operator", null, ch + stream.eatWhile(isOperatorChar));
     }
     else if (isOperatorChar.test(ch))
-      return readOperator(ch);
+      return ret("operator", null, ch + stream.eatWhile(isOperatorChar));
     else {
       var word = ch + stream.eatWhile(/[\w\$_]/);
       var known = keywords.propertyIsEnumerable(word) && keywords[word];
@@ -141,65 +139,70 @@ CodeMirror.addParser("javascript", (function() {
     };
   }
 
+  function inScope(state, varname) {
+    var cursor = state.context;
+    while (cursor) {
+      if (cursor.vars[varname])
+        return true;
+      cursor = cursor.prev;
+    }
+  }
+
   function parseJS(state, style, type, content, column) {
     var cc = state.cc;
-
-    function pass() {
-      for (var i = arguments.length - 1; i >= 0; i--) cc.push(arguments[i]);
-    }
-    var cx = {
-      state: state,
-      column: column,
-      pass: pass,
-      cont: function(){pass.apply(null, arguments); return true;},
-      register: function(varname) {
-        if (state.context) {
-          cx.marked = "js-variabledef";
-          state.context.vars[varname] = true;
-        }
-      }
-    };
-    function inScope(varname) {
-      var cursor = state.context;
-      while (cursor) {
-        if (cursor.vars[varname])
-          return true;
-        cursor = cursor.prev;
-      }
-    }
+    // Communicate our context to the combinators.
+    // (Less wasteful than consing up a hundred closures on every call.)
+    cx.state = state; cx.column = column; cx.marked = null, cx.cc = cc;
   
     if (!state.lexical.hasOwnProperty("align"))
       state.lexical.align = true;
 
     while(true) {
       var combinator = cc.length ? cc.pop() : state.json ? expression : statement;
-      if (combinator(cx, type, content)) {
+      if (combinator(type, content)) {
         while(cc.length && cc[cc.length - 1].lex)
-          cc.pop()(cx);
+          cc.pop()();
         if (cx.marked) return cx.marked;
-        if (type == "variable" && inScope(content)) return "js-localvariable";
+        if (type == "variable" && inScope(state, content)) return "js-localvariable";
         return style;
       }
     }
   }
 
+  // Combinator utils
+
+  var cx = {state: null, column: null, marked: null, cc: null};
+  function pass() {
+    for (var i = arguments.length - 1; i >= 0; i--) cx.cc.push(arguments[i]);
+  }
+  function cont() {
+    pass.apply(null, arguments);
+    return true;
+  }
+  function register(varname) {
+    if (cx.state.context) {
+      cx.marked = "js-variabledef";
+      cx.state.context.vars[varname] = true;
+    }
+  }
+
   // Combinators
 
-  function pushcontext(cx) {
+  function pushcontext() {
     cx.state.context = {prev: cx.state.context, vars: {"this": true, "arguments": true}};
   }
-  function popcontext(cx) {
+  function popcontext() {
     cx.state.context = cx.state.context.prev;
   }
   function pushlex(type, info) {
-    var result = function(cx) {
+    var result = function() {
       var state = cx.state;
       state.lexical = new JSLexical(state.indented, cx.column, type, null, state.lexical, info)
     };
     result.lex = true;
     return result;
   }
-  function poplex(cx) {
+  function poplex() {
     var state = cx.state;
     if (state.lexical.type == ")")
       state.indented = state.lexical.indented;
@@ -208,107 +211,107 @@ CodeMirror.addParser("javascript", (function() {
   poplex.lex = true;
 
   function expect(wanted) {
-    return function expecting(cx, type) {
-      if (type == wanted) return cx.cont();
+    return function expecting(type) {
+      if (type == wanted) return cont();
       else if (wanted == ";") return;
-      else return cx.cont(arguments.callee);
+      else return cont(arguments.callee);
     };
   }
 
-  function statement(cx, type) {
-    if (type == "var") return cx.cont(pushlex("vardef"), vardef1, expect(";"), poplex);
-    if (type == "keyword a") return cx.cont(pushlex("form"), expression, statement, poplex);
-    if (type == "keyword b") return cx.cont(pushlex("form"), statement, poplex);
-    if (type == "{") return cx.cont(pushlex("}"), block, poplex);
-    if (type == ";") return cx.cont();
-    if (type == "function") return cx.cont(functiondef);
-    if (type == "for") return cx.cont(pushlex("form"), expect("("), pushlex(")"), forspec1, expect(")"),
+  function statement(type) {
+    if (type == "var") return cont(pushlex("vardef"), vardef1, expect(";"), poplex);
+    if (type == "keyword a") return cont(pushlex("form"), expression, statement, poplex);
+    if (type == "keyword b") return cont(pushlex("form"), statement, poplex);
+    if (type == "{") return cont(pushlex("}"), block, poplex);
+    if (type == ";") return cont();
+    if (type == "function") return cont(functiondef);
+    if (type == "for") return cont(pushlex("form"), expect("("), pushlex(")"), forspec1, expect(")"),
                                       poplex, statement, poplex);
-    if (type == "variable") return cx.cont(pushlex("stat"), maybelabel);
-    if (type == "switch") return cx.cont(pushlex("form"), expression, pushlex("}", "switch"), expect("{"),
+    if (type == "variable") return cont(pushlex("stat"), maybelabel);
+    if (type == "switch") return cont(pushlex("form"), expression, pushlex("}", "switch"), expect("{"),
                                          block, poplex, poplex);
-    if (type == "case") return cx.cont(expression, expect(":"));
-    if (type == "default") return cx.cont(expect(":"));
-    if (type == "catch") return cx.cont(pushlex("form"), pushcontext, expect("("), funarg, expect(")"),
+    if (type == "case") return cont(expression, expect(":"));
+    if (type == "default") return cont(expect(":"));
+    if (type == "catch") return cont(pushlex("form"), pushcontext, expect("("), funarg, expect(")"),
                                         statement, poplex, popcontext);
-    return cx.pass(pushlex("stat"), expression, expect(";"), poplex);
+    return pass(pushlex("stat"), expression, expect(";"), poplex);
   }
-  function expression(cx, type) {
-    if (atomicTypes.hasOwnProperty(type)) return cx.cont(maybeoperator);
-    if (type == "function") return cx.cont(functiondef);
-    if (type == "keyword c") return cx.cont(expression);
-    if (type == "(") return cx.cont(pushlex(")"), expression, expect(")"), poplex, maybeoperator);
-    if (type == "operator") return cx.cont(expression);
-    if (type == "[") return cx.cont(pushlex("]"), commasep(expression, "]"), poplex, maybeoperator);
-    if (type == "{") return cx.cont(pushlex("}"), commasep(objprop, "}"), poplex, maybeoperator);
-    return cx.cont();
+  function expression(type) {
+    if (atomicTypes.hasOwnProperty(type)) return cont(maybeoperator);
+    if (type == "function") return cont(functiondef);
+    if (type == "keyword c") return cont(expression);
+    if (type == "(") return cont(pushlex(")"), expression, expect(")"), poplex, maybeoperator);
+    if (type == "operator") return cont(expression);
+    if (type == "[") return cont(pushlex("]"), commasep(expression, "]"), poplex, maybeoperator);
+    if (type == "{") return cont(pushlex("}"), commasep(objprop, "}"), poplex, maybeoperator);
+    return cont();
   }
-  function maybeoperator(cx, type, value) {
-    if (type == "operator" && /\+\+|--/.test(value)) return cx.cont(maybeoperator);
-    if (type == "operator") return cx.cont(expression);
+  function maybeoperator(type, value) {
+    if (type == "operator" && /\+\+|--/.test(value)) return cont(maybeoperator);
+    if (type == "operator") return cont(expression);
     if (type == ";") return;
-    if (type == "(") return cx.cont(pushlex(")"), commasep(expression, ")"), poplex, maybeoperator);
-    if (type == ".") return cx.cont(property, maybeoperator);
-    if (type == "[") return cx.cont(pushlex("]"), expression, expect("]"), poplex, maybeoperator);
+    if (type == "(") return cont(pushlex(")"), commasep(expression, ")"), poplex, maybeoperator);
+    if (type == ".") return cont(property, maybeoperator);
+    if (type == "[") return cont(pushlex("]"), expression, expect("]"), poplex, maybeoperator);
   }
-  function maybelabel(cx, type) {
-    if (type == ":") return cx.cont(poplex, statement);
-    return cx.pass(maybeoperator, expect(";"), poplex);
+  function maybelabel(type) {
+    if (type == ":") return cont(poplex, statement);
+    return pass(maybeoperator, expect(";"), poplex);
   }
-  function property(cx, type) {
-    if (type == "variable") {cx.marked = "js-property"; return cx.cont();}
+  function property(type) {
+    if (type == "variable") {cx.marked = "js-property"; return cont();}
   }
-  function objprop(cx, type) {
+  function objprop(type) {
     if (type == "variable") cx.marked = "js-property";
-    if (atomicTypes.hasOwnProperty(type)) return cx.cont(expect(":"), expression);
+    if (atomicTypes.hasOwnProperty(type)) return cont(expect(":"), expression);
   }
   function commasep(what, end) {
-    function proceed(cx, type) {
-      if (type == ",") return cx.cont(what, proceed);
-      if (type == end) return cx.cont();
-      return cx.cont(expect(end));
+    function proceed(type) {
+      if (type == ",") return cont(what, proceed);
+      if (type == end) return cont();
+      return cont(expect(end));
     }
-    return function commaSeparated(cx, type) {
-      if (type == end) return cx.cont();
-      else return cx.pass(what, proceed);
+    return function commaSeparated(type) {
+      if (type == end) return cont();
+      else return pass(what, proceed);
     };
   }
-  function block(cx, type) {
-    if (type == "}") return cx.cont();
-    return cx.pass(statement, block);
+  function block(type) {
+    if (type == "}") return cont();
+    return pass(statement, block);
   }
-  function vardef1(cx, type, value) {
-    if (type == "variable"){cx.register(value); return cx.cont(vardef2);}
-    return cx.cont();
+  function vardef1(type, value) {
+    if (type == "variable"){register(value); return cont(vardef2);}
+    return cont();
   }
-  function vardef2(cx, type, value) {
-    if (value == "=") return cx.cont(expression, vardef2);
-    if (type == ",") return cx.cont(vardef1);
+  function vardef2(type, value) {
+    if (value == "=") return cont(expression, vardef2);
+    if (type == ",") return cont(vardef1);
   }
-  function forspec1(cx, type) {
-    if (type == "var") return cx.cont(vardef1, forspec2);
-    if (type == ";") return cx.pass(forspec2);
-    if (type == "variable") return cx.cont(formaybein);
-    return cx.pass(forspec2);
+  function forspec1(type) {
+    if (type == "var") return cont(vardef1, forspec2);
+    if (type == ";") return pass(forspec2);
+    if (type == "variable") return cont(formaybein);
+    return pass(forspec2);
   }
-  function formaybein(cx, type, value) {
-    if (value == "in") return cx.cont(expression);
-    return cx.cont(maybeoperator, forspec2);
+  function formaybein(type, value) {
+    if (value == "in") return cont(expression);
+    return cont(maybeoperator, forspec2);
   }
-  function forspec2(cx, type, value) {
-    if (type == ";") return cx.cont(forspec3);
-    if (value == "in") return cx.cont(expression);
-    return cx.cont(expression, expect(";"), forspec3);
+  function forspec2(type, value) {
+    if (type == ";") return cont(forspec3);
+    if (value == "in") return cont(expression);
+    return cont(expression, expect(";"), forspec3);
   }
-  function forspec3(cx, type) {
-    if (type != ")") cx.cont(expression);
+  function forspec3(type) {
+    if (type != ")") cont(expression);
   }
-  function functiondef(cx, type, value) {
-    if (type == "variable") {cx.register(value); return cx.cont(functiondef);}
-    if (type == "(") return cx.cont(pushcontext, commasep(funarg, ")"), statement, popcontext);
+  function functiondef(type, value) {
+    if (type == "variable") {register(value); return cont(functiondef);}
+    if (type == "(") return cont(pushcontext, commasep(funarg, ")"), statement, popcontext);
   }
-  function funarg(cx, type, value) {
-    if (type == "variable") {cx.register(value); return cx.cont();}
+  function funarg(type, value) {
+    if (type == "variable") {register(value); return cont();}
   }
 
   // Interface
