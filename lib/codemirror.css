@@ -8,11 +8,11 @@
   height: 1.2em !important;
   background: black;
   display: none;
+  position: absolute;
 }
 
 .CodeMirror-focused .CodeMirror-cursor {
-  display: inline-block;
-  margin-right: -1px;
+  display: inline;
 }
 
 .CodeMirror-code {
