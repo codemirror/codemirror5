@@ -32,23 +32,31 @@ CodeMirror.addParser("javascript", (function() {
     return escaped;
   }
 
+  // Used as scratch variables to communicate multiple values without
+  // consing up tons of objects.
+  var type, content;
+  function ret(tp, style, cont) {
+    type = tp; content = cont;
+    return style;
+  }
+
   function jsTokenBase(stream, state) {
     function readOperator(ch) {
-      return {type: "operator", style: "js-operator", content: ch + stream.eatWhile(isOperatorChar)};
+      return ret("operator", null, ch + stream.eatWhile(isOperatorChar));
     }
 
     var ch = stream.next();
     if (ch == '"' || ch == "'")
       return chain(stream, state, jsTokenString(ch));
     else if (/[\[\]{}\(\),;\:\.]/.test(ch))
-      return {type: ch, style: "js-punctuation"};
+      return ret(ch);
     else if (ch == "0" && stream.eat(/x/i)) {
       while (stream.eat(/[\da-f]/i));
-      return {type: "number", style: "js-atom"};
+      return ret("number", "js-atom");
     }      
     else if (/\d/.test(ch)) {
       stream.match(/^\d*(?:\.\d*)?(?:e[+\-]?\d+)?/);
-      return {type: "number", style: "js-atom"};
+      return ret("number", "js-atom");
     }
     else if (ch == "/") {
       if (stream.eat("*")) {
@@ -56,12 +64,12 @@ CodeMirror.addParser("javascript", (function() {
       }
       else if (stream.eat("/")) {
         while (stream.next() != null);
-        return {type: "comment", style: "js-comment"};
+        return ret("comment", "js-comment");
       }
       else if (state.reAllowed) {
         nextUntilUnescaped(stream, "/");
         while (stream.eat(/[gimy]/)); // 'y' is "sticky" option in Mozilla
-        return {type: "regexp", style: "js-string"};
+        return ret("regexp", "js-string");
       }
       else return readOperator(ch);
     }
@@ -70,8 +78,8 @@ CodeMirror.addParser("javascript", (function() {
     else {
       var word = ch + stream.eatWhile(/[\w\$_]/);
       var known = keywords.propertyIsEnumerable(word) && keywords[word];
-      return known ? {type: known.type, style: known.style, content: word} :
-                     {type: "variable", style: "js-variable", content: word};
+      return known ? ret(known.type, known.style, word) :
+                     ret("variable", "js-variable", word);
     }
   }
 
@@ -79,7 +87,7 @@ CodeMirror.addParser("javascript", (function() {
     return function(stream, state) {
       if (!nextUntilUnescaped(stream, quote))
         state.tokenize = jsTokenBase;
-      return {type: "string", style: "js-string"};
+      return ret("string", "js-string");
     };
   }
 
@@ -92,7 +100,7 @@ CodeMirror.addParser("javascript", (function() {
       }
       maybeEnd = (ch == "*");
     }
-    return {type: "comment", style: "js-comment"};
+    return ret("comment", "js-comment");
   }
 
   // Parser
@@ -133,8 +141,8 @@ CodeMirror.addParser("javascript", (function() {
     };
   }
 
-  function parseJS(token, column, indent, state) {
-    var cc = state.cc, type = token.type;
+  function parseJS(state, style, type, content, column) {
+    var cc = state.cc;
 
     function pass() {
       for (var i = arguments.length - 1; i >= 0; i--) cc.push(arguments[i]);
@@ -160,25 +168,17 @@ CodeMirror.addParser("javascript", (function() {
       }
     }
   
-    if (indent != null) {
-      if (!state.lexical.hasOwnProperty("align"))
-        state.lexical.align = false;
-      state.indented = indent;
-    }
-    
-    if (type == "whitespace" || type == "comment")
-      return token.style;
     if (!state.lexical.hasOwnProperty("align"))
       state.lexical.align = true;
 
     while(true) {
       var combinator = cc.length ? cc.pop() : state.json ? expression : statement;
-      if (combinator(cx, type, token.content)) {
+      if (combinator(cx, type, content)) {
         while(cc.length && cc[cc.length - 1].lex)
           cc.pop()(cx);
         if (cx.marked) return cx.marked;
-        if (type == "variable" && inScope(token.content)) return "js-localvariable";
-        return token.style;
+        if (type == "variable" && inScope(content)) return "js-localvariable";
+        return style;
       }
     }
   }
@@ -316,12 +316,17 @@ CodeMirror.addParser("javascript", (function() {
   return {
     startState: startState,
     token: function(stream, state) {
-      if (stream.column() == 0)
-        var indent = stream.eatSpace();
-      var token = state.tokenize(stream, state);
-      state.reAllowed = token.type == "operator" || token.type == "keyword c" || token.type.match(/^[\[{}\(,;:]$/);
-      stream.eatSpace();
-      return parseJS(token, stream.column(), indent, state);
+      var atStart = stream.column() == 0, spaces = stream.eatSpace();
+      if (atStart) {
+        if (!state.lexical.hasOwnProperty("align"))
+          state.lexical.align = false;
+        state.indented = spaces;
+      }
+      if (spaces) return null;
+      var style = state.tokenize(stream, state);
+      if (type == "comment") return style;
+      state.reAllowed = type == "operator" || type == "keyword c" || type.match(/^[\[{}\(,;:]$/);
+      return parseJS(state, style, type, content, stream.column());
     },
     indent: indentJS
   };
