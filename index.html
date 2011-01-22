@@ -48,19 +48,19 @@ StringStream.prototype = {
   column: function() {return this.pos;},
   eatSpace: function() {
     var start = this.pos;
-    while (/\s/.test(this.string.charAt(this.pos))) this.pos++;
+    while (/\s/.test(this.string.charAt( this.pos))) this.pos++;
     return this.pos - start;
   },
   match: function(pattern, consume, caseInsensitive) {
     if (typeof pattern == "string") {
       function cased(str) {return caseInsensitive ? str.toLowerCase() : str;}
-      if (cased(this.string).indexOf(cased(pattern), this.pos) == this.pos) {
+      if (cased(this.string).indexOf( cased(pattern), this.pos) == this.pos) {
         if (consume !== false) this.pos += str.length;
         return true;
       }
     }
     else {
-      var match = this.string.slice(this.pos).match(pattern);
+      var match = this.string.slice( this.pos).match(pattern);
       if (match &amp;&amp; consume !== false) this.pos += match[0].length;
       return match;
     }
@@ -68,7 +68,8 @@ StringStream.prototype = {
 };
 </textarea></form>
     <script>
-      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {});
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {textWrapping: true});
+      editor.div.style.width = "20em";
     </script>
   </body>
 </html>

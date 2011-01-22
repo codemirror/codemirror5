@@ -3,31 +3,12 @@
   border: 1px solid black;
 }
 
-.CodeMirror-cursor {
-  width: 1px;
-  height: 1.2em !important;
-  background: black;
-  display: none;
-  position: absolute;
-}
-
-.CodeMirror-focused .CodeMirror-cursor {
-  display: inline;
-}
-
 .CodeMirror-code {
-  position: relative;
-  white-space: pre;
   overflow: auto;
   height: 300px;
   font-family: monospace;
   line-height: 1em;
   padding: .4em;
-}
-
-.CodeMirror-code div {
-  height: 1em;
-  min-width: 1px;
 }
 
 span.CodeMirror-selected {
@@ -37,4 +18,14 @@ span.CodeMirror-selected {
 
 .CodeMirror-focused .CodeMirror-selected {
   background: #88f !important;
+}
+
+/* TODO the cursor should actually show 1px to the right */
+.CodeMirror-focused .CodeMirror-cursor-left {
+  border-left: 1px solid black;
+  margin-left: -1px;
+}
+.CodeMirror-focused .CodeMirror-cursor-right {
+  border-right: 1px solid black;
+  margin-right: -1px;
 }
