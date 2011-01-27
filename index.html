@@ -18,7 +18,8 @@
     and Firefox builds. The JavaScript parser is the only one I've
     ported over.</p>
     <p>Code at <a href="https://github.com/marijnh/codemirror2">https://github.com/marijnh/codemirror2</a>.</p>
-    <form><textarea id="code" style="display: none" name="code">
+    <form><div style="border-top: 1px solid black; border-bottom: 1px solid black;">
+        <textarea id="code" style="display: none" name="code">
 // Demo code (the actual new parser character stream implementation)
 
 function StringStream(string) {
@@ -66,7 +67,7 @@ StringStream.prototype = {
     }
   }
 };
-</textarea></form>
+</textarea></div></form>
     <script>
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {lineNumbers: true});
     </script>
