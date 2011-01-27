@@ -1,15 +1,14 @@
 .CodeMirror {
   position: relative;
-  border: 1px solid black;
 }
 
 .CodeMirror-code {
   overflow: auto;
   height: 300px;
-  font-family: monospace;
-  line-height: 1em;
   padding: .4em;
   white-space: pre;
+  font-family: monospace;
+  line-height: 1em;
 }
 
 span.CodeMirror-selected {
@@ -28,4 +27,14 @@ span.CodeMirror-selected {
   display: inline;
   border-left: 1px solid black;
   margin-left: -1px;
+}
+
+.CodeMirror-line-numbers {
+  float: left;
+  margin: -.4em .4em -.4em -.4em;
+  padding: .4em 0 .4em .4em;
+  background-color: #eee;
+  text-align: right;
+  padding-right: .2em;
+  color: #aaa;
 }
