@@ -33,10 +33,11 @@ span.CodeMirror-selected {
   float: left;
   margin: -.4em .4em -.4em -.4em;
   padding: .4em 0 .4em .4em;
-  background-color: #eee;
+  background-color: #f7f7f7;
   text-align: right;
   padding-right: .2em;
   color: #aaa;
+  border-right: 1px solid #eee;
   min-height: 100%;
   min-width: 1.5em;
 }
