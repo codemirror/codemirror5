@@ -9,6 +9,7 @@
   font-family: monospace;
   line-height: 1em;
   padding: .4em;
+  white-space: pre;
 }
 
 span.CodeMirror-selected {
@@ -20,12 +21,11 @@ span.CodeMirror-selected {
   background: #88f !important;
 }
 
-/* TODO the cursor should actually show 1px to the right */
-.CodeMirror-focused .CodeMirror-cursor-left {
+.CodeMirror-cursor {
+  display: none;
+}
+.CodeMirror-focused .CodeMirror-cursor {
+  display: inline;
   border-left: 1px solid black;
   margin-left: -1px;
-}
-.CodeMirror-focused .CodeMirror-cursor-right {
-  border-right: 1px solid black;
-  margin-right: -1px;
 }
