@@ -292,8 +292,8 @@ CodeMirror.addParser("javascript", (function() {
   // Interface
 
   return {
-    startState: function(basecolumn, indentUnit) {
-      if (!indentUnit) indentUnit = 2;
+    startState: function(options, basecolumn) {
+      var indentUnit = options.indentUnit || 2;
       return {
         tokenize: jsTokenBase,
         reAllowed: true,
