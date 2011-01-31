@@ -72,6 +72,11 @@ StringStream.prototype = {
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true
       });
+      function search(q) {
+        var c = editor.getSearchCursor(q, "cursor");
+        if (c.findNext()) c.select();
+        return c;
+      }
     </script>
   </body>
 </html>
