@@ -21,10 +21,10 @@ span.CodeMirror-selected {
 }
 
 .CodeMirror-cursor {
-  display: none;
+  visibility: hidden;
 }
 .CodeMirror-focused .CodeMirror-cursor {
-  display: inline;
+  visibility: visible;
   border-left: 1px solid black;
   margin-left: -1px;
 }
