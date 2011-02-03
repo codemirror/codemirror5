@@ -22,8 +22,8 @@ span.CodeMirror-selected {
 
 .CodeMirror-cursor {
   visibility: hidden;
-  border-left: 1px solid black;
-  margin-left: -1px;
+  border-right: 1px solid black;
+  margin-right: -1px;
   width: 0px;
   _display: inline-block;
   _width: 0px;
