@@ -9,6 +9,7 @@
   white-space: pre;
   font-family: monospace;
   line-height: 1em;
+  position: relative;
 }
 
 span.CodeMirror-selected {
@@ -30,15 +31,14 @@ span.CodeMirror-selected {
   visibility: visible;
 }
 
-.CodeMirror-line-numbers {
+.CodeMirror-gutter {
   float: left;
-  margin: -.4em .4em -.4em -.4em;
-  padding: .4em 0 .4em .4em;
   background-color: #f7f7f7;
-  text-align: right;
-  padding-right: .2em;
-  color: #aaa;
   border-right: 1px solid #eee;
-  min-height: 100%;
+  color: #aaa;
+  text-align: right;
   min-width: 1.5em;
+  padding: .4em .2em;
+  margin: -.4em 0 -.4em -.4em;
+  height: 100%;
 }
