@@ -14,11 +14,11 @@
 
 span.CodeMirror-selected {
   background: #bbb !important;
-  color: white !important;
+  color: HighlightText !important;
 }
 
 .CodeMirror-focused .CodeMirror-selected {
-  background: #88f !important;
+  background: Highlight !important;
 }
 
 .CodeMirror-cursor {
