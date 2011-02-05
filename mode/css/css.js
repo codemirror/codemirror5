@@ -1,5 +1,5 @@
-CodeMirror.addParser("css", (function() {
-  var type;
+CodeMirror.addParser("css", function(config) {
+  var indentUnit = config.indentUnit, type;
   function ret(style, tp) {type = tp; return style;}
 
   function tokenBase(stream, state) {
@@ -81,9 +81,8 @@ CodeMirror.addParser("css", (function() {
   }
 
   return {
-    startState: function(base, indentUnit) {
+    startState: function(base) {
       return {tokenize: tokenBase,
-              indentUnit: indentUnit || 2,
               baseIndent: base || 0,
               inBraces: false, inRule: false, inDecl: false};
     },
@@ -117,8 +116,8 @@ CodeMirror.addParser("css", (function() {
 
     indent: function(state, textAfter) {
       if (!state.inBraces || /^\}/.test(textAfter)) return state.baseIndent;
-      else if (state.inRule) return state.baseIndent + state.indentUnit * 2;
-      else return state.baseIndent + state.indentUnit;
+      else if (state.inRule) return state.baseIndent + indentUnit * 2;
+      else return state.baseIndent + indentUnit;
     }
   };
-})());
+});

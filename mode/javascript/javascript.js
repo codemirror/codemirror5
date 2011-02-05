@@ -1,6 +1,8 @@
 // TODO profile whether using linked objects rather than an array for cc speeds things up
 
-CodeMirror.addParser("javascript", (function() {
+CodeMirror.addParser("javascript", function(config) {
+  var indentUnit = config.indentUnit;
+
   // Tokenizer
 
   var keywords = function(){
@@ -292,16 +294,14 @@ CodeMirror.addParser("javascript", (function() {
   // Interface
 
   return {
-    startState: function(options, basecolumn) {
-      var indentUnit = options.indentUnit || 2;
+    startState: function(basecolumn) {
       return {
         tokenize: jsTokenBase,
         reAllowed: true,
         cc: [],
         lexical: new JSLexical((basecolumn || 0) - indentUnit, 0, "block", false),
         context: null,
-        indented: 0,
-        indentUnit: indentUnit
+        indented: 0
       };
     },
 
@@ -321,14 +321,14 @@ CodeMirror.addParser("javascript", (function() {
 
     indent: function(state, textAfter) {
       var firstChar = textAfter && textAfter.charAt(0), lexical = state.lexical,
-        type = lexical.type, closing = firstChar == type, iu = state.indentUnit;
+          type = lexical.type, closing = firstChar == type;
       if (type == "vardef") return lexical.indented + 4;
       else if (type == "form" && firstChar == "{") return lexical.indented;
-      else if (type == "stat" || type == "form") return lexical.indented + iu;
+      else if (type == "stat" || type == "form") return lexical.indented + indentUnit;
       else if (lexical.info == "switch" && !closing)
-        return lexical.indented + (/^(?:case|default)\b/.test(textAfter) ? iu : 2 * iu);
+        return lexical.indented + (/^(?:case|default)\b/.test(textAfter) ? indentUnit : 2 * indentUnit);
       else if (lexical.align) return lexical.column - (closing ? 1 : 0);
-      else return lexical.indented + (closing ? 0 : iu);
+      else return lexical.indented + (closing ? 0 : indentUnit);
     }
   };
-})());
+});
