@@ -38,7 +38,7 @@ span.CodeMirror-selected {
   color: #aaa;
   text-align: right;
   min-width: 1.5em;
-  padding: .4em .2em;
+  padding: .4em .2em .4em .4em;
   margin: -.4em 0 -.4em -.4em;
   height: 100%;
 }
