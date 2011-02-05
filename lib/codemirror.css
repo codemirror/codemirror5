@@ -42,3 +42,12 @@ span.CodeMirror-selected {
   margin: -.4em 0 -.4em -.4em;
   height: 100%;
 }
+
+.CodeMirror-matchingbracket {
+  font-weight: bold;
+  color: #6f6;
+}
+.CodeMirror-nonmatchingbracket {
+  font-weight: bold;
+  color: #f66;
+}
