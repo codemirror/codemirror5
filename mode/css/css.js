@@ -20,7 +20,7 @@ CodeMirror.addParser("css", function(config) {
       return state.tokenize(stream, state);
     }
     else if (ch == "#") {
-      while (stream.eat(/\w/));
+      stream.eatWhile(/\w/);
       return ret("css-hash", "hash");
     }
     else if (ch == "!") {
@@ -28,7 +28,7 @@ CodeMirror.addParser("css", function(config) {
       return ret("css-important", "important");
     }
     else if (/\d/.test(ch)) {
-      while (stream.eat(/[\w.%]/));
+      stream.eatWhile(/[\w.%]/);
       return ret("css-unit", "unit");
     }
     else if (/[,.+>*\/]/.test(ch)) {
@@ -38,7 +38,7 @@ CodeMirror.addParser("css", function(config) {
       return ret(null, ch);
     }
     else {
-      while (stream.eat(/[\w\\\-_]/));
+      stream.eatWhile(/[\w\\\-_]/);
       return ret("css-identifier", "identifier");
     }
   }

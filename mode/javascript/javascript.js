@@ -1,5 +1,5 @@
 // TODO profile whether using linked objects rather than an array for cc speeds things up
-
+// TODO JSON mode
 CodeMirror.addParser("javascript", function(config) {
   var indentUnit = config.indentUnit;
 
@@ -51,7 +51,7 @@ CodeMirror.addParser("javascript", function(config) {
     else if (/[\[\]{}\(\),;\:\.]/.test(ch))
       return ret(ch);
     else if (ch == "0" && stream.eat(/x/i)) {
-      while (stream.eat(/[\da-f]/i));
+      stream.eatWhile(/[\da-f]/i);
       return ret("number", "js-atom");
     }      
     else if (/\d/.test(ch)) {
@@ -68,16 +68,21 @@ CodeMirror.addParser("javascript", function(config) {
       }
       else if (state.reAllowed) {
         nextUntilUnescaped(stream, "/");
-        while (stream.eat(/[gimy]/)); // 'y' is "sticky" option in Mozilla
+        stream.eatWhile(/[gimy]/); // 'y' is "sticky" option in Mozilla
         return ret("regexp", "js-string");
       }
-      else return ret("operator", null, ch + stream.eatWhile(isOperatorChar));
+      else {
+        stream.eatWhile(isOperatorChar);
+        return ret("operator", null, stream.current());
+      }
     }
-    else if (isOperatorChar.test(ch))
-      return ret("operator", null, ch + stream.eatWhile(isOperatorChar));
+    else if (isOperatorChar.test(ch)) {
+      stream.eatWhile(isOperatorChar);
+      return ret("operator", null, stream.current());
+    }
     else {
-      var word = ch + stream.eatWhile(/[\w\$_]/);
-      var known = keywords.propertyIsEnumerable(word) && keywords[word];
+      stream.eatWhile(/[\w\$_]/);
+      var word = stream.current(), known = keywords.propertyIsEnumerable(word) && keywords[word];
       return known ? ret(known.type, known.style, word) :
                      ret("variable", "js-variable", word);
     }
