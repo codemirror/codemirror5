@@ -164,9 +164,11 @@ CodeMirror.addParser("xml", function(config, parserConfig) {
     },
 
     token: function(stream, state) {
-      var startCol = stream.column(), space = stream.eatSpace();
-      if (startCol == 0) {state.startOfLine = true; state.indented = space;}
-      if (space) return null;
+      if (!stream.column()) {
+        state.startOfLine = true;
+        state.indented = stream.indentation();
+      }
+      if (stream.eatSpace()) return null;
 
       setStyle = type = tagName = null;
       var style = state.tokenize(stream, state);

@@ -311,13 +311,12 @@ CodeMirror.addParser("javascript", function(config) {
     },
 
     token: function(stream, state) {
-      var atStart = stream.column() == 0, spaces = stream.eatSpace();
-      if (atStart) {
+      if (!stream.column()) {
         if (!state.lexical.hasOwnProperty("align"))
           state.lexical.align = false;
-        state.indented = spaces;
+        state.indented = stream.indentation();
       }
-      if (spaces) return null;
+      if (stream.eatSpace()) return null;
       var style = state.tokenize(stream, state);
       if (type == "comment") return style;
       state.reAllowed = type == "operator" || type == "keyword c" || type.match(/^[\[{}\(,;:]$/);
