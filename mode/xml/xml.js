@@ -46,6 +46,7 @@ CodeMirror.addParser("xml", function(config, parserConfig) {
     }
     else if (ch == "&") {
       stream.eatWhile(/[^;]/);
+      stream.eat(";");
       return "xml-entity";
     }
     else {
