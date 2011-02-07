@@ -6,9 +6,6 @@
   overflow: auto;
   height: 300px;
   padding: .4em;
-  white-space: pre;
-  font-family: monospace;
-  line-height: 1em;
   position: relative;
 }
 
@@ -25,7 +22,7 @@ span.CodeMirror-selected {
   z-index: 10;
   position: absolute;
   visibility: hidden;
-  border-left: 1px solid black;
+  border-left: 1px solid black !important;
 }
 .CodeMirror-focused .CodeMirror-cursor {
   visibility: visible;
@@ -44,10 +41,13 @@ span.CodeMirror-selected {
 }
 
 .CodeMirror-matchingbracket {
-  font-weight: bold;
   color: #6f6;
 }
 .CodeMirror-nonmatchingbracket {
-  font-weight: bold;
   color: #f66;
+}
+
+.CodeMirror pre {
+  border-width: 0; margin: 0; padding: 0; background: transparent;
+  line-height: 1em;
 }
