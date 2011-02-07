@@ -95,7 +95,8 @@ StringStream.prototype = {
     <script>
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true,
-        autoMatchBrackets: true
+        autoMatchBrackets: true,
+      onGutterClick: function(x){console.log(x);}
       });
     </script>
   </body>
