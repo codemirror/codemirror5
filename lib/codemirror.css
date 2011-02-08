@@ -1,21 +1,29 @@
 .CodeMirror {
   position: relative;
+  overflow: auto;
+  height: 300px;
+  line-height: 1em;
 }
 
 .CodeMirror-code {
-  overflow: auto;
-  height: 300px;
-  padding: .4em;
   position: relative;
 }
 
-span.CodeMirror-selected {
-  background: #ccc !important;
-  color: HighlightText !important;
+.CodeMirror-gutter {
+  position: absolute; left: 0; top: 0;
+  background-color: #f7f7f7;
+  border-right: 1px solid #eee;
+  color: #aaa;
+  text-align: right;
+  min-width: 1.2em;
+  padding: .4em .2em;
+}
+.CodeMirror-lines {
+  padding: .4em;
 }
 
-.CodeMirror-focused .CodeMirror-selected {
-  background: Highlight !important;
+.CodeMirror pre {
+  border-width: 0; margin: 0; padding: 0; background: transparent;
 }
 
 .CodeMirror-cursor {
@@ -28,26 +36,14 @@ span.CodeMirror-selected {
   visibility: visible;
 }
 
-.CodeMirror-gutter {
-  float: left;
-  background-color: #f7f7f7;
-  border-right: 1px solid #eee;
-  color: #aaa;
-  text-align: right;
-  min-width: 1.5em;
-  padding: .4em .2em .4em .4em;
-  margin: -.4em 0 -.4em -.4em;
-  height: 100%;
+span.CodeMirror-selected {
+  background: #ccc !important;
+  color: HighlightText !important;
+}
+.CodeMirror-focused span.CodeMirror-selected {
+  background: Highlight !important;
 }
 
-.CodeMirror-matchingbracket {
-  color: #6f6;
-}
-.CodeMirror-nonmatchingbracket {
-  color: #f66;
-}
 
-.CodeMirror pre {
-  border-width: 0; margin: 0; padding: 0; background: transparent;
-  line-height: 1em;
-}
+.CodeMirror-matchingbracket {color: #6f6;}
+.CodeMirror-nonmatchingbracket {color: #f66;}
