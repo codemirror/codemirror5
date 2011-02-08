@@ -34,14 +34,14 @@
     <p>CodeMirror works with language-specific modes. Modes are
     JavaScript programs that help color (and optionally indent) text
     written in a given language. The distribution comes with a few
-    modes, and it isn't hard to <a href="#modeapi">write new ones</a>
-    for other languages.</p>
+    modes (see the <code>mode/</code> directory), and it isn't hard
+    to <a href="#modeapi">write new ones</a> for other languages.</p>
 
     <h2 id="usage">Basic Usage</h2>
 
     <p>The easiest way to use CodeMirror is to simply load the script
-    and stylesheet found under <code>lib/</code> in the distrubution,
-    plus the script and stylesheet for the mode you want to use. For
+    and style sheet found under <code>lib/</code> in the distribution,
+    plus the script and style sheet for the mode you want to use. For
     example:</p>
 
     <pre>&lt;script src="lib/codemirror.js">&lt;/script>
@@ -122,7 +122,7 @@
 
       <dt id="option_indentUnit"><code>indentUnit (integer)</code></dt>
       <dd>How many spaces a block (whatever that means in the edited
-      langauge) should be indented. The default is 2.</dd>
+      language) should be indented. The default is 2.</dd>
 
       <dt id="option_indentWithTabs"><code>indentWithTabs (boolean)</code></dt>
       <dd>Whether, when indenting, the first N*8 spaces should be
@@ -202,7 +202,7 @@
       work for <code>workTime</code> milliseconds, and then use
       timeout to sleep for <code>workDelay</code> milliseconds. The
       defaults are 200 and 300, you can change these options to make
-      the highlighting more or less agressive.</dd>
+      the highlighting more or less aggressive.</dd>
 
       <dt id="option_undoDepth"><code>undoDepth (integer)</code></dt>
       <dd>The maximum number of undo levels that the editor stores.
@@ -276,7 +276,7 @@
     fixed height. Also, you must still take care that character width
     is constant.</p>
 
-    <p>If your page's stylesheets do funky things to
+    <p>If your page's style sheets do funky things to
     all <code>div</code> or <code>pre</code> elements (you probably
     shouldn't do that), you'll have to define rules to cancel these
     effects out again for elements under the <code>CodeMirror</code>
@@ -361,7 +361,7 @@
       <dd>Add a gutter marker for the given line. Gutter markers are
       shown in the line-number area (instead of the number for this
       line). Both <code>text</code> and <code>className</code> are
-      optional. Setting <code>text</code> to a Unicode characer like ◆
+      optional. Setting <code>text</code> to a Unicode character like ◆
       tends to give a nice effect. To put a picture in the gutter,
       set <code>text</code> to a space and <code>className</code> to
       something that sets a background image.</dd>
@@ -426,10 +426,10 @@
       ensure CodeMirror is still looking as intended.</dd>
 
       <dt id="getInputField"><code>getInputField() → textarea</code></dt>
-      <dd>When register key handlers, you'll want to register them on
-      the DOM element returned by this method. It will have focus
-      whenver the editor is focused, so all key events go through
-      it.</dd>
+      <dd>When registering key handlers on the editor, you should
+      register them on the DOM element returned by this method. It
+      will have focus whenever the editor is focused, so all key events
+      go through it.</dd>
     </dl>
 
     <p id="fromTextArea">Finally, the <code>CodeMirror</code> object
