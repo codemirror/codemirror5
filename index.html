@@ -61,42 +61,27 @@ StringStream.prototype = {
 };
 </textarea></div></form>
 
-    <p>This is a project aiming to create a CodeMirror-style component
-    without using an IFRAME. CodeMirror 1, with its editable frame,
-    still works pretty well but...</p>
-
-    <ul>
-      <li>the lack of control over the actual frame content makes some things really hard to do and/or slow</li>
-      <li>the frame makes the API unnecessarily awkward—it has to load asynchronously, and, for example, can't be moved around the DOM</li>
-      <li>editable elements are a shady area of browser functionality that is full of bugs</li>
-      <li>(the same goes for controlling selection in arbitrary DOM structures)</li>
-      <li>some of the design decisions I made in the original implementation make things slower than they have to be</li>
-      <li>the complexity of the code, both from work-around cruft and from the inherent trickiness of having the DOM be your data representation, make it hard to modify at this point</li>
-    </ul>
-
-    <p>So this is a from-scratch implementation, using non-editable
-    DOM elements for presentation, and a hidden textarea for input and
-    local cursor motion. It aims to be:</p>
-
-    <ul>
-      <li>really small</li>
-      <li>simple to use (almost no custom keybindings)</li>
-      <li>so generic that it can be embedded everywhere</li>
-      <li>fast enough to work with huge files (on modern browsers)</li>
-    </ul>
-
-    <p>One thing it won't do is support line-wrapping. I've spent a
-    few days investigating this, and had to conclude that the slowdown
-    and increased flakiness of supporting line-wrapping isn't going to
-    be worth it.</p>
-
-    <p>Code at <a href="https://github.com/marijnh/codemirror2">https://github.com/marijnh/codemirror2</a>.</p>
-    
     <script>
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true,
         matchBrackets: true
       });
     </script>
+
+    <h3>CodeMirror 2 has entered beta!</h3>
+
+    <p>Beta 1 was released on February 8th 2011. There are no release
+    files yet, just
+    a <a href="https://github.com/marijnh/codemirror2/tree/beta1">git
+    tag</a>.</p>
+
+    <p>There is now a <a href="manual.html">manual</a>, and you are
+    encouraged to try the library out and leave bug reports at
+    the <a href="https://github.com/marijnh/codemirror2/issues">github
+    issue tracker</a> (anything from the editor behaving badly to a
+    typo in the docs).</p>
+
+    <p>Code at <a href="https://github.com/marijnh/codemirror2">https://github.com/marijnh/codemirror2</a>.</p>
+    
   </body>
 </html>
