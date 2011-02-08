@@ -1,0 +1,459 @@
+<!doctype html>
+<html>
+  <head>
+    <title>CodeMirror 2 Manual</title>
+    <style type="text/css">
+      body {max-width: 70em; margin-left: 2em; font-family: tahoma, arial, sans-serif;}
+      pre {margin-left: 2em;}
+      dl dl {margin: 0;}
+    </style>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  </head>
+  <body>
+    <h1>CodeMirror 2: The provisionary manual</h1>
+
+    <h2>Contents</h2>
+
+    <ul>
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#usage">Basic Usage</a></li>
+      <li><a href="#config">Configuration</a></li>
+      <li><a href="#styling">Customized Styling</a></li>
+      <li><a href="#api">Programming API</a></li>
+      <li><a href="#modeapi">Writing CodeMirror Modes</a></li>
+    </ul>
+
+    <h2 id="overview">Overview</h2>
+
+    <p>CodeMirror is a code-editor component that can be embedded in
+    Web pages. It provides <em>only</em> the editor component, no
+    accompanying buttons, auto-completion, or other IDE functionality.
+    It does provide a rich API on top of which such functionality can
+    be straightforwardly implemented.</p>
+
+    <p>CodeMirror works with language-specific modes. Modes are
+    JavaScript programs that help color (and optionally indent) text
+    written in a given language. The distribution comes with a few
+    modes, and it isn't hard to <a href="#modeapi">write new ones</a>
+    for other languages.</p>
+
+    <h2 id="usage">Basic Usage</h2>
+
+    <p>The easiest way to use CodeMirror is to simply load the script
+    and stylesheet found under <code>lib/</code> in the distrubution,
+    plus the script and stylesheet for the mode you want to use. For
+    example:</p>
+
+    <pre>&lt;script src="lib/codemirror.js">&lt;/script>
+&lt;link rel="stylesheet" href="lib/codemirror.css">
+&lt;script src="mode/javascript/javascript.js">&lt;/script>
+&lt;link rel="stylesheet" href="mode/javascript/javascript.css"></pre>
+
+    <p>Having done this, an editor instance can be created like
+    this:</p>
+
+    <pre>var myCodeMirror = new CodeMirror(document.body);</pre>
+
+    <p>The editor will be appended to the document body, will start
+    empty, and will use the mode that we loaded. To have more control
+    over the new editor, a configuration object can be passed to the
+    constructor as a second argument:</p>
+
+    <pre>var myCodeMirror = new CodeMirror(document.body, {
+  value: "function myScript(){return 100;}\n",
+  mode:  "javascript"
+});</pre>
+
+    <p>This will initialize the editor with a piece of code already in
+    it, and explicitly tell it to use the JavaScript mode (which is
+    useful when multiple modes are loaded).
+    See <a href="#config">below</a> for a full discussion of the
+    configuration options that CodeMirror accepts.</p>
+
+    <p>In cases where you don't want to append the editor to an
+    element, and need more control over the way it is inserted, the
+    first argument to the <code>CodeMirror</code> constructor can also
+    be a function that, when given a DOM element, inserts it into the
+    document somewhere. This could be used to, for example, replace a
+    textarea with a real editor:</p>
+
+    <pre>var myCodeMirror = new CodeMirror(function(elt) {
+  myTextArea.parentNode.replaceChild(myTextArea, elt);
+}, {value: myTextArea.value});</pre>
+
+    <p>However, for this use case, which is a common way to use
+    CodeMirror, the library provides a much more powerful
+    shortcut:</p>
+
+    <pre>var myCodeMirror = CodeMirror.fromTextArea(myTextArea);</pre>
+
+    <p>This will, among other things, ensure that the textarea's value
+    is updated when the form (if it is part of a form) is submitted.
+    See the <a href="#fromTextArea">API reference</a> for a full
+    description of this method.</p>
+
+    <h2 id="config">Configuration</h2>
+
+    <p>Both the <code>CodeMirror</code> constructor and
+    the <code>fromTextArea</code> method take as second (optional)
+    argument an object containing configuration options. Any option
+    not supplied like this will be taken
+    from <code>CodeMirror.defaults</code>, an object containing the
+    default options. You can update this object to change the defaults
+    on your page.</p>
+
+    <p>Options are not checked in any way, so setting bogus options is
+    bound to lead to odd errors.</p>
+
+    <p>These are the supported options:</p>
+
+    <dl>
+      <dt id="option_value"><code>value (string)</code></dt>
+      <dd>The starting value of the editor.</dd>
+
+      <dt id="option_mode"><code>mode (string or object)</code></dt>
+      <dd>The mode to use. When not given, this will default to the
+      first mode that was loaded. It can be a string, which simply
+      names the mode, or an object containing configuration options
+      for the mode, with a <code>name</code> property that names the
+      mode (for example <code>{name: "javascript", json:
+      true}</code>). The demo pages for each mode contain information
+      about what configuration parameters the mode supports.</dd>
+
+      <dt id="option_indentUnit"><code>indentUnit (integer)</code></dt>
+      <dd>How many spaces a block (whatever that means in the edited
+      langauge) should be indented. The default is 2.</dd>
+
+      <dt id="option_indentWithTabs"><code>indentWithTabs (boolean)</code></dt>
+      <dd>Whether, when indenting, the first N*8 spaces should be
+      replaced by N tabs. Default is false.</dd>
+
+      <dt id="option_tabMode"><code>tabMode (string)</code></dt>
+      <dd>Determines what happens when the user presses the tab key.
+      Must be one of the following:
+        <dl>
+          <dt><code>"classic" (the default)</code></dt>
+          <dd>When nothing is selected, insert a tab. Otherwise,
+          behave like the <code>"shift"</code> mode.</dd>
+          <dt><code>"shift"</code></dt>
+          <dd>Indent all selected lines by
+          one <a href="#option_indentUnit"><code>indentUnit</code></a>.
+          If shift was held while pressing tab, un-indent all selected
+          lines one unit.</dd>
+          <dt><code>"indent"</code></dt>
+          <dd>Indent the line the 'correctly', based on its syntactic
+          context. Only works if the
+          mode <a href="#indent">supports</a> it.</dd>
+          <dt><code>"default"</code></dt>
+          <dd>Do not capture tab presses, let the browser apply its
+          default behaviour (which usually means it skips to the next
+          control).</dd>
+        </dl></dd>
+
+      <dt id="option_enterMode"><code>enterMode (string)</code></dt>
+      <dd>Determines whether and how new lines are indented when the
+      enter key is pressed. The following modes are supported:
+        <dl>
+          <dt><code>"indent" (the default)</code></dt>
+          <dd>Use the mode's indentation rules to give the new line
+          the correct indentation.</dd>
+          <dt><code>"keep"</code></dt>
+          <dd>Indent the line the same as the previous line.</dd>
+          <dt><code>"flat"</code></dt>
+          <dd>Do not indent the new line.</dd>
+        </dl></dd>
+
+      <dt id="option_lineNumbers"><code>lineNumbers</code> (boolean)</dt>
+      <dd>Whether to show line numbers to the left of the editor.</dd>
+
+      <dt id="option_firstLineNumber"><code>firstLineNumber</code> (integer)</dt>
+      <dd>At which number to start counting lines. Default is 1.</dd>
+
+      <dt id="option_gutter"><code>gutter (boolean)</code></dt>
+      <dd>Can be used to force a 'gutter' (empty space on the left of
+      the editor) to be shown even when no line numbers are active.
+      This is useful for setting <a href="#setMarker">markers</a>.</dd>
+
+      <dt id="option_readOnly"><code>readOnly (boolean)</code></dt>
+      <dd>This disables editing of the editor content by the user.
+      (Changes through API functions will still be possible.)</dd>
+
+      <dt id="option_onChange"><code>onChange (function)</code></dt>
+      <dd>When given, this function will be called every time the
+      content of the editor is changed. It will be given the editor
+      instance as only argument.</dd>
+
+      <dt id="option_onCursorActivity"><code>onCursorActivity (function)</code></dt>
+      <dd>Like <code>onChange</code>, but will also be called when the
+      cursor moves without any changes being made.</dd>
+
+      <dt id="option_onGutterClick"><code>onGutterClick (function)</code></dt>
+      <dd>When given, will be called whenever the editor gutter (the
+      line-number area) is clicked. Will be given the editor instance
+      as first argument, and the (zero-based) number of the line that
+      was clicked as second argument.</dd>
+
+      <dt id="option_matchBrackets"><code>matchBrackets (boolean)</code></dt>
+      <dd>Determines whether brackets are matched whenever the cursor
+      is moved next to a bracket.</dd>
+
+      <dt id="option_workTime"><code>workTime, workDelay (number)</code></dt>
+      <dd>Highlighting is done by a pseudo background-thread that will
+      work for <code>workTime</code> milliseconds, and then use
+      timeout to sleep for <code>workDelay</code> milliseconds. The
+      defaults are 200 and 300, you can change these options to make
+      the highlighting more or less agressive.</dd>
+
+      <dt id="option_undoDepth"><code>undoDepth (integer)</code></dt>
+      <dd>The maximum number of undo levels that the editor stores.
+      Defaults to 40.</dd>
+
+      <dt id="option_tabindex"><code>tabindex (integer)</code></dt>
+      <dd>The <a href="http://www.w3.org/TR/html401/interact/forms.html#adef-tabindex">tab
+      index</a> to assign to the editor. If not given, no tab index
+      will be assigned.</dd>
+    </dl>
+
+    <h2 id="styling">Customized Styling</h2>
+
+    <p>Up to a certain extent, CodeMirror's look can be changed by
+    modifying style sheet files. The style sheets supplied by modes
+    simply provide the colors for that mode, and can be adapted in a
+    very straightforward way. To style the editor itself, it is
+    possible to
+    alter <a href="lib/codemirror.css"><code>codemirror.css</code></a>.</p>
+
+    <p>Some care must be taken there, since a lot of the rules in this
+    file are necessary to have CodeMirror function properly. Adjusting
+    colors should be safe, of course, and with some care a lot of
+    other things can be changed as well. The CSS classes defined in
+    this file serve the following roles:</p>
+
+    <dl>
+      <dt id="class_CodeMirror"><code>CodeMirror</code></dt>
+      <dd>The outer element of the editor. This determines whether the
+      editor scrolls (<code>overflow: auto</code> + fixed height). Can
+      also be used to set styles that should hold for everything
+      inside the editor, or to set a background.</dd>
+
+      <dt id="class_CodeMirror_focused"><code>CodeMirror-focused</code></dt>
+      <dd>Whenever the editor is focused, the top element gets this
+      class. This is used to hide the cursor and give the selection a
+      different color when the editor is not focused.</dd>
+
+      <dt id="class_CodeMirror_gutter"><code>CodeMirror-gutter</code></dt>
+      <dd>The gutter. You can give this any width or padding you want,
+      as long as the vertical padding corresponds to that of
+      the <code>CodeMirror-lines</code> class. Also, for the numbers
+      to line up, you'll want them to use exactly the same font as
+      normal edited text in <code>CodeMirror-lines</code>. By default,
+      the gutter is 'fluid', meaning it will adjust its width to the
+      maximum line number or line marker width. You can also set a
+      fixed width if you want.</dd>
+
+      <dt id="class_CodeMirror_lines"><code>CodeMirror-lines</code></dt>
+      <dd>The visible lines. If this has vertical
+      padding, <code>CodeMirror-gutter</code> should have the same
+      padding.</dd>
+
+      <dt id="class_CodeMirror_cursor"><code>CodeMirror-cursor</code></dt>
+      <dd>The cursor is a block element that is absolutely positioned.
+      You can make it look whichever way you want.</dd>
+
+      <dt id="class_CodeMirror_selected"><code>CodeMirror-selected</code></dt>
+      <dd>The selection is represented by <code>span</code> elements
+      with this class.</dd>
+
+      <dt id="class_CodeMirror_matchingbracket"><code>CodeMirror-matchingbracket</code>,
+        <code>CodeMirror-matchingbracket</code></dt>
+      <dd>These are used to style matched (or unmatched) brackets.</dd>
+    </dl>
+
+    <p>The actual lines, as well as the cursor, are represented
+    by <code>pre</code> elements. By default no text styling (such as
+    bold) that might change line height is applied. If you do want
+    such effects, you'll have to give <code>CodeMirror pre</code> a
+    fixed height. Also, you must still take care that character width
+    is constant.</p>
+
+    <p>If your page's stylesheets do funky things to
+    all <code>div</code> or <code>pre</code> elements (you probably
+    shouldn't do that), you'll have to define rules to cancel these
+    effects out again for elements under the <code>CodeMirror</code>
+    class.</p>
+
+    <h2 id="api">Programming API</h2>
+
+    <p>A lot of CodeMirror features are only available through its API.
+    This has the disadvantage that you need to do work to enable them,
+    and the advantage that CodeMirror will fit seamlessly into your
+    application.</p>
+
+    <p>Whenever points in the document are represented, the API uses
+    objects with <code>line</code> and <code>ch</code> properties.
+    Both are zero-based. CodeMirror makes sure to 'clip' any positions
+    passed by client code so that they fit inside the document, so you
+    shouldn't worry too much about sanitizing your coordinates.</p>
+
+    <dl>
+      <dt id="getValue"><code>getValue() → string</code></dt>
+      <dd>Get the current editor content.</dd>
+      <dt id="setValue"><code>setValue(string)</code></dt>
+      <dd>Set the editor content.</dd>
+
+      <dt id="getSelection"><code>getSelection() → string</code></dt>
+      <dd>Get the currently selected code.</dd>
+      <dt id="replaceSelection"><code>replaceSelection(string)</code></dt>
+      <dd>Replace the selection with the given string.</dd>
+
+      <dt id="focus"><code>focus()</code></dt>
+      <dd>Give the editor focus.</dd>
+
+      <dt id="setOption"><code>setOption(option, value)</code></dt>
+      <dd>Change the configuration of the editor. <code>option</code>
+      should the name of an <a href="#config">option</a>,
+      and <code>value</code> should be a valid value for that
+      option.</dd>
+
+      <dt id="cursorCoords"><code>cursorCoords(start) → object</code></dt>
+      <dd>Returns an <code>{x, y, yBot}</code> object containing the
+      coordinates of the cursor relative to the top-left corner of the
+      page. <code>yBot</code> is the coordinate of the bottom of the
+      cursor. <code>start</code> is a boolean indicating whether you
+      want the start or the end of the selection.</dd>
+
+      <dt id="undo"><code>undo()</code></dt>
+      <dd>Undo one edit (if any undo events are stored).</dd>
+      <dt id="redo"><code>redo()</code></dt>
+      <dd>Redo one undone edit.</dd>
+
+      <dt id="getSearchCursor"><code>getSearchCursor(query, start, caseFold) → cursor</code></dt>
+      <dd>Used to implement search/replace
+      functionality. <code>query</code> can be a regular expression or
+      a string (only strings will match across lines—if they contain
+      newlines). <code>start</code> provides the starting position of
+      the search. It can be a <code>{line, ch}</code> object, or can
+      be left off to default to the start of the
+      document. <code>caseFold</code> is only relevant when matching a
+      string. It will cause the search to be case-insensitive. A
+      search cursor has the following methods:
+        <dl>
+          <dt><code>findNext(), findPrevious() → boolean</code></dt>
+          <dd>Search forward or backward from the current position.
+          The return value indicates whether a match was found. If
+          matching a regular expression, the return value will be the
+          array returned by the <code>match</code> method, in case you
+          want to extract matched groups.</dd>
+          <dt><code>from(), to() → object</code></dt>
+          <dd>These are only valid when the last call
+          to <code>findNext</code> or <code>findPrevious</code> did
+          not return false. They will return <code>{line, ch}</code>
+          objects pointing at the start and end of the match.</dd>
+        </dl></dd>
+
+      <dt id="markText"><code>markText(from, to, className) → function</code></dt>
+      <dd>Can be used to mark a range of text with a specific CSS
+      class name. <code>from</code> and <code>to</code> should
+      be <code>{line, ch}</code> objects. The method will return a
+      function that can be called to remove the marking.</dd>
+
+      <dt id="setMarker"><code>setMarker(line, text, className) → lineHandle</code></dt>
+      <dd>Add a gutter marker for the given line. Gutter markers are
+      shown in the line-number area (instead of the number for this
+      line). Both <code>text</code> and <code>className</code> are
+      optional. Setting <code>text</code> to a Unicode characer like ◆
+      tends to give a nice effect. To put a picture in the gutter,
+      set <code>text</code> to a space and <code>className</code> to
+      something that sets a background image.</dd>
+
+      <dt id="clearMarker"><code>clearMarker(line)</code></dt>
+      <dd>Clears a marker created
+      with <code>setMarker</code>. <code>line</code> can be either a
+      number or a handle returned by <code>setMarker</code> (since a
+      number may now refer to a different line if something was added
+      or deleted).</dd>
+
+      <dt id="matchBrackets"><code>matchBrackets()</code></dt>
+      <dd>Force matching-bracket-highlighting to happen.</dd>
+
+      <dt id="lineCount"><code>lineCount() → number</code></dt>
+      <dd>Get the number of lines in the editor.</dd>
+
+      <dt id="getCursor"><code>getCursor(start) → object</code></dt>
+      <dd><code>start</code> is a boolean indicating whether the start
+      or the end of the selection must be retrieved. A <code>{line,
+      ch}</code> object will be returned.</dd>
+      <dt id="setCursor"><code>setCursor(pos)</code></dt>
+      <dd>Set the cursor position. You can either pass a
+      single <code>{line, ch}</code> object, or the line and the
+      character as two separate parameters.</dd>
+      <dt id="setSelection"><code>setSelection(start, end)</code></dt>
+      <dd>Set the selection range. <code>start</code>
+      and <code>end</code> should be <code>{line, ch}</code> objects.</dd>
+
+      <dt id="getLine"><code>getLine(n) → string</code></dt>
+      <dd>Get the content of line <code>n</code>.</dd>
+      <dt id="setLine"><code>setLine(n, text)</code></dt>
+      <dd>Set the content of line <code>n</code>.</dd>
+      
+      <dt id="removeLine"><code>removeLine(n)</code></dt>
+      <dd>Remove the given line from the document.</dd>
+      <dt id="replaceRange"><code>replaceRange(string, from, to)</code></dt>
+      <dd>Replace the part of the document between <code>from</code>
+      and <code>to</code> with the given string. <code>from</code>
+      and <code>to</code> must be <code>{line, ch}</code>
+      objects. <code>to</code> can be left off to simply insert the
+      string at position <code>from</code>.</dd>
+    </dl>
+
+    <p>The following are more low-level methods:</p>
+
+    <dl>
+      <dt id="operation"><code>operation(func) → result</code></dt>
+      <dd>CodeMirror internally buffers changes and only updates its
+      DOM structure after it has finished performing some operation.
+      If you need to performing a lot of operations on a CodeMirror
+      instance, you can call this method with a function argument. It
+      will call the function, buffering up all changes, and only doing
+      the expensive update after the function returns. This can be a
+      lot faster. The return value from this method will be the return
+      value of your function.</dd>
+
+      <dt id="refresh"><code>refresh()</code></dt>
+      <dd>If your code does something to change the size of the editor
+      element (window resizes are already listened for), or unhides
+      it, you should probably follow up by calling this method to
+      ensure CodeMirror is still looking as intended.</dd>
+
+      <dt id="getInputField"><code>getInputField() → textarea</code></dt>
+      <dd>When register key handlers, you'll want to register them on
+      the DOM element returned by this method. It will have focus
+      whenver the editor is focused, so all key events go through
+      it.</dd>
+    </dl>
+
+    <p id="fromTextArea">Finally, the <code>CodeMirror</code> object
+    itself has a method <code>fromTextArea</code>. This takes a
+    textarea DOM node as first argument and an optional configuration
+    object as second. It will replace the textarea with a CodeMirror
+    instance, and wire up the form of that textarea (if any) to make
+    sure the editor contents are put into the textarea when the form
+    is submitted. A CodeMirror instance created this way has two
+    additional methods:</p>
+
+    <dl>
+      <dt id="save"><code>save()</code></dt>
+      <dd>Copy the content of the editor into the textarea.</dd>
+
+      <dt id="toTextArea"><code>toTextArea()</code></dt>
+      <dd>Remove the editor, and restore the original textarea (with
+      the editor's current content).</dd>
+    </dl>
+
+    <h2 id="modeapi">Writing CodeMirror Modes</h2>
+
+    <p>To be written.</p>
+
+  </body>
+</html>
+
