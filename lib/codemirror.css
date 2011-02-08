@@ -3,10 +3,7 @@
   overflow: auto;
   height: 300px;
   line-height: 1em;
-}
-
-.CodeMirror-code {
-  position: relative;
+  font-family: monospace;
 }
 
 .CodeMirror-gutter {
@@ -16,7 +13,7 @@
   color: #aaa;
   text-align: right;
   min-width: 1.2em;
-  padding: .4em .2em;
+  padding: .4em .2em .4em .4em;
 }
 .CodeMirror-lines {
   padding: .4em;
@@ -24,6 +21,7 @@
 
 .CodeMirror pre {
   border-width: 0; margin: 0; padding: 0; background: transparent;
+  font-family: inherit;
 }
 
 .CodeMirror-cursor {
@@ -45,5 +43,5 @@ span.CodeMirror-selected {
 }
 
 
-.CodeMirror-matchingbracket {color: #6f6;}
-.CodeMirror-nonmatchingbracket {color: #f66;}
+.CodeMirror-matchingbracket {color: #0f0;}
+.CodeMirror-nonmatchingbracket {color: #f22;}

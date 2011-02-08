@@ -1,6 +1,6 @@
-// TODO JSON mode
-CodeMirror.addMode("javascript", function(config) {
+CodeMirror.addMode("javascript", function(config, parserConfig) {
   var indentUnit = config.indentUnit;
+  var jsonMode = parserConfig.json;
 
   // Tokenizer
 
@@ -139,7 +139,7 @@ CodeMirror.addMode("javascript", function(config) {
       state.lexical.align = true;
 
     while(true) {
-      var combinator = cc.length ? cc.pop() : state.json ? expression : statement;
+      var combinator = cc.length ? cc.pop() : jsonMode ? expression : statement;
       if (combinator(type, content)) {
         while(cc.length && cc[cc.length - 1].lex)
           cc.pop()();

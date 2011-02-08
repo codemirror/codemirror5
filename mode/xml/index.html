@@ -1,15 +1,16 @@
 <!doctype html>
 <html>
   <head>
-    <title>CodeMirror 2</title>
+    <title>CodeMirror 2: XML mode</title>
     <link rel="stylesheet" href="../../lib/codemirror.css">
     <script src="../../lib/codemirror.js"></script>
     <script src="xml.js"></script>
     <link rel="stylesheet" href="xml.css">
   </head>
   <body>
-    <h1>CodeMirror 2: XML demo</h1>
-    <form><textarea id="code" style="display: none" name="code">
+    <h1>CodeMirror 2: XML mode</h1>
+    <form><div style="border-top: 1px solid black; border-bottom: 1px solid black;">
+        <textarea id="code" style="display: none" name="code">
 &lt;html style="color: green"&gt;
   &lt;!-- this is a comment --&gt;
   &lt;head&gt;
@@ -20,9 +21,18 @@
     I mean&amp;quot;&lt;/em&gt;... but might not match your style.
   &lt;/body&gt;
 &lt;/html&gt;
-</textarea></form>
+</textarea></div></form>
     <script>
-      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {});
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {mode: {name: "xml", htmlMode: true}});
     </script>
+    <p>The XML mode supports two configuration parameters:</p>
+    <dl>
+      <dt><code>htmlMode (boolean)</code></dt>
+      <dd>This switches the mode to parse HTML instead of XML. This
+      means attributes do not have to be quoted, and some elements
+      (such as <code>br</code>) do not require a closing tag.</dd>
+      <dt><code>alignCDATA (boolean)</code></dt>
+      <dd>Setting this to true will force the opening tag of CDATA
+      blocks to not be indented.</dd>
   </body>
 </html>

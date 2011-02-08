@@ -1,5 +1,6 @@
 CodeMirror.addMode("xml", function(config, parserConfig) {
   var indentUnit = config.indentUnit;
+  console.log(parserConfig);
   var Kludges = parserConfig.htmlMode ? {
     autoSelfClosers: {"br": true, "img": true, "hr": true, "link": true, "input": true,
                       "meta": true, "col": true, "frame": true, "base": true, "area": true},
@@ -137,7 +138,7 @@ CodeMirror.addMode("xml", function(config, parserConfig) {
   function endtag(startOfLine) {
     return function(type) {
       if (type == "selfcloseTag" ||
-          (type == "endofTag" && Kludges.autoSelfClosers.hasOwnProperty(curState.currentTag)))
+          (type == "endTag" && Kludges.autoSelfClosers.hasOwnProperty(curState.tagName.toLowerCase())))
         return cont();
       if (type == "endTag") {pushContext(curState.tagName, startOfLine); return cont();}
       return cont();
