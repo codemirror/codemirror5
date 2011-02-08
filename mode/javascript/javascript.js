@@ -1,6 +1,5 @@
-// TODO profile whether using linked objects rather than an array for cc speeds things up
 // TODO JSON mode
-CodeMirror.addParser("javascript", function(config) {
+CodeMirror.addMode("javascript", function(config) {
   var indentUnit = config.indentUnit;
 
   // Tokenizer

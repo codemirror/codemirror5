@@ -1,12 +1,12 @@
-CodeMirror.addParser("xml", function(config, parserConfig) {
+CodeMirror.addMode("xml", function(config, parserConfig) {
   var indentUnit = config.indentUnit;
-  var Kludges = !parserConfig || parserConfig.htmlMode ? {
+  var Kludges = parserConfig.htmlMode ? {
     autoSelfClosers: {"br": true, "img": true, "hr": true, "link": true, "input": true,
                       "meta": true, "col": true, "frame": true, "base": true, "area": true},
     doNotIndent: {"pre": true, "!cdata": true},
     allowUnquoted: true
   } : {autoSelfClosers: {}, doNotIndent: {"!cdata": true}, allowUnquoted: false};
-  var alignCDATA = parserConfig && parserConfig.alignCDATA;
+  var alignCDATA = parserConfig.alignCDATA;
 
   // Return variables for tokenizers
   var tagName, type;
