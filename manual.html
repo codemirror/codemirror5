@@ -52,14 +52,14 @@
     <p>Having done this, an editor instance can be created like
     this:</p>
 
-    <pre>var myCodeMirror = new CodeMirror(document.body);</pre>
+    <pre>var myCodeMirror = CodeMirror(document.body);</pre>
 
     <p>The editor will be appended to the document body, will start
     empty, and will use the mode that we loaded. To have more control
-    over the new editor, a configuration object can be passed to the
-    constructor as a second argument:</p>
+    over the new editor, a configuration object can be passed
+    to <code>CodeMirror</code> as a second argument:</p>
 
-    <pre>var myCodeMirror = new CodeMirror(document.body, {
+    <pre>var myCodeMirror = CodeMirror(document.body, {
   value: "function myScript(){return 100;}\n",
   mode:  "javascript"
 });</pre>
@@ -72,12 +72,12 @@
 
     <p>In cases where you don't want to append the editor to an
     element, and need more control over the way it is inserted, the
-    first argument to the <code>CodeMirror</code> constructor can also
+    first argument to the <code>CodeMirror</code> function can also
     be a function that, when given a DOM element, inserts it into the
     document somewhere. This could be used to, for example, replace a
     textarea with a real editor:</p>
 
-    <pre>var myCodeMirror = new CodeMirror(function(elt) {
+    <pre>var myCodeMirror = CodeMirror(function(elt) {
   myTextArea.parentNode.replaceChild(myTextArea, elt);
 }, {value: myTextArea.value});</pre>
 
@@ -94,8 +94,8 @@
 
     <h2 id="config">Configuration</h2>
 
-    <p>Both the <code>CodeMirror</code> constructor and
-    the <code>fromTextArea</code> method take as second (optional)
+    <p>Both the <code>CodeMirror</code> function and
+    its <code>fromTextArea</code> method take as second (optional)
     argument an object containing configuration options. Any option
     not supplied like this will be taken
     from <code>CodeMirror.defaults</code>, an object containing the
