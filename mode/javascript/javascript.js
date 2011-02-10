@@ -1,4 +1,4 @@
-CodeMirror.addMode("javascript", function(config, parserConfig) {
+CodeMirror.defineMode("javascript", function(config, parserConfig) {
   var indentUnit = config.indentUnit;
   var jsonMode = parserConfig.json;
 
@@ -335,3 +335,6 @@ CodeMirror.addMode("javascript", function(config, parserConfig) {
     }
   };
 });
+
+CodeMirror.defineMIME("text/javascript", "javascript");
+CodeMirror.defineMIME("application/json", {name: "javascript", json: true});

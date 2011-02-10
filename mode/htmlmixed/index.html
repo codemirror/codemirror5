@@ -4,13 +4,13 @@
     <title>CodeMirror 2: HTML mixed mode</title>
     <link rel="stylesheet" href="../../lib/codemirror.css">
     <script src="../../lib/codemirror.js"></script>
-    <script src="htmlmixed.js"></script>
     <script src="../xml/xml.js"></script>
-    <script src="../javascript/javascript.js"></script>
-    <script src="../css/css.js"></script>
     <link rel="stylesheet" href="../xml/xml.css">
+    <script src="../javascript/javascript.js"></script>
     <link rel="stylesheet" href="../javascript/javascript.css">
+    <script src="../css/css.js"></script>
     <link rel="stylesheet" href="../css/css.css">
+    <script src="htmlmixed.js"></script>
   </head>
   <body>
     <h1>CodeMirror 2: HTML mixed mode</h1>
@@ -40,7 +40,7 @@
 </html>
 </textarea></div></form>
     <script>
-      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {mode: "htmlmixed", tabMode: "indent"});
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {mode: "text/html", tabMode: "indent"});
     </script>
     <p>The HTML mixed mode depends on the XML, JavaScript, and CSS modes.</p>
   </body>
