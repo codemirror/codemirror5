@@ -58,7 +58,7 @@ CodeMirror.addMode("xml", function(config, parserConfig) {
 
   function inTag(stream, state) {
     var ch = stream.next();
-    if (ch == ">" || (ch == "/" && eat(">"))) {
+    if (ch == ">" || (ch == "/" && stream.eat(">"))) {
       state.tokenize = inText;
       type = ch == ">" ? "endTag" : "selfcloseTag";
       return "xml-tag";
