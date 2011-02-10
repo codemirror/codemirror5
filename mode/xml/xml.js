@@ -79,7 +79,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
 
   function inAttribute(quote) {
     return function(stream, state) {
-      while (!stream.done()) {
+      while (!stream.eol()) {
         if (stream.next() == quote) {
           state.tokenize = inTag;
           break;
@@ -91,7 +91,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
 
   function inBlock(style, terminator) {
     return function(stream, state) {
-      while (!stream.done()) {
+      while (!stream.eol()) {
         if (stream.match(terminator)) {
           state.tokenize = inText;
           break;

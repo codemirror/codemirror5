@@ -3,15 +3,6 @@ CodeMirror.defineMode("htmlmixed", function(config, parserConfig) {
   var jsMode = CodeMirror.getMode(config, "javascript");
   var cssMode = CodeMirror.getMode(config, "css");
 
-  function copyState() {
-    return {
-      token: this.token,
-      localState: this.localState && CodeMirror.copyState(this.localState),
-      htmlState: CodeMirror.copyState(this.htmlState),
-      copy: copyState
-    };
-  }
-
   function html(stream, state) {
     var style = htmlMode.token(stream, state.htmlState);
     if (style == "xml-tag" && stream.current() == ">" && state.htmlState.context) {
@@ -46,12 +37,13 @@ CodeMirror.defineMode("htmlmixed", function(config, parserConfig) {
   return {
     startState: function() {
       var state = htmlMode.startState();
-      return {
-        token: html,
-        localState: null,
-        htmlState: state,
-        copy: copyState
-      };
+      return {token: html, localState: null, htmlState: state};
+    },
+
+    copyState: function(state) {
+      if (state.localState)
+        var local = CodeMirror.copyState(state.token == css ? cssMode : jsMode, state.localState);
+      return {token: state.token, localState: local, htmlState: CodeMirror.copyState(htmlMode, state.htmlState)};
     },
 
     token: function(stream, state) {
