@@ -1,6 +1,5 @@
 CodeMirror.addMode("xml", function(config, parserConfig) {
   var indentUnit = config.indentUnit;
-  console.log(parserConfig);
   var Kludges = parserConfig.htmlMode ? {
     autoSelfClosers: {"br": true, "img": true, "hr": true, "link": true, "input": true,
                       "meta": true, "col": true, "frame": true, "base": true, "area": true},
@@ -38,6 +37,7 @@ CodeMirror.addMode("xml", function(config, parserConfig) {
       }
       else {
         type = stream.eat("/") ? "closeTag" : "openTag";
+        stream.eatSpace();
         tagName = "";
         var c;
         while ((c = stream.eat(/[^\s\u00a0=<>\"\'\/?]/))) tagName += c;
@@ -111,11 +111,11 @@ CodeMirror.addMode("xml", function(config, parserConfig) {
     return true;
   }
 
-  function pushContext(tagname, startOfLine) {
-    var noIndent = Kludges.doNotIndent.hasOwnProperty(tagname) || (curState.context && curState.context.noIndent);
+  function pushContext(tagName, startOfLine) {
+    var noIndent = Kludges.doNotIndent.hasOwnProperty(tagName) || (curState.context && curState.context.noIndent);
     curState.context = {
       prev: curState.context,
-      tagname: tagname,
+      tagName: tagName,
       indent: curState.indented,
       startOfLine: startOfLine,
       noIndent: noIndent
@@ -162,7 +162,7 @@ CodeMirror.addMode("xml", function(config, parserConfig) {
 
   return {
     startState: function() {
-      return {tokenize: inText, cc: [], indented: 0, startOfLine: true, tagName: null};
+      return {tokenize: inText, cc: [], indented: 0, startOfLine: true, tagName: null, context: null};
     },
 
     token: function(stream, state) {
