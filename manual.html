@@ -3,7 +3,7 @@
   <head>
     <title>CodeMirror 2 Manual</title>
     <style type="text/css">
-      body {max-width: 70em; margin-left: 2em; font-family: tahoma, arial, sans-serif;}
+      body {max-width: 70em; margin-left: 2em; font-family: tahoma, arial, sans-serif; margin-bottom: 4em;}
       pre {margin-left: 2em;}
       dl dl {margin: 0;}
     </style>
@@ -113,12 +113,15 @@
 
       <dt id="option_mode"><code>mode (string or object)</code></dt>
       <dd>The mode to use. When not given, this will default to the
-      first mode that was loaded. It can be a string, which simply
-      names the mode, or an object containing configuration options
-      for the mode, with a <code>name</code> property that names the
-      mode (for example <code>{name: "javascript", json:
-      true}</code>). The demo pages for each mode contain information
-      about what configuration parameters the mode supports.</dd>
+      first mode that was loaded. It may be a string, which either
+      simply names the mode
+      a <a href="http://en.wikipedia.org/wiki/MIME">MIME</a> type
+      associated with the mode. Alternatively, it may be an object
+      containing configuration options for the mode, with
+      a <code>name</code> property that names the mode (for
+      example <code>{name: "javascript", json: true}</code>). The demo
+      pages for each mode contain information about what configuration
+      parameters the mode supports.</dd>
 
       <dt id="option_indentUnit"><code>indentUnit (integer)</code></dt>
       <dd>How many spaces a block (whatever that means in the edited
@@ -220,8 +223,8 @@
     modifying style sheet files. The style sheets supplied by modes
     simply provide the colors for that mode, and can be adapted in a
     very straightforward way. To style the editor itself, it is
-    possible to
-    alter <a href="lib/codemirror.css"><code>codemirror.css</code></a>.</p>
+    possible to alter or override the styles defined
+    in <a href="lib/codemirror.css"><code>codemirror.css</code></a>.</p>
 
     <p>Some care must be taken there, since a lot of the rules in this
     file are necessary to have CodeMirror function properly. Adjusting
@@ -452,8 +455,175 @@
 
     <h2 id="modeapi">Writing CodeMirror Modes</h2>
 
-    <p>To be written.</p>
+    <p>Modes typically consist of a JavaScript file and a CSS file.
+    The CSS file (see, for
+    example <a href="mode/javascript/javascript.css"><code>javascript.css</code></a>)
+    defines the classes that will be used to style the syntactic
+    elements of the code, and the script contains the logic to
+    actually assign these classes to the right pieces of text.</p>
+
+    <p>You'll usually want to use some kind of prefix for your CSS
+    classes, so that they are unlikely to clash with other classes,
+    both those used by other modes and those defined by the page in
+    which CodeMirror is embedded.</p>
+
+    <p id="defineMode">The mode script should
+    call <code>CodeMirror.defineMode</code> to register itself with
+    CodeMirror. This function takes two arguments. The first should be
+    the name of the mode, for which you should use a lowercase string,
+    preferably one that is also the name of the files that define the
+    mode (i.e. <code>"xml"</code> is defined <code>xml.js</code>). The
+    second argument should a function that, given a CodeMirror
+    configuration object (the thing passed to
+    the <code>CodeMirror</code> function) and a mode configuration
+    object (as in the <a href="#option_mode"><code>mode</code></a>
+    option), returns a mode object.</p>
+
+    <p>Typically, you should use this second argument
+    to <code>defineMode</code> as your module scope function (modes
+    should not leak anything into the global scope!), i.e. write your
+    whole mode inside this function.</p>
+
+    <p>The main responsibility of a mode script is <em>parsing</em>
+    the content of the editor. Depending on the language and the
+    amount of functionality desired, this can be done in really easy
+    or extremely complicated ways. Some parsers can be stateless,
+    meaning that they look at one element (<em>token</em>) of the code
+    at a time, with no memory of what came before. Most, however, will
+    need to remember something. This is done by using a <em>state
+    object</em>, which is an object that can be mutated every time a
+    new token is read.</p>
+
+    <p id="startState">Modes that use a state must define
+    a <code>startState</code> method on their mode object. This is a
+    function of no arguments that produces a state object to be used
+    at the start of a document.</p>
+
+    <p id="token">The most important part of a mode object is
+    its <code>token(stream, state)</code> method. All modes must
+    define this method. It should read one token from the stream it is
+    given as an argument, optionally update its state, and return a
+    CSS class string, or <code>null</code> for tokens that do not have
+    to be styled.<p>
+
+    <p id="StringStream">The stream object encapsulates a line of code
+    (tokens may never span lines) and our current position in that
+    line. It has the following API:</p>
+
+    <dl>
+      <dt><code>eol() → boolean</code></dt>
+      <dd>Returns true only if the stream is at the end of the
+      line.</dd>
+
+      <dt><code>peek() → character</code></dt>
+      <dd>Returns the next character in the stream without advancing
+      it. Will return <code>undefined</code> at the end of the
+      line.</dd>
+      <dt><code>next() → character</code></dt>
+      <dd>Returns the next character in the stream and advances it.
+      Also returns <code>undefined</code> when no more characters are
+      available.</dd>
+
+      <dt><code>eat(match) → character</code></dt>
+      <dd><code>match</code> can be a character, a regular expression,
+      or a function that takes a character and returns a boolean. If
+      the next character in the stream 'matches' the given argument,
+      it is consumed and returned. Otherwise, <code>undefined</code>
+      is returned.</dd>
+      <dt><code>eatWhile(match) → integer</code></dt>
+      <dd>Repeatedly calls <code>eat</code> with the given argument,
+      until it fails. Returns the amount of eaten characters.</dd>
+      <dt><code>eatSpace() → integer</code></dt>
+      <dd>Shortcut for <code>eatWhile</code> when matching
+      white-space.</dd>
+      <dt><code>match(pattern, consume, caseFold) → boolean</code></dt>
+      <dd>Act like a
+      multi-character <code>eat</code>—if <code>consume</code> is true
+      or not given—or a look-ahead that doesn't update the stream
+      position—if it is false. <code>pattern</code> can be either a
+      string or a regular expression starting with <code>^</code>.
+      When it is a string, <code>caseFold</code> can be set to true to
+      make the match case-insensitive. When successfully matching a
+      regular expression, the returned value will be the array
+      returned by <code>match</code>, in case you need to extract
+      matched groups.</dd>
+
+      <dt><code>backUp(n)</code></dt>
+      <dd>Backs up the stream <code>n</code> characters. Backing it up
+      further than the start of the current token will cause things to
+      break, so be careful.</dd>
+      <dt><code>column() → integer</code></dt>
+      <dd>Returns the character position (in the current line) at
+      which the stream currently sits. Can be used to find out whether
+      a token starts a new line.</dd>
+      <dt><code>indentation() → integer</code></dt>
+      <dd>Tells you how far the current line has been intended, in
+      spaces. Corrects for tab characters.</dd>
+
+      <dt><code>current() → string</code></dt>
+      <dd>Get the string between the start of the current token and
+      the current stream position.</dd>
+    </dl>
+
+    <p id="copyState">Because state object are mutated, and CodeMirror
+    needs to keep valid versions of a state around so that it can
+    restart a parse at any line, copies must be made of state objects.
+    The default algorithm used is that a new state object is created,
+    which gets all the properties of the old object. Any properties
+    which hold arrays get a copy of these arrays (since arrays tend to
+    be used as mutable stacks). When this is not correct, for example
+    because a mode mutates non-array properties of its state object, a
+    mode object should define have a <code>copyState</code> method,
+    which is given a state and should return a safe copy of that
+    state.</p>
+
+    <p id="indent">If you want your mode to provide smart indentation
+    (see <a href="#option_enterMode"><code>entermode</code></a>
+    and <a href="#option_tabMode"><code>tabMode</code></a> when they
+    have a value of <code>"indent"</code>), you must define
+    an <code>indent(state, textAfter)</code> method on your mode
+    object.</p>
+
+    <p>The indentation method should inspect the given state object,
+    and optionally the <code>textAfter</code> string, which contains
+    the text on the line that is being indented, and return an
+    integer, the amount of spaces to indent. It should usually take
+    the <a href="#option_indentUnit"><code>indentUnit</code></a>
+    option into account.</p>
+
+    <p>So, to summarize, a mode <em>must</em> provide
+    a <code>token</code> method, and it <em>may</em>
+    provide <code>startState</code>, <code>copyState</code>,
+    and <code>indent</code> methods. For an example of a trivial mode,
+    see the <a href="mode/diff/diff.js">diff mode</a>, for a more
+    involved example, see
+    the <a href="mode/javascript/javascript.js">JavaScript
+    mode</a>.</p>
+
+    <p>Sometimes, it is useful for modes to <em>nest</em>—to have one
+    mode delegate work to another mode. An example of this kind of
+    mode is the <a href="mode/htmlmixed/htmlmixed.js">mixed-mode HTML
+    mode</a>. To implement such nesting, it is usually necessary to
+    create mode objects and copy states yourself. To create a mode
+    object, there are <code>CodeMirror.getMode(options,
+    parserConfig)</code>, where the first argument is a configuration
+    object as passed to the mode constructor function, and the second
+    argument is a mode specification as in
+    the <a href="#option_mode"><code>mode</code> option. To copy a
+    state object, call <code>CodeMirror.copyState(mode, state)</code>,
+    where <code>mode</code> is the mode that created the given
+    state.</p>
+
+    <p>Finally, it is possible to associate your mode, or a certain
+    configuration of your mode, with
+    a <a href="http://en.wikipedia.org/wiki/MIME">MIME</a> type. For
+    example, the JavaScript mode associates itself
+    with <code>text/javascript</code>, and its JSON variant
+    with <code>application/json</code>. To do this,
+    call <code>CodeMirror.defineMIME(mime, modeSpec)</code>,
+    where <code>modeSpec</code> can be a string or object specifying a
+    mode, as in the <a href="#option_mode"><code>mode</code>
+    option.</p>
 
   </body>
 </html>
-
