@@ -557,7 +557,7 @@
       which the stream currently sits. Can be used to find out whether
       a token starts a new line.</dd>
       <dt><code>indentation() → integer</code></dt>
-      <dd>Tells you how far the current line has been intended, in
+      <dd>Tells you how far the current line has been indented, in
       spaces. Corrects for tab characters.</dd>
 
       <dt><code>current() → string</code></dt>
@@ -573,7 +573,7 @@
     which hold arrays get a copy of these arrays (since arrays tend to
     be used as mutable stacks). When this is not correct, for example
     because a mode mutates non-array properties of its state object, a
-    mode object should define have a <code>copyState</code> method,
+    mode object should define a <code>copyState</code> method,
     which is given a state and should return a safe copy of that
     state.</p>
 
