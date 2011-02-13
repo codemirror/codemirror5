@@ -398,9 +398,12 @@
       <dd>Get the content of line <code>n</code>.</dd>
       <dt id="setLine"><code>setLine(n, text)</code></dt>
       <dd>Set the content of line <code>n</code>.</dd>
-      
       <dt id="removeLine"><code>removeLine(n)</code></dt>
       <dd>Remove the given line from the document.</dd>
+
+      <dt id="getRange"><code>getRange(from, to) → string</code></td>
+      <dd>Get the text between the given points in the editor, which
+      should be <code>{line, ch}</code> objects.</dd>
       <dt id="replaceRange"><code>replaceRange(string, from, to)</code></dt>
       <dd>Replace the part of the document between <code>from</code>
       and <code>to</code> with the given string. <code>from</code>
