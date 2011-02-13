@@ -296,7 +296,10 @@
     objects with <code>line</code> and <code>ch</code> properties.
     Both are zero-based. CodeMirror makes sure to 'clip' any positions
     passed by client code so that they fit inside the document, so you
-    shouldn't worry too much about sanitizing your coordinates.</p>
+    shouldn't worry too much about sanitizing your coordinates. If you
+    give <code>ch</code> a value of <code>null</code>, or don't
+    specify it, it will be replaced with the length of the specified
+    line.</p>
 
     <dl>
       <dt id="getValue"><code>getValue() → string</code></dt>
