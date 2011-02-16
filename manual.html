@@ -398,6 +398,12 @@
       number may now refer to a different line if something was added
       or deleted).</dd>
 
+      <dt id="lineInfo"><code>lineInfo(line) → object</code></dt>
+      <dd>Returns the line number, text content, and marker status of
+      the given line, which can be either a number or a handle
+      returned by <code>setMarker</code>. The returned object has the
+      structure <code>{line, text, markerText, markerClass}</code>.</dd>
+
       <dt id="addWidget"><code>addWidget(pos, node, scrollIntoView)</code></dt>
       <dd>Puts <code>node</code>, which should be an absolutely
       positioned DOM node, into the editor, positioned right below the
