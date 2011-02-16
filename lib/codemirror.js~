@@ -375,8 +375,7 @@ var CodeMirror = (function() {
     if (place.appendChild) place.appendChild(div); else place(div);
     var code = div.firstChild, measure = code.firstChild, mover = measure.nextSibling,
         gutter = mover.firstChild, inputDiv = gutter.nextSibling, input = inputDiv.firstChild,
-        lineWrap = inputDiv.nextSibling.firstChild, cursor = lineWrap.firstChild, lineDiv = cursor.nextSibling,
-	space = code.lastChild;
+        lineWrap = inputDiv.nextSibling.firstChild, cursor = lineWrap.firstChild, lineDiv = cursor.nextSibling;
 //    inputDiv.style.width = "30em"; inputDiv.style.height = "5em"; input.rows = 3;
     if (options.tabindex != null) input.tabindex = options.tabindex;
     if (options.lineNumbers) {options.gutter = "ln";}
