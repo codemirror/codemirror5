@@ -382,7 +382,7 @@
       be <code>{line, ch}</code> objects. The method will return a
       function that can be called to remove the marking.</dd>
 
-      <dt id="setMarker"><code>setMarker(line, text, className, leaveNumber) → lineHandle</code></dt>
+      <dt id="setMarker"><code>setMarker(line, text, className) → lineHandle</code></dt>
       <dd>Add a gutter marker for the given line. Gutter markers are
       shown in the line-number area (instead of the number for this
       line). Both <code>text</code> and <code>className</code> are
@@ -392,8 +392,9 @@
       something that sets a background image. If you
       specify <code>text</code>, the given text (which may contain
       HTML) will, by default, replace the line number for that line.
-      You can pass a true value as <code>leaveNumber</code> to have
-      both the marker text and the line number show up.</dd>
+      If this is not what you want, you can include the
+      string <code>%N%</code> in the text, which will be replaced by
+      the line number.</dd>
 
       <dt id="clearMarker"><code>clearMarker(line)</code></dt>
       <dd>Clears a marker created
