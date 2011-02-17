@@ -137,7 +137,8 @@
         <dl>
           <dt><code>"classic" (the default)</code></dt>
           <dd>When nothing is selected, insert a tab. Otherwise,
-          behave like the <code>"shift"</code> mode.</dd>
+          behave like the <code>"shift"</code> mode. (When shift is
+          held, this behaves like the <code>"indent"</code> mode.)</dd>
           <dt><code>"shift"</code></dt>
           <dd>Indent all selected lines by
           one <a href="#option_indentUnit"><code>indentUnit</code></a>.
@@ -166,10 +167,16 @@
           <dd>Do not indent the new line.</dd>
         </dl></dd>
 
-      <dt id="option_lineNumbers"><code>lineNumbers</code> (boolean)</dt>
+      <dt id="option_electricChars"><code>electricChars (boolean)</code></dt>
+      <dd>Configures whether the editor should re-indent the current
+      line when a character is typed that might change its proper
+      indentation (only works if the mode supports indentation).
+      Default is true.</dd>
+
+      <dt id="option_lineNumbers"><code>lineNumbers (boolean)</code></dt>
       <dd>Whether to show line numbers to the left of the editor.</dd>
 
-      <dt id="option_firstLineNumber"><code>firstLineNumber</code> (integer)</dt>
+      <dt id="option_firstLineNumber"><code>firstLineNumber (integer)</code></dt>
       <dd>At which number to start counting lines. Default is 1.</dd>
 
       <dt id="option_gutter"><code>gutter (boolean)</code></dt>
@@ -638,6 +645,13 @@
     integer, the amount of spaces to indent. It should usually take
     the <a href="#option_indentUnit"><code>indentUnit</code></a>
     option into account.</p>
+
+    <p id="electricChars">Finally, a mode may define
+    an <code>electricChars</code> property, which should hold a string
+    containing all the characters that should trigger the behaviour
+    described for
+    the <a href="#option_electricChars"><code>electricChars</code></a>
+    option.</p>
 
     <p>So, to summarize, a mode <em>must</em> provide
     a <code>token</code> method, and it <em>may</em>

@@ -115,7 +115,9 @@ CodeMirror.defineMode("css", function(config) {
       if (/^\}/.test(textAfter))
         n -= state.stack[state.stack.length-1] == "rule" ? 2 : 1;
       return state.baseIndent + n * indentUnit;
-    }
+    },
+
+    electricChars: "}"
   };
 });
 
