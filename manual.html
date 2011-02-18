@@ -173,6 +173,11 @@
       indentation (only works if the mode supports indentation).
       Default is true.</dd>
 
+      <dt id="option_blockDocumentScroll"><code>blockDocumentScroll (boolean)</code></dt>
+      <dd>When true (the default) using the scroll wheel inside the
+      editor will only cause the editor to scroll, not the document
+      around it.</dd>
+
       <dt id="option_lineNumbers"><code>lineNumbers (boolean)</code></dt>
       <dd>Whether to show line numbers to the left of the editor.</dd>
 
@@ -256,14 +261,18 @@
       different color when the editor is not focused.</dd>
 
       <dt id="class_CodeMirror_gutter"><code>CodeMirror-gutter</code></dt>
-      <dd>The gutter. You can give this any width or padding you want,
-      as long as the vertical padding corresponds to that of
-      the <code>CodeMirror-lines</code> class. Also, for the numbers
-      to line up, you'll want them to use exactly the same font as
-      normal edited text in <code>CodeMirror-lines</code>. By default,
+      <dd>Use this for giving a background or a border to the editor
+      gutter. Don't set any padding here,
+      use <code>CodeMirror-gutter-text</code> for that. By default,
       the gutter is 'fluid', meaning it will adjust its width to the
       maximum line number or line marker width. You can also set a
       fixed width if you want.</dd>
+
+      <dt id="class_CodeMirror_gutter_text"><code>CodeMirror-gutter-text</code></dt>
+      <dd>Used to style the actual line numbers. For the numbers to
+      line up, you'll want this style to use exactly the same font and
+      vertical padding as normal edited text, as per
+      the <code>CodeMirror-lines</code> class.</dd>
 
       <dt id="class_CodeMirror_lines"><code>CodeMirror-lines</code></dt>
       <dd>The visible lines. If this has vertical
@@ -346,6 +355,10 @@
       <dd>Undo one edit (if any undo events are stored).</dd>
       <dt id="redo"><code>redo()</code></dt>
       <dd>Redo one undone edit.</dd>
+      <dt id="historySize"><code>historySize() → object</code></dt>
+      <dd>Returns an object with <code>{undo, redo}</code> properties,
+      both of which hold integers, indicating the amount of stored
+      undo and redo operations.</dd>
 
       <dt id="getSearchCursor"><code>getSearchCursor(query, start, caseFold) → cursor</code></dt>
       <dd>Used to implement search/replace
