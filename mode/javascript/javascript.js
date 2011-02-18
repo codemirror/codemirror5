@@ -334,7 +334,9 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
         return lexical.indented + (/^(?:case|default)\b/.test(textAfter) ? indentUnit : 2 * indentUnit);
       else if (lexical.align) return lexical.column - (closing ? 1 : 0);
       else return lexical.indented + (closing ? 0 : indentUnit);
-    }
+    },
+
+    electricChars: ":{}"
   };
 });
 

@@ -195,7 +195,9 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
         context = context.prev;
       if (context) return context.indent + indentUnit;
       else return 0;
-    }
+    },
+
+    electricChars: "/"
   };
 });
 
