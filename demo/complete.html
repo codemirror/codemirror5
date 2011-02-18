@@ -42,10 +42,10 @@ function getCompletions(token, context) {
     if (str.indexOf(start) == 0) found.push(str);
   }
   function gatherCompletions(obj) {
-    for (var name in obj) maybeAdd(name);
     if (typeof obj == "string") forEach(stringProps, maybeAdd);
     else if (obj instanceof Array) forEach(arrayProps, maybeAdd);
     else if (obj instanceof Function) forEach(funcProps, maybeAdd);
+    for (var name in obj) maybeAdd(name);
   }
 
   if (context) {
@@ -65,15 +65,16 @@ function getCompletions(token, context) {
   else {
     // If not, just look in the window object and any local scope
     // (reading into JS mode internals to get at the local variables)
-    gatherCompletions(window);
     for (var v = token.state.localVars; v; v = v.next) maybeAdd(v.name);
+    gatherCompletions(window);
+    forEach(keywords, maybeAdd);
   }
-  found.sort();
   return found;
 }
 </textarea></form>
 
-<p>Press <strong>ctrl-space</strong> to activate autocompletion.</p>
+<p>Press <strong>ctrl-space</strong> to activate autocompletion. See
+the <a href="complete.js">code</a> to figure out how it works.</p>
 
     <script src="complete.js"></script>
   </body>
