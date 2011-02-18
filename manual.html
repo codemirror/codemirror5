@@ -346,6 +346,10 @@
       <dd>Undo one edit (if any undo events are stored).</dd>
       <dt id="redo"><code>redo()</code></dt>
       <dd>Redo one undone edit.</dd>
+      <dt id="historySize"><code>historySize() → object</code></dt>
+      <dd>Returns an object with <code>{undo, redo}</code> properties,
+      both of which hold integers, indicating the amount of stored
+      undo and redo operations.</dd>
 
       <dt id="getSearchCursor"><code>getSearchCursor(query, start, caseFold) → cursor</code></dt>
       <dd>Used to implement search/replace
