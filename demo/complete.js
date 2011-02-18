@@ -83,10 +83,12 @@
     }
     connect(sel, "blur", close);
     connect(sel, "keydown", function(event) {
+      var code = event.keyCode;
       // Enter and space
-      if (event.keyCode == 13 || event.keyCode == 32) {event.stop(); pick();}
+      if (code == 13 || code == 32) {event.stop(); pick();}
       // Escape
-      else if (event.keyCode == 27) {event.stop(); close(); editor.focus();}
+      else if (code == 27) {event.stop(); close(); editor.focus();}
+      else if (code != 38 && code != 40) {close(); editor.focus();}
     });
     connect(sel, "dblclick", pick);
 
@@ -98,7 +100,7 @@
 
   var stringProps = ("charAt charCodeAt indexOf lastIndexOf substring substr slice trim trimLeft trimRight " +
                      "toUpperCase toLowerCase split concat match replace search").split(" ");
-  var arrayProps = ("length concat join splice push pop shift unshift slice reverse sort indexOf" +
+  var arrayProps = ("length concat join splice push pop shift unshift slice reverse sort indexOf " +
                     "lastIndexOf every some filter forEach map reduce reduceRight ").split(" ");
   var funcProps = "prototype apply call bind".split(" ");
   var keywords = ("break case catch continue debugger default delete do else false finally for function " +
