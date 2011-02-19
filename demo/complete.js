@@ -22,7 +22,7 @@
 
   var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
     lineNumbers: true,
-    keyHook: function(i, e) {
+    onKeyEvent: function(i, e) {
       // Hook into ctrl-space
       if (e.keyCode == 32 && (e.ctrlKey || e.metaKey) && !e.altKey) return startComplete();
     }
