@@ -1,0 +1,78 @@
+<!doctype html>
+<html>
+  <head>
+    <title>CodeMirror 2: Autocomplete Demo</title>
+    <link rel="stylesheet" href="../lib/codemirror.css">
+    <script src="../lib/codemirror.js"></script>
+    <link rel="stylesheet" href="../mode/javascript/javascript.css">
+    <script src="../mode/javascript/javascript.js"></script>
+
+    <style type="text/css">
+      .completions {
+        position: absolute;
+        z-index: 10;
+        overflow: hidden;
+        -webkit-box-shadow: 2px 3px 5px rgba(0,0,0,.2);
+        -moz-box-shadow: 2px 3px 5px rgba(0,0,0,.2);
+        box-shadow: 2px 3px 5px rgba(0,0,0,.2);
+      }
+      .completions select {
+        background: #fafafa;
+        outline: none;
+        border: none;
+        padding: 0;
+        margin: 0;
+        font-family: monospace;
+      }
+      .CodeMirror {
+        border: 1px solid #eee;
+      }
+    </style>
+  </head>
+  <body style="max-width: 70em; margin-left: 2em; font-family: tahoma, arial, sans-serif;">
+    <h1>CodeMirror 2: Autocomplete demo</h1>
+
+    <form><textarea id="code" name="code">
+function getCompletions(token, context) {
+  var found = [], start = token.string;
+  function maybeAdd(str) {
+    if (str.indexOf(start) == 0) found.push(str);
+  }
+  function gatherCompletions(obj) {
+    if (typeof obj == "string") forEach(stringProps, maybeAdd);
+    else if (obj instanceof Array) forEach(arrayProps, maybeAdd);
+    else if (obj instanceof Function) forEach(funcProps, maybeAdd);
+    for (var name in obj) maybeAdd(name);
+  }
+
+  if (context) {
+    // If this is a property, see if it belongs to some object we can
+    // find in the current environment.
+    var obj = context.pop(), base;
+    if (obj.className == "js-variable")
+      base = window[obj.string];
+    else if (obj.className == "js-string")
+      base = "";
+    else if (obj.className == "js-atom")
+      base = 1;
+    while (base != null && context.length)
+      base = base[context.pop().string];
+    if (base != null) gatherCompletions(base);
+  }
+  else {
+    // If not, just look in the window object and any local scope
+    // (reading into JS mode internals to get at the local variables)
+    for (var v = token.state.localVars; v; v = v.next) maybeAdd(v.name);
+    gatherCompletions(window);
+    forEach(keywords, maybeAdd);
+  }
+  return found;
+}
+</textarea></form>
+
+<p>Press <strong>ctrl-space</strong> to activate autocompletion. See
+the <a href="complete.js">code</a> to figure out how it works.</p>
+
+    <script src="complete.js"></script>
+  </body>
+</html>

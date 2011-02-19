@@ -121,12 +121,8 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   }
 
   function inScope(state, varname) {
-    var cursor = state.context;
-    while (cursor) {
-      if (cursor.vars[varname])
-        return true;
-      cursor = cursor.prev;
-    }
+    for (var v = state.localVars; v; v = v.next)
+      if (v.name == varname) return true;
   }
 
   function parseJS(state, style, type, content, column) {
@@ -161,18 +157,25 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     return true;
   }
   function register(varname) {
-    if (cx.state.context) {
+    var state = cx.state;
+    if (state.context) {
       cx.marked = "js-variabledef";
-      cx.state.context.vars[varname] = true;
+      for (var v = state.localVars; v; v = v.next)
+        if (v.name == varname) return;
+      state.localVars = {name: varname, next: state.localVars};
     }
   }
 
   // Combinators
 
+  var defaultVars = {name: "this", next: {name: "arguments"}};
   function pushcontext() {
-    cx.state.context = {prev: cx.state.context, vars: {"this": true, "arguments": true}};
+    if (!cx.state.context) cx.state.localVars = defaultVars;
+    cx.state.context = {prev: cx.state.context, vars: cx.state.localVars};
+    
   }
   function popcontext() {
+    cx.state.localVars = cx.state.context.vars;
     cx.state.context = cx.state.context.prev;
   }
   function pushlex(type, info) {
@@ -306,6 +309,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
         reAllowed: true,
         cc: [],
         lexical: new JSLexical((basecolumn || 0) - indentUnit, 0, "block", false),
+        localVars: null,
         context: null,
         indented: 0
       };

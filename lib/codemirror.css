@@ -8,11 +8,11 @@
 .CodeMirror-gutter {
   position: absolute; left: 0; top: 0;
   background-color: #f7f7f7;
+  border-right: 1px solid #eee;
   min-width: 1.2em;
   height: 100%;
 }
 .CodeMirror-gutter-text {
-  border-right: 1px solid #eee;
   color: #aaa;
   text-align: right;
   padding: .4em .2em .4em .4em;
