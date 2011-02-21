@@ -647,9 +647,9 @@
       further than the start of the current token will cause things to
       break, so be careful.</dd>
       <dt><code>column() → integer</code></dt>
-      <dd>Returns the character position (in the current line) at
-      which the stream currently sits. Can be used to find out whether
-      a token starts a new line.</dd>
+      <dd>Returns the column (taking into account tabs) at which the
+      current token starts. Can be used to find out whether a token
+      starts a new line.</dd>
       <dt><code>indentation() → integer</code></dt>
       <dd>Tells you how far the current line has been indented, in
       spaces. Corrects for tab characters.</dd>
