@@ -8,7 +8,7 @@ test("fromTextArea", function() {
   cm.setValue("foo\nbar");
   eq(cm.getValue(), "foo\nbar");
   cm.save();
-  eq(te.value, "foo\nbar");
+  is(/^foo\r?\nbar$/.test(te.value));
   cm.setValue("xxx");
   cm.toTextArea();
   is(te.offsetHeight);
