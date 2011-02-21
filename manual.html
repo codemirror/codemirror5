@@ -369,6 +369,10 @@
       page. <code>yBot</code> is the coordinate of the bottom of the
       cursor. <code>start</code> is a boolean indicating whether you
       want the start or the end of the selection.</dd>
+      <dt id="charCoords"><code>charCoords(pos) → object</code></dt>
+      <dd>Like <code>cursorCoords</code>, but returns the position of
+      an arbitrary characters. <code>pos</code> should be
+      a <code>{line, ch}</code> object.</dd>
 
       <dt id="undo"><code>undo()</code></dt>
       <dd>Undo one edit (if any undo events are stored).</dd>
