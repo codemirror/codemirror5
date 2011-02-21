@@ -505,7 +505,7 @@
       <dt id="operation"><code>operation(func) → result</code></dt>
       <dd>CodeMirror internally buffers changes and only updates its
       DOM structure after it has finished performing some operation.
-      If you need to performing a lot of operations on a CodeMirror
+      If you need to perform a lot of operations on a CodeMirror
       instance, you can call this method with a function argument. It
       will call the function, buffering up all changes, and only doing
       the expensive update after the function returns. This can be a
