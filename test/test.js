@@ -2,6 +2,7 @@ var tests = [];
 
 test("fromTextArea", function() {
   var te = document.getElementById("code");
+  te.value = "CONTENT";
   var cm = CodeMirror.fromTextArea(te);
   is(!te.offsetHeight);
   eq(cm.getValue(), "CONTENT");
