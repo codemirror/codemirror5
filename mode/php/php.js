@@ -17,28 +17,34 @@
     var phpMode = CodeMirror.getMode(config, {name: "clike", keywords: phpKeywords});
 
     function dispatch(stream, state) { // TODO open PHP inside text/css
-      var cur = state.context[0];
-      if (cur.mode == htmlMode) {
-        var style = htmlMode.token(stream, cur.state);
-        if (style == "xml-processing")
-          state.context.unshift({mode: phpMode, state: state.php, close: /^\?>/});
-        else if (style == "xml-tag" && stream.current() == ">" && cur.state.context) {
-          if (/^script$/i.test(cur.state.context.tagName))
-            state.context.unshift({mode: jsMode,
-                                   state: jsMode.startState(htmlMode.indent(cur.state, "")),
-                                   close: /^<\/\s*script\s*>/i});
-          else if (/^style$/i.test(cur.state.context.tagName))
-            state.context.unshift({mode: cssMode,
-                                   state: cssMode.startState(htmlMode.indent(cur.state, "")),
-                                   close: /^<\/\s*style\s*>/i});
+      if (state.curMode == htmlMode) {
+        var style = htmlMode.token(stream, state.curState);
+        if (style == "xml-processing") {
+          state.curMode = phpMode;
+          state.curState = state.php;
+          state.curClose = /^\?>/;
+        }
+        else if (style == "xml-tag" && stream.current() == ">" && state.curState.context) {
+          if (/^script$/i.test(state.curState.context.tagName)) {
+            state.curMode = jsMode;
+            state.curState = jsMode.startState(htmlMode.indent(state.curState, ""));
+            state.curClose = /^<\/\s*script\s*>/i;
+          }
+          else if (/^style$/i.test(state.curState.context.tagName)) {
+            state.curMode = cssMode;
+            state.curState = cssMode.startState(htmlMode.indent(state.curState, ""));
+            state.curClose =  /^<\/\s*style\s*>/i;
+          }
         }
         return style;
       }
-      else if (stream.match(cur.close, false)) {
-        state.context.shift();
+      else if (stream.match(state.curClose, false)) {
+        state.curMode = htmlMode;
+        state.curState = state.html;
+        state.curClose = null;
         return dispatch(stream, state);
       }
-      else return cur.mode.token(stream, cur.state);
+      else return state.curMode.token(stream, state.curState);
     }
 
     return {
@@ -46,27 +52,27 @@
         var html = htmlMode.startState();
         return {html: html,
                 php: phpMode.startState(),
-                context: [{mode: htmlMode, state: html, close: null}]};
+                curMode: htmlMode,
+                curState: html,
+                curClose: null}
       },
 
       copyState: function(state) {
         var html = state.html, htmlNew = CodeMirror.copyState(htmlMode, html),
-        php = state.php, phpNew = CodeMirror.copyState(phpMode, php), contextNew = [];
-        for (var i = 0; i < state.context.length; ++i) {
-          var context = state.context[i], cstate = context.state;
-          if (cstate == html) cstate = htmlNew;
-          else if (cstate == php) cstate = phpNew;
-          else cstate = CodeMirror.copyState(context.mode, cstate);
-          contextNew.push({mode: context.mode, state: cstate, close: context.close});
-        }
-        return {html: htmlNew, php: phpNew, context: contextNew};
+            php = state.php, phpNew = CodeMirror.copyState(phpMode, php), cur;
+        if (state.curState == html) cur = htmlNew;
+        else if (state.curState == php) cur = phpNew;
+        else cur = CodeMirror.copyState(state.curMode, state.curState);
+        return {html: htmlNew, php: phpNew, curMode: state.curMode, curState: cur, curClose: state.curClose};
       },
 
       token: dispatch,
 
       indent: function(state, textAfter) {
-        var cur = state.context[0];
-        return cur.mode.indent(cur.state, textAfter);
+        if ((state.curMode != phpMode && /^\s*<\//.test(textAfter)) ||
+            (state.curMode == phpMode && /^\?>/.test(textAfter)))
+          return htmlMode.indent(state.html, textAfter);
+        return state.curMode.indent(state.curState, textAfter);
       },
 
       electricChars: "/{}:"
