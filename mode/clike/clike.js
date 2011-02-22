@@ -31,7 +31,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     else if (/[\[\]{}\(\),;\:\.]/.test(ch))
       return ret(ch);
     else if (ch == "#" && cpp && state.startOfLine) {
-      while (stream.next() != null) {}
+      stream.skipToEnd();
       return ret("directive", "c-like-preprocessor");
     }
     else if (/\d/.test(ch)) {
@@ -43,7 +43,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
         return chain(stream, state, tokenComment);
       }
       else if (stream.eat("/")) {
-        while (stream.next() != null) {}
+        stream.skipToEnd();
         return ret("comment", "c-like-comment");
       }
       else {
@@ -111,7 +111,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
 
     token: function(stream, state) {
       var ctx = state.context;
-      if (!stream.column()) {
+      if (stream.sol()) {
         if (ctx.align == null) ctx.align = false;
         state.indented = stream.indentation();
         state.startOfLine = true;

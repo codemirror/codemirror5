@@ -608,6 +608,9 @@
       <dt><code>eol() → boolean</code></dt>
       <dd>Returns true only if the stream is at the end of the
       line.</dd>
+      <dt><code>sol() → boolean</code></dt>
+      <dd>Returns true only if the stream is at the start of the
+      line.</dd>
 
       <dt><code>peek() → character</code></dt>
       <dd>Returns the next character in the stream without advancing
@@ -624,12 +627,17 @@
       the next character in the stream 'matches' the given argument,
       it is consumed and returned. Otherwise, <code>undefined</code>
       is returned.</dd>
-      <dt><code>eatWhile(match) → integer</code></dt>
+      <dt><code>eatWhile(match) → boolean</code></dt>
       <dd>Repeatedly calls <code>eat</code> with the given argument,
-      until it fails. Returns the amount of eaten characters.</dd>
-      <dt><code>eatSpace() → integer</code></dt>
+      until it fails. Returns true if any characters were eaten.</dd>
+      <dt><code>eatSpace() → boolean</code></dt>
       <dd>Shortcut for <code>eatWhile</code> when matching
       white-space.</dd>
+      <dt><code>skipToEnd()</code></dt>
+      <dd>Moves the position to the end of the line.</dd>
+      <dt><code>skipTo(ch) → boolean</code></dt>
+      <dd>Skips to the next occurrence of the given character, if
+      found. Returns a true if the character was found.</dd>
       <dt><code>match(pattern, consume, caseFold) → boolean</code></dt>
       <dd>Act like a
       multi-character <code>eat</code>—if <code>consume</code> is true

@@ -166,7 +166,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
     },
 
     token: function(stream, state) {
-      if (!stream.column()) {
+      if (stream.sol()) {
         state.startOfLine = true;
         state.indented = stream.indentation();
       }
