@@ -19,7 +19,7 @@
     function dispatch(stream, state) { // TODO open PHP inside text/css
       if (state.curMode == htmlMode) {
         var style = htmlMode.token(stream, state.curState);
-        if (style == "xml-processing") {
+        if (style == "xml-processing" && /^<\?/.test(stream.current())) {
           state.curMode = phpMode;
           state.curState = state.php;
           state.curClose = /^\?>/;
