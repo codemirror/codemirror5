@@ -173,11 +173,6 @@
       indentation (only works if the mode supports indentation).
       Default is true.</dd>
 
-      <dt id="option_blockDocumentScroll"><code>blockDocumentScroll (boolean)</code></dt>
-      <dd>When true (the default) using the scroll wheel inside the
-      editor will only cause the editor to scroll, not the document
-      around it.</dd>
-
       <dt id="option_lineNumbers"><code>lineNumbers (boolean)</code></dt>
       <dd>Whether to show line numbers to the left of the editor.</dd>
 
@@ -231,6 +226,25 @@
       <dd>The <a href="http://www.w3.org/TR/html401/interact/forms.html#adef-tabindex">tab
       index</a> to assign to the editor. If not given, no tab index
       will be assigned.</dd>
+
+      <dt id="option_onKeyEvent"><code>onKeyEvent (function)</code></dt>
+      <dd>This provides a rather low-level hook into CodeMirror's key
+      handling. If provided, this function will be called on
+      every <code>keydown</code> and <code>keypress</code> event that
+      CodeMirror captures. It will be passed two arguments, the editor
+      instance and the key event. This key event is pretty much the
+      raw key event, except that a <code>stop()</code> method is
+      always added to it. You could feed it to, for
+      example, <code>jQuery.Event</code> to further normalize
+      it.<br>This function can inspect the key event, and handle it if
+      it wants to. It may return true to tell CodeMirror to ignore the
+      event. Be wary that, on some browsers, stopping
+      a <code>keydown</code> does not stop the <code>keypress</code>
+      from firing, whereas on others it does. If you respond to an
+      event, you should probably inspect its <code>type</code>
+      property and only do something when it is <code>keydown</code>
+      (or <code>keypress</code> for actions that need character
+      data).</dd>
     </dl>
 
     <h2 id="styling">Customized Styling</h2>
@@ -350,6 +364,10 @@
       page. <code>yBot</code> is the coordinate of the bottom of the
       cursor. <code>start</code> is a boolean indicating whether you
       want the start or the end of the selection.</dd>
+      <dt id="charCoords"><code>charCoords(pos) → object</code></dt>
+      <dd>Like <code>cursorCoords</code>, but returns the position of
+      an arbitrary characters. <code>pos</code> should be
+      a <code>{line, ch}</code> object.</dd>
 
       <dt id="undo"><code>undo()</code></dt>
       <dd>Undo one edit (if any undo events are stored).</dd>
@@ -359,6 +377,10 @@
       <dd>Returns an object with <code>{undo, redo}</code> properties,
       both of which hold integers, indicating the amount of stored
       undo and redo operations.</dd>
+
+      <dt id="indentLine"><code>indentLine(line)</code></dt>
+      <dd>Reset the given line's indentation to the indentation
+      prescribed by the mode.</dd>
 
       <dt id="getSearchCursor"><code>getSearchCursor(query, start, caseFold) → cursor</code></dt>
       <dd>Used to implement search/replace
@@ -482,7 +504,7 @@
       <dt id="operation"><code>operation(func) → result</code></dt>
       <dd>CodeMirror internally buffers changes and only updates its
       DOM structure after it has finished performing some operation.
-      If you need to performing a lot of operations on a CodeMirror
+      If you need to perform a lot of operations on a CodeMirror
       instance, you can call this method with a function argument. It
       will call the function, buffering up all changes, and only doing
       the expensive update after the function returns. This can be a
@@ -496,10 +518,7 @@
       ensure CodeMirror is still looking as intended.</dd>
 
       <dt id="getInputField"><code>getInputField() → textarea</code></dt>
-      <dd>When registering key handlers on the editor, you should
-      register them on the DOM element returned by this method. It
-      will have focus whenever the editor is focused, so all key events
-      go through it.</dd>
+      <dd>Returns the hiden textarea used to read input.</dd>
       <dt id="getWrapperElement"><code>getWrapperElement() → node</code></dt>
       <dd>Returns the DOM node that represents the editor. Remove this
       from your tree to delete an editor instance.</dd>
@@ -584,6 +603,9 @@
       <dt><code>eol() → boolean</code></dt>
       <dd>Returns true only if the stream is at the end of the
       line.</dd>
+      <dt><code>sol() → boolean</code></dt>
+      <dd>Returns true only if the stream is at the start of the
+      line.</dd>
 
       <dt><code>peek() → character</code></dt>
       <dd>Returns the next character in the stream without advancing
@@ -600,12 +622,17 @@
       the next character in the stream 'matches' the given argument,
       it is consumed and returned. Otherwise, <code>undefined</code>
       is returned.</dd>
-      <dt><code>eatWhile(match) → integer</code></dt>
+      <dt><code>eatWhile(match) → boolean</code></dt>
       <dd>Repeatedly calls <code>eat</code> with the given argument,
-      until it fails. Returns the amount of eaten characters.</dd>
-      <dt><code>eatSpace() → integer</code></dt>
+      until it fails. Returns true if any characters were eaten.</dd>
+      <dt><code>eatSpace() → boolean</code></dt>
       <dd>Shortcut for <code>eatWhile</code> when matching
       white-space.</dd>
+      <dt><code>skipToEnd()</code></dt>
+      <dd>Moves the position to the end of the line.</dd>
+      <dt><code>skipTo(ch) → boolean</code></dt>
+      <dd>Skips to the next occurrence of the given character, if
+      found. Returns true if the character was found.</dd>
       <dt><code>match(pattern, consume, caseFold) → boolean</code></dt>
       <dd>Act like a
       multi-character <code>eat</code>—if <code>consume</code> is true
@@ -623,9 +650,9 @@
       further than the start of the current token will cause things to
       break, so be careful.</dd>
       <dt><code>column() → integer</code></dt>
-      <dd>Returns the character position (in the current line) at
-      which the stream currently sits. Can be used to find out whether
-      a token starts a new line.</dd>
+      <dd>Returns the column (taking into account tabs) at which the
+      current token starts. Can be used to find out whether a token
+      starts a new line.</dd>
       <dt><code>indentation() → integer</code></dt>
       <dd>Tells you how far the current line has been indented, in
       spaces. Corrects for tab characters.</dd>

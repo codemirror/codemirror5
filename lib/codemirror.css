@@ -3,13 +3,14 @@
   height: 300px;
   line-height: 1em;
   font-family: monospace;
+  _position: relative; /* IE6 hack */
 }
 
 .CodeMirror-gutter {
   position: absolute; left: 0; top: 0;
   background-color: #f7f7f7;
   border-right: 1px solid #eee;
-  min-width: 1.2em;
+  min-width: 2em;
   height: 100%;
 }
 .CodeMirror-gutter-text {
@@ -45,5 +46,5 @@ span.CodeMirror-selected {
 }
 
 
-.CodeMirror-matchingbracket {color: #0f0;}
-.CodeMirror-nonmatchingbracket {color: #f22;}
+.CodeMirror-matchingbracket {color: #0f0 !important;}
+.CodeMirror-nonmatchingbracket {color: #f22 !important;}

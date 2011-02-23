@@ -2,16 +2,19 @@
 <html>
   <head>
     <title>CodeMirror 2</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <link rel="stylesheet" href="lib/codemirror.css">
     <script src="lib/codemirror.js"></script>
     <script src="mode/javascript/javascript.js"></script>
     <link rel="stylesheet" href="mode/javascript/javascript.css">
+    <style type="text/css">
+      .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}
+    </style>
   </head>
   <body style="max-width: 70em; margin-left: 2em; font-family: tahoma, arial, sans-serif;">
     <h1>CodeMirror 2</h1>
 
-<form><div style="border-top: 1px solid black; border-bottom: 1px solid black;">
-        <textarea id="code" name="code">
+<form><textarea id="code" name="code">
 // Demo code (the actual new parser character stream implementation)
 
 function StringStream(string) {
@@ -59,7 +62,7 @@ StringStream.prototype = {
     }
   }
 };
-</textarea></div></form>
+</textarea></form>
 
     <script>
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
@@ -75,6 +78,8 @@ StringStream.prototype = {
       <li><a href="mode/xml/">XML/HTML</a></li>
       <li><a href="mode/css/">CSS</a></li>
       <li><a href="mode/htmlmixed/">Mixed-mode HTML</a></li>
+      <li><a href="mode/clike/">Simple mode for C-like languages (C, C++, Java)</a></li>
+      <li><a href="mode/php/">PHP</a></li>
       <li><a href="mode/diff/">Diff</a></li>
     </ul>
 
@@ -82,11 +87,35 @@ StringStream.prototype = {
 
     <ul>
       <li><a href="demo/complete.html">Clever JS autocompletion</a></li>
+      <li><a href="demo/mustache.html">Parsing Mustache templates using an overlay</a></li>
+      <li><a href="demo/search.html">Search/replace and text marking</a></li>
       <li><a href="demo/resize.html">Non-scrolling, resizing editor</a></li>
       <li><a href="demo/marker.html">Setting breakpoints</a></li>
     </ul>
 
-    <h3>CodeMirror 2 has entered beta!</h3>
+    <h3>Getting the Code</h3>
+
+    <p>The recommended way to get the files is...</p>
+
+    <pre style="margin-left: 1em">git clone http://marijnhaverbeke.nl/git/codemirror2</pre>
+
+    <p>There is
+    also <a href="https://github.com/marijnh/codemirror2">github</a>
+    and a zip containing the
+    current <a href="http://codemirror.net/2/codemirror2-latest.zip">development
+    snapshot</a>. Once we have non-beta releases, those will also be
+    avaible in zip form.</p>
+
+    <h3>CodeMirror 2: beta 2</h3>
+
+    <p><a href="https://github.com/marijnh/codemirror2/tree/beta2">Beta
+    2</a> was released on February 22th 2011. The code is somewhat
+    more well-tested, and the API has matured a bit since beta 1. The
+    main thing we need right now is more ports of CodeMirror 1
+    modes—you're invited to <a href="manual.html#modeapi">help</a>
+    with that!</p>
+
+    <h3>CodeMirror 2: beta 1</h3>
 
     <p>Beta 1 was released on February 8th 2011. There are no release
     files yet, just
@@ -99,7 +128,5 @@ StringStream.prototype = {
     issue tracker</a> (anything from the editor behaving badly to a
     typo in the docs).</p>
 
-    <p>Code at <a href="https://github.com/marijnh/codemirror2">https://github.com/marijnh/codemirror2</a>.</p>
-    
   </body>
 </html>

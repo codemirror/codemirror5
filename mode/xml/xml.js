@@ -33,7 +33,8 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
       }
       else if (stream.eat("?")) {
         stream.eatWhile(/[\w\._\-]/);
-        return chain(inBlock("xml-processing", "?>"));
+        state.tokenize = inBlock("xml-processing", "?>");
+        return "xml-processing";
       }
       else {
         type = stream.eat("/") ? "closeTag" : "openTag";
@@ -166,7 +167,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
     },
 
     token: function(stream, state) {
-      if (!stream.column()) {
+      if (stream.sol()) {
         state.startOfLine = true;
         state.indented = stream.indentation();
       }

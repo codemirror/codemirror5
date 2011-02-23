@@ -62,7 +62,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
         return chain(stream, state, jsTokenComment);
       }
       else if (stream.eat("/")) {
-        while (stream.next() != null);
+        stream.skipToEnd();
         return ret("comment", "js-comment");
       }
       else if (state.reAllowed) {
@@ -125,11 +125,11 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       if (v.name == varname) return true;
   }
 
-  function parseJS(state, style, type, content, column) {
+  function parseJS(state, style, type, content, stream) {
     var cc = state.cc;
     // Communicate our context to the combinators.
     // (Less wasteful than consing up a hundred closures on every call.)
-    cx.state = state; cx.column = column; cx.marked = null, cx.cc = cc;
+    cx.state = state; cx.stream = stream; cx.marked = null, cx.cc = cc;
   
     if (!state.lexical.hasOwnProperty("align"))
       state.lexical.align = true;
@@ -172,7 +172,6 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   function pushcontext() {
     if (!cx.state.context) cx.state.localVars = defaultVars;
     cx.state.context = {prev: cx.state.context, vars: cx.state.localVars};
-    
   }
   function popcontext() {
     cx.state.localVars = cx.state.context.vars;
@@ -181,7 +180,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   function pushlex(type, info) {
     var result = function() {
       var state = cx.state;
-      state.lexical = new JSLexical(state.indented, cx.column, type, null, state.lexical, info)
+      state.lexical = new JSLexical(state.indented, cx.stream.column(), type, null, state.lexical, info)
     };
     result.lex = true;
     return result;
@@ -199,7 +198,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   function expect(wanted) {
     return function expecting(type) {
       if (type == wanted) return cont();
-      else if (wanted == ";") return;
+      else if (wanted == ";") return pass();
       else return cont(arguments.callee);
     };
   }
@@ -316,7 +315,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     },
 
     token: function(stream, state) {
-      if (!stream.column()) {
+      if (stream.sol()) {
         if (!state.lexical.hasOwnProperty("align"))
           state.lexical.align = false;
         state.indented = stream.indentation();
@@ -325,10 +324,11 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       var style = state.tokenize(stream, state);
       if (type == "comment") return style;
       state.reAllowed = type == "operator" || type == "keyword c" || type.match(/^[\[{}\(,;:]$/);
-      return parseJS(state, style, type, content, stream.column());
+      return parseJS(state, style, type, content, stream);
     },
 
     indent: function(state, textAfter) {
+      if (state.tokenize != jsTokenBase) return 0;
       var firstChar = textAfter && textAfter.charAt(0), lexical = state.lexical,
           type = lexical.type, closing = firstChar == type;
       if (type == "vardef") return lexical.indented + 4;
@@ -336,7 +336,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       else if (type == "stat" || type == "form") return lexical.indented + indentUnit;
       else if (lexical.info == "switch" && !closing)
         return lexical.indented + (/^(?:case|default)\b/.test(textAfter) ? indentUnit : 2 * indentUnit);
-      else if (lexical.align) return lexical.column - (closing ? 1 : 0);
+      else if (lexical.align) return lexical.column + (closing ? 0 : 1);
       else return lexical.indented + (closing ? 0 : indentUnit);
     },
 
