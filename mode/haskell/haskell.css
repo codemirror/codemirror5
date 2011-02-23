@@ -1,0 +1,25 @@
+span.hs-char,
+span.hs-float,
+span.hs-integer,
+span.hs-string 	{color: #762;}
+
+span.hs-comment {color: #262;font-style: italic;}
+span.hs-pragma {color: #555;font-style: italic;}
+
+span.hs-special,
+span.hs-varid,
+span.hs-varsym {color: #000;}
+
+span.hs-conid,
+span.hs-consym {color: #b11;}
+
+span.hs-qualifier {color: #555;}
+
+span.hs-reservedid,
+span.hs-reservedop {color: #730;}
+
+span.hs-prelude-varid,
+span.hs-prelude-varsym {color: #30a;}
+span.hs-prelude-conid {color: #b11;}
+
+span.hs-error {background-color: #fdd;}
