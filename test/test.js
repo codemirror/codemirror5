@@ -162,6 +162,22 @@ testCM("undo", function(cm) {
   eq(cm.historySize().undo, 10);
 }, {value: "abc"});
 
+testCM("undoMultiLine", function(cm) {
+  cm.replaceRange("x", {line:0, ch: 0});
+  cm.replaceRange("y", {line:1, ch: 0});
+  cm.undo();
+  eq(cm.getValue(), "abc\ndef\nghi");
+  cm.replaceRange("y", {line:1, ch: 0});
+  cm.replaceRange("x", {line:0, ch: 0});
+  cm.undo();
+  eq(cm.getValue(), "abc\ndef\nghi");
+  cm.replaceRange("y", {line:2, ch: 0});
+  cm.replaceRange("x", {line:1, ch: 0});
+  cm.replaceRange("z", {line:2, ch: 0});
+  cm.undo();
+  eq(cm.getValue(), "abc\ndef\nghi");
+}, {value: "abc\ndef\nghi"});
+
 // Scaffolding
 
 function htmlEscape(str) {
