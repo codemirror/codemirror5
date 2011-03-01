@@ -14,7 +14,7 @@
     var htmlMode = CodeMirror.getMode(config, "text/html");
     var jsMode = CodeMirror.getMode(config, "text/javascript");
     var cssMode = CodeMirror.getMode(config, "text/css");
-    var phpMode = CodeMirror.getMode(config, {name: "clike", keywords: phpKeywords, multiLineStrings: true});
+    var phpMode = CodeMirror.getMode(config, {name: "clike", keywords: phpKeywords, multiLineStrings: true, $vars: true});
 
     function dispatch(stream, state) { // TODO open PHP inside text/css
       if (state.curMode == htmlMode) {

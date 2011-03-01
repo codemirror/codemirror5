@@ -1,6 +1,6 @@
 CodeMirror.defineMode("clike", function(config, parserConfig) {
   var indentUnit = config.indentUnit, keywords = parserConfig.keywords,
-      cpp = parserConfig.useCPP, multiLineStrings = parserConfig.multiLineStrings;
+      cpp = parserConfig.useCPP, multiLineStrings = parserConfig.multiLineStrings, $vars = parserConfig.$vars;
   var isOperatorChar = /[+\-*&%=<>!?|]/;
 
   function chain(stream, state, f) {
@@ -44,6 +44,10 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     else if (isOperatorChar.test(ch)) {
       stream.eatWhile(isOperatorChar);
       return ret("operator");
+    }
+    else if ($vars && ch == "$") {
+      stream.eatWhile(/[\w\$_]/);
+      return ret("word", "c-like-var");
     }
     else {
       stream.eatWhile(/[\w\$_]/);
