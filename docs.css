@@ -1,0 +1,9 @@
+body {
+  max-width: 70em;
+  margin-left: 2em;
+  margin-bottom: 4em;
+  font-family: tahoma, arial, sans-serif;
+}
+
+pre {margin-left: 2em;}
+dl dl {margin: 0;}

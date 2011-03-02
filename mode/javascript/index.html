@@ -6,12 +6,13 @@
     <script src="../../lib/codemirror.js"></script>
     <script src="javascript.js"></script>
     <link rel="stylesheet" href="javascript.css">
+    <link rel="stylesheet" href="../../docs.css">
+    <style type="text/css">.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
   </head>
-  <body style="max-width: 70em; margin-left: 2em; font-family: tahoma, arial, sans-serif;">
+  <body>
     <h1>CodeMirror 2: JavaScript mode</h1>
 
-<form><div style="border-top: 1px solid black; border-bottom: 1px solid black;">
-        <textarea id="code" name="code">
+<form><textarea id="code" name="code">
 // Demo code (the actual new parser character stream implementation)
 
 function StringStream(string) {
@@ -59,7 +60,7 @@ StringStream.prototype = {
     }
   }
 };
-</textarea></div></form>
+</textarea></form>
 
     <script>
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {

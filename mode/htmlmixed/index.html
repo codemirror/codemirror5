@@ -11,11 +11,12 @@
     <script src="../css/css.js"></script>
     <link rel="stylesheet" href="../css/css.css">
     <script src="htmlmixed.js"></script>
+    <link rel="stylesheet" href="../../docs.css">
+    <style>.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
   </head>
   <body>
     <h1>CodeMirror 2: HTML mixed mode</h1>
-    <form><div style="border-top: 1px solid black; border-bottom: 1px solid black;">
-        <textarea id="code" name="code">
+    <form><textarea id="code" name="code">
 <html style="color: green">
   <!-- this is a comment -->
   <head>
@@ -38,7 +39,7 @@
     </script>
   </body>
 </html>
-</textarea></div></form>
+</textarea></form>
     <script>
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {mode: "text/html", tabMode: "indent"});
     </script>
