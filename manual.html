@@ -468,8 +468,10 @@
 
       <dt id="getCursor"><code>getCursor(start) → object</code></dt>
       <dd><code>start</code> is a boolean indicating whether the start
-      or the end of the selection must be retrieved. A <code>{line,
-      ch}</code> object will be returned.</dd>
+      or the end of the selection must be retrieved. If it is not
+      given, the current cursor pos, i.e. the side of the selection
+      that would move if you pressed an arrow key, is chosen.
+      A <code>{line, ch}</code> object will be returned.</dd>
       <dt id="somethingSelected"><code>somethingSelected() → boolean</code></dt>
       <dd>Return true if any text is selected.</dd>
       <dt id="setCursor"><code>setCursor(pos)</code></dt>
