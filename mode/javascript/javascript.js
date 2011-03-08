@@ -293,7 +293,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   }
   function functiondef(type, value) {
     if (type == "variable") {register(value); return cont(functiondef);}
-    if (type == "(") return cont(pushcontext, commasep(funarg, ")"), statement, popcontext);
+    if (type == "(") return cont(pushlex(")"), pushcontext, commasep(funarg, ")"), poplex, statement, popcontext);
   }
   function funarg(type, value) {
     if (type == "variable") {register(value); return cont();}
