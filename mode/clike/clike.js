@@ -102,7 +102,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     startState: function(basecolumn) {
       return {
         tokenize: tokenBase,
-        context: new Context((basecolumn || 0) - indentUnit, "top", false),
+        context: new Context((basecolumn || 0) - indentUnit, 0, "top", false),
         indented: 0,
         startOfLine: true
       };
