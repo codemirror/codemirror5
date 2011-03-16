@@ -368,6 +368,10 @@
       <dd>Like <code>cursorCoords</code>, but returns the position of
       an arbitrary characters. <code>pos</code> should be
       a <code>{line, ch}</code> object.</dd>
+      <dt id="coordsChar"><code>coordsChar(object) → pos</code></dt>
+      <dd>Given an <code>{x, y}</code> object (in page coordinates),
+      returns the <code>{line, ch}</code> position that corresponds to
+      it.</dd>
 
       <dt id="undo"><code>undo()</code></dt>
       <dd>Undo one edit (if any undo events are stored).</dd>
