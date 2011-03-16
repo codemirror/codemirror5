@@ -441,13 +441,17 @@
       If this is not what you want, you can include the
       string <code>%N%</code> in the text, which will be replaced by
       the line number.</dd>
-
       <dt id="clearMarker"><code>clearMarker(line)</code></dt>
       <dd>Clears a marker created
       with <code>setMarker</code>. <code>line</code> can be either a
       number or a handle returned by <code>setMarker</code> (since a
       number may now refer to a different line if something was added
       or deleted).</dd>
+      <dt id="setLineClass"><code>setLineClass(line, className) → lineHandle</code></dt>
+      <dd>Set a CSS class name for the given line. <code>line</code>
+      can be a number or a line handle (as returned
+      by <code>setMarker</code> or this function).
+      Pass <code>null</code> to clear the class for a line.</dd>
 
       <dt id="lineInfo"><code>lineInfo(line) → object</code></dt>
       <dd>Returns the line number, text content, and marker status of
