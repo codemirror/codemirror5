@@ -1,0 +1,20 @@
+span.css-at {color: #708;}
+span.css-unit {color: #281;}
+span.css-value {color: #708;}
+span.css-identifier {color: black;}
+span.css-selector {color: #11B;}
+span.css-important {color: #00F;}
+span.css-colorcode {color: #299;}
+span.css-comment {color: #A70;}
+span.css-string {color: #A22;}
+
+span.stex-unit { color: #281; }
+span.stex-identifier { color: black; }
+span.stex-slash { color: #FAA; }
+span.stex-command { color: #00F; }
+span.stex-comment { color: #A70; }
+span.stex-import { color: #00F; }
+span.stex-filepath { color: #852626; }
+span.stex-module { color: #852626; }
+span.stex-error { text-decoration: underline; color: red; }
+span.stex-string { color: #A22; }
