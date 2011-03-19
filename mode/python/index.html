@@ -1,0 +1,106 @@
+<!doctype html>
+<html>
+  <head>
+    <title>CodeMirror 2: Python mode</title>
+    <link rel="stylesheet" href="../../lib/codemirror.css">
+    <script src="../../lib/codemirror.js"></script>
+    <script src="python.js"></script>
+    <link rel="stylesheet" href="python.css">
+    <style>.CodeMirror {background: #f8f8f8;}</style>
+    <link rel="stylesheet" href="../../docs.css">
+  </head>
+  <body>
+    <h1>CodeMirror 2: Python mode</h1>
+    <form><textarea id="code" name="code">
+        # Literals
+        1234
+        0.0e101
+        .123
+        0b01010011100
+        0o01234567
+        0x0987654321abcdef
+
+        # String Literals
+        '''Multiline string example: "I contend that we are both atheists.
+        I just believe in one fewer god than you do." --Stephen Roberts'''
+        Example of "double quotes containing 'single quotes' inside"
+        Example of 'single quotes containing "double quotes" inside'
+
+        # Keywords
+        as assert break class continue def del elif else except
+        finally for from global if import lambda pass raise
+        return try while with yield
+
+        # Types
+        bool classmethod complex dict enumerate float frozenset int list object
+        property reversed set slice staticmethod str super tuple type
+
+        # Some Example code
+        import os
+        from package import ParentClass
+
+        @nonsenseDecorator
+        def doesNothing():
+            pass
+
+        class ExampleClass(ParentClass):
+            @staticmethod
+            def example(inputStr):
+                a = list(inputStr)
+                a.reverse()
+                return ''.join(a)
+
+            def __init__(self, mixin = 'Hello'):
+                self.mixin = mixin
+
+        # Stuff that doesn't work in CodeMirror 2 yet
+
+        # Python 2 Types (otherwise Identifiers)
+        basestring buffer file long unicode xrange
+
+        # Python 3 Types (otherwise Identifiers)
+        bytearray bytes filter map memoryview open range zip
+
+        # Python 2 Keywords (otherwise Identifiers)
+        exec print
+
+        # Python 3 Keywords (otherwise Identifiers)
+        nonlocal
+
+        # Example Strict Errors
+        def doesNothing():
+           pass # indentUnit is set to 4 but this line is indented 3
+
+        # Error Literals
+        .0b000
+        0.0e
+        0e
+
+        # Identifiers
+        __a__
+        a.b
+        a.b.c
+
+        # Error Identifiers
+        a.
+
+        # Operators
+        + - * / % & | ^ ~ < >
+        == != <= >= <> << >> // **
+        and or not in is
+
+        # Delimiters
+        () [] {} , : ` = ; @ . # At-signs and periods require context
+        += -= *= /= %= &= |= ^=
+        //= >>= <<= **=
+
+</textarea></form>
+    <script>
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        mode: "python"
+      });
+    </script>
+
+    <p><strong>MIME types defined:</strong> <code>text/x-python</code>.</p>
+  </body>
+</html>
