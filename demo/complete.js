@@ -68,7 +68,10 @@
     }
     sel.firstChild.selected = true;
     sel.size = Math.min(10, completions.length);
-    editor.addWidget(cur, complete, true);
+    var pos = editor.cursorCoords();
+    complete.style.left = pos.x + "px";
+    complete.style.top = pos.yBot + "px";
+    document.body.appendChild(complete);
     // Hack to hide the scrollbar.
     if (completions.length <= 10)
       complete.style.width = (sel.clientWidth - 1) + "px";
