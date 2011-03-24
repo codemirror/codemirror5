@@ -24,7 +24,10 @@
     lineNumbers: true,
     onKeyEvent: function(i, e) {
       // Hook into ctrl-space
-      if (e.keyCode == 32 && (e.ctrlKey || e.metaKey) && !e.altKey) return startComplete();
+      if (e.keyCode == 32 && (e.ctrlKey || e.metaKey) && !e.altKey) {
+        e.stop();
+        return startComplete();
+      }
     }
   });
 
@@ -79,7 +82,7 @@
     function pick() {
       insert(sel.options[sel.selectedIndex].value);
       close();
-      editor.focus();
+      setTimeout(function(){editor.focus();}, 50);
     }
     connect(sel, "blur", close);
     connect(sel, "keydown", function(event) {
@@ -88,7 +91,7 @@
       if (code == 13 || code == 32) {event.stop(); pick();}
       // Escape
       else if (code == 27) {event.stop(); close(); editor.focus();}
-      else if (code != 38 && code != 40) {close(); editor.focus();}
+      else if (code != 38 && code != 40) {close(); editor.focus(); setTimeout(startComplete, 50);}
     });
     connect(sel, "dblclick", pick);
 
