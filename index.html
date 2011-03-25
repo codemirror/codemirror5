@@ -1,135 +1,224 @@
 <!doctype html>
 <html>
   <head>
-    <title>CodeMirror 2</title>
+    <title>CodeMirror</title>
+    <link rel="stylesheet" type="text/css" href="css/docs.css"/>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <link rel="stylesheet" href="lib/codemirror.css">
-    <script src="lib/codemirror.js"></script>
-    <script src="mode/javascript/javascript.js"></script>
-    <link rel="stylesheet" href="mode/javascript/javascript.css">
-    <style type="text/css">
-      .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}
-    </style>
-    <link rel="stylesheet" href="docs.css">
+    <link rel="alternate" href="http://twitter.com/statuses/user_timeline/242283288.rss" type="application/rss+xml"/>
   </head>
   <body>
-    <h1>CodeMirror 2</h1>
 
-<form><textarea id="code" name="code">
-// Demo code (the actual new parser character stream implementation)
+<h1><span class="logo-braces">{ }</span> <a href="http://codemirror.net/">CodeMirror</a></h1>
 
-function StringStream(string) {
-  this.pos = 0;
-  this.string = string;
-}
+<pre class="grey">
+<img src="css/baboon.png" class="logo" alt="logo"/>/* In-browser code editing
+   made bearable */
+</pre>
 
-StringStream.prototype = {
-  done: function() {return this.pos >= this.string.length;},
-  peek: function() {return this.string.charAt(this.pos);},
-  next: function() {
-    if (this.pos &lt; this.string.length)
-      return this.string.charAt(this.pos++);
-  },
-  eat: function(match) {
-    var ch = this.string.charAt(this.pos);
-    if (typeof match == "string") var ok = ch == match;
-    else var ok = ch &amp;&amp; match.test ? match.test(ch) : match(ch);
-    if (ok) {this.pos++; return ch;}
-  },
-  eatWhile: function(match) {
-    var start = this.pos;
-    while (this.eat(match));
-    if (this.pos > start) return this.string.slice(start, this.pos);
-  },
-  backUp: function(n) {this.pos -= n;},
-  column: function() {return this.pos;},
-  eatSpace: function() {
-    var start = this.pos;
-    while (/\s/.test(this.string.charAt(this.pos))) this.pos++;
-    return this.pos - start;
-  },
-  match: function(pattern, consume, caseInsensitive) {
-    if (typeof pattern == "string") {
-      function cased(str) {return caseInsensitive ? str.toLowerCase() : str;}
-      if (cased(this.string).indexOf(cased(pattern), this.pos) == this.pos) {
-        if (consume !== false) this.pos += str.length;
-        return true;
-      }
-    }
-    else {
-      var match = this.string.slice(this.pos).match(pattern);
-      if (match &amp;&amp; consume !== false) this.pos += match[0].length;
-      return match;
-    }
-  }
-};
-</textarea></form>
+<div class="clear"><div class="left blk">
 
-    <script>
-      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-        lineNumbers: true,
-        matchBrackets: true
-      });
-    </script>
+  <p style="margin-top: 0">CodeMirror is a JavaScript library that can
+  be used to create a relatively pleasant editor interface for
+  code-like content &#x2015; computer programs, HTML markup, and
+  similar. If a mode has been written for the language you are
+  editing, the code will be coloured, and the editor will optionally
+  help you with indentation.</p>
 
-    <h3>Available modes:</h3>
+  <p>This is the project page for CodeMirror 2, the currently more
+  actively developed, and recommended
+  version. <a href="1/index.html">CodeMirror 1</a> is still available
+  from here.</p>
+ 
+  <div class="clear"><div class="left1 blk">
+
+    <h2 style="margin-top: 0">Supported modes:</h2>
 
     <ul>
-      <li><a href="mode/javascript/">JavaScript</a></li>
-      <li><a href="mode/xml/">XML/HTML</a></li>
-      <li><a href="mode/css/">CSS</a></li>
-      <li><a href="mode/htmlmixed/">Mixed-mode HTML</a></li>
-      <li><a href="mode/clike/">Simple mode for C-like languages (C, C++, Java)</a></li>
-      <li><a href="mode/php/">PHP</a></li>
-      <li><a href="mode/diff/">Diff</a></li>
-      <li><a href="mode/haskell/">Haskell</a></li>
-      <li><a href="mode/stex/">sTeX</a></li>
+      <li><a href="mode/javascript/index.html">JavaScript</a></li>
+      <li><a href="mode/xml/index.html">XML/HTML</a></li>
+      <li><a href="mode/css/index.html">CSS</a></li>
+      <li><a href="mode/htmlmixed/index.html">HTML mixed-mode</a></li>
+      <li><a href="mode/php/index.html">PHP</a></li>
+      <li><a href="mode/diff/index.html">diff</a></li>
+      <li><a href="mode/clike/index.html">C, Java, and similar</a></li>
+      <li><a href="mode/stex/index.html">sTeX, LaTeX</a></li>
+      <li><a href="mode/haskell/index.html">Haskell</a></li>
     </ul>
 
-    <h3>Usage demos:</h3>
+  </div><div class="left2 blk">
+
+    <h2 style="margin-top: 0">Usage demos:</h2>
 
     <ul>
-      <li><a href="demo/complete.html">Clever JS autocompletion</a></li>
-      <li><a href="demo/mustache.html">Parsing Mustache templates using an overlay</a></li>
-      <li><a href="demo/search.html">Search/replace and text marking</a></li>
-      <li><a href="demo/resize.html">Non-scrolling, resizing editor</a></li>
+      <li><a href="demo/complete.html">Autocompletion</a></li>
+      <li><a href="demo/mustache.html">Mode overlays</a></li>
+      <li><a href="demo/search.html">Search/replace</a></li>
+      <li><a href="demo/resize.html">Auto-resizing editor</a></li>
       <li><a href="demo/marker.html">Setting breakpoints</a></li>
+      <li><a href="demo/activeline.html">Highlighting the current line</a></li>
     </ul>
 
-    <h3>Getting the Code</h3>
+  </div></div>
 
-    <p>The recommended way to get the files is...</p>
+  <h2 id="code">Getting the code</h2>
 
-    <pre style="margin-left: 1em">git clone http://marijnhaverbeke.nl/git/codemirror2</pre>
+  <p>All of CodeMirror is released under a <a
+  href="LICENSE">MIT-style</a> license. To get it, you can download
+  the <a href="http://codemirror.net/codemirror.zip">latest
+  release</a> or the current <a
+  href="http://codemirror.net/codemirror-latest.zip">development
+  snapshot</a> as zip files. To create a custom minified script file,
+  you can use the <a href="compress.html">compression API</a>.</p>
 
-    <p>There is
-    also <a href="https://github.com/marijnh/codemirror2">github</a>
-    and a zip containing the
-    current <a href="http://codemirror.net/2/codemirror2-latest.zip">development
-    snapshot</a>. Once we have non-beta releases, those will also be
-    avaible in zip form.</p>
+  <p>We use <a href="http://git-scm.com/">git</a> for version control.
+  The main repository can be fetched in this way:</p>
 
-    <h3>CodeMirror 2: beta 2</h3>
+  <pre class="code">git clone http://marijnhaverbeke.nl/git/codemirror2</pre>
 
-    <p><a href="https://github.com/marijnh/codemirror2/tree/beta2">Beta
-    2</a> was released on February 22th 2011. The code is somewhat
-    more well-tested, and the API has matured a bit since beta 1. The
-    main thing we need right now is more ports of CodeMirror 1
-    modes—you're invited to <a href="manual.html#modeapi">help</a>
-    with that!</p>
+  <p>CodeMirror can also be found on GitHub at <a
+  href="http://github.com/marijnh/CodeMirror2">marijnh/CodeMirror2</a>.
+  If you plan to hack on the code and contribute patches, the best way
+  to do it is to create a GitHub fork, and send pull requests.</p>
 
-    <h3>CodeMirror 2: beta 1</h3>
+  <h2 id="documention">Documentation</h2>
 
-    <p>Beta 1 was released on February 8th 2011. There are no release
-    files yet, just
-    a <a href="https://github.com/marijnh/codemirror2/tree/beta1">git
-    tag</a>.</p>
+  <p>The <a href="manual.html">manual</a> is your first stop for
+  learning how to use this library. It starts with a quick explanation
+  of how to use the editor, and then describes all of the (many)
+  options and methods that CodeMirror exposes.</p>
 
-    <p>There is now a <a href="manual.html">manual</a>, and you are
-    encouraged to try the library out and leave bug reports at
-    the <a href="https://github.com/marijnh/codemirror2/issues">github
-    issue tracker</a> (anything from the editor behaving badly to a
-    typo in the docs).</p>
+  <p>For those who want to learn more about the code, there is
+  an <a href="internals.html">overview of the internals</a> available.
+  The <a href="http://github.com/marijnh/CodeMirror2">source code</a>
+  itself is, for the most part, also well commented.</p>
+
+  <h2 id="support">Support and bug reports</h2>
+
+  <p>There is
+  a <a href="http://groups.google.com/group/codemirror">Google
+  group</a> (a sort of mailing list/newsgroup thing) for discussion
+  and news related to CodeMirror. Reporting bugs is best done
+  on <a href="http://github.com/marijnh/CodeMirror2/issues">github</a>.
+  You can also e-mail me
+  directly: <a href="mailto:marijnh@gmail.com">Marijn
+  Haverbeke</a>.</p>
+
+  <h2 id="supported">Supported browsers</h2>
+
+  <p>The following browsers are able to run CodeMirror:</p>
+
+  <ul>
+    <li>Firefox 2 or higher</li>
+    <li>Chrome, any version</li>
+    <li>Safari 3 or higher</li>
+    <li>Internet Explorer 6 or higher</li>
+    <li>Opera 9 or higher (with some key-handling problems on OS X)</li>
+  </ul>
+
+  <p>I am not actively testing against every new browser release, and
+  vendors have a habit of introducing bugs all the time, so I am
+  relying on the community to tell me when something breaks.
+  See <a href="#support">below</a> for information on how to contact
+  me.</p>
+
+</div>
+
+<div class="right blk">
+
+  <a href="http://codemirror.net/codemirror.zip" class="download">Download the latest release</a>
+
+  <h2>Make a donation</h2>
+
+  <ul>
+    <li><span onclick="document.getElementById('paypal').submit();" class="quasilink">Paypal</span></li>
+    <li><span onclick="document.getElementById('bankinfo').style.display = 'block';" class="quasilink">Bank</span></li>
+  </ul>
+
+  <p id="bankinfo" style="display: none;">
+    Bank: <i>Rabobank</i><br/>
+    Country: <i>Netherlands</i><br/>
+    SWIFT: <i>RABONL2U</i><br/>
+    Account: <i>147850770</i><br/>
+    Name: <i>Marijn Haverbeke</i><br/>
+    IBAN: <i>NL26 RABO 0147 8507 70</i>
+  </p>
+
+  <h2>Releases:</h2>
+
+  <p class="rel">22-02-2011: <a href="https://github.com/marijnh/codemirror2/tree/beta2">Version 2.0 beta 2</a>:</p>
+  <p class="rel-note">Somewhate more mature API, lots of bugs shaken out.</a>
+
+  <p class="rel">17-02-2011: <a href="http://codemirror.net/codemirror-0.94.zip">Version 0.94</a>:</p>
+  <ul class="rel-note">
+    <li><code>tabMode: "spaces"</code> was modified slightly (now indents when something is selected).</li>
+    <li>Fixes a bug that would cause the selection code to break on some IE versions.</li>
+    <li>Disabling spell-check on WebKit browsers now works.</li>
+  </ul>
+
+  <p class="rel">08-02-2011: <a href="http://codemirror.net/2/">Version 2.0 beta 1</a>:</p>
+  <p class="rel-note">CodeMirror 2 is a complete rewrite of
+  CodeMirror, no longer depending on an editable frame.</p>
+
+  <p class="rel">19-01-2011: <a href="http://codemirror.net/codemirror-0.93.zip">Version 0.93</a>:</p>
+  <ul class="rel-note">
+    <li>Added a <a href="contrib/regex/index.html">Regular Expression</a> parser.</li>
+    <li>Fixes to the PHP parser.</li>
+    <li>Support for regular expression in search/replace.</li>
+    <li>Add <code>save</code> method to instances created with <code>fromTextArea</code>.</li>
+    <li>Add support for MS T-SQL in the SQL parser.</li>
+    <li>Support use of CSS classes for highlighting brackets.</li>
+    <li>Fix yet another hang with line-numbering in hidden editors.</li>
+  </ul>
+
+  <p class="rel">17-12-2010: <a href="http://codemirror.net/codemirror-0.92.zip">Version 0.92</a>:</p>
+  <ul class="rel-note">
+    <li>Make CodeMirror work in XHTML documents.</li>
+    <li>Fix bug in handling of backslashes in Python strings.</li>
+    <li>The <code>styleNumbers</code> option is now officially
+    supported and documented.</li>
+    <li><code>onLineNumberClick</code> option added.</li>
+    <li>More consistent names <code>onLoad</code> and
+    <code>onCursorActivity</code> callbacks. Old names still work, but
+    are deprecated.</li>
+    <li>Add a <a href="contrib/freemarker/index.html">Freemarker</a> mode.</li>
+  </ul>
+
+  <p class="rel">11-11-2010: <a
+  href="http://codemirror.net/codemirror-0.91.zip">Version 0.91</a>:</p>
+  <ul class="rel-note">
+    <li>Adds support for <a href="contrib/java">Java</a>.</li>
+    <li>Small additions to the <a href="contrib/php">PHP</a> and <a href="contrib/sql">SQL</a> parsers.</li>
+    <li>Work around various <a href="https://bugs.webkit.org/show_bug.cgi?id=47806">Webkit</a> <a href="https://bugs.webkit.org/show_bug.cgi?id=23474">issues</a>.</li>
+    <li>Fix <code>toTextArea</code> to update the code in the textarea.</li>
+    <li>Add a <code>noScriptCaching</code> option (hack to ease development).</li>
+    <li>Make sub-modes of <a href="mixedtest.html">HTML mixed</a> mode configurable.</li>
+  </ul>
+
+  <p class="rel">02-10-2010: <a
+  href="http://codemirror.net/codemirror-0.9.zip">Version 0.9</a>:</p>
+  <ul class="rel-note">
+    <li>Add support for searching backwards.</li>
+    <li>There are now parsers for <a href="contrib/scheme/index.html">Scheme</a>, <a href="contrib/xquery/index.html">XQuery</a>, and <a href="contrib/ometa/index.html">OmetaJS</a>.</li>
+    <li>Makes <code>height: "dynamic"</code> more robust.</li>
+    <li>Fixes bug where paste did not work on OS X.</li>
+    <li>Add a <code>enterMode</code> and <code>electricChars</code> options to make indentation even more customizable.</li>
+    <li>Add <code>firstLineNumber</code> option.</li>
+    <li>Fix bad handling of <code>@media</code> rules by the CSS parser.</li>
+    <li>Take a new, more robust approach to working around the invisible-last-line bug in WebKit.</li>
+  </ul>
+
+  <p><a href="oldrelease.html">Older releases...</a></p>
+
+</div></div>
+
+<div style="height: 2em">&nbsp;</div>
+
+  <form action="https://www.paypal.com/cgi-bin/webscr" method="post" id="paypal">
+    <input type="hidden" name="cmd" value="_s-xclick"/>
+    <input type="hidden" name="hosted_button_id" value="3FVHS5FGUY7CC"/>
+  </form>
+
+  <script type="text/javascript" src="css/font.js"></script>
 
   </body>
 </html>

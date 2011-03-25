@@ -1,23 +1,21 @@
 <!doctype html>
 <html>
   <head>
-    <title>CodeMirror 2 Manual</title>
-    <link rel="stylesheet" href="docs.css">
+    <title>CodeMirror: User Manual</title>
+    <link rel="stylesheet" type="text/css" href="css/docs.css"/>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <style>dl dl {margin: 0;}</style>
   </head>
   <body>
-    <h1>CodeMirror 2: The provisionary manual</h1>
 
-    <h2>Contents</h2>
+<h1><span class="logo-braces">{ }</span> <a href="http://codemirror.net/">CodeMirror</a></h1>
 
-    <ul>
-      <li><a href="#overview">Overview</a></li>
-      <li><a href="#usage">Basic Usage</a></li>
-      <li><a href="#config">Configuration</a></li>
-      <li><a href="#styling">Customized Styling</a></li>
-      <li><a href="#api">Programming API</a></li>
-      <li><a href="#modeapi">Writing CodeMirror Modes</a></li>
-    </ul>
+<pre class="grey">
+<img src="css/baboon.png" class="logo" alt="logo"/>/* User manual and
+   reference guide */
+</pre>
+
+<div class="clear"><div class="leftbig blk">
 
     <h2 id="overview">Overview</h2>
 
@@ -37,7 +35,8 @@
 
     <p>The easiest way to use CodeMirror is to simply load the script
     and style sheet found under <code>lib/</code> in the distribution,
-    plus the script and style sheet for the mode you want to use. For
+    plus the script and style sheet for the mode(s) you want to use.
+    (See also <a href="compress.html">the compresion helper</a>.) For
     example:</p>
 
     <pre>&lt;script src="lib/codemirror.js">&lt;/script>
@@ -748,6 +747,25 @@
     where <code>modeSpec</code> can be a string or object specifying a
     mode, as in the <a href="#option_mode"><code>mode</code></a>
     option.</p>
+
+</div><div class="rightsmall blk">
+
+    <h2>Contents</h2>
+
+    <ul>
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#usage">Basic Usage</a></li>
+      <li><a href="#config">Configuration</a></li>
+      <li><a href="#styling">Customized Styling</a></li>
+      <li><a href="#api">Programming API</a></li>
+      <li><a href="#modeapi">Writing CodeMirror Modes</a></li>
+    </ul>
+
+</div></div>
+
+<div style="height: 2em">&nbsp;</div>
+
+<script type="text/javascript" src="css/font.js"></script>
 
   </body>
 </html>
