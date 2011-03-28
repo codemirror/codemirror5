@@ -1,13 +1,23 @@
 <!doctype html>
-<html><head>
-<title>CodeMirror 2: (Re-) Implementing A Syntax-Highlighting Editor in JavaScript</title>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-<link rel="stylesheet" href="docs.css">
-</head><body>
+<html>
+  <head>
+    <title>CodeMirror: Internals</title>
+    <link rel="stylesheet" type="text/css" href="css/docs.css"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <style>dl dl {margin: 0;}</style>
+  </head>
+  <body>
 
-<h1>(Re-) Implementing A Syntax-Highlighting Editor in JavaScript</h1>
+<h1><span class="logo-braces">{ }</span> <a href="http://codemirror.net/">CodeMirror</a></h1>
 
-<p style="font-size: 85%">
+<pre class="grey">
+<img src="css/baboon.png" class="logo" alt="logo"/>/* (Re-) Implementing A Syntax-
+   Highlighting Editor in JavaScript */
+</pre>
+
+<div class="clear"><div class="leftbig blk">
+
+<p style="font-size: 85%" id="intro">
   <strong>Topic:</strong> JavaScript, code editor implementation<br>
   <strong>Author:</strong> Marijn Haverbeke<br>
   <strong>Date:</strong> March 2nd 2011
@@ -81,7 +91,7 @@ also kept breaking in newly released versions, requiring me to come up
 with <em>new</em> scary hacks in order to keep up. This was starting
 to lose its appeal.</p>
 
-<h2>General Approach</h2>
+<h2 id="approach">General Approach</h2>
 
 <p>What CodeMirror 2 does is try to sidestep most of the hairy hacks
 that came up in version 1. I owe a lot to the
@@ -114,7 +124,7 @@ do the rest only when needed. (Fortunately, the <code>onscroll</code>
 event works almost the same on all browsers, and lends itself well to
 displaying things only as they are scrolled into view.)</p>
 
-<h2>Input</h2>
+<h2 id="input">Input</h2>
 
 <p>ACE uses its hidden textarea only as a text input shim, and does
 all cursor movement and things like text deletion itself by directly
@@ -142,7 +152,7 @@ no way for a script to detect this.</p>
 textarea, keys like page up and ctrl-end won't do the right thing.
 CodeMirror is catching those events and handling them itself.</p>
 
-<h2>Selection</h2>
+<h2 id="selection">Selection</h2>
 
 <p>Getting and setting the selection range of a textarea in modern
 browsers is trivial—you just use the <code>selectionStart</code>
@@ -190,7 +200,7 @@ This, of course, doesn't work if the first time the key is used was
 for extending an inverted selection, but it works most of the
 time.</p>
 
-<h2>Intelligent Updating</h2>
+<h2 id="update">Intelligent Updating</h2>
 
 <p>One thing that always comes up when you have a complicated internal
 state that's reflected in some user-visible external representation
@@ -248,7 +258,7 @@ uses this to reset individual lines, the refresh updater builds an
 HTML chunk for the whole visible document at once, and then uses a
 single <code>innerHTML</code> update to do the refresh.</p>
 
-<h2>Parsers can be Simple</h2>
+<h2 id="parse">Parsers can be Simple</h2>
 
 <p>When I wrote CodeMirror 1, I
 thought <a href="http://codemirror.net/story.html#parser">interruptable
@@ -289,7 +299,7 @@ manages some 1500 lines during that time on Chrome. All it has to do
 is munge strings, so there is no real reason for it to be slow
 anymore.</p>
 
-<h2>What Gives?</h2>
+<h2 id="summary">What Gives?</h2>
 
 <p>Given all this, what can you expect from CodeMirror 2? First, the
 good:</p>
@@ -348,5 +358,21 @@ this case. These can be worked around on a case-by-case basis, but
 I haven't put much energy into that yet.</li>
 
 </ul>
+
+</div><div class="rightsmall blk">
+
+    <h2>Contents</h2>
+
+    <ul>
+      <li><a href="#intro">Introduction</a></li>
+      <li><a href="#approach">General Approach</a></li>
+      <li><a href="#input">Input</a></li>
+      <li><a href="#selection">Selection</a></li>
+      <li><a href="#update">Intelligent Updating</a></li>
+      <li><a href="#parse">Parsing</a></li>
+      <li><a href="#summary">What Gives?</a></li>
+    </ul>
+
+</div></div>
 
 </body></html>
