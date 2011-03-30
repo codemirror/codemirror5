@@ -30,7 +30,6 @@ h3 {
 }
 
 pre {
-  font-family: Courier New, monospaced;
   background-color: #eee;
   -moz-border-radius: 6px;
   -webkit-border-radius: 6px;
@@ -43,7 +42,7 @@ pre.code {
 }
 
 .grey {
-  font-size: 2em;
+  font-size: 2.2em;
   padding: .5em 1em;
   line-height: 1.2em;
   margin-top: .5em;
