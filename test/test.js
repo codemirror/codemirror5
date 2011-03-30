@@ -132,6 +132,20 @@ testCM("coords", function(cm) {
   eq(top.x, top2.x);
 });
 
+testCM("coordsChar", function(cm) {
+  var content = [];
+  for (var i = 0; i < 70; ++i) content.push("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+  cm.setValue(content.join("\n"));
+  for (var x = 0; x < 35; x += 2) {
+    for (var y = 0; y < 70; y += 5) {
+      cm.setCursor(y, x);
+      var pos = cm.coordsChar(cm.charCoords({line: y, ch: x}));
+      eq(pos.line, y);
+      eq(pos.ch, x);
+    }
+  }
+});
+
 testCM("undo", function(cm) {
   cm.setLine(0, "def");
   eq(cm.historySize().undo, 1);
