@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+  <head>
+    <title>CodeMirror 2: Smalltalk mode</title>
+    <link rel="stylesheet" href="../../lib/codemirror.css">
+    <script src="../../lib/codemirror.js"></script>
+    <script src="smalltalk.js"></script>
+    <link rel="stylesheet" href="smalltalk.css">
+    <link rel="stylesheet" href="../../css/docs.css">
+    <style>.CodeMirror {border: 2px inset #dee;}</style>
+  </head>
+  <body>
+    <h1>CodeMirror 2: C-like mode</h1>
+
+<form><textarea id="code" name="code">
+" 
+    This is a test of the Smalltalk code
+"
+Seaside.WAComponent subclass: #MyCounter [
+    | count |
+    MyCounter class &gt;&gt; canBeRoot [ ^true ]
+
+    initialize [
+        super initialize.
+        count := 0.
+    ]
+    states [ ^{ self } ]
+    renderContentOn: html [
+        html heading: count.
+        html anchor callback: [ count := count + 1 ]; with: '++'.
+        html space.
+        html anchor callback: [ count := count - 1 ]; with: '--'.
+    ]
+]
+
+MyCounter registerAsApplication: 'mycounter'
+</textarea></form>
+
+    <script>
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        lineNumbers: true,
+        matchBrackets: true,
+        mode: "text/x-stsrc"
+      });
+    </script>
+
+    <p>Simple mode that tries to handle Smalltalk.</p>
+
+    <p><strong>MIME types defined:</strong> <code>text/x-stsrc</code>.</p>
+  </body>
+</html>
