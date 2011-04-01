@@ -1,6 +1,7 @@
 CodeMirror.defineMode("clike", function(config, parserConfig) {
   var indentUnit = config.indentUnit, keywords = parserConfig.keywords,
-      cpp = parserConfig.useCPP, multiLineStrings = parserConfig.multiLineStrings, $vars = parserConfig.$vars;
+      cpp = parserConfig.useCPP, multiLineStrings = parserConfig.multiLineStrings,
+      $vars = parserConfig.$vars, atAnnotations = parserConfig.atAnnotations;
   var isOperatorChar = /[+\-*&%=<>!?|]/;
 
   function chain(stream, state, f) {
@@ -44,6 +45,10 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     else if (isOperatorChar.test(ch)) {
       stream.eatWhile(isOperatorChar);
       return ret("operator");
+    }
+    else if (atAnnotations && ch == "@") {
+        stream.eatWhile(/[\w\$_]/);
+        return ret("annotation", "c-like-annotation");
     }
     else if ($vars && ch == "$") {
       stream.eatWhile(/[\w\$_]/);
@@ -172,6 +177,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
   });
   CodeMirror.defineMIME("text/x-java", {
     name: "clike",
+    atAnnotations: true,
     keywords: keywords("abstract assert boolean break byte case catch char class const continue default " + 
                        "do double else enum extends false final finally float for goto if implements import " +
                        "instanceof int interface long native new null package private protected public " +

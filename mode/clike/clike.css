@@ -4,3 +4,4 @@ span.c-like-comment {color: #a70;}
 span.c-like-string {color: #a22;}
 span.c-like-preprocessor {color: #049;}
 span.c-like-var {color: #22b;}
+span.c-like-annotation {color: #666;}
