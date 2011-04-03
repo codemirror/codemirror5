@@ -1,5 +1,6 @@
 CodeMirror.defineMode("smalltalk", function(config, parserConfig) {
-  var indentUnit = config.indentUnit, keywords = parserConfig.keywords;
+  var keywords = {"true": 1, "false": 1, nil: 1, self: 1, "super": 1, thisContext: 1};
+  var indentUnit = config.indentUnit;
 
   function chain(stream, state, f) {
     state.tokenize = f;
@@ -14,7 +15,7 @@ CodeMirror.defineMode("smalltalk", function(config, parserConfig) {
 
   function tokenBase(stream, state) {
     var ch = stream.next();
-	if (ch == '"')
+    if (ch == '"')
       return chain(stream, state, tokenComment(ch));
     else if (ch == "'")
       return chain(stream, state, tokenString(ch));
@@ -25,6 +26,9 @@ CodeMirror.defineMode("smalltalk", function(config, parserConfig) {
     else if (/\d/.test(ch)) {
       stream.eatWhile(/[\w\.]/)
       return ret("number", "st-number");
+    }
+    else if (/[\[\]()]/.test(ch)) {
+      return ret(ch, null);
     }
     else {
       stream.eatWhile(/[\w\$_]/);
@@ -97,17 +101,9 @@ CodeMirror.defineMode("smalltalk", function(config, parserConfig) {
       if (type == "comment") return style;
       if (ctx.align == null) ctx.align = true;
 
-      if ((type == ";" || type == ":") && ctx.type == "statement") popContext(state);
-      else if (type == "{") pushContext(state, stream.column(), "}");
-      else if (type == "[") pushContext(state, stream.column(), "]");
+      if (type == "[") pushContext(state, stream.column(), "]");
       else if (type == "(") pushContext(state, stream.column(), ")");
-      else if (type == "}") {
-        if (ctx.type == "statement") ctx = popContext(state);
-        if (ctx.type == "}") ctx = popContext(state);
-        if (ctx.type == "statement") ctx = popContext(state);
-      }
       else if (type == ctx.type) popContext(state);
-      else if (ctx.type == "}") pushContext(state, stream.column(), "statement");
       state.startOfLine = false;
       return style;
     },
@@ -115,25 +111,12 @@ CodeMirror.defineMode("smalltalk", function(config, parserConfig) {
     indent: function(state, textAfter) {
       if (state.tokenize != tokenBase) return 0;
       var firstChar = textAfter && textAfter.charAt(0), ctx = state.context, closing = firstChar == ctx.type;
-      if (ctx.type == "statement") return ctx.indented + (firstChar == "{" ? 0 : indentUnit);
-      else if (ctx.align) return ctx.column + (closing ? 0 : 1);
+      if (ctx.align) return ctx.column + (closing ? 0 : 1);
       else return ctx.indented + (closing ? 0 : indentUnit);
     },
 
-    electricChars: "{}"
+    electricChars: "]"
   };
 });
 
-(function() {
-  function keywords(str) {
-    var obj = {}, words = str.split(" ");
-    for (var i = 0; i < words.length; ++i) obj[words[i]] = true;
-    return obj;
-  }
-  var stKeywords = "true false nil self super thisContext";
-
-  CodeMirror.defineMIME("text/x-stsrc", {
-    name: "smalltalk",
-    keywords: keywords(stKeywords)
-  });
-}());
+CodeMirror.defineMIME("text/x-stsrc", {name: "smalltalk"});
