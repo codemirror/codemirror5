@@ -1,0 +1,77 @@
+
+span.rst-emphasis {
+    font-style: italic;
+}
+
+span.rst-strong {
+    font-weight: bold;
+}
+
+span.rst-interpreted {
+    color: #33cc66;
+}
+
+span.rst-inline {
+    color: #3399cc;
+}
+
+span.rst-role {
+    color: #666699;
+}
+
+span.rst-list {
+    color: #cc0099;
+    font-weight: bold;
+}
+
+span.rst-body {
+    color: #6699cc;
+}
+
+span.rst-verbatim {
+    color: #3366ff;
+}
+
+span.rst-comment {
+    color: #aa7700;
+}
+
+span.rst-directive {
+    font-weight: bold;
+    color: #3399ff;
+}
+
+span.rst-hyperlink {
+    font-weight: bold;
+    color: #3366ff;
+}
+
+span.rst-footnote {
+    font-weight: bold;
+    color: #3333ff;
+}
+
+span.rst-citation {
+    font-weight: bold;
+    color: #3300ff;
+}
+
+span.rst-replacement {
+    color: #9933cc;
+}
+
+span.rst-section {
+    font-weight: bold;
+    color: #cc0099;
+}
+
+span.rst-directive-marker {
+    font-weight: bold;
+    color: #3399ff;
+}
+
+span.rst-verbatim-marker {
+    font-weight: bold;
+    color: #9900ff;
+}
+
