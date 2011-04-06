@@ -15,4 +15,4 @@ setTimeout(function() {
   link.href = "http://fonts.googleapis.com/css?family=Droid+Sans|Droid+Sans:bold";
   document.documentElement.getElementsByTagName("HEAD")[0].appendChild(link);
   waitForStyles();
-}, 30);
+}, 300);
