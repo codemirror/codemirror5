@@ -22,7 +22,7 @@ CodeMirror.defineMode("python", function(conf) {
     var ERRORCLASS = 'py-error';
     
     function wordRegexp(words) {
-        return new RegExp("^((" + words.join(")|(") + "))");
+        return new RegExp("^((" + words.join(")|(") + "))\\b");
     }
     
     var singleOperators = new RegExp("^[\\+\\-\\*/%&|\\^~<>!]");
@@ -261,8 +261,7 @@ CodeMirror.defineMode("python", function(conf) {
         return style;
     }
 
-    
-    return {
+    var external = {
         startState: function(basecolumn) {
             return {
               tokenize: tokenBase,
@@ -294,6 +293,7 @@ CodeMirror.defineMode("python", function(conf) {
         }
         
     };
+    return external;
 });
 
 CodeMirror.defineMIME("text/x-python", "python");
