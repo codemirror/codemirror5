@@ -102,7 +102,7 @@ class ExampleClass(ParentClass):
 </textarea></form>
     <script>
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-        mode: "python",
+        mode: {name: "python", version: 3},
         lineNumbers: true,
         indentUnit: 4,
         tabMode: "shift",
