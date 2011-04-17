@@ -1,23 +1,3 @@
-
-// The Python mode uses Array.indexOf(). If the browser doesn't provide it, this
-// will modify the prototype to include it.
-
-if (!Array.prototype.indexOf) { 
-    Array.prototype.indexOf = function(item, from) {
-        var len = this.length;
-        var i = from || 0;
-        if (i < 0) { i += len; }
-        for (;i<len;i++) {
-            if (i in this && this[i] === item) { return i; }
-        }
-        return -1;
-    };
-}
-if (!Array.indexOf) {
-    Array.indexOf = function(obj, item, from) { return Array.prototype.indexOf.call(obj, item, from); };
-}
-
-
 CodeMirror.defineMode("python", function(conf) {
     var ERRORCLASS = 'py-error';
     
@@ -65,25 +45,18 @@ CodeMirror.defineMode("python", function(conf) {
     function tokenBase(stream, state) {
         // Handle scope changes
         if (stream.sol()) {
+            var scopeOffset = state.scopes[0].offset;
             if (stream.eatSpace()) {
-                var scopeOffset = state.scopeOffset;
                 var lineOffset = stream.indentation();
-//                console.log('lineOffset: "' + lineOffset + '" scopeOffset: "' + scopeOffset + '"');
                 if (lineOffset > scopeOffset) {
-//                    console.log('py-indent');
                     return 'py-indent';
                 } else if (lineOffset < scopeOffset) {
-//                    console.log('py-dedent');
                     return 'py-dedent';
                 }
                 return 'whitespace';
             } else {
-                if (state.scopeOffset === undefined) {
-//                    console.log('set scope to 0');
-                    state.scopeOffset = 0;
-                } else if (state.scopeOffset > 0) {
-//                    console.log('py-dedent');
-                    return 'py-dedent';
+                if (scopeOffset > 0) {
+                    dedent(stream, state);
                 }
             }
         }
@@ -203,22 +176,29 @@ CodeMirror.defineMode("python", function(conf) {
         };
     }
     
-    function indent(stream, state) {
-        state.scopes.unshift(stream.indentation() + conf.indentUnit);
-        state.scopeOffset = state.scopes[0];
+    function indent(stream, state, type) {
+        type = type || 'py';
+        state.scopes.unshift({
+            offset: stream.indentation() + conf.indentUnit,
+            type: type
+        });
     }
     
     function dedent(stream, state) {
         var _indent = stream.indentation();
-        var _indent_index = state.scopes.indexOf(_indent);
+        var _indent_index = -1;
+        for (var i = 0; i < state.scopes.length; ++i) {
+            if (_indent === state.scopes[i].offset) {
+                _indent_index = i;
+                break;
+            }
+        }
         if (_indent_index === -1) {
-            console.log("Could not find scope at: "+ _indent);
             return true;
         }
-        while (state.scopes[0] !== _indent) {
+        while (state.scopes[0].offset !== _indent) {
             state.scopes.shift();
         }
-        state.scopeOffset = _indent;
         return false
     }
 
@@ -226,6 +206,7 @@ CodeMirror.defineMode("python", function(conf) {
         var style = state.tokenize(stream, state);
         var current = stream.current();
 
+        // Handle '.' connected identifiers
         if (current === '.') {
             style = state.tokenize(stream, state);
             current = stream.current();
@@ -236,6 +217,7 @@ CodeMirror.defineMode("python", function(conf) {
             }
         }
         
+        // Handle decorators
         if (current === '@') {
             style = state.tokenize(stream, state);
             current = stream.current();
@@ -265,8 +247,7 @@ CodeMirror.defineMode("python", function(conf) {
         startState: function(basecolumn) {
             return {
               tokenize: tokenBase,
-              scopeOffset: basecolumn || 0,
-              scopes: [basecolumn || 0],
+              scopes: [{offset:basecolumn || 0, type:'py'}],
               lastToken: null,
               lambda: false
           };
@@ -289,7 +270,7 @@ CodeMirror.defineMode("python", function(conf) {
                 return 0;
             }
             
-            return state.scopes[0];
+            return state.scopes[0].offset;
         }
         
     };
