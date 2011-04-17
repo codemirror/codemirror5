@@ -178,28 +178,37 @@ CodeMirror.defineMode("python", function(conf) {
     
     function indent(stream, state, type) {
         type = type || 'py';
+        var indentUnit = stream.indentation() + conf.indentUnit;
+        if (type !== 'py') {
+            indentUnit = stream.column() + stream.current().length;
+        }
         state.scopes.unshift({
-            offset: stream.indentation() + conf.indentUnit,
+            offset: indentUnit,
             type: type
         });
     }
     
     function dedent(stream, state) {
-        var _indent = stream.indentation();
-        var _indent_index = -1;
-        for (var i = 0; i < state.scopes.length; ++i) {
-            if (_indent === state.scopes[i].offset) {
-                _indent_index = i;
-                break;
+        if (state.scopes[0].type === 'py') {
+            var _indent = stream.indentation();
+            var _indent_index = -1;
+            for (var i = 0; i < state.scopes.length; ++i) {
+                if (_indent === state.scopes[i].offset) {
+                    _indent_index = i;
+                    break;
+                }
             }
-        }
-        if (_indent_index === -1) {
-            return true;
-        }
-        while (state.scopes[0].offset !== _indent) {
+            if (_indent_index === -1) {
+                return true;
+            }
+            while (state.scopes[0].offset !== _indent) {
+                state.scopes.shift();
+            }
+            return false
+        } else {
             state.scopes.shift();
+            return false;
         }
-        return false
     }
 
     function tokenLexer(stream, state) {
@@ -231,10 +240,21 @@ CodeMirror.defineMode("python", function(conf) {
         }
         
         // Handle scope changes.
-        if ((current === ':' && !state.lambda) || style === 'py-indent') {
+        if ((current === ':' && !state.lambda && state.scopes[0].type == 'py')
+            || style === 'py-indent') {
             indent(stream, state);
         }
         if (style === 'py-dedent') {
+            if (dedent(stream, state)) {
+                return ERRORCLASS;
+            }
+        }
+        var delimiter_index = '[({'.indexOf(current);
+        if (delimiter_index !== -1) {
+            indent(stream, state, '])}'.slice(delimiter_index, delimiter_index+1));
+        }
+        delimiter_index = '])}'.indexOf(current);
+        if (delimiter_index !== -1) {
             if (dedent(stream, state)) {
                 return ERRORCLASS;
             }
