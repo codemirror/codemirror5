@@ -178,8 +178,15 @@ CodeMirror.defineMode("python", function(conf) {
     
     function indent(stream, state, type) {
         type = type || 'py';
-        var indentUnit = stream.indentation() + conf.indentUnit;
-        if (type !== 'py') {
+        var indentUnit = 0;
+        if (type === 'py') {
+            for (var i = 0; i < state.scopes.length; ++i) {
+                if (state.scopes[i].type === 'py') {
+                    indentUnit = state.scopes[i].offset + conf.indentUnit;
+                    break;
+                }
+            }
+        } else {
             indentUnit = stream.column() + stream.current().length;
         }
         state.scopes.unshift({
