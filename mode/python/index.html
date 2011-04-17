@@ -6,18 +6,13 @@
     <script src="../../lib/codemirror.js"></script>
     <script src="python.js"></script>
     <link rel="stylesheet" href="python.css">
-    <style>.CodeMirror {background: #f8f8f8;}</style>
-    <link rel="stylesheet" href="../../docs.css">
+	<link rel="stylesheet" href="../../css/docs.css">
+    <style type="text/css">.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
   </head>
   <body>
     <h1>CodeMirror 2: Python mode</h1>
     
-    <h2>Configuration Options:</h2>
-    <ul>
-      <li>version - 2/3 - For which version of Python to recognize.  Default is 2.</li>
-      <li>singleLineStringErrors - true/false - If you have a single-line string that is not terminated at the end of the line, this will show subsequent lines as errors if true, otherwise it will consider the newline as the end of the string. Default is false.</li>
-    </ul>
-    <form><textarea id="code" name="code">
+    <div><textarea id="code" name="code">
 # Literals
 1234
 0.0e101
@@ -62,7 +57,7 @@ a.b.c
 and or not in is
 
 # Delimiters
-() [] {} , : ` = ; @ .
+() [] {} , : ` = ; @ .  # Note that @ and . require the proper context.
 += -= *= /= %= &= |= ^=
 //= >>= <<= **=
 
@@ -105,7 +100,7 @@ class ExampleClass(ParentClass):
     def __init__(self, mixin = 'Hello'):
         self.mixin = mixin
 
-</textarea></form>
+</textarea></div>
     <script>
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         mode: {name: "python",
@@ -117,6 +112,11 @@ class ExampleClass(ParentClass):
         matchBrackets: true
       });
     </script>
+    <h2>Configuration Options:</h2>
+    <ul>
+      <li>version - 2/3 - The version of Python to recognize.  Default is 2.</li>
+      <li>singleLineStringErrors - true/false - If you have a single-line string that is not terminated at the end of the line, this will show subsequent lines as errors if true, otherwise it will consider the newline as the end of the string. Default is false.</li>
+    </ul>
 
     <p><strong>MIME types defined:</strong> <code>text/x-python</code>.</p>
   </body>
