@@ -11,6 +11,12 @@
   </head>
   <body>
     <h1>CodeMirror 2: Python mode</h1>
+    
+    <h2>Configuration Options:</h2>
+    <ul>
+      <li>version - 2/3 - For which version of Python to recognize.  Default is 2.</li>
+      <li>singleLineStringErrors - true/false - If you have a single-line string that is not terminated at the end of the line, this will show subsequent lines as errors if true, otherwise it will consider the newline as the end of the string. Default is false.</li>
+    </ul>
     <form><textarea id="code" name="code">
 # Literals
 1234
@@ -102,7 +108,9 @@ class ExampleClass(ParentClass):
 </textarea></form>
     <script>
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-        mode: "python",
+        mode: {name: "python",
+               version: 2,
+               singleLineStringErrors: false},
         lineNumbers: true,
         indentUnit: 4,
         tabMode: "shift",
