@@ -30,6 +30,10 @@
   font-family: inherit;
 }
 
+.CodeMirror textarea {
+  font-family: monospace !important;
+}
+
 .CodeMirror-cursor {
   z-index: 10;
   position: absolute;
