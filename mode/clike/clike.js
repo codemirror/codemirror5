@@ -135,7 +135,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
         if (ctx.type == "statement") ctx = popContext(state);
       }
       else if (type == ctx.type) popContext(state);
-      else if (ctx.type == "}") pushContext(state, stream.column(), "statement");
+      else if (ctx.type == "}" || ctx.type == "top") pushContext(state, stream.column(), "statement");
       state.startOfLine = false;
       return style;
     },

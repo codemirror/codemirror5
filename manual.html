@@ -21,9 +21,11 @@
 
     <p>CodeMirror is a code-editor component that can be embedded in
     Web pages. It provides <em>only</em> the editor component, no
-    accompanying buttons, auto-completion, or other IDE functionality.
-    It does provide a rich API on top of which such functionality can
-    be straightforwardly implemented.</p>
+    accompanying buttons
+    (see <a href="http://www.octolabs.com/javascripts/codemirror-ui/">CodeMirror
+    UI</a> for a drop-in button bar), auto-completion, or other IDE
+    functionality. It does provide a rich API on top of which such
+    functionality can be straightforwardly implemented.</p>
 
     <p>CodeMirror works with language-specific modes. Modes are
     JavaScript programs that help color (and optionally indent) text
@@ -97,8 +99,14 @@
     default options. You can update this object to change the defaults
     on your page.</p>
 
-    <p>Options are not checked in any way, so setting bogus options is
-    bound to lead to odd errors.</p>
+    <p>Options are not checked in any way, so setting bogus option
+    values is bound to lead to odd errors.</p>
+
+    <p><em>Note:</em> CodeMirror
+    2 <a href="internals.html#summary">does not support</a>
+    line-wrapping. I would have very much liked to support it, but it
+    combines extremely poorly with the way the editor is
+    implemented.</p>
 
     <p>These are the supported options:</p>
 
