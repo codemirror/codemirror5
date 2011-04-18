@@ -2,6 +2,13 @@
   overflow: auto;
   height: 300px;
   line-height: 1em;
+}
+
+/* Use Same font-family for these selectors, for proper cusror moving. */
+textarea.CodeMirror-input,
+div.CodeMirror-lines,
+div.CodeMirror-measure,
+div.CodeMirror-gutter {
   font-family: monospace;
 }
 
