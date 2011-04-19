@@ -247,24 +247,31 @@ CodeMirror.defineMode("python", function(conf) {
         }
         
         // Handle scope changes.
+        if (current === 'pass' || current === 'return') {
+            state.dedent += 1;
+        }
         if ((current === ':' && !state.lambda && state.scopes[0].type == 'py')
             || style === 'py-indent') {
             indent(stream, state);
+        }
+        var delimiter_index = '[({'.indexOf(current);
+        if (delimiter_index !== -1) {
+            indent(stream, state, '])}'.slice(delimiter_index, delimiter_index+1));
         }
         if (style === 'py-dedent') {
             if (dedent(stream, state)) {
                 return ERRORCLASS;
             }
         }
-        var delimiter_index = '[({'.indexOf(current);
-        if (delimiter_index !== -1) {
-            indent(stream, state, '])}'.slice(delimiter_index, delimiter_index+1));
-        }
         delimiter_index = '])}'.indexOf(current);
         if (delimiter_index !== -1) {
             if (dedent(stream, state)) {
                 return ERRORCLASS;
             }
+        }
+        if (state.dedent > 0 && stream.eol()) {
+            state.scopes.shift();
+            state.dedent -= 1;
         }
         
         return style;
@@ -276,7 +283,8 @@ CodeMirror.defineMode("python", function(conf) {
               tokenize: tokenBase,
               scopes: [{offset:basecolumn || 0, type:'py'}],
               lastToken: null,
-              lambda: false
+              lambda: false,
+              dedent: 0
           };
         },
         
