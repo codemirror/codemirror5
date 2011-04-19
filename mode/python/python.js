@@ -196,6 +196,7 @@ CodeMirror.defineMode("python", function(conf) {
     }
     
     function dedent(stream, state) {
+        if (state.scopes.length == 1) return;
         if (state.scopes[0].type === 'py') {
             var _indent = stream.indentation();
             var _indent_index = -1;
@@ -270,7 +271,7 @@ CodeMirror.defineMode("python", function(conf) {
             }
         }
         if (state.dedent > 0 && stream.eol() && state.scopes[0].type == 'py') {
-            state.scopes.shift();
+            if (state.scopes.length > 1) state.scopes.shift();
             state.dedent -= 1;
         }
         
