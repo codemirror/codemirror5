@@ -269,7 +269,7 @@ CodeMirror.defineMode("python", function(conf) {
                 return ERRORCLASS;
             }
         }
-        if (state.dedent > 0 && stream.eol()) {
+        if (state.dedent > 0 && stream.eol() && state.scopes[0].type == 'py') {
             state.scopes.shift();
             state.dedent -= 1;
         }
