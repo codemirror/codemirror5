@@ -21,7 +21,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
     if (ch == "<") {
       if (stream.eat("!")) {
         if (stream.eat("[")) {
-          if (stream.match("[CDATA[")) return chain(inBlock("xml-cdata", "]]>"));
+          if (stream.match("CDATA[")) return chain(inBlock("xml-cdata", "]]>"));
           else return null;
         }
         else if (stream.match("--")) return chain(inBlock("xml-comment", "-->"));
