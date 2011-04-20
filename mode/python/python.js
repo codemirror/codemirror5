@@ -195,6 +195,12 @@ CodeMirror.defineMode("python", function(conf) {
         });
     }
     
+    function raw_dedent(state) {
+        if (state.scopes.length > 1) {
+            state.scopes.shift();
+        }
+    }
+    
     function dedent(stream, state) {
         if (state.scopes[0].type === 'py') {
             var _indent = stream.indentation();
@@ -213,7 +219,7 @@ CodeMirror.defineMode("python", function(conf) {
             }
             return false
         } else {
-            state.scopes.shift();
+            raw_dedent(state);
             return false;
         }
     }
@@ -270,7 +276,7 @@ CodeMirror.defineMode("python", function(conf) {
             }
         }
         if (state.dedent > 0 && stream.eol() && state.scopes[0].type == 'py') {
-            state.scopes.shift();
+            raw_dedent(state);
             state.dedent -= 1;
         }
         
