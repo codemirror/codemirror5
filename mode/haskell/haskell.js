@@ -114,7 +114,7 @@ CodeMirror.defineMode("haskell", function(cmCfg, modeCfg) {
     return function(source, setState) {
       var currNest = nest;
       while (!source.eol()) {
-        ch = source.next();
+        var ch = source.next();
         if (ch == '{' && source.eat('-')) {
           ++currNest;
         }
