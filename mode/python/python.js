@@ -99,6 +99,8 @@ CodeMirror.defineMode("python", function(conf) {
                 // TODO - Can you have imaginary longs?
                 intLiteral = true;
             }
+            // Zero by itself with no other piece of number.
+            if (stream.match(/^0(?![\dx])/i)) { intLiteral = true; }
             if (intLiteral) {
                 // Integer literals may be "long"
                 stream.eat(/L/i);
