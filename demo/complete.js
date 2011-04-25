@@ -119,6 +119,11 @@
     }
     function gatherCompletions(obj) {
       if (typeof obj == "string") forEach(stringProps, maybeAdd);
+      // using ECMAScript5/Javascript1.8.5 reflection method, but not for strings
+      else if(Object.getOwnPropertyNames)
+      {
+        forEach(Object.getOwnPropertyNames(obj), maybeAdd);
+      }
       else if (obj instanceof Array) forEach(arrayProps, maybeAdd);
       else if (obj instanceof Function) forEach(funcProps, maybeAdd);
       for (var name in obj) maybeAdd(name);
