@@ -117,11 +117,32 @@
     function maybeAdd(str) {
       if (str.indexOf(start) == 0) found.push(str);
     }
+    // don't use getPrototype = Object.getPrototypeOf because it can't handle strings
+    function getPrototype(obj)
+    {
+      return obj.__proto__ || obj.constructor.prototype;
+    }
     function gatherCompletions(obj) {
-      if (typeof obj == "string") forEach(stringProps, maybeAdd);
-      else if (obj instanceof Array) forEach(arrayProps, maybeAdd);
-      else if (obj instanceof Function) forEach(funcProps, maybeAdd);
-      for (var name in obj) maybeAdd(name);
+      if(Object.getOwnPropertyNames)
+      {
+        if(typeof obj!="string")
+        {
+          forEach(Object.getOwnPropertyNames(obj), maybeAdd);
+        }
+        while(getPrototype(obj)!=Object.prototype)
+        {
+          obj = getPrototype(obj);
+          forEach(Object.getOwnPropertyNames(obj), maybeAdd);
+        }
+      }
+      else
+      {
+        if (typeof obj == "string") forEach(stringProps, maybeAdd);
+        // using ECMAScript5/Javascript1.8.5 reflection method, but not for strings
+        else if (obj instanceof Array) forEach(arrayProps, maybeAdd);
+        else if (obj instanceof Function) forEach(funcProps, maybeAdd);
+        for (var name in obj) maybeAdd(name);
+      }
     }
 
     if (context) {
