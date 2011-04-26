@@ -20,12 +20,12 @@
     function dispatch(stream, state) { // TODO open PHP inside text/css
       if (state.curMode == htmlMode) {
         var style = htmlMode.token(stream, state.curState);
-        if (style == "xml-processing" && /^<\?/.test(stream.current())) {
+        if (style == "meta" && /^<\?/.test(stream.current())) {
           state.curMode = phpMode;
           state.curState = state.php;
           state.curClose = /^\?>/;
         }
-        else if (style == "xml-tag" && stream.current() == ">" && state.curState.context) {
+        else if (style == "tag" && stream.current() == ">" && state.curState.context) {
           if (/^script$/i.test(state.curState.context.tagName)) {
             state.curMode = jsMode;
             state.curState = jsMode.startState(htmlMode.indent(state.curState, ""));

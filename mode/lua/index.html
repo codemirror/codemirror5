@@ -5,8 +5,8 @@
     <link rel="stylesheet" href="../../lib/codemirror.css">
     <script src="../../lib/codemirror.js"></script>
     <script src="lua.js"></script>
-    <link rel="stylesheet" href="lua.css">
-    <style>.CodeMirror {background: #f2fcfc; border: 1px solid black;}</style>
+    <link rel="stylesheet" href="../../theme/neat.css">
+    <style>.CodeMirror {border: 1px solid black;}</style>
     <link rel="stylesheet" href="../../css/docs.css">
   </head>
   <body>
@@ -53,7 +53,11 @@ function blablabla3()
 end
 </textarea></form>
     <script>
-      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {tabMode: "indent", matchBrackets: true});
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        tabMode: "indent",
+        matchBrackets: true,
+        theme: "neat"
+      });
     </script>
 
     <p>Loosely based on Franciszek

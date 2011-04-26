@@ -5,7 +5,7 @@ CodeMirror.defineMode("htmlmixed", function(config, parserConfig) {
 
   function html(stream, state) {
     var style = htmlMode.token(stream, state.htmlState);
-    if (style == "xml-tag" && stream.current() == ">" && state.htmlState.context) {
+    if (style == "tag" && stream.current() == ">" && state.htmlState.context) {
       if (/^script$/i.test(state.htmlState.context.tagName)) {
         state.token = javascript;
         state.localState = jsMode.startState(htmlMode.indent(state.htmlState, ""));

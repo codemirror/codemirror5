@@ -31,7 +31,7 @@ CodeMirror.defineMode("stex", function(cmCfg, modeCfg)
 	      continue;
 	  return plug.styleIdentifier();
       }
-      return "stex-identifier";
+      return null;
     }
 
     function addPluginPattern(pluginName, cmdStyle, brackets, styles) {
@@ -50,7 +50,7 @@ CodeMirror.defineMode("stex", function(cmCfg, modeCfg)
 	    };
 	    this.openBracket = function(content) {
 		this.bracketNo++;
-		return "stex-bracket";
+		return "bracket";
 	    };
 	    this.closeBracket = function(content) {
 	    };
@@ -59,15 +59,15 @@ CodeMirror.defineMode("stex", function(cmCfg, modeCfg)
 
     var plugins = new Array();
    
-    plugins["importmodule"] = addPluginPattern("importmodule", "stex-command", "{[", ["stex-filepath", "stex-module"]);
-    plugins["documentclass"] = addPluginPattern("documentclass", "stex-command", "{[", ["", "stex-unit"]);
-    plugins["usepackage"] = addPluginPattern("documentclass", "stex-command", "[", ["stex-unit"]);
-    plugins["begin"] = addPluginPattern("documentclass", "stex-command", "[", ["stex-unit"]);
-    plugins["end"] = addPluginPattern("documentclass", "stex-command", "[", ["stex-unit"]);
+    plugins["importmodule"] = addPluginPattern("importmodule", "tag", "{[", ["string", "builtin"]);
+    plugins["documentclass"] = addPluginPattern("documentclass", "tag", "{[", ["", "atom"]);
+    plugins["usepackage"] = addPluginPattern("documentclass", "tag", "[", ["atom"]);
+    plugins["begin"] = addPluginPattern("documentclass", "tag", "[", ["atom"]);
+    plugins["end"] = addPluginPattern("documentclass", "tag", "[", ["atom"]);
 
     plugins["DEFAULT"] = function () {
 	this.name="DEFAULT";
-	this.style="stex-command";
+	this.style="tag";
 
 	this.styleIdentifier = function(content) {
 	};
@@ -98,7 +98,7 @@ CodeMirror.defineMode("stex", function(cmCfg, modeCfg)
 	var ch = source.next();
 	if (ch == "%") {
 	    setState(state, inCComment);
-	    return "stex-comment";
+	    return "comment";
 	} 
 	else if (ch=='}' || ch==']') {
 	    plug = peekCommand(state);
@@ -106,17 +106,17 @@ CodeMirror.defineMode("stex", function(cmCfg, modeCfg)
 		plug.closeBracket(ch);
 		setState(state, beginParams);
 	    } else
-		return "stex-error";
-	    return "stex-bracket";
+		return "error";
+	    return "bracket";
 	} else if (ch=='{' || ch=='[') {
 	    plug = plugins["DEFAULT"];	    
 	    plug = new plug();
 	    pushCommand(state, plug);
-	    return "stex-bracket";	    
+	    return "bracket";	    
 	}
 	else if (/\d/.test(ch)) {
 	    source.eatWhile(/[\w.%]/);
-	    return "stex-unit";
+	    return "atom";
 	}
 	else {
 	    source.eatWhile(/[\w-_]/);
@@ -127,7 +127,7 @@ CodeMirror.defineMode("stex", function(cmCfg, modeCfg)
     function inCComment(source, state) {
 	source.skipToEnd();
 	setState(state, normal);
-	return "css-comment";
+	return "comment";
     }
 
     function beginParams(source, state) {
@@ -137,7 +137,7 @@ CodeMirror.defineMode("stex", function(cmCfg, modeCfg)
 	   var style = lastPlug.openBracket(ch);
 	   source.eat(ch);
 	   setState(state, normal);
-	   return "stex-bracket";
+	   return "bracket";
 	}
 	if (/[ \t\r]/.test(ch)) {
 	    source.eat(ch);

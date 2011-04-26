@@ -4,7 +4,7 @@ CodeMirror.defineMode("css", function(config) {
 
   function tokenBase(stream, state) {
     var ch = stream.next();
-    if (ch == "@") {stream.eatWhile(/\w/); return ret("css-at", stream.current());}
+    if (ch == "@") {stream.eatWhile(/\w/); return ret("meta", stream.current());}
     else if (ch == "/" && stream.eat("*")) {
       state.tokenize = tokenCComment;
       return tokenCComment(stream, state);
@@ -21,15 +21,15 @@ CodeMirror.defineMode("css", function(config) {
     }
     else if (ch == "#") {
       stream.eatWhile(/\w/);
-      return ret("css-selector", "hash");
+      return ret("atom", "hash");
     }
     else if (ch == "!") {
       stream.match(/^\s*\w*/);
-      return ret("css-important", "important");
+      return ret("keyword", "important");
     }
     else if (/\d/.test(ch)) {
       stream.eatWhile(/[\w.%]/);
-      return ret("css-unit", "unit");
+      return ret("number", "unit");
     }
     else if (/[,.+>*\/]/.test(ch)) {
       return ret(null, "select-op");
@@ -39,7 +39,7 @@ CodeMirror.defineMode("css", function(config) {
     }
     else {
       stream.eatWhile(/[\w\\\-_]/);
-      return ret("css-identifier", "identifier");
+      return ret("variable", "variable");
     }
   }
 
@@ -52,7 +52,7 @@ CodeMirror.defineMode("css", function(config) {
       }
       maybeEnd = (ch == "*");
     }
-    return ret("css-comment", "comment");
+    return ret("comment", "comment");
   }
 
   function tokenSGMLComment(stream, state) {
@@ -64,7 +64,7 @@ CodeMirror.defineMode("css", function(config) {
       }
       dashes = (ch == "-") ? dashes + 1 : 0;
     }
-    return ret("css-comment", "comment");
+    return ret("comment", "comment");
   }
 
   function tokenString(quote) {
@@ -76,7 +76,7 @@ CodeMirror.defineMode("css", function(config) {
         escaped = !escaped && ch == "\\";
       }
       if (!escaped) state.tokenize = tokenBase;
-      return ret("css-string", "string");
+      return ret("string", "string");
     };
   }
 
@@ -92,10 +92,10 @@ CodeMirror.defineMode("css", function(config) {
       var style = state.tokenize(stream, state);
 
       var context = state.stack[state.stack.length-1];
-      if (type == "hash" && context == "rule") style = "css-colorcode";
-      else if (style == "css-identifier") {
-        if (context == "rule") style = "css-value";
-        else if (!context || context == "@media{") style = "css-selector";
+      if (type == "hash" && context == "rule") style = "atom";
+      else if (style == "variable") {
+        if (context == "rule") style = "number";
+        else if (!context || context == "@media{") style = "tag";
       }
 
       if (context == "rule" && /^[\{\};]$/.test(type))
@@ -106,7 +106,7 @@ CodeMirror.defineMode("css", function(config) {
       }
       else if (type == "}") state.stack.pop();
       else if (type == "@media") state.stack.push("@media");
-      else if (context != "rule" && context != "@media" && type != "comment") state.stack.push("rule");
+      else if (context == "{" && type != "comment") state.stack.push("rule");
       return style;
     },
 

@@ -23,11 +23,11 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       return ret(ch);
     else if (ch == "#" && cpp && state.startOfLine) {
       stream.skipToEnd();
-      return ret("directive", "c-like-preprocessor");
+      return ret("directive", "meta");
     }
     else if (/\d/.test(ch)) {
       stream.eatWhile(/[\w\.]/)
-      return ret("number", "c-like-number");
+      return ret("number", "number");
     }
     else if (ch == "/") {
       if (stream.eat("*")) {
@@ -35,7 +35,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       }
       else if (stream.eat("/")) {
         stream.skipToEnd();
-        return ret("comment", "c-like-comment");
+        return ret("comment", "comment");
       }
       else {
         stream.eatWhile(isOperatorChar);
@@ -48,16 +48,16 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     }
     else if (atAnnotations && ch == "@") {
         stream.eatWhile(/[\w\$_]/);
-        return ret("annotation", "c-like-annotation");
+        return ret("annotation", "meta");
     }
     else if ($vars && ch == "$") {
       stream.eatWhile(/[\w\$_]/);
-      return ret("word", "c-like-var");
+      return ret("word", "variable");
     }
     else {
       stream.eatWhile(/[\w\$_]/);
-      if (keywords && keywords.propertyIsEnumerable(stream.current())) return ret("keyword", "c-like-keyword");
-      return ret("word", "c-like-word");
+      if (keywords && keywords.propertyIsEnumerable(stream.current())) return ret("keyword", "keyword");
+      return ret("word");
     }
   }
 
@@ -70,7 +70,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       }
       if (end || !(escaped || multiLineStrings))
         state.tokenize = tokenBase;
-      return ret("string", "c-like-string");
+      return ret("string", "string");
     };
   }
 
@@ -83,7 +83,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       }
       maybeEnd = (ch == "*");
     }
-    return ret("comment", "c-like-comment");
+    return ret("comment", "comment");
   }
 
   function Context(indented, column, type, align, prev) {

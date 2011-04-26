@@ -28,7 +28,7 @@ CodeMirror.defineMode("plsql", function(config, parserConfig) {
     // start of a number value?
     else if (/\d/.test(ch)) {
       stream.eatWhile(/[\w\.]/)
-      return ret("number", "plsql-number");
+      return ret("number", "number");
     }
     // multi line comment or simple operator?
     else if (ch == "/") {
@@ -37,41 +37,41 @@ CodeMirror.defineMode("plsql", function(config, parserConfig) {
       }
       else {
         stream.eatWhile(isOperatorChar);
-        return ret("operator", "plsql-operator");
+        return ret("operator", "operator");
       }
     }
     // single line comment or simple operator?
     else if (ch == "-") {
       if (stream.eat("-")) {
         stream.skipToEnd();
-        return ret("comment", "plsql-comment");
+        return ret("comment", "comment");
       }
       else {
         stream.eatWhile(isOperatorChar);
-        return ret("operator", "plsql-operator");
+        return ret("operator", "operator");
       }
     }
     // pl/sql variable?
     else if (ch == "@" || ch == "$") {
       stream.eatWhile(/[\w\d\$_]/);
-      return ret("word", "plsql-var");
+      return ret("word", "variable");
     }
     // is it a operator?
     else if (isOperatorChar.test(ch)) {
       stream.eatWhile(isOperatorChar);
-      return ret("operator", "plsql-operator");
+      return ret("operator", "operator");
     }
     else {
       // get the whole word
       stream.eatWhile(/[\w\$_]/);
       // is it one of the listed keywords?
-      if (keywords && keywords.propertyIsEnumerable(stream.current().toLowerCase())) return ret("keyword", "plsql-keyword");
+      if (keywords && keywords.propertyIsEnumerable(stream.current().toLowerCase())) return ret("keyword", "keyword");
       // is it one of the listed functions?
-      if (functions && functions.propertyIsEnumerable(stream.current().toLowerCase())) return ret("keyword", "plsql-function");
+      if (functions && functions.propertyIsEnumerable(stream.current().toLowerCase())) return ret("keyword", "builtin");
       // is it one of the listed types?
-      if (types && types.propertyIsEnumerable(stream.current().toLowerCase())) return ret("keyword", "plsql-type");
+      if (types && types.propertyIsEnumerable(stream.current().toLowerCase())) return ret("keyword", "variable-2");
       // is it one of the listed sqlplus keywords?
-      if (sqlplus && sqlplus.propertyIsEnumerable(stream.current().toLowerCase())) return ret("keyword", "plsql-sqlplus");
+      if (sqlplus && sqlplus.propertyIsEnumerable(stream.current().toLowerCase())) return ret("keyword", "variable-3");
       // default: just a "word"
       return ret("word", "plsql-word");
     }
@@ -108,7 +108,6 @@ CodeMirror.defineMode("plsql", function(config, parserConfig) {
     startState: function(basecolumn) {
       return {
         tokenize: tokenBase,
-        indented: 0,
         startOfLine: true
       };
     },

@@ -5,7 +5,7 @@
     <link rel="stylesheet" href="../../lib/codemirror.css">
     <script src="../../lib/codemirror.js"></script>
     <script src="haskell.js"></script>
-    <link rel="stylesheet" href="haskell.css">
+    <link rel="stylesheet" href="../../theme/elegant.css">
     <style type="text/css">.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
     <link rel="stylesheet" href="../../css/docs.css">
   </head>
@@ -50,7 +50,8 @@ permBag bs = concatMap (\(f,cs) -> map (f:) $ permBag cs) . oneOfEach $ bs
     <script>
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true,
-        matchBrackets: true
+        matchBrackets: true,
+        theme: "elegant"
       });
     </script>
 

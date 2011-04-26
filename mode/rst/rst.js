@@ -1,4 +1,3 @@
-
 CodeMirror.defineMode('rst', function(config, options) {
     function setState(state, fn, ctx) {
         state.fn = fn;
@@ -74,7 +73,7 @@ CodeMirror.defineMode('rst', function(config, options) {
 
             if (i >= 3 && stream.match(/^\s*$/)) {
                 setNormal(state, null);
-                return 'rst-section';
+                return 'section';
             } else {
                 stream.backUp(i + 1);
             }
@@ -85,7 +84,7 @@ CodeMirror.defineMode('rst', function(config, options) {
                 setState(state, directive);
             }
 
-            return 'rst-directive-marker';
+            return 'directive-marker';
         }
 
         if (stream.match(reVerbatimMarker)) {
@@ -100,13 +99,13 @@ CodeMirror.defineMode('rst', function(config, options) {
                 });
             }
 
-            return 'rst-verbatim-marker';
+            return 'verbatim-marker';
         }
 
         if (sol && stream.match(reExamples, false)) {
             if (!pythonMode) {
                 setState(state, verbatim);
-                return 'rst-verbatim-marker';
+                return 'verbatim-marker';
             } else {
                 var mode = pythonMode;
 
@@ -122,7 +121,7 @@ CodeMirror.defineMode('rst', function(config, options) {
         if (sol && (stream.match(reEnumeratedList) ||
                     stream.match(reBulletedList))) {
             setNormal(state, stream);
-            return 'rst-list';
+            return 'list';
         }
 
         function testBackward(re) {
@@ -139,12 +138,12 @@ CodeMirror.defineMode('rst', function(config, options) {
 
         if (testInline(reFootnoteRef)) {
             setNormal(state, stream);
-            return 'rst-footnote';
+            return 'footnote';
         }
 
         if (testInline(reCitationRef)) {
             setNormal(state, stream);
-            return 'rst-citation';
+            return 'citation';
         }
 
         ch = stream.next();
@@ -154,9 +153,9 @@ CodeMirror.defineMode('rst', function(config, options) {
                 var token;
 
                 if (ch === ':') {
-                    token = 'rst-role';
+                    token = 'role';
                 } else {
-                    token = 'rst-replacement';
+                    token = 'replacement';
                 }
 
                 setState(state, inline, {
@@ -184,9 +183,9 @@ CodeMirror.defineMode('rst', function(config, options) {
                     var token;
 
                     if (orig === '*') {
-                        token = wide ? 'rst-strong' : 'rst-emphasis';
+                        token = wide ? 'strong' : 'emphasis';
                     } else {
-                        token = wide ? 'rst-inline' : 'rst-interpreted';
+                        token = wide ? 'inline' : 'interpreted';
                     }
 
                     setState(state, inline, {
@@ -248,13 +247,13 @@ CodeMirror.defineMode('rst', function(config, options) {
         var token = null;
 
         if (stream.match(reDirective)) {
-            token = 'rst-directive';
+            token = 'directive';
         } else if (stream.match(reHyperlink)) {
-            token = 'rst-hyperlink';
+            token = 'hyperlink';
         } else if (stream.match(reFootnote)) {
-            token = 'rst-footnote';
+            token = 'footnote';
         } else if (stream.match(reCitation)) {
-            token = 'rst-citation';
+            token = 'citation';
         } else {
             stream.eatSpace();
 
@@ -264,7 +263,7 @@ CodeMirror.defineMode('rst', function(config, options) {
             } else {
                 stream.skipToEnd();
                 setState(state, comment);
-                return 'rst-comment';
+                return 'comment';
             }
         }
 
@@ -273,7 +272,7 @@ CodeMirror.defineMode('rst', function(config, options) {
     }
 
     function body(stream, state) {
-        var token = 'rst-body';
+        var token = 'body';
 
         if (!state.ctx.start || stream.sol()) {
             return block(stream, state, token);
@@ -286,12 +285,12 @@ CodeMirror.defineMode('rst', function(config, options) {
     }
 
     function comment(stream, state) {
-        return block(stream, state, 'rst-comment');
+        return block(stream, state, 'comment');
     }
 
     function verbatim(stream, state) {
         if (!verbatimMode) {
-            return block(stream, state, 'rst-verbatim');
+            return block(stream, state, 'verbatim');
         } else {
             if (stream.sol()) {
                 if (!stream.eatSpace()) {
@@ -332,4 +331,3 @@ CodeMirror.defineMode('rst', function(config, options) {
 });
 
 CodeMirror.defineMIME("text/x-rst", "rst");
-

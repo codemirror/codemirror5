@@ -21,19 +21,19 @@ CodeMirror.defineMode("smalltalk", function(config, parserConfig) {
       return chain(stream, state, tokenString(ch));
     else if (ch == "#") {
       stream.eatWhile(/[\w\$_]/);
-      return ret("string", "st-string");
+      return ret("string", "string");
     }
     else if (/\d/.test(ch)) {
       stream.eatWhile(/[\w\.]/)
-      return ret("number", "st-number");
+      return ret("number", "number");
     }
     else if (/[\[\]()]/.test(ch)) {
       return ret(ch, null);
     }
     else {
       stream.eatWhile(/[\w\$_]/);
-      if (keywords && keywords.propertyIsEnumerable(stream.current())) return ret("keyword", "st-keyword");
-      return ret("word", "st-word");
+      if (keywords && keywords.propertyIsEnumerable(stream.current())) return ret("keyword", "keyword");
+      return ret("word", "variable");
     }
   }
 
@@ -46,7 +46,7 @@ CodeMirror.defineMode("smalltalk", function(config, parserConfig) {
       }
       if (end || !(escaped))
         state.tokenize = tokenBase;
-      return ret("string", "st-string");
+      return ret("string", "string");
     };
   }
 
@@ -58,7 +58,7 @@ CodeMirror.defineMode("smalltalk", function(config, parserConfig) {
       }
       if (end)
         state.tokenize = tokenBase;
-      return ret("comment", "st-comment");
+      return ret("comment", "comment");
     };
   }
 

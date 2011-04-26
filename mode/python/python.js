@@ -1,5 +1,5 @@
 CodeMirror.defineMode("python", function(conf) {
-    var ERRORCLASS = 'py-error';
+    var ERRORCLASS = 'error';
     
     function wordRegexp(words) {
         return new RegExp("^((" + words.join(")|(") + "))\\b");
@@ -41,6 +41,8 @@ CodeMirror.defineMode("python", function(conf) {
     var keywords = wordRegexp(commonkeywords);
     var types = wordRegexp(commontypes);
 
+    var indentInfo = null;
+
     // tokenizers
     function tokenBase(stream, state) {
         // Handle scope changes
@@ -49,11 +51,11 @@ CodeMirror.defineMode("python", function(conf) {
             if (stream.eatSpace()) {
                 var lineOffset = stream.indentation();
                 if (lineOffset > scopeOffset) {
-                    return 'py-indent';
+                    indentInfo = 'indent';
                 } else if (lineOffset < scopeOffset) {
-                    return 'py-dedent';
+                    indentInfo = 'dedent';
                 }
-                return 'whitespace';
+                return null;
             } else {
                 if (scopeOffset > 0) {
                     dedent(stream, state);
@@ -61,7 +63,7 @@ CodeMirror.defineMode("python", function(conf) {
             }
         }
         if (stream.eatSpace()) {
-            return 'py-space';
+            return null;
         }
         
         var ch = stream.peek();
@@ -69,7 +71,7 @@ CodeMirror.defineMode("python", function(conf) {
         // Handle Comments
         if (ch === '#') {
             stream.skipToEnd();
-            return 'py-comment';
+            return 'comment';
         }
         
         // Handle Number Literals
@@ -82,7 +84,7 @@ CodeMirror.defineMode("python", function(conf) {
             if (floatLiteral) {
                 // Float literals may be "imaginary"
                 stream.eat(/J/i);
-                return 'py-literal';
+                return 'number';
             }
             // Integers
             var intLiteral = false;
@@ -104,7 +106,7 @@ CodeMirror.defineMode("python", function(conf) {
             if (intLiteral) {
                 // Integer literals may be "long"
                 stream.eat(/L/i);
-                return 'py-literal';
+                return 'number';
             }
         }
         
@@ -116,27 +118,27 @@ CodeMirror.defineMode("python", function(conf) {
         
         // Handle operators and Delimiters
         if (stream.match(tripleDelimiters) || stream.match(doubleDelimiters)) {
-            return 'py-delimiter';
+            return null;
         }
         if (stream.match(doubleOperators)
             || stream.match(singleOperators)
             || stream.match(wordOperators)) {
-            return 'py-operator';
+            return 'operator';
         }
         if (stream.match(singleDelimiters)) {
-            return 'py-delimiter';
+            return null;
         }
         
         if (stream.match(types)) {
-            return 'py-type';
+            return 'builtin';
         }
         
         if (stream.match(keywords)) {
-            return 'py-keyword';
+            return 'keyword';
         }
         
         if (stream.match(identifiers)) {
-            return 'py-identifier';
+            return 'variable';
         }
         
         // Handle non-detected items
@@ -150,7 +152,7 @@ CodeMirror.defineMode("python", function(conf) {
         }
         var delim_re = new RegExp(delimiter);
         var singleline = delimiter.length == 1;
-        var OUTCLASS = 'py-string';
+        var OUTCLASS = 'string';
         
         return function tokenString(stream, state) {
             while (!stream.eol()) {
@@ -222,6 +224,7 @@ CodeMirror.defineMode("python", function(conf) {
     }
 
     function tokenLexer(stream, state) {
+        indentInfo = null;
         var style = state.tokenize(stream, state);
         var current = stream.current();
 
@@ -229,8 +232,8 @@ CodeMirror.defineMode("python", function(conf) {
         if (current === '.') {
             style = state.tokenize(stream, state);
             current = stream.current();
-            if (style === 'py-identifier') {
-                return 'py-identifier';
+            if (style === 'variable') {
+                return 'variable';
             } else {
                 return ERRORCLASS;
             }
@@ -240,10 +243,10 @@ CodeMirror.defineMode("python", function(conf) {
         if (current === '@') {
             style = state.tokenize(stream, state);
             current = stream.current();
-            if (style === 'py-identifier'
+            if (style === 'variable'
                 || current === '@staticmethod'
                 || current === '@classmethod') {
-                return 'py-decorator';
+                return 'meta';
             } else {
                 return ERRORCLASS;
             }
@@ -254,14 +257,14 @@ CodeMirror.defineMode("python", function(conf) {
             state.dedent += 1;
         }
         if ((current === ':' && !state.lambda && state.scopes[0].type == 'py')
-            || style === 'py-indent') {
+            || indentInfo === 'indent') {
             indent(stream, state);
         }
         var delimiter_index = '[({'.indexOf(current);
         if (delimiter_index !== -1) {
             indent(stream, state, '])}'.slice(delimiter_index, delimiter_index+1));
         }
-        if (style === 'py-dedent') {
+        if (indentInfo === 'dedent') {
             if (dedent(stream, state)) {
                 return ERRORCLASS;
             }

@@ -65,21 +65,21 @@ CodeMirror.defineMode("lua", function(config, parserConfig) {
     var ch = stream.next();
     if (ch == "-" && stream.eat("-")) {
       if (stream.eat("["))
-        return (state.cur = bracketed(readBracket(stream), "lua-comment"))(stream, state);
+        return (state.cur = bracketed(readBracket(stream), "comment"))(stream, state);
       stream.skipToEnd();
-      return "lua-comment";
+      return "comment";
     } 
     if (ch == "\"" || ch == "'")
       return (state.cur = string(ch))(stream, state);
     if (ch == "[" && /[\[=]/.test(stream.peek()))
-      return (state.cur = bracketed(readBracket(stream), "lua-string"))(stream, state);
+      return (state.cur = bracketed(readBracket(stream), "string"))(stream, state);
     if (/\d/.test(ch)) {
       stream.eatWhile(/[\w.%]/);
-      return "lua-number";
+      return "number";
     }
     if (/[\w_]/.test(ch)) {
       stream.eatWhile(/[\w\\\-_.]/);
-      return "lua-identifier";
+      return "variable";
     }
     return null;
   }
@@ -105,7 +105,7 @@ CodeMirror.defineMode("lua", function(config, parserConfig) {
         escaped = !escaped && ch == "\\";
       }
       if (!escaped) state.cur = normal;
-      return "lua-string";
+      return "string";
     };
   }
     
@@ -118,10 +118,10 @@ CodeMirror.defineMode("lua", function(config, parserConfig) {
       if (stream.eatSpace()) return null;
       var style = state.cur(stream, state);
       var word = stream.current();
-      if (style == "lua-identifier") {
-        if (keywords.test(word)) style = "lua-keyword";
-        else if (builtins.test(word)) style = "lua-builtin";
-	else if (specials.test(word)) style = "lua-special";
+      if (style == "variable") {
+        if (keywords.test(word)) style = "keyword";
+        else if (builtins.test(word)) style = "builtin";
+	else if (specials.test(word)) style = "variable-2";
       }
       if (indentTokens.test(word)) ++state.indentDepth;
       else if (dedentTokens.test(word)) --state.indentDepth;

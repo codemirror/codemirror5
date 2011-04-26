@@ -24,13 +24,13 @@ CodeMirror.defineMode("haskell", function(cmCfg, modeCfg) {
     var ch = source.next();
     if (specialRE.test(ch)) {
       if (ch == '{' && source.eat('-')) {
-        var t = "hs-comment";
+        var t = "comment";
         if (source.eat('#')) {
-          t = "hs-pragma";
+          t = "meta";
         }
         return switchState(source, setState, ncomment(t, 1));
       }
-      return "hs-special";
+      return null;
     }
     
     if (ch == '\'') {
@@ -41,9 +41,9 @@ CodeMirror.defineMode("haskell", function(cmCfg, modeCfg) {
         source.next();
       }
       if (source.eat('\'')) {
-        return "hs-char";
+        return "string";
       }
-      return "hs-error";
+      return "error";
     }
     
     if (ch == '"') {
@@ -53,35 +53,35 @@ CodeMirror.defineMode("haskell", function(cmCfg, modeCfg) {
     if (largeRE.test(ch)) {
       source.eatWhile(idRE);
       if (source.eat('.')) {
-        return "hs-qualifier";
+        return "qualifier";
       }
-      return "hs-conid";
+      return "variable-2";
     }
       
     if (smallRE.test(ch)) {
       source.eatWhile(idRE);
-      return "hs-varid";
+      return "variable";
     }
       
     if (digitRE.test(ch)) {
       if (ch == '0') {
         if (source.eat(/[xX]/)) {
           source.eatWhile(hexitRE); // should require at least 1
-          return "hs-integer";
+          return "integer";
         }
         if (source.eat(/[oO]/)) {
           source.eatWhile(octitRE); // should require at least 1
-          return "hs-integer";
+          return "number";
         }
       }
       source.eatWhile(digitRE);
-      var t = "hs-integer";
+      var t = "number";
       if (source.eat('.')) {
-        t = "hs-float";
+        t = "number";
         source.eatWhile(digitRE); // should require at least 1
       }
       if (source.eat(/[eE]/)) {
-        t = "hs-float";
+        t = "number";
         source.eat(/[-+]/);
         source.eatWhile(digitRE); // should require at least 1
       }
@@ -93,18 +93,18 @@ CodeMirror.defineMode("haskell", function(cmCfg, modeCfg) {
         source.eatWhile(/-/);
         if (!source.eat(symbolRE)) {
           source.skipToEnd();
-          return "hs-comment";
+          return "comment";
         }
       }
-      var t = "hs-varsym";
+      var t = "variable";
       if (ch == ':') {
-        t = "hs-consym";
+        t = "variable-2";
       }
       source.eatWhile(symbolRE);
       return t;    
     }
       
-    return "hs-error";
+    return "error";
   }
     
   function ncomment(type, nest) {
@@ -136,12 +136,12 @@ CodeMirror.defineMode("haskell", function(cmCfg, modeCfg) {
       var ch = source.next();
       if (ch == '"') {
         setState(normal);
-        return "hs-string";
+        return "string";
       }
       if (ch == '\\') {
         if (source.eol() || source.eat(whiteCharRE)) {
           setState(stringGap);
-          return "hs-string";
+          return "string";
         }
         if (source.eat('&')) {
         }
@@ -151,7 +151,7 @@ CodeMirror.defineMode("haskell", function(cmCfg, modeCfg) {
       }
     }
     setState(normal);
-    return "hs-error";
+    return "error";
   }
   
   function stringGap(source, setState) {
@@ -160,7 +160,7 @@ CodeMirror.defineMode("haskell", function(cmCfg, modeCfg) {
     }
     source.next();
     setState(normal);
-    return "hs-error";
+    return "error";
   }
   
   
@@ -173,19 +173,19 @@ CodeMirror.defineMode("haskell", function(cmCfg, modeCfg) {
       }
     }
     
-    setType("hs-reservedid")(
+    setType("keyword")(
       "case", "class", "data", "default", "deriving", "do", "else", "foreign",
       "if", "import", "in", "infix", "infixl", "infixr", "instance", "let",
       "module", "newtype", "of", "then", "type", "where", "_");
       
-    setType("hs-reservedop")(
+    setType("keyword")(
       "\.\.", ":", "::", "=", "\\", "\"", "<-", "->", "@", "~", "=>");
       
-    setType("hs-prelude-varsym")(
+    setType("builtin")(
       "!!", "$!", "$", "&&", "+", "++", "-", ".", "/", "/=", "<", "<=", "=<<",
       "==", ">", ">=", ">>", ">>=", "^", "^^", "||", "*", "**");
       
-    setType("hs-prelude-conid")(
+    setType("builtin")(
       "Bool", "Bounded", "Char", "Double", "EQ", "Either", "Enum", "Eq",
       "False", "FilePath", "Float", "Floating", "Fractional", "Functor", "GT",
       "IO", "IOError", "Int", "Integer", "Integral", "Just", "LT", "Left",
@@ -193,7 +193,7 @@ CodeMirror.defineMode("haskell", function(cmCfg, modeCfg) {
       "ReadS", "Real", "RealFloat", "RealFrac", "Right", "Show", "ShowS",
       "String", "True");
       
-    setType("hs-prelude-varid")(
+    setType("builtin")(
       "abs", "acos", "acosh", "all", "and", "any", "appendFile", "asTypeOf",
       "asin", "asinh", "atan", "atan2", "atanh", "break", "catch", "ceiling",
       "compare", "concat", "concatMap", "const", "cos", "cosh", "curry",
