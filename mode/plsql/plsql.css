@@ -1,0 +1,33 @@
+span.plsql-keyword {
+    color: blue;
+}
+span.plsql-var {
+    color: red;
+}
+span.plsql-comment {
+    color: #AA7700;
+}
+span.plsql-string {
+    color: green;
+}
+span.plsql-operator {
+    color: blue;
+}
+span.plsql-word {
+    color: black;
+}
+span.plsql-function {
+    color: darkorange;
+}
+span.plsql-sqlplus {
+    color: darkorange;
+}
+span.plsql-type {
+    color: purple;
+}
+span.plsql-separator {
+    color: #666666;
+}
+span.plsql-number {
+    color: darkcyan;
+}
