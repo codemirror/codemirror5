@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+  <head>
+    <title>CodeMirror 2: SQL mode</title>
+    <link rel="stylesheet" href="../../lib/codemirror.css">
+    <script src="../../lib/codemirror.js"></script>
+    <script src="sql.js"></script>
+    <link rel="stylesheet" href="sql.css">
+    <link rel="stylesheet" href="../../css/docs.css">
+    <style>.CodeMirror {border: 2px inset #dee;}</style>
+  </head>
+  <body>
+    <h1>CodeMirror 2: SQL mode</h1>
+
+<form><textarea id="code" name="code">
+-- Demonstration of CodeMirror 2 SQL highlighter.
+/*
+   based on PL/SQL mode, adapted to SQL with changes taken from John Benediktsson's SQL mode for CodeMirror 1
+   April 2011
+*/
+create table if not exists table1(
+  a  bigint(13) not null primary key,
+  b  char(4)    not null,
+  c  char(50)   not null,
+  d  int(9)     not null,
+);
+
+insert into table1 values (1234567890123, "b", "c", 0);
+
+select from_unixtime(a/1000), b, c, min(d) as `using`
+  from table1 t1
+  left join table2 t2 using (a)
+  -- inner join table3 t3 on t3._a = t1.a
+  join (
+    select a, b, c
+    from data
+  ) as foo on foo.a = t1.a
+
+  where a > 10
+  and b like '%foo'
+  or c = 3.14159
+  and d < -15.7
+  order by 1 desc
+;
+
+select @total := sum(d) from data;
+</textarea></form>
+
+    <script>
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        lineNumbers: true,
+        matchBrackets: true,
+        indentUnit: 4,
+        mode: "text/x-sql"
+      });
+    </script>
+
+    <p>
+        Simple mode that handles SQL language.
+    </p>
+
+    <p><strong>MIME type defined:</strong> <code>text/x-sql</code>
+    (SQL code)
+</html>
+
