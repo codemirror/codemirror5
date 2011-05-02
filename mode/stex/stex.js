@@ -24,7 +24,7 @@ CodeMirror.defineMode("stex", function(cmCfg, modeCfg)
     }
 
     function applyMostPowerful(state) {
-      context = state.cmdState;
+      var context = state.cmdState;
       for (var i = context.length - 1; i >= 0; i--) {
 	  var plug = context[i];
 	  if (plug.name=="DEFAULT")
@@ -83,7 +83,7 @@ CodeMirror.defineMode("stex", function(cmCfg, modeCfg)
 
     function normal(source, state) {
 	if (source.match(/^\\[a-z]+/)) {
-	    cmdName = source.current();
+	    var cmdName = source.current();
 	    cmdName = cmdName.substr(1, cmdName.length-1);
 	    var plug = plugins[cmdName];
 	    if (typeof(plug) == 'undefined') {
@@ -133,8 +133,8 @@ CodeMirror.defineMode("stex", function(cmCfg, modeCfg)
     function beginParams(source, state) {
 	var ch = source.peek();
 	if (ch == '{' || ch == '[') {
-	   lastPlug = peekCommand(state);
-	   style = lastPlug.openBracket(ch);
+	   var lastPlug = peekCommand(state);
+	   var style = lastPlug.openBracket(ch);
 	   source.eat(ch);
 	   setState(state, normal);
 	   return "stex-bracket";
