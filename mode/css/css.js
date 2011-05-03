@@ -106,7 +106,7 @@ CodeMirror.defineMode("css", function(config) {
       }
       else if (type == "}") state.stack.pop();
       else if (type == "@media") state.stack.push("@media");
-      else if (context != "rule" && context != "@media" && type != "comment") state.stack.push("rule");
+      else if (context == "{") state.stack.push("rule");
       return style;
     },
 
