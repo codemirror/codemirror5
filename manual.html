@@ -75,7 +75,7 @@
     textarea with a real editor:</p>
 
     <pre>var myCodeMirror = CodeMirror(function(elt) {
-  myTextArea.parentNode.replaceChild(myTextArea, elt);
+  myTextArea.parentNode.replaceChild(elt, myTextArea);
 }, {value: myTextArea.value});</pre>
 
     <p>However, for this use case, which is a common way to use
