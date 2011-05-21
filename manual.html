@@ -252,21 +252,21 @@
       <dt id="option_onKeyEvent"><code>onKeyEvent (function)</code></dt>
       <dd>This provides a rather low-level hook into CodeMirror's key
       handling. If provided, this function will be called on
-      every <code>keydown</code> and <code>keypress</code> event that
-      CodeMirror captures. It will be passed two arguments, the editor
-      instance and the key event. This key event is pretty much the
-      raw key event, except that a <code>stop()</code> method is
-      always added to it. You could feed it to, for
-      example, <code>jQuery.Event</code> to further normalize
-      it.<br>This function can inspect the key event, and handle it if
-      it wants to. It may return true to tell CodeMirror to ignore the
-      event. Be wary that, on some browsers, stopping
-      a <code>keydown</code> does not stop the <code>keypress</code>
-      from firing, whereas on others it does. If you respond to an
-      event, you should probably inspect its <code>type</code>
-      property and only do something when it is <code>keydown</code>
-      (or <code>keypress</code> for actions that need character
-      data).</dd>
+      every <code>keydown</code>, <code>keyup</code>,
+      and <code>keypress</code> event that CodeMirror captures. It
+      will be passed two arguments, the editor instance and the key
+      event. This key event is pretty much the raw key event, except
+      that a <code>stop()</code> method is always added to it. You
+      could feed it to, for example, <code>jQuery.Event</code> to
+      further normalize it.<br>This function can inspect the key
+      event, and handle it if it wants to. It may return true to tell
+      CodeMirror to ignore the event. Be wary that, on some browsers,
+      stopping a <code>keydown</code> does not stop
+      the <code>keypress</code> from firing, whereas on others it
+      does. If you respond to an event, you should probably inspect
+      its <code>type</code> property and only do something when it
+      is <code>keydown</code> (or <code>keypress</code> for actions
+      that need character data).</dd>
     </dl>
 
     <h2 id="styling">Customized Styling</h2>
