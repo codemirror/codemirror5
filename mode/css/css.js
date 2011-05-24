@@ -1,66 +1,52 @@
-CodeMirror.defineMode("css", function (config)
-{
+CodeMirror.defineMode("css", function(config) {
   var indentUnit = config.indentUnit, type;
-  function ret(style, tp) { type = tp; return style; }
+  function ret(style, tp) {type = tp; return style;}
 
-  function tokenBase(stream, state)
-  {
+  function tokenBase(stream, state) {
     var ch = stream.next();
-    if (ch == "@") { stream.eatWhile(/\w/); return ret("css-at", stream.current()); }
-    else if (ch == "/" && stream.eat("*"))
-    {
+    if (ch == "@") {stream.eatWhile(/\w/); return ret("css-at", stream.current());}
+    else if (ch == "/" && stream.eat("*")) {
       state.tokenize = tokenCComment;
       return tokenCComment(stream, state);
     }
-    else if (ch == "<" && stream.eat("!"))
-    {
+    else if (ch == "<" && stream.eat("!")) {
       state.tokenize = tokenSGMLComment;
       return tokenSGMLComment(stream, state);
     }
     else if (ch == "=") ret(null, "compare");
     else if ((ch == "~" || ch == "|") && stream.eat("=")) return ret(null, "compare");
-    else if (ch == "\"" || ch == "'")
-    {
+    else if (ch == "\"" || ch == "'") {
       state.tokenize = tokenString(ch);
       return state.tokenize(stream, state);
     }
-    else if (ch == "#")
-    {
+    else if (ch == "#") {
       stream.eatWhile(/\w/);
       return ret("css-selector", "hash");
     }
-    else if (ch == "!")
-    {
+    else if (ch == "!") {
       stream.match(/^\s*\w*/);
       return ret("css-important", "important");
     }
-    else if (/\d/.test(ch))
-    {
+    else if (/\d/.test(ch)) {
       stream.eatWhile(/[\w.%]/);
       return ret("css-unit", "unit");
     }
-    else if (/[,.+>*\/]/.test(ch))
-    {
+    else if (/[,.+>*\/]/.test(ch)) {
       return ret(null, "select-op");
     }
-    else if (/[;{}:\[\]]/.test(ch))
-    {
+    else if (/[;{}:\[\]]/.test(ch)) {
       return ret(null, ch);
     }
-    else
-    {
+    else {
       stream.eatWhile(/[\w\\\-_]/);
       return ret("css-identifier", "identifier");
     }
   }
 
-  function tokenCComment(stream, state)
-  {
+  function tokenCComment(stream, state) {
     var maybeEnd = false, ch;
-    while ((ch = stream.next()) != null)
-    {
-      if (maybeEnd && ch == "/")
-      {
+    while ((ch = stream.next()) != null) {
+      if (maybeEnd && ch == "/") {
         state.tokenize = tokenBase;
         break;
       }
@@ -69,13 +55,10 @@ CodeMirror.defineMode("css", function (config)
     return ret("css-comment", "comment");
   }
 
-  function tokenSGMLComment(stream, state)
-  {
+  function tokenSGMLComment(stream, state) {
     var dashes = 0, ch;
-    while ((ch = stream.next()) != null)
-    {
-      if (dashes >= 2 && ch == ">")
-      {
+    while ((ch = stream.next()) != null) {
+      if (dashes >= 2 && ch == ">") {
         state.tokenize = tokenBase;
         break;
       }
@@ -84,13 +67,10 @@ CodeMirror.defineMode("css", function (config)
     return ret("css-comment", "comment");
   }
 
-  function tokenString(quote)
-  {
-    return function (stream, state)
-    {
+  function tokenString(quote) {
+    return function(stream, state) {
       var escaped = false, ch;
-      while ((ch = stream.next()) != null)
-      {
+      while ((ch = stream.next()) != null) {
         if (ch == quote && !escaped)
           break;
         escaped = !escaped && ch == "\\";
@@ -101,46 +81,27 @@ CodeMirror.defineMode("css", function (config)
   }
 
   return {
-    // =========== Extended by A.K. =============
-    commentStart: "/*",
-    commentEnd: "*/",
-    wordWrapChars: [";", "\\{", "\\}"],
-    getModeAtPos: function (text, absPos)
-    {
-      return this;
-    },
-    autoFormatLineBreaks: function (text)
-    {
-      return text.replace(new RegExp("(;|\\{|\\})([^\r\n])", "g"), "$1\n$2");
-    },
-    // ==========================================
-
-    startState: function (base)
-    {
-      return { tokenize: tokenBase,
-        baseIndent: base || 0,
-        stack: []
-      };
+    startState: function(base) {
+      return {tokenize: tokenBase,
+              baseIndent: base || 0,
+              stack: []};
     },
 
-    token: function (stream, state)
-    {
+    token: function(stream, state) {
       if (stream.eatSpace()) return null;
       var style = state.tokenize(stream, state);
 
-      var context = state.stack[state.stack.length - 1];
+      var context = state.stack[state.stack.length-1];
       if (type == "hash" && context == "rule") style = "css-colorcode";
-      else if (style == "css-identifier")
-      {
+      else if (style == "css-identifier") {
         if (context == "rule") style = "css-value";
         else if (!context || context == "@media{") style = "css-selector";
       }
 
       if (context == "rule" && /^[\{\};]$/.test(type))
         state.stack.pop();
-      if (type == "{")
-      {
-        if (context == "@media") state.stack[state.stack.length - 1] = "@media{";
+      if (type == "{") {
+        if (context == "@media") state.stack[state.stack.length-1] = "@media{";
         else state.stack.push("{");
       }
       else if (type == "}") state.stack.pop();
@@ -149,11 +110,10 @@ CodeMirror.defineMode("css", function (config)
       return style;
     },
 
-    indent: function (state, textAfter)
-    {
+    indent: function(state, textAfter) {
       var n = state.stack.length;
       if (/^\}/.test(textAfter))
-        n -= state.stack[state.stack.length - 1] == "rule" ? 2 : 1;
+        n -= state.stack[state.stack.length-1] == "rule" ? 2 : 1;
       return state.baseIndent + n * indentUnit;
     },
 
