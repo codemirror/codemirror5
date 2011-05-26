@@ -149,6 +149,24 @@
 
   <h2>Releases:</h2>
 
+  <p class="rel">26-05-2011: <a href="http://codemirror.net/codemirror-2.01.zip">Version 2.01</a>:</p>
+  <ul class="rel-note">
+    <li>Add a <a href="mode/smalltalk/index.html">Smalltalk mode</a>.</li>
+    <li>Add a <a href="mode/rst/index.html">reStructuredText mode</a>.</li>
+    <li>Add a <a href="mode/python/index.html">Python mode</a>.</li>
+    <li>Add a <a href="mode/plsql/index.html">PL/SQL mode</a>.</li>
+    <li><code>coordsChar</code> now works</li>
+    <li>Fix a problem where <code>onCursorActivity</code> interfered with <code>onChange</code>.</li>
+    <li>Fix a number of scrolling and mouse-click-position glitches.</li>
+    <li>Pass information about the changed lines to <code>onChange</code>.</li>
+    <li>Support cmd-up/down on OS X.</li>
+    <li>Add triple-click line selection.</li>
+    <li>Don't handle shift when changing the selection through the API.</li>
+    <li>Support <code>"nocursor"</code> mode for <code>readOnly</code> option.</li>
+    <li>Add an <code>onHighlightComplete</code> option.</li>
+    <li>Fix the context menu for Firefox.</li>
+  </ul>
+
   <p class="rel">28-03-2011: <a href="http://codemirror.net/codemirror-2.0.zip">Version 2.0</a>:</p>
   <p class="rel-note">CodeMirror 2 is a complete rewrite that's
   faster, smaller, simpler to use, and less dependent on browser
@@ -186,30 +204,6 @@
     <li>Add support for MS T-SQL in the SQL parser.</li>
     <li>Support use of CSS classes for highlighting brackets.</li>
     <li>Fix yet another hang with line-numbering in hidden editors.</li>
-  </ul>
-
-  <p class="rel">17-12-2010: <a href="http://codemirror.net/codemirror-0.92.zip">Version 0.92</a>:</p>
-  <ul class="rel-note">
-    <li>Make CodeMirror work in XHTML documents.</li>
-    <li>Fix bug in handling of backslashes in Python strings.</li>
-    <li>The <code>styleNumbers</code> option is now officially
-    supported and documented.</li>
-    <li><code>onLineNumberClick</code> option added.</li>
-    <li>More consistent names <code>onLoad</code> and
-    <code>onCursorActivity</code> callbacks. Old names still work, but
-    are deprecated.</li>
-    <li>Add a <a href="contrib/freemarker/index.html">Freemarker</a> mode.</li>
-  </ul>
-
-  <p class="rel">11-11-2010: <a
-  href="http://codemirror.net/codemirror-0.91.zip">Version 0.91</a>:</p>
-  <ul class="rel-note">
-    <li>Adds support for <a href="contrib/java">Java</a>.</li>
-    <li>Small additions to the <a href="contrib/php">PHP</a> and <a href="contrib/sql">SQL</a> parsers.</li>
-    <li>Work around various <a href="https://bugs.webkit.org/show_bug.cgi?id=47806">Webkit</a> <a href="https://bugs.webkit.org/show_bug.cgi?id=23474">issues</a>.</li>
-    <li>Fix <code>toTextArea</code> to update the code in the textarea.</li>
-    <li>Add a <code>noScriptCaching</code> option (hack to ease development).</li>
-    <li>Make sub-modes of <a href="mixedtest.html">HTML mixed</a> mode configurable.</li>
   </ul>
 
   <p><a href="oldrelease.html">Older releases...</a></p>
