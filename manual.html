@@ -625,6 +625,12 @@
     CSS class string, or <code>null</code> for tokens that do not have
     to be styled.<p>
 
+    <p id="blankLine">By default, blank lines are simply skipped when
+    tokenizing a document. For languages that have significant blank
+    lines, you can define a <code>blankLine(state)</code> method on
+    your mode that will get called whenever a blank line is passed
+    over, so that it can update the parser state.</p>
+
     <p id="StringStream">The stream object encapsulates a line of code
     (tokens may never span lines) and our current position in that
     line. It has the following API:</p>
