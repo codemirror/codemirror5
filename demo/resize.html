@@ -14,7 +14,8 @@
       }
       .CodeMirror-scroll {
         height: auto;
-        overflow: visible;
+        overflow-y: hidden;
+        overflow-x: auto;
       }
     </style>
   </head>
@@ -24,7 +25,8 @@
     <form><textarea id="code" name="code">
 .CodeMirror-scroll {
   height: auto;
-  overflow: visible;
+  overflow-y: hidden;
+  overflow-x: auto;
 }</textarea></form>
 
 <p>By setting a single CSS property, CodeMirror can be made to
