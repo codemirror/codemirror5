@@ -287,10 +287,16 @@
 
     <dl>
       <dt id="class_CodeMirror"><code>CodeMirror</code></dt>
-      <dd>The outer element of the editor. This determines whether the
-      editor scrolls (<code>overflow: auto</code> + fixed height). Can
-      also be used to set styles that should hold for everything
-      inside the editor, or to set a background.</dd>
+      <dd>The outer element of the editor. This should be used for
+      borders and positioning. Can also be used to set styles that
+      should hold for everything inside the editor, or to set a
+      background.</dd>
+
+      <dt id="class_CodeMirror_scroll"><code>CodeMirror-scroll</code></dt>
+      <dd>This determines whether the editor scrolls (<code>overflow:
+      auto</code> + fixed height). By default, it does. Giving
+      this <code>height: auto; overflow: visible;</code> will cause
+      the editor to resize to fit its content.</dd>
 
       <dt id="class_CodeMirror_focused"><code>CodeMirror-focused</code></dt>
       <dd>Whenever the editor is focused, the top element gets this

@@ -11,7 +11,10 @@
     <style type="text/css">
       .CodeMirror {
         border: 1px solid #eee;
+      }
+      .CodeMirror-scroll {
         height: auto;
+        overflow: visible;
       }
     </style>
   </head>
@@ -19,8 +22,9 @@
     <h1>CodeMirror 2: Autoresize demo</h1>
 
     <form><textarea id="code" name="code">
-.CodeMirror {
+.CodeMirror-scroll {
   height: auto;
+  overflow: visible;
 }</textarea></form>
 
 <p>By setting a single CSS property, CodeMirror can be made to
