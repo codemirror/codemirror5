@@ -31,10 +31,12 @@
   border-radius: 0;
   border-width: 0; margin: 0; padding: 0; background: transparent;
   font-family: inherit;
+  font-size: inherit;
 }
 
 .CodeMirror textarea {
-  font-family: monospace !important;
+  font-family: inherit !important;
+  font-size: inherit !important;
 }
 
 .CodeMirror-cursor {
