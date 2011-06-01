@@ -32,6 +32,7 @@
   border-width: 0; margin: 0; padding: 0; background: transparent;
   font-family: inherit;
   font-size: inherit;
+  padding: 0; margin: 0;
 }
 
 .CodeMirror textarea {
