@@ -33,6 +33,8 @@
   font-family: inherit;
   font-size: inherit;
   padding: 0; margin: 0;
+  white-space: pre;
+  word-wrap: normal;
 }
 
 .CodeMirror textarea {
