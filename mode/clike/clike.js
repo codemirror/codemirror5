@@ -47,12 +47,12 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       stream.eatWhile(isOperatorChar);
       return ret("operator");
     }
+    else if (atStrings && ch == "@" && stream.eat('"')) {
+      return chain(stream, state, tokenAtString);
+    }
     else if (atAnnotations && ch == "@") {
         stream.eatWhile(/[\w\$_]/);
         return ret("annotation", "meta");
-    }
-    else if (atStrings && ch == "@" && stream.eat('"')) {
-      return chain(stream, state, tokenAtString);
     }
     else if ($vars && ch == "$") {
       stream.eatWhile(/[\w\$_]/);
@@ -199,5 +199,17 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
                        "instanceof int interface long native new null package private protected public " +
                        "return short static strictfp super switch synchronized this throw throws transient " +
                        "true try void volatile while")
+  });
+  CodeMirror.defineMIME("text/x-csharp", {
+    name: "clike",
+    atAnnotations: true,
+    atStrings: true,
+    keywords: keywords("abstract as base bool break byte case catch char checked class const continue decimal" + 
+                       " default delegate do double else enum event explicit extern false finally fixed float for" + 
+                       " foreach goto if implicit in int interface internal is lock long namespace new null object" + 
+                       " operator out override params private protected public readonly ref return sbyte sealed short" + 
+                       " sizeof stackalloc static string struct switch this throw true try typeof uint ulong unchecked" + 
+                       " unsafe ushort using virtual void volatile while add alias ascending descending dynamic from get" + 
+                       " global group into join let orderby partial remove select set value var yield")
   });
 }());
