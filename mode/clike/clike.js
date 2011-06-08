@@ -1,7 +1,8 @@
 CodeMirror.defineMode("clike", function(config, parserConfig) {
   var indentUnit = config.indentUnit, keywords = parserConfig.keywords,
       cpp = parserConfig.useCPP, multiLineStrings = parserConfig.multiLineStrings,
-      $vars = parserConfig.$vars, atAnnotations = parserConfig.atAnnotations;
+      $vars = parserConfig.$vars, atAnnotations = parserConfig.atAnnotations,
+      atStrings = parserConfig.atStrings;
   var isOperatorChar = /[+\-*&%=<>!?|]/;
 
   function chain(stream, state, f) {
@@ -50,6 +51,9 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
         stream.eatWhile(/[\w\$_]/);
         return ret("annotation", "meta");
     }
+    else if (atStrings && ch == "@" && stream.eat('"')) {
+      return chain(stream, state, tokenAtString);
+    }
     else if ($vars && ch == "$") {
       stream.eatWhile(/[\w\$_]/);
       return ret("word", "variable");
@@ -72,6 +76,18 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
         state.tokenize = tokenBase;
       return ret("string", "string");
     };
+  }
+
+  // C#-style strings where "" escapes a quote.
+  function tokenAtString(stream, state) {
+    var next;
+    while ((next = stream.next()) != null) {
+      if (next == '"' && !stream.eat('"')) {
+        state.tokenize = tokenBase;
+        break;
+      }
+    }
+    return ret("string", "string");
   }
 
   function tokenComment(stream, state) {
