@@ -32,7 +32,7 @@ function findSequence(goal) {
   return find(1, "1");
 }</textarea></form>
 
-<p>Select a theme: <select onchange="selectTheme(this.value)">
+<p>Select a theme: <select onchange="selectTheme(this)">
     <option selected>default</option>
     <option>night</option>
     <option>neat</option>
@@ -44,7 +44,8 @@ function findSequence(goal) {
   var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
     lineNumbers: true
   });
-  function selectTheme(theme) {
+  function selectTheme(node) {
+    var theme = node.options[node.selectedIndex].innerHTML;
     editor.setOption("theme", theme);
   }
 </script>
