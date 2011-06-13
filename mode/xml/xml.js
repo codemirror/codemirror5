@@ -128,7 +128,17 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
 
   function element(type) {
     if (type == "openTag") {curState.tagName = tagName; return cont(attributes, endtag(curState.startOfLine));}
-    else if (type == "closeTag") {popContext(); return cont(endclosetag);}
+    else if (type == "closeTag") {
+      var err = false;
+      if (curState.context) {
+        err = curState.context.tagName != tagName;
+        popContext();
+      } else {
+        err = true;
+      }
+      if (err) setStyle = "error";
+      return cont(endclosetag(err));
+    }
     else if (type == "string") {
       if (!curState.context || curState.context.name != "!cdata") pushContext("!cdata");
       if (curState.tokenize == inText) popContext();
@@ -145,9 +155,12 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
       return cont();
     };
   }
-  function endclosetag(type) {
-    if (type == "endTag") return cont();
-    return pass();
+  function endclosetag(err) {
+    return function(type) {
+      if (err) setStyle = "error";
+      if (type == "endTag") return cont();
+      return pass();
+    }
   }
 
   function attributes(type) {
@@ -196,6 +209,14 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
         context = context.prev;
       if (context) return context.indent + indentUnit;
       else return 0;
+    },
+
+    compareStates: function(a, b) {
+      if (a.indented != b.indented || a.tagName != b.tagName) return false;
+      for (var ca = a.context, cb = b.context; ; ca = ca.prev, cb = cb.prev) {
+        if (!ca || !cb) {console.log(ca == cb); return ca == cb;}
+        if (ca.tagName != cb.tagName) return false;
+      }
     },
 
     electricChars: "/"
