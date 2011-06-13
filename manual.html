@@ -459,6 +459,7 @@
         <dt><code>string</code></dt><dd>The token's string.</dd>
         <dt><code>className</code></dt><dd>The class the mode assigned
         to the token. (Can be null when no class was assigned.)</dd>
+        <dt><code>state</code></dt><dd>The mode's state at the end of this token.</dd>
       </dl></dd>
 
       <dt id="markText"><code>markText(from, to, className) → function</code></dt>
@@ -578,6 +579,13 @@
       element to resize an editor. (You might have to call
       the <a href="#refresh"><code>refresh</code></a> method
       afterwards.)</dd>
+
+      <dt id="getStateAfter"><code>getStateAfter(line) → state</code></dt>
+      <dd>Returns the mode's parser state, if any, at the end of the
+      given line number. If no line number is given, the state at the
+      end of the document is returned. This can be useful for storing
+      parsing errors in the state, or getting other kinds of
+      contextual information for a line.</dd>
     </dl>
 
     <p id="fromTextArea">Finally, the <code>CodeMirror</code> object
