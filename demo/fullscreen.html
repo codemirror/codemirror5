@@ -11,7 +11,7 @@
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
 
     <style type="text/css">
-        .CodeMirror {border: 1px solid #eee;}
+        .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}
         .fullscreen {
             display: block;
             position: absolute;
@@ -22,8 +22,8 @@
             z-index: 9999;
             margin: 0;
             padding: 0;
-            background: inherit;
             border: 0px solid #BBBBBB;
+            opacity: 1;
         }
     </style>
   </head>
@@ -129,17 +129,19 @@
 
     function toggleFullscreenEditing()
     {
-        var cmdiv = $('.CodeMirror');
-        if (!cmdiv.hasClass('fullscreen')) {
-            toggleFullscreenEditing.beforeFullscreen = { height: cmdiv.height(), width: cmdiv.width() }
-            cmdiv.addClass('fullscreen');
-            cmdiv.height('100%');
-            cmdiv.width('100%');
+        var editorDiv = $('.CodeMirror-scroll');
+        if (!editorDiv.hasClass('fullscreen')) {
+            toggleFullscreenEditing.beforeFullscreen = { height: editorDiv.height(), width: editorDiv.width() }
+            editorDiv.addClass('fullscreen');
+            editorDiv.height('100%');
+            editorDiv.width('100%');
+            editor.refresh();
         }
         else {
-            cmdiv.removeClass('fullscreen');
-            cmdiv.height(toggleFullscreenEditing.beforeFullscreen.height);
-            cmdiv.width(toggleFullscreenEditing.beforeFullscreen.width);
+            editorDiv.removeClass('fullscreen');
+            editorDiv.height(toggleFullscreenEditing.beforeFullscreen.height);
+            editorDiv.width(toggleFullscreenEditing.beforeFullscreen.width);
+            editor.refresh();
         }
     }
 
