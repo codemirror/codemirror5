@@ -120,7 +120,7 @@
         theme: "night",
         onKeyEvent: function(i, e) {
           // Hook into F11
-          if (e.keyCode == 122 && e.type == 'keydown') {
+          if ((e.keyCode == 122 || e.keyCode == 27) && e.type == 'keydown') {
             e.stop();
             return toggleFullscreenEditing();
           }
@@ -148,7 +148,7 @@
 })();
 </script>
 
-    <p>Press <strong>F11</strong> when cursor is in the editor to toggle full screen editing.</p>
+    <p>Press <strong>F11</strong> (or <strong>ESC</strong> in Safari on Mac OS X) when cursor is in the editor to toggle full screen editing.</p>
 
   </body>
 </html>
