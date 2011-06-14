@@ -27,7 +27,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       return ret("directive", "meta");
     }
     else if (/\d/.test(ch)) {
-      stream.eatWhile(/[\w\.]/)
+      stream.eatWhile(/[\w\.]/);
       return ret("number", "number");
     }
     else if (ch == "/") {

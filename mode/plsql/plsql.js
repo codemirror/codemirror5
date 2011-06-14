@@ -27,7 +27,7 @@ CodeMirror.defineMode("plsql", function(config, parserConfig) {
       return ret(ch);
     // start of a number value?
     else if (/\d/.test(ch)) {
-      stream.eatWhile(/[\w\.]/)
+      stream.eatWhile(/[\w\.]/);
       return ret("number", "number");
     }
     // multi line comment or simple operator?
