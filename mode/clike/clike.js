@@ -198,6 +198,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
   CodeMirror.defineMIME("text/x-java", {
     name: "clike",
     atAnnotations: true,
+    hasAtoms: true,
     keywords: keywords("abstract assert boolean break byte case catch char class const continue default " + 
                        "do double else enum extends false final finally float for goto if implements import " +
                        "instanceof int interface long native new null package private protected public " +
