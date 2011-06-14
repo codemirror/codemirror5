@@ -60,11 +60,11 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     }
     else {
       stream.eatWhile(/[\w\$_]/);
-      if(hasAtoms){
-        var cur=stream.current();
-        if(/true|false|null/.test(cur)) return ret("number", "atom");
+      var cur=stream.current();
+      if (keywords && keywords.propertyIsEnumerable(cur)){
+        if(hasAtoms && /true|false|null/.test(cur)) return ret("number", "atom");
+        return ret("keyword", "keyword");
       }
-      if (keywords && keywords.propertyIsEnumerable(stream.current())) return ret("keyword", "keyword");
       return ret("word");
     }
   }
