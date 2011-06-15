@@ -1,5 +1,6 @@
 CodeMirror.defineMode("clike", function(config, parserConfig) {
   var indentUnit = config.indentUnit, keywords = parserConfig.keywords,
+      atoms = parserConfig.atoms,
       cpp = parserConfig.useCPP, multiLineStrings = parserConfig.multiLineStrings,
       $vars = parserConfig.$vars, atAnnotations = parserConfig.atAnnotations,
       atStrings = parserConfig.atStrings;
@@ -60,7 +61,9 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     }
     else {
       stream.eatWhile(/[\w\$_]/);
-      if (keywords && keywords.propertyIsEnumerable(stream.current())) return ret("keyword", "keyword");
+      var cur = stream.current();
+      if (keywords && keywords.propertyIsEnumerable(cur)) return ret("keyword", "keyword");
+      if (atoms && atoms.propertyIsEnumerable(cur)) return ret("atom", "atom");
       return ret("word");
     }
   }
@@ -169,7 +172,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
 });
 
 (function() {
-  function keywords(str) {
+  function words(str) {
     var obj = {}, words = str.split(" ");
     for (var i = 0; i < words.length; ++i) obj[words[i]] = true;
     return obj;
@@ -181,35 +184,39 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
   CodeMirror.defineMIME("text/x-csrc", {
     name: "clike",
     useCPP: true,
-    keywords: keywords(cKeywords)
+    keywords: words(cKeywords),
+    atoms: words("null")
   });
   CodeMirror.defineMIME("text/x-c++src", {
     name: "clike",
     useCPP: true,
-    keywords: keywords(cKeywords + " asm dynamic_cast namespace reinterpret_cast try bool explicit new " +
-                       "static_cast typeid catch false operator template typename class friend private " +
-                       "this using const_cast inline public throw virtual delete mutable protected true " +
-                       "wchar_t")
+    keywords: words(cKeywords + " asm dynamic_cast namespace reinterpret_cast try bool explicit new " +
+                    "static_cast typeid catch operator template typename class friend private " +
+                    "this using const_cast inline public throw virtual delete mutable protected " +
+                    "wchar_t"),
+    atoms: words("true false null")
   });
   CodeMirror.defineMIME("text/x-java", {
     name: "clike",
     atAnnotations: true,
-    keywords: keywords("abstract assert boolean break byte case catch char class const continue default " + 
-                       "do double else enum extends false final finally float for goto if implements import " +
-                       "instanceof int interface long native new null package private protected public " +
-                       "return short static strictfp super switch synchronized this throw throws transient " +
-                       "true try void volatile while")
+    keywords: words("abstract assert boolean break byte case catch char class const continue default " + 
+                    "do double else enum extends final finally float for goto if implements import " +
+                    "instanceof int interface long native new package private protected public " +
+                    "return short static strictfp super switch synchronized this throw throws transient " +
+                    "try void volatile while"),
+    atoms: words("true false null")
   });
   CodeMirror.defineMIME("text/x-csharp", {
     name: "clike",
     atAnnotations: true,
     atStrings: true,
-    keywords: keywords("abstract as base bool break byte case catch char checked class const continue decimal" + 
-                       " default delegate do double else enum event explicit extern false finally fixed float for" + 
-                       " foreach goto if implicit in int interface internal is lock long namespace new null object" + 
-                       " operator out override params private protected public readonly ref return sbyte sealed short" + 
-                       " sizeof stackalloc static string struct switch this throw true try typeof uint ulong unchecked" + 
-                       " unsafe ushort using virtual void volatile while add alias ascending descending dynamic from get" + 
-                       " global group into join let orderby partial remove select set value var yield")
+    keywords: words("abstract as base bool break byte case catch char checked class const continue decimal" + 
+                    " default delegate do double else enum event explicit extern finally fixed float for" + 
+                    " foreach goto if implicit in int interface internal is lock long namespace new object" + 
+                    " operator out override params private protected public readonly ref return sbyte sealed short" + 
+                    " sizeof stackalloc static string struct switch this throw try typeof uint ulong unchecked" + 
+                    " unsafe ushort using virtual void volatile while add alias ascending descending dynamic from get" + 
+                    " global group into join let orderby partial remove select set value var yield"),
+    atoms: words("true false null")
   });
 }());
