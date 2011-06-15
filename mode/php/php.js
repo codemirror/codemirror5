@@ -7,9 +7,9 @@
   var phpKeywords =
     keywords("abstract and array as break case catch cfunction class clone const continue declare " +
              "default do else elseif enddeclare endfor endforeach endif endswitch endwhile extends " +
-             "final for foreach function global goto if implements interface instanceof namespace " +
-             "new or private protected public static switch throw try use var while xor");
-  var phpConfig = {name: "clike", keywords: phpKeywords, multiLineStrings: true, $vars: true};
+             "false final for foreach function global goto if implements interface instanceof namespace " +
+             "new null or private protected public return static switch throw true try use var while xor");
+  var phpConfig = {name: "clike", keywords: phpKeywords, multiLineStrings: true, $vars: true, hasAtoms: true};
 
   CodeMirror.defineMode("php", function(config, parserConfig) {
     var htmlMode = CodeMirror.getMode(config, "text/html");
