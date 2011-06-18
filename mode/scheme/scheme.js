@@ -177,3 +177,5 @@ CodeMirror.defineMode("scheme", function (config, mode) {
         }
     };
 });
+
+CodeMirror.defineMIME("text/x-scheme", "css");
