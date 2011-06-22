@@ -95,7 +95,7 @@ function replace() {
       replace = document.getElementById("replace").value;
   if (!text) return;
   for (var cursor = editor.getSearchCursor(text); cursor.findNext();)
-    editor.replaceRange(replace, cursor.from(), cursor.to());
+    cursor.replace(replace);
 }
 </script>
 
