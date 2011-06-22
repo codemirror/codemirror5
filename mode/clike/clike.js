@@ -1,71 +1,50 @@
 CodeMirror.defineMode("clike", function(config, parserConfig) {
-  var indentUnit = config.indentUnit, keywords = parserConfig.keywords,
-      atoms = parserConfig.atoms,
-      cpp = parserConfig.useCPP, multiLineStrings = parserConfig.multiLineStrings,
-      $vars = parserConfig.$vars, atAnnotations = parserConfig.atAnnotations,
-      atStrings = parserConfig.atStrings;
-  var isOperatorChar = /[+\-*&%=<>!?|]/;
+  var indentUnit = config.indentUnit,
+      keywords = parserConfig.keywords || {},
+      atoms = parserConfig.atoms || {},
+      hooks = parserConfig.hooks || {},
+      multiLineStrings = parserConfig.multiLineStrings;
+  var isOperatorChar = /[+\-*&%=<>!?|\/]/;
 
-  function chain(stream, state, f) {
-    state.tokenize = f;
-    return f(stream, state);
-  }
-
-  var type;
-  function ret(tp, style) {
-    type = tp;
-    return style;
-  }
+  var curPunc;
 
   function tokenBase(stream, state) {
     var ch = stream.next();
-    if (ch == '"' || ch == "'")
-      return chain(stream, state, tokenString(ch));
-    else if (/[\[\]{}\(\),;\:\.]/.test(ch))
-      return ret(ch);
-    else if (ch == "#" && cpp && state.startOfLine) {
-      stream.skipToEnd();
-      return ret("directive", "meta");
+    if (hooks[ch]) {
+      var result = hooks[ch](stream, state);
+      if (result !== false) return result;
     }
-    else if (/\d/.test(ch)) {
+    if (ch == '"' || ch == "'") {
+      state.tokenize = tokenString(ch);
+      return state.tokenize(stream, state);
+    }
+    if (/[\[\]{}\(\),;\:\.]/.test(ch)) {
+      curPunc = ch;
+      return null
+    }
+    if (/\d/.test(ch)) {
       stream.eatWhile(/[\w\.]/);
-      return ret("number", "number");
+      return "number";
     }
-    else if (ch == "/") {
+    if (ch == "/") {
       if (stream.eat("*")) {
-        return chain(stream, state, tokenComment);
+        state.tokenize = tokenComment;
+        return tokenComment(stream, state);
       }
-      else if (stream.eat("/")) {
+      if (stream.eat("/")) {
         stream.skipToEnd();
-        return ret("comment", "comment");
-      }
-      else {
-        stream.eatWhile(isOperatorChar);
-        return ret("operator");
+        return "comment";
       }
     }
-    else if (isOperatorChar.test(ch)) {
+    if (isOperatorChar.test(ch)) {
       stream.eatWhile(isOperatorChar);
-      return ret("operator");
+      return "operator";
     }
-    else if (atStrings && ch == "@" && stream.eat('"')) {
-      return chain(stream, state, tokenAtString);
-    }
-    else if (atAnnotations && ch == "@") {
-        stream.eatWhile(/[\w\$_]/);
-        return ret("annotation", "meta");
-    }
-    else if ($vars && ch == "$") {
-      stream.eatWhile(/[\w\$_]/);
-      return ret("word", "variable");
-    }
-    else {
-      stream.eatWhile(/[\w\$_]/);
-      var cur = stream.current();
-      if (keywords && keywords.propertyIsEnumerable(cur)) return ret("keyword", "keyword");
-      if (atoms && atoms.propertyIsEnumerable(cur)) return ret("atom", "atom");
-      return ret("word");
-    }
+    stream.eatWhile(/[\w\$_]/);
+    var cur = stream.current();
+    if (keywords.propertyIsEnumerable(cur)) return "keyword";
+    if (atoms.propertyIsEnumerable(cur)) return "atom";
+    return "word";
   }
 
   function tokenString(quote) {
@@ -77,20 +56,8 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       }
       if (end || !(escaped || multiLineStrings))
         state.tokenize = tokenBase;
-      return ret("string", "string");
+      return "string";
     };
-  }
-
-  // C#-style strings where "" escapes a quote.
-  function tokenAtString(stream, state) {
-    var next;
-    while ((next = stream.next()) != null) {
-      if (next == '"' && !stream.eat('"')) {
-        state.tokenize = tokenBase;
-        break;
-      }
-    }
-    return ret("string", "string");
   }
 
   function tokenComment(stream, state) {
@@ -102,7 +69,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       }
       maybeEnd = (ch == "*");
     }
-    return ret("comment", "comment");
+    return "comment";
   }
 
   function Context(indented, column, type, align, prev) {
@@ -125,7 +92,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
   return {
     startState: function(basecolumn) {
       return {
-        tokenize: tokenBase,
+        tokenize: null,
         context: new Context((basecolumn || 0) - indentUnit, 0, "top", false),
         indented: 0,
         startOfLine: true
@@ -140,20 +107,21 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
         state.startOfLine = true;
       }
       if (stream.eatSpace()) return null;
-      var style = state.tokenize(stream, state);
-      if (type == "comment") return style;
+      curPunc = null;
+      var style = (state.tokenize || tokenBase)(stream, state);
+      if (style == "comment") return style;
       if (ctx.align == null) ctx.align = true;
 
-      if ((type == ";" || type == ":") && ctx.type == "statement") popContext(state);
-      else if (type == "{") pushContext(state, stream.column(), "}");
-      else if (type == "[") pushContext(state, stream.column(), "]");
-      else if (type == "(") pushContext(state, stream.column(), ")");
-      else if (type == "}") {
+      if ((curPunc == ";" || curPunc == ":") && ctx.type == "statement") popContext(state);
+      else if (curPunc == "{") pushContext(state, stream.column(), "}");
+      else if (curPunc == "[") pushContext(state, stream.column(), "]");
+      else if (curPunc == "(") pushContext(state, stream.column(), ")");
+      else if (curPunc == "}") {
         if (ctx.type == "statement") ctx = popContext(state);
         if (ctx.type == "}") ctx = popContext(state);
         if (ctx.type == "statement") ctx = popContext(state);
       }
-      else if (type == ctx.type) popContext(state);
+      else if (curPunc == ctx.type) popContext(state);
       else if (ctx.type == "}" || ctx.type == "top") pushContext(state, stream.column(), "statement");
       state.startOfLine = false;
       return style;
@@ -181,35 +149,56 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     "double static else struct entry switch extern typedef float union for unsigned " +
     "goto while enum void const signed volatile";
 
+  function cppHook(stream, state) {
+    if (!state.startOfLine) return false;
+    stream.skipToEnd();
+    return "meta";
+  }
+
+  // C#-style strings where "" escapes a quote.
+  function tokenAtString(stream, state) {
+    var next;
+    while ((next = stream.next()) != null) {
+      if (next == '"' && !stream.eat('"')) {
+        state.tokenize = null;
+        break;
+      }
+    }
+    return "string";
+  }
+
   CodeMirror.defineMIME("text/x-csrc", {
     name: "clike",
-    useCPP: true,
     keywords: words(cKeywords),
-    atoms: words("null")
+    atoms: words("null"),
+    hooks: {"#": cppHook}
   });
   CodeMirror.defineMIME("text/x-c++src", {
     name: "clike",
-    useCPP: true,
     keywords: words(cKeywords + " asm dynamic_cast namespace reinterpret_cast try bool explicit new " +
                     "static_cast typeid catch operator template typename class friend private " +
                     "this using const_cast inline public throw virtual delete mutable protected " +
                     "wchar_t"),
-    atoms: words("true false null")
+    atoms: words("true false null"),
+    hooks: {"#": cppHook}
   });
   CodeMirror.defineMIME("text/x-java", {
     name: "clike",
-    atAnnotations: true,
     keywords: words("abstract assert boolean break byte case catch char class const continue default " + 
                     "do double else enum extends final finally float for goto if implements import " +
                     "instanceof int interface long native new package private protected public " +
                     "return short static strictfp super switch synchronized this throw throws transient " +
                     "try void volatile while"),
-    atoms: words("true false null")
+    atoms: words("true false null"),
+    hooks: {
+      "@": function(stream, state) {
+        stream.eatWhile(/[\w\$_]/);
+        return "meta";
+      }
+    }
   });
   CodeMirror.defineMIME("text/x-csharp", {
     name: "clike",
-    atAnnotations: true,
-    atStrings: true,
     keywords: words("abstract as base bool break byte case catch char checked class const continue decimal" + 
                     " default delegate do double else enum event explicit extern finally fixed float for" + 
                     " foreach goto if implicit in int interface internal is lock long namespace new object" + 
@@ -217,6 +206,16 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
                     " sizeof stackalloc static string struct switch this throw try typeof uint ulong unchecked" + 
                     " unsafe ushort using virtual void volatile while add alias ascending descending dynamic from get" + 
                     " global group into join let orderby partial remove select set value var yield"),
-    atoms: words("true false null")
+    atoms: words("true false null"),
+    hooks: {
+      "@": function(stream, state) {
+        if (stream.eat('"')) {
+          state.tokenize = tokenAtString;
+          return tokenAtString(stream, state);
+        }
+        stream.eatWhile(/[\w\$_]/);
+        return "meta";
+      }
+    }
   });
 }());

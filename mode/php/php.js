@@ -9,8 +9,15 @@
              "default do else elseif enddeclare endfor endforeach endif endswitch endwhile extends " +
              "final for foreach function global goto if implements interface instanceof namespace " +
              "new or private protected public static switch throw try use var while xor return");
-  var phpConfig = {name: "clike", keywords: phpKeywords, multiLineStrings: true,
-                   $vars: true, atoms: keywords("true false null")};
+  var phpConfig = {name: "clike",
+                   keywords: phpKeywords,
+                   atoms: keywords("true false null"),
+                   multiLineStrings: true,
+                   hooks: {"$": function(stream, state) {
+                     stream.eatWhile(/[\w\$_]/);
+                     return "variable-2";
+                   }}
+                  };
 
   CodeMirror.defineMode("php", function(config, parserConfig) {
     var htmlMode = CodeMirror.getMode(config, "text/html");
