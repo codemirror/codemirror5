@@ -358,6 +358,14 @@ CodeMirror 2 currently doesn't remember the 'real' cursor column in
 this case. These can be worked around on a case-by-case basis, but
 I haven't put much energy into that yet.</li>
 
+<li><strong>Limited interaction with the editable panel.</strong>
+Since the element you're looking at is not a real editable panel,
+native browser behaviour for editable controls doesn't work
+automatically. Through a lot of event glue code, I've managed to make
+drag and drop work pretty well, have context menus work on most
+browsers (except Opera). Middle-click paste on Firefox in Linux is
+broken until someone finds a way to intercept it.</li>
+
 </ul>
 
 </div><div class="rightsmall blk">
