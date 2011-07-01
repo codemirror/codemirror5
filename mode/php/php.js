@@ -79,9 +79,9 @@
         var html = htmlMode.startState();
         return {html: html,
                 php: phpMode.startState(),
-                curMode: htmlMode,
-                curState: html,
-                curClose: null}
+                curMode:	parserConfig.startOpen ? phpMode : htmlMode,
+                curState:	parserConfig.startOpen ? phpMode.startState() : html,
+                curClose:	parserConfig.startOpen ? /^\?>/ : null}
       },
 
       copyState: function(state) {
@@ -106,5 +106,6 @@
     }
   });
   CodeMirror.defineMIME("application/x-httpd-php", "php");
+  CodeMirror.defineMIME("application/x-httpd-php-open", {name: "php", startOpen: true});
   CodeMirror.defineMIME("text/x-php", phpConfig);
 })();
