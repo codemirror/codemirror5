@@ -188,7 +188,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
 
       setStyle = type = tagName = null;
       var style = state.tokenize(stream, state);
-      if ((style || type) && style != "xml-comment") {
+      if ((style || type) && style != "comment") {
         curState = state;
         while (true) {
           var comb = state.cc.pop() || element;
