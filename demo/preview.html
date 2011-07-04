@@ -1,0 +1,75 @@
+<!doctype html>
+<html>
+  <head>
+    <title>CodeMirror 2: HTML5 preview</title>
+    <meta charset=utf-8>
+    <script src=../lib/codemirror.js></script>
+    <script src=../mode/xml/xml.js></script>
+    <script src=../mode/javascript/javascript.js></script>
+    <script src=../mode/css/css.js></script>
+    <script src=../mode/htmlmixed/htmlmixed.js></script>
+    <link rel=stylesheet href=../lib/codemirror.css>
+    <link rel=stylesheet href=../theme/default.css>
+    <link rel=stylesheet href=../css/docs.css>
+    <style type=text/css>
+      .CodeMirror {
+        float: left;
+        width: 50%;
+        border: 1px solid black;
+      }
+      iframe {
+        width: 49%;
+        float: left;
+        height: 300px;
+        border: 1px solid black;
+        border-left: 0px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>CodeMirror 2: HTML5 preview</h1>
+    <textarea id=code name=code>
+<!doctype html>
+<html>
+  <head>
+    <title>HTML5 canvas demo</title>
+    <meta charset=utf-8>
+  </head>
+  <body>
+    <canvas id=tutorial width=250 height=250></canvas>
+    <script>
+      var canvas = document.getElementById('tutorial');
+      var context = canvas.getContext('2d');
+
+      context.fillStyle = 'rgb(250,0,0)';
+      context.fillRect(10, 10, 55, 50);
+
+      context.fillStyle = 'rgba(0, 0, 250, 0.5)';
+      context.fillRect(30, 30, 55, 50);
+    </script>
+  </body>
+</html>
+</textarea>
+    <iframe id=preview></iframe>
+    <script>
+      var delay;
+      // Initialize CodeMirror editor with a nice html5 canvas demo.
+      var editor = CodeMirror.fromTextArea(document.getElementById('code'), {
+        mode: 'text/html',
+        tabMode: 'indent',
+        onChange: function() {
+          clearTimeout(delay);
+          delay = setTimeout(updatePreview, 300);
+        }
+      });
+      
+      function updatePreview() {
+        var preview = document.getElementById('preview').contentDocument;
+        preview.open();
+        preview.write(editor.getValue());
+        preview.close();
+      }
+      setTimeout(updatePreview, 300);
+    </script>
+  </body>
+</html>
