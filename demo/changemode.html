@@ -40,8 +40,11 @@ either JavaScript or Scheme mode based on that.</p>
     }
   });
   var pending;
+  function looksLikeScheme(code) {
+    return !/^\s*\(\s*function\b/.test(code) && /^\s*[;\(]/.test(code);
+  }
   function update() {
-    editor.setOption("mode", /^\s*[;\(]/.test(editor.getValue()) ? "scheme" : "javascript");
+    editor.setOption("mode", looksLikeScheme(editor.getValue()) ? "scheme" : "javascript");
   }
 </script>
   </body>
