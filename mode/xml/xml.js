@@ -25,7 +25,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
           else return null;
         }
         else if (stream.match("--")) return chain(inBlock("comment", "-->"));
-        else if (stream.match("DOCTYPE")) {
+        else if (stream.match("DOCTYPE", true, true)) {
           stream.eatWhile(/[\w\._\-]/);
           return chain(inBlock("meta", ">"));
         }
