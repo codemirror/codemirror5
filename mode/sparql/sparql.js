@@ -14,7 +14,6 @@ CodeMirror.defineMode("sparql", function(config) {
 
   function tokenBase(stream, state) {
     var ch = stream.next();
-    if (ch == "<") console.log(stream.match(/^[\s\u00a0=]/, false), "!");
     curPunc = null;
     if (ch == "$" || ch == "?") {
       stream.match(/^[\w\d]*/);
