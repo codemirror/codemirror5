@@ -4,11 +4,6 @@
     for (var i = 0; i < words.length; ++i) obj[words[i]] = true;
     return obj;
   }
-  var phpKeywords =
-    keywords("abstract and array as break case catch cfunction class clone const continue declare " +
-             "default do else elseif enddeclare endfor endforeach endif endswitch endwhile extends " +
-             "final for foreach function global goto if implements interface instanceof namespace " +
-             "new or private protected public static switch throw try use var while xor return");
   function heredoc(delim) {
     return function(stream, state) {
       if (stream.match(delim)) state.tokenize = null;
@@ -18,7 +13,11 @@
   }
   var phpConfig = {
     name: "clike",
-    keywords: phpKeywords,
+    keywords: keywords("abstract and array as break case catch cfunction class clone const continue declare " +
+                       "default do else elseif enddeclare endfor endforeach endif endswitch endwhile extends " +
+                       "final for foreach function global goto if implements interface instanceof namespace " +
+                       "new or private protected public static switch throw try use var while xor return"),
+    blockKeywords: keywords("catch do else elseif for foreach if switch try while"),
     atoms: keywords("true false null"),
     multiLineStrings: true,
     hooks: {
