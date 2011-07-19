@@ -14,14 +14,14 @@ CodeMirror.defineMode("sparql", function(config) {
 
   function tokenBase(stream, state) {
     var ch = stream.next();
+    if (ch == "<") console.log(stream.match(/^[\s\u00a0=]/, false), "!");
     curPunc = null;
     if (ch == "$" || ch == "?") {
-      stream.eatWhile(/[\w\d]/);
+      stream.match(/^[\w\d]*/);
       return "variable-2";
     }
-    else if (ch == "<" && !stream.match(/[\s\u00a0=]/, false)) {
-      stream.eatWhile(/[^\s\u00a0>]/);
-      stream.eat(">");
+    else if (ch == "<" && !stream.match(/^[\s\u00a0=]/, false)) {
+      stream.match(/^[^\s\u00a0>]*>?/);
       return "atom";
     }
     else if (ch == "\"" || ch == "'") {
