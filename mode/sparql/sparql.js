@@ -134,7 +134,7 @@ CodeMirror.defineMode("sparql", function(config) {
       else if (context.type == "pattern")
         return context.col;
       else if (context.align)
-        return context.col - (closing ? context.width : 0);
+        return context.col + (closing ? 0 : 1);
       else
         return context.indent + (closing ? 0 : indentUnit);
     }
