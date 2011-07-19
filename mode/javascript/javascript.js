@@ -51,11 +51,11 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       return ret(ch);
     else if (ch == "0" && stream.eat(/x/i)) {
       stream.eatWhile(/[\da-f]/i);
-      return ret("number", "atom");
+      return ret("number", "number");
     }      
     else if (/\d/.test(ch)) {
       stream.match(/^\d*(?:\.\d*)?(?:e[+\-]?\d+)?/);
-      return ret("number", "atom");
+      return ret("number", "number");
     }
     else if (ch == "/") {
       if (stream.eat("*")) {
