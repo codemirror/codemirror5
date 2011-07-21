@@ -299,8 +299,8 @@
       <dt id="class_CodeMirror"><code>CodeMirror</code></dt>
       <dd>The outer element of the editor. This should be used for
       borders and positioning. Can also be used to set styles that
-      should hold for everything inside the editor, or to set a
-      background.</dd>
+      should hold for everything inside the editor (such as font
+      and font size), or to set a background.</dd>
 
       <dt id="class_CodeMirror_scroll"><code>CodeMirror-scroll</code></dt>
       <dd>This determines whether the editor scrolls (<code>overflow:
@@ -323,9 +323,10 @@
 
       <dt id="class_CodeMirror_gutter_text"><code>CodeMirror-gutter-text</code></dt>
       <dd>Used to style the actual line numbers. For the numbers to
-      line up, you'll want this style to use exactly the same font and
-      vertical padding as normal edited text, as per
-      the <code>CodeMirror-lines</code> class.</dd>
+      line up, you must make sure that the font in the gutter is the
+      same as the one in the rest of the editor, so you should
+      probably only set font style and size in
+      the <code>CodeMirror</code> class.</dd>
 
       <dt id="class_CodeMirror_lines"><code>CodeMirror-lines</code></dt>
       <dd>The visible lines. If this has vertical
