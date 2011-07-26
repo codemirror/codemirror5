@@ -16,6 +16,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
     var STYLE_WORD = "string";
     var STYLE_TEXT = "atom";
     
+    var TAG_DECLARATION = "!declaration";
     var TAG_CDATA = "!cdata";
     var TAG_COMMENT = "!comment";
     var TAG_TEXT = "!text";
@@ -23,7 +24,8 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
     var doNotIndent = {
         "!cdata": true,
         "!comment": true,
-        "!text": true
+        "!text": true,
+        "!declaration": true
     };
 
     // options
@@ -80,6 +82,16 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
         return null;
     }
     
+    // return true if the current token is seperated from the tokens before it
+    // which means either this is the start of the line, or there is at least
+    // one space or tab character behind the token
+    // other returns false
+    function isTokenSeparated(stream) {
+        return stream.sol() ||
+            stream.string.charAt(stream.start - 1) == " " ||
+            stream.string.charAt(stream.start - 1) == "\t";
+    }
+    
     ///////////////////////////////////////////////////////////////////////////
     // context: document
     // 
@@ -92,18 +104,21 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
         if(stream.eat("<")) {
             if(stream.match("?xml")) {
                 // declaration
-                state.tokenize = parseDeclarationVersion;
-                if(state.lineNumber > 1 ||
-                    stream.pos > 5 ||
-                    (!stream.eol() && !stream.eatSpace())) {
+                if(state.lineNumber > 1 || stream.pos > 5) {
+                    stream.skipToEnd();
                     return STYLE_ERROR;
                 } else {
+                    pushContext(state, TAG_DECLARATION);
+                state.tokenize = parseDeclarationVersion;
                     return STYLE_DECLARATION;
                 }
             } else if(stream.match("!--")) {
                 // new context: comment
                 pushContext(state, TAG_COMMENT);
                 return chain(stream, state, inBlock(STYLE_COMMENT, "-->", parseDocument));
+            } else if(stream.eatSpace() || stream.eol() ) {
+                stream.skipToEnd();
+                return STYLE_ERROR;
             } else {
                 // element
                 state.tokenize = parseElementTagName;
@@ -162,7 +177,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
         } else if(stream.eat(/^>/)) {
             state.tokenize = parseElementBlock;
             return STYLE_ELEMENT_NAME;
-        } else if(stream.match(/^[a-zA-Z_:][-a-zA-Z0-9_:.]*( )*=/)) {
+        } else if(isTokenSeparated(stream) && stream.match(/^[a-zA-Z_:][-a-zA-Z0-9_:.]*( )*=/)) {
             // attribute
             state.tokenize = parseAttribute;
             return STYLE_ATTRIBUTE;
@@ -307,36 +322,30 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
     // - may include 'encoding' and 'standalone' (in that order after 'version')
     // - attribute names must be lowercase
     // - cannot contain anything else on the line
+    
     function parseDeclarationVersion(stream, state) {
-        if(stream.match(/^version( )*=( )*"([a-zA-Z0-9_.:]|\-)+"/) && (stream.eol() || stream.eatSpace())) {
             state.tokenize = parseDeclarationEncoding;
+        if(isTokenSeparated(stream) && stream.match(/^version( )*=( )*"([a-zA-Z0-9_.:]|\-)+"/)) {
             return STYLE_DECLARATION;
         }
-        state.tokenize = parseDocument;
         stream.skipToEnd();
         return STYLE_ERROR;
     }
 
     function parseDeclarationEncoding(stream, state) {
         state.tokenize = parseDeclarationStandalone;
-        if(stream.match(/^encoding( )*=( )*"[A-Za-z]([A-Za-z0-9._]|\-)*"/)) {
-            if((stream.eol() || stream.eatSpace())) {
-                return STYLE_DECLARATION;
-            } else {
-                return STYLE_ERROR;
-            }
+        
+        if(isTokenSeparated(stream) && stream.match(/^encoding( )*=( )*"[A-Za-z]([A-Za-z0-9._]|\-)*"/)) {
+            return STYLE_DECLARATION;
         }
         return null;
     }
 
     function parseDeclarationStandalone(stream, state) {
         state.tokenize = parseDeclarationEndTag;
-        if(stream.match(/^standalone( )*=( )*"(yes|no)"/)) {
-            if((stream.eol() || stream.eatSpace())) {
+        
+        if(isTokenSeparated(stream) && stream.match(/^standalone( )*=( )*"(yes|no)"/)) {
                 return STYLE_DECLARATION;
-            } else {
-                return STYLE_ERROR;
-            }
         }
         return null;
     }
@@ -344,8 +353,10 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
     function parseDeclarationEndTag(stream, state) {
         state.tokenize = parseDocument;
         if(stream.match("?>") && stream.eol()) {
+            popContext(state);
             return STYLE_DECLARATION;
         }
+        stream.skipToEnd();
         return STYLE_ERROR;
     }
 
