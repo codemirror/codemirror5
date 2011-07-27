@@ -422,9 +422,12 @@
       both of which hold integers, indicating the amount of stored
       undo and redo operations.</dd>
 
-      <dt id="indentLine"><code>indentLine(line)</code></dt>
+      <dt id="indentLine"><code>indentLine(line, dir)</code></dt>
       <dd>Reset the given line's indentation to the indentation
-      prescribed by the mode.</dd>
+      prescribed by the mode. If the second argument is given,
+      indentation will be increased (if <code>dir</code> is true) or
+      decreased (if false) by an <a href="#option_indentUnit">indent
+      unit</a> instead.</dd>
 
       <dt id="getSearchCursor"><code>getSearchCursor(query, start, caseFold) → cursor</code></dt>
       <dd>Used to implement search/replace
