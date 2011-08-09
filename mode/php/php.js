@@ -49,17 +49,20 @@
           state.curMode = phpMode;
           state.curState = state.php;
           state.curClose = /^\?>/;
+		  state.mode =  'php';
         }
         else if (style == "tag" && stream.current() == ">" && state.curState.context) {
           if (/^script$/i.test(state.curState.context.tagName)) {
             state.curMode = jsMode;
             state.curState = jsMode.startState(htmlMode.indent(state.curState, ""));
             state.curClose = /^<\/\s*script\s*>/i;
+			state.mode =  'javascript';
           }
           else if (/^style$/i.test(state.curState.context.tagName)) {
             state.curMode = cssMode;
             state.curState = cssMode.startState(htmlMode.indent(state.curState, ""));
             state.curClose =  /^<\/\s*style\s*>/i;
+            state.mode =  'css';
           }
         }
         return style;
@@ -68,6 +71,7 @@
         state.curMode = htmlMode;
         state.curState = state.html;
         state.curClose = null;
+		state.mode =  'html';
         return dispatch(stream, state);
       }
       else return state.curMode.token(stream, state.curState);
@@ -80,7 +84,8 @@
                 php: phpMode.startState(),
                 curMode:	parserConfig.startOpen ? phpMode : htmlMode,
                 curState:	parserConfig.startOpen ? phpMode.startState() : html,
-                curClose:	parserConfig.startOpen ? /^\?>/ : null}
+                curClose:	parserConfig.startOpen ? /^\?>/ : null,
+				mode:		parserConfig.startOpen ? 'php' : 'html'}
       },
 
       copyState: function(state) {
