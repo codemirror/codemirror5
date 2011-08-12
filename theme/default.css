@@ -9,6 +9,7 @@
 .cm-s-default span.cm-operator {color: black;}
 .cm-s-default span.cm-comment {color: #a50;}
 .cm-s-default span.cm-string {color: #a11;}
+.cm-s-default span.cm-string-2 {color: #f50;}
 .cm-s-default span.cm-meta {color: #555;}
 .cm-s-default span.cm-error {color: #f00;}
 .cm-s-default span.cm-qualifier {color: #555;}
