@@ -59,8 +59,10 @@
     #if ($foreach.parent.hasNext)
         $velocityCount
     #end
-
 #end
+
+$someObject.getValues("this is a string split
+        across lines")
 
 #macro( tablerows $color $somelist )
     #foreach( $something in $somelist )

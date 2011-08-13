@@ -13,6 +13,7 @@ CodeMirror.defineMode("velocity", function(config) {
                                "#{if} #{elseif} #{foreach} #{set} #{include} #{parse} #{macro} #{define} #{evaluate}");
     var specials = parseWords("$foreach.count $foreach.hasNext $foreach.first $foreach.last $foreach.topmost $foreach.parent $velocityCount");
     var isOperatorChar = /[+\-*&%=<>!?:\/|]/;
+    var multiLineStrings =true;
 
     function chain(stream, state, f) {
         state.tokenize = f;
@@ -90,7 +91,7 @@ CodeMirror.defineMode("velocity", function(config) {
                 }
                 escaped = !escaped && next == "\\";
             }
-            if (end || !escaped)
+            if (end || !(escaped || multiLineStrings))
                 state.tokenize = tokenBase;
             return ret("string", "string");
         };
