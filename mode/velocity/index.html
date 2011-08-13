@@ -48,7 +48,7 @@
 
     $foreach.count $customer.Name
 
-    #if( $foo == $bar)
+    #if( $foo == ${bar})
         it's true!
         #break
     #{else}
@@ -91,7 +91,7 @@ Addition: #set( $value = $foo + 1 )
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         tabMode: "indent",
         matchBrackets: true,
-        theme: "neat",
+        theme: "night",
         lineNumbers: true,
         indentUnit: 4,
         mode: "text/velocity"

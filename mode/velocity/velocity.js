@@ -1,24 +1,27 @@
-CodeMirror.defineMode("velocity", function(config, parserConfig) {
-    var indentUnit = config.indentUnit,
-            keywords = parserConfig.keywords,
-            functions = parserConfig.functions,
-            specials = parserConfig.specials,
-            multiLineStrings = parserConfig.multiLineStrings;
+CodeMirror.defineMode("velocity", function(config) {
+    function parseWords(str) {
+        var obj = {}, words = str.split(" ");
+        for (var i = 0; i < words.length; ++i) obj[words[i]] = true;
+        return obj;
+    }
+    var type;
+    var inParams=false;
+    var indentUnit = config.indentUnit
+    var keywords = parseWords("#end #else #break #stop #[[ #]] " +
+                              "#{end} #{else} #{break} #{stop}");
+    var functions = parseWords("#if #elseif #foreach #set #include #parse #macro #define #evaluate " +
+                               "#{if} #{elseif} #{foreach} #{set} #{include} #{parse} #{macro} #{define} #{evaluate}");
+    var specials = parseWords("$foreach.count $foreach.hasNext $foreach.first $foreach.last $foreach.topmost $foreach.parent $velocityCount");
     var isOperatorChar = /[+\-*&%=<>!?:\/|]/;
 
     function chain(stream, state, f) {
         state.tokenize = f;
         return f(stream, state);
     }
-
-    var type;
-    var inParams=false;
-
     function ret(tp, style) {
         type = tp;
         return style;
     }
-
     function tokenBase(stream, state) {
         var ch = stream.next();
         // start of string?
@@ -26,7 +29,7 @@ CodeMirror.defineMode("velocity", function(config, parserConfig) {
             return chain(stream, state, tokenString(ch));
         // is it one of the special signs []{}().,;? Seperator?
         else if (/[\[\]{}\(\),;\.]/.test(ch)) {
-            if (/[\(\)]/.test(ch)) inParams=(type=="function");
+            if (/[\(\)]/.test(ch)) inParams=(type=="function" || type=="method");
             return ret(ch);
         }
         // start of a number value?
@@ -49,12 +52,12 @@ CodeMirror.defineMode("velocity", function(config, parserConfig) {
         }
         // variable?
         else if (ch == "$") {
-            stream.eatWhile(/[\w\d\$_\.]/);
+            stream.eatWhile(/[\w\d\$_\.{}]/);
             // is it one of the specials?
             if (specials && specials.propertyIsEnumerable(stream.current().toLowerCase()))
                 return ret("keyword", "special");
             else
-                return ret("word", "builtin");
+                return ret("method", "builtin");
         }
         // is it a operator?
         else if (isOperatorChar.test(ch)) {
@@ -87,7 +90,7 @@ CodeMirror.defineMode("velocity", function(config, parserConfig) {
                 }
                 escaped = !escaped && next == "\\";
             }
-            if (end || !(escaped || multiLineStrings))
+            if (end || !escaped)
                 state.tokenize = tokenBase;
             return ret("string", "string");
         };
@@ -136,25 +139,4 @@ CodeMirror.defineMode("velocity", function(config, parserConfig) {
     };
 });
 
-(function() {
-    function keywords(str) {
-        var obj = {}, words = str.split(" ");
-        for (var i = 0; i < words.length; ++i) obj[words[i]] = true;
-        return obj;
-    }
-
-    var cKeywords = "#end #else #break #stop #[[ #]] " +
-                    "#{end} #{else} #{break} #{stop}";
-
-    var cFunctions = "#if #elseif #foreach #set #include #parse #macro #define #evaluate " +
-                     "#{if} #{elseif} #{foreach} #{set} #{include} #{parse} #{macro} #{define} #{evaluate}";
-
-    var cSpecials = "$foreach.count $foreach.hasNext $foreach.first $foreach.last $foreach.topmost $foreach.parent $velocityCount";
-
-    CodeMirror.defineMIME("text/velocity", {
-        name: "velocity",
-        keywords: keywords(cKeywords),
-        functions: keywords(cFunctions),
-        specials: keywords(cSpecials)
-    });
-}());
+CodeMirror.defineMIME("text/velocity", "velocity");
