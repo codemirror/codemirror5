@@ -4,8 +4,7 @@ CodeMirror.defineMode("velocity", function(config) {
         for (var i = 0; i < words.length; ++i) obj[words[i]] = true;
         return obj;
     }
-    var type;
-    var inParams=false;
+
     var indentUnit = config.indentUnit
     var keywords = parseWords("#end #else #break #stop #[[ #]] " +
                               "#{end} #{else} #{break} #{stop}");
@@ -19,24 +18,23 @@ CodeMirror.defineMode("velocity", function(config) {
         state.tokenize = f;
         return f(stream, state);
     }
-    function ret(tp, style) {
-        type = tp;
-        return style;
-    }
     function tokenBase(stream, state) {
+        var beforeParams = state.beforeParams;
+        state.beforeParams = false;
         var ch = stream.next();
         // start of string?
-        if ((ch == '"' || ch == "'") && inParams)
+        if ((ch == '"' || ch == "'") && state.inParams)
             return chain(stream, state, tokenString(ch));
         // is it one of the special signs []{}().,;? Seperator?
         else if (/[\[\]{}\(\),;\.]/.test(ch)) {
-            if (/[\(\)]/.test(ch)) inParams=(type=="function" || type=="method");
-            return ret(ch);
+            if (ch == "(" && beforeParams) state.inParams = true;
+            else if (ch == ")") state.inParams = false;
+            return null;
         }
         // start of a number value?
         else if (/\d/.test(ch)) {
             stream.eatWhile(/[\w\.]/);
-            return ret("number", "number");
+            return "number";
         }
         // multi line comment?
         else if (ch == "#" && stream.eat("*")) {
@@ -49,35 +47,40 @@ CodeMirror.defineMode("velocity", function(config) {
         // single line comment?
         else if (ch == "#" && stream.eat("#")) {
             stream.skipToEnd();
-            return ret("comment", "comment");
+            return "comment";
         }
         // variable?
         else if (ch == "$") {
             stream.eatWhile(/[\w\d\$_\.{}]/);
             // is it one of the specials?
-            if (specials && specials.propertyIsEnumerable(stream.current().toLowerCase()))
-                return ret("keyword", "special");
-            else
-                return ret("method", "builtin");
+            if (specials && specials.propertyIsEnumerable(stream.current().toLowerCase())) {
+                return "keyword";
+            }
+            else {
+                state.beforeParams = true;
+                return "builtin";
+            }
         }
         // is it a operator?
         else if (isOperatorChar.test(ch)) {
             stream.eatWhile(isOperatorChar);
-            return ret("operator", "operator");
+            return "operator";
         }
         else {
             // get the whole word
             stream.eatWhile(/[\w\$_{}]/);
+            var word = stream.current().toLowerCase();
             // is it one of the listed keywords?
-            if (keywords && keywords.propertyIsEnumerable(stream.current().toLowerCase()))
-                return ret("keyword", "keyword");
+            if (keywords && keywords.propertyIsEnumerable(word))
+                return "keyword";
             // is it one of the listed functions?
-            if (functions && functions.propertyIsEnumerable(stream.current().toLowerCase()))
-                return ret("function", "keyword");
-            if (stream.current().match(/^#[a-z0-9_]+ *$/i) && stream.peek()=="(")
-                return ret("function", "keyword");
+            if (functions && functions.propertyIsEnumerable(word) ||
+                stream.current().match(/^#[a-z0-9_]+ *$/i) && stream.peek()=="(") {
+                state.beforeParams = true;
+                return "keyword";
+            }
             // default: just a "word"
-            return ret("word", "word");
+            return null;
         }
     }
 
@@ -91,9 +94,8 @@ CodeMirror.defineMode("velocity", function(config) {
                 }
                 escaped = !escaped && next == "\\";
             }
-            if (end || !(escaped || multiLineStrings))
-                state.tokenize = tokenBase;
-            return ret("string", "string");
+            if (end) state.tokenize = tokenBase;
+            return "string";
         };
     }
 
@@ -106,7 +108,7 @@ CodeMirror.defineMode("velocity", function(config) {
             }
             maybeEnd = (ch == "*");
         }
-        return ret("comment", "comment");
+        return "comment";
     }
 
     function tokenUnparsed(stream, state) {
@@ -129,7 +131,8 @@ CodeMirror.defineMode("velocity", function(config) {
         startState: function(basecolumn) {
             return {
                 tokenize: tokenBase,
-                startOfLine: true
+                beforeParams: false,
+                inParams: false
             };
         },
 
