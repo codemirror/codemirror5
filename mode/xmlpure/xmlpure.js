@@ -457,7 +457,7 @@ CodeMirror.defineMode("xmlpure", function(config, parserConfig) {
                     // do not indent - no return value at all
                     return;
                 }
-                if(textAfter.match(/<\/.*/)) {
+                if(textAfter.match(/^<\/.*/)) {
                     // eng-tag - indent back to last context
                     return state.context.indent;
                 }
