@@ -9,14 +9,14 @@
 CodeMirror.defineMode("xmlpure", function(config, parserConfig) {
     // constants
     var STYLE_ERROR = "error";
-    var STYLE_DECLARATION = "comment";
+    var STYLE_INSTRUCTION = "comment";
     var STYLE_COMMENT = "comment";
     var STYLE_ELEMENT_NAME = "tag";
     var STYLE_ATTRIBUTE = "attribute";
     var STYLE_WORD = "string";
     var STYLE_TEXT = "atom";
-    
-    var TAG_DECLARATION = "!declaration";
+
+    var TAG_INSTRUCTION = "!instruction";
     var TAG_CDATA = "!cdata";
     var TAG_COMMENT = "!comment";
     var TAG_TEXT = "!text";
@@ -25,7 +25,7 @@ CodeMirror.defineMode("xmlpure", function(config, parserConfig) {
         "!cdata": true,
         "!comment": true,
         "!text": true,
-        "!declaration": true
+        "!instruction": true
     };
 
     // options
@@ -85,7 +85,7 @@ CodeMirror.defineMode("xmlpure", function(config, parserConfig) {
     // return true if the current token is seperated from the tokens before it
     // which means either this is the start of the line, or there is at least
     // one space or tab character behind the token
-    // other returns false
+    // otherwise returns false
     function isTokenSeparated(stream) {
         return stream.sol() ||
             stream.string.charAt(stream.start - 1) == " " ||
@@ -102,16 +102,11 @@ CodeMirror.defineMode("xmlpure", function(config, parserConfig) {
     // - zero or more comments
     function parseDocument(stream, state) {
         if(stream.eat("<")) {
-            if(stream.match("?xml")) {
-                // declaration
-                if(state.lineNumber > 1 || stream.pos > 5) {
-                    stream.skipToEnd();
-                    return STYLE_ERROR;
-                } else {
-                    pushContext(state, TAG_DECLARATION);
-                state.tokenize = parseDeclarationVersion;
-                    return STYLE_DECLARATION;
-                }
+            if(stream.eat("?")) {
+                // processing instruction
+                pushContext(state, TAG_INSTRUCTION);
+                state.tokenize = parseProcessingInstructionStartTag;
+                return STYLE_INSTRUCTION;
             } else if(stream.match("!--")) {
                 // new context: comment
                 pushContext(state, TAG_COMMENT);
@@ -273,7 +268,11 @@ CodeMirror.defineMode("xmlpure", function(config, parserConfig) {
     // - comments
     function parseElementBlock(stream, state) {
         if(stream.eat("<")) {
-            if(stream.match("!--")) {
+            if(stream.match("?")) {
+                pushContext(state, TAG_INSTRUCTION);
+                state.tokenize = parseProcessingInstructionStartTag;
+                return STYLE_INSTRUCTION;
+            } else if(stream.match("!--")) {
                 // new context: comment
                 pushContext(state, TAG_COMMENT);
                 return chain(stream, state, inBlock(STYLE_COMMENT, "-->",
@@ -313,6 +312,52 @@ CodeMirror.defineMode("xmlpure", function(config, parserConfig) {
         }
         return STYLE_TEXT;
     }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // context: XML processing instructions
+    //
+    // XML processing instructions (PIs) allow documents to contain instructions for applications.
+    // PI format: <?name data?>
+    // - 'name' can be anything other than 'xml' (case-insensitive)
+    // - 'data' can be anything which doesn't contain '?>'
+    // XML declaration is a special PI (see XML declaration context below)
+    function parseProcessingInstructionStartTag(stream, state) {
+        if(stream.match("xml", true, true)) {
+            // xml declaration
+            if(state.lineNumber > 1 || stream.pos > 5) {
+                state.tokenize = parseDocument;
+                stream.skipToEnd();
+                return STYLE_ERROR;
+            } else {
+                state.tokenize = parseDeclarationVersion;
+                return STYLE_INSTRUCTION;
+            }
+        }
+
+        // regular processing instruction
+        if(isTokenSeparated(stream) || stream.match("?>")) {
+            // we have a space after the start-tag, or nothing but the end-tag
+            // either way - error!
+            state.tokenize = parseDocument;
+            stream.skipToEnd();
+            return STYLE_ERROR;
+        }
+
+        state.tokenize = parseProcessingInstructionBody;
+        return STYLE_INSTRUCTION;
+    }
+
+    function parseProcessingInstructionBody(stream, state) {
+        stream.eatWhile(/[^?]/);
+        if(stream.eat("?")) {
+            if(stream.eat(">")) {
+                popContext(state);
+                state.tokenize = state.context == null ? parseDocument : parseElementBlock;
+            }
+        }
+        return STYLE_INSTRUCTION;
+    }
+
     
     ///////////////////////////////////////////////////////////////////////////
     // context: XML declaration
@@ -325,11 +370,11 @@ CodeMirror.defineMode("xmlpure", function(config, parserConfig) {
     // - may include 'encoding' and 'standalone' (in that order after 'version')
     // - attribute names must be lowercase
     // - cannot contain anything else on the line
-    
     function parseDeclarationVersion(stream, state) {
-            state.tokenize = parseDeclarationEncoding;
+        state.tokenize = parseDeclarationEncoding;
+        
         if(isTokenSeparated(stream) && stream.match(/^version( )*=( )*"([a-zA-Z0-9_.:]|\-)+"/)) {
-            return STYLE_DECLARATION;
+            return STYLE_INSTRUCTION;
         }
         stream.skipToEnd();
         return STYLE_ERROR;
@@ -339,7 +384,7 @@ CodeMirror.defineMode("xmlpure", function(config, parserConfig) {
         state.tokenize = parseDeclarationStandalone;
         
         if(isTokenSeparated(stream) && stream.match(/^encoding( )*=( )*"[A-Za-z]([A-Za-z0-9._]|\-)*"/)) {
-            return STYLE_DECLARATION;
+            return STYLE_INSTRUCTION;
         }
         return null;
     }
@@ -348,16 +393,17 @@ CodeMirror.defineMode("xmlpure", function(config, parserConfig) {
         state.tokenize = parseDeclarationEndTag;
         
         if(isTokenSeparated(stream) && stream.match(/^standalone( )*=( )*"(yes|no)"/)) {
-                return STYLE_DECLARATION;
+            return STYLE_INSTRUCTION;
         }
         return null;
     }
 
     function parseDeclarationEndTag(stream, state) {
         state.tokenize = parseDocument;
+        
         if(stream.match("?>") && stream.eol()) {
             popContext(state);
-            return STYLE_DECLARATION;
+            return STYLE_INSTRUCTION;
         }
         stream.skipToEnd();
         return STYLE_ERROR;
