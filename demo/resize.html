@@ -16,6 +16,7 @@
         height: auto;
         overflow-y: hidden;
         overflow-x: auto;
+        width: 100%;
       }
     </style>
   </head>
@@ -27,12 +28,11 @@
   height: auto;
   overflow-y: hidden;
   overflow-x: auto;
+  width: 100%
 }</textarea></form>
 
-<p>By setting a single CSS property, CodeMirror can be made to
-automatically resize to fit the content. Use <code>max-height</code>
-to prevent it from growing past a given point (on halfway modern
-browsers).</p>
+<p>By setting a few CSS properties, CodeMirror can be made to
+automatically resize to fit its content.</p>
 
     <script>
       CodeMirror.fromTextArea(document.getElementById("code"), {
