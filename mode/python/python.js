@@ -147,7 +147,7 @@ CodeMirror.defineMode("python", function(conf) {
     }
     
     function tokenStringFactory(delimiter) {
-        while ('rub'.indexOf(delimiter[0].toLowerCase()) >= 0) {
+        while ('rub'.indexOf(delimiter.charAt(0).toLowerCase()) >= 0) {
             delimiter = delimiter.substr(1);
         }
         var delim_re = new RegExp(delimiter);
