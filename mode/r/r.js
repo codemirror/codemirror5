@@ -46,6 +46,8 @@ CodeMirror.defineMode("r", function(config) {
       return "variable-2";
     } else if (ch == "<" && stream.eat("-")) {
       return "arrow";
+    } else if (ch == "=" && state.ctx.argList) {
+      return "arg-is";
     } else if (opChars.test(ch)) {
       if (ch == "$") return "dollar";
       stream.eatWhile(opChars);
@@ -98,7 +100,8 @@ CodeMirror.defineMode("r", function(config) {
               ctx: {type: "top",
                     indent: -config.indentUnit,
                     align: false},
-              indent: 0};
+              indent: 0,
+              afterIdent: false};
     },
 
     token: function(stream, state) {
@@ -113,10 +116,14 @@ CodeMirror.defineMode("r", function(config) {
       var ctype = state.ctx.type;
       if ((curPunc == ";" || curPunc == "{" || curPunc == "}") && ctype == "block") pop(state);
       if (curPunc == "{") push(state, "}", stream);
-      else if (curPunc == "(") push(state, ")", stream);
+      else if (curPunc == "(") {
+        push(state, ")", stream);
+        if (state.afterIdent) state.ctx.argList = true;
+      }
       else if (curPunc == "[") push(state, "]", stream);
       else if (curPunc == "block") push(state, "block", stream);
       else if (curPunc == ctype) pop(state);
+      state.afterIdent = style == "variable" || style == "keyword";
       return style;
     },
 
