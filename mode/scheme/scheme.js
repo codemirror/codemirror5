@@ -34,7 +34,7 @@ CodeMirror.defineMode("scheme", function (config, mode) {
     /**
      * Scheme numbers are complicated unfortunately.
      * Checks if we're looking at a number, which might be possibly a fraction.
-     * Also checks that it is not part of a longer procedure name. Returns true/false accordingly.
+     * Also checks that it is not part of a longer identifier name. Returns true/false accordingly.
      */
     function isNumber(ch, stream){ 
         if(numRegex.exec(ch) != null){ 
@@ -184,10 +184,9 @@ CodeMirror.defineMode("scheme", function (config, mode) {
                         }
                     } else {
                         stream.eatWhile(/[\w\$_\-]/);
-        
                         if (keywords && keywords.propertyIsEnumerable(stream.current())) {
                             returnType = BUILTIN;
-                        }else returnType = null;
+                        } else returnType = null;
                     }
             }
             return (typeof state.sExprComment == "number") ? COMMENT : returnType;
@@ -199,5 +198,4 @@ CodeMirror.defineMode("scheme", function (config, mode) {
         }
     };
 });
-
 CodeMirror.defineMIME("text/x-scheme", "scheme");
