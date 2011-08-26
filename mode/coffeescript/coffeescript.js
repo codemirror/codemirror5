@@ -11,8 +11,8 @@ CodeMirror.defineMode('coffeescript', function(conf) {
     
     var singleOperators = new RegExp("^[\\+\\-\\*/%&|\\^~<>!\?]");
     var singleDelimiters = new RegExp('^[\\(\\)\\[\\]\\{\\}@,:`=;\\.]');
-    var doubleOperators = new RegExp("^((\\+\\+)|(\\+\\=)|(\\-\\-)|(\\-\\=)|(\\*\\*)|(\\*\\=)|(\\/\\/)|(\\/\\=)|(==)|(!=)|(<=)|(>=)|(<>)|(<<)|(>>)|(//))");
-    var doubleDelimiters = new RegExp("^((\->)|(\=>)|(\\.\\.)|(\\+=)|(\\-=)|(\\*=)|(%=)|(/=)|(&=)|(\\|=)|(\\^=))");
+    var doubleOperators = new RegExp("^((\->)|(\=>)|(\\+\\+)|(\\+\\=)|(\\-\\-)|(\\-\\=)|(\\*\\*)|(\\*\\=)|(\\/\\/)|(\\/\\=)|(==)|(!=)|(<=)|(>=)|(<>)|(<<)|(>>)|(//))");
+    var doubleDelimiters = new RegExp("^((\\.\\.)|(\\+=)|(\\-=)|(\\*=)|(%=)|(/=)|(&=)|(\\|=)|(\\^=))");
     var tripleDelimiters = new RegExp("^((\\.\\.\\.)|(//=)|(>>=)|(<<=)|(\\*\\*=))");
     var identifiers = new RegExp("^[_A-Za-z][_A-Za-z0-9]*");
 
@@ -30,7 +30,8 @@ CodeMirror.defineMode('coffeescript', function(conf) {
     indentKeywords = wordRegexp(indentKeywords);
 
 
-    var stringPrefixes = new RegExp("^(([rub]|(ur)|(br))?('{3}|\"{3}|['\"]))", "i");
+    var stringPrefixes = new RegExp("^('{3}|\"{3}|['\"])");
+    var regexPrefixes = new RegExp("^(/{3}|/)");
     var commonConstants = ['Infinity', 'NaN', 'undefined', 'true', 'false', 'on', 'off', 'yes', 'no'];
     var constants = wordRegexp(commonConstants);
 
@@ -102,7 +103,12 @@ CodeMirror.defineMode('coffeescript', function(conf) {
         
         // Handle strings
         if (stream.match(stringPrefixes)) {
-            state.tokenize = tokenStringFactory(stream.current());
+            state.tokenize = tokenFactory(stream.current(), 'string');
+            return state.tokenize(stream, state);
+        }
+        // Handle regex literals
+        if (stream.match(regexPrefixes)) {
+            state.tokenize = tokenFactory(stream.current(), 'string-2');
             return state.tokenize(stream, state);
         }
         
@@ -136,37 +142,33 @@ CodeMirror.defineMode('coffeescript', function(conf) {
         return ERRORCLASS;
     }
     
-    function tokenStringFactory(delimiter) {
-        while ('rub'.indexOf(delimiter[0].toLowerCase()) >= 0) {
-            delimiter = delimiter.substr(1);
-        }
+    function tokenFactory(delimiter, outclass) {
         var delim_re = new RegExp(delimiter);
         var singleline = delimiter.length == 1;
-        var OUTCLASS = 'string';
         
         return function tokenString(stream, state) {
             while (!stream.eol()) {
-                stream.eatWhile(/[^'"\\]/);
+                stream.eatWhile(/[^'"\/\\]/);
                 if (stream.eat('\\')) {
                     stream.next();
                     if (singleline && stream.eol()) {
-                        return OUTCLASS;
+                        return outclass;
                     }
                 } else if (stream.match(delim_re)) {
                     state.tokenize = tokenBase;
-                    return OUTCLASS;
+                    return outclass;
                 } else {
-                    stream.eat(/['"]/);
+                    stream.eat(/['"\/]/);
                 }
             }
             if (singleline) {
                 if (conf.mode.singleLineStringErrors) {
-                    OUTCLASS = ERRORCLASS
+                    outclass = ERRORCLASS
                 } else {
                     state.tokenize = tokenBase;
                 }
             }
-            return OUTCLASS;
+            return outclass;
         };
     }
     
