@@ -2,7 +2,6 @@
  * Author: Koh Zi Han, based on implementation by Koh Zi Chun
  */
 CodeMirror.defineMode("scheme", function (config, mode) {
-    var numRegex = /[0-9]/;
     var BUILTIN = "builtin", COMMENT = "comment", STRING = "string",
         ATOM = "atom", NUMBER = "number", BRACKET = "bracket", KEYWORD="keyword";
     var INDENT_WORD_SKIP = 2, KEYWORDS_SKIP = 1;
@@ -34,14 +33,14 @@ CodeMirror.defineMode("scheme", function (config, mode) {
     /**
      * Scheme numbers are complicated unfortunately.
      * Checks if we're looking at a number, which might be possibly a fraction.
-     * Also checks that it is not part of a longer identifier name. Returns true/false accordingly.
+     * Also checks that it is not part of a longer procedure name. Returns true/false accordingly.
      */
     function isNumber(ch, stream){ 
-        if(numRegex.exec(ch) != null){ 
+        if(/[0-9]/.exec(ch) != null){ 
             stream.eatWhile(/[0-9]/);
             stream.eat(/\//);
             stream.eatWhile(/[0-9]/);
-            if (stream.eol() || stream.peek() == " ") return true;
+            if (stream.eol() || !(/[a-zA-Z\-\_\/]/.exec(stream.peek()))) return true;
             stream.backUp(stream.current().length - 1); // undo all the eating
         }
         return false;
@@ -184,9 +183,10 @@ CodeMirror.defineMode("scheme", function (config, mode) {
                         }
                     } else {
                         stream.eatWhile(/[\w\$_\-]/);
+        
                         if (keywords && keywords.propertyIsEnumerable(stream.current())) {
                             returnType = BUILTIN;
-                        } else returnType = null;
+                        }else returnType = null;
                     }
             }
             return (typeof state.sExprComment == "number") ? COMMENT : returnType;
@@ -198,4 +198,5 @@ CodeMirror.defineMode("scheme", function (config, mode) {
         }
     };
 });
+
 CodeMirror.defineMIME("text/x-scheme", "scheme");
