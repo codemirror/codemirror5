@@ -33,7 +33,7 @@ CodeMirror.defineMode("scheme", function (config, mode) {
     /**
      * Scheme numbers are complicated unfortunately.
      * Checks if we're looking at a number, which might be possibly a fraction.
-     * Also checks that it is not part of a longer procedure name. Returns true/false accordingly.
+     * Also checks that it is not part of a longer identifier. Returns true/false accordingly.
      */
     function isNumber(ch, stream){ 
         if(/[0-9]/.exec(ch) != null){ 
