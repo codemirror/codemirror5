@@ -12,7 +12,7 @@ CodeMirror.defineMode('coffeescript', function(conf) {
     var singleOperators = new RegExp("^[\\+\\-\\*/%&|\\^~<>!\?]");
     var singleDelimiters = new RegExp('^[\\(\\)\\[\\]\\{\\}@,:`=;\\.]');
     var doubleOperators = new RegExp("^((\\+\\+)|(\\+\\=)|(\\-\\-)|(\\-\\=)|(\\*\\*)|(\\*\\=)|(\\/\\/)|(\\/\\=)|(==)|(!=)|(<=)|(>=)|(<>)|(<<)|(>>)|(//))");
-    var doubleDelimiters = new RegExp("^((\->)|(\\.\\.)|(\\+=)|(\\-=)|(\\*=)|(%=)|(/=)|(&=)|(\\|=)|(\\^=))");
+    var doubleDelimiters = new RegExp("^((\->)|(\=>)|(\\.\\.)|(\\+=)|(\\-=)|(\\*=)|(%=)|(/=)|(&=)|(\\|=)|(\\^=))");
     var tripleDelimiters = new RegExp("^((\\.\\.\\.)|(//=)|(>>=)|(<<=)|(\\*\\*=))");
     var identifiers = new RegExp("^[_A-Za-z][_A-Za-z0-9]*");
 
@@ -28,7 +28,7 @@ CodeMirror.defineMode('coffeescript', function(conf) {
 
 
     var stringPrefixes = new RegExp("^(([rub]|(ur)|(br))?('{3}|\"{3}|['\"]))", "i");
-    var commonConstants = ['Infinity', 'NaN', 'undefined', 'true', 'false'];
+    var commonConstants = ['Infinity', 'NaN', 'undefined', 'true', 'false', 'on', 'off', 'yes', 'no'];
     var constants = wordRegexp(commonConstants);
 
     // Tokenizers
