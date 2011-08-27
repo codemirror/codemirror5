@@ -19,12 +19,15 @@ CodeMirror.defineMode('coffeescript', function(conf) {
     var wordOperators = wordRegexp(['and', 'or', 'not',
                                     'is', 'isnt', 'in',
                                     'instanceof', 'typeof']);
-    var commonKeywords = ['break', 'by', 'catch', 'class', 'continue',
-                          'debugger', 'delete', 'do', 'else', 'finally',
-                          'for', 'in', 'of', 'if', 'new', 'return',
-                          'switch', 'then', 'this', 'throw', 'try',
-                          'unless', 'when', 'while', 'until', 'loop'];
-    var keywords = wordRegexp(commonKeywords);
+    var indentKeywords = ['for', 'while', 'loop', 'if', 'unless', 'else',
+                          'switch', 'try', 'catch', 'finally', 'class'];
+    var commonKeywords = ['break', 'by', 'continue', 'debugger', 'delete',
+                          'do', 'in', 'of', 'new', 'return', 'then',
+                          'this', 'throw', 'when', 'until'];
+
+    var keywords = wordRegexp(indentKeywords.concat(commonKeywords));
+
+    indentKeywords = wordRegexp(indentKeywords);
 
 
     var stringPrefixes = new RegExp("^(([rub]|(ur)|(br))?('{3}|\"{3}|['\"]))", "i");
@@ -251,6 +254,14 @@ CodeMirror.defineMode('coffeescript', function(conf) {
         if (delimiter_index !== -1) {
             indent(stream, state, '])}'.slice(delimiter_index, delimiter_index+1));
         }
+        if (indentKeywords.exec(current)){
+            indent(stream, state);
+        }
+        if (current == 'then'){
+            dedent(stream, state);
+        }
+        
+
         if (style === 'dedent') {
             if (dedent(stream, state)) {
                 return ERRORCLASS;
