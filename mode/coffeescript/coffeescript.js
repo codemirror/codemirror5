@@ -11,24 +11,28 @@ CodeMirror.defineMode('coffeescript', function(conf) {
     
     var singleOperators = new RegExp("^[\\+\\-\\*/%&|\\^~<>!\?]");
     var singleDelimiters = new RegExp('^[\\(\\)\\[\\]\\{\\}@,:`=;\\.]');
-    var doubleOperators = new RegExp("^((\\+\\+)|(\\+\\=)|(\\-\\-)|(\\-\\=)|(\\*\\*)|(\\*\\=)|(\\/\\/)|(\\/\\=)|(==)|(!=)|(<=)|(>=)|(<>)|(<<)|(>>)|(//))");
-    var doubleDelimiters = new RegExp("^((\->)|(\\.\\.)|(\\+=)|(\\-=)|(\\*=)|(%=)|(/=)|(&=)|(\\|=)|(\\^=))");
+    var doubleOperators = new RegExp("^((\->)|(\=>)|(\\+\\+)|(\\+\\=)|(\\-\\-)|(\\-\\=)|(\\*\\*)|(\\*\\=)|(\\/\\/)|(\\/\\=)|(==)|(!=)|(<=)|(>=)|(<>)|(<<)|(>>)|(//))");
+    var doubleDelimiters = new RegExp("^((\\.\\.)|(\\+=)|(\\-=)|(\\*=)|(%=)|(/=)|(&=)|(\\|=)|(\\^=))");
     var tripleDelimiters = new RegExp("^((\\.\\.\\.)|(//=)|(>>=)|(<<=)|(\\*\\*=))");
     var identifiers = new RegExp("^[_A-Za-z][_A-Za-z0-9]*");
 
     var wordOperators = wordRegexp(['and', 'or', 'not',
                                     'is', 'isnt', 'in',
                                     'instanceof', 'typeof']);
-    var commonKeywords = ['break', 'by', 'catch', 'class', 'continue',
-                          'debugger', 'delete', 'do', 'else', 'finally',
-                          'for', 'in', 'of', 'if', 'new', 'return',
-                          'switch', 'then', 'this', 'throw', 'try',
-                          'unless', 'when', 'while', 'until', 'loop'];
-    var keywords = wordRegexp(commonKeywords);
+    var indentKeywords = ['for', 'while', 'loop', 'if', 'unless', 'else',
+                          'switch', 'try', 'catch', 'finally', 'class'];
+    var commonKeywords = ['break', 'by', 'continue', 'debugger', 'delete',
+                          'do', 'in', 'of', 'new', 'return', 'then',
+                          'this', 'throw', 'when', 'until'];
+
+    var keywords = wordRegexp(indentKeywords.concat(commonKeywords));
+
+    indentKeywords = wordRegexp(indentKeywords);
 
 
-    var stringPrefixes = new RegExp("^(([rub]|(ur)|(br))?('{3}|\"{3}|['\"]))", "i");
-    var commonConstants = ['Infinity', 'NaN', 'undefined', 'true', 'false'];
+    var stringPrefixes = new RegExp("^('{3}|\"{3}|['\"])");
+    var regexPrefixes = new RegExp("^(/{3}|/)");
+    var commonConstants = ['Infinity', 'NaN', 'undefined', 'true', 'false', 'on', 'off', 'yes', 'no'];
     var constants = wordRegexp(commonConstants);
 
     // Tokenizers
@@ -99,7 +103,12 @@ CodeMirror.defineMode('coffeescript', function(conf) {
         
         // Handle strings
         if (stream.match(stringPrefixes)) {
-            state.tokenize = tokenStringFactory(stream.current());
+            state.tokenize = tokenFactory(stream.current(), 'string');
+            return state.tokenize(stream, state);
+        }
+        // Handle regex literals
+        if (stream.match(regexPrefixes)) {
+            state.tokenize = tokenFactory(stream.current(), 'string-2');
             return state.tokenize(stream, state);
         }
         
@@ -133,37 +142,33 @@ CodeMirror.defineMode('coffeescript', function(conf) {
         return ERRORCLASS;
     }
     
-    function tokenStringFactory(delimiter) {
-        while ('rub'.indexOf(delimiter[0].toLowerCase()) >= 0) {
-            delimiter = delimiter.substr(1);
-        }
+    function tokenFactory(delimiter, outclass) {
         var delim_re = new RegExp(delimiter);
         var singleline = delimiter.length == 1;
-        var OUTCLASS = 'string';
         
         return function tokenString(stream, state) {
             while (!stream.eol()) {
-                stream.eatWhile(/[^'"\\]/);
+                stream.eatWhile(/[^'"\/\\]/);
                 if (stream.eat('\\')) {
                     stream.next();
                     if (singleline && stream.eol()) {
-                        return OUTCLASS;
+                        return outclass;
                     }
                 } else if (stream.match(delim_re)) {
                     state.tokenize = tokenBase;
-                    return OUTCLASS;
+                    return outclass;
                 } else {
-                    stream.eat(/['"]/);
+                    stream.eat(/['"\/]/);
                 }
             }
             if (singleline) {
                 if (conf.mode.singleLineStringErrors) {
-                    OUTCLASS = ERRORCLASS
+                    outclass = ERRORCLASS
                 } else {
                     state.tokenize = tokenBase;
                 }
             }
-            return OUTCLASS;
+            return outclass;
         };
     }
     
@@ -225,7 +230,7 @@ CodeMirror.defineMode('coffeescript', function(conf) {
             }
         }
         
-        // Handle decorators
+        // Handle properties
         if (current === '@') {
             style = state.tokenize(stream, state);
             current = stream.current();
@@ -237,10 +242,10 @@ CodeMirror.defineMode('coffeescript', function(conf) {
         }
         
         // Handle scope changes.
-        if (current === 'pass' || current === 'return') {
+        if (current === 'return') {
             state.dedent += 1;
         }
-        if ((current === '->' &&
+        if (((current === '->' || current === '=>') &&
                   !state.lambda &&
                   state.scopes[0].type == 'coffee' &&
                   stream.peek() === '')
@@ -251,6 +256,14 @@ CodeMirror.defineMode('coffeescript', function(conf) {
         if (delimiter_index !== -1) {
             indent(stream, state, '])}'.slice(delimiter_index, delimiter_index+1));
         }
+        if (indentKeywords.exec(current)){
+            indent(stream, state);
+        }
+        if (current == 'then'){
+            dedent(stream, state);
+        }
+        
+
         if (style === 'dedent') {
             if (dedent(stream, state)) {
                 return ERRORCLASS;
