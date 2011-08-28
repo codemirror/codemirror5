@@ -108,8 +108,12 @@ CodeMirror.defineMode('coffeescript', function(conf) {
         }
         // Handle regex literals
         if (stream.match(regexPrefixes)) {
-            state.tokenize = tokenFactory(stream.current(), 'string-2');
-            return state.tokenize(stream, state);
+            if (stream.current() != '/' || stream.match(/^.*\//, false)) { // prevent highlight of division
+                state.tokenize = tokenFactory(stream.current(), 'string-2');
+                return state.tokenize(stream, state);
+            } else {
+                stream.backUp(1);
+            }
         }
         
         // Handle operators and delimiters
