@@ -112,7 +112,7 @@ CodeMirror.defineMode('coffeescript', function(conf) {
                 state.tokenize = tokenFactory(stream.current(), 'string-2');
                 return state.tokenize(stream, state);
             } else {
-                stream.backUp(1)
+                stream.backUp(1);
             }
         }
         
