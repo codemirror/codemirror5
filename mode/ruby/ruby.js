@@ -19,28 +19,29 @@ CodeMirror.defineMode("ruby", function(config, parserConfig) {
   var curPunc;
 
   function chain(newtok, stream, state) {
-    state.tokenize = newtok;
+    state.tokenize.push(newtok);
     return newtok(stream, state);
   }
 
   function tokenBase(stream, state) {
     curPunc = null;
     if (stream.sol() && stream.match("=begin") && stream.eol()) {
-      state.tokenize = readBlockComment;
+      state.tokenize.push(readBlockComment);
       return "comment";
     }
     if (stream.eatSpace()) return null;
     var ch = stream.next();
     if (ch == "`" || ch == "'" || ch == '"' || ch == "/") {
-      return chain(readQuoted(ch, "string"), stream, state);
+      return chain(readQuoted(ch, "string", ch == '"'), stream, state);
     } else if (ch == "%") {
-      var style;
+      var style, embed = false;
       if (stream.eat("s")) style = "atom";
-      else if (stream.eat(/[wWxqQr]/)) style = "string";
+      else if (stream.eat(/[WQ]/)) { style = "string"; embed = true; }
+      else if (stream.eat(/[wxqr]/)) style = "string";
       var delim = stream.eat(/[^\w\s]/);
       if (!delim) return "operator";
       if (matching.propertyIsEnumerable(delim)) delim = matching[delim];
-      return chain(readPercentQuoted(delim, style), stream, state);
+      return chain(readQuoted(delim, style, embed, true), stream, state);
     } else if (ch == "#") {
       stream.skipToEnd();
       return "comment";
@@ -65,8 +66,8 @@ CodeMirror.defineMode("ruby", function(config, parserConfig) {
       else stream.next();
       return "string";
     } else if (ch == ":") {
-      if (stream.eat("'")) return chain(readQuoted("'", "atom"), stream, state);
-      if (stream.eat('"')) return chain(readQuoted('"', "atom"), stream, state);
+      if (stream.eat("'")) return chain(readQuoted("'", "atom", false), stream, state);
+      if (stream.eat('"')) return chain(readQuoted('"', "atom", true), stream, state);
       stream.eatWhile(/[\w\?]/);
       return "atom";
     } else if (ch == "@") {
@@ -97,12 +98,31 @@ CodeMirror.defineMode("ruby", function(config, parserConfig) {
     }
   }
 
-  function readQuoted(quote, style) {
+  function tokenBaseUntilBrace() {
+    var depth = 1;
+    return function(stream, state) {
+      if (stream.peek() == "}") {
+        depth--;
+        if (depth == 0) {
+          state.tokenize.pop();
+          return state.tokenize[state.tokenize.length-1](stream, state);
+        }
+      } else if (stream.peek() == "{") {
+        depth++;
+      }
+      return tokenBase(stream, state);
+    };
+  }
+  function readQuoted(quote, style, embed, unescaped) {
     return function(stream, state) {
       var escaped = false, ch;
       while ((ch = stream.next()) != null) {
-        if (ch == quote && !escaped) {
-          state.tokenize = tokenBase;
+        if (ch == quote && (unescaped || !escaped)) {
+          state.tokenize.pop();
+          break;
+        }
+        if (embed && ch == "#" && !escaped && stream.eat("{")) {
+          state.tokenize.push(tokenBaseUntilBrace(arguments.callee));
           break;
         }
         escaped = !escaped && ch == "\\";
@@ -110,30 +130,23 @@ CodeMirror.defineMode("ruby", function(config, parserConfig) {
       return style;
     };
   }
-  function readPercentQuoted(quote, style) {
-    return function(stream, state) {
-      if (stream.skipTo(quote)) {stream.next(); state.tokenize = tokenBase;}
-      else stream.skipToEnd();
-      return style;
-    };
-  }
   function readHereDoc(phrase) {
     return function(stream, state) {
-      if (stream.match(phrase)) state.tokenize = tokenBase;
+      if (stream.match(phrase)) state.tokenize.pop();
       else stream.skipToEnd();
       return "string";
     };
   }
   function readBlockComment(stream, state) {
     if (stream.sol() && stream.match("=end") && stream.eol())
-      state.tokenize = tokenBase;
+      state.tokenize.pop();
     stream.skipToEnd();
     return "comment";
   }
 
   return {
     startState: function() {
-      return {tokenize: tokenBase,
+      return {tokenize: [tokenBase],
               indented: 0,
               context: {type: "top", indented: -config.indentUnit},
               continuedLine: false,
@@ -143,7 +156,7 @@ CodeMirror.defineMode("ruby", function(config, parserConfig) {
 
     token: function(stream, state) {
       if (stream.sol()) state.indented = stream.indentation();
-      var style = state.tokenize(stream, state), kwtype;
+      var style = state.tokenize[state.tokenize.length-1](stream, state), kwtype;
       if (style == "ident") {
         var word = stream.current();
         style = keywords.propertyIsEnumerable(stream.current()) ? "keyword"
@@ -168,7 +181,7 @@ CodeMirror.defineMode("ruby", function(config, parserConfig) {
     },
 
     indent: function(state, textAfter) {
-      if (state.tokenize != tokenBase) return 0;
+      if (state.tokenize[state.tokenize.length-1] != tokenBase) return 0;
       var firstChar = textAfter && textAfter.charAt(0);
       var ct = state.context;
       var closing = ct.type == matching[firstChar] ||
