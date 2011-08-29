@@ -224,8 +224,9 @@
       <dt id="option_onGutterClick"><code>onGutterClick (function)</code></dt>
       <dd>When given, will be called whenever the editor gutter (the
       line-number area) is clicked. Will be given the editor instance
-      as first argument, and the (zero-based) number of the line that
-      was clicked as second argument.</dd>
+      as first argument, the (zero-based) number of the line that was
+      clicked as second argument, and the raw <code>mousedown</code>
+      event object as third argument.</dd>
 
       <dt id="option_onFocus"><code>onFocus, onBlur (function)</code></dt>
       <dd>The given functions will be called whenever the editor is
