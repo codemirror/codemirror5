@@ -1,4 +1,4 @@
-CodeMirror.defineMode("python", function(conf) {
+CodeMirror.defineMode("python", function(conf, parserConf) {
     var ERRORCLASS = 'error';
     
     function wordRegexp(words) {
@@ -29,7 +29,7 @@ CodeMirror.defineMode("python", function(conf) {
                          'open', 'range', 'zip'],
                'keywords': ['nonlocal']};
 
-    if (!!conf.mode.version && parseInt(conf.mode.version, 10) === 3) {
+    if (!!parserConf.version && parseInt(parserConf.version, 10) === 3) {
         commonkeywords = commonkeywords.concat(py3.keywords);
         commontypes = commontypes.concat(py3.types);
         var stringPrefixes = new RegExp("^(([rb]|(br))?('{3}|\"{3}|['\"]))", "i");
@@ -170,7 +170,7 @@ CodeMirror.defineMode("python", function(conf) {
                 }
             }
             if (singleline) {
-                if (conf.mode.singleLineStringErrors) {
+                if (parserConf.singleLineStringErrors) {
                     return ERRORCLASS;
                 } else {
                     state.tokenize = tokenBase;
