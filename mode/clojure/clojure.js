@@ -104,7 +104,6 @@ CodeMirror.defineMode("clojure", function (config, mode) {
                 indentStack: null,
                 indentation: 0,
                 mode: false,
-                sExprComment: false
             };
         },
 
