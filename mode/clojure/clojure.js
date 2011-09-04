@@ -3,7 +3,7 @@
  * Branched from CodeMirror's Clojure mode (by Koh Zi Han, based on implementation by Koh Zi Chun)
  */
 CodeMirror.defineMode("clojure", function (config, mode) {
-    var BUILTIN = "builtin", COMMENT = "comment", STRING = "string",
+    var BUILTIN = "builtin", COMMENT = "comment", STRING = "string", TAG = "tag",
         ATOM = "atom", NUMBER = "number", BRACKET = "bracket", KEYWORD="keyword";
     var INDENT_WORD_SKIP = 2, KEYWORDS_SKIP = 1;
 
@@ -45,7 +45,8 @@ CodeMirror.defineMode("clojure", function (config, mode) {
         sign: /[+-]/,
         exponent: /[eE]/,
         keyword_char: /[^\s\(\[\;\)\]]/,
-        basic: /[\w\$_\-]/
+        basic: /[\w\$_\-]/,
+        lang_keyword: /[\w*+!-_?:\/]/
     };
 
     function stateStack(indent, type, prev) { // represents a state stack object
@@ -180,6 +181,9 @@ CodeMirror.defineMode("clojure", function (config, mode) {
                         if (state.indentStack != null && state.indentStack.type == (ch == ")" ? "(" : "[")) {
                             popStack(state);
                         }
+                    } else if ( ch == ":" ) {
+                        stream.eatWhile(tests.lang_keyword);
+                        return TAG;
                     } else {
                         stream.eatWhile(tests.basic);
 
