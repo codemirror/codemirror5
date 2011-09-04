@@ -1,6 +1,6 @@
 /**
  * Author: Hans Engel
- * Branched from CodeMirror's Clojure mode (by Koh Zi Han, based on implementation by Koh Zi Chun)
+ * Branched from CodeMirror's Scheme mode (by Koh Zi Han, based on implementation by Koh Zi Chun)
  */
 CodeMirror.defineMode("clojure", function (config, mode) {
     var BUILTIN = "builtin", COMMENT = "comment", STRING = "string", TAG = "tag",
