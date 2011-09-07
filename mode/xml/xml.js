@@ -158,7 +158,8 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
     return function(type) {
       if (err) setStyle = "error";
       if (type == "endTag") { popContext(); return cont(); }
-      return pass();
+      setStyle = "error";
+      return cont(arguments.callee);
     }
   }
 
