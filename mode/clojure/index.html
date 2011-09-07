@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+  <head>
+    <title>CodeMirror 2: Clojure mode</title>
+    <link rel="stylesheet" href="../../lib/codemirror.css">
+    <script src="../../lib/codemirror.js"></script>
+    <script src="clojure.js"></script>
+    <link rel="stylesheet" href="../../theme/default.css">
+    <style>.CodeMirror {background: #f8f8f8;}</style>
+    <link rel="stylesheet" href="../../css/docs.css">
+  </head>
+  <body>
+    <h1>CodeMirror 2: Clojure mode</h1>
+    <form><textarea id="code" name="code">
+; Conway's Game of Life, from http://rosettacode.org/wiki/Conway%27s_Game_of_Life#Clojure
+(defstruct grid :w :h :cells)
+
+(defn get-cell
+  "Returns the value at x,y. The grid is treated as a torus, such that both x and
+  y coordinates will wrap around if greater than width and height respectively."
+  [grid x y]
+  (let [x (mod x (:w grid))
+        y (mod y (:h grid))]
+    (-> grid :cells (nth y) (nth x))))
+
+(defn neighbors
+  "Returns a lazy sequence of all neighbors of the specified cell."
+  [grid x y]
+  (for [j [(dec y) y (inc y)]
+        i [(dec x) x (inc x)]
+        :when (not (and (= i x) (= j y)))]
+    (get-cell grid i j)))
+
+(defn evolve-cell
+  "Returns the new state of the specifed cell."
+  [grid x y]
+  (let [c (get-cell grid x y)
+        n (reduce + (neighbors grid x y))]
+    (if (or (and (zero? c) (= 3 n))
+            (and (= 1 c) (or (= 2 n) (= 3 n))))
+      1 0)))
+
+(defn evolve-grid
+  "Returns a new grid whose cells have all been evolved."
+  [grid]
+  (assoc grid :cells
+    (vec (for [y (range (:h grid))]
+      (vec (for [x (range (:w grid))]
+        (evolve-cell grid x y)))))))
+
+(defn generations [grid]
+  "Returns a lazy sequence of the grid, and all subsequent generations."
+  (iterate evolve-grid grid))
+
+(defn make-grid [w h & row-patterns]
+  (let [cells (vec (for [rp row-patterns]
+                (vec (mapcat #(take %1 (repeat %2)) rp (cycle [0 1])))))]
+    (if (and (= h (count cells))
+             (every? #(= w (count %)) cells))
+      (struct grid w h cells)
+      (throw (IllegalArgumentException. "Resulting cells do not match expected width/height.")))))
+
+(defn display-row [row]
+  (do (dorun (map print (map #(if (zero? %) " . " "[X]") row))) (println)))
+
+(defn display-grid [grid]
+  (dorun (map display-row (:cells grid))))
+
+(defn display-grids [grids]
+  (dorun
+    (interleave
+      (repeatedly println)
+      (map display-grid grids))))
+
+(def blinker (make-grid 5 5 [5] [5] [1 3 1] [5] [5]))
+(display-grids (take 3 (generations blinker)))
+</textarea></form>
+    <script>
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {});
+    </script>
+
+    <p><strong>MIME types defined:</strong> <code>text/x-clojure</code>.</p>
+
+  </body>
+</html>
