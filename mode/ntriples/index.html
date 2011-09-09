@@ -79,7 +79,7 @@ _:bnode5          <http://pred5>     "literal 3"^^<http://type> .
         token = editor.getTokenAt(cur); 
         for (k in Location) { 
             if(Location[k] == token.state.location) 
-                alert('state=' + k + ', className=' + token.className + ', string=\'' + token.string + '\''); 
+                alert('state: ' + k + ', token class: ' + token.className + ', token string: \'' + token.string + '\''); 
         }
      }
     </script>
