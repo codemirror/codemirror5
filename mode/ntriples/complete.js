@@ -1,3 +1,9 @@
+/**********************************************************
+* This script provides auto completion
+* support for the Ntriples format.
+* Ntriples format specification: 
+*    http://www.w3.org/2001/sw/RDFCore/ntriples/
+***********************************************************/
 
   // Minimal event-handling wrapper.
   function stopEvent() {

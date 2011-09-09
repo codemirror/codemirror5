@@ -55,10 +55,10 @@ _:bnode5          <http://pred5>     "literal 3"^^<http://type> .
                 }
               },
               onChange : function(editor) {
-                  console.log("ONCHANGE" + editor);
+                  console.log("onchange: " + editor);
                   var cur = editor.getCursor(false);
                   var token = editor.getTokenAt(cur);
-                  console.log('tOKen' + token.state.location);
+                  console.log('token: ' + token.state.location);
                   if( token.state.location == Location.ERROR ) { 
                       console.log('ERROR');
                       console.log('line: ' + cur.line + ' ch: ' + cur.ch);
@@ -73,12 +73,21 @@ _:bnode5          <http://pred5>     "literal 3"^^<http://type> .
               }
           }
       );
+
+     function getCursorData() {
+        var cur = editor.getCursor(false); 
+        token = editor.getTokenAt(cur); 
+        for (k in Location) { 
+            if(Location[k] == token.state.location) 
+                alert('state=' + k + ', className=' + token.className + ', string=\'' + token.string + '\''); 
+        }
+     }
     </script>
     <p>Press <strong>ctrl-space</strong> to activate autocompletion.</p>
     <p><strong>MIME types defined:</strong> <code>text/n-triples</code>.</p>
     <button 
         type="button" 
-        onclick="var cur = editor.getCursor(false); token = editor.getTokenAt(cur); for (k in Location) { if(Location[k] == token.state.location) alert('state=' + k + ',className=' + token.className + ',string=\'' + token.string + '\''); }"
+        onclick="getCursorData()"
     >Get Cursor State</button>
   </body>
 </html>
