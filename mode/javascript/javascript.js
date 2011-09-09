@@ -75,6 +75,10 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
         return ret("operator", null, stream.current());
       }
     }
+    else if (ch == "#") {
+        stream.skipToEnd();
+        return ret("error", "error");
+    }
     else if (isOperatorChar.test(ch)) {
       stream.eatWhile(isOperatorChar);
       return ret("operator", null, stream.current());
