@@ -2,7 +2,7 @@
 * This script provides auto completion
 * support for the Ntriples format.
 * Ntriples format specification: 
-*    http://www.w3.org/2001/sw/RDFCore/ntriples/
+*     http://www.w3.org/TR/rdf-testcases/#ntriples
 ***********************************************************/
 
   // Minimal event-handling wrapper.
