@@ -1,0 +1,84 @@
+<!doctype html>
+<html>
+  <head>
+    <title>CodeMirror 2: NTriples mode</title>
+    <link rel="stylesheet" href="../../lib/codemirror.css">
+    <script src="../../lib/codemirror.js"></script>
+    <script src="ntriples.js"></script>
+    <script src="complete.js"></script>
+    <link rel="stylesheet" href="ntriples.css">
+    <style>.CodeMirror {border-top: 1px solid #ddd; border-bottom: 1px solid #ddd;}</style>
+    <link rel="stylesheet" href="../../css/docs.css">
+    <style type="text/css">
+      .completions {
+        position: absolute;
+        z-index: 10;
+        overflow: hidden;
+        -webkit-box-shadow: 2px 3px 5px rgba(0,0,0,.2);
+        -moz-box-shadow: 2px 3px 5px rgba(0,0,0,.2);
+        box-shadow: 2px 3px 5px rgba(0,0,0,.2);
+      }
+      .completions select {
+        background: #fafafa;
+        outline: none;
+        border: none;
+        padding: 0;
+        margin: 0;
+        font-family: monospace;
+      }
+      .CodeMirror {
+        border: 1px solid #eee;
+      }
+    </style>   
+  </head>
+  <body>
+    <h1>CodeMirror 2: NTriples mode</h1>
+<form>
+<textarea id="ntriples" name="ntriples">    
+<http://Sub1>     <http://pred1>     <http://obj> .
+<http://Sub2>     <http://pred2#an2> "literal 1" .
+<http://Sub3#an3> <http://pred3>     _:bnode3 .
+_:bnode4          <http://pred4>     "literal 2"@lang .
+_:bnode5          <http://pred5>     "literal 3"^^<http://type> .
+</textarea>
+</form>
+
+    <script>
+      var editor = CodeMirror.fromTextArea(
+          document.getElementById("ntriples"), 
+          {
+              onKeyEvent: function(i, e) {
+                // Hook into ctrl-space
+                if (e.keyCode == 32 && (e.ctrlKey || e.metaKey) && !e.altKey) {
+                  e.stop();
+                  return startComplete();
+                }
+              },
+              onChange : function(editor) {
+                  console.log("ONCHANGE" + editor);
+                  var cur = editor.getCursor(false);
+                  var token = editor.getTokenAt(cur);
+                  console.log('tOKen' + token.state.location);
+                  if( token.state.location == Location.ERROR ) { 
+                      console.log('ERROR');
+                      console.log('line: ' + cur.line + ' ch: ' + cur.ch);
+                      console.log('line: ' + cur.line + ' ch: ' + token.end);
+                      /*
+                      editor.setSelection(
+                          { line: cur.line, ch: 1 } , 
+                          { line: cur.line, ch: token.end }
+                      );
+                      */
+                  }
+              }
+          }
+      );
+    </script>
+    <p>Press <strong>ctrl-space</strong> to activate autocompletion.</p>
+    <p><strong>MIME types defined:</strong> <code>text/n-triples</code>.</p>
+    <button 
+        type="button" 
+        onclick="var cur = editor.getCursor(false); token = editor.getTokenAt(cur); for (k in Location) { if(Location[k] == token.state.location) alert('state=' + k + ',className=' + token.className + ',string=\'' + token.string + '\''); }"
+    >Get Cursor State</button>
+  </body>
+</html>
