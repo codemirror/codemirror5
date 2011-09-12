@@ -16,9 +16,10 @@
     keywords: keywords("abstract and array as break case catch cfunction class clone const continue declare " +
                        "default do else elseif enddeclare endfor endforeach endif endswitch endwhile extends " +
                        "final for foreach function global goto if implements interface instanceof namespace " +
-                       "new or private protected public static switch throw try use var while xor return"),
+                       "new or private protected public static switch throw try use var while xor return" +
+                       "die echo empty exit eval include include_once isset list require require_once print unset"),
     blockKeywords: keywords("catch do else elseif for foreach if switch try while"),
-    atoms: keywords("true false null"),
+    atoms: keywords("true false null TRUE FALSE NULL"),
     multiLineStrings: true,
     hooks: {
       "$": function(stream, state) {
