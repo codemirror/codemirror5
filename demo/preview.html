@@ -36,6 +36,7 @@
     <meta charset=utf-8>
   </head>
   <body>
+   <p>Canvas pane goes here:</p>
     <canvas id=tutorial width=250 height=250></canvas>
     <script>
       var canvas = document.getElementById('tutorial');
@@ -64,7 +65,8 @@
       });
       
       function updatePreview() {
-        var preview = document.getElementById('preview').contentDocument;
+        var previewFrame = document.getElementById('preview');
+        var preview =  previewFrame.contentDocument ||  previewFrame.contentWindow.document;
         preview.open();
         preview.write(editor.getValue());
         preview.close();
