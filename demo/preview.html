@@ -64,9 +64,22 @@
       });
       
       function updatePreview() {
-        var preview = document.getElementById('preview').contentDocument;
+        var previewFrame = document.getElementById('preview');
+        var preview = null;
+        if (previewFrame.contentWindow){ //Firefox, Opera
+            preview = previewFrame.contentWindow.document;
+        }
+        else if (previewFrame.contentDocument) { //IE
+            preview = previewFrame.contentDocument;
+        }
+        else if (previewFrame.document){ //others?
+            preview = previewFrame.document;
+        }
+        else {
+            throw ("Couldn't initialize preview frame");
+        }
         preview.open();
-        preview.write(editor.getValue());
+        preview.write(editor2.getValue());
         preview.close();
       }
       setTimeout(updatePreview, 300);
