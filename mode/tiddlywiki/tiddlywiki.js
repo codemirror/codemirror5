@@ -4,21 +4,37 @@ CodeMirror.defineMode("tiddlywiki", function(config, parserConfig) {
 
   // Tokenizer
 
-  var keywords = function(){
-    function kw(type) {return {type: type, style: "keyword"};}
-    var A = kw("keyword a"), B = kw("keyword b"), C = kw("keyword c");
-    var operator = kw("operator"), atom = {type: "atom", style: "atom"};
-    return {
-      "if": A, "while": A, "with": A, "else": B, "do": B, "try": B, "finally": B,
-      "return": C, "break": C, "continue": C, "new": C, "delete": C, "throw": C,
-      "var": kw("var"), "function": kw("function"), "catch": kw("catch"),
-      "for": kw("for"), "switch": kw("switch"), "case": kw("case"), "default": kw("default"),
-      "in": operator, "typeof": operator, "instanceof": operator,
-      "true": atom, "false": atom, "null": atom, "undefined": atom, "NaN": atom, "Infinity": atom, "tiddler": kw('tiddler')
+  var textwords = function(){
+    function kw(type) {return {type: type, style: "text"};}
+    return { 
     };
   }();
 
-  var isOperatorChar = /[+\-*&%=<>!?|]/;
+  var keywords = function(){
+    function kw(type) {return {type: type, style: "macro"};}
+    return { 
+		"<<allTags": kw('allTags')
+		, "<<closeAll": kw('closeAll')
+		, "<<list": kw('list')
+		, "<<newJournal": kw('newJournal')
+		, "<<newTiddler": kw('newTiddler')
+		, "<<permaview": kw('permaview')
+		, "<<saveChanges": kw('saveChanges')
+		, "<<search": kw('search')
+		, "<<slider": kw('slider')
+		, "<<tabs": kw('tabs')
+		, "<<tag": kw('tag')
+		, "<<tagging": kw('tagging')
+		, "<<tags": kw('tags')
+		, "<<tiddler": kw('tiddler')
+		, "<<timeline": kw('timeline')
+		, "<<today": kw('today')
+		, "<<version": kw('version')
+    	, "with": kw('with')
+    	, "filter": kw('filter')
+    };
+  }();
+
   var isSpaceName = /[\w_\-]/i;
   
   function chain(stream, state, f) {
@@ -26,6 +42,7 @@ CodeMirror.defineMode("tiddlywiki", function(config, parserConfig) {
     return f(stream, state);
   }
 
+  // used for strings
   function nextUntilUnescaped(stream, end) {
     var escaped = false, next;
     while ((next = stream.next()) != null) {
@@ -44,14 +61,50 @@ CodeMirror.defineMode("tiddlywiki", function(config, parserConfig) {
     return style;
   }
 
+/*
+  function jsTokenBlock(stream, state) {
+    var sol = stream.sol();
+    var ch = stream.peak();
+    
+    if () {
+    }
+    else if () {
+    }
+  }
+  */
+  
   function jsTokenBase(stream, state) {
     var sol = stream.sol();
-    var ch = stream.next();
-    
-    if (ch == '"') // || ch == "'")
-      return chain(stream, state, jsTokenString(ch));
-    else if (/[\[\]{}\(\),;\:\.]/.test(ch))
-      return ret(ch);
+    var ch = stream.next(), tch;
+
+	// check start of line blocks    
+    if (sol && /[<\/!{}]/.test(ch)) {
+		if (ch == '<' && stream.match(/<<$/)) {
+			return ret('string', 'string');
+		}
+		else if (ch == '{' && stream.match(/{{$/)) {
+			return ret('string', 'string');
+		}
+		else if (ch == '}' && stream.match(/}}$/)) {
+			return ret('string', 'string');
+		}
+		else if (ch == '/' && stream.match(/\/{{{$/)) {
+			return ret('string', 'string');
+		}
+		else if (ch == '/' && stream.match(/\/}}}$/)) {
+			return ret('string', 'string');
+		}
+    }
+    // just a little string indicator
+    else if (ch == '"') {
+      return ret('string', 'string');
+    }
+    else if (/[\[\]{}]/.test(ch)) {	// check for [[..]], {{..}}
+		if (stream.peek() == ch) {
+			stream.next();
+			return ret('brace', 'brace');
+		}
+    }
     else if (ch == "@") {
       stream.eatWhile(isSpaceName);
       return ret("lin-external", "link-external");
@@ -72,21 +125,47 @@ CodeMirror.defineMode("tiddlywiki", function(config, parserConfig) {
         stream.eatWhile('#');
         return ret("list", "list");
 	}
-	
     else if (ch == "/") {	// tw invisible comment
       if (stream.eat("%")) {
         return chain(stream, state, twTokenComment);
       }
+      else if (stream.eat("/_")) { // TODO
+        return chain(stream, state, twTokenEm);
+      }
+    }
+    else if (ch == "_") {	// tw underline
+      if (stream.eat("_")) {
+        return chain(stream, state, twTokenUnderline);
+      }
+    }    
+    else if (ch == "-") {	// tw underline
+      if (stream.eat("-")) {
+        return chain(stream, state, twTokenStrike);
+      }
+    }    
+    else if (ch == "'") {	// tw bold
+      if (stream.eat("'")) {
+        return chain(stream, state, twTokenStrong);
+      }
+    }    
+    else if (ch == "<") {	// tw macro
+      if (stream.eat("<")) {
+        return chain(stream, state, twTokenMacro);
+      }
     }
     else {
       stream.eatWhile(/[\w\$_]/);
-      var word = stream.current(), known = keywords.propertyIsEnumerable(word) && keywords[word];
+      var word = stream.current(), 
+          known = textwords.propertyIsEnumerable(word) && textwords[word];
+
+ //     console.log(word, 'known:', known);
+      
       return known ? ret(known.type, known.style, word) :
-                     ret("variable", "variable", word);
+                     ret("text", null, word);
     }
   }
 
-  function jsTokenString(quote) {
+  function twTokenString(quote) {
     return function(stream, state) {
       if (!nextUntilUnescaped(stream, quote))
         state.tokenize = jsTokenBase;
@@ -94,7 +173,8 @@ CodeMirror.defineMode("tiddlywiki", function(config, parserConfig) {
     };
   }
 
-  function twTokenComment(stream, state) {	// x
+  // tw invisible comment
+  function twTokenComment(stream, state) {	
     var maybeEnd = false, ch;
     while (ch = stream.next()) {
       if (ch == "/" && maybeEnd) {
@@ -106,237 +186,109 @@ CodeMirror.defineMode("tiddlywiki", function(config, parserConfig) {
     return ret("comment", "comment");
   }
 
-  // Parser
-
-  var atomicTypes = {"atom": true, "number": true, "variable": true, "string": true, "regexp": true};
-
-  function JSLexical(indented, column, type, align, prev, info) {
-    this.indented = indented;
-    this.column = column;
-    this.type = type;
-    this.prev = prev;
-    this.info = info;
-    if (align != null) this.align = align;
-  }
-
-  function inScope(state, varname) {
-    for (var v = state.localVars; v; v = v.next)
-      if (v.name == varname) return true;
-  }
-
-  function parseJS(state, style, type, content, stream) {
-    var cc = state.cc;
-    // Communicate our context to the combinators.
-    // (Less wasteful than consing up a hundred closures on every call.)
-    cx.state = state; cx.stream = stream; cx.marked = null, cx.cc = cc;
-  
-    if (!state.lexical.hasOwnProperty("align"))
-      state.lexical.align = true;
-
-    while(true) {
-      var combinator = cc.length ? cc.pop() : jsonMode ? expression : statement;
-      if (combinator(type, content)) {
-        while(cc.length && cc[cc.length - 1].lex)
-          cc.pop()();
-        if (cx.marked) return cx.marked;
-        if (type == "variable" && inScope(state, content)) return "variable-2";
-        return style;
+  // tw strong / bold
+  function twTokenStrong(stream, state) {	
+    var maybeEnd = false, ch;
+    while (ch = stream.next()) {
+      if (ch == "'" && maybeEnd) {
+        state.tokenize = jsTokenBase;
+        break;
       }
+      maybeEnd = (ch == "'");
+    }
+    return ret("text", "strong");
+  }
+
+  // tw em / italic
+  function twTokenEm(stream, state) {
+  console.log('em: ');	
+    var maybeEnd = false, ch;
+    while (ch = stream.next()) {
+      if (ch == "/" && maybeEnd) {
+        state.tokenize = jsTokenBase;
+        break;
+      }
+      maybeEnd = (ch == "/");
+    }
+    return ret("text", "em");
+  }
+
+
+  // tw underlined text
+  function twTokenUnderline(stream, state) {	
+    var maybeEnd = false, ch;
+    while (ch = stream.next()) {
+      if (ch == "_" && maybeEnd) {
+        state.tokenize = jsTokenBase;
+        break;
+      }
+      maybeEnd = (ch == "_");
+    }
+    return ret("text", "underlined");
+  }
+
+  // tw strike through text looks ugly 
+  // TODO just line through the next 2 chars if possible.
+  function twTokenStrike(stream, state) {	
+    var maybeEnd = false, ch;
+    while (ch = stream.next()) {
+      if (ch == "-" && maybeEnd) {
+        state.tokenize = jsTokenBase;
+        break;
+      }
+      maybeEnd = (ch == "-");
+    }
+    return ret("text", "line-through");
+  }
+
+
+  function twTokenMacro(stream, state) {	// macro
+    var ch = stream.next();
+        
+	if (!ch) {
+		state.tokenize = jsTokenBase;
+		return ret(ch);
+	}
+	else if (ch == ">") {
+		if (stream.peek() == '>') {
+			stream.next();
+			state.tokenize = jsTokenBase;
+			return ret("brace", "macro");
+		}
+	}
+/*	else if (ch == "<") {
+	console.log('blockquote')
+		if (stream.peek() == '<') {
+			stream.next();
+			state.tokenize = jsTokenBase;
+			return ret("brace", "blockquote");
+		}
+	}*/
+    else {	// TODO
+      stream.eatWhile(/[\w\$_]/);
+      var word = stream.current(), 
+          known = keywords.propertyIsEnumerable(word) && keywords[word];
+
+//      console.log(word, 'known:', known);
+      
+      return known ? ret(known.type, known.style, word) :
+                     ret("text", null, word);
     }
   }
-
-  // Combinator utils
-
-  var cx = {state: null, column: null, marked: null, cc: null};
-  function pass() {
-    for (var i = arguments.length - 1; i >= 0; i--) cx.cc.push(arguments[i]);
-  }
-  function cont() {
-    pass.apply(null, arguments);
-    return true;
-  }
-  function register(varname) {
-    var state = cx.state;
-    if (state.context) {
-      cx.marked = "def";
-      for (var v = state.localVars; v; v = v.next)
-        if (v.name == varname) return;
-      state.localVars = {name: varname, next: state.localVars};
-    }
-  }
-
-  // Combinators
-
-  var defaultVars = {name: "this", next: {name: "arguments"}};
-  function pushcontext() {
-    if (!cx.state.context) cx.state.localVars = defaultVars;
-    cx.state.context = {prev: cx.state.context, vars: cx.state.localVars};
-  }
-  function popcontext() {
-    cx.state.localVars = cx.state.context.vars;
-    cx.state.context = cx.state.context.prev;
-  }
-  function pushlex(type, info) {
-    var result = function() {
-      var state = cx.state;
-      state.lexical = new JSLexical(state.indented, cx.stream.column(), type, null, state.lexical, info)
-    };
-    result.lex = true;
-    return result;
-  }
-  function poplex() {
-    var state = cx.state;
-    if (state.lexical.prev) {
-      if (state.lexical.type == ")")
-        state.indented = state.lexical.indented;
-      state.lexical = state.lexical.prev;
-    }
-  }
-  poplex.lex = true;
-
-  function expect(wanted) {
-    return function expecting(type) {
-      if (type == wanted) return cont();
-      else if (wanted == ";") return pass();
-      else return cont(arguments.callee);
-    };
-  }
-
-  function statement(type) {
-    if (type == "var") return cont(pushlex("vardef"), vardef1, expect(";"), poplex);
-    if (type == "keyword a") return cont(pushlex("form"), expression, statement, poplex);
-    if (type == "keyword b") return cont(pushlex("form"), statement, poplex);
-    if (type == "{") return cont(pushlex("}"), block, poplex);
-    if (type == ";") return cont();
-    if (type == "function") return cont(functiondef);
-    if (type == "for") return cont(pushlex("form"), expect("("), pushlex(")"), forspec1, expect(")"),
-                                      poplex, statement, poplex);
-    if (type == "variable") return cont(pushlex("stat"), maybelabel);
-    if (type == "switch") return cont(pushlex("form"), expression, pushlex("}", "switch"), expect("{"),
-                                         block, poplex, poplex);
-    if (type == "case") return cont(expression, expect(":"));
-    if (type == "default") return cont(expect(":"));
-    if (type == "catch") return cont(pushlex("form"), pushcontext, expect("("), funarg, expect(")"),
-                                        statement, poplex, popcontext);
-    return pass(pushlex("stat"), expression, expect(";"), poplex);
-  }
-  function expression(type) {
-    if (atomicTypes.hasOwnProperty(type)) return cont(maybeoperator);
-    if (type == "function") return cont(functiondef);
-    if (type == "keyword c") return cont(expression);
-    if (type == "(") return cont(pushlex(")"), expression, expect(")"), poplex, maybeoperator);
-    if (type == "operator") return cont(expression);
-    if (type == "[") return cont(pushlex("]"), commasep(expression, "]"), poplex, maybeoperator);
-    if (type == "{") return cont(pushlex("}"), commasep(objprop, "}"), poplex, maybeoperator);
-    return cont();
-  }
-  function maybeoperator(type, value) {
-    if (type == "operator" && /\+\+|--/.test(value)) return cont(maybeoperator);
-    if (type == "operator") return cont(expression);
-    if (type == ";") return;
-    if (type == "(") return cont(pushlex(")"), commasep(expression, ")"), poplex, maybeoperator);
-    if (type == ".") return cont(property, maybeoperator);
-    if (type == "[") return cont(pushlex("]"), expression, expect("]"), poplex, maybeoperator);
-  }
-  function maybelabel(type) {
-    if (type == ":") return cont(poplex, statement);
-    return pass(maybeoperator, expect(";"), poplex);
-  }
-  function property(type) {
-    if (type == "variable") {cx.marked = "property"; return cont();}
-  }
-  function objprop(type) {
-    if (type == "variable") cx.marked = "property";
-    if (atomicTypes.hasOwnProperty(type)) return cont(expect(":"), expression);
-  }
-  function commasep(what, end) {
-    function proceed(type) {
-      if (type == ",") return cont(what, proceed);
-      if (type == end) return cont();
-      return cont(expect(end));
-    }
-    return function commaSeparated(type) {
-      if (type == end) return cont();
-      else return pass(what, proceed);
-    };
-  }
-  function block(type) {
-    if (type == "}") return cont();
-    return pass(statement, block);
-  }
-  function vardef1(type, value) {
-    if (type == "variable"){register(value); return cont(vardef2);}
-    return cont();
-  }
-  function vardef2(type, value) {
-    if (value == "=") return cont(expression, vardef2);
-    if (type == ",") return cont(vardef1);
-  }
-  function forspec1(type) {
-    if (type == "var") return cont(vardef1, forspec2);
-    if (type == ";") return pass(forspec2);
-    if (type == "variable") return cont(formaybein);
-    return pass(forspec2);
-  }
-  function formaybein(type, value) {
-    if (value == "in") return cont(expression);
-    return cont(maybeoperator, forspec2);
-  }
-  function forspec2(type, value) {
-    if (type == ";") return cont(forspec3);
-    if (value == "in") return cont(expression);
-    return cont(expression, expect(";"), forspec3);
-  }
-  function forspec3(type) {
-    if (type != ")") cont(expression);
-  }
-  function functiondef(type, value) {
-    if (type == "variable") {register(value); return cont(functiondef);}
-    if (type == "(") return cont(pushlex(")"), pushcontext, commasep(funarg, ")"), poplex, statement, popcontext);
-  }
-  function funarg(type, value) {
-    if (type == "variable") {register(value); return cont();}
-  }
-
   // Interface
 
   return {
     startState: function(basecolumn) {
       return {
         tokenize: jsTokenBase,
-        reAllowed: true,
-        cc: [],
-        lexical: new JSLexical((basecolumn || 0) - indentUnit, 0, "block", false),
-        localVars: null,
-        context: null,
         indented: 0
       };
     },
 
     token: function(stream, state) {
-      if (stream.sol()) {
-        if (!state.lexical.hasOwnProperty("align"))
-          state.lexical.align = false;
-        state.indented = stream.indentation();
-      }
       if (stream.eatSpace()) return null;
       var style = state.tokenize(stream, state);
-      if (type == "comment") return style;
-      state.reAllowed = type == "operator" || type == "keyword c" || type.match(/^[\[{}\(,;:]$/);
-      return parseJS(state, style, type, content, stream);
-    },
-
-    indent: function(state, textAfter) {
-      if (state.tokenize != jsTokenBase) return 0;
-      var firstChar = textAfter && textAfter.charAt(0), lexical = state.lexical,
-          type = lexical.type, closing = firstChar == type;
-      if (type == "vardef") return lexical.indented + 4;
-      else if (type == "form" && firstChar == "{") return lexical.indented;
-      else if (type == "stat" || type == "form") return lexical.indented + indentUnit;
-      else if (lexical.info == "switch" && !closing)
-        return lexical.indented + (/^(?:case|default)\b/.test(textAfter) ? indentUnit : 2 * indentUnit);
-      else if (lexical.align) return lexical.column + (closing ? 0 : 1);
-      else return lexical.indented + (closing ? 0 : indentUnit);
+      return style;
     },
 
     electricChars: ""

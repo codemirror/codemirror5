@@ -13,6 +13,83 @@
     <h1>CodeMirror 2: TiddlyWiki mode</h1>
 
 <div><textarea id="code" name="code">
+/***
+|''Name''|CodeMirror2Plugin|
+|''Description''|Enables syntax highlighting using CodeMirror2|
+|''Author''|PMario|
+|''Version''|0.1.2|
+|''Status''|''beta''|
+|''Info''|CodeMirror2PluginInfo|
+|''Source''|https://github.com/pmario/tw.CodeMirrorPlugin|
+|''Documentation''|http://codemirror.tiddlyspace.com/|
+|''License''|[[CC-BY-NC-SA|http://creativecommons.org/licenses/by-nc-sa/3.0/]]|
+|''CoreVersion''|2.5.0|
+|''Requires''|codemirror.js overlay.js runmode.js xml.js python.js javascript.js css.js htmlmixed.js |
+|''Keywords''|syntax highlighting color code mirror codemirror|
+!Documentation
+* Advanced info, see: [[CodeMirror2PluginInfo]]
+!Description
+Enables syntax highlighting for <pre> and <code> blocks. Adds a new formatter for {{{<code class='???'>}}} 
+!Usage
+!!!!StyleSheet
+<<<
+* The plugin automatically creates a shadow StyleSheetCodeMirror2 tiddler, that can be adjusted to your needs.
+<<<
+
+!!!!Macros
+<<<
+Modes: {{{<<cmModes>>}}} ... displays the usable modes seen below
+Modes: <<cmModes>>
+
+MIMEs: {{{<<cmMIMEs>>}}} ... displays the usable mime types seen below. Same order as modes.
+Modes: <<cmMIMEs>>
+<<<
+!!!!Global Settings
+<<<
+* Have a look at: [[CodeMirror2Config]]
+<<<
+!!!!ViewTemplate
+<<<
+* Same as macro, but will be executed automatically for every tiddler. see: [[CodeMirror2PluginInfo]]
+<<<
+!!!!Parameters
+<<<
+{{{<<highlightSyntax [tagName]>> }}}
+* will render all blocks, with any defined tag name. eg: tagName = {{{code}}}.
+* [tagName] is optional. Default is "pre".
+<<<
+!!!!Configuration options
+<<<
+Guess syntax: <<option chkGuessSyntax>> .. If activated, ~TiddlyWiky <pre> blocks will be rendered according to there block braces. see [[CodeMirror2Info]]
+Expert mode: <<option chkExpertSyntax>> .. If activated, additional values below will be used. see [[CodeMirror2Info]]
+
+{{{ {{{ }}} txtShText: <<option txtShText>> eg: 'brush:text'
+{{{ / *{{{* / }}} txtShCss: <<option txtShCss>> eg: 'brush:css'
+{{{ //{{{ }}} txtShPlugin: <<option txtShPlugin>> 'brush:javascript'
+{{{ <!--{{{-->> }}} txtShXml: <<option txtShXml>> 'brush:xml'
+
+Additional options ???????????????????
+<<<
+!!!! Known Issues
+* Theme switching not supported yet
+* Detecting content-type in ViewMode, EditMode has some inconsistencies
+* Code is ugly
+** Uses too many different namespaces
+** Lots of TODOs 
+
+!!!! Revision History
+<<<
+* V 0.1.0 2011-09-07
+** inital release
+<<<
+
+!!!!ToDo
+<<<
+*
+<<<
+!!!Code
+***/
+
 @space-link-with_underline
 
 ! Heading 1
@@ -22,7 +99,16 @@
 *list
 **list2
 
+[[PL|http:/ /pmario.tiddlyspace.com]]
+
+
+[[PrettyLink]]
+
 some more text
+
+<<list filter [tag[hugo]]>>
+
+<<list
 
 <<tiddler asdf with: "hallo">>
 <<tiddler {{tiddler.title}} >>
@@ -36,7 +122,6 @@ some more text
 
 "string with ' "
 'string with "'
-
 
 
 </textarea></div>
