@@ -13,23 +13,25 @@ CodeMirror.defineMode("tiddlywiki", function(config, parserConfig) {
   var keywords = function(){
     function kw(type) {return {type: type, style: "macro"};}
     return { 
-		"<<allTags": kw('allTags')
-		, "<<closeAll": kw('closeAll')
-		, "<<list": kw('list')
-		, "<<newJournal": kw('newJournal')
-		, "<<newTiddler": kw('newTiddler')
-		, "<<permaview": kw('permaview')
-		, "<<saveChanges": kw('saveChanges')
-		, "<<search": kw('search')
-		, "<<slider": kw('slider')
-		, "<<tabs": kw('tabs')
-		, "<<tag": kw('tag')
-		, "<<tagging": kw('tagging')
-		, "<<tags": kw('tags')
-		, "<<tiddler": kw('tiddler')
-		, "<<timeline": kw('timeline')
-		, "<<today": kw('today')
-		, "<<version": kw('version')
+		"allTags": kw('allTags')
+		, "closeAll": kw('closeAll')
+		, "list": kw('list')
+		, "newJournal": kw('newJournal')
+		, "newTiddler": kw('newTiddler')
+		, "permaview": kw('permaview')
+		, "saveChanges": kw('saveChanges')
+		, "search": kw('search')
+		, "slider": kw('slider')
+		, "tabs": kw('tabs')
+		, "tag": kw('tag')
+		, "tagging": kw('tagging')
+		, "tags": kw('tags')
+		, "tiddler": kw('tiddler')
+		, "timeline": kw('timeline')
+		, "today": kw('today')
+		, "version": kw('version')
+		, "option": kw('option')
+		
     	, "with": kw('with')
     	, "filter": kw('filter')
     };
@@ -78,82 +80,115 @@ CodeMirror.defineMode("tiddlywiki", function(config, parserConfig) {
     var ch = stream.next(), tch;
 
 	// check start of line blocks    
-    if (sol && /[<\/!{}]/.test(ch)) {
-		if (ch == '<' && stream.match(/<<$/)) {
+    if (sol && /[<\/\*!{}#;:\-]/.test(ch)) {
+		if (ch == '-' && stream.match(/^\-\-\-+$/)) {
+			return ret('hr', 'hr');
+		}
+		if (ch == '/' && stream.match(/^\*\*\*$/)) {
 			return ret('string', 'string');
 		}
-		else if (ch == '{' && stream.match(/{{$/)) {
+		if (ch == '*' && stream.match(/^\*\*\/$/)) {
 			return ret('string', 'string');
 		}
-		else if (ch == '}' && stream.match(/}}$/)) {
+		if (ch == '<' && stream.match(/^<<$/)) {
 			return ret('string', 'string');
 		}
-		else if (ch == '/' && stream.match(/\/{{{$/)) {
+		if (ch == '{' && stream.match(/^{{$/)) {
+			return ret('string', 'string');
+		} 
+		else if (ch == '{' && stream.match(/^{{/) && stream.match(/.*}}}/, false)) {
 			return ret('string', 'string');
 		}
-		else if (ch == '/' && stream.match(/\/}}}$/)) {
+		if (ch == '}' && stream.match(/^}}$/)) {
 			return ret('string', 'string');
+		}
+		if (ch == '/' && stream.match(/^\/{{{$/)) {
+			return ret('string', 'string');
+		}
+		if (ch == '/' && stream.match(/^\/}}}$/)) {
+			return ret('string', 'string');
+		}
+
+		if (ch == "!") {	// tw header
+		    stream.skipToEnd();
+		    return ret("header", "header");
+		}
+		if (ch == "*") {	// tw list
+		    stream.eatWhile('*');
+		    return ret("list", "list");
+		}
+		if (ch == "#") {	// tw numbered list
+		    stream.eatWhile('#');
+		    return ret("list", "list");
+		}
+		if (ch == ";") {	// tw list
+		    stream.eatWhile(';');
+		    return ret("list", "list");
+		}
+		if (ch == ":") {	// tw list
+		    stream.eatWhile(':');
+		    return ret("list", "list");
 		}
     }
+	if (!sol) {
+		if (ch == '{' && stream.match(/^{{/)) {
+			return ret('string', 'string');
+		}
+		if (ch == '}' && stream.match(/^}}/)) {
+			return ret('string', 'string');
+		}
+	}
     // just a little string indicator
-    else if (ch == '"') {
+	if (ch == '"') {
       return ret('string', 'string');
     }
-    else if (/[\[\]{}]/.test(ch)) {	// check for [[..]], {{..}}
+    if (/[\[\]]/.test(ch)) {	// check for [[..]]
 		if (stream.peek() == ch) {
 			stream.next();
 			return ret('brace', 'brace');
 		}
     }
-    else if (ch == "@") {
+    if (ch == "@") {
       stream.eatWhile(isSpaceName);
       return ret("lin-external", "link-external");
     }      
-    else if (/\d/.test(ch)) {
-      stream.match(/^\d*(?:\.\d*)?(?:e[+\-]?\d+)?/);
+    if (/\d/.test(ch)) {
+      stream.eatWhile(/\d/);
       return ret("number", "number");
     }
-    else if (sol && (ch == "!")) {	// tw header
-        stream.skipToEnd();
-        return ret("header", "header");
-	}
-    else if (sol && (ch == "*")) {	// tw list
-        stream.eatWhile('*');
-        return ret("list", "list");
-	}
-    else if (sol && (ch == "#")) {	// tw numbered list
-        stream.eatWhile('#');
-        return ret("list", "list");
-	}
-    else if (ch == "/") {	// tw invisible comment
+    if (ch == "/") {	// tw invisible comment
       if (stream.eat("%")) {
         return chain(stream, state, twTokenComment);
       }
-      else if (stream.eat("/_")) { // TODO
+      else if (stream.eat("/_")) { // TODO conflict with http:// ..
         return chain(stream, state, twTokenEm);
       }
     }
-    else if (ch == "_") {	// tw underline
+    if (ch == "_") {	// tw underline
       if (stream.eat("_")) {
         return chain(stream, state, twTokenUnderline);
       }
     }    
-    else if (ch == "-") {	// tw underline
+    if (ch == "-x") {	// TODO -x .. deactivated; tw strikethrough
       if (stream.eat("-")) {
         return chain(stream, state, twTokenStrike);
       }
     }    
-    else if (ch == "'") {	// tw bold
+    if (ch == "'") {	// tw bold
       if (stream.eat("'")) {
         return chain(stream, state, twTokenStrong);
       }
     }    
-    else if (ch == "<") {	// tw macro
+    if (ch == "<") {	// tw macro
       if (stream.eat("<")) {
         return chain(stream, state, twTokenMacro);
       }
     }
     else {
+		return ret(ch);
+    }
+
+
       stream.eatWhile(/[\w\$_]/);
       var word = stream.current(), 
           known = textwords.propertyIsEnumerable(word) && textwords[word];
@@ -162,7 +197,7 @@ CodeMirror.defineMode("tiddlywiki", function(config, parserConfig) {
       
       return known ? ret(known.type, known.style, word) :
                      ret("text", null, word);
-    }
+
   }
 
   function twTokenString(quote) {
@@ -243,37 +278,35 @@ CodeMirror.defineMode("tiddlywiki", function(config, parserConfig) {
 
 
   function twTokenMacro(stream, state) {	// macro
-    var ch = stream.next();
-        
+	var ch, tmp, word, known;
+	
+	if (stream.current() == '<<') {
+		return ret('brace', 'macro');
+	}
+
+	ch = stream.next();
 	if (!ch) {
 		state.tokenize = jsTokenBase;
 		return ret(ch);
 	}
-	else if (ch == ">") {
+	if (ch == ">") {
 		if (stream.peek() == '>') {
 			stream.next();
 			state.tokenize = jsTokenBase;
 			return ret("brace", "macro");
 		}
 	}
-/*	else if (ch == "<") {
-	console.log('blockquote')
-		if (stream.peek() == '<') {
-			stream.next();
-			state.tokenize = jsTokenBase;
-			return ret("brace", "blockquote");
-		}
-	}*/
-    else {	// TODO
-      stream.eatWhile(/[\w\$_]/);
-      var word = stream.current(), 
-          known = keywords.propertyIsEnumerable(word) && keywords[word];
 
-//      console.log(word, 'known:', known);
-      
-      return known ? ret(known.type, known.style, word) :
-                     ret("text", null, word);
-    }
+    stream.eatWhile(/[\w\$_]/);
+	word = stream.current();
+	known = keywords.propertyIsEnumerable(word) && keywords[word];
+	
+	if (known) {
+	  return ret(known.type, known.style, word);
+	}
+	else {
+	  return ret("macro", null, word);
+	}
   }
   // Interface
 

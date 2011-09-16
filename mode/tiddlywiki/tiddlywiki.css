@@ -32,7 +32,9 @@
 .cm-s-default span.cm-link-external {color: blue;}
 .cm-s-default span.cm-brace {color: #170;}  
 .cm-s-default span.cm-macro {color: #a50;}
+.cm-s-default span.cm-macro-unknown {color: violet;}
   
 .cm-s-default span.cm-underlined {text-decoration: underline;}
 .cm-s-default span.cm-line-through {text-decoration: line-through;}
+.cm-s-default span.cm-hugo {text-decoration: blink;}
 
