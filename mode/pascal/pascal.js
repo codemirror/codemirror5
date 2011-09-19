@@ -7,7 +7,7 @@ CodeMirror.defineMode("pascal", function(config) {
   var keywords = words("and array begin case const div do downto else end file for forward integer " +
                        "boolean char function goto if in label mod nil not of or packed procedure " +
                        "program record repeat set string then to type until var while with");
-  var blockKeywords = words("case do else for if switch while struct");
+  var blockKeywords = words("case do else for if switch while struct then of");
   var atoms = {"null": true};
 
   var isOperatorChar = /[+\-*&%=<>!?|\/]/;
@@ -129,18 +129,6 @@ CodeMirror.defineMode("pascal", function(config) {
         pushContext(state, stream.column(), "statement");
       state.startOfLine = false;
       return style;
-    },
-
-    indent: function(state, textAfter) {
-      if (state.tokenize != null) return 0;
-      var firstChar = textAfter && textAfter.charAt(0), ctx = state.context;
-      var closing = firstChar == ctx.type || /^(?:end|until|else|elsif|when)\b/.test(textAfter);
-      if (ctx.type == "statement") {
-        if (closing) ctx = ctx.prev;
-        else return ctx.indented + config.indentUnit;
-      }
-      if (ctx.align) return ctx.column + (closing ? 0 : 1);
-      return ctx.indented + (closing ? 0 : config.indentUnit);
     },
 
     electricChars: "{}"
