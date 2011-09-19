@@ -13,117 +13,144 @@
     <h1>CodeMirror 2: TiddlyWiki mode</h1>
 
 <div><textarea id="code" name="code">
-/***
-|''Name''|CodeMirror2Plugin|
-|''Description''|Enables syntax highlighting using CodeMirror2|
-|''Author''|PMario|
-|''Version''|0.1.2|
-|''Status''|''beta''|
-|''Info''|CodeMirror2PluginInfo|
-|''Source''|https://github.com/pmario/tw.CodeMirrorPlugin|
-|''Documentation''|http://codemirror.tiddlyspace.com/|
-|''License''|[[CC-BY-NC-SA|http://creativecommons.org/licenses/by-nc-sa/3.0/]]|
-|''CoreVersion''|2.5.0|
-|''Requires''|codemirror.js overlay.js runmode.js xml.js python.js javascript.js css.js htmlmixed.js |
-|''Keywords''|syntax highlighting color code mirror codemirror|
-!Documentation
-* Advanced info, see: [[CodeMirror2PluginInfo]]
-!Description
-Enables syntax highlighting for <pre> and <code> blocks. Adds a new formatter for {{{<code class='???'>}}} 
-!Usage
-!!!!StyleSheet
-<<<
-* The plugin automatically creates a shadow StyleSheetCodeMirror2 tiddler, that can be adjusted to your needs.
-<<<
+!Hilfe zu Inline Formatting
+|!Option|!Syntax|!Output|
+|bold font|{{{''bold''}}}|''bold''|
+|italic type|{{{//italic//}}}|//italic//|
+|underlined text|{{{__underlined__}}}|__underlined__|
+|strikethrough text|{{{--strikethrough--}}}|--strikethrough--|
+|superscript text|{{{^^super^^script}}}|^^super^^script|
+|subscript text|{{{~~sub~~script}}}|~~sub~~script|
+|highlighted text|{{{@@highlighted@@}}}|@@highlighted@@|
+|preformatted text|<html><code>{{{preformatted}}}</code></html>|{{{preformatted}}}|
 
-!!!!Macros
-<<<
-Modes: {{{<<cmModes>>}}} ... displays the usable modes seen below
-Modes: <<cmModes>>
 
-MIMEs: {{{<<cmMIMEs>>}}} ... displays the usable mime types seen below. Same order as modes.
-Modes: <<cmMIMEs>>
-<<<
-!!!!Global Settings
-<<<
-* Have a look at: [[CodeMirror2Config]]
-<<<
-!!!!ViewTemplate
-<<<
-* Same as macro, but will be executed automatically for every tiddler. see: [[CodeMirror2PluginInfo]]
-<<<
-!!!!Parameters
-<<<
-{{{<<highlightSyntax [tagName]>> }}}
-* will render all blocks, with any defined tag name. eg: tagName = {{{code}}}.
-* [tagName] is optional. Default is "pre".
-<<<
-!!!!Configuration options
-<<<
-Guess syntax: <<option chkGuessSyntax>> .. If activated, ~TiddlyWiky <pre> blocks will be rendered according to there block braces. see [[CodeMirror2Info]]
-Expert mode: <<option chkExpertSyntax>> .. If activated, additional values below will be used. see [[CodeMirror2Info]]
-
-{{{ {{{ }}} txtShText: <<option txtShText>> eg: 'brush:text'
-{{{ / *{{{* / }}} txtShCss: <<option txtShCss>> eg: 'brush:css'
-{{{ //{{{ }}} txtShPlugin: <<option txtShPlugin>> 'brush:javascript'
-{{{ <!--{{{-->> }}} txtShXml: <<option txtShXml>> 'brush:xml'
-
-Additional options ???????????????????
-<<<
-!!!! Known Issues
-* Theme switching not supported yet
-* Detecting content-type in ViewMode, EditMode has some inconsistencies
-* Code is ugly
-** Uses too many different namespaces
-** Lots of TODOs 
-
-!!!! Revision History
-<<<
-* V 0.1.0 2011-09-07
-** inital release
+!Block Elements
+!!Headings
+{{{
+!Heading 1
+!!Heading 2
+!!!Heading 3
+!!!!Heading 4
+!!!!!Heading 5
+}}}
 <<<
 
-!!!!ToDo
+!Heading 1
+
+!!Heading 2
+
+!!!Heading 3
+
+!!!!Heading 4
+
+!!!!!Heading 5
 <<<
-*
+
+!!Lists
+{{{
+* unordered list, level 1
+** unordered list, level 2
+*** unordered list, level 3
+
+# ordered list, level 1
+## ordered list, level 2
+### unordered list, level 3
+
+; definition list, term
+: definition list, description
+}}}
 <<<
-!!!Code
-***/
+* unordered list, level 1
+** unordered list, level 2
+*** unordered list, level 3
 
-@space-link-with_underline
+# ordered list, level 1
+## ordered list, level 2
+### unordered list, level 3
 
-! Heading 1
-!! heading 2
+; definition list, term
+: definition list, description
+<<<
 
-* list
-*list
-**list2
+!!Blockquotes
+{{{
+> blockquote, level 1
+>> blockquote, level 2
+>>> blockquote, level 3
 
-[[PL|http:/ /pmario.tiddlyspace.com]]
+<<<
+blockquote
+<<<
+}}}
+<<<
+> blockquote, level 1
+>> blockquote, level 2
+>>> blockquote, level 3
 
+> blockquote
+<<<
 
-[[PrettyLink]]
+!!Preformatted Text
+<html><pre>
+{{{
+preformatted (e.g. code)
+}}}
+</pre></html>
+<<<
+{{{
+preformatted (e.g. code)
+}}}
+<<<
 
-some more text
+!!Tables
+{{{
+|CssClass|k
+|!heading column 1|!heading column 2|
+|row 1, column 1|row 1, column 2|
+|row 2, column 1|row 2, column 2|
+|>|COLSPAN|
+|ROWSPAN| ... |
+|~| ... |
+|CssProperty:value;...| ... |
+|caption|c
+}}}
+''Annotation:''
+* The {{{>}}} marker creates a "colspan", causing the current cell to merge with the one to the right.
+* The {{{~}}} marker creates a "rowspan", causing the current cell to merge with the one above.
+<<<
+|CssClass|k
+|!heading column 1|!heading column 2|
+|row 1, column 1|row 1, column 2|
+|row 2, column 1|row 2, column 2|
+|>|COLSPAN|
+|ROWSPAN| ... |
+|~| ... |
+|CssProperty:value;...| ... |
+|caption|c
+<<<
+!!Images /% TODO %/
+cf. [[TiddlyWiki.com|http://www.tiddlywiki.com/#EmbeddedImages]]
 
-<<list filter [tag[hugo]]>>
+!Hyperlinks
+* [[WikiWords|WikiWord]] are automatically transformed to hyperlinks to the respective tiddler
+** the automatic transformation can be suppressed by preceding the respective WikiWord with a tilde ({{{~}}}): {{{~WikiWord}}}
+* [[PrettyLinks]] are enclosed in square brackets and contain the desired tiddler name: {{{[[tiddler name]]}}}
+** optionally, a custom title or description can be added, separated by a pipe character ({{{|}}}): {{{[[title|target]]}}}<br>'''N.B.:''' In this case, the target can also be any website (i.e. URL).
 
-<<list
+!Custom Styling
+* {{{@@CssProperty:value;CssProperty:value;...@@}}}<br>''N.B.:'' CSS color definitions should use lowercase letters to prevent the inadvertent creation of WikiWords.
+* <html><code>{{customCssClass{...}}}</code></html>
+* raw HTML can be inserted by enclosing the respective code in HTML tags: {{{<html> ... </html>}}}
 
-<<tiddler asdf with: "hallo">>
-<<tiddler {{tiddler.title}} >>
-
-# list
-## list
-##list 
-
-''bold''
-//italic//
-
-"string with ' "
-'string with "'
-
-
+!Special Markers
+* {{{<br>}}} forces a manual line break
+* {{{----}}} creates a horizontal ruler
+* [[HTML entities|http://www.tiddlywiki.com/#HtmlEntities]]
+* [[HTML entities local|HtmlEntities]]
+* {{{<<macroName>>}}} calls the respective [[macro|Macros]]
+* To hide text within a tiddler so that it is not displayed, it can be wrapped in {{{/%}}} and {{{%/}}}.<br/>This can be a useful trick for hiding drafts or annotating complex markup.
+* To prevent wiki markup from taking effect for a particular section, that section can be enclosed in three double quotes: e.g. {{{"""WikiWord"""}}}.
 </textarea></div>
 
     <script>
