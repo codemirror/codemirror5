@@ -1,6 +1,19 @@
+/***
+|''Name''|tiddlywiki.js|
+|''Description''|Enables TiddlyWikiy syntax highlighting using CodeMirror2|
+|''Author''|PMario|
+|''Version''|0.1.1|
+|''Status''|''beta''|
+|''Source''|https://github.com/pmario/tw.CodeMirrorPlugin|
+|''Documentation''|http://codemirror.tiddlyspace.com/|
+|''License''|[[CC-BY-NC-SA|http://creativecommons.org/licenses/by-nc-sa/3.0/]]|
+|''CoreVersion''|2.5.0|
+|''Requires''|codemirror.js|
+|''Keywords''|syntax highlighting color code mirror codemirror|
+***/
+//{{{
 CodeMirror.defineMode("tiddlywiki", function(config, parserConfig) {
   var indentUnit = config.indentUnit;
-  var jsonMode = parserConfig.json;
 
   // Tokenizer
 
@@ -13,27 +26,15 @@ CodeMirror.defineMode("tiddlywiki", function(config, parserConfig) {
   var keywords = function(){
     function kw(type) {return {type: type, style: "macro"};}
     return { 
-		"allTags": kw('allTags')
-		, "closeAll": kw('closeAll')
-		, "list": kw('list')
-		, "newJournal": kw('newJournal')
-		, "newTiddler": kw('newTiddler')
-		, "permaview": kw('permaview')
-		, "saveChanges": kw('saveChanges')
-		, "search": kw('search')
-		, "slider": kw('slider')
-		, "tabs": kw('tabs')
-		, "tag": kw('tag')
-		, "tagging": kw('tagging')
-		, "tags": kw('tags')
-		, "tiddler": kw('tiddler')
-		, "timeline": kw('timeline')
-		, "today": kw('today')
-		, "version": kw('version')
-		, "option": kw('option')
+		"allTags": kw('allTags'), "closeAll": kw('closeAll'), "list": kw('list'),
+		"newJournal": kw('newJournal'), "newTiddler": kw('newTiddler'),
+		"permaview": kw('permaview'), "saveChanges": kw('saveChanges'),
+		"search": kw('search'), "slider": kw('slider'),
+		"tabs": kw('tabs'), "tag": kw('tag'), "tagging": kw('tagging'),
+		"tags": kw('tags'), "tiddler": kw('tiddler'), "timeline": kw('timeline'),
+		"today": kw('today'), "version": kw('version'), "option": kw('option'),
 		
-    	, "with": kw('with')
-    	, "filter": kw('filter')
+    	"with": kw('with'), "filter": kw('filter')
     };
   }();
 
@@ -66,7 +67,7 @@ CodeMirror.defineMode("tiddlywiki", function(config, parserConfig) {
 /*
   function jsTokenBlock(stream, state) {
     var sol = stream.sol();
-    var ch = stream.peak();
+    var ch = stream.peek();
     
     if () {
     }
@@ -76,39 +77,47 @@ CodeMirror.defineMode("tiddlywiki", function(config, parserConfig) {
   */
   
   function jsTokenBase(stream, state) {
-    var sol = stream.sol();
-    var ch = stream.next(), tch;
+    var sol = stream.sol(), ch, tch;
 
+	ch = stream.peek(); // don't eat, to make match simpler
+	
 	// check start of line blocks    
-    if (sol && /[<\/\*!{}#;:\-]/.test(ch)) {
+    if (sol && /[<\/\*{}\-]/.test(ch)) {
 		if (ch == '-' && stream.match(/^\-\-\-+$/)) {
 			return ret('hr', 'hr');
 		}
-		if (ch == '/' && stream.match(/^\*\*\*$/)) {
-			return ret('string', 'string');
+		if (stream.match(/^\/\*\*\*$/)) {
+			return ret('code', 'code');
 		}
-		if (ch == '*' && stream.match(/^\*\*\/$/)) {
-			return ret('string', 'string');
+		if (stream.match(/^\*\*\*\/$/)) {
+			return ret('code', 'code');
 		}
-		if (ch == '<' && stream.match(/^<<$/)) {
-			return ret('string', 'string');
+		if (stream.match(/^<<<$/)) {
+			return ret('quote', 'quote');
 		}
-		if (ch == '{' && stream.match(/^{{$/)) {
-			return ret('string', 'string');
+		if (stream.match(/^{{{$/)) {
+	        return chain(stream, state, twTokenCode);
+//			return ret('code', 'code');
 		} 
-		else if (ch == '{' && stream.match(/^{{/) && stream.match(/.*}}}/, false)) {
-			return ret('string', 'string');
+//		else if (stream.match(/^{{{/) && stream.match(/.*?}}}/, false)) {
+//	        return chain(stream, state, twTokenCode);
+		else if (stream.match(/^{{{/) && stream.match(/.*?}}}/)) {
+			return ret('code', 'code');
 		}
-		if (ch == '}' && stream.match(/^}}$/)) {
-			return ret('string', 'string');
+//		if (stream.match(/^}}}$/)) {
+//			return ret('code', 'code');
+//		}
+		if (stream.match(/^\/\/{{{$/)) {
+			return ret('code', 'code');
 		}
-		if (ch == '/' && stream.match(/^\/{{{$/)) {
-			return ret('string', 'string');
+		if (stream.match(/^\/\/}}}$/)) {
+			return ret('code', 'code');
 		}
-		if (ch == '/' && stream.match(/^\/}}}$/)) {
-			return ret('string', 'string');
-		}
+	} // sol
 
+    var ch = stream.next();
+
+    if (sol && /[\/\*!#;:>|]/.test(ch)) {
 		if (ch == "!") {	// tw header
 		    stream.skipToEnd();
 		    return ret("header", "header");
@@ -129,13 +138,25 @@ CodeMirror.defineMode("tiddlywiki", function(config, parserConfig) {
 		    stream.eatWhile(':');
 		    return ret("list", "list");
 		}
+		if (ch == ">") {	// single line quote
+		  stream.eatWhile(">");
+		  return ret("quote", "quote");
+		}  		
+		if (ch == '|') {
+		  return ret('table', 'table');
+		}
     }
+    
 	if (!sol) {
 		if (ch == '{' && stream.match(/^{{/)) {
-			return ret('string', 'string');
+	        return chain(stream, state, twTokenCode);		
 		}
-		if (ch == '}' && stream.match(/^}}/)) {
-			return ret('string', 'string');
+	}
+
+	if (/[hf]/i.test(ch)) {
+		if ( /[ti]/i.test( stream.peek() ) && 
+			 stream.match(/\b(ttps?|tp|ile):\/\/[\-A-Z0-9+&@#\/%?=~_|$!:,.;]*[A-Z0-9+&@#\/%=~_|$]/i)) {
+			return ret("link-external", "link-external");
 		}
 	}
     // just a little string indicator
@@ -150,7 +171,7 @@ CodeMirror.defineMode("tiddlywiki", function(config, parserConfig) {
     }
     if (ch == "@") {
       stream.eatWhile(isSpaceName);
-      return ret("lin-external", "link-external");
+      return ret("link-external", "link-external");
     }      
     if (/\d/.test(ch)) {
       stream.eatWhile(/\d/);
@@ -160,7 +181,7 @@ CodeMirror.defineMode("tiddlywiki", function(config, parserConfig) {
       if (stream.eat("%")) {
         return chain(stream, state, twTokenComment);
       }
-      else if (stream.eat("/_")) { // TODO conflict with http:// ..
+      else if (stream.eat("/")) { // 
         return chain(stream, state, twTokenEm);
       }
     }
@@ -188,17 +209,14 @@ CodeMirror.defineMode("tiddlywiki", function(config, parserConfig) {
 		return ret(ch);
     }
 
-
       stream.eatWhile(/[\w\$_]/);
       var word = stream.current(), 
           known = textwords.propertyIsEnumerable(word) && textwords[word];
-
- //     console.log(word, 'known:', known);
-      
+                
       return known ? ret(known.type, known.style, word) :
                      ret("text", null, word);
 
-  }
+  } // jsTokenBase
 
   function twTokenString(quote) {
     return function(stream, state) {
@@ -234,9 +252,33 @@ CodeMirror.defineMode("tiddlywiki", function(config, parserConfig) {
     return ret("text", "strong");
   }
 
+  // tw code
+  function twTokenCode_(stream, state) {
+    var ch;
+    if (stream.match(/.*?}}}/)) {
+        state.tokenize = jsTokenBase;
+	    return ret("text", "code");
+    }
+	state.tokenize = jsTokenBase;
+	return ret("code", 'warning');
+  }
+
+  // tw code v2 ... neee
+  function twTokenCode(stream, state) {
+    var maybeEnd = false, ch;
+    while (ch = stream.next()) {
+      if (ch == "}" && maybeEnd) {
+        stream.next();
+        state.tokenize = jsTokenBase;
+        break;
+      }
+      maybeEnd = (ch == '}' && stream.match(/}}/, false));
+    }
+    return ret("text", "code");
+  }
+
   // tw em / italic
   function twTokenEm(stream, state) {
-  console.log('em: ');	
     var maybeEnd = false, ch;
     while (ch = stream.next()) {
       if (ch == "/" && maybeEnd) {
@@ -247,7 +289,6 @@ CodeMirror.defineMode("tiddlywiki", function(config, parserConfig) {
     }
     return ret("text", "em");
   }
-
 
   // tw underlined text
   function twTokenUnderline(stream, state) {	
@@ -275,7 +316,6 @@ CodeMirror.defineMode("tiddlywiki", function(config, parserConfig) {
     }
     return ret("text", "line-through");
   }
-
 
   function twTokenMacro(stream, state) {	// macro
 	var ch, tmp, word, known;
@@ -329,3 +369,5 @@ CodeMirror.defineMode("tiddlywiki", function(config, parserConfig) {
 });
 
 CodeMirror.defineMIME("text/x-tiddlywiki", "tiddlywiki");
+//}}}
+
