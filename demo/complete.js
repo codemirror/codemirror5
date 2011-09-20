@@ -40,10 +40,10 @@
     // If it's not a 'word-style' token, ignore the token.
     if (!/^[\w$_]*$/.test(token.string)) {
       token = tprop = {start: cur.ch, end: cur.ch, string: "", state: token.state,
-                       className: token.string == "." ? "js-property" : null};
+                       className: token.string == "." ? "property" : null};
     }
     // If it is a property, find out what it is a property of.
-    while (tprop.className == "js-property") {
+    while (tprop.className == "property") {
       tprop = editor.getTokenAt({line: cur.line, ch: tprop.start});
       if (tprop.string != ".") return;
       tprop = editor.getTokenAt({line: cur.line, ch: tprop.start});
@@ -84,7 +84,7 @@
       complete.parentNode.removeChild(complete);
     }
     function pick() {
-      insert(sel.options[sel.selectedIndex].value);
+      insert(sel.options[sel.selectedIndex].text);
       close();
       setTimeout(function(){editor.focus();}, 50);
     }
@@ -129,11 +129,11 @@
       // If this is a property, see if it belongs to some object we can
       // find in the current environment.
       var obj = context.pop(), base;
-      if (obj.className == "js-variable")
+      if (obj.className == "variable")
         base = window[obj.string];
-      else if (obj.className == "js-string")
+      else if (obj.className == "string")
         base = "";
-      else if (obj.className == "js-atom")
+      else if (obj.className == "atom")
         base = 1;
       while (base != null && context.length)
         base = base[context.pop().string];
