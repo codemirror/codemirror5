@@ -726,7 +726,9 @@
       <dd>Moves the position to the end of the line.</dd>
       <dt><code>skipTo(ch) → boolean</code></dt>
       <dd>Skips to the next occurrence of the given character, if
-      found. Returns true if the character was found.</dd>
+      found on the current line (doesn't advance the stream if the
+      character does not occur on the line). Returns true if the
+      character was found.</dd>
       <dt><code>match(pattern, consume, caseFold) → boolean</code></dt>
       <dd>Act like a
       multi-character <code>eat</code>—if <code>consume</code> is true
