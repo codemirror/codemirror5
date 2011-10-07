@@ -166,6 +166,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
   function attributes(type) {
     if (type == "word") {setStyle = "attribute"; return cont(attributes);}
     if (type == "equals") return cont(attvalue, attributes);
+    if (type == "string") {setStyle = "error"; return cont(attributes);}
     return pass();
   }
   function attvalue(type) {
