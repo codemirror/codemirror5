@@ -13,7 +13,9 @@
     <h1>CodeMirror 2: TiddlyWiki mode</h1>
 
 <div><textarea id="code" name="code">
-!Hilfe zu Inline Formatting
+!TiddlyWiki Formatting
+* Rendered versions can be found at: http://www.tiddlywiki.com/#Reference
+
 |!Option|!Syntax|!Output|
 |bold font|{{{''bold''}}}|''bold''|
 |italic type|{{{//italic//}}}|//italic//|
@@ -23,7 +25,6 @@
 |subscript text|{{{~~sub~~script}}}|~~sub~~script|
 |highlighted text|{{{@@highlighted@@}}}|@@highlighted@@|
 |preformatted text|<html><code>{{{preformatted}}}</code></html>|{{{preformatted}}}|
-
 
 !Block Elements
 !!Headings
@@ -103,6 +104,19 @@ preformatted (e.g. code)
 }}}
 <<<
 
+!!Code Sections
+{{{
+Text style code
+}}}
+
+//{{{
+JS styled code. TiddlyWiki mixed mode should support highlighter switching in the future.
+//}}}
+
+<!--{{{-->
+XML styled code. TiddlyWiki mixed mode should support highlighter switching in the future.
+<!--}}}-->
+
 !!Tables
 {{{
 |CssClass|k
@@ -162,7 +176,7 @@ cf. [[TiddlyWiki.com|http://www.tiddlywiki.com/#EmbeddedImages]]
       });
     </script>
 
-    <p>TiddlyWiki mode supports a single configuratio.</p>
+    <p>TiddlyWiki mode supports a single configuration.</p>
 
     <p><strong>MIME types defined:</strong> <code>text/x-tiddlywiki</code>.</p>
   </body>

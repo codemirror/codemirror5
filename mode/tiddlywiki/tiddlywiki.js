@@ -2,11 +2,11 @@
  |''Name''|tiddlywiki.js|
  |''Description''|Enables TiddlyWikiy syntax highlighting using CodeMirror2|
  |''Author''|PMario|
- |''Version''|0.1.4|
+ |''Version''|0.1.5|
  |''Status''|''beta''|
  |''Source''|https://github.com/pmario/tw.CodeMirrorPlugin|
  |''Documentation''|http://codemirror.tiddlyspace.com/|
- |''License''|[[CC-BY-NC-SA|http://creativecommons.org/licenses/by-nc-sa/3.0/]]|
+ |''License''|[[MIT License|http://www.opensource.org/licenses/mit-license.php]]|
  |''CoreVersion''|2.5.0|
  |''Requires''|codemirror.js|
  |''Keywords''|syntax highlighting color code mirror codemirror|
@@ -67,8 +67,6 @@ CodeMirror.defineMode("tiddlywiki", function (config, parserConfig) {
 	}
 
 	// used for strings
-
-
 	function nextUntilUnescaped(stream, end) {
 		var escaped = false,
 			next;
@@ -88,18 +86,6 @@ CodeMirror.defineMode("tiddlywiki", function (config, parserConfig) {
 		content = cont;
 		return style;
 	}
-
-/*
-  function jsTokenBlock(stream, state) {
-    var sol = stream.sol();
-    var ch = stream.peek();
-    
-    if () {
-    }
-    else if () {
-    }
-  }
-  */
 
 	function jsTokenBase(stream, state) {
 		var sol = stream.sol(), 
@@ -161,16 +147,16 @@ CodeMirror.defineMode("tiddlywiki", function (config, parserConfig) {
 		}
 
 		if (ch == '{' && stream.match(/\{\{/)) {
-//			state.block = false;
 			return chain(stream, state, twTokenCode);
 		}
 
+		// rudimentary html:// file:// link matching. TW knows much more ...
 		if (/[hf]/i.test(ch)) {
 			if (/[ti]/i.test(stream.peek()) && stream.match(/\b(ttps?|tp|ile):\/\/[\-A-Z0-9+&@#\/%?=~_|$!:,.;]*[A-Z0-9+&@#\/%=~_|$]/i)) {
 				return ret("link-external", "link-external");
 			}
 		}
-		// just a little string indicator
+		// just a little string indicator, don't want to have the whole string covered
 		if (ch == '"') {
 			return ret('string', 'string');
 		}
@@ -180,11 +166,11 @@ CodeMirror.defineMode("tiddlywiki", function (config, parserConfig) {
 				return ret('brace', 'brace');
 			}
 		}
-		if (ch == "@") {
+		if (ch == "@") {	// check for space link. TODO fix @@...@@ highlighting
 			stream.eatWhile(isSpaceName);
 			return ret("link-external", "link-external");
 		}
-		if (/\d/.test(ch)) {
+		if (/\d/.test(ch)) {	// numbers
 			stream.eatWhile(/\d/);
 			return ret("number", "number");
 		}
@@ -201,7 +187,7 @@ CodeMirror.defineMode("tiddlywiki", function (config, parserConfig) {
 				return chain(stream, state, twTokenUnderline);
 			}
 		}
-		if (ch == "-") { // TODO -x .. deactivated; tw strikethrough
+		if (ch == "-") { // tw strikethrough TODO looks ugly .. different handling see below;
 			if (stream.eat("-")) {
 				return chain(stream, state, twTokenStrike);
 			}
@@ -226,7 +212,7 @@ CodeMirror.defineMode("tiddlywiki", function (config, parserConfig) {
 
 		return known ? ret(known.type, known.style, word) : ret("text", null, word);
 
-	} // jsTokenBase
+	} // jsTokenBase()
 
 	function twTokenString(quote) {
 		return function (stream, state) {
@@ -314,7 +300,7 @@ CodeMirror.defineMode("tiddlywiki", function (config, parserConfig) {
 	}
 
 	// tw strike through text looks ugly 
-	// TODO just line through the next 2 chars if possible.
+	// TODO just strike through the first and last 2 chars if possible.
 	function twTokenStrike(stream, state) {
 		var maybeEnd = false,
 			ch, nr;
@@ -329,7 +315,8 @@ CodeMirror.defineMode("tiddlywiki", function (config, parserConfig) {
 		return ret("text", "line-through");
 	}
 
-	function twTokenMacro(stream, state) { // macro
+	// macro
+	function twTokenMacro(stream, state) {
 		var ch, tmp, word, known;
 
 		if (stream.current() == '<<') {
