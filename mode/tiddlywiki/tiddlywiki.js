@@ -2,14 +2,16 @@
  |''Name''|tiddlywiki.js|
  |''Description''|Enables TiddlyWikiy syntax highlighting using CodeMirror2|
  |''Author''|PMario|
- |''Version''|0.1.5|
+ |''Version''|0.1.6|
  |''Status''|''beta''|
- |''Source''|https://github.com/pmario/tw.CodeMirrorPlugin|
+ |''Source''|[[GitHub|https://github.com/pmario/CodeMirror2/blob/tw-syntax/mode/tiddlywiki]]|
  |''Documentation''|http://codemirror.tiddlyspace.com/|
  |''License''|[[MIT License|http://www.opensource.org/licenses/mit-license.php]]|
  |''CoreVersion''|2.5.0|
  |''Requires''|codemirror.js|
  |''Keywords''|syntax highlighting color code mirror codemirror|
+ ! Info
+ CoreVersion parameter is needed for TiddlyWiki only!
  ***/
 //{{{
 CodeMirror.defineMode("tiddlywiki", function (config, parserConfig) {
