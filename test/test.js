@@ -147,6 +147,32 @@ testCM("coordsChar", function(cm) {
   }
 });
 
+testCM("coordsFromIndex", function(cm) {
+  cm.setValue(
+    "This function should\n" +
+    "convert a zero based index\n" +
+    "to line and ch."
+  );
+
+  var i, pos, example, examples = [
+    { index: -1, line: 0, ch: 0  }, // <- Tests clipping
+    { index: 0,  line: 0, ch: 0  },
+    { index: 10, line: 0, ch: 10 },
+    { index: 39, line: 1, ch: 18 },
+    { index: 55, line: 2, ch: 7  },
+    { index: 63, line: 2, ch: 15 },
+    { index: 64, line: 2, ch: 15 }  // <- Tests clipping
+  ];
+
+  for (i = 0; i < examples.length; i++) {
+    example = examples[i];
+    pos = cm.coordsFromIndex(example.index);
+    
+    eq(pos.line, example.line);
+    eq(pos.ch, example.ch);
+  }  
+});
+
 testCM("undo", function(cm) {
   cm.setLine(0, "def");
   eq(cm.historySize().undo, 1);
