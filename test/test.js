@@ -155,11 +155,13 @@ testCM("coordsFromIndex", function(cm) {
   );
 
   var i, pos, example, examples = [
+    { index: -1, line: 0, ch: 0  }, // <- Tests clipping
     { index: 0,  line: 0, ch: 0  },
     { index: 10, line: 0, ch: 10 },
     { index: 39, line: 1, ch: 18 },
     { index: 55, line: 2, ch: 7  },
-    { index: 63, line: 2, ch: 15 }
+    { index: 63, line: 2, ch: 15 },
+    { index: 64, line: 2, ch: 15 }  // <- Tests clipping
   ];
 
   for (i = 0; i < examples.length; i++) {
@@ -168,9 +170,7 @@ testCM("coordsFromIndex", function(cm) {
     
     eq(pos.line, example.line);
     eq(pos.ch, example.ch);
-  }
-  
-  eq(cm.coordsFromIndex(64), null);
+  }  
 });
 
 testCM("undo", function(cm) {

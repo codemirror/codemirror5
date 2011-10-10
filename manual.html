@@ -566,10 +566,11 @@
       string at position <code>from</code>.</dd>
       
       <dt id="coordsFromIndex"><code>coordsFromIndex(index) → object</code></dt>
-      <dd>Calculates and returns a <code>{line, ch}</code> object for the zero-based
-      <code>index</code> who's value is relative to the start of the editor's
-      text. If the <code>index</code> is out range of the text, <code>null</code>
-      is returned.</dd>
+      <dd>Calculates and returns a <code>{line, ch}</code> object for a
+      zero-based <code>index</code> who's value is relative to the start of the
+      editor's text. If the <code>index</code> is out of range of the text then
+      the returned object is clipped to start or end of the text
+      respectively.</dd>
     </dl>
 
     <p>The following are more low-level methods:</p>
