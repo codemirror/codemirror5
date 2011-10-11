@@ -232,12 +232,12 @@ CodeMirror.defineMode("perl",function(config,parserConfig){
 		'$OLD_PERL_VERSION'		:    5,
 		'$]'				:    5,
 						//	PERL blocks
-		if				:[1,1],
+		'if'				:[1,1],
 		elsif				:[1,1],
-		else				:[1,1],
-		while				:[1,1],
+		'else'				:[1,1],
+		'while'				:[1,1],
 		unless				:[1,1],
-		for				:[1,1],
+		'for'				:[1,1],
 		foreach				:[1,1],
 						//	PERL functions
 		abs				:1,	// - absolute value function
@@ -248,7 +248,7 @@ CodeMirror.defineMode("perl",function(config,parserConfig){
 		binmode				:1,	// - prepare binary files for I/O
 		bless				:1,	// - create an object
 		bootstrap			:1,	//
-		break				:1,	// - break out of a "given" block
+		'break'				:1,	// - break out of a "given" block
 		caller				:1,	// - get context of the current subroutine call
 		chdir				:1,	// - change your current working directory
 		chmod				:1,	// - changes the permissions on a list of files
@@ -260,16 +260,16 @@ CodeMirror.defineMode("perl",function(config,parserConfig){
 		close				:1,	// - close file (or pipe or socket) handle
 		closedir			:1,	// - close directory handle
 		connect				:1,	// - connect to a remote socket
-		continue			:[1,1],	// - optional trailing block in a while or foreach
+		'continue'			:[1,1],	// - optional trailing block in a while or foreach
 		cos				:1,	// - cosine function
 		crypt				:1,	// - one-way passwd-style encryption
 		dbmclose			:1,	// - breaks binding on a tied dbm file
 		dbmopen				:1,	// - create binding on a tied dbm file
-		default				:1,	//
+		'default'			:1,	//
 		defined				:1,	// - test whether a value, variable, or function is defined
-		delete				:1,	// - deletes a value from a hash
+		'delete'			:1,	// - deletes a value from a hash
 		die				:1,	// - raise an exception or bail out
-		do				:1,	// - turn a BLOCK into a TERM
+		'do'				:1,	// - turn a BLOCK into a TERM
 		dump				:1,	// - create an immediate core dump
 		each				:1,	// - retrieve the next key/value pair from a hash
 		endgrent			:1,	// - be done using group file
@@ -319,10 +319,10 @@ CodeMirror.defineMode("perl",function(config,parserConfig){
 		given				:1,	//
 		glob				:1,	// - expand filenames using wildcards
 		gmtime				:1,	// - convert UNIX time into record or string using Greenwich time
-		goto				:1,	// - create spaghetti code
+		'goto'				:1,	// - create spaghetti code
 		grep				:1,	// - locate elements in a list test true against a given criterion
 		hex				:1,	// - convert a string to a hexadecimal number
-		import				:1,	// - patch a module's namespace into your own
+		'import'			:1,	// - patch a module's namespace into your own
 		index				:1,	// - find a substring within a string
 		int				:1,	// - get the integer portion of a number
 		ioctl				:1,	// - system-dependent device control system call
@@ -348,7 +348,7 @@ CodeMirror.defineMode("perl",function(config,parserConfig){
 		msgrcv				:1,	// - receive a SysV IPC message from a message queue
 		msgsnd				:1,	// - send a SysV IPC message to a message queue
 		my				: 2,	// - declare and assign a local variable (lexical scoping)
-		new				:1,	//
+		'new'				:1,	//
 		next				:1,	// - iterate a block prematurely
 		no				:1,	// - unimport some module symbols or semantics at compile time
 		oct				:1,	// - convert a string to an octal number
@@ -357,7 +357,7 @@ CodeMirror.defineMode("perl",function(config,parserConfig){
 		ord				:1,	// - find a character's numeric representation
 		our				: 2,	// - declare and assign a package variable (lexical scoping)
 		pack				:1,	// - convert a list into a binary representation
-		package				:1,	// - declare a separate global namespace
+		'package'			:1,	// - declare a separate global namespace
 		pipe				:1,	// - open a pair of connected filehandles
 		pop				:1,	// - remove the last element from an array and return it
 		pos				:1,	// - find or set the offset for the last/next m//g search
@@ -383,7 +383,7 @@ CodeMirror.defineMode("perl",function(config,parserConfig){
 		rename				:1,	// - change a filename
 		require				:1,	// - load in external functions from a library at runtime
 		reset				:1,	// - clear all variables of a given name
-		return				:1,	// - get out of a function early
+		'return'			:1,	// - get out of a function early
 		reverse				:1,	// - flip a string or a list
 		rewinddir			:1,	// - reset directory handle
 		rindex				:1,	// - right-to-left substring search
