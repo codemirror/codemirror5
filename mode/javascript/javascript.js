@@ -54,7 +54,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       return ret("number", "number");
     }      
     else if (/\d/.test(ch)) {
-      stream.match(/^\d*(?:\.\d*)?(?:e[+\-]?\d+)?/);
+      stream.match(/^\d*(?:\.\d*)?(?:[eE][+\-]?\d+)?/);
       return ret("number", "number");
     }
     else if (ch == "/") {
