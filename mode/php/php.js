@@ -33,6 +33,10 @@
           return state.tokenize(stream, state);
         }
         return false;
+      },
+      "#": function(stream, state) {
+        stream.skipToEnd();
+        return "comment";
       }
     }
   };
