@@ -12,69 +12,51 @@
   <body>
     <h1>CodeMirror 2: Clojure mode</h1>
     <form><textarea id="code" name="code">
-; Conway's Game of Life, from http://rosettacode.org/wiki/Conway%27s_Game_of_Life#Clojure
-(defstruct grid :w :h :cells)
+; Conway's Game of Life, based on the work of:
+;; Laurent Petit https://gist.github.com/1200343
+;; Christophe Grand http://clj-me.cgrand.net/2011/08/19/conways-game-of-life
 
-(defn get-cell
-  "Returns the value at x,y. The grid is treated as a torus, such that both x and
-  y coordinates will wrap around if greater than width and height respectively."
-  [grid x y]
-  (let [x (mod x (:w grid))
-        y (mod y (:h grid))]
-    (-> grid :cells (nth y) (nth x))))
+(ns ^{:doc "Conway's Game of Life."}
+ game-of-life)
 
-(defn neighbors
-  "Returns a lazy sequence of all neighbors of the specified cell."
-  [grid x y]
-  (for [j [(dec y) y (inc y)]
-        i [(dec x) x (inc x)]
-        :when (not (and (= i x) (= j y)))]
-    (get-cell grid i j)))
+;; Core game of life's algorithm functions
 
-(defn evolve-cell
-  "Returns the new state of the specifed cell."
-  [grid x y]
-  (let [c (get-cell grid x y)
-        n (reduce + (neighbors grid x y))]
-    (if (or (and (zero? c) (= 3 n))
-            (and (= 1 c) (or (= 2 n) (= 3 n))))
-      1 0)))
+(defn neighbours 
+  "Given a cell's coordinates, returns the coordinates of its neighbours."
+  [[x y]]
+  (for [dx [-1 0 1] dy (if (zero? dx) [-1 1] [-1 0 1])]
+    [(+ dx x) (+ dy y)]))
 
-(defn evolve-grid
-  "Returns a new grid whose cells have all been evolved."
-  [grid]
-  (assoc grid :cells
-    (vec (for [y (range (:h grid))]
-      (vec (for [x (range (:w grid))]
-        (evolve-cell grid x y)))))))
+(defn step 
+  "Given a set of living cells, computes the new set of living cells."
+  [cells]
+  (set (for [[cell n] (frequencies (mapcat neighbours cells))
+             :when (or (= n 3) (and (= n 2) (cells cell)))]
+         cell)))
 
-(defn generations [grid]
-  "Returns a lazy sequence of the grid, and all subsequent generations."
-  (iterate evolve-grid grid))
+;; Utility methods for displaying game on a text terminal
 
-(defn make-grid [w h & row-patterns]
-  (let [cells (vec (for [rp row-patterns]
-                (vec (mapcat #(take %1 (repeat %2)) rp (cycle [0 1])))))]
-    (if (and (= h (count cells))
-             (every? #(= w (count %)) cells))
-      (struct grid w h cells)
-      (throw (IllegalArgumentException. "Resulting cells do not match expected width/height.")))))
+(defn print-board 
+  "Prints a board on *out*, representing a step in the game."
+  [board w h]
+  (doseq [x (range (inc w)) y (range (inc h))]
+    (if (= y 0) (print "\n")) 
+    (print (if (board [x y]) "[X]" " . "))))
 
-(defn display-row [row]
-  (do (dorun (map print (map #(if (zero? %) " . " "[X]") row))) (println)))
+(defn display-grids 
+  "Prints a squence of boards on *out*, representing several steps."
+  [grids w h]
+  (doseq [board grids]
+    (print-board board w h)
+    (print "\n")))
 
-(defn display-grid [grid]
-  (dorun (map display-row (:cells grid))))
+;; Launches an example board
 
-(defn display-grids [grids]
-  (dorun
-    (interleave
-      (repeatedly println)
-      (map display-grid grids))))
+(def 
+  ^{:doc "board represents the initial set of living cells"}
+   board #{[2 1] [2 2] [2 3]})
 
-(def blinker (make-grid 5 5 [5] [5] [1 3 1] [5] [5]))
-(display-grids (take 3 (generations blinker)))
-</textarea></form>
+(display-grids (take 3 (iterate step board)) 5 5) </textarea></form>
     <script>
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {});
     </script>
