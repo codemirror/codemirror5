@@ -1,4 +1,4 @@
-// CodeMirror2 mode/perl/perl.js (text/x-perl) beta 0.08 (2011-10-11)
+// CodeMirror2 mode/perl/perl.js (text/x-perl) beta 0.09 (2011-10-15)
 // This is a part of CodeMirror from https://github.com/sabaca/CodeMirror_mode_perl (mail@sabaca.com)
 CodeMirror.defineMode("perl",function(config,parserConfig){
 	// http://perldoc.perl.org
@@ -505,6 +505,8 @@ CodeMirror.defineMode("perl",function(config,parserConfig){
 		if(stream.match(/^<<(?=\w)/)){			// NOTE: <<SOMETHING\n...\nSOMETHING\n
 			stream.eatWhile(/\w/);
 			return tokenSOMETHING(stream,state,stream.current().substr(2))}
+		if(stream.sol()&&stream.match(/^\=item(?!\w)/)){// NOTE: \n=item...\n=cut\n
+			return tokenSOMETHING(stream,state,'=cut')}
 		var ch=stream.next();
 		if(ch=='"'||ch=="'"){				// NOTE: ' or " or <<'SOMETHING'\n...\nSOMETHING\n or <<"SOMETHING"\n...\nSOMETHING\n
 			if(stream.prefix(3)=="<<"+ch){
