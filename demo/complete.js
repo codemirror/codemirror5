@@ -62,7 +62,10 @@
     var complete = document.createElement("div");
     complete.className = "completions";
     var sel = complete.appendChild(document.createElement("select"));
-    sel.multiple = true;
+    // Opera doesn't move the selection when pressing up/down in a
+    // multi-select, but it does properly support the size property on
+    // single-selects, so no multi-select is necessary.
+    if (!window.opera) sel.multiple = true;
     for (var i = 0; i < completions.length; ++i) {
       var opt = sel.appendChild(document.createElement("option"));
       opt.appendChild(document.createTextNode(completions[i]));
