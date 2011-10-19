@@ -199,9 +199,14 @@ CodeMirror.defineMode("javascript", function() {
     return cont();
   }
   function maybeop(type) {
+    if (content == ".") return cont(maybeprop);
     if (type == "op") return cont(expression);
     if (type == "(" || type == "[") return matchBrackets(type, expression);
     return pass();
+  }
+  function maybeprop(type) {
+    if (content.match(/^\w+$/)) {cx.marked = "variable"; return cont(maybeop);}
+    return pass(expression);
   }
   function exprbrace(type) {
     if (type == "op") {
@@ -300,7 +305,7 @@ CodeMirror.defineMode("javascript", function() {
   }
   function patternmaybeop(type) {
     if (type == "op" && content == ".") return cont();
-    if (type == "op" || content == "to") {cx.marked = "keyword"; return cont(pattern);}
+    if (content == "to") {cx.marked = "keyword"; return cont(pattern);}
     else return pass();
   }
   function altbody(type) {
