@@ -56,6 +56,9 @@ CodeMirror.defineMode("javascript", function() {
       stream.eatWhile(/\w/);
       return r("macro", "meta");
     }
+    if (ch == ":" && stream.match(":<")) {
+      return r("op", null);
+    }
     if (ch.match(/\d/) || (ch == "." && stream.eat(/\d/))) {
       var flp = false;
       if (!stream.match(/^x[\da-f]+/i) && !stream.match(/^b[01]+/)) {
@@ -75,9 +78,10 @@ CodeMirror.defineMode("javascript", function() {
     }
     stream.eatWhile(/\w/);
     content = stream.current();
-    // FIXME be more careful, recognize ::<type> somehow
-    if (stream.match("::"))
+    if (stream.match(/^::\w/)) {
+      stream.backUp(1);
       return r("prefix", "variable-2");
+    }
     if (state.keywords.propertyIsEnumerable(content))
       return r(state.keywords[content], "keyword");
     return r("name", "variable");
@@ -200,7 +204,8 @@ CodeMirror.defineMode("javascript", function() {
   }
   function maybeop(type) {
     if (content == ".") return cont(maybeprop);
-    if (type == "op") return cont(expression);
+    if (content == "::<"){return cont(typarams, maybeop);}
+    if (type == "op" || content == ":") return cont(expression);
     if (type == "(" || type == "[") return matchBrackets(type, expression);
     return pass();
   }
@@ -213,8 +218,8 @@ CodeMirror.defineMode("javascript", function() {
       if (content == "|") return cont(blockvars, poplex, pushlex("}", "block"), block);
       if (content == "||") return cont(poplex, pushlex("}", "block"), block);
     }
-    if (content == "mutable" || (content.match(/^\w+$/) && cx.stream.peek() == ":"))
-      return pass(recliteral);
+    if (content == "mutable" || (content.match(/^\w+$/) && cx.stream.peek() == ":"
+                                 && !cx.stream.match("::", false))) return pass(recliteral);
     return pass(block);
   }
   function recliteral(type) {
@@ -368,7 +373,7 @@ CodeMirror.defineMode("javascript", function() {
       if (style == "comment") return style;
       if (!state.lexical.hasOwnProperty("align"))
         state.lexical.align = true;
-      if (style == "prefix") return style;
+      if (tcat == "prefix") return style;
       if (!content) content = stream.current();
       return parse(state, stream, style);
     },
