@@ -318,7 +318,7 @@ CodeMirror.defineMode("javascript", function() {
     return pass();
   }
   function altblock(type) {
-    if (type == "}") return pass();
+    if (type == "}") return cont();
     if (type == "|") return cont(altblock);
     if (type == "{") return cont(pushlex("}", "alt"), block, poplex, altblock);
     return pass(pattern, altblock);
