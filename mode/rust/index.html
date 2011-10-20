@@ -16,7 +16,10 @@
 // Demo code.
 
 type foo<T> = int;
-tag bar = foo<float>;
+tag bar {
+    some(int, foo<float>);
+    none;
+}
 
 fn check_crate(x: int) {
     let v = 10;
@@ -36,7 +39,8 @@ fn check_crate(x: int) {
     <script>
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true,
-        matchBrackets: true
+        matchBrackets: true,
+        tabMode: "indent"
       });
     </script>
 

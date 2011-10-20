@@ -1,4 +1,4 @@
-CodeMirror.defineMode("javascript", function() {
+CodeMirror.defineMode("rust", function() {
   var indentUnit = 4, altIndentUnit = 2;
   var valKeywords = {
     "if": "if-style", "while": "if-style", "else": "else-style",
@@ -163,14 +163,10 @@ CodeMirror.defineMode("javascript", function() {
     };
   }
   function commasep(comb, end) {
-    function proceed(type) {
-      if (type == ",") return cont(comb, proceed);
+    return function(type) {
       if (type == end) return cont();
-      return cont(waitfor(end));
-    }
-    return function commaSeparated(type) {
-      if (type == end) return cont();
-      else return pass(comb, proceed);
+      if (type == ",") return cont(arguments.callee);
+      return pass(comb, arguments.callee);
     };
   }
 
@@ -178,7 +174,7 @@ CodeMirror.defineMode("javascript", function() {
     if (type == "}") return cont();
     if (type == "let") return cont(pushlex("stat", "let"), letdef, poplex, block);
     if (type == "fn") return cont(pushlex("stat"), fndef, poplex, block);
-    if (type == "type") return cont(pushlex("stat"), tydef, waitfor(";"), poplex, block);
+    if (type == "type") return cont(pushlex("stat"), tydef, endstatement, poplex, block);
     if (type == "tag") return cont(pushlex("stat"), tagdef, poplex, block);
     if (type == "mod") return cont(pushlex("stat"), mod, poplex, block);
     if (type == "open-attr") return cont(pushlex("]"), commasep(expression, "]"), poplex);
@@ -266,9 +262,15 @@ CodeMirror.defineMode("javascript", function() {
   function tagdef(type) {
     if (type == "name") {cx.marked = "def"; return cont(tagdef);}
     if (content == "<") return cont(typarams, tagdef);
-    if (content == "=") return cont(typecx, rtype, valcx, waitfor(";"));
-    if (type == "{") return cont(pushlex("}"), block, poplex);
+    if (content == "=") return cont(typecx, rtype, valcx, endstatement);
+    if (type == "{") return cont(pushlex("}"), typecx, tagblock, valcx, poplex);
     return cont(tagdef);
+  }
+  function tagblock(type) {
+    if (type == "}") return cont();
+    if (type == "(") return cont(pushlex(")"), commasep(rtype, ")"), poplex, tagblock);
+    if (content.match(/^\w+$/)) cx.marked = "def";
+    return cont(tagblock);
   }
   function mod(type) {
     if (type == "name") {cx.marked = "def"; return cont(mod);}
