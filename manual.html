@@ -485,8 +485,11 @@
       <dt id="markText"><code>markText(from, to, className) → function</code></dt>
       <dd>Can be used to mark a range of text with a specific CSS
       class name. <code>from</code> and <code>to</code> should
-      be <code>{line, ch}</code> objects. The method will return a
-      function that can be called to remove the marking.</dd>
+      be <code>{line, ch}</code> objects. The method will return an
+      object with two methods, <code>clear()</code>, which removes the
+      mark, and <code>find()</code>, which returns a <code>{from,
+      to}</code> (both document positions), indicating the current
+      position of the marked range.</dd>
 
       <dt id="setMarker"><code>setMarker(line, text, className) → lineHandle</code></dt>
       <dd>Add a gutter marker for the given line. Gutter markers are
