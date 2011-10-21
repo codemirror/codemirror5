@@ -156,17 +156,15 @@ CodeMirror.defineMode("rust", function() {
   function valcx() { cx.state.keywords = valKeywords; }
   poplex.lex = typecx.lex = valcx.lex = true;
 
-  function waitfor(tok) {
-    return function(type) {
-      if (type == tok) return cont();
-      else return cont(arguments.callee);
-    };
-  }
   function commasep(comb, end) {
+    function more(type) {
+      if (type == ",") return cont(comb, more);
+      if (type == end) return cont();
+      return cont(more);
+    }
     return function(type) {
       if (type == end) return cont();
-      if (type == ",") return cont(arguments.callee);
-      return pass(comb, arguments.callee);
+      return pass(comb, more);
     };
   }
 
@@ -322,6 +320,7 @@ CodeMirror.defineMode("rust", function() {
   function altblock(type) {
     if (type == "}") return cont();
     if (type == "|") return cont(altblock);
+    if (content == "when") {cx.marked = "keyword"; return cont(expression, altblock);}
     if (type == "{") return cont(pushlex("}", "alt"), block, poplex, altblock);
     return pass(pattern, altblock);
   }
