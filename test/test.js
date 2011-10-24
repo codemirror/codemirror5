@@ -154,7 +154,7 @@ testCM("coordsFromIndex", function(cm) {
     "to line and ch."
   );
 
-  var i, pos, example, examples = [
+  var examples = [
     { index: -1, line: 0, ch: 0  }, // <- Tests clipping
     { index: 0,  line: 0, ch: 0  },
     { index: 10, line: 0, ch: 10 },
@@ -164,10 +164,9 @@ testCM("coordsFromIndex", function(cm) {
     { index: 64, line: 2, ch: 15 }  // <- Tests clipping
   ];
 
-  for (i = 0; i < examples.length; i++) {
-    example = examples[i];
-    pos = cm.coordsFromIndex(example.index);
-    
+  for (var i = 0; i < examples.length; i++) {
+    var example = examples[i];
+    var pos = cm.coordsFromIndex(example.index);
     eq(pos.line, example.line);
     eq(pos.ch, example.ch);
   }  
