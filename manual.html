@@ -519,6 +519,15 @@
       can be a number or a line handle (as returned
       by <code>setMarker</code> or this function).
       Pass <code>null</code> to clear the class for a line.</dd>
+      <dt id="hideLine"><code>hideLine(line) → lineHandle</code></dt>
+      <dd>Hide the given line (either by number or by handle). Hidden
+      lines don't show up in the editor, and their numbers are skipped
+      when <a href="#option_lineNumbers">line numbers</a> are enabled.
+      Deleting a region around them does delete them, and coping a
+      region around will include them in the copied text.</dd>
+      <dt id="showLine"><code>showLine(line) → lineHandle</code></dt>
+      <dd>The inverse of <code>hideLine</code>—re-shows a previously
+      hidden line, by number or by handle.</dd>
 
       <dt id="lineInfo"><code>lineInfo(line) → object</code></dt>
       <dd>Returns the line number, text content, and marker status of
