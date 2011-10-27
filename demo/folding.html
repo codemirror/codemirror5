@@ -16,7 +16,7 @@
   <body>
     <h1>CodeMirror 2: Code Folding Demo</h1>
 
-    <form><textarea id="code" name="code"></textarea></form>
+    <form><div style="max-width: 50em"><textarea id="code" name="code"></textarea></div></form>
 
     <script id="script">var folded = [];
 
@@ -24,8 +24,7 @@ function isFolded(cm, n) {
   for (var i = 0; i < folded.length; ++i) {
     var start = cm.lineInfo(folded[i].start);
     if (!start) folded.splice(i--, 1);
-    else if (start.line == n)
-      return {pos: i, start: start.line, end: start.line + folded[i].size};
+    else if (start.line == n) return {pos: i, start: start.line, end: start.line + folded[i].size};
   }
 }
 
@@ -67,7 +66,7 @@ function tryFold(cm, line) {
     if (end == null || end == line + 1) return;
     cm.operation(function() {
       for (var i = line + 1; i < end; ++i) cm.hideLine(i);
-      var first = cm.setMarker(line, '<span style="color:#600">▼</span>%N%');
+      var first = cm.setMarker(line, '<span style="color:#600">&#x25bc;</span>%N%');
       folded.push({start: first, size: end - line});
     });
   }
@@ -83,6 +82,9 @@ window.onload = function() {
     textWrapping: true,
     onGutterClick: tryFold
   });
+  tryFold(editor, 2);
+  tryFold(editor, 10);
+  tryFold(editor, 54);
 };
 </script>
 
