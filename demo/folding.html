@@ -76,7 +76,7 @@ function tryFold(cm, line) {
 window.onload = function() {
   var te = document.getElementById("code");
   var sc = document.getElementById("script");
-  te.value = sc.innerText || sc.textContent || sc.innerHTML;
+  te.value = sc.textContent || sc.innerText || sc.innerHTML;
   window.editor = CodeMirror.fromTextArea(te, {
     mode: "javascript",
     lineNumbers: true,
