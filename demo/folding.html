@@ -80,7 +80,7 @@ window.onload = function() {
   window.editor = CodeMirror.fromTextArea(te, {
     mode: "javascript",
     lineNumbers: true,
-    textWrapping: true,
+    lineWrapping: true,
     onGutterClick: tryFold
   });
   tryFold(editor, 2);
