@@ -18,7 +18,8 @@
 
     <form><div style="max-width: 50em"><textarea id="code" name="code"></textarea></div></form>
 
-    <script id="script">var folded = [];
+    <script id="script">
+var folded = [];
 
 function isFolded(cm, n) {
   for (var i = 0; i < folded.length; ++i) {
@@ -75,7 +76,7 @@ function tryFold(cm, line) {
 window.onload = function() {
   var te = document.getElementById("code");
   var sc = document.getElementById("script");
-  te.value = sc.textContent || sc.innerText || sc.innerHTML;
+  te.value = (sc.textContent || sc.innerText || sc.innerHTML).replace(/^\s*/, "");
   window.editor = CodeMirror.fromTextArea(te, {
     mode: "javascript",
     lineNumbers: true,
