@@ -43,6 +43,7 @@
 }
 
 .CodeMirror-wrap pre {
+  word-wrap: break-word;
   white-space: pre-wrap;
 }
 .CodeMirror-wrap .CodeMirror-scroll {
