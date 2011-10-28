@@ -25,7 +25,7 @@ CodeMirror.defineMode("groovy", function(config, parserConfig) {
     }
     if (/\d/.test(ch)) {
       stream.eatWhile(/[\w\.]/);
-      if (stream.eat(/eE/)) { stream.eat(/+\-/); stream.eatWhile(/\d/); }
+      if (stream.eat(/eE/)) { stream.eat(/\+\-/); stream.eatWhile(/\d/); }
       return "number";
     }
     if (ch == "/") {
