@@ -170,7 +170,7 @@ CodeMirror.defineMode("rust", function() {
 
   function block(type) {
     if (type == "}") return cont();
-    if (type == "let") return cont(pushlex("stat", "let"), letdef, poplex, block);
+    if (type == "let") return cont(pushlex("stat", "let"), letdef1, poplex, block);
     if (type == "fn") return cont(pushlex("stat"), fndef, poplex, block);
     if (type == "type") return cont(pushlex("stat"), tydef, endstatement, poplex, block);
     if (type == "tag") return cont(pushlex("stat"), tagdef, poplex, block);
@@ -229,11 +229,15 @@ CodeMirror.defineMode("rust", function() {
     return cont(blockvars);
   }
 
-  function letdef(type) {
+  function letdef1(type) {
     if (type == ";") return cont();
-    if (content == "=") return cont(expression, letdef);
-    if (type == ",") return cont(letdef);
-    return pass(pattern, maybetype, letdef);
+    if (content == "=") return cont(expression, letdef2);
+    if (type == ",") return cont(letdef1);
+    return pass(pattern, maybetype, letdef1);
+  }
+  function letdef2(type) {
+    if (type.match(/[\]\)\};,]/)) return pass(letdef1);
+    else return pass(expression, letdef2);
   }
   function maybetype(type) {
     if (type == ":") return cont(typecx, rtype, valcx);
