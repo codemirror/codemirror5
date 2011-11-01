@@ -176,7 +176,7 @@ CodeMirror.defineMode("rust", function() {
     if (type == "tag") return cont(pushlex("stat"), tagdef, poplex, block);
     if (type == "mod") return cont(pushlex("stat"), mod, poplex, block);
     if (type == "open-attr") return cont(pushlex("]"), commasep(expression, "]"), poplex);
-    if (type == "ignore") return cont(block);
+    if (type == "ignore" || type.match(/[\]\);,]/)) return cont(block);
     return pass(pushlex("stat"), expression, poplex, endstatement, block);
   }
   function endstatement(type) {
@@ -306,6 +306,7 @@ CodeMirror.defineMode("rust", function() {
     if (type == "name") {cx.marked = "def"; return cont(patternmaybeop);}
     if (type == "atom") return cont(patternmaybeop);
     if (type == "op") return cont(pattern);
+    if (type.match(/[\]\)\};,]/)) return pass();
     return matchBrackets(type, pattern);
   }
   function patternmaybeop(type) {
@@ -314,16 +315,21 @@ CodeMirror.defineMode("rust", function() {
     else return pass();
   }
   function altbody(type) {
-    if (type == "{") return cont(pushlex("}", "alt"), altblock, poplex);
+    if (type == "{") return cont(pushlex("}", "alt"), altblock1, poplex);
     return pass();
   }
-  function altblock(type) {
+  function altblock1(type) {
     if (type == "}") return cont();
-    if (type == "|") return cont(altblock);
-    if (content == "when") {cx.marked = "keyword"; return cont(expression, altblock);}
-    if (type == "{") return cont(pushlex("}", "alt"), block, poplex, altblock);
-    return pass(pattern, altblock);
+    if (type == "|") return cont(altblock1);
+    if (content == "when") {cx.marked = "keyword"; return cont(expression, altblock2);}
+    if (type.match(/[\]\);,]/)) return cont(altblock1);
+    return pass(pattern, altblock2);
   }
+  function altblock2(type) {
+    if (type == "{") return cont(pushlex("}", "alt"), block, poplex, altblock1);
+    else return pass(altblock1);
+  }
+
   function macro(type) {
     if (type.match(/[\[\(\{]/)) return matchBrackets(type, expression);
     return pass();
