@@ -2,7 +2,7 @@
 
 .cm-s-monokai { background: #272822; color: #F8F8F2; }
 .cm-s-monokai span.CodeMirror-selected { background: #FFE792 !important; }
-.cm-s-monokai .CodeMirror-gutter { background: #272822;; border-right: 0px; }
+.cm-s-monokai .CodeMirror-gutter { background: #272822; border-right: 0px; }
 .cm-s-monokai .CodeMirror-gutter-text { color: #d0d0d0; }
 .cm-s-monokai .CodeMirror-cursor { border-left: 1px solid #F8F8F0 !important; }
 
