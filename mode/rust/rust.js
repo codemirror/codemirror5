@@ -8,7 +8,7 @@ CodeMirror.defineMode("rust", function() {
     "lambda": "fn", "type": "type", "tag": "tag", "mod": "mod",
     "as": "op", "true": "atom", "false": "atom", "assert": "op", "check": "op",
     "claim": "op", "native": "ignore", "unsafe": "ignore", "import": "else-style",
-    "export": "else-style", "copy": "op", "log": "op", "log_err": "op"
+    "export": "else-style", "copy": "op", "log": "op", "log_err": "op", "use": "op"
   };
   var typeKeywords = function() {
     var keywords = {"fn": "fn", "block": "fn", "obj": "obj"};
@@ -83,7 +83,7 @@ CodeMirror.defineMode("rust", function() {
       return r("prefix", "variable-2");
     }
     if (state.keywords.propertyIsEnumerable(content))
-      return r(state.keywords[content], "keyword");
+      return r(state.keywords[content], content.match(/true|false/) ? "atom" : "keyword");
     return r("name", "variable");
   }
 
