@@ -68,7 +68,7 @@ var editor = CodeMirror.fromTextArea(document.getElementById("code"), {mode: "te
 var lastPos = null, lastQuery = null, marked = [];
 
 function unmark() {
-  for (var i = 0; i < marked.length; ++i) marked[i]();
+  for (var i = 0; i < marked.length; ++i) marked[i].clear();
   marked.length = 0;
 }
 
