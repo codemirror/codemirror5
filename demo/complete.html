@@ -75,5 +75,12 @@ function getCompletions(token, context) {
 the <a href="complete.js">code</a> to figure out how it works.</p>
 
     <script src="complete.js"></script>
+    <script>
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        lineNumbers: true,
+        theme: "night",
+        onKeyEvent: CodeMirror.jsCompletion
+      });
+    </script>
   </body>
 </html>

@@ -20,19 +20,15 @@
     for (var i = 0, e = arr.length; i < e; ++i) f(arr[i]);
   }
 
-  var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-    lineNumbers: true,
-    theme: "night",
-    onKeyEvent: function(i, e) {
-      // Hook into ctrl-space
-      if (e.keyCode == 32 && (e.ctrlKey || e.metaKey) && !e.altKey) {
-        e.stop();
-        return startComplete();
-      }
+  CodeMirror.jsCompletion = function(cm, e) {
+    // Hook into ctrl-space
+    if (e.keyCode == 32 && (e.ctrlKey || e.metaKey) && !e.altKey) {
+      e.stop();
+      return startComplete(cm);
     }
-  });
+  };
 
-  function startComplete() {
+  function startComplete(editor) {
     // We want a single cursor position.
     if (editor.somethingSelected()) return;
     // Find the token at the cursor
@@ -98,7 +94,10 @@
       if (code == 13 || code == 32) {event.stop(); pick();}
       // Escape
       else if (code == 27) {event.stop(); close(); editor.focus();}
-      else if (code != 38 && code != 40) {close(); editor.focus(); setTimeout(startComplete, 50);}
+      else if (code != 38 && code != 40) {
+        close(); editor.focus();
+        setTimeout(function(){startComplete(editor);}, 50);
+      }
     });
     connect(sel, "dblclick", pick);
 
