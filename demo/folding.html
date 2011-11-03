@@ -4,6 +4,7 @@
     <title>CodeMirror 2: Code Folding Demo</title>
     <link rel="stylesheet" href="../lib/codemirror.css">
     <script src="../lib/codemirror.js"></script>
+    <script src="../lib/util/foldcode.js"></script>
     <link rel="stylesheet" href="../theme/default.css">
     <script src="../mode/javascript/javascript.js"></script>
     <link rel="stylesheet" href="../css/docs.css">
@@ -19,81 +20,38 @@
     <form><div style="max-width: 50em"><textarea id="code" name="code"></textarea></div></form>
 
     <script id="script">
-var folded = [];
-
-function isFolded(cm, n) {
-  for (var i = 0; i < folded.length; ++i) {
-    var start = cm.lineInfo(folded[i].start);
-    if (!start) folded.splice(i--, 1);
-    else if (start.line == n) return {pos: i, start: start.line, end: start.line + folded[i].size};
-  }
-}
-
-function tryFold(cm, line) {
-  var known = isFolded(cm, line);
-  if (known) {
-    folded.splice(known.pos, 1);
-    cm.operation(function() {
-      cm.clearMarker(known.start);
-      var stack = [];
-      for (var i = known.start; i < known.end; ++i) {
-        if (!stack.length) cm.showLine(i);
-        if (i == stack[0]) stack.shift();
-        var overlap = isFolded(cm, i);
-        if (overlap) stack.unshift(overlap.end - 1);
-      }
-    });
-  } else {
-    var lineText = cm.getLine(line);
-    var startChar = lineText.lastIndexOf("{");
-    if (startChar < 0 || lineText.lastIndexOf("}") > startChar) return;
-    var tokenType = cm.getTokenAt({line: line, ch: startChar}).className;
-    var count = 1, lastLine = cm.lineCount(), end;
-    outer: for (var i = line + 1; i < lastLine; ++i) {
-      var text = cm.getLine(i), pos = 0;
-      for (;;) {
-        var nextOpen = text.indexOf("{", pos), nextClose = text.indexOf("}", pos);
-        if (nextOpen < 0) nextOpen = text.length;
-        if (nextClose < 0) nextClose = text.length;
-        pos = Math.min(nextOpen, nextClose);
-        if (pos == text.length) break;
-        if (cm.getTokenAt({line: i, ch: pos + 1}).className == tokenType) {
-          if (pos == nextOpen) ++count;
-          else if (!--count) { end = i; break outer; }
-        }
-        ++pos;
-      }
-    }
-    if (end == null || end == line + 1) return;
-    cm.operation(function() {
-      for (var i = line + 1; i < end; ++i) cm.hideLine(i);
-      var first = cm.setMarker(line, '<span style="color:#600">&#x25bc;</span>%N%');
-      folded.push({start: first, size: end - line});
-    });
-  }
-}
-
 window.onload = function() {
   var te = document.getElementById("code");
   var sc = document.getElementById("script");
   te.value = (sc.textContent || sc.innerText || sc.innerHTML).replace(/^\s*/, "");
+
+  var foldFunc = CodeMirror.newFoldFunction(CodeMirror.braceRangeFinder);
+  function keyEvent(cm, e) {
+    if (e.keyCode == 81 && e.ctrlKey) {
+      if (e.type == "keydown") {
+        e.stop();
+        setTimeout(function() {foldFunc(cm, cm.getCursor().line);}, 50);
+      }
+      return true;
+    }
+  }
+
   window.editor = CodeMirror.fromTextArea(te, {
     mode: "javascript",
     lineNumbers: true,
     lineWrapping: true,
-    onGutterClick: tryFold
+    onGutterClick: foldFunc,
+    onKeyEvent: keyEvent
   });
-  tryFold(editor, 2);
-  tryFold(editor, 10);
-  tryFold(editor, 54);
+
+  foldFunc(editor, 6);
+  foldFunc(editor, 16);
 };
 </script>
 
-    <p>Demonstration of code folding
-    using <a href="../manual.html#hideLine"><code>hideLine</code></a>,
-    <a href="../manual.html#option_onGutterClick"><code>onGutterClick</code></a>,
-    and <a href="../manual.html#setMarker"><code>setMarker</code></a>.
-    Click on the gutter to fold a block, click again to unfold.</p>
-
+    <p>Demonstration of code folding using the code
+    in <a href="../lib/util/foldcode.js"><code>foldcode.js</code></a>.
+    Press ctrl-q or click on the gutter to fold a block, again
+    to unfold.</p>
   </body>
 </html>
