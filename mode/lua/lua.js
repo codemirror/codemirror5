@@ -123,7 +123,7 @@ CodeMirror.defineMode("lua", function(config, parserConfig) {
         else if (builtins.test(word)) style = "builtin";
 	else if (specials.test(word)) style = "variable-2";
       }
-      if ((style != "lua-comment") && (style != "lua-string")){
+      if ((style != "comment") && (style != "string")){
         if (indentTokens.test(word)) ++state.indentDepth;
         else if (dedentTokens.test(word)) --state.indentDepth;
       }
