@@ -142,42 +142,6 @@
       <dd>Whether, when indenting, the first N*8 spaces should be
       replaced by N tabs. Default is false.</dd>
 
-      <dt id="option_tabMode"><code>tabMode (string)</code></dt>
-      <dd>Determines what happens when the user presses the tab key.
-      Must be one of the following:
-        <dl>
-          <dt><code>"classic" (the default)</code></dt>
-          <dd>When nothing is selected, insert a tab. Otherwise,
-          behave like the <code>"shift"</code> mode. (When shift is
-          held, this behaves like the <code>"indent"</code> mode.)</dd>
-          <dt><code>"shift"</code></dt>
-          <dd>Indent all selected lines by
-          one <a href="#option_indentUnit"><code>indentUnit</code></a>.
-          If shift was held while pressing tab, un-indent all selected
-          lines one unit.</dd>
-          <dt><code>"indent"</code></dt>
-          <dd>Indent the line the 'correctly', based on its syntactic
-          context. Only works if the
-          mode <a href="#indent">supports</a> it.</dd>
-          <dt><code>"default"</code></dt>
-          <dd>Do not capture tab presses, let the browser apply its
-          default behaviour (which usually means it skips to the next
-          control).</dd>
-        </dl></dd>
-
-      <dt id="option_enterMode"><code>enterMode (string)</code></dt>
-      <dd>Determines whether and how new lines are indented when the
-      enter key is pressed. The following modes are supported:
-        <dl>
-          <dt><code>"indent" (the default)</code></dt>
-          <dd>Use the mode's indentation rules to give the new line
-          the correct indentation.</dd>
-          <dt><code>"keep"</code></dt>
-          <dd>Indent the line the same as the previous line.</dd>
-          <dt><code>"flat"</code></dt>
-          <dd>Do not indent the new line.</dd>
-        </dl></dd>
-
       <dt id="option_electricChars"><code>electricChars (boolean)</code></dt>
       <dd>Configures whether the editor should re-indent the current
       line when a character is typed that might change its proper
