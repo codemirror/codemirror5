@@ -62,13 +62,7 @@ how it works.</p>
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true,
         theme: "night",
-        onKeyEvent: function(cm, e) {
-          // Hook into ctrl-space
-          if (e.keyCode == 32 && (e.ctrlKey || e.metaKey) && !e.altKey) {
-            e.stop();
-            return CodeMirror.simpleHint(cm, CodeMirror.javascriptHint);
-          }
-        }
+        extraKeys: {"Ctrl-Space": function(cm) {CodeMirror.simpleHint(cm, CodeMirror.javascriptHint);}}
       });
     </script>
   </body>

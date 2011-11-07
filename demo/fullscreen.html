@@ -118,13 +118,7 @@
     var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true,
         theme: "night",
-        onKeyEvent: function(i, e) {
-          // Hook into F11
-          if ((e.keyCode == 122 || e.keyCode == 27) && e.type == 'keydown') {
-            e.stop();
-            return toggleFullscreenEditing();
-          }
-        }
+        extraKeys: {"F11": toggleFullscreenEditing, "Esc": toggleFullscreenEditing}
     });
 
     function toggleFullscreenEditing()

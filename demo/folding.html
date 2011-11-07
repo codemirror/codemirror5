@@ -41,7 +41,7 @@ window.onload = function() {
     lineNumbers: true,
     lineWrapping: true,
     onGutterClick: foldFunc,
-    onKeyEvent: keyEvent
+    extraKeys: {"Ctrl-Q": function(cm){foldFunc(cm, cm.getCursor().line);}}
   });
 
   foldFunc(editor, 6);
