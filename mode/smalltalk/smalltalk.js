@@ -23,6 +23,16 @@ CodeMirror.defineMode("smalltalk", function(config, parserConfig) {
       stream.eatWhile(/[\w\$_]/);
       return ret("string", "string");
     }
+    else if (ch == '$') {
+      if (stream.next() == "<") {
+        stream.eatWhile(/\d/);
+        stream.eat(/\>/);
+      }
+      return ret("string", "string");
+    }
+    else if (ch == "^" || (ch == ":" && stream.eat("="))) {
+      return ret("operator", "operator");
+    }
     else if (/\d/.test(ch)) {
       stream.eatWhile(/[\w\.]/)
       return ret("number", "number");
