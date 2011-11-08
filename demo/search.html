@@ -6,11 +6,14 @@
     <script src="../lib/codemirror.js"></script>
     <link rel="stylesheet" href="../theme/default.css">
     <script src="../mode/xml/xml.js"></script>
+    <script src="../lib/util/dialog.js"></script>
+    <link rel="stylesheet" href="../lib/util/dialog.css">
+    <script src="../lib/util/search.js"></script>
     <link rel="stylesheet" href="../css/docs.css">
 
     <style type="text/css">
       .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}
-      .searched {background: yellow;}
+      dt {font-family: monospace; color: #666;}
     </style>
   </head>
   <body>
@@ -57,50 +60,24 @@
       <dd>Do not indent the new line.</dd>
     </dl></dd>
 </textarea></form>
-<button type=button onclick="search()">Search</button>
-<input type=text style="width: 5em" id=query value=indent> or
-<button type=button onclick="replace()">replace</button> it by
-<input type=text style="width: 5em" id=replace>
 
     <script>
 var editor = CodeMirror.fromTextArea(document.getElementById("code"), {mode: "text/html", lineNumbers: true});
-
-var lastPos = null, lastQuery = null, marked = [];
-
-function unmark() {
-  for (var i = 0; i < marked.length; ++i) marked[i].clear();
-  marked.length = 0;
-}
-
-function search() {
-  unmark();                     
-  var text = document.getElementById("query").value;
-  if (!text) return;
-  for (var cursor = editor.getSearchCursor(text); cursor.findNext();)
-    marked.push(editor.markText(cursor.from(), cursor.to(), "searched"));
-
-  if (lastQuery != text) lastPos = null;
-  var cursor = editor.getSearchCursor(text, lastPos || editor.getCursor());
-  if (!cursor.findNext()) {
-    cursor = editor.getSearchCursor(text);
-    if (!cursor.findNext()) return;
-  }
-  editor.setSelection(cursor.from(), cursor.to());
-  lastQuery = text; lastPos = cursor.to();
-}
-
-function replace() {
-  unmark();
-  var text = document.getElementById("query").value,
-      replace = document.getElementById("replace").value;
-  if (!text) return;
-  for (var cursor = editor.getSearchCursor(text); cursor.findNext();)
-    cursor.replace(replace);
-}
 </script>
 
-    <p>Demonstration of search/replace functionality and marking
-    text.</p>
-
+    <p>Demonstration of primitive search/replace functionality. The
+    keybindings (which can be overridden by custom keymaps) are:</p>
+    <dl>
+      <dt>Ctrl-F / Cmd-F</dt><dd>Start searching</dd>
+      <dt>Ctrl-G / Cmd-G</dt><dd>Find next</dd>
+      <dt>Shift-Ctrl-G / Shift-Cmd-G</dt><dd>Find previous</dd>
+      <dt>Ctrl-R / Cmd-Option-F</dt><dd>Replace</dd>
+      <dt>Shift-Ctrl-R / Shift-Cmd-Option-F</dt><dd>Replace all</dd>
+    </dl>
+    <p>Searching is enabled by
+    including <a href="../lib/util/search.js">lib/util/search.js</a>.
+    For good-looking input dialogs, you also want to include
+    <a href="../lib/util/dialog.js">lib/util/dialog.js</a>
+    and <a href="../lib/util/dialog.css">lib/util/dialog.css</a>.</p>
   </body>
 </html>
