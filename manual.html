@@ -21,12 +21,14 @@
     <h2 id="overview">Overview</h2>
 
     <p>CodeMirror is a code-editor component that can be embedded in
-    Web pages. It provides <em>only</em> the editor component, no
-    accompanying buttons
-    (see <a href="http://www.octolabs.com/javascripts/codemirror-ui/">CodeMirror
-    UI</a> for a drop-in button bar), auto-completion, or other IDE
+    Web pages. The code library provides <em>only</em> the editor
+    component, no accompanying buttons, auto-completion, or other IDE
     functionality. It does provide a rich API on top of which such
-    functionality can be straightforwardly implemented.</p>
+    functionality can be straightforwardly implemented. See
+    the <a href="#addons">add-ons</a> included in the distribution,
+    and
+    the <a href="http://www.octolabs.com/javascripts/codemirror-ui/">CodeMirror
+    UI</a> project, for reusable implementations of extra features.</p>
 
     <p>CodeMirror works with language-specific modes. Modes are
     JavaScript programs that help color (and optionally indent) text
@@ -138,12 +140,12 @@
       <dd>How many spaces a block (whatever that means in the edited
       language) should be indented. The default is 2.</dd>
 
-      <dt id="option_indentWithTabs"><code>indentWithTabs (boolean)</code></dt>
-      <dd>Whether, when indenting, the first N*8 spaces should be
-      replaced by N tabs. Default is false.</dd>
-
       <dt id="option_tabSize"><code>tabSize (integer)</code></dt>
       <dd>The width of a tab character. Defaults to 4.</dd>
+
+      <dt id="option_indentWithTabs"><code>indentWithTabs (boolean)</code></dt>
+      <dd>Whether, when indenting, the first N*<code>tabSize</code>
+      spaces should be replaced by N tabs. Default is false.</dd>
 
       <dt id="option_electricChars"><code>electricChars (boolean)</code></dt>
       <dd>Configures whether the editor should re-indent the current
@@ -151,10 +153,24 @@
       indentation (only works if the mode supports indentation).
       Default is true.</dd>
 
-      <dt id="option_pollForIME"><code>pollForIME (boolean)</code></dt>
-      <dd>When on (off by default), this will cause CodeMirror to poll
-      for input more agressively in an attempt to respond quickly to
-      IME (composed character) input.</dd>
+      <dt id="option_keyMap"><code>keyMap (string)</code></dt>
+      <dd>Configures the keymap to use. The default
+      is <code>"default"</code>, which is the only keymap defined
+      in <code>codemirror.js</code> itself. Extra keymaps are found in
+      the <a href="keymap/"><code>keymap</code></a> directory.</dd>
+
+      <dt id="option_extraKeys"><code>extraKeys (object)</code></dt>
+      <dd>Can be used to specify extra keybindings for the editor.
+      When given, should be an object with property names
+      like <code>Ctrl-A</code>, <code>Home</code>,
+      and <code>Ctrl-Alt-Left</code>. See
+      the <code>CodeMirror.keyNames</code> object for the names of all
+      the keys. The values in this object can either be functions,
+      which will be called with the CodeMirror instance when the key
+      is pressed, or strings, which should name commands defined
+      in <code>CodeMirror.commands</code> (not documented properly,
+      but looking at the source and the definition of the built-in
+      keymaps, they should be rather obvious).</dd>
 
       <dt id="option_lineWrapping"><code>lineWrapping (boolean)</code></dt>
       <dd>Whether CodeMirror should scroll or wrap for long lines.
@@ -181,11 +197,13 @@
       <dt id="option_onChange"><code>onChange (function)</code></dt>
       <dd>When given, this function will be called every time the
       content of the editor is changed. It will be given the editor
-      instance as only argument.</dd>
+      instance as first argument, and an <code>{from, to,
+      newText}</code> object containing information about the change
+      as second argument.</dd>
 
       <dt id="option_onCursorActivity"><code>onCursorActivity (function)</code></dt>
-      <dd>Like <code>onChange</code>, but will also be called when the
-      cursor moves without any changes being made.</dd>
+      <dd>Will be called when the cursor or selection moves, or any
+      change is made to the editor content.</dd>
 
       <dt id="option_onGutterClick"><code>onGutterClick (function)</code></dt>
       <dd>When given, will be called whenever the editor gutter (the
@@ -217,6 +235,13 @@
       timeout to sleep for <code>workDelay</code> milliseconds. The
       defaults are 200 and 300, you can change these options to make
       the highlighting more or less aggressive.</dd>
+
+      <dt id="option_pollInterval"><code>pollInterval (number)</code></dt>
+      <dd>Indicates how quickly CodeMirror should poll its input
+      textarea for changes. Most input is captured by events, but some
+      things, like IME input on some browsers, doesn't generate events
+      that allow CodeMirror to properly detect it. Thus, it polls.
+      Default is 100 milliseconds.</dd>
 
       <dt id="option_undoDepth"><code>undoDepth (integer)</code></dt>
       <dd>The maximum number of undo levels that the editor stores.
@@ -330,6 +355,10 @@
     shouldn't do that), you'll have to define rules to cancel these
     effects out again for elements under the <code>CodeMirror</code>
     class.</p>
+
+    <p>Themes are also simply CSS files, which define colors for
+    various syntactic elements. See the files in
+    the <a href="theme/"><code>theme</code></a> directory.</p>
 
     <h2 id="api">Programming API</h2>
 
@@ -623,19 +652,66 @@
     will cause the given value (usually a method) to be added to all
     CodeMirror instances created from then on.</p>
 
+    <h2 id="addons">Add-ons</h2>
+
+    <p>The <code>lib/util</code> directory in the distribution
+    contains a number of reusable components that implement extra
+    editor functionality. In brief, they are:</p>
+
+    <dl>
+      <dt id="util_dialog"><a href="lib/util/dialog.js"><code>dialog.js</code></a></dt>
+      <dd>Provides a very simple way to query users for text input.
+      Adds an <code>openDialog</code> method to CodeMirror instances,
+      which can be called with an HTML fragment that provides the
+      prompt (should include an <code>input</code> tag), and a
+      callback function that is called when text has been entered.
+      Depends on <code>lib/util/dialog.css</code>.</dd>
+      <dt id="util_search"><a href="lib/util/search.js"><code>search.js</code></a></dt>
+      <dd>Implements the search commands. CodeMirror has keys bound to
+      these by default, but will not do anything with them unless an
+      implementation is provided. This will make use
+      of <a href="#util_dialog"><code>openDialog</code></a> when
+      available to make prompting for search queries less ugly.</dd>
+      <dt id="util_foldcode"><a href="lib/util/foldcode.js"><code>foldcode.js</code></a></dt>
+      <dd>Helps with code folding. See <a href="demo/folding.html">the
+      demo</a> for an example.
+      Call <code>CodeMirror.newFoldFunction</code> with a range-finder
+      helper function to create a function that will, when applied to
+      a CodeMirror instance and a line number, attempt to fold or
+      unfold the block starting at the given line. A range-finder is a
+      language-specific functoin that also takes an instance and a
+      line number, and returns an end line for the block, or null if
+      no block is started on that line. This file
+      provides <code>CodeMirror.braceRangeFinder</code>, which finds
+      blocks in brace languages (JavaScript, C, Java, etc).</dd>
+      <dt id="util_runmode"><a href="lib/util/runmode.js"><code>runmode.js</code></a></dt>
+      <dd>Can be used to run a CodeMirror mode over text without
+      actually opening an editor instance.
+      See <a href="demo/runmode.html">the demo</a> for an
+      example.</dd>
+      <dt id="util_simple-hint"><a href="lib/util/simple-hint.js"><code>simple-hint.js</code></a></dt>
+      <dd>Provides a framework for showing autocompletion hints.
+      Defines <code>CodeMirror.simpleHint</code>, which takes a
+      CodeMirror instance and a hinting function, and pops up a widget
+      that allows the user to select a completion. Hinting functions
+      are function that take an editor instance, and return
+      a <code>{list, from, to}</code> object, where <code>list</code>
+      is an array of strings (the completions), and <code>from</code>
+      and <code>to</code> give the start and end of the token that is
+      being completed. Depends
+      on <code>lib/util/simple-hint.css</code>.</dd>
+      <dt id="util_javascript-hint"><a href="lib/util/javascript-hint.js"><code>javascript-hint.js</code></a></dt>
+      <dd>Defines <code>CodeMirror.javaScriptHint</code>, which is a
+      simple hinting function for the JavaScript mode.</dd>
+    </dl>
+
     <h2 id="modeapi">Writing CodeMirror Modes</h2>
 
-    <p>Modes typically consist of a JavaScript file and a CSS file.
-    The CSS file (see, for
-    example <a href="mode/javascript/javascript.css"><code>javascript.css</code></a>)
-    defines the classes that will be used to style the syntactic
-    elements of the code, and the script contains the logic to
-    actually assign these classes to the right pieces of text.</p>
-
-    <p>You'll usually want to use some kind of prefix for your CSS
-    classes, so that they are unlikely to clash with other classes,
-    both those used by other modes and those defined by the page in
-    which CodeMirror is embedded.</p>
+    <p>Modes typically consist of a single JavaScript file. This file
+    defines, in the simplest case, a lexer (tokenizer) for your
+    language—a function that takes a character stream as input,
+    advances it past a token, and returns a style for that token. More
+    advanced modes can also handle indentation for the language.</p>
 
     <p id="defineMode">The mode script should
     call <code>CodeMirror.defineMode</code> to register itself with
@@ -645,9 +721,10 @@
     mode (i.e. <code>"xml"</code> is defined <code>xml.js</code>). The
     second argument should be a function that, given a CodeMirror
     configuration object (the thing passed to
-    the <code>CodeMirror</code> function) and a mode configuration
-    object (as in the <a href="#option_mode"><code>mode</code></a>
-    option), returns a mode object.</p>
+    the <code>CodeMirror</code> function) and an optional mode
+    configuration object (as in
+    the <a href="#option_mode"><code>mode</code></a> option), returns
+    a mode object.</p>
 
     <p>Typically, you should use this second argument
     to <code>defineMode</code> as your module scope function (modes
@@ -661,8 +738,8 @@
     meaning that they look at one element (<em>token</em>) of the code
     at a time, with no memory of what came before. Most, however, will
     need to remember something. This is done by using a <em>state
-    object</em>, which is an object that can be mutated every time a
-    new token is read.</p>
+    object</em>, which is an object that is always passed when
+    reading a token, and which can be mutated by the tokenizer.</p>
 
     <p id="startState">Modes that use a state must define
     a <code>startState</code> method on their mode object. This is a
@@ -677,7 +754,7 @@
     be styled. For your styles, you can either use the 'standard' ones
     defined in the themes (without the <code>cm-</code> prefix), or
     define your own (as the <a href="../mode/diff/index.html">diff</a>
-    mode does) and have people include a custom theme for your
+    mode does) and have people include a custom CSS file for your
     mode.<p>
 
     <p id="StringStream">The stream object encapsulates a line of code
@@ -780,9 +857,10 @@
     reliable highlighting of bad closing tags, as an example.</p>
 
     <p id="indent">If you want your mode to provide smart indentation
-    (see <a href="#option_enterMode"><code>entermode</code></a>
-    and <a href="#option_tabMode"><code>tabMode</code></a> when they
-    have a value of <code>"indent"</code>), you must define
+    (though the <a href="#indentLine"><code>indentLine</code></a>
+    method and the <code>indentAuto</code>
+    and <code>newlineAndIndent</code> commands, which keys can be
+    <a href="#option_extraKeys">bound</a> to), you must define
     an <code>indent(state, textAfter)</code> method on your mode
     object.</p>
 
@@ -803,10 +881,10 @@
     <p>So, to summarize, a mode <em>must</em> provide
     a <code>token</code> method, and it <em>may</em>
     provide <code>startState</code>, <code>copyState</code>,
-    and <code>indent</code> methods. For an example of a trivial mode,
-    see the <a href="mode/diff/diff.js">diff mode</a>, for a more
-    involved example, see
-    the <a href="mode/javascript/javascript.js">JavaScript
+    <code>compareStates</code>, and <code>indent</code> methods. For
+    an example of a trivial mode, see
+    the <a href="mode/diff/diff.js">diff mode</a>, for a more involved
+    example, see the <a href="mode/clike/clike.js">C-like
     mode</a>.</p>
 
     <p>Sometimes, it is useful for modes to <em>nest</em>—to have one
@@ -851,6 +929,7 @@
       <li><a href="#config">Configuration</a></li>
       <li><a href="#styling">Customized Styling</a></li>
       <li><a href="#api">Programming API</a></li>
+      <li><a href="#addons">Add-ons</a></li>
       <li><a href="#modeapi">Writing CodeMirror Modes</a></li>
     </ul>
 
