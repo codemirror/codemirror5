@@ -7,7 +7,7 @@
     <script src="../lib/util/simple-hint.js"></script>
     <link rel="stylesheet" href="../lib/util/simple-hint.css">
     <script src="../lib/util/javascript-hint.js"></script>
-    <link rel="stylesheet" href="../theme/night.css">
+    <link rel="stylesheet" href="../theme/default.css">
     <script src="../mode/javascript/javascript.js"></script>
     <link rel="stylesheet" href="../css/docs.css">
     <style type="text/css">.CodeMirror {border: 1px solid #eee;}</style>
@@ -61,7 +61,6 @@ how it works.</p>
     <script>
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true,
-        theme: "night",
         extraKeys: {"Ctrl-Space": function(cm) {CodeMirror.simpleHint(cm, CodeMirror.javascriptHint);}}
       });
     </script>
