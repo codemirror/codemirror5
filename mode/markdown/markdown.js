@@ -75,7 +75,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
   function htmlBlock(stream, state) {
     var style = htmlMode.token(stream, state.htmlState);
-    if (state.htmlState.type !== 'openTag' && !state.htmlState.context) {
+    if (style === 'tag' && state.htmlState.type !== 'openTag' && !state.htmlState.context) {
       state.f = inlineNormal;
       state.block = blockNormal;
     }
