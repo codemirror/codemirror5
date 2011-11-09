@@ -53,6 +53,7 @@
 .CodeMirror textarea {
   font-family: inherit !important;
   font-size: inherit !important;
+  outline: none !important;
 }
 
 .CodeMirror-cursor {
