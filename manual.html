@@ -432,34 +432,6 @@
       decreased (if false) by an <a href="#option_indentUnit">indent
       unit</a> instead.</dd>
 
-      <dt id="getSearchCursor"><code>getSearchCursor(query, start, caseFold) → cursor</code></dt>
-      <dd>Used to implement search/replace
-      functionality. <code>query</code> can be a regular expression or
-      a string (only strings will match across lines—if they contain
-      newlines). <code>start</code> provides the starting position of
-      the search. It can be a <code>{line, ch}</code> object, or can
-      be left off to default to the start of the
-      document. <code>caseFold</code> is only relevant when matching a
-      string. It will cause the search to be case-insensitive. A
-      search cursor has the following methods:
-        <dl>
-          <dt><code>findNext(), findPrevious() → boolean</code></dt>
-          <dd>Search forward or backward from the current position.
-          The return value indicates whether a match was found. If
-          matching a regular expression, the return value will be the
-          array returned by the <code>match</code> method, in case you
-          want to extract matched groups.</dd>
-          <dt><code>from(), to() → object</code></dt>
-          <dd>These are only valid when the last call
-          to <code>findNext</code> or <code>findPrevious</code> did
-          not return false. They will return <code>{line, ch}</code>
-          objects pointing at the start and end of the match.</dd>
-          <dt><code>replace(text)</code></dt>
-          <dd>Replaces the currently found match with the given text
-          and adjusts the cursor position to reflect the
-          replacement.</dd>
-        </dl></dd>
-
       <dt id="getTokenAt"><code>getTokenAt(pos) → object</code></dt>
       <dd>Retrieves information about the token the current mode found
       at the given position (a <code>{line, ch}</code> object). The
@@ -666,10 +638,40 @@
       prompt (should include an <code>input</code> tag), and a
       callback function that is called when text has been entered.
       Depends on <code>lib/util/dialog.css</code>.</dd>
+      <dt id="util_searchcursor"><a href="lib/util/searchcursor.js"><code>searchcursor.js</code></a></dt>
+      <dd>Adds the <code>getSearchCursor(query, start, caseFold) →
+      cursor</code> method to CodeMirror instances, which can be used
+      to implement search/replace functionality. <code>query</code>
+      can be a regular expression or a string (only strings will match
+      across lines—if they contain newlines). <code>start</code>
+      provides the starting position of the search. It can be
+      a <code>{line, ch}</code> object, or can be left off to default
+      to the start of the document. <code>caseFold</code> is only
+      relevant when matching a string. It will cause the search to be
+      case-insensitive. A search cursor has the following methods:
+        <dl>
+          <dt><code>findNext(), findPrevious() → boolean</code></dt>
+          <dd>Search forward or backward from the current position.
+          The return value indicates whether a match was found. If
+          matching a regular expression, the return value will be the
+          array returned by the <code>match</code> method, in case you
+          want to extract matched groups.</dd>
+          <dt><code>from(), to() → object</code></dt>
+          <dd>These are only valid when the last call
+          to <code>findNext</code> or <code>findPrevious</code> did
+          not return false. They will return <code>{line, ch}</code>
+          objects pointing at the start and end of the match.</dd>
+          <dt><code>replace(text)</code></dt>
+          <dd>Replaces the currently found match with the given text
+          and adjusts the cursor position to reflect the
+          replacement.</dd>
+        </dl></dd>
+
       <dt id="util_search"><a href="lib/util/search.js"><code>search.js</code></a></dt>
       <dd>Implements the search commands. CodeMirror has keys bound to
       these by default, but will not do anything with them unless an
-      implementation is provided. This will make use
+      implementation is provided. Depends
+      on <code>searchcursor.js</code>, and will make use
       of <a href="#util_dialog"><code>openDialog</code></a> when
       available to make prompting for search queries less ugly.</dd>
       <dt id="util_foldcode"><a href="lib/util/foldcode.js"><code>foldcode.js</code></a></dt>
