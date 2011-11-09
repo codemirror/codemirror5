@@ -74,11 +74,12 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   }
 
   function htmlBlock(stream, state) {
-    var type = htmlMode.token(stream, state.htmlState);
-    if (stream.eol() && !state.htmlState.context) {
+    var style = htmlMode.token(stream, state.htmlState);
+    if (style === 'tag' && state.htmlState.type !== 'openTag' && !state.htmlState.context) {
+      state.f = inlineNormal;
       state.block = blockNormal;
     }
-    return type;
+    return style;
   }
 
 
@@ -103,13 +104,14 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     if (ch === '`') {
       return switchInline(stream, state, inlineElement(code, '`'));
     }
-    if (ch === '<') {
-      return switchInline(stream, state, inlineElement(linktext, '>'));
-    }
     if (ch === '[') {
       return switchInline(stream, state, linkText);
     }
-    
+    if (ch === '<' && stream.match(/^\w/, false)) {
+      stream.backUp(1);
+      return switchBlock(stream, state, htmlBlock);
+    }
+
     var t = getType();
     if (ch === '*' || ch === '_') {
       if (stream.eat(ch)) {

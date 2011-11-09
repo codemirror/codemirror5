@@ -193,6 +193,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
 
       setStyle = type = tagName = null;
       var style = state.tokenize(stream, state);
+      state.type = type;
       if ((style || type) && style != "comment") {
         curState = state;
         while (true) {
