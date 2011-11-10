@@ -159,17 +159,20 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     return linkhref;
   }
 
+  function inlineRE(endChar) {
+    if (!inlineRE[endChar]) {
+      // match any not-escaped-non-endChar and any escaped char
+      // then match endChar or eol
+      inlineRE[endChar] = new RegExp('^(?:[^\\\\\\' + endChar + ']|\\\\.)*(?:\\' + endChar + '|$)');
+    }
+    return inlineRE[endChar];
+  }
+
   function inlineElement(type, endChar, next) {
     next = next || inlineNormal;
     return function(stream, state) {
-      while (!stream.eol()) {
-        var ch = stream.next();
-        if (ch === '\\') stream.next();
-        if (ch === endChar) {
-          state.inline = state.f = next;
-          return type;
-        }
-      }
+      stream.match(inlineRE(endChar));
+      state.inline = state.f = next;
       return type;
     };
   }
