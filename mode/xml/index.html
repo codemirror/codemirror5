@@ -24,7 +24,10 @@
 &lt;/html&gt;
 </textarea></form>
     <script>
-      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {mode: {name: "xml", htmlMode: true}});
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        mode: {name: "xml", htmlMode: true},
+        lineNumbers: true
+      });
     </script>
     <p>The XML mode supports two configuration parameters:</p>
     <dl>
