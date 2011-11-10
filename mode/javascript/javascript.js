@@ -338,6 +338,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     },
 
     indent: function(state, textAfter) {
+      for (var x = state.lexical; x; x = x.prev) console.log(x.indented, x.type);
       if (state.tokenize != jsTokenBase) return 0;
       var firstChar = textAfter && textAfter.charAt(0), lexical = state.lexical,
           type = lexical.type, closing = firstChar == type;
