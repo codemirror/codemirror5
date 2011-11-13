@@ -5,7 +5,7 @@
     <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Droid+Sans|Droid+Sans:bold"/>
     <link rel="stylesheet" type="text/css" href="css/docs.css"/>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <style>dl dl {margin: 0;}</style>
+    <style>dl dl {margin: 0;} .update {color: #d40 !important}</style>
   </head>
   <body>
 
@@ -21,7 +21,7 @@
 <p style="font-size: 85%" id="intro">
   <strong>Topic:</strong> JavaScript, code editor implementation<br>
   <strong>Author:</strong> Marijn Haverbeke<br>
-  <strong>Date:</strong> March 2nd 2011
+  <strong>Date:</strong> March 2nd 2011 (updated November 13th 2011)
 </p>
 
 <p>This is a followup to
@@ -106,7 +106,8 @@ Mihai Bazon with <a href="http://ymacs.org">Ymacs</a>) have been able
 to build more or less functioning editors by directly reading key
 events, but it takes a lot of work (the kind of never-ending, fragile
 work I described earlier), and will never be able to properly support
-things like multi-keystoke international character input.</p>
+things like multi-keystoke international character
+input. <a href="#keymap" class="update">[see below for caveat]</a></p>
 
 <p>So what I do is focus a hidden textarea, and let the browser
 believe that the user is typing into that. What we show to the user is
@@ -147,7 +148,8 @@ cursor position in the textarea, and update our cursor to match it.
 Also, copy and paste work pretty much for free, and people get their
 native key bindings, without any special work on my part. For example,
 I have emacs key bindings configured for Chrome and Firefox. There is
-no way for a script to detect this.</p>
+no way for a script to detect this. <a class="update"
+href="#keymap">[no longer the case]</a></p>
 
 <p>Of course, since only a small part of the document sits in the
 textarea, keys like page up and ctrl-end won't do the right thing.
@@ -248,7 +250,10 @@ might change) of the lines need to be updated, the full refresh is
 chosen (since it's faster to do than painstakingly finding and
 updating all the changed lines), in the other case it does the
 patching (so that, if you scroll a line or select another character,
-the whole screen doesn't have to be re-rendered).</p>
+the whole screen doesn't have to be
+re-rendered). <span class="update">[the full-refresh
+algorithm was dropped, it wasn't really faster than the patching
+one]</span></p>
 
 <p>All updating uses <code>innerHTML</code> rather than direct DOM
 manipulation, since that still seems to be by far the fastest way to
@@ -302,13 +307,14 @@ anymore.</p>
 
 <h2 id="summary">What Gives?</h2>
 
-<p>Given all this, what can you expect from CodeMirror 2? First, the
-good:</p>
+<p>Given all this, what can you expect from CodeMirror 2?</p>
 
 <ul>
 
-<li><strong>Small.</strong> the base library is some 32k when minified
-now, 12k when gzipped. It's smaller than its own logo.</li>
+<li><strong>Small.</strong> the base library is
+some <span class="update">45k</span> when minified
+now, <span class="update">17k</span> when gzipped. It's smaller than
+its own logo.</li>
 
 <li><strong>Lightweight.</strong> CodeMirror 2 initializes very
 quickly, and does almost no work when it is not focused. This means
@@ -339,28 +345,131 @@ you do not <a href="demo/resize.html">want to</a>.</li>
 
 </ul>
 
-<p>Then, the bad:</p>
+<p>On the downside, a CodeMirror 2 instance is <em>not</em> a native
+editable component. Though it does its best to emulate such a
+component as much as possible, there is functionality that browsers
+just do not allow us to hook into. Doing select-all from the context
+menu, for example, is not currently detected by CodeMirror.</p>
 
-<ul>
+<p id="update" style="margin-top: 2em;"><span style="font-weight:
+bold">[Updates from November 13th 2011]</span> Recently, I've made
+some changes to the codebase that cause some of the text above to no
+longer be current. I've left the text intact, but added markers at the
+passages that are now inaccurate. The new situation is described
+below.</p>
 
-<li><strong>Some cursor flakiness.</strong> The textarea hack does not
-really do justice to the complexity of cursor handling—a selection is
-typically more than just an offset into a string. For example, if you
-use the up and down arrow keys to move to a shorter line and then
-back, you'll end up in your old position in most editor controls, but
-CodeMirror 2 currently doesn't remember the 'real' cursor column in
-this case. These can be worked around on a case-by-case basis, but
-I haven't put much energy into that yet.</li>
+<h2 id="btree">Content Representation</h2>
 
-<li><strong>Limited interaction with the editable panel.</strong>
-Since the element you're looking at is not a real editable panel,
-native browser behaviour for editable controls doesn't work
-automatically. Through a lot of event glue code, I've managed to make
-drag and drop work pretty well, have context menus work on most
-browsers (except Opera). Middle-click paste on Firefox in Linux is
-broken until someone finds a way to intercept it.</li>
+<p>The original implementation of CodeMirror 2 represented the
+document as a flat array of line objects. This worked well—splicing
+arrays will require the part of the array after the splice to be
+moved, but this is basically just a simple <code>memmove</code> of a
+bunch of pointers, so it is cheap even for huge documents.</p>
 
-</ul>
+<p>However, I recently added line wrapping and code folding (line
+collapsing, basically). Once lines start taking up a non-constant
+amount of vertical space, looking up a line by vertical position
+(which is needed when someone clicks the document, and to determine
+the visible part of the document during scrolling) can only be done
+with a linear scan through the whole array, summing up line heights as
+you go. Seeing how I've been going out of my way to make big documents
+fast, this is not acceptable.</p>
+
+<p>The new representation is based on a B-tree. The leaves of the tree
+contain arrays of line objects, with a fixed minimum and maximum size,
+and the non-leaf nodes simply hold arrays of child nodes. Each node
+stores both the amount of lines that live below them and the vertical
+space taken up by these lines. This allows the tree to be indexed both
+by line number and by vertical position, and all access has
+logarithmic complexity in relation to the document size.</p>
+
+<p>I gave line objects and tree nodes parent pointers, to the node
+above them. When a line has to update its height, it can simply walk
+these pointers to the top of the tree, adding or subtracting the
+difference in height from each node it encounters. The parent pointers
+also make it cheaper (in complexity terms, the difference is probably
+tiny in normal-sized documents) to find the current line number when
+given a line object. In the old approach, the whole document array had
+to be searched. Now, we can just walk up the tree and count the sizes
+of the nodes coming before us at each level.</p>
+
+<p>I chose B-trees, not regular binary trees, mostly because they
+allow for very fast bulk insertions and deletions. When there is a big
+change to a document, it typically involves adding, deleting, or
+replacing a chunk of subsequent lines. In a regular balanced tree, all
+these inserts or deletes would have to be done separately, which could
+be really expensive. In a B-tree, to insert a chunk, you just walk
+down the tree once to find where it should go, insert them all in one
+shot, and then break up the node if needed. This breaking up might
+involve breaking up nodes further up, but only requires a single pass
+back up the tree. For deletion, I'm somewhat lax in keeping things
+balanced—I just collapse nodes into a leaf when their child count goes
+below a given number. This means that there are some weird editing
+patterns that may result in a seriously unbalanced tree, but even such
+an unbalanced tree will perform well, unless you spend a day making
+strangely repeating edits to a really big document.</p>
+
+<h2 id="keymap">Keymaps</h2>
+
+<p><a href="#approach">Above</a>, I claimed that directly catching key
+events for things like cursor movement is impractical because it
+requires some browser-specific kludges. I then proceeded to explain
+some awful <a href="#selection">hacks</a> that were needed to make it
+possible for the selection changes to be detected through the
+textarea. In fact, the second hack is about as bad as the first.</p>
+
+<p>On top of that, in the presence of user-configurable tab sizes and
+collapsed and wrapped lines, lining up cursor movement in the textarea
+with what's visible on the screen becomes a nightmare. Thus, I've
+decided to move to a model where the textarea's selection is no longer
+depended on.</p>
+
+<p>So I moved to a model where all cursor movement is handled by my
+own code. This adds support for a goal column, proper interaction of
+cursor movement with collapsed lines, and makes it possible for
+vertical movement to move through wrapped lines properly, instead of
+just treating them like non-wrapped lines.</p>
+
+<p>The key event handlers now translate the key event into a string,
+something like <code>Ctrl-Home</code> or <code>Shift-Cmd-R</code>, and
+use that string to look up an action to perform. To make keybinding
+customizable, this lookup goes through
+a <a href="manual.html#option_keyMap">table</a>, using a scheme that
+allows such tables to be chained together (for example, the default
+Mac bindings fall through to a table named 'emacsy', which defines
+basic Emacs-style bindings like <code>Ctrl-F</code>, and which is also
+used by the custom Emacs bindings).</p>
+
+<p>A new
+option <a href="manual.html#option_extraKeys"><code>extraKeys</code></a>
+allows ad-hoc keybindings to be defined in a much nicer way than what
+was possible with the
+old <a href="manual.html#option_onKeyEvent"><code>onKeyEvent</code></a>
+callback. You simply provide an object mapping key identifiers to
+functions, instead of painstakingly looking at raw key events.</p>
+
+<p>Built-in commands map to strings, rather than functions, for
+example <code>"goLineUp"</code> is the default action bound to the up
+arrow key. This allows new keymaps to refer to them without
+duplicating any code. New commands can be defined by assigning to
+the <code>CodeMirror.commands</code> object, which maps such commands
+to functions.</p>
+
+<p>The hidden textarea now only holds the current selection, with no
+extra characters around it. This has a nice advantage: polling for
+input becomes much, much faster. If there's a big selection, this text
+does not have to be read from the textarea every time—when we poll,
+just noticing that something is still selected is enough to tell us
+that no new text was typed.</p>
+
+<p>The reason that cheap polling is important is that many browsers do
+not fire useful events on IME (input method engine) input, which is
+the thing where people inputting a language like Japanese or Chinese
+use multiple keystrokes to create a character or sequence of
+characters. Most modern browsers fire <code>input</code> when the
+composing is finished, but many don't fire anything when the character
+is updated <em>during</em> composition. So we poll, whenever the
+editor is focused, to provide immediate updates of the display.</p>
 
 </div><div class="rightsmall blk">
 
@@ -374,6 +483,8 @@ broken until someone finds a way to intercept it.</li>
       <li><a href="#update">Intelligent Updating</a></li>
       <li><a href="#parse">Parsing</a></li>
       <li><a href="#summary">What Gives?</a></li>
+      <li><a href="#btree">Content Representation</a></li>
+      <li><a href="#keymap">Key Maps</a></li>
     </ul>
 
 </div></div>
