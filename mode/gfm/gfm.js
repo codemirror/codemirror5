@@ -11,6 +11,7 @@ CodeMirror.defineMode("gfm", function(config, parserConfig) {
     "c#": "text/x-csharp",
   };
 
+  // make this lazy so that we don't need to load GFM last
   var getMode = (function () {
     var i, modes = {}, mimes = {}, mime;
 
@@ -35,7 +36,9 @@ CodeMirror.defineMode("gfm", function(config, parserConfig) {
   }());
 
   function markdown(stream, state) {
+    // intercept fenced code blocks
     if (stream.sol() && stream.match(/^```([\w+#]*)/)) {
+      // try switching mode
       state.localMode = getMode(RegExp.$1)
       if (state.localMode)
         state.localState = state.localMode.startState();
@@ -48,28 +51,47 @@ CodeMirror.defineMode("gfm", function(config, parserConfig) {
   }
 
   function local(stream, state) {
-    if (state.localMode) {
-      if (stream.sol() && stream.match(/^```/)) {
-        state.localMode = state.localState = null;
-        state.token = markdown;
-        return 'code';
-      } else if (state.localMode) {}
-
-      return state.localMode.token(stream, state.localState);
-    } else if (stream.sol() && stream.match(/^```/)) {
+    if (stream.sol() && stream.match(/^```/)) {
+      state.localMode = state.localState = null;
       state.token = markdown;
       return 'code';
+    }
+    else if (state.localMode) {
+      return state.localMode.token(stream, state.localState);
     } else {
       stream.skipToEnd();
       return 'code';
     }
   }
 
+  // custom handleText to prevent emphasis in the middle of a word
+  // and add autolinking
+  function handleText(stream, mdState) {
+    var match;
+    if (stream.match(/^\w+:\/\/\S+/)) {
+      return 'linkhref';
+    }
+    if (stream.match(/^[^\[*\\<>` _][^\[*\\<>` ]*[^\[*\\<>` _]/)) {
+      return mdMode.getType(mdState);
+    }
+    if (match = stream.match(/^[^\[*\\<>` ]+/)) {
+      var word = match[0];
+      if (word[0] === '_' && word[word.length-1] === '_') {
+        stream.backUp(word.length);
+        return undefined;
+      }
+      return mdMode.getType(mdState);
+    }
+    if (stream.eatSpace()) {
+      return null;
+    }
+  }
 
   return {
     startState: function() {
-      var state = mdMode.startState();
-      return {token: markdown, mode: "markdown", mdState: state,
+      var mdState = mdMode.startState();
+      mdState.text = handleText;
+      return {token: markdown, mode: "markdown", mdState: mdState,
               localMode: null, localState: null};
     },
 
