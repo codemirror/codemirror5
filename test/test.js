@@ -78,7 +78,7 @@ testCM("indent", function(cm) {
   cm.setOption("indentUnit", 8);
   cm.indentLine(1);
   eq(cm.getLine(1), "\tblah();");
-}, {value: "if (x) {\nblah();\n}", indentUnit: 3, indentWithTabs: true});
+}, {value: "if (x) {\nblah();\n}", indentUnit: 3, indentWithTabs: true, tabSize: 8});
 
 test("defaults", function() {
   var olddefaults = CodeMirror.defaults, defs = CodeMirror.defaults = {};
