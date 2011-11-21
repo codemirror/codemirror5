@@ -11,7 +11,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     return {
       "if": A, "while": A, "with": A, "else": B, "do": B, "try": B, "finally": B,
       "return": C, "break": C, "continue": C, "new": C, "delete": C, "throw": C,
-      "var": kw("var"), "function": kw("function"), "catch": kw("catch"),
+      "var": kw("var"), "const": kw("const"), "function": kw("function"), "catch": kw("catch"),
       "for": kw("for"), "switch": kw("switch"), "case": kw("case"), "default": kw("default"),
       "in": operator, "typeof": operator, "instanceof": operator,
       "true": atom, "false": atom, "null": atom, "undefined": atom, "NaN": atom, "Infinity": atom
@@ -209,6 +209,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
 
   function statement(type) {
     if (type == "var") return cont(pushlex("vardef"), vardef1, expect(";"), poplex);
+    if (type == "const") return cont(pushlex("vardef"), vardef1, expect(";"), poplex);
     if (type == "keyword a") return cont(pushlex("form"), expression, statement, poplex);
     if (type == "keyword b") return cont(pushlex("form"), statement, poplex);
     if (type == "{") return cont(pushlex("}"), block, poplex);
