@@ -485,7 +485,7 @@
         <dt><code>state</code></dt><dd>The mode's state at the end of this token.</dd>
       </dl></dd>
 
-      <dt id="markText"><code>markText(from, to, className) → function</code></dt>
+      <dt id="markText"><code>markText(from, to, className) → object</code></dt>
       <dd>Can be used to mark a range of text with a specific CSS
       class name. <code>from</code> and <code>to</code> should
       be <code>{line, ch}</code> objects. The method will return an
@@ -493,6 +493,14 @@
       mark, and <code>find()</code>, which returns a <code>{from,
       to}</code> (both document positions), indicating the current
       position of the marked range.</dd>
+
+      <dt id="setBookmark"><code>setBookmark(pos) → object</code></dt>
+      <dd>Inserts a bookmark, a handle that follows the text around it
+      as it is being edited, at the given position. A bookmark has two
+      methods <code>find()</code> and <code>clear()</code>. The first
+      returns the current position of the bookmark, if it is still in
+      the document, and the second explicitly removes the
+      bookmark.</dd>
 
       <dt id="setMarker"><code>setMarker(line, text, className) → lineHandle</code></dt>
       <dd>Add a gutter marker for the given line. Gutter markers are
@@ -532,7 +540,7 @@
       <dd>Returns the line number, text content, and marker status of
       the given line, which can be either a number or a handle
       returned by <code>setMarker</code>. The returned object has the
-      structure <code>{line, text, markerText, markerClass}</code>.</dd>
+      structure <code>{line, handle, text, markerText, markerClass}</code>.</dd>
 
       <dt id="addWidget"><code>addWidget(pos, node, scrollIntoView)</code></dt>
       <dd>Puts <code>node</code>, which should be an absolutely
