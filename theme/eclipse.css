@@ -17,6 +17,7 @@
 .cm-s-eclipse span.cm-bracket {color: #cc7;}
 .cm-s-eclipse span.cm-tag {color: #170;}
 .cm-s-eclipse span.cm-attribute {color: #00c;}
+.cm-s-eclipse span.cm-link {color: #219; text-decoration: underline;}
 
 .CodeMirror-matchingbracket{
 	border:1px solid grey;
