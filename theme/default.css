@@ -17,3 +17,4 @@
 .cm-s-default span.cm-bracket {color: #cc7;}
 .cm-s-default span.cm-tag {color: #170;}
 .cm-s-default span.cm-attribute {color: #00c;}
+.cm-s-default span.cm-link {color: #00c; text-decoration: underline;}

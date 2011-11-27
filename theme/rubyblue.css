@@ -16,5 +16,6 @@
 .cm-s-rubyblue span.cm-variable-3, .cm-s-rubyblue span.cm-def { color: white; }
 .cm-s-rubyblue span.cm-error { color: #AF2018; }
 .cm-s-rubyblue span.cm-bracket { color: #F0F; }
+.cm-s-rubyblue span.cm-link { color: #F4C20B; text-decoration: underline; }
 .cm-s-rubyblue span.CodeMirror-matchingbracket { color:#F0F !important; }
 .cm-s-rubyblue span.cm-builtin, .cm-s-rubyblue span.cm-special { color: #FF9D00; }

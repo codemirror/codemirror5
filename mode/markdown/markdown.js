@@ -3,12 +3,12 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   var htmlMode = CodeMirror.getMode(cmCfg, { name: 'xml', htmlMode: true });
 
   var header   = 'header'
-  ,   code     = 'code'
+  ,   code     = 'comment'
   ,   quote    = 'quote'
-  ,   list     = 'list'
+  ,   list     = 'string'
   ,   hr       = 'hr'
-  ,   linktext = 'linktext'
-  ,   linkhref = 'linkhref'
+  ,   linktext = 'link'
+  ,   linkhref = 'string'
   ,   em       = 'em'
   ,   strong   = 'strong'
   ,   emstrong = 'emstrong';
