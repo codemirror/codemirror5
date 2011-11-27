@@ -197,9 +197,16 @@
       <dt id="option_onChange"><code>onChange (function)</code></dt>
       <dd>When given, this function will be called every time the
       content of the editor is changed. It will be given the editor
-      instance as first argument, and an <code>{from, to,
-      newText}</code> object containing information about the change
-      as second argument.</dd>
+      instance as first argument, and an <code>{from, to, newText,
+      next}</code> object containing information about the changes
+      that occurred as second argument. <code>from</code>
+      and <code>to</code> are the positions (in the pre-change
+      coordinate system) where the change started and
+      ended. <code>newText</code> is an array of strings representing
+      the text that replaced the changed range (split by line). If
+      multiple changes happened during a single operation, the object
+      will have a <code>next</code> property pointing to another
+      change object (which may point to another, etc).</dd>
 
       <dt id="option_onCursorActivity"><code>onCursorActivity (function)</code></dt>
       <dd>Will be called when the cursor or selection moves, or any
