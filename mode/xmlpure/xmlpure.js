@@ -412,7 +412,7 @@ CodeMirror.defineMode("xmlpure", function(config, parserConfig) {
     ///////////////////////////////////////////////////////////////////////////
     // returned object
     return {
-        electricChars: "/",
+        electricChars: "/[",
         
         startState: function() {
             return {
@@ -458,8 +458,12 @@ CodeMirror.defineMode("xmlpure", function(config, parserConfig) {
                     return;
                 }
                 if(textAfter.match(/^<\/.*/)) {
-                    // eng-tag - indent back to last context
+                    // end-tag - indent back to last context
                     return state.context.indent;
+                }
+                if(textAfter.match(/^<!\[CDATA\[/)) {
+                    // a stand-alone CDATA start-tag - indent back to column 0
+                    return 0;                
                 }
                 // indent to last context + regular indent unit
                 return state.context.indent + indentUnit;
