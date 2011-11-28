@@ -3,7 +3,7 @@
   <head>
     <title>CodeMirror</title>
     <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Droid+Sans|Droid+Sans:bold"/>
-    <link rel="stylesheet" type="text/css" href="css/docs.css"/>
+    <link rel="stylesheet" type="text/css" href="doc/docs.css"/>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <link rel="alternate" href="http://twitter.com/statuses/user_timeline/242283288.rss" type="application/rss+xml"/>
   </head>
@@ -12,7 +12,7 @@
 <h1><span class="logo-braces">{ }</span> <a href="http://codemirror.net/">CodeMirror</a></h1>
 
 <pre class="grey">
-<img src="css/baboon.png" class="logo" alt="logo"/>/* In-browser code editing
+<img src="doc/baboon.png" class="logo" alt="logo"/>/* In-browser code editing
    made bearable */
 </pre>
 
@@ -35,24 +35,37 @@
     <h2 style="margin-top: 0">Supported modes:</h2>
 
     <ul>
-      <li><a href="mode/javascript/index.html">JavaScript</a></li>
-      <li><a href="mode/xml/index.html">XML/HTML</a></li>
-      <li><a href="mode/css/index.html">CSS</a></li>
-      <li><a href="mode/htmlmixed/index.html">HTML mixed-mode</a></li>
-      <li><a href="mode/python/index.html">Python</a></li>
-      <li><a href="mode/php/index.html">PHP</a></li>
-      <li><a href="mode/diff/index.html">diff</a></li>
       <li><a href="mode/clike/index.html">C, Java, C#, and similar</a></li>
-      <li><a href="mode/stex/index.html">sTeX, LaTeX</a></li>
+      <li><a href="mode/clojure/index.html">Clojure</a></li>
+      <li><a href="mode/coffeescript/index.html">CoffeeScript</a></li>
+      <li><a href="mode/css/index.html">CSS</a></li>
+      <li><a href="mode/diff/index.html">diff</a></li>
+      <li><a href="mode/groovy/index.html">Groovy</a></li>
       <li><a href="mode/haskell/index.html">Haskell</a></li>
-      <li><a href="mode/smalltalk/index.html">Smalltalk</a></li>
-      <li><a href="mode/plsql/index.html">PL/SQL</a></li>
+      <li><a href="mode/htmlmixed/index.html">HTML mixed-mode</a></li>
+      <li><a href="mode/javascript/index.html">JavaScript</a></li>
+      <li><a href="mode/jinja2/index.html">Jinja2</a></li>
       <li><a href="mode/lua/index.html">Lua</a></li>
-      <li><a href="mode/scheme/index.html">Scheme</a></li>
+      <li><a href="mode/markdown/index.html">Markdown</a> (<a href="mode/gfm/index.html">Github-flavour</a>)</li>
+      <li><a href="mode/ntriples/index.html">NTriples</a></li>
+      <li><a href="mode/pascal/index.html">Pascal</a></li>
+      <li><a href="mode/perl/index.html">Perl</a></li>
+      <li><a href="mode/php/index.html">PHP</a></li>
+      <li><a href="mode/plsql/index.html">PL/SQL</a></li>
+      <li><a href="mode/python/index.html">Python</a></li>
+      <li><a href="mode/r/index.html">R</a></li>
+      <li>RPM <a href="mode/rpm/spec/index.html">spec</a> and <a href="mode/rpm/changes/index.html">changelog</a></li>
       <li><a href="mode/rst/index.html">reStructuredText</a></li>
-      <li><a href="mode/yaml/index.html">YAML</a></li>
+      <li><a href="mode/ruby/index.html">Ruby</a></li>
+      <li><a href="mode/rust/index.html">Rust</a></li>
+      <li><a href="mode/scheme/index.html">Scheme</a></li>
+      <li><a href="mode/smalltalk/index.html">Smalltalk</a></li>
       <li><a href="mode/sparql/index.html">SPARQL</a></li>
+      <li><a href="mode/stex/index.html">sTeX, LaTeX</a></li>
+      <li><a href="mode/tiddlywiki/index.html">Tiddlywiki</a></li>
       <li><a href="mode/velocity/index.html">Velocity</a></li>
+      <li><a href="mode/xml/index.html">XML/HTML</a> (<a href="mode/xmlpure/index.html">alternative XML</a>)</li>
+      <li><a href="mode/yaml/index.html">YAML</a></li>
     </ul>
 
   </div><div class="left2 blk">
@@ -63,6 +76,7 @@
       <li><a href="demo/complete.html">Autocompletion</a></li>
       <li><a href="demo/mustache.html">Mode overlays</a></li>
       <li><a href="demo/search.html">Search/replace</a></li>
+      <li><a href="demo/folding.html">Code folding</a></li>
       <li><a href="demo/preview.html">HTML editor with preview</a></li>
       <li><a href="demo/resize.html">Auto-resizing editor</a></li>
       <li><a href="demo/marker.html">Setting breakpoints</a></li>
@@ -71,7 +85,21 @@
       <li><a href="demo/runmode.html">Stand-alone highlighting</a></li>
       <li><a href="demo/fullscreen.html">Full-screen editing</a></li>
       <li><a href="demo/changemode.html">Mode auto-changing</a></li>
+      <li><a href="demo/visibletabs.html">Visible tabs</a></li>
+      <li><a href="demo/emacs.html">Emacs keybindings</a></li>
     </ul>
+
+    <h2>Real-world uses:</h2>
+
+    <ul>
+      <li><a href="http://jsbin.com">jsbin.com</a> (JS playground)</li>
+      <li><a href="http://buzzard.ups.edu/">Sage demo</a> (math system)</li>
+      <li><a href="http://www.sourcelair.com/">sourceLair</a> (online IDE)</li>
+      <li><a href="http://eloquentjavascript.net/chapter1.html">Eloquent JavaScript</a> (book)</a></li>
+      <li><a href="http://www.mergely.com/">Mergely</a> (interactive diffing)</li>
+      <li><a href="http://www.wescheme.org/">WeScheme</a> (learning tool)</li>
+      <li><a href="http://webglplayground.net/">WebGL playground</a></li>
+     </ul>
 
   </div></div>
 
@@ -160,6 +188,67 @@
 
   <h2>Releases:</h2>
 
+  <p class="rel"><strong>Note:</strong> <a href="doc/upgrade_v2.2.html">incompatible changes</a> in HEAD</p>
+
+  <p class="rel">21-11-2011: <a href="http://codemirror.net/codemirror-2.18.zip">Version 2.18</a>:</p>
+  <p class="rel-note">Fixes <code>TextMarker.clear</code>, which is broken in 2.17.</p>
+
+  <p class="rel">21-11-2011: <a href="http://codemirror.net/codemirror-2.17.zip">Version 2.17</a>:</p>
+  <ul class="rel-note">
+    <li>Add support for <a href="manual.html#option_lineWrapping">line
+    wrapping</a> and <a href="manual.html#hideLine">code
+    folding</a>.</li>
+    <li>Add <a href="mode/gfm/index.html">Github-style Markdown</a> mode.</li>
+    <li>Add <a href="theme/monokai.css">Monokai</a>
+    and <a href="theme/rubyblue.css">Rubyblue</a> themes.</li>
+    <li>Add <a href="manual.html#setBookmark"><code>setBookmark</code></a> method.</li>
+    <li>Move some of the demo code into reusable components
+    under <a href="lib/util/"><code>lib/util</code></a>.</li>
+    <li>Make screen-coord-finding code faster and more reliable.</li>
+    <li>Fix drag-and-drop in Firefox.</li>
+    <li>Improve support for IME.</li>
+    <li>Speed up content rendering.</li>
+    <li>Fix browser's built-in search in Webkit.</li>
+    <li>Make double- and triple-click work in IE.</li>
+    <li>Various fixes to modes.</li>
+  </ul>
+
+  <p class="rel">27-10-2011: <a href="http://codemirror.net/codemirror-2.16.zip">Version 2.16</a>:</p>
+  <ul class="rel-note">
+    <li>Add <a href="mode/perl/index.html">Perl</a>, <a href="mode/rust/index.html">Rust</a>, <a href="mode/tiddlywiki/index.html">TiddlyWiki</a>, and <a href="mode/groovy/index.html">Groovy</a> modes.</li>
+    <li>Dragging text inside the editor now moves, rather than copies.</li>
+    <li>Add a <a href="manual.html#coordsFromIndex"><code>coordsFromIndex</code></a> method.</li>
+    <li><strong>API change</strong>: <code>setValue</code> now no longer clears history. Use <a href="manual.html#clearHistory"><code>clearHistory</code></a> for that.</li>
+    <li><strong>API change</strong>: <a href="manual.html#markText"><code>markText</code></a> now
+    returns an object with <code>clear</code> and <code>find</code>
+    methods. Marked text is now more robust when edited.</li>
+    <li>Fix editing code with tabs in Internet Explorer.</li>
+  </ul>
+
+  <p class="rel">26-09-2011: <a href="http://codemirror.net/codemirror-2.15.zip">Version 2.15</a>:</p>
+  <p class="rel-note">Fix bug that snuck into 2.14: Clicking the
+  character that currently has the cursor didn't re-focus the
+  editor.</p>
+
+  <p class="rel">26-09-2011: <a href="http://codemirror.net/codemirror-2.14.zip">Version 2.14</a>:</p>
+  <ul class="rel-note">
+    <li>Add <a href="mode/clojure/index.html">Clojure</a>, <a href="mode/pascal/index.html">Pascal</a>, <a href="mode/ntriples/index.html">NTriples</a>, <a href="mode/jinja2/index.html">Jinja2</a>, and <a href="mode/markdown/index.html">Markdown</a> modes.</li>
+    <li>Add <a href="theme/cobalt.css">Cobalt</a> and <a href="theme/eclipse.css">Eclipse</a> themes.</li>
+    <li>Add a <a href="manual.html#option_fixedGutter"><code>fixedGutter</code></a> option.</li>
+    <li>Fix bug with <code>setValue</code> breaking cursor movement.</li>
+    <li>Make gutter updates much more efficient.</li>
+    <li>Allow dragging of text out of the editor (on modern browsers).</li>
+  </ul>
+
+  <p class="rel">23-08-2011: <a href="http://codemirror.net/codemirror-2.13.zip">Version 2.13</a>:</p>
+  <ul class="rel-note">
+    <li>Add <a href="mode/ruby/index.html">Ruby</a>, <a href="mode/r/index.html">R</a>, <a href="mode/coffeescript/index.html">CoffeeScript</a>, and <a href="mode/velocity/index.html">Velocity</a> modes.</li>
+    <li>Add <a href="manual.html#getGutterElement"><code>getGutterElement</code></a> to API.</li>
+    <li>Several fixes to scrolling and positioning.</li>
+    <li>Add <a href="manual.html#option_smartHome"><code>smartHome</code></a> option.</li>
+    <li>Add an experimental <a href="mode/xmlpure/index.html">pure XML</a> mode.</li>
+  </ul>
+
   <p class="rel">25-07-2011: <a href="http://codemirror.net/codemirror-2.12.zip">Version 2.12</a>:</p>
   <ul class="rel-note">
     <li>Add a <a href="mode/sparql/index.html">SPARQL</a> mode.</li>
@@ -204,24 +293,6 @@
     <li>Add <a href="demo/runmode.html">runmode.js</a>.</li>
     <li>Immediately re-highlight text when typing.</li>
     <li>Fix problem with 'sticking' horizontal scrollbar.</li>
-  </ul>
-
-  <p class="rel">26-05-2011: <a href="http://codemirror.net/codemirror-2.01.zip">Version 2.01</a>:</p>
-  <ul class="rel-note">
-    <li>Add a <a href="mode/smalltalk/index.html">Smalltalk mode</a>.</li>
-    <li>Add a <a href="mode/rst/index.html">reStructuredText mode</a>.</li>
-    <li>Add a <a href="mode/python/index.html">Python mode</a>.</li>
-    <li>Add a <a href="mode/plsql/index.html">PL/SQL mode</a>.</li>
-    <li><code>coordsChar</code> now works</li>
-    <li>Fix a problem where <code>onCursorActivity</code> interfered with <code>onChange</code>.</li>
-    <li>Fix a number of scrolling and mouse-click-position glitches.</li>
-    <li>Pass information about the changed lines to <code>onChange</code>.</li>
-    <li>Support cmd-up/down on OS X.</li>
-    <li>Add triple-click line selection.</li>
-    <li>Don't handle shift when changing the selection through the API.</li>
-    <li>Support <code>"nocursor"</code> mode for <code>readOnly</code> option.</li>
-    <li>Add an <code>onHighlightComplete</code> option.</li>
-    <li>Fix the context menu for Firefox.</li>
   </ul>
 
   <p><a href="oldrelease.html">Older releases...</a></p>

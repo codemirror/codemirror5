@@ -4,31 +4,12 @@
     <title>CodeMirror 2: Autocomplete Demo</title>
     <link rel="stylesheet" href="../lib/codemirror.css">
     <script src="../lib/codemirror.js"></script>
-    <link rel="stylesheet" href="../theme/night.css">
+    <script src="../lib/util/simple-hint.js"></script>
+    <link rel="stylesheet" href="../lib/util/simple-hint.css">
+    <script src="../lib/util/javascript-hint.js"></script>
     <script src="../mode/javascript/javascript.js"></script>
-    <link rel="stylesheet" href="../css/docs.css">
-
-    <style type="text/css">
-      .completions {
-        position: absolute;
-        z-index: 10;
-        overflow: hidden;
-        -webkit-box-shadow: 2px 3px 5px rgba(0,0,0,.2);
-        -moz-box-shadow: 2px 3px 5px rgba(0,0,0,.2);
-        box-shadow: 2px 3px 5px rgba(0,0,0,.2);
-      }
-      .completions select {
-        background: #fafafa;
-        outline: none;
-        border: none;
-        padding: 0;
-        margin: 0;
-        font-family: monospace;
-      }
-      .CodeMirror {
-        border: 1px solid #eee;
-      }
-    </style>
+    <link rel="stylesheet" href="../doc/docs.css">
+    <style type="text/css">.CodeMirror {border: 1px solid #eee;}</style>
   </head>
   <body>
     <h1>CodeMirror 2: Autocomplete demo</h1>
@@ -72,8 +53,15 @@ function getCompletions(token, context) {
 </textarea></form>
 
 <p>Press <strong>ctrl-space</strong> to activate autocompletion. See
-the <a href="complete.js">code</a> to figure out how it works.</p>
+the code (<a href="../lib/util/simple-hint.js">here</a>
+and <a href="../lib/util/javascript-hint.js">here</a>) to figure out
+how it works.</p>
 
-    <script src="complete.js"></script>
+    <script>
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        lineNumbers: true,
+        extraKeys: {"Ctrl-Space": function(cm) {CodeMirror.simpleHint(cm, CodeMirror.javascriptHint);}}
+      });
+    </script>
   </body>
 </html>

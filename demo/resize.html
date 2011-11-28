@@ -4,9 +4,8 @@
     <title>CodeMirror 2: Autoresize Demo</title>
     <link rel="stylesheet" href="../lib/codemirror.css">
     <script src="../lib/codemirror.js"></script>
-    <link rel="stylesheet" href="../theme/default.css">
     <script src="../mode/css/css.js"></script>
-    <link rel="stylesheet" href="../css/docs.css">
+    <link rel="stylesheet" href="../doc/docs.css">
 
     <style type="text/css">
       .CodeMirror {
@@ -16,6 +15,7 @@
         height: auto;
         overflow-y: hidden;
         overflow-x: auto;
+        width: 100%;
       }
     </style>
   </head>
@@ -27,12 +27,11 @@
   height: auto;
   overflow-y: hidden;
   overflow-x: auto;
+  width: 100%
 }</textarea></form>
 
-<p>By setting a single CSS property, CodeMirror can be made to
-automatically resize to fit the content. Use <code>max-height</code>
-to prevent it from growing past a given point (on halfway modern
-browsers).</p>
+<p>By setting a few CSS properties, CodeMirror can be made to
+automatically resize to fit its content.</p>
 
     <script>
       CodeMirror.fromTextArea(document.getElementById("code"), {

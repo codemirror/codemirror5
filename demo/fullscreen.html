@@ -4,10 +4,9 @@
     <title>CodeMirror 2: Full Screen Editing</title>
     <link rel="stylesheet" href="../lib/codemirror.css">
     <script src="../lib/codemirror.js"></script>
-    <link rel="stylesheet" href="../theme/default.css">
     <link rel="stylesheet" href="../theme/night.css">
     <script src="../mode/xml/xml.js"></script>
-    <link rel="stylesheet" href="../css/docs.css">
+    <link rel="stylesheet" href="../doc/docs.css">
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
 
     <style type="text/css">
@@ -118,13 +117,7 @@
     var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true,
         theme: "night",
-        onKeyEvent: function(i, e) {
-          // Hook into F11
-          if ((e.keyCode == 122 || e.keyCode == 27) && e.type == 'keydown') {
-            e.stop();
-            return toggleFullscreenEditing();
-          }
-        }
+        extraKeys: {"F11": toggleFullscreenEditing, "Esc": toggleFullscreenEditing}
     });
 
     function toggleFullscreenEditing()

@@ -13,6 +13,7 @@
 
 .CodeMirror-gutter {
   position: absolute; left: 0; top: 0;
+  z-index: 10;
   background-color: #f7f7f7;
   border-right: 1px solid #eee;
   min-width: 2em;
@@ -22,6 +23,7 @@
   color: #aaa;
   text-align: right;
   padding: .4em .2em .4em .4em;
+  white-space: pre !important;
 }
 .CodeMirror-lines {
   padding: .4em;
@@ -40,9 +42,18 @@
   word-wrap: normal;
 }
 
+.CodeMirror-wrap pre {
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+.CodeMirror-wrap .CodeMirror-scroll {
+  overflow-x: hidden;
+}
+
 .CodeMirror textarea {
   font-family: inherit !important;
   font-size: inherit !important;
+  outline: none !important;
 }
 
 .CodeMirror-cursor {
@@ -56,12 +67,44 @@
 }
 
 span.CodeMirror-selected {
-  background: #ccc !important;
-  color: HighlightText !important;
+  background: #d9d9d9 !important;
 }
 .CodeMirror-focused span.CodeMirror-selected {
-  background: Highlight !important;
+  background: #d2dcf8 !important;
 }
 
 .CodeMirror-matchingbracket {color: #0f0 !important;}
 .CodeMirror-nonmatchingbracket {color: #f22 !important;}
+
+.CodeMirror-searching {background: #ffa;}
+
+/* Default theme */
+
+.cm-s-default span.cm-keyword {color: #708;}
+.cm-s-default span.cm-atom {color: #219;}
+.cm-s-default span.cm-number {color: #164;}
+.cm-s-default span.cm-def {color: #00f;}
+.cm-s-default span.cm-variable {color: black;}
+.cm-s-default span.cm-variable-2 {color: #05a;}
+.cm-s-default span.cm-variable-3 {color: #085;}
+.cm-s-default span.cm-property {color: black;}
+.cm-s-default span.cm-operator {color: black;}
+.cm-s-default span.cm-comment {color: #a50;}
+.cm-s-default span.cm-string {color: #a11;}
+.cm-s-default span.cm-string-2 {color: #f50;}
+.cm-s-default span.cm-meta {color: #555;}
+.cm-s-default span.cm-error {color: #f00;}
+.cm-s-default span.cm-qualifier {color: #555;}
+.cm-s-default span.cm-builtin {color: #30a;}
+.cm-s-default span.cm-bracket {color: #cc7;}
+.cm-s-default span.cm-tag {color: #170;}
+.cm-s-default span.cm-attribute {color: #00c;}
+.cm-s-default span.cm-header {color: #a0a;}
+.cm-s-default span.cm-quote {color: #090;}
+.cm-s-default span.cm-hr {color: #999;}
+.cm-s-default span.cm-link {color: #00c;}
+
+span.cm-header, span.cm-strong {font-weight: bold;}
+span.cm-em {font-style: italic;}
+span.cm-emstrong {font-style: italic; font-weight: bold;}
+span.cm-link {text-decoration: underline;}

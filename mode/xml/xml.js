@@ -132,7 +132,6 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
       var err = false;
       if (curState.context) {
         err = curState.context.tagName != tagName;
-        popContext();
       } else {
         err = true;
       }
@@ -158,14 +157,16 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
   function endclosetag(err) {
     return function(type) {
       if (err) setStyle = "error";
-      if (type == "endTag") return cont();
-      return pass();
+      if (type == "endTag") { popContext(); return cont(); }
+      setStyle = "error";
+      return cont(arguments.callee);
     }
   }
 
   function attributes(type) {
     if (type == "word") {setStyle = "attribute"; return cont(attributes);}
     if (type == "equals") return cont(attvalue, attributes);
+    if (type == "string") {setStyle = "error"; return cont(attributes);}
     return pass();
   }
   function attvalue(type) {
@@ -192,6 +193,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
 
       setStyle = type = tagName = null;
       var style = state.tokenize(stream, state);
+      state.type = type;
       if ((style || type) && style != "comment") {
         curState = state;
         while (true) {
@@ -216,7 +218,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
     },
 
     compareStates: function(a, b) {
-      if (a.indented != b.indented || a.tagName != b.tagName) return false;
+      if (a.indented != b.indented || a.tokenize != b.tokenize) return false;
       for (var ca = a.context, cb = b.context; ; ca = ca.prev, cb = cb.prev) {
         if (!ca || !cb) return ca == cb;
         if (ca.tagName != cb.tagName) return false;

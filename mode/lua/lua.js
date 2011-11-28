@@ -50,7 +50,7 @@ CodeMirror.defineMode("lua", function(config, parserConfig) {
 			 "true","function", "end", "if", "then", "else", "do", 
 			 "while", "repeat", "until", "for", "in", "local" ]);
 
-  var indentTokens = wordRE(["function", "if","repeat","for","while", "\\(", "{"]);
+  var indentTokens = wordRE(["function", "if","repeat","do", "\\(", "{"]);
   var dedentTokens = wordRE(["end", "until", "\\)", "}"]);
   var dedentPartial = prefixRE(["end", "until", "\\)", "}", "else", "elseif"]);
 
@@ -123,8 +123,10 @@ CodeMirror.defineMode("lua", function(config, parserConfig) {
         else if (builtins.test(word)) style = "builtin";
 	else if (specials.test(word)) style = "variable-2";
       }
-      if (indentTokens.test(word)) ++state.indentDepth;
-      else if (dedentTokens.test(word)) --state.indentDepth;
+      if ((style != "comment") && (style != "string")){
+        if (indentTokens.test(word)) ++state.indentDepth;
+        else if (dedentTokens.test(word)) --state.indentDepth;
+      }
       return style;
     },
 

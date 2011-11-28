@@ -9,8 +9,7 @@
     <script src=../mode/css/css.js></script>
     <script src=../mode/htmlmixed/htmlmixed.js></script>
     <link rel=stylesheet href=../lib/codemirror.css>
-    <link rel=stylesheet href=../theme/default.css>
-    <link rel=stylesheet href=../css/docs.css>
+    <link rel=stylesheet href=../doc/docs.css>
     <style type=text/css>
       .CodeMirror {
         float: left;
@@ -32,13 +31,15 @@
 <!doctype html>
 <html>
   <head>
-    <title>HTML5 canvas demo</title>
     <meta charset=utf-8>
+    <title>HTML5 canvas demo</title>
+    <style>p {font-family: monospace;}</style>
   </head>
   <body>
-    <canvas id=tutorial width=250 height=250></canvas>
+    <p>Canvas pane goes here:</p>
+    <canvas id=pane width=300 height=200></canvas>
     <script>
-      var canvas = document.getElementById('tutorial');
+      var canvas = document.getElementById('pane');
       var context = canvas.getContext('2d');
 
       context.fillStyle = 'rgb(250,0,0)';
@@ -48,8 +49,7 @@
       context.fillRect(30, 30, 55, 50);
     </script>
   </body>
-</html>
-</textarea>
+</html></textarea>
     <iframe id=preview></iframe>
     <script>
       var delay;
@@ -64,7 +64,8 @@
       });
       
       function updatePreview() {
-        var preview = document.getElementById('preview').contentDocument;
+        var previewFrame = document.getElementById('preview');
+        var preview =  previewFrame.contentDocument ||  previewFrame.contentWindow.document;
         preview.open();
         preview.write(editor.getValue());
         preview.close();

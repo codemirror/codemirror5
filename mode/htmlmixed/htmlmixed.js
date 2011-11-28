@@ -72,6 +72,10 @@ CodeMirror.defineMode("htmlmixed", function(config, parserConfig) {
         return cssMode.indent(state.localState, textAfter);
     },
 
+    compareStates: function(a, b) {
+      return htmlMode.compareStates(a.htmlState, b.htmlState);
+    },
+
     electricChars: "/{}:"
   }
 });
