@@ -14,6 +14,17 @@ CodeMirror.defineMode('smalltalk', function(config, modeConfig) {
 		this.eos = eos;
 	};
 
+	var State = function() {
+		this.context = new Context(next, null);
+		this.expectVariable = true;
+		this.indentation = 0;
+		this.userIndentationDelta = 0;
+	};
+
+	State.prototype.userIndent = function(indentation) {
+		this.userIndentationDelta = indentation > 0 ? (indentation / config.indentUnit - this.indentation) : 0;
+	};
+
 	var next = function(stream, context, state) {
 		var token = new Token(null, context, false);
 		var char = stream.next();
@@ -38,6 +49,12 @@ CodeMirror.defineMode('smalltalk', function(config, modeConfig) {
 		} else if (/[\[\]{}()]/.test(char)) {
 			token.name = 'bracket';
 			token.eos = /[\[{(]/.test(char);
+
+			if (char === '[') {
+				state.indentation++;
+			} else if (char === ']') {
+				state.indentation = Math.max(0, state.indentation - 1);
+			}
 
 		} else if (specialChars.test(char)) {
 			stream.eatWhile(specialChars);
@@ -87,10 +104,12 @@ CodeMirror.defineMode('smalltalk', function(config, modeConfig) {
 
 	return {
 		startState: function() {
-			return {context: new Context(next, null), expectVariable: true};
+			return new State;
 		},
 
 		token: function(stream, state) {
+			state.userIndent(stream.indentation());
+
 			if (stream.eatSpace()) {
 				return null;
 			}
@@ -98,8 +117,21 @@ CodeMirror.defineMode('smalltalk', function(config, modeConfig) {
 			var token = state.context.next(stream, state.context, state);
 			state.context = token.context;
 			state.expectVariable = token.eos;
+
+			state.lastToken = token;
 			return token.name;
 		},
+
+		blankLine: function(state) {
+			state.userIndent(0);
+		},
+
+		indent: function(state, textAfter) {
+			var i = state.context.next === next && textAfter && textAfter.charAt(0) === ']' ? -1 : state.userIndentationDelta;
+			return (state.indentation + i) * config.indentUnit;
+		},
+
+		electricChars: ']'
 	};
 
 });
