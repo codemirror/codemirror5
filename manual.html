@@ -500,11 +500,18 @@
       <dd>The inverse of <code>hideLine</code>—re-shows a previously
       hidden line, by number or by handle.</dd>
 
+      <dt id="onDeleteLine"><code>onDeleteLine(line, func)</code></dt>
+      <dd>Register a function that should be called when the line is
+      deleted from the document.</dd>
+
       <dt id="lineInfo"><code>lineInfo(line) → object</code></dt>
       <dd>Returns the line number, text content, and marker status of
       the given line, which can be either a number or a handle
       returned by <code>setMarker</code>. The returned object has the
       structure <code>{line, handle, text, markerText, markerClass}</code>.</dd>
+
+      <dt id="getLineHandle"><code>getLineHandle(num) → lineHandle</code></dt>
+      <dd>Fetches the line handle for the given line number.</dd>
 
       <dt id="addWidget"><code>addWidget(pos, node, scrollIntoView)</code></dt>
       <dd>Puts <code>node</code>, which should be an absolutely
