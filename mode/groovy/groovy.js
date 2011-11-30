@@ -50,7 +50,7 @@ CodeMirror.defineMode("groovy", function(config, parserConfig) {
       return "operator";
     }
     stream.eatWhile(/[\w\$_]/);
-    if (ch == "@") return "meta";
+    if (ch == "@") { stream.eatWhile(/[\w\$_\.]/); return "meta"; }
     if (state.lastToken == ".") return "property";
     if (stream.eat(":")) { curPunc = "proplabel"; return "property"; }
     var cur = stream.current();
