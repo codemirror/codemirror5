@@ -19,8 +19,8 @@
   // Add bindings for number keys
   for (var i = 1; i < 10; ++i) map[i] = pushCountDigit(i);
   // Add bindings that are influenced by number keys
-  iterObj({"H": "goCharLeft", "L": "goCharRight", "J": "goLineDown", "K": "goLineUp",
-		       "Left": "goCharLeft", "Right": "goCharRight", "Down": "goLineDown", "Up": "goLineUp",
+  iterObj({"H": "goColumnLeft", "L": "goColumnRight", "J": "goLineDown", "K": "goLineUp",
+		       "Left": "goColumnLeft", "Right": "goColumnRight", "Down": "goLineDown", "Up": "goLineUp",
            "U": "undo", "Ctrl-R": "redo"},
           function(key, cmd) { map[key] = countTimes(cmd); });
 
