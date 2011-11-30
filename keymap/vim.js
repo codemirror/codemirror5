@@ -1,22 +1,27 @@
 (function() {
-
-  var count = [];
-  function pushCountDigit(digit) { return function(cm) {count.push(digit);} }
-  function popCount() { var i = parseInt(count.join("")); count = []; return i || 1;  }
+  var count = "";
+  function pushCountDigit(digit) { return function(cm) {count += digit;} }
+  function popCount() { var i = parseInt(count); count = ""; return i || 1; }
   function countTimes(func) {
     if (typeof func == "string") func = CodeMirror.commands[func];
     return function(cm) { for (var i = 0, c = popCount(); i < c; ++i) func(cm); }
   }
 
-  CodeMirror.keyMap.vim = {
+  function iterObj(o, f) {
+    for (var prop in o) if (o.hasOwnProperty(prop)) f(prop, o[prop]);
+  }
+
+  var map = CodeMirror.keyMap.vim = {
     "0": function(cm) {count.length > 0 ? pushCountDigit("0")(cm) : CodeMirror.commands.goLineStart(cm);},
     "I": function(cm) {popCount(); cm.setOption("keyMap", "vim-insert");},
-    "H": function(cm) {cm.moveH(-popCount(), "char");}, "L": function(cm) {cm.moveH(popCount(), "char");},
-    "J": function(cm) {cm.moveV(popCount(), "line");}, "K": function(cm) {cm.moveV(-popCount(), "line");},
-    "U": countTimes("undo"), "Ctrl-R": countTimes("redo"),
     catchall: function(cm) {/*ignore*/}
   };
-  for (var i = 1; i < 10; ++i) CodeMirror.keyMap.vim[i.toString()] = pushCountDigit(i.toString());
+  // Add bindings for number keys
+  for (var i = 1; i < 10; ++i) map[i] = pushCountDigit(i);
+  // Add bindings that are influenced by number keys
+  iterObj({"H": "goCharLeft", "L": "goCharRight", "J": "goLineDown", "K": "goLineUp",
+           "U": "undo", "Ctrl-R": "redo"},
+          function(key, cmd) { map[key] = countTimes(cmd); });
 
   CodeMirror.keyMap["vim-insert"] = {
     "Esc": function(cm) {cm.setOption("keyMap", "vim");},
