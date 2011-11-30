@@ -21,6 +21,7 @@
   // Add bindings that are influenced by number keys
   iterObj({"H": "goColumnLeft", "L": "goColumnRight", "J": "goLineDown", "K": "goLineUp",
 		       "Left": "goColumnLeft", "Right": "goColumnRight", "Down": "goLineDown", "Up": "goLineUp",
+           "Backspace": "goCharLeft", "Space": "goCharRight",
            "U": "undo", "Ctrl-R": "redo"},
           function(key, cmd) { map[key] = countTimes(cmd); });
 
