@@ -42,9 +42,9 @@
   };
 
   CodeMirror.defineMode("php", function(config, parserConfig) {
-    var htmlMode = CodeMirror.getMode(config, "text/html");
-    var jsMode = CodeMirror.getMode(config, "text/javascript");
-    var cssMode = CodeMirror.getMode(config, "text/css");
+    var htmlMode = CodeMirror.getMode(config, {name: "xml", htmlMode: true});
+    var jsMode = CodeMirror.getMode(config, "javascript");
+    var cssMode = CodeMirror.getMode(config, "css");
     var phpMode = CodeMirror.getMode(config, phpConfig);
 
     function dispatch(stream, state) { // TODO open PHP inside text/css
