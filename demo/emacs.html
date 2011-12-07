@@ -43,8 +43,12 @@ result that idiomatic use of Emacs keys will constantly close your tab
 or open a new window.</p>
 
     <script>
-      CodeMirror.commands.save = function(){alert("Saving");};
-      CodeMirror.fromTextArea(document.getElementById("code"), {
+      CodeMirror.commands.save = function() {
+        var elt = editor.getWrapperElement();
+        elt.style.background = "#def";
+        setTimeout(function() { elt.style.background = ""; }, 300);
+      };
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true,
         mode: "text/x-csrc",
         keyMap: "emacs"
