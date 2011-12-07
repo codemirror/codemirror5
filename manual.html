@@ -131,7 +131,12 @@
       CSS file defining the corresponding <code>.cm-s-[name]</code>
       styles is loaded (see
       the <a href="theme/"><code>theme</code></a> directory in the
-      distribution).</dd>
+      distribution). The default is <code>"default"</code>, for which
+      colors are included in <code>codemirror.css</code>. It is
+      possible to use multiple theming classes at once—for
+      example <code>"foo bar"</code> will assign both
+      the <code>cm-s-foo</code> and the <code>cm-s-bar</code> classes
+      to the editor.</dd>
 
       <dt id="option_indentUnit"><code>indentUnit (integer)</code></dt>
       <dd>How many spaces a block (whatever that means in the edited
