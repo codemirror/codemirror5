@@ -1,5 +1,5 @@
 (function() {
-  var count = "";
+  var count = "", word = [/\w/, /[^\w\s]/], bigWord = [/\S/];
   function pushCountDigit(digit) { return function(cm) {count += digit;} }
   function popCount() { var i = parseInt(count); count = ""; return i || 1; }
   function countTimes(func) {
@@ -22,6 +22,12 @@
   iterObj({"H": "goColumnLeft", "L": "goColumnRight", "J": "goLineDown", "K": "goLineUp",
 		       "Left": "goColumnLeft", "Right": "goColumnRight", "Down": "goLineDown", "Up": "goLineUp",
            "Backspace": "goCharLeft", "Space": "goCharRight",
+           "B": function(cm) { cm.moveH(-1, word, "end"); },
+           "E": function(cm) { cm.moveH(1, word, "end"); },
+           "W": function(cm) { cm.moveH(1, word, "start"); },
+           "Shift-B": function(cm) { cm.moveH(-1, bigWord, "end"); },
+           "Shift-E": function(cm) { cm.moveH(1, bigWord, "end"); },
+           "Shift-W": function(cm) { cm.moveH(1, bigWord, "start"); },
            "U": "undo", "Ctrl-R": "redo", "Shift-4": "goLineEnd"},
           function(key, cmd) { map[key] = countTimes(cmd); });
 
