@@ -22,6 +22,12 @@
   iterObj({"H": "goColumnLeft", "L": "goColumnRight", "J": "goLineDown", "K": "goLineUp",
 		       "Left": "goColumnLeft", "Right": "goColumnRight", "Down": "goLineDown", "Up": "goLineUp",
            "Backspace": "goCharLeft", "Space": "goCharRight",
+           "B": function(cm) { cm.moveH(-1, "vimWord", "end"); },
+           "E": function(cm) { cm.moveH(1, "vimWord", "end"); },
+           "W": function(cm) { cm.moveH(1, "vimWord", "start"); },
+           "Shift-B": function(cm) { cm.moveH(-1, "nonSpace", "end"); },
+           "Shift-E": function(cm) { cm.moveH(1, "nonSpace", "end"); },
+           "Shift-W": function(cm) { cm.moveH(1, "nonSpace", "start"); },
            "U": "undo", "Ctrl-R": "redo"},
           function(key, cmd) { map[key] = countTimes(cmd); });
 
