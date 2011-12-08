@@ -22,7 +22,7 @@
   iterObj({"H": "goColumnLeft", "L": "goColumnRight", "J": "goLineDown", "K": "goLineUp",
 		       "Left": "goColumnLeft", "Right": "goColumnRight", "Down": "goLineDown", "Up": "goLineUp",
            "Backspace": "goCharLeft", "Space": "goCharRight",
-           "U": "undo", "Ctrl-R": "redo"},
+           "U": "undo", "Ctrl-R": "redo", "Shift-4": "goLineEnd"},
           function(key, cmd) { map[key] = countTimes(cmd); });
 
   CodeMirror.keyMap["vim-insert"] = {
