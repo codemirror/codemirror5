@@ -2,10 +2,10 @@ CodeMirror.defineMode("htmlembedded", function(config, parserConfig) {
   
   //config settings
   var scriptStartRegex = parserConfig.scriptStartRegex || /^<%/i,
-      scriptEndRegex = parserConfig.scriptEndRegex || /^%>/i,
-      scriptingMode;
-     
-  var htmlMixedMode = CodeMirror.getMode(config, "htmlmixed");
+      scriptEndRegex = parserConfig.scriptEndRegex || /^%>/i;
+  
+  //inner modes
+  var scriptingMode, htmlMixedMode;
   
   //tokenizer when in html mode
   function htmlDispatch(stream, state) {
@@ -30,7 +30,8 @@ CodeMirror.defineMode("htmlembedded", function(config, parserConfig) {
 
   return {
     startState: function() {
-      scriptingMode = scriptingMode || CodeMirror.getMode(config, parserConfig.scriptingModeSpec)
+      scriptingMode = scriptingMode || CodeMirror.getMode(config, parserConfig.scriptingModeSpec);
+      htmlMixedMode = htmlMixedMode || CodeMirror.getMode(config, "htmlmixed");
       return { 
           token :  parserConfig.startOpen ? scriptingDispatch : htmlDispatch,
           htmlState : htmlMixedMode.startState(),
@@ -65,8 +66,3 @@ CodeMirror.defineMode("htmlembedded", function(config, parserConfig) {
 CodeMirror.defineMIME("application/x-ejs", { name: "htmlembedded", scriptingModeSpec:"javascript"});
 CodeMirror.defineMIME("application/x-aspx", { name: "htmlembedded", scriptingModeSpec:"text/x-csharp"});
 CodeMirror.defineMIME("application/x-jsp", { name: "htmlembedded", scriptingModeSpec:"text/x-java"});
-/*CodeMirror.defineMIME("application/x-httpd-php", { 
-    name: "htmlembedded", 
-    scriptingModeSpec:"text/x-php",
-    scriptStartRegex: /^<\?/,
-    scriptEndRegex: /^\?>/});*/
