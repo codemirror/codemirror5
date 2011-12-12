@@ -21,7 +21,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
     if (ch == "<") {
       if (stream.eat("!")) {
         if (stream.eat("[")) {
-          if (stream.match("CDATA[")) return chain(inBlock("atom", "]]>"));
+          if (stream.match("CDATA[")) return chain(inBlock("atom", "]]>", "!cdata"));
           else return null;
         }
         else if (stream.match("--")) return chain(inBlock("comment", "-->"));
@@ -90,7 +90,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
     };
   }
 
-  function inBlock(style, terminator) {
+  function inBlock(style, terminator, tp) {
     return function(stream, state) {
       while (!stream.eol()) {
         if (stream.match(terminator)) {
@@ -99,6 +99,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
         }
         stream.next();
       }
+      type = tp;
       return style;
     };
   }
@@ -158,7 +159,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
       if (err) setStyle = "error";
       return cont(endclosetag(err));
     }
-    else if (type == "string") {
+    else if (type == "!cdata") {
       if (!curState.context || curState.context.name != "!cdata") pushContext("!cdata");
       if (curState.tokenize == inText) popContext();
       return cont();
