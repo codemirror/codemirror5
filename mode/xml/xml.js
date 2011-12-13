@@ -226,9 +226,10 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
       return setStyle || style;
     },
 
-    indent: function(state, textAfter) {
+    indent: function(state, textAfter, fullLine) {
       var context = state.context;
-      if (context && context.noIndent) return 0;
+      if (context && context.noIndent)
+        return fullLine ? fullLine.match(/^(\s*)/)[0].length : 0;
       if (alignCDATA && /<!\[CDATA\[/.test(textAfter)) return 0;
       if (context && /^<\//.test(textAfter))
         context = context.prev;
