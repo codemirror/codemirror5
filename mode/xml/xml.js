@@ -3,9 +3,9 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
   var Kludges = parserConfig.htmlMode ? {
     autoSelfClosers: {"br": true, "img": true, "hr": true, "link": true, "input": true,
                       "meta": true, "col": true, "frame": true, "base": true, "area": true},
-    doNotIndent: {"pre": true, "!cdata": true},
+    doNotIndent: {"pre": true},
     allowUnquoted: true
-  } : {autoSelfClosers: {}, doNotIndent: {"!cdata": true}, allowUnquoted: false};
+  } : {autoSelfClosers: {}, doNotIndent: {}, allowUnquoted: false};
   var alignCDATA = parserConfig.alignCDATA;
 
   // Return variables for tokenizers
@@ -21,7 +21,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
     if (ch == "<") {
       if (stream.eat("!")) {
         if (stream.eat("[")) {
-          if (stream.match("CDATA[")) return chain(inBlock("atom", "]]>", "!cdata"));
+          if (stream.match("CDATA[")) return chain(inBlock("atom", "]]>"));
           else return null;
         }
         else if (stream.match("--")) return chain(inBlock("comment", "-->"));
@@ -90,7 +90,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
     };
   }
 
-  function inBlock(style, terminator, tp) {
+  function inBlock(style, terminator) {
     return function(stream, state) {
       while (!stream.eol()) {
         if (stream.match(terminator)) {
@@ -99,7 +99,6 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
         }
         stream.next();
       }
-      type = tp;
       return style;
     };
   }
@@ -148,8 +147,10 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
   }
 
   function element(type) {
-    if (type == "openTag") {curState.tagName = tagName; return cont(attributes, endtag(curState.startOfLine));}
-    else if (type == "closeTag") {
+    if (type == "openTag") {
+      curState.tagName = tagName;
+      return cont(attributes, endtag(curState.startOfLine));
+    } else if (type == "closeTag") {
       var err = false;
       if (curState.context) {
         err = curState.context.tagName != tagName;
@@ -159,12 +160,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
       if (err) setStyle = "error";
       return cont(endclosetag(err));
     }
-    else if (type == "!cdata") {
-      if (!curState.context || curState.context.name != "!cdata") pushContext("!cdata");
-      if (curState.tokenize == inText) popContext();
-      return cont();
-    }
-    else return cont();
+    return cont();
   }
   function endtag(startOfLine) {
     return function(type) {
@@ -228,7 +224,8 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
 
     indent: function(state, textAfter, fullLine) {
       var context = state.context;
-      if (context && context.noIndent)
+      if ((state.tokenize != inTag && state.tokenize != inText) ||
+          context && context.noIndent)
         return fullLine ? fullLine.match(/^(\s*)/)[0].length : 0;
       if (alignCDATA && /<!\[CDATA\[/.test(textAfter)) return 0;
       if (context && /^<\//.test(textAfter))
