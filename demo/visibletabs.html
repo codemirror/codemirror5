@@ -48,7 +48,7 @@ browsers. You can use a more conservative technique like a background
 image as an alternative.</p>
 
     <script>
-      CodeMirror.fromTextArea(document.getElementById("code"), {
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true,
         tabSize: 4,
         indentUnit: 4,
