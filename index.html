@@ -117,7 +117,7 @@
   release</a> or the current <a
   href="http://codemirror.net/codemirror2-latest.zip">development
   snapshot</a> as zip files. To create a custom minified script file,
-  you can use the <a href="compress.html">compression API</a>.</p>
+  you can use the <a href="doc/compress.html">compression API</a>.</p>
 
   <p>We use <a href="http://git-scm.com/">git</a> for version control.
   The main repository can be fetched in this way:</p>
@@ -131,12 +131,12 @@
 
   <h2 id="documention">Documentation</h2>
 
-  <p>The <a href="manual.html">manual</a> is your first stop for
+  <p>The <a href="doc/manual.html">manual</a> is your first stop for
   learning how to use this library. It starts with a quick explanation
   of how to use the editor, and then describes the API in detail.</p>
 
   <p>For those who want to learn more about the code, there is
-  an <a href="internals.html">overview of the internals</a> available.
+  an <a href="doc/internals.html">overview of the internals</a> available.
   The <a href="http://github.com/marijnh/CodeMirror2">source code</a>
   itself is, for the most part, also well commented.</p>
 
@@ -225,13 +225,13 @@
 
   <p class="rel">21-11-2011: <a href="http://codemirror.net/codemirror-2.17.zip">Version 2.17</a>:</p>
   <ul class="rel-note">
-    <li>Add support for <a href="manual.html#option_lineWrapping">line
-    wrapping</a> and <a href="manual.html#hideLine">code
+    <li>Add support for <a href="doc/manual.html#option_lineWrapping">line
+    wrapping</a> and <a href="doc/manual.html#hideLine">code
     folding</a>.</li>
     <li>Add <a href="mode/gfm/index.html">Github-style Markdown</a> mode.</li>
     <li>Add <a href="theme/monokai.css">Monokai</a>
     and <a href="theme/rubyblue.css">Rubyblue</a> themes.</li>
-    <li>Add <a href="manual.html#setBookmark"><code>setBookmark</code></a> method.</li>
+    <li>Add <a href="doc/manual.html#setBookmark"><code>setBookmark</code></a> method.</li>
     <li>Move some of the demo code into reusable components
     under <a href="lib/util/"><code>lib/util</code></a>.</li>
     <li>Make screen-coord-finding code faster and more reliable.</li>
@@ -247,9 +247,9 @@
   <ul class="rel-note">
     <li>Add <a href="mode/perl/index.html">Perl</a>, <a href="mode/rust/index.html">Rust</a>, <a href="mode/tiddlywiki/index.html">TiddlyWiki</a>, and <a href="mode/groovy/index.html">Groovy</a> modes.</li>
     <li>Dragging text inside the editor now moves, rather than copies.</li>
-    <li>Add a <a href="manual.html#coordsFromIndex"><code>coordsFromIndex</code></a> method.</li>
-    <li><strong>API change</strong>: <code>setValue</code> now no longer clears history. Use <a href="manual.html#clearHistory"><code>clearHistory</code></a> for that.</li>
-    <li><strong>API change</strong>: <a href="manual.html#markText"><code>markText</code></a> now
+    <li>Add a <a href="doc/manual.html#coordsFromIndex"><code>coordsFromIndex</code></a> method.</li>
+    <li><strong>API change</strong>: <code>setValue</code> now no longer clears history. Use <a href="doc/manual.html#clearHistory"><code>clearHistory</code></a> for that.</li>
+    <li><strong>API change</strong>: <a href="doc/manual.html#markText"><code>markText</code></a> now
     returns an object with <code>clear</code> and <code>find</code>
     methods. Marked text is now more robust when edited.</li>
     <li>Fix editing code with tabs in Internet Explorer.</li>
@@ -264,7 +264,7 @@
   <ul class="rel-note">
     <li>Add <a href="mode/clojure/index.html">Clojure</a>, <a href="mode/pascal/index.html">Pascal</a>, <a href="mode/ntriples/index.html">NTriples</a>, <a href="mode/jinja2/index.html">Jinja2</a>, and <a href="mode/markdown/index.html">Markdown</a> modes.</li>
     <li>Add <a href="theme/cobalt.css">Cobalt</a> and <a href="theme/eclipse.css">Eclipse</a> themes.</li>
-    <li>Add a <a href="manual.html#option_fixedGutter"><code>fixedGutter</code></a> option.</li>
+    <li>Add a <a href="doc/manual.html#option_fixedGutter"><code>fixedGutter</code></a> option.</li>
     <li>Fix bug with <code>setValue</code> breaking cursor movement.</li>
     <li>Make gutter updates much more efficient.</li>
     <li>Allow dragging of text out of the editor (on modern browsers).</li>
@@ -273,9 +273,9 @@
   <p class="rel">23-08-2011: <a href="http://codemirror.net/codemirror-2.13.zip">Version 2.13</a>:</p>
   <ul class="rel-note">
     <li>Add <a href="mode/ruby/index.html">Ruby</a>, <a href="mode/r/index.html">R</a>, <a href="mode/coffeescript/index.html">CoffeeScript</a>, and <a href="mode/velocity/index.html">Velocity</a> modes.</li>
-    <li>Add <a href="manual.html#getGutterElement"><code>getGutterElement</code></a> to API.</li>
+    <li>Add <a href="doc/manual.html#getGutterElement"><code>getGutterElement</code></a> to API.</li>
     <li>Several fixes to scrolling and positioning.</li>
-    <li>Add <a href="manual.html#option_smartHome"><code>smartHome</code></a> option.</li>
+    <li>Add <a href="doc/manual.html#option_smartHome"><code>smartHome</code></a> option.</li>
     <li>Add an experimental <a href="mode/xmlpure/index.html">pure XML</a> mode.</li>
   </ul>
 
@@ -308,7 +308,7 @@
 
   <p class="rel">07-06-2011: <a href="http://codemirror.net/codemirror-2.1.zip">Version 2.1</a>:</p>
   <p class="rel-note">Add
-  a <a href="manual.html#option_theme">theme</a> system
+  a <a href="doc/manual.html#option_theme">theme</a> system
   (<a href="demo/theme.html">demo</a>). Note that this is not
   backwards-compatible—you'll have to update your styles and
   modes!</p>
@@ -325,7 +325,7 @@
     <li>Fix problem with 'sticking' horizontal scrollbar.</li>
   </ul>
 
-  <p><a href="oldrelease.html">Older releases...</a></p>
+  <p><a href="doc/oldrelease.html">Older releases...</a></p>
 
 </div></div>
 

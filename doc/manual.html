@@ -3,7 +3,7 @@
   <head>
     <title>CodeMirror: User Manual</title>
     <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Droid+Sans|Droid+Sans:bold"/>
-    <link rel="stylesheet" type="text/css" href="doc/docs.css"/>
+    <link rel="stylesheet" type="text/css" href="docs.css"/>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <style>dl dl {margin: 0;}</style>
   </head>
@@ -12,7 +12,7 @@
 <h1><span class="logo-braces">{ }</span> <a href="http://codemirror.net/">CodeMirror</a></h1>
 
 <pre class="grey">
-<img src="doc/baboon.png" class="logo" alt="logo"/>/* User manual and
+<img src="baboon.png" class="logo" alt="logo"/>/* User manual and
    reference guide */
 </pre>
 
@@ -46,7 +46,7 @@
     example:</p>
 
     <pre>&lt;script src="lib/codemirror.js">&lt;/script>
-&lt;link rel="stylesheet" href="lib/codemirror.css">
+&lt;link rel="stylesheet" href="../lib/codemirror.css">
 &lt;script src="mode/javascript/javascript.js">&lt;/script></pre>
 
     <p>Having done this, an editor instance can be created like
@@ -130,7 +130,7 @@
       <dd>The theme to style the editor with. You must make sure the
       CSS file defining the corresponding <code>.cm-s-[name]</code>
       styles is loaded (see
-      the <a href="theme/"><code>theme</code></a> directory in the
+      the <a href="../theme/"><code>theme</code></a> directory in the
       distribution). The default is <code>"default"</code>, for which
       colors are included in <code>codemirror.css</code>. It is
       possible to use multiple theming classes at once—for
@@ -159,7 +159,7 @@
       <dd>Configures the keymap to use. The default
       is <code>"default"</code>, which is the only keymap defined
       in <code>codemirror.js</code> itself. Extra keymaps are found in
-      the <a href="keymap/"><code>keymap</code></a> directory.</dd>
+      the <a href="../keymap/"><code>keymap</code></a> directory.</dd>
 
       <dt id="option_extraKeys"><code>extraKeys (object)</code></dt>
       <dd>Can be used to specify extra keybindings for the editor.
@@ -296,7 +296,7 @@
     simply provide the colors for that mode, and can be adapted in a
     very straightforward way. To style the editor itself, it is
     possible to alter or override the styles defined
-    in <a href="lib/codemirror.css"><code>codemirror.css</code></a>.</p>
+    in <a href="../lib/codemirror.css"><code>codemirror.css</code></a>.</p>
 
     <p>Some care must be taken there, since a lot of the rules in this
     file are necessary to have CodeMirror function properly. Adjusting
@@ -370,7 +370,7 @@
 
     <p>Themes are also simply CSS files, which define colors for
     various syntactic elements. See the files in
-    the <a href="theme/"><code>theme</code></a> directory.</p>
+    the <a href="../theme/"><code>theme</code></a> directory.</p>
 
     <h2 id="api">Programming API</h2>
 
@@ -655,14 +655,14 @@
     editor functionality. In brief, they are:</p>
 
     <dl>
-      <dt id="util_dialog"><a href="lib/util/dialog.js"><code>dialog.js</code></a></dt>
+      <dt id="util_dialog"><a href="../lib/util/dialog.js"><code>dialog.js</code></a></dt>
       <dd>Provides a very simple way to query users for text input.
       Adds an <code>openDialog</code> method to CodeMirror instances,
       which can be called with an HTML fragment that provides the
       prompt (should include an <code>input</code> tag), and a
       callback function that is called when text has been entered.
       Depends on <code>lib/util/dialog.css</code>.</dd>
-      <dt id="util_searchcursor"><a href="lib/util/searchcursor.js"><code>searchcursor.js</code></a></dt>
+      <dt id="util_searchcursor"><a href="../lib/util/searchcursor.js"><code>searchcursor.js</code></a></dt>
       <dd>Adds the <code>getSearchCursor(query, start, caseFold) →
       cursor</code> method to CodeMirror instances, which can be used
       to implement search/replace functionality. <code>query</code>
@@ -691,15 +691,15 @@
           replacement.</dd>
         </dl></dd>
 
-      <dt id="util_search"><a href="lib/util/search.js"><code>search.js</code></a></dt>
+      <dt id="util_search"><a href="../lib/util/search.js"><code>search.js</code></a></dt>
       <dd>Implements the search commands. CodeMirror has keys bound to
       these by default, but will not do anything with them unless an
       implementation is provided. Depends
       on <code>searchcursor.js</code>, and will make use
       of <a href="#util_dialog"><code>openDialog</code></a> when
       available to make prompting for search queries less ugly.</dd>
-      <dt id="util_foldcode"><a href="lib/util/foldcode.js"><code>foldcode.js</code></a></dt>
-      <dd>Helps with code folding. See <a href="demo/folding.html">the
+      <dt id="util_foldcode"><a href="../lib/util/foldcode.js"><code>foldcode.js</code></a></dt>
+      <dd>Helps with code folding. See <a href="../demo/folding.html">the
       demo</a> for an example.
       Call <code>CodeMirror.newFoldFunction</code> with a range-finder
       helper function to create a function that will, when applied to
@@ -710,12 +710,12 @@
       no block is started on that line. This file
       provides <code>CodeMirror.braceRangeFinder</code>, which finds
       blocks in brace languages (JavaScript, C, Java, etc).</dd>
-      <dt id="util_runmode"><a href="lib/util/runmode.js"><code>runmode.js</code></a></dt>
+      <dt id="util_runmode"><a href="../lib/util/runmode.js"><code>runmode.js</code></a></dt>
       <dd>Can be used to run a CodeMirror mode over text without
       actually opening an editor instance.
-      See <a href="demo/runmode.html">the demo</a> for an
+      See <a href="../demo/runmode.html">the demo</a> for an
       example.</dd>
-      <dt id="util_simple-hint"><a href="lib/util/simple-hint.js"><code>simple-hint.js</code></a></dt>
+      <dt id="util_simple-hint"><a href="../lib/util/simple-hint.js"><code>simple-hint.js</code></a></dt>
       <dd>Provides a framework for showing autocompletion hints.
       Defines <code>CodeMirror.simpleHint</code>, which takes a
       CodeMirror instance and a hinting function, and pops up a widget
@@ -726,7 +726,7 @@
       and <code>to</code> give the start and end of the token that is
       being completed. Depends
       on <code>lib/util/simple-hint.css</code>.</dd>
-      <dt id="util_javascript-hint"><a href="lib/util/javascript-hint.js"><code>javascript-hint.js</code></a></dt>
+      <dt id="util_javascript-hint"><a href="../lib/util/javascript-hint.js"><code>javascript-hint.js</code></a></dt>
       <dd>Defines <code>CodeMirror.javaScriptHint</code>, which is a
       simple hinting function for the JavaScript mode.</dd>
     </dl>
@@ -909,13 +909,13 @@
     provide <code>startState</code>, <code>copyState</code>,
     <code>compareStates</code>, and <code>indent</code> methods. For
     an example of a trivial mode, see
-    the <a href="mode/diff/diff.js">diff mode</a>, for a more involved
-    example, see the <a href="mode/clike/clike.js">C-like
+    the <a href="../mode/diff/diff.js">diff mode</a>, for a more involved
+    example, see the <a href="../mode/clike/clike.js">C-like
     mode</a>.</p>
 
     <p>Sometimes, it is useful for modes to <em>nest</em>—to have one
     mode delegate work to another mode. An example of this kind of
-    mode is the <a href="mode/htmlmixed/htmlmixed.js">mixed-mode HTML
+    mode is the <a href="../mode/htmlmixed/htmlmixed.js">mixed-mode HTML
     mode</a>. To implement such nesting, it is usually necessary to
     create mode objects and copy states yourself. To create a mode
     object, there are <code>CodeMirror.getMode(options,
