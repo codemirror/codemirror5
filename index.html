@@ -199,12 +199,12 @@
   <h2>Support CodeMirror</h2>
 
   <ul>
-    <li><strong>Donate</strong>
+    <li>Donate
     (<span onclick="document.getElementById('paypal').submit();"
     class="quasilink">Paypal</span>
     or <span onclick="document.getElementById('bankinfo').style.display = 'block';"
              class="quasilink">bank</span>)</li>
-    <li>Purchase <strong><a href="#commercial">commercial support</a></strong></li>
+    <li>Purchase <a href="#commercial">commercial support</a></li>
   </ul>
 
   <p id="bankinfo" style="display: none;">
@@ -218,7 +218,28 @@
 
   <h2>Releases:</h2>
 
-  <p class="rel"><strong>Note:</strong> <a href="doc/upgrade_v2.2.html">incompatible changes</a> in HEAD</p>
+  <p class="rel">20-12-2011: <a href="http://codemirror.net/codemirror-2.2.zip">Version 2.2</a>:</p>
+
+  <ul class="rel-note">
+    <li>Slightly incompatible API changes. Read <a href="doc/upgrade_v2.2.html">this</a>.</li>
+    <li>New approach
+    to <a href="doc/manual.html#option_extraKeys">binding</a> keys,
+    support for <a href="doc/manual.html#option_keyMap">custom
+    bindings</a>.</li>
+    <li>Support for overwrite (insert).</li>
+    <li><a href="doc/manual.html#option_tabSize">Custom-width</a>
+    and <a href="demo/visibletabs.html">stylable</a> tabs.</li>
+    <li>Moved more code into <a href="doc/manual.html#addons">add-on scripts</a>.</li>
+    <li>Support for sane vertical cursor movement in wrapped lines.</li>
+    <li>More reliable handling of
+    editing <a href="doc/manual.html#markText">marked text</a>.</li>
+    <li>Add minimal <a href="demo/emacs.html">emacs</a>
+    and <a href="demo/vim.html">vim</a> bindings.</li>
+    <li>Rename <code>coordsFromIndex</code>
+    to <a href="doc/manual.html#posFromIndex"><code>posFromIndex</code></a>,
+    add <a href="doc/manual.html#indexFromPos"><code>indexFromPos</code></a>
+    method.</li>
+  </ul>
 
   <p class="rel">21-11-2011: <a href="http://codemirror.net/codemirror-2.18.zip">Version 2.18</a>:</p>
   <p class="rel-note">Fixes <code>TextMarker.clear</code>, which is broken in 2.17.</p>
@@ -304,25 +325,6 @@
     <li>Fix drag-and-drop for Firefox.</li>
     <li>Add a C# configuration for the <a href="mode/clike/index.html">C-like mode</a>.</li>
     <li>Add <a href="demo/fullscreen.html">full-screen editing</a> and <a href="demo/changemode.html">mode-changing</a> demos.</li>
-  </ul>
-
-  <p class="rel">07-06-2011: <a href="http://codemirror.net/codemirror-2.1.zip">Version 2.1</a>:</p>
-  <p class="rel-note">Add
-  a <a href="doc/manual.html#option_theme">theme</a> system
-  (<a href="demo/theme.html">demo</a>). Note that this is not
-  backwards-compatible—you'll have to update your styles and
-  modes!</p>
-
-  <p class="rel">07-06-2011: <a href="http://codemirror.net/codemirror-2.02.zip">Version 2.02</a>:</p>
-  <ul class="rel-note">
-    <li>Add a <a href="mode/lua/index.html">Lua mode</a>.</li>
-    <li>Fix reverse-searching for a regexp.</li>
-    <li>Empty lines can no longer break highlighting.</li>
-    <li>Rework scrolling model (the outer wrapper no longer does the scrolling).</li>
-    <li>Solve horizontal jittering on long lines.</li>
-    <li>Add <a href="demo/runmode.html">runmode.js</a>.</li>
-    <li>Immediately re-highlight text when typing.</li>
-    <li>Fix problem with 'sticking' horizontal scrollbar.</li>
   </ul>
 
   <p><a href="doc/oldrelease.html">Older releases...</a></p>
