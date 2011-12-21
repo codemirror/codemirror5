@@ -1,0 +1,95 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>less CodeMirror2 Syntax</title>
+
+  <link rel="stylesheet" href="../../lib/codemirror.css">
+  <script src="../../lib/codemirror.js"></script>
+  <link rel="stylesheet" href="../../theme/default.css">
+  <script src="less.js"></script>
+
+  <style type="text/css">
+    form {
+      border: 1px solid #222;
+      font-size: 18px;
+    }
+
+    .CodeMirror-scroll {
+      height: 600px;
+    }
+  </style>
+
+</head>
+<body>
+
+  <form>
+<textarea name="code" id="code">
+//
+// Examples taken from http://lesscss.org
+//
+
+color: #4D926F;
+
+#header {
+  color: @color;
+}
+h2 {
+  color: @color;
+}
+
+.rounded-corners (@radius: 5px) {
+  border-radius: @radius;
+  -webkit-border-radius: @radius;
+  -moz-border-radius: @radius;
+}
+
+#header {
+  .rounded-corners;
+}
+#footer {
+  .rounded-corners(10px);
+}
+
+#header {
+  h1 {
+    font-size: 26px;
+    font-weight: bold;
+  }
+  p { font-size: 12px;
+    a { text-decoration: none;
+      &amp;:hover { border-width: 1px }
+    }
+  }
+}
+
+@the-border: 1px;
+@base-color: #111;
+@red:        #842210;
+
+#header {
+  color: @base-color * 3;
+  border-left: @the-border;
+  border-right: @the-border * 2;
+}
+#footer { 
+  color: @base-color + #003300;
+  border-color: desaturate(@red, 10%);
+}
+
+
+
+
+</textarea>
+  </form>
+
+  <script type="text/javascript">
+    var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+      tabMode: "shift",
+      lineNumbers: true
+    });
+  </script>
+
+
+</body>
+</html>
