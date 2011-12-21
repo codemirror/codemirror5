@@ -1,30 +1,25 @@
-<!DOCTYPE HTML>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>less CodeMirror2 Syntax</title>
-
-  <link rel="stylesheet" href="../../lib/codemirror.css">
-  <script src="../../lib/codemirror.js"></script>
-  <link rel="stylesheet" href="../../theme/default.css">
-  <script src="less.js"></script>
-
-  <style type="text/css">
-    form {
-      border: 1px solid #222;
-      font-size: 18px;
-    }
-
-    .CodeMirror-scroll {
-      height: 600px;
-    }
-  </style>
-
-</head>
-<body>
-
-  <form>
-<textarea name="code" id="code">
+  <head>
+    <meta charset="UTF-8">
+    <title>CodeMirror: LESS mode</title>
+    <link rel="stylesheet" href="../../lib/codemirror.css">
+    <script src="../../lib/codemirror.js"></script>
+    <script src="less.js"></script>
+    <link rel="stylesheet" href="../../doc/docs.css">
+    <style type="text/css">
+      form {
+        border: 1px solid #222;
+        font-size: 18px;
+      }
+      .CodeMirror-scroll {
+        height: 500px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>CodeMirror: LESS mode</h1>
+    <form><textarea id="code" name="code">
 //
 // Examples taken from http://lesscss.org
 //
@@ -76,12 +71,7 @@ h2 {
   color: @base-color + #003300;
   border-color: desaturate(@red, 10%);
 }
-
-
-
-
-</textarea>
-  </form>
+</textarea></form>
 
   <script type="text/javascript">
     var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
@@ -89,7 +79,7 @@ h2 {
       lineNumbers: true
     });
   </script>
-
+  <p><strong>MIME types defined:</strong> <code>text/less</code>.</p>
 
 </body>
 </html>

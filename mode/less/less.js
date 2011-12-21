@@ -248,3 +248,5 @@ CodeMirror.defineMode('less', function(conf) {
     }
   }
 });
+
+CodeMirror.defineMIME("text/less", "less");
