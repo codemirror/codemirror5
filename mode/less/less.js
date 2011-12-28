@@ -1,252 +1,186 @@
-// This mode is from the lessphp homepage: https://github.com/leafo/lessphp-site/blob/master/www/codemirror2/mode/less/less.js
-// Author: leaf corcoran <leafot@gmail.com>
-
-// todo make interpolations highlight as typed
-// treat url() as string
-
-CodeMirror.defineMode('less', function(conf) {
-
-  function regex_escape(text) {
-    return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-  }
-
-  function words(words) {
-    var escaped = [];
-    for (var i = 0; i < words.length; i++) {
-      escaped.push(regex_escape(words[i]));
+CodeMirror.defineMode("less", function(config) {
+  var indentUnit = config.indentUnit, type;
+  function ret(style, tp) {type = tp; return style;}
+  //html5 tags
+  var tags = ["a","abbr","acronym","address","applet","area","article","aside","audio","b","base","basefont","bdi","bdo","big","blockquote","body","br","button","canvas","caption","cite","code","col","colgroup","command","datalist","dd","del","details","dfn","dir","div","dl","dt","em","embed","fieldset","figcaption","figure","font","footer","form","frame","frameset","h1","h2","h3","h4","h5","h6","head","header","hgroup","hr","html","i","iframe","img","input","ins","keygen","kbd","label","legend","li","link","map","mark","menu","meta","meter","nav","noframes","noscript","object","ol","optgroup","option","output","p","param","pre","progress","q","rp","rt","ruby","s","samp","script","section","select","small","source","span","strike","strong","style","sub","summary","sup","table","tbody","td","textarea","tfoot","th","thead","time","title","tr","track","tt","u","ul","var","video","wbr"];
+  
+  function inTagsArray(val){
+    for(var i=0; i<tags.length; i++){
+      if(val === tags[i]){
+	return true;
+      }
     }
-    return new RegExp("^(?:" + escaped.join("|") + ")$", "i");
   }
 
-  function set(items) {
-    var set = {};
-    for (var i = 0; i < items.length; i++) {
-      set[items[i]] = true;
-    }
-    return set;
-  }
-
-  var symbols = set(['{', '}', '[', ']', '(', ')']);
-  var symbols_2 = set(['!', '&']);
-
-  var units = [
-    'em', 'ex', 'px', 'gd', 'rem', 'vw', 'vh', 'vm', 'ch', 'in', 'cm', 'mm',
-    'pt', 'pc', '%', 'deg', 'grad', 'rad', 'turn', 'ms', 's', 'Hz', 'kHz',
-  ];
-
-  for (var i = 0; i < units.length; i++)
-    units[i] = regex_escape(units[i]);
-  var unit_regex = new RegExp("^(?:" + units.join('|') + ")");
-
-  var atom = /^[a-z_-][\w_-]*/i;
-  var number = /^(?:\+|\-)?\d(\.\d+)?/i;
-  var color = /^(?:[a-f0-9]{6}|[a-f0-9]{3})/i;
-
-  var html_tags = words([
-    'abbr', 'acronym', 'address', 'applet', 'area', 'a', 'b', 'base',
-    'basefont', 'bdo', 'big', 'blockquote', 'body', 'br', 'button', 'caption',
-    'center', 'cite', 'code', 'col', 'colgroup', 'dd', 'del', 'dfn', 'dir',
-    'div', 'dl', 'dt', 'em', 'fieldset', 'font', 'form', 'frame', 'frameset',
-    'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'head', 'hr', 'html', 'img', 'i',
-    'iframe', 'img', 'input', 'ins', 'isindex', 'kbd', 'label', 'legend', 'li',
-    'link', 'map', 'menu', 'meta', 'noframes', 'noscript', 'ol', 'optgroup',
-    'option', 'p', 'param', 'pre', 'q', 's', 'samp', 'script', 'select',
-    'small', 'span', 'strike', 'strong', 'style', 'sub', 'sup', 'tbody', 'td',
-    'textarea', 'tfoot', 'th', 'thead', 'title', 'tr', 'tt', 'ul', 'u', 'var'
-  ]);
-
-  var colors = words([
-    "aqua", "black", "blue", "fuchsia", "gray", "green", "lime", "maroon",
-    "navy", "olive", "purple", "red", "silver", "teal", "yellow", "white",
-    "transparent"
-  ]);
-
-  var value_words = words( [
-    "cursive", "fantasy", "monospace", "italic", "oblique", "bold", "bolder",
-    "lighter", "larger", "smaller", "icon", "menu", "caption", "large", "smaller",
-    "larger", "narrower", "wider", "auto", "none", "inherit", "top", "bottom",
-    "medium", "normal", "sans", "sans-serif", "large", "small", "x-large",
-    "x-small", "xx-large", "xx-small", "repeat-x", "repeat-y", "repeat",
-    "no-repeat", "underline", "overline", "blink", "sub", "super", "middle",
-    "capitalize", "uppercase", "lowercase", "center", "justify", "baseline", "sub",
-    "super", "width", "height", "float", "clear", "overflow", "clip", "visibility",
-    "thin", "thick", "both", "dotted", "dashed", "solid", "double", "groove",
-    "ridge", "inset", "outset", "hidden", "visible", "scroll", "collapse", "fixed",
-    "default", "crosshair", "pointer", "move", "wait", "help", "thin", "thick",
-    "dotted", "dashed", "solid", "double", "groove", "ridge", "inset", "outset",
-    "invert", "inline"
-  ]);
-
-  function normal(stream) {
+  function tokenBase(stream, state) {
     var ch = stream.next();
 
-    if (ch == "." && stream.match(atom)) {
-      return "atom";
-    } else if (ch == "#" && stream.match(atom)) {
-      return "tag";
-    } else if (ch == "@" && stream.match(atom)) {
-
-      if (stream.match(/^\s*:/)) {
-        stream.backUp(1);
-        this.push_scanner(value);
-      }
-
-      return "variable-3"
-    } else if (symbols[ch]) {
-      if (ch == "{") this.brace_depth++;
-
-      if (ch == "}") {
-        this.brace_depth--;
-        if (this.brace_depth < 0) return "error";
-      }
-
-      return "bracket";
-    } else if (ch.match(/[a-z]/i)) {
-      stream.backUp(1);
-      stream.match(atom);
-      var word = stream.current();
-      if (stream.match(/^\s*:/)) {
-        stream.backUp(1);
-
-        this.push_scanner(value);
-        return "attribute";
-      }
-      
-      if (word.match(html_tags)) {
-        return "tag";
+    if (ch == "@") {stream.eatWhile(/[\w\-]/); return ret("meta", stream.current());}
+    else if (ch == "/" && stream.eat("*")) {
+      state.tokenize = tokenCComment;
+      return tokenCComment(stream, state);
+    }
+    else if (ch == "<" && stream.eat("!")) {
+      state.tokenize = tokenSGMLComment;
+      return tokenSGMLComment(stream, state);
+    }
+    else if (ch == "=") ret(null, "compare");
+    else if ((ch == "~" || ch == "|") && stream.eat("=")) return ret(null, "compare");
+    else if (ch == "\"" || ch == "'") {
+      state.tokenize = tokenString(ch);
+      return state.tokenize(stream, state);
+    }
+    else if (ch == "/") { // lesscss e.g.: .png will not be parsed as a class
+      if(stream.eat("/")){
+	state.tokenize = tokenSComment
+      	return tokenSComment(stream, state);
+      }else{
+	stream.eatWhile(/[\a-zA-Z0-9\-_.]/);
+        return ret("number", "unit");
       }
     }
-
-    return this.common_value(ch, stream);
-  }
-
-  function common_value(ch, stream) {
-    if (ch == "+" || ch == "-" || ch.match(/\d/)) {
-      stream.backUp(1);
-      if (stream.match(number)) {
-        stream.match(unit_regex);
-        return "number";
-      } else {
-        stream.next(); // move forward again
+    else if (ch == "!") {
+      stream.match(/^\s*\w*/);
+      return ret("keyword", "important");
+    }
+    else if (/\d/.test(ch)) {
+      stream.eatWhile(/[\w.%]/);
+      return ret("number", "unit");
+    }
+    else if (/[,+>*\/]/.test(ch)) {//removed . dot character original was [,.+>*\/]
+      return ret(null, "select-op");
+    }
+    else if (/[;{}:\[\]()]/.test(ch)) { //added () char for lesscss original was [;{}:\[\]]
+      if(ch == ":"){
+	stream.eatWhile(/[active|hover|link|visited]/);
+	if( stream.current().match(/[active|hover|link|visited]/)){
+	  return ret("tag", "tag");
+	}else{
+	  return ret(null, ch);	
+	}
+      }else{
+  	return ret(null, ch);
       }
     }
-
-    if (ch == "/") {
-      if (stream.eat("/")) {
-        stream.skipToEnd();
-        return "comment";
-      }
-
-      if (stream.eat("*")) {
-        this.push_scanner(comment);
-        return this.scanner(stream);
+    else if (ch == ".") { // lesscss
+      stream.eatWhile(/[\a-zA-Z0-9\-_]/);
+      return ret("tag", "tag");
+    }
+    else if (ch == "#") { // lesscss
+      stream.match(/([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})/);
+      if(stream.current().length >1){
+	if(stream.current().match(/([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})/) != null){
+	  return ret("number", "unit");
+	}else{
+	  stream.eatWhile(/[\w\-]/);
+	  return ret("atom", "tag"); 
+	}
+      }else{
+	stream.eatWhile(/[\w\-]/);
+	return ret("atom", "tag");
       }
     }
-
-    if (symbols[ch]) return "bracket";
-    if (symbols_2[ch]) return "builtin";
+    else if (ch == "&") {
+      stream.eatWhile(/[\w\-]/);
+      return ret(null, ch);
+    }
+    else {
+      stream.eatWhile(/[\w\\\-_.%{]/);
+      if( stream.eat("(") ){ // lesscss
+	return ret(null, ch);
+      }else if( stream.current().match(/\-\d|\-.\d/) ){ // lesscss match e.g.: -5px -0.4 etc...
+	return ret("number", "unit");
+      }else if( inTagsArray(stream.current()) ){ // lesscss match html tags
+	return ret("tag", "tag");
+      }else{
+      	return ret("variable", "variable");
+      }
+    }
     
-    if (ch == "'" || ch == '"') {
-      this.push_scanner(string_matcher(ch, true));
-      return "string";
-    }
   }
 
-  function value(stream) {
-    var ch = stream.next();
-    
-    if (ch == ";" || ch == "}" || ch == "{") {
-      stream.backUp(1);
-      this.pop_scanner();
-      return;
-    }
-
-    if (ch == "#" && stream.match(color)) {
-      return "number";
-    }
-
-    if (ch == "@" && stream.match(atom)) {
-      return "variable-3";
-    }
-
-    if (ch.match(/[a-z]/i)) {
-      stream.backUp(1);
-      stream.match(atom);
-      var word = stream.current();
-      if (word == "url" && stream.eat("(")) {
-        this.push_scanner(string_matcher(")", false, "tag"));
-        return "tag";
-      }
-
-      if (word.match(value_words)) {
-        return "meta";
-      }
-
-      if (word.match(colors)) {
-        return "variable-2";
-      }
-    }
-
-    return this.common_value(ch, stream);
-  }
-
-  function comment(stream) {
-    while (stream.skipTo("*")) {
-      if (stream.eat("*") && stream.eat("/")) {
-        this.pop_scanner();
-        return "comment";
-      }
-    }
+  function tokenSComment(stream, state) {// SComment = Slash comment
     stream.skipToEnd();
-    return "comment";
+    state.tokenize = tokenBase;
+    return ret("comment", "comment");
+  }
+  
+  function tokenCComment(stream, state) {
+    var maybeEnd = false, ch;
+    while ((ch = stream.next()) != null) {
+      if (maybeEnd && ch == "/") {
+        state.tokenize = tokenBase;
+        break;
+      }
+      maybeEnd = (ch == "*");
+    }
+    return ret("comment", "comment");
   }
 
-  var interp_patt = /^{[a-z_-][\w_-]*}/i;
-
-  function string_matcher(end_delim, can_escape, delim_type) {
-    return function string(stream) {
-      var ch = stream.next();
-
-      if (can_escape && ch == "\\" && (stream.eat(end_delim) || stream.eat("\\"))) {
-        return "string";
+  function tokenSGMLComment(stream, state) {
+    var dashes = 0, ch;
+    while ((ch = stream.next()) != null) {
+      if (dashes >= 2 && ch == ">") {
+        state.tokenize = tokenBase;
+        break;
       }
-
-      if (ch == "@" && stream.match(interp_patt)) {
-        return "variable-3";
-      }
-
-      if (ch == end_delim) {
-        this.pop_scanner();
-        return delim_type || "string";
-      }
-
-      return "string";
+      dashes = (ch == "-") ? dashes + 1 : 0;
     }
+    return ret("comment", "comment");
+  }
+
+  function tokenString(quote) {
+    return function(stream, state) {
+      var escaped = false, ch;
+      while ((ch = stream.next()) != null) {
+        if (ch == quote && !escaped)
+          break;
+        escaped = !escaped && ch == "\\";
+      }
+      if (!escaped) state.tokenize = tokenBase;
+      return ret("string", "string");
+    };
   }
 
   return {
-    startState: function() {
-      return {
-        scanner: normal,
-        common_value: common_value,
-        brace_depth: 0,
-
-        push_scanner: function(scanner) {
-          this._scanners = this._scanners || [];
-          this._scanners.push(this.scanner);
-          this.scanner = scanner;
-        },
-
-        pop_scanner: function() {
-          this.scanner = this._scanners.pop();
-        }
-      }
+    startState: function(base) {
+      return {tokenize: tokenBase,
+              baseIndent: base || 0,
+              stack: []};
     },
+
     token: function(stream, state) {
       if (stream.eatSpace()) return null;
-      return state.scanner(stream);
-    }
-  }
+      var style = state.tokenize(stream, state);
+
+      var context = state.stack[state.stack.length-1];
+      if (type == "hash" && context == "rule") style = "atom";
+      else if (style == "variable") {
+        if (context == "rule") style = null; //"tag"
+        else if (!context || context == "@media{") style = "tag";
+      }
+
+      if (context == "rule" && /^[\{\};]$/.test(type))
+        state.stack.pop();
+      if (type == "{") {
+        if (context == "@media") state.stack[state.stack.length-1] = "@media{";
+        else state.stack.push("{");
+      }
+      else if (type == "}") state.stack.pop();
+      else if (type == "@media") state.stack.push("@media");
+      else if (context == "{" && type != "comment") state.stack.push("rule");
+      return style;
+    },
+
+    indent: function(state, textAfter) {
+      var n = state.stack.length;
+      if (/^\}/.test(textAfter))
+        n -= state.stack[state.stack.length-1] == "rule" ? 2 : 1;
+      return state.baseIndent + n * indentUnit;
+    },
+
+    electricChars: "}"
+  };
 });
 
 CodeMirror.defineMIME("text/less", "less");
