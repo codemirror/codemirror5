@@ -28,6 +28,8 @@ CodeMirror.defineMode("python", function(conf, parserConf) {
     var py3 = {'types': ['bytearray', 'bytes', 'filter', 'map', 'memoryview',
                          'open', 'range', 'zip'],
                'keywords': ['nonlocal']};
+    var builtinConstants = wordRegexp(['False', 'True', 'None', 'NotImplemented', 'Ellipsis',
+                                       '__debug__']);
 
     if (!!parserConf.version && parseInt(parserConf.version, 10) === 3) {
         commonkeywords = commonkeywords.concat(py3.keywords);
@@ -130,6 +132,10 @@ CodeMirror.defineMode("python", function(conf, parserConf) {
         }
         
         if (stream.match(types)) {
+            return 'builtin';
+        }
+
+        if (stream.match(builtinConstants)) {
             return 'builtin';
         }
         
