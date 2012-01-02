@@ -63,7 +63,7 @@ CodeMirror.defineMode("mysql", function(config) {
 			stream.skipToEnd();
 			return "comment";
 		}
-      
+
     }
     else if (operatorChars.test(ch)) {
       stream.eatWhile(operatorChars);
@@ -102,7 +102,7 @@ CodeMirror.defineMode("mysql", function(config) {
       return "string";
     };
   }
-  
+
   function tokenOpLiteral(quote) {
     return function(stream, state) {
       var escaped = false, ch;
@@ -162,7 +162,7 @@ CodeMirror.defineMode("mysql", function(config) {
           state.context.col = stream.column();
         }
       }
-      
+
       return style;
     },
 
@@ -185,4 +185,4 @@ CodeMirror.defineMode("mysql", function(config) {
   };
 });
 
-CodeMirror.defineMIME("text/plain", "mysql");
+CodeMirror.defineMIME("text/x-mysql", "mysql");
