@@ -1,0 +1,43 @@
+span.sql-keyword {
+  color: blue;
+}
+
+span.sql-var {
+  color: red;
+}
+
+span.sql-comment {
+  color: #AA7700;
+}
+
+span.sql-literal {
+  color: green;
+}
+
+span.sql-operator {
+  color: blue;
+}
+
+span.sql-word {
+  color: black;
+}
+
+span.sql-quoted-word {
+  color: #680;
+}
+
+span.sql-function {
+  color: darkorange;
+}
+
+span.sql-type {
+  color: purple;
+}
+
+span.sql-separator {
+  color: #666666;
+}
+
+span.sql-number {
+  color: darkcyan;
+}
