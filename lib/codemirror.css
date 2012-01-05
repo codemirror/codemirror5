@@ -4,11 +4,18 @@
 }
 
 .CodeMirror-scroll {
-  overflow: auto;
+  overflow-x: auto;
+  overflow-y: hidden;
   height: 300px;
   /* This is needed to prevent an IE[67] bug where the scrolled content
      is visible outside of the scrolling box. */
   position: relative;
+}
+
+.CodeMirror-scrollbar {
+  float: right;
+  overflow-x: hidden;
+  overflow-y: scroll;
 }
 
 .CodeMirror-gutter {

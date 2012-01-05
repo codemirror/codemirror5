@@ -51,6 +51,7 @@ function findSequence(goal) {
   var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
     lineNumbers: true
   });
+  editor.getScrollerElement().style.height = "600px";
   function selectTheme(node) {
     var theme = node.options[node.selectedIndex].innerHTML;
     editor.setOption("theme", theme);
