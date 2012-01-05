@@ -461,7 +461,7 @@ CodeMirror.defineMode("xmlpure", function(config, parserConfig) {
                     // end-tag - indent back to last context
                     return state.context.indent;
                 }
-                if(textAfter == '<![CDATA[') {
+                if(textAfter.match(/^<!\[CDATA\[/)) {
                     // a stand-alone CDATA start-tag - indent back to column 0
                     return 0;                
                 }

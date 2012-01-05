@@ -51,30 +51,21 @@
 }
 
 .CodeMirror textarea {
-  font-family: inherit !important;
-  font-size: inherit !important;
   outline: none !important;
 }
 
-.CodeMirror-cursor {
+.CodeMirror pre.CodeMirror-cursor {
   z-index: 10;
   position: absolute;
   visibility: hidden;
-  border-left: 1px solid black !important;
+  border-left: 1px solid black;
 }
-.CodeMirror-focused .CodeMirror-cursor {
+.CodeMirror-focused pre.CodeMirror-cursor {
   visibility: visible;
 }
 
-span.CodeMirror-selected {
-  background: #d9d9d9 !important;
-}
-.CodeMirror-focused span.CodeMirror-selected {
-  background: #d2dcf8 !important;
-}
-
-.CodeMirror-matchingbracket {color: #0f0 !important;}
-.CodeMirror-nonmatchingbracket {color: #f22 !important;}
+span.CodeMirror-selected { background: #d9d9d9; }
+.CodeMirror-focused span.CodeMirror-selected { background: #d2dcf8; }
 
 .CodeMirror-searching {background: #ffa;}
 
@@ -108,3 +99,6 @@ span.cm-header, span.cm-strong {font-weight: bold;}
 span.cm-em {font-style: italic;}
 span.cm-emstrong {font-style: italic; font-weight: bold;}
 span.cm-link {text-decoration: underline;}
+
+div.CodeMirror span.CodeMirror-matchingbracket {color: #0f0;}
+div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}

@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
   <head>
-    <title>CodeMirror 2: Visible tabs demo</title>
+    <title>CodeMirror: Visible tabs demo</title>
     <link rel="stylesheet" href="../lib/codemirror.css">
     <script src="../lib/codemirror.js"></script>
     <script src="../mode/clike/clike.js"></script>
@@ -23,7 +23,7 @@
     </style>
   </head>
   <body>
-    <h1>CodeMirror 2: Visible tabs demo</h1>
+    <h1>CodeMirror: Visible tabs demo</h1>
 
     <form><textarea id="code" name="code">
 #include "syscalls.h"
@@ -48,7 +48,7 @@ browsers. You can use a more conservative technique like a background
 image as an alternative.</p>
 
     <script>
-      CodeMirror.fromTextArea(document.getElementById("code"), {
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true,
         tabSize: 4,
         indentUnit: 4,

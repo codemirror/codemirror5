@@ -87,7 +87,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     else {
       stream.eatWhile(/[\w\$_]/);
       var word = stream.current(), known = keywords.propertyIsEnumerable(word) && keywords[word];
-      return known ? ret(known.type, known.style, word) :
+      return (known && state.kwAllowed) ? ret(known.type, known.style, word) :
                      ret("variable", "variable", word);
     }
   }
@@ -316,6 +316,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       return {
         tokenize: jsTokenBase,
         reAllowed: true,
+        kwAllowed: true,
         cc: [],
         lexical: new JSLexical((basecolumn || 0) - indentUnit, 0, "block", false),
         localVars: null,
@@ -334,6 +335,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       var style = state.tokenize(stream, state);
       if (type == "comment") return style;
       state.reAllowed = type == "operator" || type == "keyword c" || type.match(/^[\[{}\(,;:]$/);
+      state.kwAllowed = type != '.';
       return parseJS(state, style, type, content, stream);
     },
 

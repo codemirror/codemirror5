@@ -19,7 +19,7 @@
 .cm-s-eclipse span.cm-attribute {color: #00c;}
 .cm-s-eclipse span.cm-link {color: #219;}
 
-.CodeMirror-matchingbracket{
+.cm-s-eclipse .CodeMirror-matchingbracket {
 	border:1px solid grey;
 	color:black !important;;
 }

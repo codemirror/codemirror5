@@ -1,132 +1,139 @@
-CodeMirror.defineMode("smalltalk", function(config, parserConfig) {
-  var keywords = {"true": 1, "false": 1, nil: 1, self: 1, "super": 1, thisContext: 1};
-  var indentUnit = config.indentUnit;
+CodeMirror.defineMode('smalltalk', function(config, modeConfig) {
 
-  function chain(stream, state, f) {
-    state.tokenize = f;
-    return f(stream, state);
-  }
+	var specialChars = /[+\-/\\*~<>=@%|&?!.:;^]/;
+	var keywords = /true|false|nil|self|super|thisContext/;
 
-  var type;
-  function ret(tp, style) {
-    type = tp;
-    return style;
-  }
+	var Context = function(tokenizer, parent) {
+		this.next = tokenizer;
+		this.parent = parent;
+	};
 
-  function tokenBase(stream, state) {
-    var ch = stream.next();
-    if (ch == '"')
-      return chain(stream, state, tokenComment(ch));
-    else if (ch == "'")
-      return chain(stream, state, tokenString(ch));
-    else if (ch == "#") {
-      stream.eatWhile(/[\w\$_]/);
-      return ret("string", "string");
-    }
-    else if (ch == '$') {
-      if (stream.next() == "<") {
-        stream.eatWhile(/\d/);
-        stream.eat(/\>/);
-      }
-      return ret("string", "string");
-    }
-    else if (ch == "^" || (ch == ":" && stream.eat("="))) {
-      return ret("operator", "operator");
-    }
-    else if (/\d/.test(ch)) {
-      stream.eatWhile(/[\w\.]/)
-      return ret("number", "number");
-    }
-    else if (/[\[\]()]/.test(ch)) {
-      return ret(ch, null);
-    }
-    else {
-      stream.eatWhile(/[\w\$_]/);
-      if (keywords && keywords.propertyIsEnumerable(stream.current())) return ret("keyword", "keyword");
-      return ret("word", "variable");
-    }
-  }
+	var Token = function(name, context, eos) {
+		this.name = name;
+		this.context = context;
+		this.eos = eos;
+	};
 
-  function tokenString(quote) {
-    return function(stream, state) {
-      var escaped = false, next, end = false;
-      while ((next = stream.next()) != null) {
-        if (next == quote && !escaped) {end = true; break;}
-        escaped = !escaped && next == "\\";
-      }
-      if (end || !(escaped))
-        state.tokenize = tokenBase;
-      return ret("string", "string");
-    };
-  }
+	var State = function() {
+		this.context = new Context(next, null);
+		this.expectVariable = true;
+		this.indentation = 0;
+		this.userIndentationDelta = 0;
+	};
 
-  function tokenComment(quote) {
-    return function(stream, state) {
-      var next, end = false;
-      while ((next = stream.next()) != null) {
-        if (next == quote) {end = true; break;}
-      }
-      if (end)
-        state.tokenize = tokenBase;
-      return ret("comment", "comment");
-    };
-  }
+	State.prototype.userIndent = function(indentation) {
+		this.userIndentationDelta = indentation > 0 ? (indentation / config.indentUnit - this.indentation) : 0;
+	};
 
-  function Context(indented, column, type, align, prev) {
-    this.indented = indented;
-    this.column = column;
-    this.type = type;
-    this.align = align;
-    this.prev = prev;
-  }
+	var next = function(stream, context, state) {
+		var token = new Token(null, context, false);
+		var char = stream.next();
 
-  function pushContext(state, col, type) {
-    return state.context = new Context(state.indented, col, type, null, state.context);
-  }
-  function popContext(state) {
-    return state.context = state.context.prev;
-  }
+		if (char === '"') {
+			token = nextComment(stream, new Context(nextComment, context));
 
-  // Interface
+		} else if (char === '\'') {
+			token = nextString(stream, new Context(nextString, context));
 
-  return {
-    startState: function(basecolumn) {
-      return {
-        tokenize: tokenBase,
-        context: new Context((basecolumn || 0) - indentUnit, 0, "top", false),
-        indented: 0,
-        startOfLine: true
-      };
-    },
+		} else if (char === '#') {
+			stream.eatWhile(/[^ .]/);
+			token.name = 'string-2';
 
-    token: function(stream, state) {
-      var ctx = state.context;
-      if (stream.sol()) {
-        if (ctx.align == null) ctx.align = false;
-        state.indented = stream.indentation();
-        state.startOfLine = true;
-      }
-      if (stream.eatSpace()) return null;
-      var style = state.tokenize(stream, state);
-      if (type == "comment") return style;
-      if (ctx.align == null) ctx.align = true;
+		} else if (char === '$') {
+			stream.eatWhile(/[^ ]/);
+			token.name = 'string-2';
 
-      if (type == "[") pushContext(state, stream.column(), "]");
-      else if (type == "(") pushContext(state, stream.column(), ")");
-      else if (type == ctx.type) popContext(state);
-      state.startOfLine = false;
-      return style;
-    },
+		} else if (char === '|' && state.expectVariable) {
+			token.context = new Context(nextTemporaries, context);
 
-    indent: function(state, textAfter) {
-      if (state.tokenize != tokenBase) return 0;
-      var firstChar = textAfter && textAfter.charAt(0), ctx = state.context, closing = firstChar == ctx.type;
-      if (ctx.align) return ctx.column + (closing ? 0 : 1);
-      else return ctx.indented + (closing ? 0 : indentUnit);
-    },
+		} else if (/[\[\]{}()]/.test(char)) {
+			token.name = 'bracket';
+			token.eos = /[\[{(]/.test(char);
 
-    electricChars: "]"
-  };
+			if (char === '[') {
+				state.indentation++;
+			} else if (char === ']') {
+				state.indentation = Math.max(0, state.indentation - 1);
+			}
+
+		} else if (specialChars.test(char)) {
+			stream.eatWhile(specialChars);
+			token.name = 'operator';
+			token.eos = char !== ';'; // ; cascaded message expression
+
+		} else if (/\d/.test(char)) {
+			stream.eatWhile(/[\w\d]/);
+			token.name = 'number'
+
+		} else if (/[\w_]/.test(char)) {
+			stream.eatWhile(/[\w\d_]/);
+			token.name = state.expectVariable ? (keywords.test(stream.current()) ? 'keyword' : 'variable') : null;
+
+		} else {
+			token.eos = state.expectVariable;
+		}
+
+		return token;
+	};
+
+	var nextComment = function(stream, context) {
+		stream.eatWhile(/[^"]/);
+		return new Token('comment', stream.eat('"') ? context.parent : context, true);
+	};
+
+	var nextString = function(stream, context) {
+		stream.eatWhile(/[^']/);
+		return new Token('string', stream.eat('\'') ? context.parent : context, false);
+	};
+
+	var nextTemporaries = function(stream, context, state) {
+		var token = new Token(null, context, false);
+		var char = stream.next();
+
+		if (char === '|') {
+			token.context = context.parent;
+			token.eos = true;
+
+		} else {
+			stream.eatWhile(/[^|]/);
+			token.name = 'variable';
+		}
+
+		return token;
+	}
+
+	return {
+		startState: function() {
+			return new State;
+		},
+
+		token: function(stream, state) {
+			state.userIndent(stream.indentation());
+
+			if (stream.eatSpace()) {
+				return null;
+			}
+
+			var token = state.context.next(stream, state.context, state);
+			state.context = token.context;
+			state.expectVariable = token.eos;
+
+			state.lastToken = token;
+			return token.name;
+		},
+
+		blankLine: function(state) {
+			state.userIndent(0);
+		},
+
+		indent: function(state, textAfter) {
+			var i = state.context.next === next && textAfter && textAfter.charAt(0) === ']' ? -1 : state.userIndentationDelta;
+			return (state.indentation + i) * config.indentUnit;
+		},
+
+		electricChars: ']'
+	};
+
 });
 
-CodeMirror.defineMIME("text/x-stsrc", {name: "smalltalk"});
+CodeMirror.defineMIME('text/x-stsrc', {name: 'smalltalk'});

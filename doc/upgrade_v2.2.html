@@ -3,7 +3,7 @@
   <head>
     <title>CodeMirror: Upgrading to v2.2</title>
     <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Droid+Sans|Droid+Sans:bold"/>
-    <link rel="stylesheet" type="text/css" href="../doc/docs.css"/>
+    <link rel="stylesheet" type="text/css" href="docs.css"/>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
   </head>
   <body>
@@ -11,15 +11,14 @@
 <h1><span class="logo-braces">{ }</span> <a href="http://codemirror.net/">CodeMirror</a></h1>
 
 <pre class="grey">
-<img src="../doc/baboon.png" class="logo" alt="logo"/>/* Upgrading to v2.2
+<img src="baboon.png" class="logo" alt="logo"/>/* Upgrading to v2.2
  */
 </pre>
 
 <div class="left">
 
-<p>There are a few things in the current HEAD (which will be released
-as 2.2 somewhere in December), that require some care when
-upgrading.</p>
+<p>There are a few things in the 2.2 release that require some care
+when upgrading.</p>
 
 <h2>No more default.css</h2>
 
@@ -31,7 +30,7 @@ even if you're not using it, the extra data overhead is negligible.)
 <h2>Different key customization</h2>
 
 <p>CodeMirror has moved to a system
-where <a href="../manual.html#option_keyMap">keymaps</a> are used to
+where <a href="manual.html#option_keyMap">keymaps</a> are used to
 bind behavior to keys. This means <a href="../demo/emacs.html">custom
 bindings</a> are now possible.</p>
 
@@ -40,7 +39,7 @@ behavior, <code>tabMode</code>, <code>enterMode</code>,
 and <code>smartHome</code>, are no longer supported. Instead, you can
 provide custom bindings to influence the way these keys act. This is
 done through the
-new <a href="../manual.html#option_extraKeys"><code>extraKeys</code></a>
+new <a href="manual.html#option_extraKeys"><code>extraKeys</code></a>
 option, which can hold an object mapping key names to functionality. A
 simple example would be:</p>
 
@@ -63,7 +62,7 @@ make it always go to the very start instead:</p>
 <pre>  extraKeys: {"Home": "goLineStart"}</pre>
 
 <p>Similarly, <code>Enter</code> is bound
-to <code>"newLineAndIndent"</code> by default. You can bind it to
+to <code>"newlineAndIndent"</code> by default. You can bind it to
 something else to get different behavior. To disable special handling
 completely and only get a newline character inserted, you can bind it
 to <code>false</code>:</p>

@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+  <head>
+    <title>CodeMirror: MySQL mode</title>
+    <link rel="stylesheet" href="../../lib/codemirror.css">
+    <script src="../../lib/codemirror.js"></script>
+    <script src="mysql.js"></script>
+    <style>.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
+    <link rel="stylesheet" href="../../doc/docs.css">
+  </head>
+  <body>
+    <h1>CodeMirror: MySQL mode</h1>
+    <form><textarea id="code" name="code">
+-- Comment for the code
+-- MySQL Mode for CodeMirror2 by MySQLTools http://github.com/partydroid/MySQL-Tools
+SELECT  UNIQUE `var1` as `variable`,
+        MAX(`var5`) as `max`,
+        MIN(`var5`) as `min`,
+        STDEV(`var5`) as `dev`
+FROM `table`
+
+LEFT JOIN `table2` ON `var2` = `variable`
+
+ORDER BY `var3` DESC
+GROUP BY `groupvar`
+
+LIMIT 0,30;
+
+</textarea></form>
+    <script>
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        mode: "text/x-mysql",
+        tabMode: "indent",
+        matchBrackets: true
+      });
+    </script>
+
+    <p><strong>MIME types defined:</strong> <code>text/x-mysql</code>.</p>
+
+  </body>
+</html>

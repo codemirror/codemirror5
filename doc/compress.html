@@ -3,7 +3,7 @@
   <head>
     <title>CodeMirror: Compression Helper</title>
     <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Droid+Sans|Droid+Sans:bold"/>
-    <link rel="stylesheet" type="text/css" href="doc/docs.css"/>
+    <link rel="stylesheet" type="text/css" href="docs.css"/>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
   </head>
   <body>
@@ -11,7 +11,7 @@
 <h1><span class="logo-braces">{ }</span> <a href="http://codemirror.net/">CodeMirror</a></h1>
 
 <pre class="grey">
-<img src="doc/baboon.png" class="logo" alt="logo"/>/* Script compression
+<img src="baboon.png" class="logo" alt="logo"/>/* Script compression
    helper */
 </pre>
 
@@ -27,6 +27,7 @@
       <input type="hidden" id="download" name="download" value="codemirror-compressed.js"/>
       <p>Version: <select id="version" onchange="setVersion(this);" style="padding: 1px">
         <option value="http://codemirror.net/">HEAD</option>
+        <option value="http://marijnhaverbeke.nl/git/codemirror2?a=blob_plain;hb=v2.2;f=">2.2</option>
         <option value="http://marijnhaverbeke.nl/git/codemirror2?a=blob_plain;hb=v2.18;f=">2.18</option>
         <option value="http://marijnhaverbeke.nl/git/codemirror2?a=blob_plain;hb=v2.16;f=">2.16</option>
         <option value="http://marijnhaverbeke.nl/git/codemirror2?a=blob_plain;hb=v2.15;f=">2.15</option>
@@ -54,11 +55,14 @@
           <option value="http://codemirror.net/mode/gfm/gfm.js">gfm.js</option>
           <option value="http://codemirror.net/mode/groovy/groovy.js">groovy.js</option>
           <option value="http://codemirror.net/mode/haskell/haskell.js">haskell.js</option>
+          <option value="http://codemirror.net/mode/htmlembedded/htmlembedded.js">htmlembedded.js</option>
           <option value="http://codemirror.net/mode/htmlmixed/htmlmixed.js">htmlmixed.js</option>
           <option value="http://codemirror.net/mode/javascript/javascript.js">javascript.js</option>
           <option value="http://codemirror.net/mode/jinja2/jinja2.js">jinja2.js</option>
+          <option value="http://codemirror.net/mode/less/less.js">less.js</option>
           <option value="http://codemirror.net/mode/lua/lua.js">lua.js</option>
           <option value="http://codemirror.net/mode/markdown/markdown.js">markdown.js</option>
+          <option value="http://codemirror.net/mode/mysql/mysql.js">mysql.js</option>
           <option value="http://codemirror.net/mode/ntriples/ntriples.js">ntriples.js</option>
           <option value="http://codemirror.net/mode/pascal/pascal.js">pascal.js</option>
           <option value="http://codemirror.net/mode/perl/perl.js">perl.js</option>
@@ -85,7 +89,7 @@
           <option value="http://codemirror.net/lib/util/runmode.js">runmode.js</option>
           <option value="http://codemirror.net/lib/util/simple-hint.js">simple-hint.js</option>
           <option value="http://codemirror.net/lib/util/javascript-hint.js">javascript-hint.js</option>
-          <option value="http://codemirror.net/lib/util/codefold.js">codefold.js</option>
+          <option value="http://codemirror.net/lib/util/foldcode.js">codefold.js</option>
           <option value="http://codemirror.net/lib/util/dialog.js">dialog.js</option>
           <option value="http://codemirror.net/lib/util/search.js">search.js</option>
         </optgroup>

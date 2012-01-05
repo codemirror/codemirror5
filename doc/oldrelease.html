@@ -3,7 +3,7 @@
   <head>
     <title>CodeMirror</title>
     <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Droid+Sans|Droid+Sans:bold"/>
-    <link rel="stylesheet" type="text/css" href="doc/docs.css"/>
+    <link rel="stylesheet" type="text/css" href="docs.css"/>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <link rel="alternate" href="http://twitter.com/statuses/user_timeline/242283288.rss" type="application/rss+xml"/>
   </head>
@@ -12,15 +12,34 @@
 <h1><span class="logo-braces">{ }</span> <a href="http://codemirror.net/">CodeMirror</a></h1>
 
 <pre class="grey">
-<img src="doc/baboon.png" class="logo" alt="logo"/>/* Old release history */
+<img src="baboon.png" class="logo" alt="logo"/>/* Old release history */
 
 </pre>
+  <p class="rel">07-06-2011: <a href="http://codemirror.net/codemirror-2.1.zip">Version 2.1</a>:</p>
+  <p class="rel-note">Add
+  a <a href="manual.html#option_theme">theme</a> system
+  (<a href="../demo/theme.html">demo</a>). Note that this is not
+  backwards-compatible—you'll have to update your styles and
+  modes!</p>
+
+  <p class="rel">07-06-2011: <a href="http://codemirror.net/codemirror-2.02.zip">Version 2.02</a>:</p>
+  <ul class="rel-note">
+    <li>Add a <a href="../mode/lua/index.html">Lua mode</a>.</li>
+    <li>Fix reverse-searching for a regexp.</li>
+    <li>Empty lines can no longer break highlighting.</li>
+    <li>Rework scrolling model (the outer wrapper no longer does the scrolling).</li>
+    <li>Solve horizontal jittering on long lines.</li>
+    <li>Add <a href="../demo/runmode.html">runmode.js</a>.</li>
+    <li>Immediately re-highlight text when typing.</li>
+    <li>Fix problem with 'sticking' horizontal scrollbar.</li>
+  </ul>
+
   <p class="rel">26-05-2011: <a href="http://codemirror.net/codemirror-2.01.zip">Version 2.01</a>:</p>
   <ul class="rel-note">
-    <li>Add a <a href="mode/smalltalk/index.html">Smalltalk mode</a>.</li>
-    <li>Add a <a href="mode/rst/index.html">reStructuredText mode</a>.</li>
-    <li>Add a <a href="mode/python/index.html">Python mode</a>.</li>
-    <li>Add a <a href="mode/plsql/index.html">PL/SQL mode</a>.</li>
+    <li>Add a <a href="../mode/smalltalk/index.html">Smalltalk mode</a>.</li>
+    <li>Add a <a href="../mode/rst/index.html">reStructuredText mode</a>.</li>
+    <li>Add a <a href="../mode/python/index.html">Python mode</a>.</li>
+    <li>Add a <a href="../mode/plsql/index.html">PL/SQL mode</a>.</li>
     <li><code>coordsChar</code> now works</li>
     <li>Fix a problem where <code>onCursorActivity</code> interfered with <code>onChange</code>.</li>
     <li>Fix a number of scrolling and mouse-click-position glitches.</li>
@@ -57,7 +76,7 @@
     <li>Disabling spell-check on WebKit browsers now works.</li>
   </ul>
 
-  <p class="rel">08-02-2011: <a href="http://codemirror.net/2/">Version 2.0 beta 1</a>:</p>
+  <p class="rel">08-02-2011: <a href="http://codemirror.net/">Version 2.0 beta 1</a>:</p>
   <p class="rel-note">CodeMirror 2 is a complete rewrite of
   CodeMirror, no longer depending on an editable frame.</p>
 

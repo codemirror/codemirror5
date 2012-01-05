@@ -22,7 +22,7 @@
 .cm-s-monokai span.cm-tag {color: #f92672;}
 .cm-s-monokai span.cm-link {color: #ae81ff;}
 
-.CodeMirror-matchingbracket {
+.cm-s-monokai .CodeMirror-matchingbracket {
   text-decoration: underline;
   color: white !important;
 }

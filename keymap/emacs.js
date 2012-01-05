@@ -18,6 +18,7 @@
     "Alt-Y": function(cm) {cm.replaceSelection(popFromRing());},
     "Ctrl-/": "undo", "Shift-Ctrl--": "undo", "Shift-Alt-,": "goDocStart", "Shift-Alt-.": "goDocEnd",
     "Ctrl-S": "findNext", "Ctrl-R": "findPrev", "Ctrl-G": "clearSearch", "Shift-Alt-5": "replace",
+    "Ctrl-Z": "undo", "Cmd-Z": "undo",
     fallthrough: ["basic", "emacsy"]
   };
 

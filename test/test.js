@@ -94,7 +94,7 @@ test("defaults", function() {
     eq(defs.indentUnit, 5);
     eq(cm.getValue(), "uu");
     eq(cm.getOption("enterMode"), "keep");
-    eq(cm.getInputField().tabindex, 55);
+    eq(cm.getInputField().tabIndex, 55);
   }
   finally {
     CodeMirror.defaults = olddefaults;
@@ -147,7 +147,7 @@ testCM("coordsChar", function(cm) {
   }
 });
 
-testCM("coordsFromIndex", function(cm) {
+testCM("posFromIndex", function(cm) {
   cm.setValue(
     "This function should\n" +
     "convert a zero based index\n" +
@@ -166,9 +166,11 @@ testCM("coordsFromIndex", function(cm) {
 
   for (var i = 0; i < examples.length; i++) {
     var example = examples[i];
-    var pos = cm.coordsFromIndex(example.index);
+    var pos = cm.posFromIndex(example.index);
     eq(pos.line, example.line);
     eq(pos.ch, example.ch);
+    if (example.index >= 0 && example.index < 64)
+      eq(cm.indexFromPos(pos), example.index);
   }  
 });
 
