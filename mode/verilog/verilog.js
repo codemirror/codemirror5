@@ -5,7 +5,7 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
       atoms = parserConfig.atoms || {},
       hooks = parserConfig.hooks || {},
       multiLineStrings = parserConfig.multiLineStrings;
-  var isOperatorChar = /[+\-*&%=<>!?|\/]/;
+  var isOperatorChar = /[&|~><!\)\(*#%@+\/=?\:;}{,\.\^\-\[\]]/;
 
   var curPunc;
 
@@ -15,7 +15,7 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
       var result = hooks[ch](stream, state);
       if (result !== false) return result;
     }
-    if (ch == '"' || ch == "'") {
+    if (ch == '"') {
       state.tokenize = tokenString(ch);
       return state.tokenize(stream, state);
     }
@@ -23,8 +23,8 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
       curPunc = ch;
       return null
     }
-    if (/\d/.test(ch)) {
-      stream.eatWhile(/[\w\.]/);
+    if (/[\d']/.test(ch)) {
+      stream.eatWhile(/[\w\.']/);
       return "number";
     }
     if (ch == "/") {
@@ -189,6 +189,6 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
     keywords: words(verilogKeywords),
     blockKeywords: words(verilogBlockKeywords),
     atoms: words("null"),
-    hooks: {"`": metaHook}
+    hooks: {"`": metaHook, "$": metaHook}
   });
 }());
