@@ -31,7 +31,8 @@ CodeMirror.defineMode("ruby", function(config, parserConfig) {
     }
     if (stream.eatSpace()) return null;
     var ch = stream.next();
-    if (ch == "`" || ch == "'" || ch == '"' || ch == "/") {
+    if (ch == "`" || ch == "'" || ch == '"' ||
+        (ch == "/" && !stream.eol() && stream.peek() != " ")) {
       return chain(readQuoted(ch, "string", ch == '"'), stream, state);
     } else if (ch == "%") {
       var style, embed = false;
