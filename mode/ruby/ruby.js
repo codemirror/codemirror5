@@ -13,7 +13,7 @@ CodeMirror.defineMode("ruby", function(config, parserConfig) {
     "require_relative", "extend", "autoload"
   ]);
   var indentWords = wordObj(["def", "class", "case", "for", "while", "do", "module", "then",
-                             "unless", "catch", "loop", "proc"]);
+                             "unless", "catch", "loop", "proc", "begin"]);
   var dedentWords = wordObj(["end", "until"]);
   var matching = {"[": "]", "{": "}", "(": ")"};
   var curPunc;
@@ -186,11 +186,14 @@ CodeMirror.defineMode("ruby", function(config, parserConfig) {
       var firstChar = textAfter && textAfter.charAt(0);
       var ct = state.context;
       var closing = ct.type == matching[firstChar] ||
-        ct.type == "keyword" && /^(?:end|until|else|elsif|when)\b/.test(textAfter);
+        ct.type == "keyword" && /^(?:end|until|else|elsif|when|rescue)\b/.test(textAfter);
       return ct.indented + (closing ? 0 : config.indentUnit) +
         (state.continuedLine ? config.indentUnit : 0);
-    }
+    },
+     electricChars: "}de" // enD and rescuE
+
   };
 });
 
 CodeMirror.defineMIME("text/x-ruby", "ruby");
+
