@@ -16,6 +16,10 @@
   float: right;
   overflow-x: hidden;
   overflow-y: scroll;
+
+  /* This corrects for the 1px gap introduced to the left of the scrollbar
+     by the rule for .CodeMirror-scrollbar-inner. */
+  margin-left: -1px;
 }
 
 .CodeMirror-scrollbar-inner {
