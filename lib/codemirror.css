@@ -23,8 +23,9 @@
 }
 
 .CodeMirror-scrollbar-inner {
-	/* This needs to have a nonzero width in order for the scrollbar to appear in Firefox and IE. */
-	width: 1px;
+  /* This needs to have a nonzero width in order for the scrollbar to appear 
+     in Firefox and IE. */
+  width: 1px;
 }
 
 .CodeMirror-gutter {
@@ -43,11 +44,11 @@
 }
 .CodeMirror-lines {
   padding: .4em;
-	cursor: text;
+  cursor: text;
 }
 .CodeMirror-lines * {
-	/* Necessary for throw-scrolling to decelerate properly on Safari. */
-	pointer-events: none;
+  /* Necessary for throw-scrolling to decelerate properly on Safari. */
+  pointer-events: none;
 }
 
 .CodeMirror pre {
