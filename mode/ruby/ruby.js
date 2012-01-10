@@ -13,7 +13,7 @@ CodeMirror.defineMode("ruby", function(config, parserConfig) {
     "require_relative", "extend", "autoload"
   ]);
   var indentWords = wordObj(["def", "class", "case", "for", "while", "do", "module", "then",
-                             "unless", "catch", "loop", "proc", "begin"]);
+                             "catch", "loop", "proc", "begin"]);
   var dedentWords = wordObj(["end", "until"]);
   var matching = {"[": "]", "{": "}", "(": ")"};
   var curPunc;
@@ -166,7 +166,8 @@ CodeMirror.defineMode("ruby", function(config, parserConfig) {
           : "variable";
         if (indentWords.propertyIsEnumerable(word)) kwtype = "indent";
         else if (dedentWords.propertyIsEnumerable(word)) kwtype = "dedent";
-        else if (word == "if" && stream.column() == stream.indentation()) kwtype = "indent";
+        else if ((word == "if" || word == "unless") && stream.column() == stream.indentation())
+          kwtype = "indent";
       }
       if (curPunc || (style && style != "comment")) state.lastTok = word || curPunc || style;
       if (curPunc == "|") state.varList = !state.varList;
