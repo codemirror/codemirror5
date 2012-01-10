@@ -18,6 +18,11 @@
   overflow-y: scroll;
 }
 
+.CodeMirror-scrollbar-inner {
+	/* This needs to have a nonzero width in order for the scrollbar to appear in Firefox and IE. */
+	width: 1px;
+}
+
 .CodeMirror-gutter {
   position: absolute; left: 0; top: 0;
   z-index: 10;
