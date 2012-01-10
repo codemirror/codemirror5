@@ -99,7 +99,8 @@
         if (state.curState == html) cur = htmlNew;
         else if (state.curState == php) cur = phpNew;
         else cur = CodeMirror.copyState(state.curMode, state.curState);
-        return {html: htmlNew, php: phpNew, curMode: state.curMode, curState: cur, curClose: state.curClose};
+        return {html: htmlNew, php: phpNew, curMode: state.curMode, curState: cur,
+                curClose: state.curClose, mode: state.mode};
       },
 
       token: dispatch,
