@@ -250,7 +250,7 @@ CodeMirror.defineMode("python", function(conf, parserConf) {
         if (current === '.') {
             style = state.tokenize(stream, state);
             current = stream.current();
-            if (style === 'variable') {
+            if (style === 'variable' || style === 'builtin') {
                 return 'variable';
             } else {
                 return ERRORCLASS;
