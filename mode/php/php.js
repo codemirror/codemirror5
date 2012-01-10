@@ -93,15 +93,20 @@
 				mode:		parserConfig.startOpen ? 'php' : 'html'}
       },
 
-      copyState: function(state) {
-        var html = state.html, htmlNew = CodeMirror.copyState(htmlMode, html),
-            php = state.php, phpNew = CodeMirror.copyState(phpMode, php), cur;
-        if (state.curState == html) cur = htmlNew;
-        else if (state.curState == php) cur = phpNew;
-        else cur = CodeMirror.copyState(state.curMode, state.curState);
-        return {html: htmlNew, php: phpNew, curMode: state.curMode, curState: cur, curClose: state.curClose};
-      },
-
+	// the old copyState was not actually copying the state, instead it just created new ones. This caused the state.mode information to be lost and made it impossible to carry state infomation.
+	copyState: function(state) {
+                var htmlNew = CodeMirror.copyState(htmlMode, state.html), phpNew = CodeMirror.copyState(phpMode, state.php), cur;
+                if (state.curState == state.html) cur = htmlNew;
+                else if (state.curState == state.php) cur = phpNew;
+                else cur = CodeMirror.copyState(state.curMode, state.curState);
+                var nstate=CodeMirror.copyState(state.curMode, state);
+                nstate.html=htmlNew;
+                nstate.php=phpNew;
+                nstate.curMode= state.curMode; 
+                nstate.curState= cur;
+                nstate.curClose= state.curClose;
+                return nstate;
+            }
       token: dispatch,
 
       indent: function(state, textAfter) {
