@@ -34,6 +34,11 @@
 }
 .CodeMirror-lines {
   padding: .4em;
+	cursor: text;
+}
+.CodeMirror-lines * {
+	/* Necessary for throw-scrolling to decelerate properly on Safari. */
+	pointer-events: none;
 }
 
 .CodeMirror pre {
