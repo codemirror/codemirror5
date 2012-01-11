@@ -47,9 +47,17 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
       }
     }
     else if (ch == "&") {
-      stream.eatWhile(/[^;]/);
-      stream.eat(";");
-      return "atom";
+      var ok;
+      if (stream.eat("#")) {
+        if (stream.eat("x")) {
+          ok = stream.eatWhile(/[a-fA-F\d]/) && stream.eat(";");          
+        } else {
+          ok = stream.eatWhile(/[\d]/) && stream.eat(";");
+        }
+      } else {
+        ok = stream.eatWhile(/[\w]/) && stream.eat(";");
+      }
+      return ok ? "atom" : "error";
     }
     else {
       stream.eatWhile(/[^&<]/);
