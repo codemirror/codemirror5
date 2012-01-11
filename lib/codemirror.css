@@ -4,11 +4,31 @@
 }
 
 .CodeMirror-scroll {
-  overflow: auto;
+  overflow-x: auto;
+  overflow-y: hidden;
   height: 300px;
   /* This is needed to prevent an IE[67] bug where the scrolled content
      is visible outside of the scrolling box. */
   position: relative;
+}
+
+.CodeMirror-scrollbar {
+  float: right;
+  overflow-x: hidden;
+  overflow-y: scroll;
+
+  /* This corrects for the 1px gap introduced to the left of the scrollbar
+     by the rule for .CodeMirror-scrollbar-inner. */
+  margin-left: -1px;
+  
+  /* Ensure that the scrollbar appears in Lion. */
+  min-width: 12px;
+}
+
+.CodeMirror-scrollbar-inner {
+  /* This needs to have a nonzero width in order for the scrollbar to appear 
+     in Firefox and IE. */
+  width: 1px;
 }
 
 .CodeMirror-gutter {
@@ -27,6 +47,11 @@
 }
 .CodeMirror-lines {
   padding: .4em;
+  cursor: text;
+}
+.CodeMirror-lines * {
+  /* Necessary for throw-scrolling to decelerate properly on Safari. */
+  pointer-events: none;
 }
 
 .CodeMirror pre {
