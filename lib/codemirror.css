@@ -20,6 +20,9 @@
   /* This corrects for the 1px gap introduced to the left of the scrollbar
      by the rule for .CodeMirror-scrollbar-inner. */
   margin-left: -1px;
+  
+  /* Ensure that the scrollbar appears in Lion. */
+  min-width: 12px;
 }
 
 .CodeMirror-scrollbar-inner {
