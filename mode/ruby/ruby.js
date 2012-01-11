@@ -13,7 +13,7 @@ CodeMirror.defineMode("ruby", function(config, parserConfig) {
     "require_relative", "extend", "autoload"
   ]);
   var indentWords = wordObj(["def", "class", "case", "for", "while", "do", "module", "then",
-                             "unless", "catch", "loop", "proc"]);
+                             "catch", "loop", "proc", "begin"]);
   var dedentWords = wordObj(["end", "until"]);
   var matching = {"[": "]", "{": "}", "(": ")"};
   var curPunc;
@@ -31,7 +31,8 @@ CodeMirror.defineMode("ruby", function(config, parserConfig) {
     }
     if (stream.eatSpace()) return null;
     var ch = stream.next();
-    if (ch == "`" || ch == "'" || ch == '"' || ch == "/") {
+    if (ch == "`" || ch == "'" || ch == '"' ||
+        (ch == "/" && !stream.eol() && stream.peek() != " ")) {
       return chain(readQuoted(ch, "string", ch == '"'), stream, state);
     } else if (ch == "%") {
       var style, embed = false;
@@ -165,7 +166,8 @@ CodeMirror.defineMode("ruby", function(config, parserConfig) {
           : "variable";
         if (indentWords.propertyIsEnumerable(word)) kwtype = "indent";
         else if (dedentWords.propertyIsEnumerable(word)) kwtype = "dedent";
-        else if (word == "if" && stream.column() == stream.indentation()) kwtype = "indent";
+        else if ((word == "if" || word == "unless") && stream.column() == stream.indentation())
+          kwtype = "indent";
       }
       if (curPunc || (style && style != "comment")) state.lastTok = word || curPunc || style;
       if (curPunc == "|") state.varList = !state.varList;
@@ -185,11 +187,14 @@ CodeMirror.defineMode("ruby", function(config, parserConfig) {
       var firstChar = textAfter && textAfter.charAt(0);
       var ct = state.context;
       var closing = ct.type == matching[firstChar] ||
-        ct.type == "keyword" && /^(?:end|until|else|elsif|when)\b/.test(textAfter);
+        ct.type == "keyword" && /^(?:end|until|else|elsif|when|rescue)\b/.test(textAfter);
       return ct.indented + (closing ? 0 : config.indentUnit) +
         (state.continuedLine ? config.indentUnit : 0);
-    }
+    },
+     electricChars: "}de" // enD and rescuE
+
   };
 });
 
 CodeMirror.defineMIME("text/x-ruby", "ruby");
+

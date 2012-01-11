@@ -192,6 +192,7 @@ CodeMirror.defineMode('coffeescript', function(conf) {
                 state.tokenize = tokenBase;
                 break;
             }
+            stream.eatWhile("#");
         }
         return "comment"
     }
@@ -256,13 +257,8 @@ CodeMirror.defineMode('coffeescript', function(conf) {
 
         // Handle properties
         if (current === '@') {
-            style = state.tokenize(stream, state);
-            current = stream.current();
-            if (style === 'variable') {
-                return 'variable-2';
-            } else {
-                return ERRORCLASS;
-            }
+            stream.eat('@');
+            return 'keyword';
         }
 
         // Handle scope changes.
