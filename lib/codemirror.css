@@ -32,6 +32,7 @@
   /* Ensure that the scrollbar appears in Lion, and that it overlaps the content
      rather than sitting to the right of it. */
   position: absolute;
+  z-index: 1;
   float: none;
   right: 0;
   min-width: 12px;
