@@ -1,6 +1,8 @@
 .CodeMirror {
   line-height: 1em;
   font-family: monospace;
+  /* This prevents a scrollbar from showing up on the body in IE. */
+  overflow-y: hidden;
 }
 
 .CodeMirror-scroll {
