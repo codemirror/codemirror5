@@ -1,6 +1,8 @@
 .CodeMirror {
   line-height: 1em;
   font-family: monospace;
+  /* This prevents a scrollbar from showing up on the body in IE. */
+  overflow-y: hidden;
 }
 
 .CodeMirror-scroll {
@@ -20,15 +22,22 @@
   /* This corrects for the 1px gap introduced to the left of the scrollbar
      by the rule for .CodeMirror-scrollbar-inner. */
   margin-left: -1px;
-  
-  /* Ensure that the scrollbar appears in Lion. */
-  min-width: 12px;
 }
 
 .CodeMirror-scrollbar-inner {
   /* This needs to have a nonzero width in order for the scrollbar to appear 
      in Firefox and IE. */
   width: 1px;
+}
+
+.CodeMirror-scrollbar.cm-overlap {   
+  /* Ensure that the scrollbar appears in Lion, and that it overlaps the content
+     rather than sitting to the right of it. */
+  position: absolute;
+  z-index: 1;
+  float: none;
+  right: 0;
+  min-width: 12px;
 }
 
 .CodeMirror-gutter {
