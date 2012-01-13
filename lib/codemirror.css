@@ -22,11 +22,14 @@
   /* This corrects for the 1px gap introduced to the left of the scrollbar
      by the rule for .CodeMirror-scrollbar-inner. */
   margin-left: -1px;
+
+  /* This is required for the scrollbar to appear in IE7/8 and Lion. */ 
+  min-width: 15px;
 }
 
 .CodeMirror-scrollbar-inner {
   /* This needs to have a nonzero width in order for the scrollbar to appear 
-     in Firefox and IE. */
+     in Firefox and IE9. */
   width: 1px;
 }
 
@@ -37,7 +40,6 @@
   z-index: 1;
   float: none;
   right: 0;
-  min-width: 12px;
 }
 
 .CodeMirror-gutter {
