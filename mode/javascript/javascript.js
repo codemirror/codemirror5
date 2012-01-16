@@ -230,7 +230,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (atomicTypes.hasOwnProperty(type)) return cont(maybeoperator);
     if (type == "function") return cont(functiondef);
     if (type == "keyword c") return cont(maybeexpression);
-    if (type == "(") return cont(pushlex(")"), expression, expect(")"), poplex, maybeoperator);
+    if (type == "(") return cont(pushlex(")"), maybeexpression, expect(")"), poplex, maybeoperator);
     if (type == "operator") return cont(expression);
     if (type == "[") return cont(pushlex("]"), commasep(expression, "]"), poplex, maybeoperator);
     if (type == "{") return cont(pushlex("}"), commasep(objprop, "}"), poplex, maybeoperator);
