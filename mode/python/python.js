@@ -18,8 +18,8 @@ CodeMirror.defineMode("python", function(conf, parserConf) {
                           'for', 'from', 'global', 'if', 'import',
                           'lambda', 'pass', 'raise', 'return',
                           'try', 'while', 'with', 'yield'];
-    var commonBuiltins = ['abs', 'all', 'any', 'bin', 'bool', 'callable', 'classmethod',
-                          'compile', 'complex', 'delattr', 'dict', 'dir', 'divmod',
+    var commonBuiltins = ['abs', 'all', 'any', 'bin', 'bool', 'bytearray', 'callable', 'chr',
+                          'classmethod', 'compile', 'complex', 'delattr', 'dict', 'dir', 'divmod',
                           'enumerate', 'eval', 'filter', 'float', 'format', 'frozenset',
                           'getattr', 'globals', 'hasattr', 'hash', 'help', 'hex', 'id',
                           'input', 'int', 'isinstance', 'issubclass', 'iter', 'len',
@@ -33,7 +33,7 @@ CodeMirror.defineMode("python", function(conf, parserConf) {
                             'file', 'intern', 'long', 'raw_input', 'reduce', 'reload',
                             'unichr', 'unicode', 'xrange', 'False', 'True', 'None'],
                'keywords': ['exec', 'print']};
-    var py3 = {'builtins': ['ascii', 'bytearray', 'bytes', 'exec', 'print'],
+    var py3 = {'builtins': ['ascii', 'bytes', 'exec', 'print'],
                'keywords': ['nonlocal', 'False', 'True', 'None']};
 
     if (!!parserConf.version && parseInt(parserConf.version, 10) === 3) {
