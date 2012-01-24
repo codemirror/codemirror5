@@ -1,7 +1,7 @@
 .cm-s-rubyblue { font:13px/1.4em Trebuchet, Verdana, sans-serif; }	/* - customized editor font - */
 
 .cm-s-rubyblue { background: #112435; color: white; }
-.cm-s-rubyblue span.CodeMirror-selected { background: #0000FF !important; }
+.cm-s-rubyblue div.CodeMirror-selected { background: #0000FF !important; }
 .cm-s-rubyblue .CodeMirror-gutter { background: #1F4661; border-right: 7px solid #3E7087; min-width:2.5em; }
 .cm-s-rubyblue .CodeMirror-gutter-text { color: white; }
 .cm-s-rubyblue .CodeMirror-cursor { border-left: 1px solid white !important; }
