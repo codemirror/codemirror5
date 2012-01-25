@@ -69,7 +69,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       else if (state.reAllowed) {
         nextUntilUnescaped(stream, "/");
         stream.eatWhile(/[gimy]/); // 'y' is "sticky" option in Mozilla
-        return ret("regexp", "string");
+        return ret("regexp", "string-2");
       }
       else {
         stream.eatWhile(isOperatorChar);
