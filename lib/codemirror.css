@@ -67,7 +67,10 @@
 div.CodeMirror-selected { background: #d9d9d9; }
 .CodeMirror-focused div.CodeMirror-selected { background: #d7d4f0; }
 
-.CodeMirror-searching {background: #ffa;}
+.CodeMirror-searching {
+  background: #ffa;
+  background: rgba(255, 255, 0, .4);
+}
 
 /* Default theme */
 
