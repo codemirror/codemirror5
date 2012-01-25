@@ -5,7 +5,7 @@ CodeMirror.defineMode("rust", function() {
     "do": "else-style", "ret": "else-style", "fail": "else-style",
     "break": "atom", "cont": "atom", "const": "let", "resource": "fn",
     "let": "let", "fn": "fn", "for": "for", "alt": "alt", "iface": "iface",
-    "impl": "impl", "type": "type", "tag": "tag", "mod": "mod",
+    "impl": "impl", "type": "type", "enum": "enum", "mod": "mod",
     "as": "op", "true": "atom", "false": "atom", "assert": "op", "check": "op",
     "claim": "op", "native": "ignore", "unsafe": "ignore", "import": "else-style",
     "export": "else-style", "copy": "op", "log": "op", "log_err": "op",
@@ -177,7 +177,7 @@ CodeMirror.defineMode("rust", function() {
     if (type == "let") return stat_of(letdef1, "let");
     if (type == "fn") return stat_of(fndef);
     if (type == "type") return cont(pushlex("stat"), tydef, endstatement, poplex, block);
-    if (type == "tag") return stat_of(tagdef);
+    if (type == "enum") return stat_of(enumdef);
     if (type == "mod") return stat_of(mod);
     if (type == "iface") return stat_of(iface);
     if (type == "impl") return stat_of(impl);
@@ -273,18 +273,18 @@ CodeMirror.defineMode("rust", function() {
     if (content == "=") return cont(typecx, rtype, valcx);
     return cont(tydef);
   }
-  function tagdef(type) {
-    if (type == "name") {cx.marked = "def"; return cont(tagdef);}
-    if (content == "<") return cont(typarams, tagdef);
+  function enumdef(type) {
+    if (type == "name") {cx.marked = "def"; return cont(enumdef);}
+    if (content == "<") return cont(typarams, enumdef);
     if (content == "=") return cont(typecx, rtype, valcx, endstatement);
-    if (type == "{") return cont(pushlex("}"), typecx, tagblock, valcx, poplex);
-    return cont(tagdef);
+    if (type == "{") return cont(pushlex("}"), typecx, enumblock, valcx, poplex);
+    return cont(enumdef);
   }
-  function tagblock(type) {
+  function enumblock(type) {
     if (type == "}") return cont();
-    if (type == "(") return cont(pushlex(")"), commasep(rtype, ")"), poplex, tagblock);
+    if (type == "(") return cont(pushlex(")"), commasep(rtype, ")"), poplex, enumblock);
     if (content.match(/^\w+$/)) cx.marked = "def";
-    return cont(tagblock);
+    return cont(enumblock);
   }
   function mod(type) {
     if (type == "name") {cx.marked = "def"; return cont(mod);}
