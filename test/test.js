@@ -191,17 +191,10 @@ testCM("undo", function(cm) {
     cm.replaceRange("a", {line: 0, ch: 0});
     cm.replaceRange("b", {line: 3, ch: 0});
   }
-  eq(cm.historySize().undo, 40);
-  for (var i = 0; i < 38; ++i) cm.undo();
-  eq(cm.historySize().undo, 2);
-  eq(cm.historySize().redo, 38);
-  eq(cm.getValue(), "a1\n\n\nb2");
-  cm.setOption("undoDepth", 10);
-  for (var i = 0; i < 20; ++i) {
-    cm.replaceRange("a", {line: 0, ch: 0});
-    cm.replaceRange("b", {line: 3, ch: 0});
-  }
-  eq(cm.historySize().undo, 10);
+  eq(cm.historySize().undo, 1);
+  cm.undo();
+  eq(cm.historySize().redo, 1);
+  eq(cm.getValue(), "1\n\n\n2");
 }, {value: "abc"});
 
 testCM("undoMultiLine", function(cm) {
