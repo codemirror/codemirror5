@@ -21,7 +21,7 @@ package main
 
 import "fmt"
 
-// Send the sequence 2, 3, 4, … to channel 'ch'.
+// Send the sequence 2, 3, 4, ... to channel 'ch'.
 func generate(ch chan&lt;- int) {
 	for i := 2; ; i++ {
 		ch &lt;- i  // Send 'i' to channel 'ch'
