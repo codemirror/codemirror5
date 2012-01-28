@@ -1,6 +1,7 @@
 <!doctype html>
 <html>
   <head>
+    <meta charset=utf-8>
     <title>CodeMirror: Go mode</title>
     <link rel="stylesheet" href="../../lib/codemirror.css">
     <link rel="stylesheet" href="../../theme/elegant.css">
@@ -21,7 +22,7 @@ package main
 
 import "fmt"
 
-// Send the sequence 2, 3, 4, ... to channel 'ch'.
+// Send the sequence 2, 3, 4, … to channel 'ch'.
 func generate(ch chan&lt;- int) {
 	for i := 2; ; i++ {
 		ch &lt;- i  // Send 'i' to channel 'ch'
