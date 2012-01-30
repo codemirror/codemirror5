@@ -4,20 +4,20 @@ CodeMirror.defineMode("go", function(config, parserConfig) {
   var keywords = {
     "break":true, "case":true, "chan":true, "const":true, "continue":true,
     "default":true, "defer":true, "else":true, "fallthrough":true, "for":true,
-    "func":true, "go":true, "goto":true, "if":true, "import":true, "interface":true,
-    "map":true, "package":true, "range":true, "return":true, "select":true,
-    "struct":true, "switch":true, "type":true, "var":true, "bool":true, "byte":true,
-    "complex64":true, "complex128":true, "float32":true, "float64":true,
-    "int8":true, "int16":true, "int32":true, "int64":true, "string":true,
-    "uint8":true, "uint16":true, "uint32":true, "uint64":true, "int":true,
-    "uint":true, "uintptr":true
+    "func":true, "go":true, "goto":true, "if":true, "import":true,
+    "interface":true, "map":true, "package":true, "range":true, "return":true,
+    "select":true, "struct":true, "switch":true, "type":true, "var":true,
+    "bool":true, "byte":true, "complex64":true, "complex128":true,
+    "float32":true, "float64":true, "int8":true, "int16":true, "int32":true,
+    "int64":true, "string":true, "uint8":true, "uint16":true, "uint32":true,
+    "uint64":true, "int":true, "uint":true, "uintptr":true
   };
 
   var atoms = {
     "true":true, "false":true, "iota":true, "nil":true, "append":true,
-    "cap":true, "close":true, "complex":true, "copy":true, "imag":true, "len":true,
-    "make":true, "new":true, "panic":true, "print":true, "println":true,
-    "real":true, "recover":true
+    "cap":true, "close":true, "complex":true, "copy":true, "imag":true,
+    "len":true, "make":true, "new":true, "panic":true, "print":true,
+    "println":true, "real":true, "recover":true
   };
 
   var blockKeywords = {
@@ -66,7 +66,7 @@ CodeMirror.defineMode("go", function(config, parserConfig) {
     stream.eatWhile(/[\w\$_]/);
     var cur = stream.current();
     if (keywords.propertyIsEnumerable(cur)) {
-      if (blockKeywords.propertyIsEnumerable(cur)) curPunc = "newstatement";
+      if (cur == "case" || cur == "default") curPunc = "case";
       return "keyword";
     }
     if (atoms.propertyIsEnumerable(cur)) return "atom";
@@ -123,7 +123,7 @@ CodeMirror.defineMode("go", function(config, parserConfig) {
         tokenize: null,
         context: new Context((basecolumn || 0) - indentUnit, 0, "top", false),
         indented: 0,
-        startOfLine: true
+        startOfLine: true,
       };
     },
 
@@ -133,6 +133,7 @@ CodeMirror.defineMode("go", function(config, parserConfig) {
         if (ctx.align == null) ctx.align = false;
         state.indented = stream.indentation();
         state.startOfLine = true;
+        if (ctx.type == "case") ctx.type = "}";
       }
       if (stream.eatSpace()) return null;
       curPunc = null;
@@ -143,14 +144,11 @@ CodeMirror.defineMode("go", function(config, parserConfig) {
       if (curPunc == "{") pushContext(state, stream.column(), "}");
       else if (curPunc == "[") pushContext(state, stream.column(), "]");
       else if (curPunc == "(") pushContext(state, stream.column(), ")");
-      else if (curPunc == "}") {
-        while (ctx.type == "statement") ctx = popContext(state);
-        if (ctx.type == "}") ctx = popContext(state);
-        while (ctx.type == "statement") ctx = popContext(state);
-      }
+      else if (curPunc == "case") {
+        ctx.type = "case"
+        //console.log("c -->", ctx.type)
+      } else if (curPunc == "}" && ctx.type == "}") ctx = popContext(state);
       else if (curPunc == ctx.type) popContext(state);
-      else if (ctx.type == "}" || ctx.type == "top" || (ctx.type == "statement" && curPunc == "newstatement"))
-        pushContext(state, stream.column(), "statement");
       state.startOfLine = false;
       return style;
     },
@@ -158,14 +156,20 @@ CodeMirror.defineMode("go", function(config, parserConfig) {
     indent: function(state, textAfter) {
       if (state.tokenize != tokenBase && state.tokenize != null) return 0;
       var ctx = state.context, firstChar = textAfter && textAfter.charAt(0);
-      if (ctx.type == "statement" && firstChar == "}") ctx = ctx.prev;
+      if (ctx.type == "case") {
+        state.context.type = "}";
+        //console.log('indenting', ctx.indented)
+        return ctx.indented;
+      }
       var closing = firstChar == ctx.type;
-      if (ctx.type == "statement") return ctx.indented;
-      else if (ctx.align) return ctx.column + (closing ? 0 : 1);
-      else return ctx.indented + (closing ? 0 : indentUnit);
+      if (ctx.align) return ctx.column + (closing ? 0 : 1);
+      else {
+        //console.log('~indenting', ctx.indented + (closing? 0: indentUnit))
+        return ctx.indented + (closing ? 0 : indentUnit);
+      }
     },
 
-    electricChars: "{}"
+    electricChars: "{}:"
   };
 });
 
