@@ -144,10 +144,8 @@ CodeMirror.defineMode("go", function(config, parserConfig) {
       if (curPunc == "{") pushContext(state, stream.column(), "}");
       else if (curPunc == "[") pushContext(state, stream.column(), "]");
       else if (curPunc == "(") pushContext(state, stream.column(), ")");
-      else if (curPunc == "case") {
-        ctx.type = "case"
-        //console.log("c -->", ctx.type)
-      } else if (curPunc == "}" && ctx.type == "}") ctx = popContext(state);
+      else if (curPunc == "case") ctx.type = "case"
+      else if (curPunc == "}" && ctx.type == "}") ctx = popContext(state);
       else if (curPunc == ctx.type) popContext(state);
       state.startOfLine = false;
       return style;
@@ -156,17 +154,13 @@ CodeMirror.defineMode("go", function(config, parserConfig) {
     indent: function(state, textAfter) {
       if (state.tokenize != tokenBase && state.tokenize != null) return 0;
       var ctx = state.context, firstChar = textAfter && textAfter.charAt(0);
-      if (ctx.type == "case") {
+      if (ctx.type == "case" && /^(?:case|default)\b/.test(textAfter)) {
         state.context.type = "}";
-        //console.log('indenting', ctx.indented)
         return ctx.indented;
       }
       var closing = firstChar == ctx.type;
       if (ctx.align) return ctx.column + (closing ? 0 : 1);
-      else {
-        //console.log('~indenting', ctx.indented + (closing? 0: indentUnit))
-        return ctx.indented + (closing ? 0 : indentUnit);
-      }
+      else return ctx.indented + (closing ? 0 : indentUnit);
     },
 
     electricChars: "{}:"
