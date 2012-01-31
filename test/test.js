@@ -126,7 +126,7 @@ testCM("coords", function(cm) {
   is(top.x < bot.x);
   is(top.y < bot.y);
   is(top.y < top.yBot);
-  cm.scrollTo(100);
+  cm.scrollTo(null, 100);
   var top2 = cm.charCoords({line: 0, ch: 0});
   is(top.y > top2.y);
   eq(top.x, top2.x);
