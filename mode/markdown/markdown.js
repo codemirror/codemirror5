@@ -15,7 +15,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
   var hrRE = /^[*-=_]/
   ,   ulRE = /^[*-+]\s+/
-  ,   olRE = /^[0-9]\.\s+/
+  ,   olRE = /^[0-9]+\.\s+/
   ,   headerRE = /^(?:\={3,}|-{3,})$/
   ,   codeRE = /^(k:\t|\s{4,})/
   ,   textRE = /^[^\[*_\\<>`]+/;
