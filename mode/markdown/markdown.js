@@ -213,6 +213,10 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
     token: function(stream, state) {
       if (stream.sol()) {
+        // Reset EM state
+        state.em = false;
+        // Reset STRONG state
+        state.strong = false;
         state.f = state.block;
         var previousIndentation = state.indentation
         ,   currentIndentation = 0;
