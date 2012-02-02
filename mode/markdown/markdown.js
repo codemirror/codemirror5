@@ -214,7 +214,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         text: handleText,
         em: false,
         strong: false,
-        header: false
+        header: false,
+        quote: false
       };
     },
 
@@ -230,7 +231,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         text: s.text,
         em: s.em,
         strong: s.strong,
-        header: s.header
+        header: s.header,
+        quote: s.quote
       };
     },
 
