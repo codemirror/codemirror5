@@ -44,7 +44,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       state.header = true;
     } else if (stream.eat('>')) {
       state.indentation++;
-      return quote;
+      state.quote = true;
     } else if (stream.peek() === '[') {
       return switchInline(stream, state, footnoteLink);
     } else if (hrRE.test(stream.peek())) {
@@ -89,9 +89,14 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       }
     }
     
-    // Quotes
+    // Header
     if(state.header){
       returnValue += (returnValue ? ' ' : '') + header;
+    }
+    
+    // Quotes
+    if(state.quote){
+      returnValue += (returnValue ? ' ' : '') + quote;
     }
     
     // Check valud and return
@@ -233,6 +238,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       if (stream.sol()) {
         // Reset state.header
         state.header = false;
+        // Reset state.quote
+        state.quote = false;
         state.f = state.block;
         var previousIndentation = state.indentation
         ,   currentIndentation = 0;
