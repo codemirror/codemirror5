@@ -123,7 +123,7 @@ CodeMirror.defineMode("go", function(config, parserConfig) {
         tokenize: null,
         context: new Context((basecolumn || 0) - indentUnit, 0, "top", false),
         indented: 0,
-        startOfLine: true,
+        startOfLine: true
       };
     },
 

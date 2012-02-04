@@ -49,7 +49,7 @@ CodeMirror.defineMode("properties", function() {
         nextMultiline : false,  // Is the next line multiline value
         inMultiline : false     // Is the current line a multiline value
       };
-    },
+    }
 
   };
 });

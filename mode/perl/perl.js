@@ -324,7 +324,7 @@ CodeMirror.defineMode("perl",function(config,parserConfig){
 		hex				:1,	// - convert a string to a hexadecimal number
 		'import'			:1,	// - patch a module's namespace into your own
 		index				:1,	// - find a substring within a string
-		int				:1,	// - get the integer portion of a number
+		'int'				:1,	// - get the integer portion of a number
 		ioctl				:1,	// - system-dependent device control system call
 		'join'				:1,	// - join a list into a string using a separator
 		keys				:1,	// - retrieve list of indices from a hash
