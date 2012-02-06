@@ -33,7 +33,7 @@ CodeMirror.defineMode("ruby", function(config, parserConfig) {
     var ch = stream.next();
     if (ch == "`" || ch == "'" || ch == '"' ||
         (ch == "/" && !stream.eol() && stream.peek() != " ")) {
-      return chain(readQuoted(ch, "string", ch == '"'), stream, state);
+      return chain(readQuoted(ch, "string", ch == '"' || ch == "`"), stream, state);
     } else if (ch == "%") {
       var style, embed = false;
       if (stream.eat("s")) style = "atom";
