@@ -59,6 +59,11 @@
   position: absolute;
   visibility: hidden;
   border-left: 1px solid black;
+  border-right:none;
+  width:0;
+}
+.CodeMirror pre.CodeMirror-cursor.CodeMirror-overwrite {
+  border-right:.5em solid rgba(255, 0, 0, .1);
 }
 .CodeMirror-focused pre.CodeMirror-cursor {
   visibility: visible;
