@@ -70,7 +70,7 @@ CodeMirror.defineMode("ecl", function(config) {
       return "operator";
     }
     stream.eatWhile(/[\w\$_]/);
-    var cur = stream.current();
+    var cur = stream.current().toLowerCase();
     if (keyword.propertyIsEnumerable(cur)) {
       if (blockKeywords.propertyIsEnumerable(cur)) curPunc = "newstatement";
       return "keyword";
