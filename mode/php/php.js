@@ -49,35 +49,41 @@
 
     function dispatch(stream, state) { // TODO open PHP inside text/css
       if (state.curMode == htmlMode) {
-        var style = htmlMode.token(stream, state.curState);
-        if (style == "meta" && /^<\?/.test(stream.current())) {
+        if (stream.match(/^<\?\w*/)) {
           state.curMode = phpMode;
           state.curState = state.php;
           state.curClose = /^\?>/;
-		  state.mode =  'php';
+	  state.mode = "php";
+          return "meta";
         }
-        else if (style == "tag" && stream.current() == ">" && state.curState.context) {
+        var style = htmlMode.token(stream, state.curState);
+        var cur = stream.current(), openPHP = cur.search(/<\?/);
+        if (openPHP != -1) {
+          stream.backUp(cur.length - openPHP);
+        } else if (style == "tag" && stream.current() == ">" && state.curState.context) {
           if (/^script$/i.test(state.curState.context.tagName)) {
             state.curMode = jsMode;
             state.curState = jsMode.startState(htmlMode.indent(state.curState, ""));
             state.curClose = /^<\/\s*script\s*>/i;
-			state.mode =  'javascript';
+	    state.mode = "javascript";
           }
           else if (/^style$/i.test(state.curState.context.tagName)) {
             state.curMode = cssMode;
             state.curState = cssMode.startState(htmlMode.indent(state.curState, ""));
-            state.curClose =  /^<\/\s*style\s*>/i;
-            state.mode =  'css';
+            state.curClose = /^<\/\s*style\s*>/i;
+            state.mode = "css";
           }
         }
         return style;
-      }
-      else if (stream.match(state.curClose, false)) {
+      } else if (stream.match(state.curClose, false)) {
+        var oldMode = state.mode;
         state.curMode = htmlMode;
         state.curState = state.html;
         state.curClose = null;
-		state.mode =  'html';
-        return dispatch(stream, state);
+	state.mode = "html";
+        if (oldMode != "php") return dispatch(stream, state);
+        // Manually consume and tag the closing token for PHP
+        stream.next(); stream.next(); return "meta";
       }
       else return state.curMode.token(stream, state.curState);
     }
@@ -87,10 +93,10 @@
         var html = htmlMode.startState();
         return {html: html,
                 php: phpMode.startState(),
-                curMode:	parserConfig.startOpen ? phpMode : htmlMode,
-                curState:	parserConfig.startOpen ? phpMode.startState() : html,
-                curClose:	parserConfig.startOpen ? /^\?>/ : null,
-				mode:		parserConfig.startOpen ? 'php' : 'html'}
+                curMode: parserConfig.startOpen ? phpMode : htmlMode,
+                curState: parserConfig.startOpen ? phpMode.startState() : html,
+                curClose: parserConfig.startOpen ? /^\?>/ : null,
+		mode: parserConfig.startOpen ? "php" : "html"}
       },
 
       copyState: function(state) {
