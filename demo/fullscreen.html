@@ -111,55 +111,36 @@
 </textarea></form>
  <script>
 
-(function () {
-
     var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true,
         theme: "night",
         extraKeys: {
             "F11": function() {
               scroller = editor.getScrollerElement();
-              scrollerStyle = (scroller.currentStyle
-                ? scroller.currentStyle
-                : window.getComputedStyle(scroller, null)
-              );
-              scrollerHeight = scrollerStyle.height;
-              scrollerWidth = scrollerStyle.width;
               if (scroller.className.search(/\bCodeMirror-fullscreen\b/) === -1) {
-                editor.beforeFullscreen = {
-                  height: scrollerHeight,
-                  width: scrollerWidth
-                }
                 scroller.className += " CodeMirror-fullscreen";
                 scroller.style.height = "100%";
                 scroller.style.width = "100%";
                 editor.refresh();
               } else {
                 scroller.className = scroller.className.replace(" CodeMirror-fullscreen", "");
-                scroller.style.height = editor.beforeFullscreen.height;
-                scroller.style.width = editor.beforeFullscreen.width;
+                scroller.style.height = '';
+                scroller.style.width = '';
                 editor.refresh();
               }
             },
             "Esc": function() {
               scroller = editor.getScrollerElement();
-              scrollerStyle = (scroller.currentStyle
-                ? scroller.currentStyle
-                : window.getComputedStyle(scroller, null)
-              );
-              scrollerHeight = scrollerStyle.height;
-              scrollerWidth = scrollerStyle.width;
               if (scroller.className.search(/\bCodeMirror-fullscreen\b/) !== -1) {
                 scroller.className = scroller.className.replace(" CodeMirror-fullscreen", "");
-                scroller.style.height = editor.beforeFullscreen.height;
-                scroller.style.width = editor.beforeFullscreen.width;
+                scroller.style.height = '';
+                scroller.style.width = '';
                 editor.refresh();
               }
-            },
+            }
         }
     });
 
-})();
 </script>
 
     <p>Press <strong>F11</strong> when cursor is in the editor to toggle full screen editing. <strong>Esc</strong> can also be used to <i>exit</i> full screen editing.</p>
