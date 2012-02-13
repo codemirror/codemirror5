@@ -712,8 +712,8 @@
       of <a href="#util_dialog"><code>openDialog</code></a> when
       available to make prompting for search queries less ugly.</dd>
       <dt id="util_foldcode"><a href="../lib/util/foldcode.js"><code>foldcode.js</code></a></dt>
-      <dd>Helps with code folding. See <a href="../demo/folding.html">the
-      demo</a> for an example.
+      <dd>Helps with code folding.
+      See <a href="../demo/folding.html">the demo</a> for an example.
       Call <code>CodeMirror.newFoldFunction</code> with a range-finder
       helper function to create a function that will, when applied to
       a CodeMirror instance and a line number, attempt to fold or
@@ -722,7 +722,11 @@
       line number, and returns an end line for the block, or null if
       no block is started on that line. This file
       provides <code>CodeMirror.braceRangeFinder</code>, which finds
-      blocks in brace languages (JavaScript, C, Java, etc).</dd>
+      blocks in brace languages (JavaScript, C, Java,
+      etc), <code>CodeMirror.indentRangeFinder</code>, for languages
+      where indentation determines block structure (Python, Haskell),
+      and <code>CodeMirror.tagRangeFinder</code>, for XML-style
+      languages.</dd>
       <dt id="util_runmode"><a href="../lib/util/runmode.js"><code>runmode.js</code></a></dt>
       <dd>Can be used to run a CodeMirror mode over text without
       actually opening an editor instance.
