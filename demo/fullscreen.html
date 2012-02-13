@@ -110,13 +110,12 @@
 
 </textarea></form>
  <script>
-
     var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true,
         theme: "night",
         extraKeys: {
             "F11": function() {
-              scroller = editor.getScrollerElement();
+              var scroller = editor.getScrollerElement();
               if (scroller.className.search(/\bCodeMirror-fullscreen\b/) === -1) {
                 scroller.className += " CodeMirror-fullscreen";
                 scroller.style.height = "100%";
@@ -130,7 +129,7 @@
               }
             },
             "Esc": function() {
-              scroller = editor.getScrollerElement();
+              var scroller = editor.getScrollerElement();
               if (scroller.className.search(/\bCodeMirror-fullscreen\b/) !== -1) {
                 scroller.className = scroller.className.replace(" CodeMirror-fullscreen", "");
                 scroller.style.height = '';
@@ -147,7 +146,7 @@
 
     <p><strong>Note:</strong> Does not currently work correctly in IE
     6 and 7, where setting the height of something
-    to <code>100%</code> doesn't make it full-screen.</p>
+    to <code>100%</code> doesn't make it full screen.</p>
 
   </body>
 </html>
