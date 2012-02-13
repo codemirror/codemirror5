@@ -115,8 +115,8 @@
         lineNumbers: true,
         theme: "night",
         extraKeys: {
-            "F11": function() {
-              scroller = editor.getScrollerElement();
+            "Ctrl-F11": function() {
+              var scroller = editor.getScrollerElement();
               if (scroller.className.search(/\bCodeMirror-fullscreen\b/) === -1) {
                 scroller.className += " CodeMirror-fullscreen";
                 scroller.style.height = "100%";
@@ -132,7 +132,7 @@
             "Esc": function() {
               scroller = editor.getScrollerElement();
               if (scroller.className.search(/\bCodeMirror-fullscreen\b/) !== -1) {
-                scroller.className = scroller.className.replace(" CodeMirror-fullscreen", "");
+                var scroller.className = scroller.className.replace(" CodeMirror-fullscreen", "");
                 scroller.style.height = '';
                 scroller.style.width = '';
                 editor.refresh();
@@ -143,11 +143,11 @@
 
 </script>
 
-    <p>Press <strong>F11</strong> when cursor is in the editor to toggle full screen editing. <strong>Esc</strong> can also be used to <i>exit</i> full screen editing.</p>
+    <p>Press <strong>Ctrl-F11</strong> when cursor is in the editor to toggle full screen editing. <strong>Esc</strong> can also be used to <i>exit</i> full screen editing.</p>
 
     <p><strong>Note:</strong> Does not currently work correctly in IE
     6 and 7, where setting the height of something
-    to <code>100%</code> doesn't make it full-screen.</p>
+    to <code>100%</code> doesn't make it full screen.</p>
 
   </body>
 </html>
