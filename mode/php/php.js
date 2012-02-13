@@ -48,6 +48,7 @@
     var phpMode = CodeMirror.getMode(config, phpConfig);
 
     function dispatch(stream, state) { // TODO open PHP inside text/css
+      if (stream.sol() && state.pending != '"') state.pending = null;
       if (state.curMode == htmlMode) {
         if (stream.match(/^<\?\w*/)) {
           state.curMode = phpMode;
@@ -56,9 +57,20 @@
 	  state.mode = "php";
           return "meta";
         }
-        var style = htmlMode.token(stream, state.curState);
+        if (state.pending == '"') {
+          while (!stream.eol() && stream.next() != '"') {}
+          var style = "string";
+        } else if (state.pending && stream.pos < state.pending.end) {
+          stream.pos = state.pending.end;
+          var style = state.pending.style;
+        } else {
+          var style = htmlMode.token(stream, state.curState);
+        }
+        state.pending = null;
         var cur = stream.current(), openPHP = cur.search(/<\?/);
         if (openPHP != -1) {
+          if (style == "string" && /\"$/.test(cur) && !/\?>/.test(cur)) state.pending = '"';
+          else state.pending = {end: stream.pos, style: style};
           stream.backUp(cur.length - openPHP);
         } else if (style == "tag" && stream.current() == ">" && state.curState.context) {
           if (/^script$/i.test(state.curState.context.tagName)) {
@@ -96,7 +108,8 @@
                 curMode: parserConfig.startOpen ? phpMode : htmlMode,
                 curState: parserConfig.startOpen ? phpMode.startState() : html,
                 curClose: parserConfig.startOpen ? /^\?>/ : null,
-		mode: parserConfig.startOpen ? "php" : "html"}
+		mode: parserConfig.startOpen ? "php" : "html",
+                pending: null}
       },
 
       copyState: function(state) {
@@ -106,7 +119,8 @@
         else if (state.curState == php) cur = phpNew;
         else cur = CodeMirror.copyState(state.curMode, state.curState);
         return {html: htmlNew, php: phpNew, curMode: state.curMode, curState: cur,
-                curClose: state.curClose, mode: state.mode};
+                curClose: state.curClose, mode: state.mode,
+                pending: state.pending};
       },
 
       token: dispatch,
