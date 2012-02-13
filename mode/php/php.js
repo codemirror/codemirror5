@@ -87,17 +87,30 @@
           }
         }
         return style;
+      } else if (state.mode == "php") {
+        if (stream.match(state.curClose)) {
+          state.curMode = htmlMode;
+          state.curState = state.html;
+          state.curClose = null;
+	  state.mode = "html";
+          return "meta";
+        } else {
+          var style = phpMode.token(stream, state.curState);
+          if (style == "comment") {
+            var cur = stream.current(), closePHP = cur.search(/\?>/);
+            if (closePHP != -1) stream.backUp(cur.length - closePHP);
+          }
+          return style;
+        }
       } else if (stream.match(state.curClose, false)) {
-        var oldMode = state.mode;
         state.curMode = htmlMode;
         state.curState = state.html;
         state.curClose = null;
 	state.mode = "html";
-        if (oldMode != "php") return dispatch(stream, state);
-        // Manually consume and tag the closing token for PHP
-        stream.next(); stream.next(); return "meta";
+        return dispatch(stream, state);
+      } else {
+        return state.curMode.token(stream, state.curState);
       }
-      else return state.curMode.token(stream, state.curState);
     }
 
     return {
