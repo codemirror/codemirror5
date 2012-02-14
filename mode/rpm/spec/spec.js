@@ -14,7 +14,7 @@ CodeMirror.defineMode("spec", function(config, modeConfig) {
         return {
           controlFlow: false,
           macroParameters: false,
-          section: false,
+          section: false
         };
     },
     token: function (stream, state) {

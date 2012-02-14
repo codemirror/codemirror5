@@ -15,6 +15,7 @@ CodeMirror.defineMode("xmlpure", function(config, parserConfig) {
     var STYLE_ATTRIBUTE = "attribute";
     var STYLE_WORD = "string";
     var STYLE_TEXT = "atom";
+    var STYLE_ENTITIES = "string";
 
     var TAG_INSTRUCTION = "!instruction";
     var TAG_CDATA = "!cdata";
@@ -290,6 +291,10 @@ CodeMirror.defineMode("xmlpure", function(config, parserConfig) {
                 state.tokenize = parseElementTagName;
                 return STYLE_ELEMENT_NAME;
             }
+        } else if(stream.eat("&")) {
+            stream.eatWhile(/[^;]/);
+            stream.eat(";");
+            return STYLE_ENTITIES;
         } else {
             // new context: text
             pushContext(state, TAG_TEXT);

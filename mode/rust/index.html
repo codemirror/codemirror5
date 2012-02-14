@@ -15,9 +15,9 @@
 // Demo code.
 
 type foo<T> = int;
-tag bar {
-    some(int, foo<float>);
-    none;
+enum bar {
+    some(int, foo<float>),
+    none
 }
 
 fn check_crate(x: int) {
