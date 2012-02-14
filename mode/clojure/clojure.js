@@ -103,7 +103,7 @@ CodeMirror.defineMode("clojure", function (config, mode) {
             return {
                 indentStack: null,
                 indentation: 0,
-                mode: false,
+                mode: false
             };
         },
 
