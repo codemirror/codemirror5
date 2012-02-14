@@ -27,45 +27,45 @@ CodeMirror.defineMode('smalltalk', function(config, modeConfig) {
 
 	var next = function(stream, context, state) {
 		var token = new Token(null, context, false);
-		var char = stream.next();
+		var aChar = stream.next();
 
-		if (char === '"') {
+		if (aChar === '"') {
 			token = nextComment(stream, new Context(nextComment, context));
 
-		} else if (char === '\'') {
+		} else if (aChar === '\'') {
 			token = nextString(stream, new Context(nextString, context));
 
-		} else if (char === '#') {
+		} else if (aChar === '#') {
 			stream.eatWhile(/[^ .]/);
 			token.name = 'string-2';
 
-		} else if (char === '$') {
+		} else if (aChar === '$') {
 			stream.eatWhile(/[^ ]/);
 			token.name = 'string-2';
 
-		} else if (char === '|' && state.expectVariable) {
+		} else if (aChar === '|' && state.expectVariable) {
 			token.context = new Context(nextTemporaries, context);
 
-		} else if (/[\[\]{}()]/.test(char)) {
+		} else if (/[\[\]{}()]/.test(aChar)) {
 			token.name = 'bracket';
-			token.eos = /[\[{(]/.test(char);
+			token.eos = /[\[{(]/.test(aChar);
 
-			if (char === '[') {
+			if (aChar === '[') {
 				state.indentation++;
-			} else if (char === ']') {
+			} else if (aChar === ']') {
 				state.indentation = Math.max(0, state.indentation - 1);
 			}
 
-		} else if (specialChars.test(char)) {
+		} else if (specialChars.test(aChar)) {
 			stream.eatWhile(specialChars);
 			token.name = 'operator';
-			token.eos = char !== ';'; // ; cascaded message expression
+			token.eos = aChar !== ';'; // ; cascaded message expression
 
-		} else if (/\d/.test(char)) {
+		} else if (/\d/.test(aChar)) {
 			stream.eatWhile(/[\w\d]/);
 			token.name = 'number'
 
-		} else if (/[\w_]/.test(char)) {
+		} else if (/[\w_]/.test(aChar)) {
 			stream.eatWhile(/[\w\d_]/);
 			token.name = state.expectVariable ? (keywords.test(stream.current()) ? 'keyword' : 'variable') : null;
 
@@ -88,9 +88,9 @@ CodeMirror.defineMode('smalltalk', function(config, modeConfig) {
 
 	var nextTemporaries = function(stream, context, state) {
 		var token = new Token(null, context, false);
-		var char = stream.next();
+		var aChar = stream.next();
 
-		if (char === '|') {
+		if (aChar === '|') {
 			token.context = context.parent;
 			token.eos = true;
 

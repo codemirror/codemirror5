@@ -9,7 +9,7 @@
 
     <style type="text/css">
       .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}
-      .activeline {background: #f0fcff !important;}
+      .activeline {background: #e8f2ff !important;}
     </style>
   </head>
   <body>
@@ -57,6 +57,7 @@
 var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
   mode: "application/xml",
   lineNumbers: true,
+  lineWrapping: true,
   onCursorActivity: function() {
     editor.setLineClass(hlLine, null);
     hlLine = editor.setLineClass(editor.getCursor().line, "activeline");

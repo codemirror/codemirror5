@@ -199,20 +199,24 @@
       stay visible when the document is scrolled horizontally.</dd>
 
       <dt id="option_readOnly"><code>readOnly (boolean)</code></dt>
-      <dd>This disables editing of the editor content by the user.</dd>
+      <dd>This disables editing of the editor content by the user. If
+      the special value <code>"nocursor"</code> is given (instead of
+      simply <code>true</code>), focusing of the editor is also
+      disallowed.</dd>
 
       <dt id="option_onChange"><code>onChange (function)</code></dt>
       <dd>When given, this function will be called every time the
       content of the editor is changed. It will be given the editor
-      instance as first argument, and an <code>{from, to, newText,
-      next}</code> object containing information about the changes
+      instance as first argument, and an <code>{from, to, text, next}</code>
+      object containing information about the changes
       that occurred as second argument. <code>from</code>
       and <code>to</code> are the positions (in the pre-change
       coordinate system) where the change started and
-      ended. <code>newText</code> is an array of strings representing
-      the text that replaced the changed range (split by line). If
-      multiple changes happened during a single operation, the object
-      will have a <code>next</code> property pointing to another
+      ended (for example, it might be <code>{ch:0, line:18}</code> if the
+      position is at line #19, at the first character. <code>text</code> is an
+      array of strings representing the text that replaced the changed range
+      (split by line). If multiple changes happened during a single operation,
+      the object will have a <code>next</code> property pointing to another
       change object (which may point to another, etc).</dd>
 
       <dt id="option_onCursorActivity"><code>onCursorActivity (function)</code></dt>
@@ -406,6 +410,10 @@
 
       <dt id="focus"><code>focus()</code></dt>
       <dd>Give the editor focus.</dd>
+      <dt id="scrollTo"><code>scrollTo(x, y)</code></dt>
+      <dd>Scroll the editor to a given (pixel) position. Both
+      arguments may be left as <code>null</code>
+      or <code>undefined</code> to have no effect.</dd>
 
       <dt id="setOption"><code>setOption(option, value)</code></dt>
       <dd>Change the configuration of the editor. <code>option</code>
@@ -704,8 +712,8 @@
       of <a href="#util_dialog"><code>openDialog</code></a> when
       available to make prompting for search queries less ugly.</dd>
       <dt id="util_foldcode"><a href="../lib/util/foldcode.js"><code>foldcode.js</code></a></dt>
-      <dd>Helps with code folding. See <a href="../demo/folding.html">the
-      demo</a> for an example.
+      <dd>Helps with code folding.
+      See <a href="../demo/folding.html">the demo</a> for an example.
       Call <code>CodeMirror.newFoldFunction</code> with a range-finder
       helper function to create a function that will, when applied to
       a CodeMirror instance and a line number, attempt to fold or
@@ -714,7 +722,11 @@
       line number, and returns an end line for the block, or null if
       no block is started on that line. This file
       provides <code>CodeMirror.braceRangeFinder</code>, which finds
-      blocks in brace languages (JavaScript, C, Java, etc).</dd>
+      blocks in brace languages (JavaScript, C, Java,
+      etc), <code>CodeMirror.indentRangeFinder</code>, for languages
+      where indentation determines block structure (Python, Haskell),
+      and <code>CodeMirror.tagRangeFinder</code>, for XML-style
+      languages.</dd>
       <dt id="util_runmode"><a href="../lib/util/runmode.js"><code>runmode.js</code></a></dt>
       <dd>Can be used to run a CodeMirror mode over text without
       actually opening an editor instance.
@@ -732,8 +744,10 @@
       being completed. Depends
       on <code>lib/util/simple-hint.css</code>.</dd>
       <dt id="util_javascript-hint"><a href="../lib/util/javascript-hint.js"><code>javascript-hint.js</code></a></dt>
-      <dd>Defines <code>CodeMirror.javaScriptHint</code>, which is a
-      simple hinting function for the JavaScript mode.</dd>
+      <dd>Defines <code>CodeMirror.javascriptHint</code>
+      and <code>CodeMirror.coffeescriptHint</code>, which are simple
+      hinting functions for the JavaScript and CoffeeScript
+      modes.</dd>
     </dl>
 
     <h2 id="modeapi">Writing CodeMirror Modes</h2>
