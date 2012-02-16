@@ -5,8 +5,9 @@
     <link rel="stylesheet" href="../../lib/codemirror.css">
     <script src="../../lib/codemirror.js"></script>
     <script src="ecl.js"></script>
+    <link rel="stylesheet" href="../../theme/declarative.css">
+    <style type="text/css">.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
     <link rel="stylesheet" href="../../doc/docs.css">
-    <style>.CodeMirror {border: 1px solid black;}</style>
   </head>
   <body>
     <h1>CodeMirror: ECL mode</h1>
@@ -31,7 +32,9 @@ output(d);
     <script>
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         tabMode: "indent",
+        lineNumbers: true,
         matchBrackets: true,
+        theme: "declarative"
       });
     </script>
 
