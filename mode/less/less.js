@@ -85,7 +85,7 @@ CodeMirror.defineMode("less", function(config) {
       return ret(null, ch);
     }
     else {
-      stream.eatWhile(/[\w\\\-_.%{]/);
+      stream.eatWhile(/[\w\\\-_.%]/);
       if( stream.eat("(") ){ // lesscss
 	return ret(null, ch);
       }else if( stream.current().match(/\-\d|\-.\d/) ){ // lesscss match e.g.: -5px -0.4 etc...
