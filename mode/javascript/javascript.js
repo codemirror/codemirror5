@@ -163,7 +163,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   }
   function register(varname) {
     var state = cx.state;
-    if (state.context) {
+    if (state.context && cx.stream.match(/\(/,false) != '(') {
       cx.marked = "def";
       for (var v = state.localVars; v; v = v.next)
         if (v.name == varname) return;
