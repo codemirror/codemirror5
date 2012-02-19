@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+  <head>
+    <title>CodeMirror: GFM mode</title>
+    <link rel="stylesheet" href="../../lib/codemirror.css">
+    <script src="../../lib/codemirror.js"></script>
+    <script src="../xml/xml.js"></script>
+    <script src="../markdown/markdown.js"></script>
+    <script src="gfm.js"></script>
+    <script src="../javascript/javascript.js"></script>
+    <link rel="stylesheet" href="../markdown/markdown.css">
+    <style type="text/css">.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
+    <link rel="stylesheet" href="../../doc/docs.css">
+  </head>
+  <body>
+    <h1>CodeMirror: GFM mode</h1>
+
+<!-- source: http://daringfireball.net/projects/markdown/basics.text -->
+<form><textarea id="code" name="code">
+Github Flavored Markdown
+========================
+
+Everything from markdown plus GFM features:
+
+## Fenced code blocks
+
+```javascript
+for (var i = 0; i &lt; items.length; i++) {
+    console.log(items[i], i); // log them
+}
+```
+
+See http://github.github.com/github-flavored-markdown/
+
+</textarea></form>
+
+    <script>
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        mode: 'gfm',
+        lineNumbers: true,
+        matchBrackets: true,
+        theme: "default"
+      });
+    </script>
+
+  </body>
+</html>

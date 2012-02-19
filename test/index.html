@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+  <head>
+    <title>CodeMirror: Test Suite</title>
+    <link rel="stylesheet" href="../lib/codemirror.css">
+    <script src="../lib/codemirror.js"></script>
+    <script src="../mode/javascript/javascript.js"></script>
+
+    <style type="text/css">
+      .ok {color: #0e0;}
+      .failure {color: #e00;}
+      .error {color: #c90;}
+    </style>
+  </head>
+  <body>
+    <h1>CodeMirror: Test Suite</h1>
+
+    <p>A limited set of programmatic sanity tests for CodeMirror.</p>
+
+    <pre id=output></pre>
+
+    <div style="visibility: hidden" id=testground>
+      <form><textarea id="code" name="code"></textarea><input type=submit value=ok name=submit></form>
+    </div>
+
+    <script src="test.js"></script>
+  </body>
+</html>

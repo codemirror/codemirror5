@@ -1,0 +1,214 @@
+<!doctype html>
+<html>
+  <head>
+    <title>CodeMirror</title>
+    <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Droid+Sans|Droid+Sans:bold"/>
+    <link rel="stylesheet" type="text/css" href="docs.css"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="alternate" href="http://twitter.com/statuses/user_timeline/242283288.rss" type="application/rss+xml"/>
+  </head>
+  <body>
+
+<h1><span class="logo-braces">{ }</span> <a href="http://codemirror.net/">CodeMirror</a></h1>
+
+<pre class="grey">
+<img src="baboon.png" class="logo" alt="logo"/>/* Old release history */
+
+</pre>
+  <p class="rel">07-06-2011: <a href="http://codemirror.net/codemirror-2.1.zip">Version 2.1</a>:</p>
+  <p class="rel-note">Add
+  a <a href="manual.html#option_theme">theme</a> system
+  (<a href="../demo/theme.html">demo</a>). Note that this is not
+  backwards-compatible—you'll have to update your styles and
+  modes!</p>
+
+  <p class="rel">07-06-2011: <a href="http://codemirror.net/codemirror-2.02.zip">Version 2.02</a>:</p>
+  <ul class="rel-note">
+    <li>Add a <a href="../mode/lua/index.html">Lua mode</a>.</li>
+    <li>Fix reverse-searching for a regexp.</li>
+    <li>Empty lines can no longer break highlighting.</li>
+    <li>Rework scrolling model (the outer wrapper no longer does the scrolling).</li>
+    <li>Solve horizontal jittering on long lines.</li>
+    <li>Add <a href="../demo/runmode.html">runmode.js</a>.</li>
+    <li>Immediately re-highlight text when typing.</li>
+    <li>Fix problem with 'sticking' horizontal scrollbar.</li>
+  </ul>
+
+  <p class="rel">26-05-2011: <a href="http://codemirror.net/codemirror-2.01.zip">Version 2.01</a>:</p>
+  <ul class="rel-note">
+    <li>Add a <a href="../mode/smalltalk/index.html">Smalltalk mode</a>.</li>
+    <li>Add a <a href="../mode/rst/index.html">reStructuredText mode</a>.</li>
+    <li>Add a <a href="../mode/python/index.html">Python mode</a>.</li>
+    <li>Add a <a href="../mode/plsql/index.html">PL/SQL mode</a>.</li>
+    <li><code>coordsChar</code> now works</li>
+    <li>Fix a problem where <code>onCursorActivity</code> interfered with <code>onChange</code>.</li>
+    <li>Fix a number of scrolling and mouse-click-position glitches.</li>
+    <li>Pass information about the changed lines to <code>onChange</code>.</li>
+    <li>Support cmd-up/down on OS X.</li>
+    <li>Add triple-click line selection.</li>
+    <li>Don't handle shift when changing the selection through the API.</li>
+    <li>Support <code>"nocursor"</code> mode for <code>readOnly</code> option.</li>
+    <li>Add an <code>onHighlightComplete</code> option.</li>
+    <li>Fix the context menu for Firefox.</li>
+  </ul>
+
+  <p class="rel">28-03-2011: <a href="http://codemirror.net/codemirror-2.0.zip">Version 2.0</a>:</p>
+  <p class="rel-note">CodeMirror 2 is a complete rewrite that's
+  faster, smaller, simpler to use, and less dependent on browser
+  quirks. See <a href="internals.html">this</a>
+  and <a href="http://groups.google.com/group/codemirror/browse_thread/thread/5a8e894024a9f580">this</a>
+  for more information.</a>
+
+  <p class="rel">28-03-2011: <a href="http://codemirror.net/codemirror-1.0.zip">Version 1.0</a>:</p>
+  <ul class="rel-note">
+    <li>Fix error when debug history overflows.</li>
+    <li>Refine handling of C# verbatim strings.</li>
+    <li>Fix some issues with JavaScript indentation.</li>
+  </ul>
+
+  <p class="rel">22-02-2011: <a href="https://github.com/marijnh/codemirror2/tree/beta2">Version 2.0 beta 2</a>:</p>
+  <p class="rel-note">Somewhate more mature API, lots of bugs shaken out.</a>
+
+  <p class="rel">17-02-2011: <a href="http://codemirror.net/codemirror-0.94.zip">Version 0.94</a>:</p>
+  <ul class="rel-note">
+    <li><code>tabMode: "spaces"</code> was modified slightly (now indents when something is selected).</li>
+    <li>Fixes a bug that would cause the selection code to break on some IE versions.</li>
+    <li>Disabling spell-check on WebKit browsers now works.</li>
+  </ul>
+
+  <p class="rel">08-02-2011: <a href="http://codemirror.net/">Version 2.0 beta 1</a>:</p>
+  <p class="rel-note">CodeMirror 2 is a complete rewrite of
+  CodeMirror, no longer depending on an editable frame.</p>
+
+  <p class="rel">19-01-2011: <a href="http://codemirror.net/codemirror-0.93.zip">Version 0.93</a>:</p>
+  <ul class="rel-note">
+    <li>Added a <a href="contrib/regex/index.html">Regular Expression</a> parser.</li>
+    <li>Fixes to the PHP parser.</li>
+    <li>Support for regular expression in search/replace.</li>
+    <li>Add <code>save</code> method to instances created with <code>fromTextArea</code>.</li>
+    <li>Add support for MS T-SQL in the SQL parser.</li>
+    <li>Support use of CSS classes for highlighting brackets.</li>
+    <li>Fix yet another hang with line-numbering in hidden editors.</li>
+  </ul>
+
+  <p class="rel">17-12-2010: <a href="http://codemirror.net/codemirror-0.92.zip">Version 0.92</a>:</p>
+  <ul class="rel-note">
+    <li>Make CodeMirror work in XHTML documents.</li>
+    <li>Fix bug in handling of backslashes in Python strings.</li>
+    <li>The <code>styleNumbers</code> option is now officially
+    supported and documented.</li>
+    <li><code>onLineNumberClick</code> option added.</li>
+    <li>More consistent names <code>onLoad</code> and
+    <code>onCursorActivity</code> callbacks. Old names still work, but
+    are deprecated.</li>
+    <li>Add a <a href="contrib/freemarker/index.html">Freemarker</a> mode.</li>
+  </ul>
+
+  <p class="rel">11-11-2010: <a
+  href="http://codemirror.net/codemirror-0.91.zip">Version 0.91</a>:</p>
+  <ul class="rel-note">
+    <li>Adds support for <a href="contrib/java">Java</a>.</li>
+    <li>Small additions to the <a href="contrib/php">PHP</a> and <a href="contrib/sql">SQL</a> parsers.</li>
+    <li>Work around various <a href="https://bugs.webkit.org/show_bug.cgi?id=47806">Webkit</a> <a href="https://bugs.webkit.org/show_bug.cgi?id=23474">issues</a>.</li>
+    <li>Fix <code>toTextArea</code> to update the code in the textarea.</li>
+    <li>Add a <code>noScriptCaching</code> option (hack to ease development).</li>
+    <li>Make sub-modes of <a href="mixedtest.html">HTML mixed</a> mode configurable.</li>
+  </ul>
+
+  <p class="rel">02-10-2010: <a
+  href="http://codemirror.net/codemirror-0.9.zip">Version 0.9</a>:</p>
+  <ul class="rel-note">
+    <li>Add support for searching backwards.</li>
+    <li>There are now parsers for <a href="contrib/scheme/index.html">Scheme</a>, <a href="contrib/xquery/index.html">XQuery</a>, and <a href="contrib/ometa/index.html">OmetaJS</a>.</li>
+    <li>Makes <code>height: "dynamic"</code> more robust.</li>
+    <li>Fixes bug where paste did not work on OS X.</li>
+    <li>Add a <code>enterMode</code> and <code>electricChars</code> options to make indentation even more customizable.</li>
+    <li>Add <code>firstLineNumber</code> option.</li>
+    <li>Fix bad handling of <code>@media</code> rules by the CSS parser.</li>
+    <li>Take a new, more robust approach to working around the invisible-last-line bug in WebKit.</li>
+  </ul>
+
+  <p class="rel">22-07-2010: <a
+  href="http://codemirror.net/codemirror-0.8.zip">Version 0.8</a>:</p>
+  <ul class="rel-note">
+    <li>Add a <code>cursorCoords</code> method to find the screen
+    coordinates of the cursor.</li>
+    <li>A number of fixes and support for more syntax in the PHP parser.</li>
+    <li>Fix indentation problem with JSON-mode JS parser in Webkit.</li>
+    <li>Add a <a href="compress.html">minification</a> UI.</li>
+    <li>Support a <code>height: dynamic</code> mode, where the editor's
+    height will adjust to the size of its content.</li>
+    <li>Better support for IME input mode.</li>
+    <li>Fix JavaScript parser getting confused when seeing a no-argument
+    function call.</li>
+    <li>Have CSS parser see the difference between selectors and other
+    identifiers.</li>
+    <li>Fix scrolling bug when pasting in a horizontally-scrolled
+    editor.</li>
+    <li>Support <code>toTextArea</code> method in instances created with
+    <code>fromTextArea</code>.</li>
+    <li>Work around new Opera cursor bug that causes the cursor to jump
+    when pressing backspace at the end of a line.</li>
+  </ul>
+
+  <p class="rel">27-04-2010: <a
+  href="http://codemirror.net/codemirror-0.67.zip">Version
+  0.67</a>:</p>
+  <p class="rel-note">More consistent page-up/page-down behaviour
+  across browsers. Fix some issues with hidden editors looping forever
+  when line-numbers were enabled. Make PHP parser parse
+  <code>"\\"</code> correctly. Have <code>jumpToLine</code> work on
+  line handles, and add <code>cursorLine</code> function to fetch the
+  line handle where the cursor currently is. Add new
+  <code>setStylesheet</code> function to switch style-sheets in a
+  running editor.</p>
+
+  <p class="rel">01-03-2010: <a
+  href="http://codemirror.net/codemirror-0.66.zip">Version
+  0.66</a>:</p>
+  <p class="rel-note">Adds <code>removeLine</code> method to API.
+  Introduces the <a href="contrib/plsql/index.html">PLSQL parser</a>.
+  Marks XML errors by adding (rather than replacing) a CSS class, so
+  that they can be disabled by modifying their style. Fixes several
+  selection bugs, and a number of small glitches.</p>
+
+  <p class="rel">12-11-2009: <a
+  href="http://codemirror.net/codemirror-0.65.zip">Version
+  0.65</a>:</p>
+  <p class="rel-note">Add support for having both line-wrapping and
+  line-numbers turned on, make paren-highlighting style customisable
+  (<code>markParen</code> and <code>unmarkParen</code> config
+  options), work around a selection bug that Opera
+  <em>re</em>introduced in version 10.</p>
+
+  <p class="rel">23-10-2009: <a
+  href="http://codemirror.net/codemirror-0.64.zip">Version
+  0.64</a>:</p>
+  <p class="rel-note">Solves some issues introduced by the
+  paste-handling changes from the previous release. Adds
+  <code>setSpellcheck</code>, <code>setTextWrapping</code>,
+  <code>setIndentUnit</code>, <code>setUndoDepth</code>,
+  <code>setTabMode</code>, and <code>setLineNumbers</code> to
+  customise a running editor. Introduces an <a
+  href="contrib/sql/index.html">SQL</a> parser. Fixes a few small
+  problems in the <a href="contrib/python/index.html">Python</a>
+  parser. And, as usual, add workarounds for various newly discovered
+  browser incompatibilities.</p>
+
+<p class="rel"><em>31-08-2009</em>: <a
+href="http://codemirror.net/codemirror-0.63.zip">Version
+0.63</a>:</p>
+<p class="rel-note"> Overhaul of paste-handling (less fragile), fixes for several
+serious IE8 issues (cursor jumping, end-of-document bugs) and a number
+of small problems.</p>
+
+<p class="rel"><em>30-05-2009</em>: <a
+href="http://codemirror.net/codemirror-0.62.zip">Version
+0.62</a>:</p>
+<p class="rel-note">Introduces <a href="contrib/python/index.html">Python</a>
+and <a href="contrib/lua/index.html">Lua</a> parsers. Add
+<code>setParser</code> (on-the-fly mode changing) and
+<code>clearHistory</code> methods. Make parsing passes time-based
+instead of lines-based (see the <code>passTime</code> option).</p>
+
+</body></html>

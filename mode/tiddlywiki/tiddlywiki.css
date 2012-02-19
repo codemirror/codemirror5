@@ -1,0 +1,21 @@
+.cm-s-default span.cm-header {color: blue; font-weight:bold;}
+.cm-s-default span.cm-code {color: #a50;}
+.cm-s-default span.cm-code-inline {color: #660;}
+
+.cm-s-default span.cm-quote {color: #555;}
+.cm-s-default span.cm-list {color: #c60;}
+.cm-s-default span.cm-hr {color: #999;}
+.cm-s-default span.cm-em {font-style: italic;}
+.cm-s-default span.cm-strong {font-weight: bold;}
+
+.cm-s-default span.cm-link-external {color: blue;}
+.cm-s-default span.cm-brace {color: #170; font-weight: bold;}
+.cm-s-default span.cm-macro {color: #9E3825;}
+.cm-s-default span.cm-table {color: blue;}
+.cm-s-default span.cm-warning {color: red; font-weight: bold;}
+
+.cm-s-default span.cm-underlined {text-decoration: underline;}
+.cm-s-default span.cm-line-through {text-decoration: line-through;}
+
+.cm-s-default span.cm-comment {color: #666;}
+

@@ -1,0 +1,61 @@
+<!doctype html>
+<html>
+  <head>
+    <title>CodeMirror: Code Folding Demo</title>
+    <link rel="stylesheet" href="../lib/codemirror.css">
+    <script src="../lib/codemirror.js"></script>
+    <script src="../lib/util/foldcode.js"></script>
+    <script src="../mode/javascript/javascript.js"></script>
+    <script src="../mode/xml/xml.js"></script>
+    <link rel="stylesheet" href="../doc/docs.css">
+
+    <style type="text/css">
+      .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}
+      .CodeMirror-gutter {min-width: 2.6em; cursor: pointer;}
+    </style>
+  </head>
+  <body>
+    <h1>CodeMirror: Code Folding Demo</h1>
+
+    <p>Demonstration of code folding using the code
+    in <a href="../lib/util/foldcode.js"><code>foldcode.js</code></a>.
+    Press ctrl-q or click on the gutter to fold a block, again
+    to unfold.</p>
+    <form>
+      <div style="max-width: 50em; margin-bottom: 1em">JavaScript:<br><textarea id="code" name="code"></textarea></div>
+      <div style="max-width: 50em">HTML:<br><textarea id="code-html" name="code-html"></textarea></div>
+    </form>
+    <script id="script">
+window.onload = function() {
+  var te = document.getElementById("code");
+  var sc = document.getElementById("script");
+  te.value = (sc.textContent || sc.innerText || sc.innerHTML).replace(/^\s*/, "");
+  sc.innerHTML = "";
+  var te_html = document.getElementById("code-html");
+  te_html.value = "<html>\n  " + document.documentElement.innerHTML + "\n</html>";
+
+  var foldFunc = CodeMirror.newFoldFunction(CodeMirror.braceRangeFinder);
+  window.editor = CodeMirror.fromTextArea(te, {
+    mode: "javascript",
+    lineNumbers: true,
+    lineWrapping: true,
+    onGutterClick: foldFunc,
+    extraKeys: {"Ctrl-Q": function(cm){foldFunc(cm, cm.getCursor().line);}}
+  });
+  foldFunc(editor, 9);
+  foldFunc(editor, 20);
+
+  var foldFunc_html = CodeMirror.newFoldFunction(CodeMirror.tagRangeFinder);
+  window.editor_html = CodeMirror.fromTextArea(te_html, {
+    mode: "text/html",
+    lineNumbers: true,
+    lineWrapping: true,
+    onGutterClick: foldFunc_html,
+    extraKeys: {"Ctrl-Q": function(cm){foldFunc_html(cm, cm.getCursor().line);}}
+  })
+  foldFunc_html(editor_html, 1);
+  foldFunc_html(editor_html, 15);
+};
+</script>
+  </body>
+</html>

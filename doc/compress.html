@@ -1,0 +1,131 @@
+<!doctype html>
+<html>
+  <head>
+    <title>CodeMirror: Compression Helper</title>
+    <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Droid+Sans|Droid+Sans:bold"/>
+    <link rel="stylesheet" type="text/css" href="docs.css"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  </head>
+  <body>
+
+<h1><span class="logo-braces">{ }</span> <a href="http://codemirror.net/">CodeMirror</a></h1>
+
+<pre class="grey">
+<img src="baboon.png" class="logo" alt="logo"/>/* Script compression
+   helper */
+</pre>
+
+    <p>To optimize loading CodeMirror, especially when including a
+    bunch of different modes, it is recommended that you combine and
+    minify (and preferably also gzip) the scripts. This page makes
+    those first two steps very easy. Simply select the version and
+    scripts you need in the form below, and
+    click <strong>Compress</strong> to download the minified script
+    file.</p>
+
+    <form id="form" action="http://marijnhaverbeke.nl/uglifyjs" method="post">
+      <input type="hidden" id="download" name="download" value="codemirror-compressed.js"/>
+      <p>Version: <select id="version" onchange="setVersion(this);" style="padding: 1px">
+        <option value="http://codemirror.net/">HEAD</option>
+        <option value="http://marijnhaverbeke.nl/git/codemirror2?a=blob_plain;hb=v2.21;f=">2.21</option>
+        <option value="http://marijnhaverbeke.nl/git/codemirror2?a=blob_plain;hb=v2.2;f=">2.2</option>
+        <option value="http://marijnhaverbeke.nl/git/codemirror2?a=blob_plain;hb=v2.18;f=">2.18</option>
+        <option value="http://marijnhaverbeke.nl/git/codemirror2?a=blob_plain;hb=v2.16;f=">2.16</option>
+        <option value="http://marijnhaverbeke.nl/git/codemirror2?a=blob_plain;hb=v2.15;f=">2.15</option>
+        <option value="http://marijnhaverbeke.nl/git/codemirror2?a=blob_plain;hb=v2.13;f=">2.13</option>
+        <option value="http://marijnhaverbeke.nl/git/codemirror2?a=blob_plain;hb=v2.12;f=">2.12</option>
+        <option value="http://marijnhaverbeke.nl/git/codemirror2?a=blob_plain;hb=v2.11;f=">2.11</option>
+        <option value="http://marijnhaverbeke.nl/git/codemirror2?a=blob_plain;hb=v2.1;f=">2.1</option>
+        <option value="http://marijnhaverbeke.nl/git/codemirror2?a=blob_plain;hb=v2.02;f=">2.02</option>
+        <option value="http://marijnhaverbeke.nl/git/codemirror2?a=blob_plain;hb=v2.01;f=">2.01</option>
+        <option value="http://marijnhaverbeke.nl/git/codemirror2?a=blob_plain;hb=v2.0;f=">2.0</option>
+        <option value="http://marijnhaverbeke.nl/git/codemirror2?a=blob_plain;hb=beta2;f=">beta2</option>
+        <option value="http://marijnhaverbeke.nl/git/codemirror2?a=blob_plain;hb=beta1;f=">beta1</option>
+      </select></p>
+
+      <select multiple="multiple" name="code_url" style="width: 40em;" class="field" id="files">
+        <optgroup label="CodeMirror Library">
+          <option value="http://codemirror.net/lib/codemirror.js" selected>codemirror.js</option>
+        </optgroup>
+        <optgroup label="Modes">
+          <option value="http://codemirror.net/mode/clike/clike.js">clike.js</option>
+          <option value="http://codemirror.net/mode/clojure/clojure.js">clojure.js</option>
+          <option value="http://codemirror.net/mode/coffeescript/coffeescript.js">coffeescript.js</option>
+          <option value="http://codemirror.net/mode/css/css.js">css.js</option>
+          <option value="http://codemirror.net/mode/diff/diff.js">diff.js</option>
+          <option value="http://codemirror.net/mode/ecl/ecl.js">diff.js</option>
+          <option value="http://codemirror.net/mode/gfm/gfm.js">gfm.js</option>
+          <option value="http://codemirror.net/mode/go/go.js">go.js</option>
+          <option value="http://codemirror.net/mode/groovy/groovy.js">groovy.js</option>
+          <option value="http://codemirror.net/mode/haskell/haskell.js">haskell.js</option>
+          <option value="http://codemirror.net/mode/htmlembedded/htmlembedded.js">htmlembedded.js</option>
+          <option value="http://codemirror.net/mode/htmlmixed/htmlmixed.js">htmlmixed.js</option>
+          <option value="http://codemirror.net/mode/javascript/javascript.js">javascript.js</option>
+          <option value="http://codemirror.net/mode/jinja2/jinja2.js">jinja2.js</option>
+          <option value="http://codemirror.net/mode/less/less.js">less.js</option>
+          <option value="http://codemirror.net/mode/lua/lua.js">lua.js</option>
+          <option value="http://codemirror.net/mode/markdown/markdown.js">markdown.js</option>
+          <option value="http://codemirror.net/mode/mysql/mysql.js">mysql.js</option>
+          <option value="http://codemirror.net/mode/ntriples/ntriples.js">ntriples.js</option>
+          <option value="http://codemirror.net/mode/pascal/pascal.js">pascal.js</option>
+          <option value="http://codemirror.net/mode/perl/perl.js">perl.js</option>
+          <option value="http://codemirror.net/mode/php/php.js">php.js</option>
+          <option value="http://codemirror.net/mode/plsql/plsql.js">plsql.js</option>
+          <option value="http://codemirror.net/mode/properties/properties.js">properties.js</option>
+          <option value="http://codemirror.net/mode/python/python.js">python.js</option>
+          <option value="http://codemirror.net/mode/r/r.js">r.js</option>
+          <option value="http://codemirror.net/mode/rpm/changes/changes.js">rpm/changes.js</option>
+          <option value="http://codemirror.net/mode/rpm/spec/spec.js">rpm/spec.js</option>
+          <option value="http://codemirror.net/mode/rst/rst.js">rst.js</option>
+          <option value="http://codemirror.net/mode/ruby/ruby.js">ruby.js</option>
+          <option value="http://codemirror.net/mode/rust/rust.js">rust.js</option>
+          <option value="http://codemirror.net/mode/scheme/scheme.js">scheme.js</option>
+          <option value="http://codemirror.net/mode/smalltalk/smalltalk.js">smalltalk.js</option>
+          <option value="http://codemirror.net/mode/sparql/sparql.js">sparql.js</option>
+          <option value="http://codemirror.net/mode/stex/stex.js">stex.js</option>
+          <option value="http://codemirror.net/mode/tiddlywiki/tiddlywiki.js">tiddlywiki.js</option>
+          <option value="http://codemirror.net/mode/velocity/velocity.js">velocity.js</option>
+          <option value="http://codemirror.net/mode/verilog/verilog.js">verilog.js</option>
+          <option value="http://codemirror.net/mode/xml/xml.js">xml.js</option>
+          <option value="http://codemirror.net/mode/yaml/yaml.js">yaml.js</option>
+        </optgroup>
+        <optgroup label="Utilities and add-ons">
+          <option value="http://codemirror.net/lib/util/overlay.js">overlay.js</option>
+          <option value="http://codemirror.net/lib/util/runmode.js">runmode.js</option>
+          <option value="http://codemirror.net/lib/util/simple-hint.js">simple-hint.js</option>
+          <option value="http://codemirror.net/lib/util/javascript-hint.js">javascript-hint.js</option>
+          <option value="http://codemirror.net/lib/util/foldcode.js">codefold.js</option>
+          <option value="http://codemirror.net/lib/util/dialog.js">dialog.js</option>
+          <option value="http://codemirror.net/lib/util/search.js">search.js</option>
+        </optgroup>
+        <optgroup label="Keymaps">
+          <option value="http://codemirror.net/keymap/emacs.js">emacs.js</option>
+        </optgroup>
+      </select></p>
+
+      <p>
+        <button type="submit">Compress</button> with <a href="http://github.com/mishoo/UglifyJS/">UglifyJS</a>
+      </p>
+
+      <p>Custom code to add to the compressed file:<textarea name="js_code" style="width: 100%; height: 15em;" class="field"></textarea></p>
+    </form>
+
+    <script type="text/javascript">
+      function setVersion(ver) {
+        var urlprefix = ver.options[ver.selectedIndex].value;
+        var select = document.getElementById("files"), m;
+        for (var optgr = select.firstChild; optgr; optgr = optgr.nextSibling)
+          for (var opt = optgr.firstChild; opt; opt = opt.nextSibling) {
+            if (opt.nodeName != "OPTION")
+              continue;
+            else if (m = opt.value.match(/^http:\/\/codemirror.net\/(.*)$/))
+              opt.value = urlprefix + m[1];
+            else if (m = opt.value.match(/http:\/\/marijnhaverbeke.nl\/git\/codemirror\?a=blob_plain;hb=[^;]+;f=(.*)$/))
+              opt.value = urlprefix + m[1];
+          }
+       }
+    </script>
+
+  </body>
+</html>
+

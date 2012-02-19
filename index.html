@@ -1,0 +1,367 @@
+<!doctype html>
+<html>
+  <head>
+    <title>CodeMirror</title>
+    <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Droid+Sans|Droid+Sans:bold"/>
+    <link rel="stylesheet" type="text/css" href="doc/docs.css"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="alternate" href="http://twitter.com/statuses/user_timeline/242283288.rss" type="application/rss+xml"/>
+  </head>
+  <body>
+
+<h1><span class="logo-braces">{ }</span> <a href="http://codemirror.net/">CodeMirror</a></h1>
+
+<pre class="grey">
+<img src="doc/baboon.png" class="logo" alt="logo"/>/* In-browser code editing
+   made bearable */
+</pre>
+
+<div class="clear"><div class="left blk">
+
+  <p style="margin-top: 0">CodeMirror is a JavaScript library that can
+  be used to create a relatively pleasant editor interface for
+  code-like content &#x2015; computer programs, HTML markup, and
+  similar. If a mode has been written for the language you are
+  editing, the code will be coloured, and the editor will optionally
+  help you with indentation.</p>
+
+  <p>This is the project page for CodeMirror 2, the currently more
+  actively developed, and recommended
+  version. <a href="1/index.html">CodeMirror 1</a> is still available
+  from here.</p>
+
+  <div class="clear"><div class="left1 blk">
+
+    <h2 style="margin-top: 0">Supported modes:</h2>
+
+    <ul>
+      <li><a href="mode/clike/index.html">C, C++, Java, and similar</a></li>
+      <li><a href="mode/clojure/index.html">Clojure</a></li>
+      <li><a href="mode/coffeescript/index.html">CoffeeScript</a></li>
+      <li><a href="mode/css/index.html">CSS</a></li>
+      <li><a href="mode/diff/index.html">diff</a></li>
+      <li><a href="mode/ecl/index.html">ECL</a></li>
+      <li><a href="mode/go/index.html">Go</a></li>
+      <li><a href="mode/groovy/index.html">Groovy</a></li>
+      <li><a href="mode/haskell/index.html">Haskell</a></li>
+      <li><a href="mode/htmlembedded/index.html">HTML embedded scripts</a></li>
+      <li><a href="mode/htmlmixed/index.html">HTML mixed-mode</a></li>
+      <li><a href="mode/javascript/index.html">JavaScript</a></li>
+      <li><a href="mode/jinja2/index.html">Jinja2</a></li>
+      <li><a href="mode/less/index.html">LESS</a></li>
+      <li><a href="mode/lua/index.html">Lua</a></li>
+      <li><a href="mode/markdown/index.html">Markdown</a> (<a href="mode/gfm/index.html">Github-flavour</a>)</li>
+      <li><a href="mode/mysql/index.html">MySQL</a></li>
+      <li><a href="mode/ntriples/index.html">NTriples</a></li>
+      <li><a href="mode/pascal/index.html">Pascal</a></li>
+      <li><a href="mode/perl/index.html">Perl</a></li>
+      <li><a href="mode/php/index.html">PHP</a></li>
+      <li><a href="mode/plsql/index.html">PL/SQL</a></li>
+      <li><a href="mode/properties/index.html">Properties files</a></li>
+      <li><a href="mode/python/index.html">Python</a></li>
+      <li><a href="mode/r/index.html">R</a></li>
+      <li>RPM <a href="mode/rpm/spec/index.html">spec</a> and <a href="mode/rpm/changes/index.html">changelog</a></li>
+      <li><a href="mode/rst/index.html">reStructuredText</a></li>
+      <li><a href="mode/ruby/index.html">Ruby</a></li>
+      <li><a href="mode/rust/index.html">Rust</a></li>
+      <li><a href="mode/scheme/index.html">Scheme</a></li>
+      <li><a href="mode/smalltalk/index.html">Smalltalk</a></li>
+      <li><a href="mode/sparql/index.html">SPARQL</a></li>
+      <li><a href="mode/stex/index.html">sTeX, LaTeX</a></li>
+      <li><a href="mode/tiddlywiki/index.html">Tiddlywiki</a></li>
+      <li><a href="mode/velocity/index.html">Velocity</a></li>
+      <li><a href="mode/verilog/index.html">Verilog</a></li>
+      <li><a href="mode/xml/index.html">XML/HTML</a> (<a href="mode/xmlpure/index.html">alternative XML</a>)</li>
+      <li><a href="mode/yaml/index.html">YAML</a></li>
+    </ul>
+
+  </div><div class="left2 blk">
+
+    <h2 style="margin-top: 0">Usage demos:</h2>
+
+    <ul>
+      <li><a href="demo/complete.html">Autocompletion</a></li>
+      <li><a href="demo/mustache.html">Mode overlays</a></li>
+      <li><a href="demo/search.html">Search/replace</a></li>
+      <li><a href="demo/folding.html">Code folding</a></li>
+      <li><a href="demo/preview.html">HTML editor with preview</a></li>
+      <li><a href="demo/resize.html">Auto-resizing editor</a></li>
+      <li><a href="demo/marker.html">Setting breakpoints</a></li>
+      <li><a href="demo/activeline.html">Highlighting the current line</a></li>
+      <li><a href="demo/theme.html">Theming</a></li>
+      <li><a href="demo/runmode.html">Stand-alone highlighting</a></li>
+      <li><a href="demo/fullscreen.html">Full-screen editing</a></li>
+      <li><a href="demo/changemode.html">Mode auto-changing</a></li>
+      <li><a href="demo/visibletabs.html">Visible tabs</a></li>
+      <li><a href="demo/formatting.html">Autoformatting of code</a></li>
+      <li><a href="demo/emacs.html">Emacs keybindings</a></li>
+      <li><a href="demo/vim.html">Vim keybindings</a></li>
+    </ul>
+
+    <h2>Real-world uses:</h2>
+
+    <ul>
+      <li><a href="http://jsbin.com">jsbin.com</a> (JS playground)</li>
+      <li><a href="http://buzzard.ups.edu/">Sage demo</a> (math system)</li>
+      <li><a href="http://www.sourcelair.com/">sourceLair</a> (online IDE)</li>
+      <li><a href="http://eloquentjavascript.net/chapter1.html">Eloquent JavaScript</a> (book)</a></li>
+      <li><a href="http://www.mergely.com/">Mergely</a> (interactive diffing)</li>
+      <li><a href="http://paperjs.org/">Paper.js</a> (graphics scripting)</li>
+      <li><a href="http://www.wescheme.org/">WeScheme</a> (learning tool)</li>
+      <li><a href="http://webglplayground.net/">WebGL playground</a></li>
+      <li><a href="http://ql.io/">ql.io</a> (http API query helper)</li>
+      <li><a href="http://elm-lang.org/Examples.elm">Elm language examples</a></li>
+      <li><a href="http://bluegriffon.org/">BlueGriffon</a> (HTML editor)</li>
+      <li><a href="http://www.jshint.com/">JSHint</a> (JS linter)</li>
+      <li><a href="http://kl1p.com/cmtest/1">kl1p</a> (paste service)</li>
+     </ul>
+
+  </div></div>
+
+  <h2 id="code">Getting the code</h2>
+
+  <p>All of CodeMirror is released under a <a
+  href="LICENSE">MIT-style</a> license. To get it, you can download
+  the <a href="http://codemirror.net/codemirror.zip">latest
+  release</a> or the current <a
+  href="http://codemirror.net/codemirror2-latest.zip">development
+  snapshot</a> as zip files. To create a custom minified script file,
+  you can use the <a href="doc/compress.html">compression API</a>.</p>
+
+  <p>We use <a href="http://git-scm.com/">git</a> for version control.
+  The main repository can be fetched in this way:</p>
+
+  <pre class="code">git clone http://marijnhaverbeke.nl/git/codemirror2</pre>
+
+  <p>CodeMirror can also be found on GitHub at <a
+  href="http://github.com/marijnh/CodeMirror2">marijnh/CodeMirror2</a>.
+  If you plan to hack on the code and contribute patches, the best way
+  to do it is to create a GitHub fork, and send pull requests.</p>
+
+  <h2 id="documention">Documentation</h2>
+
+  <p>The <a href="doc/manual.html">manual</a> is your first stop for
+  learning how to use this library. It starts with a quick explanation
+  of how to use the editor, and then describes the API in detail.</p>
+
+  <p>For those who want to learn more about the code, there is
+  an <a href="doc/internals.html">overview of the internals</a> available.
+  The <a href="http://github.com/marijnh/CodeMirror2">source code</a>
+  itself is, for the most part, also well commented.</p>
+
+  <h2 id="support">Support and bug reports</h2>
+
+  <p>There is
+  a <a href="http://groups.google.com/group/codemirror">Google
+  group</a> (a sort of mailing list/newsgroup thing) for discussion
+  and news related to CodeMirror. When reporting a bug,
+  <a href="doc/reporting.html">read this first</a>. If you have
+  a <a href="http://github.com">github</a> account,
+  simply <a href="http://github.com/marijnh/CodeMirror2/issues">open
+  an issue there</a>. Otherwise, post something to
+  the <a href="http://groups.google.com/group/codemirror">group</a>,
+  or e-mail me directly: <a href="mailto:marijnh@gmail.com">Marijn
+  Haverbeke</a>.</p>
+
+  <h2 id="supported">Supported browsers</h2>
+
+  <p>The following browsers are able to run CodeMirror:</p>
+
+  <ul>
+    <li>Firefox 2 or higher</li>
+    <li>Chrome, any version</li>
+    <li>Safari 3 or higher</li>
+    <li>Internet Explorer 6 or higher in standards (<strong>non-quirks</strong>) mode</li>
+    <li>Opera 9 or higher (with some key-handling problems on OS X)</li>
+  </ul>
+
+  <p>I am not actively testing against every new browser release, and
+  vendors have a habit of introducing bugs all the time, so I am
+  relying on the community to tell me when something breaks.
+  See <a href="#support">here</a> for information on how to contact
+  me.</p>
+
+  <h2 id="commercial">Commercial support</h2>
+
+  <p>CodeMirror is developed and maintained by me, Marijn Haverbeke,
+  in my own time. If your company is getting value out of CodeMirror,
+  please consider purchasing a support contract.</p>
+
+  <ul>
+    <li>You'll be funding further work on CodeMirror.</li>
+    <li>You ensure that you get a quick response when you have a
+    problem, even when I am otherwise busy.</li>
+  </ul>
+
+  <p>CodeMirror support contracts exist in two
+  forms—<strong>basic</strong> at €100 per month,
+  and <strong>premium</strong> at €500 per
+  month. <a href="mailto:marijnh@gmail.com">Contact me</a> for further
+  information.</p>
+
+</div>
+
+<div class="right blk">
+
+  <a href="http://codemirror.net/codemirror.zip" class="download">Download the latest release</a>
+
+  <h2>Support CodeMirror</h2>
+
+  <ul>
+    <li>Donate
+    (<span onclick="document.getElementById('paypal').submit();"
+    class="quasilink">Paypal</span>
+    or <span onclick="document.getElementById('bankinfo').style.display = 'block';"
+             class="quasilink">bank</span>)</li>
+    <li>Purchase <a href="#commercial">commercial support</a></li>
+  </ul>
+
+  <p id="bankinfo" style="display: none;">
+    Bank: <i>Rabobank</i><br/>
+    Country: <i>Netherlands</i><br/>
+    SWIFT: <i>RABONL2U</i><br/>
+    Account: <i>147850770</i><br/>
+    Name: <i>Marijn Haverbeke</i><br/>
+    IBAN: <i>NL26 RABO 0147 8507 70</i>
+  </p>
+
+  <h2>Releases:</h2>
+
+  <p class="rel">27-01-2012: <a href="http://codemirror.net/codemirror-2.21.zip">Version 2.21</a>:</p>
+
+  <ul class="rel-note">
+    <li>Added <a href="mode/less/index.html">LESS</a>, <a href="mode/mysql/index.html">MySQL</a>,
+    <a href="mode/go/index.html">Go</a>, and <a href="mode/verilog/index.html">Verilog</a> modes.</li>
+    <li>Add <a href="doc/manual.html#option_smartIndent"><code>smartIndent</code></a>
+    option.</li>
+    <li>Support a cursor in <a href="doc/manual.html#option_readOnly"><code>readOnly</code></a>-mode.</li>
+    <li>Support assigning multiple styles to a token.</li>
+    <li>Use a new approach to drawing the selection.</li>
+    <li>Add <a href="doc/manual.html#scrollTo"><code>scrollTo</code></a> method.</li>
+    <li>Allow undo/redo events to span non-adjacent lines.</li>
+    <li>Lots and lots of bugfixes.</li>
+  </ul>
+
+  <p class="rel">20-12-2011: <a href="http://codemirror.net/codemirror-2.2.zip">Version 2.2</a>:</p>
+
+  <ul class="rel-note">
+    <li>Slightly incompatible API changes. Read <a href="doc/upgrade_v2.2.html">this</a>.</li>
+    <li>New approach
+    to <a href="doc/manual.html#option_extraKeys">binding</a> keys,
+    support for <a href="doc/manual.html#option_keyMap">custom
+    bindings</a>.</li>
+    <li>Support for overwrite (insert).</li>
+    <li><a href="doc/manual.html#option_tabSize">Custom-width</a>
+    and <a href="demo/visibletabs.html">stylable</a> tabs.</li>
+    <li>Moved more code into <a href="doc/manual.html#addons">add-on scripts</a>.</li>
+    <li>Support for sane vertical cursor movement in wrapped lines.</li>
+    <li>More reliable handling of
+    editing <a href="doc/manual.html#markText">marked text</a>.</li>
+    <li>Add minimal <a href="demo/emacs.html">emacs</a>
+    and <a href="demo/vim.html">vim</a> bindings.</li>
+    <li>Rename <code>coordsFromIndex</code>
+    to <a href="doc/manual.html#posFromIndex"><code>posFromIndex</code></a>,
+    add <a href="doc/manual.html#indexFromPos"><code>indexFromPos</code></a>
+    method.</li>
+  </ul>
+
+  <p class="rel">21-11-2011: <a href="http://codemirror.net/codemirror-2.18.zip">Version 2.18</a>:</p>
+  <p class="rel-note">Fixes <code>TextMarker.clear</code>, which is broken in 2.17.</p>
+
+  <p class="rel">21-11-2011: <a href="http://codemirror.net/codemirror-2.17.zip">Version 2.17</a>:</p>
+  <ul class="rel-note">
+    <li>Add support for <a href="doc/manual.html#option_lineWrapping">line
+    wrapping</a> and <a href="doc/manual.html#hideLine">code
+    folding</a>.</li>
+    <li>Add <a href="mode/gfm/index.html">Github-style Markdown</a> mode.</li>
+    <li>Add <a href="theme/monokai.css">Monokai</a>
+    and <a href="theme/rubyblue.css">Rubyblue</a> themes.</li>
+    <li>Add <a href="doc/manual.html#setBookmark"><code>setBookmark</code></a> method.</li>
+    <li>Move some of the demo code into reusable components
+    under <a href="lib/util/"><code>lib/util</code></a>.</li>
+    <li>Make screen-coord-finding code faster and more reliable.</li>
+    <li>Fix drag-and-drop in Firefox.</li>
+    <li>Improve support for IME.</li>
+    <li>Speed up content rendering.</li>
+    <li>Fix browser's built-in search in Webkit.</li>
+    <li>Make double- and triple-click work in IE.</li>
+    <li>Various fixes to modes.</li>
+  </ul>
+
+  <p class="rel">27-10-2011: <a href="http://codemirror.net/codemirror-2.16.zip">Version 2.16</a>:</p>
+  <ul class="rel-note">
+    <li>Add <a href="mode/perl/index.html">Perl</a>, <a href="mode/rust/index.html">Rust</a>, <a href="mode/tiddlywiki/index.html">TiddlyWiki</a>, and <a href="mode/groovy/index.html">Groovy</a> modes.</li>
+    <li>Dragging text inside the editor now moves, rather than copies.</li>
+    <li>Add a <a href="doc/manual.html#coordsFromIndex"><code>coordsFromIndex</code></a> method.</li>
+    <li><strong>API change</strong>: <code>setValue</code> now no longer clears history. Use <a href="doc/manual.html#clearHistory"><code>clearHistory</code></a> for that.</li>
+    <li><strong>API change</strong>: <a href="doc/manual.html#markText"><code>markText</code></a> now
+    returns an object with <code>clear</code> and <code>find</code>
+    methods. Marked text is now more robust when edited.</li>
+    <li>Fix editing code with tabs in Internet Explorer.</li>
+  </ul>
+
+  <p class="rel">26-09-2011: <a href="http://codemirror.net/codemirror-2.15.zip">Version 2.15</a>:</p>
+  <p class="rel-note">Fix bug that snuck into 2.14: Clicking the
+  character that currently has the cursor didn't re-focus the
+  editor.</p>
+
+  <p class="rel">26-09-2011: <a href="http://codemirror.net/codemirror-2.14.zip">Version 2.14</a>:</p>
+  <ul class="rel-note">
+    <li>Add <a href="mode/clojure/index.html">Clojure</a>, <a href="mode/pascal/index.html">Pascal</a>, <a href="mode/ntriples/index.html">NTriples</a>, <a href="mode/jinja2/index.html">Jinja2</a>, and <a href="mode/markdown/index.html">Markdown</a> modes.</li>
+    <li>Add <a href="theme/cobalt.css">Cobalt</a> and <a href="theme/eclipse.css">Eclipse</a> themes.</li>
+    <li>Add a <a href="doc/manual.html#option_fixedGutter"><code>fixedGutter</code></a> option.</li>
+    <li>Fix bug with <code>setValue</code> breaking cursor movement.</li>
+    <li>Make gutter updates much more efficient.</li>
+    <li>Allow dragging of text out of the editor (on modern browsers).</li>
+  </ul>
+
+  <p class="rel">23-08-2011: <a href="http://codemirror.net/codemirror-2.13.zip">Version 2.13</a>:</p>
+  <ul class="rel-note">
+    <li>Add <a href="mode/ruby/index.html">Ruby</a>, <a href="mode/r/index.html">R</a>, <a href="mode/coffeescript/index.html">CoffeeScript</a>, and <a href="mode/velocity/index.html">Velocity</a> modes.</li>
+    <li>Add <a href="doc/manual.html#getGutterElement"><code>getGutterElement</code></a> to API.</li>
+    <li>Several fixes to scrolling and positioning.</li>
+    <li>Add <a href="doc/manual.html#option_smartHome"><code>smartHome</code></a> option.</li>
+    <li>Add an experimental <a href="mode/xmlpure/index.html">pure XML</a> mode.</li>
+  </ul>
+
+  <p class="rel">25-07-2011: <a href="http://codemirror.net/codemirror-2.12.zip">Version 2.12</a>:</p>
+  <ul class="rel-note">
+    <li>Add a <a href="mode/sparql/index.html">SPARQL</a> mode.</li>
+    <li>Fix bug with cursor jumping around in an unfocused editor in IE.</li>
+    <li>Allow key and mouse events to bubble out of the editor. Ignore widget clicks.</li>
+    <li>Solve cursor flakiness after undo/redo.</li>
+    <li>Fix block-reindent ignoring the last few lines.</li>
+    <li>Fix parsing of multi-line attrs in XML mode.</li>
+    <li>Use <code>innerHTML</code> for HTML-escaping.</li>
+    <li>Some fixes to indentation in C-like mode.</li>
+    <li>Shrink horiz scrollbars when long lines removed.</li>
+    <li>Fix width feedback loop bug that caused the width of an inner DIV to shrink.</li>
+  </ul>
+
+  <p class="rel">04-07-2011: <a href="http://codemirror.net/codemirror-2.11.zip">Version 2.11</a>:</p>
+  <ul class="rel-note">
+    <li>Add a <a href="mode/scheme/index.html">Scheme mode</a>.</li>
+    <li>Add a <code>replace</code> method to search cursors, for cursor-preserving replacements.</li>
+    <li>Make the <a href="mode/clike/index.html">C-like mode</a> mode more customizeable.</li>
+    <li>Update XML mode to spot mismatched tags.</li>
+    <li>Add <code>getStateAfter</code> API and <code>compareState</code> mode API methods for finer-grained mode magic.</li>
+    <li>Add a <code>getScrollerElement</code> API method to manipulate the scrolling DIV.</li>
+    <li>Fix drag-and-drop for Firefox.</li>
+    <li>Add a C# configuration for the <a href="mode/clike/index.html">C-like mode</a>.</li>
+    <li>Add <a href="demo/fullscreen.html">full-screen editing</a> and <a href="demo/changemode.html">mode-changing</a> demos.</li>
+  </ul>
+
+  <p><a href="doc/oldrelease.html">Older releases...</a></p>
+
+</div></div>
+
+<div style="height: 2em">&nbsp;</div>
+
+  <form action="https://www.paypal.com/cgi-bin/webscr" method="post" id="paypal">
+    <input type="hidden" name="cmd" value="_s-xclick"/>
+    <input type="hidden" name="hosted_button_id" value="3FVHS5FGUY7CC"/>
+  </form>
+
+  </body>
+</html>
+

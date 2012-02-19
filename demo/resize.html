@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+  <head>
+    <title>CodeMirror: Autoresize Demo</title>
+    <link rel="stylesheet" href="../lib/codemirror.css">
+    <script src="../lib/codemirror.js"></script>
+    <script src="../mode/css/css.js"></script>
+    <link rel="stylesheet" href="../doc/docs.css">
+
+    <style type="text/css">
+      .CodeMirror {
+        border: 1px solid #eee;
+      }
+      .CodeMirror-scroll {
+        height: auto;
+        overflow-y: hidden;
+        overflow-x: auto;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>CodeMirror: Autoresize demo</h1>
+
+    <form><textarea id="code" name="code">
+.CodeMirror-scroll {
+  height: auto;
+  overflow-y: hidden;
+  overflow-x: auto;
+  width: 100%
+}</textarea></form>
+
+<p>By setting a few CSS properties, CodeMirror can be made to
+automatically resize to fit its content.</p>
+
+    <script>
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        lineNumbers: true
+      });
+    </script>
+
+  </body>
+</html>
