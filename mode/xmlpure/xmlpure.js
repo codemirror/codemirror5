@@ -6,6 +6,13 @@
  * @date: August, 2011
  */
 
+// IE below 9 doesn't have the trim() function, so we'll add it here:
+if(typeof String.prototype.trim !== 'function') {
+    String.prototype.trim = function() {
+        return this.replace(/^\s+|\s+$/g, ''); 
+    }
+}
+
 CodeMirror.defineMode("xmlpure", function(config, parserConfig) {
     // constants
     var STYLE_ERROR = "error";
