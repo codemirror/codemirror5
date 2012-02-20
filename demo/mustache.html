@@ -32,6 +32,7 @@
 CodeMirror.defineMode("mustache", function(config, parserConfig) {
   var mustacheOverlay = {
     token: function(stream, state) {
+      var ch;
       if (stream.match("{{")) {
         while ((ch = stream.next()) != null)
           if (ch == "}" && stream.next() == "}") break;
