@@ -164,20 +164,15 @@
       <dd>Configures the keymap to use. The default
       is <code>"default"</code>, which is the only keymap defined
       in <code>codemirror.js</code> itself. Extra keymaps are found in
-      the <a href="../keymap/"><code>keymap</code></a> directory.</dd>
+      the <a href="../keymap/"><code>keymap</code></a> directory. See
+      the <a href="#keymaps">section on keymaps</a> for more
+      information.</dd>
 
       <dt id="option_extraKeys"><code>extraKeys (object)</code></dt>
-      <dd>Can be used to specify extra keybindings for the editor.
-      When given, should be an object with property names
-      like <code>Ctrl-A</code>, <code>Home</code>,
-      and <code>Ctrl-Alt-Left</code>. See
-      the <code>CodeMirror.keyNames</code> object for the names of all
-      the keys. The values in this object can either be functions,
-      which will be called with the CodeMirror instance when the key
-      is pressed, or strings, which should name commands defined
-      in <code>CodeMirror.commands</code> (not documented properly,
-      but looking at the source and the definition of the built-in
-      keymaps, they should be rather obvious).</dd>
+      <dd>Can be used to specify extra keybindings for the editor,
+      alongside the ones defined
+      by <a href="#option_keyMap"><code>keyMap</code></a>. Should be
+      either null, or a valid <a href="#keymaps">keymap</a> value.</dd>
 
       <dt id="option_lineWrapping"><code>lineWrapping (boolean)</code></dt>
       <dd>Whether CodeMirror should scroll or wrap for long lines.
@@ -297,6 +292,54 @@
       is <code>keydown</code> (or <code>keypress</code> for actions
       that need character data).</dd>
     </dl>
+
+    <h2 id="keymaps">Keymaps</h2>
+
+    <p>Keymaps are ways to associate keys with functionality. A keymap
+    is an object mapping strings that identify the keys to functions
+    that implement their functionality.</p>
+
+    <p>Keys are identified in either by name or by character.
+    The <code>CodeMirror.keyNames</code> object defines names for
+    common keys and associates them with their key codes. Examples of
+    names defined here are <code>Enter</code>, <code>F5</code>,
+    and <code>Q</code>. These can be prefixed
+    with <code>Shift-</code>, <code>Cmd-</code>, <code>Ctrl-</code>,
+    and <code>Alt-</code> (in that order!) to specify a modifier. So
+    for example, <code>Shift-Ctrl-Space</code> would be a valid key
+    identifier.</p>
+
+    <p>Alternatively, a character can be specified directly by
+    surrounding it in single quotes, for example <code>'$'</code>
+    or <code>'q'</code>. Due to limitations in the way browsers fire
+    key events, these may not be prefixed with modifiers.</p>
+
+    <p>The <code>CodeMirror.keyMap</code> object associates keymaps
+    with names. User code and keymap definitions can assign extra
+    properties to this object. Anywhere where a keymap is expected, a
+    string can be given, which will be looked up in this object. It
+    also contains the <code>"default"</code> keymap holding the
+    default bindings.</p>
+
+    <p>The values of properties in keymaps can be either functions of
+    a single argument (the CodeMirror instance), or strings. Such
+    strings refer to properties of the
+    <code>CodeMirror.commands</code> object, which defines a number of
+    common commands that are used by the default keybindings, and maps
+    them to functions. A key handler function may throw
+    <code>CodeMirror.Pass</code> to indicate that it has decided not
+    to handle the key, and other handlers (or the default behavior)
+    should be given a turn.</p>
+
+    <p>Keymaps can defer to each other by defining
+    a <code>fallthrough</code> property. This indicates that when a
+    key is not found in the map itself, one or more other maps should
+    be searched. It can hold either a single keymap or an array of
+    keymaps.</p>
+
+    <p>When a keymap contains a <code>catchall</code> property, the
+    handler function under that property will be called for all keys
+    dispatched through the keymap.</p>
 
     <h2 id="styling">Customized Styling</h2>
 
@@ -972,6 +1015,7 @@
       <li><a href="#overview">Overview</a></li>
       <li><a href="#usage">Basic Usage</a></li>
       <li><a href="#config">Configuration</a></li>
+      <li><a href="#keymaps">Keymaps</a></li>
       <li><a href="#styling">Customized Styling</a></li>
       <li><a href="#api">Programming API</a></li>
       <li><a href="#addons">Add-ons</a></li>
