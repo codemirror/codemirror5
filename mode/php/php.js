@@ -12,13 +12,13 @@
     }
   }
   function tokenComment(stream, state) {
-    var ch;
-    while (ch = stream.next()) {
+    while (!stream.eol()) {
       if (stream.match("?>", false)) break;
       if (stream.match("*/")) {
         state.tokenize = null;
         break;
       }
+      stream.next();
     }
     return "comment";
   }
@@ -75,10 +75,10 @@
     function dispatch(stream, state) { // TODO open PHP inside text/css
       if (stream.sol() && state.pending != '"') state.pending = null;
       if (state.curMode == htmlMode) {
-        if (stream.match(/^<\?\w*/)) {
+        if (stream.match("<?")) {
           state.curMode = phpMode;
           state.curState = state.php;
-          state.curClose = /^\?>/;
+          state.curClose = "?>";
 	  state.mode = "php";
           return "meta";
         }
