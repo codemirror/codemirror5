@@ -11,6 +11,17 @@
       return "string";
     }
   }
+  function tokenComment(stream, state) {
+    var ch;
+    while (ch = stream.next()) {
+      if (stream.match("?>", false)) break;
+      if (stream.match("*/")) {
+        state.tokenize = null;
+        break;
+      }
+    }
+    return "comment";
+  }
   var phpConfig = {
     name: "clike",
     keywords: keywords("abstract and array as break case catch cfunction class clone const continue declare " +
@@ -37,6 +48,20 @@
       "#": function(stream, state) {
         stream.skipToEnd();
         return "comment";
+      },
+      "/": function(stream, state) {
+        if (stream.eat("*")) {
+          state.tokenize = tokenComment;
+          return tokenComment(stream, state);
+        }
+        if (stream.eat("/")) {
+          var ch;
+          while (ch = stream.next()) {
+            if (stream.match("?>", false)) break;
+          }
+          return "comment";
+        }
+        return false;
       }
     }
   };
@@ -87,26 +112,13 @@
           }
         }
         return style;
-      } else if (state.mode == "php") {
-        if (stream.match(state.curClose)) {
-          state.curMode = htmlMode;
-          state.curState = state.html;
-          state.curClose = null;
-	  state.mode = "html";
-          return "meta";
-        } else {
-          var style = phpMode.token(stream, state.curState);
-          if (style == "comment") {
-            var cur = stream.current(), closePHP = cur.search(/\?>/);
-            if (closePHP != -1) stream.backUp(cur.length - closePHP);
-          }
-          return style;
-        }
-      } else if (stream.match(state.curClose, false)) {
+      } else if (stream.match(state.curClose, state.mode == "php")) {
         state.curMode = htmlMode;
         state.curState = state.html;
         state.curClose = null;
+        var isPHP = state.mode == "php";
 	state.mode = "html";
+        if (isPHP) return "meta";
         return dispatch(stream, state);
       } else {
         return state.curMode.token(stream, state.curState);
