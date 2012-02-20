@@ -13,7 +13,7 @@ CodeMirror.defineMode("vbscript", function(config, parserConfig) {
       "dim": kw("operator"), "const": kw("var"), "let": kw("var"), "ubound": kw("operator"), "redim": kw("operator"), "set": kw("operator"), "sub": kw("operator"), "exit": kw("operator"),
       "getobject": kw("operator"), "createobject": kw("operator"), "then": kw("operator"),
       "function": kw("function"), "catch": kw("catch"), "function": kw("operator"),
-      "for": kw("for"), "for": kw("each"), "switch": kw("switch"), "case": kw("case"), "default": kw("default"),
+      "for": kw("for"), "for": kw("each"), "switch": kw("switch"), "case": kw("case"), "select": kw("case"), "default": kw("default"),
       "in": operator, "typeof": operator, "instanceof": operator,
       "true": atom, "false": atom, "null": atom, "undefined": atom, "nan": atom, "infinity": atom, 
       "clng":kw("operator"),  "cint":kw("operator"), "cdbl":kw("operator"), "cdate":kw("operator"), "on":kw("operator"),  "error":kw("operator"),  "resume":kw("operator"),  "next":kw("operator"), 
