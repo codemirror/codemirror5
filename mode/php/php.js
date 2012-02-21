@@ -35,8 +35,15 @@
         return false;
       },
       "#": function(stream, state) {
-        stream.skipToEnd();
+        while (!stream.eol() && !stream.match("?>", false)) stream.next();
         return "comment";
+      },
+      "/": function(stream, state) {
+        if (stream.eat("/")) {
+          while (!stream.eol() && !stream.match("?>", false)) stream.next();
+          return "comment";
+        }
+        return false;
       }
     }
   };
