@@ -11,17 +11,6 @@
       return "string";
     }
   }
-  function tokenComment(stream, state) {
-    while (!stream.eol()) {
-      if (stream.match("?>", false)) break;
-      if (stream.match("*/")) {
-        state.tokenize = null;
-        break;
-      }
-      stream.next();
-    }
-    return "comment";
-  }
   var phpConfig = {
     name: "clike",
     keywords: keywords("abstract and array as break case catch cfunction class clone const continue declare " +
@@ -48,20 +37,6 @@
       "#": function(stream, state) {
         stream.skipToEnd();
         return "comment";
-      },
-      "/": function(stream, state) {
-        if (stream.eat("*")) {
-          state.tokenize = tokenComment;
-          return tokenComment(stream, state);
-        }
-        if (stream.eat("/")) {
-          var ch;
-          while (ch = stream.next()) {
-            if (stream.match("?>", false)) break;
-          }
-          return "comment";
-        }
-        return false;
       }
     }
   };
@@ -73,9 +48,10 @@
     var phpMode = CodeMirror.getMode(config, phpConfig);
 
     function dispatch(stream, state) { // TODO open PHP inside text/css
+      var isPHP = state.mode == "php";
       if (stream.sol() && state.pending != '"') state.pending = null;
       if (state.curMode == htmlMode) {
-        if (stream.match("<?")) {
+        if (stream.match(/^<\?\w*/)) {
           state.curMode = phpMode;
           state.curState = state.php;
           state.curClose = "?>";
@@ -112,14 +88,14 @@
           }
         }
         return style;
-      } else if (stream.match(state.curClose, state.mode == "php")) {
+      } else if ((!isPHP || state.php.tokenize == null) &&
+                 stream.match(state.curClose, isPHP)) {
         state.curMode = htmlMode;
         state.curState = state.html;
         state.curClose = null;
-        var isPHP = state.mode == "php";
 	state.mode = "html";
         if (isPHP) return "meta";
-        return dispatch(stream, state);
+        else return dispatch(stream, state);
       } else {
         return state.curMode.token(stream, state.curState);
       }

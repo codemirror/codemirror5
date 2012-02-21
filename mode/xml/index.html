@@ -25,7 +25,8 @@
     <script>
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         mode: {name: "xml", alignCDATA: true},
-        lineNumbers: true
+        lineNumbers: true,
+        onChange: function() { editor.save(); }
       });
     </script>
     <p>The XML mode supports two configuration parameters:</p>

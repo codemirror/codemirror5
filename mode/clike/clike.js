@@ -59,7 +59,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
         escaped = !escaped && next == "\\";
       }
       if (end || !(escaped || multiLineStrings))
-        state.tokenize = tokenBase;
+        state.tokenize = null;
       return "string";
     };
   }
@@ -68,7 +68,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     var maybeEnd = false, ch;
     while (ch = stream.next()) {
       if (ch == "/" && maybeEnd) {
-        state.tokenize = tokenBase;
+        state.tokenize = null;
         break;
       }
       maybeEnd = (ch == "*");
