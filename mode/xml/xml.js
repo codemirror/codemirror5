@@ -4,8 +4,9 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
     autoSelfClosers: {"br": true, "img": true, "hr": true, "link": true, "input": true,
                       "meta": true, "col": true, "frame": true, "base": true, "area": true},
     doNotIndent: {"pre": true},
-    allowUnquoted: true
-  } : {autoSelfClosers: {}, doNotIndent: {}, allowUnquoted: false};
+    allowUnquoted: true,
+    allowMissing: false
+  } : {autoSelfClosers: {}, doNotIndent: {}, allowUnquoted: false, allowMissing: false};
   var alignCDATA = parserConfig.alignCDATA;
 
   // Return variables for tokenizers
@@ -55,7 +56,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
           ok = stream.eatWhile(/[\d]/) && stream.eat(";");
         }
       } else {
-        ok = stream.eatWhile(/[\w]/) && stream.eat(";");
+        ok = stream.eatWhile(/[\w\.\-:]/) && stream.eat(";");
       }
       return ok ? "atom" : "error";
     }
@@ -189,15 +190,21 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
   }
 
   function attributes(type) {
-    if (type == "word") {setStyle = "attribute"; return cont(attributes);}
+    if (type == "word") {setStyle = "attribute"; return cont(attribute, attributes);}
+    if (type == "endTag") return pass();
+    setStyle = "error";
+    return cont(attributes);
+  }
+  function attribute(type) {
     if (type == "equals") return cont(attvalue, attributes);
-    if (type == "string") {setStyle = "error"; return cont(attributes);}
-    return pass();
+    if (!Kludges.allowMissing) setStyle = "error";
+    return type == "endTag" ? pass() : cont();
   }
   function attvalue(type) {
-    if (type == "word" && Kludges.allowUnquoted) {setStyle = "string"; return cont();}
     if (type == "string") return cont(attvaluemaybe);
-    return pass();
+    if (type == "word" && Kludges.allowUnquoted) {setStyle = "string"; return cont();}
+    setStyle = "error";
+    return type == "endTag" ? pass() : cont();
   }
   function attvaluemaybe(type) {
     if (type == "string") return cont(attvaluemaybe);

@@ -8,7 +8,7 @@ CodeMirror.defineMode("gfm", function(config, parserConfig) {
     "c++": "text/x-c++src",
     java: "text/x-java",
     csharp: "text/x-csharp",
-    "c#": "text/x-csharp",
+    "c#": "text/x-csharp"
   };
 
   // make this lazy so that we don't need to load GFM last

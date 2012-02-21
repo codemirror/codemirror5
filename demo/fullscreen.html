@@ -7,11 +7,10 @@
     <link rel="stylesheet" href="../theme/night.css">
     <script src="../mode/xml/xml.js"></script>
     <link rel="stylesheet" href="../doc/docs.css">
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
 
     <style type="text/css">
         .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}
-        .fullscreen {
+        .CodeMirror-fullscreen {
             display: block;
             position: absolute;
             top: 0;
@@ -111,41 +110,43 @@
 
 </textarea></form>
  <script>
-
-(function () {
-
     var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true,
         theme: "night",
-        extraKeys: {"F11": toggleFullscreenEditing, "Esc": toggleFullscreenEditing}
+        extraKeys: {
+            "F11": function() {
+              var scroller = editor.getScrollerElement();
+              if (scroller.className.search(/\bCodeMirror-fullscreen\b/) === -1) {
+                scroller.className += " CodeMirror-fullscreen";
+                scroller.style.height = "100%";
+                scroller.style.width = "100%";
+                editor.refresh();
+              } else {
+                scroller.className = scroller.className.replace(" CodeMirror-fullscreen", "");
+                scroller.style.height = '';
+                scroller.style.width = '';
+                editor.refresh();
+              }
+            },
+            "Esc": function() {
+              var scroller = editor.getScrollerElement();
+              if (scroller.className.search(/\bCodeMirror-fullscreen\b/) !== -1) {
+                scroller.className = scroller.className.replace(" CodeMirror-fullscreen", "");
+                scroller.style.height = '';
+                scroller.style.width = '';
+                editor.refresh();
+              }
+            }
+        }
     });
 
-    function toggleFullscreenEditing()
-    {
-        var editorDiv = $('.CodeMirror-scroll');
-        if (!editorDiv.hasClass('fullscreen')) {
-            toggleFullscreenEditing.beforeFullscreen = { height: editorDiv.height(), width: editorDiv.width() }
-            editorDiv.addClass('fullscreen');
-            editorDiv.height('100%');
-            editorDiv.width('100%');
-            editor.refresh();
-        }
-        else {
-            editorDiv.removeClass('fullscreen');
-            editorDiv.height(toggleFullscreenEditing.beforeFullscreen.height);
-            editorDiv.width(toggleFullscreenEditing.beforeFullscreen.width);
-            editor.refresh();
-        }
-    }
-
-})();
 </script>
 
-    <p>Press <strong>F11</strong> (or <strong>ESC</strong> in Safari on Mac OS X) when cursor is in the editor to toggle full screen editing.</p>
+    <p>Press <strong>F11</strong> when cursor is in the editor to toggle full screen editing. <strong>Esc</strong> can also be used to <i>exit</i> full screen editing.</p>
 
     <p><strong>Note:</strong> Does not currently work correctly in IE
     6 and 7, where setting the height of something
-    to <code>100%</code> doesn't make it full-screen.</p>
+    to <code>100%</code> doesn't make it full screen.</p>
 
   </body>
 </html>
