@@ -1,3 +1,4 @@
+/*{{{*/
 .cm-s-default span.cm-header {color: blue; font-weight:bold;}
 .cm-s-default span.cm-code {color: #a50;}
 .cm-s-default span.cm-code-inline {color: #660;}
@@ -18,4 +19,6 @@
 .cm-s-default span.cm-line-through {text-decoration: line-through;}
 
 .cm-s-default span.cm-comment {color: #666;}
+.cm-s-default span.cm-tab-space-mixed {background: #ccc;}
+/*}}}*/
 
