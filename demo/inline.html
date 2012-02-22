@@ -29,7 +29,8 @@ function findSequence(goal) {
 
 <p>
   <input type="button" value="Add Inline Widget" onclick="addInline()"/>
-  <input type="button" value="Remove Last Inline Widget" onclick="removeInline()"/>  
+  <input type="button" value="Remove Last Inline Widget" onclick="removeInline()"/>
+  <input type="checkbox" id="wordwrap" onclick="toggleWordWrap()"/><label for="wordwrap">Word Wrap</label>
 </p>
 
 <script>
@@ -47,6 +48,9 @@ function findSequence(goal) {
   function removeInline() {
     if (inlines.length > 0)
       editor.removeInlineWidget(inlines.pop());
+  }
+  function toggleWordWrap() {
+    editor.setOption("lineWrapping", !editor.getOption("lineWrapping"));
   }
 </script>
   </body>
