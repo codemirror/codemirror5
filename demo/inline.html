@@ -1,0 +1,57 @@
+<!doctype html>
+<html>
+  <head>
+    <title>CodeMirror 2: Inline Editor Demo</title>
+    <link rel="stylesheet" href="../lib/codemirror.css">
+    <script src="../lib/codemirror.js"></script>
+    <script src="../mode/javascript/javascript.js"></script>
+    <link rel="stylesheet" href="../doc/docs.css">
+    <style type="text/css">
+      .CodeMirror {border: 1px solid black;}
+    </style>
+  </head>
+  <body>
+    <h1>CodeMirror 2: Inline demo</h1>
+
+    <form><textarea id="code" name="code">
+function findSequence(goal) {
+  function find(start, history) {
+    if (start == goal)
+      return history;
+    else if (start > goal)
+      return null;
+    else
+      return find(start + 5, "(" + history + " + 5)") ||
+             find(start * 3, "(" + history + " * 3)");
+  }
+  return find(1, "1");
+}</textarea></form>
+
+    <p>
+      <input type="button" value="Add Inline Widget" onclick="addInline()"/>
+      <input type="button" value="Remove Last Inline Widget" onclick="removeInline()"/>
+      <input type="checkbox" id="wordwrap" onclick="toggleWordWrap()"/><label for="wordwrap">Word Wrap</label>
+    </p>
+
+    <script>
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        lineNumbers: true,
+        mode: "javascript"
+      });
+      var inlines = [], nextWidgetId = 1;
+      function addInline() {
+        var inlineContent = document.createElement('div');
+        inlineContent.style.background = '#CCCCCC';
+        inlineContent.innerHTML = "Inline editor #" + nextWidgetId++;
+        inlines.push(editor.addInlineWidget(editor.getCursor(), inlineContent, 100));
+      }
+      function removeInline() {
+        if (inlines.length > 0)
+          editor.removeInlineWidget(inlines.pop());
+      }
+      function toggleWordWrap() {
+        editor.setOption("lineWrapping", !editor.getOption("lineWrapping"));
+      }
+    </script>
+  </body>
+</html>
