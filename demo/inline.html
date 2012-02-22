@@ -27,31 +27,31 @@ function findSequence(goal) {
   return find(1, "1");
 }</textarea></form>
 
-<p>
-  <input type="button" value="Add Inline Widget" onclick="addInline()"/>
-  <input type="button" value="Remove Last Inline Widget" onclick="removeInline()"/>
-  <input type="checkbox" id="wordwrap" onclick="toggleWordWrap()"/><label for="wordwrap">Word Wrap</label>
-</p>
+    <p>
+      <input type="button" value="Add Inline Widget" onclick="addInline()"/>
+      <input type="button" value="Remove Last Inline Widget" onclick="removeInline()"/>
+      <input type="checkbox" id="wordwrap" onclick="toggleWordWrap()"/><label for="wordwrap">Word Wrap</label>
+    </p>
 
-<script>
-  var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-    lineNumbers: true,
-    mode: "javascript"
-  });
-  var inlines = [], nextWidgetId = 1;
-  function addInline() {
-    var inlineContent = document.createElement('div');
-    inlineContent.style.background = '#CCCCCC';
-    inlineContent.innerHTML = "Inline editor #" + nextWidgetId++;
-    inlines.push(editor.addInlineWidget(editor.getCursor(), inlineContent, 100));
-  }
-  function removeInline() {
-    if (inlines.length > 0)
-      editor.removeInlineWidget(inlines.pop());
-  }
-  function toggleWordWrap() {
-    editor.setOption("lineWrapping", !editor.getOption("lineWrapping"));
-  }
-</script>
+    <script>
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        lineNumbers: true,
+        mode: "javascript"
+      });
+      var inlines = [], nextWidgetId = 1;
+      function addInline() {
+        var inlineContent = document.createElement('div');
+        inlineContent.style.background = '#CCCCCC';
+        inlineContent.innerHTML = "Inline editor #" + nextWidgetId++;
+        inlines.push(editor.addInlineWidget(editor.getCursor(), inlineContent, 100));
+      }
+      function removeInline() {
+        if (inlines.length > 0)
+          editor.removeInlineWidget(inlines.pop());
+      }
+      function toggleWordWrap() {
+        editor.setOption("lineWrapping", !editor.getOption("lineWrapping"));
+      }
+    </script>
   </body>
 </html>
