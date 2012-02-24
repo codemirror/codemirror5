@@ -191,20 +191,20 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
 
   function attributes(type) {
     if (type == "word") {setStyle = "attribute"; return cont(attribute, attributes);}
-    if (type == "endTag") return pass();
+    if (type == "endTag" || type == "selfcloseTag") return pass();
     setStyle = "error";
     return cont(attributes);
   }
   function attribute(type) {
     if (type == "equals") return cont(attvalue, attributes);
     if (!Kludges.allowMissing) setStyle = "error";
-    return type == "endTag" ? pass() : cont();
+    return (type == "endTag" || type == "selfcloseTag") ? pass() : cont();
   }
   function attvalue(type) {
     if (type == "string") return cont(attvaluemaybe);
     if (type == "word" && Kludges.allowUnquoted) {setStyle = "string"; return cont();}
     setStyle = "error";
-    return type == "endTag" ? pass() : cont();
+    return (type == "endTag" || type == "selfCloseTag") ? pass() : cont();
   }
   function attvaluemaybe(type) {
     if (type == "string") return cont(attvaluemaybe);
