@@ -183,7 +183,7 @@ CodeMirror.defineMode("dylan", function(config, parserConfig) {
         else if (stream.match('end')) {
             return ret('end', 'keyword');
         }
-        for (name in patterns) {
+        for (var name in patterns) {
             if (patterns.hasOwnProperty(name)) {
                 var pattern = patterns[name];
                 if ((pattern instanceof Array
