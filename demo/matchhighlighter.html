@@ -4,15 +4,15 @@
     <title>CodeMirror: Match Highlighter Demo</title>
     <link rel="stylesheet" href="../lib/codemirror.css">
     <script src="../lib/codemirror.js"></script>
-	<script src="../lib/util/searchcursor.js"></script>
-	<script src="../lib/util/match-highlighter.js"></script>
-	<link rel="stylesheet" href="../doc/docs.css">
+    <script src="../lib/util/searchcursor.js"></script>
+    <script src="../lib/util/match-highlighter.js"></script>
+    <link rel="stylesheet" href="../doc/docs.css">
 
     <style type="text/css">
       .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}
 	  
-	  span.CodeMirror-matchhighlight { background: #e9e9e9 }
-	  .CodeMirror-focused span.CodeMirror-matchhighlight { background: #e7e4ff; !important }
+      span.CodeMirror-matchhighlight { background: #e9e9e9 }
+      .CodeMirror-focused span.CodeMirror-matchhighlight { background: #e7e4ff; !important }
     </style>
   </head>
   <body>
@@ -26,7 +26,7 @@ Give it a try!  No more hardToSpotVars.</textarea></form>
 var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
   lineNumbers : true,
   onCursorActivity: function() {
-    editor.matchHighlight();
+    editor.matchHighlight("CodeMirror-matchhighlight");
   }
 });
 </script>

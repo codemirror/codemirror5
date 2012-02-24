@@ -797,6 +797,15 @@
       and <code>CodeMirror.coffeescriptHint</code>, which are simple
       hinting functions for the JavaScript and CoffeeScript
       modes.</dd>
+      <dt id="util_match-highlighter"><a href="../lib/util/match-highlighter.js"><code>match-highlighter.js</code></a></dt>
+      <dd>Adds a <code>matchHighlight</code> method to CodeMirror
+      instances that can be called (typically from
+      a <a href="#option_onCursorActivity"><code>onCursorActivity</code></a>
+      handler) to highlight all instances of a currently selected word
+      with the a classname given as a first argument to the method.
+      Depends on
+      the <a href="#util_searchcursor"><code>searchcursor</code></a>
+      add-on. Demo <a href="../demo/matchhighlighter.html">here</a>.</dd>
     </dl>
 
     <h2 id="modeapi">Writing CodeMirror Modes</h2>
