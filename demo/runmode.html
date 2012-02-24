@@ -11,6 +11,7 @@
   <body>
     <h1>CodeMirror: Mode Runner Demo</h1>
 
+	<p>The code below uses <code>2 spaces</code> for each indentation level.</p>
     <textarea id="code" style="width: 90%; height: 7em; border: 1px solid black; padding: .2em .4em;">
 <foobar>
   <blah>Enter your xml here and press the button below to display
@@ -26,6 +27,26 @@ function doHighlight() {
                      document.getElementById("output"));
 }
 </script>
+	<p>The code below uses <code>tab</code> char for indentation. The default browser tab size is 8.
+	After rendering, tabs are replaced by <code>span</code> elements. The tab class is set to <code>cm-tab</code>. 
+	If <code>whitespace</code> and tabs are mixed, the whitespace class is set to <code>cm-tab-space-mixed</code>. 
+	This class can be used to highlight the whitespace with a different background color if needed.
+	</p>
+    <textarea id="code-tab" style="width: 90%; height: 7em; border: 1px solid black; padding: .2em .4em;">
+<foobar>
+	<blah>Enter your xml here and press the button below to display
+		it as highlighted by the CodeMirror XML mode</blah>
+	<tag2 foo="2" bar="&amp;quot;bar&amp;quot;"/>
+</foobar></textarea><br>
+    <button onclick="doHighlightTab();">Highlight!</button>
+    <pre id="output-tab" class="cm-s-default"></pre>
+
+    <script>
+function doHighlightTab() {
+  CodeMirror.runMode(document.getElementById("code-tab").value, "application/xml",
+                     document.getElementById("output-tab"), {tabSize:3});
+}
+</script>
 
     <p>Running a CodeMirror mode outside of the editor.
     The <code>CodeMirror.runMode</code> function, defined
@@ -38,11 +59,15 @@ function doHighlight() {
       <dd>The mode to use (must be loaded as normal).</dd>
       <dt><code>output (function or DOM node)</code></dt>
       <dd>If this is a function, it will be called for each token with
-      two arguments, the token's text and the token's style class (may
-      be <code>null</code> for unstyled tokens). If it is a DOM node,
+      four arguments, the token's <code>text</code> and the token's <code>style</code> class (may
+      be <code>null</code> for unstyled tokens), the <code>line number</code> (start at <code>0</code>) and 
+      <code>stream.start</code>.</dd>
+      <dd>If it is a DOM node,
       the tokens will be converted to <code>span</code> elements as in
       an editor, and inserted into the node
       (through <code>innerHTML</code>).</dd>
+      <dt><code>CodeMirror configuration object</code></dt>
+      <dd>For this example it is <code>{tabSize: 3}</code>. Have a look at the page code.</dd>
     </dl>
 
   </body>
