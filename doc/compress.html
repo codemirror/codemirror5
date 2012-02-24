@@ -43,7 +43,7 @@
         <option value="http://marijnhaverbeke.nl/git/codemirror2?a=blob_plain;hb=beta1;f=">beta1</option>
       </select></p>
 
-      <select multiple="multiple" name="code_url" style="width: 40em;" class="field" id="files">
+      <select multiple="multiple" size="20" name="code_url" style="width: 40em;" class="field" id="files">
         <optgroup label="CodeMirror Library">
           <option value="http://codemirror.net/lib/codemirror.js" selected>codemirror.js</option>
         </optgroup>
@@ -53,7 +53,7 @@
           <option value="http://codemirror.net/mode/coffeescript/coffeescript.js">coffeescript.js</option>
           <option value="http://codemirror.net/mode/css/css.js">css.js</option>
           <option value="http://codemirror.net/mode/diff/diff.js">diff.js</option>
-          <option value="http://codemirror.net/mode/ecl/ecl.js">diff.js</option>
+          <option value="http://codemirror.net/mode/ecl/ecl.js">ecl.js</option>
           <option value="http://codemirror.net/mode/gfm/gfm.js">gfm.js</option>
           <option value="http://codemirror.net/mode/go/go.js">go.js</option>
           <option value="http://codemirror.net/mode/groovy/groovy.js">groovy.js</option>
@@ -87,6 +87,7 @@
           <option value="http://codemirror.net/mode/velocity/velocity.js">velocity.js</option>
           <option value="http://codemirror.net/mode/verilog/verilog.js">verilog.js</option>
           <option value="http://codemirror.net/mode/xml/xml.js">xml.js</option>
+          <option value="http://codemirror.net/mode/xmlpure/xmlpure.js">xmlpure.js</option>
           <option value="http://codemirror.net/mode/yaml/yaml.js">yaml.js</option>
         </optgroup>
         <optgroup label="Utilities and add-ons">
@@ -94,12 +95,16 @@
           <option value="http://codemirror.net/lib/util/runmode.js">runmode.js</option>
           <option value="http://codemirror.net/lib/util/simple-hint.js">simple-hint.js</option>
           <option value="http://codemirror.net/lib/util/javascript-hint.js">javascript-hint.js</option>
-          <option value="http://codemirror.net/lib/util/foldcode.js">codefold.js</option>
+          <option value="http://codemirror.net/lib/util/foldcode.js">foldcode.js</option>
           <option value="http://codemirror.net/lib/util/dialog.js">dialog.js</option>
           <option value="http://codemirror.net/lib/util/search.js">search.js</option>
+          <option value="http://codemirror.net/lib/util/searchcursor.js">searchcursor.js</option>
+          <option value="http://codemirror.net/lib/util/formatting.js">formatting.js</option>
+          <option value="http://codemirror.net/lib/util/match-highlighter.js">match-highlighter.js</option>
         </optgroup>
         <optgroup label="Keymaps">
           <option value="http://codemirror.net/keymap/emacs.js">emacs.js</option>
+          <option value="http://codemirror.net/keymap/vim.js">vim.js</option>
         </optgroup>
       </select></p>
 
@@ -120,7 +125,7 @@
               continue;
             else if (m = opt.value.match(/^http:\/\/codemirror.net\/(.*)$/))
               opt.value = urlprefix + m[1];
-            else if (m = opt.value.match(/http:\/\/marijnhaverbeke.nl\/git\/codemirror\?a=blob_plain;hb=[^;]+;f=(.*)$/))
+            else if (m = opt.value.match(/http:\/\/marijnhaverbeke.nl\/git\/codemirror2\?a=blob_plain;hb=[^;]+;f=(.*)$/))
               opt.value = urlprefix + m[1];
           }
        }
