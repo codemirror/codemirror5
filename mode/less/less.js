@@ -54,7 +54,7 @@ CodeMirror.defineMode("less", function(config) {
     else if (/[;{}:\[\]()]/.test(ch)) { //added () char for lesscss original was [;{}:\[\]]
       if(ch == ":"){
 	stream.eatWhile(/[active|hover|link|visited]/);
-	if( stream.current().match(/[active|hover|link|visited]/)){
+	if( stream.current().match(/active|hover|link|visited/)){
 	  return ret("tag", "tag");
 	}else{
 	  return ret(null, ch);	
@@ -93,6 +93,8 @@ CodeMirror.defineMode("less", function(config) {
 	return ret("number", "unit");
       }else if( inTagsArray(stream.current()) ){ // lesscss match html tags
 	return ret("tag", "tag");
+      }else if( (stream.peek() == ")" || stream.peek() == "/") && stream.current().indexOf('.') !== -1){
+	return ret("string", "string");//let url(logo.png) without quotes and froward slash return as string
       }else{
       	return ret("variable", "variable");
       }
