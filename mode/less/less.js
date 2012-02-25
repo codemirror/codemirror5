@@ -53,7 +53,7 @@ CodeMirror.defineMode("less", function(config) {
     else if (/[;{}:\[\]()]/.test(ch)) { //added () char for lesscss original was [;{}:\[\]]
       if(ch == ":"){
 	stream.eatWhile(/[active|hover|link|visited]/);
-	if( stream.current().match(/[active|hover|link|visited]/)){
+	if( stream.current().match(/active|hover|link|visited/)){
 	  return ret("tag", "tag");
 	}else{
 	  return ret(null, ch);	
