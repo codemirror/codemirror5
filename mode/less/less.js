@@ -92,7 +92,7 @@ CodeMirror.defineMode("less", function(config) {
 	return ret("number", "unit");
       }else if( inTagsArray(stream.current()) ){ // lesscss match html tags
 	return ret("tag", "tag");
-      }else if( (stream.peek() == ")" || stream.peek() == "/") && stream.match(/./)){
+      }else if( (stream.peek(1) == ")" || stream.peek() == "/") && stream.current().indexOf('.') !== -1){
 	return ret("string", "string");//let url(logo.png) without quotes and froward slash return as string
       }else{
       	return ret("variable", "variable");
