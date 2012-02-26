@@ -872,10 +872,10 @@
       <dd>Returns true only if the stream is at the start of the
       line.</dd>
 
-      <dt><code>peek() → character</code></dt>
+      <dt><code>peek(bool) → character</code></dt>
       <dd>Returns the next character in the stream without advancing
       it. Will return <code>undefined</code> at the end of the
-      line.</dd>
+      line. When added a boolean(true or 1) parameter, the peak function will look for the next non white-space character.</dd>
       <dt><code>next() → character</code></dt>
       <dd>Returns the next character in the stream and advances it.
       Also returns <code>undefined</code> when no more characters are
