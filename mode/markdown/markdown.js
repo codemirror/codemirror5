@@ -13,11 +13,11 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   ,   strong   = 'strong'
   ,   emstrong = 'emstrong';
 
-  var hrRE = /^[*-=_]/
-  ,   ulRE = /^[*-+]\s+/
+  var hrRE = /^[*\-=_]/
+  ,   ulRE = /^[*\-+]\s+/
   ,   olRE = /^[0-9]+\.\s+/
   ,   headerRE = /^(?:\={3,}|-{3,})$/
-  ,   codeRE = /^(k:\t|\s{4,})/
+  ,   codeRE = /^(?:\t|\s{4,})/
   ,   textRE = /^[^\[*_\\<>`]+/;
 
   function switchInline(stream, state, f) {
@@ -47,11 +47,9 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       state.quote = true;
     } else if (stream.peek() === '[') {
       return switchInline(stream, state, footnoteLink);
-    } else if (hrRE.test(stream.peek())) {
-      var re = new RegExp('(?:\s*['+stream.peek()+']){3,}$');
-      if (stream.match(re, true)) {
-        return hr;
-      }
+    } else if (hrRE.test(stream.peek()) &&
+               stream.match(new RegExp('(?:\s*['+stream.peek()+']){3,}$'), true)) {
+      return hr;
     } else if (match = stream.match(ulRE, true) || stream.match(olRE, true)) {
       state.indentation += match[0].length;
       return list;
