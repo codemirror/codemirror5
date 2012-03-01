@@ -13,7 +13,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   ,   strong   = 'strong'
   ,   emstrong = 'emstrong';
 
-  var hrRE = /^[*\-=_]/
+  var hrRE = /^([*\-=_])(?:\s*\1){2,}\s*$/
   ,   ulRE = /^[*\-+]\s+/
   ,   olRE = /^[0-9]+\.\s+/
   ,   headerRE = /^(?:\={3,}|-{3,})$/
@@ -47,8 +47,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       state.quote = true;
     } else if (stream.peek() === '[') {
       return switchInline(stream, state, footnoteLink);
-    } else if (hrRE.test(stream.peek()) &&
-               stream.match(new RegExp('(?:\s*['+stream.peek()+']){3,}$'), true)) {
+    } else if (stream.match(hrRE, true)) {
       return hr;
     } else if (match = stream.match(ulRE, true) || stream.match(olRE, true)) {
       state.indentation += match[0].length;
