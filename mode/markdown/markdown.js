@@ -69,39 +69,15 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
   // Inline
   function getType(state) {
+    var styles = [];
     
-    // Set defaults
-    returnValue = '';
+    if (state.strong) { styles.push(state.em ? emstrong : strong); }
+    else if (state.em) { styles.push(em); }
     
-    // Strong / Emphasis
-    if(state.strong){
-      if(state.em){
-        returnValue += (returnValue ? ' ' : '') + emstrong;
-      } else {
-        returnValue += (returnValue ? ' ' : '') + strong;
-      }
-    } else {
-      if(state.em){
-        returnValue += (returnValue ? ' ' : '') + em;
-      }
-    }
-    
-    // Header
-    if(state.header){
-      returnValue += (returnValue ? ' ' : '') + header;
-    }
-    
-    // Quotes
-    if(state.quote){
-      returnValue += (returnValue ? ' ' : '') + quote;
-    }
-    
-    // Check valud and return
-    if(!returnValue){
-      returnValue = null;
-    }
-    return returnValue;
-    
+    if (state.header) { styles.push(header); }
+    if (state.quote) { styles.push(quote); }
+
+    return styles.length ? styles.join(' ') : null;
   }
 
   function handleText(stream, state) {
