@@ -17,7 +17,6 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   ,   ulRE = /^[*\-+]\s+/
   ,   olRE = /^[0-9]+\.\s+/
   ,   headerRE = /^(?:\={3,}|-{3,})$/
-  ,   codeRE = /^(?:\t|\s{4,})/
   ,   textRE = /^[^\[*_\\<>`]+/;
 
   function switchInline(stream, state, f) {
@@ -33,9 +32,18 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
   // Blocks
 
+  function blankLine(state) {
+    // Reset EM state
+    state.em = false;
+    // Reset STRONG state
+    state.strong = false;
+    return null;
+  }
+
   function blockNormal(stream, state) {
     var match;
-    if (stream.match(codeRE)) {
+    if (state.indentationDiff >= 4) {
+      state.indentation -= state.indentationDiff;
       stream.skipToEnd();
       return code;
     } else if (stream.eatSpace()) {
@@ -211,35 +219,23 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
     token: function(stream, state) {
       if (stream.sol()) {
-        // Reset EM state
-        state.em = false;
-        // Reset STRONG state
-        state.strong = false;
+        if (stream.match(/^\s*$/, true)) { return blankLine(state); }
+
         // Reset state.header
         state.header = false;
         // Reset state.quote
         state.quote = false;
 
         state.f = state.block;
-        var previousIndentation = state.indentation
-        ,   currentIndentation = 0;
-        while (previousIndentation > 0) {
-          if (stream.eat(' ')) {
-            previousIndentation--;
-            currentIndentation++;
-          } else if (previousIndentation >= 4 && stream.eat('\t')) {
-            previousIndentation -= 4;
-            currentIndentation += 4;
-          } else {
-            break;
-          }
-        }
-        state.indentation = currentIndentation;
-        
-        if (currentIndentation > 0) return null;
+        var indentation = stream.match(/^\s*/, true)[0].replace(/\t/g, '    ').length;
+        state.indentationDiff = indentation - state.indentation;
+        state.indentation = indentation;
+        if (indentation > 0) { return null; }
       }
       return state.f(stream, state);
     },
+
+    blankLine: blankLine,
 
     getType: getType
   };
