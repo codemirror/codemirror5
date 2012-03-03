@@ -214,11 +214,11 @@
       and <code>to</code> are the positions (in the pre-change
       coordinate system) where the change started and
       ended (for example, it might be <code>{ch:0, line:18}</code> if the
-      position is at line #19, at the first character. <code>text</code> is an
-      array of strings representing the text that replaced the changed range
-      (split by line). If multiple changes happened during a single operation,
-      the object will have a <code>next</code> property pointing to another
-      change object (which may point to another, etc).</dd>
+      position is at the beginning of line #19). <code>text</code>
+      is an array of strings representing the text that replaced the changed
+      range (split by line). If multiple changes happened during a single
+      operation, the object will have a <code>next</code> property pointing to
+      another change object (which may point to another, etc).</dd>
 
       <dt id="option_onCursorActivity"><code>onCursorActivity (function)</code></dt>
       <dd>Will be called when the cursor or selection moves, or any
