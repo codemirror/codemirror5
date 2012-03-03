@@ -95,6 +95,16 @@ CodeMirror.defineMode("stex", function(cmCfg, modeCfg)
 	    return plug.style;
 	}
 
+        // escape characters 
+        if (source.match(/^\\[$&%#{}_SP]/)) {
+          return "tag";
+        }
+
+        // white space control characters
+        if (source.match(/^\\[,;!@\/]/)) {
+          return "tag";
+        }
+
 	var ch = source.next();
 	if (ch == "%") {
 	    setState(state, inCComment);
