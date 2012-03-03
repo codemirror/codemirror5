@@ -80,7 +80,7 @@
       MT.test('\\importmodule[\\KWARCslides{dmath/en/cardinality}]{card}',
         'tag',     '\\importmodule',
         'bracket', '[',
-        'string',   '\\KWARCslides',
+        'tag',     '\\KWARCslides',
         'bracket', '{',
         'string',   'dmath',
         'string',   '/en',
@@ -89,6 +89,15 @@
         'bracket', ']',
         'bracket', '{',
         'builtin', 'card',
+        'bracket', '}');
+
+      MT.test('\\PSforPDF[1]{#1}', // could treat #1 specially
+        'tag',     '\\PSforPDF',
+        'bracket', '[',
+        'atom',    '1',
+        'bracket', ']',
+        'bracket', '{',
+        null,      '#1',
         'bracket', '}');
     </script>
 
@@ -107,6 +116,10 @@
         null,      ' ',
         'comment', '%',
         'comment', ' \\item');
+
+      MT.test('%\nfoo',
+        'comment', '%',
+        null, 'foo');
     </script>
 
     <h2>Errors</h2>
