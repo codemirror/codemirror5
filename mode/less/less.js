@@ -160,7 +160,7 @@ CodeMirror.defineMode("less", function(config) {
       if (type == "hash" && context == "rule") style = "atom";
       else if (style == "variable") {
         if (context == "rule") style = null; //"tag"
-        else if (!context || context == "@media{") style = "tag";
+        else if (!context || context == "@media{") style = stream.current() == "when" ? "variable" : "tag";
       }
 
       if (context == "rule" && /^[\{\};]$/.test(type))
