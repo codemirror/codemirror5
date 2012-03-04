@@ -26,6 +26,10 @@ video {
   background-repeat: no-repeat;
 }
 
+.my-box-shadow(@style, @alpha: 50%) when (isnumber(@alpha)) {
+  .my-box-shadow(@style, rgba(0, 0, 0, @alpha));
+}
+
 @color: #4D926F;
 
 #header {
