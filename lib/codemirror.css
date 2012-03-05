@@ -27,6 +27,7 @@
 }
 .CodeMirror-lines {
   padding: .4em;
+  white-space: pre;
 }
 
 .CodeMirror pre {
