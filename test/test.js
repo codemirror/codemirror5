@@ -250,7 +250,7 @@ testCM("markTextMultiLine", function(cm) {
            {a: [1, 5], b: [2, 5], c: "", f: [0, 5], t: [1, 5]},
            {a: [2, 0], b: [2, 3], c: "", f: [0, 5], t: [2, 2]},
            {a: [2, 5], b: [3, 0], c: "a\nb", f: [0, 5], t: [2, 5]},
-           {a: [2, 3], b: [3, 0], c: "x", f: [0, 5], t: [2, 3]},
+           {a: [2, 3], b: [3, 0], c: "x", f: [0, 5], t: [2, 4]},
            {a: [1, 1], b: [1, 9], c: "1\n2\n3", f: [0, 5], t: [4, 5]}], function(test) {
     cm.setValue("aaaaaaaaaa\nbbbbbbbbbb\ncccccccccc\ndddddddd\n");
     var r = cm.markText({line: 0, ch: 5}, {line: 2, ch: 5}, "foo");
