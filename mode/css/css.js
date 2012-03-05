@@ -92,7 +92,7 @@ CodeMirror.defineMode("css", function(config) {
       var style = state.tokenize(stream, state);
 
       var context = state.stack[state.stack.length-1];
-      if (type == "hash" && context == "rule") style = "atom";
+      if (type == "hash" && context != "rule") style = "string-2";
       else if (style == "variable") {
         if (context == "rule") style = "number";
         else if (!context || context == "@media{") style = "tag";
