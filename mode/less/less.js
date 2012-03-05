@@ -17,7 +17,7 @@ CodeMirror.defineMode("css", function(config) {
 	  }
   }
 
-  function tokenBase(stream, state) { //console.log(stream)
+  function tokenBase(stream, state) {
     var ch = stream.next();
 
 	if (ch == "@") {stream.eatWhile(/[\w\-]/); return ret("meta", stream.current());}
@@ -41,7 +41,7 @@ CodeMirror.defineMode("css", function(config) {
       	return tokenSComment(stream, state);
 	  }else{
 	    stream.eatWhile(/[\a-zA-Z0-9\-_.\s]/);
-		if(stream.eatChars(/[\s]/,/\)/) || stream.peek() == "/" || stream.eol())return ret("string", "string");//let url(/images/logo.png) without quotes return as string
+		if(/\/|\)/.test(stream.peek() || stream.eol() || (stream.eatSpace() && stream.peek() == ")")))return ret("string", "string");//let url(/images/logo.png) without quotes return as string
         return ret("number", "unit");
 	  }
     }
@@ -111,8 +111,7 @@ CodeMirror.defineMode("css", function(config) {
 	}
     else {
       stream.eatWhile(/[\w\\\-_.%]/);
-	  //console.log(stream.current()+'-'+stream.peek())
-	  if( stream.peek().match(/\(/) != null ){// && stream.peek() == "("){// stream.eat("(") ){ // lesscss
+	  if( stream.peek().match(/\(/) != null ){// lesscss
 		stream.eatWhile(/[a-zA-Z\s]/);
 		if(stream.peek() == "(")return ret(null, ch);
 	  }else if( stream.current().match(/\-\d|\-.\d/) ){ // lesscss match e.g.: -5px -0.4 etc...
