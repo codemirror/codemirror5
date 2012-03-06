@@ -30,7 +30,7 @@
   width: 1px;
 }
 
-.CodeMirror-scrollbar.cm-sb-lion {   
+.CodeMirror-scrollbar.cm-sb-overlap {   
   /* Ensure that the scrollbar appears in Lion, and that it overlaps the content
      rather than sitting to the right of it. */
   position: absolute;
@@ -40,7 +40,7 @@
   min-width: 12px;
 }
 
-.CodeMirror-scrollbar.cm-sb-lion-mouse {
+.CodeMirror-scrollbar.cm-sb-nonoverlap {
   min-width: 12px;
 }
 
