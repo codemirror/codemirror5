@@ -30,7 +30,7 @@ THE SOFTWARE.
     <script src="http://codemirror.net/lib/codemirror.js"></script> 
     <script src="xquery.js"></script> 
     <link rel="stylesheet" href="../../doc/docs.css"> 
-    <link rel="stylesheet" href="xquery-dark-theme.css"> 
+    <link rel="stylesheet" href="../../theme/xq-dark.css"> 
     <style type="text/css">
 			.CodeMirror {
 				border-top: 1px solid black; border-bottom: 1px solid black;
@@ -207,11 +207,9 @@ declare function json:serialize($x as element())  as xs:string {
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true,
         matchBrackets: true,
-				theme: "xquery-dark"
+        theme: "xq-dark"
       });
     </script> 
- 
- 
  
     <p><strong>MIME types defined:</strong> <code>application/xquery</code>.</p> 
  
