@@ -332,6 +332,13 @@
     to handle the key, and other handlers (or the default behavior)
     should be given a turn.</p>
 
+    <p>Keys mapped to command names that start with the
+    characters <code>"go"</code> (which should be used for
+    cursor-movement actions) will be fired even when an
+    extra <code>Shift</code> modifier is present (i.e. <code>"Up":
+    "goLineUp"</code> matches both up and shift-up). This is used to
+    easily implement shift-selection.</p>
+
     <p>Keymaps can defer to each other by defining
     a <code>fallthrough</code> property. This indicates that when a
     key is not found in the map itself, one or more other maps should
