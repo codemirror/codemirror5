@@ -15,7 +15,7 @@
 {extends file="parent.tpl"}
 {include file="template.tpl"}
 
-{* some example Smarty content and how it's highlighted *}
+{* some example Smarty content *}
 {if isset($name) && $name == 'Blog'}
   This is a {$var}.
   {$integer = 451}, {$array[] = "a"}, {$stringvar = "string"}
@@ -37,11 +37,7 @@
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true,
         matchBrackets: true,
-        mode: {
-          name: "smarty",
-          leftDelimiter: '{',
-          rightDelimiter: '}'
-        },
+        mode: "smarty",
         indentUnit: 4,
         indentWithTabs: true,
         enterMode: "keep",

@@ -1,14 +1,14 @@
-/**
- * Much of this borrows from xml.js.
- */
 CodeMirror.defineMode("smarty", function(config, parserConfig) {
-
-  var builtInFuncs = ["include", "include_php", "debug", "extends", "literal"];
+  var keyFuncs = ["debug", "extends", "function", "include", "include_php", "literal"];
+  var last;
   var regs = {
-    operatorChars:   /[+\-*&%=<>!?]/,
+    operatorChars: /[+\-*&%=<>!?]/,
     validIdentifier: /[a-zA-Z0-9\_]/,
-    stringChar:      /[\'\"]/
+    stringChar: /[\'\"]/
   }
+  var leftDelim = (typeof config.mode.leftDelimiter != 'undefined') ? config.mode.leftDelimiter : "{";
+  var rightDelim = (typeof config.mode.rightDelimiter != 'undefined') ? config.mode.rightDelimiter : "}";
+  function ret(style, lst) { last = lst; return style; }
 
   function tokenizer(stream, state) {
     function chain(parser) {
@@ -16,83 +16,72 @@ CodeMirror.defineMode("smarty", function(config, parserConfig) {
       return parser(stream, state);
     }
 
-    var ch = stream.next();
-    if (ch == "{") {
+    if (stream.match(leftDelim, true)) {
       if (stream.eat("*")) {
-        return chain(inBlock("comment", "*}"));
-      } else {
+        return chain(inBlock("comment", "*" + rightDelim));
+      }
+      else {
         state.tokenize = inSmarty;
         return "tag";
       }
-    } else {
-      stream.eatWhile(/[^\{]/);
+    }
+    else {
+      // I'd like to do an eatWhile() here, but I can't get it going with searching for UP to the leftDelim string...
+      stream.next();
       return null;
     }
   }
 
   function inSmarty(stream, state) {
-    var ch = stream.next();
-
-    if (ch == "}") {
-      state.last = null;
+    if (stream.match(rightDelim, true)) {
       state.tokenize = tokenizer;
-      return "tag";
+      return ret("tag", null);
     }
-    else if (ch == "$") {
+
+    var ch = stream.next();
+    if (ch == "$") {
       stream.eatWhile(regs.validIdentifier);
-      state.last = "variable";
-      return "variable-2";
+      return ret("variable-2", "variable");
     }
     else if (ch == ".") {
-      if (state.last == "variable") {
-        state.last = "property";
-      }
-      return "operator";
+      return ret("operator", "property");
     }
     else if (regs.stringChar.test(ch)) {
-      state.last = "string";
       state.tokenize = inAttribute(ch);
-      return state.tokenize(stream, state);
+      return ret("string", "string");
     }
     else if (regs.operatorChars.test(ch)) {
-      state.last = "operator";
       stream.eatWhile(regs.operatorChars);
-      return "operator";
+      return ret("operator", "operator");
     }
     else if (ch == "[" || ch == "]") {
-      state.last = "brackets";
-      return "bracket";
+      return ret("bracket", "bracket");
     }
     else if (/\d/.test(ch)) {
-      state.last = "number";
       stream.eatWhile(/\d/);
-      return "number";
+      return ret("number", "number");
     }
     else {
-      if (state.last == "variable") {
+      if (last == "variable") {
         if (ch == "@") {
           stream.eatWhile(regs.validIdentifier);
-          state.last = "property";
-          return "property";
+          return ret("property", "property");
         }
         else if (ch == "|") {
           stream.eatWhile(regs.validIdentifier);
-          state.last = "modifier";
-          return "qualifier";
+          return ret("qualifier", "modifier");
         }
       }
-      else if (state.last == "whitespace") {
+      else if (last == "whitespace") {
         stream.eatWhile(regs.validIdentifier);
-        state.last = "modifier";
-        return "attribute";
+        return ret("attribute", "modifier");
       }
-      else if (state.last == "property") {
+      else if (last == "property") {
         stream.eatWhile(regs.validIdentifier);
-        state.last = null;
-        return "property";
+        return ret("property", null);
       }
       else if (/\s/.test(ch)) {
-        state.last = "whitespace";
+        last = "whitespace";
         return null;
       }
 
@@ -106,15 +95,15 @@ CodeMirror.defineMode("smarty", function(config, parserConfig) {
       }
 
       var i;
-      for (i=0, j=builtInFuncs.length; i<j; i++) {
-        if (builtInFuncs[i] == str) {
-          state.last = "keyword";
-          return "keyword";
+      for (i=0, j=keyFuncs.length; i<j; i++) {
+        if (keyFuncs[i] == str) {
+          return ret("keyword", "keyword");
         }
       }
-
-      state.last = "tag";
-      return "tag";
+      if (/\s/.test(ch)) {
+    	return null;
+      }
+      return ret("tag", "tag");
     }
   }
 
@@ -143,23 +132,13 @@ CodeMirror.defineMode("smarty", function(config, parserConfig) {
     };
   }
 
-
   return {
     startState: function() {
-      return {tokenize: tokenizer, localState: null, mode: "smarty" };
+      return { tokenize: tokenizer, mode: "smarty" };
     },
-/*    copyState: function(state) {
-      return {token: state.token, localState: null, mode: state.mode };
-    },
-*/
     token: function(stream, state) {
       return state.tokenize(stream, state);
     },
-
-//    compareStates: function(a, b) {
-      //return htmlMode.compareStates(a.htmlState, b.htmlState);
-//    },
-
     electricChars: ""
   }
 });
