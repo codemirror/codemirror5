@@ -1,5 +1,5 @@
 CodeMirror.defineMode("smarty", function(config, parserConfig) {
-  var keyFuncs = ["debug", "extends", "function", "include", "include_php", "literal"];
+  var keyFuncs = ["debug", "extends", "function", "include", "literal"];
   var last;
   var regs = {
     operatorChars: /[+\-*&%=<>!?]/,
@@ -9,6 +9,7 @@ CodeMirror.defineMode("smarty", function(config, parserConfig) {
   var leftDelim = (typeof config.mode.leftDelimiter != 'undefined') ? config.mode.leftDelimiter : "{";
   var rightDelim = (typeof config.mode.rightDelimiter != 'undefined') ? config.mode.rightDelimiter : "}";
   function ret(style, lst) { last = lst; return style; }
+
 
   function tokenizer(stream, state) {
     function chain(parser) {
@@ -26,7 +27,7 @@ CodeMirror.defineMode("smarty", function(config, parserConfig) {
       }
     }
     else {
-      // I'd like to do an eatWhile() here, but I can't get it going with searching for UP to the leftDelim string...
+      // I'd like to do an eatWhile() here, but I can't get it to eat only up to the rightDelim string/char
       stream.next();
       return null;
     }
@@ -93,8 +94,7 @@ CodeMirror.defineMode("smarty", function(config, parserConfig) {
       while ((c = stream.eat(regs.validIdentifier))) {
         str += c;
       }
-
-      var i;
+      var i, j;
       for (i=0, j=keyFuncs.length; i<j; i++) {
         if (keyFuncs[i] == str) {
           return ret("keyword", "keyword");
