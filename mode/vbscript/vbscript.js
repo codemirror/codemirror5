@@ -12,8 +12,7 @@ CodeMirror.defineMode("vbscript", function() {
       else if (ch == '"'){
       	stream.skipTo('"');
       	return "string";}
-      else if (ch == '"'){
-      	stream.skipTo('"');
+      else if (ch == ' '){
       	return null;}
       var strToken = '';
       while(ch && ch != stream.eol() && !VBScriptElectricChars.test(ch) ){
