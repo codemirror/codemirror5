@@ -11,7 +11,7 @@
 .cm-s-default span.cm-link-external {color: blue;}
 .cm-s-default span.cm-brace {color: #170; font-weight: bold;}
 .cm-s-default span.cm-macro {color: #9E3825;}
-.cm-s-default span.cm-table {color: blue;}
+.cm-s-default span.cm-table {color: blue; font-weight: bold;}
 .cm-s-default span.cm-warning {color: red; font-weight: bold;}
 
 .cm-s-default span.cm-underlined {text-decoration: underline;}
