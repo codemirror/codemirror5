@@ -269,7 +269,7 @@ testCM("bookmark", function(cm) {
            {a: [1, 5], b: [1, 6], c: "abc", d: [1, 5]},
            {a: [1, 6], b: [1, 8], c: "", d: [1, 5]},
            {a: [1, 4], b: [1, 4], c: "\n\n", d: [3, 1]},
-           {a: [1, 1], b: [1, 1], c: "\n", d:[2, 8], bm: [1, 9]}], function(test) {
+           {a: [1, 1], b: [1, 1], c: "\n", d: [2, 8], bm: [1, 9]}], function(test) {
     cm.setValue("1234567890\n1234567890\n1234567890");
     var b = cm.setBookmark(p(test.bm) || {line: 1, ch: 5});
     cm.replaceRange(test.c, p(test.a), p(test.b));
