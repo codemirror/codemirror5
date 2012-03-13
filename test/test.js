@@ -274,6 +274,11 @@ testCM("bookmark", function(cm) {
     cm.replaceRange(test.c, p(test.a), p(test.b));
     eqPos(b.find(), p(test.d));
   });
+               
+  cm.setValue("1234567890\n1234567890\n1234567890");
+  var b = cm.setBookmark({line: 1, ch: 9});
+  cm.replaceRange("\n", {line: 1, ch: 1}, {line: 1, ch: 1});
+  eqPos(b.find(), {line: 2, ch: 8});
 });
 
 // Scaffolding
