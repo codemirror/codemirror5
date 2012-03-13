@@ -1,5 +1,6 @@
 CodeMirror.defineMode("htmlmixed", function(config, parserConfig) {
   var htmlMode = CodeMirror.getMode(config, {name: "xml", htmlMode: true});
+  var htmlTemplateMode = CodeMirror.getMode(config, "");
   var jsMode = CodeMirror.getMode(config, "javascript");
   var cssMode = CodeMirror.getMode(config, "css");
 
@@ -7,9 +8,15 @@ CodeMirror.defineMode("htmlmixed", function(config, parserConfig) {
     var style = htmlMode.token(stream, state.htmlState);
     if (style == "tag" && stream.current() == ">" && state.htmlState.context) {
       if (/^script$/i.test(state.htmlState.context.tagName)) {
-        state.token = javascript;
-        state.localState = jsMode.startState(htmlMode.indent(state.htmlState, ""));
-        state.mode = "javascript";
+        if (stream.string.match(/type\s*=\s*["']text\/x-handlebars-template["']/i, false)) {
+          state.token = htmlTemplate;
+          state.localState = null;
+          state.mode = "";
+        } else {
+          state.token = javascript;
+          state.localState = jsMode.startState(htmlMode.indent(state.htmlState, ""));
+          state.mode = "javascript";
+        }
       }
       else if (/^style$/i.test(state.htmlState.context.tagName)) {
         state.token = css;
@@ -24,6 +31,16 @@ CodeMirror.defineMode("htmlmixed", function(config, parserConfig) {
     var close = cur.search(pat);
     if (close > -1) stream.backUp(cur.length - close);
     return style;
+  }
+  function htmlTemplate(stream, state) {
+    if (stream.match(/^<\/\s*script\s*>/i, false)) {
+      state.token = html;
+      state.curState = null;
+      state.mode = "html";
+      return html(stream, state);
+    }
+    return maybeBackup(stream, /<\/\s*script\s*>/,
+                       htmlTemplateMode.token(stream, state.localState));
   }
   function javascript(stream, state) {
     if (stream.match(/^<\/\s*script\s*>/i, false)) {
