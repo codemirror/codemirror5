@@ -136,12 +136,13 @@ testCM("coordsChar", function(cm) {
   var content = [];
   for (var i = 0; i < 70; ++i) content.push("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
   cm.setValue(content.join("\n"));
-  for (var x = 0; x < 35; x += 2) {
-    for (var y = 0; y < 70; y += 5) {
-      cm.setCursor(y, x);
-      var pos = cm.coordsChar(cm.charCoords({line: y, ch: x}));
-      eq(pos.line, y);
-      eq(pos.ch, x);
+  for (var ch = 0; ch < 35; ch += 2) {
+    for (var line = 0; line < 70; line += 5) {
+      cm.setCursor(line, ch);
+      var coords = cm.charCoords({line: line, ch: ch});
+      var pos = cm.coordsChar({x: coords.x, y: coords.y + 1});
+      eq(pos.line, line);
+      eq(pos.ch, ch);
     }
   }
 });
