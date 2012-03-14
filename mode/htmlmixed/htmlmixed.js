@@ -8,14 +8,15 @@ CodeMirror.defineMode("htmlmixed", function(config, parserConfig) {
     var style = htmlMode.token(stream, state.htmlState);
     if (style == "tag" && stream.current() == ">" && state.htmlState.context) {
       if (/^script$/i.test(state.htmlState.context.tagName)) {
-        if (stream.string.match(/type\s*=\s*["']text\/x-handlebars-template["']/i, false)) {
-          state.token = htmlTemplate;
-          state.localState = null;
-          state.mode = "";
-        } else {
+        if (!stream.string.match(/type\s*=\s*["'].+["']/i, false) ||
+            stream.string.match(/type\s*=\s*["'](text|application)\/(java|ecma)script["']/i, false)) {
           state.token = javascript;
           state.localState = jsMode.startState(htmlMode.indent(state.htmlState, ""));
           state.mode = "javascript";
+        } else {
+          state.token = htmlTemplate;
+          state.localState = null;
+          state.mode = "";
         }
       }
       else if (/^style$/i.test(state.htmlState.context.tagName)) {
