@@ -63,7 +63,7 @@ CodeMirror.defineMode("smarty", function(config, parserConfig) {
       return ret("number", "number");
     }
     else {
-      if (last == "variable") {
+      if (state.last == "variable") {
         if (ch == "@") {
           stream.eatWhile(regs.validIdentifier);
           return ret("property", "property");
@@ -73,11 +73,11 @@ CodeMirror.defineMode("smarty", function(config, parserConfig) {
           return ret("qualifier", "modifier");
         }
       }
-      else if (last == "whitespace") {
+      else if (state.last == "whitespace") {
         stream.eatWhile(regs.validIdentifier);
         return ret("attribute", "modifier");
       }
-      else if (last == "property") {
+      else if (state.last == "property") {
         stream.eatWhile(regs.validIdentifier);
         return ret("property", null);
       }
@@ -134,10 +134,12 @@ CodeMirror.defineMode("smarty", function(config, parserConfig) {
 
   return {
     startState: function() {
-      return { tokenize: tokenizer, mode: "smarty" };
+      return { tokenize: tokenizer, mode: "smarty", last: null };
     },
     token: function(stream, state) {
-      return state.tokenize(stream, state);
+      var style = state.tokenize(stream, state);
+      state.last = last;
+      return style;
     },
     electricChars: ""
   }
