@@ -1,6 +1,6 @@
 CodeMirror.defineMode("htmlmixed", function(config, parserConfig) {
   var htmlMode = CodeMirror.getMode(config, {name: "xml", htmlMode: true});
-  var htmlTemplateMode = CodeMirror.getMode(config, "");
+  var unknownScriptMode = CodeMirror.getMode(config, "");
   var jsMode = CodeMirror.getMode(config, "javascript");
   var cssMode = CodeMirror.getMode(config, "css");
 
@@ -14,7 +14,7 @@ CodeMirror.defineMode("htmlmixed", function(config, parserConfig) {
           state.localState = jsMode.startState(htmlMode.indent(state.htmlState, ""));
           state.mode = "javascript";
         } else {
-          state.token = htmlTemplate;
+          state.token = unknownScript;
           state.localState = null;
           state.mode = "";
         }
@@ -33,7 +33,7 @@ CodeMirror.defineMode("htmlmixed", function(config, parserConfig) {
     if (close > -1) stream.backUp(cur.length - close);
     return style;
   }
-  function htmlTemplate(stream, state) {
+  function unknownScript(stream, state) {
     if (stream.match(/^<\/\s*script\s*>/i, false)) {
       state.token = html;
       state.curState = null;
@@ -41,7 +41,7 @@ CodeMirror.defineMode("htmlmixed", function(config, parserConfig) {
       return html(stream, state);
     }
     return maybeBackup(stream, /<\/\s*script\s*>/,
-                       htmlTemplateMode.token(stream, state.localState));
+                       unknownScriptMode.token(stream, state.localState));
   }
   function javascript(stream, state) {
     if (stream.match(/^<\/\s*script\s*>/i, false)) {
