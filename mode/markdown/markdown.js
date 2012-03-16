@@ -13,11 +13,10 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   ,   strong   = 'strong'
   ,   emstrong = 'emstrong';
 
-  var hrRE = /^[*-=_]/
-  ,   ulRE = /^[*-+]\s+/
+  var hrRE = /^([*\-=_])(?:\s*\1){2,}\s*$/
+  ,   ulRE = /^[*\-+]\s+/
   ,   olRE = /^[0-9]+\.\s+/
   ,   headerRE = /^(?:\={3,}|-{3,})$/
-  ,   codeRE = /^(k:\t|\s{4,})/
   ,   textRE = /^[^\[*_\\<>`]+/;
 
   function switchInline(stream, state, f) {
@@ -33,9 +32,18 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
   // Blocks
 
+  function blankLine(state) {
+    // Reset EM state
+    state.em = false;
+    // Reset STRONG state
+    state.strong = false;
+    return null;
+  }
+
   function blockNormal(stream, state) {
     var match;
-    if (stream.match(codeRE)) {
+    if (state.indentationDiff >= 4) {
+      state.indentation -= state.indentationDiff;
       stream.skipToEnd();
       return code;
     } else if (stream.eatSpace()) {
@@ -47,11 +55,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       state.quote = true;
     } else if (stream.peek() === '[') {
       return switchInline(stream, state, footnoteLink);
-    } else if (hrRE.test(stream.peek())) {
-      var re = new RegExp('(?:\s*['+stream.peek()+']){3,}$');
-      if (stream.match(re, true)) {
-        return hr;
-      }
+    } else if (stream.match(hrRE, true)) {
+      return hr;
     } else if (match = stream.match(ulRE, true) || stream.match(olRE, true)) {
       state.indentation += match[0].length;
       return list;
@@ -72,39 +77,15 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
   // Inline
   function getType(state) {
+    var styles = [];
     
-    // Set defaults
-    returnValue = '';
+    if (state.strong) { styles.push(state.em ? emstrong : strong); }
+    else if (state.em) { styles.push(em); }
     
-    // Strong / Emphasis
-    if(state.strong){
-      if(state.em){
-        returnValue += (returnValue ? ' ' : '') + emstrong;
-      } else {
-        returnValue += (returnValue ? ' ' : '') + strong;
-      }
-    } else {
-      if(state.em){
-        returnValue += (returnValue ? ' ' : '') + em;
-      }
-    }
-    
-    // Header
-    if(state.header){
-      returnValue += (returnValue ? ' ' : '') + header;
-    }
-    
-    // Quotes
-    if(state.quote){
-      returnValue += (returnValue ? ' ' : '') + quote;
-    }
-    
-    // Check valud and return
-    if(!returnValue){
-      returnValue = null;
-    }
-    return returnValue;
-    
+    if (state.header) { styles.push(header); }
+    if (state.quote) { styles.push(quote); }
+
+    return styles.length ? styles.join(' ') : null;
   }
 
   function handleText(stream, state) {
@@ -238,35 +219,23 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
     token: function(stream, state) {
       if (stream.sol()) {
-        // Reset EM state
-        state.em = false;
-        // Reset STRONG state
-        state.strong = false;
+        if (stream.match(/^\s*$/, true)) { return blankLine(state); }
+
         // Reset state.header
         state.header = false;
         // Reset state.quote
         state.quote = false;
 
         state.f = state.block;
-        var previousIndentation = state.indentation
-        ,   currentIndentation = 0;
-        while (previousIndentation > 0) {
-          if (stream.eat(' ')) {
-            previousIndentation--;
-            currentIndentation++;
-          } else if (previousIndentation >= 4 && stream.eat('\t')) {
-            previousIndentation -= 4;
-            currentIndentation += 4;
-          } else {
-            break;
-          }
-        }
-        state.indentation = currentIndentation;
-        
-        if (currentIndentation > 0) return null;
+        var indentation = stream.match(/^\s*/, true)[0].replace(/\t/g, '    ').length;
+        state.indentationDiff = indentation - state.indentation;
+        state.indentation = indentation;
+        if (indentation > 0) { return null; }
       }
       return state.f(stream, state);
     },
+
+    blankLine: blankLine,
 
     getType: getType
   };

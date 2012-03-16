@@ -1,0 +1,251 @@
+<!doctype html>
+<html>
+  <head>
+    <title>CodeMirror: sTeX mode</title>
+    <link rel="stylesheet" href="../../lib/codemirror.css">
+    <script src="../../lib/codemirror.js"></script>
+    <script src="stex.js"></script>
+    <link rel="stylesheet" href="../../test/mode_test.css">
+    <script src="../../test/mode_test.js"></script>
+    <link rel="stylesheet" href="../../doc/docs.css">
+  </head>
+  <body>
+    <h1>Tests for the sTeX Mode</h1>
+    <h2>Basics</h2>
+    <script language="javascript">
+      MT = ModeTest;
+
+      MT.test('foo',
+        null, 'foo');
+
+      MT.test('foo bar',
+        null, 'foo',
+        null, ' bar');
+    </script>
+
+    <h2>Tags</h2>
+    <script language="javascript">
+      MT.test('\\begin{document}\n\\end{document}',
+        'tag',     '\\begin',
+        'bracket', '{',
+        'atom',    'document',
+        'bracket', '}',
+        'tag',     '\\end',
+        'bracket', '{',
+        'atom',    'document',
+        'bracket', '}');
+
+      MT.test('\\begin{equation}\n  E=mc^2\n\\end{equation}',
+        'tag',     '\\begin',
+        'bracket', '{',
+        'atom',    'equation',
+        'bracket', '}',
+        null,      ' ',
+        null,      ' ',
+        null,      'E',
+        null,      '=mc',
+        null,      '^2',
+        'tag',     '\\end',
+        'bracket', '{',
+        'atom',    'equation',
+        'bracket', '}');
+
+      MT.test('\\begin{module}[]',
+        'tag',     '\\begin',
+        'bracket', '{',
+        'atom',    'module',
+        'bracket', '}',
+        'bracket', '[',
+        'bracket', ']');
+
+      MT.test('\\begin{module}[id=bbt-size]',
+        'tag',     '\\begin',
+        'bracket', '{',
+        'atom',    'module',
+        'bracket', '}',
+        'bracket', '[',
+        null,      'id',
+        null,      '=bbt-size',
+        'bracket', ']');
+
+      MT.test('\\importmodule[b-b-t]{b-b-t}',
+        'tag',     '\\importmodule',
+        'bracket', '[',
+        'string',   'b-b-t',
+        'bracket', ']',
+        'bracket', '{',
+        'builtin', 'b-b-t',
+        'bracket', '}');
+
+      MT.test('\\importmodule[\\KWARCslides{dmath/en/cardinality}]{card}',
+        'tag',     '\\importmodule',
+        'bracket', '[',
+        'tag',     '\\KWARCslides',
+        'bracket', '{',
+        'string',   'dmath',
+        'string',   '/en',
+        'string',   '/cardinality',
+        'bracket', '}',
+        'bracket', ']',
+        'bracket', '{',
+        'builtin', 'card',
+        'bracket', '}');
+
+      MT.test('\\PSforPDF[1]{#1}', // could treat #1 specially
+        'tag',     '\\PSforPDF',
+        'bracket', '[',
+        'atom',    '1',
+        'bracket', ']',
+        'bracket', '{',
+        null,      '#1',
+        'bracket', '}');
+    </script>
+
+    <h2>Comments</h2>
+    <script language="javascript">
+      MT.test('% foo',
+        'comment', '%',
+        'comment', ' foo');
+
+      MT.test('\\item% bar',
+        'tag',     '\\item',
+        'comment', '%',
+        'comment', ' bar');
+
+      MT.test(' % \\item',
+        null,      ' ',
+        'comment', '%',
+        'comment', ' \\item');
+
+      MT.test('%\nfoo',
+        'comment', '%',
+        null, 'foo');
+    </script>
+
+    <h2>Errors</h2>
+    <script language="javascript">
+      MT.test('\\begin}{',
+        'tag',     '\\begin',
+        'error',   '}',
+        'bracket', '{');
+
+      MT.test('\\item]{',
+        'tag',     '\\item',
+        'error',   ']',
+        'bracket', '{');
+
+      MT.test('% }',
+        'comment', '%',
+        'comment', ' }');
+    </script>
+
+    <h2>Character Escapes</h2>
+    <script language="javascript">
+      MT.test('the \\# key',
+        null,  'the',
+        null,  ' ',
+        'tag', '\\#',
+        null,  ' key');
+
+      MT.test('a \\$5 stetson',
+        null, 'a',
+        null, ' ',
+        'tag', '\\$',
+        'atom', 5,
+        null, ' stetson');
+
+      MT.test('100\\% beef',
+        'atom', '100',
+        'tag', '\\%',
+        null, ' beef');
+
+      MT.test('L \\& N',
+        null, 'L',
+        null, ' ',
+        'tag', '\\&',
+        null, ' N');
+
+      MT.test('foo\\_bar',
+        null, 'foo',
+        'tag', '\\_',
+        null, 'bar');
+
+      MT.test('\\emph{\\{}',
+        'tag',    '\\emph',
+        'bracket','{',
+        'tag',    '\\{',
+        'bracket','}');
+
+      MT.test('\\emph{\\}}',
+        'tag',    '\\emph',
+        'bracket','{',
+        'tag',    '\\}',
+        'bracket','}');
+
+      MT.test('section \\S1',
+        null,  'section',
+        null,  ' ',
+        'tag', '\\S',
+        'atom',  '1');
+
+      MT.test('para \\P2',
+        null,  'para',
+        null,  ' ',
+        'tag', '\\P',
+        'atom',  '2');
+
+    </script>
+
+    <h2>Spacing control</h2>
+
+    <script language="javascript">
+      MT.test('x\\,y', // thinspace
+        null,  'x',
+        'tag', '\\,',
+        null,  'y');
+
+      MT.test('x\\;y', // thickspace
+        null,  'x',
+        'tag', '\\;',
+        null,  'y');
+
+      MT.test('x\\!y', // negative thinspace
+        null,  'x',
+        'tag', '\\!',
+        null,  'y');
+
+      MT.test('J.\\ L.\\ is', // period not ending a sentence
+        null, 'J',
+        null, '.',
+        null, '\\',
+        null, ' L',
+        null, '.',
+        null, '\\',
+        null, ' is'); // maybe could be better
+
+      MT.test('X\\@. The', // period ending a sentence
+        null,  'X',
+        'tag', '\\@',
+        null,  '.',
+        null,  ' The');
+
+      MT.test('{\\em If\\/} I', // italic correction
+        'bracket', '{',
+        'tag',     '\\em',
+        null,      ' ',
+        null,      'If',
+        'tag',     '\\/',
+        'bracket', '}',
+        null,      ' ',
+        null,      'I');
+
+    </script>
+
+    <h2>Summary</h2>
+    <script language="javascript">
+      MT.printSummary();
+    </script>
+
+  </body>
+</html>
+

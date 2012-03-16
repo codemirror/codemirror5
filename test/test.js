@@ -136,12 +136,13 @@ testCM("coordsChar", function(cm) {
   var content = [];
   for (var i = 0; i < 70; ++i) content.push("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
   cm.setValue(content.join("\n"));
-  for (var x = 0; x < 35; x += 2) {
-    for (var y = 0; y < 70; y += 5) {
-      cm.setCursor(y, x);
-      var pos = cm.coordsChar(cm.charCoords({line: y, ch: x}));
-      eq(pos.line, y);
-      eq(pos.ch, x);
+  for (var ch = 0; ch < 35; ch += 2) {
+    for (var line = 0; line < 70; line += 5) {
+      cm.setCursor(line, ch);
+      var coords = cm.charCoords({line: line, ch: ch});
+      var pos = cm.coordsChar({x: coords.x, y: coords.y + 1});
+      eq(pos.line, line);
+      eq(pos.ch, ch);
     }
   }
 });
@@ -250,7 +251,7 @@ testCM("markTextMultiLine", function(cm) {
            {a: [1, 5], b: [2, 5], c: "", f: [0, 5], t: [1, 5]},
            {a: [2, 0], b: [2, 3], c: "", f: [0, 5], t: [2, 2]},
            {a: [2, 5], b: [3, 0], c: "a\nb", f: [0, 5], t: [2, 5]},
-           {a: [2, 3], b: [3, 0], c: "x", f: [0, 5], t: [2, 3]},
+           {a: [2, 3], b: [3, 0], c: "x", f: [0, 5], t: [2, 4]},
            {a: [1, 1], b: [1, 9], c: "1\n2\n3", f: [0, 5], t: [4, 5]}], function(test) {
     cm.setValue("aaaaaaaaaa\nbbbbbbbbbb\ncccccccccc\ndddddddd\n");
     var r = cm.markText({line: 0, ch: 5}, {line: 2, ch: 5}, "foo");
@@ -268,9 +269,10 @@ testCM("bookmark", function(cm) {
            {a: [1, 4], b: [1, 6], c: "", d: null},
            {a: [1, 5], b: [1, 6], c: "abc", d: [1, 5]},
            {a: [1, 6], b: [1, 8], c: "", d: [1, 5]},
-           {a: [1, 4], b: [1, 4], c: "\n\n", d: [3, 1]}], function(test) {
+           {a: [1, 4], b: [1, 4], c: "\n\n", d: [3, 1]},
+           {bm: [1, 9], a: [1, 1], b: [1, 1], c: "\n", d: [2, 8]}], function(test) {
     cm.setValue("1234567890\n1234567890\n1234567890");
-    var b = cm.setBookmark({line: 1, ch: 5});
+    var b = cm.setBookmark(p(test.bm) || {line: 1, ch: 5});
     cm.replaceRange(test.c, p(test.a), p(test.b));
     eqPos(b.find(), p(test.d));
   });

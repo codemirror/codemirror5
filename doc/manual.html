@@ -214,11 +214,11 @@
       and <code>to</code> are the positions (in the pre-change
       coordinate system) where the change started and
       ended (for example, it might be <code>{ch:0, line:18}</code> if the
-      position is at line #19, at the first character. <code>text</code> is an
-      array of strings representing the text that replaced the changed range
-      (split by line). If multiple changes happened during a single operation,
-      the object will have a <code>next</code> property pointing to another
-      change object (which may point to another, etc).</dd>
+      position is at the beginning of line #19). <code>text</code>
+      is an array of strings representing the text that replaced the changed
+      range (split by line). If multiple changes happened during a single
+      operation, the object will have a <code>next</code> property pointing to
+      another change object (which may point to another, etc).</dd>
 
       <dt id="option_onCursorActivity"><code>onCursorActivity (function)</code></dt>
       <dd>Will be called when the cursor or selection moves, or any
@@ -274,11 +274,6 @@
       index</a> to assign to the editor. If not given, no tab index
       will be assigned.</dd>
 
-      <dt id="option_document"><code>document (DOM document)</code></dt>
-      <dd>Use this if you want to display the editor in another DOM.
-      By default it will use the global <code>document</code>
-      object.</dd>
-
       <dt id="option_onKeyEvent"><code>onKeyEvent (function)</code></dt>
       <dd>This provides a rather low-level hook into CodeMirror's key
       handling. If provided, this function will be called on
@@ -305,7 +300,7 @@
     is an object mapping strings that identify the keys to functions
     that implement their functionality.</p>
 
-    <p>Keys are identified in either by name or by character.
+    <p>Keys are identified either by name or by character.
     The <code>CodeMirror.keyNames</code> object defines names for
     common keys and associates them with their key codes. Examples of
     names defined here are <code>Enter</code>, <code>F5</code>,
@@ -336,6 +331,13 @@
     <code>CodeMirror.Pass</code> to indicate that it has decided not
     to handle the key, and other handlers (or the default behavior)
     should be given a turn.</p>
+
+    <p>Keys mapped to command names that start with the
+    characters <code>"go"</code> (which should be used for
+    cursor-movement actions) will be fired even when an
+    extra <code>Shift</code> modifier is present (i.e. <code>"Up":
+    "goLineUp"</code> matches both up and shift-up). This is used to
+    easily implement shift-selection.</p>
 
     <p>Keymaps can defer to each other by defining
     a <code>fallthrough</code> property. This indicates that when a
@@ -473,13 +475,16 @@
       <dd>Retrieves the current value of the given option for this
       editor instance.</dd>
 
-      <dt id="cursorCoords"><code>cursorCoords(start) → object</code></dt>
+      <dt id="cursorCoords"><code>cursorCoords(start, mode) → object</code></dt>
       <dd>Returns an <code>{x, y, yBot}</code> object containing the
-      coordinates of the cursor relative to the top-left corner of the
+      coordinates of the cursor. If <code>mode</code>
+      is <code>"local"</code>, they will be relative to the top-left
+      corner of the editable document. If it is <code>"page"</code> or
+      not given, they are relative to the top-left corner of the
       page. <code>yBot</code> is the coordinate of the bottom of the
       cursor. <code>start</code> is a boolean indicating whether you
       want the start or the end of the selection.</dd>
-      <dt id="charCoords"><code>charCoords(pos) → object</code></dt>
+      <dt id="charCoords"><code>charCoords(pos, mode) → object</code></dt>
       <dd>Like <code>cursorCoords</code>, but returns the position of
       an arbitrary characters. <code>pos</code> should be
       a <code>{line, ch}</code> object.</dd>
@@ -555,11 +560,14 @@
       number or a handle returned by <code>setMarker</code> (since a
       number may now refer to a different line if something was added
       or deleted).</dd>
-      <dt id="setLineClass"><code>setLineClass(line, className) → lineHandle</code></dt>
+      <dt id="setLineClass"><code>setLineClass(line, className, backgroundClassName) → lineHandle</code></dt>
       <dd>Set a CSS class name for the given line. <code>line</code>
       can be a number or a line handle (as returned
-      by <code>setMarker</code> or this function).
-      Pass <code>null</code> to clear the class for a line.</dd>
+      by <code>setMarker</code> or this
+      function). <code>className</code> will be used to style the text
+      for the line, and <code>backgroundClassName</code> to style its
+      background (which lies behind the selection).
+      Pass <code>null</code> to clear the classes for a line.</dd>
       <dt id="hideLine"><code>hideLine(line) → lineHandle</code></dt>
       <dd>Hide the given line (either by number or by handle). Hidden
       lines don't show up in the editor, and their numbers are skipped
@@ -578,7 +586,8 @@
       <dd>Returns the line number, text content, and marker status of
       the given line, which can be either a number or a handle
       returned by <code>setMarker</code>. The returned object has the
-      structure <code>{line, handle, text, markerText, markerClass}</code>.</dd>
+      structure <code>{line, handle, text, markerText, markerClass,
+      lineClass, bgClass}</code>.</dd>
 
       <dt id="getLineHandle"><code>getLineHandle(num) → lineHandle</code></dt>
       <dd>Fetches the line handle for the given line number.</dd>
@@ -630,7 +639,7 @@
       and <code>to</code> must be <code>{line, ch}</code>
       objects. <code>to</code> can be left off to simply insert the
       string at position <code>from</code>.</dd>
-      
+
       <dt id="posFromIndex"><code>posFromIndex(index) → object</code></dt>
       <dd>Calculates and returns a <code>{line, ch}</code> object for a
       zero-based <code>index</code> who's value is relative to the start of the
