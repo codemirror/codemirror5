@@ -1,8 +1,10 @@
 CodeMirror.defineMode("properties", function() {
   return {
     token: function(stream, state) {
-      var sol = stream.sol();
+      var sol = stream.sol() || state.afterSection;
       var eol = stream.eol();
+
+      state.afterSection = false;
 
       if (sol) {
         if (state.nextMultiline) {
@@ -29,7 +31,8 @@ CodeMirror.defineMode("properties", function() {
         stream.skipToEnd();
         return "comment";
       } else if (sol && ch === "[") {
-        stream.skipToEnd();
+        state.afterSection = true;
+        stream.skipTo("]"); stream.eat("]");
         return "header";
       } else if (ch === "=" || ch === ":") {
         state.position = "quote";
@@ -48,7 +51,8 @@ CodeMirror.defineMode("properties", function() {
       return {
         position : "def",       // Current position, "def", "quote" or "comment"
         nextMultiline : false,  // Is the next line multiline value
-        inMultiline : false     // Is the current line a multiline value
+        inMultiline : false,    // Is the current line a multiline value
+        afterSection : false    // Did we just open a section
       };
     }
 
