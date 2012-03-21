@@ -1,6 +1,6 @@
 CodeMirror.defineMode("htmlmixed", function(config, parserConfig) {
   var htmlMode = CodeMirror.getMode(config, {name: "xml", htmlMode: true});
-  var unknownScriptMode = CodeMirror.getMode(config, "");
+  var unknownScriptMode = CodeMirror.getMode(config, "text/plain");
   var jsMode = CodeMirror.getMode(config, "javascript");
   var cssMode = CodeMirror.getMode(config, "css");
 
