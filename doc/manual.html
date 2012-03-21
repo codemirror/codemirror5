@@ -275,8 +275,13 @@
       will be assigned.</dd>
 
       <dt id="option_autofocus"><code>autofocus (boolean)</code></dt>
-      <dd>When set to <code>true</code>, causes the editor to be
-      focused after initialization. Default is <code>false</code>.</dd>
+      <dd>Can be used to override the original textarea's
+      <code>autofocus</code> attribute. When set to <code>true</code>,
+      the editor will be focused on initialization. When set to <false>,
+      the editor will <i>not</i> be focused on initialization. Default
+      is <code>null</code> which will inherit the value from the
+      textarea's <code>autofocus</code> attribute (if present,
+      <code>true</code>, else <code>false</code>).</dd>
 
       <dt id="option_onKeyEvent"><code>onKeyEvent (function)</code></dt>
       <dd>This provides a rather low-level hook into CodeMirror's key
