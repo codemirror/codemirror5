@@ -111,7 +111,6 @@ CodeMirror.defineMode("css", function(config) {
     },
 
     indent: function(state, textAfter) {
-      if (!state) return 0;
       var n = state.stack.length;
       if (/^\}/.test(textAfter))
         n -= state.stack[state.stack.length-1] == "rule" ? 2 : 1;
