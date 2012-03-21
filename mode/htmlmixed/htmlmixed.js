@@ -1,6 +1,6 @@
 CodeMirror.defineMode("htmlmixed", function(config, parserConfig) {
   var htmlMode = CodeMirror.getMode(config, {name: "xml", htmlMode: true});
-  var unknownScriptMode = CodeMirror.getMode(config, "");
+  var unknownScriptMode = CodeMirror.getMode(config, "text/plain");
   var jsMode = CodeMirror.getMode(config, "javascript");
   var cssMode = CodeMirror.getMode(config, "css");
 
@@ -86,8 +86,10 @@ CodeMirror.defineMode("htmlmixed", function(config, parserConfig) {
         return htmlMode.indent(state.htmlState, textAfter);
       else if (state.token == javascript)
         return jsMode.indent(state.localState, textAfter);
-      else
+      else if (state.token == css)
         return cssMode.indent(state.localState, textAfter);
+      else  // unknownScriptMode
+        return 0;
     },
 
     compareStates: function(a, b) {
