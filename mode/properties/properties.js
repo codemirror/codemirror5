@@ -9,13 +9,13 @@ CodeMirror.defineMode("properties", function() {
           state.inMultiline = true;
           state.nextMultiline = false;
         } else {
-          state.position = "key";
+          state.position = "def";
         }
       }
 
       if (eol && ! state.nextMultiline) {
         state.inMultiline = false;
-        state.position = "key";
+        state.position = "def";
       }
 
       if (sol) {
@@ -24,16 +24,17 @@ CodeMirror.defineMode("properties", function() {
 
       var ch = stream.next();
 
-      if (sol && (ch === "#" || ch === "!")) {
+      if (sol && (ch === "#" || ch === "!" || ch === ";")) {
         state.position = "comment";
         stream.skipToEnd();
         return "comment";
-
+      } else if (sol && ch === "[") {
+        stream.skipToEnd();
+        return "header";
       } else if (ch === "=" || ch === ":") {
-        state.position = "value";
-        return "equals";
-
-      } else if (ch === "\\" && state.position === "value") {
+        state.position = "quote";
+        return null;
+      } else if (ch === "\\" && state.position === "quote") {
         if (stream.next() !== "u") {    // u = Unicode sequence \u1234
           // Multiline value
           state.nextMultiline = true;
@@ -45,7 +46,7 @@ CodeMirror.defineMode("properties", function() {
 
     startState: function() {
       return {
-        position : "key",       // Current position, "key", "value" or "comment"
+        position : "def",       // Current position, "def", "quote" or "comment"
         nextMultiline : false,  // Is the next line multiline value
         inMultiline : false     // Is the current line a multiline value
       };
@@ -55,3 +56,4 @@ CodeMirror.defineMode("properties", function() {
 });
 
 CodeMirror.defineMIME("text/x-properties", "properties");
+CodeMirror.defineMIME("text/x-ini", "properties");
