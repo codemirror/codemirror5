@@ -153,12 +153,11 @@ CodeMirror.defineMode("clojure", function (config, mode) {
                         (;something else, bracket, etc.
                         */
 
-                        while ((letter = stream.eat(tests.keyword_char)) != null) {
+                        if (ch == "(") while ((letter = stream.eat(tests.keyword_char)) != null) {
                             keyWord += letter;
                         }
 
                         if (keyWord.length > 0 && indentKeys.propertyIsEnumerable(keyWord)) { // indent-word
-
                             pushStack(state, indentTemp + INDENT_WORD_SKIP, ch);
                         } else { // non-indent word
                             // we continue eating the spaces

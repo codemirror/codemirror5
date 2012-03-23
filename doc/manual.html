@@ -274,6 +274,13 @@
       index</a> to assign to the editor. If not given, no tab index
       will be assigned.</dd>
 
+      <dt id="option_autofocus"><code>autofocus (boolean)</code></dt>
+      <dd>Can be used to make CodeMirror focus itself on
+      initialization. Defaults to off.
+      When <a href="#fromTextArea"><code>fromTextArea</code></a> is
+      used, and no explicit value is given for this option, it will
+      inherit the setting from the textarea.</dd>
+
       <dt id="option_onKeyEvent"><code>onKeyEvent (function)</code></dt>
       <dd>This provides a rather low-level hook into CodeMirror's key
       handling. If provided, this function will be called on
@@ -540,6 +547,10 @@
       returns the current position of the bookmark, if it is still in
       the document, and the second explicitly removes the
       bookmark.</dd>
+
+      <dt id="findMarksAt"><code>findMarksAt(pos) → array</code></dt>
+      <dd>Returns an array of all the bookmarks and marked ranges
+      present at the given position.</dd>
 
       <dt id="setMarker"><code>setMarker(line, text, className) → lineHandle</code></dt>
       <dd>Add a gutter marker for the given line. Gutter markers are
@@ -815,6 +826,10 @@
       Depends on
       the <a href="#util_searchcursor"><code>searchcursor</code></a>
       add-on. Demo <a href="../demo/matchhighlighter.html">here</a>.</dd>
+      <dt id="util_closetag"><a href="../lib/util/closetag.js"><code>closetag.js</code></a></dt>
+      <dd>Provides utility functions for adding automatic tag closing
+      to XML modes. See
+      the <a href="../demo/closetag.html">demo</a>.</dd>
     </dl>
 
     <h2 id="modeapi">Writing CodeMirror Modes</h2>

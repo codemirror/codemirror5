@@ -264,4 +264,5 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
 });
 
 CodeMirror.defineMIME("application/xml", "xml");
-CodeMirror.defineMIME("text/html", {name: "xml", htmlMode: true});
+if (!CodeMirror.mimeModes.hasOwnProperty("text/html"))
+  CodeMirror.defineMIME("text/html", {name: "xml", htmlMode: true});
