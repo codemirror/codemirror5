@@ -334,3 +334,13 @@ function is(a, msg) {
 }
 
 window.onload = runTests;
+
+// Polyfills
+
+(function () {
+  if (!Element.prototype.getElementsByClassName) {
+    Element.prototype.getElementsByClassName = function (classes) {
+      return this.querySelectorAll('.' + classes.replace(' ', ' .'));
+    }
+  }
+}());
