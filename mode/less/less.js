@@ -109,7 +109,7 @@ CodeMirror.defineMode("css", function(config) {
       stream.eatWhile(/[\w\\\-_.%]/);
 	  if( stream.peek().match(/\(/) != null ){// lesscss
 		return ret(null, ch);
-	  }else if (stream.peek() == "/" &&  state.stack[state.stack.length-1] != undefined){ // url(dir/center/image.png)
+	  }else if (stream.peek() == "/" && state.stack[state.stack.length-1] != undefined){ // url(dir/center/image.png)
 	  	return ret("string", "string");
 	  }else if( stream.current().match(/\-\d|\-.\d/) ){ // lesscss match e.g.: -5px -0.4 etc...
 	  	return ret("number", "unit");
