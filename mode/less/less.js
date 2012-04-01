@@ -105,10 +105,6 @@ CodeMirror.defineMode("css", function(config) {
 	  stream.eatWhile(/[\w\-]/);
 	  return ret(null, ch);
 	}
-	else if (ch == "&") {
-	  stream.eatWhile(/[\w\-]/);
-	  return ret(null, ch);
-	}
     else {
       stream.eatWhile(/[\w\\\-_.%]/);
 	  if( stream.peek().match(/\(/) != null ){// lesscss
