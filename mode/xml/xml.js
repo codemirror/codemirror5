@@ -3,10 +3,11 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
   var Kludges = parserConfig.htmlMode ? {
     autoSelfClosers: {"br": true, "img": true, "hr": true, "link": true, "input": true,
                       "meta": true, "col": true, "frame": true, "base": true, "area": true},
+    forceSelfClosers: parserConfig.forceSelfClosers,
     doNotIndent: {"pre": true},
     allowUnquoted: true,
     allowMissing: false
-  } : {autoSelfClosers: {}, doNotIndent: {}, allowUnquoted: false, allowMissing: false};
+  } : {autoSelfClosers: {}, forceSelfClosers: false, doNotIndent: {}, allowUnquoted: false, allowMissing: false};
   var alignCDATA = parserConfig.alignCDATA;
 
   // Return variables for tokenizers
@@ -173,10 +174,16 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
   }
   function endtag(startOfLine) {
     return function(type) {
-      if (type == "selfcloseTag" ||
-          (type == "endTag" && Kludges.autoSelfClosers.hasOwnProperty(curState.tagName.toLowerCase())))
+      if (type == "selfcloseTag" || type != "endTag") {
         return cont();
-      if (type == "endTag") {pushContext(curState.tagName, startOfLine); return cont();}
+      }
+      if (Kludges.autoSelfClosers.hasOwnProperty(curState.tagName.toLowerCase())) {
+        if (Kludges.forceSelfClosers) {
+          setStyle = "error";
+        }
+        return cont();
+      }
+      pushContext(curState.tagName, startOfLine);
       return cont();
     };
   }
