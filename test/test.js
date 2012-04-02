@@ -116,7 +116,7 @@ testCM("lineInfo", function(cm) {
 }, {value: "111111\n222222\n333333"});
 
 testCM("coords", function(cm) {
-  var scroller = cm.getWrapperElement().getElementsByClassName("CodeMirror-scroll")[0];
+  var scroller = cm.getScrollerElement();
   scroller.style.height = "100px";
   var content = [];
   for (var i = 0; i < 200; ++i) content.push("------------------------------" + i);
