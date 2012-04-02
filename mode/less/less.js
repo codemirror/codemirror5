@@ -215,4 +215,6 @@ CodeMirror.defineMode("css", function(config) {
   };
 });
 
-CodeMirror.defineMIME("text/css", "css");
+CodeMirror.defineMIME("text/x-less", "less");
+if (!CodeMirror.mimeModes.hasOwnProperty("text/css"))
+  CodeMirror.defineMIME("text/css", "less");
