@@ -5,10 +5,13 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
                       'embed': true, 'frame': true, 'hr': true, 'img': true, 'input': true,
                       'keygen': true, 'link': true, 'meta': true, 'param': true, 'source': true,
                       'track': true, 'wbr': true},
+    implicitlyClosed: {'dd': true, 'li': true, 'optgroup': true, 'option': true, 'p': true,
+                       'rp': true, 'rt': true, 'tbody': true, 'td': true, 'tfoot': true,
+                       'th': true, 'tr': true},
     doNotIndent: {"pre": true},
     allowUnquoted: true,
     allowMissing: false
-  } : {autoSelfClosers: {}, doNotIndent: {}, allowUnquoted: false, allowMissing: false};
+  } : {autoSelfClosers: {}, implicitlyClosed: {}, doNotIndent: {}, allowUnquoted: false, allowMissing: false};
   var alignCDATA = parserConfig.alignCDATA;
 
   // Return variables for tokenizers
@@ -164,7 +167,12 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
     } else if (type == "closeTag") {
       var err = false;
       if (curState.context) {
-        err = curState.context.tagName != tagName;
+        if (curState.context.tagName != tagName) {
+          if (Kludges.implicitlyClosed.hasOwnProperty(curState.context.tagName.toLowerCase())) {
+            popContext();
+          }
+          err = curState.context.tagName != tagName;
+        }
       } else {
         err = true;
       }
