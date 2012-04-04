@@ -14,8 +14,21 @@
     <h1>CodeMirror: LESS mode</h1>
     <form><textarea id="code" name="code">/* Some LESS code */
 
+button {
+    width:  32px;
+    height: 32px;
+    border: 0;
+    margin: 4px;
+    cursor: pointer;
+}
+button.icon-plus { background: url(http://dahlström.net/tmp/sharp-icons/svg-icon-target.svg#plus) no-repeat; }
+button.icon-chart { background: url(http://dahlström.net/tmp/sharp-icons/svg-icon-target.svg#chart) no-repeat; }
+
+button:hover { background-color: #999; }
+button:active { background-color: #666; }
+
 @test_a: #eeeQQQ;//this is not a valid hex value and thus parsed as an element id
-@test_b: #eeeFFF//this is a valid hex value but the declaration doesn't end with a semicolon and thus parsed as an element id
+@test_b: #eeeFFF //this is a valid hex value but the declaration doesn't end with a semicolon and thus parsed as an element id
 
 #eee aaa .box
 {
