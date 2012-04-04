@@ -834,6 +834,18 @@
       <dd>Provides utility functions for adding automatic tag closing
       to XML modes. See
       the <a href="../demo/closetag.html">demo</a>.</dd>
+      <dt id="util_loadmode"><a href="../lib/util/loadmode.js"><code>loadmode.js</code></a></dt>
+      <dd>Defines a <code>CodeMirror.requireMode(modename,
+      callback)</code> function that will try to load a given mode and
+      call the callback when it succeeded. You'll have to
+      set <code>CodeMirror.modeURL</code> to a string that mode paths
+      can be constructed from, for
+      example <code>"mode/%N/%N.js"</code>—the <code>%N</code>'s will
+      be replaced with the mode name. Also
+      defines <code>CodeMirror.autoLoadMode(instance, mode)</code>,
+      which will ensure the given mode is loaded and cause the given
+      editor instance to refresh its mode when the loading
+      succeeded. See the <a href="../demo/loadmode.html">demo</a>.</dd>
     </dl>
 
     <h2 id="modeapi">Writing CodeMirror Modes</h2>

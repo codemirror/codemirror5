@@ -80,6 +80,6 @@ CodeMirror.defineMode("htmlmixed", function(config, parserConfig) {
 
     electricChars: "/{}:"
   }
-});
+}, "xml", "javascript", "css");
 
 CodeMirror.defineMIME("text/html", "htmlmixed");
