@@ -127,7 +127,7 @@ CodeMirror.defineMode("css", function(config) {
 			stream.backUp(1);
 			return ret("tag", "tag");
 		}//end if
-		if((stream.eatSpace() && (stream.peek() == "{" || stream.peek() == "<" || stream.peek() == ">" || stream.peek() == ".") ) || stream.eol() )return ret("tag", "tag");//e.g. button.icon-plus
+		if( (stream.eatSpace() && stream.peek().match(/[{<>.a-zA-Z]/) != null)  || stream.eol() )return ret("tag", "tag");//e.g. button.icon-plus
 		return ret("string", "string");//let url(/images/logo.png) without quotes return as string
 	  }else if( stream.eol() ){
 		  if(stream.current().substring(stream.current().length-1,stream.current().length) == "{")stream.backUp(1);
