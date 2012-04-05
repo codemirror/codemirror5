@@ -108,7 +108,7 @@ CodeMirror.defineMode("css", function(config) {
     else {
       stream.eatWhile(/[\w\\\-_%.{]/);
 	  if(stream.current().match(/http|https/) != null){
-		stream.eatWhile(/[\w\\\-_%.{:\/]/); //console.log(stream.current()+' '+stream.peek());
+		stream.eatWhile(/[\w\\\-_%.{:\/]/);
 		return ret("string", "string");
 	  }else if(stream.peek() == "<" || stream.peek() == ">"){
 		return ret("tag", "tag");
