@@ -105,4 +105,4 @@ CodeMirror.defineMode("gfm", function(config, parserConfig) {
       return state.token(stream, state);
     }
   }
-});
+}, "markdown");

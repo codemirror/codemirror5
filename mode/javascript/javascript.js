@@ -319,8 +319,8 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
         kwAllowed: true,
         cc: [],
         lexical: new JSLexical((basecolumn || 0) - indentUnit, 0, "block", false),
-        localVars: null,
-        context: null,
+        localVars: parserConfig.localVars,
+        context: parserConfig.localVars && {vars: parserConfig.localVars},
         indented: 0
       };
     },

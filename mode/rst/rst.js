@@ -321,6 +321,6 @@ CodeMirror.defineMode('rst', function(config, options) {
             return token;
         }
     };
-});
+}, "python");
 
 CodeMirror.defineMIME("text/x-rst", "rst");

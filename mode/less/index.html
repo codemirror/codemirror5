@@ -5,7 +5,7 @@
     <link rel="stylesheet" href="../../lib/codemirror.css">
     <script src="../../lib/codemirror.js"></script>
     <script src="less.js"></script>
-    <style>.CodeMirror {background: #f8f8f8; border: 1px solid #ddd;}</style>
+    <style>.CodeMirror {background: #f8f8f8; border: 1px solid #ddd;} .CodeMirror-scroll {height: 400px}</style>
     <link rel="stylesheet" href="../../doc/docs.css">
     <link rel="stylesheet" href="../../theme/lesser-dark.css">
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
@@ -22,7 +22,7 @@
   #test bbb {
     width: 500px;
     height: 250px;
-    background-image: url(sheep.png), url(betweengrassandsky.png);
+    background-image: url(dir/output/sheep.png), url( betweengrassandsky.png );
     background-position: center bottom, left top;
     background-repeat: no-repeat;
   }
@@ -594,10 +594,12 @@ td {
 </textarea></form>
     <script>
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-        theme: "lesser-dark"
+        theme: "lesser-dark",
+        lineNumbers : true,
+  		  matchBrackets : true
       });
     </script>
 
-    <p><strong>MIME types defined:</strong> <code>text/less</code>.</p>
+    <p><strong>MIME types defined:</strong> <code>text/x-less</code>, <code>text/css</code> (if not previously defined).</p>
   </body>
 </html>

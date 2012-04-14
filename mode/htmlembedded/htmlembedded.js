@@ -61,7 +61,7 @@ CodeMirror.defineMode("htmlembedded", function(config, parserConfig) {
 
     electricChars: "/{}:"
   }
-});
+}, "htmlmixed");
 
 CodeMirror.defineMIME("application/x-ejs", { name: "htmlembedded", scriptingModeSpec:"javascript"});
 CodeMirror.defineMIME("application/x-aspx", { name: "htmlembedded", scriptingModeSpec:"text/x-csharp"});

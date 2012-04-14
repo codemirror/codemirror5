@@ -240,6 +240,6 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     getType: getType
   };
 
-});
+}, "xml");
 
 CodeMirror.defineMIME("text/x-markdown", "markdown");

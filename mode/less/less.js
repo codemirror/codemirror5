@@ -105,20 +105,17 @@ CodeMirror.defineMode("css", function(config) {
 	  stream.eatWhile(/[\w\-]/);
 	  return ret(null, ch);
 	}
-	else if (ch == "&") {
-	  stream.eatWhile(/[\w\-]/);
-	  return ret(null, ch);
-	}
     else {
       stream.eatWhile(/[\w\\\-_.%]/);
 	  if( stream.peek().match(/\(/) != null ){// lesscss
-		stream.eatWhile(/[a-zA-Z\s]/);
-		if(stream.peek() == "(")return ret(null, ch);
+		return ret(null, ch);
+	  }else if (stream.peek() == "/" && state.stack[state.stack.length-1] != undefined){ // url(dir/center/image.png)
+	  	return ret("string", "string");
 	  }else if( stream.current().match(/\-\d|\-.\d/) ){ // lesscss match e.g.: -5px -0.4 etc...
 	  	return ret("number", "unit");
 	  }else if( inTagsArray(stream.current()) ){ // lesscss match html tags
 	  	return ret("tag", "tag");
-	  }else if( /\/|\)/.test(stream.peek() || stream.eol() || (stream.eatSpace() && stream.peek() == ")")) && stream.current().indexOf(".") !== -1){
+	  }else if( /\/|[\s\)]/.test(stream.peek() || stream.eol() || (stream.eatSpace() && stream.peek() == "/")) && stream.current().indexOf(".") !== -1){
 		return ret("string", "string");//let url(/images/logo.png) without quotes return as string
 	  }else{
       	return ret("variable", "variable");
@@ -215,4 +212,6 @@ CodeMirror.defineMode("css", function(config) {
   };
 });
 
-CodeMirror.defineMIME("text/css", "css");
+CodeMirror.defineMIME("text/x-less", "less");
+if (!CodeMirror.mimeModes.hasOwnProperty("text/css"))
+  CodeMirror.defineMIME("text/css", "less");
