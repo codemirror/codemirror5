@@ -41,7 +41,7 @@ CodeMirror.defineMode("css", function(config) {
       	return tokenSComment(stream, state);
 	  }else{
 	    stream.eatWhile(/[\a-zA-Z0-9\-_.\s]/);
-		if(/\/|\)/.test(stream.peek() || stream.eol() || (stream.eatSpace() && stream.peek() == ")")))return ret("string", "string");//let url(/images/logo.png) without quotes return as string
+		if(/\/|\)|#/.test(stream.peek() || stream.eol() || (stream.eatSpace() && stream.peek() == ")")))return ret("string", "string");//let url(/images/logo.png) without quotes return as string
         return ret("number", "unit");
 	  }
     }
