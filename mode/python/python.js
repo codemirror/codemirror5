@@ -275,6 +275,7 @@ CodeMirror.defineMode("python", function(conf, parserConf) {
         if (current === 'pass' || current === 'return') {
             state.dedent += 1;
         }
+        if (current === 'lambda') state.lambda = true;
         if ((current === ':' && !state.lambda && state.scopes[0].type == 'py')
             || indentInfo === 'indent') {
             indent(stream, state);
