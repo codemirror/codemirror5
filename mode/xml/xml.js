@@ -9,7 +9,6 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
                        'rp': true, 'rt': true, 'tbody': true, 'td': true, 'tfoot': true,
                        'th': true, 'tr': true},
     contextGrabbers: {
-      'colgroup': {'colgroup': true},
       'dd': {'dd': true, 'dt': true},
       'dt': {'dd': true, 'dt': true},
       'li': {'li': true},
@@ -212,8 +211,10 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
   function endtag(startOfLine) {
     return function(type) {
       if (type == "selfcloseTag" ||
-          (type == "endTag" && Kludges.autoSelfClosers.hasOwnProperty(curState.tagName.toLowerCase())))
+          (type == "endTag" && Kludges.autoSelfClosers.hasOwnProperty(curState.tagName.toLowerCase()))) {
+        maybePopContext(curState.tagName.toLowerCase());
         return cont();
+      }
       if (type == "endTag") {
         maybePopContext(curState.tagName.toLowerCase());
         pushContext(curState.tagName, startOfLine);
@@ -232,12 +233,15 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
   }
   function maybePopContext(nextTagName) {
     var parentTagName;
-    if (!curState.context) {
-      return;
-    }
-    parentTagName = curState.context.tagName.toLowerCase();
-    if (Kludges.contextGrabbers.hasOwnProperty(parentTagName) &&
-        Kludges.contextGrabbers[parentTagName].hasOwnProperty(nextTagName)) {
+    while (true) {
+      if (!curState.context) {
+        return;
+      }
+      parentTagName = curState.context.tagName.toLowerCase();
+      if (!Kludges.contextGrabbers.hasOwnProperty(parentTagName) ||
+          !Kludges.contextGrabbers[parentTagName].hasOwnProperty(nextTagName)) {
+        return;
+      }
       popContext();
     }
   }
