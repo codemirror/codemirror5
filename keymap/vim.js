@@ -78,13 +78,22 @@
     }
     cm.setCursor(start);
   }
+  function goLineStartText(cm) {
+    // Go to the start of the line where the text begins, or the end for whitespace-only lines
+    var cur = cm.getCursor(), firstNonWS = cm.getLine(cur.line).search(/\S/);
+    cm.setCursor(cur.line, firstNonWS == -1 ? line.length : firstNonWS, true);
+  }
 
   var map = CodeMirror.keyMap.vim = {
     "0": function(cm) {count.length > 0 ? pushCountDigit("0")(cm) : CodeMirror.commands.goLineStart(cm);},
+    // Pipe (|); TODO: should be *screen* chars, so need a util function to turn tabs into spaces?
+    "Shift-\\": function(cm) {cm.setCursor(cm.getCursor().line, popCount() - 1, true);},
+    // Shift-6 is caret (^)
+    "Shift-6": function(cm) {popCount(); goLineStartText(cm);},
     "A": function(cm) {popCount(); cm.setCursor(cm.getCursor().line, cm.getCursor().ch+1, true); cm.setOption("keyMap", "vim-insert"); editCursor("vim-insert");},
     "Shift-A": function(cm) {popCount(); CodeMirror.commands.goLineEnd(cm); cm.setOption("keyMap", "vim-insert"); editCursor("vim-insert");},
     "I": function(cm) {popCount(); cm.setOption("keyMap", "vim-insert"); editCursor("vim-insert");},
-    "Shift-I": function(cm) {popCount(); CodeMirror.commands.goLineStartSmart(cm); cm.setOption("keyMap", "vim-insert"); editCursor("vim-insert");},
+    "Shift-I": function(cm) {popCount(); goLineStartText(cm); cm.setOption("keyMap", "vim-insert"); editCursor("vim-insert");},
     "O": function(cm) {popCount(); CodeMirror.commands.goLineEnd(cm); cm.replaceSelection("\n", "end"); cm.setOption("keyMap", "vim-insert"); editCursor("vim-insert");},
     "Shift-O": function(cm) {popCount(); CodeMirror.commands.goLineStart(cm); cm.replaceSelection("\n", "start"); cm.setOption("keyMap", "vim-insert"); editCursor("vim-insert");},
     "G": function(cm) {cm.setOption("keyMap", "vim-prefix-g");},
