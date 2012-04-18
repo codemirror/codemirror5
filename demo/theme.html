@@ -54,12 +54,12 @@ function findSequence(goal) {
 </p>
 
 <script>
-  var input = document.getElementById("select");
   var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
     lineNumbers: true
   });
+  var input = document.getElementById("select");
   function selectTheme() {
-    var theme = input.options[node.selectedIndex].innerHTML;
+    var theme = input.options[input.selectedIndex].innerHTML;
     editor.setOption("theme", theme);
   }
   var choice = document.location.search && document.location.search.slice(1);
