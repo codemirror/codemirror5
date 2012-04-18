@@ -23,7 +23,7 @@ div.CodeMirror span.CodeMirror-matchingbracket { color: #7EFC7E; }/*65FC65*/
 .cm-s-lesser-dark span.cm-keyword { color: #599eff; }
 .cm-s-lesser-dark span.cm-atom { color: #C2B470; }
 .cm-s-lesser-dark span.cm-number { color: #B35E4D; }
-.cm-s-lesser-dark span.cm-def {color: color: white;}
+.cm-s-lesser-dark span.cm-def {color: white;}
 .cm-s-lesser-dark span.cm-variable { color:#D9BF8C; }
 .cm-s-lesser-dark span.cm-variable-2 { color: #669199; }
 .cm-s-lesser-dark span.cm-variable-3 { color: white; }
