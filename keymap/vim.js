@@ -94,8 +94,8 @@
     "Shift-A": function(cm) {popCount(); CodeMirror.commands.goLineEnd(cm); cm.setOption("keyMap", "vim-insert"); editCursor("vim-insert");},
     "I": function(cm) {popCount(); cm.setOption("keyMap", "vim-insert"); editCursor("vim-insert");},
     "Shift-I": function(cm) {popCount(); goLineStartText(cm); cm.setOption("keyMap", "vim-insert"); editCursor("vim-insert");},
-    "O": function(cm) {popCount(); CodeMirror.commands.goLineEnd(cm); cm.replaceSelection("\n", "end"); cm.setOption("keyMap", "vim-insert"); editCursor("vim-insert");},
-    "Shift-O": function(cm) {popCount(); CodeMirror.commands.goLineStart(cm); cm.replaceSelection("\n", "start"); cm.setOption("keyMap", "vim-insert"); editCursor("vim-insert");},
+    "O": function(cm) {popCount(); CodeMirror.commands.goLineEnd(cm); CodeMirror.commands.newlineAndIndent(cm); cm.setOption("keyMap", "vim-insert"); editCursor("vim-insert");},
+    "Shift-O": function(cm) {popCount(); CodeMirror.commands.goLineStart(cm); cm.replaceSelection("\n", "start"); cm.indentLine(cm.getCursor().line); cm.setOption("keyMap", "vim-insert"); editCursor("vim-insert");},
     "G": function(cm) {cm.setOption("keyMap", "vim-prefix-g");},
     "D": function(cm) {cm.setOption("keyMap", "vim-prefix-d"); emptyBuffer();},
     "Shift-D": function(cm) {
@@ -218,6 +218,7 @@
   };
 
   CodeMirror.keyMap["vim-insert"] = {
+    // TODO: override navigation keys so that Esc will cancel automatic indentation from o, O, i_<CR>
     "Esc": function(cm) {
       cm.setCursor(cm.getCursor().line, cm.getCursor().ch-1, true); 
       cm.setOption("keyMap", "vim");
