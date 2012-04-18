@@ -198,7 +198,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
           if (Kludges.implicitlyClosed.hasOwnProperty(curState.context.tagName.toLowerCase())) {
             popContext();
           }
-          err = curState.context.tagName != tagName;
+          err = !curState.context || curState.context.tagName != tagName;
         }
       } else {
         err = true;
