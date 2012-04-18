@@ -12,13 +12,11 @@
      is visible outside of the scrolling box. */
   position: relative;
   outline: none;
-  /* TODO: Is this the best way to put this in front of the gutter? */
-  z-index: 11;
+  z-index: 11; /* make sure it goes in front of the gutter */
 }
 
 .CodeMirror-scroll * {
   /* Necessary since the scroller now overlays the actual line div. */
-  /* TODO: this means that the gutter gets a text cursor too. */
   cursor: text;
 
   /* IE allows mouse events to target items underneath divs with no background. Since we need the
