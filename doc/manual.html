@@ -285,12 +285,14 @@
       <dt id="option_dragDrop"><code>dragDrop (boolean)</code></dt>
       <dd>Controls whether drag-and-drop is enabled. On by default.</dd>
 
-      <dt id="option_onFileDrop"><code>onFileDrop (function)</code></dt>
-      <dd>When given, this will be called when a file is dropped onto
-      the editor. It will be passed the CodeMirror instance and
-      the <code>dataTransfer</code> object from the drop event. The
-      data will only be inserted into the editor when this callback
-      returns <code>true</code> (or wasn't specified).</dd>
+      <dt id="option_onDragEvent"><code>onDragEvent (function)</code></dt>
+      <dd>When given, this will be called when the editor is handling
+      a <code>dragenter</code>, <code>dragover</code>,
+      or <code>drop<code> event. It will be passed the editor instance
+      and the event object as arguments. The callback can choose to
+      handle the event itself, in which case it should
+      return <code>true</code> to indicate that CodeMirror should not
+      do anything further.</dd>
 
       <dt id="option_onKeyEvent"><code>onKeyEvent (function)</code></dt>
       <dd>This provides a rather low-level hook into CodeMirror's key
