@@ -279,6 +279,30 @@ testCM("bookmark", function(cm) {
   });
 });
 
+testCM("submit", function() {
+  var textarea = document.getElementById('code'),
+      cm = CodeMirror.fromTextArea(textarea),
+      value;
+  // Reset
+  textarea.value = 'value1';
+  cm.setValue('value1');
+  // Add listener
+  textarea.form.onsubmit = function () {
+    value = textarea.value;
+    return false;
+  }
+  // Change value
+  cm.setValue('value2');
+  // Submit
+  // textarea.form.submit() -> does not call form.onsubmit
+  textarea.form.getElementsByTagName('input')[0].click();
+  // Clean up
+  textarea.form.onsubmit = null;
+  cm.toTextArea();
+  // Test
+  eq(value, 'value2');
+});
+
 // Scaffolding
 
 function htmlEscape(str) {
@@ -335,3 +359,13 @@ function is(a, msg) {
 }
 
 window.onload = runTests;
+
+// Polyfills
+
+(function () {
+  if (!Element.prototype.getElementsByClassName) {
+    Element.prototype.getElementsByClassName = function (classes) {
+      return this.querySelectorAll('.' + classes.replace(' ', ' .'));
+    }
+  }
+}());
