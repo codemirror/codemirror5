@@ -47,6 +47,7 @@
 .CodeMirror-wrap pre {
   word-wrap: break-word;
   white-space: pre-wrap;
+  word-break: normal;
 }
 .CodeMirror-wrap .CodeMirror-scroll {
   overflow-x: hidden;
