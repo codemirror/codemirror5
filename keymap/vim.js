@@ -1,17 +1,3 @@
-// TODO:
-//
-// Keybindings:
-// gg
-// .
-// visual mode
-//
-// Design:
-//  - different cursor for different modes
-//  - status bar
-// 
-// Overall:
-//  - code vim mode for CodeMirror in itself
-
 (function() {
     var count = "";
     var sdir = "f";
@@ -110,32 +96,48 @@
         var cur = cm.getCursor(), firstNonWS = cm.getLine(cur.line).search(/\S/);
         cm.setCursor(cur.line, firstNonWS == -1 ? line.length : firstNonWS, true);
     }
+    
+    function charIdxInLine(cm, cHar, inclusive, forward) {
+        // Search for cHar in line. 
+        // If inclusive = true, include it too.
+        // If forward = true, search forward, else search backwards.
+        // If char is not found on this line, do nothing
+        var cur = cm.getCursor(), line = cm.getLine(cur.line), ch, idx;
+        if (cHar.slice(0, 6) == 'Shift-') {
+            ch = cHar.slice(0, 1);
+        } else {
+            ch = cHar.toLowerCase();
+            if (ch == 'space') {
+                ch = ' ';
+            }
+        }
+        if (forward) {
+            idx = line.indexOf(ch, cur.ch + 1); 
+            if (idx != -1 && inclusive) idx += 1;
+        } else {
+            idx = line.lastIndexOf(ch, cur.ch);
+            if (idx != -1 && !inclusive) idx += 1;
+        }
+        return idx;
+    }
+
+    function moveTillChar(cm, cHar, inclusive, forward) {
+        // Move to cHar in line, as found by charIdxInLine. 
+        var idx = charIdxInLine(cm, cHar, inclusive, forward);
+    }
 
     function delTillChar(cm, cHar, inclusive, forward) {
         // delete text in this line, untill cHar is met. 
         // If inclusive = true, delete it too.
         // If forward = true, delete forward, else delete backwards.
         // If char is not found on this line, do nothing
-        console.log('delTillChar', cHar, inclusive, forward);
-        var cur = cm.getCursor(), line = cm.getLine(cur.line), ch, idx;
-        if (cHar.slice(0, 6) == 'Shift-') {
-            ch = cHar.slice(0, 1);
-        } else {
-            ch = cHar.toLowerCase();
-        }
+        var idx = charIdxInLine(cm, cHar, inclusive, forward);
+        var cur = cm.getCursor();
         if (idx !== -1) {
             if (forward) {
-                idx = line.indexOf(ch, cur.ch + 1); 
-                if (inclusive) idx += 1;
-                cm.replaceRange("", 
-                        {line: cur.line, ch: cur.ch},
-                        {line: cur.line, ch: idx});
+                cm.replaceRange('', {line: cur.line, ch: cur.ch}, {line: cur.line, ch: idx});
             } else {
-                idx = line.lastIndexOf(ch, cur.ch);
-                if (!inclusive) idx += 1;
-                cm.replaceRange("", 
-                        {line: cur.line, ch: idx}, 
-                        {line: cur.line, ch: cur.ch});
+                cm.replaceRange('', {line: cur.line, ch: idx}, {line: cur.line, ch: cur.ch});
             }
         }
     }
