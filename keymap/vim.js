@@ -4,10 +4,15 @@
 // h, j, k, l
 // e, E, w, W, b, B
 // Ctrl-f, Ctrl-b
+// Ctrl-n, Ctrl-p
 // $, ^, 0
 // G
+// ge, gE
 // gg TODO
 // f<char>, F<char>, t<char>, T<char> TODO
+// Ctrl-O, Ctrl-I TODO
+// /, ?, n, N TODO (does not work)
+// #, * TODO
 //
 // Entering insert mode:
 // i, I, a, A, o, O
@@ -17,12 +22,20 @@
 // cf<char>, cF<char>, ct<char>, cT<char> TODO
 //
 // Deleting text:
-// x, X
+// x, X 
+// J
 // dd, D FIXME - D does the wrong thing
 // de, db
 // df<char>, dF<char>, dt<char>, dT<char> 
 //
-// Changing text:
+// Yanking and pasting:
+// yy, Y
+// p, P
+// p'<char> TODO - test
+// y'<char> TODO - test
+// m<char> TODO - test
+//
+// Changing text in place:
 // ~
 // r<char>
 //
