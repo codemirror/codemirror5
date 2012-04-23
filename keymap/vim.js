@@ -16,6 +16,9 @@
   function iterObj(o, f) {
     for (var prop in o) if (o.hasOwnProperty(prop)) f(prop, o[prop]);
   }
+  function iterList(l, f) {
+    for (var i in l) f(l[i]);
+  }
 
   var word = [/\w/, /[^\w\s]/], bigWord = [/\S/];
   function findWord(line, pos, dir, regexps) {
@@ -94,6 +97,13 @@
     cm.setCursor(cur.line, firstNonWS == -1 ? line.length : firstNonWS, true);
   }
 
+  function delTillChar(cm, cHar, inclusive) {
+      // dt<cHar> (inclusive = false) and df<cHar> (inclusive = true) functionality:
+      // delete text in this line, untill cHar is met. If inclusive = true, delete it too.
+      // TODO
+      console.log('delTillChar', cHar, inclusive);
+  }
+
   var map = CodeMirror.keyMap.vim = {
     "0": function(cm) {
         count.length > 0 ? pushCountDigit("0")(cm) : CodeMirror.commands.goLineStart(cm);
@@ -149,6 +159,22 @@
     },
     "D": function(cm) {
         cm.setOption("keyMap", "vim-prefix-d");
+        emptyBuffer();
+    },
+    "T": function(cm) {
+        cm.setOption("keyMap", "vim-prefix-t");
+        emptyBuffer();
+    },
+    "Shift-T": function(cm) {
+        cm.setOption("keyMap", "vim-prefix-T");
+        emptyBuffer();
+    },
+    "F": function(cm) {
+        cm.setOption("keyMap", "vim-prefix-f");
+        emptyBuffer();
+    },
+    "Shift-F": function(cm) {
+        cm.setOption("keyMap", "vim-prefix-F");
         emptyBuffer();
     },
     "Shift-D": function(cm) {
@@ -296,6 +322,22 @@
     }),
     "E": "delWordRight",
     "B": "delWordLeft",
+    "T": function(cm) {
+        cm.setOption("keyMap", "vim-prefix-dt");
+        emptyBuffer();
+    },
+    "Shift-T": function(cm) {
+        cm.setOption("keyMap", "vim-prefix-dT");
+        emptyBuffer();
+    },
+    "F": function(cm) {
+        cm.setOption("keyMap", "vim-prefix-df");
+        emptyBuffer();
+    },
+    "Shift-F": function(cm) {
+        cm.setOption("keyMap", "vim-prefix-dF");
+        emptyBuffer();
+    },
     "'": function(cm) {
         cm.setOption("keyMap", "vim-prefix-d'");
         emptyBuffer();
@@ -304,17 +346,27 @@
     nofallthrough: true
   };
 
-  CodeMirror.keyMap["vim-prefix-d'"] = {
-    auto: "vim", 
-    nofallthrough: true
-  };
+  function initPrefixKeyMap(prefix) {
+      CodeMirror.keyMap[prefix] = {
+          auto: "vim", 
+          nofallthrough: true
+      };
+  }
+  iterList([
+          "vim-prefix-d'", 
+          "vim-prefix-y'", 
+          "vim-prefix-df",
+          "vim-prefix-dF",
+          "vim-prefix-dt",
+          "vim-prefix-dT",
+          "vim-prefix-f",
+          "vim-prefix-F",
+          "vim-prefix-t",
+          "vim-prefix-T",
+          ], 
+      initPrefixKeyMap);
 
-  CodeMirror.keyMap["vim-prefix-y'"] = {
-    auto: "vim", 
-    nofallthrough: true
-  };
-
-  var setupPrefixBindings = function (m) {
+  function setupPrefixBindingForKey(m) {
     CodeMirror.keyMap["vim-prefix-m"][m] = function(cm) {
       mark[m] = cm.getCursor().line;
     };
@@ -324,13 +376,19 @@
     CodeMirror.keyMap["vim-prefix-y'"][m] = function(cm) {
       yankTillMark(cm,m);
     };
+    CodeMirror.keyMap["vim-prefix-dt"][m] = function(cm) {
+        delTillChar(cm, m, false);
+    };
+    CodeMirror.keyMap["vim-prefix-df"][m] = function(cm) {
+        delTillChar(cm, m, true);
+    };
   };
 
   // iterate through uppercase alphabet char codes
   for (var i = 65; i < 65 + 26; i++) {
     // apply for `letter` and 'Shift-' + `letter`
     for (var m = String.fromCharCode(i); m.length < 8; m = "Shift-" + m) {
-        setupPrefixBindings(m);
+        setupPrefixBindingForKey(m);
     }
   }
 
