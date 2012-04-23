@@ -264,8 +264,12 @@
    }, function(key, cmd) { map[key] = countTimes(cmd); });
 
   CodeMirror.keyMap["vim-prefix-g"] = {
-    "E": countTimes(function(cm) { moveToWord(cm, word, -1, "start");}),
-    "Shift-E": countTimes(function(cm) { moveToWord(cm, bigWord, -1, "start");}),
+    "E": countTimes(function(cm) {
+        moveToWord(cm, word, -1, "start");
+    }),
+    "Shift-E": countTimes(function(cm) {
+        moveToWord(cm, bigWord, -1, "start");
+    }),
     auto: "vim", 
     nofallthrough: true
   };
@@ -278,8 +282,12 @@
   CodeMirror.keyMap["vim-prefix-d"] = {
     "D": countTimes(function(cm) {
         pushInBuffer("\n"+cm.getLine(cm.getCursor().line));
-        cm.removeLine(cm.getCursor().line); }),
-    "'": function(cm) {cm.setOption("keyMap", "vim-prefix-d'"); emptyBuffer();},
+        cm.removeLine(cm.getCursor().line);
+    }),
+    "'": function(cm) {
+        cm.setOption("keyMap", "vim-prefix-d'");
+        emptyBuffer();
+    },
     auto: "vim", 
     nofallthrough: true
   };
