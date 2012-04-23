@@ -131,9 +131,15 @@
   for (var i = 1; i < 10; ++i) map[i] = pushCountDigit(i);
   // Add bindings that are influenced by number keys
   iterObj({
-    "H": "goColumnLeft", "L": "goColumnRight", "J": "goLineDown",
-    "K": "goLineUp", "Left": "goColumnLeft", "Right": "goColumnRight",
-    "Down": "goLineDown", "Up": "goLineUp", "Backspace": "goCharLeft",
+    "H": "goColumnLeft", 
+    "L": "goColumnRight",
+    "J": "goLineDown",
+    "K": "goLineUp", 
+    "Left": "goColumnLeft",
+    "Right": "goColumnRight",
+    "Down": "goLineDown", 
+    "Up": "goLineUp", 
+    "Backspace": "goCharLeft",
     "Space": "goCharRight",
     "B": function(cm) {moveToWord(cm, word, -1, "end");},
     "E": function(cm) {moveToWord(cm, word, 1, "end");},
