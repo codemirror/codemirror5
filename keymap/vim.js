@@ -1,3 +1,48 @@
+// Supported keybindings:
+// 
+// Cursor movement:
+// h, j, k, l
+// e, E, w, W, b, B
+// Ctrl-f, Ctrl-b
+// $, ^, 0
+// G
+// gg TODO
+// f<char>, F<char>, t<char>, T<char> TODO
+//
+// Entering insert mode:
+// i, I, a, A, o, O
+// s TODO
+// ce, cb TODO
+// cc, S, C TODO
+// cf<char>, cF<char>, ct<char>, cT<char> TODO
+//
+// Deleting text:
+// x, X
+// dd, D FIXME - D does the wrong thing
+// de, db
+// df<char>, dF<char>, dt<char>, dT<char> 
+//
+// Changing text:
+// ~
+// r<char>
+//
+// Visual mode:
+// v, V TODO
+//
+// Misc:
+// . TODO
+//
+
+
+// TODO:
+//
+// Design:
+//  - different cursor for different modes
+//  - status bar
+// 
+// Overall:
+//  - code vim mode for CodeMirror in itself
+
 (function() {
     var count = "";
     var sdir = "f";
