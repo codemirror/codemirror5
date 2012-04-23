@@ -1,3 +1,17 @@
+// TODO:
+//
+// Keybindings:
+// gg
+// .
+// visual mode
+//
+// Design:
+//  - different cursor for different modes
+//  - status bar
+// 
+// Overall:
+//  - code vim mode for CodeMirror in itself
+
 (function() {
     var count = "";
     var sdir = "f";
@@ -97,11 +111,33 @@
         cm.setCursor(cur.line, firstNonWS == -1 ? line.length : firstNonWS, true);
     }
 
-    function delTillChar(cm, cHar, inclusive) {
-        // dt<cHar> (inclusive = false) and df<cHar> (inclusive = true) functionality:
-        // delete text in this line, untill cHar is met. If inclusive = true, delete it too.
-        // TODO
-        console.log('delTillChar', cHar, inclusive);
+    function delTillChar(cm, cHar, inclusive, forward) {
+        // delete text in this line, untill cHar is met. 
+        // If inclusive = true, delete it too.
+        // If forward = true, delete forward, else delete backwards.
+        // If char is not found on this line, do nothing
+        console.log('delTillChar', cHar, inclusive, forward);
+        var cur = cm.getCursor(), line = cm.getLine(cur.line), ch, idx;
+        if (cHar.slice(0, 6) == 'Shift-') {
+            ch = cHar.slice(0, 1);
+        } else {
+            ch = cHar.toLowerCase();
+        }
+        if (idx !== -1) {
+            if (forward) {
+                idx = line.indexOf(ch, cur.ch + 1); 
+                if (inclusive) idx += 1;
+                cm.replaceRange("", 
+                        {line: cur.line, ch: cur.ch},
+                        {line: cur.line, ch: idx});
+            } else {
+                idx = line.lastIndexOf(ch, cur.ch);
+                if (!inclusive) idx += 1;
+                cm.replaceRange("", 
+                        {line: cur.line, ch: idx}, 
+                        {line: cur.line, ch: cur.ch});
+            }
+        }
     }
 
     var map = CodeMirror.keyMap.vim = {
@@ -347,10 +383,6 @@
     };
 
     function initPrefixKeyMap(prefix) {
-        CodeMirror.keyMap[prefix] = {
-            auto: "vim", 
-            nofallthrough: true
-        };
     }
     iterList([
             "vim-prefix-d'", 
@@ -364,7 +396,12 @@
             "vim-prefix-t",
             "vim-prefix-T",
             ], 
-            initPrefixKeyMap);
+            function (prefix) {
+                CodeMirror.keyMap[prefix] = {
+                    auto: "vim", 
+                    nofallthrough: true
+                };
+            });
 
     function setupPrefixBindingForKey(m) {
         CodeMirror.keyMap["vim-prefix-m"][m] = function(cm) {
@@ -377,10 +414,16 @@
             yankTillMark(cm,m);
         };
         CodeMirror.keyMap["vim-prefix-dt"][m] = function(cm) {
-            delTillChar(cm, m, false);
+            delTillChar(cm, m, false, true);
         };
         CodeMirror.keyMap["vim-prefix-df"][m] = function(cm) {
-            delTillChar(cm, m, true);
+            delTillChar(cm, m, true, true);
+        };
+        CodeMirror.keyMap["vim-prefix-dT"][m] = function(cm) {
+            delTillChar(cm, m, false, false);
+        };
+        CodeMirror.keyMap["vim-prefix-dF"][m] = function(cm) {
+            delTillChar(cm, m, true, false);
         };
     };
 
