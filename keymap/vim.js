@@ -286,7 +286,7 @@
     }),
     "E": "delWordRight",
     "B": "delWordLeft",
-    "'": function (cm) {
+    "'": function(cm) {
         cm.setOption("keyMap", "vim-prefix-d'");
         emptyBuffer();
     },
@@ -304,19 +304,23 @@
     nofallthrough: true
   };
 
+  var setupPrefixBindings = function (m) {
+    CodeMirror.keyMap["vim-prefix-m"][m] = function(cm) {
+      mark[m] = cm.getCursor().line;
+    };
+    CodeMirror.keyMap["vim-prefix-d'"][m] = function(cm) {
+      delTillMark(cm,m);
+    };
+    CodeMirror.keyMap["vim-prefix-y'"][m] = function(cm) {
+      yankTillMark(cm,m);
+    };
+  };
+
   // iterate through uppercase alphabet char codes
   for (var i = 65; i < 65 + 26; i++) {
     // apply for `letter` and 'Shift-' + `letter`
     for (var m = String.fromCharCode(i); m.length < 8; m = "Shift-" + m) {
-      CodeMirror.keyMap["vim-prefix-m"][m] = function(cm) {
-        mark[m] = cm.getCursor().line;
-      };
-      CodeMirror.keyMap["vim-prefix-d'"][m] = function(cm) {
-        delTillMark(cm,m);
-      };
-      CodeMirror.keyMap["vim-prefix-y'"][m] = function(cm) {
-        yankTillMark(cm,m);
-      };
+        setupPrefixBindings(m);
     }
   }
 
