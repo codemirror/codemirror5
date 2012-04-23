@@ -156,6 +156,15 @@
       }
       cm.setCursor(cur+1);
     },
+    "Shift-P": function(cm) {
+      var cur = cm.getCursor().line;
+      if (buf!= "") {
+        CodeMirror.commands.goLineUp(cm); 
+        CodeMirror.commands.goLineEnd(cm); 
+        cm.replaceSelection(buf, "end");
+      }
+      cm.setCursor(cur+1);
+    },
     "Shift-X": function(cm) {CodeMirror.commands.delCharLeft(cm)},
     "Shift-J": function(cm) {joinLineNext(cm)},
     "'~'": function(cm) {
