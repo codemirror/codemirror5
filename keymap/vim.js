@@ -284,7 +284,9 @@
         pushInBuffer("\n"+cm.getLine(cm.getCursor().line));
         cm.removeLine(cm.getCursor().line);
     }),
-    "'": function(cm) {
+    "E": "delWordRight",
+    "B": "delWordLeft",
+    "'": function (cm) {
         cm.setOption("keyMap", "vim-prefix-d'");
         emptyBuffer();
     },
