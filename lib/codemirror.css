@@ -42,6 +42,7 @@
   padding: 0; margin: 0;
   white-space: pre;
   word-wrap: normal;
+  line-height: inherit;
 }
 
 .CodeMirror-wrap pre {
