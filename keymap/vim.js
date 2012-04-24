@@ -16,7 +16,7 @@
 //
 // Entering insert mode:
 // i, I, a, A, o, O
-// s TODO
+// s
 // ce, cb TODO
 // cc, S, C TODO
 // cf<char>, cF<char>, ct<char>, cT<char>
@@ -271,6 +271,12 @@
         "M": function(cm) {
             cm.setOption("keyMap", "vim-prefix-m");
             mark = [];
+        },
+        'S': function (cm) {
+            countTimes(function (_cm) {
+                CodeMirror.commands.delCharRight(_cm);
+            })(cm);
+            enterInsertMode(cm);
         },
         "Y": function(cm) {
             cm.setOption("keyMap", "vim-prefix-y");
