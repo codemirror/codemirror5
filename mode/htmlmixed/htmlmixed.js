@@ -8,11 +8,15 @@ CodeMirror.defineMode("htmlmixed", function(config, parserConfig) {
     var style = htmlMode.token(stream, state.htmlState);
     if (style == "tag" && stream.current() == ">" && state.htmlState.context) {
       if (/^script$/i.test(state.htmlState.context.tagName)) {
-        if (!stream.string.match(/type\s*=\s*["'].+["']/i, false) ||
-            stream.string.match(/type\s*=\s*["'](text|application)\/(java|ecma)script["']/i, false)) {
+        // Script block: mode to change to depends on type attribute
+        var scriptType = stream.string.match(/type\s*=\s*["'](.+)["']/i);
+        scriptType = scriptType && scriptType[1];
+        if (!scriptType || scriptType.match(/(text|application)\/(java|ecma)script/i)) {
           state.token = javascript;
           state.localState = jsMode.startState(htmlMode.indent(state.htmlState, ""));
           state.mode = "javascript";
+        } else if (scriptType.match(/\/x-handlebars-template/i) || scriptType.match(/\/x-mustache/i)) {
+            // Handlebars or Mustache template: leave it in HTML mode
         } else {
           state.token = unknownScript;
           state.localState = null;
