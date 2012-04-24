@@ -25,7 +25,7 @@
 // x, X 
 // J
 // dd, D FIXME - D does the wrong thing
-// de, db
+// de, db TODO - support number of actions like d3e
 // df<char>, dF<char>, dt<char>, dT<char> 
 //
 // Yanking and pasting:
@@ -195,7 +195,7 @@
     function moveTillChar(cm, cHar, motion_options) {
         // Move to cHar in line, as found by charIdxInLine. 
         var idx = charIdxInLine(cm, cHar, motion_options), cur = cm.getCursor();
-        cm.setCursor({line: cur.line, ch: idx}); 
+        if (idx != -1) cm.setCursor({line: cur.line, ch: idx}); 
     }
 
     function delTillChar(cm, cHar, motion_options) {
@@ -222,9 +222,6 @@
     }
 
     var map = CodeMirror.keyMap.vim = {
-        "0": function(cm) {
-            count.length > 0 ? pushCountDigit("0")(cm) : CodeMirror.commands.goLineStart(cm);
-        },
         // Pipe (|); TODO: should be *screen* chars, so need a util function to turn tabs into spaces?
         "'|'": function(cm) {
             cm.setCursor(cm.getCursor().line, popCount() - 1, true);
@@ -322,9 +319,16 @@
                     emptyBuffer();
                 };
             });
+    
+    function addCountBindings(keyMap) {
+        // Add bindings for number keys
+        keyMap['0'] = function(cm) {
+            count.length > 0 ? pushCountDigit("0")(cm) : CodeMirror.commands.goLineStart(cm);
+        };
+        for (var i = 1; i < 10; ++i) keyMap[i] = pushCountDigit(i);
+    }
+    addCountBindings(CodeMirror.keyMap.vim);
 
-    // Add bindings for number keys
-    for (var i = 1; i < 10; ++i) map[i] = pushCountDigit(i);
     // Add bindings that are influenced by number keys
     iterObj({
         "H": "goColumnLeft", 
@@ -424,16 +428,17 @@
             pushInBuffer("\n"+cm.getLine(cm.getCursor().line));
             cm.removeLine(cm.getCursor().line);
         }),
-        "E": "delWordRight",
-        "B": "delWordLeft",
+        "E": countTimes("delWordRight"),
+        "B": countTimes("delWordLeft"),
         "'": function(cm) {
             cm.setOption("keyMap", "vim-prefix-d'");
             emptyBuffer();
         },
         auto: "vim", 
         nofallthrough: true
-    };
-
+    }; 
+    // FIXME - does not work for bindings like "d3e"
+    addCountBindings(CodeMirror.keyMap['vim-prefix-d']);
 
     iterList([
             "vim-prefix-d'", 
