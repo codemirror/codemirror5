@@ -9,7 +9,7 @@
 // G
 // ge, gE
 // gg TODO
-// f<char>, F<char>, t<char>, T<char> TODO
+// f<char>, F<char>, t<char>, T<char> 
 // Ctrl-O, Ctrl-I TODO
 // /, ?, n, N TODO (does not work)
 // #, * TODO
@@ -19,7 +19,7 @@
 // s TODO
 // ce, cb TODO
 // cc, S, C TODO
-// cf<char>, cF<char>, ct<char>, cT<char> TODO
+// cf<char>, cF<char>, ct<char>, cT<char>
 //
 // Deleting text:
 // x, X 
@@ -76,6 +76,21 @@
     }
     function iterList(l, f) {
         for (var i in l) f(l[i]);
+    }
+    function toLetter(ch) {
+        // T -> t, Shift-T -> T
+        if (ch.slice(0, 6) == 'Shift-') {
+            return ch.slice(0, 1);
+        } else {
+            if (ch == 'Space') return ' ';
+            return ch.toLowerCase();
+        }
+    }
+    function toCombo(ch) { 
+        // t -> T, T -> Shift-T
+        if (ch == ' ') return 'Space';
+        if (ch.toLowerCase() == ch) return ch.toUpperCase();
+        return 'Shift-' + ch.toUpperCase();
     }
 
     var word = [/\w/, /[^\w\s]/], bigWord = [/\S/];
@@ -155,44 +170,38 @@
         cm.setCursor(cur.line, firstNonWS == -1 ? line.length : firstNonWS, true);
     }
     
-    function charIdxInLine(cm, cHar, inclusive, forward) {
+    function charIdxInLine(cm, cHar, motion_options) {
         // Search for cHar in line. 
+        // motion_options: {forward, inclusive}
         // If inclusive = true, include it too.
         // If forward = true, search forward, else search backwards.
         // If char is not found on this line, do nothing
-        var cur = cm.getCursor(), line = cm.getLine(cur.line), ch, idx;
-        if (cHar.slice(0, 6) == 'Shift-') {
-            ch = cHar.slice(0, 1);
-        } else {
-            ch = cHar.toLowerCase();
-            if (ch == 'space') {
-                ch = ' ';
-            }
-        }
-        if (forward) {
+        var cur = cm.getCursor(), line = cm.getLine(cur.line), idx;
+        var ch = toLetter(cHar), mo = motion_options;
+        if (mo.forward) {
             idx = line.indexOf(ch, cur.ch + 1); 
-            if (idx != -1 && inclusive) idx += 1;
+            if (idx != -1 && mo.inclusive) idx += 1;
         } else {
             idx = line.lastIndexOf(ch, cur.ch);
-            if (idx != -1 && !inclusive) idx += 1;
+            if (idx != -1 && !mo.inclusive) idx += 1;
         }
         return idx;
     }
 
-    function moveTillChar(cm, cHar, inclusive, forward) {
+    function moveTillChar(cm, cHar, motion_options) {
         // Move to cHar in line, as found by charIdxInLine. 
-        var idx = charIdxInLine(cm, cHar, inclusive, forward);
+        var idx = charIdxInLine(cm, cHar, motion_options), cur = cm.getCursor();
+        cm.setCursor({line: cur.line, ch: idx}); 
     }
 
-    function delTillChar(cm, cHar, inclusive, forward) {
-        // delete text in this line, untill cHar is met. 
-        // If inclusive = true, delete it too.
-        // If forward = true, delete forward, else delete backwards.
+    function delTillChar(cm, cHar, motion_options) {
+        // delete text in this line, untill cHar is met,
+        // as found by charIdxInLine.
         // If char is not found on this line, do nothing
-        var idx = charIdxInLine(cm, cHar, inclusive, forward);
+        var idx = charIdxInLine(cm, cHar, motion_options);
         var cur = cm.getCursor();
         if (idx !== -1) {
-            if (forward) {
+            if (motion_options.forward) {
                 cm.replaceRange('', {line: cur.line, ch: cur.ch}, {line: cur.line, ch: idx});
             } else {
                 cm.replaceRange('', {line: cur.line, ch: idx}, {line: cur.line, ch: cur.ch});
@@ -202,6 +211,7 @@
 
     function enterInsertMode(cm) {
         // enter insert mode: switch mode and cursor
+        if (!cm) console.log('call enterInsertMode with "cm" as an argument');
         popCount();
         cm.setOption('keyMap', 'vim-insert');
         editCursor('vim-insert');
@@ -248,26 +258,6 @@
         "G": function(cm) {
             cm.setOption("keyMap", "vim-prefix-g");
         },
-        "D": function(cm) {
-            cm.setOption("keyMap", "vim-prefix-d");
-            emptyBuffer();
-        },
-        "T": function(cm) {
-            cm.setOption("keyMap", "vim-prefix-t");
-            emptyBuffer();
-        },
-        "Shift-T": function(cm) {
-            cm.setOption("keyMap", "vim-prefix-T");
-            emptyBuffer();
-        },
-        "F": function(cm) {
-            cm.setOption("keyMap", "vim-prefix-f");
-            emptyBuffer();
-        },
-        "Shift-F": function(cm) {
-            cm.setOption("keyMap", "vim-prefix-F");
-            emptyBuffer();
-        },
         "Shift-D": function(cm) {
             emptyBuffer();
             mark["Shift-D"] = cm.getCursor(false).line;
@@ -313,6 +303,16 @@
         },
         nofallthrough: true
     };
+
+    // standard mode switching
+    iterList(['d', 't', 'T', 'f', 'F', 'c', 'C'],
+            function (ch) {
+                CodeMirror.keyMap.vim[toCombo(ch)] = function (cm) {
+                    cm.setOption('keyMap', 'vim-prefix-' + ch);
+                    emptyBuffer();
+                };
+            });
+
     // Add bindings for number keys
     for (var i = 1; i < 10; ++i) map[i] = pushCountDigit(i);
     // Add bindings that are influenced by number keys
@@ -413,22 +413,6 @@
         }),
         "E": "delWordRight",
         "B": "delWordLeft",
-        "T": function(cm) {
-            cm.setOption("keyMap", "vim-prefix-dt");
-            emptyBuffer();
-        },
-        "Shift-T": function(cm) {
-            cm.setOption("keyMap", "vim-prefix-dT");
-            emptyBuffer();
-        },
-        "F": function(cm) {
-            cm.setOption("keyMap", "vim-prefix-df");
-            emptyBuffer();
-        },
-        "Shift-F": function(cm) {
-            cm.setOption("keyMap", "vim-prefix-dF");
-            emptyBuffer();
-        },
         "'": function(cm) {
             cm.setOption("keyMap", "vim-prefix-d'");
             emptyBuffer();
@@ -437,8 +421,7 @@
         nofallthrough: true
     };
 
-    function initPrefixKeyMap(prefix) {
-    }
+
     iterList([
             "vim-prefix-d'", 
             "vim-prefix-y'", 
@@ -446,6 +429,12 @@
             "vim-prefix-dF",
             "vim-prefix-dt",
             "vim-prefix-dT",
+            "vim-prefix-c",
+            "vim-prefix-cf",
+            "vim-prefix-cF",
+            "vim-prefix-ct",
+            "vim-prefix-cT",
+            "vim-prefix-",
             "vim-prefix-f",
             "vim-prefix-F",
             "vim-prefix-t",
@@ -458,6 +447,24 @@
                 };
             });
 
+    iterList(['vim-prefix-d', 'vim-prefix-c', 'vim-prefix-'], function (prefix) {
+        iterList(['f', 'F', 'T', 't'],
+                function (ch) {
+                    CodeMirror.keyMap[prefix][toCombo(ch)] = function (cm) {
+                        cm.setOption('keyMap', prefix + ch);
+                        emptyBuffer();
+                    };
+                });
+    });
+
+
+    var MOTION_OPTIONS = {
+        't': {inclusive: false, forward: true},
+        'f': {inclusive: true,  forward: true},
+        'T': {inclusive: false, forward: false},
+        'F': {inclusive: true,  forward: false}
+    };
+
     function setupPrefixBindingForKey(m) {
         CodeMirror.keyMap["vim-prefix-m"][m] = function(cm) {
             mark[m] = cm.getCursor().line;
@@ -468,18 +475,18 @@
         CodeMirror.keyMap["vim-prefix-y'"][m] = function(cm) {
             yankTillMark(cm,m);
         };
-        CodeMirror.keyMap["vim-prefix-dt"][m] = function(cm) {
-            delTillChar(cm, m, false, true);
-        };
-        CodeMirror.keyMap["vim-prefix-df"][m] = function(cm) {
-            delTillChar(cm, m, true, true);
-        };
-        CodeMirror.keyMap["vim-prefix-dT"][m] = function(cm) {
-            delTillChar(cm, m, false, false);
-        };
-        CodeMirror.keyMap["vim-prefix-dF"][m] = function(cm) {
-            delTillChar(cm, m, true, false);
-        };
+        iterObj(MOTION_OPTIONS, function (ch, options) {
+            CodeMirror.keyMap["vim-prefix-" + ch][m] = function(cm) {
+                moveTillChar(cm, m, options);
+            };
+            CodeMirror.keyMap["vim-prefix-d" + ch][m] = function(cm) {
+                delTillChar(cm, m, options);
+            };
+            CodeMirror.keyMap["vim-prefix-c" + ch][m] = function(cm) {
+                delTillChar(cm, m, options);
+                enterInsertMode(cm);
+            };
+        });
     };
 
     // iterate through uppercase alphabet char codes
