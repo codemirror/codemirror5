@@ -8,9 +8,9 @@
 // $, ^, 0
 // G
 // ge, gE
-// gg TODO
+// gg
 // f<char>, F<char>, t<char>, T<char> 
-// Ctrl-O, Ctrl-I TODO
+// Ctrl-o, Ctrl-i TODO (FIXME - Ctrl-O wont work in Chrome)
 // /, ?, n, N TODO (does not work)
 // #, * TODO
 //
@@ -401,6 +401,9 @@
         "Shift-E": countTimes(function(cm) {
             moveToWord(cm, bigWord, -1, "start");
         }),
+        'G': function (cm) {
+            cm.setCursor({line: 0, ch: cm.getCursor().ch});
+        },
         auto: "vim", 
         nofallthrough: true
     };
