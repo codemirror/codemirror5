@@ -17,7 +17,7 @@
 // Entering insert mode:
 // i, I, a, A, o, O
 // s
-// ce, cb TODO
+// ce, cb (without support for number of actions like c3e - TODO)
 // cc, S, C TODO
 // cf<char>, cF<char>, ct<char>, cT<char>
 //
@@ -25,7 +25,7 @@
 // x, X 
 // J
 // dd, D FIXME - D does the wrong thing
-// de, db TODO - support number of actions like d3e
+// de, db (without support for number of actions like d3e - TODO)
 // df<char>, dF<char>, dt<char>, dT<char> 
 //
 // Yanking and pasting:
@@ -404,6 +404,32 @@
         "'$'": "goLineEnd"
     }, function(key, cmd) { map[key] = countTimes(cmd); });
 
+    // empty key maps
+    iterList([
+            "vim-prefix-d'", 
+            "vim-prefix-y'", 
+            "vim-prefix-df",
+            "vim-prefix-dF",
+            "vim-prefix-dt",
+            "vim-prefix-dT",
+            "vim-prefix-c",
+            "vim-prefix-cf",
+            "vim-prefix-cF",
+            "vim-prefix-ct",
+            "vim-prefix-cT",
+            "vim-prefix-",
+            "vim-prefix-f",
+            "vim-prefix-F",
+            "vim-prefix-t",
+            "vim-prefix-T",
+            ], 
+            function (prefix) {
+                CodeMirror.keyMap[prefix] = {
+                    auto: "vim", 
+                    nofallthrough: true
+                };
+            });
+
     CodeMirror.keyMap["vim-prefix-g"] = {
         "E": countTimes(function(cm) {
             moveToWord(cm, word, -1, "start");
@@ -440,30 +466,18 @@
     // FIXME - does not work for bindings like "d3e"
     addCountBindings(CodeMirror.keyMap['vim-prefix-d']);
 
-    iterList([
-            "vim-prefix-d'", 
-            "vim-prefix-y'", 
-            "vim-prefix-df",
-            "vim-prefix-dF",
-            "vim-prefix-dt",
-            "vim-prefix-dT",
-            "vim-prefix-c",
-            "vim-prefix-cf",
-            "vim-prefix-cF",
-            "vim-prefix-ct",
-            "vim-prefix-cT",
-            "vim-prefix-",
-            "vim-prefix-f",
-            "vim-prefix-F",
-            "vim-prefix-t",
-            "vim-prefix-T",
-            ], 
-            function (prefix) {
-                CodeMirror.keyMap[prefix] = {
-                    auto: "vim", 
-                    nofallthrough: true
-                };
-            });
+    CodeMirror.keyMap['vim-prefix-c'] = {
+        'E': function (cm) {
+            countTimes('delWordRight')(cm);
+            enterInsertMode(cm);
+        },
+        'B': function (cm) {
+            countTimes('delWordLeft')(cm);
+            enterInsertMode(cm);
+        },
+        auto: 'vim',
+        nofallthrough: true
+    };
 
     iterList(['vim-prefix-d', 'vim-prefix-c', 'vim-prefix-'], function (prefix) {
         iterList(['f', 'F', 'T', 't'],
@@ -474,7 +488,6 @@
                     };
                 });
     });
-
 
     var MOTION_OPTIONS = {
         't': {inclusive: false, forward: true},
