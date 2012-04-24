@@ -24,7 +24,7 @@
 // Deleting text:
 // x, X 
 // J
-// dd, D FIXME - D does the wrong thing
+// dd, D
 // de, db (without support for number of actions like d3e - TODO)
 // df<char>, dF<char>, dt<char>, dT<char> 
 //
@@ -220,7 +220,8 @@
         cm.setOption('keyMap', 'vim-insert');
         editCursor('vim-insert');
     }
-
+    
+    // main keymap
     var map = CodeMirror.keyMap.vim = {
         // Pipe (|); TODO: should be *screen* chars, so need a util function to turn tabs into spaces?
         "'|'": function(cm) {
@@ -260,10 +261,15 @@
             cm.setOption("keyMap", "vim-prefix-g");
         },
         "Shift-D": function(cm) {
-            emptyBuffer();
-            mark["Shift-D"] = cm.getCursor(false).line;
-            cm.setCursor(cm.getCursor(true).line);
-            delTillMark(cm,"Shift-D"); mark = [];
+            var cur = cm.getCursor();
+            var f = {line: cur.line, ch: cur.ch}, t = {line: cur.line};
+            pushInBuffer(cm.getRange(f, t));
+            cm.replaceRange('', f, t);
+            // FIXME - commented out old code, what does it do?
+            // emptyBuffer();
+            // mark["Shift-D"] = cm.getCursor(false).line;
+            // cm.setCursor(cm.getCursor(true).line);
+            // delTillMark(cm,"Shift-D"); mark = [];
         },
         "M": function(cm) {
             cm.setOption("keyMap", "vim-prefix-m");
@@ -308,11 +314,15 @@
             popCount();
             CodeMirror.commands.goLineStart(cm);
         },
+        "'$'": function (cm) {
+            countTimes('goLineEnd')(cm);
+            if (cm.getCursor().ch) CodeMirror.commands.goColumnLeft(cm);
+        },
         nofallthrough: true
     };
 
     // standard mode switching
-    iterList(['d', 't', 'T', 'f', 'F', 'c', 'C'],
+    iterList(['d', 't', 'T', 'f', 'F', 'c', 'C', 'r'],
             function (ch) {
                 CodeMirror.keyMap.vim[toCombo(ch)] = function (cm) {
                     cm.setOption('keyMap', 'vim-prefix-' + ch);
@@ -329,6 +339,7 @@
     }
     addCountBindings(CodeMirror.keyMap.vim);
 
+    // main num keymap
     // Add bindings that are influenced by number keys
     iterObj({
         "H": "goColumnLeft", 
@@ -401,27 +412,27 @@
         "Ctrl-N": "goLineDown",
         "U": "undo", 
         "Ctrl-R": "redo", 
-        "'$'": "goLineEnd"
     }, function(key, cmd) { map[key] = countTimes(cmd); });
 
     // empty key maps
     iterList([
             "vim-prefix-d'", 
             "vim-prefix-y'", 
-            "vim-prefix-df",
-            "vim-prefix-dF",
-            "vim-prefix-dt",
-            "vim-prefix-dT",
-            "vim-prefix-c",
-            "vim-prefix-cf",
-            "vim-prefix-cF",
-            "vim-prefix-ct",
-            "vim-prefix-cT",
-            "vim-prefix-",
-            "vim-prefix-f",
-            "vim-prefix-F",
-            "vim-prefix-t",
-            "vim-prefix-T",
+            'vim-prefix-df',
+            'vim-prefix-dF',
+            'vim-prefix-dt',
+            'vim-prefix-dT',
+            'vim-prefix-c',
+            'vim-prefix-cf',
+            'vim-prefix-cF',
+            'vim-prefix-ct',
+            'vim-prefix-cT',
+            'vim-prefix-',
+            'vim-prefix-f',
+            'vim-prefix-F',
+            'vim-prefix-t',
+            'vim-prefix-T',
+            'vim-prefix-r'
             ], 
             function (prefix) {
                 CodeMirror.keyMap[prefix] = {
@@ -505,6 +516,13 @@
         };
         CodeMirror.keyMap["vim-prefix-y'"][m] = function(cm) {
             yankTillMark(cm,m);
+        };
+        CodeMirror.keyMap['vim-prefix-r'][m] = function (cm) {
+            var cur = cm.getCursor();
+            cm.replaceRange(toLetter(m), 
+                    {line: cur.line, ch: cur.ch},
+                    {line: cur.line, ch: cur.ch + 1});
+            CodeMirror.commands.goColumnLeft(cm);
         };
         // all commands, related to motions till char in line
         iterObj(MOTION_OPTIONS, function (ch, options) {
