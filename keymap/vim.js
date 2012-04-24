@@ -200,6 +200,13 @@
         }
     }
 
+    function enterInsertMode(cm) {
+        // enter insert mode: switch mode and cursor
+        popCount();
+        cm.setOption('keyMap', 'vim-insert');
+        editCursor('vim-insert');
+    }
+
     var map = CodeMirror.keyMap.vim = {
         "0": function(cm) {
             count.length > 0 ? pushCountDigit("0")(cm) : CodeMirror.commands.goLineStart(cm);
@@ -213,42 +220,30 @@
             goLineStartText(cm);
         },
         "A": function(cm) {
-            popCount(); 
             cm.setCursor(cm.getCursor().line, cm.getCursor().ch+1, true);
-            cm.setOption("keyMap", "vim-insert");
-            editCursor("vim-insert");
+            enterInsertMode(cm);
         },
         "Shift-A": function(cm) {
-            popCount();
             CodeMirror.commands.goLineEnd(cm);
-            cm.setOption("keyMap", "vim-insert");
-            editCursor("vim-insert");
+            enterInsertMode(cm);
         },
         "I": function(cm) {
-            popCount();
-            cm.setOption("keyMap", "vim-insert");
-            editCursor("vim-insert");
+            enterInsertMode(cm);
         },
         "Shift-I": function(cm) {
-            popCount();
             goLineStartText(cm);
-            cm.setOption("keyMap", "vim-insert");
-            editCursor("vim-insert");
+            enterInsertMode(cm);
         },
         "O": function(cm) {
-            popCount();
             CodeMirror.commands.goLineEnd(cm);
             CodeMirror.commands.newlineAndIndent(cm);
-            cm.setOption("keyMap", "vim-insert");
-            editCursor("vim-insert");
+            enterInsertMode(cm);
         },
         "Shift-O": function(cm) {
-            popCount();
             CodeMirror.commands.goLineStart(cm);
             cm.replaceSelection("\n", "start");
             cm.indentLine(cm.getCursor().line);
-            cm.setOption("keyMap", "vim-insert");
-            editCursor("vim-insert");
+            enterInsertMode(cm);
         },
         "G": function(cm) {
             cm.setOption("keyMap", "vim-prefix-g");
