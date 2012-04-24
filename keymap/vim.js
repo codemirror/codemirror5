@@ -78,17 +78,21 @@
         for (var i in l) f(l[i]);
     }
     function toLetter(ch) {
-        // T -> t, Shift-T -> T
+        // T -> t, Shift-T -> T, '*' -> *, "Space" -> " "
         if (ch.slice(0, 6) == 'Shift-') {
             return ch.slice(0, 1);
         } else {
             if (ch == 'Space') return ' ';
+            if (ch.length == 3 && ch[0] == "'" && ch[2] == "'") return ch[1];
             return ch.toLowerCase();
         }
     }
+    var SPECIAL_SYMBOLS = '~`!@#$%^&*()_-+=[{}]\\|/?.,<>:;"\'1234567890'; 
     function toCombo(ch) { 
-        // t -> T, T -> Shift-T
+        // t -> T, T -> Shift-T, * -> '*', " " -> "Space"
         if (ch == ' ') return 'Space';
+        var specialIdx = SPECIAL_SYMBOLS.indexOf(ch);
+        if (specialIdx != -1) return "'" + ch + "'";
         if (ch.toLowerCase() == ch) return ch.toUpperCase();
         return 'Shift-' + ch.toUpperCase();
     }
@@ -475,6 +479,7 @@
         CodeMirror.keyMap["vim-prefix-y'"][m] = function(cm) {
             yankTillMark(cm,m);
         };
+        // all commands, related to motions till char in line
         iterObj(MOTION_OPTIONS, function (ch, options) {
             CodeMirror.keyMap["vim-prefix-" + ch][m] = function(cm) {
                 moveTillChar(cm, m, options);
@@ -488,14 +493,15 @@
             };
         });
     };
-
-    // iterate through uppercase alphabet char codes
-    for (var i = 65; i < 65 + 26; i++) {
-        // apply for `letter` and 'Shift-' + `letter`
-        for (var m = String.fromCharCode(i); m.length < 8; m = "Shift-" + m) {
-            setupPrefixBindingForKey(m);
-        }
+    for (var i = 65; i < 65 + 26; i++) { // uppercase alphabet char codes
+        var ch = String.fromCharCode(i);
+        setupPrefixBindingForKey(toCombo(ch));
+        setupPrefixBindingForKey(toCombo(ch.toLowerCase()));
     }
+    iterList(SPECIAL_SYMBOLS, function (ch) {
+            setupPrefixBindingForKey(toCombo(ch));
+            });
+    setupPrefixBindingForKey('Space');
 
     CodeMirror.keyMap["vim-prefix-y"] = {
         "Y": countTimes(function(cm) { pushInBuffer("\n"+cm.getLine(cm.getCursor().line+yank)); yank++; }),
