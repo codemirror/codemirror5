@@ -83,14 +83,14 @@
     }
   }
   var SPECIAL_SYMBOLS = "~`!@#$%^&*()_-+=[{}]\\|/?.,<>:;\"\'1234567890"; 
-    function toCombo(ch) { 
-      // t -> T, T -> Shift-T, * -> '*', " " -> "Space"
-      if (ch == " ") return "Space";
-      var specialIdx = SPECIAL_SYMBOLS.indexOf(ch);
-      if (specialIdx != -1) return "'" + ch + "'";
-      if (ch.toLowerCase() == ch) return ch.toUpperCase();
-      return "Shift-" + ch.toUpperCase();
-    }
+  function toCombo(ch) { 
+    // t -> T, T -> Shift-T, * -> '*', " " -> "Space"
+    if (ch == " ") return "Space";
+    var specialIdx = SPECIAL_SYMBOLS.indexOf(ch);
+    if (specialIdx != -1) return "'" + ch + "'";
+    if (ch.toLowerCase() == ch) return ch.toUpperCase();
+    return "Shift-" + ch.toUpperCase();
+  }
 
   var word = [/\w/, /[^\w\s]/], bigWord = [/\S/];
   function findWord(line, pos, dir, regexps) {
@@ -110,7 +110,7 @@
         }
       }
     }
-           return {from: Math.min(start, end), to: Math.max(start, end)};
+    return {from: Math.min(start, end), to: Math.max(start, end)};
   }
   function moveToWord(cm, regexps, dir, where) {
     var cur = cm.getCursor(), ch = cur.ch, line = cm.getLine(cur.line), word;
@@ -141,7 +141,7 @@
   function delTillMark(cm, cHar) { 
     var i = mark[cHar];
     if (i === undefined) {
-      console.log("Mark not set"); // TODO - show in status bar
+      // console.log("Mark not set"); // TODO - show in status bar
       return;
     }
     var l = cm.getCursor().line, start = i > l ? l : i, end = i > l ? i : l;
@@ -154,7 +154,7 @@
   function yankTillMark(cm, cHar) { 
     var i = mark[cHar];
     if (i === undefined) {
-      console.log("Mark not set"); // TODO - show in status bar
+      // console.log("Mark not set"); // TODO - show in status bar
       return;
     }
     var l = cm.getCursor().line, start = i > l ? l : i, end = i > l ? i : l;
@@ -222,25 +222,14 @@
     "'|'": function(cm) {
       cm.setCursor(cm.getCursor().line, popCount() - 1, true);
     },
-    "'^'": function(cm) {
-      popCount();
-      goLineStartText(cm);
-    },
+    "'^'": function(cm) { popCount(); goLineStartText(cm);},
     "A": function(cm) {
       cm.setCursor(cm.getCursor().line, cm.getCursor().ch+1, true);
       enterInsertMode(cm);
     },
-    "Shift-A": function(cm) {
-      CodeMirror.commands.goLineEnd(cm);
-      enterInsertMode(cm);
-    },
-    "I": function(cm) {
-      enterInsertMode(cm);
-    },
-    "Shift-I": function(cm) {
-      goLineStartText(cm);
-      enterInsertMode(cm);
-    },
+    "Shift-A": function(cm) { CodeMirror.commands.goLineEnd(cm); enterInsertMode(cm);},
+    "I": function(cm) { enterInsertMode(cm);},
+    "Shift-I": function(cm) { goLineStartText(cm); enterInsertMode(cm);},
     "O": function(cm) {
       CodeMirror.commands.goLineEnd(cm);
       CodeMirror.commands.newlineAndIndent(cm);
@@ -252,9 +241,7 @@
       cm.indentLine(cm.getCursor().line);
       enterInsertMode(cm);
     },
-    "G": function(cm) {
-      cm.setOption("keyMap", "vim-prefix-g");
-    },
+    "G": function(cm) { cm.setOption("keyMap", "vim-prefix-g");},
     "Shift-D": function(cm) {
       var cur = cm.getCursor();
       var f = {line: cur.line, ch: cur.ch}, t = {line: cur.line};
@@ -266,32 +253,21 @@
       // cm.setCursor(cm.getCursor(true).line);
       // delTillMark(cm,"Shift-D"); mark = [];
     },
-    "M": function(cm) {
-      cm.setOption("keyMap", "vim-prefix-m");
-      mark = [];
-    },
+    "M": function(cm) { cm.setOption("keyMap", "vim-prefix-m"); mark = [];},
     "S": function (cm) {
       countTimes(function (_cm) {
         CodeMirror.commands.delCharRight(_cm);
       })(cm);
       enterInsertMode(cm);
     },
-    "Y": function(cm) {
-      cm.setOption("keyMap", "vim-prefix-y");
-      emptyBuffer();
-      yank = 0;
-    },
+    "Y": function(cm) { cm.setOption("keyMap", "vim-prefix-y"); emptyBuffer(); yank = 0;},
     "Shift-Y": function(cm) {
       emptyBuffer();
       mark["Shift-D"] = cm.getCursor(false).line;
       cm.setCursor(cm.getCursor(true).line);
       yankTillMark(cm,"Shift-D"); mark = [];
     },
-    "/": function(cm) {
-      var f = CodeMirror.commands.find;
-      f && f(cm);
-      sdir = "f";
-    },
+    "/": function(cm) { var f = CodeMirror.commands.find; f && f(cm); sdir = "f";},
     "'?'": function(cm) {
       var f = CodeMirror.commands.find;
       if (f) { f(cm); CodeMirror.commands.findPrev(cm); sdir = "r"; }
@@ -341,13 +317,13 @@
     "K": "goLineUp", "Left": "goColumnLeft", "Right": "goColumnRight",
     "Down": "goLineDown", "Up": "goLineUp", "Backspace": "goCharLeft",
     "Space": "goCharRight",
-    "B": function(cm) { moveToWord(cm, word, -1, "end");},
-    "E": function(cm) { moveToWord(cm, word, 1, "end");},
-    "W": function(cm) { moveToWord(cm, word, 1, "start");},
-    "Shift-B": function(cm) { moveToWord(cm, bigWord, -1, "end");},
-    "Shift-E": function(cm) { moveToWord(cm, bigWord, 1, "end");},
-    "Shift-W": function(cm) { moveToWord(cm, bigWord, 1, "start");},
-    "X": function(cm) { CodeMirror.commands.delCharRight(cm);},
+    "B": function(cm) {moveToWord(cm, word, -1, "end");},
+    "E": function(cm) {moveToWord(cm, word, 1, "end");},
+    "W": function(cm) {moveToWord(cm, word, 1, "start");},
+    "Shift-B": function(cm) {moveToWord(cm, bigWord, -1, "end");},
+    "Shift-E": function(cm) {moveToWord(cm, bigWord, 1, "end");},
+    "Shift-W": function(cm) {moveToWord(cm, bigWord, 1, "start");},
+    "X": function(cm) {CodeMirror.commands.delCharRight(cm);},
     "P": function(cm) {
       var cur = cm.getCursor().line;
       if (buf!= "") {
@@ -365,16 +341,16 @@
       }
       cm.setCursor(cur+1);
     },
-    "Shift-X": function(cm) { CodeMirror.commands.delCharLeft(cm);},
-    "Shift-J": function(cm) { joinLineNext(cm);},
+    "Shift-X": function(cm) {CodeMirror.commands.delCharLeft(cm);},
+    "Shift-J": function(cm) {joinLineNext(cm);},
     "'~'": function(cm) {
       var cur = cm.getCursor(), cHar = cm.getRange({line: cur.line, ch: cur.ch}, {line: cur.line, ch: cur.ch+1});
       cHar = cHar != cHar.toLowerCase() ? cHar.toLowerCase() : cHar.toUpperCase();
       cm.replaceRange(cHar, {line: cur.line, ch: cur.ch}, {line: cur.line, ch: cur.ch+1});
       cm.setCursor(cur.line, cur.ch+1);
     },
-    "Ctrl-B": function(cm) { CodeMirror.commands.goPageUp(cm);},
-    "Ctrl-F": function(cm) { CodeMirror.commands.goPageDown(cm);},
+    "Ctrl-B": function(cm) {CodeMirror.commands.goPageUp(cm);},
+    "Ctrl-F": function(cm) {CodeMirror.commands.goPageDown(cm);},
     "Ctrl-P": "goLineUp", 
     "Ctrl-N": "goLineDown",
     "U": "undo", 
