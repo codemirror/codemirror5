@@ -18,7 +18,8 @@
 // i, I, a, A, o, O
 // s
 // ce, cb (without support for number of actions like c3e - TODO)
-// cc, S, C TODO
+// cc
+// S, C TODO
 // cf<char>, cF<char>, ct<char>, cT<char>
 //
 // Deleting text:
@@ -49,6 +50,9 @@
 
 // TODO:
 //
+// Commands:
+//  - search and replace
+//
 // Design:
 //  - different cursor for different modes
 //  - status bar
@@ -66,9 +70,12 @@
     function pushInBuffer(str) { buf += str; };
     function pushCountDigit(digit) { return function(cm) {count += digit;} }
     function popCount() { var i = parseInt(count); count = ""; return i || 1; }
+    function iterTimes(func) {
+        for (var i = 0, c = popCount(); i < c; ++i) func(i, i == c - 1);
+    }
     function countTimes(func) {
         if (typeof func == "string") func = CodeMirror.commands[func];
-        return function(cm) { for (var i = 0, c = popCount(); i < c; ++i) func(cm); }
+        return function(cm) { iterTimes(function () { func(cm); }) };
     }
 
     function iterObj(o, f) {
@@ -322,7 +329,7 @@
     };
 
     // standard mode switching
-    iterList(['d', 't', 'T', 'f', 'F', 'c', 'C', 'r'],
+    iterList(['d', 't', 'T', 'f', 'F', 'c', 'r'],
             function (ch) {
                 CodeMirror.keyMap.vim[toCombo(ch)] = function (cm) {
                     cm.setOption('keyMap', 'vim-prefix-' + ch);
@@ -484,6 +491,16 @@
         },
         'B': function (cm) {
             countTimes('delWordLeft')(cm);
+            enterInsertMode(cm);
+        },
+        'C': function (cm) {
+            iterTimes(function (i, last) {
+                CodeMirror.commands.deleteLine(cm);
+                if (i) {
+                    CodeMirror.commands.delCharRight(cm);
+                    if (last) CodeMirror.commands.deleteLine(cm);
+                }
+            });
             enterInsertMode(cm);
         },
         auto: 'vim',
