@@ -349,37 +349,17 @@
   // main num keymap
   // Add bindings that are influenced by number keys
   iterObj({
-    "H": "goColumnLeft", 
-    "L": "goColumnRight",
-    "J": "goLineDown",
-    "K": "goLineUp", 
-    "Left": "goColumnLeft",
-    "Right": "goColumnRight",
-    "Down": "goLineDown", 
-    "Up": "goLineUp", 
-    "Backspace": "goCharLeft",
+    "H": "goColumnLeft", "L": "goColumnRight", "J": "goLineDown",
+    "K": "goLineUp", "Left": "goColumnLeft", "Right": "goColumnRight",
+    "Down": "goLineDown", "Up": "goLineUp", "Backspace": "goCharLeft",
     "Space": "goCharRight",
-    "B": function(cm) {
-      moveToWord(cm, word, -1, "end");
-    },
-    "E": function(cm) {
-      moveToWord(cm, word, 1, "end");
-    },
-    "W": function(cm) {
-      moveToWord(cm, word, 1, "start");
-    },
-    "Shift-B": function(cm) {
-      moveToWord(cm, bigWord, -1, "end");
-    },
-    "Shift-E": function(cm) {
-      moveToWord(cm, bigWord, 1, "end");
-    },
-    "Shift-W": function(cm) {
-      moveToWord(cm, bigWord, 1, "start");
-    },
-    "X": function(cm) {
-      CodeMirror.commands.delCharRight(cm);
-    },
+    "B": function(cm) { moveToWord(cm, word, -1, "end");},
+    "E": function(cm) { moveToWord(cm, word, 1, "end");},
+    "W": function(cm) { moveToWord(cm, word, 1, "start");},
+    "Shift-B": function(cm) { moveToWord(cm, bigWord, -1, "end");},
+    "Shift-E": function(cm) { moveToWord(cm, bigWord, 1, "end");},
+    "Shift-W": function(cm) { moveToWord(cm, bigWord, 1, "start");},
+    "X": function(cm) { CodeMirror.commands.delCharRight(cm);},
     "P": function(cm) {
       var cur = cm.getCursor().line;
       if (buf!= "") {
@@ -397,24 +377,16 @@
       }
       cm.setCursor(cur+1);
     },
-    "Shift-X": function(cm) {
-      CodeMirror.commands.delCharLeft(cm);
-    },
-    "Shift-J": function(cm) {
-      joinLineNext(cm);
-    },
+    "Shift-X": function(cm) { CodeMirror.commands.delCharLeft(cm);},
+    "Shift-J": function(cm) { joinLineNext(cm);},
     "'~'": function(cm) {
       var cur = cm.getCursor(), cHar = cm.getRange({line: cur.line, ch: cur.ch}, {line: cur.line, ch: cur.ch+1});
       cHar = cHar != cHar.toLowerCase() ? cHar.toLowerCase() : cHar.toUpperCase();
       cm.replaceRange(cHar, {line: cur.line, ch: cur.ch}, {line: cur.line, ch: cur.ch+1});
       cm.setCursor(cur.line, cur.ch+1);
     },
-    "Ctrl-B": function(cm) {
-      CodeMirror.commands.goPageUp(cm);
-    },
-    "Ctrl-F": function(cm) {
-      CodeMirror.commands.goPageDown(cm);
-    },
+    "Ctrl-B": function(cm) { CodeMirror.commands.goPageUp(cm);},
+    "Ctrl-F": function(cm) { CodeMirror.commands.goPageDown(cm);},
     "Ctrl-P": "goLineUp", 
     "Ctrl-N": "goLineDown",
     "U": "undo", 
@@ -439,7 +411,8 @@
       'vim-prefix-F',
       'vim-prefix-t',
       'vim-prefix-T',
-      'vim-prefix-r'
+      'vim-prefix-r',
+      "vim-prefix-m"
       ], 
       function (prefix) {
         CodeMirror.keyMap[prefix] = {
@@ -449,20 +422,9 @@
       });
 
   CodeMirror.keyMap["vim-prefix-g"] = {
-    "E": countTimes(function(cm) {
-      moveToWord(cm, word, -1, "start");
-    }),
-    "Shift-E": countTimes(function(cm) {
-      moveToWord(cm, bigWord, -1, "start");
-    }),
-    'G': function (cm) {
-      cm.setCursor({line: 0, ch: cm.getCursor().ch});
-    },
-    auto: "vim", 
-    nofallthrough: true
-  };
-
-  CodeMirror.keyMap["vim-prefix-m"] = {
+    "E": countTimes(function(cm) { moveToWord(cm, word, -1, "start");}),
+    "Shift-E": countTimes(function(cm) { moveToWord(cm, bigWord, -1, "start");}),
+    "G": function (cm) { cm.setCursor({line: 0, ch: cm.getCursor().ch});},
     auto: "vim", 
     nofallthrough: true
   };
