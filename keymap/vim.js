@@ -269,7 +269,7 @@
       cm.setCursor(cm.getCursor(true).line);
       yankTillMark(cm,"Shift-D"); mark = [];
     },
-    "/": function(cm) { var f = CodeMirror.commands.find; f && f(cm); sdir = "f";},
+    "/": function(cm) {var f = CodeMirror.commands.find; f && f(cm); sdir = "f";},
     "'?'": function(cm) {
       var f = CodeMirror.commands.find;
       if (f) { f(cm); CodeMirror.commands.findPrev(cm); sdir = "r"; }
