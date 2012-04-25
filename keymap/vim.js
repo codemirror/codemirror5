@@ -210,7 +210,7 @@
 
   function enterInsertMode(cm) {
     // enter insert mode: switch mode and cursor
-    if (!cm) console.log("call enterInsertMode with "cm" as an argument");
+    if (!cm) console.log("call enterInsertMode with 'cm' as an argument");
     popCount();
     cm.setOption("keyMap", "vim-insert");
     editCursor("vim-insert");
