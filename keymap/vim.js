@@ -48,18 +48,6 @@
 //
 
 
-// TODO:
-//
-// Commands:
-//  - search and replace
-//
-// Design:
-//  - different cursor for different modes
-//  - status bar
-// 
-// Overall:
-//  - code vim mode for CodeMirror in itself
-
 (function() {
   var count = "";
   var sdir = "f";
@@ -86,22 +74,22 @@
   }
   function toLetter(ch) {
     // T -> t, Shift-T -> T, '*' -> *, "Space" -> " "
-    if (ch.slice(0, 6) == 'Shift-') {
+    if (ch.slice(0, 6) == "Shift-") {
       return ch.slice(0, 1);
     } else {
-      if (ch == 'Space') return ' ';
+      if (ch == "Space") return " ";
       if (ch.length == 3 && ch[0] == "'" && ch[2] == "'") return ch[1];
       return ch.toLowerCase();
     }
   }
-  var SPECIAL_SYMBOLS = '~`!@#$%^&*()_-+=[{}]\\|/?.,<>:;"\'1234567890'; 
+  var SPECIAL_SYMBOLS = "~`!@#$%^&*()_-+=[{}]\\|/?.,<>:;\"\'1234567890"; 
     function toCombo(ch) { 
       // t -> T, T -> Shift-T, * -> '*', " " -> "Space"
-      if (ch == ' ') return 'Space';
+      if (ch == " ") return "Space";
       var specialIdx = SPECIAL_SYMBOLS.indexOf(ch);
       if (specialIdx != -1) return "'" + ch + "'";
       if (ch.toLowerCase() == ch) return ch.toUpperCase();
-      return 'Shift-' + ch.toUpperCase();
+      return "Shift-" + ch.toUpperCase();
     }
 
   var word = [/\w/, /[^\w\s]/], bigWord = [/\S/];
@@ -153,7 +141,7 @@
   function delTillMark(cm, cHar) { 
     var i = mark[cHar];
     if (i === undefined) {
-      console.log('Mark not set'); // TODO - show in status bar
+      console.log("Mark not set"); // TODO - show in status bar
       return;
     }
     var l = cm.getCursor().line, start = i > l ? l : i, end = i > l ? i : l;
@@ -166,7 +154,7 @@
   function yankTillMark(cm, cHar) { 
     var i = mark[cHar];
     if (i === undefined) {
-      console.log('Mark not set'); // TODO - show in status bar
+      console.log("Mark not set"); // TODO - show in status bar
       return;
     }
     var l = cm.getCursor().line, start = i > l ? l : i, end = i > l ? i : l;
@@ -213,19 +201,19 @@
     var cur = cm.getCursor();
     if (idx !== -1) {
       if (motion_options.forward) {
-        cm.replaceRange('', {line: cur.line, ch: cur.ch}, {line: cur.line, ch: idx});
+        cm.replaceRange("", {line: cur.line, ch: cur.ch}, {line: cur.line, ch: idx});
       } else {
-        cm.replaceRange('', {line: cur.line, ch: idx}, {line: cur.line, ch: cur.ch});
+        cm.replaceRange("", {line: cur.line, ch: idx}, {line: cur.line, ch: cur.ch});
       }
     }
   }
 
   function enterInsertMode(cm) {
     // enter insert mode: switch mode and cursor
-    if (!cm) console.log('call enterInsertMode with "cm" as an argument');
+    if (!cm) console.log("call enterInsertMode with "cm" as an argument");
     popCount();
-    cm.setOption('keyMap', 'vim-insert');
-    editCursor('vim-insert');
+    cm.setOption("keyMap", "vim-insert");
+    editCursor("vim-insert");
   }
 
   // main keymap
@@ -271,7 +259,7 @@
       var cur = cm.getCursor();
       var f = {line: cur.line, ch: cur.ch}, t = {line: cur.line};
       pushInBuffer(cm.getRange(f, t));
-      cm.replaceRange('', f, t);
+      cm.replaceRange("", f, t);
       // FIXME - commented out old code, what does it do?
       // emptyBuffer();
       // mark["Shift-D"] = cm.getCursor(false).line;
@@ -282,7 +270,7 @@
       cm.setOption("keyMap", "vim-prefix-m");
       mark = [];
     },
-    'S': function (cm) {
+    "S": function (cm) {
       countTimes(function (_cm) {
         CodeMirror.commands.delCharRight(_cm);
       })(cm);
@@ -322,24 +310,24 @@
       CodeMirror.commands.goLineStart(cm);
     },
     "'$'": function (cm) {
-      countTimes('goLineEnd')(cm);
+      countTimes("goLineEnd")(cm);
       if (cm.getCursor().ch) CodeMirror.commands.goColumnLeft(cm);
     },
     nofallthrough: true
   };
 
   // standard mode switching
-  iterList(['d', 't', 'T', 'f', 'F', 'c', 'r'],
+  iterList(["d", "t", "T", "f", "F", "c", "r"],
       function (ch) {
         CodeMirror.keyMap.vim[toCombo(ch)] = function (cm) {
-          cm.setOption('keyMap', 'vim-prefix-' + ch);
+          cm.setOption("keyMap", "vim-prefix-" + ch);
           emptyBuffer();
         };
       });
 
   function addCountBindings(keyMap) {
     // Add bindings for number keys
-    keyMap['0'] = function(cm) {
+    keyMap["0"] = function(cm) {
       count.length > 0 ? pushCountDigit("0")(cm) : CodeMirror.commands.goLineStart(cm);
     };
     for (var i = 1; i < 10; ++i) keyMap[i] = pushCountDigit(i);
@@ -397,21 +385,21 @@
   iterList([
       "vim-prefix-d'", 
       "vim-prefix-y'", 
-      'vim-prefix-df',
-      'vim-prefix-dF',
-      'vim-prefix-dt',
-      'vim-prefix-dT',
-      'vim-prefix-c',
-      'vim-prefix-cf',
-      'vim-prefix-cF',
-      'vim-prefix-ct',
-      'vim-prefix-cT',
-      'vim-prefix-',
-      'vim-prefix-f',
-      'vim-prefix-F',
-      'vim-prefix-t',
-      'vim-prefix-T',
-      'vim-prefix-r',
+      "vim-prefix-df",
+      "vim-prefix-dF",
+      "vim-prefix-dt",
+      "vim-prefix-dT",
+      "vim-prefix-c",
+      "vim-prefix-cf",
+      "vim-prefix-cF",
+      "vim-prefix-ct",
+      "vim-prefix-cT",
+      "vim-prefix-",
+      "vim-prefix-f",
+      "vim-prefix-F",
+      "vim-prefix-t",
+      "vim-prefix-T",
+      "vim-prefix-r",
       "vim-prefix-m"
       ], 
       function (prefix) {
@@ -444,18 +432,18 @@
     nofallthrough: true
   }; 
   // FIXME - does not work for bindings like "d3e"
-  addCountBindings(CodeMirror.keyMap['vim-prefix-d']);
+  addCountBindings(CodeMirror.keyMap["vim-prefix-d"]);
 
-  CodeMirror.keyMap['vim-prefix-c'] = {
-    'E': function (cm) {
-      countTimes('delWordRight')(cm);
+  CodeMirror.keyMap["vim-prefix-c"] = {
+    "E": function (cm) {
+      countTimes("delWordRight")(cm);
       enterInsertMode(cm);
     },
-    'B': function (cm) {
-      countTimes('delWordLeft')(cm);
+    "B": function (cm) {
+      countTimes("delWordLeft")(cm);
       enterInsertMode(cm);
     },
-    'C': function (cm) {
+    "C": function (cm) {
       iterTimes(function (i, last) {
         CodeMirror.commands.deleteLine(cm);
         if (i) {
@@ -465,25 +453,25 @@
       });
       enterInsertMode(cm);
     },
-    auto: 'vim',
+    auto: "vim",
     nofallthrough: true
   };
 
-  iterList(['vim-prefix-d', 'vim-prefix-c', 'vim-prefix-'], function (prefix) {
-    iterList(['f', 'F', 'T', 't'],
+  iterList(["vim-prefix-d", "vim-prefix-c", "vim-prefix-"], function (prefix) {
+    iterList(["f", "F", "T", "t"],
       function (ch) {
         CodeMirror.keyMap[prefix][toCombo(ch)] = function (cm) {
-          cm.setOption('keyMap', prefix + ch);
+          cm.setOption("keyMap", prefix + ch);
           emptyBuffer();
         };
       });
   });
 
   var MOTION_OPTIONS = {
-    't': {inclusive: false, forward: true},
-    'f': {inclusive: true,  forward: true},
-    'T': {inclusive: false, forward: false},
-    'F': {inclusive: true,  forward: false}
+    "t": {inclusive: false, forward: true},
+    "f": {inclusive: true,  forward: true},
+    "T": {inclusive: false, forward: false},
+    "F": {inclusive: true,  forward: false}
   };
 
   function setupPrefixBindingForKey(m) {
@@ -496,7 +484,7 @@
     CodeMirror.keyMap["vim-prefix-y'"][m] = function(cm) {
       yankTillMark(cm,m);
     };
-    CodeMirror.keyMap['vim-prefix-r'][m] = function (cm) {
+    CodeMirror.keyMap["vim-prefix-r"][m] = function (cm) {
       var cur = cm.getCursor();
       cm.replaceRange(toLetter(m), 
           {line: cur.line, ch: cur.ch},
@@ -525,7 +513,7 @@
   iterList(SPECIAL_SYMBOLS, function (ch) {
     setupPrefixBindingForKey(toCombo(ch));
   });
-  setupPrefixBindingForKey('Space');
+  setupPrefixBindingForKey("Space");
 
   CodeMirror.keyMap["vim-prefix-y"] = {
     "Y": countTimes(function(cm) { pushInBuffer("\n"+cm.getLine(cm.getCursor().line+yank)); yank++; }),
