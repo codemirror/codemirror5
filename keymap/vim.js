@@ -243,24 +243,26 @@
     },
     "G": function(cm) { cm.setOption("keyMap", "vim-prefix-g");},
     "Shift-D": function(cm) {
-      var cur = cm.getCursor();
+      // commented out verions works, but I left original, cause maybe 
+      // I don't know vim enouth to see what it does
+      /* var cur = cm.getCursor();
       var f = {line: cur.line, ch: cur.ch}, t = {line: cur.line};
       pushInBuffer(cm.getRange(f, t));
       cm.replaceRange("", f, t);
-      // FIXME - commented out old code, what does it do?
-      // emptyBuffer();
-      // mark["Shift-D"] = cm.getCursor(false).line;
-      // cm.setCursor(cm.getCursor(true).line);
-      // delTillMark(cm,"Shift-D"); mark = [];
+      */
+      emptyBuffer();
+      mark["Shift-D"] = cm.getCursor(false).line;
+      cm.setCursor(cm.getCursor(true).line);
+      delTillMark(cm,"Shift-D"); mark = [];
     },
-    "M": function(cm) { cm.setOption("keyMap", "vim-prefix-m"); mark = [];},
     "S": function (cm) {
       countTimes(function (_cm) {
         CodeMirror.commands.delCharRight(_cm);
       })(cm);
       enterInsertMode(cm);
     },
-    "Y": function(cm) { cm.setOption("keyMap", "vim-prefix-y"); emptyBuffer(); yank = 0;},
+    "M": function(cm) {cm.setOption("keyMap", "vim-prefix-m"); mark = [];},
+    "Y": function(cm) {cm.setOption("keyMap", "vim-prefix-y"); emptyBuffer(); yank = 0;},
     "Shift-Y": function(cm) {
       emptyBuffer();
       mark["Shift-D"] = cm.getCursor(false).line;
@@ -332,6 +334,8 @@
       }
       cm.setCursor(cur+1);
     },
+    "Shift-X": function(cm) {CodeMirror.commands.delCharLeft(cm);},
+    "Shift-J": function(cm) {joinLineNext(cm);},
     "Shift-P": function(cm) {
       var cur = cm.getCursor().line;
       if (buf!= "") {
@@ -341,8 +345,6 @@
       }
       cm.setCursor(cur+1);
     },
-    "Shift-X": function(cm) {CodeMirror.commands.delCharLeft(cm);},
-    "Shift-J": function(cm) {joinLineNext(cm);},
     "'~'": function(cm) {
       var cur = cm.getCursor(), cHar = cm.getRange({line: cur.line, ch: cur.ch}, {line: cur.line, ch: cur.ch+1});
       cHar = cHar != cHar.toLowerCase() ? cHar.toLowerCase() : cHar.toUpperCase();
@@ -351,10 +353,8 @@
     },
     "Ctrl-B": function(cm) {CodeMirror.commands.goPageUp(cm);},
     "Ctrl-F": function(cm) {CodeMirror.commands.goPageDown(cm);},
-    "Ctrl-P": "goLineUp", 
-    "Ctrl-N": "goLineDown",
-    "U": "undo", 
-    "Ctrl-R": "redo", 
+    "Ctrl-P": "goLineUp", "Ctrl-N": "goLineDown", 
+    "U": "undo", "Ctrl-R": "redo", 
   }, function(key, cmd) { map[key] = countTimes(cmd); });
 
   // empty key maps
@@ -398,12 +398,12 @@
       pushInBuffer("\n"+cm.getLine(cm.getCursor().line));
       cm.removeLine(cm.getCursor().line);
     }),
-    "E": countTimes("delWordRight"),
-    "B": countTimes("delWordLeft"),
     "'": function(cm) {
       cm.setOption("keyMap", "vim-prefix-d'");
       emptyBuffer();
     },
+    "E": countTimes("delWordRight"),
+    "B": countTimes("delWordLeft"),
     auto: "vim", 
     nofallthrough: true
   }; 
