@@ -131,13 +131,6 @@
       CodeMirror.commands.delCharRight(cm);
     } 
   }
-  function editCursor(mode) {
-    if (mode == "vim-insert") {  
-      // put in your cursor css changing code
-    } else if (mode == "vim") {
-      // put in your cursor css changing code
-    }
-  }
   function delTillMark(cm, cHar) { 
     var i = mark[cHar];
     if (i === undefined) {
@@ -213,7 +206,6 @@
     if (!cm) console.log("call enterInsertMode with 'cm' as an argument");
     popCount();
     cm.setOption("keyMap", "vim-insert");
-    editCursor("vim-insert");
   }
 
   // main keymap
@@ -255,6 +247,7 @@
       cm.setCursor(cm.getCursor(true).line);
       delTillMark(cm,"Shift-D"); mark = [];
     },
+
     "S": function (cm) {
       countTimes(function (_cm) {
         CodeMirror.commands.delCharRight(_cm);
@@ -291,7 +284,7 @@
       countTimes("goLineEnd")(cm);
       if (cm.getCursor().ch) CodeMirror.commands.goColumnLeft(cm);
     },
-    nofallthrough: true
+    nofallthrough: true, style: "fat-cursor"
   };
 
   // standard mode switching
@@ -354,7 +347,7 @@
     "Ctrl-B": function(cm) {CodeMirror.commands.goPageUp(cm);},
     "Ctrl-F": function(cm) {CodeMirror.commands.goPageDown(cm);},
     "Ctrl-P": "goLineUp", "Ctrl-N": "goLineDown", 
-    "U": "undo", "Ctrl-R": "redo", 
+    "U": "undo", "Ctrl-R": "redo"
   }, function(key, cmd) { map[key] = countTimes(cmd); });
 
   // empty key maps
@@ -389,8 +382,7 @@
     "E": countTimes(function(cm) { moveToWord(cm, word, -1, "start");}),
     "Shift-E": countTimes(function(cm) { moveToWord(cm, bigWord, -1, "start");}),
     "G": function (cm) { cm.setCursor({line: 0, ch: cm.getCursor().ch});},
-    auto: "vim", 
-    nofallthrough: true
+    auto: "vim", nofallthrough: true, style: "fat-cursor"
   };
 
   CodeMirror.keyMap["vim-prefix-d"] = {
@@ -404,8 +396,7 @@
     },
     "E": countTimes("delWordRight"),
     "B": countTimes("delWordLeft"),
-    auto: "vim", 
-    nofallthrough: true
+    auto: "vim", nofallthrough: true, style: "fat-cursor"
   }; 
   // FIXME - does not work for bindings like "d3e"
   addCountBindings(CodeMirror.keyMap["vim-prefix-d"]);
@@ -429,8 +420,7 @@
       });
       enterInsertMode(cm);
     },
-    auto: "vim",
-    nofallthrough: true
+    auto: "vim", nofallthrough: true, style: "fat-cursor"
   };
 
   iterList(["vim-prefix-d", "vim-prefix-c", "vim-prefix-"], function (prefix) {
@@ -494,8 +484,7 @@
   CodeMirror.keyMap["vim-prefix-y"] = {
     "Y": countTimes(function(cm) { pushInBuffer("\n"+cm.getLine(cm.getCursor().line+yank)); yank++; }),
     "'": function(cm) {cm.setOption("keyMap", "vim-prefix-y'"); emptyBuffer();},
-    auto: "vim", 
-    nofallthrough: true
+    auto: "vim", nofallthrough: true, style: "fat-cursor"
   };
 
   CodeMirror.keyMap["vim-insert"] = {
@@ -503,7 +492,6 @@
     "Esc": function(cm) {
       cm.setCursor(cm.getCursor().line, cm.getCursor().ch-1, true); 
       cm.setOption("keyMap", "vim");
-      editCursor("vim");
     },
     "Ctrl-N": "autocomplete",
     "Ctrl-P": "autocomplete",
