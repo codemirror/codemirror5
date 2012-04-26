@@ -505,8 +505,8 @@
       cm.setOption("keyMap", "vim");
       editCursor("vim");
     },
-    "Ctrl-N": function(cm) {/* Code to bring up autocomplete hint */},
-    "Ctrl-P": function(cm) {/* Code to bring up autocomplete hint */},
+    "Ctrl-N": "autocomplete",
+    "Ctrl-P": "autocomplete",
     fallthrough: ["default"]
   };
 })();

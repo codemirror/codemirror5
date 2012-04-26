@@ -58,9 +58,12 @@ and <a href="../lib/util/javascript-hint.js">here</a>) to figure out
 how it works.</p>
 
     <script>
+      CodeMirror.commands.autocomplete = function(cm) {
+        CodeMirror.simpleHint(cm, CodeMirror.javascriptHint);
+      }
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true,
-        extraKeys: {"Ctrl-Space": function(cm) {CodeMirror.simpleHint(cm, CodeMirror.javascriptHint);}}
+        extraKeys: {"Ctrl-Space": "autocomplete"}
       });
     </script>
   </body>
