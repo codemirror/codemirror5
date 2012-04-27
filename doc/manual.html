@@ -27,7 +27,7 @@
     functionality can be straightforwardly implemented. See
     the <a href="#addons">add-ons</a> included in the distribution,
     and
-    the <a href="http://www.octolabs.com/javascripts/codemirror-ui/">CodeMirror
+    the <a href="https://github.com/jagthedrummer/codemirror-ui">CodeMirror
     UI</a> project, for reusable implementations of extra features.</p>
 
     <p>CodeMirror works with language-specific modes. Modes are
@@ -285,6 +285,15 @@
       <dt id="option_dragDrop"><code>dragDrop (boolean)</code></dt>
       <dd>Controls whether drag-and-drop is enabled. On by default.</dd>
 
+      <dt id="option_onDragEvent"><code>onDragEvent (function)</code></dt>
+      <dd>When given, this will be called when the editor is handling
+      a <code>dragenter</code>, <code>dragover</code>,
+      or <code>drop</code> event. It will be passed the editor instance
+      and the event object as arguments. The callback can choose to
+      handle the event itself, in which case it should
+      return <code>true</code> to indicate that CodeMirror should not
+      do anything further.</dd>
+
       <dt id="option_onKeyEvent"><code>onKeyEvent (function)</code></dt>
       <dd>This provides a rather low-level hook into CodeMirror's key
       handling. If provided, this function will be called on
@@ -356,9 +365,11 @@
     be searched. It can hold either a single keymap or an array of
     keymaps.</p>
 
-    <p>When a keymap contains a <code>catchall</code> property, the
-    handler function under that property will be called for all keys
-    dispatched through the keymap.</p>
+    <p>When a keymap contains a <code>nofallthrough</code> property
+    set to <code>true</code>, keys matched against that map will be
+    ignored if they don't match any of the bindings in the map (no
+    further child maps will be tried, and the default effect of
+    inserting a character will not occur).</p>
 
     <h2 id="styling">Customized Styling</h2>
 
@@ -677,6 +688,11 @@
       the expensive update after the function returns. This can be a
       lot faster. The return value from this method will be the return
       value of your function.</dd>
+
+      <dt id="compoundChange"><code>compoundChange(func) → result</code></dt>
+      <dd>Will call the given function (and return its result),
+      combining all changes made while that function executes into a
+      single undo event.</dd>
 
       <dt id="refresh"><code>refresh()</code></dt>
       <dd>If your code does something to change the size of the editor

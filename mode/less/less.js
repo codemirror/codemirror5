@@ -41,7 +41,7 @@ CodeMirror.defineMode("css", function(config) {
       	return tokenSComment(stream, state);
 	  }else{
 	    stream.eatWhile(/[\a-zA-Z0-9\-_.\s]/);
-		if(/\/|\)/.test(stream.peek() || stream.eol() || (stream.eatSpace() && stream.peek() == ")")))return ret("string", "string");//let url(/images/logo.png) without quotes return as string
+		if(/\/|\)|#/.test(stream.peek() || stream.eol() || (stream.eatSpace() && stream.peek() == ")")))return ret("string", "string");//let url(/images/logo.png) without quotes return as string
         return ret("number", "unit");
 	  }
     }
@@ -106,17 +106,32 @@ CodeMirror.defineMode("css", function(config) {
 	  return ret(null, ch);
 	}
     else {
-      stream.eatWhile(/[\w\\\-_.%]/);
-	  if( stream.peek().match(/\(/) != null ){// lesscss
+      stream.eatWhile(/[\w\\\-_%.{]/);
+	  if(stream.current().match(/http|https/) != null){
+		stream.eatWhile(/[\w\\\-_%.{:\/]/);
+		return ret("string", "string");
+	  }else if(stream.peek() == "<" || stream.peek() == ">"){
+		return ret("tag", "tag");
+	  }else if( stream.peek().match(/\(/) != null ){// lessc
 		return ret(null, ch);
 	  }else if (stream.peek() == "/" && state.stack[state.stack.length-1] != undefined){ // url(dir/center/image.png)
 	  	return ret("string", "string");
-	  }else if( stream.current().match(/\-\d|\-.\d/) ){ // lesscss match e.g.: -5px -0.4 etc...
-	  	return ret("number", "unit");
+	  }else if( stream.current().match(/\-\d|\-.\d/) ){ // lesscss match e.g.: -5px -0.4 etc... only colorize the minus sign
+		//stream.backUp(stream.current().length-1); //commment out these 2 comment if you want the minus sign to be parsed as null -500px
+	  	//return ret(null, ch);
+		return ret("number", "unit");
 	  }else if( inTagsArray(stream.current()) ){ // lesscss match html tags
 	  	return ret("tag", "tag");
 	  }else if( /\/|[\s\)]/.test(stream.peek() || stream.eol() || (stream.eatSpace() && stream.peek() == "/")) && stream.current().indexOf(".") !== -1){
+		if(stream.current().substring(stream.current().length-1,stream.current().length) == "{"){
+			stream.backUp(1);
+			return ret("tag", "tag");
+		}//end if
+		if( (stream.eatSpace() && stream.peek().match(/[{<>.a-zA-Z]/) != null)  || stream.eol() )return ret("tag", "tag");//e.g. button.icon-plus
 		return ret("string", "string");//let url(/images/logo.png) without quotes return as string
+	  }else if( stream.eol() ){
+		  if(stream.current().substring(stream.current().length-1,stream.current().length) == "{")stream.backUp(1);
+		  return ret("tag", "tag");
 	  }else{
       	return ret("variable", "variable");
 	  }

@@ -192,9 +192,10 @@ testCM("undo", function(cm) {
     cm.replaceRange("a", {line: 0, ch: 0});
     cm.replaceRange("b", {line: 3, ch: 0});
   }
-  eq(cm.historySize().undo, 1);
-  cm.undo();
-  eq(cm.historySize().redo, 1);
+  eq(cm.historySize().undo, 40);
+  for (var i = 0; i < 40; ++i)
+    cm.undo();
+  eq(cm.historySize().redo, 40);
   eq(cm.getValue(), "1\n\n\n2");
 }, {value: "abc"});
 
