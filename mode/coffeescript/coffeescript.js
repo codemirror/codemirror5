@@ -9,12 +9,15 @@ CodeMirror.defineMode('coffeescript', function(conf) {
         return new RegExp("^((" + words.join(")|(") + "))\\b");
     }
 
-    var singleOperators = new RegExp("^[\\+\\-\\*/%&|\\^~<>!\?]");
-    var singleDelimiters = new RegExp('^[\\(\\)\\[\\]\\{\\}@,:`=;\\.]');
+    var singleOperators = new RegExp("^[\\+\\-\\*/%&|\\^~<>!=\?]");
+    var singleDelimiters = new RegExp('^[\\(\\)\\[\\]\\{\\}@,:`;\\.]');
     var doubleOperators = new RegExp("^((\->)|(\=>)|(\\+\\+)|(\\+\\=)|(\\-\\-)|(\\-\\=)|(\\*\\*)|(\\*\\=)|(\\/\\/)|(\\/\\=)|(==)|(!=)|(<=)|(>=)|(<>)|(<<)|(>>)|(//))");
     var doubleDelimiters = new RegExp("^((\\.\\.)|(\\+=)|(\\-=)|(\\*=)|(%=)|(/=)|(&=)|(\\|=)|(\\^=))");
     var tripleDelimiters = new RegExp("^((\\.\\.\\.)|(//=)|(>>=)|(<<=)|(\\*\\*=))");
     var identifiers = new RegExp("^[_A-Za-z$][_A-Za-z$0-9]*");
+    var assignment = /^([\w]+)\s*(?=\=|\:)(?!\=\=)/;
+    var args = /^(\([\w,\.\@ ]*\))\s*(?=\->|\=>)/;
+    var thisvar = /^\@([\w]+)/;
 
     var wordOperators = wordRegexp(['and', 'or', 'not',
                                     'is', 'isnt', 'in',
@@ -22,17 +25,20 @@ CodeMirror.defineMode('coffeescript', function(conf) {
     var indentKeywords = ['for', 'while', 'loop', 'if', 'unless', 'else',
                           'switch', 'try', 'catch', 'finally', 'class'];
     var commonKeywords = ['break', 'by', 'continue', 'debugger', 'delete',
-                          'do', 'in', 'of', 'new', 'return', 'then',
+                          'do', 'extends', 'in', 'of', 'new', 'return', 'then',
                           'this', 'throw', 'when', 'until'];
+    var reserved = ['case', 'default', 'function', 'var', 'void', 'with',
+                    'const', 'let', 'enum', 'export', 'import', 'native',
+                    '__hasProp', '__extends', '__slice', '__bind', '__indexOf'];
 
     var keywords = wordRegexp(indentKeywords.concat(commonKeywords));
 
     indentKeywords = wordRegexp(indentKeywords);
-
+    reserved = wordRegexp(reserved);
 
     var stringPrefixes = new RegExp("^('{3}|\"{3}|['\"])");
     var regexPrefixes = new RegExp("^(/{3}|/)");
-    var commonConstants = ['Infinity', 'NaN', 'undefined', 'null', 'true', 'false', 'on', 'off', 'yes', 'no'];
+    var commonConstants = ['Infinity', 'NaN', 'undefined', 'null', 'true', 'false', 'on', 'off', 'yes', 'no', 'super'];
     var constants = wordRegexp(commonConstants);
 
     // Tokenizers
@@ -127,6 +133,20 @@ CodeMirror.defineMode('coffeescript', function(conf) {
             }
         }
 
+        // Handle assignment
+        if (stream.match(assignment)) {
+            return 'def';
+        }
+
+        // Handle arguments
+        if (stream.match(args)) {
+            return 'argument';
+        }
+
+        // Handle @vars
+        if (stream.match(thisvar)) {
+            return 'thisvar';
+        }
         // Handle operators and delimiters
         if (stream.match(tripleDelimiters) || stream.match(doubleDelimiters)) {
             return 'punctuation';
@@ -146,6 +166,10 @@ CodeMirror.defineMode('coffeescript', function(conf) {
 
         if (stream.match(keywords)) {
             return 'keyword';
+        }
+
+        if (stream.match(reserved)) {
+            return 'reserved';
         }
 
         if (stream.match(identifiers)) {
