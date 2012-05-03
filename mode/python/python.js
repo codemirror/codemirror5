@@ -249,12 +249,23 @@ CodeMirror.defineMode("python", function(conf, parserConf) {
 
         // Handle '.' connected identifiers
         if (current === '.') {
-            return stream.match(identifiers, false) ? null : ERRORCLASS;
+            style = stream.match(identifiers, false) ? null : ERRORCLASS;
+            if (style === null && state.lastToken.style === 'meta') {
+                // Apply 'meta' style to '.' connected identifiers when
+                // appropriate.
+                style = 'meta';
+            }
+            return style;
         }
         
         // Handle decorators
         if (current === '@') {
             return stream.match(identifiers, false) ? 'meta' : ERRORCLASS;
+        }
+
+        if ((style === 'variable' || style === 'builtin')
+            && state.lastToken.style === 'meta') {
+            style = 'meta';
         }
         
         // Handle scope changes.
