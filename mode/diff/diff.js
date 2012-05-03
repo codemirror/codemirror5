@@ -1,9 +1,9 @@
 CodeMirror.defineMode("diff", function() {
 
   var TOKEN_NAMES = {
-    '+': "plus",
-    '-': "minus",
-    '@': "rangeinfo"
+    '+': 'tag',
+    '-': 'string',
+    '@': 'meta'
   };
 
   return {
@@ -12,8 +12,8 @@ CodeMirror.defineMode("diff", function() {
 
       if (!stream.sol() || tw_pos === 0) {
         stream.skipToEnd();
-        return "trailing-whitespace-" + (
-          TOKEN_NAMES[stream.string.charAt(0)] || "normal");
+        return ("error " + (
+          TOKEN_NAMES[stream.string.charAt(0)] || '')).replace(/ $/, '');
       }
 
       var token_name = TOKEN_NAMES[stream.peek()] || stream.skipToEnd();
