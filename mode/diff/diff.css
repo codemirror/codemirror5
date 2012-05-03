@@ -1,3 +1,6 @@
 span.cm-rangeinfo {color: #a0b;}
 span.cm-minus {color: red;}
 span.cm-plus {color: #2b2;}
+span.cm-trailing-whitespace-normal { background-color: black; opacity: 0.4;}
+span.cm-trailing-whitespace-minus { background-color: red; opacity: 0.4;}
+span.cm-trailing-whitespace-plus { background-color: #2b2; opacity: 0.4;}
