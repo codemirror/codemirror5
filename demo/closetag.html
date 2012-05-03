@@ -5,18 +5,10 @@
 		<link rel="stylesheet" href="../lib/codemirror.css">
 		<script src="../lib/codemirror.js"></script>
 		<script src="../lib/util/closetag.js"></script>
-		
-<!--
-		<script src="../mode/xml/xml.js"></script>
--->
 		<script src="../mode/xml/xml.js"></script>
 		<script src="../mode/javascript/javascript.js"></script>
 		<script src="../mode/css/css.js"></script>
 		<script src="../mode/htmlmixed/htmlmixed.js"></script>
-<!--
-		<script src="../mode/xmlpure/xmlpure.js"></script>
--->
-
 		<link rel="stylesheet" href="../doc/docs.css">
 		<style type="text/css">
 			.CodeMirror {border-top: 1px solid #eee; border-bottom: 1px solid #eee;}
@@ -28,7 +20,7 @@
 		<ul>
 			<li>Type an html tag.  When you type '>' or '/', the tag will auto-close/complete.  Block-level tags will indent.</li>
 			<li>There are options for disabling tag closing or customizing the list of tags to indent.</li>
-			<li>Works with "text/html" (based on htmlmixed.js or xml.js) and "xmlpure" modes.</li>
+			<li>Works with "text/html" (based on htmlmixed.js or xml.js) mode.</li>
 			<li>View source for key binding details.</li>
 		</p>
 
@@ -37,7 +29,6 @@
 		<script type="text/javascript">
 		var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
 			mode: 'text/html',
-			//mode: 'xmlpure',
 			
 			//closeTagEnabled: false, // Set this option to disable tag closing behavior without having to remove the key bindings.
 			//closeTagIndent: false, // Pass false or an array of tag names to override the default indentation behavior.
