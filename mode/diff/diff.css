@@ -1,3 +1,5 @@
-span.cm-rangeinfo {color: #a0b;}
-span.cm-minus {color: red;}
-span.cm-plus {color: #2b2;}
+span.cm-meta {color: #a0b !important;}
+
+span.cm-error { background-color: black; opacity: 0.4;}
+span.cm-error.cm-string { background-color: red; }
+span.cm-error.cm-tag{ background-color: #2b2; }
