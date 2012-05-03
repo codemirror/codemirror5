@@ -249,26 +249,12 @@ CodeMirror.defineMode("python", function(conf, parserConf) {
 
         // Handle '.' connected identifiers
         if (current === '.') {
-            style = state.tokenize(stream, state);
-            current = stream.current();
-            if (style === 'variable' || style === 'builtin') {
-                return 'variable';
-            } else {
-                return ERRORCLASS;
-            }
+            return stream.match(identifiers, false) ? null : ERRORCLASS;
         }
         
         // Handle decorators
         if (current === '@') {
-            style = state.tokenize(stream, state);
-            current = stream.current();
-            if (style === 'variable'
-                || current === '@staticmethod'
-                || current === '@classmethod') {
-                return 'meta';
-            } else {
-                return ERRORCLASS;
-            }
+            return stream.match(identifiers, false) ? 'meta' : ERRORCLASS;
         }
         
         // Handle scope changes.
