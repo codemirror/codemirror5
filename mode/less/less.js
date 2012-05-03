@@ -228,5 +228,5 @@ CodeMirror.defineMode("less", function(config) {
 });
 
 CodeMirror.defineMIME("text/x-less", "less");
-if (!CodeMirror.mimeModes.hasOwnProperty("text/css"))
-  CodeMirror.defineMIME("text/css", "less");
+//if (!CodeMirror.mimeModes.hasOwnProperty("text/css"))
+//  CodeMirror.defineMIME("text/css", "less");
