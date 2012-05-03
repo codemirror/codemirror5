@@ -58,6 +58,24 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       stream.match(/^\d*(?:\.\d*)?(?:[eE][+\-]?\d+)?/);
       return ret("number", "number");
     }
+    else if (/-/.test(ch)) {
+      var y = stream.next()
+      if(/\d/.test(y)) {
+        stream.match(/^-?\d*(?:\.\d*)?(?:[eE][+\-]?\d+)?/);
+          return ret("number", "number");
+      }
+      //TODO: fix it so these don't need to be copied
+      else if (isOperatorChar.test(ch)) {
+        stream.eatWhile(isOperatorChar);
+        return ret("operator", null, stream.current());
+      }
+      else {
+        stream.eatWhile(/[\w\$_]/);
+        var word = stream.current(), known = keywords.propertyIsEnumerable(word) && keywords[word];
+        return (known && state.kwAllowed) ? ret(known.type, known.style, word) :
+                       ret("variable", "variable", word);
+      }
+    }
     else if (ch == "/") {
       if (stream.eat("*")) {
         return chain(stream, state, jsTokenComment);
