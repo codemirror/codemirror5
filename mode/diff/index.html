@@ -34,12 +34,12 @@ index 04646a9..9a39cc7 100644
      }
  
      function onMouseDown(e) {
--      var start = posFromMouse(e), last = start;
+-      var start = posFromMouse(e), last = start;    
 +      var start = posFromMouse(e), last = start, target = e.target();
        if (!start) return;
        setCursor(start.line, start.ch, false);
        if (e.button() != 1) return;
-+      if (target.parentNode == gutter) {
++      if (target.parentNode == gutter) {    
 +        if (options.onGutterClick)
 +          options.onGutterClick(indexOf(gutter.childNodes, target) + showingFrom);
 +        return;
