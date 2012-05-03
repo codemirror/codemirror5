@@ -3,7 +3,7 @@ LESS mode - http://www.lesscss.org/
 Ported to CodeMirror by Peter Kroon
 */
 
-CodeMirror.defineMode("css", function(config) {
+CodeMirror.defineMode("less", function(config) {
   var indentUnit = config.indentUnit, type;
   function ret(style, tp) {type = tp; return style;}
   //html5 tags
@@ -228,5 +228,5 @@ CodeMirror.defineMode("css", function(config) {
 });
 
 CodeMirror.defineMIME("text/x-less", "less");
-if (!CodeMirror.mimeModes.hasOwnProperty("text/css"))
-  CodeMirror.defineMIME("text/css", "less");
+//if (!CodeMirror.mimeModes.hasOwnProperty("text/css"))
+//  CodeMirror.defineMIME("text/css", "less");
