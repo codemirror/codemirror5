@@ -1,6 +1,8 @@
 .CodeMirror {
   line-height: 1em;
   font-family: monospace;
+  position: relative;
+  overflow: hidden;
 }
 
 .CodeMirror-scroll {
@@ -10,6 +12,19 @@
      is visible outside of the scrolling box. */
   position: relative;
   outline: none;
+  z-index: 11; /* make sure it goes in front of the gutter */
+}
+
+.CodeMirror-scroll * {
+  /* Necessary since the scroller now overlays the actual line div. */
+  cursor: text;
+
+  /* IE allows mouse events to target items underneath divs with no background. Since we need the
+     scroller to handle the events, we give it a background but make it fully transparent. */
+  background: #000000;
+  background: rgba(0, 0, 0, 0); /* IE9 */
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)"; /* IE8 */
+  filter: alpha(opacity=0); /* IE<8 */
 }
 
 .CodeMirror-gutter {
