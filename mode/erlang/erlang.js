@@ -1,131 +1,5 @@
 CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
 
-  function switchState(source, setState, f) {
-    setState(f);
-    return f(source, setState);
-  }
-
-  var smallRE = /[a-z_]/;
-  var largeRE = /[A-Z]/;
-  var digitRE = /[0-9]/;
-  var hexitRE = /[0-9A-Fa-f]/;
-  var octitRE = /[0-7]/;
-  var idRE = /[a-z_A-Z0-9']/;
-  var symbolRE = /[-!#$%&*+.\/<=>?@\\^|~:]/;
-  var whiteCharRE = /[ \t\v\f]/; // newlines are handled in tokenizer
-
-                        function normal(source, setState) {
-  if (source.eatWhile(whiteCharRE)) {
-    return null;
-  }
-
-    var ch = source.next();
-
-    if (ch == '%') {
-      source.skipToEnd();
-      return "comment";
-    }
-
-    if (ch == '\'') {
-      if (source.eat('\\')) {
-        source.next();  // should handle other escapes here
-      }
-      else {
-        source.next();
-      }
-      if (source.eat('\'')) {
-        return "string";
-      }
-      return "error";
-    }
-
-    if (ch == '"') {
-      return switchState(source, setState, stringLiteral);
-    }
-
-    if (largeRE.test(ch)) {
-      source.eatWhile(idRE);
-      if (source.eat('.')) {
-        return "qualifier";
-      }
-      return "variable-2";
-    }
-
-    if (smallRE.test(ch)) {
-      source.eatWhile(idRE);
-      return "variable";
-    }
-
-    if (digitRE.test(ch)) {
-      if (ch == '0') {
-        if (source.eat(/[xX]/)) {
-          source.eatWhile(hexitRE); // should require at least 1
-          return "integer";
-        }
-        if (source.eat(/[oO]/)) {
-          source.eatWhile(octitRE); // should require at least 1
-          return "number";
-        }
-      }
-      source.eatWhile(digitRE);
-      var t = "number";
-      if (source.eat('.')) {
-        t = "number";
-        source.eatWhile(digitRE); // should require at least 1
-      }
-      if (source.eat(/[eE]/)) {
-        t = "number";
-        source.eat(/[-+]/);
-        source.eatWhile(digitRE); // should require at least 1
-      }
-      return t;
-    }
-
-    if (symbolRE.test(ch)) {
-      var t = "variable";
-      if (ch == ':') {
-        t = "variable-2";
-      }
-      source.eatWhile(symbolRE);
-      return t;
-    }
-
-    return "error";
-  }
-
-  function stringLiteral(source, setState) {
-    while (!source.eol()) {
-      var ch = source.next();
-      if (ch == '"') {
-        setState(normal);
-        return "string";
-      }
-      if (ch == '\\') {
-        if (source.eol() || source.eat(whiteCharRE)) {
-          setState(stringGap);
-          return "string";
-        }
-        if (source.eat('&')) {
-        }
-        else {
-          source.next(); // should handle other escapes here
-        }
-      }
-    }
-    setState(normal);
-    return "error";
-  }
-
-  function stringGap(source, setState) {
-    if (source.eat('\\')) {
-      return switchState(source, setState, stringLiteral);
-    }
-    source.next();
-    setState(normal);
-    return "error";
-  }
-
-
   var wellKnownWords = (function() {
     var wkw = {};
     function setType(t) {
@@ -135,19 +9,19 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
       };
     }
 
-// keywords
+    // keywords
     setType("keyword")(
         "after","begin","catch","case","cond","end","fun","if",
         "let","of","query","receive","try","when");
 
-// operators
+    // operators
     setType("builtin")(
        "and","andalso","band","bnot","bor","bsl","bsr","bxor",
         "div","not","or","orelse","rem","xor",
         "+","-","*","/",">",">=","<","=<","=:=","==","=/=","/="
     );
 
-//guards
+    //guards
     setType("builtin")(
         "is_atom","is_binary","is_bitstring","is_boolean","is_float",
         "is_function","is_integer","is_list","is_number","is_pid",
@@ -155,7 +29,7 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
         "atom","binary","bitstring","boolean","function","integer","list",
         "number","pid","port","record","reference","tuple");
 
-//BIFs
+    //BIFs
     setType("builtin")(
         "abs","adler32","adler32_combine","alive","apply","atom_to_binary",
         "atom_to_list","binary_to_atom","binary_to_existing_atom",
@@ -183,15 +57,157 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
     return wkw;
   })();
 
+  function switchState(source, setState, f) {
+    setState(f);
+    return f(source, setState);
+  }
 
+  var smallRE = /[a-z_]/;
+  var largeRE = /[A-Z]/;
+  var digitRE = /[0-9]/;
+  var hexitRE = /[0-9A-Fa-f]/;
+  var octitRE = /[0-7]/;
+  var idRE = /[a-z_A-Z0-9]/;
+
+  function normal(source, setState) {
+    if (source.eatSpace()) {
+      return null;
+    }
+
+    // attribute
+    if ( source.sol() && source.peek() == '-') {
+      source.skipTo("(");
+      return "attribute";
+    }
+
+    var ch = source.next();
+
+    // comment
+    if (ch == '%') {
+      source.skipToEnd();
+      return "comment";
+    }
+
+    // macro
+    if (ch == '?') {
+      source.eatWhile(idRE);
+      return "variable-3";
+    }
+
+    // record
+    if ( ch == "#") {
+      source.eatWhile(idRE);
+      return "meta";
+    }
+
+    // char
+    if ( ch == "$") {
+      source.next();     // must handle backslash escape here
+      return "string";
+    }
+
+    // quoted atom
+    if (ch == '\'') {
+      return switchState(source, setState, singleQuote);
+    }
+
+    // string
+    if (ch == '"') {
+      return switchState(source, setState, doubleQuote);
+    }
+
+    // variable
+    if (largeRE.test(ch)) {
+      source.eatWhile(idRE);
+      return "variable-2";
+    }
+
+    // atom/keyword/BIF/function
+    if (smallRE.test(ch)) {
+      source.eatWhile(idRE);
+      var w = source.current();
+
+      if (w in wellKnownWords) {
+        return wellKnownWords[w];
+      }
+
+      if (source.peek() == "(") {
+        return "function";
+      }
+
+      if ( source.peek() == ":") {
+        if (w == "erlang") {
+          return "builtin";
+        } else {
+          return "function";
+        }
+      }
+
+      return "atom";
+    }
+
+    if (digitRE.test(ch)) {
+      if (ch == '0') {
+        if (source.eat(/[xX]/)) {
+          source.eatWhile(hexitRE); // should require at least 1
+          return "integer";
+        }
+        if (source.eat(/[oO]/)) {
+          source.eatWhile(octitRE); // should require at least 1
+          return "number";
+        }
+      }
+      source.eatWhile(digitRE);
+      var t = "number";
+      if (source.eat('.')) {
+        t = "number";
+        source.eatWhile(digitRE); // should require at least 1
+      }
+      if (source.eat(/[eE]/)) {
+        t = "number";
+        source.eat(/[-+]/);
+        source.eatWhile(digitRE); // should require at least 1
+      }
+      return t;
+    }
+    return "normal";
+  }
+
+  function doubleQuote(source, setState) {
+    while (!source.eol()) {
+      var ch = source.next();
+      if (ch == '"') {
+        setState(normal);
+        return "string";
+      }
+      if (ch == '\\') {
+        source.next(); // should handle other escapes here
+      }
+    }
+    setState(normal);
+    return "error";
+  }
+
+  function singleQuote(source, setState) {
+    while (!source.eol()) {
+      var ch = source.next();
+      if (ch == '\'') {
+        setState(normal);
+        return "atom";
+      }
+      if (ch == '\\') {
+        source.next();
+      }
+    }
+    setState(normal);
+    return "error";
+  }
 
   return {
     startState: function ()  { return { f: normal }; },
 
     token: function(stream, state) {
-      var t = state.f(stream, function(s) { state.f = s; });
-      var w = stream.current();
-      return (w in wellKnownWords) ? wellKnownWords[w] : t;
+      return state.f(stream, function(s) { state.f = s; });
     }
   };
 
