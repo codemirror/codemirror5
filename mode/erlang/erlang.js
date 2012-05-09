@@ -166,29 +166,21 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
     }
 
     if (digitRE.test(ch)) {
-      if (ch == '0') {
-        if (source.eat(/[xX]/)) {
-          source.eatWhile(hexitRE); // should require at least 1
-          return "integer";
-        }
-        if (source.eat(/[oO]/)) {
-          source.eatWhile(octitRE); // should require at least 1
-          return "number";
-        }
-      }
       source.eatWhile(digitRE);
-      var t = "number";
-      if (source.eat('.')) {
-        t = "number";
-        source.eatWhile(digitRE); // should require at least 1
+      if (source.eat('#')) {
+        source.eatWhile(digitRE);
+      } else {
+        if (source.eat('.')) {
+          source.eatWhile(digitRE);
+        }
+        if (source.eat(/[eE]/)) {
+          source.eat(/[-+]/);
+          source.eatWhile(digitRE);
+        }
       }
-      if (source.eat(/[eE]/)) {
-        t = "number";
-        source.eat(/[-+]/);
-        source.eatWhile(digitRE); // should require at least 1
-      }
-      return t;
+      return "number";
     }
+
     return "normal";
   }
 
