@@ -151,7 +151,7 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
       }
 
       if (source.peek() == ":") {
-        if (w == "erlang") {
+        if (w == "erlang") {         // f:now() is highlighted incorrectly
           return "builtin";
         } else {
           return "function";
