@@ -1,3 +1,5 @@
+CodeMirror.defineMIME("text/x-erlang", "erlang");
+
 CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
 
   var wellKnownWords = (function() {
@@ -77,7 +79,7 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
     // attribute
     if ( source.sol() && source.peek() == '-') {
       source.skipTo("(");
-      return "attribute";
+      return "attribute";      // must handle type specs here
     }
 
     var ch = source.next();
@@ -91,18 +93,22 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
     // macro
     if (ch == '?') {
       source.eatWhile(idRE);
-      return "variable-3";
+      return "macro";
     }
 
     // record
     if ( ch == "#") {
       source.eatWhile(idRE);
-      return "meta";
+      return "record";
     }
 
     // char
     if ( ch == "$") {
-      source.next();     // must handle backslash escape here
+      if (source.next() == "\\") {
+        if (!source.eatWhile(octitRE)) {
+          source.next();
+        }
+      }
       return "string";
     }
 
@@ -119,14 +125,27 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
     // variable
     if (largeRE.test(ch)) {
       source.eatWhile(idRE);
-      return "variable-2";
+      if (source.peek() == "(") {
+        return "fun";
+      }
+      return "variable";
     }
 
     // atom/keyword/BIF/function
     if (smallRE.test(ch)) {
       source.eatWhile(idRE);
-      var w = source.current();
 
+      if (source.peek() == "/") {
+        source.next();
+        if (source.eatWhile(digitRE)) {
+          return "fun";
+        }else{
+          source.backUp(1);
+          return "atom";
+        }
+      }
+
+      var w = source.current();
       if (w in wellKnownWords) {
         return wellKnownWords[w];
       }
@@ -135,7 +154,7 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
         return "function";
       }
 
-      if ( source.peek() == ":") {
+      if (source.peek() == ":") {
         if (w == "erlang") {
           return "builtin";
         } else {
@@ -181,7 +200,7 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
         return "string";
       }
       if (ch == '\\') {
-        source.next(); // should handle other escapes here
+        source.next();
       }
     }
     setState(normal);
@@ -212,5 +231,3 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
   };
 
 });
-
-CodeMirror.defineMIME("text/x-erlang", "erlang");
