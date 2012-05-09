@@ -65,9 +65,8 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
   }
 
   var smallRE = /[a-z_]/;
-  var largeRE = /[A-Z]/;
+  var largeRE = /[A-Z_]/;
   var digitRE = /[0-9]/;
-  var hexitRE = /[0-9A-Fa-f]/;
   var octitRE = /[0-7]/;
   var idRE = /[a-z_A-Z0-9]/;
 
@@ -125,9 +124,6 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
     // variable
     if (largeRE.test(ch)) {
       source.eatWhile(idRE);
-      if (source.peek() == "(") {
-        return "fun";
-      }
       return "variable";
     }
 
