@@ -6,7 +6,7 @@
 
 .cm-s-erlang-dark span.cm-comment    { color: #0000ff; }
 .cm-s-erlang-dark span.cm-atom       { color: #845dc4; }
-.cm-s-erlang-dark span.cm-number     { color: #ffffff; }
+.cm-s-erlang-dark span.cm-number     { color: #ffd0d0; }
 .cm-s-erlang-dark span.cm-attribute  { color: #ff80e1; }
 .cm-s-erlang-dark span.cm-keyword    { color: #ffee80; }
 .cm-s-erlang-dark span.cm-string     { color: #3ad900; }
