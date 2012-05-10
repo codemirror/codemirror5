@@ -1,3 +1,22 @@
+// erlang    -> CodeMirror tag
+//
+// atom      -> atom
+// attribute -> attribute
+// builtin   -> builtin
+// comment   -> comment
+// error     -> error
+// fun       -> meta
+// function  -> tag
+// guard     -> property
+// keyword   -> keyword
+// macro     -> variable-3
+// number    -> number
+// operator  -> operator
+// record    -> bracket
+// string    -> string
+// type      -> def
+// variable  -> variable-2
+
 CodeMirror.defineMIME("text/x-erlang", "erlang");
 
 CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
