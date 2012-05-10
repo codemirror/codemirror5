@@ -76,9 +76,10 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
     }
 
     // attribute
-    if ( source.sol() && source.peek() == '-') {
-      source.skipTo("(");
-      return "attribute";      // must handle type specs here
+    if (source.sol() && source.peek() == '-') {
+      if(source.skipTo("(")) {
+        return "attribute";      // must handle type specs here
+      };
     }
 
     var ch = source.next();
