@@ -2,66 +2,56 @@ CodeMirror.defineMIME("text/x-erlang", "erlang");
 
 CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
 
-  var wellKnownWords = (function() {
-    var wkw = {};
-    function setType(t) {
-      return function () {
-        for (var i = 0; i < arguments.length; i++)
-          wkw[arguments[i]] = t;
-      };
-    }
+  var typeWords = [
+    "-type", "-spec", "-export_type", "-opaque"];
 
-    // keywords
-    setType("keyword")(
-        "after","begin","catch","case","cond","end","fun","if",
-        "let","of","query","receive","try","when");
+  var keywordWords = [
+    "after","begin","catch","case","cond","end","fun","if",
+    "let","of","query","receive","try","when"];
 
-    // operators
-    setType("operator")(
-       "and","andalso","band","bnot","bor","bsl","bsr","bxor",
-        "div","not","or","orelse","rem","xor",
-        "+","-","*","/",">",">=","<","=<","=:=","==","=/=","/="
-    );
+  var operatorWords = [
+    "and","andalso","band","bnot","bor","bsl","bsr","bxor",
+    "div","not","or","orelse","rem","xor",
+    "+","-","*","/",">",">=","<","=<","=:=","==","=/=","/="];
 
-    //guards
-    setType("property")(
-        "is_atom","is_binary","is_bitstring","is_boolean","is_float",
-        "is_function","is_integer","is_list","is_number","is_pid",
-        "is_port","is_record","is_reference","is_tuple",
-        "atom","binary","bitstring","boolean","function","integer","list",
-        "number","pid","port","record","reference","tuple");
+  var guardWords = [
+    "is_atom","is_binary","is_bitstring","is_boolean","is_float",
+    "is_function","is_integer","is_list","is_number","is_pid",
+    "is_port","is_record","is_reference","is_tuple",
+    "atom","binary","bitstring","boolean","function","integer","list",
+    "number","pid","port","record","reference","tuple"];
 
-    //BIFs
-    setType("builtin")(
-        "abs","adler32","adler32_combine","alive","apply","atom_to_binary",
-        "atom_to_list","binary_to_atom","binary_to_existing_atom",
-        "binary_to_list","binary_to_term","bit_size","bitstring_to_list",
-        "byte_size","check_process_code","contact_binary","crc32",
-        "crc32_combine","date","decode_packet","delete_module",
-        "disconnect_node","element","erase","exit","float","float_to_list",
-        "garbage_collect","get","get_keys","group_leader","halt","hd",
-        "integer_to_list","internal_bif","iolist_size","iolist_to_binary",
-        "is_alive","is_atom","is_binary","is_bitstring","is_boolean",
-        "is_float","is_function","is_integer","is_list","is_number","is_pid",
-        "is_port","is_process_alive","is_record","is_reference","is_tuple",
-        "length","link","list_to_atom","list_to_binary","list_to_bitstring",
-        "list_to_existing_atom","list_to_float","list_to_integer",
-        "list_to_pid","list_to_tuple","load_module","make_ref","module_loaded",
-        "monitor_node","node","node_link","node_unlink","nodes","notalive",
-        "now","open_port","pid_to_list","port_close","port_command",
-        "port_connect","port_control","pre_loaded","process_flag",
-        "process_info","processes","purge_module","put","register",
-        "registered","round","self","setelement","size","spawn","spawn_link",
-        "spawn_monitor","spawn_opt","split_binary","statistics",
-        "term_to_binary","time","throw","tl","trunc","tuple_size",
-        "tuple_to_list","unlink","unregister","whereis");
-
-    return wkw;
-  })();
+  var bifWords = [
+    "abs","adler32","adler32_combine","alive","apply","atom_to_binary",
+    "atom_to_list","binary_to_atom","binary_to_existing_atom",
+    "binary_to_list","binary_to_term","bit_size","bitstring_to_list",
+    "byte_size","check_process_code","contact_binary","crc32",
+    "crc32_combine","date","decode_packet","delete_module",
+    "disconnect_node","element","erase","exit","float","float_to_list",
+    "garbage_collect","get","get_keys","group_leader","halt","hd",
+    "integer_to_list","internal_bif","iolist_size","iolist_to_binary",
+    "is_alive","is_atom","is_binary","is_bitstring","is_boolean",
+    "is_float","is_function","is_integer","is_list","is_number","is_pid",
+    "is_port","is_process_alive","is_record","is_reference","is_tuple",
+    "length","link","list_to_atom","list_to_binary","list_to_bitstring",
+    "list_to_existing_atom","list_to_float","list_to_integer",
+    "list_to_pid","list_to_tuple","load_module","make_ref","module_loaded",
+    "monitor_node","node","node_link","node_unlink","nodes","notalive",
+    "now","open_port","pid_to_list","port_close","port_command",
+    "port_connect","port_control","pre_loaded","process_flag",
+    "process_info","processes","purge_module","put","register",
+    "registered","round","self","setelement","size","spawn","spawn_link",
+    "spawn_monitor","spawn_opt","split_binary","statistics",
+    "term_to_binary","time","throw","tl","trunc","tuple_size",
+    "tuple_to_list","unlink","unregister","whereis"];
 
   function switchState(stream, setState, f) {
     setState(f);
     return f(stream, setState);
+  }
+
+  function isMember(element,list) {
+    return (-1 < list.indexOf(element));
   }
 
   var smallRE = /[a-z_]/;
@@ -75,12 +65,21 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
       return null;
     }
 
-    // attribute
+    // attributes and type specs
     if (stream.sol() && stream.peek() == '-') {
-      if(stream.skipTo("(")) {
-        return "attribute";
-// return "def"; // must handle type specs here
-      };
+      if (stream.next()) {
+        if(stream.eatWhile(idRE)) {
+          if (stream.peek() == "(") {
+            return "attribute";
+          }else if (isMember(stream.current(),typeWords)) {
+            return "def";
+          }else{
+            return null;
+          }
+        }else{
+          return null;
+        }
+      }
     }
 
     var ch = stream.next();
@@ -133,11 +132,10 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
     if (smallRE.test(ch)) {
       stream.eatWhile(idRE);
 
-      // f/0 style fun
       if (stream.peek() == "/") {
         stream.next();
         if (stream.eatWhile(digitRE)) {
-          return "meta";
+          return "meta";      // f/0 style fun
         }else{
           stream.backUp(1);
           return "atom";
@@ -145,12 +143,21 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
       }
 
       var w = stream.current();
-      if (w in wellKnownWords) {
-        return wellKnownWords[w];
+      if (isMember(w,bifWords)) {
+        return "builtin";           // BIF
+      }
+      if (isMember(w,keywordWords)) {
+        return "keyword";           // keyword
+      }
+      if (isMember(w,guardWords)) {
+        return "property";          // guard
+      }
+      if (isMember(w,operatorWords)) {
+        return "operator";          // operator
       }
 
       if (stream.peek() == "(") {
-        return "tag";                // function
+        return "tag";               // function
       }
 
       if (stream.peek() == ":") {
@@ -168,13 +175,13 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
     if (digitRE.test(ch)) {
       stream.eatWhile(digitRE);
       if (stream.eat('#')) {
-        stream.eatWhile(digitRE);
+        stream.eatWhile(digitRE);    // 16#10  style integer
       } else {
-        if (stream.eat('.')) {
+        if (stream.eat('.')) {       // float
           stream.eatWhile(digitRE);
         }
         if (stream.eat(/[eE]/)) {
-          stream.eat(/[-+]/);
+          stream.eat(/[-+]/);        // float with exponent
           stream.eatWhile(digitRE);
         }
       }
@@ -207,7 +214,7 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
         return "atom";
       }
       if (ch == '\\') {
-        source.next();
+        stream.next();
       }
     }
     setState(normal);
@@ -221,5 +228,4 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
       return state.f(stream, function(s) { state.f = s; });
     }
   };
-
 });
