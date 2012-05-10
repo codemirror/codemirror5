@@ -17,14 +17,14 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
         "let","of","query","receive","try","when");
 
     // operators
-    setType("builtin")(
+    setType("operator")(
        "and","andalso","band","bnot","bor","bsl","bsr","bxor",
         "div","not","or","orelse","rem","xor",
         "+","-","*","/",">",">=","<","=<","=:=","==","=/=","/="
     );
 
     //guards
-    setType("builtin")(
+    setType("property")(
         "is_atom","is_binary","is_bitstring","is_boolean","is_float",
         "is_function","is_integer","is_list","is_number","is_pid",
         "is_port","is_record","is_reference","is_tuple",
@@ -59,9 +59,9 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
     return wkw;
   })();
 
-  function switchState(source, setState, f) {
+  function switchState(stream, setState, f) {
     setState(f);
-    return f(source, setState);
+    return f(stream, setState);
   }
 
   var smallRE = /[a-z_]/;
@@ -70,43 +70,44 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
   var octitRE = /[0-7]/;
   var idRE = /[a-z_A-Z0-9]/;
 
-  function normal(source, setState) {
-    if (source.eatSpace()) {
+  function normal(stream, setState) {
+    if (stream.eatSpace()) {
       return null;
     }
 
     // attribute
-    if (source.sol() && source.peek() == '-') {
-      if(source.skipTo("(")) {
-        return "attribute";      // must handle type specs here
+    if (stream.sol() && stream.peek() == '-') {
+      if(stream.skipTo("(")) {
+        return "attribute";
+// return "def"; // must handle type specs here
       };
     }
 
-    var ch = source.next();
+    var ch = stream.next();
 
     // comment
     if (ch == '%') {
-      source.skipToEnd();
+      stream.skipToEnd();
       return "comment";
     }
 
     // macro
     if (ch == '?') {
-      source.eatWhile(idRE);
-      return "macro";
+      stream.eatWhile(idRE);
+      return "variable-3";
     }
 
     // record
     if ( ch == "#") {
-      source.eatWhile(idRE);
-      return "record";
+      stream.eatWhile(idRE);
+      return "bracket";
     }
 
     // char
     if ( ch == "$") {
-      if (source.next() == "\\") {
-        if (!source.eatWhile(octitRE)) {
-          source.next();
+      if (stream.next() == "\\") {
+        if (!stream.eatWhile(octitRE)) {
+          stream.next();
         }
       }
       return "string";
@@ -114,91 +115,93 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
 
     // quoted atom
     if (ch == '\'') {
-      return switchState(source, setState, singleQuote);
+      return switchState(stream, setState, singleQuote);
     }
 
     // string
     if (ch == '"') {
-      return switchState(source, setState, doubleQuote);
+      return switchState(stream, setState, doubleQuote);
     }
 
     // variable
     if (largeRE.test(ch)) {
-      source.eatWhile(idRE);
-      return "variable";
+      stream.eatWhile(idRE);
+      return "variable-2";
     }
 
     // atom/keyword/BIF/function
     if (smallRE.test(ch)) {
-      source.eatWhile(idRE);
+      stream.eatWhile(idRE);
 
-      if (source.peek() == "/") {
-        source.next();
-        if (source.eatWhile(digitRE)) {
-          return "fun";
+      // f/0 style fun
+      if (stream.peek() == "/") {
+        stream.next();
+        if (stream.eatWhile(digitRE)) {
+          return "meta";
         }else{
-          source.backUp(1);
+          stream.backUp(1);
           return "atom";
         }
       }
 
-      var w = source.current();
+      var w = stream.current();
       if (w in wellKnownWords) {
         return wellKnownWords[w];
       }
 
-      if (source.peek() == "(") {
-        return "function";
+      if (stream.peek() == "(") {
+        return "tag";                // function
       }
 
-      if (source.peek() == ":") {
+      if (stream.peek() == ":") {
         if (w == "erlang") {         // f:now() is highlighted incorrectly
           return "builtin";
         } else {
-          return "function";
+          return "tag";              // function application
         }
       }
 
       return "atom";
     }
 
+    // number
     if (digitRE.test(ch)) {
-      source.eatWhile(digitRE);
-      if (source.eat('#')) {
-        source.eatWhile(digitRE);
+      stream.eatWhile(digitRE);
+      if (stream.eat('#')) {
+        stream.eatWhile(digitRE);
       } else {
-        if (source.eat('.')) {
-          source.eatWhile(digitRE);
+        if (stream.eat('.')) {
+          stream.eatWhile(digitRE);
         }
-        if (source.eat(/[eE]/)) {
-          source.eat(/[-+]/);
-          source.eatWhile(digitRE);
+        if (stream.eat(/[eE]/)) {
+          stream.eat(/[-+]/);
+          stream.eatWhile(digitRE);
         }
       }
       return "number";
     }
 
-    return "normal";
+    return null;
   }
 
-  function doubleQuote(source, setState) {
-    while (!source.eol()) {
-      var ch = source.next();
+  function doubleQuote(stream, setState) {
+    while (!stream.eol()) {
+      var ch = stream.next();
       if (ch == '"') {
         setState(normal);
         return "string";
       }
       if (ch == '\\') {
-        source.next();
+        stream.next();
       }
     }
     setState(normal);
     return "error";
   }
 
-  function singleQuote(source, setState) {
-    while (!source.eol()) {
-      var ch = source.next();
+  function singleQuote(stream, setState) {
+    while (!stream.eol()) {
+      var ch = stream.next();
       if (ch == '\'') {
         setState(normal);
         return "atom";
