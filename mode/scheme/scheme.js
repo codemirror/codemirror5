@@ -5,7 +5,7 @@ CodeMirror.defineMode("scheme", function (config, mode) {
     var BUILTIN = "builtin", COMMENT = "comment", STRING = "string",
         ATOM = "atom", NUMBER = "number", BRACKET = "bracket", KEYWORD="keyword";
     var INDENT_WORD_SKIP = 2, KEYWORDS_SKIP = 1;
-    
+
     function makeKeywords(str) {
         var obj = {}, words = str.split(" ");
         for (var i = 0; i < words.length; ++i) obj[words[i]] = true;
@@ -14,7 +14,6 @@ CodeMirror.defineMode("scheme", function (config, mode) {
 
     var keywords = makeKeywords("λ case-lambda call/cc class define-class exit-handler field import inherit init-field interface let*-values let-values let/ec mixin opt-lambda override protect provide public rename require require-for-syntax syntax syntax-case syntax-error unit/sig unless when with-syntax and begin call-with-current-continuation call-with-input-file call-with-output-file case cond define define-syntax delay do dynamic-wind else for-each if lambda let let* let-syntax letrec letrec-syntax map or syntax-rules abs acos angle append apply asin assoc assq assv atan boolean? caar cadr call-with-input-file call-with-output-file call-with-values car cdddar cddddr cdr ceiling char->integer char-alphabetic? char-ci<=? char-ci<? char-ci=? char-ci>=? char-ci>? char-downcase char-lower-case? char-numeric? char-ready? char-upcase char-upper-case? char-whitespace? char<=? char<? char=? char>=? char>? char? close-input-port close-output-port complex? cons cos current-input-port current-output-port denominator display eof-object? eq? equal? eqv? eval even? exact->inexact exact? exp expt #f floor force gcd imag-part inexact->exact inexact? input-port? integer->char integer? interaction-environment lcm length list list->string list->vector list-ref list-tail list? load log magnitude make-polar make-rectangular make-string make-vector max member memq memv min modulo negative? newline not null-environment null? number->string number? numerator odd? open-input-file open-output-file output-port? pair? peek-char port? positive? procedure? quasiquote quote quotient rational? rationalize read read-char real-part real? remainder reverse round scheme-report-environment set! set-car! set-cdr! sin sqrt string string->list string->number string->symbol string-append string-ci<=? string-ci<? string-ci=? string-ci>=? string-ci>? string-copy string-fill! string-length string-ref string-set! string<=? string<? string=? string>=? string>? string? substring symbol->string symbol? #t tan transcript-off transcript-on truncate values vector vector->list vector-fill! vector-length vector-ref vector-set! with-input-from-file with-output-to-file write write-char zero?");
     var indentKeys = makeKeywords("define let letrec let* lambda");
-    
 
     function stateStack(indent, type, prev) { // represents a state stack object
         this.indent = indent;
@@ -29,18 +28,16 @@ CodeMirror.defineMode("scheme", function (config, mode) {
     function popStack(state) {
         state.indentStack = state.indentStack.prev;
     }
-    
+
     /**
      * Scheme numbers are complicated unfortunately.
      * Checks if we're looking at a number, which might be possibly a fraction.
      * Also checks that it is not part of a longer identifier. Returns true/false accordingly.
      */
-    function isNumber(ch, stream){ 
-        if(/[0-9]/.exec(ch) != null){ 
-            stream.eatWhile(/[0-9]/);
-            stream.eat(/\//);
-            stream.eatWhile(/[0-9]/);
-            if (stream.eol() || !(/[a-zA-Z\-\_\/]/.exec(stream.peek()))) return true;
+    function isNumber(ch, stream){
+        if (!stream.eatWhile(/[0-9]/)) {
+            if (stream.eat(/\//)) stream.eatWhile(/[0-9]/);
+            if (stream.eol() || !(/[a-zA-Z\-\_\/]/.test(stream.peek()))) return true;
             stream.backUp(stream.current().length - 1); // undo all the eating
         }
         return false;
@@ -67,13 +64,13 @@ CodeMirror.defineMode("scheme", function (config, mode) {
                 return null;
             }
             var returnType = null;
-            
+
             switch(state.mode){
                 case "string": // multi-line string parsing mode
                     var next, escaped = false;
                     while ((next = stream.next()) != null) {
                         if (next == "\"" && !escaped) {
-    
+
                             state.mode = false;
                             break;
                         }
@@ -85,7 +82,7 @@ CodeMirror.defineMode("scheme", function (config, mode) {
                     var next, maybeEnd = false;
                     while ((next = stream.next()) != null) {
                         if (next == "#" && maybeEnd) {
-    
+
                             state.mode = false;
                             break;
                         }
@@ -106,11 +103,11 @@ CodeMirror.defineMode("scheme", function (config, mode) {
                     }
                 default: // default parsing mode
                     var ch = stream.next();
-        
+
                     if (ch == "\"") {
                         state.mode = "string";
                         returnType = STRING;
-        
+
                     } else if (ch == "'") {
                         returnType = ATOM;
                     } else if (ch == '#') {
@@ -123,16 +120,16 @@ CodeMirror.defineMode("scheme", function (config, mode) {
                             state.mode = "s-expr-comment";
                             returnType = COMMENT;
                         }
-        
+
                     } else if (ch == ";") { // comment
                         stream.skipToEnd(); // rest of the line is a comment
                         returnType = COMMENT;
                     } else if (ch == "-"){
-                        
+
                         if(!isNaN(parseInt(stream.peek()))){
                             stream.eatWhile(/[\/0-9]/);
                             returnType = NUMBER;
-                        }else{                            
+                        }else{
                             returnType = null;
                         }
                     } else if (isNumber(ch,stream)){
@@ -140,18 +137,18 @@ CodeMirror.defineMode("scheme", function (config, mode) {
                     } else if (ch == "(" || ch == "[") {
                         var keyWord = ''; var indentTemp = stream.column();
                         /**
-                        Either 
+                        Either
                         (indent-word ..
                         (non-indent-word ..
                         (;something else, bracket, etc.
                         */
-        
+
                         while ((letter = stream.eat(/[^\s\(\[\;\)\]]/)) != null) {
                             keyWord += letter;
                         }
-        
+
                         if (keyWord.length > 0 && indentKeys.propertyIsEnumerable(keyWord)) { // indent-word
-        
+
                             pushStack(state, indentTemp + INDENT_WORD_SKIP, ch);
                         } else { // non-indent word
                             // we continue eating the spaces
@@ -165,15 +162,15 @@ CodeMirror.defineMode("scheme", function (config, mode) {
                             }
                         }
                         stream.backUp(stream.current().length - 1); // undo all the eating
-                        
+
                         if(typeof state.sExprComment == "number") state.sExprComment++;
-                        
+
                         returnType = BRACKET;
                     } else if (ch == ")" || ch == "]") {
                         returnType = BRACKET;
                         if (state.indentStack != null && state.indentStack.type == (ch == ")" ? "(" : "[")) {
                             popStack(state);
-                            
+
                             if(typeof state.sExprComment == "number"){
                                 if(--state.sExprComment == 0){
                                     returnType = COMMENT; // final closing bracket
@@ -182,11 +179,11 @@ CodeMirror.defineMode("scheme", function (config, mode) {
                             }
                         }
                     } else {
-                        stream.eatWhile(/[\w\$_\-]/);
-        
+                        stream.eatWhile(/[\w\$_\-!$%&*+\.\/:<=>?@\^~]/);
+
                         if (keywords && keywords.propertyIsEnumerable(stream.current())) {
                             returnType = BUILTIN;
-                        }else returnType = null;
+                        } else returnType = "variable";
                     }
             }
             return (typeof state.sExprComment == "number") ? COMMENT : returnType;
