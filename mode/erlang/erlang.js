@@ -64,11 +64,6 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
     "term_to_binary","time","throw","tl","trunc","tuple_size",
     "tuple_to_list","unlink","unregister","whereis"];
 
-  function switchState(stream, setState, f) {
-    setState(f);
-    return f(stream, setState);
-  }
-
   function isMember(element,list) {
     return (-1 < list.indexOf(element));
   }
@@ -79,7 +74,7 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
   var octitRE = /[0-7]/;
   var idRE = /[a-z_A-Z0-9]/;
 
-  function normal(stream, setState) {
+  function normal(stream, state) {
     if (stream.eatSpace()) {
       return null;
     }
@@ -131,12 +126,12 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
 
     // quoted atom
     if (ch == '\'') {
-      return switchState(stream, setState, singleQuote);
+      return singleQuote(stream);
     }
 
     // string
     if (ch == '"') {
-      return switchState(stream, setState, doubleQuote);
+      return doubleQuote(stream);
     }
 
     // variable
@@ -208,33 +203,23 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
     return null;
   }
 
-  function doubleQuote(stream, setState) {
-    while (!stream.eol()) {
-      var ch = stream.next();
-      if (ch == '"') {
-        setState(normal);
-        return "string";
-      }
-      if (ch == '\\') {
-        stream.next();
-      }
-    }
-    setState(normal);
-    return "error";
+  function doubleQuote(stream) {
+    return Quote(stream, '"', '\\', "string");
   }
 
-  function singleQuote(stream, setState) {
+  function singleQuote(stream) {
+    return Quote(stream,'\'','\\',"atom");
+  }
+
+  function Quote(stream,quoteChar,escapeChar,tag) {
     while (!stream.eol()) {
       var ch = stream.next();
-      if (ch == '\'') {
-        setState(normal);
-        return "atom";
-      }
-      if (ch == '\\') {
+      if (ch == quoteChar) {
+        return tag;
+      }else if (ch == escapeChar) {
         stream.next();
       }
     }
-    setState(normal);
     return "error";
   }
 
@@ -242,7 +227,7 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
     startState: function ()  { return { f: normal }; },
 
     token: function(stream, state) {
-      return state.f(stream, function(s) { state.f = s; });
+      return state.f(stream, state);
     }
   };
 });
