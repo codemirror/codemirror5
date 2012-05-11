@@ -9,13 +9,13 @@
 // function  -> tag
 // guard     -> property
 // keyword   -> keyword
-// macro     -> variable-3
+// macro     -> variable-2
 // number    -> number
 // operator  -> operator
 // record    -> bracket
 // string    -> string
 // type      -> def
-// variable  -> variable-2
+// variable  -> variable
 
 CodeMirror.defineMIME("text/x-erlang", "erlang");
 
