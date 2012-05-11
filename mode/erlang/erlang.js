@@ -86,19 +86,17 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
 
     // attributes and type specs
     if (stream.sol() && stream.peek() == '-') {
-      if (stream.next()) {
-        if(stream.eatWhile(idRE)) {
-          if (stream.peek() == "(") {
-            return "attribute";
-          }else if (isMember(stream.current(),typeWords)) {
-            return "def";
-          }else{
-            return null;
-          }
+      stream.next();
+      if (stream.eat(smallRE) && stream.eatWhile(idRE)) {
+        if (stream.peek() == "(") {
+          return "attribute";
+        }else if (isMember(stream.current(),typeWords)) {
+          return "def";
         }else{
           return null;
         }
       }
+      stream.backUp(1);
     }
 
     var ch = stream.next();
@@ -204,7 +202,7 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
           stream.eatWhile(digitRE);
         }
       }
-      return "number";
+      return "number";               // normal integer
     }
 
     return null;
