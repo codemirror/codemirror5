@@ -30,8 +30,10 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
 
   var operatorWords = [
     "and","andalso","band","bnot","bor","bsl","bsr","bxor",
-    "div","not","or","orelse","rem","xor",
-    "+","-","*","/",">",">=","<","=<","=:=","==","=/=","/="];
+    "div","not","or","orelse","rem","xor"];
+
+  var operatorSymbols = [
+    "+","-","*","/",">",">=","<","=<","=:=","==","=/=","/=","||","<-"];
 
   var guardWords = [
     "is_atom","is_binary","is_bitstring","is_boolean","is_float",
@@ -64,13 +66,19 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
     "term_to_binary","time","throw","tl","trunc","tuple_size",
     "tuple_to_list","unlink","unregister","whereis"];
 
-  function switchState(stream, setState, f) {
-    setState(f);
-    return f(stream, setState);
-  }
-
   function isMember(element,list) {
     return (-1 < list.indexOf(element));
+  }
+
+  function isPrev(stream,string) {
+    var start = stream.start;
+    var len = string.length;
+    if (len <= start) {
+      var word = stream.string.slice(start-len,start);
+      return word == string;
+    }else{
+      return false;
+    }
   }
 
   var smallRE = /[a-z_]/;
@@ -79,26 +87,24 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
   var octitRE = /[0-7]/;
   var idRE = /[a-z_A-Z0-9]/;
 
-  function normal(stream, setState) {
+  function tokenize(stream, state) {
     if (stream.eatSpace()) {
       return null;
     }
 
     // attributes and type specs
     if (stream.sol() && stream.peek() == '-') {
-      if (stream.next()) {
-        if(stream.eatWhile(idRE)) {
-          if (stream.peek() == "(") {
-            return "attribute";
-          }else if (isMember(stream.current(),typeWords)) {
-            return "def";
-          }else{
-            return null;
-          }
+      stream.next();
+      if (stream.eat(smallRE) && stream.eatWhile(idRE)) {
+        if (stream.peek() == "(") {
+          return "attribute";
+        }else if (isMember(stream.current(),typeWords)) {
+          return "def";
         }else{
           return null;
         }
       }
+      stream.backUp(1);
     }
 
     var ch = stream.next();
@@ -112,7 +118,7 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
     // macro
     if (ch == '?') {
       stream.eatWhile(idRE);
-      return "variable-3";
+      return "variable-2";
     }
 
     // record
@@ -133,18 +139,18 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
 
     // quoted atom
     if (ch == '\'') {
-      return switchState(stream, setState, singleQuote);
+      return singleQuote(stream);
     }
 
     // string
     if (ch == '"') {
-      return switchState(stream, setState, doubleQuote);
+      return doubleQuote(stream);
     }
 
     // variable
     if (largeRE.test(ch)) {
       stream.eatWhile(idRE);
-      return "variable-2";
+      return "variable";
     }
 
     // atom/keyword/BIF/function
@@ -162,11 +168,17 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
       }
 
       var w = stream.current();
-      if (isMember(w,bifWords)) {
-        return "builtin";           // BIF
-      }
+
       if (isMember(w,keywordWords)) {
         return "keyword";           // keyword
+      }
+      if (stream.peek() == "(") {
+        if (isMember(w,bifWords) &&
+            (!isPrev(stream,":") || isPrev(stream,"erlang:"))) {
+          return "builtin";         // BIF
+        }else{
+          return "tag";             // function
+        }
       }
       if (isMember(w,guardWords)) {
         return "property";          // guard
@@ -175,9 +187,6 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
         return "operator";          // operator
       }
 
-      if (stream.peek() == "(") {
-        return "tag";               // function
-      }
 
       if (stream.peek() == ":") {
         if (w == "erlang") {         // f:now() is highlighted incorrectly
@@ -204,47 +213,39 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
           stream.eatWhile(digitRE);
         }
       }
-      return "number";
+      return "number";               // normal integer
     }
 
     return null;
   }
 
-  function doubleQuote(stream, setState) {
-    while (!stream.eol()) {
-      var ch = stream.next();
-      if (ch == '"') {
-        setState(normal);
-        return "string";
-      }
-      if (ch == '\\') {
-        stream.next();
-      }
-    }
-    setState(normal);
-    return "error";
+  function doubleQuote(stream) {
+    return Quote(stream, '"', '\\', "string");
   }
 
-  function singleQuote(stream, setState) {
+  function singleQuote(stream) {
+    return Quote(stream,'\'','\\',"atom");
+  }
+
+  function Quote(stream,quoteChar,escapeChar,tag) {
     while (!stream.eol()) {
       var ch = stream.next();
-      if (ch == '\'') {
-        setState(normal);
-        return "atom";
-      }
-      if (ch == '\\') {
+      if (ch == quoteChar) {
+        return tag;
+      }else if (ch == escapeChar) {
         stream.next();
       }
     }
-    setState(normal);
     return "error";
   }
 
   return {
-    startState: function ()  { return { f: normal }; },
+    startState: function() {
+      return {};
+    },
 
     token: function(stream, state) {
-      return state.f(stream, function(s) { state.f = s; });
+      return tokenize(stream, state);
     }
   };
 });
