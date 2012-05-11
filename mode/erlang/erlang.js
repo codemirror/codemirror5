@@ -30,8 +30,10 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
 
   var operatorWords = [
     "and","andalso","band","bnot","bor","bsl","bsr","bxor",
-    "div","not","or","orelse","rem","xor",
-    "+","-","*","/",">",">=","<","=<","=:=","==","=/=","/="];
+    "div","not","or","orelse","rem","xor"];
+
+  var operatorSymbols = [
+    "+","-","*","/",">",">=","<","=<","=:=","==","=/=","/=","||","<-"];
 
   var guardWords = [
     "is_atom","is_binary","is_bitstring","is_boolean","is_float",
@@ -68,13 +70,24 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
     return (-1 < list.indexOf(element));
   }
 
+  function isPrev(stream,string) {
+    var start = stream.start;
+    var len = string.length;
+    if (len <= start) {
+      var word = stream.string.slice(start-len,start);
+      return word == string;
+    }else{
+      return false;
+    }
+  }
+
   var smallRE = /[a-z_]/;
   var largeRE = /[A-Z_]/;
   var digitRE = /[0-9]/;
   var octitRE = /[0-7]/;
   var idRE = /[a-z_A-Z0-9]/;
 
-  function normal(stream, state) {
+  function tokenize(stream, state) {
     if (stream.eatSpace()) {
       return null;
     }
@@ -155,11 +168,17 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
       }
 
       var w = stream.current();
-      if (isMember(w,bifWords)) {
-        return "builtin";           // BIF
-      }
+
       if (isMember(w,keywordWords)) {
         return "keyword";           // keyword
+      }
+      if (stream.peek() == "(") {
+        if (isMember(w,bifWords) &&
+            (!isPrev(stream,":") || isPrev(stream,"erlang:"))) {
+          return "builtin";         // BIF
+        }else{
+          return "tag";             // function
+        }
       }
       if (isMember(w,guardWords)) {
         return "property";          // guard
@@ -168,9 +187,6 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
         return "operator";          // operator
       }
 
-      if (stream.peek() == "(") {
-        return "tag";               // function
-      }
 
       if (stream.peek() == ":") {
         if (w == "erlang") {         // f:now() is highlighted incorrectly
@@ -224,10 +240,12 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
   }
 
   return {
-    startState: function ()  { return { f: normal }; },
+    startState: function() {
+      return {};
+    },
 
     token: function(stream, state) {
-      return state.f(stream, state);
+      return tokenize(stream, state);
     }
   };
 });
