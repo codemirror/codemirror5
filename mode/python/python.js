@@ -250,7 +250,7 @@ CodeMirror.defineMode("python", function(conf, parserConf) {
         // Handle '.' connected identifiers
         if (current === '.') {
             style = stream.match(identifiers, false) ? null : ERRORCLASS;
-            if (style === null && state.lastToken.style === 'meta') {
+            if (style === null && state.lastToken === 'meta') {
                 // Apply 'meta' style to '.' connected identifiers when
                 // appropriate.
                 style = 'meta';
@@ -264,7 +264,7 @@ CodeMirror.defineMode("python", function(conf, parserConf) {
         }
 
         if ((style === 'variable' || style === 'builtin')
-            && state.lastToken.style === 'meta') {
+            && state.lastToken === 'meta') {
             style = 'meta';
         }
         
@@ -314,7 +314,7 @@ CodeMirror.defineMode("python", function(conf, parserConf) {
         token: function(stream, state) {
             var style = tokenLexer(stream, state);
             
-            state.lastToken = {style:style, content: stream.current()};
+            state.lastToken = style;
             
             if (stream.eol() && stream.lambda) {
                 state.lambda = false;
