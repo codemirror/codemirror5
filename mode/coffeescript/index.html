@@ -46,10 +46,16 @@ root = this
 # Save the previous value of the `_` variable.
 previousUnderscore = root._
 
+### Multiline
+    comment
+###
 
 # Establish the object that gets thrown to break out of a loop iteration.
 # `StopIteration` is SOP on Mozilla.
 breaker = if typeof(StopIteration) is 'undefined' then '__break__' else StopIteration
+
+
+#### Docco style single line comment (title)
 
 
 # Helper function to escape **RegExp** contents, because JS doesn't have one.
