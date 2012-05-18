@@ -28,12 +28,21 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
     "after","begin","catch","case","cond","end","fun","if",
     "let","of","query","receive","try","when"];
 
+  var separatorWords = [
+    "->",";",",","."];
+
   var operatorWords = [
     "and","andalso","band","bnot","bor","bsl","bsr","bxor",
     "div","not","or","orelse","rem","xor"];
 
-  var operatorSymbols = [
+  var symbolWords = [
     "+","-","*","/",">",">=","<","=<","=:=","==","=/=","/=","||","<-"];
+
+  var openParenWords = [
+    "<<","(","[","{"];
+
+  var closeParenWords = [
+    "}","]",")",">>"];
 
   var guardWords = [
     "is_atom","is_binary","is_bitstring","is_boolean","is_float",
@@ -66,6 +75,16 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
     "term_to_binary","time","throw","tl","trunc","tuple_size",
     "tuple_to_list","unlink","unregister","whereis"];
 
+  var smallRE      = /[a-z_]/;
+  var largeRE      = /[A-Z_]/;
+  var digitRE      = /[0-9]/;
+  var octitRE      = /[0-7]/;
+  var anumRE       = /[a-z_A-Z0-9]/;
+  var symbolRE     = /[\+\-\*\/<>=\|:]/;
+  var openParenRE  = /[<\(\[\{]/;
+  var closeParenRE = /[>\)\]\}]/;
+  var sepRE        = /[\->\.,]/;
+
   function isMember(element,list) {
     return (-1 < list.indexOf(element));
   }
@@ -81,21 +100,15 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
     }
   }
 
-  var smallRE = /[a-z_]/;
-  var largeRE = /[A-Z_]/;
-  var digitRE = /[0-9]/;
-  var octitRE = /[0-7]/;
-  var idRE = /[a-z_A-Z0-9]/;
-
   function tokenize(stream, state) {
     if (stream.eatSpace()) {
       return null;
     }
 
     // attributes and type specs
-    if (stream.sol() && stream.peek() == '-') {
+    if (state.indent == 0 && stream.peek() == '-') {
       stream.next();
-      if (stream.eat(smallRE) && stream.eatWhile(idRE)) {
+      if (stream.eat(smallRE) && stream.eatWhile(anumRE)) {
         if (stream.peek() == "(") {
           return "attribute";
         }else if (isMember(stream.current(),typeWords)) {
@@ -117,13 +130,13 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
 
     // macro
     if (ch == '?') {
-      stream.eatWhile(idRE);
+      stream.eatWhile(anumRE);
       return "variable-2";
     }
 
     // record
     if ( ch == "#") {
-      stream.eatWhile(idRE);
+      stream.eatWhile(anumRE);
       return "bracket";
     }
 
@@ -139,23 +152,31 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
 
     // quoted atom
     if (ch == '\'') {
-      return singleQuote(stream);
+      if (singleQuote(stream)) {
+        return "atom";
+      }else{
+        return "error";
+      }
     }
 
     // string
     if (ch == '"') {
-      return doubleQuote(stream);
+      if (doubleQuote(stream)) {
+        return "string";
+      }else{
+        return "error";
+      }
     }
 
     // variable
     if (largeRE.test(ch)) {
-      stream.eatWhile(idRE);
+      stream.eatWhile(anumRE);
       return "variable";
     }
 
     // atom/keyword/BIF/function
     if (smallRE.test(ch)) {
-      stream.eatWhile(idRE);
+      stream.eatWhile(anumRE);
 
       if (stream.peek() == "/") {
         stream.next();
@@ -186,16 +207,13 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
       if (isMember(w,operatorWords)) {
         return "operator";          // operator
       }
-
-
       if (stream.peek() == ":") {
-        if (w == "erlang") {         // f:now() is highlighted incorrectly
-          return "builtin";
+        if (w == "erlang") {
+          return "builtin";          // external BIF call
         } else {
           return "tag";              // function application
         }
       }
-
       return "atom";
     }
 
@@ -216,36 +234,108 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
       return "number";               // normal integer
     }
 
+    if (nongreedy(stream,openParenRE,openParenWords)) {
+      return null;
+    }
+
+    if (nongreedy(stream,closeParenRE,closeParenWords)) {
+      return null;
+    }
+
+    if (greedy(stream,sepRE,separatorWords)) {
+      return null;
+    }
+
+    if (greedy(stream,symbolRE,symbolWords)) {
+      return "operator";
+    }
+
     return null;
   }
 
+  function nongreedy(stream,re,words) {
+    if (stream.current().length == 1 && re.test(stream.current())) {
+      stream.backUp(1);
+      while (re.test(stream.peek())) {
+        stream.next();
+        if (isMember(stream.current(),words)) {
+          return true;
+        }
+      }
+      stream.backUp(stream.current().length-1);
+    }
+    return false;
+  }
+
+  function greedy(stream,re,words) {
+    if (stream.current().length == 1 && re.test(stream.current())) {
+      while (re.test(stream.peek())) {
+        stream.next();
+      }
+      while (0 < stream.current().length) {
+        if (isMember(stream.current(),words)) {
+          return true;
+        }else{
+          stream.backUp(1);
+        }
+      }
+      stream.next();
+    }
+    return false;
+  }
+
   function doubleQuote(stream) {
-    return Quote(stream, '"', '\\', "string");
+    return quote(stream, '"', '\\');
   }
 
   function singleQuote(stream) {
-    return Quote(stream,'\'','\\',"atom");
+    return quote(stream,'\'','\\');
   }
 
-  function Quote(stream,quoteChar,escapeChar,tag) {
+  function quote(stream,quoteChar,escapeChar) {
     while (!stream.eol()) {
       var ch = stream.next();
       if (ch == quoteChar) {
-        return tag;
+        return true;
       }else if (ch == escapeChar) {
         stream.next();
       }
     }
-    return "error";
+    return false;
+  }
+
+  function Token(token,pos) {
+    this.token = token;
+    this.pos = pos;
+  }
+
+  function popToken(tokenStack) {
+    return tokenStack.pop();
+  }
+
+  function peepToken(tokenStack) {
+    return tokenStack[tokenStack.length-1];
+  }
+
+  function pushToken(tokenStack,token,pos) {
+    return tokenStack.push(new Token(token,pos));
   }
 
   return {
-    startState: function() {
-      return {};
-    },
+    startState:
+      function() {
+        return {tokenStack: pushToken(new Array(),".",0),
+                indent: 0};
+      },
 
-    token: function(stream, state) {
-      return tokenize(stream, state);
-    }
+    token:
+      function(stream, state) {
+        return tokenize(stream, state);
+      },
+
+    indent:
+      function(state, textAfter) {
+        return state.indent;
+      }
   };
 });
