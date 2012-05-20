@@ -17,6 +17,14 @@
 // type      -> def
 // variable  -> variable
 
+// block; "begin", "case", "fun", "if", "receive", "try": closed by "end"
+// internal; "after", "catch", "of"
+// guard; "when", closed by "->"
+// "->" opens a sub-block, closed by ";" or "."
+// "," appears in arglists, lists, tuples and terminates lines of code
+// "<<" opens a binary, closed by ">>"
+// obsolete; "cond", "let", "query"
+
 CodeMirror.defineMIME("text/x-erlang", "erlang");
 
 CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
@@ -191,6 +199,7 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
       var w = stream.current();
 
       if (isMember(w,keywordWords)) {
+        pushToken(state,w,stream.column());
         return "keyword";           // keyword
       }
       if (stream.peek() == "(") {
@@ -235,14 +244,17 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
     }
 
     if (nongreedy(stream,openParenRE,openParenWords)) {
+      pushToken(state,stream.current(),stream.column());
       return null;
     }
 
     if (nongreedy(stream,closeParenRE,closeParenWords)) {
+      pushToken(state,stream.current(),stream.column());
       return null;
     }
 
     if (greedy(stream,sepRE,separatorWords)) {
+      pushToken(state,stream.current(),stream.column());
       return null;
     }
 
@@ -309,22 +321,27 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
     this.pos = pos;
   }
 
-  function popToken(tokenStack) {
-    return tokenStack.pop();
+  function popToken(state) {
+    return state.tokenStack.pop();
   }
 
-  function peepToken(tokenStack) {
-    return tokenStack[tokenStack.length-1];
+  function peepToken(state) {
+    return state.tokenStack[state.tokenStack.length-1];
   }
 
-  function pushToken(tokenStack,token,pos) {
-    return tokenStack.push(new Token(token,pos));
+  function pushToken(state,token,pos) {
+    if (matched_pair(state.tokenStack.peek.token,token)) {
+      popToken(state);
+    }else{
+      state.tokenStack.push(new Token(token,pos));
+    }
+    return peepToken(stack);
   }
 
   return {
     startState:
       function() {
-        return {tokenStack: pushToken(new Array(),".",0),
+        return {tokenStack: [new Token(".",0)],
                 indent: 0};
       },
 
