@@ -54,7 +54,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       stream.eatWhile(/[\da-f]/i);
       return ret("number", "number");
     }      
-    else if (/\d/.test(ch)) {
+    else if (/\d/.test(ch) || ch == "-" && stream.eat(/\d/)) {
       stream.match(/^\d*(?:\.\d*)?(?:[eE][+\-]?\d+)?/);
       return ret("number", "number");
     }
@@ -243,7 +243,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     
   function maybeoperator(type, value) {
     if (type == "operator" && /\+\+|--/.test(value)) return cont(maybeoperator);
-    if (type == "operator") return cont(expression);
+    if (type == "operator" || type == ":") return cont(expression);
     if (type == ";") return;
     if (type == "(") return cont(pushlex(")"), commasep(expression, ")"), poplex, maybeoperator);
     if (type == ".") return cont(property, maybeoperator);
@@ -341,8 +341,9 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
 
     indent: function(state, textAfter) {
       if (state.tokenize != jsTokenBase) return 0;
-      var firstChar = textAfter && textAfter.charAt(0), lexical = state.lexical,
-          type = lexical.type, closing = firstChar == type;
+      var firstChar = textAfter && textAfter.charAt(0), lexical = state.lexical;
+      if (lexical.type == "stat" && firstChar == "}") lexical = lexical.prev;
+      var type = lexical.type, closing = firstChar == type;
       if (type == "vardef") return lexical.indented + 4;
       else if (type == "form" && firstChar == "{") return lexical.indented;
       else if (type == "stat" || type == "form") return lexical.indented + indentUnit;

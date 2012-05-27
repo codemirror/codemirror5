@@ -107,10 +107,10 @@ CodeMirror.defineMode("tiddlywiki", function (config, parserConfig) {
 				return ret('quote', 'quote');
 			}
 			if (stream.match(reWikiCommentStart) || stream.match(reWikiCommentStop)) {
-				return ret('code', 'code');
+				return ret('code', 'comment');
 			}
 			if (stream.match(reJsCodeStart) || stream.match(reJsCodeStop) || stream.match(reXmlCodeStart) || stream.match(reXmlCodeStop)) {
-				return ret('code', 'code');
+				return ret('code', 'comment');
 			}
 			if (stream.match(reHR)) {
 				return ret('hr', 'hr');
@@ -125,26 +125,26 @@ CodeMirror.defineMode("tiddlywiki", function (config, parserConfig) {
 			}
 			if (ch == "*") { // tw list
 				stream.eatWhile('*');
-				return ret("list", "list");
+				return ret("list", "comment");
 			}
 			if (ch == "#") { // tw numbered list
 				stream.eatWhile('#');
-				return ret("list", "list");
+				return ret("list", "comment");
 			}
 			if (ch == ";") { // definition list, term
 				stream.eatWhile(';');
-				return ret("list", "list");
+				return ret("list", "comment");
 			}
 			if (ch == ":") { // definition list, description
 				stream.eatWhile(':');
-				return ret("list", "list");
+				return ret("list", "comment");
 			}
 			if (ch == ">") { // single line quote
 				stream.eatWhile(">");
 				return ret("quote", "quote");
 			}
 			if (ch == '|') {
-				return ret('table', 'table');
+				return ret('table', 'header');
 			}
 		}
 
@@ -155,7 +155,7 @@ CodeMirror.defineMode("tiddlywiki", function (config, parserConfig) {
 		// rudimentary html:// file:// link matching. TW knows much more ...
 		if (/[hf]/i.test(ch)) {
 			if (/[ti]/i.test(stream.peek()) && stream.match(/\b(ttps?|tp|ile):\/\/[\-A-Z0-9+&@#\/%?=~_|$!:,.;]*[A-Z0-9+&@#\/%=~_|$]/i)) {
-				return ret("link-external", "link-external");
+				return ret("link", "link");
 			}
 		}
 		// just a little string indicator, don't want to have the whole string covered
@@ -173,7 +173,7 @@ CodeMirror.defineMode("tiddlywiki", function (config, parserConfig) {
 		}
 		if (ch == "@") {	// check for space link. TODO fix @@...@@ highlighting
 			stream.eatWhile(isSpaceName);
-			return ret("link-external", "link-external");
+			return ret("link", "link");
 		}
 		if (/\d/.test(ch)) {	// numbers
 			stream.eatWhile(/\d/);
@@ -266,21 +266,21 @@ CodeMirror.defineMode("tiddlywiki", function (config, parserConfig) {
 		var ch, sb = state.block;
 		
 		if (sb && stream.current()) {
-			return ret("code", "code");
+			return ret("code", "comment");
 		}
 
 		if (!sb && stream.match(reUntilCodeStop)) {
 			state.tokenize = jsTokenBase;
-			return ret("code", "code-inline");
+			return ret("code", "comment");
 		}
 
 		if (sb && stream.sol() && stream.match(reCodeBlockStop)) {
 			state.tokenize = jsTokenBase;
-			return ret("code", "code");
+			return ret("code", "comment");
 		}
 
 		ch = stream.next();
-		return (sb) ? ret("code", "code") : ret("code", "code-inline");
+		return (sb) ? ret("code", "comment") : ret("code", "comment");
 	}
 
 	// tw em / italic
@@ -324,7 +324,7 @@ CodeMirror.defineMode("tiddlywiki", function (config, parserConfig) {
 			}
 			maybeEnd = (ch == "-");
 		}
-		return ret("text", "line-through");
+		return ret("text", "strikethrough");
 	}
 
 	// macro

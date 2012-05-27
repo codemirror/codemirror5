@@ -6,6 +6,7 @@
     <script src="../lib/codemirror.js"></script>
     <link rel="stylesheet" href="../theme/neat.css">
     <link rel="stylesheet" href="../theme/elegant.css">
+    <link rel="stylesheet" href="../theme/erlang-dark.css">
     <link rel="stylesheet" href="../theme/night.css">
     <link rel="stylesheet" href="../theme/monokai.css">
     <link rel="stylesheet" href="../theme/cobalt.css">
@@ -13,6 +14,8 @@
     <link rel="stylesheet" href="../theme/rubyblue.css">
     <link rel="stylesheet" href="../theme/lesser-dark.css">
     <link rel="stylesheet" href="../theme/xq-dark.css">
+    <link rel="stylesheet" href="../theme/ambiance.css">
+    <link rel="stylesheet" href="../theme/blackboard.css">
     <script src="../mode/javascript/javascript.js"></script>
     <link rel="stylesheet" href="../doc/docs.css">
 
@@ -37,16 +40,19 @@ function findSequence(goal) {
   return find(1, "1");
 }</textarea></form>
 
-<p>Select a theme: <select onchange="selectTheme(this)">
+<p>Select a theme: <select onchange="selectTheme()" id=select>
     <option selected>default</option>
-    <option>night</option>
-    <option>monokai</option>
-    <option>neat</option>
-    <option>elegant</option>
+    <option>ambiance</option>
+    <option>blackboard</option>
     <option>cobalt</option>
     <option>eclipse</option>
-    <option>rubyblue</option>
+    <option>elegant</option>
+    <option>erlang-dark</option>
     <option>lesser-dark</option>
+    <option>monokai</option>
+    <option>neat</option>
+    <option>night</option>
+    <option>rubyblue</option>
     <option>xq-dark</option>
 </select>
 </p>
@@ -55,9 +61,15 @@ function findSequence(goal) {
   var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
     lineNumbers: true
   });
-  function selectTheme(node) {
-    var theme = node.options[node.selectedIndex].innerHTML;
+  var input = document.getElementById("select");
+  function selectTheme() {
+    var theme = input.options[input.selectedIndex].innerHTML;
     editor.setOption("theme", theme);
+  }
+  var choice = document.location.search && document.location.search.slice(1);
+  if (choice) {
+    input.value = choice;
+    editor.setOption("theme", choice);
   }
 </script>
   </body>

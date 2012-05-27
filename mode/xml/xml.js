@@ -5,10 +5,40 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
                       'embed': true, 'frame': true, 'hr': true, 'img': true, 'input': true,
                       'keygen': true, 'link': true, 'meta': true, 'param': true, 'source': true,
                       'track': true, 'wbr': true},
+    implicitlyClosed: {'dd': true, 'li': true, 'optgroup': true, 'option': true, 'p': true,
+                       'rp': true, 'rt': true, 'tbody': true, 'td': true, 'tfoot': true,
+                       'th': true, 'tr': true},
+    contextGrabbers: {
+      'dd': {'dd': true, 'dt': true},
+      'dt': {'dd': true, 'dt': true},
+      'li': {'li': true},
+      'option': {'option': true, 'optgroup': true},
+      'optgroup': {'optgroup': true},
+      'p': {'address': true, 'article': true, 'aside': true, 'blockquote': true, 'dir': true,
+            'div': true, 'dl': true, 'fieldset': true, 'footer': true, 'form': true,
+            'h1': true, 'h2': true, 'h3': true, 'h4': true, 'h5': true, 'h6': true,
+            'header': true, 'hgroup': true, 'hr': true, 'menu': true, 'nav': true, 'ol': true,
+            'p': true, 'pre': true, 'section': true, 'table': true, 'ul': true},
+      'rp': {'rp': true, 'rt': true},
+      'rt': {'rp': true, 'rt': true},
+      'tbody': {'tbody': true, 'tfoot': true},
+      'td': {'td': true, 'th': true},
+      'tfoot': {'tbody': true},
+      'th': {'td': true, 'th': true},
+      'thead': {'tbody': true, 'tfoot': true},
+      'tr': {'tr': true}
+    },
     doNotIndent: {"pre": true},
     allowUnquoted: true,
     allowMissing: false
-  } : {autoSelfClosers: {}, doNotIndent: {}, allowUnquoted: false, allowMissing: false};
+  } : {
+    autoSelfClosers: {},
+    implicitlyClosed: {},
+    contextGrabbers: {},
+    doNotIndent: {},
+    allowUnquoted: false,
+    allowMissing: false
+  };
   var alignCDATA = parserConfig.alignCDATA;
 
   // Return variables for tokenizers
@@ -164,7 +194,12 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
     } else if (type == "closeTag") {
       var err = false;
       if (curState.context) {
-        err = curState.context.tagName != tagName;
+        if (curState.context.tagName != tagName) {
+          if (Kludges.implicitlyClosed.hasOwnProperty(curState.context.tagName.toLowerCase())) {
+            popContext();
+          }
+          err = !curState.context || curState.context.tagName != tagName;
+        }
       } else {
         err = true;
       }
@@ -176,9 +211,15 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
   function endtag(startOfLine) {
     return function(type) {
       if (type == "selfcloseTag" ||
-          (type == "endTag" && Kludges.autoSelfClosers.hasOwnProperty(curState.tagName.toLowerCase())))
+          (type == "endTag" && Kludges.autoSelfClosers.hasOwnProperty(curState.tagName.toLowerCase()))) {
+        maybePopContext(curState.tagName.toLowerCase());
         return cont();
-      if (type == "endTag") {pushContext(curState.tagName, startOfLine); return cont();}
+      }
+      if (type == "endTag") {
+        maybePopContext(curState.tagName.toLowerCase());
+        pushContext(curState.tagName, startOfLine);
+        return cont();
+      }
       return cont();
     };
   }
@@ -188,6 +229,20 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
       if (type == "endTag") { popContext(); return cont(); }
       setStyle = "error";
       return cont(arguments.callee);
+    }
+  }
+  function maybePopContext(nextTagName) {
+    var parentTagName;
+    while (true) {
+      if (!curState.context) {
+        return;
+      }
+      parentTagName = curState.context.tagName.toLowerCase();
+      if (!Kludges.contextGrabbers.hasOwnProperty(parentTagName) ||
+          !Kludges.contextGrabbers[parentTagName].hasOwnProperty(nextTagName)) {
+        return;
+      }
+      popContext();
     }
   }
 
