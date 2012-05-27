@@ -2,8 +2,8 @@
 http://lesscss.org/ dark theme
 Ported to CodeMirror by Peter Kroon
 */
-.CodeMirror{
-  line-height: 15px;
+.cm-s-lesser-dark {
+  line-height: 1.3em;
 }
 .cm-s-lesser-dark {
   font-family: 'Bitstream Vera Sans Mono', 'DejaVu Sans Mono', 'Monaco', Courier, monospace !important;
