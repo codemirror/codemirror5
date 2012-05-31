@@ -238,7 +238,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       /* scala */
       "abstract case catch class def do else extends false final finally for forSome if " +
       "implicit import lazy match new null object override package private protected return " +
-      "sealed super this throw trait try trye type cal var while with yield _ : = => <- <: " +
+      "sealed super this throw trait try trye type val var while with yield _ : = => <- <: " +
       "<% >: # @ " +
                     
       /* package scala */
