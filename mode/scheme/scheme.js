@@ -132,8 +132,6 @@ CodeMirror.defineMode("scheme", function (config, mode) {
                         }else{
                             returnType = null;
                         }
-                    } else if (isNumber(ch,stream)){
-                        returnType = NUMBER;
                     } else if (ch == "(" || ch == "[") {
                         var keyWord = ''; var indentTemp = stream.column();
                         /**
@@ -178,6 +176,8 @@ CodeMirror.defineMode("scheme", function (config, mode) {
                                 }
                             }
                         }
+                    } else if (isNumber(ch,stream)){
+                        returnType = NUMBER;
                     } else {
                         stream.eatWhile(/[\w\$_\-!$%&*+\.\/:<=>?@\^~]/);
 
