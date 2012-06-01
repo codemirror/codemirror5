@@ -29,20 +29,6 @@ CodeMirror.defineMode("scheme", function (config, mode) {
         state.indentStack = state.indentStack.prev;
     }
 
-    /**
-     * Scheme numbers are complicated unfortunately.
-     * Checks if we're looking at a number, which might be possibly a fraction.
-     * Also checks that it is not part of a longer identifier. Returns true/false accordingly.
-     */
-    function isNumber(ch, stream){
-        if (!stream.eatWhile(/[0-9]/)) {
-            if (stream.eat(/\//)) stream.eatWhile(/[0-9]/);
-            if (stream.eol() || !(/[a-zA-Z\-\_\/]/.test(stream.peek()))) return true;
-            stream.backUp(stream.current().length - 1); // undo all the eating
-        }
-        return false;
-    }
-
     return {
         startState: function () {
             return {
@@ -124,15 +110,8 @@ CodeMirror.defineMode("scheme", function (config, mode) {
                     } else if (ch == ";") { // comment
                         stream.skipToEnd(); // rest of the line is a comment
                         returnType = COMMENT;
-                    } else if (ch == "-"){
-
-                        if(!isNaN(parseInt(stream.peek()))){
-                            stream.eatWhile(/[\/0-9]/);
-                            returnType = NUMBER;
-                        }else{
-                            returnType = null;
-                        }
-                    } else if (isNumber(ch,stream)){
+                    } else if (/\d/.test(ch) && stream.match(/$|\d+(?:\/\d+|(?:\.\d+)?(?:[eE][+\-]?\d+)?)\b/) ||
+                               ch == "-" && stream.match(/\d+(?:\/\d+|(?:\.\d+)?(?:[eE][+\-]?\d+)?)\b/)) {
                         returnType = NUMBER;
                     } else if (ch == "(" || ch == "[") {
                         var keyWord = ''; var indentTemp = stream.column();
