@@ -110,8 +110,8 @@ CodeMirror.defineMode("scheme", function (config, mode) {
                     } else if (ch == ";") { // comment
                         stream.skipToEnd(); // rest of the line is a comment
                         returnType = COMMENT;
-                    } else if (/\d/.test(ch) && stream.match(/$|\d+(?:\/\d+|(?:\.\d+)?(?:[eE][+\-]?\d+)?)\b/) ||
-                               ch == "-" && stream.match(/\d+(?:\/\d+|(?:\.\d+)?(?:[eE][+\-]?\d+)?)\b/)) {
+                    } else if (/\d/.test(ch) && stream.match(/$|^\d*(?:\/\d+|(?:\.\d+)?(?:[eE][+\-]?\d+)?)\b/) ||
+                               ch == "-" && stream.match(/^\d+(?:\/\d+|(?:\.\d+)?(?:[eE][+\-]?\d+)?)\b/)) {
                         returnType = NUMBER;
                     } else if (ch == "(" || ch == "[") {
                         var keyWord = ''; var indentTemp = stream.column();
