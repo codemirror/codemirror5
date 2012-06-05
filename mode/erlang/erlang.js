@@ -18,11 +18,12 @@
 // variable  -> variable
 
 // block; "begin", "case", "fun", "if", "receive", "try": closed by "end"
-// internal; "after", "catch", "of"
+// block internal; "after", "catch", "of"
 // guard; "when", closed by "->"
-// "->" opens a sub-block, closed by ";" or "."
-// "," appears in arglists, lists, tuples and terminates lines of code
+// "->" opens a clause, closed by ";" or "."
 // "<<" opens a binary, closed by ">>"
+// "," appears in arglists, lists, tuples and terminates lines of code
+// "." resets indentation to 0
 // obsolete; "cond", "let", "query"
 
 CodeMirror.defineMIME("text/x-erlang", "erlang");
