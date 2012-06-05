@@ -322,8 +322,8 @@
     "P": function(cm) {
       var cur = cm.getCursor().line;
       if (buf!= "") {
-        CodeMirror.commands.goLineEnd(cm); 
-        cm.replaceSelection(buf, "end");
+        if (buf[0] == "\n") CodeMirror.commands.goLineEnd(cm);
+        cm.replaceRange(buf, cm.getCursor());
       }
       cm.setCursor(cur+1);
     },
