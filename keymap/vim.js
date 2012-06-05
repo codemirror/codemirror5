@@ -396,6 +396,14 @@
     },
     "E": countTimes("delWordRight"),
     "B": countTimes("delWordLeft"),
+    "'$'": function(cm) {
+        var cur = cm.getCursor();
+        var line = cm.getLine(cur.line)
+        cm.replaceRange("", {line: cur.line, ch:cur.ch}, {line: cur.line, ch: line.length});
+
+        // Shove it to the buffer
+        pushInBuffer(line.substring(cur.ch))
+    },
     auto: "vim", nofallthrough: true, style: "fat-cursor"
   }; 
   // FIXME - does not work for bindings like "d3e"
@@ -482,6 +490,14 @@
   setupPrefixBindingForKey("Space");
 
   CodeMirror.keyMap["vim-prefix-y"] = {
+  "'$'": function(cm) {
+        console.log('here')
+        var cur = cm.getCursor();
+        var line = cm.getLine(cur.line)
+
+        // Shove it to the buffer
+        pushInBuffer(line.substring(cur.ch))
+    },
     "Y": countTimes(function(cm) { pushInBuffer("\n"+cm.getLine(cm.getCursor().line+yank)); yank++; }),
     "'": function(cm) {cm.setOption("keyMap", "vim-prefix-y'"); emptyBuffer();},
     auto: "vim", nofallthrough: true, style: "fat-cursor"
