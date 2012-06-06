@@ -30,7 +30,7 @@ CodeMirror.defineMode("ruby", function(config, parserConfig) {
       return "comment";
     }
     if (stream.eatSpace()) return null;
-    var ch = stream.next();
+    var ch = stream.next(), m;
     if (ch == "`" || ch == "'" || ch == '"' ||
         (ch == "/" && !stream.eol() && stream.peek() != " ")) {
       return chain(readQuoted(ch, "string", ch == '"' || ch == "`"), stream, state);
@@ -46,13 +46,8 @@ CodeMirror.defineMode("ruby", function(config, parserConfig) {
     } else if (ch == "#") {
       stream.skipToEnd();
       return "comment";
-    } else if (ch == "<" && stream.eat("<")) {
-      stream.eat("-");
-      stream.eat(/[\'\"\`]/);
-      var match = stream.match(/^\w+/);
-      stream.eat(/[\'\"\`]/);
-      if (match) return chain(readHereDoc(match[0]), stream, state);
-      return null;
+    } else if (ch == "<" && (m = stream.match(/^<-?[\`\"\']?([a-zA-Z_?]\w*)[\`\"\']?(?:;|$)/))) {
+      return chain(readHereDoc(m[1]), stream, state);
     } else if (ch == "0") {
       if (stream.eat("x")) stream.eatWhile(/[\da-fA-F]/);
       else if (stream.eat("b")) stream.eatWhile(/[01]/);
