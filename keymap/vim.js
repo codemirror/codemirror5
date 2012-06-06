@@ -325,7 +325,6 @@
         if (buf[0] == "\n") CodeMirror.commands.goLineEnd(cm);
         cm.replaceRange(buf, cm.getCursor());
       }
-      cm.setCursor(cur+1);
     },
     "Shift-X": function(cm) {CodeMirror.commands.delCharLeft(cm);},
     "Shift-J": function(cm) {joinLineNext(cm);},
@@ -394,15 +393,29 @@
       cm.setOption("keyMap", "vim-prefix-d'");
       emptyBuffer();
     },
-    "E": countTimes("delWordRight"),
-    "B": countTimes("delWordLeft"),
-    "'$'": function(cm) {
-        var cur = cm.getCursor();
-        var line = cm.getLine(cur.line)
-        cm.replaceRange("", {line: cur.line, ch:cur.ch}, {line: cur.line, ch: line.length});
+    "E": function(cm) {
+      var cur = cm.getCursor();
+      var line = cm.getLine(cur.line);
+      var index = line.indexOf(" ", cur.ch);
 
-        // Shove it to the buffer
-        pushInBuffer(line.substring(cur.ch))
+      pushInBuffer(line.substring(cur.ch, index));
+      cm.replaceRange("", cur, {line: cur.line, ch: index})
+    },
+    "B": function(cm) {
+      var cur = cm.getCursor();
+      var line = cm.getLine(cur.line);
+      var index = line.lastIndexOf(" ", cur.ch);
+
+      pushInBuffer(line.substring(index, cur.ch));
+      cm.replaceRange("", {line: cur.line, ch: index}, cur)
+    },
+    "'$'": function(cm) {
+      var cur = cm.getCursor();
+      var line = cm.getLine(cur.line)
+      cm.replaceRange("", {line: cur.line, ch:cur.ch}, {line: cur.line, ch: line.length});
+
+      // Shove it to the buffer
+      pushInBuffer(line.substring(cur.ch))
     },
     auto: "vim", nofallthrough: true, style: "fat-cursor"
   }; 
@@ -490,13 +503,27 @@
   setupPrefixBindingForKey("Space");
 
   CodeMirror.keyMap["vim-prefix-y"] = {
-  "'$'": function(cm) {
-        console.log('here')
-        var cur = cm.getCursor();
-        var line = cm.getLine(cur.line)
+    "'$'": function(cm) {
+      console.log('here')
+      var cur = cm.getCursor();
+      var line = cm.getLine(cur.line)
 
-        // Shove it to the buffer
-        pushInBuffer(line.substring(cur.ch))
+      // Shove it to the buffer
+      pushInBuffer(line.substring(cur.ch))
+    },
+    "E": function(cm) {
+      var cur = cm.getCursor();
+      var line = cm.getLine(cur.line);
+      var index = line.indexOf(" ", cur.ch);
+
+      pushInBuffer(line.substring(cur.ch, index));
+    },
+    "B": function(cm) {
+      var cur = cm.getCursor();
+      var line = cm.getLine(cur.line);
+      var index = line.lastIndexOf(" ", cur.ch);
+
+      pushInBuffer(line.substring(index, cur.ch));
     },
     "Y": countTimes(function(cm) { pushInBuffer("\n"+cm.getLine(cm.getCursor().line+yank)); yank++; }),
     "'": function(cm) {cm.setOption("keyMap", "vim-prefix-y'"); emptyBuffer();},
