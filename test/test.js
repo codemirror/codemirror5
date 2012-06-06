@@ -116,7 +116,7 @@ testCM("lineInfo", function(cm) {
 }, {value: "111111\n222222\n333333"});
 
 testCM("coords", function(cm) {
-  var scroller = cm.getWrapperElement().getElementsByClassName("CodeMirror-scroll")[0];
+  var scroller = cm.getScrollerElement();
   scroller.style.height = "100px";
   var content = [];
   for (var i = 0; i < 200; ++i) content.push("------------------------------" + i);
@@ -136,12 +136,13 @@ testCM("coordsChar", function(cm) {
   var content = [];
   for (var i = 0; i < 70; ++i) content.push("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
   cm.setValue(content.join("\n"));
-  for (var x = 0; x < 35; x += 2) {
-    for (var y = 0; y < 70; y += 5) {
-      cm.setCursor(y, x);
-      var pos = cm.coordsChar(cm.charCoords({line: y, ch: x}));
-      eq(pos.line, y);
-      eq(pos.ch, x);
+  for (var ch = 0; ch < 35; ch += 2) {
+    for (var line = 0; line < 70; line += 5) {
+      cm.setCursor(line, ch);
+      var coords = cm.charCoords({line: line, ch: ch});
+      var pos = cm.coordsChar({x: coords.x, y: coords.y + 1});
+      eq(pos.line, line);
+      eq(pos.ch, ch);
     }
   }
 });
@@ -191,9 +192,10 @@ testCM("undo", function(cm) {
     cm.replaceRange("a", {line: 0, ch: 0});
     cm.replaceRange("b", {line: 3, ch: 0});
   }
-  eq(cm.historySize().undo, 1);
-  cm.undo();
-  eq(cm.historySize().redo, 1);
+  eq(cm.historySize().undo, 40);
+  for (var i = 0; i < 40; ++i)
+    cm.undo();
+  eq(cm.historySize().redo, 40);
   eq(cm.getValue(), "1\n\n\n2");
 }, {value: "abc"});
 
@@ -250,7 +252,7 @@ testCM("markTextMultiLine", function(cm) {
            {a: [1, 5], b: [2, 5], c: "", f: [0, 5], t: [1, 5]},
            {a: [2, 0], b: [2, 3], c: "", f: [0, 5], t: [2, 2]},
            {a: [2, 5], b: [3, 0], c: "a\nb", f: [0, 5], t: [2, 5]},
-           {a: [2, 3], b: [3, 0], c: "x", f: [0, 5], t: [2, 3]},
+           {a: [2, 3], b: [3, 0], c: "x", f: [0, 5], t: [2, 4]},
            {a: [1, 1], b: [1, 9], c: "1\n2\n3", f: [0, 5], t: [4, 5]}], function(test) {
     cm.setValue("aaaaaaaaaa\nbbbbbbbbbb\ncccccccccc\ndddddddd\n");
     var r = cm.markText({line: 0, ch: 5}, {line: 2, ch: 5}, "foo");

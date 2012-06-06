@@ -7,11 +7,9 @@ CodeMirror.defineMode("pascal", function(config) {
   var keywords = words("and array begin case const div do downto else end file for forward integer " +
                        "boolean char function goto if in label mod nil not of or packed procedure " +
                        "program record repeat set string then to type until var while with");
-  var blockKeywords = words("case do else for if switch while struct then of");
   var atoms = {"null": true};
 
   var isOperatorChar = /[+\-*&%=<>!?|\/]/;
-  var curPunc;
 
   function tokenBase(stream, state) {
     var ch = stream.next();
@@ -28,7 +26,6 @@ CodeMirror.defineMode("pascal", function(config) {
       return tokenComment(stream, state);
     }
     if (/[\[\]{}\(\),;\:\.]/.test(ch)) {
-      curPunc = ch;
       return null
     }
     if (/\d/.test(ch)) {
@@ -47,10 +44,7 @@ CodeMirror.defineMode("pascal", function(config) {
     }
     stream.eatWhile(/[\w\$_]/);
     var cur = stream.current();
-    if (keywords.propertyIsEnumerable(cur)) {
-      if (blockKeywords.propertyIsEnumerable(cur)) curPunc = "newstatement";
-      return "keyword";
-    }
+    if (keywords.propertyIsEnumerable(cur)) return "keyword";
     if (atoms.propertyIsEnumerable(cur)) return "atom";
     return "word";
   }
@@ -79,55 +73,17 @@ CodeMirror.defineMode("pascal", function(config) {
     return "comment";
   }
 
-  function Context(indented, column, type, align, prev) {
-    this.indented = indented;
-    this.column = column;
-    this.type = type;
-    this.align = align;
-    this.prev = prev;
-  }
-  function pushContext(state, col, type) {
-    return state.context = new Context(state.indented, col, type, null, state.context);
-  }
-  function popContext(state) {
-    var t = state.context.type;
-    if (t == ")" || t == "]" )
-      state.indented = state.context.indented;
-    return state.context = state.context.prev;
-  }
-
   // Interface
 
   return {
     startState: function(basecolumn) {
-      return {
-        tokenize: null,
-        context: new Context((basecolumn || 0) - config.indentUnit, 0, "top", false),
-        indented: 0,
-        startOfLine: true
-      };
+      return {tokenize: null};
     },
 
     token: function(stream, state) {
-      var ctx = state.context;
-      if (stream.sol()) {
-        if (ctx.align == null) ctx.align = false;
-        state.indented = stream.indentation();
-        state.startOfLine = true;
-      }
       if (stream.eatSpace()) return null;
-      curPunc = null;
       var style = (state.tokenize || tokenBase)(stream, state);
       if (style == "comment" || style == "meta") return style;
-      if (ctx.align == null) ctx.align = true;
-
-      if ((curPunc == ";" || curPunc == ":") && ctx.type == "statement") popContext(state);
-      else if (curPunc == "[") pushContext(state, stream.column(), "]");
-      else if (curPunc == "(") pushContext(state, stream.column(), ")");
-      else if (curPunc == ctx.type) popContext(state);
-      else if ( ctx.type == "top" || (ctx.type == "statement" && curPunc == "newstatement"))
-        pushContext(state, stream.column(), "statement");
-      state.startOfLine = false;
       return style;
     },
 

@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+  <head>
+    <title>CodeMirror: Match Highlighter Demo</title>
+    <link rel="stylesheet" href="../lib/codemirror.css">
+    <script src="../lib/codemirror.js"></script>
+    <script src="../lib/util/searchcursor.js"></script>
+    <script src="../lib/util/match-highlighter.js"></script>
+    <link rel="stylesheet" href="../doc/docs.css">
+
+    <style type="text/css">
+      .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}
+	  
+      span.CodeMirror-matchhighlight { background: #e9e9e9 }
+      .CodeMirror-focused span.CodeMirror-matchhighlight { background: #e7e4ff; !important }
+    </style>
+  </head>
+  <body>
+    <h1>CodeMirror: Match Highlighter Demo</h1>
+
+    <form><textarea id="code" name="code">Select this text: hardToSpotVar
+	And everywhere else in your code where hardToSpotVar appears will automatically illuminate.
+Give it a try!  No more hardToSpotVars.</textarea></form>
+
+    <script>
+var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+  lineNumbers : true,
+  onCursorActivity: function() {
+    editor.matchHighlight("CodeMirror-matchhighlight");
+  }
+});
+</script>
+
+    <p>Highlight matches of selected text on select</p>
+
+  </body>
+</html>

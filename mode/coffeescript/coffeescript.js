@@ -60,6 +60,12 @@ CodeMirror.defineMode('coffeescript', function(conf) {
 
         var ch = stream.peek();
 
+        // Handle docco title comment (single line)
+        if (stream.match("####")) {
+            stream.skipToEnd();
+            return 'comment';
+        }
+
         // Handle multi line comments
         if (stream.match("###")) {
             state.tokenize = longComment;

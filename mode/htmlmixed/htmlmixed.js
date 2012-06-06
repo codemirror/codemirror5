@@ -50,7 +50,7 @@ CodeMirror.defineMode("htmlmixed", function(config, parserConfig) {
   function javascript(stream, state) {
     if (stream.match(/^<\/\s*script\s*>/i, false)) {
       state.token = html;
-      state.curState = null;
+      state.localState = null;
       state.mode = "html";
       return html(stream, state);
     }
@@ -97,11 +97,13 @@ CodeMirror.defineMode("htmlmixed", function(config, parserConfig) {
     },
 
     compareStates: function(a, b) {
+      if (a.mode != b.mode) return false;
+      if (a.localState) return CodeMirror.Pass;
       return htmlMode.compareStates(a.htmlState, b.htmlState);
     },
 
     electricChars: "/{}:"
   }
-});
+}, "xml", "javascript", "css");
 
 CodeMirror.defineMIME("text/html", "htmlmixed");

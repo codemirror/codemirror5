@@ -1,8 +1,11 @@
 .CodeMirror {
   line-height: 1em;
   font-family: monospace;
-  /* This prevents a scrollbar from showing up on the body in IE. */
-  overflow-y: hidden;
+
+  /* Necessary so the scrollbar can be absolutely positioned within the wrapper on Lion. */
+  position: relative;
+  /* This prevents unwanted scrollbars from showing up on the body and wrapper in IE. */
+  overflow: hidden;
 }
 
 .CodeMirror-scroll {
@@ -12,8 +15,10 @@
   /* This is needed to prevent an IE[67] bug where the scrolled content
      is visible outside of the scrolling box. */
   position: relative;
+  outline: none;
 }
 
+/* Vertical scrollbar */
 .CodeMirror-scrollbar {
   float: right;
   overflow-x: hidden;
@@ -23,14 +28,12 @@
      by the rule for .CodeMirror-scrollbar-inner. */
   margin-left: -1px;
 }
-
 .CodeMirror-scrollbar-inner {
-  /* This needs to have a nonzero width in order for the scrollbar to appear 
+  /* This needs to have a nonzero width in order for the scrollbar to appear
      in Firefox and IE9. */
   width: 1px;
 }
-
-.CodeMirror-scrollbar.cm-sb-overlap {   
+.CodeMirror-scrollbar.cm-sb-overlap {
   /* Ensure that the scrollbar appears in Lion, and that it overlaps the content
      rather than sitting to the right of it. */
   position: absolute;
@@ -39,13 +42,11 @@
   right: 0;
   min-width: 12px;
 }
-
 .CodeMirror-scrollbar.cm-sb-nonoverlap {
   min-width: 12px;
 }
-
-.CodeMirror-scrollbar.cm-sb-ie {
-  min-width: 20px;
+.CodeMirror-scrollbar.cm-sb-ie7 {
+  min-width: 18px;
 }
 
 .CodeMirror-gutter {
@@ -64,6 +65,7 @@
 }
 .CodeMirror-lines {
   padding: .4em;
+  white-space: pre;
   cursor: text;
 }
 .CodeMirror-lines * {
@@ -82,11 +84,14 @@
   padding: 0; margin: 0;
   white-space: pre;
   word-wrap: normal;
+  line-height: inherit;
+  color: inherit;
 }
 
 .CodeMirror-wrap pre {
   word-wrap: break-word;
   white-space: pre-wrap;
+  word-break: normal;
 }
 .CodeMirror-wrap .CodeMirror-scroll {
   overflow-x: hidden;
@@ -101,8 +106,19 @@
   position: absolute;
   visibility: hidden;
   border-left: 1px solid black;
-  border-right:none;
-  width:0;
+  border-right: none;
+  width: 0;
+}
+.cm-keymap-fat-cursor pre.CodeMirror-cursor {
+  width: auto;
+  border: 0;
+  background: transparent;
+  background: rgba(0, 200, 0, .4);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#6600c800, endColorstr=#4c00c800);
+}
+/* Kludge to turn off filter in ie9+, which also accepts rgba */
+.cm-keymap-fat-cursor pre.CodeMirror-cursor:not(#nonsense_id) {
+  filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
 }
 .CodeMirror pre.CodeMirror-cursor.CodeMirror-overwrite {}
 .CodeMirror-focused pre.CodeMirror-cursor {
@@ -138,7 +154,7 @@ div.CodeMirror-selected { background: #d9d9d9; }
 .cm-s-default span.cm-bracket {color: #cc7;}
 .cm-s-default span.cm-tag {color: #170;}
 .cm-s-default span.cm-attribute {color: #00c;}
-.cm-s-default span.cm-header {color: #a0a;}
+.cm-s-default span.cm-header {color: blue;}
 .cm-s-default span.cm-quote {color: #090;}
 .cm-s-default span.cm-hr {color: #999;}
 .cm-s-default span.cm-link {color: #00c;}
