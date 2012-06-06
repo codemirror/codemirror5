@@ -40,7 +40,7 @@ CodeMirror.defineMode("htmlmixed", function(config, parserConfig) {
   function unknownScript(stream, state) {
     if (stream.match(/^<\/\s*script\s*>/i, false)) {
       state.token = html;
-      state.curState = null;
+      state.localState = null;
       state.mode = "html";
       return html(stream, state);
     }
