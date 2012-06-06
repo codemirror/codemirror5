@@ -326,17 +326,36 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
     return state.tokenStack.pop();
   }
 
-  function peepToken(state) {
+  function peekToken(state) {
     return state.tokenStack[state.tokenStack.length-1];
   }
 
   function pushToken(state,token,pos) {
-    if (matched_pair(state.tokenStack.peek.token,token)) {
+// fixme: this won't find matched parens that have commas between them :<
+    if (matched_pair(peekToken(state).token,token)) {
       popToken(state);
+      return false;
     }else{
       state.tokenStack.push(new Token(token,pos));
+      return true;
     }
-    return peepToken(stack);
+  }
+
+  function matched_pair(open, close) {
+    switch (open+" "+close) {
+      case "( )":         return true;
+      case "[ ]":         return true;
+      case "{ }":         return true;
+      case "<< >>":       return true;
+      case "begin end":   return true;
+      case "case end":    return true;
+      case "fun end":     return true;
+      case "if end":      return true;
+      case "receive end": return true;
+      case "try end":     return true;
+      case "-> ;":        return true;
+      default:            return false;
+    }
   }
 
   return {
