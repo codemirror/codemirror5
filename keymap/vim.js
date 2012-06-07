@@ -240,7 +240,6 @@
       /* var cur = cm.getCursor();
       var f = {line: cur.line, ch: cur.ch}, t = {line: cur.line};
       pushInBuffer(cm.getRange(f, t));
-      cm.replaceRange("", f, t);
       */
       emptyBuffer();
       mark["Shift-D"] = cm.getCursor(false).line;
@@ -280,10 +279,6 @@
       popCount();
       CodeMirror.commands.goLineStart(cm);
     },
-    "'$'": function (cm) {
-      countTimes("goLineEnd")(cm);
-      if (cm.getCursor().ch) CodeMirror.commands.goColumnLeft(cm);
-    },
     nofallthrough: true, style: "fat-cursor"
   };
 
@@ -308,8 +303,7 @@
   // main num keymap
   // Add bindings that are influenced by number keys
   iterObj({
-    "H": "goColumnLeft", "L": "goColumnRight", "J": "goLineDown",
-    "K": "goLineUp", "Left": "goColumnLeft", "Right": "goColumnRight",
+    "Left": "goColumnLeft", "Right": "goColumnRight",
     "Down": "goLineDown", "Up": "goLineUp", "Backspace": "goCharLeft",
     "Space": "goCharRight",
     "B": function(cm) {moveToWord(cm, word, -1, "end");},
@@ -409,14 +403,6 @@
       pushInBuffer(line.substring(index, cur.ch));
       cm.replaceRange("", {line: cur.line, ch: index}, cur)
     },
-    "'$'": function(cm) {
-      var cur = cm.getCursor();
-      var line = cm.getLine(cur.line)
-      cm.replaceRange("", {line: cur.line, ch:cur.ch}, {line: cur.line, ch: line.length});
-
-      // Shove it to the buffer
-      pushInBuffer(line.substring(cur.ch))
-    },
     auto: "vim", nofallthrough: true, style: "fat-cursor"
   }; 
   // FIXME - does not work for bindings like "d3e"
@@ -503,14 +489,6 @@
   setupPrefixBindingForKey("Space");
 
   CodeMirror.keyMap["vim-prefix-y"] = {
-    "'$'": function(cm) {
-      console.log('here')
-      var cur = cm.getCursor();
-      var line = cm.getLine(cur.line)
-
-      // Shove it to the buffer
-      pushInBuffer(line.substring(cur.ch))
-    },
     "E": function(cm) {
       var cur = cm.getCursor();
       var line = cm.getLine(cur.line);
@@ -540,4 +518,68 @@
     "Ctrl-P": "autocomplete",
     fallthrough: ["default"]
   };
+
+  // These are our motion commands to be used for navigation and selection with
+  // certian other commands. All should return a cursor object.
+  var motionList = ['J', 'K', 'H', 'L', "'$'"]
+
+  motions = {
+    'J': function(cm) {
+      var cur = cm.getCursor()
+      return {line: cur.line+1, ch: cur.ch}
+    },
+
+    'K': function(cm) {
+      var cur = cm.getCursor()
+      return {line: cur.line-1, ch: cur.ch}
+    },
+
+    'H': function(cm) {
+      var cur = cm.getCursor()
+      return {line: cur.line, ch: cur.ch-1}
+    },
+
+    'L': function(cm) {
+      var cur = cm.getCursor()
+      return {line: cur.line, ch: cur.ch+1}
+    },
+    "'$'": function(cm) {
+      var cur = cm.getCursor()
+      var line = cm.getLine(cur.line)
+      return {line: cur.line, ch: line.length}
+    }
+  }
+
+  // Map our movement actions each operator and non-operational movement
+  motionList.forEach(function(key, index, array) {
+    CodeMirror.keyMap['vim-prefix-d'][key] = function(cm) {
+      var start = cm.getCursor()
+      var end = motions[key](cm)
+
+      pushInBuffer(cm.getRange(start, end))
+      cm.replaceRange("", start, end)
+    }
+
+    CodeMirror.keyMap['vim-prefix-c'][key] = function(cm) {
+      var start = cm.getCursor()
+      var end = motions[key](cm)
+
+      pushInBuffer(cm.getRange(start, end))
+      cm.replaceRange("", start, end)
+      cm.setOption('keyMap', 'vim-insert')
+    }
+
+    CodeMirror.keyMap['vim-prefix-y'][key] = function(cm) {
+      var start = cm.getCursor()
+      var end = motions[key](cm)
+
+      pushInBuffer(cm.getRange(start, end))
+    }
+
+    CodeMirror.keyMap['vim'][key] = function(cm) {
+      var cur = motions[key](cm)
+      cm.setCursor(cur.line, cur.ch)
+    }
+  })
+
 })();
