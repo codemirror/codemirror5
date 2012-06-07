@@ -322,16 +322,9 @@
     "P": function(cm) {
       var cur = cm.getCursor().line;
       if (buf!= "") {
-<<<<<<< HEAD
-        CodeMirror.commands.goLineEnd(cm); 
-        cm.replaceSelection(buf, "end");
-      }
-      cm.setCursor(cur+1);
-=======
         if (buf[0] == "\n") CodeMirror.commands.goLineEnd(cm);
         cm.replaceRange(buf, cm.getCursor());
       }
->>>>>>> upstream/master
     },
     "Shift-X": function(cm) {CodeMirror.commands.delCharLeft(cm);},
     "Shift-J": function(cm) {joinLineNext(cm);},
@@ -400,10 +393,6 @@
       cm.setOption("keyMap", "vim-prefix-d'");
       emptyBuffer();
     },
-<<<<<<< HEAD
-    "E": countTimes("delWordRight"),
-    "B": countTimes("delWordLeft"),
-=======
     "E": function(cm) {
       var cur = cm.getCursor();
       var line = cm.getLine(cur.line);
@@ -428,7 +417,6 @@
       // Shove it to the buffer
       pushInBuffer(line.substring(cur.ch))
     },
->>>>>>> upstream/master
     auto: "vim", nofallthrough: true, style: "fat-cursor"
   }; 
   // FIXME - does not work for bindings like "d3e"
