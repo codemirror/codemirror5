@@ -13,11 +13,12 @@
   }
   var phpConfig = {
     name: "clike",
-    keywords: keywords("abstract and array as break case catch cfunction class clone const continue declare " +
-                       "default do else elseif enddeclare endfor endforeach endif endswitch endwhile extends " +
-                       "final for foreach function global goto if implements interface instanceof namespace " +
-                       "new or private protected public static switch throw try use var while xor return" +
-                       "die echo empty exit eval include include_once isset list require require_once print unset"),
+    keywords: keywords("abstract and array as break case catch class clone const continue declare default " +
+                       "do else elseif enddeclare endfor endforeach endif endswitch endwhile extends final " +
+                       "for foreach function global goto if implements interface instanceof namespace " +
+                       "new or private protected public static switch throw trait try use var while xor " +
+                       "die echo empty exit eval include include_once isset list require require_once return " +
+                       "print unset __halt_compiler self static parent"),
     blockKeywords: keywords("catch do else elseif for foreach if switch try while"),
     atoms: keywords("true false null TRUE FALSE NULL"),
     multiLineStrings: true,
@@ -35,8 +36,15 @@
         return false;
       },
       "#": function(stream, state) {
-        stream.skipToEnd();
+        while (!stream.eol() && !stream.match("?>", false)) stream.next();
         return "comment";
+      },
+      "/": function(stream, state) {
+        if (stream.eat("/")) {
+          while (!stream.eol() && !stream.match("?>", false)) stream.next();
+          return "comment";
+        }
+        return false;
       }
     }
   };
@@ -48,12 +56,13 @@
     var phpMode = CodeMirror.getMode(config, phpConfig);
 
     function dispatch(stream, state) { // TODO open PHP inside text/css
+      var isPHP = state.mode == "php";
       if (stream.sol() && state.pending != '"') state.pending = null;
       if (state.curMode == htmlMode) {
         if (stream.match(/^<\?\w*/)) {
           state.curMode = phpMode;
           state.curState = state.php;
-          state.curClose = /^\?>/;
+          state.curClose = "?>";
 	  state.mode = "php";
           return "meta";
         }
@@ -87,27 +96,14 @@
           }
         }
         return style;
-      } else if (state.mode == "php") {
-        if (stream.match(state.curClose)) {
-          state.curMode = htmlMode;
-          state.curState = state.html;
-          state.curClose = null;
-	  state.mode = "html";
-          return "meta";
-        } else {
-          var style = phpMode.token(stream, state.curState);
-          if (style == "comment") {
-            var cur = stream.current(), closePHP = cur.search(/\?>/);
-            if (closePHP != -1) stream.backUp(cur.length - closePHP);
-          }
-          return style;
-        }
-      } else if (stream.match(state.curClose, false)) {
+      } else if ((!isPHP || state.php.tokenize == null) &&
+                 stream.match(state.curClose, isPHP)) {
         state.curMode = htmlMode;
         state.curState = state.html;
         state.curClose = null;
 	state.mode = "html";
-        return dispatch(stream, state);
+        if (isPHP) return "meta";
+        else return dispatch(stream, state);
       } else {
         return state.curMode.token(stream, state.curState);
       }
@@ -147,7 +143,7 @@
 
       electricChars: "/{}:"
     }
-  });
+  }, "xml", "clike", "javascript", "css");
   CodeMirror.defineMIME("application/x-httpd-php", "php");
   CodeMirror.defineMIME("application/x-httpd-php-open", {name: "php", startOpen: true});
   CodeMirror.defineMIME("text/x-php", phpConfig);

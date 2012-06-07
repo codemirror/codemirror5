@@ -18,12 +18,12 @@
     "Alt-Y": function(cm) {cm.replaceSelection(popFromRing());},
     "Ctrl-/": "undo", "Shift-Ctrl--": "undo", "Shift-Alt-,": "goDocStart", "Shift-Alt-.": "goDocEnd",
     "Ctrl-S": "findNext", "Ctrl-R": "findPrev", "Ctrl-G": "clearSearch", "Shift-Alt-5": "replace",
-    "Ctrl-Z": "undo", "Cmd-Z": "undo",
+    "Ctrl-Z": "undo", "Cmd-Z": "undo", "Alt-/": "autocomplete",
     fallthrough: ["basic", "emacsy"]
   };
 
   CodeMirror.keyMap["emacs-Ctrl-X"] = {
     "Ctrl-S": "save", "Ctrl-W": "save", "S": "saveAll", "F": "open", "U": "undo", "K": "close",
-    auto: "emacs", catchall: function(cm) {/*ignore*/}
+    auto: "emacs", nofallthrough: true
   };
 })();

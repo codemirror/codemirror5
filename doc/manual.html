@@ -27,13 +27,13 @@
     functionality can be straightforwardly implemented. See
     the <a href="#addons">add-ons</a> included in the distribution,
     and
-    the <a href="http://www.octolabs.com/javascripts/codemirror-ui/">CodeMirror
+    the <a href="https://github.com/jagthedrummer/codemirror-ui">CodeMirror
     UI</a> project, for reusable implementations of extra features.</p>
 
     <p>CodeMirror works with language-specific modes. Modes are
     JavaScript programs that help color (and optionally indent) text
-    written in a given language. The distribution comes with a few
-    modes (see the <code>mode/</code> directory), and it isn't hard
+    written in a given language. The distribution comes with a number
+    of modes (see the <code>mode/</code> directory), and it isn't hard
     to <a href="#modeapi">write new ones</a> for other languages.</p>
 
     <h2 id="usage">Basic Usage</h2>
@@ -160,24 +160,25 @@
       indentation (only works if the mode supports indentation).
       Default is true.</dd>
 
+      <dt id="option_autoClearEmptyLines"><code>autoClearEmptyLines (boolean)</code></dt>
+      <dd>When turned on (default is off), this will clear
+      automatically clear lines consisting only of whitespace when the
+      cursor leaves them. This is mostly useful to prevent auto
+      indentation from introducing trailing whitespace in a file.</dd>
+
       <dt id="option_keyMap"><code>keyMap (string)</code></dt>
       <dd>Configures the keymap to use. The default
       is <code>"default"</code>, which is the only keymap defined
       in <code>codemirror.js</code> itself. Extra keymaps are found in
-      the <a href="../keymap/"><code>keymap</code></a> directory.</dd>
+      the <a href="../keymap/"><code>keymap</code></a> directory. See
+      the <a href="#keymaps">section on keymaps</a> for more
+      information.</dd>
 
       <dt id="option_extraKeys"><code>extraKeys (object)</code></dt>
-      <dd>Can be used to specify extra keybindings for the editor.
-      When given, should be an object with property names
-      like <code>Ctrl-A</code>, <code>Home</code>,
-      and <code>Ctrl-Alt-Left</code>. See
-      the <code>CodeMirror.keyNames</code> object for the names of all
-      the keys. The values in this object can either be functions,
-      which will be called with the CodeMirror instance when the key
-      is pressed, or strings, which should name commands defined
-      in <code>CodeMirror.commands</code> (not documented properly,
-      but looking at the source and the definition of the built-in
-      keymaps, they should be rather obvious).</dd>
+      <dd>Can be used to specify extra keybindings for the editor,
+      alongside the ones defined
+      by <a href="#option_keyMap"><code>keyMap</code></a>. Should be
+      either null, or a valid <a href="#keymaps">keymap</a> value.</dd>
 
       <dt id="option_lineWrapping"><code>lineWrapping (boolean)</code></dt>
       <dd>Whether CodeMirror should scroll or wrap for long lines.
@@ -213,11 +214,11 @@
       and <code>to</code> are the positions (in the pre-change
       coordinate system) where the change started and
       ended (for example, it might be <code>{ch:0, line:18}</code> if the
-      position is at line #19, at the first character. <code>text</code> is an
-      array of strings representing the text that replaced the changed range
-      (split by line). If multiple changes happened during a single operation,
-      the object will have a <code>next</code> property pointing to another
-      change object (which may point to another, etc).</dd>
+      position is at the beginning of line #19). <code>text</code>
+      is an array of strings representing the text that replaced the changed
+      range (split by line). If multiple changes happened during a single
+      operation, the object will have a <code>next</code> property pointing to
+      another change object (which may point to another, etc).</dd>
 
       <dt id="option_onCursorActivity"><code>onCursorActivity (function)</code></dt>
       <dd>Will be called when the cursor or selection moves, or any
@@ -273,10 +274,25 @@
       index</a> to assign to the editor. If not given, no tab index
       will be assigned.</dd>
 
-      <dt id="option_document"><code>document (DOM document)</code></dt>
-      <dd>Use this if you want to display the editor in another DOM.
-      By default it will use the global <code>document</code>
-      object.</dd>
+      <dt id="option_autofocus"><code>autofocus (boolean)</code></dt>
+      <dd>Can be used to make CodeMirror focus itself on
+      initialization. Defaults to off.
+      When <a href="#fromTextArea"><code>fromTextArea</code></a> is
+      used, and no explicit value is given for this option, it will
+      inherit the setting from the textarea's <code>autofocus</code>
+      attribute.</dd>
+
+      <dt id="option_dragDrop"><code>dragDrop (boolean)</code></dt>
+      <dd>Controls whether drag-and-drop is enabled. On by default.</dd>
+
+      <dt id="option_onDragEvent"><code>onDragEvent (function)</code></dt>
+      <dd>When given, this will be called when the editor is handling
+      a <code>dragenter</code>, <code>dragover</code>,
+      or <code>drop</code> event. It will be passed the editor instance
+      and the event object as arguments. The callback can choose to
+      handle the event itself, in which case it should
+      return <code>true</code> to indicate that CodeMirror should not
+      do anything further.</dd>
 
       <dt id="option_onKeyEvent"><code>onKeyEvent (function)</code></dt>
       <dd>This provides a rather low-level hook into CodeMirror's key
@@ -297,6 +313,63 @@
       is <code>keydown</code> (or <code>keypress</code> for actions
       that need character data).</dd>
     </dl>
+
+    <h2 id="keymaps">Keymaps</h2>
+
+    <p>Keymaps are ways to associate keys with functionality. A keymap
+    is an object mapping strings that identify the keys to functions
+    that implement their functionality.</p>
+
+    <p>Keys are identified either by name or by character.
+    The <code>CodeMirror.keyNames</code> object defines names for
+    common keys and associates them with their key codes. Examples of
+    names defined here are <code>Enter</code>, <code>F5</code>,
+    and <code>Q</code>. These can be prefixed
+    with <code>Shift-</code>, <code>Cmd-</code>, <code>Ctrl-</code>,
+    and <code>Alt-</code> (in that order!) to specify a modifier. So
+    for example, <code>Shift-Ctrl-Space</code> would be a valid key
+    identifier.</p>
+
+    <p>Alternatively, a character can be specified directly by
+    surrounding it in single quotes, for example <code>'$'</code>
+    or <code>'q'</code>. Due to limitations in the way browsers fire
+    key events, these may not be prefixed with modifiers.</p>
+
+    <p>The <code>CodeMirror.keyMap</code> object associates keymaps
+    with names. User code and keymap definitions can assign extra
+    properties to this object. Anywhere where a keymap is expected, a
+    string can be given, which will be looked up in this object. It
+    also contains the <code>"default"</code> keymap holding the
+    default bindings.</p>
+
+    <p>The values of properties in keymaps can be either functions of
+    a single argument (the CodeMirror instance), or strings. Such
+    strings refer to properties of the
+    <code>CodeMirror.commands</code> object, which defines a number of
+    common commands that are used by the default keybindings, and maps
+    them to functions. A key handler function may throw
+    <code>CodeMirror.Pass</code> to indicate that it has decided not
+    to handle the key, and other handlers (or the default behavior)
+    should be given a turn.</p>
+
+    <p>Keys mapped to command names that start with the
+    characters <code>"go"</code> (which should be used for
+    cursor-movement actions) will be fired even when an
+    extra <code>Shift</code> modifier is present (i.e. <code>"Up":
+    "goLineUp"</code> matches both up and shift-up). This is used to
+    easily implement shift-selection.</p>
+
+    <p>Keymaps can defer to each other by defining
+    a <code>fallthrough</code> property. This indicates that when a
+    key is not found in the map itself, one or more other maps should
+    be searched. It can hold either a single keymap or an array of
+    keymaps.</p>
+
+    <p>When a keymap contains a <code>nofallthrough</code> property
+    set to <code>true</code>, keys matched against that map will be
+    ignored if they don't match any of the bindings in the map (no
+    further child maps will be tried, and the default effect of
+    inserting a character will not occur).</p>
 
     <h2 id="styling">Customized Styling</h2>
 
@@ -424,13 +497,16 @@
       <dd>Retrieves the current value of the given option for this
       editor instance.</dd>
 
-      <dt id="cursorCoords"><code>cursorCoords(start) → object</code></dt>
+      <dt id="cursorCoords"><code>cursorCoords(start, mode) → object</code></dt>
       <dd>Returns an <code>{x, y, yBot}</code> object containing the
-      coordinates of the cursor relative to the top-left corner of the
+      coordinates of the cursor. If <code>mode</code>
+      is <code>"local"</code>, they will be relative to the top-left
+      corner of the editable document. If it is <code>"page"</code> or
+      not given, they are relative to the top-left corner of the
       page. <code>yBot</code> is the coordinate of the bottom of the
       cursor. <code>start</code> is a boolean indicating whether you
       want the start or the end of the selection.</dd>
-      <dt id="charCoords"><code>charCoords(pos) → object</code></dt>
+      <dt id="charCoords"><code>charCoords(pos, mode) → object</code></dt>
       <dd>Like <code>cursorCoords</code>, but returns the position of
       an arbitrary characters. <code>pos</code> should be
       a <code>{line, ch}</code> object.</dd>
@@ -487,6 +563,10 @@
       the document, and the second explicitly removes the
       bookmark.</dd>
 
+      <dt id="findMarksAt"><code>findMarksAt(pos) → array</code></dt>
+      <dd>Returns an array of all the bookmarks and marked ranges
+      present at the given position.</dd>
+
       <dt id="setMarker"><code>setMarker(line, text, className) → lineHandle</code></dt>
       <dd>Add a gutter marker for the given line. Gutter markers are
       shown in the line-number area (instead of the number for this
@@ -506,11 +586,14 @@
       number or a handle returned by <code>setMarker</code> (since a
       number may now refer to a different line if something was added
       or deleted).</dd>
-      <dt id="setLineClass"><code>setLineClass(line, className) → lineHandle</code></dt>
+      <dt id="setLineClass"><code>setLineClass(line, className, backgroundClassName) → lineHandle</code></dt>
       <dd>Set a CSS class name for the given line. <code>line</code>
       can be a number or a line handle (as returned
-      by <code>setMarker</code> or this function).
-      Pass <code>null</code> to clear the class for a line.</dd>
+      by <code>setMarker</code> or this
+      function). <code>className</code> will be used to style the text
+      for the line, and <code>backgroundClassName</code> to style its
+      background (which lies behind the selection).
+      Pass <code>null</code> to clear the classes for a line.</dd>
       <dt id="hideLine"><code>hideLine(line) → lineHandle</code></dt>
       <dd>Hide the given line (either by number or by handle). Hidden
       lines don't show up in the editor, and their numbers are skipped
@@ -529,7 +612,8 @@
       <dd>Returns the line number, text content, and marker status of
       the given line, which can be either a number or a handle
       returned by <code>setMarker</code>. The returned object has the
-      structure <code>{line, handle, text, markerText, markerClass}</code>.</dd>
+      structure <code>{line, handle, text, markerText, markerClass,
+      lineClass, bgClass}</code>.</dd>
 
       <dt id="getLineHandle"><code>getLineHandle(num) → lineHandle</code></dt>
       <dd>Fetches the line handle for the given line number.</dd>
@@ -581,7 +665,7 @@
       and <code>to</code> must be <code>{line, ch}</code>
       objects. <code>to</code> can be left off to simply insert the
       string at position <code>from</code>.</dd>
-      
+
       <dt id="posFromIndex"><code>posFromIndex(index) → object</code></dt>
       <dd>Calculates and returns a <code>{line, ch}</code> object for a
       zero-based <code>index</code> who's value is relative to the start of the
@@ -605,6 +689,11 @@
       lot faster. The return value from this method will be the return
       value of your function.</dd>
 
+      <dt id="compoundChange"><code>compoundChange(func) → result</code></dt>
+      <dd>Will call the given function (and return its result),
+      combining all changes made while that function executes into a
+      single undo event.</dd>
+
       <dt id="refresh"><code>refresh()</code></dt>
       <dd>If your code does something to change the size of the editor
       element (window resizes are already listened for), or unhides
@@ -612,7 +701,7 @@
       ensure CodeMirror is still looking as intended.</dd>
 
       <dt id="getInputField"><code>getInputField() → textarea</code></dt>
-      <dd>Returns the hiden textarea used to read input.</dd>
+      <dd>Returns the hidden textarea used to read input.</dd>
       <dt id="getWrapperElement"><code>getWrapperElement() → node</code></dt>
       <dd>Returns the DOM node that represents the editor. Remove this
       from your tree to delete an editor instance.</dd>
@@ -718,7 +807,7 @@
       helper function to create a function that will, when applied to
       a CodeMirror instance and a line number, attempt to fold or
       unfold the block starting at the given line. A range-finder is a
-      language-specific functoin that also takes an instance and a
+      language-specific function that also takes an instance and a
       line number, and returns an end line for the block, or null if
       no block is started on that line. This file
       provides <code>CodeMirror.braceRangeFinder</code>, which finds
@@ -748,6 +837,31 @@
       and <code>CodeMirror.coffeescriptHint</code>, which are simple
       hinting functions for the JavaScript and CoffeeScript
       modes.</dd>
+      <dt id="util_match-highlighter"><a href="../lib/util/match-highlighter.js"><code>match-highlighter.js</code></a></dt>
+      <dd>Adds a <code>matchHighlight</code> method to CodeMirror
+      instances that can be called (typically from
+      a <a href="#option_onCursorActivity"><code>onCursorActivity</code></a>
+      handler) to highlight all instances of a currently selected word
+      with the a classname given as a first argument to the method.
+      Depends on
+      the <a href="#util_searchcursor"><code>searchcursor</code></a>
+      add-on. Demo <a href="../demo/matchhighlighter.html">here</a>.</dd>
+      <dt id="util_closetag"><a href="../lib/util/closetag.js"><code>closetag.js</code></a></dt>
+      <dd>Provides utility functions for adding automatic tag closing
+      to XML modes. See
+      the <a href="../demo/closetag.html">demo</a>.</dd>
+      <dt id="util_loadmode"><a href="../lib/util/loadmode.js"><code>loadmode.js</code></a></dt>
+      <dd>Defines a <code>CodeMirror.requireMode(modename,
+      callback)</code> function that will try to load a given mode and
+      call the callback when it succeeded. You'll have to
+      set <code>CodeMirror.modeURL</code> to a string that mode paths
+      can be constructed from, for
+      example <code>"mode/%N/%N.js"</code>—the <code>%N</code>'s will
+      be replaced with the mode name. Also
+      defines <code>CodeMirror.autoLoadMode(instance, mode)</code>,
+      which will ensure the given mode is loaded and cause the given
+      editor instance to refresh its mode when the loading
+      succeeded. See the <a href="../demo/loadmode.html">demo</a>.</dd>
     </dl>
 
     <h2 id="modeapi">Writing CodeMirror Modes</h2>
@@ -798,8 +912,7 @@
     style string, or <code>null</code> for tokens that do not have to
     be styled. For your styles, you can either use the 'standard' ones
     defined in the themes (without the <code>cm-</code> prefix), or
-    define your own (as the <a href="../mode/diff/index.html">diff</a>
-    mode does) and have people include a custom CSS file for your
+    define your own and have people include a custom CSS file for your
     mode.<p>
 
     <p id="StringStream">The stream object encapsulates a line of code
@@ -972,6 +1085,7 @@
       <li><a href="#overview">Overview</a></li>
       <li><a href="#usage">Basic Usage</a></li>
       <li><a href="#config">Configuration</a></li>
+      <li><a href="#keymaps">Keymaps</a></li>
       <li><a href="#styling">Customized Styling</a></li>
       <li><a href="#api">Programming API</a></li>
       <li><a href="#addons">Add-ons</a></li>

@@ -5,8 +5,13 @@
     <link rel="stylesheet" href="../../lib/codemirror.css">
     <script src="../../lib/codemirror.js"></script>
     <script src="diff.js"></script>
-    <link rel="stylesheet" href="diff.css">
-    <style>.CodeMirror {border-top: 1px solid #ddd; border-bottom: 1px solid #ddd;}</style>
+    <style>
+      .CodeMirror {border-top: 1px solid #ddd; border-bottom: 1px solid #ddd;}
+      span.cm-meta {color: #a0b !important;}
+      span.cm-error { background-color: black; opacity: 0.4;}
+      span.cm-error.cm-string { background-color: red; }
+      span.cm-error.cm-tag { background-color: #2b2; }
+    </style>
     <link rel="stylesheet" href="../../doc/docs.css">
   </head>
   <body>
@@ -34,12 +39,12 @@ index 04646a9..9a39cc7 100644
      }
  
      function onMouseDown(e) {
--      var start = posFromMouse(e), last = start;
+-      var start = posFromMouse(e), last = start;    
 +      var start = posFromMouse(e), last = start, target = e.target();
        if (!start) return;
        setCursor(start.line, start.ch, false);
        if (e.button() != 1) return;
-+      if (target.parentNode == gutter) {
++      if (target.parentNode == gutter) {    
 +        if (options.onGutterClick)
 +          options.onGutterClick(indexOf(gutter.childNodes, target) + showingFrom);
 +        return;

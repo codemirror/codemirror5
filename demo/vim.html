@@ -38,8 +38,8 @@ CodeMirror's internal API is quite different from Vim, they are only
 a loose approximation of actual vim bindings, though.</p>
 
     <script>
-      CodeMirror.commands.save = function(){alert("Saving");};
-      CodeMirror.fromTextArea(document.getElementById("code"), {
+      CodeMirror.commands.save = function(){ alert("Saving"); };
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true,
         mode: "text/x-csrc",
         keyMap: "vim"

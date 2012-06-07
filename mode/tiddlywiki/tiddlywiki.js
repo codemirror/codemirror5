@@ -1,18 +1,18 @@
 /***
- |''Name''|tiddlywiki.js|
- |''Description''|Enables TiddlyWikiy syntax highlighting using CodeMirror2|
- |''Author''|PMario|
- |''Version''|0.1.6|
- |''Status''|''beta''|
- |''Source''|[[GitHub|https://github.com/pmario/CodeMirror2/blob/tw-syntax/mode/tiddlywiki]]|
- |''Documentation''|http://codemirror.tiddlyspace.com/|
- |''License''|[[MIT License|http://www.opensource.org/licenses/mit-license.php]]|
- |''CoreVersion''|2.5.0|
- |''Requires''|codemirror.js|
- |''Keywords''|syntax highlighting color code mirror codemirror|
- ! Info
- CoreVersion parameter is needed for TiddlyWiki only!
- ***/
+|''Name''|tiddlywiki.js|
+|''Description''|Enables TiddlyWikiy syntax highlighting using CodeMirror|
+|''Author''|PMario|
+|''Version''|0.1.7|
+|''Status''|''stable''|
+|''Source''|[[GitHub|https://github.com/pmario/CodeMirror2/blob/tw-syntax/mode/tiddlywiki]]|
+|''Documentation''|http://codemirror.tiddlyspace.com/|
+|''License''|[[MIT License|http://www.opensource.org/licenses/mit-license.php]]|
+|''CoreVersion''|2.5.0|
+|''Requires''|codemirror.js|
+|''Keywords''|syntax highlighting color code mirror codemirror|
+! Info
+CoreVersion parameter is needed for TiddlyWiki only!
+***/
 //{{{
 CodeMirror.defineMode("tiddlywiki", function (config, parserConfig) {
 	var indentUnit = config.indentUnit;
@@ -47,20 +47,20 @@ CodeMirror.defineMode("tiddlywiki", function (config, parserConfig) {
 	}();
 
 	var isSpaceName = /[\w_\-]/i,
-		reHR = /^\-\-\-\-+$/,
+		reHR = /^\-\-\-\-+$/,					// <hr>
 		reWikiCommentStart = /^\/\*\*\*$/,		// /***
 		reWikiCommentStop = /^\*\*\*\/$/,		// ***/
 		reBlockQuote = /^<<<$/,
 
-		reJsCodeStart = /^\/\/\{\{\{$/,			// //{{{
-		reJsCodeStop = /^\/\/\}\}\}$/,			// //}}}
-		reXmlCodeStart = /^<!--\{\{\{-->$/,
-		reXmlCodeStop = /^<!--\}\}\}-->$/,
+		reJsCodeStart = /^\/\/\{\{\{$/,			// //{{{ js block start
+		reJsCodeStop = /^\/\/\}\}\}$/,			// //}}} js stop
+		reXmlCodeStart = /^<!--\{\{\{-->$/,		// xml block start
+		reXmlCodeStop = /^<!--\}\}\}-->$/,		// xml stop
 
-		reCodeBlockStart = /^\{\{\{$/,
-		reCodeBlockStop = /^\}\}\}$/,
+		reCodeBlockStart = /^\{\{\{$/,			// {{{ TW text div block start
+		reCodeBlockStop = /^\}\}\}$/,			// }}} TW text stop
 
-		reCodeStart = /\{\{\{/,
+		reCodeStart = /\{\{\{/,					// {{{ code span start
 		reUntilCodeStop = /.*?\}\}\}/;
 
 	function chain(stream, state, f) {
@@ -95,9 +95,9 @@ CodeMirror.defineMode("tiddlywiki", function (config, parserConfig) {
 			
 		state.block = false;	// indicates the start of a code block.
 
-		ch = stream.peek(); // don't eat, to make match simpler
+		ch = stream.peek(); 	// don't eat, to make matching simpler
 		
-		// check start of  blocks    
+		// check start of  blocks
 		if (sol && /[<\/\*{}\-]/.test(ch)) {
 			if (stream.match(reCodeBlockStart)) {
 				state.block = true;
@@ -107,16 +107,16 @@ CodeMirror.defineMode("tiddlywiki", function (config, parserConfig) {
 				return ret('quote', 'quote');
 			}
 			if (stream.match(reWikiCommentStart) || stream.match(reWikiCommentStop)) {
-				return ret('code', 'code');
+				return ret('code', 'comment');
 			}
 			if (stream.match(reJsCodeStart) || stream.match(reJsCodeStop) || stream.match(reXmlCodeStart) || stream.match(reXmlCodeStop)) {
-				return ret('code', 'code');
+				return ret('code', 'comment');
 			}
 			if (stream.match(reHR)) {
 				return ret('hr', 'hr');
 			}
 		} // sol
-		var ch = stream.next();
+		ch = stream.next();
 
 		if (sol && /[\/\*!#;:>|]/.test(ch)) {
 			if (ch == "!") { // tw header
@@ -125,26 +125,26 @@ CodeMirror.defineMode("tiddlywiki", function (config, parserConfig) {
 			}
 			if (ch == "*") { // tw list
 				stream.eatWhile('*');
-				return ret("list", "list");
+				return ret("list", "comment");
 			}
 			if (ch == "#") { // tw numbered list
 				stream.eatWhile('#');
-				return ret("list", "list");
+				return ret("list", "comment");
 			}
-			if (ch == ";") { // tw list
+			if (ch == ";") { // definition list, term
 				stream.eatWhile(';');
-				return ret("list", "list");
+				return ret("list", "comment");
 			}
-			if (ch == ":") { // tw list
+			if (ch == ":") { // definition list, description
 				stream.eatWhile(':');
-				return ret("list", "list");
+				return ret("list", "comment");
 			}
 			if (ch == ">") { // single line quote
 				stream.eatWhile(">");
 				return ret("quote", "quote");
 			}
 			if (ch == '|') {
-				return ret('table', 'table');
+				return ret('table', 'header');
 			}
 		}
 
@@ -155,12 +155,15 @@ CodeMirror.defineMode("tiddlywiki", function (config, parserConfig) {
 		// rudimentary html:// file:// link matching. TW knows much more ...
 		if (/[hf]/i.test(ch)) {
 			if (/[ti]/i.test(stream.peek()) && stream.match(/\b(ttps?|tp|ile):\/\/[\-A-Z0-9+&@#\/%?=~_|$!:,.;]*[A-Z0-9+&@#\/%=~_|$]/i)) {
-				return ret("link-external", "link-external");
+				return ret("link", "link");
 			}
 		}
 		// just a little string indicator, don't want to have the whole string covered
 		if (ch == '"') {
 			return ret('string', 'string');
+		}
+		if (ch == '~') {	// _no_ CamelCase indicator should be bold
+			return ret('text', 'brace');
 		}
 		if (/[\[\]]/.test(ch)) { // check for [[..]]
 			if (stream.peek() == ch) {
@@ -170,7 +173,7 @@ CodeMirror.defineMode("tiddlywiki", function (config, parserConfig) {
 		}
 		if (ch == "@") {	// check for space link. TODO fix @@...@@ highlighting
 			stream.eatWhile(isSpaceName);
-			return ret("link-external", "link-external");
+			return ret("link", "link");
 		}
 		if (/\d/.test(ch)) {	// numbers
 			stream.eatWhile(/\d/);
@@ -189,9 +192,15 @@ CodeMirror.defineMode("tiddlywiki", function (config, parserConfig) {
 				return chain(stream, state, twTokenUnderline);
 			}
 		}
-		if (ch == "-") { // tw strikethrough TODO looks ugly .. different handling see below;
+		// strikethrough and mdash handling
+		if (ch == "-") {
 			if (stream.eat("-")) {
-				return chain(stream, state, twTokenStrike);
+				// if strikethrough looks ugly, change CSS.
+				if (stream.peek() != ' ')
+					return chain(stream, state, twTokenStrike);
+				// mdash
+				if (stream.peek() == ' ')
+					return ret('text', 'brace');
 			}
 		}
 		if (ch == "'") { // tw bold
@@ -208,6 +217,7 @@ CodeMirror.defineMode("tiddlywiki", function (config, parserConfig) {
 			return ret(ch);
 		}
 
+		// core macro handling
 		stream.eatWhile(/[\w\$_]/);
 		var word = stream.current(),
 			known = textwords.propertyIsEnumerable(word) && textwords[word];
@@ -256,21 +266,21 @@ CodeMirror.defineMode("tiddlywiki", function (config, parserConfig) {
 		var ch, sb = state.block;
 		
 		if (sb && stream.current()) {
-			return ret("code", "code");
+			return ret("code", "comment");
 		}
 
 		if (!sb && stream.match(reUntilCodeStop)) {
 			state.tokenize = jsTokenBase;
-			return ret("code", "code-inline");
+			return ret("code", "comment");
 		}
 
 		if (sb && stream.sol() && stream.match(reCodeBlockStop)) {
 			state.tokenize = jsTokenBase;
-			return ret("code", "code");
+			return ret("code", "comment");
 		}
 
 		ch = stream.next();
-		return (sb) ? ret("code", "code") : ret("code", "code-inline");
+		return (sb) ? ret("code", "comment") : ret("code", "comment");
 	}
 
 	// tw em / italic
@@ -301,8 +311,8 @@ CodeMirror.defineMode("tiddlywiki", function (config, parserConfig) {
 		return ret("text", "underlined");
 	}
 
-	// tw strike through text looks ugly 
-	// TODO just strike through the first and last 2 chars if possible.
+	// tw strike through text looks ugly
+	// change CSS if needed
 	function twTokenStrike(stream, state) {
 		var maybeEnd = false,
 			ch, nr;
@@ -314,7 +324,7 @@ CodeMirror.defineMode("tiddlywiki", function (config, parserConfig) {
 			}
 			maybeEnd = (ch == "-");
 		}
-		return ret("text", "line-through");
+		return ret("text", "strikethrough");
 	}
 
 	// macro
