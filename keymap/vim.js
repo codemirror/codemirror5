@@ -307,8 +307,6 @@
     "Down": "goLineDown", "Up": "goLineUp", "Backspace": "goCharLeft",
     "Space": "goCharRight",
     "B": function(cm) {moveToWord(cm, word, -1, "end");},
-    "E": function(cm) {moveToWord(cm, word, 1, "end");},
-    "W": function(cm) {moveToWord(cm, word, 1, "start");},
     "Shift-B": function(cm) {moveToWord(cm, bigWord, -1, "end");},
     "Shift-E": function(cm) {moveToWord(cm, bigWord, 1, "end");},
     "Shift-W": function(cm) {moveToWord(cm, bigWord, 1, "start");},
@@ -387,14 +385,6 @@
       cm.setOption("keyMap", "vim-prefix-d'");
       emptyBuffer();
     },
-    "E": function(cm) {
-      var cur = cm.getCursor();
-      var line = cm.getLine(cur.line);
-      var index = line.indexOf(" ", cur.ch);
-
-      pushInBuffer(line.substring(cur.ch, index));
-      cm.replaceRange("", cur, {line: cur.line, ch: index})
-    },
     "B": function(cm) {
       var cur = cm.getCursor();
       var line = cm.getLine(cur.line);
@@ -409,10 +399,6 @@
   addCountBindings(CodeMirror.keyMap["vim-prefix-d"]);
 
   CodeMirror.keyMap["vim-prefix-c"] = {
-    "E": function (cm) {
-      countTimes("delWordRight")(cm);
-      enterInsertMode(cm);
-    },
     "B": function (cm) {
       countTimes("delWordLeft")(cm);
       enterInsertMode(cm);
@@ -489,13 +475,6 @@
   setupPrefixBindingForKey("Space");
 
   CodeMirror.keyMap["vim-prefix-y"] = {
-    "E": function(cm) {
-      var cur = cm.getCursor();
-      var line = cm.getLine(cur.line);
-      var index = line.indexOf(" ", cur.ch);
-
-      pushInBuffer(line.substring(cur.ch, index));
-    },
     "B": function(cm) {
       var cur = cm.getCursor();
       var line = cm.getLine(cur.line);
@@ -521,12 +500,26 @@
 
   // These are our motion commands to be used for navigation and selection with
   // certian other commands. All should return a cursor object.
-  var motionList = ['J', 'K', 'H', 'L', "'$'"]
+  var motionList = ['E', 'J', 'K', 'H', 'L', 'W', "'$'", "'%'"]
 
   motions = {
+    'E': function(cm) {
+      var cur = cm.getCursor()
+      var line = cm.getLine(cur.line).substring(cur.ch)
+      var index = line.search(/[^\s]\s/)
+
+      while (index == -1) {
+        cur.line++
+        cur.ch = 0
+        var index = cm.getLine(cur.line).search(/[^\s]\s/)
+      }
+
+      // Add on our cur.ch because we took the index of a split string earlier
+      return {line: cur.line, ch: index+cur.ch+1}
+    },
     'J': function(cm) {
       var cur = cm.getCursor()
-      return {line: cur.line+1, ch: cur.ch}
+      return {line: cur.line+1, ch : cur.ch}
     },
 
     'K': function(cm) {
@@ -543,10 +536,55 @@
       var cur = cm.getCursor()
       return {line: cur.line, ch: cur.ch+1}
     },
+    'W': function(cm) {
+      var cur = cm.getCursor()
+      var line = cm.getLine(cur.line).substring(cur.ch)
+      var index = line.search(/\s[^\s]/)
+
+      while (index == -1) {
+        cur.line++
+        cur.ch = 0
+        var index = cm.getLine(cur.line).search(/\s[^\s]/)
+      }
+
+      // Add on our cur.ch because we took the index of a split string earlier
+      return {line: cur.line, ch: index+cur.ch+1}
+    },
     "'$'": function(cm) {
       var cur = cm.getCursor()
       var line = cm.getLine(cur.line)
       return {line: cur.line, ch: line.length}
+    },
+    "'%'": function(cm) {
+      var cur = cm.getCursor()
+      var line = cm.getLine(cur.line)
+      var returnCursor = {line:cur.line, ch:-1}
+
+      // Not the companion type character, abort
+      if (['(',')','[',']','{','}'].indexOf(line[cur.ch]) == -1) { return cur }
+      var forwards = ['(', '[', '{'].indexOf(line[cur.ch]) != -1
+      
+      // Worst goddamn code I've ever written, ick!
+      var reverseSymb = (function getReverseSymb(sym) {
+        if (sym == '(') { return ')' }
+        else if (sym == '[') { return ']' }
+        else if (sym == '{') { return '}' }
+        else if (sym == ')') { return '(' }
+        else if (sym == ']') { return '[' }
+        else if (sym == '}') { return '{' }
+      })(line[cur.ch])
+
+      returnCursor.ch = forwards ? line.indexOf(reverseSymb, cur.ch) : line.lastIndexOf(reverseSymb, cur.ch)
+
+      while (returnCursor.ch == -1) {
+        if (forwards) { returnCursor.line++ }
+        else { returnCursor.line-- }
+
+        line = cm.getLine(returnCursor.line)
+        returnCursor.ch = forwards ? line.indexOf(reverseSymb) : line.lastIndexOf(reverseSymb)
+
+      }
+      return returnCursor
     }
   }
 
