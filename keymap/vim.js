@@ -557,12 +557,12 @@
     },
     "'%'": function(cm) {
       var cur = cm.getCursor()
-      var line = cm.getLine(cur.line)
-      var returnCursor = {line:cur.line, ch:-1}
+      var line = cur.line
+      var symb = cm.getLine(line)[cur.ch]
 
       // Not the companion type character, abort
-      if (['(',')','[',']','{','}'].indexOf(line[cur.ch]) == -1) { return cur }
-      var forwards = ['(', '[', '{'].indexOf(line[cur.ch]) != -1
+      if (['(',')','[',']','{','}'].indexOf(symb) == -1) { return cur }
+      var forwards = ['(', '[', '{'].indexOf(symb) != -1
       
       // Worst goddamn code I've ever written, ick!
       var reverseSymb = (function getReverseSymb(sym) {
@@ -572,19 +572,33 @@
         else if (sym == ')') { return '(' }
         else if (sym == ']') { return '[' }
         else if (sym == '}') { return '{' }
-      })(line[cur.ch])
+      })(symb)
 
-      returnCursor.ch = forwards ? line.indexOf(reverseSymb, cur.ch) : line.lastIndexOf(reverseSymb, cur.ch)
+      var disBal = forwards ? 0 : 1
 
-      while (returnCursor.ch == -1) {
-        if (forwards) { returnCursor.line++ }
-        else { returnCursor.line-- }
+      while (true) {
+        if (line == cur.line) {
+          // First pass, do some special stuff
+          var currLine =  forwards ? cm.getLine(line).substr(cur.ch).split('') : cm.getLine(line).substr(0,cur.ch).split('').reverse()
+        }
+        else {
+          var currLine =  forwards ? cm.getLine(line).split('') : cm.getLine(line).split('').reverse()
+        }
 
-        line = cm.getLine(returnCursor.line)
-        returnCursor.ch = forwards ? line.indexOf(reverseSymb) : line.lastIndexOf(reverseSymb)
+        for (var index = 0;  index < currLine.length; index++) {
+          if (currLine[index] == symb) { disBal++ }
+          else if (currLine[index] == reverseSymb) { disBal-- }
 
+          if (disBal == 0) { 
+            if (forwards && cur.line == line) return {line: line, ch: index + cur.ch}
+            else if (forwards) return {line: line, ch: index}
+            else return {line: line, ch: currLine.length - index - 1 }
+          }
+        }
+
+        if (forwards) { line++ }
+        else { line-- }
       }
-      return returnCursor
     }
   }
 
