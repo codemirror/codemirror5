@@ -30,6 +30,32 @@ CodeMirror.defineMIME("text/x-erlang", "erlang");
 
 CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
 
+  function rval(state,type) {
+    // erlang    -> CodeMirror tag
+    switch (type) {
+      case "atom":      return "atom";
+      case "attribute": return "attribute";
+      case "builtin":   return "builtin";
+      case "comment":   return "comment";
+      case "error":     return "error";
+      case "fun":       return "meta";
+      case "function":  return "tag";
+      case "guard":     return "property";
+      case "keyword":   return "keyword";
+      case "macro":     return "variable-2";
+      case "number":    return "number";
+      case "operator":  return "operator";
+      case "record":    return "bracket";
+      case "string":    return "string";
+      case "type":      return "def";
+      case "variable":  return "variable";
+      case "error":     return "error";
+      case "open_paren":return null;
+      case "close_paren":return null;
+      default:          return null;
+    }
+  }
+
   var typeWords = [
     "-type", "-spec", "-export_type", "-opaque"];
 
@@ -119,11 +145,11 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
       stream.next();
       if (stream.eat(smallRE) && stream.eatWhile(anumRE)) {
         if (stream.peek() == "(") {
-          return "attribute";
+          return rval(state,"attribute");
         }else if (isMember(stream.current(),typeWords)) {
-          return "def";
+          return rval(state,"type");
         }else{
-          return null;
+          return rval(state,null);
         }
       }
       stream.backUp(1);
@@ -134,19 +160,19 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
     // comment
     if (ch == '%') {
       stream.skipToEnd();
-      return "comment";
+      return rval(state,"comment");
     }
 
     // macro
     if (ch == '?') {
       stream.eatWhile(anumRE);
-      return "variable-2";
+      return rval(state,"macro");
     }
 
     // record
     if ( ch == "#") {
       stream.eatWhile(anumRE);
-      return "bracket";
+      return rval(state,"record");
     }
 
     // char
@@ -156,31 +182,31 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
           stream.next();
         }
       }
-      return "string";
+      return rval(state,"string");
     }
 
     // quoted atom
     if (ch == '\'') {
       if (singleQuote(stream)) {
-        return "atom";
+        return rval(state,"atom");
       }else{
-        return "error";
+        return rval(state,"error");
       }
     }
 
     // string
     if (ch == '"') {
       if (doubleQuote(stream)) {
-        return "string";
+        return rval(state,"string");
       }else{
-        return "error";
+        return rval(state,"error");
       }
     }
 
     // variable
     if (largeRE.test(ch)) {
       stream.eatWhile(anumRE);
-      return "variable";
+      return rval(state,"variable");
     }
 
     // atom/keyword/BIF/function
@@ -190,10 +216,10 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
       if (stream.peek() == "/") {
         stream.next();
         if (stream.eatWhile(digitRE)) {
-          return "meta";      // f/0 style fun
+          return rval(state,"fun");      // f/0 style fun
         }else{
           stream.backUp(1);
-          return "atom";
+          return rval(state,"atom");
         }
       }
 
@@ -201,30 +227,30 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
 
       if (isMember(w,keywordWords)) {
         pushToken(state,w,stream.column());
-        return "keyword";           // keyword
+        return rval(state,"keyword");           // keyword
       }
       if (stream.peek() == "(") {
         if (isMember(w,bifWords) &&
             (!isPrev(stream,":") || isPrev(stream,"erlang:"))) {
-          return "builtin";         // BIF
+          return rval(state,"builtin");         // BIF
         }else{
-          return "tag";             // function
+          return rval(state,"function");        // function
         }
       }
       if (isMember(w,guardWords)) {
-        return "property";          // guard
+        return rval(state,"guard");             // guard
       }
       if (isMember(w,operatorWords)) {
-        return "operator";          // operator
+        return rval(state,"operator");          // operator
       }
       if (stream.peek() == ":") {
         if (w == "erlang") {
-          return "builtin";          // external BIF call
+          return rval(state,"builtin");          // external BIF call
         } else {
-          return "tag";              // function application
+          return rval(state,"function");          // function application
         }
       }
-      return "atom";
+      return rval(state,"atom");
     }
 
     // number
@@ -241,26 +267,26 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
           stream.eatWhile(digitRE);
         }
       }
-      return "number";               // normal integer
+      return rval(state,"number");               // normal integer
     }
 
     if (nongreedy(stream,openParenRE,openParenWords)) {
       pushToken(state,stream.current(),stream.column());
-      return null;
+      return rval(state,"open_paren");
     }
 
     if (nongreedy(stream,closeParenRE,closeParenWords)) {
       pushToken(state,stream.current(),stream.column());
-      return null;
+      return rval(state,"close_paren");
     }
 
     if (greedy(stream,sepRE,separatorWords)) {
       pushToken(state,stream.current(),stream.column());
-      return null;
+      return rval(state,"separator");
     }
 
     if (greedy(stream,symbolRE,symbolWords)) {
-      return "operator";
+      return rval(state,"operator");
     }
 
     return null;
