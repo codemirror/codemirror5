@@ -499,24 +499,20 @@
     "Ctrl-P": "autocomplete",
     fallthrough: ["default"]
   };
-
-  // These are our motion commands to be used for navigation and selection with
-  // certian other commands. All should return a cursor object.
-  var motionList = ['E', 'J', 'K', 'H', 'L', 'W', "'^'", "'$'", "'%'"]
-
-  motions = {
-    'E': function(cm, times) {
+  
+  function reMotion(cm, times, re, reverse) {
       var cur = cm.getCursor()
 
-      for (i=0; i<times; i++) {
+      for (var i = 0; i < times; i++) {
+        // Return new cursor based on supplied cursor, repear 'times' times
         cur = (function(cur) {
           var line = cm.getLine(cur.line).substring(cur.ch)
-          var index = line.search(/[^\s]\s/)
+          var index = line.search(re)
 
           while (index == -1) {
             cur.line++
             cur.ch = 0
-            var index = cm.getLine(cur.line).search(/[^\s]\s/)
+            var index = cm.getLine(cur.line).search(re)
           }
 
           // Add on our cur.ch because we took the index of a split string earlier
@@ -524,7 +520,14 @@
         })(cur)
       }
       return cur
-    },
+    }
+
+  // These are our motion commands to be used for navigation and selection with
+  // certian other commands. All should return a cursor object.
+  var motionList = ['E', 'J', 'K', 'H', 'L', 'W', 'Shift-W', "'^'", "'$'", "'%'", 'Esc']
+
+  motions = {
+    'E': function(cm, times) { return reMotion(cm, times, /\w\W/, false) },
     'J': function(cm, times) {
       var cur = cm.getCursor()
       return {line: cur.line+times, ch : cur.ch}
@@ -544,26 +547,8 @@
       var cur = cm.getCursor()
       return {line: cur.line, ch: cur.ch+times}
     },
-    'W': function(cm, times) {
-      var cur = cm.getCursor()
-
-      for (var i = 0; i < times; i++) {
-        cur = (function(cur) {
-          var line = cm.getLine(cur.line).substring(cur.ch)
-          var index = line.search(/\s[^\s]/)
-
-          while (index == -1) {
-            cur.line++
-            cur.ch = 0
-            var index = cm.getLine(cur.line).search(/\s[^\s]/)
-          }
-
-          // Add on our cur.ch because we took the index of a split string earlier
-          return {line: cur.line, ch: index+cur.ch+1}
-        })(cur)
-      }
-      return cur
-    },
+    'W': function(cm, times) { return reMotion(cm, times, /\W\w/, false) },
+    'Shift-W': function(cm, times) { return reMotion(cm, times, /\s[^\s]/, false) },
     "'^'": function(cm) {
       var cur = cm.getCursor()
       var line = cm.getLine(cur.line).split('')
@@ -585,18 +570,19 @@
       var line = cur.line
       var symb = cm.getLine(line)[cur.ch]
 
-      // Not the companion type character, abort
+      // Not a companion type character, abort
       if (['(',')','[',']','{','}'].indexOf(symb) == -1) { return cur }
       var forwards = ['(', '[', '{'].indexOf(symb) != -1
       
-      // Worst goddamn code I've ever written, ick!
       var reverseSymb = (function getReverseSymb(sym) {
-        if (sym == '(') { return ')' }
-        else if (sym == '[') { return ']' }
-        else if (sym == '{') { return '}' }
-        else if (sym == ')') { return '(' }
-        else if (sym == ']') { return '[' }
-        else if (sym == '}') { return '{' }
+        switch (sym) {
+          case '(' : return ')'; break;
+          case '[' : return ']'; break;
+          case '{' : return '}'; break;
+          case ')' : return '('; break;
+          case ']' : return '['; break;
+          case '}' : return '{'; break;
+        }
       })(symb)
 
       var disBal = forwards ? 0 : 1
@@ -624,20 +610,30 @@
         if (forwards) { line++ }
         else { line-- }
       }
+    },
+    "Esc" : function(cm) {
+      cm.setOption('vim')
+      reptTimes = 0
+
+      return cm.getCursor()
     }
   }
 
   // Map our movement actions each operator and non-operational movement
   motionList.forEach(function(key, index, array) {
     CodeMirror.keyMap['vim-prefix-d'][key] = function(cm) {
+      // Get our selected range
       var start = cm.getCursor()
       var end = motions[key](cm, reptTimes ? reptTimes : 1)
 
+      // Set swap var if range is of negative length
       if ((start.line > end.line) || (start.line == end.line && start.ch > end.ch)) var swap = true
+
+      // Take action, switching start and end if swap var is set
       pushInBuffer(cm.getRange(swap ? end : start, swap ? start : end))
       cm.replaceRange("", swap ? end : start, swap ? start : end)
-      console.log(start + ':' + end)
 
+      // And clean up
       reptTimes = 0
       cm.setOption("keyMap", "vim");
     }
