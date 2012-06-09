@@ -54,6 +54,7 @@
   var buf = "";
   var yank = 0;
   var mark = [];
+  var reptTimes = 0
   function emptyBuffer() { buf = ""; }
   function pushInBuffer(str) { buf += str; };
   function pushCountDigit(digit) { return function(cm) {count += digit;} }
@@ -379,6 +380,7 @@
     "D": countTimes(function(cm) {
       pushInBuffer("\n"+cm.getLine(cm.getCursor().line));
       cm.removeLine(cm.getCursor().line);
+      cm.setOption("keyMap", "vim");
     }),
     "'": function(cm) {
       cm.setOption("keyMap", "vim-prefix-d'");
@@ -391,8 +393,9 @@
 
       pushInBuffer(line.substring(index, cur.ch));
       cm.replaceRange("", {line: cur.line, ch: index}, cur)
+      cm.setOption("keyMap", "vim");
     },
-    auto: "vim", nofallthrough: true, style: "fat-cursor"
+    /*auto: "vim",*/ nofallthrough: true, style: "fat-cursor"
   }; 
   // FIXME - does not work for bindings like "d3e"
   addCountBindings(CodeMirror.keyMap["vim-prefix-d"]);
@@ -412,7 +415,7 @@
       });
       enterInsertMode(cm);
     },
-    auto: "vim", nofallthrough: true, style: "fat-cursor"
+    nofallthrough: true, style: "fat-cursor"
   };
 
   iterList(["vim-prefix-d", "vim-prefix-c", "vim-prefix-"], function (prefix) {
@@ -483,7 +486,7 @@
     },
     "Y": countTimes(function(cm) { pushInBuffer("\n"+cm.getLine(cm.getCursor().line+yank)); yank++; }),
     "'": function(cm) {cm.setOption("keyMap", "vim-prefix-y'"); emptyBuffer();},
-    auto: "vim", nofallthrough: true, style: "fat-cursor"
+    nofallthrough: true, style: "fat-cursor"
   };
 
   CodeMirror.keyMap["vim-insert"] = {
@@ -502,52 +505,64 @@
   var motionList = ['E', 'J', 'K', 'H', 'L', 'W', "'^'", "'$'", "'%'"]
 
   motions = {
-    'E': function(cm) {
+    'E': function(cm, times) {
       var cur = cm.getCursor()
-      var line = cm.getLine(cur.line).substring(cur.ch)
-      var index = line.search(/[^\s]\s/)
 
-      while (index == -1) {
-        cur.line++
-        cur.ch = 0
-        var index = cm.getLine(cur.line).search(/[^\s]\s/)
+      for (i=0; i<times; i++) {
+        cur = (function(cur) {
+          var line = cm.getLine(cur.line).substring(cur.ch)
+          var index = line.search(/[^\s]\s/)
+
+          while (index == -1) {
+            cur.line++
+            cur.ch = 0
+            var index = cm.getLine(cur.line).search(/[^\s]\s/)
+          }
+
+          // Add on our cur.ch because we took the index of a split string earlier
+          return {line: cur.line, ch: index+cur.ch+1}
+        })(cur)
       }
-
-      // Add on our cur.ch because we took the index of a split string earlier
-      return {line: cur.line, ch: index+cur.ch+1}
+      return cur
     },
-    'J': function(cm) {
+    'J': function(cm, times) {
       var cur = cm.getCursor()
-      return {line: cur.line+1, ch : cur.ch}
+      return {line: cur.line+times, ch : cur.ch}
     },
 
-    'K': function(cm) {
+    'K': function(cm, times) {
       var cur = cm.getCursor()
-      return {line: cur.line-1, ch: cur.ch}
+      return {line: cur.line-times, ch: cur.ch}
     },
 
-    'H': function(cm) {
+    'H': function(cm, times) {
       var cur = cm.getCursor()
-      return {line: cur.line, ch: cur.ch-1}
+      return {line: cur.line, ch: cur.ch-times}
     },
 
-    'L': function(cm) {
+    'L': function(cm, times) {
       var cur = cm.getCursor()
-      return {line: cur.line, ch: cur.ch+1}
+      return {line: cur.line, ch: cur.ch+times}
     },
-    'W': function(cm) {
+    'W': function(cm, times) {
       var cur = cm.getCursor()
-      var line = cm.getLine(cur.line).substring(cur.ch)
-      var index = line.search(/\s[^\s]/)
 
-      while (index == -1) {
-        cur.line++
-        cur.ch = 0
-        var index = cm.getLine(cur.line).search(/\s[^\s]/)
+      for (var i = 0; i < times; i++) {
+        cur = (function(cur) {
+          var line = cm.getLine(cur.line).substring(cur.ch)
+          var index = line.search(/\s[^\s]/)
+
+          while (index == -1) {
+            cur.line++
+            cur.ch = 0
+            var index = cm.getLine(cur.line).search(/\s[^\s]/)
+          }
+
+          // Add on our cur.ch because we took the index of a split string earlier
+          return {line: cur.line, ch: index+cur.ch+1}
+        })(cur)
       }
-
-      // Add on our cur.ch because we took the index of a split string earlier
-      return {line: cur.line, ch: index+cur.ch+1}
+      return cur
     },
     "'^'": function(cm) {
       var cur = cm.getCursor()
@@ -616,35 +631,61 @@
   motionList.forEach(function(key, index, array) {
     CodeMirror.keyMap['vim-prefix-d'][key] = function(cm) {
       var start = cm.getCursor()
-      var end = motions[key](cm)
+      var end = motions[key](cm, reptTimes ? reptTimes : 1)
 
       if ((start.line > end.line) || (start.line == end.line && start.ch > end.ch)) var swap = true
       pushInBuffer(cm.getRange(swap ? end : start, swap ? start : end))
       cm.replaceRange("", swap ? end : start, swap ? start : end)
+      console.log(start + ':' + end)
+
+      reptTimes = 0
+      cm.setOption("keyMap", "vim");
     }
 
     CodeMirror.keyMap['vim-prefix-c'][key] = function(cm) {
       var start = cm.getCursor()
-      var end = motions[key](cm)
+      var end = motions[key](cm, reptTimes ? reptTimes : 1)
 
       if ((start.line > end.line) || (start.line == end.line && start.ch > end.ch)) var swap = true
       pushInBuffer(cm.getRange(swap ? end : start, swap ? start : end))
       cm.replaceRange("", swap ? end : start, swap ? start : end)
 
+      reptTimes = 0
       cm.setOption('keyMap', 'vim-insert')
     }
 
     CodeMirror.keyMap['vim-prefix-y'][key] = function(cm) {
       var start = cm.getCursor()
-      var end = motions[key](cm)
+      var end = motions[key](cm, reptTimes ? reptTimes : 1)
 
       if ((start.line > end.line) || (start.line == end.line && start.ch > end.ch)) var swap = true
       pushInBuffer(cm.getRange(swap ? end : start, swap ? start : end))
+
+      reptTimes = 0
+      cm.setOption("keyMap", "vim");
     }
 
     CodeMirror.keyMap['vim'][key] = function(cm) {
-      var cur = motions[key](cm)
+      var cur = motions[key](cm, reptTimes ? reptTimes : 1)
       cm.setCursor(cur.line, cur.ch)
+
+      reptTimes = 0
+    }
+  })
+
+  var nums = [1,2,3,4,5,6,7,8,9]
+  nums.forEach(function(key, index, array) {
+    CodeMirror.keyMap['vim'][key] = function (cm) {
+      reptTimes = (reptTimes * 10) + key
+    }
+    CodeMirror.keyMap['vim-prefix-d'][key] = function (cm) {
+      reptTimes = (reptTimes * 10) + key
+    }
+    CodeMirror.keyMap['vim-prefix-y'][key] = function (cm) {
+      reptTimes = (reptTimes * 10) + key
+    }
+    CodeMirror.keyMap['vim-prefix-c'][key] = function (cm) {
+      reptTimes = (reptTimes * 10) + key
     }
   })
 })();
