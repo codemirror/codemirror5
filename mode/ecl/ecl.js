@@ -200,4 +200,4 @@ CodeMirror.defineMode("ecl", function(config) {
   };
 });
 
-CodeMirror.defineMIME("text/x-ecl");
+CodeMirror.defineMIME("text/x-ecl", "ecl");
