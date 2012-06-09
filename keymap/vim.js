@@ -214,7 +214,6 @@
     "'|'": function(cm) {
       cm.setCursor(cm.getCursor().line, popCount() - 1, true);
     },
-    "'^'": function(cm) { popCount(); goLineStartText(cm);},
     "A": function(cm) {
       cm.setCursor(cm.getCursor().line, cm.getCursor().ch+1, true);
       enterInsertMode(cm);
@@ -500,7 +499,7 @@
 
   // These are our motion commands to be used for navigation and selection with
   // certian other commands. All should return a cursor object.
-  var motionList = ['E', 'J', 'K', 'H', 'L', 'W', "'$'", "'%'"]
+  var motionList = ['E', 'J', 'K', 'H', 'L', 'W', "'^'", "'$'", "'%'"]
 
   motions = {
     'E': function(cm) {
@@ -549,6 +548,17 @@
 
       // Add on our cur.ch because we took the index of a split string earlier
       return {line: cur.line, ch: index+cur.ch+1}
+    },
+    "'^'": function(cm) {
+      var cur = cm.getCursor()
+      var line = cm.getLine(cur.line).split('')
+
+      // Empty line :o
+      if (line.length == 0) return cur
+
+      for (var index = 0;  index < line.length; index++) {
+        if (line[index].match(/[^\s]/)) return {line: cur.line, ch: index}
+      }
     },
     "'$'": function(cm) {
       var cur = cm.getCursor()
@@ -608,16 +618,19 @@
       var start = cm.getCursor()
       var end = motions[key](cm)
 
-      pushInBuffer(cm.getRange(start, end))
-      cm.replaceRange("", start, end)
+      if ((start.line > end.line) || (start.line == end.line && start.ch > end.ch)) var swap = true
+      pushInBuffer(cm.getRange(swap ? end : start, swap ? start : end))
+      cm.replaceRange("", swap ? end : start, swap ? start : end)
     }
 
     CodeMirror.keyMap['vim-prefix-c'][key] = function(cm) {
       var start = cm.getCursor()
       var end = motions[key](cm)
 
-      pushInBuffer(cm.getRange(start, end))
-      cm.replaceRange("", start, end)
+      if ((start.line > end.line) || (start.line == end.line && start.ch > end.ch)) var swap = true
+      pushInBuffer(cm.getRange(swap ? end : start, swap ? start : end))
+      cm.replaceRange("", swap ? end : start, swap ? start : end)
+
       cm.setOption('keyMap', 'vim-insert')
     }
 
@@ -625,7 +638,8 @@
       var start = cm.getCursor()
       var end = motions[key](cm)
 
-      pushInBuffer(cm.getRange(start, end))
+      if ((start.line > end.line) || (start.line == end.line && start.ch > end.ch)) var swap = true
+      pushInBuffer(cm.getRange(swap ? end : start, swap ? start : end))
     }
 
     CodeMirror.keyMap['vim'][key] = function(cm) {
@@ -633,5 +647,4 @@
       cm.setCursor(cur.line, cur.ch)
     }
   })
-
 })();
