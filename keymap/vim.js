@@ -501,27 +501,26 @@
   };
   
   function reMotion(cm, times, re, reverse) {
-      var cur = cm.getCursor()
+    var cur = cm.getCursor()
 
-      for (var i = 0; i < times; i++) {
-        // Return new cursor based on supplied cursor, repear 'times' times
-        cur = (function(cur) {
-          var line = cm.getLine(cur.line).substring(cur.ch)
-          var index = line.search(re)
+    for (var i = 0; i < times; i++) {
+      // Return new cursor based on supplied cursor, repear 'times' times
+      cur = (function(cur) {
+        var line = cm.getLine(cur.line).substring(cur.ch)
+        var index = line.search(re)
 
-          while (index == -1) {
-            cur.line++
-            cur.ch = 0
-            var index = cm.getLine(cur.line).search(re)
-          }
+        while (index == -1) {
+          cur.line++
+          cur.ch = 0
+          var index = cm.getLine(cur.line).search(re)
+        }
 
-          // Add on our cur.ch because we took the index of a split string earlier
-          return {line: cur.line, ch: index+cur.ch+1}
-        })(cur)
-      }
-      return cur
+        // Add on our cur.ch because we took the index of a split string earlier
+        return {line: cur.line, ch: index+cur.ch+1}
+      })(cur)
     }
-<<<<<<< HEAD
+    return cur
+  }
 
   function findNextSymbol(cm, symb) {
     var cur = cm.getCursor()
@@ -539,8 +538,52 @@
     cur.ch = index
     return cur
   }
-=======
 
+  function findMatchedSymbol(cm, cur, symb) {
+    var line = cur.line
+    var symb = symb ? symb : cm.getLine(line)[cur.ch]
+
+    // Not a companion type character, abort
+    if (['(',')','[',']','{','}'].indexOf(symb) == -1) { return cur }
+    var forwards = ['(', '[', '{'].indexOf(symb) != -1
+    
+    var reverseSymb = (function getReverseSymb(sym) {
+      switch (sym) {
+        case '(' : return ')'; break;
+        case '[' : return ']'; break;
+        case '{' : return '}'; break;
+        case ')' : return '('; break;
+        case ']' : return '['; break;
+        case '}' : return '{'; break;
+      }
+    })(symb)
+
+    var disBal = forwards ? 0 : 1
+
+    while (true) {
+      if (line == cur.line) {
+        // First pass, do some special stuff
+        var currLine =  forwards ? cm.getLine(line).substr(cur.ch).split('') : cm.getLine(line).substr(0,cur.ch).split('').reverse()
+      }
+      else {
+        var currLine =  forwards ? cm.getLine(line).split('') : cm.getLine(line).split('').reverse()
+      }
+
+      for (var index = 0;  index < currLine.length; index++) {
+        if (currLine[index] == symb) { disBal++ }
+        else if (currLine[index] == reverseSymb) { disBal-- }
+
+        if (disBal == 0) { 
+          if (forwards && cur.line == line) return {line: line, ch: index + cur.ch}
+          else if (forwards) return {line: line, ch: index}
+          else return {line: line, ch: currLine.length - index - 1 }
+        }
+      }
+
+      if (forwards) { line++ }
+      else { line-- }
+    }
+  }
   // These are our motion commands to be used for navigation and selection with
   // certian other commands. All should return a cursor object.
   var motionList = ['E', 'J', 'K', 'H', 'L', 'W', 'Shift-W', "'^'", "'$'", "'%'", 'Esc']
@@ -574,52 +617,6 @@
 
       // Empty line :o
       if (line.length == 0) return cur
->>>>>>> f83bccac72a9a7a846942410f560afd5940ca223
-
-  function findMatchedSymbol(cm, cur, symb) {
-      var line = cur.line
-      var symb = symb ? symb : cm.getLine(line)[cur.ch]
-
-      // Not a companion type character, abort
-      if (['(',')','[',']','{','}'].indexOf(symb) == -1) { return cur }
-      var forwards = ['(', '[', '{'].indexOf(symb) != -1
-      
-      var reverseSymb = (function getReverseSymb(sym) {
-        switch (sym) {
-          case '(' : return ')'; break;
-          case '[' : return ']'; break;
-          case '{' : return '}'; break;
-          case ')' : return '('; break;
-          case ']' : return '['; break;
-          case '}' : return '{'; break;
-        }
-      })(symb)
-
-      var disBal = forwards ? 0 : 1
-
-      while (true) {
-        if (line == cur.line) {
-          // First pass, do some special stuff
-          var currLine =  forwards ? cm.getLine(line).substr(cur.ch).split('') : cm.getLine(line).substr(0,cur.ch).split('').reverse()
-        }
-        else {
-          var currLine =  forwards ? cm.getLine(line).split('') : cm.getLine(line).split('').reverse()
-        }
-
-        for (var index = 0;  index < currLine.length; index++) {
-          if (currLine[index] == symb) { disBal++ }
-          else if (currLine[index] == reverseSymb) { disBal-- }
-
-          if (disBal == 0) { 
-            if (forwards && cur.line == line) return {line: line, ch: index + cur.ch}
-            else if (forwards) return {line: line, ch: index}
-            else return {line: line, ch: currLine.length - index - 1 }
-          }
-        }
-
-        if (forwards) { line++ }
-        else { line-- }
-      }
     },
     "Esc" : function(cm) {
       cm.setOption('vim')
@@ -627,6 +624,7 @@
 
       return cm.getCursor()
     }
+  }
   
   function selectCompanionObject(cm, revSymb, inclusive) {
     var cur = cm.getCursor()
