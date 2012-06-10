@@ -144,12 +144,10 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
     if (state.indent == 0 && stream.peek() == '-') {
       stream.next();
       if (stream.eat(smallRE) && stream.eatWhile(anumRE)) {
-        if (stream.peek() == "(") {
-          return rval(state,"attribute");
-        }else if (isMember(stream.current(),typeWords)) {
+        if (isMember(stream.current(),typeWords)) {
           return rval(state,"type");
         }else{
-          return rval(state,null);
+          return rval(state,"attribute");
         }
       }
       stream.backUp(1);
