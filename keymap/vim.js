@@ -521,6 +521,7 @@
       }
       return cur
     }
+<<<<<<< HEAD
 
   function findNextSymbol(cm, symb) {
     var cur = cm.getCursor()
@@ -538,6 +539,42 @@
     cur.ch = index
     return cur
   }
+=======
+
+  // These are our motion commands to be used for navigation and selection with
+  // certian other commands. All should return a cursor object.
+  var motionList = ['E', 'J', 'K', 'H', 'L', 'W', 'Shift-W', "'^'", "'$'", "'%'", 'Esc']
+
+  motions = {
+    'E': function(cm, times) { return reMotion(cm, times, /\w\W/, false) },
+    'J': function(cm, times) {
+      var cur = cm.getCursor()
+      return {line: cur.line+times, ch : cur.ch}
+    },
+
+    'K': function(cm, times) {
+      var cur = cm.getCursor()
+      return {line: cur.line-times, ch: cur.ch}
+    },
+
+    'H': function(cm, times) {
+      var cur = cm.getCursor()
+      return {line: cur.line, ch: cur.ch-times}
+    },
+
+    'L': function(cm, times) {
+      var cur = cm.getCursor()
+      return {line: cur.line, ch: cur.ch+times}
+    },
+    'W': function(cm, times) { return reMotion(cm, times, /\W\w/, false) },
+    'Shift-W': function(cm, times) { return reMotion(cm, times, /\s[^\s]/, false) },
+    "'^'": function(cm) {
+      var cur = cm.getCursor()
+      var line = cm.getLine(cur.line).split('')
+
+      // Empty line :o
+      if (line.length == 0) return cur
+>>>>>>> f83bccac72a9a7a846942410f560afd5940ca223
 
   function findMatchedSymbol(cm, cur, symb) {
       var line = cur.line
@@ -583,6 +620,12 @@
         if (forwards) { line++ }
         else { line-- }
       }
+    },
+    "Esc" : function(cm) {
+      cm.setOption('vim')
+      reptTimes = 0
+
+      return cm.getCursor()
     }
   
   function selectCompanionObject(cm, revSymb, inclusive) {
