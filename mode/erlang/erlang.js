@@ -1,22 +1,3 @@
-// erlang    -> CodeMirror tag
-//
-// atom      -> atom
-// attribute -> attribute
-// builtin   -> builtin
-// comment   -> comment
-// error     -> error
-// fun       -> meta
-// function  -> tag
-// guard     -> property
-// keyword   -> keyword
-// macro     -> variable-2
-// number    -> number
-// operator  -> operator
-// record    -> bracket
-// string    -> string
-// type      -> def
-// variable  -> variable
-
 // block; "begin", "case", "fun", "if", "receive", "try": closed by "end"
 // block internal; "after", "catch", "of"
 // guard; "when", closed by "->"
@@ -31,28 +12,28 @@ CodeMirror.defineMIME("text/x-erlang", "erlang");
 CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
 
   function rval(state,type) {
-    // erlang    -> CodeMirror tag
+    //     erlang             -> CodeMirror tag
     switch (type) {
-      case "atom":      return "atom";
-      case "attribute": return "attribute";
-      case "builtin":   return "builtin";
-      case "comment":   return "comment";
-      case "error":     return "error";
-      case "fun":       return "meta";
-      case "function":  return "tag";
-      case "guard":     return "property";
-      case "keyword":   return "keyword";
-      case "macro":     return "variable-2";
-      case "number":    return "number";
-      case "operator":  return "operator";
-      case "record":    return "bracket";
-      case "string":    return "string";
-      case "type":      return "def";
-      case "variable":  return "variable";
-      case "error":     return "error";
-      case "open_paren":return null;
-      case "close_paren":return null;
-      default:          return null;
+      case "atom":        return "atom";
+      case "attribute":   return "attribute";
+      case "builtin":     return "builtin";
+      case "comment":     return "comment";
+      case "fun":         return "meta";
+      case "function":    return "tag";
+      case "guard":       return "property";
+      case "keyword":     return "keyword";
+      case "macro":       return "variable-2";
+      case "number":      return "number";
+      case "operator":    return "operator";
+      case "record":      return "bracket";
+      case "string":      return "string";
+      case "type":        return "def";
+      case "variable":    return "variable";
+      case "error":       return "error";
+      case "separator":   return null;
+      case "open_paren":  return null;
+      case "close_paren": return null;
+      default:            return null;
     }
   }
 
