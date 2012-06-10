@@ -522,6 +522,80 @@
       return cur
     }
 
+  function findNextSymbol(cm, symb) {
+    var cur = cm.getCursor()
+    var line = cm.getLine(cur.line)
+    var index = -1
+
+    index = line.indexOf(symb, cur.ch)
+
+    while (index == -1) {
+      cur.line++
+      line = cm.getLine(cur.line)
+      index = line.indexOf(symb)
+    }
+    
+    cur.ch = index
+    return cur
+  }
+
+  function findMatchedSymbol(cm, cur, symb) {
+      var line = cur.line
+      var symb = symb ? symb : cm.getLine(line)[cur.ch]
+
+      // Not a companion type character, abort
+      if (['(',')','[',']','{','}'].indexOf(symb) == -1) { return cur }
+      var forwards = ['(', '[', '{'].indexOf(symb) != -1
+      
+      var reverseSymb = (function getReverseSymb(sym) {
+        switch (sym) {
+          case '(' : return ')'; break;
+          case '[' : return ']'; break;
+          case '{' : return '}'; break;
+          case ')' : return '('; break;
+          case ']' : return '['; break;
+          case '}' : return '{'; break;
+        }
+      })(symb)
+
+      var disBal = forwards ? 0 : 1
+
+      while (true) {
+        if (line == cur.line) {
+          // First pass, do some special stuff
+          var currLine =  forwards ? cm.getLine(line).substr(cur.ch).split('') : cm.getLine(line).substr(0,cur.ch).split('').reverse()
+        }
+        else {
+          var currLine =  forwards ? cm.getLine(line).split('') : cm.getLine(line).split('').reverse()
+        }
+
+        for (var index = 0;  index < currLine.length; index++) {
+          if (currLine[index] == symb) { disBal++ }
+          else if (currLine[index] == reverseSymb) { disBal-- }
+
+          if (disBal == 0) { 
+            if (forwards && cur.line == line) return {line: line, ch: index + cur.ch}
+            else if (forwards) return {line: line, ch: index}
+            else return {line: line, ch: currLine.length - index - 1 }
+          }
+        }
+
+        if (forwards) { line++ }
+        else { line-- }
+      }
+    }
+  
+  function selectCompanionObject(cm, revSymb, inclusive) {
+    var cur = cm.getCursor()
+
+    var end = findMatchedSymbol(cm, cur, revSymb)
+    var start = findMatchedSymbol(cm, end)
+    start.ch += inclusive ? 1 : 0
+    end.ch += inclusive ? 0 : 1
+
+    return {start: start, end: end}
+  }
+
   // These are our motion commands to be used for navigation and selection with
   // certian other commands. All should return a cursor object.
   var motionList = ['E', 'J', 'K', 'H', 'L', 'W', 'Shift-W', "'^'", "'$'", "'%'", 'Esc']
@@ -565,52 +639,7 @@
       var line = cm.getLine(cur.line)
       return {line: cur.line, ch: line.length}
     },
-    "'%'": function(cm) {
-      var cur = cm.getCursor()
-      var line = cur.line
-      var symb = cm.getLine(line)[cur.ch]
-
-      // Not a companion type character, abort
-      if (['(',')','[',']','{','}'].indexOf(symb) == -1) { return cur }
-      var forwards = ['(', '[', '{'].indexOf(symb) != -1
-      
-      var reverseSymb = (function getReverseSymb(sym) {
-        switch (sym) {
-          case '(' : return ')'; break;
-          case '[' : return ']'; break;
-          case '{' : return '}'; break;
-          case ')' : return '('; break;
-          case ']' : return '['; break;
-          case '}' : return '{'; break;
-        }
-      })(symb)
-
-      var disBal = forwards ? 0 : 1
-
-      while (true) {
-        if (line == cur.line) {
-          // First pass, do some special stuff
-          var currLine =  forwards ? cm.getLine(line).substr(cur.ch).split('') : cm.getLine(line).substr(0,cur.ch).split('').reverse()
-        }
-        else {
-          var currLine =  forwards ? cm.getLine(line).split('') : cm.getLine(line).split('').reverse()
-        }
-
-        for (var index = 0;  index < currLine.length; index++) {
-          if (currLine[index] == symb) { disBal++ }
-          else if (currLine[index] == reverseSymb) { disBal-- }
-
-          if (disBal == 0) { 
-            if (forwards && cur.line == line) return {line: line, ch: index + cur.ch}
-            else if (forwards) return {line: line, ch: index}
-            else return {line: line, ch: currLine.length - index - 1 }
-          }
-        }
-
-        if (forwards) { line++ }
-        else { line-- }
-      }
-    },
+    "'%'": function(cm) { return findMatchedSymbol(cm, cm.getCursor()) },
     "Esc" : function(cm) {
       cm.setOption('vim')
       reptTimes = 0
@@ -683,5 +712,72 @@
     CodeMirror.keyMap['vim-prefix-c'][key] = function (cm) {
       reptTimes = (reptTimes * 10) + key
     }
+  })
+
+  // Create our keymaps for each operator and make xa and xi where x is an operator
+  // change to the corrosponding keymap
+  var operators = ['d', 'y', 'c']
+  operators.forEach(function(key, index, array) {
+    CodeMirror.keyMap['vim-prefix-'+key+'a'] = {
+      auto: 'vim', nofallthrough: true, style: "fat-cursor"
+    }
+    CodeMirror.keyMap['vim-prefix-'+key+'i'] = {
+      auto: 'vim', nofallthrough: true, style: "fat-cursor"
+    }
+
+    CodeMirror.keyMap['vim-prefix-'+key]['A'] = function(cm) {
+      reptTimes = 0
+      cm.setOption('keyMap', 'vim-prefix-' + key + 'a')
+    }
+
+    CodeMirror.keyMap['vim-prefix-'+key]['I'] = function(cm) {
+      reptTimes = 0
+      cm.setOption('keyMap', 'vim-prefix-' + key + 'i')
+    }
+  })
+
+  // Create our text object functions. They work similar to motions but they
+  // return a start cursor as well
+  var textObjectList = ['W', 'Shift-[', 'Shift-9', '[']
+  var textObjects = {
+    'W': function(cm, inclusive) {
+      var cur = cm.getCursor()
+      var line = cm.getLine(cur.line)
+
+      var startIndex = line.substring(0, cur.ch).lastIndexOf(' ') + 1
+      var end = motions["E"](cm, 1)
+
+      end.ch += inclusive ? 1 : 0
+      return {start: {line: cur.line, ch: startIndex}, end: end }
+    },
+    'Shift-[': function(cm, inclusive) { return selectCompanionObject(cm, '}', inclusive) },
+    'Shift-9': function(cm, inclusive) { return selectCompanionObject(cm, ')', inclusive) },
+    '[': function(cm, inclusive) { return selectCompanionObject(cm, ']', inclusive) }
+  }
+
+  // One function to handle all operation upon text objects. Kinda funky but it works
+  // better than rewriting this code six times
+  function textObjectManipulation(cm, object, remove, insert, inclusive) {
+    // Object is the text object, delete object if remove is true, enter insert
+    // mode if insert is true, inclusive is the difference between a and i
+    var tmp = textObjects[object](cm, inclusive)
+    var start = tmp.start
+    var end = tmp.end
+    
+    if ((start.line > end.line) || (start.line == end.line && start.ch > end.ch)) var swap = true
+      
+    pushInBuffer(cm.getRange(swap ? end : start, swap ? start : end))
+    if (remove) cm.replaceRange("", swap ? end : start, swap ? start : end)
+    if (insert) cm.setOption('keyMap', 'vim-insert')
+  }
+
+  // And finally build the keymaps up from the text objects
+  textObjectList.forEach(function(object, index, array) {
+    CodeMirror.keyMap['vim-prefix-di'][object] = function(cm) { textObjectManipulation(cm, object, true, false, false) }
+    CodeMirror.keyMap['vim-prefix-da'][object] = function(cm) { textObjectManipulation(cm, object, true, false, true) }
+    CodeMirror.keyMap['vim-prefix-yi'][object] = function(cm) { textObjectManipulation(cm, object, false, false, false) }
+    CodeMirror.keyMap['vim-prefix-ya'][object] = function(cm) { textObjectManipulation(cm, object, false, false, true) }
+    CodeMirror.keyMap['vim-prefix-ci'][object] = function(cm) { textObjectManipulation(cm, object, true, true, false) }
+    CodeMirror.keyMap['vim-prefix-ca'][object] = function(cm) { textObjectManipulation(cm, object, true, true, true) }
   })
 })();
