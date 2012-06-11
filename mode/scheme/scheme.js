@@ -29,19 +29,19 @@ CodeMirror.defineMode("scheme", function (config, mode) {
         state.indentStack = state.indentStack.prev;
     }
 
-	// expressions for matching various number formats
-	var binaryMatcher = new RegExp(/^(?:(?:#[ei])?#b|#b(?:#[ei])?)(?:[-+]i|[-+][01]+#*(?:\/[01]+#*)?i|[-+]?[01]+#*(?:\/[01]+#*)?@[-+]?[01]+#*(?:\/[01]+#*)?|[-+]?[01]+#*(?:\/[01]+#*)?[-+](?:[01]+#*(?:\/[01]+#*)?)?i|[-+]?[01]+#*(?:\/[01]+#*)?)(?=[()\s;]|$)/i);
-	var octalMatcher = new RegExp(/^(?:(?:#[ei])?#o|#o(?:#[ei])?)(?:[-+]i|[-+][0-7]+#*(?:\/[0-7]+#*)?i|[-+]?[0-7]+#*(?:\/[0-7]+#*)?@[-+]?[0-7]+#*(?:\/[0-7]+#*)?|[-+]?[0-7]+#*(?:\/[0-7]+#*)?[-+](?:[0-7]+#*(?:\/[0-7]+#*)?)?i|[-+]?[0-7]+#*(?:\/[0-7]+#*)?)(?=[()\s;]|$)/i);
-	var hexMatcher = new RegExp(/^(?:(?:#[ei])?#x|#x(?:#[ei])?)(?:[-+]i|[-+][\da-f]+#*(?:\/[\da-f]+#*)?i|[-+]?[\da-f]+#*(?:\/[\da-f]+#*)?@[-+]?[\da-f]+#*(?:\/[\da-f]+#*)?|[-+]?[\da-f]+#*(?:\/[\da-f]+#*)?[-+](?:[\da-f]+#*(?:\/[\da-f]+#*)?)?i|[-+]?[\da-f]+#*(?:\/[\da-f]+#*)?)(?=[()\s;]|$)/i);
-	var decimalMatcher = new RegExp(/^(?:(?:#[ei])?(?:#d)?|(?:#d)?(?:#[ei])?)(?:[-+]i|[-+](?:(?:(?:\d+#+\.?#*|\d+\.\d*#*|\.\d+#*|\d+)(?:[esfdl][-+]?\d+)?)|\d+#*\/\d+#*)i|[-+]?(?:(?:(?:\d+#+\.?#*|\d+\.\d*#*|\.\d+#*|\d+)(?:[esfdl][-+]?\d+)?)|\d+#*\/\d+#*)@[-+]?(?:(?:(?:\d+#+\.?#*|\d+\.\d*#*|\.\d+#*|\d+)(?:[esfdl][-+]?\d+)?)|\d+#*\/\d+#*)|[-+]?(?:(?:(?:\d+#+\.?#*|\d+\.\d*#*|\.\d+#*|\d+)(?:[esfdl][-+]?\d+)?)|\d+#*\/\d+#*)[-+](?:(?:(?:\d+#+\.?#*|\d+\.\d*#*|\.\d+#*|\d+)(?:[esfdl][-+]?\d+)?)|\d+#*\/\d+#*)?i|(?:(?:(?:\d+#+\.?#*|\d+\.\d*#*|\.\d+#*|\d+)(?:[esfdl][-+]?\d+)?)|\d+#*\/\d+#*))(?=[()\s;]|$)/i);
+    // expressions for matching various number formats
+    var binaryMatcher = new RegExp(/^(?:(?:#[ei])?#b|#b(?:#[ei])?)(?:[-+]i|[-+][01]+#*(?:\/[01]+#*)?i|[-+]?[01]+#*(?:\/[01]+#*)?@[-+]?[01]+#*(?:\/[01]+#*)?|[-+]?[01]+#*(?:\/[01]+#*)?[-+](?:[01]+#*(?:\/[01]+#*)?)?i|[-+]?[01]+#*(?:\/[01]+#*)?)(?=[()\s;]|$)/i);
+    var octalMatcher = new RegExp(/^(?:(?:#[ei])?#o|#o(?:#[ei])?)(?:[-+]i|[-+][0-7]+#*(?:\/[0-7]+#*)?i|[-+]?[0-7]+#*(?:\/[0-7]+#*)?@[-+]?[0-7]+#*(?:\/[0-7]+#*)?|[-+]?[0-7]+#*(?:\/[0-7]+#*)?[-+](?:[0-7]+#*(?:\/[0-7]+#*)?)?i|[-+]?[0-7]+#*(?:\/[0-7]+#*)?)(?=[()\s;]|$)/i);
+    var hexMatcher = new RegExp(/^(?:(?:#[ei])?#x|#x(?:#[ei])?)(?:[-+]i|[-+][\da-f]+#*(?:\/[\da-f]+#*)?i|[-+]?[\da-f]+#*(?:\/[\da-f]+#*)?@[-+]?[\da-f]+#*(?:\/[\da-f]+#*)?|[-+]?[\da-f]+#*(?:\/[\da-f]+#*)?[-+](?:[\da-f]+#*(?:\/[\da-f]+#*)?)?i|[-+]?[\da-f]+#*(?:\/[\da-f]+#*)?)(?=[()\s;]|$)/i);
+    var decimalMatcher = new RegExp(/^(?:(?:#[ei])?(?:#d)?|(?:#d)?(?:#[ei])?)(?:[-+]i|[-+](?:(?:(?:\d+#+\.?#*|\d+\.\d*#*|\.\d+#*|\d+)(?:[esfdl][-+]?\d+)?)|\d+#*\/\d+#*)i|[-+]?(?:(?:(?:\d+#+\.?#*|\d+\.\d*#*|\.\d+#*|\d+)(?:[esfdl][-+]?\d+)?)|\d+#*\/\d+#*)@[-+]?(?:(?:(?:\d+#+\.?#*|\d+\.\d*#*|\.\d+#*|\d+)(?:[esfdl][-+]?\d+)?)|\d+#*\/\d+#*)|[-+]?(?:(?:(?:\d+#+\.?#*|\d+\.\d*#*|\.\d+#*|\d+)(?:[esfdl][-+]?\d+)?)|\d+#*\/\d+#*)[-+](?:(?:(?:\d+#+\.?#*|\d+\.\d*#*|\.\d+#*|\d+)(?:[esfdl][-+]?\d+)?)|\d+#*\/\d+#*)?i|(?:(?:(?:\d+#+\.?#*|\d+\.\d*#*|\.\d+#*|\d+)(?:[esfdl][-+]?\d+)?)|\d+#*\/\d+#*))(?=[()\s;]|$)/i);
 
     function isNumber(ch, stream) {
-		stream.backUp(1);
-		if(stream.match(binaryMatcher) || stream.match(octalMatcher) || stream.match(hexMatcher) || stream.match(decimalMatcher)) {
-			return true;
-		}
-		stream.eat(ch);
-		return false;
+        stream.backUp(1);
+        if(stream.match(binaryMatcher) || stream.match(octalMatcher) || stream.match(hexMatcher) || stream.match(decimalMatcher)) {
+            return true;
+        }
+        stream.eat(ch);
+        return false;
     }
 
     return {
@@ -114,12 +114,12 @@ CodeMirror.defineMode("scheme", function (config, mode) {
                     } else if (isNumber(ch, stream)) {
                         returnType = NUMBER;
                     } else if (ch == '#') {
-                        if (stream.eat("|")) {					// Multi-line comment
+                        if (stream.eat("|")) {                    // Multi-line comment
                             state.mode = "comment"; // toggle to comment mode
                             returnType = COMMENT;
-                        } else if (stream.eat(/[tf]/i)) {			// #t/#f (atom)
+                        } else if (stream.eat(/[tf]/i)) {            // #t/#f (atom)
                             returnType = ATOM;
-                        } else if (stream.eat(';')) {				// S-Expr comment
+                        } else if (stream.eat(';')) {                // S-Expr comment
                             state.mode = "s-expr-comment";
                             returnType = COMMENT;
                         }
