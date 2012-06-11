@@ -240,7 +240,6 @@
       /* var cur = cm.getCursor();
       var f = {line: cur.line, ch: cur.ch}, t = {line: cur.line};
       pushInBuffer(cm.getRange(f, t));
-      cm.replaceRange("", f, t);
       */
       emptyBuffer();
       mark["Shift-D"] = cm.getCursor(false).line;
@@ -280,10 +279,6 @@
       popCount();
       CodeMirror.commands.goLineStart(cm);
     },
-    "'$'": function (cm) {
-      countTimes("goLineEnd")(cm);
-      if (cm.getCursor().ch) CodeMirror.commands.goColumnLeft(cm);
-    },
     nofallthrough: true, style: "fat-cursor"
   };
 
@@ -308,13 +303,10 @@
   // main num keymap
   // Add bindings that are influenced by number keys
   iterObj({
-    "H": "goColumnLeft", "L": "goColumnRight", "J": "goLineDown",
-    "K": "goLineUp", "Left": "goColumnLeft", "Right": "goColumnRight",
+    "Left": "goColumnLeft", "Right": "goColumnRight",
     "Down": "goLineDown", "Up": "goLineUp", "Backspace": "goCharLeft",
     "Space": "goCharRight",
     "B": function(cm) {moveToWord(cm, word, -1, "end");},
-    "E": function(cm) {moveToWord(cm, word, 1, "end");},
-    "W": function(cm) {moveToWord(cm, word, 1, "start");},
     "Shift-B": function(cm) {moveToWord(cm, bigWord, -1, "end");},
     "Shift-E": function(cm) {moveToWord(cm, bigWord, 1, "end");},
     "Shift-W": function(cm) {moveToWord(cm, bigWord, 1, "start");},
@@ -322,10 +314,9 @@
     "P": function(cm) {
       var cur = cm.getCursor().line;
       if (buf!= "") {
-        CodeMirror.commands.goLineEnd(cm); 
-        cm.replaceSelection(buf, "end");
+        if (buf[0] == "\n") CodeMirror.commands.goLineEnd(cm);
+        cm.replaceRange(buf, cm.getCursor());
       }
-      cm.setCursor(cur+1);
     },
     "Shift-X": function(cm) {CodeMirror.commands.delCharLeft(cm);},
     "Shift-J": function(cm) {joinLineNext(cm);},
@@ -394,18 +385,20 @@
       cm.setOption("keyMap", "vim-prefix-d'");
       emptyBuffer();
     },
-    "E": countTimes("delWordRight"),
-    "B": countTimes("delWordLeft"),
+    "B": function(cm) {
+      var cur = cm.getCursor();
+      var line = cm.getLine(cur.line);
+      var index = line.lastIndexOf(" ", cur.ch);
+
+      pushInBuffer(line.substring(index, cur.ch));
+      cm.replaceRange("", {line: cur.line, ch: index}, cur)
+    },
     auto: "vim", nofallthrough: true, style: "fat-cursor"
   }; 
   // FIXME - does not work for bindings like "d3e"
   addCountBindings(CodeMirror.keyMap["vim-prefix-d"]);
 
   CodeMirror.keyMap["vim-prefix-c"] = {
-    "E": function (cm) {
-      countTimes("delWordRight")(cm);
-      enterInsertMode(cm);
-    },
     "B": function (cm) {
       countTimes("delWordLeft")(cm);
       enterInsertMode(cm);
@@ -482,6 +475,13 @@
   setupPrefixBindingForKey("Space");
 
   CodeMirror.keyMap["vim-prefix-y"] = {
+    "B": function(cm) {
+      var cur = cm.getCursor();
+      var line = cm.getLine(cur.line);
+      var index = line.lastIndexOf(" ", cur.ch);
+
+      pushInBuffer(line.substring(index, cur.ch));
+    },
     "Y": countTimes(function(cm) { pushInBuffer("\n"+cm.getLine(cm.getCursor().line+yank)); yank++; }),
     "'": function(cm) {cm.setOption("keyMap", "vim-prefix-y'"); emptyBuffer();},
     auto: "vim", nofallthrough: true, style: "fat-cursor"
@@ -497,4 +497,141 @@
     "Ctrl-P": "autocomplete",
     fallthrough: ["default"]
   };
+
+  // These are our motion commands to be used for navigation and selection with
+  // certian other commands. All should return a cursor object.
+  var motionList = ['E', 'J', 'K', 'H', 'L', 'W', "'$'", "'%'"]
+
+  motions = {
+    'E': function(cm) {
+      var cur = cm.getCursor()
+      var line = cm.getLine(cur.line).substring(cur.ch)
+      var index = line.search(/[^\s]\s/)
+
+      while (index == -1) {
+        cur.line++
+        cur.ch = 0
+        var index = cm.getLine(cur.line).search(/[^\s]\s/)
+      }
+
+      // Add on our cur.ch because we took the index of a split string earlier
+      return {line: cur.line, ch: index+cur.ch+1}
+    },
+    'J': function(cm) {
+      var cur = cm.getCursor()
+      return {line: cur.line+1, ch : cur.ch}
+    },
+
+    'K': function(cm) {
+      var cur = cm.getCursor()
+      return {line: cur.line-1, ch: cur.ch}
+    },
+
+    'H': function(cm) {
+      var cur = cm.getCursor()
+      return {line: cur.line, ch: cur.ch-1}
+    },
+
+    'L': function(cm) {
+      var cur = cm.getCursor()
+      return {line: cur.line, ch: cur.ch+1}
+    },
+    'W': function(cm) {
+      var cur = cm.getCursor()
+      var line = cm.getLine(cur.line).substring(cur.ch)
+      var index = line.search(/\s[^\s]/)
+
+      while (index == -1) {
+        cur.line++
+        cur.ch = 0
+        var index = cm.getLine(cur.line).search(/\s[^\s]/)
+      }
+
+      // Add on our cur.ch because we took the index of a split string earlier
+      return {line: cur.line, ch: index+cur.ch+1}
+    },
+    "'$'": function(cm) {
+      var cur = cm.getCursor()
+      var line = cm.getLine(cur.line)
+      return {line: cur.line, ch: line.length}
+    },
+    "'%'": function(cm) {
+      var cur = cm.getCursor()
+      var line = cur.line
+      var symb = cm.getLine(line)[cur.ch]
+
+      // Not the companion type character, abort
+      if (['(',')','[',']','{','}'].indexOf(symb) == -1) { return cur }
+      var forwards = ['(', '[', '{'].indexOf(symb) != -1
+      
+      // Worst goddamn code I've ever written, ick!
+      var reverseSymb = (function getReverseSymb(sym) {
+        if (sym == '(') { return ')' }
+        else if (sym == '[') { return ']' }
+        else if (sym == '{') { return '}' }
+        else if (sym == ')') { return '(' }
+        else if (sym == ']') { return '[' }
+        else if (sym == '}') { return '{' }
+      })(symb)
+
+      var disBal = forwards ? 0 : 1
+
+      while (true) {
+        if (line == cur.line) {
+          // First pass, do some special stuff
+          var currLine =  forwards ? cm.getLine(line).substr(cur.ch).split('') : cm.getLine(line).substr(0,cur.ch).split('').reverse()
+        }
+        else {
+          var currLine =  forwards ? cm.getLine(line).split('') : cm.getLine(line).split('').reverse()
+        }
+
+        for (var index = 0;  index < currLine.length; index++) {
+          if (currLine[index] == symb) { disBal++ }
+          else if (currLine[index] == reverseSymb) { disBal-- }
+
+          if (disBal == 0) { 
+            if (forwards && cur.line == line) return {line: line, ch: index + cur.ch}
+            else if (forwards) return {line: line, ch: index}
+            else return {line: line, ch: currLine.length - index - 1 }
+          }
+        }
+
+        if (forwards) { line++ }
+        else { line-- }
+      }
+    }
+  }
+
+  // Map our movement actions each operator and non-operational movement
+  motionList.forEach(function(key, index, array) {
+    CodeMirror.keyMap['vim-prefix-d'][key] = function(cm) {
+      var start = cm.getCursor()
+      var end = motions[key](cm)
+
+      pushInBuffer(cm.getRange(start, end))
+      cm.replaceRange("", start, end)
+    }
+
+    CodeMirror.keyMap['vim-prefix-c'][key] = function(cm) {
+      var start = cm.getCursor()
+      var end = motions[key](cm)
+
+      pushInBuffer(cm.getRange(start, end))
+      cm.replaceRange("", start, end)
+      cm.setOption('keyMap', 'vim-insert')
+    }
+
+    CodeMirror.keyMap['vim-prefix-y'][key] = function(cm) {
+      var start = cm.getCursor()
+      var end = motions[key](cm)
+
+      pushInBuffer(cm.getRange(start, end))
+    }
+
+    CodeMirror.keyMap['vim'][key] = function(cm) {
+      var cur = motions[key](cm)
+      cm.setCursor(cur.line, cur.ch)
+    }
+  })
+
 })();
