@@ -69,6 +69,9 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
         state.tokenize = inBlock("meta", "?>");
         return "meta";
       }
+      else if (stream.eat("%")) {
+          if (stream.match("--")) { return chain(inBlock("comment", "--%>")); }
+      }
       else {
         type = stream.eat("/") ? "closeTag" : "openTag";
         stream.eatSpace();
