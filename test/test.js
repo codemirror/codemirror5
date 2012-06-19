@@ -279,6 +279,13 @@ testCM("bookmark", function(cm) {
   });
 });
 
+testCM("bug577", function(cm) {
+  cm.setValue("a\nb");
+  cm.clearHistory();
+  cm.setValue("fooooo");
+  cm.undo();
+});
+
 // Scaffolding
 
 function htmlEscape(str) {

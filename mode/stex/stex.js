@@ -85,10 +85,12 @@ CodeMirror.defineMode("stex", function(cmCfg, modeCfg)
 	if (source.match(/^\\[a-zA-Z@]+/)) {
 	    var cmdName = source.current();
 	    cmdName = cmdName.substr(1, cmdName.length-1);
-	    var plug = plugins[cmdName];
-	    if (typeof(plug) == 'undefined') {
-		plug = plugins["DEFAULT"];
-	    }
+            var plug;
+            if (plugins.hasOwnProperty(cmdName)) {
+	      plug = plugins[cmdName];
+            } else {
+              plug = plugins["DEFAULT"];
+            }
 	    plug = new plug();
 	    pushCommand(state, plug);
 	    setState(state, beginParams);
