@@ -91,6 +91,10 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
     "term_to_binary","time","throw","tl","trunc","tuple_size",
     "tuple_to_list","unlink","unregister","whereis"];
 
+  var ignoreWords = [
+    ",", "catch", "after", "of"];
+
+
   var smallRE      = /[a-z_]/;
   var largeRE      = /[A-Z_]/;
   var digitRE      = /[0-9]/;
@@ -336,17 +340,31 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
   }
 
   function pushToken(state,token,pos) {
-// fixme: this won't find matched parens that have commas between them :<
-    if (matched_pair(peekToken(state).token,token)) {
+    var prev_token = peekToken(state).token;
+    if (isMember(token,ignoreWords)) {
+      return false;
+    }else if (drop_both(prev_token,token)) {
       popToken(state);
       return false;
+    }else if (drop_first(prev_token,token)) {
+      popToken(state);
+      return pushToken(state,token,pos);
     }else{
       state.tokenStack.push(new Token(token,pos));
       return true;
     }
   }
 
-  function matched_pair(open, close) {
+  function drop_first(open, close) {
+    switch (open+" "+close) {
+      case "when ->":       return true;
+      case "-> end":        return true;
+      case "-> .":          return true;
+      default:              return false;
+    }
+  }
+
+  function drop_both(open, close) {
     switch (open+" "+close) {
       case "( )":         return true;
       case "[ ]":         return true;
