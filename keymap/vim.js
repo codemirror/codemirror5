@@ -748,11 +748,13 @@
   // And finally build the keymaps up from the text objects
   for (var i = 0; i < textObjectList.length; ++i) {
     var object = textObjectList[i];
-    CodeMirror.keyMap['vim-prefix-di'][object] = function(cm) { textObjectManipulation(cm, object, true, false, false); };
-    CodeMirror.keyMap['vim-prefix-da'][object] = function(cm) { textObjectManipulation(cm, object, true, false, true); };
-    CodeMirror.keyMap['vim-prefix-yi'][object] = function(cm) { textObjectManipulation(cm, object, false, false, false); };
-    CodeMirror.keyMap['vim-prefix-ya'][object] = function(cm) { textObjectManipulation(cm, object, false, false, true); };
-    CodeMirror.keyMap['vim-prefix-ci'][object] = function(cm) { textObjectManipulation(cm, object, true, true, false); };
-    CodeMirror.keyMap['vim-prefix-ca'][object] = function(cm) { textObjectManipulation(cm, object, true, true, true); };
+    (function(object) {
+      CodeMirror.keyMap['vim-prefix-di'][object] = function(cm) { textObjectManipulation(cm, object, true, false, false); };
+      CodeMirror.keyMap['vim-prefix-da'][object] = function(cm) { textObjectManipulation(cm, object, true, false, true); };
+      CodeMirror.keyMap['vim-prefix-yi'][object] = function(cm) { textObjectManipulation(cm, object, false, false, false); };
+      CodeMirror.keyMap['vim-prefix-ya'][object] = function(cm) { textObjectManipulation(cm, object, false, false, true); };
+      CodeMirror.keyMap['vim-prefix-ci'][object] = function(cm) { textObjectManipulation(cm, object, true, true, false); };
+      CodeMirror.keyMap['vim-prefix-ca'][object] = function(cm) { textObjectManipulation(cm, object, true, true, true); };
+    })(object)
   }
 })();
