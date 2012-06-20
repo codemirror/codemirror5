@@ -94,7 +94,7 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
     "tuple_to_list","unlink","unregister","whereis"];
 
   var ignoreWords = [
-    ",", "catch", "after", "of"];
+    ",", "catch", "after", "of", "cond", "let", "query"];
 
 
   var smallRE      = /[a-z_]/;
