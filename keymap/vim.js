@@ -1,5 +1,5 @@
 // Supported keybindings:
-// 
+//
 // Cursor movement:
 // h, j, k, l
 // e, E, w, W, b, B
@@ -9,7 +9,7 @@
 // G
 // ge, gE
 // gg
-// f<char>, F<char>, t<char>, T<char> 
+// f<char>, F<char>, t<char>, T<char>
 // Ctrl-o, Ctrl-i TODO (FIXME - Ctrl-O wont work in Chrome)
 // /, ?, n, N TODO (does not work)
 // #, * TODO
@@ -23,11 +23,11 @@
 // cf<char>, cF<char>, ct<char>, cT<char>
 //
 // Deleting text:
-// x, X 
+// x, X
 // J
 // dd, D
 // de, db (without support for number of actions like d3e - TODO)
-// df<char>, dF<char>, dt<char>, dT<char> 
+// df<char>, dF<char>, dt<char>, dT<char>
 //
 // Yanking and pasting:
 // yy, Y
@@ -83,8 +83,8 @@
       return ch.toLowerCase();
     }
   }
-  var SPECIAL_SYMBOLS = "~`!@#$%^&*()_-+=[{}]\\|/?.,<>:;\"\'1234567890"; 
-  function toCombo(ch) { 
+  var SPECIAL_SYMBOLS = "~`!@#$%^&*()_-+=[{}]\\|/?.,<>:;\"\'1234567890";
+  function toCombo(ch) {
     // t -> T, T -> Shift-T, * -> '*', " " -> "Space"
     if (ch == " ") return "Space";
     var specialIdx = SPECIAL_SYMBOLS.indexOf(ch);
@@ -125,7 +125,7 @@
           cur.ch = 0;
           line = cm.getLine(cur.line);
         } else if (cur.ch == 0 && dir < 0) {
-          cur.line--; 
+          cur.line--;
           cur.ch = line.length;
           line = cm.getLine(cur.line);
         }
@@ -142,14 +142,14 @@
   }
   function joinLineNext(cm) {
     var cur = cm.getCursor(), ch = cur.ch, line = cm.getLine(cur.line);
-    CodeMirror.commands.goLineEnd(cm); 
+    CodeMirror.commands.goLineEnd(cm);
     if (cur.line != cm.lineCount()) {
       CodeMirror.commands.goLineEnd(cm);
       cm.replaceSelection(" ", "end");
       CodeMirror.commands.delCharRight(cm);
-    } 
+    }
   }
-  function delTillMark(cm, cHar) { 
+  function delTillMark(cm, cHar) {
     var i = mark[cHar];
     if (i === undefined) {
       // console.log("Mark not set"); // TODO - show in status bar
@@ -158,11 +158,11 @@
     var l = cm.getCursor().line, start = i > l ? l : i, end = i > l ? i : l;
     cm.setCursor(start);
     for (var c = start; c <= end; c++) {
-      pushInBuffer("\n"+cm.getLine(start)); 
+      pushInBuffer("\n"+cm.getLine(start));
       cm.removeLine(start);
     }
   }
-  function yankTillMark(cm, cHar) { 
+  function yankTillMark(cm, cHar) {
     var i = mark[cHar];
     if (i === undefined) {
       // console.log("Mark not set"); // TODO - show in status bar
@@ -181,7 +181,7 @@
   }
 
   function charIdxInLine(cm, cHar, motion_options) {
-    // Search for cHar in line. 
+    // Search for cHar in line.
     // motion_options: {forward, inclusive}
     // If inclusive = true, include it too.
     // If forward = true, search forward, else search backwards.
@@ -189,7 +189,7 @@
     var cur = cm.getCursor(), line = cm.getLine(cur.line), idx;
     var ch = toLetter(cHar), mo = motion_options;
     if (mo.forward) {
-      idx = line.indexOf(ch, cur.ch + 1); 
+      idx = line.indexOf(ch, cur.ch + 1);
       if (idx != -1 && mo.inclusive) idx += 1;
     } else {
       idx = line.lastIndexOf(ch, cur.ch);
@@ -199,9 +199,9 @@
   }
 
   function moveTillChar(cm, cHar, motion_options) {
-    // Move to cHar in line, as found by charIdxInLine. 
+    // Move to cHar in line, as found by charIdxInLine.
     var idx = charIdxInLine(cm, cHar, motion_options), cur = cm.getCursor();
-    if (idx != -1) cm.setCursor({line: cur.line, ch: idx}); 
+    if (idx != -1) cm.setCursor({line: cur.line, ch: idx});
   }
 
   function delTillChar(cm, cHar, motion_options) {
@@ -251,7 +251,7 @@
     },
     "G": function(cm) { cm.setOption("keyMap", "vim-prefix-g");},
     "Shift-D": function(cm) {
-      // commented out verions works, but I left original, cause maybe 
+      // commented out verions works, but I left original, cause maybe
       // I don't know vim enouth to see what it does
       /* var cur = cm.getCursor();
       var f = {line: cur.line, ch: cur.ch}, t = {line: cur.line};
@@ -335,8 +335,8 @@
     "Shift-P": function(cm) {
       var cur = cm.getCursor().line;
       if (buf!= "") {
-        CodeMirror.commands.goLineUp(cm); 
-        CodeMirror.commands.goLineEnd(cm); 
+        CodeMirror.commands.goLineUp(cm);
+        CodeMirror.commands.goLineEnd(cm);
         cm.replaceSelection(buf, "end");
       }
       cm.setCursor(cur+1);
@@ -349,14 +349,14 @@
     },
     "Ctrl-B": function(cm) {CodeMirror.commands.goPageUp(cm);},
     "Ctrl-F": function(cm) {CodeMirror.commands.goPageDown(cm);},
-    "Ctrl-P": "goLineUp", "Ctrl-N": "goLineDown", 
+    "Ctrl-P": "goLineUp", "Ctrl-N": "goLineDown",
     "U": "undo", "Ctrl-R": "redo"
   }, function(key, cmd) { map[key] = countTimes(cmd); });
 
   // empty key maps
   iterList([
-      "vim-prefix-d'", 
-      "vim-prefix-y'", 
+      "vim-prefix-d'",
+      "vim-prefix-y'",
       "vim-prefix-df",
       "vim-prefix-dF",
       "vim-prefix-dt",
@@ -373,10 +373,10 @@
       "vim-prefix-T",
       "vim-prefix-r",
       "vim-prefix-m"
-      ], 
+      ],
       function (prefix) {
         CodeMirror.keyMap[prefix] = {
-          auto: "vim", 
+          auto: "vim",
           nofallthrough: true,
           style: "fat-cursor"
         };
@@ -409,7 +409,7 @@
       cm.setOption("keyMap", "vim");
     },
     nofallthrough: true, style: "fat-cursor"
-  }; 
+  };
   // FIXME - does not work for bindings like "d3e"
   addCountBindings(CodeMirror.keyMap["vim-prefix-d"]);
 
@@ -460,7 +460,7 @@
     };
     CodeMirror.keyMap["vim-prefix-r"][m] = function (cm) {
       var cur = cm.getCursor();
-      cm.replaceRange(toLetter(m), 
+      cm.replaceRange(toLetter(m),
           {line: cur.line, ch: cur.ch},
           {line: cur.line, ch: cur.ch + 1});
       CodeMirror.commands.goColumnLeft(cm);
@@ -498,21 +498,21 @@
   CodeMirror.keyMap["vim-insert"] = {
     // TODO: override navigation keys so that Esc will cancel automatic indentation from o, O, i_<CR>
     "Esc": function(cm) {
-      cm.setCursor(cm.getCursor().line, cm.getCursor().ch-1, true); 
+      cm.setCursor(cm.getCursor().line, cm.getCursor().ch-1, true);
       cm.setOption("keyMap", "vim");
     },
     "Ctrl-N": "autocomplete",
     "Ctrl-P": "autocomplete",
     fallthrough: ["default"]
   };
-  
+
   function findMatchedSymbol(cm, cur, symb) {
     var line = cur.line;
     var symb = symb ? symb : cm.getLine(line)[cur.ch];
 
     // Are we at the opening or closing char
     var forwards = ['(', '[', '{'].indexOf(symb) != -1;
-    
+
     var reverseSymb = (function(sym) {
       switch (sym) {
         case '(' : return ')';
@@ -544,7 +544,7 @@
         if (currLine[index] == symb) disBal++;
         else if (currLine[index] == reverseSymb) disBal--;
 
-        if (disBal == 0) { 
+        if (disBal == 0) {
           if (forwards && cur.line == line) return {line: line, ch: index + cur.ch};
           else if (forwards) return {line: line, ch: index};
           else return {line: line, ch: currLine.length - index - 1 };
@@ -555,7 +555,7 @@
       else line--;
     }
   }
- 
+
   function selectCompanionObject(cm, revSymb, inclusive) {
     var cur = cm.getCursor();
 
@@ -737,9 +737,9 @@
     var tmp = textObjects[object](cm, inclusive);
     var start = tmp.start;
     var end = tmp.end;
-    
+
     if ((start.line > end.line) || (start.line == end.line && start.ch > end.ch)) var swap = true ;
-      
+
     pushInBuffer(cm.getRange(swap ? end : start, swap ? start : end));
     if (remove) cm.replaceRange("", swap ? end : start, swap ? start : end);
     if (insert) cm.setOption('keyMap', 'vim-insert');
