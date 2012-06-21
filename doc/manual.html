@@ -820,6 +820,31 @@
       actually opening an editor instance.
       See <a href="../demo/runmode.html">the demo</a> for an
       example.</dd>
+      <dt id="util_overlay"><a href="../lib/util/overlay.js"><code>overlay.js</code></a></dt>
+      <dd>Mode combinator that can be used to extend a mode with an
+      'overlay' — a secondary mode is run over the stream, along with
+      the base mode, and can color specific pieces of text without
+      interfering with the base mode.
+      Defines <code>CodeMirror.overlayMode</code>, which is used to
+      create such a mode. See <a href="../demo/mustache.html">this
+      demo</a> for a detailed example.</dd>
+      <dt id="util_multiple"><a href="../lib/util/multiplex.js"><code>multiplex.js</code></a></dt>
+      <dd>Mode combinator that can be used to easily 'multiplex'
+      between several modes.
+      Defines <code>CodeMirror.multiplexingMode</code> which, when
+      given as first argument a mode object, and as other arguments
+      any number of <code>{open, close, mode [, delimStyle]}</code>
+      objects, will return a mode object that starts parsing using the
+      mode passed as first argument, but will switch to another mode
+      as soon as it encounters a string that occurs in one of
+      the <code>open</code> fields of the passed objects. When in a
+      sub-mode, it will go back to the top mode again when
+      the <code>close</code> string is encountered.
+      When <code>delimStyle</code> is specified, it will be the token
+      style returned for the delimiter tokens. The outer mode will not
+      see the content between the delimiters.
+      See <a href="../demo/multiplex.html">this demo</a> for an
+      example.</dd>
       <dt id="util_simple-hint"><a href="../lib/util/simple-hint.js"><code>simple-hint.js</code></a></dt>
       <dd>Provides a framework for showing autocompletion hints.
       Defines <code>CodeMirror.simpleHint</code>, which takes a
