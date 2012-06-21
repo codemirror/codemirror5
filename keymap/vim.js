@@ -47,7 +47,6 @@
 // . TODO
 //
 
-
 (function() {
   var count = "";
   var sdir = "f";
@@ -710,6 +709,23 @@
     };
   });
 
+  //support for regex index of
+  String.prototype.regexIndexOf = function( pattern, startIndex ) {
+      startIndex = startIndex || 0;
+      var searchResult = this.substr( startIndex ).search( pattern );
+      return ( -1 === searchResult ) ? -1 : searchResult + startIndex;
+  }
+
+  String.prototype.regexLastIndexOf = function( pattern, startIndex ) {
+      startIndex = startIndex === undefined ? this.length : startIndex;
+      var searchResult = this.substr( 0, startIndex ).reverse().regexIndexOf( pattern, 0 );
+      return ( -1 === searchResult ) ? -1 : this.length - ++searchResult;
+  }
+
+  String.prototype.reverse = function() {
+      return this.split('').reverse().join('');
+  }
+
   // Create our text object functions. They work similar to motions but they
   // return a start cursor as well
   var textObjectList = ['W', 'Shift-[', 'Shift-9', '['];
@@ -718,7 +734,8 @@
       var cur = cm.getCursor();
       var line = cm.getLine(cur.line);
 
-      var start = line.substring(0, cur.ch).lastIndexOf(' ') + 1;
+      var line_to_char = new String(line.substring(0, cur.ch));
+      var start = line_to_char.regexLastIndexOf(/[^a-zA-Z0-9]/) + 1;
       var end = motions["E"](cm, 1) ;
 
       end.ch += inclusive ? 1 : 0 ;
