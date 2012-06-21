@@ -709,21 +709,10 @@
     };
   });
 
-  //support for regex index of
-  String.prototype.regexIndexOf = function( pattern, startIndex ) {
-      startIndex = startIndex || 0;
-      var searchResult = this.substr( startIndex ).search( pattern );
-      return ( -1 === searchResult ) ? -1 : searchResult + startIndex;
-  }
-
-  String.prototype.regexLastIndexOf = function( pattern, startIndex ) {
-      startIndex = startIndex === undefined ? this.length : startIndex;
-      var searchResult = this.substr( 0, startIndex ).reverse().regexIndexOf( pattern, 0 );
-      return ( -1 === searchResult ) ? -1 : this.length - ++searchResult;
-  }
-
-  String.prototype.reverse = function() {
-      return this.split('').reverse().join('');
+  function regexLastIndexOf(string, pattern, startIndex) {
+    for (var i = startIndex == null ? string.length : startIndex; i >= 0; --i)
+      if (pattern.test(string.charAt(i))) return i;
+    return -1;
   }
 
   // Create our text object functions. They work similar to motions but they
@@ -735,7 +724,7 @@
       var line = cm.getLine(cur.line);
 
       var line_to_char = new String(line.substring(0, cur.ch));
-      var start = line_to_char.regexLastIndexOf(/[^a-zA-Z0-9]/) + 1;
+      var start = regexLastIndexOf(line_to_char, /[^a-zA-Z0-9]/) + 1;
       var end = motions["E"](cm, 1) ;
 
       end.ch += inclusive ? 1 : 0 ;
