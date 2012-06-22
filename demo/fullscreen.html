@@ -9,20 +9,13 @@
     <link rel="stylesheet" href="../doc/docs.css">
 
     <style type="text/css">
-        .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}
-        .CodeMirror-fullscreen {
-            display: block;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 9999;
-            margin: 0;
-            padding: 0;
-            border: 0px solid #BBBBBB;
-            opacity: 1;
-        }
+      .CodeMirror-fullscreen {
+        display: block;
+        position: absolute;
+        top: 0; left: 0;
+        width: 100%;
+        z-index: 9999;
+      }
     </style>
   </head>
   <body>
@@ -109,44 +102,45 @@
     </dl></dd>
 
 </textarea></form>
- <script>
-    var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-        lineNumbers: true,
-        theme: "night",
-        extraKeys: {
-            "F11": function() {
-              var scroller = editor.getScrollerElement();
-              if (scroller.className.search(/\bCodeMirror-fullscreen\b/) === -1) {
-                scroller.className += " CodeMirror-fullscreen";
-                scroller.style.height = "100%";
-                scroller.style.width = "100%";
-                editor.refresh();
-              } else {
-                scroller.className = scroller.className.replace(" CodeMirror-fullscreen", "");
-                scroller.style.height = '';
-                scroller.style.width = '';
-                editor.refresh();
-              }
-            },
-            "Esc": function() {
-              var scroller = editor.getScrollerElement();
-              if (scroller.className.search(/\bCodeMirror-fullscreen\b/) !== -1) {
-                scroller.className = scroller.className.replace(" CodeMirror-fullscreen", "");
-                scroller.style.height = '';
-                scroller.style.width = '';
-                editor.refresh();
-              }
-            }
-        }
+  <script>
+    function isFullScreen(cm) {
+      return /\bCodeMirror-fullscreen\b/.test(cm.getWrapperElement().className);
+    }
+    function winHeight() {
+      return window.innerHeight || (document.documentElement || document.body).clientHeight;
+    }
+    function setFullScreen(cm, full) {
+      var wrap = cm.getWrapperElement(), scroll = cm.getScrollerElement();
+      if (full) {
+        wrap.className += " CodeMirror-fullscreen";
+        scroll.style.height = winHeight() + "px";
+        document.documentElement.style.overflow = "hidden";
+      } else {
+        wrap.className = wrap.className.replace(" CodeMirror-fullscreen", "");
+        scroll.style.height = "";
+        document.documentElement.style.overflow = "";
+      }
+      cm.refresh();
+    }
+    CodeMirror.connect(window, "resize", function() {
+      var showing = document.body.getElementsByClassName("CodeMirror-fullscreen")[0];
+      if (!showing) return;
+      showing.CodeMirror.getScrollerElement().style.height = winHeight() + "px";
     });
-
-</script>
+    var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+      lineNumbers: true,
+      theme: "night",
+      extraKeys: {
+        "F11": function(cm) {
+          setFullScreen(cm, !isFullScreen(cm));
+        },
+        "Esc": function(cm) {
+          if (isFullScreen(cm)) setFullScreen(cm, false);
+        }
+      }
+    });
+  </script>
 
     <p>Press <strong>F11</strong> when cursor is in the editor to toggle full screen editing. <strong>Esc</strong> can also be used to <i>exit</i> full screen editing.</p>
-
-    <p><strong>Note:</strong> Does not currently work correctly in IE
-    6 and 7, where setting the height of something
-    to <code>100%</code> doesn't make it full screen.</p>
-
   </body>
 </html>
