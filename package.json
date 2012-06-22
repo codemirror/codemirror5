@@ -1,6 +1,6 @@
 {
     "name": "CodeMirror",
-    "version":"2.25.0",
+    "version":"2.30.0",
     "main": "codemirror.js",
     "description": "In-browser code editing made bearable",
     "licenses": [

@@ -250,6 +250,18 @@
 
   <h2>Releases</h2>
 
+  <p class="rel">22-06-2012: <a href="http://codemirror.net/codemirror-2.3.zip">Version 2.3</a>:</p>
+
+  <ul class="rel-note">
+    <li><strong>New scrollbar implementation</strong>. Should flicker less. Changes DOM structure of the editor.</li>
+    <li>New theme: <a href="demo/theme.html?vibrant-ink">vibrant-ink</a>.</li>
+    <li>Many extensions to the VIM keymap (including text objects).</li>
+    <li>Add <a href="demo/multiplex.html">mode-multiplexing</a> utility script.</li>
+    <li>Fix bug where right-click paste works in read-only mode.</li>
+    <li>Add a <a href="doc/manual.html#getScrollInfo"><code>getScrollInfo</code></a> method.</li>
+    <li>Lots of other <a href="https://github.com/marijnh/CodeMirror2/compare/v2.25...v2.3">fixes</a>.</li>
+  </ul>
+
   <p class="rel">23-05-2012: <a href="http://codemirror.net/codemirror-2.25.zip">Version 2.25</a>:</p>
 
   <ul class="rel-note">
@@ -387,21 +399,6 @@
     returns an object with <code>clear</code> and <code>find</code>
     methods. Marked text is now more robust when edited.</li>
     <li>Fix editing code with tabs in Internet Explorer.</li>
-  </ul>
-
-  <p class="rel">26-09-2011: <a href="http://codemirror.net/codemirror-2.15.zip">Version 2.15</a>:</p>
-  <p class="rel-note">Fix bug that snuck into 2.14: Clicking the
-  character that currently has the cursor didn't re-focus the
-  editor.</p>
-
-  <p class="rel">26-09-2011: <a href="http://codemirror.net/codemirror-2.14.zip">Version 2.14</a>:</p>
-  <ul class="rel-note">
-    <li>Add <a href="mode/clojure/index.html">Clojure</a>, <a href="mode/pascal/index.html">Pascal</a>, <a href="mode/ntriples/index.html">NTriples</a>, <a href="mode/jinja2/index.html">Jinja2</a>, and <a href="mode/markdown/index.html">Markdown</a> modes.</li>
-    <li>Add <a href="theme/cobalt.css">Cobalt</a> and <a href="theme/eclipse.css">Eclipse</a> themes.</li>
-    <li>Add a <a href="doc/manual.html#option_fixedGutter"><code>fixedGutter</code></a> option.</li>
-    <li>Fix bug with <code>setValue</code> breaking cursor movement.</li>
-    <li>Make gutter updates much more efficient.</li>
-    <li>Allow dragging of text out of the editor (on modern browsers).</li>
   </ul>
 
   <p><a href="doc/oldrelease.html">Older releases...</a></p>
