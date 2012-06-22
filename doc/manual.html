@@ -441,8 +441,7 @@
     by <code>pre</code> elements. By default no text styling (such as
     bold) that might change line height is applied. If you do want
     such effects, you'll have to give <code>CodeMirror pre</code> a
-    fixed height. Also, you must still take care that character width
-    is constant.</p>
+    fixed height.</p>
 
     <p>If your page's style sheets do funky things to
     all <code>div</code> or <code>pre</code> elements (you probably
@@ -487,6 +486,10 @@
       <dd>Scroll the editor to a given (pixel) position. Both
       arguments may be left as <code>null</code>
       or <code>undefined</code> to have no effect.</dd>
+      <dt id="getScrollInfo"><code>getScrollInfo()</code></dt>
+      <dd>Get an <code>{x, y, width, height}</code> object that
+      represents the current scroll position and scrollable area size
+      of the editor.</dd>
 
       <dt id="setOption"><code>setOption(option, value)</code></dt>
       <dd>Change the configuration of the editor. <code>option</code>
@@ -535,7 +538,7 @@
 
       <dt id="getTokenAt"><code>getTokenAt(pos) → object</code></dt>
       <dd>Retrieves information about the token the current mode found
-      at the given position (a <code>{line, ch}</code> object). The
+      before the given position (a <code>{line, ch}</code> object). The
       returned object has the following properties:
       <dl>
         <dt><code>start</code></dt><dd>The character (on the given line) at which the token starts.</dd>
@@ -820,6 +823,31 @@
       <dd>Can be used to run a CodeMirror mode over text without
       actually opening an editor instance.
       See <a href="../demo/runmode.html">the demo</a> for an
+      example.</dd>
+      <dt id="util_overlay"><a href="../lib/util/overlay.js"><code>overlay.js</code></a></dt>
+      <dd>Mode combinator that can be used to extend a mode with an
+      'overlay' — a secondary mode is run over the stream, along with
+      the base mode, and can color specific pieces of text without
+      interfering with the base mode.
+      Defines <code>CodeMirror.overlayMode</code>, which is used to
+      create such a mode. See <a href="../demo/mustache.html">this
+      demo</a> for a detailed example.</dd>
+      <dt id="util_multiplex"><a href="../lib/util/multiplex.js"><code>multiplex.js</code></a></dt>
+      <dd>Mode combinator that can be used to easily 'multiplex'
+      between several modes.
+      Defines <code>CodeMirror.multiplexingMode</code> which, when
+      given as first argument a mode object, and as other arguments
+      any number of <code>{open, close, mode [, delimStyle]}</code>
+      objects, will return a mode object that starts parsing using the
+      mode passed as first argument, but will switch to another mode
+      as soon as it encounters a string that occurs in one of
+      the <code>open</code> fields of the passed objects. When in a
+      sub-mode, it will go back to the top mode again when
+      the <code>close</code> string is encountered.
+      When <code>delimStyle</code> is specified, it will be the token
+      style returned for the delimiter tokens. The outer mode will not
+      see the content between the delimiters.
+      See <a href="../demo/multiplex.html">this demo</a> for an
       example.</dd>
       <dt id="util_simple-hint"><a href="../lib/util/simple-hint.js"><code>simple-hint.js</code></a></dt>
       <dd>Provides a framework for showing autocompletion hints.

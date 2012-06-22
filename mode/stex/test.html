@@ -241,6 +241,18 @@
 
     </script>
 
+    <h2>New Commands</h2>
+
+    Should be able to define a new command that happens to be a method on Array
+    (e.g. <tt>pop</tt>):
+    <script language="javascript">
+      MT.test('\\newcommand{\\pop}',
+        'tag', '\\newcommand',
+        'bracket', '{',
+        'tag', '\\pop',
+        'bracket', '}');
+    </script>
+
     <h2>Summary</h2>
     <script language="javascript">
       MT.printSummary();

@@ -29,18 +29,28 @@ CodeMirror.defineMode("scheme", function (config, mode) {
         state.indentStack = state.indentStack.prev;
     }
 
-    /**
-     * Scheme numbers are complicated unfortunately.
-     * Checks if we're looking at a number, which might be possibly a fraction.
-     * Also checks that it is not part of a longer identifier. Returns true/false accordingly.
-     */
-    function isNumber(ch, stream){
-        if (!stream.eatWhile(/[0-9]/)) {
-            if (stream.eat(/\//)) stream.eatWhile(/[0-9]/);
-            if (stream.eol() || !(/[a-zA-Z\-\_\/]/.test(stream.peek()))) return true;
-            stream.backUp(stream.current().length - 1); // undo all the eating
+    var binaryMatcher = new RegExp(/^(?:[-+]i|[-+][01]+#*(?:\/[01]+#*)?i|[-+]?[01]+#*(?:\/[01]+#*)?@[-+]?[01]+#*(?:\/[01]+#*)?|[-+]?[01]+#*(?:\/[01]+#*)?[-+](?:[01]+#*(?:\/[01]+#*)?)?i|[-+]?[01]+#*(?:\/[01]+#*)?)(?=[()\s;"]|$)/i);
+    var octalMatcher = new RegExp(/^(?:[-+]i|[-+][0-7]+#*(?:\/[0-7]+#*)?i|[-+]?[0-7]+#*(?:\/[0-7]+#*)?@[-+]?[0-7]+#*(?:\/[0-7]+#*)?|[-+]?[0-7]+#*(?:\/[0-7]+#*)?[-+](?:[0-7]+#*(?:\/[0-7]+#*)?)?i|[-+]?[0-7]+#*(?:\/[0-7]+#*)?)(?=[()\s;"]|$)/i);
+    var hexMatcher = new RegExp(/^(?:[-+]i|[-+][\da-f]+#*(?:\/[\da-f]+#*)?i|[-+]?[\da-f]+#*(?:\/[\da-f]+#*)?@[-+]?[\da-f]+#*(?:\/[\da-f]+#*)?|[-+]?[\da-f]+#*(?:\/[\da-f]+#*)?[-+](?:[\da-f]+#*(?:\/[\da-f]+#*)?)?i|[-+]?[\da-f]+#*(?:\/[\da-f]+#*)?)(?=[()\s;"]|$)/i);
+    var decimalMatcher = new RegExp(/^(?:[-+]i|[-+](?:(?:(?:\d+#+\.?#*|\d+\.\d*#*|\.\d+#*|\d+)(?:[esfdl][-+]?\d+)?)|\d+#*\/\d+#*)i|[-+]?(?:(?:(?:\d+#+\.?#*|\d+\.\d*#*|\.\d+#*|\d+)(?:[esfdl][-+]?\d+)?)|\d+#*\/\d+#*)@[-+]?(?:(?:(?:\d+#+\.?#*|\d+\.\d*#*|\.\d+#*|\d+)(?:[esfdl][-+]?\d+)?)|\d+#*\/\d+#*)|[-+]?(?:(?:(?:\d+#+\.?#*|\d+\.\d*#*|\.\d+#*|\d+)(?:[esfdl][-+]?\d+)?)|\d+#*\/\d+#*)[-+](?:(?:(?:\d+#+\.?#*|\d+\.\d*#*|\.\d+#*|\d+)(?:[esfdl][-+]?\d+)?)|\d+#*\/\d+#*)?i|(?:(?:(?:\d+#+\.?#*|\d+\.\d*#*|\.\d+#*|\d+)(?:[esfdl][-+]?\d+)?)|\d+#*\/\d+#*))(?=[()\s;"]|$)/i);
+
+    function isBinaryNumber (stream) {
+        return stream.match(binaryMatcher);
+    }
+
+    function isOctalNumber (stream) {
+        return stream.match(octalMatcher);
+    }
+
+    function isDecimalNumber (stream, backup) {
+        if (backup === true) {
+            stream.backUp(1);
         }
-        return false;
+        return stream.match(decimalMatcher);
+    }
+
+    function isHexNumber (stream) {
+        return stream.match(hexMatcher);
     }
 
     return {
@@ -111,29 +121,50 @@ CodeMirror.defineMode("scheme", function (config, mode) {
                     } else if (ch == "'") {
                         returnType = ATOM;
                     } else if (ch == '#') {
-                        if (stream.eat("|")) {					// Multi-line comment
+                        if (stream.eat("|")) {                    // Multi-line comment
                             state.mode = "comment"; // toggle to comment mode
                             returnType = COMMENT;
-                        } else if (stream.eat(/[tf]/)) {			// #t/#f (atom)
+                        } else if (stream.eat(/[tf]/i)) {            // #t/#f (atom)
                             returnType = ATOM;
-                        } else if (stream.eat(';')) {				// S-Expr comment
+                        } else if (stream.eat(';')) {                // S-Expr comment
                             state.mode = "s-expr-comment";
                             returnType = COMMENT;
+                        } else {
+                            var numTest = null, hasExactness = false, hasRadix = true;
+                            if (stream.eat(/[ei]/i)) {
+                                hasExactness = true;
+                            } else {
+                                stream.backUp(1);       // must be radix specifier
+                            }
+                            if (stream.match(/^#b/i)) {
+                                numTest = isBinaryNumber;
+                            } else if (stream.match(/^#o/i)) {
+                                numTest = isOctalNumber;
+                            } else if (stream.match(/^#x/i)) {
+                                numTest = isHexNumber;
+                            } else if (stream.match(/^#d/i)) {
+                                numTest = isDecimalNumber;
+                            } else if (stream.match(/^[-+0-9.]/, false)) {
+                                hasRadix = false;
+                                numTest = isDecimalNumber;
+                            // re-consume the intial # if all matches failed
+                            } else if (!hasExactness) {
+                                stream.eat('#');
+                            }
+                            if (numTest != null) {
+                                if (hasRadix && !hasExactness) {
+                                    // consume optional exactness after radix
+                                    stream.match(/^#[ei]/i);
+                                }
+                                if (numTest(stream))
+                                    returnType = NUMBER;
+                            }
                         }
-
+                    } else if (/^[-+0-9.]/.test(ch) && isDecimalNumber(stream, true)) { // match non-prefixed number, must be decimal
+                        returnType = NUMBER;
                     } else if (ch == ";") { // comment
                         stream.skipToEnd(); // rest of the line is a comment
                         returnType = COMMENT;
-                    } else if (ch == "-"){
-
-                        if(!isNaN(parseInt(stream.peek()))){
-                            stream.eatWhile(/[\/0-9]/);
-                            returnType = NUMBER;
-                        }else{
-                            returnType = null;
-                        }
-                    } else if (isNumber(ch,stream)){
-                        returnType = NUMBER;
                     } else if (ch == "(" || ch == "[") {
                         var keyWord = ''; var indentTemp = stream.column();
                         /**

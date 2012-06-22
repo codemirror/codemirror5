@@ -42,7 +42,7 @@ CodeMirror.defineMode("mustache", function(config, parserConfig) {
       return null;
     }
   };
-  return CodeMirror.overlayParser(CodeMirror.getMode(config, parserConfig.backdrop || "text/html"), mustacheOverlay);
+  return CodeMirror.overlayMode(CodeMirror.getMode(config, parserConfig.backdrop || "text/html"), mustacheOverlay);
 });
 var editor = CodeMirror.fromTextArea(document.getElementById("code"), {mode: "mustache"});
 </script>
