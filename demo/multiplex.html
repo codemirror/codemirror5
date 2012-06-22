@@ -47,11 +47,13 @@ var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
 });
 </script>
 
-    <p>Demonstration of a mode that parses HTML, highlighting
-    the <a href="http://mustache.github.com/">Mustache</a> templating
-    directives inside of it by using the code
-    in <a href="../lib/util/overlay.js"><code>overlay.js</code></a>. View
-    source to see the 15 lines of code needed to accomplish this.</p>
+    <p>Demonstration of a multiplexing mode, which, at certain
+    boundary strings, switches to one or more inner modes. The out
+    (HTML) mode does not get fed the content of the <code>&lt;&lt;
+    >></code> blocks. See
+    the <a href="../doc/manual.html#util_multiplex">manual</a> and
+    the <a href="../lib/util/multiplex.js">source</a> for more
+    information.</p>
 
   </body>
 </html>
