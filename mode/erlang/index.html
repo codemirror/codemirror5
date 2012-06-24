@@ -52,6 +52,7 @@ expand_recs(_,Term) ->
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true,
         matchBrackets: true,
+        extraKeys: {"Tab":  "indentAuto"},
         theme: "erlang-dark"
       });
     </script>
