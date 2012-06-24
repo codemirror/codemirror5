@@ -47,7 +47,7 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
     "let","of","query","receive","try","when"];
 
   var separatorWords = [
-    "->",";",",","."];
+    "->",";",":",".",","];
 
   var operatorWords = [
     "and","andalso","band","bnot","bor","bsl","bsr","bxor",
@@ -94,7 +94,7 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
     "tuple_to_list","unlink","unregister","whereis"];
 
   var ignoreWords = [
-    ",", "catch", "after", "of", "cond", "let", "query"];
+    ",", ":", "catch", "after", "of", "cond", "let", "query"];
 
 
   var smallRE      = /[a-z_]/;
@@ -105,7 +105,7 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
   var symbolRE     = /[\+\-\*\/<>=\|:]/;
   var openParenRE  = /[<\(\[\{]/;
   var closeParenRE = /[>\)\]\}]/;
-  var sepRE        = /[\->\.,]/;
+  var sepRE        = /[\->\.,:;]/;
 
   function isMember(element,list) {
     return (-1 < list.indexOf(element));
