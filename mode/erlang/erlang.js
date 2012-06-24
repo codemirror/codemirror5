@@ -13,7 +13,11 @@ CodeMirror.defineMIME("text/x-erlang", "erlang");
 
 CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
 
-  function rval(state,type) {
+  function rval(state,stream,type) {
+    // remember last significant bit on last line for indenting
+    if (type != "whitespace" && type != "comment") {
+      state.lastToken = stream.current();
+    }
     //     erlang             -> CodeMirror tag
     switch (type) {
       case "atom":        return "atom";
@@ -93,6 +97,7 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
     "term_to_binary","time","throw","tl","trunc","tuple_size",
     "tuple_to_list","unlink","unregister","whereis"];
 
+  // ignored for indenting purposes
   var ignoreWords = [
     ",", ":", "catch", "after", "of", "cond", "let", "query"];
 
@@ -124,7 +129,7 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
 
   function tokenize(stream, state) {
     if (stream.eatSpace()) {
-      return null;
+      return rval(state,stream,"whitespace");
     }
 
     // attributes and type specs
@@ -132,9 +137,9 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
       stream.next();
       if (stream.eat(smallRE) && stream.eatWhile(anumRE)) {
         if (isMember(stream.current(),typeWords)) {
-          return rval(state,"type");
+          return rval(state,stream,"type");
         }else{
-          return rval(state,"attribute");
+          return rval(state,stream,"attribute");
         }
       }
       stream.backUp(1);
@@ -145,19 +150,19 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
     // comment
     if (ch == '%') {
       stream.skipToEnd();
-      return rval(state,"comment");
+      return rval(state,stream,"comment");
     }
 
     // macro
     if (ch == '?') {
       stream.eatWhile(anumRE);
-      return rval(state,"macro");
+      return rval(state,stream,"macro");
     }
 
     // record
     if ( ch == "#") {
       stream.eatWhile(anumRE);
-      return rval(state,"record");
+      return rval(state,stream,"record");
     }
 
     // char
@@ -167,31 +172,31 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
           stream.next();
         }
       }
-      return rval(state,"string");
+      return rval(state,stream,"string");
     }
 
     // quoted atom
     if (ch == '\'') {
       if (singleQuote(stream)) {
-        return rval(state,"atom");
+        return rval(state,stream,"atom");
       }else{
-        return rval(state,"error");
+        return rval(state,stream,"error");
       }
     }
 
     // string
     if (ch == '"') {
       if (doubleQuote(stream)) {
-        return rval(state,"string");
+        return rval(state,stream,"string");
       }else{
-        return rval(state,"error");
+        return rval(state,stream,"error");
       }
     }
 
     // variable
     if (largeRE.test(ch)) {
       stream.eatWhile(anumRE);
-      return rval(state,"variable");
+      return rval(state,stream,"variable");
     }
 
     // atom/keyword/BIF/function
@@ -201,10 +206,10 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
       if (stream.peek() == "/") {
         stream.next();
         if (stream.eatWhile(digitRE)) {
-          return rval(state,"fun");      // f/0 style fun
+          return rval(state,stream,"fun");      // f/0 style fun
         }else{
           stream.backUp(1);
-          return rval(state,"atom");
+          return rval(state,stream,"atom");
         }
       }
 
@@ -212,30 +217,31 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
 
       if (isMember(w,keywordWords)) {
         pushToken(state,stream);
-        return rval(state,"keyword");           // keyword
+        return rval(state,stream,"keyword");
       }
       if (stream.peek() == "(") {
+        // 'put' and 'erlang:put' are bifs, 'foo:put' is not
         if (isMember(w,bifWords) &&
             (!isPrev(stream,":") || isPrev(stream,"erlang:"))) {
-          return rval(state,"builtin");         // BIF
+          return rval(state,stream,"builtin");
         }else{
-          return rval(state,"function");        // function
+          return rval(state,stream,"function");
         }
       }
       if (isMember(w,guardWords)) {
-        return rval(state,"guard");             // guard
+        return rval(state,stream,"guard");
       }
       if (isMember(w,operatorWords)) {
-        return rval(state,"operator");          // operator
+        return rval(state,stream,"operator");
       }
       if (stream.peek() == ":") {
         if (w == "erlang") {
-          return rval(state,"builtin");          // external BIF call
+          return rval(state,stream,"builtin");
         } else {
-          return rval(state,"function");          // function application
+          return rval(state,stream,"function");
         }
       }
-      return rval(state,"atom");
+      return rval(state,stream,"atom");               
     }
 
     // number
@@ -252,29 +258,33 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
           stream.eatWhile(digitRE);
         }
       }
-      return rval(state,"number");               // normal integer
+      return rval(state,stream,"number");   // normal integer
     }
 
+    // open parens
     if (nongreedy(stream,openParenRE,openParenWords)) {
       pushToken(state,stream);
-      return rval(state,"open_paren");
+      return rval(state,stream,"open_paren");
     }
 
+    // close parens
     if (nongreedy(stream,closeParenRE,closeParenWords)) {
       pushToken(state,stream);
-      return rval(state,"close_paren");
+      return rval(state,stream,"close_paren");
     }
 
+    // separators
     if (greedy(stream,sepRE,separatorWords)) {
       pushToken(state,stream);
-      return rval(state,"separator");
+      return rval(state,stream,"separator");
     }
 
+    // operators
     if (greedy(stream,symbolRE,symbolWords)) {
-      return rval(state,"operator");
+      return rval(state,stream,"operator");
     }
 
-    return null;
+    return rval(state,stream,null);
   }
 
   function nongreedy(stream,re,words) {
@@ -395,6 +405,7 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
     startState:
       function() {
         return {tokenStack: [],
+                lastToken: null,
                 indent: 0};
       },
 
