@@ -427,6 +427,7 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
 
     indent:
       function(state, textAfter) {
+        console.log(state.tokenStack);
         return state.indent;
       }
   };
