@@ -16,9 +16,9 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
   function rval(state,stream,type) {
     // distinguish between "." as terminator and record field operator
     if (type == "record") {
-      state.record_context = true;
+      state.context = "record";
     }else{
-      state.record_context = false;
+      state.context = false;
     }
 
     // remember last significant bit on last line for indenting
@@ -283,7 +283,7 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
     // separators
     if (greedy(stream,sepRE,separatorWords)) {
       // distinguish between "." as terminator and record field operator
-      if (state.record_context == false) {
+      if (state.context == false) {
         pushToken(state,stream);
       }
       return rval(state,stream,"separator");
@@ -415,7 +415,7 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
     startState:
       function() {
         return {tokenStack: [],
-                record_context: false,
+                context: false,
                 lastToken: null,
                 indent: 0};
       },
