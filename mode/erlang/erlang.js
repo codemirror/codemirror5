@@ -140,7 +140,7 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
     }
 
     // attributes and type specs
-    if (state.indent == 0 && stream.peek() == '-') {
+    if (peekToken(state).token == "." && stream.peek() == '-') {
       stream.next();
       if (stream.eat(smallRE) && stream.eatWhile(anumRE)) {
         if (isMember(stream.current(),typeWords)) {
@@ -348,10 +348,36 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
     return false;
   }
 
-  function Token(stream) {
+  function Token(stream,state) {
     this.token = stream.current();
     this.col = stream.column();
     this.indent = stream.indentation();
+    this.my_indent = myIndent(stream,state);
+  }
+
+var bumpIndentWords = [
+    "begin","case","fun","if","receive","try","when","->"];
+var decIndentWords = [
+    "end",";"];
+
+  function myIndent(stream,state) {
+    var token = stream.current();
+    if (isMember(token,openParenWords)) {
+      return stream.column()+token.length;
+    }else if (token == "."){
+      return 0;
+    }else if (peekToken(state).my_indent == undefined){
+      return 0;
+    }else{
+      var pindent = peekToken(state).my_indent;
+      if (isMember(token,bumpIndentWords)) {
+        return pindent+2;   // fixme: hardcoding is no good
+      }else if (isMember(token,decIndentWords)) {
+        return pindent-2;   // fixme: hardcoding is no good
+      }else{
+        return pindent;
+      }
+    }
   }
 
   function popToken(state) {
@@ -360,16 +386,16 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
 
   function peekToken(state) {
     var len = state.tokenStack.length;
-    if ( len == 0 ) {
-      return "";
+    if (len == 0) {
+      return {};
     }else{
-      return state.tokenStack[len-1].token;
+      return state.tokenStack[len-1];
     }
   }
 
   function pushToken(state,stream) {
     var token = stream.current();
-    var prev_token = peekToken(state);
+    var prev_token = peekToken(state).token;
     if (isMember(token,ignoreWords)) {
       return false;
     }else if (drop_both(prev_token,token)) {
@@ -379,7 +405,7 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
       popToken(state);
       return pushToken(state,stream);
     }else{
-      state.tokenStack.push(new Token(stream));
+      state.tokenStack.push(new Token(stream,state));
       return true;
     }
   }
@@ -416,8 +442,7 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
       function() {
         return {tokenStack: [],
                 context: false,
-                lastToken: null,
-                indent: 0};
+                lastToken: null};
       },
 
     token:
@@ -427,8 +452,8 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
 
     indent:
       function(state, textAfter) {
-        console.log(state.tokenStack);
-        return state.indent;
+//        console.log(state.tokenStack);
+        return peekToken(state).my_indent;
       }
   };
 });
