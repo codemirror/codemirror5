@@ -18,7 +18,7 @@
 #!/bin/bash
 
 # clone the repository
-git clone http://github.com/garden/tree
+git clone https://github.com/garden/tree
 
 # generate HTTPS credentials
 cd tree
@@ -28,12 +28,14 @@ openssl x509 -req -days 365 -in https.csr -signkey https.key -out https.crt
 cp https.key{,.orig}
 openssl rsa -in https.key.orig -out https.key
 
+# grab all the dependencies
+make init
+
 # start the server in HTTPS mode
-cd web
-sudo node ../server.js 443 'yes' &gt;&gt; ../node.log &amp;
+sudo node app.js 443 'yes' &gt;&gt; node.log &amp;
 
 # here is how to stop the server
-for pid in `ps aux | grep 'node ../server.js' | awk '{print $2}'` ; do
+for pid in `ps aux | grep 'node app.js' | awk '{print $2}'` ; do
   sudo kill -9 $pid 2&gt; /dev/null
 done
 
