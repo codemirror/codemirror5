@@ -45,7 +45,7 @@ CodeMirror.defineMode('shell', function(config) {
     if (atoms.indexOf(cur) !== -1) return 'atom';
     if (commands.indexOf(cur) !== -1) return 'builtin';
     if (keywords.indexOf(cur) !== -1) return 'keyword';
-    return 'word';
+    return null;
   }
 
   function tokenString(quote) {

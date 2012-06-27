@@ -59,7 +59,7 @@ CodeMirror.defineMode("groovy", function(config, parserConfig) {
       if (blockKeywords.propertyIsEnumerable(cur)) curPunc = "newstatement";
       return "keyword";
     }
-    return "word";
+    return "variable";
   }
   tokenBase.isBase = true;
 

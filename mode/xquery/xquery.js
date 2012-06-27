@@ -137,7 +137,7 @@ CodeMirror.defineMode("xquery", function(config, parserConfig) {
         return ret("tag", "tag");
       }
       else  
-        return ret("word", "word");
+        return ret("word", "variable");
     }
     // if a number
     else if (/\d/.test(ch)) {
@@ -213,7 +213,7 @@ CodeMirror.defineMode("xquery", function(config, parserConfig) {
       // if the previous word was element, attribute, axis specifier, this word should be the name of that
       if(isInXmlConstructor(state)) {
         popStateStack(state);
-        return ret("word", "word", word);
+        return ret("word", "variable", word);
       }
       // as previously checked, if the word is element,attribute, axis specifier, call it an "xmlconstructor" and 
       // push the stack so we know to look for it on the next word
@@ -221,7 +221,7 @@ CodeMirror.defineMode("xquery", function(config, parserConfig) {
       
       // if the word is known, return the details of that else just call this a generic 'word'
       return known ? ret(known.type, known.style, word) :
-                     ret("word", "word", word);
+                     ret("word", "variable", word);
     }
   }
 

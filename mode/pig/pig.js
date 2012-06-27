@@ -112,8 +112,8 @@ CodeMirror.defineMode("pig", function(config, parserConfig) {
 			// is it one of the listed types?
 			if (types && types.propertyIsEnumerable(stream.current().toUpperCase()))
 				return ("keyword", "variable-3")
-			// default is a 'word'
-			return ret("word", "pig-word");
+			// default is a 'variable'
+			return ret("variable", "pig-word");
 		}
 	}
 	

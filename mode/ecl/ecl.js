@@ -100,7 +100,7 @@ CodeMirror.defineMode("ecl", function(config) {
 	    }
     }
     if (atoms.propertyIsEnumerable(cur)) return "atom";
-    return "word";
+    return null;
   }
 
   function tokenString(quote) {

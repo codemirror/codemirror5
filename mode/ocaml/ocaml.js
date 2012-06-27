@@ -71,7 +71,7 @@ CodeMirror.defineMode('ocaml', function(config) {
     }
     stream.eatWhile(/\w/);
     var cur = stream.current();
-    return words[cur] || 'word';
+    return words[cur] || 'variable';
   }
 
   function tokenString(stream, state) {

@@ -46,7 +46,7 @@ CodeMirror.defineMode("pascal", function(config) {
     var cur = stream.current();
     if (keywords.propertyIsEnumerable(cur)) return "keyword";
     if (atoms.propertyIsEnumerable(cur)) return "atom";
-    return "word";
+    return "variable";
   }
 
   function tokenString(quote) {
