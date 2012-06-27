@@ -178,5 +178,5 @@ CodeMirror.defineMode("stex", function(cmCfg, modeCfg)
  };
 });
 
-
 CodeMirror.defineMIME("text/x-stex", "stex");
+CodeMirror.defineMIME("text/x-latex", "stex");
