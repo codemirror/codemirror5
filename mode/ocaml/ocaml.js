@@ -1,8 +1,40 @@
 CodeMirror.defineMode('ocaml', function(config) {
 
-  var atoms = ['true','false'],
-      keywords = ['let','rec','in','of','and','succ','if','then','else','for','to','while','do','done','fun','function','val','type','mutable','match','with','try','raise','begin','end'],
-      commands = ['open','print_string','print_endline','trace','ignore','exit'];
+  var words = {
+    'true': 'atom',
+    'false': 'atom',
+    'let': 'keyword',
+    'rec': 'keyword',
+    'in': 'keyword',
+    'of': 'keyword',
+    'and': 'keyword',
+    'succ': 'keyword',
+    'if': 'keyword',
+    'then': 'keyword',
+    'else': 'keyword',
+    'for': 'keyword',
+    'to': 'keyword',
+    'while': 'keyword',
+    'do': 'keyword',
+    'done': 'keyword',
+    'fun': 'keyword',
+    'function': 'keyword',
+    'val': 'keyword',
+    'type': 'keyword',
+    'mutable': 'keyword',
+    'match': 'keyword',
+    'with': 'keyword',
+    'try': 'keyword',
+    'raise': 'keyword',
+    'begin': 'keyword',
+    'end': 'keyword',
+    'open': 'builtin',
+    'trace': 'builtin',
+    'ignore': 'builtin',
+    'exit': 'builtin',
+    'print_string': 'builtin',
+    'print_endline': 'builtin'
+  };
 
   function tokenBase(stream, state) {
     var sol = stream.sol();
@@ -39,10 +71,7 @@ CodeMirror.defineMode('ocaml', function(config) {
     }
     stream.eatWhile(/\w/);
     var cur = stream.current();
-    if (atoms.indexOf(cur) !== -1) return 'atom';
-    if (commands.indexOf(cur) !== -1) return 'builtin';
-    if (keywords.indexOf(cur) !== -1) return 'keyword';
-    return 'word';
+    return words[cur] || 'word';
   }
 
   function tokenString(stream, state) {
