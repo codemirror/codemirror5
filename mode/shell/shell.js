@@ -1,8 +1,26 @@
 CodeMirror.defineMode('shell', function(config) {
 
-  var atoms = ['true','false'],
-      keywords = ['if','then','do','else','elif','while','until','for','in','esac','fi','fin','fil','done','exit','set','unset','export','function'],
-      commands = ['ab','awk','bash','beep','cat','cc','cd','chown','chmod','chroot','clear','cp','curl','cut','diff','echo','find','gawk','gcc','get','git','grep','kill','killall','ls','make','mkdir','openssl','mv','nc','node','npm','ping','ps','restart','rm','rmdir','sed','service','sh','shopt','shred','source','sort','sleep','ssh','start','stop','su','sudo','tee','telnet','top','touch','vi','vim','wall','wc','wget','who','write','yes','zsh'];
+  var words = {};
+  function define(style, string) {
+    var split = string.split(' ');
+    for(var i = 0; i < split.length; i++) {
+      words[split[i]] = style;
+    }
+  };
+
+  // Atoms
+  define('atom', 'true false');
+
+  // Keywords
+  define('keyword', 'if then do else elif while until for in esac fi fin ' +
+    'fil done exit set unset export function');
+
+  // Commands
+  define('builtin', 'ab awk bash beep cat cc cd chown chmod chroot clear cp ' +
+    'curl cut diff echo find gawk gcc get git grep kill killall ln ls make ' +
+    'mkdir openssl mv nc node npm ping ps restart rm rmdir sed service sh ' +
+    'shopt shred source sort sleep ssh start stop su sudo tee telnet top ' +
+    'touch vi vim wall wc wget who write yes zsh');
 
   function tokenBase(stream, state) {
 
@@ -42,10 +60,7 @@ CodeMirror.defineMode('shell', function(config) {
     stream.eatWhile(/\w/);
     var cur = stream.current();
     if (stream.peek() === '=' && /\w+/.test(cur)) return 'def';
-    if (atoms.indexOf(cur) !== -1) return 'atom';
-    if (commands.indexOf(cur) !== -1) return 'builtin';
-    if (keywords.indexOf(cur) !== -1) return 'keyword';
-    return 'word';
+    return words[cur] || null;
   }
 
   function tokenString(quote) {

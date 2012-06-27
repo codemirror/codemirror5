@@ -70,7 +70,7 @@ CodeMirror.defineMode("go", function(config, parserConfig) {
       return "keyword";
     }
     if (atoms.propertyIsEnumerable(cur)) return "atom";
-    return "word";
+    return "variable";
   }
 
   function tokenString(quote) {
