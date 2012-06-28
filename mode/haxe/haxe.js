@@ -82,6 +82,11 @@ CodeMirror.defineMode("haxe", function(config, parserConfig) {
         stream.skipToEnd();
         return ret("conditional", "meta");
     }
+    else if (ch == "@") {
+      stream.eat(/:/);
+      stream.eatWhile(/[\w_]/);
+      return ret ("metadata", "meta");
+    }
     else if (isOperatorChar.test(ch)) {
       stream.eatWhile(isOperatorChar);
       return ret("operator", null, stream.current());
@@ -226,6 +231,7 @@ CodeMirror.defineMode("haxe", function(config, parserConfig) {
   }
 
   function statement(type) {
+    if (type == "@") return cont(metadef)
     if (type == "var") return cont(pushlex("vardef"), vardef1, expect(";"), poplex);
     if (type == "keyword a") return cont(pushlex("form"), expression, statement, poplex);
     if (type == "keyword b") return cont(pushlex("form"), statement, poplex);
@@ -267,6 +273,14 @@ CodeMirror.defineMode("haxe", function(config, parserConfig) {
     if (type == "(") return cont(pushlex(")"), commasep(expression, ")"), poplex, maybeoperator);
     if (type == ".") return cont(property, maybeoperator);
     if (type == "[") return cont(pushlex("]"), expression, expect("]"), poplex, maybeoperator);
+  }
+  function metadef(type, value) {
+    if(type == ":") return cont(metadef);
+    if(type == "variable") return cont(metadef);
+    if(type == "(") return cont(pushlex(")"), comasep(metaargs, ")"), poplex, statement)
+  }
+  function metaargs(type, value) {
+    if(typ == "variable") return cont();
   }
   
   function importdef (type, value)
