@@ -14,7 +14,8 @@
 <div><textarea id="code" name="code">
 import one.two.Three;
 
-class Foo<T> extends Three
+@attr("test")
+class Foo&lt;T&gt; extends Three
 {
 	public function new()
 	{
@@ -27,7 +28,15 @@ class Foo<T> extends Three
 		{
 			obj.k++;
 			trace(i);
+			var var1 = new Array();
+			if(var1.length > 1)
+				throw "Error";
 		}
+		// The following line should not be colored, the variable is scoped out
+		var1;
+		/* Multi line
+		 * Comment test
+		 */
 		return obj.k;
 	}
 	private function bar():Void
@@ -35,6 +44,12 @@ class Foo<T> extends Three
 		#if flash
 		var t1:String = "1.21";
 		#end
+		try {
+			doFoo({k:3, l:1.2});
+		}
+		catch (e : String) {
+			trace(e);
+		}
 		var t2:Float = cast(3.2);
 		var t3:haxe.Timer = new haxe.Timer();
 		var t4 = {k:Std.int(t2), l:Std.parseFloat(t1)};
