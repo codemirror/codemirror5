@@ -247,7 +247,7 @@ CodeMirror.defineMode("haxe", function(config, parserConfig) {
     if (type == "var") return cont(pushlex("vardef"), vardef1, expect(";"), poplex);
     if (type == "keyword a") return cont(pushlex("form"), expression, statement, poplex);
     if (type == "keyword b") return cont(pushlex("form"), statement, poplex);
-    if (type == "{") return cont(pushlex("}"), block, poplex);
+    if (type == "{") return cont(pushlex("}"), pushcontext, block, poplex, popcontext);
     if (type == ";") return cont();
     if (type == "attribute") return cont(maybeattribute);
     if (type == "function") return cont(functiondef);
