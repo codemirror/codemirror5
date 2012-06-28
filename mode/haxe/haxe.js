@@ -12,7 +12,7 @@ CodeMirror.defineMode("haxe", function(config, parserConfig) {
       "if": A, "while": A, "else": B, "do": B, "try": B,
       "return": C, "break": C, "continue": C, "new": C, "throw": C,
       "var": kw("var"), "inline":attribute, "static": attribute,
-    "public": attribute, "private": attribute, "cast": kw("cast"), "import": kw("import"),
+    "public": attribute, "private": attribute, "cast": kw("cast"), "import": kw("import"), "macro": kw("macro"), 
       "function": kw("function"), "catch": kw("catch"), "untyped": kw("untyped"), "callback": kw("cb"),
       "for": kw("for"), "switch": kw("switch"), "case": kw("case"), "default": kw("default"),
       "in": operator, "never": kw("property_access"), "trace":kw("trace"), 
