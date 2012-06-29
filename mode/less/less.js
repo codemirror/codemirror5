@@ -37,7 +37,7 @@ CodeMirror.defineMode("less", function(config) {
     }
 	else if (ch == "/") { // lesscss e.g.: .png will not be parsed as a class
 	  if(stream.eat("/")){
-		state.tokenize = tokenSComment
+		state.tokenize = tokenSComment;
       	return tokenSComment(stream, state);
 	  }else{
 	    stream.eatWhile(/[\a-zA-Z0-9\-_.\s]/);
