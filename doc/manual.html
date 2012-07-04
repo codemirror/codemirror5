@@ -391,16 +391,17 @@
 
     <dl>
       <dt id="class_CodeMirror"><code>CodeMirror</code></dt>
-      <dd>The outer element of the editor. This should be used for
-      borders and positioning. Can also be used to set styles that
-      should hold for everything inside the editor (such as font
-      and font size), or to set a background.</dd>
+      <dd>The outer element of the editor. This should be used for the
+      editor width, borders and positioning. Can also be used to set
+      styles that should hold for everything inside the editor (such
+      as font and font size), or to set a background.</dd>
 
       <dt id="class_CodeMirror_scroll"><code>CodeMirror-scroll</code></dt>
-      <dd>This determines whether the editor scrolls (<code>overflow:
-      auto</code> + fixed height). By default, it does. Giving
-      this <code>height: auto; overflow: visible;</code> will cause
-      the editor to resize to fit its content.</dd>
+      <dd>This determines the editor's height, and whether the editor
+      scrolls (<code>overflow: auto</code> + fixed height). By
+      default, it does. Giving this <code>height: auto; overflow:
+      visible;</code> will cause the editor to resize to fit its
+      content.</dd>
 
       <dt id="class_CodeMirror_focused"><code>CodeMirror-focused</code></dt>
       <dd>Whenever the editor is focused, the top element gets this
@@ -439,6 +440,13 @@
         <code>CodeMirror-nonmatchingbracket</code></dt>
       <dd>These are used to style matched (or unmatched) brackets.</dd>
     </dl>
+
+    <p>So note carefully that, in order to resize the editor, you
+    should set a <code>width</code> on
+    the <a href="#getWrapperElement">wrapper</a>
+    (class <code>CodeMirror</code>) element, and a height on
+    the <a href="#getScrollerElement">scroller</a>
+    (class <code>CodeMirror-scroll</code>) element.</p>
 
     <p>The actual lines, as well as the cursor, are represented
     by <code>pre</code> elements. By default no text styling (such as
@@ -713,13 +721,15 @@
       <dt id="getInputField"><code>getInputField() → textarea</code></dt>
       <dd>Returns the hidden textarea used to read input.</dd>
       <dt id="getWrapperElement"><code>getWrapperElement() → node</code></dt>
-      <dd>Returns the DOM node that represents the editor. Remove this
-      from your tree to delete an editor instance.</dd>
+      <dd>Returns the DOM node that represents the editor, and
+      controls its width. Remove this from your tree to delete an
+      editor instance. Set it's <code>width</code> style when
+      resizing.</dd>
       <dt id="getScrollerElement"><code>getScrollerElement() → node</code></dt>
-      <dd>Returns the DOM node that is responsible for the sizing and
-      the scrolling of the editor. You can change
-      the <code>height</code> and <code>width</code> styles of this
-      element to resize an editor. (You might have to call
+      <dd>Returns the DOM node that is responsible for the vertical
+      sizing and horizontal scrolling of the editor. You can change
+      the <code>height</code> style of this element to resize an
+      editor. (You might have to call
       the <a href="#refresh"><code>refresh</code></a> method
       afterwards.)</dd>
       <dt id="getGutterElement"><code>getGutterElement() → node</code></dt>
