@@ -27,25 +27,25 @@
       <input type="hidden" id="download" name="download" value="codemirror-compressed.js"/>
       <p>Version: <select id="version" onchange="setVersion(this);" style="padding: 1px">
         <option value="http://codemirror.net/">HEAD</option>
-        <option value="http://marijnhaverbeke.nl/git/codemirror2?a=blob_plain;hb=v2.3;f=">2.3</option>
-        <option value="http://marijnhaverbeke.nl/git/codemirror2?a=blob_plain;hb=v2.25;f=">2.25</option>
-        <option value="http://marijnhaverbeke.nl/git/codemirror2?a=blob_plain;hb=v2.24;f=">2.24</option>
-        <option value="http://marijnhaverbeke.nl/git/codemirror2?a=blob_plain;hb=v2.23;f=">2.23</option>
-        <option value="http://marijnhaverbeke.nl/git/codemirror2?a=blob_plain;hb=v2.22;f=">2.22</option>
-        <option value="http://marijnhaverbeke.nl/git/codemirror2?a=blob_plain;hb=v2.21;f=">2.21</option>
-        <option value="http://marijnhaverbeke.nl/git/codemirror2?a=blob_plain;hb=v2.2;f=">2.2</option>
-        <option value="http://marijnhaverbeke.nl/git/codemirror2?a=blob_plain;hb=v2.18;f=">2.18</option>
-        <option value="http://marijnhaverbeke.nl/git/codemirror2?a=blob_plain;hb=v2.16;f=">2.16</option>
-        <option value="http://marijnhaverbeke.nl/git/codemirror2?a=blob_plain;hb=v2.15;f=">2.15</option>
-        <option value="http://marijnhaverbeke.nl/git/codemirror2?a=blob_plain;hb=v2.13;f=">2.13</option>
-        <option value="http://marijnhaverbeke.nl/git/codemirror2?a=blob_plain;hb=v2.12;f=">2.12</option>
-        <option value="http://marijnhaverbeke.nl/git/codemirror2?a=blob_plain;hb=v2.11;f=">2.11</option>
-        <option value="http://marijnhaverbeke.nl/git/codemirror2?a=blob_plain;hb=v2.1;f=">2.1</option>
-        <option value="http://marijnhaverbeke.nl/git/codemirror2?a=blob_plain;hb=v2.02;f=">2.02</option>
-        <option value="http://marijnhaverbeke.nl/git/codemirror2?a=blob_plain;hb=v2.01;f=">2.01</option>
-        <option value="http://marijnhaverbeke.nl/git/codemirror2?a=blob_plain;hb=v2.0;f=">2.0</option>
-        <option value="http://marijnhaverbeke.nl/git/codemirror2?a=blob_plain;hb=beta2;f=">beta2</option>
-        <option value="http://marijnhaverbeke.nl/git/codemirror2?a=blob_plain;hb=beta1;f=">beta1</option>
+        <option value="https://raw.github.com/marijnh/CodeMirror2/v2.3/">2.3</option>
+        <option value="https://raw.github.com/marijnh/CodeMirror2/v2.25/">2.25</option>
+        <option value="https://raw.github.com/marijnh/CodeMirror2/v2.24/">2.24</option>
+        <option value="https://raw.github.com/marijnh/CodeMirror2/v2.23/">2.23</option>
+        <option value="https://raw.github.com/marijnh/CodeMirror2/v2.22/">2.22</option>
+        <option value="https://raw.github.com/marijnh/CodeMirror2/v2.21/">2.21</option>
+        <option value="https://raw.github.com/marijnh/CodeMirror2/v2.2/">2.2</option>
+        <option value="https://raw.github.com/marijnh/CodeMirror2/v2.18/">2.18</option>
+        <option value="https://raw.github.com/marijnh/CodeMirror2/v2.16/">2.16</option>
+        <option value="https://raw.github.com/marijnh/CodeMirror2/v2.15/">2.15</option>
+        <option value="https://raw.github.com/marijnh/CodeMirror2/v2.13/">2.13</option>
+        <option value="https://raw.github.com/marijnh/CodeMirror2/v2.12/">2.12</option>
+        <option value="https://raw.github.com/marijnh/CodeMirror2/v2.11/">2.11</option>
+        <option value="https://raw.github.com/marijnh/CodeMirror2/v2.1/">2.1</option>
+        <option value="https://raw.github.com/marijnh/CodeMirror2/v2.02/">2.02</option>
+        <option value="https://raw.github.com/marijnh/CodeMirror2/v2.01/">2.01</option>
+        <option value="https://raw.github.com/marijnh/CodeMirror2/v2.0/">2.0</option>
+        <option value="https://raw.github.com/marijnh/CodeMirror2/beta2/">beta2</option>
+        <option value="https://raw.github.com/marijnh/CodeMirror2/beta1/">beta1</option>
       </select></p>
 
       <select multiple="multiple" size="20" name="code_url" style="width: 40em;" class="field" id="files">
@@ -141,7 +141,7 @@
               continue;
             else if (m = opt.value.match(/^http:\/\/codemirror.net\/(.*)$/))
               opt.value = urlprefix + m[1];
-            else if (m = opt.value.match(/http:\/\/marijnhaverbeke.nl\/git\/codemirror2\?a=blob_plain;hb=[^;]+;f=(.*)$/))
+            else if (m = opt.value.match(/https:\/\/raw.github.com\/marijnh\/CodeMirror2\/[^;]+\/(.*)$/))
               opt.value = urlprefix + m[1];
           }
        }
