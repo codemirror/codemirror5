@@ -1,6 +1,7 @@
 CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
-  var htmlMode = CodeMirror.getMode(cmCfg, { name: 'xml', htmlMode: true });
+  var htmlFound = CodeMirror.mimeModes.hasOwnProperty("text/html");
+  var htmlMode = CodeMirror.getMode(cmCfg, htmlFound ? "text/html" : "text/plain");
 
   var header   = 'header'
   ,   code     = 'comment'
@@ -37,6 +38,10 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     state.em = false;
     // Reset STRONG state
     state.strong = false;
+    if (!htmlFound && state.f == htmlBlock) {
+      state.f = inlineNormal;
+      state.block = blockNormal;
+    }
     return null;
   }
 
@@ -67,7 +72,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
   function htmlBlock(stream, state) {
     var style = htmlMode.token(stream, state.htmlState);
-    if (style === 'tag' && state.htmlState.type !== 'openTag' && !state.htmlState.context) {
+    if (htmlFound && style === 'tag' && state.htmlState.type !== 'openTag' && !state.htmlState.context) {
       state.f = inlineNormal;
       state.block = blockNormal;
     }
@@ -188,7 +193,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         f: blockNormal,
         
         block: blockNormal,
-        htmlState: htmlMode.startState(),
+        htmlState: CodeMirror.startState(htmlMode),
         indentation: 0,
         
         inline: inlineNormal,
