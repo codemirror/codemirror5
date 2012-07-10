@@ -1,5 +1,3 @@
-// TODO; distinguish "." as end of form, and "." as record field operator
-
 // block; "begin", "case", "fun", "if", "receive", "try": closed by "end"
 // block internal; "after", "catch", "of"
 // guard; "when", closed by "->"
@@ -367,7 +365,9 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
       return 0;
     }else if (token == "->") {
       if (wordAfter == "end") {
-        return (peekToken(state),2).indent;
+        return peekToken(state,2).indent;
+      }else if (peekToken(state,2).token == "fun") {
+        return peekToken(state,2).column+indent;
       }else{
         return (peekToken(state)).indent+indent;
       }
