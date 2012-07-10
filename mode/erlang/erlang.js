@@ -140,7 +140,8 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
     }
 
     // attributes and type specs
-    if (peekToken(state).token == "." && stream.peek() == '-') {
+    if ((peekToken(state).token == "" || peekToken(state).token == ".") &&
+        stream.peek() == '-') {
       stream.next();
       if (stream.eat(smallRE) && stream.eatWhile(anumRE)) {
         if (isMember(stream.current(),typeWords)) {
@@ -348,48 +349,49 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
     return false;
   }
 
-  function Token(stream,state) {
-    this.token = stream.current();
-    this.col = stream.column();
-    this.indent = stream.indentation();
-    this.my_indent = myIndent(stream,state);
+  function Token(stream) {
+    this.token  = stream ? stream.current() : "";
+    this.column = stream ? stream.column() : 0;
+    this.indent = stream ? stream.indentation() : 0;
   }
 
-var bumpIndentWords = [
-    "begin","case","fun","if","receive","try","when","->"];
-var decIndentWords = [
-    "end",";"];
-
-  function myIndent(stream,state) {
-    var token = stream.current();
+  function myIndent(state,textAfter) {
+    var outdentWords = ["after","catch"];
+    var token = (peekToken(state)).token;
+    var wordAfter = takewhile(textAfter,/[^a-z]/);
     if (isMember(token,openParenWords)) {
-      return stream.column()+token.length;
-    }else if (token == "."){
+      return (peekToken(state)).column+token.length;
+    }else if (token == "." || token == ""){
       return 0;
-    }else if (peekToken(state).my_indent == undefined){
-      return 0;
-    }else{
-      var pindent = peekToken(state).my_indent;
-      if (isMember(token,bumpIndentWords)) {
-        return pindent+2;   // fixme: hardcoding is no good
-      }else if (isMember(token,decIndentWords)) {
-        return pindent-2;   // fixme: hardcoding is no good
+    }else if (token == "->") {
+      if (wordAfter == "end") {
+        return (peekToken(state),2).indent;
       }else{
-        return pindent;
+        return (peekToken(state)).indent+2;  //fixme hardcoded "2"
       }
+    }else if (isMember(wordAfter,outdentWords)) {
+      return (peekToken(state)).indent;
+    }else{
+      return (peekToken(state)).column+2;  //fixme hardcoded "2"
     }
+  }
+
+  function takewhile(str,re) {
+    var m = str.match(re);
+    return m ? str.slice(0,m.index) : str;
   }
 
   function popToken(state) {
     return state.tokenStack.pop();
   }
 
-  function peekToken(state) {
+  function peekToken(state,depth) {
     var len = state.tokenStack.length;
-    if (len == 0) {
-      return {};
+    var dep = (depth ? depth : 1);
+    if (len < dep) {
+      return new Token;
     }else{
-      return state.tokenStack[len-1];
+      return state.tokenStack[len-dep];
     }
   }
 
@@ -405,7 +407,7 @@ var decIndentWords = [
       popToken(state);
       return pushToken(state,stream);
     }else{
-      state.tokenStack.push(new Token(stream,state));
+      state.tokenStack.push(new Token(stream));
       return true;
     }
   }
@@ -453,7 +455,7 @@ var decIndentWords = [
     indent:
       function(state, textAfter) {
 //        console.log(state.tokenStack);
-        return peekToken(state).my_indent;
+        return myIndent(state,textAfter);
       }
   };
 });
