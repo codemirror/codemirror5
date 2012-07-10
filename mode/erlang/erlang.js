@@ -365,7 +365,7 @@ CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
       return 0;
     }else if (token == "->") {
       if (wordAfter == "end") {
-        return peekToken(state,2).indent;
+        return peekToken(state,2).column;
       }else if (peekToken(state,2).token == "fun") {
         return peekToken(state,2).column+indent;
       }else{
