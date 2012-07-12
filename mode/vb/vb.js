@@ -20,7 +20,7 @@ CodeMirror.defineMode("vb", function(conf, parserConf) {
     var commonkeywords = ['as', 'dim', 'break',  'continue','optional', 'then',  'until', 
                           'goto', 'byval','byref','new','handles','property', 'return',
                           'const','private', 'protected', 'friend', 'public', 'shared', 'static', 'true','false'];
-    var commontypes = ['integer','string','double','decimal','boolean','short','char', 'float'];
+    var commontypes = ['integer','string','double','decimal','boolean','short','char', 'float','single'];
 
     var keywords = wordRegexp(commonkeywords);
     var types = wordRegexp(commontypes);
@@ -60,12 +60,13 @@ CodeMirror.defineMode("vb", function(conf, parserConf) {
         
         
         // Handle Number Literals
-        if (stream.match(/^[0-9\.]/, false)) {
+        if (stream.match(/^((&H)|(&O))?[0-9\.a-f]/i, false)) {
             var floatLiteral = false;
             // Floats
-            if (stream.match(/^\d*\.\d+(e[\+\-]?\d+)?/i)) { floatLiteral = true; }
-            if (stream.match(/^\d+\.\d*/)) { floatLiteral = true; }
-            if (stream.match(/^\.\d+/)) { floatLiteral = true; }
+            if (stream.match(/^\d*\.\d+F?/i)) { floatLiteral = true; }
+            else if (stream.match(/^\d+\.\d*F?/)) { floatLiteral = true; }
+            else if (stream.match(/^\.\d+F?/)) { floatLiteral = true; }
+            
             if (floatLiteral) {
                 // Float literals may be "imaginary"
                 stream.eat(/J/i);
@@ -74,20 +75,18 @@ CodeMirror.defineMode("vb", function(conf, parserConf) {
             // Integers
             var intLiteral = false;
             // Hex
-            if (stream.match(/^0x[0-9a-f]+/i)) { intLiteral = true; }
-            // Binary
-            if (stream.match(/^0b[01]+/i)) { intLiteral = true; }
+            if (stream.match(/^&H[0-9a-f]+/i)) { intLiteral = true; }
             // Octal
-            if (stream.match(/^0o[0-7]+/i)) { intLiteral = true; }
+            else if (stream.match(/^&O[0-7]+/i)) { intLiteral = true; }
             // Decimal
-            if (stream.match(/^[1-9]\d*(e[\+\-]?\d+)?/)) {
+            else if (stream.match(/^[1-9]\d*F?/)) {
                 // Decimal literals may be "imaginary"
                 stream.eat(/J/i);
                 // TODO - Can you have imaginary longs?
                 intLiteral = true;
             }
             // Zero by itself with no other piece of number.
-            if (stream.match(/^0(?![\dx])/i)) { intLiteral = true; }
+            else if (stream.match(/^0(?![\dx])/i)) { intLiteral = true; }
             if (intLiteral) {
                 // Integer literals may be "long"
                 stream.eat(/L/i);
@@ -157,21 +156,13 @@ CodeMirror.defineMode("vb", function(conf, parserConf) {
     }
     
     function tokenStringFactory(delimiter) {
-        while ('rub'.indexOf(delimiter.charAt(0).toLowerCase()) >= 0) {
-            delimiter = delimiter.substr(1);
-        }
         var singleline = delimiter.length == 1;
         var OUTCLASS = 'string';
         
         return function tokenString(stream, state) {
             while (!stream.eol()) {
-                stream.eatWhile(/[^'"\\]/);
-                if (stream.eat('\\')) {
-                    stream.next();
-                    if (singleline && stream.eol()) {
-                        return OUTCLASS;
-                    }
-                } else if (stream.match(delimiter)) {
+                stream.eatWhile(/[^'"]/);
+                if (stream.match(delimiter)) {
                     state.tokenize = tokenBase;
                     return OUTCLASS;
                 } else {
