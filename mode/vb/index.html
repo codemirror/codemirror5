@@ -1,28 +1,22 @@
 <html>
-<body onload="init()">
-
-
-
- <link rel="stylesheet" href="../../lib/codemirror.css" />
- <link rel="stylesheet" href="../../theme/default.css" />
- <link href="http://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet" type="text/css">
- <link href="http://fonts.googleapis.com/css?family=Droid+Sans+Mono" rel="stylesheet" type="text/css">
- <style>
- .CodeMirror {border: 1px solid #aaa; height:210px;}
- .CodeMirror-scroll { overflow-x: auto; height: 100%;}
- .CodeMirror pre { font-family: Inconsolata; font-size: 14px}
- 
- 
-
-
- </style> 
-<script type="text/javascript" src="../../lib/codemirror.js"></script>
-<script type="text/javascript" src="../../lib/util/runmode.js"></script>
-<script type="text/javascript" src="vb.js"></script>
+  <head>
+    <title>CodeMirror: VB.NET mode</title>
+    <link rel="stylesheet" href="../../lib/codemirror.css">
+    <script src="../../lib/codemirror.js"></script>
+    <script src="vb.js"></script>
+    <link rel="stylesheet" href="../../doc/docs.css">
+    <link href="http://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet" type="text/css">
+    <style>
+      .CodeMirror {border: 1px solid #aaa; height:210px;}
+      .CodeMirror-scroll { overflow-x: auto; height: 100%;}
+      .CodeMirror pre { font-family: Inconsolata; font-size: 14px}
+    </style> 
+    <script type="text/javascript" src="../../lib/util/runmode.js"></script>
+  </head>
+  <body onload="init()">
+    <h1>CodeMirror: VB.NET mode</h1>
 <script type="text/javascript">
 function test(golden, text) {
-  
-
   var ok = true;
   var i = 0;
   function callback(token, style, lineNo, pos){
@@ -68,7 +62,6 @@ function initText(editor) {
   for (var i =0; i< editor.lineCount(); i++) editor.indentLine(i);
 }
 function init() {
-
     editor = CodeMirror.fromTextArea(document.getElementById("solution"), {
         lineNumbers: true,
         matchBrackets: true,
@@ -76,6 +69,7 @@ function init() {
         readOnly: false,
         tabMode: "shift"
     });
+    runTest();
 }
 function runTest() {
 	document.getElementById('testresult').innerHTML = testAll();
@@ -88,9 +82,7 @@ function runTest() {
   <div id="edit">
   <textarea style="width:95%;height:200px;padding:5px;" name="solution" id="solution" ></textarea>
   </div>
-  <div id="testbutton" onclick="runTest()">Click here to run tests</div>
-  <div id="testresult"></div>
-
-
+  <pre id="testresult"></pre>
+  <p>MIME type defined: <code>text/x-vb</code>.</p>
 
 </body></html>
