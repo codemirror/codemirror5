@@ -541,6 +541,15 @@
       undo and redo operations.</dd>
       <dt id="clearHistory"><code>clearHistory()</code></dt>
       <dd>Clears the editor's undo history.</dd>
+      <dt id="getHistory"><code>getHistory() → object</code></dt>
+      <dd>Get a (JSON-serializeable) representation of the undo history.</dd>
+      <dt id="setHistory"><code>setHistory(object)</code></dt>
+      <dd>Replace the editor's undo history with the one provided,
+      which must be a value as returned
+      by <a href="#getHistory"><code>getHistory</code></a>. Note that
+      this will have entirely undefined results if the editor content
+      isn't also the same as it was when <code>getHistory</code> was
+      called.</dd>
 
       <dt id="indentLine"><code>indentLine(line, dir)</code></dt>
       <dd>Reset the given line's indentation to the indentation
