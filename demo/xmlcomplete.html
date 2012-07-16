@@ -1,0 +1,69 @@
+<!doctype html>
+<html>
+  <head>
+    <title>CodeMirror: XML Autocomplete Demo</title>
+    <link rel="stylesheet" href="../lib/codemirror.css">
+    <script src="../lib/codemirror.js"></script>
+    <script src="../lib/util/simple-hint.js"></script>
+    <link rel="stylesheet" href="../lib/util/simple-hint.css">
+    <script src="../lib/util/closetag.js"></script>
+    <script src="../lib/util/xml-hint.js"></script>
+    <script src="../mode/xml/xml.js"></script>
+    <link rel="stylesheet" href="../doc/docs.css">
+    <style type="text/css">.CodeMirror {border: 1px solid #eee;} .CodeMirror-scroll { height: 100% }</style>
+  </head>
+  <body>
+    <h1>CodeMirror: XML Autocomplete demo</h1>
+
+    <form><textarea id="code" name="code"></textarea></form>
+
+    <p>Type '&lt;' or space inside tag or press Ctrl+Enter <strong>ctrl-space</strong> to activate autocompletion. See
+    the code (<a href="../lib/util/simple-hint.js">here</a>
+    and <a href="../lib/util/xml-hint.js">here</a>) to figure out
+    how it works.</p>
+
+    <script>
+      CodeMirror.xmlHints['<'] = [
+          'levelTop',
+          'levelRoot',
+          'mainLevel'
+      ];
+
+      CodeMirror.xmlHints['<levelTop '] = 
+      CodeMirror.xmlHints['<levelRoot '] = 
+      CodeMirror.xmlHints['<mainLevel '] = [
+          'property1111',
+          'property2222'
+      ];
+
+      CodeMirror.xmlHints['<levelTop><'] = 
+      CodeMirror.xmlHints['<levelRoot><'] = 
+      CodeMirror.xmlHints['<mainLevel><'] = [
+          'second',
+          'two'
+      ];
+
+      CodeMirror.xmlHints['<levelTop><second '] = [
+        'secondProperty'
+      ];
+
+      CodeMirror.xmlHints['<levelTop><second><'] = [
+        'three',
+        'x-three'
+      ];
+
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+            value: '',
+            mode: 'text/html',
+            lineNumbers: true,
+            extraKeys: {
+                "'>'": function(cm) { cm.closeTag(cm, '>'); },
+                "'/'": function(cm) { cm.closeTag(cm, '/'); },
+                "' '": function(cm) { CodeMirror.xmlHint(cm, ' '); },
+                "'<'": function(cm) { CodeMirror.xmlHint(cm, '<'); },
+                "Ctrl-Space": function(cm) { CodeMirror.xmlHint(cm, ''); }
+            }
+        });
+    </script>
+  </body>
+</html>
