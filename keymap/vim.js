@@ -226,7 +226,7 @@
 
   function dialog(cm, text, shortText, f) {
     if (cm.openDialog) cm.openDialog(text, f);
-    else f(prompt(shortText, ""))
+    else f(prompt(shortText, ""));
   }
 
   // main keymap
@@ -300,10 +300,10 @@
       CodeMirror.commands.goLineStart(cm);
     },
     "Shift-;": function(cm) {
-      var exModeDialog = '<input type="text" />'
+      var exModeDialog = '<input type="text" />';
       dialog(cm, exModeDialog, 'ex mode:', function(command) {
         if (command.match(/\d+/)) {
-          cm.setCursor(command-1, cm.getCursor().ch)
+          cm.setCursor(command-1, cm.getCursor().ch);
         }
       });
     },
