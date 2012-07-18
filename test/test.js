@@ -262,6 +262,13 @@ testCM("markTextMultiLine", function(cm) {
   });
 });
 
+testCM("markClearBetween", function(cm) {
+  cm.setValue("aaa\nbbb\nccc\nddd\n");
+  cm.markText({line: 0, ch: 0}, {line: 2}, "foo");
+  cm.replaceRange("aaa\nbbb\nccc", {line: 0, ch: 0}, {line: 2});
+  eq(cm.findMarksAt({line: 1, ch: 1}).length, 0);
+});
+
 testCM("bookmark", function(cm) {
   function p(v) { return v && {line: v[0], ch: v[1]}; }
   forEach([{a: [1, 0], b: [1, 1], c: "", d: [1, 4]},
