@@ -21,3 +21,7 @@
   color: inherit;
   font-family: monospace;
 }
+
+.CodeMirror-dialog button {
+  font-size: 70%;
+}

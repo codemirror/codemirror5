@@ -228,6 +228,10 @@
     if (cm.openDialog) cm.openDialog(text, f);
     else f(prompt(shortText, ""));
   }
+  function showAlert(cm, text) {
+    if (cm.openDialog) cm.openDialog(CodeMirror.htmlEscape(text) + " <button type=button>OK</button>");
+    else alert(text);
+  }
 
   // main keymap
   var map = CodeMirror.keyMap.vim = {
@@ -299,11 +303,13 @@
       popCount();
       CodeMirror.commands.goLineStart(cm);
     },
-    "Shift-;": function(cm) {
-      var exModeDialog = '<input type="text" />';
-      dialog(cm, exModeDialog, 'ex mode:', function(command) {
-        if (command.match(/\d+/)) {
-          cm.setCursor(command-1, cm.getCursor().ch);
+    "':'": function(cm) {
+      var exModeDialog = ': <input type="text" style="width: 90%"/>';
+      dialog(cm, exModeDialog, ':', function(command) {
+        if (command.match(/^\d+$/)) {
+          cm.setCursor(command - 1, cm.getCursor().ch);
+        } else {
+          showAlert(cm, "Bad command: " + command);
         }
       });
     },
