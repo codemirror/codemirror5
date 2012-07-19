@@ -7,7 +7,7 @@
     <script src="../mode/javascript/javascript.js"></script>
 
     <style type="text/css">
-      .ok {color: #0e0;}
+      .ok {color: #090;}
       .fail {color: #e00;}
       .error {color: #c90;}
     </style>
@@ -17,8 +17,10 @@
 
     <p>A limited set of programmatic sanity tests for CodeMirror.</p>
 
-    <pre id=output></pre>
-    <pre id=status></pre>
+    <div style="border: 1px solid black; padding: 1px; max-width: 700px;">
+      <div style="background: #45d; white-space: pre; width: 0px; font-weight: bold; color: white; padding: 3px;" id=progress></div>
+    </div>
+    <pre style="padding-left: 5px" id=output></pre>
 
     <div style="visibility: hidden" id=testground>
       <form><textarea id="code" name="code"></textarea><input type=submit value=ok name=submit></form>
@@ -31,22 +33,21 @@
         runTests(displayTest);
       };
 
-      var output = document.getElementById("output"), statusElt = document.getElementById("status");
+      var output = document.getElementById("output"), progress = document.getElementById("progress");
       var count = 0, failed = 0, bad = "";
       function displayTest(type, name, msg) {
         if (type != "done") ++count;
-        var countText = "Ran " + count + " of " + tests.length + " tests\n";
+        progress.style.width = (count * (progress.parentNode.clientWidth - 8) / tests.length) + "px";
+        progress.innerHTML = "Ran " + count + (count < tests.length ? " of " + tests.length : "") + " tests";
         if (type == "ok") {
-          statusElt.innerHTML = countText + "<span class=ok>Test '" + CodeMirror.htmlEscape(name) + "' succeeded</span>";
+          output.innerHTML = bad + "<span class=ok>Test '" + CodeMirror.htmlEscape(name) + "' succeeded</span>";
         } else if (type == "error" || type == "fail") {
           ++failed;
-          statusElt.innerHTML = countText;
           bad += CodeMirror.htmlEscape(name) + ": <span class=" + type + ">" + CodeMirror.htmlEscape(msg) + "</span>\n";
           output.innerHTML = bad;
         } else if (type == "done") {
-          statusElt.innerHTML = "Ran " + count + " tests\n" +
-            (failed ? "<span class=fail>" + failed + " failure" + (failed > 1 ? "s" : "") + "</span>"
-                    : "<span class=ok>All passed</span>");
+          output.innerHTML = bad + (failed ? "<span class=fail>" + failed + " failure" + (failed > 1 ? "s" : "") + "</span>"
+                                           : "<span class=ok>All passed</span>");
         }
       }
     </script>
