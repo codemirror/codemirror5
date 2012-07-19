@@ -1,4 +1,6 @@
-var tests = [];
+function forEach(arr, f) {
+  for (var i = 0, e = arr.length; i < e; ++i) f(arr[i]);
+}
 
 test("fromTextArea", function() {
   var te = document.getElementById("code");
@@ -115,12 +117,17 @@ testCM("lineInfo", function(cm) {
   eq(cm.lineInfo(1).markerText, null);
 }, {value: "111111\n222222\n333333"});
 
+function addBigDoc(cm, width, height) {
+  var content = [], line = "";
+  for (var i = 0; i < width; ++i) line += "x";
+  for (var i = 0; i < height; ++i) content.push(line);
+  cm.setValue(content.join("\n"));
+}
+
 testCM("coords", function(cm) {
   var scroller = cm.getScrollerElement();
   scroller.style.height = "100px";
-  var content = [];
-  for (var i = 0; i < 200; ++i) content.push("------------------------------" + i);
-  cm.setValue(content.join("\n"));
+  addBigDoc(cm, 32, 200);
   var top = cm.charCoords({line: 0, ch: 0});
   var bot = cm.charCoords({line: 200, ch: 30});
   is(top.x < bot.x);
@@ -133,9 +140,7 @@ testCM("coords", function(cm) {
 });
 
 testCM("coordsChar", function(cm) {
-  var content = [];
-  for (var i = 0; i < 70; ++i) content.push("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-  cm.setValue(content.join("\n"));
+  addBigDoc(cm, 35, 70);
   for (var ch = 0; ch < 35; ch += 2) {
     for (var line = 0; line < 70; line += 5) {
       cm.setCursor(line, ch);
@@ -293,59 +298,18 @@ testCM("bug577", function(cm) {
   cm.undo();
 });
 
-// Scaffolding
-
-function htmlEscape(str) {
-  return str.replace(/[<&]/g, function(str) {return str == "&" ? "&amp;" : "&lt;";});
-}
-function forEach(arr, f) {
-  for (var i = 0, e = arr.length; i < e; ++i) f(arr[i]);
-}
-
-function Failure(why) {this.message = why;}
-
-function test(name, run) {tests.push({name: name, func: run});}
-function testCM(name, run, opts) {
-  test(name, function() {
-    var place = document.getElementById("testground"), cm = CodeMirror(place, opts);
-    try {run(cm);}
-    finally {place.removeChild(cm.getWrapperElement());}
-  });
-}
-
-function runTests() {
-  var failures = [], run = 0;
-  for (var i = 0; i < tests.length; ++i) {
-    var test = tests[i];
-    try {test.func();}
-    catch(e) {
-      if (e instanceof Failure)
-        failures.push({type: "failure", test: test.name, text: e.message});
-      else
-        failures.push({type: "error", test: test.name, text: e.toString()});
-    }
-    run++;
-  }
-  var html = [run + " tests run."];
-  if (failures.length)
-    forEach(failures, function(fail) {
-      html.push(fail.test + ': <span class="' + fail.type + '">' + htmlEscape(fail.text) + "</span>");
-    });
-  else html.push('<span class="ok">All passed.</span>');
-  document.getElementById("output").innerHTML = html.join("\n");
-}
-
-function eq(a, b, msg) {
-  if (a != b) throw new Failure(a + " != " + b + (msg ? " (" + msg + ")" : ""));
-}
-function eqPos(a, b, msg) {
-  if (a == b) return;
-  if (a == null || b == null) throw new Failure("comparing point to null");
-  eq(a.line, b.line, msg);
-  eq(a.ch, b.ch, msg);
-}
-function is(a, msg) {
-  if (!a) throw new Failure("assertion failed" + (msg ? " (" + msg + ")" : ""));
-}
-
-window.onload = runTests;
+testCM("scrollSnap", function(cm) {
+  cm.getScrollerElement().style.height = "100px";
+  cm.getWrapperElement().style.width = "100px";
+  addBigDoc(cm, 200, 200);
+  cm.setCursor({line: 100, ch: 180});
+  var info = cm.getScrollInfo();
+  is(info.x > 0 && info.y > 0);
+  cm.setCursor({line: 0, ch: 0});
+  info = cm.getScrollInfo();
+  is(info.x == 0 && info.y == 0, "scrolled clean to top");
+  cm.setCursor({line: 100, ch: 180});
+  cm.setCursor({line: 199, ch: 0});
+  info = cm.getScrollInfo();
+  is(info.x == 0 && info.y == info.height - 100, "scrolled clean to bottom");
+});

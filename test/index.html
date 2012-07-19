@@ -8,7 +8,7 @@
 
     <style type="text/css">
       .ok {color: #0e0;}
-      .failure {color: #e00;}
+      .fail {color: #e00;}
       .error {color: #c90;}
     </style>
   </head>
@@ -18,11 +18,37 @@
     <p>A limited set of programmatic sanity tests for CodeMirror.</p>
 
     <pre id=output></pre>
+    <pre id=status></pre>
 
     <div style="visibility: hidden" id=testground>
       <form><textarea id="code" name="code"></textarea><input type=submit value=ok name=submit></form>
     </div>
 
+    <script src="driver.js"></script>
     <script src="test.js"></script>
+    <script>
+      window.onload = function() {
+        runTests(displayTest);
+      };
+
+      var output = document.getElementById("output"), statusElt = document.getElementById("status");
+      var count = 0, failed = 0, bad = "";
+      function displayTest(type, name, msg) {
+        if (type != "done") ++count;
+        var countText = "Ran " + count + " of " + tests.length + " tests\n";
+        if (type == "ok") {
+          statusElt.innerHTML = countText + "<span class=ok>Test '" + CodeMirror.htmlEscape(name) + "' succeeded</span>";
+        } else if (type == "error" || type == "fail") {
+          ++failed;
+          statusElt.innerHTML = countText;
+          bad += CodeMirror.htmlEscape(name) + ": <span class=" + type + ">" + CodeMirror.htmlEscape(msg) + "</span>\n";
+          output.innerHTML = bad;
+        } else if (type == "done") {
+          statusElt.innerHTML = "Ran " + count + " tests\n" +
+            (failed ? "<span class=fail>" + failed + " failure" + (failed > 1 ? "s" : "") + "</span>"
+                    : "<span class=ok>All passed</span>");
+        }
+      }
+    </script>
   </body>
 </html>
