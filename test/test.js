@@ -378,9 +378,9 @@ testCM("restoreHistory", function(cm) {
 });
 
 testCM("doubleScrollbar", function(cm) {
-  var dummy = document.body.appendChild(document.createElement("div"));
-  dummy.innerHTML = '<div style="height: 20px; overflow: auto">a<br>a<br>a<br>a<br>a<br>a<br>a<br>a</div>';
-  var scrollbarWidth = dummy.firstChild.offsetWidth + 1 - dummy.firstChild.clientWidth;
+  var dummy = document.body.appendChild(document.createElement("p"));
+  dummy.style.cssText = "height: 50px; overflow: scroll; width: 50px";
+  var scrollbarWidth = dummy.offsetWidth + 1 - dummy.clientWidth;
   document.body.removeChild(dummy);
   cm.setSize(null, 100);
   addDoc(cm, 1, 300);
