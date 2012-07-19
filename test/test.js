@@ -2,7 +2,7 @@ function forEach(arr, f) {
   for (var i = 0, e = arr.length; i < e; ++i) f(arr[i]);
 }
 
-function addBigDoc(cm, width, height) {
+function addDoc(cm, width, height) {
   var content = [], line = "";
   for (var i = 0; i < width; ++i) line += "x";
   for (var i = 0; i < height; ++i) content.push(line);
@@ -138,7 +138,7 @@ testCM("lineInfo", function(cm) {
 
 testCM("coords", function(cm) {
   cm.setSize(null, 100);
-  addBigDoc(cm, 32, 200);
+  addDoc(cm, 32, 200);
   var top = cm.charCoords({line: 0, ch: 0});
   var bot = cm.charCoords({line: 200, ch: 30});
   is(top.x < bot.x);
@@ -151,7 +151,7 @@ testCM("coords", function(cm) {
 });
 
 testCM("coordsChar", function(cm) {
-  addBigDoc(cm, 35, 70);
+  addDoc(cm, 35, 70);
   for (var ch = 0; ch <= 35; ch += 5) {
     for (var line = 0; line < 70; line += 5) {
       cm.setCursor(line, ch);
@@ -311,7 +311,7 @@ testCM("bug577", function(cm) {
 
 testCM("scrollSnap", function(cm) {
   cm.setSize(100, 100);
-  addBigDoc(cm, 200, 200);
+  addDoc(cm, 200, 200);
   cm.setCursor({line: 100, ch: 180});
   var info = cm.getScrollInfo();
   is(info.x > 0 && info.y > 0);
@@ -326,7 +326,7 @@ testCM("scrollSnap", function(cm) {
 
 testCM("selectionPos", function(cm) {
   cm.setSize(100, 0);
-  addBigDoc(cm, 200, 100);
+  addDoc(cm, 200, 100);
   cm.setSelection({line: 1, ch: 100}, {line: 98, ch: 100});
   var lineWidth = cm.charCoords({line: 0, ch: 200}, "local").x;
   var lineHeight = cm.charCoords({line: 1}).y - cm.charCoords({line: 0}).y;
@@ -383,7 +383,7 @@ testCM("doubleScrollbar", function(cm) {
   var scrollbarWidth = dummy.firstChild.offsetWidth + 1 - dummy.firstChild.clientWidth;
   document.body.removeChild(dummy);
   cm.setSize(null, 100);
-  addBigDoc(cm, 1, 300);
+  addDoc(cm, 1, 300);
   var wrap = cm.getWrapperElement();
   is(wrap.offsetWidth - byClassName(wrap, "CodeMirror-lines")[0].offsetWidth <= scrollbarWidth);
 });
@@ -392,6 +392,8 @@ testCM("weirdLinebreaks", function(cm) {
   cm.setValue("foo\nbar\rbaz\r\nquux\n\rplop");
   is(cm.getValue(), "foo\nbar\nbaz\nquux\n\nplop");
   is(cm.lineCount(), 6);
+  cm.setValue("\n\n");
+  is(cm.lineCount(), 3);
 });
 
 testCM("setSize", function(cm) {
@@ -404,4 +406,29 @@ testCM("setSize", function(cm) {
   cm.setSize(null, 40);
   is(cm.getWrapperElement().style.width, "100%");
   is(cm.getScrollerElement().style.height, "40px");
+});
+
+testCM("hiddenLines", function(cm) {
+  addDoc(cm, 4, 10);
+  cm.hideLine(4);
+  cm.setCursor({line: 3, ch: 0});
+  CodeMirror.commands.goLineDown(cm);
+  eqPos(cm.getCursor(), {line: 5, ch: 0});
+  cm.setLine(3, "abcdefg");
+  cm.setCursor({line: 3, ch: 6});
+  CodeMirror.commands.goLineDown(cm);
+  eqPos(cm.getCursor(), {line: 5, ch: 4});
+  cm.setLine(3, "ab");
+  cm.setCursor({line: 3, ch: 2});
+  CodeMirror.commands.goLineDown(cm);
+  eqPos(cm.getCursor(), {line: 5, ch: 2});
+});
+
+testCM("hiddenLinesSelectAll", function(cm) { // Issue #484
+  addDoc(cm, 4, 20);
+  for (var i = 0; i < 20; ++i)
+    if (i != 10) cm.hideLine(i);
+  CodeMirror.commands.selectAll(cm);
+  eqPos(cm.getCursor(true), {line: 10, ch: 0});
+  eqPos(cm.getCursor(false), {line: 10, ch: 4});
 });
