@@ -359,3 +359,22 @@ testCM("selectionPos", function(cm) {
   }
   is(sawTop && sawBottom && sawMiddle, "all parts");
 });
+
+testCM("restoreHistory", function(cm) {
+  cm.setValue("abc\ndef");
+  cm.compoundChange(function() {cm.setLine(1, "hello");});
+  cm.compoundChange(function() {cm.setLine(0, "goop");});
+  cm.undo();
+  var storedVal = cm.getValue(), storedHist = cm.getHistory();
+  if (window.JSON) storedHist = JSON.parse(JSON.stringify(storedHist));
+  eq(storedVal, "abc\nhello");
+  cm.setValue("");
+  cm.clearHistory();
+  eq(cm.historySize().undo, 0);
+  cm.setValue(storedVal);
+  cm.setHistory(storedHist);
+  cm.redo();
+  eq(cm.getValue(), "goop\nhello");
+  cm.undo(); cm.undo();
+  eq(cm.getValue(), "abc\ndef");
+});
