@@ -2,6 +2,25 @@ function forEach(arr, f) {
   for (var i = 0, e = arr.length; i < e; ++i) f(arr[i]);
 }
 
+function addBigDoc(cm, width, height) {
+  var content = [], line = "";
+  for (var i = 0; i < width; ++i) line += "x";
+  for (var i = 0; i < height; ++i) content.push(line);
+  cm.setValue(content.join("\n"));
+}
+
+function byClassName(elt, cls) {
+  if (elt.getElementsByClassName) return elt.getElementsByClassName(cls);
+  var found = [], re = new RegExp("\\b" + cls + "\\b");
+  function search(elt) {
+    if (re.test(elt.className)) found.push(elt);
+    for (var i = 0, e = elt.childNodes.length; i < e; ++i)
+      search(elt.childNodes[i]);
+  }
+  search(elt);
+  return found;
+}
+
 test("fromTextArea", function() {
   var te = document.getElementById("code");
   te.value = "CONTENT";
@@ -116,13 +135,6 @@ testCM("lineInfo", function(cm) {
   cm.clearMarker(lh);
   eq(cm.lineInfo(1).markerText, null);
 }, {value: "111111\n222222\n333333"});
-
-function addBigDoc(cm, width, height) {
-  var content = [], line = "";
-  for (var i = 0; i < width; ++i) line += "x";
-  for (var i = 0; i < height; ++i) content.push(line);
-  cm.setValue(content.join("\n"));
-}
 
 testCM("coords", function(cm) {
   var scroller = cm.getScrollerElement();
@@ -312,4 +324,38 @@ testCM("scrollSnap", function(cm) {
   cm.setCursor({line: 199, ch: 0});
   info = cm.getScrollInfo();
   is(info.x == 0 && info.y == info.height - 100, "scrolled clean to bottom");
+});
+
+testCM("selectionPos", function(cm) {
+  cm.getWrapperElement().style.width = "100px";
+  addBigDoc(cm, 200, 100);
+  cm.setSelection({line: 1, ch: 100}, {line: 98, ch: 100});
+  var lineWidth = cm.charCoords({line: 0, ch: 200}, "local").x;
+  var lineHeight = cm.charCoords({line: 1}).y - cm.charCoords({line: 0}).y;
+  cm.scrollTo(0, 0);
+  var selElt = byClassName(cm.getWrapperElement(), "CodeMirror-selected");
+  var outer = cm.getWrapperElement().getBoundingClientRect();
+  var sawMiddle, sawTop, sawBottom;
+  for (var i = 0, e = selElt.length; i < e; ++i) {
+    var box = selElt[i].getBoundingClientRect();
+    var atLeft = box.left - outer.left < 30;
+    var width = box.right - box.left;
+    var atRight = box.right - outer.left > .8 * lineWidth;
+    if (atLeft && atRight) {
+      sawMiddle = true;
+      is(box.bottom - box.top > 95 * lineHeight, "middle high");
+      is(width > .9 * lineWidth, "middle wide");
+    } else {
+      is(width > .4 * lineWidth, "top/bot wide enough");
+      is(width < .6 * lineWidth, "top/bot slim enough");
+      if (atLeft) {
+        sawBottom = true;
+        is(box.top - outer.top > 96 * lineHeight, "bot below");
+      } else if (atRight) {
+        sawTop = true;
+        is(box.top - outer.top < 2 * lineHeight, "top above");
+      }
+    }
+  }
+  is(sawTop && sawBottom && sawMiddle, "all parts");
 });
