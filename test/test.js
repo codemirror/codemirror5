@@ -424,11 +424,43 @@ testCM("hiddenLines", function(cm) {
   eqPos(cm.getCursor(), {line: 5, ch: 2});
 });
 
-testCM("hiddenLinesSelectAll", function(cm) { // Issue #484
+testCM("hiddenLinesSelectAll", function(cm) {  // Issue #484
   addDoc(cm, 4, 20);
   for (var i = 0; i < 20; ++i)
     if (i != 10) cm.hideLine(i);
   CodeMirror.commands.selectAll(cm);
   eqPos(cm.getCursor(true), {line: 10, ch: 0});
   eqPos(cm.getCursor(false), {line: 10, ch: 4});
+});
+
+testCM("wrappingAndResizing", function(cm) {
+  cm.setSize(null, "auto");
+  cm.setOption("lineWrapping", true);
+  var wrap = cm.getWrapperElement(), h0 = wrap.offsetHeight, w = 50;
+  var doc = "xxx xxx xxx xxx xxx";
+  cm.setValue(doc);
+  for (var step = 10;; w += step) {
+    cm.setSize(w);
+    if (wrap.offsetHeight == h0) {
+      if (step == 10) { w -= 10; step = 1; }
+      else { w--; break; }
+    }
+  }
+  // Ensure that putting the cursor at the end of the maximally long
+  // line doesn't cause wrapping to happen.
+  cm.setCursor({line: 0, ch: doc.length});
+  eq(wrap.offsetHeight, h0);
+  cm.replaceSelection("x");
+  is(wrap.offsetHeight > h0);
+  // Now add a max-height and, in a document consisting of
+  // almost-wrapped lines, go over it so that a scrollbar appears.
+  cm.setValue(doc + "\n" + doc + "\n");
+  cm.getScrollerElement().style.maxHeight = "100px";
+  cm.replaceRange("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n!\n", {line: 2, ch: 0});
+  forEach([{line: 0, ch: doc.length}, {line: 0, ch: doc.length - 1},
+           {line: 0, ch: 0}, {line: 1, ch: doc.length}, {line: 1, ch: doc.length - 1}],
+          function(pos) {
+    var coords = cm.charCoords(pos);
+    eqPos(pos, cm.coordsChar({x: coords.x + 2, y: coords.y + 2}));
+  });
 });

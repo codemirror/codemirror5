@@ -2,9 +2,9 @@ var tests = [], runOnly = null;
 
 function Failure(why) {this.message = why;}
 
-function test(name, run) {tests.push({name: name, func: run});}
+function test(name, run) {tests.push({name: name, func: run}); return name;}
 function testCM(name, run, opts) {
-  test(name, function() {
+  return test(name, function() {
     var place = document.getElementById("testground"), cm = CodeMirror(place, opts);
     try {run(cm);}
     finally {place.removeChild(cm.getWrapperElement());}
