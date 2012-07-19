@@ -389,3 +389,9 @@ testCM("doubleScrollbar", function(cm) {
   var wrap = cm.getWrapperElement();
   is(wrap.offsetWidth - byClassName(wrap, "CodeMirror-lines")[0].offsetWidth <= scrollbarWidth);
 });
+
+testCM("weirdLinebreaks", function(cm) {
+  cm.setValue("foo\nbar\rbaz\r\nquux\n\rplop");
+  is(cm.getValue(), "foo\nbar\nbaz\nquux\n\nplop");
+  is(cm.lineCount(), 6);
+});
