@@ -153,7 +153,7 @@ testCM("coords", function(cm) {
 
 testCM("coordsChar", function(cm) {
   addBigDoc(cm, 35, 70);
-  for (var ch = 0; ch < 35; ch += 2) {
+  for (var ch = 0; ch <= 35; ch += 5) {
     for (var line = 0; line < 70; line += 5) {
       cm.setCursor(line, ch);
       var coords = cm.charCoords({line: line, ch: ch});
@@ -377,4 +377,15 @@ testCM("restoreHistory", function(cm) {
   eq(cm.getValue(), "goop\nhello");
   cm.undo(); cm.undo();
   eq(cm.getValue(), "abc\ndef");
+});
+
+testCM("doubleScrollbar", function(cm) {
+  var dummy = document.body.appendChild(document.createElement("div"));
+  dummy.innerHTML = '<div style="height: 20px; overflow: auto">a<br>a<br>a<br>a<br>a<br>a<br>a<br>a</div>';
+  var scrollbarWidth = dummy.firstChild.offsetWidth + 1 - dummy.firstChild.clientWidth;
+  document.body.removeChild(dummy);
+  cm.getScrollerElement().style.height = "100px";
+  addBigDoc(cm, 1, 300);
+  var wrap = cm.getWrapperElement();
+  is(wrap.offsetWidth - byClassName(wrap, "CodeMirror-lines")[0].offsetWidth <= scrollbarWidth);
 });
