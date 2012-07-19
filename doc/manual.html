@@ -441,8 +441,8 @@
       <dd>These are used to style matched (or unmatched) brackets.</dd>
     </dl>
 
-    <p>So note carefully that, in order to resize the editor, you
-    should set a <code>width</code> on
+    <p id="css-resize">So note carefully that, in order to resize the
+    editor, you should set a <code>width</code> on
     the <a href="#getWrapperElement">wrapper</a>
     (class <code>CodeMirror</code>) element, and a height on
     the <a href="#getScrollerElement">scroller</a>
@@ -493,6 +493,14 @@
       <dt id="replaceSelection"><code>replaceSelection(string)</code></dt>
       <dd>Replace the selection with the given string.</dd>
 
+      <dt id="setSize"><code>setSize(width, height)</code></dt>
+      <dd>Programatically set the size of the editor (overriding the
+      applicable <a href="#css-resize">CSS
+      rules</a>). <code>width</code> and <code>height</code> height
+      can be either numbers (interpreted as pixels) or CSS units
+      (<code>"100%"</code>, for example). You can
+      pass <code>null</code> for either of them to indicate that that
+      dimension should not be changed.</dd>
       <dt id="focus"><code>focus()</code></dt>
       <dd>Give the editor focus.</dd>
       <dt id="scrollTo"><code>scrollTo(x, y)</code></dt>

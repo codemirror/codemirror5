@@ -137,8 +137,7 @@ testCM("lineInfo", function(cm) {
 }, {value: "111111\n222222\n333333"});
 
 testCM("coords", function(cm) {
-  var scroller = cm.getScrollerElement();
-  scroller.style.height = "100px";
+  cm.setSize(null, 100);
   addBigDoc(cm, 32, 200);
   var top = cm.charCoords({line: 0, ch: 0});
   var bot = cm.charCoords({line: 200, ch: 30});
@@ -311,8 +310,7 @@ testCM("bug577", function(cm) {
 });
 
 testCM("scrollSnap", function(cm) {
-  cm.getScrollerElement().style.height = "100px";
-  cm.getWrapperElement().style.width = "100px";
+  cm.setSize(100, 100);
   addBigDoc(cm, 200, 200);
   cm.setCursor({line: 100, ch: 180});
   var info = cm.getScrollInfo();
@@ -327,7 +325,7 @@ testCM("scrollSnap", function(cm) {
 });
 
 testCM("selectionPos", function(cm) {
-  cm.getWrapperElement().style.width = "100px";
+  cm.setSize(100, 0);
   addBigDoc(cm, 200, 100);
   cm.setSelection({line: 1, ch: 100}, {line: 98, ch: 100});
   var lineWidth = cm.charCoords({line: 0, ch: 200}, "local").x;
@@ -384,7 +382,7 @@ testCM("doubleScrollbar", function(cm) {
   dummy.innerHTML = '<div style="height: 20px; overflow: auto">a<br>a<br>a<br>a<br>a<br>a<br>a<br>a</div>';
   var scrollbarWidth = dummy.firstChild.offsetWidth + 1 - dummy.firstChild.clientWidth;
   document.body.removeChild(dummy);
-  cm.getScrollerElement().style.height = "100px";
+  cm.setSize(null, 100);
   addBigDoc(cm, 1, 300);
   var wrap = cm.getWrapperElement();
   is(wrap.offsetWidth - byClassName(wrap, "CodeMirror-lines")[0].offsetWidth <= scrollbarWidth);
@@ -394,4 +392,16 @@ testCM("weirdLinebreaks", function(cm) {
   cm.setValue("foo\nbar\rbaz\r\nquux\n\rplop");
   is(cm.getValue(), "foo\nbar\nbaz\nquux\n\nplop");
   is(cm.lineCount(), 6);
+});
+
+testCM("setSize", function(cm) {
+  cm.setSize(100, 100);
+  is(cm.getWrapperElement().offsetWidth, 100);
+  is(cm.getWrapperElement().offsetHeight, 100);
+  cm.setSize("100%", "3em");
+  is(cm.getWrapperElement().style.width, "100%");
+  is(cm.getScrollerElement().style.height, "3em");
+  cm.setSize(null, 40);
+  is(cm.getWrapperElement().style.width, "100%");
+  is(cm.getScrollerElement().style.height, "40px");
 });
