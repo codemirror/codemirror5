@@ -7,7 +7,15 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <link rel="alternate" href="http://twitter.com/statuses/user_timeline/242283288.rss" type="application/rss+xml"/>
   </head>
-  <body>
+  <body style="margin-top: 9em">
+
+<div style="background: #eee; border-bottom: 2px solid #df0019; position: absolute; left: 0; top: 0; right: 0; padding: 18px 0;">
+  <div style="max-width: 64.3em; margin: 0 auto;">
+    <a href="http://www.pledgie.com/campaigns/17784">
+      <img style="vertical-align: bottom" alt='Click here to lend your support to: Fund CodeMirror development and make a donation at www.pledgie.com !' src='http://www.pledgie.com/campaigns/17784.png?skin_name=chrome' border='0' />
+    </a> &nbsp; <span style="font-size: 1.23em; font-weight: bold;">Please check out our development fundraiser.
+  </div>
+</div>
 
 <h1><span class="logo-braces">{ }</span> <a href="http://codemirror.net/">CodeMirror</a></h1>
 
@@ -235,12 +243,11 @@
   <h2>Support CodeMirror</h2>
 
   <ul>
-    <li><strong><a href="http://pledgie.com/campaigns/17784">Contribute to our crowd-funding!</a></strong></li>
-<!--    <li>Donate
+    <li>Donate
     (<span onclick="document.getElementById('paypal').submit();"
     class="quasilink">Paypal</span>
     or <span onclick="document.getElementById('bankinfo').style.display = 'block';"
-             class="quasilink">bank</span>)</li>-->
+             class="quasilink">bank</span>)</li>
     <li>Purchase <a href="#commercial">commercial support</a></li>
   </ul>
 
@@ -260,7 +267,19 @@
     <li><a href="http://github.com/marijnh/CodeMirror2">Browse the code</a></li>
   </ul>
 
-  <h2>Releases</h2>
+  <h2 id=releases>Releases</h2>
+
+  <p class="rel">20-07-2012: <a href="http://codemirror.net/codemirror-2.31.zip">Version 2.31</a>:</p>
+
+  <ul class="rel-note">
+    <li>New modes: <a href="mode/ocaml/index.html">OCaml</a>, <a href="mode/haxe/index.html">Haxe</a>, and <a href="mode/vb/index.html">VB.NET</a>.</li>
+    <li>Several fixes to the new scrolling model.</li>
+    <li>Add a <a href="doc/manual.html#setSize"><code>setSize</code></a> method for programmatic resizing.</li>
+    <li>Add <a href="doc/manual.html#getHistory"><code>getHistory</code></a> and <a href="doc/manual.html#setHistory"><code>setHistory</code></a> methods.</li>
+    <li>Allow custom line separator string in <a href="doc/manual.html#getValue"><code>getValue</code></a> and <a href="doc/manual.html#getRange"><code>getRange</code></a>.</li>
+    <li>Support double- and triple-click drag, double-clicking whitespace.</li>
+    <li>And more... <a href="https://github.com/marijnh/CodeMirror2/compare/v2.3...v2.31">(all patches)</a></li>
+  </ul>
 
   <p class="rel">22-06-2012: <a href="http://codemirror.net/codemirror-2.3.zip">Version 2.3</a>:</p>
 
