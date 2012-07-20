@@ -13,6 +13,7 @@ function byClassName(elt, cls) {
   if (elt.getElementsByClassName) return elt.getElementsByClassName(cls);
   var found = [], re = new RegExp("\\b" + cls + "\\b");
   function search(elt) {
+    if (elt.nodeType == 3) return;
     if (re.test(elt.className)) found.push(elt);
     for (var i = 0, e = elt.childNodes.length; i < e; ++i)
       search(elt.childNodes[i]);
@@ -325,7 +326,7 @@ testCM("scrollSnap", function(cm) {
 });
 
 testCM("selectionPos", function(cm) {
-  cm.setSize(100, 0);
+  cm.setSize(100, 100);
   addDoc(cm, 200, 100);
   cm.setSelection({line: 1, ch: 100}, {line: 98, ch: 100});
   var lineWidth = cm.charCoords({line: 0, ch: 200}, "local").x;
