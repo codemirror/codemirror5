@@ -76,6 +76,11 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       state.f = inlineNormal;
       state.block = blockNormal;
     }
+    if (state.md_inside && stream.current().indexOf(">")!=-1) {
+      state.f = inlineNormal;
+      state.block = blockNormal;
+      state.htmlState.context = undefined;
+    }
     return style;
   }
 
@@ -118,10 +123,22 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       return switchInline(stream, state, linkText);
     }
     if (ch === '<' && stream.match(/^\w/, false)) {
+      var md_inside = false;
+      if (stream.string.indexOf(">")!=-1) {
+        var atts = stream.string.substring(1,stream.string.indexOf(">"));
+        if (/markdown\s*=\s*('|"){0,1}1('|"){0,1}/.test(atts)) {
+          state.md_inside = true;
+        }
+      }
       stream.backUp(1);
       return switchBlock(stream, state, htmlBlock);
     }
-
+      
+    if (ch === '<' && stream.match(/^\/\w*?>/)) {
+      state.md_inside = false;
+      return "tag";
+    }
+      
     var t = getType(state);
     if (ch === '*' || ch === '_') {
       if (stream.eat(ch)) {
@@ -212,13 +229,14 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         block: s.block,
         htmlState: CodeMirror.copyState(htmlMode, s.htmlState),
         indentation: s.indentation,
-        
+          
         inline: s.inline,
         text: s.text,
         em: s.em,
         strong: s.strong,
         header: s.header,
-        quote: s.quote
+        quote: s.quote,
+        md_inside: s.md_inside
       };
     },
 
