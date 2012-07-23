@@ -465,3 +465,22 @@ testCM("wrappingAndResizing", function(cm) {
     eqPos(pos, cm.coordsChar({x: coords.x + 2, y: coords.y + 2}));
   });
 });
+
+testCM("measureEndOfLine", function(cm) {
+  cm.setSize(null, "auto");
+  var inner = cm.getWrapperElement().getElementsByClassName("CodeMirror-lines")[0].firstChild;
+  var w = 20, lh = inner.offsetHeight;
+  for (var step = 10;; w += step) {
+    cm.setSize(w);
+    if (inner.offsetHeight < 2.5 * lh) {
+      if (step == 10) { w -= 10; step = 1; }
+      else { break; }
+    }
+  }
+  cm.setValue(cm.getValue() + "\n\n");
+  var endPos = cm.charCoords({line: 0, ch: 18}, "local");
+  is(endPos.y > lh * .8, "not at top");
+  is(endPos.x > w - 20, "not at right");
+  endPos = cm.charCoords({line: 0, ch: 18});
+  eqPos(cm.coordsChar({x: endPos.x, y: endPos.y + 2}), {line: 0, ch: 18});
+}, {mode: "text/html", value: "<!-- foo barrr -->", lineWrapping: true});
