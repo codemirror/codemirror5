@@ -35,7 +35,7 @@ test("fromTextArea", function() {
   cm.setValue("xxx");
   cm.toTextArea();
   is(te.offsetHeight);
-  eq(te.value, "xxx");
+  eq(te.value, "xxxx");
 });
 
 testCM("getRange", function(cm) {
