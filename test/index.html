@@ -46,7 +46,6 @@
           ++failed;
           bad += CodeMirror.htmlEscape(name) + ": <span class=" + type + ">" + CodeMirror.htmlEscape(msg) + "</span>\n";
           output.innerHTML = bad;
-          throw new Error("Test '" + name + "' " + (type == "error" ? "threw an error" : "failed") + ": " + msg);
         } else if (type == "done") {
           output.innerHTML = bad + (failed ? "<span class=fail>" + failed + " failure" + (failed > 1 ? "s" : "") + "</span>"
                                            : "<span class=ok>All passed</span>");
