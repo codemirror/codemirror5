@@ -46,7 +46,7 @@ testCM("getRange", function(cm) {
   eq(cm.getRange({line: 0, ch: 0}, {line: 0, ch: 3}), "123");
   eq(cm.getRange({line: 0, ch: -1}, {line: 0, ch: 200}), "1234");
   eq(cm.getRange({line: 0, ch: 2}, {line: 1, ch: 2}), "34\n56");
-  eq(cm.getRange({line: 1, ch: 2}, {line: 100, ch: 0}), "78");
+  eq(cm.getRange({line: 1, ch: 2}, {line: 100, ch: 0}), "789");
 }, {value: "1234\n5678"});
 
 testCM("replaceRange", function(cm) {
