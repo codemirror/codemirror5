@@ -36,7 +36,7 @@ CodeMirror.fromTextArea(document.getElementById("code"), {
 <p>Click the line-number gutter to add or remove 'breakpoints'.</p>
 
     <script>
-      CodeMirror.fromTextArea(document.getElementById("code"), {
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true,
         onGutterClick: function(cm, n) {
           var info = cm.lineInfo(n);
