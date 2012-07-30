@@ -12,20 +12,22 @@
     <h1>CodeMirror: XML mode</h1>
     <form><textarea id="code" name="code">
 &lt;html style="color: green"&gt;
-  &lt;!-- this is a comment --&gt;
-  &lt;head&gt;
-    &lt;title&gt;HTML Example&lt;/title&gt;
-  &lt;/head&gt;
-  &lt;body&gt;
-    The indentation tries to be &lt;em&gt;somewhat &amp;quot;do what
-    I mean&amp;quot;&lt;/em&gt;... but might not match your style.
-  &lt;/body&gt;
+	&lt;!-- this is a comment --&gt;
+	&lt;head&gt;
+		&lt;title&gt;HTML Example&lt;/title&gt;
+	&lt;/head&gt;
+	&lt;body&gt;
+		The indentation tries to be &lt;em&gt;somewhat &amp;quot;do what
+		I mean&amp;quot;&lt;/em&gt;... but might not match your style.
+	&lt;/body&gt;
 &lt;/html&gt;
 </textarea></form>
     <script>
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         mode: {name: "xml", alignCDATA: true},
-        lineNumbers: true
+        lineNumbers: true,
+        indentUnit:2,
+        tabSize: 4
       });
     </script>
     <p>The XML mode supports two configuration parameters:</p>
