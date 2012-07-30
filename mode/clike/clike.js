@@ -181,14 +181,18 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     return "string";
   }
 
-  CodeMirror.defineMIME("text/x-csrc", {
+  function mimes(ms, mode) {
+    for (var i = 0; i < ms.length; ++i) CodeMirror.defineMIME(ms[i], mode);
+  }
+
+  mimes(["text/x-csrc", "text/x-c", "text/x-chdr"], {
     name: "clike",
     keywords: words(cKeywords),
     blockKeywords: words("case do else for if switch while struct"),
     atoms: words("null"),
     hooks: {"#": cppHook}
   });
-  CodeMirror.defineMIME("text/x-c++src", {
+  mimes(["text/x-c++src", "text/x-c++hdr"], {
     name: "clike",
     keywords: words(cKeywords + " asm dynamic_cast namespace reinterpret_cast try bool explicit new " +
                     "static_cast typeid catch operator template typename class friend private " +
