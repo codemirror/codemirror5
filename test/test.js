@@ -322,7 +322,7 @@ testCM("scrollSnap", function(cm) {
   cm.setCursor({line: 100, ch: 180});
   cm.setCursor({line: 199, ch: 0});
   info = cm.getScrollInfo();
-  is(info.x == 0 && info.y == info.height - 100, "scrolled clean to bottom");
+  is(info.x == 0 && info.y > info.height - 100, "scrolled clean to bottom");
 });
 
 testCM("selectionPos", function(cm) {
@@ -484,3 +484,15 @@ testCM("measureEndOfLine", function(cm) {
   endPos = cm.charCoords({line: 0, ch: 18});
   eqPos(cm.coordsChar({x: endPos.x, y: endPos.y + 2}), {line: 0, ch: 18});
 }, {mode: "text/html", value: "<!-- foo barrr -->", lineWrapping: true});
+
+testCM("scrollVerticallyAndHorizontally", function(cm) {
+  cm.setSize(100, 100);
+  addDoc(cm, 40, 40);
+  cm.setCursor(39);
+  var wrap = cm.getWrapperElement(), bar = byClassName(wrap, "CodeMirror-scrollbar")[0];
+  is(bar.offsetHeight < wrap.offsetHeight, "vertical scrollbar limited by horizontal one");
+  var cursorBox = byClassName(wrap, "CodeMirror-cursor")[0].getBoundingClientRect();
+  var editorBox = wrap.getBoundingClientRect();
+  is(cursorBox.top + cursorBox.height < editorBox.top + cm.getScrollerElement().clientHeight,
+     "bottom line visible");
+});

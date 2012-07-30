@@ -7,7 +7,7 @@ function testCM(name, run, opts) {
   return test(name, function() {
     var place = document.getElementById("testground"), cm = CodeMirror(place, opts);
     try {run(cm);}
-    finally {place.removeChild(cm.getWrapperElement());}
+    finally {if (!runOnly) place.removeChild(cm.getWrapperElement());}
   });
 }
 
