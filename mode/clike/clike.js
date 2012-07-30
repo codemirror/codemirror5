@@ -181,23 +181,29 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     return "string";
   }
 
-  CodeMirror.defineMIME("text/x-csrc", {
-    name: "clike",
-    keywords: words(cKeywords),
-    blockKeywords: words("case do else for if switch while struct"),
-    atoms: words("null"),
-    hooks: {"#": cppHook}
-  });
-  CodeMirror.defineMIME("text/x-c++src", {
-    name: "clike",
-    keywords: words(cKeywords + " asm dynamic_cast namespace reinterpret_cast try bool explicit new " +
-                    "static_cast typeid catch operator template typename class friend private " +
-                    "this using const_cast inline public throw virtual delete mutable protected " +
-                    "wchar_t"),
-    blockKeywords: words("catch class do else finally for if struct switch try while"),
-    atoms: words("true false null"),
-    hooks: {"#": cppHook}
-  });
+  c_mime_types = [ "text/x-csrc", "text/x-c", "text/x-chdr" ]
+  for (i in c_mime_types) {
+    CodeMirror.defineMIME(c_mime_types[i], {
+      name: "clike",
+      keywords: words(cKeywords),
+      blockKeywords: words("case do else for if switch while struct"),
+      atoms: words("null"),
+      hooks: {"#": cppHook}
+    });
+  }
+  cpp_mime_types = [ "text/x-c++src", "text/x-c++hdr" ]
+  for (i in cpp_mime_types) {
+    CodeMirror.defineMIME(cpp_mime_types[i], {
+      name: "clike",
+      keywords: words(cKeywords + " asm dynamic_cast namespace reinterpret_cast try bool explicit new " +
+                      "static_cast typeid catch operator template typename class friend private " +
+                      "this using const_cast inline public throw virtual delete mutable protected " +
+                      "wchar_t"),
+      blockKeywords: words("catch class do else finally for if struct switch try while"),
+      atoms: words("true false null"),
+      hooks: {"#": cppHook}
+    });
+  }
   CodeMirror.defineMIME("text/x-java", {
     name: "clike",
     keywords: words("abstract assert boolean break byte case catch char class const continue default " + 
