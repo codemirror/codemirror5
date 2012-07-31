@@ -69,10 +69,6 @@
   white-space: pre;
   cursor: text;
 }
-.CodeMirror-lines * {
-  /* Necessary for throw-scrolling to decelerate properly on Safari. */
-  pointer-events: none;
-}
 
 .CodeMirror pre {
   -moz-border-radius: 0;
