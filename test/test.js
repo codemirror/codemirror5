@@ -497,7 +497,7 @@ testCM("scrollVerticallyAndHorizontally", function(cm) {
      "bottom line visible");
 });
 
-runOnly = testCM("moveV stuck", function(cm) {
+testCM("moveV stuck", function(cm) {
   var lines = byClassName(cm.getWrapperElement(), "CodeMirror-lines")[0].firstChild, h0 = lines.offsetHeight;
   var val = "fooooooooooooooooooooooooo baaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaar\n";
   cm.setValue(val);
