@@ -501,9 +501,9 @@ testCM("moveV stuck", function(cm) {
   var lines = byClassName(cm.getWrapperElement(), "CodeMirror-lines")[0].firstChild, h0 = lines.offsetHeight;
   var val = "fooooooooooooooooooooooooo baaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaar\n";
   cm.setValue(val);
-  for (var w = 50;; w += 10) {
+  for (var w = 50;; w += 5) {
     cm.setSize(w);
-    if (lines.offsetHeight < 3 * h0) break;
+    if (lines.offsetHeight <= 3 * h0) break;
   }
   cm.setCursor({line: 0, ch: val.length - 1});
   cm.moveV(-1, "line");
