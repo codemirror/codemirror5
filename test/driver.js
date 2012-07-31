@@ -28,15 +28,20 @@ function runTests(callback) {
   step(0);
 }
 
+function label(str, msg) {
+  if (msg) return str + " (" + msg + ")";
+  return str;
+}
 function eq(a, b, msg) {
-  if (a != b) throw new Failure(a + " != " + b + (msg ? " (" + msg + ")" : ""));
+  if (a != b) throw new Failure(label(a + " != " + b, msg));
 }
 function eqPos(a, b, msg) {
+  function str(p) { return "{line:" + p.line + ",ch:" + p.ch + "}"; }
   if (a == b) return;
-  if (a == null || b == null) throw new Failure("comparing point to null");
-  eq(a.line, b.line, msg);
-  eq(a.ch, b.ch, msg);
+  if (a == null) throw new Failure(label("comparing null to " + str(b)));
+  if (b == null) throw new Failure(label("comparing " + str(a) + " to null"));
+  if (a.line != b.line || a.ch != b.ch) throw new Failure(label(str(a) + " != " + str(b), msg));
 }
 function is(a, msg) {
-  if (!a) throw new Failure("assertion failed" + (msg ? " (" + msg + ")" : ""));
+  if (!a) throw new Failure(label("assertion failed", msg));
 }
