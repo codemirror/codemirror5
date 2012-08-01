@@ -1,5 +1,12 @@
 #!/usr/bin/env node
 
+var lint = require("./lint/lint");
+
+lint.checkDir("mode");
+lint.checkDir("lib");
+
+var ok = lint.success();
+
 var files = new (require('node-static').Server)('.');
 
 var server = require('http').createServer(function (req, res) {
@@ -19,7 +26,7 @@ var server = require('http').createServer(function (req, res) {
     child_process.exec(cmd, function (err, stdout) {
       server.close();
       console.log(stdout);
-      process.exit(err ? 1 : 0);
+      process.exit(err || !ok ? 1 : 0);
     });
   });
 });
