@@ -73,7 +73,6 @@ function walk(ast, scope) {
     if (/\+\+|--/.test(ast[1]) && ast[2][0].name == "name") checkVariable(scope, ast[2][1], ast[2][0]);
     sub(ast[2]); sub(ast[3]);
   } else if (tp == "object") {
-    // FIXME we'd like to check whether reserved prop names were escaped, but the parse tree doesn't tell us
     ast[1].forEach(function(prop) {
       if (prop.type != "string") checkProperty(prop[0], ast[0]);
       sub(prop[1]); sub(prop[2]);
