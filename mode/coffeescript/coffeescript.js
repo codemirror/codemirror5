@@ -187,7 +187,7 @@ CodeMirror.defineMode('coffeescript', function(conf) {
             }
             if (singleline) {
                 if (conf.mode.singleLineStringErrors) {
-                    outclass = ERRORCLASS
+                    outclass = ERRORCLASS;
                 } else {
                     state.tokenize = tokenBase;
                 }
@@ -205,7 +205,7 @@ CodeMirror.defineMode('coffeescript', function(conf) {
             }
             stream.eatWhile("#");
         }
-        return "comment"
+        return "comment";
     }
 
     function indent(stream, state, type) {
@@ -244,7 +244,7 @@ CodeMirror.defineMode('coffeescript', function(conf) {
             while (state.scopes[0].offset !== _indent) {
                 state.scopes.shift();
             }
-            return false
+            return false;
         } else {
             state.scopes.shift();
             return false;

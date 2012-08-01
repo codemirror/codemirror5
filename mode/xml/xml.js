@@ -229,7 +229,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
       if (type == "endTag") { popContext(); return cont(); }
       setStyle = "error";
       return cont(arguments.callee);
-    }
+    };
   }
   function maybePopContext(nextTagName) {
     var parentTagName;

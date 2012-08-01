@@ -63,7 +63,7 @@ CodeMirror.defineMode('smalltalk', function(config, modeConfig) {
 
 		} else if (/\d/.test(aChar)) {
 			stream.eatWhile(/[\w\d]/);
-			token.name = 'number'
+			token.name = 'number';
 
 		} else if (/[\w_]/.test(aChar)) {
 			stream.eatWhile(/[\w\d_]/);
@@ -100,7 +100,7 @@ CodeMirror.defineMode('smalltalk', function(config, modeConfig) {
 		}
 
 		return token;
-	}
+	};
 
 	return {
 		startState: function() {

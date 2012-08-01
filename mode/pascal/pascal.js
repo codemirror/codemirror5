@@ -26,7 +26,7 @@ CodeMirror.defineMode("pascal", function(config) {
       return tokenComment(stream, state);
     }
     if (/[\[\]{}\(\),;\:\.]/.test(ch)) {
-      return null
+      return null;
     }
     if (/\d/.test(ch)) {
       stream.eatWhile(/[\w\.]/);

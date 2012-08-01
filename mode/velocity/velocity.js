@@ -5,7 +5,7 @@ CodeMirror.defineMode("velocity", function(config) {
         return obj;
     }
 
-    var indentUnit = config.indentUnit
+    var indentUnit = config.indentUnit;
     var keywords = parseWords("#end #else #break #stop #[[ #]] " +
                               "#{end} #{else} #{break} #{stop}");
     var functions = parseWords("#if #elseif #foreach #set #include #parse #macro #define #evaluate " +

@@ -9,7 +9,7 @@
       if (stream.match(delim)) state.tokenize = null;
       else stream.skipToEnd();
       return "string";
-    }
+    };
   }
   var phpConfig = {
     name: "clike",
@@ -118,7 +118,7 @@
                 curState: parserConfig.startOpen ? phpMode.startState() : html,
                 curClose: parserConfig.startOpen ? /^\?>/ : null,
 		mode: parserConfig.startOpen ? "php" : "html",
-                pending: null}
+                pending: null};
       },
 
       copyState: function(state) {
@@ -142,7 +142,7 @@
       },
 
       electricChars: "/{}:"
-    }
+    };
   }, "xml", "clike", "javascript", "css");
   CodeMirror.defineMIME("application/x-httpd-php", "php");
   CodeMirror.defineMIME("application/x-httpd-php-open", {name: "php", startOpen: true});

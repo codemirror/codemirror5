@@ -128,7 +128,7 @@ CodeMirror.defineMode("haskell", function(cmCfg, modeCfg) {
       }
       setState(ncomment(type, currNest));
       return type;
-    }
+    };
   }
     
   function stringLiteral(source, setState) {
@@ -170,7 +170,7 @@ CodeMirror.defineMode("haskell", function(cmCfg, modeCfg) {
       return function () {
         for (var i = 0; i < arguments.length; i++)
           wkw[arguments[i]] = t;
-      }
+      };
     }
     
     setType("keyword")(

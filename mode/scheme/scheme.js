@@ -166,7 +166,7 @@ CodeMirror.defineMode("scheme", function (config, mode) {
                         stream.skipToEnd(); // rest of the line is a comment
                         returnType = COMMENT;
                     } else if (ch == "(" || ch == "[") {
-                        var keyWord = ''; var indentTemp = stream.column();
+                      var keyWord = ''; var indentTemp = stream.column(), letter;
                         /**
                         Either
                         (indent-word ..

@@ -185,7 +185,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   function pushlex(type, info) {
     var result = function() {
       var state = cx.state;
-      state.lexical = new JSLexical(state.indented, cx.stream.column(), type, null, state.lexical, info)
+      state.lexical = new JSLexical(state.indented, cx.stream.column(), type, null, state.lexical, info);
     };
     result.lex = true;
     return result;

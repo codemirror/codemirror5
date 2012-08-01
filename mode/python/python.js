@@ -227,7 +227,7 @@ CodeMirror.defineMode("python", function(conf, parserConf) {
             while (state.scopes[0].offset !== _indent) {
                 state.scopes.shift();
             }
-            return false
+            return false;
         } else {
             if (type === 'py') {
                 state.scopes[0].offset = stream.indentation();

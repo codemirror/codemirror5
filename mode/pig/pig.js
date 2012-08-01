@@ -107,11 +107,11 @@ CodeMirror.defineMode("pig", function(config, parserConfig) {
 			// is it one of the builtin functions?
 			if (builtins && builtins.propertyIsEnumerable(stream.current().toUpperCase()))
 			{
-				return ("keyword", "variable-2")
+				return ("keyword", "variable-2");
 			}
 			// is it one of the listed types?
 			if (types && types.propertyIsEnumerable(stream.current().toUpperCase()))
-				return ("keyword", "variable-3")
+				return ("keyword", "variable-3");
 			// default is a 'variable'
 			return ret("variable", "pig-word");
 		}
@@ -161,7 +161,7 @@ CodeMirror.defineMode("pig", function(config, parserConfig) {
 	+ "NEQ MATCHES TRUE FALSE "; 
 	
 	// data types
-	var pTypes = "BOOLEAN INT LONG FLOAT DOUBLE CHARARRAY BYTEARRAY BAG TUPLE MAP "
+	var pTypes = "BOOLEAN INT LONG FLOAT DOUBLE CHARARRAY BYTEARRAY BAG TUPLE MAP ";
 	
 	CodeMirror.defineMIME("text/x-pig", {
 	 name: "pig",

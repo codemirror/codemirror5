@@ -47,7 +47,7 @@ CodeMirror.defineMode("go", function(config, parserConfig) {
     }
     if (/[\[\]{}\(\),;\:\.]/.test(ch)) {
       curPunc = ch;
-      return null
+      return null;
     }
     if (ch == "/") {
       if (stream.eat("*")) {
@@ -144,7 +144,7 @@ CodeMirror.defineMode("go", function(config, parserConfig) {
       if (curPunc == "{") pushContext(state, stream.column(), "}");
       else if (curPunc == "[") pushContext(state, stream.column(), "]");
       else if (curPunc == "(") pushContext(state, stream.column(), ")");
-      else if (curPunc == "case") ctx.type = "case"
+      else if (curPunc == "case") ctx.type = "case";
       else if (curPunc == "}" && ctx.type == "}") ctx = popContext(state);
       else if (curPunc == ctx.type) popContext(state);
       state.startOfLine = false;

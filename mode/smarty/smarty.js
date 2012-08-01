@@ -5,7 +5,7 @@ CodeMirror.defineMode("smarty", function(config, parserConfig) {
     operatorChars: /[+\-*&%=<>!?]/,
     validIdentifier: /[a-zA-Z0-9\_]/,
     stringChar: /[\'\"]/
-  }
+  };
   var leftDelim = (typeof config.mode.leftDelimiter != 'undefined') ? config.mode.leftDelimiter : "{";
   var rightDelim = (typeof config.mode.rightDelimiter != 'undefined') ? config.mode.rightDelimiter : "}";
   function ret(style, lst) { last = lst; return style; }
@@ -142,7 +142,7 @@ CodeMirror.defineMode("smarty", function(config, parserConfig) {
       return style;
     },
     electricChars: ""
-  }
+  };
 });
 
 CodeMirror.defineMIME("text/x-smarty", "smarty");

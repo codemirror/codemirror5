@@ -32,14 +32,14 @@ CodeMirror.defineMode("gfm", function(config, parserConfig) {
     
     return function (lang) {
       return modes[lang] ? CodeMirror.getMode(config, modes[lang]) : null;
-    }
+    };
   }());
 
   function markdown(stream, state) {
     // intercept fenced code blocks
     if (stream.sol() && stream.match(/^```([\w+#]*)/)) {
       // try switching mode
-      state.localMode = getMode(RegExp.$1)
+      state.localMode = getMode(RegExp.$1);
       if (state.localMode)
         state.localState = state.localMode.startState();
 
@@ -103,6 +103,7 @@ CodeMirror.defineMode("gfm", function(config, parserConfig) {
 
     token: function(stream, state) {
         /* Parse GFM double bracket links */
+        var ch;
         if ((ch = stream.peek()) != undefined && ch == '[') {
             stream.next(); // Advance the stream
 
@@ -140,5 +141,5 @@ CodeMirror.defineMode("gfm", function(config, parserConfig) {
 
         return state.token(stream, state);
     }
-  }
+  };
 }, "markdown");

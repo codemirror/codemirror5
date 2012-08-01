@@ -103,7 +103,7 @@ CodeMirror.defineMode('ocaml', function(config) {
   }
 
   return {
-    startState: function() {return {tokenize: tokenBase, commentLevel: 0}},
+    startState: function() {return {tokenize: tokenBase, commentLevel: 0};},
     token: function(stream, state) {
       if (stream.eatSpace()) return null;
       return state.tokenize(stream, state);

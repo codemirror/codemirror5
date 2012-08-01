@@ -27,7 +27,7 @@
 */
 CodeMirror.defineMode("ntriples", function() {  
 
-  Location = {
+  var Location = {
     PRE_SUBJECT         : 0,
     WRITING_SUB_URI     : 1,
     WRITING_BNODE_URI   : 2,
@@ -87,8 +87,8 @@ CodeMirror.defineMode("ntriples", function() {
     currState.location=ret;
   }
 
-  untilSpace  = function(c) { return c != ' '; };
-  untilEndURI = function(c) { return c != '>'; };
+  var untilSpace  = function(c) { return c != ' '; };
+  var untilEndURI = function(c) { return c != '>'; };
   return {
     startState: function() {
        return { 
@@ -114,7 +114,7 @@ CodeMirror.defineMode("ntriples", function() {
       }
       if(ch == '#') {
         var parsedAnchor = '';
-        stream.eatWhile(function(c) { if(c != '>' && c != ' ') { parsedAnchor+= c; return true; } return false});
+        stream.eatWhile(function(c) { if(c != '>' && c != ' ') { parsedAnchor+= c; return true; } return false;});
         state.anchors.push(parsedAnchor);
         return 'variable-2';
       }

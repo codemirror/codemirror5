@@ -6,7 +6,7 @@ CodeMirror.defineMode("haxe", function(config, parserConfig) {
   var keywords = function(){
     function kw(type) {return {type: type, style: "keyword"};}
     var A = kw("keyword a"), B = kw("keyword b"), C = kw("keyword c");
-    var operator = kw("operator"), atom = {type: "atom", style: "atom"}, attribute = {type:"attribute", style: "attribute"}
+    var operator = kw("operator"), atom = {type: "atom", style: "atom"}, attribute = {type:"attribute", style: "attribute"};
   var type = kw("typedef");
     return {
       "if": A, "while": A, "else": B, "do": B, "try": B,
@@ -219,7 +219,7 @@ CodeMirror.defineMode("haxe", function(config, parserConfig) {
   function pushlex(type, info) {
     var result = function() {
       var state = cx.state;
-      state.lexical = new HaxeLexical(state.indented, cx.stream.column(), type, null, state.lexical, info)
+      state.lexical = new HaxeLexical(state.indented, cx.stream.column(), type, null, state.lexical, info);
     };
     result.lex = true;
     return result;
@@ -243,7 +243,7 @@ CodeMirror.defineMode("haxe", function(config, parserConfig) {
   }
 
   function statement(type) {
-    if (type == "@") return cont(metadef)
+    if (type == "@") return cont(metadef);
     if (type == "var") return cont(pushlex("vardef"), vardef1, expect(";"), poplex);
     if (type == "keyword a") return cont(pushlex("form"), expression, statement, poplex);
     if (type == "keyword b") return cont(pushlex("form"), statement, poplex);
@@ -297,7 +297,7 @@ CodeMirror.defineMode("haxe", function(config, parserConfig) {
   function metadef(type, value) {
     if(type == ":") return cont(metadef);
     if(type == "variable") return cont(metadef);
-    if(type == "(") return cont(pushlex(")"), comasep(metaargs, ")"), poplex, statement)
+    if(type == "(") return cont(pushlex(")"), comasep(metaargs, ")"), poplex, statement);
   }
   function metaargs(type, value) {
     if(typ == "variable") return cont();

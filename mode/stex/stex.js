@@ -54,7 +54,7 @@ CodeMirror.defineMode("stex", function(cmCfg, modeCfg)
 	    };
 	    this.closeBracket = function(content) {
 	    };
-	}
+	};
     }
 
     var plugins = new Array();
