@@ -70,7 +70,7 @@
     for (var prop in o) if (o.hasOwnProperty(prop)) f(prop, o[prop]);
   }
   function iterList(l, f) {
-    for (var i in l) f(l[i]);
+    for (var i = 0; i < l.length; ++i) f(l[i]);
   }
   function toLetter(ch) {
     // T -> t, Shift-T -> T, '*' -> *, "Space" -> " "
