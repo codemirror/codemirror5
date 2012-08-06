@@ -34,6 +34,10 @@
         runTests(displayTest);
       };
 
+      function esc(str) {
+        return str.replace(/[<&]/, function(ch) { return ch == "<" ? "&lt;" : "&amp;"; });
+      }
+
       var output = document.getElementById("output"), progress = document.getElementById("progress");
       var count = 0, failed = 0, bad = "";
       function displayTest(type, name, msg) {
@@ -41,10 +45,10 @@
         progress.style.width = (count * (progress.parentNode.clientWidth - 8) / tests.length) + "px";
         progress.innerHTML = "Ran " + count + (count < tests.length ? " of " + tests.length : "") + " tests";
         if (type == "ok") {
-          output.innerHTML = bad + "<span class=ok>Test '" + CodeMirror.htmlEscape(name) + "' succeeded</span>";
+          output.innerHTML = bad + "<span class=ok>Test '" + esc(name) + "' succeeded</span>";
         } else if (type == "error" || type == "fail") {
           ++failed;
-          bad += CodeMirror.htmlEscape(name) + ": <span class=" + type + ">" + CodeMirror.htmlEscape(msg) + "</span><br>";
+          bad += esc(name) + ": <span class=" + type + ">" + esc(msg) + "</span><br>";
           output.innerHTML = bad;
         } else if (type == "done") {
           output.innerHTML = bad + (failed ? "<span class=fail>" + failed + " failure" + (failed > 1 ? "s" : "") + "</span>"

@@ -229,7 +229,8 @@
     else f(prompt(shortText, ""));
   }
   function showAlert(cm, text) {
-    if (cm.openDialog) cm.openDialog(CodeMirror.htmlEscape(text) + " <button type=button>OK</button>");
+    var esc = text.replace(/[<&]/, function(ch) { return ch == "<" ? "&lt;" : "&amp;"; });
+    if (cm.openDialog) cm.openDialog(esc + " <button type=button>OK</button>");
     else alert(text);
   }
 
