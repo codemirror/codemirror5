@@ -346,14 +346,15 @@
     default bindings.</p>
 
     <p>The values of properties in keymaps can be either functions of
-    a single argument (the CodeMirror instance), or strings. Such
-    strings refer to properties of the
+    a single argument (the CodeMirror instance), strings, or
+    <code>false</code>. Such strings refer to properties of the
     <code>CodeMirror.commands</code> object, which defines a number of
     common commands that are used by the default keybindings, and maps
-    them to functions. A key handler function may throw
-    <code>CodeMirror.Pass</code> to indicate that it has decided not
-    to handle the key, and other handlers (or the default behavior)
-    should be given a turn.</p>
+    them to functions. If the property is set to <code>false</code>,
+    CodeMirror leaves handling of the key up to the browser. A key
+    handler function may throw <code>CodeMirror.Pass</code> to indicate
+    that it has decided not to handle the key, and other handlers (or
+    the default behavior) should be given a turn.</p>
 
     <p>Keys mapped to command names that start with the
     characters <code>"go"</code> (which should be used for
