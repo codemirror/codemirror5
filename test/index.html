@@ -44,7 +44,7 @@
           output.innerHTML = bad + "<span class=ok>Test '" + CodeMirror.htmlEscape(name) + "' succeeded</span>";
         } else if (type == "error" || type == "fail") {
           ++failed;
-          bad += CodeMirror.htmlEscape(name) + ": <span class=" + type + ">" + CodeMirror.htmlEscape(msg) + "</span>\n";
+          bad += CodeMirror.htmlEscape(name) + ": <span class=" + type + ">" + CodeMirror.htmlEscape(msg) + "</span><br>";
           output.innerHTML = bad;
         } else if (type == "done") {
           output.innerHTML = bad + (failed ? "<span class=fail>" + failed + " failure" + (failed > 1 ? "s" : "") + "</span>"

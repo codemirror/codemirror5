@@ -468,7 +468,7 @@ testCM("wrappingAndResizing", function(cm) {
 
 testCM("measureEndOfLine", function(cm) {
   cm.setSize(null, "auto");
-  var inner = cm.getWrapperElement().getElementsByClassName("CodeMirror-lines")[0].firstChild;
+  var inner = byClassName(cm.getWrapperElement(), "CodeMirror-lines")[0].firstChild;
   var w = 20, lh = inner.offsetHeight;
   for (var step = 10;; w += step) {
     cm.setSize(w);
@@ -493,7 +493,7 @@ testCM("scrollVerticallyAndHorizontally", function(cm) {
   is(bar.offsetHeight < wrap.offsetHeight, "vertical scrollbar limited by horizontal one");
   var cursorBox = byClassName(wrap, "CodeMirror-cursor")[0].getBoundingClientRect();
   var editorBox = wrap.getBoundingClientRect();
-  is(cursorBox.top + cursorBox.height < editorBox.top + cm.getScrollerElement().clientHeight,
+  is(cursorBox.bottom < editorBox.top + cm.getScrollerElement().clientHeight,
      "bottom line visible");
 });
 
