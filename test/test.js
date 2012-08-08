@@ -22,6 +22,8 @@ function byClassName(elt, cls) {
   return found;
 }
 
+var ie_lt8 = /MSIE [1-7]\b/.test(navigator.userAgent);
+
 test("fromTextArea", function() {
   var te = document.getElementById("code");
   te.value = "CONTENT";
@@ -464,7 +466,7 @@ testCM("wrappingAndResizing", function(cm) {
     var coords = cm.charCoords(pos);
     eqPos(pos, cm.coordsChar({x: coords.x + 2, y: coords.y + 2}));
   });
-});
+}, null, ie_lt8);
 
 testCM("measureEndOfLine", function(cm) {
   cm.setSize(null, "auto");
@@ -483,7 +485,7 @@ testCM("measureEndOfLine", function(cm) {
   is(endPos.x > w - 20, "not at right");
   endPos = cm.charCoords({line: 0, ch: 18});
   eqPos(cm.coordsChar({x: endPos.x, y: endPos.y + 2}), {line: 0, ch: 18});
-}, {mode: "text/html", value: "<!-- foo barrr -->", lineWrapping: true});
+}, {mode: "text/html", value: "<!-- foo barrr -->", lineWrapping: true}, ie_lt8);
 
 testCM("scrollVerticallyAndHorizontally", function(cm) {
   cm.setSize(100, 100);
@@ -508,7 +510,7 @@ testCM("moveV stuck", function(cm) {
   cm.setCursor({line: 0, ch: val.length - 1});
   cm.moveV(-1, "line");
   eqPos(cm.getCursor(), {line: 0, ch: 26});
-}, {lineWrapping: true});
+}, {lineWrapping: true}, ie_lt8);
 
 testCM("clickTab", function(cm) {
   var p0 = cm.charCoords({line: 0, ch: 0}), p1 = cm.charCoords({line: 0, ch: 1});
