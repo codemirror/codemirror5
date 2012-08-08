@@ -509,3 +509,9 @@ testCM("moveV stuck", function(cm) {
   cm.moveV(-1, "line");
   eqPos(cm.getCursor(), {line: 0, ch: 26});
 }, {lineWrapping: true});
+
+testCM("clickTab", function(cm) {
+  var p0 = cm.charCoords({line: 0, ch: 0}), p1 = cm.charCoords({line: 0, ch: 1});
+  eqPos(cm.coordsChar({x: p0.x + 5, y: p0.y + 5}), {line: 0, ch: 0});
+  eqPos(cm.coordsChar({x: p1.x - 5, y: p1.y + 5}), {line: 0, ch: 1});
+}, {value: "\t\n\n", lineWrapping: true, tabSize: 8});
