@@ -30,7 +30,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
     },
     doNotIndent: {"pre": true},
     allowUnquoted: true,
-    allowMissing: false
+    allowMissing: true
   } : {
     autoSelfClosers: {},
     implicitlyClosed: {},
