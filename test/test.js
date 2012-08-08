@@ -495,7 +495,7 @@ testCM("scrollVerticallyAndHorizontally", function(cm) {
   var editorBox = wrap.getBoundingClientRect();
   is(cursorBox.bottom < editorBox.top + cm.getScrollerElement().clientHeight,
      "bottom line visible");
-});
+}, {gutter: true});
 
 testCM("moveV stuck", function(cm) {
   var lines = byClassName(cm.getWrapperElement(), "CodeMirror-lines")[0].firstChild, h0 = lines.offsetHeight;
