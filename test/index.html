@@ -46,6 +46,8 @@
         progress.innerHTML = "Ran " + count + (count < tests.length ? " of " + tests.length : "") + " tests";
         if (type == "ok") {
           output.innerHTML = bad + "<span class=ok>Test '" + esc(name) + "' succeeded</span>";
+        } else if (type == "expected") {
+          output.innerHTML = bad + "<span class=ok>Test '" + esc(name) + "' failed as expected</span>";
         } else if (type == "error" || type == "fail") {
           ++failed;
           bad += esc(name) + ": <span class=" + type + ">" + esc(msg) + "</span><br>";

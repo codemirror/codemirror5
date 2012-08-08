@@ -1,27 +1,33 @@
-var tests = [], runOnly = null;
+var tests = [], debug = null;
 
 function Failure(why) {this.message = why;}
 
-function test(name, run) {tests.push({name: name, func: run}); return name;}
-function testCM(name, run, opts) {
+function test(name, run, expectedFail) {
+  tests.push({name: name, func: run, expectedFail: expectedFail});
+  return name;
+}
+function testCM(name, run, opts, expectedFail) {
   return test(name, function() {
     var place = document.getElementById("testground"), cm = CodeMirror(place, opts);
+    if (debug) place.style.visibility = "";
     try {run(cm);}
-    finally {if (!runOnly) place.removeChild(cm.getWrapperElement());}
-  });
+    finally {if (!debug) place.removeChild(cm.getWrapperElement());}
+  }, expectedFail);
 }
 
 function runTests(callback) {
   function step(i) {
     if (i == tests.length) return callback("done");
-    var test = tests[i];
-    if (runOnly != null && runOnly != test.name) return step(i + 1);
-    try {test.func(); callback("ok", test.name);}
-    catch(e) {
-      if (e instanceof Failure)
-        callback("fail", test.name, e.message);
-      else
-        callback("error", test.name, e.toString());
+    var test = tests[i], expFail = test.expectedFail;
+    if (debug != null && debug != test.name) return step(i + 1);
+    try {
+      test.func();
+      if (expFail) callback("fail", test.name, "was expected to fail, but succeeded");
+      else callback("ok", test.name);
+    } catch(e) {
+      if (expFail) callback("expected", test.name);
+      else if (e instanceof Failure) callback("fail", test.name, e.message);
+      else callback("error", test.name, e.toString());
     }
     setTimeout(function(){step(i + 1);}, 20);
   }
