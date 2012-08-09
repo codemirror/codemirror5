@@ -102,6 +102,10 @@ testCM("indent", function(cm) {
   cm.setOption("indentUnit", 8);
   cm.indentLine(1);
   eq(cm.getLine(1), "\tblah();");
+  cm.setOption("indentUnit", 10);
+  cm.setOption("tabSize", 4);
+  cm.indentLine(1);
+  eq(cm.getLine(1), "\t\t  blah();");
 }, {value: "if (x) {\nblah();\n}", indentUnit: 3, indentWithTabs: true, tabSize: 8});
 
 test("defaults", function() {
@@ -517,3 +521,21 @@ testCM("clickTab", function(cm) {
   eqPos(cm.coordsChar({x: p0.x + 5, y: p0.y + 5}), {line: 0, ch: 0});
   eqPos(cm.coordsChar({x: p1.x - 5, y: p1.y + 5}), {line: 0, ch: 1});
 }, {value: "\t\n\n", lineWrapping: true, tabSize: 8});
+
+testCM("verticalScroll", function(cm) {
+  cm.setSize(100, 500);
+  cm.setValue("foo\nbar\nbaz\n");
+  var sc = cm.getScrollerElement();
+  eq(sc.scrollWidth, sc.clientWidth);
+  cm.setLine(0, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaah");
+  is(sc.scrollWidth > sc.clientWidth);
+  cm.setLine(0, "foo");
+  eq(sc.scrollWidth, sc.clientWidth);
+  cm.setLine(0, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaah");
+  cm.setLine(1, "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbh");
+  is(sc.scrollWidth > sc.clientWidth);
+  var curWidth = sc.scrollWidth;
+  cm.setLine(0, "foo");
+  is(sc.scrollWidth < curWidth);
+  is(sc.scrollWidth > sc.clientWidth);
+});
