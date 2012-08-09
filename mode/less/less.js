@@ -29,7 +29,7 @@ CodeMirror.defineMode("less", function(config) {
       return tokenSGMLComment(stream, state);
     }
     else if (ch == "=") ret(null, "compare");
-    else if ((/*ch == "*" || */ch == "|") && stream.eat("=")) return ret(null, "compare");
+    else if (ch == "|" && stream.eat("=")) return ret(null, "compare");
     else if (ch == "\"" || ch == "'") {
       state.tokenize = tokenString(ch);
       return state.tokenize(stream, state);
@@ -218,7 +218,7 @@ CodeMirror.defineMode("less", function(config) {
         if (context == "rule") style = null; //"tag"
         else if (!context || context == "@media{") {
           style = stream.current() == "when"  ? "variable" :
-            /[\s,|\s\)|\s]/.test(stream.peek()) ? "tag"      : type;
+          /[\s,|\s\)|\s]/.test(stream.peek()) ? "tag"      : type;
         }
       }
       
