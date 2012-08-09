@@ -1,6 +1,7 @@
 /*
   LESS mode - http://www.lesscss.org/
-  Ported to CodeMirror by Peter Kroon
+  Ported to CodeMirror by Peter Kroon <plakroon@gmail.com>
+  Report bugs/issues here: https://github.com/marijnh/CodeMirror2/issues  GitHub: @peterkroon
 */
 
 CodeMirror.defineMode("less", function(config) {
@@ -10,16 +11,14 @@ CodeMirror.defineMode("less", function(config) {
   var tags = ["a","abbr","acronym","address","applet","area","article","aside","audio","b","base","basefont","bdi","bdo","big","blockquote","body","br","button","canvas","caption","cite","code","col","colgroup","command","datalist","dd","del","details","dfn","dir","div","dl","dt","em","embed","fieldset","figcaption","figure","font","footer","form","frame","frameset","h1","h2","h3","h4","h5","h6","head","header","hgroup","hr","html","i","iframe","img","input","ins","keygen","kbd","label","legend","li","link","map","mark","menu","meta","meter","nav","noframes","noscript","object","ol","optgroup","option","output","p","param","pre","progress","q","rp","rt","ruby","s","samp","script","section","select","small","source","span","strike","strong","style","sub","summary","sup","table","tbody","td","textarea","tfoot","th","thead","time","title","tr","track","tt","u","ul","var","video","wbr"];
   
   function inTagsArray(val){
-    for(var i=0; i<tags.length; i++){
-      if(val === tags[i]){
-	return true;
-      }
-    }
+    for(var i=0; i<tags.length; i++)if(val === tags[i])return true;
   }
-
+   
+  var selectors = /(^\:root$|^\:nth\-child$|^\:nth\-last\-child$|^\:nth\-of\-type$|^\:nth\-last\-of\-type$|^\:first\-child$|^\:last\-child$|^\:first\-of\-type$|^\:last\-of\-type$|^\:only\-child$|^\:only\-of\-type$|^\:empty$|^\:link|^\:visited$|^\:active$|^\:hover$|^\:focus$|^\:target$|^\:lang$|^\:enabled^\:disabled$|^\:checked$|^\:first\-line$|^\:first\-letter$|^\:before$|^\:after$|^\:not$|^\:required$|^\:invalid$)/;
+  
   function tokenBase(stream, state) {
     var ch = stream.next();
-
+    
     if (ch == "@") {stream.eatWhile(/[\w\-]/); return ret("meta", stream.current());}
     else if (ch == "/" && stream.eat("*")) {
       state.tokenize = tokenCComment;
@@ -30,19 +29,20 @@ CodeMirror.defineMode("less", function(config) {
       return tokenSGMLComment(stream, state);
     }
     else if (ch == "=") ret(null, "compare");
-    else if ((ch == "~" || ch == "|") && stream.eat("=")) return ret(null, "compare");
+    else if (ch == "|" && stream.eat("=")) return ret(null, "compare");
     else if (ch == "\"" || ch == "'") {
       state.tokenize = tokenString(ch);
       return state.tokenize(stream, state);
     }
-    else if (ch == "/") { // lesscss e.g.: .png will not be parsed as a class
+    else if (ch == "/") { // e.g.: .png will not be parsed as a class
       if(stream.eat("/")){
         state.tokenize = tokenSComment;
         return tokenSComment(stream, state);
       }else{
-        stream.eatWhile(/[\a-zA-Z0-9\-_.\s]/);
-        if(/\/|\)|#/.test(stream.peek() || stream.eol() || (stream.eatSpace() && stream.peek() == ")")))return ret("string", "string");//let url(/images/logo.png) without quotes return as string
-        return ret("number", "unit");
+        if(type == "string" || type == "(")return ret("string", "string");
+        if(state.stack[state.stack.length-1] != undefined)return ret(null, ch);
+        stream.eatWhile(/[\a-zA-Z0-9\-_.\s]/);		
+        if( /\/|\)|#/.test(stream.peek() || (stream.eatSpace() && stream.peek() == ")"))  || stream.eol() )return ret("string", "string"); // let url(/images/logo.png) without quotes return as string
       }
     }
     else if (ch == "!") {
@@ -53,30 +53,42 @@ CodeMirror.defineMode("less", function(config) {
       stream.eatWhile(/[\w.%]/);
       return ret("number", "unit");
     }
-    else if (/[,+<>*\/]/.test(ch)) {//removed . dot character original was [,.+>*\/]
+    else if (/[,+<>*\/]/.test(ch)) {
+      if(stream.peek() == "=" || type == "a")return ret("string", "string");
       return ret(null, "select-op");
     }
-    else if (/[;{}:\[\]()]/.test(ch)) { //added () char for lesscss original was [;{}:\[\]]
-      if(ch == ":"){
-        stream.eatWhile(/[active|hover|link|visited]/);
-        if( stream.current().match(/active|hover|link|visited/)){
+    else if (/[;{}:\[\]()~\|]/.test(ch)) {
+      if(ch == ":"){		
+        stream.eatWhile(/[a-z\\\-]/);
+        if( selectors.test(stream.current()) ){
           return ret("tag", "tag");
+        }else if(stream.peek() == ":"){//::-webkit-search-decoration
+          stream.next();
+          stream.eatWhile(/[a-z\\\-]/);
+          if(stream.current().match(/\:\:\-(o|ms|moz|webkit)\-/))return ret("string", "string");
+          if( selectors.test(stream.current().substring(1)) )return ret("tag", "tag");
+          return ret(null, ch);
         }else{
           return ret(null, ch); 
         }
+      }else if(ch == "~"){
+        if(type == "r")return ret("string", "string");
       }else{
         return ret(null, ch);
       }
     }
-    else if (ch == ".") { // lesscss
+    else if (ch == ".") {		
+      if(type == "(" || type == "string")return ret("string", "string"); // allow url(../image.png)
       stream.eatWhile(/[\a-zA-Z0-9\-_]/);
+      if(stream.peek() == " ")stream.eatSpace();
+      if(stream.peek() == ")")return ret("number", "unit");//rgba(0,0,0,.25);
       return ret("tag", "tag");
     }
-    else if (ch == "#") { // lesscss
+    else if (ch == "#") {
       //we don't eat white-space, we want the hex color and or id only
       stream.eatWhile(/[A-Za-z0-9]/);
       //check if there is a proper hex color length e.g. #eee || #eeeEEE
-      if(stream.current().length ===4 || stream.current().length ===7){
+      if(stream.current().length == 4 || stream.current().length == 7){
         if(stream.current().match(/[A-Fa-f0-9]{6}|[A-Fa-f0-9]{3}/,false) != null){//is there a valid hex color value present in the current stream
           //when not a valid hex value, parse as id
           if(stream.current().substring(1) != stream.current().match(/[A-Fa-f0-9]{6}|[A-Fa-f0-9]{3}/,false))return ret("atom", "tag");
@@ -96,8 +108,8 @@ CodeMirror.defineMode("less", function(config) {
           stream.eatWhile(/[\w\\\-]/);
           return ret("atom", "tag"); 
         }
-      }else{
-        stream.eatWhile(/[\w\\\-]/);            
+      }else{//when not a valid hexvalue length
+        stream.eatWhile(/[\w\\\-]/);
         return ret("atom", "tag");
       }
     }
@@ -107,39 +119,46 @@ CodeMirror.defineMode("less", function(config) {
     }
     else {
       stream.eatWhile(/[\w\\\-_%.{]/);
-      if(stream.current().match(/http|https/) != null){
+      if(type == "string"){
+        return ret("string", "string");
+      }else if(stream.current().match(/(^http$|^https$)/) != null){
         stream.eatWhile(/[\w\\\-_%.{:\/]/);
         return ret("string", "string");
       }else if(stream.peek() == "<" || stream.peek() == ">"){
         return ret("tag", "tag");
-      }else if( stream.peek().match(/\(/) != null ){// lessc
+      }else if( stream.peek().match(/\(/) != null ){																	  
         return ret(null, ch);
       }else if (stream.peek() == "/" && state.stack[state.stack.length-1] != undefined){ // url(dir/center/image.png)
         return ret("string", "string");
-      }else if( stream.current().match(/\-\d|\-.\d/) ){ // lesscss match e.g.: -5px -0.4 etc... only colorize the minus sign
-        //stream.backUp(stream.current().length-1); //commment out these 2 comment if you want the minus sign to be parsed as null -500px
-        //return ret(null, ch);
+      }else if( stream.current().match(/\-\d|\-.\d/) ){ // match e.g.: -5px -0.4 etc... only colorize the minus sign
+        //commment out these 2 comment if you want the minus sign to be parsed as null -500px
+        //stream.backUp(stream.current().length-1);
+        //return ret(null, ch); //console.log( stream.current() );		
         return ret("number", "unit");
-      }else if( inTagsArray(stream.current()) ){ // lesscss match html tags
+      }else if( inTagsArray(stream.current().toLowerCase()) ){ // match html tags
         return ret("tag", "tag");
       }else if( /\/|[\s\)]/.test(stream.peek() || stream.eol() || (stream.eatSpace() && stream.peek() == "/")) && stream.current().indexOf(".") !== -1){
-	if(stream.current().substring(stream.current().length-1,stream.current().length) == "{"){
-	  stream.backUp(1);
-	  return ret("tag", "tag");
-	}//end if
-	if( (stream.eatSpace() && stream.peek().match(/[{<>.a-zA-Z]/) != null)  || stream.eol() )return ret("tag", "tag");//e.g. button.icon-plus
-	return ret("string", "string");//let url(/images/logo.png) without quotes return as string
-      }else if( stream.eol() ){
-	if(stream.current().substring(stream.current().length-1,stream.current().length) == "{")stream.backUp(1);
-	return ret("tag", "tag");
-      }else{
-      	return ret("variable", "variable");
+        if(stream.current().substring(stream.current().length-1,stream.current().length) == "{"){
+          stream.backUp(1);
+          return ret("tag", "tag");
+        }//end if
+        stream.eatSpace();
+        if( (stream.peek().match(/[{<>.a-zA-Z\/]/) != null)  || stream.eol() )return ret("tag", "tag"); // e.g. button.icon-plus
+        return ret("string", "string"); // let url(/images/logo.png) without quotes return as string
+      }else if( stream.eol() || stream.peek() == "[" || stream.peek() == "#" || type == "tag" ){
+        if(stream.current().substring(stream.current().length-1,stream.current().length) == "{")stream.backUp(1);
+        return ret("tag", "tag");
+      }else if(type == "compare" || type == "a" || type == "("){
+        return ret("string", "string");
+      }else if(type == "|" || stream.current() == "-" || type == "["){
+        return ret(null, ch);
+      }else{		
+        return ret("variable", "variable");		
       }
-    }
-    
+    }    
   }
-
-  function tokenSComment(stream, state) {// SComment = Slash comment
+  
+  function tokenSComment(stream, state) { // SComment = Slash comment
     stream.skipToEnd();
     state.tokenize = tokenBase;
     return ret("comment", "comment");
@@ -156,7 +175,7 @@ CodeMirror.defineMode("less", function(config) {
     }
     return ret("comment", "comment");
   }
-
+  
   function tokenSGMLComment(stream, state) {
     var dashes = 0, ch;
     while ((ch = stream.next()) != null) {
@@ -168,7 +187,7 @@ CodeMirror.defineMode("less", function(config) {
     }
     return ret("comment", "comment");
   }
-
+  
   function tokenString(quote) {
     return function(stream, state) {
       var escaped = false, ch;
@@ -181,29 +200,28 @@ CodeMirror.defineMode("less", function(config) {
       return ret("string", "string");
     };
   }
-
+  
   return {
     startState: function(base) { 
       return {tokenize: tokenBase,
               baseIndent: base || 0,
               stack: []};
     },
-
+    
     token: function(stream, state) {
       if (stream.eatSpace()) return null;
       var style = state.tokenize(stream, state);
-
+      
       var context = state.stack[state.stack.length-1];
       if (type == "hash" && context == "rule") style = "atom";
       else if (style == "variable") {
         if (context == "rule") style = null; //"tag"
-        else if (!context || context == "@media{"){ 
-	  style = stream.current() 	== "when" 	? "variable" 	: 
-	    stream.string.match(/#/g) 	!= undefined 	? null 		: 
-	    /[\s,|\s\)]/.test(stream.peek()) 		? "tag" 	: null;
-	}
+        else if (!context || context == "@media{") {
+          style = stream.current() == "when"  ? "variable" :
+          /[\s,|\s\)|\s]/.test(stream.peek()) ? "tag"      : type;
+        }
       }
-
+      
       if (context == "rule" && /^[\{\};]$/.test(type))
         state.stack.pop();
       if (type == "{") {
@@ -215,14 +233,14 @@ CodeMirror.defineMode("less", function(config) {
       else if (context == "{" && type != "comment") state.stack.push("rule");
       return style;
     },
-
+    
     indent: function(state, textAfter) {
       var n = state.stack.length;
       if (/^\}/.test(textAfter))
         n -= state.stack[state.stack.length-1] == "rule" ? 2 : 1;
       return state.baseIndent + n * indentUnit;
     },
-
+    
     electricChars: "}"
   };
 });
