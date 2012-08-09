@@ -539,3 +539,33 @@ testCM("verticalScroll", function(cm) {
   is(sc.scrollWidth < curWidth);
   is(sc.scrollWidth > sc.clientWidth);
 });
+
+testCM("extraKeys", function(cm) {
+  var outcome;
+  function fakeKey(expected, code, props) {
+    if (typeof code == "string") code = code.charCodeAt(0);
+    var e = {type: "keydown", keyCode: code, preventDefault: function(){}, stopPropagation: function(){}};
+    if (props) for (var n in props) e[n] = props[n];
+    outcome = null;
+    cm.triggerOnKeyDown(e);
+    eq(outcome, expected);
+  }
+  CodeMirror.commands.testCommand = function() {outcome = "tc";};
+  CodeMirror.commands.goTestCommand = function() {outcome = "gtc";};
+  cm.setOption("extraKeys", {"Shift-X": function() {outcome = "sx";},
+                             "X": function() {outcome = "x";},
+                             "Ctrl-Alt-U": function() {outcome = "cau";},
+                             "End": "testCommand",
+                             "Home": "goTestCommand",
+                             "Tab": false});
+  fakeKey(null, "U");
+  fakeKey("cau", "U", {ctrlKey: true, altKey: true});
+  fakeKey(null, "U", {shiftKey: true, ctrlKey: true, altKey: true});
+  fakeKey("x", "X");
+  fakeKey("sx", "X", {shiftKey: true});
+  fakeKey("tc", 35);
+  fakeKey(null, 35, {shiftKey: true});
+  fakeKey("gtc", 36);
+  fakeKey("gtc", 36, {shiftKey: true});
+  fakeKey(null, 9);
+});
