@@ -569,3 +569,87 @@ testCM("extraKeys", function(cm) {
   fakeKey("gtc", 36, {shiftKey: true});
   fakeKey(null, 9);
 });
+
+testCM("wordMovementCommands", function(cm) {
+  cm.execCommand("goWordLeft");
+  eqPos(cm.getCursor(), {line: 0, ch: 0});
+  cm.execCommand("goWordRight"); cm.execCommand("goWordRight");
+  eqPos(cm.getCursor(), {line: 0, ch: 7});
+  cm.execCommand("goWordLeft");
+  eqPos(cm.getCursor(), {line: 0, ch: 5});
+  cm.execCommand("goWordRight"); cm.execCommand("goWordRight");
+  eqPos(cm.getCursor(), {line: 0, ch: 12});
+  cm.execCommand("goWordLeft");
+  eqPos(cm.getCursor(), {line: 0, ch: 9});
+  cm.execCommand("goWordRight"); cm.execCommand("goWordRight"); cm.execCommand("goWordRight");
+  eqPos(cm.getCursor(), {line: 1, ch: 1});
+  cm.execCommand("goWordRight");
+  eqPos(cm.getCursor(), {line: 1, ch: 9});
+  cm.execCommand("goWordRight");
+  eqPos(cm.getCursor(), {line: 1, ch: 13});
+  cm.execCommand("goWordRight"); cm.execCommand("goWordRight");
+  eqPos(cm.getCursor(), {line: 2, ch: 0});
+}, {value: "this is (the) firstline.\na foo12\u00e9\u00df\u00d7bar\n"});
+
+testCM("charMovementCommands", function(cm) {
+  cm.execCommand("goCharLeft"); cm.execCommand("goColumnLeft");
+  eqPos(cm.getCursor(), {line: 0, ch: 0});
+  cm.execCommand("goCharRight"); cm.execCommand("goCharRight");
+  eqPos(cm.getCursor(), {line: 0, ch: 2});
+  cm.setCursor({line: 1, ch: 0});
+  cm.execCommand("goColumnLeft");
+  eqPos(cm.getCursor(), {line: 1, ch: 0});
+  cm.execCommand("goCharLeft");
+  eqPos(cm.getCursor(), {line: 0, ch: 5});
+  cm.execCommand("goColumnRight");
+  eqPos(cm.getCursor(), {line: 0, ch: 5});
+  cm.execCommand("goCharRight");
+  eqPos(cm.getCursor(), {line: 1, ch: 0});
+  cm.execCommand("goLineEnd");
+  eqPos(cm.getCursor(), {line: 1, ch: 5});
+  cm.execCommand("goLineStartSmart");
+  eqPos(cm.getCursor(), {line: 1, ch: 1});
+  cm.execCommand("goLineStartSmart");
+  eqPos(cm.getCursor(), {line: 1, ch: 0});
+  cm.setCursor({line: 2, ch: 0});
+  cm.execCommand("goCharRight"); cm.execCommand("goColumnRight");
+  eqPos(cm.getCursor(), {line: 2, ch: 0});
+}, {value: "line1\n ine2\n"});
+
+testCM("verticalMovementCommands", function(cm) {
+  cm.execCommand("goLineUp");
+  eqPos(cm.getCursor(), {line: 0, ch: 0});
+  cm.execCommand("goLineDown");
+  eqPos(cm.getCursor(), {line: 1, ch: 0});
+  cm.setCursor({line: 1, ch: 12});
+  cm.execCommand("goLineDown");
+  eqPos(cm.getCursor(), {line: 2, ch: 5});
+  cm.execCommand("goLineDown");
+  eqPos(cm.getCursor(), {line: 3, ch: 0});
+  cm.execCommand("goLineUp");
+  eqPos(cm.getCursor(), {line: 2, ch: 5});
+  cm.execCommand("goLineUp");
+  eqPos(cm.getCursor(), {line: 1, ch: 12});
+  cm.execCommand("goPageDown");
+  eqPos(cm.getCursor(), {line: 5, ch: 0});
+  cm.execCommand("goPageDown"); cm.execCommand("goLineDown");
+  eqPos(cm.getCursor(), {line: 5, ch: 0});
+  cm.execCommand("goPageUp");
+  eqPos(cm.getCursor(), {line: 0, ch: 0});
+}, {value: "line1\nlong long line2\nline3\n\nline5\n"});
+
+testCM("verticalMovementCommandsWrapping", function(cm) {
+  cm.setSize(120);
+  cm.setCursor({line: 0, ch: 5});
+  cm.execCommand("goLineDown");
+  eq(cm.getCursor().line, 0);
+  is(cm.getCursor().ch > 5);
+  for (var i = 0; ; ++i) {
+    is(i < 20);
+    cm.execCommand("goLineDown");
+    var cur = cm.getCursor();
+    if (cur.line == 1) eq(cur.ch, 5);
+    if (cur.line == 2) { eq(cur.ch, 1); break; }
+  }
+}, {value: "a very long line that wraps around somehow so that we can test cursor movement\nshortone\nk",
+    lineWrapping: true});
