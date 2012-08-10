@@ -523,21 +523,20 @@ testCM("clickTab", function(cm) {
 }, {value: "\t\n\n", lineWrapping: true, tabSize: 8});
 
 testCM("verticalScroll", function(cm) {
-  cm.setSize(100, 500);
+  cm.setSize(100, 200);
   cm.setValue("foo\nbar\nbaz\n");
-  var sc = cm.getScrollerElement();
-  eq(sc.scrollWidth, sc.clientWidth);
+  var sc = cm.getScrollerElement(), baseWidth = sc.scrollWidth;
   cm.setLine(0, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaah");
-  is(sc.scrollWidth > sc.clientWidth);
+  is(sc.scrollWidth > baseWidth, "scrollbar present");
   cm.setLine(0, "foo");
-  eq(sc.scrollWidth, sc.clientWidth);
+  eq(sc.scrollWidth, baseWidth, "scrollbar gone");
   cm.setLine(0, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaah");
   cm.setLine(1, "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbh");
-  is(sc.scrollWidth > sc.clientWidth);
+  is(sc.scrollWidth > baseWidth, "present again");
   var curWidth = sc.scrollWidth;
   cm.setLine(0, "foo");
-  is(sc.scrollWidth < curWidth);
-  is(sc.scrollWidth > sc.clientWidth);
+  is(sc.scrollWidth < curWidth, "scrollbar smaller");
+  is(sc.scrollWidth > baseWidth, "but still present");
 });
 
 testCM("extraKeys", function(cm) {
@@ -589,7 +588,7 @@ testCM("wordMovementCommands", function(cm) {
   eqPos(cm.getCursor(), {line: 1, ch: 13});
   cm.execCommand("goWordRight"); cm.execCommand("goWordRight");
   eqPos(cm.getCursor(), {line: 2, ch: 0});
-}, {value: "this is (the) firstline.\na foo12\u00e9\u00df\u00d7bar\n"});
+}, {value: "this is (the) firstline.\na foo12\u00e9\u00f8\u00d7bar\n"});
 
 testCM("charMovementCommands", function(cm) {
   cm.execCommand("goCharLeft"); cm.execCommand("goColumnLeft");
