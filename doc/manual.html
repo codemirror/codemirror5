@@ -227,6 +227,13 @@
       <dd>Will be called when the cursor or selection moves, or any
       change is made to the editor content.</dd>
 
+      <dt id="option_onViewportChange"><code>onViewportChange (function)</code></dt>
+      <dd>When given, will be called whenever
+      the <a href="#getViewport">view port</a> of the editor changes
+      (due to scrolling, editing, or any other factor). It will be
+      passed three arguments, the editor instance, the start of the
+      viewport, and its end.</dd>
+
       <dt id="option_onGutterClick"><code>onGutterClick (function)</code></dt>
       <dd>When given, will be called whenever the editor gutter (the
       line-number area) is clicked. Will be given the editor instance
@@ -651,6 +658,15 @@
 
       <dt id="getLineHandle"><code>getLineHandle(num) → lineHandle</code></dt>
       <dd>Fetches the line handle for the given line number.</dd>
+
+      <dt id="getViewport"><code>getViewport() → object</code></dt>
+      <dd>Returns a <code>{from, to}</code> object indicating the
+      start (inclusive) and end (exclusive) of the currently displayed
+      part of the document. In big documents, when most content is
+      scrolled out of view, CodeMirror will only render the visible
+      part, and a margin around it. See also
+      the <a href="#option_onViewportChange"><code>onViewportChange</code></a>
+      option.</dd>
 
       <dt id="addWidget"><code>addWidget(pos, node, scrollIntoView)</code></dt>
       <dd>Puts <code>node</code>, which should be an absolutely
