@@ -13,7 +13,7 @@
       .cm-tab {
          background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAMCAYAAABx290PAAAAAXNSR0IArs4c6QAAAF9JREFUOMvt07sJgFAMheHPxwA6gA5gbS9WFk7sEu6gewg29xYOEEHwNEk4xU8OCb8+ogozmjSv2SiDgBcOTGhRZyM3S+CmU6oP4BYA6zHiRBcdaYUhwfY3j6f4/ydcNzcLB1JeOhrsAAAAAElFTkSuQmCC);
          background-position: right;
-        background-repeat: no-repeat;
+         background-repeat: no-repeat;
       }
     </style>
   </head>
@@ -37,10 +37,7 @@ int getchar(void)
 </textarea></form>
 
 <p>Tabs inside the editor are spans with the
-class <code>cm-tab</code>, and can be styled. This demo uses
-an <code>:after</code> pseudo-class CSS hack that will not work on old
-browsers. You can use a more conservative technique like a background
-image as an alternative.</p>
+class <code>cm-tab</code>, and can be styled.
 
     <script>
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
