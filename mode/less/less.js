@@ -153,11 +153,22 @@ CodeMirror.defineMode("less", function(config) {
       }else if(type == "|" || stream.current() == "-" || type == "["){
         return ret(null, ch);
       }else if(stream.peek() == ":") {
-  	    stream.next();
-		    var t_v = stream.peek() == ":" ? true : false;		  
-		    stream.backUp(1);
-		    if(t_v)return ret("tag", "tag"); else return ret("variable", "variable");
-	    }else{		
+        stream.next();
+        var t_v = stream.peek() == ":" ? true : false;
+        if(!t_v){
+      	  var old_pos = stream.pos;
+      	  var sc = stream.current().length;
+      	  stream.eatWhile(/[a-z\\\-]/);
+      	  var new_pos = stream.pos;
+      	  if(stream.current().substring(sc-1).match(selectors) != null){
+      	    stream.backUp(new_pos-(old_pos-1));
+      		return ret("tag", "tag");
+      	  } else stream.backUp(new_pos-(old_pos-1));
+      	}else{
+      	  stream.backUp(1);	
+      	}
+      	if(t_v)return ret("tag", "tag"); else return ret("variable", "variable");
+      }else{		
         return ret("variable", "variable");		
       }
     }    
