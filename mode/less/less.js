@@ -152,7 +152,12 @@ CodeMirror.defineMode("less", function(config) {
         return ret("string", "string");
       }else if(type == "|" || stream.current() == "-" || type == "["){
         return ret(null, ch);
-      }else{		
+      }else if(stream.peek() == ":") {
+  	    stream.next();
+		    var t_v = stream.peek() == ":" ? true : false;		  
+		    stream.backUp(1);
+		    if(t_v)return ret("tag", "tag"); else return ret("variable", "variable");
+	    }else{		
         return ret("variable", "variable");		
       }
     }    
