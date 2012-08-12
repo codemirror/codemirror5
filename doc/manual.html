@@ -608,19 +608,19 @@
       <dd>Returns an array of all the bookmarks and marked ranges
       present at the given position.</dd>
 
-      <dt id="setMarker"><code>setMarker(line, text, className) → lineHandle</code></dt>
+      <dt id="setMarker"><code>setMarker(line, marker, className) → lineHandle</code></dt>
       <dd>Add a gutter marker for the given line. Gutter markers are
       shown in the line-number area (instead of the number for this
-      line). Both <code>text</code> and <code>className</code> are
-      optional. Setting <code>text</code> to a Unicode character like
-      ● tends to give a nice effect. To put a picture in the gutter,
-      set <code>text</code> to a space and <code>className</code> to
-      something that sets a background image. If you
-      specify <code>text</code>, the given text (which may contain
-      HTML) will, by default, replace the line number for that line.
-      If this is not what you want, you can include the
-      string <code>%N%</code> in the text, which will be replaced by
-      the line number.</dd>
+      line). Both <code>marker</code> and <code>className</code> are
+      optional. <code>marker</code> can be either a text (which may contain
+      HTML) or a DOM Element. Setting <code>marker</code> to a Unicode
+      character like ● tends to give a nice effect. To put a picture in
+      the gutter, set <code>marker</code> to a space and <code>className</code>
+      to something that sets a background image. If you specify
+      <code>marker</code>, the given text or element will, by default, replace
+      the line number for that line. If this is not what you want, you can
+      include the string <code>%N%</code> in the text (or in the element's
+      <code>textContent</code>), which will be replaced by the line number.</dd>
       <dt id="clearMarker"><code>clearMarker(line)</code></dt>
       <dd>Clears a marker created
       with <code>setMarker</code>. <code>line</code> can be either a
@@ -653,7 +653,7 @@
       <dd>Returns the line number, text content, and marker status of
       the given line, which can be either a number or a handle
       returned by <code>setMarker</code>. The returned object has the
-      structure <code>{line, handle, text, markerText, markerClass,
+      structure <code>{line, handle, text, marker, markerClass,
       lineClass, bgClass}</code>.</dd>
 
       <dt id="getLineHandle"><code>getLineHandle(num) → lineHandle</code></dt>
