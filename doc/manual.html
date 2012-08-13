@@ -290,7 +290,10 @@
       When <a href="#fromTextArea"><code>fromTextArea</code></a> is
       used, and no explicit value is given for this option, it will
       inherit the setting from the textarea's <code>autofocus</code>
-      attribute.</dd>
+      attribute, but if another element already has focus because of
+      a script, an <code>autofocus</code> attribute, or user
+      interaction, CodeMirror will leave that element focused, rather
+      than focusing itself.</dd>
 
       <dt id="option_dragDrop"><code>dragDrop (boolean)</code></dt>
       <dd>Controls whether drag-and-drop is enabled. On by default.</dd>
