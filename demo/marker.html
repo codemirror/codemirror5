@@ -26,7 +26,7 @@ CodeMirror.fromTextArea(document.getElementById("code"), {
   lineNumbers: true,
   onGutterClick: function(cm, n) {
     var info = cm.lineInfo(n);
-    if (info.markerText)
+    if (info.marker)
       cm.clearMarker(n);
     else
       cm.setMarker(n, "<span style=\"color: #900\">●</span> %N%");
@@ -41,7 +41,7 @@ CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true,
         onGutterClick: function(cm, n) {
           var info = cm.lineInfo(n);
-          if (info.markerText)
+          if (info.marker)
             cm.clearMarker(n);
           else
             cm.setMarker(n, "<span style=\"color: #900\">●</span> %N%");

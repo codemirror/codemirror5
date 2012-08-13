@@ -135,12 +135,12 @@ testCM("lineInfo", function(cm) {
   var lh = cm.setMarker(1, "FOO", "bar");
   var info = cm.lineInfo(1);
   eq(info.text, "222222");
-  eq(info.markerText, "FOO");
+  eq(info.marker, "FOO");
   eq(info.markerClass, "bar");
   eq(info.line, 1);
-  eq(cm.lineInfo(2).markerText, null);
+  eq(cm.lineInfo(2).marker, null);
   cm.clearMarker(lh);
-  eq(cm.lineInfo(1).markerText, null);
+  eq(cm.lineInfo(1).marker, null);
 }, {value: "111111\n222222\n333333"});
 
 testCM("coords", function(cm) {
