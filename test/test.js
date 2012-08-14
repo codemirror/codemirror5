@@ -132,15 +132,20 @@ test("defaults", function() {
 
 testCM("lineInfo", function(cm) {
   eq(cm.lineInfo(-1), null);
-  var lh = cm.setMarker(1, "FOO", "bar");
+  var mark = document.createElement("span");
+  var lh = cm.setGutterMarker(1, "FOO", mark);
   var info = cm.lineInfo(1);
   eq(info.text, "222222");
-  eq(info.markerText, "FOO");
-  eq(info.markerClass, "bar");
+  eq(info.gutterMarkers.FOO, mark);
   eq(info.line, 1);
-  eq(cm.lineInfo(2).markerText, null);
-  cm.clearMarker(lh);
-  eq(cm.lineInfo(1).markerText, null);
+  eq(cm.lineInfo(2).gutterMarkers, null);
+  cm.setGutterMarker(lh, "FOO", null);
+  eq(cm.lineInfo(1).gutterMarkers, null);
+  cm.setGutterMarker(1, "FOO", mark);
+  cm.setGutterMarker(0, "FOO", mark);
+  cm.clearGutter("FOO");
+  eq(cm.lineInfo(0).gutterMarkers, null);
+  eq(cm.lineInfo(1).gutterMarkers, null);
 }, {value: "111111\n222222\n333333"});
 
 testCM("coords", function(cm) {
@@ -458,7 +463,7 @@ testCM("wrappingAndResizing", function(cm) {
   cm.setCursor({line: 0, ch: doc.length});
   eq(wrap.offsetHeight, h0);
   cm.replaceSelection("x");
-  is(wrap.offsetHeight > h0);
+  is(wrap.offsetHeight > h0, "wrapping happens");
   // Now add a max-height and, in a document consisting of
   // almost-wrapped lines, go over it so that a scrollbar appears.
   cm.setValue(doc + "\n" + doc + "\n");

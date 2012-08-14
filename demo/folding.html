@@ -12,7 +12,8 @@
 
     <style type="text/css">
       .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}
-      .CodeMirror-gutter {min-width: 2.6em; cursor: pointer;}
+      .CodeMirror-folded {width: .8em;}
+      .CodeMirror-foldmarker {color:#600; font-size: 80%;}
     </style>
   </head>
   <body>
@@ -39,6 +40,7 @@ window.onload = function() {
   window.editor = CodeMirror.fromTextArea(te, {
     mode: "javascript",
     lineNumbers: true,
+    gutters: ["CodeMirror-linenumbers", "CodeMirror-folded"],
     lineWrapping: true,
     onGutterClick: foldFunc,
     extraKeys: {"Ctrl-Q": function(cm){foldFunc(cm, cm.getCursor().line);}}
@@ -50,6 +52,7 @@ window.onload = function() {
   window.editor_html = CodeMirror.fromTextArea(te_html, {
     mode: "text/html",
     lineNumbers: true,
+    gutters: ["CodeMirror-linenumbers", "CodeMirror-folded"],
     lineWrapping: true,
     onGutterClick: foldFunc_html,
     extraKeys: {"Ctrl-Q": function(cm){foldFunc_html(cm, cm.getCursor().line);}}

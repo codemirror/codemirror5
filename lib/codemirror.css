@@ -46,36 +46,47 @@
   min-width: 18px;
 }
 
-.CodeMirror-gutter {
+.CodeMirror-gutters {
   position: absolute; left: 0; top: 0;
-  z-index: 10;
-  background-color: #f7f7f7;
-  border-right: 1px solid #eee;
-  min-width: 2em;
   height: 100%;
+  border-right: 1px solid #ddd;
+  background-color: #f7f7f7;
 }
-.CodeMirror-gutter-text {
-  color: #aaa;
-  text-align: right;
-  padding: .4em .2em .4em .4em;
-  white-space: pre !important;
+.CodeMirror-gutter {
+  height: 100%;
+  float: left;
+}
+.CodeMirror-gutter-elt {
+  position: absolute;
+  top: 0;
   cursor: default;
 }
+
+.CodeMirror-linenumbers {
+  padding: 0 .2em;
+}
+.CodeMirror-linenumber {
+  min-width: 1.8em;
+  text-align: right;
+  color: #999;
+  padding: 0 .2em;
+  white-space: pre !important;
+  font-size: 80%;
+}
+
 .CodeMirror-lines {
-  padding: .4em;
+  padding: .4em 0;
   white-space: pre;
   cursor: text;
 }
 
 .CodeMirror pre {
-  -moz-border-radius: 0;
-  -webkit-border-radius: 0;
-  -o-border-radius: 0;
-  border-radius: 0;
-  border-width: 0; margin: 0; padding: 0; background: transparent;
+  -moz-border-radius: 0; -webkit-border-radius: 0; -o-border-radius: 0; border-radius: 0;
+  border-width: 0;
+  background: transparent;
   font-family: inherit;
   font-size: inherit;
-  padding: 0; margin: 0;
+  padding: 0 .4em; margin: 0;
   white-space: pre;
   word-wrap: normal;
   line-height: inherit;
@@ -91,8 +102,11 @@
   overflow-x: hidden;
 }
 
-.CodeMirror textarea {
-  outline: none !important;
+.CodeMirror-measure {
+  position: absolute;
+  width: 100%; height: 0px;
+  overflow: hidden;
+  visibility: hidden;
 }
 
 .CodeMirror pre.CodeMirror-cursor {
@@ -164,10 +178,8 @@ div.CodeMirror span.CodeMirror-matchingbracket {color: #0f0;}
 div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
 
 @media print {
-
   /* Hide the cursor when printing */
   .CodeMirror pre.CodeMirror-cursor {
     visibility: hidden;
   }
-
 }

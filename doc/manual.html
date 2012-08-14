@@ -193,14 +193,17 @@
       <dt id="option_lineNumberFormatter"><code>lineNumberFormatter (function(integer))</code></dt>
       <dd>A function used to format line numbers. The function is passed the current line number. Default prints the line number verbatim.</dd>
 
-      <dt id="option_gutter"><code>gutter (boolean)</code></dt>
-      <dd>Can be used to force a 'gutter' (empty space on the left of
-      the editor) to be shown even when no line numbers are active.
-      This is useful for setting <a href="#setMarker">markers</a>.</dd>
-
-      <dt id="option_fixedGutter"><code>fixedGutter (boolean)</code></dt>
-      <dd>When enabled (off by default), this will make the gutter
-      stay visible when the document is scrolled horizontally.</dd>
+      <dt id="option_gutters"><code>gutters (array)</code></dt>
+      <dd>Can be used to add extra gutters (beyond or instead of the
+      line number gutter). Should be an array of CSS class names, each
+      of which defines a <code>width</code> (and optionally a
+      background), and which will be used to draw the background of
+      the gutters. <em>May</em> include
+      the <code>CodeMirror-linenumbers</code> class, in order to
+      explicitly set the position of the line number gutter (it will
+      default to be to the right of all other gutters). These class
+      names are the keys passed
+      to <a href="#setGutterMarker"><code>setGutterMarker</code></a>.</dd>
 
       <dt id="option_readOnly"><code>readOnly (boolean)</code></dt>
       <dd>This disables editing of the editor content by the user. If
@@ -238,8 +241,9 @@
       <dd>When given, will be called whenever the editor gutter (the
       line-number area) is clicked. Will be given the editor instance
       as first argument, the (zero-based) number of the line that was
-      clicked as second argument, and the raw <code>mousedown</code>
-      event object as third argument.</dd>
+      clicked as second argument, the raw <code>mousedown</code> event
+      object as third argument, and the CSS class of the gutter that
+      was clicked as fourth argument.</dd>
 
       <dt id="option_onFocus"><code>onFocus, onBlur (function)</code></dt>
       <dd>The given functions will be called whenever the editor is
@@ -421,25 +425,25 @@
       class. This is used to hide the cursor and give the selection a
       different color when the editor is not focused.</dd>
 
-      <dt id="class_CodeMirror_gutter"><code>CodeMirror-gutter</code></dt>
-      <dd>Use this for giving a background or a border to the editor
-      gutter. Don't set any padding here,
-      use <code>CodeMirror-gutter-text</code> for that. By default,
-      the gutter is 'fluid', meaning it will adjust its width to the
-      maximum line number or line marker width. You can also set a
-      fixed width if you want.</dd>
+      <dt id="class_CodeMirror_gutters"><code>CodeMirror-gutters</code></dt>
+      <dd>This is the backdrop for all gutters. Use it to set the
+      default gutter background color, and optionally add a border on
+      the right of the gutters.</dd>
 
-      <dt id="class_CodeMirror_gutter_text"><code>CodeMirror-gutter-text</code></dt>
-      <dd>Used to style the actual line numbers. For the numbers to
-      line up, you must make sure that the font in the gutter is the
-      same as the one in the rest of the editor, so you should
-      probably only set font style and size in
-      the <code>CodeMirror</code> class.</dd>
+      <dt id="class_CodeMirror_linenumbers"><code>CodeMirror-linenumbers</code></dt>
+      <dd>Use this for giving a background or width to the line number
+      gutter.</dd>
+
+      <dt id="class_CodeMirror_linenumber"><code>CodeMirror-linenumber</code></dt>
+      <dd>Used to style the actual individual line numbers. These
+      won't be children of the <code>CodeMirror-linenumbers</code>
+      (plural) element, but rather will be absolutely positioned to
+      overlay it. Use this to set alignment and text properties for
+      the line numbers.</dd>
 
       <dt id="class_CodeMirror_lines"><code>CodeMirror-lines</code></dt>
-      <dd>The visible lines. If this has vertical
-      padding, <code>CodeMirror-gutter</code> should have the same
-      padding.</dd>
+      <dd>The visible lines. This is where you specify vertical
+      padding for the editor content.</dd>
 
       <dt id="class_CodeMirror_cursor"><code>CodeMirror-cursor</code></dt>
       <dd>The cursor is a block element that is absolutely positioned.
@@ -459,7 +463,9 @@
     the <a href="#getWrapperElement">wrapper</a>
     (class <code>CodeMirror</code>) element, and a height on
     the <a href="#getScrollerElement">scroller</a>
-    (class <code>CodeMirror-scroll</code>) element.</p>
+    (class <code>CodeMirror-scroll</code>) element.
+    The <a href="#setSize"><code>setSize</code></a> method is the best
+    way to dynamically change size at runtime.</p>
 
     <p>The actual lines, as well as the cursor, are represented
     by <code>pre</code> elements. By default no text styling (such as
@@ -613,25 +619,19 @@
       <dd>Returns an array of all the bookmarks and marked ranges
       present at the given position.</dd>
 
-      <dt id="setMarker"><code>setMarker(line, text, className) → lineHandle</code></dt>
-      <dd>Add a gutter marker for the given line. Gutter markers are
-      shown in the line-number area (instead of the number for this
-      line). Both <code>text</code> and <code>className</code> are
-      optional. Setting <code>text</code> to a Unicode character like
-      ● tends to give a nice effect. To put a picture in the gutter,
-      set <code>text</code> to a space and <code>className</code> to
-      something that sets a background image. If you
-      specify <code>text</code>, the given text (which may contain
-      HTML) will, by default, replace the line number for that line.
-      If this is not what you want, you can include the
-      string <code>%N%</code> in the text, which will be replaced by
-      the line number.</dd>
-      <dt id="clearMarker"><code>clearMarker(line)</code></dt>
-      <dd>Clears a marker created
-      with <code>setMarker</code>. <code>line</code> can be either a
-      number or a handle returned by <code>setMarker</code> (since a
-      number may now refer to a different line if something was added
-      or deleted).</dd>
+      <dt id="setGutterMarker"><code>setGutterMarker(line, gutterID, value) → lineHandle</code></dt>
+      <dd>Sets the gutter marker for the given gutter (identified by
+      its CSS class, see
+      the <a href="#option_gutters"><code>gutters</code></a> option)
+      to the given value. Value can be either <code>null</code>, to
+      clear the marker, or a DOM element, to set it. The DOM element
+      will be shown in the specified gutter next to the specified
+      line.</dd>
+      
+      <dt id="clearGutter"><code>clearGutter(gutterID)</code></dt>
+      <dd>Remove all gutter markers in
+      the <a href="#option_gutters">gutter</a> with the given ID.</dd>
+
       <dt id="setLineClass"><code>setLineClass(line, className, backgroundClassName) → lineHandle</code></dt>
       <dd>Set a CSS class name for the given line. <code>line</code>
       can be a number or a line handle (as returned
@@ -658,8 +658,9 @@
       <dd>Returns the line number, text content, and marker status of
       the given line, which can be either a number or a handle
       returned by <code>setMarker</code>. The returned object has the
-      structure <code>{line, handle, text, markerText, markerClass,
-      lineClass, bgClass}</code>.</dd>
+      structure <code>{line, handle, text, gutterMarkers, lineClass,
+      bgClass}</code>, where <code>gutterMarkers</code> is an object
+      mapping gutter IDs to marker elements.</dd>
 
       <dt id="getLineHandle"><code>getLineHandle(num) → lineHandle</code></dt>
       <dd>Fetches the line handle for the given line number.</dd>
@@ -772,7 +773,7 @@
       the <a href="#refresh"><code>refresh</code></a> method
       afterwards.)</dd>
       <dt id="getGutterElement"><code>getGutterElement() → node</code></dt>
-      <dd>Fetches the DOM node that represents the editor gutter.</dd>
+      <dd>Fetches the DOM node that contains the editor gutters.</dd>
 
       <dt id="getStateAfter"><code>getStateAfter(line) → state</code></dt>
       <dd>Returns the mode's parser state, if any, at the end of the
