@@ -23,6 +23,7 @@ function byClassName(elt, cls) {
 }
 
 var ie_lt8 = /MSIE [1-7]\b/.test(navigator.userAgent);
+var phantom = /PhantomJS/.test(navigator.userAgent);
 
 test("fromTextArea", function() {
   var te = document.getElementById("code");
@@ -168,9 +169,8 @@ testCM("coordsChar", function(cm) {
     for (var line = 0; line < 70; line += 5) {
       cm.setCursor(line, ch);
       var coords = cm.charCoords({line: line, ch: ch});
-      var pos = cm.coordsChar({x: coords.x, y: coords.y + 1});
-      eq(pos.line, line);
-      eq(pos.ch, ch);
+      var pos = cm.coordsChar({x: coords.x, y: coords.y + 5});
+      eqPos(pos, {line: line, ch: ch});
     }
   }
 });
@@ -341,7 +341,7 @@ testCM("selectionPos", function(cm) {
   addDoc(cm, 200, 100);
   cm.setSelection({line: 1, ch: 100}, {line: 98, ch: 100});
   var lineWidth = cm.charCoords({line: 0, ch: 200}, "local").x;
-  var lineHeight = cm.charCoords({line: 1}).y - cm.charCoords({line: 0}).y;
+  var lineHeight = (cm.charCoords({line: 99}).y - cm.charCoords({line: 0}).y) / 100;
   cm.scrollTo(0, 0);
   var selElt = byClassName(cm.getWrapperElement(), "CodeMirror-selected");
   var outer = cm.getWrapperElement().getBoundingClientRect();
@@ -353,7 +353,7 @@ testCM("selectionPos", function(cm) {
     var atRight = box.right - outer.left > .8 * lineWidth;
     if (atLeft && atRight) {
       sawMiddle = true;
-      is(box.bottom - box.top > 95 * lineHeight, "middle high");
+      is(box.bottom - box.top > 90 * lineHeight, "middle high");
       is(width > .9 * lineWidth, "middle wide");
     } else {
       is(width > .4 * lineWidth, "top/bot wide enough");
@@ -473,7 +473,7 @@ testCM("wrappingAndResizing", function(cm) {
            {line: 0, ch: 0}, {line: 1, ch: doc.length}, {line: 1, ch: doc.length - 1}],
           function(pos) {
     var coords = cm.charCoords(pos);
-    eqPos(pos, cm.coordsChar({x: coords.x + 2, y: coords.y + 2}));
+    eqPos(pos, cm.coordsChar({x: coords.x + 2, y: coords.y + 5}));
   });
 }, null, ie_lt8);
 
@@ -519,7 +519,7 @@ testCM("moveV stuck", function(cm) {
   cm.setCursor({line: 0, ch: val.length - 1});
   cm.moveV(-1, "line");
   eqPos(cm.getCursor(), {line: 0, ch: 26});
-}, {lineWrapping: true}, ie_lt8);
+}, {lineWrapping: true});
 
 testCM("clickTab", function(cm) {
   var p0 = cm.charCoords({line: 0, ch: 0}), p1 = cm.charCoords({line: 0, ch: 1});
@@ -624,7 +624,8 @@ testCM("verticalMovementCommands", function(cm) {
   cm.execCommand("goLineUp");
   eqPos(cm.getCursor(), {line: 0, ch: 0});
   cm.execCommand("goLineDown");
-  eqPos(cm.getCursor(), {line: 1, ch: 0});
+  if (!phantom) // This fails in PhantomJS, though not in a real Webkit
+    eqPos(cm.getCursor(), {line: 1, ch: 0});
   cm.setCursor({line: 1, ch: 12});
   cm.execCommand("goLineDown");
   eqPos(cm.getCursor(), {line: 2, ch: 5});
