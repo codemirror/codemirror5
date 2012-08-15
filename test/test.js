@@ -154,13 +154,13 @@ testCM("coords", function(cm) {
   addDoc(cm, 32, 200);
   var top = cm.charCoords({line: 0, ch: 0});
   var bot = cm.charCoords({line: 200, ch: 30});
-  is(top.x < bot.x);
-  is(top.y < bot.y);
-  is(top.y < top.yBot);
+  is(top.left < bot.left);
+  is(top.top < bot.top);
+  is(top.top < top.bottom);
   cm.scrollTo(null, 100);
   var top2 = cm.charCoords({line: 0, ch: 0});
-  is(top.y > top2.y);
-  eq(top.x, top2.x);
+  is(top.top > top2.top);
+  eq(top.left, top2.left);
 });
 
 testCM("coordsChar", function(cm) {
@@ -169,7 +169,7 @@ testCM("coordsChar", function(cm) {
     for (var line = 0; line < 70; line += 5) {
       cm.setCursor(line, ch);
       var coords = cm.charCoords({line: line, ch: ch});
-      var pos = cm.coordsChar({x: coords.x, y: coords.y + 5});
+      var pos = cm.coordsChar({left: coords.left, top: coords.top + 5});
       eqPos(pos, {line: line, ch: ch});
     }
   }
@@ -326,22 +326,22 @@ testCM("scrollSnap", function(cm) {
   addDoc(cm, 200, 200);
   cm.setCursor({line: 100, ch: 180});
   var info = cm.getScrollInfo();
-  is(info.x > 0 && info.y > 0);
+  is(info.left > 0 && info.top > 0);
   cm.setCursor({line: 0, ch: 0});
   info = cm.getScrollInfo();
-  is(info.x == 0 && info.y == 0, "scrolled clean to top");
+  is(info.left == 0 && info.top == 0, "scrolled clean to top");
   cm.setCursor({line: 100, ch: 180});
   cm.setCursor({line: 199, ch: 0});
   info = cm.getScrollInfo();
-  is(info.x == 0 && info.y > info.height - 100, "scrolled clean to bottom");
+  is(info.left == 0 && info.top > info.height - 100, "scrolled clean to bottom");
 });
 
 testCM("selectionPos", function(cm) {
   cm.setSize(100, 100);
   addDoc(cm, 200, 100);
   cm.setSelection({line: 1, ch: 100}, {line: 98, ch: 100});
-  var lineWidth = cm.charCoords({line: 0, ch: 200}, "local").x;
-  var lineHeight = (cm.charCoords({line: 99}).y - cm.charCoords({line: 0}).y) / 100;
+  var lineWidth = cm.charCoords({line: 0, ch: 200}, "local").left;
+  var lineHeight = (cm.charCoords({line: 99}).top - cm.charCoords({line: 0}).top) / 100;
   cm.scrollTo(0, 0);
   var selElt = byClassName(cm.getWrapperElement(), "CodeMirror-selected");
   var outer = cm.getWrapperElement().getBoundingClientRect();
@@ -473,7 +473,7 @@ testCM("wrappingAndResizing", function(cm) {
            {line: 0, ch: 0}, {line: 1, ch: doc.length}, {line: 1, ch: doc.length - 1}],
           function(pos) {
     var coords = cm.charCoords(pos);
-    eqPos(pos, cm.coordsChar({x: coords.x + 2, y: coords.y + 5}));
+    eqPos(pos, cm.coordsChar({left: coords.left + 2, top: coords.top + 5}));
   });
 }, null, ie_lt8);
 
@@ -490,10 +490,10 @@ testCM("measureEndOfLine", function(cm) {
   }
   cm.setValue(cm.getValue() + "\n\n");
   var endPos = cm.charCoords({line: 0, ch: 18}, "local");
-  is(endPos.y > lh * .8, "not at top");
-  is(endPos.x > w - 20, "not at right");
+  is(endPos.top > lh * .8, "not at top");
+  is(endPos.left > w - 20, "not at right");
   endPos = cm.charCoords({line: 0, ch: 18});
-  eqPos(cm.coordsChar({x: endPos.x, y: endPos.y + 2}), {line: 0, ch: 18});
+  eqPos(cm.coordsChar({left: endPos.left, top: endPos.top + 5}), {line: 0, ch: 18});
 }, {mode: "text/html", value: "<!-- foo barrr -->", lineWrapping: true}, ie_lt8);
 
 testCM("scrollVerticallyAndHorizontally", function(cm) {
@@ -523,8 +523,8 @@ testCM("moveV stuck", function(cm) {
 
 testCM("clickTab", function(cm) {
   var p0 = cm.charCoords({line: 0, ch: 0}), p1 = cm.charCoords({line: 0, ch: 1});
-  eqPos(cm.coordsChar({x: p0.x + 5, y: p0.y + 5}), {line: 0, ch: 0});
-  eqPos(cm.coordsChar({x: p1.x - 5, y: p1.y + 5}), {line: 0, ch: 1});
+  eqPos(cm.coordsChar({left: p0.left + 5, top: p0.top + 5}), {line: 0, ch: 0});
+  eqPos(cm.coordsChar({left: p1.left - 5, top: p1.top + 5}), {line: 0, ch: 1});
 }, {value: "\t\n\n", lineWrapping: true, tabSize: 8});
 
 testCM("verticalScroll", function(cm) {

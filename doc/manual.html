@@ -527,7 +527,7 @@
       arguments may be left as <code>null</code>
       or <code>undefined</code> to have no effect.</dd>
       <dt id="getScrollInfo"><code>getScrollInfo()</code></dt>
-      <dd>Get an <code>{x, y, width, height}</code> object that
+      <dd>Get an <code>{left, top, width, height}</code> object that
       represents the current scroll position and scrollable area size
       of the editor.</dd>
 
@@ -541,12 +541,12 @@
       editor instance.</dd>
 
       <dt id="cursorCoords"><code>cursorCoords(start, mode) → object</code></dt>
-      <dd>Returns an <code>{x, y, yBot}</code> object containing the
+      <dd>Returns an <code>{left, top, bottom}</code> object containing the
       coordinates of the cursor. If <code>mode</code>
       is <code>"local"</code>, they will be relative to the top-left
       corner of the editable document. If it is <code>"page"</code> or
       not given, they are relative to the top-left corner of the
-      page. <code>yBot</code> is the coordinate of the bottom of the
+      page. <code>bottom</code> is the coordinate of the bottom of the
       cursor. <code>start</code> is a boolean indicating whether you
       want the start or the end of the selection.</dd>
       <dt id="charCoords"><code>charCoords(pos, mode) → object</code></dt>
@@ -554,7 +554,7 @@
       an arbitrary characters. <code>pos</code> should be
       a <code>{line, ch}</code> object.</dd>
       <dt id="coordsChar"><code>coordsChar(object) → pos</code></dt>
-      <dd>Given an <code>{x, y}</code> object (in page coordinates),
+      <dd>Given an <code>{left, top}</code> object (in page coordinates),
       returns the <code>{line, ch}</code> position that corresponds to
       it.</dd>
 
