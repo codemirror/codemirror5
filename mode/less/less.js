@@ -126,7 +126,7 @@ CodeMirror.defineMode("less", function(config) {
         return ret("string", "string");
       }else if(stream.peek() == "<" || stream.peek() == ">"){
         return ret("tag", "tag");
-      }else if( stream.peek().match(/\(/) != null ){																	  
+      }else if( /\(/.test(stream.peek()) ){																	  
         return ret(null, ch);
       }else if (stream.peek() == "/" && state.stack[state.stack.length-1] != undefined){ // url(dir/center/image.png)
         return ret("string", "string");
@@ -143,7 +143,7 @@ CodeMirror.defineMode("less", function(config) {
           return ret("tag", "tag");
         }//end if
         stream.eatSpace();
-        if( (stream.peek().match(/[{<>.a-zA-Z\/]/) != null)  || stream.eol() )return ret("tag", "tag"); // e.g. button.icon-plus
+        if( /[{<>.a-zA-Z\/]/.test(stream.peek())  || stream.eol() )return ret("tag", "tag"); // e.g. button.icon-plus
         return ret("string", "string"); // let url(/images/logo.png) without quotes return as string
       }else if( stream.eol() || stream.peek() == "[" || stream.peek() == "#" || type == "tag" ){
         if(stream.current().substring(stream.current().length-1,stream.current().length) == "{")stream.backUp(1);
