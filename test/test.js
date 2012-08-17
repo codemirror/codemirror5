@@ -199,7 +199,7 @@ testCM("posFromIndex", function(cm) {
     eq(pos.ch, example.ch);
     if (example.index >= 0 && example.index < 64)
       eq(cm.indexFromPos(pos), example.index);
-  }  
+  }
 });
 
 testCM("undo", function(cm) {
@@ -397,7 +397,7 @@ testCM("doubleScrollbar", function(cm) {
   cm.setSize(null, 100);
   addDoc(cm, 1, 300);
   var wrap = cm.getWrapperElement();
-  is(wrap.offsetWidth - byClassName(wrap, "CodeMirror-lines")[0].offsetWidth <= scrollbarWidth);
+  is(wrap.offsetWidth - byClassName(wrap, "CodeMirror-lines")[0].offsetWidth <= scrollbarWidth + 1);
 });
 
 testCM("weirdLinebreaks", function(cm) {
@@ -658,3 +658,25 @@ testCM("verticalMovementCommandsWrapping", function(cm) {
   }
 }, {value: "a very long line that wraps around somehow so that we can test cursor movement\nshortone\nk",
     lineWrapping: true});
+
+testCM("rtlMovement", function(cm) {
+  forEach(["خحج", "خحabcخحج", "abخحخحجcd", "abخde", "abخح2342خ1حج", "خ1ح2خح3حxج", "خحcd", "1خحcd", "abcdeح1ج"], function(line) {
+    var inv = line.charAt(0) == "خ";
+    cm.setValue(line + "\n"); cm.execCommand(inv ? "goLineEnd" : "goLineStart");
+    var cursor = byClassName(cm.getWrapperElement(), "CodeMirror-cursor")[0];
+    var prevX = cursor.offsetLeft, prevY = cursor.offsetTop;
+    for (var i = 0; i <= line.length; ++i) {
+      cm.execCommand("goCharRight");
+      if (i == line.length) is(cursor.offsetTop > prevY, "next line");
+      else is(cursor.offsetLeft > prevX, "moved right");
+      prevX = cursor.offsetLeft; prevY = cursor.offsetTop;
+    }
+    cm.setCursor(0, 0); cm.execCommand(inv ? "goLineStart" : "goLineEnd");
+    prevX = cursor.offsetLeft;
+    for (var i = 0; i < line.length; ++i) {
+      cm.execCommand("goCharLeft");
+      is(cursor.offsetLeft < prevX, "moved left");
+      prevX = cursor.offsetLeft;
+    }
+  });
+});

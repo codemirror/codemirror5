@@ -1,6 +1,7 @@
 var tests = [], debug = null;
 
 function Failure(why) {this.message = why;}
+Failure.prototype.toString = function() { return this.message; };
 
 function test(name, run, expectedFail) {
   tests.push({name: name, func: run, expectedFail: expectedFail});
@@ -19,7 +20,10 @@ function runTests(callback) {
   function step(i) {
     if (i == tests.length) return callback("done");
     var test = tests[i], expFail = test.expectedFail;
-    if (debug != null && debug != test.name) return step(i + 1);
+    if (debug != null) {
+      if (debug == test.name) return test.func();
+      else return step(i + 1);
+    }
     try {
       test.func();
       if (expFail) callback("fail", test.name, "was expected to fail, but succeeded");
