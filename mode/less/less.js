@@ -1,7 +1,7 @@
 /*
   LESS mode - http://www.lesscss.org/
   Ported to CodeMirror by Peter Kroon <plakroon@gmail.com>
-  Report bugs/issues here: https://github.com/marijnh/CodeMirror2/issues  GitHub: @peterkroon
+  Report bugs/issues here: https://github.com/marijnh/CodeMirror/issues  GitHub: @peterkroon
 */
 
 CodeMirror.defineMode("less", function(config) {

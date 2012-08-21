@@ -18,7 +18,7 @@
     "devDependencies": {
         "node-static": "0.6.0"
     },
-    "bugs": "http://github.com/marijnh/CodeMirror2/issues",
+    "bugs": "http://github.com/marijnh/CodeMirror/issues",
     "keywords": ["JavaScript", "CodeMirror", "Editor"],
     "homepage": "http://codemirror.net",
     "maintainers":[ {
@@ -29,7 +29,7 @@
     "repositories": [
         {
             "type": "git",
-            "url": "https://github.com/marijnh/CodeMirror2.git"
+            "url": "https://github.com/marijnh/CodeMirror.git"
         }
     ]
 }
