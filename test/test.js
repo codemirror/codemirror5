@@ -642,9 +642,9 @@ testCM("verticalMovementCommandsWrapping", function(cm) {
   cm.setCursor({line: 0, ch: 5});
   cm.execCommand("goLineDown");
   eq(cm.getCursor().line, 0);
-  is(cm.getCursor().ch > 5);
+  is(cm.getCursor().ch > 5, "moved beyond wrap");
   for (var i = 0; ; ++i) {
-    is(i < 20);
+    is(i < 20, "no endless loop");
     cm.execCommand("goLineDown");
     var cur = cm.getCursor();
     if (cur.line == 1) eq(cur.ch, 5);
