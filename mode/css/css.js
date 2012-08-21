@@ -84,7 +84,7 @@ CodeMirror.defineMode("css", function(config) {
     else if (/[,.+>*\/]/.test(ch)) {
       return ret(null, "select-op");
     }
-    else if (/[;{}:\[\]]/.test(ch)) {
+    else if (/[;{}:\[\]\(\)]/.test(ch)) {
       return ret(null, ch);
     }
     else {
