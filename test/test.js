@@ -363,7 +363,7 @@ testCM("selectionPos", function(cm) {
     }
   }
   is(sawTop && sawBottom && sawMiddle, "all parts");
-});
+}, null, ie_lt8);
 
 testCM("restoreHistory", function(cm) {
   cm.setValue("abc\ndef");
