@@ -93,9 +93,11 @@ function fail(msg, pos) {
 }
 
 function checkFile(fileName) {
-  var file = fs.readFileSync(fileName, "utf8");
-  if (/^#!/.test(file)) file = file.slice(file.indexOf("\n") + 1);
   curFile = fileName.match(/[^\/+]*\.js$/)[0];
+  var file = fs.readFileSync(fileName, "utf8");
+  var badChar = file.match(/[\x00-\x08\x0b\x0c\x0e-\x19\uFEFF]/);
+  if (badChar) fail("Undesirable character " + badChar[0].charCodeAt(0) + " at position " + badChar.index);
+  if (/^#!/.test(file)) file = file.slice(file.indexOf("\n") + 1);
   try {
     var parsed = parse_js(file, true, true);
   } catch(e) {
