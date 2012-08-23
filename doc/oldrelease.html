@@ -16,6 +16,18 @@
 
 </pre>
 
+  <p class="rel">27-10-2011: <a href="http://codemirror.net/codemirror-2.16.zip">Version 2.16</a>:</p>
+  <ul class="rel-note">
+    <li>Add <a href="../mode/perl/index.html">Perl</a>, <a href="../mode/rust/index.html">Rust</a>, <a href="../mode/tiddlywiki/index.html">TiddlyWiki</a>, and <a href="../mode/groovy/index.html">Groovy</a> modes.</li>
+    <li>Dragging text inside the editor now moves, rather than copies.</li>
+    <li>Add a <a href="manual.html#coordsFromIndex"><code>coordsFromIndex</code></a> method.</li>
+    <li><strong>API change</strong>: <code>setValue</code> now no longer clears history. Use <a href="manual.html#clearHistory"><code>clearHistory</code></a> for that.</li>
+    <li><strong>API change</strong>: <a href="manual.html#markText"><code>markText</code></a> now
+    returns an object with <code>clear</code> and <code>find</code>
+    methods. Marked text is now more robust when edited.</li>
+    <li>Fix editing code with tabs in Internet Explorer.</li>
+  </ul>
+
   <p class="rel">26-09-2011: <a href="http://codemirror.net/codemirror-2.15.zip">Version 2.15</a>:</p>
   <p class="rel-note">Fix bug that snuck into 2.14: Clicking the
   character that currently has the cursor didn't re-focus the

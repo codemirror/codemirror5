@@ -276,6 +276,20 @@
 
   <h2 id=releases>Releases</h2>
 
+  <p class="rel">23-08-2012: <a href="http://codemirror.net/codemirror-2.33.zip">Version 2.33</a>:</p>
+
+  <ul class="rel-note">
+    <li>New mode: <a href="mode/sieve/">Sieve</a>.</li>
+    <li>New <a href="doc/manual.html#getViewport"><code>getViewPort</code></a> and <a href="doc/manual.html#option_onViewportChange"><code>onViewportChange</code></a> API.</li>
+    <li><a href="doc/manual.html#option_cursorBlinkRate">Configurable</a> cursor blink rate.</li>
+    <li>Make binding a key to <code>false</code> disabling handling (again).</li>
+    <li>Show non-printing characters as red dots.</li>
+    <li>More tweaks to the scrolling model.</li>
+    <li>Expanded testsuite. Basic linter added.</li>
+    <li>Remove most uses of <code>innerHTML</code>. Remove <code>CodeMirror.htmlEscape</code>.</li>
+    <li><a href="https://github.com/marijnh/CodeMirror/compare/v2.32...v2.33">Full list</a> of patches.</li>
+  </ul>
+
   <p class="rel">23-07-2012: <a href="http://codemirror.net/codemirror-2.32.zip">Version 2.32</a>:</p>
 
   <p class="rel-note">Emergency fix for a bug where an editor with
@@ -431,18 +445,6 @@
     <li>Fix browser's built-in search in Webkit.</li>
     <li>Make double- and triple-click work in IE.</li>
     <li>Various fixes to modes.</li>
-  </ul>
-
-  <p class="rel">27-10-2011: <a href="http://codemirror.net/codemirror-2.16.zip">Version 2.16</a>:</p>
-  <ul class="rel-note">
-    <li>Add <a href="mode/perl/index.html">Perl</a>, <a href="mode/rust/index.html">Rust</a>, <a href="mode/tiddlywiki/index.html">TiddlyWiki</a>, and <a href="mode/groovy/index.html">Groovy</a> modes.</li>
-    <li>Dragging text inside the editor now moves, rather than copies.</li>
-    <li>Add a <a href="doc/manual.html#coordsFromIndex"><code>coordsFromIndex</code></a> method.</li>
-    <li><strong>API change</strong>: <code>setValue</code> now no longer clears history. Use <a href="doc/manual.html#clearHistory"><code>clearHistory</code></a> for that.</li>
-    <li><strong>API change</strong>: <a href="doc/manual.html#markText"><code>markText</code></a> now
-    returns an object with <code>clear</code> and <code>find</code>
-    methods. Marked text is now more robust when edited.</li>
-    <li>Fix editing code with tabs in Internet Explorer.</li>
   </ul>
 
   <p><a href="doc/oldrelease.html">Older releases...</a></p>
