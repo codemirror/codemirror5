@@ -22,8 +22,8 @@ THE SOFTWARE.
 */
 .cm-s-xq-dark { background: #0a001f; color: #f8f8f8; }
 .cm-s-xq-dark span.CodeMirror-selected { background: #a8f !important; }
-.cm-s-xq-dark .CodeMirror-gutter { background: #0a001f; border-right: 1px solid #aaa; }
-.cm-s-xq-dark .CodeMirror-gutter-text { color: #f8f8f8; }
+.cm-s-xq-dark .CodeMirror-gutters { background: #0a001f; border-right: 1px solid #aaa; }
+.cm-s-xq-dark .CodeMirror-linenumber { color: #f8f8f8; }
 .cm-s-xq-dark .CodeMirror-cursor { border-left: 1px solid white !important; }
 
 .cm-s-xq-dark span.cm-keyword {color: #FFBD40;}

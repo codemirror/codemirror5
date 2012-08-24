@@ -500,13 +500,13 @@ testCM("scrollVerticallyAndHorizontally", function(cm) {
   cm.setSize(100, 100);
   addDoc(cm, 40, 40);
   cm.setCursor(39);
-  var wrap = cm.getWrapperElement(), bar = byClassName(wrap, "CodeMirror-scrollbar")[0];
+  var wrap = cm.getWrapperElement(), bar = byClassName(wrap, "CodeMirror-vscrollbar")[0];
   is(bar.offsetHeight < wrap.offsetHeight, "vertical scrollbar limited by horizontal one");
   var cursorBox = byClassName(wrap, "CodeMirror-cursor")[0].getBoundingClientRect();
   var editorBox = wrap.getBoundingClientRect();
   is(cursorBox.bottom < editorBox.top + cm.getScrollerElement().clientHeight,
      "bottom line visible");
-}, {gutter: true});
+}, {lineNumbers: true});
 
 testCM("moveV stuck", function(cm) {
   var lines = byClassName(cm.getWrapperElement(), "CodeMirror-lines")[0].firstChild, h0 = lines.offsetHeight;

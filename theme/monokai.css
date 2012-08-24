@@ -2,8 +2,8 @@
 
 .cm-s-monokai {background: #272822; color: #f8f8f2;}
 .cm-s-monokai div.CodeMirror-selected {background: #49483E !important;}
-.cm-s-monokai .CodeMirror-gutter {background: #272822; border-right: 0px;}
-.cm-s-monokai .CodeMirror-gutter-text {color: #d0d0d0;}
+.cm-s-monokai .CodeMirror-gutters {background: #272822; border-right: 0px;}
+.cm-s-monokai .CodeMirror-linenumber {color: #d0d0d0;}
 .cm-s-monokai .CodeMirror-cursor {border-left: 1px solid #f8f8f0 !important;}
 
 .cm-s-monokai span.cm-comment {color: #75715e;}

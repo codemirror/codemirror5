@@ -16,8 +16,8 @@ Ported to CodeMirror by Peter Kroon
 
 div.CodeMirror span.CodeMirror-matchingbracket { color: #7EFC7E; }/*65FC65*/
 
-.cm-s-lesser-dark .CodeMirror-gutter { background: #262626; border-right:1px solid #aaa; padding-right:3px; min-width:2.5em; }
-.cm-s-lesser-dark .CodeMirror-gutter-text { color: #777; }
+.cm-s-lesser-dark .CodeMirror-gutters { background: #262626; border-right:1px solid #aaa; padding-right:3px; min-width:2.5em; }
+.cm-s-lesser-dark .CodeMirror-linenumber { color: #777; }
 
 .cm-s-lesser-dark span.cm-keyword { color: #599eff; }
 .cm-s-lesser-dark span.cm-atom { color: #C2B470; }

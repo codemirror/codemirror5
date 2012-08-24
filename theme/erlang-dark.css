@@ -1,7 +1,7 @@
 .cm-s-erlang-dark { background: #002240; color: white; }
 .cm-s-erlang-dark div.CodeMirror-selected { background: #b36539 !important; }
-.cm-s-erlang-dark .CodeMirror-gutter { background: #002240; border-right: 1px solid #aaa; }
-.cm-s-erlang-dark .CodeMirror-gutter-text { color: #d0d0d0; }
+.cm-s-erlang-dark .CodeMirror-gutters { background: #002240; border-right: 1px solid #aaa; }
+.cm-s-erlang-dark .CodeMirror-linenumber { color: #d0d0d0; }
 .cm-s-erlang-dark .CodeMirror-cursor { border-left: 1px solid white !important; }
 
 .cm-s-erlang-dark span.cm-atom       { color: #845dc4; }

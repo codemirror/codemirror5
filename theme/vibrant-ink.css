@@ -3,8 +3,8 @@
 .cm-s-vibrant-ink { background: black; color: white; }
 .cm-s-vibrant-ink .CodeMirror-selected { background: #35493c !important; }
 
-.cm-s-vibrant-ink .CodeMirror-gutter { background: #002240; border-right: 1px solid #aaa; }
-.cm-s-vibrant-ink .CodeMirror-gutter-text { color: #d0d0d0; }
+.cm-s-vibrant-ink .CodeMirror-gutters { background: #002240; border-right: 1px solid #aaa; }
+.cm-s-vibrant-ink .CodeMirror-linenumber { color: #d0d0d0; }
 .cm-s-vibrant-ink .CodeMirror-cursor { border-left: 1px solid white !important; }
 
 .cm-s-vibrant-ink .cm-keyword {  color: #CC7832; }
