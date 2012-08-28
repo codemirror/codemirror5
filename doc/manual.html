@@ -356,6 +356,18 @@
       markers</a> on a given line are removed.</dd>
     </dl>
 
+    <p>Folded range handles, as returned
+    by <a href="#foldLines"><code>foldLines</code></a>, emit the
+    following event:</p>
+
+    <dl>
+      <dt id="event_unfold"><code>"unfold" ()</code></dt>
+      <dd>Fired when the range is unfolded, either through cursor
+      movement or through a call
+      to <a href="#unfoldLines"><code>unfoldLines</code></a>. Will
+      only be fired once per handle.</dd>
+    </dl>
+
     <h2 id="keymaps">Keymaps</h2>
 
     <p>Keymaps are ways to associate keys with functionality. A keymap
@@ -678,15 +690,23 @@
       for the line, and <code>backgroundClassName</code> to style its
       background (which lies behind the selection).
       Pass <code>null</code> to clear the classes for a line.</dd>
-      <dt id="hideLine"><code>hideLine(line) → lineHandle</code></dt>
-      <dd>Hide the given line (either by number or by handle). Hidden
-      lines don't show up in the editor, and their numbers are skipped
-      when <a href="#option_lineNumbers">line numbers</a> are enabled.
-      Deleting a region around them does delete them, and coping a
-      region around will include them in the copied text.</dd>
-      <dt id="showLine"><code>showLine(line) → lineHandle</code></dt>
-      <dd>The inverse of <code>hideLine</code>—re-shows a previously
-      hidden line, by number or by handle.</dd>
+
+      <dt id="foldLines"><code>foldLines(from, to, unfoldOnEnter) → foldHandle</code></dt>
+      <dd>Hide the given range of lines (<code>to</code> is
+      non-inclusive). Hidden lines don't show up in the editor.
+      Deleting a region around them does delete them, and copying a
+      region around will include them in the copied text. Vertical
+      cursor movement will skip hidden lines.
+      When <code>unfoldOnEnter</code> is true, horizontal movement
+      into the range will un-hide the range. When it is false,
+      horizonal cursor movement will skip it as if it isn't there. The
+      handle this function returns can be used to unfold the range,
+      and emits an <a href="#event_unfold"><code>unfold</code></a>
+      event when unfolded. Folded ranges may overlap and nest.</dd>
+      <dt id="unfoldLines"><code>unfoldLines(foldHandle)</code></dt>
+      <dd>When given a handle as returned
+      by <a href="#foldLines"><code>foldLines</code></a>, this will
+      unfold that range of lines.</dd>
 
       <dt id="lineInfo"><code>lineInfo(line) → object</code></dt>
       <dd>Returns the line number, text content, and marker status of

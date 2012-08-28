@@ -422,7 +422,8 @@ testCM("setSize", function(cm) {
 
 testCM("hiddenLines", function(cm) {
   addDoc(cm, 4, 10);
-  cm.hideLine(4);
+  var folded = cm.foldLines(4, 5), unfolded = 0;
+  CodeMirror.connect(folded, "unfold", function() {unfolded++;});
   cm.setCursor({line: 3, ch: 0});
   CodeMirror.commands.goLineDown(cm);
   eqPos(cm.getCursor(), {line: 5, ch: 0});
@@ -434,12 +435,28 @@ testCM("hiddenLines", function(cm) {
   cm.setCursor({line: 3, ch: 2});
   CodeMirror.commands.goLineDown(cm);
   eqPos(cm.getCursor(), {line: 5, ch: 2});
+  cm.unfoldLines(folded); cm.unfoldLines(folded);
+  eq(unfolded, 1);
 });
+
+testCM("hiddenLinesAutoUnfold", function(cm) {
+  var folded = cm.foldLines(1, 3, true), unfolded = 0;
+  CodeMirror.connect(folded, "unfold", function() {unfolded++;});
+  cm.setCursor({line: 3, ch: 0});
+  eq(unfolded, 0);
+  cm.execCommand("goCharLeft");
+  eq(unfolded, 1);
+  var folded = cm.foldLines(1, 3, true), unfolded = 0;
+  CodeMirror.connect(folded, "unfold", function() {unfolded++;});
+  eqPos(cm.getCursor(), {line: 3, ch: 0});
+  cm.setCursor({line: 0, ch: 3});
+  cm.execCommand("goCharRight");
+  eq(unfolded, 1);
+}, {value: "abc\ndef\nghi\njkl"});
 
 testCM("hiddenLinesSelectAll", function(cm) {  // Issue #484
   addDoc(cm, 4, 20);
-  for (var i = 0; i < 20; ++i)
-    if (i != 10) cm.hideLine(i);
+  cm.foldLines(0, 10); cm.foldLines(11, 20);
   CodeMirror.commands.selectAll(cm);
   eqPos(cm.getCursor(true), {line: 10, ch: 0});
   eqPos(cm.getCursor(false), {line: 10, ch: 4});
