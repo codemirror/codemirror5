@@ -211,10 +211,6 @@
       simply <code>true</code>), focusing of the editor is also
       disallowed.</dd>
 
-      <dt id="option_matchBrackets"><code>matchBrackets (boolean)</code></dt>
-      <dd>Determines whether brackets are matched whenever the cursor
-      is moved next to a bracket.</dd>
-
       <dt id="option_cursorBlinkRate"><code>cursorBlinkRate (number)</code></dt>
       <dd>Half-period in milliseconds used for cursor blinking. The default blink
       rate is 530ms.</dd>
@@ -740,9 +736,6 @@
       widget again, simply use DOM methods (move it somewhere else, or
       call <code>removeChild</code> on its parent).</dd>
 
-      <dt id="matchBrackets"><code>matchBrackets()</code></dt>
-      <dd>Force matching-bracket-highlighting to happen.</dd>
-
       <dt id="lineCount"><code>lineCount() → number</code></dt>
       <dd>Get the number of lines in the editor.</dd>
 
@@ -867,6 +860,13 @@
     will cause the given value (usually a method) to be added to all
     CodeMirror instances created from then on.</p>
 
+    <p id="defineOption">Similarly, <code>CodeMirror.defineOption(name,
+    default, updateFunc)</code> can be used to define new options for
+    CodeMirror. The <code>updateFunc</code> will be called with the
+    editor instance and the new value when an editor is initialized,
+    and whenever the option is modified
+    through <a href="#setOption"><code>setOption</code></a>.</p>
+
     <h2 id="addons">Add-ons</h2>
 
     <p>The <code>lib/util</code> directory in the distribution
@@ -917,6 +917,14 @@
       on <code>searchcursor.js</code>, and will make use
       of <a href="#util_dialog"><code>openDialog</code></a> when
       available to make prompting for search queries less ugly.</dd>
+      <dt id="util_matchbrackets"><a href="../lib/util/matchbrackets.js"><code>matchbrackets.js</code></a></dt>
+      <dd>Defines an option <code>matchBrackets</code> which, when set
+      to true, causes matching brackets to be highlighted whenever the
+      cursor is next to them. It also adds a
+      method <code>matchBrackets</code> that forces this to happen
+      once, and a method <code>findMatchingBracket</code> that can be
+      used to run the bracket-finding algorithm that this uses
+      internally.</dd>
       <dt id="util_foldcode"><a href="../lib/util/foldcode.js"><code>foldcode.js</code></a></dt>
       <dd>Helps with code folding.
       See <a href="../demo/folding.html">the demo</a> for an example.
