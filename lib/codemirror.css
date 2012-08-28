@@ -169,6 +169,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
   word-wrap: normal;
   line-height: inherit;
   color: inherit;
+  position: relative;
 }
 .CodeMirror-wrap pre {
   word-wrap: break-word;
