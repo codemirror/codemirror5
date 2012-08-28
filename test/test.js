@@ -712,3 +712,23 @@ testCM("movebyTextUnit", function(cm) {
   cm.execCommand("goCharRight");
   eqPos(cm.getCursor(), {line: 1, ch: 6});
 });
+
+testCM("lineChangeEvents", function(cm) {
+  addDoc(cm, 3, 5);
+  var log = [], want = ["ch 0", "ch 1", "del 2", "ch 0", "ch 0", "del 1", "del 3", "del 4"];
+  for (var i = 0; i < 5; ++i) {
+    CodeMirror.connect(cm.getLineHandle(i), "delete", function(i) {
+      return function() {log.push("del " + i);};
+    }(i));
+    CodeMirror.connect(cm.getLineHandle(i), "change", function(i) {
+      return function() {log.push("ch " + i);};
+    }(i));
+  }
+  cm.replaceRange("x", {line: 0, ch: 1});
+  cm.replaceRange("xy", {line: 1, ch: 1}, {line: 2});
+  cm.replaceRange("foo\nbar", {line: 0, ch: 1});
+  cm.replaceRange("", {line: 0, ch: 0}, {line: cm.lineCount()});
+  eq(log.length, want.length, "same length");
+  for (var i = 0; i < log.length; ++i)
+    eq(log[i], want[i]);
+});
