@@ -680,3 +680,18 @@ testCM("rtlMovement", function(cm) {
     }
   });
 });
+
+testCM("movebyTextUnit", function(cm) {
+  cm.setValue("בְּרֵאשִ\ńéée\n");
+  cm.execCommand("goLineEnd");
+  for (var i = 0; i < 4; ++i) cm.execCommand("goCharRight");
+  eqPos(cm.getCursor(), {line: 0, ch: 0});
+  cm.execCommand("goCharRight");
+  eqPos(cm.getCursor(), {line: 1, ch: 0});
+  cm.execCommand("goCharRight");
+  cm.execCommand("goCharRight");
+  eqPos(cm.getCursor(), {line: 1, ch: 3});
+  cm.execCommand("goCharRight");
+  cm.execCommand("goCharRight");
+  eqPos(cm.getCursor(), {line: 1, ch: 6});
+});
