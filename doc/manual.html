@@ -211,56 +211,6 @@
       simply <code>true</code>), focusing of the editor is also
       disallowed.</dd>
 
-      <dt id="option_onChange"><code>onChange (function)</code></dt>
-      <dd>When given, this function will be called every time the
-      content of the editor is changed. It will be given the editor
-      instance as first argument, and an <code>{from, to, text, next}</code>
-      object containing information about the changes
-      that occurred as second argument. <code>from</code>
-      and <code>to</code> are the positions (in the pre-change
-      coordinate system) where the change started and
-      ended (for example, it might be <code>{ch:0, line:18}</code> if the
-      position is at the beginning of line #19). <code>text</code>
-      is an array of strings representing the text that replaced the changed
-      range (split by line). If multiple changes happened during a single
-      operation, the object will have a <code>next</code> property pointing to
-      another change object (which may point to another, etc).</dd>
-
-      <dt id="option_onCursorActivity"><code>onCursorActivity (function)</code></dt>
-      <dd>Will be called when the cursor or selection moves, or any
-      change is made to the editor content.</dd>
-
-      <dt id="option_onViewportChange"><code>onViewportChange (function)</code></dt>
-      <dd>When given, will be called whenever
-      the <a href="#getViewport">view port</a> of the editor changes
-      (due to scrolling, editing, or any other factor). It will be
-      passed three arguments, the editor instance, the start of the
-      viewport, and its end.</dd>
-
-      <dt id="option_onGutterClick"><code>onGutterClick (function)</code></dt>
-      <dd>When given, will be called whenever the editor gutter (the
-      line-number area) is clicked. Will be given the editor instance
-      as first argument, the (zero-based) number of the line that was
-      clicked as second argument, the raw <code>mousedown</code> event
-      object as third argument, and the CSS class of the gutter that
-      was clicked as fourth argument.</dd>
-
-      <dt id="option_onFocus"><code>onFocus, onBlur (function)</code></dt>
-      <dd>The given functions will be called whenever the editor is
-      focused or unfocused.</dd>
-
-      <dt id="option_onScroll"><code>onScroll (function)</code></dt>
-      <dd>When given, will be called whenever the editor is
-      scrolled.</dd>
-
-      <dt id="option_onHighlightComplete"><code>onHighlightComplete (function)</code></dt>
-      <dd>Whenever the editor's content has been fully highlighted,
-      this function (if given) will be called. It'll be given a single
-      argument, the editor instance.</dd>
-
-      <dt id="option_onUpdate"><code>onUpdate (function)</code></dt>
-      <dd>Will be called whenever CodeMirror updates its DOM display.</dd>
-
       <dt id="option_matchBrackets"><code>matchBrackets (boolean)</code></dt>
       <dd>Determines whether brackets are matched whenever the cursor
       is moved next to a bracket.</dd>
@@ -331,6 +281,79 @@
       its <code>type</code> property and only do something when it
       is <code>keydown</code> (or <code>keypress</code> for actions
       that need character data).</dd>
+    </dl>
+
+    <h2 id="events">Events</h2>
+
+    <p>A CodeMirror instance emits a number of events, which allow
+    client code to react to various situations. These are registered
+    with the <a href="#connect"><code>connect</code></a> method (and
+    removed with the <a href="#disconnect"><code>disconnect</code></a>
+    method). These are the events that fire on the instance object.
+    The name of the event is followed by the arguments that will be
+    passed to the handler. The <code>instance</code> argument always
+    refers to the editor instance.</p>
+
+    <dl>
+      <dt id="event_change"><code>"change" (instance, changeObj)</code></dt>
+      <dd>Fires every time the content of the editor is changed.
+      The <code>changeObj</code> is a <code>{from, to, text,
+      next}</code> object containing information about the changes
+      that occurred as second argument. <code>from</code>
+      and <code>to</code> are the positions (in the pre-change
+      coordinate system) where the change started and ended (for
+      example, it might be <code>{ch:0, line:18}</code> if the
+      position is at the beginning of line #19). <code>text</code> is
+      an array of strings representing the text that replaced the
+      changed range (split by line). If multiple changes happened
+      during a single operation, the object will have
+      a <code>next</code> property pointing to another change object
+      (which may point to another, etc).</dd>
+
+      <dt id="event_cursorActivity"><code>"cursorActivity" (instance)</code></dt>
+      <dd>Will be fired when the cursor or selection moves, or any
+      change is made to the editor content.</dd>
+
+      <dt id="event_viewportChange"><code>"viewportChange" (instance, from, to)</code></dt>
+      <dd>Fires whenever the <a href="#getViewport">view port</a> of
+      the editor changes (due to scrolling, editing, or any other
+      factor). The <code>from</code> and <code>to</code> arguments
+      give the new start and end of the viewport.</dd>
+
+      <dt id="event_gutterClick"><code>"gutterClick" (instance, line, gutter, clickEvent)</code></dt>
+      <dd>Fires when the editor gutter (the line-number area) is
+      clicked. Will pass the editor instance as first argument, the
+      (zero-based) number of the line that was clicked as second
+      argument, the CSS class of the gutter that was clicked as third
+      argument, and the raw <code>mousedown</code> event object as
+      fourth argument.</dd>
+
+      <dt id="event_focus"><code>"focus", "blur" (instance)</code></dt>
+      <dd>These fire whenever the editor is focused or unfocused.</dd>
+
+      <dt id="event_scroll"><code>"scroll" (instance)</code></dt>
+      <dd>Fires when the editor is scrolled.</dd>
+
+      <dt id="event_highlightComplete"><code>"highlightComplete" (instance)</code></dt>
+      <dd>Whenever the editor's content has been fully highlighted,
+      this event is fired.</dd>
+
+      <dt id="event_update"><code>"update" (instance)</code></dt>
+      <dd>Will be fired whenever CodeMirror updates its DOM display.</dd>
+    </dl>
+
+    <p>It is also possible to <a href="#connect">register</a> events
+    on other objects. Line handles (as returned by, for
+    example, <a href="#getLineHandle"><code>getLineHandle</code></a>)
+    can be listened on with <code>CodeMirror.connect(handle, "delete",
+    myFunc)</code>. They support the following events:</p>
+
+    <dl>
+      <dt id="event_delete"><code>"delete" ()</code></dt>
+      <dd>Will be fired when the line object is deleted. A line object
+      is associated with the <em>start</em> of the line. Mostly useful
+      when you need to find out when your <a href="#setMarker">gutter
+      markers</a> on a given line are removed.</dd>
     </dl>
 
     <h2 id="keymaps">Keymaps</h2>
@@ -540,6 +563,16 @@
       <dd>Retrieves the current value of the given option for this
       editor instance.</dd>
 
+      <dt id="connect"><code>connect(type, func)</code></dt>
+      <dd>Register an event handler for the given event type (a
+      string) on the editor instance. There is also
+      a <code>CodeMirror.connect(object, type, func)</code> version
+      that allows registering of events on any object.</dd>
+      <dt id="disconnect"><code>disconnect(type, func)</code></dt>
+      <dd>Remove an event handler on the editor instance. An
+      equivalent <code>CodeMirror.disconnect(object, type,
+      func)</code> also exists.</dd>
+
       <dt id="cursorCoords"><code>cursorCoords(start, mode) → object</code></dt>
       <dd>Returns an <code>{left, top, bottom}</code> object
       containing the coordinates of the cursor position.
@@ -655,10 +688,6 @@
       <dd>The inverse of <code>hideLine</code>—re-shows a previously
       hidden line, by number or by handle.</dd>
 
-      <dt id="onDeleteLine"><code>onDeleteLine(line, func)</code></dt>
-      <dd>Register a function that should be called when the line is
-      deleted from the document.</dd>
-
       <dt id="lineInfo"><code>lineInfo(line) → object</code></dt>
       <dd>Returns the line number, text content, and marker status of
       the given line, which can be either a number or a handle
@@ -676,8 +705,8 @@
       part of the document. In big documents, when most content is
       scrolled out of view, CodeMirror will only render the visible
       part, and a margin around it. See also
-      the <a href="#option_onViewportChange"><code>onViewportChange</code></a>
-      option.</dd>
+      the <a href="#event_viewportChange"><code>viewportChange</code></a>
+      event.</dd>
 
       <dt id="addWidget"><code>addWidget(pos, node, scrollIntoView)</code></dt>
       <dd>Puts <code>node</code>, which should be an absolutely
@@ -930,7 +959,7 @@
       <dt id="util_match-highlighter"><a href="../lib/util/match-highlighter.js"><code>match-highlighter.js</code></a></dt>
       <dd>Adds a <code>matchHighlight</code> method to CodeMirror
       instances that can be called (typically from
-      a <a href="#option_onCursorActivity"><code>onCursorActivity</code></a>
+      a <a href="#event_cursorActivity"><code>cursorActivity</code></a>
       handler) to highlight all instances of a currently selected word
       with the a classname given as a first argument to the method.
       Depends on
@@ -1174,6 +1203,7 @@
       <li><a href="#overview">Overview</a></li>
       <li><a href="#usage">Basic Usage</a></li>
       <li><a href="#config">Configuration</a></li>
+      <li><a href="#events">Events</a></li>
       <li><a href="#keymaps">Keymaps</a></li>
       <li><a href="#styling">Customized Styling</a></li>
       <li><a href="#api">Programming API</a></li>

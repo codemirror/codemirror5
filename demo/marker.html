@@ -17,13 +17,13 @@
     <h1>CodeMirror: Breakpoint demo</h1>
 
     <form><textarea id="code" name="code">
-CodeMirror.fromTextArea(document.getElementById("code"), {
+var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
   lineNumbers: true,
-  gutters: ["CodeMirror-linenumbers", "breakpoints"],
-  onGutterClick: function(cm, n) {
-    var info = cm.lineInfo(n);
-    cm.setGutterMarker(n, "breakpoints", info.markers ? null : makeMarker());
-  }
+  gutters: ["CodeMirror-linenumbers", "breakpoints"]
+});
+editor.connect("gutterClick", function(cm, n) {
+  var info = cm.lineInfo(n);
+  cm.setGutterMarker(n, "breakpoints", info.markers ? null : makeMarker());
 });
 
 function makeMarker() {
@@ -37,13 +37,13 @@ function makeMarker() {
 <p>Click the line-number gutter to add or remove 'breakpoints'.</p>
 
     <script>
-CodeMirror.fromTextArea(document.getElementById("code"), {
+var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
   lineNumbers: true,
-  gutters: ["CodeMirror-linenumbers", "breakpoints"],
-  onGutterClick: function(cm, n) {
-    var info = cm.lineInfo(n);
-    cm.setGutterMarker(n, "breakpoints", info.gutterMarkers ? null : makeMarker());
-  }
+  gutters: ["CodeMirror-linenumbers", "breakpoints"]
+});
+editor.connect("gutterClick", function(cm, n) {
+  var info = cm.lineInfo(n);
+  cm.setGutterMarker(n, "breakpoints", info.gutterMarkers ? null : makeMarker());
 });
 
 function makeMarker() {

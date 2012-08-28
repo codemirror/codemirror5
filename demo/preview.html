@@ -56,11 +56,11 @@
       // Initialize CodeMirror editor with a nice html5 canvas demo.
       var editor = CodeMirror.fromTextArea(document.getElementById('code'), {
         mode: 'text/html',
-        tabMode: 'indent',
-        onChange: function() {
-          clearTimeout(delay);
-          delay = setTimeout(updatePreview, 300);
-        }
+        tabMode: 'indent'
+      });
+      editor.connect("change", function() {
+        clearTimeout(delay);
+        delay = setTimeout(updatePreview, 300);
       });
       
       function updatePreview() {

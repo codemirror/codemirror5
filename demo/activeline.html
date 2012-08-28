@@ -58,13 +58,13 @@
 var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
   mode: "application/xml",
   lineNumbers: true,
-  lineWrapping: true,
-  onCursorActivity: function() {
-    editor.setLineClass(hlLine, null, null);
-    hlLine = editor.setLineClass(editor.getCursor().line, null, "activeline");
-  }
+  lineWrapping: true
 });
 var hlLine = editor.setLineClass(0, "activeline");
+editor.connect("cursorActivity", function() {
+  editor.setLineClass(hlLine, null, null);
+  hlLine = editor.setLineClass(editor.getCursor().line, null, "activeline");
+});
 </script>
 
     <p>Styling the current cursor line.</p>

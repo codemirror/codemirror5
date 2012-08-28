@@ -24,11 +24,9 @@
 Give it a try!  No more hardToSpotVars.</textarea></form>
 
     <script>
-var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-  lineNumbers : true,
-  onCursorActivity: function() {
-    editor.matchHighlight("CodeMirror-matchhighlight");
-  }
+var editor = CodeMirror.fromTextArea(document.getElementById("code"), {lineNumbers : true});
+editor.connect("cursorActivity", function() {
+  editor.matchHighlight("CodeMirror-matchhighlight");
 });
 </script>
 
