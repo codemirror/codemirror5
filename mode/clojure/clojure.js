@@ -157,7 +157,8 @@ CodeMirror.defineMode("clojure", function (config, mode) {
                             keyWord += letter;
                         }
 
-                        if (keyWord.length > 0 && indentKeys.propertyIsEnumerable(keyWord)) { // indent-word
+                        if (keyWord.length > 0 && (indentKeys.propertyIsEnumerable(keyWord) ||
+                                                   /^(?:def|with)/.test(keyWord))) { // indent-word
                             pushStack(state, indentTemp + INDENT_WORD_SKIP, ch);
                         } else { // non-indent word
                             // we continue eating the spaces
