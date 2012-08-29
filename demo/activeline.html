@@ -60,7 +60,7 @@ var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
   lineNumbers: true,
   lineWrapping: true
 });
-var hlLine = editor.setLineClass(0, "activeline");
+var hlLine = editor.setLineClass(0, null, "activeline");
 editor.connect("cursorActivity", function() {
   editor.setLineClass(hlLine, null, null);
   hlLine = editor.setLineClass(editor.getCursor().line, null, "activeline");
