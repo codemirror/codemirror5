@@ -33,7 +33,7 @@
   padding: 0 4px;
 }
 .CodeMirror-linenumber {
-  padding: 0 4px;
+  padding: 0 3px 0 5px;
   min-width: 20px;
   text-align: right;
   color: #999;
@@ -148,6 +148,10 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
   height: 100%;
   z-index: 3;
 }
+.CodeMirror-gutter {
+  height: 100%;
+  float: left;
+}
 .CodeMirror-gutter-elt {
   position: absolute;
   cursor: default;
@@ -193,6 +197,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
   overflow: hidden;
   visibility: hidden;
 }
+.CodeMirror-measure pre { position: static; }
 
 .CodeMirror pre.CodeMirror-cursor {
   z-index: 4;

@@ -62,10 +62,6 @@
   padding: 0 5px;
 }
 
-.cm-s-ambiance .CodeMirror-lines {
-  
-}
-
 .cm-s-ambiance .CodeMirror-lines .CodeMirror-cursor {
   border-left: 1px solid #7991E8;
 }

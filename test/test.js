@@ -368,7 +368,7 @@ testCM("selectionPos", function(cm) {
     }
   }
   is(sawTop && sawBottom && sawMiddle, "all parts");
-}, null, ie_lt8);
+}, null);
 
 testCM("restoreHistory", function(cm) {
   cm.setValue("abc\ndef");
@@ -511,7 +511,7 @@ testCM("measureEndOfLine", function(cm) {
   is(endPos.left > w - 20, "not at right");
   endPos = cm.charCoords({line: 0, ch: 18});
   eqPos(cm.coordsChar({left: endPos.left, top: endPos.top + 5}), {line: 0, ch: 18});
-}, {mode: "text/html", value: "<!-- foo barrr -->", lineWrapping: true}, ie_lt8);
+}, {mode: "text/html", value: "<!-- foo barrr -->", lineWrapping: true});
 
 testCM("scrollVerticallyAndHorizontally", function(cm) {
   cm.setSize(100, 100);
@@ -731,4 +731,11 @@ testCM("lineChangeEvents", function(cm) {
   eq(log.length, want.length, "same length");
   for (var i = 0; i < log.length; ++i)
     eq(log[i], want[i]);
+});
+
+testCM("scrollEntirelyToRight", function(cm) {
+  addDoc(cm, 500, 2);
+  cm.setCursor({line: 0, ch: 500});
+  var wrap = cm.getWrapperElement(), cur = byClassName(wrap, "CodeMirror-cursor")[0];
+  is(wrap.getBoundingClientRect().right > cur.getBoundingClientRect().left);
 });

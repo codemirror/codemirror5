@@ -2,7 +2,7 @@
 
 .cm-s-rubyblue { background: #112435; color: white; }
 .cm-s-rubyblue div.CodeMirror-selected { background: #38566F !important; }
-.cm-s-rubyblue .CodeMirror-gutters { background: #1F4661; border-right: 7px solid #3E7087; min-width:2.5em; }
+.cm-s-rubyblue .CodeMirror-gutters { background: #1F4661; border-right: 7px solid #3E7087; }
 .cm-s-rubyblue .CodeMirror-linenumber { color: white; }
 .cm-s-rubyblue .CodeMirror-cursor { border-left: 1px solid white !important; }
 
