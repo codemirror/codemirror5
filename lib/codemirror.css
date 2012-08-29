@@ -146,12 +146,12 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
 .CodeMirror-gutters {
   position: absolute; left: 0; top: 0;
   height: 100%;
-  z-index: 1;
+  z-index: 3;
 }
 .CodeMirror-gutter-elt {
   position: absolute;
   cursor: default;
-  z-index: 2;
+  z-index: 4;
 }
 
 .CodeMirror-lines {
@@ -169,12 +169,20 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
   word-wrap: normal;
   line-height: inherit;
   color: inherit;
+  z-index: 2;
+  position: relative;
 }
 .CodeMirror-wrap pre {
   word-wrap: break-word;
   white-space: pre-wrap;
   word-break: normal;
 }
+.CodeMirror-linebackground {
+  position: absolute;
+  left: 0; right: 0; top: 0; bottom: 0;
+  z-index: 0;
+}
+
 .CodeMirror-wrap .CodeMirror-scroll {
   overflow-x: hidden;
 }
