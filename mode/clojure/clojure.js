@@ -85,7 +85,7 @@ CodeMirror.defineMode("clojure", function (config, mode) {
                 stream.eatWhile(tests.digit);
             }
 
-            if ( 'e' == stream.peek().toLowerCase() ) {
+            if ( 'e' == String(stream.peek()).toLowerCase() ) {
                 stream.eat(tests.exponent);
                 stream.eat(tests.sign);
                 stream.eatWhile(tests.digit);
