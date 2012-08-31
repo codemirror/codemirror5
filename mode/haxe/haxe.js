@@ -421,9 +421,6 @@ CodeMirror.defineMode("haxe", function(config, parserConfig) {
       else if (lexical.align) return lexical.column + (closing ? 0 : 1);
       else return lexical.indented + (closing ? 0 : indentUnit);
     },
-	compareStates: function(state1, state2) {
-		return (state1.localVars == state2.localVars) && (state1.context == state2.context);
-	},
 
     electricChars: "{}"
   };

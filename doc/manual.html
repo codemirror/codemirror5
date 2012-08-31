@@ -249,11 +249,6 @@
       <dd>When given, will be called whenever the editor is
       scrolled.</dd>
 
-      <dt id="option_onHighlightComplete"><code>onHighlightComplete (function)</code></dt>
-      <dd>Whenever the editor's content has been fully highlighted,
-      this function (if given) will be called. It'll be given a single
-      argument, the editor instance.</dd>
-
       <dt id="option_onUpdate"><code>onUpdate (function)</code></dt>
       <dd>Will be called whenever CodeMirror updates its DOM display.</dd>
 
@@ -1084,18 +1079,6 @@
     mode object should define a <code>copyState</code> method,
     which is given a state and should return a safe copy of that
     state.</p>
-
-    <p id="compareStates">By default, CodeMirror will stop re-parsing
-    a document as soon as it encounters a few lines that were
-    highlighted the same in the old parse as in the new one. It is
-    possible to provide an explicit way to test whether a state is
-    equivalent to another one, which CodeMirror will use (instead of
-    the unchanged-lines heuristic) to decide when to stop
-    highlighting. You do this by providing
-    a <code>compareStates</code> method on your mode object, which
-    takes two state arguments and returns a boolean indicating whether
-    they are equivalent. See the XML mode, which uses this to provide
-    reliable highlighting of bad closing tags, as an example.</p>
 
     <p id="indent">If you want your mode to provide smart indentation
     (though the <a href="#indentLine"><code>indentLine</code></a>
