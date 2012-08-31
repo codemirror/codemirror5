@@ -301,13 +301,6 @@ CodeMirror.defineMode('tiki', function(config, parserConfig) {
 			if (context) return context.indent + indentUnit;
 			else return 0;
 		},
-		compareStates: function(a, b) {
-			if (a.indented != b.indented || a.pluginName != b.pluginName) return false;
-			for (var ca = a.context, cb = b.context; ; ca = ca.prev, cb = cb.prev) {
-				if (!ca || !cb) return ca == cb;
-				if (ca.pluginName != cb.pluginName) return false;
-			}
-		},
 		electricChars: "/"
 	};
 });
