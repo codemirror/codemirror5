@@ -11,9 +11,9 @@
     <style type="text/css">
       .CodeMirror {
         border: 1px solid #eee;
+        height: auto;
       }
       .CodeMirror-scroll {
-        height: auto;
         overflow-y: hidden;
         overflow-x: auto;
       }
@@ -23,11 +23,15 @@
     <h1>CodeMirror: Autoresize demo</h1>
 
     <form><textarea id="code" name="code">
-.CodeMirror-scroll {
+.CodeMirror {
+  border: 1px solid #eee;
   height: auto;
+}
+.CodeMirror-scroll {
   overflow-y: hidden;
   overflow-x: auto;
-}</textarea></form>
+}
+</textarea></form>
 
 <p>By setting a few CSS properties, CodeMirror can be made to
 automatically resize to fit its content.</p>

@@ -443,16 +443,18 @@
     <dl>
       <dt id="class_CodeMirror"><code>CodeMirror</code></dt>
       <dd>The outer element of the editor. This should be used for the
-      editor width, borders and positioning. Can also be used to set
-      styles that should hold for everything inside the editor (such
-      as font and font size), or to set a background.</dd>
+      editor width, height, borders and positioning. Can also be used
+      to set styles that should hold for everything inside the editor
+      (such as font and font size), or to set a background.</dd>
 
       <dt id="class_CodeMirror_scroll"><code>CodeMirror-scroll</code></dt>
-      <dd>This determines the editor's height, and whether the editor
-      scrolls (<code>overflow: auto</code> + fixed height). By
-      default, it does. Giving this <code>height: auto; overflow:
-      visible;</code> will cause the editor to resize to fit its
-      content.</dd>
+      <dd>Whether the editor scrolls (<code>overflow: auto</code> +
+      fixed height). By default, it does. Setting
+      the <code>CodeMirror</code> class to have <code>height:
+      auto</code> and giving this class <code>overflow-x: auto;
+      overflow-y: hidden;</code> will cause the editor
+      to <a href="../demo/resize.html">resize to fit its
+      content</a>.</dd>
 
       <dt id="class_CodeMirror_focused"><code>CodeMirror-focused</code></dt>
       <dd>Whenever the editor is focused, the top element gets this
@@ -491,15 +493,6 @@
         <code>CodeMirror-nonmatchingbracket</code></dt>
       <dd>These are used to style matched (or unmatched) brackets.</dd>
     </dl>
-
-    <p id="css-resize">So note carefully that, in order to resize the
-    editor, you should set a <code>width</code> on
-    the <a href="#getWrapperElement">wrapper</a>
-    (class <code>CodeMirror</code>) element, and a height on
-    the <a href="#getScrollerElement">scroller</a>
-    (class <code>CodeMirror-scroll</code>) element.
-    The <a href="#setSize"><code>setSize</code></a> method is the best
-    way to dynamically change size at runtime.</p>
 
     <p>The actual lines, as well as the cursor, are represented
     by <code>pre</code> elements. By default no text styling (such as

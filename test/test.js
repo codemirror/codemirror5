@@ -333,7 +333,7 @@ testCM("scrollSnap", function(cm) {
   cm.setCursor({line: 100, ch: 180});
   cm.setCursor({line: 199, ch: 0});
   info = cm.getScrollInfo();
-  is(info.left == 0 && info.top > info.height - 100, "scrolled clean to bottom");
+  is(info.left == 0 && info.top + 2 > info.height - cm.getScrollerElement().clientHeight, "scrolled clean to bottom");
 });
 
 testCM("selectionPos", function(cm) {
@@ -410,14 +410,15 @@ testCM("weirdLinebreaks", function(cm) {
 
 testCM("setSize", function(cm) {
   cm.setSize(100, 100);
-  is(cm.getWrapperElement().offsetWidth, 100);
-  is(cm.getWrapperElement().offsetHeight, 100);
+  var wrap = cm.getWrapperElement();
+  is(wrap.offsetWidth, 100);
+  is(wrap.offsetHeight, 100);
   cm.setSize("100%", "3em");
-  is(cm.getWrapperElement().style.width, "100%");
-  is(cm.getScrollerElement().style.height, "3em");
+  is(wrap.style.width, "100%");
+  is(wrap.style.height, "3em");
   cm.setSize(null, 40);
-  is(cm.getWrapperElement().style.width, "100%");
-  is(cm.getScrollerElement().style.height, "40px");
+  is(wrap.style.width, "100%");
+  is(wrap.style.height, "40px");
 });
 
 testCM("hiddenLines", function(cm) {
