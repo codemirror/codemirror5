@@ -2,6 +2,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
   var htmlFound = CodeMirror.mimeModes.hasOwnProperty("text/html");
   var htmlMode = CodeMirror.getMode(cmCfg, htmlFound ? "text/html" : "text/plain");
+  
+  var codeDepth = 0;
 
   var header   = 'header'
   ,   code     = 'comment'
@@ -119,7 +121,20 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       return getType(state);
     }
     if (ch === '`') {
-      return switchInline(stream, state, inlineElement(code, '`'));
+      var before = stream.pos;
+      stream.eatWhile('`');
+      var difference = 1 + stream.pos - before;
+      if (codeDepth){ // In code already
+        if (difference >= codeDepth) { // Enough to close
+          codeDepth = 0;
+          return switchInline(stream, state, inlineElement(code, Array(difference+1).join("`")));
+        } else { // Not enough to close
+          // Continue on
+        }
+      } else { // Not in code
+        codeDepth = difference;
+        return switchInline(stream, state, inlineElement(code, Array(difference+1).join("`")));
+      }
     }
     if (ch === '[' && stream.match(/.*\](?:\(|\[)/, false)) {
       return switchInline(stream, state, linkText);
@@ -190,9 +205,11 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
   function inlineRE(endChar) {
     if (!inlineRE[endChar]) {
-      // match any not-escaped-non-endChar and any escaped char
-      // then match endChar or eol
-      inlineRE[endChar] = new RegExp('^(?:[^\\\\\\' + endChar + ']|\\\\.)*(?:\\' + endChar + '|$)');
+      // Escape endChar for RegExp (taken from http://stackoverflow.com/a/494122/526741)
+      endChar = (endChar+'').replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
+      // Match any non-endChar, escaped character, as well as the closing 
+      // endChar.
+      inlineRE[endChar] = new RegExp('^(?:[^\\\\]+?|\\\\.)*?(' + endChar + ')');
     }
     return inlineRE[endChar];
   }
