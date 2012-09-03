@@ -205,6 +205,12 @@
         null, ' ',
         'string', '[bar]',
         null, ' hello');
+      // Should only allow a single space ("...use *a* space...")
+      MT.test('[foo]  [bar] hello',
+        null, '[',
+        null, 'foo]  ',
+        null, '[',
+        null, 'bar] hello');
         
       // Reference-style links with implicit link name
       MT.test('[foo][] hello',
