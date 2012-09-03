@@ -34,7 +34,7 @@ either JavaScript or Scheme mode based on that.</p>
     lineNumbers: true,
     tabMode: "indent"
   });
-  editor.connect("change", function() {
+  editor.on("change", function() {
     clearTimeout(pending);
     setTimeout(update, 400);
   });

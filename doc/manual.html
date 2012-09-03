@@ -283,8 +283,8 @@
 
     <p>A CodeMirror instance emits a number of events, which allow
     client code to react to various situations. These are registered
-    with the <a href="#connect"><code>connect</code></a> method (and
-    removed with the <a href="#disconnect"><code>disconnect</code></a>
+    with the <a href="#on"><code>on</code></a> method (and
+    removed with the <a href="#off"><code>off</code></a>
     method). These are the events that fire on the instance object.
     The name of the event is followed by the arguments that will be
     passed to the handler. The <code>instance</code> argument always
@@ -334,10 +334,10 @@
       <dd>Will be fired whenever CodeMirror updates its DOM display.</dd>
     </dl>
 
-    <p>It is also possible to <a href="#connect">register</a> events
+    <p>It is also possible to <a href="#on">register</a> events
     on other objects. Line handles (as returned by, for
     example, <a href="#getLineHandle"><code>getLineHandle</code></a>)
-    can be listened on with <code>CodeMirror.connect(handle, "delete",
+    can be listened on with <code>CodeMirror.on(handle, "delete",
     myFunc)</code>. They support the following events:</p>
 
     <dl>
@@ -563,14 +563,14 @@
       <dd>Retrieves the current value of the given option for this
       editor instance.</dd>
 
-      <dt id="connect"><code>connect(type, func)</code></dt>
+      <dt id="on"><code>on(type, func)</code></dt>
       <dd>Register an event handler for the given event type (a
       string) on the editor instance. There is also
-      a <code>CodeMirror.connect(object, type, func)</code> version
+      a <code>CodeMirror.on(object, type, func)</code> version
       that allows registering of events on any object.</dd>
-      <dt id="disconnect"><code>disconnect(type, func)</code></dt>
+      <dt id="off"><code>off(type, func)</code></dt>
       <dd>Remove an event handler on the editor instance. An
-      equivalent <code>CodeMirror.disconnect(object, type,
+      equivalent <code>CodeMirror.off(object, type,
       func)</code> also exists.</dd>
 
       <dt id="cursorCoords"><code>cursorCoords(start, mode) → object</code></dt>

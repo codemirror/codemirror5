@@ -28,7 +28,7 @@ var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
   lineNumbers: true
 });
 var modeInput = document.getElementById("mode");
-CodeMirror.connect(modeInput, "keypress", function(e) {
+CodeMirror.on(modeInput, "keypress", function(e) {
   if (e.keyCode == 13) change();
 });
 function change() {

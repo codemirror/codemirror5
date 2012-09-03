@@ -50,7 +50,7 @@ window.onload = function() {
   });
 
   var waiting;
-  editor.connect("change", function() {
+  editor.on("change", function() {
     clearTimeout(waiting);
     waiting = setTimeout(updateHints, 500);
   });

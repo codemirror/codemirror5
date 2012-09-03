@@ -21,7 +21,7 @@ var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
   lineNumbers: true,
   gutters: ["CodeMirror-linenumbers", "breakpoints"]
 });
-editor.connect("gutterClick", function(cm, n) {
+editor.on("gutterClick", function(cm, n) {
   var info = cm.lineInfo(n);
   cm.setGutterMarker(n, "breakpoints", info.markers ? null : makeMarker());
 });
@@ -41,7 +41,7 @@ var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
   lineNumbers: true,
   gutters: ["CodeMirror-linenumbers", "breakpoints"]
 });
-editor.connect("gutterClick", function(cm, n) {
+editor.on("gutterClick", function(cm, n) {
   var info = cm.lineInfo(n);
   cm.setGutterMarker(n, "breakpoints", info.gutterMarkers ? null : makeMarker());
 });

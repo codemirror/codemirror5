@@ -424,7 +424,7 @@ testCM("setSize", function(cm) {
 testCM("hiddenLines", function(cm) {
   addDoc(cm, 4, 10);
   var folded = cm.foldLines(4, 5), unfolded = 0;
-  CodeMirror.connect(folded, "unfold", function() {unfolded++;});
+  CodeMirror.on(folded, "unfold", function() {unfolded++;});
   cm.setCursor({line: 3, ch: 0});
   CodeMirror.commands.goLineDown(cm);
   eqPos(cm.getCursor(), {line: 5, ch: 0});
@@ -442,13 +442,13 @@ testCM("hiddenLines", function(cm) {
 
 testCM("hiddenLinesAutoUnfold", function(cm) {
   var folded = cm.foldLines(1, 3, true), unfolded = 0;
-  CodeMirror.connect(folded, "unfold", function() {unfolded++;});
+  CodeMirror.on(folded, "unfold", function() {unfolded++;});
   cm.setCursor({line: 3, ch: 0});
   eq(unfolded, 0);
   cm.execCommand("goCharLeft");
   eq(unfolded, 1);
   var folded = cm.foldLines(1, 3, true), unfolded = 0;
-  CodeMirror.connect(folded, "unfold", function() {unfolded++;});
+  CodeMirror.on(folded, "unfold", function() {unfolded++;});
   eqPos(cm.getCursor(), {line: 3, ch: 0});
   cm.setCursor({line: 0, ch: 3});
   cm.execCommand("goCharRight");
@@ -718,10 +718,10 @@ testCM("lineChangeEvents", function(cm) {
   addDoc(cm, 3, 5);
   var log = [], want = ["ch 0", "ch 1", "del 2", "ch 0", "ch 0", "del 1", "del 3", "del 4"];
   for (var i = 0; i < 5; ++i) {
-    CodeMirror.connect(cm.getLineHandle(i), "delete", function(i) {
+    CodeMirror.on(cm.getLineHandle(i), "delete", function(i) {
       return function() {log.push("del " + i);};
     }(i));
-    CodeMirror.connect(cm.getLineHandle(i), "change", function(i) {
+    CodeMirror.on(cm.getLineHandle(i), "change", function(i) {
       return function() {log.push("ch " + i);};
     }(i));
   }

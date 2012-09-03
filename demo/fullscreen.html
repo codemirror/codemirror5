@@ -123,7 +123,7 @@
       }
       cm.refresh();
     }
-    CodeMirror.connect(window, "resize", function() {
+    CodeMirror.on(window, "resize", function() {
       var showing = document.body.getElementsByClassName("CodeMirror-fullscreen")[0];
       if (!showing) return;
       showing.CodeMirror.getScrollerElement().style.height = winHeight() + "px";

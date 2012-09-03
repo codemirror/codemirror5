@@ -58,7 +58,7 @@
         mode: 'text/html',
         tabMode: 'indent'
       });
-      editor.connect("change", function() {
+      editor.on("change", function() {
         clearTimeout(delay);
         delay = setTimeout(updatePreview, 300);
       });

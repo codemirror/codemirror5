@@ -44,7 +44,7 @@ window.onload = function() {
     lineWrapping: true,
     extraKeys: {"Ctrl-Q": function(cm){foldFunc(cm, cm.getCursor().line);}}
   });
-  editor.connect("gutterClick", foldFunc);
+  editor.on("gutterClick", foldFunc);
   foldFunc(editor, 9);
   foldFunc(editor, 20);
 
@@ -56,7 +56,7 @@ window.onload = function() {
     lineWrapping: true,
     extraKeys: {"Ctrl-Q": function(cm){foldFunc_html(cm, cm.getCursor().line);}}
   });
-  editor_html.connect("gutterClick", foldFunc_html);
+  editor_html.on("gutterClick", foldFunc_html);
   foldFunc_html(editor_html, 1);
   foldFunc_html(editor_html, 15);
 };
