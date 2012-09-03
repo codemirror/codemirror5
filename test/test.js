@@ -740,3 +740,17 @@ testCM("scrollEntirelyToRight", function(cm) {
   var wrap = cm.getWrapperElement(), cur = byClassName(wrap, "CodeMirror-cursor")[0];
   is(wrap.getBoundingClientRect().right > cur.getBoundingClientRect().left);
 });
+
+testCM("lineWidgets", function(cm) {
+  addDoc(cm, 500, 3);
+  var last = cm.charCoords({line: 2, ch: 0});
+  var node = document.createElement("div");
+  node.innerHTML = "hi";
+  var widget = cm.addLineWidget(1, node);
+  is(last.top < cm.charCoords({line: 2, ch: 0}).top, "took up space");
+  cm.setCursor({line: 1, ch: 1});
+  cm.execCommand("goLineDown");
+  eqPos(cm.getCursor(), {line: 2, ch: 1});
+  cm.execCommand("goLineUp");
+  eqPos(cm.getCursor(), {line: 1, ch: 1});
+});

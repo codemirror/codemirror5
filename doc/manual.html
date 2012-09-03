@@ -701,8 +701,11 @@
       the given line, which can be either a number or a handle
       returned by <code>setMarker</code>. The returned object has the
       structure <code>{line, handle, text, gutterMarkers, lineClass,
-      bgClass}</code>, where <code>gutterMarkers</code> is an object
-      mapping gutter IDs to marker elements.</dd>
+      bgClass, widgets}</code>, where <code>gutterMarkers</code> is an
+      object mapping gutter IDs to marker elements,
+      and <code>widgets</code> is an array
+      of <a href="#addLineWidget">line widgets</a> attached to this
+      line.</dd>
 
       <dt id="getLineHandle"><code>getLineHandle(num) → lineHandle</code></dt>
       <dd>Fetches the line handle for the given line number.</dd>
@@ -724,6 +727,22 @@
       that the entire node is visible (if possible). To remove the
       widget again, simply use DOM methods (move it somewhere else, or
       call <code>removeChild</code> on its parent).</dd>
+
+      <dt id="addLineWidget"><code>addLineWidget(line, node, inline) → object</code></dt>
+      <dd>Adds a line widget, an element shown below a line, spanning
+      the whole of the editor's width, and moving the lines below it
+      downwards. <code>line</code> should be either an integer or a
+      line handle, and <code>node</code> should be a DOM node, which
+      will be displayed below the given line. When <code>inline</code>
+      is true, the widget will not overlap with the gutter, and scroll
+      horizontally with the editor. Note that the widget node will
+      become a descendant of nodes with CodeMirror-specific CSS
+      classes, and those classes might in some cases affect it. This
+      method returns an object that represents the widget placement,
+      which can be passed to <code>removeLineWidget</code>.</dd>
+
+      <dt id="removeLineWidget"><code>removeLineWidget(widget)</code></dt>
+      <dd>Removes the given line widget.</dd>
 
       <dt id="lineCount"><code>lineCount() → number</code></dt>
       <dd>Get the number of lines in the editor.</dd>

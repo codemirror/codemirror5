@@ -127,7 +127,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
    flickering artifacts. */
 .CodeMirror-vscrollbar, .CodeMirror-hscrollbar, .CodeMirror-scrollbar-filler {
   position: absolute;
-  z-index: 5;
+  z-index: 6;
   display: none;
 }
 .CodeMirror-vscrollbar {
@@ -142,7 +142,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
 }
 .CodeMirror-scrollbar-filler {
   right: 0; bottom: 0;
-  z-index: 5;
+  z-index: 6;
 }
 
 .CodeMirror-gutters {
@@ -158,6 +158,11 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
   position: absolute;
   cursor: default;
   z-index: 4;
+}
+
+.CodeMirror-linewidget-noinline {
+  z-index: 5;
+  position: relative;
 }
 
 .CodeMirror-lines {
@@ -202,7 +207,6 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
 .CodeMirror-measure pre { position: static; }
 
 .CodeMirror pre.CodeMirror-cursor {
-  z-index: 4;
   position: absolute;
   visibility: hidden;
   border-right: none;
