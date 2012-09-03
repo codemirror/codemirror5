@@ -1,0 +1,419 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>CodeMirror: Markdown mode</title>
+    <link rel="stylesheet" href="../../lib/codemirror.css">
+    <script src="../../lib/codemirror.js"></script>
+    <script src="../xml/xml.js"></script>
+    <script src="markdown.js"></script>
+    <style type="text/css">.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
+    <link rel="stylesheet" href="../../test/mode_test.css">
+    <script src="../../test/mode_test.js"></script>
+    <link rel="stylesheet" href="../../doc/docs.css">
+  </head>
+  <body>
+    <h1>Tests for the Markdown Mode</h1>
+    <h2>Basics</h2>
+    <script language="javascript">
+      MT = ModeTest;
+      MT.modeName = 'markdown';
+
+      MT.test('foo',
+        null, 'foo');
+    </script>
+    
+    <h2>Code</h2>
+    <script language="javascript">
+
+      // Code blocks using 4 spaces (regardless of CodeMirror.tabSize value)
+      MT.test('    foo',
+        null,      '    ',
+        'comment', 'foo');
+        
+      // Code blocks using 1 tab (regardless of CodeMirror.indentWithTabs value)
+      MT.test('\tfoo',
+        null,      '\t',
+        'comment', 'foo');
+
+      // Inline code using backticks
+      MT.test('foo `bar`',
+        null,      'foo ',
+        'comment', '`bar`');
+        
+      // Unclosed backticks
+      // This should *not* be fixed by only adding the style to closed groups. 
+      // Instead, autocomplete should be added (see issue #344).
+      MT.test('foo `bar',
+        null, 'foo `bar');
+        
+      // Per documentation: "To include a literal backtick character within a 
+      // code span, you can use multiple backticks as the opening and closing 
+      // delimiters"
+      MT.test('``foo ` bar``',
+        'comment', '``foo ` bar``');
+    </script>
+    
+    <h2>Headers</h2>
+    <script language="javascript">
+
+      // atx headers
+      // http://daringfireball.net/projects/markdown/syntax#header
+      // 
+      // H1
+      MT.test('# foo',
+        'header', '# foo');
+      // H2
+      MT.test('## foo',
+        'header', '## foo');
+      // H3
+      MT.test('### foo',
+        'header', '### foo');
+      // H4
+      MT.test('#### foo',
+        'header', '#### foo');
+      // H5
+      MT.test('##### foo',
+        'header', '##### foo');
+      // H6
+      MT.test('###### foo',
+        'header', '###### foo');
+      // H6 - 7x '#' should still be H6, per Dingus
+      // http://daringfireball.net/projects/markdown/dingus
+      MT.test('####### foo',
+        'header', '####### foo');
+        
+      // Setext headers - H1, H2
+      // Per documentation, "Any number of underlining =’s or -’s will work."
+      // http://daringfireball.net/projects/markdown/syntax#header
+      // 
+      // Check if single underlining = works
+      MT.test('foo\n=',
+        'header', 'foo',
+        'header', '=');
+      // Check if 3+ ='s work
+      MT.test('foo\n===',
+        'header', 'foo',
+        'header', '===');
+      // Check if single underlining - works
+      MT.test('foo\n-',
+        'header', 'foo',
+        'header', '-');
+      // Check if 3+ -'s work
+      MT.test('foo\n---',
+        'header', 'foo',
+        'header', '---');
+    </script>
+    
+    <h2>Blockquotes</h2>
+    <script language="javascript">
+
+      // Single-line blockquote with trailing space
+      MT.test('> foo',
+        'quote', '> foo');
+
+      // Single-line blockquote
+      MT.test('>foo',
+        'quote', '>foo');
+
+      // Single-line blockquote followed by normal paragraph
+      MT.test('>foo\n\nbar',
+        'quote', '>foo',
+        null,    'bar');
+
+      // Multi-line blockquote (lazy mode)
+      MT.test('>foo\nbar',
+        'quote', '>foo',
+        'quote', 'bar');
+
+      // Multi-line blockquote followed by normal paragraph (lazy mode)
+      MT.test('>foo\nbar\n\nhello',
+        'quote', '>foo',
+        'quote', 'bar',
+        null,    'hello');
+
+      // Multi-line blockquote (non-lazy mode)
+      MT.test('>foo\n>bar',
+        'quote', '>foo',
+        'quote', '>bar');
+
+      // Multi-line blockquote followed by normal paragraph (non-lazy mode)
+      MT.test('>foo\n>bar\n\nhello',
+        'quote', '>foo',
+        'quote', '>bar',
+        null,    'hello');
+    </script>
+    
+    <h2>Horizontal rules</h2>
+    <script language="javascript">
+
+      // Following tests directly from official Markdown documentation
+      // http://daringfireball.net/projects/markdown/syntax#hr
+      MT.test('* * *',
+        'hr', '* * *');
+        
+      MT.test('***',
+        'hr', '***');
+        
+      MT.test('*****',
+        'hr', '*****');
+        
+      MT.test('- - -',
+        'hr', '- - -');
+        
+      MT.test('---------------------------------------',
+        'hr', '---------------------------------------');
+    </script>
+    
+    <h2>Links</h2>
+    <script language="javascript">
+
+      // Inline link with title
+      MT.test('[foo](http://example.com/ "bar") hello',
+        'link', '[foo]',
+        'string', '(http://example.com/ "bar")',
+        null, ' hello');
+        
+      // Inline link without title
+      MT.test('[foo](http://example.com/) bar',
+        'link', '[foo]',
+        'string', '(http://example.com/)',
+        null, ' bar');
+        
+      // Reference-style links
+      MT.test('[foo][bar] hello',
+        'link', '[foo]',
+        'string', '[bar]',
+        null, ' hello');
+        
+      // Reference-style links with optional space separator (per docuentation)
+      // "You can optionally use a space to separate the sets of brackets"
+      MT.test('[foo] [bar] hello',
+        'link', '[foo]',
+        null, ' ',
+        'string', '[bar]',
+        null, ' hello');
+        
+      // Reference-style links with implicit link name
+      MT.test('[foo][] hello',
+        'link', '[foo]',
+        'string', '[]',
+        null, ' hello');
+        
+      // @todo It would be nice if, at some point, the document was actually
+      // checked to see if the referenced link exists
+      
+      // Link label, for reference-style links (taken from documentation)
+      //
+      // No title
+      MT.test('[foo]: http://example.com/',
+        'link', '[foo]:',
+        'string', ' http://example.com/');
+      // Space in ID
+      MT.test('[foo bar]: http://example.com/ "hello"',
+        'link', '[foo bar]:',
+        'string', ' http://example.com/',
+        'string', ' "hello"');
+      // Double quotes around title
+      MT.test('[foo]: http://example.com/  "bar"',
+        'link', '[foo]:',
+        'string', ' http://example.com/  "bar"');
+      // Single quotes around title
+      MT.test('[foo]: http://example.com/  \'bar\'',
+        'link', '[foo]:',
+        'string', ' http://example.com/  \'bar\'');
+      // Parentheses around title
+      MT.test('[foo]: http://example.com/  (bar)',
+        'link', '[foo]:',
+        'string', ' http://example.com/  (bar)');
+      // Invalid title
+      MT.test('[foo]: http://example.com/ bar',
+        'link', '[foo]:',
+        'string', ' http://example.com/',
+        null, ' bar');
+      // Angle brackets around URL
+      MT.test('[foo]: <http://example.com/>  "bar"',
+        'link', '[foo]:',
+        'string', ' <http://example.com/>  "bar"');
+      // Title on next line per documentation
+      MT.test('[foo]: http://example.com/\n"bar"',
+        'link', '[foo]:',
+        'string', ' http://example.com/',
+        'string', '"bar"');
+        
+      // Automatic links
+      MT.test('<http://example.com/>',
+        'link', '<http://example.com/>');
+        
+      // Automatic email links
+      MT.test('<user@example.com>',
+        'link', '<user@example.com>');
+    </script>
+    
+    <h2>Emphasis</h2>
+    <script language="javascript">
+
+      // Single asterisk
+      MT.test('*foo* bar',
+        'em', '*',
+        'em', 'foo',
+        'em', '*',
+        null, ' bar');
+
+      // Single underscore
+      MT.test('_foo_ bar',
+        'em', '_',
+        'em', 'foo',
+        'em', '_',
+        null, ' bar');
+        
+      // Emphasis characters within a word
+      MT.test('foo*bar*hello',
+        null, 'foo',
+        'em', '*',
+        'em', 'bar',
+        'em', '*',
+        null, 'hello');
+      MT.test('foo_bar_hello',
+        null, 'foo',
+        'em', '_',
+        'em', 'bar',
+        'em', '_',
+        null, 'hello');
+      // Per documentation: "...surround an * or _ with spaces, it’ll be 
+      // treated as a literal asterisk or underscore."
+      MT.test('foo _bar _ hello_ world',
+        null, 'foo',
+        'em', '_',
+        'em', 'bar _ hello',
+        'em', '_',
+        null, 'world');
+        
+      // Unclosed emphasis characters
+      // This should *not* be fixed by only adding the style to closed groups. 
+      // Instead, autocomplete should be added (see issue #344).
+      MT.test('foo *bar',
+        null, 'foo *bar');
+      MT.test('foo _bar',
+        null, 'foo _bar');
+
+      // Double asterisk
+      MT.test('**foo** bar',
+        'strong', '**',
+        'strong', 'foo',
+        'strong', '**',
+        null, ' bar');
+
+      // Double underscore
+      MT.test('__foo__ bar',
+        'strong', '__',
+        'strong', 'foo',
+        'strong', '__',
+        null, ' bar');
+
+      // Triple asterisk
+      MT.test('*foo**bar*hello** world',
+        'em', '*',
+        'em', 'foo',
+        'emstrong', '**',
+        'emstrong', 'bar',
+        'emstrong', '*',
+        'strong', 'hello',
+        'strong', '**',
+        null, ' world');
+
+      // Triple underscore
+      MT.test('_foo__bar_hello__ world',
+        'em', '_',
+        'em', 'foo',
+        'emstrong', '__',
+        'emstrong', 'bar',
+        'emstrong', '_',
+        'strong', 'hello',
+        'strong', '__',
+        null, ' world');
+
+      // Triple mixed
+      // "...same character must be used to open and close an emphasis span.""
+      MT.test('_foo**bar*hello__ world',
+        'em', '_',
+        'em', 'foo**bar*hello',
+        'em', '_',
+        null, '_ world');
+      MT.test('*foo__bar_hello** world',
+        'em', '*',
+        'em', 'foo__bar_hello',
+        'em', '*',
+        null, '* world');
+    </script>
+    
+    <h2>Escaping</h2>
+    <script language="javascript">
+
+      // These characters should be escaped:
+      // \   backslash
+      // `   backtick
+      // *   asterisk
+      // _   underscore
+      // {}  curly braces
+      // []  square brackets
+      // ()  parentheses
+      // #   hash mark
+      // +   plus sign
+      // -   minus sign (hyphen)
+      // .   dot
+      // !   exclamation mark
+      // 
+      // Backtick (code)
+      MT.test('foo \\`bar\\`',
+        null, 'foo ',
+        null, '\\`',
+        null, 'bar',
+        null, '\\`');
+      MT.test('foo \\\\`bar\\\\`',
+        null, 'foo ',
+        null, '\\\\',
+        'comment', '`bar\\\\`');
+      // Asterisk (em)
+      MT.test('foo \\*bar\\*',
+        null, 'foo ',
+        null, '\\*',
+        null, 'bar',
+        null, '\\*');
+      MT.test('foo \\\\*bar\\\\*',
+        null, 'foo ',
+        null, '\\\\',
+        'em', '*',
+        'em', 'bar',
+        'em', '\\\\',
+        'em', '*');
+      // Underscore (em)
+      MT.test('foo \\_bar\\_',
+        null, 'foo ',
+        null, '\\_',
+        null, 'bar',
+        null, '\\_');
+      MT.test('foo \\\\_bar\\\\_',
+        null, 'foo ',
+        null, '\\\\',
+        'em', '_',
+        'em', 'bar',
+        'em', '\\\\',
+        'em', '_');
+      // Hash mark (headers)
+      MT.test('\\# foo',
+        null, '\\#',
+        null, ' foo');
+      MT.test('\\\\# foo',
+        null, '\\\\',
+        null, '# foo');
+    </script>
+
+    <h2>Summary</h2>
+    <script language="javascript">
+      MT.printSummary();
+    </script>
+
+  </body>
+</html>
+
