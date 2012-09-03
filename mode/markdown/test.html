@@ -42,16 +42,36 @@
         'comment', '`bar`');
         
       // Unclosed backticks
-      // This should *not* be fixed by only adding the style to closed groups. 
-      // Instead, autocomplete should be added (see issue #344).
+      // Instead of simply marking as CODE, it would be nice to have an 
+      // incomplete flag for CODE, that is styled slightly different.
       MT.test('foo `bar',
-        null, 'foo `bar');
+        null, 'foo ',
+        'comment', '`bar');
         
       // Per documentation: "To include a literal backtick character within a 
       // code span, you can use multiple backticks as the opening and closing 
       // delimiters"
       MT.test('``foo ` bar``',
         'comment', '``foo ` bar``');
+        
+      // Tests based on Dingus
+      // http://daringfireball.net/projects/markdown/dingus
+      // 
+      // Multiple backticks within an inline code block
+      MT.test('`foo```bar`',
+        'comment', '`foo```bar`');
+      // Multiple backticks within an inline code block with a second code block
+      MT.test('`foo```bar` hello `world`',
+        'comment', '`foo```bar`',
+        null, ' hello ',
+        'comment', '`world`');
+      // Unclosed with several different groups of backticks
+      MT.test('``foo ``` bar` hello',
+        'comment', '``foo ``` bar` hello');
+      // Closed with several different groups of backticks
+      MT.test('``foo ``` bar` hello`` world',
+        'comment', '``foo ``` bar` hello``',
+        null, ' world');
     </script>
     
     <h2>Headers</h2>
@@ -86,22 +106,25 @@
       // Setext headers - H1, H2
       // Per documentation, "Any number of underlining =’s or -’s will work."
       // http://daringfireball.net/projects/markdown/syntax#header
+      // Ideally, the text would be marked as `header` as well, but this is 
+      // not really feasible at the moment. So, instead, we're testing against 
+      // what works today, to avoid any regressions.
       // 
       // Check if single underlining = works
       MT.test('foo\n=',
-        'header', 'foo',
+        null, 'foo',
         'header', '=');
       // Check if 3+ ='s work
       MT.test('foo\n===',
-        'header', 'foo',
+        null, 'foo',
         'header', '===');
       // Check if single underlining - works
       MT.test('foo\n-',
-        'header', 'foo',
+        null, 'foo',
         'header', '-');
       // Check if 3+ -'s work
       MT.test('foo\n---',
-        'header', 'foo',
+        null, 'foo',
         'header', '---');
     </script>
     
@@ -193,6 +216,9 @@
         null, ' ',
         'string', '[bar]',
         null, ' hello');
+      // Should only allow a single space ("...use *a* space...")
+      MT.test('[foo]  [bar] hello',
+        null, '[foo]  [bar] hello');
         
       // Reference-style links with implicit link name
       MT.test('[foo][] hello',
@@ -208,46 +234,61 @@
       // No title
       MT.test('[foo]: http://example.com/',
         'link', '[foo]:',
-        'string', ' http://example.com/');
-      // Space in ID
+        null, ' ',
+        'string', 'http://example.com/');
+      // Space in ID and title
       MT.test('[foo bar]: http://example.com/ "hello"',
         'link', '[foo bar]:',
-        'string', ' http://example.com/',
-        'string', ' "hello"');
+        null, ' ',
+        'string', 'http://example.com/ "hello"');
+      // Double title
+      MT.test('[foo bar]: http://example.com/ "hello" "world"',
+        'link', '[foo bar]:',
+        null, ' ',
+        'string', 'http://example.com/ "hello"',
+        null, ' "world"');
       // Double quotes around title
       MT.test('[foo]: http://example.com/  "bar"',
         'link', '[foo]:',
-        'string', ' http://example.com/  "bar"');
+        null, ' ',
+        'string', 'http://example.com/  "bar"');
       // Single quotes around title
       MT.test('[foo]: http://example.com/  \'bar\'',
         'link', '[foo]:',
-        'string', ' http://example.com/  \'bar\'');
+        null, ' ',
+        'string', 'http://example.com/  \'bar\'');
       // Parentheses around title
       MT.test('[foo]: http://example.com/  (bar)',
         'link', '[foo]:',
-        'string', ' http://example.com/  (bar)');
+        null, ' ',
+        'string', 'http://example.com/  (bar)');
       // Invalid title
       MT.test('[foo]: http://example.com/ bar',
         'link', '[foo]:',
-        'string', ' http://example.com/',
+        null, ' ',
+        'string', 'http://example.com/',
         null, ' bar');
       // Angle brackets around URL
       MT.test('[foo]: <http://example.com/>  "bar"',
         'link', '[foo]:',
-        'string', ' <http://example.com/>  "bar"');
+        null, ' ',
+        'string', '<http://example.com/>  "bar"');
       // Title on next line per documentation
       MT.test('[foo]: http://example.com/\n"bar"',
         'link', '[foo]:',
-        'string', ' http://example.com/',
+        null, ' ',
+        'string', 'http://example.com/',
         'string', '"bar"');
         
       // Automatic links
-      MT.test('<http://example.com/>',
-        'link', '<http://example.com/>');
+      MT.test('<http://example.com/> foo',
+        'link', '<http://example.com/>',
+        null, ' foo');
         
       // Automatic email links
-      MT.test('<user@example.com>',
-        'link', '<user@example.com>');
+      MT.test('<user@example.com> foo',
+        'link', '<user@example.com>',
+        null, ' foo');
     </script>
     
     <h2>Emphasis</h2>
@@ -255,96 +296,80 @@
 
       // Single asterisk
       MT.test('*foo* bar',
-        'em', '*',
-        'em', 'foo',
-        'em', '*',
+        'em', '*foo*',
         null, ' bar');
 
       // Single underscore
       MT.test('_foo_ bar',
-        'em', '_',
-        'em', 'foo',
-        'em', '_',
+        'em', '_foo_',
         null, ' bar');
         
       // Emphasis characters within a word
       MT.test('foo*bar*hello',
         null, 'foo',
-        'em', '*',
-        'em', 'bar',
-        'em', '*',
+        'em', '*bar*',
         null, 'hello');
       MT.test('foo_bar_hello',
         null, 'foo',
-        'em', '_',
-        'em', 'bar',
-        'em', '_',
+        'em', '_bar_',
         null, 'hello');
       // Per documentation: "...surround an * or _ with spaces, it’ll be 
       // treated as a literal asterisk or underscore."
+      // 
+      // Inside EM
       MT.test('foo _bar _ hello_ world',
-        null, 'foo',
-        'em', '_',
-        'em', 'bar _ hello',
-        'em', '_',
+        null, 'foo ',
+        'em', '_bar _ hello_',
+        null, ' world');
+      // Outside EM
+      MT.test('foo _ bar_hello_world',
+        null, 'foo _ bar',
+        'em', '_hello_',
         null, 'world');
         
       // Unclosed emphasis characters
-      // This should *not* be fixed by only adding the style to closed groups. 
-      // Instead, autocomplete should be added (see issue #344).
+      // Instead of simply marking as EM / STRONG, it would be nice to have an 
+      // incomplete flag for EM and STRONG, that is styled slightly different.
       MT.test('foo *bar',
-        null, 'foo *bar');
+        null, 'foo ',
+        'em', '*bar');
       MT.test('foo _bar',
-        null, 'foo _bar');
+        null, 'foo ',
+        'em', '_bar');
 
       // Double asterisk
       MT.test('**foo** bar',
-        'strong', '**',
-        'strong', 'foo',
-        'strong', '**',
+        'strong', '**foo**',
         null, ' bar');
 
       // Double underscore
       MT.test('__foo__ bar',
-        'strong', '__',
-        'strong', 'foo',
-        'strong', '__',
+        'strong', '__foo__',
         null, ' bar');
 
       // Triple asterisk
       MT.test('*foo**bar*hello** world',
-        'em', '*',
-        'em', 'foo',
-        'emstrong', '**',
-        'emstrong', 'bar',
-        'emstrong', '*',
-        'strong', 'hello',
-        'strong', '**',
+        'em', '*foo',
+        'emstrong', '**bar*',
+        'strong', 'hello**',
         null, ' world');
 
       // Triple underscore
       MT.test('_foo__bar_hello__ world',
-        'em', '_',
-        'em', 'foo',
-        'emstrong', '__',
-        'emstrong', 'bar',
-        'emstrong', '_',
-        'strong', 'hello',
-        'strong', '__',
+        'em', '_foo',
+        'emstrong', '__bar_',
+        'strong', 'hello__',
         null, ' world');
 
       // Triple mixed
       // "...same character must be used to open and close an emphasis span.""
       MT.test('_foo**bar*hello__ world',
-        'em', '_',
-        'em', 'foo**bar*hello',
-        'em', '_',
-        null, '_ world');
+        'em', '_foo',
+        'emstrong', '**bar*hello__ world');
+        
       MT.test('*foo__bar_hello** world',
-        'em', '*',
-        'em', 'foo__bar_hello',
-        'em', '*',
-        null, '* world');
+        'em', '*foo',
+        'emstrong', '__bar_hello** world');
     </script>
     
     <h2>Escaping</h2>
@@ -366,47 +391,27 @@
       // 
       // Backtick (code)
       MT.test('foo \\`bar\\`',
-        null, 'foo ',
-        null, '\\`',
-        null, 'bar',
-        null, '\\`');
+        null, 'foo \\`bar\\`');
       MT.test('foo \\\\`bar\\\\`',
-        null, 'foo ',
-        null, '\\\\',
+        null, 'foo \\\\',
         'comment', '`bar\\\\`');
       // Asterisk (em)
       MT.test('foo \\*bar\\*',
-        null, 'foo ',
-        null, '\\*',
-        null, 'bar',
-        null, '\\*');
+        null, 'foo \\*bar\\*');
       MT.test('foo \\\\*bar\\\\*',
-        null, 'foo ',
-        null, '\\\\',
-        'em', '*',
-        'em', 'bar',
-        'em', '\\\\',
-        'em', '*');
+        null, 'foo \\\\',
+        'em', '*bar\\\\*');
       // Underscore (em)
       MT.test('foo \\_bar\\_',
-        null, 'foo ',
-        null, '\\_',
-        null, 'bar',
-        null, '\\_');
+        null, 'foo \\_bar\\_');
       MT.test('foo \\\\_bar\\\\_',
-        null, 'foo ',
-        null, '\\\\',
-        'em', '_',
-        'em', 'bar',
-        'em', '\\\\',
-        'em', '_');
+        null, 'foo \\\\',
+        'em', '_bar\\\\_');
       // Hash mark (headers)
       MT.test('\\# foo',
-        null, '\\#',
-        null, ' foo');
+        null, '\\# foo');
       MT.test('\\\\# foo',
-        null, '\\\\',
-        null, '# foo');
+        null, '\\\\# foo');
     </script>
 
     <h2>Summary</h2>

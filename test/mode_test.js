@@ -85,11 +85,26 @@ ModeTest.highlight = function(string, mode) {
     var line = lines[i];
     var stream = new CodeMirror.StringStream(line);
     if (line == "" && mode.blankLine) mode.blankLine(state);
+    var pos = 0;
+    var st = [];
+    /* Start copied code from CodeMirror.highlight */
     while (!stream.eol()) {
-      var style = mode.token(stream, state);
-      var substr = line.slice(stream.start, stream.pos);
-      output.push([style, substr]);
+      var style = mode.token(stream, state), substr = stream.current();
       stream.start = stream.pos;
+      if (pos && st[pos-1] == style) {
+        st[pos-2] += substr;
+      } else if (substr) {
+        st[pos++] = substr; st[pos++] = style;
+      }
+      // Give up when line is ridiculously long
+      if (stream.pos > 5000) {
+        st[pos++] = this.text.slice(stream.pos); st[pos++] = null;
+        break;
+      }
+    }
+    /* End copied code from CodeMirror.highlight */
+    for (var x = 0; x < st.length; x += 2) {
+      output.push([st[x + 1], st[x]]);
     }
   }
 
@@ -131,7 +146,7 @@ ModeTest.prettyPrintOutputTable = function(output) {
     var token = output[i];
     s +=
       '<td class="mt-token">' +
-        '<span class="cm-' + token[0] + '">' +
+        '<span class="cm-' + String(token[0]).replace(/ +/g, " cm-") + '">' +
           ModeTest.htmlEscape(token[1]).replace(/ /g,'&middot;') +
         '</span>' +
       '</td>';
