@@ -4,6 +4,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   var htmlMode = CodeMirror.getMode(cmCfg, htmlFound ? "text/html" : "text/plain");
   
   var codeDepth = 0;
+  var prevLineHasContent = false
+  ,   thisLineHasContent = false;
 
   var header   = 'header'
   ,   code     = 'comment'
@@ -57,7 +59,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       return code;
     } else if (stream.eatSpace()) {
       return null;
-    } else if (stream.peek() === '#' || stream.match(headerRE)) {
+    } else if (stream.peek() === '#' || (prevLineHasContent && stream.match(headerRE)) ) {
       state.header = true;
     } else if (stream.eat('>')) {
       state.indentation++;
@@ -264,7 +266,16 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
     token: function(stream, state) {
       if (stream.sol()) {
-        if (stream.match(/^\s*$/, true)) { return blankLine(state); }
+        if (stream.match(/^\s*$/, true)) {
+          prevLineHasContent = false;
+          return blankLine(state);
+        } else {
+          if(thisLineHasContent){
+            prevLineHasContent = true;
+            thisLineHasContent = false;
+          }
+          thisLineHasContent = true;
+        }
 
         // Reset state.header
         state.header = false;
