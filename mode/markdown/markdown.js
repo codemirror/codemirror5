@@ -21,7 +21,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   var hrRE = /^([*\-=_])(?:\s*\1){2,}\s*$/
   ,   ulRE = /^[*\-+]\s+/
   ,   olRE = /^[0-9]+\.\s+/
-  ,   headerRE = /^(?:\={3,}|-{3,})$/
+  ,   headerRE = /^(?:\={1,}|-{1,})$/
   ,   textRE = /^[^\[*_\\<>`]+/;
 
   function switchInline(stream, state, f) {
