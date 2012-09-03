@@ -229,37 +229,50 @@
       // No title
       MT.test('[foo]: http://example.com/',
         'link', '[foo]:',
-        'string', ' http://example.com/');
-      // Space in ID
+        null, ' ',
+        'string', 'http://example.com/');
+      // Space in ID and title
       MT.test('[foo bar]: http://example.com/ "hello"',
         'link', '[foo bar]:',
-        'string', ' http://example.com/',
-        'string', ' "hello"');
+        null, ' ',
+        'string', 'http://example.com/ "hello"');
+      // Double title
+      MT.test('[foo bar]: http://example.com/ "hello" "world"',
+        'link', '[foo bar]:',
+        null, ' ',
+        'string', 'http://example.com/ "hello"',
+        null, ' "world"');
       // Double quotes around title
       MT.test('[foo]: http://example.com/  "bar"',
         'link', '[foo]:',
-        'string', ' http://example.com/  "bar"');
+        null, ' ',
+        'string', 'http://example.com/  "bar"');
       // Single quotes around title
       MT.test('[foo]: http://example.com/  \'bar\'',
         'link', '[foo]:',
-        'string', ' http://example.com/  \'bar\'');
+        null, ' ',
+        'string', 'http://example.com/  \'bar\'');
       // Parentheses around title
       MT.test('[foo]: http://example.com/  (bar)',
         'link', '[foo]:',
-        'string', ' http://example.com/  (bar)');
+        null, ' ',
+        'string', 'http://example.com/  (bar)');
       // Invalid title
       MT.test('[foo]: http://example.com/ bar',
         'link', '[foo]:',
-        'string', ' http://example.com/',
+        null, ' ',
+        'string', 'http://example.com/',
         null, ' bar');
       // Angle brackets around URL
       MT.test('[foo]: <http://example.com/>  "bar"',
         'link', '[foo]:',
-        'string', ' <http://example.com/>  "bar"');
+        null, ' ',
+        'string', '<http://example.com/>  "bar"');
       // Title on next line per documentation
       MT.test('[foo]: http://example.com/\n"bar"',
         'link', '[foo]:',
-        'string', ' http://example.com/',
+        null, ' ',
+        'string', 'http://example.com/',
         'string', '"bar"');
         
       // Automatic links

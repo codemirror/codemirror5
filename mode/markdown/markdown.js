@@ -202,8 +202,11 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   }
 
   function footnoteUrl(stream, state) {
-    stream.eatSpace();
-    stream.match(/^[^\s]+/, true);
+    // Check if space, and return NULL if so (to avoid marking the space)
+    if(stream.eatSpace()){
+      return null;
+    }
+    stream.match(/^[^\s]+(?:\s+(?:"(?:[^"\\]|\\\\|\\.)+"|'(?:[^'\\]|\\\\|\\.)+'|\((?:[^)\\]|\\\\|\\.)+\)))?/, true);
     state.f = state.inline = inlineNormal;
     return linkhref;
   }
