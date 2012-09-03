@@ -136,7 +136,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         return switchInline(stream, state, inlineElement(code, Array(difference+1).join("`")));
       }
     }
-    if (ch === '[' && stream.match(/.*\](?:\(|\[)/, false)) {
+    if (ch === '[' && stream.match(/.*\] ?(?:\(|\[)/, false)) {
       return switchInline(stream, state, linkText);
     }
     if (ch === '<' && stream.match(/^\w/, false)) {
@@ -180,7 +180,10 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   }
 
   function linkHref(stream, state) {
-    stream.eatSpace();
+    // Check if space, and return NULL if so (to avoid marking the space)
+    if(stream.eatSpace()){
+      return null;
+    }
     var ch = stream.next();
     if (ch === '(' || ch === '[') {
       return switchInline(stream, state, inlineElement(linkhref, ch === '(' ? ')' : ']'));
