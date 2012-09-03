@@ -509,7 +509,10 @@
   setupPrefixBindingForKey("Space");
 
   CodeMirror.keyMap["vim-prefix-y"] = {
-    "Y": countTimes(function(cm) { pushInBuffer("\n"+cm.getLine(cm.getCursor().line+yank)); yank++; }),
+    "Y": countTimes(function(cm) {
+      pushInBuffer("\n"+cm.getLine(cm.getCursor().line+yank)); yank++;
+      cm.setOption("keyMap", "vim");
+    }),
     "'": function(cm) {cm.setOption("keyMap", "vim-prefix-y'"); emptyBuffer();},
     nofallthrough: true, style: "fat-cursor"
   };
