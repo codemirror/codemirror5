@@ -70,7 +70,7 @@ CodeMirror.defineMode("clojure", function (config, mode) {
         }
 
         // leading sign
-        if ( ch == '+' || ch == '-' ) {
+        if ( ( ch == '+' || ch == '-' ) && ( tests.digit.test(stream.peek()) ) ) {
           stream.eat(tests.sign);
           ch = stream.next();
         }
