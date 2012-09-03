@@ -710,6 +710,11 @@
       <dt id="getLineHandle"><code>getLineHandle(num) → lineHandle</code></dt>
       <dd>Fetches the line handle for the given line number.</dd>
 
+      <dt id="getLineNumber"><code>getLineNumber(handle) → integer</code></dt>
+      <dd>Given a line handle, returns the current position of that
+      line (or <code>null</code> when it is no longer in the
+      document).</dd>
+
       <dt id="getViewport"><code>getViewport() → object</code></dt>
       <dd>Returns a <code>{from, to}</code> object indicating the
       start (inclusive) and end (exclusive) of the currently displayed
@@ -738,8 +743,10 @@
       horizontally with the editor. Note that the widget node will
       become a descendant of nodes with CodeMirror-specific CSS
       classes, and those classes might in some cases affect it. This
-      method returns an object that represents the widget placement,
-      which can be passed to <code>removeLineWidget</code>.</dd>
+      method returns an object that represents the widget placement.
+      It'll have a <code>line</code> property pointing at the line
+      handle that it is associated with, and it can be passed
+      to <code>removeLineWidget</code> to remove the widget.</dd>
 
       <dt id="removeLineWidget"><code>removeLineWidget(widget)</code></dt>
       <dd>Removes the given line widget.</dd>

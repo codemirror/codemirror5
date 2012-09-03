@@ -754,3 +754,13 @@ testCM("lineWidgets", function(cm) {
   cm.execCommand("goLineUp");
   eqPos(cm.getCursor(), {line: 1, ch: 1});
 });
+
+testCM("getLineNumber", function(cm) {
+  addDoc(cm, 2, 20);
+  var h1 = cm.getLineHandle(1);
+  eq(cm.getLineNumber(h1), 1);
+  cm.replaceRange("hi\nbye\n", {line: 0, ch: 0});
+  eq(cm.getLineNumber(h1), 3);
+  cm.setValue("");
+  eq(cm.getLineNumber(h1), null);
+});
