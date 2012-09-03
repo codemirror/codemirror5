@@ -52,6 +52,18 @@
       // delimiters"
       MT.test('``foo ` bar``',
         'comment', '``foo ` bar``');
+        
+      // Tests based on Dingus
+      // http://daringfireball.net/projects/markdown/dingus
+      // 
+      // Multiple backticks within an inline code block
+      MT.test('`foo```bar`',
+        'comment', '`foo```bar`');
+      // Mak
+      MT.test('`foo```bar` hello `world`',
+        'comment', '`foo```bar`',
+        null, ' hello ',
+        'comment', '`world`');
     </script>
     
     <h2>Headers</h2>
