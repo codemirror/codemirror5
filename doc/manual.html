@@ -848,13 +848,23 @@
       contextual information for a line.</dd>
     </dl>
 
-    <p id="fromTextArea">Finally, the <code>CodeMirror</code> object
-    itself has a method <code>fromTextArea</code>. This takes a
+    <p id="version">The <code>CodeMirror</code> object itself provides
+    several useful properties. Firstly, its <code>version</code>
+    property contains a string that indicates the version of the
+    library. For releases, this simply
+    contains <code>"major.minor"</code> (for
+    example <code>"2.33"</code>. For beta versions, <code>" B"</code>
+    (space, capital B) is added at the end of the string, for
+    development snapshots, <code>" +"</code> (space, plus) is
+    added.</p>
+
+    <p id="fromTextArea">The <code>CodeMirror.fromTextArea</code>
+    method provides another way to initialize an editor. It takes a
     textarea DOM node as first argument and an optional configuration
     object as second. It will replace the textarea with a CodeMirror
     instance, and wire up the form of that textarea (if any) to make
     sure the editor contents are put into the textarea when the form
-    is submitted. A CodeMirror instance created this way has two
+    is submitted. A CodeMirror instance created this way has three
     additional methods:</p>
 
     <dl>
