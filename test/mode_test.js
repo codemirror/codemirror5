@@ -146,7 +146,7 @@ ModeTest.prettyPrintOutputTable = function(output) {
     var token = output[i];
     s +=
       '<td class="mt-token">' +
-        '<span class="cm-' + token[0] + '">' +
+        '<span class="cm-' + String(token[0]).replace(/ +/g, " cm-") + '">' +
           ModeTest.htmlEscape(token[1]).replace(/ /g,'&middot;') +
         '</span>' +
       '</td>';
