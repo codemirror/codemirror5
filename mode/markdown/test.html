@@ -307,9 +307,16 @@
         null, 'hello');
       // Per documentation: "...surround an * or _ with spaces, it’ll be 
       // treated as a literal asterisk or underscore."
+      // 
+      // Inside EM
       MT.test('foo _bar _ hello_ world',
-        null, 'foo',
+        null, 'foo ',
         'em', '_bar _ hello_',
+        null, ' world');
+      // Outside EM
+      MT.test('foo _ bar_hello_world',
+        null, 'foo _ bar',
+        'em', '_hello_',
         null, 'world');
         
       // Unclosed emphasis characters

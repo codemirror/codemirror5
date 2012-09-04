@@ -24,7 +24,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   ,   ulRE = /^[*\-+]\s+/
   ,   olRE = /^[0-9]+\.\s+/
   ,   headerRE = /^(?:\={1,}|-{1,})$/
-  ,   textRE = /^[^\[*_\\<>`]+/;
+  ,   textRE = /^[^\[*_\\<>` ]+/;
 
   function switchInline(stream, state, f) {
     state.f = state.inline = f;
@@ -186,6 +186,14 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       } else if (!state.em) { // Add EM
         state.em = ch;
         return getType(state);
+      }
+    } else if (ch === ' ') {
+      if (stream.eat('*') || stream.eat('_')) { // Probably surrounded by spaces
+        if (stream.peek() === ' ') { // Surrounded by spaces, ignore
+          return getType(state);
+        } else { // Not surrounded by spaces, back up pointer
+          stream.backUp(1);
+        }
       }
     }
     
