@@ -42,10 +42,11 @@
         'comment', '`bar`');
         
       // Unclosed backticks
-      // This should *not* be fixed by only adding the style to closed groups. 
-      // Instead, autocomplete should be added (see issue #344).
+      // Instead of simply marking as CODE, it would be nice to have an 
+      // incomplete flag for CODE, that is styled slightly different.
       MT.test('foo `bar',
-        null, 'foo `bar');
+        null, 'foo ',
+        'comment', '`bar');
         
       // Per documentation: "To include a literal backtick character within a 
       // code span, you can use multiple backticks as the opening and closing 
@@ -66,7 +67,7 @@
         'comment', '`world`');
       // Unclosed with several different groups of backticks
       MT.test('``foo ``` bar` hello',
-        null, '``foo ``` bar` hello');
+        'comment', '``foo ``` bar` hello');
       // Closed with several different groups of backticks
       MT.test('``foo ``` bar` hello`` world',
         'comment', '``foo ``` bar` hello``',
@@ -327,12 +328,14 @@
         null, 'world');
         
       // Unclosed emphasis characters
-      // This should *not* be fixed by only adding the style to closed groups. 
-      // Instead, autocomplete should be added (see issue #344).
+      // Instead of simply marking as EM / STRONG, it would be nice to have an 
+      // incomplete flag for EM and STRONG, that is styled slightly different.
       MT.test('foo *bar',
-        null, 'foo *bar');
+        null, 'foo ',
+        'em', '*bar');
       MT.test('foo _bar',
-        null, 'foo _bar');
+        null, 'foo ',
+        'em', '_bar');
 
       // Double asterisk
       MT.test('**foo** bar',
@@ -361,11 +364,12 @@
       // Triple mixed
       // "...same character must be used to open and close an emphasis span.""
       MT.test('_foo**bar*hello__ world',
-        'em', '_foo**bar*hello_',
-        null, '_ world');
+        'em', '_foo',
+        'emstrong', '**bar*hello__ world');
+        
       MT.test('*foo__bar_hello** world',
-        'em', '*foo__bar_hello*',
-        null, '* world');
+        'em', '*foo',
+        'emstrong', '__bar_hello** world');
     </script>
     
     <h2>Escaping</h2>
