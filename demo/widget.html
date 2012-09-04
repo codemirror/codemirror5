@@ -55,7 +55,7 @@ window.onload = function() {
     waiting = setTimeout(updateHints, 500);
   });
 
-  updateHints();
+  setTimeout(updateHints, 100);
 };
 
 "long line to create a horizontal scrollbar, in order to test whether the (non-inline) widgets stay in place when scrolling to the right";
