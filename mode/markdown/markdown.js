@@ -24,7 +24,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   ,   ulRE = /^[*\-+]\s+/
   ,   olRE = /^[0-9]+\.\s+/
   ,   headerRE = /^(?:\={1,}|-{1,})$/
-  ,   textRE = /^[^\[*_\\<>` ]+/;
+  ,   textRE = /^[^\[*_\\<>` "'(]+/;
 
   function switchInline(stream, state, f) {
     state.f = state.inline = f;
@@ -40,6 +40,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   // Blocks
 
   function blankLine(state) {
+    // Reset linkTitle state
+    state.linkTitle = false;
     // Reset CODE state
     state.code = false;
     // Reset EM state
@@ -57,8 +59,18 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
   function blockNormal(stream, state) {
     var match;
+    
+    if (state.list !== false && state.indentationDiff >= 0) { // Continued list
+      if (state.indentationDiff < 4) { // Only adjust indentation if *not* a code block
+        state.indentation -= state.indentationDiff;
+      }
+      state.list = null;
+    } else { // No longer a list
+      state.list = false;
+    }
+    
     if (state.indentationDiff >= 4) {
-      state.indentation -= state.indentationDiff;
+      state.indentation -= 4;
       stream.skipToEnd();
       return code;
     } else if (stream.eatSpace()) {
@@ -73,8 +85,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     } else if (stream.match(hrRE, true)) {
       return hr;
     } else if (match = stream.match(ulRE, true) || stream.match(olRE, true)) {
-      state.indentation += match[0].length;
-      return list;
+      state.indentation += 4;
+      state.list = true;
     }
     
     return switchInline(stream, state, state.inline);
@@ -106,6 +118,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     
     if (state.header) { styles.push(header); }
     if (state.quote) { styles.push(quote); }
+    if (state.list !== false) { styles.push(list); }
 
     return styles.length ? styles.join(' ') : null;
   }
@@ -122,11 +135,30 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     if (typeof style !== 'undefined')
       return style;
     
+    if (state.list) { // List marker (*, +, -, 1., etc)
+      state.list = null;
+      return list;
+    }
+    
     var ch = stream.next();
     
     if (ch === '\\') {
       stream.next();
       return getType(state);
+    }
+    
+    // Matches link titles present on next line
+    if (state.linkTitle) {
+      state.linkTitle = false;
+      var matchCh = ch;
+      if (ch === '(') {
+        matchCh = ')';
+      }
+      matchCh = (matchCh+'').replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
+      var regex = '^\\s*(?:[^' + matchCh + '\\\\]+|\\\\\\\\|\\\\.)' + matchCh;
+      if (stream.match(new RegExp(regex), true)) {
+        return linkhref;
+      }
     }
     
     if (ch === '`') {
@@ -243,7 +275,14 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     if(stream.eatSpace()){
       return null;
     }
-    stream.match(/^[^\s]+(?:\s+(?:"(?:[^"\\]|\\\\|\\.)+"|'(?:[^'\\]|\\\\|\\.)+'|\((?:[^)\\]|\\\\|\\.)+\)))?/, true);
+    // Match URL
+    stream.match(/^[^\s]+/, true);
+    // Check for link title
+    if (stream.peek() === undefined) { // End of line, set flag to check next line
+      state.linkTitle = true;
+    } else { // More content on line, check if link title
+      stream.match(/^(?:\s+(?:"(?:[^"\\]|\\\\|\\.)+"|'(?:[^'\\]|\\\\|\\.)+'|\((?:[^)\\]|\\\\|\\.)+\)))?/, true);
+    }
     state.f = state.inline = inlineNormal;
     return linkhref;
   }
@@ -279,9 +318,11 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         
         inline: inlineNormal,
         text: handleText,
+        linkTitle: false,
         em: false,
         strong: false,
         header: false,
+        list: false,
         quote: false
       };
     },
@@ -296,9 +337,11 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
           
         inline: s.inline,
         text: s.text,
+        linkTitle: s.linkTitle,
         em: s.em,
         strong: s.strong,
         header: s.header,
+        list: s.list,
         quote: s.quote,
         md_inside: s.md_inside
       };
