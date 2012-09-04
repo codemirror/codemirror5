@@ -12,6 +12,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   ,   quote    = 'quote'
   ,   list     = 'string'
   ,   hr       = 'hr'
+  ,   linkinline = 'link'
+  ,   linkemail = 'link'
   ,   linktext = 'link'
   ,   linkhref = 'string'
   ,   em       = 'em'
@@ -141,6 +143,15 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     if (ch === '[' && stream.match(/.*\] ?(?:\(|\[)/, false)) {
       return switchInline(stream, state, linkText);
     }
+    
+    if (ch === '<' && stream.match(/^(https?|ftps?):\/\/(?:[^\\>]|\\.)+>/, true)) {
+      return switchInline(stream, state, inlineElement(linkinline, '>'));
+    }
+    
+    if (ch === '<' && stream.match(/^[^> \\]+@(?:[^\\>]|\\.)+>/, true)) {
+      return switchInline(stream, state, inlineElement(linkemail, '>'));
+    }
+    
     if (ch === '<' && stream.match(/^\w/, false)) {
       var md_inside = false;
       if (stream.string.indexOf(">")!=-1) {

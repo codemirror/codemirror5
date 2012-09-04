@@ -276,12 +276,14 @@
         'string', '"bar"');
         
       // Automatic links
-      MT.test('<http://example.com/>',
-        'link', '<http://example.com/>');
+      MT.test('<http://example.com/> foo',
+        'link', '<http://example.com/>',
+        null, ' foo');
         
       // Automatic email links
-      MT.test('<user@example.com>',
-        'link', '<user@example.com>');
+      MT.test('<user@example.com> foo',
+        'link', '<user@example.com>',
+        null, ' foo');
     </script>
     
     <h2>Emphasis</h2>
