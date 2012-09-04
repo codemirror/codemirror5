@@ -14,11 +14,14 @@
   </head>
   <body>
     <h1>Tests for the Markdown Mode</h1>
-    <h2>Basics</h2>
     <script language="javascript">
+      // Initiate ModeTest and set defaults
       MT = ModeTest;
       MT.modeName = 'markdown';
-
+    </script>
+    
+    <h2>Basics</h2>
+    <script language="javascript">
       MT.test('foo',
         null, 'foo');
     </script>
@@ -167,6 +170,203 @@
         null,    'hello');
     </script>
     
+    <h2>Lists</h2>
+    <script language="javascript">
+
+      // Check list types
+      MT.test('* foo\n* bar',
+        'string', '* foo',
+        'string', '* bar');
+      MT.test('+ foo\n+ bar',
+        'string', '+ foo',
+        'string', '+ bar');
+      MT.test('- foo\n- bar',
+        'string', '- foo',
+        'string', '- bar');
+      MT.test('1. foo\n2. bar',
+        'string', '1. foo',
+        'string', '2. bar');
+        
+      // Formatting in lists (*)
+      MT.test('* *foo* bar\n\n* **foo** bar\n\n* ***foo*** bar\n\n* `foo` bar',
+        'string', '* ',
+        'string em', '*foo*',
+        'string', ' bar',
+        'string', '* ',
+        'string strong', '**foo**',
+        'string', ' bar',
+        'string', '* ',
+        'string strong', '**',
+        'string emstrong', '*foo**',
+        'string em', '*',
+        'string', ' bar',
+        'string', '* ',
+        'string comment', '`foo`',
+        'string', ' bar');
+      // Formatting in lists (+)
+      MT.test('+ *foo* bar\n\n+ **foo** bar\n\n+ ***foo*** bar\n\n+ `foo` bar',
+        'string', '+ ',
+        'string em', '*foo*',
+        'string', ' bar',
+        'string', '+ ',
+        'string strong', '**foo**',
+        'string', ' bar',
+        'string', '+ ',
+        'string strong', '**',
+        'string emstrong', '*foo**',
+        'string em', '*',
+        'string', ' bar',
+        'string', '+ ',
+        'string comment', '`foo`',
+        'string', ' bar');
+      // Formatting in lists (-)
+      MT.test('- *foo* bar\n\n- **foo** bar\n\n- ***foo*** bar\n\n- `foo` bar',
+        'string', '- ',
+        'string em', '*foo*',
+        'string', ' bar',
+        'string', '- ',
+        'string strong', '**foo**',
+        'string', ' bar',
+        'string', '- ',
+        'string strong', '**',
+        'string emstrong', '*foo**',
+        'string em', '*',
+        'string', ' bar',
+        'string', '- ',
+        'string comment', '`foo`',
+        'string', ' bar');
+      // Formatting in lists (1.)
+      MT.test('1. *foo* bar\n\n2. **foo** bar\n\n3. ***foo*** bar\n\n4. `foo` bar',
+        'string', '1. ',
+        'string em', '*foo*',
+        'string', ' bar',
+        'string', '2. ',
+        'string strong', '**foo**',
+        'string', ' bar',
+        'string', '3. ',
+        'string strong', '**',
+        'string emstrong', '*foo**',
+        'string em', '*',
+        'string', ' bar',
+        'string', '4. ',
+        'string comment', '`foo`',
+        'string', ' bar');
+        
+      // Paragraph lists
+      MT.test('* foo\n\n* bar',
+        'string', '* foo',
+        'string', '* bar');
+        
+      // Multi-paragraph lists
+      //
+      // 4 spaces
+      MT.test('* foo\n\n* bar\n\n    hello',
+        'string', '* foo',
+        'string', '* bar',
+        null, '    ',
+        'string', 'hello');
+      // 4 spaces, extra blank lines (should still be list, per Dingus)
+      MT.test('* foo\n\n* bar\n\n\n    hello',
+        'string', '* foo',
+        'string', '* bar',
+        null, '    ',
+        'string', 'hello');
+      // 4 spaces, plus 1 space (should still be list, per Dingus)
+      MT.test('* foo\n\n* bar\n\n     hello\n\n    world',
+        'string', '* foo',
+        'string', '* bar',
+        null, '     ',
+        'string', 'hello',
+        null, '    ',
+        'string', 'world');
+      // 1 tab
+      MT.test('* foo\n\n* bar\n\n\thello',
+        'string', '* foo',
+        'string', '* bar',
+        null, '\t',
+        'string', 'hello');
+      // No indent
+      MT.test('* foo\n\n* bar\n\nhello',
+        'string', '* foo',
+        'string', '* bar',
+        null, 'hello');
+      // Blockquote
+      MT.test('* foo\n\n* bar\n\n    > hello',
+        'string', '* foo',
+        'string', '* bar',
+        null, '    ',
+        'string quote', '> hello');
+      // Code block
+      MT.test('* foo\n\n* bar\n\n        > hello\n\n    world',
+        'string', '* foo',
+        'string', '* bar',
+        null, '        ',
+        'comment', '> hello',
+        null, '    ',
+        'string', 'world');
+      // Code block followed by text
+      MT.test('* foo\n\n    bar\n\n        hello\n\n    world',
+        'string', '* foo',
+        null, '    ',
+        'string', 'bar',
+        null, '        ',
+        'comment', 'hello',
+        null, '    ',
+        'string', 'world');
+        
+      // Nested list
+      // 
+      // *
+      MT.test('* foo\n\n    * bar',
+        'string', '* foo',
+        null, '    ',
+        'string', '* bar');
+      // +
+      MT.test('+ foo\n\n    + bar',
+        'string', '+ foo',
+        null, '    ',
+        'string', '+ bar');
+      // -
+      MT.test('- foo\n\n    - bar',
+        'string', '- foo',
+        null, '    ',
+        'string', '- bar');
+      // 1.
+      MT.test('1. foo\n\n    2. bar',
+        'string', '1. foo',
+        null, '    ',
+        'string', '2. bar');
+      // Mixed
+      MT.test('* foo\n\n    + bar\n\n        - hello\n\n            1. world',
+        'string', '* foo',
+        null, '    ',
+        'string', '+ bar',
+        null, '        ',
+        'string', '- hello',
+        null, '            ',
+        'string', '1. world');
+      // Blockquote
+      MT.test('* foo\n\n    + bar\n\n        > hello',
+        'string', '* foo',
+        null, '    ',
+        'string', '+ bar',
+        null, '        ',
+        'quote string', '> hello');
+      // Code
+      MT.test('* foo\n\n    + bar\n\n            hello',
+        'string', '* foo',
+        null, '    ',
+        'string', '+ bar',
+        null, '            ',
+        'comment', 'hello');
+      // Code followed by text
+      MT.test('* foo\n\n        bar\n\nhello',
+        'string', '* foo',
+        null, '        ',
+        'comment', 'bar',
+        null, 'hello');
+    </script>
+    
     <h2>Horizontal rules</h2>
     <script language="javascript">
 
@@ -273,12 +473,33 @@
         'link', '[foo]:',
         null, ' ',
         'string', '<http://example.com/>  "bar"');
-      // Title on next line per documentation
-      MT.test('[foo]: http://example.com/\n"bar"',
+      // Title on next line per documentation (double quotes)
+      MT.test('[foo]: http://example.com/\n"bar" hello',
         'link', '[foo]:',
         null, ' ',
         'string', 'http://example.com/',
-        'string', '"bar"');
+        'string', '"bar"',
+        null, ' hello');
+      // Title on next line per documentation (single quotes)
+      MT.test('[foo]: http://example.com/\n\'bar\' hello',
+        'link', '[foo]:',
+        null, ' ',
+        'string', 'http://example.com/',
+        'string', '\'bar\'',
+        null, ' hello');
+      // Title on next line per documentation (parentheses)
+      MT.test('[foo]: http://example.com/\n(bar) hello',
+        'link', '[foo]:',
+        null, ' ',
+        'string', 'http://example.com/',
+        'string', '(bar)',
+        null, ' hello');
+      // Title on next line per documentation (mixed)
+      MT.test('[foo]: http://example.com/\n(bar" hello',
+        'link', '[foo]:',
+        null, ' ',
+        'string', 'http://example.com/',
+        null, '(bar" hello');
         
       // Automatic links
       MT.test('<http://example.com/> foo',

@@ -37,6 +37,7 @@ ModeTest.test = function() {
   var text = arguments[0];
   var expectedOutput = [];
   for (var i = 1; i < arguments.length; i += 2) {
+    arguments[i] = (arguments[i] != null ? arguments[i].split(' ').sort().join(' ') : arguments[i]);
     expectedOutput.push([arguments[i],arguments[i + 1]]);
   }
 
@@ -104,6 +105,7 @@ ModeTest.highlight = function(string, mode) {
     }
     /* End copied code from CodeMirror.highlight */
     for (var x = 0; x < st.length; x += 2) {
+      st[x + 1] = (st[x + 1] != null ? st[x + 1].split(' ').sort().join(' ') : st[x + 1]);
       output.push([st[x + 1], st[x]]);
     }
   }
