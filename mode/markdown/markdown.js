@@ -128,16 +128,19 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       var before = stream.pos;
       stream.eatWhile('`');
       var difference = 1 + stream.pos - before;
-      if (codeDepth){ // In code already
-        if (difference >= codeDepth) { // Enough to close
-          codeDepth = 0;
-          return switchInline(stream, state, inlineElement(code, Array(difference+1).join("`")));
-        } else { // Not enough to close
-          // Continue on
+      var commentChar = Array(difference+1).join("`");
+      if (stream.match(inlineRE(commentChar), false)) {
+        if (codeDepth){ // In code already
+          if (difference >= codeDepth) { // Enough to close
+            codeDepth = 0;
+            return switchInline(stream, state, inlineElement(code, commentChar));
+          } else { // Not enough to close
+            // Continue on
+          }
+        } else { // Not in code
+          codeDepth = difference;
+          return switchInline(stream, state, inlineElement(code, commentChar));
         }
-      } else { // Not in code
-        codeDepth = difference;
-        return switchInline(stream, state, inlineElement(code, Array(difference+1).join("`")));
       }
     }
     if (ch === '[' && stream.match(/.*\] ?(?:\(|\[)/, false)) {

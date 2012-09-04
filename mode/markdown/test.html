@@ -45,7 +45,9 @@
       // This should *not* be fixed by only adding the style to closed groups. 
       // Instead, autocomplete should be added (see issue #344).
       MT.test('foo `bar',
-        null, 'foo `bar');
+        null, 'foo ',
+        null, '`',
+        null, 'bar');
         
       // Per documentation: "To include a literal backtick character within a 
       // code span, you can use multiple backticks as the opening and closing 
