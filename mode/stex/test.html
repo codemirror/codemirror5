@@ -20,8 +20,7 @@
         null, 'foo');
 
       MT.test('foo bar',
-        null, 'foo',
-        null, ' bar');
+        null, 'foo bar');
     </script>
 
     <h2>Tags</h2>
@@ -41,11 +40,7 @@
         'bracket', '{',
         'atom',    'equation',
         'bracket', '}',
-        null,      ' ',
-        null,      ' ',
-        null,      'E',
-        null,      '=mc',
-        null,      '^2',
+        null,      '  E=mc^2',
         'tag',     '\\end',
         'bracket', '{',
         'atom',    'equation',
@@ -55,26 +50,21 @@
         'tag',     '\\begin',
         'bracket', '{',
         'atom',    'module',
-        'bracket', '}',
-        'bracket', '[',
-        'bracket', ']');
+        'bracket', '}[]');
 
       MT.test('\\begin{module}[id=bbt-size]',
         'tag',     '\\begin',
         'bracket', '{',
         'atom',    'module',
-        'bracket', '}',
-        'bracket', '[',
-        null,      'id',
-        null,      '=bbt-size',
+        'bracket', '}[',
+        null,      'id=bbt-size',
         'bracket', ']');
 
       MT.test('\\importmodule[b-b-t]{b-b-t}',
         'tag',     '\\importmodule',
         'bracket', '[',
         'string',   'b-b-t',
-        'bracket', ']',
-        'bracket', '{',
+        'bracket', ']{',
         'builtin', 'b-b-t',
         'bracket', '}');
 
@@ -83,12 +73,8 @@
         'bracket', '[',
         'tag',     '\\KWARCslides',
         'bracket', '{',
-        'string',   'dmath',
-        'string',   '/en',
-        'string',   '/cardinality',
-        'bracket', '}',
-        'bracket', ']',
-        'bracket', '{',
+        'string',   'dmath/en/cardinality',
+        'bracket', '}]{',
         'builtin', 'card',
         'bracket', '}');
 
@@ -96,8 +82,7 @@
         'tag',     '\\PSforPDF',
         'bracket', '[',
         'atom',    '1',
-        'bracket', ']',
-        'bracket', '{',
+        'bracket', ']{',
         null,      '#1',
         'bracket', '}');
     </script>
@@ -105,18 +90,15 @@
     <h2>Comments</h2>
     <script language="javascript">
       MT.test('% foo',
-        'comment', '%',
-        'comment', ' foo');
+        'comment', '% foo');
 
       MT.test('\\item% bar',
         'tag',     '\\item',
-        'comment', '%',
-        'comment', ' bar');
+        'comment', '% bar');
 
       MT.test(' % \\item',
         null,      ' ',
-        'comment', '%',
-        'comment', ' \\item');
+        'comment', '% \\item');
 
       MT.test('%\nfoo',
         'comment', '%',
@@ -136,21 +118,18 @@
         'bracket', '{');
 
       MT.test('% }',
-        'comment', '%',
-        'comment', ' }');
+        'comment', '% }');
     </script>
 
     <h2>Character Escapes</h2>
     <script language="javascript">
       MT.test('the \\# key',
-        null,  'the',
-        null,  ' ',
+        null,  'the ',
         'tag', '\\#',
         null,  ' key');
 
       MT.test('a \\$5 stetson',
-        null, 'a',
-        null, ' ',
+        null, 'a ',
         'tag', '\\$',
         'atom', 5,
         null, ' stetson');
@@ -161,8 +140,7 @@
         null, ' beef');
 
       MT.test('L \\& N',
-        null, 'L',
-        null, ' ',
+        null, 'L ',
         'tag', '\\&',
         null, ' N');
 
@@ -184,14 +162,12 @@
         'bracket','}');
 
       MT.test('section \\S1',
-        null,  'section',
-        null,  ' ',
+        null,  'section ',
         'tag', '\\S',
         'atom',  '1');
 
       MT.test('para \\P2',
-        null,  'para',
-        null,  ' ',
+        null,  'para ',
         'tag', '\\P',
         'atom',  '2');
 
@@ -216,29 +192,20 @@
         null,  'y');
 
       MT.test('J.\\ L.\\ is', // period not ending a sentence
-        null, 'J',
-        null, '.',
-        null, '\\',
-        null, ' L',
-        null, '.',
-        null, '\\',
-        null, ' is'); // maybe could be better
+        null, 'J.\\ L.\\ is'); // maybe could be better
 
       MT.test('X\\@. The', // period ending a sentence
         null,  'X',
         'tag', '\\@',
-        null,  '.',
-        null,  ' The');
+        null,  '. The');
 
       MT.test('{\\em If\\/} I', // italic correction
         'bracket', '{',
         'tag',     '\\em',
-        null,      ' ',
-        null,      'If',
+        null,      ' If',
         'tag',     '\\/',
         'bracket', '}',
-        null,      ' ',
-        null,      'I');
+        null,      ' I');
 
     </script>
 

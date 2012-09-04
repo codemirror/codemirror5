@@ -45,9 +45,7 @@
       // This should *not* be fixed by only adding the style to closed groups. 
       // Instead, autocomplete should be added (see issue #344).
       MT.test('foo `bar',
-        null, 'foo ',
-        null, '`',
-        null, 'bar');
+        null, 'foo `bar');
         
       // Per documentation: "To include a literal backtick character within a 
       // code span, you can use multiple backticks as the opening and closing 
@@ -212,10 +210,7 @@
         null, ' hello');
       // Should only allow a single space ("...use *a* space...")
       MT.test('[foo]  [bar] hello',
-        null, '[',
-        null, 'foo]  ',
-        null, '[',
-        null, 'bar] hello');
+        null, '[foo]  [bar] hello');
         
       // Reference-style links with implicit link name
       MT.test('[foo][] hello',
@@ -293,38 +288,28 @@
 
       // Single asterisk
       MT.test('*foo* bar',
-        'em', '*',
-        'em', 'foo',
-        'em', '*',
+        'em', '*foo*',
         null, ' bar');
 
       // Single underscore
       MT.test('_foo_ bar',
-        'em', '_',
-        'em', 'foo',
-        'em', '_',
+        'em', '_foo_',
         null, ' bar');
         
       // Emphasis characters within a word
       MT.test('foo*bar*hello',
         null, 'foo',
-        'em', '*',
-        'em', 'bar',
-        'em', '*',
+        'em', '*bar*',
         null, 'hello');
       MT.test('foo_bar_hello',
         null, 'foo',
-        'em', '_',
-        'em', 'bar',
-        'em', '_',
+        'em', '_bar_',
         null, 'hello');
       // Per documentation: "...surround an * or _ with spaces, it’ll be 
       // treated as a literal asterisk or underscore."
       MT.test('foo _bar _ hello_ world',
         null, 'foo',
-        'em', '_',
-        'em', 'bar _ hello',
-        'em', '_',
+        'em', '_bar _ hello_',
         null, 'world');
         
       // Unclosed emphasis characters
@@ -337,51 +322,35 @@
 
       // Double asterisk
       MT.test('**foo** bar',
-        'strong', '**',
-        'strong', 'foo',
-        'strong', '**',
+        'strong', '**foo**',
         null, ' bar');
 
       // Double underscore
       MT.test('__foo__ bar',
-        'strong', '__',
-        'strong', 'foo',
-        'strong', '__',
+        'strong', '__foo__',
         null, ' bar');
 
       // Triple asterisk
       MT.test('*foo**bar*hello** world',
-        'em', '*',
-        'em', 'foo',
-        'emstrong', '**',
-        'emstrong', 'bar',
-        'emstrong', '*',
-        'strong', 'hello',
-        'strong', '**',
+        'em', '*foo',
+        'emstrong', '**bar*',
+        'strong', 'hello**',
         null, ' world');
 
       // Triple underscore
       MT.test('_foo__bar_hello__ world',
-        'em', '_',
-        'em', 'foo',
-        'emstrong', '__',
-        'emstrong', 'bar',
-        'emstrong', '_',
-        'strong', 'hello',
-        'strong', '__',
+        'em', '_foo',
+        'emstrong', '__bar_',
+        'strong', 'hello__',
         null, ' world');
 
       // Triple mixed
       // "...same character must be used to open and close an emphasis span.""
       MT.test('_foo**bar*hello__ world',
-        'em', '_',
-        'em', 'foo**bar*hello',
-        'em', '_',
+        'em', '_foo**bar*hello_',
         null, '_ world');
       MT.test('*foo__bar_hello** world',
-        'em', '*',
-        'em', 'foo__bar_hello',
-        'em', '*',
+        'em', '*foo__bar_hello*',
         null, '* world');
     </script>
     
@@ -404,47 +373,27 @@
       // 
       // Backtick (code)
       MT.test('foo \\`bar\\`',
-        null, 'foo ',
-        null, '\\`',
-        null, 'bar',
-        null, '\\`');
+        null, 'foo \\`bar\\`');
       MT.test('foo \\\\`bar\\\\`',
-        null, 'foo ',
-        null, '\\\\',
+        null, 'foo \\\\',
         'comment', '`bar\\\\`');
       // Asterisk (em)
       MT.test('foo \\*bar\\*',
-        null, 'foo ',
-        null, '\\*',
-        null, 'bar',
-        null, '\\*');
+        null, 'foo \\*bar\\*');
       MT.test('foo \\\\*bar\\\\*',
-        null, 'foo ',
-        null, '\\\\',
-        'em', '*',
-        'em', 'bar',
-        'em', '\\\\',
-        'em', '*');
+        null, 'foo \\\\',
+        'em', '*bar\\\\*');
       // Underscore (em)
       MT.test('foo \\_bar\\_',
-        null, 'foo ',
-        null, '\\_',
-        null, 'bar',
-        null, '\\_');
+        null, 'foo \\_bar\\_');
       MT.test('foo \\\\_bar\\\\_',
-        null, 'foo ',
-        null, '\\\\',
-        'em', '_',
-        'em', 'bar',
-        'em', '\\\\',
-        'em', '_');
+        null, 'foo \\\\',
+        'em', '_bar\\\\_');
       // Hash mark (headers)
       MT.test('\\# foo',
-        null, '\\#',
-        null, ' foo');
+        null, '\\# foo');
       MT.test('\\\\# foo',
-        null, '\\\\',
-        null, '# foo');
+        null, '\\\\# foo');
     </script>
 
     <h2>Summary</h2>
