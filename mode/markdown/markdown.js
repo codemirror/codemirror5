@@ -174,10 +174,19 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       
     var t = getType(state);
     if (ch === '*' || ch === '_') {
-      if (stream.eat(ch)) {
-        return (state.strong = !state.strong) ? getType(state) : t;
+      if (state.strong === ch && stream.eat(ch)) { // Remove STRONG
+        state.strong = false;
+        return t;
+      } else if (!state.strong && stream.eat(ch)) { // Add STRONG
+        state.strong = ch;
+        return getType(state);
+      } else if (state.em === ch) { // Remove EM
+        state.em = false;
+        return t;
+      } else if (!state.em) { // Add EM
+        state.em = ch;
+        return getType(state);
       }
-      return (state.em = !state.em) ? getType(state) : t;
     }
     
     return getType(state);
