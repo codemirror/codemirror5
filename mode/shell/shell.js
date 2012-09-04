@@ -60,7 +60,7 @@ CodeMirror.defineMode('shell', function(config) {
     stream.eatWhile(/\w/);
     var cur = stream.current();
     if (stream.peek() === '=' && /\w+/.test(cur)) return 'def';
-    return words[cur] || null;
+    return words.hasOwnProperty(cur) ? words[cur] : null;
   }
 
   function tokenString(quote) {
