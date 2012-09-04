@@ -59,11 +59,18 @@
       // Multiple backticks within an inline code block
       MT.test('`foo```bar`',
         'comment', '`foo```bar`');
-      // Mak
+      // Multiple backticks within an inline code block with a second code block
       MT.test('`foo```bar` hello `world`',
         'comment', '`foo```bar`',
         null, ' hello ',
         'comment', '`world`');
+      // Unclosed with several different groups of backticks
+      MT.test('``foo ``` bar` hello',
+        null, '``foo ``` bar` hello');
+      // Closed with several different groups of backticks
+      MT.test('``foo ``` bar` hello`` world',
+        'comment', '``foo ``` bar` hello``',
+        null, ' world');
     </script>
     
     <h2>Headers</h2>

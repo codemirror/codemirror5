@@ -40,6 +40,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   // Blocks
 
   function blankLine(state) {
+    // Reset CODE state
+    state.code = false;
     // Reset EM state
     state.em = false;
     // Reset STRONG state
@@ -100,6 +102,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     if (state.strong) { styles.push(state.em ? emstrong : strong); }
     else if (state.em) { styles.push(em); }
     
+    if (state.code) { styles.push(code); }
+    
     if (state.header) { styles.push(header); }
     if (state.quote) { styles.push(quote); }
 
@@ -124,25 +128,27 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       stream.next();
       return getType(state);
     }
+    
     if (ch === '`') {
+      var t = getType(state);
       var before = stream.pos;
       stream.eatWhile('`');
       var difference = 1 + stream.pos - before;
-      var commentChar = Array(difference+1).join("`");
-      if (stream.match(inlineRE(commentChar), false)) {
-        if (codeDepth){ // In code already
-          if (difference >= codeDepth) { // Enough to close
-            codeDepth = 0;
-            return switchInline(stream, state, inlineElement(code, commentChar));
-          } else { // Not enough to close
-            // Continue on
-          }
-        } else { // Not in code
-          codeDepth = difference;
-          return switchInline(stream, state, inlineElement(code, commentChar));
+      if (!state.code) {
+        codeDepth = difference;
+        state.code = true;
+        return getType(state);
+      } else {
+        if (difference === codeDepth) { // Must be exact
+          state.code = false;
+          return t;
         }
+        return getType(state);
       }
+    } else if (state.code) {
+      return getType(state);
     }
+    
     if (ch === '[' && stream.match(/.*\] ?(?:\(|\[)/, false)) {
       return switchInline(stream, state, linkText);
     }
