@@ -733,20 +733,29 @@
       widget again, simply use DOM methods (move it somewhere else, or
       call <code>removeChild</code> on its parent).</dd>
 
-      <dt id="addLineWidget"><code>addLineWidget(line, node, inline) → object</code></dt>
+      <dt id="addLineWidget"><code>addLineWidget(line, node, options) → object</code></dt>
       <dd>Adds a line widget, an element shown below a line, spanning
       the whole of the editor's width, and moving the lines below it
       downwards. <code>line</code> should be either an integer or a
       line handle, and <code>node</code> should be a DOM node, which
-      will be displayed below the given line. When <code>inline</code>
-      is true, the widget will not overlap with the gutter, and scroll
-      horizontally with the editor. Note that the widget node will
-      become a descendant of nodes with CodeMirror-specific CSS
-      classes, and those classes might in some cases affect it. This
-      method returns an object that represents the widget placement.
-      It'll have a <code>line</code> property pointing at the line
-      handle that it is associated with, and it can be passed
-      to <code>removeLineWidget</code> to remove the widget.</dd>
+      will be displayed below the given line. <code>options</code>,
+      when given, should be an object that configures the behavior of
+      the widget. The following options are supported (all default to
+      false):
+        <dl>
+          <dt><code>coverGutter (boolean)</code></dt>
+          <dd>Whether the widget should cover the gutter.</dd>
+          <dt><code>noHScroll (boolean)</code></dt>
+          <dd>Whether the widget should stay fixed in the face of
+          horizontal scrolling.</dd>
+        </dl>
+      Note that the widget node will become a descendant of nodes with
+      CodeMirror-specific CSS classes, and those classes might in some
+      cases affect it. This method returns an object that represents
+      the widget placement. It'll have a <code>line</code> property
+      pointing at the line handle that it is associated with, and it
+      can be passed to <code>removeLineWidget</code> to remove the
+      widget.</dd>
 
       <dt id="removeLineWidget"><code>removeLineWidget(widget)</code></dt>
       <dd>Removes the given line widget.</dd>

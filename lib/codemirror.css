@@ -160,11 +160,6 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
   z-index: 4;
 }
 
-.CodeMirror-linewidget-noinline {
-  z-index: 5;
-  position: relative;
-}
-
 .CodeMirror-lines {
   cursor: text;
 }
