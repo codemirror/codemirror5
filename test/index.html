@@ -1,9 +1,11 @@
 <!doctype html>
 <html>
   <head>
-    <meta charset="utf-8"/>
+    <meta charset="utf-8">
     <title>CodeMirror: Test Suite</title>
     <link rel="stylesheet" href="../lib/codemirror.css">
+    <link rel="stylesheet" href="../doc/docs.css">
+    <link rel="stylesheet" href="mode_test.css">
     <script src="../lib/codemirror.js"></script>
     <script src="../mode/javascript/javascript.js"></script>
     <script src="../mode/xml/xml.js"></script>
@@ -12,6 +14,7 @@
       .ok {color: #090;}
       .fail {color: #e00;}
       .error {color: #c90;}
+      .done {font-weight: bold;}
     </style>
   </head>
   <body>
@@ -20,42 +23,135 @@
     <p>A limited set of programmatic sanity tests for CodeMirror.</p>
 
     <div style="border: 1px solid black; padding: 1px; max-width: 700px;">
-      <div style="background: #45d; white-space: pre; width: 0px; font-weight: bold; color: white; padding: 3px;" id=progress></div>
+      <div style="background: #45d; white-space: pre; width: 0px; font-weight: bold; color: white;" id=progress><div style="padding: 3px;">Ran <span id="progress_ran">0</span><span id="progress_total"> of 0</span> tests</div></div>
     </div>
-    <pre style="padding-left: 5px" id=output></pre>
+    <p id=status>Please enable JavaScript...</p>
+    <div id=output></div>
 
-    <div style="visibility: hidden" id=testground>
-      <form><textarea id="code" name="code"></textarea><input type=submit value=ok name=submit></form>
-    </div>
+    <div style="visibility: hidden" id=testground></div>
 
     <script src="driver.js"></script>
     <script src="test.js"></script>
+    <script src="mode_test.js"></script>
+    <script src="../mode/markdown/markdown.js"></script>
+    <script src="../mode/markdown/test.js"></script>
+    <script src="../mode/stex/stex.js"></script>
+    <script src="../mode/stex/test.js"></script>
     <script>
       window.onload = function() {
-        runTests(displayTest);
+        runHarness();
       };
+      window.addEventListener('hashchange', function(){
+        runHarness();
+      });
 
       function esc(str) {
         return str.replace(/[<&]/, function(ch) { return ch == "<" ? "&lt;" : "&amp;"; });
       }
 
-      var output = document.getElementById("output"), progress = document.getElementById("progress");
-      var count = 0, failed = 0, bad = "";
-      function displayTest(type, name, msg) {
+      var output = document.getElementById("output")
+      ,   progress = document.getElementById("progress")
+      ,   progressRan = document.getElementById("progress_ran").childNodes[0]
+      ,   progressTotal = document.getElementById("progress_total").childNodes[0];
+      var count = 0
+      ,   failed = 0
+      ,   bad = ""
+      ,   running = false // Flag that states tests are running
+      ,   quit = false // Flag to quit tests ASAP
+      ,   verbose = false // Adds message for *every* test to output
+      ;
+      
+      function runHarness(){
+        if (running) {
+          quit = true;
+          setStatus("Restarting tests...", '', true);
+          setTimeout(function(){runHarness();}, 500);
+          return;
+        }
+        if (window.location.hash.substr(1)){
+          debug = window.location.hash.substr(1).split(",");
+        } else {
+          debug = null;
+        }
+        quit = false;
+        running = true;
+        setStatus("Loading tests...");
+        count = 0;
+        failed = 0;
+        bad = "";
+        debugUsed = Array();
+        totalTests = tests.length;
+        progressTotal.nodeValue = " of " + totalTests;
+        progressRan.nodeValue = count;
+        output.innerHTML = '';
+        document.getElementById("testground").innerHTML = "<form>" +
+          "<textarea id=\"code\" name=\"code\"></textarea>" +
+          "<input type=submit value=ok name=submit>" +
+          "</form>";
+        runTests(displayTest);
+      }
+      
+      function setStatus(message, className, force){
+        if (quit && !force) return;
+        if (!message) throw("must provide message");
+        var status = document.getElementById("status").childNodes[0];
+        status.nodeValue = message;
+        status.parentNode.setAttribute("class", className);
+      }
+      function addOutput(name, className, code){
+        var newOutput = document.createElement("dl");
+        var newTitle = document.createElement("dt");
+        newTitle.setAttribute("class", className);
+        newTitle.appendChild(document.createTextNode(name));
+        newOutput.appendChild(newTitle);
+        var newMessage = document.createElement("dd");
+        newMessage.innerHTML = code;
+        newOutput.appendChild(newTitle);
+        newOutput.appendChild(newMessage);
+        output.appendChild(newOutput);
+      }
+      function displayTest(type, name, customMessage) {
+        var message = "???";
         if (type != "done") ++count;
-        progress.style.width = (count * (progress.parentNode.clientWidth - 8) / tests.length) + "px";
-        progress.innerHTML = "Ran " + count + (count < tests.length ? " of " + tests.length : "") + " tests";
+        progress.style.width = (count * (progress.parentNode.clientWidth - 2) / totalTests) + "px";
+        progressTotal.nodeValue = " of " + totalTests +
+          (debugUsed.length && type != "done" ? "+" : "");
+        progressRan.nodeValue = count;
         if (type == "ok") {
-          output.innerHTML = bad + "<span class=ok>Test '" + esc(name) + "' succeeded</span>";
+          message = "Test '" + name + "' succeeded";
+          if (!verbose) customMessage = false;
         } else if (type == "expected") {
-          output.innerHTML = bad + "<span class=ok>Test '" + esc(name) + "' failed as expected</span>";
+          message = "Test '" + name + "' failed as expected";
+          if (!verbose) customMessage = false;
         } else if (type == "error" || type == "fail") {
           ++failed;
-          bad += esc(name) + ": <span class=" + type + ">" + esc(msg) + "</span><br>";
-          output.innerHTML = bad;
+          message = "Test '" + name + "' failed";
         } else if (type == "done") {
-          output.innerHTML = bad + (failed ? "<span class=fail>" + failed + " failure" + (failed > 1 ? "s" : "") + "</span>"
-                                           : "<span class=ok>All passed</span>");
+          if (failed) {
+            type += " fail";
+            message = failed + " failure" + (failed > 1 ? "s" : "");
+          } else if (count < totalTests) {
+            failed = totalTests - count;
+            type += " fail";
+            message = failed + " failure" + (failed > 1 ? "s" : "");
+          } else {
+            type += " ok";
+            message = "All passed";
+          }
+          if (debug && debug.length) {
+            var bogusTests = totalTests - count;
+            message += " — " + bogusTests + " nonexistent test" +
+              (bogusTests > 1 ? "s" : "") + " requested by location.hash: " +
+              "`" + debug.join("`, `") + "`";
+          } else {
+            progressTotal.nodeValue = '';
+          }
+          customMessage = true; // Hack to avoid adding to output
+        }
+        if (verbose && !customMessage)  customMessage = message;
+        setStatus(message, type);
+        if (customMessage.length > 0) {
+          addOutput(name, type, customMessage);
         }
       }
     </script>
