@@ -10,33 +10,50 @@ ModeTest.modeOptions = {};
 ModeTest.modeName = CodeMirror.defaults.mode;
 
 /* keep track of results for printSummary */
-ModeTest.tests = 0;
+ModeTest.testCount = 0;
 ModeTest.passes = 0;
 
 /**
  * Run a test; prettyprints the results using document.write().
- *
- * @param string to highlight
- *
- * @param style[i] expected style of the i'th token in string
- *
- * @param token[i] expected value for the i'th token in string
+ * 
+ * @param name Name of test
+ * @param text String to highlight.
+ * @param expected Expected styles and tokens: Array(style, token, [style, token,...])
+ * @param modeName
+ * @param modeOptions
+ * @param expectedFail
  */
-ModeTest.test = function() {
-  ModeTest.tests += 1;
+ModeTest.testMode = function(name, text, expected, modeName, modeOptions, expectedFail) {
+  ModeTest.testCount += 1;
+  
+  if (!modeName) modeName = ModeTest.modeName;
+  
+  if (!modeOptions) modeOptions = ModeTest.modeOptions;
 
-  var mode = CodeMirror.getMode(ModeTest.modeOptions, ModeTest.modeName);
+  var mode = CodeMirror.getMode(modeOptions, modeName);
 
-  if (arguments.length < 1) {
-    throw "must have text for test";
+  if (expected.length < 0) {
+    throw "must have text for test (" + name + ")";
   }
-  if (arguments.length % 2 != 1) {
-    throw "must have text for test plus expected (style, token) pairs";
+  if (expected.length % 2 != 0) {
+    throw "must have text for test (" + name + ") plus expected (style, token) pairs";
   }
+  return test(
+    modeName + "_" + name,
+    function(){
+      var place = document.getElementById("testground"), cm = CodeMirror(place);
+      try {return ModeTest.compare(cm, text, expected, mode);}
+      finally {place.removeChild(cm.getWrapperElement());}
+    },
+    expectedFail
+  );
+  
+}
 
-  var text = arguments[0];
+ModeTest.compare = function (cm, text, arguments, mode) {
+
   var expectedOutput = [];
-  for (var i = 1; i < arguments.length; i += 2) {
+  for (var i = 0; i < arguments.length; i += 2) {
     arguments[i] = (arguments[i] != null ? arguments[i].split(' ').sort().join(' ') : arguments[i]);
     expectedOutput.push([arguments[i],arguments[i + 1]]);
   }
@@ -51,20 +68,26 @@ ModeTest.test = function() {
   }
 
   var s = '';
-  s += '<div class="mt-test ' + passStyle + '">';
-  s +=   '<pre>' + ModeTest.htmlEscape(text) + '</pre>';
-  s +=   '<div class="cm-s-default">';
   if (pass || expectedOutput.length == 0) {
+    s += '<div class="mt-test ' + passStyle + '">';
+    s +=   '<pre>' + ModeTest.htmlEscape(text) + '</pre>';
+    s +=   '<div class="cm-s-default">';
     s +=   ModeTest.prettyPrintOutputTable(observedOutput);
+    s +=   '</div>';
+    s += '</div>';
+    return s;
   } else {
+    s += '<div class="mt-test ' + passStyle + '">';
+    s +=   '<pre>' + ModeTest.htmlEscape(text) + '</pre>';
+    s +=   '<div class="cm-s-default">';
     s += 'expected:';
     s +=   ModeTest.prettyPrintOutputTable(expectedOutput);
     s += 'observed:';
     s +=   ModeTest.prettyPrintOutputTable(observedOutput);
+    s +=   '</div>';
+    s += '</div>';
+    throw s;
   }
-  s +=   '</div>';
-  s += '</div>';
-  document.write(s);
 }
 
 /**
@@ -167,7 +190,8 @@ ModeTest.prettyPrintOutputTable = function(output) {
  * Print how many tests have run so far and how many of those passed.
  */
 ModeTest.printSummary = function() {
-  document.write(ModeTest.passes + ' passes for ' + ModeTest.tests + ' tests');
+  ModeTest.runTests(ModeTest.displayTest);
+  document.write(ModeTest.passes + ' passes for ' + ModeTest.testCount + ' tests');
 }
 
 /**
