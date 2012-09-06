@@ -159,6 +159,7 @@ ModeTest.prettyPrintOutputTable = function(output) {
     s +=
       '<td class="mt-style"><span>' + token[0] + '</span></td>';
   }
+  s += '</tr>';
   s += '</table>';
   return s;
 }
