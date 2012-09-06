@@ -24,7 +24,7 @@ function byClassName(elt, cls) {
 
 var ie_lt8 = /MSIE [1-7]\b/.test(navigator.userAgent);
 
-test("fromTextArea", function() {
+test("core_fromTextArea", function() {
   var te = document.getElementById("code");
   te.value = "CONTENT";
   var cm = CodeMirror.fromTextArea(te);
@@ -108,7 +108,7 @@ testCM("indent", function(cm) {
   eq(cm.getLine(1), "\t\t  blah();");
 }, {value: "if (x) {\nblah();\n}", indentUnit: 3, indentWithTabs: true, tabSize: 8});
 
-test("defaults", function() {
+test("core_defaults", function() {
   var olddefaults = CodeMirror.defaults, defs = CodeMirror.defaults = {};
   for (var opt in olddefaults) defs[opt] = olddefaults[opt];
   defs.indentUnit = 5;
