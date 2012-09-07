@@ -45,12 +45,16 @@ function runTests(callback) {
       }
     }
   }
+  var totalTime = 0;
   function step(i) {
     if (i === tests.length){
       running = false;
       return callback("done");
     }
-    var test = tests[i], expFail = test.expectedFail;
+    var test = tests[i]
+    ,   expFail = test.expectedFail
+    ,   startTime = Date.now()
+    ;
     if (debug !== null) {
       var debugIndex = debug.indexOf(test.name);
       if (debugIndex !== -1) {
@@ -83,7 +87,13 @@ function runTests(callback) {
       else callback("error", test.name, e.toString());
     }
     if (!quit) { // Run next test
-      setTimeout(function(){step(i + 1);}, 0);
+      var delay = 0;
+      totalTime += (Date.now() - startTime);
+      if (totalTime > 500){
+        totalTime = 0;
+        delay = 50;
+      }
+      setTimeout(function(){step(i + 1);}, delay);
     } else { // Quit tests
       running = false;
       return null;
