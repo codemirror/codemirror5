@@ -41,7 +41,7 @@
       window.onload = function() {
         runHarness();
       };
-      window.addEventListener('hashchange', function(){
+      CodeMirror.connect(window, 'hashchange', function(){
         runHarness();
       });
 
@@ -49,17 +49,16 @@
         return str.replace(/[<&]/, function(ch) { return ch == "<" ? "&lt;" : "&amp;"; });
       }
 
-      var output = document.getElementById("output")
-      ,   progress = document.getElementById("progress")
-      ,   progressRan = document.getElementById("progress_ran").childNodes[0]
-      ,   progressTotal = document.getElementById("progress_total").childNodes[0];
-      var count = 0
-      ,   failed = 0
-      ,   bad = ""
-      ,   running = false // Flag that states tests are running
-      ,   quit = false // Flag to quit tests ASAP
-      ,   verbose = false // Adds message for *every* test to output
-      ;
+      var output = document.getElementById("output"),
+          progress = document.getElementById("progress"),
+          progressRan = document.getElementById("progress_ran").childNodes[0],
+          progressTotal = document.getElementById("progress_total").childNodes[0];
+      var count = 0,
+          failed = 0,
+          bad = "",
+          running = false, // Flag that states tests are running
+         quit = false, // Flag to quit tests ASAP
+         verbose = false; // Adds message for *every* test to output
       
       function runHarness(){
         if (running) {
@@ -96,12 +95,12 @@
         if (!message) throw("must provide message");
         var status = document.getElementById("status").childNodes[0];
         status.nodeValue = message;
-        status.parentNode.setAttribute("class", className);
+        status.parentNode.className = className;
       }
       function addOutput(name, className, code){
         var newOutput = document.createElement("dl");
         var newTitle = document.createElement("dt");
-        newTitle.setAttribute("class", className);
+        newTitle.className = className;
         newTitle.appendChild(document.createTextNode(name));
         newOutput.appendChild(newTitle);
         var newMessage = document.createElement("dd");
