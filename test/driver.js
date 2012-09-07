@@ -3,11 +3,18 @@ var tests = [], debug = null, debugUsed = new Array(), allNames = [];
 function Failure(why) {this.message = why;}
 Failure.prototype.toString = function() { return this.message; };
 
+function indexOf(collection, elt) {
+  if (collection.indexOf) return collection.indexOf(elt);
+  for (var i = 0, e = collection.length; i < e; ++i)
+    if (collection[i] == elt) return i;
+  return -1;
+}
+
 function test(name, run, expectedFail) {
   // Force unique names
   var originalName = name;
   var i = 2; // Second function would be NAME_2
-  while(allNames.indexOf(name) !== -1){
+  while (indexOf(allNames, name) !== -1){
     i++;
     name = originalName + "_" + i;
   }
@@ -33,7 +40,7 @@ function testCM(name, run, opts, expectedFail) {
 
 function runTests(callback) {
   if (debug) {
-    if (debug.indexOf("verbose") === 0) {
+    if (indexOf(debug, "verbose") === 0) {
       verbose = true;
       debug.splice(0, 1);
     }
@@ -51,24 +58,21 @@ function runTests(callback) {
       running = false;
       return callback("done");
     }
-    var test = tests[i]
-    ,   expFail = test.expectedFail
-    ,   startTime = Date.now()
-    ;
+    var test = tests[i], expFail = test.expectedFail, startTime = +new Date;
     if (debug !== null) {
-      var debugIndex = debug.indexOf(test.name);
+      var debugIndex = indexOf(debug, test.name);
       if (debugIndex !== -1) {
         // Remove from array for reporting incorrect tests later
         debug.splice(debugIndex, 1);
       } else {
         var wildcardName = test.name.split("_").shift() + "_*";
-        debugIndex = debug.indexOf(wildcardName);
+        debugIndex = indexOf(debug, wildcardName);
         if (debugIndex !== -1) {
           // Remove from array for reporting incorrect tests later
           debug.splice(debugIndex, 1);
           debugUsed.push(wildcardName);
         } else {
-          debugIndex = debugUsed.indexOf(wildcardName);
+          debugIndex = indexOf(debugUsed, wildcardName);
           if (debugIndex !== -1) {
             totalTests++;
           } else {
@@ -88,7 +92,7 @@ function runTests(callback) {
     }
     if (!quit) { // Run next test
       var delay = 0;
-      totalTime += (Date.now() - startTime);
+      totalTime += (+new Date) - startTime;
       if (totalTime > 500){
         totalTime = 0;
         delay = 50;
