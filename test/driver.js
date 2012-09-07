@@ -82,7 +82,7 @@ function runTests(callback) {
       else callback("error", test.name, e.toString());
     }
     if (!quit) { // Run next test
-      setTimeout(function(){step(i + 1);}, 50);
+      setTimeout(function(){step(i + 1);}, 0);
     } else { // Quit tests
       running = false;
       return null;
