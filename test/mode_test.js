@@ -41,16 +41,14 @@ ModeTest.testMode = function(name, text, expected, modeName, modeOptions, expect
   return test(
     modeName + "_" + name,
     function(){
-      var place = document.getElementById("testground"), cm = CodeMirror(place);
-      try {return ModeTest.compare(cm, text, expected, mode);}
-      finally {place.removeChild(cm.getWrapperElement());}
+      return ModeTest.compare(text, expected, mode);
     },
     expectedFail
   );
   
 }
 
-ModeTest.compare = function (cm, text, arguments, mode) {
+ModeTest.compare = function (text, arguments, mode) {
 
   var expectedOutput = [];
   for (var i = 0; i < arguments.length; i += 2) {
