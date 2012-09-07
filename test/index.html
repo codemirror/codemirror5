@@ -15,6 +15,12 @@
       .fail {color: #e00;}
       .error {color: #c90;}
       .done {font-weight: bold;}
+      #progress {
+        background: #45d;
+        color: white;
+        font-weight: bold;
+        white-space: pre;
+      }
     </style>
   </head>
   <body>
@@ -23,7 +29,7 @@
     <p>A limited set of programmatic sanity tests for CodeMirror.</p>
 
     <div style="border: 1px solid black; padding: 1px; max-width: 700px;">
-      <div style="background: #45d; white-space: pre; width: 0px; font-weight: bold; color: white;" id=progress><div style="padding: 3px;">Ran <span id="progress_ran">0</span><span id="progress_total"> of 0</span> tests</div></div>
+      <div style="width: 0px;" id=progress><div style="padding: 3px;">Ran <span id="progress_ran">0</span><span id="progress_total"> of 0</span> tests</div></div>
     </div>
     <p id=status>Please enable JavaScript...</p>
     <div id=output></div>
