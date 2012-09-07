@@ -257,13 +257,14 @@ testCM("markTextSingleLine", function(cm) {
     var r = cm.markText({line: 0, ch: 3}, {line: 0, ch: 6}, "foo");
     cm.replaceRange(test.c, {line: 0, ch: test.a}, {line: 0, ch: test.b});
     var f = r.find();
-    eq(f.from && f.from.ch, test.f); eq(f.to && f.to.ch, test.t);
+    eq(f && f.from.ch, test.f); eq(f && f.to.ch, test.t);
   });
 });
 
 testCM("markTextMultiLine", function(cm) {
   function p(v) { return v && {line: v[0], ch: v[1]}; }
   forEach([{a: [0, 0], b: [0, 5], c: "", f: [0, 0], t: [2, 5]},
+           {a: [0, 0], b: [0, 5], c: "foo\n", f: [1, 0], t: [3, 5]},
            {a: [0, 1], b: [0, 10], c: "", f: [0, 1], t: [2, 5]},
            {a: [0, 5], b: [0, 6], c: "x", f: [0, 6], t: [2, 5]},
            {a: [0, 0], b: [1, 0], c: "", f: [0, 0], t: [1, 5]},
@@ -275,15 +276,32 @@ testCM("markTextMultiLine", function(cm) {
            {a: [1, 5], b: [2, 5], c: "", f: [0, 5], t: [1, 5]},
            {a: [2, 0], b: [2, 3], c: "", f: [0, 5], t: [2, 2]},
            {a: [2, 5], b: [3, 0], c: "a\nb", f: [0, 5], t: [2, 5]},
-           {a: [2, 3], b: [3, 0], c: "x", f: [0, 5], t: [2, 4]},
+           {a: [2, 3], b: [3, 0], c: "x", f: [0, 5], t: [2, 3]},
            {a: [1, 1], b: [1, 9], c: "1\n2\n3", f: [0, 5], t: [4, 5]}], function(test) {
     cm.setValue("aaaaaaaaaa\nbbbbbbbbbb\ncccccccccc\ndddddddd\n");
-    var r = cm.markText({line: 0, ch: 5}, {line: 2, ch: 5}, "foo");
+    var r = cm.markText({line: 0, ch: 5}, {line: 2, ch: 5}, "CodeMirror-matchingbracket");
     cm.replaceRange(test.c, p(test.a), p(test.b));
     var f = r.find();
-    eqPos(f.from, p(test.f)); eqPos(f.to, p(test.t));
+    eqPos(f && f.from, p(test.f)); eqPos(f && f.to, p(test.t));
   });
 });
+
+testCM("markTextUndo", function(cm) {
+  var marker1 = cm.markText({line: 0, ch: 1}, {line: 0, ch: 3}, "CodeMirror-matchingbracket");
+  var marker2 = cm.markText({line: 0, ch: 0}, {line: 2, ch: 1}, "CodeMirror-matchingbracket");
+  var bookmark = cm.setBookmark({line: 1, ch: 5});
+  cm.replaceRange("foo", {line: 0, ch: 2});
+  cm.replaceRange("bar\baz\bug\n", {line: 2, ch: 0}, {line: 3, ch: 0});
+  cm.setValue("");
+  eq(marker1.find(), null); eq(marker2.find(), null); eq(bookmark.find(), null);
+  cm.undo();
+  eqPos(bookmark.find(), {line: 1, ch: 5});
+  cm.undo(); cm.undo();
+  var m1Pos = marker1.find(), m2Pos = marker2.find();
+  eqPos(m1Pos.from, {line: 0, ch: 1}); eqPos(m1Pos.to, {line: 0, ch: 3});
+  eqPos(m2Pos.from, {line: 0, ch: 0}); eqPos(m2Pos.to, {line: 2, ch: 1});
+  eqPos(bookmark.find(), {line: 1, ch: 5});
+}, {value: "1234\n56789\n00\n"});
 
 testCM("markClearBetween", function(cm) {
   cm.setValue("aaa\nbbb\nccc\nddd\n");
