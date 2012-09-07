@@ -26,10 +26,12 @@ function test(name, run, expectedFail) {
 function testCM(name, run, opts, expectedFail) {
   return test("core_" + name, function() {
     var place = document.getElementById("testground"), cm = CodeMirror(place, opts);
+    var successful = false;
     try {
       run(cm);
+      successful = true;
     } finally {
-      if (debug) {
+      if ((debug && !successful) || verbose) {
         place.style.visibility = "";
       } else {
         place.removeChild(cm.getWrapperElement());
