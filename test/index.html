@@ -47,7 +47,7 @@
       window.onload = function() {
         runHarness();
       };
-      CodeMirror.connect(window, 'hashchange', function(){
+      CodeMirror.on(window, 'hashchange', function(){
         runHarness();
       });
 
