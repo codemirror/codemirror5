@@ -15,8 +15,8 @@ function test(name, run, expectedFail) {
   var originalName = name;
   var i = 2; // Second function would be NAME_2
   while (indexOf(allNames, name) !== -1){
-    i++;
     name = originalName + "_" + i;
+    i++;
   }
   allNames.push(name);
   // Add test
