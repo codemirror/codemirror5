@@ -1,5 +1,5 @@
 {
-    "name": "CodeMirror",
+    "name": "codemirror",
     "version":"2.33.0",
     "main": "codemirror.js",
     "description": "In-browser code editing made bearable",
