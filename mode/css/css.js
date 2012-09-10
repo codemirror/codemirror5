@@ -211,7 +211,7 @@ CodeMirror.defineMode("css", function(config) {
     }
     else if (ch == "!") {
       stream.match(/^\s*\w*/);
-      return ret("builtin", "important");
+      return ret("keyword", "important");
     }
     else if (/\d/.test(ch)) {
       stream.eatWhile(/[\w.%]/);
@@ -399,7 +399,7 @@ CodeMirror.defineMode("css", function(config) {
         }
       } else if (style == "atom") {
         if(!context || context == "@media{") {
-          style = "header";
+          style = "builtin";
         } else if (context == "propertyValue") {
           if (!/^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/.test(stream.current())) {
             style += " error";
