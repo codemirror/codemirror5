@@ -28,18 +28,20 @@ CodeMirror.defineMode("commonlisp", function (config) {
       if (stream.skipTo("|")) { stream.next(); return "symbol"; }
       else { stream.skipToEnd(); return "error"; }
     } else if (ch == "#") {
-      if (stream.eat("[")) { type = "open"; return "bracket"; }
-      else if (stream.eat(/[+\-=\.]/)) return null;
-      else if (stream.match(/^\d+#/)) return null;
-      else if (stream.eat("|")) return (state.tokenize = inComment)(stream, state);
-      else if (stream.eat(":")) { readSym(stream); return "meta"; }
-      else { stream.next(); return "error"; }
+      var ch = stream.next();
+      if (ch == "[") { type = "open"; return "bracket"; }
+      else if (/[+\-=\.']/.test(ch)) return null;
+      else if (/\d/.test(ch) && stream.match(/^\d*#/)) return null;
+      else if (ch == "|") return (state.tokenize = inComment)(stream, state);
+      else if (ch == ":") { readSym(stream); return "meta"; }
+      else return "error";
     } else {
       var name = readSym(stream);
       if (name == ".") return null;
       type = "symbol";
       if (name == "nil" || name == "t") return "atom";
       if (name.charAt(0) == ":") return "keyword";
+      if (name.charAt(0) == "&") return "variable-2";
       return "variable";
     }
   }
