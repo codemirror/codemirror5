@@ -90,7 +90,10 @@ function runTests(callback) {
     } catch(e) {
       if (expFail) callback("expected", test.name);
       else if (e instanceof Failure) callback("fail", test.name, e.message);
-      else callback("error", test.name, e.toString());
+      else {
+        var pos = /\bat .*?([^\/:]+):(\d+):/.exec(e.stack);
+        callback("error", test.name, e.toString() + (pos ? " (" + pos[1] + ":" + pos[2] + ")" : ""));
+      }
     }
     if (!quit) { // Run next test
       var delay = 0;
