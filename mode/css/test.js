@@ -228,7 +228,7 @@ MT.testMode(
   'idSelector',
   '#foo { #foo }',
   [
-    'header', '#foo',
+    'builtin', '#foo',
     null, ' { ',
     'error', '#foo',
     null, ' }'
@@ -472,7 +472,7 @@ MT.testMode(
 //    null, ' ',
 //    'keyword', 'black',
 //    null, ' ',
-//    'builtin', '!important',
+//    'keyword', '!important',
 //    null, '; ',
 //    'property', 'background',
 //    'operator', ':',

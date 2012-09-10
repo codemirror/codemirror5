@@ -1,7 +1,0 @@
-/* Change error (warning) so it's not so scary */
-.cm-s-default span.cm-property {font-weight: bold;}
-.cm-s-default span.cm-property.cm-error {color: black; font-weight: normal;}
-
-/* Differentiate color from .cm-def and change error (warning) so it's not so scary */
-.cm-s-default span.cm-attribute {color: #c0c; font-weight: bold;}
-.cm-s-default span.cm-attribute.cm-error {color: #c0c; font-weight: normal;}
