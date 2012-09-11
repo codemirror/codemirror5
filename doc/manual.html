@@ -643,16 +643,26 @@
       <dd>Can be used to mark a range of text with a specific CSS
       class name. <code>from</code> and <code>to</code> should
       be <code>{line, ch}</code> objects. The <code>options</code>
-      parameter is optional, and can be an object
-      with <code>inclusiveLeft</code> and <code>inclusiveRight</code>
-      properties, which determine whether typing at the left or right
-      of the marker will cause the new text to become part of the
-      marker (the default is false for both). The method will return an
-      object with two methods, <code>clear()</code>, which removes the
-      mark, and <code>find()</code>, which returns a <code>{from,
-      to}</code> (both document positions), indicating the current
-      position of the marked range, or <code>undefined</code> if the
-      marker is no longer in the document.</dd>
+      parameter is optional. When given, it should be an object that
+      may contain the following configuration options:
+      <dl>
+        <dt><code>inclusiveLeft</code></dt><dd>Determines whether
+        text inserted on the left of the marker will end up inside
+        or outside of it.</dd>
+        <dt><code>inclusiveRight</code></dt><dd>Like <code>inclusiveLeft</code>,
+        but for the right side.</dd>
+        <dt><code>startStyle</code></dt><dd>Can be used to specify
+        an extra CSS class to be applied to the leftmost span that
+        is part of the marker.</dd>
+        <dt><code>endStyle</code></dt><dd>Equivalent
+        to <code>startStyle</code>, but for the rightmost span.</dd>
+      </dl>
+      The method will return an object with two methods,
+      <code>clear()</code>, which removes the mark,
+      and <code>find()</code>, which returns a <code>{from, to}</code>
+      (both document positions), indicating the current position of
+      the marked range, or <code>undefined</code> if the marker is no
+      longer in the document.</dd>
 
       <dt id="setBookmark"><code>setBookmark(pos) → object</code></dt>
       <dd>Inserts a bookmark, a handle that follows the text around it
