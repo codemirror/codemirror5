@@ -125,9 +125,11 @@
       example <code>{name: "javascript", json: true}</code>). The demo
       pages for each mode contain information about what configuration
       parameters the mode supports. You can ask CodeMirror which modes
-      and MIME types are loaded with
-      the <code>CodeMirror.listModes</code>
-      and <code>CodeMirror.listMIMEs</code> functions.</dd>
+      and MIME types are by inspecting
+      the <code>CodeMirror.modes</code>
+      and <code>CodeMirror.mimeModes</code> objects. The first maps
+      mode names to their constructors, and the second maps MIME types
+      to mode specs.</dd>
 
       <dt id="option_theme"><code>theme (string)</code></dt>
       <dd>The theme to style the editor with. You must make sure the

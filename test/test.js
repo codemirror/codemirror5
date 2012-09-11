@@ -110,8 +110,8 @@ testCM("indent", function(cm) {
 }, {value: "if (x) {\nblah();\n}", indentUnit: 3, indentWithTabs: true, tabSize: 8});
 
 test("core_defaults", function() {
-  var olddefaults = CodeMirror.defaults, defs = CodeMirror.defaults = {};
-  for (var opt in olddefaults) defs[opt] = olddefaults[opt];
+  var defsCopy = {}, defs = CodeMirror.defaults;
+  for (var opt in defs) defsCopy[opt] = defs[opt];
   defs.indentUnit = 5;
   defs.value = "uu";
   defs.enterMode = "keep";
@@ -126,7 +126,7 @@ test("core_defaults", function() {
     eq(cm.getInputField().tabIndex, 55);
   }
   finally {
-    CodeMirror.defaults = olddefaults;
+    for (var opt in defsCopy) defs[opt] = defsCopy[opt];
     place.removeChild(cm.getWrapperElement());
   }
 });
@@ -544,13 +544,14 @@ testCM("scrollVerticallyAndHorizontally", function(cm) {
      "bottom line visible");
 }, {lineNumbers: true});
 
-testCM("moveV stuck", function(cm) {
+testCM("moveVstuck", function(cm) {
   var lines = byClassName(cm.getWrapperElement(), "CodeMirror-lines")[0].firstChild, h0 = lines.offsetHeight;
   var val = "fooooooooooooooooooooooooo baaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaar\n";
   cm.setValue(val);
   for (var w = 50;; w += 5) {
     cm.setSize(w);
     if (lines.offsetHeight <= 3 * h0) break;
+    if (w > 500) { return;}
   }
   cm.setCursor({line: 0, ch: val.length - 1});
   cm.moveV(-1, "line");
