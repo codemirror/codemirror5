@@ -565,6 +565,11 @@
       <dt id="getOption"><code>getOption(option) → value</code></dt>
       <dd>Retrieves the current value of the given option for this
       editor instance.</dd>
+      <dt id="getMode"><code>getMode() → object</code></dt>
+      <dd>Gets the mode object for the editor. Note that this is
+      distinct from <code>getOption("mode")</code>, which gives you
+      the mode specification, rather than the resolved, instantiated
+      <a href="#defineMode">mode object</a>.</dd>
 
       <dt id="on"><code>on(type, func)</code></dt>
       <dd>Register an event handler for the given event type (a
@@ -1249,6 +1254,14 @@
     where <code>mode</code> is the mode that created the given
     state.</p>
 
+    <p id="innerMode">In a nested mode, it is recommended to add an
+    extra methods, <code>innerMode</code> which, given a state object,
+    returns a <code>{state, mode}</code> object with the inner mode
+    and its state for the current position. These are used by utility
+    scripts such as the autoformatter and
+    the <a href="#util_closetag">tag closer</a> to get context
+    information.</p>
+
     <p>To make indentation work properly in a nested parser, it is
     advisable to give the <code>startState</code> method of modes that
     are intended to be nested an optional argument that provides the
@@ -1266,6 +1279,15 @@
     where <code>modeSpec</code> can be a string or object specifying a
     mode, as in the <a href="#option_mode"><code>mode</code></a>
     option.</p>
+
+    <p id="extendMode">Sometimes, it is useful to add or override mode
+    object properties from external code.
+    The <code>CodeMirror.extendMode</code> can be used to add
+    properties to mode objects produced for a specific mode. Its first
+    argument is the name of the mode, its second an object that
+    specifies the properties that should be added. This is mostly
+    useful to add utilities that can later be looked
+    up <a href="#getMode"><code>getMode</code></a>.</p>
 
 </div><div class="rightsmall blk">
 
