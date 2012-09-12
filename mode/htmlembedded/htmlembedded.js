@@ -58,8 +58,12 @@ CodeMirror.defineMode("htmlembedded", function(config, parserConfig) {
       };
     },
     
+    electricChars: "/{}:",
 
-    electricChars: "/{}:"
+    innerMode: function(state) {
+      if (state.token == scriptingDispatch) return {state: state.scriptState, mode: scriptingMode};
+      else return {state: state.htmlState, mode: htmlMixedMode};
+    }
   };
 }, "htmlmixed");
 
