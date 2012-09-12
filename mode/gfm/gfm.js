@@ -96,7 +96,7 @@ CodeMirror.defineMode("gfm", function(config, parserConfig) {
     },
 
     copyState: function(state) {
-      return {token: state.token, mode: state.mode, mdState: CodeMirror.copyState(mdMode, state.mdState),
+      return {token: state.token, mdState: CodeMirror.copyState(mdMode, state.mdState),
               localMode: state.localMode,
               localState: state.localMode ? CodeMirror.copyState(state.localMode, state.localState) : null};
     },
@@ -140,6 +140,11 @@ CodeMirror.defineMode("gfm", function(config, parserConfig) {
         }
 
         return state.token(stream, state);
+    },
+
+    innerMode: function(state) {
+      if (state.token == markdown) return {state: state.mdState, mode: mdMode};
+      else return {state: state.localState, mode: state.localMode};
     }
   };
 }, "markdown");
