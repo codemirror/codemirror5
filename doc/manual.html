@@ -1054,6 +1054,11 @@
       Depends on
       the <a href="#util_searchcursor"><code>searchcursor</code></a>
       add-on. Demo <a href="../demo/matchhighlighter.html">here</a>.</dd>
+      <dt id="util_formatting"><a href="../lib/util/formatting.js"><code>formatting.js</code></a></dt>
+      <dd>Adds <code>commentRange</code>, <code>autoIndentRange</code>,
+      and <code>autoFormatRange</code> methods that, respectively,
+      comment (or uncomment), indent, or format (add line breaks) a
+      range of code. <a href="../demo/formatting.html">Demo here.</a></dd>
       <dt id="util_closetag"><a href="../lib/util/closetag.js"><code>closetag.js</code></a></dt>
       <dd>Provides utility functions for adding automatic tag closing
       to XML modes. See
@@ -1258,9 +1263,11 @@
     extra methods, <code>innerMode</code> which, given a state object,
     returns a <code>{state, mode}</code> object with the inner mode
     and its state for the current position. These are used by utility
-    scripts such as the autoformatter and
-    the <a href="#util_closetag">tag closer</a> to get context
-    information.</p>
+    scripts such as the <a href="#util_formatting">autoformatter</a>
+    and the <a href="#util_closetag">tag closer</a> to get context
+    information. Use the <code>CodeMirror.innerMode</code> helper
+    function to, starting from a mode and a state, recursively walk
+    down to the innermost mode and state.</p>
 
     <p>To make indentation work properly in a nested parser, it is
     advisable to give the <code>startState</code> method of modes that
