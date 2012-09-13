@@ -551,7 +551,6 @@ testCM("moveVstuck", function(cm) {
   for (var w = 50;; w += 5) {
     cm.setSize(w);
     if (lines.offsetHeight <= 3 * h0) break;
-    if (w > 500) { return;}
   }
   cm.setCursor({line: 0, ch: val.length - 1});
   cm.moveV(-1, "line");
