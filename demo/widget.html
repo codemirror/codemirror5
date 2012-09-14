@@ -39,6 +39,10 @@ function updateHints() {
       widgets.push(editor.addLineWidget(err.line - 1, msg, {coverGutter: true, noHScroll: true}));
     }
   });
+  var info = editor.getScrollInfo();
+  var after = editor.charCoords({line: editor.getCursor().line + 1, ch: 0}, "local").top;
+  if (info.top + info.clientHeight < after)
+    editor.scrollTo(null, after - info.clientHeight + 3);
 }
 
 window.onload = function() {
