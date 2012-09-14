@@ -83,17 +83,21 @@ function runTests(callback) {
         }
       }
     }
+    var threw = false;
     try {
       var message = test.func();
-      if (expFail) callback("fail", test.name, message);
-      else callback("ok", test.name, message);
     } catch(e) {
+      threw = true;
       if (expFail) callback("expected", test.name);
       else if (e instanceof Failure) callback("fail", test.name, e.message);
       else {
         var pos = /\bat .*?([^\/:]+):(\d+):/.exec(e.stack);
         callback("error", test.name, e.toString() + (pos ? " (" + pos[1] + ":" + pos[2] + ")" : ""));
       }
+    }
+    if (!threw) {
+      if (expFail) callback("fail", test.name, message || "expected failure, but succeeded");
+      else callback("ok", test.name, message);
     }
     if (!quit) { // Run next test
       var delay = 0;

@@ -22,6 +22,7 @@
         font-weight: bold;
         white-space: pre;
       }
+      .CodeMirror { border: 1px solid black; }
     </style>
   </head>
   <body>
@@ -159,7 +160,7 @@
         }
         if (verbose && !customMessage)  customMessage = message;
         setStatus(message, type);
-        if (customMessage.length > 0) {
+        if (customMessage && customMessage.length > 0) {
           addOutput(name, type, customMessage);
         }
       }
