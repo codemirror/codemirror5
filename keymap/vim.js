@@ -145,7 +145,7 @@
     if (cur.line != cm.lineCount()) {
       CodeMirror.commands.goLineEnd(cm);
       cm.replaceSelection(" ", "end");
-      CodeMirror.commands.delCharRight(cm);
+      CodeMirror.commands.delCharAfter(cm);
     }
   }
   function delTillMark(cm, cHar) {
@@ -274,7 +274,7 @@
 
     "S": function (cm) {
       countTimes(function (_cm) {
-        CodeMirror.commands.delCharRight(_cm);
+        CodeMirror.commands.delCharAfter(_cm);
       })(cm);
       enterInsertMode(cm);
     },
@@ -341,7 +341,7 @@
     "Left": "goColumnLeft", "Right": "goColumnRight",
     "Down": "goLineDown", "Up": "goLineUp", "Backspace": "goCharLeft",
     "Space": "goCharRight",
-    "X": function(cm) {CodeMirror.commands.delCharRight(cm);},
+    "X": function(cm) {CodeMirror.commands.delCharAfter(cm);},
     "P": function(cm) {
       var cur = cm.getCursor().line;
       if (buf!= "") {
@@ -349,7 +349,7 @@
         cm.replaceRange(buf, cm.getCursor());
       }
     },
-    "Shift-X": function(cm) {CodeMirror.commands.delCharLeft(cm);},
+    "Shift-X": function(cm) {CodeMirror.commands.delCharBefore(cm);},
     "Shift-J": function(cm) {joinLineNext(cm);},
     "Shift-P": function(cm) {
       var cur = cm.getCursor().line;
@@ -434,14 +434,14 @@
 
   CodeMirror.keyMap["vim-prefix-c"] = {
     "B": function (cm) {
-      countTimes("delWordLeft")(cm);
+      countTimes("delWordBefore")(cm);
       enterInsertMode(cm);
     },
     "C": function (cm) {
       iterTimes(function (i, last) {
         CodeMirror.commands.deleteLine(cm);
         if (i) {
-          CodeMirror.commands.delCharRight(cm);
+          CodeMirror.commands.delCharAfter(cm);
           if (last) CodeMirror.commands.deleteLine(cm);
         }
       });
