@@ -12,6 +12,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   ,   quote    = 'quote'
   ,   list     = 'string'
   ,   hr       = 'hr'
+  ,   image    = 'tag'
   ,   linkinline = 'link'
   ,   linkemail = 'link'
   ,   linktext = 'link'
@@ -24,7 +25,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   ,   ulRE = /^[*\-+]\s+/
   ,   olRE = /^[0-9]+\.\s+/
   ,   headerRE = /^(?:\={1,}|-{1,})$/
-  ,   textRE = /^[^\[*_\\<>` "'(]+/;
+  ,   textRE = /^[^!\[\]*_\\<>` "'(]+/;
 
   function switchInline(stream, state, f) {
     state.f = state.inline = f;
@@ -114,6 +115,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     if (state.strong) { styles.push(state.em ? emstrong : strong); }
     else if (state.em) { styles.push(em); }
     
+    if (state.linkText) { styles.push(linktext); }
+    
     if (state.code) { styles.push(code); }
     
     if (state.header) { styles.push(header); }
@@ -181,8 +184,22 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       return getType(state);
     }
     
+    if (ch === '!' && stream.match(/\[.*\] ?(?:\(|\[)/, false)) {
+      stream.match(/\[.*\]/);
+      state.inline = state.f = linkHref;
+      return image;
+    }
+    
     if (ch === '[' && stream.match(/.*\] ?(?:\(|\[)/, false)) {
-      return switchInline(stream, state, linkText);
+      state.linkText = true;
+      return getType(state);
+    }
+    
+    if (ch === ']' && state.linkText) {
+      var type = getType(state);
+      state.linkText = false;
+      state.inline = state.f = linkHref;
+      return type;
     }
     
     if (ch === '<' && stream.match(/^(https?|ftps?):\/\/(?:[^\\>]|\\.)+>/, true)) {
@@ -236,18 +253,6 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     }
     
     return getType(state);
-  }
-
-  function linkText(stream, state) {
-    while (!stream.eol()) {
-      var ch = stream.next();
-      if (ch === '\\') stream.next();
-      if (ch === ']') {
-        state.inline = state.f = linkHref;
-        return linktext;
-      }
-    }
-    return linktext;
   }
 
   function linkHref(stream, state) {
@@ -309,6 +314,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
   return {
     startState: function() {
+      prevLineHasContent = false;
+      thisLineHasContent = false;
       return {
         f: blockNormal,
         
@@ -318,6 +325,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         
         inline: inlineNormal,
         text: handleText,
+        
+        linkText: false,
         linkTitle: false,
         em: false,
         strong: false,

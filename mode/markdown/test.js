@@ -660,12 +660,124 @@ MT.testMode(
   ]
 );
 
+// Inline link with Em
+MT.testMode(
+  'linkEm',
+  '[*foo*](http://example.com/) bar',
+  [
+    'link', '[',
+    'link em', '*foo*',
+    'link', ']',
+    'string', '(http://example.com/)',
+    null, ' bar'
+  ]
+);
+
+// Inline link with Strong
+MT.testMode(
+  'linkStrong',
+  '[**foo**](http://example.com/) bar',
+  [
+    'link', '[',
+    'link strong', '**foo**',
+    'link', ']',
+    'string', '(http://example.com/)',
+    null, ' bar'
+  ]
+);
+
+// Inline link with EmStrong
+MT.testMode(
+  'linkEmStrong',
+  '[***foo***](http://example.com/) bar',
+  [
+    'link', '[',
+    'link strong', '**',
+    'link emstrong', '*foo**',
+    'link em', '*',
+    'link', ']',
+    'string', '(http://example.com/)',
+    null, ' bar'
+  ]
+);
+
+// Image with title
+MT.testMode(
+  'imageTitle',
+  '![foo](http://example.com/ "bar") hello',
+  [
+    'tag', '![foo]',
+    'string', '(http://example.com/ "bar")',
+    null, ' hello'
+  ]
+);
+
+// Image without title
+MT.testMode(
+  'imageNoTitle',
+  '![foo](http://example.com/) bar',
+  [
+    'tag', '![foo]',
+    'string', '(http://example.com/)',
+    null, ' bar'
+  ]
+);
+
+// Image with asterisks
+MT.testMode(
+  'imageAsterisks',
+  '![*foo*](http://example.com/) bar',
+  [
+    'tag', '![*foo*]',
+    'string', '(http://example.com/)',
+    null, ' bar'
+  ]
+);
+
 // Reference-style links
 MT.testMode(
   'linkReference',
   '[foo][bar] hello',
   [
     'link', '[foo]',
+    'string', '[bar]',
+    null, ' hello'
+  ]
+);
+// Reference-style links with Em
+MT.testMode(
+  'linkReferenceEm',
+  '[*foo*][bar] hello',
+  [
+    'link', '[',
+    'link em', '*foo*',
+    'link', ']',
+    'string', '[bar]',
+    null, ' hello'
+  ]
+);
+// Reference-style links with Strong
+MT.testMode(
+  'linkReferenceStrong',
+  '[**foo**][bar] hello',
+  [
+    'link', '[',
+    'link strong', '**foo**',
+    'link', ']',
+    'string', '[bar]',
+    null, ' hello'
+  ]
+);
+// Reference-style links with EmStrong
+MT.testMode(
+  'linkReferenceEmStrong',
+  '[***foo***][bar] hello',
+  [
+    'link', '[',
+    'link strong', '**',
+    'link emstrong', '*foo**',
+    'link em', '*',
+    'link', ']',
     'string', '[bar]',
     null, ' hello'
   ]
