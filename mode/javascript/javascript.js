@@ -175,8 +175,8 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
 
   var defaultVars = {name: "this", next: {name: "arguments"}};
   function pushcontext() {
-    if (!cx.state.context) cx.state.localVars = defaultVars;
     cx.state.context = {prev: cx.state.context, vars: cx.state.localVars};
+    cx.state.localVars = defaultVars;
   }
   function popcontext() {
     cx.state.localVars = cx.state.context.vars;
