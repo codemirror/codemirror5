@@ -20,6 +20,36 @@ MT.testMode(
     'comment', 'foo'
   ]
 );
+// Code blocks using 4 spaces with internal indentation
+MT.testMode(
+  'codeBlocksUsing4SpacesIndentation',
+  '    bar\n        hello\n            world\n    foo\nbar',
+  [
+    null, '    ',
+    'comment', 'bar',
+    null, '        ',
+    'comment', 'hello',
+    null, '            ',
+    'comment', 'world',
+    null, '    ',
+    'comment', 'foo',
+    null, 'bar'
+  ]
+);
+// Code blocks using 4 spaces with internal indentation
+MT.testMode(
+  'codeBlocksUsing4SpacesIndentation',
+  ' foo\n    bar\n        hello\n    world',
+  [
+    null, ' foo',
+    null, '    ',
+    'comment', 'bar',
+    null, '        ',
+    'comment', 'hello',
+    null, '    ',
+    'comment', 'world'
+  ]
+);
 
 // Code blocks using 1 tab (regardless of CodeMirror.indentWithTabs value)
 MT.testMode(
@@ -582,6 +612,24 @@ MT.testMode(
     'string', '+ bar',
     null, '            ',
     'comment', 'hello'
+  ]
+);
+// Code with internal indentation
+MT.testMode(
+  'listCodeIndentation',
+  '* foo\n\n        bar\n            hello\n                world\n        foo\n    bar',
+  [
+    'string', '* foo',
+    null, '        ',
+    'comment', 'bar',
+    null, '            ',
+    'comment', 'hello',
+    null, '                ',
+    'comment', 'world',
+    null, '        ',
+    'comment', 'foo',
+    null, '    ',
+    'string', 'bar'
   ]
 );
 // Code followed by text
