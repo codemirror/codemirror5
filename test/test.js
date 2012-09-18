@@ -23,6 +23,7 @@ function byClassName(elt, cls) {
 }
 
 var ie_lt8 = /MSIE [1-7]\b/.test(navigator.userAgent);
+var mac = /Mac/.test(navigator.platform);
 var phantom = /PhantomJS/.test(navigator.userAgent);
 
 test("core_fromTextArea", function() {
@@ -608,7 +609,7 @@ testCM("extraKeys", function(cm) {
   fakeKey("gtc", 36);
   fakeKey("gtc", 36, {shiftKey: true});
   fakeKey(null, 9);
-});
+}, null, window.opera && mac);
 
 testCM("wordMovementCommands", function(cm) {
   cm.execCommand("goWordLeft");
