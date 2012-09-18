@@ -24,7 +24,7 @@
     <h2 id="overview">Overview</h2>
 
     <p>CodeMirror is a code-editor component that can be embedded in
-    Web pages. The code library provides <em>only</em> the editor
+    Web pages. The core library provides <em>only</em> the editor
     component, no accompanying buttons, auto-completion, or other IDE
     functionality. It does provide a rich API on top of which such
     functionality can be straightforwardly implemented. See
@@ -36,17 +36,17 @@
     <p>CodeMirror works with language-specific modes. Modes are
     JavaScript programs that help color (and optionally indent) text
     written in a given language. The distribution comes with a number
-    of modes (see the <code>mode/</code> directory), and it isn't hard
-    to <a href="#modeapi">write new ones</a> for other languages.</p>
+    of modes (see the <a href="../mode/"><code>mode/</code></a>
+    directory), and it isn't hard to <a href="#modeapi">write new
+    ones</a> for other languages.</p>
 
     <h2 id="usage">Basic Usage</h2>
 
     <p>The easiest way to use CodeMirror is to simply load the script
     and style sheet found under <code>lib/</code> in the distribution,
-    plus a mode script from one of the <code>mode/</code> directories
-    and a theme stylesheet from <code>theme/</code>. (See
-    also <a href="compress.html">the compression helper</a>.) For
-    example:</p>
+    plus a mode script from one of the <code>mode/</code> directories.
+    (See <a href="compress.html">the compression helper</a> for an
+    easy way to combine scripts.) For example:</p>
 
     <pre>&lt;script src="lib/codemirror.js">&lt;/script>
 &lt;link rel="stylesheet" href="../lib/codemirror.css">
@@ -91,9 +91,9 @@
     <pre>var myCodeMirror = CodeMirror.fromTextArea(myTextArea);</pre>
 
     <p>This will, among other things, ensure that the textarea's value
-    is updated when the form (if it is part of a form) is submitted.
-    See the <a href="#fromTextArea">API reference</a> for a full
-    description of this method.</p>
+    is updated with the editor's contents when the form (if it is part
+    of a form) is submitted. See the <a href="#fromTextArea">API
+    reference</a> for a full description of this method.</p>
 
     <h2 id="config">Configuration</h2>
 
@@ -125,7 +125,7 @@
       example <code>{name: "javascript", json: true}</code>). The demo
       pages for each mode contain information about what configuration
       parameters the mode supports. You can ask CodeMirror which modes
-      and MIME types are by inspecting
+      and MIME types have been defined by inspecting
       the <code>CodeMirror.modes</code>
       and <code>CodeMirror.mimeModes</code> objects. The first maps
       mode names to their constructors, and the second maps MIME types
@@ -195,8 +195,10 @@
       <dt id="option_firstLineNumber"><code>firstLineNumber (integer)</code></dt>
       <dd>At which number to start counting lines. Default is 1.</dd>
 
-      <dt id="option_lineNumberFormatter"><code>lineNumberFormatter (function(integer))</code></dt>
-      <dd>A function used to format line numbers. The function is passed the current line number. Default prints the line number verbatim.</dd>
+      <dt id="option_lineNumberFormatter"><code>lineNumberFormatter (function)</code></dt>
+      <dd>A function used to format line numbers. The function is
+      passed the line number, and should return a string that will be
+      shown in the gutter.</dd>
 
       <dt id="option_gutters"><code>gutters (array)</code></dt>
       <dd>Can be used to add extra gutters (beyond or instead of the
@@ -229,10 +231,10 @@
 
       <dt id="option_pollInterval"><code>pollInterval (number)</code></dt>
       <dd>Indicates how quickly CodeMirror should poll its input
-      textarea for changes. Most input is captured by events, but some
-      things, like IME input on some browsers, doesn't generate events
-      that allow CodeMirror to properly detect it. Thus, it polls.
-      Default is 100 milliseconds.</dd>
+      textarea for changes (when focused). Most input is captured by
+      events, but some things, like IME input on some browsers, don't
+      generate events that allow CodeMirror to properly detect it.
+      Thus, it polls. Default is 100 milliseconds.</dd>
 
       <dt id="option_undoDepth"><code>undoDepth (integer)</code></dt>
       <dd>The maximum number of undo levels that the editor stores.
@@ -495,12 +497,6 @@
       <dd>These are used to style matched (or unmatched) brackets.</dd>
     </dl>
 
-    <p>The actual lines, as well as the cursor, are represented
-    by <code>pre</code> elements. By default no text styling (such as
-    bold) that might change line height is applied. If you do want
-    such effects, you'll have to give <code>CodeMirror pre</code> a
-    fixed height.</p>
-
     <p>If your page's style sheets do funky things to
     all <code>div</code> or <code>pre</code> elements (you probably
     shouldn't do that), you'll have to define rules to cancel these
@@ -513,10 +509,10 @@
 
     <h2 id="api">Programming API</h2>
 
-    <p>A lot of CodeMirror features are only available through its API.
-    This has the disadvantage that you need to do work to enable them,
-    and the advantage that CodeMirror will fit seamlessly into your
-    application.</p>
+    <p>A lot of CodeMirror features are only available through its
+    API. Thus, you need to write code (or
+    use <a href="#addons">add-ons</a>) if you want to expose them to
+    your users.</p>
 
     <p>Whenever points in the document are represented, the API uses
     objects with <code>line</code> and <code>ch</code> properties.
@@ -535,10 +531,48 @@
       <dt id="setValue"><code>setValue(string)</code></dt>
       <dd>Set the editor content.</dd>
 
+      <dt id="lineCount"><code>lineCount() → number</code></dt>
+      <dd>Get the number of lines in the editor.</dd>
+
+      <dt id="getRange"><code>getRange(from, to) → string</code></td>
+      <dd>Get the text between the given points in the editor, which
+      should be <code>{line, ch}</code> objects. An optional third
+      argument can be given to indicate the line separator string to
+      use (defaults to <code>"\n"</code>).</dd>
+      <dt id="replaceRange"><code>replaceRange(string, from, to)</code></dt>
+      <dd>Replace the part of the document between <code>from</code>
+      and <code>to</code> with the given string. <code>from</code>
+      and <code>to</code> must be <code>{line, ch}</code>
+      objects. <code>to</code> can be left off to simply insert the
+      string at position <code>from</code>.</dd>
+
       <dt id="getSelection"><code>getSelection() → string</code></dt>
       <dd>Get the currently selected code.</dd>
       <dt id="replaceSelection"><code>replaceSelection(string)</code></dt>
       <dd>Replace the selection with the given string.</dd>
+
+      <dt id="getCursor"><code>getCursor(start) → object</code></dt>
+      <dd><code>start</code> is a boolean indicating whether the start
+      or the end of the selection must be retrieved. If it is not
+      given, the current cursor pos, i.e. the side of the selection
+      that would move if you pressed an arrow key, is chosen.
+      A <code>{line, ch}</code> object will be returned.</dd>
+      <dt id="somethingSelected"><code>somethingSelected() → boolean</code></dt>
+      <dd>Return true if any text is selected.</dd>
+      <dt id="setCursor"><code>setCursor(pos)</code></dt>
+      <dd>Set the cursor position. You can either pass a
+      single <code>{line, ch}</code> object, or the line and the
+      character as two separate parameters.</dd>
+      <dt id="setSelection"><code>setSelection(start, end)</code></dt>
+      <dd>Set the selection range. <code>start</code>
+      and <code>end</code> should be <code>{line, ch}</code> objects.</dd>
+
+      <dt id="getLine"><code>getLine(n) → string</code></dt>
+      <dd>Get the content of line <code>n</code>.</dd>
+      <dt id="setLine"><code>setLine(n, text)</code></dt>
+      <dd>Set the content of line <code>n</code>.</dd>
+      <dt id="removeLine"><code>removeLine(n)</code></dt>
+      <dd>Remove the given line from the document.</dd>
 
       <dt id="setSize"><code>setSize(width, height)</code></dt>
       <dd>Programatically set the size of the editor (overriding the
@@ -584,24 +618,24 @@
       equivalent <code>CodeMirror.off(object, type,
       func)</code> also exists.</dd>
 
-      <dt id="cursorCoords"><code>cursorCoords(start, mode) → object</code></dt>
+      <dt id="cursorCoords"><code>cursorCoords(where, mode) → object</code></dt>
       <dd>Returns an <code>{left, top, bottom}</code> object
       containing the coordinates of the cursor position.
       If <code>mode</code> is <code>"local"</code>, they will be
       relative to the top-left corner of the editable document. If it
       is <code>"page"</code> or not given, they are relative to the
-      top-left corner of the page. <code>bottom</code> is the
-      coordinate of the bottom of the cursor. <code>start</code> is a
-      boolean indicating whether you want the start or the end of the
-      selection, or, if a <code>{line, ch}</code> object is given, it
-      specifies the precise position at which you want to measure.</dd>
+      top-left corner of the page. <code>where</code> can be a boolean
+      indicating whether you want the start (<code>true</code>) or the
+      end (<code>false</code>) of the selection, or, if a <code>{line,
+      ch}</code> object is given, it specifies the precise position at
+      which you want to measure.</dd>
       <dt id="charCoords"><code>charCoords(pos, mode) → object</code></dt>
-      <dd>Like <code>cursorCoords</code>, but returns the position of
-      an arbitrary characters. <code>pos</code> should be
-      a <code>{line, ch}</code> object. This differs
-      from <code>cursorCoords</code> in that it'll give the size of
-      the whole character, rather than just the position that the
-      cursor would have when it would sit at that position.</dd>
+      <dd>Returns the position and dimensions of an arbitrary
+      character. <code>pos</code> should be a <code>{line, ch}</code>
+      object. This differs from <code>cursorCoords</code> in that
+      it'll give the size of the whole character, rather than just the
+      position that the cursor would have when it would sit at that
+      position.</dd>
       <dt id="coordsChar"><code>coordsChar(object) → pos</code></dt>
       <dd>Given an <code>{left, top}</code> object (in page coordinates),
       returns the <code>{line, ch}</code> position that corresponds to
@@ -784,44 +818,6 @@
       <dt id="removeLineWidget"><code>removeLineWidget(widget)</code></dt>
       <dd>Removes the given line widget.</dd>
 
-      <dt id="lineCount"><code>lineCount() → number</code></dt>
-      <dd>Get the number of lines in the editor.</dd>
-
-      <dt id="getCursor"><code>getCursor(start) → object</code></dt>
-      <dd><code>start</code> is a boolean indicating whether the start
-      or the end of the selection must be retrieved. If it is not
-      given, the current cursor pos, i.e. the side of the selection
-      that would move if you pressed an arrow key, is chosen.
-      A <code>{line, ch}</code> object will be returned.</dd>
-      <dt id="somethingSelected"><code>somethingSelected() → boolean</code></dt>
-      <dd>Return true if any text is selected.</dd>
-      <dt id="setCursor"><code>setCursor(pos)</code></dt>
-      <dd>Set the cursor position. You can either pass a
-      single <code>{line, ch}</code> object, or the line and the
-      character as two separate parameters.</dd>
-      <dt id="setSelection"><code>setSelection(start, end)</code></dt>
-      <dd>Set the selection range. <code>start</code>
-      and <code>end</code> should be <code>{line, ch}</code> objects.</dd>
-
-      <dt id="getLine"><code>getLine(n) → string</code></dt>
-      <dd>Get the content of line <code>n</code>.</dd>
-      <dt id="setLine"><code>setLine(n, text)</code></dt>
-      <dd>Set the content of line <code>n</code>.</dd>
-      <dt id="removeLine"><code>removeLine(n)</code></dt>
-      <dd>Remove the given line from the document.</dd>
-
-      <dt id="getRange"><code>getRange(from, to) → string</code></td>
-      <dd>Get the text between the given points in the editor, which
-      should be <code>{line, ch}</code> objects. An optional third
-      argument can be given to indicate the line separator string to
-      use (defaults to <code>"\n"</code>).</dd>
-      <dt id="replaceRange"><code>replaceRange(string, from, to)</code></dt>
-      <dd>Replace the part of the document between <code>from</code>
-      and <code>to</code> with the given string. <code>from</code>
-      and <code>to</code> must be <code>{line, ch}</code>
-      objects. <code>to</code> can be left off to simply insert the
-      string at position <code>from</code>.</dd>
-
       <dt id="posFromIndex"><code>posFromIndex(index) → object</code></dt>
       <dd>Calculates and returns a <code>{line, ch}</code> object for a
       zero-based <code>index</code> who's value is relative to the start of the
@@ -860,16 +856,11 @@
       <dd>Returns the hidden textarea used to read input.</dd>
       <dt id="getWrapperElement"><code>getWrapperElement() → node</code></dt>
       <dd>Returns the DOM node that represents the editor, and
-      controls its width. Remove this from your tree to delete an
-      editor instance. Set it's <code>width</code> style when
-      resizing.</dd>
+      controls its size. Remove this from your tree to delete an
+      editor instance.</dd>
       <dt id="getScrollerElement"><code>getScrollerElement() → node</code></dt>
-      <dd>Returns the DOM node that is responsible for the vertical
-      sizing and horizontal scrolling of the editor. You can change
-      the <code>height</code> style of this element to resize an
-      editor. (You might have to call
-      the <a href="#refresh"><code>refresh</code></a> method
-      afterwards.)</dd>
+      <dd>Returns the DOM node that is responsible for the scrolling
+      of the editor.</dd>
       <dt id="getGutterElement"><code>getGutterElement() → node</code></dt>
       <dd>Fetches the DOM node that contains the editor gutters.</dd>
 
@@ -1123,14 +1114,15 @@
     define this method. It should read one token from the stream it is
     given as an argument, optionally update its state, and return a
     style string, or <code>null</code> for tokens that do not have to
-    be styled. For your styles, you can either use the 'standard' ones
-    defined in the themes (without the <code>cm-</code> prefix), or
-    define your own and have people include a custom CSS file for your
-    mode.<p>
+    be styled. For your styles, you are encouraged to use the
+    'standard' names defined in the themes (without
+    the <code>cm-</code> prefix). If that fails, it is also possible
+    to come up with your own and write your own CSS theme file.<p>
 
-    <p id="StringStream">The stream object encapsulates a line of code
-    (tokens may never span lines) and our current position in that
-    line. It has the following API:</p>
+    <p id="StringStream">The stream object that's passed
+    to <code>token</code> encapsulates a line of code (tokens may
+    never span lines) and our current position in that line. It has
+    the following API:</p>
 
     <dl>
       <dt><code>eol() → boolean</code></dt>
@@ -1142,10 +1134,11 @@
 
       <dt><code>peek() → character</code></dt>
       <dd>Returns the next character in the stream without advancing
-      it. Will return an empty string at the end of the line.</dd>
+      it. Will return an <code>null</code> at the end of the
+      line.</dd>
       <dt><code>next() → character</code></dt>
       <dd>Returns the next character in the stream and advances it.
-      Also returns <code>undefined</code> when no more characters are
+      Also returns <code>null</code> when no more characters are
       available.</dd>
 
       <dt><code>eat(match) → character</code></dt>
@@ -1185,8 +1178,7 @@
       break, so be careful.</dd>
       <dt><code>column() → integer</code></dt>
       <dd>Returns the column (taking into account tabs) at which the
-      current token starts. Can be used to find out whether a token
-      starts a new line.</dd>
+      current token starts.</dd>
       <dt><code>indentation() → integer</code></dt>
       <dd>Tells you how far the current line has been indented, in
       spaces. Corrects for tab characters.</dd>
@@ -1239,10 +1231,9 @@
     <p>So, to summarize, a mode <em>must</em> provide
     a <code>token</code> method, and it <em>may</em>
     provide <code>startState</code>, <code>copyState</code>,
-    <code>compareStates</code>, and <code>indent</code> methods. For
-    an example of a trivial mode, see
-    the <a href="../mode/diff/diff.js">diff mode</a>, for a more involved
-    example, see the <a href="../mode/clike/clike.js">C-like
+    and <code>indent</code> methods. For an example of a trivial mode,
+    see the <a href="../mode/diff/diff.js">diff mode</a>, for a more
+    involved example, see the <a href="../mode/clike/clike.js">C-like
     mode</a>.</p>
 
     <p>Sometimes, it is useful for modes to <em>nest</em>—to have one
@@ -1276,8 +1267,8 @@
     parser do this, for example, to allow JavaScript and CSS code
     inside the mixed-mode HTML mode to be properly indented.</p>
 
-    <p>Finally, it is possible to associate your mode, or a certain
-    configuration of your mode, with
+    <p>It is possible, and encouraged, to associate your mode, or a
+    certain configuration of your mode, with
     a <a href="http://en.wikipedia.org/wiki/MIME">MIME</a> type. For
     example, the JavaScript mode associates itself
     with <code>text/javascript</code>, and its JSON variant
@@ -1294,7 +1285,7 @@
     argument is the name of the mode, its second an object that
     specifies the properties that should be added. This is mostly
     useful to add utilities that can later be looked
-    up <a href="#getMode"><code>getMode</code></a>.</p>
+    up through <a href="#getMode"><code>getMode</code></a>.</p>
 
 </div><div class="rightsmall blk">
 
