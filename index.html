@@ -286,10 +286,38 @@
 
   <h2 id=releases>Releases</h2>
 
+  <p class="rel">19-09-2012: <a href="http://codemirror.net/codemirror-2.34.zip">Version 2.34</a>:</p>
+
+  <ul class="rel-note">
+    <li>New mode: <a href="mode/commonlisp/index.html">Common Lisp</a>.</li>
+    <li>Fix right-click select-all on most browsers.</li>
+    <li>Change the way highlighting happens:<br>&nbsp; Saves memory and CPU cycles.<br>&nbsp; <code>compareStates</code> is no longer needed.<br>&nbsp; <code>onHighlightComplete</code> no longer works.</li>
+    <li>Integrate mode (Markdown, XQuery, CSS, sTex) tests in central testsuite.</li>
+    <li>Add a <a href="doc/manual.html#version"><code>CodeMirror.version</code></a> property.</li>
+    <li>More robust handling of nested modes in <a href="demo/formatting.html">formatting</a> and <a href="demo/closetag.html">closetag</a> plug-ins.</li>
+    <li>Un/redo now preserves <a href="doc/manual.html#markText">marked text</a> and bookmarks.</li>
+    <li><a href="https://github.com/marijnh/CodeMirror/compare/v2.33...v2.34">Full list</a> of patches.</li>
+  </ul>
+
+  <p class="rel">19-09-2012: <a href="http://codemirror.net/codemirror-3.0beta1.zip">Version 3.0, beta 1</a>:</p>
+
+  <p class="rel-note"><strong>BETA release, new major version</strong>. Only partially
+  backwards-compatible. See
+  the <a href="doc/upgrade_v3.html">upgrading
+  guide</a> for more information. Major new features are:</p>
+
+  <ul class="rel-note">
+    <li>Bi-directional text support.</li>
+    <li>More powerful gutter model.</li>
+    <li>Support for arbitrary text/widget height.</li>
+    <li>In-line widgets.</li>
+    <li>Generalized event handling.</li>
+  </ul>
+
   <p class="rel">23-08-2012: <a href="http://codemirror.net/codemirror-2.33.zip">Version 2.33</a>:</p>
 
   <ul class="rel-note">
-    <li>New mode: <a href="mode/sieve/">Sieve</a>.</li>
+    <li>New mode: <a href="mode/sieve/index.html">Sieve</a>.</li>
     <li>New <a href="doc/manual.html#getViewport"><code>getViewPort</code></a> and <a href="doc/manual.html#option_onViewportChange"><code>onViewportChange</code></a> API.</li>
     <li><a href="doc/manual.html#option_cursorBlinkRate">Configurable</a> cursor blink rate.</li>
     <li>Make binding a key to <code>false</code> disabling handling (again).</li>
@@ -432,29 +460,6 @@
     to <a href="doc/manual.html#posFromIndex"><code>posFromIndex</code></a>,
     add <a href="doc/manual.html#indexFromPos"><code>indexFromPos</code></a>
     method.</li>
-  </ul>
-
-  <p class="rel">21-11-2011: <a href="http://codemirror.net/codemirror-2.18.zip">Version 2.18</a>:</p>
-  <p class="rel-note">Fixes <code>TextMarker.clear</code>, which is broken in 2.17.</p>
-
-  <p class="rel">21-11-2011: <a href="http://codemirror.net/codemirror-2.17.zip">Version 2.17</a>:</p>
-  <ul class="rel-note">
-    <li>Add support for <a href="doc/manual.html#option_lineWrapping">line
-    wrapping</a> and <a href="doc/manual.html#hideLine">code
-    folding</a>.</li>
-    <li>Add <a href="mode/gfm/index.html">Github-style Markdown</a> mode.</li>
-    <li>Add <a href="theme/monokai.css">Monokai</a>
-    and <a href="theme/rubyblue.css">Rubyblue</a> themes.</li>
-    <li>Add <a href="doc/manual.html#setBookmark"><code>setBookmark</code></a> method.</li>
-    <li>Move some of the demo code into reusable components
-    under <a href="lib/util/"><code>lib/util</code></a>.</li>
-    <li>Make screen-coord-finding code faster and more reliable.</li>
-    <li>Fix drag-and-drop in Firefox.</li>
-    <li>Improve support for IME.</li>
-    <li>Speed up content rendering.</li>
-    <li>Fix browser's built-in search in Webkit.</li>
-    <li>Make double- and triple-click work in IE.</li>
-    <li>Various fixes to modes.</li>
   </ul>
 
   <p><a href="doc/oldrelease.html">Older releases...</a></p>
