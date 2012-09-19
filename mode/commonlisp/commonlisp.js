@@ -87,7 +87,7 @@ CodeMirror.defineMode("commonlisp", function (config) {
         }
       }
       if (type == "open") state.ctx = {prev: state.ctx, start: stream.column(), indentTo: null};
-      else if (type == "close") state.ctx = state.ctx.prev;
+      else if (type == "close") state.ctx = state.ctx.prev || state.ctx;
       return style;
     },
 
