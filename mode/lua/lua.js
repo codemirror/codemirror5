@@ -64,7 +64,7 @@ CodeMirror.defineMode("lua", function(config, parserConfig) {
   function normal(stream, state) {
     var ch = stream.next();
     if (ch == "-" && stream.eat("-")) {
-      if (stream.eat("["))
+      if (stream.eat("[") && stream.eat("["))
         return (state.cur = bracketed(readBracket(stream), "comment"))(stream, state);
       stream.skipToEnd();
       return "comment";
