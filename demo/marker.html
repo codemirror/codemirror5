@@ -10,6 +10,7 @@
 
     <style type="text/css">
       .breakpoints {width: .8em;}
+      .breakpoint { color: #822; }
       .CodeMirror {border: 1px solid #aaa;}
     </style>
   </head>
@@ -28,8 +29,8 @@ editor.on("gutterClick", function(cm, n) {
 
 function makeMarker() {
   var marker = document.createElement("div");
-  marker.style.color = "#822";
   marker.innerHTML = "●";
+  marker.className = "breakpoint";
   return marker;
 }
 </textarea></form>
