@@ -36,7 +36,7 @@ function updateHints() {
       icon.className = "lint-error-icon";
       msg.appendChild(document.createTextNode(err.reason));
       msg.className = "lint-error";
-      widgets.push(editor.addLineWidget(err.line - 1, msg, {coverGutter: true, noHScroll: true}));
+      widgets.push(editor.addLineWidget(err.line - 1, msg, {coverGutter: false, noHScroll: true}));
     }
   });
   var info = editor.getScrollInfo();
