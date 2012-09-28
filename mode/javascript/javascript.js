@@ -340,6 +340,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     },
 
     indent: function(state, textAfter) {
+      if (state.tokenize == jsTokenComment) return CodeMirror.Pass;
       if (state.tokenize != jsTokenBase) return 0;
       var firstChar = textAfter && textAfter.charAt(0), lexical = state.lexical;
       if (lexical.type == "stat" && firstChar == "}") lexical = lexical.prev;
