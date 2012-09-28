@@ -284,10 +284,10 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == ",") return cont(vardef1);
   }
   function forspec1(type) {
-    if (type == "var") return cont(vardef1, forspec2);
-    if (type == ";") return pass(forspec2);
+    if (type == "var") return cont(vardef1, expect(";"), forspec2);
+    if (type == ";") return cont(forspec2);
     if (type == "variable") return cont(formaybein);
-    return pass(forspec2);
+    return cont(forspec2);
   }
   function formaybein(type, value) {
     if (value == "in") return cont(expression);
