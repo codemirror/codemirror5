@@ -37,6 +37,7 @@ CodeMirror.defineMode("mustache", function(config, parserConfig) {
       if (stream.match("{{")) {
         while ((ch = stream.next()) != null)
           if (ch == "}" && stream.next() == "}") break;
+        stream.eat("}");
         return "mustache";
       }
       while (stream.next() != null && !stream.match("{{", false)) {}
