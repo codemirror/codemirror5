@@ -181,7 +181,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       return getType(state);
     }
     
-    if (ch === '[' && stream.match(/.*\] ?(?:\(|\[)/, false)) {
+    if (ch === '[' && stream.match(/.*\](\(| ?\[)/, false)) {
       return switchInline(stream, state, linkText);
     }
     
