@@ -189,12 +189,12 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       state.inline = state.f = linkHref;
       return image;
     }
-    
-    if (ch === '[' && stream.match(/.*\] ?(?:\(|\[)/, false)) {
+
+    if (ch === '[' && stream.match(/.*\](\(| ?\[)/, false)) {
       state.linkText = true;
       return getType(state);
     }
-    
+
     if (ch === ']' && state.linkText) {
       var type = getType(state);
       state.linkText = false;

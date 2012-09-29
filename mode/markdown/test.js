@@ -782,6 +782,17 @@ MT.testMode(
   ]
 );
 
+// Not a link. Should be normal text due to square brackets being used
+// regularly in text, especially in quoted material, and no space is allowed
+// between square brackets and parentheses (per Dingus).
+MT.testMode(
+  'notALink',
+  '[foo] (bar)',
+  [
+    null, '[foo] (bar)'
+  ]
+);
+
 // Reference-style links
 MT.testMode(
   'linkReference',
