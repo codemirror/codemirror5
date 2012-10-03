@@ -19,7 +19,9 @@ CodeMirror.defineMode('rst', function(config, options) {
 
     function hasMode(mode) {
         if (mode) {
-            var modes = CodeMirror.listModes();
+            var modes = [];
+            for (var m in CodeMirror.modes)
+              if (CodeMirror.modes.propertyIsEnumerable(m)) modes.push(m);
 
             for (var i in modes) {
                 if (modes[i] == mode) {
