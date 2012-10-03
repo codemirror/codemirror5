@@ -71,6 +71,17 @@ MT.testMode(
   ]
 );
 
+// Block code using single backtick (shouldn't work)
+MT.testMode(
+  'blockCodeSingleBacktick',
+  '`\nfoo\n`',
+  [
+    'comment', '`',
+    null, 'foo',
+    'comment', '`'
+  ]
+);
+
 // Unclosed backticks
 // Instead of simply marking as CODE, it would be nice to have an 
 // incomplete flag for CODE, that is styled slightly different.
