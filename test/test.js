@@ -718,6 +718,14 @@ testCM("rtlMovement", function(cm) {
   });
 });
 
+// Verify that updating a line clears its bidi ordering
+testCM("bidiUpdate", function(cm) {
+  cm.setCursor({line: 0, ch: 2});
+  cm.replaceSelection("خحج", "start");
+  cm.execCommand("goCharRight");
+  eqPos(cm.getCursor(), {line: 0, ch: 4});
+}, {value: "abcd\n"});
+
 testCM("movebyTextUnit", function(cm) {
   cm.setValue("בְּרֵאשִ\ńéée\n");
   cm.execCommand("goLineEnd");
