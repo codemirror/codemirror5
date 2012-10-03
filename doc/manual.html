@@ -218,31 +218,6 @@
       simply <code>true</code>), focusing of the editor is also
       disallowed.</dd>
 
-      <dt id="option_cursorBlinkRate"><code>cursorBlinkRate (number)</code></dt>
-      <dd>Half-period in milliseconds used for cursor blinking. The default blink
-      rate is 530ms.</dd>
-
-      <dt id="option_cursorHeight"><code>cursorHeight (number)</code></dt>
-      <dd>Determines the height of the cursor. Default is 1, meaning
-      it spans the whole height of the line. For some fonts (and by
-      some tastes) a smaller height (for example <code>0.85</code>),
-      which causes the cursor to not reach all the way to the bottom
-      of the line, looks better</dd>
-
-      <dt id="option_workTime"><code>workTime, workDelay (number)</code></dt>
-      <dd>Highlighting is done by a pseudo background-thread that will
-      work for <code>workTime</code> milliseconds, and then use
-      timeout to sleep for <code>workDelay</code> milliseconds. The
-      defaults are 200 and 300, you can change these options to make
-      the highlighting more or less aggressive.</dd>
-
-      <dt id="option_pollInterval"><code>pollInterval (number)</code></dt>
-      <dd>Indicates how quickly CodeMirror should poll its input
-      textarea for changes (when focused). Most input is captured by
-      events, but some things, like IME input on some browsers, don't
-      generate events that allow CodeMirror to properly detect it.
-      Thus, it polls. Default is 100 milliseconds.</dd>
-
       <dt id="option_undoDepth"><code>undoDepth (integer)</code></dt>
       <dd>The maximum number of undo levels that the editor stores.
       Defaults to 40.</dd>
@@ -260,7 +235,13 @@
       set to true when either the source textarea is focused, or it
       has an <code>autofocus</code> attribute and no other element is
       focused.</dd>
+    </dl>
 
+    <p>Below this a few more specialized, low-level options are
+    listed. These are only useful in very specific situations, you
+    might want to skip them the first time you read this manual.</p>
+
+    <dl>
       <dt id="option_dragDrop"><code>dragDrop (boolean)</code></dt>
       <dd>Controls whether drag-and-drop is enabled. On by default.</dd>
 
@@ -291,6 +272,42 @@
       its <code>type</code> property and only do something when it
       is <code>keydown</code> (or <code>keypress</code> for actions
       that need character data).</dd>
+
+      <dt id="option_cursorBlinkRate"><code>cursorBlinkRate (number)</code></dt>
+      <dd>Half-period in milliseconds used for cursor blinking. The default blink
+      rate is 530ms.</dd>
+
+      <dt id="option_cursorHeight"><code>cursorHeight (number)</code></dt>
+      <dd>Determines the height of the cursor. Default is 1, meaning
+      it spans the whole height of the line. For some fonts (and by
+      some tastes) a smaller height (for example <code>0.85</code>),
+      which causes the cursor to not reach all the way to the bottom
+      of the line, looks better</dd>
+
+      <dt id="option_workTime"><code>workTime, workDelay (number)</code></dt>
+      <dd>Highlighting is done by a pseudo background-thread that will
+      work for <code>workTime</code> milliseconds, and then use
+      timeout to sleep for <code>workDelay</code> milliseconds. The
+      defaults are 200 and 300, you can change these options to make
+      the highlighting more or less aggressive.</dd>
+
+      <dt id="option_pollInterval"><code>pollInterval (number)</code></dt>
+      <dd>Indicates how quickly CodeMirror should poll its input
+      textarea for changes (when focused). Most input is captured by
+      events, but some things, like IME input on some browsers, don't
+      generate events that allow CodeMirror to properly detect it.
+      Thus, it polls. Default is 100 milliseconds.</dd>
+
+      <dt id="option_viewportMargin"><code>viewportMargin (integer)</code></dt>
+      <dd>Specifies the amount of lines that are rendered above and
+      below the part of the document that's currently scrolled into
+      view. This affects the amount of updates needed when scrolling,
+      and the amount of work that such an update does. You should
+      usually leave it at its default, 100. Can be set
+      to <code>Infinity</code> to make sure the whole document is
+      always rendered, and thus the browser's text search works on it.
+      This <em>will</em> have bad effects on performance of big
+      documents.</dd>
     </dl>
 
     <h2 id="events">Events</h2>
