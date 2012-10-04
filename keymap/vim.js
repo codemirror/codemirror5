@@ -318,13 +318,12 @@
   };
 
   // standard mode switching
-  iterList(["d", "t", "T", "f", "F", "c", "r"],
-      function (ch) {
-        CodeMirror.keyMap.vim[toCombo(ch)] = function (cm) {
-          cm.setOption("keyMap", "vim-prefix-" + ch);
-          emptyBuffer();
-        };
-      });
+  iterList(["d", "t", "T", "f", "F", "c", "r"], function (ch) {
+    CodeMirror.keyMap.vim[toCombo(ch)] = function (cm) {
+      cm.setOption("keyMap", "vim-prefix-" + ch);
+      emptyBuffer();
+    };
+  });
 
   function addCountBindings(keyMap) {
     // Add bindings for number keys
@@ -645,7 +644,7 @@
   };
 
   // Map our movement actions each operator and non-operational movement
-  motionList.forEach(function(key, index, array) {
+  iterList(motionList, function(key, index, array) {
     CodeMirror.keyMap['vim-prefix-d'][key] = function(cm) {
       // Get our selected range
       var start = cm.getCursor();
@@ -695,7 +694,7 @@
   });
 
   var nums = [1,2,3,4,5,6,7,8,9];
-  nums.forEach(function(key, index, array) {
+  iterList(nums, function(key, index, array) {
     CodeMirror.keyMap['vim'][key] = function (cm) {
       reptTimes = (reptTimes * 10) + key;
     };
@@ -713,7 +712,7 @@
   // Create our keymaps for each operator and make xa and xi where x is an operator
   // change to the corrosponding keymap
   var operators = ['d', 'y', 'c'];
-  operators.forEach(function(key, index, array) {
+  iterList(operators, function(key, index, array) {
     CodeMirror.keyMap['vim-prefix-'+key+'a'] = {
       auto: 'vim', nofallthrough: true, style: "fat-cursor"
     };
