@@ -762,18 +762,24 @@
       background (which lies behind the selection).
       Pass <code>null</code> to clear the classes for a line.</dd>
 
-      <dt id="foldLines"><code>foldLines(from, to, unfoldOnEnter) → foldHandle</code></dt>
+      <dt id="foldLines"><code>foldLines(from, to, options) → foldHandle</code></dt>
       <dd>Hide the given range of lines (<code>to</code> is
       non-inclusive). Hidden lines don't show up in the editor.
       Deleting a region around them does delete them, and copying a
       region around will include them in the copied text. Vertical
-      cursor movement will skip hidden lines.
+      cursor movement will skip hidden lines. The <code>options</code>
+      parameter is optional. When given, it should be an object
+      containing <code>unfoldOnEnter</code>
+      and/or <code>showWidgets</code> properties.
       When <code>unfoldOnEnter</code> is true, horizontal movement
       into the range will un-hide the range. When it is false,
-      horizonal cursor movement will skip it as if it isn't there. The
-      handle this function returns can be used to unfold the range,
-      and emits an <a href="#event_unfold"><code>unfold</code></a>
-      event when unfolded. Folded ranges may overlap and nest.</dd>
+      horizonal cursor movement will skip it as if it isn't there.
+      When <code>showWidgets</code> is
+      true, <a href="#addLineWidget">line widgets</a> in the folded
+      range will remain visible. The handle this function returns can
+      be used to unfold the range, and emits
+      an <a href="#event_unfold"><code>unfold</code></a> event when
+      unfolded. Folded ranges may overlap and nest.</dd>
       <dt id="unfoldLines"><code>unfoldLines(foldHandle)</code></dt>
       <dd>When given a handle as returned
       by <a href="#foldLines"><code>foldLines</code></a>, this will

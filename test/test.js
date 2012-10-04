@@ -460,13 +460,13 @@ testCM("hiddenLines", function(cm) {
 });
 
 testCM("hiddenLinesAutoUnfold", function(cm) {
-  var folded = cm.foldLines(1, 3, true), unfolded = 0;
+  var folded = cm.foldLines(1, 3, {unfoldOnEnter: true}), unfolded = 0;
   CodeMirror.on(folded, "unfold", function() {unfolded++;});
   cm.setCursor({line: 3, ch: 0});
   eq(unfolded, 0);
   cm.execCommand("goCharLeft");
   eq(unfolded, 1);
-  var folded = cm.foldLines(1, 3, true), unfolded = 0;
+  var folded = cm.foldLines(1, 3, {unfoldOnEnter: true}), unfolded = 0;
   CodeMirror.on(folded, "unfold", function() {unfolded++;});
   eqPos(cm.getCursor(), {line: 3, ch: 0});
   cm.setCursor({line: 0, ch: 3});
