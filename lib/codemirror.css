@@ -80,6 +80,7 @@
   word-wrap: normal;
   line-height: inherit;
   color: inherit;
+  overflow: visible;
 }
 
 .CodeMirror-wrap pre {
