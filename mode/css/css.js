@@ -228,7 +228,7 @@ CodeMirror.defineMode("css", function(config) {
     else if (/[,+>*\/]/.test(ch)) {
       return ret(null, "select-op");
     }
-    else if (ch == "." && stream.match(/^\w+/)) {
+    else if (ch == "." && stream.match(/^-?[_a-z][_a-z0-9-]*/i)) {
       return ret("qualifier", type);
     }
     else if (ch == ":") {
