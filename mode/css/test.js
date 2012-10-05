@@ -217,9 +217,9 @@ MT.testMode(
 
 MT.testMode(
   'classSelector',
-  '.foo { }',
+  '.foo-bar_hello { }',
   [
-    'qualifier', '.foo',
+    'qualifier', '.foo-bar_hello',
     null, ' { }'
   ]
 );
