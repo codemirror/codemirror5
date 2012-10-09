@@ -1,0 +1,116 @@
+#keys {
+  width:      100%;
+  text-align: center;
+  background: -webkit-linear-gradient(top, #9c9ba6, #57575f);
+  padding-top:10px;
+  box-shadow: inset 0 1px 0 #bfbfbf;
+  border-top: 1px solid #303236;
+  padding:    4px;
+  position:   absolute;
+  display:    none;
+  left:       0px;
+  z-index:    999;
+}
+      
+#keys.iPad li {
+  background: -webkit-linear-gradient(top, #eeeef0, #d3d3d9);
+  margin:     4px 8px 8px 0px;
+  text-align: center;
+  font:       20px sans-serif;
+  text-shadow:0 1px 0 #fff;
+  display:    inline-block;
+  border:     1px solid black;
+  box-shadow:  0  2px 2px rgba(0,0,0,0.25),
+  inset 0 -2px 0   rgba(0,0,0,0.25),
+  inset 0  1px 0   #fff;
+  cursor:      pointer;
+  position:   relative;
+  border-radius: 5px;
+  -webkit-transition: all 0.1s ease-in-out;
+  -webkit-user-select: none;
+}
+
+#keys.iPhone li {
+  background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0%, #EEEFF0), color-stop(50%, #E0E0E4), color-stop(100%, #D3D3D9));
+  background-color: #E0E0E4;
+  -webkit-box-shadow: #333 1px 1px 5px 0px;
+  height: 2.5em;
+  line-height: 2.5em;
+  font-size: 2em;
+  font-family: Helvetica;
+  font-weight: 800;  
+  border-radius: 5px;
+  width: 2.5em;
+  text-align: center;
+  display: inline-block;
+  margin: 0 2px;
+  -webkit-transition: all 0.1s ease-in-out;
+  -webkit-user-select: none;
+}
+
+
+.pressed {
+  background: -webkit-linear-gradient(top, rgba(255,255,255,0.3), transparent) !important;
+}
+
+.iOSpopup{
+  position: absolute;
+  top: -100px;
+  display: none;
+  padding: 0px;
+  margin: 0px;
+  background: -webkit-linear-gradient(top, #838383, #060606);
+  border-radius: 5px;
+  border: solid 1px black;
+  list-style: none;
+  z-index: 999;
+}
+
+.iOSpopup li:last-child:after{
+  content: ' ';
+  position: absolute;
+  top: 36px;
+  left: 50%;
+  margin-left: -10px;
+	border: 10px solid transparent;
+	border-top-color: black;
+}
+
+.iOSpopup li{
+  float: left;
+  color: white;
+  font-size: 14px;
+  display: inline;
+  padding: 10px;
+  margin: 0px;
+  font-weight:900;
+  font-family:Helvetica, Arial, Verdana, sans-serif;
+  display: block;
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAAwCAYAAAA7BKuCAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAGRJREFUeNqMkAEKwCAMA1X8UZ+wPXtP6JNmsxWU0UXHBPFIbGlTACS/JfXDkEVkv9/DFajqVh3CH1JQhlLfAAcbSoTQ0NZVjayTLBtW+wauWvSx6WDPGLwyhYnsYc9z/gOXAAMAXS43h0s7kq0AAAAASUVORK5CYII=)
+    right no-repeat;
+}
+
+.CodeMirror-selected:first-of-type{ border-left: solid 2px #2873EF;}
+.CodeMirror-selected:last-of-type{ border-right: solid 2px #2873EF;}
+
+.selectionDot{
+  display: block; 
+  padding:0px;
+  margin:0px;
+  position: absolute;
+  top: -100px;
+  width: 10px;
+  height: 10px;
+  background: -webkit-linear-gradient(top, #2673F2, #1E57B6);
+  border-radius: 5px;
+  border: groove 1px white;
+  box-shadow: 0px 1px 2px 1px rgba(0, 0, 9, .5);
+  z-index: 999;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+body{
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}

@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <title>CodeMirror: iOS Extension Demo</title>
+    <link rel="stylesheet" href="../lib/codemirror.css">
+    <script src="../lib/codemirror.js"></script>
+    <script src="../mode/scheme/scheme.js"></script>
+    <script src="../lib/util/touch.js"></script>
+    <link rel="stylesheet" href="../lib/util/touch.css">
+
+    <style type="text/css">
+      .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}
+    </style>
+  </head>
+  <body>
+    <h1>CodeMirror: iOS Demo</h1>
+
+    <form><textarea id="code" name="code">
+    (define (this is a test)
+      (+ is a test))
+      
+      (define of-the "iOS extension")
+    </textarea></form>
+
+    <script>
+      // define some keys for our 5th row
+var keyArray = [{key:":"},
+                {key:";"},
+                {key:"("},
+                {key:")"},
+                {key:"+"},
+                {key:"-"},
+                {key:"*"},
+                {key:"/"},
+                {key:"<"},
+                {key:">"},
+                {key:"?"},
+                {key:'<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAB1UlEQVQ4jWP4//8/AyWYoIKMq3/+Z17+jRXPffKDsA3//v3/P/flz//J535gwb+Ic+av///+d1x6/T/m+Gc0/BGioLr37H8X31X/7T2W/rd2mvPfxGrCfz3T1v+h8cv+A/X+T9336n/IvncYOHjfG6gB3cf+O7gv+o9hO1Cz44pH/722PMOKPTc/hSgsbT3w39xuGoYBypOv/ndY+QADK8HEV92DKCxo2P3f0LwbxQDB9rP/zebfxMD8zef+///9/79A02kg/wZEcVbF1v/aRg0QA/78+s9Rdvi/1qSLGJineB+KJVpTLkEYyYXr/usY1YAlGVI2/VfsOI2BGVK2gOVT8jaDAxYlIcXmLP+va1wLFvz3F0jErPkvUXcMjhmiVkD1/GdIL92GaUB40oL/Bub1KM5jCFr0n7fiwH8QjSyeV7cHVR2ICIya/d/UthUjFthcpmOIlbYeBjrgL6oLvIKn/Ld26cRMB1hwdfdJTAPs/Tr/O/tM/O8ZMu2/f9Sc/+FJS/7HZK3+n1K08X9W1Y7/hQ0H/5e3Hf9f13fmf92Ec////v2NagAI+wVP/e/s0fXfzrn1v6VTOwQ7dgKT9oT/jh4z/rv5zvvvG7z8/+q111BcCgCYBtNUWU0wgAAAAABJRU5ErkJggg==">', fn:function(){alert("Keys can have any icon, and be assigned to any JS function (like this alert!).")}},
+                {key:"="}
+                ];
+
+
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"),
+                                           {mode: "text/scheme",
+                                           lineNumbers: true
+                                           });
+      editor.addKeyrow(keyArray);
+</script>
+
+  </body>
+</html>
