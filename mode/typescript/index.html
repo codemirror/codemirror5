@@ -1,0 +1,93 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>CodeMirror: JavaScript mode</title>
+    <link rel="stylesheet" href="../../lib/codemirror.css">
+    <script src="../../lib/codemirror.js"></script>
+    <script src="typescript.js"></script>
+    <link rel="stylesheet" href="../../doc/docs.css">
+    <link rel="stylesheet" href="typescript.css">
+    <style type="text/css">.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
+  </head>
+  <body>
+    <h1>CodeMirror: TypeScript mode</h1>
+
+<div><textarea id="code" name="code">
+// This file should demonstrate
+// the syntax highlighting extension for TypeScript.
+
+interface SimpleInterface {
+  a: number;
+};
+
+class TestClass {
+  helloStr: string;
+
+  constructor (public worldStr: string) {
+  }
+
+  sayHelloWorld(): string {
+    return this.helloStr + this.worldStr;
+  }
+
+  static isMagic(str: string): bool;
+  static isMagic(nr: number): bool;
+  static isMagic(strOrNr: any): bool {
+    if (typeof strOrNr == "string") {
+      return (strOrNr == "Hello World!");
+    }
+    return (strOrNr == 42);
+  }
+}
+
+class TestChildClass extends TestClass {
+  constructor (public worldStr: string) {
+    super("Night");
+  }
+}
+
+class TestClass2 {
+}
+
+(function () {
+
+  var anyType: any;
+  var nrType: number;
+  var boolType: bool;
+  var strType: string;
+  var infType: SimpleInterface;
+  
+
+  var anyTypeObject: { a; b; };
+
+  function anyRetFunc(): any {
+  }
+
+  function anyParamFunc(x: any) {
+  }
+
+})();
+
+(function () {
+  function addClosure(y: number): (x: number) => number {
+    return function (x) {
+      return x + y;
+    }
+  }
+  addClosure(4)(5); // Should return 9 by the way
+
+})();
+</textarea></div>
+
+    <script>
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        //lineNumbers: true,
+        matchBrackets: true,
+        theme: "typebox"
+      });
+    </script>
+
+    <p><strong>MIME types defined:</strong> <code>text/typescript</code>, <code>application/typescript</code>.</p>
+  </body>
+</html>
