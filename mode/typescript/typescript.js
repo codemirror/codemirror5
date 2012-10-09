@@ -43,7 +43,7 @@ CodeMirror.defineMode("typescript", function(config, parserConfig) {
       "super": kw("super"),
       
       // types
-      "string": type, "number": type, "bool": type, "any": type,
+      "string": type, "number": type, "bool": type, "any": type
     };
   }();
 
