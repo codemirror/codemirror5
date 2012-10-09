@@ -69,14 +69,15 @@
 #iOSpopup li:last-child:after{
   content: ' ';
   position: absolute;
-  top: 30px;
+  top: 33px;
   left: 50%;
   margin-left: -10px;
 	border: 10px solid transparent;
-	border-top-color: black;
 }
-#iOSpopup.leftEdge  li:last-child:after{ left:10%; }
-#iOSpopup.rightEdge li:last-child:after{ left:90%; }
+#iOSpopup.leftEdge  li:last-child:after{ left:20%; }
+#iOSpopup.rightEdge li:last-child:after{ left:80%; }
+#iOSpopup.aboveEdge li:last-child:after{ border-top-color: black; }
+#iOSpopup.belowEdge li:last-child:after{ border-bottom-color: black; top: -33px;}
 
 #iOSpopup li{
   float: left;
