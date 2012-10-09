@@ -69,7 +69,7 @@
 #iOSpopup li:last-child:after{
   content: ' ';
   position: absolute;
-  top: 36px;
+  top: 30px;
   left: 50%;
   margin-left: -10px;
 	border: 10px solid transparent;
@@ -96,11 +96,10 @@
 .CodeMirror-selected:last-of-type{ border-right: solid 2px #2873EF;}
 
 .selectionDot{
-  display: block; 
+  display: none; 
   padding:0px;
   margin:0px;
   position: absolute;
-  top: -100px;
   width: 10px;
   height: 10px;
   background: -webkit-linear-gradient(top, #2673F2, #1E57B6);
