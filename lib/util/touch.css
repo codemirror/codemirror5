@@ -99,7 +99,6 @@
 .selectionDot{
   display: none; 
   padding:0px;
-  margin:0px;
   position: absolute;
   width: 10px;
   height: 10px;
