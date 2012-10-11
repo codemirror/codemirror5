@@ -7,7 +7,8 @@
     <link rel="stylesheet" href="../lib/codemirror.css">
     <script src="../lib/codemirror.js"></script>
     <script src="../mode/scheme/scheme.js"></script>
-    <script src="../lib/util/touch.js"></script>
+    <script src="../lib/util/iOSkeyboard.js"></script>
+    <script src="../lib/util/iOSpopup.js"></script>
     <link rel="stylesheet" href="../lib/util/touch.css">
 
     <style type="text/css">
@@ -18,14 +19,58 @@
     <h1>CodeMirror: iOS Demo</h1>
 
     <form><textarea id="code" name="code">
-    (define (this is a test)
-      (+ is a test))
-      
-      (define of-the "iOS extension")
+; See if the input starts with a given symbol.
+(define (match-symbol input pattern)
+(cond ((null? (remain input)) #f)
+((eqv? (car (remain input)) pattern) (r-cdr input))
+(else #f)))
+
+; Allow the input to start with one of a list of patterns. Then extend this line a long way so we have something to test the right side of the screen on
+(define (match-or input pattern)
+(cond ((null? pattern) #f)
+((match-pattern input (car pattern)))
+(else (match-or input (cdr pattern)))))
+
+; Allow a sequence of patterns.
+(define (match-seq input pattern)
+(if (null? pattern)
+input
+(let ((match (match-pattern input (car pattern))))
+(if match (match-seq match (cdr pattern)) #f))))
+
+; Match with the pattern but no problem if it does not match.
+(define (match-opt input pattern)
+(let ((match (match-pattern input (car pattern))))
+(if match match input)))
+
+; Match anything (other than '()), until pattern is found. The rather
+; clumsy form of requiring an ending pattern is needed to decide where
+; the end of the match is. If none is given, this will match the rest
+; of the sentence.
+(define (match-any input pattern)
+(cond ((null? (remain input)) #f)
+((null? pattern) (f-cons (remain input) (clear-remain input)))
+(else
+(let ((accum-any (collector)))
+(define (match-pattern-any input pattern)
+(cond ((null? (remain input)) #f)
+(else (accum-any (car (remain input)))
+(cond ((match-pattern (r-cdr input) pattern))
+(else (match-pattern-any (r-cdr input) pattern))))))
+(let ((retval (match-pattern-any input (car pattern))))
+(if retval
+(f-cons (accum-any) retval)
+#f))))))
     </textarea></form>
 
     <script>
       // define some keys for our 5th row
+      
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"),
+                                           {mode: "text/scheme",
+                                           lineNumbers: true
+                                           });
+// undo and redo icons from http://turbomilk.com
 var keyArray = [{key:":"},
                 {key:";"},
                 {key:"("},
@@ -35,18 +80,16 @@ var keyArray = [{key:":"},
                 {key:"*"},
                 {key:"/"},
                 {key:"<"},
+                {key:"="},
                 {key:">"},
                 {key:"?"},
                 {key:'<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAB1UlEQVQ4jWP4//8/AyWYoIKMq3/+Z17+jRXPffKDsA3//v3/P/flz//J535gwb+Ic+av///+d1x6/T/m+Gc0/BGioLr37H8X31X/7T2W/rd2mvPfxGrCfz3T1v+h8cv+A/X+T9336n/IvncYOHjfG6gB3cf+O7gv+o9hO1Cz44pH/722PMOKPTc/hSgsbT3w39xuGoYBypOv/ndY+QADK8HEV92DKCxo2P3f0LwbxQDB9rP/zebfxMD8zef+///9/79A02kg/wZEcVbF1v/aRg0QA/78+s9Rdvi/1qSLGJineB+KJVpTLkEYyYXr/usY1YAlGVI2/VfsOI2BGVK2gOVT8jaDAxYlIcXmLP+va1wLFvz3F0jErPkvUXcMjhmiVkD1/GdIL92GaUB40oL/Bub1KM5jCFr0n7fiwH8QjSyeV7cHVR2ICIya/d/UthUjFthcpmOIlbYeBjrgL6oLvIKn/Ld26cRMB1hwdfdJTAPs/Tr/O/tM/O8ZMu2/f9Sc/+FJS/7HZK3+n1K08X9W1Y7/hQ0H/5e3Hf9f13fmf92Ec////v2NagAI+wVP/e/s0fXfzrn1v6VTOwQ7dgKT9oT/jh4z/rv5zvvvG7z8/+q111BcCgCYBtNUWU0wgAAAAABJRU5ErkJggg==">', fn:function(){alert("Keys can have any icon, and be assigned to any JS function (like this alert!).")}},
-                {key:"="}
+                {key:'<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAAACXBIWXMAAAsTAAALEwEAmpwYAAACbGlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNS4xLjIiPgogICA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPgogICAgICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgICAgICAgICB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iPgogICAgICAgICA8eG1wOkNyZWF0b3JUb29sPkFjb3JuIHZlcnNpb24gMy4zPC94bXA6Q3JlYXRvclRvb2w+CiAgICAgIDwvcmRmOkRlc2NyaXB0aW9uPgogICAgICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgICAgICAgICB4bWxuczp0aWZmPSJodHRwOi8vbnMuYWRvYmUuY29tL3RpZmYvMS4wLyI+CiAgICAgICAgIDx0aWZmOkNvbXByZXNzaW9uPjU8L3RpZmY6Q29tcHJlc3Npb24+CiAgICAgICAgIDx0aWZmOllSZXNvbHV0aW9uPjcyPC90aWZmOllSZXNvbHV0aW9uPgogICAgICAgICA8dGlmZjpYUmVzb2x1dGlvbj43MjwvdGlmZjpYUmVzb2x1dGlvbj4KICAgICAgPC9yZGY6RGVzY3JpcHRpb24+CiAgIDwvcmRmOlJERj4KPC94OnhtcG1ldGE+CpnklSUAAALUSURBVDgRrZRPTxNBGMZnt0uhf5aWhIalVbocxBBKQyWBbVAMQoCTMUEOHjx4MJrAhZhg1IPwEWpCNPHiB9BDb2hMijUGSLRJkVRssYEWobSlu+1uC912u77TpASMJ2GSNzM7+76/eeaZ2SVUVUXn0cjzgGDGuYGofygiNjc3mweHhgaZlpYe2mBogpzyAc/HdmKxT36/f8PpdOb/riPm5ua0DQ0NuqOjI3F3d1cjCMINWZYfcZyba21l9DqdTqMoiiqKkpxIJDJLS753RqPR4/V6fwHs2GCCYZihnh7XY57PPNve3mYmJm6/4Lj+doPBQJTLZVQsFlGhUKhGuawgrVZbWl5ZXgpGo1OhlZVITRlFkiTd1983Ft/53elyXVHdbs5eqVRQLpdDoBLl83l0eHhYDTwGtXXObuewwPPPHQ7Hw/X1dQnDqh4dpNPo+rWrbRRFVQswABdjJbgYP9egkiShvb090uHonjwQhC/AeAWhavQ0fbmjo+OOqbERlUollMlkUDabReBVNTBAFEVUALACW8ULxONxyJU1F222S5FI5OPAwECaQoqC5KKM0qAKg3AiVoHVYJOFbC6dTO7/LJdKAlWntTSZTe2NJlNzKBQix8fH2xYWXo7Ozs6GKUiGQgklk0m8/2NjsU8AjQeDwSfT09MfQH4GgvF4PC6r9cKUxWIZ3dra0rJsmzsajb4hzGbzTbfb7YUrcOqEmi0WBCp++Hy+u7DAN4DUGjEzM2NfXHz/mmXtwzD5HYCTVVBXV5cXK8DqakYTBIE4jkOxWPzr/n7iAWwlUCPhvre3t7NSUd9abVabf3X1FgmAIpxEElZNwb1JaTSalF6vT9XX16fC4XCKpo12nhfuz8/Pn/qcAoHAxtjY6FMxJ5bqFIUmwAMDFDIAIk6ueHIM7yWWZRMn5/B4bW3NMDIycg9O+DNx1t8IWIAZ6plBNZWn9l2b/J/+D73tnV+9AYX9AAAAAElFTkSuQmCC">', fn: editor.undo},
+                {key:'<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAAACXBIWXMAAAsTAAALEwEAmpwYAAACbGlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNS4xLjIiPgogICA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPgogICAgICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgICAgICAgICB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iPgogICAgICAgICA8eG1wOkNyZWF0b3JUb29sPkFjb3JuIHZlcnNpb24gMy4zPC94bXA6Q3JlYXRvclRvb2w+CiAgICAgIDwvcmRmOkRlc2NyaXB0aW9uPgogICAgICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgICAgICAgICB4bWxuczp0aWZmPSJodHRwOi8vbnMuYWRvYmUuY29tL3RpZmYvMS4wLyI+CiAgICAgICAgIDx0aWZmOkNvbXByZXNzaW9uPjU8L3RpZmY6Q29tcHJlc3Npb24+CiAgICAgICAgIDx0aWZmOllSZXNvbHV0aW9uPjcyPC90aWZmOllSZXNvbHV0aW9uPgogICAgICAgICA8dGlmZjpYUmVzb2x1dGlvbj43MjwvdGlmZjpYUmVzb2x1dGlvbj4KICAgICAgPC9yZGY6RGVzY3JpcHRpb24+CiAgIDwvcmRmOlJERj4KPC94OnhtcG1ldGE+CpnklSUAAAKeSURBVDgRrZRNbBJBFMdnF/mGUhcDlEoTPyCxGgMJPZhaYU8SDnLUNr1pvHrxQGJSxBsE4hUPEg41DcWaHm0M6c0YA5f2ghQ0sQaMIOzyVT52wTdLwSbWpAcmGWbCzPvN//3fA2IwGKBJDHISEMw49z+Q3W4Xw9kFkiTl/X6fgH0PJptKpdjTYv4B+f1+WSQSuWWz2Vavzc/TBoPBJCJFovLvMpPJZPbMZvO6x+PZDoVC5ZNA4qRHwWBQXSgUHk9NaZ6YTBdnCYIgJRIJGk18N5//1tjZeb+9sGB/JpfLmbm5S/eq1fLnMQiCCIvF8nBlZSUAqVDdbhcpFAqkVCqFVSaTIalUKohgGKaXSCQ2Wbb+a+nO7UfvtrZWxyCr1Xp9cXHpA89zMwxTHQPgVQGEoXhiIFbIsiwPGRO5gwNyY2PTI3gUCAQ0FEW94LjezP7+HlKr1ajX66FOp4NarRZqNpsCAIMwGE+9Xi+q1+sI1IFKfli1aDRKu1wuOplMCpfEYjFqAqABALwHz5BU0kK1Wm2sDsOFQeCCQvnT6bRCo9HQYLIavBmAJ5VcLr9LUedfl0qlXa1Wa/uaz3uhWnehFWQ4rVGa+JH20dEQFIvFpqcp6matXhepVKofIPk5TdNvfT5fTbiB0Ccw2avT6a7A+Y1qtSqAcHrY/EajgTo8pAZpzTocjqutVhuj1+Lx+BtYcfMJw+12S41G4wNQdBnUC56NvMKKIAmEOA6RUAUtD+XOZrOvIK11iB5DYE9AJz91Op1rxWJR0W63wTMJgk6BWE4oRqfbQTxWBF8Qh98PPy4v338ZDoe5oY6/n16vNwcpQUU5eL1/fDD8iZLDZVCpVL5gy9V4Qtf+hHV08zjg7Mu4Ic8ecvrNif2NTAz0B5F8F47mKxdgAAAAAElFTkSuQmCC">', fn: editor.redo}
                 ];
 
-
-      var editor = CodeMirror.fromTextArea(document.getElementById("code"),
-                                           {mode: "text/scheme",
-                                           lineNumbers: true
-                                           });
       editor.addKeyrow(keyArray);
+      editor.addPopup(editor);
 </script>
 
   </body>
