@@ -126,7 +126,7 @@
     CodeMirror.on(window, "resize", function() {
       var showing = document.body.getElementsByClassName("CodeMirror-fullscreen")[0];
       if (!showing) return;
-      showing.CodeMirror.getScrollerElement().style.height = winHeight() + "px";
+      showing.CodeMirror.getWrapperElement().style.height = winHeight() + "px";
     });
     var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
       lineNumbers: true,
