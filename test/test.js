@@ -287,16 +287,21 @@ testCM("markTextMultiLine", function(cm) {
 });
 
 testCM("markTextUndo", function(cm) {
-  var marker1 = cm.markText({line: 0, ch: 1}, {line: 0, ch: 3}, "CodeMirror-matchingbracket");
-  var marker2 = cm.markText({line: 0, ch: 0}, {line: 2, ch: 1}, "CodeMirror-matchingbracket");
-  var bookmark = cm.setBookmark({line: 1, ch: 5});
-  cm.replaceRange("foo", {line: 0, ch: 2});
-  cm.replaceRange("bar\baz\bug\n", {line: 2, ch: 0}, {line: 3, ch: 0});
+  var marker1, marker2, bookmark;
+  cm.compoundChange(function(){
+    marker1 = cm.markText({line: 0, ch: 1}, {line: 0, ch: 3}, "CodeMirror-matchingbracket");
+    marker2 = cm.markText({line: 0, ch: 0}, {line: 2, ch: 1}, "CodeMirror-matchingbracket");
+    bookmark = cm.setBookmark({line: 1, ch: 5});
+  });
+  cm.compoundChange(function(){
+    cm.replaceRange("foo", {line: 0, ch: 2});
+    cm.replaceRange("bar\baz\bug\n", {line: 2, ch: 0}, {line: 3, ch: 0});
+  });
   cm.setValue("");
   eq(marker1.find(), null); eq(marker2.find(), null); eq(bookmark.find(), null);
   cm.undo();
   eqPos(bookmark.find(), {line: 1, ch: 5});
-  cm.undo(); cm.undo();
+  cm.undo();
   var m1Pos = marker1.find(), m2Pos = marker2.find();
   eqPos(m1Pos.from, {line: 0, ch: 1}); eqPos(m1Pos.to, {line: 0, ch: 3});
   eqPos(m2Pos.from, {line: 0, ch: 0}); eqPos(m2Pos.to, {line: 2, ch: 1});
