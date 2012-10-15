@@ -1,6 +1,11 @@
-CodeMirror.defineMode("javascript", function(config, parserConfig) {
+/**
+  * The TypeScript extensions are (C) Copyright 2012 by ComFreek <comfreek@outlook.com>
+  */
+
+CodeMirror.defineMode("javascript", function (config, parserConfig) {
   var indentUnit = config.indentUnit;
   var jsonMode = parserConfig.json;
+  var isTS = parserConfig.typescript;
 
   // Tokenizer
 
@@ -8,7 +13,8 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     function kw(type) {return {type: type, style: "keyword"};}
     var A = kw("keyword a"), B = kw("keyword b"), C = kw("keyword c");
     var operator = kw("operator"), atom = {type: "atom", style: "atom"};
-    return {
+    
+    var jsKeywords = {
       "if": A, "while": A, "with": A, "else": B, "do": B, "try": B, "finally": B,
       "return": C, "break": C, "continue": C, "new": C, "delete": C, "throw": C,
       "var": kw("var"), "const": kw("var"), "let": kw("var"),
@@ -17,6 +23,34 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       "in": operator, "typeof": operator, "instanceof": operator,
       "true": atom, "false": atom, "null": atom, "undefined": atom, "NaN": atom, "Infinity": atom
     };
+
+    // Extend the 'normal' keywords with the TypeScript language extensions
+    if (isTS) {
+      var tsKeywords = {
+        // object-like things
+        "interface": kw("interface"),
+        "class": kw("class"),
+        "extends": kw("extends"),
+        "constructor": kw("constructor"),
+
+        // scope modifiers
+        "public": kw("public"),
+        "private": kw("private"),
+        "protected": kw("protected"),
+        "static": kw("static"),
+
+        "super": kw("super"),
+
+        // types
+        "string": type, "number": type, "bool": type, "any": type
+      };
+
+      for (var attr in tsKeywords) {
+        jsKeywords[attr] = tsKeywords[attr];
+      }
+    }
+
+    return jsKeywords;
   }();
 
   var isOperatorChar = /[+\-*&%=<>!?|]/;
@@ -360,3 +394,5 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
 
 CodeMirror.defineMIME("text/javascript", "javascript");
 CodeMirror.defineMIME("application/json", {name: "javascript", json: true});
+CodeMirror.defineMIME("text/typescript", { name: "javascript", typescript: true });
+CodeMirror.defineMIME("application/typescript", { name: "javascript", typescript: true });
