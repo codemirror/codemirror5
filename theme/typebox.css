@@ -1,0 +1,87 @@
+﻿/**
+  * This file is based on the Ambiance theme provided by CodeMirror.
+  * You can see its license agreement in the CodeMirror root directory.
+  *
+  * All changes are (C) Copyright 2012 by ComFreek <comfreek@outlook.com>
+  */
+
+/* Color scheme */
+
+.cm-s-typebox .cm-keyword { color: #0000FF; }
+.cm-s-typebox .cm-atom { color: #0000FF; }
+.cm-s-typebox .cm-number { color: #A31515; }
+.cm-s-typebox .cm-def { color: #000000; }
+.cm-s-typebox .cm-variable { color: #000000; }
+.cm-s-typebox .cm-variable-2 { color: #000000; }
+.cm-s-typebox .cm-variable-3 { color: #000000; }
+.cm-s-typebox .cm-property { color: #000000; }
+.cm-s-typebox .cm-operator {color: #000000;}
+.cm-s-typebox .cm-comment { color: #008000; font-style:italic; }
+.cm-s-typebox .cm-string { color: #A31515; }
+.cm-s-typebox .cm-string-2 { color: #A31515; }
+.cm-s-typebox .cm-meta { color: #000000; }
+.cm-s-typebox .cm-error { color: #000000; }
+.cm-s-typebox .cm-qualifier { color: #000000; }
+.cm-s-typebox .cm-builtin { color: #000000; }
+.cm-s-typebox .cm-bracket { color: #000000; }
+.cm-s-typebox .cm-tag { color: #000000 }
+.cm-s-typebox .cm-attribute {  color: #000000; }
+.cm-s-typebox .cm-header {color: #000000;}
+.cm-s-typebox .cm-quote { color: #000000; }
+.cm-s-typebox .cm-hr { color: #000000; }
+.cm-s-typebox .cm-link { color: #000000; }
+.cm-s-typebox .cm-special { color: #000000; }
+
+.cm-s-typebox .CodeMirror-matchingbracket { color: #FF0000; }
+.cm-s-typebox .CodeMirror-nonmatchingbracket { color: #FF0000; }
+
+
+.cm-s-typebox .CodeMirror-selected {
+  background: #ADD6FF;
+}
+.CodeMirror-focused .cm-s-typebox .CodeMirror-selected {
+  background: #ADD6FF;
+}
+
+/* Editor styling */
+
+.cm-s-typebox {
+  line-height: 1.40em;
+  font-family: Monaco, Menlo,"Andale Mono","lucida console","Courier New",monospace !important;
+  color: #000000;
+  background-color: #202020;
+  -webkit-box-shadow: inset 0 0 10px black;
+  -moz-box-shadow: inset 0 0 10px black;
+  -o-box-shadow: inset 0 0 10px black;
+  box-shadow: inset 0 0 10px black;
+}
+
+.cm-s-typebox .CodeMirror-gutter {
+  background: #3D3D3D;
+  padding: 0 5px;
+  text-shadow: #333 1px 1px;
+  border-right: 1px solid #4D4D4D;
+  box-shadow: 0 10px 20px black;
+}
+
+.cm-s-typebox .CodeMirror-gutter .CodeMirror-gutter-text {
+  text-shadow: 0px 1px 1px #4d4d4d;
+  color: #222;
+}
+
+.cm-s-typebox .CodeMirror-lines {
+  
+}
+
+.cm-s-typebox .CodeMirror-lines .CodeMirror-cursor {
+  border-left: 1px solid black;
+}
+
+.cm-s-typebox .activeline {
+  background: none repeat scroll 0% 0% rgba(255, 255, 255, 0.031);
+}
+
+.cm-s-typebox,
+.cm-s-typebox .CodeMirror-gutter {
+  background: white;
+}
