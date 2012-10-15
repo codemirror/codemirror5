@@ -96,17 +96,29 @@
 .CodeMirror-selected:first-of-type{ border-left: solid 2px #2873EF;}
 .CodeMirror-selected:last-of-type{ border-right: solid 2px #2873EF;}
 
-.selectionDot{
+.selectionDot{ 
   display: none; 
-  padding:0px;
   position: absolute;
+  width: 20px;
+  height: 20px;
+  background: none;
+  z-index: 999;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+
+.selectionDot span{
+  padding: 0px;
+  position: absolute;
+  top: 5px;
+  left: 5px;
   width: 10px;
   height: 10px;
   background: -webkit-linear-gradient(top, #2673F2, #1E57B6);
   border-radius: 5px;
   border: groove 1px white;
   box-shadow: 0px 1px 2px 1px rgba(0, 0, 9, .5);
-  z-index: 999;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
 }
@@ -114,4 +126,33 @@
 body{
   -webkit-user-select: none;
   -webkit-touch-callout: none;
+}
+
+.magnifyingGlass{
+  width: 100px;
+  height: 20px;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  overflow: hidden;
+  background: white;
+  border: 3px groove white;
+  z-index: 1000;
+  box-shadow:  0  2px 2px black;
+  display: none;
+}
+
+.magnifiedStuff{
+  top: 0px;
+  left: 0px;
+  margin-left: -50px; /* Half magnifyingGlass width */
+  margin-top: -10px; /* Half magnifyingGlass height */
+  overflow: visible;
+  position: absolute;
+  display: block;
+  transform-origin: left top;
+  -webkit-transform-origin: left top;
+
+  user-select: none;
+  -webkit-user-select: none
 }
