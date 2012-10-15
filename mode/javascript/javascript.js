@@ -24,12 +24,8 @@ CodeMirror.defineMode("javascript", function (config, parserConfig) {
       "true": atom, "false": atom, "null": atom, "undefined": atom, "NaN": atom, "Infinity": atom
     };
 
-    if (!isTS) {
-      return jsKeywords;
-    }
-    // Add TypeScript language extensions
-    else {
-      
+    // Extend the 'normal' keywords with the TypeScript language extensions
+    if (isTS) {
       var tsKeywords = {
         // object-like things
         "interface": kw("interface"),
@@ -49,13 +45,12 @@ CodeMirror.defineMode("javascript", function (config, parserConfig) {
         "string": type, "number": type, "bool": type, "any": type
       };
 
-      // Extend jsKeywords
       for (var attr in tsKeywords) {
         jsKeywords[attr] = tsKeywords[attr];
       }
-      return jsKeywords;
     }
 
+    return jsKeywords;
   }();
 
   var isOperatorChar = /[+\-*&%=<>!?|]/;
