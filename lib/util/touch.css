@@ -133,7 +133,7 @@ body{
   height: 20px;
   position: absolute;
   top: 0px;
-  left: 0px;
+  left: -1000px;
   overflow: hidden;
   background: white;
   border: 3px groove white;
