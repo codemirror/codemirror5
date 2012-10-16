@@ -957,6 +957,13 @@
     and whenever the option is modified
     through <a href="#setOption"><code>setOption</code></a>.</p>
 
+    <p id="defineInitHook">If your extention just needs to run some
+    code whenever a CodeMirror instance is initialized,
+    use <code>CodeMirror.defineInitHook</code>. Give it a function as
+    its only argument, and from then on, that function will be called
+    (with the instance as argument) whenever a new CodeMirror instance
+    is initialized.</p>
+
     <h2 id="addons">Add-ons</h2>
 
     <p>The <code>lib/util</code> directory in the distribution
