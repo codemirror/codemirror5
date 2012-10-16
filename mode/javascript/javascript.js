@@ -2,7 +2,9 @@
   * The TypeScript extensions are (C) Copyright 2012 by ComFreek <comfreek@outlook.com>
   */
 
-CodeMirror.defineMode("javascript", function (config, parserConfig) {
+// TODO actually recognize syntax of TypeScript constructs
+
+CodeMirror.defineMode("javascript", function(config, parserConfig) {
   var indentUnit = config.indentUnit;
   var jsonMode = parserConfig.json;
   var isTS = parserConfig.typescript;
@@ -26,6 +28,7 @@ CodeMirror.defineMode("javascript", function (config, parserConfig) {
 
     // Extend the 'normal' keywords with the TypeScript language extensions
     if (isTS) {
+      var type = {type: "variable", style: "variable-3"};
       var tsKeywords = {
         // object-like things
         "interface": kw("interface"),
@@ -309,8 +312,19 @@ CodeMirror.defineMode("javascript", function (config, parserConfig) {
     if (type == "}") return cont();
     return pass(statement, block);
   }
+  function maybetype(type) {
+    if (type == ":") return cont(typedef);
+    return pass();
+  }
+  function typedef(type) {
+    if (type == "variable"){cx.marked = "variable-3"; return cont();}
+    return pass();
+  }
   function vardef1(type, value) {
-    if (type == "variable"){register(value); return cont(vardef2);}
+    if (type == "variable") {
+      register(value);
+      return isTS ? cont(maybetype, vardef2) : cont(vardef2);
+    }
     return cont();
   }
   function vardef2(type, value) {
@@ -340,7 +354,7 @@ CodeMirror.defineMode("javascript", function (config, parserConfig) {
     if (type == "(") return cont(pushlex(")"), pushcontext, commasep(funarg, ")"), poplex, statement, popcontext);
   }
   function funarg(type, value) {
-    if (type == "variable") {register(value); return cont();}
+    if (type == "variable") {register(value); return isTS ? cont(maybetype) : cont();}
   }
 
   // Interface
