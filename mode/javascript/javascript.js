@@ -1,7 +1,3 @@
-/**
-  * The TypeScript extensions are (C) Copyright 2012 by ComFreek <comfreek@outlook.com>
-  */
-
 // TODO actually recognize syntax of TypeScript constructs
 
 CodeMirror.defineMode("javascript", function(config, parserConfig) {
