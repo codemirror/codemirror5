@@ -298,6 +298,14 @@
       generate events that allow CodeMirror to properly detect it.
       Thus, it polls. Default is 100 milliseconds.</dd>
 
+      <dt id="option_flattenSpans"><code>flattenSpans (boolean)</code></dt>
+      <dd>By default, CodeMirror will combine adjacent tokens into a
+      single span if they have the same class. This will result in a
+      simpler DOM tree, and thus perform better. With some kinds of
+      styling (such as rounded corners), this will change the way the
+      document looks. You can set this option to false to disable this
+      behavior.</dd>
+
       <dt id="option_viewportMargin"><code>viewportMargin (integer)</code></dt>
       <dd>Specifies the amount of lines that are rendered above and
       below the part of the document that's currently scrolled into
