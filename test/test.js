@@ -804,3 +804,32 @@ testCM("getLineNumber", function(cm) {
   cm.setValue("");
   eq(cm.getLineNumber(h1), null);
 });
+
+testCM("jumpTheGap", function(cm) {
+  var longLine = "abcdef ghiklmnop qrstuvw xyz ";
+  longLine += longLine; longLine += longLine; longLine += longLine;
+  cm.setLine(2, longLine);
+  cm.setSize("200px", null);
+  cm.getWrapperElement().style.lineHeight = 2;
+  cm.setCursor({line: 0, ch: 1});
+  cm.execCommand("goLineDown");
+  eqPos(cm.getCursor(), {line: 1, ch: 1});
+  cm.execCommand("goLineDown");
+  eqPos(cm.getCursor(), {line: 2, ch: 1});
+  cm.execCommand("goLineDown");
+  eq(cm.getCursor().line, 2);
+  is(cm.getCursor().ch > 1);
+  cm.execCommand("goLineUp");
+  eqPos(cm.getCursor(), {line: 2, ch: 1});
+  cm.execCommand("goLineUp");
+  eqPos(cm.getCursor(), {line: 1, ch: 1});
+  var node = document.createElement("div");
+  node.innerHTML = "hi"; node.style.height = "30px";
+  cm.addLineWidget(0, node);
+  cm.addLineWidget(1, node.cloneNode(true), {above: true});
+  cm.setCursor({line: 0, ch: 2});
+  cm.execCommand("goLineDown");
+  eqPos(cm.getCursor(), {line: 1, ch: 2});
+  cm.execCommand("goLineUp");
+  eqPos(cm.getCursor(), {line: 0, ch: 2});
+}, {lineWrapping: true, value: "abc\ndef\nghi\njkl\n"});
