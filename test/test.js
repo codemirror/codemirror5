@@ -312,10 +312,15 @@ testCM("markTextUndo", function(cm) {
   eqPos(m1Pos.from, {line: 0, ch: 1}); eqPos(m1Pos.to, {line: 0, ch: 3});
   eqPos(m2Pos.from, {line: 0, ch: 0}); eqPos(m2Pos.to, {line: 2, ch: 1});
   eqPos(bookmark.find(), {line: 1, ch: 5});
-  marker1 = cm.markText({line: 0, ch: 0}, {line: 0, ch: 0}, "CodeMirror-matchingbracket");
-  cm.undo();
-  eq(marker1.find(), null);
 }, {value: "1234\n56789\n00\n"});
+
+testCM("markTextStayGone", function(cm) {
+  var m1 = cm.markText({line: 0, ch: 0}, {line: 0, ch: 1}, "CodeMirror-matchingbracket");
+  cm.replaceRange("hi", {line: 0, ch: 2});
+  m1.clear();
+  cm.undo();
+  eq(m1.find(), null);
+}, {value: "hello"});
 
 testCM("markClearBetween", function(cm) {
   cm.setValue("aaa\nbbb\nccc\nddd\n");
