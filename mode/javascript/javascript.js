@@ -99,7 +99,8 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
         stream.skipToEnd();
         return ret("comment", "comment");
       }
-      else if (state.reAllowed) {
+      else if (state.lastType == "operator" || state.lastType == "keyword c" ||
+               /^[\[{}\(,;:]$/.test(state.lastType)) {
         nextUntilUnescaped(stream, "/");
         stream.eatWhile(/[gimy]/); // 'y' is "sticky" option in Mozilla
         return ret("regexp", "string-2");
@@ -120,7 +121,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     else {
       stream.eatWhile(/[\w\$_]/);
       var word = stream.current(), known = keywords.propertyIsEnumerable(word) && keywords[word];
-      return (known && state.kwAllowed) ? ret(known.type, known.style, word) :
+      return (known && state.lastType != ".") ? ret(known.type, known.style, word) :
                      ret("variable", "variable", word);
     }
   }
@@ -359,8 +360,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     startState: function(basecolumn) {
       return {
         tokenize: jsTokenBase,
-        reAllowed: true,
-        kwAllowed: true,
+        lastType: null,
         cc: [],
         lexical: new JSLexical((basecolumn || 0) - indentUnit, 0, "block", false),
         localVars: parserConfig.localVars,
@@ -378,8 +378,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       if (stream.eatSpace()) return null;
       var style = state.tokenize(stream, state);
       if (type == "comment") return style;
-      state.reAllowed = !!(type == "operator" || type == "keyword c" || type.match(/^[\[{}\(,;:]$/));
-      state.kwAllowed = type != '.';
+      state.lastType = type;
       return parseJS(state, style, type, content, stream);
     },
 
@@ -391,7 +390,9 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       var type = lexical.type, closing = firstChar == type;
       if (type == "vardef") return lexical.indented + 4;
       else if (type == "form" && firstChar == "{") return lexical.indented;
-      else if (type == "stat" || type == "form") return lexical.indented + indentUnit;
+      else if (type == "form") return lexical.indented + indentUnit;
+      else if (type == "stat")
+        return lexical.indented + (state.lastType == "operator" || state.lastType == "," ? indentUnit : 0);
       else if (lexical.info == "switch" && !closing)
         return lexical.indented + (/^(?:case|default)\b/.test(textAfter) ? indentUnit : 2 * indentUnit);
       else if (lexical.align) return lexical.column + (closing ? 0 : 1);
