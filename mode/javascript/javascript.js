@@ -322,7 +322,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       register(value);
       return isTS ? cont(maybetype, vardef2) : cont(vardef2);
     }
-    return cont();
+    return pass();
   }
   function vardef2(type, value) {
     if (value == "=") return cont(expression, vardef2);
@@ -388,7 +388,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       var firstChar = textAfter && textAfter.charAt(0), lexical = state.lexical;
       if (lexical.type == "stat" && firstChar == "}") lexical = lexical.prev;
       var type = lexical.type, closing = firstChar == type;
-      if (type == "vardef") return lexical.indented + 4;
+      if (type == "vardef") return lexical.indented + (state.lastType == "operator" || state.lastType == "," ? 4 : 0);
       else if (type == "form" && firstChar == "{") return lexical.indented;
       else if (type == "form") return lexical.indented + indentUnit;
       else if (type == "stat")
