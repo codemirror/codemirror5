@@ -290,6 +290,38 @@
 
   <h2 id=releases>Releases</h2>
 
+  <p class="rel">22-10-2012: <a href="http://codemirror.net/codemirror-2.35.zip">Version 2.35</a>:</p>
+
+  <ul class="rel-note">
+    <li>New (sub) mode: <a href="mode/javascript/typescript.html">TypeScript</a>.</li>
+    <li>Don't overwrite (insert key) when pasing.</li>
+    <li>Fix several bugs in <a href="doc/manual.html#markText"><code>markText</code></a>/undo interaction.</li>
+    <li>Better indentation of JavaScript code without semicolons.</li>
+    <li>Add <a href="doc/manual.html#defineInitHook"><code>defineInitHook</code></a> function.</li>
+    <li>Full <a href="https://github.com/marijnh/CodeMirror/compare/v2.34...v2.35">list of patches</a>.</li>
+  </ul>
+
+  <p class="rel">22-10-2012: <a href="http://codemirror.net/codemirror-3.0beta2.zip">Version 3.0, beta 2</a>:</p>
+
+  <p class="rel-note"><strong>BETA release, new major version</strong>. Only partially
+  backwards-compatible. See
+  the <a href="doc/upgrade_v3.html">upgrading
+  guide</a> for more information. Changes since beta1:</p>
+
+  <ul class="rel-note">
+    <li>Fix page-based coordinate computation.</li>
+    <li>Fix firing of <a href="doc/manual.html#event_gutterClick"><code>gutterClick</code></a> event.</li>
+    <li>Add <a href="doc/manual.html#option_cursorHeight"><code>cursorHeight</code></a> option.</li>
+    <li>Fix bi-directional text regression.</li>
+    <li>Add <a href="doc/manual.html#option_viewportMargin"><code>viewportMargin</code></a> option.</li>
+    <li>Directly handle mousewheel events (again, hopefully better).</li>
+    <li>Make vertical cursor movement more robust (through widgets, big line gaps).</li>
+    <li>Add <a href="doc/manual.html#option_flattenSpans"><code>flattenSpans</code></a> option.</li>
+    <li>Many optimizations. Poor responsiveness should be fixed.</li>
+    <li>Initialization in hidden state works again.</li>
+    <li>Full <a href="https://github.com/marijnh/CodeMirror/compare/v3.0beta1...v3.0beta2">list of patches</a>.</li>
+  </ul>
+
   <p class="rel">19-09-2012: <a href="http://codemirror.net/codemirror-2.34.zip">Version 2.34</a>:</p>
 
   <ul class="rel-note">
@@ -413,57 +445,6 @@
     and <a href="doc/manual.html#cursorCoords"><code>cursorCoords</code></a> with a <code>mode</code> argument.</li>
     <li>Add <a href="doc/manual.html#option_autofocus"><code>autofocus</code></a> option.</li>
     <li>Add <a href="doc/manual.html#findMarksAt"><code>findMarksAt</code></a> method.</li>
-  </ul>
-
-  <p class="rel">27-02-2012: <a href="http://codemirror.net/codemirror-2.22.zip">Version 2.22</a>:</p>
-
-  <ul class="rel-note">
-    <li>Allow <a href="doc/manual.html#keymaps">key handlers</a> to pass up events, allow binding characters.</li>
-    <li>Add <a href="doc/manual.html#option_autoClearEmptyLines"><code>autoClearEmptyLines</code></a> option.</li>
-    <li>Properly use tab stops when rendering tabs.</li>
-    <li>Make PHP mode more robust.</li>
-    <li>Support indentation blocks in <a href="doc/manual.html#util_foldcode">code folder</a>.</li>
-    <li>Add a script for <a href="doc/manual.html#util_match-highlighter">highlighting instances of the selection</a>.</li>
-    <li>New <a href="mode/properties/index.html">.properties</a> mode.</li>
-    <li>Fix many bugs.</li>
-  </ul>
-
-  <p class="rel">27-01-2012: <a href="http://codemirror.net/codemirror-2.21.zip">Version 2.21</a>:</p>
-
-  <ul class="rel-note">
-    <li>Added <a href="mode/less/index.html">LESS</a>, <a href="mode/mysql/index.html">MySQL</a>,
-    <a href="mode/go/index.html">Go</a>, and <a href="mode/verilog/index.html">Verilog</a> modes.</li>
-    <li>Add <a href="doc/manual.html#option_smartIndent"><code>smartIndent</code></a>
-    option.</li>
-    <li>Support a cursor in <a href="doc/manual.html#option_readOnly"><code>readOnly</code></a>-mode.</li>
-    <li>Support assigning multiple styles to a token.</li>
-    <li>Use a new approach to drawing the selection.</li>
-    <li>Add <a href="doc/manual.html#scrollTo"><code>scrollTo</code></a> method.</li>
-    <li>Allow undo/redo events to span non-adjacent lines.</li>
-    <li>Lots and lots of bugfixes.</li>
-  </ul>
-
-  <p class="rel">20-12-2011: <a href="http://codemirror.net/codemirror-2.2.zip">Version 2.2</a>:</p>
-
-  <ul class="rel-note">
-    <li>Slightly incompatible API changes. Read <a href="doc/upgrade_v2.2.html">this</a>.</li>
-    <li>New approach
-    to <a href="doc/manual.html#option_extraKeys">binding</a> keys,
-    support for <a href="doc/manual.html#option_keyMap">custom
-    bindings</a>.</li>
-    <li>Support for overwrite (insert).</li>
-    <li><a href="doc/manual.html#option_tabSize">Custom-width</a>
-    and <a href="demo/visibletabs.html">stylable</a> tabs.</li>
-    <li>Moved more code into <a href="doc/manual.html#addons">add-on scripts</a>.</li>
-    <li>Support for sane vertical cursor movement in wrapped lines.</li>
-    <li>More reliable handling of
-    editing <a href="doc/manual.html#markText">marked text</a>.</li>
-    <li>Add minimal <a href="demo/emacs.html">emacs</a>
-    and <a href="demo/vim.html">vim</a> bindings.</li>
-    <li>Rename <code>coordsFromIndex</code>
-    to <a href="doc/manual.html#posFromIndex"><code>posFromIndex</code></a>,
-    add <a href="doc/manual.html#indexFromPos"><code>indexFromPos</code></a>
-    method.</li>
   </ul>
 
   <p><a href="doc/oldrelease.html">Older releases...</a></p>
