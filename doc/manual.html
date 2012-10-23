@@ -725,6 +725,13 @@
         or outside of it.</dd>
         <dt><code>inclusiveRight</code></dt><dd>Like <code>inclusiveLeft</code>,
         but for the right side.</dd>
+        <td><code>atomic</code></td>
+        <dd>Atomic ranges act as a single unit when cursor movement is
+        concerned—i.e. it is impossible to place the cursor inside of
+        them. When an atomic range with <code>inclusiveLeft</code>
+        sits at the start of the document, or one
+        with <code>inclusiveRight</code> at the end, it is impossible
+        to, respectively, place the cursor before or after it.</dd>
         <dt><code>startStyle</code></dt><dd>Can be used to specify
         an extra CSS class to be applied to the leftmost span that
         is part of the marker.</dd>

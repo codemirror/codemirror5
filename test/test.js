@@ -861,3 +861,50 @@ testCM("addLineClass", function(cm) {
   cm.removeLineClass(1, "wrap");
   cls(1, null, "baz", null);
 }, {value: "hohoho\n"});
+
+testCM("atomicMarker", function(cm) {
+  addDoc(cm, 10, 10);
+  function atom(ll, cl, lr, cr, li, ri) {
+    return cm.markText({line: ll, ch: cl}, {line: lr, ch: cr}, "foo",
+                       {atomic: true, inclusiveLeft: li, inclusiveRight: ri});
+  }
+  var m = atom(0, 1, 0, 5);
+  cm.setCursor({line: 0, ch: 1});
+  cm.execCommand("goCharRight");
+  eqPos(cm.getCursor(), {line: 0, ch: 5});
+  cm.execCommand("goCharLeft");
+  eqPos(cm.getCursor(), {line: 0, ch: 1});
+  m.clear();
+  m = atom(0, 0, 0, 5, true);
+  eqPos(cm.getCursor(), {line: 0, ch: 5}, "pushed out");
+  cm.execCommand("goCharLeft");
+  eqPos(cm.getCursor(), {line: 0, ch: 5});
+  m.clear();
+  m = atom(8, 4, 9, 10, false, true);
+  cm.setCursor({line: 9, ch: 8});
+  eqPos(cm.getCursor(), {line: 8, ch: 4}, "set");
+  cm.execCommand("goCharRight");
+  eqPos(cm.getCursor(), {line: 8, ch: 4}, "char right");
+  cm.execCommand("goLineDown");
+  eqPos(cm.getCursor(), {line: 8, ch: 4}, "line down");
+  cm.execCommand("goCharLeft");
+  eqPos(cm.getCursor(), {line: 8, ch: 3});
+  m.clear();
+  m = atom(1, 1, 3, 8);
+  cm.setCursor({line: 2, ch: 0});
+  eqPos(cm.getCursor(), {line: 3, ch: 8});
+  cm.execCommand("goCharLeft");
+  eqPos(cm.getCursor(), {line: 1, ch: 1});
+  cm.execCommand("goCharRight");
+  eqPos(cm.getCursor(), {line: 3, ch: 8});
+  cm.execCommand("goLineUp");
+  eqPos(cm.getCursor(), {line: 1, ch: 1});
+  cm.execCommand("goLineDown");
+  eqPos(cm.getCursor(), {line: 3, ch: 8});
+  cm.execCommand("delCharBefore");
+  eq(cm.getValue().length, 80, "del chunk");
+  m = atom(3, 0, 5, 5);
+  cm.setCursor({line: 3, ch: 0});
+  cm.execCommand("delWordAfter");
+  eq(cm.getValue().length, 53, "del chunk");
+});
