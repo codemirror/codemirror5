@@ -60,10 +60,13 @@ var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
   lineNumbers: true,
   lineWrapping: true
 });
-var hlLine = editor.setLineClass(0, null, "activeline");
+var hlLine = editor.addLineClass(0, "background", "activeline");
 editor.on("cursorActivity", function() {
-  editor.setLineClass(hlLine, null, null);
-  hlLine = editor.setLineClass(editor.getCursor().line, null, "activeline");
+  var cur = editor.getLineHandle(editor.getCursor().line);
+  if (cur != hlLine) {
+    editor.removeLineClass(hlLine, "background", "activeline");
+    hlLine = editor.addLineClass(cur, "background", "activeline");
+  }
 });
 </script>
 

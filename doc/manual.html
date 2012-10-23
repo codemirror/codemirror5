@@ -763,12 +763,25 @@
       <dd>Remove all gutter markers in
       the <a href="#option_gutters">gutter</a> with the given ID.</dd>
 
-      <dt id="setLineClass"><code>setLineClass(line, className, backgroundClassName) → lineHandle</code></dt>
+      <dt id="addLineClass"><code>addLineClass(line, where, class) → lineHandle</code></dt>
       <dd>Set a CSS class name for the given line. <code>line</code>
-      can be a number or a line handle. <code>className</code> will be used to style the text
-      for the line, and <code>backgroundClassName</code> to style its
-      background (which lies behind the selection).
-      Pass <code>null</code> to clear the classes for a line.</dd>
+      can be a number or a line handle. <code>where</code> determines
+      to which element this class should be applied, can can be one
+      of <code>"text"</code> (the text element, which lies in front of
+      the selection), <code>"background"</code> (a background element
+      that will be behind the selection), or <code>"wrap"</code> (the
+      wrapper node that wraps all of the line's elements, including
+      gutter elements). <code>class</code> should be the name of the
+      class to apply.</dd>
+
+      <dt id="removeLineClass"><code>removeLineClass(line, where, class) → lineHandle</code></dt>
+      <dd>Remove a CSS class from a line. <code>line</code> can be a
+      line handle or number. <code>where</code> should be one
+      of <code>"text"</code>, <code>"background"</code>,
+      or <code>"wrap"</code>
+      (see <a href="#addLineClass"><code>addLineClass</code></a>). <code>class</code>
+      can be left off to remove all classes for the specified node, or
+      be a string to remove only a specific class.</dd>
 
       <dt id="foldLines"><code>foldLines(from, to, options) → foldHandle</code></dt>
       <dd>Hide the given range of lines (<code>to</code> is
@@ -797,11 +810,12 @@
       <dd>Returns the line number, text content, and marker status of
       the given line, which can be either a number or a line handle.
       The returned object has the structure <code>{line, handle, text,
-      gutterMarkers, lineClass, bgClass, widgets}</code>,
+      gutterMarkers, textClass, bgClass, wrapClass, widgets}</code>,
       where <code>gutterMarkers</code> is an object mapping gutter IDs
       to marker elements, and <code>widgets</code> is an array
       of <a href="#addLineWidget">line widgets</a> attached to this
-      line.</dd>
+      line, and the various class properties refer to classes added
+      with <a href="#addLineClass"><code>addLineClass</code></a>.</dd>
 
       <dt id="getLineHandle"><code>getLineHandle(num) → lineHandle</code></dt>
       <dd>Fetches the line handle for the given line number.</dd>

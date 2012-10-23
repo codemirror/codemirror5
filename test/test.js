@@ -833,3 +833,31 @@ testCM("jumpTheGap", function(cm) {
   cm.execCommand("goLineUp");
   eqPos(cm.getCursor(), {line: 0, ch: 2});
 }, {lineWrapping: true, value: "abc\ndef\nghi\njkl\n"});
+
+testCM("addLineClass", function(cm) {
+  function cls(line, text, bg, wrap) {
+    var i = cm.lineInfo(line);
+    eq(i.textClass, text);
+    eq(i.bgClass, bg);
+    eq(i.wrapClass, wrap);
+  }
+  cm.addLineClass(0, "text", "foo");
+  cm.addLineClass(0, "text", "bar");
+  cm.addLineClass(1, "background", "baz");
+  cm.addLineClass(1, "wrap", "foo");
+  cls(0, "foo bar", null, null);
+  cls(1, null, "baz", "foo");
+  eq(byClassName(cm.getWrapperElement(), "foo").length, 2);
+  eq(byClassName(cm.getWrapperElement(), "bar").length, 1);
+  eq(byClassName(cm.getWrapperElement(), "baz").length, 1);
+  cm.removeLineClass(0, "text", "foo");
+  cls(0, "bar", null, null);
+  cm.removeLineClass(0, "text", "foo");
+  cls(0, "bar", null, null);
+  cm.removeLineClass(0, "text", "bar");
+  cls(0, null, null, null);
+  cm.addLineClass(1, "wrap", "quux");
+  cls(1, null, "baz", "foo quux");
+  cm.removeLineClass(1, "wrap");
+  cls(1, null, "baz", null);
+}, {value: "hohoho\n"});
