@@ -123,7 +123,8 @@ a.download:hover {
 }
 
 .left {
-  width: 37em;
+  margin-right: 20.68em;
+  max-width: 37em;
   padding-right: 6.53em;
   padding-bottom: 1em;
 }
@@ -134,11 +135,12 @@ a.download:hover {
 }
 
 .left2 {
-  width: 15.24em;
+  max-width: 15.24em;
 }
 
 .right {
   width: 20.68em;
+  margin-left: -20.68em;
 }
 
 .leftbig {
