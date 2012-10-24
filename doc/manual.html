@@ -720,22 +720,31 @@
       parameter is optional. When given, it should be an object that
       may contain the following configuration options:
       <dl>
-        <dt><code>inclusiveLeft</code></dt><dd>Determines whether
+        <dt id="mark_inclusiveLeft"><code>inclusiveLeft</code></dt><dd>Determines whether
         text inserted on the left of the marker will end up inside
         or outside of it.</dd>
-        <dt><code>inclusiveRight</code></dt><dd>Like <code>inclusiveLeft</code>,
+        <dt id="mark_inclusiveRight"><code>inclusiveRight</code></dt><dd>Like <code>inclusiveLeft</code>,
         but for the right side.</dd>
-        <td><code>atomic</code></td>
+        <dt id="mark_atomic"><code>atomic</code></dt>
         <dd>Atomic ranges act as a single unit when cursor movement is
         concerned—i.e. it is impossible to place the cursor inside of
         them. When an atomic range with <code>inclusiveLeft</code>
         sits at the start of the document, or one
         with <code>inclusiveRight</code> at the end, it is impossible
         to, respectively, place the cursor before or after it.</dd>
-        <dt><code>startStyle</code></dt><dd>Can be used to specify
+        <dt id="mark_readOnly"><code>readOnly</code></td>
+        <dd>A read-only span can, as long as it is not cleared, not be
+        modified except by
+        calling <a href="#setValue"><code>setValue</code></a> to reset
+        the whole document. <em>Note:</em> adding a read-only span
+        currently clears the undo history of the editor, because
+        existing undo events being partially nullified by read-only
+        spans would corrupt the history (in the current
+        implementation).</dd>
+        <dt id="mark_startStyle"><code>startStyle</code></dt><dd>Can be used to specify
         an extra CSS class to be applied to the leftmost span that
         is part of the marker.</dd>
-        <dt><code>endStyle</code></dt><dd>Equivalent
+        <dt id="mark_endStyle"><code>endStyle</code></dt><dd>Equivalent
         to <code>startStyle</code>, but for the rightmost span.</dd>
       </dl>
       The method will return an object with two methods,

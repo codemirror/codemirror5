@@ -87,6 +87,7 @@ testCM("selection", function(cm) {
   eqPos(cm.getCursor(true), {line: 2, ch: 1});
   cm.setCursor(1, 2);
   eqPos(cm.getCursor(true), {line: 1, ch: 2});
+  console.log(cm.getValue());
 }, {value: "111111\n222222\n333333"});
 
 testCM("lines", function(cm) {
@@ -908,3 +909,38 @@ testCM("atomicMarker", function(cm) {
   cm.execCommand("delWordAfter");
   eq(cm.getValue().length, 53, "del chunk");
 });
+
+testCM("readOnlyMarker", function(cm) {
+  function mark(ll, cl, lr, cr, at) {
+    return cm.markText({line: ll, ch: cl}, {line: lr, ch: cr}, "foo",
+                       {readOnly: true, atomic: at});
+  }
+  var m = mark(0, 1, 0, 4);
+  cm.setCursor({line: 0, ch: 2});
+  cm.replaceSelection("hi", "end");
+  eqPos(cm.getCursor(), {line: 0, ch: 2});
+  eq(cm.getLine(0), "abcde");
+  cm.execCommand("selectAll");
+  cm.replaceSelection("oops");
+  eq(cm.getValue(), "oopsbcd");
+  cm.undo();
+  eqPos(m.find().from, {line: 0, ch: 1});
+  eqPos(m.find().to, {line: 0, ch: 4});
+  m.clear();
+  cm.setCursor({line: 0, ch: 2});
+  cm.replaceSelection("hi");
+  eq(cm.getLine(0), "abhicde");
+  eqPos(cm.getCursor(), {line: 0, ch: 4});
+  m = mark(0, 2, 2, 2, true);
+  cm.setSelection({line: 1, ch: 1}, {line: 2, ch: 4});
+  cm.replaceSelection("t", "end");
+  eqPos(cm.getCursor(), {line: 2, ch: 3});
+  eq(cm.getLine(2), "klto");
+  cm.execCommand("goCharLeft");
+  cm.execCommand("goCharLeft");
+  eqPos(cm.getCursor(), {line: 0, ch: 2});
+  cm.setSelection({line: 0, ch: 1}, {line: 0, ch: 3});
+  cm.replaceSelection("xx");
+  eqPos(cm.getCursor(), {line: 0, ch: 3});
+  eq(cm.getLine(0), "axxhicde");
+}, {value: "abcde\nfghij\nklmno\n"});
