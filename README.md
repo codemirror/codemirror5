@@ -6,3 +6,7 @@ in, it will color your code, and optionally help with indentation.
 
 The project page is http://codemirror.net
 The manual is at http://codemirror.net/doc/manual.html
+
+
+
+Updated by Leopold.
