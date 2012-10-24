@@ -713,13 +713,15 @@
         <dt><code>state</code></dt><dd>The mode's state at the end of this token.</dd>
       </dl></dd>
 
-      <dt id="markText"><code>markText(from, to, className, options) → object</code></dt>
+      <dt id="markText"><code>markText(from, to, options) → object</code></dt>
       <dd>Can be used to mark a range of text with a specific CSS
       class name. <code>from</code> and <code>to</code> should
       be <code>{line, ch}</code> objects. The <code>options</code>
       parameter is optional. When given, it should be an object that
       may contain the following configuration options:
       <dl>
+        <dt id="mark_className"><code>className</code></dt>
+        <dd>Assigns a CSS class to the marked stretch of text.</dd>
         <dt id="mark_inclusiveLeft"><code>inclusiveLeft</code></dt><dd>Determines whether
         text inserted on the left of the marker will end up inside
         or outside of it.</dd>

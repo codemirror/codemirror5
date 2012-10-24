@@ -261,7 +261,7 @@ testCM("markTextSingleLine", function(cm) {
            {a: 6, b: 6, c: "a", f: 3, t: 6},
            {a: 8, b: 9, c: "", f: 3, t: 6}], function(test) {
     cm.setValue("1234567890");
-    var r = cm.markText({line: 0, ch: 3}, {line: 0, ch: 6}, "foo");
+    var r = cm.markText({line: 0, ch: 3}, {line: 0, ch: 6}, {className: "foo"});
     cm.replaceRange(test.c, {line: 0, ch: test.a}, {line: 0, ch: test.b});
     var f = r.find();
     eq(f && f.from.ch, test.f); eq(f && f.to.ch, test.t);
@@ -286,7 +286,8 @@ testCM("markTextMultiLine", function(cm) {
            {a: [2, 3], b: [3, 0], c: "x", f: [0, 5], t: [2, 3]},
            {a: [1, 1], b: [1, 9], c: "1\n2\n3", f: [0, 5], t: [4, 5]}], function(test) {
     cm.setValue("aaaaaaaaaa\nbbbbbbbbbb\ncccccccccc\ndddddddd\n");
-    var r = cm.markText({line: 0, ch: 5}, {line: 2, ch: 5}, "CodeMirror-matchingbracket");
+    var r = cm.markText({line: 0, ch: 5}, {line: 2, ch: 5},
+                        {className: "CodeMirror-matchingbracket"});
     cm.replaceRange(test.c, p(test.a), p(test.b));
     var f = r.find();
     eqPos(f && f.from, p(test.f)); eqPos(f && f.to, p(test.t));
@@ -296,8 +297,10 @@ testCM("markTextMultiLine", function(cm) {
 testCM("markTextUndo", function(cm) {
   var marker1, marker2, bookmark;
   cm.compoundChange(function(){
-    marker1 = cm.markText({line: 0, ch: 1}, {line: 0, ch: 3}, "CodeMirror-matchingbracket");
-    marker2 = cm.markText({line: 0, ch: 0}, {line: 2, ch: 1}, "CodeMirror-matchingbracket");
+    marker1 = cm.markText({line: 0, ch: 1}, {line: 0, ch: 3},
+                          {className: "CodeMirror-matchingbracket"});
+    marker2 = cm.markText({line: 0, ch: 0}, {line: 2, ch: 1},
+                          {className: "CodeMirror-matchingbracket"});
     bookmark = cm.setBookmark({line: 1, ch: 5});
   });
   cm.compoundChange(function(){
@@ -316,7 +319,7 @@ testCM("markTextUndo", function(cm) {
 }, {value: "1234\n56789\n00\n"});
 
 testCM("markTextStayGone", function(cm) {
-  var m1 = cm.markText({line: 0, ch: 0}, {line: 0, ch: 1}, "CodeMirror-matchingbracket");
+  var m1 = cm.markText({line: 0, ch: 0}, {line: 0, ch: 1});
   cm.replaceRange("hi", {line: 0, ch: 2});
   m1.clear();
   cm.undo();
@@ -325,7 +328,7 @@ testCM("markTextStayGone", function(cm) {
 
 testCM("markClearBetween", function(cm) {
   cm.setValue("aaa\nbbb\nccc\nddd\n");
-  cm.markText({line: 0, ch: 0}, {line: 2}, "foo");
+  cm.markText({line: 0, ch: 0}, {line: 2});
   cm.replaceRange("aaa\nbbb\nccc", {line: 0, ch: 0}, {line: 2});
   eq(cm.findMarksAt({line: 1, ch: 1}).length, 0);
 });
@@ -866,7 +869,7 @@ testCM("addLineClass", function(cm) {
 testCM("atomicMarker", function(cm) {
   addDoc(cm, 10, 10);
   function atom(ll, cl, lr, cr, li, ri) {
-    return cm.markText({line: ll, ch: cl}, {line: lr, ch: cr}, "foo",
+    return cm.markText({line: ll, ch: cl}, {line: lr, ch: cr},
                        {atomic: true, inclusiveLeft: li, inclusiveRight: ri});
   }
   var m = atom(0, 1, 0, 5);
@@ -912,7 +915,7 @@ testCM("atomicMarker", function(cm) {
 
 testCM("readOnlyMarker", function(cm) {
   function mark(ll, cl, lr, cr, at) {
-    return cm.markText({line: ll, ch: cl}, {line: lr, ch: cr}, "foo",
+    return cm.markText({line: ll, ch: cl}, {line: lr, ch: cr},
                        {readOnly: true, atomic: at});
   }
   var m = mark(0, 1, 0, 4);
