@@ -390,16 +390,19 @@
       (but the line is not deleted outright).</dd>
     </dl>
 
-    <p>Folded range handles, as returned
-    by <a href="#foldLines"><code>foldLines</code></a>, emit the
+    <p>Marked range handles, as returned
+    by <a href="#markText"><code>markText</code></a>, emit the
     following event:</p>
 
     <dl>
-      <dt id="event_unfold"><code>"unfold" ()</code></dt>
-      <dd>Fired when the range is unfolded, either through cursor
-      movement or through a call
-      to <a href="#unfoldLines"><code>unfoldLines</code></a>. Will
-      only be fired once per handle.</dd>
+      <dt id="event_clear"><code>"clear" ()</code></dt>
+      <dd>Fired when the range is cleared, either through cursor
+      movement in combination
+      with <a href="#mark_clearOnEnter"><code>clearOnEnter</code></a>
+      or through a call to its <code>clear()</code> method. Will only
+      be fired once per handle. Note that deleting the range through
+      text editing does not fire this event, because an undo
+      action might bring the range back into existence.</dd>
     </dl>
 
     <h2 id="keymaps">Keymaps</h2>
@@ -724,20 +727,26 @@
       parameter is optional. When given, it should be an object that
       may contain the following configuration options:
       <dl>
-        <dt id="mark_className"><code>className</code></dt>
+        <dt id="mark_className"><code>className (string)</code></dt>
         <dd>Assigns a CSS class to the marked stretch of text.</dd>
-        <dt id="mark_inclusiveLeft"><code>inclusiveLeft</code></dt><dd>Determines whether
+        <dt id="mark_inclusiveLeft"><code>inclusiveLeft (boolean)</code></dt><dd>Determines whether
         text inserted on the left of the marker will end up inside
         or outside of it.</dd>
-        <dt id="mark_inclusiveRight"><code>inclusiveRight</code></dt><dd>Like <code>inclusiveLeft</code>,
+        <dt id="mark_inclusiveRight"><code>inclusiveRight</code> (boolean)</dt><dd>Like <code>inclusiveLeft</code>,
         but for the right side.</dd>
-        <dt id="mark_atomic"><code>atomic</code></dt>
+        <dt id="mark_atomic"><code>atomic (boolean)</code></dt>
         <dd>Atomic ranges act as a single unit when cursor movement is
         concerned—i.e. it is impossible to place the cursor inside of
-        them. When an atomic range with <code>inclusiveLeft</code>
-        sits at the start of the document, or one
-        with <code>inclusiveRight</code> at the end, it is impossible
-        to, respectively, place the cursor before or after it.</dd>
+        them. In atomic ranges, <code>inclusiveLeft</code>
+        and <code>inclusiveRight</code> have a different meaning—they
+        will prevent the cursor from being placed respectively
+        directly before and directly after the range.</dd>
+        <dt id="mark_collapsed"><code>collapsed (boolean)</code></dt>
+        <dd>Collapsed ranges do not show up in the display. Setting a
+        range to be collapsed will automatically make it atomic.</dd>
+        <dt id="mark_replacedWith"><code>replacedWith (dom node)</code></dt>
+        <dd>Use a given node to display this range. Implies both
+        collapsed and atomic.</dd>
         <dt id="mark_readOnly"><code>readOnly</code></td>
         <dd>A read-only span can, as long as it is not cleared, not be
         modified except by
@@ -760,13 +769,16 @@
       the marked range, or <code>undefined</code> if the marker is no
       longer in the document.</dd>
 
-      <dt id="setBookmark"><code>setBookmark(pos) → object</code></dt>
+      <dt id="setBookmark"><code>setBookmark(pos, widget) → object</code></dt>
       <dd>Inserts a bookmark, a handle that follows the text around it
       as it is being edited, at the given position. A bookmark has two
       methods <code>find()</code> and <code>clear()</code>. The first
       returns the current position of the bookmark, if it is still in
-      the document, and the second explicitly removes the
-      bookmark.</dd>
+      the document, and the second explicitly removes the bookmark.
+      The widget argument is optional, and can be used to display a
+      DOM node at the current location of the bookmark (analogous to
+      the <a href="#mark_replacedWith"><code>replacedWith</code></a>
+      option to <code>markText</code>).</dd>
 
       <dt id="findMarksAt"><code>findMarksAt(pos) → array</code></dt>
       <dd>Returns an array of all the bookmarks and marked ranges
@@ -804,29 +816,6 @@
       (see <a href="#addLineClass"><code>addLineClass</code></a>). <code>class</code>
       can be left off to remove all classes for the specified node, or
       be a string to remove only a specific class.</dd>
-
-      <dt id="foldLines"><code>foldLines(from, to, options) → foldHandle</code></dt>
-      <dd>Hide the given range of lines (<code>to</code> is
-      non-inclusive). Hidden lines don't show up in the editor.
-      Deleting a region around them does delete them, and copying a
-      region around will include them in the copied text. Vertical
-      cursor movement will skip hidden lines. The <code>options</code>
-      parameter is optional. When given, it should be an object
-      containing <code>unfoldOnEnter</code>
-      and/or <code>showWidgets</code> properties.
-      When <code>unfoldOnEnter</code> is true, horizontal movement
-      into the range will un-hide the range. When it is false,
-      horizonal cursor movement will skip it as if it isn't there.
-      When <code>showWidgets</code> is
-      true, <a href="#addLineWidget">line widgets</a> in the folded
-      range will remain visible. The handle this function returns can
-      be used to unfold the range, and emits
-      an <a href="#event_unfold"><code>unfold</code></a> event when
-      unfolded. Folded ranges may overlap and nest.</dd>
-      <dt id="unfoldLines"><code>unfoldLines(foldHandle)</code></dt>
-      <dd>When given a handle as returned
-      by <a href="#foldLines"><code>foldLines</code></a>, this will
-      unfold that range of lines.</dd>
 
       <dt id="lineInfo"><code>lineInfo(line) → object</code></dt>
       <dd>Returns the line number, text content, and marker status of
@@ -1066,7 +1055,7 @@
       a CodeMirror instance and a line number, attempt to fold or
       unfold the block starting at the given line. A range-finder is a
       language-specific function that also takes an instance and a
-      line number, and returns an end line for the block, or null if
+      line number, and returns an range to be folded, or null if
       no block is started on that line. This file
       provides <code>CodeMirror.braceRangeFinder</code>, which finds
       blocks in brace languages (JavaScript, C, Java,

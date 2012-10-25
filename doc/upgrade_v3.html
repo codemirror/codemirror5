@@ -74,25 +74,22 @@ full list here</a>.</p>
 which act more as hooks than as event handlers, are still there in
 their old form.)</p>
 
-<h2 id=folding>Line folding</h2>
-
-<p>The interface for folding lines has been overhauled to deal with
-regions of lines rather than individual lines, and to allow
-auto-expansion when the cursor enters the folded region.
-See <a href="manual.html#foldLines"><code>foldLines</code></a>
-and <a href="manual.html#unfoldLines"><code>unfoldLines</code></a> for
-the new API.</p>
-
-<p>The <a href="../demo/folding.html">folding script</a> has been
-updated to use the new interface, and should now be more robust.</p>
-
 <h2 id=marktext>markText method arguments</h2>
 
 <p>The <a href="manual.html#markText"><code>markText</code></a> method
 (which has gained some interesting new features, such as creating
-atomic and read-only spans) no longer takes the CSS class name as a
-separate argument, but makes it an optional field in the options
-object instead.</p>
+atomic and read-only spans, or replacing spans with widgets) no longer
+takes the CSS class name as a separate argument, but makes it an
+optional field in the options object instead.</p>
+
+<h2 id=folding>Line folding</h2>
+
+<p>The interface for hiding lines has been
+removed. <a href="manual.html#markText"><code>markText</code></a> can
+now be used to do the same in a more flexible and powerful way.</p>
+
+<p>The <a href="../demo/folding.html">folding script</a> has been
+updated to use the new interface, and should now be more robust.</p>
 
 <h2 id=lineclass>Line CSS classes</h2>
 

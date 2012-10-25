@@ -456,10 +456,19 @@ testCM("setSize", function(cm) {
   is(wrap.style.height, "40px");
 });
 
-testCM("hiddenLines", function(cm) {
+function foldLines(cm, start, end, autoClear) {
+  return cm.markText({line: start, ch: 0}, {line: end - 1}, {
+    inclusiveLeft: true,
+    inclusiveRight: true,
+    collapsed: true,
+    clearOnEnter: autoClear
+  });
+}
+
+testCM("collapsedLines", function(cm) {
   addDoc(cm, 4, 10);
-  var folded = cm.foldLines(4, 5), unfolded = 0;
-  CodeMirror.on(folded, "unfold", function() {unfolded++;});
+  var range = foldLines(cm, 4, 5), cleared = 0;
+  CodeMirror.on(range, "clear", function() {cleared++;});
   cm.setCursor({line: 3, ch: 0});
   CodeMirror.commands.goLineDown(cm);
   eqPos(cm.getCursor(), {line: 5, ch: 0});
@@ -471,32 +480,137 @@ testCM("hiddenLines", function(cm) {
   cm.setCursor({line: 3, ch: 2});
   CodeMirror.commands.goLineDown(cm);
   eqPos(cm.getCursor(), {line: 5, ch: 2});
-  cm.unfoldLines(folded); cm.unfoldLines(folded);
-  eq(unfolded, 1);
+  range.clear(); range.clear();
+  eq(cleared, 1);
 });
 
 testCM("hiddenLinesAutoUnfold", function(cm) {
-  var folded = cm.foldLines(1, 3, {unfoldOnEnter: true}), unfolded = 0;
-  CodeMirror.on(folded, "unfold", function() {unfolded++;});
+  var range = foldLines(cm, 1, 3, true), cleared = 0;
+  CodeMirror.on(range, "clear", function() {cleared++;});
   cm.setCursor({line: 3, ch: 0});
-  eq(unfolded, 0);
+  eq(cleared, 0);
   cm.execCommand("goCharLeft");
-  eq(unfolded, 1);
-  var folded = cm.foldLines(1, 3, {unfoldOnEnter: true}), unfolded = 0;
-  CodeMirror.on(folded, "unfold", function() {unfolded++;});
+  eq(cleared, 1);
+  range = foldLines(cm, 1, 3, true);
+  CodeMirror.on(range, "clear", function() {cleared++;});
   eqPos(cm.getCursor(), {line: 3, ch: 0});
   cm.setCursor({line: 0, ch: 3});
   cm.execCommand("goCharRight");
-  eq(unfolded, 1);
+  eq(cleared, 2);
 }, {value: "abc\ndef\nghi\njkl"});
 
 testCM("hiddenLinesSelectAll", function(cm) {  // Issue #484
   addDoc(cm, 4, 20);
-  cm.foldLines(0, 10); cm.foldLines(11, 20);
+  foldLines(cm, 0, 10);
+  foldLines(cm, 11, 20);
   CodeMirror.commands.selectAll(cm);
   eqPos(cm.getCursor(true), {line: 10, ch: 0});
   eqPos(cm.getCursor(false), {line: 10, ch: 4});
 });
+
+
+testCM("everythingFolded", function(cm) {
+  addDoc(cm, 2, 2);
+  function enterPress() {
+    cm.triggerOnKeyDown({type: "keydown", keyCode: 13, preventDefault: function(){}, stopPropagation: function(){}});
+  }
+  var fold = foldLines(cm, 0, 2);
+  enterPress();
+  eq(cm.getValue(), "xx\nxx");
+  fold.clear();
+  fold = foldLines(cm, 0, 2, true);
+  eq(fold.find(), null);
+  enterPress();
+  eq(cm.getValue(), "\nxx\nxx");
+});
+
+testCM("structuredFold", function(cm) {
+  addDoc(cm, 4, 8);
+  var range = cm.markText({line: 1, ch: 2}, {line: 6, ch: 2}, {
+    replacedWith: document.createTextNode("Q")
+  });
+  cm.setCursor(0, 3);
+  CodeMirror.commands.goLineDown(cm);
+  eqPos(cm.getCursor(), {line: 6, ch: 2});
+  CodeMirror.commands.goCharLeft(cm);
+  eqPos(cm.getCursor(), {line: 1, ch: 2});
+  CodeMirror.commands.delCharAfter(cm);
+  eq(cm.getValue(), "xxxx\nxxxx\nxxxx");
+  addDoc(cm, 4, 8);
+  range = cm.markText({line: 1, ch: 2}, {line: 6, ch: 2}, {
+    replacedWith: document.createTextNode("Q"),
+    clearOnEnter: true
+  });
+  var cleared = 0;
+  CodeMirror.on(range, "clear", function(){++cleared;});
+  cm.setCursor(0, 3);
+  CodeMirror.commands.goLineDown(cm);
+  eqPos(cm.getCursor(), {line: 6, ch: 2});
+  CodeMirror.commands.goCharLeft(cm);
+  eqPos(cm.getCursor(), {line: 6, ch: 1});
+  eq(cleared, 1);
+  range.clear();
+  eq(cleared, 1);
+  range = cm.markText({line: 1, ch: 2}, {line: 6, ch: 2}, {
+    replacedWith: document.createTextNode("Q"),
+    clearOnEnter: true
+  });
+  range.clear();
+  cm.setCursor(1, 2);
+  CodeMirror.commands.goCharRight(cm);
+  eqPos(cm.getCursor(), {line: 1, ch: 3});
+});
+
+testCM("nestedFold", function(cm) {
+  addDoc(cm, 10, 3);
+  function fold(ll, cl, lr, cr) {
+    return cm.markText({line: ll, ch: cl}, {line: lr, ch: cr}, {collapsed: true});
+  }
+  var inner1 = fold(0, 6, 1, 3), inner2 = fold(0, 2, 1, 8), outer = fold(0, 1, 2, 3), inner0 = fold(0, 5, 0, 6);
+  cm.setCursor(0, 1);
+  CodeMirror.commands.goCharRight(cm);
+  eqPos(cm.getCursor(), {line: 2, ch: 3});
+  inner0.clear();
+  CodeMirror.commands.goCharLeft(cm);
+  eqPos(cm.getCursor(), {line: 0, ch: 1});
+  outer.clear();
+  CodeMirror.commands.goCharRight(cm);
+  eqPos(cm.getCursor(), {line: 0, ch: 2});
+  CodeMirror.commands.goCharRight(cm);
+  eqPos(cm.getCursor(), {line: 1, ch: 8});
+  inner2.clear();
+  CodeMirror.commands.goCharLeft(cm);
+  eqPos(cm.getCursor(), {line: 1, ch: 7});
+  cm.setCursor(0, 5);
+  CodeMirror.commands.goCharRight(cm);
+  eqPos(cm.getCursor(), {line: 0, ch: 6});
+  CodeMirror.commands.goCharRight(cm);
+  eqPos(cm.getCursor(), {line: 1, ch: 3});
+});
+
+testCM("badNestedFold", function(cm) {
+  addDoc(cm, 4, 4);
+  cm.markText({line: 0, ch: 2}, {line: 3, ch: 2}, {collapsed: true});
+  var caught;
+  try {cm.markText({line: 0, ch: 1}, {line: 0, ch: 3}, {collapsed: true});}
+  catch(e) {caught = e;}
+  is(caught instanceof Error, "no error");
+  is(/overlap/i.test(caught.message), "wrong error");
+});
+
+testCM("inlineWidget", function(cm) {
+  var w = cm.setBookmark({line: 0, ch: 2}, document.createTextNode("XY"));
+  cm.setCursor(0, 2);
+  CodeMirror.commands.goLineDown(cm);
+  eqPos(cm.getCursor(), {line: 1, ch: 4});
+  cm.setCursor(0, 2);
+  cm.replaceSelection("hi");
+  eqPos(w.find(), {line: 0, ch: 2});
+  cm.setCursor(0, 1);
+  cm.replaceSelection("ay");
+  eqPos(w.find(), {line: 0, ch: 4});
+  eq(cm.getLine(0), "1ay2hi34");
+}, {value: "1234\n567890"});
 
 testCM("wrappingAndResizing", function(cm) {
   cm.setSize(null, "auto");
