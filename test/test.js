@@ -87,7 +87,6 @@ testCM("selection", function(cm) {
   eqPos(cm.getCursor(true), {line: 2, ch: 1});
   cm.setCursor(1, 2);
   eqPos(cm.getCursor(true), {line: 1, ch: 2});
-  console.log(cm.getValue());
 }, {value: "111111\n222222\n333333"});
 
 testCM("lines", function(cm) {
