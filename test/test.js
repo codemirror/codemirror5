@@ -398,7 +398,7 @@ testCM("selectionPos", function(cm) {
         is(box.top - outer.top > 96 * lineHeight, "bot below");
       } else if (atRight) {
         sawTop = true;
-        is(box.top - outer.top < 2 * lineHeight, "top above");
+        is(box.top - outer.top < 2.1 * lineHeight, "top above");
       }
     }
   }
@@ -506,7 +506,7 @@ testCM("wrappingAndResizing", function(cm) {
   cm.setValue(doc);
   for (var step = 10;; w += step) {
     cm.setSize(w);
-    if (wrap.offsetHeight == h0) {
+    if (wrap.offsetHeight <= h0 + 2) {
       if (step == 10) { w -= 10; step = 1; }
       else { w--; break; }
     }
@@ -814,6 +814,7 @@ testCM("jumpTheGap", function(cm) {
   cm.setLine(2, longLine);
   cm.setSize("200px", null);
   cm.getWrapperElement().style.lineHeight = 2;
+  cm.refresh();
   cm.setCursor({line: 0, ch: 1});
   cm.execCommand("goLineDown");
   eqPos(cm.getCursor(), {line: 1, ch: 1});
