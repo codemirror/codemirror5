@@ -14,7 +14,8 @@ page.open("http://localhost:3000/test/index.html", function (status) {
   }, function () {
     var failed = page.evaluate(function () { return window.failed; });
     var output = page.evaluate(function () {
-      return document.getElementById('status').innerText;
+      return document.getElementById('output').innerText + "\n" +
+        document.getElementById('status').innerText;
     });
     console.log(output);
     phantom.exit(failed > 0 ? 1 : 0);
