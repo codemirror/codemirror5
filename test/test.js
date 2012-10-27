@@ -615,14 +615,14 @@ testCM("inlineWidget", function(cm) {
 testCM("wrappingAndResizing", function(cm) {
   cm.setSize(null, "auto");
   cm.setOption("lineWrapping", true);
-  var wrap = cm.getWrapperElement(), h0 = wrap.offsetHeight, w = 50;
+  var wrap = cm.getWrapperElement(), h0 = wrap.offsetHeight;
   var doc = "xxx xxx xxx xxx xxx";
   cm.setValue(doc);
-  for (var step = 10;; w += step) {
+  for (var step = 10, w = cm.charCoords({line: 0, ch: 18}, "div").right;; w += step) {
     cm.setSize(w);
-    if (wrap.offsetHeight <= h0 + 2) {
+    if (wrap.offsetHeight <= h0 * 1.5) {
       if (step == 10) { w -= 10; step = 1; }
-      else { w--; break; }
+      else break;
     }
   }
   // Ensure that putting the cursor at the end of the maximally long
@@ -647,12 +647,12 @@ testCM("wrappingAndResizing", function(cm) {
 testCM("measureEndOfLine", function(cm) {
   cm.setSize(null, "auto");
   var inner = byClassName(cm.getWrapperElement(), "CodeMirror-lines")[0].firstChild;
-  var w = 20, lh = inner.offsetHeight;
-  for (var step = 10;; w += step) {
+  var lh = inner.offsetHeight;
+  for (var step = 10, w = cm.charCoords({line: 0, ch: 7}, "div").right;; w += step) {
     cm.setSize(w);
     if (inner.offsetHeight < 2.5 * lh) {
       if (step == 10) { w -= 10; step = 1; }
-      else { break; }
+      else break;
     }
   }
   cm.setValue(cm.getValue() + "\n\n");
@@ -679,9 +679,9 @@ testCM("moveVstuck", function(cm) {
   var lines = byClassName(cm.getWrapperElement(), "CodeMirror-lines")[0].firstChild, h0 = lines.offsetHeight;
   var val = "fooooooooooooooooooooooooo baaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaar\n";
   cm.setValue(val);
-  for (var w = 50;; w += 5) {
+  for (var w = cm.charCoords({line: 0, ch: 26}, "div").right * 2.8;; w += 5) {
     cm.setSize(w);
-    if (lines.offsetHeight <= 3 * h0) break;
+    if (lines.offsetHeight <= 3.5 * h0) break;
   }
   cm.setCursor({line: 0, ch: val.length - 1});
   cm.moveV(-1, "line");
