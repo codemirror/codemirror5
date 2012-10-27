@@ -744,6 +744,14 @@
         <dt id="mark_collapsed"><code>collapsed (boolean)</code></dt>
         <dd>Collapsed ranges do not show up in the display. Setting a
         range to be collapsed will automatically make it atomic.</dd>
+        <dt id="mark_clearOnEnter"><code>clearOnEnter (boolean)</code></dt>
+        <dd>When enabled, will cause the mark to clear itself whenever
+        the cursor enters its range. This is mostly useful for
+        text-replacement widgets that need to 'snap open' when the
+        user tries to edit them. A
+        the <a href="#event_clear"><code>"clear"</code></a> event
+        fired on the range handle can be used to be notified when this
+        happens.</dd>
         <dt id="mark_replacedWith"><code>replacedWith (dom node)</code></dt>
         <dd>Use a given node to display this range. Implies both
         collapsed and atomic.</dd>
