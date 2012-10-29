@@ -432,7 +432,7 @@ testCM("doubleScrollbar", function(cm) {
   cm.setSize(null, 100);
   addDoc(cm, 1, 300);
   var wrap = cm.getWrapperElement();
-  is(wrap.offsetWidth - byClassName(wrap, "CodeMirror-lines")[0].offsetWidth <= scrollbarWidth + 1);
+  is(wrap.offsetWidth - byClassName(wrap, "CodeMirror-lines")[0].offsetWidth <= scrollbarWidth * 1.5);
 });
 
 testCM("weirdLinebreaks", function(cm) {
@@ -689,9 +689,9 @@ testCM("moveVstuck", function(cm) {
 }, {lineWrapping: true});
 
 testCM("clickTab", function(cm) {
-  var p0 = cm.charCoords({line: 0, ch: 0}), p1 = cm.charCoords({line: 0, ch: 1});
+  var p0 = cm.charCoords({line: 0, ch: 0});
   eqPos(cm.coordsChar({left: p0.left + 5, top: p0.top + 5}), {line: 0, ch: 0});
-  eqPos(cm.coordsChar({left: p1.left - 5, top: p1.top + 5}), {line: 0, ch: 1});
+  eqPos(cm.coordsChar({left: p0.right - 5, top: p1.top + 5}), {line: 0, ch: 1});
 }, {value: "\t\n\n", lineWrapping: true, tabSize: 8});
 
 testCM("verticalScroll", function(cm) {
