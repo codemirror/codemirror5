@@ -189,7 +189,7 @@
     var ch = toLetter(cHar), mo = motion_options;
     if (mo.forward) {
       idx = line.indexOf(ch, cur.ch + 1);
-      if (idx != -1 && mo.inclusive) idx += 1;
+      if (idx != -1 && !mo.inclusive) idx -= 1;
     } else {
       idx = line.lastIndexOf(ch, cur.ch);
       if (idx != -1 && !mo.inclusive) idx += 1;
