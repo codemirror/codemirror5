@@ -538,7 +538,7 @@ testCM("structuredFold", function(cm) {
   eq(cm.getValue(), "xxxx\nxxxx\nxxxx");
   addDoc(cm, 4, 8);
   range = cm.markText({line: 1, ch: 2}, {line: 6, ch: 2}, {
-    replacedWith: document.createTextNode("Q"),
+    replacedWith: document.createTextNode("x"),
     clearOnEnter: true
   });
   var cleared = 0;
@@ -559,7 +559,7 @@ testCM("structuredFold", function(cm) {
   cm.setCursor(1, 2);
   CodeMirror.commands.goCharRight(cm);
   eqPos(cm.getCursor(), {line: 1, ch: 3});
-});
+}, null);
 
 testCM("nestedFold", function(cm) {
   addDoc(cm, 10, 3);
@@ -599,7 +599,7 @@ testCM("badNestedFold", function(cm) {
 });
 
 testCM("inlineWidget", function(cm) {
-  var w = cm.setBookmark({line: 0, ch: 2}, document.createTextNode("XY"));
+  var w = cm.setBookmark({line: 0, ch: 2}, document.createTextNode("uu"));
   cm.setCursor(0, 2);
   CodeMirror.commands.goLineDown(cm);
   eqPos(cm.getCursor(), {line: 1, ch: 4});
@@ -609,8 +609,8 @@ testCM("inlineWidget", function(cm) {
   cm.setCursor(0, 1);
   cm.replaceSelection("ay");
   eqPos(w.find(), {line: 0, ch: 4});
-  eq(cm.getLine(0), "1ay2hi34");
-}, {value: "1234\n567890"});
+  eq(cm.getLine(0), "uayuhiuu");
+}, {value: "uuuu\nuuuuuu"});
 
 testCM("wrappingAndResizing", function(cm) {
   cm.setSize(null, "auto");
@@ -691,7 +691,7 @@ testCM("moveVstuck", function(cm) {
 testCM("clickTab", function(cm) {
   var p0 = cm.charCoords({line: 0, ch: 0});
   eqPos(cm.coordsChar({left: p0.left + 5, top: p0.top + 5}), {line: 0, ch: 0});
-  eqPos(cm.coordsChar({left: p0.right - 5, top: p1.top + 5}), {line: 0, ch: 1});
+  eqPos(cm.coordsChar({left: p0.right - 5, top: p0.top + 5}), {line: 0, ch: 1});
 }, {value: "\t\n\n", lineWrapping: true, tabSize: 8});
 
 testCM("verticalScroll", function(cm) {
