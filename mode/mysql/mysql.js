@@ -56,12 +56,13 @@ CodeMirror.defineMode("mysql", function(config) {
       curPunc = ch;
       return null;
     }
-    else if (ch == "-") {
-      var ch2 = stream.next();
-      if (ch2=="-") {
-      	stream.skipToEnd();
-      	return "comment";
-      }
+    else if (ch == "-" && stream.eat("-")) {
+      stream.skipToEnd();
+      return "comment";
+    }
+    else if (ch == "/" && stream.eat("*")) {
+      state.tokenize = tokenComment;
+      return state.tokenize(stream, state);
     }
     else if (operatorChars.test(ch)) {
       stream.eatWhile(operatorChars);
@@ -113,6 +114,22 @@ CodeMirror.defineMode("mysql", function(config) {
       }
       return "variable-2";
     };
+  }
+
+  function tokenComment(stream, state) {
+    for (;;) {
+      if (stream.skipTo("*")) {
+        stream.next();
+        if (stream.eat("/")) {
+          state.tokenize = tokenBase;
+          break;
+        }
+      } else {
+        stream.skipToEnd();
+        break;
+      }
+    }
+    return "comment";
   }
 
 
