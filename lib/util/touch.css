@@ -11,6 +11,10 @@
   left:       0px;
   z-index:    999;
 }
+
+.CodeMirror{
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
+}
       
 #keys.iPad li {
   background: -webkit-linear-gradient(top, #eeeef0, #d3d3d9);
@@ -70,12 +74,12 @@
   content: ' ';
   position: absolute;
   top: 33px;
-  left: 50%;
   margin-left: -10px;
 	border: 10px solid transparent;
 }
-#iOSpopup.leftEdge  li:last-child:after{ left:20%; }
-#iOSpopup.rightEdge li:last-child:after{ left:80%; }
+#iOSpopup li{-webkit-tap-highlight-color: lightblue;}
+#iOSpopup.leftEdge  li:last-child:after{ left:10%; }
+#iOSpopup.rightEdge li:last-child:after{ left:90%; }
 #iOSpopup.aboveEdge li:last-child:after{ border-top-color: black; }
 #iOSpopup.belowEdge li:last-child:after{ border-bottom-color: black; top: -33px;}
 
@@ -109,14 +113,14 @@
 
 
 .selectionDot span{
-  padding: 0px;
+  margin: 5px;
   position: absolute;
-  top: 5px;
-  left: 5px;
-  width: 10px;
-  height: 10px;
+  top: 0px;
+  left: 0px;
+  width: 8px;
+  height: 8px;
   background: -webkit-linear-gradient(top, #2673F2, #1E57B6);
-  border-radius: 5px;
+  border-radius: 4px;
   border: groove 1px white;
   box-shadow: 0px 1px 2px 1px rgba(0, 0, 9, .5);
   -webkit-user-select: none;
@@ -128,31 +132,49 @@ body{
   -webkit-touch-callout: none;
 }
 
-.magnifyingGlass{
-  width: 100px;
-  height: 20px;
+.magnifying{
   position: absolute;
   top: 0px;
   left: -1000px;
   overflow: hidden;
   background: white;
-  border: 3px groove white;
+  border: 3px white ridge;
   z-index: 1000;
-  box-shadow:  0  2px 2px black;
+  box-shadow:  2px 2px 4px black;
   display: none;
 }
 
+.cursor{
+  width: 100px;
+  height: 100px;
+  border-radius: 50px;
+  display: block;
+}
+
+.selection{
+  width: 100px;
+  height: 30px;
+  border-radius: 8px;
+  display: block;
+}
+
+.magnifyingCursor .magnifiedStuff{
+  margin-left: -50px; /* Half the magnifier width */
+  margin-top: 15px; /* Half the magnifier height */
+}
+
+.magnifyingGlass .magnifiedStuff{
+  margin-left: -50px; /* Half the magnifier width */
+  margin-top: -50px; /* Half the magnifier height */
+}
 .magnifiedStuff{
   top: 0px;
   left: 0px;
-  margin-left: -50px; /* Half magnifyingGlass width */
-  margin-top: -10px; /* Half magnifyingGlass height */
   overflow: visible;
   position: absolute;
   display: block;
   transform-origin: left top;
   -webkit-transform-origin: left top;
-
   user-select: none;
   -webkit-user-select: none
 }
