@@ -1061,3 +1061,21 @@ testCM("readOnlyMarker", function(cm) {
   eqPos(cm.getCursor(), {line: 0, ch: 3});
   eq(cm.getLine(0), "axxhicde");
 }, {value: "abcde\nfghij\nklmno\n"});
+
+testCM("dirtyBit", function(cm) {
+  eq(cm.isClean(), true);
+  cm.replaceSelection("boo");
+  eq(cm.isClean(), false);
+  cm.undo();
+  eq(cm.isClean(), true);
+  cm.replaceSelection("boo");
+  cm.compoundChange(function() {cm.replaceSelection("baz");});
+  cm.undo();
+  eq(cm.isClean(), false);
+  cm.markClean();
+  eq(cm.isClean(), true);
+  cm.undo();
+  eq(cm.isClean(), false);
+  cm.redo();
+  eq(cm.isClean(), true);
+});
