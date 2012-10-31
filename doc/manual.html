@@ -682,6 +682,16 @@
       <dt id="defaultTextHeight"><code>defaultTextHeight() → number</code></dt>
       <dd>Returns the line height of the default font for the editor.</dd>
 
+      <dt id="markClean"><code>markClean()</code></dt>
+      <dd>Set the editor content as 'clean', a flag that it will
+      retain until it is edited, and which will be set again when such
+      an edit is undone again. Useful to track whether the content
+      needs to be saved.</dd>
+      <dt id="isClean"><code>isClean() → boolean</code></dt>
+      <dd>Returns whether the document is currently clean (not
+      modified since initialization or the last call
+      to <a href="#markClean"><code>markClean</code></a>).</dd>
+
       <dt id="undo"><code>undo()</code></dt>
       <dd>Undo one edit (if any undo events are stored).</dd>
       <dt id="redo"><code>redo()</code></dt>
