@@ -1,3 +1,8 @@
+/* override mobilesafari's highlighting of DOM elements */
+.CodeMirror{
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+      
 #keys {
   width:      100%;
   text-align: center;
@@ -12,10 +17,6 @@
   z-index:    999;
 }
 
-.CodeMirror{
-  -webkit-tap-highlight-color: rgba(0,0,0,0);
-}
-      
 #keys.iPad li {
   background: -webkit-linear-gradient(top, #eeeef0, #d3d3d9);
   margin:     4px 8px 8px 0px;
@@ -137,7 +138,7 @@ body{
   top: 0px;
   left: -1000px;
   overflow: hidden;
-  background: white;
+  background: rgb(240,240,240);
   border: 3px white ridge;
   z-index: 1000;
   box-shadow:  2px 2px 4px black;
