@@ -58,7 +58,7 @@
   background: -webkit-linear-gradient(top, rgba(255,255,255,0.3), transparent) !important;
 }
 
-#iOSpopup{
+#hoverElt{
   position: absolute;
   top: -100px;
   display: none;
@@ -68,21 +68,32 @@
   border-radius: 5px;
   border: solid 1px black;
   list-style: none;
-  z-index: 999;
+  display: inline-block;
+  z-index: 990;
 }
-
-#iOSpopup li:last-child:after{
+#hoverElt:after{
   content: ' ';
-  position: absolute;
-  top: 33px;
+  position: relative;
+  top: 45px;
   margin-left: -10px;
 	border: 10px solid transparent;
 }
+
+#hoverElt.aboveEdge:after{ border-top-color: black; }
+#hoverElt.belowEdge:after{ border-bottom-color: black; top: -25px;}
+
+#iOSpopup{
+  position: relative;
+  top: 0px;
+  left: 0px;
+  display: block;
+  padding: 0px;
+  margin: 0px;
+  list-style: none;
+  z-index: 999;
+}
+
 #iOSpopup li{-webkit-tap-highlight-color: lightblue;}
-#iOSpopup.leftEdge  li:last-child:after{ left:10%; }
-#iOSpopup.rightEdge li:last-child:after{ left:90%; }
-#iOSpopup.aboveEdge li:last-child:after{ border-top-color: black; }
-#iOSpopup.belowEdge li:last-child:after{ border-bottom-color: black; top: -33px;}
 
 #iOSpopup li{
   float: left;
