@@ -3,6 +3,11 @@
   -webkit-tap-highlight-color: rgba(0,0,0,0);
 }
       
+body{
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
 #keys {
   width:      100%;
   text-align: center;
@@ -53,42 +58,44 @@
   -webkit-user-select: none;
 }
 
-
-.pressed {
-  background: -webkit-linear-gradient(top, rgba(255,255,255,0.3), transparent) !important;
-}
-
 #hoverElt{
   position: absolute;
-  top: -100px;
+  top: -90px;
   display: none;
   padding: 0px;
   margin: 0px;
-  background: -webkit-linear-gradient(top, #838383, #060606);
-  border-radius: 5px;
-  border: solid 1px black;
-  list-style: none;
   display: inline-block;
-  z-index: 990;
 }
-#hoverElt:after{
-  content: ' ';
-  position: relative;
-  top: 45px;
-  margin-left: -10px;
-	border: 10px solid transparent;
+#hoverElt.popup   #iOSpopup {display: inline-block;}
+#hoverElt.magnify #magnifier{display: inline-block;}
+#notch{
+    position: relative;
+    border: 10px solid transparent;
+    margin: 0px;
+    padding: 0px;
+    width: 0px;
+    height: 0px;
+    z-index:999;
+    margin-right: -20px; /* compensate for the notch width */
+    display: none;
 }
+#notch.above{bottom: -20px; border-top:    10px solid black;}
+#notch.below{top:    -40px; border-bottom: 10px solid black;}
+#hoverElt.magnify #notch, #hoverElt.popup #notch{display: inline-block;}
+#hoverElt.magnify #notch.above{bottom:  1px; border-top:  10px solid lightgray;}
+#hoverElt.magnify #notch.below{top: -33px; border-bottom: 10px solid lightgray;}
 
-#hoverElt.aboveEdge:after{ border-top-color: black; }
-#hoverElt.belowEdge:after{ border-bottom-color: black; top: -25px;}
 
 #iOSpopup{
   position: relative;
   top: 0px;
   left: 0px;
-  display: block;
+  background: -webkit-linear-gradient(top, #838383, #060606);
+  border-radius: 5px;
+  border: solid 1px black;
   padding: 0px;
   margin: 0px;
+  display: none;
   list-style: none;
   z-index: 999;
 }
@@ -118,11 +125,10 @@
   width: 20px;
   height: 20px;
   background: none;
-  z-index: 999;
+  z-index: 900;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
 }
-
 
 .selectionDot span{
   margin: 5px;
@@ -139,19 +145,14 @@
   -webkit-touch-callout: none;
 }
 
-body{
-  -webkit-user-select: none;
-  -webkit-touch-callout: none;
-}
-
-.magnifying{
-  position: absolute;
-  top: 0px;
-  left: -1000px;
+#magnifier{
+  position: relative;
+  top:  0px;
+  left: 0px;
   overflow: hidden;
   background: rgb(240,240,240);
   border: 3px white ridge;
-  z-index: 1000;
+  z-index: 999;
   box-shadow:  2px 2px 4px black;
   display: none;
 }
@@ -160,24 +161,13 @@ body{
   width: 100px;
   height: 100px;
   border-radius: 50px;
-  display: block;
 }
 
 .selection{
   width: 100px;
   height: 30px;
   border-radius: 8px;
-  display: block;
-}
-
-.magnifyingCursor .magnifiedStuff{
-  margin-left: -50px; /* Half the magnifier width */
-  margin-top: 15px; /* Half the magnifier height */
-}
-
-.magnifyingGlass .magnifiedStuff{
-  margin-left: -50px; /* Half the magnifier width */
-  margin-top: -50px; /* Half the magnifier height */
+  margin-bottom: 20px;
 }
 .magnifiedStuff{
   top: 0px;
