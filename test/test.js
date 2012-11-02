@@ -229,19 +229,25 @@ testCM("undo", function(cm) {
 }, {value: "abc"});
 
 testCM("undoMultiLine", function(cm) {
-  cm.replaceRange("x", {line:0, ch: 0});
-  cm.replaceRange("y", {line:1, ch: 0});
+  cm.operation(function() {
+    cm.replaceRange("x", {line:0, ch: 0});
+    cm.replaceRange("y", {line:1, ch: 0});
+  });
   cm.undo();
   eq(cm.getValue(), "abc\ndef\nghi");
-  cm.replaceRange("y", {line:1, ch: 0});
-  cm.replaceRange("x", {line:0, ch: 0});
+  cm.operation(function() {
+    cm.replaceRange("y", {line:1, ch: 0});
+    cm.replaceRange("x", {line:0, ch: 0});
+  });
   cm.undo();
   eq(cm.getValue(), "abc\ndef\nghi");
-  cm.replaceRange("y", {line:2, ch: 0});
-  cm.replaceRange("x", {line:1, ch: 0});
-  cm.replaceRange("z", {line:2, ch: 0});
+  cm.operation(function() {
+    cm.replaceRange("y", {line:2, ch: 0});
+    cm.replaceRange("x", {line:1, ch: 0});
+    cm.replaceRange("z", {line:2, ch: 0});
+  });
   cm.undo();
-  eq(cm.getValue(), "abc\ndef\nghi");
+  eq(cm.getValue(), "abc\ndef\nghi", 3);
 }, {value: "abc\ndef\nghi"});
 
 testCM("markTextSingleLine", function(cm) {
@@ -295,14 +301,12 @@ testCM("markTextMultiLine", function(cm) {
 
 testCM("markTextUndo", function(cm) {
   var marker1, marker2, bookmark;
-  cm.compoundChange(function(){
-    marker1 = cm.markText({line: 0, ch: 1}, {line: 0, ch: 3},
-                          {className: "CodeMirror-matchingbracket"});
-    marker2 = cm.markText({line: 0, ch: 0}, {line: 2, ch: 1},
-                          {className: "CodeMirror-matchingbracket"});
-    bookmark = cm.setBookmark({line: 1, ch: 5});
-  });
-  cm.compoundChange(function(){
+  marker1 = cm.markText({line: 0, ch: 1}, {line: 0, ch: 3},
+                        {className: "CodeMirror-matchingbracket"});
+  marker2 = cm.markText({line: 0, ch: 0}, {line: 2, ch: 1},
+                        {className: "CodeMirror-matchingbracket"});
+  bookmark = cm.setBookmark({line: 1, ch: 5});
+  cm.operation(function(){
     cm.replaceRange("foo", {line: 0, ch: 2});
     cm.replaceRange("bar\baz\bug\n", {line: 2, ch: 0}, {line: 3, ch: 0});
   });
@@ -407,8 +411,8 @@ testCM("selectionPos", function(cm) {
 
 testCM("restoreHistory", function(cm) {
   cm.setValue("abc\ndef");
-  cm.compoundChange(function() {cm.setLine(1, "hello");});
-  cm.compoundChange(function() {cm.setLine(0, "goop");});
+  cm.setLine(1, "hello");
+  cm.setLine(0, "goop");
   cm.undo();
   var storedVal = cm.getValue(), storedHist = cm.getHistory();
   if (window.JSON) storedHist = JSON.parse(JSON.stringify(storedHist));
@@ -1069,7 +1073,7 @@ testCM("dirtyBit", function(cm) {
   cm.undo();
   eq(cm.isClean(), true);
   cm.replaceSelection("boo");
-  cm.compoundChange(function() {cm.replaceSelection("baz");});
+  cm.replaceSelection("baz");
   cm.undo();
   eq(cm.isClean(), false);
   cm.markClean();
