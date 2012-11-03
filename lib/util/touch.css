@@ -1,8 +1,7 @@
 /* override mobilesafari's highlighting of DOM elements */
-.CodeMirror{
-  -webkit-tap-highlight-color: rgba(0,0,0,0);
-}
-      
+.CodeMirror{-webkit-tap-highlight-color: rgba(0,0,0,0);}
+.CodeMirror div textarea{top: -100px;}
+
 body{
   -webkit-user-select: none;
   -webkit-touch-callout: none;
@@ -84,7 +83,6 @@ body{
 #hoverElt.magnify #notch, #hoverElt.popup #notch{display: inline-block;}
 #hoverElt.magnify #notch.above{bottom:  1px; border-top:  10px solid lightgray;}
 #hoverElt.magnify #notch.below{top: -33px; border-bottom: 10px solid lightgray;}
-
 
 #iOSpopup{
   position: relative;
@@ -169,6 +167,7 @@ body{
   border-radius: 8px;
   margin-bottom: 20px;
 }
+
 .magnifiedStuff{
   top: 0px;
   left: 0px;
