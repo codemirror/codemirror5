@@ -155,13 +155,13 @@ body{
   display: none;
 }
 
-.cursor{
+.circle{
   width: 100px;
   height: 100px;
   border-radius: 50px;
 }
 
-.selection{
+.rectangle{
   width: 100px;
   height: 30px;
   border-radius: 8px;
