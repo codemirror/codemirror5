@@ -57,7 +57,7 @@ body{
   -webkit-user-select: none;
 }
 
-#hoverElt{
+#tool{
   position: absolute;
   top: -90px;
   display: none;
@@ -65,8 +65,8 @@ body{
   margin: 0px;
   display: inline-block;
 }
-#hoverElt.popup   #iOSpopup {display: inline-block;}
-#hoverElt.magnify #magnifier{display: inline-block;}
+#tool.popup   #iOSpopup {display: inline-block;}
+#tool.magnify #magnifier{display: inline-block;}
 #notch{
     position: relative;
     border: 10px solid transparent;
@@ -80,9 +80,9 @@ body{
 }
 #notch.above{bottom: -20px; border-top:    10px solid black;}
 #notch.below{top:    -40px; border-bottom: 10px solid black;}
-#hoverElt.magnify #notch, #hoverElt.popup #notch{display: inline-block;}
-#hoverElt.magnify #notch.above{bottom:  1px; border-top:  10px solid lightgray;}
-#hoverElt.magnify #notch.below{top: -33px; border-bottom: 10px solid lightgray;}
+#tool.magnify #notch, #tool.popup #notch{display: inline-block;}
+#tool.magnify #notch.above{bottom:  1px; border-top:  10px solid lightgray;}
+#tool.magnify #notch.below{top: -33px; border-bottom: 10px solid lightgray;}
 
 #iOSpopup{
   position: relative;
@@ -95,7 +95,7 @@ body{
   margin: 0px;
   display: none;
   list-style: none;
-  z-index: 999;
+  z-index: 500;
 }
 
 #iOSpopup li{-webkit-tap-highlight-color: lightblue;}
