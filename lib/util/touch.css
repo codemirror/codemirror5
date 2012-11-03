@@ -142,7 +142,7 @@
   top:  0px;
   left: 0px;
   overflow: hidden;
-  background: rgb(240,240,240);
+  background-color: rgb(240,240,240);
   border: 3px white ridge;
   z-index: 999;
   box-shadow:  2px 2px 4px black;
@@ -150,9 +150,10 @@
 }
 
 .circle{
-  width: 100px;
-  height: 100px;
-  border-radius: 50px;
+  width: 108px;
+  height: 105px;
+  border-radius: 55px;
+  background-image: url('../util/glass.png');
 }
 
 .rectangle{
