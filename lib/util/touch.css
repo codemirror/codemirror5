@@ -1,11 +1,6 @@
 /* override mobilesafari's highlighting of DOM elements */
 .CodeMirror{-webkit-tap-highlight-color: rgba(0,0,0,0);}
-.CodeMirror div textarea{top: -100px; left: -100px; width: 0px; height: 0px; overflow: hidden;}
-
-body{
-  -webkit-user-select: none;
-  -webkit-touch-callout: none;
-}
+.CodeMirror div textarea{left: -10px; bottom:100px; width: 0px; height: 0px; overflow: hidden; z-index: -1000;}
 
 #keys {
   width:      100%;
@@ -83,6 +78,7 @@ body{
 #tool.magnify #notch, #tool.popup #notch{display: inline-block;}
 #tool.magnify #notch.above{bottom:  1px; border-top:  10px solid lightgray;}
 #tool.magnify #notch.below{top: -33px; border-bottom: 10px solid lightgray;}
+#tool.magnify>#magnifier.circle+#notch{display: none;}
 
 #iOSpopup{
   position: relative;
@@ -98,14 +94,12 @@ body{
   z-index: 500;
 }
 
-#iOSpopup li{-webkit-tap-highlight-color: lightblue;}
-
 #iOSpopup li{
   float: left;
   color: white;
   font-size: 14px;
   display: inline;
-  padding: 10px;
+  padding: 8px;
   margin: 0px;
   font-weight:900;
   font-family:Helvetica, Arial, Verdana, sans-serif;
