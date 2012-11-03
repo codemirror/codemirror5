@@ -1,6 +1,6 @@
 /* override mobilesafari's highlighting of DOM elements */
 .CodeMirror{-webkit-tap-highlight-color: rgba(0,0,0,0);}
-.CodeMirror div textarea{top: -200px; left: -200px; width: 0px; height: 0px; overflow: hidden;}
+.CodeMirror div textarea{top: -100px; left: -100px; width: 0px; height: 0px; overflow: hidden;}
 
 body{
   -webkit-user-select: none;
