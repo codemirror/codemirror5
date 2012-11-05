@@ -1,6 +1,7 @@
 /* override mobilesafari's highlighting of DOM elements */
 .CodeMirror{-webkit-tap-highlight-color: rgba(0,0,0,0);}
-.CodeMirror div textarea{left: -10px; bottom:100px; width: 0px; height: 0px; overflow: hidden; z-index: -1000;}
+.CodeMirror-scroll{  -webkit-overflow-scrolling:touch;}
+.CodeMirror div textarea{left: -10px; top:-100px; width: 0px; height: 0px; overflow: hidden; z-index: -1000;}
 
 #keys {
   width:      100%;
@@ -52,9 +53,13 @@
   -webkit-user-select: none;
 }
 
+/*******************************************************************
+The "Tool" div contains our faked magnifying glass and iOS popup,
+both of which are hidden/shown based on the tool's class
+*/
+
 #tool{
   position: absolute;
-  top: -90px;
   display: none;
   padding: 0px;
   margin: 0px;
@@ -62,6 +67,7 @@
 }
 #tool.popup   #iOSpopup {display: inline-block;}
 #tool.magnify #magnifier{display: inline-block;}
+
 #notch{
     position: relative;
     border: 10px solid transparent;
@@ -74,11 +80,11 @@
     display: none;
 }
 #notch.above{bottom: -20px; border-top:    10px solid black;}
-#notch.below{top:    -40px; border-bottom: 10px solid black;}
+#notch.below{top:    -35px; border-bottom: 10px solid black;}
+
 #tool.magnify #notch, #tool.popup #notch{display: inline-block;}
 #tool.magnify #notch.above{bottom:  1px; border-top:  10px solid lightgray;}
 #tool.magnify #notch.below{top: -33px; border-bottom: 10px solid lightgray;}
-#tool.magnify>#magnifier.circle+#notch{display: none;}
 
 #iOSpopup{
   position: relative;
@@ -108,10 +114,15 @@
     right no-repeat;
 }
 
+/**************************************************************************
+  SELECTION HELPERS
+  1) style the edges of CM-selected with blue borders
+  2)
+*/
 .CodeMirror-selected:first-of-type{ border-left: solid 2px #2873EF;}
 .CodeMirror-selected:last-of-type{ border-right: solid 2px #2873EF;}
 
-.selectionDot{ 
+.selectionDotTouchTarget{ 
   display: none; 
   position: absolute;
   width: 20px;
@@ -122,7 +133,7 @@
   -webkit-touch-callout: none;
 }
 
-.selectionDot span{
+.selectionDotTouchTarget span{
   margin: 5px;
   position: absolute;
   top: 0px;
@@ -151,10 +162,12 @@
 
 .circle{
   width: 108px;
-  height: 105px;
-  border-radius: 55px;
+  height: 108px;
+  border-radius: 54px;
   background-image: url('../util/glass.png');
 }
+#magnifier.circle+#notch{display: none;}
+
 
 .rectangle{
   width: 100px;
@@ -173,4 +186,5 @@
   -webkit-transform-origin: left top;
   user-select: none;
   -webkit-user-select: none
+  overflow:hidden
 }
