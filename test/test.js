@@ -250,6 +250,19 @@ testCM("undoMultiLine", function(cm) {
   eq(cm.getValue(), "abc\ndef\nghi", 3);
 }, {value: "abc\ndef\nghi"});
 
+testCM("undoSelection", function(cm) {
+  cm.setSelection({line: 0, ch: 2}, {line: 0, ch: 4});
+  cm.replaceSelection("");
+  cm.setCursor({line: 1, ch: 0});
+  cm.undo();
+  eqPos(cm.getCursor(true), {line: 0, ch: 2});
+  eqPos(cm.getCursor(false), {line: 0, ch: 4});
+  cm.setCursor({line: 1, ch: 0});
+  cm.redo();
+  eqPos(cm.getCursor(true), {line: 0, ch: 2});
+  eqPos(cm.getCursor(false), {line: 0, ch: 2});
+}, {value: "abcdefgh\n"});
+
 testCM("markTextSingleLine", function(cm) {
   forEach([{a: 0, b: 1, c: "", f: 2, t: 5},
            {a: 0, b: 4, c: "", f: 0, t: 2},
