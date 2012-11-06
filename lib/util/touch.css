@@ -1,6 +1,7 @@
 /* override mobilesafari's highlighting of DOM elements */
 .CodeMirror{-webkit-tap-highlight-color: rgba(0,0,0,0);}
 .CodeMirror-scroll{  -webkit-overflow-scrolling:touch;}
+.CodeMirror-selected{ z-index: -1;}
 .CodeMirror div textarea{left: -10px; top:-100px; width: 0px; height: 0px; overflow: hidden; z-index: -1000;}
 
 #keys {
@@ -117,17 +118,13 @@ both of which are hidden/shown based on the tool's class
 /**************************************************************************
   SELECTION HELPERS
   1) style the edges of CM-selected with blue borders
-  2)
 */
-.CodeMirror-selected:first-of-type{ border-left: solid 2px #2873EF;}
-.CodeMirror-selected:last-of-type{ border-right: solid 2px #2873EF;}
-
 .selectionDotTouchTarget{ 
   display: none; 
   position: absolute;
   width: 20px;
   height: 20px;
-  background: none;
+  background: transparent;
   z-index: 900;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
@@ -135,9 +132,9 @@ both of which are hidden/shown based on the tool's class
 
 .selectionDotTouchTarget span{
   margin: 5px;
-  position: absolute;
-  top: 0px;
-  left: 0px;
+  position: relative;
+  display: block;
+  z-index: 900;
   width: 8px;
   height: 8px;
   background: -webkit-linear-gradient(top, #2673F2, #1E57B6);
@@ -147,6 +144,9 @@ both of which are hidden/shown based on the tool's class
   -webkit-user-select: none;
   -webkit-touch-callout: none;
 }
+
+#start.selectionDotTouchTarget span{top: -12px; left: -10px;}
+#end.selectionDotTouchTarget span{bottom: 8px; right: 10px;}
 
 #magnifier{
   position: relative;
@@ -166,7 +166,7 @@ both of which are hidden/shown based on the tool's class
   border-radius: 54px;
   background-image: url('../util/glass.png');
 }
-#magnifier.circle+#notch{display: none;}
+#tool.magnify .circle+#notch{display: none;}
 
 
 .rectangle{
