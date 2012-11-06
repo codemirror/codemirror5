@@ -66,7 +66,7 @@ both of which are hidden/shown based on the tool's class
   margin: 0px;
   display: inline-block;
 }
-#tool.popup   #iOSpopup {display: inline-block;}
+#tool.popup   #iOSpopup {visibility: visible; opacity: 1;}
 #tool.magnify #magnifier{display: inline-block;}
 
 #notch{
@@ -89,16 +89,19 @@ both of which are hidden/shown based on the tool's class
 
 #iOSpopup{
   position: relative;
-  top: 0px;
-  left: 0px;
+  top:       0px;
+  left:      0px;
   background: -webkit-linear-gradient(top, #838383, #060606);
   border-radius: 5px;
-  border: solid 1px black;
-  padding: 0px;
-  margin: 0px;
-  display: none;
+  border:     solid 1px black;
+  opacity:    0;
+  padding:    0px;
+  margin:     0px;
+  display:    inline-block;
+  visiblity:  hidden;
   list-style: none;
-  z-index: 500;
+  z-index:    500;
+  -webkit-transition: opacity 0.2s linear;
 }
 
 #iOSpopup li{
@@ -117,7 +120,7 @@ both of which are hidden/shown based on the tool's class
 
 /**************************************************************************
   SELECTION HELPERS
-  1) style the edges of CM-selected with blue borders
+  style the edges of CM-selected with blue borders
 */
 .selectionDotTouchTarget{ 
   display: none; 
@@ -161,13 +164,12 @@ both of which are hidden/shown based on the tool's class
 }
 
 .circle{
-  width: 108px;
-  height: 108px;
-  border-radius: 54px;
+  width: 106px;
+  height: 106px;
+  border-radius: 53px;
   background-image: url('../util/glass.png');
 }
 #tool.magnify .circle+#notch{display: none;}
-
 
 .rectangle{
   width: 100px;
