@@ -2,7 +2,7 @@
 .CodeMirror{-webkit-tap-highlight-color: rgba(0,0,0,0);}
 .CodeMirror-scroll{  -webkit-overflow-scrolling:touch;}
 .CodeMirror-selected{ z-index: -1;}
-.CodeMirror div textarea{left: -100px; top:0px; width: 0px; height: 0px; overflow: hidden; z-index: -1000;}
+.CodeMirror div textarea{left: -50px; top:-50px; width: 0px; height: 0px; overflow: hidden; z-index: -1000;}
 
 #keys {
   width:      100%;
