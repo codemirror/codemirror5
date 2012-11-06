@@ -2,7 +2,7 @@
 .CodeMirror{-webkit-tap-highlight-color: rgba(0,0,0,0);}
 .CodeMirror-scroll{  -webkit-overflow-scrolling:touch;}
 .CodeMirror-selected{ z-index: -1;}
-.CodeMirror div textarea{left: -10px; top:-100px; width: 0px; height: 0px; overflow: hidden; z-index: -1000;}
+.CodeMirror div textarea{left: -100px; top:0px; width: 0px; height: 0px; overflow: hidden; z-index: -1000;}
 
 #keys {
   width:      100%;
@@ -39,7 +39,7 @@
 #keys.iPhone li {
   background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0%, #EEEFF0), color-stop(50%, #E0E0E4), color-stop(100%, #D3D3D9));
   background-color: #E0E0E4;
-  -webkit-box-shadow: #333 1px 1px 5px 0px;
+  box-shadow: #333 1px 1px 5px 0px;
   height: 2.5em;
   line-height: 2.5em;
   font-size: 2em;
@@ -127,6 +127,8 @@ both of which are hidden/shown based on the tool's class
   display: none; 
   position: absolute;
   width: 20px;
+  margin-top: -8px;
+  margin-left: -8px;
   height: 20px;
   background: transparent;
   z-index: 900;
@@ -149,8 +151,8 @@ both of which are hidden/shown based on the tool's class
   -webkit-touch-callout: none;
 }
 
-#start.selectionDotTouchTarget span{top: -12px; left: -10px;}
-#end.selectionDotTouchTarget span{bottom: 8px; right: 10px;}
+#start.selectionDotTouchTarget span{top: -4px; left: -2px;}
+#end.selectionDotTouchTarget span{bottom: 0px; right: 2px;}
 
 #magnifier{
   position: relative;
