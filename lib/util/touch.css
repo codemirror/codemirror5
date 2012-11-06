@@ -102,7 +102,10 @@ both of which are hidden/shown based on the tool's class
   z-index:    500;
   box-shadow: 2px 2px 4px black;
   -webkit-transition: opacity 0.2s linear;
-  background: -webkit-linear-gradient(top, #838383, #060606);
+  background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0%, #909090), 
+                                                             color-stop(50%, #525252), 
+                                                             color-stop(50%, #3B3B3B), 
+                                                             color-stop(100%, #151515));
 }
 
 #iOSpopup li{
