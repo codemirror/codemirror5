@@ -17,7 +17,6 @@ var fs = require("fs"), acorn = require("./acorn.js"), walk = require("./walk.js
 var scopePasser = walk.make({
   ScopeBody: function(node, prev, c) { c(node, node.scope); }
 });
-var hop = Object.prototype.hasOwnProperty;
 
 function checkFile(fileName) {
   var file = fs.readFileSync(fileName, "utf8");
@@ -39,9 +38,12 @@ function checkFile(fileName) {
     return;
   }
 
+  var scopes = [];
+
   walk.simple(parsed, {
     ScopeBody: function(node, scope) {
       node.scope = scope;
+      scopes.push(scope);
     }
   }, walk.scopeVisitor, {vars: Object.create(null)});
 
@@ -49,10 +51,10 @@ function checkFile(fileName) {
 
   function inScope(name, scope) {
     for (var cur = scope; cur; cur = cur.prev)
-      if (hop.call(cur.vars, name)) return true;
+      if (name in cur.vars) return true;
   }
   function checkLHS(node, scope) {
-    if (node.type == "Identifier" && !hop.call(ignoredGlobals, node.name) &&
+    if (node.type == "Identifier" && !(node.name in ignoredGlobals) &&
         !inScope(node.name, scope)) {
       ignoredGlobals[node.name] = true;
       fail("Assignment to global variable", node.loc);
@@ -61,8 +63,25 @@ function checkFile(fileName) {
 
   walk.simple(parsed, {
     UpdateExpression: function(node, scope) {checkLHS(node.argument, scope);},
-    AssignmentExpression: function(node, scope) {checkLHS(node.left, scope);}
+    AssignmentExpression: function(node, scope) {checkLHS(node.left, scope);},
+    Identifier: function(node, scope) {
+      // Mark used identifiers
+      for (var cur = scope; cur; cur = cur.prev)
+        if (node.name in cur.vars) {
+          cur.vars[node.name].used = true;
+          return;
+        }
+    }
   }, scopePasser);
+
+  for (var i = 0; i < scopes.length; ++i) {
+    var scope = scopes[i];
+    for (var name in scope.vars) {
+      var info = scope.vars[name];
+      if (!info.used && info.type != "catch clause" && info.type != "function name" && name.charAt(0) != "_")
+        fail("Unused " + info.type + " " + name, info.node.loc);
+    }
+  }
 }
 
 var failed = false;
