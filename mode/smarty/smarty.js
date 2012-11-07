@@ -1,4 +1,4 @@
-CodeMirror.defineMode("smarty", function(config, parserConfig) {
+CodeMirror.defineMode("smarty", function(config) {
   var keyFuncs = ["debug", "extends", "function", "include", "literal"];
   var last;
   var regs = {

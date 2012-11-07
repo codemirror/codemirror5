@@ -95,7 +95,7 @@ CodeMirror.defineMode("r", function(config) {
   }
 
   return {
-    startState: function(base) {
+    startState: function() {
       return {tokenize: tokenBase,
               ctx: {type: "top",
                     indent: -config.indentUnit,

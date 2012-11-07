@@ -23,7 +23,7 @@
     atoms: keywords("true false null TRUE FALSE NULL"),
     multiLineStrings: true,
     hooks: {
-      "$": function(stream, state) {
+      "$": function(stream) {
         stream.eatWhile(/[\w\$_]/);
         return "variable-2";
       },
@@ -35,11 +35,11 @@
         }
         return false;
       },
-      "#": function(stream, state) {
+      "#": function(stream) {
         while (!stream.eol() && !stream.match("?>", false)) stream.next();
         return "comment";
       },
-      "/": function(stream, state) {
+      "/": function(stream) {
         if (stream.eat("/")) {
           while (!stream.eol() && !stream.match("?>", false)) stream.next();
           return "comment";

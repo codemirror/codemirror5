@@ -145,7 +145,7 @@ CodeMirror.defineMode("sieve", function(config) {
       return (state.tokenize || tokenBase)(stream, state);;
     },
 
-    indent: function(state, textAfter) {
+    indent: function(state, _textAfter) {
       return state.baseIndent + state._indent * indentUnit;
     },
 

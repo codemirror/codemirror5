@@ -91,7 +91,7 @@ CodeMirror.defineMode("commonlisp", function (config) {
       return style;
     },
 
-    indent: function (state, textAfter) {
+    indent: function (state, _textAfter) {
       var i = state.ctx.indentTo;
       return typeof i == "number" ? i : state.ctx.start + 1;
     }

@@ -1,4 +1,4 @@
-CodeMirror.defineMode('ocaml', function(config) {
+CodeMirror.defineMode('ocaml', function() {
 
   var words = {
     'true': 'atom',
@@ -37,7 +37,6 @@ CodeMirror.defineMode('ocaml', function(config) {
   };
 
   function tokenBase(stream, state) {
-    var sol = stream.sol();
     var ch = stream.next();
 
     if (ch === '"') {

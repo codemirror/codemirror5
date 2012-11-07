@@ -20,7 +20,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-CodeMirror.defineMode("xquery", function(config, parserConfig) {
+CodeMirror.defineMode("xquery", function() {
 
   // The keywords object is set to the result of this self executing
   // function. Each keyword is a property of the keywords object whose
@@ -401,7 +401,6 @@ CodeMirror.defineMode("xquery", function(config, parserConfig) {
   // functions to test the current context of the state
   function isInXmlBlock(state) { return isIn(state, "tag"); }
   function isInXmlAttributeBlock(state) { return isIn(state, "attribute"); }
-  function isInCodeBlock(state) { return isIn(state, "codeblock"); }
   function isInXmlConstructor(state) { return isIn(state, "xmlconstructor"); }
   function isInString(state) { return isIn(state, "string"); }
 
@@ -424,14 +423,14 @@ CodeMirror.defineMode("xquery", function(config, parserConfig) {
   }
   
   function popStateStack(state) {
-    var popped = state.stack.pop();
+    state.stack.pop();
     var reinstateTokenize = state.stack.length && state.stack[state.stack.length-1].tokenize;
     state.tokenize = reinstateTokenize || tokenBase;
   }
   
   // the interface for the mode API
   return {
-    startState: function(basecolumn) {
+    startState: function() {
       return {
         tokenize: tokenBase,
         cc: [],

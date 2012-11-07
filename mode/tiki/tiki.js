@@ -1,4 +1,4 @@
-CodeMirror.defineMode('tiki', function(config, parserConfig) {
+CodeMirror.defineMode('tiki', function(config) {
 	function inBlock(style, terminator, returnTokenizer) {
 		return function(stream, state) {
 			while (!stream.eol()) {
@@ -15,7 +15,7 @@ CodeMirror.defineMode('tiki', function(config, parserConfig) {
 		};
 	}
 	
-	function inLine(style, terminator) {
+	function inLine(style) {
 		return function(stream, state) {
 			while(!stream.eol()) {
 				stream.next();
@@ -37,7 +37,7 @@ CodeMirror.defineMode('tiki', function(config, parserConfig) {
 		//non start of line
 		switch (ch) { //switch is generally much faster than if, so it is used here
 			case "{": //plugin
-				var type = stream.eat("/") ? "closeTag" : "openTag";
+				stream.eat("/");
 				stream.eatSpace();
 				var tagName = "";
 				var c;

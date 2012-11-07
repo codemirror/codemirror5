@@ -331,7 +331,7 @@ CodeMirror.defineMode('coffeescript', function(conf) {
             return style;
         },
 
-        indent: function(state, textAfter) {
+        indent: function(state) {
             if (state.tokenize != tokenBase) {
                 return 0;
             }

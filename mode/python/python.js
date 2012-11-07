@@ -323,7 +323,7 @@ CodeMirror.defineMode("python", function(conf, parserConf) {
             return style;
         },
         
-        indent: function(state, textAfter) {
+        indent: function(state) {
             if (state.tokenize != tokenBase) {
                 return 0;
             }

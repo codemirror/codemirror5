@@ -167,21 +167,9 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
     "endgenerate endmodule endprimitive endspecify endtable endtask for forever function generate if ifnone " +
     "macromodule module primitive repeat specify table task while";
 
-  function metaHook(stream, state) {
+  function metaHook(stream) {
     stream.eatWhile(/[\w\$_]/);
     return "meta";
-  }
-
-  // C#-style strings where "" escapes a quote.
-  function tokenAtString(stream, state) {
-    var next;
-    while ((next = stream.next()) != null) {
-      if (next == '"' && !stream.eat('"')) {
-        state.tokenize = null;
-        break;
-      }
-    }
-    return "string";
   }
 
   CodeMirror.defineMIME("text/x-verilog", {

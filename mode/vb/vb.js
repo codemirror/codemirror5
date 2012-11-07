@@ -37,11 +37,11 @@ CodeMirror.defineMode("vb", function(conf, parserConf) {
    
 
 
-    function indent(stream, state) {
+    function indent(_stream, state) {
       state.currentIndent++;
     }
     
-    function dedent(stream, state) {
+    function dedent(_stream, state) {
       state.currentIndent--;
     }
     // tokenizers
@@ -218,7 +218,7 @@ CodeMirror.defineMode("vb", function(conf, parserConf) {
 
     var external = {
         electricChars:"dDpPtTfFeE ",
-        startState: function(basecolumn) {
+        startState: function() {
             return {
               tokenize: tokenBase,
               lastToken: null,

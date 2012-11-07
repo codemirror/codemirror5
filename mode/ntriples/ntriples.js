@@ -87,8 +87,6 @@ CodeMirror.defineMode("ntriples", function() {
     currState.location=ret;
   }
 
-  var untilSpace  = function(c) { return c != ' '; };
-  var untilEndURI = function(c) { return c != '>'; };
   return {
     startState: function() {
        return { 

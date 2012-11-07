@@ -4,9 +4,8 @@
  *	@link 	https://github.com/prasanthj/pig-codemirror-2
  *  This implementation is adapted from PL/SQL mode in CodeMirror 2.
 */
-CodeMirror.defineMode("pig", function(config, parserConfig) {
-	var indentUnit = config.indentUnit,
-		keywords = parserConfig.keywords,
+CodeMirror.defineMode("pig", function(_config, parserConfig) {
+	var keywords = parserConfig.keywords,
 		builtins = parserConfig.builtins,
 		types = parserConfig.types,
 		multiLineStrings = parserConfig.multiLineStrings;
@@ -119,7 +118,7 @@ CodeMirror.defineMode("pig", function(config, parserConfig) {
 	
 	// Interface
 	return {
-		startState: function(basecolumn) {
+		startState: function() {
 			return {
 				tokenize: tokenBase,
 				startOfLine: true

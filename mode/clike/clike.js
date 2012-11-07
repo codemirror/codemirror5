@@ -213,7 +213,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     blockKeywords: words("catch class do else finally for if switch try while"),
     atoms: words("true false null"),
     hooks: {
-      "@": function(stream, state) {
+      "@": function(stream) {
         stream.eatWhile(/[\w\$_]/);
         return "meta";
       }
@@ -276,7 +276,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     blockKeywords: words("catch class do else finally for forSome if match switch try while"),
     atoms: words("true false null"),
     hooks: {
-      "@": function(stream, state) {
+      "@": function(stream) {
         stream.eatWhile(/[\w\$_]/);
         return "meta";
       }

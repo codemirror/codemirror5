@@ -9,7 +9,7 @@
 
 CodeMirror.defineMIME("text/x-erlang", "erlang");
 
-CodeMirror.defineMode("erlang", function(cmCfg, modeCfg) {
+CodeMirror.defineMode("erlang", function(cmCfg) {
 
   function rval(state,stream,type) {
     // distinguish between "." as terminator and record field operator

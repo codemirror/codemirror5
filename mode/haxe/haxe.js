@@ -288,19 +288,19 @@ CodeMirror.defineMode("haxe", function(config, parserConfig) {
     if (type == "[") return cont(pushlex("]"), expression, expect("]"), poplex, maybeoperator);
   }
 
-  function maybeattribute(type, value) {
+  function maybeattribute(type) {
     if (type == "attribute") return cont(maybeattribute);
     if (type == "function") return cont(functiondef);
     if (type == "var") return cont(vardef1);
   }
 
-  function metadef(type, value) {
+  function metadef(type) {
     if(type == ":") return cont(metadef);
     if(type == "variable") return cont(metadef);
     if(type == "(") return cont(pushlex(")"), comasep(metaargs, ")"), poplex, statement);
   }
-  function metaargs(type, value) {
-    if(typ == "variable") return cont();
+  function metaargs(type) {
+    if(type == "variable") return cont();
   }
   
   function importdef (type, value) {
@@ -353,7 +353,7 @@ CodeMirror.defineMode("haxe", function(config, parserConfig) {
   }
   return cont(pushlex(")"), pushcontext, forin, expression, poplex, statement, popcontext);
   }
-  function forin(type, value) {
+  function forin(_type, value) {
     if (value == "in") return cont();
   }
   function functiondef(type, value) {
@@ -361,16 +361,16 @@ CodeMirror.defineMode("haxe", function(config, parserConfig) {
     if (value == "new") return cont(functiondef);
     if (type == "(") return cont(pushlex(")"), pushcontext, commasep(funarg, ")"), poplex, typeuse, statement, popcontext);
   }
-  function typeuse(type, value) {
-	  if(type == ":") return cont(typestring);
+  function typeuse(type) {
+    if(type == ":") return cont(typestring);
   }
-  function typestring(type, value) {
-  if(type == "type") return cont();
-  if(type == "variable") return cont();
-  if(type == "{") return cont(pushlex("}"), commasep(typeprop, "}"), poplex);
+  function typestring(type) {
+    if(type == "type") return cont();
+    if(type == "variable") return cont();
+    if(type == "{") return cont(pushlex("}"), commasep(typeprop, "}"), poplex);
   }
-  function typeprop(type, value) {
-	  if(type == "variable") return cont(typeuse);
+  function typeprop(type) {
+    if(type == "variable") return cont(typeuse);
   }
   function funarg(type, value) {
     if (type == "variable") {register(value); return cont(typeuse);}

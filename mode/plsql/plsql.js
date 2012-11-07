@@ -1,6 +1,5 @@
-CodeMirror.defineMode("plsql", function(config, parserConfig) {
-  var indentUnit       = config.indentUnit,
-      keywords         = parserConfig.keywords,
+CodeMirror.defineMode("plsql", function(_config, parserConfig) {
+  var keywords         = parserConfig.keywords,
       functions        = parserConfig.functions,
       types            = parserConfig.types,
       sqlplus          = parserConfig.sqlplus,
@@ -105,7 +104,7 @@ CodeMirror.defineMode("plsql", function(config, parserConfig) {
   // Interface
 
   return {
-    startState: function(basecolumn) {
+    startState: function() {
       return {
         tokenize: tokenBase,
         startOfLine: true

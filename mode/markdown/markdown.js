@@ -169,17 +169,6 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     }
   }
 
-  function codeBlock(stream, state) {
-    if(stream.match(codeBlockRE, true)){
-      state.f = inlineNormal;
-      state.block = blockNormal;
-      switchInline(stream, state, state.inline);
-      return code;
-    }
-    stream.skipToEnd();
-    return code;
-  }
-
   // Inline
   function getType(state) {
     var styles = [];
@@ -284,7 +273,6 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     }
     
     if (ch === '<' && stream.match(/^\w/, false)) {
-      var md_inside = false;
       if (stream.string.indexOf(">")!=-1) {
         var atts = stream.string.substring(1,stream.string.indexOf(">"));
         if (/markdown\s*=\s*('|"){0,1}1('|"){0,1}/.test(atts)) {

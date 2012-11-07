@@ -43,8 +43,6 @@ CodeMirror.defineMode('rst', function(config, options) {
     var reVerbatimMarker = /^::\s*$/;
     var rePreInline = /^[-\s"([{</:]/;
     var rePostInline = /^[-\s`'")\]}>/:.,;!?\\_]/;
-    var reEnumeratedList = /^\s*((\d+|[A-Za-z#])[.)]|\((\d+|[A-Z-a-z#])\))\s/;
-    var reBulletedList = /^\s*[-\+\*]\s/;
     var reExamples = /^\s+(>>>|In \[\d+\]:)\s/;
 
     function normal(stream, state) {

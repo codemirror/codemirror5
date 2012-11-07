@@ -1,4 +1,4 @@
-CodeMirror.defineMode("jinja2", function(config, parserConf) {
+CodeMirror.defineMode("jinja2", function() {
     var keywords = ["block", "endblock", "for", "endfor", "in", "true", "false", 
                     "loop", "none", "self", "super", "if", "as", "not", "and",
                     "else", "import", "with", "without", "context"];

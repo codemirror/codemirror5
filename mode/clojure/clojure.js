@@ -2,10 +2,10 @@
  * Author: Hans Engel
  * Branched from CodeMirror's Scheme mode (by Koh Zi Han, based on implementation by Koh Zi Chun)
  */
-CodeMirror.defineMode("clojure", function (config, mode) {
-    var BUILTIN = "builtin", COMMENT = "comment", STRING = "string", TAG = "tag",
+CodeMirror.defineMode("clojure", function () {
+    var BUILTIN = "builtin", COMMENT = "comment", STRING = "string",
         ATOM = "atom", NUMBER = "number", BRACKET = "bracket", KEYWORD = "keyword";
-    var INDENT_WORD_SKIP = 2, KEYWORDS_SKIP = 1;
+    var INDENT_WORD_SKIP = 2;
 
     function makeKeywords(str) {
         var obj = {}, words = str.split(" ");
@@ -196,7 +196,7 @@ CodeMirror.defineMode("clojure", function (config, mode) {
             return returnType;
         },
 
-        indent: function (state, textAfter) {
+        indent: function (state) {
             if (state.indentStack == null) return state.indentation;
             return state.indentStack.indent;
         }
