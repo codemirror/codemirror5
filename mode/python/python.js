@@ -159,6 +159,9 @@ CodeMirror.defineMode("python", function(conf, parserConf) {
         }
         var singleline = delimiter.length == 1;
         var OUTCLASS = 'string';
+        if (!singleline) {
+            OUTCLASS = 'string:multi_line';
+        }
         
         return function tokenString(stream, state) {
             while (!stream.eol()) {
@@ -324,6 +327,10 @@ CodeMirror.defineMode("python", function(conf, parserConf) {
         },
         
         indent: function(state, textAfter) {
+            if (state.type === 'string:multi_line') {
+              return CodeMirror.Pass;
+            }
+
             if (state.tokenize != tokenBase) {
                 return 0;
             }
