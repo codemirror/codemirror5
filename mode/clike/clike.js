@@ -1,5 +1,7 @@
 CodeMirror.defineMode("clike", function(config, parserConfig) {
   var indentUnit = config.indentUnit,
+      enableMultiLineIndent = !!config.enableMultiLineIndent,
+      multiLineIndentUnit = config.multiLineIndentUnit || config.indentUnit,
       keywords = parserConfig.keywords || {},
       builtin = parserConfig.builtin || {},
       blockKeywords = parserConfig.blockKeywords || {},
@@ -94,8 +96,13 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
   function popContext(state) {
     var t = state.context.type;
     if (t == ")" || t == "]" || t == "}")
-      state.indented = state.context.indented;
-    return state.context = state.context.prev;
+      if (state.context.prev && state.context.prev.isMulti)
+        state.indented = state.context.prev.indented;
+      else
+        state.indented = state.context.indented;
+    var prevCtx = state.context.prev;
+    while (prevCtx && prevCtx.isMulti) prevCtx = prevCtx.prev;
+    return state.context = prevCtx;
   }
 
   // Interface
@@ -123,6 +130,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       if (style == "comment" || style == "meta") return style;
       if (ctx.align == null) ctx.align = true;
 
+      if (ctx.type == "statement" && stream.eol() && enableMultiLineIndent) state.context.isMulti = true;
       if ((curPunc == ";" || curPunc == ":") && ctx.type == "statement") popContext(state);
       else if (curPunc == "{") pushContext(state, stream.column(), "}");
       else if (curPunc == "[") pushContext(state, stream.column(), "]");
@@ -145,9 +153,13 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       var ctx = state.context, firstChar = textAfter && textAfter.charAt(0);
       if (ctx.type == "statement" && firstChar == "}") ctx = ctx.prev;
       var closing = firstChar == ctx.type;
-      if (ctx.type == "statement") return ctx.indented + (firstChar == "{" ? 0 : indentUnit);
+      if (ctx.type == "statement") { return ctx.indented + (firstChar == "{" ? 0 : multiLineIndentUnit);}
       else if (ctx.align) return ctx.column + (closing ? 0 : 1);
-      else return ctx.indented + (closing ? 0 : indentUnit);
+      else if (ctx.prev && ctx.prev.isMulti) {
+        var prevCtx = ctx.prev;
+        while (prevCtx.prev.isMulti) prevCtx = prevCtx.prev;
+        return prevCtx.indented + (closing ? 0 : indentUnit);
+      } else return ctx.indented + (closing ? 0 : indentUnit);
     },
 
     electricChars: "{}"
