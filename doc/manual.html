@@ -713,11 +713,20 @@
       called.</dd>
 
       <dt id="indentLine"><code>indentLine(line, dir)</code></dt>
-      <dd>Reset the given line's indentation to the indentation
-      prescribed by the mode. If the second argument is given,
-      indentation will be increased (if <code>dir</code> is true) or
-      decreased (if false) by an <a href="#option_indentUnit">indent
-      unit</a> instead.</dd>
+      <dd>Adjust the indentation of the given line. The second
+      argument (which defaults to <code>"smart"</code>) may be one of:
+        <dl>
+          <dt><code>"prev"</code></dt>
+          <dd>Base indentation on the indentation of the previous line.</dd>
+          <dt><code>"smart"</code></dt>
+          <dd>Use the mode's smart indentation if available, behave
+          like <code>"prev"</code> otherwise.</dd>
+          <dt><code>"add"</code></dt>
+          <dd>Increase the indentation of the line by
+          one <a href="#option_indentUnit">indent unit</a>.</dd>
+          <dt><code>"subtract"</code></dt>
+          <dd>Reduce the indentation of the line.</dd>
+        </dl></dd>
 
       <dt id="getTokenAt"><code>getTokenAt(pos) → object</code></dt>
       <dd>Retrieves information about the token the current mode found
