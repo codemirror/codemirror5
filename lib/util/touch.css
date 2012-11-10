@@ -1,7 +1,8 @@
 /* override mobilesafari's highlighting of DOM elements */
 .CodeMirror{-webkit-tap-highlight-color: rgba(0,0,0,0);}
 .CodeMirror-scroll{  -webkit-overflow-scrolling:touch;}
-.CodeMirror-selected{ z-index: -1;}
+.CodeMirror-selected:first-of-type{ border-left: solid #416BF2 2px;  z-index: -1;}
+.CodeMirror-selected:last-of-type{ border-right: solid #416BF2 2px;  z-index: -1;}
 .CodeMirror div textarea{left: -50px; top:-50px; width: 0px; height: 0px; overflow: hidden; z-index: -1000;}
 
 #keys {
@@ -61,10 +62,11 @@ both of which are hidden/shown based on the tool's class
 
 #tool{
   position: absolute;
-  display: none;
-  padding: 0px;
-  margin: 0px;
-  display: inline-block;
+  display:  none;
+  padding:  0px;
+  margin:   0px;
+  display:  inline-block;
+  z-index:  500;
 }
 #tool.popup   #iOSpopup {visibility: visible; opacity: 1;}
 #tool.magnify #magnifier{display: inline-block;}
