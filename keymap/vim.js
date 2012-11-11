@@ -59,11 +59,10 @@
   function pushRepeatCountDigit(digit) {return function(cm) {repeatCount = (repeatCount * 10) + digit}; }
   function getCountOrOne() {
     var i = repeatCount;
-    repeatCount = 0;
     return i || 1;
   }
   function clearCount() {
-    count = 0;
+    repeatCount = 0;
   }
   function iterTimes(func) {
     for (var i = 0, c = getCountOrOne(); i < c; ++i) func(i, i == c - 1);
@@ -106,17 +105,14 @@
     var line = cm.getLine(lineNum);
     while (true) {
       var stop = (dir > 0) ? line.length : -1;
-      var next = (dir > 0) ? 0 : 0;
       var wordStart = stop, wordEnd = stop;
       // Find bounds of next word.
       for (; pos != stop; pos += dir) {
         for (var i = 0; i < regexps.length; ++i) {
-          if (regexps[i].test(line.charAt(pos + next))) {
+          if (regexps[i].test(line.charAt(pos))) {
             wordStart = pos;
             // Advance to end of word.
-            for (; pos != stop && regexps[i].test(line.charAt(pos + next)); pos += dir) {
-              a = 3;
-            };
+            for (; pos != stop && regexps[i].test(line.charAt(pos)); pos += dir) {}
             wordEnd = (dir > 0) ? pos : pos + 1;
             return {
                 from: Math.min(wordStart, wordEnd),
@@ -159,7 +155,8 @@
             cur.ch = cm.getLine(cur.line).length;
             break;
           } else {
-            // Move to the word we just found.
+            // Move to the word we just found. If by moving to the word we end up
+            // in the same spot, then move an extra character and search again.
             cur.line = word.line;
             if (dir > 0 && where == 'end') {
               // 'e'
@@ -463,7 +460,7 @@
     "Shift-E": countTimes(function(cm) { cm.setCursor(moveToWord(cm, bigWord, -1, 1, "end"));}),
     "G": function (cm) {
       cm.setCursor({line: repeatCount - 1, ch: cm.getCursor().ch});
-      repeatCount = 0;
+      clearCount();
     },
     auto: "vim", nofallthrough: true, style: "fat-cursor"
   };
