@@ -324,16 +324,26 @@
     },
     "G": function(cm) { cm.setOption("keyMap", "vim-prefix-g");},
     "Shift-D": function(cm) {
-      // commented out verions works, but I left original, cause maybe
-      // I don't know vim enouth to see what it does
-      /* var cur = cm.getCursor();
-      var f = {line: cur.line, ch: cur.ch}, t = {line: cur.line};
-      pushInBuffer(cm.getRange(f, t));
-      */
+      var cursor = cm.getCursor();
+      var lineN = cursor.line;
+      var line = cm.getLine(lineN);
+      cm.setLine(lineN, line.slice(0, cursor.ch));
+
       emptyBuffer();
-      mark["Shift-D"] = cm.getCursor(false).line;
-      cm.setCursor(cm.getCursor(true).line);
-      delTillMark(cm,"Shift-D"); mark = [];
+      pushInBuffer(line.slice(cursor.ch));
+
+      if (repeatCount > 1) {
+        // we've already done it once
+        --repeatCount;
+        // the lines dissapear (ie, cursor stays on the same lineN),
+        // so only incremenet once
+        ++lineN;
+
+        iterTimes(function(i) {
+          pushInBuffer(cm.getLine(lineN));
+          cm.removeLine(lineN);
+        });
+      }
     },
 
     "S": function (cm) {
