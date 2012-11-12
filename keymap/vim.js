@@ -651,6 +651,63 @@
     return {start: start, end: end};
   }
 
+  // takes in a symbol and a cursor and tries to simulate text objects that have
+  // identical opening and closing symbols
+  // TODO support across multiple lines
+  function findBeginningAndEnd(cm, symb, inclusive) {
+    var cur = cm.getCursor();
+    var line = cm.getLine(cur.line);
+    var chars = line.split('');
+    var start = undefined;
+    var end = undefined;
+    var firstIndex = chars.indexOf(symb);
+
+    // the decision tree is to always look backwards for the beginning first,
+    // but if the cursor is in front of the first instance of the symb,
+    // then move the cursor forward
+    if (cur.ch < firstIndex) {
+      cur.ch = firstIndex;
+      cm.setCursor(cur.line, firstIndex+1);
+    }
+    // otherwise if the cursor is currently on the closing symbol
+    else if (firstIndex < cur.ch && chars[cur.ch] == symb) {
+      end = cur.ch; // assign end to the current cursor
+      --cur.ch; // make sure to look backwards
+    }
+
+    // if we're currently on the symbol, we've got a start
+    if (chars[cur.ch] == symb && end == null)
+      start = cur.ch + 1; // assign start to ahead of the cursor
+    else {
+      // go backwards to find the start
+      for (var i = cur.ch; i > -1 && start == null; i--)
+        if (chars[i] == symb) start = i + 1;
+    }
+
+    // look forwards for the end symbol
+    if (start != null && end == null) {
+      for (var i = start, len = chars.length; i < len && end == null; i++) {
+        if (chars[i] == symb) end = i;
+      }
+    }
+
+    // nothing found
+    // FIXME still enters insert mode
+    if (start == null || end == null) return {
+      start: cur, end: cur  
+    };
+
+    // include the symbols
+    if (inclusive) {
+      --start; ++end;
+    }
+
+    return {
+      start: {line: cur.line, ch: start},
+      end: {line: cur.line, ch: end}
+    };
+  }
+
   // These are our motion commands to be used for navigation and selection with
   // certian other commands. All should return a cursor object.
   var motionList = ['B', 'E', 'J', 'K', 'H', 'L', 'W', 'Shift-W', "'^'", "'$'", "'%'", 'Esc'];
@@ -805,7 +862,7 @@
 
   // Create our text object functions. They work similar to motions but they
   // return a start cursor as well
-  var textObjectList = ['W', 'Shift-[', 'Shift-9', '['];
+  var textObjectList = ['W', 'Shift-[', 'Shift-9', '[', "'", "Shift-'"];
   var textObjects = {
     'W': function(cm, inclusive) {
       var cur = cm.getCursor();
@@ -820,7 +877,9 @@
     },
     'Shift-[': function(cm, inclusive) { return selectCompanionObject(cm, '}', inclusive); },
     'Shift-9': function(cm, inclusive) { return selectCompanionObject(cm, ')', inclusive); },
-    '[': function(cm, inclusive) { return selectCompanionObject(cm, ']', inclusive); }
+    '[': function(cm, inclusive) { return selectCompanionObject(cm, ']', inclusive); },
+    "'": function(cm, inclusive) { return findBeginningAndEnd(cm, "'", inclusive); },
+    "Shift-'": function(cm, inclusive) { return findBeginningAndEnd(cm, '"', inclusive); }
   };
 
   // One function to handle all operation upon text objects. Kinda funky but it works
