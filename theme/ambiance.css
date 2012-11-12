@@ -1,4 +1,4 @@
-/* ambiance theme for code-mirror */
+/* ambiance theme for codemirror */
 
 /* Color scheme */
 
@@ -33,7 +33,7 @@
 .cm-s-ambiance .CodeMirror-selected {
   background: rgba(255, 255, 255, 0.15);
 }
-.CodeMirror-focused .cm-s-ambiance .CodeMirror-selected {
+.cm-s-ambiance .CodeMirror-focused .CodeMirror-selected {
   background: rgba(255, 255, 255, 0.10);
 }
 
