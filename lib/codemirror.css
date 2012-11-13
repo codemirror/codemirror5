@@ -150,7 +150,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
 }
 .CodeMirror-gutter {
   height: 100%;
-  float: left;
+  display: inline-block;
 }
 .CodeMirror-gutter-elt {
   position: absolute;
