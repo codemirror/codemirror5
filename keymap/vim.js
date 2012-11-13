@@ -51,7 +51,7 @@
   var sdir = "f";
   var buf = "";
   var yank = 0;
-  var mark = [];
+  var mark = {};
   var repeatCount = 0;
   function isLine(cm, line) { return line >= 0 && line < cm.lineCount(); }
   function emptyBuffer() { buf = ""; }
@@ -352,13 +352,13 @@
       })(cm);
       enterInsertMode(cm);
     },
-    "M": function(cm) {cm.setOption("keyMap", "vim-prefix-m"); mark = [];},
+    "M": function(cm) {cm.setOption("keyMap", "vim-prefix-m"); mark = {};},
     "Y": function(cm) {cm.setOption("keyMap", "vim-prefix-y"); emptyBuffer(); yank = 0;},
     "Shift-Y": function(cm) {
       emptyBuffer();
       mark["Shift-D"] = cm.getCursor(false).line;
       cm.setCursor(cm.getCursor(true).line);
-      yankTillMark(cm,"Shift-D"); mark = [];
+      yankTillMark(cm,"Shift-D"); mark = {};
     },
     "/": function(cm) {var f = CodeMirror.commands.find; f && f(cm); sdir = "f";},
     "'?'": function(cm) {
