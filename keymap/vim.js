@@ -199,6 +199,10 @@
         }
       }
     }
+    if (where == 'end' && yank) {
+      // Include the last character of the word for actions.
+      cur.ch++;
+    }
     return cur;
   }
   function joinLineNext(cm) {
