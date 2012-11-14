@@ -399,9 +399,6 @@
   // main num keymap
   // Add bindings that are influenced by number keys
   iterObj({
-    "Left": "goColumnLeft", "Right": "goColumnRight",
-    "Down": "goLineDown", "Up": "goLineUp", "Backspace": "goCharLeft",
-    "Space": "goCharRight",
     "X": function(cm) {CodeMirror.commands.delCharAfter(cm);},
     "P": function(cm) {
       var cur = cm.getCursor().line;
@@ -708,67 +705,50 @@
     };
   }
 
-  // These are our motion commands to be used for navigation and selection with
-  // certian other commands. All should return a cursor object.
-  var motionList = ['B', 'E', 'J', 'K', 'H', 'L', 'W', 'Shift-W', "'^'", "'$'", "'%'", 'Esc'];
+  function offsetCursor(cm, line, ch) {
+    var cur = cm.getCursor(); return {line: cur.line + line, ch: cur.ch + ch};
+  }
 
-  motions = {
-    'B': function(cm, times, yank) { return moveToWord(cm, word, -1, times, 'start', yank); },
-    'Shift-B': function(cm, times, yank) { return moveToWord(cm, bigWord, -1, times, 'start', yank); },
-    'E': function(cm, times, yank) { return moveToWord(cm, word, 1, times, 'end', yank); },
-    'Shift-E': function(cm, times, yank) { return moveToWord(cm, bigWord, 1, times, 'end', yank); },
-    'J': function(cm, times) {
-      var cur = cm.getCursor();
-      return {line: cur.line+times, ch : cur.ch};
-    },
-
-    'K': function(cm, times) {
-      var cur = cm.getCursor();
-      return {line: cur.line-times, ch: cur.ch};
-    },
-
-    'H': function(cm, times) {
-      var cur = cm.getCursor();
-      return {line: cur.line, ch: cur.ch-times};
-    },
-
-    'L': function(cm, times) {
-      var cur = cm.getCursor();
-      return {line: cur.line, ch: cur.ch+times};
-    },
-    'W': function(cm, times, yank) { return moveToWord(cm, word, 1, times, 'start', yank); },
-    'Shift-W': function(cm, times, yank) { return moveToWord(cm, bigWord, 1, times, 'start', yank); },
+  // These are the motion commands we use for navigation and selection with
+  // certain other commands. All should return a cursor object.
+  var motions = {
+    "J": function(cm, times) { return offsetCursor(cm, times, 0); },
+    "Down": function(cm, times) { return offsetCursor(cm, times, 0); },
+    "K": function(cm, times) { return offsetCursor(cm, -times, 0); },
+    "Up": function(cm, times) { return offsetCursor(cm, -times, 0); },
+    "L": function(cm, times) { return offsetCursor(cm, 0, times); },
+    "Right": function(cm, times) { return offsetCursor(cm, 0, times); },
+    "Space": function(cm, times) { return offsetCursor(cm, 0, times); },
+    "H": function(cm, times) { return offsetCursor(cm, 0, -times); },
+    "Left": function(cm, times) { return offsetCursor(cm, 0, -times); },
+    "Backspace": function(cm, times) { return offsetCursor(cm, 0, -times); },
+    "B": function(cm, times, yank) { return moveToWord(cm, word, -1, times, 'start', yank); },
+    "Shift-B": function(cm, times, yank) { return moveToWord(cm, bigWord, -1, times, 'start', yank); },
+    "E": function(cm, times, yank) { return moveToWord(cm, word, 1, times, 'end', yank); },
+    "Shift-E": function(cm, times, yank) { return moveToWord(cm, bigWord, 1, times, 'end', yank); },
+    "W": function(cm, times, yank) { return moveToWord(cm, word, 1, times, 'start', yank); },
+    "Shift-W": function(cm, times, yank) { return moveToWord(cm, bigWord, 1, times, 'start', yank); },
     "'^'": function(cm, times) {
-      var cur = cm.getCursor();
-      var line = cm.getLine(cur.line).split('');
-
-      // Empty line :o
-      if (line.length == 0) return cur;
-
-      for (var index = 0;  index < line.length; index++) {
-        if (line[index].match(/[^\s]/)) return {line: cur.line, ch: index};
+      var cur = cm.getCursor(), line = cm.getLine(cur.line).split('');
+      for (var i = 0; i < line.length; i++) {
+        if (line[i].match(/[^\s]/)) return {line: cur.line, ch: index};
       }
+      return cur;
     },
     "'$'": function(cm) {
-      var cur = cm.getCursor();
-      var line = cm.getLine(cur.line);
-      return {line: cur.line, ch: line.length};
+      var cur = cm.getCursor(), ch = cm.getLine(cur.line).length;
+      return {line: cur.line, ch: ch};
     },
     "'%'": function(cm) { return findMatchedSymbol(cm, cm.getCursor()); },
-    "Esc" : function(cm) {
-      cm.setOption('vim');
-      repeatCount = 0;
-
-      return cm.getCursor();
-    }
+    "Esc" : function(cm) { cm.setOption("keyMap", "vim"); repeatCount = 0; return cm.getCursor(); }
   };
 
   // Map our movement actions each operator and non-operational movement
-  iterList(motionList, function(key, index, array) {
+  iterObj(motions, function(key, motion) {
     CodeMirror.keyMap['vim-prefix-d'][key] = function(cm) {
       // Get our selected range
       var start = cm.getCursor();
-      var end = motions[key](cm, repeatCount ? repeatCount : 1, true);
+      var end = motion(cm, repeatCount ? repeatCount : 1, true);
 
       // Set swap var if range is of negative length
       if ((start.line > end.line) || (start.line == end.line && start.ch > end.ch)) var swap = true;
@@ -784,7 +764,7 @@
 
     CodeMirror.keyMap['vim-prefix-c'][key] = function(cm) {
       var start = cm.getCursor();
-      var end = motions[key](cm, repeatCount ? repeatCount : 1, true);
+      var end = motion(cm, repeatCount ? repeatCount : 1, true);
 
       if ((start.line > end.line) || (start.line == end.line && start.ch > end.ch)) var swap = true;
       pushInBuffer(cm.getRange(swap ? end : start, swap ? start : end));
@@ -796,7 +776,7 @@
 
     CodeMirror.keyMap['vim-prefix-y'][key] = function(cm) {
       var start = cm.getCursor();
-      var end = motions[key](cm, repeatCount ? repeatCount : 1, true);
+      var end = motion(cm, repeatCount ? repeatCount : 1, true);
 
       if ((start.line > end.line) || (start.line == end.line && start.ch > end.ch)) var swap = true;
       pushInBuffer(cm.getRange(swap ? end : start, swap ? start : end));
@@ -806,7 +786,7 @@
     };
 
     CodeMirror.keyMap['vim'][key] = function(cm) {
-      var cur = motions[key](cm, repeatCount ? repeatCount : 1);
+      var cur = motion(cm, repeatCount ? repeatCount : 1);
       cm.setCursor(cur.line, cur.ch);
 
       repeatCount = 0;
