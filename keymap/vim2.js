@@ -1,4 +1,25 @@
 // Reimplementation of vim keybindings
+/**
+ * Supported keybindings:
+ *
+ * Motion:
+ * h, j, k, l
+ * e, E, w, W, b, B, ge, gE
+ * $, ^, 0
+ * gg, G
+ *
+ * Operator:
+ * d, y
+ * dd, yy
+ *
+ * Operator-Motion:
+ * x, X, D, Y
+ *
+ * Action:
+ * a, i, s
+ * u, Ctrl-r
+ *
+ */
 
 (function() {
   var alphabetRegex = /[A-Z]/;
@@ -10,6 +31,27 @@
   function isWhiteSpaceString(k) {
     return /^\s*$/.test(k);
   }
+  var wordRegexp = [/\w/, /[^\w\s]/], bigWordRegexp = [/\S/];
+  function isLine(cm, line) { return line >= 0 && line < cm.lineCount(); }
+  function inRangeInclusive(x, start, end) { return x >= start && x <= end; }
+  function arrayEq(a1, a2) {
+    if (a1.length != a2.length) return false;
+    for (var i = 0; i < a1.length; i++) {
+      if (a1[i] != a2[i]) return false;
+    }
+    return true;
+  }
+  function arrayIsSubsetFromBeginning(small, big) {
+    for (var i = 0; i < small.length; i++) {
+      if (small[i] != big[i]) return false;
+    }
+    return true;
+  }
+  function repeatFn(cm, fn, repeat) {
+    return function() {
+      for (var i = 0; i < repeat; i++) fn(cm);
+    }
+  }
 
   // Represents the current input state.
   function InputState() {
@@ -17,61 +59,53 @@
   }
   InputState.prototype.reset = function() {
     this.prefixRepeatDigits = [];
-    this.actionCommand = null;
-    this.actionCommandArgs = null;
+    this.operator = null;
+    this.operatorArgs = null;
     this.motionRepeatDigits = [];
-    this.motionCommand = null;
-    this.motionCommandArgs = null;
-    this.keyBuffer = ''; // For matching multi-key commands.
+    this.motion = null;
+    this.motionArgs = null;
+    this.keyBuffer = []; // For matching multi-key commands.
+    this.registerName = 'default';
   }
   var inputState = new InputState();
+
+  function Register() {
+    // Do not create directly, use getRegister.
+    this.text = '';
+  }
+  Register.prototype = {
+    set: function(text, linewise) {
+      this.text = text;
+      this.linewise = !!linewise;
+    }
+  }
+  var registers = {};
+  function getRegister(name) {
+    if (!registers[name]) {
+      registers[name] = new Register();
+    }
+    return registers[name];
+  }
 
   // Counter for keeping track of repeats.
   var count = (function() {
     var value = 0;
+    var explicit = false;
     return {
-      peek: function() {
-        return value;
-      },
-      pop: function() {
-        var ret = value;
-        value = 0;
-        return ret;
-      },
-      popWithMin: function(min) {
-        var ret = value;
-        value = 0;
-        return Math.max(ret, min);
-      },
+      get: function() { return value; },
+      isExplicit: function() { return explicit; },
       pushDigit: function(n) {
+        explicit = true;
         value = value * 10 + parseInt(n, 10);
       },
       clear: function() {
+        explicit = false;
         value = 0;
       }
     }
   })();
 
   var Vim = function() {
-    function enterInsertMode(cm) {
-      // enter insert mode: switch mode and cursor
-      count.clear();
-      cm.setOption("keyMap", "vim-insert");
-    }
-    function repeatFn(fn) {
-      return function(cm, key, modifier) {
-        var times = count.popWithMin(1);
-        for (var i = 0; i < times; i++) fn(cm, key, modifier);
-      }
-    }
-    function nonRepeatFn(fn) {
-      // Wrapper to clear count.
-      return function(cm, key, modifier) {
-        fn(cm, key, modifier);
-        count.clear();
-      }
-    }
-
     // Remove any trailing newlines from the selection. For
     // example, with the caret at the start of the last word on the line,
     // 'dw' should word, but not the newline, while 'w' should advance the
@@ -86,13 +120,20 @@
       }
     }
 
+    // Expand the selection to line ends.
+    function expandSelectionToLine(cm, curStart, curEnd) {
+      curStart.ch = 0;
+      curEnd.ch = 0;
+      curEnd.line++;
+    }
+
     var instance = function() {};
     instance.prototype = {
       buildKeyMap: function() {
         // TODO: Convert keymap into dictionary format for fast lookup.
       },
       handleKey: function(cm, key) {
-        if (isNumber(key) && !(key == '0' && count.peek() == 0)) {
+        if (isNumber(key) && !(key == '0' && count.get() == 0)) {
           // Increment count unless count is 0 and key is 0.
           count.pushDigit(key);
           return;
@@ -103,77 +144,121 @@
         }
       },
       matchCommand: function(key, keyMap) {
-        // TODO: Handle multi-key commands like 'ge'.
         var command;
+        var keys = inputState.keyBuffer.concat(key);
         for (var i = 0; i < keyMap.length; i++) {
           command = keyMap[i];
-          if (command.keys[0] == key) {
-            return command;
+          if (arrayIsSubsetFromBeginning(keys, command.keys)) {
+            if (keys.length < command.keys.length) {
+              // Matches part of a multi-key command. Buffer and wait for next
+              // stroke.
+              inputState.keyBuffer.push(key);
+              return;
+            } else {
+              // Matches whole comand. Return the command.
+              return command;
+            }
           }
         }
+        // Clear the buffer since there are no partial matches.
+        inputState.keyBuffer = [];
         return null;
       },
       processCommand: function(cm, command) {
-        switch (command.commandType) {
+        switch (command.type) {
           case 'motion':
-            this.processMotionCommand(cm, command);
+            this.processMotion(cm, command);
+            break;
+          case 'operator':
+            this.processOperator(cm, command);
+            break;
+          case 'operatorMotion':
+            this.processOperatorMotion(cm, command);
             break;
           case 'action':
-            this.processActionCommand(cm, command);
-            break;
-          case 'actionMotion':
-            this.processActionMotionCommand(cm, command);
-            break;
-          case 'regular':
+            this.processAction(cm, command);
             break;
           default:
             break;
         }
       },
-      processMotionCommand: function(cm, command) {
-        inputState.motionCommand = command.motion;
+      processMotion: function(cm, command) {
+        inputState.motion = command.motion;
         inputState.motionArgs = command.motionArgs;
         this.evalInput(cm);
       },
-      processActionCommand: function(cm, command) {
-        inputState.actionCommand = command.action;
-        inputState.actionArgs = command.actionArgs;
+      processOperator: function(cm, command) {
+        if (inputState.operator) {
+          if (inputState.operator == command.operator) {
+            // Typing an operator twice like 'dd' makes the operator operate
+            // linewise
+            inputState.motion = 'expandToLine';
+            inputState.motionArgs = { linewise: true, }
+            this.evalInput(cm);
+            return;
+          } else {
+            // 2 different operators in a row doesn't make sense.
+            inputState.reset();
+            count.clear();
+          }
+        }
+        inputState.operator = command.operator;
+        inputState.operatorArgs = command.operatorArgs;
       },
-      processActionMotionCommand: function(cm, command) {
-        inputState.motionCommand = command.motion;
+      processOperatorMotion: function(cm, command) {
+        inputState.motion = command.motion;
         inputState.motionArgs = command.motionArgs;
-        inputState.actionCommand = command.action;
-        inputState.actionArgs = command.actionArgs;
+        inputState.operator = command.operator;
+        inputState.operatorArgs = command.operatorArgs;
         this.evalInput(cm);
+      },
+      processAction: function(cm, command) {
+        var repeat = count.get();
+        // Actions may or may not have motions and operators. Do these first.
+        if (command.operator) { this.processOperator(cm, command); }
+        if (command.motion) { this.processMotion(cm, command); }
+        if (command.motion || command.operator) { this.evalInput(cm); }
+        var actionArgs = command.actionArgs || {};
+        actionArgs.repeat = repeat || 1;
+        actionArgs.register = getRegister(inputState.registerName);
+        Vim.actions[command.action](cm, actionArgs);
+        inputState.reset();
+        count.clear();
       },
       evalInput: function(cm) {
-        // If the motion comand is set, run both the action and motion commands.
+        // If the motion comand is set, execute both the operator and motion.
         // Otherwise return.
-        var explicit_repeat = !!count.peek();
-        var repeat = count.popWithMin(1);
-        var motionCommand = inputState.motionCommand;
-        var motionArgs = inputState.motionArgs;
-        var actionCommand = inputState.actionCommand;
-        var actionArgs = inputState.actionArgs;
+        var motion = inputState.motion;
+        var motionArgs = inputState.motionArgs || {};
+        var operator = inputState.operator;
+        var operatorArgs = inputState.operatorArgs || {};
+        var registerName = inputState.registerName;
         var curStart = cm.getCursor();
         var curEnd;
-        if (!motionCommand) {
-          return;
+        var repeat = count.get();
+        if (repeat > 0 && motionArgs.explicitRepeat) {
+            motionArgs.repeatIsExplicit = true;
+        } else if (motionArgs.noRepeat ||
+            (!motionArgs.explicitRepeat && repeat == 0)) {
+          repeat = 1;
         }
-        if (motionArgs) {
-          motionArgs.repeat = repeat;
-        }
+        if (!motion) { return; }
+        motionArgs.repeat = repeat;
         count.clear();
         inputState.reset();
-        curEnd = Vim.motionCommands[motionCommand](cm, motionArgs);
-        if (!actionCommand) {
+        curEnd = Vim.motions[motion](cm, motionArgs);
+        if (!operator) {
           cm.setCursor(curEnd.line, curEnd.ch);
           return;
         }
         if (motionArgs.wordEnd) {
           // Move the selection end one to the right to include the last
           // character.
-          curEnd.ch++;
+          if (motionArgs.forward) {
+            curEnd.ch++;
+          } else {
+            curStart.ch++;
+          }
         }
         // Swap start and end if motion was backward.
         if (curStart.line > curEnd.line ||
@@ -183,45 +268,307 @@
           curEnd = tmp;
         }
 
-        // Clip to trailing newlines.
-        clipToLine(cm, curEnd);
-        // TODO: Handle action commands.
-        Vim.actionCommands[actionCommand](cm, actionArgs, curStart,
+        if (motionArgs.linewise) {
+          // Expand selection to entire line.
+          expandSelectionToLine(cm, curStart, curEnd);
+        } else {
+          // Clip to trailing newlines.
+          clipToLine(cm, curEnd);
+        }
+        // TODO: Handle operators.
+        operatorArgs.register = getRegister(registerName);
+        // Keep track of if the operation was linewise determining how to paste
+        // later.
+        operatorArgs.linewise = motionArgs.linewise;
+        Vim.operators[operator](cm, operatorArgs, curStart,
             curEnd);
+        if (operatorArgs.enterInsertMode) {
+          Vim.actions.enterInsertMode(cm);
+        }
       }
     }
     return new instance();
   }
 
-  Vim.actionCommands = {
-    delete: function(cm, actionArgs, curStart, curEnd) {
+  /**
+   * typedef {Object{line:number,ch:number}} Cursor An object containing the
+   *     position of the cursor.
+   */
+  // All of the functions below return Cursor objects.
+  Vim.motions = {
+    expandToLine: function(cm, motionArgs) {
+      // Expands forward to end of line, and then to next line if repeat is > 1.
+      // Does not handle backward motion!
+      var cursor = cm.getCursor();
+      var endLine = Math.min(cm.lineCount(),
+          cursor.line + motionArgs.repeat - 1);
+      return { line: endLine, ch: cm.getLine(endLine) };
+    },
+    moveByCharacters: function(cm, motionArgs) {
+      var cursor = cm.getCursor();
+      var line = cm.getLine(cursor.line);
+      var repeat = motionArgs.repeat;
+      if (motionArgs.forward) {
+        return { line: cursor.line,
+            ch: Math.min(line.length, cursor.ch + repeat) };
+      } else {
+        return { line: cursor.line, ch: Math.max(0, cursor.ch - repeat) };
+      }
+    },
+    moveByLines: function(cm, motionArgs) {
+      var cursor = cm.getCursor();
+      var repeat = motionArgs.repeat;
+      if (motionArgs.forward) {
+        return { line: Math.min(cm.lineCount(), cursor.line + repeat),
+            ch: cursor.ch };
+      } else {
+        return { line: Math.max(0, cursor.line - repeat), ch: cursor.ch };
+      }
+    },
+    moveByWords: function(cm, motionArgs) {
+      return moveToWord(cm, motionArgs.repeat, !!motionArgs.forward,
+          !!motionArgs.wordEnd, !!motionArgs.bigWord);
+    },
+    moveToEol: function(cm) {
+      var cursor = cm.getCursor();
+      return { line: cursor.line, ch: cm.getLine(cursor.line).length };
+    },
+    moveToFirstNonWhiteSpaceCharacter: function(cm) {
+      // Go to the start of the line where the text begins, or the end for
+      // whitespace-only lines
+      var cursor = cm.getCursor();
+      var line = cm.getLine(cursor.line);
+      return { line: cursor.line,
+          ch: findFirstNonWhiteSpaceCharacter(cm.getLine(cursor.line)),
+          user: true };
+    },
+    moveToStartOfLine: function(cm) {
+      var cursor = cm.getCursor();
+      return { line: cursor.line, ch: 0 };
+    },
+    moveToLineOrEdgeOfDocument: function(cm, motionArgs) {
+      var lineNum = motionArgs.forward ? cm.lineCount() - 1 : 0;
+      if (motionArgs.explicitRepeat) {
+        lineNum = Math.min(motionArgs.repeat - 1, cm.lineCount() - 1);
+      }
+      return { line: lineNum,
+          ch: findFirstNonWhiteSpaceCharacter(cm.getLine(lineNum)),
+          user: true };
+    },
+  };
+  function findFirstNonWhiteSpaceCharacter(text) {
+      var firstNonWS = text.search(/\S/);
+      return firstNonWS == -1 ? text.length : firstNonWS;
+  }
+
+  /*
+   * Returns the boundaries of the next word. If the cursor in the middle of the
+   * word, then returns the boundaries of the current word, starting at the
+   * cursor. If the cursor is at the start/end of a word, and we are going
+   * forward/backward, respectively, find the boundaries of the next word.
+   *
+   * @param {CodeMirror} cm CodeMirror object.
+   * @param {Cursor} cur The cursor position.
+   * @param {boolean} forward True to search forward. False to search backward.
+   * @param {boolean} bigWord True if punctuation count as part of the word.
+   *     False if only [a-zA-Z0-9] characters count as part of the word.
+   * @return {Object{from:number, to:number, line: number}} The boundaries of
+   *     the word, or null if there are no more words.
+   */
+  // TODO: Treat empty lines (with no whitespace) as words.
+  function findWord(cm, cur, forward, bigWord) {
+    var lineNum = cur.line;
+    var pos = cur.ch;
+    var line = cm.getLine(lineNum);
+    var dir = forward ? 1 : -1;
+    var regexps = bigWord ? bigWordRegexp : wordRegexp;
+
+    while (true) {
+      var stop = (dir > 0) ? line.length : -1;
+      var wordStart = stop, wordEnd = stop;
+      // Find bounds of next word.
+      while (pos != stop) {
+        var foundWord = false;
+        for (var i = 0; i < regexps.length && !foundWord; ++i) {
+          if (regexps[i].test(line.charAt(pos))) {
+            wordStart = pos;
+            // Advance to end of word.
+            for (; pos != stop && regexps[i].test(line.charAt(pos)); pos += dir) {}
+            wordEnd = pos;
+            foundWord = wordStart != wordEnd;
+            if (wordStart == cur.ch && lineNum == cur.line
+                && wordEnd == wordStart + dir) {
+              // We started at the end of a word. Find the next one.
+            } else {
+              return {
+                  from: Math.min(wordStart, wordEnd + 1),
+                  to: Math.max(wordStart, wordEnd),
+                  line: lineNum};
+            }
+          }
+        }
+        if (!foundWord) {
+          pos += dir;
+        }
+      }
+      // Advance to next/prev line.
+      lineNum += dir;
+      if (!isLine(cm, lineNum)) return null;
+      line = cm.getLine(lineNum);
+      pos = (dir > 0) ? 0 : line.length;
+    }
+  };
+
+  /**
+   * @param {CodeMirror} cm CodeMirror object.
+   * @param {int} repeat Number of words to move past.
+   * @param {boolean} forward True to search forward. False to search backward.
+   * @param {boolean} wordEnd True to move to end of word. False to move to
+   *     beginning of word.
+   * @param {boolean} bigWord True if punctuation count as part of the word.
+   *     False if only alphabet characters count as part of the word.
+   * @return {Cursor} The position the cursor should move to.
+   */
+  function moveToWord(cm, repeat, forward, wordEnd, bigWord) {
+    var cur = cm.getCursor();
+    for (var i = 0; i < repeat; i++) {
+      var startCh = cur.ch, startLine = cur.line, word;
+      var movedToNextWord = false;
+      while (!movedToNextWord) {
+        // Search and advance.
+        word = findWord(cm, cur, forward, bigWord);
+        movedToNextWord = true;
+        if (word) {
+          // Move to the word we just found. If by moving to the word we end up
+          // in the same spot, then move an extra character and search again.
+          cur.line = word.line;
+          if (forward && wordEnd) {
+            // 'e'
+            cur.ch = word.to - 1;
+          } else if (forward && !wordEnd) {
+            // 'w'
+            if (inRangeInclusive(cur.ch, word.from, word.to) &&
+                word.line == startLine) {
+              // Still on the same word. Go to the next one.
+              movedToNextWord = false;
+              cur.ch = word.to - 1;
+            } else {
+              cur.ch = word.from;
+            }
+          } else if (!forward && wordEnd) {
+            // 'ge'
+            if (inRangeInclusive(cur.ch, word.from, word.to) &&
+                word.line == startLine) {
+              // still on the same word. Go to the next one.
+              movedToNextWord = false;
+              cur.ch = word.from
+            } else {
+              cur.ch = word.to;
+            }
+          } else if (!forward && !wordEnd) {
+            // 'b'
+            cur.ch = word.from;
+          }
+        } else {
+          // No more words to be found.
+          return cur;
+        }
+      }
+    }
+    return cur;
+  }
+
+  Vim.operators = {
+    delete: function(cm, operatorArgs, curStart, curEnd) {
+      operatorArgs.register.set(cm.getRange(curStart, curEnd),
+          operatorArgs.linewise);
       cm.replaceRange('', curStart, curEnd);
+    },
+    yank: function(cm, operatorArgs, curStart, curEnd) {
+      operatorArgs.register.set(cm.getRange(curStart, curEnd),
+          operatorArgs.linewise);
+    },
+  };
+
+  Vim.actions = {
+    enterInsertMode: function(cm) {
+      cm.setOption('keyMap', 'vim-insert');
+    },
+    paste: function(cm, actionArgs) {
+      var cur = cm.getCursor();
+      for (var text = '', i = 0; i < actionArgs.repeat; i++) {
+        text += actionArgs.register.text;
+      }
+      var curChEnd = 0;
+      var linewise = actionArgs.register.linewise;
+      if (linewise) {
+        cur.line += actionArgs.after ? 1 : 0;
+        cur.ch = 0;
+        curChEnd = 0;
+      } else {
+        cur.ch += actionArgs.after ? 1 : 0;
+        curChEnd = cur.ch;
+      }
+      // Set cursor in the right place to let CodeMirror handle moving it.
+      cm.setCursor(cur.line, curChEnd);
+      cm.replaceRange(text, cur);
+      // Now fine tune the cursor to where we want it.
+      if (linewise) { cm.setCursor(cm.getCursor().line - 1, 0); }
+      else {
+        cur = cm.getCursor();
+        cm.setCursor(cur.line, cur.ch - 1);
+      }
+    },
+    undo: function(cm, actionArgs) {
+      repeatFn(cm, CodeMirror.commands.undo, actionArgs.repeat)();
+    },
+    redo: function(cm, actionArgs) {
+      repeatFn(cm, CodeMirror.commands.redo, actionArgs.repeat)();
     },
   };
 
   Vim.keymap = [
     // Motions
-    { keys: ['h'], commandType: 'motion', motion: 'moveByCharacters', motionArgs: { forward: false }},
-    { keys: ['l'], commandType: 'motion', motion: 'moveByCharacters', motionArgs: { forward: true }},
-    { keys: ['j'], commandType: 'motion', motion: 'moveByLines', motionArgs: { forward: true }},
-    { keys: ['k'], commandType: 'motion', motion: 'moveByLines', motionArgs: { forward: false }},
-    { keys: ['w'], commandType: 'motion', motion: 'moveByWords', motionArgs: { forward: true, wordEnd: false}},
-    { keys: ['W'], commandType: 'motion', motion: 'moveByWords', motionArgs: { forward: true, wordEnd: false, bigWord: true }},
-    { keys: ['e'], commandType: 'motion', motion: 'moveByWords', motionArgs: { forward: true, wordEnd: true}},
-    { keys: ['E'], commandType: 'motion', motion: 'moveByWords', motionArgs: { forward: true, wordEnd: true, bigWord: true }},
-    { keys: ['b'], commandType: 'motion', motion: 'moveByWords', motionArgs: { forward: false, wordEnd: false }},
-    { keys: ['B'], commandType: 'motion', motion: 'moveByWords', motionArgs: { forward: false, wordEnd: false, bigWord: true }},
-    { keys: ['g', 'e'], commandType: 'motion', motion: 'moveByWords', motionArgs: { forward: false, wordEnd: true }},
-    { keys: ['g', 'E'], commandType: 'motion', motion: 'moveByWords', motionArgs: { forward: false, wordEnd: true, bigWord: true }},
-    { keys: ['0'], commandType: 'motion', motion: 'moveToStartOfLine' },
-    { keys: ["'^'"], commandType: 'motion', motion: 'moveToFirstNonWhiteSpaceCharacter' },
-    { keys: ["'$'"], commandType: 'motion', motion: 'moveToEol' },
-    // Actions
-    { keys: ['d'], commandType: 'action', action: 'delete' },
-    // Action-Motion dual commands
-    { keys: ['s'], commandType: 'actionMotion',
-        action: 'enterInsertMode', actionArgs: { insertCommand: 'delete' },
+    { keys: ['h'], type: 'motion', motion: 'moveByCharacters', motionArgs: { forward: false }},
+    { keys: ['l'], type: 'motion', motion: 'moveByCharacters', motionArgs: { forward: true }},
+    { keys: ['j'], type: 'motion', motion: 'moveByLines', motionArgs: { forward: true, linewise: true }},
+    { keys: ['k'], type: 'motion', motion: 'moveByLines', motionArgs: { forward: false, linewise: true }},
+    { keys: ['w'], type: 'motion', motion: 'moveByWords', motionArgs: { forward: true, wordEnd: false}},
+    { keys: ['W'], type: 'motion', motion: 'moveByWords', motionArgs: { forward: true, wordEnd: false, bigWord: true }},
+    { keys: ['e'], type: 'motion', motion: 'moveByWords', motionArgs: { forward: true, wordEnd: true}},
+    { keys: ['E'], type: 'motion', motion: 'moveByWords', motionArgs: { forward: true, wordEnd: true, bigWord: true }},
+    { keys: ['b'], type: 'motion', motion: 'moveByWords', motionArgs: { forward: false, wordEnd: false }},
+    { keys: ['B'], type: 'motion', motion: 'moveByWords', motionArgs: { forward: false, wordEnd: false, bigWord: true }},
+    { keys: ['g', 'e'], type: 'motion', motion: 'moveByWords', motionArgs: { forward: false, wordEnd: true }},
+    { keys: ['g', 'E'], type: 'motion', motion: 'moveByWords', motionArgs: { forward: false, wordEnd: true, bigWord: true }},
+    { keys: ['g', 'g'], type: 'motion', motion: 'moveToLineOrEdgeOfDocument', motionArgs: { forward: false, explicitRepeat: true }},
+    { keys: ['G'], type: 'motion', motion: 'moveToLineOrEdgeOfDocument', motionArgs: { forward: true, explicitRepeat: true }},
+    { keys: ['0'], type: 'motion', motion: 'moveToStartOfLine' },
+    { keys: ["'^'"], type: 'motion', motion: 'moveToFirstNonWhiteSpaceCharacter' },
+    { keys: ["'$'"], type: 'motion', motion: 'moveToEol' },
+    // Operators
+    { keys: ['d'], type: 'operator', operator: 'delete' },
+    { keys: ['y'], type: 'operator', operator: 'yank' },
+    // Operator-Motion dual commands
+    { keys: ['x'], type: 'operatorMotion', operator: 'delete',
         motion: 'moveByCharacters', motionArgs: { forward: true } },
+    { keys: ['X'], type: 'operatorMotion', operator: 'delete',
+        motion: 'moveByCharacters', motionArgs: { forward: false } },
+    { keys: ['D'], type: 'operatorMotion', operator: 'delete',
+        motion: 'moveToEol' },
+    { keys: ['Y'], type: 'operatorMotion', operator: 'yank',
+        motion: 'moveToEol' },
+    // Actions
+    { keys: ['a'], type: 'action', action: 'enterInsertMode',
+        motion: 'moveByCharacters', motionArgs: { forward: true, noRepeat: true } },
+    { keys: ['i'], type: 'action', action: 'enterInsertMode' },
+    { keys: ['s'], type: 'action', action: 'enterInsertMode',
+        motion: 'moveByCharacters', motionArgs: {forward: true },
+        operator: 'delete' },
+    { keys: ['p'], type: 'action', action: 'paste', actionArgs: { after: true }},
+    { keys: ['P'], type: 'action', action: 'paste', actionArgs: { after: false }},
+    { keys: ['u'], type: 'action', action: 'undo' },
+    { keys: ['Ctrl-r'], type: 'action', action: 'redo' },
   ];
 
   var vim = Vim();
