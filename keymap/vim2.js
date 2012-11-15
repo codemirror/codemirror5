@@ -22,6 +22,7 @@
  */
 
 (function() {
+  'use strict';
   var alphabetRegex = /[A-Z]/;
   var numberRegex = /[\d]/;
   var whiteSpaceRegex = /\s/;
@@ -138,16 +139,15 @@
           count.pushDigit(key);
           return;
         }
-        command = this.matchCommand(key, Vim.keymap);
+        var command = this.matchCommand(key, Vim.keymap);
         if (command) {
           this.processCommand(cm, command);
         }
       },
       matchCommand: function(key, keyMap) {
-        var command;
         var keys = inputState.keyBuffer.concat(key);
         for (var i = 0; i < keyMap.length; i++) {
-          command = keyMap[i];
+          var command = keyMap[i];
           if (arrayIsSubsetFromBeginning(keys, command.keys)) {
             if (keys.length < command.keys.length) {
               // Matches part of a multi-key command. Buffer and wait for next
@@ -237,10 +237,11 @@
         var curEnd;
         var repeat = count.get();
         if (repeat > 0 && motionArgs.explicitRepeat) {
-            motionArgs.repeatIsExplicit = true;
+          motionArgs.repeatIsExplicit = true;
         } else if (motionArgs.noRepeat ||
             (!motionArgs.explicitRepeat && repeat == 0)) {
           repeat = 1;
+          motionArgs.repeatIsExplicit = false;
         }
         if (!motion) { return; }
         motionArgs.repeat = repeat;
@@ -348,8 +349,10 @@
     },
     moveToLineOrEdgeOfDocument: function(cm, motionArgs) {
       var lineNum = motionArgs.forward ? cm.lineCount() - 1 : 0;
-      if (motionArgs.explicitRepeat) {
-        lineNum = Math.min(motionArgs.repeat - 1, cm.lineCount() - 1);
+      if (motionArgs.repeatIsExplicit) {
+        lineNum = Math.max(0, Math.min(
+              motionArgs.repeat - 1,
+              cm.lineCount() - 1));
       }
       return { line: lineNum,
           ch: findFirstNonWhiteSpaceCharacter(cm.getLine(lineNum)),
