@@ -91,4 +91,4 @@ CodeMirror.defineMode("gfm", function(config, parserConfig) {
     fencedCodeBlocks: true
   });
   return CodeMirror.overlayMode(CodeMirror.getMode(config, "gfmBase"), gfmOverlay);
-});
+}, "markdown");
