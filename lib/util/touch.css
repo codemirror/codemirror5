@@ -66,7 +66,7 @@ both of which are hidden/shown based on the tool's class
   padding:  0px;
   margin:   0px;
   display:  inline-block;
-  z-index:  500;
+  z-index:  501;
 }
 #tool.popup   #iOSpopup {visibility: visible; opacity: 1;}
 #tool.magnify #magnifier{display: inline-block;}
@@ -136,7 +136,7 @@ both of which are hidden/shown based on the tool's class
   margin-left: -8px;
   height: 20px;
   background: transparent;
-  z-index: 900;
+  z-index: 500;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
 }
