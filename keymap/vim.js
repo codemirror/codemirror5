@@ -17,7 +17,7 @@
 // Entering insert mode:
 // i, I, a, A, o, O
 // s
-// ce, cb (without support for number of actions like c3e - TODO)
+// ce, cb
 // cc
 // S, C TODO
 // cf<char>, cF<char>, ct<char>, cT<char>
@@ -26,7 +26,7 @@
 // x, X
 // J
 // dd, D
-// de, db (without support for number of actions like d3e - TODO)
+// de, db
 // df<char>, dF<char>, dt<char>, dT<char>
 //
 // Yanking and pasting:
@@ -48,22 +48,28 @@
 //
 
 (function() {
-  var count = "";
   var sdir = "f";
   var buf = "";
-  var yank = 0;
-  var mark = [];
-  var reptTimes = 0;
+  var mark = {};
+  var repeatCount = 0;
+  function isLine(cm, line) { return line >= 0 && line < cm.lineCount(); }
   function emptyBuffer() { buf = ""; }
   function pushInBuffer(str) { buf += str; }
-  function pushCountDigit(digit) { return function(cm) {count += digit;}; }
-  function popCount() { var i = parseInt(count, 10); count = ""; return i || 1; }
+  function pushRepeatCountDigit(digit) {return function(cm) {repeatCount = (repeatCount * 10) + digit}; }
+  function getCountOrOne() {
+    var i = repeatCount;
+    return i || 1;
+  }
+  function clearCount() {
+    repeatCount = 0;
+  }
   function iterTimes(func) {
-    for (var i = 0, c = popCount(); i < c; ++i) func(i, i == c - 1);
+    for (var i = 0, c = getCountOrOne(); i < c; ++i) func(i, i == c - 1);
+    clearCount();
   }
   function countTimes(func) {
     if (typeof func == "string") func = CodeMirror.commands[func];
-    return function(cm) { iterTimes(function () { func(cm); }); };
+    return function(cm) { iterTimes(function (i, last) { func(cm, i, last); }); };
   }
 
   function iterObj(o, f) {
@@ -93,49 +99,109 @@
   }
 
   var word = [/\w/, /[^\w\s]/], bigWord = [/\S/];
-  function findWord(line, pos, dir, regexps) {
-    var stop = 0, next = -1;
-    if (dir > 0) { stop = line.length; next = 0; }
-    var start = stop, end = stop;
-    // Find bounds of next one.
-    outer: for (; pos != stop; pos += dir) {
-      for (var i = 0; i < regexps.length; ++i) {
-        if (regexps[i].test(line.charAt(pos + next))) {
-          start = pos;
-          for (; pos != stop; pos += dir) {
-            if (!regexps[i].test(line.charAt(pos + next))) break;
+  // Finds a word on the given line, and continue searching the next line if it can't find one.
+  function findWord(cm, lineNum, pos, dir, regexps) {
+    var line = cm.getLine(lineNum);
+    while (true) {
+      var stop = (dir > 0) ? line.length : -1;
+      var wordStart = stop, wordEnd = stop;
+      // Find bounds of next word.
+      for (; pos != stop; pos += dir) {
+        for (var i = 0; i < regexps.length; ++i) {
+          if (regexps[i].test(line.charAt(pos))) {
+            wordStart = pos;
+            // Advance to end of word.
+            for (; pos != stop && regexps[i].test(line.charAt(pos)); pos += dir) {}
+            wordEnd = (dir > 0) ? pos : pos + 1;
+            return {
+                from: Math.min(wordStart, wordEnd),
+                to: Math.max(wordStart, wordEnd),
+                line: lineNum};
           }
-          end = pos;
-          break outer;
+        }
+      }
+      // Advance to next/prev line.
+      lineNum += dir;
+      if (!isLine(cm, lineNum)) return null;
+      line = cm.getLine(lineNum);
+      pos = (dir > 0) ? 0 : line.length;
+    }
+  }
+  /**
+   * @param {boolean} cm CodeMirror object.
+   * @param {regexp} regexps Regular expressions for word characters.
+   * @param {number} dir Direction, +/- 1.
+   * @param {number} times Number of times to advance word.
+   * @param {string} where Go to "start" or "end" of word, 'e' vs 'w'.
+   * @param {boolean} yank Whether we are finding words to yank. If true,
+   *     do not go to the next line to look for the last word. This is to
+   *     prevent deleting new line on 'dw' at the end of a line.
+   */
+  function moveToWord(cm, regexps, dir, times, where, yank) {
+    var cur = cm.getCursor();
+    if (yank) {
+      where = 'start';
+    }
+    for (var i = 0; i < times; i++) {
+      var startCh = cur.ch, startLine = cur.line, word;
+      while (true) {
+        // Search and advance.
+        word = findWord(cm, cur.line, cur.ch, dir, regexps);
+        if (word) {
+          if (yank && times == 1 && dir == 1 && cur.line != word.line) {
+            // Stop at end of line of last word. Don't want to delete line return
+            // for dw if the last deleted word is at the end of a line.
+            cur.ch = cm.getLine(cur.line).length;
+            break;
+          } else {
+            // Move to the word we just found. If by moving to the word we end up
+            // in the same spot, then move an extra character and search again.
+            cur.line = word.line;
+            if (dir > 0 && where == 'end') {
+              // 'e'
+              if (startCh != word.to - 1 || startLine != word.line) {
+                cur.ch = word.to - 1;
+                break;
+              } else {
+                cur.ch = word.to;
+              }
+            } else if (dir > 0 && where == 'start') {
+              // 'w'
+              if (startCh != word.from || startLine != word.line) {
+                cur.ch = word.from;
+                break;
+              } else {
+                cur.ch = word.to;
+              }
+            } else if (dir < 0 && where == 'end') {
+              // 'ge'
+              if (startCh != word.to || startLine != word.line) {
+                cur.ch = word.to;
+                break;
+              } else {
+                cur.ch = word.from - 1;
+              }
+            } else if (dir < 0 && where == 'start') {
+              // 'b'
+              if (startCh != word.from || startLine != word.line) {
+                cur.ch = word.from;
+                break;
+              } else {
+                cur.ch = word.from - 1;
+              }
+            }
+          }
+        } else {
+          // No more words to be found. Move to end of document.
+          for (; isLine(cm, cur.line + dir); cur.line += dir) {}
+          cur.ch = (dir > 0) ? cm.getLine(cur.line).length : 0;
+          break;
         }
       }
     }
-    return {from: Math.min(start, end), to: Math.max(start, end)};
-  }
-  function moveToWord(cm, regexps, dir, times, where) {
-    var cur = cm.getCursor();
-
-    for (var i = 0; i < times; i++) {
-      var line = cm.getLine(cur.line), startCh = cur.ch, word;
-      while (true) {
-        // If we're at start/end of line, start on prev/next respectivly
-        if (cur.ch == line.length && dir > 0) {
-          cur.line++;
-          cur.ch = 0;
-          line = cm.getLine(cur.line);
-        } else if (cur.ch == 0 && dir < 0) {
-          cur.line--;
-          cur.ch = line.length;
-          line = cm.getLine(cur.line);
-        }
-        if (!line) break;
-
-        // On to the actual searching
-        word = findWord(line, cur.ch, dir, regexps);
-        cur.ch = word[where == "end" ? "to" : "from"];
-        if (startCh == cur.ch && word.from != word.to) cur.ch = word[dir < 0 ? "from" : "to"];
-        else break;
-      }
+    if (where == 'end' && yank) {
+      // Include the last character of the word for actions.
+      cur.ch++;
     }
     return cur;
   }
@@ -157,7 +223,7 @@
     var l = cm.getCursor().line, start = i > l ? l : i, end = i > l ? i : l;
     cm.setCursor(start);
     for (var c = start; c <= end; c++) {
-      pushInBuffer("\n"+cm.getLine(start));
+      pushInBuffer("\n" + cm.getLine(start));
       cm.removeLine(start);
     }
   }
@@ -169,7 +235,7 @@
     }
     var l = cm.getCursor().line, start = i > l ? l : i, end = i > l ? i : l;
     for (var c = start; c <= end; c++) {
-      pushInBuffer("\n"+cm.getLine(c));
+      pushInBuffer("\n" + cm.getLine(c));
     }
     cm.setCursor(start);
   }
@@ -220,7 +286,7 @@
 
   function enterInsertMode(cm) {
     // enter insert mode: switch mode and cursor
-    popCount();
+    clearCount();
     cm.setOption("keyMap", "vim-insert");
   }
 
@@ -238,7 +304,8 @@
   var map = CodeMirror.keyMap.vim = {
     // Pipe (|); TODO: should be *screen* chars, so need a util function to turn tabs into spaces?
     "'|'": function(cm) {
-      cm.setCursor(cm.getCursor().line, popCount() - 1, true);
+      cm.setCursor(cm.getCursor().line, getCountOrOne() - 1, true);
+      clearCount();
     },
     "A": function(cm) {
       cm.setCursor(cm.getCursor().line, cm.getCursor().ch+1, true);
@@ -260,16 +327,26 @@
     },
     "G": function(cm) { cm.setOption("keyMap", "vim-prefix-g");},
     "Shift-D": function(cm) {
-      // commented out verions works, but I left original, cause maybe
-      // I don't know vim enouth to see what it does
-      /* var cur = cm.getCursor();
-      var f = {line: cur.line, ch: cur.ch}, t = {line: cur.line};
-      pushInBuffer(cm.getRange(f, t));
-      */
+      var cursor = cm.getCursor();
+      var lineN = cursor.line;
+      var line = cm.getLine(lineN);
+      cm.setLine(lineN, line.slice(0, cursor.ch));
+
       emptyBuffer();
-      mark["Shift-D"] = cm.getCursor(false).line;
-      cm.setCursor(cm.getCursor(true).line);
-      delTillMark(cm,"Shift-D"); mark = [];
+      pushInBuffer(line.slice(cursor.ch));
+
+      if (repeatCount > 1) {
+        // we've already done it once
+        --repeatCount;
+        // the lines dissapear (ie, cursor stays on the same lineN),
+        // so only incremenet once
+        ++lineN;
+
+        iterTimes(function() {
+          pushInBuffer(cm.getLine(lineN));
+          cm.removeLine(lineN);
+        });
+      }
     },
 
     "S": function (cm) {
@@ -278,13 +355,11 @@
       })(cm);
       enterInsertMode(cm);
     },
-    "M": function(cm) {cm.setOption("keyMap", "vim-prefix-m"); mark = [];},
-    "Y": function(cm) {cm.setOption("keyMap", "vim-prefix-y"); emptyBuffer(); yank = 0;},
+    "M": function(cm) {cm.setOption("keyMap", "vim-prefix-m"); mark = {};},
+    "Y": function(cm) {cm.setOption("keyMap", "vim-prefix-y"); emptyBuffer();},
     "Shift-Y": function(cm) {
       emptyBuffer();
-      mark["Shift-D"] = cm.getCursor(false).line;
-      cm.setCursor(cm.getCursor(true).line);
-      yankTillMark(cm,"Shift-D"); mark = [];
+      iterTimes(function(i) { pushInBuffer("\n" + cm.getLine(cm.getCursor().line + i)); });
     },
     "/": function(cm) {var f = CodeMirror.commands.find; f && f(cm); sdir = "f";},
     "'?'": function(cm) {
@@ -300,8 +375,8 @@
       if (fn) sdir != "r" ? CodeMirror.commands.findPrev(cm) : fn.findNext(cm);
     },
     "Shift-G": function(cm) {
-      count == "" ? cm.setCursor(cm.lineCount()) : cm.setCursor(parseInt(count, 10)-1);
-      popCount();
+      (repeatCount == 0) ? cm.setCursor(cm.lineCount()) : cm.setCursor(repeatCount - 1);
+      clearCount();
       CodeMirror.commands.goLineStart(cm);
     },
     "':'": function(cm) {
@@ -325,21 +400,9 @@
     };
   });
 
-  function addCountBindings(keyMap) {
-    // Add bindings for number keys
-    keyMap["0"] = function(cm) {
-      count.length > 0 ? pushCountDigit("0")(cm) : CodeMirror.commands.goLineStart(cm);
-    };
-    for (var i = 1; i < 10; ++i) keyMap[i] = pushCountDigit(i);
-  }
-  addCountBindings(CodeMirror.keyMap.vim);
-
   // main num keymap
   // Add bindings that are influenced by number keys
   iterObj({
-    "Left": "goColumnLeft", "Right": "goColumnRight",
-    "Down": "goLineDown", "Up": "goLineUp", "Backspace": "goCharLeft",
-    "Space": "goCharRight",
     "X": function(cm) {CodeMirror.commands.delCharRight(cm);},
     "P": function(cm) {
       var cur = cm.getCursor().line;
@@ -401,15 +464,18 @@
       });
 
   CodeMirror.keyMap["vim-prefix-g"] = {
-    "E": countTimes(function(cm) { cm.setCursor(moveToWord(cm, word, -1, 1, "start"));}),
-    "Shift-E": countTimes(function(cm) { cm.setCursor(moveToWord(cm, bigWord, -1, 1, "start"));}),
-    "G": function (cm) { cm.setCursor({line: 0, ch: cm.getCursor().ch});},
+    "E": countTimes(function(cm) { cm.setCursor(moveToWord(cm, word, -1, 1, "end"));}),
+    "Shift-E": countTimes(function(cm) { cm.setCursor(moveToWord(cm, bigWord, -1, 1, "end"));}),
+    "G": function (cm) {
+      cm.setCursor({line: repeatCount - 1, ch: cm.getCursor().ch});
+      clearCount();
+    },
     auto: "vim", nofallthrough: true, style: "fat-cursor"
   };
 
   CodeMirror.keyMap["vim-prefix-d"] = {
     "D": countTimes(function(cm) {
-      pushInBuffer("\n"+cm.getLine(cm.getCursor().line));
+      pushInBuffer("\n" + cm.getLine(cm.getCursor().line));
       cm.removeLine(cm.getCursor().line);
       cm.setOption("keyMap", "vim");
     }),
@@ -428,8 +494,6 @@
     },
     nofallthrough: true, style: "fat-cursor"
   };
-  // FIXME - does not work for bindings like "d3e"
-  addCountBindings(CodeMirror.keyMap["vim-prefix-d"]);
 
   CodeMirror.keyMap["vim-prefix-c"] = {
     "B": function (cm) {
@@ -471,10 +535,10 @@
       mark[m] = cm.getCursor().line;
     };
     CodeMirror.keyMap["vim-prefix-d'"][m] = function(cm) {
-      delTillMark(cm,m);
+      delTillMark(cm, m);
     };
     CodeMirror.keyMap["vim-prefix-y'"][m] = function(cm) {
-      yankTillMark(cm,m);
+      yankTillMark(cm, m);
     };
     CodeMirror.keyMap["vim-prefix-r"][m] = function (cm) {
       var cur = cm.getCursor();
@@ -508,8 +572,8 @@
   setupPrefixBindingForKey("Space");
 
   CodeMirror.keyMap["vim-prefix-y"] = {
-    "Y": countTimes(function(cm) {
-      pushInBuffer("\n"+cm.getLine(cm.getCursor().line+yank)); yank++;
+    "Y": countTimes(function(cm, i, last) {
+      pushInBuffer("\n" + cm.getLine(cm.getCursor().line + i));
       cm.setOption("keyMap", "vim");
     }),
     "'": function(cm) {cm.setOption("keyMap", "vim-prefix-y'"); emptyBuffer();},
@@ -588,67 +652,107 @@
     return {start: start, end: end};
   }
 
-  // These are our motion commands to be used for navigation and selection with
-  // certian other commands. All should return a cursor object.
-  var motionList = ['B', 'E', 'J', 'K', 'H', 'L', 'W', 'Shift-W', "'^'", "'$'", "'%'", 'Esc'];
+  // takes in a symbol and a cursor and tries to simulate text objects that have
+  // identical opening and closing symbols
+  // TODO support across multiple lines
+  function findBeginningAndEnd(cm, symb, inclusive) {
+    var cur = cm.getCursor();
+    var line = cm.getLine(cur.line);
+    var chars = line.split('');
+    var start = undefined;
+    var end = undefined;
+    var firstIndex = chars.indexOf(symb);
 
-  motions = {
-    'B': function(cm, times) { return moveToWord(cm, word, -1, times); },
-    'Shift-B': function(cm, times) { return moveToWord(cm, bigWord, -1, times); },
-    'E': function(cm, times) { return moveToWord(cm, word, 1, times, 'end'); },
-    'Shift-E': function(cm, times) { return moveToWord(cm, bigWord, 1, times, 'end'); },
-    'J': function(cm, times) {
-      var cur = cm.getCursor();
-      return {line: cur.line+times, ch : cur.ch};
-    },
+    // the decision tree is to always look backwards for the beginning first,
+    // but if the cursor is in front of the first instance of the symb,
+    // then move the cursor forward
+    if (cur.ch < firstIndex) {
+      cur.ch = firstIndex;
+      cm.setCursor(cur.line, firstIndex+1);
+    }
+    // otherwise if the cursor is currently on the closing symbol
+    else if (firstIndex < cur.ch && chars[cur.ch] == symb) {
+      end = cur.ch; // assign end to the current cursor
+      --cur.ch; // make sure to look backwards
+    }
 
-    'K': function(cm, times) {
-      var cur = cm.getCursor();
-      return {line: cur.line-times, ch: cur.ch};
-    },
+    // if we're currently on the symbol, we've got a start
+    if (chars[cur.ch] == symb && end == null)
+      start = cur.ch + 1; // assign start to ahead of the cursor
+    else {
+      // go backwards to find the start
+      for (var i = cur.ch; i > -1 && start == null; i--)
+        if (chars[i] == symb) start = i + 1;
+    }
 
-    'H': function(cm, times) {
-      var cur = cm.getCursor();
-      return {line: cur.line, ch: cur.ch-times};
-    },
-
-    'L': function(cm, times) {
-      var cur = cm.getCursor();
-      return {line: cur.line, ch: cur.ch+times};
-    },
-    'W': function(cm, times) { return moveToWord(cm, word, 1, times); },
-    'Shift-W': function(cm, times) { return moveToWord(cm, bigWord, 1, times); },
-    "'^'": function(cm, times) {
-      var cur = cm.getCursor();
-      var line = cm.getLine(cur.line).split('');
-
-      // Empty line :o
-      if (line.length == 0) return cur;
-
-      for (var index = 0;  index < line.length; index++) {
-        if (line[index].match(/[^\s]/)) return {line: cur.line, ch: index};
+    // look forwards for the end symbol
+    if (start != null && end == null) {
+      for (var i = start, len = chars.length; i < len && end == null; i++) {
+        if (chars[i] == symb) end = i;
       }
+    }
+
+    // nothing found
+    // FIXME still enters insert mode
+    if (start == null || end == null) return {
+      start: cur, end: cur  
+    };
+
+    // include the symbols
+    if (inclusive) {
+      --start; ++end;
+    }
+
+    return {
+      start: {line: cur.line, ch: start},
+      end: {line: cur.line, ch: end}
+    };
+  }
+
+  function offsetCursor(cm, line, ch) {
+    var cur = cm.getCursor(); return {line: cur.line + line, ch: cur.ch + ch};
+  }
+
+  // These are the motion commands we use for navigation and selection with
+  // certain other commands. All should return a cursor object.
+  var motions = {
+    "J": function(cm, times) { return offsetCursor(cm, times, 0); },
+    "Down": function(cm, times) { return offsetCursor(cm, times, 0); },
+    "K": function(cm, times) { return offsetCursor(cm, -times, 0); },
+    "Up": function(cm, times) { return offsetCursor(cm, -times, 0); },
+    "L": function(cm, times) { return offsetCursor(cm, 0, times); },
+    "Right": function(cm, times) { return offsetCursor(cm, 0, times); },
+    "Space": function(cm, times) { return offsetCursor(cm, 0, times); },
+    "H": function(cm, times) { return offsetCursor(cm, 0, -times); },
+    "Left": function(cm, times) { return offsetCursor(cm, 0, -times); },
+    "Backspace": function(cm, times) { return offsetCursor(cm, 0, -times); },
+    "B": function(cm, times, yank) { return moveToWord(cm, word, -1, times, 'start', yank); },
+    "Shift-B": function(cm, times, yank) { return moveToWord(cm, bigWord, -1, times, 'start', yank); },
+    "E": function(cm, times, yank) { return moveToWord(cm, word, 1, times, 'end', yank); },
+    "Shift-E": function(cm, times, yank) { return moveToWord(cm, bigWord, 1, times, 'end', yank); },
+    "W": function(cm, times, yank) { return moveToWord(cm, word, 1, times, 'start', yank); },
+    "Shift-W": function(cm, times, yank) { return moveToWord(cm, bigWord, 1, times, 'start', yank); },
+    "'^'": function(cm, times) {
+      var cur = cm.getCursor(), line = cm.getLine(cur.line).split('');
+      for (var i = 0; i < line.length; i++) {
+        if (line[i].match(/[^\s]/)) return {line: cur.line, ch: index};
+      }
+      return cur;
     },
     "'$'": function(cm) {
-      var cur = cm.getCursor();
-      var line = cm.getLine(cur.line);
-      return {line: cur.line, ch: line.length};
+      var cur = cm.getCursor(), ch = cm.getLine(cur.line).length;
+      return {line: cur.line, ch: ch};
     },
     "'%'": function(cm) { return findMatchedSymbol(cm, cm.getCursor()); },
-    "Esc" : function(cm) {
-      cm.setOption('vim');
-      reptTimes = 0;
-
-      return cm.getCursor();
-    }
+    "Esc" : function(cm) { cm.setOption("keyMap", "vim"); repeatCount = 0; return cm.getCursor(); }
   };
 
   // Map our movement actions each operator and non-operational movement
-  iterList(motionList, function(key, index, array) {
+  iterObj(motions, function(key, motion) {
     CodeMirror.keyMap['vim-prefix-d'][key] = function(cm) {
       // Get our selected range
       var start = cm.getCursor();
-      var end = motions[key](cm, reptTimes ? reptTimes : 1);
+      var end = motion(cm, repeatCount ? repeatCount : 1, true);
 
       // Set swap var if range is of negative length
       if ((start.line > end.line) || (start.line == end.line && start.ch > end.ch)) var swap = true;
@@ -658,56 +762,59 @@
       cm.replaceRange("", swap ? end : start, swap ? start : end);
 
       // And clean up
-      reptTimes = 0;
+      repeatCount = 0;
       cm.setOption("keyMap", "vim");
     };
 
     CodeMirror.keyMap['vim-prefix-c'][key] = function(cm) {
       var start = cm.getCursor();
-      var end = motions[key](cm, reptTimes ? reptTimes : 1);
+      var end = motion(cm, repeatCount ? repeatCount : 1, true);
 
       if ((start.line > end.line) || (start.line == end.line && start.ch > end.ch)) var swap = true;
       pushInBuffer(cm.getRange(swap ? end : start, swap ? start : end));
       cm.replaceRange("", swap ? end : start, swap ? start : end);
 
-      reptTimes = 0;
+      repeatCount = 0;
       cm.setOption('keyMap', 'vim-insert');
     };
 
     CodeMirror.keyMap['vim-prefix-y'][key] = function(cm) {
       var start = cm.getCursor();
-      var end = motions[key](cm, reptTimes ? reptTimes : 1);
+      var end = motion(cm, repeatCount ? repeatCount : 1, true);
 
       if ((start.line > end.line) || (start.line == end.line && start.ch > end.ch)) var swap = true;
       pushInBuffer(cm.getRange(swap ? end : start, swap ? start : end));
 
-      reptTimes = 0;
+      repeatCount = 0;
       cm.setOption("keyMap", "vim");
     };
 
     CodeMirror.keyMap['vim'][key] = function(cm) {
-      var cur = motions[key](cm, reptTimes ? reptTimes : 1);
+      var cur = motion(cm, repeatCount ? repeatCount : 1);
       cm.setCursor(cur.line, cur.ch);
 
-      reptTimes = 0;
+      repeatCount = 0;
     };
   });
 
-  var nums = [1,2,3,4,5,6,7,8,9];
-  iterList(nums, function(key, index, array) {
-    CodeMirror.keyMap['vim'][key] = function (cm) {
-      reptTimes = (reptTimes * 10) + key;
+  function addCountBindings(keyMapName) {
+    // Add bindings for number keys
+    keyMap = CodeMirror.keyMap[keyMapName];
+    keyMap["0"] = function(cm) {
+      if (repeatCount > 0) {
+        pushRepeatCountDigit(0)(cm);
+      } else {
+        CodeMirror.commands.goLineStart(cm);
+      }
     };
-    CodeMirror.keyMap['vim-prefix-d'][key] = function (cm) {
-      reptTimes = (reptTimes * 10) + key;
-    };
-    CodeMirror.keyMap['vim-prefix-y'][key] = function (cm) {
-      reptTimes = (reptTimes * 10) + key;
-    };
-    CodeMirror.keyMap['vim-prefix-c'][key] = function (cm) {
-      reptTimes = (reptTimes * 10) + key;
-    };
-  });
+    for (var i = 1; i < 10; ++i) {
+      keyMap[i] = pushRepeatCountDigit(i);
+    }
+  }
+  addCountBindings('vim');
+  addCountBindings('vim-prefix-d');
+  addCountBindings('vim-prefix-y');
+  addCountBindings('vim-prefix-c');
 
   // Create our keymaps for each operator and make xa and xi where x is an operator
   // change to the corrosponding keymap
@@ -721,12 +828,12 @@
     };
 
     CodeMirror.keyMap['vim-prefix-'+key]['A'] = function(cm) {
-      reptTimes = 0;
+      repeatCount = 0;
       cm.setOption('keyMap', 'vim-prefix-' + key + 'a');
     };
 
     CodeMirror.keyMap['vim-prefix-'+key]['I'] = function(cm) {
-      reptTimes = 0;
+      repeatCount = 0;
       cm.setOption('keyMap', 'vim-prefix-' + key + 'i');
     };
   });
@@ -739,7 +846,7 @@
 
   // Create our text object functions. They work similar to motions but they
   // return a start cursor as well
-  var textObjectList = ['W', 'Shift-[', 'Shift-9', '['];
+  var textObjectList = ['W', 'Shift-[', 'Shift-9', '[', "'", "Shift-'"];
   var textObjects = {
     'W': function(cm, inclusive) {
       var cur = cm.getCursor();
@@ -754,7 +861,9 @@
     },
     'Shift-[': function(cm, inclusive) { return selectCompanionObject(cm, '}', inclusive); },
     'Shift-9': function(cm, inclusive) { return selectCompanionObject(cm, ')', inclusive); },
-    '[': function(cm, inclusive) { return selectCompanionObject(cm, ']', inclusive); }
+    '[': function(cm, inclusive) { return selectCompanionObject(cm, ']', inclusive); },
+    "'": function(cm, inclusive) { return findBeginningAndEnd(cm, "'", inclusive); },
+    "Shift-'": function(cm, inclusive) { return findBeginningAndEnd(cm, '"', inclusive); }
   };
 
   // One function to handle all operation upon text objects. Kinda funky but it works
