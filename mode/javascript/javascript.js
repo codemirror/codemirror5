@@ -396,6 +396,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       else if (lexical.info == "switch" && !closing)
         return lexical.indented + (/^(?:case|default)\b/.test(textAfter) ? indentUnit : 2 * indentUnit);
       else if (lexical.align) return lexical.column + (closing ? 0 : 1);
+      else if (lexical.type == ')' && lexical.prev.type == 'stat') return lexical.indented + (closing ? 0 : 2 * indentUnit);
       else return lexical.indented + (closing ? 0 : indentUnit);
     },
 
