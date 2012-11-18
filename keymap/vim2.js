@@ -13,9 +13,10 @@
  *   Operator:
  *   d, y, c
  *   dd, yy, cc
+ *   g~
  *
  *   Operator-Motion:
- *   x, X, D, Y
+ *   x, X, D, Y, ~
  *
  *   Action:
  *   a, i, s, A, I, S
@@ -67,6 +68,7 @@
     { keys: ['d'], type: 'operator', operator: 'delete' },
     { keys: ['y'], type: 'operator', operator: 'yank' },
     { keys: ['c'], type: 'operator', operator: 'change', operatorArgs: { enterInsertMode: true } },
+    { keys: ['g', '~'], type: 'operator', operator: 'swapcase' },
     // Operator-Motion dual commands
     { keys: ['x'], type: 'operatorMotion', operator: 'delete',
         motion: 'moveByCharacters', motionArgs: { forward: true } },
@@ -76,6 +78,8 @@
         motion: 'moveToEol' },
     { keys: ['Y'], type: 'operatorMotion', operator: 'yank',
         motion: 'moveToEol' },
+    { keys: ['~'], type: 'operatorMotion', operator: 'swapcase',
+        motion: 'moveByCharacters', motionArgs: { forward: true } },
     // Actions
     { keys: ['a'], type: 'action', action: 'enterInsertMode',
         motion: 'moveByCharacters', motionArgs: { forward: true, noRepeat: true } },
@@ -298,6 +302,7 @@
               if (command.keys[keys.length - 1] == 'character') {
                 inputState.selectedCharacter = keys[keys.length - 1];
               }
+              inputState.keyBuffer = [];
               return command;
             }
           }
@@ -427,7 +432,7 @@
           expandSelectionToLine(cm, curStart, curEnd);
         } else {
           // Clip to trailing newlines.
-          clipToLine(cm, curEnd);
+          clipToLine(cm, curStart, curEnd);
         }
         // TODO: Handle operators.
         operatorArgs.registerName = registerName;
@@ -591,6 +596,16 @@
             cm.getRange(curStart, curEnd), operatorArgs.linewise);
         cm.replaceRange('', curStart, curEnd);
       },
+      swapcase: function(cm, operatorArgs, curStart, curEnd) {
+        var toSwap = cm.getRange(curStart, curEnd);
+        var swapped = '';
+        for (var i = 0; i < toSwap.length; i++) {
+          var char = toSwap[i];
+          swapped += isUpperCase(char) ? char.toLowerCase() :
+              char.toUpperCase();
+        }
+        cm.replaceRange(swapped, curStart, curEnd);
+      },
       yank: function(cm, operatorArgs, curStart, curEnd) {
         registerController.pushText(operatorArgs.registerName, 'yank',
             cm.getRange(curStart, curEnd), operatorArgs.linewise);
@@ -627,11 +642,10 @@
     // example, with the caret at the start of the last word on the line,
     // 'dw' should word, but not the newline, while 'w' should advance the
     // caret to the first character of the next line.
-    function clipToLine(cm, curEnd) {
-      if (curEnd.ch == 0 ||
-          isWhiteSpaceString(cm.getRange(
-              {line: curEnd.line, ch: 0},
-              {line: curEnd.line, ch: curEnd.ch}))) {
+    function clipToLine(cm, curStart, curEnd) {
+      var selection = cm.getRange(curStart, curEnd);
+      var lines = selection.split('\n');
+      if (lines.length > 1 && isWhiteSpaceString(lines.pop())) {
         curEnd.line--;
         curEnd.ch = cm.getLine(curEnd.line).length;
       }
