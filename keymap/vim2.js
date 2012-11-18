@@ -5,6 +5,7 @@
  *   Motion:
  *   h, j, k, l
  *   e, E, w, W, b, B, ge, gE
+ *   f<character>, F<character>, t<character>, T<character>
  *   $, ^, 0
  *   gg, G
  *   %
@@ -51,18 +52,22 @@
     { keys: ['k'], type: 'motion', motion: 'moveByLines', motionArgs: { forward: false, linewise: true }},
     { keys: ['w'], type: 'motion', motion: 'moveByWords', motionArgs: { forward: true, wordEnd: false}},
     { keys: ['W'], type: 'motion', motion: 'moveByWords', motionArgs: { forward: true, wordEnd: false, bigWord: true }},
-    { keys: ['e'], type: 'motion', motion: 'moveByWords', motionArgs: { forward: true, wordEnd: true}},
-    { keys: ['E'], type: 'motion', motion: 'moveByWords', motionArgs: { forward: true, wordEnd: true, bigWord: true }},
+    { keys: ['e'], type: 'motion', motion: 'moveByWords', motionArgs: { forward: true, wordEnd: true, inclusive: true }},
+    { keys: ['E'], type: 'motion', motion: 'moveByWords', motionArgs: { forward: true, wordEnd: true, bigWord: true, inclusive: true }},
     { keys: ['b'], type: 'motion', motion: 'moveByWords', motionArgs: { forward: false, wordEnd: false }},
     { keys: ['B'], type: 'motion', motion: 'moveByWords', motionArgs: { forward: false, wordEnd: false, bigWord: true }},
-    { keys: ['g', 'e'], type: 'motion', motion: 'moveByWords', motionArgs: { forward: false, wordEnd: true }},
-    { keys: ['g', 'E'], type: 'motion', motion: 'moveByWords', motionArgs: { forward: false, wordEnd: true, bigWord: true }},
+    { keys: ['g', 'e'], type: 'motion', motion: 'moveByWords', motionArgs: { forward: false, wordEnd: true, inclusive: true }},
+    { keys: ['g', 'E'], type: 'motion', motion: 'moveByWords', motionArgs: { forward: false, wordEnd: true, bigWord: true, inclusive: true }},
     { keys: ['g', 'g'], type: 'motion', motion: 'moveToLineOrEdgeOfDocument', motionArgs: { forward: false, explicitRepeat: true }},
     { keys: ['G'], type: 'motion', motion: 'moveToLineOrEdgeOfDocument', motionArgs: { forward: true, explicitRepeat: true }},
     { keys: ['0'], type: 'motion', motion: 'moveToStartOfLine' },
     { keys: ['^'], type: 'motion', motion: 'moveToFirstNonWhiteSpaceCharacter' },
     { keys: ['$'], type: 'motion', motion: 'moveToEol' },
-    { keys: ['%'], type: 'motion', motion: 'moveToMatchedSymbol' },
+    { keys: ['%'], type: 'motion', motion: 'moveToMatchedSymbol', motionArgs: { inclusive: true }},
+    { keys: ['f', 'character'], type: 'motion', motion: 'moveToCharacter', motionArgs: { forward: true , inclusive: true }},
+    { keys: ['F', 'character'], type: 'motion', motion: 'moveToCharacter', motionArgs: { forward: false }},
+    { keys: ['t', 'character'], type: 'motion', motion: 'moveTillCharacter', motionArgs: { forward: true, inclusive: true }},
+    { keys: ['T', 'character'], type: 'motion', motion: 'moveTillCharacter', motionArgs: { forward: false }},
     { keys: ['\'', 'character'], type: 'motion', motion: 'goToMark' },
     { keys: ['`', 'character'], type: 'motion', motion: 'goToMark' },
     // Operators
@@ -290,6 +295,12 @@
 
     var keyHandler = {
       matchCommand: function(key, keyMap) {
+        if (key == 'Esc') {
+          // Clear input state and get back to normal mode.
+          inputState.reset();
+          count.clear();
+          return null;
+        }
         var keys = inputState.keyBuffer.concat(key);
         for (var i = 0; i < keyMap.length; i++) {
           var command = keyMap[i];
@@ -411,16 +422,6 @@
           cm.setCursor(curEnd.line, curEnd.ch);
           return;
         }
-        if (motionArgs.wordEnd) {
-          // Move the selection end one to the right to include the last
-          // character.
-          if (motionArgs.forward) {
-            curEnd.ch++;
-          } else {
-            curStart.ch++;
-          }
-        }
-        if (motion == 'moveToMatchedSymbol') { curEnd.ch++; }
         // Swap start and end if motion was backward.
         if (curStart.line > curEnd.line ||
             (curStart.line == curEnd.line && curStart.ch > curEnd.ch)) {
@@ -428,7 +429,11 @@
           curStart = curEnd;
           curEnd = tmp;
         }
-
+        if (motionArgs.inclusive) {
+          // Move the selection end one to the right to include the last
+          // character.
+          curEnd.ch++;
+        }
         if (motionArgs.linewise) {
           // Expand selection to entire line.
           expandSelectionToLine(cm, curStart, curEnd);
@@ -493,6 +498,19 @@
       moveByWords: function(cm, motionArgs) {
         return moveToWord(cm, motionArgs.repeat, !!motionArgs.forward,
             !!motionArgs.wordEnd, !!motionArgs.bigWord);
+      },
+      moveTillCharacter: function(cm, motionArgs) {
+        var repeat = motionArgs.repeat;
+        var curEnd = moveToCharacter(cm, repeat, motionArgs.forward,
+            motionArgs.selectedCharacter);
+        if (motionArgs.forward) { curEnd.ch--; }
+        else { curEnd.ch++; }
+        return curEnd;
+      },
+      moveToCharacter: function(cm, motionArgs) {
+        var repeat = motionArgs.repeat;
+        return moveToCharacter(cm, repeat, motionArgs.forward,
+            motionArgs.selectedCharacter);
       },
       moveToEol: function(cm) {
         var cursor = cm.getCursor();
@@ -798,6 +816,36 @@
       return cur;
     }
 
+    function moveToCharacter(cm, repeat, forward, char) {
+      var cur = cm.getCursor();
+      var start = cur.ch;
+      for (var i = 0; i < repeat; i ++) {
+        var line = cm.getLine(cur.line);
+        var idx = charIdxInLine(start, line, char, forward, true);
+        if (idx == -1) { return cur; }
+        start = idx;
+      }
+      return { line: cm.getCursor().line,
+        ch: idx };
+    }
+
+    function charIdxInLine(start, line, char, forward, includeChar) {
+      // Search for char in line.
+      // motion_options: {forward, includeChar}
+      // If includeChar = true, include it too.
+      // If forward = true, search forward, else search backwards.
+      // If char is not found on this line, do nothing
+      var idx;
+      if (forward) {
+        idx = line.indexOf(char, start + 1);
+        if (idx != -1 && !includeChar) idx -= 1;
+      } else {
+        idx = line.lastIndexOf(char, start - 1);
+        if (idx != -1 && !includeChar) idx += 1;
+      }
+      return idx;
+    }
+
     function findMatchedSymbol(cm, cur, symb) {
       var line = cur.line;
       var symb = symb ? symb : cm.getLine(line)[cur.ch];
@@ -904,6 +952,7 @@
       bindKeys(specialSymbols, 'Ctrl');
       bindKeys(numbers);
       bindKeys(numbers, 'Ctrl');
+      bindKeys(['Esc']);
       return keyMap;
     }
     CodeMirror.keyMap.vim2 = buildVimKeyMap();
