@@ -110,14 +110,14 @@
     { keys: ['u'], type: 'action', action: 'undo' },
     { keys: ['Ctrl-r'], type: 'action', action: 'redo' },
     { keys: ['m', 'character'], type: 'action', action: 'setMark' },
-    { keys: ['\"', 'character'], type: 'action', action: 'setRegister' },
+    { keys: ['\"', 'character'], type: 'action', action: 'setRegister' }
   ];
 
   var Vim = function() {
     var alphabetRegex = /[A-Za-z]/;
     var numberRegex = /[\d]/;
     var whiteSpaceRegex = /\s/;
-    var wordRegexp = [/\w/, /[^\w\s]/], bigWordRegexp = [/\S/];
+    var wordRegexp = [(/\w/), (/[^\w\s]/)], bigWordRegexp = [(/\S/)];
     function makeKeyRange(start, size) {
       var keys = [];
       for (var i = start; i < start + size; i++) {
@@ -141,12 +141,12 @@
 
     function isAlphabet(k) { return alphabetRegex.test(k); }
     function isLine(cm, line) { return line >= 0 && line < cm.lineCount(); }
-    function isLowerCase(k) { return /^[a-z]$/.test(k); }
+    function isLowerCase(k) { return (/^[a-z]$/).test(k); }
     function isMatchableSymbol(k) { return '()[]{}'.indexOf(k) != -1; }
     function isNumber(k) { return numberRegex.test(k); }
-    function isUpperCase(k) { return /^[A-Z]$/.test(k); }
+    function isUpperCase(k) { return (/^[A-Z]$/).test(k); }
     function isWhiteSpace(k) { return whiteSpaceRegex.test(k); }
-    function isWhiteSpaceString(k) { return /^\s*$/.test(k); }
+    function isWhiteSpaceString(k) { return (/^\s*$/).test(k); }
     function inRangeInclusive(x, start, end) { return x >= start && x <= end; }
     function inArray(val, arr) {
       for (var i = 0; i < arr.length; i++) {
@@ -164,7 +164,7 @@
         // TODO: Convert keymap into dictionary format for fast lookup.
       },
       handleKey: function(cm, key) {
-        if (key != '0' || (key == '0' && count.get() == 0)) {
+        if (key != '0' || (key == '0' && count.get() === 0)) {
           // Have to special case 0 since it's both a motion and a number.
           var command = keyHandler.matchCommand(key, defaultKeymap);
         }
@@ -176,7 +176,7 @@
         if (command) {
           keyHandler.processCommand(cm, command);
         }
-      },
+      }
     };
 
     // Represents the current input state.
@@ -192,7 +192,7 @@
       this.motionArgs = null;
       this.keyBuffer = []; // For matching multi-key commands.
       this.registerName = null; // Defaults to the unamed register.
-    }
+    };
     inputState = new InputState();
 
     // Counter for keeping track of repeats.
@@ -210,7 +210,7 @@
           explicit = false;
           value = 0;
         }
-      }
+      };
     }();
 
     var registerController = function() {
@@ -232,7 +232,7 @@
           }
         },
         clear: function() { this.text = ''; this.linewise = false; }
-      }
+      };
       var lastUpdatedRegisterName = null;
       var unamedRegister = registers['\"'] = new Register();
       function getRegister(name) {
@@ -292,9 +292,9 @@
           return getRegister(name);
         },
         isValidRegister: function(name) {
-          return name != null && inArray(name, validRegisters);
+          return name && inArray(name, validRegisters);
         }
-      }
+      };
     }();
 
     var keyHandler = {
@@ -313,7 +313,7 @@
               // Matches part of a multi-key command. Buffer and wait for next
               // stroke.
               inputState.keyBuffer.push(key);
-              return;
+              return null;
             } else {
               // Matches whole comand. Return the command.
               if (command.keys[keys.length - 1] == 'character') {
@@ -357,7 +357,7 @@
             // Typing an operator twice like 'dd' makes the operator operate
             // linewise
             inputState.motion = 'expandToLine';
-            inputState.motionArgs = { linewise: true, }
+            inputState.motionArgs = { linewise: true };
             this.evalInput(cm);
             return;
           } else {
@@ -406,7 +406,7 @@
         if (repeat > 0 && motionArgs.explicitRepeat) {
           motionArgs.repeatIsExplicit = true;
         } else if (motionArgs.noRepeat ||
-            (!motionArgs.explicitRepeat && repeat == 0)) {
+            (!motionArgs.explicitRepeat && repeat === 0)) {
           repeat = 1;
           motionArgs.repeatIsExplicit = false;
         }
@@ -455,7 +455,7 @@
           actions.enterInsertMode(cm);
         }
       }
-    }
+    };
 
     /**
      * typedef {Object{line:number,ch:number}} Cursor An object containing the
@@ -552,7 +552,7 @@
         return { line: lineNum,
             ch: findFirstNonWhiteSpaceCharacter(cm.getLine(lineNum)),
             user: true };
-      },
+      }
     };
 
     var actions = {
@@ -635,7 +635,7 @@
           replaceWithStr += replaceWith;
         }
         cm.replaceRange(replaceWithStr, curStart, curEnd);
-      },
+      }
     };
 
     var operators = {
@@ -650,7 +650,8 @@
             cm.getRange(curStart, curEnd), operatorArgs.linewise);
         cm.replaceRange('', curStart, curEnd);
       },
-      delete: function(cm, operatorArgs, curStart, curEnd) {
+      // delete is a javascript keyword.
+      'delete': function(cm, operatorArgs, curStart, curEnd) {
         registerController.pushText(operatorArgs.registerName, 'delete',
             cm.getRange(curStart, curEnd), operatorArgs.linewise);
         cm.replaceRange('', curStart, curEnd);
@@ -659,16 +660,16 @@
         var toSwap = cm.getRange(curStart, curEnd);
         var swapped = '';
         for (var i = 0; i < toSwap.length; i++) {
-          var char = toSwap[i];
-          swapped += isUpperCase(char) ? char.toLowerCase() :
-              char.toUpperCase();
+          var character = toSwap[i];
+          swapped += isUpperCase(character) ? character.toLowerCase() :
+              character.toUpperCase();
         }
         cm.replaceRange(swapped, curStart, curEnd);
       },
       yank: function(cm, operatorArgs, curStart, curEnd) {
         registerController.pushText(operatorArgs.registerName, 'yank',
             cm.getRange(curStart, curEnd), operatorArgs.linewise);
-      },
+      }
     };
 
     function arrayEq(a1, a2) {
@@ -694,7 +695,7 @@
     function repeatFn(cm, fn, repeat) {
       return function() {
         for (var i = 0; i < repeat; i++) fn(cm);
-      }
+      };
     }
     function copyCursor(cur) {
       return { line: cur.line, ch: cur.ch, user: cur.user };
@@ -757,12 +758,15 @@
             if (regexps[i].test(line.charAt(pos))) {
               wordStart = pos;
               // Advance to end of word.
-              for (; pos != stop && regexps[i].test(line.charAt(pos)); pos += dir) {}
+              while (pos != stop && regexps[i].test(line.charAt(pos))) {
+                pos += dir;
+              }
               wordEnd = pos;
               foundWord = wordStart != wordEnd;
-              if (wordStart == cur.ch && lineNum == cur.line
-                  && wordEnd == wordStart + dir) {
+              if (wordStart == cur.ch && lineNum == cur.line &&
+                  wordEnd == wordStart + dir) {
                 // We started at the end of a word. Find the next one.
+                continue;
               } else {
                 return {
                     from: Math.min(wordStart, wordEnd + 1),
@@ -781,7 +785,9 @@
         line = cm.getLine(lineNum);
         pos = (dir > 0) ? 0 : line.length;
       }
-    };
+      // Should never get here.
+      throw 'The impossible happened.';
+    }
 
     /**
      * @param {CodeMirror} cm CodeMirror object.
@@ -825,7 +831,7 @@
                   word.line == startLine) {
                 // still on the same word. Go to the next one.
                 movedToNextWord = false;
-                cur.ch = word.from
+                cur.ch = word.from;
               } else {
                 cur.ch = word.to;
               }
@@ -842,12 +848,12 @@
       return cur;
     }
 
-    function moveToCharacter(cm, repeat, forward, char) {
+    function moveToCharacter(cm, repeat, forward, character) {
       var cur = cm.getCursor();
       var start = cur.ch;
       for (var i = 0; i < repeat; i ++) {
         var line = cm.getLine(cur.line);
-        var idx = charIdxInLine(start, line, char, forward, true);
+        var idx = charIdxInLine(start, line, character, forward, true);
         if (idx == -1) { return cur; }
         start = idx;
       }
@@ -855,7 +861,7 @@
         ch: idx };
     }
 
-    function charIdxInLine(start, line, char, forward, includeChar) {
+    function charIdxInLine(start, line, character, forward, includeChar) {
       // Search for char in line.
       // motion_options: {forward, includeChar}
       // If includeChar = true, include it too.
@@ -863,10 +869,10 @@
       // If char is not found on this line, do nothing
       var idx;
       if (forward) {
-        idx = line.indexOf(char, start + 1);
+        idx = line.indexOf(character, start + 1);
         if (idx != -1 && !includeChar) idx -= 1;
       } else {
-        idx = line.lastIndexOf(char, start - 1);
+        idx = line.lastIndexOf(character, start - 1);
         if (idx != -1 && !includeChar) idx += 1;
       }
       return idx;
@@ -874,7 +880,7 @@
 
     function findMatchedSymbol(cm, cur, symb) {
       var line = cur.line;
-      var symb = symb ? symb : cm.getLine(line)[cur.ch];
+      symb = symb ? symb : cm.getLine(line)[cur.ch];
 
       // Are we at the opening or closing char
       var forwards = ['(', '[', '{'].indexOf(symb) != -1;
@@ -892,25 +898,26 @@
       })(symb);
 
       // Couldn't find a matching symbol, abort
-      if (reverseSymb == null) return cur;
+      if (!reverseSymb) return cur;
 
       // Tracking our imbalance in open/closing symbols. An opening symbol wii be
       // the first thing we pick up if moving forward, this isn't true moving backwards
       var disBal = forwards ? 0 : 1;
 
+      var currLine;
       while (true) {
         if (line == cur.line) {
           // First pass, do some special stuff
-          var currLine =  forwards ? cm.getLine(line).substr(cur.ch).split('') : cm.getLine(line).substr(0,cur.ch).split('').reverse();
+          currLine =  forwards ? cm.getLine(line).substr(cur.ch).split('') : cm.getLine(line).substr(0,cur.ch).split('').reverse();
         } else {
-          var currLine =  forwards ? cm.getLine(line).split('') : cm.getLine(line).split('').reverse();
+          currLine =  forwards ? cm.getLine(line).split('') : cm.getLine(line).split('').reverse();
         }
 
         for (var index = 0;  index < currLine.length; index++) {
           if (currLine[index] == symb) disBal++;
           else if (currLine[index] == reverseSymb) disBal--;
 
-          if (disBal == 0) {
+          if (disBal === 0) {
             if (forwards && cur.line == line) return {line: line, ch: index + cur.ch};
             else if (forwards) return {line: line, ch: index};
             else return {line: line, ch: currLine.length - index - 1 };
@@ -920,6 +927,7 @@
         if (forwards) line++;
         else line--;
       }
+      return cur;
     }
 
     function buildVimKeyMap() {
@@ -946,7 +954,7 @@
       function keyMapper(key, modifier) {
         return function(cm) {
           handleKeyEvent_(cm, key, modifier);
-        }
+        };
       }
 
       var modifiers = ['Shift', 'Ctrl'];
@@ -959,7 +967,7 @@
       function bindKeys(keys, modifier) {
         for (var i = 0; i < keys.length; i++) {
           var key = keys[i];
-          if (specialSymbols.indexOf(key) != -1) {
+          if (inArray(key, specialSymbols)) {
             // Wrap special symbols with '' because that's how CodeMirror binds
             // them.
             key = "'" + key + "'";
