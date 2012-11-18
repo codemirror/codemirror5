@@ -22,6 +22,7 @@
  *   a, i, s, A, I, S
  *   u, Ctrl-r
  *   m<character>
+ *   r<character>
  *
  * Registers: unamed, a-z, A-Z, 0-9
  *   (Does not respect the special case for number registers when delete
@@ -96,6 +97,7 @@
         operator: 'delete' },
     { keys: ['p'], type: 'action', action: 'paste', actionArgs: { after: true }},
     { keys: ['P'], type: 'action', action: 'paste', actionArgs: { after: false }},
+    { keys: ['r', 'character'], type: 'action', action: 'replace' },
     { keys: ['u'], type: 'action', action: 'undo' },
     { keys: ['Ctrl-r'], type: 'action', action: 'redo' },
     { keys: ['m', 'character'], type: 'action', action: 'setMark' },
@@ -576,6 +578,22 @@
         if (!inArray(markName, validMarks)) { return; }
         if (marks[markName]) { marks[markName].clear(); }
         marks[markName] = cm.setBookmark(cm.getCursor());
+      },
+      replace: function(cm, actionArgs) {
+        var replaceWith = actionArgs.selectedCharacter;
+        var curStart = cm.getCursor();
+        var line = cm.getLine(curStart.line);
+        var replaceTo = curStart.ch + actionArgs.repeat;
+        if (replaceTo > line.length) { return; }
+        var curEnd = {
+          line: curStart.line,
+          ch: replaceTo
+        };
+        var replaceWithStr = '';
+        for (var i = 0; i < curEnd.ch - curStart.ch; i++) {
+          replaceWithStr += replaceWith;
+        }
+        cm.replaceRange(replaceWithStr, curStart, curEnd);
       },
     };
 
