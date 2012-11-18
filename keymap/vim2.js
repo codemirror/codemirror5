@@ -2,22 +2,28 @@
 /**
  * Supported keybindings:
  *
- * Motion:
- * h, j, k, l
- * e, E, w, W, b, B, ge, gE
- * $, ^, 0
- * gg, G
+ *   Motion:
+ *   h, j, k, l
+ *   e, E, w, W, b, B, ge, gE
+ *   $, ^, 0
+ *   gg, G
+ *   '<character>, `<character>
  *
- * Operator:
- * d, y
- * dd, yy
+ *   Operator:
+ *   d, y
+ *   dd, yy
  *
- * Operator-Motion:
- * x, X, D, Y
+ *   Operator-Motion:
+ *   x, X, D, Y
  *
- * Action:
- * a, i, s
- * u, Ctrl-r
+ *   Action:
+ *   a, i, s
+ *   u, Ctrl-r
+ *   m<character>
+ *
+ * Registers: unamed, a-z, A-Z, 0-9
+ *   (Does not respect the special case for number registers when delete
+ *    operator is made with these commands: %, (, ),  , /, ?, n, N, {, } )
  *
  * Code structure:
  *  1. Default keymap
@@ -53,6 +59,8 @@
     { keys: ['0'], type: 'motion', motion: 'moveToStartOfLine' },
     { keys: ["'^'"], type: 'motion', motion: 'moveToFirstNonWhiteSpaceCharacter' },
     { keys: ["'$'"], type: 'motion', motion: 'moveToEol' },
+    { keys: ["'''", 'character'], type: 'motion', motion: 'goToMark' },
+    { keys: ["'`'", 'character'], type: 'motion', motion: 'goToMark' },
     // Operators
     { keys: ['d'], type: 'operator', operator: 'delete' },
     { keys: ['y'], type: 'operator', operator: 'yank' },
@@ -76,23 +84,50 @@
     { keys: ['P'], type: 'action', action: 'paste', actionArgs: { after: false }},
     { keys: ['u'], type: 'action', action: 'undo' },
     { keys: ['Ctrl-r'], type: 'action', action: 'redo' },
+    { keys: ['m', 'character'], type: 'action', action: 'setMark' },
+    { keys: ["'\"'", 'character'], type: 'action', action: 'setRegister' },
   ];
 
   var Vim = function() {
-    var alphabetRegex = /[A-Z]/;
+    var alphabetRegex = /[A-Za-z]/;
     var numberRegex = /[\d]/;
     var whiteSpaceRegex = /\s/;
     var wordRegexp = [/\w/, /[^\w\s]/], bigWordRegexp = [/\S/];
+    function makeKeyRange(start, size) {
+      var keys = [];
+      for (var i = start; i < start + size; i++) {
+        keys.push(String.fromCharCode(i));
+      }
+      return keys;
+    }
+    var upperCaseAlphabet = makeKeyRange(65, 26);
+    var lowerCaseAlphabet = makeKeyRange(97, 26);
+    var numbers = makeKeyRange(48, 10);
+    var SPECIAL_SYMBOLS = '~`!@#$%^&*()_-+=[{}]\\|/?.,<>:;\"\'';
+    var specialSymbols = SPECIAL_SYMBOLS.split('');
+    var validMarks = upperCaseAlphabet.concat(lowerCaseAlphabet).concat(
+        numbers);
+    var validRegisters = upperCaseAlphabet.concat(lowerCaseAlphabet).concat(
+        numbers).concat("'\"'");
     var inputState;
     var count;
     var registers = {};
+    var marks = {};
 
     function isNumber(k) { return numberRegex.test(k); }
     function isAlphabet(k) { return alphabetRegex.test(k); }
     function isWhiteSpace(k) { return whiteSpaceRegex.test(k); }
     function isWhiteSpaceString(k) { return /^\s*$/.test(k); }
+    function isUpperCase(k) { return /^[A-Z]$/.test(k); }
+    function isLowerCase(k) { return /^[a-z]$/.test(k); }
     function isLine(cm, line) { return line >= 0 && line < cm.lineCount(); }
     function inRangeInclusive(x, start, end) { return x >= start && x <= end; }
+    function inArray(val, arr) {
+      for (var i = 0; i < arr.length; i++) {
+        if (arr[i] == val) { return true; }
+      }
+      return false;
+    }
 
     var instance = {
       addKeyMap: function() {
@@ -103,12 +138,15 @@
         // TODO: Convert keymap into dictionary format for fast lookup.
       },
       handleKey: function(cm, key) {
-        if (isNumber(key) && !(key == '0' && count.get() == 0)) {
+        if (key != '0' || (key == '0' && count.get() == 0)) {
+          // Have to special case 0 since it's both a motion and a number.
+          var command = keyHandler.matchCommand(key, defaultKeymap);
+        }
+        if (!command && isNumber(key)) {
           // Increment count unless count is 0 and key is 0.
           count.pushDigit(key);
           return;
         }
-        var command = keyHandler.matchCommand(key, defaultKeymap);
         if (command) {
           keyHandler.processCommand(cm, command);
         }
@@ -127,29 +165,12 @@
       this.motion = null;
       this.motionArgs = null;
       this.keyBuffer = []; // For matching multi-key commands.
-      this.registerName = 'default';
+      this.registerName = null; // Defaults to the unamed register.
     }
     inputState = new InputState();
 
-    function Register() {
-      // Do not create directly, use getRegister.
-      this.text = '';
-    }
-    Register.prototype = {
-      set: function(text, linewise) {
-        this.text = text;
-        this.linewise = !!linewise;
-      }
-    }
-    function getRegister(name) {
-      if (!registers[name]) {
-        registers[name] = new Register();
-      }
-      return registers[name];
-    }
-
     // Counter for keeping track of repeats.
-    count = (function() {
+    count = function() {
       var value = 0;
       var explicit = false;
       return {
@@ -164,14 +185,98 @@
           value = 0;
         }
       }
-    })();
+    }();
+
+    var registerController = function() {
+      function Register() {
+        this.clear();
+      }
+      Register.prototype = {
+        set: function(text, linewise) {
+          this.text = text;
+          this.linewise = !!linewise;
+        },
+        append: function(text, linewise) {
+          // if this register has ever been set to linewise, use linewise.
+          if (linewise || this.linewise) {
+            this.text += '\n' + text;
+            this.linewise = true;
+          } else {
+            this.text += text;
+          }
+        },
+        clear: function() { this.text = ''; this.linewise = false; }
+      }
+      var lastUpdatedRegisterName = null;
+      var unamedRegister = registers["'\"'"] = new Register();
+      function getRegister(name) {
+        if (!name) { return null; }
+        name = name.toLowerCase();
+        if (!registers[name]) { registers[name] = new Register(); }
+        return registers[name];
+      }
+      return {
+        pushText: function(registerName, operator, text, linewise) {
+          // Lowercase and uppercase registers refer to the same register.
+          // Uppercase just means append.
+          var append = isUpperCase(registerName);
+          var register = this.isValidRegister(registerName) ?
+              getRegister(registerName) : null;
+          if (register &&
+              registerName.toLowerCase() != lastUpdatedRegisterName) {
+            // Switched registers, clear the unamed register.
+            lastUpdatedRegisterName = registerName.toLowerCase();
+            unamedRegister.set('', false);
+          } else {
+            lastUpdatedRegisterName = null;
+          }
+          // The unamed register always has the same value as the last used
+          // register.
+          if (append) {
+            if (register) { register.append(text, linewise); }
+            unamedRegister.append(text, linewise);
+          } else {
+            if (register) { register.set(text, linewise); }
+            unamedRegister.set(text, linewise);
+          }
+          if (!register) {
+            // These only happen if no register was explicitly specified.
+            if (operator == 'yank') {
+              // The 0 register contains the text from the most recent yank.
+              getRegister('0').set(text, linewise);
+            } else if (operator == 'delete' || operator == 'change') {
+              if (text.indexOf('\n') == -1) {
+                // Delete less than 1 line. Update the small delete register.
+                getRegister("'-'").set(text, linewise);
+              } else {
+                // Shift down the contents of the numbered registers and put the
+                // deleted text into register 1.
+                for (var i = 9; i >= 2; i--) {
+                  var from = getRegister('' + (i - 1));
+                  registers['' + i] = from;
+                }
+                registers['1'] = new Register();
+                registers['1'].set(text, linewise);
+              }
+            }
+          }
+        },
+        getRegister: function(name) {
+          if (!this.isValidRegister(name)) { return unamedRegister; }
+          return getRegister(name);
+        },
+        isValidRegister: function(name) {
+          return name != null && inArray(name, validRegisters);
+        }
+      }
+    }();
 
     var keyHandler = {
       matchCommand: function(key, keyMap) {
         var keys = inputState.keyBuffer.concat(key);
         for (var i = 0; i < keyMap.length; i++) {
           var command = keyMap[i];
-          if (arrayIsSubsetFromBeginning(keys, command.keys)) {
+          if (matchKeysPartial(keys, command.keys)) {
             if (keys.length < command.keys.length) {
               // Matches part of a multi-key command. Buffer and wait for next
               // stroke.
@@ -179,6 +284,9 @@
               return;
             } else {
               // Matches whole comand. Return the command.
+              if (command.keys[keys.length - 1] == 'character') {
+                inputState.selectedCharacter = keys[keys.length - 1];
+              }
               return command;
             }
           }
@@ -237,16 +345,19 @@
       },
       processAction: function(cm, command) {
         var repeat = count.get();
+        var actionArgs = command.actionArgs || {};
+        if (inputState.selectedCharacter) {
+          actionArgs.selectedCharacter = inputState.selectedCharacter;
+        }
         // Actions may or may not have motions and operators. Do these first.
         if (command.operator) { this.processOperator(cm, command); }
         if (command.motion) { this.processMotion(cm, command); }
         if (command.motion || command.operator) { this.evalInput(cm); }
-        var actionArgs = command.actionArgs || {};
         actionArgs.repeat = repeat || 1;
-        actionArgs.register = getRegister(inputState.registerName);
-        actions[command.action](cm, actionArgs);
+        actionArgs.registerName = inputState.registerName;
         inputState.reset();
         count.clear();
+        actions[command.action](cm, actionArgs);
       },
       evalInput: function(cm) {
         // If the motion comand is set, execute both the operator and motion.
@@ -266,11 +377,18 @@
           repeat = 1;
           motionArgs.repeatIsExplicit = false;
         }
+        if (inputState.selectedCharacter) {
+          // If there is a character input, stick it in all of the arg arrays.
+          motionArgs.selectedCharacter = operatorArgs.selectedCharacter =
+              inputState.selectedCharacter;
+        }
         if (!motion) { return; }
         motionArgs.repeat = repeat;
         count.clear();
         inputState.reset();
         curEnd = motions[motion](cm, motionArgs);
+        // TODO: Handle null returns from motion commands better.
+        if (!curEnd) { curEnd = { ch: curStart.ch, line: curStart.line }; }
         if (!operator) {
           cm.setCursor(curEnd.line, curEnd.ch);
           return;
@@ -300,7 +418,7 @@
           clipToLine(cm, curEnd);
         }
         // TODO: Handle operators.
-        operatorArgs.register = getRegister(registerName);
+        operatorArgs.registerName = registerName;
         // Keep track of if the operation was linewise determining how to paste
         // later.
         operatorArgs.linewise = motionArgs.linewise;
@@ -325,6 +443,13 @@
         var endLine = Math.min(cm.lineCount(),
             cursor.line + motionArgs.repeat - 1);
         return { line: endLine, ch: cm.getLine(endLine) };
+      },
+      goToMark: function(cm, motionArgs) {
+        var mark = marks[motionArgs.selectedCharacter];
+        if (mark) {
+          return mark.find();
+        }
+        return null;
       },
       moveByCharacters: function(cm, motionArgs) {
         var cursor = cm.getCursor();
@@ -387,11 +512,13 @@
       },
       paste: function(cm, actionArgs) {
         var cur = cm.getCursor();
+        var register = registerController.getRegister(actionArgs.registerName);
+        if (!register.text) { return; }
         for (var text = '', i = 0; i < actionArgs.repeat; i++) {
-          text += actionArgs.register.text;
+          text += register.text;
         }
         var curChEnd = 0;
-        var linewise = actionArgs.register.linewise;
+        var linewise = register.linewise;
         if (linewise) {
           cur.line += actionArgs.after ? 1 : 0;
           cur.ch = 0;
@@ -416,17 +543,26 @@
       redo: function(cm, actionArgs) {
         repeatFn(cm, CodeMirror.commands.redo, actionArgs.repeat)();
       },
+      setRegister: function(cm, actionArgs) {
+        inputState.registerName = actionArgs.selectedCharacter;
+      },
+      setMark: function(cm, actionArgs) {
+        var markName = actionArgs.selectedCharacter;
+        if (!inArray(markName, validMarks)) { return; }
+        if (marks[markName]) { marks[markName].clear(); }
+        marks[markName] = cm.setBookmark(cm.getCursor());
+      },
     };
 
     var operators = {
       delete: function(cm, operatorArgs, curStart, curEnd) {
-        operatorArgs.register.set(cm.getRange(curStart, curEnd),
-            operatorArgs.linewise);
+        registerController.pushText(operatorArgs.registerName, 'delete',
+            cm.getRange(curStart, curEnd), operatorArgs.linewise);
         cm.replaceRange('', curStart, curEnd);
       },
       yank: function(cm, operatorArgs, curStart, curEnd) {
-        operatorArgs.register.set(cm.getRange(curStart, curEnd),
-            operatorArgs.linewise);
+        registerController.pushText(operatorArgs.registerName, 'yank',
+            cm.getRange(curStart, curEnd), operatorArgs.linewise);
       },
     };
 
@@ -434,6 +570,13 @@
       if (a1.length != a2.length) return false;
       for (var i = 0; i < a1.length; i++) {
         if (a1[i] != a2[i]) return false;
+      }
+      return true;
+    }
+    function matchKeysPartial(pressed, mapped) {
+      for (var i = 0; i < pressed.length; i++) {
+        // 'character' means any character. For mark, register commads, etc.
+        if (pressed[i] != mapped[i] && mapped[i] != 'character') { return false; }
       }
       return true;
     }
@@ -600,7 +743,7 @@
        */
       // TODO: Figure out a way to catch capslock.
       function handleKeyEvent_(cm, key, modifier) {
-        if (modifier != 'Shift' && isAlphabet(key)) {
+        if (modifier != 'Shift' && isUpperCase(key)) {
           // Convert to lower case since the key we get from CodeMirro is always
           // upper case.
           key = key.toLowerCase();
@@ -620,34 +763,34 @@
       }
 
       var modifiers = ['Shift', 'Ctrl'];
-      var alphabetKeys = [
-              'A','B','C','D','E','F','G','H','I','J','K','L','M','N',
-              'O','P','Q','R','S','T','U','V','W','X','Y','Z'];
-      var specialKeys = ["'~'", "'^'", "'$'"];
-      var numberKeys = ['0','1','2','3','4','5','6','7','8','9'];
       var keyMap = {
         'nofallthrough': true,
         'style': 'fat-cursor'
       };
       var i, j;
-      var keys = alphabetKeys;
+      var keys = upperCaseAlphabet;
       function bindKeys(keys, modifier) {
         for (var i = 0; i < keys.length; i++) {
           var key = keys[i];
+          if (specialSymbols.indexOf(key) != -1) {
+            // Wrap special symbols with '' because that's how CodeMirror binds
+            // them.
+            key = "'" + key + "'";
+          }
           if (modifier) {
             keyMap[modifier + '-' + key] = keyMapper(key, modifier);
           } else {
-            keyMap[keys[i]] = keyMapper(key);
+            keyMap[key] = keyMapper(key);
           }
         }
       }
-      bindKeys(alphabetKeys);
-      bindKeys(alphabetKeys, 'Shift');
-      bindKeys(alphabetKeys, 'Ctrl');
-      bindKeys(specialKeys);
-      bindKeys(specialKeys, 'Ctrl');
-      bindKeys(numberKeys);
-      bindKeys(numberKeys, 'Ctrl');
+      bindKeys(upperCaseAlphabet);
+      bindKeys(upperCaseAlphabet, 'Shift');
+      bindKeys(upperCaseAlphabet, 'Ctrl');
+      bindKeys(specialSymbols);
+      bindKeys(specialSymbols, 'Ctrl');
+      bindKeys(numbers);
+      bindKeys(numbers, 'Ctrl');
       return keyMap;
     }
     CodeMirror.keyMap.vim2 = buildVimKeyMap();
