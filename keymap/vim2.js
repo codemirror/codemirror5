@@ -19,6 +19,16 @@
  * a, i, s
  * u, Ctrl-r
  *
+ * Code structure:
+ *  1. Default keymap
+ *  2. Variable declarations and short basic helpers
+ *  3. Instance (External API) implementation
+ *  4. Internal state tracking objects (input state, counter) implementation
+ *     and instanstiation
+ *  5. Key handler (the main command dispatcher) implementation
+ *  6. Motion, operator, and action implementations
+ *  7. Helper functions for the key handler, motions, operators, and actions
+ *
  */
 
 (function() {
