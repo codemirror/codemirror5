@@ -20,7 +20,8 @@
  *   x, X, D, Y, ~
  *
  *   Action:
- *   a, i, s, A, I, S
+ *   a, i, s, A, I, S, o, O
+ *   J
  *   u, Ctrl-r
  *   m<character>
  *   r<character>
@@ -100,6 +101,9 @@
     { keys: ['S'], type: 'action', action: 'enterInsertMode',
         motion: 'moveByLines', motionArgs: { forward: true, linewise: true, explicitRepeat: true },
         operator: 'delete' },
+    { keys: ['o'], type: 'action', action: 'newLineAndEnterInsertMode', actionArgs: { after: true }},
+    { keys: ['O'], type: 'action', action: 'newLineAndEnterInsertMode', actionArgs: { after: false }},
+    { keys: ['J'], type: 'action', action: 'joinLines' },
     { keys: ['p'], type: 'action', action: 'paste', actionArgs: { after: true }},
     { keys: ['P'], type: 'action', action: 'paste', actionArgs: { after: false }},
     { keys: ['r', 'character'], type: 'action', action: 'replace' },
@@ -555,6 +559,25 @@
       enterInsertMode: function(cm) {
         cm.setOption('keyMap', 'vim-insert');
       },
+      joinLines: function(cm, actionArgs) {
+        // Repeat is the number of lines to join. Minimum 2 lines.
+        var repeat = Math.max(actionArgs.repeat, 2);
+        var curStart = cm.getCursor();
+        var lineNumEnd = Math.min(curStart.line + repeat - 1,
+            cm.lineCount() - 1);
+        var curEnd = { line: lineNumEnd, ch: cm.getLine(lineNumEnd).length - 1 };
+        var text = cm.getRange(curStart, curEnd).replace(/\n\s*/g, ' ');
+        cm.replaceRange(text, curStart, curEnd);
+        cm.setCursor(curStart);
+      },
+      newLineAndEnterInsertMode: function(cm, actionArgs) {
+        var insertAt = cm.getCursor();
+        insertAt.ch = 0;
+        insertAt.line = (actionArgs.after) ? insertAt.line + 1 : insertAt.line;
+        cm.replaceRange('\n', insertAt);
+        cm.setCursor(insertAt);
+        this.enterInsertMode(cm);
+      },
       paste: function(cm, actionArgs) {
         var cur = cm.getCursor();
         var register = registerController.getRegister(actionArgs.registerName);
@@ -672,6 +695,9 @@
       return function() {
         for (var i = 0; i < repeat; i++) fn(cm);
       }
+    }
+    function copyCursor(cur) {
+      return { line: cur.line, ch: cur.ch, user: cur.user };
     }
 
     // Remove any trailing newlines from the selection. For
