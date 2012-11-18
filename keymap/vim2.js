@@ -7,6 +7,7 @@
  *   e, E, w, W, b, B, ge, gE
  *   $, ^, 0
  *   gg, G
+ *   %
  *   '<character>, `<character>
  *
  *   Operator:
@@ -59,6 +60,7 @@
     { keys: ['0'], type: 'motion', motion: 'moveToStartOfLine' },
     { keys: ['^'], type: 'motion', motion: 'moveToFirstNonWhiteSpaceCharacter' },
     { keys: ['$'], type: 'motion', motion: 'moveToEol' },
+    { keys: ['%'], type: 'motion', motion: 'moveToMatchedSymbol' },
     { keys: ['\'', 'character'], type: 'motion', motion: 'goToMark' },
     { keys: ['`', 'character'], type: 'motion', motion: 'goToMark' },
     // Operators
@@ -122,13 +124,14 @@
     var registers = {};
     var marks = {};
 
-    function isNumber(k) { return numberRegex.test(k); }
     function isAlphabet(k) { return alphabetRegex.test(k); }
+    function isLine(cm, line) { return line >= 0 && line < cm.lineCount(); }
+    function isLowerCase(k) { return /^[a-z]$/.test(k); }
+    function isMatchableSymbol(k) { return '()[]{}'.indexOf(k) != -1; }
+    function isNumber(k) { return numberRegex.test(k); }
+    function isUpperCase(k) { return /^[A-Z]$/.test(k); }
     function isWhiteSpace(k) { return whiteSpaceRegex.test(k); }
     function isWhiteSpaceString(k) { return /^\s*$/.test(k); }
-    function isUpperCase(k) { return /^[A-Z]$/.test(k); }
-    function isLowerCase(k) { return /^[a-z]$/.test(k); }
-    function isLine(cm, line) { return line >= 0 && line < cm.lineCount(); }
     function inRangeInclusive(x, start, end) { return x >= start && x <= end; }
     function inArray(val, arr) {
       for (var i = 0; i < arr.length; i++) {
@@ -410,6 +413,7 @@
             curStart.ch++;
           }
         }
+        if (motion == 'moveToMatchedSymbol') { curEnd.ch++; }
         // Swap start and end if motion was backward.
         if (curStart.line > curEnd.line ||
             (curStart.line == curEnd.line && curStart.ch > curEnd.ch)) {
@@ -495,6 +499,15 @@
         return { line: cursor.line,
             ch: findFirstNonWhiteSpaceCharacter(cm.getLine(cursor.line)),
             user: true };
+      },
+      moveToMatchedSymbol: function(cm, motionArgs) {
+        var cursor = cm.getCursor();
+        var symbol = cm.getLine(cursor.line).charAt(cursor.ch);
+        if (isMatchableSymbol(symbol)) {
+          return findMatchedSymbol(cm, cm.getCursor(), motionArgs.symbol);
+        } else {
+          return cursor;
+        }
       },
       moveToStartOfLine: function(cm) {
         var cursor = cm.getCursor();
@@ -618,7 +631,7 @@
       if (curEnd.ch == 0 ||
           isWhiteSpaceString(cm.getRange(
               {line: curEnd.line, ch: 0},
-              {line: curEnd.line, ch: curEnd.ch - 1}))) {
+              {line: curEnd.line, ch: curEnd.ch}))) {
         curEnd.line--;
         curEnd.ch = cm.getLine(curEnd.line).length;
       }
@@ -751,6 +764,56 @@
         }
       }
       return cur;
+    }
+
+    function findMatchedSymbol(cm, cur, symb) {
+      var line = cur.line;
+      var symb = symb ? symb : cm.getLine(line)[cur.ch];
+
+      // Are we at the opening or closing char
+      var forwards = ['(', '[', '{'].indexOf(symb) != -1;
+
+      var reverseSymb = (function(sym) {
+        switch (sym) {
+          case '(' : return ')';
+          case '[' : return ']';
+          case '{' : return '}';
+          case ')' : return '(';
+          case ']' : return '[';
+          case '}' : return '{';
+          default : return null;
+        }
+      })(symb);
+
+      // Couldn't find a matching symbol, abort
+      if (reverseSymb == null) return cur;
+
+      // Tracking our imbalance in open/closing symbols. An opening symbol wii be
+      // the first thing we pick up if moving forward, this isn't true moving backwards
+      var disBal = forwards ? 0 : 1;
+
+      while (true) {
+        if (line == cur.line) {
+          // First pass, do some special stuff
+          var currLine =  forwards ? cm.getLine(line).substr(cur.ch).split('') : cm.getLine(line).substr(0,cur.ch).split('').reverse();
+        } else {
+          var currLine =  forwards ? cm.getLine(line).split('') : cm.getLine(line).split('').reverse();
+        }
+
+        for (var index = 0;  index < currLine.length; index++) {
+          if (currLine[index] == symb) disBal++;
+          else if (currLine[index] == reverseSymb) disBal--;
+
+          if (disBal == 0) {
+            if (forwards && cur.line == line) return {line: line, ch: index + cur.ch};
+            else if (forwards) return {line: line, ch: index};
+            else return {line: line, ch: currLine.length - index - 1 };
+          }
+        }
+
+        if (forwards) line++;
+        else line--;
+      }
     }
 
     function buildVimKeyMap() {
