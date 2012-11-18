@@ -57,10 +57,10 @@
     { keys: ['g', 'g'], type: 'motion', motion: 'moveToLineOrEdgeOfDocument', motionArgs: { forward: false, explicitRepeat: true }},
     { keys: ['G'], type: 'motion', motion: 'moveToLineOrEdgeOfDocument', motionArgs: { forward: true, explicitRepeat: true }},
     { keys: ['0'], type: 'motion', motion: 'moveToStartOfLine' },
-    { keys: ["'^'"], type: 'motion', motion: 'moveToFirstNonWhiteSpaceCharacter' },
-    { keys: ["'$'"], type: 'motion', motion: 'moveToEol' },
-    { keys: ["'''", 'character'], type: 'motion', motion: 'goToMark' },
-    { keys: ["'`'", 'character'], type: 'motion', motion: 'goToMark' },
+    { keys: ['^'], type: 'motion', motion: 'moveToFirstNonWhiteSpaceCharacter' },
+    { keys: ['$'], type: 'motion', motion: 'moveToEol' },
+    { keys: ['\'', 'character'], type: 'motion', motion: 'goToMark' },
+    { keys: ['`', 'character'], type: 'motion', motion: 'goToMark' },
     // Operators
     { keys: ['d'], type: 'operator', operator: 'delete' },
     { keys: ['y'], type: 'operator', operator: 'yank' },
@@ -93,7 +93,7 @@
     { keys: ['u'], type: 'action', action: 'undo' },
     { keys: ['Ctrl-r'], type: 'action', action: 'redo' },
     { keys: ['m', 'character'], type: 'action', action: 'setMark' },
-    { keys: ["'\"'", 'character'], type: 'action', action: 'setRegister' },
+    { keys: ['\"', 'character'], type: 'action', action: 'setRegister' },
   ];
 
   var Vim = function() {
@@ -116,7 +116,7 @@
     var validMarks = upperCaseAlphabet.concat(lowerCaseAlphabet).concat(
         numbers);
     var validRegisters = upperCaseAlphabet.concat(lowerCaseAlphabet).concat(
-        numbers).concat("'\"'");
+        numbers).concat('-\"'.split(''));
     var inputState;
     var count;
     var registers = {};
@@ -216,7 +216,7 @@
         clear: function() { this.text = ''; this.linewise = false; }
       }
       var lastUpdatedRegisterName = null;
-      var unamedRegister = registers["'\"'"] = new Register();
+      var unamedRegister = registers['\"'] = new Register();
       function getRegister(name) {
         if (!name) { return null; }
         name = name.toLowerCase();
@@ -255,7 +255,7 @@
             } else if (operator == 'delete' || operator == 'change') {
               if (text.indexOf('\n') == -1) {
                 // Delete less than 1 line. Update the small delete register.
-                getRegister("'-'").set(text, linewise);
+                getRegister('-').set(text, linewise);
               } else {
                 // Shift down the contents of the numbered registers and put the
                 // deleted text into register 1.
@@ -798,7 +798,7 @@
           if (modifier) {
             keyMap[modifier + '-' + key] = keyMapper(key, modifier);
           } else {
-            keyMap[key] = keyMapper(key);
+            keyMap[key] = keyMapper(keys[i]);
           }
         }
       }
