@@ -10,14 +10,14 @@
  *   '<character>, `<character>
  *
  *   Operator:
- *   d, y
- *   dd, yy
+ *   d, y, c
+ *   dd, yy, cc
  *
  *   Operator-Motion:
  *   x, X, D, Y
  *
  *   Action:
- *   a, i, s
+ *   a, i, s, A, I, S
  *   u, Ctrl-r
  *   m<character>
  *
@@ -64,6 +64,7 @@
     // Operators
     { keys: ['d'], type: 'operator', operator: 'delete' },
     { keys: ['y'], type: 'operator', operator: 'yank' },
+    { keys: ['c'], type: 'operator', operator: 'change', operatorArgs: { enterInsertMode: true } },
     // Operator-Motion dual commands
     { keys: ['x'], type: 'operatorMotion', operator: 'delete',
         motion: 'moveByCharacters', motionArgs: { forward: true } },
@@ -76,9 +77,16 @@
     // Actions
     { keys: ['a'], type: 'action', action: 'enterInsertMode',
         motion: 'moveByCharacters', motionArgs: { forward: true, noRepeat: true } },
+    { keys: ['A'], type: 'action', action: 'enterInsertMode',
+        motion: 'moveToEol' },
     { keys: ['i'], type: 'action', action: 'enterInsertMode' },
+    { keys: ['I'], type: 'action', action: 'enterInsertMode',
+        motion: 'moveToFirstNonWhiteSpaceCharacter' },
     { keys: ['s'], type: 'action', action: 'enterInsertMode',
-        motion: 'moveByCharacters', motionArgs: {forward: true },
+        motion: 'moveByCharacters', motionArgs: { forward: true },
+        operator: 'delete' },
+    { keys: ['S'], type: 'action', action: 'enterInsertMode',
+        motion: 'moveByLines', motionArgs: { forward: true, linewise: true, explicitRepeat: true },
         operator: 'delete' },
     { keys: ['p'], type: 'action', action: 'paste', actionArgs: { after: true }},
     { keys: ['P'], type: 'action', action: 'paste', actionArgs: { after: false }},
@@ -419,8 +427,7 @@
         }
         // TODO: Handle operators.
         operatorArgs.registerName = registerName;
-        // Keep track of if the operation was linewise determining how to paste
-        // later.
+        // Keep track of linewise as it affects how paste and change behave.
         operatorArgs.linewise = motionArgs.linewise;
         operators[operator](cm, operatorArgs, curStart,
             curEnd);
@@ -555,6 +562,17 @@
     };
 
     var operators = {
+      change: function(cm, operatorArgs, curStart, curEnd) {
+        if (operatorArgs.linewise) {
+          // Do not delete the last newline, which should be the last character.
+          // curEnd should be on the first character of the next line.
+          curEnd.line--;
+          curEnd.ch = cm.getLine(curEnd.line).length;
+        }
+        registerController.pushText(operatorArgs.registerName, 'change',
+            cm.getRange(curStart, curEnd), operatorArgs.linewise);
+        cm.replaceRange('', curStart, curEnd);
+      },
       delete: function(cm, operatorArgs, curStart, curEnd) {
         registerController.pushText(operatorArgs.registerName, 'delete',
             cm.getRange(curStart, curEnd), operatorArgs.linewise);
