@@ -26,9 +26,13 @@
  *   m<character>
  *   r<character>
  *
- * Registers: unamed, a-z, A-Z, 0-9
+ * Registers: unamed, -, a-z, A-Z, 0-9
  *   (Does not respect the special case for number registers when delete
  *    operator is made with these commands: %, (, ),  , /, ?, n, N, {, } )
+ *   TODO: Implement the remaining registers.
+ * Marks: a-z, A-Z, and 0-9
+ *   TODO: Implement the remaining special marks. They have more complex
+ *       behavior.
  *
  * Code structure:
  *  1. Default keymap
@@ -39,6 +43,7 @@
  *  5. Key handler (the main command dispatcher) implementation
  *  6. Motion, operator, and action implementations
  *  7. Helper functions for the key handler, motions, operators, and actions
+ *  8. Set up Vim to work as a keymap for CodeMirror.
  *
  */
 
@@ -166,7 +171,7 @@
       handleKey: function(cm, key) {
         if (key != '0' || (key == '0' && count.get() === 0)) {
           // Have to special case 0 since it's both a motion and a number.
-          var command = keyHandler.matchCommand(key, defaultKeymap);
+          var command = commandDispatcher.matchCommand(key, defaultKeymap);
         }
         if (!command && isNumber(key)) {
           // Increment count unless count is 0 and key is 0.
@@ -174,7 +179,7 @@
           return;
         }
         if (command) {
-          keyHandler.processCommand(cm, command);
+          commandDispatcher.processCommand(cm, command);
         }
       }
     };
@@ -297,7 +302,7 @@
       };
     }();
 
-    var keyHandler = {
+    var commandDispatcher = {
       matchCommand: function(key, keyMap) {
         if (key == 'Esc') {
           // Clear input state and get back to normal mode.
