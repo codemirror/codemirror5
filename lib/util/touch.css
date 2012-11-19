@@ -1,10 +1,9 @@
 /* override mobilesafari's highlighting of DOM elements */
 .CodeMirror{-webkit-tap-highlight-color: rgba(0,0,0,0);}
 .CodeMirror-scroll{  -webkit-overflow-scrolling:touch;}
-.CodeMirror-selected:first-of-type{ border-left: solid #416BF2 2px;  z-index: -1;}
-.CodeMirror-selected:last-of-type{ border-right: solid #416BF2 2px;  z-index: -1;}
-.CodeMirror div textarea{left: -50px; top:-50px; width: 0px; height: 0px; overflow: hidden; z-index: -1000;}
-
+.CodeMirror-selected:first-of-type{ border-left: solid #416BF2 2px;}
+.CodeMirror-selected:last-of-type{ border-right: solid #416BF2 2px;}
+.CodeMirror div textarea{position: absolute; left: -500px;}
 #keys {
   width:      100%;
   text-align: center;
@@ -172,10 +171,11 @@ both of which are hidden/shown based on the tool's class
 }
 
 .circle{
-  width: 106px;
-  height: 106px;
-  border-radius: 53px;
+  width: 100px;
+  height: 100px;
+  border-radius: 50px;
   background-image: url('../util/glass.png');
+  background-position: -3px -3px; /* slide everything UL by 3px, to account for the border-width */
 }
 #tool.magnify .circle+#notch{display: none;}
 
@@ -196,5 +196,5 @@ both of which are hidden/shown based on the tool's class
   -webkit-transform-origin: left top;
   user-select: none;
   -webkit-user-select: none
-  overflow:hidden
+  overflow:hidden;
 }
