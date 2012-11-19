@@ -433,7 +433,7 @@
     also contains the <code>"default"</code> keymap holding the
     default bindings.</p>
 
-    <p>The values of properties in keymaps can be either functions of
+    <p id="commands">The values of properties in keymaps can be either functions of
     a single argument (the CodeMirror instance), strings, or
     <code>false</code>. Such strings refer to properties of the
     <code>CodeMirror.commands</code> object, which defines a number of
@@ -1163,6 +1163,11 @@
       which will ensure the given mode is loaded and cause the given
       editor instance to refresh its mode when the loading
       succeeded. See the <a href="../demo/loadmode.html">demo</a>.</dd>
+      <dt id="util_continuecomment"><a href="../lib/util/continuecomment.js"><code>continuecomment.js</code></a></dt>
+      <dd>Adds a <a href="#commands">command</a>
+      called <code>newlineAndIndentContinueComment</code> that you can
+      bind <code>Enter</code> to in order to have the editor prefix
+      new lines inside C-like block comments with an asterisk.</dd>
     </dl>
 
     <h2 id="modeapi">Writing CodeMirror Modes</h2>

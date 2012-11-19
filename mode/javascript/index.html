@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="../../lib/codemirror.css">
     <script src="../../lib/codemirror.js"></script>
     <script src="../../lib/util/matchbrackets.js"></script>
+    <script src="../../lib/util/continuecomment.js"></script>
     <script src="javascript.js"></script>
     <link rel="stylesheet" href="../../doc/docs.css">
     <style type="text/css">.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
@@ -66,7 +67,8 @@ StringStream.prototype = {
     <script>
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true,
-        matchBrackets: true
+        matchBrackets: true,
+        extraKeys: {"Enter": "newlineAndIndentContinueComment"}
       });
     </script>
 
