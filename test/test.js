@@ -678,7 +678,7 @@ testCM("measureEndOfLine", function(cm) {
   is(endPos.left > w - 20, "not at right");
   endPos = cm.charCoords({line: 0, ch: 18});
   eqPos(cm.coordsChar({left: endPos.left, top: endPos.top + 5}), {line: 0, ch: 18});
-}, {mode: "text/html", value: "<!-- foo barrr -->", lineWrapping: true});
+}, {mode: "text/html", value: "<!-- foo barrr -->", lineWrapping: true}, ie_lt8);
 
 testCM("scrollVerticallyAndHorizontally", function(cm) {
   cm.setSize(100, 100);
@@ -703,7 +703,7 @@ testCM("moveVstuck", function(cm) {
   cm.setCursor({line: 0, ch: val.length - 1});
   cm.moveV(-1, "line");
   eqPos(cm.getCursor(), {line: 0, ch: 26});
-}, {lineWrapping: true});
+}, {lineWrapping: true}, ie_lt8);
 
 testCM("clickTab", function(cm) {
   var p0 = cm.charCoords({line: 0, ch: 0});
