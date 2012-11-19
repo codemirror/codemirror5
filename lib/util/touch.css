@@ -163,7 +163,7 @@ both of which are hidden/shown based on the tool's class
   top:  0px;
   left: 0px;
   overflow: hidden;
-  background-color: rgb(240,240,240);
+  background-color: white;
   border: 3px white ridge;
   z-index: 999;
   box-shadow:  2px 2px 4px black;
@@ -176,6 +176,11 @@ both of which are hidden/shown based on the tool's class
   border-radius: 50px;
   background-image: url('../util/glass.png');
   background-position: -3px -3px; /* slide everything UL by 3px, to account for the border-width */
+
+  /* this fixes the overflow:hidden in webKit browsers. 
+  See http://stackoverflow.com/questions/5736503/how-to-make-css3-rounded-corners-hide-overflow-in-chrome-opera */
+  
+-webkit-mask-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAA5JREFUeNpiYGBgAAgwAAAEAAGbA+oJAAAAAElFTkSuQmCC);
 }
 #tool.magnify .circle+#notch{display: none;}
 
