@@ -164,7 +164,6 @@ both of which are hidden/shown based on the tool's class
   left: 0px;
   overflow: hidden;
   background-color: white;
-  border: 3px white ridge;
   z-index: 999;
   display: none;
   /* this fixes the overflow:hidden in webKit browsers. 
@@ -175,15 +174,15 @@ both of which are hidden/shown based on the tool's class
 }
 
 .circle{
-  width: 100px;
-  height: 100px;
-  border-radius: 50px;
+  width: 115px;
+  height: 115px;
+  border-radius: 57px;
   background-image: url('../util/glass.png');
-  background-position: -3px -3px; /* slide everything UL by 3px, to account for the border-width */
 }
 #tool.magnify .circle+#notch{display: none;}
 
 .rectangle{
+  border: 3px white ridge;
   width: 100px;
   height: 25px;
   border-radius: 8px;
