@@ -51,6 +51,20 @@
   'use strict';
 
   var defaultKeymap = [
+    // Key to key mapping. This goes first to make it possible to override
+    // existing mappings.
+    { keys: ['Left'], type: 'keyToKey', toKeys: ['h'] },
+    { keys: ['Right'], type: 'keyToKey', toKeys: ['l'] },
+    { keys: ['Up'], type: 'keyToKey', toKeys: ['k'] },
+    { keys: ['Down'], type: 'keyToKey', toKeys: ['j'] },
+    { keys: ['Space'], type: 'keyToKey', toKeys: ['l'] },
+    { keys: ['Backspace'], type: 'keyToKey', toKeys: ['h'] },
+    { keys: ['Ctrl-Space'], type: 'keyToKey', toKeys: ['W'] },
+    { keys: ['Ctrl-Backspace'], type: 'keyToKey', toKeys: ['B'] },
+    { keys: ['Shift-Space'], type: 'keyToKey', toKeys: ['w'] },
+    { keys: ['Shift-Backspace'], type: 'keyToKey', toKeys: ['b'] },
+    { keys: ['Ctrl-n'], type: 'keyToKey', toKeys: ['j'] },
+    { keys: ['Ctrl-p'], type: 'keyToKey', toKeys: ['k'] },
     // Motions
     { keys: ['h'], type: 'motion', motion: 'moveByCharacters', motionArgs: { forward: false }},
     { keys: ['l'], type: 'motion', motion: 'moveByCharacters', motionArgs: { forward: true }},
@@ -135,6 +149,7 @@
     var numbers = makeKeyRange(48, 10);
     var SPECIAL_SYMBOLS = '~`!@#$%^&*()_-+=[{}]\\|/?.,<>:;\"\'';
     var specialSymbols = SPECIAL_SYMBOLS.split('');
+    var specialKeys = ['Left', 'Right', 'Up', 'Down', 'Space', 'Backspace', 'Esc'];
     var validMarks = upperCaseAlphabet.concat(lowerCaseAlphabet).concat(
         numbers);
     var validRegisters = upperCaseAlphabet.concat(lowerCaseAlphabet).concat(
@@ -179,7 +194,14 @@
           return;
         }
         if (command) {
-          commandDispatcher.processCommand(cm, command);
+          if (command.type == 'keyToKey') {
+            // TODO: prevent infinite recursion.
+            for (var i = 0; i < command.toKeys.length; i++) {
+              this.handleKey(cm, command.toKeys[i]);
+            }
+          } else {
+            commandDispatcher.processCommand(cm, command);
+          }
         }
       }
     };
@@ -945,12 +967,13 @@
        */
       // TODO: Figure out a way to catch capslock.
       function handleKeyEvent_(cm, key, modifier) {
-        if (modifier != 'Shift' && isUpperCase(key)) {
-          // Convert to lower case since the key we get from CodeMirro is always
-          // upper case.
-          key = key.toLowerCase();
+        if (isUpperCase(key)) {
+          // Convert to lower case if shift is not the modifier since the key
+          // we get from CodeMirror is always upper case.
+          if (modifier == 'Shift') { modifier = null; }
+          else { key = key.toLowerCase(); }
         }
-        if (modifier && modifier != 'Shift') {
+        if (modifier) {
           // Vim will parse modifier+key combination as a single key.
           key = modifier + '-' + key;
         }
@@ -993,7 +1016,9 @@
       bindKeys(specialSymbols, 'Ctrl');
       bindKeys(numbers);
       bindKeys(numbers, 'Ctrl');
-      bindKeys(['Esc']);
+      bindKeys(specialKeys);
+      bindKeys(specialKeys, 'Shift');
+      bindKeys(specialKeys, 'Ctrl');
       return keyMap;
     }
     CodeMirror.keyMap.vim2 = buildVimKeyMap();
