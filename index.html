@@ -291,6 +291,42 @@
 
   <h2 id=releases>Releases</h2>
 
+  <p class="rel">20-11-2012: <a href="http://codemirror.net/codemirror-2.36.zip">Version 2.36</a>:</p>
+
+  <ul class="rel-note">
+    <li>New mode: <a href="mode/z80/index.html">Z80 assembly</a>.</li>
+    <li>New theme: <a href="demo/theme.html?twilight">Twilight</a>.</li>
+    <li>Add command-line compression helper.</li>
+    <li>Make <a href="doc/manual.html#scrollIntoView"><code>scrollIntoView</code></a> public.</li>
+    <li>Add <a href="doc/manual.html#defaultTextHeight"><code>defaultTextHeight</code></a> method.</li>
+    <li>Various extensions to the vim keymap.</li>
+    <li>Make <a href="mode/php/index.html">PHP mode</a> build on <a href="mode/htmlmixed/index.html">mixed HTML mode</a>.</li>
+    <li>Add <a href="doc/manual.html#util_continuecomment">comment-continuing</a> add-on.</li>
+    <li>Full <a href="https://github.com/marijnh/CodeMirror/compare/v2.35...v2.36">list of patches</a>.</li>
+  </ul>
+
+  <p class="rel">20-11-2012: <a href="http://codemirror.net/codemirror-3.0rc1.zip">Version 3.0, release candidate 1</a>:</p>
+
+  <p class="rel-note"><strong>New major version</strong>. Only partially
+  backwards-compatible. See
+  the <a href="doc/upgrade_v3.html">upgrading
+  guide</a> for more information. Changes since beta 2:</p>
+
+  <ul class="rel-note">
+    <li>New theme: <a href="demo/theme.html?solarized%20light">Solarized</a>.</li>
+    <li>Introduce <a href="doc/manual.html#addLineClass"><code>addLineClass</code></a>
+    and <a href="doc/manual.html#removeLineClass"><code>removeLineClass</code></a>,
+    drop <code>setLineClass</code>.</li>
+    <li>Add a <em>lot</em> of
+    new <a href="doc/manual.html#markText">options for marked text</a>
+    (read-only, atomic, collapsed, widget replacement).</li>
+    <li>Remove the old code folding interface in favour of these new ranges.</li>
+    <li>Add <a href="doc/manual.html#isClean"><code>isClean</code></a>/<a href="doc/manual.html#markClean"><code>markClean</code></a> methods.</li>
+    <li>Remove <code>compoundChange</code> method, use better undo-event-combining heuristic.</li>
+    <li>Improve scrolling performance smoothness.</li>
+    <li>Full <a href="https://github.com/marijnh/CodeMirror/compare/v3.0beta2...v3.0rc1">list of patches</a>.</li>
+  </ul>
+
   <p class="rel">22-10-2012: <a href="http://codemirror.net/codemirror-2.35.zip">Version 2.35</a>:</p>
 
   <ul class="rel-note">
@@ -303,11 +339,6 @@
   </ul>
 
   <p class="rel">22-10-2012: <a href="http://codemirror.net/codemirror-3.0beta2.zip">Version 3.0, beta 2</a>:</p>
-
-  <p class="rel-note"><strong>BETA release, new major version</strong>. Only partially
-  backwards-compatible. See
-  the <a href="doc/upgrade_v3.html">upgrading
-  guide</a> for more information. Changes since beta1:</p>
 
   <ul class="rel-note">
     <li>Fix page-based coordinate computation.</li>
@@ -337,11 +368,6 @@
   </ul>
 
   <p class="rel">19-09-2012: <a href="http://codemirror.net/codemirror-3.0beta1.zip">Version 3.0, beta 1</a>:</p>
-
-  <p class="rel-note"><strong>BETA release, new major version</strong>. Only partially
-  backwards-compatible. See
-  the <a href="doc/upgrade_v3.html">upgrading
-  guide</a> for more information. Major new features are:</p>
 
   <ul class="rel-note">
     <li>Bi-directional text support.</li>
