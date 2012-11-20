@@ -63,6 +63,8 @@ function walk(dir) {
 walk("lib/");
 walk("mode/");
 
+if (!blob) help(false);
+
 if (files.length) {
   console.log("Some speficied files were not found: " +
               files.map(function(a){return a.name;}).join(", "));
