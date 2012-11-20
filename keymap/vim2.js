@@ -521,9 +521,11 @@
         return moveToCharacter(cm, repeat, motionArgs.forward,
             motionArgs.selectedCharacter);
       },
-      moveToEol: function(cm) {
+      moveToEol: function(cm, motionArgs) {
         var cursor = cm.getCursor();
-        return { line: cursor.line, ch: cm.getLine(cursor.line).length };
+        var line = Math.min(cursor.line + motionArgs.repeat - 1,
+            cm.lineCount());
+        return { line: line, ch: cm.getLine(line).length };
       },
       moveToFirstNonWhiteSpaceCharacter: function(cm) {
         // Go to the start of the line where the text begins, or the end for
