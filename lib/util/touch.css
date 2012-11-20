@@ -166,8 +166,12 @@ both of which are hidden/shown based on the tool's class
   background-color: white;
   border: 3px white ridge;
   z-index: 999;
-  box-shadow:  2px 2px 4px black;
   display: none;
+  /* this fixes the overflow:hidden in webKit browsers. 
+  See http://stackoverflow.com/questions/5736503/how-to-make-css3-rounded-corners-hide-overflow-in-chrome-opera */
+  
+-webkit-mask-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAA5JREFUeNpiYGBgAAgwAAAEAAGbA+oJAAAAAElFTkSuQmCC);
+  box-shadow:  2px 2px 4px black;
 }
 
 .circle{
@@ -176,17 +180,12 @@ both of which are hidden/shown based on the tool's class
   border-radius: 50px;
   background-image: url('../util/glass.png');
   background-position: -3px -3px; /* slide everything UL by 3px, to account for the border-width */
-
-  /* this fixes the overflow:hidden in webKit browsers. 
-  See http://stackoverflow.com/questions/5736503/how-to-make-css3-rounded-corners-hide-overflow-in-chrome-opera */
-  
--webkit-mask-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAA5JREFUeNpiYGBgAAgwAAAEAAGbA+oJAAAAAElFTkSuQmCC);
 }
 #tool.magnify .circle+#notch{display: none;}
 
 .rectangle{
   width: 100px;
-  height: 30px;
+  height: 25px;
   border-radius: 8px;
   margin-bottom: 20px;
 }
