@@ -104,6 +104,10 @@
         motion: 'moveByWords',
         motionArgs: { forward: false, wordEnd: true, bigWord: true,
             inclusive: true }},
+    { keys: ['Ctrl-f'], type: 'motion',
+        motion: 'moveByPage', motionArgs: { forward: true }},
+    { keys: ['Ctrl-b'], type: 'motion',
+        motion: 'moveByPage', motionArgs: { forward: false }},
     { keys: ['g', 'g'], type: 'motion',
         motion: 'moveToLineOrEdgeOfDocument',
         motionArgs: { forward: false, explicitRepeat: true }},
@@ -637,6 +641,19 @@
         } else {
           return { line: Math.max(0, cursor.line - repeat), ch: cursor.ch };
         }
+      },
+      moveByPage: function(cm, motionArgs) {
+        // CodeMirror only exposes functions that move the cursor page down, so
+        // doing this bad hack to move the cursor and move it back. evalInput will
+        // move the cursor to where it should be in the end.
+        // TODO: Consider making motions move the cursor by default, so as to not
+        //     need this ugliness. But it might make visual mode hard.
+        var curStart = cm.getCursor();
+        var repeat = motionArgs.repeat;
+        cm.moveV(motionArgs.forward ? repeat : (-1 * repeat), 'page');
+        var curEnd = cm.getCursor();
+        cm.setCursor(curStart);
+        return curEnd;
       },
       moveByWords: function(cm, motionArgs) {
         return moveToWord(cm, motionArgs.repeat, !!motionArgs.forward,
