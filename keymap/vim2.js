@@ -66,34 +66,76 @@
     { keys: ['Ctrl-n'], type: 'keyToKey', toKeys: ['j'] },
     { keys: ['Ctrl-p'], type: 'keyToKey', toKeys: ['k'] },
     // Motions
-    { keys: ['h'], type: 'motion', motion: 'moveByCharacters', motionArgs: { forward: false }},
-    { keys: ['l'], type: 'motion', motion: 'moveByCharacters', motionArgs: { forward: true }},
-    { keys: ['j'], type: 'motion', motion: 'moveByLines', motionArgs: { forward: true, linewise: true }},
-    { keys: ['k'], type: 'motion', motion: 'moveByLines', motionArgs: { forward: false, linewise: true }},
-    { keys: ['w'], type: 'motion', motion: 'moveByWords', motionArgs: { forward: true, wordEnd: false}},
-    { keys: ['W'], type: 'motion', motion: 'moveByWords', motionArgs: { forward: true, wordEnd: false, bigWord: true }},
-    { keys: ['e'], type: 'motion', motion: 'moveByWords', motionArgs: { forward: true, wordEnd: true, inclusive: true }},
-    { keys: ['E'], type: 'motion', motion: 'moveByWords', motionArgs: { forward: true, wordEnd: true, bigWord: true, inclusive: true }},
-    { keys: ['b'], type: 'motion', motion: 'moveByWords', motionArgs: { forward: false, wordEnd: false }},
-    { keys: ['B'], type: 'motion', motion: 'moveByWords', motionArgs: { forward: false, wordEnd: false, bigWord: true }},
-    { keys: ['g', 'e'], type: 'motion', motion: 'moveByWords', motionArgs: { forward: false, wordEnd: true, inclusive: true }},
-    { keys: ['g', 'E'], type: 'motion', motion: 'moveByWords', motionArgs: { forward: false, wordEnd: true, bigWord: true, inclusive: true }},
-    { keys: ['g', 'g'], type: 'motion', motion: 'moveToLineOrEdgeOfDocument', motionArgs: { forward: false, explicitRepeat: true }},
-    { keys: ['G'], type: 'motion', motion: 'moveToLineOrEdgeOfDocument', motionArgs: { forward: true, explicitRepeat: true }},
+    { keys: ['h'], type: 'motion',
+        motion: 'moveByCharacters',
+        motionArgs: { forward: false }},
+    { keys: ['l'], type: 'motion',
+        motion: 'moveByCharacters',
+        motionArgs: { forward: true }},
+    { keys: ['j'], type: 'motion',
+        motion: 'moveByLines',
+        motionArgs: { forward: true, linewise: true }},
+    { keys: ['k'], type: 'motion',
+        motion: 'moveByLines',
+        motionArgs: { forward: false, linewise: true }},
+    { keys: ['w'], type: 'motion',
+        motion: 'moveByWords',
+        motionArgs: { forward: true, wordEnd: false}},
+    { keys: ['W'], type: 'motion',
+        motion: 'moveByWords',
+        motionArgs: { forward: true, wordEnd: false, bigWord: true }},
+    { keys: ['e'], type: 'motion',
+        motion: 'moveByWords',
+        motionArgs: { forward: true, wordEnd: true, inclusive: true }},
+    { keys: ['E'], type: 'motion',
+        motion: 'moveByWords',
+        motionArgs: { forward: true, wordEnd: true, bigWord: true,
+            inclusive: true }},
+    { keys: ['b'], type: 'motion',
+        motion: 'moveByWords',
+        motionArgs: { forward: false, wordEnd: false }},
+    { keys: ['B'], type: 'motion',
+        motion: 'moveByWords',
+        motionArgs: { forward: false, wordEnd: false, bigWord: true }},
+    { keys: ['g', 'e'], type: 'motion',
+        motion: 'moveByWords',
+        motionArgs: { forward: false, wordEnd: true, inclusive: true }},
+    { keys: ['g', 'E'], type: 'motion',
+        motion: 'moveByWords',
+        motionArgs: { forward: false, wordEnd: true, bigWord: true,
+            inclusive: true }},
+    { keys: ['g', 'g'], type: 'motion',
+        motion: 'moveToLineOrEdgeOfDocument',
+        motionArgs: { forward: false, explicitRepeat: true }},
+    { keys: ['G'], type: 'motion',
+        motion: 'moveToLineOrEdgeOfDocument',
+        motionArgs: { forward: true, explicitRepeat: true }},
     { keys: ['0'], type: 'motion', motion: 'moveToStartOfLine' },
-    { keys: ['^'], type: 'motion', motion: 'moveToFirstNonWhiteSpaceCharacter' },
+    { keys: ['^'], type: 'motion',
+        motion: 'moveToFirstNonWhiteSpaceCharacter' },
     { keys: ['$'], type: 'motion', motion: 'moveToEol' },
-    { keys: ['%'], type: 'motion', motion: 'moveToMatchedSymbol', motionArgs: { inclusive: true }},
-    { keys: ['f', 'character'], type: 'motion', motion: 'moveToCharacter', motionArgs: { forward: true , inclusive: true }},
-    { keys: ['F', 'character'], type: 'motion', motion: 'moveToCharacter', motionArgs: { forward: false }},
-    { keys: ['t', 'character'], type: 'motion', motion: 'moveTillCharacter', motionArgs: { forward: true, inclusive: true }},
-    { keys: ['T', 'character'], type: 'motion', motion: 'moveTillCharacter', motionArgs: { forward: false }},
+    { keys: ['%'], type: 'motion',
+        motion: 'moveToMatchedSymbol',
+        motionArgs: { inclusive: true }},
+    { keys: ['f', 'character'], type: 'motion',
+        motion: 'moveToCharacter',
+        motionArgs: { forward: true , inclusive: true }},
+    { keys: ['F', 'character'], type: 'motion',
+        motion: 'moveToCharacter',
+        motionArgs: { forward: false }},
+    { keys: ['t', 'character'], type: 'motion',
+        motion: 'moveTillCharacter',
+        motionArgs: { forward: true, inclusive: true }},
+    { keys: ['T', 'character'], type: 'motion',
+        motion: 'moveTillCharacter',
+        motionArgs: { forward: false }},
     { keys: ['\'', 'character'], type: 'motion', motion: 'goToMark' },
     { keys: ['`', 'character'], type: 'motion', motion: 'goToMark' },
     // Operators
     { keys: ['d'], type: 'operator', operator: 'delete' },
     { keys: ['y'], type: 'operator', operator: 'yank' },
-    { keys: ['c'], type: 'operator', operator: 'change', operatorArgs: { enterInsertMode: true } },
+    { keys: ['c'], type: 'operator', operator: 'change',
+        operatorArgs: { enterInsertMode: true } },
     { keys: ['g', '~'], type: 'operator', operator: 'swapcase' },
     // Operator-Motion dual commands
     { keys: ['x'], type: 'operatorMotion', operator: 'delete',
@@ -108,7 +150,8 @@
         motion: 'moveByCharacters', motionArgs: { forward: true } },
     // Actions
     { keys: ['a'], type: 'action', action: 'enterInsertMode',
-        motion: 'moveByCharacters', motionArgs: { forward: true, noRepeat: true } },
+        motion: 'moveByCharacters',
+        motionArgs: { forward: true, noRepeat: true } },
     { keys: ['A'], type: 'action', action: 'enterInsertMode',
         motion: 'moveToEol' },
     { keys: ['i'], type: 'action', action: 'enterInsertMode' },
@@ -118,13 +161,18 @@
         motion: 'moveByCharacters', motionArgs: { forward: true },
         operator: 'delete' },
     { keys: ['S'], type: 'action', action: 'enterInsertMode',
-        motion: 'moveByLines', motionArgs: { forward: true, linewise: true, explicitRepeat: true },
+        motion: 'moveByLines',
+        motionArgs: { forward: true, linewise: true, explicitRepeat: true },
         operator: 'delete' },
-    { keys: ['o'], type: 'action', action: 'newLineAndEnterInsertMode', actionArgs: { after: true }},
-    { keys: ['O'], type: 'action', action: 'newLineAndEnterInsertMode', actionArgs: { after: false }},
+    { keys: ['o'], type: 'action', action: 'newLineAndEnterInsertMode',
+        actionArgs: { after: true }},
+    { keys: ['O'], type: 'action', action: 'newLineAndEnterInsertMode',
+        actionArgs: { after: false }},
     { keys: ['J'], type: 'action', action: 'joinLines' },
-    { keys: ['p'], type: 'action', action: 'paste', actionArgs: { after: true }},
-    { keys: ['P'], type: 'action', action: 'paste', actionArgs: { after: false }},
+    { keys: ['p'], type: 'action', action: 'paste',
+        actionArgs: { after: true }},
+    { keys: ['P'], type: 'action', action: 'paste',
+        actionArgs: { after: false }},
     { keys: ['r', 'character'], type: 'action', action: 'replace' },
     { keys: ['u'], type: 'action', action: 'undo' },
     { keys: ['Ctrl-r'], type: 'action', action: 'redo' },
@@ -149,7 +197,8 @@
     var numbers = makeKeyRange(48, 10);
     var SPECIAL_SYMBOLS = '~`!@#$%^&*()_-+=[{}]\\|/?.,<>:;\"\'';
     var specialSymbols = SPECIAL_SYMBOLS.split('');
-    var specialKeys = ['Left', 'Right', 'Up', 'Down', 'Space', 'Backspace', 'Esc'];
+    var specialKeys = ['Left', 'Right', 'Up', 'Down', 'Space', 'Backspace',
+        'Esc'];
     var validMarks = upperCaseAlphabet.concat(lowerCaseAlphabet).concat(
         numbers);
     var validRegisters = upperCaseAlphabet.concat(lowerCaseAlphabet).concat(
@@ -159,15 +208,33 @@
     var registers = {};
     var marks = {};
 
-    function isAlphabet(k) { return alphabetRegex.test(k); }
-    function isLine(cm, line) { return line >= 0 && line < cm.lineCount(); }
-    function isLowerCase(k) { return (/^[a-z]$/).test(k); }
-    function isMatchableSymbol(k) { return '()[]{}'.indexOf(k) != -1; }
-    function isNumber(k) { return numberRegex.test(k); }
-    function isUpperCase(k) { return (/^[A-Z]$/).test(k); }
-    function isWhiteSpace(k) { return whiteSpaceRegex.test(k); }
-    function isWhiteSpaceString(k) { return (/^\s*$/).test(k); }
-    function inRangeInclusive(x, start, end) { return x >= start && x <= end; }
+    function isAlphabet(k) {
+      return alphabetRegex.test(k);
+    }
+    function isLine(cm, line) {
+      return line >= 0 && line < cm.lineCount();
+    }
+    function isLowerCase(k) {
+      return (/^[a-z]$/).test(k); 
+    }
+    function isMatchableSymbol(k) {
+      return '()[]{}'.indexOf(k) != -1; 
+    }
+    function isNumber(k) {
+      return numberRegex.test(k); 
+    }
+    function isUpperCase(k) {
+      return (/^[A-Z]$/).test(k); 
+    }
+    function isWhiteSpace(k) {
+      return whiteSpaceRegex.test(k); 
+    }
+    function isWhiteSpaceString(k) {
+      return (/^\s*$/).test(k); 
+    }
+    function inRangeInclusive(x, start, end) {
+      return x >= start && x <= end; 
+    }
     function inArray(val, arr) {
       for (var i = 0; i < arr.length; i++) {
         if (arr[i] == val) { return true; }
@@ -227,8 +294,12 @@
       var value = 0;
       var explicit = false;
       return {
-        get: function() { return value; },
-        isExplicit: function() { return explicit; },
+        get: function() {
+          return value;
+        },
+        isExplicit: function() {
+          return explicit;
+        },
         pushDigit: function(n) {
           explicit = true;
           value = value * 10 + parseInt(n, 10);
@@ -258,14 +329,21 @@
             this.text += text;
           }
         },
-        clear: function() { this.text = ''; this.linewise = false; }
+        clear: function() {
+          this.text = '';
+          this.linewise = false;
+        }
       };
       var lastUpdatedRegisterName = null;
       var unamedRegister = registers['\"'] = new Register();
       function getRegister(name) {
-        if (!name) { return null; }
+        if (!name) {
+          return null;
+        }
         name = name.toLowerCase();
-        if (!registers[name]) { registers[name] = new Register(); }
+        if (!registers[name]) {
+          registers[name] = new Register();
+        }
         return registers[name];
       }
       return {
@@ -286,10 +364,14 @@
           // The unamed register always has the same value as the last used
           // register.
           if (append) {
-            if (register) { register.append(text, linewise); }
+            if (register) {
+              register.append(text, linewise);
+            }
             unamedRegister.append(text, linewise);
           } else {
-            if (register) { register.set(text, linewise); }
+            if (register) { 
+              register.set(text, linewise); 
+            }
             unamedRegister.set(text, linewise);
           }
           if (!register) {
@@ -315,7 +397,9 @@
           }
         },
         getRegister: function(name) {
-          if (!this.isValidRegister(name)) { return unamedRegister; }
+          if (!this.isValidRegister(name)) { 
+            return unamedRegister; 
+          }
           return getRegister(name);
         },
         isValidRegister: function(name) {
@@ -410,9 +494,15 @@
           actionArgs.selectedCharacter = inputState.selectedCharacter;
         }
         // Actions may or may not have motions and operators. Do these first.
-        if (command.operator) { this.processOperator(cm, command); }
-        if (command.motion) { this.processMotion(cm, command); }
-        if (command.motion || command.operator) { this.evalInput(cm); }
+        if (command.operator) {
+          this.processOperator(cm, command);
+        }
+        if (command.motion) {
+          this.processMotion(cm, command);
+        }
+        if (command.motion || command.operator) {
+          this.evalInput(cm);
+        }
         actionArgs.repeat = repeat || 1;
         actionArgs.registerName = inputState.registerName;
         inputState.reset();
@@ -442,13 +532,17 @@
           motionArgs.selectedCharacter = operatorArgs.selectedCharacter =
               inputState.selectedCharacter;
         }
-        if (!motion) { return; }
+        if (!motion) {
+          return;
+        }
         motionArgs.repeat = repeat;
         count.clear();
         inputState.reset();
         curEnd = motions[motion](cm, motionArgs);
         // TODO: Handle null returns from motion commands better.
-        if (!curEnd) { curEnd = { ch: curStart.ch, line: curStart.line }; }
+        if (!curEnd) {
+          curEnd = { ch: curStart.ch, line: curStart.line };
+        }
         if (!operator) {
           cm.setCursor(curEnd.line, curEnd.ch);
           return;
@@ -534,8 +628,12 @@
         var repeat = motionArgs.repeat;
         var curEnd = moveToCharacter(cm, repeat, motionArgs.forward,
             motionArgs.selectedCharacter);
-        if (motionArgs.forward) { curEnd.ch--; }
-        else { curEnd.ch++; }
+        if (motionArgs.forward) {
+          curEnd.ch--;
+        }
+        else {
+          curEnd.ch++;
+        }
         return curEnd;
       },
       moveToCharacter: function(cm, motionArgs) {
@@ -594,7 +692,8 @@
         var curStart = cm.getCursor();
         var lineNumEnd = Math.min(curStart.line + repeat - 1,
             cm.lineCount() - 1);
-        var curEnd = { line: lineNumEnd, ch: cm.getLine(lineNumEnd).length - 1 };
+        var curEnd = { line: lineNumEnd,
+            ch: cm.getLine(lineNumEnd).length - 1 };
         var text = cm.getRange(curStart, curEnd).replace(/\n\s*/g, ' ');
         cm.replaceRange(text, curStart, curEnd);
         cm.setCursor(curStart);
@@ -628,7 +727,9 @@
         cm.setCursor(cur.line, curChEnd);
         cm.replaceRange(text, cur);
         // Now fine tune the cursor to where we want it.
-        if (linewise) { cm.setCursor(cm.getCursor().line - 1, 0); }
+        if (linewise) {
+          cm.setCursor(cm.getCursor().line - 1, 0);
+        }
         else {
           cur = cm.getCursor();
           cm.setCursor(cur.line, cur.ch - 1);
@@ -645,8 +746,12 @@
       },
       setMark: function(cm, actionArgs) {
         var markName = actionArgs.selectedCharacter;
-        if (!inArray(markName, validMarks)) { return; }
-        if (marks[markName]) { marks[markName].clear(); }
+        if (!inArray(markName, validMarks)) {
+          return;
+        }
+        if (marks[markName]) {
+          marks[markName].clear(); 
+        }
         marks[markName] = cm.setBookmark(cm.getCursor());
       },
       replace: function(cm, actionArgs) {
@@ -654,11 +759,10 @@
         var curStart = cm.getCursor();
         var line = cm.getLine(curStart.line);
         var replaceTo = curStart.ch + actionArgs.repeat;
-        if (replaceTo > line.length) { return; }
-        var curEnd = {
-          line: curStart.line,
-          ch: replaceTo
-        };
+        if (replaceTo > line.length) {
+          return;
+        }
+        var curEnd = { line: curStart.line, ch: replaceTo };
         var replaceWithStr = '';
         for (var i = 0; i < curEnd.ch - curStart.ch; i++) {
           replaceWithStr += replaceWith;
@@ -704,26 +808,34 @@
     function arrayEq(a1, a2) {
       if (a1.length != a2.length) return false;
       for (var i = 0; i < a1.length; i++) {
-        if (a1[i] != a2[i]) return false;
+        if (a1[i] != a2[i]) {
+          return false;
+        }
       }
       return true;
     }
     function matchKeysPartial(pressed, mapped) {
       for (var i = 0; i < pressed.length; i++) {
         // 'character' means any character. For mark, register commads, etc.
-        if (pressed[i] != mapped[i] && mapped[i] != 'character') { return false; }
+        if (pressed[i] != mapped[i] && mapped[i] != 'character') {
+          return false;
+        }
       }
       return true;
     }
     function arrayIsSubsetFromBeginning(small, big) {
       for (var i = 0; i < small.length; i++) {
-        if (small[i] != big[i]) return false;
+        if (small[i] != big[i]) {
+          return false;
+        }
       }
       return true;
     }
     function repeatFn(cm, fn, repeat) {
       return function() {
-        for (var i = 0; i < repeat; i++) fn(cm);
+        for (var i = 0; i < repeat; i++) {
+          fn(cm);
+        }
       };
     }
     function copyCursor(cur) {
@@ -810,7 +922,9 @@
         }
         // Advance to next/prev line.
         lineNum += dir;
-        if (!isLine(cm, lineNum)) return null;
+        if (!isLine(cm, lineNum)) {
+          return null;
+        }
         line = cm.getLine(lineNum);
         pos = (dir > 0) ? 0 : line.length;
       }
@@ -883,7 +997,9 @@
       for (var i = 0; i < repeat; i ++) {
         var line = cm.getLine(cur.line);
         var idx = charIdxInLine(start, line, character, forward, true);
-        if (idx == -1) { return cur; }
+        if (idx == -1) {
+          return cur;
+        }
         start = idx;
       }
       return { line: cm.getCursor().line,
@@ -899,10 +1015,14 @@
       var idx;
       if (forward) {
         idx = line.indexOf(character, start + 1);
-        if (idx != -1 && !includeChar) idx -= 1;
+        if (idx != -1 && !includeChar) {
+          idx -= 1;
+        }
       } else {
         idx = line.lastIndexOf(character, start - 1);
-        if (idx != -1 && !includeChar) idx += 1;
+        if (idx != -1 && !includeChar) {
+          idx += 1;
+        }
       }
       return idx;
     }
@@ -912,7 +1032,7 @@
       symb = symb ? symb : cm.getLine(line)[cur.ch];
 
       // Are we at the opening or closing char
-      var forwards = ['(', '[', '{'].indexOf(symb) != -1;
+      var forwards = (['(', '[', '{'].indexOf(symb) != -1);
 
       var reverseSymb = (function(sym) {
         switch (sym) {
@@ -929,32 +1049,45 @@
       // Couldn't find a matching symbol, abort
       if (!reverseSymb) return cur;
 
-      // Tracking our imbalance in open/closing symbols. An opening symbol wii be
-      // the first thing we pick up if moving forward, this isn't true moving backwards
+      // Tracking our imbalance in open/closing symbols. An opening symbol will
+      // be the first thing we pick up if moving forward, this isn't true moving
+      // backwards
       var disBal = forwards ? 0 : 1;
 
       var currLine;
       while (true) {
         if (line == cur.line) {
           // First pass, do some special stuff
-          currLine =  forwards ? cm.getLine(line).substr(cur.ch).split('') : cm.getLine(line).substr(0,cur.ch).split('').reverse();
+          currLine = forwards ? cm.getLine(line).substr(cur.ch).split('') :
+            cm.getLine(line).substr(0,cur.ch).split('').reverse();
         } else {
-          currLine =  forwards ? cm.getLine(line).split('') : cm.getLine(line).split('').reverse();
+          currLine = forwards ? cm.getLine(line).split('') :
+            cm.getLine(line).split('').reverse();
         }
 
-        for (var index = 0;  index < currLine.length; index++) {
-          if (currLine[index] == symb) disBal++;
-          else if (currLine[index] == reverseSymb) disBal--;
+        for (var index = 0; index < currLine.length; index++) {
+          if (currLine[index] == symb) {
+            disBal++;
+          } else if (currLine[index] == reverseSymb) {
+            disBal--;
+          }
 
           if (disBal === 0) {
-            if (forwards && cur.line == line) return {line: line, ch: index + cur.ch};
-            else if (forwards) return {line: line, ch: index};
-            else return {line: line, ch: currLine.length - index - 1 };
+            if (forwards && cur.line == line) {
+              return { line: line, ch: index + cur.ch};
+            } else if (forwards) {
+              return { line: line, ch: index};
+            } else {
+              return {line: line, ch: currLine.length - index - 1 };
+            }
           }
         }
 
-        if (forwards) line++;
-        else line--;
+        if (forwards) {
+          line++;
+        } else {
+          line--;
+        }
       }
       return cur;
     }
@@ -970,8 +1103,12 @@
         if (isUpperCase(key)) {
           // Convert to lower case if shift is not the modifier since the key
           // we get from CodeMirror is always upper case.
-          if (modifier == 'Shift') { modifier = null; }
-          else { key = key.toLowerCase(); }
+          if (modifier == 'Shift') {
+            modifier = null;
+          }
+          else {
+            key = key.toLowerCase();
+          }
         }
         if (modifier) {
           // Vim will parse modifier+key combination as a single key.
@@ -1024,7 +1161,8 @@
     CodeMirror.keyMap.vim2 = buildVimKeyMap();
 
     CodeMirror.keyMap['vim-insert'] = {
-      // TODO: override navigation keys so that Esc will cancel automatic indentation from o, O, i_<CR>
+      // TODO: override navigation keys so that Esc will cancel automatic
+      // indentation from o, O, i_<CR>
       'Esc': function(cm) {
         cm.setCursor(cm.getCursor().line, cm.getCursor().ch-1, true);
         cm.setOption('keyMap', 'vim2');
