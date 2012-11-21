@@ -236,6 +236,9 @@
     function isUpperCase(k) {
       return (/^[A-Z]$/).test(k);
     }
+    function isAlphanumeric(k) {
+      return (/^[a-zA-Z-0-9]/).test(k);
+    }
     function isWhiteSpace(k) {
       return whiteSpaceRegex.test(k);
     }
@@ -555,6 +558,9 @@
           return;
         }
         var motionResult = motions[motion](cm, motionArgs);
+        if (!motionResult) {
+          return;
+        }
         if (motionResult instanceof Array) {
           curStart = motionResult[0];
           curEnd = motionResult[1];
@@ -725,7 +731,7 @@
         var inclusive = !motionArgs.textObjectInner;
         if (!textObjects[character]) {
           // No text object defined for this, don't move.
-          return cm.getCursor();
+          return null;
         }
         var tmp = textObjects[character](cm, inclusive);
         var start = tmp.start;
@@ -863,15 +869,12 @@
       // TODO: implement text objects for the reverse like }. Should just be
       //     an additional mapping after moving to the defaultKeyMap.
       'w': function(cm, inclusive) {
-        var cur = cm.getCursor();
-        var line = cm.getLine(cur.line);
-
-        var line_to_char = new String(line.substring(0, cur.ch));
-        var start = regexLastIndexOf(line_to_char, /[^a-zA-Z0-9]/) + 1;
-        var end = motions.moveByWords(cm, { repeat: 1, forward: true,
-            wordEnd: true, bigWord: false });
-        end.ch += inclusive ? 1 : 0 ;
-        return {start: {line: cur.line, ch: start}, end: end };
+        return expandToWord(cm, inclusive, true /** forward */,
+            false /** bigWord */);
+      },
+      'W': function(cm, inclusive) {
+        return expandToWord(cm, inclusive,
+            true /** forward */, true /** bigWord */);
       },
       '{': function(cm, inclusive) {
         return selectCompanionObject(cm, '}', inclusive);
@@ -950,6 +953,21 @@
     function findFirstNonWhiteSpaceCharacter(text) {
         var firstNonWS = text.search(/\S/);
         return firstNonWS == -1 ? text.length : firstNonWS;
+    }
+
+    function expandToWord(cm, inclusive, forward, bigWord) {
+      var cur = cm.getCursor();
+      var line = cm.getLine(cur.line);
+
+      var line_to_char = new String(line.substring(0, cur.ch));
+      // TODO: Case when small word is matching symbols does not work right with
+      //     the current regexLastIndexOf check.
+      var start = regexLastIndexOf(line_to_char,
+          (!bigWord) ? /[^a-zA-Z0-9]/ : /\s/) + 1;
+      var end = motions.moveByWords(cm, { repeat: 1, forward: true,
+          wordEnd: true, bigWord: bigWord });
+      end.ch += inclusive ? 1 : 0 ;
+      return {start: {line: cur.line, ch: start}, end: end };
     }
 
     /*
