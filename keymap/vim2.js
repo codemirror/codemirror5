@@ -80,7 +80,7 @@
         motionArgs: { forward: false, linewise: true }},
     { keys: ['w'], type: 'motion',
         motion: 'moveByWords',
-        motionArgs: { forward: true, wordEnd: false}},
+        motionArgs: { forward: true, wordEnd: false }},
     { keys: ['W'], type: 'motion',
         motion: 'moveByWords',
         motionArgs: { forward: true, wordEnd: false, bigWord: true }},
@@ -139,19 +139,19 @@
     { keys: ['g', '~'], type: 'operator', operator: 'swapcase' },
     // Operator-Motion dual commands
     { keys: ['x'], type: 'operatorMotion', operator: 'delete',
-        motion: 'moveByCharacters', motionArgs: { forward: true } },
+        motion: 'moveByCharacters', motionArgs: { forward: true }},
     { keys: ['X'], type: 'operatorMotion', operator: 'delete',
-        motion: 'moveByCharacters', motionArgs: { forward: false } },
+        motion: 'moveByCharacters', motionArgs: { forward: false }},
     { keys: ['D'], type: 'operatorMotion', operator: 'delete',
         motion: 'moveToEol' },
     { keys: ['Y'], type: 'operatorMotion', operator: 'yank',
         motion: 'moveToEol' },
     { keys: ['~'], type: 'operatorMotion', operator: 'swapcase',
-        motion: 'moveByCharacters', motionArgs: { forward: true } },
+        motion: 'moveByCharacters', motionArgs: { forward: true }},
     // Actions
     { keys: ['a'], type: 'action', action: 'enterInsertMode',
         motion: 'moveByCharacters',
-        motionArgs: { forward: true, noRepeat: true } },
+        motionArgs: { forward: true, noRepeat: true }},
     { keys: ['A'], type: 'action', action: 'enterInsertMode',
         motion: 'moveToEol' },
     { keys: ['i'], type: 'action', action: 'enterInsertMode' },
@@ -177,7 +177,13 @@
     { keys: ['u'], type: 'action', action: 'undo' },
     { keys: ['Ctrl-r'], type: 'action', action: 'redo' },
     { keys: ['m', 'character'], type: 'action', action: 'setMark' },
-    { keys: ['\"', 'character'], type: 'action', action: 'setRegister' }
+    { keys: ['\"', 'character'], type: 'action', action: 'setRegister' },
+    // Text object motions
+    { keys: ['a', 'character'], type: 'motion',
+        motion: 'textObjectManipulation' },
+    { keys: ['i', 'character'], type: 'motion',
+        motion: 'textObjectManipulation',
+        motionArgs: { textObjectInner: true }}
   ];
 
   var Vim = function() {
@@ -215,25 +221,25 @@
       return line >= 0 && line < cm.lineCount();
     }
     function isLowerCase(k) {
-      return (/^[a-z]$/).test(k); 
+      return (/^[a-z]$/).test(k);
     }
     function isMatchableSymbol(k) {
-      return '()[]{}'.indexOf(k) != -1; 
+      return '()[]{}'.indexOf(k) != -1;
     }
     function isNumber(k) {
-      return numberRegex.test(k); 
+      return numberRegex.test(k);
     }
     function isUpperCase(k) {
-      return (/^[A-Z]$/).test(k); 
+      return (/^[A-Z]$/).test(k);
     }
     function isWhiteSpace(k) {
-      return whiteSpaceRegex.test(k); 
+      return whiteSpaceRegex.test(k);
     }
     function isWhiteSpaceString(k) {
-      return (/^\s*$/).test(k); 
+      return (/^\s*$/).test(k);
     }
     function inRangeInclusive(x, start, end) {
-      return x >= start && x <= end; 
+      return x >= start && x <= end;
     }
     function inArray(val, arr) {
       for (var i = 0; i < arr.length; i++) {
@@ -369,8 +375,8 @@
             }
             unamedRegister.append(text, linewise);
           } else {
-            if (register) { 
-              register.set(text, linewise); 
+            if (register) {
+              register.set(text, linewise);
             }
             unamedRegister.set(text, linewise);
           }
@@ -397,8 +403,8 @@
           }
         },
         getRegister: function(name) {
-          if (!this.isValidRegister(name)) { 
-            return unamedRegister; 
+          if (!this.isValidRegister(name)) {
+            return unamedRegister;
           }
           return getRegister(name);
         },
@@ -426,6 +432,12 @@
               inputState.keyBuffer.push(key);
               return null;
             } else {
+              if (inputState.operator && command.type == 'action') {
+                // Ignore matched action commands after an operator. Operators
+                // only operate on motions. This check is really for text
+                // objects since aW, a[ etcs conflicts with a.
+                continue;
+              }
               // Matches whole comand. Return the command.
               if (command.keys[keys.length - 1] == 'character') {
                 inputState.selectedCharacter = keys[keys.length - 1];
@@ -532,13 +544,19 @@
           motionArgs.selectedCharacter = operatorArgs.selectedCharacter =
               inputState.selectedCharacter;
         }
-        if (!motion) {
-          return;
-        }
         motionArgs.repeat = repeat;
         count.clear();
         inputState.reset();
-        curEnd = motions[motion](cm, motionArgs);
+        if (!motion) {
+          return;
+        }
+        var motionResult = motions[motion](cm, motionArgs);
+        if (motionResult instanceof Array) {
+          curStart = motionResult[0];
+          curEnd = motionResult[1];
+        } else {
+          curEnd = motionResult;
+        }
         // TODO: Handle null returns from motion commands better.
         if (!curEnd) {
           curEnd = { ch: curStart.ch, line: curStart.line };
@@ -679,6 +697,57 @@
         return { line: lineNum,
             ch: findFirstNonWhiteSpaceCharacter(cm.getLine(lineNum)),
             user: true };
+      },
+      textObjectManipulation: function(cm, motionArgs) {
+        var character = motionArgs.selectedCharacter;
+        // Inclusive is the difference between a and i
+        // TODO: Instead of using the additional text object map to perform text
+        //     object operations, merge the map into the defaultKeyMap and use
+        //     motionArgs to define behavior. Define separate entries for 'aw',
+        //     'iw', 'a[', 'i[', etc.
+        var inclusive = !motionArgs.textObjectInner;
+        if (!textObjects[character]) {
+          // No text object defined for this, don't move.
+          return cm.getCursor();
+        }
+        var tmp = textObjects[character](cm, inclusive);
+        var start = tmp.start;
+        var end = tmp.end;
+        return [start, end];
+      }
+    };
+
+    var operators = {
+      change: function(cm, operatorArgs, curStart, curEnd) {
+        if (operatorArgs.linewise) {
+          // Do not delete the last newline, which should be the last character.
+          // curEnd should be on the first character of the next line.
+          curEnd.line--;
+          curEnd.ch = cm.getLine(curEnd.line).length;
+        }
+        registerController.pushText(operatorArgs.registerName, 'change',
+            cm.getRange(curStart, curEnd), operatorArgs.linewise);
+        cm.replaceRange('', curStart, curEnd);
+      },
+      // delete is a javascript keyword.
+      'delete': function(cm, operatorArgs, curStart, curEnd) {
+        registerController.pushText(operatorArgs.registerName, 'delete',
+            cm.getRange(curStart, curEnd), operatorArgs.linewise);
+        cm.replaceRange('', curStart, curEnd);
+      },
+      swapcase: function(cm, operatorArgs, curStart, curEnd) {
+        var toSwap = cm.getRange(curStart, curEnd);
+        var swapped = '';
+        for (var i = 0; i < toSwap.length; i++) {
+          var character = toSwap[i];
+          swapped += isUpperCase(character) ? character.toLowerCase() :
+              character.toUpperCase();
+        }
+        cm.replaceRange(swapped, curStart, curEnd);
+      },
+      yank: function(cm, operatorArgs, curStart, curEnd) {
+        registerController.pushText(operatorArgs.registerName, 'yank',
+            cm.getRange(curStart, curEnd), operatorArgs.linewise);
       }
     };
 
@@ -750,7 +819,7 @@
           return;
         }
         if (marks[markName]) {
-          marks[markName].clear(); 
+          marks[markName].clear();
         }
         marks[markName] = cm.setBookmark(cm.getCursor());
       },
@@ -771,37 +840,36 @@
       }
     };
 
-    var operators = {
-      change: function(cm, operatorArgs, curStart, curEnd) {
-        if (operatorArgs.linewise) {
-          // Do not delete the last newline, which should be the last character.
-          // curEnd should be on the first character of the next line.
-          curEnd.line--;
-          curEnd.ch = cm.getLine(curEnd.line).length;
-        }
-        registerController.pushText(operatorArgs.registerName, 'change',
-            cm.getRange(curStart, curEnd), operatorArgs.linewise);
-        cm.replaceRange('', curStart, curEnd);
+    var textObjects = {
+      // TODO: lots of possible exceptions that can be thrown here. Try da(
+      //     outside of a () block.
+      // TODO: implement text objects for the reverse like }. Should just be
+      //     an additional mapping after moving to the defaultKeyMap.
+      'w': function(cm, inclusive) {
+        var cur = cm.getCursor();
+        var line = cm.getLine(cur.line);
+
+        var line_to_char = new String(line.substring(0, cur.ch));
+        var start = regexLastIndexOf(line_to_char, /[^a-zA-Z0-9]/) + 1;
+        var end = motions.moveByWords(cm, { repeat: 1, forward: true,
+            wordEnd: true, bigWord: false });
+        end.ch += inclusive ? 1 : 0 ;
+        return {start: {line: cur.line, ch: start}, end: end };
       },
-      // delete is a javascript keyword.
-      'delete': function(cm, operatorArgs, curStart, curEnd) {
-        registerController.pushText(operatorArgs.registerName, 'delete',
-            cm.getRange(curStart, curEnd), operatorArgs.linewise);
-        cm.replaceRange('', curStart, curEnd);
+      '{': function(cm, inclusive) {
+        return selectCompanionObject(cm, '}', inclusive);
       },
-      swapcase: function(cm, operatorArgs, curStart, curEnd) {
-        var toSwap = cm.getRange(curStart, curEnd);
-        var swapped = '';
-        for (var i = 0; i < toSwap.length; i++) {
-          var character = toSwap[i];
-          swapped += isUpperCase(character) ? character.toLowerCase() :
-              character.toUpperCase();
-        }
-        cm.replaceRange(swapped, curStart, curEnd);
+      '(': function(cm, inclusive) {
+        return selectCompanionObject(cm, ')', inclusive);
       },
-      yank: function(cm, operatorArgs, curStart, curEnd) {
-        registerController.pushText(operatorArgs.registerName, 'yank',
-            cm.getRange(curStart, curEnd), operatorArgs.linewise);
+      '[': function(cm, inclusive) {
+        return selectCompanionObject(cm, ']', inclusive);
+      },
+      '\'': function(cm, inclusive) {
+        return findBeginningAndEnd(cm, "'", inclusive);
+      },
+      '\"': function(cm, inclusive) {
+        return findBeginningAndEnd(cm, '"', inclusive);
       }
     };
 
@@ -1092,6 +1160,90 @@
       return cur;
     }
 
+    function selectCompanionObject(cm, revSymb, inclusive) {
+      var cur = cm.getCursor();
+
+      var end = findMatchedSymbol(cm, cur, revSymb);
+      var start = findMatchedSymbol(cm, end);
+      start.ch += inclusive ? 1 : 0;
+      end.ch += inclusive ? 0 : 1;
+
+      return {start: start, end: end};
+    }
+
+    function regexLastIndexOf(string, pattern, startIndex) {
+      for (var i = !startIndex ? string.length : startIndex;
+          i >= 0; --i) {
+        if (pattern.test(string.charAt(i))) {
+          return i;
+        }
+      }
+      return -1;
+    }
+
+    // takes in a symbol and a cursor and tries to simulate text objects that have
+    // identical opening and closing symbols
+    // TODO support across multiple lines
+    function findBeginningAndEnd(cm, symb, inclusive) {
+      var cur = cm.getCursor();
+      var line = cm.getLine(cur.line);
+      var chars = line.split('');
+      var start = undefined;
+      var end = undefined;
+      var firstIndex = chars.indexOf(symb);
+
+      // the decision tree is to always look backwards for the beginning first,
+      // but if the cursor is in front of the first instance of the symb,
+      // then move the cursor forward
+      if (cur.ch < firstIndex) {
+        cur.ch = firstIndex;
+        // Why is this line even here???
+        // cm.setCursor(cur.line, firstIndex+1);
+      }
+      // otherwise if the cursor is currently on the closing symbol
+      else if (firstIndex < cur.ch && chars[cur.ch] == symb) {
+        end = cur.ch; // assign end to the current cursor
+        --cur.ch; // make sure to look backwards
+      }
+
+      // if we're currently on the symbol, we've got a start
+      if (chars[cur.ch] == symb && !end) {
+        start = cur.ch + 1; // assign start to ahead of the cursor
+      } else {
+        // go backwards to find the start
+        for (var i = cur.ch; i > -1 && !start; i--) {
+          if (chars[i] == symb) {
+            start = i + 1;
+          }
+        }
+      }
+
+      // look forwards for the end symbol
+      if (start && !end) {
+        for (var i = start, len = chars.length; i < len && !end; i++) {
+          if (chars[i] == symb) {
+            end = i;
+          }
+        }
+      }
+
+      // nothing found
+      // FIXME still enters insert mode
+      if (!start || !end) return {
+        start: cur, end: cur
+      };
+
+      // include the symbols
+      if (inclusive) {
+        --start; ++end;
+      }
+
+      return {
+        start: {line: cur.line, ch: start},
+        end: {line: cur.line, ch: end}
+      };
+    }
+
     function buildVimKeyMap() {
       /**
        * Handle the raw key event from CodeMirror. Translate the
@@ -1129,8 +1281,6 @@
         'nofallthrough': true,
         'style': 'fat-cursor'
       };
-      var i, j;
-      var keys = upperCaseAlphabet;
       function bindKeys(keys, modifier) {
         for (var i = 0; i < keys.length; i++) {
           var key = keys[i];
@@ -1154,7 +1304,6 @@
       bindKeys(numbers);
       bindKeys(numbers, 'Ctrl');
       bindKeys(specialKeys);
-      bindKeys(specialKeys, 'Shift');
       bindKeys(specialKeys, 'Ctrl');
       return keyMap;
     }
