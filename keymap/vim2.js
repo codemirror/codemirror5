@@ -172,6 +172,7 @@
         actionArgs: { after: true }},
     { keys: ['O'], type: 'action', action: 'newLineAndEnterInsertMode',
         actionArgs: { after: false }},
+    { keys: ['v'], type: 'action', action: 'toggleVisualMode' },
     { keys: ['J'], type: 'action', action: 'joinLines' },
     { keys: ['p'], type: 'action', action: 'paste',
         actionArgs: { after: true }},
@@ -214,6 +215,7 @@
     var validRegisters = upperCaseAlphabet.concat(lowerCaseAlphabet).concat(
         numbers).concat('-\"'.split(''));
     var inputState;
+    var visualMode = false;
     var count;
     var registers = {};
     var marks = {};
@@ -264,6 +266,15 @@
         // TODO: Convert keymap into dictionary format for fast lookup.
       },
       handleKey: function(cm, key) {
+        if (key == 'Esc') {
+          // Clear input state and get back to normal mode.
+          inputState.reset();
+          count.clear();
+          if (visualMode) {
+            exitVisualMode(cm);
+          }
+          return;
+        }
         if (key != '0' || (key == '0' && count.get() === 0)) {
           // Have to special case 0 since it's both a motion and a number.
           var command = commandDispatcher.matchCommand(key, defaultKeymap);
@@ -423,12 +434,6 @@
 
     var commandDispatcher = {
       matchCommand: function(key, keyMap) {
-        if (key == 'Esc') {
-          // Clear input state and get back to normal mode.
-          inputState.reset();
-          count.clear();
-          return null;
-        }
         var keys = inputState.keyBuffer.concat(key);
         for (var i = 0; i < keyMap.length; i++) {
           var command = keyMap[i];
@@ -498,6 +503,10 @@
         }
         inputState.operator = command.operator;
         inputState.operatorArgs = command.operatorArgs;
+        if (visualMode) {
+          // Operating on a selection in visual mode. We don't need a motion.
+          this.evalInput(cm);
+        }
       },
       processOperatorMotion: function(cm, command) {
         inputState.motion = command.motion;
@@ -536,7 +545,11 @@
         var operator = inputState.operator;
         var operatorArgs = inputState.operatorArgs || {};
         var registerName = inputState.registerName;
-        var curStart = cm.getCursor();
+        var selectionEnd = cm.getCursor();
+        var selectionStart = getSelectionStart(cm);
+        // The difference between cur and selection cursors are that cur is
+        // being operated on and ignores that there is a selection.
+        var curStart = copyCursor(selectionEnd);
         var curEnd;
         var repeat = count.get();
         if (repeat > 0 && motionArgs.explicitRepeat) {
@@ -551,57 +564,92 @@
           motionArgs.selectedCharacter = operatorArgs.selectedCharacter =
               inputState.selectedCharacter;
         }
+        if (cm.getCursor(true /** start */) == cm.getCursor(false)) {
+          // The selection was cleared. Exit visual mode.
+          visualMode = false;
+        }
         motionArgs.repeat = repeat;
         count.clear();
         inputState.reset();
-        if (!motion) {
-          return;
+        if (motion) {
+          var motionResult = motions[motion](cm, motionArgs);
+          if (!motionResult) {
+            return;
+          }
+          if (motionResult instanceof Array) {
+            curStart = motionResult[0];
+            curEnd = motionResult[1];
+          } else {
+            curEnd = motionResult;
+          }
+          // TODO: Handle null returns from motion commands better.
+          if (!curEnd) {
+            curEnd = { ch: curStart.ch, line: curStart.line };
+          }
+          if (visualMode) {
+            // Check if the selection crossed over itself. Will need to shift
+            // the start point if that happened.
+            if (cursorIsBefore(selectionStart, selectionEnd) &&
+                (cursorEqual(selectionStart, curEnd) ||
+                    cursorIsBefore(curEnd, selectionStart))) {
+              // The end of the selection has moved from after the start to
+              // before the start. We will shift the start right by 1.
+              selectionStart.ch += 1;
+              curEnd.ch -= 1;
+            } else if (cursorIsBefore(selectionEnd, selectionStart) &&
+                (cursorEqual(selectionStart, curEnd) ||
+                    cursorIsBefore(selectionStart, curEnd))) {
+              // The opposite happened. We will shift the start left by 1.
+              selectionStart.ch -= 1;
+              curEnd.ch += 1;
+            }
+            selectionEnd = curEnd;
+            // Need to set the cursor to clear the selection. Otherwise,
+            // CodeMirror can't figure out that we changed directions...
+            cm.setCursor(selectionStart);
+            cm.setSelection(selectionStart, selectionEnd, true);
+          } else {
+            cm.setCursor(curEnd.line, curEnd.ch);
+          }
         }
-        var motionResult = motions[motion](cm, motionArgs);
-        if (!motionResult) {
-          return;
-        }
-        if (motionResult instanceof Array) {
-          curStart = motionResult[0];
-          curEnd = motionResult[1];
-        } else {
-          curEnd = motionResult;
-        }
-        // TODO: Handle null returns from motion commands better.
-        if (!curEnd) {
-          curEnd = { ch: curStart.ch, line: curStart.line };
-        }
-        if (!operator) {
-          cm.setCursor(curEnd.line, curEnd.ch);
-          return;
-        }
-        // Swap start and end if motion was backward.
-        if (curStart.line > curEnd.line ||
-            (curStart.line == curEnd.line && curStart.ch > curEnd.ch)) {
-          var tmp = curStart;
-          curStart = curEnd;
-          curEnd = tmp;
-        }
-        if (motionArgs.inclusive) {
-          // Move the selection end one to the right to include the last
-          // character.
-          curEnd.ch++;
-        }
-        if (motionArgs.linewise) {
-          // Expand selection to entire line.
-          expandSelectionToLine(cm, curStart, curEnd);
-        } else {
-          // Clip to trailing newlines.
-          clipToLine(cm, curStart, curEnd);
-        }
-        // TODO: Handle operators.
-        operatorArgs.registerName = registerName;
-        // Keep track of linewise as it affects how paste and change behave.
-        operatorArgs.linewise = motionArgs.linewise;
-        operators[operator](cm, operatorArgs, curStart,
-            curEnd);
-        if (operatorArgs.enterInsertMode) {
-          actions.enterInsertMode(cm);
+
+        if (operator) {
+          if (visualMode) {
+            curStart = selectionStart;
+            curEnd = selectionEnd;
+          }
+          // Swap start and end if motion was backward.
+          if (curStart.line > curEnd.line ||
+              (curStart.line == curEnd.line && curStart.ch > curEnd.ch)) {
+            var tmp = curStart;
+            curStart = curEnd;
+            curEnd = tmp;
+          }
+          if (motionArgs.inclusive) {
+            // Move the selection end one to the right to include the last
+            // character.
+            curEnd.ch++;
+          }
+          if (motionArgs.linewise) {
+            // Expand selection to entire line.
+            expandSelectionToLine(cm, curStart, curEnd);
+          } else {
+            // Clip to trailing newlines.
+            clipToLine(cm, curStart, curEnd);
+          }
+          operatorArgs.registerName = registerName;
+          // Keep track of linewise as it affects how paste and change behave.
+          operatorArgs.linewise = motionArgs.linewise;
+          operators[operator](cm, operatorArgs, curStart,
+              curEnd);
+          if (visualMode) {
+            // Clear the selection.
+            cm.setSelection(curStart, curStart);
+            visualMode = false;
+          }
+          if (operatorArgs.enterInsertMode) {
+            actions.enterInsertMode(cm);
+          }
         }
       }
     };
@@ -778,6 +826,19 @@
       enterInsertMode: function(cm) {
         cm.setOption('keyMap', 'vim-insert');
       },
+      toggleVisualMode: function(cm, actionArgs) {
+        var repeat = actionArgs.repeat;
+        var curStart = cm.getCursor(true);
+        if (!visualMode) {
+          visualMode = true;
+          var curEnd = { line: curStart.line,
+              ch: Math.min(curStart.ch + repeat, lineLength(cm, curStart.line))
+          };
+          cm.setSelection(curStart, curEnd);
+        } else {
+          exitVisualMode(cm);
+        }
+      },
       joinLines: function(cm, actionArgs) {
         // Repeat is the number of lines to join. Minimum 2 lines.
         var repeat = Math.max(actionArgs.repeat, 2);
@@ -926,8 +987,51 @@
         }
       };
     }
+    function getSelectionStart(cm) {
+      // Calling CodeMirror#getCursor() with start = true always gets the left
+      // edge of the selection. Calling with start = false always gets the right
+      // edge. Calling with undefined gets the real end of the selection, or
+      // where the cursor is actually at. This function returns the real start.
+      // TODO: This should really be an API on CodeMirror
+      var selectionStart = cm.getCursor(true);
+      var selectionEnd = cm.getCursor();
+      if (cursorEqual(selectionStart, selectionEnd)) {
+        // CodeMirror always considers the left end of the selection as the
+        // start.
+        selectionStart = cm.getCursor(false);
+      }
+      return selectionStart;
+    }
+    function getSelectionEnd(cm) {
+      return cm.getCursor();
+    }
     function copyCursor(cur) {
       return { line: cur.line, ch: cur.ch, user: cur.user };
+    }
+    function cursorEqual(cur1, cur2) {
+      return cur1.ch == cur2.ch && cur1.line == cur2.line;
+    }
+    function cursorIsBefore(cur1, cur2) {
+      if (cur1.line < cur2.line) {
+        return true;
+      } else if (cur1.line == cur2.line && cur1.ch < cur2.ch) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+    function lineLength(cm, lineNum) {
+      return cm.getLine(lineNum).length;
+    }
+
+    function exitVisualMode(cm) {
+      visualMode = false;
+      var selectionStart = getSelectionStart(cm);
+      var selectionEnd = cm.getCursor();
+      if (cursorIsBefore(selectionStart, selectionEnd)) {
+        selectionEnd.ch = Math.max(selectionEnd.ch - 1, 0);
+      }
+      cm.setCursor(selectionEnd);
     }
 
     // Remove any trailing newlines from the selection. For
