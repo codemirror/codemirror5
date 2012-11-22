@@ -600,9 +600,11 @@
       <dd>Set the cursor position. You can either pass a
       single <code>{line, ch}</code> object, or the line and the
       character as two separate parameters.</dd>
-      <dt id="setSelection"><code>setSelection(start, end)</code></dt>
-      <dd>Set the selection range. <code>start</code>
-      and <code>end</code> should be <code>{line, ch}</code> objects.</dd>
+      <dt id="setSelection"><code>setSelection(anchor, head)</code></dt>
+      <dd>Set the selection range. <code>anchor</code>
+      and <code>head</code> should be <code>{line, ch}</code>
+      objects. <code>head</code> defaults to <code>anchor</code> when
+      not givne.</dd>
 
       <dt id="getLine"><code>getLine(n) → string</code></dt>
       <dd>Get the content of line <code>n</code>.</dd>
@@ -944,6 +946,22 @@
       element (window resizes are already listened for), or unhides
       it, you should probably follow up by calling this method to
       ensure CodeMirror is still looking as intended.</dd>
+
+      <dt id="extendSelection"><code>extendSelection(pos, pos2)</code></dt>
+      <dd>Similar
+      to <a href="#setSelection"><code>setSelection</code></a>, but
+      will, if shift is held or
+      the <a href="#setExtending">extending</a> flag is set, move the
+      head of the selection while leaving the anchor at its current
+      place. <code>pos2</code> is optional, and can be passed to
+      ensure a region (for example a word or paragraph) will end up
+      selected (in addition to whatever lies between that region and
+      the current anchor).</dd>
+      <dt id="setExtending"><code>setExtending(bool)</code></dt>
+      <dd>Sets or clears the 'extending' flag, which acts similar to
+      the shift key, in that it will cause cursor movement and calls
+      to <a href="#extendSelection"><code>extendSelection</code></a>
+      to leave the selection anchor in place.</dd>
 
       <dt id="getInputField"><code>getInputField() → textarea</code></dt>
       <dd>Returns the hidden textarea used to read input.</dd>

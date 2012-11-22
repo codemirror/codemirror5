@@ -242,7 +242,7 @@
   function goLineStartText(cm) {
     // Go to the start of the line where the text begins, or the end for whitespace-only lines
     var cur = cm.getCursor(), firstNonWS = cm.getLine(cur.line).search(/\S/);
-    cm.setCursor(cur.line, firstNonWS == -1 ? line.length : firstNonWS, true);
+    cm.setCursor(cur.line, firstNonWS == -1 ? line.length : firstNonWS);
   }
 
   function charIdxInLine(cm, cHar, motion_options) {
@@ -304,11 +304,11 @@
   var map = CodeMirror.keyMap.vim = {
     // Pipe (|); TODO: should be *screen* chars, so need a util function to turn tabs into spaces?
     "'|'": function(cm) {
-      cm.setCursor(cm.getCursor().line, getCountOrOne() - 1, true);
+      cm.setCursor(cm.getCursor().line, getCountOrOne() - 1);
       clearCount();
     },
     "A": function(cm) {
-      cm.setCursor(cm.getCursor().line, cm.getCursor().ch+1, true);
+      cm.setCursor(cm.getCursor().line, cm.getCursor().ch+1);
       enterInsertMode(cm);
     },
     "Shift-A": function(cm) { CodeMirror.commands.goLineEnd(cm); enterInsertMode(cm);},
@@ -583,7 +583,7 @@
   CodeMirror.keyMap["vim-insert"] = {
     // TODO: override navigation keys so that Esc will cancel automatic indentation from o, O, i_<CR>
     "Esc": function(cm) {
-      cm.setCursor(cm.getCursor().line, cm.getCursor().ch-1, true);
+      cm.setCursor(cm.getCursor().line, cm.getCursor().ch-1);
       cm.setOption("keyMap", "vim");
     },
     "Ctrl-N": "autocomplete",
