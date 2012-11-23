@@ -22,6 +22,9 @@
 // S, C TODO
 // cf<char>, cF<char>, ct<char>, cT<char>
 //
+// Leaving insert mode:
+// Esc, Ctrl-[
+//
 // Deleting text:
 // x, X
 // J
@@ -590,6 +593,8 @@
     "Ctrl-P": "autocomplete",
     fallthrough: ["default"]
   };
+  // Ctrl-[ is synonymous with <Esc> in vim, and many other places
+  CodeMirror.keyMap["vim-insert"]['Ctrl-['] = CodeMirror.keyMap["vim-insert"]['Esc'];
 
   function findMatchedSymbol(cm, cur, symb) {
     var line = cur.line;
