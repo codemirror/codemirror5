@@ -173,6 +173,8 @@
     { keys: ['O'], type: 'action', action: 'newLineAndEnterInsertMode',
         actionArgs: { after: false }},
     { keys: ['v'], type: 'action', action: 'toggleVisualMode' },
+    { keys: ['V'], type: 'action', action: 'toggleVisualMode',
+        actionArgs: { linewise: true }},
     { keys: ['J'], type: 'action', action: 'joinLines' },
     { keys: ['p'], type: 'action', action: 'paste',
         actionArgs: { after: true }},
@@ -215,10 +217,12 @@
     var validRegisters = upperCaseAlphabet.concat(lowerCaseAlphabet).concat(
         numbers).concat('-\"'.split(''));
     var inputState;
-    var visualMode = false;
     var count;
     var registers = {};
     var marks = {};
+    var visualMode = false;
+    // If we are in visual line mode. No effect if visualMode is false.
+    var visualLine = false;
 
     function isAlphabet(k) {
       return alphabetRegex.test(k);
@@ -274,6 +278,10 @@
             exitVisualMode(cm);
           }
           return;
+        }
+        if (cursorEqual(cm.getCursor('head'), cm.getCursor('anchor'))) {
+          // The selection was cleared. Exit visual mode.
+          exitVisualMode(cm);
         }
         if (key != '0' || (key == '0' && count.get() === 0)) {
           // Have to special case 0 since it's both a motion and a number.
@@ -566,10 +574,6 @@
           motionArgs.selectedCharacter = operatorArgs.selectedCharacter =
               inputState.selectedCharacter;
         }
-        if (cursorEqual(selectionStart, selectionEnd)) {
-          // The selection was cleared. Exit visual mode.
-          visualMode = false;
-        }
         motionArgs.repeat = repeat;
         count.clear();
         inputState.reset();
@@ -604,6 +608,15 @@
               selectionStart.ch -= 1;
             }
             selectionEnd = curEnd;
+            if (visualLine) {
+              if (cursorIsBefore(selectionStart, selectionEnd)) {
+                selectionStart.ch = 0;
+                selectionEnd.ch = lineLength(cm, selectionEnd.line);
+              } else {
+                selectionEnd.ch = 0;
+                selectionStart.ch = lineLength(cm, selectionStart.line);
+              }
+            }
             // Need to set the cursor to clear the selection. Otherwise,
             // CodeMirror can't figure out that we changed directions...
             cm.setCursor(selectionStart);
@@ -631,7 +644,7 @@
             // character.
             curEnd.ch++;
           }
-          if (motionArgs.linewise) {
+          if (motionArgs.linewise || (visualMode && visualLine)) {
             // Expand selection to entire line.
             expandSelectionToLine(cm, curStart, curEnd);
           } else {
@@ -830,12 +843,28 @@
       toggleVisualMode: function(cm, actionArgs) {
         var repeat = actionArgs.repeat;
         var curStart = cm.getCursor();
+        var curEnd;
+        visualLine = !!actionArgs.linewise;
+        // TODO: The repeat should actually select number of characters/lines
+        //     equal to the repeat times the size of the previous visual
+        //     operation.
         if (!visualMode) {
           visualMode = true;
-          var curEnd = { line: curStart.line,
-              ch: Math.min(curStart.ch + repeat, lineLength(cm, curStart.line))
-          };
-          if (!actionArgs.repeatIsExplicit) {
+          if (visualLine) {
+            curStart.ch = 0;
+            curEnd = {
+              line: Math.min(curStart.line + repeat - 1, cm.lineCount()),
+              ch: lineLength(cm, curStart.line)
+            };
+          } else {
+            curEnd = {
+                line: curStart.line,
+                ch: Math.min(curStart.ch + repeat,
+                    lineLength(cm, curStart.line))
+            };
+          }
+          // Make the initial selection.
+          if (!actionArgs.repeatIsExplicit && !visualLine) {
             // This is a strange case. Here the implicit repeat is 1. The
             // following commands lets the cursor hover over the 1 character
             // selection.
@@ -1017,6 +1046,7 @@
 
     function exitVisualMode(cm) {
       visualMode = false;
+      visualLine = false;
       var selectionStart = cm.getCursor('anchor');
       var selectionEnd = cm.getCursor('head');
       cm.setCursor(selectionEnd);
