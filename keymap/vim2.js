@@ -517,6 +517,7 @@
       },
       processAction: function(cm, command) {
         var repeat = count.get();
+        var repeatIsExplicit = !!repeat;
         var actionArgs = command.actionArgs || {};
         if (inputState.selectedCharacter) {
           actionArgs.selectedCharacter = inputState.selectedCharacter;
@@ -532,6 +533,7 @@
           this.evalInput(cm);
         }
         actionArgs.repeat = repeat || 1;
+        actionArgs.repeatIsExplicit = repeatIsExplicit;
         actionArgs.registerName = inputState.registerName;
         inputState.reset();
         count.clear();
@@ -545,8 +547,8 @@
         var operator = inputState.operator;
         var operatorArgs = inputState.operatorArgs || {};
         var registerName = inputState.registerName;
-        var selectionEnd = cm.getCursor();
-        var selectionStart = getSelectionStart(cm);
+        var selectionEnd = cm.getCursor('head');
+        var selectionStart = cm.getCursor('anchor');
         // The difference between cur and selection cursors are that cur is
         // being operated on and ignores that there is a selection.
         var curStart = copyCursor(selectionEnd);
@@ -564,7 +566,7 @@
           motionArgs.selectedCharacter = operatorArgs.selectedCharacter =
               inputState.selectedCharacter;
         }
-        if (cm.getCursor(true /** start */) == cm.getCursor(false)) {
+        if (cursorEqual(selectionStart, selectionEnd)) {
           // The selection was cleared. Exit visual mode.
           visualMode = false;
         }
@@ -595,19 +597,17 @@
               // The end of the selection has moved from after the start to
               // before the start. We will shift the start right by 1.
               selectionStart.ch += 1;
-              curEnd.ch -= 1;
             } else if (cursorIsBefore(selectionEnd, selectionStart) &&
                 (cursorEqual(selectionStart, curEnd) ||
                     cursorIsBefore(selectionStart, curEnd))) {
               // The opposite happened. We will shift the start left by 1.
               selectionStart.ch -= 1;
-              curEnd.ch += 1;
             }
             selectionEnd = curEnd;
             // Need to set the cursor to clear the selection. Otherwise,
             // CodeMirror can't figure out that we changed directions...
             cm.setCursor(selectionStart);
-            cm.setSelection(selectionStart, selectionEnd, true);
+            cm.setSelection(selectionStart, selectionEnd);
           } else {
             cm.setCursor(curEnd.line, curEnd.ch);
           }
@@ -617,15 +617,16 @@
           if (visualMode) {
             curStart = selectionStart;
             curEnd = selectionEnd;
+            motionArgs.inclusive = true;
           }
           // Swap start and end if motion was backward.
-          if (curStart.line > curEnd.line ||
-              (curStart.line == curEnd.line && curStart.ch > curEnd.ch)) {
+          if (cursorIsBefore(curEnd, curStart)) {
             var tmp = curStart;
             curStart = curEnd;
             curEnd = tmp;
+            var inverted = true;
           }
-          if (motionArgs.inclusive) {
+          if (motionArgs.inclusive && !(visualMode && inverted)) {
             // Move the selection end one to the right to include the last
             // character.
             curEnd.ch++;
@@ -828,13 +829,21 @@
       },
       toggleVisualMode: function(cm, actionArgs) {
         var repeat = actionArgs.repeat;
-        var curStart = cm.getCursor(true);
+        var curStart = cm.getCursor();
         if (!visualMode) {
           visualMode = true;
           var curEnd = { line: curStart.line,
               ch: Math.min(curStart.ch + repeat, lineLength(cm, curStart.line))
           };
-          cm.setSelection(curStart, curEnd);
+          if (!actionArgs.repeatIsExplicit) {
+            // This is a strange case. Here the implicit repeat is 1. The
+            // following commands lets the cursor hover over the 1 character
+            // selection.
+            cm.setCursor(curEnd);
+            cm.setSelection(curEnd, curStart);
+          } else {
+            cm.setSelection(curStart, curEnd);
+          }
         } else {
           exitVisualMode(cm);
         }
@@ -987,24 +996,6 @@
         }
       };
     }
-    function getSelectionStart(cm) {
-      // Calling CodeMirror#getCursor() with start = true always gets the left
-      // edge of the selection. Calling with start = false always gets the right
-      // edge. Calling with undefined gets the real end of the selection, or
-      // where the cursor is actually at. This function returns the real start.
-      // TODO: This should really be an API on CodeMirror
-      var selectionStart = cm.getCursor(true);
-      var selectionEnd = cm.getCursor();
-      if (cursorEqual(selectionStart, selectionEnd)) {
-        // CodeMirror always considers the left end of the selection as the
-        // start.
-        selectionStart = cm.getCursor(false);
-      }
-      return selectionStart;
-    }
-    function getSelectionEnd(cm) {
-      return cm.getCursor();
-    }
     function copyCursor(cur) {
       return { line: cur.line, ch: cur.ch, user: cur.user };
     }
@@ -1026,11 +1017,8 @@
 
     function exitVisualMode(cm) {
       visualMode = false;
-      var selectionStart = getSelectionStart(cm);
-      var selectionEnd = cm.getCursor();
-      if (cursorIsBefore(selectionStart, selectionEnd)) {
-        selectionEnd.ch = Math.max(selectionEnd.ch - 1, 0);
-      }
+      var selectionStart = cm.getCursor('anchor');
+      var selectionEnd = cm.getCursor('head');
       cm.setCursor(selectionEnd);
     }
 
