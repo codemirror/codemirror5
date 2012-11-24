@@ -216,13 +216,6 @@
         numbers);
     var validRegisters = upperCaseAlphabet.concat(lowerCaseAlphabet).concat(
         numbers).concat('-\"'.split(''));
-    var inputState;
-    var count;
-    var registers = {};
-    var marks = {};
-    var visualMode = false;
-    // If we are in visual line mode. No effect if visualMode is false.
-    var visualLine = false;
 
     function isAlphabet(k) {
       return alphabetRegex.test(k);
@@ -261,7 +254,7 @@
       return false;
     }
 
-    var instance = {
+    var vimApi= {
       addKeyMap: function() {
         // Add user defined key bindings.
         // TODO: Implement this.
@@ -269,27 +262,47 @@
       buildKeyMap: function() {
         // TODO: Convert keymap into dictionary format for fast lookup.
       },
+      // Initializes vim state variable on the CodeMirror object. Should only be
+      // called lazily by handleKey or for testing.
+      maybeInitState: function(cm) {
+        if (!cm.vimState) {
+          // Store instance state in the CodeMirror object.
+          cm.vimState = {
+            inputState: new InputState(),
+            marks: {},
+            registerController: new RegisterController({}),
+            visualMode: false,
+            // If we are in visual line mode. No effect if visualMode is false.
+            visualLine: false
+          };
+        }
+      },
+      // This is the outermost function called by CodeMirror, after keys have
+      // been mapped to their Vim equivalents.
       handleKey: function(cm, key) {
+        this.maybeInitState(cm);
+        var vim = cm.vimState;
         if (key == 'Esc') {
           // Clear input state and get back to normal mode.
-          inputState.reset();
-          count.clear();
-          if (visualMode) {
-            exitVisualMode(cm);
+          vim.inputState.reset();
+          if (vim.visualMode) {
+            exitVisualMode(cm, vim);
           }
           return;
         }
-        if (cursorEqual(cm.getCursor('head'), cm.getCursor('anchor'))) {
+        if (vim.visualMode &&
+            cursorEqual(cm.getCursor('head'), cm.getCursor('anchor'))) {
           // The selection was cleared. Exit visual mode.
-          exitVisualMode(cm);
+          exitVisualMode(cm, vim);
         }
-        if (key != '0' || (key == '0' && count.get() === 0)) {
+        if (key != '0' || (key == '0' && vim.inputState.getRepeat() === 0)) {
           // Have to special case 0 since it's both a motion and a number.
-          var command = commandDispatcher.matchCommand(key, defaultKeymap);
+          var command = commandDispatcher.matchCommand(key, defaultKeymap,
+              vim);
         }
         if (!command && isNumber(key)) {
           // Increment count unless count is 0 and key is 0.
-          count.pushDigit(key);
+          vim.inputState.pushRepeatDigit(key);
           return;
         }
         if (command) {
@@ -299,7 +312,7 @@
               this.handleKey(cm, command.toKeys[i]);
             }
           } else {
-            commandDispatcher.processCommand(cm, command);
+            commandDispatcher.processCommand(cm, vim, command);
           }
         }
       }
@@ -310,138 +323,135 @@
       this.reset();
     }
     InputState.prototype.reset = function() {
-      this.prefixRepeatDigits = [];
+      this.prefixRepeat = [];
+      this.motionRepeat = [];
+
       this.operator = null;
       this.operatorArgs = null;
-      this.motionRepeatDigits = [];
       this.motion = null;
       this.motionArgs = null;
       this.keyBuffer = []; // For matching multi-key commands.
       this.registerName = null; // Defaults to the unamed register.
     };
-    inputState = new InputState();
-
-    // Counter for keeping track of repeats.
-    count = function() {
-      var value = 0;
-      var explicit = false;
-      return {
-        get: function() {
-          return value;
-        },
-        isExplicit: function() {
-          return explicit;
-        },
-        pushDigit: function(n) {
-          explicit = true;
-          value = value * 10 + parseInt(n, 10);
-        },
-        clear: function() {
-          explicit = false;
-          value = 0;
-        }
-      };
-    }();
-
-    var registerController = function() {
-      function Register() {
-        this.clear();
+    InputState.prototype.pushRepeatDigit = function(n) {
+      if (!this.operator) {
+        this.prefixRepeat = this.prefixRepeat.concat(n);
+      } else {
+        this.motionRepeat = this.motionRepeat.concat(n);
       }
-      Register.prototype = {
-        set: function(text, linewise) {
-          this.text = text;
-          this.linewise = !!linewise;
-        },
-        append: function(text, linewise) {
-          // if this register has ever been set to linewise, use linewise.
-          if (linewise || this.linewise) {
-            this.text += '\n' + text;
-            this.linewise = true;
-          } else {
-            this.text += text;
-          }
-        },
-        clear: function() {
-          this.text = '';
-          this.linewise = false;
+    };
+    InputState.prototype.getRepeat = function() {
+      if (this.prefixRepeat.length > 0) {
+        var repeat = parseInt(this.prefixRepeat.join(''), 10);
+        if (this.motionRepeat.length > 0) {
+          repeat *= parseInt(this.motionRepeat.join(''), 10);
         }
-      };
-      var lastUpdatedRegisterName = null;
-      var unamedRegister = registers['\"'] = new Register();
-      function getRegister(name) {
+      }
+      return repeat || 0;
+    };
+
+    function Register() {
+      this.clear();
+    }
+    Register.prototype = {
+      set: function(text, linewise) {
+        this.text = text;
+        this.linewise = !!linewise;
+      },
+      append: function(text, linewise) {
+        // if this register has ever been set to linewise, use linewise.
+        if (linewise || this.linewise) {
+          this.text += '\n' + text;
+          this.linewise = true;
+        } else {
+          this.text += text;
+        }
+      },
+      clear: function() {
+        this.text = '';
+        this.linewise = false;
+      }
+    };
+
+    function RegisterController(registers) {
+      this.registers = registers;
+      this.lastUpdatedRegisterName = null;
+      this.unamedRegister = registers['\"'] = new Register();
+    }
+    RegisterController.prototype = {
+      pushText: function(registerName, operator, text, linewise) {
+        // Lowercase and uppercase registers refer to the same register.
+        // Uppercase just means append.
+        var append = isUpperCase(registerName);
+        var register = this.isValidRegister(registerName) ?
+            this.getRegister(registerName) : null;
+        if (register &&
+            registerName.toLowerCase() != this.lastUpdatedRegisterName) {
+          // Switched registers, clear the unamed register.
+          this.lastUpdatedRegisterName = registerName.toLowerCase();
+          this.unamedRegister.set('', false);
+        } else {
+          this.lastUpdatedRegisterName = null;
+        }
+        // The unamed register always has the same value as the last used
+        // register.
+        if (append) {
+          if (register) {
+            register.append(text, linewise);
+          }
+          this.unamedRegister.append(text, linewise);
+        } else {
+          if (register) {
+            register.set(text, linewise);
+          }
+          this.unamedRegister.set(text, linewise);
+        }
+        if (!register) {
+          // These only happen if no register was explicitly specified.
+          if (operator == 'yank') {
+            // The 0 register contains the text from the most recent yank.
+            this.getRegisterInternal('0').set(text, linewise);
+          } else if (operator == 'delete' || operator == 'change') {
+            if (text.indexOf('\n') == -1) {
+              // Delete less than 1 line. Update the small delete register.
+              this.getRegisterInternal('-').set(text, linewise);
+            } else {
+              // Shift down the contents of the numbered registers and put the
+              // deleted text into register 1.
+              for (var i = 9; i >= 2; i--) {
+                var from = this.getRegisterInternal('' + (i - 1));
+                this.registers['' + i] = from;
+              }
+              this.registers['1'] = new Register();
+              this.registers['1'].set(text, linewise);
+            }
+          }
+        }
+      },
+      getRegister: function(name) {
+        if (!this.isValidRegister(name)) {
+          return this.unamedRegister;
+        }
+        return this.getRegisterInternal(name);
+      },
+      getRegisterInternal: function(name) {
         if (!name) {
           return null;
         }
         name = name.toLowerCase();
-        if (!registers[name]) {
-          registers[name] = new Register();
+        if (!this.registers[name]) {
+          this.registers[name] = new Register();
         }
-        return registers[name];
+        return this.registers[name];
+      },
+      isValidRegister: function(name) {
+        return name && inArray(name, validRegisters);
       }
-      return {
-        pushText: function(registerName, operator, text, linewise) {
-          // Lowercase and uppercase registers refer to the same register.
-          // Uppercase just means append.
-          var append = isUpperCase(registerName);
-          var register = this.isValidRegister(registerName) ?
-              getRegister(registerName) : null;
-          if (register &&
-              registerName.toLowerCase() != lastUpdatedRegisterName) {
-            // Switched registers, clear the unamed register.
-            lastUpdatedRegisterName = registerName.toLowerCase();
-            unamedRegister.set('', false);
-          } else {
-            lastUpdatedRegisterName = null;
-          }
-          // The unamed register always has the same value as the last used
-          // register.
-          if (append) {
-            if (register) {
-              register.append(text, linewise);
-            }
-            unamedRegister.append(text, linewise);
-          } else {
-            if (register) {
-              register.set(text, linewise);
-            }
-            unamedRegister.set(text, linewise);
-          }
-          if (!register) {
-            // These only happen if no register was explicitly specified.
-            if (operator == 'yank') {
-              // The 0 register contains the text from the most recent yank.
-              getRegister('0').set(text, linewise);
-            } else if (operator == 'delete' || operator == 'change') {
-              if (text.indexOf('\n') == -1) {
-                // Delete less than 1 line. Update the small delete register.
-                getRegister('-').set(text, linewise);
-              } else {
-                // Shift down the contents of the numbered registers and put the
-                // deleted text into register 1.
-                for (var i = 9; i >= 2; i--) {
-                  var from = getRegister('' + (i - 1));
-                  registers['' + i] = from;
-                }
-                registers['1'] = new Register();
-                registers['1'].set(text, linewise);
-              }
-            }
-          }
-        },
-        getRegister: function(name) {
-          if (!this.isValidRegister(name)) {
-            return unamedRegister;
-          }
-          return getRegister(name);
-        },
-        isValidRegister: function(name) {
-          return name && inArray(name, validRegisters);
-        }
-      };
-    }();
+    };
 
     var commandDispatcher = {
-      matchCommand: function(key, keyMap) {
+      matchCommand: function(key, keyMap, vim) {
+        var inputState = vim.inputState;
         var keys = inputState.keyBuffer.concat(key);
         for (var i = 0; i < keyMap.length; i++) {
           var command = keyMap[i];
@@ -471,30 +481,31 @@
         inputState.keyBuffer = [];
         return null;
       },
-      processCommand: function(cm, command) {
+      processCommand: function(cm, vim, command) {
         switch (command.type) {
           case 'motion':
-            this.processMotion(cm, command);
+            this.processMotion(cm, vim, command);
             break;
           case 'operator':
-            this.processOperator(cm, command);
+            this.processOperator(cm, vim, command);
             break;
           case 'operatorMotion':
-            this.processOperatorMotion(cm, command);
+            this.processOperatorMotion(cm, vim, command);
             break;
           case 'action':
-            this.processAction(cm, command);
+            this.processAction(cm, vim, command);
             break;
           default:
             break;
         }
       },
-      processMotion: function(cm, command) {
-        inputState.motion = command.motion;
-        inputState.motionArgs = command.motionArgs;
-        this.evalInput(cm);
+      processMotion: function(cm, vim, command) {
+        vim.inputState.motion = command.motion;
+        vim.inputState.motionArgs = command.motionArgs;
+        this.evalInput(cm, vim);
       },
-      processOperator: function(cm, command) {
+      processOperator: function(cm, vim, command) {
+        var inputState = vim.inputState;
         if (inputState.operator) {
           if (inputState.operator == command.operator) {
             // Typing an operator twice like 'dd' makes the operator operate
@@ -506,25 +517,26 @@
           } else {
             // 2 different operators in a row doesn't make sense.
             inputState.reset();
-            count.clear();
           }
         }
         inputState.operator = command.operator;
         inputState.operatorArgs = command.operatorArgs;
-        if (visualMode) {
+        if (vim.visualMode) {
           // Operating on a selection in visual mode. We don't need a motion.
-          this.evalInput(cm);
+          this.evalInput(cm, vim);
         }
       },
-      processOperatorMotion: function(cm, command) {
+      processOperatorMotion: function(cm, vim, command) {
+        var inputState = vim.inputState;
         inputState.motion = command.motion;
         inputState.motionArgs = command.motionArgs;
         inputState.operator = command.operator;
         inputState.operatorArgs = command.operatorArgs;
-        this.evalInput(cm);
+        this.evalInput(cm, vim);
       },
-      processAction: function(cm, command) {
-        var repeat = count.get();
+      processAction: function(cm, vim, command) {
+        var inputState = vim.inputState;
+        var repeat = inputState.getRepeat();
         var repeatIsExplicit = !!repeat;
         var actionArgs = command.actionArgs || {};
         if (inputState.selectedCharacter) {
@@ -532,24 +544,24 @@
         }
         // Actions may or may not have motions and operators. Do these first.
         if (command.operator) {
-          this.processOperator(cm, command);
+          this.processOperator(cm, vim, command);
         }
         if (command.motion) {
-          this.processMotion(cm, command);
+          this.processMotion(cm, vim, command);
         }
         if (command.motion || command.operator) {
-          this.evalInput(cm);
+          this.evalInput(cm, vim);
         }
         actionArgs.repeat = repeat || 1;
         actionArgs.repeatIsExplicit = repeatIsExplicit;
         actionArgs.registerName = inputState.registerName;
         inputState.reset();
-        count.clear();
-        actions[command.action](cm, actionArgs);
+        actions[command.action](cm, actionArgs, vim);
       },
-      evalInput: function(cm) {
+      evalInput: function(cm, vim) {
         // If the motion comand is set, execute both the operator and motion.
         // Otherwise return.
+        var inputState = vim.inputState;
         var motion = inputState.motion;
         var motionArgs = inputState.motionArgs || {};
         var operator = inputState.operator;
@@ -561,7 +573,7 @@
         // being operated on and ignores that there is a selection.
         var curStart = copyCursor(selectionEnd);
         var curEnd;
-        var repeat = count.get();
+        var repeat = inputState.getRepeat();
         if (repeat > 0 && motionArgs.explicitRepeat) {
           motionArgs.repeatIsExplicit = true;
         } else if (motionArgs.noRepeat ||
@@ -575,10 +587,9 @@
               inputState.selectedCharacter;
         }
         motionArgs.repeat = repeat;
-        count.clear();
         inputState.reset();
         if (motion) {
-          var motionResult = motions[motion](cm, motionArgs);
+          var motionResult = motions[motion](cm, motionArgs, vim);
           if (!motionResult) {
             return;
           }
@@ -592,7 +603,7 @@
           if (!curEnd) {
             curEnd = { ch: curStart.ch, line: curStart.line };
           }
-          if (visualMode) {
+          if (vim.visualMode) {
             // Check if the selection crossed over itself. Will need to shift
             // the start point if that happened.
             if (cursorIsBefore(selectionStart, selectionEnd) &&
@@ -608,7 +619,7 @@
               selectionStart.ch -= 1;
             }
             selectionEnd = curEnd;
-            if (visualLine) {
+            if (vim.visualLine) {
               if (cursorIsBefore(selectionStart, selectionEnd)) {
                 selectionStart.ch = 0;
                 selectionEnd.ch = lineLength(cm, selectionEnd.line);
@@ -627,7 +638,7 @@
         }
 
         if (operator) {
-          if (visualMode) {
+          if (vim.visualMode) {
             curStart = selectionStart;
             curEnd = selectionEnd;
             motionArgs.inclusive = true;
@@ -639,12 +650,14 @@
             curEnd = tmp;
             var inverted = true;
           }
-          if (motionArgs.inclusive && !(visualMode && inverted)) {
+          if (motionArgs.inclusive && !(vim.visualMode && inverted)) {
             // Move the selection end one to the right to include the last
             // character.
             curEnd.ch++;
           }
-          if (motionArgs.linewise || (visualMode && visualLine)) {
+          var linewise = motionArgs.linewise ||
+              (vim.visualMode && vim.visualLine);
+          if (linewise) {
             // Expand selection to entire line.
             expandSelectionToLine(cm, curStart, curEnd);
           } else {
@@ -653,13 +666,13 @@
           }
           operatorArgs.registerName = registerName;
           // Keep track of linewise as it affects how paste and change behave.
-          operatorArgs.linewise = motionArgs.linewise;
-          operators[operator](cm, operatorArgs, curStart,
+          operatorArgs.linewise = linewise;
+          operators[operator](cm, operatorArgs, vim, curStart,
               curEnd);
-          if (visualMode) {
+          if (vim.visualMode) {
             // Clear the selection.
             cm.setSelection(curStart, curStart);
-            visualMode = false;
+            vim.visualMode = false;
           }
           if (operatorArgs.enterInsertMode) {
             actions.enterInsertMode(cm);
@@ -682,8 +695,8 @@
             cursor.line + motionArgs.repeat - 1);
         return { line: endLine, ch: cm.getLine(endLine) };
       },
-      goToMark: function(cm, motionArgs) {
-        var mark = marks[motionArgs.selectedCharacter];
+      goToMark: function(cm, motionArgs, vim) {
+        var mark = vim.marks[motionArgs.selectedCharacter];
         if (mark) {
           return mark.find();
         }
@@ -803,24 +816,24 @@
     };
 
     var operators = {
-      change: function(cm, operatorArgs, curStart, curEnd) {
+      change: function(cm, operatorArgs, vim, curStart, curEnd) {
         if (operatorArgs.linewise) {
           // Do not delete the last newline, which should be the last character.
           // curEnd should be on the first character of the next line.
           curEnd.line--;
           curEnd.ch = cm.getLine(curEnd.line).length;
         }
-        registerController.pushText(operatorArgs.registerName, 'change',
+        vim.registerController.pushText(operatorArgs.registerName, 'change',
             cm.getRange(curStart, curEnd), operatorArgs.linewise);
         cm.replaceRange('', curStart, curEnd);
       },
       // delete is a javascript keyword.
-      'delete': function(cm, operatorArgs, curStart, curEnd) {
-        registerController.pushText(operatorArgs.registerName, 'delete',
+      'delete': function(cm, operatorArgs, vim, curStart, curEnd) {
+        vim.registerController.pushText(operatorArgs.registerName, 'delete',
             cm.getRange(curStart, curEnd), operatorArgs.linewise);
         cm.replaceRange('', curStart, curEnd);
       },
-      swapcase: function(cm, operatorArgs, curStart, curEnd) {
+      swapcase: function(cm, operatorArgs, vim, curStart, curEnd) {
         var toSwap = cm.getRange(curStart, curEnd);
         var swapped = '';
         for (var i = 0; i < toSwap.length; i++) {
@@ -830,8 +843,8 @@
         }
         cm.replaceRange(swapped, curStart, curEnd);
       },
-      yank: function(cm, operatorArgs, curStart, curEnd) {
-        registerController.pushText(operatorArgs.registerName, 'yank',
+      yank: function(cm, operatorArgs, vim, curStart, curEnd) {
+        vim.registerController.pushText(operatorArgs.registerName, 'yank',
             cm.getRange(curStart, curEnd), operatorArgs.linewise);
       }
     };
@@ -840,17 +853,17 @@
       enterInsertMode: function(cm) {
         cm.setOption('keyMap', 'vim-insert');
       },
-      toggleVisualMode: function(cm, actionArgs) {
+      toggleVisualMode: function(cm, actionArgs, vim) {
         var repeat = actionArgs.repeat;
         var curStart = cm.getCursor();
         var curEnd;
-        visualLine = !!actionArgs.linewise;
+        vim.visualLine = !!actionArgs.linewise;
         // TODO: The repeat should actually select number of characters/lines
         //     equal to the repeat times the size of the previous visual
         //     operation.
-        if (!visualMode) {
-          visualMode = true;
-          if (visualLine) {
+        if (!vim.visualMode) {
+          vim.visualMode = true;
+          if (vim.visualLine) {
             curStart.ch = 0;
             curEnd = {
               line: Math.min(curStart.line + repeat - 1, cm.lineCount()),
@@ -864,7 +877,7 @@
             };
           }
           // Make the initial selection.
-          if (!actionArgs.repeatIsExplicit && !visualLine) {
+          if (!actionArgs.repeatIsExplicit && !vim.visualLine) {
             // This is a strange case. Here the implicit repeat is 1. The
             // following commands lets the cursor hover over the 1 character
             // selection.
@@ -874,7 +887,7 @@
             cm.setSelection(curStart, curEnd);
           }
         } else {
-          exitVisualMode(cm);
+          exitVisualMode(cm, vim);
         }
       },
       joinLines: function(cm, actionArgs) {
@@ -897,9 +910,10 @@
         cm.setCursor(insertAt);
         this.enterInsertMode(cm);
       },
-      paste: function(cm, actionArgs) {
+      paste: function(cm, actionArgs, vim) {
         var cur = cm.getCursor();
-        var register = registerController.getRegister(actionArgs.registerName);
+        var register = vim.registerController.getRegister(
+            actionArgs.registerName);
         if (!register.text) { return; }
         for (var text = '', i = 0; i < actionArgs.repeat; i++) {
           text += register.text;
@@ -932,18 +946,18 @@
       redo: function(cm, actionArgs) {
         repeatFn(cm, CodeMirror.commands.redo, actionArgs.repeat)();
       },
-      setRegister: function(cm, actionArgs) {
-        inputState.registerName = actionArgs.selectedCharacter;
+      setRegister: function(cm, actionArgs, vim) {
+        vim.inputState.registerName = actionArgs.selectedCharacter;
       },
-      setMark: function(cm, actionArgs) {
+      setMark: function(cm, actionArgs, vim) {
         var markName = actionArgs.selectedCharacter;
         if (!inArray(markName, validMarks)) {
           return;
         }
-        if (marks[markName]) {
-          marks[markName].clear();
+        if (vim.marks[markName]) {
+          vim.marks[markName].clear();
         }
-        marks[markName] = cm.setBookmark(cm.getCursor());
+        vim.marks[markName] = cm.setBookmark(cm.getCursor());
       },
       replace: function(cm, actionArgs) {
         var replaceWith = actionArgs.selectedCharacter;
@@ -1044,9 +1058,9 @@
       return cm.getLine(lineNum).length;
     }
 
-    function exitVisualMode(cm) {
-      visualMode = false;
-      visualLine = false;
+    function exitVisualMode(cm, vim) {
+      vim.visualMode = false;
+      vim.visualLine = false;
       var selectionStart = cm.getCursor('anchor');
       var selectionEnd = cm.getCursor('head');
       cm.setCursor(selectionEnd);
@@ -1478,7 +1492,7 @@
       fallthrough: ['default']
     };
 
-    return instance;
+    return vimApi;
   };
   // Initialize Vim and make it available as an API.
   var vim = Vim();
