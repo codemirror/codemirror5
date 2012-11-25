@@ -26,6 +26,10 @@
  *   m<character>
  *   r<character>
  *
+ *   Modes:
+ *   ESC - leave insert mode, visual mode, and clear input state.
+ *   Ctrl-[ - same as ESC
+ *
  * Registers: unamed, -, a-z, A-Z, 0-9
  *   (Does not respect the special case for number registers when delete
  *    operator is made with these commands: %, (, ),  , /, ?, n, N, {, } )
@@ -65,6 +69,7 @@
     { keys: ['Shift-Backspace'], type: 'keyToKey', toKeys: ['b'] },
     { keys: ['Ctrl-n'], type: 'keyToKey', toKeys: ['j'] },
     { keys: ['Ctrl-p'], type: 'keyToKey', toKeys: ['k'] },
+    { keys: ['Ctrl-['], type: 'keyToKey', toKeys: ['Esc'] },
     // Motions
     { keys: ['h'], type: 'motion',
         motion: 'moveByCharacters',
@@ -1480,13 +1485,13 @@
       function bindKeys(keys, modifier) {
         for (var i = 0; i < keys.length; i++) {
           var key = keys[i];
-          if (inArray(key, specialSymbols)) {
+          if (!modifier && inArray(key, specialSymbols)) {
             // Wrap special symbols with '' because that's how CodeMirror binds
             // them.
             key = "'" + key + "'";
           }
           if (modifier) {
-            keyMap[modifier + '-' + key] = keyMapper(key, modifier);
+            keyMap[modifier + '-' + key] = keyMapper(keys[i], modifier);
           } else {
             keyMap[key] = keyMapper(keys[i]);
           }
@@ -1505,13 +1510,16 @@
     }
     CodeMirror.keyMap.vim = buildVimKeyMap();
 
+    function exitInsertMode(cm) {
+      cm.setCursor(cm.getCursor().line, cm.getCursor().ch-1, true);
+      cm.setOption('keyMap', 'vim');
+    }
+
     CodeMirror.keyMap['vim-insert'] = {
       // TODO: override navigation keys so that Esc will cancel automatic
       // indentation from o, O, i_<CR>
-      'Esc': function(cm) {
-        cm.setCursor(cm.getCursor().line, cm.getCursor().ch-1, true);
-        cm.setOption('keyMap', 'vim');
-      },
+      'Esc': exitInsertMode,
+      'Ctrl-[': exitInsertMode,
       'Ctrl-N': 'autocomplete',
       'Ctrl-P': 'autocomplete',
       fallthrough: ['default']
