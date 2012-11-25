@@ -143,13 +143,15 @@
     { keys: ['g', '~'], type: 'operator', operator: 'swapcase' },
     // Operator-Motion dual commands
     { keys: ['x'], type: 'operatorMotion', operator: 'delete',
-        motion: 'moveByCharacters', motionArgs: { forward: true }},
+        motion: 'moveByCharacters', motionArgs: { forward: true },
+        operatorMotionArgs: { visualLine: false }},
     { keys: ['X'], type: 'operatorMotion', operator: 'delete',
-        motion: 'moveByCharacters', motionArgs: { forward: false }},
+        motion: 'moveByCharacters', motionArgs: { forward: false },
+        operatorMotionArgs: { visualLine: true }},
     { keys: ['D'], type: 'operatorMotion', operator: 'delete',
-        motion: 'moveToEol' },
+        motion: 'moveToEol' , operatorMotionArgs: { visualLine: true }},
     { keys: ['Y'], type: 'operatorMotion', operator: 'yank',
-        motion: 'moveToEol' },
+        motion: 'moveToEol' , operatorMotionArgs: { visualLine: true }},
     { keys: ['~'], type: 'operatorMotion', operator: 'swapcase',
         motion: 'moveByCharacters', motionArgs: { forward: true }},
     // Actions
@@ -501,7 +503,7 @@
       },
       processMotion: function(cm, vim, command) {
         vim.inputState.motion = command.motion;
-        vim.inputState.motionArgs = command.motionArgs;
+        vim.inputState.motionArgs = copyArgs(command.motionArgs);
         this.evalInput(cm, vim);
       },
       processOperator: function(cm, vim, command) {
@@ -520,25 +522,31 @@
           }
         }
         inputState.operator = command.operator;
-        inputState.operatorArgs = command.operatorArgs;
+        inputState.operatorArgs = copyArgs(command.operatorArgs);
         if (vim.visualMode) {
           // Operating on a selection in visual mode. We don't need a motion.
           this.evalInput(cm, vim);
         }
       },
       processOperatorMotion: function(cm, vim, command) {
-        var inputState = vim.inputState;
-        inputState.motion = command.motion;
-        inputState.motionArgs = command.motionArgs;
-        inputState.operator = command.operator;
-        inputState.operatorArgs = command.operatorArgs;
-        this.evalInput(cm, vim);
+        var visualMode = vim.visualMode;
+        var operatorMotionArgs = copyArgs(command.operatorMotionArgs);
+        if (operatorMotionArgs) {
+          // Operator motions may have special behavior in visual mode.
+          if (visualMode && operatorMotionArgs.visualLine) {
+            vim.visualLine = true;
+          }
+        }
+        this.processOperator(cm, vim, command);
+        if (!visualMode) {
+          this.processMotion(cm, vim, command);
+        }
       },
       processAction: function(cm, vim, command) {
         var inputState = vim.inputState;
         var repeat = inputState.getRepeat();
         var repeatIsExplicit = !!repeat;
-        var actionArgs = command.actionArgs || {};
+        var actionArgs = copyArgs(command.actionArgs) || {};
         if (inputState.selectedCharacter) {
           actionArgs.selectedCharacter = inputState.selectedCharacter;
         }
@@ -1006,6 +1014,23 @@
       }
     };
 
+    // Merge arguments in place, for overriding arguments.
+    function mergeArgs(to, from) {
+      for (var prop in from) {
+        if (from.hasOwnProperty(prop)) {
+          to[prop] = from[prop];
+        }
+      }
+    }
+    function copyArgs(args) {
+      var ret = {};
+      for (var prop in args) {
+        if (args.hasOwnProperty(prop)) {
+          ret[prop] = args[prop];
+        }
+      }
+      return ret;
+    }
     function arrayEq(a1, a2) {
       if (a1.length != a2.length) return false;
       for (var i = 0; i < a1.length; i++) {
