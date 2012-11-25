@@ -71,7 +71,7 @@ function testVim(name, run, opts, expectedFail) {
   var vimOpts = {
     lineNumbers: true,
     mode: 'text/x-csrc',
-    keyMap: 'vim2',
+    keyMap: 'vim',
     showCursorWhenSelecting: true,
     value: code
   };

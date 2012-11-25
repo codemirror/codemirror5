@@ -1478,14 +1478,14 @@
       bindKeys(specialKeys, 'Ctrl');
       return keyMap;
     }
-    CodeMirror.keyMap.vim2 = buildVimKeyMap();
+    CodeMirror.keyMap.vim = buildVimKeyMap();
 
     CodeMirror.keyMap['vim-insert'] = {
       // TODO: override navigation keys so that Esc will cancel automatic
       // indentation from o, O, i_<CR>
       'Esc': function(cm) {
         cm.setCursor(cm.getCursor().line, cm.getCursor().ch-1, true);
-        cm.setOption('keyMap', 'vim2');
+        cm.setOption('keyMap', 'vim');
       },
       'Ctrl-N': 'autocomplete',
       'Ctrl-P': 'autocomplete',
