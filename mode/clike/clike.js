@@ -165,7 +165,19 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
 
   function cppHook(stream, state) {
     if (!state.startOfLine) return false;
-    stream.skipToEnd();
+    for (;;) {
+      if (stream.skipTo("\\")) {
+        stream.next();
+        if (stream.eol()) {
+          state.tokenize = cppHook;
+          break;
+        }
+      } else {
+        stream.skipToEnd();
+        state.tokenize = null;
+        break;
+      }
+    }
     return "meta";
   }
 
