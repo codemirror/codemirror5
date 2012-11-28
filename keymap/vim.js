@@ -520,7 +520,7 @@
             // linewise
             inputState.motion = 'expandToLine';
             inputState.motionArgs = { linewise: true };
-            this.evalInput(cm);
+            this.evalInput(cm, vim);
             return;
           } else {
             // 2 different operators in a row doesn't make sense.
