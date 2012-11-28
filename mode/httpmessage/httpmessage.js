@@ -61,7 +61,7 @@ CodeMirror.defineMode("httpmessage", function() {
 		startState: function() {
 			return {
 				endOfHeaders: false,
-				inHeaderValue: false,
+				inHeaderValue: false
 			};
 		}
 	};
