@@ -28,7 +28,8 @@
  *
  *   Modes:
  *   ESC - leave insert mode, visual mode, and clear input state.
- *   Ctrl-[ - same as ESC
+ *   Ctrl-[ - same as ESC.
+ *   Ctrl-C - exits insert mode.
  *
  * Registers: unamed, -, a-z, A-Z, 0-9
  *   (Does not respect the special case for number registers when delete
@@ -1520,6 +1521,7 @@
       // indentation from o, O, i_<CR>
       'Esc': exitInsertMode,
       'Ctrl-[': exitInsertMode,
+      'Ctrl-C': exitInsertMode,
       'Ctrl-N': 'autocomplete',
       'Ctrl-P': 'autocomplete',
       fallthrough: ['default']
