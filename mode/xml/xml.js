@@ -310,7 +310,9 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
       else return 0;
     },
 
-    electricChars: "/"
+    electricChars: "/",
+
+    configuration: parserConfig.htmlMode ? "html" : "xml"
   };
 });
 
