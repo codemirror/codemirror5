@@ -23,7 +23,7 @@
 // cf<char>, cF<char>, ct<char>, cT<char>
 //
 // Leaving insert mode:
-// Esc, Ctrl-[
+// Esc, Ctrl-[, Ctrl-C
 //
 // Deleting text:
 // x, X
@@ -594,7 +594,9 @@
     fallthrough: ["default"]
   };
   // Ctrl-[ is synonymous with <Esc> in vim, and many other places
-  CodeMirror.keyMap["vim-insert"]['Ctrl-['] = CodeMirror.keyMap["vim-insert"]['Esc'];
+  // http://vimdoc.sourceforge.net/htmldoc/insert.html#i_CTRL-C
+  // CTRL-C Quit insert mode, go back to Normal mode.
+  CodeMirror.keyMap["vim-insert"]['Ctrl-C'] = CodeMirror.keyMap["vim-insert"]['Ctrl-['] = CodeMirror.keyMap["vim-insert"]['Esc'];
 
   function findMatchedSymbol(cm, cur, symb) {
     var line = cur.line;
