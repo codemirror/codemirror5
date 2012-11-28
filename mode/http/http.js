@@ -59,13 +59,13 @@ CodeMirror.defineMode("http", function() {
     }
   }
 
-  function header(stream, state) {
+  function header(stream) {
     if (stream.sol() && !stream.eat(/[ \t]/)) {
       if (stream.match(/^.*?:/)) {
-	return "atom";
+        return "atom";
       } else {
-	stream.skipToEnd();
-	return "error";
+        stream.skipToEnd();
+        return "error";
       }
     } else {
       stream.skipToEnd();
@@ -73,7 +73,7 @@ CodeMirror.defineMode("http", function() {
     }
   }
 
-  function body(stream, state) {
+  function body(stream) {
     stream.skipToEnd();
     return null;
   }
