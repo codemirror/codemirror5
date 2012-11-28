@@ -153,6 +153,8 @@ div.CodeMirror-selected { background: #d9d9d9; }
 .cm-s-default span.cm-quote {color: #090;}
 .cm-s-default span.cm-hr {color: #999;}
 .cm-s-default span.cm-link {color: #00c;}
+span.cm-negative {color: #d44;}
+span.cm-positive {color: #292;}
 
 span.cm-header, span.cm-strong {font-weight: bold;}
 span.cm-em {font-style: italic;}
