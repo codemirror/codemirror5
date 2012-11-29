@@ -651,6 +651,20 @@
       the mode specification, rather than the resolved, instantiated
       <a href="#defineMode">mode object</a>.</dd>
 
+      <dt id="addKeyMap"><code>addKeyMap(map)</code></dt>
+      <dd>Attach an additional <a href="#keymaps">keymap</a> to the editor. This is mostly
+      useful for add-ons that need to register some key handlers
+      without trampling on
+      the <a href="#option_extraKeys"><code>extraKeys</code></a>
+      option. Maps added in this way have a lower precedence
+      than <code>extraKeys</code>, a higher precedence than the
+      base <a href="#option_keyMap"><code>keyMap</code></a>, and
+      between them, the maps added earlier have a higher precedence
+      than those added later.</dd>
+      <dt id="removeKeyMap"><code>removeKeyMap(map)</code></dt>
+      <dd>Disable a keymap added
+      with <a href="#addKeyMap"><code>addKeyMap</code></a>.</dd>
+
       <dt id="on"><code>on(type, func)</code></dt>
       <dd>Register an event handler for the given event type (a
       string) on the editor instance. There is also

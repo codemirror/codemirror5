@@ -1133,3 +1133,29 @@ testCM("dirtyBit", function(cm) {
   cm.redo();
   eq(cm.isClean(), true);
 });
+
+testCM("addKeyMap", function(cm) {
+  function sendKey(code) {
+    cm.triggerOnKeyDown({type: "keydown", keyCode: code,
+                         preventDefault: function(){}, stopPropagation: function(){}});
+  }
+
+  sendKey(39);
+  eqPos(cm.getCursor(), {line: 0, ch: 1});
+  var test = 0;
+  var map1 = {Right: function() { ++test; }}, map2 = {Right: function() { test += 10; }}
+  cm.addKeyMap(map1);
+  sendKey(39);
+  eqPos(cm.getCursor(), {line: 0, ch: 1});
+  eq(test, 1);
+  cm.addKeyMap(map2);
+  sendKey(39);
+  eq(test, 2);
+  cm.removeKeyMap(map1);
+  sendKey(39);
+  eq(test, 12);
+  cm.removeKeyMap(map2);
+  sendKey(39);
+  eq(test, 12);
+  eqPos(cm.getCursor(), {line: 0, ch: 2});
+}, {value: "abc"});
