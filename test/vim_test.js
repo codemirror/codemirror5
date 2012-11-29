@@ -2,6 +2,7 @@ var code = '' +
 ' wOrd1 (#%\n' +
 ' word3] \n' +
 'aopop pop 0 1 2 3 4\n' +
+' (a) [b] {c} \n' +
 'int getchar(void) {\n' +
 '  static char buf[BUFSIZ];\n' +
 '  static char *bufp = buf;\n' +
@@ -27,6 +28,7 @@ var lines = (function() {
 var wordLine = lines[0];
 var bigWordLine = lines[1];
 var charLine = lines[2];
+var bracesLine = lines[3];
 
 var word1 = {
   start: { line: wordLine.line, ch: 1 },
@@ -62,6 +64,18 @@ var numChars = [ { line: charLine.line, ch: 10 },
     { line: charLine.line, ch: 14 },
     { line: charLine.line, ch: 16 },
     { line: charLine.line, ch: 18 }];
+var parens1 = {
+  start: { line: bracesLine.line, ch: 1 },
+  end: { line: bracesLine.line, ch: 3 }
+};
+var squares1 = {
+  start: { line: bracesLine.line, ch: 5 },
+  end: { line: bracesLine.line, ch: 7 }
+};
+var curlys1 = {
+  start: { line: bracesLine.line, ch: 9 },
+  end: { line: bracesLine.line, ch: 11 }
+};
 
 function copyCursor(cur) {
   return { ch: cur.ch, line: cur.line };
@@ -76,7 +90,7 @@ function testVim(name, run, opts, expectedFail) {
     value: code
   };
   for (var prop in opts) {
-    if (opts.isOwnProperty(prop)) {
+    if (opts.hasOwnProperty(prop)) {
       vimOpts[prop] = opts[prop];
     }
   }
@@ -84,6 +98,7 @@ function testVim(name, run, opts, expectedFail) {
     var place = document.getElementById("testground");
     var cm = CodeMirror(place, vimOpts);
     CodeMirror.Vim.maybeInitState(cm);
+    var vim = cm.vimState;
 
     function doKeysFn(cm) {
       return function(args) {
@@ -106,7 +121,7 @@ function testVim(name, run, opts, expectedFail) {
     }
     var successful = false;
     try {
-      run(cm, helpers);
+      run(cm, vim, helpers);
       successful = true;
     } finally {
       if ((debug && !successful) || verbose) {
@@ -125,7 +140,7 @@ function testVim(name, run, opts, expectedFail) {
  * @param startPos The position the cursor should start at, defaults to 0, 0.
  */
 function testMotion(name, keys, endPos, startPos) {
-  testVim(name, function(cm, helpers) {
+  testVim(name, function(cm, vim, helpers) {
     if (!startPos) {
       startPos = { line: 0, ch: 0 };
     }
@@ -143,6 +158,7 @@ function offsetCursor(cur, offsetLine, offsetCh) {
   return { line: cur.line + offsetLine, ch: cur.ch + offsetCh };
 };
 
+// Motion tests
 testMotion('h', 'h', makeCursor(0, 0), word1.start);
 testMotion('h_repeat', ['3', 'h'], offsetCursor(word1.end, 0, -3), word1.end);
 testMotion('l', 'l', makeCursor(0, 1));
@@ -191,3 +207,187 @@ testMotion('F', ['F', 'p'], pChars[0], pChars[1]);
 testMotion('F_repeat', ['2', 'F', 'p'], pChars[0], pChars[2]);
 testMotion('T', ['T', 'p'], offsetCursor(pChars[0], 0, 1), pChars[1]);
 testMotion('T_repeat', ['2', 'T', 'p'], offsetCursor(pChars[0], 0, 1), pChars[2]);
+testMotion('%_parens', ['%'], parens1.end, parens1.start);
+testMotion('%_squares', ['%'], squares1.end, squares1.start);
+testMotion('%_braces', ['%'], curlys1.end, curlys1.start);
+
+// Operator tests
+testVim('dw_space', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('d', 'w');
+  eq('word1 ', cm.getValue());
+  var register = vim.registerController.getRegister();
+  eq(' ', register.text);
+  is(!register.linewise);
+}, { value: ' word1 ' });
+testVim('dw_word', function(cm, vim, helpers) {
+  cm.setCursor(0, 1);
+  helpers.doKeys('d', 'w');
+  eq(' word2', cm.getValue());
+  var register = vim.registerController.getRegister();
+  eq('word1 ', register.text);
+  is(!register.linewise);
+}, { value: ' word1 word2' });
+testVim('dw_only_word', function(cm, vim, helpers) {
+  // Test that if there is only 1 word left, dw deletes till the end of the
+  // line.
+  cm.setCursor(0, 1);
+  helpers.doKeys('d', 'w');
+  eq(' ', cm.getValue());
+  var register = vim.registerController.getRegister();
+  eq('word1 ', register.text);
+  is(!register.linewise);
+}, { value: ' word1 ' });
+testVim('dw_eol', function(cm, vim, helpers) {
+  // Assert that dw does not delete the newline if last word to delete is at end
+  // of line.
+  cm.setCursor(0, 1);
+  helpers.doKeys('d', 'w');
+  eq(' \nword2', cm.getValue());
+  var register = vim.registerController.getRegister();
+  eq('word1', register.text);
+  is(!register.linewise);
+}, { value: ' word1\nword2' });
+testVim('dw_repeat', function(cm, vim, helpers) {
+  // Assert that dw does delete newline if it should go to the next line, and
+  // that repeat works properly.
+  cm.setCursor(0, 1);
+  helpers.doKeys('d', '2', 'w');
+  eq(' ', cm.getValue());
+  var register = vim.registerController.getRegister();
+  eq('word1\nword2', register.text);
+  is(!register.linewise);
+}, { value: ' word1\nword2' });
+testVim('d_inclusive', function(cm, vim, helpers) {
+  // Assert that when inclusive is set, the character the cursor is on gets
+  // deleted too.
+  cm.setCursor(0, 1);
+  helpers.doKeys('d', 'e');
+  eq('  ', cm.getValue());
+  var register = vim.registerController.getRegister();
+  eq('word1', register.text);
+  is(!register.linewise);
+}, { value: ' word1 ' });
+testVim('d_reverse', function(cm, vim, helpers) {
+  // Test that deleting in reverse works.
+  cm.setCursor(1, 0);
+  helpers.doKeys('d', 'b');
+  eq(' word2 ', cm.getValue());
+  var register = vim.registerController.getRegister();
+  eq('word1\n', register.text);
+  is(!register.linewise);
+}, { value: ' word1\nword2 ' });
+testVim('dd', function(cm, vim, helpers) {
+  cm.setCursor(0, 3);
+  var expectedBuffer = cm.getRange({ line: 0, ch: 0 },
+    { line: 1, ch: 0 });
+  var expectedLineCount = cm.lineCount() - 1;
+  helpers.doKeys('d', 'd');
+  eq(expectedLineCount, cm.lineCount());
+  var register = vim.registerController.getRegister();
+  eq(expectedBuffer, register.text);
+  is(register.linewise);
+});
+testVim('dd_prefix_repeat', function(cm, vim, helpers) {
+  cm.setCursor(0, 3);
+  var expectedBuffer = cm.getRange({ line: 0, ch: 0 },
+    { line: 2, ch: 0 });
+  var expectedLineCount = cm.lineCount() - 2;
+  helpers.doKeys('2', 'd', 'd');
+  eq(expectedLineCount, cm.lineCount());
+  var register = vim.registerController.getRegister();
+  eq(expectedBuffer, register.text);
+  is(register.linewise);
+});
+testVim('dd_motion_repeat', function(cm, vim, helpers) {
+  cm.setCursor(0, 3);
+  var expectedBuffer = cm.getRange({ line: 0, ch: 0 },
+    { line: 2, ch: 0 });
+  var expectedLineCount = cm.lineCount() - 2;
+  helpers.doKeys('d', '2', 'd');
+  eq(expectedLineCount, cm.lineCount());
+  var register = vim.registerController.getRegister();
+  eq(expectedBuffer, register.text);
+  is(register.linewise);
+});
+testVim('dd_multiply_repeat', function(cm, vim, helpers) {
+  cm.setCursor(0, 3);
+  var expectedBuffer = cm.getRange({ line: 0, ch: 0 },
+    { line: 6, ch: 0 });
+  var expectedLineCount = cm.lineCount() - 6;
+  helpers.doKeys('2', 'd', '3', 'd');
+  eq(expectedLineCount, cm.lineCount());
+  var register = vim.registerController.getRegister();
+  eq(expectedBuffer, register.text);
+  is(register.linewise);
+});
+// Yank commands should behave the exact same as d commands, expect that nothing
+// gets deleted.
+testVim('yw_repeat', function(cm, vim, helpers) {
+  // Assert that dw does delete newline if it should go to the next line, and
+  // that repeat works properly.
+  cm.setCursor(0, 1);
+  helpers.doKeys('y', '2', 'w');
+  eq(' word1\nword2', cm.getValue());
+  var register = vim.registerController.getRegister();
+  eq('word1\nword2', register.text);
+  is(!register.linewise);
+}, { value: ' word1\nword2' });
+testVim('yy_multiply_repeat', function(cm, vim, helpers) {
+  cm.setCursor(0, 3);
+  var expectedBuffer = cm.getRange({ line: 0, ch: 0 },
+    { line: 6, ch: 0 });
+  var expectedLineCount = cm.lineCount();
+  helpers.doKeys('2', 'y', '3', 'y');
+  eq(expectedLineCount, cm.lineCount());
+  var register = vim.registerController.getRegister();
+  eq(expectedBuffer, register.text);
+  is(register.linewise);
+});
+// Change commands behave like d commands except that it also enters insert
+// mode. In addition, when the change is linewise, an additional newline is
+// inserted so that insert mode starts on that line.
+testVim('cw_repeat', function(cm, vim, helpers) {
+  // Assert that dw does delete newline if it should go to the next line, and
+  // that repeat works properly.
+  cm.setCursor(0, 1);
+  helpers.doKeys('c', '2', 'w');
+  eq(' ', cm.getValue());
+  var register = vim.registerController.getRegister();
+  eq('word1\nword2', register.text);
+  is(!register.linewise);
+  eq('vim-insert', cm.getOption('keyMap'));
+}, { value: ' word1\nword2' });
+testVim('cc_multiply_repeat', function(cm, vim, helpers) {
+  cm.setCursor(0, 3);
+  var expectedBuffer = cm.getRange({ line: 0, ch: 0 },
+    { line: 6, ch: 0 });
+  var expectedLineCount = cm.lineCount() - 5;
+  helpers.doKeys('2', 'c', '3', 'c');
+  eq(expectedLineCount, cm.lineCount());
+  var register = vim.registerController.getRegister();
+  eq(expectedBuffer, register.text);
+  is(register.linewise);
+  eq('vim-insert', cm.getOption('keyMap'));
+});
+// Swapcase commands edit in place and do not modify registers.
+testVim('g~w_repeat', function(cm, vim, helpers) {
+  // Assert that dw does delete newline if it should go to the next line, and
+  // that repeat works properly.
+  cm.setCursor(0, 1);
+  helpers.doKeys('g', '~', '2', 'w');
+  eq(' WORD1\nWORD2', cm.getValue());
+  var register = vim.registerController.getRegister();
+  eq('', register.text);
+  is(!register.linewise);
+}, { value: ' word1\nword2' });
+testVim('g~g~', function(cm, vim, helpers) {
+  cm.setCursor(0, 3);
+  var expectedLineCount = cm.lineCount();
+  var expectedValue = cm.getValue().toUpperCase();
+  helpers.doKeys('2', 'g', '~', '3', 'g', '~');
+  eq(expectedValue, cm.getValue());
+  var register = vim.registerController.getRegister();
+  eq('', register.text);
+  is(!register.linewise);
+}, { value: ' word1\nword2\nword3\nword4\nword5\nword6' });

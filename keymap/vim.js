@@ -1,4 +1,5 @@
 // Reimplementation of vim keybindings
+// word1
 /**
  * Supported keybindings:
  *
@@ -349,13 +350,17 @@
       }
     };
     InputState.prototype.getRepeat = function() {
-      if (this.prefixRepeat.length > 0) {
-        var repeat = parseInt(this.prefixRepeat.join(''), 10);
+      var repeat = 0;
+      if (this.prefixRepeat.length > 0 || this.motionRepeat.length > 0) {
+        repeat = 1;
+        if (this.prefixRepeat.length > 0) {
+          repeat *= parseInt(this.prefixRepeat.join(''), 10);
+        }
         if (this.motionRepeat.length > 0) {
           repeat *= parseInt(this.motionRepeat.join(''), 10);
         }
       }
-      return repeat || 0;
+      return repeat;
     };
 
     function Register() {
@@ -674,8 +679,8 @@
           if (linewise) {
             // Expand selection to entire line.
             expandSelectionToLine(cm, curStart, curEnd);
-          } else {
-            // Clip to trailing newlines.
+          } else if (motionArgs.forward) {
+            // Clip to trailing newlines only if we the motion goes forward.
             clipToLine(cm, curStart, curEnd);
           }
           operatorArgs.registerName = registerName;
@@ -707,7 +712,7 @@
         var cursor = cm.getCursor();
         var endLine = Math.min(cm.lineCount(),
             cursor.line + motionArgs.repeat - 1);
-        return { line: endLine, ch: cm.getLine(endLine) };
+        return { line: endLine, ch: lineLength(cm, endLine) };
       },
       goToMark: function(cm, motionArgs, vim) {
         var mark = vim.marks[motionArgs.selectedCharacter];
@@ -831,15 +836,16 @@
 
     var operators = {
       change: function(cm, operatorArgs, vim, curStart, curEnd) {
-        if (operatorArgs.linewise) {
-          // Do not delete the last newline, which should be the last character.
-          // curEnd should be on the first character of the next line.
-          curEnd.line--;
-          curEnd.ch = cm.getLine(curEnd.line).length;
-        }
         vim.registerController.pushText(operatorArgs.registerName, 'change',
             cm.getRange(curStart, curEnd), operatorArgs.linewise);
-        cm.replaceRange('', curStart, curEnd);
+        if (operatorArgs.linewise) {
+          // Insert an additional newline so that insert mode can start there.
+          // curEnd should be on the first character of the new line.
+          cm.replaceRange('\n', curStart, curEnd);
+        } else {
+          cm.replaceRange('', curStart, curEnd);
+        }
+        cm.setCursor(curStart);
       },
       // delete is a javascript keyword.
       'delete': function(cm, operatorArgs, vim, curStart, curEnd) {
@@ -1259,8 +1265,8 @@
               cur.ch = word.from;
             }
           } else {
-            // No more words to be found.
-            return cur;
+            // No more words to be found. Move to end of line.
+            return { line: cur.line, ch: lineLength(cm, cur.line) };
           }
         }
       }
