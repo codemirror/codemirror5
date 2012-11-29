@@ -1158,4 +1158,10 @@ testCM("addKeyMap", function(cm) {
   sendKey(39);
   eq(test, 12);
   eqPos(cm.getCursor(), {line: 0, ch: 2});
+  cm.addKeyMap({Right: function() { test = 55; }, name: "mymap"});
+  sendKey(39);
+  eq(test, 55);
+  cm.removeKeyMap("mymap");
+  sendKey(39);
+  eqPos(cm.getCursor(), {line: 0, ch: 3});
 }, {value: "abc"});

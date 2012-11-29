@@ -663,7 +663,10 @@
       than those added later.</dd>
       <dt id="removeKeyMap"><code>removeKeyMap(map)</code></dt>
       <dd>Disable a keymap added
-      with <a href="#addKeyMap"><code>addKeyMap</code></a>.</dd>
+      with <a href="#addKeyMap"><code>addKeyMap</code></a>. Either
+      pass in the keymap object itself, or a string, which will be
+      compared against the <code>name</code> property of the active
+      keymaps.</dd>
 
       <dt id="on"><code>on(type, func)</code></dt>
       <dd>Register an event handler for the given event type (a

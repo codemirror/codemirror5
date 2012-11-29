@@ -30,10 +30,7 @@
     <script type="text/javascript">
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         mode: 'text/html',
-        extraKeys: {
-          "'>'": function(cm) { CodeMirror.closeTag(cm, '>'); },
-          "'/'": function(cm) { CodeMirror.closeTag(cm, '/'); }
-        }
+        autoCloseTags: true
       });
     </script>
   </body>
