@@ -15,7 +15,8 @@
  *   Operator:
  *   d, y, c
  *   dd, yy, cc
- *   g~
+ *   g~, g~g~
+ *   >, <, >>, <<
  *
  *   Operator-Motion:
  *   x, X, D, Y, ~
@@ -147,6 +148,10 @@
     { keys: ['y'], type: 'operator', operator: 'yank' },
     { keys: ['c'], type: 'operator', operator: 'change',
         operatorArgs: { enterInsertMode: true } },
+    { keys: ['>'], type: 'operator', operator: 'indent',
+        operatorArgs: { indentRight: true }},
+    { keys: ['<'], type: 'operator', operator: 'indent',
+        operatorArgs: { indentRight: false }},
     { keys: ['g', '~'], type: 'operator', operator: 'swapcase' },
     // Operator-Motion dual commands
     { keys: ['x'], type: 'operatorMotion', operator: 'delete',
@@ -657,6 +662,7 @@
         }
 
         if (operator) {
+          operatorArgs.repeat = repeat; // Indent in visual mode needs this.
           if (vim.visualMode) {
             curStart = selectionStart;
             curEnd = selectionEnd;
@@ -689,9 +695,7 @@
           operators[operator](cm, operatorArgs, vim, curStart,
               curEnd);
           if (vim.visualMode) {
-            // Clear the selection.
-            cm.setSelection(curStart, curStart);
-            vim.visualMode = false;
+            exitVisualMode(cm, vim);
           }
           if (operatorArgs.enterInsertMode) {
             actions.enterInsertMode(cm);
@@ -852,6 +856,26 @@
         vim.registerController.pushText(operatorArgs.registerName, 'delete',
             cm.getRange(curStart, curEnd), operatorArgs.linewise);
         cm.replaceRange('', curStart, curEnd);
+      },
+      indent: function(cm, operatorArgs, vim, curStart, curEnd) {
+        var startLine = curStart.line;
+        var endLine = curEnd.line;
+        // In visual mode, n> shifts the selection right n times, instead of
+        // shifting n lines right once.
+        var repeat = (vim.visualMode) ? operatorArgs.repeat : 1;
+        if (operatorArgs.linewise) {
+          // The only way to delete a newline is to delete until the start of
+          // the next line, so in linewise mode evalInput will include the next
+          // line. We don't want this in indent, so we go back a line.
+          endLine--;
+        }
+        for (var i = startLine; i <= endLine; i++) {
+          for (var j = 0; j < repeat; j++) {
+            cm.indentLine(i, operatorArgs.indentRight);
+          }
+        }
+        cm.setCursor(curStart);
+        cm.setCursor(motions.moveToFirstNonWhiteSpaceCharacter(cm));
       },
       swapcase: function(cm, operatorArgs, vim, curStart, curEnd) {
         var toSwap = cm.getRange(curStart, curEnd);
@@ -1106,7 +1130,12 @@
       vim.visualLine = false;
       var selectionStart = cm.getCursor('anchor');
       var selectionEnd = cm.getCursor('head');
-      cm.setCursor(selectionEnd);
+      if (!cursorEqual(selectionStart, selectionEnd)) {
+        // Clear the selection and set the cursor only if the selection has not
+        // already been cleared. Otherwise we risk moving the cursor somewhere
+        // it's not supposed to be.
+        cm.setCursor(selectionEnd);
+      }
     }
 
     // Remove any trailing newlines from the selection. For

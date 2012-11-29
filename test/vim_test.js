@@ -391,3 +391,43 @@ testVim('g~g~', function(cm, vim, helpers) {
   eq('', register.text);
   is(!register.linewise);
 }, { value: ' word1\nword2\nword3\nword4\nword5\nword6' });
+testVim('>{motion}', function(cm, vim, helpers) {
+  cm.setCursor(1, 3);
+  var expectedLineCount = cm.lineCount();
+  var expectedValue = '   word1\n  word2\nword3 ';
+  helpers.doKeys('>', 'k');
+  eq(expectedValue, cm.getValue());
+  var register = vim.registerController.getRegister();
+  eq('', register.text);
+  is(!register.linewise);
+}, { value: ' word1\nword2\nword3 ', indentUnit: 2 });
+testVim('>>', function(cm, vim, helpers) {
+  cm.setCursor(0, 3);
+  var expectedLineCount = cm.lineCount();
+  var expectedValue = '   word1\n  word2\nword3 ';
+  helpers.doKeys('2', '>', '>');
+  eq(expectedValue, cm.getValue());
+  var register = vim.registerController.getRegister();
+  eq('', register.text);
+  is(!register.linewise);
+}, { value: ' word1\nword2\nword3 ', indentUnit: 2 });
+testVim('<{motion}', function(cm, vim, helpers) {
+  cm.setCursor(1, 3);
+  var expectedLineCount = cm.lineCount();
+  var expectedValue = ' word1\nword2\nword3 ';
+  helpers.doKeys('<', 'k');
+  eq(expectedValue, cm.getValue());
+  var register = vim.registerController.getRegister();
+  eq('', register.text);
+  is(!register.linewise);
+}, { value: '   word1\n  word2\nword3 ', indentUnit: 2 });
+testVim('<<', function(cm, vim, helpers) {
+  cm.setCursor(0, 3);
+  var expectedLineCount = cm.lineCount();
+  var expectedValue = ' word1\nword2\nword3 ';
+  helpers.doKeys('2', '<', '<');
+  eq(expectedValue, cm.getValue());
+  var register = vim.registerController.getRegister();
+  eq('', register.text);
+  is(!register.linewise);
+}, { value: '   word1\n  word2\nword3 ', indentUnit: 2 });
