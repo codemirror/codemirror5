@@ -292,6 +292,23 @@
 
   <h2 id=releases>Releases</h2>
 
+  <p class="rel">20-11-2012: <a href="http://codemirror.net/codemirror-3.0rc2.zip">Version 3.0, release candidate 2</a>:</p>
+
+  <p class="rel-note"><strong>New major version</strong>. Only
+  partially backwards-compatible. See
+  the <a href="doc/upgrade_v3.html">upgrading guide</a> for more
+  information. Changes since release candidate 1:</p>
+
+  <ul class="rel-note">
+    <li>New mode: <a href="mode/http/index.html">HTTP</a>.</li>
+    <li>Improved handling of selection anchor position.</li>
+    <li>Improve IE performance on longer lines.</li>
+    <li>Reduce gutter glitches during horiz. scrolling.</li>
+    <li>Add <a href="doc/manual.html#addKeyMap"><code>addKeyMap</code></a> and <a href="doc/manual.html#removeKeyMap"><code>removeKeyMap</code></a> methods.</li>
+    <li>Rewrite <code>formatting</code> and <code>closetag</code> add-ons.</li>
+    <li>Full <a href="https://github.com/marijnh/CodeMirror/compare/v3.0rc1...v3.0rc2">list of patches</a>.</li>
+  </ul>
+
   <p class="rel">20-11-2012: <a href="http://codemirror.net/codemirror-2.36.zip">Version 2.36</a>:</p>
 
   <ul class="rel-note">
@@ -307,11 +324,6 @@
   </ul>
 
   <p class="rel">20-11-2012: <a href="http://codemirror.net/codemirror-3.0rc1.zip">Version 3.0, release candidate 1</a>:</p>
-
-  <p class="rel-note"><strong>New major version</strong>. Only partially
-  backwards-compatible. See
-  the <a href="doc/upgrade_v3.html">upgrading
-  guide</a> for more information. Changes since beta 2:</p>
 
   <ul class="rel-note">
     <li>New theme: <a href="demo/theme.html?solarized%20light">Solarized</a>.</li>
@@ -431,48 +443,6 @@
     <li>Fix X Windows middle-click paste in Chrome.</li>
     <li>Fix bug that broke pasting of huge documents.</li>
     <li>Fix backspace and tab key repeat in Opera.</li>
-  </ul>
-
-  <p class="rel">23-04-2012: <a href="http://codemirror.net/codemirror-2.24.zip">Version 2.24</a>:</p>
-
-  <ul class="rel-note">
-    <li><strong>Drop support for Internet Explorer 6</strong>.</li>
-    <li>New
-    modes: <a href="mode/shell/index.html">Shell</a>, <a href="mode/tiki/index.html">Tiki
-    wiki</a>, <a href="mode/pig/index.html">Pig Latin</a>.</li>
-    <li>New themes: <a href="demo/theme.html?ambiance">Ambiance</a>, <a href="demo/theme.html?blackboard">Blackboard</a>.</li>
-    <li>More control over drag/drop
-    with <a href="doc/manual.html#option_dragDrop"><code>dragDrop</code></a>
-    and <a href="doc/manual.html#option_onDragEvent"><code>onDragEvent</code></a>
-    options.</li>
-    <li>Make HTML mode a bit less pedantic.</li>
-    <li>Add <a href="doc/manual.html#compoundChange"><code>compoundChange</code></a> API method.</li>
-    <li>Several fixes in undo history and line hiding.</li>
-    <li>Remove (broken) support for <code>catchall</code> in key maps,
-    add <code>nofallthrough</code> boolean field instead.</li>
-  </ul>
-
-  <p class="rel">26-03-2012: <a href="http://codemirror.net/codemirror-2.23.zip">Version 2.23</a>:</p>
-
-  <ul class="rel-note">
-    <li>Change <strong>default binding for tab</strong> <a href="javascript:void(document.getElementById('tabbinding').style.display='')">[more]</a>
-      <div style="display: none" id=tabbinding>
-        Starting in 2.23, these bindings are default:
-        <ul><li>Tab: Insert tab character</li>
-          <li>Shift-tab: Reset line indentation to default</li>
-          <li>Ctrl/Cmd-[: Reduce line indentation (old tab behaviour)</li>
-          <li>Ctrl/Cmd-]: Increase line indentation (old shift-tab behaviour)</li>
-        </ul>
-      </div>
-    </li>
-    <li>New modes: <a href="mode/xquery/index.html">XQuery</a> and <a href="mode/vbscript/index.html">VBScript</a>.</li>
-    <li>Two new themes: <a href="mode/less/index.html">lesser-dark</a> and <a href="mode/xquery/index.html">xq-dark</a>.</li>
-    <li>Differentiate between background and text styles in <a href="doc/manual.html#setLineClass"><code>setLineClass</code></a>.</li>
-    <li>Fix drag-and-drop in IE9+.</li>
-    <li>Extend <a href="doc/manual.html#charCoords"><code>charCoords</code></a>
-    and <a href="doc/manual.html#cursorCoords"><code>cursorCoords</code></a> with a <code>mode</code> argument.</li>
-    <li>Add <a href="doc/manual.html#option_autofocus"><code>autofocus</code></a> option.</li>
-    <li>Add <a href="doc/manual.html#findMarksAt"><code>findMarksAt</code></a> method.</li>
   </ul>
 
   <p><a href="doc/oldrelease.html">Older releases...</a></p>

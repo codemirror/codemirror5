@@ -19,6 +19,48 @@
 </pre>
 </div>
 
+  <p class="rel">23-04-2012: <a href="http://codemirror.net/codemirror-2.24.zip">Version 2.24</a>:</p>
+
+  <ul class="rel-note">
+    <li><strong>Drop support for Internet Explorer 6</strong>.</li>
+    <li>New
+    modes: <a href="../mode/shell/index.html">Shell</a>, <a href="../mode/tiki/index.html">Tiki
+    wiki</a>, <a href="../mode/pig/index.html">Pig Latin</a>.</li>
+    <li>New themes: <a href="../demo/theme.html?ambiance">Ambiance</a>, <a href="../demo/theme.html?blackboard">Blackboard</a>.</li>
+    <li>More control over drag/drop
+    with <a href="manual.html#option_dragDrop"><code>dragDrop</code></a>
+    and <a href="manual.html#option_onDragEvent"><code>onDragEvent</code></a>
+    options.</li>
+    <li>Make HTML mode a bit less pedantic.</li>
+    <li>Add <a href="manual.html#compoundChange"><code>compoundChange</code></a> API method.</li>
+    <li>Several fixes in undo history and line hiding.</li>
+    <li>Remove (broken) support for <code>catchall</code> in key maps,
+    add <code>nofallthrough</code> boolean field instead.</li>
+  </ul>
+
+  <p class="rel">26-03-2012: <a href="http://codemirror.net/codemirror-2.23.zip">Version 2.23</a>:</p>
+
+  <ul class="rel-note">
+    <li>Change <strong>default binding for tab</strong> <a href="javascript:void(document.getElementById('tabbinding').style.display='')">[more]</a>
+      <div style="display: none" id=tabbinding>
+        Starting in 2.23, these bindings are default:
+        <ul><li>Tab: Insert tab character</li>
+          <li>Shift-tab: Reset line indentation to default</li>
+          <li>Ctrl/Cmd-[: Reduce line indentation (old tab behaviour)</li>
+          <li>Ctrl/Cmd-]: Increase line indentation (old shift-tab behaviour)</li>
+        </ul>
+      </div>
+    </li>
+    <li>New modes: <a href="../mode/xquery/index.html">XQuery</a> and <a href="../mode/vbscript/index.html">VBScript</a>.</li>
+    <li>Two new themes: <a href="../mode/less/index.html">lesser-dark</a> and <a href="../mode/xquery/index.html">xq-dark</a>.</li>
+    <li>Differentiate between background and text styles in <a href="manual.html#setLineClass"><code>setLineClass</code></a>.</li>
+    <li>Fix drag-and-drop in IE9+.</li>
+    <li>Extend <a href="manual.html#charCoords"><code>charCoords</code></a>
+    and <a href="manual.html#cursorCoords"><code>cursorCoords</code></a> with a <code>mode</code> argument.</li>
+    <li>Add <a href="manual.html#option_autofocus"><code>autofocus</code></a> option.</li>
+    <li>Add <a href="manual.html#findMarksAt"><code>findMarksAt</code></a> method.</li>
+  </ul>
+
   <p class="rel">27-02-2012: <a href="http://codemirror.net/codemirror-2.22.zip">Version 2.22</a>:</p>
 
   <ul class="rel-note">
