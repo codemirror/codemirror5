@@ -286,6 +286,15 @@
           // Store instance state in the CodeMirror object.
           cm.vimState = {
             inputState: new InputState(),
+            // When using jk for navigation, if you move from a longer line to a
+            // shorter line, the cursor may clip to the end of the shorter line.
+            // If j is pressed again and cursor goes to the next line, the
+            // cursor should go back to its horizontal position on the longer
+            // line if it can. This is to keep track of the horizontal position.
+            lastHPos: -1,
+            // The last motion command run. Cleared if a non-motion command gets
+            // executed in between.
+            lastMotion: null,
             marks: {},
             registerController: new RegisterController({}),
             visualMode: false,
@@ -599,6 +608,7 @@
         // The difference between cur and selection cursors are that cur is
         // being operated on and ignores that there is a selection.
         var curStart = copyCursor(selectionEnd);
+        var curOriginal = copyCursor(curStart);
         var curEnd;
         var repeat = inputState.getRepeat();
         if (repeat > 0 && motionArgs.explicitRepeat) {
@@ -617,6 +627,7 @@
         inputState.reset();
         if (motion) {
           var motionResult = motions[motion](cm, motionArgs, vim);
+          vim.lastMotion = motions[motion];
           if (!motionResult) {
             return;
           }
@@ -659,12 +670,13 @@
             // CodeMirror can't figure out that we changed directions...
             cm.setCursor(selectionStart);
             cm.setSelection(selectionStart, selectionEnd);
-          } else {
+          } else if (!operator) {
             cm.setCursor(curEnd.line, curEnd.ch);
           }
         }
 
         if (operator) {
+          vim.lastMotion = null;
           operatorArgs.repeat = repeat; // Indent in visual mode needs this.
           if (vim.visualMode) {
             curStart = selectionStart;
@@ -696,7 +708,7 @@
           // Keep track of linewise as it affects how paste and change behave.
           operatorArgs.linewise = linewise;
           operators[operator](cm, operatorArgs, vim, curStart,
-              curEnd);
+              curEnd, curOriginal);
           if (vim.visualMode) {
             exitVisualMode(cm, vim);
           }
@@ -739,14 +751,22 @@
           return { line: cursor.line, ch: Math.max(0, cursor.ch - repeat) };
         }
       },
-      moveByLines: function(cm, motionArgs) {
+      moveByLines: function(cm, motionArgs, vim) {
+        var endCh = cm.getCursor().ch;
+        // Either get the last horizontal position from the vim state, or push
+        // this one onto the state.
+        if (vim.lastMotion == this.moveByLines) {
+          endCh = vim.lastHPos;
+        } else {
+          vim.lastHPos = endCh;
+        }
         var cursor = cm.getCursor();
         var repeat = motionArgs.repeat;
         if (motionArgs.forward) {
           return { line: Math.min(cm.lineCount(), cursor.line + repeat),
-              ch: cursor.ch };
+              ch: endCh };
         } else {
-          return { line: Math.max(0, cursor.line - repeat), ch: cursor.ch };
+          return { line: Math.max(0, cursor.line - repeat), ch: endCh };
         }
       },
       moveByPage: function(cm, motionArgs) {
@@ -787,7 +807,7 @@
         var cursor = cm.getCursor();
         var line = Math.min(cursor.line + motionArgs.repeat - 1,
             cm.lineCount());
-        return { line: line, ch: cm.getLine(line).length };
+        return { line: line, ch: cm.getLine(line).length - 1 };
       },
       moveToFirstNonWhiteSpaceCharacter: function(cm) {
         // Go to the start of the line where the text begins, or the end for
@@ -846,6 +866,15 @@
         vim.registerController.pushText(operatorArgs.registerName, 'change',
             cm.getRange(curStart, curEnd), operatorArgs.linewise);
         if (operatorArgs.linewise) {
+          // Delete starting at the first nonwhitespace character of the first
+          // line, instead of from the start of the first line. This way we get
+          // an indent when we get into insert mode. This behavior isn't quite
+          // correct because we should treat this as a completely new line, and
+          // indent should be whatever codemirror thinks is the right indent.
+          // But cm.indentLine doesn't seem work on empty lines.
+          // TODO: Fix the above.
+          curStart.ch =
+              findFirstNonWhiteSpaceCharacter(cm.getLine(curStart.line));
           // Insert an additional newline so that insert mode can start there.
           // curEnd should be on the first character of the new line.
           cm.replaceRange('\n', curStart, curEnd);
@@ -859,6 +888,11 @@
         vim.registerController.pushText(operatorArgs.registerName, 'delete',
             cm.getRange(curStart, curEnd), operatorArgs.linewise);
         cm.replaceRange('', curStart, curEnd);
+        if (operatorArgs.linewise) {
+          cm.setCursor(motions.moveToFirstNonWhiteSpaceCharacter(cm));
+        } else {
+          cm.setCursor(curStart);
+        }
       },
       indent: function(cm, operatorArgs, vim, curStart, curEnd) {
         var startLine = curStart.line;
@@ -880,7 +914,7 @@
         cm.setCursor(curStart);
         cm.setCursor(motions.moveToFirstNonWhiteSpaceCharacter(cm));
       },
-      swapcase: function(cm, operatorArgs, vim, curStart, curEnd) {
+      swapcase: function(cm, operatorArgs, vim, curStart, curEnd, curOriginal) {
         var toSwap = cm.getRange(curStart, curEnd);
         var swapped = '';
         for (var i = 0; i < toSwap.length; i++) {
@@ -889,10 +923,12 @@
               character.toUpperCase();
         }
         cm.replaceRange(swapped, curStart, curEnd);
+        cm.setCursor(curOriginal);
       },
-      yank: function(cm, operatorArgs, vim, curStart, curEnd) {
+      yank: function(cm, operatorArgs, vim, curStart, curEnd, curOriginal) {
         vim.registerController.pushText(operatorArgs.registerName, 'yank',
             cm.getRange(curStart, curEnd), operatorArgs.linewise);
+        cm.setCursor(curOriginal);
       }
     };
 
