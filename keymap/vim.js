@@ -904,14 +904,20 @@
           exitVisualMode(cm, vim);
         }
       },
-      joinLines: function(cm, actionArgs) {
-        // Repeat is the number of lines to join. Minimum 2 lines.
-        var repeat = Math.max(actionArgs.repeat, 2);
-        var curStart = cm.getCursor();
-        var lineNumEnd = Math.min(curStart.line + repeat - 1,
-            cm.lineCount() - 1);
-        var curEnd = { line: lineNumEnd,
-            ch: cm.getLine(lineNumEnd).length - 1 };
+      joinLines: function(cm, actionArgs, vim) {
+        if (vim.visualMode) {
+          var curStart = cm.getCursor('anchor');
+          var curEnd = cm.getCursor('head');
+          curEnd.ch = lineLength(cm, curEnd.line) - 1;
+        } else {
+          // Repeat is the number of lines to join. Minimum 2 lines.
+          var repeat = Math.max(actionArgs.repeat, 2);
+          var curStart = cm.getCursor();
+          var lineNumEnd = Math.min(curStart.line + repeat - 1,
+              cm.lineCount() - 1);
+          var curEnd = { line: lineNumEnd,
+              ch: lineLength(cm, lineNumEnd) - 1 };
+        }
         var text = cm.getRange(curStart, curEnd).replace(/\n\s*/g, ' ');
         cm.replaceRange(text, curStart, curEnd);
         cm.setCursor(curStart);
