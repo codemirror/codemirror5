@@ -19,7 +19,7 @@
  *   >, <, >>, <<
  *
  *   Operator-Motion:
- *   x, X, D, Y, ~
+ *   x, X, D, Y, C, ~
  *
  *   Action:
  *   a, i, s, A, I, S, o, O
@@ -164,6 +164,9 @@
         motion: 'moveToEol' , operatorMotionArgs: { visualLine: true }},
     { keys: ['Y'], type: 'operatorMotion', operator: 'yank',
         motion: 'moveToEol' , operatorMotionArgs: { visualLine: true }},
+    { keys: ['C'], type: 'operatorMotion', operator: 'change',
+        motion: 'moveToEol' , operatorArgs: { enterInsertMode: true },
+        operatorMotionArgs: { visualLine: true }},
     { keys: ['~'], type: 'operatorMotion', operator: 'swapcase',
         motion: 'moveByCharacters', motionArgs: { forward: true }},
     // Actions
