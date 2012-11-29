@@ -78,7 +78,7 @@ both of which are hidden/shown based on the tool's class
     width: 0px;
     height: 0px;
     z-index:999;
-    margin-right: -20px; /* compensate for the notch width */
+    margin-right: -20px; /* compensate for the notch width (border-width*2) */
     display: none;
 }
 #notch.above{bottom: -20px; border-top:    10px solid black;}
