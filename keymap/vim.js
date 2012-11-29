@@ -881,7 +881,7 @@
         var toSwap = cm.getRange(curStart, curEnd);
         var swapped = '';
         for (var i = 0; i < toSwap.length; i++) {
-          var character = toSwap[i];
+          var character = toSwap.charAt(i);
           swapped += isUpperCase(character) ? character.toLowerCase() :
               character.toUpperCase();
         }
@@ -1340,10 +1340,10 @@
 
     function findMatchedSymbol(cm, cur, symb) {
       var line = cur.line;
-      symb = symb ? symb : cm.getLine(line)[cur.ch];
+      symb = symb ? symb : cm.getLine(line).charAt(cur.ch);
 
       // Are we at the opening or closing char
-      var forwards = (['(', '[', '{'].indexOf(symb) != -1);
+      var forwards = inArray(symb, ['(', '[', '{']);
 
       var reverseSymb = (function(sym) {
         switch (sym) {
