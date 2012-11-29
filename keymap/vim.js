@@ -28,8 +28,7 @@
  *
  *   Modes:
  *   ESC - leave insert mode, visual mode, and clear input state.
- *   Ctrl-[ - same as ESC.
- *   Ctrl-C - exits insert mode.
+ *   Ctrl-[, Ctrl-c - same as ESC.
  *
  * Registers: unamed, -, a-z, A-Z, 0-9
  *   (Does not respect the special case for number registers when delete
@@ -71,6 +70,7 @@
     { keys: ['Ctrl-n'], type: 'keyToKey', toKeys: ['j'] },
     { keys: ['Ctrl-p'], type: 'keyToKey', toKeys: ['k'] },
     { keys: ['Ctrl-['], type: 'keyToKey', toKeys: ['Esc'] },
+    { keys: ['Ctrl-c'], type: 'keyToKey', toKeys: ['Esc'] },
     // Motions
     { keys: ['h'], type: 'motion',
         motion: 'moveByCharacters',
