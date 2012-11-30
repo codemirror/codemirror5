@@ -96,6 +96,10 @@
   outline: none !important;
 }
 
+.CodeMirror-empty pre {
+  color: #999 !important;
+}
+
 .CodeMirror pre.CodeMirror-cursor {
   z-index: 10;
   position: absolute;
