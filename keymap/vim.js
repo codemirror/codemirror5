@@ -73,6 +73,8 @@
     { keys: ['Ctrl-p'], type: 'keyToKey', toKeys: ['k'] },
     { keys: ['Ctrl-['], type: 'keyToKey', toKeys: ['Esc'] },
     { keys: ['Ctrl-c'], type: 'keyToKey', toKeys: ['Esc'] },
+    { keys: ['s'], type: 'keyToKey', toKeys: ['c', 'l'] },
+    { keys: ['S'], type: 'keyToKey', toKeys: ['c', 'c'] },
     // Motions
     { keys: ['h'], type: 'motion',
         motion: 'moveByCharacters',
@@ -178,13 +180,6 @@
     { keys: ['i'], type: 'action', action: 'enterInsertMode' },
     { keys: ['I'], type: 'action', action: 'enterInsertMode',
         motion: 'moveToFirstNonWhiteSpaceCharacter' },
-    { keys: ['s'], type: 'action', action: 'enterInsertMode',
-        motion: 'moveByCharacters', motionArgs: { forward: true },
-        operator: 'delete' },
-    { keys: ['S'], type: 'action', action: 'enterInsertMode',
-        motion: 'moveByLines',
-        motionArgs: { forward: true, linewise: true, explicitRepeat: true },
-        operator: 'delete' },
     { keys: ['o'], type: 'action', action: 'newLineAndEnterInsertMode',
         actionArgs: { after: true }},
     { keys: ['O'], type: 'action', action: 'newLineAndEnterInsertMode',
@@ -592,6 +587,7 @@
         actionArgs.repeatIsExplicit = repeatIsExplicit;
         actionArgs.registerName = inputState.registerName;
         inputState.reset();
+        vim.lastMotion = null,
         actions[command.action](cm, actionArgs, vim);
       },
       evalInput: function(cm, vim) {
@@ -993,9 +989,19 @@
           var curEnd = { line: lineNumEnd,
               ch: lineLength(cm, lineNumEnd) - 1 };
         }
-        var text = cm.getRange(curStart, curEnd).replace(/\n\s*/g, ' ');
-        cm.replaceRange(text, curStart, curEnd);
-        cm.setCursor(curStart);
+        var finalCh = 0;
+        cm.operation(function() {
+          for (var i = curStart.line; i < curEnd.line; i++) {
+            finalCh = lineLength(cm, curStart.line);
+            var tmp = { line: curStart.line + 1,
+                ch: lineLength(cm, curStart.line + 1) };
+            var text = cm.getRange(curStart, tmp);
+            text = text.replace(/\n\s*/g, ' ');
+            cm.replaceRange(text, curStart, tmp);
+          }
+          var curFinalPos = { line: curStart.line, ch: finalCh };
+          cm.setCursor(curFinalPos);
+        });
       },
       newLineAndEnterInsertMode: function(cm, actionArgs) {
         var insertAt = cm.getCursor();
@@ -1013,27 +1019,37 @@
         for (var text = '', i = 0; i < actionArgs.repeat; i++) {
           text += register.text;
         }
-        var curChEnd = 0;
         var linewise = register.linewise;
         if (linewise) {
-          cur.line += actionArgs.after ? 1 : 0;
-          cur.ch = 0;
-          curChEnd = 0;
+          if (actionArgs.after) {
+            // Move the newline at the end to the start instead, and paste just
+            // before the newline character of the line we are on right now.
+            text = '\n' + text.slice(0, text.length - 1);
+            cur.ch = lineLength(cm, cur.line);
+          } else {
+            cur.ch = 0;
+          }
         } else {
           cur.ch += actionArgs.after ? 1 : 0;
-          curChEnd = cur.ch;
         }
-        // Set cursor in the right place to let CodeMirror handle moving it.
-        cm.setCursor(cur.line, curChEnd);
         cm.replaceRange(text, cur);
         // Now fine tune the cursor to where we want it.
-        if (linewise) {
-          cm.setCursor(cm.getCursor().line - 1, 0);
+        var curPosFinal;
+        var idx;
+        if (linewise && actionArgs.after) {
+          curPosFinal = makeCursor(cur.line + 1,
+              findFirstNonWhiteSpaceCharacter(cm.getLine(cur.line + 1)));
+        } else if (linewise && !actionArgs.after) {
+          curPosFinal = makeCursor(cur.line,
+              findFirstNonWhiteSpaceCharacter(cm.getLine(cur.line)));
+        } else if (!linewise && actionArgs.after) {
+          idx = cm.indexFromPos(cur);
+          curPosFinal = cm.posFromIndex(idx + text.length - 1);
+        } else {
+          idx = cm.indexFromPos(cur);
+          curPosFinal = cm.posFromIndex(idx + text.length);
         }
-        else {
-          cur = cm.getCursor();
-          cm.setCursor(cur.line, cur.ch - 1);
-        }
+        cm.setCursor(curPosFinal);
       },
       undo: function(cm, actionArgs) {
         repeatFn(cm, CodeMirror.commands.undo, actionArgs.repeat)();
@@ -1068,6 +1084,7 @@
           replaceWithStr += replaceWith;
         }
         cm.replaceRange(replaceWithStr, curStart, curEnd);
+        cm.setCursor(offsetCursor(curEnd, 0, -1));
       }
     };
 
@@ -1118,6 +1135,12 @@
       }
       return ret;
     }
+    function makeCursor(line, ch) {
+      return { line: line, ch: ch };
+    };
+    function offsetCursor(cur, offsetLine, offsetCh) {
+      return { line: cur.line + offsetLine, ch: cur.ch + offsetCh };
+    };
     function arrayEq(a1, a2) {
       if (a1.length != a2.length) return false;
       for (var i = 0; i < a1.length; i++) {
