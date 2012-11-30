@@ -269,6 +269,19 @@ testCM("undo", function(cm) {
   eq(cm.getValue(), "1\n\n\n2");
 }, {value: "abc"});
 
+testCM("undoDepth", function(cm) {
+  cm.replaceRange("d", {line: 0});
+  cm.replaceRange("e", {line: 0});
+  cm.replaceRange("f", {line: 0});
+  cm.undo(); cm.undo(); cm.undo();
+  eq(cm.getValue(), "abcd");
+}, {value: "abc", undoDepth: 2});
+
+testCM("undoDoesntClearValue", function(cm) {
+  cm.undo();
+  eq(cm.getValue(), "x");
+}, {value: "x"});
+
 testCM("undoMultiLine", function(cm) {
   cm.operation(function() {
     cm.replaceRange("x", {line:0, ch: 0});
@@ -290,6 +303,21 @@ testCM("undoMultiLine", function(cm) {
   cm.undo();
   eq(cm.getValue(), "abc\ndef\nghi", 3);
 }, {value: "abc\ndef\nghi"});
+
+testCM("undoComposite", function(cm) {
+  cm.replaceRange("y", {line: 1});
+  cm.operation(function() {
+    cm.replaceRange("x", {line: 0});
+    cm.replaceRange("z", {line: 2});
+  });
+  eq(cm.getValue(), "ax\nby\ncz\n");
+  cm.undo();
+  eq(cm.getValue(), "a\nby\nc\n");
+  cm.undo();
+  eq(cm.getValue(), "a\nb\nc\n");
+  cm.redo(); cm.redo();
+  eq(cm.getValue(), "ax\nby\ncz\n");
+}, {value: "a\nb\nc\n"});
 
 testCM("undoSelection", function(cm) {
   cm.setSelection({line: 0, ch: 2}, {line: 0, ch: 4});
@@ -362,17 +390,23 @@ testCM("markTextUndo", function(cm) {
   bookmark = cm.setBookmark({line: 1, ch: 5});
   cm.operation(function(){
     cm.replaceRange("foo", {line: 0, ch: 2});
-    cm.replaceRange("bar\baz\bug\n", {line: 2, ch: 0}, {line: 3, ch: 0});
+    cm.replaceRange("bar\nbaz\nbug\n", {line: 2, ch: 0}, {line: 3, ch: 0});
   });
+  var v1 = cm.getValue();
   cm.setValue("");
   eq(marker1.find(), null); eq(marker2.find(), null); eq(bookmark.find(), null);
   cm.undo();
-  eqPos(bookmark.find(), {line: 1, ch: 5});
+  eqPos(bookmark.find(), {line: 1, ch: 5}, "still there");
   cm.undo();
   var m1Pos = marker1.find(), m2Pos = marker2.find();
   eqPos(m1Pos.from, {line: 0, ch: 1}); eqPos(m1Pos.to, {line: 0, ch: 3});
   eqPos(m2Pos.from, {line: 0, ch: 0}); eqPos(m2Pos.to, {line: 2, ch: 1});
   eqPos(bookmark.find(), {line: 1, ch: 5});
+  cm.redo(); cm.redo();
+  eq(bookmark.find(), null);
+  cm.undo();
+  eqPos(bookmark.find(), {line: 1, ch: 5});
+  eq(cm.getValue(), v1);
 }, {value: "1234\n56789\n00\n"});
 
 testCM("markTextStayGone", function(cm) {

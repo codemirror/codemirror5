@@ -5,6 +5,7 @@
 
     pos = pos ? cm.clipPos(pos) : {line: 0, ch: 0};
     this.pos = {from: pos, to: pos};
+    if (!pos) debugger;
 
     // The matches method is filled in based on the type of query.
     // It takes a position and a direction, and returns an object
@@ -85,6 +86,7 @@
     findPrevious: function() {return this.find(true);},
 
     find: function(reverse) {
+      if (!(reverse ? this.pos.from : this.pos.to)) debugger;
       var self = this, pos = this.cm.clipPos(reverse ? this.pos.from : this.pos.to);
       function savePosAndFail(line) {
         var pos = {line: line, ch: 0};
@@ -95,6 +97,7 @@
 
       for (;;) {
         if (this.pos = this.matches(reverse, pos)) {
+          if (!this.pos.from || !this.pos.to) { console.log(this.matches, this.pos); }
           this.atOccurrence = true;
           return this.pos.match || true;
         }
@@ -114,9 +117,11 @@
     to: function() {if (this.atOccurrence) return this.pos.to;},
 
     replace: function(newText) {
-      var self = this;
-      if (this.atOccurrence)
-        self.pos.to = this.cm.replaceRange(newText, self.pos.from, self.pos.to);
+      if (!this.atOccurrence) return;
+      var lines = CodeMirror.splitLines(newText);
+      this.cm.replaceRange(lines, this.pos.from, this.pos.to);
+      this.pos.to = {line: this.pos.from.line + lines.length - 1,
+                     ch: lines[lines.length - 1].length + (lines.length == 1 ? this.pos.from.ch : 0)};
     }
   };
 
