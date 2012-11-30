@@ -19,7 +19,7 @@ var lines = (function() {
   for (var i = 0; i < lineText.length; i++) {
     ret[i] = {
       line: i,
-      length: lineText[i].length + 1, // We stripped out the \n
+      length: lineText[i].length,
       textStart: /^\s*/.exec(lineText[i])[0].length
     };
   }
@@ -193,8 +193,8 @@ testMotion('G_repeat', ['3', 'G'], makeCursor(lines[2].line,
 // TODO: Make the test code long enough to test Ctrl-F and Ctrl-B.
 testMotion('0', '0', makeCursor(0, 0), makeCursor(0, 8));
 testMotion('^', '^', makeCursor(0, lines[0].textStart), makeCursor(0, 8));
-testMotion('$', '$', makeCursor(0, lines[0].length - 2), makeCursor(0, 1));
-testMotion('$_repeat', ['2', '$'], makeCursor(1, lines[1].length - 2),
+testMotion('$', '$', makeCursor(0, lines[0].length - 1), makeCursor(0, 1));
+testMotion('$_repeat', ['2', '$'], makeCursor(1, lines[1].length - 1),
     makeCursor(0, 3));
 testMotion('f', ['f', 'p'], pChars[0], makeCursor(charLine.line, 0));
 testMotion('f_repeat', ['2', 'f', 'p'], pChars[2], pChars[0]);
@@ -463,3 +463,29 @@ testVim('<<', function(cm, vim, helpers) {
   is(!register.linewise);
   eqPos(makeCursor(0, 1), cm.getCursor());
 }, { value: '   word1\n  word2\nword3 ', indentUnit: 2 });
+
+// Action tests
+testVim('a', function(cm, vim, helpers) {
+  cm.setCursor(0, 1);
+  helpers.doKeys('a');
+  eqPos(makeCursor(0, 2), cm.getCursor());
+  eq('vim-insert', cm.getOption('keyMap'));
+});
+testVim('i', function(cm, vim, helpers) {
+  cm.setCursor(0, 1);
+  helpers.doKeys('i');
+  eqPos(makeCursor(0, 1), cm.getCursor());
+  eq('vim-insert', cm.getOption('keyMap'));
+});
+testVim('A', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('A');
+  eqPos(makeCursor(0, lines[0].length), cm.getCursor());
+  eq('vim-insert', cm.getOption('keyMap'));
+});
+testVim('I', function(cm, vim, helpers) {
+  cm.setCursor(0, 4);
+  helpers.doKeys('I');
+  eqPos(makeCursor(0, lines[0].textStart), cm.getCursor());
+  eq('vim-insert', cm.getOption('keyMap'));
+});
