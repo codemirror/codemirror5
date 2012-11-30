@@ -52,6 +52,7 @@
 
     <script src="driver.js"></script>
     <script src="test.js"></script>
+    <script src="doc_test.js"></script>
     <script src="mode_test.js"></script>
     <script src="../mode/css/css.js"></script>
     <script src="../mode/css/test.js"></script>
@@ -65,12 +66,8 @@
     <script src="../mode/xquery/test.js"></script>
     <script src="vim_test.js"></script>
     <script>
-      window.onload = function() {
-        runHarness();
-      };
-      CodeMirror.on(window, 'hashchange', function(){
-        runHarness();
-      });
+      window.onload = runHarness;
+      CodeMirror.on(window, 'hashchange', runHarness);
 
       function esc(str) {
         return str.replace(/[<&]/, function(ch) { return ch == "<" ? "&lt;" : "&amp;"; });
