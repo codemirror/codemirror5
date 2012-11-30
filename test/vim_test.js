@@ -514,6 +514,39 @@ testVim('<<', function(cm, vim, helpers) {
   eqPos(makeCursor(0, 1), cm.getCursor());
 }, { value: '   word1\n  word2\nword3 ', indentUnit: 2 });
 
+// Operator-motion tests
+testVim('D', function(cm, vim, helpers) {
+  var curStart = makeCursor(0, 3);
+  cm.setCursor(curStart);
+  helpers.doKeys('D');
+  eq(' wo\nword2\n word3', cm.getValue());
+  var register = vim.registerController.getRegister();
+  eq('rd1', register.text);
+  is(!register.linewise);
+  eqPos(makeCursor(0, 3), cm.getCursor());
+}, { value: ' word1\nword2\n word3' });
+testVim('C', function(cm, vim, helpers) {
+  var curStart = makeCursor(0, 3);
+  cm.setCursor(curStart);
+  helpers.doKeys('C');
+  eq(' wo\nword2\n word3', cm.getValue());
+  var register = vim.registerController.getRegister();
+  eq('rd1', register.text);
+  is(!register.linewise);
+  eqPos(makeCursor(0, 3), cm.getCursor());
+  eq('vim-insert', cm.getOption('keyMap'));
+}, { value: ' word1\nword2\n word3' });
+testVim('Y', function(cm, vim, helpers) {
+  var curStart = makeCursor(0, 3);
+  cm.setCursor(curStart);
+  helpers.doKeys('Y');
+  eq(' word1\nword2\n word3', cm.getValue());
+  var register = vim.registerController.getRegister();
+  eq('rd1', register.text);
+  is(!register.linewise);
+  eqPos(makeCursor(0, 3), cm.getCursor());
+}, { value: ' word1\nword2\n word3' });
+
 // Action tests
 testVim('a', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
