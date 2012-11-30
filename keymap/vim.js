@@ -810,9 +810,6 @@
                 selectionStart.ch = lineLength(cm, selectionStart.line);
               }
             }
-            // Need to set the cursor to clear the selection. Otherwise,
-            // CodeMirror can't figure out that we changed directions...
-            cm.setCursor(selectionStart);
             cm.setSelection(selectionStart, selectionEnd);
             updateMark(cm, vim, '<',
                 cursorIsBefore(selectionStart, selectionEnd) ? selectionStart
