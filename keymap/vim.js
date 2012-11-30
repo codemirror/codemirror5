@@ -174,7 +174,7 @@
         motion: 'moveByCharacters',
         motionArgs: { forward: true, noRepeat: true }},
     { keys: ['A'], type: 'action', action: 'enterInsertMode',
-        motion: 'moveToEol' },
+        actionArgs: { insertAt: 'eol' }},
     { keys: ['i'], type: 'action', action: 'enterInsertMode' },
     { keys: ['I'], type: 'action', action: 'enterInsertMode',
         motion: 'moveToFirstNonWhiteSpaceCharacter' },
@@ -933,7 +933,13 @@
     };
 
     var actions = {
-      enterInsertMode: function(cm) {
+      enterInsertMode: function(cm, actionArgs) {
+        var insertAt = (actionArgs) ? actionArgs.insertAt : null;
+        if (insertAt == 'eol') {
+          var cursor = cm.getCursor();
+          cursor = { line: cursor.line, ch: lineLength(cm, cursor.line) };
+          cm.setCursor(cursor);
+        }
         cm.setOption('keyMap', 'vim-insert');
       },
       toggleVisualMode: function(cm, actionArgs, vim) {
