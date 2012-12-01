@@ -116,9 +116,15 @@ function testVim(name, run, opts, expectedFail) {
         eqPos(pos, cm.getCursor());
       }
     }
+    function fakeOpenDialog(result) {
+      return function(text, callback) {
+        return callback(result);
+      }
+    }
     var helpers = {
       doKeys: doKeysFn(cm),
-      assertCursorAt: assertCursorAtFn(cm)
+      assertCursorAt: assertCursorAtFn(cm),
+      fakeOpenDialog: fakeOpenDialog
     }
     var successful = false;
     try {
@@ -674,3 +680,59 @@ testVim('r', function(cm, vim, helpers) {
   eq('wuuuet', cm.getValue());
   eqPos(makeCursor(0, 3), cm.getCursor());
 }, { value: 'wordet' });
+testVim('/ and n/N', function(cm, vim, helpers) {
+  cm.openDialog = helpers.fakeOpenDialog('match');
+  helpers.doKeys('/');
+  helpers.assertCursorAt(makeCursor(0, 11));
+  helpers.doKeys('n');
+  helpers.assertCursorAt(makeCursor(1, 6));
+  helpers.doKeys('N');
+  helpers.assertCursorAt(makeCursor(0, 11));
+
+  cm.setCursor(0, 0);
+  helpers.doKeys('2', '/');
+  helpers.assertCursorAt(makeCursor(1, 6));
+}, { value: 'match nope match \n nope Match' });
+testVim('/_case', function(cm, vim, helpers) {
+  cm.openDialog = helpers.fakeOpenDialog('Match');
+  helpers.doKeys('/');
+  helpers.assertCursorAt(makeCursor(1, 6));
+}, { value: 'match nope match \n nope Match' });
+testVim('? and n/N', function(cm, vim, helpers) {
+  cm.openDialog = helpers.fakeOpenDialog('match');
+  helpers.doKeys('?');
+  helpers.assertCursorAt(makeCursor(1, 6));
+  helpers.doKeys('n');
+  helpers.assertCursorAt(makeCursor(0, 11));
+  helpers.doKeys('N');
+  helpers.assertCursorAt(makeCursor(1, 6));
+
+  cm.setCursor(0, 0);
+  helpers.doKeys('2', '?');
+  helpers.assertCursorAt(makeCursor(0, 11));
+}, { value: 'match nope match \n nope Match' });
+testVim(',/ clearSearch', function(cm, vim, helpers) {
+  cm.openDialog = helpers.fakeOpenDialog('match');
+  helpers.doKeys('?');
+  var origPos = cm.getCursor();
+  helpers.doKeys(',', '/', 'n');
+  helpers.assertCursorAt(origPos);
+}, { value: 'match nope match \n nope Match' });
+testVim('*', function(cm, vim, helpers) {
+  cm.setCursor(0, 9);
+  helpers.doKeys('*');
+  helpers.assertCursorAt(makeCursor(0, 22));
+
+  cm.setCursor(0, 9);
+  helpers.doKeys('2', '*');
+  helpers.assertCursorAt(makeCursor(1, 8));
+}, { value: 'nomatch match nomatch match \nnomatch Match' });
+testVim('#', function(cm, vim, helpers) {
+  cm.setCursor(0, 9);
+  helpers.doKeys('#');
+  helpers.assertCursorAt(makeCursor(1, 8));
+
+  cm.setCursor(0, 9);
+  helpers.doKeys('2', '#');
+  helpers.assertCursorAt(makeCursor(0, 22));
+}, { value: 'nomatch match nomatch match \nnomatch Match' });
