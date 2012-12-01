@@ -164,6 +164,8 @@
     { keys: ['<'], type: 'operator', operator: 'indent',
         operatorArgs: { indentRight: false }},
     { keys: ['g', '~'], type: 'operator', operator: 'swapcase' },
+    { keys: ['n'], type: 'motion', motion: 'findNext' },
+    { keys: ['N'], type: 'motion', motion: 'findPrev' },
     // Operator-Motion dual commands
     { keys: ['x'], type: 'operatorMotion', operator: 'delete',
         motion: 'moveByCharacters', motionArgs: { forward: true },
@@ -209,12 +211,22 @@
     { keys: ['Ctrl-r'], type: 'action', action: 'redo' },
     { keys: ['m', 'character'], type: 'action', action: 'setMark' },
     { keys: ['\"', 'character'], type: 'action', action: 'setRegister' },
+    { keys: [',', '/'], type: 'action', action: 'clearSearch' },
     // Text object motions
     { keys: ['a', 'character'], type: 'motion',
         motion: 'textObjectManipulation' },
     { keys: ['i', 'character'], type: 'motion',
         motion: 'textObjectManipulation',
-        motionArgs: { textObjectInner: true }}
+        motionArgs: { textObjectInner: true }},
+    // Search
+    { keys: ['/'], type: 'search',
+        searchArgs: { forward: true, querySrc: 'prompt' }},
+    { keys: ['?'], type: 'search',
+        searchArgs: { forward: false, querySrc: 'prompt' }},
+    { keys: ['*'], type: 'search',
+        searchArgs: { forward: true, querySrc: 'wordUnderCursor' }},
+    { keys: ['#'], type: 'search',
+        searchArgs: { forward: false, querySrc: 'wordUnderCursor' }}
   ];
 
   var Vim = function() {
@@ -277,6 +289,29 @@
       }
       return false;
     }
+    function getVimState(cm) {
+      if (!cm.vimState) {
+        // Store instance state in the CodeMirror object.
+        cm.vimState = {
+          inputState: new InputState(),
+          // When using jk for navigation, if you move from a longer line to a
+          // shorter line, the cursor may clip to the end of the shorter line.
+          // If j is pressed again and cursor goes to the next line, the
+          // cursor should go back to its horizontal position on the longer
+          // line if it can. This is to keep track of the horizontal position.
+          lastHPos: -1,
+          // The last motion command run. Cleared if a non-motion command gets
+          // executed in between.
+          lastMotion: null,
+          marks: {},
+          registerController: new RegisterController({}),
+          visualMode: false,
+          // If we are in visual line mode. No effect if visualMode is false.
+          visualLine: false
+        };
+      }
+      return cm.vimState;
+    }
 
     var vimApi= {
       addKeyMap: function() {
@@ -289,33 +324,13 @@
       // Initializes vim state variable on the CodeMirror object. Should only be
       // called lazily by handleKey or for testing.
       maybeInitState: function(cm) {
-        if (!cm.vimState) {
-          // Store instance state in the CodeMirror object.
-          cm.vimState = {
-            inputState: new InputState(),
-            // When using jk for navigation, if you move from a longer line to a
-            // shorter line, the cursor may clip to the end of the shorter line.
-            // If j is pressed again and cursor goes to the next line, the
-            // cursor should go back to its horizontal position on the longer
-            // line if it can. This is to keep track of the horizontal position.
-            lastHPos: -1,
-            // The last motion command run. Cleared if a non-motion command gets
-            // executed in between.
-            lastMotion: null,
-            marks: {},
-            registerController: new RegisterController({}),
-            visualMode: false,
-            // If we are in visual line mode. No effect if visualMode is false.
-            visualLine: false
-          };
-        }
+        getVimState(cm);
       },
       // This is the outermost function called by CodeMirror, after keys have
       // been mapped to their Vim equivalents.
       handleKey: function(cm, key) {
         var command;
-        this.maybeInitState(cm);
-        var vim = cm.vimState;
+        var vim = getVimState(cm);
         if (key == 'Esc') {
           // Clear input state and get back to normal mode.
           vim.inputState.reset();
@@ -544,6 +559,9 @@
           case 'action':
             this.processAction(cm, vim, command);
             break;
+          case 'search':
+            this.processSearch(cm, vim, command);
+            break;
           default:
             break;
         }
@@ -613,6 +631,36 @@
         inputState.reset();
         vim.lastMotion = null,
         actions[command.action](cm, actionArgs, vim);
+      },
+      processSearch: function(cm, vim, command) {
+        if (!cm.getSearchCursor) {
+          // Search depends on SearchCursor.
+          return;
+        }
+        var forward = command.searchArgs.forward;
+        getSearchState(cm).reversed = !forward;
+        var promptPrefix = (forward) ? '/' : '?';
+        var handleQuery = function(query) {
+          updateSearchQuery(cm, query);
+          commandDispatcher.processMotion(cm, vim, {
+            type: 'motion',
+            motion: 'findNext'
+          });
+        }
+        switch (command.searchArgs.querySrc) {
+          case 'prompt':
+            showPrompt(cm, handleQuery, promptPrefix, searchPromptDesc);
+            break;
+          case 'wordUnderCursor':
+            var word = expandToWord(cm, false /** inclusive */,
+                true /** forward */, false /** bigWord */);
+            var query = cm.getLine(word.start.line).substring(word.start.ch,
+                word.end.ch + 1);
+            // Use \b (word boundary) to simulate \< \> in Vim.
+            query = '\\b' + query + '\\b';
+            handleQuery(query);
+            break;
+        }
       },
       evalInput: function(cm, vim) {
         // If the motion comand is set, execute both the operator and motion.
@@ -752,6 +800,12 @@
         var cur = cm.getCursor();
         return clipCursorToContent(cm, { line: cur.line + motionArgs.repeat - 1,
                                          ch: Infinity });
+      },
+      findNext: function(cm, motionArgs, vim) {
+        return findNext(cm, false /** prev */, motionArgs.repeat);
+      },
+      findPrev: function(cm, motionArgs, vim) {
+        return findNext(cm, true /** prev */, motionArgs.repeat);
       },
       goToMark: function(cm, motionArgs, vim) {
         var mark = vim.marks[motionArgs.selectedCharacter];
@@ -949,6 +1003,7 @@
     };
 
     var actions = {
+      clearSearch: clearSearch,
       enterInsertMode: function(cm, actionArgs) {
         var insertAt = (actionArgs) ? actionArgs.insertAt : null;
         if (insertAt == 'eol') {
@@ -1568,6 +1623,141 @@
         end: { line: cur.line, ch: end }
       };
     }
+
+    // Search functions
+    function SearchState() {
+      this.query = null;
+      this.marked = [];
+      this.reversed = false;
+    }
+    function getSearchState(cm) {
+      var vim = getVimState(cm);
+      return vim._searchState || (vim._searchState = new SearchState());
+    }
+    function dialog(cm, text, shortText, callback) {
+      if (cm.openDialog) {
+        cm.openDialog(text, callback);
+      }
+      else {
+        callback(prompt(shortText, ""));
+      }
+    }
+    function parseQuery(cm, query) {
+      // First try to extract regex + flags from the input. If no flags found,
+      // extract just the regex. IE does not accept flags directly defined in the
+      // regex string in the form /regex/flags
+      var match = query.match(/^(.*)\/(.*)$/);
+      var insensitive = false;
+      var regexp;
+      if (match) {
+        insensitive = (match[2].indexOf('i') != -1);
+        regexp = match[1];
+      } else {
+        regexp = query;
+      }
+      // Heuristic: if the query string is all lowercase, do a case-insensitive
+      // search.
+      insensitive |= (/^[^A-Z]*$/).test(regexp);
+      var query;
+      try {
+        query = new RegExp(regexp, insensitive ? 'i' : undefined);
+        return query;
+      } catch (e) {
+        showConfirm(cm, 'Invalid regex: ' + regexp);
+      }
+    }
+    function showConfirm(cm, text) {
+      if (cm.openConfirm) {
+        cm.openConfirm('<span style="color: red">' + text +
+            '</span> <button type="button">OK</button>', function() {});
+      } else {
+        alert(text);
+      }
+    }
+    function makePrompt(prefix, desc) {
+      var raw = '';
+      if (prefix) {
+        raw += prefix;
+      }
+      raw += '<input type="text" style="width: 20em"/> ' +
+          '<span style="color: #888">';
+      if (desc) {
+        raw += '<span style="color: #888">';
+        raw += desc;
+        raw += '</span>'
+      }
+      return raw;
+    }
+    var searchPromptDesc = '(Javascript regexp)';
+    function showPrompt(cm, onPromptClose, prefix, desc) {
+      var shortText = (prefix || '') + ' ' + (desc || '');
+      dialog(cm, makePrompt(prefix, desc), shortText, onPromptClose);
+    }
+    function regexEqual(r1, r2) {
+      if (r1 instanceof RegExp && r2 instanceof RegExp) {
+          var props = ["global", "multiline", "ignoreCase", "source"];
+          for (var i = 0; i < props.length; i++) {
+              var prop = props[i];
+              if (r1[prop] !== r2[prop]) {
+                  return(false);
+              }
+          }
+          return(true);
+      }
+      return(false);
+    }
+    function updateSearchQuery(cm, query) {
+      cm.operation(function() {
+        var state = getSearchState(cm);
+        if (!query) return;
+        var newQuery = parseQuery(cm, query);
+        if (regexEqual(newQuery, state.query)) return;
+        clearSearch(cm);
+        state.query = newQuery;
+        if (!state.query) return;
+        if (cm.lineCount() < 2000) { // This is too expensive on big documents.
+          for (var cursor = cm.getSearchCursor(state.query); cursor.findNext();)
+            state.marked.push(cm.markText(cursor.from(), cursor.to(),
+                'CodeMirror-searching'));
+        }
+      });
+    }
+    function findNext(cm, prev, repeat) {
+      return cm.operation(function() {
+        var state = getSearchState(cm);
+        if (!state.query) {
+          return;
+        }
+        var pos = cm.getCursor();
+        // If search is initiated with ? instead of /, negate direction.
+        prev = (state.reversed) ? !prev : prev;
+        if (!prev) {
+          pos.ch += 1;
+        }
+        var cursor = cm.getSearchCursor(state.query, pos);
+        for (var i = 0; i < repeat; i++) {
+          if (!cursor.find(prev)) {
+            // SearchCursor may have returned null because it hit EOF, wrap
+            // around and try again.
+            cursor = cm.getSearchCursor(state.query,
+                (prev) ? { line: cm.lineCount() - 1} : {line: 0, ch: 0} );
+            if (!cursor.find(prev)) return;
+          }
+        }
+        return cursor.from();
+      });}
+    function clearSearch(cm) {
+      cm.operation(function() {
+        var state = getSearchState(cm);
+        if (!state.query) {
+          return;
+        }
+        state.query = null;
+        for (var i = 0; i < state.marked.length; ++i) {
+          state.marked[i].clear();
+        }
+        state.marked.length = 0;
+      });}
 
     function buildVimKeyMap() {
       /**
