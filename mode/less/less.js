@@ -32,6 +32,7 @@ CodeMirror.defineMode("less", function(config) {
     else if (ch == "=") ret(null, "compare");
     else if (ch == "|" && stream.eat("=")) return ret(null, "compare");
     else if (ch == "\"" || ch == "'") {
+      if(type == "string")return ret("string", "string");
       state.tokenize = tokenString(ch);
       return state.tokenize(stream, state);
     }
