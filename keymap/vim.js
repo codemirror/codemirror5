@@ -55,7 +55,6 @@
 
 (function() {
   'use strict';
-  var max = Math.max, min = Math.min;
 
   var defaultKeymap = [
     // Key to key mapping. This goes first to make it possible to override
@@ -314,7 +313,7 @@
       // This is the outermost function called by CodeMirror, after keys have
       // been mapped to their Vim equivalents.
       handleKey: function(cm, key) {
-        var command = null;
+        var command;
         this.maybeInitState(cm);
         var vim = cm.vimState;
         if (key == 'Esc') {
@@ -805,7 +804,7 @@
         var repeat = motionArgs.repeat;
         var curEnd = moveToCharacter(cm, repeat, motionArgs.forward,
             motionArgs.selectedCharacter);
-        var increment = motionArgs.forward ? 1 : -1;
+        var increment = motionArgs.forward ? -1 : 1;
         curEnd.ch += increment;
         return curEnd;
       },
@@ -841,8 +840,9 @@
         var symbol = cm.getLine(cursor.line).charAt(cursor.ch);
         if (isMatchableSymbol(symbol)) {
           return findMatchedSymbol(cm, cm.getCursor(), motionArgs.symbol);
+        } else {
+          return cursor;
         }
-        return cursor;
       },
       moveToStartOfLine: function(cm) {
         var cursor = cm.getCursor();
@@ -1057,9 +1057,9 @@
         var curPosFinal;
         var idx;
         if (linewise && actionArgs.after) {
-          curPosFinal = {line: cur.line + 1, ch: findFirstNonWhiteSpaceCharacter(cm.getLine(cur.line + 1))};
+          curPosFinal = { line: cur.line + 1, ch: findFirstNonWhiteSpaceCharacter(cm.getLine(cur.line + 1)) };
         } else if (linewise && !actionArgs.after) {
-          curPosFinal = {line: cur.line, ch: findFirstNonWhiteSpaceCharacter(cm.getLine(cur.line))};
+          curPosFinal = { line: cur.line, ch: findFirstNonWhiteSpaceCharacter(cm.getLine(cur.line)) };
         } else if (!linewise && actionArgs.after) {
           idx = cm.indexFromPos(cur);
           curPosFinal = cm.posFromIndex(idx + text.length - 1);
@@ -1135,6 +1135,11 @@
         return findBeginningAndEnd(cm, '"', inclusive);
       }
     };
+
+    /*
+     * Below are miscellaneous utility functions used by vim.js
+     */
+    var max = Math.max, min = Math.min;
 
     // Merge arguments in place, for overriding arguments.
     function mergeArgs(to, from) {
@@ -1257,7 +1262,7 @@
       var end = motions.moveByWords(cm, { repeat: 1, forward: true,
           wordEnd: true, bigWord: bigWord });
       end.ch += inclusive ? 1 : 0;
-      return {start: {line: cur.line, ch: start}, end: end };
+      return { start: { line: cur.line, ch: start }, end: end };
     }
 
     /*
@@ -1400,7 +1405,7 @@
     }
 
     function moveToColumn(cm, repeat) {
-      // repeat is always >= 1, so repeat - 1 alwasy corresponds
+      // repeat is always >= 1, so repeat - 1 always corresponds
       // to the column we want to go to.
       var line = cm.getCursor().line;
       var ch = min(cm.getLine(line).length - 1, repeat - 1);
@@ -1470,7 +1475,7 @@
       }
 
       if (nextCh) {
-        return {line: line, ch: index};
+        return { line: line, ch: index };
       }
       return cur;
     }
@@ -1483,7 +1488,7 @@
       start.ch += inclusive ? 1 : 0;
       end.ch += inclusive ? 0 : 1;
 
-      return {start: start, end: end};
+      return { start: start, end: end };
     }
 
     function regexLastIndexOf(string, pattern, startIndex) {
@@ -1553,8 +1558,8 @@
       }
 
       return {
-        start: {line: cur.line, ch: start},
-        end: {line: cur.line, ch: end}
+        start: { line: cur.line, ch: start },
+        end: { line: cur.line, ch: end }
       };
     }
 
