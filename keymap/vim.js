@@ -75,6 +75,10 @@
     { keys: ['Ctrl-c'], type: 'keyToKey', toKeys: ['Esc'] },
     { keys: ['s'], type: 'keyToKey', toKeys: ['c', 'l'] },
     { keys: ['S'], type: 'keyToKey', toKeys: ['c', 'c'] },
+    { keys: ['Home'], type: 'keyToKey', toKeys: ['0'] },
+    { keys: ['End'], type: 'keyToKey', toKeys: ['$'] },
+    { keys: ['PageUp'], type: 'keyToKey', toKeys: ['Ctrl-b'] },
+    { keys: ['PageDown'], type: 'keyToKey', toKeys: ['Ctrl-f'] },
     // Motions
     { keys: ['h'], type: 'motion',
         motion: 'moveByCharacters',
@@ -127,7 +131,9 @@
     { keys: ['0'], type: 'motion', motion: 'moveToStartOfLine' },
     { keys: ['^'], type: 'motion',
         motion: 'moveToFirstNonWhiteSpaceCharacter' },
-    { keys: ['$'], type: 'motion', motion: 'moveToEol' },
+    { keys: ['$'], type: 'motion',
+        motion: 'moveToEol',
+        motionArgs: {inclusive: true} },
     { keys: ['%'], type: 'motion',
         motion: 'moveToMatchedSymbol',
         motionArgs: { inclusive: true }},
@@ -145,6 +151,9 @@
         motionArgs: { forward: false }},
     { keys: ['\'', 'character'], type: 'motion', motion: 'goToMark' },
     { keys: ['`', 'character'], type: 'motion', motion: 'goToMark' },
+    { keys: ['|'], type: 'motion',
+        motion: 'moveToColumn',
+        motionArgs: { }},
     // Operators
     { keys: ['d'], type: 'operator', operator: 'delete' },
     { keys: ['y'], type: 'operator', operator: 'yank' },
@@ -226,7 +235,7 @@
     var SPECIAL_SYMBOLS = '~`!@#$%^&*()_-+=[{}]\\|/?.,<>:;\"\'';
     var specialSymbols = SPECIAL_SYMBOLS.split('');
     var specialKeys = ['Left', 'Right', 'Up', 'Down', 'Space', 'Backspace',
-        'Esc'];
+        'Esc', 'Home', 'End', 'PageUp', 'PageDown'];
     var validMarks = upperCaseAlphabet.concat(lowerCaseAlphabet).concat(
         numbers);
     var validRegisters = upperCaseAlphabet.concat(lowerCaseAlphabet).concat(
@@ -743,30 +752,35 @@
         var cursor = cm.getCursor();
         var line = cm.getLine(cursor.line);
         var repeat = motionArgs.repeat;
-        if (motionArgs.forward) {
-          return { line: cursor.line,
-              ch: Math.min(line.length, cursor.ch + repeat) };
-        } else {
-          return { line: cursor.line, ch: Math.max(0, cursor.ch - repeat) };
-        }
+        var ch = motionArgs.forward ? Math.min(line.length - 1, cursor.ch + repeat) :
+                                      Math.max(0, cursor.ch - repeat)
+        return { line: cursor.line, ch: ch };
       },
       moveByLines: function(cm, motionArgs, vim) {
         var endCh = cm.getCursor().ch;
-        // Either get the last horizontal position from the vim state, or push
-        // this one onto the state.
-        if (vim.lastMotion == this.moveByLines) {
-          endCh = vim.lastHPos;
-        } else {
-          vim.lastHPos = endCh;
+        // Depending what our last motion was, we may want to do different
+        // things. If our last motion was moving vertically, we want to
+        // preserve the HPos from our last horizontal move.  If our last motion
+        // was going to the end of a line, moving vertically we should go to
+        // the end of the line, etc.
+        switch (vim.lastMotion) {
+          case this.moveByLines:
+          case this.moveToColumn:
+          case this.moveToEol:
+            endCh = vim.lastHPos;
+            break;
+          default:
+            vim.lastHPos = endCh;
         }
         var cursor = cm.getCursor();
         var repeat = motionArgs.repeat;
-        if (motionArgs.forward) {
-          return { line: Math.min(cm.lineCount(), cursor.line + repeat),
-              ch: endCh };
-        } else {
-          return { line: Math.max(0, cursor.line - repeat), ch: endCh };
-        }
+        var line = motionArgs.forward ? Math.min(cm.lineCount() - 1, cursor.line + repeat) :
+                                        Math.max(0, cursor.line - repeat);
+        // Make sure our endCh isn't too far right. We need it to highlight
+        // the last char on the line, not the empty space to the right of it
+        endCh = Math.min(endCh, cm.getLine(line).length - 1);
+
+        return { line: line, ch: endCh };
       },
       moveByPage: function(cm, motionArgs) {
         // CodeMirror only exposes functions that move the cursor page down, so
@@ -802,10 +816,17 @@
         return moveToCharacter(cm, repeat, motionArgs.forward,
             motionArgs.selectedCharacter);
       },
-      moveToEol: function(cm, motionArgs) {
+      moveToColumn: function(cm, motionArgs, vim) {
+        var repeat = motionArgs.repeat;
+        // repeat is equivalent to which column we want to move to!
+        vim.lastHPos = repeat - 1;
+        return moveToColumn(cm, repeat);
+      },
+      moveToEol: function(cm, motionArgs, vim) {
         var cursor = cm.getCursor();
         var line = Math.min(cursor.line + motionArgs.repeat - 1,
-            cm.lineCount());
+            cm.lineCount() - 1);
+        vim.lastHPos = Infinity;
         return { line: line, ch: cm.getLine(line).length - 1 };
       },
       moveToFirstNonWhiteSpaceCharacter: function(cm) {
@@ -1386,6 +1407,14 @@
       }
       return { line: cm.getCursor().line,
         ch: idx };
+    }
+
+    function moveToColumn(cm, repeat) {
+      // repeat is always >= 1, so repeat - 1 alwasy corresponds
+      // to the column we want to go to.
+      var line = cm.getCursor().line;
+      var ch = Math.min(cm.getLine(line).length - 1, repeat - 1);
+      return { line: line, ch: ch };
     }
 
     function charIdxInLine(start, line, character, forward, includeChar) {
