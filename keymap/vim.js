@@ -131,7 +131,9 @@
     { keys: ['0'], type: 'motion', motion: 'moveToStartOfLine' },
     { keys: ['^'], type: 'motion',
         motion: 'moveToFirstNonWhiteSpaceCharacter' },
-    { keys: ['$'], type: 'motion', motion: 'moveToEol' },
+    { keys: ['$'], type: 'motion',
+        motion: 'moveToEol'
+        motionArgs: {inclusive: true} },
     { keys: ['%'], type: 'motion',
         motion: 'moveToMatchedSymbol',
         motionArgs: { inclusive: true }},
