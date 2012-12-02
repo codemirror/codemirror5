@@ -55,6 +55,7 @@
 
 (function() {
   'use strict';
+  var max = Math.max, min = Math.min;
 
   var defaultKeymap = [
     // Key to key mapping. This goes first to make it possible to override
@@ -133,7 +134,7 @@
         motion: 'moveToFirstNonWhiteSpaceCharacter' },
     { keys: ['$'], type: 'motion',
         motion: 'moveToEol',
-        motionArgs: {inclusive: true} },
+        motionArgs: { inclusive: true }},
     { keys: ['%'], type: 'motion',
         motion: 'moveToMatchedSymbol',
         motionArgs: { inclusive: true }},
@@ -260,7 +261,7 @@
       return (/^[A-Z]$/).test(k);
     }
     function isAlphanumeric(k) {
-      return (/^[a-zA-Z-0-9]/).test(k);
+      return (/^[a-zA-Z0-9]/).test(k);
     }
     function isWhiteSpace(k) {
       return whiteSpaceRegex.test(k);
@@ -313,6 +314,7 @@
       // This is the outermost function called by CodeMirror, after keys have
       // been mapped to their Vim equivalents.
       handleKey: function(cm, key) {
+        var command = null;
         this.maybeInitState(cm);
         var vim = cm.vimState;
         if (key == 'Esc') {
@@ -330,23 +332,22 @@
         }
         if (key != '0' || (key == '0' && vim.inputState.getRepeat() === 0)) {
           // Have to special case 0 since it's both a motion and a number.
-          var command = commandDispatcher.matchCommand(key, defaultKeymap,
-              vim);
+          command = commandDispatcher.matchCommand(key, defaultKeymap, vim);
         }
-        if (!command && isNumber(key)) {
-          // Increment count unless count is 0 and key is 0.
-          vim.inputState.pushRepeatDigit(key);
+        if (!command) {
+          if (isNumber(key)) {
+            // Increment count unless count is 0 and key is 0.
+            vim.inputState.pushRepeatDigit(key);
+          }
           return;
         }
-        if (command) {
-          if (command.type == 'keyToKey') {
-            // TODO: prevent infinite recursion.
-            for (var i = 0; i < command.toKeys.length; i++) {
-              this.handleKey(cm, command.toKeys[i]);
-            }
-          } else {
-            commandDispatcher.processCommand(cm, vim, command);
+        if (command.type == 'keyToKey') {
+          // TODO: prevent infinite recursion.
+          for (var i = 0; i < command.toKeys.length; i++) {
+            this.handleKey(cm, command.toKeys[i]);
           }
+        } else {
+          commandDispatcher.processCommand(cm, vim, command);
         }
       }
     };
@@ -684,6 +685,7 @@
         }
 
         if (operator) {
+          var inverted = false;
           vim.lastMotion = null;
           operatorArgs.repeat = repeat; // Indent in visual mode needs this.
           if (vim.visualMode) {
@@ -696,7 +698,7 @@
             var tmp = curStart;
             curStart = curEnd;
             curEnd = tmp;
-            var inverted = true;
+            inverted = true;
           }
           if (motionArgs.inclusive && !(vim.visualMode && inverted)) {
             // Move the selection end one to the right to include the last
@@ -737,7 +739,7 @@
         // Expands forward to end of line, and then to next line if repeat is > 1.
         // Does not handle backward motion!
         var cursor = cm.getCursor();
-        var endLine = Math.min(cm.lineCount(),
+        var endLine = min(cm.lineCount(),
             cursor.line + motionArgs.repeat - 1);
         return { line: endLine, ch: lineLength(cm, endLine) };
       },
@@ -752,8 +754,8 @@
         var cursor = cm.getCursor();
         var line = cm.getLine(cursor.line);
         var repeat = motionArgs.repeat;
-        var ch = motionArgs.forward ? Math.min(line.length - 1, cursor.ch + repeat) :
-                                      Math.max(0, cursor.ch - repeat)
+        var ch = motionArgs.forward ? min(line.length - 1, cursor.ch + repeat) :
+                                      max(0, cursor.ch - repeat);
         return { line: cursor.line, ch: ch };
       },
       moveByLines: function(cm, motionArgs, vim) {
@@ -774,11 +776,11 @@
         }
         var cursor = cm.getCursor();
         var repeat = motionArgs.repeat;
-        var line = motionArgs.forward ? Math.min(cm.lineCount() - 1, cursor.line + repeat) :
-                                        Math.max(0, cursor.line - repeat);
+        var line = motionArgs.forward ? min(cm.lineCount() - 1, cursor.line + repeat) :
+                                        max(0, cursor.line - repeat);
         // Make sure our endCh isn't too far right. We need it to highlight
         // the last char on the line, not the empty space to the right of it
-        endCh = Math.min(endCh, cm.getLine(line).length - 1);
+        endCh = min(endCh, cm.getLine(line).length - 1);
 
         return { line: line, ch: endCh };
       },
@@ -790,7 +792,7 @@
         //     need this ugliness. But it might make visual mode hard.
         var curStart = cm.getCursor();
         var repeat = motionArgs.repeat;
-        cm.moveV(motionArgs.forward ? repeat : (-1 * repeat), 'page');
+        cm.moveV((motionArgs.forward ? repeat : -repeat), 'page');
         var curEnd = cm.getCursor();
         cm.setCursor(curStart);
         return curEnd;
@@ -803,12 +805,8 @@
         var repeat = motionArgs.repeat;
         var curEnd = moveToCharacter(cm, repeat, motionArgs.forward,
             motionArgs.selectedCharacter);
-        if (motionArgs.forward) {
-          curEnd.ch--;
-        }
-        else {
-          curEnd.ch++;
-        }
+        var increment = motionArgs.forward ? 1 : -1;
+        curEnd.ch += increment;
         return curEnd;
       },
       moveToCharacter: function(cm, motionArgs) {
@@ -824,7 +822,7 @@
       },
       moveToEol: function(cm, motionArgs, vim) {
         var cursor = cm.getCursor();
-        var line = Math.min(cursor.line + motionArgs.repeat - 1,
+        var line = min(cursor.line + motionArgs.repeat - 1,
             cm.lineCount() - 1);
         vim.lastHPos = Infinity;
         return { line: line, ch: cm.getLine(line).length - 1 };
@@ -843,9 +841,8 @@
         var symbol = cm.getLine(cursor.line).charAt(cursor.ch);
         if (isMatchableSymbol(symbol)) {
           return findMatchedSymbol(cm, cm.getCursor(), motionArgs.symbol);
-        } else {
-          return cursor;
         }
+        return cursor;
       },
       moveToStartOfLine: function(cm) {
         var cursor = cm.getCursor();
@@ -854,7 +851,7 @@
       moveToLineOrEdgeOfDocument: function(cm, motionArgs) {
         var lineNum = motionArgs.forward ? cm.lineCount() - 1 : 0;
         if (motionArgs.repeatIsExplicit) {
-          lineNum = Math.max(0, Math.min(
+          lineNum = max(0, min(
                 motionArgs.repeat - 1,
                 cm.lineCount() - 1));
         }
@@ -975,13 +972,13 @@
           if (vim.visualLine) {
             curStart.ch = 0;
             curEnd = {
-              line: Math.min(curStart.line + repeat - 1, cm.lineCount()),
+              line: min(curStart.line + repeat - 1, cm.lineCount()),
               ch: lineLength(cm, curStart.line)
             };
           } else {
             curEnd = {
                 line: curStart.line,
-                ch: Math.min(curStart.ch + repeat,
+                ch: min(curStart.ch + repeat,
                     lineLength(cm, curStart.line))
             };
           }
@@ -1000,18 +997,17 @@
         }
       },
       joinLines: function(cm, actionArgs, vim) {
+        var curStart, curEnd;
         if (vim.visualMode) {
-          var curStart = cm.getCursor('anchor');
-          var curEnd = cm.getCursor('head');
+          curStart = cm.getCursor('anchor');
+          curEnd = cm.getCursor('head');
           curEnd.ch = lineLength(cm, curEnd.line) - 1;
         } else {
           // Repeat is the number of lines to join. Minimum 2 lines.
-          var repeat = Math.max(actionArgs.repeat, 2);
-          var curStart = cm.getCursor();
-          var lineNumEnd = Math.min(curStart.line + repeat - 1,
-              cm.lineCount() - 1);
-          var curEnd = { line: lineNumEnd,
-              ch: lineLength(cm, lineNumEnd) - 1 };
+          var repeat = max(actionArgs.repeat, 2);
+          curStart = cm.getCursor();
+          var lineNumEnd = min(curStart.line + repeat - 1, cm.lineCount() - 1);
+          curEnd = { line: lineNumEnd, ch: lineLength(cm, lineNumEnd) - 1 };
         }
         var finalCh = 0;
         cm.operation(function() {
@@ -1061,11 +1057,9 @@
         var curPosFinal;
         var idx;
         if (linewise && actionArgs.after) {
-          curPosFinal = makeCursor(cur.line + 1,
-              findFirstNonWhiteSpaceCharacter(cm.getLine(cur.line + 1)));
+          curPosFinal = {line: cur.line + 1, ch: findFirstNonWhiteSpaceCharacter(cm.getLine(cur.line + 1))};
         } else if (linewise && !actionArgs.after) {
-          curPosFinal = makeCursor(cur.line,
-              findFirstNonWhiteSpaceCharacter(cm.getLine(cur.line)));
+          curPosFinal = {line: cur.line, ch: findFirstNonWhiteSpaceCharacter(cm.getLine(cur.line))};
         } else if (!linewise && actionArgs.after) {
           idx = cm.indexFromPos(cur);
           curPosFinal = cm.posFromIndex(idx + text.length - 1);
@@ -1159,12 +1153,9 @@
       }
       return ret;
     }
-    function makeCursor(line, ch) {
-      return { line: line, ch: ch };
-    };
     function offsetCursor(cur, offsetLine, offsetCh) {
       return { line: cur.line + offsetLine, ch: cur.ch + offsetCh };
-    };
+    }
     function arrayEq(a1, a2) {
       if (a1.length != a2.length) return false;
       for (var i = 0; i < a1.length; i++) {
@@ -1209,9 +1200,8 @@
         return true;
       } else if (cur1.line == cur2.line && cur1.ch < cur2.ch) {
         return true;
-      } else {
-        return false;
       }
+      return false;
     }
     function lineLength(cm, lineNum) {
       return cm.getLine(lineNum).length;
@@ -1259,14 +1249,14 @@
       var cur = cm.getCursor();
       var line = cm.getLine(cur.line);
 
-      var line_to_char = new String(line.substring(0, cur.ch));
+      var line_to_char = line.substring(0, cur.ch);
       // TODO: Case when small word is matching symbols does not work right with
       //     the current regexLastIndexOf check.
       var start = regexLastIndexOf(line_to_char,
           (!bigWord) ? /[^a-zA-Z0-9]/ : /\s/) + 1;
       var end = motions.moveByWords(cm, { repeat: 1, forward: true,
           wordEnd: true, bigWord: bigWord });
-      end.ch += inclusive ? 1 : 0 ;
+      end.ch += inclusive ? 1 : 0;
       return {start: {line: cur.line, ch: start}, end: end };
     }
 
@@ -1313,8 +1303,8 @@
                 continue;
               } else {
                 return {
-                    from: Math.min(wordStart, wordEnd + 1),
-                    to: Math.max(wordStart, wordEnd),
+                    from: min(wordStart, wordEnd + 1),
+                    to: max(wordStart, wordEnd),
                     line: lineNum};
               }
             }
@@ -1397,23 +1387,23 @@
     function moveToCharacter(cm, repeat, forward, character) {
       var cur = cm.getCursor();
       var start = cur.ch;
+      var idx;
       for (var i = 0; i < repeat; i ++) {
         var line = cm.getLine(cur.line);
-        var idx = charIdxInLine(start, line, character, forward, true);
+        idx = charIdxInLine(start, line, character, forward, true);
         if (idx == -1) {
           return cur;
         }
         start = idx;
       }
-      return { line: cm.getCursor().line,
-        ch: idx };
+      return { line: cm.getCursor().line, ch: idx };
     }
 
     function moveToColumn(cm, repeat) {
       // repeat is always >= 1, so repeat - 1 alwasy corresponds
       // to the column we want to go to.
       var line = cm.getCursor().line;
-      var ch = Math.min(cm.getLine(line).length - 1, repeat - 1);
+      var ch = min(cm.getLine(line).length - 1, repeat - 1);
       return { line: line, ch: ch };
     }
 
@@ -1445,60 +1435,42 @@
       // Are we at the opening or closing char
       var forwards = inArray(symb, ['(', '[', '{']);
 
-      var reverseSymb = (function(sym) {
-        switch (sym) {
-          case '(' : return ')';
-          case '[' : return ']';
-          case '{' : return '}';
-          case ')' : return '(';
-          case ']' : return '[';
-          case '}' : return '{';
-          default : return null;
-        }
-      })(symb);
+      var reverseSymb = ({
+        '(': ')', ')': '(',
+        '[': ']', ']': '[',
+        '{': '}', '}': '{'})[symb];
 
       // Couldn't find a matching symbol, abort
-      if (!reverseSymb) return cur;
+      if (!reverseSymb) {
+        return cur;
+      }
 
-      // Tracking our imbalance in open/closing symbols. An opening symbol will
-      // be the first thing we pick up if moving forward, this isn't true moving
-      // backwards
-      var disBal = forwards ? 0 : 1;
-
-      var currLine;
-      while (true) {
-        if (line == cur.line) {
-          // First pass, do some special stuff
-          currLine = forwards ? cm.getLine(line).substr(cur.ch).split('') :
-            cm.getLine(line).substr(0,cur.ch).split('').reverse();
-        } else {
-          currLine = forwards ? cm.getLine(line).split('') :
-            cm.getLine(line).split('').reverse();
+      // set our increment to move forward (+1) or backwards (-1)
+      // depending on which bracket we're matching
+      var increment = ({'(': 1, '{': 1, '[': 1})[symb] || -1;
+      var depth = 1, nextCh = symb, index = cur.ch, lineText = cm.getLine(line);
+      // Simple search for closing paren--just count openings and closings till
+      // we find our match
+      // TODO: use info from CodeMirror to ignore closing brackets in comments and
+      // quotes, etc.
+      while (nextCh && depth > 0) {
+        index += increment;
+        nextCh = lineText.charAt(index);
+        if (!nextCh) {
+          line += increment;
+          index = 0;
+          lineText = cm.getLine(line) || '';
+          nextCh = lineText.charAt(index);
         }
-
-        for (var index = 0; index < currLine.length; index++) {
-          if (currLine[index] == symb) {
-            disBal++;
-          } else if (currLine[index] == reverseSymb) {
-            disBal--;
-          }
-
-          if (disBal === 0) {
-            if (forwards && cur.line == line) {
-              return { line: line, ch: index + cur.ch};
-            } else if (forwards) {
-              return { line: line, ch: index};
-            } else {
-              return {line: line, ch: currLine.length - index - 1 };
-            }
-          }
+        if (nextCh === symb) {
+            depth++;
+        } else if (nextCh === reverseSymb) {
+            depth--;
         }
+      }
 
-        if (forwards) {
-          line++;
-        } else {
-          line--;
-        }
+      if (nextCh) {
+        return {line: line, ch: index};
       }
       return cur;
     }
@@ -1531,8 +1503,7 @@
       var cur = cm.getCursor();
       var line = cm.getLine(cur.line);
       var chars = line.split('');
-      var start = undefined;
-      var end = undefined;
+      var start, end, i, len;
       var firstIndex = chars.indexOf(symb);
 
       // the decision tree is to always look backwards for the beginning first,
@@ -1554,7 +1525,7 @@
         start = cur.ch + 1; // assign start to ahead of the cursor
       } else {
         // go backwards to find the start
-        for (var i = cur.ch; i > -1 && !start; i--) {
+        for (i = cur.ch; i > -1 && !start; i--) {
           if (chars[i] == symb) {
             start = i + 1;
           }
@@ -1563,7 +1534,7 @@
 
       // look forwards for the end symbol
       if (start && !end) {
-        for (var i = start, len = chars.length; i < len && !end; i++) {
+        for (i = start, len = chars.length; i < len && !end; i++) {
           if (chars[i] == symb) {
             end = i;
           }
