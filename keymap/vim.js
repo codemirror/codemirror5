@@ -132,7 +132,7 @@
     { keys: ['^'], type: 'motion',
         motion: 'moveToFirstNonWhiteSpaceCharacter' },
     { keys: ['$'], type: 'motion',
-        motion: 'moveToEol'
+        motion: 'moveToEol',
         motionArgs: {inclusive: true} },
     { keys: ['%'], type: 'motion',
         motion: 'moveToMatchedSymbol',
