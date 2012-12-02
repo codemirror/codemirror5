@@ -20,6 +20,7 @@ var lines = (function() {
     ret[i] = {
       line: i,
       length: lineText[i].length,
+      lineText: lineText[i],
       textStart: /^\s*/.exec(lineText[i])[0].length
     };
   }
@@ -159,6 +160,8 @@ function offsetCursor(cur, offsetLine, offsetCh) {
 };
 
 // Motion tests
+testMotion('|', '|', makeCursor(0, 0), makeCursor(0,4));
+testMotion('|_repeat', ['3', '|'], makeCursor(0, 2), makeCursor(0,4));
 testMotion('h', 'h', makeCursor(0, 0), word1.start);
 testMotion('h_repeat', ['3', 'h'], offsetCursor(word1.end, 0, -3), word1.end);
 testMotion('l', 'l', makeCursor(0, 1));
@@ -210,6 +213,29 @@ testMotion('T_repeat', ['2', 'T', 'p'], offsetCursor(pChars[0], 0, 1), pChars[2]
 testMotion('%_parens', ['%'], parens1.end, parens1.start);
 testMotion('%_squares', ['%'], squares1.end, squares1.start);
 testMotion('%_braces', ['%'], curlys1.end, curlys1.start);
+// Make sure that moving down after going to the end of a line always leaves you
+// at the end of a line, but preserves the offset in other cases
+testVim('Changing lines after Eol operation', function(cm, vim, helpers) {
+  var startPos = { line: 0, ch: 0 };
+  cm.setCursor(startPos);
+  helpers.doKeys(['$']);
+  helpers.doKeys(['j']);
+  // After moving to Eol and then down, we should be at Eol of line 2
+  helpers.assertCursorAt({ line: 1, ch: lines[1].length - 1 });
+  helpers.doKeys(['j']);
+  // After moving down, we should be at Eol of line 3
+  helpers.assertCursorAt({ line: 2, ch: lines[2].length - 1 });
+  helpers.doKeys(['h']);
+  helpers.doKeys(['j']);
+  // After moving back one space and then down, since line 4 is shorter than line 2, we should
+  // be at Eol of line 2 - 1
+  helpers.assertCursorAt({ line: 3, ch: lines[3].length - 1 });
+  helpers.doKeys(['j']);
+  helpers.doKeys(['j']);
+  // After moving down again, since line 3 has enough characters, we should be back to the
+  // same place we were at on line 1
+  helpers.assertCursorAt({ line: 5, ch: lines[2].length - 2 });
+});
 
 // Operator tests
 testVim('dl', function(cm, vim, helpers) {
