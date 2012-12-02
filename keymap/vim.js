@@ -750,12 +750,9 @@
         var cursor = cm.getCursor();
         var line = cm.getLine(cursor.line);
         var repeat = motionArgs.repeat;
-        if (motionArgs.forward) {
-          return { line: cursor.line,
-              ch: Math.min(line.length, cursor.ch + repeat) };
-        } else {
-          return { line: cursor.line, ch: Math.max(0, cursor.ch - repeat) };
-        }
+        var ch = motionArgs.forward ? Math.min(line.length - 1, cursor.ch + repeat) :
+                                      Math.max(0, cursor.ch - repeat)
+        return { line: cursor.line, ch: ch };
       },
       moveByLines: function(cm, motionArgs, vim) {
         var endCh = cm.getCursor().ch;
