@@ -1,4 +1,4 @@
-.cm-s-cobalt { background: #002240; color: white; }
+.cm-s-cobalt.CodeMirror { background: #002240; color: white; }
 .cm-s-cobalt div.CodeMirror-selected { background: #b36539 !important; }
 .cm-s-cobalt .CodeMirror-gutters { background: #002240; border-right: 1px solid #aaa; }
 .cm-s-cobalt .CodeMirror-linenumber { color: #d0d0d0; }
