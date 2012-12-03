@@ -1078,10 +1078,19 @@
       },
       newLineAndEnterInsertMode: function(cm, actionArgs) {
         var insertAt = cm.getCursor();
-        insertAt.ch = 0;
-        insertAt.line = (actionArgs.after) ? insertAt.line + 1 : insertAt.line;
-        cm.replaceRange('\n', insertAt);
-        cm.setCursor(insertAt);
+        if (insertAt.line == 0 && !actionArgs.after) {
+          // Special case for inserting newline before start of document.
+          cm.replaceRange('\n', makeCursor(0, 0));
+          cm.setCursor(0, 0);
+        } else {
+          insertAt.line = (actionArgs.after) ? insertAt.line :
+              insertAt.line - 1;
+          insertAt.ch = lineLength(cm, insertAt.line);
+          cm.setCursor(insertAt);
+          var newlineFn = CodeMirror.commands.newlineAndIndentContinueComment ||
+              CodeMirror.commands.newlineAndIndent;
+          newlineFn(cm);
+        }
         this.enterInsertMode(cm);
       },
       paste: function(cm, actionArgs, vim) {
@@ -1837,6 +1846,11 @@
       'Ctrl-C': exitInsertMode,
       'Ctrl-N': 'autocomplete',
       'Ctrl-P': 'autocomplete',
+      'Enter': function(cm) {
+        var fn = CodeMirror.commands.newlineAndIndentContinueComment ||
+            CodeMirror.commands.newlineAndIndent;
+        fn(cm);
+      },
       fallthrough: ['default']
     };
 
