@@ -387,8 +387,17 @@
       return repeat;
     };
 
-    function Register() {
+    /*
+     * Register stores information about copy and paste registers.  Besides
+     * text, a register must store whether it is linewise (i.e., when it is
+     * pasted, should it insert itself into a new line, or should the text be
+     * inserted at the cursor position.)
+     */
+    function Register(text, linewise) {
       this.clear();
+      if (text) {
+        this.set(text, linewise);
+      }
     }
     Register.prototype = {
       set: function(text, linewise) {
@@ -407,73 +416,71 @@
       clear: function() {
         this.text = '';
         this.linewise = false;
-      }
+      },
+      toString: function() { return this.text; }
     };
 
+    /*
+     * vim registers allow you to keep many independent copy and paste buffers.
+     * See http://usevim.com/2012/04/13/registers/ for an introduction.
+     *
+     * RegisterController keeps the state of all the registers.  An initial
+     * state may be passed in.  The unnamed register '"' will always be
+     * overridden.
+     */
     function RegisterController(registers) {
       this.registers = registers;
-      this.lastUpdatedRegisterName = null;
       this.unamedRegister = registers['\"'] = new Register();
     }
     RegisterController.prototype = {
       pushText: function(registerName, operator, text, linewise) {
         // Lowercase and uppercase registers refer to the same register.
         // Uppercase just means append.
-        var append = isUpperCase(registerName);
         var register = this.isValidRegister(registerName) ?
             this.getRegister(registerName) : null;
-        if (register &&
-            registerName.toLowerCase() != this.lastUpdatedRegisterName) {
-          // Switched registers, clear the unamed register.
-          this.lastUpdatedRegisterName = registerName.toLowerCase();
-          this.unamedRegister.set('', false);
-        } else {
-          this.lastUpdatedRegisterName = null;
-        }
-        // The unamed register always has the same value as the last used
-        // register.
-        if (append) {
-          if (register) {
-            register.append(text, linewise);
+        // if no register/an invalid register was specified, things go to the
+        // default registers
+        if (!register) {
+          switch (operator) {
+            case 'yank':
+              // The 0 register contains the text from the most recent yank.
+              this.registers['0'] = new Register(text, linewise);
+              break;
+            case 'delete':
+            case 'change':
+              if (text.indexOf('\n') == -1) {
+                // Delete less than 1 line. Update the small delete register.
+                this.registers['-'] = new Register(text, linewise);
+              } else {
+                // Shift down the contents of the numbered registers and put the
+                // deleted text into register 1.
+                this._shiftNumericRegisters();
+                this.registers['1'] = new Register(text, linewise);
+              }
+              break;
           }
+          // Make sure the unnamed register is set to what just happened
+          this.unamedRegister.set(text, linewise);
+          return;
+        }
+
+        // If we've gotten to this point, we've actually specified a register
+        var append = isUpperCase(registerName);
+        if (append) {
+          register.append(text, linewise);
+          // The unamed register always has the same value as the last used
+          // register.
           this.unamedRegister.append(text, linewise);
         } else {
-          if (register) {
-            register.set(text, linewise);
-          }
+          register.set(text, linewise);
           this.unamedRegister.set(text, linewise);
         }
-        if (!register) {
-          // These only happen if no register was explicitly specified.
-          if (operator == 'yank') {
-            // The 0 register contains the text from the most recent yank.
-            this.getRegisterInternal('0').set(text, linewise);
-          } else if (operator == 'delete' || operator == 'change') {
-            if (text.indexOf('\n') == -1) {
-              // Delete less than 1 line. Update the small delete register.
-              this.getRegisterInternal('-').set(text, linewise);
-            } else {
-              // Shift down the contents of the numbered registers and put the
-              // deleted text into register 1.
-              for (var i = 9; i >= 2; i--) {
-                var from = this.getRegisterInternal('' + (i - 1));
-                this.registers['' + i] = from;
-              }
-              this.registers['1'] = new Register();
-              this.registers['1'].set(text, linewise);
-            }
-          }
-        }
       },
+      // Gets the register named @name.  If one of @name doesn't already exist,
+      // create it.  If @name is invalid, return the unamedRegister.
       getRegister: function(name) {
         if (!this.isValidRegister(name)) {
           return this.unamedRegister;
-        }
-        return this.getRegisterInternal(name);
-      },
-      getRegisterInternal: function(name) {
-        if (!name) {
-          return null;
         }
         name = name.toLowerCase();
         if (!this.registers[name]) {
@@ -483,6 +490,11 @@
       },
       isValidRegister: function(name) {
         return name && inArray(name, validRegisters);
+      },
+      _shiftNumericRegisters: function() {
+        for (var i = 9; i >= 2; i--) {
+          this.registers[i] = this.getRegister('' + (i - 1));
+        }
       }
     };
 
