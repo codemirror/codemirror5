@@ -813,7 +813,8 @@
       moveToEol: function(cm, motionArgs, vim) {
         var cur = cm.getCursor();
         vim.lastHPos = Infinity;
-        return clipCursorToContent(cm, { line: cur.line + motionArgs.repeat - 1, ch: Infinity });
+        return clipCursorToContent(cm, { line: cur.line + motionArgs.repeat - 1,
+                    ch: Infinity });
       },
       moveToFirstNonWhiteSpaceCharacter: function(cm) {
         // Go to the start of the line where the text begins, or the end for
@@ -821,8 +822,7 @@
         var cursor = cm.getCursor();
         var line = cm.getLine(cursor.line);
         return { line: cursor.line,
-            ch: findFirstNonWhiteSpaceCharacter(cm.getLine(cursor.line)),
-            user: true };
+                 ch: findFirstNonWhiteSpaceCharacter(cm.getLine(cursor.line)) };
       },
       moveToMatchedSymbol: function(cm, motionArgs) {
         var cursor = cm.getCursor();
@@ -843,8 +843,7 @@
           lineNum = motionArgs.repeat - 1;
         }
         return clipCursorToContent(cm, { line: lineNum,
-            ch: findFirstNonWhiteSpaceCharacter(cm.getLine(lineNum)),
-            user: true });
+            ch: findFirstNonWhiteSpaceCharacter(cm.getLine(lineNum)) });
       },
       textObjectManipulation: function(cm, motionArgs) {
         var character = motionArgs.selectedCharacter;
@@ -992,7 +991,8 @@
           // Repeat is the number of lines to join. Minimum 2 lines.
           var repeat = Math.max(actionArgs.repeat, 2);
           curStart = cm.getCursor();
-          curEnd = clipCursorToContent(cm, { line: curStart.line + repeat - 1, ch: Infinity });
+          curEnd = clipCursorToContent(cm, { line: curStart.line + repeat - 1,
+                                             ch: Infinity });
         }
         var finalCh = 0;
         cm.operation(function() {
@@ -1042,9 +1042,11 @@
         var curPosFinal;
         var idx;
         if (linewise && actionArgs.after) {
-          curPosFinal = { line: cur.line + 1, ch: findFirstNonWhiteSpaceCharacter(cm.getLine(cur.line + 1)) };
+          curPosFinal = { line: cur.line + 1,
+              ch: findFirstNonWhiteSpaceCharacter(cm.getLine(cur.line + 1)) };
         } else if (linewise && !actionArgs.after) {
-          curPosFinal = { line: cur.line, ch: findFirstNonWhiteSpaceCharacter(cm.getLine(cur.line)) };
+          curPosFinal = { line: cur.line,
+              ch: findFirstNonWhiteSpaceCharacter(cm.getLine(cur.line)) };
         } else if (!linewise && actionArgs.after) {
           idx = cm.indexFromPos(cur);
           curPosFinal = cm.posFromIndex(idx + text.length - 1);
@@ -1131,9 +1133,6 @@
     function clipCursorToContent(cm, cur) {
       var line = Math.min(Math.max(0, cur.line), cm.lineCount() - 1);
       var ch = Math.min(Math.max(0, cur.ch), lineLength(cm, line) - 1);
-      if (typeof cur.user !== 'undefined') {
-        return { line: line, ch: ch, user: cur.user };
-      }
       return { line: line, ch: ch };
     }
     // Merge arguments in place, for overriding arguments.
@@ -1190,7 +1189,7 @@
       };
     }
     function copyCursor(cur) {
-      return { line: cur.line, ch: cur.ch, user: cur.user };
+      return { line: cur.line, ch: cur.ch };
     }
     function cursorEqual(cur1, cur2) {
       return cur1.ch == cur2.ch && cur1.line == cur2.line;
