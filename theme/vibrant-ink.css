@@ -1,6 +1,6 @@
 /* Taken from the popular Visual Studio Vibrant Ink Schema */
 
-.cm-s-vibrant-ink { background: black; color: white; }
+.cm-s-vibrant-ink.CodeMirror { background: black; color: white; }
 .cm-s-vibrant-ink .CodeMirror-selected { background: #35493c !important; }
 
 .cm-s-vibrant-ink .CodeMirror-gutters { background: #002240; border-right: 1px solid #aaa; }

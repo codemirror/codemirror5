@@ -1,4 +1,4 @@
-.cm-s-twilight { background: #141414; color: #f7f7f7; } /**/
+.cm-s-twilight.CodeMirror { background: #141414; color: #f7f7f7; } /**/
 .cm-s-twilight .CodeMirror-selected { background: #323232 !important; } /**/
 
 .cm-s-twilight .CodeMirror-gutters { background: #222; border-right: 1px solid #aaa; }
