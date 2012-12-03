@@ -1,7 +1,8 @@
 /*
   LESS mode - http://www.lesscss.org/
   Ported to CodeMirror by Peter Kroon <plakroon@gmail.com>
-  Report bugs/issues here: https://github.com/marijnh/CodeMirror/issues  GitHub: @peterkroon
+  Report bugs/issues here: https://github.com/marijnh/CodeMirror/issues
+  GitHub: @peterkroon
 */
 
 CodeMirror.defineMode("less", function(config) {
@@ -13,7 +14,7 @@ CodeMirror.defineMode("less", function(config) {
   function inTagsArray(val){
     for(var i=0; i<tags.length; i++)if(val === tags[i])return true;
   }
-   
+  
   var selectors = /(^\:root$|^\:nth\-child$|^\:nth\-last\-child$|^\:nth\-of\-type$|^\:nth\-last\-of\-type$|^\:first\-child$|^\:last\-child$|^\:first\-of\-type$|^\:last\-of\-type$|^\:only\-child$|^\:only\-of\-type$|^\:empty$|^\:link|^\:visited$|^\:active$|^\:hover$|^\:focus$|^\:target$|^\:lang$|^\:enabled^\:disabled$|^\:checked$|^\:first\-line$|^\:first\-letter$|^\:before$|^\:after$|^\:not$|^\:required$|^\:invalid$)/;
   
   function tokenBase(stream, state) {
@@ -31,6 +32,7 @@ CodeMirror.defineMode("less", function(config) {
     else if (ch == "=") ret(null, "compare");
     else if (ch == "|" && stream.eat("=")) return ret(null, "compare");
     else if (ch == "\"" || ch == "'") {
+      if(type == "string")return ret("string", "string");
       state.tokenize = tokenString(ch);
       return state.tokenize(stream, state);
     }
@@ -41,7 +43,7 @@ CodeMirror.defineMode("less", function(config) {
       }else{
         if(type == "string" || type == "(")return ret("string", "string");
         if(state.stack[state.stack.length-1] != undefined)return ret(null, ch);
-        stream.eatWhile(/[\a-zA-Z0-9\-_.\s]/);		
+        stream.eatWhile(/[\a-zA-Z0-9\-_.\s]/);
         if( /\/|\)|#/.test(stream.peek() || (stream.eatSpace() && stream.peek() == ")"))  || stream.eol() )return ret("string", "string"); // let url(/images/logo.png) without quotes return as string
       }
     }
@@ -124,6 +126,15 @@ CodeMirror.defineMode("less", function(config) {
       }else if(stream.current().match(/(^http$|^https$)/) != null){
         stream.eatWhile(/[\w\\\-_%.{:\/]/);
         return ret("string", "string");
+      }else if(type == "(") {
+        //http://www.w3.org/TR/CSS21/syndata.html#uri
+        if( stream.current().lastIndexOf("\\") == stream.current().length-1){
+          if(stream.peek() == "'")while (stream.eatWhile(/\'/));
+          if(stream.peek() == "\"")while (stream.eatWhile(/\"/));
+          if(stream.peek() == ")")while (stream.eatWhile(/\)/));
+          if(stream.peek() == "(")while (stream.eatWhile(/\(/));
+        }
+        return ret("string", "string");
       }else if(stream.peek() == "<" || stream.peek() == ">"){
         return ret("tag", "tag");
       }else if( /\(/.test(stream.peek()) ){																	  
@@ -156,18 +167,18 @@ CodeMirror.defineMode("less", function(config) {
         stream.next();
         var t_v = stream.peek() == ":" ? true : false;
         if(!t_v){
-      	  var old_pos = stream.pos;
-      	  var sc = stream.current().length;
-      	  stream.eatWhile(/[a-z\\\-]/);
-      	  var new_pos = stream.pos;
-      	  if(stream.current().substring(sc-1).match(selectors) != null){
-      	    stream.backUp(new_pos-(old_pos-1));
-      		return ret("tag", "tag");
-      	  } else stream.backUp(new_pos-(old_pos-1));
-      	}else{
-      	  stream.backUp(1);	
-      	}
-      	if(t_v)return ret("tag", "tag"); else return ret("variable", "variable");
+          var old_pos = stream.pos;
+          var sc = stream.current().length;
+          stream.eatWhile(/[a-z\\\-]/);
+          var new_pos = stream.pos;
+          if(stream.current().substring(sc-1).match(selectors) != null){
+            stream.backUp(new_pos-(old_pos-1));
+            return ret("tag", "tag");
+          } else stream.backUp(new_pos-(old_pos-1));
+        }else{
+          stream.backUp(1);	
+        }
+        if(t_v)return ret("tag", "tag"); else return ret("variable", "variable");
       }else{		
         return ret("variable", "variable");		
       }
