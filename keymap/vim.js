@@ -738,7 +738,8 @@
         // Expands forward to end of line, and then to next line if repeat is > 1.
         // Does not handle backward motion!
         var cur = cm.getCursor();
-        return clipCursorToContent(cm, { line: cur.line + motionArgs.repeat - 1, ch: Infinity });
+        return clipCursorToContent(cm, { line: cur.line + motionArgs.repeat - 1,
+                                         ch: Infinity });
       },
       goToMark: function(cm, motionArgs, vim) {
         var mark = vim.marks[motionArgs.selectedCharacter];
