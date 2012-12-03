@@ -1785,7 +1785,7 @@
           for (var cursor = cm.getSearchCursor(state.query);
               cursor.findNext();) {
             state.marked.push(cm.markText(cursor.from(), cursor.to(),
-                'CodeMirror-searching'));
+                { className: 'CodeMirror-searching' }));
           }
         }
       });
