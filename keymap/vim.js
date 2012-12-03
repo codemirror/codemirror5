@@ -1727,7 +1727,7 @@
         if (cm.lineCount() < 2000) { // This is too expensive on big documents.
           for (var cursor = cm.getSearchCursor(state.query); cursor.findNext();)
             state.marked.push(cm.markText(cursor.from(), cursor.to(),
-                'CodeMirror-searching'));
+                { className: 'CodeMirror-searching' }));
         }
       });
     }
