@@ -737,10 +737,8 @@
       expandToLine: function(cm, motionArgs) {
         // Expands forward to end of line, and then to next line if repeat is > 1.
         // Does not handle backward motion!
-        var cursor = cm.getCursor();
-        var endLine = min(cm.lineCount(),
-            cursor.line + motionArgs.repeat - 1);
-        return { line: endLine, ch: lineLength(cm, endLine) };
+        var cur = cm.getCursor();
+        return clipCursorToContent(cm, { line: cur.line + motionArgs.repeat - 1, ch: Infinity });
       },
       goToMark: function(cm, motionArgs, vim) {
         var mark = vim.marks[motionArgs.selectedCharacter];
@@ -750,12 +748,10 @@
         return null;
       },
       moveByCharacters: function(cm, motionArgs) {
-        var cursor = cm.getCursor();
-        var line = cm.getLine(cursor.line);
+        var cur = cm.getCursor();
         var repeat = motionArgs.repeat;
-        var ch = motionArgs.forward ? min(line.length - 1, cursor.ch + repeat) :
-                                      max(0, cursor.ch - repeat);
-        return { line: cursor.line, ch: ch };
+        var ch = motionArgs.forward ? cur.ch + repeat : cur.ch - repeat;
+        return clipCursorToContent(cm, { line: cur.line, ch: ch });
       },
       moveByLines: function(cm, motionArgs, vim) {
         var endCh = cm.getCursor().ch;
@@ -773,15 +769,10 @@
           default:
             vim.lastHPos = endCh;
         }
-        var cursor = cm.getCursor();
+        var cur = cm.getCursor();
         var repeat = motionArgs.repeat;
-        var line = motionArgs.forward ? min(cm.lineCount() - 1, cursor.line + repeat) :
-                                        max(0, cursor.line - repeat);
-        // Make sure our endCh isn't too far right. We need it to highlight
-        // the last char on the line, not the empty space to the right of it
-        endCh = min(endCh, cm.getLine(line).length - 1);
-
-        return { line: line, ch: endCh };
+        var line = motionArgs.forward ? cur.line + repeat : cur.line - repeat;
+        return clipCursorToContent(cm, { line: line, ch: endCh });
       },
       moveByPage: function(cm, motionArgs) {
         // CodeMirror only exposes functions that move the cursor page down, so
@@ -820,11 +811,9 @@
         return moveToColumn(cm, repeat);
       },
       moveToEol: function(cm, motionArgs, vim) {
-        var cursor = cm.getCursor();
-        var line = min(cursor.line + motionArgs.repeat - 1,
-            cm.lineCount() - 1);
+        var cur = cm.getCursor();
         vim.lastHPos = Infinity;
-        return { line: line, ch: cm.getLine(line).length - 1 };
+        return clipCursorToContent(cm, { line: cur.line + motionArgs.repeat - 1, ch: Infinity });
       },
       moveToFirstNonWhiteSpaceCharacter: function(cm) {
         // Go to the start of the line where the text begins, or the end for
@@ -851,13 +840,11 @@
       moveToLineOrEdgeOfDocument: function(cm, motionArgs) {
         var lineNum = motionArgs.forward ? cm.lineCount() - 1 : 0;
         if (motionArgs.repeatIsExplicit) {
-          lineNum = max(0, min(
-                motionArgs.repeat - 1,
-                cm.lineCount() - 1));
+          lineNum = motionArgs.repeat - 1;
         }
-        return { line: lineNum,
+        return clipCursorToContent(cm, { line: lineNum,
             ch: findFirstNonWhiteSpaceCharacter(cm.getLine(lineNum)),
-            user: true };
+            user: true });
       },
       textObjectManipulation: function(cm, motionArgs) {
         var character = motionArgs.selectedCharacter;
@@ -971,16 +958,15 @@
           vim.visualMode = true;
           if (vim.visualLine) {
             curStart.ch = 0;
-            curEnd = {
-              line: min(curStart.line + repeat - 1, cm.lineCount()),
+            curEnd = clipCursorToContent(cm, {
+              line: curStart.line + repeat - 1,
               ch: lineLength(cm, curStart.line)
-            };
+            });
           } else {
-            curEnd = {
+            curEnd = clipCursorToContent(cm, {
                 line: curStart.line,
-                ch: min(curStart.ch + repeat,
-                    lineLength(cm, curStart.line))
-            };
+                ch: curStart.ch + repeat
+            });
           }
           // Make the initial selection.
           if (!actionArgs.repeatIsExplicit && !vim.visualLine) {
@@ -1004,10 +990,9 @@
           curEnd.ch = lineLength(cm, curEnd.line) - 1;
         } else {
           // Repeat is the number of lines to join. Minimum 2 lines.
-          var repeat = max(actionArgs.repeat, 2);
+          var repeat = Math.max(actionArgs.repeat, 2);
           curStart = cm.getCursor();
-          var lineNumEnd = min(curStart.line + repeat - 1, cm.lineCount() - 1);
-          curEnd = { line: lineNumEnd, ch: lineLength(cm, lineNumEnd) - 1 };
+          curEnd = clipCursorToContent(cm, { line: curStart.line + repeat - 1, ch: Infinity });
         }
         var finalCh = 0;
         cm.operation(function() {
@@ -1139,8 +1124,18 @@
     /*
      * Below are miscellaneous utility functions used by vim.js
      */
-    var max = Math.max, min = Math.min;
 
+    // Clips cursor @cur to ensure
+    // that 0 <= cur.ch < line length and
+    // 0 <= cur.line < total number of lines
+    function clipCursorToContent(cm, cur) {
+      var line = Math.min(Math.max(0, cur.line), cm.lineCount() - 1);
+      var ch = Math.min(Math.max(0, cur.ch), lineLength(cm, line) - 1);
+      if (typeof cur.user !== 'undefined') {
+        return { line: line, ch: ch, user: cur.user };
+      }
+      return { line: line, ch: ch };
+    }
     // Merge arguments in place, for overriding arguments.
     function mergeArgs(to, from) {
       for (var prop in from) {
@@ -1234,7 +1229,7 @@
       var lines = selection.split('\n');
       if (lines.length > 1 && isWhiteSpaceString(lines.pop())) {
         curEnd.line--;
-        curEnd.ch = cm.getLine(curEnd.line).length;
+        curEnd.ch = lineLength(cm, curEnd.line);
       }
     }
 
@@ -1308,8 +1303,8 @@
                 continue;
               } else {
                 return {
-                    from: min(wordStart, wordEnd + 1),
-                    to: max(wordStart, wordEnd),
+                    from: Math.min(wordStart, wordEnd + 1),
+                    to: Math.max(wordStart, wordEnd),
                     line: lineNum};
               }
             }
@@ -1408,8 +1403,7 @@
       // repeat is always >= 1, so repeat - 1 always corresponds
       // to the column we want to go to.
       var line = cm.getCursor().line;
-      var ch = min(cm.getLine(line).length - 1, repeat - 1);
-      return { line: line, ch: ch };
+      return clipCursorToContent(cm, { line: line, ch: repeat - 1 });
     }
 
     function charIdxInLine(start, line, character, forward, includeChar) {
