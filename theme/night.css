@@ -1,6 +1,6 @@
 /* Loosely based on the Midnight Textmate theme */
 
-.cm-s-night { background: #0a001f; color: #f8f8f8; }
+.cm-s-night.CodeMirror { background: #0a001f; color: #f8f8f8; }
 .cm-s-night div.CodeMirror-selected { background: #447 !important; }
 .cm-s-night .CodeMirror-gutters { background: #0a001f; border-right: 1px solid #aaa; }
 .cm-s-night .CodeMirror-linenumber { color: #f8f8f8; }
