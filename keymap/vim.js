@@ -184,8 +184,7 @@
         motion: 'moveByCharacters', motionArgs: { forward: true }},
     // Actions
     { keys: ['a'], type: 'action', action: 'enterInsertMode',
-        motion: 'moveByCharacters',
-        motionArgs: { forward: true, noRepeat: true }},
+        actionArgs: { insertAt: 'charAfter' }},
     { keys: ['A'], type: 'action', action: 'enterInsertMode',
         actionArgs: { insertAt: 'eol' }},
     { keys: ['i'], type: 'action', action: 'enterInsertMode' },
@@ -739,6 +738,7 @@
             cm.setCursor(selectionStart);
             cm.setSelection(selectionStart, selectionEnd);
           } else if (!operator) {
+            curEnd = clipCursorToContent(cm, curEnd);
             cm.setCursor(curEnd.line, curEnd.ch);
           }
         }
@@ -798,8 +798,7 @@
         // Expands forward to end of line, and then to next line if repeat is
         // >1. Does not handle backward motion!
         var cur = cm.getCursor();
-        return clipCursorToContent(cm, { line: cur.line + motionArgs.repeat - 1,
-                                         ch: Infinity });
+        return { line: cur.line + motionArgs.repeat - 1, ch: Infinity };
       },
       findNext: function(cm, motionArgs, vim) {
         return findNext(cm, false /** prev */, motionArgs.repeat);
@@ -818,7 +817,7 @@
         var cur = cm.getCursor();
         var repeat = motionArgs.repeat;
         var ch = motionArgs.forward ? cur.ch + repeat : cur.ch - repeat;
-        return clipCursorToContent(cm, { line: cur.line, ch: ch });
+        return { line: cur.line, ch: ch };
       },
       moveByLines: function(cm, motionArgs, vim) {
         var endCh = cm.getCursor().ch;
@@ -839,7 +838,7 @@
         var cur = cm.getCursor();
         var repeat = motionArgs.repeat;
         var line = motionArgs.forward ? cur.line + repeat : cur.line - repeat;
-        return clipCursorToContent(cm, { line: line, ch: endCh });
+        return { line: line, ch: endCh };
       },
       moveByPage: function(cm, motionArgs) {
         // CodeMirror only exposes functions that move the cursor page down, so
@@ -878,8 +877,7 @@
       moveToEol: function(cm, motionArgs, vim) {
         var cur = cm.getCursor();
         vim.lastHPos = Infinity;
-        return clipCursorToContent(cm, { line: cur.line + motionArgs.repeat - 1,
-                    ch: Infinity });
+        return { line: cur.line + motionArgs.repeat - 1, ch: Infinity };
       },
       moveToFirstNonWhiteSpaceCharacter: function(cm) {
         // Go to the start of the line where the text begins, or the end for
@@ -907,8 +905,8 @@
         if (motionArgs.repeatIsExplicit) {
           lineNum = motionArgs.repeat - 1;
         }
-        return clipCursorToContent(cm, { line: lineNum,
-            ch: findFirstNonWhiteSpaceCharacter(cm.getLine(lineNum)) });
+        return { line: lineNum,
+            ch: findFirstNonWhiteSpaceCharacter(cm.getLine(lineNum)) };
       },
       textObjectManipulation: function(cm, motionArgs) {
         var character = motionArgs.selectedCharacter;
@@ -1008,6 +1006,8 @@
           var cursor = cm.getCursor();
           cursor = { line: cursor.line, ch: lineLength(cm, cursor.line) };
           cm.setCursor(cursor);
+        } else if (insertAt == 'charAfter') {
+          cm.setCursor(offsetCursor(cm.getCursor(), 0, 1));
         }
         cm.setOption('keyMap', 'vim-insert');
       },
