@@ -254,6 +254,16 @@ testVim('dl', function(cm, vim, helpers) {
   is(!register.linewise);
   eqPos(curStart, cm.getCursor());
 }, { value: ' word1 ' });
+testVim('dl_eol', function(cm, vim, helpers) {
+  var curStart = makeCursor(0, 6);
+  cm.setCursor(curStart);
+  helpers.doKeys('d', 'l');
+  eq(' word1', cm.getValue());
+  var register = vim.registerController.getRegister();
+  eq(' ', register.text);
+  is(!register.linewise);
+  helpers.assertCursorAt(makeCursor(0, 6));
+}, { value: ' word1 ' });
 testVim('dl_repeat', function(cm, vim, helpers) {
   var curStart = makeCursor(0, 0);
   cm.setCursor(curStart);
@@ -584,6 +594,12 @@ testVim('a', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.doKeys('a');
   eqPos(makeCursor(0, 2), cm.getCursor());
+  eq('vim-insert', cm.getOption('keyMap'));
+});
+testVim('a_eol', function(cm, vim, helpers) {
+  cm.setCursor(0, lines[0].length - 1);
+  helpers.doKeys('a');
+  helpers.assertCursorAt(makeCursor(0, lines[0].length));
   eq('vim-insert', cm.getOption('keyMap'));
 });
 testVim('i', function(cm, vim, helpers) {
