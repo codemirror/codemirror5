@@ -26,6 +26,8 @@ var lines = (function() {
   }
   return ret;
 })();
+var endOfDocument = makeCursor(lines.length - 1,
+    lines[lines.length - 1].length);
 var wordLine = lines[0];
 var bigWordLine = lines[1];
 var charLine = lines[2];
@@ -112,7 +114,13 @@ function testVim(name, run, opts, expectedFail) {
       }
     }
     function assertCursorAtFn(cm) {
-      return function(pos) {
+      return function(line, ch) {
+        var pos;
+        if (ch == null && typeof line.line == 'number') {
+          pos = line;
+        } else {
+          pos = makeCursor(line, ch);
+        }
         eqPos(pos, cm.getCursor());
       }
     }
@@ -179,17 +187,22 @@ testMotion('k_repeat', ['2', 'k'], makeCursor(0, 4), makeCursor(2, 4));
 testMotion('w', 'w', word1.start);
 testMotion('w_repeat', ['2', 'w'], word2.start);
 testMotion('w_wrap', ['w'], word3.start, word2.start);
+testMotion('w_endOfDocument', 'w', endOfDocument, endOfDocument);
 testMotion('W', 'W', bigWord1.start);
 testMotion('W_repeat', ['2', 'W'], bigWord3.start, bigWord1.start);
 testMotion('e', 'e', word1.end);
 testMotion('e_repeat', ['2', 'e'], word2.end);
 testMotion('e_wrap', 'e', word3.end, word2.end);
+testMotion('e_endOfDocument', 'e', endOfDocument, endOfDocument);
 testMotion('b', 'b', word3.start, word3.end);
 testMotion('b_repeat', ['2', 'b'], word2.start, word3.end);
 testMotion('b_wrap', 'b', word2.start, word3.start);
+testMotion('b_startOfDocument', 'b', makeCursor(0, 0), makeCursor(0, 0));
 testMotion('ge', ['g', 'e'], word2.end, word3.end);
 testMotion('ge_repeat', ['2', 'g', 'e'], word1.end, word3.start);
 testMotion('ge_wrap', ['g', 'e'], word2.end, word3.start);
+testMotion('ge_startOfDocument', ['g', 'e'], makeCursor(0, 0),
+    makeCursor(0, 0));
 testMotion('gg', ['g', 'g'], makeCursor(lines[0].line, lines[0].textStart),
     makeCursor(3, 1));
 testMotion('gg_repeat', ['3', 'g', 'g'],
@@ -294,6 +307,16 @@ testVim('dj', function(cm, vim, helpers) {
   is(register.linewise);
   eqPos(makeCursor(0, 1), cm.getCursor());
 }, { value: ' word1\nword2\n word3' });
+testVim('dj_end_of_document', function(cm, vim, helpers) {
+  var curStart = makeCursor(0, 3);
+  cm.setCursor(curStart);
+  helpers.doKeys('d', 'j');
+  eq(' word1 ', cm.getValue());
+  var register = vim.registerController.getRegister();
+  eq('', register.text);
+  is(!register.linewise);
+  helpers.assertCursorAt(0, 3);
+}, { value: ' word1 ' });
 testVim('dk', function(cm, vim, helpers) {
   var curStart = makeCursor(1, 3);
   cm.setCursor(curStart);
@@ -304,6 +327,16 @@ testVim('dk', function(cm, vim, helpers) {
   is(register.linewise);
   eqPos(makeCursor(0, 1), cm.getCursor());
 }, { value: ' word1\nword2\n word3' });
+testVim('dk_start_of_document', function(cm, vim, helpers) {
+  var curStart = makeCursor(0, 3);
+  cm.setCursor(curStart);
+  helpers.doKeys('d', 'k');
+  eq(' word1 ', cm.getValue());
+  var register = vim.registerController.getRegister();
+  eq('', register.text);
+  is(!register.linewise);
+  helpers.assertCursorAt(0, 3);
+}, { value: ' word1 ' });
 testVim('dw_space', function(cm, vim, helpers) {
   var curStart = makeCursor(0, 0);
   cm.setCursor(curStart);

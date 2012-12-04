@@ -838,6 +838,9 @@
         var cur = cm.getCursor();
         var repeat = motionArgs.repeat;
         var line = motionArgs.forward ? cur.line + repeat : cur.line - repeat;
+        if (line < 0 || line > cm.lineCount() - 1) {
+          return null;
+        }
         return { line: line, ch: endCh };
       },
       moveByPage: function(cm, motionArgs) {
@@ -1498,8 +1501,12 @@
               cur.ch = word.from;
             }
           } else {
-            // No more words to be found. Move to end of line.
-            return { line: cur.line, ch: lineLength(cm, cur.line) };
+            // No more words to be found. Move to the end.
+            if (forward) {
+              return { line: cur.line, ch: lineLength(cm, cur.line) };
+            } else {
+              return { line: cur.line, ch: 0 };
+            }
           }
         }
       }
