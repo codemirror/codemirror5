@@ -1,5 +1,3 @@
-// Reimplementation of vim keybindings
-// word1
 /**
  * Supported keybindings:
  *
@@ -50,7 +48,6 @@
  *  6. Motion, operator, and action implementations
  *  7. Helper functions for the key handler, motions, operators, and actions
  *  8. Set up Vim to work as a keymap for CodeMirror.
- *
  */
 
 (function() {
@@ -285,7 +282,9 @@
     }
     function inArray(val, arr) {
       for (var i = 0; i < arr.length; i++) {
-        if (arr[i] == val) { return true; }
+        if (arr[i] == val) {
+          return true;
+        }
       }
       return false;
     }
@@ -640,7 +639,7 @@
         var forward = command.searchArgs.forward;
         getSearchState(cm).reversed = !forward;
         var promptPrefix = (forward) ? '/' : '?';
-        var handleQuery = function(query) {
+        function handleQuery(query) {
           updateSearchQuery(cm, query);
           commandDispatcher.processMotion(cm, vim, {
             type: 'motion',
@@ -795,8 +794,8 @@
     // All of the functions below return Cursor objects.
     var motions = {
       expandToLine: function(cm, motionArgs) {
-        // Expands forward to end of line, and then to next line if repeat is > 1.
-        // Does not handle backward motion!
+        // Expands forward to end of line, and then to next line if repeat is
+        // >1. Does not handle backward motion!
         var cur = cm.getCursor();
         return clipCursorToContent(cm, { line: cur.line + motionArgs.repeat - 1,
                                          ch: Infinity });
@@ -843,10 +842,8 @@
       },
       moveByPage: function(cm, motionArgs) {
         // CodeMirror only exposes functions that move the cursor page down, so
-        // doing this bad hack to move the cursor and move it back. evalInput will
-        // move the cursor to where it should be in the end.
-        // TODO: Consider making motions move the cursor by default, so as to not
-        //     need this ugliness. But it might make visual mode hard.
+        // doing this bad hack to move the cursor and move it back. evalInput
+        // will move the cursor to where it should be in the end.
         var curStart = cm.getCursor();
         var repeat = motionArgs.repeat;
         cm.moveV((motionArgs.forward ? repeat : -repeat), 'page');
@@ -889,7 +886,7 @@
         var cursor = cm.getCursor();
         var line = cm.getLine(cursor.line);
         return { line: cursor.line,
-                 ch: findFirstNonWhiteSpaceCharacter(cm.getLine(cursor.line)) };
+            ch: findFirstNonWhiteSpaceCharacter(cm.getLine(cursor.line)) };
       },
       moveToMatchedSymbol: function(cm, motionArgs) {
         var cursor = cm.getCursor();
@@ -1031,8 +1028,8 @@
             });
           } else {
             curEnd = clipCursorToContent(cm, {
-                line: curStart.line,
-                ch: curStart.ch + repeat
+              line: curStart.line,
+              ch: curStart.ch + repeat
             });
           }
           // Make the initial selection.
@@ -1060,7 +1057,7 @@
           var repeat = Math.max(actionArgs.repeat, 2);
           curStart = cm.getCursor();
           curEnd = clipCursorToContent(cm, { line: curStart.line + repeat - 1,
-                                             ch: Infinity });
+              ch: Infinity });
         }
         var finalCh = 0;
         cm.operation(function() {
@@ -1078,9 +1075,9 @@
       },
       newLineAndEnterInsertMode: function(cm, actionArgs) {
         var insertAt = cm.getCursor();
-        if (insertAt.line == 0 && !actionArgs.after) {
+        if (insertAt.line === 0 && !actionArgs.after) {
           // Special case for inserting newline before start of document.
-          cm.replaceRange('\n', makeCursor(0, 0));
+          cm.replaceRange('\n', { line: 0, ch: 0 });
           cm.setCursor(0, 0);
         } else {
           insertAt.line = (actionArgs.after) ? insertAt.line :
@@ -1097,7 +1094,9 @@
         var cur = cm.getCursor();
         var register = vim.registerController.getRegister(
             actionArgs.registerName);
-        if (!register.text) { return; }
+        if (!register.text) {
+          return;
+        }
         for (var text = '', i = 0; i < actionArgs.repeat; i++) {
           text += register.text;
         }
@@ -1233,7 +1232,9 @@
       return { line: cur.line + offsetLine, ch: cur.ch + offsetCh };
     }
     function arrayEq(a1, a2) {
-      if (a1.length != a2.length) return false;
+      if (a1.length != a2.length) {
+        return false;
+      }
       for (var i = 0; i < a1.length; i++) {
         if (a1[i] != a2[i]) {
           return false;
@@ -1317,8 +1318,8 @@
     }
 
     function findFirstNonWhiteSpaceCharacter(text) {
-        var firstNonWS = text.search(/\S/);
-        return firstNonWS == -1 ? text.length : firstNonWS;
+      var firstNonWS = text.search(/\S/);
+      return firstNonWS == -1 ? text.length : firstNonWS;
     }
 
     function expandToWord(cm, inclusive, forward, bigWord) {
@@ -1337,14 +1338,15 @@
     }
 
     /*
-     * Returns the boundaries of the next word. If the cursor in the middle of the
-     * word, then returns the boundaries of the current word, starting at the
-     * cursor. If the cursor is at the start/end of a word, and we are going
+     * Returns the boundaries of the next word. If the cursor in the middle of
+     * the word, then returns the boundaries of the current word, starting at
+     * the cursor. If the cursor is at the start/end of a word, and we are going
      * forward/backward, respectively, find the boundaries of the next word.
      *
      * @param {CodeMirror} cm CodeMirror object.
      * @param {Cursor} cur The cursor position.
-     * @param {boolean} forward True to search forward. False to search backward.
+     * @param {boolean} forward True to search forward. False to search
+     *     backward.
      * @param {boolean} bigWord True if punctuation count as part of the word.
      *     False if only [a-zA-Z0-9] characters count as part of the word.
      * @return {Object{from:number, to:number, line: number}} The boundaries of
@@ -1379,9 +1381,9 @@
                 continue;
               } else {
                 return {
-                    from: Math.min(wordStart, wordEnd + 1),
-                    to: Math.max(wordStart, wordEnd),
-                    line: lineNum};
+                  from: Math.min(wordStart, wordEnd + 1),
+                  to: Math.max(wordStart, wordEnd),
+                  line: lineNum };
               }
             }
           }
@@ -1404,7 +1406,8 @@
     /**
      * @param {CodeMirror} cm CodeMirror object.
      * @param {int} repeat Number of words to move past.
-     * @param {boolean} forward True to search forward. False to search backward.
+     * @param {boolean} forward True to search forward. False to search
+     *     backward.
      * @param {boolean} wordEnd True to move to end of word. False to move to
      *     beginning of word.
      * @param {boolean} bigWord True if punctuation count as part of the word.
@@ -1421,8 +1424,9 @@
           word = findWord(cm, cur, forward, bigWord);
           movedToNextWord = true;
           if (word) {
-            // Move to the word we just found. If by moving to the word we end up
-            // in the same spot, then move an extra character and search again.
+            // Move to the word we just found. If by moving to the word we end
+            // up in the same spot, then move an extra character and search
+            // again.
             cur.line = word.line;
             if (forward && wordEnd) {
               // 'e'
@@ -1526,8 +1530,8 @@
       var depth = 1, nextCh = symb, index = cur.ch, lineText = cm.getLine(line);
       // Simple search for closing paren--just count openings and closings till
       // we find our match
-      // TODO: use info from CodeMirror to ignore closing brackets in comments and
-      // quotes, etc.
+      // TODO: use info from CodeMirror to ignore closing brackets in comments
+      // and quotes, etc.
       while (nextCh && depth > 0) {
         index += increment;
         nextCh = lineText.charAt(index);
@@ -1538,9 +1542,9 @@
           nextCh = lineText.charAt(index);
         }
         if (nextCh === symb) {
-            depth++;
+          depth++;
         } else if (nextCh === reverseSymb) {
-            depth--;
+          depth--;
         }
       }
 
@@ -1571,8 +1575,8 @@
       return -1;
     }
 
-    // takes in a symbol and a cursor and tries to simulate text objects that have
-    // identical opening and closing symbols
+    // Takes in a symbol and a cursor and tries to simulate text objects that
+    // have identical opening and closing symbols
     // TODO support across multiple lines
     function findBeginningAndEnd(cm, symb, inclusive) {
       var cur = cm.getCursor();
@@ -1617,10 +1621,9 @@
       }
 
       // nothing found
-      // FIXME still enters insert mode
-      if (!start || !end) return {
-        start: cur, end: cur
-      };
+      if (!start || !end) {
+        return { start: cur, end: cur };
+      }
 
       // include the symbols
       if (inclusive) {
@@ -1653,26 +1656,25 @@
     }
     function parseQuery(cm, query) {
       // First try to extract regex + flags from the input. If no flags found,
-      // extract just the regex. IE does not accept flags directly defined in the
-      // regex string in the form /regex/flags
+      // extract just the regex. IE does not accept flags directly defined in
+      // the regex string in the form /regex/flags
       var match = query.match(/^(.*)\/(.*)$/);
       var insensitive = false;
-      var regexp;
+      var query_regex;
       if (match) {
         insensitive = (match[2].indexOf('i') != -1);
-        regexp = match[1];
+        query_regex = match[1];
       } else {
-        regexp = query;
+        query_regex = query;
       }
       // Heuristic: if the query string is all lowercase, do a case-insensitive
       // search.
-      insensitive |= (/^[^A-Z]*$/).test(regexp);
-      var query;
+      insensitive = insensitive || (/^[^A-Z]*$/).test(query_regex);
       try {
-        query = new RegExp(regexp, insensitive ? 'i' : undefined);
-        return query;
+        var regexp = new RegExp(query_regex, insensitive ? 'i' : undefined);
+        return regexp;
       } catch (e) {
-        showConfirm(cm, 'Invalid regex: ' + regexp);
+        showConfirm(cm, 'Invalid regex: ' + query_regex);
       }
     }
     function showConfirm(cm, text) {
@@ -1693,7 +1695,7 @@
       if (desc) {
         raw += '<span style="color: #888">';
         raw += desc;
-        raw += '</span>'
+        raw += '</span>';
       }
       return raw;
     }
@@ -1718,16 +1720,24 @@
     function updateSearchQuery(cm, query) {
       cm.operation(function() {
         var state = getSearchState(cm);
-        if (!query) return;
+        if (!query) {
+          return;
+        }
         var newQuery = parseQuery(cm, query);
-        if (regexEqual(newQuery, state.query)) return;
+        if (regexEqual(newQuery, state.query)) {
+          return;
+        }
         clearSearch(cm);
         state.query = newQuery;
-        if (!state.query) return;
+        if (!state.query) {
+          return;
+        }
         if (cm.lineCount() < 2000) { // This is too expensive on big documents.
-          for (var cursor = cm.getSearchCursor(state.query); cursor.findNext();)
+          for (var cursor = cm.getSearchCursor(state.query);
+              cursor.findNext();) {
             state.marked.push(cm.markText(cursor.from(), cursor.to(),
                 'CodeMirror-searching'));
+          }
         }
       });
     }
@@ -1750,7 +1760,9 @@
             // around and try again.
             cursor = cm.getSearchCursor(state.query,
                 (prev) ? { line: cm.lineCount() - 1} : {line: 0, ch: 0} );
-            if (!cursor.find(prev)) return;
+            if (!cursor.find(prev)) {
+              return;
+            }
           }
         }
         return cursor.from();
