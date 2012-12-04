@@ -269,7 +269,7 @@
       return (/^[A-Z]$/).test(k);
     }
     function isAlphanumeric(k) {
-      return (/^[a-zA-Z0-9]/).test(k);
+      return (/^[\w]$/).test(k);
     }
     function isWhiteSpace(k) {
       return whiteSpaceRegex.test(k);
@@ -651,12 +651,13 @@
             showPrompt(cm, handleQuery, promptPrefix, searchPromptDesc);
             break;
           case 'wordUnderCursor':
-            var word = expandToWord(cm, false /** inclusive */,
-                true /** forward */, false /** bigWord */);
+            var word = expandWordUnderCursor(cm, false /** inclusive */,
+                true /** forward */, false /** bigWord */,
+                true /** noSymbol */);
             var query = cm.getLine(word.start.line).substring(word.start.ch,
                 word.end.ch + 1);
-            // Use \b (word boundary) to simulate \< \> in Vim.
             query = '\\b' + query + '\\b';
+            cm.setCursor(word.start);
             handleQuery(query);
             break;
         }
@@ -1175,11 +1176,11 @@
       // TODO: implement text objects for the reverse like }. Should just be
       //     an additional mapping after moving to the defaultKeyMap.
       'w': function(cm, inclusive) {
-        return expandToWord(cm, inclusive, true /** forward */,
+        return expandWordUnderCursor(cm, inclusive, true /** forward */,
             false /** bigWord */);
       },
       'W': function(cm, inclusive) {
-        return expandToWord(cm, inclusive,
+        return expandWordUnderCursor(cm, inclusive,
             true /** forward */, true /** bigWord */);
       },
       '{': function(cm, inclusive) {
@@ -1283,6 +1284,12 @@
     function lineLength(cm, lineNum) {
       return cm.getLine(lineNum).length;
     }
+    function reverse(s){
+      return s.split("").reverse().join("");
+    }
+    function escapeRegex(s) {
+      return s.replace(/([.?*+\^$\[\]\\(){}|\-])/g, "\\$1");
+    }
 
     function exitVisualMode(cm, vim) {
       vim.visualMode = false;
@@ -1322,19 +1329,54 @@
       return firstNonWS == -1 ? text.length : firstNonWS;
     }
 
-    function expandToWord(cm, inclusive, forward, bigWord) {
+    function expandWordUnderCursor(cm, inclusive, forward, bigWord, noSymbol) {
       var cur = cm.getCursor();
       var line = cm.getLine(cur.line);
+      var idx = cur.ch;
 
-      var line_to_char = line.substring(0, cur.ch);
-      // TODO: Case when small word is matching symbols does not work right with
-      //     the current regexLastIndexOf check.
-      var start = regexLastIndexOf(line_to_char,
-          (!bigWord) ? /[^a-zA-Z0-9]/ : /\s/) + 1;
-      var end = motions.moveByWords(cm, { repeat: 1, forward: true,
-          wordEnd: true, bigWord: bigWord });
-      end.ch += inclusive ? 1 : 0;
-      return { start: { line: cur.line, ch: start }, end: end };
+      // Seek to first word or non-whitespace character, depending on if
+      // noSymbol is true.
+      var textAfterIdx = line.substring(idx);
+      var firstMatchedChar;
+      if (noSymbol) {
+        firstMatchedChar = textAfterIdx.search(/\w/);
+      } else {
+        firstMatchedChar = textAfterIdx.search(/\S/);
+      }
+      if (firstMatchedChar == -1) {
+        return null;
+      }
+      idx += firstMatchedChar;
+      textAfterIdx = line.substring(idx);
+      var textBeforeIdx = line.substring(0, idx);
+
+      var matchRegex;
+      // Greedy matchers for the "word" we are trying to expand.
+      if (bigWord) {
+        matchRegex = /^\S+/;
+      } else {
+        if ((/\w/).test(line.charAt(idx))) {
+          matchRegex = /^\w+/;
+        } else {
+          matchRegex = /^[^\w\s]+/;
+        }
+      }
+
+      var wordAfterRegex = matchRegex.exec(textAfterIdx);
+      var wordStart = idx;
+      var wordEnd = idx + wordAfterRegex[0].length - 1;
+      // TODO: Find a better way to do this. It will be slow on very long lines.
+      var wordBeforeRegex = matchRegex.exec(reverse(textBeforeIdx));
+      if (wordBeforeRegex) {
+        wordStart -= wordBeforeRegex[0].length;
+      }
+
+      if (inclusive) {
+        wordEnd++;
+      }
+
+      return { start: { line: cur.line, ch: wordStart },
+        end: { line: cur.line, ch: wordEnd }};
     }
 
     /*

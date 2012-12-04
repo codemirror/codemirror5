@@ -736,3 +736,15 @@ testVim('#', function(cm, vim, helpers) {
   helpers.doKeys('2', '#');
   helpers.assertCursorAt(makeCursor(0, 22));
 }, { value: 'nomatch match nomatch match \nnomatch Match' });
+testVim('*_seek', function(cm, vim, helpers) {
+  // Should skip over space and symbols.
+  cm.setCursor(0, 3);
+  helpers.doKeys('*');
+  helpers.assertCursorAt(makeCursor(0, 22));
+}, { value: '    :=  match nomatch match \nnomatch Match' });
+testVim('#', function(cm, vim, helpers) {
+  // Should skip over space and symbols.
+  cm.setCursor(0, 3);
+  helpers.doKeys('#');
+  helpers.assertCursorAt(makeCursor(1, 8));
+}, { value: '    :=  match nomatch match \nnomatch Match' });
