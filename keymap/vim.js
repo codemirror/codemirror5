@@ -287,6 +287,17 @@
       }
       return false;
     }
+
+    // Global Vim state. Call getVimGlobalState to get and initialize.
+    var vimGlobalState;
+    function getVimGlobalState() {
+      if (!vimGlobalState) {
+        vimGlobalState = {
+          registerController: new RegisterController({})
+        }
+      }
+      return vimGlobalState;
+    }
     function getVimState(cm) {
       if (!cm.vimState) {
         // Store instance state in the CodeMirror object.
@@ -302,7 +313,6 @@
           // executed in between.
           lastMotion: null,
           marks: {},
-          registerController: new RegisterController({}),
           visualMode: false,
           // If we are in visual line mode. No effect if visualMode is false.
           visualLine: false
@@ -318,6 +328,15 @@
       },
       buildKeyMap: function() {
         // TODO: Convert keymap into dictionary format for fast lookup.
+      },
+      // Testing hook, though it might be useful to expose the register
+      // controller anyways.
+      getRegisterController: function() {
+        return getVimGlobalState().registerController;
+      },
+      // Testing hook.
+      _clearVimGlobalState: function() {
+        vimGlobalState = null;
       },
       // Initializes vim state variable on the CodeMirror object. Should only be
       // called lazily by handleKey or for testing.
@@ -932,8 +951,9 @@
 
     var operators = {
       change: function(cm, operatorArgs, vim, curStart, curEnd) {
-        vim.registerController.pushText(operatorArgs.registerName, 'change',
-            cm.getRange(curStart, curEnd), operatorArgs.linewise);
+        getVimGlobalState().registerController.pushText(
+            operatorArgs.registerName, 'change', cm.getRange(curStart, curEnd),
+            operatorArgs.linewise);
         if (operatorArgs.linewise) {
           // Delete starting at the first nonwhitespace character of the first
           // line, instead of from the start of the first line. This way we get
@@ -954,8 +974,9 @@
       },
       // delete is a javascript keyword.
       'delete': function(cm, operatorArgs, vim, curStart, curEnd) {
-        vim.registerController.pushText(operatorArgs.registerName, 'delete',
-            cm.getRange(curStart, curEnd), operatorArgs.linewise);
+        getVimGlobalState().registerController.pushText(
+            operatorArgs.registerName, 'delete', cm.getRange(curStart, curEnd),
+            operatorArgs.linewise);
         cm.replaceRange('', curStart, curEnd);
         if (operatorArgs.linewise) {
           cm.setCursor(motions.moveToFirstNonWhiteSpaceCharacter(cm));
@@ -995,7 +1016,8 @@
         cm.setCursor(curOriginal);
       },
       yank: function(cm, operatorArgs, vim, curStart, curEnd, curOriginal) {
-        vim.registerController.pushText(operatorArgs.registerName, 'yank',
+        getVimGlobalState().registerController.pushText(
+            operatorArgs.registerName, 'yank',
             cm.getRange(curStart, curEnd), operatorArgs.linewise);
         cm.setCursor(curOriginal);
       }
@@ -1096,7 +1118,7 @@
       },
       paste: function(cm, actionArgs, vim) {
         var cur = cm.getCursor();
-        var register = vim.registerController.getRegister(
+        var register = getVimGlobalState().registerController.getRegister(
             actionArgs.registerName);
         if (!register.text) {
           return;
