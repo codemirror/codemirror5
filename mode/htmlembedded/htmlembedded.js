@@ -34,8 +34,8 @@ CodeMirror.defineMode("htmlembedded", function(config, parserConfig) {
       htmlMixedMode = htmlMixedMode || CodeMirror.getMode(config, "htmlmixed");
       return { 
           token :  parserConfig.startOpen ? scriptingDispatch : htmlDispatch,
-          htmlState : htmlMixedMode.startState(),
-          scriptState : scriptingMode.startState()
+          htmlState : CodeMirror.startState(htmlMixedMode),
+          scriptState : CodeMirror.startState(scriptingMode)
       };
     },
 
@@ -46,7 +46,7 @@ CodeMirror.defineMode("htmlembedded", function(config, parserConfig) {
     indent: function(state, textAfter) {
       if (state.token == htmlDispatch)
         return htmlMixedMode.indent(state.htmlState, textAfter);
-      else
+      else if (scriptingMode.indent)
         return scriptingMode.indent(state.scriptState, textAfter);
     },
     
