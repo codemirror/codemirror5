@@ -1,5 +1,7 @@
 CodeMirror.defineMode("clike", function(config, parserConfig) {
   var indentUnit = config.indentUnit,
+      enableMultiLineIndent = !!config.enableMultiLineIndent,
+      multiLineIndentUnit = config.multiLineIndentUnit || config.indentUnit,
       keywords = parserConfig.keywords || {},
       builtin = parserConfig.builtin || {},
       blockKeywords = parserConfig.blockKeywords || {},
@@ -81,21 +83,31 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     return "comment";
   }
 
-  function Context(indented, column, type, align, prev) {
+  function Context(indented, column, type, align, prev, multiLineIndent) {
     this.indented = indented;
     this.column = column;
     this.type = type;
     this.align = align;
     this.prev = prev;
+    this.multiLineIndent = enableMultiLineIndent && multiLineIndent;
   }
-  function pushContext(state, col, type) {
-    return state.context = new Context(state.indented, col, type, null, state.context);
+  function pushContext(state, col, type, multiLineIndent) {
+    return state.context = new Context(state.indented, col, type, null, state.context, multiLineIndent);
   }
   function popContext(state) {
     var t = state.context.type;
+    var prevCtx = state.context.prev, prevIndent = state.context.indented;
+    // pop multiline statement context
+    if (t == "statement") {
+      while (prevCtx && prevCtx.type == "statement" && prevCtx.multiLineIndent) {
+        prevIndent = prevCtx.indented;
+        prevCtx = prevCtx.prev;
+      }
+    }
+
     if (t == ")" || t == "]" || t == "}")
-      state.indented = state.context.indented;
-    return state.context = state.context.prev;
+        state.indented = prevIndent;
+    return state.context = prevCtx;
   }
 
   // Interface
@@ -117,24 +129,32 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
         state.indented = stream.indentation();
         state.startOfLine = true;
       }
-      if (stream.eatSpace()) return null;
+      if (stream.eatSpace()) {
+        if (ctx.type == "statement" && stream.eol() && enableMultiLineIndent) 
+          state.context.multiLineIndent = true;
+        return null;
+      }
       curPunc = null;
       var style = (state.tokenize || tokenBase)(stream, state);
       if (style == "comment" || style == "meta") return style;
       if (ctx.align == null) ctx.align = true;
 
-      if ((curPunc == ";" || curPunc == ":" || curPunc == ",") && ctx.type == "statement") popContext(state);
-      else if (curPunc == "{") pushContext(state, stream.column(), "}");
-      else if (curPunc == "[") pushContext(state, stream.column(), "]");
-      else if (curPunc == "(") pushContext(state, stream.column(), ")");
+      if (ctx.type == "statement" && stream.eol() && enableMultiLineIndent) 
+        state.context.multiLineIndent = true;
+
+      if ((curPunc == ";" || curPunc == ":" || curPunc == ',') && ctx.type == "statement") popContext(state);
+      else if (curPunc == "{") pushContext(state, stream.column(), "}", false);
+      else if (curPunc == "[") pushContext(state, stream.column(), "]", false);
+      else if (curPunc == "(") pushContext(state, stream.column(), ")", true);
       else if (curPunc == "}") {
         while (ctx.type == "statement") ctx = popContext(state);
         if (ctx.type == "}") ctx = popContext(state);
         while (ctx.type == "statement") ctx = popContext(state);
       }
       else if (curPunc == ctx.type) popContext(state);
-      else if (((ctx.type == "}" || ctx.type == "top") && curPunc != ';') || (ctx.type == "statement" && curPunc == "newstatement"))
-        pushContext(state, stream.column(), "statement");
+      else if (((ctx.type == "}" || ctx.type == "top") && (curPunc != "," && curPunc != ";")) || 
+               (ctx.type == "statement" && curPunc == "newstatement"))
+        pushContext(state, stream.column(), "statement", false);
       state.startOfLine = false;
       return style;
     },
@@ -145,9 +165,20 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       var ctx = state.context, firstChar = textAfter && textAfter.charAt(0);
       if (ctx.type == "statement" && firstChar == "}") ctx = ctx.prev;
       var closing = firstChar == ctx.type;
-      if (ctx.type == "statement") return ctx.indented + (firstChar == "{" ? 0 : indentUnit);
-      else if (ctx.align) return ctx.column + (closing ? 0 : 1);
-      else return ctx.indented + (closing ? 0 : indentUnit);
+      
+      if (ctx.type == "statement") {
+        return ctx.indented + (firstChar == "{" ? 0 : ctx.multiLineIndent? multiLineIndentUnit : indentUnit);
+      } else if (ctx.align) {
+        return ctx.column + (closing ? 0 : 1);
+      } else if (ctx.multiLineIndent) {
+          // multi-line function calls, declarations with no parameters on start-line of function call.
+          return ctx.indented + multiLineIndentUnit;
+      } else if (ctx.type == '}' && ctx.prev.multiLineIndent) {
+        // indent statements inside { }-block reference to start of multi-line statement
+        var prevCtx = ctx.prev;
+        while (prevCtx.prev.multiLineIndent) prevCtx = prevCtx.prev;
+        return prevCtx.indented + (closing ? 0 : indentUnit);
+      } else return ctx.indented + (closing ? 0 : indentUnit);
     },
 
     electricChars: "{}"
