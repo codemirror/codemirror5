@@ -132,8 +132,12 @@ function testVim(name, run, opts, expectedFail) {
     var helpers = {
       doKeys: doKeysFn(cm),
       assertCursorAt: assertCursorAtFn(cm),
-      fakeOpenDialog: fakeOpenDialog
+      fakeOpenDialog: fakeOpenDialog,
+      getRegisterController: function() {
+        return CodeMirror.Vim.getRegisterController();
+      }
     }
+    CodeMirror.Vim._clearVimGlobalState();
     var successful = false;
     try {
       run(cm, vim, helpers);
@@ -262,7 +266,7 @@ testVim('dl', function(cm, vim, helpers) {
   cm.setCursor(curStart);
   helpers.doKeys('d', 'l');
   eq('word1 ', cm.getValue());
-  var register = vim.registerController.getRegister();
+  var register = helpers.getRegisterController().getRegister();
   eq(' ', register.text);
   is(!register.linewise);
   eqPos(curStart, cm.getCursor());
@@ -272,7 +276,7 @@ testVim('dl_eol', function(cm, vim, helpers) {
   cm.setCursor(curStart);
   helpers.doKeys('d', 'l');
   eq(' word1', cm.getValue());
-  var register = vim.registerController.getRegister();
+  var register = helpers.getRegisterController().getRegister();
   eq(' ', register.text);
   is(!register.linewise);
   helpers.assertCursorAt(makeCursor(0, 6));
@@ -282,7 +286,7 @@ testVim('dl_repeat', function(cm, vim, helpers) {
   cm.setCursor(curStart);
   helpers.doKeys('2', 'd', 'l');
   eq('ord1 ', cm.getValue());
-  var register = vim.registerController.getRegister();
+  var register = helpers.getRegisterController().getRegister();
   eq(' w', register.text);
   is(!register.linewise);
   eqPos(curStart, cm.getCursor());
@@ -292,7 +296,7 @@ testVim('dh', function(cm, vim, helpers) {
   cm.setCursor(curStart);
   helpers.doKeys('d', 'h');
   eq(' wrd1 ', cm.getValue());
-  var register = vim.registerController.getRegister();
+  var register = helpers.getRegisterController().getRegister();
   eq('o', register.text);
   is(!register.linewise);
   eqPos(offsetCursor(curStart, 0 , -1), cm.getCursor());
@@ -302,7 +306,7 @@ testVim('dj', function(cm, vim, helpers) {
   cm.setCursor(curStart);
   helpers.doKeys('d', 'j');
   eq(' word3', cm.getValue());
-  var register = vim.registerController.getRegister();
+  var register = helpers.getRegisterController().getRegister();
   eq(' word1\nword2\n', register.text);
   is(register.linewise);
   eqPos(makeCursor(0, 1), cm.getCursor());
@@ -312,7 +316,7 @@ testVim('dj_end_of_document', function(cm, vim, helpers) {
   cm.setCursor(curStart);
   helpers.doKeys('d', 'j');
   eq(' word1 ', cm.getValue());
-  var register = vim.registerController.getRegister();
+  var register = helpers.getRegisterController().getRegister();
   eq('', register.text);
   is(!register.linewise);
   helpers.assertCursorAt(0, 3);
@@ -322,7 +326,7 @@ testVim('dk', function(cm, vim, helpers) {
   cm.setCursor(curStart);
   helpers.doKeys('d', 'k');
   eq(' word3', cm.getValue());
-  var register = vim.registerController.getRegister();
+  var register = helpers.getRegisterController().getRegister();
   eq(' word1\nword2\n', register.text);
   is(register.linewise);
   eqPos(makeCursor(0, 1), cm.getCursor());
@@ -332,7 +336,7 @@ testVim('dk_start_of_document', function(cm, vim, helpers) {
   cm.setCursor(curStart);
   helpers.doKeys('d', 'k');
   eq(' word1 ', cm.getValue());
-  var register = vim.registerController.getRegister();
+  var register = helpers.getRegisterController().getRegister();
   eq('', register.text);
   is(!register.linewise);
   helpers.assertCursorAt(0, 3);
@@ -342,7 +346,7 @@ testVim('dw_space', function(cm, vim, helpers) {
   cm.setCursor(curStart);
   helpers.doKeys('d', 'w');
   eq('word1 ', cm.getValue());
-  var register = vim.registerController.getRegister();
+  var register = helpers.getRegisterController().getRegister();
   eq(' ', register.text);
   is(!register.linewise);
   eqPos(curStart, cm.getCursor());
@@ -352,7 +356,7 @@ testVim('dw_word', function(cm, vim, helpers) {
   cm.setCursor(curStart);
   helpers.doKeys('d', 'w');
   eq(' word2', cm.getValue());
-  var register = vim.registerController.getRegister();
+  var register = helpers.getRegisterController().getRegister();
   eq('word1 ', register.text);
   is(!register.linewise);
   eqPos(curStart, cm.getCursor());
@@ -364,7 +368,7 @@ testVim('dw_only_word', function(cm, vim, helpers) {
   cm.setCursor(curStart);
   helpers.doKeys('d', 'w');
   eq(' ', cm.getValue());
-  var register = vim.registerController.getRegister();
+  var register = helpers.getRegisterController().getRegister();
   eq('word1 ', register.text);
   is(!register.linewise);
   eqPos(curStart, cm.getCursor());
@@ -376,7 +380,7 @@ testVim('dw_eol', function(cm, vim, helpers) {
   cm.setCursor(curStart);
   helpers.doKeys('d', 'w');
   eq(' \nword2', cm.getValue());
-  var register = vim.registerController.getRegister();
+  var register = helpers.getRegisterController().getRegister();
   eq('word1', register.text);
   is(!register.linewise);
   eqPos(curStart, cm.getCursor());
@@ -388,7 +392,7 @@ testVim('dw_repeat', function(cm, vim, helpers) {
   cm.setCursor(curStart);
   helpers.doKeys('d', '2', 'w');
   eq(' ', cm.getValue());
-  var register = vim.registerController.getRegister();
+  var register = helpers.getRegisterController().getRegister();
   eq('word1\nword2', register.text);
   is(!register.linewise);
   eqPos(curStart, cm.getCursor());
@@ -400,7 +404,7 @@ testVim('d_inclusive', function(cm, vim, helpers) {
   cm.setCursor(curStart);
   helpers.doKeys('d', 'e');
   eq('  ', cm.getValue());
-  var register = vim.registerController.getRegister();
+  var register = helpers.getRegisterController().getRegister();
   eq('word1', register.text);
   is(!register.linewise);
   eqPos(curStart, cm.getCursor());
@@ -410,7 +414,7 @@ testVim('d_reverse', function(cm, vim, helpers) {
   cm.setCursor(1, 0);
   helpers.doKeys('d', 'b');
   eq(' word2 ', cm.getValue());
-  var register = vim.registerController.getRegister();
+  var register = helpers.getRegisterController().getRegister();
   eq('word1\n', register.text);
   is(!register.linewise);
   eqPos(makeCursor(0, 1), cm.getCursor());
@@ -422,7 +426,7 @@ testVim('dd', function(cm, vim, helpers) {
   var expectedLineCount = cm.lineCount() - 1;
   helpers.doKeys('d', 'd');
   eq(expectedLineCount, cm.lineCount());
-  var register = vim.registerController.getRegister();
+  var register = helpers.getRegisterController().getRegister();
   eq(expectedBuffer, register.text);
   is(register.linewise);
   eqPos(makeCursor(0, lines[1].textStart), cm.getCursor());
@@ -434,7 +438,7 @@ testVim('dd_prefix_repeat', function(cm, vim, helpers) {
   var expectedLineCount = cm.lineCount() - 2;
   helpers.doKeys('2', 'd', 'd');
   eq(expectedLineCount, cm.lineCount());
-  var register = vim.registerController.getRegister();
+  var register = helpers.getRegisterController().getRegister();
   eq(expectedBuffer, register.text);
   is(register.linewise);
   eqPos(makeCursor(0, lines[2].textStart), cm.getCursor());
@@ -446,7 +450,7 @@ testVim('dd_motion_repeat', function(cm, vim, helpers) {
   var expectedLineCount = cm.lineCount() - 2;
   helpers.doKeys('d', '2', 'd');
   eq(expectedLineCount, cm.lineCount());
-  var register = vim.registerController.getRegister();
+  var register = helpers.getRegisterController().getRegister();
   eq(expectedBuffer, register.text);
   is(register.linewise);
   eqPos(makeCursor(0, lines[2].textStart), cm.getCursor());
@@ -458,7 +462,7 @@ testVim('dd_multiply_repeat', function(cm, vim, helpers) {
   var expectedLineCount = cm.lineCount() - 6;
   helpers.doKeys('2', 'd', '3', 'd');
   eq(expectedLineCount, cm.lineCount());
-  var register = vim.registerController.getRegister();
+  var register = helpers.getRegisterController().getRegister();
   eq(expectedBuffer, register.text);
   is(register.linewise);
   eqPos(makeCursor(0, lines[6].textStart), cm.getCursor());
@@ -472,7 +476,7 @@ testVim('yw_repeat', function(cm, vim, helpers) {
   cm.setCursor(curStart);
   helpers.doKeys('y', '2', 'w');
   eq(' word1\nword2', cm.getValue());
-  var register = vim.registerController.getRegister();
+  var register = helpers.getRegisterController().getRegister();
   eq('word1\nword2', register.text);
   is(!register.linewise);
   eqPos(curStart, cm.getCursor());
@@ -485,7 +489,7 @@ testVim('yy_multiply_repeat', function(cm, vim, helpers) {
   var expectedLineCount = cm.lineCount();
   helpers.doKeys('2', 'y', '3', 'y');
   eq(expectedLineCount, cm.lineCount());
-  var register = vim.registerController.getRegister();
+  var register = helpers.getRegisterController().getRegister();
   eq(expectedBuffer, register.text);
   is(register.linewise);
   eqPos(curStart, cm.getCursor());
@@ -500,7 +504,7 @@ testVim('cw_repeat', function(cm, vim, helpers) {
   cm.setCursor(curStart);
   helpers.doKeys('c', '2', 'w');
   eq(' ', cm.getValue());
-  var register = vim.registerController.getRegister();
+  var register = helpers.getRegisterController().getRegister();
   eq('word1\nword2', register.text);
   is(!register.linewise);
   eqPos(curStart, cm.getCursor());
@@ -513,7 +517,7 @@ testVim('cc_multiply_repeat', function(cm, vim, helpers) {
   var expectedLineCount = cm.lineCount() - 5;
   helpers.doKeys('2', 'c', '3', 'c');
   eq(expectedLineCount, cm.lineCount());
-  var register = vim.registerController.getRegister();
+  var register = helpers.getRegisterController().getRegister();
   eq(expectedBuffer, register.text);
   is(register.linewise);
   eqPos(makeCursor(0, lines[0].textStart), cm.getCursor());
@@ -527,7 +531,7 @@ testVim('g~w_repeat', function(cm, vim, helpers) {
   cm.setCursor(curStart);
   helpers.doKeys('g', '~', '2', 'w');
   eq(' WORD1\nWORD2', cm.getValue());
-  var register = vim.registerController.getRegister();
+  var register = helpers.getRegisterController().getRegister();
   eq('', register.text);
   is(!register.linewise);
   eqPos(curStart, cm.getCursor());
@@ -539,7 +543,7 @@ testVim('g~g~', function(cm, vim, helpers) {
   var expectedValue = cm.getValue().toUpperCase();
   helpers.doKeys('2', 'g', '~', '3', 'g', '~');
   eq(expectedValue, cm.getValue());
-  var register = vim.registerController.getRegister();
+  var register = helpers.getRegisterController().getRegister();
   eq('', register.text);
   is(!register.linewise);
   eqPos(curStart, cm.getCursor());
@@ -550,7 +554,7 @@ testVim('>{motion}', function(cm, vim, helpers) {
   var expectedValue = '   word1\n  word2\nword3 ';
   helpers.doKeys('>', 'k');
   eq(expectedValue, cm.getValue());
-  var register = vim.registerController.getRegister();
+  var register = helpers.getRegisterController().getRegister();
   eq('', register.text);
   is(!register.linewise);
   eqPos(makeCursor(0, 3), cm.getCursor());
@@ -561,7 +565,7 @@ testVim('>>', function(cm, vim, helpers) {
   var expectedValue = '   word1\n  word2\nword3 ';
   helpers.doKeys('2', '>', '>');
   eq(expectedValue, cm.getValue());
-  var register = vim.registerController.getRegister();
+  var register = helpers.getRegisterController().getRegister();
   eq('', register.text);
   is(!register.linewise);
   eqPos(makeCursor(0, 3), cm.getCursor());
@@ -572,7 +576,7 @@ testVim('<{motion}', function(cm, vim, helpers) {
   var expectedValue = ' word1\nword2\nword3 ';
   helpers.doKeys('<', 'k');
   eq(expectedValue, cm.getValue());
-  var register = vim.registerController.getRegister();
+  var register = helpers.getRegisterController().getRegister();
   eq('', register.text);
   is(!register.linewise);
   eqPos(makeCursor(0, 1), cm.getCursor());
@@ -583,7 +587,7 @@ testVim('<<', function(cm, vim, helpers) {
   var expectedValue = ' word1\nword2\nword3 ';
   helpers.doKeys('2', '<', '<');
   eq(expectedValue, cm.getValue());
-  var register = vim.registerController.getRegister();
+  var register = helpers.getRegisterController().getRegister();
   eq('', register.text);
   is(!register.linewise);
   eqPos(makeCursor(0, 1), cm.getCursor());
@@ -595,7 +599,7 @@ testVim('D', function(cm, vim, helpers) {
   cm.setCursor(curStart);
   helpers.doKeys('D');
   eq(' wo\nword2\n word3', cm.getValue());
-  var register = vim.registerController.getRegister();
+  var register = helpers.getRegisterController().getRegister();
   eq('rd1', register.text);
   is(!register.linewise);
   eqPos(makeCursor(0, 3), cm.getCursor());
@@ -605,7 +609,7 @@ testVim('C', function(cm, vim, helpers) {
   cm.setCursor(curStart);
   helpers.doKeys('C');
   eq(' wo\nword2\n word3', cm.getValue());
-  var register = vim.registerController.getRegister();
+  var register = helpers.getRegisterController().getRegister();
   eq('rd1', register.text);
   is(!register.linewise);
   eqPos(makeCursor(0, 3), cm.getCursor());
@@ -616,7 +620,7 @@ testVim('Y', function(cm, vim, helpers) {
   cm.setCursor(curStart);
   helpers.doKeys('Y');
   eq(' word1\nword2\n word3', cm.getValue());
-  var register = vim.registerController.getRegister();
+  var register = helpers.getRegisterController().getRegister();
   eq('rd1', register.text);
   is(!register.linewise);
   eqPos(makeCursor(0, 3), cm.getCursor());
@@ -683,42 +687,42 @@ testVim('J_repeat', function(cm, vim, helpers) {
 }, { value: 'word1 \n    word2\nword3\n word4' });
 testVim('p', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
-  vim.registerController.pushText('"', 'yank', 'abc\ndef', false);
+  helpers.getRegisterController().pushText('"', 'yank', 'abc\ndef', false);
   helpers.doKeys('p');
   eq('__abc\ndef_', cm.getValue());
   eqPos(makeCursor(1, 2), cm.getCursor());
 }, { value: '___' });
 testVim('p_register', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
-  vim.registerController.getRegister('a').set('abc\ndef', false);
+  helpers.getRegisterController().getRegister('a').set('abc\ndef', false);
   helpers.doKeys('"', 'a', 'p');
   eq('__abc\ndef_', cm.getValue());
   eqPos(makeCursor(1, 2), cm.getCursor());
 }, { value: '___' });
 testVim('p_wrong_register', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
-  vim.registerController.getRegister('a').set('abc\ndef', false);
+  helpers.getRegisterController().getRegister('a').set('abc\ndef', false);
   helpers.doKeys('p');
   eq('___', cm.getValue());
   eqPos(makeCursor(0, 1), cm.getCursor());
 }, { value: '___' });
 testVim('p_line', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
-  vim.registerController.pushText('"', 'yank', '  a\nd\n', true);
+  helpers.getRegisterController().pushText('"', 'yank', '  a\nd\n', true);
   helpers.doKeys('2', 'p');
   eq('___\n  a\nd\n  a\nd', cm.getValue());
   eqPos(makeCursor(1, 2), cm.getCursor());
 }, { value: '___' });
 testVim('P', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
-  vim.registerController.pushText('"', 'yank', 'abc\ndef', false);
+  helpers.getRegisterController().pushText('"', 'yank', 'abc\ndef', false);
   helpers.doKeys('P');
   eq('_abc\ndef__', cm.getValue());
   eqPos(makeCursor(1, 3), cm.getCursor());
 }, { value: '___' });
 testVim('P_line', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
-  vim.registerController.pushText('"', 'yank', '  a\nd\n', true);
+  helpers.getRegisterController().pushText('"', 'yank', '  a\nd\n', true);
   helpers.doKeys('2', 'P');
   eq('  a\nd\n  a\nd\n___', cm.getValue());
   eqPos(makeCursor(0, 2), cm.getCursor());
