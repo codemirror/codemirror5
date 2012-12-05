@@ -352,7 +352,7 @@ CodeMirror.defineMode("css", function(config) {
       // sequence of selectors:
       // One or more of the named type of selector chained with commas.
 
-      if (stream.eatSpace()) return null;
+      if (state.tokenize == tokenBase && stream.eatSpace()) return null;
       var style = state.tokenize(stream, state);
 
       // Changing style returned based on context
