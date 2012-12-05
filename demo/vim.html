@@ -35,6 +35,10 @@ int getchar(void)
 }
 </textarea></form>
 
+    <form><textarea id="code2" name="code2">
+        I am another file! You can yank from my neighbor and paste here.
+</textarea></form>
+
 <p>The vim keybindings are enabled by
 including <a href="../keymap/vim.js">keymap/vim.js</a> and setting
 the <code>keyMap</code> option to <code>"vim"</code>. Because
@@ -44,6 +48,12 @@ a loose approximation of actual vim bindings, though.</p>
     <script>
       CodeMirror.commands.save = function(){ alert("Saving"); };
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        lineNumbers: true,
+        mode: "text/x-csrc",
+        keyMap: "vim",
+        showCursorWhenSelecting: true
+      });
+      var editor2 = CodeMirror.fromTextArea(document.getElementById("code2"), {
         lineNumbers: true,
         mode: "text/x-csrc",
         keyMap: "vim",
