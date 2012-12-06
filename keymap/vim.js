@@ -365,6 +365,11 @@
           // The selection was cleared. Exit visual mode.
           exitVisualMode(cm, vim);
         }
+        if (!vim.visualMode &&
+            !cursorEqual(cm.getCursor('head'), cm.getCursor('anchor'))) {
+          vim.visualMode = true;
+          vim.visualLine = false;
+        }
         if (key != '0' || (key == '0' && vim.inputState.getRepeat() === 0)) {
           // Have to special case 0 since it's both a motion and a number.
           command = commandDispatcher.matchCommand(key, defaultKeymap, vim);
@@ -1047,23 +1052,23 @@
         var repeat = actionArgs.repeat;
         var curStart = cm.getCursor();
         var curEnd;
-        vim.visualLine = !!actionArgs.linewise;
         // TODO: The repeat should actually select number of characters/lines
         //     equal to the repeat times the size of the previous visual
         //     operation.
         if (!vim.visualMode) {
           vim.visualMode = true;
+          vim.visualLine = !!actionArgs.linewise;
           if (vim.visualLine) {
             curStart.ch = 0;
             curEnd = clipCursorToContent(cm, {
               line: curStart.line + repeat - 1,
               ch: lineLength(cm, curStart.line)
-            });
+            }, true /** includeLineBreak */);
           } else {
             curEnd = clipCursorToContent(cm, {
               line: curStart.line,
               ch: curStart.ch + repeat
-            });
+            }, true /** includeLineBreak */);
           }
           // Make the initial selection.
           if (!actionArgs.repeatIsExplicit && !vim.visualLine) {
@@ -1076,7 +1081,20 @@
             cm.setSelection(curStart, curEnd);
           }
         } else {
-          exitVisualMode(cm, vim);
+          if (!vim.visualLine && actionArgs.linewise) {
+            // Shift-V pressed in characterwise visual mode. Switch to linewise
+            // visual mode instead of exiting visual mode.
+            vim.visualLine = true;
+            curStart = cm.getCursor('anchor');
+            curEnd = cm.getCursor('head');
+            curStart.ch = cursorIsBefore(curStart, curEnd) ? 0 :
+                lineLength(cm, curStart.line);
+            curEnd.ch = cursorIsBefore(curStart, curEnd) ?
+                lineLength(cm, curEnd.line) : 0;
+            cm.setSelection(curStart, curEnd);
+          } else {
+            exitVisualMode(cm, vim);
+          }
         }
       },
       joinLines: function(cm, actionArgs, vim) {
@@ -1236,12 +1254,18 @@
      * Below are miscellaneous utility functions used by vim.js
      */
 
-    // Clips cursor @cur to ensure
-    // that 0 <= cur.ch < line length and
-    // 0 <= cur.line < total number of lines
-    function clipCursorToContent(cm, cur) {
+    /**
+     * Clips cursor to ensure that:
+     *   0 <= cur.ch < lineLength
+     *       AND
+     *   0 <= cur.line < lineCount
+     * If includeLineBreak is true, then allow cur.ch == lineLength.
+     */
+    function clipCursorToContent(cm, cur, includeLineBreak) {
       var line = Math.min(Math.max(0, cur.line), cm.lineCount() - 1);
-      var ch = Math.min(Math.max(0, cur.ch), lineLength(cm, line) - 1);
+      var maxCh = lineLength(cm, line) - 1;
+      maxCh = (includeLineBreak) ? maxCh + 1 : maxCh;
+      var ch = Math.min(Math.max(0, cur.ch), maxCh);
       return { line: line, ch: ch };
     }
     // Merge arguments in place, for overriding arguments.
@@ -1332,7 +1356,7 @@
         // Clear the selection and set the cursor only if the selection has not
         // already been cleared. Otherwise we risk moving the cursor somewhere
         // it's not supposed to be.
-        cm.setCursor(selectionEnd);
+        cm.setCursor(clipCursorToContent(cm, selectionEnd));
       }
     }
 
