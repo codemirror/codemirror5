@@ -764,12 +764,11 @@ testVim('? and n/N', function(cm, vim, helpers) {
   helpers.doKeys('2', '?');
   helpers.assertCursorAt(makeCursor(0, 11));
 }, { value: 'match nope match \n nope Match' });
-testVim(',/ clearSearch', function(cm, vim, helpers) {
+testVim(',/ clearSearchHighlight', function(cm, vim, helpers) {
   cm.openDialog = helpers.fakeOpenDialog('match');
   helpers.doKeys('?');
-  var origPos = cm.getCursor();
   helpers.doKeys(',', '/', 'n');
-  helpers.assertCursorAt(origPos);
+  helpers.assertCursorAt(0, 11);
 }, { value: 'match nope match \n nope Match' });
 testVim('*', function(cm, vim, helpers) {
   cm.setCursor(0, 9);
@@ -780,6 +779,11 @@ testVim('*', function(cm, vim, helpers) {
   helpers.doKeys('2', '*');
   helpers.assertCursorAt(makeCursor(1, 8));
 }, { value: 'nomatch match nomatch match \nnomatch Match' });
+testVim('*_no_word', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('*');
+  helpers.assertCursorAt(0, 0);
+}, { value: ' \n match \n' });
 testVim('#', function(cm, vim, helpers) {
   cm.setCursor(0, 9);
   helpers.doKeys('#');
