@@ -207,7 +207,7 @@
     { keys: ['Ctrl-r'], type: 'action', action: 'redo' },
     { keys: ['m', 'character'], type: 'action', action: 'setMark' },
     { keys: ['\"', 'character'], type: 'action', action: 'setRegister' },
-    { keys: [',', '/'], type: 'action', action: 'clearSearch' },
+    { keys: [',', '/'], type: 'action', action: 'clearSearchHighlight' },
     // Text object motions
     { keys: ['a', 'character'], type: 'motion',
         motion: 'textObjectManipulation' },
@@ -293,6 +293,10 @@
     function getVimGlobalState() {
       if (!vimGlobalState) {
         vimGlobalState = {
+          // The current search query.
+          searchQuery: null,
+          // Whether we are searching backwards.
+          searchIsReversed: false,
           registerController: new RegisterController({})
         }
       }
@@ -655,7 +659,7 @@
           return;
         }
         var forward = command.searchArgs.forward;
-        getSearchState(cm).reversed = !forward;
+        getSearchState(cm).setReversed(!forward);
         var promptPrefix = (forward) ? '/' : '?';
         function handleQuery(query) {
           updateSearchQuery(cm, query);
@@ -672,6 +676,9 @@
             var word = expandWordUnderCursor(cm, false /** inclusive */,
                 true /** forward */, false /** bigWord */,
                 true /** noSymbol */);
+            if (!word) {
+              return;
+            }
             var query = cm.getLine(word.start.line).substring(word.start.ch,
                 word.end.ch + 1);
             query = '\\b' + query + '\\b';
@@ -1024,7 +1031,7 @@
     };
 
     var actions = {
-      clearSearch: clearSearch,
+      clearSearchHighlight: clearSearchHighlight,
       enterInsertMode: function(cm, actionArgs) {
         var insertAt = (actionArgs) ? actionArgs.insertAt : null;
         if (insertAt == 'eol') {
@@ -1709,10 +1716,29 @@
 
     // Search functions
     function SearchState() {
-      this.query = null;
-      this.marked = [];
-      this.reversed = false;
+      // Highlighted text that match the query.
+      this.marked = null;
     }
+    SearchState.prototype = {
+      getQuery: function() {
+        return getVimGlobalState().query;
+      },
+      setQuery: function(query) {
+        getVimGlobalState().query = query;
+      },
+      getMarked: function() {
+        return this.marked;
+      },
+      setMarked: function(marked) {
+        this.marked = marked;
+      },
+      isReversed: function() {
+        return getVimGlobalState().isReversed;
+      },
+      setReversed: function(reversed) {
+        getVimGlobalState().isReversed = reversed;
+      }
+    };
     function getSearchState(cm) {
       var vim = getVimState(cm);
       return vim.searchState_ || (vim.searchState_ = new SearchState());
@@ -1788,48 +1814,59 @@
       }
       return(false);
     }
-    function updateSearchQuery(cm, query) {
+    function updateSearchQuery(cm, rawQuery) {
       cm.operation(function() {
         var state = getSearchState(cm);
+        if (!rawQuery) {
+          return;
+        }
+        var query = parseQuery(cm, rawQuery);
+        if (regexEqual(query, state.getQuery())) {
+          return;
+        }
         if (!query) {
           return;
         }
-        var newQuery = parseQuery(cm, query);
-        if (regexEqual(newQuery, state.query)) {
-          return;
-        }
-        clearSearch(cm);
-        state.query = newQuery;
-        if (!state.query) {
-          return;
-        }
-        if (cm.lineCount() < 2000) { // This is too expensive on big documents.
-          for (var cursor = cm.getSearchCursor(state.query);
-              cursor.findNext();) {
-            state.marked.push(cm.markText(cursor.from(), cursor.to(),
-                { className: 'CodeMirror-searching' }));
-          }
-        }
+        clearSearchHighlight(cm);
+        highlightSearchMatches(cm, query);
+        state.setQuery(query);
       });
+    }
+    function highlightSearchMatches(cm, query) {
+      // TODO: Highlight only text inside the viewport. Highlighting everything
+      // is inefficient and expensive.
+      if (cm.lineCount() < 2000) { // This is too expensive on big documents.
+        var marked = [];
+        for (var cursor = cm.getSearchCursor(query);
+            cursor.findNext();) {
+          marked.push(cm.markText(cursor.from(), cursor.to(),
+              { className: 'CodeMirror-searching' }));
+        }
+        getSearchState(cm).setMarked(marked);
+      }
     }
     function findNext(cm, prev, repeat) {
       return cm.operation(function() {
         var state = getSearchState(cm);
-        if (!state.query) {
+        var query = state.getQuery();
+        if (!query) {
           return;
+        }
+        if (!state.getMarked()) {
+          highlightSearchMatches(cm, query);
         }
         var pos = cm.getCursor();
         // If search is initiated with ? instead of /, negate direction.
-        prev = (state.reversed) ? !prev : prev;
+        prev = (state.isReversed()) ? !prev : prev;
         if (!prev) {
           pos.ch += 1;
         }
-        var cursor = cm.getSearchCursor(state.query, pos);
+        var cursor = cm.getSearchCursor(query, pos);
         for (var i = 0; i < repeat; i++) {
           if (!cursor.find(prev)) {
             // SearchCursor may have returned null because it hit EOF, wrap
             // around and try again.
-            cursor = cm.getSearchCursor(state.query,
+            cursor = cm.getSearchCursor(query,
                 (prev) ? { line: cm.lineCount() - 1} : {line: 0, ch: 0} );
             if (!cursor.find(prev)) {
               return;
@@ -1838,17 +1875,20 @@
         }
         return cursor.from();
       });}
-    function clearSearch(cm) {
+    function clearSearchHighlight(cm) {
       cm.operation(function() {
         var state = getSearchState(cm);
-        if (!state.query) {
+        if (!state.getQuery()) {
           return;
         }
-        state.query = null;
-        for (var i = 0; i < state.marked.length; ++i) {
-          state.marked[i].clear();
+        var marked = state.getMarked();
+        if (!marked) {
+          return;
         }
-        state.marked.length = 0;
+        for (var i = 0; i < marked.length; ++i) {
+          marked[i].clear();
+        }
+        state.setMarked(null);
       });}
 
     function buildVimKeyMap() {
