@@ -137,7 +137,7 @@ function testVim(name, run, opts, expectedFail) {
         return CodeMirror.Vim.getRegisterController();
       }
     }
-    CodeMirror.Vim._clearVimGlobalState();
+    CodeMirror.Vim.clearVimGlobalState_();
     var successful = false;
     try {
       run(cm, vim, helpers);

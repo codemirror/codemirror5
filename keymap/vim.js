@@ -335,7 +335,7 @@
         return getVimGlobalState().registerController;
       },
       // Testing hook.
-      _clearVimGlobalState: function() {
+      clearVimGlobalState_: function() {
         vimGlobalState = null;
       },
       // Initializes vim state variable on the CodeMirror object. Should only be
@@ -486,7 +486,7 @@
               } else {
                 // Shift down the contents of the numbered registers and put the
                 // deleted text into register 1.
-                this._shiftNumericRegisters();
+                this.shiftNumericRegisters_();
                 this.registers['1'] = new Register(text, linewise);
               }
               break;
@@ -523,7 +523,7 @@
       isValidRegister: function(name) {
         return name && inArray(name, validRegisters);
       },
-      _shiftNumericRegisters: function() {
+      shiftNumericRegisters_: function() {
         for (var i = 9; i >= 2; i--) {
           this.registers[i] = this.getRegister('' + (i - 1));
         }
@@ -1715,7 +1715,7 @@
     }
     function getSearchState(cm) {
       var vim = getVimState(cm);
-      return vim._searchState || (vim._searchState = new SearchState());
+      return vim.searchState_ || (vim.searchState_ = new SearchState());
     }
     function dialog(cm, text, shortText, callback) {
       if (cm.openDialog) {
