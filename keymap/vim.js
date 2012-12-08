@@ -1769,7 +1769,7 @@
     }
     function dialog(cm, text, shortText, callback) {
       if (cm.openDialog) {
-        cm.openDialog(text, callback);
+        cm.openDialog(text, callback, true /** bottom */);
       }
       else {
         callback(prompt(shortText, ""));
@@ -1801,7 +1801,8 @@
     function showConfirm(cm, text) {
       if (cm.openConfirm) {
         cm.openConfirm('<span style="color: red">' + text +
-            '</span> <button type="button">OK</button>', function() {});
+            '</span> <button type="button">OK</button>', function() {},
+            true /** bottom */);
       } else {
         alert(text);
       }
@@ -1809,9 +1810,9 @@
     function makePrompt(prefix, desc) {
       var raw = '';
       if (prefix) {
-        raw += prefix;
+        raw += '<span style="font-family: monospace">' + prefix + '</span>';
       }
-      raw += '<input type="text" style="width: 20em"/> ' +
+      raw += '<input type="text"/> ' +
           '<span style="color: #888">';
       if (desc) {
         raw += '<span style="color: #888">';
