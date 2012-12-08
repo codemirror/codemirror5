@@ -298,7 +298,7 @@
           // Whether we are searching backwards.
           searchIsReversed: false,
           registerController: new RegisterController({})
-        }
+        };
       }
       return vimGlobalState;
     }
@@ -666,29 +666,43 @@
         var forward = command.searchArgs.forward;
         getSearchState(cm).setReversed(!forward);
         var promptPrefix = (forward) ? '/' : '?';
-        function handleQuery(query) {
-          updateSearchQuery(cm, query);
+        function handleQuery(query, ignoreCase, smartCase) {
+          updateSearchQuery(cm, query, ignoreCase, smartCase);
           commandDispatcher.processMotion(cm, vim, {
             type: 'motion',
             motion: 'findNext'
           });
         }
+        function onPromptClose(query) {
+          handleQuery(query, true /** ignoreCase */, true /** smartCase */);
+        }
         switch (command.searchArgs.querySrc) {
           case 'prompt':
-            showPrompt(cm, handleQuery, promptPrefix, searchPromptDesc);
+            showPrompt(cm, onPromptClose, promptPrefix, searchPromptDesc);
             break;
           case 'wordUnderCursor':
             var word = expandWordUnderCursor(cm, false /** inclusive */,
                 true /** forward */, false /** bigWord */,
                 true /** noSymbol */);
+            var isKeyword = true;
+            if (!word) {
+              word = expandWordUnderCursor(cm, false /** inclusive */,
+                  true /** forward */, false /** bigWord */,
+                  false /** noSymbol */);
+              isKeyword = false;
+            }
             if (!word) {
               return;
             }
             var query = cm.getLine(word.start.line).substring(word.start.ch,
                 word.end.ch + 1);
-            query = '\\b' + query + '\\b';
+            if (isKeyword) {
+              query = '\\b' + query + '\\b';
+            } else {
+              query = escapeRegex(query);
+            }
             cm.setCursor(word.start);
-            handleQuery(query);
+            handleQuery(query, true /** ignoreCase */, false /** smartCase */);
             break;
         }
       },
@@ -1344,7 +1358,7 @@
       return s.split("").reverse().join("");
     }
     function escapeRegex(s) {
-      return s.replace(/([.?*+\^$\[\]\\(){}|\-])/g, "\\$1");
+      return s.replace(/([.?*+$\[\]\/\\(){}|\-])/g, "\\$1");
     }
 
     function exitVisualMode(cm, vim) {
@@ -1775,27 +1789,56 @@
         callback(prompt(shortText, ""));
       }
     }
-    function parseQuery(cm, query) {
+    function findUnescapedSlashes(str) {
+      var escapeNextChar = false;
+      var slashes = [];
+      for (var i = 0; i < str.length; i++) {
+        var c = str.charAt(i);
+        if (!escapeNextChar && c == '/') {
+          slashes.push(i);
+        }
+        escapeNextChar = (c == '\\');
+      }
+      return slashes;
+    }
+    /**
+     * Extract the regular expression from the query and return a Regexp object.
+     * Returns null if the query is blank.
+     * If ignoreCase is passed in, the Regexp object will have the 'i' flag set.
+     * If smartCase is passed in, and the query contains upper case letters,
+     *   then ignoreCase is overridden, and the 'i' flag will not be set.
+     * If the query contains the /i in the flag part of the regular expression,
+     *   then both ignoreCase and smartCase are ignored, and 'i' will be passed
+     *   through to the Regex object.
+     */
+    function parseQuery(cm, query, ignoreCase, smartCase) {
       // First try to extract regex + flags from the input. If no flags found,
       // extract just the regex. IE does not accept flags directly defined in
       // the regex string in the form /regex/flags
-      var match = query.match(/^(.*)\/(.*)$/);
-      var insensitive = false;
-      var query_regex;
-      if (match) {
-        insensitive = (match[2].indexOf('i') != -1);
-        query_regex = match[1];
+      var slashes = findUnescapedSlashes(query);
+      var regexPart;
+      var forceIgnoreCase;
+      if (!slashes.length) {
+        // Query looks like 'regexp'
+        regexPart = query;
       } else {
-        query_regex = query;
+        // Query looks like 'regexp/...'
+        regexPart = query.substring(0, slashes[0]);
+        var flagsPart = query.substring(slashes[0]);
+        forceIgnoreCase = (flagsPart.indexOf('i') != -1);
       }
-      // Heuristic: if the query string is all lowercase, do a case-insensitive
-      // search.
-      insensitive = insensitive || (/^[^A-Z]*$/).test(query_regex);
+      if (!regexPart) {
+        return null;
+      }
+      if (smartCase) {
+        ignoreCase = (/^[^A-Z]*$/).test(regexPart);
+      }
       try {
-        var regexp = new RegExp(query_regex, insensitive ? 'i' : undefined);
+        var regexp = new RegExp(regexPart,
+            (ignoreCase || forceIgnoreCase) ? 'i' : undefined);
         return regexp;
       } catch (e) {
-        showConfirm(cm, 'Invalid regex: ' + query_regex);
+        showConfirm(cm, 'Invalid regex: ' + regexPart);
       }
     }
     function showConfirm(cm, text) {
@@ -1839,17 +1882,17 @@
       }
       return(false);
     }
-    function updateSearchQuery(cm, rawQuery) {
+    function updateSearchQuery(cm, rawQuery, ignoreCase, smartCase) {
       cm.operation(function() {
         var state = getSearchState(cm);
         if (!rawQuery) {
           return;
         }
-        var query = parseQuery(cm, rawQuery);
-        if (regexEqual(query, state.getQuery())) {
+        var query = parseQuery(cm, rawQuery, !!ignoreCase, !!smartCase);
+        if (!query) {
           return;
         }
-        if (!query) {
+        if (regexEqual(query, state.getQuery())) {
           return;
         }
         clearSearchHighlight(cm);
