@@ -784,6 +784,11 @@ testVim('*_no_word', function(cm, vim, helpers) {
   helpers.doKeys('*');
   helpers.assertCursorAt(0, 0);
 }, { value: ' \n match \n' });
+testVim('*_symbol', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('*');
+  helpers.assertCursorAt(1, 0);
+}, { value: ' /}\n/} match \n' });
 testVim('#', function(cm, vim, helpers) {
   cm.setCursor(0, 9);
   helpers.doKeys('#');
