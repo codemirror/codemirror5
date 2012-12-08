@@ -1,16 +1,21 @@
 .CodeMirror-dialog {
-  position: relative;
-}
-
-.CodeMirror-dialog > div {
   position: absolute;
-  top: 0; left: 0; right: 0;
+  left: 0; right: 0;
   background: white;
-  border-bottom: 1px solid #eee;
   z-index: 15;
   padding: .1em .8em;
   overflow: hidden;
   color: #333;
+}
+
+.CodeMirror-dialog-top {
+  border-bottom: 1px solid #eee;
+  top: 0;
+}
+
+.CodeMirror-dialog-bottom {
+  border-top: 1px solid #eee;
+  bottom: 0;
 }
 
 .CodeMirror-dialog input {
