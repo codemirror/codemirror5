@@ -121,10 +121,10 @@
         motion: 'moveByPage', motionArgs: { forward: false }},
     { keys: ['g', 'g'], type: 'motion',
         motion: 'moveToLineOrEdgeOfDocument',
-        motionArgs: { forward: false, explicitRepeat: true }},
+        motionArgs: { forward: false, explicitRepeat: true, linewise: true }},
     { keys: ['G'], type: 'motion',
         motion: 'moveToLineOrEdgeOfDocument',
-        motionArgs: { forward: true, explicitRepeat: true }},
+        motionArgs: { forward: true, explicitRepeat: true, linewise: true }},
     { keys: ['0'], type: 'motion', motion: 'moveToStartOfLine' },
     { keys: ['^'], type: 'motion',
         motion: 'moveToFirstNonWhiteSpaceCharacter' },
@@ -222,7 +222,9 @@
     { keys: ['*'], type: 'search',
         searchArgs: { forward: true, querySrc: 'wordUnderCursor' }},
     { keys: ['#'], type: 'search',
-        searchArgs: { forward: false, querySrc: 'wordUnderCursor' }}
+        searchArgs: { forward: false, querySrc: 'wordUnderCursor' }},
+    // Ex command
+    { keys: [':'], type: 'ex' },
   ];
 
   var Vim = function() {
@@ -588,6 +590,8 @@
           case 'search':
             this.processSearch(cm, vim, command);
             break;
+          case 'ex':
+            this.processEx(cm, vim, command);
           default:
             break;
         }
@@ -706,6 +710,12 @@
             break;
         }
       },
+      processEx: function(cm, vim, command) {
+        function onPromptClose(input) {
+          exCommandDispatcher.processCommand(cm, input);
+        }
+        showPrompt(cm, onPromptClose, ':');
+      },
       evalInput: function(cm, vim) {
         // If the motion comand is set, execute both the operator and motion.
         // Otherwise return.
@@ -722,7 +732,14 @@
         var curStart = copyCursor(selectionEnd);
         var curOriginal = copyCursor(curStart);
         var curEnd;
-        var repeat = inputState.getRepeat();
+        var repeat;
+        if (motionArgs.repeat !== undefined) {
+          // If motionArgs specifies a repeat, that takes precedence over the
+          // input state's repeat. Used by Ex mode and can be user defined.
+          repeat = inputState.motionArgs.repeat;
+        } else {
+          repeat = inputState.getRepeat();
+        }
         if (repeat > 0 && motionArgs.explicitRepeat) {
           motionArgs.repeatIsExplicit = true;
         } else if (motionArgs.noRepeat ||
@@ -1395,6 +1412,9 @@
     }
 
     function findFirstNonWhiteSpaceCharacter(text) {
+      if (!text) {
+        return 0;
+      }
       var firstNonWS = text.search(/\S/);
       return firstNonWS == -1 ? text.length : firstNonWS;
     }
@@ -1959,6 +1979,108 @@
         state.setMarked(null);
       });}
 
+    // Ex command handling
+    // Care must be taken when adding to the default Ex command map. For any
+    // pair of commands that have a shared prefix, at least one of their
+    // shortNames must not match the prefix of the other command.
+    var defaultExCommandMap = [
+      { name: 'write', shortName: 'w' },
+      { name: 'undo', shortName: 'u' },
+      { name: 'redo', shortName: 'red' }
+    ];
+    var ExCommandDispatcher = function() {
+      this.buildCommandMap_();
+    };
+    ExCommandDispatcher.prototype = {
+      processCommand: function(cm, input) {
+        var parsedCommand = this.parseInput_(input);
+        var commandName;
+        if (!parsedCommand.commandName) {
+          // If only a line range is defined, move to the line.
+          if (parsedCommand.line !== undefined) {
+            commandName = 'move';
+          }
+        } else {
+          var command = this.matchCommand_(parsedCommand.commandName);
+          if (command) {
+            commandName = command.name;
+          }
+        }
+        if (!commandName) {
+          showConfirm(cm, 'Not an editor command: ' + input);
+          return;
+        }
+        exCommands[commandName](cm, parsedCommand);
+      },
+      parseInput_: function(input) {
+        var result = {};
+        // Trim preceding ':'.
+        var colons = (/^:+/).exec(input);
+        if (colons) {
+          input = input.substring(colons[0].length);
+        }
+
+        // Parse range.
+        var numberMatch = (/^(\d+)/).exec(input);
+        if (numberMatch) {
+          result['line'] = parseInt(numberMatch[1]);
+          input = input.substring(numberMatch[0].length);
+        }
+        // Parse command name.
+        var commandMatch = (/(\w+)/).exec(input);
+        if (commandMatch) {
+          result['commandName'] = commandMatch[1];
+        }
+        return result;
+      },
+      matchCommand_: function(commandName) {
+        // Return the command in the command map that matches the shortest
+        // prefix of the passed in command name. The match is guaranteed to be
+        // unambiguous if the defaultExCommandMap's shortNames are set up
+        // correctly. (see @code{defaultExCommandMap}).
+        for (var i = 1; i <= commandName.length; i++) {
+          var prefix = commandName.substring(0, i);
+          if (this.commandMap_[prefix]) {
+            var command = this.commandMap_[prefix];
+            if (command.name.indexOf(commandName) === 0) {
+              return command;
+            }
+          }
+        }
+        return null;
+      },
+      buildCommandMap_: function() {
+        this.commandMap_ = {};
+        for (var i = 0; i < defaultExCommandMap.length; i++) {
+          var command = defaultExCommandMap[i];
+          this.commandMap_[command.shortName] = command;
+        }
+      }
+    };
+
+    var exCommands = {
+      move: function(cm, args) {
+        commandDispatcher.processMotion(cm, getVimState(cm), {
+            motion: 'moveToLineOrEdgeOfDocument',
+            motionArgs: { forward: false, explicitRepeat: true,
+              linewise: true, repeat: args.line }});
+      },
+      redo: CodeMirror.commands.redo,
+      undo: CodeMirror.commands.undo,
+      write: function(cm) {
+        if (CodeMirror.commands.save) {
+          // If a save command is defined, call it.
+          CodeMirror.commands.save(cm);
+        } else {
+          // Saves to text area if no save command is defined.
+          cm.save();
+        }
+      }
+    };
+
+    var exCommandDispatcher = new ExCommandDispatcher();
+
+    // Register Vim with CodeMirror
     function buildVimKeyMap() {
       /**
        * Handle the raw key event from CodeMirror. Translate the
