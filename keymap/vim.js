@@ -1769,7 +1769,7 @@
     }
     function dialog(cm, text, shortText, callback) {
       if (cm.openDialog) {
-        cm.openDialog(text, callback, true /** bottom */);
+        cm.openDialog(text, callback, {bottom: true});
       }
       else {
         callback(prompt(shortText, ""));
@@ -1802,7 +1802,7 @@
       if (cm.openConfirm) {
         cm.openConfirm('<span style="color: red">' + text +
             '</span> <button type="button">OK</button>', function() {},
-            true /** bottom */);
+            {bottom: true});
       } else {
         alert(text);
       }
