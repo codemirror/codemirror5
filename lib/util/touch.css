@@ -37,25 +37,6 @@
   -webkit-user-select: none;
 }
 
-#keys.iPhone li {
-  background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0%, #EEEFF0), color-stop(50%, #E0E0E4), color-stop(100%, #D3D3D9));
-  background-color: #E0E0E4;
-  box-shadow: #333 1px 1px 5px 0px;
-  height: 2.5em;
-  line-height: 2.5em;
-  font-size: 2em;
-  font-family: Helvetica;
-  font-weight: 800;  
-  border-radius: 5px;
-  width: 2.5em;
-  text-align: center;
-  display: inline-block;
-  margin: 0 2px;
-  -webkit-transition: all 0.1s ease-in-out;
-  -webkit-user-select: none;
-}
-
-
 #keys li.pressed{
   background: -webkit-linear-gradient(top, #aeaeb0, #939399);
 }
