@@ -25,6 +25,7 @@ function byClassName(elt, cls) {
 var ie_lt8 = /MSIE [1-7]\b/.test(navigator.userAgent);
 var mac = /Mac/.test(navigator.platform);
 var phantom = /PhantomJS/.test(navigator.userAgent);
+var opera_lt10 = /Opera\/[1-9]\./.test(navigator.userAgent);
 
 test("core_fromTextArea", function() {
   var te = document.getElementById("code");
@@ -674,7 +675,7 @@ testCM("wrappingAndResizing", function(cm) {
   cm.setValue(doc);
   for (var step = 10, w = cm.charCoords({line: 0, ch: 18}, "div").right;; w += step) {
     cm.setSize(w);
-    if (wrap.offsetHeight <= h0 * 1.5) {
+    if (wrap.offsetHeight <= h0 * (opera_lt10 ? 1.2 : 1.5)) {
       if (step == 10) { w -= 10; step = 1; }
       else break;
     }
@@ -715,7 +716,7 @@ testCM("measureEndOfLine", function(cm) {
   is(endPos.left > w - 20, "not at right");
   endPos = cm.charCoords({line: 0, ch: 18});
   eqPos(cm.coordsChar({left: endPos.left, top: endPos.top + 5}), {line: 0, ch: 18});
-}, {mode: "text/html", value: "<!-- foo barrr -->", lineWrapping: true}, ie_lt8);
+}, {mode: "text/html", value: "<!-- foo barrr -->", lineWrapping: true}, ie_lt8 || opera_lt10);
 
 testCM("scrollVerticallyAndHorizontally", function(cm) {
   cm.setSize(100, 100);
@@ -740,7 +741,7 @@ testCM("moveVstuck", function(cm) {
   cm.setCursor({line: 0, ch: val.length - 1});
   cm.moveV(-1, "line");
   eqPos(cm.getCursor(), {line: 0, ch: 26});
-}, {lineWrapping: true}, ie_lt8);
+}, {lineWrapping: true}, ie_lt8 || opera_lt10);
 
 testCM("clickTab", function(cm) {
   var p0 = cm.charCoords({line: 0, ch: 0});
