@@ -51,30 +51,20 @@ should be asked on the
 - Fork [CodeMirror](https://github.com/marijnh/CodeMirror/)
   ([how to fork a repo](https://help.github.com/articles/fork-a-repo))
 - Make your changes
-    - If your change affects highlighting for one of the modes, please [add (or
-    change) tests](#adding-mode-highlighting-tests) for the changes. If the mode
-    doesn't already have highlighting tests, you *aren't* required to add any.
-- Test your changes
-    -Visit `/path-to-code/test/index.html` to test your code. *All tests should
-    pass*.
+- If your changes are easy to test or likely to regress, add tests.
+  Tests for the core go into `test/test.js`, some modes have their own
+  test suite under `mode/XXX/test.js`. Feel free to add new test
+  suites to modes that don't have one yet (be sure to link the new
+  tests into `test/index.html`).
+- Make sure all tests pass. Visit `test/index.html` in your browser to
+  run them.
 - Submit a pull request
 ([how to create a pull request](https://help.github.com/articles/fork-a-repo))
 
-### Adding mode highlighting tests
+### Coding standards
 
-- Create a `test.js` file in the corresponding mode directory
-   ([example](https://github.com/marijnh/CodeMirror/blob/master/mode/markdown/test.js))
-- Add script tags to `/test/index.html` to include the formatting code and
-   as well as the tests.
-- Run the tests!
-
-### Code formatting standards
-
-- 2 spaces (no tabs)
-- Wrap to 80 characters when possible (unless it affects readability negatively)
-- No trailing whitespace
-    - Blank lines should be indented as if there *is* text on them
-- Spacing
-    - `function someFunction(someVar, someOtherVar) {`
-    - `if (someVar === true) doThis(someVar, someOtherVar);`
-    - `if (!someVar || someOtherVar === 0) {`
+- 2 spaces per indentation level, no tabs.
+- Include semicolons after statements.
+- Note that the linter (`test/lint/lint.js`) which is run after each
+  commit complains about unused variables and functions. Prefix their
+  names with an underscore to muffle it.
