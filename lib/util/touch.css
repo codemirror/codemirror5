@@ -4,6 +4,7 @@
 .CodeMirror-selected:first-of-type{ border-left: solid #416BF2 2px;}
 .CodeMirror-selected:last-of-type{ border-right: solid #416BF2 2px;}
 .CodeMirror div textarea{position: absolute; left: -500px;}
+
 #keys {
   width:      100%;
   text-align: center;
@@ -53,6 +54,12 @@
   -webkit-transition: all 0.1s ease-in-out;
   -webkit-user-select: none;
 }
+
+
+#keys li.pressed{
+  background: -webkit-linear-gradient(top, #aeaeb0, #939399);
+}
+
 
 /*******************************************************************
 The "Tool" div contains our faked magnifying glass and iOS popup,
