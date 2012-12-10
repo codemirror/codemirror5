@@ -2178,7 +2178,7 @@
       map: function(lhs, rhs) {
         if (lhs.charAt(0) == ':') {
           var commandName = lhs.substring(1);
-          if (rhs.charAt(0) == ':') {
+          if (rhs != ':' && rhs.charAt(0) == ':') {
             // Ex to Ex mapping
             this.commandMap_[commandName] = {
               name: commandName,
@@ -2194,7 +2194,7 @@
             };
           }
         } else {
-          if (rhs.charAt(0) == ':') {
+          if (rhs != ':' && rhs.charAt(0) == ':') {
             // Key to Ex mapping.
             defaultKeymap.unshift({
               keys: parseKeyString(lhs),
