@@ -5,6 +5,14 @@
     <title>CodeMirror: Upgrading to v3</title>
     <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Droid+Sans|Droid+Sans:bold"/>
     <link rel="stylesheet" type="text/css" href="docs.css"/>
+    <script src="../lib/codemirror.js"></script>
+    <link rel="stylesheet" href="../lib/codemirror.css">
+    <script src="../lib/util/runmode.js"></script>
+    <script src="../lib/util/colorize.js"></script>
+    <script src="../mode/javascript/javascript.js"></script>
+    <script src="../mode/xml/xml.js"></script>
+    <script src="../mode/css/css.js"></script>
+    <script src="../mode/htmlmixed/htmlmixed.js"></script>
   </head>
   <body>
 
@@ -64,7 +72,7 @@ snippets.</p>
 The <code>fixedGutter</code> option was removed (since it is now the
 only behavior).</p>
 
-<pre>
+<pre data-lang="text/html">
 &lt;style>
   /* Define a gutter style */
   .note-gutter { width: 3em; background: cyan; }
@@ -94,7 +102,7 @@ full list here</a>.</p>
 which act more as hooks than as event handlers, are still there in
 their old form.)</p>
 
-<pre>
+<pre data-lang="javascript">
 cm.on("change", function(cm, change) {
   console.log("something changed! (" + change.origin + ")");
 });
@@ -108,7 +116,7 @@ atomic and read-only spans, or replacing spans with widgets) no longer
 takes the CSS class name as a separate argument, but makes it an
 optional field in the options object instead.</p>
 
-<pre>
+<pre data-lang="javascript">
 // Style first ten lines, and forbid the cursor from entering them
 cm.markText({line: 0, ch: 0}, {line: 10, ch: 0}, {
   className: "magic-text",
@@ -126,7 +134,7 @@ now be used to do the same in a more flexible and powerful way.</p>
 <p>The <a href="../demo/folding.html">folding script</a> has been
 updated to use the new interface, and should now be more robust.</p>
 
-<pre>
+<pre data-lang="javascript">
 // Fold a range, replacing it with the text "??"
 var range = cm.markText({line: 4, ch: 2}, {line: 8, ch: 1}, {
   replacedWith: document.createTextNode("??"),
@@ -146,7 +154,7 @@ by <a href="manual.html#addLineClass"><code>addLineClass</code></a>
 and <a href="manual.html#removeLineClass"><code>removeLineClass</code></a>,
 which allow more modular control over the classes attached to a line.</p>
 
-<pre>
+<pre data-lang="javascript">
 var marked = cm.addLineClass(10, "background", "highlighted-line");
 setTimeout(function() {
   cm.removeLineClass(marked, "background", "highlighted-line");
@@ -214,5 +222,6 @@ strings to mode specs).</p>
 
 </div></div>
 
+<script>setTimeout(function(){CodeMirror.colorize();}, 20);</script>
   </body>
 </html>
