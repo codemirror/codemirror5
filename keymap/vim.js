@@ -2109,25 +2109,66 @@
             this.commandMap_[commandName] = {
               name: commandName,
               type: 'exToKey',
-              toKeys: rhs
+              toKeys: parseKeyString(rhs)
             };
           }
         } else {
           if (rhs.charAt(0) == ':') {
             // Key to Ex mapping.
             defaultKeymap.unshift({
-              keys: lhs.split(''),
+              keys: parseKeyString(lhs),
               type: 'keyToEx',
               exArgs: { input: rhs.substring(1) }});
           } else {
             // Key to key mapping
             defaultKeymap.unshift({
-              keys: lhs.split(''), type: 'keyToKey', toKeys: rhs.split('')
+              keys: parseKeyString(lhs),
+              type: 'keyToKey',
+              toKeys: parseKeyString(rhs)
             });
           }
         }
       }
     };
+
+    // Converts a key string sequence of the form a<C-w>bd<Left> into Vim's
+    // keymap representation.
+    function parseKeyString(str) {
+      var idx = 0;
+      var keys = [];
+      while (idx < str.length) {
+        if (str.charAt(idx) != '<') {
+          keys.push(str.charAt(idx));
+          idx++;
+          continue;
+        }
+        // Vim key notation here means desktop Vim key-notation.
+        // See :help key-notation in desktop Vim.
+        var vimKeyNotationStart = ++idx;
+        while (str.charAt(idx++) != '>') {}
+        var vimKeyNotation = str.substring(vimKeyNotationStart, idx - 1);
+        var match = (/^C-(.+)$/).exec(vimKeyNotation);
+        if (match) {
+          var key;
+          switch (match[1]) {
+            case 'BS':
+              key = 'Backspace';
+              break;
+            case 'CR':
+              key = 'Enter';
+              break;
+            case 'Del':
+              key = 'Delete';
+              break;
+            default:
+              key = match[1];
+              break;
+          }
+          keys.push('Ctrl-' + key);
+        }
+      }
+      return keys;
+    }
 
     var exCommands = {
       map: function(cm, params) {
