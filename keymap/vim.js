@@ -224,7 +224,7 @@
     { keys: ['#'], type: 'search',
         searchArgs: { forward: false, querySrc: 'wordUnderCursor' }},
     // Ex command
-    { keys: [':'], type: 'ex' },
+    { keys: [':'], type: 'ex' }
   ];
 
   var Vim = function() {
@@ -328,10 +328,6 @@
     }
 
     var vimApi= {
-      addKeyMap: function() {
-        // Add user defined key bindings.
-        // TODO: Implement this.
-      },
       buildKeyMap: function() {
         // TODO: Convert keymap into dictionary format for fast lookup.
       },
@@ -343,6 +339,10 @@
       // Testing hook.
       clearVimGlobalState_: function() {
         vimGlobalState = null;
+      },
+      map: function(lhs, rhs) {
+        // Add user defined key bindings.
+        exCommandDispatcher.map(lhs, rhs);
       },
       // Initializes vim state variable on the CodeMirror object. Should only be
       // called lazily by handleKey or for testing.
@@ -591,7 +591,9 @@
             this.processSearch(cm, vim, command);
             break;
           case 'ex':
+          case 'keyToEx':
             this.processEx(cm, vim, command);
+            break;
           default:
             break;
         }
@@ -714,7 +716,12 @@
         function onPromptClose(input) {
           exCommandDispatcher.processCommand(cm, input);
         }
-        showPrompt(cm, onPromptClose, ':');
+        if (command.type == 'keyToEx') {
+          // Handle user defined Ex to Ex mappings
+          exCommandDispatcher.processCommand(cm, command.exArgs.input);
+        } else {
+          showPrompt(cm, onPromptClose, ':');
+        }
       },
       evalInput: function(cm, vim) {
         // If the motion comand is set, execute both the operator and motion.
@@ -1374,6 +1381,13 @@
     function reverse(s){
       return s.split("").reverse().join("");
     }
+    function trim(s) {
+      if (s.trim) {
+        return s.trim();
+      } else {
+        return s.replace(/^\s+|\s+$/g, '');
+      }
+    }
     function escapeRegex(s) {
       return s.replace(/([.?*+$\[\]\/\\(){}|\-])/g, "\\$1");
     }
@@ -1984,53 +1998,76 @@
     // pair of commands that have a shared prefix, at least one of their
     // shortNames must not match the prefix of the other command.
     var defaultExCommandMap = [
-      { name: 'write', shortName: 'w' },
-      { name: 'undo', shortName: 'u' },
-      { name: 'redo', shortName: 'red' }
+      { name: 'map', type: 'builtIn' },
+      { name: 'write', shortName: 'w', type: 'builtIn' },
+      { name: 'undo', shortName: 'u', type: 'builtIn' },
+      { name: 'redo', shortName: 'red', type: 'builtIn' }
     ];
     var ExCommandDispatcher = function() {
       this.buildCommandMap_();
     };
     ExCommandDispatcher.prototype = {
       processCommand: function(cm, input) {
-        var parsedCommand = this.parseInput_(input);
+        var params = this.parseInput_(input);
         var commandName;
-        if (!parsedCommand.commandName) {
+        if (!params.commandName) {
           // If only a line range is defined, move to the line.
-          if (parsedCommand.line !== undefined) {
+          if (params.line !== undefined) {
             commandName = 'move';
           }
         } else {
-          var command = this.matchCommand_(parsedCommand.commandName);
+          var command = this.matchCommand_(params.commandName);
           if (command) {
             commandName = command.name;
+            if (command.type == 'exToKey') {
+              // Handle Ex to Key mapping.
+              for (var i = 0; i < command.toKeys.length; i++) {
+                vim.handleKey(cm, command.toKeys[i]);
+              }
+              return;
+            } else if (command.type == 'exToEx') {
+              // Handle Ex to Ex mapping.
+              this.processCommand(cm, command.toInput);
+              return;
+            }
           }
         }
         if (!commandName) {
-          showConfirm(cm, 'Not an editor command: ' + input);
+          showConfirm(cm, 'Not an editor command ":' + input + '"');
           return;
         }
-        exCommands[commandName](cm, parsedCommand);
+        exCommands[commandName](cm, params);
       },
       parseInput_: function(input) {
         var result = {};
+        result.input = input;
+        var idx = 0;
         // Trim preceding ':'.
         var colons = (/^:+/).exec(input);
         if (colons) {
-          input = input.substring(colons[0].length);
+          idx += colons[0].length;
         }
 
         // Parse range.
-        var numberMatch = (/^(\d+)/).exec(input);
+        var numberMatch = (/^(\d+)/).exec(input.substring(idx));
         if (numberMatch) {
-          result['line'] = parseInt(numberMatch[1]);
-          input = input.substring(numberMatch[0].length);
+          result.line = parseInt(numberMatch[1], 10);
+          idx += numberMatch[0].length;
         }
+
         // Parse command name.
-        var commandMatch = (/(\w+)/).exec(input);
+        var commandMatch = (/^(\w+)/).exec(input.substring(idx));
         if (commandMatch) {
-          result['commandName'] = commandMatch[1];
+          result.commandName = commandMatch[1];
+          idx += commandMatch[1].length;
         }
+
+        // Parse command-line arguments
+        var args = trim(input.substring(idx)).split(/\s+/);
+        if (args.length && args[0]) {
+          result.commandArgs = args;
+        }
+
         return result;
       },
       matchCommand_: function(commandName) {
@@ -2038,7 +2075,7 @@
         // prefix of the passed in command name. The match is guaranteed to be
         // unambiguous if the defaultExCommandMap's shortNames are set up
         // correctly. (see @code{defaultExCommandMap}).
-        for (var i = 1; i <= commandName.length; i++) {
+        for (var i = commandName.length; i > 0; i--) {
           var prefix = commandName.substring(0, i);
           if (this.commandMap_[prefix]) {
             var command = this.commandMap_[prefix];
@@ -2053,17 +2090,61 @@
         this.commandMap_ = {};
         for (var i = 0; i < defaultExCommandMap.length; i++) {
           var command = defaultExCommandMap[i];
-          this.commandMap_[command.shortName] = command;
+          var key = command.shortName || command.name;
+          this.commandMap_[key] = command;
+        }
+      },
+      map: function(lhs, rhs) {
+        if (lhs.charAt(0) == ':') {
+          var commandName = lhs.substring(1);
+          if (rhs.charAt(0) == ':') {
+            // Ex to Ex mapping
+            this.commandMap_[commandName] = {
+              name: commandName,
+              type: 'exToEx',
+              toInput: rhs.substring(1)
+            };
+          } else {
+            // Ex to key mapping
+            this.commandMap_[commandName] = {
+              name: commandName,
+              type: 'exToKey',
+              toKeys: rhs
+            };
+          }
+        } else {
+          if (rhs.charAt(0) == ':') {
+            // Key to Ex mapping.
+            defaultKeymap.unshift({
+              keys: lhs.split(''),
+              type: 'keyToEx',
+              exArgs: { input: rhs.substring(1) }});
+          } else {
+            // Key to key mapping
+            defaultKeymap.unshift({
+              keys: lhs.split(''), type: 'keyToKey', toKeys: rhs.split('')
+            });
+          }
         }
       }
     };
 
     var exCommands = {
-      move: function(cm, args) {
+      map: function(cm, params) {
+        var mapArgs = params.commandArgs;
+        if (!mapArgs || mapArgs.length < 2) {
+          if (cm) {
+            showConfirm(cm, 'Invalid mapping: ' + params.input);
+          }
+          return;
+        }
+        exCommandDispatcher.map(mapArgs[0], mapArgs[1], cm);
+      },
+      move: function(cm, params) {
         commandDispatcher.processMotion(cm, getVimState(cm), {
             motion: 'moveToLineOrEdgeOfDocument',
             motionArgs: { forward: false, explicitRepeat: true,
-              linewise: true, repeat: args.line }});
+              linewise: true, repeat: params.line }});
       },
       redo: CodeMirror.commands.redo,
       undo: CodeMirror.commands.undo,
