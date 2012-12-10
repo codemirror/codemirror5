@@ -1,10 +1,10 @@
-/* override mobilesafari's highlighting of DOM elements */
-.CodeMirror{-webkit-tap-highlight-color: rgba(0,0,0,0);}
-.CodeMirror-scroll{  -webkit-overflow-scrolling:touch;}
-.CodeMirror-selected:first-of-type{ border-left: solid #416BF2 2px;}
-.CodeMirror-selected:last-of-type{ border-right: solid #416BF2 2px;}
-.CodeMirror div textarea{position: absolute; left: -500px;}
+/*******************************************************************
+  Rules for iOSKeyboard.js
+  
+  - the keybaord is simply a list of keys, all of which are styled here
+  - keys have an extra state, defined using the className ".pressed"
 
+  */
 #keys {
   width:      100%;
   text-align: center;
@@ -43,8 +43,10 @@
 
 
 /*******************************************************************
-The "Tool" div contains our faked magnifying glass and iOS popup,
-both of which are hidden/shown based on the tool's class
+  Rules for iOSpopup.js
+  - div#Tool contains the popup and the magnifier (whose visiblity is determined by the tool's class)
+  - both the popup and magnifier are styled via CSS, includin popup show/hide animation
+  - the selectionDotTargets are also styled here, including size, position and appearance
 */
 
 #tool{
@@ -111,10 +113,6 @@ both of which are hidden/shown based on the tool's class
     right no-repeat;
 }
 
-/**************************************************************************
-  SELECTION HELPERS
-  style the edges of CM-selected with blue borders
-*/
 .selectionDotTouchTarget{ 
   display: none; 
   position: absolute;
@@ -189,3 +187,19 @@ both of which are hidden/shown based on the tool's class
   -webkit-user-select: none
   overflow:hidden;
 }
+
+
+
+/* override mobilesafari's highlighting of DOM elements */
+.CodeMirror{-webkit-tap-highlight-color: rgba(0,0,0,0);}
+
+/* allow for native iOS scrolling */
+.CodeMirror-scroll{  -webkit-overflow-scrolling:touch;}
+
+/* style the CM selection fields to give them the iOS blue border */
+.CodeMirror-selected:first-of-type{ border-left: solid #416BF2 2px;}
+.CodeMirror-selected:last-of-type{ border-right: solid #416BF2 2px;}
+
+/* move the inputDiv offscreen, to prevent it from stealing touch eventsß */
+.CodeMirror div textarea{position: absolute; left: -500px;}
+
