@@ -44,8 +44,11 @@
 
 /*******************************************************************
   Rules for iOSpopup.js
-  - div#Tool contains the popup and the magnifier (whose visiblity is determined by the tool's class)
+  - div#Tool contains a callout triangle ('notch'), as well as the
+    popup and the magnifier (whose visiblity is determined by the tool's class)
   - both the popup and magnifier are styled via CSS, includin popup show/hide animation
+  - the notch's position is also set by CSS, as it appears differenly when the popup is 
+    above or below the selection
   - the selectionDotTargets are also styled here, including size, position and appearance
 */
 
