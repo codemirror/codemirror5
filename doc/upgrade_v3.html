@@ -35,9 +35,9 @@ it'll be significantly glitchy.</p>
 structure of the editor has changed quite a lot, mostly to implement a
 new scrolling model.</p>
 
-<p>Editor height is now set on the outer wrapper (CSS
-class <code>CodeMirror</code>) element, not on the scroller
-(<code>CodeMirror-scroll</code>) element.</p>
+<p>Editor height is now set on the outer wrapper element (CSS
+class <code>CodeMirror</code>), not on the scroller element
+(<code>CodeMirror-scroll</code>).</p>
 
 <p>Other nodes were moved, dropped, and added. If you have any code
 that makes assumptions about the internal DOM structure of the editor,
@@ -64,6 +64,22 @@ snippets.</p>
 The <code>fixedGutter</code> option was removed (since it is now the
 only behavior).</p>
 
+<pre>
+&lt;style>
+  /* Define a gutter style */
+  .note-gutter { width: 3em; background: cyan; }
+&lt;/style>
+&lt;script>
+  // Create an instance with two gutters -- line numbers and notes
+  var cm = new CodeMirror(document.body, {
+    gutters: ["note-gutter", "CodeMirror-linenumbers"],
+    lineNumbers: true
+  });
+  // Add a note to line 0
+  cm.setGutterMarker(0, "note-gutter", document.createTextNode("hi"));
+&lt;/script>
+</pre>
+
 <h2 id=events>Event handling</h2>
 
 <p>Most of the <code>onXYZ</code> options have been removed. The same
@@ -78,6 +94,12 @@ full list here</a>.</p>
 which act more as hooks than as event handlers, are still there in
 their old form.)</p>
 
+<pre>
+cm.on("change", function(cm, change) {
+  console.log("something changed! (" + change.origin + ")");
+});
+</pre>
+
 <h2 id=marktext>markText method arguments</h2>
 
 <p>The <a href="manual.html#markText"><code>markText</code></a> method
@@ -85,6 +107,15 @@ their old form.)</p>
 atomic and read-only spans, or replacing spans with widgets) no longer
 takes the CSS class name as a separate argument, but makes it an
 optional field in the options object instead.</p>
+
+<pre>
+// Style first ten lines, and forbid the cursor from entering them
+cm.markText({line: 0, ch: 0}, {line: 10, ch: 0}, {
+  className: "magic-text",
+  inclusiveLeft: true,
+  atomic: true
+});
+</pre>
 
 <h2 id=folding>Line folding</h2>
 
@@ -95,12 +126,32 @@ now be used to do the same in a more flexible and powerful way.</p>
 <p>The <a href="../demo/folding.html">folding script</a> has been
 updated to use the new interface, and should now be more robust.</p>
 
+<pre>
+// Fold a range, replacing it with the text "??"
+var range = cm.markText({line: 4, ch: 2}, {line: 8, ch: 1}, {
+  replacedWith: document.createTextNode("??"),
+  // Auto-unfold when cursor moves into the range
+  clearOnEnter: true
+});
+// Get notified when auto-unfolding
+CodeMirror.on(range, "clear", function() {
+  console.log("boom");
+});
+</pre>
+
 <h2 id=lineclass>Line CSS classes</h2>
 
 <p>The <code>setLineClass</code> method has been replaced
 by <a href="manual.html#addLineClass"><code>addLineClass</code></a>
 and <a href="manual.html#removeLineClass"><code>removeLineClass</code></a>,
 which allow more modular control over the classes attached to a line.</p>
+
+<pre>
+var marked = cm.addLineClass(10, "background", "highlighted-line");
+setTimeout(function() {
+  cm.removeLineClass(marked, "background", "highlighted-line");
+});
+</pre>
 
 <h2 id=positions>Position properties</h2>
 
