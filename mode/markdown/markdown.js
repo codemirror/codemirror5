@@ -252,8 +252,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       return getType(state);
     }
     
-    if (ch === '!' && stream.match(/\[.*\] ?(?:\(|\[)/, false)) {
-      stream.match(/\[.*\]/);
+    if (ch === '!' && stream.match(/\[[^\]]*\] ?(?:\(|\[)/, false)) {
+      stream.match(/\[[^\]]*\]/);
       state.inline = state.f = linkHref;
       return image;
     }
