@@ -190,19 +190,3 @@
   -webkit-user-select: none
   overflow:hidden;
 }
-
-
-
-/* override mobilesafari's highlighting of DOM elements */
-.CodeMirror{-webkit-tap-highlight-color: rgba(0,0,0,0);}
-
-/* allow for native iOS scrolling */
-.CodeMirror-scroll{  -webkit-overflow-scrolling:touch;}
-
-/* style the CM selection fields to give them the iOS blue border */
-.CodeMirror-selected:first-of-type{ border-left: solid #416BF2 2px;}
-.CodeMirror-selected:last-of-type{ border-right: solid #416BF2 2px;}
-
-/* move the inputDiv offscreen, to prevent it from stealing touch eventsß */
-.CodeMirror div textarea{position: absolute; left: -500px;}
-
