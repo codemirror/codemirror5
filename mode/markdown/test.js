@@ -914,6 +914,17 @@ MT.testMode(
     'string', 'http://example.com/'
   ]
 );
+// Indented
+MT.testMode(
+  'labelIndented',
+  '   [foo]: http://example.com/',
+  [
+    null, '   ',
+    'link', '[foo]:',
+    null, ' ',
+    'string', 'http://example.com/'
+  ]
+);
 // Space in ID and title
 MT.testMode(
   'labelSpaceTitle',
