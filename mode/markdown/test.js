@@ -719,6 +719,20 @@ MT.testMode(
   ]
 );
 
+// Inline link with image
+MT.testMode(
+  'linkImage',
+  '[![foo](http://example.com/)](http://example.com/) bar',
+  [
+    'link', '[',
+    'tag', '![foo]',
+    'string', '(http://example.com/)',
+    'link', ']',
+    'string', '(http://example.com/)',
+    null, ' bar'
+  ]
+);
+
 // Inline link with Em
 MT.testMode(
   'linkEm',
