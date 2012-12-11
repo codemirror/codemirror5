@@ -456,10 +456,10 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         var indentation = stream.match(/^\s*/, true)[0].replace(/\t/g, '    ').length;
         var difference = Math.floor((indentation - state.indentation) / 4) * 4;
         if (difference > 4) difference = 4;
-        indentation = state.indentation + difference;
-        state.indentationDiff = indentation - state.indentation;
-        state.indentation = indentation;
-        if (indentation > 0) { return null; }
+        var adjustedIndentation = state.indentation + difference;
+        state.indentationDiff = adjustedIndentation - state.indentation;
+        state.indentation = adjustedIndentation;
+        if (indentation > 0) return null;
       }
       return state.f(stream, state);
     },
