@@ -6,4 +6,4 @@ in, it will color your code, and optionally help with indentation.
 
 The project page is http://codemirror.net  
 The manual is at http://codemirror.net/doc/manual.html  
-The contributing guidelines are in the CONTRIBUTING.md file
+The contributing guidelines are in [CONTRIBUTING.md](https://github.com/marijnh/CodeMirror/blob/master/CONTRIBUTING.md)
