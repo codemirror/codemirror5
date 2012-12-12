@@ -173,6 +173,14 @@
       indentation (only works if the mode supports indentation).
       Default is true.</dd>
 
+      <dt id="option_rtlMoveVisually"><code>rtlMoveVisually (boolean)</code></dt>
+      <dd>Determines whether horizontal cursor movement through
+      right-to-left (Arabic, Hebrew) text is visual (pressing the left
+      arrow moves the cursor left) or logical (pressing the left arrow
+      moves to the next lower index in the string, which is visually
+      right in right-to-left text). The default is <code>false</code>
+      on Windows, and <code>true</code> on other platforms.</dd>
+
       <dt id="option_keyMap"><code>keyMap (string)</code></dt>
       <dd>Configures the keymap to use. The default
       is <code>"default"</code>, which is the only keymap defined
