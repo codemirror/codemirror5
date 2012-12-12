@@ -222,14 +222,14 @@ CodeMirror.defineMode("css", function(config) {
         stream.eatWhile(/[\w.%]/);
         return ret("number", "unit");
       } else if (stream.match(/^[^-]+-/)) {
-        return ret("meta", type);
+        return ret("meta", "meta");
       }
     }
     else if (/[,+>*\/]/.test(ch)) {
       return ret(null, "select-op");
     }
     else if (ch == "." && stream.match(/^-?[_a-z][_a-z0-9-]*/i)) {
-      return ret("qualifier", type);
+      return ret("qualifier", "qualifier");
     }
     else if (ch == ":") {
       return ret("operator", ch);
