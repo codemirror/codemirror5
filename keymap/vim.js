@@ -1992,6 +1992,32 @@
         }
         state.setMarked(null);
       });}
+    /**
+     * Check if pos is in the specified range, INCLUSIVE.
+     * Range can be specified with 1 or 2 arguments.
+     * If the first range argument is an array, treat it as an array of line
+     * numbers. Match pos against any of the lines.
+     * If the first range argument is a number,
+     *   if there is only 1 range argument, check if pos has the same line
+     *       number
+     *   if there are 2 range arguments, then check if pos is in between the two
+     *       range arguments.
+     */
+    function isInRange(pos, start, end) {
+      if (typeof pos != 'number') {
+        // Assume it is a cursor position. Get the line number.
+        pos = pos.line
+      }
+      if (start instanceof Array) {
+        return inArray(pos, start);
+      } else {
+        if (end) {
+          return (pos >= start && pos <= end);
+        } else {
+          return pos == start;
+        }
+      }
+    }
 
     // Ex command handling
     // Care must be taken when adding to the default Ex command map. For any
@@ -2001,14 +2027,18 @@
       { name: 'map', type: 'builtIn' },
       { name: 'write', shortName: 'w', type: 'builtIn' },
       { name: 'undo', shortName: 'u', type: 'builtIn' },
-      { name: 'redo', shortName: 'red', type: 'builtIn' }
+      { name: 'redo', shortName: 'red', type: 'builtIn' },
+      { name: 'substitute', shortName: 's', type: 'builtIn'}
     ];
     var ExCommandDispatcher = function() {
       this.buildCommandMap_();
     };
     ExCommandDispatcher.prototype = {
       processCommand: function(cm, input) {
-        var params = this.parseInput_(input);
+        var inputStream = new CodeMirror.StringStream(input);
+        var params = {}
+        params.input = input;
+        this.parseInput_(cm, inputStream, params);
         var commandName;
         if (!params.commandName) {
           // If only a line range is defined, move to the line.
@@ -2019,6 +2049,7 @@
           var command = this.matchCommand_(params.commandName);
           if (command) {
             commandName = command.name;
+            this.parseCommandArgs_(inputStream, params, command);
             if (command.type == 'exToKey') {
               // Handle Ex to Key mapping.
               for (var i = 0; i < command.toKeys.length; i++) {
@@ -2038,37 +2069,58 @@
         }
         exCommands[commandName](cm, params);
       },
-      parseInput_: function(input) {
-        var result = {};
-        result.input = input;
-        var idx = 0;
-        // Trim preceding ':'.
-        var colons = (/^:+/).exec(input);
-        if (colons) {
-          idx += colons[0].length;
-        }
-
+      parseInput_: function(cm, inputStream, result) {
+        inputStream.eatWhile(':');
         // Parse range.
-        var numberMatch = (/^(\d+)/).exec(input.substring(idx));
-        if (numberMatch) {
-          result.line = parseInt(numberMatch[1], 10);
-          idx += numberMatch[0].length;
+        if (inputStream.eat('%')) {
+          result.line = 0;
+          result.lineEnd = cm.lineCount() - 1;
+        } else {
+          result.line = this.parseLineSpec_(cm, inputStream);
+          if (result.line && inputStream.eat(',')) {
+            result.lineEnd = this.parseLineSpec_(cm, inputStream);
+          }
         }
 
         // Parse command name.
-        var commandMatch = (/^(\w+)/).exec(input.substring(idx));
+        var commandMatch = inputStream.match(/^(\w+)/);
         if (commandMatch) {
           result.commandName = commandMatch[1];
-          idx += commandMatch[1].length;
-        }
-
-        // Parse command-line arguments
-        var args = trim(input.substring(idx)).split(/\s+/);
-        if (args.length && args[0]) {
-          result.commandArgs = args;
         }
 
         return result;
+      },
+      parseLineSpec_: function(cm, inputStream) {
+        var numberMatch = inputStream.match(/^(\d+)/);
+        if (numberMatch) {
+          return parseInt(numberMatch[1], 10) - 1;
+        }
+        switch (inputStream.next()) {
+          case '.':
+            return cm.getCursor().line;
+          case '$':
+            return cm.lineCount() - 1;
+          case '\'':
+            var mark = getVimState(cm).marks[inputStream.next()];
+            if (mark && mark.find()) {
+              return mark.find().line;
+            }
+          default:
+            inputStream.backUp(1);
+            return cm.getCursor().line;
+        }
+      },
+      parseCommandArgs_: function(inputStream, params, command) {
+        if (inputStream.eol()) {
+          return;
+        }
+        params.argString = inputStream.match(/.*/)[0];
+        // Parse command-line arguments
+        var delim = command.argDelimiter || /\s+/;
+        var args = params.argString.split(delim);
+        if (args.length && args[0]) {
+          params.args = args;
+        }
       },
       matchCommand_: function(commandName) {
         // Return the command in the command map that matches the shortest
@@ -2186,6 +2238,50 @@
             motion: 'moveToLineOrEdgeOfDocument',
             motionArgs: { forward: false, explicitRepeat: true,
               linewise: true, repeat: params.line }});
+      },
+      substitute: function(cm, params) {
+        var argString = params.argString;
+        var slashes = findUnescapedSlashes(argString);
+        if (slashes[0] !== 0) {
+          showConfirm(cm, 'Substitutions should be of the form ' +
+              ':s/pattern/replace/');
+          return;
+        }
+        var regexPart = argString.substring(slashes[0] + 1, slashes[1]);
+        var replacePart = '';
+        var flagsPart;
+        if (slashes[1]) {
+          replacePart = argString.substring(slashes[1] + 1, slashes[2]);
+        }
+        if (slashes[2]) {
+          flagsPart = argString.substring(slashes[2] + 1);
+        }
+        if (flagsPart) {
+          regexPart = regexPart + '/' + flagsPart;
+        }
+        updateSearchQuery(cm, regexPart, true /** ignoreCase */,
+            true /** smartCase */);
+        var state = getSearchState(cm);
+        var query = state.getQuery();
+        var startPos = clipCursorToContent(cm, { line: params.line || 0,
+            ch: 0 });
+        function doReplace() {
+          for (var cursor = cm.getSearchCursor(query, startPos);
+               cursor.findNext();) {
+            if (!isInRange(cursor.from(), params.line, params.lineEnd)) {
+              break;
+            }
+            var text = cm.getRange(cursor.from(), cursor.to());
+            var newText = text.replace(query, replacePart);
+            cursor.replace(newText);
+          }
+        };
+        if (cm.compoundChange) {
+          // Only exists in v2
+          cm.compoundChange(doReplace);
+        } else {
+          cm.operation(doReplace);
+        }
       },
       redo: CodeMirror.commands.redo,
       undo: CodeMirror.commands.undo,
