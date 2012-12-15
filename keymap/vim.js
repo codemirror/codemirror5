@@ -720,7 +720,11 @@
           // Handle user defined Ex to Ex mappings
           exCommandDispatcher.processCommand(cm, command.exArgs.input);
         } else {
-          showPrompt(cm, onPromptClose, ':');
+          if (vim.visualMode) {
+            showPrompt(cm, onPromptClose, ':', undefined, '\'<,\'>');
+          } else {
+            showPrompt(cm, onPromptClose, ':');
+          }
         }
       },
       evalInput: function(cm, vim) {
@@ -1829,9 +1833,9 @@
       var vim = getVimState(cm);
       return vim.searchState_ || (vim.searchState_ = new SearchState());
     }
-    function dialog(cm, text, shortText, callback) {
+    function dialog(cm, text, shortText, callback, initialValue) {
       if (cm.openDialog) {
-        cm.openDialog(text, callback, {bottom: true});
+        cm.openDialog(text, callback, { bottom: true, value: initialValue });
       }
       else {
         callback(prompt(shortText, ""));
@@ -1913,9 +1917,10 @@
       return raw;
     }
     var searchPromptDesc = '(Javascript regexp)';
-    function showPrompt(cm, onPromptClose, prefix, desc) {
+    function showPrompt(cm, onPromptClose, prefix, desc, initialValue) {
       var shortText = (prefix || '') + ' ' + (desc || '');
-      dialog(cm, makePrompt(prefix, desc), shortText, onPromptClose);
+      dialog(cm, makePrompt(prefix, desc), shortText, onPromptClose,
+         initialValue);
     }
     function regexEqual(r1, r2) {
       if (r1 instanceof RegExp && r2 instanceof RegExp) {
