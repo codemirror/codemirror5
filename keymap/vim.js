@@ -247,7 +247,7 @@
     var specialKeys = ['Left', 'Right', 'Up', 'Down', 'Space', 'Backspace',
         'Esc', 'Home', 'End', 'PageUp', 'PageDown'];
     var validMarks = upperCaseAlphabet.concat(lowerCaseAlphabet).concat(
-        numbers);
+        numbers).concat(['<', '>']);
     var validRegisters = upperCaseAlphabet.concat(lowerCaseAlphabet).concat(
         numbers).concat('-\"'.split(''));
 
@@ -806,6 +806,12 @@
             // CodeMirror can't figure out that we changed directions...
             cm.setCursor(selectionStart);
             cm.setSelection(selectionStart, selectionEnd);
+            updateMark(cm, vim, '<',
+                cursorIsBefore(selectionStart, selectionEnd) ? selectionStart
+                    : selectionEnd);
+            updateMark(cm, vim, '>',
+                cursorIsBefore(selectionStart, selectionEnd) ? selectionEnd
+                    : selectionStart);
           } else if (!operator) {
             curEnd = clipCursorToContent(cm, curEnd);
             cm.setCursor(curEnd.line, curEnd.ch);
@@ -1134,6 +1140,10 @@
             exitVisualMode(cm, vim);
           }
         }
+        updateMark(cm, vim, '<', cursorIsBefore(curStart, curEnd) ? curStart
+            : curEnd);
+        updateMark(cm, vim, '>', cursorIsBefore(curStart, curEnd) ? curEnd
+            : curStart);
       },
       joinLines: function(cm, actionArgs, vim) {
         var curStart, curEnd;
@@ -1232,13 +1242,7 @@
       },
       setMark: function(cm, actionArgs, vim) {
         var markName = actionArgs.selectedCharacter;
-        if (!inArray(markName, validMarks)) {
-          return;
-        }
-        if (vim.marks[markName]) {
-          vim.marks[markName].clear();
-        }
-        vim.marks[markName] = cm.setBookmark(cm.getCursor());
+        updateMark(cm, vim, markName, cm.getCursor());
       },
       replace: function(cm, actionArgs) {
         var replaceWith = actionArgs.selectedCharacter;
@@ -1636,6 +1640,16 @@
       return clipCursorToContent(cm, { line: line, ch: repeat - 1 });
     }
 
+    function updateMark(cm, vim, markName, pos) {
+      if (!inArray(markName, validMarks)) {
+        return;
+      }
+      if (vim.marks[markName]) {
+        vim.marks[markName].clear();
+      }
+      vim.marks[markName] = cm.setBookmark(pos);
+    }
+
     function charIdxInLine(start, line, character, forward, includeChar) {
       // Search for char in line.
       // motion_options: {forward, includeChar}
@@ -2006,7 +2020,7 @@
     function isInRange(pos, start, end) {
       if (typeof pos != 'number') {
         // Assume it is a cursor position. Get the line number.
-        pos = pos.line
+        pos = pos.line;
       }
       if (start instanceof Array) {
         return inArray(pos, start);
@@ -2036,9 +2050,14 @@
     ExCommandDispatcher.prototype = {
       processCommand: function(cm, input) {
         var inputStream = new CodeMirror.StringStream(input);
-        var params = {}
+        var params = {};
         params.input = input;
-        this.parseInput_(cm, inputStream, params);
+        try {
+          this.parseInput_(cm, inputStream, params);
+        } catch(e) {
+          showConfirm(cm, e);
+          return;
+        }
         var commandName;
         if (!params.commandName) {
           // If only a line range is defined, move to the line.
@@ -2086,6 +2105,8 @@
         var commandMatch = inputStream.match(/^(\w+)/);
         if (commandMatch) {
           result.commandName = commandMatch[1];
+        } else {
+          result.commandName = inputStream.match(/.*/)[0];
         }
 
         return result;
@@ -2104,7 +2125,10 @@
             var mark = getVimState(cm).marks[inputStream.next()];
             if (mark && mark.find()) {
               return mark.find().line;
+            } else {
+              throw "Mark not set";
             }
+            break;
           default:
             inputStream.backUp(1);
             return cm.getCursor().line;
@@ -2275,7 +2299,11 @@
             var newText = text.replace(query, replacePart);
             cursor.replace(newText);
           }
-        };
+          var vim = getVimState(cm);
+          if (vim.visualMode) {
+            exitVisualMode(cm, vim);
+          }
+        }
         if (cm.compoundChange) {
           // Only exists in v2
           cm.compoundChange(doReplace);
