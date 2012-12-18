@@ -25,6 +25,15 @@
         font-weight: bold;
         white-space: pre;
       }
+      #testground {
+        visibility: hidden;
+      }
+      #testground.offscreen {
+        visibility: visible;
+        position: absolute;
+        left: -10000px;
+        top: -10000px;
+      }
       .CodeMirror { border: 1px solid black; }
     </style>
   </head>
@@ -39,7 +48,7 @@
     <p id=status>Please enable JavaScript...</p>
     <div id=output></div>
 
-    <div style="visibility: hidden" id=testground></div>
+    <div id=testground></div>
 
     <script src="driver.js"></script>
     <script src="test.js"></script>
