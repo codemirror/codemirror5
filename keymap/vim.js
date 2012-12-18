@@ -1961,7 +1961,7 @@
         for (var cursor = cm.getSearchCursor(query);
             cursor.findNext();) {
           marked.push(cm.markText(cursor.from(), cursor.to(),
-              { className: 'CodeMirror-searching' }));
+              { className: 'cm-searching' }));
         }
         getSearchState(cm).setMarked(marked);
       }

@@ -684,6 +684,26 @@
       compared against the <code>name</code> property of the active
       keymaps.</dd>
 
+      <dt id="addOverlay"><code>addOverlay(mode, options)</code></dt>
+      <dd>Enable a highlighting overlay. This is a stateless mini-mode
+      that can be used to add extra highlighting. For example,
+      the <a href="../demo/search.html">search add-on</a> uses it to
+      highlight the term that's currently being
+      searched. <code>mode</code> can be a <a href="#option_mode">mode
+      spec</a> or a mode object (an object with
+      a <a href="#token"><code>token</code></a> method).
+      The <code>option</code> parameter is optional. If given it
+      should be an object. Currently, only the <code>opaque</code>
+      option is recognized. This defaults to off, but can be given to
+      allow the overlay styling, when not <code>null</code>, to
+      override the styling of the base mode entirely, instead of the
+      two being applied together.</dd>
+      <dt id="removeOverlay"><code>removeOverlay(mode)</code></dt>
+      <dd>Pass this the exact argument passed for
+      the <code>mode</code> parameter
+      to <a href="#addOverlay"><code>addOverlay</code></a> to remove
+      an overlay again.</dd>
+
       <dt id="on"><code>on(type, func)</code></dt>
       <dd>Register an event handler for the given event type (a
       string) on the editor instance. There is also
