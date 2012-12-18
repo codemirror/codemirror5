@@ -971,6 +971,22 @@ testCM("lineWidgets", function(cm) {
   eqPos(cm.getCursor(), {line: 1, ch: 1});
 });
 
+testCM("lineWidgetFocus", function(cm) {
+  var place = document.getElementById("testground");
+  place.className = "offscreen";
+  try {
+    addDoc(cm, 500, 10);
+    var node = document.createElement("input");
+    var widget = cm.addLineWidget(1, node);
+    node.focus();
+    eq(document.activeElement, node);
+    cm.replaceRange("new stuff", {line: 1, ch: 0});
+    eq(document.activeElement, node);
+  } finally {
+    place.className = "";
+  }
+});
+
 testCM("getLineNumber", function(cm) {
   addDoc(cm, 2, 20);
   var h1 = cm.getLineHandle(1);
