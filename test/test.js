@@ -25,7 +25,10 @@ function byClassName(elt, cls) {
 var ie_lt8 = /MSIE [1-7]\b/.test(navigator.userAgent);
 var mac = /Mac/.test(navigator.platform);
 var phantom = /PhantomJS/.test(navigator.userAgent);
-var opera_lt10 = /Opera\/[1-9]\./.test(navigator.userAgent);
+var opera = /Opera\/\./.test(navigator.userAgent);
+var opera_version = opera && navigator.userAgent.match(/Version\/(\d+\.\d+)/);
+if (opera_version) opera_version = Number(opera_version);
+var opera_lt10 = opera && (!opera_version || opera_version < 10);
 
 test("core_fromTextArea", function() {
   var te = document.getElementById("code");
