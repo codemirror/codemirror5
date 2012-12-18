@@ -144,7 +144,7 @@ function testVim(name, run, opts, expectedFail) {
       successful = true;
     } finally {
       if ((debug && !successful) || verbose) {
-        place.style.visibility = "";
+        place.style.visibility = "visible";
       } else {
         place.removeChild(cm.getWrapperElement());
       }
