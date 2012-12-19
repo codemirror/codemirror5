@@ -237,3 +237,19 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
     visibility: hidden;
   }
 }
+
+/* Right to left text */
+.CodeMirror-rtl {
+  direction: rtl;
+}
+
+.CodeMirror-rtl .CodeMirror-gutters {
+  right: 0 !important;
+  left: auto !important;
+  border-left: 1px solid #ddd;
+}
+
+.CodeMirror-rtl .CodeMirror-linenumber {
+  padding: 0 5px 0 3px;
+  text-align: left;
+}
