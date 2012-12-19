@@ -58,7 +58,7 @@
         successful = true;
       } finally {
         if ((debug && !successful) || verbose) {
-          place.style.visibility = "";
+          place.style.visibility = "visible";
         } else {
           for (var i = 0; i < editors.length; ++i)
             if (editors[i] instanceof CodeMirror)
@@ -286,5 +286,28 @@
     a.execCommand("selectAll");
     a.replaceSelection("!");
     eqAll("!", a, b);
+  });
+
+
+  testDoc("sharedMarker", "A='ab\ncd\nef\ngh' B<A C<~A/1-2", function(a, b, c) {
+    var mark = b.markText({line: 0, ch: 1}, {line: 3, ch: 1},
+                          {className: "cm-searching", shared: true});
+    var found = a.findMarksAt({line: 0, ch: 2});
+    eq(found.length, 1);
+    eq(found[0], mark);
+    eq(c.findMarksAt({line: 1, ch: 1}).length, 1);
+    eqPos(mark.find().from, {line: 0, ch: 1});
+    eqPos(mark.find().to, {line: 3, ch: 1});
+    b.replaceRange("x\ny\n", {line: 0, ch: 0});
+    eqPos(mark.find().from, {line: 2, ch: 1});
+    eqPos(mark.find().to, {line: 5, ch: 1});
+    var cleared = 0;
+    CodeMirror.on(mark, "clear", function() {++cleared;});
+    mark.clear();
+    eq(a.findMarksAt({line: 3, ch: 1}).length, 0);
+    eq(b.findMarksAt({line: 3, ch: 1}).length, 0);
+    eq(c.findMarksAt({line: 3, ch: 1}).length, 0);
+    eq(mark.find(), null);
+    eq(cleared, 1);
   });
 })();
