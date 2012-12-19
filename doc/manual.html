@@ -572,35 +572,78 @@
     specify it, it will be replaced with the length of the specified
     line.</p>
 
+    <p>Methods prefixed with <code>doc.</code> can, unless otherwise
+    specified, be called both on <code>CodeMirror</code> (editor)
+    instances and <code>CodeMirror.Doc</code> instances. Methods
+    prefixed with <code>cm.</code> are <em>only</em> available
+    on <code>CodeMirror</code> instances.</p>
+
+    <h3 id="api_content">Content manipulation methods</h3>
+
     <dl>
-      <dt id="getValue"><code>getValue() → string</code></dt>
+      <dt id="getValue"><code>doc.getValue() → string</code></dt>
       <dd>Get the current editor content. You can pass it an optional
       argument to specify the string to be used to separate lines
       (defaults to <code>"\n"</code>).</dd>
-      <dt id="setValue"><code>setValue(string)</code></dt>
+      <dt id="setValue"><code>doc.setValue(string)</code></dt>
       <dd>Set the editor content.</dd>
 
-      <dt id="lineCount"><code>lineCount() → number</code></dt>
-      <dd>Get the number of lines in the editor.</dd>
-
-      <dt id="getRange"><code>getRange(from, to) → string</code></td>
+      <dt id="getRange"><code>doc.getRange(from, to) → string</code></dt>
       <dd>Get the text between the given points in the editor, which
       should be <code>{line, ch}</code> objects. An optional third
       argument can be given to indicate the line separator string to
       use (defaults to <code>"\n"</code>).</dd>
-      <dt id="replaceRange"><code>replaceRange(string, from, to)</code></dt>
+      <dt id="replaceRange"><code>doc.replaceRange(string, from, to)</code></dt>
       <dd>Replace the part of the document between <code>from</code>
       and <code>to</code> with the given string. <code>from</code>
       and <code>to</code> must be <code>{line, ch}</code>
       objects. <code>to</code> can be left off to simply insert the
       string at position <code>from</code>.</dd>
 
-      <dt id="getSelection"><code>getSelection() → string</code></dt>
+      <dt id="getLine"><code>doc.getLine(n) → string</code></dt>
+      <dd>Get the content of line <code>n</code>.</dd>
+      <dt id="setLine"><code>doc.setLine(n, text)</code></dt>
+      <dd>Set the content of line <code>n</code>.</dd>
+      <dt id="removeLine"><code>doc.removeLine(n)</code></dt>
+      <dd>Remove the given line from the document.</dd>
+
+      <dt id="lineCount"><code>doc.lineCount() → number</code></dt>
+      <dd>Get the number of lines in the editor.</dd>
+      <dt id="firstLine"><code>doc.firstLine() → number</code></dt>
+      <dt id="lastLine"><code>doc.lastLine() → number</code></dt>
+      <dd>Get the first and last lines of the editor. This will
+      usually be zero and <code>doc.lineCount() - 1</code> respectively,
+      but for <a href="#linkedDoc_from">linked sub-views</a>,
+      or <a href="#Doc">documents</a> instantiated with a non-zero
+      first line, it might return other values.</dd>
+
+      <dt id="getLineHandle"><code>doc.getLineHandle(num) → lineHandle</code></dt>
+      <dd>Fetches the line handle for the given line number.</dd>
+      <dt id="getLineNumber"><code>doc.getLineNumber(handle) → integer</code></dt>
+      <dd>Given a line handle, returns the current position of that
+      line (or <code>null</code> when it is no longer in the
+      document).</dd>
+
+      <dt id="markClean"><code>doc.markClean()</code></dt>
+      <dd>Set the editor content as 'clean', a flag that it will
+      retain until it is edited, and which will be set again when such
+      an edit is undone again. Useful to track whether the content
+      needs to be saved.</dd>
+      <dt id="isClean"><code>doc.isClean() → boolean</code></dt>
+      <dd>Returns whether the document is currently clean (not
+      modified since initialization or the last call
+      to <a href="#markClean"><code>markClean</code></a>).</dd>
+    </dl>
+
+    <h3 id="api_selection">Cursor and selection methods</h3>
+
+    <dl>
+      <dt id="getSelection"><code>doc.getSelection() → string</code></dt>
       <dd>Get the currently selected code.</dd>
-      <dt id="replaceSelection"><code>replaceSelection(string)</code></dt>
+      <dt id="replaceSelection"><code>doc.replaceSelection(string)</code></dt>
       <dd>Replace the selection with the given string.</dd>
 
-      <dt id="getCursor"><code>getCursor(start) → object</code></dt>
+      <dt id="getCursor"><code>doc.getCursor(start) → object</code></dt>
       <dd><code>start</code> is a boolean indicating whether the start
       or the end of the selection must be retrieved. If it is not
       given, the current cursor pos, i.e. the side of the selection
@@ -610,66 +653,47 @@
       (same as not passing anything), or <code>"anchor"</code> (the
       opposite). A <code>{line, ch}</code> object will be
       returned.</dd>
-      <dt id="somethingSelected"><code>somethingSelected() → boolean</code></dt>
+      <dt id="somethingSelected"><code>doc.somethingSelected() → boolean</code></dt>
       <dd>Return true if any text is selected.</dd>
-      <dt id="setCursor"><code>setCursor(pos)</code></dt>
+      <dt id="setCursor"><code>doc.setCursor(pos)</code></dt>
       <dd>Set the cursor position. You can either pass a
       single <code>{line, ch}</code> object, or the line and the
       character as two separate parameters.</dd>
-      <dt id="setSelection"><code>setSelection(anchor, head)</code></dt>
+      <dt id="setSelection"><code>doc.setSelection(anchor, head)</code></dt>
       <dd>Set the selection range. <code>anchor</code>
       and <code>head</code> should be <code>{line, ch}</code>
       objects. <code>head</code> defaults to <code>anchor</code> when
       not givne.</dd>
+      <dt id="extendSelection"><code>doc.extendSelection(pos, pos2)</code></dt>
+      <dd>Similar
+      to <a href="#setSelection"><code>setSelection</code></a>, but
+      will, if shift is held or
+      the <a href="#setExtending">extending</a> flag is set, move the
+      head of the selection while leaving the anchor at its current
+      place. <code>pos2</code> is optional, and can be passed to
+      ensure a region (for example a word or paragraph) will end up
+      selected (in addition to whatever lies between that region and
+      the current anchor).</dd>
+      <dt id="setExtending"><code>doc.setExtending(bool)</code></dt>
+      <dd>Sets or clears the 'extending' flag, which acts similar to
+      the shift key, in that it will cause cursor movement and calls
+      to <a href="#extendSelection"><code>extendSelection</code></a>
+      to leave the selection anchor in place.</dd>
+    </dl>
 
-      <dt id="getLine"><code>getLine(n) → string</code></dt>
-      <dd>Get the content of line <code>n</code>.</dd>
-      <dt id="setLine"><code>setLine(n, text)</code></dt>
-      <dd>Set the content of line <code>n</code>.</dd>
-      <dt id="removeLine"><code>removeLine(n)</code></dt>
-      <dd>Remove the given line from the document.</dd>
+    <h3 id="api_configuration">Configuration methods</h3>
 
-      <dt id="setSize"><code>setSize(width, height)</code></dt>
-      <dd>Programatically set the size of the editor (overriding the
-      applicable <a href="#css-resize">CSS
-      rules</a>). <code>width</code> and <code>height</code> height
-      can be either numbers (interpreted as pixels) or CSS units
-      (<code>"100%"</code>, for example). You can
-      pass <code>null</code> for either of them to indicate that that
-      dimension should not be changed.</dd>
-      <dt id="focus"><code>focus()</code></dt>
-      <dd>Give the editor focus.</dd>
-      <dt id="scrollTo"><code>scrollTo(x, y)</code></dt>
-      <dd>Scroll the editor to a given (pixel) position. Both
-      arguments may be left as <code>null</code>
-      or <code>undefined</code> to have no effect.</dd>
-      <dt id="getScrollInfo"><code>getScrollInfo()</code></dt>
-      <dd>Get an <code>{left, top, width, height, clientWidth,
-      clientHeight}</code> object that represents the current scroll
-      position, the size of the scrollable area, and the size of the
-      visible area (minus scrollbars).</dd>
-      <dt id="scrollIntoView"><code>scrollIntoView(pos)</code></dt>
-      <dd>Scrolls the given element into view. <code>pos</code> may be
-      either a <code>{line, ch}</code> position, referring to a given
-      character, <code>null</code>, to refer to the cursor, or
-      a <code>{left, top, right, bottom}</code> object, in
-      editor-local coordinates.</dd>
-
-      <dt id="setOption"><code>setOption(option, value)</code></dt>
+    <dl>
+      <dt id="setOption"><code>cm.setOption(option, value)</code></dt>
       <dd>Change the configuration of the editor. <code>option</code>
       should the name of an <a href="#config">option</a>,
       and <code>value</code> should be a valid value for that
       option.</dd>
-      <dt id="getOption"><code>getOption(option) → value</code></dt>
+      <dt id="getOption"><code>cm.getOption(option) → value</code></dt>
       <dd>Retrieves the current value of the given option for this
       editor instance.</dd>
-      <dt id="getMode"><code>getMode() → object</code></dt>
-      <dd>Gets the mode object for the editor. Note that this is
-      distinct from <code>getOption("mode")</code>, which gives you
-      the mode specification, rather than the resolved, instantiated
-      <a href="#defineMode">mode object</a>.</dd>
 
-      <dt id="addKeyMap"><code>addKeyMap(map)</code></dt>
+      <dt id="addKeyMap"><code>cm.addKeyMap(map)</code></dt>
       <dd>Attach an additional <a href="#keymaps">keymap</a> to the editor. This is mostly
       useful for add-ons that need to register some key handlers
       without trampling on
@@ -679,14 +703,14 @@
       base <a href="#option_keyMap"><code>keyMap</code></a>, and
       between them, the maps added earlier have a higher precedence
       than those added later.</dd>
-      <dt id="removeKeyMap"><code>removeKeyMap(map)</code></dt>
+      <dt id="removeKeyMap"><code>cm.removeKeyMap(map)</code></dt>
       <dd>Disable a keymap added
       with <a href="#addKeyMap"><code>addKeyMap</code></a>. Either
       pass in the keymap object itself, or a string, which will be
       compared against the <code>name</code> property of the active
       keymaps.</dd>
 
-      <dt id="addOverlay"><code>addOverlay(mode, options)</code></dt>
+      <dt id="addOverlay"><code>cm.addOverlay(mode, options)</code></dt>
       <dd>Enable a highlighting overlay. This is a stateless mini-mode
       that can be used to add extra highlighting. For example,
       the <a href="../demo/search.html">search add-on</a> uses it to
@@ -700,108 +724,115 @@
       allow the overlay styling, when not <code>null</code>, to
       override the styling of the base mode entirely, instead of the
       two being applied together.</dd>
-      <dt id="removeOverlay"><code>removeOverlay(mode)</code></dt>
+      <dt id="removeOverlay"><code>cm.removeOverlay(mode)</code></dt>
       <dd>Pass this the exact argument passed for
       the <code>mode</code> parameter
       to <a href="#addOverlay"><code>addOverlay</code></a> to remove
       an overlay again.</dd>
 
-      <dt id="on"><code>on(type, func)</code></dt>
+      <dt id="on"><code>cm.on(type, func)</code></dt>
       <dd>Register an event handler for the given event type (a
       string) on the editor instance. There is also
       a <code>CodeMirror.on(object, type, func)</code> version
       that allows registering of events on any object.</dd>
-      <dt id="off"><code>off(type, func)</code></dt>
+      <dt id="off"><code>cm.off(type, func)</code></dt>
       <dd>Remove an event handler on the editor instance. An
       equivalent <code>CodeMirror.off(object, type,
       func)</code> also exists.</dd>
+    </dl>
 
-      <dt id="cursorCoords"><code>cursorCoords(where, mode) → object</code></dt>
-      <dd>Returns an <code>{left, top, bottom}</code> object
-      containing the coordinates of the cursor position.
-      If <code>mode</code> is <code>"local"</code>, they will be
-      relative to the top-left corner of the editable document. If it
-      is <code>"page"</code> or not given, they are relative to the
-      top-left corner of the page. <code>where</code> can be a boolean
-      indicating whether you want the start (<code>true</code>) or the
-      end (<code>false</code>) of the selection, or, if a <code>{line,
-      ch}</code> object is given, it specifies the precise position at
-      which you want to measure.</dd>
-      <dt id="charCoords"><code>charCoords(pos, mode) → object</code></dt>
-      <dd>Returns the position and dimensions of an arbitrary
-      character. <code>pos</code> should be a <code>{line, ch}</code>
-      object. This differs from <code>cursorCoords</code> in that
-      it'll give the size of the whole character, rather than just the
-      position that the cursor would have when it would sit at that
-      position.</dd>
-      <dt id="coordsChar"><code>coordsChar(object) → pos</code></dt>
-      <dd>Given an <code>{left, top}</code> object (in page coordinates),
-      returns the <code>{line, ch}</code> position that corresponds to
-      it.</dd>
-      <dt id="defaultTextHeight"><code>defaultTextHeight() → number</code></dt>
-      <dd>Returns the line height of the default font for the editor.</dd>
+    <h3 id="api_doc">Document management methods</h3>
 
-      <dt id="markClean"><code>markClean()</code></dt>
-      <dd>Set the editor content as 'clean', a flag that it will
-      retain until it is edited, and which will be set again when such
-      an edit is undone again. Useful to track whether the content
-      needs to be saved.</dd>
-      <dt id="isClean"><code>isClean() → boolean</code></dt>
-      <dd>Returns whether the document is currently clean (not
-      modified since initialization or the last call
-      to <a href="#markClean"><code>markClean</code></a>).</dd>
+    <p>Each editor is associated with an instance
+    of <code>CodeMirror.Doc</code>, its document. A document
+    represents the editor content, plus a selection, an undo history,
+    and a <a href="#option_mode">mode</a>. A document can only be
+    associated with a single editor at a time. You can create new
+    documents by calling the <code>CodeMirror.Doc(text, mode,
+    firstLineNumber)</code> constructor. The last two arguments are
+    optional and can be used to set a mode for the document and make
+    it start at a line number other than 0, respectively.</p>
 
-      <dt id="undo"><code>undo()</code></dt>
+    <dl>
+      <dt id="getDoc"><code>cm.getDoc() → doc</code></dt>
+      <dd>Retrieve the currently active document from an editor.</dd>
+      <dt id="getEditor"><code>doc.getEditor() → editor</code></dt>
+      <dd>Retrieve the editor associated with a document. May
+      return <code>null</code>.</dd>
+
+      <dt id="swapDoc"><code>cm.swapDoc(doc) → doc</code></dt>
+      <dd>Attach a new document to the editor. Returns the old
+      document, which is now no longer associated with an editor.</dd>
+
+      <dt id="copy"><code>doc.copy(copyHistory) → doc</code></dt>
+      <dd>Create an identical copy of the given doc.
+      When <code>copyHistory</code> is true, the history will also be
+      copied. Can not be called directly on an editor.</dd>
+
+      <dt id="linkedDoc"><code>doc.linkedDoc(options) → doc</code></dt>
+      <dd>Create a new document that's linked to the target document.
+      Linked documents will stay in sync (changes to one are also
+      applied to the other) until <a href="#unlinkDoc">unlinked</a>.
+      These are the options that are supported:
+        <dl>
+          <dt id="linkedDoc_sharedHist"><code>sharedHist (boolean)</code></dt>
+          <dd>When turned on, the linked copy will share an undo
+          history with the original. Thus, something done in one of
+          the two can be undone in the other, and vice versa.</dd>
+          <dt id="linkedDoc_from"><code>from, to (integer)</code></dt>
+          <dd>Can be given to make the new document a subview of the
+          original. Subviews only show a given range of lines. Note
+          that line coordinates inside the subview will be consistent
+          with those of the parent, so that for example a subview
+          starting at line 10 will refer to its first line as line 10,
+          not 0.</dd>
+          <dt id="linkedDoc_mode"><code>mode (mode spec)</code></dt>
+          <dd>By default, the new document inherits the mode of the
+          parent. This option can be set to
+          a <a href="#option_mode">mode spec</a> to give it a
+          different mode.</dd>
+        </dl></dd>
+      <dt id="unlinkDoc"><code>doc.unlinkDoc(doc)</code></dt>
+      <dd>Break the link between two documents. After calling this,
+      changes will no longer propagate between the documents, and, if
+      they had a shared history, the history will become
+      separate.</dd>
+      <dt id="iterLinkedDocs"><code>doc.iterLinkedDocs(function)</code></dt>
+      <dd>Will call the given function for all documents linked to the
+      target document. It will be passed two arguments, the linked document
+      and a boolean indicating whether that document shares history
+      with the target.</dd>
+    </dl>
+
+    <h3 id="api_history">History-related methods</h3>
+
+    <dl>
+      <dt id="undo"><code>doc.undo()</code></dt>
       <dd>Undo one edit (if any undo events are stored).</dd>
-      <dt id="redo"><code>redo()</code></dt>
+      <dt id="redo"><code>doc.redo()</code></dt>
       <dd>Redo one undone edit.</dd>
-      <dt id="historySize"><code>historySize() → object</code></dt>
+
+      <dt id="historySize"><code>doc.historySize() → object</code></dt>
       <dd>Returns an object with <code>{undo, redo}</code> properties,
       both of which hold integers, indicating the amount of stored
       undo and redo operations.</dd>
-      <dt id="clearHistory"><code>clearHistory()</code></dt>
+      <dt id="clearHistory"><code>doc.clearHistory()</code></dt>
       <dd>Clears the editor's undo history.</dd>
-      <dt id="getHistory"><code>getHistory() → object</code></dt>
+      <dt id="getHistory"><code>doc.getHistory() → object</code></dt>
       <dd>Get a (JSON-serializeable) representation of the undo history.</dd>
-      <dt id="setHistory"><code>setHistory(object)</code></dt>
+      <dt id="setHistory"><code>doc.setHistory(object)</code></dt>
       <dd>Replace the editor's undo history with the one provided,
       which must be a value as returned
       by <a href="#getHistory"><code>getHistory</code></a>. Note that
       this will have entirely undefined results if the editor content
       isn't also the same as it was when <code>getHistory</code> was
       called.</dd>
+    </dl>
 
-      <dt id="indentLine"><code>indentLine(line, dir)</code></dt>
-      <dd>Adjust the indentation of the given line. The second
-      argument (which defaults to <code>"smart"</code>) may be one of:
-        <dl>
-          <dt><code>"prev"</code></dt>
-          <dd>Base indentation on the indentation of the previous line.</dd>
-          <dt><code>"smart"</code></dt>
-          <dd>Use the mode's smart indentation if available, behave
-          like <code>"prev"</code> otherwise.</dd>
-          <dt><code>"add"</code></dt>
-          <dd>Increase the indentation of the line by
-          one <a href="#option_indentUnit">indent unit</a>.</dd>
-          <dt><code>"subtract"</code></dt>
-          <dd>Reduce the indentation of the line.</dd>
-        </dl></dd>
+    <h3 id="api_marker">Text-marking methods</h3>
 
-      <dt id="getTokenAt"><code>getTokenAt(pos) → object</code></dt>
-      <dd>Retrieves information about the token the current mode found
-      before the given position (a <code>{line, ch}</code> object). The
-      returned object has the following properties:
-      <dl>
-        <dt><code>start</code></dt><dd>The character (on the given line) at which the token starts.</dd>
-        <dt><code>end</code></dt><dd>The character at which the token ends.</dd>
-        <dt><code>string</code></dt><dd>The token's string.</dd>
-        <dt><code>type</code></dt><dd>The token type the mode assigned
-        to the token, such as <code>"keyword"</code>
-        or <code>"comment"</code> (may also be null).</dd>
-        <dt><code>state</code></dt><dd>The mode's state at the end of this token.</dd>
-      </dl></dd>
-
-      <dt id="markText"><code>markText(from, to, options) → object</code></dt>
+    <dl>
+      <dt id="markText"><code>doc.markText(from, to, options) → object</code></dt>
       <dd>Can be used to mark a range of text with a specific CSS
       class name. <code>from</code> and <code>to</code> should
       be <code>{line, ch}</code> objects. The <code>options</code>
@@ -836,7 +867,7 @@
         <dt id="mark_replacedWith"><code>replacedWith (dom node)</code></dt>
         <dd>Use a given node to display this range. Implies both
         collapsed and atomic.</dd>
-        <dt id="mark_readOnly"><code>readOnly</code></td>
+        <dt id="mark_readOnly"><code>readOnly</code></dt>
         <dd>A read-only span can, as long as it is not cleared, not be
         modified except by
         calling <a href="#setValue"><code>setValue</code></a> to reset
@@ -858,7 +889,7 @@
       the marked range, or <code>undefined</code> if the marker is no
       longer in the document.</dd>
 
-      <dt id="setBookmark"><code>setBookmark(pos, widget) → object</code></dt>
+      <dt id="setBookmark"><code>doc.setBookmark(pos, widget) → object</code></dt>
       <dd>Inserts a bookmark, a handle that follows the text around it
       as it is being edited, at the given position. A bookmark has two
       methods <code>find()</code> and <code>clear()</code>. The first
@@ -869,11 +900,15 @@
       the <a href="#mark_replacedWith"><code>replacedWith</code></a>
       option to <code>markText</code>).</dd>
 
-      <dt id="findMarksAt"><code>findMarksAt(pos) → array</code></dt>
+      <dt id="findMarksAt"><code>doc.findMarksAt(pos) → array</code></dt>
       <dd>Returns an array of all the bookmarks and marked ranges
       present at the given position.</dd>
+    </dl>
 
-      <dt id="setGutterMarker"><code>setGutterMarker(line, gutterID, value) → lineHandle</code></dt>
+    <h3 id="api_decoration">Widget, gutter, and decoration methods</h3>
+    
+    <dl>
+      <dt id="setGutterMarker"><code>cm.setGutterMarker(line, gutterID, value) → lineHandle</code></dt>
       <dd>Sets the gutter marker for the given gutter (identified by
       its CSS class, see
       the <a href="#option_gutters"><code>gutters</code></a> option)
@@ -882,11 +917,11 @@
       will be shown in the specified gutter next to the specified
       line.</dd>
       
-      <dt id="clearGutter"><code>clearGutter(gutterID)</code></dt>
+      <dt id="clearGutter"><code>cm.clearGutter(gutterID)</code></dt>
       <dd>Remove all gutter markers in
       the <a href="#option_gutters">gutter</a> with the given ID.</dd>
 
-      <dt id="addLineClass"><code>addLineClass(line, where, class) → lineHandle</code></dt>
+      <dt id="addLineClass"><code>cm.addLineClass(line, where, class) → lineHandle</code></dt>
       <dd>Set a CSS class name for the given line. <code>line</code>
       can be a number or a line handle. <code>where</code> determines
       to which element this class should be applied, can can be one
@@ -897,7 +932,7 @@
       gutter elements). <code>class</code> should be the name of the
       class to apply.</dd>
 
-      <dt id="removeLineClass"><code>removeLineClass(line, where, class) → lineHandle</code></dt>
+      <dt id="removeLineClass"><code>cm.removeLineClass(line, where, class) → lineHandle</code></dt>
       <dd>Remove a CSS class from a line. <code>line</code> can be a
       line handle or number. <code>where</code> should be one
       of <code>"text"</code>, <code>"background"</code>,
@@ -906,7 +941,7 @@
       can be left off to remove all classes for the specified node, or
       be a string to remove only a specific class.</dd>
 
-      <dt id="lineInfo"><code>lineInfo(line) → object</code></dt>
+      <dt id="lineInfo"><code>cm.lineInfo(line) → object</code></dt>
       <dd>Returns the line number, text content, and marker status of
       the given line, which can be either a number or a line handle.
       The returned object has the structure <code>{line, handle, text,
@@ -917,24 +952,7 @@
       line, and the various class properties refer to classes added
       with <a href="#addLineClass"><code>addLineClass</code></a>.</dd>
 
-      <dt id="getLineHandle"><code>getLineHandle(num) → lineHandle</code></dt>
-      <dd>Fetches the line handle for the given line number.</dd>
-
-      <dt id="getLineNumber"><code>getLineNumber(handle) → integer</code></dt>
-      <dd>Given a line handle, returns the current position of that
-      line (or <code>null</code> when it is no longer in the
-      document).</dd>
-
-      <dt id="getViewport"><code>getViewport() → object</code></dt>
-      <dd>Returns a <code>{from, to}</code> object indicating the
-      start (inclusive) and end (exclusive) of the currently displayed
-      part of the document. In big documents, when most content is
-      scrolled out of view, CodeMirror will only render the visible
-      part, and a margin around it. See also
-      the <a href="#event_viewportChange"><code>viewportChange</code></a>
-      event.</dd>
-
-      <dt id="addWidget"><code>addWidget(pos, node, scrollIntoView)</code></dt>
+      <dt id="addWidget"><code>cm.addWidget(pos, node, scrollIntoView)</code></dt>
       <dd>Puts <code>node</code>, which should be an absolutely
       positioned DOM node, into the editor, positioned right below the
       given <code>{line, ch}</code> position.
@@ -943,7 +961,7 @@
       widget again, simply use DOM methods (move it somewhere else, or
       call <code>removeChild</code> on its parent).</dd>
 
-      <dt id="addLineWidget"><code>addLineWidget(line, node, options) → object</code></dt>
+      <dt id="addLineWidget"><code>cm.addLineWidget(line, node, options) → object</code></dt>
       <dd>Adds a line widget, an element shown below a line, spanning
       the whole of the editor's width, and moving the lines below it
       downwards. <code>line</code> should be either an integer or a
@@ -970,23 +988,119 @@
       can be passed to <code>removeLineWidget</code> to remove the
       widget.</dd>
 
-      <dt id="removeLineWidget"><code>removeLineWidget(widget)</code></dt>
+      <dt id="removeLineWidget"><code>cm.removeLineWidget(widget)</code></dt>
       <dd>Removes the given line widget.</dd>
-
-      <dt id="posFromIndex"><code>posFromIndex(index) → object</code></dt>
-      <dd>Calculates and returns a <code>{line, ch}</code> object for a
-      zero-based <code>index</code> who's value is relative to the start of the
-      editor's text. If the <code>index</code> is out of range of the text then
-      the returned object is clipped to start or end of the text
-      respectively.</dd>
-      <dt id="indexFromPos"><code>indexFromPos(object) → number</code></dt>
-      <dd>The reverse of <a href="#posFromIndex"><code>posFromIndex</code></a>.</dd>
     </dl>
 
-    <p>The following are more low-level methods:</p>
+    <h3 id="api_sizing">Sizing, scrolling and positioning methods</h3>
 
     <dl>
-      <dt id="operation"><code>operation(func) → result</code></dt>
+      <dt id="setSize"><code>cm.setSize(width, height)</code></dt>
+      <dd>Programatically set the size of the editor (overriding the
+      applicable <a href="#css-resize">CSS
+      rules</a>). <code>width</code> and <code>height</code> height
+      can be either numbers (interpreted as pixels) or CSS units
+      (<code>"100%"</code>, for example). You can
+      pass <code>null</code> for either of them to indicate that that
+      dimension should not be changed.</dd>
+
+      <dt id="scrollTo"><code>cm.scrollTo(x, y)</code></dt>
+      <dd>Scroll the editor to a given (pixel) position. Both
+      arguments may be left as <code>null</code>
+      or <code>undefined</code> to have no effect.</dd>
+      <dt id="getScrollInfo"><code>cm.getScrollInfo()</code></dt>
+      <dd>Get an <code>{left, top, width, height, clientWidth,
+      clientHeight}</code> object that represents the current scroll
+      position, the size of the scrollable area, and the size of the
+      visible area (minus scrollbars).</dd>
+      <dt id="scrollIntoView"><code>cm.scrollIntoView(pos)</code></dt>
+      <dd>Scrolls the given element into view. <code>pos</code> may be
+      either a <code>{line, ch}</code> position, referring to a given
+      character, <code>null</code>, to refer to the cursor, or
+      a <code>{left, top, right, bottom}</code> object, in
+      editor-local coordinates.</dd>
+
+      <dt id="cursorCoords"><code>cm.cursorCoords(where, mode) → object</code></dt>
+      <dd>Returns an <code>{left, top, bottom}</code> object
+      containing the coordinates of the cursor position.
+      If <code>mode</code> is <code>"local"</code>, they will be
+      relative to the top-left corner of the editable document. If it
+      is <code>"page"</code> or not given, they are relative to the
+      top-left corner of the page. <code>where</code> can be a boolean
+      indicating whether you want the start (<code>true</code>) or the
+      end (<code>false</code>) of the selection, or, if a <code>{line,
+      ch}</code> object is given, it specifies the precise position at
+      which you want to measure.</dd>
+      <dt id="charCoords"><code>cm.charCoords(pos, mode) → object</code></dt>
+      <dd>Returns the position and dimensions of an arbitrary
+      character. <code>pos</code> should be a <code>{line, ch}</code>
+      object. This differs from <code>cursorCoords</code> in that
+      it'll give the size of the whole character, rather than just the
+      position that the cursor would have when it would sit at that
+      position.</dd>
+      <dt id="coordsChar"><code>cm.coordsChar(object) → pos</code></dt>
+      <dd>Given an <code>{left, top}</code> object (in page coordinates),
+      returns the <code>{line, ch}</code> position that corresponds to
+      it.</dd>
+      <dt id="defaultTextHeight"><code>cm.defaultTextHeight() → number</code></dt>
+      <dd>Returns the line height of the default font for the editor.</dd>
+
+      <dt id="getViewport"><code>cm.getViewport() → object</code></dt>
+      <dd>Returns a <code>{from, to}</code> object indicating the
+      start (inclusive) and end (exclusive) of the currently displayed
+      part of the document. In big documents, when most content is
+      scrolled out of view, CodeMirror will only render the visible
+      part, and a margin around it. See also
+      the <a href="#event_viewportChange"><code>viewportChange</code></a>
+      event.</dd>
+
+      <dt id="refresh"><code>cm.refresh()</code></dt>
+      <dd>If your code does something to change the size of the editor
+      element (window resizes are already listened for), or unhides
+      it, you should probably follow up by calling this method to
+      ensure CodeMirror is still looking as intended.</dd>
+    </dl>
+
+    <h3 id="api_mode">Mode, state, and token-related methods</h3>
+
+    <p>When writing language-aware functionality, it can often be
+    useful to hook into the knowledge thate the CodeMirror language
+    mode has. See <a href="#modeapi">the section on modes</a> for a
+    more detailed description of how these work.</p>
+
+    <dl>
+      <dt id="getMode"><code>doc.getMode() → object</code></dt>
+      <dd>Gets the mode object for the editor. Note that this is
+      distinct from <code>getOption("mode")</code>, which gives you
+      the mode specification, rather than the resolved, instantiated
+      <a href="#defineMode">mode object</a>.</dd>
+
+      <dt id="getTokenAt"><code>getTokenAt(pos) → object</code></dt>
+      <dd>Retrieves information about the token the current mode found
+      before the given position (a <code>{line, ch}</code> object). The
+      returned object has the following properties:
+      <dl>
+        <dt><code>start</code></dt><dd>The character (on the given line) at which the token starts.</dd>
+        <dt><code>end</code></dt><dd>The character at which the token ends.</dd>
+        <dt><code>string</code></dt><dd>The token's string.</dd>
+        <dt><code>type</code></dt><dd>The token type the mode assigned
+        to the token, such as <code>"keyword"</code>
+        or <code>"comment"</code> (may also be null).</dd>
+        <dt><code>state</code></dt><dd>The mode's state at the end of this token.</dd>
+      </dl></dd>
+
+      <dt id="getStateAfter"><code>cm.getStateAfter(line) → state</code></dt>
+      <dd>Returns the mode's parser state, if any, at the end of the
+      given line number. If no line number is given, the state at the
+      end of the document is returned. This can be useful for storing
+      parsing errors in the state, or getting other kinds of
+      contextual information for a line.</dd>
+    </dl>
+
+    <h3 id="api_misc">Miscellaneous methods</h3>
+
+    <dl>
+      <dt id="operation"><code>cm.operation(func) → result</code></dt>
       <dd>CodeMirror internally buffers changes and only updates its
       DOM structure after it has finished performing some operation.
       If you need to perform a lot of operations on a CodeMirror
@@ -996,47 +1110,48 @@
       lot faster. The return value from this method will be the return
       value of your function.</dd>
 
-      <dt id="refresh"><code>refresh()</code></dt>
-      <dd>If your code does something to change the size of the editor
-      element (window resizes are already listened for), or unhides
-      it, you should probably follow up by calling this method to
-      ensure CodeMirror is still looking as intended.</dd>
+      <dt id="indentLine"><code>cm.indentLine(line, dir)</code></dt>
+      <dd>Adjust the indentation of the given line. The second
+      argument (which defaults to <code>"smart"</code>) may be one of:
+        <dl>
+          <dt><code>"prev"</code></dt>
+          <dd>Base indentation on the indentation of the previous line.</dd>
+          <dt><code>"smart"</code></dt>
+          <dd>Use the mode's smart indentation if available, behave
+          like <code>"prev"</code> otherwise.</dd>
+          <dt><code>"add"</code></dt>
+          <dd>Increase the indentation of the line by
+          one <a href="#option_indentUnit">indent unit</a>.</dd>
+          <dt><code>"subtract"</code></dt>
+          <dd>Reduce the indentation of the line.</dd>
+        </dl></dd>
 
-      <dt id="extendSelection"><code>extendSelection(pos, pos2)</code></dt>
-      <dd>Similar
-      to <a href="#setSelection"><code>setSelection</code></a>, but
-      will, if shift is held or
-      the <a href="#setExtending">extending</a> flag is set, move the
-      head of the selection while leaving the anchor at its current
-      place. <code>pos2</code> is optional, and can be passed to
-      ensure a region (for example a word or paragraph) will end up
-      selected (in addition to whatever lies between that region and
-      the current anchor).</dd>
-      <dt id="setExtending"><code>setExtending(bool)</code></dt>
-      <dd>Sets or clears the 'extending' flag, which acts similar to
-      the shift key, in that it will cause cursor movement and calls
-      to <a href="#extendSelection"><code>extendSelection</code></a>
-      to leave the selection anchor in place.</dd>
+      <dt id="posFromIndex"><code>doc.posFromIndex(index) → object</code></dt>
+      <dd>Calculates and returns a <code>{line, ch}</code> object for a
+      zero-based <code>index</code> who's value is relative to the start of the
+      editor's text. If the <code>index</code> is out of range of the text then
+      the returned object is clipped to start or end of the text
+      respectively.</dd>
+      <dt id="indexFromPos"><code>doc.indexFromPos(object) → number</code></dt>
+      <dd>The reverse of <a href="#posFromIndex"><code>posFromIndex</code></a>.</dd>
 
-      <dt id="getInputField"><code>getInputField() → textarea</code></dt>
+      <dt id="focus"><code>cm.focus()</code></dt>
+      <dd>Give the editor focus.</dd>
+
+      <dt id="getInputField"><code>cm.getInputField() → textarea</code></dt>
       <dd>Returns the hidden textarea used to read input.</dd>
-      <dt id="getWrapperElement"><code>getWrapperElement() → node</code></dt>
+      <dt id="getWrapperElement"><code>cm.getWrapperElement() → node</code></dt>
       <dd>Returns the DOM node that represents the editor, and
       controls its size. Remove this from your tree to delete an
       editor instance.</dd>
-      <dt id="getScrollerElement"><code>getScrollerElement() → node</code></dt>
+      <dt id="getScrollerElement"><code>cm.getScrollerElement() → node</code></dt>
       <dd>Returns the DOM node that is responsible for the scrolling
       of the editor.</dd>
-      <dt id="getGutterElement"><code>getGutterElement() → node</code></dt>
+      <dt id="getGutterElement"><code>cm.getGutterElement() → node</code></dt>
       <dd>Fetches the DOM node that contains the editor gutters.</dd>
-
-      <dt id="getStateAfter"><code>getStateAfter(line) → state</code></dt>
-      <dd>Returns the mode's parser state, if any, at the end of the
-      given line number. If no line number is given, the state at the
-      end of the document is returned. This can be useful for storing
-      parsing errors in the state, or getting other kinds of
-      contextual information for a line.</dd>
     </dl>
+
+    <h3 id="api_static">Static properties</h3>
 
     <p id="version">The <code>CodeMirror</code> object itself provides
     several useful properties. Firstly, its <code>version</code>
@@ -1478,7 +1593,21 @@
       <li><a href="#events">Events</a></li>
       <li><a href="#keymaps">Keymaps</a></li>
       <li><a href="#styling">Customized Styling</a></li>
-      <li><a href="#api">Programming API</a></li>
+      <li><a href="#api">Programming API</a>
+        <ul>
+          <li><a href="#api_content">Content manipulation</a></li>
+          <li><a href="#api_selection">Selection</a></li>
+          <li><a href="#api_configuration">Configuration</a></li>
+          <li><a href="#api_doc">Document management</a></li>
+          <li><a href="#api_history">History</a></li>
+          <li><a href="#api_marker">Text-marking</a></li>
+          <li><a href="#api_decoration">Widget, gutter, and decoration</a></li>
+          <li><a href="#api_sizing">Sizing, scrolling, and positioning</a></li>
+          <li><a href="#api_mode">Mode, state, and tokens</a></li>
+          <li><a href="#api_misc">Miscellaneous methods</a></li>
+          <li><a href="#api_static">Static properties</a></li>
+        </ul>
+      </li>
       <li><a href="#addons">Add-ons</a></li>
       <li><a href="#modeapi">Writing CodeMirror Modes</a></li>
     </ul>
