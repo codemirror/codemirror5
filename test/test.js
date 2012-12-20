@@ -417,6 +417,25 @@ testCM("markTextStayGone", function(cm) {
   eq(m1.find(), null);
 }, {value: "hello"});
 
+testCM("undoPreservesNewMarks", function(cm) {
+  cm.markText({line: 0, ch: 3}, {line: 0, ch: 4});
+  cm.markText({line: 1, ch: 1}, {line: 1, ch: 3});
+  cm.replaceRange("", {line: 0, ch: 3}, {line: 3, ch: 1});
+  var mBefore = cm.markText({line: 0, ch: 0}, {line: 0, ch: 1});
+  var mAfter = cm.markText({line: 0, ch: 5}, {line: 0, ch: 6});
+  var mAround = cm.markText({line: 0, ch: 2}, {line: 0, ch: 4});
+  cm.undo();
+  eqPos(mBefore.find().from, {line: 0, ch: 0});
+  eqPos(mBefore.find().to, {line: 0, ch: 1});
+  eqPos(mAfter.find().from, {line: 3, ch: 3});
+  eqPos(mAfter.find().to, {line: 3, ch: 4});
+  eqPos(mAround.find().from, {line: 0, ch: 2});
+  eqPos(mAround.find().to, {line: 3, ch: 2});
+  var found = cm.findMarksAt({line: 2, ch: 2});
+  eq(found.length, 1);
+  eq(found[0], mAround);
+}, {value: "aaaa\nbbbb\ncccc\ndddd"});
+
 testCM("markClearBetween", function(cm) {
   cm.setValue("aaa\nbbb\nccc\nddd\n");
   cm.markText({line: 0, ch: 0}, {line: 2});
