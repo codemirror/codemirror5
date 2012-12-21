@@ -487,6 +487,7 @@ testCM("doubleScrollbar", function(cm) {
   dummy.style.cssText = "height: 50px; overflow: scroll; width: 50px";
   var scrollbarWidth = dummy.offsetWidth + 1 - dummy.clientWidth;
   document.body.removeChild(dummy);
+  if (scrollbarWidth < 2) return;
   cm.setSize(null, 100);
   addDoc(cm, 1, 300);
   var wrap = cm.getWrapperElement();
@@ -916,7 +917,7 @@ testCM("bidiUpdate", function(cm) {
 }, {value: "abcd\n"});
 
 testCM("movebyTextUnit", function(cm) {
-  cm.setValue("בְּרֵאשִ\ńéée\n");
+  cm.setValue("בְּרֵאשִ\ńéée\n");
   cm.execCommand("goLineEnd");
   for (var i = 0; i < 4; ++i) cm.execCommand("goCharRight");
   eqPos(cm.getCursor(), {line: 0, ch: 0});
