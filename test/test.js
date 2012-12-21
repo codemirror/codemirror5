@@ -487,6 +487,7 @@ testCM("doubleScrollbar", function(cm) {
   dummy.style.cssText = "height: 50px; overflow: scroll; width: 50px";
   var scrollbarWidth = dummy.offsetWidth + 1 - dummy.clientWidth;
   document.body.removeChild(dummy);
+  if (scrollbarWidth < 2) return;
   cm.setSize(null, 100);
   addDoc(cm, 1, 300);
   var wrap = cm.getWrapperElement();
