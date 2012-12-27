@@ -2146,7 +2146,7 @@
         params.argString = inputStream.match(/.*/)[0];
         // Parse command-line arguments
         var delim = command.argDelimiter || /\s+/;
-        var args = params.argString.split(delim);
+        var args = trim(params.argString).split(delim);
         if (args.length && args[0]) {
           params.args = args;
         }
@@ -2253,7 +2253,7 @@
 
     var exCommands = {
       map: function(cm, params) {
-        var mapArgs = params.commandArgs;
+        var mapArgs = params.args;
         if (!mapArgs || mapArgs.length < 2) {
           if (cm) {
             showConfirm(cm, 'Invalid mapping: ' + params.input);
