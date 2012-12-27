@@ -196,7 +196,7 @@ CodeMirror.defineMode("d", function(config, parserConfig) {
                    "ucent uint ulong ushort wchar wstring void size_t sizediff_t"),
     atoms: words("exit failure success true false null"),
     hooks: {
-      "@": function(stream, state) {
+      "@": function(stream, _state) {
         stream.eatWhile(/[\w\$_]/);
         return "meta";
       }
