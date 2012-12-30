@@ -835,7 +835,8 @@
         happens.</dd>
         <dt id="mark_replacedWith"><code>replacedWith (dom node)</code></dt>
         <dd>Use a given node to display this range. Implies both
-        collapsed and atomic.</dd>
+        collapsed and atomic. The given DOM node <em>must</em> be an
+        inline element (as opposed to a block element).</dd>
         <dt id="mark_readOnly"><code>readOnly</code></td>
         <dd>A read-only span can, as long as it is not cleared, not be
         modified except by
