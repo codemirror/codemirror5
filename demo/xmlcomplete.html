@@ -62,12 +62,11 @@
             mode: 'text/html',
             lineNumbers: true,
             extraKeys: {
-                "'>'": function(cm) { cm.closeTag(cm, '>'); },
-                "'/'": function(cm) { cm.closeTag(cm, '/'); },
                 "' '": function(cm) { CodeMirror.xmlHint(cm, ' '); },
                 "'<'": function(cm) { CodeMirror.xmlHint(cm, '<'); },
                 "Ctrl-Space": function(cm) { CodeMirror.xmlHint(cm, ''); }
-            }
+            },
+            autoCloseTags: true
         });
     </script>
   </body>
