@@ -61,8 +61,9 @@
         throw CodeMirror.Pass;
 
       var doIndent = indentTags && indexOf(indentTags, lowerTagName) > -1;
+      var curPos = doIndent ? {line: pos.line + 1, ch: 0} : {line: pos.line, ch: pos.ch + 1};
       cm.replaceSelection(">" + (doIndent ? "\n\n" : "") + "</" + tagName + ">",
-                          doIndent ? {line: pos.line + 1, ch: 0} : {line: pos.line, ch: pos.ch + 1});
+                          {head: curPos, anchor: curPos});
       if (doIndent) {
         cm.indentLine(pos.line + 1);
         cm.indentLine(pos.line + 2);
