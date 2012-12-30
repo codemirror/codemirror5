@@ -36,7 +36,7 @@
 window.onload = function() {
   var te = document.getElementById("code");
   var sc = document.getElementById("script");
-  te.value = (sc.textContent || sc.innerText || sc.innerHTML).replace(/^\s*/, "");
+  te.value = "window.onload = function(){ $\\displaystyle \\lim_{x\\to0}\\frac{\\int_0^{\\sin x}e^tdt}{x}\\lim_{x\\to0}\\frac{\\int_0^{\\sin x}e^tdt}{x}$\n" + (sc.textContent || sc.innerText || sc.innerHTML).replace(/^\s*/, "");
   sc.innerHTML = "";
   var te_html = document.getElementById("code-html");
   te_html.value = "<html>\n  " + document.documentElement.innerHTML + "\n</html>";
