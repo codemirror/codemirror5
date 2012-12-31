@@ -1129,17 +1129,21 @@
             cm.setSelection(curStart, curEnd);
           }
         } else {
+          curStart = cm.getCursor('anchor');
+          curEnd = cm.getCursor('head');
           if (!vim.visualLine && actionArgs.linewise) {
             // Shift-V pressed in characterwise visual mode. Switch to linewise
             // visual mode instead of exiting visual mode.
             vim.visualLine = true;
-            curStart = cm.getCursor('anchor');
-            curEnd = cm.getCursor('head');
             curStart.ch = cursorIsBefore(curStart, curEnd) ? 0 :
                 lineLength(cm, curStart.line);
             curEnd.ch = cursorIsBefore(curStart, curEnd) ?
                 lineLength(cm, curEnd.line) : 0;
             cm.setSelection(curStart, curEnd);
+          } else if (vim.visualLine && !actionArgs.linewise) {
+            // v pressed in linewise visual mode. Switch to characterwise visual
+            // mode instead of exiting visual mode.
+            vim.visualLine = false;
           } else {
             exitVisualMode(cm, vim);
           }
@@ -2049,10 +2053,10 @@
       { name: 'redo', shortName: 'red', type: 'builtIn' },
       { name: 'substitute', shortName: 's', type: 'builtIn'}
     ];
-    var ExCommandDispatcher = function() {
+    Vim.ExCommandDispatcher = function() {
       this.buildCommandMap_();
     };
-    ExCommandDispatcher.prototype = {
+    Vim.ExCommandDispatcher.prototype = {
       processCommand: function(cm, input) {
         var inputStream = new CodeMirror.StringStream(input);
         var params = {};
@@ -2101,7 +2105,7 @@
           result.lineEnd = cm.lineCount() - 1;
         } else {
           result.line = this.parseLineSpec_(cm, inputStream);
-          if (result.line && inputStream.eat(',')) {
+          if (result.line !== undefined && inputStream.eat(',')) {
             result.lineEnd = this.parseLineSpec_(cm, inputStream);
           }
         }
@@ -2176,7 +2180,7 @@
         }
       },
       map: function(lhs, rhs) {
-        if (lhs.charAt(0) == ':') {
+        if (lhs != ':' && lhs.charAt(0) == ':') {
           var commandName = lhs.substring(1);
           if (rhs != ':' && rhs.charAt(0) == ':') {
             // Ex to Ex mapping
@@ -2329,7 +2333,7 @@
       }
     };
 
-    var exCommandDispatcher = new ExCommandDispatcher();
+    var exCommandDispatcher = new Vim.ExCommandDispatcher();
 
     // Register Vim with CodeMirror
     function buildVimKeyMap() {
