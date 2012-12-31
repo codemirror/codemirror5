@@ -113,6 +113,12 @@ function testVim(name, run, opts, expectedFail) {
         }
       }
     }
+    function doExFn(cm) {
+      return function(command) {
+        cm.openDialog = helpers.fakeOpenDialog(command);
+        helpers.doKeys(':');
+      }
+    }
     function assertCursorAtFn(cm) {
       return function(line, ch) {
         var pos;
@@ -131,6 +137,7 @@ function testVim(name, run, opts, expectedFail) {
     }
     var helpers = {
       doKeys: doKeysFn(cm),
+      doEx: doExFn(cm),
       assertCursorAt: assertCursorAtFn(cm),
       fakeOpenDialog: fakeOpenDialog,
       getRegisterController: function() {
@@ -279,7 +286,7 @@ testVim('dl_eol', function(cm, vim, helpers) {
   var register = helpers.getRegisterController().getRegister();
   eq(' ', register.text);
   is(!register.linewise);
-  helpers.assertCursorAt(makeCursor(0, 6));
+  helpers.assertCursorAt(0, 6);
 }, { value: ' word1 ' });
 testVim('dl_repeat', function(cm, vim, helpers) {
   var curStart = makeCursor(0, 0);
@@ -309,7 +316,7 @@ testVim('dj', function(cm, vim, helpers) {
   var register = helpers.getRegisterController().getRegister();
   eq(' word1\nword2\n', register.text);
   is(register.linewise);
-  eqPos(makeCursor(0, 1), cm.getCursor());
+  helpers.assertCursorAt(0, 1);
 }, { value: ' word1\nword2\n word3' });
 testVim('dj_end_of_document', function(cm, vim, helpers) {
   var curStart = makeCursor(0, 3);
@@ -329,7 +336,7 @@ testVim('dk', function(cm, vim, helpers) {
   var register = helpers.getRegisterController().getRegister();
   eq(' word1\nword2\n', register.text);
   is(register.linewise);
-  eqPos(makeCursor(0, 1), cm.getCursor());
+  helpers.assertCursorAt(0, 1);
 }, { value: ' word1\nword2\n word3' });
 testVim('dk_start_of_document', function(cm, vim, helpers) {
   var curStart = makeCursor(0, 3);
@@ -417,7 +424,7 @@ testVim('d_reverse', function(cm, vim, helpers) {
   var register = helpers.getRegisterController().getRegister();
   eq('word1\n', register.text);
   is(!register.linewise);
-  eqPos(makeCursor(0, 1), cm.getCursor());
+  helpers.assertCursorAt(0, 1);
 }, { value: ' word1\nword2 ' });
 testVim('dd', function(cm, vim, helpers) {
   cm.setCursor(0, 3);
@@ -429,7 +436,7 @@ testVim('dd', function(cm, vim, helpers) {
   var register = helpers.getRegisterController().getRegister();
   eq(expectedBuffer, register.text);
   is(register.linewise);
-  eqPos(makeCursor(0, lines[1].textStart), cm.getCursor());
+  helpers.assertCursorAt(0, lines[1].textStart);
 });
 testVim('dd_prefix_repeat', function(cm, vim, helpers) {
   cm.setCursor(0, 3);
@@ -441,7 +448,7 @@ testVim('dd_prefix_repeat', function(cm, vim, helpers) {
   var register = helpers.getRegisterController().getRegister();
   eq(expectedBuffer, register.text);
   is(register.linewise);
-  eqPos(makeCursor(0, lines[2].textStart), cm.getCursor());
+  helpers.assertCursorAt(0, lines[2].textStart);
 });
 testVim('dd_motion_repeat', function(cm, vim, helpers) {
   cm.setCursor(0, 3);
@@ -453,7 +460,7 @@ testVim('dd_motion_repeat', function(cm, vim, helpers) {
   var register = helpers.getRegisterController().getRegister();
   eq(expectedBuffer, register.text);
   is(register.linewise);
-  eqPos(makeCursor(0, lines[2].textStart), cm.getCursor());
+  helpers.assertCursorAt(0, lines[2].textStart);
 });
 testVim('dd_multiply_repeat', function(cm, vim, helpers) {
   cm.setCursor(0, 3);
@@ -465,7 +472,7 @@ testVim('dd_multiply_repeat', function(cm, vim, helpers) {
   var register = helpers.getRegisterController().getRegister();
   eq(expectedBuffer, register.text);
   is(register.linewise);
-  eqPos(makeCursor(0, lines[6].textStart), cm.getCursor());
+  helpers.assertCursorAt(0, lines[6].textStart);
 });
 // Yank commands should behave the exact same as d commands, expect that nothing
 // gets deleted.
@@ -520,7 +527,7 @@ testVim('cc_multiply_repeat', function(cm, vim, helpers) {
   var register = helpers.getRegisterController().getRegister();
   eq(expectedBuffer, register.text);
   is(register.linewise);
-  eqPos(makeCursor(0, lines[0].textStart), cm.getCursor());
+  helpers.assertCursorAt(0, lines[0].textStart);
   eq('vim-insert', cm.getOption('keyMap'));
 });
 // Swapcase commands edit in place and do not modify registers.
@@ -557,7 +564,7 @@ testVim('>{motion}', function(cm, vim, helpers) {
   var register = helpers.getRegisterController().getRegister();
   eq('', register.text);
   is(!register.linewise);
-  eqPos(makeCursor(0, 3), cm.getCursor());
+  helpers.assertCursorAt(0, 3);
 }, { value: ' word1\nword2\nword3 ', indentUnit: 2 });
 testVim('>>', function(cm, vim, helpers) {
   cm.setCursor(0, 3);
@@ -568,7 +575,7 @@ testVim('>>', function(cm, vim, helpers) {
   var register = helpers.getRegisterController().getRegister();
   eq('', register.text);
   is(!register.linewise);
-  eqPos(makeCursor(0, 3), cm.getCursor());
+  helpers.assertCursorAt(0, 3);
 }, { value: ' word1\nword2\nword3 ', indentUnit: 2 });
 testVim('<{motion}', function(cm, vim, helpers) {
   cm.setCursor(1, 3);
@@ -579,7 +586,7 @@ testVim('<{motion}', function(cm, vim, helpers) {
   var register = helpers.getRegisterController().getRegister();
   eq('', register.text);
   is(!register.linewise);
-  eqPos(makeCursor(0, 1), cm.getCursor());
+  helpers.assertCursorAt(0, 1);
 }, { value: '   word1\n  word2\nword3 ', indentUnit: 2 });
 testVim('<<', function(cm, vim, helpers) {
   cm.setCursor(0, 3);
@@ -590,7 +597,7 @@ testVim('<<', function(cm, vim, helpers) {
   var register = helpers.getRegisterController().getRegister();
   eq('', register.text);
   is(!register.linewise);
-  eqPos(makeCursor(0, 1), cm.getCursor());
+  helpers.assertCursorAt(0, 1);
 }, { value: '   word1\n  word2\nword3 ', indentUnit: 2 });
 
 // Operator-motion tests
@@ -602,7 +609,7 @@ testVim('D', function(cm, vim, helpers) {
   var register = helpers.getRegisterController().getRegister();
   eq('rd1', register.text);
   is(!register.linewise);
-  eqPos(makeCursor(0, 3), cm.getCursor());
+  helpers.assertCursorAt(0, 3);
 }, { value: ' word1\nword2\n word3' });
 testVim('C', function(cm, vim, helpers) {
   var curStart = makeCursor(0, 3);
@@ -612,7 +619,7 @@ testVim('C', function(cm, vim, helpers) {
   var register = helpers.getRegisterController().getRegister();
   eq('rd1', register.text);
   is(!register.linewise);
-  eqPos(makeCursor(0, 3), cm.getCursor());
+  helpers.assertCursorAt(0, 3);
   eq('vim-insert', cm.getOption('keyMap'));
 }, { value: ' word1\nword2\n word3' });
 testVim('Y', function(cm, vim, helpers) {
@@ -623,52 +630,52 @@ testVim('Y', function(cm, vim, helpers) {
   var register = helpers.getRegisterController().getRegister();
   eq('rd1', register.text);
   is(!register.linewise);
-  eqPos(makeCursor(0, 3), cm.getCursor());
+  helpers.assertCursorAt(0, 3);
 }, { value: ' word1\nword2\n word3' });
 
 // Action tests
 testVim('a', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.doKeys('a');
-  eqPos(makeCursor(0, 2), cm.getCursor());
+  helpers.assertCursorAt(0, 2);
   eq('vim-insert', cm.getOption('keyMap'));
 });
 testVim('a_eol', function(cm, vim, helpers) {
   cm.setCursor(0, lines[0].length - 1);
   helpers.doKeys('a');
-  helpers.assertCursorAt(makeCursor(0, lines[0].length));
+  helpers.assertCursorAt(0, lines[0].length);
   eq('vim-insert', cm.getOption('keyMap'));
 });
 testVim('i', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.doKeys('i');
-  eqPos(makeCursor(0, 1), cm.getCursor());
+  helpers.assertCursorAt(0, 1);
   eq('vim-insert', cm.getOption('keyMap'));
 });
 testVim('A', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('A');
-  eqPos(makeCursor(0, lines[0].length), cm.getCursor());
+  helpers.assertCursorAt(0, lines[0].length);
   eq('vim-insert', cm.getOption('keyMap'));
 });
 testVim('I', function(cm, vim, helpers) {
   cm.setCursor(0, 4);
   helpers.doKeys('I');
-  eqPos(makeCursor(0, lines[0].textStart), cm.getCursor());
+  helpers.assertCursorAt(0, lines[0].textStart);
   eq('vim-insert', cm.getOption('keyMap'));
 });
 testVim('o', function(cm, vim, helpers) {
   cm.setCursor(0, 4);
   helpers.doKeys('o');
   eq('word1\n\nword2', cm.getValue());
-  eqPos(makeCursor(1, 0), cm.getCursor());
+  helpers.assertCursorAt(1, 0);
   eq('vim-insert', cm.getOption('keyMap'));
 }, { value: 'word1\nword2' });
 testVim('O', function(cm, vim, helpers) {
   cm.setCursor(0, 4);
   helpers.doKeys('O');
   eq('\nword1\nword2', cm.getValue());
-  eqPos(makeCursor(0, 0), cm.getCursor());
+  helpers.assertCursorAt(0, 0);
   eq('vim-insert', cm.getOption('keyMap'));
 }, { value: 'word1\nword2' });
 testVim('J', function(cm, vim, helpers) {
@@ -676,93 +683,127 @@ testVim('J', function(cm, vim, helpers) {
   helpers.doKeys('J');
   var expectedValue = 'word1  word2\nword3\n word4';
   eq(expectedValue, cm.getValue());
-  eqPos(makeCursor(0, expectedValue.indexOf('word2') - 1), cm.getCursor());
+  helpers.assertCursorAt(0, expectedValue.indexOf('word2') - 1);
 }, { value: 'word1 \n    word2\nword3\n word4' });
 testVim('J_repeat', function(cm, vim, helpers) {
   cm.setCursor(0, 4);
   helpers.doKeys('3', 'J');
   var expectedValue = 'word1  word2 word3\n word4';
   eq(expectedValue, cm.getValue());
-  eqPos(makeCursor(0, expectedValue.indexOf('word3') - 1), cm.getCursor());
+  helpers.assertCursorAt(0, expectedValue.indexOf('word3') - 1);
 }, { value: 'word1 \n    word2\nword3\n word4' });
 testVim('p', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.getRegisterController().pushText('"', 'yank', 'abc\ndef', false);
   helpers.doKeys('p');
   eq('__abc\ndef_', cm.getValue());
-  eqPos(makeCursor(1, 2), cm.getCursor());
+  helpers.assertCursorAt(1, 2);
 }, { value: '___' });
 testVim('p_register', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.getRegisterController().getRegister('a').set('abc\ndef', false);
   helpers.doKeys('"', 'a', 'p');
   eq('__abc\ndef_', cm.getValue());
-  eqPos(makeCursor(1, 2), cm.getCursor());
+  helpers.assertCursorAt(1, 2);
 }, { value: '___' });
 testVim('p_wrong_register', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.getRegisterController().getRegister('a').set('abc\ndef', false);
   helpers.doKeys('p');
   eq('___', cm.getValue());
-  eqPos(makeCursor(0, 1), cm.getCursor());
+  helpers.assertCursorAt(0, 1);
 }, { value: '___' });
 testVim('p_line', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.getRegisterController().pushText('"', 'yank', '  a\nd\n', true);
   helpers.doKeys('2', 'p');
   eq('___\n  a\nd\n  a\nd', cm.getValue());
-  eqPos(makeCursor(1, 2), cm.getCursor());
+  helpers.assertCursorAt(1, 2);
 }, { value: '___' });
 testVim('P', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.getRegisterController().pushText('"', 'yank', 'abc\ndef', false);
   helpers.doKeys('P');
   eq('_abc\ndef__', cm.getValue());
-  eqPos(makeCursor(1, 3), cm.getCursor());
+  helpers.assertCursorAt(1, 3);
 }, { value: '___' });
 testVim('P_line', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.getRegisterController().pushText('"', 'yank', '  a\nd\n', true);
   helpers.doKeys('2', 'P');
   eq('  a\nd\n  a\nd\n___', cm.getValue());
-  eqPos(makeCursor(0, 2), cm.getCursor());
+  helpers.assertCursorAt(0, 2);
 }, { value: '___' });
 testVim('r', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.doKeys('3', 'r', 'u');
   eq('wuuuet', cm.getValue());
-  eqPos(makeCursor(0, 3), cm.getCursor());
+  helpers.assertCursorAt(0, 3);
 }, { value: 'wordet' });
+testVim('mark', function(cm, vim, helpers) {
+  cm.setCursor(2, 2);
+  helpers.doKeys('m', 't');
+  cm.setCursor(0, 0);
+  helpers.doKeys('\'', 't');
+  helpers.assertCursorAt(2, 2);
+  cm.setCursor(0, 0);
+  helpers.doKeys('`', 't');
+  helpers.assertCursorAt(2, 2);
+});
+testVim('visual', function(cm, vim, helpers) {
+  helpers.doKeys('l', 'v', 'l', 'l');
+  helpers.assertCursorAt(0, 3);
+  eqPos(makeCursor(0, 1), cm.getCursor('anchor'));
+  helpers.doKeys('d');
+  eq('15', cm.getValue());
+}, { value: '12345' });
+testVim('visual_line', function(cm, vim, helpers) {
+  helpers.doKeys('l', 'V', 'l', 'j', 'j', 'd');
+  eq(' 4\n 5', cm.getValue());
+}, { value: ' 1\n 2\n 3\n 4\n 5' });
+testVim('visual_marks', function(cm, vim, helpers) {
+  helpers.doKeys('l', 'v', 'l', 'l', 'v');
+  // Test visual mode marks
+  cm.setCursor(0, 0);
+  helpers.doKeys('\'', '<');
+  helpers.assertCursorAt(0, 1);
+  helpers.doKeys('\'', '>');
+  helpers.assertCursorAt(0, 3);
+});
+testVim('visual_join', function(cm, vim, helpers) {
+  helpers.doKeys('l', 'V', 'l', 'j', 'j', 'J');
+  eq(' 1 2 3\n 4\n 5', cm.getValue());
+}, { value: ' 1\n 2\n 3\n 4\n 5' });
 testVim('/ and n/N', function(cm, vim, helpers) {
   cm.openDialog = helpers.fakeOpenDialog('match');
   helpers.doKeys('/');
-  helpers.assertCursorAt(makeCursor(0, 11));
+  helpers.assertCursorAt(0, 11);
   helpers.doKeys('n');
-  helpers.assertCursorAt(makeCursor(1, 6));
+  helpers.assertCursorAt(1, 6);
   helpers.doKeys('N');
-  helpers.assertCursorAt(makeCursor(0, 11));
+  helpers.assertCursorAt(0, 11);
 
   cm.setCursor(0, 0);
   helpers.doKeys('2', '/');
-  helpers.assertCursorAt(makeCursor(1, 6));
+  helpers.assertCursorAt(1, 6);
 }, { value: 'match nope match \n nope Match' });
 testVim('/_case', function(cm, vim, helpers) {
   cm.openDialog = helpers.fakeOpenDialog('Match');
   helpers.doKeys('/');
-  helpers.assertCursorAt(makeCursor(1, 6));
+  helpers.assertCursorAt(1, 6);
 }, { value: 'match nope match \n nope Match' });
 testVim('? and n/N', function(cm, vim, helpers) {
   cm.openDialog = helpers.fakeOpenDialog('match');
   helpers.doKeys('?');
-  helpers.assertCursorAt(makeCursor(1, 6));
+  helpers.assertCursorAt(1, 6);
   helpers.doKeys('n');
-  helpers.assertCursorAt(makeCursor(0, 11));
+  helpers.assertCursorAt(0, 11);
   helpers.doKeys('N');
-  helpers.assertCursorAt(makeCursor(1, 6));
+  helpers.assertCursorAt(1, 6);
 
   cm.setCursor(0, 0);
   helpers.doKeys('2', '?');
-  helpers.assertCursorAt(makeCursor(0, 11));
+  helpers.assertCursorAt(0, 11);
 }, { value: 'match nope match \n nope Match' });
 testVim(',/ clearSearchHighlight', function(cm, vim, helpers) {
   cm.openDialog = helpers.fakeOpenDialog('match');
@@ -773,11 +814,11 @@ testVim(',/ clearSearchHighlight', function(cm, vim, helpers) {
 testVim('*', function(cm, vim, helpers) {
   cm.setCursor(0, 9);
   helpers.doKeys('*');
-  helpers.assertCursorAt(makeCursor(0, 22));
+  helpers.assertCursorAt(0, 22);
 
   cm.setCursor(0, 9);
   helpers.doKeys('2', '*');
-  helpers.assertCursorAt(makeCursor(1, 8));
+  helpers.assertCursorAt(1, 8);
 }, { value: 'nomatch match nomatch match \nnomatch Match' });
 testVim('*_no_word', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
@@ -792,21 +833,124 @@ testVim('*_symbol', function(cm, vim, helpers) {
 testVim('#', function(cm, vim, helpers) {
   cm.setCursor(0, 9);
   helpers.doKeys('#');
-  helpers.assertCursorAt(makeCursor(1, 8));
+  helpers.assertCursorAt(1, 8);
 
   cm.setCursor(0, 9);
   helpers.doKeys('2', '#');
-  helpers.assertCursorAt(makeCursor(0, 22));
+  helpers.assertCursorAt(0, 22);
 }, { value: 'nomatch match nomatch match \nnomatch Match' });
 testVim('*_seek', function(cm, vim, helpers) {
   // Should skip over space and symbols.
   cm.setCursor(0, 3);
   helpers.doKeys('*');
-  helpers.assertCursorAt(makeCursor(0, 22));
+  helpers.assertCursorAt(0, 22);
 }, { value: '    :=  match nomatch match \nnomatch Match' });
 testVim('#', function(cm, vim, helpers) {
   // Should skip over space and symbols.
   cm.setCursor(0, 3);
   helpers.doKeys('#');
-  helpers.assertCursorAt(makeCursor(1, 8));
+  helpers.assertCursorAt(1, 8);
 }, { value: '    :=  match nomatch match \nnomatch Match' });
+testVim('ex_write', function(cm, vim, helpers) {
+  var tmp = CodeMirror.commands.save;
+  var written;
+  var actualCm;
+  CodeMirror.commands.save = function(cm) {
+    written = true;
+    actualCm = cm;
+  };
+  // Test that w, wr, wri ... write all trigger :write.
+  var command = 'write';
+  for (var i = 1; i < command.length; i++) {
+    written = false;
+    actualCm = null;
+    helpers.doEx(command.substring(0, i));
+    eq(written, true);
+    eq(actualCm, cm);
+  }
+  CodeMirror.commands.save = tmp;
+});
+testVim('ex_substitute_same_line', function(cm, vim, helpers) {
+  cm.setCursor(1, 0);
+  helpers.doEx('s/one/two');
+  eq('one one\n two two', cm.getValue());
+}, { value: 'one one\n one one'});
+testVim('ex_substitute_global', function(cm, vim, helpers) {
+  cm.setCursor(1, 0);
+  helpers.doEx('%s/one/two');
+  eq('two two\n two two', cm.getValue());
+}, { value: 'one one\n one one'});
+testVim('ex_substitute_input_range', function(cm, vim, helpers) {
+  cm.setCursor(1, 0);
+  helpers.doEx('1,3s/\\d/0');
+  eq('0\n0\n0\n4', cm.getValue());
+}, { value: '1\n2\n3\n4' });
+testVim('ex_substitute_visual_range', function(cm, vim, helpers) {
+  cm.setCursor(1, 0);
+  // Set last visual mode selection marks '< and '> at lines 2 and 4
+  helpers.doKeys('V', '2', 'j', 'v');
+  helpers.doEx('\'<,\'>s/\\d/0');
+  eq('1\n0\n0\n0\n5', cm.getValue());
+}, { value: '1\n2\n3\n4\n5' });
+testVim('ex_substitute_capture', function(cm, vim, helpers) {
+  cm.setCursor(1, 0);
+  helpers.doEx('s/(\\d+)/$1$1/')
+  eq('a1111 a1212 a1313', cm.getValue());
+}, { value: 'a11 a12 a13' });
+// TODO: Reset key maps after each test.
+testVim('ex_map_key2key', function(cm, vim, helpers) {
+  helpers.doEx('map a x');
+  helpers.doKeys('a');
+  helpers.assertCursorAt(0, 0);
+  eq('bc', cm.getValue());
+}, { value: 'abc' });
+testVim('ex_map_key2key_to_colon', function(cm, vim, helpers) {
+  helpers.doEx('map ; :');
+  var dialogOpened = false;
+  cm.openDialog = function() {
+    dialogOpened = true;
+  }
+  helpers.doKeys(';');
+  eq(dialogOpened, true);
+});
+testVim('ex_map_ex2key:', function(cm, vim, helpers) {
+  helpers.doEx('map :del x');
+  helpers.doEx('del');
+  helpers.assertCursorAt(0, 0);
+  eq('bc', cm.getValue());
+}, { value: 'abc' });
+testVim('ex_map_ex2ex', function(cm, vim, helpers) {
+  helpers.doEx('map :del :w');
+  var tmp = CodeMirror.commands.save;
+  var written = false;
+  var actualCm;
+  CodeMirror.commands.save = function(cm) {
+    written = true;
+    actualCm = cm;
+  };
+  helpers.doEx('del');
+  CodeMirror.commands.save = tmp;
+  eq(written, true);
+  eq(actualCm, cm);
+});
+testVim('ex_map_key2ex', function(cm, vim, helpers) {
+  helpers.doEx('map a :w');
+  var tmp = CodeMirror.commands.save;
+  var written = false;
+  var actualCm;
+  CodeMirror.commands.save = function(cm) {
+    written = true;
+    actualCm = cm;
+  };
+  helpers.doKeys('a');
+  CodeMirror.commands.save = tmp;
+  eq(written, true);
+  eq(actualCm, cm);
+});
+// For now, this test needs to be last because it messes up : for future tests.
+testVim('ex_map_key2key_from_colon', function(cm, vim, helpers) {
+  helpers.doEx('map : x');
+  helpers.doKeys(':');
+  helpers.assertCursorAt(0, 0);
+  eq('bc', cm.getValue());
+}, { value: 'abc' });
