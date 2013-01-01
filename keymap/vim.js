@@ -1826,6 +1826,12 @@
       setMarked: function(marked) {
         this.marked = marked;
       },
+      getOverlay: function() {
+        return this.searchOverlay;
+      },
+      setOverlay: function(overlay) {
+        this.searchOverlay = overlay;
+      },
       isReversed: function() {
         return getVimGlobalState().isReversed;
       },
@@ -1957,17 +1963,53 @@
         state.setQuery(query);
       });
     }
+    function searchOverlay(query) {
+      return {
+        token: function(stream) {
+          var match = stream.match(query, false);
+          if (match) {
+            if (!stream.sol()) {
+              // Backtrack 1 to match \b
+              stream.backUp(1);
+              if (!query.exec(stream.next() + match[0])) {
+                stream.next();
+                return null;
+              }
+            }
+            stream.match(query);
+            return "searching";
+          }
+          while (!stream.eol()) {
+            stream.next();
+            if (stream.match(query, false)) break;
+          }
+        },
+        query: query
+      };
+    }
     function highlightSearchMatches(cm, query) {
-      // TODO: Highlight only text inside the viewport. Highlighting everything
-      // is inefficient and expensive.
-      if (cm.lineCount() < 2000) { // This is too expensive on big documents.
-        var marked = [];
-        for (var cursor = cm.getSearchCursor(query);
-            cursor.findNext();) {
-          marked.push(cm.markText(cursor.from(), cursor.to(),
-              { className: 'cm-searching' }));
+      if (cm.addOverlay) {
+        var overlay = getSearchState(cm).getOverlay();
+        if (!overlay || query != overlay.query) {
+          if (overlay) {
+            cm.removeOverlay(overlay);
+          }
+          overlay = searchOverlay(query);
+          cm.addOverlay(overlay);
+          getSearchState(cm).setOverlay(overlay);
         }
-        getSearchState(cm).setMarked(marked);
+      } else {
+        // TODO: Highlight only text inside the viewport. Highlighting everything
+        // is inefficient and expensive.
+        if (cm.lineCount() < 2000) { // This is too expensive on big documents.
+          var marked = [];
+          for (var cursor = cm.getSearchCursor(query);
+              cursor.findNext();) {
+            marked.push(cm.markText(cursor.from(), cursor.to(),
+                { className: 'cm-searching' }));
+          }
+          getSearchState(cm).setMarked(marked);
+        }
       }
     }
     function findNext(cm, prev, repeat) {
@@ -2001,20 +2043,26 @@
         return cursor.from();
       });}
     function clearSearchHighlight(cm) {
-      cm.operation(function() {
-        var state = getSearchState(cm);
-        if (!state.getQuery()) {
-          return;
-        }
-        var marked = state.getMarked();
-        if (!marked) {
-          return;
-        }
-        for (var i = 0; i < marked.length; ++i) {
-          marked[i].clear();
-        }
-        state.setMarked(null);
-      });}
+      if (cm.addOverlay) {
+        cm.removeOverlay(getSearchState(cm).getOverlay());
+        getSearchState(cm).setOverlay(null);
+      } else {
+        cm.operation(function() {
+          var state = getSearchState(cm);
+          if (!state.getQuery()) {
+            return;
+          }
+          var marked = state.getMarked();
+          if (!marked) {
+            return;
+          }
+          for (var i = 0; i < marked.length; ++i) {
+            marked[i].clear();
+          }
+          state.setMarked(null);
+        });
+      }
+    }
     /**
      * Check if pos is in the specified range, INCLUSIVE.
      * Range can be specified with 1 or 2 arguments.
