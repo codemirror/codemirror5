@@ -196,6 +196,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
 .CodeMirror-linewidget {
   position: relative;
   z-index: 2;
+  overflow: auto;
 }
 
 .CodeMirror-wrap .CodeMirror-scroll {
