@@ -358,3 +358,5 @@ CodeMirror.defineMode("sass", function(config) {
     }
   };
 });
+
+CodeMirror.defineMIME("text/x-sass", "sass");
