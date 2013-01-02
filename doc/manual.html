@@ -852,12 +852,20 @@
         <dt id="mark_endStyle"><code>endStyle</code></dt><dd>Equivalent
         to <code>startStyle</code>, but for the rightmost span.</dd>
       </dl>
-      The method will return an object with two methods,
-      <code>clear()</code>, which removes the mark,
-      and <code>find()</code>, which returns a <code>{from, to}</code>
-      (both document positions), indicating the current position of
-      the marked range, or <code>undefined</code> if the marker is no
-      longer in the document.</dd>
+      The method will return an object that represents the marker
+      (with constuctor <code>CodeMirror.TextMarker</code>), which
+      exposes three methods:
+      <code>clear()</code>, to remove the mark,
+      <code>find()</code>, which returns a <code>{from, to}</code>
+      object (both holding document positions), indicating the current
+      position of the marked range, or <code>undefined</code> if the
+      marker is no longer in the document, and
+      finally <code>getOptions(copyWidget)</code>, which returns an
+      object representing the options for the marker.
+      If <code>copyWidget</code> is given an true, it will clone the
+      value of
+      the <a href="#mark_replacedWith"><code>replacedWith</code></a>
+      option, if any.</dd>
 
       <dt id="setBookmark"><code>setBookmark(pos, widget) → object</code></dt>
       <dd>Inserts a bookmark, a handle that follows the text around it
