@@ -897,6 +897,24 @@ testVim('ex_substitute_capture', function(cm, vim, helpers) {
   helpers.doEx('s/(\\d+)/$1$1/')
   eq('a1111 a1212 a1313', cm.getValue());
 }, { value: 'a11 a12 a13' });
+testVim('ex_substitute_empty_query', function(cm, vim, helpers) {
+  // If the query is empty, use last query.
+  cm.setCursor(1, 0);
+  cm.openDialog = helpers.fakeOpenDialog('1');
+  helpers.doKeys('/');
+  helpers.doEx('s//b');
+  eq('abb ab2 ab3', cm.getValue());
+}, { value: 'a11 a12 a13' });
+testVim('ex_substitute_count', function(cm, vim, helpers) {
+  cm.setCursor(1, 0);
+  helpers.doEx('s/\\d/0/i 2');
+  eq('1\n0\n0\n4', cm.getValue());
+}, { value: '1\n2\n3\n4' });
+testVim('ex_substitute_count_with_range', function(cm, vim, helpers) {
+  cm.setCursor(1, 0);
+  helpers.doEx('1,3s/\\d/0/ 3');
+  eq('1\n2\n0\n0', cm.getValue());
+}, { value: '1\n2\n3\n4' });
 // TODO: Reset key maps after each test.
 testVim('ex_map_key2key', function(cm, vim, helpers) {
   helpers.doEx('map a x');

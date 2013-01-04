@@ -2331,27 +2331,39 @@
         var regexPart = argString.substring(slashes[0] + 1, slashes[1]);
         var replacePart = '';
         var flagsPart;
+        var count;
         if (slashes[1]) {
           replacePart = argString.substring(slashes[1] + 1, slashes[2]);
         }
         if (slashes[2]) {
-          flagsPart = argString.substring(slashes[2] + 1);
+          // After the 3rd slash, we can have flags followed by a space followed
+          // by count.
+          var trailing = argString.substring(slashes[2] + 1).split(' ');
+          flagsPart = trailing[0];
+          count = parseInt(trailing[1]);
         }
         if (flagsPart) {
           regexPart = regexPart + '/' + flagsPart;
         }
-        updateSearchQuery(cm, regexPart, true /** ignoreCase */,
+        if (regexPart) {
+          // If regex part is empty, then use the previous query. Otherwise use
+          // the regex part as the new query.
+          updateSearchQuery(cm, regexPart, true /** ignoreCase */,
             true /** smartCase */);
+        }
         var state = getSearchState(cm);
         var query = state.getQuery();
-        var startPos = clipCursorToContent(cm, { line: params.line || 0,
-            ch: 0 });
+        var lineStart = params.line || 0;
+        var lineEnd = params.lineEnd || lineStart;
+        if (count) {
+          lineStart = lineEnd;
+          lineEnd = lineStart + count - 1;
+        }
+        var startPos = clipCursorToContent(cm, { line: lineStart, ch: 0 });
         function doReplace() {
           for (var cursor = cm.getSearchCursor(query, startPos);
-               cursor.findNext();) {
-            if (!isInRange(cursor.from(), params.line, params.lineEnd)) {
-              break;
-            }
+               cursor.findNext() &&
+                   isInRange(cursor.from(), lineStart, lineEnd);) {
             var text = cm.getRange(cursor.from(), cursor.to());
             var newText = text.replace(query, replacePart);
             cursor.replace(newText);
