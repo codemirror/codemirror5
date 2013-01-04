@@ -266,6 +266,28 @@ testVim('Changing lines after Eol operation', function(cm, vim, helpers) {
   // same place we were at on line 1
   helpers.assertCursorAt({ line: 5, ch: lines[2].length - 2 });
 });
+testVim('}', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('}');
+  helpers.assertCursorAt(1, 0);
+  cm.setCursor(0, 0);
+  helpers.doKeys('2', '}');
+  helpers.assertCursorAt(4, 0);
+  cm.setCursor(0, 0);
+  helpers.doKeys('6', '}');
+  helpers.assertCursorAt(5, 0);
+}, { value: 'a\n\nb\nc\n\nd' });
+testVim('{', function(cm, vim, helpers) {
+  cm.setCursor(5, 0);
+  helpers.doKeys('{');
+  helpers.assertCursorAt(4, 0);
+  cm.setCursor(5, 0);
+  helpers.doKeys('2', '{');
+  helpers.assertCursorAt(1, 0);
+  cm.setCursor(5, 0);
+  helpers.doKeys('6', '{');
+  helpers.assertCursorAt(0, 0);
+}, { value: 'a\n\nb\nc\n\nd' });
 
 // Operator tests
 testVim('dl', function(cm, vim, helpers) {
