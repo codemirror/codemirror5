@@ -115,6 +115,10 @@
         motion: 'moveByWords',
         motionArgs: { forward: false, wordEnd: true, bigWord: true,
             inclusive: true }},
+    { keys: ['{'], type: 'motion', motion: 'moveByParagraph',
+        motionArgs: { forward: false }},
+    { keys: ['}'], type: 'motion', motion: 'moveByParagraph',
+        motionArgs: { forward: true }},
     { keys: ['Ctrl-f'], type: 'motion',
         motion: 'moveByPage', motionArgs: { forward: true }},
     { keys: ['Ctrl-b'], type: 'motion',
@@ -932,6 +936,22 @@
         var curEnd = cm.getCursor();
         cm.setCursor(curStart);
         return curEnd;
+      },
+      moveByParagraph: function(cm, motionArgs) {
+        var line = cm.getCursor().line;
+        var repeat = motionArgs.repeat;
+        var inc = motionArgs.forward ? 1 : -1;
+        for (var i = 0; i < repeat; i++) {
+          if ((!motionArgs.forward && line === 0) ||
+              (motionArgs.forward && line == cm.lineCount() - 1)) {
+            break;
+          }
+          line += inc;
+          while (line !== 0 && line != cm.lineCount - 1 && cm.getLine(line)) {
+            line += inc;
+          }
+        }
+        return { line: line, ch: 0 };
       },
       moveByWords: function(cm, motionArgs) {
         return moveToWord(cm, motionArgs.repeat, !!motionArgs.forward,
