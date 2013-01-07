@@ -906,7 +906,7 @@ testCM("rtlMovement", function(cm) {
       prevX = cursor.offsetLeft;
     }
   });
-});
+}, {rtlMoveVisually: true});
 
 // Verify that updating a line clears its bidi ordering
 testCM("bidiUpdate", function(cm) {
