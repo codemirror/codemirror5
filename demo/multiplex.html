@@ -5,7 +5,7 @@
     <title>CodeMirror: Multiplexing Parser Demo</title>
     <link rel="stylesheet" href="../lib/codemirror.css">
     <script src="../lib/codemirror.js"></script>
-    <script src="../lib/util/multiplex.js"></script>
+    <script src="../addon/mode/multiplex.js"></script>
     <script src="../mode/xml/xml.js"></script>
     <link rel="stylesheet" href="../doc/docs.css">
 
@@ -52,8 +52,8 @@ var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
     boundary strings, switches to one or more inner modes. The out
     (HTML) mode does not get fed the content of the <code>&lt;&lt;
     >></code> blocks. See
-    the <a href="../doc/manual.html#util_multiplex">manual</a> and
-    the <a href="../lib/util/multiplex.js">source</a> for more
+    the <a href="../doc/manual.html#addon_multiplex">manual</a> and
+    the <a href="../addon/mode/multiplex.js">source</a> for more
     information.</p>
 
   </body>

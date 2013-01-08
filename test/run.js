@@ -4,6 +4,7 @@ var lint = require("./lint/lint");
 
 lint.checkDir("mode");
 lint.checkDir("lib");
+lint.checkDir("addon");
 
 var ok = lint.success();
 
