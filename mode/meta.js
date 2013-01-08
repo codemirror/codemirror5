@@ -1,4 +1,5 @@
 CodeMirror.modeInfo = [
+  {name: 'Asterisk', mime: 'x-asterisk', mode: 'asterisk'},
   {name: 'C', mime: 'x-csrc', mode: 'clike'},
   {name: 'C++', mime: 'x-c++src', mode: 'clike'},
   {name: 'Java', mime: 'x-java', mode: 'clike'},
