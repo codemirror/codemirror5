@@ -8,8 +8,8 @@
     <style>dl dl {margin: 0;}</style>
     <script src="../lib/codemirror.js"></script>
     <link rel="stylesheet" href="../lib/codemirror.css">
-    <script src="../lib/util/runmode.js"></script>
-    <script src="../lib/util/colorize.js"></script>
+    <script src="../addon/runmode/runmode.js"></script>
+    <script src="../addon/runmode/colorize.js"></script>
     <script src="../mode/javascript/javascript.js"></script>
     <script src="../mode/xml/xml.js"></script>
     <script src="../mode/css/css.js"></script>
@@ -1103,19 +1103,19 @@
 
     <h2 id="addons">Add-ons</h2>
 
-    <p>The <code>lib/util</code> directory in the distribution
-    contains a number of reusable components that implement extra
-    editor functionality. In brief, they are:</p>
+    <p>The <code>addon</code> directory in the distribution contains a
+    number of reusable components that implement extra editor
+    functionality. In brief, they are:</p>
 
     <dl>
-      <dt id="util_dialog"><a href="../lib/util/dialog.js"><code>dialog.js</code></a></dt>
+      <dt id="addon_dialog"><a href="../addon/dialog/dialog.js"><code>dialog.js</code></a></dt>
       <dd>Provides a very simple way to query users for text input.
       Adds an <code>openDialog</code> method to CodeMirror instances,
       which can be called with an HTML fragment that provides the
       prompt (should include an <code>input</code> tag), and a
       callback function that is called when text has been entered.
-      Depends on <code>lib/util/dialog.css</code>.</dd>
-      <dt id="util_searchcursor"><a href="../lib/util/searchcursor.js"><code>searchcursor.js</code></a></dt>
+      Depends on <code>addon/dialog/dialog.css</code>.</dd>
+      <dt id="addon_searchcursor"><a href="../addon/search/searchcursor.js"><code>searchcursor.js</code></a></dt>
       <dd>Adds the <code>getSearchCursor(query, start, caseFold) →
       cursor</code> method to CodeMirror instances, which can be used
       to implement search/replace functionality. <code>query</code>
@@ -1144,14 +1144,14 @@
           replacement.</dd>
         </dl></dd>
 
-      <dt id="util_search"><a href="../lib/util/search.js"><code>search.js</code></a></dt>
+      <dt id="addon_search"><a href="../addon/search/search.js"><code>search.js</code></a></dt>
       <dd>Implements the search commands. CodeMirror has keys bound to
       these by default, but will not do anything with them unless an
       implementation is provided. Depends
       on <code>searchcursor.js</code>, and will make use
-      of <a href="#util_dialog"><code>openDialog</code></a> when
+      of <a href="#addon_dialog"><code>openDialog</code></a> when
       available to make prompting for search queries less ugly.</dd>
-      <dt id="util_matchbrackets"><a href="../lib/util/matchbrackets.js"><code>matchbrackets.js</code></a></dt>
+      <dt id="addon_matchbrackets"><a href="../addon/edit/matchbrackets.js"><code>matchbrackets.js</code></a></dt>
       <dd>Defines an option <code>matchBrackets</code> which, when set
       to true, causes matching brackets to be highlighted whenever the
       cursor is next to them. It also adds a
@@ -1159,7 +1159,7 @@
       once, and a method <code>findMatchingBracket</code> that can be
       used to run the bracket-finding algorithm that this uses
       internally.</dd>
-      <dt id="util_foldcode"><a href="../lib/util/foldcode.js"><code>foldcode.js</code></a></dt>
+      <dt id="addon_foldcode"><a href="../addon/fold/foldcode.js"><code>foldcode.js</code></a></dt>
       <dd>Helps with code folding.
       See <a href="../demo/folding.html">the demo</a> for an example.
       Call <code>CodeMirror.newFoldFunction</code> with a range-finder
@@ -1175,17 +1175,21 @@
       where indentation determines block structure (Python, Haskell),
       and <code>CodeMirror.tagRangeFinder</code>, for XML-style
       languages.</dd>
-      <dt id="util_collapserange"><a href="../lib/util/collapserange.js"><code>collapserange.js</code></a></dt>
+      <dt id="addon_collapserange"><a href="../addon/fold/collapserange.js"><code>collapserange.js</code></a></dt>
       <dd>Another approach to
       folding. <a href="../demo/collapserange.html">See demo</a>.
       Allows the user to select a range to fold by clicking in the
       gutter.</dd>
-      <dt id="util_runmode"><a href="../lib/util/runmode.js"><code>runmode.js</code></a></dt>
+      <dt id="addon_runmode"><a href="../addon/runmode/runmode.js"><code>runmode.js</code></a></dt>
       <dd>Can be used to run a CodeMirror mode over text without
       actually opening an editor instance.
-      See <a href="../demo/runmode.html">the demo</a> for an
-      example.</dd>
-      <dt id="util_overlay"><a href="../lib/util/overlay.js"><code>overlay.js</code></a></dt>
+      See <a href="../demo/runmode.html">the demo</a> for an example.
+      There alternate version of the file avaible for
+      running <a href="../addon/runmode/runmode-standalone.js">stand-alone</a>
+      (without including all of CodeMirror) and
+      for <a href="../addon/runmode/runmode.node.js">running under
+      node.js</a>.</dd>
+      <dt id="addon_overlay"><a href="../addon/mode/overlay.js"><code>overlay.js</code></a></dt>
       <dd>Mode combinator that can be used to extend a mode with an
       'overlay' — a secondary mode is run over the stream, along with
       the base mode, and can color specific pieces of text without
@@ -1193,7 +1197,7 @@
       Defines <code>CodeMirror.overlayMode</code>, which is used to
       create such a mode. See <a href="../demo/mustache.html">this
       demo</a> for a detailed example.</dd>
-      <dt id="util_multiplex"><a href="../lib/util/multiplex.js"><code>multiplex.js</code></a></dt>
+      <dt id="addon_multiplex"><a href="../addon/mode/multiplex.js"><code>multiplex.js</code></a></dt>
       <dd>Mode combinator that can be used to easily 'multiplex'
       between several modes.
       Defines <code>CodeMirror.multiplexingMode</code> which, when
@@ -1212,7 +1216,7 @@
       see the content between the delimiters.
       See <a href="../demo/multiplex.html">this demo</a> for an
       example.</dd>
-      <dt id="util_simple-hint"><a href="../lib/util/simple-hint.js"><code>simple-hint.js</code></a></dt>
+      <dt id="addon_simple-hint"><a href="../addon/hint/simple-hint.js"><code>simple-hint.js</code></a></dt>
       <dd>Provides a framework for showing autocompletion hints.
       Defines <code>CodeMirror.simpleHint</code>, which takes a
       CodeMirror instance and a hinting function, and pops up a widget
@@ -1222,36 +1226,36 @@
       is an array of strings (the completions), and <code>from</code>
       and <code>to</code> give the start and end of the token that is
       being completed. Depends
-      on <code>lib/util/simple-hint.css</code>.</dd>
-      <dt id="util_javascript-hint"><a href="../lib/util/javascript-hint.js"><code>javascript-hint.js</code></a></dt>
+      on <code>addon/hint/simple-hint.css</code>.</dd>
+      <dt id="addon_javascript-hint"><a href="../addon/hint/javascript-hint.js"><code>javascript-hint.js</code></a></dt>
       <dd>Defines <code>CodeMirror.javascriptHint</code>
       and <code>CodeMirror.coffeescriptHint</code>, which are simple
       hinting functions for the JavaScript and CoffeeScript
       modes.</dd>
-      <dt id="util_xml-hint"><a href="../lib/util/xml-hint.js"><code>xml-hint.js</code></a></dt>
+      <dt id="addon_xml-hint"><a href="../addon/hint/xml-hint.js"><code>xml-hint.js</code></a></dt>
       <dd>Defines <code>CodeMirror.xmlHint</code>, a hinting function
       for XML (which requires a schema to be defined).</dd>
-      <dt id="util_python-hint"><a href="../lib/util/python-hint.js"><code>python-hint.js</code></a></dt>
+      <dt id="addon_python-hint"><a href="../addon/hint/python-hint.js"><code>python-hint.js</code></a></dt>
       <dd>Defines <code>CodeMirror.pythonHint</code>, a hinter for Python code.</dd>
-      <dt id="util_match-highlighter"><a href="../lib/util/match-highlighter.js"><code>match-highlighter.js</code></a></dt>
+      <dt id="addon_match-highlighter"><a href="../addon/search/match-highlighter.js"><code>match-highlighter.js</code></a></dt>
       <dd>Adds a <code>matchHighlight</code> method to CodeMirror
       instances that can be called (typically from
       a <a href="#event_cursorActivity"><code>cursorActivity</code></a>
       handler) to highlight all instances of a currently selected word
       with the a classname given as a first argument to the method.
       Depends on
-      the <a href="#util_searchcursor"><code>searchcursor</code></a>
+      the <a href="#addon_searchcursor"><code>searchcursor</code></a>
       add-on. Demo <a href="../demo/matchhighlighter.html">here</a>.</dd>
-      <dt id="util_formatting"><a href="../lib/util/formatting.js"><code>formatting.js</code></a></dt>
+      <dt id="addon_formatting"><a href="../addon/format/formatting.js"><code>formatting.js</code></a></dt>
       <dd>Adds <code>commentRange</code>, <code>autoIndentRange</code>,
       and <code>autoFormatRange</code> methods that, respectively,
       comment (or uncomment), indent, or format (add line breaks) a
       range of code. <a href="../demo/formatting.html">Demo here.</a></dd>
-      <dt id="util_closetag"><a href="../lib/util/closetag.js"><code>closetag.js</code></a></dt>
+      <dt id="addon_closetag"><a href="../addon/edit/closetag.js"><code>closetag.js</code></a></dt>
       <dd>Provides utility functions for adding automatic tag closing
       to XML modes. See
       the <a href="../demo/closetag.html">demo</a>.</dd>
-      <dt id="util_loadmode"><a href="../lib/util/loadmode.js"><code>loadmode.js</code></a></dt>
+      <dt id="addon_loadmode"><a href="../addon/mode/loadmode.js"><code>loadmode.js</code></a></dt>
       <dd>Defines a <code>CodeMirror.requireMode(modename,
       callback)</code> function that will try to load a given mode and
       call the callback when it succeeded. You'll have to
@@ -1263,7 +1267,7 @@
       which will ensure the given mode is loaded and cause the given
       editor instance to refresh its mode when the loading
       succeeded. See the <a href="../demo/loadmode.html">demo</a>.</dd>
-      <dt id="util_continuecomment"><a href="../lib/util/continuecomment.js"><code>continuecomment.js</code></a></dt>
+      <dt id="addon_continuecomment"><a href="../addon/edit/continuecomment.js"><code>continuecomment.js</code></a></dt>
       <dd>Adds a <a href="#commands">command</a>
       called <code>newlineAndIndentContinueComment</code> that you can
       bind <code>Enter</code> to in order to have the editor prefix
@@ -1456,8 +1460,8 @@
     extra methods, <code>innerMode</code> which, given a state object,
     returns a <code>{state, mode}</code> object with the inner mode
     and its state for the current position. These are used by utility
-    scripts such as the <a href="#util_formatting">autoformatter</a>
-    and the <a href="#util_closetag">tag closer</a> to get context
+    scripts such as the <a href="#addon_formatting">autoformatter</a>
+    and the <a href="#addon_closetag">tag closer</a> to get context
     information. Use the <code>CodeMirror.innerMode</code> helper
     function to, starting from a mode and a state, recursively walk
     down to the innermost mode and state.</p>

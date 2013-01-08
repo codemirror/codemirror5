@@ -6,7 +6,7 @@
 //
 //   bin/compress codemirror runmode javascript xml
 //
-// Will take lib/codemirror.js, lib/util/runmode.js,
+// Will take lib/codemirror.js, addon/runmode/runmode.js,
 // mode/javascript/javascript.js, and mode/xml/xml.js, run them though
 // the online minifier at http://marijnhaverbeke.nl/uglifyjs, and spit
 // out the result.
@@ -61,6 +61,7 @@ function walk(dir) {
 }
 
 walk("lib/");
+walk("addon/");
 walk("mode/");
 
 if (!blob) help(false);
