@@ -978,12 +978,15 @@
       CodeMirror-specific CSS classes, and those classes might in some
       cases affect it. This method returns an object that represents
       the widget placement. It'll have a <code>line</code> property
-      pointing at the line handle that it is associated with, and it
-      can be passed to <code>removeLineWidget</code> to remove the
-      widget.</dd>
-
-      <dt id="removeLineWidget"><code>removeLineWidget(widget)</code></dt>
-      <dd>Removes the given line widget.</dd>
+      pointing at the line handle that it is associated with, and the following methods:
+        <dl>
+          <dt id="widget_clear"><code>clear()</code></dt><dd>Removes the widget.</dd>
+          <dt id="widget_changed"><code>changed()</code></dt><dd>Call
+          this if you made some change to the widget's DOM node that
+          might affect its height. It'll force CodeMirror to update
+          the height of the line that contains the widget.</dd>
+        </dl>
+      </dd>
 
       <dt id="posFromIndex"><code>posFromIndex(index) → object</code></dt>
       <dd>Calculates and returns a <code>{line, ch}</code> object for a
