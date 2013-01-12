@@ -9,12 +9,8 @@ ModeTest = {};
 ModeTest.modeOptions = {};
 ModeTest.modeName = CodeMirror.defaults.mode;
 
-/* keep track of results for printSummary */
-ModeTest.testCount = 0;
-ModeTest.passes = 0;
-
 /**
- * Run a test; prettyprints the results using document.write().
+ * Run a test.
  * 
  * @param name Name of test
  * @param text String to highlight.
@@ -24,8 +20,6 @@ ModeTest.passes = 0;
  * @param expectedFail
  */
 ModeTest.testMode = function(name, text, expected, modeName, modeOptions, expectedFail) {
-  ModeTest.testCount += 1;
-  
   if (!modeName) modeName = ModeTest.modeName;
   
   if (!modeOptions) modeOptions = ModeTest.modeOptions;
@@ -62,12 +56,11 @@ ModeTest.compare = function (text, expected, mode) {
   var pass, passStyle = "";
   pass = ModeTest.highlightOutputsEqual(expectedOutput, observedOutput);
   passStyle = pass ? 'mt-pass' : 'mt-fail';
-  ModeTest.passes += pass ? 1 : 0;
 
   var s = '';
   if (pass) {
     s += '<div class="mt-test ' + passStyle + '">';
-    s +=   '<pre>' + ModeTest.htmlEscape(text) + '</pre>';
+    s +=   '<pre>' + text + '</pre>';
     s +=   '<div class="cm-s-default">';
     s +=   ModeTest.prettyPrintOutputTable(observedOutput);
     s +=   '</div>';
@@ -75,7 +68,7 @@ ModeTest.compare = function (text, expected, mode) {
     return s;
   } else {
     s += '<div class="mt-test ' + passStyle + '">';
-    s +=   '<pre>' + ModeTest.htmlEscape(text) + '</pre>';
+    s +=   '<pre>' + text + '</pre>';
     s +=   '<div class="cm-s-default">';
     s += 'expected:';
     s +=   ModeTest.prettyPrintOutputTable(expectedOutput);
@@ -161,7 +154,7 @@ ModeTest.prettyPrintOutputTable = function(output) {
     s +=
       '<td class="mt-token">' +
         '<span class="cm-' + String(style).replace(/ +/g, " cm-") + '">' +
-          ModeTest.htmlEscape(val).replace(/ /g,'&middot;') +
+          val.replace(/ /g,'\xb7') +
         '</span>' +
       '</td>';
   }
@@ -172,21 +165,3 @@ ModeTest.prettyPrintOutputTable = function(output) {
   s += '</table>';
   return s;
 }
-
-/**
- * Print how many tests have run so far and how many of those passed.
- */
-ModeTest.printSummary = function() {
-  ModeTest.runTests(ModeTest.displayTest);
-  document.write(ModeTest.passes + ' passes for ' + ModeTest.testCount + ' tests');
-}
-
-/**
- * Basic HTML escaping.
- */
-ModeTest.htmlEscape = function(str) {
-  str = str.toString();
-  return str.replace(/[<&]/g,
-      function(str) {return str == "&" ? "&amp;" : "&lt;";});
-}
-
