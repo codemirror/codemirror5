@@ -33,7 +33,7 @@ CodeMirror.defineMode("xquery", function() {
       , C = kw("keyword c")
       , operator = kw("operator")
       , atom = {type: "atom", style: "atom"}
-      , punctuation = {type: "punctuation", style: ""}
+      , punctuation = {type: "punctuation", style: null}
       , qualifier = {type: "axis_specifier", style: "qualifier"};
     
     // kwObj is what is return from this function at the end
@@ -121,12 +121,12 @@ CodeMirror.defineMode("xquery", function() {
     // start code block
     else if(ch == "{") {
       pushStateStack(state,{ type: "codeblock"});
-      return ret("", "");
+      return ret("", null);
     }
     // end code block
     else if(ch == "}") {
       popStateStack(state);
-      return ret("", "");
+      return ret("", null);
     }
     // if we're in an XML block
     else if(isInXmlBlock(state)) {
@@ -163,22 +163,22 @@ CodeMirror.defineMode("xquery", function() {
     // open paren
     else if(ch === "(") {
       pushStateStack(state, { type: "paren"});
-      return ret("", "");
+      return ret("", null);
     }
     // close paren
     else if(ch === ")") {
       popStateStack(state);
-      return ret("", "");
+      return ret("", null);
     }
     // open paren
     else if(ch === "[") {
       pushStateStack(state, { type: "bracket"});
-      return ret("", "");
+      return ret("", null);
     }
     // close paren
     else if(ch === "]") {
       popStateStack(state);
-      return ret("", "");
+      return ret("", null);
     }
     else {
       var known = keywords.propertyIsEnumerable(ch) && keywords[ch];
@@ -342,7 +342,7 @@ CodeMirror.defineMode("xquery", function() {
       return ret("tag", "tag");
     }
     if(ch == "=")
-      return ret("", "");
+      return ret("", null);
     // quoted string
     if (ch == '"' || ch == "'")
       return chain(stream, state, tokenString(ch, tokenAttribute));
