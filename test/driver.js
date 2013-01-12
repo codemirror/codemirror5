@@ -48,10 +48,6 @@ function runTests(callback) {
     }
     if (debug.length < 1) {
       debug = null;
-    } else {
-      if (totalTests > debug.length) {
-        totalTests = debug.length;
-      }
     }
   }
   var totalTime = 0;
@@ -67,7 +63,7 @@ function runTests(callback) {
         // Remove from array for reporting incorrect tests later
         debug.splice(debugIndex, 1);
       } else {
-        var wildcardName = test.name.split("_").shift() + "_*";
+        var wildcardName = test.name.split("_")[0] + "_*";
         debugIndex = indexOf(debug, wildcardName);
         if (debugIndex !== -1) {
           // Remove from array for reporting incorrect tests later
@@ -75,11 +71,7 @@ function runTests(callback) {
           debugUsed.push(wildcardName);
         } else {
           debugIndex = indexOf(debugUsed, wildcardName);
-          if (debugIndex !== -1) {
-            totalTests++;
-          } else {
-            return step(i + 1);
-          }
+          if (debugIndex == -1) return step(i + 1);
         }
       }
     }
@@ -131,4 +123,16 @@ function eqPos(a, b, msg) {
 }
 function is(a, msg) {
   if (!a) throw new Failure(label("assertion failed", msg));
+}
+
+function countTests() {
+  if (!debug) return tests.length;
+  var sum = 0;
+  for (var i = 0; i < tests.length; ++i) {
+    var name = tests[i].name;
+    if (indexOf(debug, name) != -1 ||
+        indexOf(debug, name.split("_")[0] + "_*") != -1)
+      ++sum;
+  }
+  return sum;
 }

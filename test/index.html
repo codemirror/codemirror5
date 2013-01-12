@@ -107,7 +107,7 @@
         bad = "";
         verbose = false;
         debugUsed = Array();
-        totalTests = tests.length;
+        totalTests = countTests();
         progressTotal.nodeValue = " of " + totalTests;
         progressRan.nodeValue = count;
         output.innerHTML = '';
@@ -141,8 +141,6 @@
         var message = "???";
         if (type != "done") ++count;
         progress.style.width = (count * (progress.parentNode.clientWidth - 2) / totalTests) + "px";
-        progressTotal.nodeValue = " of " + totalTests +
-          (debugUsed.length && type != "done" ? "+" : "");
         progressRan.nodeValue = count;
         if (type == "ok") {
           message = "Test '" + name + "' succeeded";
