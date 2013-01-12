@@ -30,7 +30,7 @@
           var line = cm.getLine(pos.line), match = query.exec(line),
           start = match && match.index;
         }
-        if (match)
+        if (match && match[0])
           return {from: {line: pos.line, ch: start},
                   to: {line: pos.line, ch: start + match[0].length},
                   match: match};
