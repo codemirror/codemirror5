@@ -40,15 +40,21 @@
       var fold = caseFold ? function(str){return str.toLowerCase();} : function(str){return str;};
       var target = query.split("\n");
       // Different methods for single-line and multi-line queries
-      if (target.length == 1)
-        this.matches = function(reverse, pos) {
-          var line = fold(cm.getLine(pos.line)), len = query.length, match;
-          if (reverse ? (pos.ch >= len && (match = line.lastIndexOf(query, pos.ch - len)) != -1)
-              : (match = line.indexOf(query, pos.ch)) != -1)
-            return {from: {line: pos.line, ch: match},
-                    to: {line: pos.line, ch: match + len}};
-        };
-      else
+      if (target.length == 1) {
+        if (!query.length) {
+          // Empty string would match anything and never progress, so
+          // we define it to match nothing instead.
+          this.matches = function() {};
+        } else {
+          this.matches = function(reverse, pos) {
+            var line = fold(cm.getLine(pos.line)), len = query.length, match;
+            if (reverse ? (pos.ch >= len && (match = line.lastIndexOf(query, pos.ch - len)) != -1)
+                        : (match = line.indexOf(query, pos.ch)) != -1)
+              return {from: {line: pos.line, ch: match},
+                      to: {line: pos.line, ch: match + len}};
+          };
+        }
+      } else {
         this.matches = function(reverse, pos) {
           var ln = pos.line, idx = (reverse ? target.length - 1 : 0), match = target[idx], line = fold(cm.getLine(ln));
           var offsetA = (reverse ? line.indexOf(match) + match.length : line.lastIndexOf(match));
@@ -70,6 +76,7 @@
             return {from: reverse ? end : start, to: reverse ? start : end};
           }
         };
+      }
     }
   }
 
