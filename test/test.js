@@ -543,6 +543,20 @@ testCM("collapsedLines", function(cm) {
   eq(cleared, 1);
 });
 
+testCM("collapsedRangeCoordsChar", function(cm) {
+  var pos_1_3 = cm.charCoords({line: 1, ch: 3});
+  var opts = {collapsed: true, inclusiveLeft: true, inclusiveRight: true};
+  var m1 = cm.markText({line: 0, ch: 0}, {line: 2, ch: 0}, opts);
+  eqPos(cm.coordsChar(pos_1_3), {line: 3, ch: 3});
+  m1.clear();
+  var m1 = cm.markText({line: 0, ch: 0}, {line: 1, ch: 1}, opts);
+  var m2 = cm.markText({line: 1, ch: 1}, {line: 2, ch: 0}, opts);
+  eqPos(cm.coordsChar(pos_1_3), {line: 3, ch: 3});
+  m1.clear(); m2.clear();
+  var m1 = cm.markText({line: 0, ch: 0}, {line: 1, ch: 6}, opts);
+  eqPos(cm.coordsChar(pos_1_3), {line: 3, ch: 3});
+}, {value: "123456\nabcdef\nghijkl\nmnopqr\n"});
+
 testCM("hiddenLinesAutoUnfold", function(cm) {
   var range = foldLines(cm, 1, 3, true), cleared = 0;
   CodeMirror.on(range, "clear", function() {cleared++;});
