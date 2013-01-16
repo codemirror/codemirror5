@@ -545,6 +545,7 @@ testCM("collapsedLines", function(cm) {
 
 testCM("collapsedRangeCoordsChar", function(cm) {
   var pos_1_3 = cm.charCoords({line: 1, ch: 3});
+  pos_1_3.left += 2; pos_1_3.top += 2;
   var opts = {collapsed: true, inclusiveLeft: true, inclusiveRight: true};
   var m1 = cm.markText({line: 0, ch: 0}, {line: 2, ch: 0}, opts);
   eqPos(cm.coordsChar(pos_1_3), {line: 3, ch: 3});
