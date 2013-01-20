@@ -142,7 +142,7 @@ CodeMirror.defineMode("clojure", function () {
                         returnType = COMMENT;
                     } else if (isNumber(ch,stream)){
                         returnType = NUMBER;
-                    } else if (ch == "(" || ch == "[") {
+                    } else if (ch == "(" || ch == "[" || ch == "{" ) {
                         var keyWord = '', indentTemp = stream.column(), letter;
                         /**
                         Either
@@ -172,9 +172,9 @@ CodeMirror.defineMode("clojure", function () {
                         stream.backUp(stream.current().length - 1); // undo all the eating
 
                         returnType = BRACKET;
-                    } else if (ch == ")" || ch == "]") {
+                    } else if (ch == ")" || ch == "]" || ch == "}") {
                         returnType = BRACKET;
-                        if (state.indentStack != null && state.indentStack.type == (ch == ")" ? "(" : "[")) {
+                        if (state.indentStack != null && state.indentStack.type == (ch == ")" ? "(" : (ch == "]" ? "[" :"{"))) {
                             popStack(state);
                         }
                     } else if ( ch == ":" ) {
