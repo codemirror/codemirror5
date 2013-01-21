@@ -283,6 +283,32 @@
 
   <h2 id=releases>Releases</h2>
 
+  <p class="rel">21-01-2013: <a href="http://codemirror.net/codemirror-3.01.zip">Version 3.01</a>:</p>
+
+  <ul class="rel-note">
+    <li>Move all add-ons into an organized directory structure
+    under <a href="addon/"><code>/addon</code></a>. <strong>You might have to adjust your
+    paths.</strong></li>
+    <li>New
+    modes: <a href="mode/d/index.html">D</a>, <a href="mode/sass/index.html">Sass</a>, <a href="mode/apl/index.html">APL</a>, <a href="mode/sql/index.html">SQL</a>
+    (configurable), and <a href="mode/asterisk/index.html">Asterisk</a>.</li>
+    <li>Several bugfixes in right-to-left text support.</li>
+    <li>Add <a href="doc/manual.html#option_rtlMoveVisually"><code>rtlMoveVisually</code></a> option.</li>
+    <li>Improvements to vim keymap.</li>
+    <li>Add built-in (lightweight) <a href="doc/manual.html#addOverlay">overlay mode</a> support.</li>
+    <li>Support <code>showIfHidden</code> option for <a href="doc/manual.html#addLineWidget">line widgets</a>.</li>
+    <li>Add simple <a href="doc/manual.html#addon_python-hint">Python hinter</a>.</li>
+    <li>Bring back the <a href="doc/manual.html#option_fixedGutter"><code>fixedGutter</code></a> option.</li>
+    <li>Full <a href="https://github.com/marijnh/CodeMirror/compare/v3.0...v3.01">list of patches</a>.</li>
+  </ul>
+
+  <p class="rel">21-01-2013: <a href="http://codemirror.net/codemirror-2.38.zip">Version 2.38</a>:</p>
+
+  <p class="rel-note">Integrate some bugfixes, enhancements to the vim keymap, and new
+  modes
+  (<a href="mode/d/index.html">D</a>, <a href="mode/sass/index.html">Sass</a>, <a href="mode/apl/index.html">APL</a>)
+  from the v3 branch.</p>
+
   <p class="rel">20-12-2012: <a href="http://codemirror.net/codemirror-2.37.zip">Version 2.37</a>:</p>
 
   <ul class="rel-note">
@@ -412,24 +438,6 @@
     <li>Expanded testsuite. Basic linter added.</li>
     <li>Remove most uses of <code>innerHTML</code>. Remove <code>CodeMirror.htmlEscape</code>.</li>
     <li><a href="https://github.com/marijnh/CodeMirror/compare/v2.32...v2.33">Full list</a> of patches.</li>
-  </ul>
-
-  <p class="rel">23-07-2012: <a href="http://codemirror.net/codemirror-2.32.zip">Version 2.32</a>:</p>
-
-  <p class="rel-note">Emergency fix for a bug where an editor with
-  line wrapping on IE will break when there is <em>no</em>
-  scrollbar.</p>
-
-  <p class="rel">20-07-2012: <a href="http://codemirror.net/codemirror-2.31.zip">Version 2.31</a>:</p>
-
-  <ul class="rel-note">
-    <li>New modes: <a href="mode/ocaml/index.html">OCaml</a>, <a href="mode/haxe/index.html">Haxe</a>, and <a href="mode/vb/index.html">VB.NET</a>.</li>
-    <li>Several fixes to the new scrolling model.</li>
-    <li>Add a <a href="doc/manual.html#setSize"><code>setSize</code></a> method for programmatic resizing.</li>
-    <li>Add <a href="doc/manual.html#getHistory"><code>getHistory</code></a> and <a href="doc/manual.html#setHistory"><code>setHistory</code></a> methods.</li>
-    <li>Allow custom line separator string in <a href="doc/manual.html#getValue"><code>getValue</code></a> and <a href="doc/manual.html#getRange"><code>getRange</code></a>.</li>
-    <li>Support double- and triple-click drag, double-clicking whitespace.</li>
-    <li>And more... <a href="https://github.com/marijnh/CodeMirror/compare/v2.3...v2.31">(all patches)</a></li>
   </ul>
 
   <p><a href="doc/oldrelease.html">Older releases...</a></p>
