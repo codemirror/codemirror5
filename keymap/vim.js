@@ -1726,8 +1726,13 @@
         nextCh = lineText.charAt(index);
         if (!nextCh) {
           line += increment;
-          index = 0;
           lineText = cm.getLine(line) || '';
+          if (increment > 0) {
+            index = 0;
+          } else {
+            var lineLen = lineText.length;
+            index = (lineLen > 0) ? (lineLen-1) : 0;
+          }
           nextCh = lineText.charAt(index);
         }
         if (nextCh === symb) {
