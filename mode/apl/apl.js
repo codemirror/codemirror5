@@ -1,4 +1,4 @@
-CodeMirror.defineMode("apl", function(config, parserConfig) {
+CodeMirror.defineMode("apl", function() {
   var builtInOps = {
     ".": "innerProduct",
     "\\": "scan",
