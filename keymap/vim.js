@@ -21,6 +21,7 @@
  *
  *   Action:
  *   a, i, s, A, I, S, o, O
+ *   zz, z., z<CR>, zt, zb, z-
  *   J
  *   u, Ctrl-r
  *   m<character>
@@ -212,6 +213,21 @@
     { keys: ['m', 'character'], type: 'action', action: 'setMark' },
     { keys: ['\"', 'character'], type: 'action', action: 'setRegister' },
     { keys: [',', '/'], type: 'action', action: 'clearSearchHighlight' },
+    { keys: ['z', 'z'], type: 'action', action: 'scrollToCursor',
+        actionArgs: { position: 'center' }},
+    { keys: ['z', '.'], type: 'action', action: 'scrollToCursor',
+        actionArgs: { position: 'center' },
+        motion: 'moveToFirstNonWhiteSpaceCharacter' },
+    { keys: ['z', 't'], type: 'action', action: 'scrollToCursor',
+        actionArgs: { position: 'top' }},
+    { keys: ['z', 'Enter'], type: 'action', action: 'scrollToCursor',
+        actionArgs: { position: 'top' },
+        motion: 'moveToFirstNonWhiteSpaceCharacter' },
+    { keys: ['z', '-'], type: 'action', action: 'scrollToCursor',
+        actionArgs: { position: 'bottom' }},
+    { keys: ['z', 'b'], type: 'action', action: 'scrollToCursor',
+        actionArgs: { position: 'bottom' },
+        motion: 'moveToFirstNonWhiteSpaceCharacter' },
     // Text object motions
     { keys: ['a', 'character'], type: 'motion',
         motion: 'textObjectManipulation' },
@@ -249,7 +265,7 @@
     var SPECIAL_SYMBOLS = '~`!@#$%^&*()_-+=[{}]\\|/?.,<>:;\"\'';
     var specialSymbols = SPECIAL_SYMBOLS.split('');
     var specialKeys = ['Left', 'Right', 'Up', 'Down', 'Space', 'Backspace',
-        'Esc', 'Home', 'End', 'PageUp', 'PageDown'];
+        'Esc', 'Home', 'End', 'PageUp', 'PageDown', 'Enter'];
     var validMarks = upperCaseAlphabet.concat(lowerCaseAlphabet).concat(
         numbers).concat(['<', '>']);
     var validRegisters = upperCaseAlphabet.concat(lowerCaseAlphabet).concat(
@@ -1102,6 +1118,25 @@
 
     var actions = {
       clearSearchHighlight: clearSearchHighlight,
+      scrollToCursor: function(cm, actionArgs) {
+        var lineNum = cm.getCursor().line;
+        var heightProp = window.getComputedStyle(cm.getScrollerElement()).
+            getPropertyValue('height');
+        var height = parseInt(heightProp);
+        var y = cm.charCoords({line: lineNum, ch: 0}, "local").top;
+        var halfHeight = parseInt(height) / 2;
+        switch (actionArgs.position) {
+          case 'center': y = y - (height / 2) + 10;
+              break;
+          case 'bottom': y = y - height;
+              break;
+          case 'top': break;
+        }
+        cm.scrollTo(null, y);
+        // The calculations are slightly off, use scrollIntoView to nudge the
+        // view into the right place.
+        cm.scrollIntoView();
+      },
       enterInsertMode: function(cm, actionArgs) {
         var insertAt = (actionArgs) ? actionArgs.insertAt : null;
         if (insertAt == 'eol') {
