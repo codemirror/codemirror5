@@ -686,7 +686,6 @@
       to <a href="#extendSelection"><code>extendSelection</code></a>
       to leave the selection anchor in place.</dd>
     </dl>
->>>>>>> Update and reorganize docs
 
     <h3 id="api_configuration">Configuration methods</h3>
 
@@ -1101,7 +1100,7 @@
       the mode specification, rather than the resolved, instantiated
       <a href="#defineMode">mode object</a>.</dd>
 
-      <dt id="getTokenAt"><code>getTokenAt(pos) → object</code></dt>
+      <dt id="getTokenAt"><code>cm.getTokenAt(pos) → object</code></dt>
       <dd>Retrieves information about the token the current mode found
       before the given position (a <code>{line, ch}</code> object). The
       returned object has the following properties:
@@ -1199,14 +1198,14 @@
     additional methods:</p>
 
     <dl>
-      <dt id="save"><code>save()</code></dt>
+      <dt id="save"><code>cm.save()</code></dt>
       <dd>Copy the content of the editor into the textarea.</dd>
 
-      <dt id="toTextArea"><code>toTextArea()</code></dt>
+      <dt id="toTextArea"><code>cm.toTextArea()</code></dt>
       <dd>Remove the editor, and restore the original textarea (with
       the editor's current content).</dd>
 
-      <dt id="getTextArea"><code>getTextArea() → textarea</code></dt>
+      <dt id="getTextArea"><code>cm.getTextArea() → textarea</code></dt>
       <dd>Returns the textarea that the instance was based on.</dd>
     </dl>
 
