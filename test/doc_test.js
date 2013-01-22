@@ -135,6 +135,13 @@
     eqAll("abxyvw\ncd\nefu", a, b);
   });
 
+  testDoc("doubleRebase", "A='ab\ncd\nef\ng' B<~A C<B", function(a, b, c) {
+    c.replaceRange("u", {line: 3});
+    a.replaceRange("", {line: 0, ch: 0}, {line: 1, ch: 0});
+    c.undo();
+    eqAll("cd\nef\ng", a, b, c);
+  });
+
   testDoc("undoUpdate", "A='ab\ncd\nef' B<~A", function(a, b) {
     a.replaceRange("x", {line: 2});
     b.replaceRange("u\nv\nw\n", {line: 0, ch: 0});
