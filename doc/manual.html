@@ -121,7 +121,7 @@
     <dl>
       <dt id="option_value"><code>value (string or Doc)</code></dt>
       <dd>The starting value of the editor. Can be a string, or
-      a <a href="#Doc">document object</a>.</dd>
+      a <a href="#api_doc">document object</a>.</dd>
 
       <dt id="option_mode"><code>mode (string or object)</code></dt>
       <dd>The mode to use. When not given, this will default to the
@@ -620,7 +620,7 @@
       <dd>Get the first and last lines of the editor. This will
       usually be zero and <code>doc.lineCount() - 1</code> respectively,
       but for <a href="#linkedDoc_from">linked sub-views</a>,
-      or <a href="#Doc">documents</a> instantiated with a non-zero
+      or <a href="#api_doc">documents</a> instantiated with a non-zero
       first line, it might return other values.</dd>
 
       <dt id="getLineHandle"><code>doc.getLineHandle(num) → lineHandle</code></dt>
@@ -750,7 +750,7 @@
 
     <h3 id="api_doc">Document management methods</h3>
 
-    <p>Each editor is associated with an instance
+    <p id="Doc">Each editor is associated with an instance
     of <code>CodeMirror.Doc</code>, its document. A document
     represents the editor content, plus a selection, an undo history,
     and a <a href="#option_mode">mode</a>. A document can only be
