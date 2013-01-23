@@ -1,21 +1,8 @@
-
 (function() {
 
     CodeMirror.xmlHints = [];
 
-    CodeMirror.xmlHint = function(cm, simbol) {
-
-        if(simbol.length > 0) {
-            var cursor = cm.getCursor();
-            cm.replaceSelection(simbol);
-            cursor = {line: cursor.line, ch: cursor.ch + 1};
-            cm.setCursor(cursor);
-        }
-
-        CodeMirror.simpleHint(cm, getHint);
-    };
-
-    var getHint = function(cm) {
+    CodeMirror.xmlHint = function(cm) {
 
         var cursor = cm.getCursor();
 
@@ -54,7 +41,7 @@
                 from: { line: cursor.line, ch: cursor.ch - typed.length },
                 to: cursor
             };
-        };
+        }
     };
 
     var getActiveElement = function(text) {
