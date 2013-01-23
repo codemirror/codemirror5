@@ -72,8 +72,9 @@ function test(c){  for (var i = 0; i < 10; i++){	          process("a.b();c = nu
       }
       
       function commentSelection(isComment) {
-        var range = getSelectedRange();
+        var range = getSelectedRange(), selStart = editor.getCursor("start");
         editor.commentRange(isComment, range.from, range.to);
+        editor.setSelection(selStart, editor.getCursor("end"));
       }      
     </script>
 
