@@ -5,8 +5,8 @@
     <title>CodeMirror: Autocomplete Demo</title>
     <link rel="stylesheet" href="../lib/codemirror.css">
     <script src="../lib/codemirror.js"></script>
-    <script src="../addon/hint/simple-hint.js"></script>
-    <link rel="stylesheet" href="../addon/hint/simple-hint.css">
+    <script src="../addon/hint/show-hint.js"></script>
+    <link rel="stylesheet" href="../addon/hint/show-hint.css">
     <script src="../addon/hint/javascript-hint.js"></script>
     <script src="../mode/javascript/javascript.js"></script>
     <link rel="stylesheet" href="../doc/docs.css">
@@ -59,7 +59,7 @@ how it works.</p>
 
     <script>
       CodeMirror.commands.autocomplete = function(cm) {
-        CodeMirror.simpleHint(cm, CodeMirror.javascriptHint);
+        CodeMirror.showHint(cm, CodeMirror.javascriptHint);
       }
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true,

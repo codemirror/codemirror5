@@ -1364,9 +1364,9 @@
       see the content between the delimiters.
       See <a href="../demo/multiplex.html">this demo</a> for an
       example.</dd>
-      <dt id="addon_simple-hint"><a href="../addon/hint/simple-hint.js"><code>simple-hint.js</code></a></dt>
+      <dt id="addon_show-hint"><a href="../addon/hint/show-hint.js"><code>show-hint.js</code></a></dt>
       <dd>Provides a framework for showing autocompletion hints.
-      Defines <code>CodeMirror.simpleHint</code>, which takes a
+      Defines <code>CodeMirror.showHint</code>, which takes a
       CodeMirror instance and a hinting function, and pops up a widget
       that allows the user to select a completion. Hinting functions
       are function that take an editor instance, and return
@@ -1374,6 +1374,13 @@
       is an array of strings (the completions), and <code>from</code>
       and <code>to</code> give the start and end of the token that is
       being completed. Depends
+      on <code>addon/hint/show-hint.css</code>.
+      See <a href="../demo/complete.html">the demo</a> for an
+      example.</dd>
+      <dt id="addon_simple-hint"><a href="../addon/hint/simple-hint.js"><code>simple-hint.js</code></a></dt>
+      <dd>Defines <code>CodeMirror.simpleHint</code>, which is
+      compatible with <code>showHint</code>. Deprecated,
+      use <code>showHint</code> instead. Depends
       on <code>addon/hint/simple-hint.css</code>.</dd>
       <dt id="addon_javascript-hint"><a href="../addon/hint/javascript-hint.js"><code>javascript-hint.js</code></a></dt>
       <dd>Defines <code>CodeMirror.javascriptHint</code>
