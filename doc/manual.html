@@ -423,6 +423,12 @@
       be fired once per handle. Note that deleting the range through
       text editing does not fire this event, because an undo
       action might bring the range back into existence.</dd>
+      <dt id="event_hide"><code>"hide" ()</code></dt>
+      <dd>Fired when the last part of the marker is removed from the
+      document by editing operations.</dd>
+      <dt id="event_unhide"><code>"unhide" ()</code></dt>
+      <dd>Fired when, after the marker was removed by editing, a undo
+      operation brought the marker back.</dd>
     </dl>
 
     <p>Line widgets, returned
