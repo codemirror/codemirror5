@@ -425,6 +425,20 @@
       action might bring the range back into existence.</dd>
     </dl>
 
+    <p>Line widgets, returned
+    by <a href="#addLineWidget"><code>addLineWidget</code></a>, fire
+    these events:</p>
+
+    <dl>
+      <dt id="event_redraw"><code>"redraw" ()</code></dt>
+      <dd>Fired whenever the editor re-adds the widget to the DOM.
+      This will happen once right after the widget is added (if it is
+      scrolled into view), and then again whenever it is scrolled out
+      of view and back in again, or when changes to the editor options
+      or the line the widget is on require the widget to be
+      redrawn.</dd>
+    </dl>
+
     <h2 id="keymaps">Keymaps</h2>
 
     <p>Keymaps are ways to associate keys with functionality. A keymap
