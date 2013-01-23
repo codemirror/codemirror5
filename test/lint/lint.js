@@ -30,6 +30,7 @@ function checkFile(fileName) {
       locations: true,
       ecmaVersion: 3,
       strictSemicolons: true,
+      allowTrailingCommas: false,
       forbidReserved: true,
       sourceFile: fileName
     });
