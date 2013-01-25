@@ -1,6 +1,6 @@
 {
     "name": "codemirror",
-    "version":"3.01.01",
+    "version":"3.02.01",
     "main": "codemirror.js",
     "description": "In-browser code editing made bearable",
     "licenses": [{"type": "MIT",
