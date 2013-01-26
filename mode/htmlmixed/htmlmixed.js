@@ -1,5 +1,6 @@
 CodeMirror.defineMode("htmlmixed", function(config) {
   var htmlMode = CodeMirror.getMode(config, {name: "xml", htmlMode: true});
+  var unknownScriptMode = CodeMirror.getMode(config, "text/plain");
   var jsMode = CodeMirror.getMode(config, "javascript");
   var cssMode = CodeMirror.getMode(config, "css");
 
@@ -7,8 +8,18 @@ CodeMirror.defineMode("htmlmixed", function(config) {
     var style = htmlMode.token(stream, state.htmlState);
     if (/(?:^|\s)tag(?:\s|$)/.test(style) && stream.current() == ">" && state.htmlState.context) {
       if (/^script$/i.test(state.htmlState.context.tagName)) {
-        state.token = javascript;
-        state.localState = jsMode.startState(htmlMode.indent(state.htmlState, ""));
+        // Script block: mode to change to depends on type attribute
+        var scriptType = stream.string.match(/type\s*=\s*["'](.+)["']/i);
+        scriptType = scriptType && scriptType[1];
+        if (!scriptType || scriptType.match(/(text|application)\/(java|ecma)script/i)) {
+          state.token = javascript;
+          state.localState = jsMode.startState(htmlMode.indent(state.htmlState, ""));
+        } else if (scriptType.match(/\/x-handlebars-template/i) || scriptType.match(/\/x-mustache/i)) {
+            // Handlebars or Mustache template: leave it in HTML mode
+        } else {
+          state.token = unknownScript;
+          state.localState = null;
+        }
       }
       else if (/^style$/i.test(state.htmlState.context.tagName)) {
         state.token = css;
@@ -26,6 +37,15 @@ CodeMirror.defineMode("htmlmixed", function(config) {
       if (!stream.match(pat, false)) stream.match(cur[0]);
     }
     return style;
+  }
+  function unknownScript(stream, state) {
+    if (stream.match(/^<\/\s*script\s*>/i, false)) {
+      state.token = html;
+      state.localState = null;
+      return html(stream, state);
+    }
+    return maybeBackup(stream, /<\/\s*script\s*>/,
+                       unknownScriptMode.token(stream, state.localState));
   }
   function javascript(stream, state) {
     if (stream.match(/^<\/\s*script\s*>/i, false)) {
@@ -68,8 +88,10 @@ CodeMirror.defineMode("htmlmixed", function(config) {
         return htmlMode.indent(state.htmlState, textAfter);
       else if (state.token == javascript)
         return jsMode.indent(state.localState, textAfter);
-      else
+      else if (state.token == css)
         return cssMode.indent(state.localState, textAfter);
+      else  // unknownScriptMode
+        return 0;
     },
 
     electricChars: "/{}:",
