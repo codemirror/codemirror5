@@ -159,7 +159,7 @@ CodeMirror.defineMode("vb", function(conf, parserConf) {
         var singleline = delimiter.length == 1;
         var OUTCLASS = 'string';
         
-        return function tokenString(stream, state) {
+        return function(stream, state) {
             while (!stream.eol()) {
                 stream.eatWhile(/[^'"]/);
                 if (stream.match(delimiter)) {

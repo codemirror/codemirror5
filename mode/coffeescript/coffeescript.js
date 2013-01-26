@@ -170,7 +170,7 @@ CodeMirror.defineMode('coffeescript', function(conf) {
 
     function tokenFactory(delimiter, outclass) {
         var singleline = delimiter.length == 1;
-        return function tokenString(stream, state) {
+        return function(stream, state) {
             while (!stream.eol()) {
                 stream.eatWhile(/[^'"\/\\]/);
                 if (stream.eat('\\')) {

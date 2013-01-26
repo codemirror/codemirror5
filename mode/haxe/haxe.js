@@ -235,7 +235,7 @@ CodeMirror.defineMode("haxe", function(config, parserConfig) {
   poplex.lex = true;
 
   function expect(wanted) {
-    return function expecting(type) {
+    return function(type) {
       if (type == wanted) return cont();
       else if (wanted == ";") return pass();
       else return cont(arguments.callee);
@@ -330,7 +330,7 @@ CodeMirror.defineMode("haxe", function(config, parserConfig) {
       if (type == end) return cont();
       return cont(expect(end));
     }
-    return function commaSeparated(type) {
+    return function(type) {
       if (type == end) return cont();
       else return pass(what, proceed);
     };

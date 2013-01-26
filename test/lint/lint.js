@@ -72,6 +72,9 @@ function checkFile(fileName) {
           cur.vars[node.name].used = true;
           return;
         }
+    },
+    FunctionExpression: function(node) {
+      if (node.id) fail("Named function expression", node.loc);
     }
   }, scopePasser);
 
