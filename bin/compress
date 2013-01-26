@@ -64,7 +64,7 @@ walk("lib/");
 walk("addon/");
 walk("mode/");
 
-if (!blob) help(false);
+if (!local && !blob) help(false);
 
 if (files.length) {
   console.log("Some speficied files were not found: " +
