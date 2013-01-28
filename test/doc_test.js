@@ -15,8 +15,8 @@
         }
         var doc = editors[names[other]].linkedDoc({
           sharedHist: !m[4],
-          from: m[6] && Number(m[6]),
-          to: m[7] && Number(m[7])
+          from: m[6] ? Number(m[6]) : null,
+          to: m[7] ? Number(m[7]) : null
         });
         cur = isDoc ? doc : CodeMirror(place, clone(opts, {value: doc}));
       }
@@ -45,7 +45,7 @@
       eq(arguments[i].getValue(), val, msg)
   }
 
-  function testDoc(name, spec, run, opts) {
+  function testDoc(name, spec, run, opts, expectFail) {
     if (!opts) opts = {};
 
     return test("doc_" + name, function() {
@@ -65,8 +65,10 @@
               place.removeChild(editors[i].getWrapperElement());
         }
       }
-    });
+    }, expectFail);
   }
+
+  var ie_lt8 = /MSIE [1-7]\b/.test(navigator.userAgent);
 
   function testBasic(a, b) {
     eqAll("x", a, b);
@@ -97,7 +99,7 @@
     eqAll("abx\ncdy\nefz", a, b);
     a.undo(); b.undo(); a.undo(); a.undo();
     eqAll("ab\ncd\nef", a, b);
-  });
+  }, null, ie_lt8);
 
   testDoc("undoIntact", "A='ab\ncd\nef' B<~A", function(a, b) {
     a.replaceRange("x", {line: 0});
