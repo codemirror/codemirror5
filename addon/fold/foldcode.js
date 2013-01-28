@@ -111,7 +111,7 @@ CodeMirror.braceRangeFinder = function(cm, start) {
   for (;;) {
     var found = lineText.lastIndexOf("{", at);
     if (found < start.ch) break;
-    tokenType = cm.getTokenAt({line: line, ch: found}).type;
+    tokenType = cm.getTokenAt({line: line, ch: found + 1}).type;
     if (!/^(comment|string)/.test(tokenType)) { startChar = found; break; }
     at = found - 1;
   }
