@@ -20,7 +20,7 @@
      var cssLink = document.createElement('link');
      cssLink.type = 'text/css';
      cssLink.rel = 'stylesheet';
-     cssLink.href = '../lib/util/iOSselection.css';
+     cssLink.href = '../addon/iOS/iOSselection.css';
      cssLink.title = 'iOS Selection CSS Support';
      document.getElementsByTagName('head')[0].appendChild(cssLink);
  
@@ -210,13 +210,14 @@
      function magnifyCursor(e){
        if(document.activeElement !== input){cm.focus();}
        initializeMagnifier(e);
-       var unregisterMove = CodeMirror.connect(scroller, "touchmove", updateCursors("both"), true),
-           unregisterEnd  = CodeMirror.connect(scroller, "touchend", function(e){
-                                                                       tool.className = 'popup';
-                                                                       updateCursors("both")(e);
-                                                                       unregisterMove(); unregisterEnd();
-                                                                    },
-                                               true);
+       scroller.addEventListener("touchmove", updateCursors("both"), true),
+       scroller.addEventListener("touchend", function(e){
+                                               tool.className = 'popup';
+                                               updateCursors("both")(e);
+                                               scroller.removeEventListener("touchmove");
+                                               scroller.removeEventListener("touchend");
+                                            },
+                                 true);
        // update the cursor and magnifier position
        updateCursors("both")(e);
      }
@@ -261,28 +262,28 @@
        LAST_TOUCH = e;
      }
      // touch events for tapping, double-tapping, tap-holding and scrolling
-     CodeMirror.connect(scroller,   "touchstart", startHandler);
-     CodeMirror.connect(scroller,   "touchmove",  moveHandler);
-     CodeMirror.connect(scroller,   "touchend",   endHandler);
-     CodeMirror.connect(scroller,   "scroll",     drawTool);
+     scroller.addEventListener("touchstart", startHandler);
+     scroller.addEventListener("touchmove",  moveHandler);
+     scroller.addEventListener("touchend",   endHandler);
+     scroller.addEventListener("scroll",     drawTool);
      // selection adjustment handlers
-     CodeMirror.connect(startSel,   "touchstart", updateCursors("start"));
-     CodeMirror.connect(endSel,     "touchstart", updateCursors("end"));
-     CodeMirror.connect(startSel,   "touchmove",  updateCursors("start"));
-     CodeMirror.connect(endSel,     "touchmove",  updateCursors("end"));
-     CodeMirror.connect(startSel,   "touchend",   updateCursors("start"));
-     CodeMirror.connect(endSel,     "touchend",   updateCursors("end"));
+     startSel.addEventListener("touchstart", updateCursors("start"));
+     endSel.addEventListener("touchstart",   updateCursors("end"));
+     startSel.addEventListener("touchmove",  updateCursors("start"));
+     endSel.addEventListener("touchmove",    updateCursors("end"));
+     startSel.addEventListener("touchend",   updateCursors("start"));
+     endSel.addEventListener("touchend",     updateCursors("end"));
      // connect handlers for iOSpopup buttons
-     CodeMirror.connect(select,     "touchend",   popupFactory(selectHandler));
-     CodeMirror.connect(selectAll,  "touchend",   popupFactory(selectAllHandler));
-     CodeMirror.connect(cut,        "touchend",   popupFactory(cutHandler));
-     CodeMirror.connect(copy,       "touchend",   popupFactory(copyHandler));
-     CodeMirror.connect(paste,      "touchend",   popupFactory(pasteHandler));
+     select.addEventListener("touchend",     popupFactory(selectHandler));
+     selectAll.addEventListener("touchend",  popupFactory(selectAllHandler));
+     cut.addEventListener("touchend",        popupFactory(cutHandler));
+     copy.addEventListener("touchend",       popupFactory(copyHandler));
+     paste.addEventListener("touchend",      popupFactory(pasteHandler));
      // handle scaling: draw everything over again
-     CodeMirror.connect(window,     "resize",   drawTool);
-     CodeMirror.connect(window,     "scroll",   drawTool);
-                                                     
-     cm.setOption("onChange", function(e){tool.className=''; drawTool(e);});
+     window.addEventListener("resize",   drawTool);
+     window.addEventListener("scroll",   drawTool);
+
+     cm.on("change", function(e){tool.className=''; drawTool(e);});
  }
 
  CodeMirror.defineInitHook(function(cm){iOSpopup(cm);});
