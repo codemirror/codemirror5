@@ -1,5 +1,5 @@
 /*******************************************************************
-  Rules for iOSpopup.js
+  Rules for iOSselection.js
   - div#Tool contains a callout triangle ('notch'), as well as the
     popup and the magnifier (whose visiblity is determined by the tool's class)
   - both the popup and magnifier are styled via CSS, includin popup show/hide animation
@@ -154,8 +154,7 @@
     - use native (momentum) scrolling
     - add blue borders to left and right edges of selection
     - move the inputElement out of the way, to prevent it from grabbing touch events
- */
-.CodeMirror-scroll{  -webkit-overflow-scrolling:touch;}
+*/
 .CodeMirror-selected:first-of-type{ border-left: solid #416BF2 2px;}
 .CodeMirror-selected:last-of-type{ border-right: solid #416BF2 2px;}
 .CodeMirror div textarea{position: absolute; left: -500px;}
