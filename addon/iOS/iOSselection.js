@@ -71,43 +71,42 @@
                    y>(bounds.top+window.pageYOffset)  && y<(bounds.bottom+window.pageYOffset); }
          // place the dots at the right place, or hide them altogether
          function drawSelectionDots(e){
-           startSel.style.display= (selected && shown(start.x, start.y ))? 'block' : 'none';
-           endSel.style.display  = (selected && shown(end.x,   end.yBot))? 'block' : 'none';
-           startSel.style.top  = start.y  + "px";
-           startSel.style.left = start.x  + "px";
-           endSel.style.top    = end.yBot + "px";
-           endSel.style.left   = end.x    + "px";
+           startSel.style.display= (selected && shown(start.left, start.top ))? 'block' : 'none';
+           endSel.style.display  = (selected && shown(end.left,   end.bottom))? 'block' : 'none';
+           startSel.style.left = start.left + "px";
+           startSel.style.top  = start.top  + "px";
+           endSel.style.left   = end.left   + "px";
+           endSel.style.top    = end.bottom + "px";
          }
         // draw the Magnifier and position the notch
         function drawMagnifier(e){
            magnifier.className = !selected? "circle" : "rectangle";
-           magnifiedCM.scrollTo(scrollInfo.x, scrollInfo.y);
+           magnifiedCM.scrollTo(scrollInfo.left, scrollInfo.top);
            tool.style.left = x - tool.offsetWidth/2 + "px";
            tool.style.top  = y - magnifier.offsetHeight - (selected? 30 : 0) + "px";
-           magnifiedStuff.style.left = (-x+gutterWidth-scrollInfo.x-15)*magnifiedScale+magnifier.offsetWidth/2+"px";
-           magnifiedStuff.style.top  = (-y+wrapper.offsetTop+magnifier.offsetHeight/6)*magnifiedScale+"px";
+           magnifiedStuff.style.left = (-x+gutterWidth-scrollInfo.left-15)*magnifiedScale+magnifier.offsetWidth/2+"px";
+           magnifiedStuff.style.top  = (-y+wrapper.offsetTop+magnifier.offsetHeight/4)*magnifiedScale+"px";
            notch.style.left = -tool.offsetWidth/2 - notch.offsetWidth/2 + 'px'; // shift left by half notchWidth
            notch.className ='above';
-           magnifiedCM.getScrollerElement().className = scroller.className + " CodeMirror-focused";
         }
         // draw the Popup and position the notch
         function drawPopup(e){
            if(selected){
              popup.appendChild(cut); popup.appendChild(copy);
-             popupX = (start.y===end.y)? (start.x+end.x)/2 : (scroller.offsetLeft+wrapper.offsetWidth)/2;
+             popupX = (start.top===end.top)? (start.left+end.left)/2 : (scroller.offsetLeft+wrapper.offsetWidth)/2;
            } else {
              popup.appendChild(select); popup.appendChild(selectAll);
-             popupX = start.x;
+             popupX = start.left;
            }
            if(clipboardText.length>0){ popup.appendChild(paste);}
            // Assume the popup is centered onscreen, notch pointing down. Then check edge cases and notch direction.
            notch.className ='above';
            tool.style.top  = wrapper.offsetTop + wrapper.offsetHeight/2 + "px";
-           if(start.y > wrapper.offsetTop && start.y-tool.offsetHeight > window.pageYOffset){
-             tool.style.top  = start.y - (tool.offsetHeight+10) + "px";
-           } else if (end.yBot+tool.offsetHeight+10 < wrapper.offsetTop+wrapper.offsetHeight){
+           if(start.top > wrapper.offsetTop && start.top-tool.offsetHeight > window.pageYOffset){
+             tool.style.top  = start.top - (tool.offsetHeight+10) + "px";
+           } else if (end.bottom+tool.offsetHeight+10 < wrapper.offsetTop+wrapper.offsetHeight){
              notch.className='below';
-             tool.style.top = end.yBot+10*deviceScale+"px";
+             tool.style.top = end.bottom+10*deviceScale+"px";
            }
            // make sure the popup is never out of bounds, and position the triangle near cursor with CSS
            var tw = tool.offsetWidth;
@@ -133,7 +132,7 @@
            // switch the tool class based on touchevent type (end->magnify, everything else->popup)
            tool.className = (e.type !== 'touchend')? "magnify" : "popup";
            var adjustY  = (mode!=="end")? startSel.firstChild.offsetHeight : -endSel.firstChild.offsetHeight;
-           e.coords   = {x: e.changedTouches[0].pageX, y: e.changedTouches[0].pageY+(mode==="both"? 0 : adjustY)};
+           e.coords   = {left: e.changedTouches[0].pageX, top: e.changedTouches[0].pageY+(mode==="both"? 0 : adjustY)};
            var startPos = (mode!=="end")?   cm.coordsChar(e.coords) : cm.getCursor(true),
                endPos   = (mode!=="start")? cm.coordsChar(e.coords) : cm.getCursor(false);
            // if the cursor positions are valid, update selection in both CMs, and scroll the editor
@@ -143,7 +142,7 @@
               cm.scrollIntoView((mode!=="end"? startPos : endPos));
            }
            if(tool.className==="magnify" && mode!=="both"){e.coords = cm.cursorCoords(mode==="start");}
-           drawTool(e, e.coords.x, e.coords.y+3);
+           drawTool(e, e.coords.left, e.coords.top+3);
         };
      }
      // draw selection for entire editor
@@ -205,19 +204,21 @@
        magnifiedCM.value = cm.getTextArea().value;
        magnifiedStuff.appendChild(magnifiedCM);
        magnifiedCM = CodeMirror.fromTextArea(magnifiedCM,{mode: cm.getOption("mode"), lineNumbers: cm.getOption("lineNumbers")});
+       magnifiedCM.getWrapperElement().className = magnifiedCM.getWrapperElement().className+" CodeMirror-focused";
      }
      // set touchMove and touchEnd events, which are cleaned up on touchEnd
      function magnifyCursor(e){
        if(document.activeElement !== input){cm.focus();}
        initializeMagnifier(e);
-       scroller.addEventListener("touchmove", updateCursors("both"), true),
-       scroller.addEventListener("touchend", function(e){
-                                               tool.className = 'popup';
-                                               updateCursors("both")(e);
-                                               scroller.removeEventListener("touchmove");
-                                               scroller.removeEventListener("touchend");
-                                            },
-                                 true);
+       var touchMoveListener = updateCursors("both");
+       var touchEndListener = function(e){
+         tool.className = 'popup';
+         updateCursors("both")(e);
+         scroller.removeEventListener("touchmove", touchMoveListener, true);
+         scroller.removeEventListener("touchend", touchEndListener, true);
+       }
+       scroller.addEventListener("touchmove", touchMoveListener, true);
+       scroller.addEventListener("touchend", touchEndListener, true);
        // update the cursor and magnifier position
        updateCursors("both")(e);
      }
