@@ -1,0 +1,42 @@
+/*******************************************************************
+  Rules for iOSKeyboard.js
+  
+  - the keybaord is simply a list of keys, all of which are styled here
+  - keys have an extra state, defined using the className ".pressed"
+
+  */
+#keys {
+  width:      100%;
+  text-align: center;
+  background: -webkit-linear-gradient(top, #9c9ba6, #57575f);
+  padding-top:10px;
+  box-shadow: inset 0 1px 0 #bfbfbf;
+  border-top: 1px solid #303236;
+  padding:    4px;
+  position:   absolute;
+  display:    none;
+  left:       0px;
+  z-index:    999;
+}
+
+#keys.iPad li {
+  background: -webkit-linear-gradient(top, #eeeef0, #d3d3d9);
+  margin:     4px 8px 8px 0px;
+  text-align: center;
+  font:       20px sans-serif;
+  text-shadow:0 1px 0 #fff;
+  display:    inline-block;
+  border:     1px solid black;
+  box-shadow:  0  2px 2px rgba(0,0,0,0.25),
+  inset 0 -2px 0   rgba(0,0,0,0.25),
+  inset 0  1px 0   #fff;
+  cursor:      pointer;
+  position:   relative;
+  border-radius: 5px;
+  -webkit-transition: all 0.1s ease-in-out;
+  -webkit-user-select: none;
+}
+
+#keys li.pressed{
+  background: -webkit-linear-gradient(top, #aeaeb0, #939399);
+}
