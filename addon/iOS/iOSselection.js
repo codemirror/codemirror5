@@ -4,24 +4,25 @@
 /*
  iOS CodeMirror Support (C) 2012 Emmanuel Schanzer
  */
+var debug = null;
 (function(){
  "use strict";
   function iOSpopup(cm) {
     if(!(navigator.userAgent.match(/iPod/i) ||
          navigator.userAgent.match(/iPad/i) ||
          navigator.userAgent.match(/iPhone/i))){ return false;}
-     var clipboardText = "",
-         wrapper = cm.getWrapperElement(),
-         scroller = cm.getScrollerElement(),
-         input = cm.getInputField(),
-         gutterWidth = cm.getGutterElement().offsetWidth;
+     var clipboardText  = "",
+         wrapper        = cm.getWrapperElement(),
+         scroller       = cm.getScrollerElement(),
+         input          = cm.getInputField(),
+         gutterWidth    = cm.getGutterElement().offsetWidth;
  
      // programmatically load required stylesheet
-     var cssLink = document.createElement('link');
+     var cssLink  = document.createElement('link');
      cssLink.type = 'text/css';
-     cssLink.rel = 'stylesheet';
+     cssLink.rel  = 'stylesheet';
      cssLink.href = '../addon/iOS/iOSselection.css';
-     cssLink.title = 'iOS Selection CSS Support';
+     cssLink.title= 'iOS Selection CSS Support';
      document.getElementsByTagName('head')[0].appendChild(cssLink);
  
      function elt(tag, content, id, className) {
@@ -132,7 +133,8 @@
            // switch the tool class based on touchevent type (end->magnify, everything else->popup)
            tool.className = (e.type !== 'touchend')? "magnify" : "popup";
            var adjustY  = (mode!=="end")? startSel.firstChild.offsetHeight : -endSel.firstChild.offsetHeight;
-           e.coords   = {left: e.changedTouches[0].pageX, top: e.changedTouches[0].pageY+(mode==="both"? 0 : adjustY)};
+           e.coords     = {left: e.changedTouches[0].pageX
+                          ,top: e.changedTouches[0].pageY+(mode==="both"? 0 : adjustY)};
            var startPos = (mode!=="end")?   cm.coordsChar(e.coords) : cm.getCursor(true),
                endPos   = (mode!=="start")? cm.coordsChar(e.coords) : cm.getCursor(false);
            // if the cursor positions are valid, update selection in both CMs, and scroll the editor
@@ -205,6 +207,7 @@
        magnifiedStuff.appendChild(magnifiedCM);
        magnifiedCM = CodeMirror.fromTextArea(magnifiedCM,{mode: cm.getOption("mode"), lineNumbers: cm.getOption("lineNumbers")});
        magnifiedCM.getWrapperElement().className = magnifiedCM.getWrapperElement().className+" CodeMirror-focused";
+                                                     debug = magnifiedCM;
      }
      // set touchMove and touchEnd events, which are cleaned up on touchEnd
      function magnifyCursor(e){
@@ -280,7 +283,7 @@
      cut.addEventListener("touchend",        popupFactory(cutHandler));
      copy.addEventListener("touchend",       popupFactory(copyHandler));
      paste.addEventListener("touchend",      popupFactory(pasteHandler));
-     // handle scaling: draw everything over again
+     // handle scaling and resizing: draw everything over again
      window.addEventListener("resize",   drawTool);
      window.addEventListener("scroll",   drawTool);
 
