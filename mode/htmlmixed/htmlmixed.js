@@ -55,7 +55,7 @@ CodeMirror.defineMode("htmlmixed", function(config) {
     copyState: function(state) {
       if (state.localState)
         var local = CodeMirror.copyState(state.token == css ? cssMode : jsMode, state.localState);
-      return {token: state.token, localState: local, mode: state.mode,
+      return {token: state.token, localState: local,
               htmlState: CodeMirror.copyState(htmlMode, state.htmlState)};
     },
 
