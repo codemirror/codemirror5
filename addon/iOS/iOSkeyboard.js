@@ -11,7 +11,7 @@
         var cssLink = document.createElement('link');
         cssLink.type = 'text/css';
         cssLink.rel = 'stylesheet';
-        cssLink.href = '../lib/util/iOSkeyboard.css';
+        cssLink.href = '../addon/iOS/iOSkeyboard.css';
         cssLink.title = 'iOS Selection CSS Support';
         document.getElementsByTagName('head')[0].appendChild(cssLink);
 
@@ -136,18 +136,18 @@
         if(iPad){
             var _onBlur = cm.getOption('onBlur');
             var _onFocus = cm.getOption('onFocus');
-            cm.setOption("onBlur", 
-                         function() {
-                             if (_onBlur) { _onBlur(); }
-                             keysVisible = false; 
-                             drawKeyboard();
-                         });
-            cm.setOption("onFocus",
-                         function(){
-                             if (_onFocus) { _onFocus(); }
-                             keysVisible = true; 
-                             drawKeyboard();
-                         });
+            cm.on("blur",
+                   function() {
+                       if (_onBlur) { _onBlur(); }
+                       keysVisible = false; 
+                       drawKeyboard();
+                   });
+            cm.on("focus",
+                  function(){
+                       if (_onFocus) { _onFocus(); }
+                       keysVisible = true; 
+                       drawKeyboard();
+                   });
             window.addEventListener('orientationchange', drawKeyboard, false);
             window.addEventListener('scroll',           drawKeyboard, false);
         }
