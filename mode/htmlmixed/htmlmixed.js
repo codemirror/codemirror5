@@ -14,19 +14,16 @@ CodeMirror.defineMode("htmlmixed", function(config) {
         if (!scriptType || scriptType.match(/(text|application)\/(java|ecma)script/i)) {
           state.token = javascript;
           state.localState = jsMode.startState(htmlMode.indent(state.htmlState, ""));
-          state.mode = "javascript";
         } else if (scriptType.match(/\/x-handlebars-template/i) || scriptType.match(/\/x-mustache/i)) {
             // Handlebars or Mustache template: leave it in HTML mode
         } else {
           state.token = unknownScript;
           state.localState = null;
-          state.mode = "";
         }
       }
       else if (/^style$/i.test(state.htmlState.context.tagName)) {
         state.token = css;
         state.localState = cssMode.startState(htmlMode.indent(state.htmlState, ""));
-        state.mode = "css";
       }
     }
     return style;
@@ -45,7 +42,6 @@ CodeMirror.defineMode("htmlmixed", function(config) {
     if (stream.match(/^<\/\s*script\s*>/i, false)) {
       state.token = html;
       state.localState = null;
-      state.mode = "html";
       return html(stream, state);
     }
     return maybeBackup(stream, /<\/\s*script\s*>/,
@@ -55,7 +51,6 @@ CodeMirror.defineMode("htmlmixed", function(config) {
     if (stream.match(/^<\/\s*script\s*>/i, false)) {
       state.token = html;
       state.localState = null;
-      state.mode = "html";
       return html(stream, state);
     }
     return maybeBackup(stream, /<\/\s*script\s*>/,
@@ -65,7 +60,6 @@ CodeMirror.defineMode("htmlmixed", function(config) {
     if (stream.match(/^<\/\s*style\s*>/i, false)) {
       state.token = html;
       state.localState = null;
-      state.mode = "html";
       return html(stream, state);
     }
     return maybeBackup(stream, /<\/\s*style\s*>/,
@@ -98,12 +92,6 @@ CodeMirror.defineMode("htmlmixed", function(config) {
         return cssMode.indent(state.localState, textAfter);
       else  // unknownScriptMode
         return 0;
-    },
-
-    compareStates: function(a, b) {
-      if (a.mode != b.mode) return false;
-      if (a.localState) return CodeMirror.Pass;
-      return htmlMode.compareStates(a.htmlState, b.htmlState);
     },
 
     electricChars: "/{}:",
