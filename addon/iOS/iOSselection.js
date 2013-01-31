@@ -8,15 +8,16 @@ var debug = null;
 (function(){
  "use strict";
   function iOSpopup(cm) {
+    // only activate on an iOS device
     if(!(navigator.userAgent.match(/iPod/i) ||
          navigator.userAgent.match(/iPad/i) ||
          navigator.userAgent.match(/iPhone/i))){ return false;}
+     // set variables for common elements we'll be using
      var clipboardText  = "",
          wrapper        = cm.getWrapperElement(),
          scroller       = cm.getScrollerElement(),
          input          = cm.getInputField(),
          gutterWidth    = cm.getGutterElement().offsetWidth;
- 
      // programmatically load required stylesheet
      var cssLink  = document.createElement('link');
      cssLink.type = 'text/css';
@@ -24,7 +25,7 @@ var debug = null;
      cssLink.href = '../addon/iOS/iOSselection.css';
      cssLink.title= 'iOS Selection CSS Support';
      document.getElementsByTagName('head')[0].appendChild(cssLink);
- 
+     // steal Marijnh's beautiful element-creation function
      function elt(tag, content, id, className) {
        var e = document.createElement(tag);
        if (className){ e.className = className;}
@@ -33,6 +34,7 @@ var debug = null;
        else if(content){ for (var i = 0; i < content.length; ++i){e.appendChild(content[i]);}}
        return e;
      }
+     // create various DOM elements we'll be using
      var selectAll= elt('li', "Select All"),
          select   = elt('li', "Select"),
          paste    = elt('li', "Paste"),
@@ -55,7 +57,7 @@ var debug = null;
        document.body.appendChild(startSel);
        document.body.appendChild(endSel);
      }
- 
+     // given a touch event and an optional x,y coord, draw the relevant tool
      function drawTool(e, x, y){
         var start       = cm.cursorCoords(true),
             end         = cm.cursorCoords(false),
@@ -218,10 +220,10 @@ var debug = null;
          tool.className = 'popup';
          updateCursors("both")(e);
          scroller.removeEventListener("touchmove", touchMoveListener, true);
-         scroller.removeEventListener("touchend", touchEndListener, true);
+         scroller.removeEventListener("touchend",  touchEndListener,  true);
        }
        scroller.addEventListener("touchmove", touchMoveListener, true);
-       scroller.addEventListener("touchend", touchEndListener, true);
+       scroller.addEventListener("touchend",  touchEndListener,  true);
        // update the cursor and magnifier position
        updateCursors("both")(e);
      }
