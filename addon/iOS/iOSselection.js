@@ -1,4 +1,4 @@
-/*global CodeMirror, that */
+/*global CodeMirror */
 /*jslint plusplus: true, browser: true, vars: true */
 
 /*
@@ -73,7 +73,7 @@ var debug = null;
             return x>(bounds.left+window.pageXOffset) && x<(bounds.right+window.pageXOffset) &&
                    y>(bounds.top+window.pageYOffset)  && y<(bounds.bottom+window.pageYOffset); }
          // place the dots at the right place, or hide them altogether
-         function drawSelectionDots(e){
+         function drawSelectionDots(){
            startSel.style.display= (selected && shown(start.left, start.top ))? 'block' : 'none';
            endSel.style.display  = (selected && shown(end.left,   end.bottom))? 'block' : 'none';
            startSel.style.left = start.left + "px";
@@ -82,7 +82,7 @@ var debug = null;
            endSel.style.top    = end.bottom + "px";
          }
         // draw the Magnifier and position the notch
-        function drawMagnifier(e){
+        function drawMagnifier(){
            magnifier.className = !selected? "circle" : "rectangle";
            magnifiedCM.scrollTo(scrollInfo.left, scrollInfo.top);
            tool.style.left = x - tool.offsetWidth/2 + "px";
@@ -93,7 +93,7 @@ var debug = null;
            notch.className ='above';
         }
         // draw the Popup and position the notch
-        function drawPopup(e){
+        function drawPopup(){
            if(selected){
              popup.appendChild(cut); popup.appendChild(copy);
              popupX = (start.top===end.top)? (start.left+end.left)/2 : (scroller.offsetLeft+wrapper.offsetWidth)/2;
@@ -135,8 +135,8 @@ var debug = null;
            // switch the tool class based on touchevent type (end->magnify, everything else->popup)
            tool.className = (e.type !== 'touchend')? "magnify" : "popup";
            var adjustY  = (mode!=="end")? startSel.firstChild.offsetHeight : -endSel.firstChild.offsetHeight;
-           e.coords     = {left: e.changedTouches[0].pageX
-                          ,top: e.changedTouches[0].pageY+(mode==="both"? 0 : adjustY)};
+           e.coords     = {left: e.changedTouches[0].pageX,
+                           top: e.changedTouches[0].pageY+(mode==="both"? 0 : adjustY)};
            var startPos = (mode!=="end")?   cm.coordsChar(e.coords) : cm.getCursor(true),
                endPos   = (mode!=="start")? cm.coordsChar(e.coords) : cm.getCursor(false);
            // if the cursor positions are valid, update selection in both CMs, and scroll the editor
@@ -150,7 +150,7 @@ var debug = null;
         };
      }
      // draw selection for entire editor
-     function selectAllHandler(e){
+     function selectAllHandler(){
         cm.setSelection({line: 0, ch: 0}, {line: cm.lineCount() - 1});
         tool.className = 'popup';
      }
@@ -201,7 +201,7 @@ var debug = null;
         tool.className = 'popup';
      }
      // empty the magnifier, set it to a new clone of the editor, and fake it as "focused"
-     function initializeMagnifier(e){
+     function initializeMagnifier(){
        cm.save();
        magnifiedStuff.innerHTML = "";
        magnifiedCM = cm.getTextArea().cloneNode(true);
@@ -221,7 +221,7 @@ var debug = null;
          updateCursors("both")(e);
          scroller.removeEventListener("touchmove", touchMoveListener, true);
          scroller.removeEventListener("touchend",  touchEndListener,  true);
-       }
+       };
        scroller.addEventListener("touchmove", touchMoveListener, true);
        scroller.addEventListener("touchend",  touchEndListener,  true);
        // update the cursor and magnifier position
@@ -239,7 +239,7 @@ var debug = null;
      function endHandler(e){
        window.clearTimeout(holdTimer);
        // onTap: hide popup and corners, start timer for doubleTap
-       function onTap(e){
+       function onTap(){
          startSel.style.display=endSel.style.display='none';
          recentTap=window.setTimeout(function(){recentTap=false;},250);
          tool.className = '';
