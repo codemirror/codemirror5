@@ -4,29 +4,24 @@
 /*
 iOS CodeMirror Support (C) 2013 Emmanuel Schanzer
 */
-var debug = null;
-"use strict";
 function iOSselection(cm) {
+  "use strict";
   // only activate on an iOS device
-  if(!(navigator.userAgent.match(/iPod/i) ||
-       navigator.userAgent.match(/iPad/i) ||
-       navigator.userAgent.match(/iPhone/i))){ return false;}
+  if(!(navigator.userAgent.match(/iphone|ipad|ipod/i))){ return false;}
    // set variables for common elements we'll be using
    var clipboardText  = "",
        wrapper        = cm.getWrapperElement(),
        scroller       = cm.getScrollerElement(),
-       input          = cm.getInputField(),
        gutterWidth    = cm.getGutterElement().offsetWidth,
-  magnifiedCM    = CodeMirror(cm.getWrapperElement(), {value: cm.getDoc().linkedDoc()});
-  console.log(magnifiedCM);
-     // programmatically load required stylesheet
+       magnifiedCM    = new CodeMirror(cm.getWrapperElement(),{value: cm.getDoc().linkedDoc()});
+   // programmatically load required stylesheet
    var cssLink  = document.createElement('link');
    cssLink.type = 'text/css';
    cssLink.rel  = 'stylesheet';
    cssLink.href = '../addon/iOS/iOSselection.css';
    cssLink.title= 'iOS Selection CSS Support';
    document.getElementsByTagName('head')[0].appendChild(cssLink);
-   // steal Marijnh's beautiful element-creation function
+   // steal Marijnh's beautiful element-creation function (from https://github.com/marijnh/CodeMirror)
    function elt(tag, content, id, className) {
      var e = document.createElement(tag);
      if (className){ e.className = className;}
@@ -48,7 +43,7 @@ function iOSselection(cm) {
        magnifier= elt('div',[magnifiedStuff],'magnifier'),
        notch    = elt('b',null,'notch','above'),
        tool     = elt('div',[popup,magnifier,notch],'tool');
-   var magnifiedScale = 1.5, magnifiedCM;
+   var magnifiedScale = 1.5;
    magnifiedStuff.style.webkitTransform = "scale("+magnifiedScale+")";
    magnifiedStuff.style.width = wrapper.style.width;
    magnifiedStuff.style.height = wrapper.style.height;
@@ -133,7 +128,7 @@ function iOSselection(cm) {
    function updateCursors(mode){
      return function(e){
          e.stopPropagation(); e.preventDefault();
-         // switch the tool class based on touchevent type (end->magnify, everything else->popup)
+         // switch the tool class based on touchevent type (touchend->magnify, everything else->popup)
          tool.className = (e.type !== 'touchend')? "magnify" : "popup";
          var adjustY  = (mode!=="end")? startSel.firstChild.offsetHeight : -endSel.firstChild.offsetHeight;
          e.coords     = {left: e.changedTouches[0].pageX,
@@ -203,7 +198,7 @@ function iOSselection(cm) {
    }
    // set touchMove and touchEnd events, which are cleaned up on touchEnd
    function magnifyCursor(e){
-     if(document.activeElement !== input){cm.focus();}
+     if(document.activeElement !== cm.getInputField()){cm.focus();}
      var touchMoveListener = updateCursors("both");
      var touchEndListener = function(e){
        tool.className = 'popup';
@@ -248,7 +243,7 @@ function iOSselection(cm) {
      }
      LAST_TOUCH = e;
    }
-   // Move the inputElt out of the way and start the magnifying timer
+   // Start the timer for Tap, DoubleTap and Hold events
   function startHandler(e){
      if(e.target.nodeName === "LI"){return;}  // ignore touches to popup buttons
      tool.className = '';
