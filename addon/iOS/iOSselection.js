@@ -15,7 +15,7 @@ function iOSselection(cm, enabled) {
        scroller       = cm.getScrollerElement(),
        gutterWidth    = cm.getGutterElement().offsetWidth,
        magnifiedCM    = new CodeMirror(cm.getWrapperElement(),{value: cm.getDoc().linkedDoc()});
-   magnifiedCM.setOption("lineNumbers", true);
+   magnifiedCM.setOption("lineNumbers", cm.getOption("lineNumbers"));
    magnifiedCM.getWrapperElement().className += " CodeMirror-focused";
    // programmatically load required stylesheet
    var cssLink  = document.createElement('link');
