@@ -4,7 +4,8 @@
 /*
 iOS CodeMirror Support (C) 2013 Emmanuel Schanzer
 */
-function iOSselection(cm) {
+function iOSselection(cm, v) {
+  if(!v) return;
   "use strict";
   // only activate on an iOS device
   if(!(navigator.userAgent.match(/iphone|ipad|ipod/i))){ return false;}
@@ -21,7 +22,7 @@ function iOSselection(cm) {
    cssLink.href = '../addon/iOS/iOSselection.css';
    cssLink.title= 'iOS Selection CSS Support';
    document.getElementsByTagName('head')[0].appendChild(cssLink);
-   // steal Marijnh's beautiful element-creation function (from https://github.com/marijnh/CodeMirror)
+   // steal Marijnh's beautiful element-creation function (from https://github.com/marijnh/CodeMirror )
    function elt(tag, content, id, className) {
      var e = document.createElement(tag);
      if (className){ e.className = className;}
@@ -273,4 +274,7 @@ function iOSselection(cm) {
    window.addEventListener("scroll",   drawTool);
 
    cm.on("change", function(e){tool.className=''; drawTool(e);});
+   return;
 }
+
+CodeMirror.defineOption("iOSselection", false, iOSselection);

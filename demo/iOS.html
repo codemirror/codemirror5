@@ -66,7 +66,9 @@ input
       // define some keys for our 5th row
       
       var editor = CodeMirror.fromTextArea(document.getElementById("code"),
-                                           {mode: "scheme", lineNumbers: true});
+                                           {mode: "scheme",
+                                           lineNumbers: true,
+                                           iOSselection: true});
 // undo and redo icons from http://turbomilk.com
 var keyArray = [{key:"("},
                 {key:")"},
@@ -81,7 +83,6 @@ var keyArray = [{key:"("},
                 ];
 
       editor.addKeyrow(keyArray, "../addon/iOS/Tock.aiff");
-      iOSselection(editor);
 </script>
 
   </body>
