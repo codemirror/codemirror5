@@ -16,8 +16,10 @@ function iOSselection(cm) {
        wrapper        = cm.getWrapperElement(),
        scroller       = cm.getScrollerElement(),
        input          = cm.getInputField(),
-       gutterWidth    = cm.getGutterElement().offsetWidth;
-   // programmatically load required stylesheet
+       gutterWidth    = cm.getGutterElement().offsetWidth,
+  magnifiedCM    = CodeMirror(cm.getWrapperElement(), {value: cm.getDoc().linkedDoc()});
+  console.log(magnifiedCM);
+     // programmatically load required stylesheet
    var cssLink  = document.createElement('link');
    cssLink.type = 'text/css';
    cssLink.rel  = 'stylesheet';
@@ -42,7 +44,7 @@ function iOSselection(cm) {
        startSel = elt('span',[elt('span')],'start','selectionDotTouchTarget'),
        endSel   = elt('span',[elt('span')],'end','selectionDotTouchTarget'),
        popup    = elt('ul',null,'iOSpopup'),
-       magnifiedStuff = elt('div',null,null,'magnifiedStuff'),
+       magnifiedStuff = elt('div',[magnifiedCM.getWrapperElement()],null,'magnifiedStuff'),
        magnifier= elt('div',[magnifiedStuff],'magnifier'),
        notch    = elt('b',null,'notch','above'),
        tool     = elt('div',[popup,magnifier,notch],'tool');
@@ -199,21 +201,9 @@ function iOSselection(cm) {
       }
       tool.className = 'popup';
    }
-   // empty the magnifier, set it to a new clone of the editor, and fake it as "focused"
-   function initializeMagnifier(){
-     cm.save();
-     magnifiedStuff.innerHTML = "";
-     magnifiedCM = cm.getTextArea().cloneNode(true);
-     magnifiedCM.value = cm.getTextArea().value;
-     magnifiedStuff.appendChild(magnifiedCM);
-     magnifiedCM = CodeMirror.fromTextArea(magnifiedCM,{mode: cm.getOption("mode"), lineNumbers: cm.getOption("lineNumbers")});
-     magnifiedCM.getWrapperElement().className = magnifiedCM.getWrapperElement().className+" CodeMirror-focused";
-                                                   debug = magnifiedCM;
-   }
    // set touchMove and touchEnd events, which are cleaned up on touchEnd
    function magnifyCursor(e){
      if(document.activeElement !== input){cm.focus();}
-     initializeMagnifier(e);
      var touchMoveListener = updateCursors("both");
      var touchEndListener = function(e){
        tool.className = 'popup';
@@ -245,7 +235,6 @@ function iOSselection(cm) {
      }
      // onDoubleTap: initialize the magnifier, set the cursor to tap location and select
      function onDoubleTap(e){
-       initializeMagnifier(e);
        updateCursors("both")(e);
        popupFactory(selectHandler)(e);
      }
