@@ -4,8 +4,8 @@
 /*
 iOS CodeMirror Support (C) 2013 Emmanuel Schanzer
 */
-function iOSselection(cm, v) {
-  if(!v) return;
+function iOSselection(cm, enabled) {
+  if(!enabled) return;
   "use strict";
   // only activate on an iOS device
   if(!(navigator.userAgent.match(/iphone|ipad|ipod/i))){ return false;}
@@ -15,6 +15,8 @@ function iOSselection(cm, v) {
        scroller       = cm.getScrollerElement(),
        gutterWidth    = cm.getGutterElement().offsetWidth,
        magnifiedCM    = new CodeMirror(cm.getWrapperElement(),{value: cm.getDoc().linkedDoc()});
+   magnifiedCM.setOption("lineNumbers", true);
+   magnifiedCM.getWrapperElement().className += " CodeMirror-focused";
    // programmatically load required stylesheet
    var cssLink  = document.createElement('link');
    cssLink.type = 'text/css';
