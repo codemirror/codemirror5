@@ -1,0 +1,160 @@
+/*******************************************************************
+  Rules for iOSselection.js
+  - div#Tool contains a callout triangle ('notch'), as well as the
+    popup and the magnifier (whose visiblity is determined by the tool's class)
+  - both the popup and magnifier are styled via CSS, includin popup show/hide animation
+  - the notch's position is also set by CSS, as it appears differenly when the popup is 
+    above or below the selection
+  - the selectionDotTargets are also styled here, including size, position and appearance
+*/
+
+#tool{
+  position: absolute;
+  display:  none;
+  padding:  0px;
+  margin:   0px;
+  display:  inline-block;
+  z-index:  501;
+}
+#tool.popup   #iOSpopup {visibility: visible; opacity: 1;}
+#tool.magnify #magnifier{display: inline-block;}
+
+#notch{
+    position: relative;
+    border: 10px solid transparent;
+    margin: 0px;
+    padding: 0px;
+    width: 0px;
+    height: 0px;
+    z-index:999;
+    margin-right: -20px; /* compensate for the notch width (border-width*2) */
+    display: none;
+}
+#notch.above{bottom: -20px; border-top:    10px solid black;}
+#notch.below{top:    -35px; border-bottom: 10px solid black;}
+
+#tool.magnify #notch, #tool.popup #notch{display: inline-block;}
+#tool.magnify #notch.above{bottom:  1px; border-top:  10px solid lightgray;}
+#tool.magnify #notch.below{top: -33px; border-bottom: 10px solid lightgray;}
+
+#iOSpopup{
+  position: relative;
+  top:       0px;
+  left:      0px;
+  border-radius: 5px;
+  border:     solid 1px black;
+  opacity:    0;
+  padding:    0px;
+  margin:     0px;
+  display:    inline-block;
+  visiblity:  hidden;
+  list-style: none;
+  z-index:    500;
+  box-shadow: 2px 2px 4px black;
+  -webkit-transition: opacity 0.2s linear;
+  background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0%, #909090), 
+                                                             color-stop(50%, #525252), 
+                                                             color-stop(50%, #3B3B3B), 
+                                                             color-stop(100%, #151515));
+}
+
+#iOSpopup li{
+  float: left;
+  color: white;
+  font-size: 14px;
+  display: inline;
+  padding: 8px 12px;
+  margin: 0px;
+  font-weight:900;
+  font-family:Helvetica, Arial, Verdana, sans-serif;
+  display: block;
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAAwCAYAAAA7BKuCAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAGRJREFUeNqMkAEKwCAMA1X8UZ+wPXtP6JNmsxWU0UXHBPFIbGlTACS/JfXDkEVkv9/DFajqVh3CH1JQhlLfAAcbSoTQ0NZVjayTLBtW+wauWvSx6WDPGLwyhYnsYc9z/gOXAAMAXS43h0s7kq0AAAAASUVORK5CYII=)
+    right no-repeat;
+}
+
+.selectionDotTouchTarget{ 
+  display: none; 
+  position: absolute;
+  width: 20px;
+  margin-top: -8px;
+  margin-left: -8px;
+  height: 20px;
+  background: transparent;
+  z-index: 500;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.selectionDotTouchTarget span{
+  margin: 5px;
+  position: relative;
+  display: block;
+  z-index: 900;
+  width: 8px;
+  height: 8px;
+  background: -webkit-linear-gradient(top, #2673F2, #1E57B6);
+  border-radius: 4px;
+  border: groove 1px white;
+  box-shadow: 0px 1px 2px 1px rgba(0, 0, 9, .5);
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+#start.selectionDotTouchTarget span{top: -4px; left: -2px;}
+#end.selectionDotTouchTarget span{bottom: 0px; right: 2px;}
+
+#magnifier{
+  position: relative;
+  top:  0px;
+  left: 0px;
+  overflow: hidden;
+  background-color: white;
+  z-index: 999;
+  display: none;
+  /* this fixes the overflow:hidden in webKit browsers. 
+  See http://stackoverflow.com/questions/5736503/how-to-make-css3-rounded-corners-hide-overflow-in-chrome-opera */
+  
+-webkit-mask-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAA5JREFUeNpiYGBgAAgwAAAEAAGbA+oJAAAAAElFTkSuQmCC);
+  box-shadow:  2px 2px 4px black;
+}
+
+.circle{
+  width: 115px;
+  height: 115px;
+  border-radius: 57px;
+  background-image: url('../iOS/glass.png');
+}
+#tool.magnify .circle+#notch{display: none;}
+
+.rectangle{
+  border: 3px white ridge;
+  width: 100px;
+  height: 25px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.magnifiedStuff{
+  top: 0px;
+  left: 0px;
+  overflow: visible;
+  position: absolute;
+  display: block;
+  transform-origin: left top;
+  user-select: none;
+  -webkit-transform-origin: left top;
+  -webkit-user-select: none
+  overflow:hidden;
+}
+
+
+
+/****************************************************************
+  Override CM defaults to provide iOS-like behavior:
+    - use native (momentum) scrolling
+    - add blue borders to left and right edges of selection
+    - move the inputElement out of the way, to prevent it from grabbing touch events
+*/
+.CodeMirror-selected:first-of-type{ border-left: solid #416BF2 2px; margin-left: -2px;}
+.CodeMirror-selected:last-of-type{ border-right: solid #416BF2 2px; margin-right: -2px;}
+.CodeMirror div textarea{position: absolute; left: -500px;}
