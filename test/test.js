@@ -460,6 +460,21 @@ testCM("bookmark", function(cm) {
   });
 });
 
+testCM("bookmarkInsertLeft", function(cm) {
+  var br = cm.setBookmark({line: 0, ch: 2}, {insertLeft: false});
+  var bl = cm.setBookmark({line: 0, ch: 2}, {insertLeft: true});
+  cm.setCursor({line: 0, ch: 2});
+  cm.replaceSelection("hi");
+  eqPos(br.find(), {line: 0, ch: 2});
+  eqPos(bl.find(), {line: 0, ch: 4});
+  cm.replaceRange("", {line: 0, ch: 4}, {line: 0, ch: 5});
+  cm.replaceRange("", {line: 0, ch: 2}, {line: 0, ch: 4});
+  cm.replaceRange("", {line: 0, ch: 1}, {line: 0, ch: 2});
+  // Verify that deleting next to bookmarks doesn't kill them
+  eqPos(br.find(), {line: 0, ch: 1});
+  eqPos(bl.find(), {line: 0, ch: 1});
+}, {value: "abcdef"});
+
 testCM("bug577", function(cm) {
   cm.setValue("a\nb");
   cm.clearHistory();
@@ -726,7 +741,7 @@ testCM("badNestedFold", function(cm) {
 });
 
 testCM("inlineWidget", function(cm) {
-  var w = cm.setBookmark({line: 0, ch: 2}, document.createTextNode("uu"));
+  var w = cm.setBookmark({line: 0, ch: 2}, {widget: document.createTextNode("uu")});
   cm.setCursor(0, 2);
   CodeMirror.commands.goLineDown(cm);
   eqPos(cm.getCursor(), {line: 1, ch: 4});

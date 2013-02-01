@@ -411,8 +411,9 @@
     </dl>
 
     <p>Marked range handles, as returned
-    by <a href="#markText"><code>markText</code></a>, emit the
-    following event:</p>
+    by <a href="#markText"><code>markText</code></a>
+    and <a href="#setBookmark"><code>setBookmark</code></a>, emit the
+    following events:</p>
 
     <dl>
       <dt id="event_clear"><code>"clear" ()</code></dt>
@@ -929,16 +930,24 @@
       the <a href="#mark_replacedWith"><code>replacedWith</code></a>
       option, if any.</dd>
 
-      <dt id="setBookmark"><code>doc.setBookmark(pos, widget) → object</code></dt>
+      <dt id="setBookmark"><code>doc.setBookmark(pos, options) → object</code></dt>
       <dd>Inserts a bookmark, a handle that follows the text around it
       as it is being edited, at the given position. A bookmark has two
       methods <code>find()</code> and <code>clear()</code>. The first
       returns the current position of the bookmark, if it is still in
       the document, and the second explicitly removes the bookmark.
-      The widget argument is optional, and can be used to display a
-      DOM node at the current location of the bookmark (analogous to
-      the <a href="#mark_replacedWith"><code>replacedWith</code></a>
-      option to <code>markText</code>).</dd>
+      The options argument is optional. If given, the following
+      properties are recognized:
+      <dl>
+        <dt><code>widget</code></dt><dd>Can be used to display a DOM
+        node at the current location of the bookmark (analogous to
+        the <a href="#mark_replacedWith"><code>replacedWith</code></a>
+        option to <code>markText</code>).</dd>
+        <dt><code>insertLeft</code></dt><dd>By default, text typed
+        when the cursor is on top of the bookmark will end up to the
+        right of the bookmark. Set this option to true to make it go
+        to the left instead.</dd>
+      </dl></dd>
 
       <dt id="findMarksAt"><code>doc.findMarksAt(pos) → array</code></dt>
       <dd>Returns an array of all the bookmarks and marked ranges
