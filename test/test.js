@@ -1109,9 +1109,10 @@ testCM("addLineClass", function(cm) {
   cm.addLineClass(1, "wrap", "foo");
   cls(0, "foo bar", null, null);
   cls(1, null, "baz", "foo");
-  eq(byClassName(cm.getWrapperElement(), "foo").length, 2);
-  eq(byClassName(cm.getWrapperElement(), "bar").length, 1);
-  eq(byClassName(cm.getWrapperElement(), "baz").length, 1);
+  var lines = cm.display.lineDiv;
+  eq(byClassName(lines, "foo").length, 2);
+  eq(byClassName(lines, "bar").length, 1);
+  eq(byClassName(lines, "baz").length, 1);
   cm.removeLineClass(0, "text", "foo");
   cls(0, "bar", null, null);
   cm.removeLineClass(0, "text", "foo");
