@@ -141,8 +141,8 @@
   position: absolute;
   display: block;
   transform-origin: left top;
-  -webkit-transform-origin: left top;
   user-select: none;
+  -webkit-transform-origin: left top;
   -webkit-user-select: none
   overflow:hidden;
 }
@@ -155,6 +155,6 @@
     - add blue borders to left and right edges of selection
     - move the inputElement out of the way, to prevent it from grabbing touch events
 */
-.CodeMirror-selected:first-of-type{ border-left: solid #416BF2 2px;}
-.CodeMirror-selected:last-of-type{ border-right: solid #416BF2 2px;}
+.CodeMirror-selected:first-of-type{ border-left: solid #416BF2 2px; margin-left: -2px;}
+.CodeMirror-selected:last-of-type{ border-right: solid #416BF2 2px; margin-right: -2px;}
 .CodeMirror div textarea{position: absolute; left: -500px;}
