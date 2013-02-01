@@ -9,7 +9,7 @@ CodeMirror.defineMode("htmlmixed", function(config) {
     if (/(?:^|\s)tag(?:\s|$)/.test(style) && stream.current() == ">" && state.htmlState.context) {
       if (/^script$/i.test(state.htmlState.context.tagName)) {
         // Script block: mode to change to depends on type attribute
-        var scriptType = stream.string.slice(stream.pos - 30, stream.pos).match(/\btype\s*=\s*("[^"]+"|'[^']+'|\S+)[^<]*$/i);
+        var scriptType = stream.string.slice(stream.pos - 100, stream.pos).match(/\btype\s*=\s*("[^"]+"|'[^']+'|\S+)[^<]*$/i);
         scriptType = scriptType && scriptType[1];
         if (!scriptType || scriptType.match(/(text|application)\/(java|ecma)script/i)) {
           state.token = javascript;
