@@ -69,7 +69,7 @@
         cm.indentLine(pos.line + 2);
       }
       return;
-    } else if (ch == "/" && tok.type == "tag" && tok.string == "<") {
+    } else if (ch == "/" && tok.string == "<") {
       var tagName = state.context && state.context.tagName;
       if (tagName) cm.replaceSelection("/" + tagName + ">", "end");
       return;
