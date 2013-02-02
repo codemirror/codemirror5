@@ -650,6 +650,16 @@
       <dd>Given a line handle, returns the current position of that
       line (or <code>null</code> when it is no longer in the
       document).</dd>
+      <dt id="eachLine"><code>doc.eachLine(f) | doc.eachLine(start, end, f)</code></dt>
+      <dd>Iterate over the whole document, or if <code>start</code>
+      and <code>end</code> line numbers are given, the range
+      from <code>start</code> up to (not including) <code>end</code>,
+      and call <code>f</code> for each line, passing the line handle.
+      This is a faster way to visit a range of line handlers than
+      calling <a href="#getLineHandle"><code>getLineHandle</code></a>
+      for each of them. Note that line handles have
+      a <code>text</code> property containing the line's content (as a
+      string).</dd>
 
       <dt id="markClean"><code>doc.markClean()</code></dt>
       <dd>Set the editor content as 'clean', a flag that it will
