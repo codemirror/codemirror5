@@ -40,13 +40,12 @@ StringStream.prototype = {
   indentation: function() {return 0;},
   match: function(pattern, consume, caseInsensitive) {
     if (typeof pattern == "string") {
-      function cased(str) {return caseInsensitive ? str.toLowerCase() : str;}
+      var cased = function(str) {return caseInsensitive ? str.toLowerCase() : str;};
       if (cased(this.string).indexOf(cased(pattern), this.pos) == this.pos) {
         if (consume !== false) this.pos += pattern.length;
         return true;
       }
-    }
-    else {
+    } else {
       var match = this.string.slice(this.pos).match(pattern);
       if (match && consume !== false) this.pos += match[0].length;
       return match;

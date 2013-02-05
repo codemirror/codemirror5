@@ -100,7 +100,7 @@
         } else {
           clearSearch(cm);
           var cursor = getSearchCursor(cm, query, cm.getCursor());
-          function advance() {
+          var advance = function() {
             var start = cursor.from(), match;
             if (!(match = cursor.findNext())) {
               cursor = getSearchCursor(cm, query);
@@ -110,12 +110,12 @@
             cm.setSelection(cursor.from(), cursor.to());
             confirmDialog(cm, doReplaceConfirm, "Replace?",
                           [function() {doReplace(match);}, advance]);
-          }
-          function doReplace(match) {
+          };
+          var doReplace = function(match) {
             cursor.replace(typeof query == "string" ? text :
                            text.replace(/\$(\d)/, function(_, i) {return match[i];}));
             advance();
-          }
+          };
           advance();
         }
       });
