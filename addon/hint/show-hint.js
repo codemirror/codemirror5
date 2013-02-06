@@ -8,7 +8,7 @@ CodeMirror.showHint = function(cm, getHints, options) {
     var token = cm.getTokenAt(cm.getCursor());
 
     // Don't show completions if token has changed
-    if (previousToken != null &&
+    if (previousToken != null && /\w/.test(previousToken.string) &&
         (token.start != previousToken.start || token.type != previousToken.type))
       return;
 
