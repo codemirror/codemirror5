@@ -8,14 +8,22 @@
 
   CodeMirror.defineOption("styleSelectedText", false, function(cm, val, old) {
     var prev = old && old != CodeMirror.Init;
-    if (val && !prev)
+    if (val && !prev) {
+      updateSelectedText(cm);
       cm.on("cursorActivity", updateSelectedText);
-    else if (!val && prev)
+    } else if (!val && prev) {
       cm.off("cursorActivity", updateSelectedText);
+      clearSelectedText(cm);
+      delete cm._selectionMark;
+    }
   });
 
-  function updateSelectedText(cm) {
+  function clearSelectedText(cm) {
     if (cm._selectionMark) cm._selectionMark.clear();
+  }
+
+  function updateSelectedText(cm) {
+    clearSelectedText(cm);
 
     if (cm.somethingSelected())
       cm._selectionMark = cm.markText(cm.getCursor("start"), cm.getCursor("end"),
