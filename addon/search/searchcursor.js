@@ -5,7 +5,6 @@
 
     pos = pos ? cm.clipPos(pos) : {line: 0, ch: 0};
     this.pos = {from: pos, to: pos};
-    if (!pos) debugger;
 
     // The matches method is filled in based on the type of query.
     // It takes a position and a direction, and returns an object
@@ -86,7 +85,6 @@
     findPrevious: function() {return this.find(true);},
 
     find: function(reverse) {
-      if (!(reverse ? this.pos.from : this.pos.to)) debugger;
       var self = this, pos = this.cm.clipPos(reverse ? this.pos.from : this.pos.to);
       function savePosAndFail(line) {
         var pos = {line: line, ch: 0};
