@@ -37,8 +37,8 @@
     }
 
     return {list: completionList,
-              from: {line: cur.line, ch: token.start},
-              to: {line: cur.line, ch: token.end}};
+            from: CodeMirror.Pos(cur.line, token.start),
+            to: CodeMirror.Pos(cur.line, token.end)};
   }
 
   CodeMirror.pythonHint = function(editor) {

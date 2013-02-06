@@ -66,7 +66,7 @@
     var state = getSearchState(cm);
     var cursor = getSearchCursor(cm, state.query, rev ? state.posFrom : state.posTo);
     if (!cursor.find(rev)) {
-      cursor = getSearchCursor(cm, state.query, rev ? {line: cm.lineCount() - 1} : {line: 0, ch: 0});
+      cursor = getSearchCursor(cm, state.query, rev ? CodeMirror.Pos(cm.lastLine()) : CodeMirror.Pos(cm.firstLine(), 0));
       if (!cursor.find(rev)) return;
     }
     cm.setSelection(cursor.from(), cursor.to());
