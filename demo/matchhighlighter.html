@@ -12,8 +12,8 @@
     <style type="text/css">
       .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}
 
-      .CodeMirror-matchhighlight { background: #e9e9e9; }
-      .CodeMirror-focused .CodeMirror-matchhighlight { background: #e7e4ff !important; }
+      .cm-matchhighlight { background: #e9e9e9; }
+      .CodeMirror-focused .cm-matchhighlight { background: #e7e4ff !important; }
     </style>
   </head>
   <body>
@@ -24,9 +24,9 @@
 Give it a try!  No more hardToSpotVars.</textarea></form>
 
     <script>
-var editor = CodeMirror.fromTextArea(document.getElementById("code"), {lineNumbers : true});
-editor.on("cursorActivity", function() {
-  editor.matchHighlight();
+var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+  lineNumbers: true,
+  highlightSelectionMatches: true
 });
 </script>
 

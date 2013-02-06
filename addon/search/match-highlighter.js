@@ -1,53 +1,60 @@
-// Define match-highlighter commands. Depends on searchcursor.js
-// Use by attaching the following function call to the cursorActivity event:
-//   myCodeMirror.matchHighlight([minChars], [className]);
-// And including a CSS rules for `span.CodeMirror-matchhighlight` (also
-// optionally a separate one for `.CodeMirror-focused` -- see demo matchhighlighter.html).
-// To clear all marks, run:
-//   myCodeMirror.matchHighlight.clear(myCodeMirror);
+// Highlighting text that matches the selection
+//
+// Defines an option highlightSelectionMatches, which, when enabled,
+// will style strings that match the selection throughout the
+// document.
+//
+// The option can be set to true to simply enable it, or to a
+// {minChars, style} object to explicitly configure it. minChars is
+// the minimum amount of characters that should be selected for the
+// behavior to occur, and style is the token style to apply to the
+// matches. This will be prefixed by "cm-" to create an actual CSS
+// class name.
 
 (function() {
   var DEFAULT_MIN_CHARS = 2;
-  var DEFAULT_CLASS_NAME = "CodeMirror-matchhighlight";
+  var DEFAULT_TOKEN_STYLE = "matchhighlight";
   
-  function MatchHighlightState() {
-    this.marked = [];
+  function State(options) {
+    this.minChars = typeof options == "object" && options.minChars || DEFAULT_MIN_CHARS;
+    this.style = typeof options == "object" && options.style || DEFAULT_TOKEN_STYLE;
+    this.overlay = null;
   }
-  function getMatchHighlightState(cm) {
-    return cm._matchHighlightState || (cm._matchHighlightState = new MatchHighlightState());
-  }
-  
-  function clearMarks(state) {
-    for (var i = 0; i < state.marked.length; ++i)
-      state.marked[i].clear();
-    state.marked = [];
-  }
-  
-  function markDocument(cm, minChars, className) {
-    var state = getMatchHighlightState(cm);
-    clearMarks(state);
-    // If not enough chars selected, don't search
-    if (cm.somethingSelected() && cm.getSelection().replace(/^\s+|\s+$/g, "").length < minChars) return;
-    // This is too expensive on big documents
-    if (cm.lineCount() > 2000) return;
 
-    var query = cm.getSelection();
+  CodeMirror.defineOption("highlightSelectionMatches", false, function(cm, val, old) {
+    var prev = old && old != CodeMirror.Init;
+    if (val && !prev) {
+      cm._matchHighlightState = new State(val);
+      cm.on("cursorActivity", highlightMatches);
+    } else if (!val && prev) {
+      var over = cm._matchHighlightState.overlay;
+      if (over) cm.removeOverlay(over);
+      cm._matchHighlightState = null;
+      cm.off("cursorActivity", highlightMatches);
+    }
+  });
+
+  function highlightMatches(cm) {
     cm.operation(function() {
-      for (var cursor = cm.getSearchCursor(query); cursor.findNext();) {
-        // Only apply matchhighlight to the matches other than the one actually selected
-        if (cursor.from().line !== cm.getCursor(true).line || cursor.from().ch !== cm.getCursor(true).ch)
-          state.marked.push(cm.markText(cursor.from(), cursor.to(), {className: className}));
+      var state = cm._matchHighlightState;
+      if (state.overlay) {
+        cm.removeOverlay(state.overlay);
+        state.overlay = null;
       }
+
+      if (!cm.somethingSelected()) return;
+      var selection = cm.getSelection().replace(/^\s+|\s+$/g, "");
+      if (selection.length < state.minChars) return;
+
+      cm.addOverlay(state.overlay = makeOverlay(selection, state.style));
     });
   }
 
-  var plugin = function(minChars, className) {
-    if (typeof minChars === 'undefined') minChars = DEFAULT_MIN_CHARS;
-    if (typeof className === 'undefined') className = DEFAULT_CLASS_NAME;
-    markDocument(this, minChars, className);
-  };
-  plugin.clear = function(cm) {
-    clearMarks(getMatchHighlightState(cm));
-  };
-  CodeMirror.defineExtension("matchHighlight", plugin);
+  function makeOverlay(query, style) {
+    return {token: function(stream) {
+      if (stream.match(query)) return style;
+      stream.next();
+      stream.skipTo(query.charAt(0)) || stream.skipToEnd();
+    }};
+  }
 })();
