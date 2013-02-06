@@ -95,8 +95,8 @@ CodeMirror.tagRangeFinder = function(cm, start) {
             depth--;
           else
             depth++;
-          if (!depth) return {from: {line: start.line, ch: gtPos + 1},
-                              to: {line: l, ch: match.index}};
+          if (!depth) return {from: CodeMirror.Pos(start.line, gtPos + 1),
+                              to: CodeMirror.Pos(l, match.index)};
         }
       }
       l++;
@@ -111,7 +111,7 @@ CodeMirror.braceRangeFinder = function(cm, start) {
   for (;;) {
     var found = lineText.lastIndexOf("{", at);
     if (found < start.ch) break;
-    tokenType = cm.getTokenAt({line: line, ch: found + 1}).type;
+    tokenType = cm.getTokenAt(CodeMirror.Pos(line, found + 1)).type;
     if (!/^(comment|string)/.test(tokenType)) { startChar = found; break; }
     at = found - 1;
   }
@@ -125,7 +125,7 @@ CodeMirror.braceRangeFinder = function(cm, start) {
       if (nextClose < 0) nextClose = text.length;
       pos = Math.min(nextOpen, nextClose);
       if (pos == text.length) break;
-      if (cm.getTokenAt({line: i, ch: pos + 1}).type == tokenType) {
+      if (cm.getTokenAt(CodeMirror.Pos(i, pos + 1)).type == tokenType) {
         if (pos == nextOpen) ++count;
         else if (!--count) { end = i; endCh = pos; break outer; }
       }
@@ -133,8 +133,8 @@ CodeMirror.braceRangeFinder = function(cm, start) {
     }
   }
   if (end == null || end == line + 1) return;
-  return {from: {line: line, ch: startChar + 1},
-          to: {line: end, ch: endCh}};
+  return {from: CodeMirror.Pos(line, startChar + 1),
+          to: CodeMirror.Pos(end, endCh)};
 };
 
 CodeMirror.indentRangeFinder = function(cm, start) {
@@ -144,8 +144,8 @@ CodeMirror.indentRangeFinder = function(cm, start) {
     var curLine = cm.getLine(i);
     if (CodeMirror.countColumn(curLine, null, tabSize) < myIndent &&
         CodeMirror.countColumn(cm.getLine(i-1), null, tabSize) > myIndent)
-      return {from: {line: start.line, ch: firstLine.length},
-              to: {line: i, ch: curLine.length}};
+      return {from: CodeMirror.Pos(start.line, firstLine.length),
+              to: CodeMirror.Pos(i, curLine.length)};
   }
 };
 
@@ -159,7 +159,7 @@ CodeMirror.newFoldFunction = function(rangeFinder, widget) {
   }
 
   return function(cm, pos) {
-    if (typeof pos == "number") pos = {line: pos, ch: 0};
+    if (typeof pos == "number") pos = CodeMirror.Pos(pos, 0);
     var range = rangeFinder(cm, pos);
     if (!range) return;
 

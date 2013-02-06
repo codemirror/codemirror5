@@ -33,7 +33,7 @@
       var from = Math.min(old, line), to = Math.max(old, line);
       if (from != to) {
         // Finish this fold
-        var fold = cm.markText({line: from + 1, ch: 0}, {line: to - 1}, {
+        var fold = cm.markText(CodeMirror.Pos(from + 1, 0), {line: to - 1}, {
           collapsed: true,
           inclusiveLeft: true,
           inclusiveRight: true,

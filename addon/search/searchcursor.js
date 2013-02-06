@@ -1,9 +1,11 @@
 (function(){
+  var Pos = CodeMirror.Pos;
+
   function SearchCursor(cm, query, pos, caseFold) {
     this.atOccurrence = false; this.cm = cm;
     if (caseFold == null && typeof query == "string") caseFold = false;
 
-    pos = pos ? cm.clipPos(pos) : {line: 0, ch: 0};
+    pos = pos ? cm.clipPos(pos) : Pos(0, 0);
     this.pos = {from: pos, to: pos};
 
     // The matches method is filled in based on the type of query.
@@ -31,8 +33,8 @@
           start = match && match.index;
         }
         if (match && match[0])
-          return {from: {line: pos.line, ch: start},
-                  to: {line: pos.line, ch: start + match[0].length},
+          return {from: Pos(pos.line, start),
+                  to: Pos(pos.line, start + match[0].length),
                   match: match};
       };
     } else { // String query
@@ -50,8 +52,8 @@
             var line = fold(cm.getLine(pos.line)), len = query.length, match;
             if (reverse ? (pos.ch >= len && (match = line.lastIndexOf(query, pos.ch - len)) != -1)
                         : (match = line.indexOf(query, pos.ch)) != -1)
-              return {from: {line: pos.line, ch: match},
-                      to: {line: pos.line, ch: match + len}};
+              return {from: Pos(pos.line, match),
+                      to: Pos(pos.line, match + len)};
           };
         }
       } else {
@@ -72,7 +74,7 @@
             var offsetB = (reverse ? line.lastIndexOf(match) : line.indexOf(match) + match.length);
             if (reverse ? offsetB != line.length - match.length : offsetB != match.length)
               return;
-            var start = {line: pos.line, ch: offsetA}, end = {line: ln, ch: offsetB};
+            var start = Pos(pos.line, offsetA), end = Pos(ln, offsetB);
             return {from: reverse ? end : start, to: reverse ? start : end};
           }
         };
@@ -87,7 +89,7 @@
     find: function(reverse) {
       var self = this, pos = this.cm.clipPos(reverse ? this.pos.from : this.pos.to);
       function savePosAndFail(line) {
-        var pos = {line: line, ch: 0};
+        var pos = Pos(line, 0);
         self.pos = {from: pos, to: pos};
         self.atOccurrence = false;
         return false;
@@ -101,12 +103,12 @@
         }
         if (reverse) {
           if (!pos.line) return savePosAndFail(0);
-          pos = {line: pos.line-1, ch: this.cm.getLine(pos.line-1).length};
+          pos = Pos(pos.line-1, this.cm.getLine(pos.line-1).length);
         }
         else {
           var maxLine = this.cm.lineCount();
           if (pos.line == maxLine - 1) return savePosAndFail(maxLine);
-          pos = {line: pos.line+1, ch: 0};
+          pos = Pos(pos.line + 1, 0);
         }
       }
     },
@@ -118,8 +120,8 @@
       if (!this.atOccurrence) return;
       var lines = CodeMirror.splitLines(newText);
       this.cm.replaceRange(lines, this.pos.from, this.pos.to);
-      this.pos.to = {line: this.pos.from.line + lines.length - 1,
-                     ch: lines[lines.length - 1].length + (lines.length == 1 ? this.pos.from.ch : 0)};
+      this.pos.to = Pos(this.pos.from.line + lines.length - 1,
+                        lines[lines.length - 1].length + (lines.length == 1 ? this.pos.from.ch : 0));
     }
   };
 

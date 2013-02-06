@@ -76,9 +76,9 @@
     eqAll("hey", a, b);
     b.setValue("wow");
     eqAll("wow", a, b);
-    a.replaceRange("u\nv\nw", {line: 0, ch: 3});
-    b.replaceRange("i", {line: 0, ch: 4});
-    b.replaceRange("j", {line: 2, ch: 1});
+    a.replaceRange("u\nv\nw", Pos(0, 3));
+    b.replaceRange("i", Pos(0, 4));
+    b.replaceRange("j", Pos(2, 1));
     eqAll("wowui\nv\nwj", a, b);
   }
 
@@ -86,9 +86,9 @@
   testDoc("basicSeparate", "A='x' B<~A", testBasic);
 
   testDoc("sharedHist", "A='ab\ncd\nef' B<A", function(a, b) {
-    a.replaceRange("x", {line: 0});
-    b.replaceRange("y", {line: 1});
-    a.replaceRange("z", {line: 2});
+    a.replaceRange("x", Pos(0));
+    b.replaceRange("y", Pos(1));
+    a.replaceRange("z", Pos(2));
     eqAll("abx\ncdy\nefz", a, b);
     a.undo();
     a.undo();
@@ -102,10 +102,10 @@
   }, null, ie_lt8);
 
   testDoc("undoIntact", "A='ab\ncd\nef' B<~A", function(a, b) {
-    a.replaceRange("x", {line: 0});
-    b.replaceRange("y", {line: 1});
-    a.replaceRange("z", {line: 2});
-    a.replaceRange("q", {line: 0});
+    a.replaceRange("x", Pos(0));
+    b.replaceRange("y", Pos(1));
+    a.replaceRange("z", Pos(2));
+    a.replaceRange("q", Pos(0));
     eqAll("abxq\ncdy\nefz", a, b);
     a.undo();
     a.undo();
@@ -123,30 +123,30 @@
   });
 
   testDoc("undoConflict", "A='ab\ncd\nef' B<~A", function(a, b) {
-    a.replaceRange("x", {line: 0});
-    a.replaceRange("z", {line: 2});
+    a.replaceRange("x", Pos(0));
+    a.replaceRange("z", Pos(2));
     // This should clear the first undo event in a, but not the second
-    b.replaceRange("y", {line: 0});
+    b.replaceRange("y", Pos(0));
     a.undo(); a.undo();
     eqAll("abxy\ncd\nef", a, b);
-    a.replaceRange("u", {line: 2});
-    a.replaceRange("v", {line: 0});
+    a.replaceRange("u", Pos(2));
+    a.replaceRange("v", Pos(0));
     // This should clear both events in a
-    b.replaceRange("w", {line: 0});
+    b.replaceRange("w", Pos(0));
     a.undo(); a.undo();
     eqAll("abxyvw\ncd\nefu", a, b);
   });
 
   testDoc("doubleRebase", "A='ab\ncd\nef\ng' B<~A C<B", function(a, b, c) {
-    c.replaceRange("u", {line: 3});
-    a.replaceRange("", {line: 0, ch: 0}, {line: 1, ch: 0});
+    c.replaceRange("u", Pos(3));
+    a.replaceRange("", Pos(0, 0), Pos(1, 0));
     c.undo();
     eqAll("cd\nef\ng", a, b, c);
   });
 
   testDoc("undoUpdate", "A='ab\ncd\nef' B<~A", function(a, b) {
-    a.replaceRange("x", {line: 2});
-    b.replaceRange("u\nv\nw\n", {line: 0, ch: 0});
+    a.replaceRange("x", Pos(2));
+    b.replaceRange("u\nv\nw\n", Pos(0, 0));
     a.undo();
     eqAll("u\nv\nw\nab\ncd\nef", a, b);
     a.redo();
@@ -161,35 +161,35 @@
   });
 
   testDoc("undoKeepRanges", "A='abcdefg' B<A", function(a, b) {
-    var m = a.markText({line: 0, ch: 1}, {line: 0, ch: 3}, {className: "foo"});
-    b.replaceRange("x", {line: 0, ch: 0});
-    eqPos(m.find().from, {line: 0, ch: 2});
-    b.replaceRange("yzzy", {line: 0, ch: 1}, {line: 0});
+    var m = a.markText(Pos(0, 1), Pos(0, 3), {className: "foo"});
+    b.replaceRange("x", Pos(0, 0));
+    eqPos(m.find().from, Pos(0, 2));
+    b.replaceRange("yzzy", Pos(0, 1), Pos(0));
     eq(m.find(), null);
     b.undo();
-    eqPos(m.find().from, {line: 0, ch: 2});
+    eqPos(m.find().from, Pos(0, 2));
     b.undo();
-    eqPos(m.find().from, {line: 0, ch: 1});
+    eqPos(m.find().from, Pos(0, 1));
   });
 
   testDoc("longChain", "A='uv' B<A C<B D<C", function(a, b, c, d) {
     a.replaceSelection("X");
     eqAll("Xuv", a, b, c, d);
-    d.replaceRange("Y", {line: 0});
+    d.replaceRange("Y", Pos(0));
     eqAll("XuvY", a, b, c, d);
   });
 
   testDoc("broadCast", "B<A C<A D<A E<A", function(a, b, c, d, e) {
     b.setValue("uu");
     eqAll("uu", a, b, c, d, e);
-    a.replaceRange("v", {line: 0, ch: 1});
+    a.replaceRange("v", Pos(0, 1));
     eqAll("uvu", a, b, c, d, e);
   });
 
   // A and B share a history, C and D share a separate one
   testDoc("islands", "A='x\ny\nz' B<A C<~A D<C", function(a, b, c, d) {
-    a.replaceRange("u", {line: 0});
-    d.replaceRange("v", {line: 2});
+    a.replaceRange("u", Pos(0));
+    d.replaceRange("v", Pos(2));
     b.undo();
     eqAll("x\ny\nzv", a, b, c, d);
     c.undo();
@@ -216,8 +216,8 @@
     is(b instanceof CodeMirror.Doc);
     is(c instanceof CodeMirror);
     eqAll("foo", a, b, c);
-    a.replaceRange("hey", {line: 0, ch: 0}, {line: 0});
-    c.replaceRange("!", {line: 0});
+    a.replaceRange("hey", Pos(0, 0), Pos(0));
+    c.replaceRange("!", Pos(0));
     eqAll("hey!", a, b, c);
     b.unlinkDoc(a);
     b.setValue("x");
@@ -234,7 +234,7 @@
 
   testDoc("docKeepsScroll", "A='x' B*='y'", function(a, b) {
     addDoc(a, 200, 200);
-    a.scrollIntoView({line: 199, ch: 200});
+    a.scrollIntoView(Pos(199, 200));
     var c = a.swapDoc(b);
     a.swapDoc(c);
     var pos = a.getScrollInfo();
@@ -270,25 +270,25 @@
   testDoc("subview", "A='1\n2\n3\n4\n5' B<~A/1-3", function(a, b) {
     eq(b.getValue(), "2\n3");
     eq(b.firstLine(), 1);
-    b.setCursor({line: 4});
-    eqPos(b.getCursor(), {line: 2, ch: 1});
-    a.replaceRange("-1\n0\n", {line: 0, ch: 0});
+    b.setCursor(Pos(4));
+    eqPos(b.getCursor(), Pos(2, 1));
+    a.replaceRange("-1\n0\n", Pos(0, 0));
     eq(b.firstLine(), 3);
-    eqPos(b.getCursor(), {line: 4, ch: 1});
+    eqPos(b.getCursor(), Pos(4, 1));
     a.undo();
-    eqPos(b.getCursor(), {line: 2, ch: 1});
-    b.replaceRange("oyoy\n", {line: 2, ch: 0});
+    eqPos(b.getCursor(), Pos(2, 1));
+    b.replaceRange("oyoy\n", Pos(2, 0));
     eq(a.getValue(), "1\n2\noyoy\n3\n4\n5");
     b.undo();
     eq(a.getValue(), "1\n2\n3\n4\n5");
   });
 
   testDoc("subviewEditOnBoundary", "A='11\n22\n33\n44\n55' B<~A/1-4", function(a, b) {
-    a.replaceRange("x\nyy\nz", {line: 0, ch: 1}, {line: 2, ch: 1});
+    a.replaceRange("x\nyy\nz", Pos(0, 1), Pos(2, 1));
     eq(b.firstLine(), 2);
     eq(b.lineCount(), 2);
     eq(b.getValue(), "z3\n44");
-    a.replaceRange("q\nrr\ns", {line: 3, ch: 1}, {line: 4, ch: 1});
+    a.replaceRange("q\nrr\ns", Pos(3, 1), Pos(4, 1));
     eq(b.firstLine(), 2);
     eq(b.getValue(), "z3\n4q");
     eq(a.getValue(), "1x\nyy\nz3\n4q\nrr\ns5");
@@ -299,23 +299,23 @@
 
 
   testDoc("sharedMarker", "A='ab\ncd\nef\ngh' B<A C<~A/1-2", function(a, b, c) {
-    var mark = b.markText({line: 0, ch: 1}, {line: 3, ch: 1},
+    var mark = b.markText(Pos(0, 1), Pos(3, 1),
                           {className: "cm-searching", shared: true});
-    var found = a.findMarksAt({line: 0, ch: 2});
+    var found = a.findMarksAt(Pos(0, 2));
     eq(found.length, 1);
     eq(found[0], mark);
-    eq(c.findMarksAt({line: 1, ch: 1}).length, 1);
-    eqPos(mark.find().from, {line: 0, ch: 1});
-    eqPos(mark.find().to, {line: 3, ch: 1});
-    b.replaceRange("x\ny\n", {line: 0, ch: 0});
-    eqPos(mark.find().from, {line: 2, ch: 1});
-    eqPos(mark.find().to, {line: 5, ch: 1});
+    eq(c.findMarksAt(Pos(1, 1)).length, 1);
+    eqPos(mark.find().from, Pos(0, 1));
+    eqPos(mark.find().to, Pos(3, 1));
+    b.replaceRange("x\ny\n", Pos(0, 0));
+    eqPos(mark.find().from, Pos(2, 1));
+    eqPos(mark.find().to, Pos(5, 1));
     var cleared = 0;
     CodeMirror.on(mark, "clear", function() {++cleared;});
     mark.clear();
-    eq(a.findMarksAt({line: 3, ch: 1}).length, 0);
-    eq(b.findMarksAt({line: 3, ch: 1}).length, 0);
-    eq(c.findMarksAt({line: 3, ch: 1}).length, 0);
+    eq(a.findMarksAt(Pos(3, 1)).length, 0);
+    eq(b.findMarksAt(Pos(3, 1)).length, 0);
+    eq(c.findMarksAt(Pos(3, 1)).length, 0);
     eq(mark.find(), null);
     eq(cleared, 1);
   });
