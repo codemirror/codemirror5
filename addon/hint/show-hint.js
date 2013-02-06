@@ -51,9 +51,17 @@ CodeMirror.showHint = function(cm, getHints, options) {
         hints.scrollTop = node.offsetTop + node.offsetHeight - hints.clientHeight + 3;
     }
 
+    function screenAmount() {
+      return Math.floor(hints.clientHeight / hints.firstChild.offsetHeight) || 1;
+    }
+
     var ourMap = {
       Up: function() {changeActive(selectedHint - 1);},
       Down: function() {changeActive(selectedHint + 1);},
+      PageUp: function() {changeActive(selectedHint - screenAmount());},
+      PageDown: function() {changeActive(selectedHint + screenAmount());},
+      Home: function() {changeActive(0);},
+      End: function() {changeActive(completions.length - 1);},
       Enter: pick,
       Tab: pick,
       Esc: close
