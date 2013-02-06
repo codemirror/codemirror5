@@ -6,11 +6,12 @@
     <link rel="stylesheet" href="../lib/codemirror.css">
     <script src="../lib/codemirror.js"></script>
     <script src="../mode/xml/xml.js"></script>
+    <script src="../addon/selection/active-line.js"></script>
     <link rel="stylesheet" href="../doc/docs.css">
 
     <style type="text/css">
       .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}
-      .activeline {background: #e8f2ff !important;}
+      .CodeMirror-activeline-background {background: #e8f2ff !important;}
     </style>
   </head>
   <body>
@@ -57,16 +58,9 @@
     <script>
 var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
   mode: "application/xml",
+  styleActiveLine: true,
   lineNumbers: true,
   lineWrapping: true
-});
-var hlLine = editor.addLineClass(0, "background", "activeline");
-editor.on("cursorActivity", function() {
-  var cur = editor.getLineHandle(editor.getCursor().line);
-  if (cur != hlLine) {
-    editor.removeLineClass(hlLine, "background", "activeline");
-    hlLine = editor.addLineClass(cur, "background", "activeline");
-  }
 });
 </script>
 
