@@ -1,38 +1,26 @@
 // Because sometimes you need to mark the selected *text*.
-// Use by attaching the following function call to the cursorActivity event:
-  //myCodeMirror.markSelection();
-// To clear the selection mark, run:
-  //myCodeMirror.markSelection.clear(myCodeMirror);
-// The selection will be marked with `.CodeMirror-selection`.
-"use strict";
+//
+// Adds an option 'styleSelectedText' which, when enabled, gives
+// selected text the CSS class "CodeMirror-selectedtext".
 
 (function() {
-  function lessthan(a, b) {
-    if (a.line < b.line) return true;
-    if (a.line == b.line) return a.ch < b.ch;
-  }
+  "use strict";
 
-  function clear(cm) {
+  CodeMirror.defineOption("styleSelectedText", false, function(cm, val, old) {
+    var prev = old && old != CodeMirror.Init;
+    if (val && !prev)
+      cm.on("cursorActivity", updateSelectedText);
+    else if (!val && prev)
+      cm.off("cursorActivity", updateSelectedText);
+  });
+
+  function updateSelectedText(cm) {
     if (cm._selectionMark) cm._selectionMark.clear();
+
+    if (cm.somethingSelected())
+      cm._selectionMark = cm.markText(cm.getCursor("start"), cm.getCursor("end"),
+                                      {className: "CodeMirror-selectedtext"});
+    else
+      cm._selectionMark = null;
   }
-  
-  function markSelection(minChars, className) {
-    var cm = this;
-    clear(cm);
-    if (!cm.somethingSelected()) return;
-    
-    var start = cm.getCursor('anchor')
-      , end   = cm.getCursor();
-    
-    if (lessthan(end, start)) {
-      var i = end;
-      end = start;
-      start = i;
-    }
-    
-    cm._selectionMark = cm.markText(start, end, {className:'CodeMirror-selection'});
-  }
-  
-  markSelection.clear = clear;
-  CodeMirror.defineExtension("markSelection", markSelection);
 })();

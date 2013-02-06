@@ -11,9 +11,8 @@
 
     <style type="text/css">
       .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}
-	  
-	    .CodeMirror-selected  { background-color: blue !important; }
-      .CodeMirror-selection { color: white; }
+      .CodeMirror-selected  { background-color: blue !important; }
+      .CodeMirror-selectedtext { color: white; }
     </style>
   </head>
   <body>
@@ -25,9 +24,9 @@ Since, by default, CodeMirror only puts an independent "marker" layer
 behind the text, you'll need something like this to change its colour.</textarea></form>
 
     <script>
-var editor = CodeMirror.fromTextArea(document.getElementById("code"), {lineNumbers : true});
-editor.on("cursorActivity", function() {
-  editor.markSelection();
+var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+  lineNumbers: true,
+  styleSelectedText: true
 });
 </script>
 
