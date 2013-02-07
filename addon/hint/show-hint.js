@@ -1,22 +1,17 @@
 CodeMirror.showHint = function(cm, getHints, options) {
   if (!options) options = {};
   
-  function collectHints(previousToken) {
+  function collectHints(startCh, continued) {
     // We want a single cursor position.
     if (cm.somethingSelected()) return;
 
     var token = cm.getTokenAt(cm.getCursor());
 
-    // Don't show completions if token has changed
-    if (previousToken != null && /\w/.test(previousToken.string) &&
-        (token.start != previousToken.start || token.type != previousToken.type))
-      return;
-
     var result = getHints(cm, options);
     if (!result || !result.list.length) return;
     var completions = result.list;
     // When there is only one completion, use it directly.
-    if (!previousToken && options.completeSingle !== false && completions.length == 1) {
+    if (!continued && options.completeSingle !== false && completions.length == 1) {
       cm.replaceRange(completions[0], result.from, result.to);
       return true;
     }
@@ -98,10 +93,16 @@ CodeMirror.showHint = function(cm, getHints, options) {
       cm.replaceRange(completions[selectedHint], result.from, result.to);
       close();
     }
-    var once;
+    var once, lastPos = cm.getCursor(), lastLen = cm.getLine(lastPos.line).length;
     function cursorActivity() {
       clearTimeout(once);
-      once = setTimeout(function(){close(); collectHints(token);}, 70);
+
+      var pos = cm.getCursor(), len = cm.getLine(pos.line).length, start = startCh || lastPos.ch;
+      if (pos.line != lastPos.line || len - pos.ch != lastLen - lastPos.ch ||
+          pos.ch < start || cm.somethingSelected())
+        close();
+      else
+        once = setTimeout(function(){close(); collectHints(start, true);}, 70);
     }
     return true;
   }
