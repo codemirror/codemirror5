@@ -32,6 +32,10 @@ CodeMirror.showHint = function(cm, getHints, options) {
     var winW = window.innerWidth || Math.max(document.body.offsetWidth, document.documentElement.offsetWidth);
     if (winW - pos.left < hints.clientWidth)
       hints.style.left = (pos.left - sel.clientWidth) + "px";
+  
+		var winH = window.innerHeight || Math.max( document.body.offsetHeight, document.documentElement.offsetHeight );
+		if ( winH - pos.top < hints.clientHeight )
+			hints.style.top = ( pos.top - hints.clientHeight ) + "px";
 
     function changeActive(i) {
       if (i < 0 || i >= completions.length || selectedHint == i) return;
