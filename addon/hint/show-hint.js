@@ -52,7 +52,8 @@ CodeMirror.showHint = function(cm, getHints, options) {
     }
 
     function changeActive(i) {
-      if (i < 0 || i >= completions.length || selectedHint == i) return;
+      i = Math.max(0, Math.min(i, completions.length - 1));
+      if (selectedHint == i) return;
       hints.childNodes[selectedHint].className = "CodeMirror-hint";
       var node = hints.childNodes[selectedHint = i];
       node.className = "CodeMirror-hint CodeMirror-hint-active";
@@ -85,6 +86,7 @@ CodeMirror.showHint = function(cm, getHints, options) {
 
     cm.addKeyMap(ourMap);
     cm.on("cursorActivity", cursorActivity);
+    cm.on("blur", close);
     CodeMirror.on(hints, "dblclick", function(e) {
       var t = e.target || e.srcElement;
       if (t.hintId != null) {selectedHint = t.hintId; pick();}
@@ -104,6 +106,7 @@ CodeMirror.showHint = function(cm, getHints, options) {
       hints.parentNode.removeChild(hints);
       cm.removeKeyMap(ourMap);
       cm.off("cursorActivity", cursorActivity);
+      cm.off("blur", close);
     }
     function pick() {
       cm.replaceRange(completions[selectedHint], result.from, result.to);
