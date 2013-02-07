@@ -5,8 +5,6 @@ CodeMirror.showHint = function(cm, getHints, options) {
     // We want a single cursor position.
     if (cm.somethingSelected()) return;
 
-    var token = cm.getTokenAt(cm.getCursor());
-
     var result = getHints(cm, options);
     if (!result || !result.list.length) return;
     var completions = result.list;
