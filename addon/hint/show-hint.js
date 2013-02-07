@@ -30,8 +30,26 @@ CodeMirror.showHint = function(cm, getHints, options) {
 
     // If we're at the edge of the screen, then we want the menu to appear on the left of the cursor.
     var winW = window.innerWidth || Math.max(document.body.offsetWidth, document.documentElement.offsetWidth);
-    if (winW - pos.left < hints.clientWidth)
-      hints.style.left = (pos.left - sel.clientWidth) + "px";
+    var winH = window.innerHeight || Math.max(document.body.offsetHeight, document.documentElement.offsetHeight);
+    var box = hints.getBoundingClientRect();
+    var overlapX = box.right - winW, overlapY = box.bottom - winH;
+    if (overlapX > 0) {
+      if (box.right - box.left > winW) {
+        hints.style.width = (winW - 5) + "px";
+        overlapX -= (box.right - box.left) - winW;
+      }
+      hints.style.left = (pos.left - overlapX) + "px";
+    }
+    if (overlapY > 0) {
+      var height = box.bottom - box.top;
+      if (box.top - (pos.bottom - pos.top) - height > 0) {
+        overlapY = height + (pos.bottom - pos.top);
+      } else if (height > winH) {
+        hints.style.height = (winH - 5) + "px";
+        overlapY -= height - winH;
+      }
+      hints.style.top = (pos.bottom - overlapY) + "px";
+    }
 
     function changeActive(i) {
       if (i < 0 || i >= completions.length || selectedHint == i) return;
