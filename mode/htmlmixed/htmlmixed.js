@@ -11,7 +11,7 @@ CodeMirror.defineMode("htmlmixed", function(config) {
         // Script block: mode to change to depends on type attribute
         var scriptType = stream.string.slice(Math.max(0, stream.pos - 100), stream.pos).match(/\btype\s*=\s*("[^"]+"|'[^']+'|\S+)[^<]*$/i);
         scriptType = scriptType && scriptType[1];
-        if (!scriptType || scriptType.match(/(text|application)\/(java|ecma)script/i)) {
+        if (!scriptType || scriptType.match(/(text|application)\/(x-)?(java|ecma)script/i)) {
           state.token = javascript;
           state.localMode = jsMode;
           state.localState = jsMode.startState(htmlMode.indent(state.htmlState, ""));
