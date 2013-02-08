@@ -336,6 +336,16 @@
       always rendered, and thus the browser's text search works on it.
       This <em>will</em> have bad effects on performance of big
       documents.</dd>
+
+      <dt id="option_highlightMargin"><code>highlightMargin (integer)</code></dt>
+      <dd>Specifies the amount of lines below the viewport that are
+      processed for highlighting styles, This affects the amount of
+      processing of highlighting styles needed when scrolling. You
+      should usually leave it at its default, 500. Can be set
+      to <code>Infinity</code> to make sure the whole document is
+      always processed, and thus no highlighting processing needed
+      on scrolling, however it will cause more work on rehighlighting
+      for each edit.</dd>
     </dl>
 
     <h2 id="events">Events</h2>
