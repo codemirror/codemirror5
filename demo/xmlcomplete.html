@@ -62,7 +62,7 @@
       }
       function passAndHint(cm) {
         setTimeout(function() {cm.execCommand("autocomplete");}, 100);
-        throw CodeMirror.Pass;
+        return CodeMirror.Pass;
       }
 
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {

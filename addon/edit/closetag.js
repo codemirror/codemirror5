@@ -27,9 +27,9 @@
     if (val && (old == CodeMirror.Init || !old)) {
       var map = {name: "autoCloseTags"};
       if (typeof val != "object" || val.whenClosing)
-        map["'/'"] = function(cm) { autoCloseTag(cm, '/'); };
+        map["'/'"] = function(cm) { return autoCloseTag(cm, '/'); };
       if (typeof val != "object" || val.whenOpening)
-        map["'>'"] = function(cm) { autoCloseTag(cm, '>'); };
+        map["'>'"] = function(cm) { return autoCloseTag(cm, '>'); };
       cm.addKeyMap(map);
     } else if (!val && (old != CodeMirror.Init && old)) {
       cm.removeKeyMap("autoCloseTags");
@@ -44,7 +44,7 @@
   function autoCloseTag(cm, ch) {
     var pos = cm.getCursor(), tok = cm.getTokenAt(pos);
     var inner = CodeMirror.innerMode(cm.getMode(), tok.state), state = inner.state;
-    if (inner.mode.name != "xml") throw CodeMirror.Pass;
+    if (inner.mode.name != "xml") return CodeMirror.Pass;
 
     var opt = cm.getOption("autoCloseTags"), html = inner.mode.configuration == "html";
     var dontCloseTags = (typeof opt == "object" && opt.dontCloseTags) || (html && htmlDontClose);
@@ -58,7 +58,7 @@
       if (tok.type == "tag" && state.type == "closeTag" ||
           /\/\s*$/.test(tok.string) ||
           dontCloseTags && indexOf(dontCloseTags, lowerTagName) > -1)
-        throw CodeMirror.Pass;
+        return CodeMirror.Pass;
 
       var doIndent = indentTags && indexOf(indentTags, lowerTagName) > -1;
       var curPos = doIndent ? CodeMirror.Pos(pos.line + 1, 0) : CodeMirror.Pos(pos.line, pos.ch + 1);
@@ -74,7 +74,7 @@
       if (tagName) cm.replaceSelection("/" + tagName + ">", "end");
       return;
     }
-    throw CodeMirror.Pass;
+    return CodeMirror.Pass;
   }
 
   function indexOf(collection, elt) {

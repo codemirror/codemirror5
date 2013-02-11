@@ -481,7 +481,7 @@
     common commands that are used by the default keybindings, and maps
     them to functions. If the property is set to <code>false</code>,
     CodeMirror leaves handling of the key up to the browser. A key
-    handler function may throw <code>CodeMirror.Pass</code> to indicate
+    handler function may return <code>CodeMirror.Pass</code> to indicate
     that it has decided not to handle the key, and other handlers (or
     the default behavior) should be given a turn.</p>
 
@@ -1595,8 +1595,8 @@
     <p id="indent">If you want your mode to provide smart indentation
     (through the <a href="#indentLine"><code>indentLine</code></a>
     method and the <code>indentAuto</code>
-    and <code>newlineAndIndent</code> commands, which keys can be
-    <a href="#option_extraKeys">bound</a> to), you must define
+    and <code>newlineAndIndent</code> commands, to which keys can be
+    <a href="#option_extraKeys">bound</a>), you must define
     an <code>indent(state, textAfter)</code> method on your mode
     object.</p>
 
@@ -1605,7 +1605,9 @@
     the text on the line that is being indented, and return an
     integer, the amount of spaces to indent. It should usually take
     the <a href="#option_indentUnit"><code>indentUnit</code></a>
-    option into account.</p>
+    option into account. An indentation method may
+    return <code>CodeMirror.Pass</code> to indicate that it
+    could not come up with a precise indentation.</p>
 
     <p id="electricChars">Finally, a mode may define
     an <code>electricChars</code> property, which should hold a string
