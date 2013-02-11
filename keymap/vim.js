@@ -3,6 +3,7 @@
  *
  *   Motion:
  *   h, j, k, l
+ *   gj, gk
  *   e, E, w, W, b, B, ge, gE
  *   f<character>, F<character>, t<character>, T<character>
  *   $, ^, 0
@@ -89,6 +90,12 @@
         motionArgs: { forward: true, linewise: true }},
     { keys: ['k'], type: 'motion',
         motion: 'moveByLines',
+        motionArgs: { forward: false, linewise: true }},
+    { keys: ['g','j'], type: 'motion',
+        motion: 'moveByDisplayLines',
+        motionArgs: { forward: true, linewise: true }},
+    { keys: ['g','k'], type: 'motion',
+        motion: 'moveByDisplayLines',
         motionArgs: { forward: false, linewise: true }},
     { keys: ['w'], type: 'motion',
         motion: 'moveByWords',
@@ -212,7 +219,6 @@
     { keys: ['Ctrl-r'], type: 'action', action: 'redo' },
     { keys: ['m', 'character'], type: 'action', action: 'setMark' },
     { keys: ['\"', 'character'], type: 'action', action: 'setRegister' },
-    { keys: [',', '/'], type: 'action', action: 'clearSearchHighlight' },
     { keys: ['z', 'z'], type: 'action', action: 'scrollToCursor',
         actionArgs: { position: 'center' }},
     { keys: ['z', '.'], type: 'action', action: 'scrollToCursor',
@@ -335,6 +341,8 @@
           // cursor should go back to its horizontal position on the longer
           // line if it can. This is to keep track of the horizontal position.
           lastHPos: -1,
+          // Doing the same with screen-position for gj/gk
+          lastHSPos: -1,
           // The last motion command run. Cleared if a non-motion command gets
           // executed in between.
           lastMotion: null,
@@ -363,6 +371,12 @@
       map: function(lhs, rhs) {
         // Add user defined key bindings.
         exCommandDispatcher.map(lhs, rhs);
+      },
+      defineEx: function(name, prefix, func){
+        if (name.indexOf(prefix) === 0) {
+          exCommands[name]=func;
+          exCommandDispatcher.commandMap_[prefix]={name:name, shortName:prefix, type:'api'};
+        }else throw new Error("(Vim.defineEx) \""+prefix+"\" is not a prefix of \""+name+"\", command not registered");
       },
       // Initializes vim state variable on the CodeMirror object. Should only be
       // called lazily by handleKey or for testing.
@@ -916,7 +930,8 @@
         return { line: cur.line, ch: ch };
       },
       moveByLines: function(cm, motionArgs, vim) {
-        var endCh = cm.getCursor().ch;
+        var cur = cm.getCursor();
+        var endCh = cur.ch;
         // Depending what our last motion was, we may want to do different
         // things. If our last motion was moving vertically, we want to
         // preserve the HPos from our last horizontal move.  If our last motion
@@ -924,6 +939,7 @@
         // the end of the line, etc.
         switch (vim.lastMotion) {
           case this.moveByLines:
+          case this.moveByDisplayLines:
           case this.moveToColumn:
           case this.moveToEol:
             endCh = vim.lastHPos;
@@ -931,13 +947,40 @@
           default:
             vim.lastHPos = endCh;
         }
-        var cur = cm.getCursor();
         var repeat = motionArgs.repeat;
         var line = motionArgs.forward ? cur.line + repeat : cur.line - repeat;
         if (line < 0 || line > cm.lineCount() - 1) {
           return null;
         }
+        vim.lastHSPos = cm.charCoords({line:line, ch:endCh}).left;
         return { line: line, ch: endCh };
+      },
+      moveByDisplayLines: function(cm, motionArgs, vim) {
+        var cur = cm.getCursor();
+        switch (vim.lastMotion) {
+          case this.moveByDisplayLines:
+          case this.moveByLines:
+          case this.moveToColumn:
+          case this.moveToEol:
+            break;
+          default:
+            vim.lastHSPos = cm.charCoords(cur).left;
+        }
+        var repeat = motionArgs.repeat;
+        var box;
+        var x = vim.lastHSPos;
+        var y;
+        var res=cur;
+        for(var i=0; i<repeat; i++){
+          box=cm.charCoords(res);
+          y=motionArgs.forward ? (box.bottom+3) : (box.top-3);
+          res=cm.coordsChar({left:x,top:y});
+          // I don't seem to get 'outside'-flag on downward-motion
+          //   handling no answer as positive answer for now
+          if(res.outside!=false)return null;
+        }
+        vim.lastHPos = res.ch;
+        return res;
       },
       moveByPage: function(cm, motionArgs) {
         // CodeMirror only exposes functions that move the cursor page down, so
@@ -987,12 +1030,17 @@
         var repeat = motionArgs.repeat;
         // repeat is equivalent to which column we want to move to!
         vim.lastHPos = repeat - 1;
+        vim.lastHSPos = cm.charCoords(cm.getCursor()).left;
         return moveToColumn(cm, repeat);
       },
       moveToEol: function(cm, motionArgs, vim) {
         var cur = cm.getCursor();
         vim.lastHPos = Infinity;
-        return { line: cur.line + motionArgs.repeat - 1, ch: Infinity };
+        var retval={ line: cur.line + motionArgs.repeat - 1, ch: Infinity }
+        var end=cm.clipPos(retval);
+        end.ch--;
+        vim.lastHSPos = cm.charCoords(end).left;
+        return retval;
       },
       moveToFirstNonWhiteSpaceCharacter: function(cm) {
         // Go to the start of the line where the text begins, or the end for
@@ -1117,7 +1165,6 @@
     };
 
     var actions = {
-      clearSearchHighlight: clearSearchHighlight,
       scrollToCursor: function(cm, actionArgs) {
         var lineNum = cm.getCursor().line;
         var heightProp = window.getComputedStyle(cm.getScrollerElement()).
@@ -2156,7 +2203,8 @@
       { name: 'write', shortName: 'w', type: 'builtIn' },
       { name: 'undo', shortName: 'u', type: 'builtIn' },
       { name: 'redo', shortName: 'red', type: 'builtIn' },
-      { name: 'substitute', shortName: 's', type: 'builtIn'}
+      { name: 'substitute', shortName: 's', type: 'builtIn'},
+      { name: 'nohlsearch', shortName: 'noh', type: 'builtIn'}
     ];
     Vim.ExCommandDispatcher = function() {
       this.buildCommandMap_();
@@ -2337,25 +2385,28 @@
         var vimKeyNotationStart = ++idx;
         while (str.charAt(idx++) != '>') {}
         var vimKeyNotation = str.substring(vimKeyNotationStart, idx - 1);
+        var mod='';
         var match = (/^C-(.+)$/).exec(vimKeyNotation);
         if (match) {
-          var key;
-          switch (match[1]) {
-            case 'BS':
-              key = 'Backspace';
-              break;
-            case 'CR':
-              key = 'Enter';
-              break;
-            case 'Del':
-              key = 'Delete';
-              break;
-            default:
-              key = match[1];
-              break;
-          }
-          keys.push('Ctrl-' + key);
+          mod='Ctrl-';
+          vimKeyNotation=match[1];
         }
+        var key;
+        switch (vimKeyNotation) {
+          case 'BS':
+            key = 'Backspace';
+            break;
+          case 'CR':
+            key = 'Enter';
+            break;
+          case 'Del':
+            key = 'Delete';
+            break;
+          default:
+            key = vimKeyNotation;
+            break;
+        }
+        keys.push(mod + key);
       }
       return keys;
     }
@@ -2375,7 +2426,7 @@
         commandDispatcher.processMotion(cm, getVimState(cm), {
             motion: 'moveToLineOrEdgeOfDocument',
             motionArgs: { forward: false, explicitRepeat: true,
-              linewise: true, repeat: params.line }});
+              linewise: true, repeat: (params.line-cm.getOption('firstLineNumber')+2) }});
       },
       substitute: function(cm, params) {
         var argString = params.argString;
@@ -2447,6 +2498,9 @@
           // Saves to text area if no save command is defined.
           cm.save();
         }
+      },
+      nohlsearch: function(cm) {
+        clearSearchHighlight(cm);
       }
     };
 
