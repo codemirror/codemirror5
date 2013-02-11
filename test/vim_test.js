@@ -87,7 +87,6 @@ function copyCursor(cur) {
 function testVim(name, run, opts, expectedFail) {
   var vimOpts = {
     lineNumbers: true,
-    mode: 'text/x-csrc',
     keyMap: 'vim',
     showCursorWhenSelecting: true,
     value: code
@@ -266,6 +265,41 @@ testVim('Changing lines after Eol operation', function(cm, vim, helpers) {
   // same place we were at on line 1
   helpers.assertCursorAt({ line: 5, ch: lines[2].length - 2 });
 });
+//making sure gj and gk recover from clipping
+testVim('gj_gk_clipping', function(cm,vim,helpers){
+  cm.setCursor(0, 1);
+  helpers.doKeys('g','j','g','j');
+  helpers.assertCursorAt(2, 1);
+  helpers.doKeys('g','k','g','k');
+  helpers.assertCursorAt(0, 1);
+},{value: 'line 1\n\nline 2'});
+//testing a mix of j/k and gj/gk
+testVim('j_k_and_gj_gk', function(cm,vim,helpers){
+  cm.setSize(120);
+  cm.setCursor(0, 0);
+  //go to the last character on the first line
+  helpers.doKeys('$');
+  //move up/down on the column within the wrapped line
+  //side-effect: cursor is not locked to eol anymore
+  helpers.doKeys('g','k');
+  var cur=cm.getCursor();
+  eq(cur.line,0);
+  is((cur.ch<176),'gk didn\'t move cursor back (1)');
+  helpers.doKeys('g','j');
+  helpers.assertCursorAt(0, 176);
+  //should move to character 177 on line 2 (j/k preserve character index within line)
+  helpers.doKeys('j');
+  //due to different line wrapping, the cursor can be on a different screen-x now
+  //gj and gk preserve screen-x on movement, much like moveV
+  helpers.doKeys('3','g','k');
+  cur=cm.getCursor();
+  eq(cur.line,1);
+  is((cur.ch<176),'gk didn\'t move cursor back (2)');
+  helpers.doKeys('g','j','2','g','j');
+  //should return to the same character-index
+  helpers.doKeys('k');
+  helpers.assertCursorAt(0, 176);
+},{ lineWrapping:true, value: 'This line is intentially long to test movement of gj and gk over wrapped lines. I will start on the end of this line, then make a step up and back to set the origin for j and k.\nThis line is supposed to be even longer than the previous. I will jump here and make another wiggle with gj and gk, before I jump back to the line above. Both wiggles should not change my cursor\'s target character but both j/k and gj/gk change each other\'s reference position.'});
 testVim('}', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('}');
@@ -827,11 +861,14 @@ testVim('? and n/N', function(cm, vim, helpers) {
   helpers.doKeys('2', '?');
   helpers.assertCursorAt(0, 11);
 }, { value: 'match nope match \n nope Match' });
-testVim(',/ clearSearchHighlight', function(cm, vim, helpers) {
+//:noh should clear highlighting of search-results but allow to resume search through n
+testVim('noh_clearSearchHighlight', function(cm, vim, helpers) {
   cm.openDialog = helpers.fakeOpenDialog('match');
   helpers.doKeys('?');
-  helpers.doKeys(',', '/', 'n');
-  helpers.assertCursorAt(0, 11);
+  helpers.doEx('noh');
+  eq(vim.searchState_.getOverlay(),null,'match-highlighting wasn\'t cleared');
+  helpers.doKeys('n');
+  helpers.assertCursorAt(0, 11,'can\'t resume search after clearing highlighting');
 }, { value: 'match nope match \n nope Match' });
 testVim('*', function(cm, vim, helpers) {
   cm.setCursor(0, 9);
@@ -986,6 +1023,20 @@ testVim('ex_map_key2ex', function(cm, vim, helpers) {
   CodeMirror.commands.save = tmp;
   eq(written, true);
   eq(actualCm, cm);
+});
+// Testing registration of functions as ex-commands and mapping to <Key>-keys
+testVim('ex_api_test', function(cm, vim, helpers) {
+  var res=false;
+  var val='from';
+  CodeMirror.Vim.defineEx('extest','ext',function(cm,params){
+    if(params.args)val=params.args[0];
+    else res=true;
+  });
+  helpers.doEx(':ext to');
+  eq(val,'to','Defining ex-command failed');
+  CodeMirror.Vim.map('<C-CR><Space>',':ext');
+  helpers.doKeys('Ctrl-Enter','Space');
+  is(res,'Mapping to key failed');
 });
 // For now, this test needs to be last because it messes up : for future tests.
 testVim('ex_map_key2key_from_colon', function(cm, vim, helpers) {
