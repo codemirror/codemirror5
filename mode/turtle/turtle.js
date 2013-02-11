@@ -84,7 +84,7 @@ CodeMirror.defineMode("turtle", function(config) {
   }
 
   return {
-    startState: function(base) {
+    startState: function() {
       return {tokenize: tokenBase,
               context: null,
               indent: 0,
