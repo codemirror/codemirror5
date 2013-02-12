@@ -121,7 +121,7 @@
 
       innerMode: function(state) { return {state: state.curState, mode: state.curMode}; }
     };
-  }, "htmlmixed");
+  }, "htmlmixed", "clike");
 
   CodeMirror.defineMIME("application/x-httpd-php", "php");
   CodeMirror.defineMIME("application/x-httpd-php-open", {name: "php", startOpen: true});
