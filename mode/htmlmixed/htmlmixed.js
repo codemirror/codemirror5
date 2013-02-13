@@ -2,6 +2,7 @@ CodeMirror.defineMode("htmlmixed", function(config) {
   var htmlMode = CodeMirror.getMode(config, {name: "xml", htmlMode: true});
   var unknownScriptMode = CodeMirror.getMode(config, "text/plain");
   var jsMode = CodeMirror.getMode(config, "javascript");
+  var vbMode = CodeMirror.getMode(config, "vbscript");
   var cssMode = CodeMirror.getMode(config, "css");
 
   function html(stream, state) {
@@ -15,6 +16,11 @@ CodeMirror.defineMode("htmlmixed", function(config) {
           state.token = javascript;
           state.localMode = jsMode;
           state.localState = jsMode.startState(htmlMode.indent(state.htmlState, ""));
+        } else if (!scriptType || scriptType.match(/(text|application)\/(x-)?vb(a|script)/i)) {
+          state.token = vbscript;
+          state.localMode = vbMode;
+          if(!vbMode.startState) state.localState = null;
+          else state.localState = vbMode.startState(htmlMode.indent(state.htmlState, ""));
         } else if (scriptType.match(/\/x-handlebars-template/i) || scriptType.match(/\/x-mustache/i)) {
           // Handlebars or Mustache template: leave it in HTML mode
         } else {
@@ -59,6 +65,15 @@ CodeMirror.defineMode("htmlmixed", function(config) {
     return maybeBackup(stream, /<\/\s*script\s*>/,
                        jsMode.token(stream, state.localState));
   }
+  function vbscript(stream, state) {
+    if (stream.match(/^<\/\s*script\s*>/i, false)) {
+      state.token = html;
+      state.localState = state.localMode = null;
+      return html(stream, state);
+    }
+    return maybeBackup(stream, /<\/\s*script\s*>/,
+                       vbMode.token(stream, state.localState));
+  }
   function css(stream, state) {
     if (stream.match(/^<\/\s*style\s*>/i, false)) {
       state.token = html;
@@ -101,6 +116,6 @@ CodeMirror.defineMode("htmlmixed", function(config) {
       return {state: state.localState || state.htmlState, mode: state.localMode || htmlMode};
     }
   };
-}, "xml", "javascript", "css");
+}, "xml", "javascript", "css", "vbscript");
 
 CodeMirror.defineMIME("text/html", "htmlmixed");
