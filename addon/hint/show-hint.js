@@ -1,16 +1,23 @@
 CodeMirror.showHint = function(cm, getHints, options) {
   if (!options) options = {};
-  
-  function collectHints(startCh, continued) {
+  var startCh = cm.getCursor().ch, continued = false;
+
+  function startHinting() {
     // We want a single cursor position.
     if (cm.somethingSelected()) return;
 
-    var result = getHints(cm, options);
-    if (!result || !result.list.length) return;
-    var completions = result.list;
+    if (options.async)
+      getHints(cm, showHints, options);
+    else
+      return showHints(getHints(cm, options));
+  }
+
+  function showHints(data) {
+    if (!data || !data.list.length) return;
+    var completions = data.list;
     // When there is only one completion, use it directly.
     if (!continued && options.completeSingle !== false && completions.length == 1) {
-      cm.replaceRange(completions[0], result.from, result.to);
+      cm.replaceRange(completions[0], data.from, data.to);
       return true;
     }
 
@@ -23,7 +30,7 @@ CodeMirror.showHint = function(cm, getHints, options) {
       elt.appendChild(document.createTextNode(completions[i]));
       elt.hintId = i;
     }
-    var pos = cm.cursorCoords(options.alignWithWord !== false ? result.from : null);
+    var pos = cm.cursorCoords(options.alignWithWord !== false ? data.from : null);
     hints.style.left = pos.left + "px";
     hints.style.top = pos.bottom + "px";
     document.body.appendChild(hints);
@@ -109,21 +116,22 @@ CodeMirror.showHint = function(cm, getHints, options) {
       cm.off("blur", close);
     }
     function pick() {
-      cm.replaceRange(completions[selectedHint], result.from, result.to);
+      cm.replaceRange(completions[selectedHint], data.from, data.to);
       close();
     }
     var once, lastPos = cm.getCursor(), lastLen = cm.getLine(lastPos.line).length;
     function cursorActivity() {
       clearTimeout(once);
 
-      var pos = cm.getCursor(), len = cm.getLine(pos.line).length, start = startCh || lastPos.ch;
+      var pos = cm.getCursor(), len = cm.getLine(pos.line).length;
       if (pos.line != lastPos.line || len - pos.ch != lastLen - lastPos.ch ||
-          pos.ch < start || cm.somethingSelected())
+          pos.ch < startCh || cm.somethingSelected())
         close();
       else
-        once = setTimeout(function(){close(); collectHints(start, true);}, 70);
+        once = setTimeout(function(){close(); continued = true; startHinting();}, 70);
     }
     return true;
   }
-  return collectHints();
+
+  return startHinting();
 };
