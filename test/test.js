@@ -609,7 +609,7 @@ testCM("collapsedLines", function(cm) {
   cm.setCursor(Pos(3, 2));
   CodeMirror.commands.goLineDown(cm);
   eqPos(cm.getCursor(), Pos(5, 2));
-  range.clear(); range.clear();
+  cm.operation(function() {range.clear(); range.clear();});
   eq(cleared, 1);
 });
 

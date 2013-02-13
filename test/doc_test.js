@@ -312,7 +312,7 @@
     eqPos(mark.find().to, Pos(5, 1));
     var cleared = 0;
     CodeMirror.on(mark, "clear", function() {++cleared;});
-    mark.clear();
+    b.operation(function(){mark.clear();});
     eq(a.findMarksAt(Pos(3, 1)).length, 0);
     eq(b.findMarksAt(Pos(3, 1)).length, 0);
     eq(c.findMarksAt(Pos(3, 1)).length, 0);
