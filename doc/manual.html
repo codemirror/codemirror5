@@ -393,11 +393,31 @@
       <dd>Will be fired whenever CodeMirror updates its DOM display.</dd>
     </dl>
 
-    <p>It is also possible to <a href="#on">register</a> events
-    on other objects. Line handles (as returned by, for
+    <p>It is also possible to <a href="#on">register</a> events on
+    other objects. Use <code>CodeMirror.on(handle, "eventName",
+    func)</code> to register handlers on objects that don't have their
+    own <code>on</code> method. Document objects (instances
+    of <a href="#Doc"><code>CodeMirror.Doc</code></a>) emit the
+    following events:</p>
+
+    <dl>
+      <dt id="event_doc_change"><code>"change" (doc, changeObj)</code></dt>
+      <dd>Fired whenever a change occurs to the
+      document. <code>changeObj</code> has a similar type as the
+      object passed to the
+      editor's <a href="#event_change"><code>"change"</code></a>
+      event, but it never has a <code>next</code> property, because
+      document change events are not batched (whereas editor change
+      events are).</dd>
+
+      <dt id="event_doc_cursorActivity"><code>"cursorActivity" (doc)</code></dt>
+      <dd>Fired whenever the cursor or selection in this document
+      changes.</dd>
+    </dl>
+
+    <p>Line handles (as returned by, for
     example, <a href="#getLineHandle"><code>getLineHandle</code></a>)
-    can be listened on with <code>CodeMirror.on(handle, "delete",
-    myFunc)</code>. They support the following events:</p>
+    support these events:</p>
 
     <dl>
       <dt id="event_delete"><code>"delete" ()</code></dt>
