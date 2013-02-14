@@ -87,7 +87,6 @@ function copyCursor(cur) {
 function testVim(name, run, opts, expectedFail) {
   var vimOpts = {
     lineNumbers: true,
-    mode: 'text/x-csrc',
     keyMap: 'vim',
     showCursorWhenSelecting: true,
     value: code

@@ -973,11 +973,14 @@
         var res=cur;
         for(var i=0; i<repeat; i++){
           box=cm.charCoords(res);
-          y=motionArgs.forward ? (box.bottom+3) : (box.top-3);
+          if(motionArgs.forward){
+            if(res.line+1>=cm.doc.lineCount() && (cm.charCoords(res,"local").bottom+3)>=cm.doc.height) return null;
+            y=box.bottom+3;
+          }else{
+            if(res.line<=0 && (cm.charCoords(res,"local").top-3)<=0)return null;
+            y=box.top-3;
+          }
           res=cm.coordsChar({left:x,top:y});
-          // I don't seem to get 'outside'-flag on downward-motion
-          //   handling no answer as positive answer for now
-          if(res.outside!=false)return null;
         }
         vim.lastHPos = res.ch;
         return res;
@@ -1066,7 +1069,7 @@
       moveToLineOrEdgeOfDocument: function(cm, motionArgs) {
         var lineNum = motionArgs.forward ? cm.lineCount() - 1 : 0;
         if (motionArgs.repeatIsExplicit) {
-          lineNum = motionArgs.repeat - 1;
+          lineNum = motionArgs.repeat - cm.getOption('firstLineNumber');
         }
         return { line: lineNum,
             ch: findFirstNonWhiteSpaceCharacter(cm.getLine(lineNum)) };
@@ -2426,7 +2429,7 @@
         commandDispatcher.processMotion(cm, getVimState(cm), {
             motion: 'moveToLineOrEdgeOfDocument',
             motionArgs: { forward: false, explicitRepeat: true,
-              linewise: true, repeat: (params.line-cm.getOption('firstLineNumber')+2) }});
+              linewise: true, repeat: params.line+1 }});
       },
       substitute: function(cm, params) {
         var argString = params.argString;
