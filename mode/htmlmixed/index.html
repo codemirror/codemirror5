@@ -8,6 +8,7 @@
     <script src="../xml/xml.js"></script>
     <script src="../javascript/javascript.js"></script>
     <script src="../css/css.js"></script>
+    <script src="../vbscript/vbscript.js"></script>
     <script src="htmlmixed.js"></script>
     <link rel="stylesheet" href="../../doc/docs.css">
     <style>.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
@@ -39,10 +40,30 @@
 </html>
 </textarea></form>
     <script>
-      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {mode: "text/html", tabMode: "indent"});
+      // Define an extended mixed-mode that understands vbscript and
+      // leaves mustache/handlebars embedded templates in html mode
+      var mixedMode = {
+        name: "htmlmixed",
+        scriptTypes: [{matches: /\/x-handlebars-template|\/x-mustache/i,
+                       mode: null},
+                      {matches: /(text|application)\/(x-)?vb(a|script)/i,
+                       mode: "vbscript"}]
+      };
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {mode: mixedMode, tabMode: "indent"});
     </script>
 
     <p>The HTML mixed mode depends on the XML, JavaScript, and CSS modes.</p>
+
+    <p>It takes an optional mode configuration
+    option, <code>scriptTypes</code>, which can be used to add custom
+    behavior for specific <code>&lt;script type="..."></code> tags. If
+    given, it should hold an array of <code>{matches, mode}</code>
+    objects, where <code>matches</code> is a string or regexp that
+    matches the script type, and <code>mode</code> is
+    either <code>null</code>, for script types that should stay in
+    HTML mode, or a <a href="../../doc/manual.html#option_mode">mode
+    spec</a> corresponding to the mode that should be used for the
+    script.</p>
 
     <p><strong>MIME types defined:</strong> <code>text/html</code>
     (redefined, only takes effect if you load this parser after the
