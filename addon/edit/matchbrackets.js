@@ -3,6 +3,8 @@
     (document.documentMode == null || document.documentMode < 8);
 
   var Pos = CodeMirror.Pos;
+  // Disable brace matching in long lines, since it'll cause hugely slow updates  
+  var maxLineLen = 1000;
 
   var matching = {"(": ")>", ")": "(<", "[": "]>", "]": "[<", "{": "}>", "}": "{<"};
   function findMatchingBracket(cm) {
@@ -37,12 +39,13 @@
 
   function matchBrackets(cm, autoclear) {
     var found = findMatchingBracket(cm);
-    if (!found) return;
+    if (!found || cm.getLine(found.from.line).length > maxLineLen ||
+       found.to && cm.getLine(found.to.line).length > maxLineLen)
+      return;
+
     var style = found.match ? "CodeMirror-matchingbracket" : "CodeMirror-nonmatchingbracket";
-    var one = cm.markText(found.from, Pos(found.from.line, found.from.ch + 1),
-                          {className: style});
-    var two = found.to && cm.markText(found.to, Pos(found.to.line, found.to.ch + 1),
-                                      {className: style});
+    var one = cm.markText(found.from, Pos(found.from.line, found.from.ch + 1), {className: style});
+    var two = found.to && cm.markText(found.to, Pos(found.to.line, found.to.ch + 1), {className: style});
     // Kludge to work around the IE bug from issue #1193, where text
     // input stops going to the textare whever this fires.
     if (ie_lt8 && cm.state.focused) cm.display.input.focus();
