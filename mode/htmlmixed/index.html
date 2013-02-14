@@ -7,6 +7,7 @@
     <script src="../../lib/codemirror.js"></script>
     <script src="../xml/xml.js"></script>
     <script src="../javascript/javascript.js"></script>
+    <script src="../vbscript/vbscript.js"></script>
     <script src="../css/css.js"></script>
     <script src="htmlmixed.js"></script>
     <link rel="stylesheet" href="../../doc/docs.css">
@@ -35,6 +36,13 @@
         if (arg1 && arg2) document.body.innerHTML = "achoo";
       }
     </script>
+    <script type="text/vbscript">
+      Sub f()
+        MsgBox "Foo Bar"
+        ' This is a Comment
+        Call g(x)
+      End Sub
+    </script>
   </body>
 </html>
 </textarea></form>
@@ -42,7 +50,7 @@
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {mode: "text/html", tabMode: "indent"});
     </script>
 
-    <p>The HTML mixed mode depends on the XML, JavaScript, and CSS modes.</p>
+    <p>The HTML mixed mode depends on the XML, JavaScript, CSS modes.  HTML mixed mode will use the VBScript mode if it is available.</p>
 
     <p><strong>MIME types defined:</strong> <code>text/html</code>
     (redefined, only takes effect if you load this parser after the
