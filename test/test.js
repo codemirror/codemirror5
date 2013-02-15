@@ -1294,3 +1294,21 @@ testCM("findPosH", function(cm) {
     eq(!!r.hitSide, !!t.hitSide);
   });
 }, {value: "line one\nline two.something.other\n"});
+
+testCM("beforeChange", function(cm) {
+  cm.on("beforeChange", function(cm, change) {
+    var text = [];
+    for (var i = 0; i < change.text.length; ++i)
+      text.push(change.text[i].replace(/\s/g, "_"));
+    change.update(null, null, text);
+  });
+  cm.setValue("hello, i am a\nnew document\n");
+  eq(cm.getValue(), "hello,_i_am_a\nnew_document\n");
+  CodeMirror.on(cm.getDoc(), "beforeChange", function(doc, change) {
+    if (change.from.line == 0) change.cancel();
+  });
+  cm.setValue("oops"); // Canceled
+  eq(cm.getValue(), "hello,_i_am_a\nnew_document\n");
+  cm.replaceRange("hey hey hey", Pos(1, 0), Pos(2, 0));
+  eq(cm.getValue(), "hello,_i_am_a\nhey_hey_hey");
+}, {value: "abcdefghijk"});

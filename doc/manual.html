@@ -365,6 +365,26 @@
       a <code>next</code> property pointing to another change object
       (which may point to another, etc).</dd>
 
+      <dt id="event_beforeChange"><code>"beforeChange" (instance, change)</code></dt>
+      <dd>This event is fired before a change is applied, and its
+      handler may choose to modify or cancel the change.
+      The <code>change</code> object
+      has <code>from</code>, <code>to</code>, and <code>text</code>
+      properties, as with
+      the <a href="#event_change"><code>"change"</code></a> event, but
+      never a <code>next</code> property, since this is fired for each
+      individual change, and not batched per operation. It also
+      has <code>update(from, to, text)</code>
+      and <code>cancel()</code> methods, which may be used to modify
+      or cancel the change. All three arguments to <code>update</code>
+      are optional, and can be left off to leave the existing value
+      for that field intact. <strong>Note:</strong> you may not do
+      anything from a <code>"beforeChange"</code> handler that would
+      cause changes to the document or its visualization. Doing so
+      will, since this handler is called directly from the bowels of
+      the CodeMirror implementation, probably cause the editor to
+      become corrupted.</dd>
+
       <dt id="event_cursorActivity"><code>"cursorActivity" (instance)</code></dt>
       <dd>Will be fired when the cursor or selection moves, or any
       change is made to the editor content.</dd>
@@ -409,6 +429,10 @@
       event, but it never has a <code>next</code> property, because
       document change events are not batched (whereas editor change
       events are).</dd>
+
+      <dt id="event_doc_beforeChange"><code>"beforeChange" (doc, change)</code></dt>
+      <dd>See the <a href="#event_beforeChange">description of the
+      same event</a> on editor instances.</dd>
 
       <dt id="event_doc_cursorActivity"><code>"cursorActivity" (doc)</code></dt>
       <dd>Fired whenever the cursor or selection in this document
