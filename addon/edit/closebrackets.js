@@ -19,7 +19,7 @@
       }
       map["'" + left + "'"] = function(cm) {
         if (left == right && maybeOverwrite(cm) != CodeMirror.Pass) return;
-        var cur = cm.getCursor(), ahead = CodeMirror.Pos(cur.line, cur.ch + 1);
+        var cur = cm.getCursor("start"), ahead = CodeMirror.Pos(cur.line, cur.ch + 1);
         cm.replaceSelection(left + right, {head: ahead, anchor: ahead});
       };
       if (left != right) map["'" + right + "'"] = maybeOverwrite;
