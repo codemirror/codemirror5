@@ -952,7 +952,7 @@
         if (line < 0 || line > cm.lineCount() - 1) {
           return null;
         }
-        vim.lastHSPos = cm.charCoords({line:line, ch:endCh}).left;
+        vim.lastHSPos = cm.charCoords({line:line, ch:endCh},"div").left;
         return { line: line, ch: endCh };
       },
       moveByDisplayLines: function(cm, motionArgs, vim) {
@@ -964,24 +964,11 @@
           case this.moveToEol:
             break;
           default:
-            vim.lastHSPos = cm.charCoords(cur).left;
+            vim.lastHSPos = cm.charCoords(cur,"div").left;
         }
         var repeat = motionArgs.repeat;
-        var box;
-        var x = vim.lastHSPos;
-        var y;
-        var res=cur;
-        for(var i=0; i<repeat; i++){
-          box=cm.charCoords(res);
-          if(motionArgs.forward){
-            if(res.line+1>=cm.doc.lineCount() && (cm.charCoords(res,"local").bottom+3)>=cm.doc.height) return null;
-            y=box.bottom+3;
-          }else{
-            if(res.line<=0 && (cm.charCoords(res,"local").top-3)<=0)return null;
-            y=box.top-3;
-          }
-          res=cm.coordsChar({left:x,top:y});
-        }
+        var res=cm.findPosV(cur,(motionArgs.forward ? repeat : -repeat),"line",vim.lastHSPos);
+        if(res.hitSide)return null;
         vim.lastHPos = res.ch;
         return res;
       },
@@ -1033,7 +1020,7 @@
         var repeat = motionArgs.repeat;
         // repeat is equivalent to which column we want to move to!
         vim.lastHPos = repeat - 1;
-        vim.lastHSPos = cm.charCoords(cm.getCursor()).left;
+        vim.lastHSPos = cm.charCoords(cm.getCursor(),"div").left;
         return moveToColumn(cm, repeat);
       },
       moveToEol: function(cm, motionArgs, vim) {
@@ -1042,7 +1029,7 @@
         var retval={ line: cur.line + motionArgs.repeat - 1, ch: Infinity }
         var end=cm.clipPos(retval);
         end.ch--;
-        vim.lastHSPos = cm.charCoords(end).left;
+        vim.lastHSPos = cm.charCoords(end,"div").left;
         return retval;
       },
       moveToFirstNonWhiteSpaceCharacter: function(cm) {
