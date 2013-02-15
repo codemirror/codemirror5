@@ -750,6 +750,12 @@
       the motion was clipped by hitting the end or start of the
       document, the returned value will have a <code>hitSide</code>
       property set to true.</dd>
+      <dt id="findPosV"><code>cm.findPosV(start, amount, unit) → object</code></dt>
+      <dd>Similar to <a href="#findPosH"><code>findPosH</code></a>,
+      but used for vertical motion. <code>unit</code> may
+      be <code>"line"</code> or <code>"page"</code>. The other
+      arguments and the returned value have the same interpretation as
+      they have in <code>findPosH</code>.</dd>
     </dl>
 
     <h3 id="api_configuration">Configuration methods</h3>
