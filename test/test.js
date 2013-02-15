@@ -1273,3 +1273,24 @@ testCM("addKeyMap", function(cm) {
   sendKey(39);
   eqPos(cm.getCursor(), Pos(0, 3));
 }, {value: "abc"});
+
+testCM("findPosH", function(cm) {
+  forEach([{from: Pos(0, 0), to: Pos(0, 1), by: 1},
+           {from: Pos(0, 0), to: Pos(0, 0), by: -1, hitSide: true},
+           {from: Pos(0, 0), to: Pos(0, 4), by: 1, unit: "word"},
+           {from: Pos(0, 0), to: Pos(0, 8), by: 2, unit: "word"},
+           {from: Pos(0, 0), to: Pos(2, 0), by: 20, unit: "word", hitSide: true},
+           {from: Pos(0, 7), to: Pos(0, 5), by: -1, unit: "word"},
+           {from: Pos(0, 4), to: Pos(0, 8), by: 1, unit: "word"},
+           {from: Pos(1, 0), to: Pos(1, 18), by: 3, unit: "word"},
+           {from: Pos(1, 22), to: Pos(1, 5), by: -3, unit: "word"},
+           {from: Pos(1, 15), to: Pos(1, 10), by: -5},
+           {from: Pos(1, 15), to: Pos(1, 10), by: -5, unit: "column"},
+           {from: Pos(1, 15), to: Pos(1, 0), by: -50, unit: "column", hitSide: true},
+           {from: Pos(1, 15), to: Pos(1, 24), by: 50, unit: "column", hitSide: true},
+           {from: Pos(1, 15), to: Pos(2, 0), by: 50, hitSide: true}], function(t) {
+    var r = cm.findPosH(t.from, t.by, t.unit || "char");
+    eqPos(r, t.to);
+    eq(!!r.hitSide, !!t.hitSide);
+  });
+}, {value: "line one\nline two.something.other\n"});

@@ -736,6 +736,20 @@
       the shift key, in that it will cause cursor movement and calls
       to <a href="#extendSelection"><code>extendSelection</code></a>
       to leave the selection anchor in place.</dd>
+
+      <dt id="findPosH"><code>cm.findPosH(start, amount, unit, visually) → object</code></dt>
+      <dd>Used to find the target position for horizontal cursor
+      motion. <code>start</code> is a <code>{line, ch}</code>
+      object, <code>amount</code> an integer (may be negative),
+      and <code>unit</code> one of the
+      string <code>"char"</code>, <code>"column"</code>,
+      or <code>"word"</code>. Will return a position that is produced
+      by moving <code>amount</code> times the distance specified
+      by <code>unit</code>. When <code>visually</code> is true, motion
+      in right-to-left text will be visual rather than logical. When
+      the motion was clipped by hitting the end or start of the
+      document, the returned value will have a <code>hitSide</code>
+      property set to true.</dd>
     </dl>
 
     <h3 id="api_configuration">Configuration methods</h3>
