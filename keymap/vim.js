@@ -281,7 +281,7 @@
       return alphabetRegex.test(k);
     }
     function isLine(cm, line) {
-      return line >= 0 && line < cm.lineCount();
+      return line >= cm.firstLine() && line <= cm.lastLine();
     }
     function isLowerCase(k) {
       return (/^[a-z]$/).test(k);
@@ -949,7 +949,7 @@
         }
         var repeat = motionArgs.repeat;
         var line = motionArgs.forward ? cur.line + repeat : cur.line - repeat;
-        if (line < 0 || line > cm.lineCount() - 1) {
+        if (line < cm.firstLine() || line > cm.lastLine() ) {
           return null;
         }
         vim.lastHSPos = cm.charCoords({line:line, ch:endCh},"div").left;
@@ -988,12 +988,12 @@
         var repeat = motionArgs.repeat;
         var inc = motionArgs.forward ? 1 : -1;
         for (var i = 0; i < repeat; i++) {
-          if ((!motionArgs.forward && line === 0) ||
-              (motionArgs.forward && line == cm.lineCount() - 1)) {
+          if ((!motionArgs.forward && line === cm.firstLine() ) ||
+              (motionArgs.forward && line == cm.lastLine())) {
             break;
           }
           line += inc;
-          while (line !== 0 && line != cm.lineCount - 1 && cm.getLine(line)) {
+          while (line !== cm.firstLine() && line != cm.lastLine() && cm.getLine(line)) {
             line += inc;
           }
         }
@@ -1054,7 +1054,7 @@
         return { line: cursor.line, ch: 0 };
       },
       moveToLineOrEdgeOfDocument: function(cm, motionArgs) {
-        var lineNum = motionArgs.forward ? cm.lineCount() - 1 : 0;
+        var lineNum = motionArgs.forward ? cm.lastLine() : cm.firstLine();
         if (motionArgs.repeatIsExplicit) {
           lineNum = motionArgs.repeat - cm.getOption('firstLineNumber');
         }
@@ -1271,10 +1271,10 @@
       },
       newLineAndEnterInsertMode: function(cm, actionArgs) {
         var insertAt = cm.getCursor();
-        if (insertAt.line === 0 && !actionArgs.after) {
+        if (insertAt.line === cm.firstLine() && !actionArgs.after) {
           // Special case for inserting newline before start of document.
-          cm.replaceRange('\n', { line: 0, ch: 0 });
-          cm.setCursor(0, 0);
+          cm.replaceRange('\n', { line: cm.firstLine(), ch: 0 });
+          cm.setCursor(cm.firstLine(), 0);
         } else {
           insertAt.line = (actionArgs.after) ? insertAt.line :
               insertAt.line - 1;
@@ -1394,14 +1394,11 @@
      */
 
     /**
-     * Clips cursor to ensure that:
-     *   0 <= cur.ch < lineLength
-     *       AND
-     *   0 <= cur.line < lineCount
+     * Clips cursor to ensure that line is within the buffer's range
      * If includeLineBreak is true, then allow cur.ch == lineLength.
      */
     function clipCursorToContent(cm, cur, includeLineBreak) {
-      var line = Math.min(Math.max(0, cur.line), cm.lineCount() - 1);
+      var line = Math.min(Math.max(cm.firstLine(), cur.line), cm.lastLine() );
       var maxCh = lineLength(cm, line) - 1;
       maxCh = (includeLineBreak) ? maxCh + 1 : maxCh;
       var ch = Math.min(Math.max(0, cur.ch), maxCh);
@@ -2128,7 +2125,7 @@
             // SearchCursor may have returned null because it hit EOF, wrap
             // around and try again.
             cursor = cm.getSearchCursor(query,
-                (prev) ? { line: cm.lineCount() - 1} : {line: 0, ch: 0} );
+                (prev) ? { line: cm.lastLine() } : {line: cm.firstLine(), ch: 0} );
             if (!cursor.find(prev)) {
               return;
             }
@@ -2244,8 +2241,8 @@
         inputStream.eatWhile(':');
         // Parse range.
         if (inputStream.eat('%')) {
-          result.line = 0;
-          result.lineEnd = cm.lineCount() - 1;
+          result.line = cm.firstLine();
+          result.lineEnd = cm.lastLine();
         } else {
           result.line = this.parseLineSpec_(cm, inputStream);
           if (result.line !== undefined && inputStream.eat(',')) {
@@ -2272,7 +2269,7 @@
           case '.':
             return cm.getCursor().line;
           case '$':
-            return cm.lineCount() - 1;
+            return cm.lastLine();
           case '\'':
             var mark = getVimState(cm).marks[inputStream.next()];
             if (mark && mark.find()) {
@@ -2451,7 +2448,7 @@
         }
         var state = getSearchState(cm);
         var query = state.getQuery();
-        var lineStart = params.line || 0;
+        var lineStart = params.line || cm.firstLine();
         var lineEnd = params.lineEnd || lineStart;
         if (count) {
           lineStart = lineEnd;
