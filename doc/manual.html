@@ -701,15 +701,14 @@
       <dd>Replace the selection with the given string.</dd>
 
       <dt id="getCursor"><code>doc.getCursor(start) → object</code></dt>
-      <dd><code>start</code> is a boolean indicating whether the start
-      or the end of the selection must be retrieved. If it is not
-      given, the current cursor pos, i.e. the side of the selection
-      that would move if you pressed an arrow key, is chosen.
-      Alternatively, you can pass one of the
-      strings <code>"start"</code>, <code>"end"</code>, <code>"head"</code>
-      (same as not passing anything), or <code>"anchor"</code> (the
-      opposite). A <code>{line, ch}</code> object will be
-      returned.</dd>
+      <dd><code>start</code> is a an optional string indicating which
+      end of the selection to return. It may
+      be <code>"start"</code>, <code>"end"</code>, <code>"head"</code>
+      (the side of the selection that moves when you press
+      shift+arrow), or <code>"anchor"</code> (the fixed side of the
+      selection). Omitting the argument is the same as
+      passing <code>"head"</code>. A <code>{line, ch}</code> object
+      will be returned.</dd>
       <dt id="somethingSelected"><code>doc.somethingSelected() → boolean</code></dt>
       <dd>Return true if any text is selected.</dd>
       <dt id="setCursor"><code>doc.setCursor(pos)</code></dt>
