@@ -1,0 +1,77 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>CodeMirror: Javascript Lint Demo</title>
+    <link rel="stylesheet" href="../lib/codemirror.css">
+    <script src="../lib/codemirror.js"></script>
+    <script src="../mode/javascript/javascript.js"></script>
+    <script src="http://ajax.aspnetcdn.com/ajax/jshint/r07/jshint.js"></script>
+    <link rel="stylesheet" href="../doc/docs.css">
+
+	<link rel="stylesheet" href="../lib/codemirror-lint.css">
+	<script src="../addon/lint/lint.js"></script>
+	<script src="../addon/lint/javascript-lint.js"></script>
+
+    <style type="text/css">
+      .CodeMirror {border: 1px solid black;}
+    </style>
+  </head>
+  <body>
+    <h1>CodeMirror: Javascript Lint Demo</h1>
+
+    <textarea id="code">var widgets = []
+function updateHints() {
+  editor.operation(function(){
+    for (var i = 0; i < widgets.length; ++i)
+      editor.removeLineWidget(widgets[i]);
+    widgets.length = 0;
+
+    JSHINT(editor.getValue());
+    for (var i = 0; i < JSHINT.errors.length; ++i) {
+      var err = JSHINT.errors[i];
+      if (!err) continue;
+      var msg = document.createElement("div");
+      var icon = msg.appendChild(document.createElement("span"));
+      icon.innerHTML = "!!";
+      icon.className = "lint-error-icon";
+      msg.appendChild(document.createTextNode(err.reason));
+      msg.className = "lint-error";
+      widgets.push(editor.addLineWidget(err.line - 1, msg, {coverGutter: false, noHScroll: true}));
+    }
+  });
+  var info = editor.getScrollInfo();
+  var after = editor.charCoords({line: editor.getCursor().line + 1, ch: 0}, "local").top;
+  if (info.top + info.clientHeight < after)
+    editor.scrollTo(null, after - info.clientHeight + 3);
+}
+</textarea>
+
+<script>
+window.onload = function() {
+
+  var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+    lineNumbers: true,
+    mode: "javascript",
+    gutters: ["CodeMirror-lints"]
+  });
+
+  var validate = function() {
+  	CodeMirror.validate(editor, CodeMirror.javascriptValidator);  	
+  };
+  var waiting;
+  editor.on("change", function() {
+	clearTimeout(waiting);
+	waiting = setTimeout(validate, 500);
+  });
+
+  setTimeout(validate, 100);
+
+};
+
+"long line to create a horizontal scrollbar, in order to test whether the (non-inline) widgets stay in place when scrolling to the right";
+</script>
+<p>This demo runs <a href="http://jshint.com">JSHint</a> over the code
+in the editor and use CodeMirror Lint to display the warnings that JSHint comes up with.</p>
+  </body>
+</html>
