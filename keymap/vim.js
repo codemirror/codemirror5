@@ -6,7 +6,7 @@
  *   gj, gk
  *   e, E, w, W, b, B, ge, gE
  *   f<character>, F<character>, t<character>, T<character>
- *   $, ^, 0
+ *   $, ^, 0, -, +, _
  *   gg, G
  *   %
  *   '<character>, `<character>
@@ -93,10 +93,10 @@
         motionArgs: { forward: false, linewise: true }},
     { keys: ['g','j'], type: 'motion',
         motion: 'moveByDisplayLines',
-        motionArgs: { forward: true, linewise: true }},
+        motionArgs: { forward: true }},
     { keys: ['g','k'], type: 'motion',
         motion: 'moveByDisplayLines',
-        motionArgs: { forward: false, linewise: true }},
+        motionArgs: { forward: false }},
     { keys: ['w'], type: 'motion',
         motion: 'moveByWords',
         motionArgs: { forward: true, wordEnd: false }},
@@ -140,6 +140,15 @@
     { keys: ['0'], type: 'motion', motion: 'moveToStartOfLine' },
     { keys: ['^'], type: 'motion',
         motion: 'moveToFirstNonWhiteSpaceCharacter' },
+    { keys: ['+'], type: 'motion',
+        motion: 'moveByLines',
+        motionArgs: { forward: true, toFirstChar:true }},
+    { keys: ['-'], type: 'motion',
+        motion: 'moveByLines',
+        motionArgs: { forward: false, toFirstChar:true }},
+    { keys: ['_'], type: 'motion',
+        motion: 'moveByLines',
+        motionArgs: { forward: true, toFirstChar:true, repeatOffset:-1 }},
     { keys: ['$'], type: 'motion',
         motion: 'moveToEol',
         motionArgs: { inclusive: true }},
@@ -597,6 +606,18 @@
               // Matches whole comand. Return the command.
               if (command.keys[keys.length - 1] == 'character') {
                 inputState.selectedCharacter = keys[keys.length - 1];
+                if(inputState.selectedCharacter.length>1){
+                  switch(inputState.selectedCharacter){
+                    case "Enter":
+                      inputState.selectedCharacter='\n';
+                      break;
+                    case "Space":
+                      inputState.selectedCharacter=' ';
+                      break;
+                    default:
+                      continue;
+                  }
+                }
               }
               inputState.keyBuffer = [];
               return command;
@@ -947,10 +968,14 @@
           default:
             vim.lastHPos = endCh;
         }
-        var repeat = motionArgs.repeat;
+        var repeat = motionArgs.repeat+(motionArgs.repeatOffset||0);
         var line = motionArgs.forward ? cur.line + repeat : cur.line - repeat;
         if (line < cm.firstLine() || line > cm.lastLine() ) {
           return null;
+        }
+        if(motionArgs.toFirstChar){
+          endCh=findFirstNonWhiteSpaceCharacter(cm.getLine(line));
+          vim.lastHPos = endCh;
         }
         vim.lastHSPos = cm.charCoords({line:line, ch:endCh},"div").left;
         return { line: line, ch: endCh };
@@ -1007,6 +1032,7 @@
         var repeat = motionArgs.repeat;
         var curEnd = moveToCharacter(cm, repeat, motionArgs.forward,
             motionArgs.selectedCharacter);
+        if(!curEnd)return cm.getCursor();
         var increment = motionArgs.forward ? -1 : 1;
         curEnd.ch += increment;
         return curEnd;
@@ -1014,7 +1040,7 @@
       moveToCharacter: function(cm, motionArgs) {
         var repeat = motionArgs.repeat;
         return moveToCharacter(cm, repeat, motionArgs.forward,
-            motionArgs.selectedCharacter);
+            motionArgs.selectedCharacter) || cm.getCursor();
       },
       moveToColumn: function(cm, motionArgs, vim) {
         var repeat = motionArgs.repeat;
@@ -1036,7 +1062,6 @@
         // Go to the start of the line where the text begins, or the end for
         // whitespace-only lines
         var cursor = cm.getCursor();
-        var line = cm.getLine(cursor.line);
         return { line: cursor.line,
             ch: findFirstNonWhiteSpaceCharacter(cm.getLine(cursor.line)) };
       },
@@ -1341,21 +1366,41 @@
         var markName = actionArgs.selectedCharacter;
         updateMark(cm, vim, markName, cm.getCursor());
       },
-      replace: function(cm, actionArgs) {
+      replace: function(cm, actionArgs, vim) {
         var replaceWith = actionArgs.selectedCharacter;
         var curStart = cm.getCursor();
-        var line = cm.getLine(curStart.line);
-        var replaceTo = curStart.ch + actionArgs.repeat;
-        if (replaceTo > line.length) {
-          return;
+        var replaceTo;
+        var curEnd;
+        if(vim.visualMode){
+          curStart=cm.getCursor('start');
+          curEnd=cm.getCursor('end');
+          // workaround to catch the character under the cursor
+          //  existing workaround doesn't cover actions
+          curEnd=cm.clipPos({line: curEnd.line, ch: curEnd.ch+1});
+        }else{
+          var line = cm.getLine(curStart.line);
+          replaceTo = curStart.ch + actionArgs.repeat;
+          if (replaceTo > line.length) {
+            replaceTo=line.length;
+          }
+          curEnd = { line: curStart.line, ch: replaceTo };
         }
-        var curEnd = { line: curStart.line, ch: replaceTo };
-        var replaceWithStr = '';
-        for (var i = 0; i < curEnd.ch - curStart.ch; i++) {
-          replaceWithStr += replaceWith;
+        if(replaceWith=='\n'){
+          if(!vim.visualMode) cm.replaceRange('', curStart, curEnd);
+          // special case, where vim help says to replace by just one line-break
+          (CodeMirror.commands.newlineAndIndentContinueComment || CodeMirror.commands.newlineAndIndent)(cm);
+        }else {
+          var replaceWithStr=cm.getRange(curStart, curEnd);
+          //replace all characters in range by selected, but keep linebreaks
+          replaceWithStr=replaceWithStr.replace(/[^\n]/g,replaceWith);
+          cm.replaceRange(replaceWithStr, curStart, curEnd);
+          if(vim.visualMode){
+            cm.setCursor(curStart);
+            exitVisualMode(cm,vim);
+          }else{
+            cm.setCursor(offsetCursor(curEnd, 0, -1));
+          }
         }
-        cm.replaceRange(replaceWithStr, curStart, curEnd);
-        cm.setCursor(offsetCursor(curEnd, 0, -1));
       }
     };
 
@@ -1720,7 +1765,7 @@
         var line = cm.getLine(cur.line);
         idx = charIdxInLine(start, line, character, forward, true);
         if (idx == -1) {
-          return cur;
+          return null;
         }
         start = idx;
       }
