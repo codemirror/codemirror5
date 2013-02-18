@@ -14,6 +14,7 @@
     "Ctrl-W": function(cm) {addToRing(cm.getSelection()); cm.replaceSelection("");},
     "Ctrl-Alt-W": function(cm) {addToRing(cm.getSelection()); cm.replaceSelection("");},
     "Alt-W": function(cm) {addToRing(cm.getSelection());},
+    "Ctrl-K": function(cm) {addToRing(cm.execCommand("killLine"));},
     "Ctrl-Y": function(cm) {cm.replaceSelection(getFromRing());},
     "Alt-Y": function(cm) {cm.replaceSelection(popFromRing());},
     "Ctrl-/": "undo", "Shift-Ctrl--": "undo", "Shift-Alt-,": "goDocStart", "Shift-Alt-.": "goDocEnd",
