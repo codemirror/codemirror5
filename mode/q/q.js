@@ -56,7 +56,7 @@ CodeMirror.defineMode("q",function(config){
       state.tokenize=tokenBase;
     return"comment";
   }
-  function tokenCommentToEOF(stream,state){return stream.skipToEnd(),"comment";}
+  function tokenCommentToEOF(stream){return stream.skipToEnd(),"comment";}
   function tokenString(stream,state){
     var escaped=false,next,end=false;
     while((next=stream.next())){
@@ -69,7 +69,7 @@ CodeMirror.defineMode("q",function(config){
   function pushContext(state,type,col){state.context={prev:state.context,indent:state.indent,col:col,type:type};}
   function popContext(state){state.indent=state.context.indent;state.context=state.context.prev;}
   return{
-    startState:function(base){
+    startState:function(){
       return{tokenize:tokenBase,
              context:null,
              indent:0,
