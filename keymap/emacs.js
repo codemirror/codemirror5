@@ -15,6 +15,7 @@
     "Ctrl-Alt-W": function(cm) {addToRing(cm.getSelection()); cm.replaceSelection("");},
     "Alt-W": function(cm) {addToRing(cm.getSelection());},
     "Alt-D": function(cm) {addToRing(cm.execCommand("delWordAfter"));},
+    "Alt-Backspace": function(cm) {addToRing(cm.execCommand("delWordBefore"));},
     "Ctrl-K": function(cm) {addToRing(cm.execCommand("killLine"));},
     "Ctrl-Y": function(cm) {cm.replaceSelection(getFromRing());},
     "Alt-Y": function(cm) {cm.replaceSelection(popFromRing());},
