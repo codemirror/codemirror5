@@ -24,6 +24,13 @@
   <body>
     <h1>CodeMirror: Formatting demo</h1>
 
+    <p><strong>Note:</strong> The formatting addon receives a fair
+    amount of bug requests. I (the maintainer of CodeMirror) do not
+    intend to spend time on improving it. Pull requests (if clean and
+    intelligent) are welcome, but you should see this code as a
+    proof-of-concept (using CodeMirror's mode tokenizers to help
+    format code), not a finished, robust module.</p>
+
     <form><textarea id="code" name="code"><script> function (s,e){ for(var i=0; i < 1; i++) test("test();a=1");} </script>
 <script>
 function test(c){  for (var i = 0; i < 10; i++){	          process("a.b();c = null;", 300);}
