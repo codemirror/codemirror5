@@ -92,7 +92,7 @@ CodeMirror.validate = (function() {
     clearMarks(cm);
     var state = cm._lintState, options = state.options;
 
-    var annotations = groupByLine(options.getAnnotations(cm));
+    var annotations = groupByLine(options.getAnnotations(cm.getValue()));
 
     for (var line = 0; line < annotations.length; ++line) {
       var anns = annotations[line];

@@ -1,6 +1,6 @@
 // Depends on jsonlint.js from https://github.com/zaach/jsonlint
 
-CodeMirror.jsonValidator = function(cm) {
+CodeMirror.jsonValidator = function(text) {
   var found = [];
   jsonlint.parseError = function(str, hash) {
     var loc = hash.loc;
@@ -8,7 +8,7 @@ CodeMirror.jsonValidator = function(cm) {
                 to: CodeMirror.Pos(loc.last_line - 1, loc.last_column),
                 message: str});
   };
-  try { jsonlint.parse(cm.getValue()); }
+  try { jsonlint.parse(text); }
   catch(e) {}
   return found;
 };

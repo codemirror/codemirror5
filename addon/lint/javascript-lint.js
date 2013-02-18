@@ -9,8 +9,8 @@
 	         "Unmatched ", " and instead saw", " is not defined",
 	         "Unclosed string", "Stopping, unable to continue" ];
 
-  CodeMirror.javascriptValidator = function(cm) {
-    JSHINT(cm.getValue());
+  CodeMirror.javascriptValidator = function(text) {
+    JSHINT(text);
     var errors = JSHINT.data().errors, result = [];
     if (errors) parseErrors(errors, result);
     return result;
