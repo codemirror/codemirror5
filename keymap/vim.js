@@ -6,7 +6,7 @@
  *   gj, gk
  *   e, E, w, W, b, B, ge, gE
  *   f<character>, F<character>, t<character>, T<character>
- *   $, ^, 0
+ *   $, ^, 0, -, +, _
  *   gg, G
  *   %
  *   '<character>, `<character>
@@ -140,6 +140,15 @@
     { keys: ['0'], type: 'motion', motion: 'moveToStartOfLine' },
     { keys: ['^'], type: 'motion',
         motion: 'moveToFirstNonWhiteSpaceCharacter' },
+    { keys: ['+'], type: 'motion',
+        motion: 'moveByLinesToFirstNonWhiteSpaceCharacter',
+        motionArgs: { forward: true }},
+    { keys: ['-'], type: 'motion',
+        motion: 'moveByLinesToFirstNonWhiteSpaceCharacter',
+        motionArgs: { forward: false }},
+    { keys: ['_'], type: 'motion',
+        motion: 'moveByLinesToFirstNonWhiteSpaceCharacter',
+        motionArgs: { forward: true, repeatOffset:-1 }},
     { keys: ['$'], type: 'motion',
         motion: 'moveToEol',
         motionArgs: { inclusive: true }},
@@ -396,11 +405,6 @@
           }
           return;
         }
-        if (vim.visualMode &&
-            cursorEqual(cm.getCursor('head'), cm.getCursor('anchor'))) {
-          // The selection was cleared. Exit visual mode.
-          exitVisualMode(cm, vim);
-        }
         if (!vim.visualMode &&
             !cursorEqual(cm.getCursor('head'), cm.getCursor('anchor'))) {
           vim.visualMode = true;
@@ -597,6 +601,18 @@
               // Matches whole comand. Return the command.
               if (command.keys[keys.length - 1] == 'character') {
                 inputState.selectedCharacter = keys[keys.length - 1];
+                if(inputState.selectedCharacter.length>1){
+                  switch(inputState.selectedCharacter){
+                    case "Enter":
+                      inputState.selectedCharacter='\n';
+                      break;
+                    case "Space":
+                      inputState.selectedCharacter=' ';
+                      break;
+                    default:
+                      continue;
+                  }
+                }
               }
               inputState.keyBuffer = [];
               return command;
@@ -816,31 +832,8 @@
             curEnd = { ch: curStart.ch, line: curStart.line };
           }
           if (vim.visualMode) {
-            // Check if the selection crossed over itself. Will need to shift
-            // the start point if that happened.
-            if (cursorIsBefore(selectionStart, selectionEnd) &&
-                (cursorEqual(selectionStart, curEnd) ||
-                    cursorIsBefore(curEnd, selectionStart))) {
-              // The end of the selection has moved from after the start to
-              // before the start. We will shift the start right by 1.
-              selectionStart.ch += 1;
-            } else if (cursorIsBefore(selectionEnd, selectionStart) &&
-                (cursorEqual(selectionStart, curEnd) ||
-                    cursorIsBefore(selectionStart, curEnd))) {
-              // The opposite happened. We will shift the start left by 1.
-              selectionStart.ch -= 1;
-            }
             selectionEnd = curEnd;
-            if (vim.visualLine) {
-              if (cursorIsBefore(selectionStart, selectionEnd)) {
-                selectionStart.ch = 0;
-                selectionEnd.ch = lineLength(cm, selectionEnd.line);
-              } else {
-                selectionEnd.ch = 0;
-                selectionStart.ch = lineLength(cm, selectionStart.line);
-              }
-            }
-            cm.setSelection(selectionStart, selectionEnd);
+            setSelection(cm, vim, selectionStart, selectionEnd, vim.visualLine);
             updateMark(cm, vim, '<',
                 cursorIsBefore(selectionStart, selectionEnd) ? selectionStart
                     : selectionEnd);
@@ -1036,9 +1029,19 @@
         // Go to the start of the line where the text begins, or the end for
         // whitespace-only lines
         var cursor = cm.getCursor();
-        var line = cm.getLine(cursor.line);
         return { line: cursor.line,
             ch: findFirstNonWhiteSpaceCharacter(cm.getLine(cursor.line)) };
+      },
+      moveByLinesToFirstNonWhiteSpaceCharacter: function(cm, motionArgs, vim) {
+        // same as moveToFirstWhiteSpaceCharacter but with vertical movement
+        var cur = cm.getCursor();
+        var repeat = motionArgs.repeat;
+        var offset = motionArgs.repeatOffset || 0;
+        var line = motionArgs.forward ? cur.line + repeat + offset : cur.line - repeat + offset;
+        if (line < cm.firstLine() || line > cm.lastLine() ) {
+          return null;
+        }
+        return { line: line, ch: findFirstNonWhiteSpaceCharacter(cm.getLine(line)) };
       },
       moveToMatchedSymbol: function(cm, motionArgs) {
         var cursor = cm.getCursor();
@@ -1196,27 +1199,18 @@
           vim.visualMode = true;
           vim.visualLine = !!actionArgs.linewise;
           if (vim.visualLine) {
-            curStart.ch = 0;
             curEnd = clipCursorToContent(cm, {
               line: curStart.line + repeat - 1,
-              ch: lineLength(cm, curStart.line)
+              ch: curStart.ch
             }, true /** includeLineBreak */);
           } else {
             curEnd = clipCursorToContent(cm, {
               line: curStart.line,
-              ch: curStart.ch + repeat
+              ch: curStart.ch + repeat - 1
             }, true /** includeLineBreak */);
           }
           // Make the initial selection.
-          if (!actionArgs.repeatIsExplicit && !vim.visualLine) {
-            // This is a strange case. Here the implicit repeat is 1. The
-            // following commands lets the cursor hover over the 1 character
-            // selection.
-            cm.setCursor(curEnd);
-            cm.setSelection(curEnd, curStart);
-          } else {
-            cm.setSelection(curStart, curEnd);
-          }
+          setSelection(cm, vim, curStart, curEnd, vim.visualLine);
         } else {
           curStart = cm.getCursor('anchor');
           curEnd = cm.getCursor('head');
@@ -1224,15 +1218,12 @@
             // Shift-V pressed in characterwise visual mode. Switch to linewise
             // visual mode instead of exiting visual mode.
             vim.visualLine = true;
-            curStart.ch = cursorIsBefore(curStart, curEnd) ? 0 :
-                lineLength(cm, curStart.line);
-            curEnd.ch = cursorIsBefore(curStart, curEnd) ?
-                lineLength(cm, curEnd.line) : 0;
-            cm.setSelection(curStart, curEnd);
+            setSelection(cm, vim, curStart, curEnd, true);
           } else if (vim.visualLine && !actionArgs.linewise) {
             // v pressed in linewise visual mode. Switch to characterwise visual
             // mode instead of exiting visual mode.
             vim.visualLine = false;
+            setSelection(cm, vim, curStart, curEnd, false);
           } else {
             exitVisualMode(cm, vim);
           }
@@ -1341,21 +1332,46 @@
         var markName = actionArgs.selectedCharacter;
         updateMark(cm, vim, markName, cm.getCursor());
       },
-      replace: function(cm, actionArgs) {
+      replace: function(cm, actionArgs, vim) {
         var replaceWith = actionArgs.selectedCharacter;
         var curStart = cm.getCursor();
-        var line = cm.getLine(curStart.line);
-        var replaceTo = curStart.ch + actionArgs.repeat;
-        if (replaceTo > line.length) {
-          return;
+        var replaceTo;
+        var curEnd;
+        if(vim.visualMode){
+          curStart=cm.getCursor('start');
+          curEnd=cm.getCursor('end');
+          var replaceWithStr;
+          replaceWithStr=cm.getRange(curStart, curEnd);
+          if(replaceWith=='\n'){
+            // special case, where vim help says to replace by just one line-break
+            (CodeMirror.commands.newlineAndIndentContinueComment || CodeMirror.commands.newlineAndIndent)(cm);
+          }else{
+            //replace all characters in range by selected, but keep linebreaks
+            replaceWithStr=replaceWithStr.replace(/[^\n]/g,replaceWith);
+            cm.replaceRange(replaceWithStr, curStart, curEnd);
+            cm.setCursor(curStart);
+          }
+          exitVisualMode(cm,vim);
+        }else{
+          var line = cm.getLine(curStart.line);
+          replaceTo = curStart.ch + actionArgs.repeat;
+          if (replaceTo > line.length) {
+            replaceTo=line.length;
+          }
+          curEnd = { line: curStart.line, ch: replaceTo };
+          var replaceWithStr = '';
+          if(replaceWith=='\n'){
+            // special case, where vim help says to replace by just one line-break
+            cm.replaceRange('', curStart, curEnd);
+            (CodeMirror.commands.newlineAndIndentContinueComment || CodeMirror.commands.newlineAndIndent)(cm);
+          }else{
+            for (var i = 0; i < curEnd.ch - curStart.ch; i++) {
+              replaceWithStr += replaceWith;
+            }
+            cm.replaceRange(replaceWithStr, curStart, curEnd);
+            cm.setCursor(offsetCursor(curEnd, 0, -1));
+          }
         }
-        var curEnd = { line: curStart.line, ch: replaceTo };
-        var replaceWithStr = '';
-        for (var i = 0; i < curEnd.ch - curStart.ch; i++) {
-          replaceWithStr += replaceWith;
-        }
-        cm.replaceRange(replaceWithStr, curStart, curEnd);
-        cm.setCursor(offsetCursor(curEnd, 0, -1));
       }
     };
 
@@ -1488,6 +1504,36 @@
     }
     function escapeRegex(s) {
       return s.replace(/([.?*+$\[\]\/\\(){}|\-])/g, "\\$1");
+    }
+
+    //basically reimplementing cm.setSelection() but with different relations
+    //  between anchor/head and from/to
+    function setSelection(cm, vim, curStart, curEnd, linewise){
+      cm.operation(function(){
+        var sel=cm.doc.sel;
+        var head=cm.clipPos(curEnd);
+        var anchor=cm.clipPos(curStart);
+        sel.head=head;
+        sel.anchor=anchor;
+        var from, to;
+        if(cursorIsBefore(head, anchor)){
+          from=copyCursor(head);
+          to=copyCursor(anchor);
+        }else{
+          from=copyCursor(anchor);
+          to=copyCursor(head);
+        }
+        if(linewise){
+          from.ch=0;
+          to.ch=lineLength(cm, to.line);
+        }else{
+          to.ch++;
+        }
+        sel.from=cm.clipPos(from);
+        sel.to=cm.clipPos(to);
+        cm.curOp.updateInput = true;
+        cm.curOp.selectionChanged = true;
+      });
     }
 
     function exitVisualMode(cm, vim) {

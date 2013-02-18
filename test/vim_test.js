@@ -225,6 +225,9 @@ testMotion('G_repeat', ['3', 'G'], makeCursor(lines[2].line,
 // TODO: Make the test code long enough to test Ctrl-F and Ctrl-B.
 testMotion('0', '0', makeCursor(0, 0), makeCursor(0, 8));
 testMotion('^', '^', makeCursor(0, lines[0].textStart), makeCursor(0, 8));
+testMotion('+', '+', makeCursor(1, lines[1].textStart), makeCursor(0, 8));
+testMotion('-', '-', makeCursor(0, lines[0].textStart), makeCursor(1, 4));
+testMotion('_', ['6','_'], makeCursor(5, lines[5].textStart), makeCursor(0, 8));
 testMotion('$', '$', makeCursor(0, lines[0].length - 1), makeCursor(0, 1));
 testMotion('$_repeat', ['2', '$'], makeCursor(1, lines[1].length - 1),
     makeCursor(0, 3));
@@ -793,9 +796,12 @@ testVim('P_line', function(cm, vim, helpers) {
 testVim('r', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.doKeys('3', 'r', 'u');
-  eq('wuuuet', cm.getValue());
+  eq('wuuuet\nanother', cm.getValue(),'3r failed');
   helpers.assertCursorAt(0, 3);
-}, { value: 'wordet' });
+  cm.setCursor(0, 4);
+  helpers.doKeys('v', 'j', 'h', 'r', 'Space');
+  eq('wuuu  \n    her', cm.getValue(),'Replacing selection by space-characters failed');
+}, { value: 'wordet\nanother' });
 testVim('mark', function(cm, vim, helpers) {
   cm.setCursor(2, 2);
   helpers.doKeys('m', 't');
