@@ -77,9 +77,9 @@ window.onload = function() {
   var editor = CodeMirror.fromTextArea(document.getElementById("code-js"), {
     lineNumbers: true,
     mode: "javascript",
-    gutters: ["CodeMirror-lints"]
+    gutters: ["CodeMirror-lint-markers"]
   });
-
+/*
   var validate = function() {
   	CodeMirror.validate(editor, CodeMirror.javascriptValidator);  	
   };
@@ -89,13 +89,13 @@ window.onload = function() {
 	waiting = setTimeout(validate, 500);
   });
 
-  setTimeout(validate, 100);
+  setTimeout(validate, 100);*/
 
 
   var editor2 = CodeMirror.fromTextArea(document.getElementById("code-json"), {
     lineNumbers: true,
     mode: "application/json",
-    gutters: ["CodeMirror-lints"]
+    gutters: ["CodeMirror-lint-markers"]
   });
 
   var validate2 = function() {

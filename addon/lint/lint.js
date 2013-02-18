@@ -1,282 +1,123 @@
-CodeMirror.validate = function(cm, collectAnnotations, options) {
+CodeMirror.validate = function(cm, getAnnotations, options) {
   if (!options)
     options = {};
 
-  var GUTTER_ID = "CodeMirror-lints";
+  var GUTTER_ID = "CodeMirror-lint-markers";
+  var SEVERITIES = /^(?:error|warning)$/;
 
-  // see
-  // http://sixrevisions.com/tutorials/javascript_tutorial/create_lightweight_javascript_tooltip/
   var tooltip = function() {
-    var id = 'tt';
-    var top = 3;
-    var left = 3;
-    var maxw = 600;
-    var speed = 10;
-    var timer = 20;
-    var endalpha = 95;
-    var alpha = 0;
-    var tt, c, h;
-    var ie = document.all ? true : false;
+    var tt;
     return {
-      show : function(v, w) {
+      show: function(nodes, e) {
 	if (tt == null) {
-	  tt = document.createElement('div');
-	  tt.setAttribute('id', id);
-	  tt.className = 'textviewTooltip';
-	  //t = document.createElement('div');
-	  //t.setAttribute('id', id + 'top');
-	  c = document.createElement('div');
-	  c.setAttribute('id', id + 'cont');
-	  //b = document.createElement('div');
-	  //b.setAttribute('id', id + 'bot');
-	  //tt.appendChild(t);
-	  tt.appendChild(c);
-	  //tt.appendChild(b);
+	  tt = document.createElement("div");
+	  tt.className = "CodeMirror-lint-tooltip";
 	  document.body.appendChild(tt);
-	  tt.style.opacity = 0;
-	  tt.style.filter = 'alpha(opacity=0)';
-	  document.onmousemove = this.pos;
+          CodeMirror.on(document, "mousemove", this.pos);
+          this.pos(e);
 	}
-	tt.style.display = 'block';
-	c.innerHTML = v;
-	tt.style.width = w ? w + 'px' : 'auto';
-	if (!w && ie) {
-	  //t.style.display = 'none';
-	  //b.style.display = 'none';
-	  tt.style.width = tt.offsetWidth;
-	  //t.style.display = 'block';
-	  //b.style.display = 'block';
-	}
-	if (tt.offsetWidth > maxw) {
-	  tt.style.width = maxw + 'px';
-	}
-	h = parseInt(tt.offsetHeight) + top;
-	clearInterval(tt.timer);
-	tt.timer = setInterval(function() {
-	  tooltip.fade(1);
-	}, timer);
+	tt.style.display = "block";
+        tt.appendChild(nodes);
+        this.fade(true);
       },
-      pos : function(e) {
-	var u = ie ? event.clientY + document.documentElement.scrollTop
-	  : e.pageY;
-	var l = ie ? event.clientX
-	  + document.documentElement.scrollLeft : e.pageX;
-	tt.style.top = (u - h) + 'px';
-	tt.style.left = (l + left) + 'px';
+      pos: function(e) {
+        if (tt.style.display == "none") return;
+
+        var u = event.pageY, l = event.pageX;
+        if (u == null) {
+          u = event.clientY + document.documentElement.scrollTop;
+          l = event.clientX + document.documentElement.scrollLeft;
+        }
+	tt.style.top = (u - tt.offsetHeight - 5) + "px";
+	tt.style.left = (l + 5) + "px";
       },
-      fade : function(d) {
-	var a = alpha;
-	if ((a != endalpha && d == 1) || (a != 0 && d == -1)) {
-	  var i = speed;
-	  if (endalpha - a < speed && d == 1) {
-	    i = endalpha - a;
-	  } else if (alpha < speed && d == -1) {
-	    i = a;
-	  }
-	  alpha = a + (i * d);
-	  tt.style.opacity = alpha * .01;					
-	  tt.style.filter = 'alpha(opacity=' + alpha + ')';
-	} else {
-	  clearInterval(tt.timer);
-	  if (d == -1) {
-	    tt.style.display = 'none';
-	  } else if (d == 1) {
-	    tt.style.opacity = 1;
-	    tt.style.filter = 'alpha(opacity=100)';
-	  }
-	}
+      fade: function(show) {
+        if (!show) setTimeout(function() {
+          if (tt.style.opacity == "0") tt.style.display = "none";
+        }, 600);
+        else tt.style.display = "";
+        tt.style.opacity = show ? 1 : 0;
       },
-      hide : function() {
-	clearInterval(tt.timer);
-	tt.timer = setInterval(function() {
-	  tooltip.fade(-1);
-	}, timer);
-      }
+      hide: function() { this.fade(false); }
     };
   }();
 
-  function SyntaxErrorHighlightState() {
+  function LintState() {
     this.marked = [];
   }
-  function getSyntaxErrorHighlightState(cm) {
-    return cm._syntaxErrorHighlightState
-      || (cm._syntaxErrorHighlightState = new SyntaxErrorHighlightState());
+  function getLintState(cm) {
+    return cm._lintState || (cm._lintState = new LintState());
   }
 
-  function clearMarks(cm, gutterID) {
-    cm.clearGutter(gutterID);
-    var state = getSyntaxErrorHighlightState(cm);
-    for ( var i = 0; i < state.marked.length; ++i)
+  function clearMarks(cm, state) {
+    if (options.gutterMarkers) cm.clearGutter(GUTTER_ID);
+    for (var i = 0; i < state.marked.length; ++i)
       state.marked[i].clear();
-    state.marked = [];
+    state.marked.length = 0;
   }
 
-  function makeMarker(tooltipLabel, maxSeverity, multiple) {
-
+  function makeMarker(labels, severity) {
     var marker = document.createElement("div");
-    marker.onmouseover = function() {
-      tooltip.show(tooltipLabel, null, maxSeverity);
-    };
-    marker.onmouseout = function() {
+    marker.className = "CodeMirror-lint-marker-" + severity;
+
+    CodeMirror.on(marker, "mouseover", function(e) {
+      tooltip.show(labels, e);
+    });
+    CodeMirror.on(marker, "mouseout", function(e) {
       tooltip.hide();
-    };
-    marker.className = 'annotation ' + maxSeverity;
-    
-    var markerHTML= document.createElement("div");
-    markerHTML.className = 'annotationHTML ' + maxSeverity;
-    marker.appendChild(markerHTML);
-    
-    if (multiple) {
-      var markerHTML= document.createElement("div");
-      markerHTML.className = 'annotationHTML overlay';
-      marker.appendChild(markerHTML);
-    }
-    
+    });
+
     return marker;
   }
 
-  var AnnotationsCollector = function() {
-    this.linesNumber = [];
-    this.linesAnnotations = [];
-  };
+  function getMaxSeverity(a, b) {
+    if (a == "error") return a;
+    else return b;
+  }
 
-  AnnotationsCollector.prototype.addAnnotation = function(severity,
-			                                  lineStart, charStart, lineEnd, charEnd, description) {
-
-    var annotation = {
-      "severity" : severity,
-      "lineStart" : lineStart,
-      "charStart" : charStart,
-      "lineEnd" : lineEnd,
-      "charEnd" : charEnd,
-      "description" : description
-    };
-    var annotations = this.linesAnnotations[lineStart];
-    if (!annotations) {
-      annotations = [];
-      this.linesAnnotations[lineStart] = annotations;
-      this.linesNumber.push(lineStart);
+  function groupByLine(annotations) {
+    var lines = [];
+    for (var i = 0; i < annotations.length; ++i) {
+      var ann = annotations[i], line = ann.from.line;
+      (lines[line] || (lines[line] = [])).push(ann);
     }
-    annotations.push(annotation);
-  };
-
-  function getMaxSeverity(severity1, severity2) {
-    // TODO : should be improved to extend severity (today just error and
-    // warning are managed)
-    if (severity1 == 'error') {
-      return severity1;
-    }
-    return severity2;
-  }
-  
-  function getTooltipLabel(content, multiple) {
-    var label = '<div style="height: auto; width: auto;">';		
-    if (multiple) {
-      label += '<div><em>Multiple Annotations</em></div>';
-    }
-    label += '<div>';
-    label += content;
-    label += '</div>';
-    label += '</div>';
-    return label;
-  }
-  
-  function getTooltipAnnotationLabel(description, severity) {
-    var label = '<div>';
-    label += '<div class="annotationHTML ' + severity + '">';
-    label += '</div>';
-    label += '&nbsp;<span style="vertical-align:middle;">';
-    label += description;
-    label += '</span>';
-    label += '</div>';		
-    return label;
-  }
-  
-  function makeMarkText(severity, lineStart, charStart, lineEnd, charEnd, annotationLabel) {
-    var markClass = 'annotationRange ' + severity;
-    var mark = cm.markText({
-      line : lineStart,
-      ch : charStart
-    }, {
-      line : lineEnd,
-      ch : charEnd
-    }, {
-      className : markClass,
-      readOnly : false
-    });
-    
-    // save mark text in an array which is used to clean mark
-    var state = getSyntaxErrorHighlightState(cm);
-    state.marked.push(mark);
-    
-    var _tooltipLabel = getTooltipLabel(annotationLabel, false);
-    // TODO : add tooltip for mark text. How to manage that???
-    // I would like do like this
-    /*mark.onmouseover = function() {
-      tooltip.show(tooltipLabel, null, severity);
-      };
-      mark.onmouseout = function() {
-      tooltip.hide();
-      };*/				
+    return lines;
   }
 
-  function markDocument() {
-    var gutterID = GUTTER_ID;
-    clearMarks(cm, gutterID);
+  function markDocument(cm) {
+    var state = getLintState(cm);
+    clearMarks(cm, state);
 
-    var collector = new AnnotationsCollector();
+    var annotations = groupByLine(getAnnotations(cm));
 
-    var contents = (options.getContents ? options.getContents() : cm
-		    .getValue());
-    collectAnnotations(contents, collector, cm);
+    for (var line = 0; line < annotations.length; ++line) {
+      var anns = annotations[line];
+      if (!anns) continue;
 
-    var linesNumber = collector.linesNumber;
-    // Loop for each lines number which contains problems
-    for ( var i = 0; i < linesNumber.length; i++) {
-      var line = linesNumber[i];
-      var annotations = collector.linesAnnotations[line];
-      
-      // loop for each annotations for the current line to
-      // - create a markText for each annotations
-      // - create a tooltip with the list of annotations
+      var maxSeverity = null, tipLabel = document.createDocumentFragment();
 
-      var maxSeverity = null;
-      var markerTooltipLabel = '';			
-      var multiple = annotations.length > 1; 
-      
-      // create a markText for each annotations
-      for ( var j = 0; j < annotations.length; j++) {
-	var annotation = annotations[j];
-	if (options.formatAnnotation) {
-	  annotation = options.formatAnnotation(annotation);
-	}
+      for (var i = 0; i < anns.length; ++i) {
+        var ann = anns[i];
+        var severity = ann.severity;
+        if (!SEVERITIES.test(severity)) severity = "error";
+        maxSeverity = getMaxSeverity(maxSeverity, severity);
 
-	// Create mark text
-	
-	var severity = annotation.severity;
-	var lineStart = annotation.lineStart;
-	var charStart = annotation.charStart;
-	var lineEnd = annotation.lineEnd;
-	var charEnd = annotation.charEnd;
-	var description = annotation.description;
+	if (options.formatAnnotation) ann = options.formatAnnotation(ann);
 
-	var annotationLabel = getTooltipAnnotationLabel(description, severity);
-	makeMarkText(severity, lineStart, charStart, lineEnd, charEnd, annotationLabel);																
-	
-	markerTooltipLabel+=annotationLabel;				
-	maxSeverity = getMaxSeverity(maxSeverity, severity);
+        var label = document.createElement("div");
+        label.className = "CodeMirror-hint-message-" + severity;
+        label.appendChild(document.createTextNode(ann.message));
+        tipLabel.appendChild(label);
+
+        if (ann.to) state.marked.push(cm.markText(ann.from, ann.to, {
+          className: "CodeMirror-lint CodeMirror-lint-" + severity
+        }));
       }
-      markerTooltipLabel = getTooltipLabel(markerTooltipLabel, multiple);
 
-      
-      // create a tooltip with the list of annotations
-      var marker = makeMarker(markerTooltipLabel, maxSeverity, multiple);
-
-      var info = cm.lineInfo(line);
-      cm.setGutterMarker(line, gutterID, info.gutterMarkers ? null
-			 : marker);
+      if (options.gutterMarkers !== false)
+        cm.setGutterMarker(i, GUTTER_ID, makeMarker(tipLabel, maxSeverity));
     }
   }
 
-  return markDocument();
+  return markDocument(cm);
 };
