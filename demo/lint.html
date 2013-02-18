@@ -50,8 +50,7 @@ function updateHints() {
 
     <p><textarea id="code-json">[
  {
- error
-  "_id": "post 1",
+  _id: "post 1",
   "author": "Bob",
   "content": "...",
   "page_views": 5
@@ -72,45 +71,19 @@ function updateHints() {
 </textarea></p>
 
 <script>
-window.onload = function() {
-
   var editor = CodeMirror.fromTextArea(document.getElementById("code-js"), {
     lineNumbers: true,
     mode: "javascript",
-    gutters: ["CodeMirror-lint-markers"]
-  });
-/*
-  var validate = function() {
-  	CodeMirror.validate(editor, CodeMirror.javascriptValidator);  	
-  };
-  var waiting;
-  editor.on("change", function() {
-	clearTimeout(waiting);
-	waiting = setTimeout(validate, 500);
+    gutters: ["CodeMirror-lint-markers"],
+    lintWith: CodeMirror.javascriptValidator
   });
 
-  setTimeout(validate, 100);*/
-
-
-  var editor2 = CodeMirror.fromTextArea(document.getElementById("code-json"), {
+  var editor_json = CodeMirror.fromTextArea(document.getElementById("code-json"), {
     lineNumbers: true,
     mode: "application/json",
-    gutters: ["CodeMirror-lint-markers"]
+    gutters: ["CodeMirror-lint-markers"],
+    lintWith: CodeMirror.jsonValidator
   });
-
-  var validate2 = function() {
-  	CodeMirror.validate(editor2, CodeMirror.jsonValidator);  	
-  };
-  var waiting2;
-  editor2.on("change", function() {
-	clearTimeout(waiting2);
-	waiting = setTimeout(validate2, 500);
-  });
-
-  setTimeout(validate2, 100);
-
-};
-
 </script>
 
   </body>

@@ -9,19 +9,12 @@
 	         "Unmatched ", " and instead saw", " is not defined",
 	         "Unclosed string", "Stopping, unable to continue" ];
 
-  CodeMirror.javascriptValidator = function(contents, collector) {
-    var positionalAdjustment = 1;
-    var result = jshint(contents);
-    var errors = result.errors;
-    if (errors) {
-      parseErrors(errors, positionalAdjustment, collector);
-    }
+  CodeMirror.javascriptValidator = function(cm) {
+    JSHINT(cm.getValue());
+    var errors = JSHINT.data().errors, result = [];
+    if (errors) parseErrors(errors, result);
+    return result;
   };
-
-  function jshint(contents) {
-    JSHINT(contents/* , localConfig.options, localConfig.options.predef */);
-    return JSHINT.data();
-  }
 
   function cleanup(error) {
     // All problems are warnings by default
@@ -61,7 +54,7 @@
     return false;
   }
 
-  function parseErrors(errors, positionalAdjustment, collector) {
+  function parseErrors(errors, output) {
     for ( var i = 0; i < errors.length; i++) {
       var error = errors[i];
       if (error) {
@@ -97,9 +90,7 @@
 	  if (tabpositions.length > 0) {
 	    var pos = error.character;
 	    tabpositions.forEach(function(tabposition) {
-	      if (pos > tabposition) {
-		pos -= positionalAdjustment;
-	      }
+	      if (pos > tabposition) pos -= 1;
 	    });
 	    error.character = pos;
 	  }
@@ -119,18 +110,11 @@
 	error.end = end;
 	error = cleanup(error);
 
-	if (error) {
-	  var severity = error.severity;
-	  var lineStart = error.line - 1;
-	  var charStart = start;
-	  var lineEnd = error.line - 1;
-	  var charEnd = end;
-	  var description = error.description;
-	  
-	  collector.addAnnotation(severity, lineStart, charStart,
-				  lineEnd, charEnd, description);
-	  
-	}
+	if (error)
+          output.push({message: error.description,
+                       severity: error.severity,
+                       from: CodeMirror.Pos(error.line - 1, start),
+                       to: CodeMirror.Pos(error.line - 1, end)});
       }
     }
   }
