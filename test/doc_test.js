@@ -319,4 +319,11 @@
     eq(mark.find(), null);
     eq(cleared, 1);
   });
+
+  testDoc("undoInSubview", "A='line 0\nline 1\nline 2\nline 3\nline 4' B<A/1-4", function(a, b) {
+    b.replaceRange("x", Pos(2, 0));
+    a.undo();
+    eq(a.getValue(), "line 0\nline 1\nline 2\nline 3\nline 4");
+    eq(b.getValue(), "line 1\nline 2\nline 3");
+  });
 })();
