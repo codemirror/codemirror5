@@ -2,25 +2,26 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>CodeMirror: Javascript Lint Demo</title>
+    <title>CodeMirror: Linter Demo</title>
     <link rel="stylesheet" href="../lib/codemirror.css">
     <script src="../lib/codemirror.js"></script>
     <script src="../mode/javascript/javascript.js"></script>
     <script src="http://ajax.aspnetcdn.com/ajax/jshint/r07/jshint.js"></script>
+    <script src="https://raw.github.com/zaach/jsonlint/79b553fb65c192add9066da64043458981b3972b/lib/jsonlint.js"></script>
     <link rel="stylesheet" href="../doc/docs.css">
-
-	<link rel="stylesheet" href="../lib/codemirror-lint.css">
-	<script src="../addon/lint/lint.js"></script>
-	<script src="../addon/lint/javascript-lint.js"></script>
+    <link rel="stylesheet" href="../addon/lint/lint.css">
+    <script src="../addon/lint/lint.js"></script>
+    <script src="../addon/lint/javascript-lint.js"></script>
+    <script src="../addon/lint/json-lint.js"></script>
 
     <style type="text/css">
       .CodeMirror {border: 1px solid black;}
     </style>
   </head>
   <body>
-    <h1>CodeMirror: Javascript Lint Demo</h1>
+    <h1>CodeMirror: Linter Demo</h1>
 
-    <textarea id="code">var widgets = []
+    <p><textarea id="code-js">var widgets = []
 function updateHints() {
   editor.operation(function(){
     for (var i = 0; i < widgets.length; ++i)
@@ -45,12 +46,35 @@ function updateHints() {
   if (info.top + info.clientHeight < after)
     editor.scrollTo(null, after - info.clientHeight + 3);
 }
-</textarea>
+</textarea></p>
+
+    <p><textarea id="code-json">[
+ {
+ error
+  "_id": "post 1",
+  "author": "Bob",
+  "content": "...",
+  "page_views": 5
+ },
+ {
+  "_id": "post 2",
+  "author": "Bob",
+  "content": "...",
+  "page_views": 9
+ },
+ {
+  "_id": "post 3",
+  "author": "Bob",
+  "content": "...",
+  "page_views": 8
+ }
+]
+</textarea></p>
 
 <script>
 window.onload = function() {
 
-  var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+  var editor = CodeMirror.fromTextArea(document.getElementById("code-js"), {
     lineNumbers: true,
     mode: "javascript",
     gutters: ["CodeMirror-lints"]
@@ -67,11 +91,27 @@ window.onload = function() {
 
   setTimeout(validate, 100);
 
+
+  var editor2 = CodeMirror.fromTextArea(document.getElementById("code-json"), {
+    lineNumbers: true,
+    mode: "application/json",
+    gutters: ["CodeMirror-lints"]
+  });
+
+  var validate2 = function() {
+  	CodeMirror.validate(editor2, CodeMirror.jsonValidator);  	
+  };
+  var waiting2;
+  editor2.on("change", function() {
+	clearTimeout(waiting2);
+	waiting = setTimeout(validate2, 500);
+  });
+
+  setTimeout(validate2, 100);
+
 };
 
-"long line to create a horizontal scrollbar, in order to test whether the (non-inline) widgets stay in place when scrolling to the right";
 </script>
-<p>This demo runs <a href="http://jshint.com">JSHint</a> over the code
-in the editor and use CodeMirror Lint to display the warnings that JSHint comes up with.</p>
+
   </body>
 </html>
