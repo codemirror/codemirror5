@@ -302,6 +302,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   }
   function objprop(type) {
     if (type == "variable") cx.marked = "property";
+    else if (type == "number" || type == "string") cx.marked = type + " property";
     if (atomicTypes.hasOwnProperty(type)) return cont(expect(":"), expression);
   }
   function commasep(what, end) {
