@@ -1340,18 +1340,6 @@
         if(vim.visualMode){
           curStart=cm.getCursor('start');
           curEnd=cm.getCursor('end');
-          var replaceWithStr;
-          replaceWithStr=cm.getRange(curStart, curEnd);
-          if(replaceWith=='\n'){
-            // special case, where vim help says to replace by just one line-break
-            (CodeMirror.commands.newlineAndIndentContinueComment || CodeMirror.commands.newlineAndIndent)(cm);
-          }else{
-            //replace all characters in range by selected, but keep linebreaks
-            replaceWithStr=replaceWithStr.replace(/[^\n]/g,replaceWith);
-            cm.replaceRange(replaceWithStr, curStart, curEnd);
-            cm.setCursor(curStart);
-          }
-          exitVisualMode(cm,vim);
         }else{
           var line = cm.getLine(curStart.line);
           replaceTo = curStart.ch + actionArgs.repeat;
@@ -1359,16 +1347,20 @@
             replaceTo=line.length;
           }
           curEnd = { line: curStart.line, ch: replaceTo };
-          var replaceWithStr = '';
-          if(replaceWith=='\n'){
-            // special case, where vim help says to replace by just one line-break
-            cm.replaceRange('', curStart, curEnd);
-            (CodeMirror.commands.newlineAndIndentContinueComment || CodeMirror.commands.newlineAndIndent)(cm);
+        }
+        if(replaceWith=='\n'){
+          if(!vim.visualMode) cm.replaceRange('', curStart, curEnd);
+          // special case, where vim help says to replace by just one line-break
+          (CodeMirror.commands.newlineAndIndentContinueComment || CodeMirror.commands.newlineAndIndent)(cm);
+        }else {
+          var replaceWithStr=cm.getRange(curStart, curEnd);
+          //replace all characters in range by selected, but keep linebreaks
+          replaceWithStr=replaceWithStr.replace(/[^\n]/g,replaceWith);
+          cm.replaceRange(replaceWithStr, curStart, curEnd);
+          if(vim.visualMode){
+            cm.setCursor(curStart);
+            exitVisualMode(cm,vim);
           }else{
-            for (var i = 0; i < curEnd.ch - curStart.ch; i++) {
-              replaceWithStr += replaceWith;
-            }
-            cm.replaceRange(replaceWithStr, curStart, curEnd);
             cm.setCursor(offsetCursor(curEnd, 0, -1));
           }
         }
