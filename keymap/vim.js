@@ -405,8 +405,12 @@
           }
           return;
         }
+        if (vim.visualMode &&
+            cursorEqual(cm.getCursor('start'), cm.getCursor('end'))) {
+          exitVisualMode(cm, vim);
+        }
         if (!vim.visualMode &&
-            !cursorEqual(cm.getCursor('head'), cm.getCursor('anchor'))) {
+            !cursorEqual(cm.getCursor('start'), cm.getCursor('end'))) {
           vim.visualMode = true;
           vim.visualLine = false;
         }
