@@ -200,6 +200,10 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
   overflow: auto;
 }
 
+.CodeMirror-widget {
+  display: inline-block;
+}
+
 .CodeMirror-wrap .CodeMirror-scroll {
   overflow-x: hidden;
 }
