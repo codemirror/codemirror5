@@ -31,8 +31,9 @@ CodeMirror.showHint = function(cm, getHints, options) {
       elt.hintId = i;
     }
     var pos = cm.cursorCoords(options.alignWithWord !== false ? data.from : null);
-    hints.style.left = pos.left + "px";
-    hints.style.top = pos.bottom + "px";
+    var left = pos.left, top = pos.bottom;
+    hints.style.left = left + "px";
+    hints.style.top = top + "px";
     document.body.appendChild(hints);
 
     // If we're at the edge of the screen, then we want the menu to appear on the left of the cursor.
@@ -45,7 +46,7 @@ CodeMirror.showHint = function(cm, getHints, options) {
         hints.style.width = (winW - 5) + "px";
         overlapX -= (box.right - box.left) - winW;
       }
-      hints.style.left = (pos.left - overlapX) + "px";
+      hints.style.left = (left = pos.left - overlapX) + "px";
     }
     if (overlapY > 0) {
       var height = box.bottom - box.top;
@@ -55,7 +56,7 @@ CodeMirror.showHint = function(cm, getHints, options) {
         hints.style.height = (winH - 5) + "px";
         overlapY -= height - winH;
       }
-      hints.style.top = (pos.bottom - overlapY) + "px";
+      hints.style.top = (top = pos.bottom - overlapY) + "px";
     }
 
     function changeActive(i) {
@@ -93,7 +94,18 @@ CodeMirror.showHint = function(cm, getHints, options) {
 
     cm.addKeyMap(ourMap);
     cm.on("cursorActivity", cursorActivity);
-    cm.on("blur", close);
+    var closingOnBlur;
+    function onBlur(){ closingOnBlur = setTimeout(close, 100); };
+    function onFocus(){ clearTimeout(closingOnBlur); };
+    cm.on("blur", onBlur);
+    cm.on("focus", onFocus);
+    var startScroll = cm.getScrollInfo();
+    function onScroll() {
+      var curScroll = cm.getScrollInfo();
+      hints.style.top = (top + startScroll.top - curScroll.top) + "px";
+      hints.style.left = (left + startScroll.left - curScroll.left) + "px";
+    }
+    cm.on("scroll", onScroll);
     CodeMirror.on(hints, "dblclick", function(e) {
       var t = e.target || e.srcElement;
       if (t.hintId != null) {selectedHint = t.hintId; pick();}
@@ -113,7 +125,9 @@ CodeMirror.showHint = function(cm, getHints, options) {
       hints.parentNode.removeChild(hints);
       cm.removeKeyMap(ourMap);
       cm.off("cursorActivity", cursorActivity);
-      cm.off("blur", close);
+      cm.off("blur", onBlur);
+      cm.off("focus", onFocus);
+      cm.off("scroll", onScroll);
     }
     function pick() {
       cm.replaceRange(completions[selectedHint], data.from, data.to);
