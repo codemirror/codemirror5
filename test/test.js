@@ -477,6 +477,18 @@ testCM("bookmarkInsertLeft", function(cm) {
   eqPos(bl.find(), Pos(0, 1));
 }, {value: "abcdef"});
 
+testCM("getAllMarks", function(cm) {
+  addDoc(cm, 10, 10);
+  var m1 = cm.setBookmark(Pos(0, 2));
+  var m2 = cm.markText(Pos(0, 2), Pos(3, 2));
+  var m3 = cm.markText(Pos(1, 2), Pos(1, 8));
+  var m4 = cm.markText(Pos(8, 0), Pos(9, 0));
+  eq(cm.getAllMarks().length, 4);
+  m1.clear();
+  m3.clear();
+  eq(cm.getAllMarks().length, 2);
+});
+
 testCM("bug577", function(cm) {
   cm.setValue("a\nb");
   cm.clearHistory();
