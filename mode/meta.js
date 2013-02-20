@@ -38,6 +38,7 @@ CodeMirror.modeInfo = [
   {name: 'PHP', mime: 'text/x-php', mode: 'php'},
   {name: 'PHP(HTML)', mime: 'application/x-httpd-php', mode: 'php'},
   {name: 'Pig', mime: 'text/x-pig', mode: 'pig'},
+  {name: 'Plain Text', mime: 'text/plain', mode: 'null'},
   {name: 'Properties files', mime: 'text/x-properties', mode: 'clike'},
   {name: 'Python', mime: 'text/x-python', mode: 'python'},
   {name: 'R', mime: 'text/x-rsrc', mode: 'r'},
