@@ -93,10 +93,10 @@
         motionArgs: { forward: false, linewise: true }},
     { keys: ['g','j'], type: 'motion',
         motion: 'moveByDisplayLines',
-        motionArgs: { forward: true, linewise: true }},
+        motionArgs: { forward: true }},
     { keys: ['g','k'], type: 'motion',
         motion: 'moveByDisplayLines',
-        motionArgs: { forward: false, linewise: true }},
+        motionArgs: { forward: false }},
     { keys: ['w'], type: 'motion',
         motion: 'moveByWords',
         motionArgs: { forward: true, wordEnd: false }},
@@ -1008,6 +1008,7 @@
         var repeat = motionArgs.repeat;
         var curEnd = moveToCharacter(cm, repeat, motionArgs.forward,
             motionArgs.selectedCharacter);
+        if(!curEnd)return cm.getCursor();
         var increment = motionArgs.forward ? -1 : 1;
         curEnd.ch += increment;
         return curEnd;
@@ -1015,7 +1016,7 @@
       moveToCharacter: function(cm, motionArgs) {
         var repeat = motionArgs.repeat;
         return moveToCharacter(cm, repeat, motionArgs.forward,
-            motionArgs.selectedCharacter);
+            motionArgs.selectedCharacter) || cm.getCursor();
       },
       moveToColumn: function(cm, motionArgs, vim) {
         var repeat = motionArgs.repeat;
@@ -1755,7 +1756,7 @@
         var line = cm.getLine(cur.line);
         idx = charIdxInLine(start, line, character, forward, true);
         if (idx == -1) {
-          return cur;
+          return null;
         }
         start = idx;
       }
