@@ -1,0 +1,122 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>CodeMirror: ActionScript mode</title>
+    <link rel="stylesheet" href="../../lib/codemirror.css">
+    <script src="../../lib/codemirror.js"></script>
+    <script src="actionscript.js"></script>
+    <link rel="stylesheet" href="../../doc/docs.css">
+    <style type="text/css">.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
+  </head>
+  <body>
+    <h1>CodeMirror: Actionscript mode</h1>
+
+<div><textarea id="code" name="code">
+packake com.example.Tests
+{    
+    import one.two.Three;
+    import one.two.IInterface;
+    
+    [SWF(width="1024", height="768", frameRate="60", backgroundColor="#FFFFFF")]]
+    public class Foo extends Sprite implements IInterface
+    {
+        public static const EVT_NAME:String = "myEventName";
+        
+        [Inject (id="Test")]
+        public var injectedVar;
+        
+        public var myPublicStr:String = new String("init");
+        private var _myPrivateStr:String = "Private var";
+        private var _myPrivateBool:Bool = true;
+        
+        var obj:Object = { foo:val1, "bar":"value" };
+        var arr:Array = [ 0,1,2,3,4]
+        var vector:Vector.<int> = Vector.<int> ( [0, 1, 2, 3] );
+        
+        public function Foo()
+        {
+            myPublicStr = "assigned in function scope";
+            
+            _myPrivateString = _myPrivateBool ? "Ternary" : "Operator";
+            
+            if(_myPrivateBool)
+                _myPrivateString = "test1";
+            else if (false)
+                _myPrivateString = "test2";
+            else 
+                _myPrivateString = "test3";
+                
+        }
+        
+        public static function doFoo(obj:{k:int, l:Number}):int
+        {
+            for(i in arr)
+            {
+                obj.k++;
+                trace(i);
+                var var1 = new Array();
+                if(var1.length > 1)
+                    throw  new Error("Error");
+            }
+            // The following line should not be colored, the variable is scoped out
+            var1;
+            /* Multi line
+             * Comment test
+             */
+            return obj.k;
+        }
+        private function bar():void
+        {
+            
+            var t1:String = "1.21";
+            
+            try 
+            {
+                doFoo({k:3, l:1.2});
+            }
+            catch (e : String) 
+            {
+                trace(e);
+            }
+            finally 
+            {
+                trace("do nothing");
+            }
+            var t2:Number = "3.2".ToString();
+            var t5 = /^(\(?(\d{3})\)?\s?-?\s?(\d{3})\s?-?\s?(\d{4}))$/gixsm;
+            doFoo(t4);
+            var t3:* = 4;
+            var t4 = 8 << 2;
+        }
+        public var okFoo:Function = function():void 
+        {
+            switch (_myPrivateStr)
+            {
+                case "string":
+                    break;
+                case "otherstring":
+                    break;
+                default:
+                    break;
+            }
+        }
+       
+        
+        public var three:uint;
+    }
+}
+</textarea></div>
+
+    <script>
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        lineNumbers: true,
+        indentUnit: 4,
+        indentWithTabs: true,
+        mode:"text/x-actionscript",
+      });
+    </script>
+
+    <p><strong>MIME types defined:</strong> <code>text/x-actionscript</code>.</p>
+  </body>
+</html>
