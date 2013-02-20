@@ -141,14 +141,14 @@
     { keys: ['^'], type: 'motion',
         motion: 'moveToFirstNonWhiteSpaceCharacter' },
     { keys: ['+'], type: 'motion',
-        motion: 'moveByLinesToFirstNonWhiteSpaceCharacter',
-        motionArgs: { forward: true }},
+        motion: 'moveByLines',
+        motionArgs: { forward: true, toFirstChar:true }},
     { keys: ['-'], type: 'motion',
-        motion: 'moveByLinesToFirstNonWhiteSpaceCharacter',
-        motionArgs: { forward: false }},
+        motion: 'moveByLines',
+        motionArgs: { forward: false, toFirstChar:true }},
     { keys: ['_'], type: 'motion',
-        motion: 'moveByLinesToFirstNonWhiteSpaceCharacter',
-        motionArgs: { forward: true, repeatOffset:-1 }},
+        motion: 'moveByLines',
+        motionArgs: { forward: true, toFirstChar:true, repeatOffset:-1 }},
     { keys: ['$'], type: 'motion',
         motion: 'moveToEol',
         motionArgs: { inclusive: true }},
@@ -944,10 +944,14 @@
           default:
             vim.lastHPos = endCh;
         }
-        var repeat = motionArgs.repeat;
+        var repeat = motionArgs.repeat+(motionArgs.repeatOffset||0);
         var line = motionArgs.forward ? cur.line + repeat : cur.line - repeat;
         if (line < cm.firstLine() || line > cm.lastLine() ) {
           return null;
+        }
+        if(motionArgs.toFirstChar){
+          endCh=findFirstNonWhiteSpaceCharacter(cm.getLine(line));
+          vim.lastHPos = endCh;
         }
         vim.lastHSPos = cm.charCoords({line:line, ch:endCh},"div").left;
         return { line: line, ch: endCh };
@@ -1035,17 +1039,6 @@
         var cursor = cm.getCursor();
         return { line: cursor.line,
             ch: findFirstNonWhiteSpaceCharacter(cm.getLine(cursor.line)) };
-      },
-      moveByLinesToFirstNonWhiteSpaceCharacter: function(cm, motionArgs, vim) {
-        // same as moveToFirstWhiteSpaceCharacter but with vertical movement
-        var cur = cm.getCursor();
-        var repeat = motionArgs.repeat;
-        var offset = motionArgs.repeatOffset || 0;
-        var line = motionArgs.forward ? cur.line + repeat + offset : cur.line - repeat + offset;
-        if (line < cm.firstLine() || line > cm.lastLine() ) {
-          return null;
-        }
-        return { line: line, ch: findFirstNonWhiteSpaceCharacter(cm.getLine(line)) };
       },
       moveToMatchedSymbol: function(cm, motionArgs) {
         var cursor = cm.getCursor();
