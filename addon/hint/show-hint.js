@@ -31,7 +31,7 @@ CodeMirror.showHint = function(cm, getHints, options) {
       elt.hintId = i;
     }
     var pos = cm.cursorCoords(options.alignWithWord !== false ? data.from : null);
-    var left = pos.left, top = pos.bottom;
+    var left = pos.left, top = pos.bottom, below = true;
     hints.style.left = left + "px";
     hints.style.top = top + "px";
     document.body.appendChild(hints);
@@ -52,6 +52,7 @@ CodeMirror.showHint = function(cm, getHints, options) {
       var height = box.bottom - box.top;
       if (box.top - (pos.bottom - pos.top) - height > 0) {
         overlapY = height + (pos.bottom - pos.top);
+        below = false;
       } else if (height > winH) {
         hints.style.height = (winH - 5) + "px";
         overlapY -= height - winH;
@@ -101,8 +102,11 @@ CodeMirror.showHint = function(cm, getHints, options) {
     cm.on("focus", onFocus);
     var startScroll = cm.getScrollInfo();
     function onScroll() {
-      var curScroll = cm.getScrollInfo();
-      hints.style.top = (top + startScroll.top - curScroll.top) + "px";
+      var curScroll = cm.getScrollInfo(), editor = cm.getWrapperElement().getBoundingClientRect();
+      var newTop = top + startScroll.top - curScroll.top, point = newTop;
+      if (!below) point += hints.offsetHeight;
+      if (point <= editor.top || point >= editor.bottom) return close();
+      hints.style.top = newTop + "px";
       hints.style.left = (left + startScroll.left - curScroll.left) + "px";
     }
     cm.on("scroll", onScroll);
