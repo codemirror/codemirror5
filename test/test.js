@@ -1324,3 +1324,22 @@ testCM("beforeChange", function(cm) {
   cm.replaceRange("hey hey hey", Pos(1, 0), Pos(2, 0));
   eq(cm.getValue(), "hello,_i_am_a\nhey_hey_hey");
 }, {value: "abcdefghijk"});
+
+testCM("beforeSelectionChange", function(cm) {
+  function notAtEnd(cm, pos) {
+    var len = cm.getLine(pos.line).length;
+    if (!len || pos.ch == len) return Pos(pos.line, pos.ch - 1);
+    return pos;
+  }
+  cm.on("beforeSelectionChange", function(cm, sel) {
+    sel.head = notAtEnd(cm, sel.head);
+    sel.anchor = notAtEnd(cm, sel.anchor);
+  });
+
+  addDoc(cm, 10, 10);
+  cm.execCommand("goLineEnd");
+  eqPos(cm.getCursor(), Pos(0, 9));
+  cm.execCommand("selectAll");
+  eqPos(cm.getCursor("start"), Pos(0, 0));
+  eqPos(cm.getCursor("end"), Pos(9, 9));
+});

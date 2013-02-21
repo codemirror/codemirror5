@@ -389,6 +389,18 @@
       <dd>Will be fired when the cursor or selection moves, or any
       change is made to the editor content.</dd>
 
+      <dt id="event_beforeSelectionChange"><code>"beforeSelectionChange" (instance, selection)</code></dt>
+      <dd>This event is fired before the selection is moved. Its
+      handler may modify the resulting selection head and anchor.
+      The <code>selection</code> parameter is an object
+      with <code>head</code> and <code>anchor</code> properties
+      holding <code>{line, ch}</code> objects, which the handler can
+      read and update. Handlers for this event have the same
+      restriction
+      as <a href="#event_beforeChange"><code>"beforeChange"</code></a>
+      handlers — they should not do anything to directly update the
+      state of the editor.</dd>
+
       <dt id="event_viewportChange"><code>"viewportChange" (instance, from, to)</code></dt>
       <dd>Fires whenever the <a href="#getViewport">view port</a> of
       the editor changes (due to scrolling, editing, or any other
@@ -437,6 +449,11 @@
       <dt id="event_doc_cursorActivity"><code>"cursorActivity" (doc)</code></dt>
       <dd>Fired whenever the cursor or selection in this document
       changes.</dd>
+
+      <dt id="event_doc_beforeSelectionChange"><code>"beforeSelectionChange" (doc, selection)</code></dt>
+      <dd>Equivalent to
+      the <a href="#event_beforeSelectionChange">event by the same
+      name</a> as fired on editor instances.</dd>
     </dl>
 
     <p>Line handles (as returned by, for
