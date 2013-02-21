@@ -406,11 +406,12 @@
           return;
         }
         if (vim.visualMode &&
-            cursorEqual(cm.getCursor('start'), cm.getCursor('end'))) {
+            cursorEqual(cm.getCursor('head'), cm.getCursor('anchor'))) {
+          // The selection was cleared. Exit visual mode.
           exitVisualMode(cm, vim);
         }
         if (!vim.visualMode &&
-            !cursorEqual(cm.getCursor('start'), cm.getCursor('end'))) {
+            !cursorEqual(cm.getCursor('head'), cm.getCursor('anchor'))) {
           vim.visualMode = true;
           vim.visualLine = false;
         }
@@ -836,8 +837,31 @@
             curEnd = { ch: curStart.ch, line: curStart.line };
           }
           if (vim.visualMode) {
+            // Check if the selection crossed over itself. Will need to shift
+            // the start point if that happened.
+            if (cursorIsBefore(selectionStart, selectionEnd) &&
+                (cursorEqual(selectionStart, curEnd) ||
+                    cursorIsBefore(curEnd, selectionStart))) {
+              // The end of the selection has moved from after the start to
+              // before the start. We will shift the start right by 1.
+              selectionStart.ch += 1;
+            } else if (cursorIsBefore(selectionEnd, selectionStart) &&
+                (cursorEqual(selectionStart, curEnd) ||
+                    cursorIsBefore(selectionStart, curEnd))) {
+              // The opposite happened. We will shift the start left by 1.
+              selectionStart.ch -= 1;
+            }
             selectionEnd = curEnd;
-            setSelection(cm, vim, selectionStart, selectionEnd, vim.visualLine);
+            if (vim.visualLine) {
+              if (cursorIsBefore(selectionStart, selectionEnd)) {
+                selectionStart.ch = 0;
+                selectionEnd.ch = lineLength(cm, selectionEnd.line);
+              } else {
+                selectionEnd.ch = 0;
+                selectionStart.ch = lineLength(cm, selectionStart.line);
+              }
+            }
+            cm.setSelection(selectionStart, selectionEnd);
             updateMark(cm, vim, '<',
                 cursorIsBefore(selectionStart, selectionEnd) ? selectionStart
                     : selectionEnd);
@@ -1197,18 +1221,27 @@
           vim.visualMode = true;
           vim.visualLine = !!actionArgs.linewise;
           if (vim.visualLine) {
+            curStart.ch = 0;
             curEnd = clipCursorToContent(cm, {
               line: curStart.line + repeat - 1,
-              ch: curStart.ch
+              ch: lineLength(cm, curStart.line)
             }, true /** includeLineBreak */);
           } else {
             curEnd = clipCursorToContent(cm, {
               line: curStart.line,
-              ch: curStart.ch + repeat - 1
+              ch: curStart.ch + repeat
             }, true /** includeLineBreak */);
           }
           // Make the initial selection.
-          setSelection(cm, vim, curStart, curEnd, vim.visualLine);
+          if (!actionArgs.repeatIsExplicit && !vim.visualLine) {
+            // This is a strange case. Here the implicit repeat is 1. The
+            // following commands lets the cursor hover over the 1 character
+            // selection.
+            cm.setCursor(curEnd);
+            cm.setSelection(curEnd, curStart);
+          } else {
+            cm.setSelection(curStart, curEnd);
+          }
         } else {
           curStart = cm.getCursor('anchor');
           curEnd = cm.getCursor('head');
@@ -1216,12 +1249,15 @@
             // Shift-V pressed in characterwise visual mode. Switch to linewise
             // visual mode instead of exiting visual mode.
             vim.visualLine = true;
-            setSelection(cm, vim, curStart, curEnd, true);
+            curStart.ch = cursorIsBefore(curStart, curEnd) ? 0 :
+                lineLength(cm, curStart.line);
+            curEnd.ch = cursorIsBefore(curStart, curEnd) ?
+                lineLength(cm, curEnd.line) : 0;
+            cm.setSelection(curStart, curEnd);
           } else if (vim.visualLine && !actionArgs.linewise) {
             // v pressed in linewise visual mode. Switch to characterwise visual
             // mode instead of exiting visual mode.
             vim.visualLine = false;
-            setSelection(cm, vim, curStart, curEnd, false);
           } else {
             exitVisualMode(cm, vim);
           }
@@ -1338,6 +1374,9 @@
         if(vim.visualMode){
           curStart=cm.getCursor('start');
           curEnd=cm.getCursor('end');
+          // workaround to catch the character under the cursor
+          //  existing workaround doesn't cover actions
+          curEnd=cm.clipPos({line: curEnd.line, ch: curEnd.ch+1});
         }else{
           var line = cm.getLine(curStart.line);
           replaceTo = curStart.ch + actionArgs.repeat;
@@ -1494,36 +1533,6 @@
     }
     function escapeRegex(s) {
       return s.replace(/([.?*+$\[\]\/\\(){}|\-])/g, "\\$1");
-    }
-
-    //basically reimplementing cm.setSelection() but with different relations
-    //  between anchor/head and from/to
-    function setSelection(cm, vim, curStart, curEnd, linewise){
-      cm.operation(function(){
-        var sel=cm.doc.sel;
-        var head=cm.clipPos(curEnd);
-        var anchor=cm.clipPos(curStart);
-        sel.head=head;
-        sel.anchor=anchor;
-        var from, to;
-        if(cursorIsBefore(head, anchor)){
-          from=copyCursor(head);
-          to=copyCursor(anchor);
-        }else{
-          from=copyCursor(anchor);
-          to=copyCursor(head);
-        }
-        if(linewise){
-          from.ch=0;
-          to.ch=lineLength(cm, to.line);
-        }else{
-          to.ch++;
-        }
-        sel.from=cm.clipPos(from);
-        sel.to=cm.clipPos(to);
-        cm.curOp.updateInput = true;
-        cm.curOp.selectionChanged = true;
-      });
     }
 
     function exitVisualMode(cm, vim) {
