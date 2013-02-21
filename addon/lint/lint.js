@@ -88,11 +88,19 @@ CodeMirror.validate = (function() {
     return tip;
   }
 
-  function updateLinting(cm) {
+  function startLinting(cm) {
+	  var state = cm._lintState, options = state.options;
+	  if (options.async)
+		  options.getAnnotations(cm, updateLinting, options);
+	  else
+		 updateLinting(cm, options.getAnnotations(cm.getValue()));
+  }
+  
+  function updateLinting(cm, annotationsNotSorted) {
     clearMarks(cm);
     var state = cm._lintState, options = state.options;
 
-    var annotations = groupByLine(options.getAnnotations(cm.getValue()));
+    var annotations = groupByLine(annotationsNotSorted);
 
     for (var line = 0; line < annotations.length; ++line) {
       var anns = annotations[line];
@@ -124,7 +132,7 @@ CodeMirror.validate = (function() {
   function onChange(cm) {
     var state = cm._lintState;
     clearTimeout(state.timeout);
-    state.timeout = setTimeout(function(){updateLinting(cm);}, state.options.delay || 500);
+    state.timeout = setTimeout(function(){startLinting(cm);}, state.options.delay || 500);
   }
 
   function popupSpanTooltip(ann, e) {
@@ -168,7 +176,7 @@ CodeMirror.validate = (function() {
       var state = cm._lintState = new LintState(cm, parseOptions(val), hasLintGutter);
       cm.on("change", onChange);
       CodeMirror.on(cm.getWrapperElement(), "mouseover", state.onMouseOver);
-      updateLinting(cm);
+      startLinting(cm);
     }
   });
 })();
