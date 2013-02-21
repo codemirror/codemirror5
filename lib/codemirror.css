@@ -221,6 +221,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
   visibility: hidden;
   border-right: none;
   width: 0;
+  z-index: 3;
 }
 .CodeMirror-focused div.CodeMirror-cursor {
   visibility: visible;
