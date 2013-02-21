@@ -284,7 +284,44 @@
 
   <h2 id=releases>Releases</h2>
 
-  <p class="rel">21-01-2013: <a href="http://codemirror.net/codemirror-3.02.zip">Version 3.02</a>:</p>
+  <p class="rel">21-02-2013: <a href="http://codemirror.net/codemirror-3.1.zip">Version 3.1</a>:</p>
+
+  <ul class="rel-note">
+    <li><strong>Incompatible:</strong> key handlers may
+    now <em>return</em>, rather
+    than <em>throw</em> <code>CodeMirror.Pass</code> to signal they
+    didn't handle the key.</li>
+    <li>Make documents a <a href="doc/manual.html#api_doc">first-class
+    construct</a>, support split views and subviews.</li>
+    <li>Add a <a href="doc/manual.html#addon_show-hint">new module</a>
+    for showing completion hints.
+    Deprecate <code>simple-hint.js</code>.</li>
+    <li>Extend <a href="mode/htmlmixed/index.html">htmlmixed mode</a>
+    to allow custom handling of script types.</li>
+    <li>Support an <code>insertLeft</code> option
+    to <a href="doc/manual.html#setBookmark"><code>setBookmark</code></a>.</li>
+    <li>Add an <a href="doc/manual.html#eachLine"><code>eachLine</code></a>
+    method to iterate over a document.</li>
+    <li>New addon modules: <a href="demo/markselection.html">selection
+    marking</a>, <a href="demo/lint.html">linting</a>,
+    and <a href="demo/closebrackets.html">automatic bracket
+    closing</a>.</li>
+    <li>Add <a href="doc/manual.html#event_beforeChange"><code>"beforeChange"</code></a>
+    and <a href="doc/manual.html#event_beforeSelectionChange"><code>"beforeSelectionChange"</code></a>
+    events.</li>
+    <li>Add <a href="doc/manual.html#event_hide"><code>"hide"</code></a>
+    and <a href="doc/manual.html#event_unhide"><code>"unhide"</code></a>
+    events to marked ranges.</li>
+    <li>Fix <a href="doc/manual.html#coordsChar"><code>coordsChar</code></a>'s
+    interpretation of its argument to match the documentation.</li>
+    <li>New modes: <a href="mode/turtle/index.html">Turtle</a>
+    and <a href="mode/q/index.html">Q</a>.</li>
+    <li>Further improvements to the <a href="demo/vim.html">vim mode</a>.</li>
+    <li>Full <a href="https://github.com/marijnh/CodeMirror/compare/v3.01...v3.1">list of patches</a>.</li>
+  </ul>
+  
+
+  <p class="rel">25-01-2013: <a href="http://codemirror.net/codemirror-3.02.zip">Version 3.02</a>:</p>
 
   <p class="rel-note">Single-bugfix release. Fixes a problem that
   prevents CodeMirror instances from being garbage-collected after
@@ -408,43 +445,6 @@
     <li>Many optimizations. Poor responsiveness should be fixed.</li>
     <li>Initialization in hidden state works again.</li>
     <li>Full <a href="https://github.com/marijnh/CodeMirror/compare/v3.0beta1...v3.0beta2">list of patches</a>.</li>
-  </ul>
-
-  <p class="rel">19-09-2012: <a href="http://codemirror.net/codemirror-2.34.zip">Version 2.34</a>:</p>
-
-  <ul class="rel-note">
-    <li>New mode: <a href="mode/commonlisp/index.html">Common Lisp</a>.</li>
-    <li>Fix right-click select-all on most browsers.</li>
-    <li>Change the way highlighting happens:<br>&nbsp; Saves memory and CPU cycles.<br>&nbsp; <code>compareStates</code> is no longer needed.<br>&nbsp; <code>onHighlightComplete</code> no longer works.</li>
-    <li>Integrate mode (Markdown, XQuery, CSS, sTex) tests in central testsuite.</li>
-    <li>Add a <a href="doc/manual.html#version"><code>CodeMirror.version</code></a> property.</li>
-    <li>More robust handling of nested modes in <a href="demo/formatting.html">formatting</a> and <a href="demo/closetag.html">closetag</a> plug-ins.</li>
-    <li>Un/redo now preserves <a href="doc/manual.html#markText">marked text</a> and bookmarks.</li>
-    <li><a href="https://github.com/marijnh/CodeMirror/compare/v2.33...v2.34">Full list</a> of patches.</li>
-  </ul>
-
-  <p class="rel">19-09-2012: <a href="http://codemirror.net/codemirror-3.0beta1.zip">Version 3.0, beta 1</a>:</p>
-
-  <ul class="rel-note">
-    <li>Bi-directional text support.</li>
-    <li>More powerful gutter model.</li>
-    <li>Support for arbitrary text/widget height.</li>
-    <li>In-line widgets.</li>
-    <li>Generalized event handling.</li>
-  </ul>
-
-  <p class="rel">23-08-2012: <a href="http://codemirror.net/codemirror-2.33.zip">Version 2.33</a>:</p>
-
-  <ul class="rel-note">
-    <li>New mode: <a href="mode/sieve/index.html">Sieve</a>.</li>
-    <li>New <a href="doc/manual.html#getViewport"><code>getViewPort</code></a> and <a href="doc/manual.html#option_onViewportChange"><code>onViewportChange</code></a> API.</li>
-    <li><a href="doc/manual.html#option_cursorBlinkRate">Configurable</a> cursor blink rate.</li>
-    <li>Make binding a key to <code>false</code> disabling handling (again).</li>
-    <li>Show non-printing characters as red dots.</li>
-    <li>More tweaks to the scrolling model.</li>
-    <li>Expanded testsuite. Basic linter added.</li>
-    <li>Remove most uses of <code>innerHTML</code>. Remove <code>CodeMirror.htmlEscape</code>.</li>
-    <li><a href="https://github.com/marijnh/CodeMirror/compare/v2.32...v2.33">Full list</a> of patches.</li>
   </ul>
 
   <p><a href="doc/oldrelease.html">Older releases...</a></p>

@@ -19,6 +19,43 @@
 </pre>
 </div>
 
+  <p class="rel">19-09-2012: <a href="http://codemirror.net/codemirror-2.34.zip">Version 2.34</a>:</p>
+
+  <ul class="rel-note">
+    <li>New mode: <a href="../mode/commonlisp/index.html">Common Lisp</a>.</li>
+    <li>Fix right-click select-all on most browsers.</li>
+    <li>Change the way highlighting happens:<br>&nbsp; Saves memory and CPU cycles.<br>&nbsp; <code>compareStates</code> is no longer needed.<br>&nbsp; <code>onHighlightComplete</code> no longer works.</li>
+    <li>Integrate mode (Markdown, XQuery, CSS, sTex) tests in central testsuite.</li>
+    <li>Add a <a href="manual.html#version"><code>CodeMirror.version</code></a> property.</li>
+    <li>More robust handling of nested modes in <a href="../demo/formatting.html">formatting</a> and <a href="../demo/closetag.html">closetag</a> plug-ins.</li>
+    <li>Un/redo now preserves <a href="manual.html#markText">marked text</a> and bookmarks.</li>
+    <li><a href="https://github.com/marijnh/CodeMirror/compare/v2.33...v2.34">Full list</a> of patches.</li>
+  </ul>
+
+  <p class="rel">19-09-2012: <a href="http://codemirror.net/codemirror-3.0beta1.zip">Version 3.0, beta 1</a>:</p>
+
+  <ul class="rel-note">
+    <li>Bi-directional text support.</li>
+    <li>More powerful gutter model.</li>
+    <li>Support for arbitrary text/widget height.</li>
+    <li>In-line widgets.</li>
+    <li>Generalized event handling.</li>
+  </ul>
+
+  <p class="rel">23-08-2012: <a href="http://codemirror.net/codemirror-2.33.zip">Version 2.33</a>:</p>
+
+  <ul class="rel-note">
+    <li>New mode: <a href="../mode/sieve/index.html">Sieve</a>.</li>
+    <li>New <a href="manual.html#getViewport"><code>getViewPort</code></a> and <a href="manual.html#option_onViewportChange"><code>onViewportChange</code></a> API.</li>
+    <li><a href="manual.html#option_cursorBlinkRate">Configurable</a> cursor blink rate.</li>
+    <li>Make binding a key to <code>false</code> disabling handling (again).</li>
+    <li>Show non-printing characters as red dots.</li>
+    <li>More tweaks to the scrolling model.</li>
+    <li>Expanded testsuite. Basic linter added.</li>
+    <li>Remove most uses of <code>innerHTML</code>. Remove <code>CodeMirror.htmlEscape</code>.</li>
+    <li><a href="https://github.com/marijnh/CodeMirror/compare/v2.32...v2.33">Full list</a> of patches.</li>
+  </ul>
+
   <p class="rel">23-07-2012: <a href="http://codemirror.net/codemirror-2.32.zip">Version 2.32</a>:</p>
 
   <p class="rel-note">Emergency fix for a bug where an editor with
