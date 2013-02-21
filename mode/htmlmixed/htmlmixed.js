@@ -13,29 +13,28 @@ CodeMirror.defineMode("htmlmixed", function(config, parserConfig) {
                     mode: CodeMirror.getMode(config, "text/plain")});
 
   function html(stream, state) {
+    var tagName = state.htmlState.tagName;
     var style = htmlMode.token(stream, state.htmlState);
-    if (/(?:^|\s)tag(?:\s|$)/.test(style) && stream.current() == ">" && state.htmlState.context) {
-      if (/^script$/i.test(state.htmlState.context.tagName)) {
-        // Script block: mode to change to depends on type attribute
-        var scriptType = stream.string.slice(Math.max(0, stream.pos - 100), stream.pos).match(/\btype\s*=\s*("[^"]+"|'[^']+'|\S+)[^<]*$/i);
-        scriptType = scriptType ? scriptType[1] : "";
-        if (scriptType && /[\"\']/.test(scriptType.charAt(0))) scriptType = scriptType.slice(1, scriptType.length - 1);
-        for (var i = 0; i < scriptTypes.length; ++i) {
-          var tp = scriptTypes[i];
-          if (typeof tp.matches == "string" ? scriptType == tp.matches : tp.matches.test(scriptType)) {
-            if (tp.mode) {
-              state.token = script;
-              state.localMode = tp.mode;
-              state.localState = tp.mode.startState && tp.mode.startState(htmlMode.indent(state.htmlState, ""));
-            }
-            break;
+    if (tagName == "script" && /\btag\b/.test(style) && stream.current() == ">") {
+      // Script block: mode to change to depends on type attribute
+      var scriptType = stream.string.slice(Math.max(0, stream.pos - 100), stream.pos).match(/\btype\s*=\s*("[^"]+"|'[^']+'|\S+)[^<]*$/i);
+      scriptType = scriptType ? scriptType[1] : "";
+      if (scriptType && /[\"\']/.test(scriptType.charAt(0))) scriptType = scriptType.slice(1, scriptType.length - 1);
+      for (var i = 0; i < scriptTypes.length; ++i) {
+        var tp = scriptTypes[i];
+        if (typeof tp.matches == "string" ? scriptType == tp.matches : tp.matches.test(scriptType)) {
+          if (tp.mode) {
+            state.token = script;
+            state.localMode = tp.mode;
+            state.localState = tp.mode.startState && tp.mode.startState(htmlMode.indent(state.htmlState, ""));
           }
+          break;
         }
-      } else if (/^style$/i.test(state.htmlState.context.tagName)) {
-        state.token = css;
-        state.localMode = cssMode;
-        state.localState = cssMode.startState(htmlMode.indent(state.htmlState, ""));
       }
+    } else if (tagName == "style" && /\btag\b/.test(style) && stream.current() == ">") {
+      state.token = css;
+      state.localMode = cssMode;
+      state.localState = cssMode.startState(htmlMode.indent(state.htmlState, ""));
     }
     return style;
   }
