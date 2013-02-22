@@ -182,28 +182,28 @@
   MT("listAsteriskFormatting",
      "[string * ][string&em *foo*][string  bar]",
      "[string * ][string&strong **foo**][string  bar]",
-     "[string * ][string&strong **][string&emstrong *foo**][string&em *][string  bar]",
+     "[string * ][string&strong **][string&em&strong *foo**][string&em *][string  bar]",
      "[string * ][string&comment `foo`][string  bar]");
 
   // Formatting in lists (+)
   MT("listPlusFormatting",
      "[string + ][string&em *foo*][string  bar]",
      "[string + ][string&strong **foo**][string  bar]",
-     "[string + ][string&strong **][string&emstrong *foo**][string&em *][string  bar]",
+     "[string + ][string&strong **][string&em&strong *foo**][string&em *][string  bar]",
      "[string + ][string&comment `foo`][string  bar]");
 
   // Formatting in lists (-)
   MT("listDashFormatting",
      "[string - ][string&em *foo*][string  bar]",
      "[string - ][string&strong **foo**][string  bar]",
-     "[string - ][string&strong **][string&emstrong *foo**][string&em *][string  bar]",
+     "[string - ][string&strong **][string&em&strong *foo**][string&em *][string  bar]",
      "[string - ][string&comment `foo`][string  bar]");
 
   // Formatting in lists (1.)
   MT("listNumberFormatting",
      "[string 1. ][string&em *foo*][string  bar]",
      "[string 2. ][string&strong **foo**][string  bar]",
-     "[string 3. ][string&strong **][string&emstrong *foo**][string&em *][string  bar]",
+     "[string 3. ][string&strong **][string&em&strong *foo**][string&em *][string  bar]",
      "[string 4. ][string&comment `foo`][string  bar]");
 
   // Paragraph lists
@@ -387,7 +387,7 @@
 
   // Inline link with EmStrong
   MT("linkEmStrong",
-     "[link [[][link&strong **][link&emstrong *foo**][link&em *][link ]]][string (http://example.com/)] bar");
+     "[link [[][link&strong **][link&em&strong *foo**][link&em *][link ]]][string (http://example.com/)] bar");
 
   // Image with title
   MT("imageTitle",
@@ -421,7 +421,7 @@
 
   // Reference-style links with EmStrong
   MT("linkReferenceEmStrong",
-     "[link [[][link&strong **][link&emstrong *foo**][link&em *][link ]]][string [[bar]]] hello");
+     "[link [[][link&strong **][link&em&strong *foo**][link&em *][link ]]][string [[bar]]] hello");
 
   // Reference-style links with optional space separator (per docuentation)
   // "You can optionally use a space to separate the sets of brackets"
@@ -527,17 +527,17 @@
      "[strong __foo__] bar");
 
   MT("emStrongAsterisk",
-     "[em *foo][emstrong **bar*][strong hello**] world");
+     "[em *foo][em&strong **bar*][strong hello**] world");
 
   MT("emStrongUnderscore",
-     "[em _foo][emstrong __bar_][strong hello__] world");
+     "[em _foo][em&strong __bar_][strong hello__] world");
 
   // "...same character must be used to open and close an emphasis span.""
   MT("emStrongMixed",
-     "[em _foo][emstrong **bar*hello__ world]");
+     "[em _foo][em&strong **bar*hello__ world]");
 
   MT("emStrongMixed",
-     "[em *foo][emstrong __bar_hello** world]");
+     "[em *foo][em&strong __bar_hello** world]");
 
   // These characters should be escaped:
   // \   backslash

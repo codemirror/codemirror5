@@ -9,7 +9,7 @@
      "foo_bar_hello");
 
   MT("emStrongUnderscore",
-     "[strong __][emstrong _foo__][em _] bar");
+     "[strong __][em&strong _foo__][em _] bar");
 
   MT("fencedCodeBlocks",
      "[comment ```]",
