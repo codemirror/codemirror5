@@ -113,11 +113,12 @@ CodeMirror.showHint = function(cm, getHints, options) {
     CodeMirror.on(hints, "dblclick", function(e) {
       var t = e.target || e.srcElement;
       if (t.hintId != null) {selectedHint = t.hintId; pick();}
-      setTimeout(function(){cm.focus();}, 20);
     });
     CodeMirror.on(hints, "click", function(e) {
       var t = e.target || e.srcElement;
       if (t.hintId != null) changeActive(t.hintId);
+    });
+    CodeMirror.on(hints, "mousedown", function(e) {
       setTimeout(function(){cm.focus();}, 20);
     });
 
