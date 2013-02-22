@@ -118,7 +118,7 @@ CodeMirror.showHint = function(cm, getHints, options) {
       var t = e.target || e.srcElement;
       if (t.hintId != null) changeActive(t.hintId);
     });
-    CodeMirror.on(hints, "mousedown", function(e) {
+    CodeMirror.on(hints, "mousedown", function() {
       setTimeout(function(){cm.focus();}, 20);
     });
 
