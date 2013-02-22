@@ -512,6 +512,7 @@ testCM("scrollSnap", function(cm) {
 });
 
 testCM("selectionPos", function(cm) {
+  if (phantom) return;
   cm.setSize(100, 100);
   addDoc(cm, 200, 100);
   cm.setSelection(Pos(1, 100), Pos(98, 100));
