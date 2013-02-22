@@ -95,8 +95,9 @@ CodeMirror.showHint = function(cm, getHints, options) {
 
     cm.addKeyMap(ourMap);
     cm.on("cursorActivity", cursorActivity);
-    var closingOnBlur;
-    function onBlur(){ closingOnBlur = setTimeout(close, 100); };
+    var insideComplete = false;
+    var closingOnBlur;    
+    function onBlur(){ if (insideComplete) return;closingOnBlur = setTimeout(close, 100); };
     function onFocus(){ clearTimeout(closingOnBlur); };
     cm.on("blur", onBlur);
     cm.on("focus", onFocus);
@@ -110,6 +111,12 @@ CodeMirror.showHint = function(cm, getHints, options) {
       hints.style.left = (left + startScroll.left - curScroll.left) + "px";
     }
     cm.on("scroll", onScroll);
+    CodeMirror.on(hints, "mouseover", function(e) {
+    	insideComplete = true;
+    });
+    CodeMirror.on(hints, "mouseout", function(e) {
+    	insideComplete = false;
+    });
     CodeMirror.on(hints, "dblclick", function(e) {
       var t = e.target || e.srcElement;
       if (t.hintId != null) {selectedHint = t.hintId; pick();}
