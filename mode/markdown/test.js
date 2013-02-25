@@ -228,6 +228,7 @@
      "",
      "[variable-2 * bar]",
      "",
+     "",
      "    [variable-2 hello]");
 
   // 4 spaces, plus 1 space (should still be list, per Dingus)
