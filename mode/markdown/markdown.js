@@ -67,8 +67,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   ,   linktext = 'link'
   ,   linkhref = 'string'
   ,   em       = 'em'
-  ,   strong   = 'strong'
-  ,   emstrong = 'em strong';
+  ,   strong   = 'strong';
 
   var hrRE = /^([*\-=_])(?:\s*\1){2,}\s*$/
   ,   ulRE = /^[*\-+]\s+/
@@ -187,8 +186,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   function getType(state) {
     var styles = [];
     
-    if (state.strong) { styles.push(state.em ? emstrong : strong); }
-    else if (state.em) { styles.push(em); }
+    if (state.strong) { styles.push(strong); }
+    if (state.em) { styles.push(em); }
     
     if (state.linkText) { styles.push(linktext); }
     
