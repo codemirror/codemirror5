@@ -56,7 +56,9 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   var header   = 'header'
   ,   code     = 'comment'
   ,   quote    = 'quote'
-  ,   list     = 'string'
+  ,   list1    = 'variable-2'
+  ,   list2    = 'variable-3'
+  ,   list3    = 'keyword'
   ,   hr       = 'hr'
   ,   image    = 'tag'
   ,   linkinline = 'link'
@@ -109,8 +111,12 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         state.indentation -= state.indentationDiff;
       }
       state.list = null;
+    } else if (state.list !== false && state.indentation > 0) {
+      state.list = null;
+      state.listDepth = Math.floor(state.indentation / 4);
     } else { // No longer a list
       state.list = false;
+      state.listDepth = 0;
     }
     
     if (state.indentationDiff >= 4) {
@@ -131,6 +137,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     } else if (stream.match(ulRE, true) || stream.match(olRE, true)) {
       state.indentation += 4;
       state.list = true;
+      state.listDepth++;
     } else if (modeCfg.fencedCodeBlocks && stream.match(/^```([\w+#]*)/, true)) {
       // try switching mode
       state.localMode = getMode(RegExp.$1);
@@ -183,7 +190,16 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     
     if (state.header) { styles.push(header); }
     if (state.quote) { styles.push(quote); }
-    if (state.list !== false) { styles.push(list); }
+    if (state.list !== false) {
+      var listMod = (state.listDepth - 1) % 3;
+      if (!listMod) {
+        styles.push(list1);
+      } else if (listMod === 1) {
+        styles.push(list2);
+      } else {
+        styles.push(list3);
+      }
+    }
 
     return styles.length ? styles.join(' ') : null;
   }
@@ -202,7 +218,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     
     if (state.list) { // List marker (*, +, -, 1., etc)
       state.list = null;
-      return list;
+      return getType(state);
     }
     
     var ch = stream.next();
@@ -407,6 +423,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         strong: false,
         header: false,
         list: false,
+        listDepth: 0,
         quote: false
       };
     },
@@ -429,6 +446,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         strong: s.strong,
         header: s.header,
         list: s.list,
+        listDepth: s.listDepth,
         quote: s.quote,
         md_inside: s.md_inside
       };
