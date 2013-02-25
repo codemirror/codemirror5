@@ -163,185 +163,201 @@
   // Check list types
 
   MT("listAsterisk",
-     "[string * foo]",
-     "[string * bar]");
+     "[variable-2 * foo]",
+     "[variable-2 * bar]");
 
   MT("listPlus",
-     "[string + foo]",
-     "[string + bar]");
+     "[variable-2 + foo]",
+     "[variable-2 + bar]");
 
   MT("listDash",
-     "[string - foo]",
-     "[string - bar]");
+     "[variable-2 - foo]",
+     "[variable-2 - bar]");
 
   MT("listNumber",
-     "[string 1. foo]",
-     "[string 2. bar]");
+     "[variable-2 1. foo]",
+     "[variable-2 2. bar]");
 
   // Formatting in lists (*)
   MT("listAsteriskFormatting",
-     "[string * ][string&em *foo*][string  bar]",
-     "[string * ][string&strong **foo**][string  bar]",
-     "[string * ][string&strong **][string&em&strong *foo**][string&em *][string  bar]",
-     "[string * ][string&comment `foo`][string  bar]");
+     "[variable-2 * ][variable-2&em *foo*][variable-2  bar]",
+     "[variable-2 * ][variable-2&strong **foo**][variable-2  bar]",
+     "[variable-2 * ][variable-2&strong **][variable-2&em&strong *foo**][variable-2&em *][variable-2  bar]",
+     "[variable-2 * ][variable-2&comment `foo`][variable-2  bar]");
 
   // Formatting in lists (+)
   MT("listPlusFormatting",
-     "[string + ][string&em *foo*][string  bar]",
-     "[string + ][string&strong **foo**][string  bar]",
-     "[string + ][string&strong **][string&em&strong *foo**][string&em *][string  bar]",
-     "[string + ][string&comment `foo`][string  bar]");
+     "[variable-2 + ][variable-2&em *foo*][variable-2  bar]",
+     "[variable-2 + ][variable-2&strong **foo**][variable-2  bar]",
+     "[variable-2 + ][variable-2&strong **][variable-2&em&strong *foo**][variable-2&em *][variable-2  bar]",
+     "[variable-2 + ][variable-2&comment `foo`][variable-2  bar]");
 
   // Formatting in lists (-)
   MT("listDashFormatting",
-     "[string - ][string&em *foo*][string  bar]",
-     "[string - ][string&strong **foo**][string  bar]",
-     "[string - ][string&strong **][string&em&strong *foo**][string&em *][string  bar]",
-     "[string - ][string&comment `foo`][string  bar]");
+     "[variable-2 - ][variable-2&em *foo*][variable-2  bar]",
+     "[variable-2 - ][variable-2&strong **foo**][variable-2  bar]",
+     "[variable-2 - ][variable-2&strong **][variable-2&em&strong *foo**][variable-2&em *][variable-2  bar]",
+     "[variable-2 - ][variable-2&comment `foo`][variable-2  bar]");
 
   // Formatting in lists (1.)
   MT("listNumberFormatting",
-     "[string 1. ][string&em *foo*][string  bar]",
-     "[string 2. ][string&strong **foo**][string  bar]",
-     "[string 3. ][string&strong **][string&em&strong *foo**][string&em *][string  bar]",
-     "[string 4. ][string&comment `foo`][string  bar]");
+     "[variable-2 1. ][variable-2&em *foo*][variable-2  bar]",
+     "[variable-2 2. ][variable-2&strong **foo**][variable-2  bar]",
+     "[variable-2 3. ][variable-2&strong **][variable-2&em&strong *foo**][variable-2&em *][variable-2  bar]",
+     "[variable-2 4. ][variable-2&comment `foo`][variable-2  bar]");
 
   // Paragraph lists
   MT("listParagraph",
-     "[string * foo]",
+     "[variable-2 * foo]",
      "",
-     "[string * bar]");
+     "[variable-2 * bar]");
 
   // Multi-paragraph lists
   //
   // 4 spaces
   MT("listMultiParagraph",
-     "[string * foo]",
+     "[variable-2 * foo]",
      "",
-     "[string * bar]",
+     "[variable-2 * bar]",
      "",
-     "    [string hello]");
+     "    [variable-2 hello]");
 
   // 4 spaces, extra blank lines (should still be list, per Dingus)
   MT("listMultiParagraphExtra",
-     "[string * foo]",
+     "[variable-2 * foo]",
      "",
-     "[string * bar]",
+     "[variable-2 * bar]",
      "",
-     "    [string hello]");
+     "    [variable-2 hello]");
 
   // 4 spaces, plus 1 space (should still be list, per Dingus)
   MT("listMultiParagraphExtraSpace",
-     "[string * foo]",
+     "[variable-2 * foo]",
      "",
-     "[string * bar]",
+     "[variable-2 * bar]",
      "",
-     "     [string hello]",
+     "     [variable-2 hello]",
      "",
-     "    [string world]");
+     "    [variable-2 world]");
 
   // 1 tab
   MT("listTab",
-     "[string * foo]",
+     "[variable-2 * foo]",
      "",
-     "[string * bar]",
+     "[variable-2 * bar]",
      "",
-     "\t[string hello]");
+     "\t[variable-2 hello]");
 
   // No indent
   MT("listNoIndent",
-     "[string * foo]",
+     "[variable-2 * foo]",
      "",
-     "[string * bar]",
+     "[variable-2 * bar]",
      "",
      "hello");
 
   // Blockquote
   MT("blockquote",
-     "[string * foo]",
+     "[variable-2 * foo]",
      "",
-     "[string * bar]",
+     "[variable-2 * bar]",
      "",
-     "    [string&quote > hello]");
+     "    [variable-2&quote > hello]");
 
   // Code block
   MT("blockquoteCode",
-     "[string * foo]",
+     "[variable-2 * foo]",
      "",
-     "[string * bar]",
+     "[variable-2 * bar]",
      "",
      "        [comment > hello]",
      "",
-     "    [string world]");
+     "    [variable-2 world]");
 
   // Code block followed by text
   MT("blockquoteCodeText",
-     "[string * foo]",
+     "[variable-2 * foo]",
      "",
-     "    [string bar]",
+     "    [variable-2 bar]",
      "",
      "        [comment hello]",
      "",
-     "    [string world]");
+     "    [variable-2 world]");
 
   // Nested list
 
   MT("listAsteriskNested",
-     "[string * foo]",
+     "[variable-2 * foo]",
      "",
-     "    [string * bar]");
+     "    [variable-3 * bar]");
 
   MT("listPlusNested",
-     "[string + foo]",
+     "[variable-2 + foo]",
      "",
-     "    [string + bar]");
+     "    [variable-3 + bar]");
 
   MT("listDashNested",
-     "[string - foo]",
+     "[variable-2 - foo]",
      "",
-     "    [string - bar]");
+     "    [variable-3 - bar]");
 
   MT("listNumberNested",
-     "[string 1. foo]",
+     "[variable-2 1. foo]",
      "",
-     "    [string 2. bar]");
+     "    [variable-3 2. bar]");
 
   MT("listMixed",
-     "[string * foo]",
+     "[variable-2 * foo]",
      "",
-     "    [string + bar]",
+     "    [variable-3 + bar]",
      "",
-     "        [string - hello]",
+     "        [keyword - hello]",
      "",
-     "            [string 1. world]");
+     "            [variable-2 1. world]");
 
   MT("listBlockquote",
-     "[string * foo]",
+     "[variable-2 * foo]",
      "",
-     "    [string + bar]",
+     "    [variable-3 + bar]",
      "",
-     "        [quote&string > hello]");
+     "        [quote&variable-3 > hello]");
 
   MT("listCode",
-     "[string * foo]",
+     "[variable-2 * foo]",
      "",
-     "    [string + bar]",
+     "    [variable-3 + bar]",
      "",
      "            [comment hello]");
 
   // Code with internal indentation
   MT("listCodeIndentation",
-     "[string * foo]",
+     "[variable-2 * foo]",
      "",
      "        [comment bar]",
      "            [comment hello]",
      "                [comment world]",
      "        [comment foo]",
-     "    [string bar]");
+     "    [variable-2 bar]");
+     
+  // List nesting edge cases
+  MT("listNested",
+    "[variable-2 * foo]",
+    "",
+    "    [variable-3 * bar]",
+    "",
+    "       [variable-2 hello]"
+  );
+  MT("listNested",
+    "[variable-2 * foo]",
+    "",
+    "    [variable-3 * bar]",
+    "",
+    "      [variable-3 * foo]"
+  );
 
   // Code followed by text
   MT("listCodeText",
-     "[string * foo]",
+     "[variable-2 * foo]",
      "",
      "        [comment bar]",
      "",
