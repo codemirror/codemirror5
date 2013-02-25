@@ -55,7 +55,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
   var header   = 'header'
   ,   code     = 'comment'
-  ,   quote    = 'quote'
+  ,   quote1   = 'atom'
+  ,   quote2   = 'number'
   ,   list1    = 'variable-2'
   ,   list2    = 'variable-3'
   ,   list3    = 'keyword'
@@ -96,7 +97,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     // Reset STRONG state
     state.strong = false;
     // Reset state.quote
-    state.quote = false;
+    state.quote = 0;
     if (!htmlFound && state.f == htmlBlock) {
       state.f = inlineNormal;
       state.block = blockNormal;
@@ -129,7 +130,12 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       state.header = true;
     } else if (stream.eat('>')) {
       state.indentation++;
-      state.quote = true;
+      state.quote = 1;
+      stream.eatSpace();
+      while (stream.eat('>')) {
+        stream.eatSpace();
+        state.quote++;
+      }
     } else if (stream.peek() === '[') {
       return switchInline(stream, state, footnoteLink);
     } else if (stream.match(hrRE, true)) {
@@ -189,7 +195,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     if (state.code) { styles.push(code); }
     
     if (state.header) { styles.push(header); }
-    if (state.quote) { styles.push(quote); }
+    if (state.quote) { styles.push(state.quote % 2 ? quote1 : quote2); }
     if (state.list !== false) {
       var listMod = (state.listDepth - 1) % 3;
       if (!listMod) {
@@ -424,7 +430,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         header: false,
         list: false,
         listDepth: 0,
-        quote: false
+        quote: 0
       };
     },
 
