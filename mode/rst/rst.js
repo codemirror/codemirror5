@@ -1,314 +1,550 @@
-CodeMirror.defineMode('rst', function(config, options) {
-    function setState(state, fn, ctx) {
-        state.fn = fn;
-        setCtx(state, ctx);
+CodeMirror.defineMode('rst-base', function (config) {
+
+    ///////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
+
+    function format(string) {
+        var args = Array.prototype.slice.call(arguments, 1);
+        return string.replace(/{(\d+)}/g, function (match, n) {
+            return typeof args[n] != 'undefined' ? args[n] : match;
+        });
     }
 
-    function setCtx(state, ctx) {
-        state.ctx = ctx || {};
+    function AssertException(message) {
+        this.message = message;
     }
 
-    function setNormal(state, ch) {
-        if (ch && (typeof ch !== 'string')) {
-            var str = ch.current();
-            ch = str[str.length-1];
-        }
+    AssertException.prototype.toString = function () {
+        return 'AssertException: ' + this.message;
+    };
 
-        setState(state, normal, {back: ch});
+    function assert(expression, message) {
+        if (!expression) throw new AssertException(message);
+        return expression;
     }
 
-    function hasMode(mode) {
-        return mode && CodeMirror.modes.hasOwnProperty(mode);
-    }
+    ///////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
 
-    function getMode(mode) {
-        if (hasMode(mode)) {
-            return CodeMirror.getMode(config, mode);
-        } else {
-            return null;
-        }
-    }
+    var mode_python = CodeMirror.getMode(config, 'python');
+    var mode_stex = CodeMirror.getMode(config, 'stex');
 
-    var verbatimMode = getMode(options.verbatim);
-    var pythonMode = getMode('python');
+    ///////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
 
-    var reSection = /^[!"#$%&'()*+,-./:;<=>?@[\\\]^_`{|}~]/;
-    var reDirective = /^\s*\w([-:.\w]*\w)?::(\s|$)/;
-    var reHyperlink = /^\s*_[\w-]+:(\s|$)/;
-    var reFootnote = /^\s*\[(\d+|#)\](\s|$)/;
-    var reCitation = /^\s*\[[A-Za-z][\w-]*\](\s|$)/;
-    var reFootnoteRef = /^\[(\d+|#)\]_/;
-    var reCitationRef = /^\[[A-Za-z][\w-]*\]_/;
-    var reDirectiveMarker = /^\.\.(\s|$)/;
-    var reVerbatimMarker = /^::\s*$/;
-    var rePreInline = /^[-\s"([{</:]/;
-    var rePostInline = /^[-\s`'")\]}>/:.,;!?\\_]/;
-    var reExamples = /^\s+(>>>|In \[\d+\]:)\s/;
+    var SEPA = "\\s+";
+    var TAIL = "(?:\\s*|\\W|$)",
+        rx_TAIL = new RegExp(format('^{0}', TAIL));
 
-    function normal(stream, state) {
-        var ch, sol, i;
+    var NAME = "(?:[^\\W\\d_](?:[\\w\\+\\.\\-:]*[^\\W_])?)",
+        rx_NAME = new RegExp(format('^{0}', NAME));
+    var NAME_WWS = "(?:[^\\W\\d_](?:[\\w\\s\\+\\.\\-:]*[^\\W_])?)";
+    var REF_NAME = format('(?:{0}|`{1}`)', NAME, NAME_WWS);
 
-        if (stream.eat(/\\/)) {
-            ch = stream.next();
-            setNormal(state, ch);
-            return null;
-        }
+    var TEXT1 = "(?:[^\\s\\|](?:[^\\|]*[^\\s\\|])?)";
+    var TEXT2 = "(?:[^\\`]+)",
+        rx_TEXT2 = new RegExp(format('^{0}', TEXT2));
 
-        sol = stream.sol();
+    var rx_section = new RegExp(
+        "^([!'#$%&\"()*+,-./:;<=>?@\\[\\\\\\]^_`{|}~])\\1{3,}\\s*$");
+    var rx_explicit = new RegExp(
+        format('^\\.\\.{0}', SEPA));
+    var rx_link = new RegExp(
+        format('^_{0}:{1}|^__:{1}', REF_NAME, TAIL));
+    var rx_directive = new RegExp(
+        format('^{0}::{1}', REF_NAME, TAIL));
+    var rx_substitution = new RegExp(
+        format('^\\|{0}\\|{1}{2}::{3}', TEXT1, SEPA, REF_NAME, TAIL));
+    var rx_footnote = new RegExp(
+        format('^\\[(?:\\d+|#{0}?|\\*)]{1}', REF_NAME, TAIL));
+    var rx_citation = new RegExp(
+        format('^\\[{0}\\]{1}', REF_NAME, TAIL));
 
-        if (sol && (ch = stream.eat(reSection))) {
-            for (i = 0; stream.eat(ch); i++);
+    var rx_substitution_ref = new RegExp(
+        format('^\\|{0}\\|', TEXT1));
+    var rx_footnote_ref = new RegExp(
+        format('^\\[(?:\\d+|#{0}?|\\*)]_', REF_NAME));
+    var rx_citation_ref = new RegExp(
+        format('^\\[{0}\\]_', REF_NAME));
+    var rx_link_ref1 = new RegExp(
+        format('^{0}__?', REF_NAME));
+    var rx_link_ref2 = new RegExp(
+        format('^`{0}`_', TEXT2));
 
-            if (i >= 3 && stream.match(/^\s*$/)) {
-                setNormal(state, null);
-                return 'header';
-            } else {
-                stream.backUp(i + 1);
-            }
-        }
+    var rx_role_pre = new RegExp(
+        format('^:{0}:`{1}`{2}', NAME, TEXT2, TAIL));
+    var rx_role_suf = new RegExp(
+        format('^`{1}`:{0}:{2}', NAME, TEXT2, TAIL));
+    var rx_role = new RegExp(
+        format('^:{0}:{1}', NAME, TAIL));
 
-        if (sol && stream.match(reDirectiveMarker)) {
-            if (!stream.eol()) {
-                setState(state, directive);
-            }
-            return 'meta';
-        }
+    var rx_directive_name = new RegExp(format('^{0}', REF_NAME));
+    var rx_directive_tail = new RegExp(format('^::{0}', TAIL));
+    var rx_substitution_text = new RegExp(format('^\\|{0}\\|', TEXT1));
+    var rx_substitution_sepa = new RegExp(format('^{0}', SEPA));
+    var rx_substitution_name = new RegExp(format('^{0}', REF_NAME));
+    var rx_substitution_tail = new RegExp(format('^::{0}', TAIL));
+    var rx_link_head = new RegExp("^_");
+    var rx_link_name = new RegExp(format('^{0}|_', REF_NAME));
+    var rx_link_tail = new RegExp(format('^:{0}', TAIL));
 
-        if (stream.match(reVerbatimMarker)) {
-            if (!verbatimMode) {
-                setState(state, verbatim);
-            } else {
-                var mode = verbatimMode;
+    var rx_verbatim = new RegExp('^::\\s*$');
+    var rx_examples = new RegExp('^\\s+(?:>>>|In \\[\\d+\\]:)\\s');
 
-                setState(state, verbatim, {
-                    mode: mode,
-                    local: mode.startState()
-                });
-            }
-            return 'meta';
-        }
+    ///////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
 
-        if (sol && stream.match(reExamples, false)) {
-            if (!pythonMode) {
-                setState(state, verbatim);
-                return 'meta';
-            } else {
-                var mode = pythonMode;
-
-                setState(state, verbatim, {
-                    mode: mode,
-                    local: mode.startState()
-                });
-
-                return null;
-            }
-        }
-
-        function testBackward(re) {
-            return sol || !state.ctx.back || re.test(state.ctx.back);
-        }
-
-        function testForward(re) {
-            return stream.eol() || stream.match(re, false);
-        }
-
-        function testInline(re) {
-            return stream.match(re) && testBackward(/\W/) && testForward(/\W/);
-        }
-
-        if (testInline(reFootnoteRef)) {
-            setNormal(state, stream);
-            return 'footnote';
-        }
-
-        if (testInline(reCitationRef)) {
-            setNormal(state, stream);
-            return 'citation';
-        }
-
-        ch = stream.next();
-
-        if (testBackward(rePreInline)) {
-            if ((ch === ':' || ch === '|') && stream.eat(/\S/)) {
-                var token;
-
-                if (ch === ':') {
-                    token = 'builtin';
-                } else {
-                    token = 'atom';
-                }
-
-                setState(state, inline, {
-                    ch: ch,
-                    wide: false,
-                    prev: null,
-                    token: token
-                });
-
-                return token;
-            }
-
-            if (ch === '*' || ch === '`') {
-                var orig = ch,
-                    wide = false;
-
-                ch = stream.next();
-
-                if (ch == orig) {
-                    wide = true;
-                    ch = stream.next();
-                }
-
-                if (ch && !/\s/.test(ch)) {
-                    var token;
-
-                    if (orig === '*') {
-                        token = wide ? 'strong' : 'em';
-                    } else {
-                        token = wide ? 'string' : 'string-2';
-                    }
-
-                    setState(state, inline, {
-                        ch: orig,               // inline() has to know what to search for
-                        wide: wide,             // are we looking for `ch` or `chch`
-                        prev: null,             // terminator must not be preceeded with whitespace
-                        token: token            // I don't want to recompute this all the time
-                    });
-
-                    return token;
-                }
-            }
-        }
-
-        setNormal(state, ch);
-        return null;
-    }
-
-    function inline(stream, state) {
-        var ch = stream.next(),
-            token = state.ctx.token;
-
-        function finish(ch) {
-            state.ctx.prev = ch;
-            return token;
-        }
-
-        if (ch != state.ctx.ch) {
-            return finish(ch);
-        }
-
-        if (/\s/.test(state.ctx.prev)) {
-            return finish(ch);
-        }
-
-        if (state.ctx.wide) {
-            ch = stream.next();
-
-            if (ch != state.ctx.ch) {
-                return finish(ch);
-            }
-        }
-
-        if (!stream.eol() && !rePostInline.test(stream.peek())) {
-            if (state.ctx.wide) {
-                stream.backUp(1);
-            }
-
-            return finish(ch);
-        }
-
-        setState(state, normal);
-        setNormal(state, ch);
-
-        return token;
-    }
-
-    function directive(stream, state) {
+    function to_normal(stream, state) {
         var token = null;
 
-        if (stream.match(reDirective)) {
-            token = 'attribute';
-        } else if (stream.match(reHyperlink)) {
-            token = 'link';
-        } else if (stream.match(reFootnote)) {
-            token = 'quote';
-        } else if (stream.match(reCitation)) {
-            token = 'quote';
-        } else {
-            stream.eatSpace();
+        if (stream.sol() && stream.match(rx_examples, false)) {
+            change(state, to_mode, {
+                mode: mode_python, local: mode_python.startState()
+            });
+        } else if (stream.sol() && stream.match(rx_explicit)) {
+            change(state, to_explicit);
+            token = 'meta';
+        } else if (stream.sol() && stream.match(rx_section)) {
+            change(state, to_normal);
+            token = 'header';
+        } else if (phase(state) == rx_role_pre ||
+            stream.match(rx_role_pre, false)) {
 
+            switch (stage(state)) {
+                case 0:
+                    change(state, to_normal, context(rx_role_pre, 1));
+                    assert(stream.match(/^:/));
+                    token = 'meta';
+                    break;
+                case 1:
+                    change(state, to_normal, context(rx_role_pre, 2));
+                    assert(stream.match(rx_NAME));
+                    token = 'keyword';
+
+                    if (stream.current().match(/^(?:math|latex)/)) {
+                        state.tmp = {
+                            mode: mode_stex, local: mode_stex.startState()
+                        };
+                    }
+                    break;
+                case 2:
+                    change(state, to_normal, context(rx_role_pre, 3));
+                    assert(stream.match(/^:`/));
+                    token = 'meta';
+                    break;
+                case 3:
+                    if (state.tmp) {
+                        if (stream.peek() == '`') {
+                            change(state, to_normal, context(rx_role_pre, 4));
+                            state.tmp = undefined;
+                            break;
+                        }
+
+                        token = state.tmp.mode.token(stream, state.tmp.local);
+                        break;
+                    }
+
+                    change(state, to_normal, context(rx_role_pre, 4));
+                    assert(stream.match(rx_TEXT2));
+                    token = 'string';
+                    break;
+                case 4:
+                    change(state, to_normal, context(rx_role_pre, 5));
+                    assert(stream.match(/^`/));
+                    token = 'meta';
+                    break;
+                case 5:
+                    change(state, to_normal, context(rx_role_pre, 6));
+                    assert(stream.match(rx_TAIL));
+                    break;
+                default:
+                    change(state, to_normal);
+                    assert(stream.current() == '');
+            }
+        } else if (phase(state) == rx_role_suf ||
+            stream.match(rx_role_suf, false)) {
+
+            switch (stage(state)) {
+                case 0:
+                    change(state, to_normal, context(rx_role_suf, 1));
+                    assert(stream.match(/^`/));
+                    token = 'meta';
+                    break;
+                case 1:
+                    change(state, to_normal, context(rx_role_suf, 2));
+                    assert(stream.match(rx_TEXT2));
+                    token = 'string';
+                    break;
+                case 2:
+                    change(state, to_normal, context(rx_role_suf, 3));
+                    assert(stream.match(/^`:/));
+                    token = 'meta';
+                    break;
+                case 3:
+                    change(state, to_normal, context(rx_role_suf, 4));
+                    assert(stream.match(rx_NAME));
+                    token = 'keyword';
+                    break;
+                case 4:
+                    change(state, to_normal, context(rx_role_suf, 5));
+                    assert(stream.match(/^:/));
+                    token = 'meta';
+                    break;
+                case 5:
+                    change(state, to_normal, context(rx_role_suf, 6));
+                    assert(stream.match(rx_TAIL));
+                    break;
+                default:
+                    change(state, to_normal);
+                    assert(stream.current() == '');
+            }
+        } else if (phase(state) == rx_role || stream.match(rx_role, false)) {
+
+            switch (stage(state)) {
+                case 0:
+                    change(state, to_normal, context(rx_role, 1));
+                    assert(stream.match(/^:/));
+                    token = 'meta';
+                    break;
+                case 1:
+                    change(state, to_normal, context(rx_role, 2));
+                    assert(stream.match(rx_NAME));
+                    token = 'keyword';
+                    break;
+                case 2:
+                    change(state, to_normal, context(rx_role, 3));
+                    assert(stream.match(/^:/));
+                    token = 'meta';
+                    break;
+                case 3:
+                    change(state, to_normal, context(rx_role, 4));
+                    assert(stream.match(rx_TAIL));
+                    break;
+                default:
+                    change(state, to_normal);
+                    assert(stream.current() == '');
+            }
+        } else if (phase(state) == rx_substitution_ref ||
+            stream.match(rx_substitution_ref, false)) {
+
+            switch (stage(state)) {
+                case 0:
+                    change(state, to_normal, context(rx_substitution_ref, 1));
+                    assert(stream.match(rx_substitution_text));
+                    token = 'variable-2';
+                    break;
+                case 1:
+                    change(state, to_normal, context(rx_substitution_ref, 2));
+                    if (stream.match(/^_?_?/)) token = 'link';
+                    break;
+                default:
+                    change(state, to_normal);
+                    assert(stream.current() == '');
+            }
+        } else if (stream.match(rx_footnote_ref)) {
+            change(state, to_normal);
+            token = 'quote';
+        } else if (stream.match(rx_citation_ref)) {
+            change(state, to_normal);
+            token = 'quote';
+        } else if (stream.match(rx_link_ref1)) {
+            change(state, to_normal);
+            if (!stream.peek() || stream.peek().match(/^\W$/)) {
+                token = 'link';
+            }
+        } else if (phase(state) == rx_link_ref2 ||
+            stream.match(rx_link_ref2, false)) {
+
+            switch (stage(state)) {
+                case 0:
+                    if (!stream.peek() || stream.peek().match(/^\W$/)) {
+                        change(state, to_normal, context(rx_link_ref2, 1));
+                    } else {
+                        stream.match(rx_link_ref2);
+                    }
+                    break;
+                case 1:
+                    change(state, to_normal, context(rx_link_ref2, 2));
+                    assert(stream.match(/^`/));
+                    token = 'link';
+                    break;
+                case 2:
+                    change(state, to_normal, context(rx_link_ref2, 3));
+                    assert(stream.match(rx_TEXT2));
+                    break;
+                case 3:
+                    change(state, to_normal, context(rx_link_ref2, 4));
+                    assert(stream.match(/^`_/));
+                    token = 'link';
+                    break;
+                default:
+                    change(state, to_normal);
+                    assert(stream.current() == '');
+            }
+        } else if (stream.match(rx_verbatim)) {
+            change(state, to_verbatim);
+        }
+
+        else {
+            if (stream.next()) change(state, to_normal);
+        }
+
+        return token;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
+
+    function to_explicit(stream, state) {
+        var token = null;
+
+        if (phase(state) == rx_substitution ||
+            stream.match(rx_substitution, false)) {
+
+            switch (stage(state)) {
+                case 0:
+                    change(state, to_explicit, context(rx_substitution, 1));
+                    assert(stream.match(rx_substitution_text));
+                    token = 'variable-2';
+                    break;
+                case 1:
+                    change(state, to_explicit, context(rx_substitution, 2));
+                    assert(stream.match(rx_substitution_sepa));
+                    break;
+                case 2:
+                    change(state, to_explicit, context(rx_substitution, 3));
+                    assert(stream.match(rx_substitution_name));
+                    token = 'keyword';
+                    break;
+                case 3:
+                    change(state, to_explicit, context(rx_substitution, 4));
+                    assert(stream.match(rx_substitution_tail));
+                    token = 'meta';
+                    break;
+                default:
+                    change(state, to_normal);
+                    assert(stream.current() == '');
+            }
+        } else if (phase(state) == rx_directive ||
+            stream.match(rx_directive, false)) {
+
+            switch (stage(state)) {
+                case 0:
+                    change(state, to_explicit, context(rx_directive, 1));
+                    assert(stream.match(rx_directive_name));
+                    token = 'keyword';
+
+                    if (stream.current().match(/^(?:math|latex)/))
+                        state.tmp_stex = true;
+                    else if (stream.current().match(/^python/))
+                        state.tmp_py = true;
+                    break;
+                case 1:
+                    change(state, to_explicit, context(rx_directive, 2));
+                    assert(stream.match(rx_directive_tail));
+                    token = 'meta';
+                    break;
+                default:
+                    if (stream.match(/^latex\s*$/) || state.tmp_stex) {
+                        state.tmp_stex = undefined;
+                        change(state, to_mode, {
+                            mode: mode_stex, local: mode_stex.startState()
+                        });
+                    } else if (stream.match(/^python\s*$/) || state.tmp_py) {
+                        state.tmp_py = undefined;
+                        change(state, to_mode, {
+                            mode: mode_python, local: mode_python.startState()
+                        });
+                    }
+
+                    else {
+                        change(state, to_normal);
+                        assert(stream.current() == '');
+                    }
+            }
+        } else if (phase(state) == rx_link || stream.match(rx_link, false)) {
+
+            switch (stage(state)) {
+                case 0:
+                    change(state, to_explicit, context(rx_link, 1));
+                    assert(stream.match(rx_link_head));
+                    assert(stream.match(rx_link_name));
+                    token = 'link';
+                    break;
+                case 1:
+                    change(state, to_explicit, context(rx_link, 2));
+                    assert(stream.match(rx_link_tail));
+                    token = 'meta';
+                    break;
+                default:
+                    change(state, to_normal);
+                    assert(stream.current() == '');
+            }
+        } else if (stream.match(rx_footnote)) {
+            change(state, to_normal);
+            token = 'quote';
+        } else if (stream.match(rx_citation)) {
+            change(state, to_normal);
+            token = 'quote';
+        }
+
+        else {
+            stream.eatSpace();
             if (stream.eol()) {
-                setNormal(state, stream);
-                return null;
+                change(state, to_normal);
             } else {
                 stream.skipToEnd();
-                setState(state, comment);
-                return 'comment';
+                change(state, to_comment);
+                token = 'comment';
             }
         }
-
-        // FIXME this is unreachable
-        setState(state, body, {start: true});
-        return token;
-    }
-
-    function body(stream, state) {
-        var token = 'body';
-
-        if (!state.ctx.start || stream.sol()) {
-            return block(stream, state, token);
-        }
-
-        stream.skipToEnd();
-        setCtx(state);
 
         return token;
     }
 
-    function comment(stream, state) {
-        return block(stream, state, 'comment');
+    ///////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
+
+    function to_comment(stream, state) {
+        return as_block(stream, state, 'comment');
     }
 
-    function verbatim(stream, state) {
-        if (!verbatimMode) {
-            return block(stream, state, 'meta');
-        } else {
-            if (stream.sol()) {
-                if (!stream.eatSpace()) {
-                    setNormal(state, stream);
-                }
-
-                return null;
-            }
-
-            return verbatimMode.token(stream, state.ctx.local);
-        }
+    function to_verbatim(stream, state) {
+        return as_block(stream, state, 'meta');
     }
 
-    function block(stream, state, token) {
+    function as_block(stream, state, token) {
         if (stream.eol() || stream.eatSpace()) {
             stream.skipToEnd();
             return token;
         } else {
-            setNormal(state, stream);
+            change(state, to_normal);
             return null;
         }
     }
 
+    ///////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
+
+    function to_mode(stream, state) {
+
+        if (state.ctx.mode && state.ctx.local) {
+
+            if (stream.sol()) {
+                if (!stream.eatSpace()) change(state, to_normal);
+                return null;
+            }
+
+            try {
+                return state.ctx.mode.token(stream, state.ctx.local);
+            } catch (ex) {
+                change(state, to_normal);
+                return null;
+            }
+        }
+
+        change(state, to_normal);
+        return null;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
+
+    function context(phase, stage, mode, local) {
+        return {phase: phase, stage: stage, mode: mode, local: local};
+    }
+
+    function change(state, tok, ctx) {
+        state.tok = tok;
+        state.ctx = ctx || {};
+    }
+
+    function stage(state) {
+        return state.ctx.stage || 0;
+    }
+
+    function phase(state) {
+        return state.ctx.phase;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
+
     return {
-        startState: function() {
-            return {fn: normal, ctx: {}};
+        startState: function () {
+            return {tok: to_normal, ctx: context(undefined, 0)};
         },
 
-        copyState: function(state) {
-            return {fn: state.fn, ctx: state.ctx};
+        copyState: function (state) {
+            return {tok: state.tok, ctx: state.ctx};
         },
 
-        token: function(stream, state) {
-            var token = state.fn(stream, state);
-            return token;
+        innerMode: function (state) {
+            return {state: state.ctx.local, mode: state.ctx.mode};
+        },
+
+        token: function (stream, state) {
+            return state.tok(stream, state);
         }
     };
-}, "python");
+}, 'python', 'stex');
 
-CodeMirror.defineMIME("text/x-rst", "rst");
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+CodeMirror.defineMode('rst', function (config, options) {
+
+    var rx_uri_protocol = "[Hh][Tt][Tt][Pp][Ss]?://";
+    var rx_uri_domain = "(?:[\\d\\w.-]+)\\.(?:\\w{2,6})";
+    var rx_uri_path = "(?:/[\\d\\w\\#\\%\\&\\-\\.\\/\\:\\=\\?\\~]+)*";
+    var rx_uri = new RegExp("^" +
+        rx_uri_protocol + rx_uri_domain + rx_uri_path
+    );
+
+    var rx_strong = /^\*\*[^\*\s](?:[^\*]*[^\*\s])?\*\*/;
+    var rx_emphasis = /^\*[^\*\s](?:[^\*]*[^\*\s])?\*/;
+    var rx_literal = /^``[^`\s](?:[^`]*[^`\s])``/;
+
+    var rx_number = /^(?:[\d]+(?:[\.,]\d+)*)/;
+    var rx_positive = /^(?:\s\+[\d]+(?:[\.,]\d+)*)/;
+    var rx_negative = /^(?:\s\-[\d]+(?:[\.,]\d+)*)/;
+
+    var overlay = {
+        token: function (stream) {
+
+            if (stream.match(rx_uri)) return 'link';
+            if (stream.match(rx_strong)) return 'strong';
+            if (stream.match(rx_emphasis)) return 'em';
+            if (stream.match(rx_literal)) return 'string-2';
+            if (stream.match(rx_number)) return 'number';
+            if (stream.match(rx_positive)) return 'positive';
+            if (stream.match(rx_negative)) return 'negative';
+
+            while (stream.next() != null) {
+                if (stream.match(rx_uri, false)) break;
+                if (stream.match(rx_strong, false)) break;
+                if (stream.match(rx_emphasis, false)) break;
+                if (stream.match(rx_literal, false)) break;
+                if (stream.match(rx_number, false)) break;
+                if (stream.match(rx_positive, false)) break;
+                if (stream.match(rx_negative, false)) break;
+            }
+
+            return null;
+        }
+    };
+
+    var mode = CodeMirror.getMode(
+        config, options.backdrop || 'rst-base'
+    );
+
+    return CodeMirror.overlayMode(mode, overlay, true); // combine
+}, 'python', 'stex');
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+CodeMirror.defineMIME('text/x-rst', 'rst');
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
