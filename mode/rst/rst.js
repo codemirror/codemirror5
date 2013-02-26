@@ -275,7 +275,7 @@ CodeMirror.defineMode ('rst-base', function (config, options) {
                     if (!stream.peek ()||stream.peek ().match (/^\W$/)) {
                         change (state, to_normal, context (rx_link_ref2, 1));
                     } else {
-                        stream.match (rx_link_ref2)
+                        stream.match (rx_link_ref2);
                     } break;
                 case 1:
                     change (state, to_normal, context (rx_link_ref2, 2));
