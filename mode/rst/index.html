@@ -508,17 +508,15 @@ There are some problems one commonly runs into while authoring reST documents:
         lineNumbers: true,
       });
     </script>
-    <p>The reStructuredText mode supports one configuration parameter:</p>
-    <dl>
-      <dt><code>verbatim (string)</code></dt>
-      <dd>A name or MIME type of a mode that will be used for highlighting
-      verbatim blocks. By default, reStructuredText mode uses uniform color
-      for whole block of verbatim text if no mode is given.</dd>
-    </dl>
-    <p>If <code>python</code> mode is available,
-    it will be used for highlighting blocks containing Python/IPython terminal
-    sessions (blocks starting with <code>&gt;&gt;&gt;</code> (for Python) or
-    <code>In [num]:</code> (for IPython).
+    <p>
+        The <code>python</code> mode will be used for highlighting blocks
+        containing Python/IPython terminal sessions: blocks starting with
+        <code>&gt;&gt;&gt;</code> (for Python) or <code>In [num]:</code> (for
+        IPython).
+
+        Further, the <code>stex</code> mode will be used for highlighting
+        blocks containing LaTex code.
+    </p>
 
     <p><strong>MIME types defined:</strong> <code>text/x-rst</code>.</p>
   </body>
