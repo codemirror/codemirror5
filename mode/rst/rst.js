@@ -1,4 +1,4 @@
-CodeMirror.defineMode ('rst-base', function (config, options) {
+CodeMirror.defineMode ('rst-base', function (config) {
 
     ///////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
@@ -32,20 +32,16 @@ CodeMirror.defineMode ('rst-base', function (config, options) {
     ///////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
 
-    var SEPA = "\\s+",
-        rx_SEPA = new RegExp (format ('^{0}', SEPA));
+    var SEPA = "\\s+";
     var TAIL = "(?:\\s*|\\W|$)",
         rx_TAIL = new RegExp (format ('^{0}', TAIL));
 
     var NAME = "(?:[^\\W\\d_](?:[\\w\\+\\.\\-:]*[^\\W_])?)",
         rx_NAME = new RegExp (format ('^{0}', NAME));
-    var NAME_WWS = "(?:[^\\W\\d_](?:[\\w\\s\\+\\.\\-:]*[^\\W_])?)",
-        rx_NAME_WWS = new RegExp (format ('^{0}', NAME_WWS));
-    var REF_NAME = format ('(?:{0}|`{1}`)', NAME, NAME_WWS),
-        rx_REF_NAME = new RegExp (format ('^{0}', REF_NAME));
+    var NAME_WWS = "(?:[^\\W\\d_](?:[\\w\\s\\+\\.\\-:]*[^\\W_])?)";
+    var REF_NAME = format ('(?:{0}|`{1}`)', NAME, NAME_WWS);
 
-    var TEXT1 = "(?:[^\\s\\|](?:[^\\|]*[^\\s\\|])?)",
-        rx_TEXT1 = new RegExp (format ('^{0}', TEXT1));
+    var TEXT1 = "(?:[^\\s\\|](?:[^\\|]*[^\\s\\|])?)";
     var TEXT2 = "(?:[^\\`]+)",
         rx_TEXT2 = new RegExp (format ('^{0}', TEXT2));
 
@@ -532,7 +528,7 @@ CodeMirror.defineMode ('rst', function (config, options) {
     var rx_negative = /^(?:\s\-[\d]+(?:[\.,]\d+)*)/;
 
     var overlay = {
-        token: function (stream, state) {
+        token: function (stream) {
 
             if (stream.match (rx_uri)) return 'link';
             if (stream.match (rx_strong)) return 'strong';
