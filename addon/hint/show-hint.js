@@ -1,6 +1,7 @@
 CodeMirror.showHint = function(cm, getHints, options) {
   if (!options) options = {};
   var startCh = cm.getCursor().ch, continued = false;
+  var closeOn = options.closeCharacters || /[\s()\[\]{};:]/;
 
   function startHinting() {
     // We want a single cursor position.
@@ -142,9 +143,10 @@ CodeMirror.showHint = function(cm, getHints, options) {
     function cursorActivity() {
       clearTimeout(once);
 
-      var pos = cm.getCursor(), len = cm.getLine(pos.line).length;
-      if (pos.line != lastPos.line || len - pos.ch != lastLen - lastPos.ch ||
-          pos.ch < startCh || cm.somethingSelected())
+      var pos = cm.getCursor(), line = cm.getLine(pos.line);
+      if (pos.line != lastPos.line || line.length - pos.ch != lastLen - lastPos.ch ||
+          pos.ch < startCh || cm.somethingSelected() ||
+          (pos.ch && closeOn.test(line.charAt(pos.ch - 1))))
         close();
       else
         once = setTimeout(function(){close(); continued = true; startHinting();}, 70);
