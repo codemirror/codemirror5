@@ -130,6 +130,11 @@
   MT("blockquoteNoSpace",
      "[atom >foo]");
 
+  // No blank line before blockquote
+  MT("blockquoteNoBlankLine",
+     "foo",
+     "[atom > bar]");
+
   // Nested blockquote
   MT("blockquoteSpace",
      "[atom > foo]",
@@ -183,6 +188,12 @@
   MT("listNumber",
      "[variable-2 1. foo]",
      "[variable-2 2. bar]");
+
+  // Lists require a preceding blank line (per Dingus)
+  MT("listBogus",
+     "foo",
+     "1. bar",
+     "2. hello");
 
   // Formatting in lists (*)
   MT("listAsteriskFormatting",

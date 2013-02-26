@@ -106,6 +106,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
   function blockNormal(stream, state) {
     
+    var prevLineIsList = (state.list !== false);
     if (state.list !== false && state.indentationDiff >= 0) { // Continued list
       if (state.indentationDiff < 4) { // Only adjust indentation if *not* a code block
         state.indentation -= state.indentationDiff;
@@ -114,7 +115,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     } else if (state.list !== false && state.indentation > 0) {
       state.list = null;
       state.listDepth = Math.floor(state.indentation / 4);
-    } else { // No longer a list
+    } else if (state.list !== false) { // No longer a list
       state.list = false;
       state.listDepth = 0;
     }
@@ -139,7 +140,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       return switchInline(stream, state, footnoteLink);
     } else if (stream.match(hrRE, true)) {
       return hr;
-    } else if (stream.match(ulRE, true) || stream.match(olRE, true)) {
+    } else if ((!prevLineHasContent || prevLineIsList) && (stream.match(ulRE, true) || stream.match(olRE, true))) {
       state.indentation += 4;
       state.list = true;
       state.listDepth++;
