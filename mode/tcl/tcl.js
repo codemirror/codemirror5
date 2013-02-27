@@ -49,10 +49,10 @@ CodeMirror.defineMode("tcl", function() {
         stream.skipToEnd();
         return "comment";
       }
-	  else if (ch == '"') {
-		stream.skipTo(/"/)
-		return "comment";
-	  }
+      else if (ch == '"') {
+        stream.skipTo(/"/)
+	  return "comment";
+      }
       else if (ch == "$") {
         stream.eatWhile(/[$_a-z0-9A-Z\.{:]/);
         stream.eatWhile(/}/)
