@@ -53,8 +53,6 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   if (modeCfg.taskLists === undefined) modeCfg.taskLists = false;
   
   var codeDepth = 0;
-  var prevLineHasContent = false
-  ,   thisLineHasContent = false;
 
   var header   = 'header'
   ,   code     = 'comment'
@@ -105,6 +103,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       state.f = inlineNormal;
       state.block = blockNormal;
     }
+    // Mark this line as blank
+    state.thisLineHasContent = false;
     return null;
   }
 
@@ -130,7 +130,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       return code;
     } else if (stream.eatSpace()) {
       return null;
-    } else if (stream.peek() === '#' || (prevLineHasContent && stream.match(headerRE)) ) {
+    } else if (stream.peek() === '#' || (state.prevLineHasContent && stream.match(headerRE)) ) {
       state.header = true;
     } else if (stream.eat('>')) {
       state.indentation++;
@@ -144,7 +144,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       return switchInline(stream, state, footnoteLink);
     } else if (stream.match(hrRE, true)) {
       return hr;
-    } else if ((!prevLineHasContent || prevLineIsList) && (stream.match(ulRE, true) || stream.match(olRE, true))) {
+    } else if ((!state.prevLineHasContent || prevLineIsList) && (stream.match(ulRE, true) || stream.match(olRE, true))) {
       state.indentation += 4;
       state.list = true;
       state.listDepth++;
@@ -432,10 +432,11 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
   return {
     startState: function() {
-      prevLineHasContent = false;
-      thisLineHasContent = false;
       return {
         f: blockNormal,
+        
+        prevLineHasContent: false,
+        thisLineHasContent: false,
         
         block: blockNormal,
         htmlState: CodeMirror.startState(htmlMode),
@@ -459,6 +460,9 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     copyState: function(s) {
       return {
         f: s.f,
+        
+        prevLineHasContent: s.prevLineHasContent,
+        thisLineHasContent: s.thisLineHasContent,
         
         block: s.block,
         htmlState: CodeMirror.copyState(htmlMode, s.htmlState),
@@ -484,14 +488,11 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     token: function(stream, state) {
       if (stream.sol()) {
         if (stream.match(/^\s*$/, true)) {
-          prevLineHasContent = false;
+          state.prevLineHasContent = false;
           return blankLine(state);
         } else {
-          if(thisLineHasContent){
-            prevLineHasContent = true;
-            thisLineHasContent = false;
-          }
-          thisLineHasContent = true;
+          state.prevLineHasContent = state.thisLineHasContent;
+          state.thisLineHasContent = true;
         }
 
         // Reset state.header

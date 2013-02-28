@@ -174,18 +174,30 @@
   // Check list types
 
   MT("listAsterisk",
+     "foo",
+     "bar",
+     "",
      "[variable-2 * foo]",
      "[variable-2 * bar]");
 
   MT("listPlus",
+     "foo",
+     "bar",
+     "",
      "[variable-2 + foo]",
      "[variable-2 + bar]");
 
   MT("listDash",
+     "foo",
+     "bar",
+     "",
      "[variable-2 - foo]",
      "[variable-2 - bar]");
 
   MT("listNumber",
+     "foo",
+     "bar",
+     "",
      "[variable-2 1. foo]",
      "[variable-2 2. bar]");
 
