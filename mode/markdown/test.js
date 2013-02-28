@@ -610,4 +610,15 @@
 
   MT("doubleEscapeHash",
      "\\\\# foo");
+
+
+  // Tests to make sure GFM-specific things aren't getting through
+  
+  MT("taskList",
+     "[variable-2 * [ ]] bar]");
+
+  MT("fencedCodeBlocks",
+     "[comment ```]",
+     "foo",
+     "[comment ```]");
 })();
