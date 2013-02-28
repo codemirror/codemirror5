@@ -49,6 +49,9 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   // Turn on fenced code blocks? ("```" to start/end)
   if (modeCfg.fencedCodeBlocks === undefined) modeCfg.fencedCodeBlocks = false;
   
+  // Turn on task lists? ("- [ ] " and "- [x] ")
+  if (modeCfg.taskLists === undefined) modeCfg.taskLists = false;
+  
   var codeDepth = 0;
   var prevLineHasContent = false
   ,   thisLineHasContent = false;
@@ -72,6 +75,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   var hrRE = /^([*\-=_])(?:\s*\1){2,}\s*$/
   ,   ulRE = /^[*\-+]\s+/
   ,   olRE = /^[0-9]+\.\s+/
+  ,   taskListRE = /^\[(x| )\](?=\s)/ // Must follow ulRE or olRE
   ,   headerRE = /^(?:\={1,}|-{1,})$/
   ,   textRE = /^[^!\[\]*_\\<>` "'(]+/;
 
@@ -144,6 +148,9 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       state.indentation += 4;
       state.list = true;
       state.listDepth++;
+      if (modeCfg.taskLists && stream.match(taskListRE, false)) {
+        state.taskList = true;
+      }
     } else if (modeCfg.fencedCodeBlocks && stream.match(/^```([\w+#]*)/, true)) {
       // try switching mode
       state.localMode = getMode(RegExp.$1);
@@ -187,6 +194,9 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   function getType(state) {
     var styles = [];
     
+    if (state.taskOpen) { return "meta"; }
+    if (state.taskClosed) { return "property"; }
+    
     if (state.strong) { styles.push(strong); }
     if (state.em) { styles.push(em); }
     
@@ -226,6 +236,17 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       state.list = null;
       return getType(state);
     }
+    
+    if (state.taskList) {
+      var taskOpen = stream.match(taskListRE, true)[1] !== "x";
+      if (taskOpen) state.taskOpen = true;
+      else state.taskClosed = true;
+      state.taskList = false;
+      return getType(state);
+    }
+    
+    state.taskOpen = false;
+    state.taskClosed = false;
     
     var ch = stream.next();
     
@@ -428,6 +449,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         em: false,
         strong: false,
         header: false,
+        taskList: false,
         list: false,
         listDepth: 0,
         quote: 0
@@ -451,6 +473,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         em: s.em,
         strong: s.strong,
         header: s.header,
+        taskList: s.taskList,
         list: s.list,
         listDepth: s.listDepth,
         quote: s.quote,
@@ -473,6 +496,9 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
         // Reset state.header
         state.header = false;
+        
+        // Reset state.taskList
+        state.taskList = false;
         
         // Reset state.code
         state.code = false;

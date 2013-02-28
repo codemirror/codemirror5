@@ -89,6 +89,7 @@ CodeMirror.defineMode("gfm", function(config) {
   CodeMirror.defineMIME("gfmBase", {
     name: "markdown",
     underscoresBreakWords: false,
+    taskLists: true,
     fencedCodeBlocks: true
   });
   return CodeMirror.overlayMode(CodeMirror.getMode(config, "gfmBase"), gfmOverlay);
