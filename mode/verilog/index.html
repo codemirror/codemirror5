@@ -15,182 +15,93 @@
 <form><textarea id="code" name="code">
 /* Verilog demo code */
 
-//////////////////////////////////////////////////////////////////////
-////                                                              ////
-////  wb_master_model.v                                           ////
-////                                                              ////
-////  This file is part of the SPI IP core project                ////
-////  http://www.opencores.org/projects/spi/                      ////
-////                                                              ////
-////  Author(s):                                                  ////
-////      - Simon Srot (simons@opencores.org)                     ////
-////                                                              ////
-////  Based on:                                                   ////
-////      - i2c/bench/verilog/wb_master_model.v                   ////
-////        Copyright (C) 2001 Richard Herveille                  ////
-////                                                              ////
-////  All additional information is avaliable in the Readme.txt   ////
-////  file.                                                       ////
-////                                                              ////
-//////////////////////////////////////////////////////////////////////
-////                                                              ////
-//// Copyright (C) 2002 Authors                                   ////
-////                                                              ////
-//// This source file may be used and distributed without         ////
-//// restriction provided that this copyright statement is not    ////
-//// removed from the file and that any derivative work contains  ////
-//// the original copyright notice and the associated disclaimer. ////
-////                                                              ////
-//// This source file is free software; you can redistribute it   ////
-//// and/or modify it under the terms of the GNU Lesser General   ////
-//// Public License as published by the Free Software Foundation; ////
-//// either version 2.1 of the License, or (at your option) any   ////
-//// later version.                                               ////
-////                                                              ////
-//// This source is distributed in the hope that it will be       ////
-//// useful, but WITHOUT ANY WARRANTY; without even the implied   ////
-//// warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR      ////
-//// PURPOSE.  See the GNU Lesser General Public License for more ////
-//// details.                                                     ////
-////                                                              ////
-//// You should have received a copy of the GNU Lesser General    ////
-//// Public License along with this source; if not, download it   ////
-//// from http://www.opencores.org/lgpl.shtml                     ////
-////                                                              ////
-//////////////////////////////////////////////////////////////////////
+module butterfly
+  #(
+    parameter WIDTH = 32,
+    parameter MWIDTH = 1
+    )
+   (
+    input wire                     clk,
+    input wire                     rst_n,
+    // m_in contains data that passes through this block with no change.
+    input wire [MWIDTH-1:0]        m_in,
+    // The twiddle factor.
+    input wire signed [WIDTH-1:0]  w,
+    // XA
+    input wire signed [WIDTH-1:0]  xa,
+    // XB
+    input wire signed [WIDTH-1:0]  xb,
+    // Set to 1 when new data is present on inputs.
+    input wire                     x_nd,
+    // delayed version of m_in.
+    output reg [MWIDTH-1:0]        m_out,
+    // YA = XA + W*XB
+    // YB = XA - W*XB
+    output wire signed [WIDTH-1:0] ya,
+    output wire signed [WIDTH-1:0] yb,
+    output reg                     y_nd,
+    output reg                     error
+    );
 
-`include "timescale.v"
+   // Set wire to the real and imag parts for convenience.
+   wire signed [WIDTH/2-1:0]        xa_re;
+   wire signed [WIDTH/2-1:0]        xa_im;
+   assign xa_re = xa[WIDTH-1:WIDTH/2];
+   assign xa_im = xa[WIDTH/2-1:0];
+   wire signed [WIDTH/2-1: 0]       ya_re;
+   wire signed [WIDTH/2-1: 0]       ya_im;
+   assign ya = {ya_re, ya_im};
+   wire signed [WIDTH/2-1: 0]       yb_re;
+   wire signed [WIDTH/2-1: 0]       yb_im;
+   assign yb = {yb_re, yb_im};
 
-module wb_master_model(clk, rst, adr, din, dout, cyc, stb, we, sel, ack, err, rty);
+   // Delayed stuff.
+   reg signed [WIDTH/2-1:0]         xa_re_z;
+   reg signed [WIDTH/2-1:0]         xa_im_z;
+   // Output of multiplier
+   wire signed [WIDTH-1:0]          xbw;
+   wire signed [WIDTH/2-1:0]        xbw_re;
+   wire signed [WIDTH/2-1:0]        xbw_im;
+   assign xbw_re = xbw[WIDTH-1:WIDTH/2];
+   assign xbw_im = xbw[WIDTH/2-1:0];
+   // Do summing
+   // I don't think we should get overflow here because of the
+   // size of the twiddle factors.
+   // If we do testing should catch it.
+   assign ya_re = xa_re_z + xbw_re;
+   assign ya_im = xa_im_z + xbw_im;
+   assign yb_re = xa_re_z - xbw_re;
+   assign yb_im = xa_im_z - xbw_im;
+   
+   // Create the multiply module.
+   multiply_complex #(WIDTH) multiply_complex_0
+     (.clk(clk),
+      .rst_n(rst_n),
+      .x(xb),
+      .y(w),
+      .z(xbw)
+      );
 
-  parameter dwidth = 32;
-  parameter awidth = 32;
-  
-  input                  clk, rst;
-  output [awidth   -1:0] adr;
-  input  [dwidth   -1:0] din;
-  output [dwidth   -1:0] dout;
-  output                 cyc, stb;
-  output                 we;
-  output [dwidth/8 -1:0] sel;
-  input                  ack, err, rty;
-  
-  // Internal signals
-  reg    [awidth   -1:0] adr;
-  reg    [dwidth   -1:0] dout;
-  reg                    cyc, stb;
-  reg                    we;
-  reg    [dwidth/8 -1:0] sel;
-         
-  reg    [dwidth   -1:0] q;
-  
-  // Memory Logic
-  initial
+  always @ (posedge clk)
     begin
-      adr  = {awidth{1'bx}};
-      dout = {dwidth{1'bx}};
-      cyc  = 1'b0;
-      stb  = 1'bx;
-      we   = 1'hx;
-      sel  = {dwidth/8{1'bx}};
-      #1;
+       if (!rst_n)
+         begin
+            y_nd <= 1'b0;
+            error <= 1'b0;
+         end
+       else
+         begin
+            // Set delay for x_nd_old and m.
+            y_nd <= x_nd;
+            m_out <= m_in;
+            if (x_nd)
+              begin
+                 xa_re_z <= xa_re/2;
+                 xa_im_z <= xa_im/2;
+              end
+         end
     end
-  
-  // Wishbone write cycle
-  task wb_write;
-    input   delay;
-    integer delay;
-  
-    input [awidth -1:0] a;
-    input [dwidth -1:0] d;
-  
-    begin
-  
-      // wait initial delay
-      repeat(delay) @(posedge clk);
-  
-      // assert wishbone signal
-      #1;
-      adr  = a;
-      dout = d;
-      cyc  = 1'b1;
-      stb  = 1'b1;
-      we   = 1'b1;
-      sel  = {dwidth/8{1'b1}};
-      @(posedge clk);
-  
-      // wait for acknowledge from slave
-      while(~ack) @(posedge clk);
-  
-      // negate wishbone signals
-      #1;
-      cyc  = 1'b0;
-      stb  = 1'bx;
-      adr  = {awidth{1'bx}};
-      dout = {dwidth{1'bx}};
-      we   = 1'hx;
-      sel  = {dwidth/8{1'bx}};
-  
-    end
-  endtask
-  
-  // Wishbone read cycle
-  task wb_read;
-    input   delay;
-    integer delay;
-  
-    input  [awidth -1:0]  a;
-    output  [dwidth -1:0] d;
-  
-    begin
-  
-      // wait initial delay
-      repeat(delay) @(posedge clk);
-  
-      // assert wishbone signals
-      #1;
-      adr  = a;
-      dout = {dwidth{1'bx}};
-      cyc  = 1'b1;
-      stb  = 1'b1;
-      we   = 1'b0;
-      sel  = {dwidth/8{1'b1}};
-      @(posedge clk);
-  
-      // wait for acknowledge from slave
-      while(~ack) @(posedge clk);
-  
-      // negate wishbone signals
-      #1;
-      cyc  = 1'b0;
-      stb  = 1'bx;
-      adr  = {awidth{1'bx}};
-      dout = {dwidth{1'bx}};
-      we   = 1'hx;
-      sel  = {dwidth/8{1'bx}};
-      d    = din;
-  
-    end
-  endtask
-  
-  // Wishbone compare cycle (read data from location and compare with expected data)
-  task wb_cmp;
-    input   delay;
-    integer delay;
-  
-    input [awidth -1:0] a;
-    input [dwidth -1:0] d_exp;
-  
-    begin
-      wb_read (delay, a, q);
-
-      if (d_exp !== q) begin
-        $display("\n--- ERROR: At address 0x%0x, got 0x%0x, expected 0x%0x at time %t", a, q, d_exp, $time);
-        $stop;
-      end
-    end
-  endtask
-  
+   
 endmodule
 </textarea></form>
 
