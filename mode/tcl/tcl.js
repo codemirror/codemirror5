@@ -6,17 +6,17 @@ CodeMirror.defineMode("tcl", function() {
     return obj;
   }
   var keywords = parseWords("Tcl safe after append array auto_execok auto_import auto_load " +
-    "auto_mkindex auto_mkindex_old auto_qualify auto_reset bgerror " +
-	"binary break catch cd close concat continue dde eof encoding error " +
-	"eval exec exit expr fblocked fconfigure fcopy file fileevent filename " +
-	"filename flush for foreach format gets glob global history http if " +
-	"incr info interp join lappend lindex linsert list llength load lrange " +
-	"lreplace lsearch lset lsort memory msgcat namespace open package parray " +
-	"pid pkg::create pkg_mkIndex proc puts pwd re_syntax read regex regexp " +
-	"registry regsub rename resource return scan seek set socket source split " +
-	"string subst switch tcl_endOfWord tcl_findLibrary tcl_startOfNextWord " +
-	"tcl_wordBreakAfter tcl_startOfPreviousWord tcl_wordBreakBefore tcltest " +
-	"tclvars tell time trace unknown unset update uplevel upvar variable " +
+        "auto_mkindex auto_mkindex_old auto_qualify auto_reset bgerror " +
+        "binary break catch cd close concat continue dde eof encoding error " +
+        "eval exec exit expr fblocked fconfigure fcopy file fileevent filename " +
+        "filename flush for foreach format gets glob global history http if " +
+        "incr info interp join lappend lindex linsert list llength load lrange " +
+        "lreplace lsearch lset lsort memory msgcat namespace open package parray " +
+        "pid pkg::create pkg_mkIndex proc puts pwd re_syntax read regex regexp " +
+        "registry regsub rename resource return scan seek set socket source split " +
+        "string subst switch tcl_endOfWord tcl_findLibrary tcl_startOfNextWord " +
+        "tcl_wordBreakAfter tcl_startOfPreviousWord tcl_wordBreakBefore tcltest " +
+        "tclvars tell time trace unknown unset update uplevel upvar variable " +
     "vwait");
     var functions = parseWords("if elseif else and not or eq ne in ni for foreach while switch");
     var isOperatorChar = /[+\-*&%=<>!?^\/\|]/;
@@ -50,13 +50,13 @@ CodeMirror.defineMode("tcl", function() {
         return "comment";
       }
       else if (ch == '"') {
-        stream.skipTo(/"/)
-	  return "comment";
+        stream.skipTo(/"/);
+        return "comment";
       }
       else if (ch == "$") {
         stream.eatWhile(/[$_a-z0-9A-Z\.{:]/);
-        stream.eatWhile(/}/)
-        state.beforeParams = true;		
+        stream.eatWhile(/}/);
+        state.beforeParams = true;              
         return "builtin";
       }
       else if (isOperatorChar.test(ch)) {
@@ -128,4 +128,4 @@ CodeMirror.defineMode("tcl", function() {
       }
     };
 });
-CodeMirror.defineMIME("text/tcl", "tcl");
+CodeMirror.defineMIME("text/x-tcl", "tcl");

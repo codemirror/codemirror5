@@ -59,6 +59,7 @@ CodeMirror.modeInfo = [
   {name: 'PL/SQL', mime: 'text/x-plsql', mode: 'sql'},
   {name: 'sTeX', mime: 'text/x-stex', mode: 'stex'},
   {name: 'LaTeX', mime: 'text/x-latex', mode: 'stex'},
+  {name: 'Tcl', mime: 'text/x-tcl', mode: 'tcl'},
   {name: 'TiddlyWiki ', mime: 'text/x-tiddlywiki', mode: 'tiddlywiki'},
   {name: 'Tiki wiki', mime: 'text/tiki', mode: 'tiki'},
   {name: 'VB.NET', mime: 'text/x-vb', mode: 'vb'},
