@@ -2536,40 +2536,38 @@
         clearSearchHighlight(cm);
       },
       delmarks: function(cm, params) {
-        if (!params.argString) {
+        if (!params.argString || !params.argString.trim()) {
           showConfirm(cm, 'Argument required');
           return;
         }
 
         var state = getVimState(cm);
-        for (var i = 0; i < params.argString.length; i++) {
-          var sym = params.argString[i];
+	      var stream = new CodeMirror.StringStream(params.argString.trim());
+	      while (stream.peek() != null) {
+          stream.eatSpace();
 
-          if (isWhiteSpace(sym)) {
-            continue;
-          }
+          // Record the streams position at the beginning of the loop for use
+          // in error messages.
+          var count = stream.pos;
 
-          if (!isAlphabet(sym)) {
-            showConfirm(cm, 'Invalid argument: ' + params.argString.substring(i));
+	        if (!stream.match(/[a-zA-Z]/, false)) {
+            showConfirm(cm, 'Invalid argument: ' + params.argString.substring(count));
             return;
           }
 
+          var sym = stream.next();
           // Check if this symbol is part of a range
-          if (params.argString[i+1] == '-') {
+          if (stream.match('-', true)) {
             // This symbol is part of a range.
-            var startMark = sym;
-            var finishMark = params.argString[i+2];
 
-            // The range must terminate.
-            if (!finishMark) {
-              showConfirm(cm, 'Invalid argument: ' + params.argString.substring(i));
-              return;
-            }
             // The range must terminate at an alphabetic character.
-            if (!isAlphabet(finishMark)) {
-              showConfirm(cm, 'Invalid argument: ' + params.argString.substring(i));
+            if (!stream.match(/[a-zA-Z]/, false)) {
+              showConfirm(cm, 'Invalid argument: ' + params.argString.substring(count));
               return;
             }
+
+            var startMark = sym;
+            var finishMark = stream.next();
             // The range must terminate at an alphabetic character which
             // shares the same case as the start of the range.
             if (isLowerCase(startMark) && isLowerCase(finishMark) || 
@@ -2577,20 +2575,17 @@
               var start = startMark.charCodeAt(0);
               var finish = finishMark.charCodeAt(0);
               if (start >= finish) {
-                showConfirm(cm, 'Invalid argument: ' + params.argString.substring(i));
+                showConfirm(cm, 'Invalid argument: ' + params.argString.substring(count));
                 return;
               }
 
-              // Because marks are always ascii values, and we have
+              // Because marks are always ASCII values, and we have
               // determined that they are the same case, we can use
               // their char codes to iterate through the defined range.
               for (var j = 0; j <= finish - start; j++) {
                 var mark = String.fromCharCode(start + j); 
                 delete state.marks[mark];
               }
-              // Cause the loop to skip over the rest of the range.
-              i+=2;
-              continue;
             } else {
               showConfirm(cm, 'Invalid argument: ' + startMark + "-");
               return;
@@ -2598,7 +2593,6 @@
           } else {
             // This symbol is a valid mark, and is not part of a range.
             delete state.marks[sym];
-            continue;
           }
         }
       }
