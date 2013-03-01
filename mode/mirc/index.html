@@ -5,7 +5,7 @@
     <title>CodeMirror: mIRC mode</title>
     <link rel="stylesheet" href="../../lib/codemirror.css">
     <script src="../../lib/codemirror.js"></script>
-    <script src="mIRC.js"></script>
+    <script src="mirc.js"></script>
     <link rel="stylesheet" href="../../theme/twilight.css">
     <style>.CodeMirror {border: 1px solid black;}</style>
     <link rel="stylesheet" href="../../doc/docs.css">
@@ -48,7 +48,7 @@ alias -l NickNamesAdd {
   }
   else {
     hadd -m NickNames $2 $+(~,$1,~,$iif($3,$+($3,~)))
-  }  
+  }
 }
 alias -l Fix.All.MindUser {
   var %Fix.Count = $hfind(NickNames,/[^~]+[0-9]{4}~/,0,r).data
@@ -77,10 +77,10 @@ menu nicklist,query {
 }
 menu status,channel {
   -
-  .AKA  
+  .AKA
   ..AKA Search Dialog:dialog $iif($dialog(AKA_Search),-v,-m) AKA_Search AKA_Search
-  ..Clean All Records:Fix.All.Minduser 
-  -   
+  ..Clean All Records:Fix.All.Minduser
+  -
 }
 dialog AKA_Search {
   title "AKA Search Engine"
@@ -105,7 +105,7 @@ On *:Dialog:Aka_Search:Sclick:2,7,9: {
       did -a $dname 6 $hfind(NickNames,%search,%matches,w). [ $+ [ %type ] ]
       dec %matches
     }
-    did -c $dname 6 1   
+    did -c $dname 6 1
   }
   elseif ($did == 7) && ($did($dname,6).seltext) { echo -ga $AKALogo 07 $mid($replace($hget(NickNames,$v1),$chr(126),$chr(44)),2,-1) }
   elseif ($did == 9) && ($did($dname,6).seltext) { clipboard $mid($v1,$pos($v1,*,1)) }
@@ -114,20 +114,20 @@ On *:Start:{
   if (!$hget(NickNames)) { hmake NickNames 10 }
   if ($isfile(NickNames.hsh)) { hload  NickNames NickNames.hsh }
 }
-On *:Exit: { if ($hget(NickNames)) { hsave NickNames NickNames.hsh } } 
+On *:Exit: { if ($hget(NickNames)) { hsave NickNames NickNames.hsh } }
 On *:Disconnect: { if ($hget(NickNames)) { hsave NickNames NickNames.hsh } }
 On *:Unload: { hfree NickNames }
 alias -l ialupdateCheck {
   inc -z $+(%,ialupdateCheck,$network) $calc($nick($1,0) / 4)
-  ;If your ial is already being updated on join .who $1 out. 
+  ;If your ial is already being updated on join .who $1 out.
   ;If you are using /names to update ial you will still need this line.
   .who $1
 }
-Raw 352:*: { 
-  if ($($+(%,ialupdateCheck,$network),2)) haltdef 
-  NickNamesAdd $6 $+($network,$address($6,2))  
+Raw 352:*: {
+  if ($($+(%,ialupdateCheck,$network),2)) haltdef
+  NickNamesAdd $6 $+($network,$address($6,2))
 }
-Raw 315:*: { 
+Raw 315:*: {
   if ($($+(%,ialupdateCheck,$network),2)) haltdef
 }
 

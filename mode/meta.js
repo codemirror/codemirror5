@@ -31,6 +31,7 @@ CodeMirror.modeInfo = [
   {name: 'LESS', mime: 'text/x-less', mode: 'less'},
   {name: 'Lua', mime: 'text/x-lua', mode: 'lua'},
   {name: 'Markdown (GitHub-flavour)', mime: 'text/x-markdown', mode: 'markdown'},
+  {name: 'mIRC', mime: 'text/mirc', mode: 'mirc'},
   {name: 'NTriples', mime: 'text/n-triples', mode: 'ntriples'},
   {name: 'OCaml', mime: 'text/x-ocaml', mode: 'ocaml'},
   {name: 'Pascal', mime: 'text/x-pascal', mode: 'pascal'},
