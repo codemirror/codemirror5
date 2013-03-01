@@ -51,6 +51,7 @@
  *  7. Helper functions for the key handler, motions, operators, and actions
  *  8. Set up Vim to work as a keymap for CodeMirror.
  */
+
 (function() {
   'use strict';
 
@@ -2535,70 +2536,71 @@
         clearSearchHighlight(cm);
       },
       delmarks: function(cm, params) {
-	      if (params.argString) {
-          var state = getVimState(cm);
-          for (var i = 0; i < params.argString.length; i++) {
-            var sym = params.argString[i];
+        if (!params.argString) {
+          showConfirm(cm, 'Argument required');
+          return;
+        }
 
-            if (isWhiteSpace(sym)) {
-              continue;
-            }
-            if (!isAlphabet(sym)) {
+        var state = getVimState(cm);
+        for (var i = 0; i < params.argString.length; i++) {
+          var sym = params.argString[i];
+
+          if (isWhiteSpace(sym)) {
+            continue;
+          }
+
+          if (!isAlphabet(sym)) {
+            showConfirm(cm, 'Invalid argument: ' + params.argString.substring(i));
+            return;
+          }
+
+          // Check if this symbol is part of a range
+          if (params.argString[i+1] == '-') {
+            // This symbol is part of a range.
+            var startMark = sym;
+            var finishMark = params.argString[i+2];
+
+            // The range must terminate.
+            if (!finishMark) {
               showConfirm(cm, 'Invalid argument: ' + params.argString.substring(i));
               return;
             }
-            // Check if this symbol is part of a range
-            if (params.argString[i+1] == '-') {
-              // This symbol is part of a range.
-              var startMark = sym;
-              var finishMark = params.argString[i+2];
-
-              // The range must terminate.
-              if (!finishMark) {
-                showConfirm(cm, 'Invalid argument: ' + params.argString.substring(i));
-                return;
-              }
-              // The range must terminate at an alphabetic character.
-              if (!isAlphabet(finishMark)) {
-                showConfirm(cm, 'Invalid argument: ' + params.argString.substring(i));
-                return;
-              }
-              // The range must terminate at an alphabetic character which
-              // shares the same case as the start of the range.
-              if (isLowerCase(sym) && isLowerCase(sym) ||
-                  isUpperCase(sym) && isUpperCase(sym)) {
-                    var start = startMark.charCodeAt(0);
-                    var finish = finishMark.charCodeAt(0);
-                    if (start >= finish) {
-                      showConfirm(cm, 'Invalid argument: ' + params.argString.substring(i));
-                      return;
-                    }
-
-                    // Because marks are always ascii values, and we have
-                    // determined that they are the same case, we can use
-                    // their char codes to iterate through the defined range.
-                    for (var j = 0; j <= finish - start; j++) {
-                      var mark = String.fromCharCode(start + j); 
-                      delete state.marks[mark];
-                    }
-                    // Cause the loop to skip over the rest of the range.
-                    i+=2;
-                    continue;
-                  }
-              else {
-                showConfirm(cm, 'Invalid argument: ' + startMark + "-");
-                return;
-              }
-            } else {
-              // This symbol is a valid mark, and is not part of a range.
-              delete state.marks[sym];
-              continue;
+            // The range must terminate at an alphabetic character.
+            if (!isAlphabet(finishMark)) {
+              showConfirm(cm, 'Invalid argument: ' + params.argString.substring(i));
+              return;
             }
+            // The range must terminate at an alphabetic character which
+            // shares the same case as the start of the range.
+            if (isLowerCase(startMark) && isLowerCase(finishMark) || 
+                isUpperCase(startMark) && isUpperCase(finishMark)) {
+              var start = startMark.charCodeAt(0);
+              var finish = finishMark.charCodeAt(0);
+              if (start >= finish) {
+                showConfirm(cm, 'Invalid argument: ' + params.argString.substring(i));
+                return;
+              }
+
+              // Because marks are always ascii values, and we have
+              // determined that they are the same case, we can use
+              // their char codes to iterate through the defined range.
+              for (var j = 0; j <= finish - start; j++) {
+                var mark = String.fromCharCode(start + j); 
+                delete state.marks[mark];
+              }
+              // Cause the loop to skip over the rest of the range.
+              i+=2;
+              continue;
+            } else {
+              showConfirm(cm, 'Invalid argument: ' + startMark + "-");
+              return;
+            }
+          } else {
+            // This symbol is a valid mark, and is not part of a range.
+            delete state.marks[sym];
+            continue;
           }
-	      } else {
-          showConfirm(cm, 'Argmuent required');
-          return;
-	      }
+        }
       }
     };
 
