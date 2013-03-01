@@ -2236,7 +2236,8 @@
       { name: 'undo', shortName: 'u', type: 'builtIn' },
       { name: 'redo', shortName: 'red', type: 'builtIn' },
       { name: 'substitute', shortName: 's', type: 'builtIn'},
-      { name: 'nohlsearch', shortName: 'noh', type: 'builtIn'}
+      { name: 'nohlsearch', shortName: 'noh', type: 'builtIn'},
+      { name: 'delmarks', shortName: 'delm', type: 'builtin'}
     ];
     Vim.ExCommandDispatcher = function() {
       this.buildCommandMap_();
@@ -2533,6 +2534,67 @@
       },
       nohlsearch: function(cm) {
         clearSearchHighlight(cm);
+      },
+      delmarks: function(cm, params) {
+        if (!params.argString || !params.argString.trim()) {
+          showConfirm(cm, 'Argument required');
+          return;
+        }
+
+        var state = getVimState(cm);
+        var stream = new CodeMirror.StringStream(params.argString.trim());
+        while (!stream.eol()) {
+          stream.eatSpace();
+
+          // Record the streams position at the beginning of the loop for use
+          // in error messages.
+          var count = stream.pos;
+
+          if (!stream.match(/[a-zA-Z]/, false)) {
+            showConfirm(cm, 'Invalid argument: ' + params.argString.substring(count));
+            return;
+          }
+
+          var sym = stream.next();
+          // Check if this symbol is part of a range
+          if (stream.match('-', true)) {
+            // This symbol is part of a range.
+
+            // The range must terminate at an alphabetic character.
+            if (!stream.match(/[a-zA-Z]/, false)) {
+              showConfirm(cm, 'Invalid argument: ' + params.argString.substring(count));
+              return;
+            }
+
+            var startMark = sym;
+            var finishMark = stream.next();
+            // The range must terminate at an alphabetic character which
+            // shares the same case as the start of the range.
+            if (isLowerCase(startMark) && isLowerCase(finishMark) || 
+                isUpperCase(startMark) && isUpperCase(finishMark)) {
+              var start = startMark.charCodeAt(0);
+              var finish = finishMark.charCodeAt(0);
+              if (start >= finish) {
+                showConfirm(cm, 'Invalid argument: ' + params.argString.substring(count));
+                return;
+              }
+
+              // Because marks are always ASCII values, and we have
+              // determined that they are the same case, we can use
+              // their char codes to iterate through the defined range.
+              for (var j = 0; j <= finish - start; j++) {
+                var mark = String.fromCharCode(start + j); 
+                delete state.marks[mark];
+              }
+            } else {
+              showConfirm(cm, 'Invalid argument: ' + startMark + "-");
+              return;
+            }
+          } else {
+            // This symbol is a valid mark, and is not part of a range.
+            delete state.marks[sym];
+          }
+        }
       }
     };
 
