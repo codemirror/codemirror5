@@ -948,7 +948,7 @@
         }
         return null;
       },
-      _goToNextMark: function(cm, motionArgs, vim, lineOnly) {
+      goToNextMark: function(cm, motionArgs, vim, lineOnly) {
         // Marks are not indexed by position, and so to find the next mark the
         // entire unsorted list of marks must be traversed.
         // This is not as bad as it might seem, as there can only ever be ~60
@@ -984,17 +984,9 @@
             }
           }
         }
-        if (closest && lineOnly) {
-          // Vim places the cursor on the first nonwhitespace character of the
-          // line if there is one, else it places the cursor at the end of the
-          // line.
-          var line = cm.getLine(closest.line);
-          var offset = line.length - line.trimLeft().length;
-          closest.ch = offset;
-        }
         return closest;
       },
-      _goToPrevMark: function(cm, motionArgs, vim, lineOnly) {
+      goToPrevMark: function(cm, motionArgs, vim, lineOnly) {
         // Marks are not indexed by position, and so to find the previous mark the
         // entire unsorted list of marks must be traversed.
         // This is not as bad as it might seem, as there can only ever be ~60
@@ -1030,7 +1022,11 @@
             }
           }
         }
-        if (closest && lineOnly) {
+        return closest;
+      },
+      goToNextMarkLine: function(cm, motionArgs, vim) {
+        var closest = this.goToNextMark(cm, motionArgs, vim);
+        if (closest) {
           // Vim places the cursor on the first nonwhitespace character of the
           // line if there is one, else it places the cursor at the end of the
           // line.
@@ -1040,17 +1036,17 @@
         }
         return closest;
       },
-      goToNextMark: function(cm, motionArgs, vim) {
-        return this._goToNextMark(cm, motionArgs, vim, false);
-      },
-      goToPrevMark: function(cm, motionArgs, vim) {
-        return this._goToPrevMark(cm, motionArgs, vim, false);
-      },
-      goToNextMarkLine: function(cm, motionArgs, vim) {
-        return this._goToNextMark(cm, motionArgs, vim, true);
-      },
       goToPrevMarkLine: function(cm, motionArgs, vim) {
-        return this._goToPrevMark(cm, motionArgs, vim, true);
+        var closest = this.goToPrevMark(cm, motionArgs, vim);
+        if (closest) {
+          // Vim places the cursor on the first nonwhitespace character of the
+          // line if there is one, else it places the cursor at the end of the
+          // line.
+          var line = cm.getLine(closest.line);
+          var offset = line.length - line.trimLeft().length;
+          closest.ch = offset;
+        }
+        return closest;
       },
       moveByCharacters: function(cm, motionArgs) {
         var cur = cm.getCursor();
