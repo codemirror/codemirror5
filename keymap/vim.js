@@ -2542,15 +2542,15 @@
         }
 
         var state = getVimState(cm);
-	      var stream = new CodeMirror.StringStream(params.argString.trim());
-	      while (stream.peek() != null) {
+        var stream = new CodeMirror.StringStream(params.argString.trim());
+        while (!stream.eol()) {
           stream.eatSpace();
 
           // Record the streams position at the beginning of the loop for use
           // in error messages.
           var count = stream.pos;
 
-	        if (!stream.match(/[a-zA-Z]/, false)) {
+          if (!stream.match(/[a-zA-Z]/, false)) {
             showConfirm(cm, 'Invalid argument: ' + params.argString.substring(count));
             return;
           }
