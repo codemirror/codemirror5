@@ -169,6 +169,10 @@
         motionArgs: { forward: false }},
     { keys: ['\'', 'character'], type: 'motion', motion: 'goToMark' },
     { keys: ['`', 'character'], type: 'motion', motion: 'goToMark' },
+    { keys: [']', '`',], type: 'motion', motion: 'goToNextMark' },
+    { keys: ['[', '`',], type: 'motion', motion: 'goToPrevMark' },
+    { keys: [']', '\''], type: 'motion', motion: 'goToNextMarkLine' },
+    { keys: ['[', '\''], type: 'motion', motion: 'goToPrevMarkLine' },
     { keys: ['|'], type: 'motion',
         motion: 'moveToColumn',
         motionArgs: { }},
@@ -943,6 +947,110 @@
           return mark.find();
         }
         return null;
+      },
+      _goToNextMark: function(cm, motionArgs, vim, lineOnly) {
+        // Marks are not indexed by position, and so to find the next mark the
+        // entire unsorted list of marks must be traversed.
+        // This is not as bad as it might seem, as there can only ever be ~60
+        // marks, and it is likely that there will be fewer.
+
+        var cursor = cm.getCursor();
+        var closest = null;
+
+        for (var key in vim.marks) {
+          if (!isLowerCase(key)) {
+            continue;
+          }
+
+          var mark = vim.marks[key];
+          var pos = mark.find();
+
+          // We want the next mark, not the previous.
+          if (pos.line < cursor.line) {
+            continue;
+          } else if (pos.line == cursor.line && pos.ch <= cursor.ch) {
+            continue;
+          }
+
+          if (!closest) {
+            closest = pos;
+          } else {
+            if (pos.line < closest.line) {
+              closest = pos;
+            } else if (pos.line == closest.line) {
+              if (pos.ch < closest.ch) {
+                closest = pos;
+              }
+            }
+          }
+        }
+        if (closest && lineOnly) {
+          // Vim places the cursor on the first nonwhitespace character of the
+          // line if there is one, else it places the cursor at the end of the
+          // line.
+          var line = cm.getLine(closest.line);
+          var offset = line.length - line.trimLeft().length;
+          closest.ch = offset;
+        }
+        return closest;
+      },
+      _goToPrevMark: function(cm, motionArgs, vim, lineOnly) {
+        // Marks are not indexed by position, and so to find the previous mark the
+        // entire unsorted list of marks must be traversed.
+        // This is not as bad as it might seem, as there can only ever be ~60
+        // marks, and it is likely that there will be fewer.
+
+        var cursor = cm.getCursor();
+        var closest = null;
+
+        for (var key in vim.marks) {
+          if (!isLowerCase(key)) {
+            continue;
+          }
+
+          var mark = vim.marks[key];
+          var pos = mark.find();
+
+          // We want the previous mark, not the next.
+          if (pos.line > cursor.line) {
+            continue;
+          } else if (pos.line == cursor.line && pos.ch >= cursor.ch) {
+            continue;
+          }
+
+          if (!closest) {
+            closest = pos;
+          } else {
+            if (pos.line > closest.line) {
+              closest = pos;
+            } else if (pos.line == closest.line) {
+              if (pos.ch > closest.ch) {
+                closest = pos;
+              }
+            }
+          }
+        }
+        if (closest && lineOnly) {
+          // Vim places the cursor on the first nonwhitespace character of the
+          // line if there is one, else it places the cursor at the end of the
+          // line.
+          var line = cm.getLine(closest.line);
+          var offset = line.length - line.trimLeft().length;
+          closest.ch = offset;
+        }
+        return closest;
+      },
+      goToNextMark: function(cm, motionArgs, vim) {
+        return this._goToNextMark(cm, motionArgs, vim, false);
+      },
+      goToPrevMark: function(cm, motionArgs, vim) {
+        return this._goToPrevMark(cm, motionArgs, vim, false);
+      },
+      goToNextMarkLine: function(cm, motionArgs, vim) {
+        return this._goToNextMark(cm, motionArgs, vim, true);
+      },
+      goToPrevMarkLine: function(cm, motionArgs, vim) {
+        return this._goToPrevMark(cm, motionArgs, vim, true);
       },
       moveByCharacters: function(cm, motionArgs) {
         var cur = cm.getCursor();
