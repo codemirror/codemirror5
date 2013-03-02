@@ -523,6 +523,17 @@
     for example, <code>Shift-Ctrl-Space</code> would be a valid key
     identifier.</p>
 
+    <p>Common example: map the Tab key to insert spaces instead of a tab
+    character.</p>
+
+    <pre data-lang="javascript">
+{
+  Tab: function(cm) {
+    var spaces = Array(cm.getOption("indentUnit") + 1).join(" ");
+    cm.replaceSelection(spaces, "end", "+input");
+  }
+}</pre>
+
     <p>Alternatively, a character can be specified directly by
     surrounding it in single quotes, for example <code>'$'</code>
     or <code>'q'</code>. Due to limitations in the way browsers fire
