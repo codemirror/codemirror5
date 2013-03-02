@@ -752,11 +752,16 @@
             cm.scrollIntoView(originalPos);
           }
         }
-        function onPromptKeyDown(e, query) {
-          if (CodeMirror.keyName(e) == 'Esc') {
+        function onPromptKeyDown(e, query, close) {
+          var keyName = CodeMirror.keyName(e);
+          if (keyName == 'Esc' || keyName == 'Ctrl-C' || keyName == 'Ctrl-[') {
             updateSearchQuery(cm, originalQuery);
             clearSearchHighlight(cm);
             cm.scrollIntoView(originalPos);
+
+            CodeMirror.e_stop(e);
+            close();
+            cm.focus();
           }
         }
         switch (command.searchArgs.querySrc) {
@@ -799,14 +804,24 @@
         function onPromptClose(input) {
           exCommandDispatcher.processCommand(cm, input);
         }
+        function onPromptKeyDown(e, input, close) {
+          var keyName = CodeMirror.keyName(e);
+          if (keyName == 'Esc' || keyName == 'Ctrl-C' || keyName == 'Ctrl-[') {
+            CodeMirror.e_stop(e);
+            close();
+            cm.focus();
+          }
+        }
         if (command.type == 'keyToEx') {
           // Handle user defined Ex to Ex mappings
           exCommandDispatcher.processCommand(cm, command.exArgs.input);
         } else {
           if (vim.visualMode) {
-            showPrompt(cm, { onClose: onPromptClose, prefix: ':', value: '\'<,\'>' });
+            showPrompt(cm, { onClose: onPromptClose, prefix: ':', value: '\'<,\'>',
+                onKeyDown: onPromptKeyDown});
           } else {
-            showPrompt(cm, { onClose: onPromptClose, prefix: ':' });
+            showPrompt(cm, { onClose: onPromptClose, prefix: ':',
+                onKeyDown: onPromptKeyDown});
           }
         }
       },
