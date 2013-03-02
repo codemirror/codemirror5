@@ -955,10 +955,9 @@
         // marks, and it is likely that there will be fewer.
 
         var cursor = cm.getCursor();
-        var closest = null;
 
         for (var i = 0; i < motionArgs.repeat; i++) {
-          closest = null;
+          var closest = null;
           for (var key in vim.marks) {
             if (!isLowerCase(key)) {
               continue;
@@ -966,6 +965,11 @@
 
             var mark = vim.marks[key];
             var pos = mark.find();
+
+            // The cursor has an orientation.
+            // If it is moving forward, then things "in front" of it have a higher line and ch index.
+            // If it is moving backwards, then things "in front" of it have a
+            // lower line and ch index.
             var markIsBehindCursor = cursorIsBefore(pos, cursor) || cursorEqual(pos, cursor);
 
             if (motionArgs.forward && markIsBehindCursor) {
@@ -977,13 +981,13 @@
             if (!closest) {
               closest = pos;
             } else {
-              var markIsAfterCursor = cursorIsBefore(cursor, pos) || cursorEqual(cursor, pos);
-              var markIsAfterClosest = cursorIsBefore(closest, pos);
-              if (motionArgs.forward) {
-                if (markIsAfterCursor && !markIsAfterClosest) {
-                  closest = pos;
-                }
-              } else if (!markIsAfterCursor && markIsAfterClosest) {
+              var markInFrontOfCursor = (motionArgs.forward) ? 
+                cursorIsBefore(cursor, pos) : cursorIsBefore(pos, cursor);
+
+              var markInBetweenCursorAndClosest = (motionArgs.forward) ? 
+                cursorIsBefore(pos, closest) : cursorIsBefore(closest, pos);
+
+              if (markInFrontOfCursor && markInBetweenCursorAndClosest) {
                 closest = pos;
               }
             }
