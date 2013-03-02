@@ -948,7 +948,7 @@
         }
         return null;
       },
-      jumpToMark: function(cm, motionArgs, vim, lineOnly) {
+      jumpToMark: function(cm, motionArgs, vim) {
         // Marks are not indexed by position, and so to find the next mark the
         // entire unsorted list of marks must be traversed.
         // This is not as bad as it might seem, as there can only ever be ~60
