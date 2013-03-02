@@ -169,10 +169,10 @@
         motionArgs: { forward: false }},
     { keys: ['\'', 'character'], type: 'motion', motion: 'goToMark' },
     { keys: ['`', 'character'], type: 'motion', motion: 'goToMark' },
-    { keys: [']', '`',], type: 'motion', motion: 'goToNextMark' },
-    { keys: ['[', '`',], type: 'motion', motion: 'goToPrevMark' },
-    { keys: [']', '\''], type: 'motion', motion: 'goToNextMarkLine' },
-    { keys: ['[', '\''], type: 'motion', motion: 'goToPrevMarkLine' },
+    { keys: [']', '`',], type: 'motion', motion: 'jumpToMark', motionArgs: { forward: true } },
+    { keys: ['[', '`',], type: 'motion', motion: 'jumpToMark', motionArgs: { forward: false } },
+    { keys: [']', '\''], type: 'motion', motion: 'jumpToMark', motionArgs: { forward: true, linewise: true } },
+    { keys: ['[', '\''], type: 'motion', motion: 'jumpToMark', motionArgs: { forward: false, linewise: true } },
     { keys: ['|'], type: 'motion',
         motion: 'moveToColumn',
         motionArgs: { }},
@@ -948,7 +948,7 @@
         }
         return null;
       },
-      goToNextMark: function(cm, motionArgs, vim, lineOnly) {
+      jumpToMark: function(cm, motionArgs, vim, lineOnly) {
         // Marks are not indexed by position, and so to find the next mark the
         // entire unsorted list of marks must be traversed.
         // This is not as bad as it might seem, as there can only ever be ~60
@@ -957,94 +957,49 @@
         var cursor = cm.getCursor();
         var closest = null;
 
-        for (var key in vim.marks) {
-          if (!isLowerCase(key)) {
-            continue;
-          }
+        for (var i = 0; i < motionArgs.repeat; i++) {
+          closest = null;
+          for (var key in vim.marks) {
+            if (!isLowerCase(key)) {
+              continue;
+            }
 
-          var mark = vim.marks[key];
-          var pos = mark.find();
+            var mark = vim.marks[key];
+            var pos = mark.find();
+            var markIsBehindCursor = cursorIsBefore(pos, cursor) || cursorEqual(pos, cursor);
 
-          // We want the next mark, not the previous.
-          if (pos.line < cursor.line) {
-            continue;
-          } else if (pos.line == cursor.line && pos.ch <= cursor.ch) {
-            continue;
-          }
+            if (motionArgs.forward && markIsBehindCursor) {
+              continue;
+            } else if (!motionArgs.forward && !markIsBehindCursor) {
+              continue;
+            }
 
-          if (!closest) {
-            closest = pos;
-          } else {
-            if (pos.line < closest.line) {
+            if (!closest) {
               closest = pos;
-            } else if (pos.line == closest.line) {
-              if (pos.ch < closest.ch) {
+            } else {
+              var markIsAfterCursor = cursorIsBefore(cursor, pos) || cursorEqual(cursor, pos);
+              var markIsAfterClosest = cursorIsBefore(closest, pos);
+              if (motionArgs.forward) {
+                if (markIsAfterCursor && !markIsAfterClosest) {
+                  closest = pos;
+                }
+              } else if (!markIsAfterCursor && markIsAfterClosest) {
                 closest = pos;
               }
             }
           }
-        }
-        return closest;
-      },
-      goToPrevMark: function(cm, motionArgs, vim, lineOnly) {
-        // Marks are not indexed by position, and so to find the previous mark the
-        // entire unsorted list of marks must be traversed.
-        // This is not as bad as it might seem, as there can only ever be ~60
-        // marks, and it is likely that there will be fewer.
-
-        var cursor = cm.getCursor();
-        var closest = null;
-
-        for (var key in vim.marks) {
-          if (!isLowerCase(key)) {
-            continue;
-          }
-
-          var mark = vim.marks[key];
-          var pos = mark.find();
-
-          // We want the previous mark, not the next.
-          if (pos.line > cursor.line) {
-            continue;
-          } else if (pos.line == cursor.line && pos.ch >= cursor.ch) {
-            continue;
-          }
-
-          if (!closest) {
-            closest = pos;
-          } else {
-            if (pos.line > closest.line) {
-              closest = pos;
-            } else if (pos.line == closest.line) {
-              if (pos.ch > closest.ch) {
-                closest = pos;
-              }
-            }
+          if (closest) {
+            cursor = closest;
           }
         }
-        return closest;
-      },
-      goToNextMarkLine: function(cm, motionArgs, vim) {
-        var closest = this.goToNextMark(cm, motionArgs, vim);
-        if (closest) {
+        
+        if (closest && motionArgs.linewise) {
           // Vim places the cursor on the first nonwhitespace character of the
           // line if there is one, else it places the cursor at the end of the
           // line.
           var line = cm.getLine(closest.line);
-          var offset = line.length - line.trimLeft().length;
-          closest.ch = offset;
-        }
-        return closest;
-      },
-      goToPrevMarkLine: function(cm, motionArgs, vim) {
-        var closest = this.goToPrevMark(cm, motionArgs, vim);
-        if (closest) {
-          // Vim places the cursor on the first nonwhitespace character of the
-          // line if there is one, else it places the cursor at the end of the
-          // line.
-          var line = cm.getLine(closest.line);
-          var offset = line.length - line.trimLeft().length;
-          closest.ch = offset;
+          var col = findFirstNonWhiteSpaceCharacter(line);
+          closest.ch = col;
         }
         return closest;
       },
