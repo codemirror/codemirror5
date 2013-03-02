@@ -245,6 +245,7 @@
     { keys: ['z', 'b'], type: 'action', action: 'scrollToCursor',
         actionArgs: { position: 'bottom' },
         motion: 'moveToFirstNonWhiteSpaceCharacter' },
+    { keys: ['.'], type: 'action', action: 'repeatLastEdit' },
     // Text object motions
     { keys: ['a', 'character'], type: 'motion',
         motion: 'textObjectManipulation' },
@@ -401,7 +402,7 @@
         var vim = getVimState(cm);
         if (key == 'Esc') {
           // Clear input state and get back to normal mode.
-          vim.inputState.reset();
+          vim.inputState = new InputState();
           if (vim.visualMode) {
             exitVisualMode(cm, vim);
           }
@@ -441,9 +442,6 @@
 
     // Represents the current input state.
     function InputState() {
-      this.reset();
-    }
-    InputState.prototype.reset = function() {
       this.prefixRepeat = [];
       this.motionRepeat = [];
 
@@ -453,7 +451,7 @@
       this.motionArgs = null;
       this.keyBuffer = []; // For matching multi-key commands.
       this.registerName = null; // Defaults to the unamed register.
-    };
+    }
     InputState.prototype.pushRepeatDigit = function(n) {
       if (!this.operator) {
         this.prefixRepeat = this.prefixRepeat.concat(n);
@@ -631,6 +629,7 @@
         return null;
       },
       processCommand: function(cm, vim, command) {
+        vim.inputState.repeatOverride = command.repeatOverride;
         switch (command.type) {
           case 'motion':
             this.processMotion(cm, vim, command);
@@ -672,7 +671,7 @@
             return;
           } else {
             // 2 different operators in a row doesn't make sense.
-            inputState.reset();
+            vim.inputState = new InputState();
           }
         }
         inputState.operator = command.operator;
@@ -717,7 +716,7 @@
         actionArgs.repeat = repeat || 1;
         actionArgs.repeatIsExplicit = repeatIsExplicit;
         actionArgs.registerName = inputState.registerName;
-        inputState.reset();
+        vim.inputState = new InputState();
         vim.lastMotion = null,
         actions[command.action](cm, actionArgs, vim);
       },
@@ -842,10 +841,13 @@
         var curOriginal = copyCursor(curStart);
         var curEnd;
         var repeat;
-        if (motionArgs.repeat !== undefined) {
-          // If motionArgs specifies a repeat, that takes precedence over the
+        if (operator) {
+          this.recordLastEdit(cm, vim, inputState);
+        }
+        if (inputState.repeatOverride !== undefined) {
+          // If repeatOverride is specified, that takes precedence over the
           // input state's repeat. Used by Ex mode and can be user defined.
-          repeat = inputState.motionArgs.repeat;
+          repeat = inputState.repeatOverride;
         } else {
           repeat = inputState.getRepeat();
         }
@@ -862,7 +864,7 @@
               inputState.selectedCharacter;
         }
         motionArgs.repeat = repeat;
-        inputState.reset();
+        vim.inputState = new InputState();
         if (motion) {
           var motionResult = motions[motion](cm, motionArgs, vim);
           vim.lastMotion = motions[motion];
@@ -959,6 +961,9 @@
             actions.enterInsertMode(cm);
           }
         }
+      },
+      recordLastEdit: function(cm, vim, inputState) {
+        vim.lastEdit = inputState;
       }
     };
 
@@ -1449,6 +1454,19 @@
           }else{
             cm.setCursor(offsetCursor(curEnd, 0, -1));
           }
+        }
+      },
+      repeatLastEdit: function(cm, actionArgs, vim) {
+        // TODO: Make this repeat insert mode changes.
+        var lastEdit = vim.lastEdit;
+        if (lastEdit) {
+          if (actionArgs.repeat && actionArgs.repeatIsExplicit) {
+            vim.lastEdit.repeatOverride = actionArgs.repeat;
+          }
+          var currentInputState = vim.inputState;
+          vim.inputState = vim.lastEdit;
+          commandDispatcher.evalInput(cm, vim);
+          vim.inputState = currentInputState;
         }
       }
     };
@@ -2461,7 +2479,8 @@
         commandDispatcher.processMotion(cm, getVimState(cm), {
             motion: 'moveToLineOrEdgeOfDocument',
             motionArgs: { forward: false, explicitRepeat: true,
-              linewise: true, repeat: params.line+1 }});
+              linewise: true },
+            repeatOverride: params.line+1});
       },
       substitute: function(cm, params) {
         var argString = params.argString;

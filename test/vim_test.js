@@ -54,7 +54,8 @@ var bigWord3 = {
 var bigWord4 = {
   start: { line: bigWordLine.line, ch: bigWord1.end.ch + 3 },
   end: { line: bigWordLine.line, ch: bigWord1.end.ch + 7 }
-}
+};
+
 var oChars = [ { line: charLine.line, ch: 1 },
     { line: charLine.line, ch: 3 },
     { line: charLine.line, ch: 7 } ];
@@ -971,15 +972,6 @@ testVim('? and n/N', function(cm, vim, helpers) {
   helpers.doKeys('2', '?');
   helpers.assertCursorAt(0, 11);
 }, { value: 'match nope match \n nope Match' });
-//:noh should clear highlighting of search-results but allow to resume search through n
-testVim('noh_clearSearchHighlight', function(cm, vim, helpers) {
-  cm.openDialog = helpers.fakeOpenDialog('match');
-  helpers.doKeys('?');
-  helpers.doEx('noh');
-  eq(vim.searchState_.getOverlay(),null,'match-highlighting wasn\'t cleared');
-  helpers.doKeys('n');
-  helpers.assertCursorAt(0, 11,'can\'t resume search after clearing highlighting');
-}, { value: 'match nope match \n nope Match' });
 testVim('*', function(cm, vim, helpers) {
   cm.setCursor(0, 9);
   helpers.doKeys('*');
@@ -1020,6 +1012,20 @@ testVim('#', function(cm, vim, helpers) {
   helpers.doKeys('#');
   helpers.assertCursorAt(1, 8);
 }, { value: '    :=  match nomatch match \nnomatch Match' });
+testVim('.', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('2', 'd', 'w');
+  helpers.doKeys('.');
+  eq('5 6', cm.getValue());
+}, { value: '1 2 3 4 5 6'});
+testVim('._repeat', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('2', 'd', 'w');
+  helpers.doKeys('3', '.');
+  eq('6', cm.getValue());
+}, { value: '1 2 3 4 5 6'});
+
+// Ex mode tests
 testVim('ex_write', function(cm, vim, helpers) {
   var tmp = CodeMirror.commands.save;
   var written;
@@ -1084,6 +1090,15 @@ testVim('ex_substitute_count_with_range', function(cm, vim, helpers) {
   helpers.doEx('1,3s/\\d/0/ 3');
   eq('1\n2\n0\n0', cm.getValue());
 }, { value: '1\n2\n3\n4' });
+//:noh should clear highlighting of search-results but allow to resume search through n
+testVim('ex_noh_clearSearchHighlight', function(cm, vim, helpers) {
+  cm.openDialog = helpers.fakeOpenDialog('match');
+  helpers.doKeys('?');
+  helpers.doEx('noh');
+  eq(vim.searchState_.getOverlay(),null,'match-highlighting wasn\'t cleared');
+  helpers.doKeys('n');
+  helpers.assertCursorAt(0, 11,'can\'t resume search after clearing highlighting');
+}, { value: 'match nope match \n nope Match' });
 // TODO: Reset key maps after each test.
 testVim('ex_map_key2key', function(cm, vim, helpers) {
   helpers.doEx('map a x');
