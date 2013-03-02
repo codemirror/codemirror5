@@ -182,8 +182,10 @@
     { keys: ['<'], type: 'operator', operator: 'indent',
         operatorArgs: { indentRight: false }},
     { keys: ['g', '~'], type: 'operator', operator: 'swapcase' },
-    { keys: ['n'], type: 'motion', motion: 'findNext' },
-    { keys: ['N'], type: 'motion', motion: 'findPrev' },
+    { keys: ['n'], type: 'motion', motion: 'findNext',
+        motionArgs: { forward: true }},
+    { keys: ['N'], type: 'motion', motion: 'findNext',
+        motionArgs: { forward: false }},
     // Operator-Motion dual commands
     { keys: ['x'], type: 'operatorMotion', operator: 'delete',
         motion: 'moveByCharacters', motionArgs: { forward: true },
@@ -727,19 +729,45 @@
         var forward = command.searchArgs.forward;
         getSearchState(cm).setReversed(!forward);
         var promptPrefix = (forward) ? '/' : '?';
+        var originalQuery = getSearchState(cm).getQuery();
+        var originalPos = cm.getCursor();
         function handleQuery(query, ignoreCase, smartCase) {
           updateSearchQuery(cm, query, ignoreCase, smartCase);
           commandDispatcher.processMotion(cm, vim, {
             type: 'motion',
-            motion: 'findNext'
+            motion: 'findNext',
+            motionArgs: { forward: true }
           });
         }
         function onPromptClose(query) {
+          cm.scrollIntoView(originalPos);
           handleQuery(query, true /** ignoreCase */, true /** smartCase */);
+        }
+        function onPromptKeyUp(e, query) {
+          if (query) {
+            updateSearchQuery(cm, query, true /** ignoreCase */, true /** smartCase */);
+            cm.scrollIntoView(findNext(cm, forward, query));
+          } else {
+            clearSearchHighlight(cm);
+            cm.scrollIntoView(originalPos);
+          }
+        }
+        function onPromptKeyDown(e, query) {
+          if (CodeMirror.keyName(e) == 'Esc') {
+            updateSearchQuery(cm, originalQuery);
+            clearSearchHighlight(cm);
+            cm.scrollIntoView(originalPos);
+          }
         }
         switch (command.searchArgs.querySrc) {
           case 'prompt':
-            showPrompt(cm, onPromptClose, promptPrefix, searchPromptDesc);
+            showPrompt(cm, {
+                onClose: onPromptClose,
+                prefix: promptPrefix,
+                desc: searchPromptDesc,
+                onKeyUp: onPromptKeyUp,
+                onKeyDown: onPromptKeyDown
+            });
             break;
           case 'wordUnderCursor':
             var word = expandWordUnderCursor(cm, false /** inclusive */,
@@ -776,9 +804,9 @@
           exCommandDispatcher.processCommand(cm, command.exArgs.input);
         } else {
           if (vim.visualMode) {
-            showPrompt(cm, onPromptClose, ':', undefined, '\'<,\'>');
+            showPrompt(cm, { onClose: onPromptClose, prefix: ':', value: '\'<,\'>' });
           } else {
-            showPrompt(cm, onPromptClose, ':');
+            showPrompt(cm, { onClose: onPromptClose, prefix: ':' });
           }
         }
       },
@@ -932,10 +960,16 @@
         return { line: cur.line + motionArgs.repeat - 1, ch: Infinity };
       },
       findNext: function(cm, motionArgs, vim) {
-        return findNext(cm, false /** prev */, motionArgs.repeat);
-      },
-      findPrev: function(cm, motionArgs, vim) {
-        return findNext(cm, true /** prev */, motionArgs.repeat);
+        var state = getSearchState(cm);
+        var query = state.getQuery();
+        if (!query) {
+          return;
+        }
+        var prev = !motionArgs.forward;
+        // If search is initiated with ? instead of /, negate direction.
+        prev = (state.isReversed()) ? !prev : prev;
+        highlightSearchMatches(cm, query);
+        return findNext(cm, prev/** prev */, query, motionArgs.repeat);
       },
       goToMark: function(cm, motionArgs, vim) {
         var mark = vim.marks[motionArgs.selectedCharacter];
@@ -1970,9 +2004,10 @@
       var vim = getVimState(cm);
       return vim.searchState_ || (vim.searchState_ = new SearchState());
     }
-    function dialog(cm, text, shortText, callback, initialValue) {
+    function dialog(cm, template, shortText, onClose, options) {
       if (cm.openDialog) {
-        cm.openDialog(text, callback, { bottom: true, value: initialValue });
+        cm.openDialog(template, onClose, { bottom: true, value: options.value,
+            onKeyDown: options.onKeyDown, onKeyUp: options.onKeyUp });
       }
       else {
         callback(prompt(shortText, ""));
@@ -2001,6 +2036,8 @@
      *   through to the Regex object.
      */
     function parseQuery(cm, query, ignoreCase, smartCase) {
+      // Check if the query is already a regex.
+      if (query instanceof RegExp) { return query; }
       // First try to extract regex + flags from the input. If no flags found,
       // extract just the regex. IE does not accept flags directly defined in
       // the regex string in the form /regex/flags
@@ -2054,10 +2091,10 @@
       return raw;
     }
     var searchPromptDesc = '(Javascript regexp)';
-    function showPrompt(cm, onPromptClose, prefix, desc, initialValue) {
-      var shortText = (prefix || '') + ' ' + (desc || '');
-      dialog(cm, makePrompt(prefix, desc), shortText, onPromptClose,
-         initialValue);
+    function showPrompt(cm, options) {
+      var shortText = (options.prefix || '') + ' ' + (options.desc || '');
+      var prompt = makePrompt(options.prefix, options.desc);
+      dialog(cm, prompt, shortText, options.onClose, options);
     }
     function regexEqual(r1, r2) {
       if (r1 instanceof RegExp && r2 instanceof RegExp) {
@@ -2082,10 +2119,10 @@
         if (!query) {
           return;
         }
+        highlightSearchMatches(cm, query);
         if (regexEqual(query, state.getQuery())) {
           return;
         }
-        highlightSearchMatches(cm, query);
         state.setQuery(query);
       });
     }
@@ -2124,17 +2161,10 @@
         getSearchState(cm).setOverlay(overlay);
       }
     }
-    function findNext(cm, prev, repeat) {
+    function findNext(cm, prev, query, repeat) {
+      if (repeat === undefined) { repeat = 1; }
       return cm.operation(function() {
-        var state = getSearchState(cm);
-        var query = state.getQuery();
-        if (!query) {
-          return;
-        }
-        highlightSearchMatches(cm, query);
         var pos = cm.getCursor();
-        // If search is initiated with ? instead of /, negate direction.
-        prev = (state.isReversed()) ? !prev : prev;
         if (!prev) {
           pos.ch += 1;
         }
