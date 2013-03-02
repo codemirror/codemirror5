@@ -1945,22 +1945,13 @@
     }
 
     // Search functions
-    function SearchState() {
-      // Highlighted text that match the query.
-      this.marked = null;
-    }
+    function SearchState() {}
     SearchState.prototype = {
       getQuery: function() {
         return getVimGlobalState().query;
       },
       setQuery: function(query) {
         getVimGlobalState().query = query;
-      },
-      getMarked: function() {
-        return this.marked;
-      },
-      setMarked: function(marked) {
-        this.marked = marked;
       },
       getOverlay: function() {
         return this.searchOverlay;
@@ -2094,7 +2085,6 @@
         if (regexEqual(query, state.getQuery())) {
           return;
         }
-        clearSearchHighlight(cm);
         highlightSearchMatches(cm, query);
         state.setQuery(query);
       });
@@ -2124,28 +2114,14 @@
       };
     }
     function highlightSearchMatches(cm, query) {
-      if (cm.addOverlay) {
-        var overlay = getSearchState(cm).getOverlay();
-        if (!overlay || query != overlay.query) {
-          if (overlay) {
-            cm.removeOverlay(overlay);
-          }
-          overlay = searchOverlay(query);
-          cm.addOverlay(overlay);
-          getSearchState(cm).setOverlay(overlay);
+      var overlay = getSearchState(cm).getOverlay();
+      if (!overlay || query != overlay.query) {
+        if (overlay) {
+          cm.removeOverlay(overlay);
         }
-      } else {
-        // TODO: Highlight only text inside the viewport. Highlighting everything
-        // is inefficient and expensive.
-        if (cm.lineCount() < 2000) { // This is too expensive on big documents.
-          var marked = [];
-          for (var cursor = cm.getSearchCursor(query);
-              cursor.findNext();) {
-            marked.push(cm.markText(cursor.from(), cursor.to(),
-                { className: 'cm-searching' }));
-          }
-          getSearchState(cm).setMarked(marked);
-        }
+        overlay = searchOverlay(query);
+        cm.addOverlay(overlay);
+        getSearchState(cm).setOverlay(overlay);
       }
     }
     function findNext(cm, prev, repeat) {
@@ -2155,9 +2131,7 @@
         if (!query) {
           return;
         }
-        if (!state.getMarked()) {
-          highlightSearchMatches(cm, query);
-        }
+        highlightSearchMatches(cm, query);
         var pos = cm.getCursor();
         // If search is initiated with ? instead of /, negate direction.
         prev = (state.isReversed()) ? !prev : prev;
@@ -2179,25 +2153,8 @@
         return cursor.from();
       });}
     function clearSearchHighlight(cm) {
-      if (cm.addOverlay) {
-        cm.removeOverlay(getSearchState(cm).getOverlay());
-        getSearchState(cm).setOverlay(null);
-      } else {
-        cm.operation(function() {
-          var state = getSearchState(cm);
-          if (!state.getQuery()) {
-            return;
-          }
-          var marked = state.getMarked();
-          if (!marked) {
-            return;
-          }
-          for (var i = 0; i < marked.length; ++i) {
-            marked[i].clear();
-          }
-          state.setMarked(null);
-        });
-      }
+      cm.removeOverlay(getSearchState(cm).getOverlay());
+      getSearchState(cm).setOverlay(null);
     }
     /**
      * Check if pos is in the specified range, INCLUSIVE.
@@ -2514,12 +2471,7 @@
             exitVisualMode(cm, vim);
           }
         }
-        if (cm.compoundChange) {
-          // Only exists in v2
-          cm.compoundChange(doReplace);
-        } else {
-          cm.operation(doReplace);
-        }
+        cm.operation(doReplace);
       },
       redo: CodeMirror.commands.redo,
       undo: CodeMirror.commands.undo,
