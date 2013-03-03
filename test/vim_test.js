@@ -857,7 +857,7 @@ testVim('jumpToMark_next_nomark', function(cm, vim, helpers) {
   helpers.doKeys(']', '`');
   helpers.assertCursorAt(2, 2);
   helpers.doKeys(']', '\'');
-  helpers.assertCursorAt(2, 2);
+  helpers.assertCursorAt(2, 0);
 });
 testVim('jumpToMark_next_action', function(cm, vim, helpers) {
   cm.setCursor(2, 2);
@@ -924,7 +924,7 @@ testVim('jumpToMark_prev_nomark', function(cm, vim, helpers) {
   helpers.doKeys('[', '`');
   helpers.assertCursorAt(2, 2);
   helpers.doKeys('[', '\'');
-  helpers.assertCursorAt(2, 2);
+  helpers.assertCursorAt(2, 0);
 });
 testVim('delmark_single', function(cm, vim, helpers) {
   cm.setCursor(1, 2);

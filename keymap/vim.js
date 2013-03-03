@@ -949,63 +949,43 @@
         return null;
       },
       jumpToMark: function(cm, motionArgs, vim) {
-        // Marks are not indexed by position, and so to find the next mark the
-        // entire unsorted list of marks must be traversed.
-        // This is not as bad as it might seem, as there can only ever be ~60
-        // marks, and it is likely that there will be fewer.
-
-        var cursor = cm.getCursor();
-
+        // "best" is the position of the mark closest to the cursor so far.
+        var best = cm.getCursor(); 
         for (var i = 0; i < motionArgs.repeat; i++) {
-          var closest = null;
+          // after each iteration we (logically) move the cursor to the next mark.
+          var cursor = best;
           for (var key in vim.marks) {
             if (!isLowerCase(key)) {
               continue;
             }
+            // "mark" is the position of a mark we are comparing against best.
+            var mark = vim.marks[key].find();
+            var isWrongDirection = (motionArgs.forward) ?
+              cursorIsBefore(mark, cursor) : cursorIsBefore(cursor, mark)
 
-            var mark = vim.marks[key];
-            var pos = mark.find();
-
-            // The cursor has an orientation.
-            // If it is moving forward, then things "in front" of it have a higher line and ch index.
-            // If it is moving backwards, then things "in front" of it have a
-            // lower line and ch index.
-            var markIsBehindCursor = cursorIsBefore(pos, cursor) || cursorEqual(pos, cursor);
-
-            if (motionArgs.forward && markIsBehindCursor) {
-              continue;
-            } else if (!motionArgs.forward && !markIsBehindCursor) {
+            if (isWrongDirection) {
               continue;
             }
 
-            if (!closest) {
-              closest = pos;
-            } else {
-              var markInFrontOfCursor = (motionArgs.forward) ? 
-                cursorIsBefore(cursor, pos) : cursorIsBefore(pos, cursor);
-
-              var markInBetweenCursorAndClosest = (motionArgs.forward) ? 
-                cursorIsBefore(pos, closest) : cursorIsBefore(closest, pos);
-
-              if (markInFrontOfCursor && markInBetweenCursorAndClosest) {
-                closest = pos;
-              }
+            var between = (motionArgs.forward) ? cusrorIsBetween(cursor, mark, best) :
+                                                 cusrorIsBetween(best, mark, cursor);
+            var equal = (motionArgs.linewise) ? cursor.line == best.line :
+                                                cursorEqual(cursor, best);
+            if (equal || between) {
+              best = mark;
             }
-          }
-          if (closest) {
-            cursor = closest;
           }
         }
         
-        if (closest && motionArgs.linewise) {
-          // Vim places the cursor on the first nonwhitespace character of the
+        if (motionArgs.linewise) {
+          // Vim places the cursor on the first non-whitespace character of the
           // line if there is one, else it places the cursor at the end of the
-          // line.
-          var line = cm.getLine(closest.line);
+          // line, regardless of whether a mark was found.
+          var line = cm.getLine(best.line);
           var col = findFirstNonWhiteSpaceCharacter(line);
-          closest.ch = col;
+          best.ch = col;
         }
-        return closest;
+        return best;
       },
       moveByCharacters: function(cm, motionArgs) {
         var cur = cm.getCursor();
@@ -1580,6 +1560,12 @@
         return true;
       }
       return false;
+    }
+    function cusrorIsBetween(cur1, cur2, cur3) {
+      // returns true if cur2 is between cur1 and cur3.
+      var cur1before2 = cursorIsBefore(cur1, cur2);
+      var cur2before3 = cursorIsBefore(cur2, cur3);
+      return cur1before2 && cur2before3;
     }
     function lineLength(cm, lineNum) {
       return cm.getLine(lineNum).length;
