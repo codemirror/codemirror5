@@ -52,7 +52,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     return jsKeywords;
   }();
 
-  var isOperatorChar = /[+\-*&%=<>!?|]/;
+  var isOperatorChar = /[+\-*&%=<>!?|~^]/;
 
   function chain(stream, state, f) {
     state.tokenize = f;
