@@ -64,6 +64,8 @@
     <script src="../mode/stex/test.js"></script>
     <script src="../mode/xquery/xquery.js"></script>
     <script src="../mode/xquery/test.js"></script>
+    <script src="../mode/scss/scss.js"></script>
+    <script src="../mode/scss/test.js"></script>
     <script src="vim_test.js"></script>
     <script>
       window.onload = runHarness;
@@ -83,7 +85,7 @@
           running = false, // Flag that states tests are running
          quit = false, // Flag to quit tests ASAP
          verbose = false; // Adds message for *every* test to output
-      
+
       function runHarness(){
         if (running) {
           quit = true;
@@ -114,7 +116,7 @@
           "</form>";
         runTests(displayTest);
       }
-      
+
       function setStatus(message, className, force){
         if (quit && !force) return;
         if (!message) throw("must provide message");
