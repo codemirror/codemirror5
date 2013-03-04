@@ -131,6 +131,10 @@
         motion: 'moveByPage', motionArgs: { forward: true }},
     { keys: ['Ctrl-b'], type: 'motion',
         motion: 'moveByPage', motionArgs: { forward: false }},
+    { keys: ['Ctrl-u'], type: 'motion',
+        motion: 'moveByPage', motionArgs: { forward: false, custom: true }},
+    { keys: ['Ctrl-d'], type: 'motion',
+        motion: 'moveByPage', motionArgs: { forward: true, custom: true }},
     { keys: ['g', 'g'], type: 'motion',
         motion: 'moveToLineOrEdgeOfDocument',
         motionArgs: { forward: false, explicitRepeat: true, linewise: true }},
@@ -337,7 +341,8 @@
           searchQuery: null,
           // Whether we are searching backwards.
           searchIsReversed: false,
-          registerController: new RegisterController({})
+          registerController: new RegisterController({}),
+          scrollCustom: 0
         };
       }
       return vimGlobalState;
@@ -1057,7 +1062,13 @@
         // will move the cursor to where it should be in the end.
         var curStart = cm.getCursor();
         var repeat = motionArgs.repeat;
-        cm.moveV((motionArgs.forward ? repeat : -repeat), 'page');
+        // if scroll count not defined, default to half page scroll
+        var movementType = (
+            motionArgs.custom
+                ? ( getVimGlobalState().scrollCustom ? getVimGlobalState().scrollCustom : 'halfPage' )
+                : 'page'
+        );
+        cm.moveV((motionArgs.forward ? repeat : -repeat), movementType);
         var curEnd = cm.getCursor();
         cm.setCursor(curStart);
         return curEnd;
