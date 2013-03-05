@@ -7,6 +7,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
       propertyKeywords = parserConfig.propertyKeywords || {},
       colorKeywords = parserConfig.colorKeywords || {},
       valueKeywords = parserConfig.valueKeywords || {},
+      allowNested = !!parserConfig.allowNested,
       type = null;
 
   function ret(style, tp) { type = tp; return style; }
@@ -154,7 +155,10 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
 
       // Changing style returned based on context
       var context = state.stack[state.stack.length-1];
-      if (style == "property") {
+      if (style == "variable") {
+        if (type == "variable-definition") state.stack.push("propertyValue");
+        return "variable-2";
+      } else if (style == "property") {
         if (context == "propertyValue"){
           if (valueKeywords[stream.current()]) {
             style = "string-2";
@@ -166,6 +170,18 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
         } else if (context == "rule") {
           if (!propertyKeywords[stream.current()]) {
             style += " error";
+          }
+        } else if (context == "block") {
+          // if a value is present in both property, value, or color, the order
+          // of preference is property -> color -> value
+          if (propertyKeywords[stream.current()]) {
+            style = "property";
+          } else if (colorKeywords[stream.current()]) {
+            style = "keyword";
+          } else if (valueKeywords[stream.current()]) {
+            style = "string-2";
+          } else {
+            style = "tag";
           }
         } else if (!context || context == "@media{") {
           style = "tag";
@@ -231,19 +247,25 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
           state.stack.pop();
           state.stack[state.stack.length-1] = "@media{";
         }
-        else state.stack.push("rule");
+        else {
+          var newContext = allowNested ? "block" : "rule";
+          state.stack.push(newContext);
+        }
       }
       else if (type == "}") {
+        var lastState = state.stack[state.stack.length - 1];
+        if (lastState == "interpolation") style = "operator";
         state.stack.pop();
         if (context == "propertyValue") state.stack.pop();
       }
+      else if (type == "interpolation") state.stack.push("interpolation")
       else if (type == "@media") state.stack.push("@media");
       else if (context == "@media" && /\b(keyword|attribute)\b/.test(style))
         state.stack.push("@mediaType");
       else if (context == "@mediaType" && stream.current() == ",") state.stack.pop();
       else if (context == "@mediaType" && type == "(") state.stack.push("@mediaType(");
       else if (context == "@mediaType(" && type == ")") state.stack.pop();
-      else if (context == "rule" && type == ":") state.stack.push("propertyValue");
+      else if ((context == "rule" || context == "block") && type == ":") state.stack.push("propertyValue");
       else if (context == "propertyValue" && type == ";") state.stack.pop();
       return style;
     },
@@ -498,6 +520,42 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
         if (stream.eat("*")) {
           state.tokenize = tokenCComment;
           return tokenCComment(stream, state);
+        }
+      }
+    },
+    name: "css"
+  });
+
+  mimes(['text/x-scss', 'scss'], {
+    atMediaTypes: keySet(atMediaTypes),
+    atMediaFeatures: keySet(atMediaFeatures),
+    propertyKeywords: keySet(propertyKeywords),
+    colorKeywords: keySet(colorKeywords),
+    valueKeywords: keySet(valueKeywords),
+    allowNested: true,
+    hooks: {
+      "$": function(stream, state) {
+        stream.match(/^[\w-]+/);
+        if (stream.peek() == ':') {
+          return ["variable", "variable-definition"];
+        }
+        return ["variable", "variable"];
+      },
+      '/': function(stream, state) {
+        if (stream.eat('/')) {
+          stream.skipToEnd();
+          return ['comment', 'comment'];
+        } else if (stream.eat('*')) {
+          state.tokenize = tokenCComment;
+          return tokenCComment(stream, state);
+        }
+      },
+      '#': function(stream, state) {
+        if (stream.eat('{')) {
+          return ["operator", "interpolation"];
+        } else {
+          stream.eatWhile(/[\w\\\-]/);
+          return ["atom", "hash"];
         }
       }
     },
