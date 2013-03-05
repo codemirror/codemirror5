@@ -71,4 +71,7 @@
 
   MT('interpolation_error',
     "[tag foo][operator #{][error foo][operator }] { [property color][operator :][atom #000]; }");
+
+  MT("divide_operator",
+    "[tag foo] { [property width][operator :][number 4] [operator /] [number 2] }")
 })();

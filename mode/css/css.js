@@ -548,6 +548,8 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
         } else if (stream.eat('*')) {
           state.tokenize = tokenCComment;
           return tokenCComment(stream, state);
+        } else {
+          return ["operator", "operator"]
         }
       },
       '#': function(stream, state) {
