@@ -1,12 +1,307 @@
-CodeMirror.defineMode("css", function(config) {
-  var indentUnit = config.indentUnit, type;
-  
-  var atMediaTypes = keySet([
+CodeMirror.defineMode("css", function(config, parserConfig) {
+  "use strict";
+  var indentUnit = config.indentUnit,
+      hooks = parserConfig.hooks || {},
+      atMediaTypes = parserConfig.atMediaTypes || {},
+      atMediaFeatures = parserConfig.atMediaFeatures || {},
+      propertyKeywords = parserConfig.propertyKeywords || {},
+      colorKeywords = parserConfig.colorKeywords || {},
+      valueKeywords = parserConfig.valueKeywords || {},
+      allowNested = !!parserConfig.allowNested,
+      type = null;
+
+  function ret(style, tp) { type = tp; return style; }
+
+  function tokenBase(stream, state) {
+    var ch = stream.next();
+    if (hooks[ch]) {
+      // result[0] is style and result[1] is type
+      var result = hooks[ch](stream, state);
+      if (result !== false) return ret(result[0], result[1]);
+    }
+    if (ch == "@") {stream.eatWhile(/[\w\\\-]/); return ret("def", stream.current());}
+    else if (ch == "=") ret(null, "compare");
+    else if ((ch == "~" || ch == "|") && stream.eat("=")) return ret(null, "compare");
+    else if (ch == "\"" || ch == "'") {
+      state.tokenize = tokenString(ch);
+      return state.tokenize(stream, state);
+    }
+    else if (ch == "#") {
+      stream.eatWhile(/[\w\\\-]/);
+      return ret("atom", "hash");
+    }
+    else if (ch == "!") {
+      stream.match(/^\s*\w*/);
+      return ret("keyword", "important");
+    }
+    else if (/\d/.test(ch)) {
+      stream.eatWhile(/[\w.%]/);
+      return ret("number", "unit");
+    }
+    else if (ch === "-") {
+      if (/\d/.test(stream.peek())) {
+        stream.eatWhile(/[\w.%]/);
+        return ret("number", "unit");
+      } else if (stream.match(/^[^-]+-/)) {
+        return ret("meta", "meta");
+      }
+    }
+    else if (/[,+>*\/]/.test(ch)) {
+      return ret(null, "select-op");
+    }
+    else if (ch == "." && stream.match(/^-?[_a-z][_a-z0-9-]*/i)) {
+      return ret("qualifier", "qualifier");
+    }
+    else if (ch == ":") {
+      return ret("operator", ch);
+    }
+    else if (/[;{}\[\]\(\)]/.test(ch)) {
+      return ret(null, ch);
+    }
+    else if (ch == "u" && stream.match("rl(")) {
+      stream.backUp(1);
+      state.tokenize = tokenParenthesized;
+      return ret("property", "variable");
+    }
+    else {
+      stream.eatWhile(/[\w\\\-]/);
+      return ret("property", "variable");
+    }
+  }
+
+  function tokenString(quote, nonInclusive) {
+    return function(stream, state) {
+      var escaped = false, ch;
+      while ((ch = stream.next()) != null) {
+        if (ch == quote && !escaped)
+          break;
+        escaped = !escaped && ch == "\\";
+      }
+      if (!escaped) {
+        if (nonInclusive) stream.backUp(1);
+        state.tokenize = tokenBase;
+      }
+      return ret("string", "string");
+    };
+  }
+
+  function tokenParenthesized(stream, state) {
+    stream.next(); // Must be '('
+    if (!stream.match(/\s*[\"\']/, false))
+      state.tokenize = tokenString(")", true);
+    else
+      state.tokenize = tokenBase;
+    return ret(null, "(");
+  }
+
+  return {
+    startState: function(base) {
+      return {tokenize: tokenBase,
+              baseIndent: base || 0,
+              stack: []};
+    },
+
+    token: function(stream, state) {
+
+      // Use these terms when applicable (see http://www.xanthir.com/blog/b4E50)
+      //
+      // rule** or **ruleset:
+      // A selector + braces combo, or an at-rule.
+      //
+      // declaration block:
+      // A sequence of declarations.
+      //
+      // declaration:
+      // A property + colon + value combo.
+      //
+      // property value:
+      // The entire value of a property.
+      //
+      // component value:
+      // A single piece of a property value. Like the 5px in
+      // text-shadow: 0 0 5px blue;. Can also refer to things that are
+      // multiple terms, like the 1-4 terms that make up the background-size
+      // portion of the background shorthand.
+      //
+      // term:
+      // The basic unit of author-facing CSS, like a single number (5),
+      // dimension (5px), string ("foo"), or function. Officially defined
+      //  by the CSS 2.1 grammar (look for the 'term' production)
+      //
+      //
+      // simple selector:
+      // A single atomic selector, like a type selector, an attr selector, a
+      // class selector, etc.
+      //
+      // compound selector:
+      // One or more simple selectors without a combinator. div.example is
+      // compound, div > .example is not.
+      //
+      // complex selector:
+      // One or more compound selectors chained with combinators.
+      //
+      // combinator:
+      // The parts of selectors that express relationships. There are four
+      // currently - the space (descendant combinator), the greater-than
+      // bracket (child combinator), the plus sign (next sibling combinator),
+      // and the tilda (following sibling combinator).
+      //
+      // sequence of selectors:
+      // One or more of the named type of selector chained with commas.
+
+      state.tokenize = state.tokenize || tokenBase;
+      if (state.tokenize == tokenBase && stream.eatSpace()) return null;
+      var style = state.tokenize(stream, state);
+
+      // Changing style returned based on context
+      var context = state.stack[state.stack.length-1];
+      if (style == "variable") {
+        if (type == "variable-definition") state.stack.push("propertyValue");
+        return "variable-2";
+      } else if (style == "property") {
+        if (context == "propertyValue"){
+          if (valueKeywords[stream.current()]) {
+            style = "string-2";
+          } else if (colorKeywords[stream.current()]) {
+            style = "keyword";
+          } else {
+            style = "variable-2";
+          }
+        } else if (context == "rule") {
+          if (!propertyKeywords[stream.current()]) {
+            style += " error";
+          }
+        } else if (context == "block") {
+          // if a value is present in both property, value, or color, the order
+          // of preference is property -> color -> value
+          if (propertyKeywords[stream.current()]) {
+            style = "property";
+          } else if (colorKeywords[stream.current()]) {
+            style = "keyword";
+          } else if (valueKeywords[stream.current()]) {
+            style = "string-2";
+          } else {
+            style = "tag";
+          }
+        } else if (!context || context == "@media{") {
+          style = "tag";
+        } else if (context == "@media") {
+          if (atMediaTypes[stream.current()]) {
+            style = "attribute"; // Known attribute
+          } else if (/^(only|not)$/i.test(stream.current())) {
+            style = "keyword";
+          } else if (stream.current().toLowerCase() == "and") {
+            style = "error"; // "and" is only allowed in @mediaType
+          } else if (atMediaFeatures[stream.current()]) {
+            style = "error"; // Known property, should be in @mediaType(
+          } else {
+            // Unknown, expecting keyword or attribute, assuming attribute
+            style = "attribute error";
+          }
+        } else if (context == "@mediaType") {
+          if (atMediaTypes[stream.current()]) {
+            style = "attribute";
+          } else if (stream.current().toLowerCase() == "and") {
+            style = "operator";
+          } else if (/^(only|not)$/i.test(stream.current())) {
+            style = "error"; // Only allowed in @media
+          } else if (atMediaFeatures[stream.current()]) {
+            style = "error"; // Known property, should be in parentheses
+          } else {
+            // Unknown attribute or property, but expecting property (preceded
+            // by "and"). Should be in parentheses
+            style = "error";
+          }
+        } else if (context == "@mediaType(") {
+          if (propertyKeywords[stream.current()]) {
+            // do nothing, remains "property"
+          } else if (atMediaTypes[stream.current()]) {
+            style = "error"; // Known property, should be in parentheses
+          } else if (stream.current().toLowerCase() == "and") {
+            style = "operator";
+          } else if (/^(only|not)$/i.test(stream.current())) {
+            style = "error"; // Only allowed in @media
+          } else {
+            style += " error";
+          }
+        } else {
+          style = "error";
+        }
+      } else if (style == "atom") {
+        if(!context || context == "@media{") {
+          style = "builtin";
+        } else if (context == "propertyValue") {
+          if (!/^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/.test(stream.current())) {
+            style += " error";
+          }
+        } else {
+          style = "error";
+        }
+      } else if (context == "@media" && type == "{") {
+        style = "error";
+      }
+
+      // Push/pop context stack
+      if (type == "{") {
+        if (context == "@media" || context == "@mediaType") {
+          state.stack.pop();
+          state.stack[state.stack.length-1] = "@media{";
+        }
+        else {
+          var newContext = allowNested ? "block" : "rule";
+          state.stack.push(newContext);
+        }
+      }
+      else if (type == "}") {
+        var lastState = state.stack[state.stack.length - 1];
+        if (lastState == "interpolation") style = "operator";
+        state.stack.pop();
+        if (context == "propertyValue") state.stack.pop();
+      }
+      else if (type == "interpolation") state.stack.push("interpolation");
+      else if (type == "@media") state.stack.push("@media");
+      else if (context == "@media" && /\b(keyword|attribute)\b/.test(style))
+        state.stack.push("@mediaType");
+      else if (context == "@mediaType" && stream.current() == ",") state.stack.pop();
+      else if (context == "@mediaType" && type == "(") state.stack.push("@mediaType(");
+      else if (context == "@mediaType(" && type == ")") state.stack.pop();
+      else if ((context == "rule" || context == "block") && type == ":") state.stack.push("propertyValue");
+      else if (context == "propertyValue" && type == ";") state.stack.pop();
+      return style;
+    },
+
+    indent: function(state, textAfter) {
+      var n = state.stack.length;
+      if (/^\}/.test(textAfter))
+        n -= state.stack[state.stack.length-1] == "propertyValue" ? 2 : 1;
+      return state.baseIndent + n * indentUnit;
+    },
+
+    electricChars: "}"
+  };
+});
+
+(function() {
+  function mimes(ms, mode) {
+    for (var i = 0; i < ms.length; ++i) {
+      CodeMirror.defineMIME(ms[i], mode);
+    }
+  }
+
+  function keySet(array) {
+    var keys = {};
+    for (var i = 0; i < array.length; ++i) {
+      keys[array[i]] = true;
+    }
+    return keys;
+  }
+
+  var atMediaTypes = [
     "all", "aural", "braille", "handheld", "print", "projection", "screen",
     "tty", "tv", "embossed"
-  ]);
-  
-  var atMediaFeatures = keySet([
+  ];
+
+  var atMediaFeatures = [
     "width", "min-width", "max-width", "height", "min-height", "max-height",
     "device-width", "min-device-width", "max-device-width", "device-height",
     "min-device-height", "max-device-height", "aspect-ratio",
@@ -15,9 +310,9 @@ CodeMirror.defineMode("css", function(config) {
     "max-color", "color-index", "min-color-index", "max-color-index",
     "monochrome", "min-monochrome", "max-monochrome", "resolution",
     "min-resolution", "max-resolution", "scan", "grid"
-  ]);
+  ];
 
-  var propertyKeywords = keySet([
+  var propertyKeywords = [
     "align-content", "align-items", "align-self", "alignment-adjust",
     "alignment-baseline", "anchor-point", "animation", "animation-delay",
     "animation-direction", "animation-duration", "animation-iteration-count",
@@ -93,14 +388,14 @@ CodeMirror.defineMode("css", function(config) {
     "voice-family", "voice-pitch", "voice-range", "voice-rate", "voice-stress",
     "voice-volume", "volume", "white-space", "widows", "width", "word-break",
     "word-spacing", "word-wrap", "z-index"
-  ]);
+  ];
 
-  var colorKeywords = keySet([
+  var colorKeywords = [
     "black", "silver", "gray", "white", "maroon", "red", "purple", "fuchsia",
     "green", "lime", "olive", "yellow", "navy", "blue", "teal", "aqua"
-  ]);
-  
-  var valueKeywords = keySet([
+  ];
+
+  var valueKeywords = [
     "above", "absolute", "activeborder", "activecaption", "afar",
     "after-white-space", "ahead", "alias", "all", "all-scroll", "alternate",
     "always", "amharic", "amharic-abegede", "antialiased", "appworkspace",
@@ -183,283 +478,89 @@ CodeMirror.defineMode("css", function(config) {
     "visibleStroke", "visual", "w-resize", "wait", "wave", "white", "wider",
     "window", "windowframe", "windowtext", "x-large", "x-small", "xor",
     "xx-large", "xx-small", "yellow"
-  ]);
-
-  function keySet(array) { var keys = {}; for (var i = 0; i < array.length; ++i) keys[array[i]] = true; return keys; }
-  function ret(style, tp) {type = tp; return style;}
-
-  function tokenBase(stream, state) {
-    var ch = stream.next();
-    if (ch == "@") {stream.eatWhile(/[\w\\\-]/); return ret("def", stream.current());}
-    else if (ch == "/" && stream.eat("*")) {
-      state.tokenize = tokenCComment;
-      return tokenCComment(stream, state);
-    }
-    else if (ch == "<" && stream.eat("!")) {
-      state.tokenize = tokenSGMLComment;
-      return tokenSGMLComment(stream, state);
-    }
-    else if (ch == "=") ret(null, "compare");
-    else if ((ch == "~" || ch == "|") && stream.eat("=")) return ret(null, "compare");
-    else if (ch == "\"" || ch == "'") {
-      state.tokenize = tokenString(ch);
-      return state.tokenize(stream, state);
-    }
-    else if (ch == "#") {
-      stream.eatWhile(/[\w\\\-]/);
-      return ret("atom", "hash");
-    }
-    else if (ch == "!") {
-      stream.match(/^\s*\w*/);
-      return ret("keyword", "important");
-    }
-    else if (/\d/.test(ch)) {
-      stream.eatWhile(/[\w.%]/);
-      return ret("number", "unit");
-    }
-    else if (ch === "-") {
-      if (/\d/.test(stream.peek())) {
-        stream.eatWhile(/[\w.%]/);
-        return ret("number", "unit");
-      } else if (stream.match(/^[^-]+-/)) {
-        return ret("meta", "meta");
-      }
-    }
-    else if (/[,+>*\/]/.test(ch)) {
-      return ret(null, "select-op");
-    }
-    else if (ch == "." && stream.match(/^-?[_a-z][_a-z0-9-]*/i)) {
-      return ret("qualifier", "qualifier");
-    }
-    else if (ch == ":") {
-      return ret("operator", ch);
-    }
-    else if (/[;{}\[\]\(\)]/.test(ch)) {
-      return ret(null, ch);
-    }
-    else if (ch == "u" && stream.match("rl(")) {
-      stream.backUp(1);
-      state.tokenize = tokenParenthesized;
-      return ret("property", "variable");
-    }
-    else {
-      stream.eatWhile(/[\w\\\-]/);
-      return ret("property", "variable");
-    }
-  }
+  ];
 
   function tokenCComment(stream, state) {
     var maybeEnd = false, ch;
     while ((ch = stream.next()) != null) {
       if (maybeEnd && ch == "/") {
-        state.tokenize = tokenBase;
+        state.tokenize = null;
         break;
       }
       maybeEnd = (ch == "*");
     }
-    return ret("comment", "comment");
+    return ["comment", "comment"];
   }
 
-  function tokenSGMLComment(stream, state) {
-    var dashes = 0, ch;
-    while ((ch = stream.next()) != null) {
-      if (dashes >= 2 && ch == ">") {
-        state.tokenize = tokenBase;
-        break;
+  mimes(['text/css', 'css'], {
+    atMediaTypes: keySet(atMediaTypes),
+    atMediaFeatures: keySet(atMediaFeatures),
+    propertyKeywords: keySet(propertyKeywords),
+    colorKeywords: keySet(colorKeywords),
+    valueKeywords: keySet(valueKeywords),
+    hooks: {
+      "<": function(stream, state) {
+        function tokenSGMLComment(stream, state) {
+          var dashes = 0, ch;
+          while ((ch = stream.next()) != null) {
+            if (dashes >= 2 && ch == ">") {
+              state.tokenize = null;
+              break;
+            }
+            dashes = (ch == "-") ? dashes + 1 : 0;
+          }
+          return ["comment", "comment"];
+        }
+        if (stream.eat("!")) {
+          state.tokenize = tokenSGMLComment;
+          return tokenSGMLComment(stream, state);
+        }
+      },
+      '/': function(stream, state) {
+        if (stream.eat("*")) {
+          state.tokenize = tokenCComment;
+          return tokenCComment(stream, state);
+        }
       }
-      dashes = (ch == "-") ? dashes + 1 : 0;
-    }
-    return ret("comment", "comment");
-  }
-
-  function tokenString(quote, nonInclusive) {
-    return function(stream, state) {
-      var escaped = false, ch;
-      while ((ch = stream.next()) != null) {
-        if (ch == quote && !escaped)
-          break;
-        escaped = !escaped && ch == "\\";
-      }
-      if (!escaped) {
-        if (nonInclusive) stream.backUp(1);
-        state.tokenize = tokenBase;
-      }
-      return ret("string", "string");
-    };
-  }
-
-  function tokenParenthesized(stream, state) {
-    stream.next(); // Must be '('
-    if (!stream.match(/\s*[\"\']/, false))
-      state.tokenize = tokenString(")", true);
-    else
-      state.tokenize = tokenBase;
-    return ret(null, "(");
-  }
-
-  return {
-    startState: function(base) {
-      return {tokenize: tokenBase,
-              baseIndent: base || 0,
-              stack: []};
     },
+    name: "css"
+  });
 
-    token: function(stream, state) {
-      
-      // Use these terms when applicable (see http://www.xanthir.com/blog/b4E50)
-      // 
-      // rule** or **ruleset:
-      // A selector + braces combo, or an at-rule.
-      // 
-      // declaration block:
-      // A sequence of declarations.
-      // 
-      // declaration:
-      // A property + colon + value combo.
-      // 
-      // property value:
-      // The entire value of a property.
-      // 
-      // component value:
-      // A single piece of a property value. Like the 5px in
-      // text-shadow: 0 0 5px blue;. Can also refer to things that are
-      // multiple terms, like the 1-4 terms that make up the background-size
-      // portion of the background shorthand.
-      // 
-      // term:
-      // The basic unit of author-facing CSS, like a single number (5),
-      // dimension (5px), string ("foo"), or function. Officially defined
-      //  by the CSS 2.1 grammar (look for the 'term' production)
-      // 
-      // 
-      // simple selector:
-      // A single atomic selector, like a type selector, an attr selector, a
-      // class selector, etc.
-      // 
-      // compound selector:
-      // One or more simple selectors without a combinator. div.example is
-      // compound, div > .example is not.
-      // 
-      // complex selector:
-      // One or more compound selectors chained with combinators.
-      // 
-      // combinator:
-      // The parts of selectors that express relationships. There are four
-      // currently - the space (descendant combinator), the greater-than
-      // bracket (child combinator), the plus sign (next sibling combinator),
-      // and the tilda (following sibling combinator).
-      // 
-      // sequence of selectors:
-      // One or more of the named type of selector chained with commas.
-
-      if (state.tokenize == tokenBase && stream.eatSpace()) return null;
-      var style = state.tokenize(stream, state);
-
-      // Changing style returned based on context
-      var context = state.stack[state.stack.length-1];
-      if (style == "property") {
-        if (context == "propertyValue"){
-          if (valueKeywords[stream.current()]) {
-            style = "string-2";
-          } else if (colorKeywords[stream.current()]) {
-            style = "keyword";
-          } else {
-            style = "variable-2";
-          }
-        } else if (context == "rule") {
-          if (!propertyKeywords[stream.current()]) {
-            style += " error";
-          }
-        } else if (!context || context == "@media{") {
-          style = "tag";
-        } else if (context == "@media") {
-          if (atMediaTypes[stream.current()]) {
-            style = "attribute"; // Known attribute
-          } else if (/^(only|not)$/i.test(stream.current())) {
-            style = "keyword";
-          } else if (stream.current().toLowerCase() == "and") {
-            style = "error"; // "and" is only allowed in @mediaType
-          } else if (atMediaFeatures[stream.current()]) {
-            style = "error"; // Known property, should be in @mediaType(
-          } else {
-            // Unknown, expecting keyword or attribute, assuming attribute
-            style = "attribute error";
-          }
-        } else if (context == "@mediaType") {
-          if (atMediaTypes[stream.current()]) {
-            style = "attribute";
-          } else if (stream.current().toLowerCase() == "and") {
-            style = "operator";
-          } else if (/^(only|not)$/i.test(stream.current())) {
-            style = "error"; // Only allowed in @media
-          } else if (atMediaFeatures[stream.current()]) {
-            style = "error"; // Known property, should be in parentheses
-          } else {
-            // Unknown attribute or property, but expecting property (preceded
-            // by "and"). Should be in parentheses
-            style = "error";
-          }
-        } else if (context == "@mediaType(") {
-          if (propertyKeywords[stream.current()]) {
-            // do nothing, remains "property"
-          } else if (atMediaTypes[stream.current()]) {
-            style = "error"; // Known property, should be in parentheses
-          } else if (stream.current().toLowerCase() == "and") {
-            style = "operator";
-          } else if (/^(only|not)$/i.test(stream.current())) {
-            style = "error"; // Only allowed in @media
-          } else {
-            style += " error";
-          }
+  mimes(['text/x-scss', 'scss'], {
+    atMediaTypes: keySet(atMediaTypes),
+    atMediaFeatures: keySet(atMediaFeatures),
+    propertyKeywords: keySet(propertyKeywords),
+    colorKeywords: keySet(colorKeywords),
+    valueKeywords: keySet(valueKeywords),
+    allowNested: true,
+    hooks: {
+      "$": function(stream) {
+        stream.match(/^[\w-]+/);
+        if (stream.peek() == ':') {
+          return ["variable", "variable-definition"];
+        }
+        return ["variable", "variable"];
+      },
+      '/': function(stream, state) {
+        if (stream.eat('/')) {
+          stream.skipToEnd();
+          return ['comment', 'comment'];
+        } else if (stream.eat('*')) {
+          state.tokenize = tokenCComment;
+          return tokenCComment(stream, state);
         } else {
-          style = "error";
+          return ["operator", "operator"];
         }
-      } else if (style == "atom") {
-        if(!context || context == "@media{") {
-          style = "builtin";
-        } else if (context == "propertyValue") {
-          if (!/^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/.test(stream.current())) {
-            style += " error";
-          }
+      },
+      '#': function(stream) {
+        if (stream.eat('{')) {
+          return ["operator", "interpolation"];
         } else {
-          style = "error";
+          stream.eatWhile(/[\w\\\-]/);
+          return ["atom", "hash"];
         }
-      } else if (context == "@media" && type == "{") {
-        style = "error";
       }
-
-      // Push/pop context stack
-      if (type == "{") {
-        if (context == "@media" || context == "@mediaType") {
-          state.stack.pop();
-          state.stack[state.stack.length-1] = "@media{";
-        }
-        else state.stack.push("rule");
-      }
-      else if (type == "}") {
-        state.stack.pop();
-        if (context == "propertyValue") state.stack.pop();
-      }
-      else if (type == "@media") state.stack.push("@media");
-      else if (context == "@media" && /\b(keyword|attribute)\b/.test(style))
-        state.stack.push("@mediaType");
-      else if (context == "@mediaType" && stream.current() == ",") state.stack.pop();
-      else if (context == "@mediaType" && type == "(") state.stack.push("@mediaType(");
-      else if (context == "@mediaType(" && type == ")") state.stack.pop();
-      else if (context == "rule" && type == ":") state.stack.push("propertyValue");
-      else if (context == "propertyValue" && type == ";") state.stack.pop();
-      return style;
     },
-
-    indent: function(state, textAfter) {
-      var n = state.stack.length;
-      if (/^\}/.test(textAfter))
-        n -= state.stack[state.stack.length-1] == "propertyValue" ? 2 : 1;
-      return state.baseIndent + n * indentUnit;
-    },
-
-    electricChars: "}"
-  };
-});
-
-CodeMirror.defineMIME("text/css", "css");
+    name: "css"
+  });
+})();

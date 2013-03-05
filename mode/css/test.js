@@ -1,6 +1,6 @@
 (function() {
   var mode = CodeMirror.getMode({tabSize: 4}, "css");
-  function MT(name) { test.mode(name, mode, Array.prototype.slice.call(arguments, 2)); }
+  function MT(name) { test.mode(name, mode, Array.prototype.slice.call(arguments, 1)); }
 
   // Requires at least one media query
   MT("atMediaEmpty",
@@ -103,4 +103,7 @@
 
   MT("tagTwoProperties",
      "[tag foo] { [property margin][operator :] [number 0]; [property padding][operator :] [number 0]; }");
+
+  MT("commentSGML",
+     "[comment <!--comment-->]");
 })();
