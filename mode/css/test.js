@@ -105,5 +105,5 @@
      "[tag foo] { [property margin][operator :] [number 0]; [property padding][operator :] [number 0]; }");
 
   MT("commentSGML",
-     "[comment <!--comment-->]")
+     "[comment <!--comment-->]");
 })();

@@ -1,5 +1,5 @@
 CodeMirror.defineMode("css", function(config, parserConfig) {
-  "use strict"
+  "use strict";
   var indentUnit = config.indentUnit,
       hooks = parserConfig.hooks || {},
       atMediaTypes = parserConfig.atMediaTypes || {},
@@ -258,7 +258,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
         state.stack.pop();
         if (context == "propertyValue") state.stack.pop();
       }
-      else if (type == "interpolation") state.stack.push("interpolation")
+      else if (type == "interpolation") state.stack.push("interpolation");
       else if (type == "@media") state.stack.push("@media");
       else if (context == "@media" && /\b(keyword|attribute)\b/.test(style))
         state.stack.push("@mediaType");
@@ -534,7 +534,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     valueKeywords: keySet(valueKeywords),
     allowNested: true,
     hooks: {
-      "$": function(stream, state) {
+      "$": function(stream) {
         stream.match(/^[\w-]+/);
         if (stream.peek() == ':') {
           return ["variable", "variable-definition"];
@@ -549,10 +549,10 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
           state.tokenize = tokenCComment;
           return tokenCComment(stream, state);
         } else {
-          return ["operator", "operator"]
+          return ["operator", "operator"];
         }
       },
-      '#': function(stream, state) {
+      '#': function(stream) {
         if (stream.eat('{')) {
           return ["operator", "interpolation"];
         } else {
