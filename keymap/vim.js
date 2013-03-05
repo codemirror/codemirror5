@@ -731,7 +731,12 @@
         var originalQuery = getSearchState(cm).getQuery();
         var originalPos = cm.getCursor();
         function handleQuery(query, ignoreCase, smartCase) {
-          updateSearchQuery(cm, query, ignoreCase, smartCase);
+          try {
+            updateSearchQuery(cm, query, ignoreCase, smartCase);
+          } catch (e) {
+            showConfirm(cm, 'Invalid regex: ' + regexPart);
+            return;
+          }
           commandDispatcher.processMotion(cm, vim, {
             type: 'motion',
             motion: 'findNext',
@@ -744,8 +749,13 @@
         }
         function onPromptKeyUp(e, query) {
           if (query) {
-            updateSearchQuery(cm, query, true /** ignoreCase */, true /** smartCase */);
-            cm.scrollIntoView(findNext(cm, forward, query));
+            try {
+              updateSearchQuery(cm, query, true /** ignoreCase */,
+                                true /** smartCase */);
+              cm.scrollIntoView(findNext(cm, forward, query));
+            } catch (e) {
+              // Swallow bad regexes for incremental search.
+            }
           } else {
             clearSearchHighlight(cm);
             cm.scrollIntoView(originalPos);
@@ -2092,13 +2102,9 @@
       if (smartCase) {
         ignoreCase = (/^[^A-Z]*$/).test(regexPart);
       }
-      try {
-        var regexp = new RegExp(regexPart,
-            (ignoreCase || forceIgnoreCase) ? 'i' : undefined);
-        return regexp;
-      } catch (e) {
-        showConfirm(cm, 'Invalid regex: ' + regexPart);
-      }
+      var regexp = new RegExp(regexPart,
+          (ignoreCase || forceIgnoreCase) ? 'i' : undefined);
+      return regexp;
     }
     function showConfirm(cm, text) {
       if (cm.openConfirm) {
@@ -2510,8 +2516,13 @@
         if (regexPart) {
           // If regex part is empty, then use the previous query. Otherwise use
           // the regex part as the new query.
-          updateSearchQuery(cm, regexPart, true /** ignoreCase */,
-            true /** smartCase */);
+          try {
+            updateSearchQuery(cm, regexPart, true /** ignoreCase */,
+              true /** smartCase */);
+          } catch (e) {
+            showConfirm(cm, 'Invalid regex: ' + regexPart);
+            return;
+          }
         }
         var state = getSearchState(cm);
         var query = state.getQuery();
@@ -2586,7 +2597,7 @@
             var finishMark = stream.next();
             // The range must terminate at an alphabetic character which
             // shares the same case as the start of the range.
-            if (isLowerCase(startMark) && isLowerCase(finishMark) || 
+            if (isLowerCase(startMark) && isLowerCase(finishMark) ||
                 isUpperCase(startMark) && isUpperCase(finishMark)) {
               var start = startMark.charCodeAt(0);
               var finish = finishMark.charCodeAt(0);
@@ -2599,7 +2610,7 @@
               // determined that they are the same case, we can use
               // their char codes to iterate through the defined range.
               for (var j = 0; j <= finish - start; j++) {
-                var mark = String.fromCharCode(start + j); 
+                var mark = String.fromCharCode(start + j);
                 delete state.marks[mark];
               }
             } else {
