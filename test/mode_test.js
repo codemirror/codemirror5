@@ -59,9 +59,9 @@
     return {tokens: tokens, plain: plain};
   }
 
-  test.mode = function(name, mode, tokens) {
+  test.mode = function(name, mode, tokens, modeName) {
     var data = parseTokens(tokens);
-    return test(mode.name + "_" + name, function() {
+    return test((modeName || mode.name) + "_" + name, function() {
       return compare(data.plain, data.tokens, mode);
     });
   };

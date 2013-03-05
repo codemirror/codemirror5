@@ -48,6 +48,7 @@ CodeMirror.modeInfo = [
   {name: 'Rust', mime: 'text/x-rustsrc', mode: 'rust'},
   {name: 'Sass', mime: 'text/x-sass', mode: 'sass'},
   {name: 'Scheme', mime: 'text/x-scheme', mode: 'scheme'},
+  {name: 'SCSS', mime: 'text/x-scss', mode: 'css'},
   {name: 'Shell', mime: 'text/x-sh', mode: 'shell'},
   {name: 'Sieve', mime: 'application/sieve', mode: 'sieve'},
   {name: 'Smalltalk', mime: 'text/x-stsrc', mode: 'smalltalk'},

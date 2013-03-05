@@ -1,5 +1,10 @@
-CodeMirror.defineMode("css", function(config, parserConfig) {
+CodeMirror.defineMode("css", function(config) {
+  return CodeMirror.getMode(config, "text/css");
+});
+
+CodeMirror.defineMode("css-base", function(config, parserConfig) {
   "use strict";
+
   var indentUnit = config.indentUnit,
       hooks = parserConfig.hooks || {},
       atMediaTypes = parserConfig.atMediaTypes || {},
@@ -282,12 +287,6 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
 });
 
 (function() {
-  function mimes(ms, mode) {
-    for (var i = 0; i < ms.length; ++i) {
-      CodeMirror.defineMIME(ms[i], mode);
-    }
-  }
-
   function keySet(array) {
     var keys = {};
     for (var i = 0; i < array.length; ++i) {
@@ -296,12 +295,12 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     return keys;
   }
 
-  var atMediaTypes = [
+  var atMediaTypes = keySet([
     "all", "aural", "braille", "handheld", "print", "projection", "screen",
     "tty", "tv", "embossed"
-  ];
+  ]);
 
-  var atMediaFeatures = [
+  var atMediaFeatures = keySet([
     "width", "min-width", "max-width", "height", "min-height", "max-height",
     "device-width", "min-device-width", "max-device-width", "device-height",
     "min-device-height", "max-device-height", "aspect-ratio",
@@ -310,9 +309,9 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "max-color", "color-index", "min-color-index", "max-color-index",
     "monochrome", "min-monochrome", "max-monochrome", "resolution",
     "min-resolution", "max-resolution", "scan", "grid"
-  ];
+  ]);
 
-  var propertyKeywords = [
+  var propertyKeywords = keySet([
     "align-content", "align-items", "align-self", "alignment-adjust",
     "alignment-baseline", "anchor-point", "animation", "animation-delay",
     "animation-direction", "animation-duration", "animation-iteration-count",
@@ -388,14 +387,14 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "voice-family", "voice-pitch", "voice-range", "voice-rate", "voice-stress",
     "voice-volume", "volume", "white-space", "widows", "width", "word-break",
     "word-spacing", "word-wrap", "z-index"
-  ];
+  ]);
 
-  var colorKeywords = [
+  var colorKeywords = keySet([
     "black", "silver", "gray", "white", "maroon", "red", "purple", "fuchsia",
     "green", "lime", "olive", "yellow", "navy", "blue", "teal", "aqua"
-  ];
+  ]);
 
-  var valueKeywords = [
+  var valueKeywords = keySet([
     "above", "absolute", "activeborder", "activecaption", "afar",
     "after-white-space", "ahead", "alias", "all", "all-scroll", "alternate",
     "always", "amharic", "amharic-abegede", "antialiased", "appworkspace",
@@ -478,7 +477,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "visibleStroke", "visual", "w-resize", "wait", "wave", "white", "wider",
     "window", "windowframe", "windowtext", "x-large", "x-small", "xor",
     "xx-large", "xx-small", "yellow"
-  ];
+  ]);
 
   function tokenCComment(stream, state) {
     var maybeEnd = false, ch;
@@ -492,12 +491,12 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     return ["comment", "comment"];
   }
 
-  mimes(['text/css', 'css'], {
-    atMediaTypes: keySet(atMediaTypes),
-    atMediaFeatures: keySet(atMediaFeatures),
-    propertyKeywords: keySet(propertyKeywords),
-    colorKeywords: keySet(colorKeywords),
-    valueKeywords: keySet(valueKeywords),
+  CodeMirror.defineMIME("text/css", {
+    atMediaTypes: atMediaTypes,
+    atMediaFeatures: atMediaFeatures,
+    propertyKeywords: propertyKeywords,
+    colorKeywords: colorKeywords,
+    valueKeywords: valueKeywords,
     hooks: {
       "<": function(stream, state) {
         function tokenSGMLComment(stream, state) {
@@ -516,44 +515,45 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
           return tokenSGMLComment(stream, state);
         }
       },
-      '/': function(stream, state) {
+      "/": function(stream, state) {
         if (stream.eat("*")) {
           state.tokenize = tokenCComment;
           return tokenCComment(stream, state);
         }
+        return false;
       }
     },
-    name: "css"
+    name: "css-base"
   });
 
-  mimes(['text/x-scss', 'scss'], {
-    atMediaTypes: keySet(atMediaTypes),
-    atMediaFeatures: keySet(atMediaFeatures),
-    propertyKeywords: keySet(propertyKeywords),
-    colorKeywords: keySet(colorKeywords),
-    valueKeywords: keySet(valueKeywords),
+  CodeMirror.defineMIME("text/x-scss", {
+    atMediaTypes: atMediaTypes,
+    atMediaFeatures: atMediaFeatures,
+    propertyKeywords: propertyKeywords,
+    colorKeywords: colorKeywords,
+    valueKeywords: valueKeywords,
     allowNested: true,
     hooks: {
       "$": function(stream) {
         stream.match(/^[\w-]+/);
-        if (stream.peek() == ':') {
+        if (stream.peek() == ":") {
           return ["variable", "variable-definition"];
         }
         return ["variable", "variable"];
       },
-      '/': function(stream, state) {
-        if (stream.eat('/')) {
+      "/": function(stream, state) {
+        if (stream.eat("/")) {
           stream.skipToEnd();
-          return ['comment', 'comment'];
-        } else if (stream.eat('*')) {
+          return ["comment", "comment"];
+        } else if (stream.eat("*")) {
           state.tokenize = tokenCComment;
           return tokenCComment(stream, state);
         } else {
           return ["operator", "operator"];
         }
       },
-      '#': function(stream) {
-        if (stream.eat('{')) {
+      "#": function(stream) {
+        if (stream.eat("{")) {
           return ["operator", "interpolation"];
         } else {
           stream.eatWhile(/[\w\\\-]/);
@@ -561,6 +561,6 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
         }
       }
     },
-    name: "css"
+    name: "css-base"
   });
 })();

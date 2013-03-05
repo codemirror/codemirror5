@@ -1,6 +1,6 @@
 (function() {
   var mode = CodeMirror.getMode({tabSize: 4}, "text/x-scss");
-  function MT(name) { test.mode(name, mode, Array.prototype.slice.call(arguments, 1)); }
+  function MT(name) { test.mode(name, mode, Array.prototype.slice.call(arguments, 1), "scss"); }
 
   MT('url_with_quotation',
     "[tag foo] { [property background][operator :][string-2 url]([string test.jpg]) }");
