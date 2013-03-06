@@ -50,7 +50,7 @@
 
         if(text.length >= 0) {
 
-            var regex = new RegExp('<([^!?][^\\s/>]*).*?>', 'g');
+            var regex = new RegExp('<([^!?][^\\s/>]*)[\\s\\S]*?>', 'g');
 
             var matches = [];
             var match;
