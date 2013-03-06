@@ -20,7 +20,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       "for": kw("for"), "switch": kw("switch"), "case": kw("case"), "default": kw("default"),
       "in": operator, "typeof": operator, "instanceof": operator,
       "true": atom, "false": atom, "null": atom, "undefined": atom, "NaN": atom, "Infinity": atom,
-	"this": kw("this")
+      "this": kw("this")
     };
 
     // Extend the 'normal' keywords with the TypeScript language extensions
