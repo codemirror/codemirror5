@@ -36,14 +36,38 @@
                 }
             }
 
+            var nodeType = "attribute";
+            if (simbol.length > 0 && simbol.charAt(0) == '<') nodeType = "element";
             return {
                 list: hints,
+                nodeType: nodeType,  
+                updateItem : updateItem,
+                pickItem : pickItem,
                 from: CodeMirror.Pos(cursor.line, cursor.ch - typed.length),
                 to: cursor
             };
         }
     };
 
+    function updateItem(elt, completions, i, data) {
+    	// Add CodeMirror-hint-xml-attribute or CodeMirror-hint-xml-element to the li element to manage icons
+    	var completion = completions[i];
+    	elt.className = elt.className + ' CodeMirror-hint-xml-' + data.nodeType;
+    	elt.appendChild(document.createTextNode(completion));
+		return true;
+    }
+    
+    function pickItem(completions, i, data, cm) {
+    	if (data.nodeType == "attribute") {		
+    		// attribute node is picked, add the attribute name with '=""' and set the cursor on the middle of the quote.
+    		var label = completions[i] + '=""';
+    		cm.replaceRange(label, data.from, data.to);
+        	cm.setCursor(CodeMirror.Pos(cm.getCursor().line, cm.getCursor().ch -1));
+    		return true;
+    	}
+    	return false;
+    }
+    
     var getActiveElement = function(text) {
 
         var element = '';
