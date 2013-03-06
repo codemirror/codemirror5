@@ -41,6 +41,7 @@
 
 .CodeMirror div.CodeMirror-cursor {
   border-left: 1px solid black;
+  z-index: 3;
 }
 /* Shown when moving in bi-directional text */
 .CodeMirror div.CodeMirror-secondarycursor {
@@ -49,13 +50,8 @@
 .CodeMirror.cm-keymap-fat-cursor div.CodeMirror-cursor {
   width: auto;
   border: 0;
-  background: transparent;
-  background: rgba(0, 200, 0, .4);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#6600c800, endColorstr=#4c00c800);
-}
-/* Kludge to turn off filter in ie9+, which also accepts rgba */
-.CodeMirror.cm-keymap-fat-cursor div.CodeMirror-cursor:not(#nonsense_id) {
-  filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
+  background: #7e7;
+  z-index: 1;
 }
 /* Can style cursor different in overwrite (non-insert) mode */
 .CodeMirror div.CodeMirror-cursor.CodeMirror-overwrite {}
