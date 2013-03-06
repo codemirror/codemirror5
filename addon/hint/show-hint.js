@@ -12,13 +12,23 @@ CodeMirror.showHint = function(cm, getHints, options) {
     else
       return showHints(getHints(cm, options));
   }
+  
+  function defaultUpdateItem(elt, completions, i, data) {	
+      elt.appendChild(document.createTextNode(completions[i]));
+  }
+  
+  function defaultPickItem(completions, i, data, cm) {
+	  cm.replaceRange(completions[i], data.from, data.to);
+  }  
 
   function showHints(data) {
     if (!data || !data.list.length) return;
     var completions = data.list;
     // When there is only one completion, use it directly.
     if (!continued && options.completeSingle !== false && completions.length == 1) {
-      cm.replaceRange(completions[0], data.from, data.to);
+      var result = false;
+      if (data.pickItem) {result = data.pickItem(completions, 0, data, cm)};
+      if (result == false) defaultPickItem(completions, 0, data, cm);
       return true;
     }
 
@@ -28,7 +38,9 @@ CodeMirror.showHint = function(cm, getHints, options) {
     for (var i = 0; i < completions.length; ++i) {
       var elt = hints.appendChild(document.createElement("li"));
       elt.className = "CodeMirror-hint" + (i ? "" : " CodeMirror-hint-active");
-      elt.appendChild(document.createTextNode(completions[i]));
+      var result = false;
+      if (data.updateItem) {result = data.updateItem(elt, completions, i, data)};
+      if (result == false) defaultUpdateItem(elt, completions, i, data);
       elt.hintId = i;
     }
     var pos = cm.cursorCoords(options.alignWithWord !== false ? data.from : null);
@@ -61,12 +73,22 @@ CodeMirror.showHint = function(cm, getHints, options) {
       hints.style.top = (top = pos.bottom - overlapY) + "px";
     }
 
+    var selectedClassName = "CodeMirror-hint CodeMirror-hint-active";
+    var unSelectedClassName = "CodeMirror-hint";
+   
     function changeActive(i) {
       i = Math.max(0, Math.min(i, completions.length - 1));
       if (selectedHint == i) return;
-      hints.childNodes[selectedHint].className = "CodeMirror-hint";
+     // unselect the previous node
+      var previousNode = hints.childNodes[selectedHint];
+      var oldClassName = previousNode.className;
+      oldClassName = oldClassName.substring(selectedClassName.length, oldClassName.length);      
+      previousNode.className = unSelectedClassName + " " + oldClassName;
+      // select the new node
       var node = hints.childNodes[selectedHint = i];
-      node.className = "CodeMirror-hint CodeMirror-hint-active";
+      var oldClassName = node.className;
+      oldClassName = oldClassName.substring(unSelectedClassName.length, oldClassName.length);      
+      node.className = selectedClassName + " " + oldClassName;
       if (node.offsetTop < hints.scrollTop)
         hints.scrollTop = node.offsetTop - 3;
       else if (node.offsetTop + node.offsetHeight > hints.scrollTop + hints.clientHeight)
@@ -136,7 +158,8 @@ CodeMirror.showHint = function(cm, getHints, options) {
       cm.off("scroll", onScroll);
     }
     function pick() {
-      cm.replaceRange(completions[selectedHint], data.from, data.to);
+      if (data.pickItem) {result = data.pickItem(completions, selectedHint, data, cm)};
+      if (result == false) defaultPickItem(completions, selectedHint, data, cm);
       close();
     }
     var once, lastPos = cm.getCursor(), lastLen = cm.getLine(lastPos.line).length;
