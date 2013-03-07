@@ -22,7 +22,7 @@ CodeMirror.defineMode("css-base", function(config, parserConfig) {
     if (hooks[ch]) {
       // result[0] is style and result[1] is type
       var result = hooks[ch](stream, state);
-      if (result !== false) return ret(result[0], result[1]);
+      if (result !== false) return result;
     }
     if (ch == "@") {stream.eatWhile(/[\w\\\-]/); return ret("def", stream.current());}
     else if (ch == "=") ret(null, "compare");
@@ -157,6 +157,7 @@ CodeMirror.defineMode("css-base", function(config, parserConfig) {
       state.tokenize = state.tokenize || tokenBase;
       if (state.tokenize == tokenBase && stream.eatSpace()) return null;
       var style = state.tokenize(stream, state);
+      if (style && typeof style != "string") style = ret(style[0], style[1]);
 
       // Changing style returned based on context
       var context = state.stack[state.stack.length-1];
