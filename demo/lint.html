@@ -78,11 +78,18 @@ function updateHints() {
     lintWith: CodeMirror.javascriptValidator
   });
 
+ function onJSONUpdateLinting(annotations) {
+ 	alert(annotations.length);
+ }
+
   var editor_json = CodeMirror.fromTextArea(document.getElementById("code-json"), {
     lineNumbers: true,
     mode: "application/json",
     gutters: ["CodeMirror-lint-markers"],
-    lintWith: CodeMirror.jsonValidator
+    lintWith : {
+	  "getAnnotations" : CodeMirror.jsonValidator,
+	  "onUpdateLinting" : onJSONUpdateLinting
+	}
   });
 </script>
 
