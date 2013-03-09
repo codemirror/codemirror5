@@ -12,23 +12,23 @@ CodeMirror.showHint = function(cm, getHints, options) {
     else
       return showHints(getHints(cm, options));
   }
-  
-  function defaultUpdateItem(elt, completions, i, data) {	
-      elt.appendChild(document.createTextNode(completions[i]));
+
+  function getText(completion) {
+    if (typeof completion == "string") return completion;
+    else return completion.text;
   }
-  
-  function defaultPickItem(completions, i, data, cm) {
-	  cm.replaceRange(completions[i], data.from, data.to);
-  }  
+
+  function pickCompletion(cm, data, completion) {
+    if (completion.hint) completion.hint(cm, data, completion);
+    else cm.replaceRange(getText(completion), data.from, data.to);
+  }
 
   function showHints(data) {
     if (!data || !data.list.length) return;
     var completions = data.list;
     // When there is only one completion, use it directly.
     if (!continued && options.completeSingle !== false && completions.length == 1) {
-      var result = false;
-      if (data.pickItem) {result = data.pickItem(completions, 0, data, cm)};
-      if (result == false) defaultPickItem(completions, 0, data, cm);
+      pickCompletion(cm, data, completions[0]);
       return true;
     }
 
@@ -36,11 +36,12 @@ CodeMirror.showHint = function(cm, getHints, options) {
     var hints = document.createElement("ul"), selectedHint = 0;
     hints.className = "CodeMirror-hints";
     for (var i = 0; i < completions.length; ++i) {
-      var elt = hints.appendChild(document.createElement("li"));
-      elt.className = "CodeMirror-hint" + (i ? "" : " CodeMirror-hint-active");
-      var result = false;
-      if (data.updateItem) {result = data.updateItem(elt, completions, i, data)};
-      if (result == false) defaultUpdateItem(elt, completions, i, data);
+      var elt = hints.appendChild(document.createElement("li")), completion = completions[i];
+      var className = "CodeMirror-hint" + (i ? "" : " CodeMirror-hint-active");
+      if (completion.className != null) className = completion.className + " " + className;
+      elt.className = className;
+      if (completion.render) completion.render(elt, data, completion);
+      else elt.appendChild(document.createTextNode(getText(completion)));
       elt.hintId = i;
     }
     var pos = cm.cursorCoords(options.alignWithWord !== false ? data.from : null);
@@ -73,22 +74,13 @@ CodeMirror.showHint = function(cm, getHints, options) {
       hints.style.top = (top = pos.bottom - overlapY) + "px";
     }
 
-    var selectedClassName = "CodeMirror-hint CodeMirror-hint-active";
-    var unSelectedClassName = "CodeMirror-hint";
-   
     function changeActive(i) {
       i = Math.max(0, Math.min(i, completions.length - 1));
       if (selectedHint == i) return;
-     // unselect the previous node
-      var previousNode = hints.childNodes[selectedHint];
-      var oldClassName = previousNode.className;
-      oldClassName = oldClassName.substring(selectedClassName.length, oldClassName.length);      
-      previousNode.className = unSelectedClassName + " " + oldClassName;
-      // select the new node
-      var node = hints.childNodes[selectedHint = i];
-      var oldClassName = node.className;
-      oldClassName = oldClassName.substring(unSelectedClassName.length, oldClassName.length);      
-      node.className = selectedClassName + " " + oldClassName;
+      var node = hints.childNodes[selectedHint];
+      node.className = node.className.replace(" CodeMirror-hint-active", "");
+      node = hints.childNodes[selectedHint = i];
+      node.className += " CodeMirror-hint-active";
       if (node.offsetTop < hints.scrollTop)
         hints.scrollTop = node.offsetTop - 3;
       else if (node.offsetTop + node.offsetHeight > hints.scrollTop + hints.clientHeight)
@@ -158,8 +150,7 @@ CodeMirror.showHint = function(cm, getHints, options) {
       cm.off("scroll", onScroll);
     }
     function pick() {
-      if (data.pickItem) {result = data.pickItem(completions, selectedHint, data, cm)};
-      if (result == false) defaultPickItem(completions, selectedHint, data, cm);
+      pickCompletion(cm, data, completions[selectedHint]);
       close();
     }
     var once, lastPos = cm.getCursor(), lastLen = cm.getLine(lastPos.line).length;

@@ -33,6 +33,6 @@
 }
 
 .CodeMirror-hint-active {
-  background-color: #08f;
+  background: #08f;
   color: white;
 }

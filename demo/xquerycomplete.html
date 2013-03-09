@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="../lib/codemirror.css">
     <script src="../lib/codemirror.js"></script>
     <script src="../addon/hint/show-hint.js"></script>
+    <link rel="stylesheet" href="../addon/hint/show-hint.css">
     <link rel="stylesheet" href="../addon/hint/xquery/xquery-hint.css">    
     <script src="../addon/hint/xquery/xquery-hint.js"></script>
     <script src="../mode/xquery/xquery.js"></script>
@@ -27,6 +28,7 @@
 
 module namespace comoms-dls = "http://marklogic.com/comoms-dls";
 import module namespace dls = "http://marklogic.com/xdmp/dls" at "/MarkLogic/dls.xqy";
+import module namespace dls2="http://marklogic.com/xdmp/dls" at "/MarkLogic/dls.xqy";
 
 let $s1 as xs:string*
 let $s2 as xs:string+
@@ -249,12 +251,14 @@ let $bb:=()
         lineWrapping: true,
         autoCloseBrackets: true,
         matchBrackets: true,
+        trackContext : true,
         extraKeys: {
             "':'": passAndHint,
             "'$'": passAndHint,
             "Ctrl-Space": "autocomplete"
         }
       });
+      CodeMirror.defineXQueryModule({"uri":"RDC/XQueryModule/Entity","location":"/rdc/xql-modules/api-rdc-entity.xql","functions":[{"name":"getEntityDEFILE","as":"element()*","params":[{"name":"obj","as":"element()"}]},{"name":"getEntityWDD0D010","as":"element()*","params":[{"name":"obj","as":"element()"}]},{"name":"getEntityDEDTELEM","as":"element()*","params":[{"name":"obj","as":"element()"}]},{"name":"getEntityDECTABLE","as":"element()*","params":[{"name":"obj","as":"element()"}]},{"name":"getEntityDECOPYBK","as":"element()*","params":[{"name":"obj","as":"element()"}]},{"name":"getEntityDERECORD","as":"element()*","params":[{"name":"obj","as":"element()"}]},{"name":"getEntityDEGROUP","as":"element()*","params":[{"name":"obj","as":"element()"}]},{"name":"getEntityDESOURCE","as":"element()*","params":[{"name":"obj","as":"element()"}]},{"name":"getEntityDEPROGRM","as":"element()*","params":[{"name":"obj","as":"element()"}]},{"name":"getEntityWDD0D060","as":"element()*","params":[{"name":"obj","as":"element()"}]}]});
     </script> 
  
     <p><strong>MIME types defined:</strong> <code>application/xquery</code>.</p> 
