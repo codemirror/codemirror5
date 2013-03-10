@@ -949,16 +949,13 @@
         return null;
       },
       jumpToMark: function(cm, motionArgs, vim) {
-        // "best" is the position of the mark closest to the cursor so far.
         var best = cm.getCursor(); 
         for (var i = 0; i < motionArgs.repeat; i++) {
-          // after each iteration we (logically) move the cursor to the next mark.
           var cursor = best;
           for (var key in vim.marks) {
             if (!isLowerCase(key)) {
               continue;
             }
-            // "mark" is the position of a mark we are comparing against best.
             var mark = vim.marks[key].find();
             var isWrongDirection = (motionArgs.forward) ?
               cursorIsBefore(mark, cursor) : cursorIsBefore(cursor, mark)
@@ -966,24 +963,26 @@
             if (isWrongDirection) {
               continue;
             }
+            if (motionArgs.linewise && (mark.line == cursor.line)) {
+              continue;
+            }
 
-            var between = (motionArgs.forward) ? cusrorIsBetween(cursor, mark, best) :
-                                                 cusrorIsBetween(best, mark, cursor);
-            var equal = (motionArgs.linewise) ? cursor.line == best.line :
-                                                cursorEqual(cursor, best);
+            var equal = cursorEqual(cursor, best);
+            var between = (motionArgs.forward) ? 
+              cusrorIsBetween(cursor, mark, best) :
+              cusrorIsBetween(best, mark, cursor);
+
             if (equal || between) {
               best = mark;
             }
           }
         }
-        
+
         if (motionArgs.linewise) {
-          // Vim places the cursor on the first non-whitespace character of the
-          // line if there is one, else it places the cursor at the end of the
-          // line, regardless of whether a mark was found.
-          var line = cm.getLine(best.line);
-          var col = findFirstNonWhiteSpaceCharacter(line);
-          best.ch = col;
+          // Vim places the cursor on the first non-whitespace character of
+          // the line if there is one, else it places the cursor at the end
+          // of the line, regardless of whether a mark was found.
+          best.ch = findFirstNonWhiteSpaceCharacter(cm.getLine(best.line));
         }
         return best;
       },

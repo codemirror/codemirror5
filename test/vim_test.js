@@ -859,6 +859,15 @@ testVim('jumpToMark_next_nomark', function(cm, vim, helpers) {
   helpers.doKeys(']', '\'');
   helpers.assertCursorAt(2, 0);
 });
+testVim('jumpToMark_next_linewise_over', function(cm, vim, helpers) {
+  cm.setCursor(2, 2);
+  helpers.doKeys('m', 'a');
+  cm.setCursor(3, 4);
+  helpers.doKeys('m', 'b');
+  cm.setCursor(2, 1);
+  helpers.doKeys(']', '\'');
+  helpers.assertCursorAt(3, 1);
+});
 testVim('jumpToMark_next_action', function(cm, vim, helpers) {
   cm.setCursor(2, 2);
   helpers.doKeys('m', 't');
@@ -923,6 +932,15 @@ testVim('jumpToMark_prev_nomark', function(cm, vim, helpers) {
   cm.setCursor(2, 2);
   helpers.doKeys('[', '`');
   helpers.assertCursorAt(2, 2);
+  helpers.doKeys('[', '\'');
+  helpers.assertCursorAt(2, 0);
+});
+testVim('jumpToMark_prev_linewise_over', function(cm, vim, helpers) {
+  cm.setCursor(2, 2);
+  helpers.doKeys('m', 'a');
+  cm.setCursor(3, 4);
+  helpers.doKeys('m', 'b');
+  cm.setCursor(3, 6);
   helpers.doKeys('[', '\'');
   helpers.assertCursorAt(2, 0);
 });
