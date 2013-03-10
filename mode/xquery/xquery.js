@@ -276,7 +276,7 @@ CodeMirror.defineMode("xquery", function(config) {
         		  var moduleDecl = new ModuleDecl();
     			  moduleDecl.prefix = word;
     			  state.moduleDecl = moduleDecl;
-    			  state.declaredModules.push(moduleDecl);
+    			  state.importedModules.push(moduleDecl);
     			  state.tokenModuleParsing = "namespacePrefix";
         	  } else {state.tokenModuleParsing = null;}
         	  break;
@@ -366,10 +366,10 @@ CodeMirror.defineMode("xquery", function(config) {
           } else if (state.tokenModuleParsing == "namespaceURI") {
         	  state.moduleDecl.namespaceURI +=ch;
           } else if (state.tokenModuleParsing == "namespaceLocationAt") {
-        	  state.moduleDecl.namespaceLocation = ch;
+        	  state.moduleDecl.location = ch;
         	  state.tokenModuleParsing = "namespaceLocation"
           } else if (state.tokenModuleParsing == "namespaceLocation") {
-        	  state.moduleDecl.namespaceLocation += ch;
+        	  state.moduleDecl.location += ch;
           }          
         }
       }
@@ -648,7 +648,7 @@ CodeMirror.defineMode("xquery", function(config) {
         declaredFunctions : [],
         functionDecl : null,
         currentVar : null,
-        declaredModules : [],
+        importedModules : [],
         moduleDecl : null,
         tokenModuleParsing : null
       };

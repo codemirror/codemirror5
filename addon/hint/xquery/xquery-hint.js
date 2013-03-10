@@ -1,7 +1,7 @@
 (function() {
   var Pos = CodeMirror.Pos;
 
-  // --------------- xquery module utils ---------------------
+  // --------------- xquery module functions ---------------------
 
   var moduleURIs = [];
   var modules = [];
@@ -14,9 +14,9 @@
   }
   CodeMirror.defineXQueryModule = defineXQueryModule;
 
-  function findModuleByDeclaration(declaredModule) {
-    if (declaredModule && declaredModule.namespaceURI) {
-      var module = findModule(declaredModule.namespaceURI, declaredModule.location);
+  function findModuleByDeclaration(importedModule) {
+    if (importedModule && importedModule.namespaceURI) {
+      var module = findModule(importedModule.namespaceURI, importedModule.location);
       if (module) {
         return module;
       }
@@ -63,7 +63,7 @@
     return trim(startsWith);
   }
 
-  // --------------- populate utils ---------------------
+  // --------------- populate variables functions ---------------------
 
   function getVarLabel(varDecl) {
     var dataType = varDecl.dataType || varDecl.dataType || 'any';
@@ -79,14 +79,14 @@
         var completion = varDecl.completion;
         if (!completion) {
           completion = {
-            "content" : varDecl.name,
             "text" : getVarLabel(varDecl),
-            "className" : "CodeMirror-hint-var-" + varDecl.scope
+            "className" : "CodeMirror-hint-var-" + varDecl.scope,
+            "varDecl" : varDecl
           };
           completion.hint = function(cm, data, completion) {
             var from = Pos(data.line, data.token.start);
             var to = Pos(data.line, data.token.end);
-            cm.replaceRange(completion.content, from, to);
+            cm.replaceRange(completion.varDecl.name, from, to);
           };
           varDecl.completion = completion;
         }
@@ -96,6 +96,8 @@
     }
   }
 
+  // --------------- populate function functions ---------------------
+  
   function getParamLabel(varDecl) {
     var dataType = varDecl.dataType || varDecl.dataType || 'any';
     var name = varDecl.name;
@@ -127,36 +129,38 @@
         if (name && startsWithString(name, s)) {
           var completion = functionDecl.completion;
           if (!completion) {
-            // create content to insert
-            var firstParam = null;
-            var name = functionDecl.name;
-            var params = functionDecl.params;
-            var content = name + '(';
-            var p = '';
-            while (params) {
-              var varDecl = params.varDecl;
-              firstParam = varDecl.name;
-              p = varDecl.name + p;
-              params = params.next;
-              if (params != null)
-                p = ',' + p;
-            }
-            content += p;
-            content += ')';
             completion = {
-              "name" : name,
-              "content" : content,
-              "firstParam" : firstParam,
               "text" : getFunctionLabel(functionDecl),
-              "className" : "CodeMirror-hint-function"
+              "className" : "CodeMirror-hint-function",
+              "functionDecl" : functionDecl
             };
             completion.hint = function(cm, data, completion) {
+
+              var functionDecl = completion.functionDecl;              
+              var name = functionDecl.name;
+              // create content to insert
+              var firstParam = null;
+              var name = functionDecl.name;
+              var params = functionDecl.params;
+              var content = name + '(';
+              var p = '';
+              while (params) {
+                var varDecl = params.varDecl;
+                firstParam = varDecl.name;
+                p = varDecl.name + p;
+                params = params.next;
+                if (params != null)
+                  p = ',' + p;
+              }
+              content += p;
+              content += ')';
+              
               var from = Pos(data.line, data.token.start);
               var to = Pos(data.line, data.token.end);
-              cm.replaceRange(completion.content, from, to);
+              cm.replaceRange(content, from, to);
               cm.setCursor(Pos(data.line, data.token.start + name.length + 1));
-              var firstParam = completion.firstParam;
               if (firstParam != null) {
+                // the function to insert hasparameters, select the first parameter.
                 cm.setSelection(Pos(data.line, data.token.start + name.length
                     + 1), Pos(data.line, data.token.start + name.length + 1
                     + firstParam.length));
@@ -170,25 +174,27 @@
     }
   }
 
-  function populateDeclaredModules(s, declaredModules, items) {
-    if (declaredModules) {
-      for ( var i = 0; i < declaredModules.length; i++) {
-        var declaredModule = declaredModules[i];
-        var name = declaredModule.prefix;
+  // --------------- populate imported modules funtions ---------------------
+  
+  function populateImportedModules(s, importedModules, items) {
+    if (importedModules) {
+      for ( var i = 0; i < importedModules.length; i++) {
+        var importedModule = importedModules[i];
+        var name = importedModule.prefix;
         if (name && startsWithString(name, s)) {
-          var completion = declaredModule.completion;
+          var completion = importedModule.completion;
           if (!completion) {
             completion = {
-              "content" : declaredModule.prefix,
-              "text" : declaredModule.prefix,
-              "className" : "CodeMirror-hint-module"
+              "text" : importedModule.prefix + ' - ' + importedModule.namespaceURI,
+              "className" : "CodeMirror-hint-module",
+              "importedModule" : importedModule
             };
             completion.hint = function(cm, data, completion) {
               var from = Pos(data.line, data.token.start);
               var to = Pos(data.line, data.token.end);
-              cm.replaceRange(completion.content, from, to);
+              cm.replaceRange(importedModule.prefix, from, to);
             };
-            declaredModule.completion = completion;
+            importedModule.completion = completion;
           }
           items.push(completion);
         }
@@ -196,13 +202,13 @@
     }
   }
 
-  function getDeclaredModule(declaredModules, prefix) {
-    if (declaredModules) {
-      for ( var i = 0; i < declaredModules.length; i++) {
-        var declaredModule = declaredModules[i];
-        var name = declaredModule.prefix;
+  function getImportedModule(importedModules, prefix) {
+    if (importedModules) {
+      for ( var i = 0; i < importedModules.length; i++) {
+        var importedModule = importedModules[i];
+        var name = importedModule.prefix;
         if (name == prefix) {
-          return declaredModule;
+          return importedModule;
         }
       }
     }
@@ -217,14 +223,14 @@
         var completion = module.completion;
         if (!completion) {
           completion = {
-            "location" : module.location,
             "text" : module.uri,
-            "className" : "CodeMirror-hint-module-ns"
+            "className" : "CodeMirror-hint-module-ns",
+            "module" : module
           };
           completion.hint = function(cm, data, completion) {
-            var label = completion.text;
+            var label = completion.module.uri;
             var from = Pos(data.line, data.token.start + 1), to = null;
-            var location = completion.location;
+            var location = completion.module.location;
             if (location) {
               var quote = data.token.string.charAt(0);
               label += quote + ' at ' + quote + location + quote + ';';
@@ -420,11 +426,11 @@
         // "/MarkLogic/dls.xqy";
         // prefix=dls will retrieve the module "http://marklogic.com/xdmp/dls"
         // at "/MarkLogic/dls.xqy";
-        var declaredModule = getDeclaredModule(token.state.declaredModules,
+        var importedModule = getImportedModule(token.state.importedModules,
             prefix);
-        // it exists a declared module with the given prefix, search the module
+        // it exists an included module with the given prefix, search the module
         // with the given namespace URI (ex:"http://marklogic.com/xdmp/dls").
-        var module = findModuleByDeclaration(declaredModule);
+        var module = findModuleByDeclaration(importedModule);
         if (module) {
           populateModuleFunctions(module, prefix, funcName, items);
         }
@@ -460,8 +466,8 @@
       populateDeclaredFunctions(s, declaredFunctions, items);
 
       // declared modules
-      var declaredModules = token.state.declaredModules
-      populateDeclaredModules(s, declaredModules, items);
+      var importedModules = token.state.importedModules
+      populateImportedModules(s, importedModules, items);
 
     }
     return getCompletions(items, cur, token, options, showHint)
