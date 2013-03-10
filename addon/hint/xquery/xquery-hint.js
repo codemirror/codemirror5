@@ -1,6 +1,8 @@
 (function() {
   var Pos = CodeMirror.Pos;
 
+  // --------------- xquery module utils ---------------------
+
   var moduleURIs = [];
   var modules = [];
 
@@ -11,6 +13,24 @@
     }
   }
   CodeMirror.defineXQueryModule = defineXQueryModule;
+
+  function findModuleByDeclaration(declaredModule) {
+    if (declaredModule && declaredModule.namespaceURI) {
+      var module = findModule(declaredModule.namespaceURI, declaredModule.location);
+      if (module) {
+        return module;
+      }
+    }
+    return null;
+  }
+  
+  function findModule(namespaceURI, location) {
+    var module = modules[namespaceURI];
+    if (module) {
+      return module;
+    }
+    return null;
+  }
 
   // --------------- token utils ---------------------
 
@@ -356,7 +376,7 @@
     case "variable":
     case null:
       // do the completion about variable, declared functions and modules.
-      
+
       // completion should be ignored for parameters function declaration :
       // check if the current token is not inside () of a declared function.
       var functionDecl = token.state.functionDecl;
@@ -373,11 +393,12 @@
           // ignore completion
           return getCompletions(items, cur, token, options, showHint);
       }
-      
+
       // show let, declared variables.
       var s = null;
       if (previous && previous.type == "keyword" && previous.string == "if"
           && token.string == "(") {
+        // in the case if(, the search string should be empty.
         s = "";
       } else {
         s = getStartsWith(cur, token);
@@ -388,19 +409,24 @@
       var funcName = null;
       var prefixIndex = s.lastIndexOf(':');
       if (prefixIndex != -1) {
+        // retrieve the prfix anf function name.
         prefix = s.substring(0, prefixIndex);
         funcName = s.substring(prefixIndex + 1, s.length);
       }
 
       if (prefix) {
-        // search module
+        // search the declared module which checks the prefix
+        // ex import module namespace dls = "http://marklogic.com/xdmp/dls" at
+        // "/MarkLogic/dls.xqy";
+        // prefix=dls will retrieve the module "http://marklogic.com/xdmp/dls"
+        // at "/MarkLogic/dls.xqy";
         var declaredModule = getDeclaredModule(token.state.declaredModules,
             prefix);
-        if (declaredModule && declaredModule.namespaceURI) {
-          var module = modules[declaredModule.namespaceURI];
-          if (module) {
-            populateModuleFunctions(module, prefix, funcName, items);
-          }
+        // it exists a declared module with the given prefix, search the module
+        // with the given namespace URI (ex:"http://marklogic.com/xdmp/dls").
+        var module = findModuleByDeclaration(declaredModule);
+        if (module) {
+          populateModuleFunctions(module, prefix, funcName, items);
         }
       }
 
