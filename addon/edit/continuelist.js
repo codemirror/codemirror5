@@ -1,22 +1,21 @@
 (function() {
   'use strict';
 
-  var listRE = /^(\s*)([*+-]|(\d+)\.)(\s*)/
-    , unorderedBullets = '*+-';
+  var listRE = /^(\s*)([*+-]|(\d+)\.)(\s*)/,
+      unorderedBullets = '*+-';
 
   CodeMirror.commands.newlineAndIndentContinueMarkdownList = function(cm) {
-    var pos = cm.getCursor()
-      , line = cm.getLineHandle(pos.line)
-      , match, indent, bullet, after;
+    var pos = cm.getCursor(),
+        inList = cm.getStateAfter(pos.line),
+        match;
 
-    if (!line.stateAfter.list || !(match = line.text.match(listRE))) {
+    if (!inList || !(match = cm.getLine(pos.line).match(listRE))) {
       cm.execCommand('newlineAndIndent');
       return;
     }
 
-    indent = match[1];
-    after = match[4];
-    bullet = unorderedBullets.indexOf(match[2]) >= 0
+    var indent = match[1], after = match[4];
+    var bullet = unorderedBullets.indexOf(match[2]) >= 0
       ? match[2]
       : (parseInt(match[3], 10) + 1) + '.';
 
