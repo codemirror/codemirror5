@@ -1170,12 +1170,14 @@
       clientHeight}</code> object that represents the current scroll
       position, the size of the scrollable area, and the size of the
       visible area (minus scrollbars).</dd>
-      <dt id="scrollIntoView"><code>cm.scrollIntoView(pos)</code></dt>
+      <dt id="scrollIntoView"><code>cm.scrollIntoView(pos, margin)</code></dt>
       <dd>Scrolls the given element into view. <code>pos</code> may be
       either a <code>{line, ch}</code> position, referring to a given
       character, <code>null</code>, to refer to the cursor, or
       a <code>{left, top, right, bottom}</code> object, in
-      editor-local coordinates.</dd>
+      editor-local coordinates. The <code>margin</code> parameter is
+      optional. When given, it indicates the amount of pixels around
+      the given area that should be made visible as well.</dd>
 
       <dt id="cursorCoords"><code>cm.cursorCoords(where, mode) → object</code></dt>
       <dd>Returns an <code>{left, top, bottom}</code> object
