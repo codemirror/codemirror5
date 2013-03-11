@@ -301,10 +301,20 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   function property(type) {
     if (type == "variable") {cx.marked = "property"; return cont();}
   }
-  function objprop(type) {
-    if (type == "variable") cx.marked = "property";
-    else if (type == "number" || type == "string") cx.marked = type + " property";
+  function objprop(type, value) {
+    if (type == "variable") {
+      cx.marked = "property";
+      if (value == "get" || value == "set") return cont(getterSetter);
+    } else if (type == "number" || type == "string") {
+      cx.marked = type + " property";
+    }
     if (atomicTypes.hasOwnProperty(type)) return cont(expect(":"), expression);
+  }
+  function getterSetter(type) {
+    if (type == ":") return cont(expression);
+    if (type != "variable") return cont(expect(":"), expression);
+    cx.marked = "property";
+    return cont(functiondef);
   }
   function commasep(what, end) {
     function proceed(type) {
