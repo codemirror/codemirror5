@@ -13,13 +13,17 @@
     </style>
   </head>
   <body>
-    
+
     <h1>CodeMirror: Closebrackets Demo</h1>
-    
+
     <p>Type a bracket like '[', '(', '{', '&quot;', or '''
     and <a href="../doc/manual.html#addon_closebrackets">the addon</a>
     will auto-close it. Type the closing variant when directly in
     front of a matching character and it will overwrite it.</p>
+
+    <p>If you backspace over a starting bracket while inside empty brackets
+    (e.g. <code>{|}</code>), it will delete the closing bracket for you.</p>
+
 
     <form><textarea id="code" name="code">(function() {
   var DEFAULT_BRACKETS = "()[]{}''\"\"";
