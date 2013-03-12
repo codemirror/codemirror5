@@ -3,20 +3,28 @@
 
   // --------------- xquery module functions ---------------------
 
-  var moduleURIs = [];
+  var defaultModulePrefixes = [];
+  var defaultModules = [];
+  
+  var moduleNamespaces = [];
   var modules = [];
 
   function defineXQueryModule(module) {
-    if (module && module.uri) {
-      moduleURIs.push(module.uri);
-      modules[module.uri] = module;
+    if (module && module.namespace) {
+      if (module.prefix) {
+        defaultModulePrefixes.push(module.prefix);
+        defaultModules[module.prefix] = module;        
+      } else {
+        moduleNamespaces.push(module.namespace);
+        modules[module.namespace] = module;        
+      }
     }
   }
   CodeMirror.defineXQueryModule = defineXQueryModule;
 
   function findModuleByDeclaration(importedModule) {
-    if (importedModule && importedModule.namespaceURI) {
-      var module = findModule(importedModule.namespaceURI, importedModule.location);
+    if (importedModule && importedModule.namespace) {
+      var module = findModule(importedModule.namespace, importedModule.location);
       if (module) {
         return module;
       }
@@ -24,8 +32,8 @@
     return null;
   }
   
-  function findModule(namespaceURI, location) {
-    var module = modules[namespaceURI];
+  function findModule(namespace, location) {
+    var module = modules[namespace];
     if (module) {
       return module;
     }
@@ -180,25 +188,29 @@
     if (importedModules) {
       for ( var i = 0; i < importedModules.length; i++) {
         var importedModule = importedModules[i];
-        var name = importedModule.prefix;
-        if (name && startsWithString(name, s)) {
-          var completion = importedModule.completion;
-          if (!completion) {
-            completion = {
-              "text" : importedModule.prefix + ' - ' + importedModule.namespaceURI,
-              "className" : "CodeMirror-hint-module",
-              "importedModule" : importedModule
-            };
-            completion.hint = function(cm, data, completion) {
-              var from = Pos(data.line, data.token.start);
-              var to = Pos(data.line, data.token.end);
-              cm.replaceRange(importedModule.prefix, from, to);
-            };
-            importedModule.completion = completion;
-          }
-          items.push(completion);
-        }
+        populateModulePrefix(s, importedModule, items);
       }
+    }
+  }
+  
+  function populateModulePrefix(s, importedModule, items) {
+    var name = importedModule.prefix;
+    if (name && startsWithString(name, s)) {
+      var completion = importedModule.completion;
+      if (!completion) {
+        completion = {
+          "text" : importedModule.prefix + ' - ' + importedModule.namespace,
+          "className" : "CodeMirror-hint-module",
+          "importedModule" : importedModule
+        };
+        completion.hint = function(cm, data, completion) {
+          var from = Pos(data.line, data.token.start);
+          var to = Pos(data.line, data.token.end);
+          cm.replaceRange(importedModule.prefix, from, to);
+        };
+        importedModule.completion = completion;
+      }
+      items.push(completion);
     }
   }
 
@@ -216,19 +228,19 @@
   }
 
   function populateModuleNamespaces(s, items) {
-    for ( var i = 0; i < moduleURIs.length; i++) {
-      var uri = moduleURIs[i];
+    for ( var i = 0; i < moduleNamespaces.length; i++) {
+      var uri = moduleNamespaces[i];
       if (startsWithString(uri, s)) {
         var module = modules[uri];
         var completion = module.completion;
         if (!completion) {
           completion = {
-            "text" : module.uri,
+            "text" : module.namespace,
             "className" : "CodeMirror-hint-module-ns",
             "module" : module
           };
           completion.hint = function(cm, data, completion) {
-            var label = completion.module.uri;
+            var label = completion.module.namespace;
             var from = Pos(data.line, data.token.start + 1), to = null;
             var location = completion.module.location;
             if (location) {
@@ -316,6 +328,14 @@
       }
     }
   }
+  
+  function populateDefaultModulePrefix(s, items) {
+    for ( var i = 0; i < defaultModulePrefixes.length; i++) {
+      var prefix = defaultModulePrefixes[i];
+      var module = defaultModules[prefix];
+      populateModulePrefix(s, module, items);
+    }
+  }
 
   // --------------- completion utils ---------------------
 
@@ -379,6 +399,7 @@
         break;
       }
       break;
+    case "variable def":
     case "variable":
     case null:
       // do the completion about variable, declared functions and modules.
@@ -421,16 +442,20 @@
       }
 
       if (prefix) {
-        // search the declared module which checks the prefix
-        // ex import module namespace dls = "http://marklogic.com/xdmp/dls" at
-        // "/MarkLogic/dls.xqy";
-        // prefix=dls will retrieve the module "http://marklogic.com/xdmp/dls"
-        // at "/MarkLogic/dls.xqy";
-        var importedModule = getImportedModule(token.state.importedModules,
-            prefix);
-        // it exists an included module with the given prefix, search the module
-        // with the given namespace URI (ex:"http://marklogic.com/xdmp/dls").
-        var module = findModuleByDeclaration(importedModule);
+        // test if it's default prefix
+        var module = defaultModules[prefix];
+        if (!module) {        
+          // search the declared module which checks the prefix
+          // ex import module namespace dls = "http://marklogic.com/xdmp/dls" at
+          // "/MarkLogic/dls.xqy";
+          // prefix=dls will retrieve the module "http://marklogic.com/xdmp/dls"
+          // at "/MarkLogic/dls.xqy";
+          var importedModule = getImportedModule(token.state.importedModules,
+              prefix);
+          // it exists an included module with the given prefix, search the module
+          // with the given namespace URI (ex:"http://marklogic.com/xdmp/dls").
+          module = findModuleByDeclaration(importedModule);
+        }
         if (module) {
           populateModuleFunctions(module, prefix, funcName, items);
         }
@@ -465,10 +490,12 @@
       var declaredFunctions = token.state.declaredFunctions
       populateDeclaredFunctions(s, declaredFunctions, items);
 
-      // declared modules
+      // imported modules
       var importedModules = token.state.importedModules
       populateImportedModules(s, importedModules, items);
-
+      
+      // default module
+      populateDefaultModulePrefix(s, items);
     }
     return getCompletions(items, cur, token, options, showHint)
   }

@@ -1,0 +1,385 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>CodeMirror: XQuery Autocomplete Demo</title>
+    <link rel="stylesheet" href="../lib/codemirror.css">
+    <script src="../lib/codemirror.js"></script>
+    <script src="../addon/hint/show-hint.js"></script>
+    <link rel="stylesheet" href="../addon/hint/show-hint.css">
+    <link rel="stylesheet" href="../addon/hint/xquery/xquery-hint.css">    
+    <script src="../addon/hint/xquery/xquery-hint.js"></script>
+    <script src="../addon/hint/xquery/marklogic/xdmp.xqy.js"></script>    
+    <script src="../addon/hint/xquery/marklogic/map.xqy.js"></script>
+    <script src="../mode/xquery/xquery.js"></script>
+    <link rel="stylesheet" href="../doc/docs.css">
+    <script src="../addon/selection/active-line.js"></script>
+    <script src="../addon/edit/closebrackets.js"></script>
+    <script src="../addon/edit/matchbrackets.js"></script>
+    <link rel="stylesheet" href="../theme/eclipse.css">
+    <style type="text/css">
+	  body {
+ 		 font-family: Droid Sans, Arial, sans-serif;
+  		 line-height: 1.5;
+  		 max-width: none;
+  		 margin: 0;
+  		 padding: 0 1em;
+      }
+      .CodeMirror {
+        height:500px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>CodeMirror: XQuery Autocomplete demo</h1> 
+ 
+<table width="100%" >
+<tr>
+<td width="50%" >
+<h2>marker / plugins / security / library / oauth2.xqy</h2>
+<textarea id="code" name="code">
+xquery version "1.0-ml";
+(:
+ Copyright 2010 MarkLogic Corporation 
+ Copyright 2009 Ontario Council of University Libraries
+
+ Licensed under the Apache License, Version 2.0 (the "License"); 
+ you may not use this file except in compliance with the License. 
+ You may obtain a copy of the License at 
+
+        http://www.apache.org/licenses/LICENSE-2.0 
+
+ Unless required by applicable law or agreed to in writing, software 
+ distributed under the License is distributed on an "AS IS" BASIS, 
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ See the License for the specific language governing permissions and 
+ limitations under the License. 
+:)
+module namespace oauth2 = "oauth2";
+declare namespace xdmphttp="xdmp:http";
+import module namespace user = "http://marklogic.com/plugins/security/user" at "../models/user-model.xqy";
+
+(:~
+ : Given the user_data map, get the request token and call to Facebook to get profile information
+ : populate the profile information in the map (see within for those values
+ :) 
+declare function oauth2:facebookUserProfileInfo($access_token)  {
+    let $profile_url := fn:concat("https://graph.facebook.com/me?access_token=", $access_token)
+    let $cmd := fn:concat("xquery version '1.0-ml'; xdmp:http-get('", 
+                          $profile_url, 
+                          "', <options xmlns='xdmp:http-get'><format xmlns='xdmp:document-get'>text</format></options>)")
+    let $profile_response :=  xdmp:eval($cmd)
+    return
+        if($profile_response[1]/xdmphttp:code/text() eq "200") then
+            let $json_response := $profile_response[2]
+            let $map_response := xdmp:from-json($profile_response[2])
+            let $provider_user_data :=
+                <provider-data name="facebook">
+                    <id>{map:get($map_response,"id")}</id>
+                    <name>{map:get($map_response,"name")}</name>
+                    <link>{map:get($map_response,"link")}</link>
+                    <gender>{map:get($map_response,"gender")}</gender>
+                    <picture>{fn:concat("http://graph.facebook.com/", map:get($map_response,"id"), "/picture" )}</picture>
+                </provider-data>
+            return
+                $provider_user_data
+        else 
+            ()
+    
+};
+
+(:~
+ : Given the user_data map, get the request token and call to Facebook to get profile information
+ : populate the profile information in the map (see within for those values
+ :) 
+declare function oauth2:githubUserProfileInfo($access_token)  {
+    let $profile_url := fn:concat("https://github.com/api/v2/xml/user/show?access_token=", $access_token)
+    let $cmd := fn:concat("xquery version '1.0-ml'; xdmp:http-get('", 
+                          $profile_url, 
+                          "')")
+    let $profile_response :=  xdmp:eval($cmd)
+    return
+        if($profile_response[1]/xdmphttp:code/text() eq "200") then
+            let $xml_response := $profile_response[2]
+            let $provider_user_data :=
+                <provider-data name="github">
+                    <id>{$xml_response/user/login/text()}</id>
+                    <name>{$xml_response/user/name/text()}</name>
+                    <link>{fn:concat("http://github.com/", $xml_response/user/login/text())}</link>
+                    <picture>{fn:concat("http://www.gravatar.com/avatar/", $xml_response/user/gravatar-id/text())}</picture>
+                </provider-data>
+            return
+                $provider_user_data
+        else 
+            ()
+    
+};
+
+(:~
+ : Fetch the user profile info for the given provider, basically a router function
+ : @param $provider the provider name corresponding the provider config setup
+ : @param $oauth_token_data the oauth2 access_token for the current users session
+ : @return the provider-data node() block
+ :)
+declare function oauth2:getUserProfileInfo($provider, $oauth_token_data)  {
+    let $access_token := map:get($oauth_token_data, "access_token")    
+    return
+    if($provider = "facebook") then
+        oauth2:facebookUserProfileInfo($access_token) 
+    else
+        oauth2:githubUserProfileInfo($access_token) 
+};
+
+(:~
+ : Parse the response text of an outh2 access token request into the token and 
+ : expiration date
+ : @param $responseText response text of the access token request
+ : @return map containing access_token, expires
+ :)
+declare function oauth2:parseAccessToken($responseText) as item()+ {
+   let $_ := xdmp:log($responseText)
+   let $respText := xdmp:binary-decode($responseText, "UTF-8")
+   let $_ := xdmp:log($respText)
+   let $params := fn:tokenize($respText, "&amp;")
+   let $access_token := fn:tokenize($params[1], "=")[2]
+   let $expires_seconds := if($params[2] = "expires") then fn:tokenize($params[2], "=")[2] else ()
+   let $expires := if($params[2] = "expires") then fn:current-dateTime() + xs:dayTimeDuration(fn:concat("PT", $expires_seconds, "S")) else ()
+   let $user_data := map:map()
+   let $key := map:put($user_data, "access_token", $access_token)
+   let $key := map:put($user_data, "expires", $expires)
+   return $user_data
+};
+
+(:~
+ : Given a provider name and provider user Id, look for a MarkLogic user that's mapped to that provider
+ : identity
+ :)
+declare function oauth2:getOrCreateUserByProvider($providerName as xs:string, 
+                                                      $providerUserId as xs:string,
+                                                      $providerUserData as node()) 
+{                                                  
+    let $userDetails :=  /user/provider-data[id/text() eq $providerUserId and @name = $providerName]
+    return  
+        if($userDetails) then
+            fn:doc(xdmp:node-uri($userDetails))/user/@name
+        else 
+            (: if the user could not be found then create it :)
+            let $fullName := $providerUserData/name/text()
+            let $description := fn:concat($providerName, " User ", $fullName, " (", $providerUserId, ")")
+            let $username := fn:concat($providerName, "_", $providerUserId)
+            let $password := xs:string(xdmp:hash32($username))
+            let $newuser := user:createNewUser($username, $password, $description, ("security-user"), $providerName, $providerUserId)
+            let $usermapping := oauth2:mapUserToAuthProvider($username, $providerName, $providerUserId, $providerUserData)
+            return
+                $username
+};
+
+(:~
+ : Map a MarkLogic user to an auth provider. Create the provider data block
+ : with details about the user from the auth provider
+ : @param $markLogicUsername the username of the MarkLogic database user in the security database
+ : @param $providerName the provider name corresponding to the provider config
+ : @param $providerUserId the unique user id from the provider
+ : @param $providerUserData node() block representing the user profile data from the provider
+ : 
+ :)
+declare function oauth2:mapUserToAuthProvider($markLogicUsername as xs:string, 
+                                              $providerName as xs:string, 
+                                              $providerUserId as xs:string,
+                                              $providerUserData as node()) 
+{
+    let $pathToUserDetail := fn:concat("/users/", $markLogicUsername, ".xml")
+    let $userDetail := xdmp:unpath($pathToUserDetail)/user
+ 
+    return
+        if($userDetail) then
+            if($userDetail/provider-data[@name = $providerName]) 
+            then
+                (
+                let $evalStatement := "xquery version '1.0-ml'; 
+                                        declare variable $userDetail external;
+                                        declare variable $providerName external;
+                                        declare variable $providerUserData external;
+                                        xdmp:node-replace($userDetail/provider-data[@name = $providerName], $providerUserData)"
+                let $eval := xdmp:eval($evalStatement,
+                                        (xs:QName("userDetail"), $userDetail,xs:QName("providerName"), $providerName,xs:QName("providerUserData"), $providerUserData),
+                                        (<options xmlns="xdmp:eval">
+                                          <isolation>different-transaction</isolation>
+                                          <prevent-deadlocks>true</prevent-deadlocks>
+                                        </options>))
+                return $eval
+                )
+           else
+                let $evalStatement := "xquery version '1.0-ml'; 
+                                        declare variable $userDetail external;
+                                        declare variable $providerUserData external;
+                                        xdmp:node-insert-child($userDetail,$providerUserData)"
+                let $eval := xdmp:eval($evalStatement,
+                                        (xs:QName("userDetail"), $userDetail,xs:QName("providerUserData"), $providerUserData),
+                                        (<options xmlns="xdmp:eval">
+                                          <isolation>different-transaction</isolation>
+                                          <prevent-deadlocks>true</prevent-deadlocks>
+                                        </options>))
+                return $eval
+                
+        else
+            (
+            let $evalStatement := "xquery version '1.0-ml'; 
+                                        declare variable $pathToUserDetail external;
+                                        declare variable $markLogicUsername external;
+                                        declare variable $providerUserData external;
+                                        xdmp:document-insert($pathToUserDetail,
+                                            element user { 
+                                                attribute name { $markLogicUsername },
+                                                $providerUserData
+                                            },
+                                            (xdmp:permission('security-anon', 'read'), xdmp:permission('security-admin', 'update'))
+                                            )"
+            let $eval := xdmp:eval($evalStatement,
+                                    (xs:QName("pathToUserDetail"), $pathToUserDetail,xs:QName("markLogicUsername"), $markLogicUsername,xs:QName("providerUserData"), $providerUserData),
+                                    (<options xmlns="xdmp:eval">
+                                      <isolation>different-transaction</isolation>
+                                      <prevent-deadlocks>true</prevent-deadlocks>
+                                    </options>))
+            return $eval
+            
+            )          
+};
+
+declare function oauth2:loginAsMarkLogicUser($username) 
+{
+    xdmp:eval(
+        fn:concat("xquery version '1.0-ml'; xdmp:login('", $username, "')")    
+    )
+};</textarea>
+  </td>
+  <td width="50%" >
+<h2>marker / plugins / security / models / user-model.xqy</h2>  
+  <textarea id="code2" name="code2" >
+  xquery version "1.0-ml";
+(:
+ Copyright 2010 MarkLogic Corporation 
+ Copyright 2009 Ontario Council of University Libraries
+
+ Licensed under the Apache License, Version 2.0 (the "License"); 
+ you may not use this file except in compliance with the License. 
+ You may obtain a copy of the License at 
+
+        http://www.apache.org/licenses/LICENSE-2.0 
+
+ Unless required by applicable law or agreed to in writing, software 
+ distributed under the License is distributed on an "AS IS" BASIS, 
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ See the License for the specific language governing permissions and 
+ limitations under the License. 
+:)
+module namespace user = "http://marklogic.com/plugins/security/user";
+import module namespace cfg = "http://marklogic.com/plugins/security/config" at "../config/config.xqy";
+import module namespace xqmvc-cfg = "http://scholarsportal.info/xqmvc/config" at "/application/config/config.xqy";
+
+
+declare function user:createNewUser($markLogicUsername as xs:string, 
+                                          $userPassword as xs:string,
+                                          $userDescription as xs:string,
+                                          $role as xs:string,
+                                          $providerName as xs:string, 
+                                          $providerUserId as xs:string,
+                                          $securityDatabaseName as xs:string) 
+{
+    let $existingUsers := user:getExistingUsers()
+    let $log := xdmp:log("createNewUser")                    
+    return 
+        if($markLogicUsername = $existingUsers) then 
+            fn:concat("User ", $markLogicUsername, " already exists")
+        else
+            try {
+                xdmp:eval(
+                    fn:concat(
+                    "xquery version '1.0-ml'; 
+                    import module namespace sec='http://marklogic.com/xdmp/security' at '/MarkLogic/security.xqy';
+                    sec:create-user('", $markLogicUsername, "', '", $userDescription, "', '", $userPassword, "', '", $role, "', (), ())"), (),
+                    <options xmlns="xdmp:eval">
+                        <database>{xdmp:database($securityDatabaseName)}</database> 
+                    </options>)  
+            } catch($e) {
+                let $log := xdmp:log(fn:concat("FAILED TO CREATE USER. Error: ", $e/*:message[1]/text()))
+                return "User could not be created!!"
+            } 
+                                      
+};
+
+declare function user:createNewUser($markLogicUsername as xs:string, 
+                                          $userPassword as xs:string,
+                                          $userDescription as xs:string,
+                                          $role as xs:string,
+                                          $providerName as xs:string, 
+                                          $providerUserId as xs:string) 
+{
+    user:createNewUser($markLogicUsername, $userPassword, $userDescription, $role, $providerName, $providerUserId, "Security")   
+};
+
+
+(:~
+ : Return the existing users in the Security database
+ :)
+declare function user:getExistingUsers($securityDatabaseName as xs:string) 
+{
+    xdmp:eval(
+        "xquery version '1.0-ml'; fn:data(/sec:user/sec:user-name)", (),
+        <options xmlns="xdmp:eval"><database>{xdmp:database($securityDatabaseName)}</database> </options>)
+};
+
+declare function user:getExistingUsers() 
+{
+    user:getExistingUsers("Security")
+};
+</textarea>
+</td></tr>
+ </table> 
+ 
+    <script> 
+      
+      CodeMirror.commands.autocomplete = function(cm) {
+        CodeMirror.showHint(cm, CodeMirror.xqueryHint);
+      }
+      
+      function passAndHint(cm) {
+     	setTimeout(function() {cm.execCommand("autocomplete");}, 100);
+      	return CodeMirror.Pass;
+      }
+    
+      var editor1 = CodeMirror.fromTextArea(document.getElementById("code"), {
+        lineNumbers: true,
+        theme: "eclipse",
+        styleActiveLine: true,
+        lineNumbers: true,
+        lineWrapping: true,
+        autoCloseBrackets: true,
+        matchBrackets: true,
+        trackContext : true,
+        extraKeys: {
+            "':'": passAndHint,
+            "'$'": passAndHint,
+            "Ctrl-Space": "autocomplete"
+        }
+      });
+      
+      var editor2 = CodeMirror.fromTextArea(document.getElementById("code2"), {
+        lineNumbers: true,
+        theme: "eclipse",
+        styleActiveLine: true,
+        lineNumbers: true,
+        lineWrapping: true,
+        autoCloseBrackets: true,
+        matchBrackets: true,
+        trackContext : true,
+        extraKeys: {
+            "':'": passAndHint,
+            "'$'": passAndHint,
+            "Ctrl-Space": "autocomplete"
+        }
+      });      
+    </script> 
+ 
+  </body> 
+</html>

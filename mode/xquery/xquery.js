@@ -350,7 +350,7 @@ CodeMirror.defineMode("xquery", function(config) {
           } else if (state.tokenModuleParsing == "namespaceLocationAt" || state.tokenModuleParsing == "namespaceLocation") {
         	  state.tokenModuleParsing = null;
         	  state.moduleDecl = null;
-          }
+          }          
           break;
         }
         else {
@@ -361,10 +361,10 @@ CodeMirror.defineMode("xquery", function(config) {
           }
           // test if it's module prefix or module uri
           if (state.tokenModuleParsing == "namespacePrefixEq") {
-        	  state.moduleDecl.namespaceURI = ch;
+        	  state.moduleDecl.namespace = ch;
         	  state.tokenModuleParsing = "namespaceURI"
           } else if (state.tokenModuleParsing == "namespaceURI") {
-        	  state.moduleDecl.namespaceURI +=ch;
+        	  state.moduleDecl.namespace +=ch;
           } else if (state.tokenModuleParsing == "namespaceLocationAt") {
         	  state.moduleDecl.location = ch;
         	  state.tokenModuleParsing = "namespaceLocation"
