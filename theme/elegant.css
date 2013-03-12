@@ -1,3 +1,4 @@
+.cm-s-elegant.CodeMirror {background: #fff; color: #000;}
 .cm-s-elegant span.cm-number, .cm-s-elegant span.cm-string, .cm-s-elegant span.cm-atom {color: #762;}
 .cm-s-elegant span.cm-comment {color: #262; font-style: italic; line-height: 1em;}
 .cm-s-elegant span.cm-meta {color: #555; font-style: italic; line-height: 1em;}
