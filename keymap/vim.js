@@ -729,7 +729,7 @@
         getSearchState(cm).setReversed(!forward);
         var promptPrefix = (forward) ? '/' : '?';
         var originalQuery = getSearchState(cm).getQuery();
-        var originalPos = cm.getCursor();
+        var originalScrollPos = cm.getScrollInfo();
         function handleQuery(query, ignoreCase, smartCase) {
           try {
             updateSearchQuery(cm, query, ignoreCase, smartCase);
@@ -744,21 +744,22 @@
           });
         }
         function onPromptClose(query) {
-          cm.scrollIntoView(originalPos);
+          cm.scrollTo(originalScrollPos.left, originalScrollPos.top);
           handleQuery(query, true /** ignoreCase */, true /** smartCase */);
         }
         function onPromptKeyUp(e, query) {
-          if (query) {
-            try {
-              updateSearchQuery(cm, query, true /** ignoreCase */,
-                                true /** smartCase */);
-              cm.scrollIntoView(findNext(cm, forward, query));
-            } catch (e) {
-              // Swallow bad regexes for incremental search.
-            }
+          var parsedQuery;
+          try {
+            parsedQuery = updateSearchQuery(cm, query,
+                true /** ignoreCase */, true /** smartCase */)
+          } catch (e) {
+            // Swallow bad regexes for incremental search.
+          }
+          if (parsedQuery) {
+            cm.scrollIntoView(findNext(cm, !forward, parsedQuery), 30);
           } else {
             clearSearchHighlight(cm);
-            cm.scrollIntoView(originalPos);
+            cm.scrollTo(originalScrollPos.left, originalScrollPos.top);
           }
         }
         function onPromptKeyDown(e, query, close) {
@@ -766,7 +767,7 @@
           if (keyName == 'Esc' || keyName == 'Ctrl-C' || keyName == 'Ctrl-[') {
             updateSearchQuery(cm, originalQuery);
             clearSearchHighlight(cm);
-            cm.scrollIntoView(originalPos);
+            cm.scrollTo(originalScrollPos.left, originalScrollPos.top);
 
             CodeMirror.e_stop(e);
             close();
@@ -2148,28 +2149,40 @@
       }
       return(false);
     }
+    // Returns true if the query is valid.
     function updateSearchQuery(cm, rawQuery, ignoreCase, smartCase) {
-      cm.operation(function() {
-        var state = getSearchState(cm);
-        if (!rawQuery) {
-          return;
-        }
-        var query = parseQuery(cm, rawQuery, !!ignoreCase, !!smartCase);
-        if (!query) {
-          return;
-        }
-        highlightSearchMatches(cm, query);
-        if (regexEqual(query, state.getQuery())) {
-          return;
-        }
-        state.setQuery(query);
-      });
+      if (!rawQuery) {
+        return;
+      }
+      var state = getSearchState(cm);
+      var query = parseQuery(cm, rawQuery, !!ignoreCase, !!smartCase);
+      if (!query) {
+        return;
+      }
+      highlightSearchMatches(cm, query);
+      if (regexEqual(query, state.getQuery())) {
+        return query;
+      }
+      state.setQuery(query);
+      return query;
     }
     function searchOverlay(query) {
+      if (query.source.charAt(0) == '^') {
+        var matchSol = true;
+      }
       return {
         token: function(stream) {
+          if (matchSol && !stream.sol()) {
+            stream.skipToEnd();
+            return;
+          }
           var match = stream.match(query, false);
           if (match) {
+            if (match[0].length == 0) {
+              // Matched empty string, skip to next.
+              stream.next();
+              return;
+            }
             if (!stream.sol()) {
               // Backtrack 1 to match \b
               stream.backUp(1);
