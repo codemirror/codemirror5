@@ -284,7 +284,7 @@ CodeMirror.defineMode("sass", function(config) {
     // If we haven't returned by now, we move 1 character
     // and return an error
     stream.next();
-    return 'error';
+    return null;
   };
 
   var tokenLexer = function(stream, state) {
@@ -302,7 +302,7 @@ CodeMirror.defineMode("sass", function(config) {
       indent(state);
     }
 
-    if (style !== "error"){
+    if (style !== null){
       var startOfToken = stream.pos - current.length;
       var withCurrentIndent = startOfToken + (config.indentUnit * state.indentCount);
 
