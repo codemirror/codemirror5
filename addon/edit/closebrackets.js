@@ -1,6 +1,6 @@
 (function() {
   var DEFAULT_BRACKETS = "()[]{}''\"\"";
-  const SPACE_CHAR_REGEX = /\s/;
+  var SPACE_CHAR_REGEX = /\s/;
 
   CodeMirror.defineOption("autoCloseBrackets", false, function(cm, val, old) {
     var wasOn = old && old != CodeMirror.Init;
@@ -39,8 +39,8 @@
         if (cm.somethingSelected()) return surround(cm);
         if (left == right && maybeOverwrite(cm) != CodeMirror.Pass) return;
         var cur = cm.getCursor(), ahead = CodeMirror.Pos(cur.line, cur.ch + 1);
-        var line = cm.getLine(cur.line), char = line.charAt(cur.ch);
-        if (line.length == cur.ch || closingBrackets.indexOf(char) >= 0 || SPACE_CHAR_REGEX.test(char))
+        var line = cm.getLine(cur.line), nextChar = line.charAt(cur.ch);
+        if (line.length == cur.ch || closingBrackets.indexOf(nextChar) >= 0 || SPACE_CHAR_REGEX.test(nextChar))
           cm.replaceSelection(left + right, {head: ahead, anchor: ahead});
         else
           return CodeMirror.Pass;
