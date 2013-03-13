@@ -1,0 +1,203 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>CodeMirror: XQuery Autocomplete Demo</title>
+    <link rel="stylesheet" href="../lib/codemirror.css">
+    <script src="../lib/codemirror.js"></script>
+    <script src="../addon/hint/show-hint.js"></script>
+    <link rel="stylesheet" href="../addon/hint/show-hint.css">
+    <link rel="stylesheet" href="../addon/hint/xquery/xquery-hint.css">    
+    <script src="../addon/hint/xquery/xquery-hint.js"></script>
+    <script src="../addon/hint/xquery/marklogic/xdmp.xqy.js"></script>    
+    <script src="../addon/hint/xquery/marklogic/map.xqy.js"></script>
+    <script src="../mode/xquery/xquery.js"></script>
+    <link rel="stylesheet" href="../doc/docs.css">
+    <script src="../addon/selection/active-line.js"></script>
+    <script src="../addon/edit/closebrackets.js"></script>
+    <script src="../addon/edit/matchbrackets.js"></script>
+    <link rel="stylesheet" href="../theme/xq-light.css">
+    <style type="text/css">
+	  body {
+ 		 font-family: Droid Sans, Arial, sans-serif;
+  		 line-height: 1.5;
+  		 max-width: none;
+  		 margin: 0;
+  		 padding: 0 1em;
+      }
+      .CodeMirror {
+        height:500px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>CodeMirror: XQuery Autocomplete demo</h1> 
+ 
+<table width="100%" >
+<tr>
+<td width="50%" >
+<h2>marker / plugins / security / library / oauth2.xqy</h2>
+<textarea id="code" name="code">
+let $a := 
+</textarea>
+  </td>
+  <td width="50%" >
+<h2>marker / plugins / security / models / user-model.xqy</h2>  
+  <textarea id="code2" name="code2" >
+  xquery version "1.0-ml";
+(:
+ Copyright 2010 MarkLogic Corporation 
+ Copyright 2009 Ontario Council of University Libraries
+
+ Licensed under the Apache License, Version 2.0 (the "License"); 
+ you may not use this file except in compliance with the License. 
+ You may obtain a copy of the License at 
+
+        http://www.apache.org/licenses/LICENSE-2.0 
+
+ Unless required by applicable law or agreed to in writing, software 
+ distributed under the License is distributed on an "AS IS" BASIS, 
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ See the License for the specific language governing permissions and 
+ limitations under the License. 
+:)
+module namespace user = "http://marklogic.com/plugins/security/user";
+import module namespace cfg = "http://marklogic.com/plugins/security/config" at "../config/config.xqy";
+import module namespace xqmvc-cfg = "http://scholarsportal.info/xqmvc/config" at "/application/config/config.xqy";
+
+
+declare function user:createNewUser($markLogicUsername as xs:string, 
+                                          $userPassword as xs:string,
+                                          $userDescription as xs:string,
+                                          $role as xs:string,
+                                          $providerName as xs:string, 
+                                          $providerUserId as xs:string,
+                                          $securityDatabaseName as xs:string) 
+{
+    let $existingUsers := user:getExistingUsers()
+    let $log := xdmp:log("createNewUser")                    
+    return 
+        if($markLogicUsername = $existingUsers) then 
+            fn:concat("User ", $markLogicUsername, " already exists")
+        else
+            try {
+                xdmp:eval(
+                    fn:concat(
+                    "xquery version '1.0-ml'; 
+                    import module namespace sec='http://marklogic.com/xdmp/security' at '/MarkLogic/security.xqy';
+                    sec:create-user('", $markLogicUsername, "', '", $userDescription, "', '", $userPassword, "', '", $role, "', (), ())"), (),
+                    <options xmlns="xdmp:eval">
+                        <database>{xdmp:database($securityDatabaseName)}</database> 
+                    </options>)  
+            } catch($e) {
+                let $log := xdmp:log(fn:concat("FAILED TO CREATE USER. Error: ", $e/*:message[1]/text()))
+                return "User could not be created!!"
+            } 
+                                      
+};
+
+declare function user:createNewUser($markLogicUsername as xs:string, 
+                                          $userPassword as xs:string,
+                                          $userDescription as xs:string,
+                                          $role as xs:string,
+                                          $providerName as xs:string, 
+                                          $providerUserId as xs:string) 
+{
+    user:createNewUser($markLogicUsername, $userPassword, $userDescription, $role, $providerName, $providerUserId, "Security")   
+};
+
+
+(:~
+ : Return the existing users in the Security database
+ :)
+declare function user:getExistingUsers($securityDatabaseName as xs:string) 
+{
+    xdmp:eval(
+        "xquery version '1.0-ml'; fn:data(/sec:user/sec:user-name)", (),
+        <options xmlns="xdmp:eval"><database>{xdmp:database($securityDatabaseName)}</database> </options>)
+};
+
+declare function user:getExistingUsers() 
+{
+    user:getExistingUsers("Security")
+};
+</textarea>
+</td></tr>
+ </table> 
+ 
+    <script> 
+      
+      function getModule(editor) {
+      	var chunks = editor.getDoc().children;
+        var lastChunk = chunks[chunks.length -1];
+        var lines = lastChunk.lines;
+        var lastLine = lines[lines.length -1];
+        var state = lastLine.stateAfter;
+        if (state != null) {
+          return state.module;
+        }
+        return null;
+      }
+      function populateModuleNamespaces(populateNamespace, s, completions, editor, options) {
+        var module = null;
+        if (editor != editor1) {
+      	  module = getModule(editor1);
+      	  if (module) {
+      	  	module.location = 'marker/plugins/security/library/oauth2.xqy';      	    
+      	  }
+      	} else {
+      	  module = getModule(editor2);
+      	  if (module) {
+      	    module.location = '../models/user-model.xqy';
+      	  }
+      	}          
+      	if (module) {
+      	  populateNamespace(s, module, completions)
+      	}
+      }
+      
+      CodeMirror.commands.autocomplete = function(cm) {
+        CodeMirror.showHint(cm, CodeMirror.xqueryHint, {"populateModuleNamespaces" : populateModuleNamespaces});
+      }
+      
+      function passAndHint(cm) {
+     	setTimeout(function() {cm.execCommand("autocomplete");}, 100);
+      	return CodeMirror.Pass;
+      }
+    
+      var editor1 = CodeMirror.fromTextArea(document.getElementById("code"), {
+        lineNumbers: true,
+        theme: "xq-light",
+        styleActiveLine: true,
+        lineNumbers: true,
+        lineWrapping: true,
+        autoCloseBrackets: true,
+        matchBrackets: true,
+        trackContext : true,
+        populateModuleNamespaces : populateModuleNamespaces,
+        extraKeys: {
+            "':'": passAndHint,
+            "'$'": passAndHint,
+            "Ctrl-Space": "autocomplete"
+        }
+      });
+      
+      var editor2 = CodeMirror.fromTextArea(document.getElementById("code2"), {
+        lineNumbers: true,
+        theme: "xq-light",
+        styleActiveLine: true,
+        lineNumbers: true,
+        lineWrapping: true,
+        autoCloseBrackets: true,
+        matchBrackets: true,
+        trackContext : true,        
+        extraKeys: {
+            "':'": passAndHint,
+            "'$'": passAndHint,
+            "Ctrl-Space": "autocomplete"
+        }
+      });      
+    </script> 
+ 
+  </body> 
+</html>

@@ -1,3 +1,6 @@
+// the xquery-hint is
+//   Copyright (C) 2013 by Angelo ZERR <angelo.zerr@gmail.com>
+// released under the MIT license (../../LICENSE) like the rest of CodeMirror
 (function() {
   var Pos = CodeMirror.Pos;
 
@@ -5,7 +8,7 @@
 
   var defaultModulePrefixes = [];
   var defaultModules = [];
-  
+
   var moduleNamespaces = [];
   var modules = [];
 
@@ -13,10 +16,10 @@
     if (module && module.namespace) {
       if (module.prefix) {
         defaultModulePrefixes.push(module.prefix);
-        defaultModules[module.prefix] = module;        
+        defaultModules[module.prefix] = module;
       } else {
         moduleNamespaces.push(module.namespace);
-        modules[module.namespace] = module;        
+        modules[module.namespace] = module;
       }
     }
   }
@@ -31,7 +34,7 @@
     }
     return null;
   }
-  
+
   function findModule(namespace, location) {
     var module = modules[namespace];
     if (module) {
@@ -79,7 +82,7 @@
     return name + ' : ' + dataType;
   }
 
-  function populateVars(s, vars, items) {
+  function populateVars(s, vars, completions) {
     while (vars) {
       var varDecl = vars.varDecl;
       var name = varDecl.name;
@@ -98,14 +101,14 @@
           };
           varDecl.completion = completion;
         }
-        items.push(completion);
+        completions.push(completion);
       }
       vars = vars.next;
     }
   }
 
   // --------------- populate function functions ---------------------
-  
+
   function getParamLabel(varDecl) {
     var dataType = varDecl.dataType || varDecl.dataType || 'any';
     var name = varDecl.name;
@@ -129,7 +132,7 @@
     return label;
   }
 
-  function populateDeclaredFunctions(s, declaredFunctions, items) {
+  function populateDeclaredFunctions(s, declaredFunctions, completions) {
     if (declaredFunctions) {
       for ( var i = 0; i < declaredFunctions.length; i++) {
         var functionDecl = declaredFunctions[i];
@@ -144,7 +147,7 @@
             };
             completion.hint = function(cm, data, completion) {
 
-              var functionDecl = completion.functionDecl;              
+              var functionDecl = completion.functionDecl;
               var name = functionDecl.name;
               // create content to insert
               var firstParam = null;
@@ -162,13 +165,14 @@
               }
               content += p;
               content += ')';
-              
+
               var from = Pos(data.line, data.token.start);
               var to = Pos(data.line, data.token.end);
               cm.replaceRange(content, from, to);
               cm.setCursor(Pos(data.line, data.token.start + name.length + 1));
               if (firstParam != null) {
-                // the function to insert hasparameters, select the first parameter.
+                // the function to insert has parameters, select the first
+                // parameter.
                 cm.setSelection(Pos(data.line, data.token.start + name.length
                     + 1), Pos(data.line, data.token.start + name.length + 1
                     + firstParam.length));
@@ -176,24 +180,24 @@
             };
             functionDecl.completion = completion;
           }
-          items.push(completion);
+          completions.push(completion);
         }
       }
     }
   }
 
   // --------------- populate imported modules funtions ---------------------
-  
-  function populateImportedModules(s, importedModules, items) {
+
+  function populateImportedModules(s, importedModules, completions) {
     if (importedModules) {
       for ( var i = 0; i < importedModules.length; i++) {
         var importedModule = importedModules[i];
-        populateModulePrefix(s, importedModule, items);
+        populateModulePrefix(s, importedModule, completions);
       }
     }
   }
-  
-  function populateModulePrefix(s, importedModule, items) {
+
+  function populateModulePrefix(s, importedModule, completions) {
     var name = importedModule.prefix;
     if (name && startsWithString(name, s)) {
       var completion = importedModule.completion;
@@ -210,7 +214,7 @@
         };
         importedModule.completion = completion;
       }
-      items.push(completion);
+      completions.push(completion);
     }
   }
 
@@ -227,40 +231,49 @@
     return null;
   }
 
-  function populateModuleNamespaces(s, items) {
+  function populateModuleNamespaces(s, completions, editor, options) {
     for ( var i = 0; i < moduleNamespaces.length; i++) {
-      var uri = moduleNamespaces[i];
-      if (startsWithString(uri, s)) {
-        var module = modules[uri];
-        var completion = module.completion;
-        if (!completion) {
-          completion = {
-            "text" : module.namespace,
-            "className" : "CodeMirror-hint-module-ns",
-            "module" : module
-          };
-          completion.hint = function(cm, data, completion) {
-            var label = completion.module.namespace;
-            var from = Pos(data.line, data.token.start + 1), to = null;
-            var location = completion.module.location;
-            if (location) {
-              var quote = data.token.string.charAt(0);
-              label += quote + ' at ' + quote + location + quote + ';';
-              var length = cm.getLine(cm.getCursor().line).length
-              to = Pos(data.line, length);
-            } else {
-              to = Pos(data.line, data.token.end - 1);
-            }
-            cm.replaceRange(label, from, to);
-          };
-          module.completion = completion;
-        }
-        items.push(completion);
+      var namespace = moduleNamespaces[i];
+      var module = modules[namespace];
+      populateNamespace(s, module, completions);
+    }
+    // TODO : manage dynamicly the add module
+    /*if (options && options.populateModuleNamespaces) {
+      options.populateModuleNamespaces(populateNamespace, s, completions,
+          editor, options);
+    }*/
+  }
+
+  function populateNamespace(s, module, completions) {
+    if (startsWithString(module.namespace, s)) {
+      var completion = module.completion;
+      if (!completion) {
+        completion = {
+          "text" : module.namespace,
+          "className" : "CodeMirror-hint-module-ns",
+          "module" : module
+        };
+        completion.hint = function(cm, data, completion) {
+          var label = completion.module.namespace;
+          var from = Pos(data.line, data.token.start + 1), to = null;
+          var location = completion.module.location;
+          if (location) {
+            var quote = data.token.string.charAt(0);
+            label += quote + ' at ' + quote + location + quote + ';';
+            var length = cm.getLine(cm.getCursor().line).length
+            to = Pos(data.line, length);
+          } else {
+            to = Pos(data.line, data.token.end - 1);
+          }
+          cm.replaceRange(label, from, to);
+        };
+        module.completion = completion;
       }
+      completions.push(completion);
     }
   }
 
-  function populateModuleFunction(prefix, f, items) {
+  function populateModuleFunction(prefix, f, completions) {
     var label = prefix + ':' + f.name;
     label += '(';
     var params = f.params;
@@ -314,33 +327,33 @@
                 + firstParam.length));
       }
     };
-    items.push(completion);
+    completions.push(completion);
   }
 
-  function populateModuleFunctions(module, prefix, funcName, items) {
+  function populateModuleFunctions(module, prefix, funcName, completions) {
     // loop for each function
     var functions = module.functions;
     for ( var i = 0; i < functions.length; i++) {
       var f = functions[i];
       var name = f.name;
       if (name && startsWithString(name, funcName)) {
-        populateModuleFunction(prefix, f, items);
+        populateModuleFunction(prefix, f, completions);
       }
     }
   }
-  
-  function populateDefaultModulePrefix(s, items) {
+
+  function populateDefaultModulePrefix(s, completions) {
     for ( var i = 0; i < defaultModulePrefixes.length; i++) {
       var prefix = defaultModulePrefixes[i];
       var module = defaultModules[prefix];
-      populateModulePrefix(s, module, items);
+      populateModulePrefix(s, module, completions);
     }
   }
 
   // --------------- completion utils ---------------------
 
-  function getCompletions(items, cur, token, options, showHint) {
-    var sortedItems = items.sort(function(a, b) {
+  function getCompletions(completions, cur, token, options, showHint) {
+    var sortedCompletions = completions.sort(function(a, b) {
       var s1 = a.text;// getKeyWord(a);
       var s2 = b.text;// getKeyWord(b);
       var nameA = s1.toLowerCase(), nameB = s2.toLowerCase()
@@ -351,7 +364,7 @@
       return 0 // default return value (no sorting)
     });
     var data = {
-      list : sortedItems,
+      list : sortedCompletions,
       from : Pos(cur.line, token.start),
       to : Pos(cur.line, token.end),
       line : cur.line,
@@ -366,37 +379,22 @@
   }
 
   CodeMirror.xqueryHint = function(editor, showHint, options) {
-    return internalXQueryHint(editor, options, showHint);
+    if (showHint instanceof Function) {
+      return internalXQueryHint(editor, options, showHint);
+    }
+    return internalXQueryHint(editor, showHint, options);
   }
 
   function internalXQueryHint(editor, options, showHint) {
-    var items = [];
+    var completions = [];
     // Find the token at the cursor
     var cur = editor.getCursor(), token = getToken(editor, cur), tprop = token;
     switch (tprop.type) {
     case "string":
-      // completion started inside a string
-      tprop = getPreviousToken(editor, cur, tprop);
-      switch (tprop.type) {
-      case "keyword":
-        switch (tprop.string) {
-        case "=":
-          tprop = getPreviousToken(editor, cur, tprop);
-          if (tprop.type == "variable") {
-            tprop = getPreviousToken(editor, cur, tprop);
-            if (tprop.string.replace(' ', '') == '') {
-              tprop = getPreviousToken(editor, cur, tprop);
-              if (tprop.type == "keyword" && tprop.string == "namespace") {
-                // here we are in the case with namespace
-                // aaa="mynames...
-                var s = getStartsWith(cur, token, 1);
-                populateModuleNamespaces(s, items)
-              }
-            }
-          }
-          break;
-        }
-        break;
+      // completion started inside a string, test if it's import/declaration of module
+      if (tprop.state.tokenModuleParsing) {
+        var s = getStartsWith(cur, token, 1);
+        populateModuleNamespaces(s, completions, editor, options);
       }
       break;
     case "variable def":
@@ -408,17 +406,19 @@
       // check if the current token is not inside () of a declared function.
       var functionDecl = token.state.functionDecl;
       if (functionDecl && functionDecl.paramsParsing == true) {
-        return getCompletions(items, cur, token, options, showHint);
+        return getCompletions(completions, cur, token, options, showHint);
       }
       // completion should be ignored for variable declaration : check if there
       // are not "let", "for" or "variable" keyword before the current token
       var previous = getPreviousToken(editor, cur, tprop);
       if (previous) {
         previous = getPreviousToken(editor, cur, previous);
-        if (previous && previous.type == "keyword" && previous.string == "let"
-            || previous.string == "variable" || previous.string == "for")
+        if (previous
+            && previous.type == "keyword"
+            && (previous.string == "let" || previous.string == "variable"
+                || previous.string == "for" || previous.string == "function"))
           // ignore completion
-          return getCompletions(items, cur, token, options, showHint);
+          return getCompletions(completions, cur, token, options, showHint);
       }
 
       // show let, declared variables.
@@ -444,7 +444,7 @@
       if (prefix) {
         // test if it's default prefix
         var module = defaultModules[prefix];
-        if (!module) {        
+        if (!module) {
           // search the declared module which checks the prefix
           // ex import module namespace dls = "http://marklogic.com/xdmp/dls" at
           // "/MarkLogic/dls.xqy";
@@ -452,24 +452,25 @@
           // at "/MarkLogic/dls.xqy";
           var importedModule = getImportedModule(token.state.importedModules,
               prefix);
-          // it exists an included module with the given prefix, search the module
+          // it exists an included module with the given prefix, search the
+          // module
           // with the given namespace URI (ex:"http://marklogic.com/xdmp/dls").
           module = findModuleByDeclaration(importedModule);
         }
         if (module) {
-          populateModuleFunctions(module, prefix, funcName, items);
+          populateModuleFunctions(module, prefix, funcName, completions);
         }
       }
 
       // local vars (let, for, ...)
       var vars = token.state.localVars;
-      populateVars(s, vars, items);
+      populateVars(s, vars, completions);
 
       var context = token.state.context;
       while (context) {
         if (context.keepLocals) {
           vars = context.vars;
-          populateVars(s, vars, items);
+          populateVars(s, vars, completions);
           context = context.prev;
         } else {
           context = null;
@@ -478,26 +479,26 @@
 
       // global vars (declare ...)
       var globalVars = token.state.globalVars;
-      populateVars(s, globalVars, items);
+      populateVars(s, globalVars, completions);
 
       // parametres of the function (if token is inside a function)
       if (functionDecl) {
         var vars = functionDecl.params;
-        populateVars(s, vars, items);
+        populateVars(s, vars, completions);
       }
 
       // declared functions
       var declaredFunctions = token.state.declaredFunctions
-      populateDeclaredFunctions(s, declaredFunctions, items);
+      populateDeclaredFunctions(s, declaredFunctions, completions);
 
       // imported modules
       var importedModules = token.state.importedModules
-      populateImportedModules(s, importedModules, items);
-      
+      populateImportedModules(s, importedModules, completions);
+
       // default module
-      populateDefaultModulePrefix(s, items);
+      populateDefaultModulePrefix(s, completions);
     }
-    return getCompletions(items, cur, token, options, showHint)
+    return getCompletions(completions, cur, token, options, showHint)
   }
   ;
 })();

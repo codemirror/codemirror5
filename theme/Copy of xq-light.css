@@ -1,0 +1,45 @@
+/*
+Copyright (C) 2011 by MarkLogic Corporation
+Author: Mike Brevoort <mike@brevoort.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
+.cm-s-xq-light span.CodeMirror-selected { background: #a8f !important; }
+.cm-s-xq-light .CodeMirror-gutters { background: #0a001f; border-right: 1px solid #aaa; }
+.cm-s-xq-light .CodeMirror-linenumber { color: #f8f8f8; }
+.cm-s-xq-light .CodeMirror-cursor { border-left: 1px solid white !important; }
+
+.cm-s-xq-light span.cm-keyword {line-height: 1em; font-weight: bold; color: rgb(0, 0, 180)}
+.cm-s-xq-light span.cm-atom {color: #6C8CD5;}
+.cm-s-xq-light span.cm-number {color: #164;}
+.cm-s-xq-light span.cm-def {color: #FFF; text-decoration:underline;}
+.cm-s-xq-light span.cm-variable {color: rgb(255, 0, 0);}
+.cm-s-xq-light span.cm-variable-2 {color: #EEE;}
+.cm-s-xq-light span.cm-variable-3 {color: #DDD;}
+.cm-s-xq-light span.cm-property {}
+.cm-s-xq-light span.cm-operator {}
+.cm-s-xq-light span.cm-comment {color: rgb(0, 128, 255);}
+.cm-s-xq-light span.cm-string {color: rgb(235, 0, 215);}
+.cm-s-xq-light span.cm-meta {color: yellow;}
+.cm-s-xq-light span.cm-error {color: #f00;}
+.cm-s-xq-light span.cm-qualifier {color: #FFF700;}
+.cm-s-xq-light span.cm-builtin {color: #30a;}
+.cm-s-xq-light span.cm-bracket {color: #cc7;}
+.cm-s-xq-light span.cm-tag {color: rgb(50, 180, 0);}
+.cm-s-xq-light span.cm-attribute {color: rgb(255, 128, 100);}

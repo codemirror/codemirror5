@@ -1,0 +1,161 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>CodeMirror: Linter Demo</title>
+    <link rel="stylesheet" href="../lib/codemirror.css">
+    <script src="../lib/codemirror.js"></script>
+    <script src="../mode/javascript/javascript.js"></script>
+    <script src="../addon/lint/jshint-r12-80277ef.js"></script>
+    <script src="../addon/lint/jsonlint.js"></script>
+    <link rel="stylesheet" href="../doc/docs.css">
+    <link rel="stylesheet" href="../addon/lint/lint.css">
+    <script src="../addon/lint/lint.js"></script>
+    <script src="../addon/lint/javascript-lint.js"></script>
+    <script src="../addon/lint/json-lint.js"></script>
+
+    <style type="text/css">
+      .CodeMirror {border: 1px solid black;}
+      .status {font-size:11px;font-weight: bold;display:inline;vertical-align: bottom;}
+      .ok {font-size:11px;font-weight: bold;display:inline;}
+    </style>
+  </head>
+  <body>
+    <h1>CodeMirror: Linter Demo</h1>
+
+    <p>
+    <span>Status:</span><span id="jsStatus" ></span>
+    <textarea id="code-js">var widgets = []
+function updateHints() {
+  editor.operation(function(){
+    for (var i = 0; i < widgets.length; ++i)
+      editor.removeLineWidget(widgets[i]);
+    widgets.length = 0;
+
+    JSHINT(editor.getValue());
+    for (var i = 0; i < JSHINT.errors.length; ++i) {
+      var err = JSHINT.errors[i];
+      if (!err) continue;
+      var msg = document.createElement("div");
+      var icon = msg.appendChild(document.createElement("span"));
+      icon.innerHTML = "!!";
+      icon.className = "lint-error-icon";
+      msg.appendChild(document.createTextNode(err.reason));
+      msg.className = "lint-error";
+      widgets.push(editor.addLineWidget(err.line - 1, msg, {coverGutter: false, noHScroll: true}));
+    }
+  });
+  var info = editor.getScrollInfo();
+  var after = editor.charCoords({line: editor.getCursor().line + 1, ch: 0}, "local").top;
+  if (info.top + info.clientHeight < after)
+    editor.scrollTo(null, after - info.clientHeight + 3);
+}
+</textarea></p>
+
+    <p>
+    <span>Status:</span><span id="jsonStatus" ></span>
+    <textarea id="code-json">[
+ {
+  _id: "post 1",
+  "author": "Bob",
+  "content": "...",
+  "page_views": 5
+ },
+ {
+  "_id": "post 2",
+  "author": "Bob",
+  "content": "...",
+  "page_views": 9
+ },
+ {
+  "_id": "post 3",
+  "author": "Bob",
+  "content": "...",
+  "page_views": 8
+ }
+]
+</textarea></p>
+
+<script>
+  
+   function displayLintingStatus(annotations, elementId, cm) {
+    var parent= document.getElementById(elementId);
+    parent.innerHTML= '';
+    var nbErrors = 0;
+    var nbWarnings = 0;
+    var firstError, firstWarning = null;
+    for(var i=0; i<annotations.length; i++) {
+      var annotation = annotations[i];
+      if (annotation.severity == "warning") {
+        if (firstWarning == null) firstWarning = annotation;
+      	nbWarnings++;
+      } else {
+      if (firstError == null) firstError = annotation;
+      	nbErrors++;
+      } 
+    }
+    var status = null;
+    if (nbErrors == 0 && nbWarnings == 0) {
+      status = document.createElement('div');
+      status.className= "ok";
+      status.appendChild(document.createTextNode('OK'));
+      parent.appendChild(status); 
+    } else {
+      if (nbErrors > 0) {
+        status = document.createElement('div');
+        status.className= "CodeMirror-lint-marker-error";
+        status.onclick = function() {
+          cm.setCursor(firstError.from);
+        } 
+        parent.appendChild(status);
+        status = document.createElement('div');
+        status.className= "status"; 
+        status.appendChild(document.createTextNode(nbErrors));
+        parent.appendChild(status);             
+      }
+      if (nbWarnings > 0) {
+        status = document.createElement('div');
+        status.className= "CodeMirror-lint-marker-warning";
+        status.onclick = function() {
+          cm.setCursor(firstWarning.from);
+        }  
+        parent.appendChild(status);
+        status = document.createElement('div');
+        status.className= "status"; 
+        status.appendChild(document.createTextNode(nbWarnings));
+        parent.appendChild(status);      
+      }      
+    }    
+  }
+  
+  function onJSUpdateLinting(annotations, annotationsGroupedByLine, cm) {
+   displayLintingStatus(annotations, 'jsStatus', cm);
+  }
+
+  var editor = CodeMirror.fromTextArea(document.getElementById("code-js"), {
+    lineNumbers: true,
+    mode: "javascript",
+    gutters: ["CodeMirror-lint-markers"],
+    lintWith : {
+	  "getAnnotations" : CodeMirror.javascriptValidator,
+	  "onUpdateLinting" : onJSUpdateLinting
+	}    
+  });
+
+  function onJSONUpdateLinting(annotations, annotationsGroupedByLine, cm) {
+ 	displayLintingStatus(annotations, 'jsonStatus', cm);
+  }
+
+  var editor_json = CodeMirror.fromTextArea(document.getElementById("code-json"), {
+    lineNumbers: true,
+    mode: "application/json",
+    gutters: ["CodeMirror-lint-markers"],
+    lintWith : {
+	  "getAnnotations" : CodeMirror.jsonValidator,
+	  "onUpdateLinting" : onJSONUpdateLinting
+	}
+  });
+</script>
+
+  </body>
+</html>

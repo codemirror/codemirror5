@@ -1,7 +1,7 @@
 /*
 Copyright (C) 2011 by MarkLogic Corporation
 Author: Mike Brevoort <mike@brevoort.com>
-        Angelo ZERR <angelo.zerr@gmail.com> - manage context for xquery-hint.js
+        Angelo Zerr <angelo.zerr@gmail.com> - manage context for xquery-hint.js
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -348,18 +348,14 @@ CodeMirror.defineMode("xquery", function(config) {
     return function(stream, state) {
       var ch;
 
-      var inString = isInString(state);
-      if(inString && stream.current() == quote) {
+      if(isInString(state) && stream.current() == quote) {
         popStateStack(state);
         if(f) state.tokenize = f;
         return ret("string", "string");
       }
 
-      if (!inString) {
-        // manage multi line string.
-        pushStateStack(state, { type: "string", name: quote, tokenize: tokenString(quote, f) });
-      }
-      
+      pushStateStack(state, { type: "string", name: quote, tokenize: tokenString(quote, f) });
+
       // if we're in a string and in an XML block, allow an embedded code block
       if(stream.match("{", false) && isInXmlAttributeBlock(state)) {
         state.tokenize = tokenBase;

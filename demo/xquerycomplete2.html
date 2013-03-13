@@ -16,7 +16,7 @@
     <script src="../addon/selection/active-line.js"></script>
     <script src="../addon/edit/closebrackets.js"></script>
     <script src="../addon/edit/matchbrackets.js"></script>
-    <link rel="stylesheet" href="../theme/eclipse.css">
+    <link rel="stylesheet" href="../theme/xq-light.css">
     <style type="text/css">
 	  body {
  		 font-family: Droid Sans, Arial, sans-serif;
@@ -339,8 +339,37 @@ declare function user:getExistingUsers()
  
     <script> 
       
+      function getModule(editor) {
+      	var chunks = editor.getDoc().children;
+        var lastChunk = chunks[chunks.length -1];
+        var lines = lastChunk.lines;
+        var lastLine = lines[lines.length -1];
+        var state = lastLine.stateAfter;
+        if (state != null) {
+          return state.module;
+        }
+        return null;
+      }
+      function populateModuleNamespaces(populateNamespace, s, completions, editor, options) {
+        var module = null;
+        if (editor != editor1) {
+      	  module = getModule(editor1);
+      	  if (module) {
+      	  	module.location = 'marker/plugins/security/library/oauth2.xqy';      	    
+      	  }
+      	} else {
+      	  module = getModule(editor2);
+      	  if (module) {
+      	    module.location = '../models/user-model.xqy';
+      	  }
+      	}          
+      	if (module) {
+      	  populateNamespace(s, module, completions)
+      	}
+      }
+      
       CodeMirror.commands.autocomplete = function(cm) {
-        CodeMirror.showHint(cm, CodeMirror.xqueryHint);
+        CodeMirror.showHint(cm, CodeMirror.xqueryHint, {"populateModuleNamespaces" : populateModuleNamespaces});
       }
       
       function passAndHint(cm) {
@@ -350,13 +379,14 @@ declare function user:getExistingUsers()
     
       var editor1 = CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true,
-        theme: "eclipse",
+        theme: "xq-light",
         styleActiveLine: true,
         lineNumbers: true,
         lineWrapping: true,
         autoCloseBrackets: true,
         matchBrackets: true,
         trackContext : true,
+        populateModuleNamespaces : populateModuleNamespaces,
         extraKeys: {
             "':'": passAndHint,
             "'$'": passAndHint,
@@ -366,13 +396,13 @@ declare function user:getExistingUsers()
       
       var editor2 = CodeMirror.fromTextArea(document.getElementById("code2"), {
         lineNumbers: true,
-        theme: "eclipse",
+        theme: "xq-light",
         styleActiveLine: true,
         lineNumbers: true,
         lineWrapping: true,
         autoCloseBrackets: true,
         matchBrackets: true,
-        trackContext : true,
+        trackContext : true,        
         extraKeys: {
             "':'": passAndHint,
             "'$'": passAndHint,

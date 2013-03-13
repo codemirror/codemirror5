@@ -1,0 +1,131 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>CodeMirror: XQuery Autocomplete Demo</title>
+    <link rel="stylesheet" href="../lib/codemirror.css">
+    <script src="../lib/codemirror.js"></script>
+    <script src="../addon/hint/show-hint.js"></script>
+    <link rel="stylesheet" href="../addon/hint/show-hint.css">
+    <link rel="stylesheet" href="../addon/hint/xquery/xquery-hint.css">    
+    <script src="../addon/hint/xquery/xquery-hint.js"></script>
+    <script src="../mode/xquery/xquery.js"></script>
+    <link rel="stylesheet" href="../doc/docs.css">
+    <script src="../addon/selection/active-line.js"></script>
+    <script src="../addon/edit/closebrackets.js"></script>
+    <script src="../addon/edit/matchbrackets.js"></script>
+    <link rel="stylesheet" href="../theme/eclipse.css">
+    <style type="text/css">
+	  border-top: 1px solid black; border-bottom: 1px solid black;
+	  height:400px;
+    </style>
+  </head>
+  <body>
+    <h1>CodeMirror: XQuery Autocomplete demo</h1> 
+ 
+<div class="cm-s-default">
+<textarea id="code" name="code">
+
+module namespace comoms-dls = "http://marklogic.com/comoms-dls";
+import module namespace dls = "http://marklogic.com/xdmp/dls" at "/MarkLogic/dls.xqy";
+
+let $s1 as xs:string*
+let $s2 as xs:string+
+
+let $a := ()
+return if ($a) then 
+  let $pp := ()  
+  return $pp
+else 
+  if ($a) then 
+    let $mmm := ()
+    return $mmm
+  else 
+    ""
+    
+declare variable $v;
+
+declare function bbb() {
+  let $b:=()
+  let $c:=$b
+  
+  if ($b) then 
+    $b
+
+}
+declare function ccc($aaaa) {
+
+
+  let $b:=()
+  let $c:=$b
+ 
+  if ($b) then 
+    $b
+}
+</textarea>
+ <div style="display: inline-block; height: 402px; overflow-y: auto; border: solid black 1px;" id="output"></div>
+
+</div> 
+ 
+    <script> 
+      
+      CodeMirror.commands.autocomplete = function(cm) {
+        CodeMirror.showHint(cm, CodeMirror.xqueryHint);
+      }
+      
+      function passAndHint(cm) {
+     	setTimeout(function() {cm.execCommand("autocomplete");}, 100);
+      	return CodeMirror.Pass;
+      }
+    
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        lineNumbers: true,
+        theme: "eclipse",
+        styleActiveLine: true,
+        lineNumbers: true,
+        lineWrapping: true,
+        autoCloseBrackets: true,
+        matchBrackets: true,
+        trackContext : true,
+        extraKeys: {
+            "':'": passAndHint,
+            "'$'": passAndHint,
+            "Ctrl-Space": "autocomplete"
+        }
+      });
+      
+      
+var updateTimeout;
+editor.on("change", function(cm) {
+  clearTimeout(updateTimeout);
+  updateTimeout = setTimeout(updateVisual, 200);
+});
+updateVisual();
+
+function updateVisual() {
+  var out = document.getElementById("output");
+  out.innerHTML = "";
+
+  function drawTree(out, editor) {
+    var cur = editor.getCursor(), token = editor.getTokenAt(cur), state = token.state;
+    if (state) {
+    console.log(state);
+    
+}
+    
+    }
+    
+  }  
+  drawTree(out, editor);
+}      
+    </script> 
+ 
+    <p><strong>MIME types defined:</strong> <code>application/xquery</code>.</p> 
+ 
+    <p>Development of the CodeMirror XQuery mode was sponsored by 
+      <a href="http://marklogic.com">MarkLogic</a> and developed by 
+      <a href="https://twitter.com/mbrevoort">Mike Brevoort</a>.
+    </p>
+ 
+  </body> 
+</html>

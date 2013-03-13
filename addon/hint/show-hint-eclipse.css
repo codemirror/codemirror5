@@ -1,0 +1,26 @@
+.CodeMirror-hints {
+  position: absolute;
+  z-index: 10;
+  border : double rgb(212, 208, 200) 3px;
+  max-height: 200px;
+  min-width: 150px;
+  overflow: auto;
+  background: white;
+  font-family: Tahoma;
+  font-size: 12px;
+  padding: 0px;
+}
+
+.CodeMirror-hint {
+  margin: 0px;
+	padding: 0px;
+	border: 0px solid transparent;
+	list-style-type: none;
+	cursor: pointer;
+	white-space: nowrap;
+}
+
+.CodeMirror-hint-active {
+  color: white!important;
+  background-color: rgb(10,36,106) !important;
+}
