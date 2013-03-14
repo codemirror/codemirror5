@@ -1345,3 +1345,28 @@ testCM("beforeSelectionChange", function(cm) {
   eqPos(cm.getCursor("start"), Pos(0, 0));
   eqPos(cm.getCursor("end"), Pos(9, 9));
 });
+
+testCM("change_removedText", function(cm) {
+  cm.setValue("abc\ndef");
+  
+  var removedText;
+  cm.on("change", function(cm, change) { 
+    removedText = [change.removedText, change.next && change.next.removedText];
+  });
+
+  cm.operation(function() {
+    cm.replaceRange("xyz", Pos(0, 0), Pos(1,1));
+    cm.replaceRange("123", Pos(0,0));
+  });
+
+  eq(removedText[0].join("\n"), "abc\nd");
+  eq(removedText[1].join("\n"), "");
+
+  cm.undo();
+  eq(removedText[0].join("\n"), "123");
+  eq(removedText[1].join("\n"), "xyz");
+
+  cm.redo();
+  eq(removedText[0].join("\n"), "abc\nd");
+  eq(removedText[1].join("\n"), "");
+});
