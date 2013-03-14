@@ -353,15 +353,16 @@
       <dt id="event_change"><code>"change" (instance, changeObj)</code></dt>
       <dd>Fires every time the content of the editor is changed.
       The <code>changeObj</code> is a <code>{from, to, text,
-      next}</code> object containing information about the changes
-      that occurred as second argument. <code>from</code>
+      removedText, next}</code> object containing information about the changes
+      that occurred. <code>from</code>
       and <code>to</code> are the positions (in the pre-change
       coordinate system) where the change started and ended (for
       example, it might be <code>{ch:0, line:18}</code> if the
       position is at the beginning of line #19). <code>text</code> is
       an array of strings representing the text that replaced the
-      changed range (split by line). If multiple changes happened
-      during a single operation, the object will have
+      changed range (split by line) and <code>removedText</code> is
+      an array of strings representing the text that was replaced.
+      If multiple changes happened during a single operation, the object will have
       a <code>next</code> property pointing to another change object
       (which may point to another, etc).</dd>
 
