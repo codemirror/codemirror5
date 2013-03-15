@@ -910,14 +910,42 @@ testCM("wordMovementCommands", function(cm) {
   cm.execCommand("goWordLeft");
   eqPos(cm.getCursor(), Pos(0, 9));
   cm.execCommand("goWordRight"); cm.execCommand("goWordRight"); cm.execCommand("goWordRight");
-  eqPos(cm.getCursor(), Pos(1, 1));
-  cm.execCommand("goWordRight");
+  eqPos(cm.getCursor(), Pos(0, 24));
+  cm.execCommand("goWordRight"); cm.execCommand("goWordRight");
   eqPos(cm.getCursor(), Pos(1, 9));
   cm.execCommand("goWordRight");
   eqPos(cm.getCursor(), Pos(1, 13));
   cm.execCommand("goWordRight"); cm.execCommand("goWordRight");
   eqPos(cm.getCursor(), Pos(2, 0));
 }, {value: "this is (the) firstline.\na foo12\u00e9\u00f8\u00d7bar\n"});
+
+testCM("groupMovementCommands", function(cm) {
+  cm.execCommand("goGroupLeft");
+  eqPos(cm.getCursor(), Pos(0, 0));
+  cm.execCommand("goGroupRight");
+  eqPos(cm.getCursor(), Pos(0, 4));
+  cm.execCommand("goGroupRight");
+  eqPos(cm.getCursor(), Pos(0, 7));
+  cm.execCommand("goGroupRight");
+  eqPos(cm.getCursor(), Pos(0, 10));
+  cm.execCommand("goGroupLeft");
+  eqPos(cm.getCursor(), Pos(0, 7));
+  cm.execCommand("goGroupRight"); cm.execCommand("goGroupRight"); cm.execCommand("goGroupRight");
+  eqPos(cm.getCursor(), Pos(0, 15));
+  cm.setCursor(Pos(0, 17));
+  cm.execCommand("goGroupLeft");
+  eqPos(cm.getCursor(), Pos(0, 16));
+  cm.execCommand("goGroupLeft");
+  eqPos(cm.getCursor(), Pos(0, 14));
+  cm.execCommand("goGroupRight"); cm.execCommand("goGroupRight");
+  eqPos(cm.getCursor(), Pos(0, 20));
+  cm.execCommand("goGroupRight");
+  eqPos(cm.getCursor(), Pos(1, 5));
+  cm.execCommand("goGroupLeft"); cm.execCommand("goGroupLeft");
+  eqPos(cm.getCursor(), Pos(1, 0));
+  cm.execCommand("goGroupLeft");
+  eqPos(cm.getCursor(), Pos(0, 16));
+}, {value: "booo ba---quux. ffff\n  abc d"});
 
 testCM("charMovementCommands", function(cm) {
   cm.execCommand("goCharLeft"); cm.execCommand("goColumnLeft");
