@@ -12,14 +12,14 @@
 	<script src="../addon/selection/active-line.js"></script>    
     <link rel="stylesheet" href="../addon/lint/lint.css">
     <script src="../addon/lint/lint.js"></script>
+    <script src="../addon/lint/status-lint.js"></script>
     <script src="../addon/lint/javascript-lint.js"></script>
     <script src="../addon/lint/json-lint.js"></script>
 
     <style type="text/css">
       .CodeMirror {border: 1px solid black;}
       .CodeMirror-activeline-background {background: #e8f2ff !important;}      
-      .status {font-size:11px;font-weight: bold;display:inline;vertical-align: bottom;}
-      .ok {font-size:11px;font-weight: bold;display:inline;}
+      .CodeMirror-lint-status {font-size:11px;font-weight: bold;display:inline;vertical-align: bottom;}      
     </style>
   </head>
   <body>
@@ -79,58 +79,9 @@ function updateHints() {
 </textarea></p>
 
 <script>
-
-  function displayLintingStatus(annotations, elementId, cm) {
-    var parent= document.getElementById(elementId);
-    parent.innerHTML= '';
-    var nbErrors = 0;
-    var nbWarnings = 0;
-    var firstError, firstWarning = null;
-    for(var i=0; i<annotations.length; i++) {
-      var annotation = annotations[i];
-      if (annotation.severity == "warning") {
-        if (firstWarning == null) firstWarning = annotation;
-      	nbWarnings++;
-      } else {
-      if (firstError == null) firstError = annotation;
-      	nbErrors++;
-      } 
-    }
-    
-    function createStatus(className, nbAnnotations, firstAnnotation) {
-      var status = document.createElement('div');
-      status.className= className;
-      if (firstAnnotation) {
-        status.onclick = function() {
-          // select the line with the first error/warning
-          cm.setSelection(firstAnnotation.from, firstAnnotation.to);
-          cm.scrollIntoView(firstAnnotation.from);
-        } 
-      }
-      parent.appendChild(status);
-      if (nbAnnotations > 0) {
-        status = document.createElement('div');
-        status.className= "status"; 
-        status.appendChild(document.createTextNode(nbErrors));
-        parent.appendChild(status);
-      } 
-    }
-    
-    var status = null;
-    if (nbErrors == 0 && nbWarnings == 0) {
-      createStatus("", 0);
-    } else {
-      if (nbErrors > 0) {
-    	createStatus("CodeMirror-lint-marker-error", nbErrors, firstError);
-      }
-      if (nbWarnings > 0) {
-      	createStatus("CodeMirror-lint-marker-warning", nbWarnings, firstWarning);
-      }      
-    }    
-  }
   
   function onJSUpdateLinting(annotations, annotationsGroupedByLine, cm) {
-   displayLintingStatus(annotations, 'jsStatus', cm);
+   CodeMirror.statusLint(annotations, 'jsStatus', cm);
   }
 
   var editor = CodeMirror.fromTextArea(document.getElementById("code-js"), {
@@ -145,7 +96,7 @@ function updateHints() {
   });
 
   function onJSONUpdateLinting(annotations, annotationsGroupedByLine, cm) {
- 	displayLintingStatus(annotations, 'jsonStatus', cm);
+ 	CodeMirror.statusLint(annotations, 'jsonStatus', cm);
   }
 
   var editor_json = CodeMirror.fromTextArea(document.getElementById("code-json"), {

@@ -29,6 +29,10 @@
   background-repeat: repeat-x;
 }
 
+.CodeMirror-lint-marker-ok {
+  background-image:url("data:image/gif;base64,R0lGODlhEAAQAMQAAAOASByKVCmPWi2UXkGZZ0qgbj+XYF+oej+YX0qbZVancGywgmywg2mrf3CxhV+qdGKqcHGxdnGxdYS/hIK9goS+hIK1f4i5gYi4gYm4gZjGkJe9iKvPmavPmLTSnf///yH5BAEAAB8ALAAAAAAQABAAAAU/4CeOZGmeaKqupAMMzlo8nvYUKaNwfKcsKAClQpxQAKgAJBKRRCAB1AFxwWQuhkOKkNhYEoRVAyBosM7otDoEADs="); 
+}
+
 .CodeMirror-lint-span-error {
   background-image:
   url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAYAAAC09K7GAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9sJDw4cOCW1/KIAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAAHElEQVQI12NggIL/DAz/GdA5/xkY/qPKMDAwAADLZwf5rvm+LQAAAABJRU5ErkJggg==")
@@ -39,7 +43,7 @@
   background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAYAAAC09K7GAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9sJFhQXEbhTg7YAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAAMklEQVQI12NkgIIvJ3QXMjAwdDN+OaEbysDA4MPAwNDNwMCwiOHLCd1zX07o6kBVGQEAKBANtobskNMAAAAASUVORK5CYII=");
 }
 
-.CodeMirror-lint-marker-error, .CodeMirror-lint-marker-warning {
+.CodeMirror-lint-marker-ok, .CodeMirror-lint-marker-error, .CodeMirror-lint-marker-warning {
   background-position: center center;
   background-repeat: no-repeat;
   cursor: pointer;
