@@ -1,6 +1,7 @@
 /*
 Copyright (C) 2011 by MarkLogic Corporation
 Author: Mike Brevoort <mike@brevoort.com>
+        Angelo ZERR <angelo.zerr@gmail.com> - manage context for xquery-hint.js
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -20,8 +21,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-CodeMirror.defineMode("xquery", function() {
+CodeMirror.defineMode("xquery", function(config) {
 
+  var trackContext = config.trackContext;  
+  
   // The keywords object is set to the result of this self executing
   // function. Each keyword is a property of the keywords object whose
   // value is {type: atype, style: astyle}
@@ -52,7 +55,7 @@ CodeMirror.defineMode("xquery", function() {
     'by','case','cast','child','comment','declare','default','define','descendant','descendant-or-self',
     'descending','document','document-node','element','else','eq','every','except','external','following',
     'following-sibling','follows','for','function','if','import','in','instance','intersect','item',
-    'let','module','namespace','node','node','of','only','or','order','parent','precedes','preceding',
+    'let','module','namespace', 'at', 'node','node','of','only','or','order','parent','precedes','preceding',
     'preceding-sibling','processing-instruction','ref','return','returns','satisfies','schema','schema-element',
     'self','some','sortby','stable','text','then','to','treat','typeswitch','union','variable','version','where',
     'xquery', 'empty-sequence'];
@@ -120,11 +123,19 @@ CodeMirror.defineMode("xquery", function() {
     }
     // start code block
     else if(ch == "{") {
+      if (trackContext) {
+        updateFunctionDeclBracket(state, 1);
+        pushContext(state, state.functionDecl == null)
+      }
       pushStateStack(state,{ type: "codeblock"});
       return ret("", null);
     }
     // end code block
     else if(ch == "}") {
+      if (trackContext) {
+        updateFunctionDeclBracket(state, -1);
+        popContext(state);
+      }
       popStateStack(state);
       return ret("", null);
     }
@@ -162,11 +173,17 @@ CodeMirror.defineMode("xquery", function() {
     }
     // open paren
     else if(ch === "(") {
+      if (trackContext) {
+        updateFunctionDeclParen(state, 1);
+      }
       pushStateStack(state, { type: "paren"});
       return ret("", null);
     }
     // close paren
     else if(ch === ")") {
+      if (trackContext) {
+        updateFunctionDeclParen(state, -1);
+      }
       popStateStack(state);
       return ret("", null);
     }
@@ -208,7 +225,8 @@ CodeMirror.defineMode("xquery", function() {
       
       // if we think it's a function call but not yet known, 
       // set style to variable for now for lack of something better
-      if(mightBeFunction && !known) known = {type: "function_call", style: "variable def"};
+      var functionCall = mightBeFunction && !known; 
+      if(functionCall) known = {type: "function_call", style: "variable def"};
       
       // if the previous word was element, attribute, axis specifier, this word should be the name of that
       if(isInXmlConstructor(state)) {
@@ -217,12 +235,89 @@ CodeMirror.defineMode("xquery", function() {
       }
       // as previously checked, if the word is element,attribute, axis specifier, call it an "xmlconstructor" and 
       // push the stack so we know to look for it on the next word
-      if(word == "element" || word == "attribute" || known.type == "axis_specifier") pushStateStack(state, {type: "xmlconstructor"});
+      if(word == "element" || word == "attribute" || known.type == "axis_specifier") {
+    	  pushStateStack(state, {type: "xmlconstructor"});    	
+      } else {
+        if (trackContext) {
+          if(functionCall && state.lastType == "function") {
+            // declare function xxx
+      	    var functionDecl = new FunctionDecl(word);
+      	    state.functionDecl = functionDecl;
+      	    if (state.declaredFunctions == null) {
+      	      state.declaredFunctions = [];
+      	    }
+      	    state.declaredFunctions.push(functionDecl);
+          } else if (known.type == "then") {
+            pushContext(state, true);
+          } else if (known.type == "else") {
+      	    popContext(state);
+      	    pushContext(state, true);    	  
+          }
+        }
+      }
+      
+      if (trackContext) {
+        if (state.currentVar != null  && state.currentVar.hasAs) {
+          if(state.currentVar.dataType == null) {state.currentVar.dataType=word} else {state.currentVar.dataType += word};
+        }
+      
+        if (state.tokenModuleParsing == null) {
+      	  if (known.type == "import") {
+      	    state.isIncludeModuleParsing = true;
+      	    state.tokenModuleParsing = known.type;
+      	  } else if (known.type == "module") {
+            state.isIncludeModuleParsing = false;
+            state.tokenModuleParsing = known.type;
+          }
+        } else {
+      	  switch(state.tokenModuleParsing) {
+      	  	case "import":
+      	  	  state.moduleDecl = null;
+      	  	  if (known.type == "module") {state.tokenModuleParsing = known.type;} else {resetModuleState(state);}
+      		  break;
+      	  	case "module":
+        	  	  state.moduleDecl = null;
+        	  	  if (known.type == "namespace") {state.tokenModuleParsing = known.type;} else {resetModuleState(state);}
+        		  break;
+      	  	case "namespace":
+          	  state.moduleDecl = null;
+          	  if (!known.type && word) {
+          		  var moduleDecl = new ModuleDecl();
+        			  moduleDecl.prefix = word;
+        			  state.moduleDecl = moduleDecl;
+        			  if (state.isIncludeModuleParsing == true) {
+          			  if (state.importedModules == null) {
+          			    state.importedModules = [];
+          			  }
+          			  state.importedModules.push(moduleDecl);
+        			  } else {
+        			    state.module = moduleDecl;
+        			  }
+        			  state.tokenModuleParsing = "namespacePrefix";
+          	  } else {resetModuleState(state);}
+          	  break;
+      	  	case "namespacePrefix":
+      	  	  if (known.type == "operator" && word=="=") {state.tokenModuleParsing = "namespacePrefixEq";} else {resetModuleState(state);}          	  
+            	  break; 
+      	  	case "namespaceURIEnd":
+          	  	  if (known.type=="at") {state.tokenModuleParsing = "namespaceLocationAt";} else {resetModuleState(state);}          	  
+                	  break;            	  
+              default:
+                resetModuleState(state);
+      	  }    	  
+        } 
+      }
       
       // if the word is known, return the details of that else just call this a generic 'word'
       return known ? ret(known.type, known.style, word) :
                      ret("word", "variable", word);
     }
+  }
+  
+  function resetModuleState(state) {
+    state.tokenModuleParsing = null;
+    state.isIncludeModuleParsing = null;
+    state.moduleDecl = null;
   }
 
   // handle comments, including nested 
@@ -253,14 +348,18 @@ CodeMirror.defineMode("xquery", function() {
     return function(stream, state) {
       var ch;
 
-      if(isInString(state) && stream.current() == quote) {
+      var inString = isInString(state);
+      if(inString && stream.current() == quote) {
         popStateStack(state);
         if(f) state.tokenize = f;
         return ret("string", "string");
       }
 
-      pushStateStack(state, { type: "string", name: quote, tokenize: tokenString(quote, f) });
-
+      if (!inString) {
+        // manage multi line string.
+        pushStateStack(state, { type: "string", name: quote, tokenize: tokenString(quote, f) });
+      }
+      
       // if we're in a string and in an XML block, allow an embedded code block
       if(stream.match("{", false) && isInXmlAttributeBlock(state)) {
         state.tokenize = tokenBase;
@@ -272,6 +371,16 @@ CodeMirror.defineMode("xquery", function() {
         if (ch ==  quote) {
           popStateStack(state);
           if(f) state.tokenize = f;
+          if (trackContext) {
+            if (state.tokenModuleParsing == "namespacePrefixEq"
+                || state.tokenModuleParsing == "namespaceURI") {
+              state.tokenModuleParsing = "namespaceURIEnd";
+            } else if (state.tokenModuleParsing == "namespaceLocationAt"
+                || state.tokenModuleParsing == "namespaceLocation") {
+              state.tokenModuleParsing = null;
+              state.moduleDecl = null;
+            }
+          }
           break;
         }
         else {
@@ -280,12 +389,41 @@ CodeMirror.defineMode("xquery", function() {
             state.tokenize = tokenBase;
             return ret("string", "string"); 
           }
-
+          if (trackContext) {
+            // test if it's module prefix, namespace or location
+            if (state.tokenModuleParsing == "namespacePrefixEq") {
+              state.moduleDecl.namespace = ch;
+              state.tokenModuleParsing = "namespaceURI"
+            } else if (state.tokenModuleParsing == "namespaceURI") {
+              state.moduleDecl.namespace += ch;
+            } else if (state.tokenModuleParsing == "namespaceLocationAt") {
+              state.moduleDecl.location = ch;
+              state.tokenModuleParsing = "namespaceLocation"
+            } else if (state.tokenModuleParsing == "namespaceLocation") {
+              state.moduleDecl.location += ch;
+            }
+          }
         }
       }
       
       return ret("string", "string");
     };
+  }
+  
+  var GLOBAL_SCOPE = "global", LOCAL_SCOPE = "local", PARAM_SCOPE = "func_param";
+  
+  function getVarScope(state) {
+	  if(state.lastType=="variable") {
+		  return GLOBAL_SCOPE;
+	  }
+	  if(state.lastType=="let" || state.lastType=="for") {
+		  return LOCAL_SCOPE;
+	  }
+	  var functionDecl = state.functionDecl;
+	  if(functionDecl && functionDecl.paramsParsing){
+		  return PARAM_SCOPE;
+	  }
+	  return null;
   }
   
   // tokenizer for variables
@@ -302,7 +440,44 @@ CodeMirror.defineMode("xquery", function() {
     }
     stream.eatWhile(isVariableChar);
     state.tokenize = tokenBase;
+
+    if (trackContext) {
+      var scope = getVarScope(state);
+      if(scope != null) {
+      	var varname = stream.current();
+        register(varname, state, scope);
+        return ret(scope, "variable");
+      }    
+    }
     return ret("variable", "variable");
+  }  
+  
+  function register(varname, state, scope) {
+    function inList(list) {
+    	if (!list)
+    		return false;
+	    for (var v = list; v; v = v.next)
+	      if (v.name == varname) return true;
+	    return false;
+    }
+    var varDecl = new VarDecl(varname, scope);
+    state.currentVar = varDecl;
+    switch(scope) {
+      case GLOBAL_SCOPE:
+        if (inList(state.globalVars)) return;
+	      state.globalVars = {varDecl: varDecl, next: state.globalVars};
+	    break;    
+      case LOCAL_SCOPE:
+        if (inList(state.localVars)) return;
+	      state.localVars = {varDecl: varDecl, next: state.localVars};  
+	    break;
+      case PARAM_SCOPE:
+    	var functionDecl = state.functionDecl;    	  
+    	varDecl.functionDecl = functionDecl;
+        if (inList(functionDecl.params)) return;
+          functionDecl.params = {varDecl: varDecl, next: functionDecl.params};
+        break;
+      }
   }
   
   // tokenizer for XML tags
@@ -428,19 +603,110 @@ CodeMirror.defineMode("xquery", function() {
     state.tokenize = reinstateTokenize || tokenBase;
   }
   
+  // Context
+  
+  function pushContext(state, keepLocals) {
+	state.context = {prev: state.context, vars: state.localVars, keepLocals: keepLocals};
+	state.localVars = null;
+  }
+  
+  function popContext(state) {
+	if (state.context) {
+	  state.localVars = state.context.vars;
+	  state.context = state.context.prev;		  		
+	}
+  }
+
+  function ModuleDecl() {
+	  this.prefix = null;
+	  this.namespace = null;
+	  this.location = null;
+  }
+  
+  function VarDecl(name, scope) {
+	  this.name = name;
+	  this.scope = scope;
+	  this.hasAs = false;
+	  this.dataType = null;
+	  this.functionDecl = null;
+  }
+  
+  function FunctionDecl(name) {
+	  this.name = name;
+	  this.bracket = 0;
+	  this.paramsParsing = null;
+	  this.paren = 0;
+	  this.params = null;
+  }
+  
+  function updateFunctionDeclBracket(state, i) {
+	  var functionDecl = state.functionDecl;
+	  if (functionDecl) {
+		  functionDecl.bracket+=i;
+		  if (functionDecl.bracket <= 0){
+			// end of the function, pop the whole context
+			var context = state.context;
+			while(context) {
+				var prev = context.prev;
+				if (prev == null) {
+					context = null;
+				} else {
+					popContext(state);
+					context = state.context;
+				}
+			}
+			state.functionDecl = null;  
+		  }		  
+	  }
+  }
+  
+  function updateFunctionDeclParen(state, i) {
+    var functionDecl = state.functionDecl;
+	if (functionDecl) {
+	  functionDecl.paren+=i;
+	  if (functionDecl.paren <= 0) {
+		  functionDecl.paramsParsing = false;
+	  } else if (functionDecl.paren == 1 && functionDecl.paramsParsing == null){
+		  functionDecl.paramsParsing = true;
+	  }		  
+    }
+  }
+
   // the interface for the mode API
   return {
     startState: function() {
       return {
-        tokenize: tokenBase,
-        cc: [],
-        stack: []
+        tokenize: tokenBase,        
+        stack: [],
+        lastType: null,
+        context : null,
+        declaredFunctions : null,
+        functionDecl : null,
+        currentVar : null,
+        module : null,
+        importedModules : null,
+        moduleDecl : null,
+        tokenModuleParsing : null,
+        isIncludeModuleParsing : null
       };
     },
 
     token: function(stream, state) {
       if (stream.eatSpace()) return null;
+      var currentVar = state.currentVar;
       var style = state.tokenize(stream, state);
+      state.lastType = type;      
+      if (currentVar != null) {
+    	  if (currentVar.hasAs == false) {
+    		  if ((style == "keyword" && type == "as")) {
+    			  currentVar.hasAs = true;
+    		  } else  {
+    			  state.currentVar = null;
+    		  }
+    	  } else {
+    		  if(type != "operator") state.currentVar = null;
+      	  }
+      }
       return style;
     }
   };
