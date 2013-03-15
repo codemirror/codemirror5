@@ -17,16 +17,15 @@
       this.matches = function(reverse, pos) {
         if (reverse) {
           query.lastIndex = 0;
-          var line = cm.getLine(pos.line).slice(0, pos.ch), match = query.exec(line), start = 0;
-          while (match) {
-            start += match.index + 1;
-            line = line.slice(start);
-            query.lastIndex = 0;
-            var newmatch = query.exec(line);
-            if (newmatch) match = newmatch;
-            else break;
+          var line = cm.getLine(pos.line).slice(0, pos.ch), cutOff = 0, match, start;
+          for (;;) {
+            query.lastIndex = cutOff;
+            var newMatch = query.exec(line);
+            if (!newMatch) break;
+            match = newMatch;
+            start = cutOff;
+            cutOff = match.index + 1;
           }
-          start--;
         } else {
           query.lastIndex = pos.ch;
           var line = cm.getLine(pos.line), match = query.exec(line),
