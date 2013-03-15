@@ -77,6 +77,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
         if (!tagName) return "error";
         type = isClose ? "closeTag" : "openTag";
         state.tokenize = inTag;
+        state.tagIndent = state.indented;
         return "tag";
       }
     }
@@ -180,6 +181,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
       prev: curState.context,
       tagName: tagName,
       indent: curState.indented,
+      tagIndent: curState.tagIndent,
       startOfLine: startOfLine,
       noIndent: noIndent
     };
@@ -300,6 +302,10 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
 
     indent: function(state, textAfter, fullLine) {
       var context = state.context;
+      if (state.cc.length > 0) {
+        return state.tagIndent + indentUnit * 2;
+      }
+
       if ((state.tokenize != inTag && state.tokenize != inText) ||
           context && context.noIndent)
         return fullLine ? fullLine.match(/^(\s*)/)[0].length : 0;
@@ -308,7 +314,8 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
         context = context.prev;
       while (context && !context.startOfLine)
         context = context.prev;
-      if (context) return context.indent + indentUnit;
+      if (context)
+        return ((context.tagIndent !== undefined) ? context.tagIndent : context.indent) + indentUnit;
       else return 0;
     },
 
