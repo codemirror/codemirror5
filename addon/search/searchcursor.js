@@ -23,7 +23,7 @@
             var newMatch = query.exec(line);
             if (!newMatch) break;
             match = newMatch;
-            start = cutOff;
+            start = match.index;
             cutOff = match.index + 1;
           }
         } else {
