@@ -468,9 +468,12 @@
       is associated with the <em>start</em> of the line. Mostly useful
       when you need to find out when your <a href="#setGutterMarker">gutter
       markers</a> on a given line are removed.</dd>
-      <dt id="event_line_change"><code>"change" ()</code></dt>
+      <dt id="event_line_change"><code>"change" (line, changeObj)</code></dt>
       <dd>Fires when the line's text content is changed in any way
-      (but the line is not deleted outright).</dd>
+      (but the line is not deleted outright). The <code>change</code>
+      object is similar to the one passed
+      to <a href="#event_change">change event</a> on the editor
+      object.</dd>
     </dl>
 
     <p>Marked range handles, as returned
