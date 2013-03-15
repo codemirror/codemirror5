@@ -1205,10 +1205,13 @@
       it'll give the size of the whole character, rather than just the
       position that the cursor would have when it would sit at that
       position.</dd>
-      <dt id="coordsChar"><code>cm.coordsChar(object) → pos</code></dt>
-      <dd>Given an <code>{left, top}</code> object (in page coordinates),
-      returns the <code>{line, ch}</code> position that corresponds to
-      it.</dd>
+      <dt id="coordsChar"><code>cm.coordsChar(object, mode) → pos</code></dt>
+      <dd>Given an <code>{left, top}</code> object, returns
+      the <code>{line, ch}</code> position that corresponds to it. The
+      optional <code>mode</code> parameter determines relative to what
+      the coordinates are interpreted. It may
+      be <code>"window"</code>, <code>"page"</code> (the default),
+      or <code>"local"</code>.</dd>
       <dt id="defaultTextHeight"><code>cm.defaultTextHeight() → number</code></dt>
       <dd>Returns the line height of the default font for the editor.</dd>
 
