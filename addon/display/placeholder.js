@@ -15,7 +15,7 @@
       wrapper.className = wrapper.className.replace(" CodeMirror-empty", "");
     }
 
-    if (val && !cm.hasFocus()) setPlaceholder(cm);
+    if (val && !cm.hasFocus()) onBlur(cm);
   });
 
   function clearPlaceholder(cm) {
