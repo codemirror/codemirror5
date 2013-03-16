@@ -842,7 +842,7 @@
           try {
             updateSearchQuery(cm, query, ignoreCase, smartCase);
           } catch (e) {
-            showConfirm(cm, 'Invalid regex: ' + regexPart);
+            showConfirm(cm, 'Invalid regex: ' + query);
             return;
           }
           commandDispatcher.processMotion(cm, vim, {
@@ -2656,7 +2656,7 @@
             if (match[0].length == 0) {
               // Matched empty string, skip to next.
               stream.next();
-              return;
+              return "searching";
             }
             if (!stream.sol()) {
               // Backtrack 1 to match \b
@@ -2692,12 +2692,11 @@
       if (repeat === undefined) { repeat = 1; }
       return cm.operation(function() {
         var pos = cm.getCursor();
-        if (!prev) {
-          pos.ch += 1;
-        }
         var cursor = cm.getSearchCursor(query, pos);
         for (var i = 0; i < repeat; i++) {
-          if (!cursor.find(prev)) {
+          var found = cursor.find(prev);
+          if (i == 0 && found && cursorEqual(cursor.from(), pos)) { found = cursor.find(prev); }
+          if (!found) {
             // SearchCursor may have returned null because it hit EOF, wrap
             // around and try again.
             cursor = cm.getSearchCursor(query,
