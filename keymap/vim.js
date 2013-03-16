@@ -1658,26 +1658,18 @@
       var cur = cm.getCursor();
       var line = cm.getLine(cur.line);
       var idx = cur.ch;
-
-      // Seek to first word or non-whitespace character, depending on if
-      // noSymbol is true.
       var textAfterIdx = line.substring(idx);
-      var firstMatchedChar;
-      if (noSymbol) {
-        firstMatchedChar = textAfterIdx.search(/\w/);
-      } else {
-        firstMatchedChar = textAfterIdx.search(/\S/);
-      }
-      if (firstMatchedChar == -1) {
-        return null;
-      }
-      idx += firstMatchedChar;
-      textAfterIdx = line.substring(idx);
       var textBeforeIdx = line.substring(0, idx);
+
+      // If the cursor is sitting on whitespace, expand the selection to all
+      // the adjacent consecutive whitespace
+      var expandWhitespace = line[idx].match(/\s/);
 
       var matchRegex;
       // Greedy matchers for the "word" we are trying to expand.
-      if (bigWord) {
+      if (expandWhitespace) {
+        matchRegex = /^\s+/;
+      } else if (bigWord) {
         matchRegex = /^\S+/;
       } else {
         if ((/\w/).test(line.charAt(idx))) {
@@ -1689,7 +1681,7 @@
 
       var wordAfterRegex = matchRegex.exec(textAfterIdx);
       var wordStart = idx;
-      var wordEnd = idx + wordAfterRegex[0].length - 1;
+      var wordEnd = idx + wordAfterRegex[0].length;
       // TODO: Find a better way to do this. It will be slow on very long lines.
       var wordBeforeRegex = matchRegex.exec(reverse(textBeforeIdx));
       if (wordBeforeRegex) {
