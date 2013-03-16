@@ -3,7 +3,7 @@
  * Branched from CodeMirror's Scheme mode (by Koh Zi Han, based on implementation by Koh Zi Chun)
  */
 CodeMirror.defineMode("clojure", function () {
-    var BUILTIN = "builtin", COMMENT = "comment", STRING = "string",
+    var BUILTIN = "builtin", COMMENT = "comment", STRING = "string", CHARACTER = "string-2",
         ATOM = "atom", NUMBER = "number", BRACKET = "bracket", KEYWORD = "keyword";
     var INDENT_WORD_SKIP = 2;
 
@@ -95,6 +95,20 @@ CodeMirror.defineMode("clojure", function () {
         return false;
     }
 
+    // Eat character that starts after backslash \
+    function eatCharacter(stream) {
+        var first = stream.next();
+        // Read special literals: backspace, newline, space, return.
+        // Just read all lowercase letters.
+        if (first.match(/[a-z]/) && stream.match(/[a-z]+/, true)) {
+            return;
+        }
+        // Read unicode character: \u1000 \uA0a1
+        if (first === "u") {
+            stream.match(/[0-9a-z]{4}/i, true);
+        }
+    }
+
     return {
         startState: function () {
             return {
@@ -135,6 +149,9 @@ CodeMirror.defineMode("clojure", function () {
                     if (ch == "\"") {
                         state.mode = "string";
                         returnType = STRING;
+                    } else if (ch == "\\") {
+                        eatCharacter(stream);
+                        returnType = CHARACTER;
                     } else if (ch == "'" && !( tests.digit_or_colon.test(stream.peek()) )) {
                         returnType = ATOM;
                     } else if (ch == ";") { // comment
