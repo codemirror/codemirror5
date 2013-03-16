@@ -1401,6 +1401,76 @@ testVim('/_case', function(cm, vim, helpers) {
   helpers.doKeys('/');
   helpers.assertCursorAt(1, 6);
 }, { value: 'match nope match \n nope Match' });
+testVim('/_nongreedy', function(cm, vim, helpers) {
+  cm.openDialog = helpers.fakeOpenDialog('aa');
+  helpers.doKeys('/');
+  helpers.assertCursorAt(0, 4);
+  helpers.doKeys('n');
+  helpers.assertCursorAt(1, 3);
+  helpers.doKeys('n');
+  helpers.assertCursorAt(0, 0);
+}, { value: 'aaa aa \n a aa'});
+testVim('?_nongreedy', function(cm, vim, helpers) {
+  cm.openDialog = helpers.fakeOpenDialog('aa');
+  helpers.doKeys('?');
+  helpers.assertCursorAt(1, 3);
+  helpers.doKeys('n');
+  helpers.assertCursorAt(0, 4);
+  helpers.doKeys('n');
+  helpers.assertCursorAt(0, 0);
+}, { value: 'aaa aa \n a aa'});
+testVim('/_greedy', function(cm, vim, helpers) {
+  cm.openDialog = helpers.fakeOpenDialog('a+');
+  helpers.doKeys('/');
+  helpers.assertCursorAt(0, 4);
+  helpers.doKeys('n');
+  helpers.assertCursorAt(1, 1);
+  helpers.doKeys('n');
+  helpers.assertCursorAt(1, 3);
+  helpers.doKeys('n');
+  helpers.assertCursorAt(0, 0);
+}, { value: 'aaa aa \n a aa'});
+testVim('?_greedy', function(cm, vim, helpers) {
+  cm.openDialog = helpers.fakeOpenDialog('a+');
+  helpers.doKeys('?');
+  helpers.assertCursorAt(1, 3);
+  helpers.doKeys('n');
+  helpers.assertCursorAt(1, 1);
+  helpers.doKeys('n');
+  helpers.assertCursorAt(0, 4);
+  helpers.doKeys('n');
+  helpers.assertCursorAt(0, 0);
+}, { value: 'aaa aa \n a aa'});
+testVim('/_greedy_0_or_more', function(cm, vim, helpers) {
+  cm.openDialog = helpers.fakeOpenDialog('a*');
+  helpers.doKeys('/');
+  helpers.assertCursorAt(0, 3);
+  helpers.doKeys('n');
+  helpers.assertCursorAt(0, 4);
+  helpers.doKeys('n');
+  helpers.assertCursorAt(0, 5);
+  helpers.doKeys('n');
+  helpers.assertCursorAt(1, 0);
+  helpers.doKeys('n');
+  helpers.assertCursorAt(1, 1);
+  helpers.doKeys('n');
+  helpers.assertCursorAt(0, 0);
+}, { value: 'aaa  aa\n aa'});
+testVim('?_greedy_0_or_more', function(cm, vim, helpers) {
+  cm.openDialog = helpers.fakeOpenDialog('a*');
+  helpers.doKeys('?');
+  helpers.assertCursorAt(1, 1);
+  helpers.doKeys('n');
+  helpers.assertCursorAt(1, 0);
+  helpers.doKeys('n');
+  helpers.assertCursorAt(0, 5);
+  helpers.doKeys('n');
+  helpers.assertCursorAt(0, 4);
+  helpers.doKeys('n');
+  helpers.assertCursorAt(0, 3);
+  helpers.doKeys('n');
+  helpers.assertCursorAt(0, 0);
+}, { value: 'aaa  aa\n aa'});
 testVim('? and n/N', function(cm, vim, helpers) {
   cm.openDialog = helpers.fakeOpenDialog('match');
   helpers.doKeys('?');
