@@ -1,5 +1,6 @@
 CodeMirror.defineMode("xml", function(config, parserConfig) {
   var indentUnit = config.indentUnit;
+  var multiLineTagIndentFactor = config.multiLineTagIndentFactor;
   var Kludges = parserConfig.htmlMode ? {
     autoSelfClosers: {'area': true, 'base': true, 'br': true, 'col': true, 'command': true,
                       'embed': true, 'frame': true, 'hr': true, 'img': true, 'input': true,
@@ -84,7 +85,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
       var ok;
       if (stream.eat("#")) {
         if (stream.eat("x")) {
-          ok = stream.eatWhile(/[a-fA-F\d]/) && stream.eat(";");          
+          ok = stream.eatWhile(/[a-fA-F\d]/) && stream.eat(";");
         } else {
           ok = stream.eatWhile(/[\d]/) && stream.eat(";");
         }
@@ -304,7 +305,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
       if ((state.tokenize != inTag && state.tokenize != inText) ||
           context && context.noIndent)
         return fullLine ? fullLine.match(/^(\s*)/)[0].length : 0;
-      if (state.tagName) return state.tagStart + indentUnit;
+      if (state.tagName) return state.tagStart + indentUnit * multiLineTagIndentFactor;
       if (alignCDATA && /<!\[CDATA\[/.test(textAfter)) return 0;
       if (context && /^<\//.test(textAfter))
         context = context.prev;
@@ -324,3 +325,4 @@ CodeMirror.defineMIME("text/xml", "xml");
 CodeMirror.defineMIME("application/xml", "xml");
 if (!CodeMirror.mimeModes.hasOwnProperty("text/html"))
   CodeMirror.defineMIME("text/html", {name: "xml", htmlMode: true});
+CodeMirror.defineOption("multiLineTagIndentFactor", 2);
