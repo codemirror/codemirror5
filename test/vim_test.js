@@ -813,6 +813,138 @@ testVim('mark', function(cm, vim, helpers) {
   helpers.doKeys('`', 't');
   helpers.assertCursorAt(2, 2);
 });
+testVim('jumpToMark_next', function(cm, vim, helpers) {
+  cm.setCursor(2, 2);
+  helpers.doKeys('m', 't');
+  cm.setCursor(0, 0);
+  helpers.doKeys(']', '`');
+  helpers.assertCursorAt(2, 2);
+  cm.setCursor(0, 0);
+  helpers.doKeys(']', '\'');
+  helpers.assertCursorAt(2, 0);
+});
+testVim('jumpToMark_next_repeat', function(cm, vim, helpers) {
+  cm.setCursor(2, 2);
+  helpers.doKeys('m', 'a');
+  cm.setCursor(3, 2);
+  helpers.doKeys('m', 'b');
+  cm.setCursor(4, 2);
+  helpers.doKeys('m', 'c');
+  cm.setCursor(0, 0);
+  helpers.doKeys('2', ']', '`');
+  helpers.assertCursorAt(3, 2);
+  cm.setCursor(0, 0);
+  helpers.doKeys('2', ']', '\'');
+  helpers.assertCursorAt(3, 1);
+});
+testVim('jumpToMark_next_sameline', function(cm, vim, helpers) {
+  cm.setCursor(2, 0);
+  helpers.doKeys('m', 'a');
+  cm.setCursor(2, 4);
+  helpers.doKeys('m', 'b');
+  cm.setCursor(2, 2);
+  helpers.doKeys(']', '`');
+  helpers.assertCursorAt(2, 4);
+});
+testVim('jumpToMark_next_onlyprev', function(cm, vim, helpers) {
+  cm.setCursor(2, 0);
+  helpers.doKeys('m', 'a');
+  cm.setCursor(4, 0);
+  helpers.doKeys(']', '`');
+  helpers.assertCursorAt(4, 0);
+});
+testVim('jumpToMark_next_nomark', function(cm, vim, helpers) {
+  cm.setCursor(2, 2);
+  helpers.doKeys(']', '`');
+  helpers.assertCursorAt(2, 2);
+  helpers.doKeys(']', '\'');
+  helpers.assertCursorAt(2, 0);
+});
+testVim('jumpToMark_next_linewise_over', function(cm, vim, helpers) {
+  cm.setCursor(2, 2);
+  helpers.doKeys('m', 'a');
+  cm.setCursor(3, 4);
+  helpers.doKeys('m', 'b');
+  cm.setCursor(2, 1);
+  helpers.doKeys(']', '\'');
+  helpers.assertCursorAt(3, 1);
+});
+testVim('jumpToMark_next_action', function(cm, vim, helpers) {
+  cm.setCursor(2, 2);
+  helpers.doKeys('m', 't');
+  cm.setCursor(0, 0);
+  helpers.doKeys('d', ']', '`');
+  helpers.assertCursorAt(0, 0);
+  var actual = cm.getLine(0);
+  var expected = 'pop pop 0 1 2 3 4';
+  eq(actual, expected, "Deleting while jumping to the next mark failed.");
+});
+testVim('jumpToMark_next_line_action', function(cm, vim, helpers) {
+  cm.setCursor(2, 2);
+  helpers.doKeys('m', 't');
+  cm.setCursor(0, 0);
+  helpers.doKeys('d', ']', '\'');
+  helpers.assertCursorAt(0, 1);
+  var actual = cm.getLine(0);
+  var expected = ' (a) [b] {c} '
+  eq(actual, expected, "Deleting while jumping to the next mark line failed.");
+});
+testVim('jumpToMark_prev', function(cm, vim, helpers) {
+  cm.setCursor(2, 2);
+  helpers.doKeys('m', 't');
+  cm.setCursor(4, 0);
+  helpers.doKeys('[', '`');
+  helpers.assertCursorAt(2, 2);
+  cm.setCursor(4, 0);
+  helpers.doKeys('[', '\'');
+  helpers.assertCursorAt(2, 0);
+});
+testVim('jumpToMark_prev_repeat', function(cm, vim, helpers) {
+  cm.setCursor(2, 2);
+  helpers.doKeys('m', 'a');
+  cm.setCursor(3, 2);
+  helpers.doKeys('m', 'b');
+  cm.setCursor(4, 2);
+  helpers.doKeys('m', 'c');
+  cm.setCursor(5, 0);
+  helpers.doKeys('2', '[', '`');
+  helpers.assertCursorAt(3, 2);
+  cm.setCursor(5, 0);
+  helpers.doKeys('2', '[', '\'');
+  helpers.assertCursorAt(3, 1);
+});
+testVim('jumpToMark_prev_sameline', function(cm, vim, helpers) {
+  cm.setCursor(2, 0);
+  helpers.doKeys('m', 'a');
+  cm.setCursor(2, 4);
+  helpers.doKeys('m', 'b');
+  cm.setCursor(2, 2);
+  helpers.doKeys('[', '`');
+  helpers.assertCursorAt(2, 0);
+});
+testVim('jumpToMark_prev_onlynext', function(cm, vim, helpers) {
+  cm.setCursor(4, 4);
+  helpers.doKeys('m', 'a');
+  cm.setCursor(2, 0);
+  helpers.doKeys('[', '`');
+  helpers.assertCursorAt(2, 0);
+});
+testVim('jumpToMark_prev_nomark', function(cm, vim, helpers) {
+  cm.setCursor(2, 2);
+  helpers.doKeys('[', '`');
+  helpers.assertCursorAt(2, 2);
+  helpers.doKeys('[', '\'');
+  helpers.assertCursorAt(2, 0);
+});
+testVim('jumpToMark_prev_linewise_over', function(cm, vim, helpers) {
+  cm.setCursor(2, 2);
+  helpers.doKeys('m', 'a');
+  cm.setCursor(3, 4);
+  helpers.doKeys('m', 'b');
+  cm.setCursor(3, 6);
+  helpers.doKeys('[', '\'');
+  helpers.assertCursorAt(2, 0);
+});
 testVim('delmark_single', function(cm, vim, helpers) {
   cm.setCursor(1, 2);
   helpers.doKeys('m', 't');
