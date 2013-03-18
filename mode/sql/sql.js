@@ -4,7 +4,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
   var client         = parserConfig.client || {},
       atoms          = parserConfig.atoms || {"false": true, "true": true, "null": true},
       builtin        = parserConfig.builtin || {},
-      keywords       = parserConfig.keywords,
+      keywords       = parserConfig.keywords || {},
       operatorChars  = parserConfig.operatorChars || /^[*+\-%<>!=&|~^]/,
       support        = parserConfig.support || {},
       hooks          = parserConfig.hooks || {},
