@@ -1,5 +1,7 @@
 CodeMirror.defineMode("xml", function(config, parserConfig) {
   var indentUnit = config.indentUnit;
+  var multilineTagIndentFactor = parserConfig.multilineTagIndentFactor || 1;
+
   var Kludges = parserConfig.htmlMode ? {
     autoSelfClosers: {'area': true, 'base': true, 'br': true, 'col': true, 'command': true,
                       'embed': true, 'frame': true, 'hr': true, 'img': true, 'input': true,
@@ -304,7 +306,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
       if ((state.tokenize != inTag && state.tokenize != inText) ||
           context && context.noIndent)
         return fullLine ? fullLine.match(/^(\s*)/)[0].length : 0;
-      if (state.tagName) return state.tagStart + indentUnit;
+      if (state.tagName) return state.tagStart + indentUnit * multilineTagIndentFactor;
       if (alignCDATA && /<!\[CDATA\[/.test(textAfter)) return 0;
       if (context && /^<\//.test(textAfter))
         context = context.prev;
