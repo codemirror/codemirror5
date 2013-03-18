@@ -482,6 +482,11 @@
     following events:</p>
 
     <dl>
+      <dt id="event_beforeCursorEnter"><code>"beforeCursorEnter" ()</code></dt>
+      <dd>Fired when the cursor enters the marked range. From this
+      event handler, the editor state may be inspected
+      but <em>not</em> modified, with the exception that the range on
+      which the event fires may be cleared.</dd>
       <dt id="event_clear"><code>"clear" ()</code></dt>
       <dd>Fired when the range is cleared, either through cursor
       movement in combination
