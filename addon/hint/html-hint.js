@@ -1,5 +1,5 @@
 (function () {
-  function scriptHint(editor, htmlStructure, getToken) {
+  function htmlHint(editor, htmlStructure, getToken) {
     var cur = editor.getCursor();
     var token = getToken(editor, cur);
     var keywords = [];
@@ -9,13 +9,13 @@
     var from = {line: cur.line, ch: cur.ch};
     var to = {line: cur.line, ch: cur.ch};
     var flagClean = true;
-    
-    text = editor.getRange({line: 0, ch: 0}, cur);
-    
+
+    var text = editor.getRange({line: 0, ch: 0}, cur);
+
     var open = text.lastIndexOf('<');
-        var close = text.lastIndexOf('>');
+    var close = text.lastIndexOf('>');
     var tokenString = token.string.replace("<","");
-    
+
     if(open > close) {
       var last = editor.getRange({line: cur.line, ch: cur.ch - 1}, cur);
       if(last == "<") {
@@ -29,24 +29,24 @@
           counter++;
           if(counter > 50) return;
           if(token.type == type) {
-            return token;  
+            return token;
           } else {
             position.ch = token.start;
             var newToken = editor.getTokenAt(position);
             return found(newToken, type, position);
           }
         };
- 
+
         var nodeToken = found(token, "tag", {line: cur.line, ch: cur.ch});
         var node = nodeToken.string.substring(1);
-        
+
         if(token.type === null && token.string.trim() === "") {
           for(i = 0; i < htmlStructure.length; i++) {
             if(htmlStructure[i].tag == node) {
               for(j = 0; j < htmlStructure[i].attr.length; j++) {
                 keywords.push(htmlStructure[i].attr[j].key + "=\"\" ");
               }
-              
+
               for(k = 0; k < globalAttributes.length; k++) {
                 keywords.push(globalAttributes[k].key + "=\"\" ");
               }
@@ -56,7 +56,7 @@
           tokenString = tokenString.substring(1, tokenString.length - 1);
           var attributeToken = found(token, "attribute", {line: cur.line, ch: cur.ch});
           var attribute = attributeToken.string;
-          
+
           for(i = 0; i < htmlStructure.length; i++) {
             if(htmlStructure[i].tag == node) {
               for(j = 0; j < htmlStructure[i].attr.length; j++) {
@@ -66,7 +66,7 @@
                   }
                 }
               }
-              
+
               for(j = 0; j < globalAttributes.length; j++) {
                 if(globalAttributes[j].key == attribute) {
                   for(k = 0; k < globalAttributes[j].values.length; k++) {
@@ -83,7 +83,7 @@
               for(j = 0; j < htmlStructure[i].attr.length; j++) {
                 keywords.push(htmlStructure[i].attr[j].key + "=\"\" ");
               }
-              
+
               for(k = 0; k < globalAttributes.length; k++) {
                 keywords.push(globalAttributes[k].key + "=\"\" ");
               }
@@ -94,7 +94,7 @@
           for(i = 0; i < htmlStructure.length; i++) {
             keywords.push(htmlStructure[i].tag);
           }
-          
+
           from.ch = token.start + 1;
         }
       }
@@ -102,37 +102,36 @@
       for(i = 0; i < htmlStructure.length; i++) {
         keywords.push("<" + htmlStructure[i].tag);
       }
-      
+
       tokenString = ("<" + tokenString).trim();
       from.ch = token.start;
     }
-    
+
     if(flagClean === true && tokenString.trim() === "") {
-      flagClean = false;  
+      flagClean = false;
     }
-    
+
     if(flagClean) {
       keywords = cleanResults(tokenString, keywords);
     }
- 
+
     return {list: keywords, from: from, to: to};
   }
-  
-  
+
+
   var cleanResults = function(text, keywords) {
     var results = [];
     var i = 0;
- 
+
     for(i = 0; i < keywords.length; i++) {
       if(keywords[i].substring(0, text.length) == text) {
-        results.push(keywords[i]);  
+        results.push(keywords[i]);
       }
     }
-    
+
     return results;
   };
-  
-  
+
   var htmlStructure = [
     {tag: '!DOCTYPE', attr: []},
     {tag: 'a', attr: [
@@ -157,7 +156,7 @@
       {key: 'media', values: []},
       {key: 'hreflang', values: []},
       {key: 'type', values: []}
-    
+
     ]},
     {tag: 'article', attr: []},
     {tag: 'aside', attr: []},
@@ -547,9 +546,7 @@
     ]},
     {tag: 'wbr', attr: []}
   ];
-  
-  
-  
+
   var globalAttributes = [
     {key: "accesskey", values: ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z","0","1","2","3","4","5","6","7","8","9"]},
     {key: "class", values: []},
@@ -575,12 +572,11 @@
     {key: "onclick", values: []},
     {key: 'rel', values: ["stylesheet","alternate","author","bookmark","help","license","next","nofollow","noreferrer","prefetch","prev","search","tag"]}
   ];
-  
-  
+
   CodeMirror.htmlHint = function(editor) {
-        if(String.prototype.trim == undefined) {
-            String.prototype.trim=function(){return this.replace(/^\s+|\s+$/g, '');};
-        }
-    return scriptHint(editor, htmlStructure, function (e, cur) { return e.getTokenAt(cur); });
+    if(String.prototype.trim == undefined) {
+      String.prototype.trim=function(){return this.replace(/^\s+|\s+$/g, '');};
+    }
+    return htmlHint(editor, htmlStructure, function (e, cur) { return e.getTokenAt(cur); });
   };
 })();
