@@ -834,16 +834,18 @@
       <dd>Retrieves the current value of the given option for this
       editor instance.</dd>
 
-      <dt id="addKeyMap"><code>cm.addKeyMap(map)</code></dt>
-      <dd>Attach an additional <a href="#keymaps">keymap</a> to the editor. This is mostly
-      useful for add-ons that need to register some key handlers
-      without trampling on
+      <dt id="addKeyMap"><code>cm.addKeyMap(map, bottom)</code></dt>
+      <dd>Attach an additional <a href="#keymaps">keymap</a> to the
+      editor. This is mostly useful for add-ons that need to register
+      some key handlers without trampling on
       the <a href="#option_extraKeys"><code>extraKeys</code></a>
-      option. Maps added in this way have a lower precedence
-      than <code>extraKeys</code>, a higher precedence than the
-      base <a href="#option_keyMap"><code>keyMap</code></a>, and
-      between them, the maps added earlier have a higher precedence
-      than those added later.</dd>
+      option. Maps added in this way have a higher precedence than
+      the <code>extraKeys</code>
+      and <a href="#option_keyMap"><code>keyMap</code></a> options,
+      and between them, the maps added earlier have a lower precedence
+      than those added later, unless the <code>bottom</code> argument
+      was passed, in which case they end up below other keymaps added
+      with this method.</dd>
       <dt id="removeKeyMap"><code>cm.removeKeyMap(map)</code></dt>
       <dd>Disable a keymap added
       with <a href="#addKeyMap"><code>addKeyMap</code></a>. Either

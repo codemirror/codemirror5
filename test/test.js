@@ -1298,7 +1298,7 @@ testCM("addKeyMap", function(cm) {
   sendKey(39);
   eqPos(cm.getCursor(), Pos(0, 1));
   eq(test, 1);
-  cm.addKeyMap(map2);
+  cm.addKeyMap(map2, true);
   sendKey(39);
   eq(test, 2);
   cm.removeKeyMap(map1);
