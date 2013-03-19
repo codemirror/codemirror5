@@ -5,7 +5,7 @@
                                      blockCommentEnd: "*/",
                                      blockCommentContinue: " * "});
 
-  CodeMirror.commands.newlineAndIndentContinueComment = function(cm) {
+  function continueComment(cm) {
     var pos = cm.getCursor(), token = cm.getTokenAt(pos);
     var mode = CodeMirror.innerMode(cm.getMode(), token.state).mode;
     var space;
@@ -31,6 +31,14 @@
     if (space != null)
       cm.replaceSelection("\n" + space + mode.blockCommentContinue, "end");
     else
-      cm.execCommand("newlineAndIndent");
-  };
+      return CodeMirror.Pass;
+  }
+
+  CodeMirror.defineOption("continueComments", null, function(cm, val, prev) {
+    if (prev && prev != CodeMirror.Init)
+      cm.removeKeyMap("continueComment");
+    var map = {name: "continueComment"};
+    map[typeof val == "string" ? val : "Enter"] = continueComment;
+    cm.addKeyMap(map);
+  });
 })();
