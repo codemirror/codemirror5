@@ -56,6 +56,8 @@
 /* Can style cursor different in overwrite (non-insert) mode */
 .CodeMirror div.CodeMirror-cursor.CodeMirror-overwrite {}
 
+.cm-tab { display: inline-block; }
+
 /* DEFAULT THEME */
 
 .cm-s-default .cm-keyword {color: #708;}
