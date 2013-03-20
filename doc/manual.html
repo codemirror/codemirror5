@@ -425,6 +425,13 @@
 
       <dt id="event_update"><code>"update" (instance)</code></dt>
       <dd>Will be fired whenever CodeMirror updates its DOM display.</dd>
+
+      <dt id="event_renderLine"><code>"renderLine" (instance, line, element)</code></dt>
+      <dd>Fired whenever a line is (re-)rendered to the DOM. Fired
+      right after the DOM element is built, <em>before</em> it is
+      added to the document. The handler may mess with the style of
+      the resulting element, or add event handlers, but
+      should <em>not</em> try to change the state of the editor.</dd>
     </dl>
 
     <p>It is also possible to <a href="#on">register</a> events on
@@ -1221,6 +1228,11 @@
       or <code>"local"</code>.</dd>
       <dt id="defaultTextHeight"><code>cm.defaultTextHeight() → number</code></dt>
       <dd>Returns the line height of the default font for the editor.</dd>
+      <dt id="defaultCharWidth"><code>cm.defaultCharWidth() → number</code></dt>
+      <dd>Returns the pixel width of an 'x' in the default font for
+      the editor. (Note that for non-monospace fonts, this is mostly
+      useless, and even for monospace fonts, non-ascii characters
+      might have a different width).</dd>
 
       <dt id="getViewport"><code>cm.getViewport() → object</code></dt>
       <dd>Returns a <code>{from, to}</code> object indicating the

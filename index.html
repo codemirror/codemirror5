@@ -285,6 +285,31 @@
 
   <h2 id=releases>Releases</h2>
 
+  <p class="rel">20-03-2013: <a href="http://codemirror.net/codemirror-3.11.zip">Version 3.11</a>:</p>
+
+  <ul class="rel-note">
+    <li><strong>Removed code:</strong> <code>collapserange</code>,
+    <code>formatting</code>, and <code>simple-hint</code>
+    addons. <code>plsql</code> and <code>mysql</code> modes
+    (use <a href="mode/sql/index.html"><code>sql</code></a> mode).</li>
+    <li><strong>Moved code:</strong> the range-finding functions for folding now have <a href="addon/fold/">their own files</a>.</li>
+    <li><strong>Changed interface:</strong>
+    the <a href="doc/manual.html#addon_continuecomment"><code>continuecomment</code></a>
+    addon now exposes an option, rather than a command.</li>
+    <li>New
+    modes: <a href="mode/css/scss.html">SCSS</a>, <a href="mode/tcl/index.html">Tcl</a>, <a href="mode/livescript/index.html">LiveScript</a>,
+    and <a href="mode/mirc/index.html">mIRC</a>.</li>
+    <li>New addons: <a href="demo/placeholder.html"><code>placeholder</code></a>, <a href="demo/html5complete.html">HTML completion</a>.</li>
+    <li>New
+    methods: <a href="doc/manual.html#hasFocus"><code>hasFocus</code></a>, <a href="doc/manual.html#defaultCharWidth"><code>defaultCharWidth</code></a>.</li>
+    <li>New events: <a href="doc/manual.html#event_beforeCursorEnter"><code>beforeCursorEnter</code></a>, <a href="doc/manual.html#event_renderLine"><code>renderLine</code></a>.</li>
+    <li>Many improvements to the <a href="doc/manual.html#addon_show-hint"><code>show-hint</code></a> completion
+    dialog addon.</li>
+    <li>Tweak behavior of by-word cursor motion.</li>
+    <li>Further improvements to the <a href="demo/vim.html">vim mode</a>.</li>
+    <li>Full <a href="https://github.com/marijnh/CodeMirror/compare/v3.1...v3.11">list of patches</a>.</li>
+  </ul>
+
   <p class="rel">21-02-2013: <a href="http://codemirror.net/codemirror-3.1.zip">Version 3.1</a>:</p>
 
   <ul class="rel-note">
@@ -430,22 +455,6 @@
     <li>Better indentation of JavaScript code without semicolons.</li>
     <li>Add <a href="doc/manual.html#defineInitHook"><code>defineInitHook</code></a> function.</li>
     <li>Full <a href="https://github.com/marijnh/CodeMirror/compare/v2.34...v2.35">list of patches</a>.</li>
-  </ul>
-
-  <p class="rel">22-10-2012: <a href="http://codemirror.net/codemirror-3.0beta2.zip">Version 3.0, beta 2</a>:</p>
-
-  <ul class="rel-note">
-    <li>Fix page-based coordinate computation.</li>
-    <li>Fix firing of <a href="doc/manual.html#event_gutterClick"><code>gutterClick</code></a> event.</li>
-    <li>Add <a href="doc/manual.html#option_cursorHeight"><code>cursorHeight</code></a> option.</li>
-    <li>Fix bi-directional text regression.</li>
-    <li>Add <a href="doc/manual.html#option_viewportMargin"><code>viewportMargin</code></a> option.</li>
-    <li>Directly handle mousewheel events (again, hopefully better).</li>
-    <li>Make vertical cursor movement more robust (through widgets, big line gaps).</li>
-    <li>Add <a href="doc/manual.html#option_flattenSpans"><code>flattenSpans</code></a> option.</li>
-    <li>Many optimizations. Poor responsiveness should be fixed.</li>
-    <li>Initialization in hidden state works again.</li>
-    <li>Full <a href="https://github.com/marijnh/CodeMirror/compare/v3.0beta1...v3.0beta2">list of patches</a>.</li>
   </ul>
 
   <p><a href="doc/oldrelease.html">Older releases...</a></p>
