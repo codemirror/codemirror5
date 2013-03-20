@@ -74,4 +74,7 @@
 
   MT("divide_operator",
     "[tag foo] { [property width][operator :][number 4] [operator /] [number 2] }");
+
+  MT('nested_structure_with_id_selector',
+    "[tag p] { [builtin #hello] { [property color][operator :][keyword red]; } }");
 })();

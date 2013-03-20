@@ -234,7 +234,7 @@ CodeMirror.defineMode("css-base", function(config, parserConfig) {
           style = "error";
         }
       } else if (style == "atom") {
-        if(!context || context == "@media{") {
+        if(!context || context == "@media{" || context == "block") {
           style = "builtin";
         } else if (context == "propertyValue") {
           if (!/^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/.test(stream.current())) {
