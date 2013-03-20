@@ -1761,11 +1761,10 @@
     extra methods, <code>innerMode</code> which, given a state object,
     returns a <code>{state, mode}</code> object with the inner mode
     and its state for the current position. These are used by utility
-    scripts such as the <a href="#addon_formatting">autoformatter</a>
-    and the <a href="#addon_closetag">tag closer</a> to get context
-    information. Use the <code>CodeMirror.innerMode</code> helper
-    function to, starting from a mode and a state, recursively walk
-    down to the innermost mode and state.</p>
+    scripts such as the <a href="#addon_closetag">tag closer</a> to
+    get context information. Use the <code>CodeMirror.innerMode</code>
+    helper function to, starting from a mode and a state, recursively
+    walk down to the innermost mode and state.</p>
 
     <p>To make indentation work properly in a nested parser, it is
     advisable to give the <code>startState</code> method of modes that
