@@ -1454,10 +1454,11 @@
       a CodeMirror instance and a line number, attempt to fold or
       unfold the block starting at the given line. A range-finder is a
       language-specific function that also takes an instance and a
-      line number, and returns an range to be folded, or null if
-      no block is started on that line. This file
-      provides <code>CodeMirror.braceRangeFinder</code>, which finds
-      blocks in brace languages (JavaScript, C, Java,
+      line number, and returns an range to be folded, or null if no
+      block is started on that line. There are files in
+      the <a href="../addon/fold/"><code>addon/fold/</code></a>
+      directory providing <code>CodeMirror.braceRangeFinder</code>,
+      which finds blocks in brace languages (JavaScript, C, Java,
       etc), <code>CodeMirror.indentRangeFinder</code>, for languages
       where indentation determines block structure (Python, Haskell),
       and <code>CodeMirror.tagRangeFinder</code>, for XML-style
