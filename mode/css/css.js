@@ -445,7 +445,7 @@ CodeMirror.defineMode("css-base", function(config, parserConfig) {
     "menu", "menulist", "menulist-button", "menulist-text",
     "menulist-textfield", "menutext", "message-box", "middle", "min-intrinsic",
     "mix", "mongolian", "monospace", "move", "multiple", "myanmar", "n-resize",
-    "narrower", "navy", "ne-resize", "nesw-resize", "no-close-quote", "no-drop",
+    "narrower", "ne-resize", "nesw-resize", "no-close-quote", "no-drop",
     "no-open-quote", "no-repeat", "none", "normal", "not-allowed", "nowrap",
     "ns-resize", "nw-resize", "nwse-resize", "oblique", "octal", "open-quote",
     "optimizeLegibility", "optimizeSpeed", "oriya", "oromo", "outset",
@@ -477,7 +477,7 @@ CodeMirror.defineMode("css-base", function(config, parserConfig) {
     "vertical", "vertical-text", "visible", "visibleFill", "visiblePainted",
     "visibleStroke", "visual", "w-resize", "wait", "wave", "white", "wider",
     "window", "windowframe", "windowtext", "x-large", "x-small", "xor",
-    "xx-large", "xx-small", "yellow"
+    "xx-large", "xx-small"
   ]);
 
   function tokenCComment(stream, state) {
