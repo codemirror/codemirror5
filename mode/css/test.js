@@ -75,7 +75,11 @@
      "[tag foo] { [property font-family][operator :] [string 'hello world']; }");
 
   MT("tagColorKeyword",
-     "[tag foo] { [property color][operator :] [keyword black]; }");
+     "[tag foo] {" +
+       "[property color][operator :] [keyword black];" +
+       "[property color][operator :] [keyword navy];" +
+       "[property color][operator :] [keyword yellow];" +
+       "}");
 
   MT("tagColorHex3",
      "[tag foo] { [property background][operator :] [atom #fff]; }");
