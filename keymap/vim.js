@@ -2543,7 +2543,8 @@
         exCommandDispatcher.map(mapArgs[0], mapArgs[1], cm);
       },
       move: function(cm, params) {
-        commandDispatcher.processMotion(cm, getVimState(cm), {
+        commandDispatcher.processCommand(cm, getVimState(cm), {
+            type: 'motion',
             motion: 'moveToLineOrEdgeOfDocument',
             motionArgs: { forward: false, explicitRepeat: true,
               linewise: true },
