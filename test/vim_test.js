@@ -1158,6 +1158,11 @@ testVim('._repeat', function(cm, vim, helpers) {
 }, { value: '1 2 3 4 5 6'});
 
 // Ex mode tests
+testVim('ex_go_to_line', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doEx('4');
+  helpers.assertCursorAt(3, 0);
+}, { value: 'a\nb\nc\nd\ne\n'});
 testVim('ex_write', function(cm, vim, helpers) {
   var tmp = CodeMirror.commands.save;
   var written;
