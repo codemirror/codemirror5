@@ -152,6 +152,8 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
 }
 .CodeMirror-gutter {
   height: 100%;
+  padding-bottom: 30px;
+  margin-bottom: -32px;
   display: inline-block;
   /* Hack to make IE7 behave */
   *zoom:1;
