@@ -131,48 +131,48 @@ CodeMirror.defineMode("s", function(config, parserConfig) {
 	function x86(config, parserConfig) {
 		lineCommentStartSymbol = "#";
 
-		registers["ax"]   = "variable";
-		registers["eax"]  = "variable-2";
-		registers["rax"]  = "variable-3";
+		registers.ax  = "variable";
+		registers.eax = "variable-2";
+		registers.rax = "variable-3";
 
-		registers["bx"]   = "variable";
-		registers["ebx"]  = "variable-2";
-		registers["rbx"]  = "variable-3";
+		registers.bx  = "variable";
+		registers.ebx = "variable-2";
+		registers.rbx = "variable-3";
 
-		registers["cx"]   = "variable";
-		registers["ecx"]  = "variable-2";
-		registers["rcx"]  = "variable-3";
+		registers.cx  = "variable";
+		registers.ecx = "variable-2";
+		registers.rcx = "variable-3";
 
-		registers["dx"]   = "variable";
-		registers["edx"]  = "variable-2";
-		registers["rdx"]  = "variable-3";
+		registers.dx  = "variable";
+		registers.edx = "variable-2";
+		registers.rdx = "variable-3";
 
-		registers["si"]   = "variable";
-		registers["esi"]  = "variable-2";
-		registers["rsi"]  = "variable-3";
+		registers.si  = "variable";
+		registers.esi = "variable-2";
+		registers.rsi = "variable-3";
 
-		registers["di"]   = "variable";
-		registers["edi"]  = "variable-2";
-		registers["rdi"]  = "variable-3";
+		registers.di  = "variable";
+		registers.edi = "variable-2";
+		registers.rdi = "variable-3";
 
-		registers["sp"]   = "variable";
-		registers["esp"]  = "variable-2";
-		registers["rsp"]  = "variable-3";
+		registers.sp  = "variable";
+		registers.esp = "variable-2";
+		registers.rsp = "variable-3";
 
-		registers["bp"]   = "variable";
-		registers["ebp"]  = "variable-2";
-		registers["rbp"]  = "variable-3";
+		registers.bp  = "variable";
+		registers.ebp = "variable-2";
+		registers.rbp = "variable-3";
 
-		registers["ip"]   = "variable";
-		registers["eip"]  = "variable-2";
-		registers["rip"]  = "variable-3";
+		registers.ip  = "variable";
+		registers.eip = "variable-2";
+		registers.rip = "variable-3";
 
-		registers["cs"]   = "keyword";
-		registers["ds"]   = "keyword";
-		registers["ss"]   = "keyword";
-		registers["es"]   = "keyword";
-		registers["fs"]   = "keyword";
-		registers["gs"]   = "keyword";
+		registers.cs  = "keyword";
+		registers.ds  = "keyword";
+		registers.ss  = "keyword";
+		registers.es  = "keyword";
+		registers.fs  = "keyword";
+		registers.gs  = "keyword";
 	}
 
 	function armv6(config, parserConfig) {
@@ -180,31 +180,31 @@ CodeMirror.defineMode("s", function(config, parserConfig) {
 		// http://infocenter.arm.com/help/topic/com.arm.doc.qrc0001l/QRC0001_UAL.pdf
 		// http://infocenter.arm.com/help/topic/com.arm.doc.ddi0301h/DDI0301H_arm1176jzfs_r0p7_trm.pdf
 		lineCommentStartSymbol = "@";
-		directives[".syntax"] = "builtin";
+		directives.syntax = "builtin";
 
-		registers["r0"]  = "variable";
-		registers["r1"]  = "variable";
-		registers["r2"]  = "variable";
-		registers["r3"]  = "variable";
-		registers["r4"]  = "variable";
-		registers["r5"]  = "variable";
-		registers["r6"]  = "variable";
-		registers["r7"]  = "variable";
-		registers["r8"]  = "variable";
-		registers["r9"]  = "variable";
-		registers["r10"] = "variable";
-		registers["r11"] = "variable";
-		registers["r12"] = "variable";
+		registers.r0  = "variable";
+		registers.r1  = "variable";
+		registers.r2  = "variable";
+		registers.r3  = "variable";
+		registers.r4  = "variable";
+		registers.r5  = "variable";
+		registers.r6  = "variable";
+		registers.r7  = "variable";
+		registers.r8  = "variable";
+		registers.r9  = "variable";
+		registers.r10 = "variable";
+		registers.r11 = "variable";
+		registers.r12 = "variable";
 
-		registers["sp"]  = "variable-2";
-		registers["lr"]  = "variable-2";
-		registers["pc"]  = "variable-2";
-		registers["r13"] = registers["sp"];
-		registers["r14"] = registers["lr"];
-		registers["r15"] = registers["pc"];
+		registers.sp  = "variable-2";
+		registers.lr  = "variable-2";
+		registers.pc  = "variable-2";
+		registers.r13 = registers.sp;
+		registers.r14 = registers.lr;
+		registers.r15 = registers.pc;
 
 		custom.push(function(ch, stream, state) {
-			if (ch == '#') {
+			if (ch === '#') {
 				stream.eatWhile(/\w/);
 				return "number";
 			}
@@ -212,31 +212,31 @@ CodeMirror.defineMode("s", function(config, parserConfig) {
 	}
 
 	var arch = parserConfig.architecture.toLowerCase();
-	if (arch == "x86") {
+	if (arch === "x86") {
 		x86(config, parserConfig);
-	} else if (arch == "arm" || arch == "armv6") {
+	} else if (arch === "arm" || arch === "armv6") {
 		armv6(config, parserConfig);
 	}
 
 	function nextUntilUnescaped(stream, end) {
 		var escaped = false, next;
-		while ((next = stream.next()) != null) {
+		while ((next = stream.next()) !== null) {
 			if (next === end && !escaped) {
 				return false;
 			}
-			escaped = !escaped && next == "\\";
+			escaped = !escaped && next === "\\";
 		}
 		return escaped;
 	}
 
 	function clikeComment(stream, state) {
 		var maybeEnd = false, ch;
-		while (ch = stream.next()) {
-			if (ch == "/" && maybeEnd) {
+		while ((ch = stream.next()) !== null) {
+			if (ch === "/" && maybeEnd) {
 				state.tokenize = null;
 				break;
 			}
-			maybeEnd = (ch == "*");
+			maybeEnd = (ch === "*");
 		}
 		return "comment";
 	}
@@ -253,50 +253,52 @@ CodeMirror.defineMode("s", function(config, parserConfig) {
 				return state.tokenize(stream, state);
 			}
 
-			if (stream.eatSpace()) return null;
+			if (stream.eatSpace()) {
+				return null;
+			}
 
-			var ch = stream.next();
+			var style, cur, ch = stream.next();
 
-			if (ch == "/") {
+			if (ch === "/") {
 				if (stream.eat("*")) {
 					state.tokenize = clikeComment;
 					return clikeComment(stream, state);
 				}
 			}
 
-			if (ch == lineCommentStartSymbol) {
+			if (ch === lineCommentStartSymbol) {
 				stream.skipToEnd();
 				return "comment";
 			}
 
-			if (ch == '"') {
-				nextUntilUnescaped(stream, '"')
-					return "string";
+			if (ch === '"') {
+				nextUntilUnescaped(stream, '"');
+				return "string";
 			}
 
-			if (ch == '.') {
+			if (ch === '.') {
 				stream.eatWhile(/\w/);
-				var cur = stream.current().toLowerCase();
-				var style = directives[cur];
+				cur = stream.current().toLowerCase();
+				style = directives[cur];
 				return style || null;
 			}
 
-			if (ch == '=') {
+			if (ch === '=') {
 				stream.eatWhile(/\w/);
 				return "tag";
 			}
 
-			if (ch == '{') {
+			if (ch === '{') {
 				return "braket";
 			}
 
-			if (ch == '}') {
+			if (ch === '}') {
 				return "braket";
 			}
 
 			if (/\d/.test(ch)) {
-				if (ch == "0" && stream.eat("x")) {
-					stream.eatWhile(/[0-9a-fA-F]/)
+				if (ch === "0" && stream.eat("x")) {
+					stream.eatWhile(/[0-9a-fA-F]/);
 					return "number";
 				}
 				stream.eatWhile(/\d/);
@@ -308,13 +310,13 @@ CodeMirror.defineMode("s", function(config, parserConfig) {
 				if (stream.eat(":")) {
 					return 'tag';
 				}
-				var cur = stream.current().toLowerCase();
-				var style = registers[cur];
+				cur = stream.current().toLowerCase();
+				style = registers[cur];
 				return style || null;
 			}
 
 			for (var i = 0; i < custom.length; i++) {
-				var style = custom[i](ch, stream, state);
+				style = custom[i](ch, stream, state);
 				if (style) {
 					return style;
 				}
