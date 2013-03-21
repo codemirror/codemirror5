@@ -21,6 +21,8 @@
   function scriptHint(editor, keywords, getToken, options) {
     // Find the token at the cursor
     var cur = editor.getCursor(), token = getToken(editor, cur), tprop = token;
+    // Fix for htmlmixed mode    
+    token.state=CodeMirror.innerMode(editor.getMode(),editor.getTokenAt(editor.getCursor()).state).state;
     // If it's not a 'word-style' token, ignore the token.
 		if (!/^[\w$_]*$/.test(token.string)) {
       token = tprop = {start: cur.ch, end: cur.ch, string: "", state: token.state,
