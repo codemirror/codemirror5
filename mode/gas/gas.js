@@ -1,4 +1,4 @@
-CodeMirror.defineMode("s", function(config, parserConfig) {
+CodeMirror.defineMode("gas", function(_config, parserConfig) {
   'use strict';
 
   // If an architecture is specified, its initialization function may
@@ -123,12 +123,12 @@ CodeMirror.defineMode("s", function(config, parserConfig) {
     ".warning" : "builtin",
     ".weak" : "builtin",
     ".weakref" : "builtin",
-    ".word" : "builtin",
+    ".word" : "builtin"
   };
 
   var registers = {};
 
-  function x86(config, parserConfig) {
+  function x86(_config, _parserConfig) {
     lineCommentStartSymbol = "#";
 
     registers.ax  = "variable";
@@ -175,7 +175,7 @@ CodeMirror.defineMode("s", function(config, parserConfig) {
     registers.gs  = "keyword";
   }
 
-  function armv6(config, parserConfig) {
+  function armv6(_config, _parserConfig) {
     // Reference:
     // http://infocenter.arm.com/help/topic/com.arm.doc.qrc0001l/QRC0001_UAL.pdf
     // http://infocenter.arm.com/help/topic/com.arm.doc.ddi0301h/DDI0301H_arm1176jzfs_r0p7_trm.pdf
@@ -203,7 +203,7 @@ CodeMirror.defineMode("s", function(config, parserConfig) {
     registers.r14 = registers.lr;
     registers.r15 = registers.pc;
 
-    custom.push(function(ch, stream, state) {
+    custom.push(function(ch, stream) {
       if (ch === '#') {
 	stream.eatWhile(/\w/);
 	return "number";
@@ -242,9 +242,9 @@ CodeMirror.defineMode("s", function(config, parserConfig) {
   }
 
   return { 
-    startState: function(basecolumn) {
+    startState: function() {
       return {
-	tokenize: null,
+	tokenize: null
       };
     },
 
@@ -321,6 +321,6 @@ CodeMirror.defineMode("s", function(config, parserConfig) {
 	  return style;
 	}
       }
-    },
-  }
+    }
+  };
 });

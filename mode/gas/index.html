@@ -5,7 +5,7 @@
         <title>CodeMirror: Gas mode</title>
         <link rel="stylesheet" href="../../lib/codemirror.css">
         <script src="../../lib/codemirror.js"></script>
-        <script src="s.js"></script>
+        <script src="gas.js"></script>
         <link rel="stylesheet" href="../../doc/docs.css">
         <style>.CodeMirror {border: 2px inset #dee;}</style>
     </head>
@@ -40,7 +40,7 @@ message:
         <script>
             var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
                 lineNumbers: true,
-                mode: {name: "s", architecture: "ARMv6"},
+                mode: {name: "gas", architecture: "ARMv6"},
             });
         </script>
 
