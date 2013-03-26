@@ -128,7 +128,7 @@ CodeMirror.defineMode("gas", function(_config, parserConfig) {
 
   var registers = {};
 
-  function x86(_config, _parserConfig) {
+  function x86(_parserConfig) {
     lineCommentStartSymbol = "#";
 
     registers.ax  = "variable";
@@ -175,7 +175,7 @@ CodeMirror.defineMode("gas", function(_config, parserConfig) {
     registers.gs  = "keyword";
   }
 
-  function armv6(_config, _parserConfig) {
+  function armv6(_parserConfig) {
     // Reference:
     // http://infocenter.arm.com/help/topic/com.arm.doc.qrc0001l/QRC0001_UAL.pdf
     // http://infocenter.arm.com/help/topic/com.arm.doc.ddi0301h/DDI0301H_arm1176jzfs_r0p7_trm.pdf
@@ -213,9 +213,9 @@ CodeMirror.defineMode("gas", function(_config, parserConfig) {
 
   var arch = parserConfig.architecture.toLowerCase();
   if (arch === "x86") {
-    x86(config, parserConfig);
+    x86(parserConfig);
   } else if (arch === "arm" || arch === "armv6") {
-    armv6(config, parserConfig);
+    armv6(parserConfig);
   }
 
   function nextUntilUnescaped(stream, end) {
