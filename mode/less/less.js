@@ -41,7 +41,7 @@ CodeMirror.defineMode("less", function(config) {
       }else{
         if(type == "string" || type == "(")return ret("string", "string");
         if(state.stack[state.stack.length-1] != undefined)return ret(null, ch);
-        stream.eatWhile(/[\a-zA-Z0-9\-_.\s]/);		
+        stream.eatWhile(/[\a-zA-Z0-9\-_.\s]/);
         if( /\/|\)|#/.test(stream.peek() || (stream.eatSpace() && stream.peek() == ")"))  || stream.eol() )return ret("string", "string"); // let url(/images/logo.png) without quotes return as string
       }
     }
@@ -58,7 +58,7 @@ CodeMirror.defineMode("less", function(config) {
       return ret(null, "select-op");
     }
     else if (/[;{}:\[\]()~\|]/.test(ch)) {
-      if(ch == ":"){		
+      if(ch == ":"){
         stream.eatWhile(/[a-z\\\-]/);
         if( selectors.test(stream.current()) ){
           return ret("tag", "tag");
@@ -69,7 +69,7 @@ CodeMirror.defineMode("less", function(config) {
           if( selectors.test(stream.current().substring(1)) )return ret("tag", "tag");
           return ret(null, ch);
         }else{
-          return ret(null, ch); 
+          return ret(null, ch);
         }
       }else if(ch == "~"){
         if(type == "r")return ret("string", "string");
@@ -77,7 +77,7 @@ CodeMirror.defineMode("less", function(config) {
         return ret(null, ch);
       }
     }
-    else if (ch == ".") {		
+    else if (ch == ".") {
       if(type == "(" || type == "string")return ret("string", "string"); // allow url(../image.png)
       stream.eatWhile(/[\a-zA-Z0-9\-_]/);
       if(stream.peek() == " ")stream.eatSpace();
@@ -106,7 +106,7 @@ CodeMirror.defineMode("less", function(config) {
           else return ret("number", "unit");
         }else{//when not a valid hexvalue in the current stream e.g. #footer
           stream.eatWhile(/[\w\\\-]/);
-          return ret("atom", "tag"); 
+          return ret("atom", "tag");
         }
       }else{//when not a valid hexvalue length
         stream.eatWhile(/[\w\\\-]/);
@@ -126,14 +126,14 @@ CodeMirror.defineMode("less", function(config) {
         return ret("string", "string");
       }else if(stream.peek() == "<" || stream.peek() == ">"){
         return ret("tag", "tag");
-      }else if( /\(/.test(stream.peek()) ){																	  
+      }else if( /\(/.test(stream.peek()) ){
         return ret(null, ch);
       }else if (stream.peek() == "/" && state.stack[state.stack.length-1] != undefined){ // url(dir/center/image.png)
         return ret("string", "string");
       }else if( stream.current().match(/\-\d|\-.\d/) ){ // match e.g.: -5px -0.4 etc... only colorize the minus sign
         //commment out these 2 comment if you want the minus sign to be parsed as null -500px
         //stream.backUp(stream.current().length-1);
-        //return ret(null, ch); //console.log( stream.current() );		
+        //return ret(null, ch); //console.log( stream.current() );
         return ret("number", "unit");
       }else if( inTagsArray(stream.current().toLowerCase()) ){ // match html tags
         return ret("tag", "tag");
@@ -156,22 +156,22 @@ CodeMirror.defineMode("less", function(config) {
         stream.next();
         var t_v = stream.peek() == ":" ? true : false;
         if(!t_v){
-      	  var old_pos = stream.pos;
-      	  var sc = stream.current().length;
-      	  stream.eatWhile(/[a-z\\\-]/);
-      	  var new_pos = stream.pos;
-      	  if(stream.current().substring(sc-1).match(selectors) != null){
-      	    stream.backUp(new_pos-(old_pos-1));
-      		return ret("tag", "tag");
-      	  } else stream.backUp(new_pos-(old_pos-1));
-      	}else{
-      	  stream.backUp(1);	
-      	}
-      	if(t_v)return ret("tag", "tag"); else return ret("variable", "variable");
-      }else{		
-        return ret("variable", "variable");		
+          var old_pos = stream.pos;
+          var sc = stream.current().length;
+          stream.eatWhile(/[a-z\\\-]/);
+          var new_pos = stream.pos;
+          if(stream.current().substring(sc-1).match(selectors) != null){
+            stream.backUp(new_pos-(old_pos-1));
+            return ret("tag", "tag");
+          } else stream.backUp(new_pos-(old_pos-1));
+        }else{
+          stream.backUp(1);
+        }
+        if(t_v)return ret("tag", "tag"); else return ret("variable", "variable");
+      }else{
+        return ret("variable", "variable");
       }
-    }    
+    }
   }
   
   function tokenSComment(stream, state) { // SComment = Slash comment
@@ -218,7 +218,7 @@ CodeMirror.defineMode("less", function(config) {
   }
   
   return {
-    startState: function(base) { 
+    startState: function(base) {
       return {tokenize: tokenBase,
               baseIndent: base || 0,
               stack: []};

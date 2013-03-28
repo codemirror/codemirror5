@@ -20,11 +20,11 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     }
 
     if ((ch == "0" && stream.match(/^[xX][0-9a-fA-F]+/))
-	|| (ch == "x" || ch == "X") && stream.match(/^'[0-9a-fA-F]+'/)) {
+      || (ch == "x" || ch == "X") && stream.match(/^'[0-9a-fA-F]+'/)) {
       // hex
       return "number";
     } else if (((ch == "b" || ch == "B") && stream.match(/^'[01]+'/))
-	       || (ch == "0" && stream.match(/^b[01]+/))) {
+      || (ch == "0" && stream.match(/^b[01]+/))) {
       // bitstring
       return "number";
     } else if (ch.charCodeAt(0) > 47 && ch.charCodeAt(0) < 58) {
@@ -43,7 +43,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
       return null;
     } else if (ch == "#" || (ch == "-" && stream.eat("-") && stream.eat(" "))) {
       // 1-line comments
-	  stream.skipToEnd();
+      stream.skipToEnd();
       return "comment";
     } else if (ch == "/" && stream.eat("*")) {
       // multi-line comments
@@ -85,11 +85,11 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     return function(stream, state) {
       var escaped = false, ch;
       while ((ch = stream.next()) != null) {
-	if (ch == quote && !escaped) {
-	  state.tokenize = tokenBase;
-	  break;
-	}
-	escaped = !escaped && ch == "\\";
+        if (ch == quote && !escaped) {
+          state.tokenize = tokenBase;
+          break;
+        }
+        escaped = !escaped && ch == "\\";
       }
       return "string";
     };
@@ -97,14 +97,14 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
   function tokenComment(stream, state) {
     while (true) {
       if (stream.skipTo("*")) {
-	stream.next();
-	if (stream.eat("/")) {
-	  state.tokenize = tokenBase;
-	  break;
-	}
+        stream.next();
+        if (stream.eat("/")) {
+          state.tokenize = tokenBase;
+          break;
+        }
       } else {
-	stream.skipToEnd();
-	break;
+        stream.skipToEnd();
+        break;
       }
     }
     return "comment";
@@ -131,8 +131,8 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
 
     token: function(stream, state) {
       if (stream.sol()) {
-	if (state.context && state.context.align == null)
-	  state.context.align = false;
+        if (state.context && state.context.align == null)
+          state.context.align = false;
       }
       if (stream.eatSpace()) return null;
 
@@ -140,7 +140,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
       if (style == "comment") return style;
 
       if (state.context && state.context.align == null)
-	state.context.align = true;
+        state.context.align = true;
 
       var tok = stream.current();
       if (tok == "(")
