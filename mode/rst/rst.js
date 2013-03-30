@@ -501,9 +501,9 @@ CodeMirror.defineMode('rst', function (config, options) {
         rx_uri_protocol + rx_uri_domain + rx_uri_path
     );
 
-    var rx_strong = /^\*\*[^\*\s](?:[^\*]*[^\*\s])?\*\*/;
-    var rx_emphasis = /^\*[^\*\s](?:[^\*]*[^\*\s])?\*/;
-    var rx_literal = /^``[^`\s](?:[^`]*[^`\s])``/;
+    var rx_strong = /^\*\*[^\*\s](?:[^\*]*[^\*\s])?\*\*(\s+|$)/;
+    var rx_emphasis = /^[^\*]\*[^\*\s](?:[^\*]*[^\*\s])?\*(\s+|$)/;
+    var rx_literal = /^``[^`\s](?:[^`]*[^`\s])``(\s+|$)/;
 
     var rx_number = /^(?:[\d]+(?:[\.,]\d+)*)/;
     var rx_positive = /^(?:\s\+[\d]+(?:[\.,]\d+)*)/;
