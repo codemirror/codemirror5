@@ -9,6 +9,7 @@
   var matching = {"(": ")>", ")": "(<", "[": "]>", "]": "[<", "{": "}>", "}": "{<"};
   function findMatchingBracket(cm) {
     var cur = cm.getCursor(), line = cm.getLineHandle(cur.line), pos = cur.ch - 1;
+    if (cm.getLine(cur.line).length > maxLineLen) return null;
     var match = (pos >= 0 && matching[line.text.charAt(pos)]) || matching[line.text.charAt(++pos)];
     if (!match) return null;
     var forward = match.charAt(1) == ">", d = forward ? 1 : -1;
