@@ -304,6 +304,33 @@ testVim('j_k_and_gj_gk', function(cm,vim,helpers){
   helpers.doKeys('k');
   helpers.assertCursorAt(0, 176);
 },{ lineWrapping:true, value: 'This line is intentially long to test movement of gj and gk over wrapped lines. I will start on the end of this line, then make a step up and back to set the origin for j and k.\nThis line is supposed to be even longer than the previous. I will jump here and make another wiggle with gj and gk, before I jump back to the line above. Both wiggles should not change my cursor\'s target character but both j/k and gj/gk change each other\'s reference position.'});
+testVim('gj_gk', function(cm, vim, helpers) {
+  cm.setSize(120);
+  // Test top of document edge case.
+  cm.setCursor(0, 4);
+  helpers.doKeys('g', 'j');
+  helpers.doKeys('10', 'g', 'k');
+  helpers.assertCursorAt(0, 4);
+
+  // Test moving down preserves column position.
+  helpers.doKeys('g', 'j');
+  var pos1 = cm.getCursor();
+  var expectedPos2 = { line: 0, ch: (pos1.ch - 4) * 2 + 4};
+  helpers.doKeys('g', 'j');
+  helpers.assertCursorAt(expectedPos2);
+
+  // Move to the last character
+  cm.setCursor(0, 0);
+  // Move left to reset HSPos
+  helpers.doKeys('h');
+  // Test bottom of document edge case.
+  helpers.doKeys('100', 'g', 'j');
+  var endingPos = cm.getCursor();
+  is(endingPos != 0, 'gj should not be on wrapped line 0');
+  var topLeftCharCoords = cm.charCoords(makeCursor(0, 0));
+  var endingCharCoords = cm.charCoords(endingPos);
+  is(topLeftCharCoords.left == endingCharCoords.left, 'gj should end up on column 0');
+},{ lineNumbers: false, lineWrapping:true, value: 'Thislineisintentiallylongtotestmovementofgjandgkoverwrappedlines.' });
 testVim('}', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('}');

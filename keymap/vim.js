@@ -131,6 +131,12 @@
         motion: 'moveByPage', motionArgs: { forward: true }},
     { keys: ['Ctrl-b'], type: 'motion',
         motion: 'moveByPage', motionArgs: { forward: false }},
+    { keys: ['Ctrl-d'], type: 'motion',
+        motion: 'moveByScroll',
+        motionArgs: { forward: true, explicitRepeat: true }},
+    { keys: ['Ctrl-u'], type: 'motion',
+        motion: 'moveByScroll',
+        motionArgs: { forward: false, explicitRepeat: true }},
     { keys: ['g', 'g'], type: 'motion',
         motion: 'moveToLineOrEdgeOfDocument',
         motionArgs: { forward: false, explicitRepeat: true, linewise: true }},
@@ -1068,6 +1074,7 @@
         switch (vim.lastMotion) {
           case this.moveByLines:
           case this.moveByDisplayLines:
+          case this.moveByScroll:
           case this.moveToColumn:
           case this.moveToEol:
             endCh = vim.lastHPos;
@@ -1091,6 +1098,7 @@
         var cur = cm.getCursor();
         switch (vim.lastMotion) {
           case this.moveByDisplayLines:
+          case this.moveByScroll:
           case this.moveByLines:
           case this.moveToColumn:
           case this.moveToEol:
@@ -1100,7 +1108,17 @@
         }
         var repeat = motionArgs.repeat;
         var res=cm.findPosV(cur,(motionArgs.forward ? repeat : -repeat),"line",vim.lastHSPos);
-        if(res.hitSide)return null;
+        if (res.hitSide) {
+          if (motionArgs.forward) {
+            var lastCharCoords = cm.charCoords(res, 'div');
+            var goalCoords = { top: lastCharCoords.top + 8, left: vim.lastHSPos };
+            var res = cm.coordsChar(goalCoords, 'div');
+          } else {
+            var resCoords = cm.charCoords({ line: cm.firstLine(), ch: 0}, 'div');
+            resCoords.left = vim.lastHSPos;
+            res = cm.coordsChar(resCoords, 'div');
+          }
+        }
         vim.lastHPos = res.ch;
         return res;
       },
@@ -1130,6 +1148,24 @@
           }
         }
         return { line: line, ch: 0 };
+      },
+      moveByScroll: function(cm, motionArgs, vim) {
+        var globalState = getVimGlobalState();
+        var scrollbox = cm.getScrollInfo();
+        var curEnd = null;
+        var repeat = motionArgs.repeat;
+        if (!repeat) {
+          repeat = scrollbox.clientHeight / (2 * cm.defaultTextHeight());
+        }
+        var orig = cm.charCoords(cm.getCursor(), 'local');
+        motionArgs.repeat = repeat;
+        var curEnd = motions.moveByDisplayLines(cm, motionArgs, vim);
+        if (!curEnd) {
+          return null;
+        }
+        var dest = cm.charCoords(curEnd, 'local');
+        cm.scrollTo(null, scrollbox.top + dest.top - orig.top);
+        return curEnd;
       },
       moveByWords: function(cm, motionArgs) {
         return moveToWord(cm, motionArgs.repeat, !!motionArgs.forward,
