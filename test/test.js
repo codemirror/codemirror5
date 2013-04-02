@@ -858,7 +858,7 @@ testCM("verticalScroll", function(cm) {
   cm.setLine(0, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaah");
   is(sc.scrollWidth > baseWidth, "scrollbar present");
   cm.setLine(0, "foo");
-  eq(sc.scrollWidth, baseWidth, "scrollbar gone");
+  if (!phantom) eq(sc.scrollWidth, baseWidth, "scrollbar gone");
   cm.setLine(0, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaah");
   cm.setLine(1, "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbh");
   is(sc.scrollWidth > baseWidth, "present again");
