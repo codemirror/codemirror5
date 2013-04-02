@@ -19,10 +19,11 @@
       if (!line.text) return;
       var pos = forward ? 0 : line.text.length - 1, end = forward ? line.text.length : -1;
       if (line.text.length > maxScanLen) return null;
+      var checkTokenStyles = line.text.length < 1000;
       if (start != null) pos = start + d;
       for (; pos != end; pos += d) {
         var ch = line.text.charAt(pos);
-        if (re.test(ch) && cm.getTokenAt(Pos(lineNo, pos + 1)).type == style) {
+        if (re.test(ch) && (!checkTokenStyles || cm.getTokenAt(Pos(lineNo, pos + 1)).type == style)) {
           var match = matching[ch];
           if (match.charAt(1) == ">" == forward) stack.push(ch);
           else if (stack.pop() != match.charAt(0)) return {pos: pos, match: false};
