@@ -290,7 +290,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       return cont(expression);
     }
     if (type == ";") return;
-    if (type == "(") return cont(pushlex(")"), commasep(expression, ")"), poplex, maybeoperator);
+    if (type == "(") return cont(pushlex(")", "call"), commasep(expression, ")"), poplex, maybeoperator);
     if (type == ".") return cont(property, maybeoperator);
     if (type == "[") return cont(pushlex("]"), expression, expect("]"), poplex, maybeoperator);
   }
@@ -318,7 +318,11 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   }
   function commasep(what, end) {
     function proceed(type) {
-      if (type == ",") return cont(what, proceed);
+      if (type == ",") {
+        var lex = cx.state.lexical;
+        if (lex.info == "call") lex.pos = (lex.pos || 0) + 1;
+        return cont(what, proceed);
+      }
       if (type == end) return cont();
       return cont(expect(end));
     }
