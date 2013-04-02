@@ -415,6 +415,11 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       var firstChar = textAfter && textAfter.charAt(0), lexical = state.lexical;
       if (lexical.type == "stat" && firstChar == "}") lexical = lexical.prev;
       var type = lexical.type, closing = firstChar == type;
+      if (parserConfig.statementIndent != null) {
+        if (type == ")" && lexical.prev && lexical.prev.type == "stat") lexical = lexical.prev;
+        if (lexical.type == "stat") return lexical.indented + parserConfig.statementIndent;
+      }
+
       if (type == "vardef") return lexical.indented + (state.lastType == "operator" || state.lastType == "," ? 4 : 0);
       else if (type == "form" && firstChar == "{") return lexical.indented;
       else if (type == "form") return lexical.indented + indentUnit;
