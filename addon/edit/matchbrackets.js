@@ -3,11 +3,11 @@
     (document.documentMode == null || document.documentMode < 8);
 
   var Pos = CodeMirror.Pos;
-  // Disable brace matching in long lines, since it'll cause hugely slow updates
-  var maxLineLen = 1000;
 
   var matching = {"(": ")>", ")": "(<", "[": "]>", "]": "[<", "{": "}>", "}": "{<"};
   function findMatchingBracket(cm) {
+    var maxScanLen = cm.state._matchBrackets.maxScanLineLength || 10000;
+
     var cur = cm.getCursor(), line = cm.getLineHandle(cur.line), pos = cur.ch - 1;
     var match = (pos >= 0 && matching[line.text.charAt(pos)]) || matching[line.text.charAt(++pos)];
     if (!match) return null;
@@ -18,6 +18,7 @@
     function scan(line, lineNo, start) {
       if (!line.text) return;
       var pos = forward ? 0 : line.text.length - 1, end = forward ? line.text.length : -1;
+      if (line.text.length > maxScanLen) return null;
       if (start != null) pos = start + d;
       for (; pos != end; pos += d) {
         var ch = line.text.charAt(pos);
@@ -38,9 +39,11 @@
   }
 
   function matchBrackets(cm, autoclear) {
+    // Disable brace matching in long lines, since it'll cause hugely slow updates
+    var maxHighlightLen = cm.state._matchBrackets.maxHighlightLineLength || 1000;
     var found = findMatchingBracket(cm);
-    if (!found || cm.getLine(found.from.line).length > maxLineLen ||
-       found.to && cm.getLine(found.to.line).length > maxLineLen)
+    if (!found || cm.getLine(found.from.line).length > maxHighlightLen ||
+       found.to && cm.getLine(found.to.line).length > maxHighlightLen)
       return;
 
     var style = found.match ? "CodeMirror-matchingbracket" : "CodeMirror-nonmatchingbracket";
@@ -64,9 +67,13 @@
     });
   }
 
-  CodeMirror.defineOption("matchBrackets", false, function(cm, val) {
-    if (val) cm.on("cursorActivity", doMatchBrackets);
-    else cm.off("cursorActivity", doMatchBrackets);
+  CodeMirror.defineOption("matchBrackets", false, function(cm, val, old) {
+    if (old && old != CodeMirror.Init)
+      cm.off("cursorActivity", doMatchBrackets);
+    if (val) {
+      cm.state._matchBrackets = typeof val == "object" ? val : {};
+      cm.on("cursorActivity", doMatchBrackets);
+    }
   });
 
   CodeMirror.defineExtension("matchBrackets", function() {matchBrackets(this, true);});
