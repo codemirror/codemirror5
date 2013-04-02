@@ -50,8 +50,9 @@ CodeMirror.validate = (function() {
     state.marked.length = 0;
   }
 
-  function makeMarker(labels, severity, multiple) {
+  function makeMarker(cm, labels, severity, multiple) {
     var marker = document.createElement("div"), inner = marker;
+    var state = cm._lintState;
     marker.className = "CodeMirror-lint-marker-" + severity;
     if (multiple) {
       inner = marker.appendChild(document.createElement("div"));
@@ -59,8 +60,11 @@ CodeMirror.validate = (function() {
     }
 
     var tooltip;
-    CodeMirror.on(inner, "mouseover", function(e) { tooltip = showTooltip(e, labels); });
-    CodeMirror.on(inner, "mouseout", function() { if (tooltip) hideTooltip(tooltip); });
+
+    if (!state.options.disableTooltips) {
+      CodeMirror.on(inner, "mouseover", function(e) { tooltip = showTooltip(e, labels); });
+      CodeMirror.on(inner, "mouseout", function() { if (tooltip) hideTooltip(tooltip); });
+    }
 
     return marker;
   }
@@ -95,7 +99,7 @@ CodeMirror.validate = (function() {
 	  else
 		 updateLinting(cm, options.getAnnotations(cm.getValue()));
   }
-  
+
   function updateLinting(cm, annotationsNotSorted) {
     clearMarks(cm);
     var state = cm._lintState, options = state.options;
@@ -125,7 +129,7 @@ CodeMirror.validate = (function() {
       }
 
       if (state.hasGutter)
-        cm.setGutterMarker(line, GUTTER_ID, makeMarker(tipLabel, maxSeverity, anns.length > 1));
+        cm.setGutterMarker(line, GUTTER_ID, makeMarker(cm, tipLabel, maxSeverity, anns.length > 1));
     }
     if (options.onUpdateLinting) options.onUpdateLinting(annotationsNotSorted, annotations, cm);
   }
@@ -170,13 +174,16 @@ CodeMirror.validate = (function() {
       CodeMirror.off(cm.getWrapperElement(), "mouseover", cm._lintState.onMouseOver);
       delete cm._lintState;
     }
-    
+
     if (val) {
       var gutters = cm.getOption("gutters"), hasLintGutter = false;
       for (var i = 0; i < gutters.length; ++i) if (gutters[i] == GUTTER_ID) hasLintGutter = true;
       var state = cm._lintState = new LintState(cm, parseOptions(val), hasLintGutter);
       cm.on("change", onChange);
-      CodeMirror.on(cm.getWrapperElement(), "mouseover", state.onMouseOver);
+
+      if (!state.options.disableTooltips)
+        CodeMirror.on(cm.getWrapperElement(), "mouseover", state.onMouseOver);
+
       startLinting(cm);
     }
   });
