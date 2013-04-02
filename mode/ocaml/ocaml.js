@@ -109,5 +109,5 @@ CodeMirror.defineMode('ocaml', function() {
     }
   };
 });
-  
+
 CodeMirror.defineMIME('text/x-ocaml', 'ocaml');

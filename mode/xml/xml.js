@@ -86,7 +86,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
       var ok;
       if (stream.eat("#")) {
         if (stream.eat("x")) {
-          ok = stream.eatWhile(/[a-fA-F\d]/) && stream.eat(";");          
+          ok = stream.eatWhile(/[a-fA-F\d]/) && stream.eat(";");
         } else {
           ok = stream.eatWhile(/[\d]/) && stream.eat(";");
         }

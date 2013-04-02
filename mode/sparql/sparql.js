@@ -117,7 +117,7 @@ CodeMirror.defineMode("sparql", function(config) {
           state.context.col = stream.column();
         }
       }
-      
+
       return style;
     },
 

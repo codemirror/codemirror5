@@ -43,14 +43,14 @@ CodeMirror.overlayMode = CodeMirror.overlayParser = function(base, overlay, comb
       if (state.baseCur != null && combine) return state.baseCur + " " + state.overlayCur;
       else return state.overlayCur;
     },
-    
+
     indent: base.indent && function(state, textAfter) {
       return base.indent(state.base, textAfter);
     },
     electricChars: base.electricChars,
 
     innerMode: function(state) { return {state: state.base, mode: base}; },
-    
+
     blankLine: function(state) {
       if (base.blankLine) base.blankLine(state.base);
       if (overlay.blankLine) overlay.blankLine(state.overlay);

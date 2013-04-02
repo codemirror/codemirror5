@@ -39,20 +39,20 @@
      "[comment `]");
 
   // Unclosed backticks
-  // Instead of simply marking as CODE, it would be nice to have an 
+  // Instead of simply marking as CODE, it would be nice to have an
   // incomplete flag for CODE, that is styled slightly different.
   MT("unclosedBackticks",
      "foo [comment `bar]");
 
-  // Per documentation: "To include a literal backtick character within a 
-  // code span, you can use multiple backticks as the opening and closing 
+  // Per documentation: "To include a literal backtick character within a
+  // code span, you can use multiple backticks as the opening and closing
   // delimiters"
   MT("doubleBackticks",
      "[comment ``foo ` bar``]");
 
   // Tests based on Dingus
   // http://daringfireball.net/projects/markdown/dingus
-  // 
+  //
   // Multiple backticks within an inline code block
   MT("consecutiveBackticks",
      "[comment `foo```bar`]");
@@ -98,10 +98,10 @@
   // Setext headers - H1, H2
   // Per documentation, "Any number of underlining =’s or -’s will work."
   // http://daringfireball.net/projects/markdown/syntax#header
-  // Ideally, the text would be marked as `header` as well, but this is 
-  // not really feasible at the moment. So, instead, we're testing against 
+  // Ideally, the text would be marked as `header` as well, but this is
+  // not really feasible at the moment. So, instead, we're testing against
   // what works today, to avoid any regressions.
-  // 
+  //
   // Check if single underlining = works
   MT("setextH1",
      "foo",
@@ -368,7 +368,7 @@
      "                [comment world]",
      "        [comment foo]",
      "    [variable-2 bar]");
-     
+
   // List nesting edge cases
   MT("listNested",
     "[variable-2 * foo]",
@@ -548,7 +548,7 @@
   MT("emInWordUnderscore",
      "foo[em _bar_]hello");
 
-  // Per documentation: "...surround an * or _ with spaces, it’ll be 
+  // Per documentation: "...surround an * or _ with spaces, it’ll be
   // treated as a literal asterisk or underscore."
 
   MT("emEscapedBySpaceIn",
@@ -558,7 +558,7 @@
      "foo _ bar[em _hello_]world");
 
   // Unclosed emphasis characters
-  // Instead of simply marking as EM / STRONG, it would be nice to have an 
+  // Instead of simply marking as EM / STRONG, it would be nice to have an
   // incomplete flag for EM and STRONG, that is styled slightly different.
   MT("emIncompleteAsterisk",
      "foo [em *bar]");
@@ -625,7 +625,7 @@
 
 
   // Tests to make sure GFM-specific things aren't getting through
-  
+
   MT("taskList",
      "[variable-2 * [ ]] bar]");
 

@@ -114,5 +114,5 @@ CodeMirror.defineMode('shell', function() {
     }
   };
 });
-  
+
 CodeMirror.defineMIME('text/x-sh', 'shell');

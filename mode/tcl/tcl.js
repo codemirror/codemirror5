@@ -56,7 +56,7 @@ CodeMirror.defineMode("tcl", function() {
       else if (ch == "$") {
         stream.eatWhile(/[$_a-z0-9A-Z\.{:]/);
         stream.eatWhile(/}/);
-        state.beforeParams = true;              
+        state.beforeParams = true;
         return "builtin";
       }
       else if (isOperatorChar.test(ch)) {

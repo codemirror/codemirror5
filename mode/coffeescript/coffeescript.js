@@ -158,7 +158,7 @@ CodeMirror.defineMode('coffeescript', function(conf) {
         if (stream.match(identifiers)) {
             return 'variable';
         }
-        
+
         if (stream.match(properties)) {
             return 'property';
         }

@@ -20,7 +20,7 @@
       delete cm._activeLine;
     }
   });
-  
+
   function clearActiveLine(cm) {
     if ("_activeLine" in cm) {
       cm.removeLineClass(cm._activeLine, "wrap", WRAP_CLASS);

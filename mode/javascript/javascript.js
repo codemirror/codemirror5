@@ -11,7 +11,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     function kw(type) {return {type: type, style: "keyword"};}
     var A = kw("keyword a"), B = kw("keyword b"), C = kw("keyword c");
     var operator = kw("operator"), atom = {type: "atom", style: "atom"};
-    
+
     var jsKeywords = {
       "if": A, "while": A, "with": A, "else": B, "do": B, "try": B, "finally": B,
       "return": C, "break": C, "continue": C, "new": C, "delete": C, "throw": C,
@@ -87,7 +87,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     else if (ch == "0" && stream.eat(/x/i)) {
       stream.eatWhile(/[\da-f]/i);
       return ret("number", "number");
-    }      
+    }
     else if (/\d/.test(ch) || ch == "-" && stream.eat(/\d/)) {
       stream.match(/^\d*(?:\.\d*)?(?:[eE][+\-]?\d+)?/);
       return ret("number", "number");
@@ -170,7 +170,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     // Communicate our context to the combinators.
     // (Less wasteful than consing up a hundred closures on every call.)
     cx.state = state; cx.stream = stream; cx.marked = null, cx.cc = cc;
-  
+
     if (!state.lexical.hasOwnProperty("align"))
       state.lexical.align = true;
 
@@ -282,7 +282,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type.match(/[;\}\)\],]/)) return pass();
     return pass(expression);
   }
-    
+
   function maybeoperator(type, value) {
     if (type == "operator") {
       if (/\+\+|--/.test(value)) return cont(maybeoperator);

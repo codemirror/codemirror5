@@ -9,7 +9,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
       support        = parserConfig.support || {},
       hooks          = parserConfig.hooks || {},
       dateSQL        = parserConfig.dateSQL || {"date" : true, "time" : true, "timestamp" : true};
-  
+
   function tokenBase(stream, state) {
     var ch = stream.next();
 
@@ -163,7 +163,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
 
 (function() {
   "use strict";
-  
+
   // `identifier`
   function hookIdentifier(stream) {
     var escaped = false, ch;

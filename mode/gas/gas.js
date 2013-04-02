@@ -241,7 +241,7 @@ CodeMirror.defineMode("gas", function(_config, parserConfig) {
     return "comment";
   }
 
-  return { 
+  return {
     startState: function() {
       return {
         tokenize: null

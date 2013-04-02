@@ -222,7 +222,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
   });
   CodeMirror.defineMIME("text/x-java", {
     name: "clike",
-    keywords: words("abstract assert boolean break byte case catch char class const continue default " + 
+    keywords: words("abstract assert boolean break byte case catch char class const continue default " +
                     "do double else enum extends final finally float for goto if implements import " +
                     "instanceof int interface long native new package private protected public " +
                     "return short static strictfp super switch synchronized this throw throws transient " +
@@ -238,12 +238,12 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
   });
   CodeMirror.defineMIME("text/x-csharp", {
     name: "clike",
-    keywords: words("abstract as base break case catch checked class const continue" + 
-                    " default delegate do else enum event explicit extern finally fixed for" + 
-                    " foreach goto if implicit in interface internal is lock namespace new" + 
-                    " operator out override params private protected public readonly ref return sealed" + 
-                    " sizeof stackalloc static struct switch this throw try typeof unchecked" + 
-                    " unsafe using virtual void volatile while add alias ascending descending dynamic from get" + 
+    keywords: words("abstract as base break case catch checked class const continue" +
+                    " default delegate do else enum event explicit extern finally fixed for" +
+                    " foreach goto if implicit in interface internal is lock namespace new" +
+                    " operator out override params private protected public readonly ref return sealed" +
+                    " sizeof stackalloc static struct switch this throw try typeof unchecked" +
+                    " unsafe using virtual void volatile while add alias ascending descending dynamic from get" +
                     " global group into join let orderby partial remove select set value var yield"),
     blockKeywords: words("catch class do else finally for foreach if struct switch try while"),
     builtin: words("Boolean Byte Char DateTime DateTimeOffset Decimal Double" +
@@ -265,30 +265,30 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
   CodeMirror.defineMIME("text/x-scala", {
     name: "clike",
     keywords: words(
-      
+
       /* scala */
       "abstract case catch class def do else extends false final finally for forSome if " +
       "implicit import lazy match new null object override package private protected return " +
       "sealed super this throw trait try trye type val var while with yield _ : = => <- <: " +
       "<% >: # @ " +
-                    
+
       /* package scala */
       "assert assume require print println printf readLine readBoolean readByte readShort " +
       "readChar readInt readLong readFloat readDouble " +
-      
+
       "AnyVal App Application Array BufferedIterator BigDecimal BigInt Char Console Either " +
       "Enumeration Equiv Error Exception Fractional Function IndexedSeq Integral Iterable " +
       "Iterator List Map Numeric Nil NotNull Option Ordered Ordering PartialFunction PartialOrdering " +
       "Product Proxy Range Responder Seq Serializable Set Specializable Stream StringBuilder " +
       "StringContext Symbol Throwable Traversable TraversableOnce Tuple Unit Vector :: #:: " +
-      
-      /* package java.lang */            
+
+      /* package java.lang */
       "Boolean Byte Character CharSequence Class ClassLoader Cloneable Comparable " +
       "Compiler Double Exception Float Integer Long Math Number Object Package Pair Process " +
       "Runtime Runnable SecurityManager Short StackTraceElement StrictMath String " +
       "StringBuffer System Thread ThreadGroup ThreadLocal Throwable Triple Void"
-      
-      
+
+
     ),
     blockKeywords: words("catch class do else finally for forSome if match switch try while"),
     atoms: words("true false null"),

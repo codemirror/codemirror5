@@ -3,7 +3,7 @@
     (document.documentMode == null || document.documentMode < 8);
 
   var Pos = CodeMirror.Pos;
-  // Disable brace matching in long lines, since it'll cause hugely slow updates  
+  // Disable brace matching in long lines, since it'll cause hugely slow updates
   var maxLineLen = 1000;
 
   var matching = {"(": ")>", ")": "(<", "[": "]>", "]": "[<", "{": "}>", "}": "{<"};

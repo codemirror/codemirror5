@@ -14,7 +14,7 @@
 (function() {
   var DEFAULT_MIN_CHARS = 2;
   var DEFAULT_TOKEN_STYLE = "matchhighlight";
-  
+
   function State(options) {
     this.minChars = typeof options == "object" && options.minChars || DEFAULT_MIN_CHARS;
     this.style = typeof options == "object" && options.style || DEFAULT_TOKEN_STYLE;

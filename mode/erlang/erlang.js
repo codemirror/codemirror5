@@ -247,7 +247,7 @@ CodeMirror.defineMode("erlang", function(cmCfg) {
           return rval(state,stream,"function");
         }
       }
-      return rval(state,stream,"atom");               
+      return rval(state,stream,"atom");
     }
 
     // number

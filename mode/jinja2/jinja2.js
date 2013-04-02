@@ -1,5 +1,5 @@
 CodeMirror.defineMode("jinja2", function() {
-    var keywords = ["block", "endblock", "for", "endfor", "in", "true", "false", 
+    var keywords = ["block", "endblock", "for", "endfor", "in", "true", "false",
                     "loop", "none", "self", "super", "if", "as", "not", "and",
                     "else", "import", "with", "without", "context"];
     keywords = new RegExp("^((" + keywords.join(")|(") + "))\\b");
@@ -38,5 +38,5 @@ CodeMirror.defineMode("jinja2", function() {
         token: function (stream, state) {
             return state.tokenize(stream, state);
         }
-    }; 
+    };
 });
