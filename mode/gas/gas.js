@@ -205,8 +205,8 @@ CodeMirror.defineMode("gas", function(_config, parserConfig) {
 
     custom.push(function(ch, stream) {
       if (ch === '#') {
-	stream.eatWhile(/\w/);
-	return "number";
+        stream.eatWhile(/\w/);
+        return "number";
       }
     });
   }
@@ -222,7 +222,7 @@ CodeMirror.defineMode("gas", function(_config, parserConfig) {
     var escaped = false, next;
     while ((next = stream.next()) != null) {
       if (next === end && !escaped) {
-	return false;
+        return false;
       }
       escaped = !escaped && next === "\\";
     }
@@ -233,8 +233,8 @@ CodeMirror.defineMode("gas", function(_config, parserConfig) {
     var maybeEnd = false, ch;
     while ((ch = stream.next()) != null) {
       if (ch === "/" && maybeEnd) {
-	state.tokenize = null;
-	break;
+        state.tokenize = null;
+        break;
       }
       maybeEnd = (ch === "*");
     }
@@ -244,82 +244,82 @@ CodeMirror.defineMode("gas", function(_config, parserConfig) {
   return { 
     startState: function() {
       return {
-	tokenize: null
+        tokenize: null
       };
     },
 
     token: function(stream, state) {
       if (state.tokenize) {
-	return state.tokenize(stream, state);
+        return state.tokenize(stream, state);
       }
 
       if (stream.eatSpace()) {
-	return null;
+        return null;
       }
 
       var style, cur, ch = stream.next();
 
       if (ch === "/") {
-	if (stream.eat("*")) {
-	  state.tokenize = clikeComment;
-	  return clikeComment(stream, state);
-	}
+        if (stream.eat("*")) {
+          state.tokenize = clikeComment;
+          return clikeComment(stream, state);
+        }
       }
 
       if (ch === lineCommentStartSymbol) {
-	stream.skipToEnd();
-	return "comment";
+        stream.skipToEnd();
+        return "comment";
       }
 
       if (ch === '"') {
-	nextUntilUnescaped(stream, '"');
-	return "string";
+        nextUntilUnescaped(stream, '"');
+        return "string";
       }
 
       if (ch === '.') {
-	stream.eatWhile(/\w/);
-	cur = stream.current().toLowerCase();
-	style = directives[cur];
-	return style || null;
+        stream.eatWhile(/\w/);
+        cur = stream.current().toLowerCase();
+        style = directives[cur];
+        return style || null;
       }
 
       if (ch === '=') {
-	stream.eatWhile(/\w/);
-	return "tag";
+        stream.eatWhile(/\w/);
+        return "tag";
       }
 
       if (ch === '{') {
-	return "braket";
+        return "braket";
       }
 
       if (ch === '}') {
-	return "braket";
+        return "braket";
       }
 
       if (/\d/.test(ch)) {
-	if (ch === "0" && stream.eat("x")) {
-	  stream.eatWhile(/[0-9a-fA-F]/);
-	  return "number";
-	}
-	stream.eatWhile(/\d/);
-	return "number";
+        if (ch === "0" && stream.eat("x")) {
+          stream.eatWhile(/[0-9a-fA-F]/);
+          return "number";
+        }
+        stream.eatWhile(/\d/);
+        return "number";
       }
 
       if (/\w/.test(ch)) {
-	stream.eatWhile(/\w/);
-	if (stream.eat(":")) {
-	  return 'tag';
-	}
-	cur = stream.current().toLowerCase();
-	style = registers[cur];
-	return style || null;
+        stream.eatWhile(/\w/);
+        if (stream.eat(":")) {
+          return 'tag';
+        }
+        cur = stream.current().toLowerCase();
+        style = registers[cur];
+        return style || null;
       }
 
       for (var i = 0; i < custom.length; i++) {
-	style = custom[i](ch, stream, state);
-	if (style) {
-	  return style;
-	}
+        style = custom[i](ch, stream, state);
+        if (style) {
+          return style;
+        }
       }
     }
   };

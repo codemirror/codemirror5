@@ -4,7 +4,7 @@
   function forEach(arr, f) {
     for (var i = 0, e = arr.length; i < e; ++i) f(arr[i]);
   }
-  
+
   function arrayContains(arr, item) {
     if (!Array.prototype.indexOf) {
       var i = arr.length;
@@ -44,9 +44,9 @@
           }
         } while (level > 0);
         tprop = getToken(editor, Pos(cur.line, tprop.start));
-	if (tprop.type.indexOf("variable") === 0)
-	  tprop.type = "function";
-	else return; // no clue
+        if (tprop.type.indexOf("variable") === 0)
+          tprop.type = "function";
+        else return; // no clue
       }
       if (!context) var context = [];
       context.push(tprop);

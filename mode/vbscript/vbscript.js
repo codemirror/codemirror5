@@ -6,12 +6,12 @@ CodeMirror.defineMode("vbscript", function() {
       if (stream.eatSpace()) return null;
       var ch = stream.next();
       if (ch == "'") {
-      	stream.skipToEnd();
-      	return "comment";
+        stream.skipToEnd();
+        return "comment";
       }
       if (ch == '"') {
-      	stream.skipTo('"');
-      	return "string";
+        stream.skipTo('"');
+        return "string";
       }
 
       if (/\w/.test(ch)) {

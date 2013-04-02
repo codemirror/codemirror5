@@ -88,7 +88,7 @@ CodeMirror.defineMode("smarty", function(config) {
 
       var str = "";
       if (ch != "/") {
-    	str += ch;
+        str += ch;
       }
       var c = "";
       while ((c = stream.eat(regs.validIdentifier))) {
@@ -101,7 +101,7 @@ CodeMirror.defineMode("smarty", function(config) {
         }
       }
       if (/\s/.test(ch)) {
-    	return null;
+        return null;
       }
       return ret("tag", "tag");
     }
