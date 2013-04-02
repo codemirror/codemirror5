@@ -20,7 +20,7 @@ var scopePasser = walk.make({
 
 function checkFile(fileName) {
   var file = fs.readFileSync(fileName, "utf8");
-  var badChar = file.match(/[\x00-\x08\x0b\x0c\x0e-\x19\uFEFF]/);
+  var badChar = file.match(/[\x00-\x08\x0b\x0c\x0e-\x19\uFEFF\t]/);
   if (badChar)
     fail("Undesirable character " + badChar[0].charCodeAt(0) + " at position " + badChar.index,
          {source: fileName});
