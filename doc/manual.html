@@ -773,8 +773,13 @@
     <dl>
       <dt id="getSelection"><code>doc.getSelection() → string</code></dt>
       <dd>Get the currently selected code.</dd>
-      <dt id="replaceSelection"><code>doc.replaceSelection(string)</code></dt>
-      <dd>Replace the selection with the given string.</dd>
+      <dt id="replaceSelection"><code>doc.replaceSelection(string, collapse)</code></dt>
+      <dd>Replace the selection with the given string. By default, the
+      new selection will span the inserted text. The
+      optional <code>collapse</code> argument can be used to change
+      this—passing <code>"start"</code> or <code>"end"</code> will
+      collapse the selection to the start or end of the inserted
+      text.</dd>
 
       <dt id="getCursor"><code>doc.getCursor(start) → object</code></dt>
       <dd><code>start</code> is a an optional string indicating which
