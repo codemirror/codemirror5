@@ -17,7 +17,7 @@
         if (cm.somethingSelected()) return CodeMirror.Pass;
         var cur = cm.getCursor(), line = cm.getLine(cur.line);
         if (cur.ch && cur.ch < line.length &&
-            pairs.indexOf(line.slice(cur.ch - 1, cur.ch + 1)) % 2 == 0)
+          pairs.indexOf(line.slice(cur.ch - 1, cur.ch + 1)) % 2 == 0)
           cm.replaceRange("", CodeMirror.Pos(cur.line, cur.ch - 1), CodeMirror.Pos(cur.line, cur.ch + 1));
         else
           return CodeMirror.Pass;
@@ -27,8 +27,8 @@
     for (var i = 0; i < pairs.length; i += 2) (function(left, right) {
       if (left != right) closingBrackets.push(right);
       function surround(cm) {
-          var selection = cm.getSelection();
-          cm.replaceSelection(left + selection + right);
+        var selection = cm.getSelection();
+        cm.replaceSelection(left + selection + right);
       }
       function maybeOverwrite(cm) {
         var cur = cm.getCursor(), ahead = cm.getRange(cur, CodeMirror.Pos(cur.line, cur.ch + 1));
@@ -36,6 +36,11 @@
         else cm.execCommand("goCharRight");
       }
       map["'" + left + "'"] = function(cm) {
+        var type = cm.getTokenAt(cm.getCursor()).type;
+        if (left === "'" && type === "comment") {
+          cm.replaceSelection("'", {head: ahead, anchor: ahead});
+          return;
+        }
         if (cm.somethingSelected()) return surround(cm);
         if (left == right && maybeOverwrite(cm) != CodeMirror.Pass) return;
         var cur = cm.getCursor(), ahead = CodeMirror.Pos(cur.line, cur.ch + 1);
