@@ -13,12 +13,19 @@
     <link rel="stylesheet" href="../lib/codemirror.css">
     <script src="../lib/codemirror.js"></script>
     <script src="../mode/javascript/javascript.js"></script>
-      
+          <script src="../addon/selection/active-line.js"></script>
+
     <link rel="stylesheet" href="../doc/docs.css">
 
     <style type="text/css">
       .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}
   
+      .CodeMirror-lines>div>div>div:nth-child(even) pre {
+        background-color: rgba(0,0,0,0.1);
+      }
+
+ .CodeMirror-activeline-background {background: rgba(255, 0,255,1) !important; }
+
       .CodeMirror-scroll {
         overflow: auto;
         -webkit-overflow-scrolling: touch;
@@ -69,7 +76,7 @@
     <script>
 var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
   mode: "javascript",
-  styleActiveLine: false,
+  styleActiveLine: true,
   lineNumbers: true,
   lineWrapping: true,
   moveInputWithCursor: false,
