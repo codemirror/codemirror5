@@ -36,11 +36,8 @@
         else cm.execCommand("goCharRight");
       }
       map["'" + left + "'"] = function(cm) {
-        var type = cm.getTokenAt(cm.getCursor()).type;
-        if (left === "'" && type === "comment") {
-          cm.replaceSelection("'", {head: ahead, anchor: ahead});
-          return;
-        }
+        if (left == "'" && cm.getTokenAt(cm.getCursor()).type == "comment")
+          return CodeMirror.Pass;
         if (cm.somethingSelected()) return surround(cm);
         if (left == right && maybeOverwrite(cm) != CodeMirror.Pass) return;
         var cur = cm.getCursor(), ahead = CodeMirror.Pos(cur.line, cur.ch + 1);
