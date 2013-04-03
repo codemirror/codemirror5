@@ -431,7 +431,7 @@
       <dt id="event_focus"><code>"focus" (instance: CodeMirror)</code></dt>
       <dd>Fires whenever the editor is focused.</dd>
 
-      <dt id="event_focus"><code>"blur" (instance: CodeMirror)</code></dt>
+      <dt id="event_blur"><code>"blur" (instance: CodeMirror)</code></dt>
       <dd>Fires whenever the editor is unfocused.</dd>
 
       <dt id="event_scroll"><code>"scroll" (instance: CodeMirror)</code></dt>
@@ -1320,6 +1320,9 @@
     <h3 id="api_misc">Miscellaneous methods</h3>
 
     <dl>
+      <dt id="constructor"><code>CodeMirror(elt:Element|(elt:Element) → void, ?config: object): void</code></dt>
+      <dd>The constructor. See <a href="#usage">Basic Usage</a>.</dd>
+
       <dt id="operation"><code>cm.operation(func: () → any): any</code></dt>
       <dd>CodeMirror internally buffers changes and only updates its
       DOM structure after it has finished performing some operation.
@@ -1372,57 +1375,64 @@
     </dl>
 
     <h3 id="api_static">Static properties</h3>
-
-    <p id="version">The <code>CodeMirror</code> object itself provides
-    several useful properties. Firstly, its <code>version</code>
-    property contains a string that indicates the version of the
-    library. For releases, this simply
-    contains <code>"major.minor"</code> (for
-    example <code>"2.33"</code>. For beta versions, <code>" B"</code>
-    (space, capital B) is added at the end of the string, for
-    development snapshots, <code>" +"</code> (space, plus) is
-    added.</p>
-
-    <p id="fromTextArea">The <code>CodeMirror.fromTextArea</code>
-    method provides another way to initialize an editor. It takes a
-    textarea DOM node as first argument and an optional configuration
-    object as second. It will replace the textarea with a CodeMirror
-    instance, and wire up the form of that textarea (if any) to make
-    sure the editor contents are put into the textarea when the form
-    is submitted. A CodeMirror instance created this way has three
-    additional methods:</p>
+    <p>The <code>CodeMirror</code> object itself provides
+    several useful properties.</p>
 
     <dl>
-      <dt id="save"><code>cm.save()</code></dt>
-      <dd>Copy the content of the editor into the textarea.</dd>
+      <dt id="version"><code>CodeMirror.version: string</code></dt>
+      <dd>It contains a string that indicates the version of the
+      library. For releases, this simply
+      contains <code>"major.minor"</code> (for
+      example <code>"2.33"</code>. For beta versions, <code>" B"</code>
+      (space, capital B) is added at the end of the string, for
+      development snapshots, <code>" +"</code> (space, plus) is
+      added.</dd>
 
-      <dt id="toTextArea"><code>cm.toTextArea()</code></dt>
-      <dd>Remove the editor, and restore the original textarea (with
-      the editor's current content).</dd>
+      <dt id="fromTextArea"><code>CodeMirror.fromTextArea(textArea: TextAreaElement, ?config: object)</code></dt>
+      <dd>
+        The method provides another way to initialize an editor. It takes a
+        textarea DOM node as first argument and an optional configuration
+        object as second. It will replace the textarea with a CodeMirror
+        instance, and wire up the form of that textarea (if any) to make
+        sure the editor contents are put into the textarea when the form
+        is submitted. A CodeMirror instance created this way has three
+        additional methods:
+        <dl>
+          <dt id="save"><code>cm.save(): void</code></dt>
+          <dd>Copy the content of the editor into the textarea.</dd>
 
-      <dt id="getTextArea"><code>cm.getTextArea() → textarea</code></dt>
-      <dd>Returns the textarea that the instance was based on.</dd>
+          <dt id="toTextArea"><code>cm.toTextArea(): void</code></dt>
+          <dd>Remove the editor, and restore the original textarea (with
+          the editor's current content).</dd>
+
+          <dt id="getTextArea"><code>cm.getTextArea(): TextAreaElement</code></dt>
+          <dd>Returns the textarea that the instance was based on.</dd>
+        </dl>
+      </dd>
+
+      <dt id="defineExtension"><code>CodeMirror.defineExtension(name: string, value: any): void</code></dt>
+      <dd>If you want to define extra methods in terms
+      of the CodeMirror API, it is possible to
+      use <code>defineExtension</code>. This
+      will cause the given value (usually a method) to be added to all
+      CodeMirror instances created from then on.</dd>
+
+      <dt id="defineOption"><code>CodeMirror.defineOption(name: string,
+      default: any, updateFunc: (instance: CodeMirror, value: any, setOption: boolean) → void): void</code></dt>
+      <dd>Similarly, <code>defineOption</code> can be used to define new options for
+      CodeMirror. The <code>updateFunc</code> will be called with the
+      editor instance and the new value when an editor is initialized,
+      and whenever the option is modified
+      through <a href="#setOption"><code>setOption</code></a>.</dd>
+
+      <dt id="defineInitHook"><code>CodeMirror.defineInitHook(func: (instance: CodeMirror) → void): void</code></dt>
+      <dd>If your extention just needs to run some
+      code whenever a CodeMirror instance is initialized,
+      use <code>CodeMirror.defineInitHook</code>. Give it a function as
+      its only argument, and from then on, that function will be called
+      (with the instance as argument) whenever a new CodeMirror instance
+      is initialized.</dd>
     </dl>
-
-    <p id="defineExtension">If you want to define extra methods in terms
-    of the CodeMirror API, it is possible to
-    use <code>CodeMirror.defineExtension(name, value)</code>. This
-    will cause the given value (usually a method) to be added to all
-    CodeMirror instances created from then on.</p>
-
-    <p id="defineOption">Similarly, <code>CodeMirror.defineOption(name,
-    default, updateFunc)</code> can be used to define new options for
-    CodeMirror. The <code>updateFunc</code> will be called with the
-    editor instance and the new value when an editor is initialized,
-    and whenever the option is modified
-    through <a href="#setOption"><code>setOption</code></a>.</p>
-
-    <p id="defineInitHook">If your extention just needs to run some
-    code whenever a CodeMirror instance is initialized,
-    use <code>CodeMirror.defineInitHook</code>. Give it a function as
-    its only argument, and from then on, that function will be called
-    (with the instance as argument) whenever a new CodeMirror instance
-    is initialized.</p>
 
     <h2 id="addons">Add-ons</h2>
 
