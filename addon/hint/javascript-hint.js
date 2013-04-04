@@ -25,7 +25,7 @@
 
     // If it's not a 'word-style' token, ignore the token.
     if (!/^[\w$_]*$/.test(token.string)) {
-      token = tprop = {start: cur.ch, end: cur.ch, string: "", state: state,
+      token = tprop = {start: cur.ch, end: cur.ch, string: "", state: token.state,
                        type: token.string == "." ? "property" : null};
     }
     // If it is a property, find out what it is a property of.
