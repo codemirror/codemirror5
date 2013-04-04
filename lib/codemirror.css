@@ -190,9 +190,9 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
   word-break: normal;
 }
 .CodeMirror-linebackground {
-  position: absolute;
-  left: 0; right: 0; top: 0; bottom: 0;
-  z-index: 0;
+  position: relative;
+  height: 13px;
+  margin-bottom: -13px;
 }
 
 .CodeMirror-linewidget {

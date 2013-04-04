@@ -1,0 +1,90 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>CodeMirror: iPad Demo</title>
+
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"
+        />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+
+
+    <link rel="stylesheet" href="../lib/codemirror.css">
+    <script src="../lib/codemirror.js"></script>
+    <script src="../mode/javascript/javascript.js"></script>
+          <script src="../addon/selection/active-line.js"></script>
+
+    <link rel="stylesheet" href="../doc/docs.css">
+
+    <style type="text/css">
+      .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}
+  
+      .CodeMirror-lines>div>div>div:nth-child(even) pre {
+        background-color: rgba(0,0,0,0.1);
+      }
+
+ .CodeMirror-activeline-background {background: rgba(255, 0,255,1) !important; }
+
+      .CodeMirror-scroll {
+        overflow: auto;
+        -webkit-overflow-scrolling: touch;
+        }
+    </style>
+  </head>
+  <body>
+    <h1>CodeMirror: iPad Demo</h1>
+
+    <form><textarea id="code" name="code">
+
+  function onTouchMove (e) {
+     if (e.touches.length != 1) return;
+    var cm = this, display = cm.display, doc = cm.doc, sel = doc.sel;
+    var pos = posFromMouse(cm, e.touches[0]);
+    var now = +new Date;
+
+    // if moving after short pause on first touch within selection, drag
+    
+    if (touchMode == "single" && cm.options.dragDrop && dragAndDrop && !isReadOnly(cm) && !posEq(sel.from, sel.to) && !posLess(pos, sel.from) && !posLess(sel.to, pos) && lastClick.time < now-100) {
+      touchMode = "drag";     
+    }
+    else if (touchMode == "single" && lastClick.time < now-100) {
+      // select instead of scrolling if there is a short pause before movement
+      touchMode = "select";
+    }
+    else if (touchMode == "single") {
+      touchMode = "scroll";
+    }
+    else if (touchMode == "double") {
+    // if moving on the second touch, extend selection and cancel scroll
+      touchMode = "select";      
+    }
+
+
+    if (touchMode == "select") {
+      extendSelection(cm.doc, lastClick.pos, pos);
+      e_preventDefault(e);
+    }
+    else if (touchMode == "drag") {
+      e_preventDefault(e);
+    }        
+  }
+
+
+    </textarea></form>
+
+    <script>
+var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+  mode: "javascript",
+  styleActiveLine: true,
+  lineNumbers: true,
+  lineWrapping: true,
+  moveInputWithCursor: false,
+  fixedGutter: false
+});
+</script>
+
+    <p>Optimized for iPad.</p>
+
+  </body>
+</html>
