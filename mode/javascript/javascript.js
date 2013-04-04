@@ -367,7 +367,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   function forspec2(type, value) {
     if (type == ";") return cont(forspec3);
     if (value == "in") return cont(expression);
-    return cont(expression, expect(";"), forspec3);
+    return pass(expression, expect(";"), forspec3);
   }
   function forspec3(type) {
     if (type != ")") cont(expression);
