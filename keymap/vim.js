@@ -173,6 +173,10 @@
     { keys: ['T', 'character'], type: 'motion',
         motion: 'moveTillCharacter',
         motionArgs: { forward: false }},
+    { keys: [';'], type: 'motion', motion: 'repeatLastCharacterSearch',
+        motionArgs: { forward: true }},
+    { keys: [','], type: 'motion', motion: 'repeatLastCharacterSearch',
+        motionArgs: { forward: false }},
     { keys: ['\'', 'character'], type: 'motion', motion: 'goToMark' },
     { keys: ['`', 'character'], type: 'motion', motion: 'goToMark' },
     { keys: [']', '`',], type: 'motion', motion: 'jumpToMark', motionArgs: { forward: true } },
@@ -347,6 +351,8 @@
           searchQuery: null,
           // Whether we are searching backwards.
           searchIsReversed: false,
+          // Recording latest f, t, F or T motion command.
+          lastChararacterSearch: {increment:0, forward:true, selectedCharacter:''},
           registerController: new RegisterController({})
         };
       }
@@ -1175,13 +1181,15 @@
         var repeat = motionArgs.repeat;
         var curEnd = moveToCharacter(cm, repeat, motionArgs.forward,
             motionArgs.selectedCharacter);
-        if(!curEnd)return cm.getCursor();
         var increment = motionArgs.forward ? -1 : 1;
+        recordLastCharacterSearch(increment, motionArgs);
+        if(!curEnd)return cm.getCursor();
         curEnd.ch += increment;
         return curEnd;
       },
       moveToCharacter: function(cm, motionArgs) {
         var repeat = motionArgs.repeat;
+        recordLastCharacterSearch(0, motionArgs);
         return moveToCharacter(cm, repeat, motionArgs.forward,
             motionArgs.selectedCharacter) || cm.getCursor();
       },
@@ -1245,6 +1253,20 @@
         var start = tmp.start;
         var end = tmp.end;
         return [start, end];
+      },
+      repeatLastCharacterSearch: function(cm, motionArgs) {
+        var lastSearch = getVimGlobalState().lastChararacterSearch;
+        var repeat = motionArgs.repeat;
+        var forward = motionArgs.forward === lastSearch.forward;
+        var increment = (lastSearch.increment ? 1 : 0) * (forward ? -1 : 1);
+        cm.moveH(-increment, 'char');
+        var curEnd = moveToCharacter(cm, repeat, forward, lastSearch.selectedCharacter);
+        if (!curEnd) {
+          cm.moveH(increment, 'char')
+          return cm.getCursor();
+        }
+        curEnd.ch += increment;
+        return curEnd;
       }
     };
 
@@ -1786,6 +1808,13 @@
 
       return { start: { line: cur.line, ch: wordStart },
         end: { line: cur.line, ch: wordEnd }};
+    }
+
+    function recordLastCharacterSearch(increment, args) {
+        var vimGlobalState = getVimGlobalState();
+        vimGlobalState.lastChararacterSearch.increment = increment;
+        vimGlobalState.lastChararacterSearch.forward = args.forward;
+        vimGlobalState.lastChararacterSearch.selectedCharacter = args.selectedCharacter;
     }
 
     /*
