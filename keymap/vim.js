@@ -1260,9 +1260,7 @@
         var forward = motionArgs.forward === lastSearch.forward;
         var increment = (lastSearch.increment ? 1 : 0) * (forward ? -1 : 1);
         cm.moveH(-increment, 'char');
-        var curEnd = moveToCharacter(cm, repeat,
-          forward,
-          lastSearch.selectedCharacter);
+        var curEnd = moveToCharacter(cm, repeat, forward, lastSearch.selectedCharacter);
         if (!curEnd) {
           cm.moveH(increment, 'char')
           return cm.getCursor();
