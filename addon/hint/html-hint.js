@@ -1,4 +1,61 @@
 (function () {
+  
+  var Pos = CodeMirror.Pos;
+  
+  function createCompletionElement(htmlStructure, insertStartBracket) {   
+    var completion = {
+       text : htmlStructure.tag,
+       className : 'CodeMirror-completion-xml CodeMirror-completion-xml-element'
+    }
+    completion.hint = function(cm, data, completion) {         
+      var from = Pos(data.from.line, data.from.ch);
+      var to = Pos(data.to.line, data.to.ch);
+      var insertText = '';
+      if (insertStartBracket) insertText = '<'; else insertText = '';
+      insertText += tag;
+      cm.replaceRange(insertText, from, to);
+    }
+    completion.information = function(completion) { 
+      var html = '<b>Element: </b>' + completion.text;
+      var attr = htmlStructure.attr;
+      if(attr) {
+        html+= '<br/>';
+        html+='<b>Attributes: </b>'
+        html+='<ul>'
+        for ( var i = 0; i < attr.length; i++) {
+          html+= '<li>';          
+          html+= attr[i].key;
+          html+= '</li>';
+        }
+        html+='</ul>'
+      }
+      return html;
+    }
+    return completion;
+  }
+  
+  function createCompletionAttributeName(name) {
+    var completion = {
+        text : name,
+        className : 'CodeMirror-completion-xml CodeMirror-completion-xml-attribute'
+    }
+    completion.hint = function(cm, data, completion) {         
+      var from = Pos(data.from.line, data.from.ch);
+      var to = Pos(data.to.line, data.to.ch);
+      var insertText = name + "=\"\" ";
+      cm.replaceRange(insertText, from, to);
+      cm.setCursor(Pos(data.from.line, data.from.ch + name.length + 2));
+    }
+    return completion;
+  }
+
+  function createCompletionAttributeValue(attr) {
+    var completion = {
+        text : attr
+    }
+    return completion;
+  }
+  
   function htmlHint(editor, htmlStructure, getToken) {
     var cur = editor.getCursor();
     var token = getToken(editor, cur);
@@ -20,7 +77,7 @@
       var last = editor.getRange({line: cur.line, ch: cur.ch - 1}, cur);
       if(last == "<") {
         for(i = 0; i < htmlStructure.length; i++) {
-          keywords.push(htmlStructure[i].tag);
+          keywords.push(createCompletionElement(htmlStructure[i], false));
         }
         from.ch = token.start + 1;
       } else {
@@ -44,11 +101,11 @@
           for(i = 0; i < htmlStructure.length; i++) {
             if(htmlStructure[i].tag == node) {
               for(j = 0; j < htmlStructure[i].attr.length; j++) {
-                keywords.push(htmlStructure[i].attr[j].key + "=\"\" ");
+                keywords.push(createCompletionAttributeName(htmlStructure[i].attr[j].key));
               }
 
               for(k = 0; k < globalAttributes.length; k++) {
-                keywords.push(globalAttributes[k].key + "=\"\" ");
+                keywords.push(createCompletionAttributeName(globalAttributes[k].key));
               }
             }
           }
@@ -62,7 +119,7 @@
               for(j = 0; j < htmlStructure[i].attr.length; j++) {
                 if(htmlStructure[i].attr[j].key == attribute) {
                   for(k = 0; k < htmlStructure[i].attr[j].values.length; k++) {
-                    keywords.push(htmlStructure[i].attr[j].values[k]);
+                    keywords.push(createCompletionAttributeValue(htmlStructure[i].attr[j].values[k]));
                   }
                 }
               }
@@ -70,7 +127,7 @@
               for(j = 0; j < globalAttributes.length; j++) {
                 if(globalAttributes[j].key == attribute) {
                   for(k = 0; k < globalAttributes[j].values.length; k++) {
-                    keywords.push(globalAttributes[j].values[k]);
+                    keywords.push(createCompletionAttributeValue(globalAttributes[j].values[k]));
                   }
                 }
               }
@@ -81,18 +138,18 @@
           for(i = 0; i < htmlStructure.length; i++) {
             if(htmlStructure[i].tag == node) {
               for(j = 0; j < htmlStructure[i].attr.length; j++) {
-                keywords.push(htmlStructure[i].attr[j].key + "=\"\" ");
+                keywords.push(createCompletionAttributeName(htmlStructure[i].attr[j].key));
               }
 
               for(k = 0; k < globalAttributes.length; k++) {
-                keywords.push(globalAttributes[k].key + "=\"\" ");
+                keywords.push(createCompletionAttributeName(globalAttributes[k].key));
               }
             }
           }
           from.ch = token.start;
         } else if(token.type == "tag") {
           for(i = 0; i < htmlStructure.length; i++) {
-            keywords.push(htmlStructure[i].tag);
+            keywords.push(createCompletionElement(htmlStructure[i], false));
           }
 
           from.ch = token.start + 1;
@@ -100,10 +157,10 @@
       }
     } else {
       for(i = 0; i < htmlStructure.length; i++) {
-        keywords.push("<" + htmlStructure[i].tag);
+        keywords.push(createCompletionElement(htmlStructure[i], true));
       }
 
-      tokenString = ("<" + tokenString).trim();
+      tokenString = tokenString.trim();
       from.ch = token.start;
     }
 
@@ -124,7 +181,9 @@
     var i = 0;
 
     for(i = 0; i < keywords.length; i++) {
-      if(keywords[i].substring(0, text.length) == text) {
+      var keyword = keywords[i];
+      if (keyword.text) keyword = keyword.text;
+      if(keyword.substring(0, text.length) == text) {
         results.push(keywords[i]);
       }
     }
