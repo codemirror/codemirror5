@@ -173,6 +173,10 @@
     { keys: ['T', 'character'], type: 'motion',
         motion: 'moveTillCharacter',
         motionArgs: { forward: false }},
+    { keys: [';'], type: 'motion', motion: 'repeatLastCharacterSearch',
+        motionArgs: { forward: true }},
+    { keys: [','], type: 'motion', motion: 'repeatLastCharacterSearch',
+        motionArgs: { forward: false }},
     { keys: ['\'', 'character'], type: 'motion', motion: 'goToMark' },
     { keys: ['`', 'character'], type: 'motion', motion: 'goToMark' },
     { keys: [']', '`',], type: 'motion', motion: 'jumpToMark', motionArgs: { forward: true } },
@@ -368,6 +372,9 @@
           // The last motion command run. Cleared if a non-motion command gets
           // executed in between.
           lastMotion: null,
+          // Recording latest f, t, F or T motion command.
+          lastChararacterSearch: {increment:0, forward:true,
+            selectedCharacter:''},
           marks: {},
           visualMode: false,
           // If we are in visual line mode. No effect if visualMode is false.
@@ -1171,17 +1178,19 @@
         return moveToWord(cm, motionArgs.repeat, !!motionArgs.forward,
             !!motionArgs.wordEnd, !!motionArgs.bigWord);
       },
-      moveTillCharacter: function(cm, motionArgs) {
+      moveTillCharacter: function(cm, motionArgs, vim) {
         var repeat = motionArgs.repeat;
         var curEnd = moveToCharacter(cm, repeat, motionArgs.forward,
             motionArgs.selectedCharacter);
-        if(!curEnd)return cm.getCursor();
         var increment = motionArgs.forward ? -1 : 1;
+        if(vim)recordLastCharacterSearch(vim, increment, motionArgs);
+        if(!curEnd)return cm.getCursor();
         curEnd.ch += increment;
         return curEnd;
       },
-      moveToCharacter: function(cm, motionArgs) {
+      moveToCharacter: function(cm, motionArgs, vim) {
         var repeat = motionArgs.repeat;
+        if(vim)recordLastCharacterSearch(vim, 0, motionArgs);
         return moveToCharacter(cm, repeat, motionArgs.forward,
             motionArgs.selectedCharacter) || cm.getCursor();
       },
@@ -1245,6 +1254,23 @@
         var start = tmp.start;
         var end = tmp.end;
         return [start, end];
+      },
+      repeatLastCharacterSearch: function(cm, motionArgs, vim) {
+        var lastSearch = vim.lastChararacterSearch;
+        var repeat = motionArgs.repeat;
+        var forward = motionArgs.forward;
+        var increment = lastSearch.increment;
+        var direction = (motionArgs.forward? 1 : -1) * (increment & 1);
+        if(increment)cm.moveH(direction, 'char');
+        var curEnd = moveToCharacter(cm, repeat,
+          lastSearch.forward === forward,
+          lastSearch.selectedCharacter);
+        if (!curEnd) {
+          cm.moveH(-direction, 'char')
+          return cm.getCursor();
+        }
+        curEnd.ch += increment * direction;
+        return curEnd;
       }
     };
 
@@ -1786,6 +1812,12 @@
 
       return { start: { line: cur.line, ch: wordStart },
         end: { line: cur.line, ch: wordEnd }};
+    }
+
+    function recordLastCharacterSearch(vim, increment, args) {
+        vim.lastChararacterSearch.increment = increment;
+        vim.lastChararacterSearch.forward = args.forward;
+        vim.lastChararacterSearch.selectedCharacter = args.selectedCharacter;
     }
 
     /*
