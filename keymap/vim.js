@@ -351,6 +351,8 @@
           searchQuery: null,
           // Whether we are searching backwards.
           searchIsReversed: false,
+          // Recording latest f, t, F or T motion command.
+          lastChararacterSearch: {increment:0, forward:true, selectedCharacter:''},
           registerController: new RegisterController({})
         };
       }
@@ -372,9 +374,6 @@
           // The last motion command run. Cleared if a non-motion command gets
           // executed in between.
           lastMotion: null,
-          // Recording latest f, t, F or T motion command.
-          lastChararacterSearch: {increment:0, forward:true,
-            selectedCharacter:''},
           marks: {},
           visualMode: false,
           // If we are in visual line mode. No effect if visualMode is false.
@@ -1178,19 +1177,19 @@
         return moveToWord(cm, motionArgs.repeat, !!motionArgs.forward,
             !!motionArgs.wordEnd, !!motionArgs.bigWord);
       },
-      moveTillCharacter: function(cm, motionArgs, vim) {
+      moveTillCharacter: function(cm, motionArgs) {
         var repeat = motionArgs.repeat;
         var curEnd = moveToCharacter(cm, repeat, motionArgs.forward,
             motionArgs.selectedCharacter);
         var increment = motionArgs.forward ? -1 : 1;
-        if(vim)recordLastCharacterSearch(vim, increment, motionArgs);
+        recordLastCharacterSearch(increment, motionArgs);
         if(!curEnd)return cm.getCursor();
         curEnd.ch += increment;
         return curEnd;
       },
-      moveToCharacter: function(cm, motionArgs, vim) {
+      moveToCharacter: function(cm, motionArgs) {
         var repeat = motionArgs.repeat;
-        if(vim)recordLastCharacterSearch(vim, 0, motionArgs);
+        recordLastCharacterSearch(0, motionArgs);
         return moveToCharacter(cm, repeat, motionArgs.forward,
             motionArgs.selectedCharacter) || cm.getCursor();
       },
@@ -1255,11 +1254,11 @@
         var end = tmp.end;
         return [start, end];
       },
-      repeatLastCharacterSearch: function(cm, motionArgs, vim) {
-        var lastSearch = vim.lastChararacterSearch;
+      repeatLastCharacterSearch: function(cm, motionArgs) {
+        var lastSearch = getVimGlobalState().lastChararacterSearch;
         var repeat = motionArgs.repeat;
         var forward = motionArgs.forward === lastSearch.forward;
-        var increment = (lastSearch.increment & 1) * (forward ? -1 : 1);
+        var increment = (lastSearch.increment ? 1 : 0) * (forward ? -1 : 1);
         cm.moveH(-increment, 'char');
         var curEnd = moveToCharacter(cm, repeat,
           forward,
@@ -1813,10 +1812,11 @@
         end: { line: cur.line, ch: wordEnd }};
     }
 
-    function recordLastCharacterSearch(vim, increment, args) {
-        vim.lastChararacterSearch.increment = increment;
-        vim.lastChararacterSearch.forward = args.forward;
-        vim.lastChararacterSearch.selectedCharacter = args.selectedCharacter;
+    function recordLastCharacterSearch(increment, args) {
+        var vimGlobalState = getVimGlobalState();
+        vimGlobalState.lastChararacterSearch.increment = increment;
+        vimGlobalState.lastChararacterSearch.forward = args.forward;
+        vimGlobalState.lastChararacterSearch.selectedCharacter = args.selectedCharacter;
     }
 
     /*
