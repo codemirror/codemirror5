@@ -36,3 +36,25 @@
   background: #08f;
   color: white;
 }
+
+.CodeMirror-hints-contextInfo {
+  position: absolute;
+  z-index: 10;
+  overflow: hidden;
+
+  margin: 0;
+  padding: 2px 10px;
+
+  -webkit-box-shadow: 2px 3px 5px rgba(0,0,0,.2);
+  -moz-box-shadow: 2px 3px 5px rgba(0,0,0,.2);
+  box-shadow: 2px 3px 5px rgba(0,0,0,.2);
+  border-radius: 3px;
+  border: 1px solid black;
+
+  background: #FFFFE1;
+  font-size: 90%;
+  font-family: monospace;
+
+  max-height: 20em;
+  overflow-y: auto;
+}

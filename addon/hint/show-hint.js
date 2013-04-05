@@ -33,7 +33,7 @@ CodeMirror.showHint = function(cm, getHints, options) {
     }
 
     // Build the select widget
-    var hints = document.createElement("ul"), selectedHint = 0;
+    var hints = document.createElement("ul"), selectedHint = 0, contextInfo = null;
     hints.className = "CodeMirror-hints";
     for (var i = 0; i < completions.length; ++i) {
       var elt = hints.appendChild(document.createElement("li")), completion = completions[i];
@@ -74,6 +74,32 @@ CodeMirror.showHint = function(cm, getHints, options) {
       hints.style.top = (top = pos.bottom - overlapY) + "px";
     }
 
+    function activateCompletion() {
+      var completion = completions[selectedHint];
+      var information = null;
+      if (completion.information) {
+        information = completion.information(completion);
+      }
+      if (information) {
+        var box = hints.getBoundingClientRect();
+        if (contextInfo == null) {
+          contextInfo = document.createElement('div');
+          contextInfo.className='CodeMirror-hints-contextInfo'
+          document.body.appendChild(contextInfo);
+        }
+        contextInfo.style.top = hints.style.top;
+        contextInfo.style.left = box.right + 'px';
+        contextInfo.innerHTML = information;
+        contextInfo.style.display ='block';
+      } else {
+        if (contextInfo != null) {
+          contextInfo.innerHTML ='none';
+          contextInfo.style.display ='none';
+        }
+      }
+    }
+    activateCompletion();
+    
     function changeActive(i) {
       i = Math.max(0, Math.min(i, completions.length - 1));
       if (selectedHint == i) return;
@@ -85,6 +111,7 @@ CodeMirror.showHint = function(cm, getHints, options) {
         hints.scrollTop = node.offsetTop - 3;
       else if (node.offsetTop + node.offsetHeight > hints.scrollTop + hints.clientHeight)
         hints.scrollTop = node.offsetTop + node.offsetHeight - hints.clientHeight + 3;
+      activateCompletion();
     }
 
     function screenAmount() {
@@ -143,6 +170,7 @@ CodeMirror.showHint = function(cm, getHints, options) {
       done = true;
       clearTimeout(once);
       hints.parentNode.removeChild(hints);
+      if (contextInfo != null) contextInfo.parentNode.removeChild(contextInfo);
       cm.removeKeyMap(ourMap);
       cm.off("cursorActivity", cursorActivity);
       cm.off("blur", onBlur);

@@ -2,9 +2,9 @@
   
   var Pos = CodeMirror.Pos;
   
-  function createCompletionElement(tag, insertStartBracket) {   
+  function createCompletionElement(htmlStructure, insertStartBracket) {   
     var completion = {
-       text : tag,
+       text : htmlStructure.tag,
        className : 'CodeMirror-completion-xml CodeMirror-completion-xml-element'
     }
     completion.hint = function(cm, data, completion) {         
@@ -14,6 +14,22 @@
       if (insertStartBracket) insertText = '<'; else insertText = '';
       insertText += tag;
       cm.replaceRange(insertText, from, to);
+    }
+    completion.information = function(completion) { 
+      var html = '<b>Element: </b>' + completion.text;
+      var attr = htmlStructure.attr;
+      if(attr) {
+        html+= '<br/>';
+        html+='<b>Attributes: </b>'
+        html+='<ul>'
+        for ( var i = 0; i < attr.length; i++) {
+          html+= '<li>';          
+          html+= attr[i].key;
+          html+= '</li>';
+        }
+        html+='</ul>'
+      }
+      return html;
     }
     return completion;
   }
@@ -61,7 +77,7 @@
       var last = editor.getRange({line: cur.line, ch: cur.ch - 1}, cur);
       if(last == "<") {
         for(i = 0; i < htmlStructure.length; i++) {
-          keywords.push(createCompletionElement(htmlStructure[i].tag, false));
+          keywords.push(createCompletionElement(htmlStructure[i], false));
         }
         from.ch = token.start + 1;
       } else {
@@ -133,7 +149,7 @@
           from.ch = token.start;
         } else if(token.type == "tag") {
           for(i = 0; i < htmlStructure.length; i++) {
-            keywords.push(createCompletionElement(htmlStructure[i].tag, false));
+            keywords.push(createCompletionElement(htmlStructure[i], false));
           }
 
           from.ch = token.start + 1;
@@ -141,7 +157,7 @@
       }
     } else {
       for(i = 0; i < htmlStructure.length; i++) {
-        keywords.push(createCompletionElement(htmlStructure[i].tag, true));
+        keywords.push(createCompletionElement(htmlStructure[i], true));
       }
 
       tokenString = tokenString.trim();
