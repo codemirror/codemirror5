@@ -17,6 +17,36 @@
     <link rel="stylesheet" href="../doc/docs.css">
     <style type="text/css">
       .CodeMirror {border-top: 1px solid #888; border-bottom: 1px solid #888;}
+      
+      .CodeMirror-completion-xml {
+      	padding-left: 22px;
+	  	position: relative;
+      }
+      .CodeMirror-completion-xml:before {
+		  position: absolute;
+		  left: 2px;
+		  bottom: 2px;
+		  border-radius: 50%;
+		  font-size: 12px;
+		  font-weight: bold;
+		  height: 15px;
+		  width: 15px;
+		  line-height: 16px;
+		  text-align: center;
+		  color: white;
+		  box-sizing: border-box;  
+      }
+		
+      .CodeMirror-completion-xml-attribute:before {
+      	content: "@";
+		background: #7c7;
+      }
+      
+      .CodeMirror-completion-xml-element:before {
+      	content: "<>";
+		background: #77c;
+      }
+      
     </style>
   </head>
   <body>
