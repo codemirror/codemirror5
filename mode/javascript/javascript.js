@@ -242,10 +242,10 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   }
   poplex.lex = true;
 
-  function expect(wanted) {
+  function expect(wanted, matchRequired) {
     return function(type) {
       if (type == wanted) return cont();
-      else if (wanted == ";") return pass();
+      else if (wanted == ";" && !matchRequired) return pass();
       else return cont(arguments.callee);
     };
   }
@@ -358,7 +358,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == "var") return cont(vardef1, expect(";"), forspec2);
     if (type == ";") return cont(forspec2);
     if (type == "variable") return cont(formaybein);
-    return pass(expression, expect(";"), forspec2);
+    return pass(expression, expect(";", true), forspec2);
   }
   function formaybein(_type, value) {
     if (value == "in") return cont(expression);
@@ -367,7 +367,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   function forspec2(type, value) {
     if (type == ";") return cont(forspec3);
     if (value == "in") return cont(expression);
-    return pass(expression, expect(";"), forspec3);
+    return pass(expression, expect(";", true), forspec3);
   }
   function forspec3(type) {
     if (type != ")") cont(expression);
