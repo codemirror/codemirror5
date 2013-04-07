@@ -402,7 +402,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
           state.lexical.align = false;
         state.indented = stream.indentation();
       }
-      if (stream.eatSpace()) return null;
+      if (state.tokenize != jsTokenComment && stream.eatSpace()) return null;
       var style = state.tokenize(stream, state);
       if (type == "comment") return style;
       state.lastType = type;
