@@ -269,13 +269,19 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     return pass(pushlex("stat"), expression, expect(";"), poplex);
   }
   function expression(type) {
-    if (atomicTypes.hasOwnProperty(type)) return cont(maybeoperator);
+    return expressionInner(type, maybeoperatorComma);
+  }
+  function expressionNoComma(type) {
+    return expressionInner(type, maybeoperatorNoComma);
+  }
+  function expressionInner(type, maybeop) {
+    if (atomicTypes.hasOwnProperty(type)) return cont(maybeop);
     if (type == "function") return cont(functiondef);
     if (type == "keyword c") return cont(maybeexpression);
-    if (type == "(") return cont(pushlex(")"), maybeexpression, expect(")"), poplex, maybeoperator);
+    if (type == "(") return cont(pushlex(")"), maybeexpression, expect(")"), poplex, maybeop);
     if (type == "operator") return cont(expression);
-    if (type == "[") return cont(pushlex("]"), commasep(expression, "]"), poplex, maybeoperator);
-    if (type == "{") return cont(pushlex("}"), commasep(objprop, "}"), poplex, maybeoperator);
+    if (type == "[") return cont(pushlex("]"), commasep(expressionNoComma, "]"), poplex, maybeop);
+    if (type == "{") return cont(pushlex("}"), commasep(objprop, "}"), poplex, maybeop);
     return cont();
   }
   function maybeexpression(type) {
@@ -283,20 +289,25 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     return pass(expression);
   }
 
-  function maybeoperator(type, value) {
+  function maybeoperatorComma(type, value) {
+    if (type == ",") return cont(expression);
+    return maybeoperatorNoComma(type, value, maybeoperatorComma);
+  }
+  function maybeoperatorNoComma(type, value, me) {
+    if (!me) me = maybeoperatorNoComma;
     if (type == "operator") {
-      if (/\+\+|--/.test(value)) return cont(maybeoperator);
+      if (/\+\+|--/.test(value)) return cont(me);
       if (value == "?") return cont(expression, expect(":"), expression);
       return cont(expression);
     }
     if (type == ";") return;
-    if (type == "(") return cont(pushlex(")", "call"), commasep(expression, ")"), poplex, maybeoperator);
-    if (type == ".") return cont(property, maybeoperator);
-    if (type == "[") return cont(pushlex("]"), expression, expect("]"), poplex, maybeoperator);
+    if (type == "(") return cont(pushlex(")", "call"), commasep(expressionNoComma, ")"), poplex, me);
+    if (type == ".") return cont(property, me);
+    if (type == "[") return cont(pushlex("]"), expression, expect("]"), poplex, me);
   }
   function maybelabel(type) {
     if (type == ":") return cont(poplex, statement);
-    return pass(maybeoperator, expect(";"), poplex);
+    return pass(maybeoperatorComma, expect(";"), poplex);
   }
   function property(type) {
     if (type == "variable") {cx.marked = "property"; return cont();}
@@ -308,7 +319,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     } else if (type == "number" || type == "string") {
       cx.marked = type + " property";
     }
-    if (atomicTypes.hasOwnProperty(type)) return cont(expect(":"), expression);
+    if (atomicTypes.hasOwnProperty(type)) return cont(expect(":"), expressionNoComma);
   }
   function getterSetter(type) {
     if (type == ":") return cont(expression);
@@ -351,7 +362,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     return pass();
   }
   function vardef2(type, value) {
-    if (value == "=") return cont(expression, vardef2);
+    if (value == "=") return cont(expressionNoComma, vardef2);
     if (type == ",") return cont(vardef1);
   }
   function forspec1(type) {
@@ -362,7 +373,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   }
   function formaybein(_type, value) {
     if (value == "in") return cont(expression);
-    return cont(maybeoperator, forspec2);
+    return cont(maybeoperatorComma, forspec2);
   }
   function forspec2(type, value) {
     if (type == ";") return cont(forspec3);
