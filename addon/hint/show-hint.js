@@ -29,6 +29,7 @@ CodeMirror.showHint = function(cm, getHints, options) {
     // When there is only one completion, use it directly.
     if (!continued && options.completeSingle !== false && completions.length == 1) {
       pickCompletion(cm, data, completions[0]);
+      if (data.onClose) data.onClose();
       return true;
     }
 
@@ -85,6 +86,7 @@ CodeMirror.showHint = function(cm, getHints, options) {
         hints.scrollTop = node.offsetTop - 3;
       else if (node.offsetTop + node.offsetHeight > hints.scrollTop + hints.clientHeight)
         hints.scrollTop = node.offsetTop + node.offsetHeight - hints.clientHeight + 3;
+      if (data.onSelect) data.onSelect(completions[selectedHint]);
     }
 
     function screenAmount() {
@@ -138,7 +140,7 @@ CodeMirror.showHint = function(cm, getHints, options) {
     });
 
     var done = false, once;
-    function close() {
+    function close(willContinue) {
       if (done) return;
       done = true;
       clearTimeout(once);
@@ -148,6 +150,7 @@ CodeMirror.showHint = function(cm, getHints, options) {
       cm.off("blur", onBlur);
       cm.off("focus", onFocus);
       cm.off("scroll", onScroll);
+      if (!willContinue && data.onClose) data.onClose();
     }
     function pick() {
       pickCompletion(cm, data, completions[selectedHint]);
@@ -163,8 +166,9 @@ CodeMirror.showHint = function(cm, getHints, options) {
           (pos.ch && closeOn.test(line.charAt(pos.ch - 1))))
         close();
       else
-        once = setTimeout(function(){close(); continued = true; startHinting();}, 70);
+        once = setTimeout(function(){close(true); continued = true; startHinting();}, 70);
     }
+    if (data.onSelect) data.onSelect(completions[0]);
     return true;
   }
 

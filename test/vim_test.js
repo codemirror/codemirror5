@@ -1184,6 +1184,62 @@ testVim('._repeat', function(cm, vim, helpers) {
   helpers.doKeys('3', '.');
   eq('6', cm.getValue());
 }, { value: '1 2 3 4 5 6'});
+testVim('f;', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('f', 'x');
+  helpers.doKeys(';');
+  helpers.doKeys('2', ';');
+  eq(9, cm.getCursor().ch);
+}, { value: '01x3xx678x'});
+testVim('F;', function(cm, vim, helpers) {
+  cm.setCursor(0, 8);
+  helpers.doKeys('F', 'x');
+  helpers.doKeys(';');
+  helpers.doKeys('2', ';');
+  eq(2, cm.getCursor().ch);
+}, { value: '01x3xx6x8x'});
+testVim('t;', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('t', 'x');
+  helpers.doKeys(';');
+  helpers.doKeys('2', ';');
+  eq(8, cm.getCursor().ch);
+}, { value: '01x3xx678x'});
+testVim('T;', function(cm, vim, helpers) {
+  cm.setCursor(0, 9);
+  helpers.doKeys('T', 'x');
+  helpers.doKeys(';');
+  helpers.doKeys('2', ';');
+  eq(2, cm.getCursor().ch);
+}, { value: '0xx3xx678x'});
+testVim('f,', function(cm, vim, helpers) {
+  cm.setCursor(0, 6);
+  helpers.doKeys('f', 'x');
+  helpers.doKeys(',');
+  helpers.doKeys('2', ',');
+  eq(2, cm.getCursor().ch);
+}, { value: '01x3xx678x'});
+testVim('F,', function(cm, vim, helpers) {
+  cm.setCursor(0, 3);
+  helpers.doKeys('F', 'x');
+  helpers.doKeys(',');
+  helpers.doKeys('2', ',');
+  eq(9, cm.getCursor().ch);
+}, { value: '01x3xx678x'});
+testVim('t,', function(cm, vim, helpers) {
+  cm.setCursor(0, 6);
+  helpers.doKeys('t', 'x');
+  helpers.doKeys(',');
+  helpers.doKeys('2', ',');
+  eq(3, cm.getCursor().ch);
+}, { value: '01x3xx678x'});
+testVim('T,', function(cm, vim, helpers) {
+  cm.setCursor(0, 4);
+  helpers.doKeys('T', 'x');
+  helpers.doKeys(',');
+  helpers.doKeys('2', ',');
+  eq(8, cm.getCursor().ch);
+}, { value: '01x3xx67xx'});
 
 // Ex mode tests
 testVim('ex_go_to_line', function(cm, vim, helpers) {
