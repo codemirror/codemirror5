@@ -106,7 +106,7 @@ CodeMirror.showHint = function(cm, getHints, options) {
     };
     if (options.customKeys) for (var key in options.customKeys) if (options.customKeys.hasOwnProperty(key)) {
       var val = options.customKeys[key];
-      if (/^(Up|Down|Enter|Esc)$/.test(key)) val = ourMap[val];
+      if (/^(Up|Down|Enter|Esc|Home|End|PageUp|PageDown)$/.test(val)) val = ourMap[val];
       ourMap[key] = val;
     }
 
