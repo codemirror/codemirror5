@@ -13,7 +13,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     var operator = kw("operator"), atom = {type: "atom", style: "atom"};
 
     var jsKeywords = {
-      "if": A, "while": A, "with": A, "else": B, "do": B, "try": B, "finally": B,
+      "if": kw("if"), "while": A, "with": A, "else": B, "do": B, "try": B, "finally": B,
       "return": C, "break": C, "continue": C, "new": C, "delete": C, "throw": C,
       "var": kw("var"), "const": kw("var"), "let": kw("var"),
       "function": kw("function"), "catch": kw("catch"),
@@ -256,6 +256,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == "keyword b") return cont(pushlex("form"), statement, poplex);
     if (type == "{") return cont(pushlex("}"), block, poplex);
     if (type == ";") return cont();
+    if (type == "if") return cont(pushlex("form"), expression, statement, poplex, maybeelse(cx.state.indented));
     if (type == "function") return cont(functiondef);
     if (type == "for") return cont(pushlex("form"), expect("("), pushlex(")"), forspec1, expect(")"),
                                       poplex, statement, poplex);
@@ -364,6 +365,15 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   function vardef2(type, value) {
     if (value == "=") return cont(expressionNoComma, vardef2);
     if (type == ",") return cont(vardef1);
+  }
+  function maybeelse(indent) {
+    return function(type, value) {
+      if (type == "keyword b" && value == "else") {
+        cx.state.lexical = new JSLexical(indent, 0, "form", null, cx.state.lexical);
+        return cont(expression, statement, poplex);
+      }
+      return pass();
+    };
   }
   function forspec1(type) {
     if (type == "var") return cont(vardef1, expect(";"), forspec2);
