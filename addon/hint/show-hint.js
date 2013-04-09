@@ -153,7 +153,7 @@ CodeMirror.showHint = function(cm, getHints, options) {
       cm.off("blur", onBlur);
       cm.off("focus", onFocus);
       cm.off("scroll", onScroll);
-      if (!willContinue && data.onClose) data.onClose();
+      if (willContinue !== true && data.onClose) data.onClose();
     }
     function pick() {
       pickCompletion(cm, data, completions[selectedHint]);
