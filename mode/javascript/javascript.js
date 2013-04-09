@@ -370,7 +370,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     return function(type, value) {
       if (type == "keyword b" && value == "else") {
         cx.state.lexical = new JSLexical(indent, 0, "form", null, cx.state.lexical);
-        return cont(expression, statement, poplex);
+        return cont(statement, poplex);
       }
       return pass();
     };
