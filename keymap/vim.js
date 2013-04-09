@@ -1572,17 +1572,29 @@
         }
       },
       incrementNumberToken: function(cm, actionArgs, vim) {
-        cm.moveH(1, 'char');
         var cur = cm.getCursor();
-        var token = cm.getTokenAt(cur);
-        if (token.type === 'number') {
-          var increment = actionArgs.increase ? 1 : -1;
-          var number = parseInt(token.string) + (increment * actionArgs.repeat);
-          var from = {ch:token.start, line:cur.line};
-          var to = {ch:token.end, line:cur.line};
-          cm.replaceRange(number.toString(), from, to);
+        var lineStr = cm.getLine(cur.line);
+        var re = /-?\d+/g;
+        var match;
+        var start;
+        var end;
+        var numberStr;
+        var token;
+        while ((match = re.exec(lineStr)) !== null) {
+          token = match[0];
+          start = match.index;
+          end = start + token.length;
+          if(cur.ch < end)break;
         }
-        cm.moveH(-1, 'char');
+        if (token) {
+          var increment = actionArgs.increase ? 1 : -1;
+          var number = parseInt(token) + (increment * actionArgs.repeat);
+          var from = {ch:start, line:cur.line};
+          var to = {ch:end, line:cur.line};
+          numberStr = number.toString();
+          cm.replaceRange(numberStr, from, to);
+        } else return;
+        cm.setCursor({line: cur.line, ch: start + numberStr.length - 1});
       },
       repeatLastEdit: function(cm, actionArgs, vim) {
         // TODO: Make this repeat insert mode changes.
