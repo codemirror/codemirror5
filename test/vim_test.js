@@ -722,6 +722,22 @@ testVim('Y', function(cm, vim, helpers) {
 }, { value: ' word1\nword2\n word3' });
 
 // Action tests
+testVim('ctrl-a', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('Ctrl-a');
+  eq('-9', cm.getValue());
+  helpers.assertCursorAt(0, 1);
+  helpers.doKeys('2','Ctrl-a');
+  eq('-7', cm.getValue());
+}, {value: '-10'});
+testVim('ctrl-x', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('Ctrl-x');
+  eq('-1', cm.getValue());
+  helpers.assertCursorAt(0, 1);
+  helpers.doKeys('2','Ctrl-x');
+  eq('-3', cm.getValue());
+}, {value: '0'});
 testVim('a', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.doKeys('a');
