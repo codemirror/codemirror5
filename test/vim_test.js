@@ -722,6 +722,35 @@ testVim('Y', function(cm, vim, helpers) {
 }, { value: ' word1\nword2\n word3' });
 
 // Action tests
+testVim('ctrl-a', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('Ctrl-a');
+  eq('-9', cm.getValue());
+  helpers.assertCursorAt(0, 1);
+  helpers.doKeys('2','Ctrl-a');
+  eq('-7', cm.getValue());
+}, {value: '-10'});
+testVim('ctrl-x', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('Ctrl-x');
+  eq('-1', cm.getValue());
+  helpers.assertCursorAt(0, 1);
+  helpers.doKeys('2','Ctrl-x');
+  eq('-3', cm.getValue());
+}, {value: '0'});
+testVim('Ctrl-x/Ctrl-a search forward', function(cm, vim, helpers) {
+  ['Ctrl-x', 'Ctrl-a'].forEach(function(key) {
+    cm.setCursor(0, 0);
+    helpers.doKeys(key);
+    helpers.assertCursorAt(0, 5);
+    helpers.doKeys('l');
+    helpers.doKeys(key);
+    helpers.assertCursorAt(0, 10);
+    cm.setCursor(0, 11);
+    helpers.doKeys(key);
+    helpers.assertCursorAt(0, 11);
+  });
+}, {value: '__jmp1 jmp2 jmp'});
 testVim('a', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.doKeys('a');

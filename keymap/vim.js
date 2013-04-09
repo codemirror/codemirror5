@@ -260,6 +260,10 @@
         actionArgs: { position: 'bottom' },
         motion: 'moveToFirstNonWhiteSpaceCharacter' },
     { keys: ['.'], type: 'action', action: 'repeatLastEdit' },
+    { keys: ['Ctrl-a'], type: 'action', action: 'incrementNumberToken',
+        actionArgs: {increase: true, backtrack: false}},
+    { keys: ['Ctrl-x'], type: 'action', action: 'incrementNumberToken',
+        actionArgs: {increase: false, backtrack: false}},
     // Text object motions
     { keys: ['a', 'character'], type: 'motion',
         motion: 'textObjectManipulation' },
@@ -1567,6 +1571,34 @@
             cm.setCursor(offsetCursor(curEnd, 0, -1));
           }
         }
+      },
+      incrementNumberToken: function(cm, actionArgs, vim) {
+        var cur = cm.getCursor();
+        var lineStr = cm.getLine(cur.line);
+        var re = /-?\d+/g;
+        var match;
+        var start;
+        var end;
+        var numberStr;
+        var token;
+        while ((match = re.exec(lineStr)) !== null) {
+          token = match[0];
+          start = match.index;
+          end = start + token.length;
+          if(cur.ch < end)break;
+        }
+        if(!actionArgs.backtrack && (end <= cur.ch))return;
+        if (token) {
+          var increment = actionArgs.increase ? 1 : -1;
+          var number = parseInt(token) + (increment * actionArgs.repeat);
+          var from = {ch:start, line:cur.line};
+          var to = {ch:end, line:cur.line};
+          numberStr = number.toString();
+          cm.replaceRange(numberStr, from, to);
+        } else {
+          return;
+        }
+        cm.setCursor({line: cur.line, ch: start + numberStr.length - 1});
       },
       repeatLastEdit: function(cm, actionArgs, vim) {
         // TODO: Make this repeat insert mode changes.
