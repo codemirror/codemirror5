@@ -86,7 +86,7 @@ CodeMirror.showHint = function(cm, getHints, options) {
         hints.scrollTop = node.offsetTop - 3;
       else if (node.offsetTop + node.offsetHeight > hints.scrollTop + hints.clientHeight)
         hints.scrollTop = node.offsetTop + node.offsetHeight - hints.clientHeight + 3;
-      if (data.onSelect) data.onSelect(completions[selectedHint]);
+      if (data.onSelect) data.onSelect(completions[selectedHint], node);
     }
 
     function screenAmount() {
@@ -171,7 +171,7 @@ CodeMirror.showHint = function(cm, getHints, options) {
       else
         once = setTimeout(function(){close(true); continued = true; startHinting();}, 70);
     }
-    if (data.onSelect) data.onSelect(completions[0]);
+    if (data.onSelect) data.onSelect(completions[0], hints.firstChild);
     return true;
   }
 
