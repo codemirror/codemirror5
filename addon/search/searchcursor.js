@@ -1,11 +1,11 @@
 (function(){
   var Pos = CodeMirror.Pos;
 
-  function SearchCursor(cm, query, pos, caseFold) {
-    this.atOccurrence = false; this.cm = cm;
+  function SearchCursor(doc, query, pos, caseFold) {
+    this.atOccurrence = false; this.doc = doc;
     if (caseFold == null && typeof query == "string") caseFold = false;
 
-    pos = pos ? cm.clipPos(pos) : Pos(0, 0);
+    pos = pos ? doc.clipPos(pos) : Pos(0, 0);
     this.pos = {from: pos, to: pos};
 
     // The matches method is filled in based on the type of query.
@@ -17,7 +17,7 @@
       this.matches = function(reverse, pos) {
         if (reverse) {
           query.lastIndex = 0;
-          var line = cm.getLine(pos.line).slice(0, pos.ch), cutOff = 0, match, start;
+          var line = doc.getLine(pos.line).slice(0, pos.ch), cutOff = 0, match, start;
           for (;;) {
             query.lastIndex = cutOff;
             var newMatch = query.exec(line);
@@ -28,7 +28,7 @@
           }
         } else {
           query.lastIndex = pos.ch;
-          var line = cm.getLine(pos.line), match = query.exec(line),
+          var line = doc.getLine(pos.line), match = query.exec(line),
           start = match && match.index;
         }
         if (match && match[0])
@@ -48,7 +48,7 @@
           this.matches = function() {};
         } else {
           this.matches = function(reverse, pos) {
-            var line = fold(cm.getLine(pos.line)), len = query.length, match;
+            var line = fold(doc.getLine(pos.line)), len = query.length, match;
             if (reverse ? (pos.ch >= len && (match = line.lastIndexOf(query, pos.ch - len)) != -1)
                         : (match = line.indexOf(query, pos.ch)) != -1)
               return {from: Pos(pos.line, match),
@@ -57,14 +57,14 @@
         }
       } else {
         this.matches = function(reverse, pos) {
-          var ln = pos.line, idx = (reverse ? target.length - 1 : 0), match = target[idx], line = fold(cm.getLine(ln));
+          var ln = pos.line, idx = (reverse ? target.length - 1 : 0), match = target[idx], line = fold(doc.getLine(ln));
           var offsetA = (reverse ? line.indexOf(match) + match.length : line.lastIndexOf(match));
           if (reverse ? offsetA >= pos.ch || offsetA != match.length
               : offsetA <= pos.ch || offsetA != line.length - match.length)
             return;
           for (;;) {
-            if (reverse ? !ln : ln == cm.lineCount() - 1) return;
-            line = fold(cm.getLine(ln += reverse ? -1 : 1));
+            if (reverse ? !ln : ln == doc.lineCount() - 1) return;
+            line = fold(doc.getLine(ln += reverse ? -1 : 1));
             match = target[reverse ? --idx : ++idx];
             if (idx > 0 && idx < target.length - 1) {
               if (line != match) return;
@@ -86,7 +86,7 @@
     findPrevious: function() {return this.find(true);},
 
     find: function(reverse) {
-      var self = this, pos = this.cm.clipPos(reverse ? this.pos.from : this.pos.to);
+      var self = this, pos = this.doc.clipPos(reverse ? this.pos.from : this.pos.to);
       function savePosAndFail(line) {
         var pos = Pos(line, 0);
         self.pos = {from: pos, to: pos};
@@ -102,10 +102,10 @@
         }
         if (reverse) {
           if (!pos.line) return savePosAndFail(0);
-          pos = Pos(pos.line-1, this.cm.getLine(pos.line-1).length);
+          pos = Pos(pos.line-1, this.doc.getLine(pos.line-1).length);
         }
         else {
-          var maxLine = this.cm.lineCount();
+          var maxLine = this.doc.lineCount();
           if (pos.line == maxLine - 1) return savePosAndFail(maxLine);
           pos = Pos(pos.line + 1, 0);
         }
@@ -118,13 +118,16 @@
     replace: function(newText) {
       if (!this.atOccurrence) return;
       var lines = CodeMirror.splitLines(newText);
-      this.cm.replaceRange(lines, this.pos.from, this.pos.to);
+      this.doc.replaceRange(lines, this.pos.from, this.pos.to);
       this.pos.to = Pos(this.pos.from.line + lines.length - 1,
                         lines[lines.length - 1].length + (lines.length == 1 ? this.pos.from.ch : 0));
     }
   };
 
   CodeMirror.defineExtension("getSearchCursor", function(query, pos, caseFold) {
+    return new SearchCursor(this.doc, query, pos, caseFold);
+  });
+  CodeMirror.defineDocExtension("getSearchCursor", function(query, pos, caseFold) {
     return new SearchCursor(this, query, pos, caseFold);
   });
 })();
