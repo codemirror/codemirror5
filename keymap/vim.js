@@ -261,9 +261,9 @@
         motion: 'moveToFirstNonWhiteSpaceCharacter' },
     { keys: ['.'], type: 'action', action: 'repeatLastEdit' },
     { keys: ['Ctrl-a'], type: 'action', action: 'incrementNumberToken',
-        actionArgs: {increase: true}},
+        actionArgs: {increase: true, backtrack: false}},
     { keys: ['Ctrl-x'], type: 'action', action: 'incrementNumberToken',
-        actionArgs: {increase: false}},
+        actionArgs: {increase: false, backtrack: false}},
     // Text object motions
     { keys: ['a', 'character'], type: 'motion',
         motion: 'textObjectManipulation' },
@@ -1586,6 +1586,7 @@
           end = start + token.length;
           if(cur.ch < end)break;
         }
+        if(!actionArgs.backtrack && (end <= cur.ch))return;
         if (token) {
           var increment = actionArgs.increase ? 1 : -1;
           var number = parseInt(token) + (increment * actionArgs.repeat);
