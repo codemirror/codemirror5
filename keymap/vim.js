@@ -260,6 +260,10 @@
         actionArgs: { position: 'bottom' },
         motion: 'moveToFirstNonWhiteSpaceCharacter' },
     { keys: ['.'], type: 'action', action: 'repeatLastEdit' },
+    { keys: ['Ctrl-a'], type: 'action', action: 'incrementNumberToken',
+        actionArgs: {increase: true}},
+    { keys: ['Ctrl-x'], type: 'action', action: 'incrementNumberToken',
+        actionArgs: {increase: false}},
     // Text object motions
     { keys: ['a', 'character'], type: 'motion',
         motion: 'textObjectManipulation' },
@@ -1566,6 +1570,19 @@
             cm.setCursor(offsetCursor(curEnd, 0, -1));
           }
         }
+      },
+      incrementNumberToken: function(cm, actionArgs, vim) {
+        cm.moveH(1, 'char');
+        var cur = cm.getCursor();
+        var token = cm.getTokenAt(cur);
+        if (token.type === 'number') {
+          var increment = actionArgs.increase ? 1 : -1;
+          var number = parseInt(token.string) + (increment * actionArgs.repeat);
+          var from = {ch:token.start, line:cur.line};
+          var to = {ch:token.end, line:cur.line};
+          cm.replaceRange(number.toString(), from, to);
+        }
+        cm.moveH(-1, 'char');
       },
       repeatLastEdit: function(cm, actionArgs, vim) {
         // TODO: Make this repeat insert mode changes.
