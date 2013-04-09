@@ -93,7 +93,7 @@ CodeMirror.showHint = function(cm, getHints, options) {
       return Math.floor(hints.clientHeight / hints.firstChild.offsetHeight) || 1;
     }
 
-    var ourMap = {
+    var ourMap, baseMap = {
       Up: function() {changeActive(selectedHint - 1);},
       Down: function() {changeActive(selectedHint + 1);},
       PageUp: function() {changeActive(selectedHint - screenAmount());},
@@ -104,11 +104,14 @@ CodeMirror.showHint = function(cm, getHints, options) {
       Tab: pick,
       Esc: close
     };
-    if (options.customKeys) for (var key in options.customKeys) if (options.customKeys.hasOwnProperty(key)) {
-      var val = options.customKeys[key];
-      if (/^(Up|Down|Enter|Esc)$/.test(key)) val = ourMap[val];
-      ourMap[key] = val;
-    }
+    if (options.customKeys) {
+      ourMap = {};
+      for (var key in options.customKeys) if (options.customKeys.hasOwnProperty(key)) {
+        var val = options.customKeys[key];
+        if (baseMap.hasOwnProperty(val)) val = baseMap[val];
+        ourMap[key] = val;
+      }
+    } else ourMap = baseMap;
 
     cm.addKeyMap(ourMap);
     cm.on("cursorActivity", cursorActivity);
