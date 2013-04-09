@@ -1414,11 +1414,16 @@
       </dd>
 
       <dt id="defineExtension"><code><strong>CodeMirror.defineExtension</strong>(name: string, value: any)</code></dt>
-      <dd>If you want to define extra methods in terms
-      of the CodeMirror API, it is possible to
-      use <code>defineExtension</code>. This
-      will cause the given value (usually a method) to be added to all
-      CodeMirror instances created from then on.</dd>
+      <dd>If you want to define extra methods in terms of the
+      CodeMirror API, it is possible to
+      use <code>defineExtension</code>. This will cause the given
+      value (usually a method) to be added to all CodeMirror instances
+      created from then on.</dd>
+
+      <dt id="defineDocExtension"><code><strong>CodeMirror.defineDocExtension</strong>(name: string, value: any)</code></dt>
+      <dd>Like <a href="#defineExtenstion"><code>defineExtension</code></a>,
+      but the method will be added to the interface
+      for <a href="#Doc"><code>Doc</code></a> objects instead.</dd>
 
       <dt id="defineOption"><code><strong>CodeMirror.defineOption</strong>(name: string,
       default: any, updateFunc: function)</code></dt>
