@@ -1240,6 +1240,138 @@ testVim('T,', function(cm, vim, helpers) {
   helpers.doKeys('2', ',');
   eq(8, cm.getCursor().ch);
 }, { value: '01x3xx67xx'});
+testVim('fd,;', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('f', '4');
+  cm.setCursor(0, 0);
+  helpers.doKeys('d', ';');
+  eq('56789', cm.getValue());
+  helpers.doKeys('u');
+  cm.setCursor(0, 9);
+  helpers.doKeys('d', ',');
+  eq('01239', cm.getValue());
+}, { value: '0123456789'});
+testVim('Fd,;', function(cm, vim, helpers) {
+  cm.setCursor(0, 9);
+  helpers.doKeys('F', '4');
+  cm.setCursor(0, 9);
+  helpers.doKeys('d', ';');
+  eq('01239', cm.getValue());
+  helpers.doKeys('u');
+  cm.setCursor(0, 0);
+  helpers.doKeys('d', ',');
+  eq('56789', cm.getValue());
+}, { value: '0123456789'});
+testVim('td,;', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('t', '4');
+  cm.setCursor(0, 0);
+  helpers.doKeys('d', ';');
+  eq('456789', cm.getValue());
+  helpers.doKeys('u');
+  cm.setCursor(0, 9);
+  helpers.doKeys('d', ',');
+  eq('012349', cm.getValue());
+}, { value: '0123456789'});
+testVim('Td,;', function(cm, vim, helpers) {
+  cm.setCursor(0, 9);
+  helpers.doKeys('T', '4');
+  cm.setCursor(0, 9);
+  helpers.doKeys('d', ';');
+  eq('012349', cm.getValue());
+  helpers.doKeys('u');
+  cm.setCursor(0, 0);
+  helpers.doKeys('d', ',');
+  eq('456789', cm.getValue());
+}, { value: '0123456789'});
+testVim('fc,;', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('f', '4');
+  cm.setCursor(0, 0);
+  helpers.doKeys('c', ';', 'Esc');
+  eq('56789', cm.getValue());
+  helpers.doKeys('u');
+  cm.setCursor(0, 9);
+  helpers.doKeys('c', ',');
+  eq('01239', cm.getValue());
+}, { value: '0123456789'});
+testVim('Fc,;', function(cm, vim, helpers) {
+  cm.setCursor(0, 9);
+  helpers.doKeys('F', '4');
+  cm.setCursor(0, 9);
+  helpers.doKeys('c', ';', 'Esc');
+  eq('01239', cm.getValue());
+  helpers.doKeys('u');
+  cm.setCursor(0, 0);
+  helpers.doKeys('c', ',');
+  eq('56789', cm.getValue());
+}, { value: '0123456789'});
+testVim('tc,;', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('t', '4');
+  cm.setCursor(0, 0);
+  helpers.doKeys('c', ';', 'Esc');
+  eq('456789', cm.getValue());
+  helpers.doKeys('u');
+  cm.setCursor(0, 9);
+  helpers.doKeys('c', ',');
+  eq('012349', cm.getValue());
+}, { value: '0123456789'});
+testVim('Tc,;', function(cm, vim, helpers) {
+  cm.setCursor(0, 9);
+  helpers.doKeys('T', '4');
+  cm.setCursor(0, 9);
+  helpers.doKeys('c', ';', 'Esc');
+  eq('012349', cm.getValue());
+  helpers.doKeys('u');
+  cm.setCursor(0, 0);
+  helpers.doKeys('c', ',');
+  eq('456789', cm.getValue());
+}, { value: '0123456789'});
+testVim('fy,;', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('f', '4');
+  cm.setCursor(0, 0);
+  helpers.doKeys('y', ';', 'P');
+  eq('012340123456789', cm.getValue());
+  helpers.doKeys('u');
+  cm.setCursor(0, 9);
+  helpers.doKeys('y', ',', 'P');
+  eq('012345678456789', cm.getValue());
+}, { value: '0123456789'});
+testVim('Fy,;', function(cm, vim, helpers) {
+  cm.setCursor(0, 9);
+  helpers.doKeys('F', '4');
+  cm.setCursor(0, 9);
+  helpers.doKeys('y', ';', 'p');
+  eq('012345678945678', cm.getValue());
+  helpers.doKeys('u');
+  cm.setCursor(0, 0);
+  helpers.doKeys('y', ',', 'P');
+  eq('012340123456789', cm.getValue());
+}, { value: '0123456789'});
+testVim('ty,;', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('t', '4');
+  cm.setCursor(0, 0);
+  helpers.doKeys('y', ';', 'P');
+  eq('01230123456789', cm.getValue());
+  helpers.doKeys('u');
+  cm.setCursor(0, 9);
+  helpers.doKeys('y', ',', 'p');
+  eq('01234567895678', cm.getValue());
+}, { value: '0123456789'});
+testVim('Ty,;', function(cm, vim, helpers) {
+  cm.setCursor(0, 9);
+  helpers.doKeys('T', '4');
+  cm.setCursor(0, 9);
+  helpers.doKeys('y', ';', 'p');
+  eq('01234567895678', cm.getValue());
+  helpers.doKeys('u');
+  cm.setCursor(0, 0);
+  helpers.doKeys('y', ',', 'P');
+  eq('01230123456789', cm.getValue());
+}, { value: '0123456789'});
 
 // Ex mode tests
 testVim('ex_go_to_line', function(cm, vim, helpers) {
