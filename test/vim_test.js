@@ -738,6 +738,19 @@ testVim('ctrl-x', function(cm, vim, helpers) {
   helpers.doKeys('2','Ctrl-x');
   eq('-3', cm.getValue());
 }, {value: '0'});
+testVim('Ctrl-x/Ctrl-a search forward', function(cm, vim, helpers) {
+  ['Ctrl-x', 'Ctrl-a'].forEach(function(key) {
+    cm.setCursor(0, 0);
+    helpers.doKeys(key);
+    helpers.assertCursorAt(0, 5);
+    helpers.doKeys('l');
+    helpers.doKeys(key);
+    helpers.assertCursorAt(0, 10);
+    cm.setCursor(0, 11);
+    helpers.doKeys(key);
+    helpers.assertCursorAt(0, 11);
+  });
+}, {value: '__jmp1 jmp2 jmp'});
 testVim('a', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.doKeys('a');

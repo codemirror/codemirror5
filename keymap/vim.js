@@ -1594,7 +1594,9 @@
           var to = {ch:end, line:cur.line};
           numberStr = number.toString();
           cm.replaceRange(numberStr, from, to);
-        } else return;
+        } else {
+          return;
+        }
         cm.setCursor({line: cur.line, ch: start + numberStr.length - 1});
       },
       repeatLastEdit: function(cm, actionArgs, vim) {
