@@ -57,6 +57,11 @@
     <script src="../mode/css/css.js"></script>
     <script src="../mode/css/test.js"></script>
     <script src="../mode/css/scss_test.js"></script>
+    <script src="../mode/xml/xml.js"></script>
+    <script src="../mode/htmlmixed/htmlmixed.js"></script>
+    <script src="../mode/ruby/ruby.js"></script>
+    <script src="../mode/haml/haml.js"></script>
+    <script src="../mode/haml/test.js"></script>
     <script src="../mode/markdown/markdown.js"></script>
     <script src="../mode/markdown/test.js"></script>
     <script src="../mode/gfm/gfm.js"></script>
@@ -84,7 +89,7 @@
           running = false, // Flag that states tests are running
          quit = false, // Flag to quit tests ASAP
          verbose = false; // Adds message for *every* test to output
-      
+
       function runHarness(){
         if (running) {
           quit = true;
@@ -115,7 +120,7 @@
           "</form>";
         runTests(displayTest);
       }
-      
+
       function setStatus(message, className, force){
         if (quit && !force) return;
         if (!message) throw("must provide message");
