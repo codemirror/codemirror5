@@ -79,6 +79,9 @@
     { keys: ['PageUp'], type: 'keyToKey', toKeys: ['Ctrl-b'] },
     { keys: ['PageDown'], type: 'keyToKey', toKeys: ['Ctrl-f'] },
     // Motions
+    { keys: ['H'], type: 'motion', motion: 'moveToTopLine'},
+    { keys: ['M'], type: 'motion', motion: 'moveToMiddleLine'},
+    { keys: ['L'], type: 'motion', motion: 'moveToBottomLine'},
     { keys: ['h'], type: 'motion',
         motion: 'moveByCharacters',
         motionArgs: { forward: false }},
@@ -384,6 +387,7 @@
     }
 
     var vimApi= {
+      getUserVisibleLines: getUserVisibleLines,
       buildKeyMap: function() {
         // TODO: Convert keymap into dictionary format for fast lookup.
       },
@@ -1000,6 +1004,19 @@
      */
     // All of the functions below return Cursor objects.
     var motions = {
+      moveToTopLine: function(cm) {
+        var line = getUserVisibleLines(cm).from;
+        return { line: line, ch: findFirstNonWhiteSpaceCharacter(cm.getLine(line)) };
+      },
+      moveToMiddleLine: function(cm) {
+        var range = getUserVisibleLines(cm);
+        var line = Math.floor((range.from + range.to) * 0.5);
+        return { line: line, ch: findFirstNonWhiteSpaceCharacter(cm.getLine(line)) };
+      },
+      moveToBottomLine: function(cm) {
+        var line = getUserVisibleLines(cm).to;
+        return { line: line, ch: findFirstNonWhiteSpaceCharacter(cm.getLine(line)) };
+      },
       expandToLine: function(cm, motionArgs) {
         // Expands forward to end of line, and then to next line if repeat is
         // >1. Does not handle backward motion!
@@ -2377,6 +2394,15 @@
           return pos == start;
         }
       }
+    }
+    function getUserVisibleLines(cm) {
+      var scrollInfo = cm.getScrollInfo();
+      var occludeTorleranceTop = 6;
+      var occludeTorleranceBottom = 10;
+      var from = cm.coordsChar({left:0, top: occludeTorleranceTop}, 'local');
+      var bottomY = scrollInfo.clientHeight - occludeTorleranceBottom;
+      var to = cm.coordsChar({left:0, top: bottomY}, 'local');
+      return {from: from.line, to: to.line};
     }
 
     // Ex command handling
