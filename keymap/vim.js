@@ -79,6 +79,15 @@
     { keys: ['PageUp'], type: 'keyToKey', toKeys: ['Ctrl-b'] },
     { keys: ['PageDown'], type: 'keyToKey', toKeys: ['Ctrl-f'] },
     // Motions
+    { keys: ['H'], type: 'motion',
+        motion: 'moveToTopLine',
+        motionArgs: { linewise: true }},
+    { keys: ['M'], type: 'motion',
+        motion: 'moveToMiddleLine',
+        motionArgs: { linewise: true }},
+    { keys: ['L'], type: 'motion',
+        motion: 'moveToBottomLine',
+        motionArgs: { linewise: true }},
     { keys: ['h'], type: 'motion',
         motion: 'moveByCharacters',
         motionArgs: { forward: false }},
@@ -1004,6 +1013,19 @@
      */
     // All of the functions below return Cursor objects.
     var motions = {
+      moveToTopLine: function(cm, motionArgs) {
+        var line = getUserVisibleLines(cm).top + motionArgs.repeat -1;
+        return { line: line, ch: findFirstNonWhiteSpaceCharacter(cm.getLine(line)) };
+      },
+      moveToMiddleLine: function(cm) {
+        var range = getUserVisibleLines(cm);
+        var line = Math.floor((range.top + range.bottom) * 0.5);
+        return { line: line, ch: findFirstNonWhiteSpaceCharacter(cm.getLine(line)) };
+      },
+      moveToBottomLine: function(cm, motionArgs) {
+        var line = getUserVisibleLines(cm).bottom - motionArgs.repeat +1;
+        return { line: line, ch: findFirstNonWhiteSpaceCharacter(cm.getLine(line)) };
+      },
       expandToLine: function(cm, motionArgs) {
         // Expands forward to end of line, and then to next line if repeat is
         // >1. Does not handle backward motion!
@@ -2409,6 +2431,15 @@
           return pos == start;
         }
       }
+    }
+    function getUserVisibleLines(cm) {
+      var scrollInfo = cm.getScrollInfo();
+      var occludeTorleranceTop = 6;
+      var occludeTorleranceBottom = 10;
+      var from = cm.coordsChar({left:0, top: occludeTorleranceTop}, 'local');
+      var bottomY = scrollInfo.clientHeight - occludeTorleranceBottom;
+      var to = cm.coordsChar({left:0, top: bottomY}, 'local');
+      return {top: from.line, bottom: to.line};
     }
 
     // Ex command handling

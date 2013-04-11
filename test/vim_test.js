@@ -1401,6 +1401,24 @@ testVim('Ty,;', function(cm, vim, helpers) {
   helpers.doKeys('y', ',', 'P');
   eq('01230123456789', cm.getValue());
 }, { value: '0123456789'});
+testVim('HML', function(cm, vim, helpers) {
+  cm.setSize(600, 400);
+  cm.setCursor(120, 0);
+  helpers.doKeys('H');
+  helpers.assertCursorAt(90, 2);
+  helpers.doKeys('L');
+  helpers.assertCursorAt(119, 4);
+  helpers.doKeys('M');
+  helpers.assertCursorAt(104,4);
+}, { value: (function(){
+  var upperLines = new Array(100);
+  var lowerLines = new Array(100);
+  var upper = '  xx\n';
+  var lower = '    xx\n';
+  upper = upperLines.join(upper);
+  lower = upperLines.join(lower);
+  return upper + lower;
+})()});
 
 // Ex mode tests
 testVim('ex_go_to_line', function(cm, vim, helpers) {
