@@ -79,9 +79,15 @@
     { keys: ['PageUp'], type: 'keyToKey', toKeys: ['Ctrl-b'] },
     { keys: ['PageDown'], type: 'keyToKey', toKeys: ['Ctrl-f'] },
     // Motions
-    { keys: ['H'], type: 'motion', motion: 'moveToTopLine'},
-    { keys: ['M'], type: 'motion', motion: 'moveToMiddleLine'},
-    { keys: ['L'], type: 'motion', motion: 'moveToBottomLine'},
+    { keys: ['H'], type: 'motion',
+        motion: 'moveToTopLine',
+        motionArgs: { linewise: true }},
+    { keys: ['M'], type: 'motion',
+        motion: 'moveToMiddleLine',
+        motionArgs: { linewise: true }},
+    { keys: ['L'], type: 'motion',
+        motion: 'moveToBottomLine',
+        motionArgs: { linewise: true }},
     { keys: ['h'], type: 'motion',
         motion: 'moveByCharacters',
         motionArgs: { forward: false }},
@@ -1004,8 +1010,8 @@
      */
     // All of the functions below return Cursor objects.
     var motions = {
-      moveToTopLine: function(cm) {
-        var line = getUserVisibleLines(cm).from;
+      moveToTopLine: function(cm, motionArgs) {
+        var line = getUserVisibleLines(cm).from + motionArgs.repeat -1;
         return { line: line, ch: findFirstNonWhiteSpaceCharacter(cm.getLine(line)) };
       },
       moveToMiddleLine: function(cm) {
@@ -1013,8 +1019,8 @@
         var line = Math.floor((range.from + range.to) * 0.5);
         return { line: line, ch: findFirstNonWhiteSpaceCharacter(cm.getLine(line)) };
       },
-      moveToBottomLine: function(cm) {
-        var line = getUserVisibleLines(cm).to;
+      moveToBottomLine: function(cm, motionArgs) {
+        var line = getUserVisibleLines(cm).to - motionArgs.repeat +1;
         return { line: line, ch: findFirstNonWhiteSpaceCharacter(cm.getLine(line)) };
       },
       expandToLine: function(cm, motionArgs) {
