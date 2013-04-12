@@ -42,7 +42,7 @@ CodeMirror.showHint = function(cm, getHints, options) {
       if (completion.className != null) className = completion.className + " " + className;
       elt.className = className;
       if (completion.render) completion.render(elt, data, completion);
-      else elt.appendChild(document.createTextNode(getText(completion)));
+      else elt.appendChild(document.createTextNode(completion.displayText || getText(completion)));
       elt.hintId = i;
     }
     var pos = cm.cursorCoords(options.alignWithWord !== false ? data.from : null);
