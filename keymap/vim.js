@@ -393,7 +393,6 @@
     }
 
     var vimApi= {
-      getUserVisibleLines: getUserVisibleLines,
       buildKeyMap: function() {
         // TODO: Convert keymap into dictionary format for fast lookup.
       },
