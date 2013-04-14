@@ -170,6 +170,12 @@
     { keys: ['%'], type: 'motion',
         motion: 'moveToMatchedSymbol',
         motionArgs: { inclusive: true }},
+    { keys: [']', 'character'], type: 'motion',
+        motion: 'moveToSymbol',
+        motionArgs: { forward: true}},
+    { keys: ['[', 'character'], type: 'motion',
+        motion: 'moveToSymbol',
+        motionArgs: { forward: false}},
     { keys: ['f', 'character'], type: 'motion',
         motion: 'moveToCharacter',
         motionArgs: { forward: true , inclusive: true }},
@@ -1219,6 +1225,11 @@
         return moveToCharacter(cm, repeat, motionArgs.forward,
             motionArgs.selectedCharacter) || cm.getCursor();
       },
+      moveToSymbol: function(cm, motionArgs) {
+        var repeat = motionArgs.repeat;
+        return findSymbol(cm, repeat, motionArgs.forward,
+            motionArgs.selectedCharacter) || cm.getCursor();
+      },
       moveToColumn: function(cm, motionArgs, vim) {
         var repeat = motionArgs.repeat;
         // repeat is equivalent to which column we want to move to!
@@ -1872,6 +1883,108 @@
         vimGlobalState.lastChararacterSearch.selectedCharacter = args.selectedCharacter;
     }
 
+    function findSymbol(cm, repeat, forward, symb) {
+      var curMoveThrough = false;
+      var cur = cm.getCursor();
+      var depth = 0;
+      var reverseSymb = (forward ?  { ')': '(', '}': '{' } : { '(': ')', '{': '}' })[symb];
+      var increment = forward ? 1 : -1;
+      var endLine = forward ? cm.lineCount() : -1;
+      var curLine = cur.line;
+      var curCh = cur.ch;
+      var line = curLine;
+      var index = curCh;
+      var lastCh;
+      var lastLine;
+      var lineText = cm.getLine(line);
+      var nextCh = lineText.charAt(curCh);
+      symb = symb ? symb : cm.getLine(line).charAt(cur.ch);
+      var mode = {
+        '(': 'bracket', ')': 'bracket', '{': 'bracket', '}': 'bracket',
+        '[': 'section', ']': 'section',
+        '*': 'comment', '/': 'comment',
+        'm': 'method', 'M': 'method',
+        '#': 'preprocess'
+      }[symb];
+      if(!mode)return cur;
+      var modeInit = {
+        section: function(){
+          curMoveThrough = true;
+          symb = (forward ? ']' : '[') === symb ? '{' : '}';
+        },
+        method: function() {
+          symb = (symb === 'm' ? '{' : '}');
+          reverseSymb = symb === '{' ? '}' : '{';
+        },
+        preprocess: function() {
+          index = 0;
+        }
+      }[mode];
+      var modeCompleted = {
+        bracket: function() {
+          if (nextCh === symb) {
+            depth++;
+            if(depth >= 1)return true;
+          } else if (nextCh === reverseSymb) {
+            depth--;
+          }
+          return false;
+        },
+        section: function() {
+          return index === 0 && nextCh === symb;
+        },
+        comment: function() {
+          var found = lastCh === '*' && nextCh === '/';
+          lastCh = nextCh;
+          return found;
+        },
+        method: function() {
+          if(nextCh === symb)return true;
+          return false;
+        },
+        preprocess: function() {
+          var found = false;
+          if (nextCh === '#') {
+            var token = lineText.match(/#(\w+)/)[1];
+            if (token === 'endif') {
+              if (forward && depth === 0) {
+                found = true;
+              }
+              depth++;
+            } else if (token === 'if') {
+              if (!forward && depth === 0) {
+                found = true;
+              }
+              depth--;
+            }
+            if(token === 'else' && depth===0)found=true;
+          }
+          return found;
+        }
+      }[mode];
+      modeInit();
+      while (line !== endLine && repeat) {
+        index += increment;
+        nextCh = lineText.charAt(index);
+        if (!nextCh) {
+          line += increment;
+          lineText = cm.getLine(line) || '';
+          if (increment > 0) {
+            index = 0;
+          } else {
+            var lineLen = lineText.length;
+            index = (lineLen > 0) ? (lineLen-1) : 0;
+          }
+          nextCh = lineText.charAt(index);
+        }
+        if(modeCompleted())repeat--;
+      }
+      if (nextCh || curMoveThrough) {
+        return { line: line, ch: index };
+      }
+      return cur;
+    }
+
     /*
      * Returns the boundaries of the next word. If the cursor in the middle of
      * the word, then returns the boundaries of the current word, starting at
@@ -2060,9 +2173,6 @@
       var line = cur.line;
       symb = symb ? symb : cm.getLine(line).charAt(cur.ch);
 
-      // Are we at the opening or closing char
-      var forwards = inArray(symb, ['(', '[', '{']);
-
       var reverseSymb = ({
         '(': ')', ')': '(',
         '[': ']', ']': '[',
@@ -2076,12 +2186,13 @@
       // set our increment to move forward (+1) or backwards (-1)
       // depending on which bracket we're matching
       var increment = ({'(': 1, '{': 1, '[': 1})[symb] || -1;
+      var endLine = increment === 1 ? cm.lineCount() : -1;
       var depth = 1, nextCh = symb, index = cur.ch, lineText = cm.getLine(line);
       // Simple search for closing paren--just count openings and closings till
       // we find our match
       // TODO: use info from CodeMirror to ignore closing brackets in comments
       // and quotes, etc.
-      while (nextCh && depth > 0) {
+      while (line !== endLine && depth > 0) {
         index += increment;
         nextCh = lineText.charAt(index);
         if (!nextCh) {
