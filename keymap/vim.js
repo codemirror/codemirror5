@@ -1883,104 +1883,120 @@
         vimGlobalState.lastChararacterSearch.selectedCharacter = args.selectedCharacter;
     }
 
-    function findSymbol(cm, repeat, forward, symb) {
-      var curMoveThrough = false;
-      var cur = cm.getCursor();
-      var depth = 0;
-      var reverseSymb = (forward ?  { ')': '(', '}': '{' } : { '(': ')', '{': '}' })[symb];
-      var increment = forward ? 1 : -1;
-      var endLine = forward ? cm.lineCount() : -1;
-      var curLine = cur.line;
-      var curCh = cur.ch;
-      var line = curLine;
-      var index = curCh;
-      var lastCh;
-      var lastLine;
-      var lineText = cm.getLine(line);
-      var nextCh = lineText.charAt(curCh);
-      symb = symb ? symb : cm.getLine(line).charAt(cur.ch);
-      var mode = {
+    var symbolToMode = {
         '(': 'bracket', ')': 'bracket', '{': 'bracket', '}': 'bracket',
         '[': 'section', ']': 'section',
         '*': 'comment', '/': 'comment',
         'm': 'method', 'M': 'method',
         '#': 'preprocess'
-      }[symb];
-      if(!mode)return cur;
-      var modeInit = {
-        section: function(){
-          curMoveThrough = true;
-          symb = (forward ? ']' : '[') === symb ? '{' : '}';
-        },
-        method: function() {
-          symb = (symb === 'm' ? '{' : '}');
-          reverseSymb = symb === '{' ? '}' : '{';
-        },
-        preprocess: function() {
-          index = 0;
-        }
-      }[mode];
-      var modeCompleted = {
-        bracket: function() {
-          if (nextCh === symb) {
-            depth++;
-            if(depth >= 1)return true;
-          } else if (nextCh === reverseSymb) {
-            depth--;
+    };
+    var findSymbolModes = {
+      bracket: {
+        isComplete: function(state) {
+          if (state.nextCh === state.symb) {
+            state.depth++;
+            if(state.depth >= 1)return true;
+          } else if (state.nextCh === state.reverseSymb) {
+            state.depth--;
           }
           return false;
+        }
+      },
+      section: {
+        init: function(state) {
+          state.curMoveThrough = true;
+          state.symb = (state.forward ? ']' : '[') === state.symb ? '{' : '}';
         },
-        section: function() {
-          return index === 0 && nextCh === symb;
-        },
-        comment: function() {
-          var found = lastCh === '*' && nextCh === '/';
-          lastCh = nextCh;
+        isComplete: function(state) {
+          return state.index === 0 && state.nextCh === state.symb;
+        }
+      },
+      comment: {
+        isComplete: function(state) {
+          var found = state.lastCh === '*' && state.nextCh === '/';
+          state.lastCh = state.nextCh;
           return found;
+        }
+      },
+      // TODO: The original Vim implementation only operates on level 1 and 2.
+      // The current implementation doesn't check for code block level and 
+      // therefore it operates on any levels.
+      method: {
+        init: function(state) {
+          state.symb = (state.symb === 'm' ? '{' : '}');
+          state.reverseSymb = state.symb === '{' ? '}' : '{';
         },
-        method: function() {
-          if(nextCh === symb)return true;
+        isComplete: function(state) {
+          if(state.nextCh === state.symb)return true;
           return false;
+        }
+      },
+      preprocess: {
+        init: function(state) {
+          state.index = 0;
         },
-        preprocess: function() {
+        isComplete: function(state) {
           var found = false;
-          if (nextCh === '#') {
-            var token = lineText.match(/#(\w+)/)[1];
+          if (state.nextCh === '#') {
+            var token = state.lineText.match(/#(\w+)/)[1];
             if (token === 'endif') {
-              if (forward && depth === 0) {
+              if (state.forward && state.depth === 0) {
                 found = true;
               }
-              depth++;
+              state.depth++;
             } else if (token === 'if') {
-              if (!forward && depth === 0) {
+              if (!state.forward && state.depth === 0) {
                 found = true;
               }
-              depth--;
+              state.depth--;
             }
-            if(token === 'else' && depth===0)found=true;
+            if(token === 'else' && state.depth === 0)found=true;
           }
           return found;
         }
-      }[mode];
-      modeInit();
-      while (line !== endLine && repeat) {
-        index += increment;
-        nextCh = lineText.charAt(index);
-        if (!nextCh) {
-          line += increment;
-          lineText = cm.getLine(line) || '';
-          if (increment > 0) {
-            index = 0;
-          } else {
-            var lineLen = lineText.length;
-            index = (lineLen > 0) ? (lineLen-1) : 0;
-          }
-          nextCh = lineText.charAt(index);
-        }
-        if(modeCompleted())repeat--;
       }
-      if (nextCh || curMoveThrough) {
-        return { line: line, ch: index };
+    };
+    function findSymbol(cm, repeat, forward, symb) {
+      var cur = cm.getCursor();
+      var increment = forward ? 1 : -1;
+      var endLine = forward ? cm.lineCount() : -1;
+      var curCh = cur.ch;
+      var line = cur.line;
+      var lineText = cm.getLine(line);
+      var state = {
+        lineText: lineText,
+        nextCh: lineText.charAt(curCh),
+        lastCh: null,
+        index: curCh,
+        symb: symb,
+        reverseSymb: (forward ?  { ')': '(', '}': '{' } : { '(': ')', '{': '}' })[symb],
+        forward: forward,
+        depth: 0,
+        curMoveThrough: false      
+      };
+      var mode = symbolToMode[symb];
+      if(!mode)return cur;
+      var init = findSymbolModes[mode].init;
+      var isComplete = findSymbolModes[mode].isComplete;
+      if(init)init(state);
+      while (line !== endLine && repeat) {
+        state.index += increment;
+        state.nextCh = state.lineText.charAt(state.index);
+        if (!state.nextCh) {
+          line += increment;
+          state.lineText = cm.getLine(line) || '';
+          if (increment > 0) {
+            state.index = 0;
+          } else {
+            var lineLen = state.lineText.length;
+            state.index = (lineLen > 0) ? (lineLen-1) : 0;
+          }
+          state.nextCh = state.lineText.charAt(state.index);
+        }
+        if(isComplete(state))repeat--;
+      }
+      if (state.nextCh || state.curMoveThrough) {
+        return { line: line, ch: state.index };
       }
       return cur;
     }
