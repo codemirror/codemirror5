@@ -1936,23 +1936,22 @@
           state.index = 0;
         },
         isComplete: function(state) {
-          var found = false;
           if (state.nextCh === '#') {
             var token = state.lineText.match(/#(\w+)/)[1];
             if (token === 'endif') {
               if (state.forward && state.depth === 0) {
-                found = true;
+                return true;
               }
               state.depth++;
             } else if (token === 'if') {
               if (!state.forward && state.depth === 0) {
-                found = true;
+                return true;
               }
               state.depth--;
             }
-            if(token === 'else' && state.depth === 0)found=true;
+            if(token === 'else' && state.depth === 0)return true;
           }
-          return found;
+          return false;
         }
       }
     };
@@ -1993,7 +1992,11 @@
           }
           state.nextCh = state.lineText.charAt(state.index);
         }
-        if(isComplete(state))repeat--;
+        if (isComplete(state)) {
+          cur.line = line;
+          cur.ch = state.index;
+          repeat--;
+        }
       }
       if (state.nextCh || state.curMoveThrough) {
         return { line: line, ch: state.index };

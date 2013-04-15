@@ -1419,6 +1419,122 @@ testVim('HML', function(cm, vim, helpers) {
   lower = upperLines.join(lower);
   return upper + lower;
 })()});
+var squareBracketMotionSandbox = ''+
+  '({\n'+//0
+  '  ({\n'+//11
+  '  /*comment {\n'+//2
+  '            */(\n'+//3
+  '#else                \n'+//4
+  '  /*       )\n'+//5
+  '#if        }\n'+//6
+  '  )}*/\n'+//7
+  ')}\n'+//8
+  '{}\n'+//9
+  '#else {{\n'+//10
+  '{}\n'+//11
+  '}\n'+//12
+  '{\n'+//13
+  '#endif\n'+//14
+  '}\n'+//15
+  '}\n'+//16
+  '#else';//17
+testVim('[[, ]]', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys(']', ']');
+  helpers.assertCursorAt(9,0);
+  helpers.doKeys('2', ']', ']');
+  helpers.assertCursorAt(13,0);
+  helpers.doKeys(']', ']');
+  helpers.assertCursorAt(17,0);
+  helpers.doKeys('[', '[');
+  helpers.assertCursorAt(13,0);
+  helpers.doKeys('2', '[', '[');
+  helpers.assertCursorAt(9,0);
+  helpers.doKeys('[', '[');
+  helpers.assertCursorAt(0,0);
+}, { value: squareBracketMotionSandbox});
+testVim('[], ][', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys(']', '[');
+  helpers.assertCursorAt(12,0);
+  helpers.doKeys('2', ']', '[');
+  helpers.assertCursorAt(16,0);
+  helpers.doKeys(']', '[');
+  helpers.assertCursorAt(17,0);
+  helpers.doKeys('[', ']');
+  helpers.assertCursorAt(16,0);
+  helpers.doKeys('2', '[', ']');
+  helpers.assertCursorAt(12,0);
+  helpers.doKeys('[', ']');
+  helpers.assertCursorAt(0,0);
+}, { value: squareBracketMotionSandbox});
+testVim('[{, ]}', function(cm, vim, helpers) {
+  cm.setCursor(4, 10);
+  helpers.doKeys('[', '{');
+  helpers.assertCursorAt(2,12);
+  helpers.doKeys('2', '[', '{');
+  helpers.assertCursorAt(0,1);
+  cm.setCursor(4, 10);
+  helpers.doKeys(']', '}');
+  helpers.assertCursorAt(6,11);
+  helpers.doKeys('2', ']', '}');
+  helpers.assertCursorAt(8,1);
+  cm.setCursor(0,1);
+  helpers.doKeys(']', '}');
+  helpers.assertCursorAt(8,1);
+  helpers.doKeys('[', '{');
+  helpers.assertCursorAt(0,1);
+}, { value: squareBracketMotionSandbox});
+testVim('[(, ])', function(cm, vim, helpers) {
+  cm.setCursor(4, 10);
+  helpers.doKeys('[', '(');
+  helpers.assertCursorAt(3,14);
+  helpers.doKeys('2', '[', '(');
+  helpers.assertCursorAt(0,0);
+  cm.setCursor(4, 10);
+  helpers.doKeys(']', ')');
+  helpers.assertCursorAt(5,11);
+  helpers.doKeys('2', ']', ')');
+  helpers.assertCursorAt(8,0);
+  helpers.doKeys('[', '(');
+  helpers.assertCursorAt(0,0);
+  helpers.doKeys(']', ')');
+  helpers.assertCursorAt(8,0);
+}, { value: squareBracketMotionSandbox});
+testVim('[*, ]*, [/, ]/', function(cm, vim, helpers) {
+  ['*', '/'].forEach(function(key){
+    cm.setCursor(7, 0);
+    helpers.doKeys('2', '[', key);
+    helpers.assertCursorAt(2,2);
+    helpers.doKeys('2', ']', key);
+    helpers.assertCursorAt(7,5);
+  });
+}, { value: squareBracketMotionSandbox});
+testVim('[#, ]#', function(cm, vim, helpers) {
+  cm.setCursor(10, 3);
+  helpers.doKeys('2', '[', '#');
+  helpers.assertCursorAt(4,0);
+  helpers.doKeys('5', ']', '#');
+  helpers.assertCursorAt(17,0);
+  cm.setCursor(10, 3);
+  helpers.doKeys(']', '#');
+  helpers.assertCursorAt(14,0);
+}, { value: squareBracketMotionSandbox});
+testVim('[m, ]m, [M, ]M', function(cm, vim, helpers) {
+  cm.setCursor(11, 0);
+  helpers.doKeys('[', 'm');
+  helpers.assertCursorAt(10,7);
+  helpers.doKeys('4', '[', 'm');
+  helpers.assertCursorAt(1,3);
+  helpers.doKeys('5', ']', 'm');
+  helpers.assertCursorAt(11,0);
+  helpers.doKeys('[', 'M');
+  helpers.assertCursorAt(9,1);
+  helpers.doKeys('3', ']', 'M');
+  helpers.assertCursorAt(15,0);
+  helpers.doKeys('5', '[', 'M');
+  helpers.assertCursorAt(7,3);
+}, { value: squareBracketMotionSandbox});
 
 // Ex mode tests
 testVim('ex_go_to_line', function(cm, vim, helpers) {
