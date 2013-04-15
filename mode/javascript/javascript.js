@@ -426,7 +426,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       if (state.tokenize != jsTokenComment && stream.eatSpace()) return null;
       var style = state.tokenize(stream, state);
       if (type == "comment") return style;
-      state.lastType = type;
+      state.lastType = type == "operator" && (content == "++" || content == "--") ? "incdec" : type;
       return parseJS(state, style, type, content, stream);
     },
 
