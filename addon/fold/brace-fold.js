@@ -1,7 +1,7 @@
 CodeMirror.braceRangeFinder = function(cm, start) {
   var line = start.line, lineText = cm.getLine(line);
   var at = lineText.length, startChar, tokenType;
-  for (;;) {
+  for (; at > 0;) {
     var found = lineText.lastIndexOf("{", at);
     if (found < start.ch) break;
     tokenType = cm.getTokenAt(CodeMirror.Pos(line, found + 1)).type;
