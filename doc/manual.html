@@ -1051,7 +1051,7 @@
         <dd>Use a given node to display this range. Implies both
         collapsed and atomic. The given DOM node <em>must</em> be an
         inline element (as opposed to a block element).</dd>
-        <dt id="mark_readOnly"><code><strong>readOnly</strong>: boolean|string</code></dt>
+        <dt id="mark_readOnly"><code><strong>readOnly</strong>: boolean</code></dt>
         <dd>A read-only span can, as long as it is not cleared, not be
         modified except by
         calling <a href="#setValue"><code>setValue</code></a> to reset
@@ -1060,6 +1060,10 @@
         existing undo events being partially nullified by read-only
         spans would corrupt the history (in the current
         implementation).</dd>
+        <dt id="mark_addToHistory"><code><strong>addToHistory</strong>: boolean</code></dt>
+        <dd>When set to true (default is false), adding this marker
+        will create an event in the undo history that can be
+        individually undone (clearing the marker).</dd>
         <dt id="mark_startStyle"><code><strong>startStyle</strong>: string</code></dt><dd>Can be used to specify
         an extra CSS class to be applied to the leftmost span that
         is part of the marker.</dd>
