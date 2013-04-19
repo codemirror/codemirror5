@@ -44,8 +44,7 @@ CodeMirror.defineMode("clojure", function () {
         sign: /[+-]/,
         exponent: /e/i,
         keyword_char: /[^\s\(\[\;\)\]]/,
-        basic: /[\w\$_\-]/,
-        lang_keyword: /[\w*+!\-_?:\/]/
+        symbol: /[\w*+!\-\._?:\/]/
     };
 
     function stateStack(indent, type, prev) { // represents a state stack object
@@ -195,10 +194,10 @@ CodeMirror.defineMode("clojure", function () {
                             popStack(state);
                         }
                     } else if ( ch == ":" ) {
-                        stream.eatWhile(tests.lang_keyword);
+                        stream.eatWhile(tests.symbol);
                         return ATOM;
                     } else {
-                        stream.eatWhile(tests.basic);
+                        stream.eatWhile(tests.symbol);
 
                         if (keywords && keywords.propertyIsEnumerable(stream.current())) {
                             returnType = KEYWORD;
