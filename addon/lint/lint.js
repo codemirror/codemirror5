@@ -15,7 +15,7 @@ CodeMirror.validate = (function() {
     }
     CodeMirror.on(document, "mousemove", position);
     position(e);
-    tt.style.opacity = 1;
+    if (tt.style.opacity != null) tt.style.opacity = 1;
     return tt;
   }
   function rm(elt) {
@@ -26,6 +26,22 @@ CodeMirror.validate = (function() {
     if (tt.style.opacity == null) rm(tt);
     tt.style.opacity = 0;
     setTimeout(function() { rm(tt); }, 600);
+  }
+
+  function showTooltipFor(e, content, node) {
+    var tooltip = showTooltip(e, content);
+    function hide() {
+      CodeMirror.off(node, "mouseout", hide);
+      if (tooltip) { hideTooltip(tooltip); tooltip = null; }
+    }
+    var poll = setInterval(function() {
+      if (tooltip) for (var n = node;; n = n.parentNode) {
+        if (n == document.body) return;
+        if (!n) { hide(); break; }
+      }
+      if (!tooltip) return clearInterval(poll);
+    }, 400);
+    CodeMirror.on(node, "mouseout", hide);
   }
 
   function LintState(cm, options, hasGutter) {
@@ -58,11 +74,9 @@ CodeMirror.validate = (function() {
       inner.className = "CodeMirror-lint-marker-multiple";
     }
 
-    if (tooltips != false) {
-      var tooltip;
-      CodeMirror.on(inner, "mouseover", function(e) { tooltip = showTooltip(e, labels); });
-      CodeMirror.on(inner, "mouseout", function() { if (tooltip) hideTooltip(tooltip); });
-    }
+    if (tooltips != false) CodeMirror.on(inner, "mouseover", function(e) {
+      showTooltipFor(e, labels, inner);
+    });
 
     return marker;
   }
@@ -140,13 +154,8 @@ CodeMirror.validate = (function() {
   }
 
   function popupSpanTooltip(ann, e) {
-    var tooltip = showTooltip(e, annotationTooltip(ann));
     var target = e.target || e.srcElement;
-    CodeMirror.on(target, "mouseout", hide);
-    function hide() {
-      CodeMirror.off(target, "mouseout", hide);
-      hideTooltip(tooltip);
-    }
+    showTooltipFor(e, annotationTooltip(ann), target);
   }
 
   // When the mouseover fires, the cursor might not actually be over
