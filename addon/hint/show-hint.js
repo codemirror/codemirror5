@@ -29,7 +29,7 @@ CodeMirror.showHint = function(cm, getHints, options) {
     // When there is only one completion, use it directly.
     if (!continued && options.completeSingle !== false && completions.length == 1) {
       pickCompletion(cm, data, completions[0]);
-      if (data.onClose) data.onClose();
+      CodeMirror.signal(data, "close");
       return true;
     }
 
@@ -50,7 +50,7 @@ CodeMirror.showHint = function(cm, getHints, options) {
     hints.style.left = left + "px";
     hints.style.top = top + "px";
     document.body.appendChild(hints);
-    CodeMirror.signal(cm, "hintShowed");
+    CodeMirror.signal(data, "shown");
 
     // If we're at the edge of the screen, then we want the menu to appear on the left of the cursor.
     var winW = window.innerWidth || Math.max(document.body.offsetWidth, document.documentElement.offsetWidth);
@@ -87,7 +87,7 @@ CodeMirror.showHint = function(cm, getHints, options) {
         hints.scrollTop = node.offsetTop - 3;
       else if (node.offsetTop + node.offsetHeight > hints.scrollTop + hints.clientHeight)
         hints.scrollTop = node.offsetTop + node.offsetHeight - hints.clientHeight + 3;
-      if (data.onSelect) data.onSelect(completions[selectedHint], node);
+      CodeMirror.signal(data, "select", completions[selectedHint], node);
     }
 
     function screenAmount() {
@@ -154,8 +154,7 @@ CodeMirror.showHint = function(cm, getHints, options) {
       cm.off("blur", onBlur);
       cm.off("focus", onFocus);
       cm.off("scroll", onScroll);
-      if (willContinue !== true && data.onClose) data.onClose();
-      CodeMirror.signal(cm, "hintClosed");
+      if (willContinue !== true) CodeMirror.signal(data, "close");
     }
     function pick() {
       pickCompletion(cm, data, completions[selectedHint]);
@@ -173,7 +172,7 @@ CodeMirror.showHint = function(cm, getHints, options) {
       else
         once = setTimeout(function(){close(true); continued = true; startHinting();}, 70);
     }
-    if (data.onSelect) data.onSelect(completions[0], hints.firstChild);
+    CodeMirror.signal(data, "select", completions[0], hints.firstChild);
     return true;
   }
 
