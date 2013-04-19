@@ -50,6 +50,7 @@ CodeMirror.showHint = function(cm, getHints, options) {
     hints.style.left = left + "px";
     hints.style.top = top + "px";
     document.body.appendChild(hints);
+    CodeMirror.signal(cm, "hintShowed");
 
     // If we're at the edge of the screen, then we want the menu to appear on the left of the cursor.
     var winW = window.innerWidth || Math.max(document.body.offsetWidth, document.documentElement.offsetWidth);
@@ -154,6 +155,7 @@ CodeMirror.showHint = function(cm, getHints, options) {
       cm.off("focus", onFocus);
       cm.off("scroll", onScroll);
       if (willContinue !== true && data.onClose) data.onClose();
+      CodeMirror.signal(cm, "hintClosed");
     }
     function pick() {
       pickCompletion(cm, data, completions[selectedHint]);
