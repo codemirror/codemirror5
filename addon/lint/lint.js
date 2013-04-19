@@ -10,7 +10,7 @@ CodeMirror.validate = (function() {
 
     function position(e) {
       if (!tt.parentNode) return CodeMirror.off(document, "mousemove", position);
-      tt.style.top = (e.clientY - tt.offsetHeight - 5) + "px";
+      tt.style.top = Math.max(0, e.clientY - tt.offsetHeight - 5) + "px";
       tt.style.left = (e.clientX + 5) + "px";
     }
     CodeMirror.on(document, "mousemove", position);
