@@ -312,15 +312,15 @@
       which causes the cursor to not reach all the way to the bottom
       of the line, looks better</dd>
 
-      <dt id="option_workTime"><code><strong>workTime</strong>, <strong>workDelay</strong>: number</code></dt>
+      <dt id="option_workTime">
+        <code><strong>workTime</strong>: number</code>, 
+        <code><strong>workDelay</strong>: number</code>
+      </dt>
       <dd>Highlighting is done by a pseudo background-thread that will
       work for <code>workTime</code> milliseconds, and then use
       timeout to sleep for <code>workDelay</code> milliseconds. The
       defaults are 200 and 300, you can change these options to make
       the highlighting more or less aggressive.</dd>
-
-      <dt id="option_workDelay"><code><strong>workDelay</strong>: number</code></dt>
-      <dd>See <a href="#option_workTime"><code>workTime</code></a>.</dd>
 
       <dt id="option_pollInterval"><code><strong>pollInterval</strong>: number</code></dt>
       <dd>Indicates how quickly CodeMirror should poll its input
@@ -368,58 +368,92 @@
     refers to the editor instance.</p>
 
     <dl>
-      <dt id="event_change"><code><strong>"change"</strong> (instance: CodeMirror, changeObj: object)</code></dt>
-      <dd>Fires every time the content of the editor is changed.
-      The <code>changeObj</code> is a <code>{from, to, text, removed,
-      next}</code> object containing information about the changes
-      that occurred as second argument. <code>from</code>
-      and <code>to</code> are the positions (in the pre-change
-      coordinate system) where the change started and ended (for
-      example, it might be <code>{ch:0, line:18}</code> if the
-      position is at the beginning of line #19). <code>text</code> is
-      an array of strings representing the text that replaced the
-      changed range (split by line). <code>removed</code> is the text
-      that used to be between <code>from</code> and <code>to</code>,
-      which is overwritten by this change. If multiple changes
-      happened during a single operation, the object will have
-      a <code>next</code> property pointing to another change object
-      (which may point to another, etc).</dd>
+      <dt id="event_change"><code><strong>"change"</strong> (instance: CodeMirror, changeObj: changeObj)</code></dt>
+      <dd>
+        <dl>
+          <dt><code><strong>changeObj</strong></code></dt>
+          <dd>
+            <code><strong>from</strong>: {line, ch}</code><br/>
+            <code><strong>to</strong>: {line, ch}</code><br/>
+            <code><strong>text</strong>: array&lt;string&gt;</code><br/>
+            <code><strong>removed</strong>: string</code><br/>
+            <code><strong>?next</strong>: changeObj</code>
+          </dd>
+        </dl>
+        Fires every time the content of the editor is changed.
+        The <code>changeObj</code> is a <code>{from, to, text, removed,
+        next}</code> object containing information about the changes
+        that occurred as second argument. <code>from</code>
+        and <code>to</code> are the positions (in the pre-change
+        coordinate system) where the change started and ended (for
+        example, it might be <code>{ch:0, line:18}</code> if the
+        position is at the beginning of line #19). <code>text</code> is
+        an array of strings representing the text that replaced the
+        changed range (split by line). <code>removed</code> is the text
+        that used to be between <code>from</code> and <code>to</code>,
+        which is overwritten by this change. If multiple changes
+        happened during a single operation, the object will have
+        a <code>next</code> property pointing to another change object
+        (which may point to another, etc).
+      </dd>
 
-      <dt id="event_beforeChange"><code><strong>"beforeChange"</strong> (instance: CodeMirror, changeObj: object)</code></dt>
-      <dd>This event is fired before a change is applied, and its
-      handler may choose to modify or cancel the change.
-      The <code>changeObj</code> object
-      has <code>from</code>, <code>to</code>, and <code>text</code>
-      properties, as with
-      the <a href="#event_change"><code>"change"</code></a> event, but
-      never a <code>next</code> property, since this is fired for each
-      individual change, and not batched per operation. It also
-      has <code>update(from, to, text)</code>
-      and <code>cancel()</code> methods, which may be used to modify
-      or cancel the change. All three arguments to <code>update</code>
-      are optional, and can be left off to leave the existing value
-      for that field intact. <strong>Note:</strong> you may not do
-      anything from a <code>"beforeChange"</code> handler that would
-      cause changes to the document or its visualization. Doing so
-      will, since this handler is called directly from the bowels of
-      the CodeMirror implementation, probably cause the editor to
-      become corrupted.</dd>
+      <dt id="event_beforeChange"><code><strong>"beforeChange"</strong> (instance: CodeMirror, changeObj: changeObj)</code></dt>
+      <dd>
+        <dl>
+          <dt><code><strong>changeObj</strong></code></dt>
+          <dd>
+            <code><strong>from</strong>: {line, ch}</code><br/>
+            <code><strong>to</strong>: {line, ch}</code><br/>
+            <code><strong>text</strong>: array&lt;string&gt;</code><br/>
+            <code><strong>removed</strong>: string</code><br/>
+            <code><strong>update</strong>: function(?from: {line, ch}, ?to: {line, ch}, ?text: array&lt;string&gt;)</code>
+            <code><strong>cancel</strong>: function()</code>
+          </dd>
+        </dl>
+        This event is fired before a change is applied, and its
+        handler may choose to modify or cancel the change.
+        The <code>changeObj</code> object
+        has <code>from</code>, <code>to</code>, and <code>text</code>
+        properties, as with
+        the <a href="#event_change"><code>"change"</code></a> event, but
+        never a <code>next</code> property, since this is fired for each
+        individual change, and not batched per operation. It also
+        has <code>update(from, to, text)</code>
+        and <code>cancel()</code> methods, which may be used to modify
+        or cancel the change. All three arguments to <code>update</code>
+        are optional, and can be left off to leave the existing value
+        for that field intact. <strong>Note:</strong> you may not do
+        anything from a <code>"beforeChange"</code> handler that would
+        cause changes to the document or its visualization. Doing so
+        will, since this handler is called directly from the bowels of
+        the CodeMirror implementation, probably cause the editor to
+        become corrupted.
+      </dd>
 
       <dt id="event_cursorActivity"><code><strong>"cursorActivity"</strong> (instance: CodeMirror)</code></dt>
       <dd>Will be fired when the cursor or selection moves, or any
       change is made to the editor content.</dd>
 
-      <dt id="event_beforeSelectionChange"><code><strong>"beforeSelectionChange"</strong> (instance: CodeMirror, selection: {head, anchor})</code></dt>
-      <dd>This event is fired before the selection is moved. Its
-      handler may modify the resulting selection head and anchor.
-      The <code>selection</code> parameter is an object
-      with <code>head</code> and <code>anchor</code> properties
-      holding <code>{line, ch}</code> objects, which the handler can
-      read and update. Handlers for this event have the same
-      restriction
-      as <a href="#event_beforeChange"><code>"beforeChange"</code></a>
-      handlers — they should not do anything to directly update the
-      state of the editor.</dd>
+      <dt id="event_beforeSelectionChange"><code><strong>"beforeSelectionChange"</strong> (instance: CodeMirror, selection: selection)</code></dt>
+      <dd>
+        <dl>
+          <dt><code><strong>selection</strong></code></dt>
+          <dd>
+            <code><strong>head</strong>: {line, ch}</code><br/>
+            <code><strong>anchor</strong>: {line, ch}</code>
+          </dd>
+        </dl>
+        This event is fired before the selection is moved. Its
+        handler may modify the resulting selection head and anchor.
+        The <code>selection</code> parameter is an object
+        with <code>head</code> and <code>anchor</code> properties
+        holding <code>{line, ch}</code> objects, which the handler can
+        read and update. Handlers for this event have the same
+        restriction
+        as <a href="#event_beforeChange"><code>"beforeChange"</code></a>
+        handlers — they should not do anything to directly update the
+        state of the editor.
+      </dd>
 
       <dt id="event_viewportChange"><code><strong>"viewportChange"</strong> (instance: CodeMirror, from: number, to: number)</code></dt>
       <dd>Fires whenever the <a href="#getViewport">view port</a> of
@@ -463,27 +497,60 @@
     following events:</p>
 
     <dl>
-      <dt id="event_doc_change"><code><strong>"change"</strong> (doc: CodeMirror.Doc, changeObj: object)</code></dt>
-      <dd>Fired whenever a change occurs to the
-      document. <code>changeObj</code> has a similar type as the
-      object passed to the
-      editor's <a href="#event_change"><code>"change"</code></a>
-      event, but it never has a <code>next</code> property, because
-      document change events are not batched (whereas editor change
-      events are).</dd>
+      <dt id="event_doc_change"><code><strong>"change"</strong> (doc: CodeMirror.Doc, changeObj: changeObj)</code></dt>
+      <dd>
+        <dl>
+          <dt><code><strong>changeObj</strong></code></dt>
+          <dd>
+            <code><strong>from</strong>: {line, ch}</code><br/>
+            <code><strong>to</strong>: {line, ch}</code><br/>
+            <code><strong>text</strong>: array&lt;string&gt;</code><br/>
+            <code><strong>removed</strong>: string</code>
+          </dd>
+        </dl>
+        Fired whenever a change occurs to the
+        document. <code>changeObj</code> has a similar type as the
+        object passed to the
+        editor's <a href="#event_change"><code>"change"</code></a>
+        event, but it never has a <code>next</code> property, because
+        document change events are not batched (whereas editor change
+        events are).
+      </dd>
 
-      <dt id="event_doc_beforeChange"><code><strong>"beforeChange"</strong> (doc: CodeMirror.Doc, change: object)</code></dt>
-      <dd>See the <a href="#event_beforeChange">description of the
-      same event</a> on editor instances.</dd>
+      <dt id="event_doc_beforeChange"><code><strong>"beforeChange"</strong> (doc: CodeMirror.Doc, changeObj: changeObj)</code></dt>
+      <dd>
+        <dl>
+          <dt><code><strong>changeObj</strong></code></dt>
+          <dd>
+            <code><strong>from</strong>: {line, ch}</code><br/>
+            <code><strong>to</strong>: {line, ch}</code><br/>
+            <code><strong>text</strong>: array&lt;string&gt;</code><br/>
+            <code><strong>removed</strong>: string</code><br/>
+            <code><strong>update</strong>: function(?from: {line, ch}, ?to: {line, ch}, ?text: array&lt;string&gt;)</code>
+            <code><strong>cancel</strong>: function()</code>
+          </dd>
+        </dl>
+        See the <a href="#event_beforeChange">description of the
+        same event</a> on editor instances.
+      </dd>
 
       <dt id="event_doc_cursorActivity"><code><strong>"cursorActivity"</strong> (doc: CodeMirror.Doc)</code></dt>
       <dd>Fired whenever the cursor or selection in this document
       changes.</dd>
 
-      <dt id="event_doc_beforeSelectionChange"><code><strong>"beforeSelectionChange"</strong> (doc: CodeMirror.Doc, selection: {head, anchor})</code></dt>
-      <dd>Equivalent to
-      the <a href="#event_beforeSelectionChange">event by the same
-      name</a> as fired on editor instances.</dd>
+      <dt id="event_doc_beforeSelectionChange"><code><strong>"beforeSelectionChange"</strong> (doc: CodeMirror.Doc, selection: selection)</code></dt>
+      <dd>
+        <dl>
+          <dt><code><strong>selection</strong></code></dt>
+          <dd>
+            <code><strong>head</strong>: {line, ch}</code><br/>
+            <code><strong>anchor</strong>: {line, ch}</code>
+          </dd>
+        </dl>
+        Equivalent to
+        the <a href="#event_beforeSelectionChange">event by the same
+        name</a> as fired on editor instances.
+      </dd>
     </dl>
 
     <p>Line handles (as returned by, for
@@ -496,12 +563,23 @@
       is associated with the <em>start</em> of the line. Mostly useful
       when you need to find out when your <a href="#setGutterMarker">gutter
       markers</a> on a given line are removed.</dd>
-      <dt id="event_line_change"><code><strong>"change"</strong> (line: LineHandle, changeObj: object)</code></dt>
-      <dd>Fires when the line's text content is changed in any way
-      (but the line is not deleted outright). The <code>change</code>
-      object is similar to the one passed
-      to <a href="#event_change">change event</a> on the editor
-      object.</dd>
+      <dt id="event_line_change"><code><strong>"change"</strong> (line: LineHandle, changeObj: changeObj)</code></dt>
+      <dd>
+        <dl>
+          <dt><code><strong>changeObj</strong></code></dt>
+          <dd>
+            <code><strong>from</strong>: {line, ch}</code><br/>
+            <code><strong>to</strong>: {line, ch}</code><br/>
+            <code><strong>text</strong>: array&lt;string&gt;</code><br/>
+            <code><strong>removed</strong>: string</code>
+          </dd>
+        </dl>
+        Fires when the line's text content is changed in any way
+        (but the line is not deleted outright). The <code>change</code>
+        object is similar to the one passed
+        to <a href="#event_change">change event</a> on the editor
+        object.
+      </dd>
     </dl>
 
     <p>Marked range handles (<code>CodeMirror.TextMarker</code>), as returned
@@ -763,8 +841,8 @@
       <dd>Given a line handle, returns the current position of that
       line (or <code>null</code> when it is no longer in the
       document).</dd>
-      <dt id="eachLine"><code><strong>doc.eachLine</strong>(f: (line: LineHandle))</code></dt>
-      <dt><code><strong>doc.eachLine</strong>(start: integer, end: integer, f: (line: LineHandle))</code></dt>
+      <dt id="eachLine"><code><strong>doc.eachLine</strong>(f: function(line: LineHandle))</code></dt>
+      <dt><code><strong>doc.eachLine</strong>(start: integer, end: integer, f: function(line: LineHandle))</code></dt>
       <dd>Iterate over the whole document, or if <code>start</code>
       and <code>end</code> line numbers are given, the range
       from <code>start</code> up to (not including) <code>end</code>,
@@ -910,12 +988,12 @@
       to <a href="#addOverlay"><code>addOverlay</code></a> to remove
       an overlay again.</dd>
 
-      <dt id="on"><code><strong>cm.on</strong>(type: string, func: (...args))</code></dt>
+      <dt id="on"><code><strong>cm.on</strong>(type: string, func: function(...args))</code></dt>
       <dd>Register an event handler for the given event type (a
       string) on the editor instance. There is also
       a <code>CodeMirror.on(object, type, func)</code> version
       that allows registering of events on any object.</dd>
-      <dt id="off"><code><strong>cm.off</strong>(type: string, func: (...args))</code></dt>
+      <dt id="off"><code><strong>cm.off</strong>(type: string, func: function(...args))</code></dt>
       <dd>Remove an event handler on the editor instance. An
       equivalent <code>CodeMirror.off(object, type,
       func)</code> also exists.</dd>
@@ -1303,13 +1381,13 @@
       before the given position (a <code>{line, ch}</code> object). The
       returned object has the following properties:
       <dl>
-        <dt><code><strong>start</strong></code></dt><dd>The character (on the given line) at which the token starts.</dd>
-        <dt><code><strong>end</strong></code></dt><dd>The character at which the token ends.</dd>
-        <dt><code><strong>string</strong></code></dt><dd>The token's string.</dd>
-        <dt><code><strong>type</strong></code></dt><dd>The token type the mode assigned
+        <dt><code><strong>start</strong>: string</code></dt><dd>The character (on the given line) at which the token starts.</dd>
+        <dt><code><strong>end</strong>: string</code></dt><dd>The character at which the token ends.</dd>
+        <dt><code><strong>string</strong>: string</code></dt><dd>The token's string.</dd>
+        <dt><code><strong>type</strong>: string</code></dt><dd>The token type the mode assigned
         to the token, such as <code>"keyword"</code>
         or <code>"comment"</code> (may also be null).</dd>
-        <dt><code><strong>state</strong></code></dt><dd>The mode's state at the end of this token.</dd>
+        <dt><code><strong>state</strong>: string</code></dt><dd>The mode's state at the end of this token.</dd>
       </dl></dd>
 
       <dt id="getStateAfter"><code><strong>cm.getStateAfter</strong>(?line: integer) → object</code></dt>
@@ -1326,7 +1404,7 @@
       <dt id="constructor"><code><strong>CodeMirror</strong>(elt: Element|function(elt: Element), ?config: object)</code></dt>
       <dd>The constructor. See <a href="#usage">Basic Usage</a>.</dd>
 
-      <dt id="operation"><code><strong>cm.operation</strong>(func: () → any) → any</code></dt>
+      <dt id="operation"><code><strong>cm.operation</strong>(func: function() → any) → any</code></dt>
       <dd>CodeMirror internally buffers changes and only updates its
       DOM structure after it has finished performing some operation.
       If you need to perform a lot of operations on a CodeMirror
@@ -1426,20 +1504,28 @@
       for <a href="#Doc"><code>Doc</code></a> objects instead.</dd>
 
       <dt id="defineOption"><code><strong>CodeMirror.defineOption</strong>(name: string,
-      default: any, updateFunc: function)</code></dt>
-      <dd>Similarly, <code>defineOption</code> can be used to define new options for
-      CodeMirror. The <code>updateFunc</code> will be called with the
-      editor instance and the new value when an editor is initialized,
-      and whenever the option is modified
-      through <a href="#setOption"><code>setOption</code></a>.</dd>
+      default: any, updateFunc: updateFunc)</code></dt>
+      <dd>
+        <dl>
+          <dt><code><strong>updateFunc</strong>: function(instance: CodeMirror, value: any, setOption: boolean)</code></dt>
+          <dd>It will be called with the
+          editor instance and the new value when an editor is initialized,
+          and whenever the option is modified
+          through <a href="#setOption"><code>setOption</code></a></dd>
+        </dl>
+        Similar to <a href="#defineExtension"><code>defineExtension</code></a>, <code>defineOption</code> can be used to define new options for
+        CodeMirror.
+      </dd>
 
-      <dt id="defineInitHook"><code><strong>CodeMirror.defineInitHook</strong>(func: function)</code></dt>
-      <dd>If your extention just needs to run some
-      code whenever a CodeMirror instance is initialized,
-      use <code>CodeMirror.defineInitHook</code>. Give it a function as
-      its only argument, and from then on, that function will be called
-      (with the instance as argument) whenever a new CodeMirror instance
-      is initialized.</dd>
+      <dt id="defineInitHook"><code><strong>CodeMirror.defineInitHook</strong>(func: function(instance: CodeMirror))</code></dt>
+      <dd>
+        If your extention just needs to run some
+        code whenever a CodeMirror instance is initialized,
+        use <code>CodeMirror.defineInitHook</code>. Give it a function as
+        its only argument, and from then on, that function will be called
+        (with the instance as argument) whenever a new CodeMirror instance
+        is initialized.
+      </dd>
     </dl>
 
     <h2 id="addons">Add-ons</h2>
