@@ -1,4 +1,4 @@
-.cm-s-rubyblue { font:13px/1.4em Trebuchet, Verdana, sans-serif; }	/* - customized editor font - */
+.cm-s-rubyblue { font-family: Trebuchet, Verdana, sans-serif; }	/* - customized editor font - */
 
 .cm-s-rubyblue.CodeMirror { background: #112435; color: white; }
 .cm-s-rubyblue div.CodeMirror-selected { background: #38566F !important; }
