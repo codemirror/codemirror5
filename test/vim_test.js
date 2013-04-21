@@ -1402,14 +1402,16 @@ testVim('Ty,;', function(cm, vim, helpers) {
   eq('01230123456789', cm.getValue());
 }, { value: '0123456789'});
 testVim('HML', function(cm, vim, helpers) {
-  cm.setSize(600, 400);
+  var lines = 35;
+  var textHeight = cm.defaultTextHeight();
+  cm.setSize(600, lines*textHeight);
   cm.setCursor(120, 0);
   helpers.doKeys('H');
-  helpers.assertCursorAt(90, 2);
+  helpers.assertCursorAt(86, 2);
   helpers.doKeys('L');
-  helpers.assertCursorAt(119, 4);
+  helpers.assertCursorAt(120, 4);
   helpers.doKeys('M');
-  helpers.assertCursorAt(104,4);
+  helpers.assertCursorAt(103,4);
 }, { value: (function(){
   var upperLines = new Array(100);
   var lowerLines = new Array(100);
