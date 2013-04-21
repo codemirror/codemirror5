@@ -1,6 +1,6 @@
 /**
- * Author: Hans Engel
- * Branched from CodeMirror's Scheme mode (by Koh Zi Han, based on implementation by Koh Zi Chun)
+ * Author: Gautam Mehta
+ * Branched from CodeMirror's Scheme mode 
  */
 CodeMirror.defineMode("cobol", function () {
     var BUILTIN = "builtin", COMMENT = "comment", STRING = "string", CHARACTER = "string-2",
