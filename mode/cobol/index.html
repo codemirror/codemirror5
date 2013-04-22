@@ -7,7 +7,7 @@
     <script src="../../lib/codemirror.js"></script>
     <script src="../../addon/edit/matchbrackets.js"></script>
     <script src="cobol.js"></script>
-	<link rel="stylesheet" href="../../theme/neat.css">
+    <link rel="stylesheet" href="../../theme/neat.css">
     <link rel="stylesheet" href="../../theme/elegant.css">
     <link rel="stylesheet" href="../../theme/erlang-dark.css">
     <link rel="stylesheet" href="../../theme/night.css">
@@ -24,42 +24,42 @@
     <link rel="stylesheet" href="../../theme/solarized.css">
     <link rel="stylesheet" href="../../theme/twilight.css">
     <link rel="stylesheet" href="../../theme/midnight.css">
-	<link rel="stylesheet" href="../../addon/dialog/dialog.css.">
-	<script src="../../addon/selection/active-line.js"></script>
-	<script src="../../addon/search/search.js"></script>
-	<script src="../../addon/dialog/dialog.js"></script>
-	<script src="../../addon/search/searchcursor.js"></script>
+    <link rel="stylesheet" href="../../addon/dialog/dialog.css">
+    <script src="../../addon/selection/active-line.js"></script>
+    <script src="../../addon/search/search.js"></script>
+    <script src="../../addon/dialog/dialog.js"></script>
+    <script src="../../addon/search/searchcursor.js"></script>
     <style>
-		.CodeMirror {
-		  border: 1px solid #eee;
-		  font-size : 20px;
-		  height : auto !important;
-		}
-		.CodeMirror-activeline-background {background: #555555 !important;}
-	</style>
+        .CodeMirror {
+          border: 1px solid #eee;
+          font-size : 20px;
+          height : auto !important;
+        }
+        .CodeMirror-activeline-background {background: #555555 !important;}
+    </style>
   </head>
   <body>
-	<p> Select Theme <select onchange="selectTheme()" id="selectTheme">
-	    <option>default</option>
-	    <option>ambiance</option>
-	    <option>blackboard</option>
-	    <option>cobalt</option>
-	    <option>eclipse</option>
-	    <option>elegant</option>
-	    <option>erlang-dark</option>
-	    <option>lesser-dark</option>
-	    <option>midnight</option>
-	    <option>monokai</option>
-	    <option>neat</option>
-	    <option>night</option>
-	    <option>rubyblue</option>
-	    <option>solarized dark</option>
-	    <option>solarized light</option>
-	    <option selected>twilight</option>
-	    <option>vibrant-ink</option>
-	    <option>xq-dark</option>
-	    <option>xq-light</option>
-	</select>	Select Font Size <select onchange="selectFontsize()" id="selectFontSize">
+    <p> Select Theme <select onchange="selectTheme()" id="selectTheme">
+        <option>default</option>
+        <option>ambiance</option>
+        <option>blackboard</option>
+        <option>cobalt</option>
+        <option>eclipse</option>
+        <option>elegant</option>
+        <option>erlang-dark</option>
+        <option>lesser-dark</option>
+        <option>midnight</option>
+        <option>monokai</option>
+        <option>neat</option>
+        <option>night</option>
+        <option>rubyblue</option>
+        <option>solarized dark</option>
+        <option>solarized light</option>
+        <option selected>twilight</option>
+        <option>vibrant-ink</option>
+        <option>xq-dark</option>
+        <option>xq-light</option>
+    </select>    Select Font Size <select onchange="selectFontsize()" id="selectFontSize">
           <option value="13px">13px</option>
           <option value="14px">14px</option>
           <option value="16px">16px</option>
@@ -164,32 +164,32 @@
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true,
         matchBrackets: true,
-        mode: "text/cbl",
-		theme : "twilight",
-		styleActiveLine: true,
-		showCursorWhenSelecting : true,  
+        mode: "text/x-cobol",
+        theme : "twilight",
+        styleActiveLine: true,
+        showCursorWhenSelecting : true,  
       });
-	  function selectTheme() {
-		var themeInput = document.getElementById("selectTheme");
-	    var theme = themeInput.options[themeInput.selectedIndex].innerHTML;
-	    editor.setOption("theme", theme);
-	  }
-	  function selectFontsize() {
-		var fontSizeInput = document.getElementById("selectFontSize");
-	    var fontSize = fontSizeInput.options[fontSizeInput.selectedIndex].innerHTML;
-	    editor.getWrapperElement().style["font-size"] = fontSize;
-	    editor.refresh();
-	  }
-	  function selectReadOnly() {
-		editor.setOption("readOnly", document.getElementById("checkBoxReadOnly").checked);
-	  }
-	  function tabToIndentSpace() {
-		if (document.getElementById("id_tabToIndentSpace").checked) {
-			editor.setOption("extraKeys", {Tab: function(cm) { cm.replaceSelection("    ", "end"); }});
-		} else {
-			editor.setOption("extraKeys", {Tab: function(cm) { cm.replaceSelection("	", "end"); }});
-		}
-	  }
+      function selectTheme() {
+        var themeInput = document.getElementById("selectTheme");
+        var theme = themeInput.options[themeInput.selectedIndex].innerHTML;
+        editor.setOption("theme", theme);
+      }
+      function selectFontsize() {
+        var fontSizeInput = document.getElementById("selectFontSize");
+        var fontSize = fontSizeInput.options[fontSizeInput.selectedIndex].innerHTML;
+        editor.getWrapperElement().style["font-size"] = fontSize;
+        editor.refresh();
+      }
+      function selectReadOnly() {
+        editor.setOption("readOnly", document.getElementById("checkBoxReadOnly").checked);
+      }
+      function tabToIndentSpace() {
+        if (document.getElementById("id_tabToIndentSpace").checked) {
+            editor.setOption("extraKeys", {Tab: function(cm) { cm.replaceSelection("    ", "end"); }});
+        } else {
+            editor.setOption("extraKeys", {Tab: function(cm) { cm.replaceSelection("    ", "end"); }});
+        }
+      }
     </script>
   </body>
 </html>
