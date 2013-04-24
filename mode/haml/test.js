@@ -25,10 +25,7 @@
      "[tag %h1] This is not a / comment ");
 
   MT("attributes",
-     "[tag %a]([variable title][operator =][string \"test\"] [variable href][operator =][string 'hello'])");
-
-  MT("attributesHash",
-     "[tag %a]{[atom :title] [operator =>] [string \"test\"], [atom :href] [operator =>] [string 'hello']}");
+     "[tag %a]([variable title][operator =][string \"test\"]){[atom :title] [operator =>] [string \"test\"]}");
 
   MT("htmlCode",
      "[tag <h1>]Title[tag </h1>]");
