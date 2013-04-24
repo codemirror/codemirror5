@@ -1,11 +1,10 @@
 (function() {
-  "use strict"
+  "use strict";
 
   // full haml mode. This handled embeded ruby and html fragments too
-  CodeMirror.defineMode("haml", function(config, parserConfig) {
+  CodeMirror.defineMode("haml", function(config) {
     var htmlMode = CodeMirror.getMode(config, {name: "htmlmixed"});
     var rubyMode = CodeMirror.getMode(config, "ruby");
-    var indentUnit = config.indentUnit || 2;
 
     function ruby(stream, state) {
       var ch = stream.peek();
@@ -74,7 +73,7 @@
 
     return {
       // default to html mode
-      startState: function(base) {
+      startState: function() {
         var htmlState = htmlMode.startState();
         var rubyState = rubyMode.startState();
         return {
@@ -82,8 +81,8 @@
           rubyState: rubyState,
           indented: 0,
           previousToken: { style: null, indented: 0},
-          tokenize: html,
-        }
+          tokenize: html
+        };
       },
 
       copyState: function(state) {
@@ -132,9 +131,9 @@
         return style;
       },
 
-      indent: function(state, textAfter) {
+      indent: function(state) {
         return state.indented;
-      },
+      }
     };
   }, "htmlmixed", "ruby");
 

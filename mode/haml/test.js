@@ -38,12 +38,12 @@
 
   MT("nestedRubyBlock",
       "[tag %a]",
-      "   [operator =][variable puts] [string \"test\"]")
+      "   [operator =][variable puts] [string \"test\"]");
 
   MT("multilinePlaintext",
       "[tag %p]",
       "  Hello,",
-      "  World")
+      "  World");
 
   MT("multilineRuby",
       "[tag %p]",
