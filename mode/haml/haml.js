@@ -3,7 +3,7 @@
 
   // full haml mode. This handled embeded ruby and html fragments too
   CodeMirror.defineMode("haml", function(config, parserConfig) {
-    var htmlMode = CodeMirror.getMode(config, {name: "xml", htmlMode: true});
+    var htmlMode = CodeMirror.getMode(config, {name: "htmlmixed"});
     var rubyMode = CodeMirror.getMode(config, "ruby");
     var indentUnit = config.indentUnit || 2;
 
@@ -140,7 +140,7 @@
         return state.indented;
       },
     };
-  }, "xml", "ruby");
+  }, "htmlmixed", "ruby");
 
   CodeMirror.defineMIME("text/x-haml", "haml");
 })();
