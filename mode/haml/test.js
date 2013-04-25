@@ -84,4 +84,11 @@
   MT("stretchedRuby",
      "[operator =] [variable puts] [string \"Hello\"],",
      "   [string \"World\"]");
+
+  MT("interpolationInHashAttribute",
+     //"[tag %div]{[atom :id] [operator =>] [string \"#{][variable test][string }_#{][variable ting][string }\"]} test");
+     "[tag %div]{[atom :id] [operator =>] [string \"#{][variable test][string }_#{][variable ting][string }\"]} test");
+
+  MT("interpolationInHTMLAttribute",
+     "[tag %div]([variable title][operator =][string \"#{][variable test][string }_#{][variable ting]()[string }\"]) Test");
 })();

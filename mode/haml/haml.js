@@ -6,18 +6,25 @@
     var htmlMode = CodeMirror.getMode(config, {name: "htmlmixed"});
     var rubyMode = CodeMirror.getMode(config, "ruby");
 
-    function ruby(stream, state) {
-      var ch = stream.peek();
+    function rubyInQuote(endQuote) {
+      return function(stream, state) {
+        var ch = stream.peek();
+        if (ch == endQuote && state.rubyState.tokenize.length == 1) {
+          // step out of ruby context as it seems to complete processing all the braces
+          stream.next();
+          state.tokenize = html;
+          return "closeAttributeTag";
+        } else {
+          return ruby(stream, state);
+        }
+      };
+    }
 
-      if (ch == ")" || ch == "}") {
-        stream.next(); // skip these characters
-        state.tokenize = html;
-        return "closeAttribute";
-      } else if (stream.match("-#")) {
+    function ruby(stream, state) {
+      if (stream.match("-#")) {
         stream.skipToEnd();
         return "comment";
       }
-
       return rubyMode.token(stream, state.rubyState);
     }
 
@@ -61,11 +68,16 @@
         return null;
       }
 
-      if ((state.previousToken.style == "hamlTag" ||
-           state.previousToken.style == "hamlAttribute" ||
-           state.previousToken.style == "closeAttribute") && (ch == "(" || ch == "{")) {
-        state.tokenize = ruby;
-        return "openAttribute";
+      if (state.previousToken.style == "hamlTag" ||
+          state.previousToken.style == "closeAttributeTag" ||
+          state.previousToken.style == "hamlAttribute") {
+        if (ch == "(") {
+          state.tokenize = rubyInQuote(")");
+          return null;
+        } else if (ch == "{") {
+          state.tokenize = rubyInQuote("}");
+          return null;
+        }
       }
 
       return htmlMode.token(stream, state.htmlState);
@@ -125,7 +137,7 @@
           style = "comment";
         } else if (style == "hamlAttribute") {
           style = "attribute";
-        } else if (style == "openAttribute" || style == "closeAttribute") {
+        } else if (style == "closeAttributeTag") {
           style = null;
         }
         return style;
