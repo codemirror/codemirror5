@@ -28,6 +28,7 @@
 .CodeMirror-gutters {
   border-right: 1px solid #ddd;
   background-color: #f7f7f7;
+  white-space: nowrap;
 }
 .CodeMirror-linenumbers {}
 .CodeMirror-linenumber {
@@ -151,6 +152,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
   z-index: 3;
 }
 .CodeMirror-gutter {
+  white-space: normal;
   height: 100%;
   padding-bottom: 30px;
   margin-bottom: -32px;
