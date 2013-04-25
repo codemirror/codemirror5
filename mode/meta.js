@@ -27,6 +27,7 @@ CodeMirror.modeInfo = [
   {name: 'HTML', mime: 'text/html', mode: 'htmlmixed'},
   {name: 'HTTP', mime: 'message/http', mode: 'http'},
   {name: 'JavaScript', mime: 'text/javascript', mode: 'javascript'},
+  {name: 'JSON', mime: 'application/x-json', mode: 'javascript'},
   {name: 'JSON', mime: 'application/json', mode: 'javascript'},
   {name: 'TypeScript', mime: 'application/typescript', mode: 'javascript'},
   {name: 'Jinja2', mime: 'jinja2', mode: 'jinja2'},
