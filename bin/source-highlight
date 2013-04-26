@@ -27,7 +27,7 @@ CodeMirror.modeInfo.forEach(function(info) {
 });
 
 function ensureMode(name) {
-  if (CodeMirror.modes[name]) return;
+  if (CodeMirror.modes[name] || name == "null") return;
   try {
     require("../mode/" + name + "/" + name + ".js");
   } catch(e) {
