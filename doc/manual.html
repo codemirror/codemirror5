@@ -71,7 +71,8 @@
     <p>The editor will be appended to the document body, will start
     empty, and will use the mode that we loaded. To have more control
     over the new editor, a configuration object can be passed
-    to <code>CodeMirror</code> as a second argument:</p>
+    to <a href="#CodeMirror"><code>CodeMirror</code></a> as a second
+    argument:</p>
 
     <pre data-lang="javascript">var myCodeMirror = CodeMirror(document.body, {
   value: "function myScript(){return 100;}\n",
@@ -108,13 +109,13 @@
 
     <h2 id="config">Configuration</h2>
 
-    <p>Both the <code>CodeMirror</code> function and
-    its <code>fromTextArea</code> method take as second (optional)
-    argument an object containing configuration options. Any option
-    not supplied like this will be taken
-    from <code>CodeMirror.defaults</code>, an object containing the
-    default options. You can update this object to change the defaults
-    on your page.</p>
+    <p>Both the <a href="#CodeMirror"><code>CodeMirror</code></a>
+    function and its <code>fromTextArea</code> method take as second
+    (optional) argument an object containing configuration options.
+    Any option not supplied like this will be taken
+    from <a href="#defaults"><code>CodeMirror.defaults</code></a>, an
+    object containing the default options. You can update this object
+    to change the defaults on your page.</p>
 
     <p>Options are not checked in any way, so setting bogus option
     values is bound to lead to odd errors.</p>
@@ -719,6 +720,27 @@
     instances and <code>CodeMirror.Doc</code> instances. Methods
     prefixed with <code>cm.</code> are <em>only</em> available
     on <code>CodeMirror</code> instances.</p>
+
+    <h3 id="api_constructor">Constructor</h3>
+
+    <p id="CodeMirror">Constructing an editor instance is done with
+    the <code><strong>CodeMirror</strong>(place: Element|fn(Element),
+    ?option: object)</code> constructor. If the <code>place</code>
+    argument is a DOM element, the editor will be appended to it. If
+    it is a function, it will be called, and is expected to place the
+    editor into the document. <code>options</code> may be an element
+    mapping <a href="#config">option names</a> to values. The options
+    that it doesn't explicitly specify (or all options, if it is not
+    passed) will be taken
+    from <a href="#defaults"><code>CodeMirror.defaults</code></a>.</p>
+
+    <p>Note that the options object passed to the constructor will be
+    mutated when the instance's options
+    are <a href="#setOption">changed</a>, so you shouldn't share such
+    objects between instances.</p>
+
+    <p>See <a href="#fromTextArea"><code>CodeMirror.fromTextArea</code></a>
+    for another way to construct an editor instance.</p>
 
     <h3 id="api_content">Content manipulation methods</h3>
 
@@ -1422,6 +1444,12 @@
         </dl>
       </dd>
 
+      <dt id="defaults"><code><strong>CodeMirror.defaults</strong>: object</code></dt>
+      <dd>An object containing default values for
+      all <a href="#config">options</a>. You can assign to its
+      properties to modify defaults (though this won't affect editors
+      that have already been created).</dd>
+
       <dt id="defineExtension"><code><strong>CodeMirror.defineExtension</strong>(name: string, value: any)</code></dt>
       <dd>If you want to define extra methods in terms of the
       CodeMirror API, it is possible to
@@ -1875,6 +1903,7 @@
       <li><a href="#styling">Customized Styling</a></li>
       <li><a href="#api">Programming API</a>
         <ul>
+          <li><a href="#constructor">Constructor</a></li>
           <li><a href="#api_content">Content manipulation</a></li>
           <li><a href="#api_selection">Selection</a></li>
           <li><a href="#api_configuration">Configuration</a></li>
