@@ -251,8 +251,6 @@ CodeMirror.defineMode("sass", function(config) {
 
     // atoms
     if (stream.eatWhile(/[\w-&]/)){
-
-      var current = stream.current();
       // matches a property definition
       if (stream.peek() === ":" && !stream.match(pseudoElementsRegexp, false))
         return "property";
