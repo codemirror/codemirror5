@@ -3,24 +3,13 @@ CodeMirror.defineMode("sass", function(config) {
     return new RegExp("^" + words.join("|"));
   };
 
-  var tags = ["&", "a","abbr","acronym","address","applet","area","article","aside","audio","b","base","basefont","bdi","bdo","big","blockquote","body","br","button","canvas","caption","cite","code","col","colgroup","command","datalist","dd","del","details","dfn","dir","div","dl","dt","em","embed","fieldset","figcaption","figure","font","footer","form","frame","frameset","h1","h2","h3","h4","h5","h6","head","header","hgroup","hr","html","i","iframe","img","input","ins","keygen","kbd","label","legend","li","link","map","mark","menu","meta","meter","nav","noframes","noscript","object","ol","optgroup","option","output","p","param","pre","progress","q","rp","rt","ruby","s","samp","script","section","select","small","source","span","strike","strong","style","sub","summary","sup","table","tbody","td","textarea","tfoot","th","thead","time","title","tr","track","tt","u","ul","var","video","wbr"];
   var keywords = ["true", "false", "null", "auto"];
   var keywordsRegexp = new RegExp("^" + keywords.join("|"));
 
   var operators = ["\\(", "\\)", "=", ">", "<", "==", ">=", "<=", "\\+", "-", "\\!=", "/", "\\*", "%", "and", "or", "not"];
   var opRegexp = tokenRegexp(operators);
 
-  function htmlTag(val){
-    for(var i=0; i<tags.length; i++){
-      if(val === tags[i]){
-        return true;
-      }
-    }
-  }
-
-
-  var pseudoElements = [':first-line', ':hover', ':first-letter', ':active', ':visited', ':before', ':after', ':link', ':focus', ':first-child', ':lang'];
-  var pseudoElementsRegexp = new RegExp("^(" + pseudoElements.join("\\b|") + ")");
+  var pseudoElementsRegexp = /^:[\w\-]+/;
 
   var urlTokens = function(stream, state){
     var ch = stream.peek();
@@ -256,7 +245,7 @@ CodeMirror.defineMode("sass", function(config) {
     }
 
     // Pseudo element selectors
-    if (stream.match(pseudoElementsRegexp)){
+    if (ch == ':' && stream.match(pseudoElementsRegexp)){
       return "keyword";
     }
 
@@ -265,16 +254,10 @@ CodeMirror.defineMode("sass", function(config) {
 
       var current = stream.current();
       // matches a property definition
-      if (stream.peek() === ":"){
-        // if this is an html tag and it has a pseudo selector, then it's an atom
-        if (htmlTag(current) && stream.match(pseudoElementsRegexp, false)){
-          return "atom";
-        }else{
-          stream.next();
-          return "property";
-        }
-      }
-      return "atom";
+      if (stream.peek() === ":" && !stream.match(pseudoElementsRegexp, false))
+        return "property";
+      else
+        return "atom";
     }
 
     if (stream.match(opRegexp)){
@@ -298,7 +281,7 @@ CodeMirror.defineMode("sass", function(config) {
       dedent(state);
     }
 
-    if (style === "atom" && htmlTag(current)){
+    if (style === "atom"){
       indent(state);
     }
 
@@ -312,7 +295,7 @@ CodeMirror.defineMode("sass", function(config) {
         var scope = state.scopes[i];
 
         if (scope.offset <= withCurrentIndent){
-      newScopes.push(scope);
+          newScopes.push(scope);
         }
       }
 
