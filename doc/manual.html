@@ -453,7 +453,7 @@
       <dt id="event_update"><code><strong>"update"</strong> (instance: CodeMirror)</code></dt>
       <dd>Will be fired whenever CodeMirror updates its DOM display.</dd>
 
-      <dt id="event_renderLine"><code><strong>"renderLine"</strong> (instance: CodeMirror, line: integer, element: Element)</code></dt>
+      <dt id="event_renderLine"><code><strong>"renderLine"</strong> (instance: CodeMirror, line: LineHandle, element: Element)</code></dt>
       <dd>Fired whenever a line is (re-)rendered to the DOM. Fired
       right after the DOM element is built, <em>before</em> it is
       added to the document. The handler may mess with the style of
