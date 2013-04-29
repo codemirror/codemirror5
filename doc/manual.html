@@ -1104,12 +1104,17 @@
       </dl>
       The method will return an object that represents the marker
       (with constuctor <code>CodeMirror.TextMarker</code>), which
-      exposes two methods:
-      <code>clear()</code>, to remove the mark, and
-      <code>find()</code>, which returns a <code>{from, to}</code>
-      object (both holding document positions), indicating the current
-      position of the marked range, or <code>undefined</code> if the
-      marker is no longer in the document.</dd>
+      exposes three methods:
+      <code><strong>clear</strong>()</code>, to remove the mark,
+      <code><strong>find</strong>()</code>, which returns
+      a <code>{from, to}</code> object (both holding document
+      positions), indicating the current position of the marked range,
+      or <code>undefined</code> if the marker is no longer in the
+      document, and finally <code><strong>changed</strong>()</code>,
+      which you can call if you've done something that might change
+      the size of the marker (for example changing the content of
+      a <a href="#mark_replacedWith"><code>replacedWith</code></a>
+      node), and want to cheaply update the display.</dd>
 
       <dt id="setBookmark"><code><strong>doc.setBookmark</strong>(pos: {line, ch}, ?options: object) → TextMarker</code></dt>
       <dd>Inserts a bookmark, a handle that follows the text around it
