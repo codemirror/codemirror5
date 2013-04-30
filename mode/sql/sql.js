@@ -166,10 +166,9 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
 
   // `identifier`
   function hookIdentifier(stream) {
-    var escaped = false, ch;
+    var ch;
     while ((ch = stream.next()) != null) {
-      if (ch == "`" && !escaped) return "variable-2";
-      escaped = !escaped && ch == "`";
+      if (ch == "`" && !stream.eat("`")) return "variable-2";
     }
     return null;
   }
