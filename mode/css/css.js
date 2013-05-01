@@ -230,6 +230,8 @@ CodeMirror.defineMode("css-base", function(config, parserConfig) {
           } else {
             style += " error";
           }
+        } else if (context == "@import") {
+          style = "tag";
         } else {
           style = "error";
         }
@@ -266,6 +268,7 @@ CodeMirror.defineMode("css-base", function(config, parserConfig) {
       }
       else if (type == "interpolation") state.stack.push("interpolation");
       else if (type == "@media") state.stack.push("@media");
+      else if (type == "@import") state.stack.push("@import");
       else if (context == "@media" && /\b(keyword|attribute)\b/.test(style))
         state.stack.push("@mediaType");
       else if (context == "@mediaType" && stream.current() == ",") state.stack.pop();
@@ -273,6 +276,7 @@ CodeMirror.defineMode("css-base", function(config, parserConfig) {
       else if (context == "@mediaType(" && type == ")") state.stack.pop();
       else if ((context == "rule" || context == "block") && type == ":") state.stack.push("propertyValue");
       else if (context == "propertyValue" && type == ";") state.stack.pop();
+      else if (context == "@import" && type == ";") state.stack.pop();
       return style;
     },
 
