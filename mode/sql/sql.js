@@ -51,7 +51,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
       return state.tokenize(stream, state);
     } else if (ch == ".") {
       // .1 for 0.1
-      if (stream.match(/^[0-9eE]+/) && support.zerolessFloat == true) {
+      if (support.zerolessFloat == true && stream.match(/^(?:\d+(?:e\d*)?|\d*e\d+)/i)) {
         return "number";
       }
       // .table_name (ODBC)
