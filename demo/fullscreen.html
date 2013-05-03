@@ -8,16 +8,10 @@
     <link rel="stylesheet" href="../theme/night.css">
     <script src="../mode/xml/xml.js"></script>
     <link rel="stylesheet" href="../doc/docs.css">
-
-    <style type="text/css">
-      .CodeMirror-fullscreen {
-        display: block;
-        position: absolute;
-        top: 0; left: 0;
-        width: 100%;
-        z-index: 9999;
-      }
-    </style>
+    
+    <script src="../addon/display/fullscreen.js"></script>
+    <link rel="stylesheet" href="../addon/display/fullscreen.css">
+    
   </head>
   <body>
     <h1>CodeMirror: Full Screen Editing</h1>
@@ -103,40 +97,17 @@
     </dl></dd>
 
 </textarea></form>
-  <script>
-    function isFullScreen(cm) {
-      return /\bCodeMirror-fullscreen\b/.test(cm.getWrapperElement().className);
-    }
-    function winHeight() {
-      return window.innerHeight || (document.documentElement || document.body).clientHeight;
-    }
-    function setFullScreen(cm, full) {
-      var wrap = cm.getWrapperElement();
-      if (full) {
-        wrap.className += " CodeMirror-fullscreen";
-        wrap.style.height = winHeight() + "px";
-        document.documentElement.style.overflow = "hidden";
-      } else {
-        wrap.className = wrap.className.replace(" CodeMirror-fullscreen", "");
-        wrap.style.height = "";
-        document.documentElement.style.overflow = "";
-      }
-      cm.refresh();
-    }
-    CodeMirror.on(window, "resize", function() {
-      var showing = document.body.getElementsByClassName("CodeMirror-fullscreen")[0];
-      if (!showing) return;
-      showing.CodeMirror.getWrapperElement().style.height = winHeight() + "px";
-    });
+  <script>    
     var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
       lineNumbers: true,
       theme: "night",
+      fullScreen: true,
       extraKeys: {
         "F11": function(cm) {
-          setFullScreen(cm, !isFullScreen(cm));
+          CodeMirror.setFullScreen(cm, !CodeMirror.isFullScreen(cm));
         },
         "Esc": function(cm) {
-          if (isFullScreen(cm)) setFullScreen(cm, false);
+          if (CodeMirror.isFullScreen(cm)) CodeMirror.setFullScreen(cm, false);
         }
       }
     });
