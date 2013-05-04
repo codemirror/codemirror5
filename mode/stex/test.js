@@ -114,4 +114,7 @@
   MT("mathWithComment",
      "[keyword $][variable-2 x] [comment % $]",
      "[variable-2 y][keyword $] other text");
+
+  MT("lineBreakArgument",
+    "[tag \\\\][bracket [[][atom 1cm][bracket ]]]");
 })();
