@@ -255,6 +255,7 @@
     { keys: ['P'], type: 'action', action: 'paste',
         actionArgs: { after: false }},
     { keys: ['r', 'character'], type: 'action', action: 'replace' },
+    { keys: ['R'], type: 'action', action: 'enterReplaceMode' },
     { keys: ['u'], type: 'action', action: 'undo' },
     { keys: ['Ctrl-r'], type: 'action', action: 'redo' },
     { keys: ['m', 'character'], type: 'action', action: 'setMark' },
@@ -1604,6 +1605,10 @@
             cm.setCursor(offsetCursor(curEnd, 0, -1));
           }
         }
+      },
+      enterReplaceMode: function(cm, actionArgs) {
+        cm.setOption('keyMap', 'vim-replace');
+        cm.toggleOverwrite();
       },
       incrementNumberToken: function(cm, actionArgs, vim) {
         var cur = cm.getCursor();
@@ -3032,6 +3037,20 @@
             CodeMirror.commands.newlineAndIndent;
         fn(cm);
       },
+      fallthrough: ['default']
+    };
+
+    function exitReplaceMode(cm) {
+      cm.toggleOverwrite();
+      cm.setCursor(cm.getCursor().line, cm.getCursor().ch-1, true);
+      cm.setOption('keyMap', 'vim');
+    }
+
+    CodeMirror.keyMap['vim-replace'] = {
+      'Esc': exitReplaceMode,
+      'Ctrl-[': exitReplaceMode,
+      'Ctrl-C': exitReplaceMode,
+      'Backspace': 'goCharLeft',
       fallthrough: ['default']
     };
 
