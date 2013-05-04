@@ -860,6 +860,12 @@ testVim('r', function(cm, vim, helpers) {
   helpers.doKeys('v', 'j', 'h', 'r', 'Space');
   eq('wuuu  \n    her', cm.getValue(),'Replacing selection by space-characters failed');
 }, { value: 'wordet\nanother' });
+testVim('R', function(cm, vim, helpers) {
+  cm.setCursor(0, 1);
+  helpers.doKeys('R');
+  helpers.assertCursorAt(0, 1);
+  eq('vim-overwrite', cm.getOption('keyMap'));
+});
 testVim('mark', function(cm, vim, helpers) {
   cm.setCursor(2, 2);
   helpers.doKeys('m', 't');
