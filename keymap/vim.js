@@ -255,6 +255,7 @@
     { keys: ['P'], type: 'action', action: 'paste',
         actionArgs: { after: false }},
     { keys: ['r', 'character'], type: 'action', action: 'replace' },
+    { keys: ['R'], type: 'action', action: 'enterOverwriteMode' },
     { keys: ['u'], type: 'action', action: 'undo' },
     { keys: ['Ctrl-r'], type: 'action', action: 'redo' },
     { keys: ['m', 'character'], type: 'action', action: 'setMark' },
@@ -1604,6 +1605,10 @@
             cm.setCursor(offsetCursor(curEnd, 0, -1));
           }
         }
+      },
+      enterOverwriteMode: function(cm, actionArgs) {
+        cm.setOption('keyMap', 'vim-overwrite');
+        cm.toggleOverwrite();
       },
       incrementNumberToken: function(cm, actionArgs, vim) {
         var cur = cm.getCursor();
@@ -3032,6 +3037,19 @@
             CodeMirror.commands.newlineAndIndent;
         fn(cm);
       },
+      fallthrough: ['default']
+    };
+
+    function exitOverwriteMode(cm) {
+      cm.toggleOverwrite();
+      cm.setCursor(cm.getCursor().line, cm.getCursor().ch-1, true);
+      cm.setOption('keyMap', 'vim');
+    }
+
+    CodeMirror.keyMap['vim-overwrite'] = {
+      'Esc': exitOverwriteMode,
+      'Ctrl-[': exitOverwriteMode,
+      'Ctrl-C': exitOverwriteMode,
       fallthrough: ['default']
     };
 
