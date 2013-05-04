@@ -19,7 +19,7 @@
   padding: 0 4px; /* Horizontal padding of content */
 }
 
-.CodeMirror-scrollbar-filler {
+.CodeMirror-scrollbar-filler, .CodeMirror-gutter-filler {
   background-color: white; /* The little square between H and V scrollbars */
 }
 
@@ -125,7 +125,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
 /* The fake, visible scrollbars. Used to force redraw during scrolling
    before actuall scrolling happens, thus preventing shaking and
    flickering artifacts. */
-.CodeMirror-vscrollbar, .CodeMirror-hscrollbar, .CodeMirror-scrollbar-filler {
+.CodeMirror-vscrollbar, .CodeMirror-hscrollbar, .CodeMirror-scrollbar-filler, .CodeMirror-gutter-filler {
   position: absolute;
   z-index: 6;
   display: none;
@@ -142,7 +142,9 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
 }
 .CodeMirror-scrollbar-filler {
   right: 0; bottom: 0;
-  z-index: 6;
+}
+.CodeMirror-gutter-filler {
+  left: 0; bottom: 0;
 }
 
 .CodeMirror-gutters {
