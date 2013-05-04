@@ -1334,7 +1334,6 @@
       },
       // delete is a javascript keyword.
       'delete': function(cm, operatorArgs, vim, curStart, curEnd) {
-	console.debug(operatorArgs, curStart, curEnd);
         getVimGlobalState().registerController.pushText(
             operatorArgs.registerName, 'delete', cm.getRange(curStart, curEnd),
             operatorArgs.linewise);
@@ -2103,9 +2102,9 @@
 
             if (forward && word.line > cur.line) {
               cur.line += 1;
-	    } else if (!forward && word.line < cur.line) {
+            } else if (!forward && word.line < cur.line) {
               cur.line -= 1;
-	    }
+            }
 
             if (forward && wordEnd) {
               // 'e'
