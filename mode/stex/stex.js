@@ -95,7 +95,7 @@ CodeMirror.defineMode("stex", function() {
         }
 
         // white space control characters
-        if (source.match(/^\\[,;!\/]/)) {
+        if (source.match(/^\\[,;!\/\\]/)) {
           return "tag";
         }
 
