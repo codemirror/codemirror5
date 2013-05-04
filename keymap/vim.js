@@ -255,7 +255,7 @@
     { keys: ['P'], type: 'action', action: 'paste',
         actionArgs: { after: false }},
     { keys: ['r', 'character'], type: 'action', action: 'replace' },
-    { keys: ['R'], type: 'action', action: 'enterOverwriteMode' },
+    { keys: ['R'], type: 'action', action: 'enterReplaceMode' },
     { keys: ['u'], type: 'action', action: 'undo' },
     { keys: ['Ctrl-r'], type: 'action', action: 'redo' },
     { keys: ['m', 'character'], type: 'action', action: 'setMark' },
@@ -1606,8 +1606,8 @@
           }
         }
       },
-      enterOverwriteMode: function(cm, actionArgs) {
-        cm.setOption('keyMap', 'vim-overwrite');
+      enterReplaceMode: function(cm, actionArgs) {
+        cm.setOption('keyMap', 'vim-replace');
         cm.toggleOverwrite();
       },
       incrementNumberToken: function(cm, actionArgs, vim) {
@@ -3040,16 +3040,16 @@
       fallthrough: ['default']
     };
 
-    function exitOverwriteMode(cm) {
+    function exitReplaceMode(cm) {
       cm.toggleOverwrite();
       cm.setCursor(cm.getCursor().line, cm.getCursor().ch-1, true);
       cm.setOption('keyMap', 'vim');
     }
 
-    CodeMirror.keyMap['vim-overwrite'] = {
-      'Esc': exitOverwriteMode,
-      'Ctrl-[': exitOverwriteMode,
-      'Ctrl-C': exitOverwriteMode,
+    CodeMirror.keyMap['vim-replace'] = {
+      'Esc': exitReplaceMode,
+      'Ctrl-[': exitReplaceMode,
+      'Ctrl-C': exitReplaceMode,
       fallthrough: ['default']
     };
 

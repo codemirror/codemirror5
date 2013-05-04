@@ -864,7 +864,7 @@ testVim('R', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.doKeys('R');
   helpers.assertCursorAt(0, 1);
-  eq('vim-overwrite', cm.getOption('keyMap'));
+  eq('vim-replace', cm.getOption('keyMap'));
   is(cm.state.overwrite, 'Setting overwrite state failed');
 });
 testVim('mark', function(cm, vim, helpers) {
