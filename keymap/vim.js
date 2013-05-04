@@ -3050,6 +3050,7 @@
       'Esc': exitReplaceMode,
       'Ctrl-[': exitReplaceMode,
       'Ctrl-C': exitReplaceMode,
+      'Backspace': 'goCharLeft',
       fallthrough: ['default']
     };
 
