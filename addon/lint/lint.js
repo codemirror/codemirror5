@@ -135,7 +135,7 @@ CodeMirror.validate = (function() {
         if (state.hasGutter) tipLabel.appendChild(annotationTooltip(ann));
 
         if (ann.to) state.marked.push(cm.markText(ann.from, ann.to, {
-          className: "CodeMirror-lint-span-" + severity,
+          className: "CodeMirror-lint-mark-" + severity,
           __annotation: ann
         }));
       }
@@ -164,7 +164,7 @@ CodeMirror.validate = (function() {
   var nearby = [0, 0, 0, 5, 0, -5, 5, 0, -5, 0];
 
   function onMouseOver(cm, e) {
-    if (!/\bCodeMirror-lint-span-/.test((e.target || e.srcElement).className)) return;
+    if (!/\bCodeMirror-lint-mark-/.test((e.target || e.srcElement).className)) return;
     for (var i = 0; i < nearby.length; i += 2) {
       var spans = cm.findMarksAt(cm.coordsChar({left: e.clientX + nearby[i],
                                                 top: e.clientY + nearby[i + 1]}));
