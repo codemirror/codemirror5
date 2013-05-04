@@ -165,26 +165,27 @@ CodeMirror.defineMode("css-base", function(config, parserConfig) {
         if (type == "variable-definition") state.stack.push("propertyValue");
         return "variable-2";
       } else if (style == "property") {
-        if (context == "propertyValue"){
-          if (valueKeywords[stream.current()]) {
+        var word = stream.current().toLowerCase();
+        if (context == "propertyValue") {
+          if (valueKeywords.hasOwnProperty(word)) {
             style = "string-2";
-          } else if (colorKeywords[stream.current()]) {
+          } else if (colorKeywords.hasOwnProperty(word)) {
             style = "keyword";
           } else {
             style = "variable-2";
           }
         } else if (context == "rule") {
-          if (!propertyKeywords[stream.current()]) {
+          if (!propertyKeywords.hasOwnProperty(word)) {
             style += " error";
           }
         } else if (context == "block") {
           // if a value is present in both property, value, or color, the order
           // of preference is property -> color -> value
-          if (propertyKeywords[stream.current()]) {
+          if (propertyKeywords.hasOwnProperty(word)) {
             style = "property";
-          } else if (colorKeywords[stream.current()]) {
+          } else if (colorKeywords.hasOwnProperty(word)) {
             style = "keyword";
-          } else if (valueKeywords[stream.current()]) {
+          } else if (valueKeywords.hasOwnProperty(word)) {
             style = "string-2";
           } else {
             style = "tag";
@@ -194,38 +195,36 @@ CodeMirror.defineMode("css-base", function(config, parserConfig) {
         } else if (context == "@media") {
           if (atMediaTypes[stream.current()]) {
             style = "attribute"; // Known attribute
-          } else if (/^(only|not)$/i.test(stream.current())) {
+          } else if (/^(only|not)$/.test(word)) {
             style = "keyword";
-          } else if (stream.current().toLowerCase() == "and") {
+          } else if (word == "and") {
             style = "error"; // "and" is only allowed in @mediaType
-          } else if (atMediaFeatures[stream.current()]) {
+          } else if (atMediaFeatures.hasOwnProperty(word)) {
             style = "error"; // Known property, should be in @mediaType(
           } else {
             // Unknown, expecting keyword or attribute, assuming attribute
             style = "attribute error";
           }
         } else if (context == "@mediaType") {
-          if (atMediaTypes[stream.current()]) {
+          if (atMediaTypes.hasOwnProperty(word)) {
             style = "attribute";
-          } else if (stream.current().toLowerCase() == "and") {
+          } else if (word == "and") {
             style = "operator";
-          } else if (/^(only|not)$/i.test(stream.current())) {
+          } else if (/^(only|not)$/.test(word)) {
             style = "error"; // Only allowed in @media
-          } else if (atMediaFeatures[stream.current()]) {
-            style = "error"; // Known property, should be in parentheses
           } else {
             // Unknown attribute or property, but expecting property (preceded
             // by "and"). Should be in parentheses
             style = "error";
           }
         } else if (context == "@mediaType(") {
-          if (propertyKeywords[stream.current()]) {
+          if (propertyKeywords.hasOwnProperty(word)) {
             // do nothing, remains "property"
-          } else if (atMediaTypes[stream.current()]) {
+          } else if (atMediaTypes.hasOwnProperty(word)) {
             style = "error"; // Known property, should be in parentheses
-          } else if (stream.current().toLowerCase() == "and") {
+          } else if (word == "and") {
             style = "operator";
-          } else if (/^(only|not)$/i.test(stream.current())) {
+          } else if (/^(only|not)$/.test(word)) {
             style = "error"; // Only allowed in @media
           } else {
             style += " error";
