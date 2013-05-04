@@ -1360,9 +1360,6 @@
     <h3 id="api_misc">Miscellaneous methods</h3>
 
     <dl>
-      <dt id="constructor"><code><strong>CodeMirror</strong>(elt: Element|function(elt: Element), ?config: object)</code></dt>
-      <dd>The constructor. See <a href="#usage">Basic Usage</a>.</dd>
-
       <dt id="operation"><code><strong>cm.operation</strong>(func: () → any) → any</code></dt>
       <dd>CodeMirror internally buffers changes and only updates its
       DOM structure after it has finished performing some operation.
@@ -1388,6 +1385,11 @@
           <dt><code><strong>"subtract"</strong></code></dt>
           <dd>Reduce the indentation of the line.</dd>
         </dl></dd>
+
+      <dt id="toggleOverwrite"><code><strong>cm.toggleOverwrite</strong>(?value: bool)</code></dt>
+      <dd>Switches between overwrite and normal insert mode (when not
+      given an argument), or sets the overwrite mode to a specific
+      state (when given an argument).</dd>
 
       <dt id="posFromIndex"><code><strong>doc.posFromIndex</strong>(index: integer) → {line, ch}</code></dt>
       <dd>Calculates and returns a <code>{line, ch}</code> object for a
