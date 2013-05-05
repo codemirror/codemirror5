@@ -2120,6 +2120,12 @@
 
             cur.line = word.line;
 
+            if (forward && word.line > cur.line) {
+              cur.line += 1;
+            } else if (!forward && word.line < cur.line) {
+              cur.line -= 1;
+            }
+
             if (forward && wordEnd) {
               // 'e'
               cur.ch = word.to - 1;
