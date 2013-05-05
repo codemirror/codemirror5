@@ -10,7 +10,9 @@ var code = '' +
 '    n = read(0, buf, sizeof buf);\n' +
 '    bufp = buf;\n' +
 '  }\n' +
-'  return (--n >= 0) ? (unsigned char) *bufp++ : EOF;\n' +
+'\n' +
+'  return (--n >= 0) ? (unsigned char) *bufp++ : EOF;\n' + 
+' \n' +
 '}\n';
 
 var lines = (function() {
@@ -243,6 +245,8 @@ testMotion('j_repeat', ['2', 'j'], offsetCursor(word1.end, 2, 0), word1.end);
 testMotion('k', 'k', offsetCursor(word3.end, -1, 0), word3.end);
 testMotion('k_repeat', ['2', 'k'], makeCursor(0, 4), makeCursor(2, 4));
 testMotion('w', 'w', word1.start);
+testMotion('w_multiple_newlines_no_space', 'w', makeCursor(12, 2), makeCursor(11, 2));
+testMotion('w_multiple_newlines_with_space', 'w', makeCursor(14, 0), makeCursor(12, 51));
 testMotion('w_repeat', ['2', 'w'], word2.start);
 testMotion('w_wrap', ['w'], word3.start, word2.start);
 testMotion('w_endOfDocument', 'w', endOfDocument, endOfDocument);
@@ -418,6 +422,7 @@ testVim('dl', function(cm, vim, helpers) {
   eqPos(curStart, cm.getCursor());
 }, { value: ' word1 ' });
 testVim('dl_eol', function(cm, vim, helpers) {
+  // TODO:  This test is incorrect.  The cursor should end up at (0, 5).
   var curStart = makeCursor(0, 6);
   cm.setCursor(curStart);
   helpers.doKeys('d', 'l');
