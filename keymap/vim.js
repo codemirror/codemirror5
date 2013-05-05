@@ -2144,7 +2144,6 @@
      * @return {Object{from:number, to:number, line: number}} The boundaries of
      *     the word, or null if there are no more words.
      */
-    // TODO: Treat empty lines (with no whitespace) as words.
     function findWord(cm, cur, forward, bigWord) {
       var lineNum = cur.line;
       var pos = cur.ch;
@@ -2152,7 +2151,19 @@
       var dir = forward ? 1 : -1;
       var regexps = bigWord ? bigWordRegexp : wordRegexp;
 
+      if (line == '') {
+        lineNum += dir;
+        line = cm.getLine(lineNum);
+        if (!isLine(cm, lineNum)) {
+          return null;
+        }
+        pos = (forward) ? 0 : line.length;
+      }
+
       while (true) {
+        if (line == '') {
+          return { from: 0, to: 0, line: lineNum };
+        }
         var stop = (dir > 0) ? line.length : -1;
         var wordStart = stop, wordEnd = stop;
         // Find bounds of next word.

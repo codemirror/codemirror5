@@ -246,21 +246,25 @@ testMotion('w', 'w', word1.start);
 testMotion('w_repeat', ['2', 'w'], word2.start);
 testMotion('w_wrap', ['w'], word3.start, word2.start);
 testMotion('w_endOfDocument', 'w', endOfDocument, endOfDocument);
+testMotion('w_start_to_end', ['1000', 'w'], endOfDocument, makeCursor(0, 0));
 testMotion('W', 'W', bigWord1.start);
 testMotion('W_repeat', ['2', 'W'], bigWord3.start, bigWord1.start);
 testMotion('e', 'e', word1.end);
 testMotion('e_repeat', ['2', 'e'], word2.end);
 testMotion('e_wrap', 'e', word3.end, word2.end);
 testMotion('e_endOfDocument', 'e', endOfDocument, endOfDocument);
+testMotion('e_start_to_end', ['1000', 'e'], endOfDocument, makeCursor(0, 0));
 testMotion('b', 'b', word3.start, word3.end);
 testMotion('b_repeat', ['2', 'b'], word2.start, word3.end);
 testMotion('b_wrap', 'b', word2.start, word3.start);
 testMotion('b_startOfDocument', 'b', makeCursor(0, 0), makeCursor(0, 0));
+testMotion('b_end_to_start', ['1000', 'b'], makeCursor(0, 0), endOfDocument);
 testMotion('ge', ['g', 'e'], word2.end, word3.end);
 testMotion('ge_repeat', ['2', 'g', 'e'], word1.end, word3.start);
 testMotion('ge_wrap', ['g', 'e'], word2.end, word3.start);
 testMotion('ge_startOfDocument', ['g', 'e'], makeCursor(0, 0),
     makeCursor(0, 0));
+testMotion('ge_end_to_start', ['1000', 'g', 'e'], makeCursor(0, 0), endOfDocument);
 testMotion('gg', ['g', 'g'], makeCursor(lines[0].line, lines[0].textStart),
     makeCursor(3, 1));
 testMotion('gg_repeat', ['3', 'g', 'g'],
