@@ -1207,9 +1207,9 @@
         cm.scrollTo(null, scrollbox.top + dest.top - orig.top);
         return curEnd;
       },
-      moveByWords: function(cm, motionArgs, vim) {
+      moveByWords: function(cm, motionArgs) {
         return moveToWord(cm, motionArgs.repeat, !!motionArgs.forward,
-            !!motionArgs.wordEnd, !!motionArgs.bigWord, vim.inputState.operator);
+            !!motionArgs.wordEnd, !!motionArgs.bigWord);
       },
       moveTillCharacter: function(cm, motionArgs) {
         var repeat = motionArgs.repeat;
@@ -2104,7 +2104,7 @@
      *     False if only alphabet characters count as part of the word.
      * @return {Cursor} The position the cursor should move to.
      */
-    function moveToWord(cm, repeat, forward, wordEnd, bigWord, operator) {
+    function moveToWord(cm, repeat, forward, wordEnd, bigWord) {
       var cur = cm.getCursor();
       for (var i = 0; i < repeat; i++) {
         var startCh = cur.ch, startLine = cur.line, word;
