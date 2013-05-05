@@ -10,7 +10,9 @@ var code = '' +
 '    n = read(0, buf, sizeof buf);\n' +
 '    bufp = buf;\n' +
 '  }\n' +
-'  return (--n >= 0) ? (unsigned char) *bufp++ : EOF;\n' +
+'\n' +
+'  return (--n >= 0) ? (unsigned char) *bufp++ : EOF;\n' + 
+' \n' +
 '}\n';
 
 var lines = (function() {
@@ -196,6 +198,8 @@ testMotion('j_repeat', ['2', 'j'], offsetCursor(word1.end, 2, 0), word1.end);
 testMotion('k', 'k', offsetCursor(word3.end, -1, 0), word3.end);
 testMotion('k_repeat', ['2', 'k'], makeCursor(0, 4), makeCursor(2, 4));
 testMotion('w', 'w', word1.start);
+testMotion('w_multiple_newlines_no_space', 'w', makeCursor(12, 2), makeCursor(10, 2));
+testMotion('w_multiple_newlines_with_space', 'w', makeCursor(14, 0), makeCursor(12, 51));
 testMotion('w_repeat', ['2', 'w'], word2.start);
 testMotion('w_wrap', ['w'], word3.start, word2.start);
 testMotion('w_endOfDocument', 'w', endOfDocument, endOfDocument);
@@ -374,7 +378,7 @@ testVim('dl_eol', function(cm, vim, helpers) {
   var register = helpers.getRegisterController().getRegister();
   eq(' ', register.text);
   is(!register.linewise);
-  helpers.assertCursorAt(0, 6);
+  helpers.assertCursorAt(0, 5);
 }, { value: ' word1 ' });
 testVim('dl_repeat', function(cm, vim, helpers) {
   var curStart = makeCursor(0, 0);
@@ -480,6 +484,18 @@ testVim('dw_eol', function(cm, vim, helpers) {
   is(!register.linewise);
   eqPos(curStart, cm.getCursor());
 }, { value: ' word1\nword2' });
+testVim('dw_eol_with_multiple_newlines', function(cm, vim, helpers) {
+  // Assert that dw does not delete the newline if last word to delete is at end
+  // of line and it is followed by multiple newlines.
+  var curStart = makeCursor(0, 1);
+  cm.setCursor(curStart);
+  helpers.doKeys('d', 'w');
+  eq(' \n\nword2', cm.getValue());
+  var register = helpers.getRegisterController().getRegister();
+  eq('word1', register.text);
+  is(!register.linewise);
+  eqPos(curStart, cm.getCursor());
+}, { value: ' word1\n\nword2' });
 testVim('dw_repeat', function(cm, vim, helpers) {
   // Assert that dw does delete newline if it should go to the next line, and
   // that repeat works properly.

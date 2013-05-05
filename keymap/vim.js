@@ -303,6 +303,7 @@
     var alphabetRegex = /[A-Za-z]/;
     var numberRegex = /[\d]/;
     var whiteSpaceRegex = /\s/;
+    var whitespaceLineRegex = /^\s+$/;
     var wordRegexp = [(/\w/), (/[^\w\s]/)], bigWordRegexp = [(/\S/)];
     function makeKeyRange(start, size) {
       var keys = [];
@@ -911,7 +912,6 @@
               inputState.selectedCharacter;
         }
         motionArgs.repeat = repeat;
-        vim.inputState = new InputState();
         if (motion) {
           var motionResult = motions[motion](cm, motionArgs, vim);
           vim.lastMotion = motions[motion];
@@ -1008,6 +1008,7 @@
             actions.enterInsertMode(cm);
           }
         }
+        vim.inputState = new InputState();
       },
       recordLastEdit: function(cm, vim, inputState) {
         vim.lastEdit = inputState;
@@ -2024,7 +2025,6 @@
      * @return {Object{from:number, to:number, line: number}} The boundaries of
      *     the word, or null if there are no more words.
      */
-    // TODO: Treat empty lines (with no whitespace) as words.
     function findWord(cm, cur, forward, bigWord) {
       var lineNum = cur.line;
       var pos = cur.ch;
@@ -2033,6 +2033,24 @@
       var regexps = bigWord ? bigWordRegexp : wordRegexp;
 
       while (true) {
+        if (pos == 0) {
+          // Treat lines containing no characters as words.
+          if (line == "") {
+            return { from: 0, to: 0, line: lineNum };
+          }
+          // Skip lines containing only whitespace.
+          if (whitespaceLineRegex.test(line)) {
+            while (whitespaceLineRegex.test(line)) {
+              lineNum += 1;
+              line = cm.getLine(lineNum);
+            }
+            return {
+              from: findFirstNonWhiteSpaceCharacter(line),
+              to: Math.max(wordStart, wordEnd),
+              line: lineNum };
+          }
+        }
+
         var stop = (dir > 0) ? line.length : -1;
         var wordStart = stop, wordEnd = stop;
         // Find bounds of next word.
@@ -2099,7 +2117,15 @@
             // Move to the word we just found. If by moving to the word we end
             // up in the same spot, then move an extra character and search
             // again.
+
             cur.line = word.line;
+
+            if (forward && word.line > cur.line) {
+              cur.line += 1;
+            } else if (!forward && word.line < cur.line) {
+              cur.line -= 1;
+            }
+
             if (forward && wordEnd) {
               // 'e'
               cur.ch = word.to - 1;
