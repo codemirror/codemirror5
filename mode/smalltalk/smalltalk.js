@@ -121,7 +121,6 @@ CodeMirror.defineMode('smalltalk', function(config) {
       state.context = token.context;
       state.expectVariable = token.eos;
 
-      state.lastToken = token;
       return token.name;
     },
 
