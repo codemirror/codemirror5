@@ -81,13 +81,13 @@
     // Motions
     { keys: ['H'], type: 'motion',
         motion: 'moveToTopLine',
-        motionArgs: { linewise: true }},
+        motionArgs: { linewise: true, toJumplist: true }},
     { keys: ['M'], type: 'motion',
         motion: 'moveToMiddleLine',
-        motionArgs: { linewise: true }},
+        motionArgs: { linewise: true, toJumplist: true }},
     { keys: ['L'], type: 'motion',
         motion: 'moveToBottomLine',
-        motionArgs: { linewise: true }},
+        motionArgs: { linewise: true, toJumplist: true }},
     { keys: ['h'], type: 'motion',
         motion: 'moveByCharacters',
         motionArgs: { forward: false }},
@@ -133,9 +133,9 @@
         motionArgs: { forward: false, wordEnd: true, bigWord: true,
             inclusive: true }},
     { keys: ['{'], type: 'motion', motion: 'moveByParagraph',
-        motionArgs: { forward: false }},
+        motionArgs: { forward: false, toJumplist: true }},
     { keys: ['}'], type: 'motion', motion: 'moveByParagraph',
-        motionArgs: { forward: true }},
+        motionArgs: { forward: true, toJumplist: true }},
     { keys: ['Ctrl-f'], type: 'motion',
         motion: 'moveByPage', motionArgs: { forward: true }},
     { keys: ['Ctrl-b'], type: 'motion',
@@ -148,10 +148,10 @@
         motionArgs: { forward: false, explicitRepeat: true }},
     { keys: ['g', 'g'], type: 'motion',
         motion: 'moveToLineOrEdgeOfDocument',
-        motionArgs: { forward: false, explicitRepeat: true, linewise: true }},
+        motionArgs: { forward: false, explicitRepeat: true, linewise: true, toJumplist: true }},
     { keys: ['G'], type: 'motion',
         motion: 'moveToLineOrEdgeOfDocument',
-        motionArgs: { forward: true, explicitRepeat: true, linewise: true }},
+        motionArgs: { forward: true, explicitRepeat: true, linewise: true, toJumplist: true }},
     { keys: ['0'], type: 'motion', motion: 'moveToStartOfLine' },
     { keys: ['^'], type: 'motion',
         motion: 'moveToFirstNonWhiteSpaceCharacter' },
@@ -169,7 +169,7 @@
         motionArgs: { inclusive: true }},
     { keys: ['%'], type: 'motion',
         motion: 'moveToMatchedSymbol',
-        motionArgs: { inclusive: true }},
+        motionArgs: { inclusive: true, toJumplist: true }},
     { keys: ['f', 'character'], type: 'motion',
         motion: 'moveToCharacter',
         motionArgs: { forward: true , inclusive: true }},
@@ -186,18 +186,24 @@
         motionArgs: { forward: true }},
     { keys: [','], type: 'motion', motion: 'repeatLastCharacterSearch',
         motionArgs: { forward: false }},
-    { keys: ['\'', 'character'], type: 'motion', motion: 'goToMark' },
-    { keys: ['`', 'character'], type: 'motion', motion: 'goToMark' },
+    { keys: ['\'', 'character'], type: 'motion', motion: 'goToMark',
+        motionArgs: {toJumplist: true}},
+    { keys: ['`', 'character'], type: 'motion', motion: 'goToMark',
+        motionArgs: {toJumplist: true}},
     { keys: [']', '`',], type: 'motion', motion: 'jumpToMark', motionArgs: { forward: true } },
     { keys: ['[', '`',], type: 'motion', motion: 'jumpToMark', motionArgs: { forward: false } },
     { keys: [']', '\''], type: 'motion', motion: 'jumpToMark', motionArgs: { forward: true, linewise: true } },
     { keys: ['[', '\''], type: 'motion', motion: 'jumpToMark', motionArgs: { forward: false, linewise: true } },
+    { keys: ['Ctrl-i'], type: 'motion', motion: 'jumpBackForth',
+        motionArgs: { forward: true }},
+    { keys: ['Ctrl-o'], type: 'motion', motion: 'jumpBackForth',
+        motionArgs: { forward: false }},
     { keys: [']', 'character'], type: 'motion',
         motion: 'moveToSymbol',
-        motionArgs: { forward: true}},
+        motionArgs: { forward: true, toJumplist: true}},
     { keys: ['[', 'character'], type: 'motion',
         motion: 'moveToSymbol',
-        motionArgs: { forward: false}},
+        motionArgs: { forward: false, toJumplist: true}},
     { keys: ['|'], type: 'motion',
         motion: 'moveToColumn',
         motionArgs: { }},
@@ -212,9 +218,9 @@
         operatorArgs: { indentRight: false }},
     { keys: ['g', '~'], type: 'operator', operator: 'swapcase' },
     { keys: ['n'], type: 'motion', motion: 'findNext',
-        motionArgs: { forward: true }},
+        motionArgs: { forward: true, toJumplist: true }},
     { keys: ['N'], type: 'motion', motion: 'findNext',
-        motionArgs: { forward: false }},
+        motionArgs: { forward: false, toJumplist: true }},
     // Operator-Motion dual commands
     { keys: ['x'], type: 'operatorMotion', operator: 'delete',
         motion: 'moveByCharacters', motionArgs: { forward: true },
@@ -288,13 +294,13 @@
         motionArgs: { textObjectInner: true }},
     // Search
     { keys: ['/'], type: 'search',
-        searchArgs: { forward: true, querySrc: 'prompt' }},
+        searchArgs: { forward: true, querySrc: 'prompt', toJumplist: true }},
     { keys: ['?'], type: 'search',
-        searchArgs: { forward: false, querySrc: 'prompt' }},
+        searchArgs: { forward: false, querySrc: 'prompt', toJumplist: true }},
     { keys: ['*'], type: 'search',
-        searchArgs: { forward: true, querySrc: 'wordUnderCursor' }},
+        searchArgs: { forward: true, querySrc: 'wordUnderCursor', toJumplist: true }},
     { keys: ['#'], type: 'search',
-        searchArgs: { forward: false, querySrc: 'wordUnderCursor' }},
+        searchArgs: { forward: false, querySrc: 'wordUnderCursor', toJumplist: true }},
     // Ex command
     { keys: [':'], type: 'ex' }
   ];
@@ -362,6 +368,34 @@
       return false;
     }
 
+    var circularJumpList = (function(){
+      var size = 100;
+      var pointer = -1;
+      var head = 0;
+      var tail = 0;
+      var buffer = new Array(size);
+      function add(obj) {
+        buffer[++pointer % size] = obj;
+        head = pointer;
+        tail = pointer - size + 1;
+        if (tail < 0) {
+          tail = 0;
+        }
+      }
+      function move(offset) {
+        pointer += offset;
+        if (pointer > head) {
+          pointer = head;
+        } else if (pointer < tail) {
+          pointer = tail;
+        }
+        return buffer[(size + pointer) % size];
+      }
+      return {
+        add: add,
+        move: move
+      };
+    })();
     // Global Vim state. Call getVimGlobalState to get and initialize.
     var vimGlobalState;
     function getVimGlobalState() {
@@ -371,6 +405,7 @@
           searchQuery: null,
           // Whether we are searching backwards.
           searchIsReversed: false,
+          jumpList: circularJumpList,
           // Recording latest f, t, F or T motion command.
           lastChararacterSearch: {increment:0, forward:true, selectedCharacter:''},
           registerController: new RegisterController({})
@@ -776,7 +811,7 @@
           commandDispatcher.processMotion(cm, vim, {
             type: 'motion',
             motion: 'findNext',
-            motionArgs: { forward: true }
+            motionArgs: { forward: true, toJumplist: command.searchArgs.toJumplist }
           });
         }
         function onPromptClose(query) {
@@ -842,6 +877,7 @@
               query = escapeRegex(query);
             }
             cm.setCursor(word.start);
+
             handleQuery(query, true /** ignoreCase */, false /** smartCase */);
             break;
         }
@@ -917,6 +953,9 @@
           vim.lastMotion = motions[motion];
           if (!motionResult) {
             return;
+          }
+          if (motionArgs.toJumplist) {
+            recordJumpPosition(cm, motionResult);
           }
           if (motionResult instanceof Array) {
             curStart = motionResult[0];
@@ -1058,6 +1097,15 @@
         }
         return null;
       },
+      jumpBackForth: function(cm, motionArgs) {
+        var repeat = motionArgs.repeat;
+        var forward = motionArgs.forward;
+        var jumpList = getVimGlobalState().jumpList;
+
+        var mark = jumpList.move(forward ? repeat : -repeat);
+        var markPos = mark ? mark.find() : cm.getCursor();
+        return markPos;
+      },
       jumpToMark: function(cm, motionArgs, vim) {
         var best = cm.getCursor(); 
         for (var i = 0; i < motionArgs.repeat; i++) {
@@ -1078,7 +1126,7 @@
             }
 
             var equal = cursorEqual(cursor, best);
-            var between = (motionArgs.forward) ? 
+            var between = (motionArgs.forward) ?
               cusrorIsBetween(cursor, mark, best) :
               cusrorIsBetween(best, mark, cursor);
 
@@ -1891,6 +1939,16 @@
 
       return { start: { line: cur.line, ch: wordStart },
         end: { line: cur.line, ch: wordEnd }};
+    }
+
+    function recordJumpPosition(cm, motionResult) {
+      if(!isSamePosition(cm.getCursor(), motionResult)) {
+        getVimGlobalState().jumpList.add(cm.setBookmark(motionResult));
+      }
+    }
+
+    function isSamePosition(pos1, pos2) {
+      return pos1.ch === pos2.ch && pos1.line === pos2.line;
     }
 
     function recordLastCharacterSearch(increment, args) {
