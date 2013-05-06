@@ -40,7 +40,10 @@ CodeMirror.defineMode('smalltalk', function(config) {
       token.name = 'string-2';
 
     } else if (aChar === '$') {
-      stream.eatWhile(/[^ ]/);
+      if (stream.next() === '<') {
+        stream.eatWhile(/[^ >]/);
+        stream.next();
+      }
       token.name = 'string-2';
 
     } else if (aChar === '|' && state.expectVariable) {
