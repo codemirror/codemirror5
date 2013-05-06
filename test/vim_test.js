@@ -688,6 +688,48 @@ testVim('<<', function(cm, vim, helpers) {
   helpers.assertCursorAt(0, 1);
 }, { value: '   word1\n  word2\nword3 ', indentUnit: 2 });
 
+// Edit tests
+function testEdit(name, before, pos, edit, after) {
+  return testVim(name, function(cm, vim, helpers) {
+             cm.setCursor(0, before.search(pos));
+             helpers.doKeys.apply(this, edit.split(''));
+             eq(after, cm.getValue());
+           }, {value: before});
+}
+
+// These Delete tests effectively cover word-wise Change, Visual & Yank.
+// Tabs are used as differentiated whitespace to catch edge cases.
+// Normal word:
+testEdit('diw_mid_spc', 'foo \tbAr\t baz', /A/, 'diw', 'foo \t\t baz');
+testEdit('daw_mid_spc', 'foo \tbAr\t baz', /A/, 'daw', 'foo \tbaz');
+testEdit('diw_mid_punct', 'foo \tbAr.\t baz', /A/, 'diw', 'foo \t.\t baz');
+testEdit('daw_mid_punct', 'foo \tbAr.\t baz', /A/, 'daw', 'foo.\t baz');
+testEdit('diw_mid_punct2', 'foo \t,bAr.\t baz', /A/, 'diw', 'foo \t,.\t baz');
+testEdit('daw_mid_punct2', 'foo \t,bAr.\t baz', /A/, 'daw', 'foo \t,.\t baz');
+testEdit('diw_start_spc', 'bAr \tbaz', /A/, 'diw', ' \tbaz');
+testEdit('daw_start_spc', 'bAr \tbaz', /A/, 'daw', 'baz');
+testEdit('diw_start_punct', 'bAr. \tbaz', /A/, 'diw', '. \tbaz');
+testEdit('daw_start_punct', 'bAr. \tbaz', /A/, 'daw', '. \tbaz');
+testEdit('diw_end_spc', 'foo \tbAr', /A/, 'diw', 'foo \t');
+testEdit('daw_end_spc', 'foo \tbAr', /A/, 'daw', 'foo');
+testEdit('diw_end_punct', 'foo \tbAr.', /A/, 'diw', 'foo \t.');
+testEdit('daw_end_punct', 'foo \tbAr.', /A/, 'daw', 'foo.');
+// Big word:
+testEdit('diW_mid_spc', 'foo \tbAr\t baz', /A/, 'diW', 'foo \t\t baz');
+testEdit('daW_mid_spc', 'foo \tbAr\t baz', /A/, 'daW', 'foo \tbaz');
+testEdit('diW_mid_punct', 'foo \tbAr.\t baz', /A/, 'diW', 'foo \t\t baz');
+testEdit('daW_mid_punct', 'foo \tbAr.\t baz', /A/, 'daW', 'foo \tbaz');
+testEdit('diW_mid_punct2', 'foo \t,bAr.\t baz', /A/, 'diW', 'foo \t\t baz');
+testEdit('daW_mid_punct2', 'foo \t,bAr.\t baz', /A/, 'daW', 'foo \tbaz');
+testEdit('diW_start_spc', 'bAr\t baz', /A/, 'diW', '\t baz');
+testEdit('daW_start_spc', 'bAr\t baz', /A/, 'daW', 'baz');
+testEdit('diW_start_punct', 'bAr.\t baz', /A/, 'diW', '\t baz');
+testEdit('daW_start_punct', 'bAr.\t baz', /A/, 'daW', 'baz');
+testEdit('diW_end_spc', 'foo \tbAr', /A/, 'diW', 'foo \t');
+testEdit('daW_end_spc', 'foo \tbAr', /A/, 'daW', 'foo');
+testEdit('diW_end_punct', 'foo \tbAr.', /A/, 'diW', 'foo \t');
+testEdit('daW_end_punct', 'foo \tbAr.', /A/, 'daW', 'foo');
+
 // Operator-motion tests
 testVim('D', function(cm, vim, helpers) {
   var curStart = makeCursor(0, 3);
