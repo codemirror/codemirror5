@@ -835,7 +835,7 @@
               return;
             }
             var query = cm.getLine(word.start.line).substring(word.start.ch,
-                word.end.ch + 1);
+                word.end.ch);
             if (isKeyword) {
               query = '\\b' + query + '\\b';
             } else {
@@ -1866,15 +1866,27 @@
 
       var wordAfterRegex = matchRegex.exec(textAfterIdx);
       var wordStart = idx;
-      var wordEnd = idx + wordAfterRegex[0].length - 1;
+      var wordEnd = idx + wordAfterRegex[0].length;
       // TODO: Find a better way to do this. It will be slow on very long lines.
-      var wordBeforeRegex = matchRegex.exec(reverse(textBeforeIdx));
+      var revTextBeforeIdx = reverse(textBeforeIdx);
+      var wordBeforeRegex = matchRegex.exec(revTextBeforeIdx);
       if (wordBeforeRegex) {
         wordStart -= wordBeforeRegex[0].length;
       }
 
       if (inclusive) {
-        wordEnd++;
+        // If present, trim all whitespace after word.
+        // Otherwise, trim all whitespace before word.
+        var textAfterWordEnd = line.substring(wordEnd);
+        var whitespacesAfterWord = textAfterWordEnd.match(/^\s*/)[0].length;
+        if (whitespacesAfterWord > 0) {
+          wordEnd += whitespacesAfterWord;
+        } else {
+          var revTrim = revTextBeforeIdx.length - wordStart;
+          var textBeforeWordStart = revTextBeforeIdx.substring(revTrim);
+          var whitespacesBeforeWord = textBeforeWordStart.match(/^\s*/)[0].length;
+          wordStart -= whitespacesBeforeWord;
+        }
       }
 
       return { start: { line: cur.line, ch: wordStart },
