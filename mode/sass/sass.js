@@ -9,7 +9,7 @@ CodeMirror.defineMode("sass", function(config) {
   var operators = ["\\(", "\\)", "=", ">", "<", "==", ">=", "<=", "\\+", "-", "\\!=", "/", "\\*", "%", "and", "or", "not"];
   var opRegexp = tokenRegexp(operators);
 
-  var pseudoElementsRegexp = /^:[\w\-]+/;
+  var pseudoElementsRegexp = /^::?[\w\-]+/;
 
   var urlTokens = function(stream, state){
     var ch = stream.peek();
