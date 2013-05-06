@@ -1,6 +1,6 @@
 CodeMirror.defineMode('smalltalk', function(config) {
 
-  var specialChars = /[+\-\/\\*~<>=@%|&?!.:;^]/;
+  var specialChars = /[+\-\/\\*~<>=@%|&?!.,:;^]/;
   var keywords = /true|false|nil|self|super|thisContext/;
 
   var Context = function(tokenizer, parent) {
