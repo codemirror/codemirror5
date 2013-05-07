@@ -2369,7 +2369,7 @@
             onKeyDown: options.onKeyDown, onKeyUp: options.onKeyUp });
       }
       else {
-        callback(prompt(shortText, ""));
+        onClose(prompt(shortText, ""));
       }
     }
     function findUnescapedSlashes(str) {
