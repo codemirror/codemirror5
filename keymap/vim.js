@@ -405,6 +405,7 @@
         return buffer[(size + pointer) % size];
       }
       return {
+        cachedCursor: undefined,
         add: add,
         move: move
       };
@@ -890,6 +891,9 @@
               query = escapeRegex(query);
             }
 
+            getVimGlobalState().jumpList.cachedCursor = cm.getCursor();
+            cm.setCursor(word.start);
+
             handleQuery(query, true /** ignoreCase */, false /** smartCase */);
             break;
         }
@@ -967,7 +971,14 @@
             return;
           }
           if (motionArgs.toJumplist) {
-            recordJumpPosition(cm, curOriginal, motionResult);
+            var jumpList = getVimGlobalState().jumpList;
+            var cachedCursor = jumpList.cachedCursor;
+            if (cachedCursor) {
+              recordJumpPosition(cm, cachedCursor, motionResult);
+              delete jumpList.cachedCursor;
+            } else {
+              recordJumpPosition(cm, curOriginal, motionResult);
+            }
           }
           if (motionResult instanceof Array) {
             curStart = motionResult[0];
