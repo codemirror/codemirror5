@@ -23,9 +23,9 @@
           return CodeMirror.Pass;
       }
     };
-    var closingBrackets = [];
+    var closingBrackets = "";
     for (var i = 0; i < pairs.length; i += 2) (function(left, right) {
-      if (left != right) closingBrackets.push(right);
+      if (left != right) closingBrackets += right;
       function surround(cm) {
         var selection = cm.getSelection();
         cm.replaceSelection(left + selection + right);
