@@ -194,10 +194,6 @@
     { keys: ['[', '`',], type: 'motion', motion: 'jumpToMark', motionArgs: { forward: false } },
     { keys: [']', '\''], type: 'motion', motion: 'jumpToMark', motionArgs: { forward: true, linewise: true } },
     { keys: ['[', '\''], type: 'motion', motion: 'jumpToMark', motionArgs: { forward: false, linewise: true } },
-    { keys: ['Ctrl-i'], type: 'motion', motion: 'jumpBackForth',
-        motionArgs: { forward: true }},
-    { keys: ['Ctrl-o'], type: 'motion', motion: 'jumpBackForth',
-        motionArgs: { forward: false }},
     { keys: [']', 'character'], type: 'motion',
         motion: 'moveToSymbol',
         motionArgs: { forward: true, toJumplist: true}},
@@ -241,6 +237,10 @@
     { keys: ['~'], type: 'operatorMotion', operator: 'swapcase',
         motion: 'moveByCharacters', motionArgs: { forward: true }},
     // Actions
+    { keys: ['Ctrl-i'], type: 'action', action: 'jumpListWalk',
+        actionArgs: { forward: true }},
+    { keys: ['Ctrl-o'], type: 'action', action: 'jumpListWalk',
+        actionArgs: { forward: false }},
     { keys: ['a'], type: 'action', action: 'enterInsertMode',
         actionArgs: { insertAt: 'charAfter' }},
     { keys: ['A'], type: 'action', action: 'enterInsertMode',
@@ -374,8 +374,21 @@
       var head = 0;
       var tail = 0;
       var buffer = new Array(size);
-      function add(obj) {
-        buffer[++pointer % size] = obj;
+      function add(cm, oldCur, newCur) {
+        var current = pointer % size;
+        var curMark = buffer[current];
+        function useNextSlot(cursor) {
+          var next = ++pointer % size;
+          var trashMark = buffer[next];
+          if (trashMark) {
+            trashMark.clear();
+          }
+          buffer[next] = cm.setBookmark(cursor);
+        }
+        if (!curMark || !cursorEqual(curMark.find(), oldCur)) {
+          useNextSlot(oldCur);
+        }
+        useNextSlot(newCur);
         head = pointer;
         tail = pointer - size + 1;
         if (tail < 0) {
@@ -876,7 +889,6 @@
             } else {
               query = escapeRegex(query);
             }
-            cm.setCursor(word.start);
 
             handleQuery(query, true /** ignoreCase */, false /** smartCase */);
             break;
@@ -955,7 +967,7 @@
             return;
           }
           if (motionArgs.toJumplist) {
-            recordJumpPosition(cm, motionResult);
+            recordJumpPosition(cm, curOriginal, motionResult);
           }
           if (motionResult instanceof Array) {
             curStart = motionResult[0];
@@ -1096,15 +1108,6 @@
           return mark.find();
         }
         return null;
-      },
-      jumpBackForth: function(cm, motionArgs) {
-        var repeat = motionArgs.repeat;
-        var forward = motionArgs.forward;
-        var jumpList = getVimGlobalState().jumpList;
-
-        var mark = jumpList.move(forward ? repeat : -repeat);
-        var markPos = mark ? mark.find() : cm.getCursor();
-        return markPos;
       },
       jumpToMark: function(cm, motionArgs, vim) {
         var best = cm.getCursor(); 
@@ -1432,6 +1435,18 @@
     };
 
     var actions = {
+      jumpListWalk: function(cm, actionArgs, vim) {
+        if (vim.visualMode) {
+          return;
+        }
+        var repeat = actionArgs.repeat;
+        var forward = actionArgs.forward;
+        var jumpList = getVimGlobalState().jumpList;
+
+        var mark = jumpList.move(forward ? repeat : -repeat);
+        var markPos = mark ? mark.find() : cm.getCursor();
+        cm.setCursor(markPos);
+      },
       scrollToCursor: function(cm, actionArgs) {
         var lineNum = cm.getCursor().line;
         var heightProp = window.getComputedStyle(cm.getScrollerElement()).
@@ -1941,14 +1956,10 @@
         end: { line: cur.line, ch: wordEnd }};
     }
 
-    function recordJumpPosition(cm, motionResult) {
-      if(!isSamePosition(cm.getCursor(), motionResult)) {
-        getVimGlobalState().jumpList.add(cm.setBookmark(motionResult));
+    function recordJumpPosition(cm, oldCur, newCur) {
+      if(!cursorEqual(oldCur, newCur)) {
+        getVimGlobalState().jumpList.add(cm, oldCur, newCur);
       }
-    }
-
-    function isSamePosition(pos1, pos2) {
-      return pos1.ch === pos2.ch && pos1.line === pos2.line;
     }
 
     function recordLastCharacterSearch(increment, args) {
