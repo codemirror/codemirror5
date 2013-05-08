@@ -1322,9 +1322,14 @@
       },
       moveToMatchedSymbol: function(cm, motionArgs) {
         var cursor = cm.getCursor();
-        var symbol = cm.getLine(cursor.line).charAt(cursor.ch);
-        if (isMatchableSymbol(symbol)) {
-          return findMatchedSymbol(cm, cm.getCursor(), motionArgs.symbol);
+        var lineText = cm.getLine(cursor.line);
+        var ch = cursor.ch;
+        var symbol;
+        do {
+          symbol = lineText.charAt(ch++);
+        } while (!isMatchableSymbol(symbol));
+        if (symbol) {
+          return findMatchedSymbol(cm, {line:cursor.line, ch:ch-1}, symbol);
         } else {
           return cursor;
         }

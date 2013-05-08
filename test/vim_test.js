@@ -32,6 +32,7 @@ var wordLine = lines[0];
 var bigWordLine = lines[1];
 var charLine = lines[2];
 var bracesLine = lines[3];
+var seekBraceLine = lines[4];
 
 var word1 = {
   start: { line: wordLine.line, ch: 1 },
@@ -79,6 +80,14 @@ var squares1 = {
 var curlys1 = {
   start: { line: bracesLine.line, ch: 9 },
   end: { line: bracesLine.line, ch: 11 }
+};
+var seekOutside = {
+  start: { line: seekBraceLine.line, ch: 1 },
+  end: { line: seekBraceLine.line, ch: 16 }
+};
+var seekInside = {
+  start: { line: seekBraceLine.line, ch: 14 },
+  end: { line: seekBraceLine.line, ch: 11 }
 };
 
 function copyCursor(cur) {
@@ -287,6 +296,8 @@ testMotion('T_repeat', ['2', 'T', 'p'], offsetCursor(pChars[0], 0, 1), pChars[2]
 testMotion('%_parens', ['%'], parens1.end, parens1.start);
 testMotion('%_squares', ['%'], squares1.end, squares1.start);
 testMotion('%_braces', ['%'], curlys1.end, curlys1.start);
+testMotion('%_seek_outside', ['%'], seekOutside.end, seekOutside.start);
+testMotion('%_seek_inside', ['%'], seekInside.end, seekInside.start);
 // Make sure that moving down after going to the end of a line always leaves you
 // at the end of a line, but preserves the offset in other cases
 testVim('Changing lines after Eol operation', function(cm, vim, helpers) {
