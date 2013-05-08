@@ -405,7 +405,7 @@
         return buffer[(size + pointer) % size];
       }
       return {
-        cachedCursor: undefined,
+        cachedCursor: undefined, //used for # and * jumps
         add: add,
         move: move
       };
@@ -891,6 +891,9 @@
               query = escapeRegex(query);
             }
 
+            // cachedCursor is used to save the old position of the cursor
+            // when * or # causes vim to seek for the nearest word and shift
+            // the cursor before entering the motion.
             getVimGlobalState().jumpList.cachedCursor = cm.getCursor();
             cm.setCursor(word.start);
 
@@ -972,6 +975,7 @@
           }
           if (motionArgs.toJumplist) {
             var jumpList = getVimGlobalState().jumpList;
+            // if the current motion is # or *, use cachedCursor
             var cachedCursor = jumpList.cachedCursor;
             if (cachedCursor) {
               recordJumpPosition(cm, cachedCursor, motionResult);

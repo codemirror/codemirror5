@@ -158,6 +158,47 @@ function testVim(name, run, opts, expectedFail) {
     }
   }, expectedFail);
 };
+var jumplistScene = ''+
+  'word\n'+
+  '(word)\n'+
+  '{word\n'+
+  'word.\n'+
+  '\n'+
+  'word search\n'+
+  '}word\n'+
+  'word\n'+
+  'word\n';
+function testJumplist(name, keys, endPos, startPos, dialog) {
+  endPos = makeCursor(endPos[0], endPos[1]);
+  startPos = makeCursor(startPos[0], startPos[1]);
+  testVim(name, function(cm, vim, helpers) {
+    if(dialog)cm.openDialog = helpers.fakeOpenDialog('word');
+    cm.setCursor(startPos);
+    helpers.doKeys.apply(null, keys);
+    helpers.assertCursorAt(endPos);
+  }, {value: jumplistScene});
+};
+testJumplist('jumplist_H', ['H', 'Ctrl-o'], [5,2], [5,2]);
+testJumplist('jumplist_M', ['M', 'Ctrl-o'], [2,2], [2,2]);
+testJumplist('jumplist_L', ['L', 'Ctrl-o'], [2,2], [2,2]);
+testJumplist('jumplist_[[', ['[', '[', 'Ctrl-o'], [5,2], [5,2]);
+testJumplist('jumplist_]]', [']', ']', 'Ctrl-o'], [2,2], [2,2]);
+testJumplist('jumplist_G', ['G', 'Ctrl-o'], [5,2], [5,2]);
+testJumplist('jumplist_gg', ['g', 'g', 'Ctrl-o'], [5,2], [5,2]);
+testJumplist('jumplist_%', ['%', 'Ctrl-o'], [1,5], [1,5]);
+testJumplist('jumplist_{', ['{', 'Ctrl-o'], [1,5], [1,5]);
+testJumplist('jumplist_}', ['}', 'Ctrl-o'], [1,5], [1,5]);
+testJumplist('jumplist_\'', ['m', 'a', 'h', '\'', 'a', 'h', 'Ctrl-i'], [1,5], [1,5]);
+testJumplist('jumplist_`', ['m', 'a', 'h', '`', 'a', 'h', 'Ctrl-i'], [1,5], [1,5]);
+testJumplist('jumplist_*_cachedCursor', ['*', 'Ctrl-o'], [1,3], [1,3]);
+testJumplist('jumplist_#_cachedCursor', ['#', 'Ctrl-o'], [1,3], [1,3]);
+testJumplist('jumplist_n', ['#', 'n', 'Ctrl-o'], [1,1], [2,3]);
+testJumplist('jumplist_N', ['#', 'N', 'Ctrl-o'], [1,1], [2,3]);
+testJumplist('jumplist_repeat_<c-o>', ['*', '*', '*', '3', 'Ctrl-o'], [2,3], [2,3]);
+testJumplist('jumplist_repeat_<c-i>', ['*', '*', '*', '3', 'Ctrl-o', '2', 'Ctrl-i'], [5,0], [2,3]);
+testJumplist('jumplist_repeated_motion', ['3', '*', 'Ctrl-o'], [2,3], [2,3]);
+testJumplist('jumplist_/', ['/', 'Ctrl-o'], [2,3], [2,3], 'dialog');
+testJumplist('jumplist_?', ['?', 'Ctrl-o'], [2,3], [2,3], 'dialog');
 
 /**
  * @param name Name of the test
