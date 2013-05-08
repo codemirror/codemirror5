@@ -1345,9 +1345,24 @@
       },
       moveToMatchedSymbol: function(cm, motionArgs) {
         var cursor = cm.getCursor();
-        var symbol = cm.getLine(cursor.line).charAt(cursor.ch);
-        if (isMatchableSymbol(symbol)) {
-          return findMatchedSymbol(cm, cm.getCursor(), motionArgs.symbol);
+        var line = cursor.line;
+        var ch = cursor.ch;
+        var lineText = cm.getLine(line);
+        var symbol;
+        var startContext = cm.getTokenAt(cursor).type;
+        var startCtxLevel = getContextLevel(startContext);
+        do {
+          symbol = lineText.charAt(ch++);
+          if (symbol && isMatchableSymbol(symbol)) {
+            var endContext = cm.getTokenAt({line:line, ch:ch}).type;
+            var endCtxLevel = getContextLevel(endContext);
+            if (startCtxLevel >= endCtxLevel) {
+              break;
+            }
+          }
+        } while (symbol);
+        if (symbol) {
+          return findMatchedSymbol(cm, {line:line, ch:ch-1}, symbol);
         } else {
           return cursor;
         }
@@ -2338,9 +2353,17 @@
       return idx;
     }
 
+    function getContextLevel(ctx) {
+      return (ctx === 'string' || ctx === 'comment') ? 1 : 0;
+    }
+
     function findMatchedSymbol(cm, cur, symb) {
       var line = cur.line;
-      symb = symb ? symb : cm.getLine(line).charAt(cur.ch);
+      var ch = cur.ch;
+      symb = symb ? symb : cm.getLine(line).charAt(ch);
+
+      var symbContext = cm.getTokenAt({line:line, ch:ch+1}).type;
+      var symbCtxLevel = getContextLevel(symbContext);
 
       var reverseSymb = ({
         '(': ')', ')': '(',
@@ -2356,7 +2379,7 @@
       // depending on which bracket we're matching
       var increment = ({'(': 1, '{': 1, '[': 1})[symb] || -1;
       var endLine = increment === 1 ? cm.lineCount() : -1;
-      var depth = 1, nextCh = symb, index = cur.ch, lineText = cm.getLine(line);
+      var depth = 1, nextCh = symb, index = ch, lineText = cm.getLine(line);
       // Simple search for closing paren--just count openings and closings till
       // we find our match
       // TODO: use info from CodeMirror to ignore closing brackets in comments
@@ -2375,10 +2398,14 @@
           }
           nextCh = lineText.charAt(index);
         }
-        if (nextCh === symb) {
-          depth++;
-        } else if (nextCh === reverseSymb) {
-          depth--;
+        var revSymbContext = cm.getTokenAt({line:line, ch:index+1}).type;
+        var revSymbCtxLevel = getContextLevel(revSymbContext);
+        if (symbCtxLevel >= revSymbCtxLevel) {
+          if (nextCh === symb) {
+            depth++;
+          } else if (nextCh === reverseSymb) {
+            depth--;
+          }
         }
       }
 
