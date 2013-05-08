@@ -29,14 +29,15 @@ function help(ok) {
   process.exit(ok ? 0 : 1);
 }
 
-var local = null, args = null, files = [], blob = "";
+var local = null, args = [], extraArgs = null, files = [], blob = "";
 
 for (var i = 2; i < process.argv.length; ++i) {
   var arg = process.argv[i];
   if (arg == "--local" && i + 1 < process.argv.length) {
     var parts = process.argv[++i].split(/\s+/);
     local = parts[0];
-    args = parts.slice(1);
+    extraArgs = parts.slice(1);
+    if (!extraArgs.length) extraArgs = ["-c", "-m"];
   } else if (arg == "--help") {
     help(true);
   } else if (arg[0] != "-") {
@@ -73,7 +74,7 @@ if (files.length) {
 }
   
 if (local) {
-  require("child_process").spawn(local, args, {stdio: ["ignore", process.stdout, process.stderr]});
+  require("child_process").spawn(local, args.concat(extraArgs), {stdio: ["ignore", process.stdout, process.stderr]});
 } else {
   var data = new Buffer("js_code=" + require("querystring").escape(blob), "utf8");
   var req = require("http").request({
