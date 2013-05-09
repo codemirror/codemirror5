@@ -368,7 +368,7 @@
       return false;
     }
 
-    var circularJumpList = (function(){
+    var circularJumpList = function() {
       var size = 100;
       var pointer = -1;
       var head = 0;
@@ -385,7 +385,13 @@
           }
           buffer[next] = cm.setBookmark(cursor);
         }
-        if (!curMark || !cursorEqual(curMark.find(), oldCur)) {
+        if (curMark) {
+          var markPos = curMark.find();
+          // avoid recording redundant cursor position
+          if (markPos && !cursorEqual(markPos, oldCur)) {
+            useNextSlot(oldCur);
+          }
+        } else {
           useNextSlot(oldCur);
         }
         useNextSlot(newCur);
@@ -395,21 +401,38 @@
           tail = 0;
         }
       }
-      function move(offset) {
+      function move(cm, offset) {
         pointer += offset;
         if (pointer > head) {
           pointer = head;
         } else if (pointer < tail) {
           pointer = tail;
         }
-        return buffer[(size + pointer) % size];
+        var mark = buffer[(size + pointer) % size];
+        // skip marks that are temporarily removed from text buffer
+        if (!mark.find()) {
+          var inc = offset > 0 ? 1 : -1;
+          var newCur;
+          var oldCur = cm.getCursor();
+          do {
+            pointer += inc;
+            mark = buffer[(size + pointer) % size];
+            // skip marks that are the same as current position
+            if (mark &&
+                (newCur = mark.find()) &&
+                !cursorEqual(oldCur, newCur)) {
+              break;
+            }
+          } while (pointer < head && pointer > tail);
+        }
+        return mark;
       }
       return {
         cachedCursor: undefined, //used for # and * jumps
         add: add,
         move: move
       };
-    })();
+    };
     // Global Vim state. Call getVimGlobalState to get and initialize.
     var vimGlobalState;
     function getVimGlobalState() {
@@ -419,7 +442,7 @@
           searchQuery: null,
           // Whether we are searching backwards.
           searchIsReversed: false,
-          jumpList: circularJumpList,
+          jumpList: circularJumpList(),
           // Recording latest f, t, F or T motion command.
           lastChararacterSearch: {increment:0, forward:true, selectedCharacter:''},
           registerController: new RegisterController({})
@@ -1458,8 +1481,9 @@
         var forward = actionArgs.forward;
         var jumpList = getVimGlobalState().jumpList;
 
-        var mark = jumpList.move(forward ? repeat : -repeat);
-        var markPos = mark ? mark.find() : cm.getCursor();
+        var mark = jumpList.move(cm, forward ? repeat : -repeat);
+        var markPos = mark ? mark.find() : undefined;
+        markPos = markPos ? markPos : cm.getCursor();
         cm.setCursor(markPos);
       },
       scrollToCursor: function(cm, actionArgs) {
