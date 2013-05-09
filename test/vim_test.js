@@ -172,6 +172,7 @@ function testJumplist(name, keys, endPos, startPos, dialog) {
   endPos = makeCursor(endPos[0], endPos[1]);
   startPos = makeCursor(startPos[0], startPos[1]);
   testVim(name, function(cm, vim, helpers) {
+    CodeMirror.Vim.clearVimGlobalState_();
     if(dialog)cm.openDialog = helpers.fakeOpenDialog('word');
     cm.setCursor(startPos);
     helpers.doKeys.apply(null, keys);
@@ -199,7 +200,12 @@ testJumplist('jumplist_repeat_<c-i>', ['*', '*', '*', '3', 'Ctrl-o', '2', 'Ctrl-
 testJumplist('jumplist_repeated_motion', ['3', '*', 'Ctrl-o'], [2,3], [2,3]);
 testJumplist('jumplist_/', ['/', 'Ctrl-o'], [2,3], [2,3], 'dialog');
 testJumplist('jumplist_?', ['?', 'Ctrl-o'], [2,3], [2,3], 'dialog');
-
+testJumplist('jumplist_skip_delted_mark<c-o>',
+             ['*', 'n', 'n', 'k', 'd', 'k', 'Ctrl-o', 'Ctrl-o', 'Ctrl-o'],
+             [0,2], [0,2]);
+testJumplist('jumplist_skip_delted_mark<c-i>',
+             ['*', 'n', 'n', 'k', 'd', 'k', 'Ctrl-o', 'Ctrl-i', 'Ctrl-i'],
+             [1,0], [0,2]);
 /**
  * @param name Name of the test
  * @param keys An array of keys or a string with a single key to simulate.
