@@ -169,7 +169,7 @@
         motionArgs: { inclusive: true }},
     { keys: ['%'], type: 'motion',
         motion: 'moveToMatchedSymbol',
-        motionArgs: { inclusive: true, toJumplist: true }},
+        motionArgs: { inclusive: true, toJumplist: true, ignoreQuotesAndComments: true }},
     { keys: ['f', 'character'], type: 'motion',
         motion: 'moveToCharacter',
         motionArgs: { forward: true , inclusive: true }},
@@ -453,6 +453,18 @@
     }
 
     var vimApi= {
+      settings: {
+        changeDefaultKeyBehavior_: function(queryKeys, field, value) {
+          var queryItem = defaultKeymap.filter(function(keyItem){
+            var keys = keyItem.keys;
+            return keys.every(function(k, idx){
+              return k === queryKeys[idx];
+            });
+          })[0];
+          var args = queryItem.motionArgs || queryItem.actionArgs || queryItem.searchArgs;
+          args[field] = value;
+        }
+      },
       buildKeyMap: function() {
         // TODO: Convert keymap into dictionary format for fast lookup.
       },
@@ -1326,20 +1338,23 @@
         var ch = cursor.ch;
         var lineText = cm.getLine(line);
         var symbol;
-        var startContext = cm.getTokenAt(cursor).type;
+        var startContext = cm.getTokenAt({line:line, ch:ch+1}).type;
         var startCtxLevel = getContextLevel(startContext);
+        var ignoreQuotesAndComments = motionArgs.ignoreQuotesAndComments;
         do {
-          symbol = lineText.charAt(ch++);
-          if (isMatchableSymbol(symbol)) {
-            var endContext = cm.getTokenAt({line:line, ch:ch}).type;
+          symbol = lineText.charAt(ch);
+          if (symbol && isMatchableSymbol(symbol)) {
+            var endContext = cm.getTokenAt({line:line, ch:ch+1}).type;
             var endCtxLevel = getContextLevel(endContext);
-            if (startCtxLevel >= endCtxLevel) {
+            var matchCondition = ignoreQuotesAndComments ? endCtxLevel === 0 : startCtxLevel >= endCtxLevel;
+            if (matchCondition) {
               break;
             }
           }
+          ch++;
         } while (symbol);
         if (symbol) {
-          return findMatchedSymbol(cm, {line:line, ch:ch-1}, symbol);
+          return findMatchedSymbol(cm, {line:line, ch:ch}, symbol, ignoreQuotesAndComments);
         } else {
           return cursor;
         }
@@ -2308,7 +2323,7 @@
       return (ctx === 'string' || ctx === 'comment') ? 1 : 0;
     }
 
-    function findMatchedSymbol(cm, cur, symb) {
+    function findMatchedSymbol(cm, cur, symb, ignoreQuotesAndComments) {
       var line = cur.line;
       var ch = cur.ch;
       symb = symb ? symb : cm.getLine(line).charAt(ch);
@@ -2351,7 +2366,8 @@
         }
         var revSymbContext = cm.getTokenAt({line:line, ch:index+1}).type;
         var revSymbCtxLevel = getContextLevel(revSymbContext);
-        if (symbCtxLevel >= revSymbCtxLevel) {
+        var matchCondition = ignoreQuotesAndComments ? revSymbCtxLevel === 0 : symbCtxLevel >= revSymbCtxLevel;
+        if (matchCondition) {
           if (nextCh === symb) {
             depth++;
           } else if (nextCh === reverseSymb) {
