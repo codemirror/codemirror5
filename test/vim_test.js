@@ -298,11 +298,32 @@ testMotion('%_squares', ['%'], squares1.end, squares1.start);
 testMotion('%_braces', ['%'], curlys1.end, curlys1.start);
 testMotion('%_seek_outside', ['%'], seekOutside.end, seekOutside.start);
 testMotion('%_seek_inside', ['%'], seekInside.end, seekInside.start);
+testVim('%_seek_skip', function(cm, vim, helpers) {
+  cm.setCursor(0,0);
+  helpers.doKeys(['%']);
+  helpers.assertCursorAt(0,9);
+}, {value:'01234"("()'});
+testVim('%_skip_comment', function(cm, vim, helpers) {
+  cm.setCursor(0,0);
+  helpers.doKeys(['%']);
+  helpers.assertCursorAt(0,4);
+  cm.setCursor(0,2);
+  helpers.doKeys(['%']);
+  helpers.assertCursorAt(0,0);
+}, {value:'(")")'});
+(')')
+testVim('%_skip_string', function(cm, vim, helpers) {
+  cm.setCursor(0,0);
+  helpers.doKeys(['%']);
+  helpers.assertCursorAt(0,6);
+  cm.setCursor(0,3);
+  helpers.doKeys(['%']);
+  helpers.assertCursorAt(0,0);
+}, {value:'(/*)*/)'});
 // Make sure that moving down after going to the end of a line always leaves you
 // at the end of a line, but preserves the offset in other cases
 testVim('Changing lines after Eol operation', function(cm, vim, helpers) {
-  var startPos = { line: 0, ch: 0 };
-  cm.setCursor(startPos);
+  cm.setCursor(0,0);
   helpers.doKeys(['$']);
   helpers.doKeys(['j']);
   // After moving to Eol and then down, we should be at Eol of line 2
