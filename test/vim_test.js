@@ -303,7 +303,7 @@ testVim('%_seek_skip', function(cm, vim, helpers) {
   helpers.doKeys(['%']);
   helpers.assertCursorAt(0,9);
 }, {value:'01234"("()'});
-testVim('%_skip_comment', function(cm, vim, helpers) {
+testVim('%_skip_string', function(cm, vim, helpers) {
   cm.setCursor(0,0);
   helpers.doKeys(['%']);
   helpers.assertCursorAt(0,4);
@@ -312,7 +312,7 @@ testVim('%_skip_comment', function(cm, vim, helpers) {
   helpers.assertCursorAt(0,0);
 }, {value:'(")")'});
 (')')
-testVim('%_skip_string', function(cm, vim, helpers) {
+testVim('%_skip_comment', function(cm, vim, helpers) {
   cm.setCursor(0,0);
   helpers.doKeys(['%']);
   helpers.assertCursorAt(0,6);

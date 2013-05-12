@@ -1330,7 +1330,7 @@
         var startCtxLevel = getContextLevel(startContext);
         do {
           symbol = lineText.charAt(ch++);
-          if (isMatchableSymbol(symbol)) {
+          if (symbol && isMatchableSymbol(symbol)) {
             var endContext = cm.getTokenAt({line:line, ch:ch}).type;
             var endCtxLevel = getContextLevel(endContext);
             if (startCtxLevel >= endCtxLevel) {
