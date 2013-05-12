@@ -1082,7 +1082,7 @@
             // Expand selection to entire line.
             expandSelectionToLine(cm, curStart, curEnd);
           } else if (motionArgs.forward) {
-            // Clip to trailing newlines only if we the motion goes forward.
+            // Clip to trailing newlines only if the motion goes forward.
             clipToLine(cm, curStart, curEnd);
           }
           operatorArgs.registerName = registerName;
@@ -1911,10 +1911,30 @@
     // caret to the first character of the next line.
     function clipToLine(cm, curStart, curEnd) {
       var selection = cm.getRange(curStart, curEnd);
-      var lines = selection.split('\n');
-      if (lines.length > 1 && isWhiteSpaceString(lines.pop())) {
-        curEnd.line--;
-        curEnd.ch = lineLength(cm, curEnd.line);
+      // Only clip if the selection ends with trailing newline + whitespace
+      if (/\n\s*$/.test(selection)) {
+        var lines = selection.split('\n');
+        // We know this is all whitepsace.
+        lines.pop();
+
+        // Cases:
+        // 1. Last word is an empty line - do not clip the trailing '\n'
+        // 2. Last word is not an empty line - clip the trailing '\n'
+        var line;
+        // Find the line containing the last word, and clip all whitespace up
+        // to it.
+        for (var line = lines.pop(); lines.length > 0 && line && isWhiteSpaceString(line); line = lines.pop()) {
+          var clipped = false;
+          curEnd.line--;
+          curEnd.ch = 0;
+        }
+        // If the last word is not an empty line, clip an additional newline
+        if (line) {
+          curEnd.line--;
+          curEnd.ch = lineLength(cm, curEnd.line);
+        } else {
+          curEnd.ch = 0;
+        }
       }
     }
 
@@ -2141,18 +2161,31 @@
      *     backward.
      * @param {boolean} bigWord True if punctuation count as part of the word.
      *     False if only [a-zA-Z0-9] characters count as part of the word.
+     * @param {boolean} emptyLineIsWord True if empty lines should be treated
+     *     as words.
      * @return {Object{from:number, to:number, line: number}} The boundaries of
      *     the word, or null if there are no more words.
      */
-    // TODO: Treat empty lines (with no whitespace) as words.
-    function findWord(cm, cur, forward, bigWord) {
+    function findWord(cm, cur, forward, bigWord, emptyLineIsWord) {
       var lineNum = cur.line;
       var pos = cur.ch;
       var line = cm.getLine(lineNum);
       var dir = forward ? 1 : -1;
       var regexps = bigWord ? bigWordRegexp : wordRegexp;
 
+      if (emptyLineIsWord && line == '') {
+        lineNum += dir;
+        line = cm.getLine(lineNum);
+        if (!isLine(cm, lineNum)) {
+          return null;
+        }
+        pos = (forward) ? 0 : line.length;
+      }
+
       while (true) {
+        if (emptyLineIsWord && line == '') {
+          return { from: 0, to: 0, line: lineNum };
+        }
         var stop = (dir > 0) ? line.length : -1;
         var wordStart = stop, wordEnd = stop;
         // Find bounds of next word.
@@ -2208,56 +2241,48 @@
      */
     function moveToWord(cm, repeat, forward, wordEnd, bigWord) {
       var cur = cm.getCursor();
-      for (var i = 0; i < repeat; i++) {
-        var startCh = cur.ch, startLine = cur.line, word;
-        var movedToNextWord = false;
-        while (!movedToNextWord) {
-          // Search and advance.
-          word = findWord(cm, cur, forward, bigWord);
-          movedToNextWord = true;
-          if (word) {
-            // Move to the word we just found. If by moving to the word we end
-            // up in the same spot, then move an extra character and search
-            // again.
-            cur.line = word.line;
-            if (forward && wordEnd) {
-              // 'e'
-              cur.ch = word.to - 1;
-            } else if (forward && !wordEnd) {
-              // 'w'
-              if (inRangeInclusive(cur.ch, word.from, word.to) &&
-                  word.line == startLine) {
-                // Still on the same word. Go to the next one.
-                movedToNextWord = false;
-                cur.ch = word.to - 1;
-              } else {
-                cur.ch = word.from;
-              }
-            } else if (!forward && wordEnd) {
-              // 'ge'
-              if (inRangeInclusive(cur.ch, word.from, word.to) &&
-                  word.line == startLine) {
-                // still on the same word. Go to the next one.
-                movedToNextWord = false;
-                cur.ch = word.from;
-              } else {
-                cur.ch = word.to;
-              }
-            } else if (!forward && !wordEnd) {
-              // 'b'
-              cur.ch = word.from;
-            }
-          } else {
-            // No more words to be found. Move to the end.
-            if (forward) {
-              return { line: cur.line, ch: lineLength(cm, cur.line) };
-            } else {
-              return { line: cur.line, ch: 0 };
-            }
-          }
-        }
+      var curStart = copyCursor(cur);
+      var words = [];
+      if (forward && !wordEnd || !forward && wordEnd) {
+        repeat++;
       }
-      return cur;
+      // For 'e', empty lines are not considered words, go figure.
+      var emptyLineIsWord = !(forward && wordEnd);
+      for (var i = 0; i < repeat; i++) {
+        var word = findWord(cm, cur, forward, bigWord, emptyLineIsWord);
+        if (!word) {
+          var eodCh = lineLength(cm, cm.lastLine());
+          words.push(forward
+              ? {line: cm.lastLine(), from: eodCh, to: eodCh}
+              : {line: 0, from: 0, to: 0});
+          break;
+        }
+        words.push(word);
+        cur = {line: word.line, ch: forward ? (word.to - 1) : word.from};
+      }
+      var shortCircuit = words.length != repeat;
+      var firstWord = words[0];
+      var lastWord = words.pop();
+      if (forward && !wordEnd) {
+        // w
+        if (!shortCircuit && (firstWord.from != curStart.ch || firstWord.line != curStart.line)) {
+          // We did not start in the middle of a word. Discard the extra word at the end.
+          lastWord = words.pop();
+        }
+        return {line: lastWord.line, ch: lastWord.from};
+      } else if (forward && wordEnd) {
+        return {line: lastWord.line, ch: lastWord.to - 1};
+      } else if (!forward && wordEnd) {
+        // ge
+        if (!shortCircuit && (firstWord.to != curStart.ch || firstWord.line != curStart.line)) {
+          // We did not start in the middle of a word. Discard the extra word at the end.
+          lastWord = words.pop();
+        }
+        return {line: lastWord.line, ch: lastWord.to};
+      } else {
+        // b
+        return {line: lastWord.line, ch: lastWord.from};
+      }
     }
 
     function moveToCharacter(cm, repeat, forward, character) {

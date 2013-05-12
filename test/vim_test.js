@@ -10,7 +10,9 @@ var code = '' +
 '    n = read(0, buf, sizeof buf);\n' +
 '    bufp = buf;\n' +
 '  }\n' +
-'  return (--n >= 0) ? (unsigned char) *bufp++ : EOF;\n' +
+'\n' +
+'  return (--n >= 0) ? (unsigned char) *bufp++ : EOF;\n' + 
+' \n' +
 '}\n';
 
 var lines = (function() {
@@ -243,24 +245,30 @@ testMotion('j_repeat', ['2', 'j'], offsetCursor(word1.end, 2, 0), word1.end);
 testMotion('k', 'k', offsetCursor(word3.end, -1, 0), word3.end);
 testMotion('k_repeat', ['2', 'k'], makeCursor(0, 4), makeCursor(2, 4));
 testMotion('w', 'w', word1.start);
+testMotion('w_multiple_newlines_no_space', 'w', makeCursor(12, 2), makeCursor(11, 2));
+testMotion('w_multiple_newlines_with_space', 'w', makeCursor(14, 0), makeCursor(12, 51));
 testMotion('w_repeat', ['2', 'w'], word2.start);
 testMotion('w_wrap', ['w'], word3.start, word2.start);
 testMotion('w_endOfDocument', 'w', endOfDocument, endOfDocument);
+testMotion('w_start_to_end', ['1000', 'w'], endOfDocument, makeCursor(0, 0));
 testMotion('W', 'W', bigWord1.start);
 testMotion('W_repeat', ['2', 'W'], bigWord3.start, bigWord1.start);
 testMotion('e', 'e', word1.end);
 testMotion('e_repeat', ['2', 'e'], word2.end);
 testMotion('e_wrap', 'e', word3.end, word2.end);
 testMotion('e_endOfDocument', 'e', endOfDocument, endOfDocument);
+testMotion('e_start_to_end', ['1000', 'e'], endOfDocument, makeCursor(0, 0));
 testMotion('b', 'b', word3.start, word3.end);
 testMotion('b_repeat', ['2', 'b'], word2.start, word3.end);
 testMotion('b_wrap', 'b', word2.start, word3.start);
 testMotion('b_startOfDocument', 'b', makeCursor(0, 0), makeCursor(0, 0));
+testMotion('b_end_to_start', ['1000', 'b'], makeCursor(0, 0), endOfDocument);
 testMotion('ge', ['g', 'e'], word2.end, word3.end);
 testMotion('ge_repeat', ['2', 'g', 'e'], word1.end, word3.start);
 testMotion('ge_wrap', ['g', 'e'], word2.end, word3.start);
 testMotion('ge_startOfDocument', ['g', 'e'], makeCursor(0, 0),
     makeCursor(0, 0));
+testMotion('ge_end_to_start', ['1000', 'g', 'e'], makeCursor(0, 0), endOfDocument);
 testMotion('gg', ['g', 'g'], makeCursor(lines[0].line, lines[0].textStart),
     makeCursor(3, 1));
 testMotion('gg_repeat', ['3', 'g', 'g'],
@@ -414,6 +422,7 @@ testVim('dl', function(cm, vim, helpers) {
   eqPos(curStart, cm.getCursor());
 }, { value: ' word1 ' });
 testVim('dl_eol', function(cm, vim, helpers) {
+  // TODO:  This test is incorrect.  The cursor should end up at (0, 5).
   var curStart = makeCursor(0, 6);
   cm.setCursor(curStart);
   helpers.doKeys('d', 'l');
@@ -527,6 +536,53 @@ testVim('dw_eol', function(cm, vim, helpers) {
   is(!register.linewise);
   eqPos(curStart, cm.getCursor());
 }, { value: ' word1\nword2' });
+testVim('dw_eol_with_multiple_newlines', function(cm, vim, helpers) {
+  // Assert that dw does not delete the newline if last word to delete is at end
+  // of line and it is followed by multiple newlines.
+  var curStart = makeCursor(0, 1);
+  cm.setCursor(curStart);
+  helpers.doKeys('d', 'w');
+  eq(' \n\nword2', cm.getValue());
+  var register = helpers.getRegisterController().getRegister();
+  eq('word1', register.text);
+  is(!register.linewise);
+  eqPos(curStart, cm.getCursor());
+}, { value: ' word1\n\nword2' });
+testVim('dw_empty_line_followed_by_whitespace', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('d', 'w');
+  eq('  \nword', cm.getValue());
+}, { value: '\n  \nword' });
+testVim('dw_empty_line_followed_by_word', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('d', 'w');
+  eq('word', cm.getValue());
+}, { value: '\nword' });
+testVim('dw_empty_line_followed_by_empty_line', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('d', 'w');
+  eq('\n', cm.getValue());
+}, { value: '\n\n' });
+testVim('dw_whitespace_followed_by_whitespace', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('d', 'w');
+  eq('\n   \n', cm.getValue());
+}, { value: '  \n   \n' });
+testVim('dw_whitespace_followed_by_empty_line', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('d', 'w');
+  eq('\n\n', cm.getValue());
+}, { value: '  \n\n' });
+testVim('dw_word_whitespace_word', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('d', 'w');
+  eq('\n   \nword2', cm.getValue());
+}, { value: 'word1\n   \nword2'})
+testVim('dw_end_of_document', function(cm, vim, helpers) {
+  cm.setCursor(1, 2);
+  helpers.doKeys('d', 'w');
+  eq('\nab', cm.getValue());
+}, { value: '\nabc' });
 testVim('dw_repeat', function(cm, vim, helpers) {
   // Assert that dw does delete newline if it should go to the next line, and
   // that repeat works properly.
@@ -539,6 +595,75 @@ testVim('dw_repeat', function(cm, vim, helpers) {
   is(!register.linewise);
   eqPos(curStart, cm.getCursor());
 }, { value: ' word1\nword2' });
+testVim('de_word_start_and_empty_lines', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('d', 'e');
+  eq('\n\n', cm.getValue());
+}, { value: 'word\n\n' });
+testVim('de_word_end_and_empty_lines', function(cm, vim, helpers) {
+  cm.setCursor(0, 3);
+  helpers.doKeys('d', 'e');
+  eq('wor', cm.getValue());
+}, { value: 'word\n\n\n' });
+testVim('de_whitespace_and_empty_lines', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('d', 'e');
+  eq('', cm.getValue());
+}, { value: '   \n\n\n' });
+testVim('de_end_of_document', function(cm, vim, helpers) {
+  cm.setCursor(1, 2);
+  helpers.doKeys('d', 'e');
+  eq('\nab', cm.getValue());
+}, { value: '\nabc' });
+testVim('db_empty_lines', function(cm, vim, helpers) {
+  cm.setCursor(2, 0);
+  helpers.doKeys('d', 'b');
+  eq('\n\n', cm.getValue());
+}, { value: '\n\n\n' });
+testVim('db_word_start_and_empty_lines', function(cm, vim, helpers) {
+  cm.setCursor(2, 0);
+  helpers.doKeys('d', 'b');
+  eq('\nword', cm.getValue());
+}, { value: '\n\nword' });
+testVim('db_word_end_and_empty_lines', function(cm, vim, helpers) {
+  cm.setCursor(2, 3);
+  helpers.doKeys('d', 'b');
+  eq('\n\nd', cm.getValue());
+}, { value: '\n\nword' });
+testVim('db_whitespace_and_empty_lines', function(cm, vim, helpers) {
+  cm.setCursor(2, 0);
+  helpers.doKeys('d', 'b');
+  eq('', cm.getValue());
+}, { value: '\n   \n' });
+testVim('db_start_of_document', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('d', 'b');
+  eq('abc\n', cm.getValue());
+}, { value: 'abc\n' });
+testVim('dge_empty_lines', function(cm, vim, helpers) {
+  cm.setCursor(1, 0);
+  helpers.doKeys('d', 'g', 'e');
+  // Note: In real VIM the result should be '', but it's not quite consistent,
+  // since 2 newlines are deleted. But in the similar case of word\n\n, only
+  // 1 newline is deleted. We'll diverge from VIM's behavior since it's much
+  // easier this way.
+  eq('\n', cm.getValue());
+}, { value: '\n\n' });
+testVim('dge_word_and_empty_lines', function(cm, vim, helpers) {
+  cm.setCursor(1, 0);
+  helpers.doKeys('d', 'g', 'e');
+  eq('wor\n', cm.getValue());
+}, { value: 'word\n\n'});
+testVim('dge_whitespace_and_empty_lines', function(cm, vim, helpers) {
+  cm.setCursor(2, 0);
+  helpers.doKeys('d', 'g', 'e');
+  eq('', cm.getValue());
+}, { value: '\n  \n' });
+testVim('dge_start_of_document', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('d', 'g', 'e');
+  eq('bc\n', cm.getValue());
+}, { value: 'abc\n' });
 testVim('d_inclusive', function(cm, vim, helpers) {
   // Assert that when inclusive is set, the character the cursor is on gets
   // deleted too.
