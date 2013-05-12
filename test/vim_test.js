@@ -303,26 +303,16 @@ testVim('%_seek_skip', function(cm, vim, helpers) {
   helpers.doKeys(['%']);
   helpers.assertCursorAt(0,9);
 }, {value:'01234"("()'});
-testVim('%_skip_string(original vim behavior)', function(cm, vim, helpers) {
-  CodeMirror.Vim.settings.changeDefaultKeyBehavior_(['%'], 'ignoreQuotesAndComments', false);
+testVim('%_skip_comment', function(cm, vim, helpers) {
   cm.setCursor(0,0);
   helpers.doKeys(['%']);
-  helpers.assertCursorAt(0,6);
+  helpers.assertCursorAt(0,4);
   cm.setCursor(0,2);
   helpers.doKeys(['%']);
   helpers.assertCursorAt(0,0);
-}, {value:'(")"())'});
-testVim('%_skip_string(extra behavior)', function(cm, vim, helpers) {
-  CodeMirror.Vim.settings.changeDefaultKeyBehavior_(['%'], 'ignoreQuotesAndComments', true);
-  cm.setCursor(0,0);
-  helpers.doKeys(['%']);
-  helpers.assertCursorAt(0,6);
-  cm.setCursor(0,2);
-  helpers.doKeys(['%']);
-  helpers.assertCursorAt(0,5);
-}, {value:'(")"())'});
+}, {value:'(")")'});
 (')')
-testVim('%_skip_comment', function(cm, vim, helpers) {
+testVim('%_skip_string', function(cm, vim, helpers) {
   cm.setCursor(0,0);
   helpers.doKeys(['%']);
   helpers.assertCursorAt(0,6);
@@ -847,22 +837,7 @@ testVim('Y', function(cm, vim, helpers) {
 }, { value: ' word1\nword2\n word3' });
 
 // Action tests
-testVim('ctrl-a_backtrack', function(cm, vim, helpers) {
-  CodeMirror.Vim.settings.changeDefaultKeyBehavior_(['Ctrl-a'], 'backtrack', true);
-  cm.setCursor(0, 3);
-  helpers.doKeys('Ctrl-a');
-  eq('11  ', cm.getValue());
-  helpers.assertCursorAt(0, 1);
-}, {value: '10  '});
-testVim('ctrl-a_nobacktrack', function(cm, vim, helpers) {
-  CodeMirror.Vim.settings.changeDefaultKeyBehavior_(['Ctrl-a'], 'backtrack', false);
-  cm.setCursor(0, 3);
-  helpers.doKeys('Ctrl-a');
-  eq('10  ', cm.getValue());
-  helpers.assertCursorAt(0, 3);
-}, {value: '10  '});
 testVim('ctrl-a', function(cm, vim, helpers) {
-  CodeMirror.Vim.settings.changeDefaultKeyBehavior_(['Ctrl-a'], 'backtrack', false);
   cm.setCursor(0, 0);
   helpers.doKeys('Ctrl-a');
   eq('-9', cm.getValue());
@@ -871,7 +846,6 @@ testVim('ctrl-a', function(cm, vim, helpers) {
   eq('-7', cm.getValue());
 }, {value: '-10'});
 testVim('ctrl-x', function(cm, vim, helpers) {
-  CodeMirror.Vim.settings.changeDefaultKeyBehavior_(['Ctrl-a'], 'backtrack', false);
   cm.setCursor(0, 0);
   helpers.doKeys('Ctrl-x');
   eq('-1', cm.getValue());
