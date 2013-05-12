@@ -573,6 +573,11 @@ testVim('dw_whitespace_followed_by_empty_line', function(cm, vim, helpers) {
   helpers.doKeys('d', 'w');
   eq('\n\n', cm.getValue());
 }, { value: '  \n\n' });
+testVim('dw_end_of_document', function(cm, vim, helpers) {
+  cm.setCursor(1, 2);
+  helpers.doKeys('d', 'w');
+  eq('\nab', cm.getValue());
+}, { value: '\nabc' });
 testVim('dw_repeat', function(cm, vim, helpers) {
   // Assert that dw does delete newline if it should go to the next line, and
   // that repeat works properly.
@@ -585,6 +590,75 @@ testVim('dw_repeat', function(cm, vim, helpers) {
   is(!register.linewise);
   eqPos(curStart, cm.getCursor());
 }, { value: ' word1\nword2' });
+testVim('de_word_start_and_empty_lines', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('d', 'e');
+  eq('\n\n', cm.getValue());
+}, { value: 'word\n\n' });
+testVim('de_word_end_and_empty_lines', function(cm, vim, helpers) {
+  cm.setCursor(0, 3);
+  helpers.doKeys('d', 'e');
+  eq('wor', cm.getValue());
+}, { value: 'word\n\n\n' });
+testVim('de_whitespace_and_empty_lines', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('d', 'e');
+  eq('', cm.getValue());
+}, { value: '   \n\n\n' });
+testVim('de_end_of_document', function(cm, vim, helpers) {
+  cm.setCursor(1, 2);
+  helpers.doKeys('d', 'e');
+  eq('\nab', cm.getValue());
+}, { value: '\nabc' });
+testVim('db_empty_lines', function(cm, vim, helpers) {
+  cm.setCursor(2, 0);
+  helpers.doKeys('d', 'b');
+  eq('\n\n', cm.getValue());
+}, { value: '\n\n\n' });
+testVim('db_word_start_and_empty_lines', function(cm, vim, helpers) {
+  cm.setCursor(2, 0);
+  helpers.doKeys('d', 'b');
+  eq('\nword', cm.getValue());
+}, { value: '\n\nword' });
+testVim('db_word_end_and_empty_lines', function(cm, vim, helpers) {
+  cm.setCursor(2, 3);
+  helpers.doKeys('d', 'b');
+  eq('\n\nd', cm.getValue());
+}, { value: '\n\nword' });
+testVim('db_whitespace_and_empty_lines', function(cm, vim, helpers) {
+  cm.setCursor(2, 0);
+  helpers.doKeys('d', 'b');
+  eq('', cm.getValue());
+}, { value: '\n   \n' });
+testVim('db_start_of_document', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('d', 'b');
+  eq('abc\n', cm.getValue());
+}, { value: 'abc\n' });
+testVim('dge_empty_lines', function(cm, vim, helpers) {
+  cm.setCursor(1, 0);
+  helpers.doKeys('d', 'g', 'e');
+  // Note: In real VIM the result should be '', but it's not quite consistent,
+  // since 2 newlines are deleted. But in the similar case of word\n\n, only
+  // 1 newline is deleted. We'll diverge from VIM's behavior since it's much
+  // easier this way.
+  eq('\n', cm.getValue());
+}, { value: '\n\n' });
+testVim('dge_word_and_empty_lines', function(cm, vim, helpers) {
+  cm.setCursor(1, 0);
+  helpers.doKeys('d', 'g', 'e');
+  eq('wor\n', cm.getValue());
+}, { value: 'word\n\n'});
+testVim('dge_whitespace_and_empty_lines', function(cm, vim, helpers) {
+  cm.setCursor(2, 0);
+  helpers.doKeys('d', 'g', 'e');
+  eq('', cm.getValue());
+}, { value: '\n  \n' });
+testVim('dge_start_of_document', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('d', 'g', 'e');
+  eq('bc\n', cm.getValue());
+}, { value: 'abc\n' });
 testVim('d_inclusive', function(cm, vim, helpers) {
   // Assert that when inclusive is set, the character the cursor is on gets
   // deleted too.
