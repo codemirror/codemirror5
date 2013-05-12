@@ -1911,10 +1911,10 @@
     // caret to the first character of the next line.
     function clipToLine(cm, curStart, curEnd) {
       var selection = cm.getRange(curStart, curEnd);
-      // Only do something if the selection ends in '\n'
-      if ('\n' == selection.charAt(selection.length - 1)) {
+      // Only clip if the selection ends with trailing newline + whitespace
+      if (/\n\s*$/.test(selection)) {
         var lines = selection.split('\n');
-        // We know this one is an empty string.
+        // We know this is all whitepsace.
         lines.pop();
 
         // Cases:

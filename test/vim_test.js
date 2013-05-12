@@ -573,6 +573,11 @@ testVim('dw_whitespace_followed_by_empty_line', function(cm, vim, helpers) {
   helpers.doKeys('d', 'w');
   eq('\n\n', cm.getValue());
 }, { value: '  \n\n' });
+testVim('dw_word_whitespace_word', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('d', 'w');
+  eq('\n   \nword2', cm.getValue());
+}, { value: 'word1\n   \nword2'})
 testVim('dw_end_of_document', function(cm, vim, helpers) {
   cm.setCursor(1, 2);
   helpers.doKeys('d', 'w');
