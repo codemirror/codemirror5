@@ -531,6 +531,43 @@ testVim('dw_eol', function(cm, vim, helpers) {
   is(!register.linewise);
   eqPos(curStart, cm.getCursor());
 }, { value: ' word1\nword2' });
+testVim('dw_eol_with_multiple_newlines', function(cm, vim, helpers) {
+  // Assert that dw does not delete the newline if last word to delete is at end
+  // of line and it is followed by multiple newlines.
+  var curStart = makeCursor(0, 1);
+  cm.setCursor(curStart);
+  helpers.doKeys('d', 'w');
+  eq(' \n\nword2', cm.getValue());
+  var register = helpers.getRegisterController().getRegister();
+  eq('word1', register.text);
+  is(!register.linewise);
+  eqPos(curStart, cm.getCursor());
+}, { value: ' word1\n\nword2' });
+testVim('dw_empty_line_followed_by_whitespace', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('d', 'w');
+  eq('  \nword', cm.getValue());
+}, { value: '\n  \nword' });
+testVim('dw_empty_line_followed_by_word', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('d', 'w');
+  eq('word', cm.getValue());
+}, { value: '\nword' });
+testVim('dw_empty_line_followed_by_empty_line', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('d', 'w');
+  eq('\n', cm.getValue());
+}, { value: '\n\n' });
+testVim('dw_whitespace_followed_by_whitespace', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('d', 'w');
+  eq('\n   \n', cm.getValue());
+}, { value: '  \n   \n' });
+testVim('dw_whitespace_followed_by_empty_line', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('d', 'w');
+  eq('\n\n', cm.getValue());
+}, { value: '  \n\n' });
 testVim('dw_repeat', function(cm, vim, helpers) {
   // Assert that dw does delete newline if it should go to the next line, and
   // that repeat works properly.
