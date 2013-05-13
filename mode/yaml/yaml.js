@@ -9,7 +9,9 @@ CodeMirror.defineMode("yaml", function() {
       var esc = state.escaped;
       state.escaped = false;
       /* comments */
-      if (ch == "#") { stream.skipToEnd(); return "comment"; }
+      if (ch == "#" && (stream.pos == 0 || /\s/.test(stream.string.charAt(stream.pos - 1)))) {
+        stream.skipToEnd(); return "comment";
+      }
       if (state.literal && stream.indentation() > state.keyCol) {
         stream.skipToEnd(); return "string";
       } else if (state.literal) { state.literal = false; }
