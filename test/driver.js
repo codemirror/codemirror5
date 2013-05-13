@@ -23,8 +23,9 @@ function test(name, run, expectedFail) {
   tests.push({name: name, func: run, expectedFail: expectedFail});
   return name;
 }
+var namespace = "";
 function testCM(name, run, opts, expectedFail) {
-  return test("core_" + name, function() {
+  return test(namespace + name, function() {
     var place = document.getElementById("testground"), cm = CodeMirror(place, opts);
     var successful = false;
     try {

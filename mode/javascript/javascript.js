@@ -453,6 +453,9 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     },
 
     electricChars: ":{}",
+    blockCommentStart: jsonMode ? null : "/*",
+    blockCommentEnd: jsonMode ? null : "*/",
+    lineComment: jsonMode ? null : "//",
 
     jsonMode: jsonMode
   };

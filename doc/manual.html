@@ -1501,6 +1501,7 @@
       prompt (should include an <code>input</code> tag), and a
       callback function that is called when text has been entered.
       Depends on <code>addon/dialog/dialog.css</code>.</dd>
+
       <dt id="addon_searchcursor"><a href="../addon/search/searchcursor.js"><code>search/searchcursor.js</code></a></dt>
       <dd>Adds the <code>getSearchCursor(query, start, caseFold) →
       cursor</code> method to CodeMirror instances, which can be used
@@ -1539,6 +1540,7 @@
       on <code>searchcursor.js</code>, and will make use
       of <a href="#addon_dialog"><code>openDialog</code></a> when
       available to make prompting for search queries less ugly.</dd>
+
       <dt id="addon_matchbrackets"><a href="../addon/edit/matchbrackets.js"><code>edit/matchbrackets.js</code></a></dt>
       <dd>Defines an option <code>matchBrackets</code> which, when set
       to true, causes matching brackets to be highlighted whenever the
@@ -1547,6 +1549,7 @@
       once, and a method <code>findMatchingBracket</code> that can be
       used to run the bracket-finding algorithm that this uses
       internally.</dd>
+
       <dt id="addon_closebrackets"><a href="../addon/edit/closebrackets.js"><code>edit/closebrackets.js</code></a></dt>
       <dd>Defines an option <code>autoCloseBrackets</code> that will
       auto-close brackets and quotes when typed. By default, it'll
@@ -1554,6 +1557,50 @@
       string similar to that (containing pairs of matching characters)
       to customize it. <a href="../demo/closebrackets.html">Demo
       here</a>.</dd>
+
+      <dt id="addon_comment"><a href="../addon/comment/comment.js"><code>comment/comment.js</code></a></dt>
+      <dd>Addon for commenting and uncommenting code. Adds three
+      methods to CodeMirror instances:
+      <dl>
+        <dt id="lineComment"><code><strong>lineComment</strong>(from: {line, ch}, to: {line, ch}, ?options: object)</code></dt>
+        <dd>Set the lines in the given range to be line comments. Will
+        fall back to <code>blockComment</code> when no line comment
+        style is defined for the mode.</dd>
+        <dt id="blockComment"><code><strong>blockComment</strong>(from: {line, ch}, to: {line, ch}, ?options: object)</code></dt>
+        <dd>Wrap the code in the given range in a block comment. Will
+        fall back to <code>lineComment</code> when no block comment
+        style is defined for the mode.</dd>
+        <dt id="uncomment"><code><strong>uncomment</strong>(from: {line, ch}, to: {line, ch}, ?options: object) → boolean</code></dt>
+        <dd>Try to uncomment the given range.
+          Returns <code>true</code> if a comment range was found and
+          removed, <code>false</code> otherwise.</dd>
+      </dl>
+      The <code>options</code> object accepted by these methods may
+      have the following properties:
+      <dl>
+        <dt><code>blockCommentStart, blockCommentEnd, blockCommentLead, lineComment: string</code></dt>
+        <dd>Override the <a href="#mode_comment">comment string
+        properties</a> of the mode with custom comment strings.</dd>
+        <dt><code>padding</code></dt>
+        <dd>A string that will be inserted after opening and before
+        closing comment markers. Defaults to a single space.</dd>
+        <dt><code>commentBlankLines</code></dt>
+        <dd>Whether, when adding line comments, to also comment lines
+        that contain only whitespace.</dd>
+        <dt><code>indent</code></dt>
+        <dd>When adding line comments and this is turned on, it will
+        align the comment block to the current indentation of the
+        first line of the block.</dd>
+        <dt><code>fullLines</code></dt>
+        <dd>When block commenting, this controls whether the whole
+        lines are indented, or only the precise range that is given.
+        Defaults to <code>true</code>.</dd>
+      </dl>
+      The addon also defines
+      a <code>toggleComment</code> <a href="#commands">command</a>,
+      which will try to uncomment the current selection, and if that
+      fails, line-comments it.</dd>
+
       <dt id="addon_foldcode"><a href="../addon/fold/foldcode.js"><code>fold/foldcode.js</code></a></dt>
       <dd>Helps with code folding.
       See <a href="../demo/folding.html">the demo</a> for an example.
@@ -1571,6 +1618,7 @@
       where indentation determines block structure (Python, Haskell),
       and <code>CodeMirror.tagRangeFinder</code>, for XML-style
       languages.</dd>
+
       <dt id="addon_runmode"><a href="../addon/runmode/runmode.js"><code>runmode/runmode.js</code></a></dt>
       <dd>Can be used to run a CodeMirror mode over text without
       actually opening an editor instance.
@@ -1580,6 +1628,7 @@
       (without including all of CodeMirror) and
       for <a href="../addon/runmode/runmode.node.js">running under
       node.js</a>.</dd>
+
       <dt id="addon_overlay"><a href="../addon/mode/overlay.js"><code>mode/overlay.js</code></a></dt>
       <dd>Mode combinator that can be used to extend a mode with an
       'overlay' — a secondary mode is run over the stream, along with
@@ -1588,6 +1637,7 @@
       Defines <code>CodeMirror.overlayMode</code>, which is used to
       create such a mode. See <a href="../demo/mustache.html">this
       demo</a> for a detailed example.</dd>
+
       <dt id="addon_multiplex"><a href="../addon/mode/multiplex.js"><code>mode/multiplex.js</code></a></dt>
       <dd>Mode combinator that can be used to easily 'multiplex'
       between several modes.
@@ -1607,6 +1657,7 @@
       see the content between the delimiters.
       See <a href="../demo/multiplex.html">this demo</a> for an
       example.</dd>
+
       <dt id="addon_show-hint"><a href="../addon/hint/show-hint.js"><code>hint/show-hint.js</code></a></dt>
       <dd>Provides a framework for showing autocompletion hints.
       Defines <code>CodeMirror.showHint</code>, which takes a
@@ -1622,11 +1673,13 @@
       hint sources for various languages. Check
       out <a href="../demo/complete.html">the demo</a> for an
       example.</dd>
+
       <dt id="addon_match-highlighter"><a href="../addon/search/match-highlighter.js"><code>match-highlighter.js</code></a></dt>
       <dd>Adds a <code>highlightSelectionMatches</code> option that
       can be enabled to highlight all instances of a currently
       selected word.
       Demo <a href="../demo/matchhighlighter.html">here</a>.</dd>
+
       <dt id="addon_lint"><a href="../addon/lint/lint.js"><code>lint/lint.js</code></a></dt>
       <dd>Defines an interface component for showing linting warnings,
       with pluggable warning sources
@@ -1637,20 +1690,24 @@
       example <code>CodeMirror.javascriptValidator</code>). Depends
       on <code>addon/lint/lint.css</code>. A demo can be
       found <a href="../demo/lint.html">here</a>.</dd>
+
       <dt id="addon_mark-selection"><a href="../addon/selection/mark-selection.js"><code>selection/mark-selection.js</code></a></dt>
       <dd>Causes the selected text to be marked with the CSS class
       <code>CodeMirror-selectedtext</code> when the <code>styleSelectedText</code> option
       is enabled. Useful to change the colour of the selection (in addition to the background),
       like in <a href="../demo/markselection.html">this demo</a>.</dd>
+
       <dt id="addon_active-line"><a href="../addon/selection/active-line.js"><code>selection/active-line.js</code></a></dt>
       <dd>Defines a <code>styleActiveLine</code> option that, when enabled,
       gives the wrapper of the active line the class <code>CodeMirror-activeline</code>, 
       and adds a background with the class <code>CodeMirror-activeline-background</code>.
       is enabled. See the <a href="../demo/activeline.html">demo</a>.</dd>
+
       <dt id="addon_closetag"><a href="../addon/edit/closetag.js"><code>edit/closetag.js</code></a></dt>
       <dd>Provides utility functions for adding automatic tag closing
       to XML modes. See
       the <a href="../demo/closetag.html">demo</a>.</dd>
+
       <dt id="addon_loadmode"><a href="../addon/mode/loadmode.js"><code>mode/loadmode.js</code></a></dt>
       <dd>Defines a <code>CodeMirror.requireMode(modename,
       callback)</code> function that will try to load a given mode and
@@ -1663,12 +1720,14 @@
       which will ensure the given mode is loaded and cause the given
       editor instance to refresh its mode when the loading
       succeeded. See the <a href="../demo/loadmode.html">demo</a>.</dd>
+
       <dt id="addon_continuecomment"><a href="../addon/edit/continuecomment.js"><code>edit/continuecomment.js</code></a></dt>
       <dd>Adds an <code>continueComments</code> option, which can be
       set to true to have the editor prefix new lines inside C-like
       block comments with an asterisk when Enter is pressed. It can
       also be set to a string in order to bind this functionality to a
       specific key..</dd>
+
       <dt id="addon_placeholder"><a href="../addon/display/placeholder.js"><code>display/placeholder.js</code></a></dt>
       <dd>Adds a <code>placeholder</code> option that can be used to
       make text appear in the editor when it is empty and not focused.
@@ -1832,6 +1891,15 @@
     option into account. An indentation method may
     return <code>CodeMirror.Pass</code> to indicate that it
     could not come up with a precise indentation.</p>
+
+    <p id="mode_comment">To work well with
+    the <a href="#addon_comment">commenting addon</a>, a mode may
+    define <code>lineComment</code> (string that starts a line
+    comment), <code>blockCommentStart</code>, <code>blockCommentEnd</code>
+    (strings that start and end block comments),
+    and <code>blockCommentLead</code> (a string to put at the start of
+    continued lines in a block comment). All of these are
+    optional.</p>
 
     <p id="electricChars">Finally, a mode may define
     an <code>electricChars</code> property, which should hold a string

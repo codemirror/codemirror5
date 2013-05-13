@@ -133,7 +133,11 @@ CodeMirror.defineMode("lua", function(config, parserConfig) {
     indent: function(state, textAfter) {
       var closing = dedentPartial.test(textAfter);
       return state.basecol + indentUnit * (state.indentDepth - (closing ? 1 : 0));
-    }
+    },
+
+    lineComment: "--",
+    blockCommentStart: "--[[",
+    blockCommentEnd: "]]"
   };
 });
 

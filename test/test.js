@@ -32,6 +32,8 @@ var opera_version = opera && navigator.userAgent.match(/Version\/(\d+\.\d+)/);
 if (opera_version) opera_version = Number(opera_version);
 var opera_lt10 = opera && (!opera_version || opera_version < 10);
 
+namespace = "core_";
+
 test("core_fromTextArea", function() {
   var te = document.getElementById("code");
   te.value = "CONTENT";

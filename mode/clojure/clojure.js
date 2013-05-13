@@ -215,7 +215,9 @@ CodeMirror.defineMode("clojure", function () {
         indent: function (state) {
             if (state.indentStack == null) return state.indentation;
             return state.indentStack.indent;
-        }
+        },
+
+        lineComment: ";;"
     };
 });
 

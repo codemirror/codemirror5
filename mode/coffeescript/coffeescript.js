@@ -337,8 +337,9 @@ CodeMirror.defineMode('coffeescript', function(conf) {
             }
 
             return state.scopes[0].offset;
-        }
+        },
 
+        lineComment: "#"
     };
     return external;
 });

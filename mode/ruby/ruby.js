@@ -186,8 +186,9 @@ CodeMirror.defineMode("ruby", function(config) {
       return ct.indented + (closing ? 0 : config.indentUnit) +
         (state.continuedLine ? config.indentUnit : 0);
     },
-     electricChars: "}de" // enD and rescuE
 
+    electricChars: "}de", // enD and rescuE
+    lineComment: "#"
   };
 });
 

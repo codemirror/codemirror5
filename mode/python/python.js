@@ -331,8 +331,9 @@ CodeMirror.defineMode("python", function(conf, parserConf) {
             }
 
             return state.scopes[0].offset;
-        }
+        },
 
+        lineComment: "#"
     };
     return external;
 });

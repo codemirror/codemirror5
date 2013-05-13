@@ -286,7 +286,9 @@ CodeMirror.defineMode("css-base", function(config, parserConfig) {
       return state.baseIndent + n * indentUnit;
     },
 
-    electricChars: "}"
+    electricChars: "}",
+    blockCommentStart: "/*",
+    blockCommentEnd: "*/"
   };
 });
 

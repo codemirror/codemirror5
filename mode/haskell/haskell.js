@@ -234,7 +234,11 @@ CodeMirror.defineMode("haskell", function() {
       var t = state.f(stream, function(s) { state.f = s; });
       var w = stream.current();
       return (w in wellKnownWords) ? wellKnownWords[w] : t;
-    }
+    },
+
+    blockCommentStart: "{-",
+    blockCommentEnd: "-}",
+    lineComment: "--"
   };
 
 });
