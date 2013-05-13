@@ -25,7 +25,7 @@
   var marks = null;
   var lastSelection = null;
 
-  function removeTextMarks(cm) {
+  function removeTextMarks() {
     if (marks) {
       for(var i = 0; i < marks.length; ++i) {
         marks[i].clear();
