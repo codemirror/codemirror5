@@ -26,7 +26,7 @@
       }
       return;
     }
-    var tabSize = self.getOption("tabSize"), firstLine = self.getLine(from.line);
+    var firstLine = self.getLine(from.line);
     if (firstLine == null) return;
     var end = Math.min(to.ch != 0 || to.line == from.line ? to.line + 1 : to.line, self.lastLine() + 1);
     var pad = options.padding == null ? " " : options.padding;
