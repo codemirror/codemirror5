@@ -169,6 +169,22 @@ function testVim(name, run, opts, expectedFail) {
     }
   }, expectedFail);
 };
+testVim('qq@q', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('q', 'q', 'l', 'l', 'q');
+  helpers.assertCursorAt(0,2);
+  helpers.doKeys('@', 'q');
+  helpers.assertCursorAt(0,4);
+}, { value: '            '});
+testVim('@@', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('q', 'q', 'l', 'l', 'q');
+  helpers.assertCursorAt(0,2);
+  helpers.doKeys('@', 'q');
+  helpers.assertCursorAt(0,4);
+  helpers.doKeys('@', '@');
+  helpers.assertCursorAt(0,6);
+}, { value: '            '});
 var jumplistScene = ''+
   'word\n'+
   '(word)\n'+
