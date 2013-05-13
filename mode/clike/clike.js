@@ -2,6 +2,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
   var indentUnit = config.indentUnit,
       statementIndentUnit = parserConfig.statementIndentUnit || indentUnit,
       dontAlignCalls = parserConfig.dontAlignCalls,
+      nonAlignedCalls = parserConfig.nonAlignedCalls,
       keywords = parserConfig.keywords || {},
       builtin = parserConfig.builtin || {},
       blockKeywords = parserConfig.blockKeywords || {},
@@ -152,6 +153,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       if (ctx.type == "statement") return ctx.indented + (firstChar == "{" ? 0 : statementIndentUnit);
       else if (dontAlignCalls && ctx.type == ")" && !closing) return ctx.indented + statementIndentUnit;
       else if (ctx.align) return ctx.column + (closing ? 0 : 1);
+      else if (nonAlignedCalls && ctx.type == ")" && !closing) return ctx.indented + statementIndentUnit;
       else return ctx.indented + (closing ? 0 : indentUnit);
     },
 
