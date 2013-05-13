@@ -245,9 +245,10 @@
         actionArgs: { insertAt: 'charAfter' }},
     { keys: ['A'], type: 'action', action: 'enterInsertMode',
         actionArgs: { insertAt: 'eol' }},
-    { keys: ['i'], type: 'action', action: 'enterInsertMode' },
+    { keys: ['i'], type: 'action', action: 'enterInsertMode',
+        actionArgs: { insertAt: 'inplace' }},
     { keys: ['I'], type: 'action', action: 'enterInsertMode',
-        motion: 'moveToFirstNonWhiteSpaceCharacter' },
+        actionArgs: { insertAt: 'firstNonBlank' }},
     { keys: ['o'], type: 'action', action: 'newLineAndEnterInsertMode',
         actionArgs: { after: true }},
     { keys: ['O'], type: 'action', action: 'newLineAndEnterInsertMode',
@@ -368,7 +369,7 @@
       return false;
     }
 
-    var circularJumpList = function() {
+    var createCircularJumpList = function() {
       var size = 100;
       var pointer = -1;
       var head = 0;
@@ -442,7 +443,7 @@
           searchQuery: null,
           // Whether we are searching backwards.
           searchIsReversed: false,
-          jumpList: circularJumpList(),
+          jumpList: createCircularJumpList(),
           // Recording latest f, t, F or T motion command.
           lastChararacterSearch: {increment:0, forward:true, selectedCharacter:''},
           registerController: new RegisterController({})
@@ -1528,6 +1529,8 @@
           cm.setCursor(cursor);
         } else if (insertAt == 'charAfter') {
           cm.setCursor(offsetCursor(cm.getCursor(), 0, 1));
+        } else if (insertAt == 'firstNonBlank') {
++         cm.setCursor(motions.moveToFirstNonWhiteSpaceCharacter(cm));
         }
         cm.setOption('keyMap', 'vim-insert');
       },
