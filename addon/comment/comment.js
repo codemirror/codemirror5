@@ -1,6 +1,6 @@
 (function() {
   "use strict";
-  
+
   var noOptions = {};
   var nonWS = /[^\s\u00a0]/;
   var Pos = CodeMirror.Pos;
@@ -34,7 +34,6 @@
 
     self.operation(function() {
       if (options.indent) {
-        var baseCol = CodeMirror.countColumn(firstLine, null, tabSize);
         var baseString = firstLine.slice(0, firstNonWS(firstLine));
         for (var i = from.line; i < end; ++i) {
           var line = self.getLine(i), cut = baseString.length;
@@ -112,7 +111,7 @@
       });
       return true;
     }
-    
+
     // Try block comments
     var startString = options.blockCommentStart || mode.blockCommentStart;
     var endString = options.blockCommentEnd || mode.blockCommentEnd;

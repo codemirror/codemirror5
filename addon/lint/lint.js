@@ -105,11 +105,11 @@ CodeMirror.validate = (function() {
   }
 
   function startLinting(cm) {
-          var state = cm._lintState, options = state.options;
-          if (options.async)
-                  options.getAnnotations(cm, updateLinting, options);
-          else
-                 updateLinting(cm, options.getAnnotations(cm.getValue()));
+    var state = cm._lintState, options = state.options;
+    if (options.async)
+      options.getAnnotations(cm, updateLinting, options);
+    else
+      updateLinting(cm, options.getAnnotations(cm.getValue()));
   }
 
   function updateLinting(cm, annotationsNotSorted) {
