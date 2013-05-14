@@ -1530,7 +1530,7 @@
         } else if (insertAt == 'charAfter') {
           cm.setCursor(offsetCursor(cm.getCursor(), 0, 1));
         } else if (insertAt == 'firstNonBlank') {
-+         cm.setCursor(motions.moveToFirstNonWhiteSpaceCharacter(cm));
+          cm.setCursor(motions.moveToFirstNonWhiteSpaceCharacter(cm));
         }
         cm.setOption('keyMap', 'vim-insert');
       },
