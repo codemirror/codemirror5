@@ -58,26 +58,26 @@
   var defaultKeymap = [
     // Key to key mapping. This goes first to make it possible to override
     // existing mappings.
-    { keys: ['Left'], type: 'keyToKey', toKeys: ['h'] },
-    { keys: ['Right'], type: 'keyToKey', toKeys: ['l'] },
-    { keys: ['Up'], type: 'keyToKey', toKeys: ['k'] },
-    { keys: ['Down'], type: 'keyToKey', toKeys: ['j'] },
-    { keys: ['Space'], type: 'keyToKey', toKeys: ['l'] },
-    { keys: ['Backspace'], type: 'keyToKey', toKeys: ['h'] },
-    { keys: ['Ctrl-Space'], type: 'keyToKey', toKeys: ['W'] },
-    { keys: ['Ctrl-Backspace'], type: 'keyToKey', toKeys: ['B'] },
-    { keys: ['Shift-Space'], type: 'keyToKey', toKeys: ['w'] },
-    { keys: ['Shift-Backspace'], type: 'keyToKey', toKeys: ['b'] },
-    { keys: ['Ctrl-n'], type: 'keyToKey', toKeys: ['j'] },
-    { keys: ['Ctrl-p'], type: 'keyToKey', toKeys: ['k'] },
-    { keys: ['Ctrl-['], type: 'keyToKey', toKeys: ['Esc'] },
-    { keys: ['Ctrl-c'], type: 'keyToKey', toKeys: ['Esc'] },
+    { keys: ['<Left>'], type: 'keyToKey', toKeys: ['h'] },
+    { keys: ['<Right>'], type: 'keyToKey', toKeys: ['l'] },
+    { keys: ['<Up>'], type: 'keyToKey', toKeys: ['k'] },
+    { keys: ['<Down>'], type: 'keyToKey', toKeys: ['j'] },
+    { keys: ['<Space>'], type: 'keyToKey', toKeys: ['l'] },
+    { keys: ['<BS>'], type: 'keyToKey', toKeys: ['h'] },
+    { keys: ['<C-Space>'], type: 'keyToKey', toKeys: ['W'] },
+    { keys: ['<C-BS>'], type: 'keyToKey', toKeys: ['B'] },
+    { keys: ['<S-Space>'], type: 'keyToKey', toKeys: ['w'] },
+    { keys: ['<S-BS>'], type: 'keyToKey', toKeys: ['b'] },
+    { keys: ['<C-n>'], type: 'keyToKey', toKeys: ['j'] },
+    { keys: ['<C-p>'], type: 'keyToKey', toKeys: ['k'] },
+    { keys: ['C-['], type: 'keyToKey', toKeys: ['<Esc>'] },
+    { keys: ['<C-c>'], type: 'keyToKey', toKeys: ['<Esc>'] },
     { keys: ['s'], type: 'keyToKey', toKeys: ['c', 'l'] },
     { keys: ['S'], type: 'keyToKey', toKeys: ['c', 'c'] },
-    { keys: ['Home'], type: 'keyToKey', toKeys: ['0'] },
-    { keys: ['End'], type: 'keyToKey', toKeys: ['$'] },
-    { keys: ['PageUp'], type: 'keyToKey', toKeys: ['Ctrl-b'] },
-    { keys: ['PageDown'], type: 'keyToKey', toKeys: ['Ctrl-f'] },
+    { keys: ['<Home>'], type: 'keyToKey', toKeys: ['0'] },
+    { keys: ['<End>'], type: 'keyToKey', toKeys: ['$'] },
+    { keys: ['<PageUp>'], type: 'keyToKey', toKeys: ['<C-b>'] },
+    { keys: ['<PageDown>'], type: 'keyToKey', toKeys: ['<C-f>'] },
     // Motions
     { keys: ['H'], type: 'motion',
         motion: 'moveToTopLine',
@@ -136,14 +136,14 @@
         motionArgs: { forward: false, toJumplist: true }},
     { keys: ['}'], type: 'motion', motion: 'moveByParagraph',
         motionArgs: { forward: true, toJumplist: true }},
-    { keys: ['Ctrl-f'], type: 'motion',
+    { keys: ['<C-f>'], type: 'motion',
         motion: 'moveByPage', motionArgs: { forward: true }},
-    { keys: ['Ctrl-b'], type: 'motion',
+    { keys: ['<C-b>'], type: 'motion',
         motion: 'moveByPage', motionArgs: { forward: false }},
-    { keys: ['Ctrl-d'], type: 'motion',
+    { keys: ['<C-d>'], type: 'motion',
         motion: 'moveByScroll',
         motionArgs: { forward: true, explicitRepeat: true }},
-    { keys: ['Ctrl-u'], type: 'motion',
+    { keys: ['<C-u>'], type: 'motion',
         motion: 'moveByScroll',
         motionArgs: { forward: false, explicitRepeat: true }},
     { keys: ['g', 'g'], type: 'motion',
@@ -237,9 +237,9 @@
     { keys: ['~'], type: 'operatorMotion', operator: 'swapcase',
         motion: 'moveByCharacters', motionArgs: { forward: true }},
     // Actions
-    { keys: ['Ctrl-i'], type: 'action', action: 'jumpListWalk',
+    { keys: ['<C-i>'], type: 'action', action: 'jumpListWalk',
         actionArgs: { forward: true }},
-    { keys: ['Ctrl-o'], type: 'action', action: 'jumpListWalk',
+    { keys: ['<C-o>'], type: 'action', action: 'jumpListWalk',
         actionArgs: { forward: false }},
     { keys: ['a'], type: 'action', action: 'enterInsertMode',
         actionArgs: { insertAt: 'charAfter' }},
@@ -264,7 +264,7 @@
     { keys: ['r', 'character'], type: 'action', action: 'replace' },
     { keys: ['R'], type: 'action', action: 'enterReplaceMode' },
     { keys: ['u'], type: 'action', action: 'undo' },
-    { keys: ['Ctrl-r'], type: 'action', action: 'redo' },
+    { keys: ['<C-r>'], type: 'action', action: 'redo' },
     { keys: ['m', 'character'], type: 'action', action: 'setMark' },
     { keys: ['\"', 'character'], type: 'action', action: 'setRegister' },
     { keys: ['z', 'z'], type: 'action', action: 'scrollToCursor',
@@ -274,7 +274,7 @@
         motion: 'moveToFirstNonWhiteSpaceCharacter' },
     { keys: ['z', 't'], type: 'action', action: 'scrollToCursor',
         actionArgs: { position: 'top' }},
-    { keys: ['z', 'Enter'], type: 'action', action: 'scrollToCursor',
+    { keys: ['z', '<CR>'], type: 'action', action: 'scrollToCursor',
         actionArgs: { position: 'top' },
         motion: 'moveToFirstNonWhiteSpaceCharacter' },
     { keys: ['z', '-'], type: 'action', action: 'scrollToCursor',
@@ -283,9 +283,9 @@
         actionArgs: { position: 'bottom' },
         motion: 'moveToFirstNonWhiteSpaceCharacter' },
     { keys: ['.'], type: 'action', action: 'repeatLastEdit' },
-    { keys: ['Ctrl-a'], type: 'action', action: 'incrementNumberToken',
+    { keys: ['<C-a>'], type: 'action', action: 'incrementNumberToken',
         actionArgs: {increase: true, backtrack: false}},
-    { keys: ['Ctrl-x'], type: 'action', action: 'incrementNumberToken',
+    { keys: ['<C-x>'], type: 'action', action: 'incrementNumberToken',
         actionArgs: {increase: false, backtrack: false}},
     // Text object motions
     { keys: ['a', 'character'], type: 'motion',
@@ -509,7 +509,7 @@
       handleKey: function(cm, key) {
         var command;
         var vim = getVimState(cm);
-        if (key == 'Esc') {
+        if (key == '<Esc>') {
           // Clear input state and get back to normal mode.
           vim.inputState = new InputState();
           if (vim.visualMode) {
@@ -717,10 +717,10 @@
                 inputState.selectedCharacter = keys[keys.length - 1];
                 if(inputState.selectedCharacter.length>1){
                   switch(inputState.selectedCharacter){
-                    case "Enter":
+                    case "<CR>":
                       inputState.selectedCharacter='\n';
                       break;
-                    case "Space":
+                    case "<Space>":
                       inputState.selectedCharacter=' ';
                       break;
                     default:
@@ -2930,41 +2930,14 @@
     // Converts a key string sequence of the form a<C-w>bd<Left> into Vim's
     // keymap representation.
     function parseKeyString(str) {
-      var idx = 0;
+      var key, match;
       var keys = [];
-      while (idx < str.length) {
-        if (str.charAt(idx) != '<') {
-          keys.push(str.charAt(idx));
-          idx++;
-          continue;
-        }
-        // Vim key notation here means desktop Vim key-notation.
-        // See :help key-notation in desktop Vim.
-        var vimKeyNotationStart = ++idx;
-        while (str.charAt(idx++) != '>') {}
-        var vimKeyNotation = str.substring(vimKeyNotationStart, idx - 1);
-        var mod='';
-        var match = (/^C-(.+)$/).exec(vimKeyNotation);
-        if (match) {
-          mod='Ctrl-';
-          vimKeyNotation=match[1];
-        }
-        var key;
-        switch (vimKeyNotation) {
-          case 'BS':
-            key = 'Backspace';
-            break;
-          case 'CR':
-            key = 'Enter';
-            break;
-          case 'Del':
-            key = 'Delete';
-            break;
-          default:
-            key = vimKeyNotation;
-            break;
-        }
-        keys.push(mod + key);
+      while (str) {
+        match = (/<\w+-.+?>|<\w+>|./).exec(str);
+        if(match === null)break;
+        key = match[0];
+        str = str.substring(match.index + key.length);
+        keys.push(key);
       }
       return keys;
     }
@@ -3148,8 +3121,11 @@
         }
         if (modifier) {
           // Vim will parse modifier+key combination as a single key.
-          key = modifier + '-' + key;
+          key = modifier.charAt(0) + '-' + key;
         }
+        var specialKey = ({Enter:'CR',Backspace:'BS',Delete:'Del'})[key];
+        key = specialKey ? specialKey : key;
+        key = key.length > 1 ? '<'+ key + '>' : key;
         vim.handleKey(cm, key);
       }
 

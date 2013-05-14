@@ -190,32 +190,32 @@ function testJumplist(name, keys, endPos, startPos, dialog) {
     helpers.assertCursorAt(endPos);
   }, {value: jumplistScene});
 };
-testJumplist('jumplist_H', ['H', 'Ctrl-o'], [5,2], [5,2]);
-testJumplist('jumplist_M', ['M', 'Ctrl-o'], [2,2], [2,2]);
-testJumplist('jumplist_L', ['L', 'Ctrl-o'], [2,2], [2,2]);
-testJumplist('jumplist_[[', ['[', '[', 'Ctrl-o'], [5,2], [5,2]);
-testJumplist('jumplist_]]', [']', ']', 'Ctrl-o'], [2,2], [2,2]);
-testJumplist('jumplist_G', ['G', 'Ctrl-o'], [5,2], [5,2]);
-testJumplist('jumplist_gg', ['g', 'g', 'Ctrl-o'], [5,2], [5,2]);
-testJumplist('jumplist_%', ['%', 'Ctrl-o'], [1,5], [1,5]);
-testJumplist('jumplist_{', ['{', 'Ctrl-o'], [1,5], [1,5]);
-testJumplist('jumplist_}', ['}', 'Ctrl-o'], [1,5], [1,5]);
-testJumplist('jumplist_\'', ['m', 'a', 'h', '\'', 'a', 'h', 'Ctrl-i'], [1,5], [1,5]);
-testJumplist('jumplist_`', ['m', 'a', 'h', '`', 'a', 'h', 'Ctrl-i'], [1,5], [1,5]);
-testJumplist('jumplist_*_cachedCursor', ['*', 'Ctrl-o'], [1,3], [1,3]);
-testJumplist('jumplist_#_cachedCursor', ['#', 'Ctrl-o'], [1,3], [1,3]);
-testJumplist('jumplist_n', ['#', 'n', 'Ctrl-o'], [1,1], [2,3]);
-testJumplist('jumplist_N', ['#', 'N', 'Ctrl-o'], [1,1], [2,3]);
-testJumplist('jumplist_repeat_<c-o>', ['*', '*', '*', '3', 'Ctrl-o'], [2,3], [2,3]);
-testJumplist('jumplist_repeat_<c-i>', ['*', '*', '*', '3', 'Ctrl-o', '2', 'Ctrl-i'], [5,0], [2,3]);
-testJumplist('jumplist_repeated_motion', ['3', '*', 'Ctrl-o'], [2,3], [2,3]);
-testJumplist('jumplist_/', ['/', 'Ctrl-o'], [2,3], [2,3], 'dialog');
-testJumplist('jumplist_?', ['?', 'Ctrl-o'], [2,3], [2,3], 'dialog');
+testJumplist('jumplist_H', ['H', '<C-o>'], [5,2], [5,2]);
+testJumplist('jumplist_M', ['M', '<C-o>'], [2,2], [2,2]);
+testJumplist('jumplist_L', ['L', '<C-o>'], [2,2], [2,2]);
+testJumplist('jumplist_[[', ['[', '[', '<C-o>'], [5,2], [5,2]);
+testJumplist('jumplist_]]', [']', ']', '<C-o>'], [2,2], [2,2]);
+testJumplist('jumplist_G', ['G', '<C-o>'], [5,2], [5,2]);
+testJumplist('jumplist_gg', ['g', 'g', '<C-o>'], [5,2], [5,2]);
+testJumplist('jumplist_%', ['%', '<C-o>'], [1,5], [1,5]);
+testJumplist('jumplist_{', ['{', '<C-o>'], [1,5], [1,5]);
+testJumplist('jumplist_}', ['}', '<C-o>'], [1,5], [1,5]);
+testJumplist('jumplist_\'', ['m', 'a', 'h', '\'', 'a', 'h', '<C-i>'], [1,5], [1,5]);
+testJumplist('jumplist_`', ['m', 'a', 'h', '`', 'a', 'h', '<C-i>'], [1,5], [1,5]);
+testJumplist('jumplist_*_cachedCursor', ['*', '<C-o>'], [1,3], [1,3]);
+testJumplist('jumplist_#_cachedCursor', ['#', '<C-o>'], [1,3], [1,3]);
+testJumplist('jumplist_n', ['#', 'n', '<C-o>'], [1,1], [2,3]);
+testJumplist('jumplist_N', ['#', 'N', '<C-o>'], [1,1], [2,3]);
+testJumplist('jumplist_repeat_<c-o>', ['*', '*', '*', '3', '<C-o>'], [2,3], [2,3]);
+testJumplist('jumplist_repeat_<c-i>', ['*', '*', '*', '3', '<C-o>', '2', '<C-i>'], [5,0], [2,3]);
+testJumplist('jumplist_repeated_motion', ['3', '*', '<C-o>'], [2,3], [2,3]);
+testJumplist('jumplist_/', ['/', '<C-o>'], [2,3], [2,3], 'dialog');
+testJumplist('jumplist_?', ['?', '<C-o>'], [2,3], [2,3], 'dialog');
 testJumplist('jumplist_skip_delted_mark<c-o>',
-             ['*', 'n', 'n', 'k', 'd', 'k', 'Ctrl-o', 'Ctrl-o', 'Ctrl-o'],
+             ['*', 'n', 'n', 'k', 'd', 'k', '<C-o>', '<C-o>', '<C-o>'],
              [0,2], [0,2]);
 testJumplist('jumplist_skip_delted_mark<c-i>',
-             ['*', 'n', 'n', 'k', 'd', 'k', 'Ctrl-o', 'Ctrl-i', 'Ctrl-i'],
+             ['*', 'n', 'n', 'k', 'd', 'k', '<C-o>', '<C-i>', '<C-i>'],
              [1,0], [0,2]);
 /**
  * @param name Name of the test
@@ -970,22 +970,22 @@ testVim('Y', function(cm, vim, helpers) {
 // Action tests
 testVim('ctrl-a', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
-  helpers.doKeys('Ctrl-a');
+  helpers.doKeys('<C-a>');
   eq('-9', cm.getValue());
   helpers.assertCursorAt(0, 1);
-  helpers.doKeys('2','Ctrl-a');
+  helpers.doKeys('2','<C-a>');
   eq('-7', cm.getValue());
 }, {value: '-10'});
 testVim('ctrl-x', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
-  helpers.doKeys('Ctrl-x');
+  helpers.doKeys('<C-x>');
   eq('-1', cm.getValue());
   helpers.assertCursorAt(0, 1);
-  helpers.doKeys('2','Ctrl-x');
+  helpers.doKeys('2','<C-x>');
   eq('-3', cm.getValue());
 }, {value: '0'});
-testVim('Ctrl-x/Ctrl-a search forward', function(cm, vim, helpers) {
-  ['Ctrl-x', 'Ctrl-a'].forEach(function(key) {
+testVim('<C-x>/<C-a> search forward', function(cm, vim, helpers) {
+  ['<C-x>', '<C-a>'].forEach(function(key) {
     cm.setCursor(0, 0);
     helpers.doKeys(key);
     helpers.assertCursorAt(0, 5);
@@ -1103,7 +1103,7 @@ testVim('r', function(cm, vim, helpers) {
   eq('wuuuet\nanother', cm.getValue(),'3r failed');
   helpers.assertCursorAt(0, 3);
   cm.setCursor(0, 4);
-  helpers.doKeys('v', 'j', 'h', 'r', 'Space');
+  helpers.doKeys('v', 'j', 'h', 'r', '<Space>');
   eq('wuuu  \n    her', cm.getValue(),'Replacing selection by space-characters failed');
 }, { value: 'wordet\nanother' });
 testVim('R', function(cm, vim, helpers) {
@@ -2001,7 +2001,7 @@ testVim('ex_api_test', function(cm, vim, helpers) {
   helpers.doEx(':ext to');
   eq(val,'to','Defining ex-command failed');
   CodeMirror.Vim.map('<C-CR><Space>',':ext');
-  helpers.doKeys('Ctrl-Enter','Space');
+  helpers.doKeys('<C-CR>','<Space>');
   is(res,'Mapping to key failed');
 });
 // For now, this test needs to be last because it messes up : for future tests.
