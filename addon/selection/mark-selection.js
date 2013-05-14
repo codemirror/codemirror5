@@ -10,11 +10,10 @@
     var prev = old && old != CodeMirror.Init;
     if (val && !prev) {
       updateSelectedText(cm);
-      cm.on("cursorActivity", cm.operation.bind(cm, updateSelectedText.bind(cm, cm)));
+      cm.on("cursorActivity", updateSelectedText);
     } else if (!val && prev) {
-      cm.off("cursorActivity", cm.operation.bind(updateSelectedText.bind(cm, cm)));
-      clearSelectedText(cm);
-      delete cm._selectionMark;
+      cm.off("cursorActivity", updateSelectedText);
+      removeTextMarks(cm);
     }
   });
 
@@ -22,24 +21,20 @@
     return pos1.line !== pos2.line ? pos1.line - pos2.line : pos1.ch - pos2.ch;
   }
 
-  var marks = null;
-  var lastSelection = null;
-
-  function removeTextMarks() {
-    if (marks) {
-      for(var i = 0; i < marks.length; ++i) {
-        marks[i].clear();
+  function removeTextMarks(cm) {
+    if (cm._selectionMarks) {
+      for(var i = 0; i < cm._selectionMarks.length; ++i) {
+        cm._selectionMarks[i].clear();
       }
     }
-    marks = null;
-    lastSelection = null;
+    cm._selectionMarks = null;
   }
 
   function markText(cm, start, end) {
     if (cmp(start, end) === 0)
       return;
     var opt = {className: "CodeMirror-selectedtext"};
-    marks.push(cmp(start, end) <= 0 ? cm.markText(start, end, opt) : cm.markText(end, start, opt));
+    cm._selectionMarks.push(cmp(start, end) <= 0 ? cm.markText(start, end, opt) : cm.markText(end, start, opt));
   }
 
   var CHUNK_SIZE = 8;
@@ -66,23 +61,26 @@
   function createInitialCoverage(cm) {
     var anchor = cm.getCursor("anchor");
     var head = cm.getCursor("head");
-
-    lastSelection = {
-      anchor: Pos(anchor.line, anchor.ch),
-      head: Pos(head.line, head.ch),
-      reversed: cmp(head, anchor) < 0
-    };
-
-    marks = [];
+    cm._selectionMarks = [];
     coverRange(cm, anchor, head);
+  }
+
+  function getCoveredRange(cm) {
+    var first = cm._selectionMarks[0].find();
+    var last = cm._selectionMarks[cm._selectionMarks.length - 1].find();
+    if (!first || !last)
+        return null;
+    var reversed = cmp(first.from, last.to) >= 0;
+    return reversed ? {anchor: first.to, head: last.from, reversed: reversed} : {anchor: first.from, head: last.to, reversed: reversed};
   }
 
   function incrementalCoverageUpdate(cm) {
     var anchor = cm.getCursor("anchor");
     var head = cm.getCursor("head");
     var reversed = cmp(head, anchor) < 0;
+    var lastSelection = getCoveredRange(cm);
     // if the anchor of selection moved or selection changed direction - remove everything and construct from scratch.
-    if (cmp(anchor, lastSelection.anchor) !== 0 || (reversed ^ lastSelection.reversed)) {
+    if (!lastSelection || cmp(anchor, lastSelection.anchor) !== 0 || (reversed ^ lastSelection.reversed)) {
       removeTextMarks(cm);
       createInitialCoverage(cm);
       return;
@@ -93,12 +91,10 @@
 
     // if only column changed then update last text mark
     if (head.line === lastSelection.head.line) {
-      var lastMark = marks.pop();
+      var lastMark = cm._selectionMarks.pop();
       var position = lastMark.find();
       lastMark.clear();
       markText(cm, reversed ? position.to : position.from, head);
-      lastSelection.head = head;
-      lastSelection.reversed = reversed;
       return;
     }
 
@@ -108,13 +104,13 @@
         var textMark,
           position;
         do {
-          textMark = marks.pop();
+          textMark = cm._selectionMarks.pop();
           position = textMark.find();
           textMark.clear();
-        } while (marks.length && position.from.line >= head.line);
+        } while (cm._selectionMarks.length && position.from.line >= head.line);
         markText(cm, position.from, head);
       } else {
-        var textMark = marks.pop();
+        var textMark = cm._selectionMarks.pop();
         var position = textMark.find();
         textMark.clear();
         coverRange(cm, position.from, head);
@@ -125,29 +121,29 @@
         var textMark,
           position;
         do {
-          textMark = marks.pop();
+          textMark = cm._selectionMarks.pop();
           position = textMark.find();
           textMark.clear();
-        } while (marks.length && position.to.line <= head.line);
+        } while (cm._selectionMarks.length && position.to.line <= head.line);
         markText(cm, position.to, head);
       } else {
-        var textMark = marks.pop();
+        var textMark = cm._selectionMarks.pop();
         var position = textMark.find();
         coverRange(cm, position.to, head);
         textMark.clear();
       }
     }
-    lastSelection.head = head;
-    lastSelection.reversed = reversed;
   }
 
   function updateSelectedText(cm) {
-    if (!cm.somethingSelected())
-      return removeTextMarks(cm);
+    cm.operation(function() {
+        if (!cm.somethingSelected())
+          return removeTextMarks(cm);
 
-    if (!lastSelection)
-      return createInitialCoverage(cm);
+        if (!cm._selectionMarks || !cm._selectionMarks.length)
+          return createInitialCoverage(cm);
 
-    incrementalCoverageUpdate(cm);
+        incrementalCoverageUpdate(cm);
+    });
   }
 })();
