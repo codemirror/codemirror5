@@ -931,7 +931,7 @@
         }
         function onPromptKeyDown(e, input, close) {
           var keyName = CodeMirror.keyName(e);
-          if (keyName == '<Esc>' || keyName == '<C-C>' || keyName == '<C-[>') {
+          if (keyName == 'Esc' || keyName == 'Ctrl-C' || keyName == 'Ctrl-[') {
             CodeMirror.e_stop(e);
             close();
             cm.focus();
