@@ -873,7 +873,7 @@
         }
         function onPromptKeyDown(e, query, close) {
           var keyName = CodeMirror.keyName(e);
-          if (keyName == '<Esc>' || keyName == '<C-C>' || keyName == '<C-[>') {
+          if (keyName == 'Esc' || keyName == 'Ctrl-C' || keyName == 'Ctrl-[') {
             updateSearchQuery(cm, originalQuery);
             clearSearchHighlight(cm);
             cm.scrollTo(originalScrollPos.left, originalScrollPos.top);
@@ -2933,7 +2933,7 @@
       var key, match;
       var keys = [];
       while (str) {
-        match = str.match(/<\w+-.+?>|<\w+?>|.|\n/);
+        match = (/<\w+-.+?>|<\w+>|./).exec(str);
         if(match === null)break;
         key = match[0];
         str = str.substring(match.index + key.length);
@@ -3121,8 +3121,10 @@
         }
         if (modifier) {
           // Vim will parse modifier+key combination as a single key.
-          key = modifier[0] + '-' + key;
+          key = modifier.charAt(0) + '-' + key;
         }
+        var specialKey = ({Enter:'CR',Backspace:'BS',Delete:'Del'})[key];
+        key = specialKey ? specialKey : key;
         key = key.length > 1 ? '<'+ key + '>' : key;
         vim.handleKey(cm, key);
       }
