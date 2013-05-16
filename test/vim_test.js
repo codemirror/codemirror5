@@ -1752,14 +1752,45 @@ testVim('HML', function(cm, vim, helpers) {
   helpers.doKeys('M');
   helpers.assertCursorAt(103,4);
 }, { value: (function(){
-  var upperLines = new Array(100);
-  var lowerLines = new Array(100);
+  var lines = new Array(100);
   var upper = '  xx\n';
   var lower = '    xx\n';
-  upper = upperLines.join(upper);
-  lower = upperLines.join(lower);
+  upper = lines.join(upper);
+  lower = lines.join(lower);
   return upper + lower;
 })()});
+
+var zVals = ['zb','zz','zt','z-','z.','z<CR>'].map(function(e, idx){
+  var lineNum = 250;
+  var lines = 35;
+  testVim(e, function(cm, vim, helpers) {
+    var k1 = e[0];
+    var k2 = e.substring(1);
+    var textHeight = cm.defaultTextHeight();
+    cm.setSize(600, lines*textHeight);
+    cm.setCursor(lineNum, 0);
+    helpers.doKeys(k1, k2);
+    zVals[idx] = cm.getScrollInfo().top;
+  }, { value: (function(){
+    return new Array(500).join('\n');
+  })()});
+});
+testVim('zb<zz', function(cm, vim, helpers){
+  eq(zVals[0]<zVals[1], true);
+});
+testVim('zz<zt', function(cm, vim, helpers){
+  eq(zVals[1]<zVals[2], true);
+});
+testVim('zb==z-', function(cm, vim, helpers){
+  eq(zVals[0], zVals[3]);
+});
+testVim('zz==z.', function(cm, vim, helpers){
+  eq(zVals[1], zVals[4]);
+});
+testVim('zt==z<CR>', function(cm, vim, helpers){
+  eq(zVals[2], zVals[5]);
+});
+
 var squareBracketMotionSandbox = ''+
   '({\n'+//0
   '  ({\n'+//11
