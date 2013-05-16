@@ -24,19 +24,19 @@
   CodeMirror.defineOption("highlightSelectionMatches", false, function(cm, val, old) {
     var prev = old && old != CodeMirror.Init;
     if (val && !prev) {
-      cm._matchHighlightState = new State(val);
+      cm.state.matchHighlighter = new State(val);
       cm.on("cursorActivity", highlightMatches);
     } else if (!val && prev) {
-      var over = cm._matchHighlightState.overlay;
+      var over = cm.state.matchHighlighter.overlay;
       if (over) cm.removeOverlay(over);
-      cm._matchHighlightState = null;
+      cm.state.matchHighlighter = null;
       cm.off("cursorActivity", highlightMatches);
     }
   });
 
   function highlightMatches(cm) {
     cm.operation(function() {
-      var state = cm._matchHighlightState;
+      var state = cm.state.matchHighlighter;
       if (state.overlay) {
         cm.removeOverlay(state.overlay);
         state.overlay = null;

@@ -27,7 +27,7 @@
     this.overlay = null;
   }
   function getSearchState(cm) {
-    return cm._searchState || (cm._searchState = new SearchState());
+    return cm.state.search || (cm.state.search = new SearchState());
   }
   function getSearchCursor(cm, query, pos) {
     // Heuristic: if the query string is all lowercase, do a case insensitive search.
