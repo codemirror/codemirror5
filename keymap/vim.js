@@ -3163,36 +3163,37 @@
        * modifers.
        */
       // TODO: Figure out a way to catch capslock.
-      function handleKeyEvent_(cm, key, modifier) {
-        if (isUpperCase(key)) {
+      function cmKeyToVimKey(key, modifier) {
+        var vimKey = key;
+        if (isUpperCase(vimKey)) {
           // Convert to lower case if shift is not the modifier since the key
           // we get from CodeMirror is always upper case.
           if (modifier == 'Shift') {
             modifier = null;
           }
           else {
-            key = key.toLowerCase();
+            vimKey = vimKey.toLowerCase();
           }
         }
         if (modifier) {
           // Vim will parse modifier+key combination as a single key.
-          key = modifier.charAt(0) + '-' + key;
+          vimKey = modifier.charAt(0) + '-' + vimKey;
         }
-        var specialKey = ({Enter:'CR',Backspace:'BS',Delete:'Del'})[key];
-        key = specialKey ? specialKey : key;
-        key = key.length > 1 ? '<'+ key + '>' : key;
-        vim.handleKey(cm, key);
+        var specialKey = ({Enter:'CR',Backspace:'BS',Delete:'Del'})[vimKey];
+        vimKey = specialKey ? specialKey : vimKey;
+        vimKey = vimKey.length > 1 ? '<'+ vimKey + '>' : vimKey;
+        return vimKey;
       }
 
       // Closure to bind CodeMirror, key, modifier.
-      function keyMapper(key, modifier) {
+      function keyMapper(vimKey) {
         return function(cm) {
-          handleKeyEvent_(cm, key, modifier);
+          vim.handleKey(cm, vimKey);
         };
       }
 
       var modifiers = ['Shift', 'Ctrl'];
-      var keyMap = {
+      var cmToVimKeymap = {
         'nofallthrough': true,
         'style': 'fat-cursor'
       };
@@ -3204,11 +3205,9 @@
             // them.
             key = "'" + key + "'";
           }
-          if (modifier) {
-            keyMap[modifier + '-' + key] = keyMapper(keys[i], modifier);
-          } else {
-            keyMap[key] = keyMapper(keys[i]);
-          }
+          var vimKey = cmKeyToVimKey(keys[i], modifier);
+          var cmKey = modifier ? modifier + '-' + key : key;
+          cmToVimKeymap[cmKey] = keyMapper(vimKey);
         }
       }
       bindKeys(upperCaseAlphabet);
@@ -3220,7 +3219,7 @@
       bindKeys(numbers, 'Ctrl');
       bindKeys(specialKeys);
       bindKeys(specialKeys, 'Ctrl');
-      return keyMap;
+      return cmToVimKeymap;
     }
     CodeMirror.keyMap.vim = buildVimKeyMap();
 
