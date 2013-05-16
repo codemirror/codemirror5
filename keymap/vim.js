@@ -1538,22 +1538,19 @@
       },
       scrollToCursor: function(cm, actionArgs) {
         var lineNum = cm.getCursor().line;
-        var heightProp = window.getComputedStyle(cm.getScrollerElement()).
-            getPropertyValue('height');
-        var height = parseInt(heightProp);
-        var y = cm.charCoords({line: lineNum, ch: 0}, "local").top;
-        var halfHeight = parseInt(height) / 2;
+        var charCoords = cm.charCoords({line: lineNum, ch: 0}, "local");
+        var height = cm.getScrollInfo().clientHeight;
+        var y = charCoords.top;
+        var lineHeight = charCoords.bottom - y;
         switch (actionArgs.position) {
-          case 'center': y = y - (height / 2) + 10;
-              break;
-          case 'bottom': y = y - height;
-              break;
-          case 'top': break;
+          case 'center': y = y - (height / 2) + lineHeight;
+            break;
+          case 'bottom': y = y - height + lineHeight*1.4;
+            break;
+          case 'top': y = y + lineHeight*0.4;
+            break;
         }
         cm.scrollTo(null, y);
-        // The calculations are slightly off, use scrollIntoView to nudge the
-        // view into the right place.
-        cm.scrollIntoView();
       },
       replayMacro: function(cm, actionArgs) {
         var registerName = actionArgs.selectedCharacter;
