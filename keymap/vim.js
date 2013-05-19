@@ -330,10 +330,13 @@
     var validMarks = upperCaseAlphabet.concat(lowerCaseAlphabet).concat(
         numbers).concat(['<', '>']);
     var validRegisters = upperCaseAlphabet.concat(lowerCaseAlphabet).concat(
-        numbers).concat('-\"'.split(''));
+        numbers).concat('-\".'.split(''));
 
     function isAlphabet(k) {
       return alphabetRegex.test(k);
+    }
+    function isSymbol(k) {
+      return (/[^\w]|_/).test(k);
     }
     function isLine(cm, line) {
       return line >= cm.firstLine() && line <= cm.lastLine();
@@ -492,6 +495,7 @@
           lastMotion: null,
           marks: {},
           visualMode: false,
+          insertMode: false,
           // If we are in visual line mode. No effect if visualMode is false.
           visualLine: false
         };
@@ -1558,6 +1562,8 @@
         var macroModeState = getVimGlobalState().macroModeState;
         if (registerName == '@') {
           registerName = macroModeState.latestRegister;
+        } else {
+          macroModeState.latestRegister = registerName;
         }
         var keyBuffer = parseRegisterToKeyBuffer(macroModeState, registerName);
         while(repeat--){
@@ -1573,11 +1579,13 @@
       enterMacroRecordMode: function(cm, actionArgs) {
         var macroModeState = getVimGlobalState().macroModeState;
         var registerName = actionArgs.selectedCharacter;
-        macroModeState.toggle(cm, registerName);
         emptyMacroKeyBuffer(macroModeState);
+        macroModeState.toggle(cm, registerName);
       },
       enterInsertMode: function(cm, actionArgs) {
         var insertAt = (actionArgs) ? actionArgs.insertAt : null;
+        var vim = getVimState(cm);
+        vim.insertMode = true;
         if (insertAt == 'eol') {
           var cursor = cm.getCursor();
           cursor = { line: cursor.line, ch: lineLength(cm, cursor.line) };
@@ -1587,7 +1595,12 @@
         } else if (insertAt == 'firstNonBlank') {
           cm.setCursor(motions.moveToFirstNonWhiteSpaceCharacter(cm));
         }
+        if(insertAt)commandDispatcher.recordLastEdit(cm, vim, insertAt);
         cm.setOption('keyMap', 'vim-insert');
+        cm.on('change', onInsertModeTextChanges);
+        cm.on('cursorActivity', onInsertModeCursorChanges);
+        cm.options.onKeyEvent = onInsertModeKeyDown;
+        emptyMacroKeyBuffer(getVimGlobalState().macroModeState);
       },
       toggleVisualMode: function(cm, actionArgs, vim) {
         var repeat = actionArgs.repeat;
@@ -1814,15 +1827,23 @@
         cm.setCursor({line: cur.line, ch: start + numberStr.length - 1});
       },
       repeatLastEdit: function(cm, actionArgs, vim) {
-        // TODO: Make this repeat insert mode changes.
         var lastEdit = vim.lastEdit;
-        if (lastEdit) {
+        var macroModeState = getVimGlobalState().macroModeState;
+        if (typeof lastEdit == 'string') { /* A,I,a,i */
+          actions.enterInsertMode(cm, { insertAt:lastEdit });
+          repeatLastInsertModeChanges(cm, macroModeState);
+          return;
+        } else if (lastEdit) {
           if (actionArgs.repeat && actionArgs.repeatIsExplicit) {
             vim.lastEdit.repeatOverride = actionArgs.repeat;
           }
           var currentInputState = vim.inputState;
           vim.inputState = vim.lastEdit;
           commandDispatcher.evalInput(cm, vim);
+          if (lastEdit.operator == 'change') {
+            repeatLastInsertModeChanges(cm, macroModeState);
+            return;
+          }
           vim.inputState = currentInputState;
         }
       }
@@ -3224,9 +3245,105 @@
     }
     CodeMirror.keyMap.vim = buildVimKeyMap();
 
+    var globalKeyState = {key:undefined, stopPropagation:false};
+    function getGlobalKeyState() {
+      return globalKeyState;
+    }
+
+    function onInsertModeKeyDown(cm, e) {
+      if (e.type == 'keydown') {
+        var key = rawKeyEventToCmSpeicalKey(e);
+        var keyState = getGlobalKeyState();
+        keyState.key = key;
+        if (key == '<C-[>') {
+          logKey(getVimGlobalState().macroModeState, key);
+          keyState.stopPropagation = true;
+        } else {
+          keyState.stopPropagation = false;
+        }
+      }
+    }
+
+    function changeObjToString() {
+      return this.text.join('\n');
+    }
+
+    function onInsertModeCursorChanges(cm) {
+      var keyState = getGlobalKeyState();
+      if(keyState.stopPropagation)return;
+      var macroModeState = getVimGlobalState().macroModeState;
+      var key = keyState.key;
+      logKey(macroModeState, key);
+    }
+
+    function rawKeyEventToCmSpeicalKey(e) {
+      var k = ({8:'BS', 13:'CR', 46:'Del'})[e.keyCode];
+      var modifier;
+      k = k ? k : CodeMirror.keyNames[e.keyCode];
+      if (e.ctrlKey) {
+        modifier = 'C';
+      } else if (e.altKey) {
+        modifier = 'A';
+      } else if (e.shiftKey) {
+        modifier = 'S';
+      }
+      if(modifier=='S' && isAlphabet(k))return k;
+      if(modifier)return '<'+modifier+'-'+k+'>';
+      if(k.length > 1)return '<'+k+'>';
+      if(isSymbol(k))return k;
+      return k.toLowerCase();
+    }
+
+    function onInsertModeTextChanges(cm, changeObj) {
+      var keyState = getGlobalKeyState();
+      if(keyState.stopPropagation)return;
+      var macroModeState = getVimGlobalState().macroModeState;
+      var keyBuffer = macroModeState.macroKeyBuffer;
+      var cur = cm.getCursor();
+      var line = cur.line;
+      var ch = cur.ch;
+      keyState.stopPropagation = true;
+      var key = keyState.key;
+      var lastChange = keyBuffer[keyBuffer.length-1];
+      changeObj.toString = changeObjToString;
+
+      switch (changeObj.origin) {
+        case '+delete':
+          // if not mergable with the last grain of change, log <BS> or <Del>
+          if (!(typeof lastChange == 'object' && (changeObj.from.ch - lastChange.from.ch) >= 0)) {
+            logKey(macroModeState, key);
+            return;
+          }
+        case '+paste':
+        case '+input':
+          if (key == '<CR>') {
+            logKey(macroModeState, key);
+            return;
+          }
+          // Merge consecutive grainy changes into one chunk
+          if (typeof lastChange == 'object') {
+            var remnantLength = changeObj.from.ch - lastChange.from.ch;
+            var lastText = lastChange.toString();
+            var changeObjText = changeObj.toString();
+            var lastTextRemnant = lastText.substring(0, remnantLength);
+            lastChange.text = [lastTextRemnant + changeObjText];
+            return;
+          }
+          logKey(macroModeState, changeObj);
+          break;
+      }
+    }
+
     function exitInsertMode(cm) {
       cm.setCursor(cm.getCursor().line, cm.getCursor().ch-1, true);
       cm.setOption('keyMap', 'vim');
+      cm.off('change', onInsertModeTextChanges);
+      cm.off('cursorActivity', onInsertModeCursorChanges);
+      cm.options.onKeyEvent = null;
+      var vim = getVimState(cm);
+      vim.insertMode = false;
+      var macroModeState = getVimGlobalState().macroModeState;
+      parseKeyBufferToRegister('.', macroModeState.macroKeyBuffer);
     }
 
     CodeMirror.keyMap['vim-insert'] = {
@@ -3245,6 +3362,12 @@
       fallthrough: ['default']
     };
 
+    function repeatLastInsertModeChanges(cm, macroModeState) {
+      var keyBuffer = parseRegisterToKeyBuffer(macroModeState, '.');
+      executeMacroKeyBuffer(cm, macroModeState, keyBuffer);
+      exitInsertMode(cm, /* retainLastCmd */true);
+    }
+
     function parseRegisterToKeyBuffer(macroModeState, registerName) {
       var match, key;
       var register = getVimGlobalState().registerController.getRegister(registerName);
@@ -3252,7 +3375,7 @@
       var macroKeyBuffer = macroModeState.macroKeyBuffer;
       emptyMacroKeyBuffer(macroModeState);
       do {
-        match = text.match(/<\w+-.+>|<\w+>|.|\n/);
+        match = text.match(/<\w+-.+?>|<\w+>|.|\n/);
         if(match === null)break;
         key = match[0];
         text = text.substring(match.index + key.length);
@@ -3267,15 +3390,50 @@
     }
 
     function emptyMacroKeyBuffer(macroModeState) {
-      if(macroModeState.isMacroPlaying)return;
+      if(macroModeState.isMacroPlaying || macroModeState.enteredMacroMode)return;
       var macroKeyBuffer = macroModeState.macroKeyBuffer;
       macroKeyBuffer.length = 0;
     }
 
+    function handleInsertModeKey(cm, key) {
+      if (key.charAt(0) == '<' && key.charAt(key.length-1) == '>') {
+        var modifier = '';
+        key = key.substring(1, key.length-1);
+        if (key.charAt(1) == '-') {
+          modifier = ({S:'Shift',C:'Ctrl',A:'Alt'})[key.charAt(0)];
+          key = key.substring(2);
+        }
+        var specialKey = ({'CR':'Enter','BS':'Backspace','Del':'Delete'})[key];
+        key = specialKey ? specialKey : key;
+        key = modifier
+          ? modifier + '-' + key
+          : isSymbol(key)
+            ? "'" + key + "'"
+            : key;
+        var cmKeymap = CodeMirror.keyMap;
+        var func = cmKeymap['vim-insert'][key]
+          || cmKeymap['default'][key]
+          || cmKeymap['basic'][key];
+        var fnType = typeof func;
+        if (fnType == 'string') {
+          CodeMirror.commands[func](cm);
+        } else if (fnType == 'function') {
+          func(cm);
+        }
+        return;
+      }
+      var cur = cm.getCursor();
+      cm.replaceRange(key, cur, cur);
+    }
+
     function executeMacroKeyBuffer(cm, macroModeState, keyBuffer) {
       macroModeState.isMacroPlaying = true;
+      var vim = getVimState(cm);
       for (var i = 0, len = keyBuffer.length; i < len; i++) {
-        CodeMirror.Vim.handleKey(cm, keyBuffer[i]);
+        var key = keyBuffer[i];
+        (vim.insertMode
+          ? handleInsertModeKey(cm, key)
+          : CodeMirror.Vim.handleKey(cm, key));
       };
       macroModeState.isMacroPlaying = false;
     }
