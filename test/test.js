@@ -882,11 +882,14 @@ testCM("extraKeys", function(cm) {
   }
   CodeMirror.commands.testCommand = function() {outcome = "tc";};
   CodeMirror.commands.goTestCommand = function() {outcome = "gtc";};
+  CodeMirror.commands.goTestShiftCommand = function(cm) {outcome = "gtsc" + !!cm.doc.sel.shift;};
   cm.setOption("extraKeys", {"Shift-X": function() {outcome = "sx";},
                              "X": function() {outcome = "x";},
                              "Ctrl-Alt-U": function() {outcome = "cau";},
                              "End": "testCommand",
                              "Home": "goTestCommand",
+                             "Shift-Delete": "goTestShiftCommand",
+                             "Delete": "goTestShiftCommand",
                              "Tab": false});
   fakeKey(null, "U");
   fakeKey("cau", "U", {ctrlKey: true, altKey: true});
@@ -897,6 +900,8 @@ testCM("extraKeys", function(cm) {
   fakeKey(null, 35, {shiftKey: true});
   fakeKey("gtc", 36);
   fakeKey("gtc", 36, {shiftKey: true});
+  fakeKey("gtscfalse", 46);
+  fakeKey("gtsctrue", 46, {shiftKey: true});
   fakeKey(null, 9);
 }, null, window.opera && mac);
 
