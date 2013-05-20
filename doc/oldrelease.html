@@ -19,6 +19,34 @@
 </pre>
 </div>
 
+  <p class="rel">20-11-2012: <a href="http://codemirror.net/codemirror-3.0rc1.zip">Version 3.0, release candidate 1</a>:</p>
+
+  <ul class="rel-note">
+    <li>New theme: <a href="../demo/theme.html?solarized%20light">Solarized</a>.</li>
+    <li>Introduce <a href="manual.html#addLineClass"><code>addLineClass</code></a>
+    and <a href="manual.html#removeLineClass"><code>removeLineClass</code></a>,
+    drop <code>setLineClass</code>.</li>
+    <li>Add a <em>lot</em> of
+    new <a href="manual.html#markText">options for marked text</a>
+    (read-only, atomic, collapsed, widget replacement).</li>
+    <li>Remove the old code folding interface in favour of these new ranges.</li>
+    <li>Add <a href="manual.html#isClean"><code>isClean</code></a>/<a href="manual.html#markClean"><code>markClean</code></a> methods.</li>
+    <li>Remove <code>compoundChange</code> method, use better undo-event-combining heuristic.</li>
+    <li>Improve scrolling performance smoothness.</li>
+    <li>Full <a href="https://github.com/marijnh/CodeMirror/compare/v3.0beta2...v3.0rc1">list of patches</a>.</li>
+  </ul>
+
+  <p class="rel">22-10-2012: <a href="http://codemirror.net/codemirror-2.35.zip">Version 2.35</a>:</p>
+
+  <ul class="rel-note">
+    <li>New (sub) mode: <a href="../mode/javascript/typescript.html">TypeScript</a>.</li>
+    <li>Don't overwrite (insert key) when pasting.</li>
+    <li>Fix several bugs in <a href="manual.html#markText"><code>markText</code></a>/undo interaction.</li>
+    <li>Better indentation of JavaScript code without semicolons.</li>
+    <li>Add <a href="manual.html#defineInitHook"><code>defineInitHook</code></a> function.</li>
+    <li>Full <a href="https://github.com/marijnh/CodeMirror/compare/v2.34...v2.35">list of patches</a>.</li>
+  </ul>
+
   <p class="rel">22-10-2012: <a href="http://codemirror.net/codemirror-3.0beta2.zip">Version 3.0, beta 2</a>:</p>
 
   <ul class="rel-note">
