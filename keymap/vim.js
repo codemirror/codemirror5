@@ -538,7 +538,6 @@
             actions.exitMacroRecordMode();
             return;
           }
-          logKey(macroModeState, key);
         }
         if (key == '<Esc>') {
           // Clear input state and get back to normal mode.
@@ -575,6 +574,9 @@
             this.handleKey(cm, command.toKeys[i]);
           }
         } else {
+          if (macroModeState.enteredMacroMode) {
+            logKey(macroModeState, key);
+          }
           commandDispatcher.processCommand(cm, vim, command);
         }
       }
@@ -3251,7 +3253,7 @@
       var macroKeyBuffer = macroModeState.macroKeyBuffer;
       emptyMacroKeyBuffer(macroModeState);
       do {
-        match = text.match(/<\w+-.+>|<\w+>|.|\n/);
+        match = (/<\w+-.+?>|<\w+>|./).exec(text);
         if(match === null)break;
         key = match[0];
         text = text.substring(match.index + key.length);
