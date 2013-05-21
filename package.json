@@ -14,8 +14,6 @@
     "maintainers":[{"name": "Marijn Haverbeke",
                     "email": "marijnh@gmail.com",
                     "web": "http://marijnhaverbeke.nl"}],
-    "repositories": [{"type": "git",
-                      "url": "http://marijnhaverbeke.nl/git/codemirror"},
-                     {"type": "git",
-                      "url": "https://github.com/marijnh/CodeMirror.git"}]
+    "repository": {"type": "git",
+                   "url": "http://marijnhaverbeke.nl/git/codemirror"}
 }
