@@ -536,6 +536,7 @@
         if (macroModeState.enteredMacroMode) {
           if (key == 'q') {
             actions.exitMacroRecordMode();
+            vim.inputState = new InputState();
             return;
           }
         }
