@@ -1,5 +1,5 @@
 CodeMirror.multiplexingMode = function(outer /*, others */) {
-  // Others should be {open, close, mode [, delimStyle]} objects
+  // Others should be {open, close, mode [, delimStyle] [, innerStyle]} objects
   var others = Array.prototype.slice.call(arguments, 1);
   var n_others = others.length;
 
@@ -58,6 +58,12 @@ CodeMirror.multiplexingMode = function(outer /*, others */) {
         if (found > -1) stream.string = oldContent;
         var cur = stream.current(), found = cur.indexOf(curInner.close);
         if (found > -1) stream.backUp(cur.length - found);
+
+        if (curInner.innerStyle) {
+          if (innerToken) innerToken = innerToken + ' ' + curInner.innerStyle;
+          else innerToken = curInner.innerStyle;
+        }
+
         return innerToken;
       }
     },
