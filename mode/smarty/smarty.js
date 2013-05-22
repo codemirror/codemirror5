@@ -46,11 +46,11 @@ CodeMirror.defineMode("smarty", function(config) {
     // the main tokenizer
     tokenizer: function(stream, state) {
       if (stream.match(settings.leftDelimiter, true)) {
-        state.depth++;
         if (stream.eat("*")) {
           return helpers.chain(stream, state, parsers.inBlock("comment", "*" + settings.rightDelimiter));
         } else {
           // Smarty 3 allows { and } surrounded by whitespace to NOT slip into Smarty mode
+          state.depth++;
           var isEol = stream.eol();
           var isFollowedByWhitespace = /\s/.test(stream.peek());
           if (settings.smartyVersion === 3 && settings.leftDelimiter === "{" && (isEol || isFollowedByWhitespace)) {
