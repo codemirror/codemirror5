@@ -5,7 +5,7 @@
     <title>CodeMirror: Multiplexing Parser Demo</title>
     <link rel="stylesheet" href="../lib/codemirror.css">
     <script src="../lib/codemirror.js"></script>
-    <script src="../addon/mode/multiplex.js"></script>
+    <script src="../addon/mode/multiplex/multiplex.js"></script>
     <script src="../mode/xml/xml.js"></script>
     <link rel="stylesheet" href="../doc/docs.css">
 
@@ -53,8 +53,14 @@ var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
     (HTML) mode does not get fed the content of the <code>&lt;&lt;
     >></code> blocks. See
     the <a href="../doc/manual.html#addon_multiplex">manual</a> and
-    the <a href="../addon/mode/multiplex.js">source</a> for more
+    the <a href="../addon/mode/multiplex/multiplex.js">source</a> for more
     information.</p>
+
+    <p>
+      <strong>Parsing/Highlighting Tests:</strong>
+      <a href="../test/index.html#multiplexing_*">normal</a>,
+      <a href="../test/index.html#verbose,multiplexing_*">verbose</a>.
+    </p>
 
   </body>
 </html>
