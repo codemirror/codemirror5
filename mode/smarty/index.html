@@ -83,7 +83,7 @@
 	<h3>Smarty 3</h3>
 
 	<textarea id="code3" name="code3">
-Nesting tags {$foo={counter one=1 two={inception}}+3} is now valid.
+Nested tags {$foo={counter one=1 two={inception}}+3} are now valid in Smarty 3.
 
 <script>
 function test() {
@@ -95,24 +95,20 @@ function test() {
 {assign var=foo value=['y'=>'yellow','b'=>'blue']}
 {assign var=foo value=[1,[9,8],3]}
 
-{$foo=$bar+2}
-{$foo.bar=1}
+{$foo=$bar+2} {* a comment *}
+{$foo.bar=1}  {* another comment *}
 {$foo = myfunct( ($x+$y)*3 )}
 {$foo = strlen($bar)}
-{$foo.bar.baz=1}
-{$foo[]=1}
+{$foo.bar.baz=1}, {$foo[]=1}
 
 Smarty "dot" syntax (note: embedded {} are used to address ambiguities):
 
-{$foo.a.b.c}        =>  $foo['a']['b']['c']
-{$foo.a.$b.c}       =>  $foo['a'][$b]['c']         // with variable index
-{$foo.a.{$b+4}.c}   =>  $foo['a'][$b+4]['c']       // with expression as index
-{$foo.a.{$b.c}}     =>  $foo['a'][$b['c']]         // with nested index
+{$foo.a.b.c}      => $foo['a']['b']['c']
+{$foo.a.$b.c}     => $foo['a'][$b]['c']
+{$foo.a.{$b+4}.c} => $foo['a'][$b+4]['c']
+{$foo.a.{$b.c}}   => $foo['a'][$b['c']]
 
-{$object->method1($x)->method2($y)}
-{time()}
-
-</textarea>
+{$object->method1($x)->method2($y)}</textarea>
 
 	<script>
 		var editor = CodeMirror.fromTextArea(document.getElementById("code3"), {
