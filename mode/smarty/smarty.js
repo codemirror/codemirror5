@@ -29,7 +29,7 @@ CodeMirror.defineMode("smarty", function(config) {
   };
 
   var helpers = {
-    continue: function(style, lastType) {
+    cont: function(style, lastType) {
       last = lastType;
       return style;
     },
@@ -79,47 +79,47 @@ CodeMirror.defineMode("smarty", function(config) {
         } else {
           state.tokenize = parsers.tokenizer;
         }
-        return helpers.continue("tag", null);
+        return helpers.cont("tag", null);
       }
 
       if (stream.match(settings.leftDelimiter, true)) {
         state.depth++;
-        return helpers.continue("tag", "startTag");
+        return helpers.cont("tag", "startTag");
       }
 
       var ch = stream.next();
       if (ch == "$") {
         stream.eatWhile(regs.validIdentifier);
-        return helpers.continue("variable-2", "variable");
+        return helpers.cont("variable-2", "variable");
       } else if (ch == ".") {
-        return helpers.continue("operator", "property");
+        return helpers.cont("operator", "property");
       } else if (regs.stringChar.test(ch)) {
         state.tokenize = parsers.inAttribute(ch);
-        return helpers.continue("string", "string");
+        return helpers.cont("string", "string");
       } else if (regs.operatorChars.test(ch)) {
         stream.eatWhile(regs.operatorChars);
-        return helpers.continue("operator", "operator");
+        return helpers.cont("operator", "operator");
       } else if (ch == "[" || ch == "]") {
-        return helpers.continue("bracket", "bracket");
+        return helpers.cont("bracket", "bracket");
       } else if (/\d/.test(ch)) {
         stream.eatWhile(/\d/);
-        return helpers.continue("number", "number");
+        return helpers.cont("number", "number");
       } else {
 
         if (state.last == "variable") {
           if (ch == "@") {
             stream.eatWhile(regs.validIdentifier);
-            return helpers.continue("property", "property");
+            return helpers.cont("property", "property");
           } else if (ch == "|") {
             stream.eatWhile(regs.validIdentifier);
-            return helpers.continue("qualifier", "modifier");
+            return helpers.cont("qualifier", "modifier");
           }
         } else if (state.last == "whitespace") {
           stream.eatWhile(regs.validIdentifier);
-          return helpers.continue("attribute", "modifier");
+          return helpers.cont("attribute", "modifier");
         } if (state.last == "property") {
           stream.eatWhile(regs.validIdentifier);
-          return helpers.continue("property", null);
+          return helpers.cont("property", null);
         } else if (/\s/.test(ch)) {
           last = "whitespace";
           return null;
@@ -129,19 +129,19 @@ CodeMirror.defineMode("smarty", function(config) {
         if (ch != "/") {
           str += ch;
         }
-		var c = null;
+        var c = null;
         while (c = stream.eat(regs.validIdentifier)) {
           str += c;
         }
         for (var i=0, j=keyFunctions.length; i<j; i++) {
           if (keyFunctions[i] == str) {
-            return helpers.continue("keyword", "keyword");
+            return helpers.cont("keyword", "keyword");
           }
         }
         if (/\s/.test(ch)) {
           return null;
         }
-        return helpers.continue("tag", "tag");
+        return helpers.cont("tag", "tag");
       }
     },
 
