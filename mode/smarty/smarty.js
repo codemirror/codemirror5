@@ -9,7 +9,7 @@ CodeMirror.defineMode("smarty", function(config) {
     rightDelimiter: '}',
     leftDelimiter: '{',
     smartyVersion: 2 // for backward compatibility
-  }
+  };
   if (config.hasOwnProperty("leftDelimiter")) {
     settings.leftDelimiter = config.leftDelimiter;
   }
@@ -24,8 +24,8 @@ CodeMirror.defineMode("smarty", function(config) {
   var last;
   var regs = {
     operatorChars: /[+\-*&%=<>!?]/,
-    validIdentifier: /[a-zA-Z0-9\_]/,
-    stringChar: /[\'\"]/
+    validIdentifier: /[a-zA-Z0-9_]/,
+    stringChar: /['"]/
   };
 
   var helpers = {
@@ -129,7 +129,7 @@ CodeMirror.defineMode("smarty", function(config) {
         if (ch != "/") {
           str += ch;
         }
-        var c = "";
+		var c = null;
         while (c = stream.eat(regs.validIdentifier)) {
           str += c;
         }
