@@ -939,10 +939,10 @@
       override the styling of the base mode entirely, instead of the
       two being applied together.</dd>
       <dt id="removeOverlay"><code><strong>cm.removeOverlay</strong>(mode: string|object)</code></dt>
-      <dd>Pass this the exact argument passed for
-      the <code>mode</code> parameter
-      to <a href="#addOverlay"><code>addOverlay</code></a> to remove
-      an overlay again.</dd>
+      <dd>Pass this the exact value passed for the <code>mode</code>
+      parameter to <a href="#addOverlay"><code>addOverlay</code></a>,
+      or a string that corresponds to the <code>name</code> propery of
+      that value, to remove an overlay again.</dd>
 
       <dt id="on"><code><strong>cm.on</strong>(type: string, func: (...args))</code></dt>
       <dd>Register an event handler for the given event type (a
@@ -1557,6 +1557,13 @@
       string similar to that (containing pairs of matching characters)
       to customize it. <a href="../demo/closebrackets.html">Demo
       here</a>.</dd>
+
+      <dt id="addon_trailingspace"><a href="../addon/edit/trailingspace.js"><code>edit/trailingspace.js</code></a></dt>
+      <dd>Adds an option <code>showTrailingSpace</code> which, when
+      enabled, adds the CSS class <code>cm-trailingspace</code> to
+      stretches of whitespace at the end of lines.
+      The <a href="../demo/trailingspace.html">demo</a> has a nice
+      squiggly underline style for this class.</dd>
 
       <dt id="addon_comment"><a href="../addon/comment/comment.js"><code>comment/comment.js</code></a></dt>
       <dd>Addon for commenting and uncommenting code. Adds three
