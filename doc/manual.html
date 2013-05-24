@@ -418,6 +418,17 @@
       the CodeMirror implementation, probably cause the editor to
       become corrupted.</dd>
 
+      <dt id="event_beforeHistoryChange"><code><strong>"beforeHistoryChange"</strong> (instance: CodeMirror, changeObj: object)</code></dt>
+      <dd>This event is fired before the <code>undo</code> or <code>redo</code> command is applied.
+      The <code>changeObj</code>
+      argument is an object with <code>{from, to, text, origin}</code> properties.
+      <code>from</code> and <code>to</code> properties are <code>CodeMirror.Pos</code> objects, <code>text</code>
+      property is an array of lines wich will substitute the range, and <code>origin</code> is either <code>"undo"</code> or
+      <code>"redo"</code>. <strong>Note:</strong> You may not change <code>changeObj</code> object in any way as it will break history processing, and you may not change CodeMirror's document as it will result in 
+      unpredictable behaviour. The purpose of this event is to notify clients about the future changes of the document
+      and show what kind of changes at which locations will be done.
+      </dd>
+
       <dt id="event_cursorActivity"><code><strong>"cursorActivity"</strong> (instance: CodeMirror)</code></dt>
       <dd>Will be fired when the cursor or selection moves, or any
       change is made to the editor content.</dd>
