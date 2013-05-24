@@ -406,17 +406,22 @@
       properties, as with
       the <a href="#event_change"><code>"change"</code></a> event, but
       never a <code>next</code> property, since this is fired for each
-      individual change, and not batched per operation. It also
-      has <code>update(from, to, text)</code>
-      and <code>cancel()</code> methods, which may be used to modify
-      or cancel the change. All three arguments to <code>update</code>
-      are optional, and can be left off to leave the existing value
-      for that field intact. <strong>Note:</strong> you may not do
-      anything from a <code>"beforeChange"</code> handler that would
-      cause changes to the document or its visualization. Doing so
-      will, since this handler is called directly from the bowels of
-      the CodeMirror implementation, probably cause the editor to
-      become corrupted.</dd>
+      individual change, and not batched per operation. It also has
+      a <code>cancel()</code> method, which can be called to cancel
+      the change, and, <strong>if</strong> the change isn't coming
+      from an undo or redo event, an <code>update(from, to,
+      text)</code> method, which may be used to modify the change.
+      Undo or redo changes can't be modified, because they hold some
+      metainformation for restoring old marked ranges that is only
+      valid for that specific change. All three arguments
+      to <code>update</code> are optional, and can be left off to
+      leave the existing value for that field
+      intact. <strong>Note:</strong> you may not do anything from
+      a <code>"beforeChange"</code> handler that would cause changes
+      to the document or its visualization. Doing so will, since this
+      handler is called directly from the bowels of the CodeMirror
+      implementation, probably cause the editor to become
+      corrupted.</dd>
 
       <dt id="event_cursorActivity"><code><strong>"cursorActivity"</strong> (instance: CodeMirror)</code></dt>
       <dd>Will be fired when the cursor or selection moves, or any

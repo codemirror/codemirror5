@@ -1358,6 +1358,19 @@ testCM("beforeChange", function(cm) {
   eq(cm.getValue(), "hello,_i_am_a\nhey_hey_hey");
 }, {value: "abcdefghijk"});
 
+testCM("beforeChangeUndo", function(cm) {
+  cm.setLine(0, "hi");
+  cm.setLine(0, "bye");
+  eq(cm.historySize().undo, 2);
+  cm.on("beforeChange", function(cm, change) {
+    is(!change.update);
+    change.cancel();
+  });
+  cm.undo();
+  eq(cm.historySize().undo, 0);
+  eq(cm.getValue(), "bye\ntwo");
+}, {value: "one\ntwo"});
+
 testCM("beforeSelectionChange", function(cm) {
   function notAtEnd(cm, pos) {
     var len = cm.getLine(pos.line).length;
