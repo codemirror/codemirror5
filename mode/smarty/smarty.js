@@ -91,6 +91,8 @@ CodeMirror.defineMode("smarty", function(config) {
       if (ch == "$") {
         stream.eatWhile(regs.validIdentifier);
         return helpers.cont("variable-2", "variable");
+      } else if (ch == "|") {
+        return helpers.cont("operator", "pipe");
       } else if (ch == ".") {
         return helpers.cont("operator", "property");
       } else if (regs.stringChar.test(ch)) {
@@ -101,6 +103,8 @@ CodeMirror.defineMode("smarty", function(config) {
         return helpers.cont("operator", "operator");
       } else if (ch == "[" || ch == "]") {
         return helpers.cont("bracket", "bracket");
+      } else if (ch == "(" || ch == ")") {
+        return helpers.cont("bracket", "operator");
       } else if (/\d/.test(ch)) {
         stream.eatWhile(/\d/);
         return helpers.cont("number", "number");
@@ -114,6 +118,9 @@ CodeMirror.defineMode("smarty", function(config) {
             stream.eatWhile(regs.validIdentifier);
             return helpers.cont("qualifier", "modifier");
           }
+        } else if (state.last == "pipe") {
+          stream.eatWhile(regs.validIdentifier);
+          return helpers.cont("qualifier", "modifier");
         } else if (state.last == "whitespace") {
           stream.eatWhile(regs.validIdentifier);
           return helpers.cont("attribute", "modifier");
@@ -147,11 +154,15 @@ CodeMirror.defineMode("smarty", function(config) {
 
     inAttribute: function(quote) {
       return function(stream, state) {
+        var prevChar = null;
+        var currChar = null;
         while (!stream.eol()) {
-          if (stream.next() == quote) {
+          currChar = stream.peek();
+          if (stream.next() == quote && prevChar !== '\\') {
             state.tokenize = parsers.smarty;
             break;
           }
+          prevChar = currChar;
         }
         return "string";
       };
