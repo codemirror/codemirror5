@@ -663,6 +663,9 @@
     }
     RegisterController.prototype = {
       pushText: function(registerName, operator, text, linewise) {
+        if (linewise && text.charAt(0) == '\n') {
+          text = text.slice(1) + '\n';
+        }
         // Lowercase and uppercase registers refer to the same register.
         // Uppercase just means append.
         var register = this.isValidRegister(registerName) ?
@@ -1476,6 +1479,13 @@
       },
       // delete is a javascript keyword.
       'delete': function(cm, operatorArgs, vim, curStart, curEnd) {
+        // If the ending line is past the last line, inclusive, instead of
+        // including the trailing \n, include the \n before the starting line
+        if (operatorArgs.linewise &&
+            curEnd.line > cm.lastLine() && curStart.line > cm.firstLine()) {
+          curStart.line--;
+          curStart.ch = lineLength(cm, curStart.line);
+        }
         getVimGlobalState().registerController.pushText(
             operatorArgs.registerName, 'delete', cm.getRange(curStart, curEnd),
             operatorArgs.linewise);

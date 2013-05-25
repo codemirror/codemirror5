@@ -782,6 +782,13 @@ testVim('dd_multiply_repeat', function(cm, vim, helpers) {
   is(register.linewise);
   helpers.assertCursorAt(0, lines[6].textStart);
 });
+testVim('dd_lastline', function(cm, vim, helpers) {
+  cm.setCursor(cm.lineCount(), 0);
+  var expectedLineCount = cm.lineCount() - 1;
+  helpers.doKeys('d', 'd');
+  eq(expectedLineCount, cm.lineCount());
+  helpers.assertCursorAt(cm.lineCount() - 1, 0);
+});
 // Yank commands should behave the exact same as d commands, expect that nothing
 // gets deleted.
 testVim('yw_repeat', function(cm, vim, helpers) {
