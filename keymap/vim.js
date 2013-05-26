@@ -441,6 +441,12 @@
       return {
         macroKeyBuffer: [],
         latestRegister: undefined,
+        lastInsertModeChanages: {
+          ch: 0,
+          baseRemnantLength: 0,
+          cachedText: '',
+          text: ''
+        },
         enteredMacroMode: undefined,
         isMacroPlaying: false,
         toggle: function(cm, registerName) {
@@ -1603,6 +1609,10 @@
           cm.setCursor(motions.moveToFirstNonWhiteSpaceCharacter(cm));
         }
         cm.setOption('keyMap', 'vim-insert');
+        cm.on('change', onInsertModeTextChanges);
+        var vim = getVimState(cm);
+        if(insertAt)commandDispatcher.recordLastEdit(cm, vim, insertAt);
+        getVimGlobalState().macroModeState.lastInsertModeChanages.text = '';
       },
       toggleVisualMode: function(cm, actionArgs, vim) {
         var repeat = actionArgs.repeat;
@@ -1832,15 +1842,24 @@
         cm.setCursor({line: cur.line, ch: start + numberStr.length - 1});
       },
       repeatLastEdit: function(cm, actionArgs, vim) {
-        // TODO: Make this repeat insert mode changes.
         var lastEdit = vim.lastEdit;
-        if (lastEdit) {
+        var repeat = actionArgs.repeat;
+        var macroModeState = getVimGlobalState().macroModeState;
+        if (isInsertModeChanges(lastEdit)) { /* A,I,a,i */
+          actions.enterInsertMode(cm, { isRepeatEdit:true, insertAt:lastEdit });
+          repeatLastInsertModeChanges(cm, repeat, macroModeState);
+          return;
+        } else if (lastEdit) {
           if (actionArgs.repeat && actionArgs.repeatIsExplicit) {
             vim.lastEdit.repeatOverride = actionArgs.repeat;
           }
           var currentInputState = vim.inputState;
           vim.inputState = vim.lastEdit;
           commandDispatcher.evalInput(cm, vim);
+          if (lastEdit.operator == 'change') {
+            repeatLastInsertModeChanges(cm, repeat, macroModeState);
+            return;
+          }
           vim.inputState = currentInputState;
         }
       }
@@ -3409,9 +3428,15 @@
     }
     CodeMirror.keyMap.vim = buildVimKeyMap();
 
-    function exitInsertMode(cm) {
+    function exitInsertMode(cm, suppressChanges) {
       cm.setCursor(cm.getCursor().line, cm.getCursor().ch-1, true);
       cm.setOption('keyMap', 'vim');
+      cm.off('change', onInsertModeTextChanges);
+      logKey(getVimGlobalState().macroModeState, '<Esc>');
+      if (!suppressChanges) {
+        var lastChange = getVimGlobalState().macroModeState.lastInsertModeChanages;
+        lastChange.cachedText = lastChange.text;
+      }
     }
 
     CodeMirror.keyMap['vim-insert'] = {
@@ -3475,6 +3500,62 @@
       cm.toggleOverwrite();
       cm.setCursor(cm.getCursor().line, cm.getCursor().ch-1, true);
       cm.setOption('keyMap', 'vim');
+    }
+
+    function changeObjToString(changeObj) {
+      return changeObj.text.join('\n');
+    }
+
+    function onInsertModeTextChanges(cm, changeObj) {
+      var macroModeState = getVimGlobalState().macroModeState;
+      var keyBuffer = macroModeState.macroKeyBuffer;
+      var cur = cm.getCursor();
+      var line = cur.line;
+      var ch = cur.ch;
+      var lastChange = macroModeState.lastInsertModeChanages;
+      var remnantLength;
+      if (lastChange.text) {
+        // if current change is newline, push '\n'
+        if (changeObj.text.length > 1) {
+          lastChange.text += changeObj.text.join('\n');
+
+        // if last change was newline, update lastChange state for current line
+        } else if (lastChange.text.charAt(lastChange.text.length-1) == '\n') {
+          lastChange.baseRemnantLength = lastChange.text.length;
+          lastChange.text += changeObj.text;
+          changeObj.text = lastChange.text;
+          lastChange.ch = changeObj.from.ch;
+
+        // Merge consecutive grainy changes into one chunk
+        } else {
+          var remnantLength = lastChange.baseRemnantLength + changeObj.from.ch - lastChange.ch;
+          var lastText = lastChange.text;
+          var changeObjText = changeObjToString(changeObj);
+          var lastTextRemnant = lastText.substring(0, remnantLength);
+          lastChange.text = lastTextRemnant + changeObjText;
+        }
+      } else { // reset lastChange state
+        lastChange.ch = changeObj.from.ch;
+        lastChange.text = changeObj.text.join('\n');
+        lastChange.baseRemnantLength = 0;
+        console.log(changeObj.text);
+      }
+    }
+
+    function isInsertModeChanges(lastEdit) {
+      return (typeof lastEdit) == 'string';
+    }
+
+    function repeatLastInsertModeChanges(cm, repeat, macroModeState) {
+      var cur = cm.getCursor();
+      var lastChange = macroModeState.lastInsertModeChanages;
+      var text = '';
+      var cachedText = lastChange.cachedText;
+      while (repeat--) {
+        text += cachedText;
+      }
+      cm.replaceRange(text, cur, cur);
+      exitInsertMode(cm, /* suppressChanges */true);
     }
 
     CodeMirror.keyMap['vim-replace'] = {
