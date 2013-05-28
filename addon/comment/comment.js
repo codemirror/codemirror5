@@ -97,7 +97,7 @@
         var line = self.getLine(i);
         var found = line.indexOf(lineString);
         if (found == -1 && (i != end || i == start) && nonWS.test(line)) break lineComment;
-        if (i != start && nonWS.test(line.slice(0, found))) break lineComment;
+        if (i != start && found > -1 && nonWS.test(line.slice(0, found))) break lineComment;
         lines.push(line);
       }
       self.operation(function() {
