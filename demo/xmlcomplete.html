@@ -7,75 +7,96 @@
     <script src="../lib/codemirror.js"></script>
     <script src="../addon/hint/show-hint.js"></script>
     <link rel="stylesheet" href="../addon/hint/show-hint.css">
-    <script src="../addon/edit/closetag.js"></script>
     <script src="../addon/hint/xml-hint.js"></script>
     <script src="../mode/xml/xml.js"></script>
     <link rel="stylesheet" href="../doc/docs.css">
     <style type="text/css">
-      .CodeMirror { border: 1px solid #eee; height: auto; }
-      .CodeMirror-scroll { overflow-y: hidden; overflow-x: auto; }
+      .CodeMirror { border: 1px solid #eee; }
     </style>
   </head>
   <body>
     <h1>CodeMirror: XML Autocomplete demo</h1>
 
-    <form><textarea id="code" name="code"></textarea></form>
+    <form><textarea id="code" name="code"><!-- write some xml below -->
+</textarea></form>
 
-    <p>Type '&lt;' or space inside tag or
-    press <strong>ctrl-space</strong> to activate autocompletion. See
-    the code (<a href="../addon/hint/show-hint.js">here</a>
-    and <a href="../addon/hint/xml-hint.js">here</a>) to figure out how
-    it works.</p>
+    <p>Press <strong>ctrl-space</strong>, or type a '<' character to
+    activate autocompletion. This demo defines a simple schema that
+    guides completion. The schema can be customized—see
+    the <a href="../doc/manual.html#addon_xml-hint">manual</a>.</p>
 
     <script>
-      CodeMirror.xmlHints['<'] = [
-          'levelTop',
-          'levelRoot',
-          'mainLevel'
-      ];
+      var dummy = {
+        attrs: {
+          color: ["red", "green", "blue", "purple", "white", "black", "yellow"],
+          size: ["large", "medium", "small"],
+          description: null
+        },
+        children: []
+      };
 
-      CodeMirror.xmlHints['<levelTop '] = 
-      CodeMirror.xmlHints['<levelRoot '] = 
-      CodeMirror.xmlHints['<mainLevel '] = [
-          'property1111',
-          'property2222'
-      ];
-
-      CodeMirror.xmlHints['<levelTop><'] = 
-      CodeMirror.xmlHints['<levelRoot><'] = 
-      CodeMirror.xmlHints['<mainLevel><'] = [
-          'second',
-          'two'
-      ];
-
-      CodeMirror.xmlHints['<levelTop><second '] = [
-        'secondProperty'
-      ];
-
-      CodeMirror.xmlHints['<levelTop><second><'] = [
-        'three',
-        'x-three'
-      ];
+      var tags = {
+        "!top": ["top"],
+        top: {
+          attrs: {
+            lang: ["en", "de", "fr", "nl"],
+            freeform: null
+          },
+          children: ["animal", "plant"]
+        },
+        animal: {
+          attrs: {
+            name: null,
+            isduck: ["yes", "no"]
+          },
+          children: ["wings", "feet", "body", "head", "tail"]
+        },
+        plant: {
+          attrs: {name: null},
+          children: ["leaves", "stem", "flowers"]
+        },
+        wings: dummy, feet: dummy, body: dummy, head: dummy, tail: dummy,
+        leaves: dummy, stem: dummy, flowers: dummy
+      };
 
       CodeMirror.commands.autocomplete = function(cm) {
-        CodeMirror.showHint(cm, CodeMirror.xmlHint);
+        CodeMirror.showHint(cm, CodeMirror.xmlHint, {schemaInfo: tags});
       }
-      function passAndHint(cm) {
-        setTimeout(function() {cm.execCommand("autocomplete");}, 100);
+
+      function completeAfter(cm, pred) {
+        var cur = cm.getCursor();
+        if (!pred || pred()) setTimeout(function() {
+          if (!cm.state.completionActive) cm.execCommand("autocomplete");
+        }, 100);
         return CodeMirror.Pass;
       }
 
-      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-            value: '',
-            mode: 'text/html',
-            lineNumbers: true,
-            extraKeys: {
-                "' '": passAndHint,
-                "'<'": passAndHint,
-                "Ctrl-Space": "autocomplete"
-            },
-            autoCloseTags: true
+      function completeIfAfterLt(cm) {
+        return completeAfter(cm, function() {
+          var cur = cm.getCursor();
+          return cm.getRange(CodeMirror.Pos(cur.line, cur.ch - 1), cur) == "<";
         });
+      }
+
+      function completeIfInTag(cm) {
+        return completeAfter(cm, function() {
+          var tok = cm.getTokenAt(cm.getCursor());
+          var inner = CodeMirror.innerMode(cm.getMode(), tok.state).state;
+          return inner.tagName;
+        });
+      }
+
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        mode: "xml",
+        lineNumbers: true,
+        extraKeys: {
+          "'<'": completeAfter,
+          "'/'": completeIfAfterLt,
+          "' '": completeIfInTag,
+          "'='": completeIfInTag,
+          "Ctrl-Space": "autocomplete"
+        }
+      });
     </script>
   </body>
 </html>

@@ -1,118 +1,60 @@
 (function() {
+  "use strict";
 
-    CodeMirror.xmlHints = [];
+  var Pos = CodeMirror.Pos;
 
-    CodeMirror.xmlHint = function(cm) {
-
-        var cursor = cm.getCursor();
-
-        if (cursor.ch > 0) {
-
-            var text = cm.getRange(CodeMirror.Pos(0, 0), cursor);
-            var typed = '';
-            var simbol = '';
-            for(var i = text.length - 1; i >= 0; i--) {
-                if(text[i] == ' ' || text[i] == '<') {
-                    simbol = text[i];
-                    break;
-                }
-                else {
-                    typed = text[i] + typed;
-                }
-            }
-
-            text = text.slice(0, text.length - typed.length);
-
-            var path = getActiveElement(text) + simbol;
-            var hints = CodeMirror.xmlHints[path];
-
-            if(typeof hints === 'undefined')
-                hints = [''];
-            else {
-                hints = hints.slice(0);
-                for (var i = hints.length - 1; i >= 0; i--) {
-                    if(hints[i].indexOf(typed) != 0)
-                        hints.splice(i, 1);
-                }
-            }
-
-            return {
-                list: hints,
-                from: CodeMirror.Pos(cursor.line, cursor.ch - typed.length),
-                to: cursor
-            };
+  CodeMirror.xmlHint = function(cm, options) {
+    var tags = options && options.schemaInfo;
+    if (!tags) return;
+    var cur = cm.getCursor(), token = cm.getTokenAt(cur);
+    var inner = CodeMirror.innerMode(cm.getMode(), token.state);
+    if (inner.mode.name != "xml") return;
+    var result = [], replaceToken = false, prefix;
+    var isTag = token.string.charAt(0) == "<";
+    if (!inner.state.tagName || isTag) { // Tag completion
+      if (isTag) {
+        prefix = token.string.slice(1);
+        replaceToken = true;
+      }
+      var cx = inner.state.context, curTag = cx && tags[cx.tagName];
+      var childList = cx ? curTag && curTag.children : tags["!top"];
+      if (childList) {
+        for (var i = 0; i < childList.length; ++i) if (!prefix || childList[i].indexOf(prefix) == 0)
+          result.push("<" + childList[i]);
+      } else {
+        for (var name in tags) if (tags.hasOwnProperty(name) && name != "!top" && (!prefix || name.indexOf(prefix) == 0))
+          result.push("<" + name);
+      }
+      if (cx && (!prefix || ("/" + cx.tagName).indexOf(prefix) == 0))
+        result.push("</" + cx.tagName + ">");
+    } else {
+      // Attribute completion
+      var curTag = tags[inner.state.tagName], attrs = curTag && curTag.attrs;
+      if (!attrs) return;
+      if (token.type == "string" || token.string == "=") { // A value
+        var before = cm.getRange(Pos(cur.line, Math.max(0, cur.ch - 60)),
+                                 Pos(cur.line, token.type == "string" ? token.start : token.end));
+        var atName = before.match(/([^\s\u00a0=<>\"\']+)=$/), atValues;
+        if (!atName || !attrs.hasOwnProperty(atName[1]) || !(atValues = attrs[atName[1]])) return;
+        if (token.type == "string") {
+          prefix = token.string.charAt(0) == '"' ? token.string.slice(1) : token.string;
+          replaceToken = true;
         }
-    };
-
-    var getActiveElement = function(text) {
-
-        var element = '';
-
-        if(text.length >= 0) {
-
-            var regex = new RegExp('<([^!?][^\\s/>]*)[\\s\\S]*?>', 'g');
-
-            var matches = [];
-            var match;
-            while ((match = regex.exec(text)) != null) {
-                matches.push({
-                    tag: match[1],
-                    selfclose: (match[0].slice(match[0].length - 2) === '/>')
-                });
-            }
-
-            for (var i = matches.length - 1, skip = 0; i >= 0; i--) {
-
-                var item = matches[i];
-
-                if (item.tag[0] == '/')
-                {
-                    skip++;
-                }
-                else if (item.selfclose == false)
-                {
-                    if (skip > 0)
-                    {
-                        skip--;
-                    }
-                    else
-                    {
-                        element = '<' + item.tag + '>' + element;
-                    }
-                }
-            }
-
-            element += getOpenTag(text);
+        for (var i = 0; i < atValues.length; ++i) if (!prefix || atValues[i].indexOf(prefix) == 0)
+          result.push('"' + atValues[i] + '"');
+      } else { // An attribute name
+        if (token.type == "attribute") {
+          prefix = token.string;
+          replaceToken = true;
         }
-
-        return element;
+        for (var attr in attrs) if (attrs.hasOwnProperty(attr) && (!prefix || attr.indexOf(prefix) == 0))
+          result.push(attr);
+      }
+    }
+    return {
+      list: result,
+      from: replaceToken ? Pos(cur.line, token.start) : cur,
+      to: replaceToken ? Pos(cur.line, token.end) : cur
     };
-
-    var getOpenTag = function(text) {
-
-        var open = text.lastIndexOf('<');
-        var close = text.lastIndexOf('>');
-
-        if (close < open)
-        {
-            text = text.slice(open);
-
-            if(text != '<') {
-
-                var space = text.indexOf(' ');
-                if(space < 0)
-                    space = text.indexOf('\t');
-                if(space < 0)
-                    space = text.indexOf('\n');
-
-                if (space < 0)
-                    space = text.length;
-
-                return text.slice(0, space);
-            }
-        }
-
-        return '';
-    };
-
+  };
 })();

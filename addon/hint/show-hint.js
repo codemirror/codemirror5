@@ -1,7 +1,7 @@
 CodeMirror.showHint = function(cm, getHints, options) {
   if (!options) options = {};
   var startCh = cm.getCursor().ch, continued = false;
-  var closeOn = options.closeCharacters || /[\s()\[\]{};:]/;
+  var closeOn = options.closeCharacters || /[\s()\[\]{};:>]/;
 
   function startHinting() {
     // We want a single cursor position.
@@ -114,6 +114,7 @@ CodeMirror.showHint = function(cm, getHints, options) {
       }
     } else ourMap = baseMap;
 
+    cm.state.completionActive = true;
     cm.addKeyMap(ourMap);
     cm.on("cursorActivity", cursorActivity);
     var closingOnBlur;
@@ -154,7 +155,10 @@ CodeMirror.showHint = function(cm, getHints, options) {
       cm.off("blur", onBlur);
       cm.off("focus", onFocus);
       cm.off("scroll", onScroll);
-      if (willContinue !== true) CodeMirror.signal(data, "close");
+      if (willContinue !== true) {
+        CodeMirror.signal(data, "close");
+        cm.state.completionActive = false;
+      }
     }
     function pick() {
       pickCompletion(cm, data, completions[selectedHint]);
@@ -169,8 +173,9 @@ CodeMirror.showHint = function(cm, getHints, options) {
           pos.ch < startCh || cm.somethingSelected() ||
           (pos.ch && closeOn.test(line.charAt(pos.ch - 1))))
         close();
-      else
-        once = setTimeout(function(){close(true); continued = true; startHinting();}, 70);
+      else {
+        once = setTimeout(function(){close(true); continued = true; startHinting();}, 170);
+      }
     }
     CodeMirror.signal(data, "select", completions[0], hints.firstChild);
     return true;

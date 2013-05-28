@@ -1682,11 +1682,38 @@
       is an array of strings (the completions), and <code>from</code>
       and <code>to</code> give the start and end of the token that is
       being completed. Depends
-      on <code>addon/hint/show-hint.css</code>. See the other files in
-      the <a href="../addon/hint/"><code>addon/hint</code></a> for
-      hint sources for various languages. Check
+      on <code>addon/hint/show-hint.css</code>. Check
       out <a href="../demo/complete.html">the demo</a> for an
       example.</dd>
+
+      <dt id="addon_javascript-hint"><a href="../addon/hint/javascript-hint.js"><code>hint/javascript-hint.js</code></a></dt>
+      <dd>Defines a simple hinting function for JavaScript
+      (<code>CodeMirror.javascriptHint</code>) and CoffeeScript
+      (<code>CodeMirror.coffeescriptHint</code>) code. This will
+      simply use the JavaScript environment that the editor runs in as
+      a source of information about objects and their properties.</dd>
+
+      <dt id="addon_xml-hint"><a href="../addon/hint/xml-hint.js"><code>hint/xml-hint.js</code></a></dt>
+      <dd>Defines <code>CodeMirror.xmlHint</code>, which produces
+      hints for XML tagnames, attribute names, and attribute values,
+      guided by a <code>schemaInfo</code> option (a property of the
+      second argument passed to the hinting function, or the third
+      argument passed to <code>CodeMirror.showHint</code>).<br>The
+      schema info should be an object mapping tag names to information
+      about these tags, with optionally a <code>"!top"</code> property
+      containing a list of the names of valid top-level tags. The
+      values of the properties should be objects with optional
+      properties <code>children</code> (an array of valid child
+      element names, omit to simply allow all tags to appear)
+      and <code>attrs</code> (an object mapping attribute names
+      to <code>null</code> for free-form attributes, and an array of
+      valid values for restricted
+      attributes). <a href="../demo/xmlcomplete.html">Demo
+      here.</a></dd>
+
+      <dt id="addon_python-hint"><a href="../addon/hint/python-hint.js"><code>hint/python-hint.js</code></a></dt>
+      <dd>A very simple hinting function for Python code.
+      Defines <code>CodeMirror.pythonHint</code>.</dd>
 
       <dt id="addon_match-highlighter"><a href="../addon/search/match-highlighter.js"><code>match-highlighter.js</code></a></dt>
       <dd>Adds a <code>highlightSelectionMatches</code> option that
