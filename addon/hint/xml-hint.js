@@ -5,6 +5,7 @@
 
   CodeMirror.xmlHint = function(cm, options) {
     var tags = options && options.schemaInfo;
+    var quote = (options && options.quoteChar) || '"';
     if (!tags) return;
     var cur = cm.getCursor(), token = cm.getTokenAt(cur);
     var inner = CodeMirror.innerMode(cm.getMode(), token.state);
@@ -37,11 +38,15 @@
         var atName = before.match(/([^\s\u00a0=<>\"\']+)=$/), atValues;
         if (!atName || !attrs.hasOwnProperty(atName[1]) || !(atValues = attrs[atName[1]])) return;
         if (token.type == "string") {
-          prefix = token.string.charAt(0) == '"' ? token.string.slice(1) : token.string;
+          prefix = token.string;
+          if (/['"]/.test(token.string.charAt(0))) {
+            quote = token.string.charAt(0);
+            prefix = token.string.slice(1);
+          }
           replaceToken = true;
         }
         for (var i = 0; i < atValues.length; ++i) if (!prefix || atValues[i].indexOf(prefix) == 0)
-          result.push('"' + atValues[i] + '"');
+          result.push(quote + atValues[i] + quote);
       } else { // An attribute name
         if (token.type == "attribute") {
           prefix = token.string;
