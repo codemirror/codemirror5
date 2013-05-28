@@ -1,582 +1,335 @@
 (function () {
-  function htmlHint(editor, htmlStructure, getToken) {
-    var cur = editor.getCursor();
-    var token = getToken(editor, cur);
-    var keywords = [];
-    var i = 0;
-    var j = 0;
-    var k = 0;
-    var from = {line: cur.line, ch: cur.ch};
-    var to = {line: cur.line, ch: cur.ch};
-    var flagClean = true;
+  var langs = "ab aa af ak sq am ar an hy as av ae ay az bm ba eu be bn bh bi bs br bg my ca ch ce ny zh cv kw co cr hr cs da dv nl dz en eo et ee fo fj fi fr ff gl ka de el gn gu ht ha he hz hi ho hu ia id ie ga ig ik io is it iu ja jv kl kn kr ks kk km ki rw ky kv kg ko ku kj la lb lg li ln lo lt lu lv gv mk mg ms ml mt mi mr mh mn na nv nb nd ne ng nn no ii nr oc oj cu om or os pa pi fa pl ps pt qu rm rn ro ru sa sc sd se sm sg sr gd sn si sk sl so st es su sw ss sv ta te tg th ti bo tk tl tn to tr ts tt tw ty ug uk ur uz ve vi vo wa cy wo fy xh yi yo za zu".split(" ");
+  var targets = ["_blank", "_self", "_top", "_parent"];
+  var charsets = ["ascii", "utf-8", "utf-16", "latin1", "latin1"];
+  var methods = ["get", "post", "put", "delete"];
+  var encs = ["application/x-www-form-urlencoded", "multipart/form-data", "text/plain"];
+  var media = ["all", "screen", "print", "embossed", "braille", "handheld", "print", "projection", "screen", "tty", "tv", "speech",
+               "3d-glasses", "resolution [>][<][=] [X]", "device-aspect-ratio: X/Y", "orientation:portrait",
+               "orientation:landscape", "device-height: [X]", "device-width: [X]"];
+  var s = { attrs: {} }; // Simple tag, reused for a whole lot of tags
 
-    var text = editor.getRange({line: 0, ch: 0}, cur);
-
-    var open = text.lastIndexOf('<');
-    var close = text.lastIndexOf('>');
-    var tokenString = token.string.replace("<","");
-
-    if(open > close) {
-      var last = editor.getRange({line: cur.line, ch: cur.ch - 1}, cur);
-      if(last == "<") {
-        for(i = 0; i < htmlStructure.length; i++) {
-          keywords.push(htmlStructure[i].tag);
-        }
-        from.ch = token.start + 1;
-      } else {
-        var counter = 0;
-        var found = function(token, type, position) {
-          counter++;
-          if(counter > 50) return;
-          if(token.type == type) {
-            return token;
-          } else {
-            position.ch = token.start;
-            var newToken = editor.getTokenAt(position);
-            return found(newToken, type, position);
-          }
-        };
-
-        var nodeToken = found(token, "tag", {line: cur.line, ch: cur.ch});
-        var node = nodeToken.string.substring(1);
-
-        if(token.type === null && token.string.trim() === "") {
-          for(i = 0; i < htmlStructure.length; i++) {
-            if(htmlStructure[i].tag == node) {
-              for(j = 0; j < htmlStructure[i].attr.length; j++) {
-                keywords.push(htmlStructure[i].attr[j].key + "=\"\" ");
-              }
-
-              for(k = 0; k < globalAttributes.length; k++) {
-                keywords.push(globalAttributes[k].key + "=\"\" ");
-              }
-            }
-          }
-        } else if(token.type == "string") {
-          tokenString = tokenString.substring(1, tokenString.length - 1);
-          var attributeToken = found(token, "attribute", {line: cur.line, ch: cur.ch});
-          var attribute = attributeToken.string;
-
-          for(i = 0; i < htmlStructure.length; i++) {
-            if(htmlStructure[i].tag == node) {
-              for(j = 0; j < htmlStructure[i].attr.length; j++) {
-                if(htmlStructure[i].attr[j].key == attribute) {
-                  for(k = 0; k < htmlStructure[i].attr[j].values.length; k++) {
-                    keywords.push(htmlStructure[i].attr[j].values[k]);
-                  }
-                }
-              }
-
-              for(j = 0; j < globalAttributes.length; j++) {
-                if(globalAttributes[j].key == attribute) {
-                  for(k = 0; k < globalAttributes[j].values.length; k++) {
-                    keywords.push(globalAttributes[j].values[k]);
-                  }
-                }
-              }
-            }
-          }
-          from.ch = token.start + 1;
-        } else if(token.type == "attribute") {
-          for(i = 0; i < htmlStructure.length; i++) {
-            if(htmlStructure[i].tag == node) {
-              for(j = 0; j < htmlStructure[i].attr.length; j++) {
-                keywords.push(htmlStructure[i].attr[j].key + "=\"\" ");
-              }
-
-              for(k = 0; k < globalAttributes.length; k++) {
-                keywords.push(globalAttributes[k].key + "=\"\" ");
-              }
-            }
-          }
-          from.ch = token.start;
-        } else if(token.type == "tag") {
-          for(i = 0; i < htmlStructure.length; i++) {
-            keywords.push(htmlStructure[i].tag);
-          }
-
-          from.ch = token.start + 1;
-        }
+  var data = {
+    a: {
+      attrs: {
+        href: null, ping: null, type: null,
+        media: media,
+        target: targets,
+        hreflang: langs
       }
-    } else {
-      for(i = 0; i < htmlStructure.length; i++) {
-        keywords.push("<" + htmlStructure[i].tag);
+    },
+    abbr: s,
+    acronym: s,
+    address: s,
+    applet: s,
+    area: {
+      attrs: {
+        alt: null, coords: null, href: null, target: null, ping: null,
+        media: media, hreflang: langs, type: null,
+        shape: ["default", "rect", "circle", "poly"]
       }
-
-      tokenString = ("<" + tokenString).trim();
-      from.ch = token.start;
-    }
-
-    if(flagClean === true && tokenString.trim() === "") {
-      flagClean = false;
-    }
-
-    if(flagClean) {
-      keywords = cleanResults(tokenString, keywords);
-    }
-
-    return {list: keywords, from: from, to: to};
-  }
-
-
-  var cleanResults = function(text, keywords) {
-    var results = [];
-    var i = 0;
-
-    for(i = 0; i < keywords.length; i++) {
-      if(keywords[i].substring(0, text.length) == text) {
-        results.push(keywords[i]);
+    },
+    article: s,
+    aside: s,
+    audio: {
+      attrs: {
+        src: null, mediagroup: null,
+        crossorigin: ["anonymous", "use-credentials"],
+        preload: ["none", "metadata", "auto"],
+        autoplay: ["", "autoplay"],
+        loop: ["", "loop"],
+        controls: ["", "controls"]
       }
-    }
-
-    return results;
+    },
+    b: s,
+    base: { attrs: { href: null, target: targets } },
+    basefont: s,
+    bdi: s,
+    bdo: s,
+    big: s,
+    blockquote: { attrs: { cite: null } },
+    body: s,
+    br: s,
+    button: {
+      attrs: {
+        form: null, formaction: null, name: null, value: null,
+        autofocus: ["", "autofocus"],
+        disabled: ["", "autofocus"],
+        formenctype: encs,
+        formmethod: methods,
+        formnovalidate: ["", "novalidate"],
+        formtarget: targets,
+        type: ["submit", "reset", "button"]
+      }
+    },
+    canvas: { attrs: { width: null, height: null } },
+    caption: s,
+    center: s,
+    cite: s,
+    code: s,
+    col: { attrs: { span: null } },
+    colgroup: { attrs: { span: null } },
+    command: {
+      attrs: {
+        type: ["command", "checkbox", "radio"],
+        label: null, icon: null, radiogroup: null, command: null, title: null,
+        disabled: ["", "disabled"],
+        checked: ["", "checked"]
+      }
+    },
+    data: { attrs: { value: null } },
+    datagrid: { attrs: { disabled: ["", "disabled"], multiple: ["", "multiple"] } },
+    datalist: { attrs: { data: null } },
+    dd: s,
+    del: { attrs: { cite: null, datetime: null } },
+    details: { attrs: { open: ["", "open"] } },
+    dfn: s,
+    dir: s,
+    div: s,
+    dl: s,
+    dt: s,
+    em: s,
+    embed: { attrs: { src: null, type: null, width: null, height: null } },
+    eventsource: { attrs: { src: null } },
+    fieldset: { attrs: { disabled: ["", "disabled"], form: null, name: null } },
+    figcaption: s,
+    figure: s,
+    font: s,
+    footer: s,
+    form: {
+      attrs: {
+        action: null, name: null,
+        "accept-charset": charsets,
+        autocomplete: ["on", "off"],
+        enctype: encs,
+        method: methods,
+        novalidate: ["", "novalidate"],
+        target: targets
+      }
+    },
+    frame: s,
+    frameset: s,
+    h1: s, h2: s, h3: s, h4: s, h5: s, h6: s,
+    head: {
+      attrs: {},
+      children: ["title", "base", "link", "style", "meta", "script", "noscript", "command"]
+    },
+    header: s,
+    hgroup: s,
+    hr: s,
+    html: {
+      attrs: { manifest: null },
+      children: ["head", "body"]
+    },
+    i: s,
+    iframe: {
+      attrs: {
+        src: null, srcdoc: null, name: null, width: null, height: null,
+        sandbox: ["allow-top-navigation", "allow-same-origin", "allow-forms", "allow-scripts"],
+        seamless: ["", "seamless"]
+      }
+    },
+    img: {
+      attrs: {
+        alt: null, src: null, ismap: null, usemap: null, width: null, height: null,
+        crossorigin: ["anonymous", "use-credentials"]
+      }
+    },
+    input: {
+      attrs: {
+        alt: null, dirname: null, form: null, formaction: null,
+        height: null, list: null, max: null, maxlength: null, min: null,
+        name: null, pattern: null, placeholder: null, size: null, src: null,
+        step: null, value: null, width: null,
+        accept: ["audio/*", "video/*", "image/*"],
+        autocomplete: ["on", "off"],
+        autofocus: ["", "autofocus"],
+        checked: ["", "checked"],
+        disabled: ["", "disabled"],
+        formenctype: encs,
+        formmethod: methods,
+        formnovalidate: ["", "novalidate"],
+        formtarget: targets,
+        multiple: ["", "multiple"],
+        readonly: ["", "readonly"],
+        required: ["", "required"],
+        type: ["hidden", "text", "search", "tel", "url", "email", "password", "datetime", "date", "month",
+               "week", "time", "datetime-local", "number", "range", "color", "checkbox", "radio",
+               "file", "submit", "image", "reset", "button"]
+      }
+    },
+    ins: { attrs: { cite: null, datetime: null } },
+    kbd: s,
+    keygen: {
+      attrs: {
+        challenge: null, form: null, name: null,
+        autofocus: ["", "autofocus"],
+        disabled: ["", "disabled"],
+        keytype: ["RSA"]
+      }
+    },
+    label: { attrs: { "for": null, form: null } },
+    legend: s,
+    li: { attrs: { value: null } },
+    link: {
+      attrs: {
+        href: null, type: null,
+        hreflang: langs,
+        media: media,
+        sizes: ["all", "16x16", "16x16 32x32", "16x16 32x32 64x64"]
+      }
+    },
+    map: { attrs: { name: null } },
+    mark: s,
+    menu: { attrs: { label: null, type: ["list", "context", "toolbar"] } },
+    meta: {
+      attrs: {
+        content: null,
+        charset: charsets,
+        name: ["viewport", "application-name", "author", "description", "generator", "keywords"],
+        "http-equiv": ["content-language", "content-type", "default-style", "refresh"]
+      }
+    },
+    meter: { attrs: { value: null, min: null, low: null, high: null, max: null, optimum: null } },
+    nav: s,
+    noframes: s,
+    noscript: s,
+    object: {
+      attrs: {
+        data: null, type: null, name: null, usemap: null, form: null, width: null, height: null,
+        typemustmatch: ["", "typemustmatch"]
+      }
+    },
+    ol: { attrs: { reversed: ["", "reversed"], start: null, type: ["1", "a", "A", "i", "I"] } },
+    optgroup: { attrs: { disabled: ["", "disabled"], label: null } },
+    option: { attrs: { disabled: ["", "disabled"], label: null, selected: ["", "selected"], value: null } },
+    output: { attrs: { "for": null, form: null, name: null } },
+    p: s,
+    param: { attrs: { name: null, value: null } },
+    pre: s,
+    progress: { attrs: { value: null, max: null } },
+    q: { attrs: { cite: null } },
+    rp: s,
+    rt: s,
+    ruby: s,
+    s: s,
+    samp: s,
+    script: {
+      attrs: {
+        type: ["text/javascript"],
+        src: null,
+        async: ["", "async"],
+        defer: ["", "defer"],
+        charset: charsets
+      }
+    },
+    section: s,
+    select: {
+      attrs: {
+        form: null, name: null, size: null,
+        autofocus: ["", "autofocus"],
+        disabled: ["", "disabled"],
+        multiple: ["", "multiple"]
+      }
+    },
+    small: s,
+    source: { attrs: { src: null, type: null, media: null } },
+    span: s,
+    strike: s,
+    strong: s,
+    style: {
+      attrs: {
+        type: ["text/css"],
+        media: media,
+        scoped: null
+      }
+    },
+    sub: s,
+    summary: s,
+    sup: s,
+    table: s,
+    tbody: s,
+    td: { attrs: { colspan: null, rowspan: null, headers: null } },
+    textarea: {
+      attrs: {
+        dirname: null, form: null, maxlength: null, name: null, placeholder: null,
+        rows: null, cols: null,
+        autofocus: ["", "autofocus"],
+        disabled: ["", "disabled"],
+        readonly: ["", "readonly"],
+        required: ["", "required"],
+        wrap: ["soft", "hard"]
+      }
+    },
+    tfoot: s,
+    th: { attrs: { colspan: null, rowspan: null, headers: null, scope: ["row", "col", "rowgroup", "colgroup"] } },
+    thead: s,
+    time: { attrs: { datetime: null } },
+    title: s,
+    tr: s,
+    track: {
+      attrs: {
+        src: null, label: null, "default": null,
+        kind: ["subtitles", "captions", "descriptions", "chapters", "metadata"],
+        srclang: langs
+      }
+    },
+    tt: s,
+    u: s,
+    ul: s,
+    "var": s,
+    video: {
+      attrs: {
+        src: null, poster: null, width: null, height: null,
+        crossorigin: ["anonymous", "use-credentials"],
+        preload: ["auto", "metadata", "none"],
+        autoplay: ["", "autoplay"],
+        mediagroup: ["movie"],
+        muted: ["", "muted"],
+        controls: ["", "controls"]
+      }
+    },
+    wbr: s
   };
 
-  var htmlStructure = [
-    {tag: '!DOCTYPE', attr: []},
-    {tag: 'a', attr: [
-      {key: 'href', values: ["#"]},
-      {key: 'target', values: ["_blank","_self","_top","_parent"]},
-      {key: 'ping', values: [""]},
-      {key: 'media', values: ["#"]},
-      {key: 'hreflang', values: ["en","es"]},
-      {key: 'type', values: []}
-    ]},
-    {tag: 'abbr', attr: []},
-    {tag: 'acronym', attr: []},
-    {tag: 'address', attr: []},
-    {tag: 'applet', attr: []},
-    {tag: 'area', attr: [
-      {key: 'alt', values: [""]},
-      {key: 'coords', values: ["rect: left, top, right, bottom","circle: center-x, center-y, radius","poly: x1, y1, x2, y2, ..."]},
-      {key: 'shape', values: ["default","rect","circle","poly"]},
-      {key: 'href', values: ["#"]},
-      {key: 'target', values: ["#"]},
-      {key: 'ping', values: []},
-      {key: 'media', values: []},
-      {key: 'hreflang', values: []},
-      {key: 'type', values: []}
+  var globalAttrs = {
+    accesskey: ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
+    "class": null,
+    contenteditable: ["true", "false"],
+    contextmenu: null,
+    dir: ["ltr", "rtl", "auto"],
+    draggable: ["true", "false", "auto"],
+    dropzone: ["copy", "move", "link", "string:", "file:"],
+    hidden: ["hidden"],
+    id: null,
+    inert: ["inert"],
+    itemid: null,
+    itemprop: null,
+    itemref: null,
+    itemscope: ["itemscope"],
+    itemtype: null,
+    lang: ["en", "es"],
+    spellcheck: ["true", "false"],
+    style: null,
+    tabindex: ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
+    title: null,
+    translate: ["yes", "no"],
+    onclick: null,
+    rel: ["stylesheet", "alternate", "author", "bookmark", "help", "license", "next", "nofollow", "noreferrer", "prefetch", "prev", "search", "tag"]
+  };
+  function populate(obj) {
+    for (var attr in globalAttrs) if (globalAttrs.hasOwnProperty(attr))
+      obj.attrs[attr] = globalAttrs[attr];
+  }
 
-    ]},
-    {tag: 'article', attr: []},
-    {tag: 'aside', attr: []},
-    {tag: 'audio', attr: [
-      {key: 'src', values: []},
-      {key: 'crossorigin', values: ["anonymous","use-credentials"]},
-      {key: 'preload', values: ["none","metadata","auto"]},
-      {key: 'autoplay', values: ["","autoplay"]},
-      {key: 'mediagroup', values: []},
-      {key: 'loop', values: ["","loop"]},
-      {key: 'controls', values: ["","controls"]}
-    ]},
-    {tag: 'b', attr: []},
-    {tag: 'base', attr: [
-      {key: 'href', values: ["#"]},
-      {key: 'target', values: ["_blank","_self","_top","_parent"]}
-    ]},
-    {tag: 'basefont', attr: []},
-    {tag: 'bdi', attr: []},
-    {tag: 'bdo', attr: []},
-    {tag: 'big', attr: []},
-    {tag: 'blockquote', attr: [
-      {key: 'cite', values: ["http://"]}
-    ]},
-    {tag: 'body', attr: []},
-    {tag: 'br', attr: []},
-    {tag: 'button', attr: [
-      {key: 'autofocus', values: ["","autofocus"]},
-      {key: 'disabled', values: ["","disabled"]},
-      {key: 'form', values: []},
-      {key: 'formaction', values: []},
-      {key: 'formenctype', values: ["application/x-www-form-urlencoded","multipart/form-data","text/plain"]},
-      {key: 'formmethod', values: ["get","post","put","delete"]},
-      {key: 'formnovalidate', values: ["","novalidate"]},
-      {key: 'formtarget', values: ["_blank","_self","_top","_parent"]},
-      {key: 'name', values: []},
-      {key: 'type', values: ["submit","reset","button"]},
-      {key: 'value', values: []}
-    ]},
-    {tag: 'canvas', attr: [
-      {key: 'width', values: []},
-      {key: 'height', values: []}
-    ]},
-    {tag: 'caption', attr: []},
-    {tag: 'center', attr: []},
-    {tag: 'cite', attr: []},
-    {tag: 'code', attr: []},
-    {tag: 'col', attr: [
-      {key: 'span', values: []}
-    ]},
-    {tag: 'colgroup', attr: [
-      {key: 'span', values: []}
-    ]},
-    {tag: 'command', attr: [
-      {key: 'type', values: ["command","checkbox","radio"]},
-      {key: 'label', values: []},
-      {key: 'icon', values: []},
-      {key: 'disabled', values: ["","disabled"]},
-      {key: 'checked', values: ["","checked"]},
-      {key: 'radiogroup', values: []},
-      {key: 'command', values: []},
-      {key: 'title', values: []}
-    ]},
-    {tag: 'data', attr: [
-      {key: 'value', values: []}
-    ]},
-    {tag: 'datagrid', attr: [
-      {key: 'disabled', values: ["","disabled"]},
-      {key: 'multiple', values: ["","multiple"]}
-    ]},
-    {tag: 'datalist', attr: [
-      {key: 'data', values: []}
-    ]},
-    {tag: 'dd', attr: []},
-    {tag: 'del', attr: [
-      {key: 'cite', values: []},
-      {key: 'datetime', values: []}
-    ]},
-    {tag: 'details', attr: [
-      {key: 'open', values: ["","open"]}
-    ]},
-    {tag: 'dfn', attr: []},
-    {tag: 'dir', attr: []},
-    {tag: 'div', attr: [
-      {key: 'id', values: []},
-      {key: 'class', values: []},
-      {key: 'style', values: []}
-    ]},
-    {tag: 'dl', attr: []},
-    {tag: 'dt', attr: []},
-    {tag: 'em', attr: []},
-    {tag: 'embed', attr: [
-      {key: 'src', values: []},
-      {key: 'type', values: []},
-      {key: 'width', values: []},
-      {key: 'height', values: []}
-    ]},
-    {tag: 'eventsource', attr: [
-      {key: 'src', values: []}
-    ]},
-    {tag: 'fieldset', attr: [
-      {key: 'disabled', values: ["","disabled"]},
-      {key: 'form', values: []},
-      {key: 'name', values: []}
-    ]},
-    {tag: 'figcaption', attr: []},
-    {tag: 'figure', attr: []},
-    {tag: 'font', attr: []},
-    {tag: 'footer', attr: []},
-    {tag: 'form', attr: [
-      {key: 'accept-charset', values: ["UNKNOWN","utf-8"]},
-      {key: 'action', values: []},
-      {key: 'autocomplete', values: ["on","off"]},
-      {key: 'enctype', values: ["application/x-www-form-urlencoded","multipart/form-data","text/plain"]},
-      {key: 'method', values: ["get","post","put","delete","dialog"]},
-      {key: 'name', values: []},
-      {key: 'novalidate', values: ["","novalidate"]},
-      {key: 'target', values: ["_blank","_self","_top","_parent"]}
-    ]},
-    {tag: 'frame', attr: []},
-    {tag: 'frameset', attr: []},
-    {tag: 'h1', attr: []},
-    {tag: 'h2', attr: []},
-    {tag: 'h3', attr: []},
-    {tag: 'h4', attr: []},
-    {tag: 'h5', attr: []},
-    {tag: 'h6', attr: []},
-    {tag: 'head', attr: []},
-    {tag: 'header', attr: []},
-    {tag: 'hgroup', attr: []},
-    {tag: 'hr', attr: []},
-    {tag: 'html', attr: [
-      {key: 'manifest', values: []}
-    ]},
-    {tag: 'i', attr: []},
-    {tag: 'iframe', attr: [
-      {key: 'src', values: []},
-      {key: 'srcdoc', values: []},
-      {key: 'name', values: []},
-      {key: 'sandbox', values: ["allow-top-navigation","allow-same-origin","allow-forms","allow-scripts"]},
-      {key: 'seamless', values: ["","seamless"]},
-      {key: 'width', values: []},
-      {key: 'height', values: []}
-    ]},
-    {tag: 'img', attr: [
-      {key: 'alt', values: []},
-      {key: 'src', values: []},
-      {key: 'crossorigin', values: ["anonymous","use-credentials"]},
-      {key: 'ismap', values: []},
-      {key: 'usemap', values: []},
-      {key: 'width', values: []},
-      {key: 'height', values: []}
-    ]},
-    {tag: 'input', attr: [
-      {key: 'accept', values: ["audio/*","video/*","image/*"]},
-      {key: 'alt', values: []},
-      {key: 'autocomplete', values: ["on","off"]},
-      {key: 'autofocus', values: ["","autofocus"]},
-      {key: 'checked', values: ["","checked"]},
-      {key: 'disabled', values: ["","disabled"]},
-      {key: 'dirname', values: []},
-      {key: 'form', values: []},
-      {key: 'formaction', values: []},
-      {key: 'formenctype', values: ["application/x-www-form-urlencoded","multipart/form-data","text/plain"]},
-      {key: 'formmethod', values: ["get","post","put","delete"]},
-      {key: 'formnovalidate', values: ["","novalidate"]},
-      {key: 'formtarget', values: ["_blank","_self","_top","_parent"]},
-      {key: 'height', values: []},
-      {key: 'list', values: []},
-      {key: 'max', values: []},
-      {key: 'maxlength', values: []},
-      {key: 'min', values: []},
-      {key: 'multiple', values: ["","multiple"]},
-      {key: 'name', values: []},
-      {key: 'pattern', values: []},
-      {key: 'placeholder', values: []},
-      {key: 'readonly', values: ["","readonly"]},
-      {key: 'required', values: ["","required"]},
-      {key: 'size', values: []},
-      {key: 'src', values: []},
-      {key: 'step', values: []},
-      {key: 'type', values: [
-        "hidden","text","search","tel","url","email","password","datetime","date","month","week","time","datetime-local",
-        "number","range","color","checkbox","radio","file","submit","image","reset","button"
-      ]},
-      {key: 'value', values: []},
-      {key: 'width', values: []}
-    ]},
-    {tag: 'ins', attr: [
-      {key: 'cite', values: []},
-      {key: 'datetime', values: []}
-    ]},
-    {tag: 'kbd', attr: []},
-    {tag: 'keygen', attr: [
-      {key: 'autofocus', values: ["","autofocus"]},
-      {key: 'challenge', values: []},
-      {key: 'disabled', values: ["","disabled"]},
-      {key: 'form', values: []},
-      {key: 'keytype', values: ["RSA"]},
-      {key: 'name', values: []}
-    ]},
-    {tag: 'label', attr: [
-      {key: 'for', values: []},
-      {key: 'form', values: []}
-    ]},
-    {tag: 'legend', attr: []},
-    {tag: 'li', attr: [
-      {key: 'value', values: []}
-    ]},
-    {tag: 'link', attr: [
-      {key: 'href', values: []},
-      {key: 'hreflang', values: ["en","es"]},
-      {key: 'media', values: [
-        "all","screen","print","embossed","braille","handheld","print","projection","screen","tty","tv","speech","3d-glasses",
-        "resolution [>][<][=] [X]dpi","resolution [>][<][=] [X]dpcm","device-aspect-ratio: 16/9","device-aspect-ratio: 4/3",
-        "device-aspect-ratio: 32/18","device-aspect-ratio: 1280/720","device-aspect-ratio: 2560/1440","orientation:portrait",
-        "orientation:landscape","device-height: [X]px","device-width: [X]px","-webkit-min-device-pixel-ratio: 2"
-      ]},
-      {key: 'type', values: []},
-      {key: 'sizes', values: ["all","16x16","16x16 32x32","16x16 32x32 64x64"]}
-    ]},
-    {tag: 'map', attr: [
-      {key: 'name', values: []}
-    ]},
-    {tag: 'mark', attr: []},
-    {tag: 'menu', attr: [
-      {key: 'type', values: ["list","context","toolbar"]},
-      {key: 'label', values: []}
-    ]},
-    {tag: 'meta', attr: [
-      {key: 'charset', attr: ["utf-8"]},
-      {key: 'name', attr: ["viewport","application-name","author","description","generator","keywords"]},
-      {key: 'content', attr: ["","width=device-width","initial-scale=1, maximum-scale=1, minimun-scale=1, user-scale=no"]},
-      {key: 'http-equiv', attr: ["content-language","content-type","default-style","refresh"]}
-    ]},
-    {tag: 'meter', attr: [
-      {key: 'value', values: []},
-      {key: 'min', values: []},
-      {key: 'low', values: []},
-      {key: 'high', values: []},
-      {key: 'max', values: []},
-      {key: 'optimum', values: []}
-    ]},
-    {tag: 'nav', attr: []},
-    {tag: 'noframes', attr: []},
-    {tag: 'noscript', attr: []},
-    {tag: 'object', attr: [
-      {key: 'data', values: []},
-      {key: 'type', values: []},
-      {key: 'typemustmatch', values: ["","typemustmatch"]},
-      {key: 'name', values: []},
-      {key: 'usemap', values: []},
-      {key: 'form', values: []},
-      {key: 'width', values: []},
-      {key: 'height', values: []}
-    ]},
-    {tag: 'ol', attr: [
-      {key: 'reversed', values: ["", "reversed"]},
-      {key: 'start', values: []},
-      {key: 'type', values: ["1","a","A","i","I"]}
-    ]},
-    {tag: 'optgroup', attr: [
-      {key: 'disabled', values: ["","disabled"]},
-      {key: 'label', values: []}
-    ]},
-    {tag: 'option', attr: [
-      {key: 'disabled', values: ["", "disabled"]},
-      {key: 'label', values: []},
-      {key: 'selected', values: ["", "selected"]},
-      {key: 'value', values: []}
-    ]},
-    {tag: 'output', attr: [
-      {key: 'for', values: []},
-      {key: 'form', values: []},
-      {key: 'name', values: []}
-    ]},
-    {tag: 'p', attr: []},
-    {tag: 'param', attr: [
-      {key: 'name', values: []},
-      {key: 'value', values: []}
-    ]},
-    {tag: 'pre', attr: []},
-    {tag: 'progress', attr: [
-      {key: 'value', values: []},
-      {key: 'max', values: []}
-    ]},
-    {tag: 'q', attr: [
-      {key: 'cite', values: []}
-    ]},
-    {tag: 'rp', attr: []},
-    {tag: 'rt', attr: []},
-    {tag: 'ruby', attr: []},
-    {tag: 's', attr: []},
-    {tag: 'samp', attr: []},
-    {tag: 'script', attr: [
-      {key: 'type', values: ["text/javascript"]},
-      {key: 'src', values: []},
-      {key: 'async', values: ["","async"]},
-      {key: 'defer', values: ["","defer"]},
-      {key: 'charset', values: ["utf-8"]}
-    ]},
-    {tag: 'section', attr: []},
-    {tag: 'select', attr: [
-      {key: 'autofocus', values: ["", "autofocus"]},
-      {key: 'disabled', values: ["", "disabled"]},
-      {key: 'form', values: []},
-      {key: 'multiple', values: ["", "multiple"]},
-      {key: 'name', values: []},
-      {key: 'size', values: []}
-    ]},
-    {tag: 'small', attr: []},
-    {tag: 'source', attr: [
-      {key: 'src', values: []},
-      {key: 'type', values: []},
-      {key: 'media', values: []}
-    ]},
-    {tag: 'span', attr: []},
-    {tag: 'strike', attr: []},
-    {tag: 'strong', attr: []},
-    {tag: 'style', attr: [
-      {key: 'type', values: ["text/css"]},
-      {key: 'media', values: ["all","braille","print","projection","screen","speech"]},
-      {key: 'scoped', values: []}
-    ]},
-    {tag: 'sub', attr: []},
-    {tag: 'summary', attr: []},
-    {tag: 'sup', attr: []},
-    {tag: 'table', attr: [
-      {key: 'border', values: []}
-    ]},
-    {tag: 'tbody', attr: []},
-    {tag: 'td', attr: [
-      {key: 'colspan', values: []},
-      {key: 'rowspan', values: []},
-      {key: 'headers', values: []}
-    ]},
-    {tag: 'textarea', attr: [
-      {key: 'autofocus', values: ["","autofocus"]},
-      {key: 'disabled', values: ["","disabled"]},
-      {key: 'dirname', values: []},
-      {key: 'form', values: []},
-      {key: 'maxlength', values: []},
-      {key: 'name', values: []},
-      {key: 'placeholder', values: []},
-      {key: 'readonly', values: ["","readonly"]},
-      {key: 'required', values: ["","required"]},
-      {key: 'rows', values: []},
-      {key: 'cols', values: []},
-      {key: 'wrap', values: ["soft","hard"]}
-    ]},
-    {tag: 'tfoot', attr: []},
-    {tag: 'th', attr: [
-      {key: 'colspan', values: []},
-      {key: 'rowspan', values: []},
-      {key: 'headers', values: []},
-      {key: 'scope', values: ["row","col","rowgroup","colgroup"]}
-    ]},
-    {tag: 'thead', attr: []},
-    {tag: 'time', attr: [
-      {key: 'datetime', values: []}
-    ]},
-    {tag: 'title', attr: []},
-    {tag: 'tr', attr: []},
-    {tag: 'track', attr: [
-      {key: 'kind', values: ["subtitles","captions","descriptions","chapters","metadata"]},
-      {key: 'src', values: []},
-      {key: 'srclang', values: ["en","es"]},
-      {key: 'label', values: []},
-      {key: 'default', values: []}
-    ]},
-    {tag: 'tt', attr: []},
-    {tag: 'u', attr: []},
-    {tag: 'ul', attr: []},
-    {tag: 'var', attr: []},
-    {tag: 'video', attr: [
-      {key: "src", values: []},
-      {key: "crossorigin", values: ["anonymous","use-credentials"]},
-      {key: "poster", values: []},
-      {key: "preload", values: ["auto","metadata","none"]},
-      {key: "autoplay", values: ["","autoplay"]},
-      {key: "mediagroup", values: ["movie"]},
-      {key: "loop", values: ["","loop"]},
-      {key: "muted", values: ["","muted"]},
-      {key: "controls", values: ["","controls"]},
-      {key: "width", values: []},
-      {key: "height", values: []}
-    ]},
-    {tag: 'wbr', attr: []}
-  ];
+  populate(s);
+  for (var tag in data) if (data.hasOwnProperty(tag) && data[tag] != s)
+    populate(data[tag]);
 
-  var globalAttributes = [
-    {key: "accesskey", values: ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z","0","1","2","3","4","5","6","7","8","9"]},
-    {key: "class", values: []},
-    {key: "contenteditable", values: ["true", "false"]},
-    {key: "contextmenu", values: []},
-    {key: "dir", values: ["ltr","rtl","auto"]},
-    {key: "draggable", values: ["true","false","auto"]},
-    {key: "dropzone", values: ["copy","move","link","string:","file:"]},
-    {key: "hidden", values: ["hidden"]},
-    {key: "id", values: []},
-    {key: "inert", values: ["inert"]},
-    {key: "itemid", values: []},
-    {key: "itemprop", values: []},
-    {key: "itemref", values: []},
-    {key: "itemscope", values: ["itemscope"]},
-    {key: "itemtype", values: []},
-    {key: "lang", values: ["en","es"]},
-    {key: "spellcheck", values: ["true","false"]},
-    {key: "style", values: []},
-    {key: "tabindex", values: ["1","2","3","4","5","6","7","8","9"]},
-    {key: "title", values: []},
-    {key: "translate", values: ["yes","no"]},
-    {key: "onclick", values: []},
-    {key: 'rel', values: ["stylesheet","alternate","author","bookmark","help","license","next","nofollow","noreferrer","prefetch","prev","search","tag"]}
-  ];
-
-  CodeMirror.htmlHint = function(editor) {
-    if(String.prototype.trim == undefined) {
-      String.prototype.trim=function(){return this.replace(/^\s+|\s+$/g, '');};
-    }
-    return htmlHint(editor, htmlStructure, function (e, cur) { return e.getTokenAt(cur); });
+  CodeMirror.htmlSchema = data;
+  CodeMirror.htmlHint = function(cm, options) {
+    var local = {schemaInfo: data};
+    if (options) for (var opt in options) local[opt] = options[opt];
+    return CodeMirror.xmlHint(cm, local);
   };
 })();

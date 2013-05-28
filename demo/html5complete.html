@@ -2,12 +2,12 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>CodeMirror: Close-Tag Demo</title>
+    <title>CodeMirror: HTML completion demo</title>
     <link rel="stylesheet" href="../lib/codemirror.css">
     <script src="../lib/codemirror.js"></script>
     <script src="../addon/hint/show-hint.js"></script>
     <link rel="stylesheet" href="../addon/hint/show-hint.css">
-    <script src="../addon/edit/closetag.js"></script>
+    <script src="../addon/hint/xml-hint.js"></script>
     <script src="../addon/hint/html-hint.js"></script>
     <script src="../mode/xml/xml.js"></script>
     <script src="../mode/javascript/javascript.js"></script>
@@ -21,72 +21,24 @@
   </head>
   <body>
     
-    <h1>HTML5 code completation demo</h1>
-    <ul>
-      <li>Type an html tag. If you press Ctrl+Space a hint panel show the code suggest. You can type to autocomplete tags, attributes if your cursor are inner a tag or attribute values if your cursor are inner a attribute value.</li>
-    </ul>
+    <h1>HTML completion demo</h1>
+    <p>Shows the <a href="xmlcomplete.html">XML completer</a>
+    parameterized with information about the tags in HTML.
+    Press <strong>ctrl-space</strong> to activate completion.</p>
 
-    <form><textarea id="code" name="code">
-<!DOCTYPE html>
-<html lang="en">
+    <div id="code"></div>
 
-  <head>
-    <meta charset="utf-8">
-    <title>Home - W2S Web IDE</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="">
-    <meta name="author" content="">
-  </head>
-  
-  <body>
-    
-    <div class="container">
-      
-      <div class="masthead">
-        <h3 class="muted">HTML5 Autocomplete</h3>
-        <div class="navbar">
-          <div class="navbar-inner">
-            <div class="container">
-              <ul class="nav">
-                <li class=" active "><a href="#">Home</a></li>
-                <li class=""><a href="#">Features</a></li>
-                <li class=""><a href="#">Sign In</a></li>
-              </ul>
-            </div>
-          </div>
-        </div><!-- /.navbar -->
-      </div>
-      
-      <!-- Jumbotron -->
-      <div class="jumbotron">
-        <img src="/Images/w2s.png" />
-        <h1>W2S Cloud IDE</h1>
-      </div>
-      
-      <hr>
-      
-      
-      <hr>
-      
-      <div class="footer">
-        Final of html5 autocomplete
-      </div>
-      
-    </div> <!-- /container -->
-  </body>
-</html>
-
-</textarea></form>
     <script type="text/javascript">
       CodeMirror.commands.autocomplete = function(cm) {
           CodeMirror.showHint(cm, CodeMirror.htmlHint);
       }
-        
-      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-        mode: 'text/html',
-        autoCloseTags: true,
-        extraKeys: {"Ctrl-Space": "autocomplete"}
-      });
+      window.onload = function() {
+        editor = CodeMirror(document.getElementById("code"), {
+          mode: "text/html",
+          extraKeys: {"Ctrl-Space": "autocomplete"},
+          value: "<!doctype html>\n<html>\n  " + document.documentElement.innerHTML + "\n</html>"
+        });
+      };
     </script>
   </body>
 </html>
