@@ -1,0 +1,27 @@
+!!!
+html(lang="en")
+  head
+    title My page
+  body.bp
+    #container
+      #header
+        h1.page-title= My.awesome. page #is awesome#
+      #nav
+        ul#nav_list something sweet
+          li
+      #content
+        - if (youAreUsingJade)
+          p You are amazing
+        - else
+          p Get on it!
+          form
+            input(type: "text", name='user[name]', readonly: true, disabled)
+      #footer
+        #copywrite-text= locals
+        
+        
+
+        
+
+        
+        
