@@ -63,14 +63,11 @@
         leaves: dummy, stem: dummy, flowers: dummy
       };
 
-      CodeMirror.commands.autocomplete = function(cm) {
-        CodeMirror.showHint(cm, CodeMirror.xmlHint, {schemaInfo: tags});
-      }
-
       function completeAfter(cm, pred) {
         var cur = cm.getCursor();
         if (!pred || pred()) setTimeout(function() {
-          if (!cm.state.completionActive) cm.execCommand("autocomplete");
+          if (!cm.state.completionActive)
+            CodeMirror.showHint(cm, CodeMirror.xmlHint, {schemaInfo: tags, completeSingle: false});
         }, 100);
         return CodeMirror.Pass;
       }
@@ -99,7 +96,9 @@
           "'/'": completeIfAfterLt,
           "' '": completeIfInTag,
           "'='": completeIfInTag,
-          "Ctrl-Space": "autocomplete"
+          "Ctrl-Space": function(cm) {
+            CodeMirror.showHint(cm, CodeMirror.xmlHint, {schemaInfo: tags});
+          }
         }
       });
     </script>
