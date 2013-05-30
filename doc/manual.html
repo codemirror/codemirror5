@@ -1090,6 +1090,12 @@
         <dd>Use a given node to display this range. Implies both
         collapsed and atomic. The given DOM node <em>must</em> be an
         inline element (as opposed to a block element).</dd>
+        <dt><code><strong>handleMouseEvents</strong>: boolean</code></dt>
+        <dd>When <code>replacedWith</code> is given, this determines
+        whether the editor will capture mouse and drag events
+        occurring in this widget. Default is false—the events will be
+        left alone for the default browser handler, or specific
+        handlers on the widget, to capture.</dd>
         <dt id="mark_readOnly"><code><strong>readOnly</strong>: boolean</code></dt>
         <dd>A read-only span can, as long as it is not cleared, not be
         modified except by
@@ -1231,6 +1237,11 @@
           <dt><code><strong>showIfHidden</strong>: boolean</code></dt>
           <dd>When true, will cause the widget to be rendered even if
           the line it is associated with is hidden.</dd>
+          <dt><code><strong>handleMouseEvents</strong>: boolean</code></dt>
+          <dd>Determines whether the editor will capture mouse and
+          drag events occurring in this widget. Default is false—the
+          events will be left alone for the default browser handler,
+          or specific handlers on the widget, to capture.</dd>
         </dl>
       Note that the widget node will become a descendant of nodes with
       CodeMirror-specific CSS classes, and those classes might in some
