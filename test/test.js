@@ -517,6 +517,7 @@ testCM("scrollSnap", function(cm) {
 });
 
 testCM("scrollIntoView", function(cm) {
+  if (phantom) return;
   var outer = cm.getWrapperElement().getBoundingClientRect();
   function test(line, ch) {
     var pos = Pos(line, ch);
