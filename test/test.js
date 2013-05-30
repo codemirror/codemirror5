@@ -516,6 +516,24 @@ testCM("scrollSnap", function(cm) {
   is(info.left == 0 && info.top + 2 > info.height - cm.getScrollerElement().clientHeight, "scrolled clean to bottom");
 });
 
+testCM("scrollIntoView", function(cm) {
+  var outer = cm.getWrapperElement().getBoundingClientRect();
+  function test(line, ch) {
+    var pos = Pos(line, ch);
+    cm.scrollIntoView(pos);
+    var box = cm.charCoords(pos, "window");
+    is(box.left >= outer.left && box.right <= outer.right &&
+       box.top >= outer.top && box.bottom <= outer.bottom);
+  }
+  addDoc(cm, 200, 200);
+  test(199, 199);
+  test(0, 0);
+  test(100, 100);
+  test(199, 0);
+  test(0, 199);
+  test(100, 100);
+});
+
 testCM("selectionPos", function(cm) {
   if (phantom) return;
   cm.setSize(100, 100);
