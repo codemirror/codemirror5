@@ -211,15 +211,18 @@ testCM("coords", function(cm) {
 
 testCM("coordsChar", function(cm) {
   addDoc(cm, 35, 70);
-  for (var ch = 0; ch <= 35; ch += 5) {
-    for (var line = 0; line < 70; line += 5) {
-      cm.setCursor(line, ch);
-      var coords = cm.charCoords(Pos(line, ch));
-      var pos = cm.coordsChar({left: coords.left, top: coords.top + 5});
-      eqPos(pos, Pos(line, ch));
+  for (var i = 0; i < 2; ++i) {
+    var sys = i ? "local" : "page";
+    for (var ch = 0; ch <= 35; ch += 5) {
+      for (var line = 0; line < 70; line += 5) {
+        cm.setCursor(line, ch);
+        var coords = cm.charCoords(Pos(line, ch), sys);
+        var pos = cm.coordsChar({left: coords.left + 1, top: coords.top + 1}, sys);
+        eqPos(pos, Pos(line, ch));
+      }
     }
   }
-});
+}, {lineNumbers: true});
 
 testCM("posFromIndex", function(cm) {
   cm.setValue(
