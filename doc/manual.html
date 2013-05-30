@@ -1695,14 +1695,69 @@
       <dt id="addon_show-hint"><a href="../addon/hint/show-hint.js"><code>hint/show-hint.js</code></a></dt>
       <dd>Provides a framework for showing autocompletion hints.
       Defines <code>CodeMirror.showHint</code>, which takes a
-      CodeMirror instance and a hinting function, and pops up a widget
-      that allows the user to select a completion. Hinting functions
-      are function that take an editor instance, and return
+      CodeMirror instance, a hinting function, and optionally an
+      options object, and pops up a widget that allows the user to
+      select a completion. Hinting functions are function that take an
+      editor instance and an optional options object, and return
       a <code>{list, from, to}</code> object, where <code>list</code>
-      is an array of strings (the completions), and <code>from</code>
-      and <code>to</code> give the start and end of the token that is
-      being completed. Depends
-      on <code>addon/hint/show-hint.css</code>. Check
+      is an array of strings or objects (the completions),
+      and <code>from</code> and <code>to</code> give the start and end
+      of the token that is being completed. When completions aren't
+      simple strings, they should be objects with the folowing
+      properties:
+      <dl>
+        <dt><code><strong>text</strong>: string</code></dt>
+        <dd>The completion text. This is the only required
+        property.</dd>
+        <dt><code><strong>displayText</strong>: string</code></dt>
+        <dd>The text that should be displayed in the menu.</dd>
+        <dt><code><strong>className</strong>: string</code></dt>
+        <dd>A CSS class name to apply to the completion's line in the
+        menu.</dd>
+        <dt><code><strong>render</strong>: fn(Element, self, data)</code></dt>
+        <dd>A method used to create the DOM structure for showing the
+        completion by appending it to its first argument.</dd>
+        <dt><code><strong>hint</strong>: fn(CodeMirror, self, data)</code></dt>
+        <dd>A method used to actually apply the completion, instead of
+        the default behavior.</dd>
+      </dl>
+      The plugin understands the following options (the options object
+      will also be passed along to the hinting function, which may
+      understand additional options):
+      <dl>
+        <dt><code><strong>async</strong>: boolean</code></dt>
+        <dd>When set to true, the hinting function's signature should
+        be <code>(cm, callback, ?options)</code>, and the completion
+        interface will only be popped up when the hinting function
+        calls the callback, passing it the object holding the
+        completions.</dd>
+        <dt><code><strong>completeSingle</strong>: boolean</code></dt>
+        <dd>Determines whether, when only a single completion is
+        available, it is completed without showing the dialog.
+        Defaults to true.</dd>
+        <dt><code><strong>alignWithWord</strong>: boolean</code></dt>
+        <dd>Whether the pop-up should be horizontally aligned with the
+        start of the word (true, default), or with the cursor (false).</dd>
+        <dt><code><strong>customKeys</strong>: keymap</code></dt>
+        <dd>Allows you to provide a custom keymap of keys to be active
+        when the pop-up is active. To bind a key to a behavior that is
+        already present in the default keymap, bind it to the name of
+        the key in the default keymap (for example <code>"Up"</code>).</dd>
+      </dl>
+      The following events will be fired on the completions object
+      during completion:
+      <dl>
+        <dt><code><strong>"shown"</strong> ()</code></dt>
+        <dd>Fired when the pop-up is shown.</dd>
+        <dt><code><strong>"select"</strong> (completion, Element)</code></dt>
+        <dd>Fired when a completion is selected. Passed the completion
+        value (string or object) and the DOM node that represents it
+        in the menu.</dd>
+        <dt><code><strong>"close"</strong> ()</code></dt>
+        <dd>Fired when the completion is finished.</dd>
+      </dl>
+      This addon depends styles
+      from <code>addon/hint/show-hint.css</code>. Check
       out <a href="../demo/complete.html">the demo</a> for an
       example.</dd>
 
