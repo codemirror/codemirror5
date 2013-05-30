@@ -1335,6 +1335,12 @@
       the <a href="#event_viewportChange"><code>viewportChange</code></a>
       event.</dd>
 
+      <dt id="getVisibleLines"><code><strong>cm.getVisibleLines</strong>() → {from: number, to: number}</code></dt>
+      <dd>Returns a <code>{from, to}</code> object indicating the
+      start (inclusive) and end (inclusive) of the currently visible
+      part of the document. It differs from <code>cm.getViewport</code> method
+      in that it doesn't include margin around it.</dd>
+
       <dt id="refresh"><code><strong>cm.refresh</strong>()</code></dt>
       <dd>If your code does something to change the size of the editor
       element (window resizes are already listened for), or unhides
