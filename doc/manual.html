@@ -1574,10 +1574,14 @@
       <dt id="addon_closebrackets"><a href="../addon/edit/closebrackets.js"><code>edit/closebrackets.js</code></a></dt>
       <dd>Defines an option <code>autoCloseBrackets</code> that will
       auto-close brackets and quotes when typed. By default, it'll
-      auto-close <code>()[]{}''""</code>, but you can pass it a
-      string similar to that (containing pairs of matching characters)
-      to customize it. <a href="../demo/closebrackets.html">Demo
-      here</a>.</dd>
+      auto-close <code>()[]{}''""</code>, but you can pass it a string
+      similar to that (containing pairs of matching characters), or an
+      object with <code>pairs</code> and
+      optionally <code>explode</code> properties to customize
+      it. <code>explode</code> should be a similar string that gives
+      the pairs of characters that, when enter is pressed between
+      them, should have the second character also moved to its own
+      line. <a href="../demo/closebrackets.html">Demo here</a>.</dd>
 
       <dt id="addon_trailingspace"><a href="../addon/edit/trailingspace.js"><code>edit/trailingspace.js</code></a></dt>
       <dd>Adds an option <code>showTrailingSpace</code> which, when

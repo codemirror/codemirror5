@@ -1,23 +1,36 @@
 (function() {
   var DEFAULT_BRACKETS = "()[]{}''\"\"";
+  var DEFAULT_EXPLODE_ON_ENTER = "[]{}";
   var SPACE_CHAR_REGEX = /\s/;
 
   CodeMirror.defineOption("autoCloseBrackets", false, function(cm, val, old) {
-    var wasOn = old && old != CodeMirror.Init;
-    if (val && !wasOn)
-      cm.addKeyMap(buildKeymap(typeof val == "string" ? val : DEFAULT_BRACKETS));
-    else if (!val && wasOn)
+    if (old != CodeMirror.Init && old)
       cm.removeKeyMap("autoCloseBrackets");
+    if (!val) return;
+    var pairs = DEFAULT_BRACKETS, explode = DEFAULT_EXPLODE_ON_ENTER;
+    if (typeof val == "string") pairs = val;
+    else if (typeof val == "object") {
+      if (val.pairs != null) pairs = val.pairs;
+      if (val.explode != null) explode = val.explode;
+    }
+    var map = buildKeymap(pairs);
+    if (explode) map.Enter = buildExplodeHandler(explode);
+    cm.addKeyMap(map);
   });
+
+  function charsAround(cm, pos) {
+    var str = cm.getRange(CodeMirror.Pos(pos.line, pos.ch - 1),
+                          CodeMirror.Pos(pos.line, pos.ch + 1));
+    return str.length == 2 ? str : null;
+  }
 
   function buildKeymap(pairs) {
     var map = {
       name : "autoCloseBrackets",
       Backspace: function(cm) {
         if (cm.somethingSelected()) return CodeMirror.Pass;
-        var cur = cm.getCursor(), line = cm.getLine(cur.line);
-        if (cur.ch && cur.ch < line.length &&
-          pairs.indexOf(line.slice(cur.ch - 1, cur.ch + 1)) % 2 == 0)
+        var cur = cm.getCursor(), around = charsAround(cm, cur);
+        if (around && pairs.indexOf(line.slice(cur.ch - 1, cur.ch + 1)) % 2 == 0)
           cm.replaceRange("", CodeMirror.Pos(cur.line, cur.ch - 1), CodeMirror.Pos(cur.line, cur.ch + 1));
         else
           return CodeMirror.Pass;
@@ -50,5 +63,18 @@
       if (left != right) map["'" + right + "'"] = maybeOverwrite;
     })(pairs.charAt(i), pairs.charAt(i + 1));
     return map;
+  }
+
+  function buildExplodeHandler(pairs) {
+    return function(cm) {
+      var cur = cm.getCursor(), around = charsAround(cm, cur);
+      if (!around || pairs.indexOf(around) % 2 != 0) return CodeMirror.Pass;
+      cm.operation(function() {
+        var newPos = CodeMirror.Pos(cur.line + 1, 0);
+        cm.replaceSelection("\n\n", {anchor: newPos, head: newPos}, "+input");
+        cm.indentLine(cur.line + 1, null, true);
+        cm.indentLine(cur.line + 2, null, true);
+      });
+    };
   }
 })();
