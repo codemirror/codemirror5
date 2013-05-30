@@ -2811,10 +2811,10 @@
     }
     function getUserVisibleLines(cm) {
       var scrollInfo = cm.getScrollInfo();
-      var occludeTorleranceTop = 6;
-      var occludeTorleranceBottom = 10;
-      var from = cm.coordsChar({left:0, top: occludeTorleranceTop}, 'local');
-      var bottomY = scrollInfo.clientHeight - occludeTorleranceBottom;
+      var occludeToleranceTop = 6;
+      var occludeToleranceBottom = 10;
+      var from = cm.coordsChar({left:0, top: occludeToleranceTop + scrollInfo.top}, 'local');
+      var bottomY = scrollInfo.clientHeight - occludeToleranceBottom + scrollInfo.top;
       var to = cm.coordsChar({left:0, top: bottomY}, 'local');
       return {top: from.line, bottom: to.line};
     }
