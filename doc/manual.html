@@ -1299,7 +1299,7 @@
       end (<code>false</code>) of the selection, or, if a <code>{line,
       ch}</code> object is given, it specifies the precise position at
       which you want to measure.</dd>
-      <dt id="charCoords"><code><strong>cm.charCoords</strong>(pos: {line, ch}, mode: string) → {left, right, top, bottom}</code></dt>
+      <dt id="charCoords"><code><strong>cm.charCoords</strong>(pos: {line, ch}, ?mode: string) → {left, right, top, bottom}</code></dt>
       <dd>Returns the position and dimensions of an arbitrary
       character. <code>pos</code> should be a <code>{line, ch}</code>
       object. This differs from <code>cursorCoords</code> in that
@@ -1313,6 +1313,11 @@
       the coordinates are interpreted. It may
       be <code>"window"</code>, <code>"page"</code> (the default),
       or <code>"local"</code>.</dd>
+      <dt id="lineAtHeight"><code><strong>cm.lineAtHeight</strong>(height: number, ?mode: string) → number</code></dt>
+      <dd>Computes the line at the given pixel
+      height. <code>mode</code> can be one of the same strings
+      that <a href="#coordsChar"><code>coordsChar</code></a>
+      accepts.</dd>
       <dt id="defaultTextHeight"><code><strong>cm.defaultTextHeight</strong>() → number</code></dt>
       <dd>Returns the line height of the default font for the editor.</dd>
       <dt id="defaultCharWidth"><code><strong>cm.defaultCharWidth</strong>() → number</code></dt>
