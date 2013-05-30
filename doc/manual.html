@@ -757,14 +757,14 @@
     <h3 id="api_content">Content manipulation methods</h3>
 
     <dl>
-      <dt id="getValue"><code><strong>doc.getValue</strong>(?seperator: string) → string</code></dt>
+      <dt id="getValue"><code><strong>doc.getValue</strong>(?separator: string) → string</code></dt>
       <dd>Get the current editor content. You can pass it an optional
       argument to specify the string to be used to separate lines
       (defaults to <code>"\n"</code>).</dd>
       <dt id="setValue"><code><strong>doc.setValue</strong>(content: string)</code></dt>
       <dd>Set the editor content.</dd>
 
-      <dt id="getRange"><code><strong>doc.getRange</strong>(from: {line, ch}, to: {line, ch}, ?seperator: string) → string</code></dt>
+      <dt id="getRange"><code><strong>doc.getRange</strong>(from: {line, ch}, to: {line, ch}, ?separator: string) → string</code></dt>
       <dd>Get the text between the given points in the editor, which
       should be <code>{line, ch}</code> objects. An optional third
       argument can be given to indicate the line separator string to
