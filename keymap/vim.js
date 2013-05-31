@@ -3208,6 +3208,7 @@
       var modifiers = ['Shift', 'Ctrl'];
       var cmToVimKeymap = {
         'nofallthrough': true,
+        'disableInput': true,
         'style': 'fat-cursor'
       };
       function bindKeys(keys, modifier) {

@@ -25,6 +25,6 @@
 
   CodeMirror.keyMap["emacs-Ctrl-X"] = {
     "Ctrl-S": "save", "Ctrl-W": "save", "S": "saveAll", "F": "open", "U": "undo", "K": "close",
-    auto: "emacs", nofallthrough: true
+    auto: "emacs", nofallthrough: true, disableInput: true
   };
 })();
