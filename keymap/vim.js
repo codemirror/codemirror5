@@ -241,30 +241,34 @@
         actionArgs: { forward: true }},
     { keys: ['<C-o>'], type: 'action', action: 'jumpListWalk',
         actionArgs: { forward: false }},
-    { keys: ['a'], type: 'action', action: 'enterInsertMode',
+    { keys: ['a'], type: 'action', action: 'enterInsertMode', isEdit: true,
         actionArgs: { insertAt: 'charAfter' }},
-    { keys: ['A'], type: 'action', action: 'enterInsertMode',
+    { keys: ['A'], type: 'action', action: 'enterInsertMode', isEdit: true,
         actionArgs: { insertAt: 'eol' }},
-    { keys: ['i'], type: 'action', action: 'enterInsertMode',
+    { keys: ['i'], type: 'action', action: 'enterInsertMode', isEdit: true,
         actionArgs: { insertAt: 'inplace' }},
-    { keys: ['I'], type: 'action', action: 'enterInsertMode',
+    { keys: ['I'], type: 'action', action: 'enterInsertMode', isEdit: true,
         actionArgs: { insertAt: 'firstNonBlank' }},
     { keys: ['o'], type: 'action', action: 'newLineAndEnterInsertMode',
+        isEdit: true,
         actionArgs: { after: true }},
     { keys: ['O'], type: 'action', action: 'newLineAndEnterInsertMode',
+        isEdit: true,
         actionArgs: { after: false }},
     { keys: ['v'], type: 'action', action: 'toggleVisualMode' },
     { keys: ['V'], type: 'action', action: 'toggleVisualMode',
         actionArgs: { linewise: true }},
-    { keys: ['J'], type: 'action', action: 'joinLines' },
-    { keys: ['p'], type: 'action', action: 'paste',
-        actionArgs: { after: true }},
-    { keys: ['P'], type: 'action', action: 'paste',
-        actionArgs: { after: false }},
-    { keys: ['r', 'character'], type: 'action', action: 'replace' },
+    { keys: ['J'], type: 'action', action: 'joinLines', isEdit: true },
+    { keys: ['p'], type: 'action', action: 'paste', isEdit: true,
+        actionArgs: { after: true, isEdit: true }},
+    { keys: ['P'], type: 'action', action: 'paste', isEdit: true,
+        actionArgs: { after: false, isEdit: true }},
+    { keys: ['r', 'character'], type: 'action', action: 'replace', isEdit: true },
     { keys: ['@', 'character'], type: 'action', action: 'replayMacro' },
     { keys: ['q', 'character'], type: 'action', action: 'enterMacroRecordMode' },
-    { keys: ['R'], type: 'action', action: 'enterReplaceMode' },
+    // Handle Replace-mode as a special case of insert mode.
+    { keys: ['R'], type: 'action', action: 'enterInsertMode', isEdit: true,
+        actionArgs: { replace: true }},
     { keys: ['u'], type: 'action', action: 'undo' },
     { keys: ['<C-r>'], type: 'action', action: 'redo' },
     { keys: ['m', 'character'], type: 'action', action: 'setMark' },
@@ -286,8 +290,10 @@
         motion: 'moveToFirstNonWhiteSpaceCharacter' },
     { keys: ['.'], type: 'action', action: 'repeatLastEdit' },
     { keys: ['<C-a>'], type: 'action', action: 'incrementNumberToken',
+        isEdit: true,
         actionArgs: {increase: true, backtrack: false}},
     { keys: ['<C-x>'], type: 'action', action: 'incrementNumberToken',
+        isEdit: true,
         actionArgs: {increase: false, backtrack: false}},
     // Text object motions
     { keys: ['a', 'character'], type: 'motion',
@@ -441,10 +447,10 @@
       return {
         macroKeyBuffer: [],
         latestRegister: undefined,
-        lastInsertModeChanages: {
+        inReplay: false,
+        lastInsertModeChanges: {
           ch: 0,
           baseRemnantLength: 0,
-          cachedText: '',
           text: ''
         },
         enteredMacroMode: undefined,
@@ -497,9 +503,10 @@
           // executed in between.
           lastMotion: null,
           marks: {},
+          insertMode: true,
           visualMode: false,
           // If we are in visual line mode. No effect if visualMode is false.
-          visualLine: false
+          visualLine: false,
         };
       }
       return cm.vimState;
@@ -872,7 +879,10 @@
         actionArgs.repeatIsExplicit = repeatIsExplicit;
         actionArgs.registerName = inputState.registerName;
         vim.inputState = new InputState();
-        vim.lastMotion = null,
+        vim.lastMotion = null;
+        if (command.isEdit) {
+          this.recordLastEdit(cm, vim, inputState, command);
+        }
         actions[command.action](cm, actionArgs, vim);
       },
       processSearch: function(cm, vim, command) {
@@ -1143,12 +1153,16 @@
             exitVisualMode(cm, vim);
           }
           if (operatorArgs.enterInsertMode) {
-            actions.enterInsertMode(cm);
+            actions.enterInsertMode(cm, {}, vim);
           }
         }
       },
-      recordLastEdit: function(cm, vim, inputState) {
+      recordLastEdit: function(cm, vim, inputState, actionCommand) {
+        var macroModeState = getVimGlobalState().macroModeState;
+        if (macroModeState.inReplay) { return; }
         vim.lastEdit = inputState;
+        vim.lastEditActionCommand = actionCommand;
+        macroModeState.lastInsertModeChanges.text = '';
       }
     };
 
@@ -1481,6 +1495,14 @@
           // curEnd should be on the first character of the new line.
           cm.replaceRange('\n', curStart, curEnd);
         } else {
+          // Exclude trailing whitespace if the range is not all whitespace.
+          var text = cm.getRange(curStart, curEnd);
+          if (!isWhiteSpaceString(text)) {
+            var match = (/\s+$/).exec(text);
+            if (match) {
+              curEnd = offsetCursor(curEnd, 0, - match[0].length);
+            }
+          }
           cm.replaceRange('', curStart, curEnd);
         }
         cm.setCursor(curStart);
@@ -1597,7 +1619,8 @@
         macroModeState.toggle(cm, registerName);
         emptyMacroKeyBuffer(macroModeState);
       },
-      enterInsertMode: function(cm, actionArgs) {
+      enterInsertMode: function(cm, actionArgs, vim) {
+        vim.insertMode = true;
         var insertAt = (actionArgs) ? actionArgs.insertAt : null;
         if (insertAt == 'eol') {
           var cursor = cm.getCursor();
@@ -1609,10 +1632,14 @@
           cm.setCursor(motions.moveToFirstNonWhiteSpaceCharacter(cm));
         }
         cm.setOption('keyMap', 'vim-insert');
-        cm.on('change', onInsertModeTextChanges);
-        var vim = getVimState(cm);
-        if(insertAt)commandDispatcher.recordLastEdit(cm, vim, insertAt);
-        getVimGlobalState().macroModeState.lastInsertModeChanages.text = '';
+        if (actionArgs && actionArgs.replace) {
+          // Handle Replace-mode as a special case of insert mode.
+          cm.toggleOverwrite(true);
+          cm.setOption('keyMap', 'vim-replace');
+        } else {
+          cm.setOption('keyMap', 'vim-insert');
+        }
+        cm.on('change', onChange);
       },
       toggleVisualMode: function(cm, actionArgs, vim) {
         var repeat = actionArgs.repeat;
@@ -1698,7 +1725,7 @@
           cm.setCursor(curFinalPos);
         });
       },
-      newLineAndEnterInsertMode: function(cm, actionArgs) {
+      newLineAndEnterInsertMode: function(cm, actionArgs, vim) {
         var insertAt = cm.getCursor();
         if (insertAt.line === cm.firstLine() && !actionArgs.after) {
           // Special case for inserting newline before start of document.
@@ -1713,7 +1740,7 @@
               CodeMirror.commands.newlineAndIndent;
           newlineFn(cm);
         }
-        this.enterInsertMode(cm);
+        this.enterInsertMode(cm, {}, vim);
       },
       paste: function(cm, actionArgs, vim) {
         var cur = cm.getCursor();
@@ -1809,10 +1836,6 @@
           }
         }
       },
-      enterReplaceMode: function(cm, actionArgs) {
-        cm.setOption('keyMap', 'vim-replace');
-        cm.toggleOverwrite();
-      },
       incrementNumberToken: function(cm, actionArgs, vim) {
         var cur = cm.getCursor();
         var lineStr = cm.getLine(cur.line);
@@ -1845,22 +1868,29 @@
         var lastEdit = vim.lastEdit;
         var repeat = actionArgs.repeat;
         var macroModeState = getVimGlobalState().macroModeState;
-        if (isInsertModeChanges(lastEdit)) { /* A,I,a,i */
-          actions.enterInsertMode(cm, { isRepeatEdit:true, insertAt:lastEdit });
-          repeatLastInsertModeChanges(cm, repeat, macroModeState);
-          return;
-        } else if (lastEdit) {
-          if (actionArgs.repeat && actionArgs.repeatIsExplicit) {
+        macroModeState.inReplay = true;
+        if (lastEdit) {
+          if (repeat && actionArgs.repeatIsExplicit) {
             vim.lastEdit.repeatOverride = actionArgs.repeat;
           }
           var currentInputState = vim.inputState;
           vim.inputState = vim.lastEdit;
-          commandDispatcher.evalInput(cm, vim);
-          if (lastEdit.operator == 'change') {
+          if (vim.lastEditActionCommand) {
+            commandDispatcher.processAction(cm, vim, vim.lastEditActionCommand);
+          } else {
+            commandDispatcher.evalInput(cm, vim);
+          }
+          if (macroModeState.lastInsertModeChanges.text) {
+            // For some reason, repeat cw in desktop VIM will does not repeat
+            // insert. Will conform to that behavior.
+            repeat = !vim.lastEditActionCommand ? 1 : repeat;
             repeatLastInsertModeChanges(cm, repeat, macroModeState);
-            return;
           }
           vim.inputState = currentInputState;
+        }
+        macroModeState.inReplay = false;
+        if (vim.insertMode) {
+          exitInsertMode(cm);
         }
       }
     };
@@ -3428,15 +3458,12 @@
     }
     CodeMirror.keyMap.vim = buildVimKeyMap();
 
-    function exitInsertMode(cm, suppressChanges) {
+    function exitInsertMode(cm) {
+      getVimState(cm).insertMode = false;
       cm.setCursor(cm.getCursor().line, cm.getCursor().ch-1, true);
       cm.setOption('keyMap', 'vim');
-      cm.off('change', onInsertModeTextChanges);
-      logKey(getVimGlobalState().macroModeState, '<Esc>');
-      if (!suppressChanges) {
-        var lastChange = getVimGlobalState().macroModeState.lastInsertModeChanages;
-        lastChange.cachedText = lastChange.text;
-      }
+      cm.toggleOverwrite(false); // exit replace mode if we were in it.
+      cm.off('change', onChange);
     }
 
     CodeMirror.keyMap['vim-insert'] = {
@@ -3453,6 +3480,11 @@
         fn(cm);
       },
       fallthrough: ['default']
+    };
+
+    CodeMirror.keyMap['vim-replace'] = {
+      'Backspace': 'goCharLeft',
+      fallthrough: ['vim-insert']
     };
 
     function parseRegisterToKeyBuffer(macroModeState, registerName) {
@@ -3496,49 +3528,36 @@
       macroKeyBuffer.push(key);
     }
 
-    function exitReplaceMode(cm) {
-      cm.toggleOverwrite();
-      cm.setCursor(cm.getCursor().line, cm.getCursor().ch-1, true);
-      cm.setOption('keyMap', 'vim');
-    }
-
-    function changeObjToString(changeObj) {
-      return changeObj.text.join('\n');
-    }
-
-    function onInsertModeTextChanges(cm, changeObj) {
+    /**
+     * Listens for changes made in insert mode. Should only be active in insert
+     * mode.
+     */
+    function onChange(cm, changeObj) {
       var macroModeState = getVimGlobalState().macroModeState;
-      var keyBuffer = macroModeState.macroKeyBuffer;
-      var cur = cm.getCursor();
-      var line = cur.line;
-      var ch = cur.ch;
-      var lastChange = macroModeState.lastInsertModeChanages;
-      var remnantLength;
-      if (lastChange.text) {
-        // if current change is newline, push '\n'
-        if (changeObj.text.length > 1) {
-          lastChange.text += changeObj.text.join('\n');
-
-        // if last change was newline, update lastChange state for current line
-        } else if (lastChange.text.charAt(lastChange.text.length-1) == '\n') {
-          lastChange.baseRemnantLength = lastChange.text.length;
-          lastChange.text += changeObj.text;
-          changeObj.text = lastChange.text;
+      var lastChange = macroModeState.lastInsertModeChanges;
+      while (changeObj) {
+        var changeObjText = changeObj.text.join('\n');
+        if (lastChange.text) {
+          if (lastChange.text.charAt(lastChange.text.length-1) == '\n') {
+            // if last change was newline, update lastChange state for current line
+            lastChange.baseRemnantLength = lastChange.text.length;
+            lastChange.text += changeObjText;
+            lastChange.ch = changeObj.from.ch;
+          } else {
+            // Merge consecutive grainy changes into one chunk
+            var remnantLength = lastChange.baseRemnantLength + changeObj.from.ch - lastChange.ch;
+            var lastText = lastChange.text;
+            var changeObjText = changeObjText;
+            var lastTextRemnant = lastText.substring(0, remnantLength);
+            lastChange.text = lastTextRemnant + changeObjText;
+          }
+        } else { // reset lastChange state
           lastChange.ch = changeObj.from.ch;
-
-        // Merge consecutive grainy changes into one chunk
-        } else {
-          var remnantLength = lastChange.baseRemnantLength + changeObj.from.ch - lastChange.ch;
-          var lastText = lastChange.text;
-          var changeObjText = changeObjToString(changeObj);
-          var lastTextRemnant = lastText.substring(0, remnantLength);
-          lastChange.text = lastTextRemnant + changeObjText;
+          lastChange.text = changeObj.text.join('\n');
+          lastChange.baseRemnantLength = 0;
         }
-      } else { // reset lastChange state
-        lastChange.ch = changeObj.from.ch;
-        lastChange.text = changeObj.text.join('\n');
-        lastChange.baseRemnantLength = 0;
-        console.log(changeObj.text);
+        // Change objects may be chained with next.
+        changeObj = changeObj.next;
       }
     }
 
@@ -3548,23 +3567,13 @@
 
     function repeatLastInsertModeChanges(cm, repeat, macroModeState) {
       var cur = cm.getCursor();
-      var lastChange = macroModeState.lastInsertModeChanages;
+      var lastChange = macroModeState.lastInsertModeChanges;
       var text = '';
-      var cachedText = lastChange.cachedText;
       while (repeat--) {
-        text += cachedText;
+        text += lastChange.text;
       }
       cm.replaceRange(text, cur, cur);
-      exitInsertMode(cm, /* suppressChanges */true);
     }
-
-    CodeMirror.keyMap['vim-replace'] = {
-      'Esc': exitReplaceMode,
-      'Ctrl-[': exitReplaceMode,
-      'Ctrl-C': exitReplaceMode,
-      'Backspace': 'goCharLeft',
-      fallthrough: ['default']
-    };
 
     return vimApi;
   };
