@@ -11,7 +11,7 @@ var code = '' +
 '    bufp = buf;\n' +
 '  }\n' +
 '\n' +
-'  return (--n >= 0) ? (unsigned char) *bufp++ : EOF;\n' + 
+'  return (--n >= 0) ? (unsigned char) *bufp++ : EOF;\n' +
 ' \n' +
 '}\n';
 
@@ -1940,6 +1940,59 @@ testVim('ex_write', function(cm, vim, helpers) {
   }
   CodeMirror.commands.save = tmp;
 });
+testVim('ex_sort', function(cm, vim, helpers) {
+  helpers.doEx('sort');
+  eq('Z\na\nb\nc\nd', cm.getValue());
+}, { value: 'b\nZ\nd\nc\na'});
+testVim('ex_sort_reverse', function(cm, vim, helpers) {
+  helpers.doEx('sort!');
+  eq('d\nc\nb\na', cm.getValue());
+}, { value: 'b\nd\nc\na'});
+testVim('ex_sort_range', function(cm, vim, helpers) {
+  helpers.doEx('2,3sort');
+  eq('b\nc\nd\na', cm.getValue());
+}, { value: 'b\nd\nc\na'});
+testVim('ex_sort_oneline', function(cm, vim, helpers) {
+  helpers.doEx('2sort');
+  // Expect no change.
+  eq('b\nd\nc\na', cm.getValue());
+}, { value: 'b\nd\nc\na'});
+testVim('ex_sort_ignoreCase', function(cm, vim, helpers) {
+  helpers.doEx('sort i');
+  eq('a\nb\nc\nd\nZ', cm.getValue());
+}, { value: 'b\nZ\nd\nc\na'});
+testVim('ex_sort_unique', function(cm, vim, helpers) {
+  helpers.doEx('sort u');
+  eq('Z\na\nb\nc\nd', cm.getValue());
+}, { value: 'b\nZ\na\na\nd\na\nc\na'});
+testVim('ex_sort_decimal', function(cm, vim, helpers) {
+  helpers.doEx('sort d');
+  eq('d3\n s5\n6\n.9', cm.getValue());
+}, { value: '6\nd3\n s5\n.9'});
+testVim('ex_sort_decimal_negative', function(cm, vim, helpers) {
+  helpers.doEx('sort d');
+  eq('z-9\nd3\n s5\n6\n.9', cm.getValue());
+}, { value: '6\nd3\n s5\n.9\nz-9'});
+testVim('ex_sort_decimal_reverse', function(cm, vim, helpers) {
+  helpers.doEx('sort! d');
+  eq('.9\n6\n s5\nd3', cm.getValue());
+}, { value: '6\nd3\n s5\n.9'});
+testVim('ex_sort_hex', function(cm, vim, helpers) {
+  helpers.doEx('sort x');
+  eq(' s5\n6\n.9\n&0xB\nd3', cm.getValue());
+}, { value: '6\nd3\n s5\n&0xB\n.9'});
+testVim('ex_sort_octal', function(cm, vim, helpers) {
+  helpers.doEx('sort o');
+  eq('.8\n.9\nd3\n s5\n6', cm.getValue());
+}, { value: '6\nd3\n s5\n.9\n.8'});
+testVim('ex_sort_decimal_mixed', function(cm, vim, helpers) {
+  helpers.doEx('sort d');
+  eq('y\nz\nc1\nb2\na3', cm.getValue());
+}, { value: 'a3\nz\nc1\ny\nb2'});
+testVim('ex_sort_decimal_mixed_reverse', function(cm, vim, helpers) {
+  helpers.doEx('sort! d');
+  eq('a3\nb2\nc1\nz\ny', cm.getValue());
+}, { value: 'a3\nz\nc1\ny\nb2'});
 testVim('ex_substitute_same_line', function(cm, vim, helpers) {
   cm.setCursor(1, 0);
   helpers.doEx('s/one/two');
