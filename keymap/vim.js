@@ -967,7 +967,9 @@
       },
       processEx: function(cm, vim, command) {
         function onPromptClose(input) {
-          exCommandDispatcher.processCommand(cm, input);
+          // Give the prompt some time to close so that if processCommand shows
+          // an error, the elements don't overlap.
+          window.setTimeout(10, exCommandDispatcher.processCommand(cm, input));
         }
         function onPromptKeyDown(e, input, close) {
           var keyName = CodeMirror.keyName(e);
@@ -1189,7 +1191,7 @@
         return null;
       },
       jumpToMark: function(cm, motionArgs, vim) {
-        var best = cm.getCursor(); 
+        var best = cm.getCursor();
         for (var i = 0; i < motionArgs.repeat; i++) {
           var cursor = best;
           for (var key in vim.marks) {
@@ -2150,7 +2152,7 @@
         }
       },
       // TODO: The original Vim implementation only operates on level 1 and 2.
-      // The current implementation doesn't check for code block level and 
+      // The current implementation doesn't check for code block level and
       // therefore it operates on any levels.
       method: {
         init: function(state) {
@@ -2202,7 +2204,7 @@
         reverseSymb: (forward ?  { ')': '(', '}': '{' } : { '(': ')', '{': '}' })[symb],
         forward: forward,
         depth: 0,
-        curMoveThrough: false      
+        curMoveThrough: false
       };
       var mode = symbolToMode[symb];
       if(!mode)return cur;
@@ -2828,6 +2830,7 @@
       { name: 'write', shortName: 'w', type: 'builtIn' },
       { name: 'undo', shortName: 'u', type: 'builtIn' },
       { name: 'redo', shortName: 'red', type: 'builtIn' },
+      { name: 'sort', shortName: 'sor', type: 'builtIn'},
       { name: 'substitute', shortName: 's', type: 'builtIn'},
       { name: 'nohlsearch', shortName: 'noh', type: 'builtIn'},
       { name: 'delmarks', shortName: 'delm', type: 'builtin'}
@@ -2874,7 +2877,11 @@
           showConfirm(cm, 'Not an editor command ":' + input + '"');
           return;
         }
-        exCommands[commandName](cm, params);
+        try {
+          exCommands[commandName](cm, params);
+        } catch(e) {
+          showConfirm(cm, e);
+        }
       },
       parseInput_: function(cm, inputStream, result) {
         inputStream.eatWhile(':');
@@ -2919,7 +2926,7 @@
             break;
           default:
             inputStream.backUp(1);
-            return cm.getCursor().line;
+            return undefined;
         }
       },
       parseCommandArgs_: function(inputStream, params, command) {
@@ -3029,6 +3036,77 @@
               linewise: true },
             repeatOverride: params.line+1});
       },
+      sort: function(cm, params) {
+        var reverse, ignoreCase, unique, number;
+        function parseArgs() {
+          if (params.argString) {
+            var args = new CodeMirror.StringStream(params.argString);
+            if (args.eat('!')) { reverse = true; }
+            if (args.eol()) { return; }
+            if (!args.eatSpace()) { throw 'invalid arguments ' + args.match(/.*/)[0]; }
+            var opts = args.match(/[a-z]+/);
+            if (opts) {
+              opts = opts[0];
+              ignoreCase = opts.indexOf('i') != -1;
+              unique = opts.indexOf('u') != -1;
+              var decimal = opts.indexOf('d') != -1 && 1;
+              var hex = opts.indexOf('x') != -1 && 1;
+              var octal = opts.indexOf('o') != -1 && 1;
+              if (decimal + hex + octal > 1) { throw 'invalid arguments'; }
+              number = decimal && 'decimal' || hex && 'hex' || octal && 'octal';
+            }
+            if (args.eatSpace() && args.match(/\/.*\//)) { throw 'patterns not supported'; }
+          }
+        }
+        parseArgs();
+        var lineStart = params.line || cm.firstLine();
+        var lineEnd = params.lineEnd || params.line || cm.lastLine();
+        if (lineStart == lineEnd) { return; }
+        var curStart = { line: lineStart, ch: 0 };
+        var curEnd = { line: lineEnd, ch: lineLength(cm, lineEnd) };
+        var text = cm.getRange(curStart, curEnd).split('\n');
+        var numberRegex = (number == 'decimal') ? /(-?)([\d]+)/ :
+           (number == 'hex') ? /(-?)(?:0x)?([0-9a-f]+)/i :
+           (number == 'octal') ? /([0-7]+)/ : null;
+        var radix = (number == 'decimal') ? 10 : (number == 'hex') ? 16 : (number == 'octal') ? 8 : null;
+        var numPart = [], textPart = [];
+        if (number) {
+          for (var i = 0; i < text.length; i++) {
+            if (numberRegex.exec(text[i])) {
+              numPart.push(text[i]);
+            } else {
+              textPart.push(text[i]);
+            }
+          }
+        } else {
+          textPart = text;
+        }
+        function compareFn(a, b) {
+          if (reverse) { var tmp; tmp = a; a = b; b = tmp; }
+          if (ignoreCase) { a = a.toLowerCase(); b = b.toLowerCase(); }
+          var anum = number && numberRegex.exec(a);
+          var bnum = number && numberRegex.exec(b);
+          if (!anum) { return a < b ? -1 : 1; }
+          anum = parseInt((anum[1] + anum[2]).toLowerCase(), radix);
+          bnum = parseInt((bnum[1] + bnum[2]).toLowerCase(), radix);
+          return anum - bnum;
+        }
+        numPart.sort(compareFn);
+        textPart.sort(compareFn);
+        text = (!reverse) ? textPart.concat(numPart) : numPart.concat(textPart);
+        if (unique) { // Remove duplicate lines
+          var textOld = text;
+          var lastLine;
+          text = []
+          for (var i = 0; i < textOld.length; i++) {
+            if (textOld[i] != lastLine) {
+              text.push(textOld[i]);
+            }
+            lastLine = textOld[i];
+          }
+        }
+        cm.replaceRange(text.join('\n'), curStart, curEnd);
+      },
       substitute: function(cm, params) {
         var argString = params.argString;
         var slashes = findUnescapedSlashes(argString);
@@ -3067,7 +3145,7 @@
         }
         var state = getSearchState(cm);
         var query = state.getQuery();
-        var lineStart = params.line || cm.firstLine();
+        var lineStart = (params.line !== undefined) ? params.line : cm.getCursor().line;
         var lineEnd = params.lineEnd || lineStart;
         if (count) {
           lineStart = lineEnd;
