@@ -124,6 +124,18 @@ function testVim(name, run, opts, expectedFail) {
         }
       }
     }
+    function doInsertModeKeysFn(cm) {
+      return function(args) {
+        if (args instanceof Array) { arguments = args; }
+        function executeHandler(handler) {
+          if (typeof handler == 'string') { CodeMirror.commands[handler](cm);
+          } else { handler(cm); }
+        }
+        for (var i = 0; i < arguments.length; i++) {
+          var handler = CodeMirror.lookupKey(arguments[i], ['vim-insert'], executeHandler);
+        }
+      }
+    }
     function doExFn(cm) {
       return function(command) {
         cm.openDialog = helpers.fakeOpenDialog(command);
@@ -148,6 +160,10 @@ function testVim(name, run, opts, expectedFail) {
     }
     var helpers = {
       doKeys: doKeysFn(cm),
+      // Warning: Only emulates keymap events, not character insertions. Use
+      // replaceRange to simulate character insertions.
+      // Keys are in CodeMirror format, NOT vim format.
+      doInsertModeKeys: doInsertModeKeysFn(cm),
       doEx: doExFn(cm),
       assertCursorAt: assertCursorAtFn(cm),
       fakeOpenDialog: fakeOpenDialog,
@@ -789,6 +805,12 @@ testVim('dd_lastline', function(cm, vim, helpers) {
   eq(expectedLineCount, cm.lineCount());
   helpers.assertCursorAt(cm.lineCount() - 1, 0);
 });
+testVim('cw', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('c', '2', 'w');
+  eq(' word3', cm.getValue());
+  helpers.assertCursorAt(0, 0);
+}, { value: 'word1 word2 word3'});
 // Yank commands should behave the exact same as d commands, expect that nothing
 // gets deleted.
 testVim('yw_repeat', function(cm, vim, helpers) {
@@ -1559,6 +1581,64 @@ testVim('._repeat', function(cm, vim, helpers) {
   helpers.doKeys('3', '.');
   eq('6', cm.getValue());
 }, { value: '1 2 3 4 5 6'});
+testVim('._insert', function(cm, vim, helpers) {
+  helpers.doKeys('i');
+  cm.replaceRange('test', cm.getCursor());
+  helpers.doKeys('<Esc>');
+  cm.setCursor(0, 3);
+  helpers.doKeys('.');
+  eq('testestt', cm.getValue());
+  helpers.assertCursorAt(0, 6);
+}, { value: ''});
+testVim('._insert_repeat', function(cm, vim, helpers) {
+  helpers.doKeys('i');
+  cm.replaceRange('test', cm.getCursor());
+  helpers.doKeys('<Esc>');
+  cm.setCursor(0, 3);
+  helpers.doKeys('2', '.');
+  eq('testesttestt', cm.getValue());
+  helpers.assertCursorAt(0, 10);
+}, { value: ''});
+testVim('._insert_o', function(cm, vim, helpers) {
+  helpers.doKeys('o');
+  cm.replaceRange('z', cm.getCursor());
+  helpers.doInsertModeKeys('Esc');
+  cm.setCursor(1, 0);
+  helpers.doKeys('.');
+  eq('\nz\nz', cm.getValue());
+  helpers.assertCursorAt(2, 0);
+}, { value: ''});
+testVim('._insert_o_indent', function(cm, vim, helpers) {
+  helpers.doKeys('o');
+  cm.replaceRange('z', cm.getCursor());
+  helpers.doInsertModeKeys('Esc');
+  cm.setCursor(1, 2);
+  helpers.doKeys('.');
+  eq('{\n  z\n  z', cm.getValue());
+  helpers.assertCursorAt(2, 2);
+}, { value: '{', mode: 'text/css'});
+testVim('._insert_cw', function(cm, vim, helpers) {
+  helpers.doKeys('c', 'w');
+  cm.replaceRange('test', cm.getCursor());
+  helpers.doInsertModeKeys('Esc');
+  cm.setCursor(0, 3);
+  helpers.doKeys('2', 'l');
+  helpers.doKeys('.');
+  eq('test test word3', cm.getValue());
+  helpers.assertCursorAt(0, 8);
+}, { value: 'word1 word2 word3' });
+testVim('._insert_cw_repeat', function(cm, vim, helpers) {
+  // For some reason, repeating cw in desktop VIM will does not repeat insert.
+  // Will conform to that behavior.
+  helpers.doKeys('c', 'w');
+  cm.replaceRange('test', cm.getCursor());
+  helpers.doInsertModeKeys('Esc');
+  cm.setCursor(0, 4);
+  helpers.doKeys('l');
+  helpers.doKeys('2', '.');
+  eq('test test', cm.getValue());
+  helpers.assertCursorAt(0, 8);
+}, { value: 'word1 word2 word3' });
 testVim('f;', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('f', 'x');
