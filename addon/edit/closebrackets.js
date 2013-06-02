@@ -30,7 +30,7 @@
       Backspace: function(cm) {
         if (cm.somethingSelected()) return CodeMirror.Pass;
         var cur = cm.getCursor(), around = charsAround(cm, cur);
-        if (around && pairs.indexOf(line.slice(cur.ch - 1, cur.ch + 1)) % 2 == 0)
+        if (around && pairs.indexOf(around) % 2 == 0)
           cm.replaceRange("", CodeMirror.Pos(cur.line, cur.ch - 1), CodeMirror.Pos(cur.line, cur.ch + 1));
         else
           return CodeMirror.Pass;
