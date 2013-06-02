@@ -54,7 +54,7 @@ CodeMirror.showHint = function(cm, getHints, options) {
     var left = pos.left, top = pos.bottom, below = true;
     hints.style.left = left + "px";
     hints.style.top = top + "px";
-    document.body.appendChild(hints);
+    (options.container || document.body).appendChild(hints);
     CodeMirror.signal(data, "shown");
 
     // If we're at the edge of the screen, then we want the menu to appear on the left of the cursor.
