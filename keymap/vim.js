@@ -250,10 +250,10 @@
     { keys: ['I'], type: 'action', action: 'enterInsertMode', isEdit: true,
         actionArgs: { insertAt: 'firstNonBlank' }},
     { keys: ['o'], type: 'action', action: 'newLineAndEnterInsertMode',
-        isEdit: true,
+        isEdit: true, interlaceInsertRepeat: true,
         actionArgs: { after: true }},
     { keys: ['O'], type: 'action', action: 'newLineAndEnterInsertMode',
-        isEdit: true,
+        isEdit: true, interlaceInsertRepeat: true,
         actionArgs: { after: false }},
     { keys: ['v'], type: 'action', action: 'toggleVisualMode' },
     { keys: ['V'], type: 'action', action: 'toggleVisualMode',
@@ -491,6 +491,12 @@
         // Store instance state in the CodeMirror object.
         cm.vimState = {
           inputState: new InputState(),
+          // Vim's input state that triggered the last edit, used to repeat
+          // motions and operators with '.'.
+          lastEditInputState: undefined,
+          // Vim's action command before the last edit, used to repeat actions
+          // with '.' and insert mode repeat.
+          lastEditActionCommand: undefined,
           // When using jk for navigation, if you move from a longer line to a
           // shorter line, the cursor may clip to the end of the shorter line.
           // If j is pressed again and cursor goes to the next line, the
@@ -503,7 +509,10 @@
           // executed in between.
           lastMotion: null,
           marks: {},
-          insertMode: true,
+          insertMode: false,
+          // Repeat count for changes made in insert mode, triggered by key
+          // sequences like 3,i. Only exists when insertMode is true.
+          insertModeRepeat: undefined,
           visualMode: false,
           // If we are in visual line mode. No effect if visualMode is false.
           visualLine: false,
@@ -1160,7 +1169,7 @@
       recordLastEdit: function(cm, vim, inputState, actionCommand) {
         var macroModeState = getVimGlobalState().macroModeState;
         if (macroModeState.inReplay) { return; }
-        vim.lastEdit = inputState;
+        vim.lastEditInputState = inputState;
         vim.lastEditActionCommand = actionCommand;
         macroModeState.lastInsertModeChanges.text = '';
       }
@@ -1621,6 +1630,7 @@
       },
       enterInsertMode: function(cm, actionArgs, vim) {
         vim.insertMode = true;
+        vim.insertModeRepeat = actionArgs && actionArgs.repeat || 1;
         var insertAt = (actionArgs) ? actionArgs.insertAt : null;
         if (insertAt == 'eol') {
           var cursor = cm.getCursor();
@@ -1639,7 +1649,10 @@
         } else {
           cm.setOption('keyMap', 'vim-insert');
         }
-        cm.on('change', onChange);
+        if (!getVimGlobalState().macroModeState.inReplay) {
+          // Only record if not replaying.
+          cm.on('change', onChange);
+        }
       },
       toggleVisualMode: function(cm, actionArgs, vim) {
         var repeat = actionArgs.repeat;
@@ -1740,7 +1753,7 @@
               CodeMirror.commands.newlineAndIndent;
           newlineFn(cm);
         }
-        this.enterInsertMode(cm, {}, vim);
+        this.enterInsertMode(cm, { repeat: actionArgs.repeat }, vim);
       },
       paste: function(cm, actionArgs, vim) {
         var cur = cm.getCursor();
@@ -1865,33 +1878,15 @@
         cm.setCursor({line: cur.line, ch: start + numberStr.length - 1});
       },
       repeatLastEdit: function(cm, actionArgs, vim) {
-        var lastEdit = vim.lastEdit;
+        var lastEditInputState = vim.lastEditInputState;
+        if (!lastEditInputState) { return; }
         var repeat = actionArgs.repeat;
-        var macroModeState = getVimGlobalState().macroModeState;
-        macroModeState.inReplay = true;
-        if (lastEdit) {
-          if (repeat && actionArgs.repeatIsExplicit) {
-            vim.lastEdit.repeatOverride = actionArgs.repeat;
-          }
-          var currentInputState = vim.inputState;
-          vim.inputState = vim.lastEdit;
-          if (vim.lastEditActionCommand) {
-            commandDispatcher.processAction(cm, vim, vim.lastEditActionCommand);
-          } else {
-            commandDispatcher.evalInput(cm, vim);
-          }
-          if (macroModeState.lastInsertModeChanges.text) {
-            // For some reason, repeat cw in desktop VIM will does not repeat
-            // insert. Will conform to that behavior.
-            repeat = !vim.lastEditActionCommand ? 1 : repeat;
-            repeatLastInsertModeChanges(cm, repeat, macroModeState);
-          }
-          vim.inputState = currentInputState;
+        if (repeat && actionArgs.repeatIsExplicit) {
+          vim.lastEditInputState.repeatOverride = repeat;
+        } else {
+          repeat = vim.lastEditInputState.repeatOverride || repeat;
         }
-        macroModeState.inReplay = false;
-        if (vim.insertMode) {
-          exitInsertMode(cm);
-        }
+        repeatLastEdit(cm, vim, repeat, false /** repeatForInsert */);
       }
     };
 
@@ -3459,11 +3454,20 @@
     CodeMirror.keyMap.vim = buildVimKeyMap();
 
     function exitInsertMode(cm) {
-      getVimState(cm).insertMode = false;
+      var vim = getVimState(cm)
+      vim.insertMode = false;
+      var inReplay = getVimGlobalState().macroModeState.inReplay;
+      if (!inReplay) { cm.off('change', onChange); }
+      if (!inReplay && vim.insertModeRepeat > 1) {
+        // Perform insert mode repeat for commands like 3,a and 3,o.
+        repeatLastEdit(cm, vim, vim.insertModeRepeat - 1,
+            true /** repeatForInsert */);
+        vim.lastEditInputState.repeatOverride = vim.insertModeRepeat;
+      }
+      delete vim.insertModeRepeat;
       cm.setCursor(cm.getCursor().line, cm.getCursor().ch-1, true);
       cm.setOption('keyMap', 'vim');
       cm.toggleOverwrite(false); // exit replace mode if we were in it.
-      cm.off('change', onChange);
     }
 
     CodeMirror.keyMap['vim-insert'] = {
@@ -3561,9 +3565,61 @@
       }
     }
 
-    function isInsertModeChanges(lastEdit) {
-      return (typeof lastEdit) == 'string';
-    }
+    /**
+     * Repeats the last edit, which includes exactly 1 command and at most 1
+     * insert. Operator and motion commands are read from lastEditInputState,
+     * while action commands are read from lastEditActionCommand.
+     *
+     * If repeatForInsert is true, then the function was called by
+     * exitInsertMode to repeat the insert mode changes the user just made. The
+     * corresponding enterInsertMode call was made with a count.
+     */
+    function repeatLastEdit(cm, vim, repeat, repeatForInsert) {
+      var lastEditInputState = vim.lastEditInputState;
+      var macroModeState = getVimGlobalState().macroModeState;
+      macroModeState.inReplay = true;
+      var isAction = !!vim.lastEditActionCommand;
+      var cachedInputState = vim.inputState;
+      function repeatCommand() {
+        if (isAction) {
+          commandDispatcher.processAction(cm, vim, vim.lastEditActionCommand);
+        } else {
+          commandDispatcher.evalInput(cm, vim);
+        }
+      }
+      function repeatInsert(repeat) {
+        if (macroModeState.lastInsertModeChanges.text) {
+          // For some reason, repeat cw in desktop VIM will does not repeat
+          // insert mode changes. Will conform to that behavior.
+          repeat = !vim.lastEditActionCommand ? 1 : repeat;
+          repeatLastInsertModeChanges(cm, repeat, macroModeState);
+        }
+      }
+      vim.inputState = vim.lastEditInputState;
+      if (isAction && vim.lastEditActionCommand.interlaceInsertRepeat) {
+        // o and O repeat have to be interlaced with insert repeats so that the
+        // insertions appear on separate lines instead of the last line.
+        for (var i = 0; i < repeat; i++) {
+          repeatCommand();
+          repeatInsert(1);
+        }
+      } else {
+        if (!repeatForInsert) {
+          // Hack to get the cursor to end up at the right place. If I is
+          // repeated in insert mode repeat, cursor will be 1 insert
+          // change set left of where it should be.
+          repeatCommand();
+        }
+        repeatInsert(repeat);
+      }
+      vim.inputState = cachedInputState;
+      if (vim.insertMode && !repeatForInsert) {
+        // Don't exit insert mode twice. If repeatForInsert is set, then we
+        // were called by an exitInsertMode call lower on the stack.
+        exitInsertMode(cm);
+      }
+      macroModeState.inReplay = false;
+    };
 
     function repeatLastInsertModeChanges(cm, repeat, macroModeState) {
       var cur = cm.getCursor();

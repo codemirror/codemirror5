@@ -1060,8 +1060,14 @@ testVim('i', function(cm, vim, helpers) {
   helpers.assertCursorAt(0, 1);
   eq('vim-insert', cm.getOption('keyMap'));
 });
+testVim('i_repeat', function(cm, vim, helpers) {
+  helpers.doKeys('3', 'i');
+  cm.replaceRange('test', cm.getCursor());
+  helpers.doInsertModeKeys('Esc');
+  eq('testtesttest', cm.getValue());
+  helpers.assertCursorAt(0, 11);
+}, { value: '' });
 testVim('A', function(cm, vim, helpers) {
-  cm.setCursor(0, 0);
   helpers.doKeys('A');
   helpers.assertCursorAt(0, lines[0].length);
   eq('vim-insert', cm.getOption('keyMap'));
@@ -1072,6 +1078,14 @@ testVim('I', function(cm, vim, helpers) {
   helpers.assertCursorAt(0, lines[0].textStart);
   eq('vim-insert', cm.getOption('keyMap'));
 });
+testVim('I_repeat', function(cm, vim, helpers) {
+  cm.setCursor(0, 1);
+  helpers.doKeys('3', 'I');
+  cm.replaceRange('test', cm.getCursor());
+  helpers.doInsertModeKeys('Esc');
+  eq('testtesttestblah', cm.getValue());
+  helpers.assertCursorAt(0, 11);
+}, { value: 'blah' });
 testVim('o', function(cm, vim, helpers) {
   cm.setCursor(0, 4);
   helpers.doKeys('o');
@@ -1079,6 +1093,15 @@ testVim('o', function(cm, vim, helpers) {
   helpers.assertCursorAt(1, 0);
   eq('vim-insert', cm.getOption('keyMap'));
 }, { value: 'word1\nword2' });
+testVim('o_repeat', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('3', 'o');
+  cm.replaceRange('test', cm.getCursor());
+  cm.setCursor(1, 3)
+  helpers.doInsertModeKeys('Esc');
+  eq('\ntest\ntest\ntest', cm.getValue());
+  helpers.assertCursorAt(3, 3);
+}, { value: '' });
 testVim('O', function(cm, vim, helpers) {
   cm.setCursor(0, 4);
   helpers.doKeys('O');
@@ -1584,8 +1607,7 @@ testVim('._repeat', function(cm, vim, helpers) {
 testVim('._insert', function(cm, vim, helpers) {
   helpers.doKeys('i');
   cm.replaceRange('test', cm.getCursor());
-  helpers.doKeys('<Esc>');
-  cm.setCursor(0, 3);
+  helpers.doInsertModeKeys('Esc');
   helpers.doKeys('.');
   eq('testestt', cm.getValue());
   helpers.assertCursorAt(0, 6);
@@ -1593,20 +1615,38 @@ testVim('._insert', function(cm, vim, helpers) {
 testVim('._insert_repeat', function(cm, vim, helpers) {
   helpers.doKeys('i');
   cm.replaceRange('test', cm.getCursor());
-  helpers.doKeys('<Esc>');
-  cm.setCursor(0, 3);
+  cm.setCursor(0, 4);
+  helpers.doInsertModeKeys('Esc');
   helpers.doKeys('2', '.');
   eq('testesttestt', cm.getValue());
+  helpers.assertCursorAt(0, 10);
+}, { value: ''});
+testVim('._repeat_insert', function(cm, vim, helpers) {
+  helpers.doKeys('3', 'i');
+  cm.replaceRange('te', cm.getCursor());
+  cm.setCursor(0, 2);
+  helpers.doInsertModeKeys('Esc');
+  helpers.doKeys('.');
+  eq('tetettetetee', cm.getValue());
   helpers.assertCursorAt(0, 10);
 }, { value: ''});
 testVim('._insert_o', function(cm, vim, helpers) {
   helpers.doKeys('o');
   cm.replaceRange('z', cm.getCursor());
+  cm.setCursor(1, 1);
   helpers.doInsertModeKeys('Esc');
-  cm.setCursor(1, 0);
   helpers.doKeys('.');
   eq('\nz\nz', cm.getValue());
   helpers.assertCursorAt(2, 0);
+}, { value: ''});
+testVim('._insert_o_repeat', function(cm, vim, helpers) {
+  helpers.doKeys('o');
+  cm.replaceRange('z', cm.getCursor());
+  helpers.doInsertModeKeys('Esc');
+  cm.setCursor(1, 0);
+  helpers.doKeys('2', '.');
+  eq('\nz\nz\nz', cm.getValue());
+  helpers.assertCursorAt(3, 0);
 }, { value: ''});
 testVim('._insert_o_indent', function(cm, vim, helpers) {
   helpers.doKeys('o');
@@ -1616,7 +1656,7 @@ testVim('._insert_o_indent', function(cm, vim, helpers) {
   helpers.doKeys('.');
   eq('{\n  z\n  z', cm.getValue());
   helpers.assertCursorAt(2, 2);
-}, { value: '{', mode: 'text/css'});
+}, { value: '{'});
 testVim('._insert_cw', function(cm, vim, helpers) {
   helpers.doKeys('c', 'w');
   cm.replaceRange('test', cm.getCursor());
@@ -1628,8 +1668,8 @@ testVim('._insert_cw', function(cm, vim, helpers) {
   helpers.assertCursorAt(0, 8);
 }, { value: 'word1 word2 word3' });
 testVim('._insert_cw_repeat', function(cm, vim, helpers) {
-  // For some reason, repeating cw in desktop VIM will does not repeat insert.
-  // Will conform to that behavior.
+  // For some reason, repeat cw in desktop VIM will does not repeat insert mode
+  // changes. Will conform to that behavior.
   helpers.doKeys('c', 'w');
   cm.replaceRange('test', cm.getCursor());
   helpers.doInsertModeKeys('Esc');
