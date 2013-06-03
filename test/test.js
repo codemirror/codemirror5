@@ -450,6 +450,13 @@ testCM("markClearBetween", function(cm) {
   eq(cm.findMarksAt(Pos(1, 1)).length, 0);
 });
 
+testCM("deleteSpanCollapsedInclusiveLeft", function(cm) {
+  var from = Pos(1, 0), to = Pos(1, 1);
+  var m = cm.markText(from, to, {collapsed: true, inclusiveLeft: true});
+  // Delete collapsed span.
+  cm.replaceRange("", from, to);
+}, {value: "abc\nX\ndef"});
+
 testCM("bookmark", function(cm) {
   function p(v) { return v && Pos(v[0], v[1]); }
   forEach([{a: [1, 0], b: [1, 1], c: "", d: [1, 4]},
