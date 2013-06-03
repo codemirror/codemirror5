@@ -205,7 +205,6 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
 }
 
 .CodeMirror-widget {
-  display: inline-block;
 }
 
 .CodeMirror-wrap .CodeMirror-scroll {
