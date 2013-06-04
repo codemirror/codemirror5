@@ -787,9 +787,9 @@ testCM("badNestedFold", function(cm) {
 });
 
 testCM("wrappingInlineWidget", function(cm) {
-  cm.setSize("10em");
+  cm.setSize("11em");
   var w = document.createElement("span");
-  w.style.background = "yellow";
+  w.style.color = "red";
   w.innerHTML = "one two three four";
   cm.markText(Pos(0, 6), Pos(0, 9), {replacedWith: w});
   var cur0 = cm.cursorCoords(Pos(0, 0)), cur1 = cm.cursorCoords(Pos(0, 10));
@@ -800,7 +800,11 @@ testCM("wrappingInlineWidget", function(cm) {
   eq(curL.bottom, cur0.bottom);
   eq(curR.top, cur1.top);
   eq(curR.bottom, cur1.bottom);
-}, {value: "1 2 3 xxx 4 5 6", lineWrapping: true});
+  cm.replaceRange("", Pos(0, 9), Pos(0));
+  curR = cm.cursorCoords(Pos(0, 9));
+  eq(curR.top, cur1.top);
+  eq(curR.bottom, cur1.bottom);
+}, {value: "1 2 3 xxx 4", lineWrapping: true});
 
 testCM("inlineWidget", function(cm) {
   var w = cm.setBookmark(Pos(0, 2), {widget: document.createTextNode("uu")});
