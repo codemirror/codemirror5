@@ -5,7 +5,8 @@
   var Pos = CodeMirror.Pos;
   function posEq(a, b) { return a.line == b.line && a.ch == b.ch; }
 
-  // Really primitive kill-ring implementation.
+  // Kill 'ring'
+
   var killRing = [];
   function addToRing(str) {
     killRing.push(str);
@@ -32,6 +33,25 @@
     if (mayGrow) lastKill = {cm: cm, pos: from, gen: cm.changeGeneration()};
     else lastKill = null;
   }
+
+  // Boundaries of various units
+
+  function paragraphEnd(cm, dir) {
+    var pos = cm.getCursor(), no = pos.line, line = cm.getLine(no);
+    var sawText = /\S/.test(dir < 0 ? line.slice(0, pos.ch) : line.slice(pos.ch));
+    var fst = cm.firstLine(), lst = cm.lastLine();
+    for (;;) {
+      no += dir;
+      if (no < fst || no > lst)
+        return cm.clipPos(Pos(no - dir, dir < 0 ? 0 : null));
+      line = cm.getLine(no);
+      var hasText = /\S/.test(line);
+      if (hasText) sawText = true;
+      else if (sawText) return Pos(no, 0);
+    }
+  }
+
+  // Actual keymap
 
   CodeMirror.keyMap.emacs = {
     "Ctrl-X": function(cm) {cm.setOption("keyMap", "emacs-Ctrl-X");},
@@ -60,6 +80,9 @@
       cm.setExtending(true);
       cm.on("change", function() { cm.setExtending(false); });
     },
+
+    "Ctrl-Up": function(cm) { cm.extendSelection(paragraphEnd(cm, -1)); },
+    "Ctrl-Down": function(cm) { cm.extendSelection(paragraphEnd(cm, 1)); },
 
     "Ctrl-/": "undo", "Shift-Ctrl--": "undo", "Shift-Alt-,": "goDocStart", "Shift-Alt-.": "goDocEnd",
     "Ctrl-S": "findNext", "Ctrl-R": "findPrev", "Ctrl-G": "clearSearch", "Shift-Alt-5": "replace",

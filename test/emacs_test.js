@@ -27,9 +27,8 @@
     };
   }
 
-  function sim(name, start /*, keys..., result */) {
-    var keys = Array.prototype.slice.call(arguments, 2, arguments.length - 1);
-    var result = arguments[arguments.length - 1];
+  function sim(name, start /*, actions... */) {
+    var keys = Array.prototype.slice.call(arguments, 2);
     testCM(name, function(cm) {
       for (var i = 0; i < keys.length; ++i) {
         var cur = keys[i];
@@ -37,30 +36,36 @@
         else if (cur.call) cur(cm);
         else cm.triggerOnKeyDown(fakeEvent(cur));
       }
-      if (result instanceof Pos) eqPos(cm.getCursor(), result);
-      else eq(cm.getValue(), result);
     }, {keyMap: "emacs", value: start});
   }
 
-  sim("motionHSimple", "abc", "Ctrl-F", "Ctrl-F", "Ctrl-B", Pos(0, 1));
-  sim("motionVSimple", "a\nb\nc\n", "Ctrl-N", "Ctrl-N", "Ctrl-P", Pos(1, 0));
+  function at(line, ch) { return function(cm) { eqPos(cm.getCursor(), Pos(line, ch)); }; }
+  function txt(str) { return function(cm) { eq(cm.getValue(), str); }; }
+
+  sim("motionHSimple", "abc", "Ctrl-F", "Ctrl-F", "Ctrl-B", at(0, 1));
+  sim("motionVSimple", "a\nb\nc\n", "Ctrl-N", "Ctrl-N", "Ctrl-P", at(1, 0));
 
   sim("killYank", "abc\ndef\nghi",
       "Ctrl-F", "Ctrl-Space", "Ctrl-N", "Ctrl-N", "Ctrl-W", "Ctrl-E", "Ctrl-Y",
-      "ahibc\ndef\ng");
+      txt("ahibc\ndef\ng"));
   sim("killRing", "abcdef",
       "Ctrl-Space", "Ctrl-F", "Ctrl-W", "Ctrl-Space", "Ctrl-F", "Ctrl-W",
       "Ctrl-Y", "Alt-Y",
-      "acdef");
+      txt("acdef"));
   sim("copyYank", "abcd",
       "Ctrl-Space", "Ctrl-E", "Alt-W", "Ctrl-Y",
-      "abcdabcd");
+      txt("abcdabcd"));
 
-  sim("killLineSimple", "foo\nbar", "Ctrl-F", "Ctrl-K", "f\nbar");
-  sim("killLineEmptyLine", "foo\n  \nbar", "Ctrl-N", "Ctrl-K", "foo\nbar");
+  sim("killLineSimple", "foo\nbar", "Ctrl-F", "Ctrl-K", txt("f\nbar"));
+  sim("killLineEmptyLine", "foo\n  \nbar", "Ctrl-N", "Ctrl-K", txt("foo\nbar"));
   sim("killLineMulti", "foo\nbar\nbaz",
       "Ctrl-F", "Ctrl-F", "Ctrl-K", "Ctrl-K", "Ctrl-K", "Ctrl-A", "Ctrl-Y",
-      "o\nbarfo\nbaz");
+      txt("o\nbarfo\nbaz"));
+
+  sim("moveByParagraph", "abc\ndef\n\n\nhij\nklm\n\n",
+      "Ctrl-F", "Ctrl-Down", at(2, 0), "Ctrl-Down", at(6, 0),
+      "Ctrl-N", "Ctrl-Up", at(3, 0), "Ctrl-Up", at(0, 0),
+      Pos(1, 2), "Ctrl-Down", at(2, 0), Pos(4, 2), "Ctrl-Up", at(3, 0));
 
   testCM("save", function(cm) {
     var saved = false;
