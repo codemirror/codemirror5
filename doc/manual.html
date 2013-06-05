@@ -1804,7 +1804,15 @@
       <dt id="addon_match-highlighter"><a href="../addon/search/match-highlighter.js"><code>match-highlighter.js</code></a></dt>
       <dd>Adds a <code>highlightSelectionMatches</code> option that
       can be enabled to highlight all instances of a currently
-      selected word.
+      selected word. Can be set either to true or to an object
+      containing the following options: <code>minChars</code>, for the
+      minimum amount of selected characters that triggers a highlight
+      (default 2), <code>style</code>, for the style to be used to
+      highlight the matches (default <code>"matchhighlight"</code>,
+      which will correspond to CSS class <code>cm-matchhighlight),
+      and <code>showToken</code> which, when enabled, causes the
+      current token to be highlighted when nothing is selected
+      (defaults to off).
       Demo <a href="../demo/matchhighlighter.html">here</a>.</dd>
 
       <dt id="addon_lint"><a href="../addon/lint/lint.js"><code>lint/lint.js</code></a></dt>
