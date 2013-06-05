@@ -821,11 +821,21 @@
       <dd>Set the editor content as 'clean', a flag that it will
       retain until it is edited, and which will be set again when such
       an edit is undone again. Useful to track whether the content
-      needs to be saved.</dd>
-      <dt id="isClean"><code><strong>doc.isClean</strong>() → boolean</code></dt>
-      <dd>Returns whether the document is currently clean (not
+      needs to be saved. This function is deprecated in favor
+      of <a href="#changeGeneration"><code>changeGeneration</code></a>,
+      which allows multiple subsystems to track different notions of
+      cleanness without interfering.</dd>
+      <dt id="changeGeneration"><code><strong>doc.changeGeneration</strong>() → integer</code></dt>
+      <dd>Returns a number that can later be passed
+      to <a href="#isClean"><code>isClean</code></a> to test whether
+      any edits were made (and not undone) in the meantime.</dd>
+      <dt id="isClean"><code><strong>doc.isClean</strong>(?generation: integer) → boolean</code></dt>
+      <dd>Returns whether the document is currently clean — not
       modified since initialization or the last call
-      to <a href="#markClean"><code>markClean</code></a>).</dd>
+      to <a href="#markClean"><code>markClean</code></a> if no
+      argument is passed, or since the matching call
+      to <a href="#changeGeneration"><code>changeGeneration</code></a>
+      if a generation value is given.</dd>
     </dl>
 
     <h3 id="api_selection">Cursor and selection methods</h3>
