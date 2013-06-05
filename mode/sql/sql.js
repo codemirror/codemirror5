@@ -55,7 +55,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
         return "number";
       }
       // .table_name (ODBC)
-      if (stream.match(/^[a-zA-Z_]+/) && support.ODBCdotTable == true) {
+      if (support.ODBCdotTable == true && stream.match(/^[a-zA-Z_]+/)) {
         return "variable-2";
       }
     } else if (operatorChars.test(ch)) {
