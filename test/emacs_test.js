@@ -36,7 +36,7 @@
         else if (cur.call) cur(cm);
         else cm.triggerOnKeyDown(fakeEvent(cur));
       }
-    }, {keyMap: "emacs", value: start});
+    }, {keyMap: "emacs", value: start, mode: "javascript"});
   }
 
   function at(line, ch) { return function(cm) { eqPos(cm.getCursor(), Pos(line, ch)); }; }
@@ -66,6 +66,16 @@
       "Ctrl-F", "Ctrl-Down", at(2, 0), "Ctrl-Down", at(6, 0),
       "Ctrl-N", "Ctrl-Up", at(3, 0), "Ctrl-Up", at(0, 0),
       Pos(1, 2), "Ctrl-Down", at(2, 0), Pos(4, 2), "Ctrl-Up", at(3, 0));
+
+  sim("moveBySentence", "sentence one! sentence\ntwo\n\nparagraph two",
+      "Alt-E", at(0, 13), "Alt-E", at(1, 3), "Ctrl-F", "Alt-A", at(0, 13));
+
+  sim("moveByExpr", "function foo(a, b) {}",
+      "Ctrl-Alt-F", at(0, 8), "Ctrl-Alt-F", at(0, 12), "Ctrl-Alt-F", at(0, 18),
+      "Ctrl-Alt-B", at(0, 12), "Ctrl-Alt-B", at(0, 9));
+  sim("delExpr", "var x = [\n  a,\n  b\n  c\n];",
+      Pos(0, 8), "Ctrl-Alt-K", txt("var x = ;"), "Ctrl-/",
+      Pos(4, 1), "Ctrl-Alt-Backspace", txt("var x = ;"));
 
   testCM("save", function(cm) {
     var saved = false;
