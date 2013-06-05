@@ -629,8 +629,11 @@
     <p>When a keymap contains a <code>nofallthrough</code> property
     set to <code>true</code>, keys matched against that map will be
     ignored if they don't match any of the bindings in the map (no
-    further child maps will be tried, and the default effect of
-    inserting a character will not occur).</p>
+    further child maps will be tried). When
+    the <code>disableInput</code> property is set
+    to <code>true</code>, the default effect of inserting a character
+    will be suppressed when the keymap is active as the top-level
+    map.</p>
 
     <h2 id="styling">Customized Styling</h2>
 
