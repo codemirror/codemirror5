@@ -1,4 +1,3 @@
-// TODO number prefixes
 (function() {
   "use strict";
 
@@ -215,6 +214,26 @@
     cm.setCursor(end);
   }
 
+  function toEnclosingExpr(cm) {
+    var pos = cm.getCursor(), line = pos.line, ch = pos.ch;
+    var stack = [];
+    while (line >= cm.firstLine()) {
+      var text = cm.getLine(line);
+      for (var i = ch == null ? text.length : ch; i > 0;) {
+        var ch = text.charAt(--i);
+        if (ch == ")")
+          stack.push("(");
+        else if (ch == "]")
+          stack.push("[");
+        else if (ch == "}")
+          stack.push("{");
+        else if (/[\(\{\[]/.test(ch) && (!stack.length || stack.pop() != ch))
+          return cm.extendSelection(Pos(line, i));
+      }
+      --line; ch = null;
+    }
+  }
+
   // Actual keymap
 
   var keyMap = CodeMirror.keyMap.emacs = {
@@ -268,6 +287,17 @@
     "Ctrl-Alt-Backspace": function(cm) { killTo(cm, byExpr, -1); },
     "Ctrl-Alt-F": move(byExpr, 1), "Ctrl-Alt-B": move(byExpr, -1),
 
+    "Shift-Ctrl-Alt-2": function(cm) {
+      cm.setSelection(findEnd(cm, byExpr, 1), cm.getCursor());
+    },
+    "Ctrl-Alt-T": function(cm) {
+      var leftStart = byExpr(cm, cm.getCursor(), -1), leftEnd = byExpr(cm, leftStart, 1);
+      var rightEnd = byExpr(cm, leftEnd, 1), rightStart = byExpr(cm, rightEnd, -1);
+      cm.replaceRange(cm.getRange(rightStart, rightEnd) + cm.getRange(leftEnd, rightStart) +
+                      cm.getRange(leftStart, leftEnd), leftStart, rightEnd);
+    },
+    "Ctrl-Alt-U": repeated(toEnclosingExpr),
+
     "Alt-Space": function(cm) {
       var pos = cm.getCursor(), from = pos.ch, to = pos.ch, text = cm.getLine(pos.line);
       while (from && /\s/.test(text.charAt(from - 1))) --from;
@@ -317,6 +347,9 @@
   CodeMirror.keyMap["emacs-Ctrl-X"] = {
     "Tab": function(cm) {
       cm.indentSelection(getPrefix(cm, true) || cm.getOption("indentUnit"));
+    },
+    "Ctrl-X": function(cm) {
+      cm.setSelection(cm.getCursor("head"), cm.getCursor("anchor"));
     },
 
     "Ctrl-S": "save", "Ctrl-W": "save", "S": "saveAll", "F": "open", "U": repeated("undo"), "K": "close",

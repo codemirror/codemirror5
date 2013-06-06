@@ -120,6 +120,11 @@
       "Ctrl-2", "Alt-U", txt("FOO BAR bAz"),
       "Ctrl-A", "Ctrl-3", "Alt-C", txt("Foo Bar Baz"));
 
+  sim("upExpr", "foo {\n  bar[];\n  baz(blah);\n}",
+      Pos(2, 7), "Ctrl-Alt-U", at(2, 5), "Ctrl-Alt-U", at(0, 4));
+  sim("transposeExpr", "do foo[bar] dah",
+      Pos(0, 6), "Ctrl-Alt-T", txt("do [bar]foo dah"));
+
   testCM("save", function(cm) {
     var saved = false;
     CodeMirror.commands.save = function(cm) { saved = cm.getValue(); };
