@@ -36,6 +36,22 @@
 
   // Boundaries of various units
 
+  function byChar(cm, pos, dir) {
+    return cm.findPosH(pos, dir, "char", true);
+  }
+
+  function byWord(cm, pos, dir) {
+    return cm.findPosH(pos, dir, "word", true);
+  }
+
+  function byLine(cm, pos, dir) {
+    return cm.findPosV(pos, dir, "line", cm.doc.sel.goalColumn);
+  }
+
+  function byPage(cm, pos, dir) {
+    return cm.findPosV(pos, dir, "page", cm.doc.sel.goalColumn);
+  }
+
   function byParagraph(cm, pos, dir) {
     var no = pos.line, line = cm.getLine(no);
     var sawText = /\S/.test(dir < 0 ? line.slice(0, pos.ch) : line.slice(pos.ch));
@@ -118,8 +134,12 @@
     return pos;
   }
 
-  function move(cm, by, dir) {
-    cm.extendSelection(findEnd(cm, by, dir));
+  function move(by, dir) {
+    var f = function(cm) {
+      cm.extendSelection(findEnd(cm, by, dir));
+    };
+    f.motion = true;
+    return f;
   }
 
   function killTo(cm, by, dir) {
@@ -220,17 +240,33 @@
 
     "Ctrl-Space": setMark, "Ctrl-Shift-2": setMark,
 
-    "Ctrl-Up": function(cm) { move(cm, byParagraph, -1); },
-    "Ctrl-Down": function(cm) { move(cm, byParagraph, 1); },
+    "Ctrl-F": move(byChar, 1), "Ctrl-B": move(byChar, -1),
+    "Right": move(byChar, 1), "Left": move(byChar, -1),
+    "Ctrl-D": function(cm) { killTo(cm, byChar, 1); },
+    "Delete": function(cm) { killTo(cm, byChar, 1); },
+    "Ctrl-H": function(cm) { killTo(cm, byChar, -1); },
+    "Backspace": function(cm) { killTo(cm, byChar, -1); },
 
-    "Alt-A": function(cm) { move(cm, bySentence, -1); },
-    "Alt-E": function(cm) { move(cm, bySentence, 1); },
+    "Alt-F": move(byWord, 1), "Alt-B": move(byWord, -1),
+    "Alt-D": function(cm) { killTo(cm, byWord, 1); },
+    "Alt-Backspace": function(cm) { killTo(cm, byWord, -1); },
+
+    "Ctrl-N": move(byLine, 1), "Ctrl-P": move(byLine, -1),
+    "Down": move(byLine, 1), "Up": move(byLine, -1),
+    "Ctrl-A": "goLineStart", "Ctrl-E": "goLineEnd",
+    "End": "goLineEnd", "Home": "goLineStart",
+
+    "Alt-V": move(byPage, -1), "Ctrl-V": move(byPage, 1),
+    "PageUp": move(byPage, -1), "PageDown": move(byPage, 1),
+
+    "Ctrl-Up": move(byParagraph, -1), "Ctrl-Down": move(byParagraph, 1),
+
+    "Alt-A": move(bySentence, -1), "Alt-E": move(bySentence, 1),
     "Alt-K": function(cm) { killTo(cm, bySentence, 1); },
 
     "Ctrl-Alt-K": function(cm) { killTo(cm, byExpr, 1); },
     "Ctrl-Alt-Backspace": function(cm) { killTo(cm, byExpr, -1); },
-    "Ctrl-Alt-F": function(cm) { move(cm, byExpr, 1); },
-    "Ctrl-Alt-B": function(cm) { move(cm, byExpr, -1); },
+    "Ctrl-Alt-F": move(byExpr, 1), "Ctrl-Alt-B": move(byExpr, -1),
 
     "Alt-Space": function(cm) {
       var pos = cm.getCursor(), from = pos.ch, to = pos.ch, text = cm.getLine(pos.line);
@@ -269,15 +305,13 @@
     "Ctrl-Z": repeated("undo"), "Cmd-Z": repeated("undo"),
     "Shift-Alt-,": "goDocStart", "Shift-Alt-.": "goDocEnd",
     "Ctrl-S": "findNext", "Ctrl-R": "findPrev", "Ctrl-G": "clearSearch", "Shift-Alt-5": "replace",
-    "Alt-/": "autocomplete", "Alt-V": "goPageUp",
+    "Alt-/": "autocomplete",
     "Ctrl-J": "newlineAndIndent", "Enter": false, "Tab": "indentAuto",
 
     "Alt-G": function(cm) {cm.setOption("keyMap", "emacs-Alt-G");},
     "Ctrl-X": function(cm) {cm.setOption("keyMap", "emacs-Ctrl-X");},
     "Ctrl-Q": function(cm) {cm.setOption("keyMap", "emacs-Ctrl-Q");},
-    "Ctrl-U": addPrefixMap,
-
-    fallthrough: ["basic", "emacsy"]
+    "Ctrl-U": addPrefixMap
   };
 
   CodeMirror.keyMap["emacs-Ctrl-X"] = {

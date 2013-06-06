@@ -43,7 +43,21 @@
   function txt(str) { return function(cm) { eq(cm.getValue(), str); }; }
 
   sim("motionHSimple", "abc", "Ctrl-F", "Ctrl-F", "Ctrl-B", at(0, 1));
+  sim("motionHMulti", "abcde",
+      "Ctrl-4", "Ctrl-F", at(0, 4), "Ctrl--", "Ctrl-2", "Ctrl-F", at(0, 2),
+      "Ctrl-5", "Ctrl-B", at(0, 0));
+
+  sim("motionHWord", "abc. def ghi",
+      "Alt-F", at(0, 3), "Alt-F", at(0, 8),
+      "Ctrl-B", "Alt-B", at(0, 5), "Alt-B", at(0, 0));
+  sim("motionHWordMulti", "abc. def ghi ",
+      "Ctrl-3", "Alt-F", at(0, 12), "Ctrl-2", "Alt-B", at(0, 5),
+      "Ctrl--", "Alt-B", at(0, 8));
+
   sim("motionVSimple", "a\nb\nc\n", "Ctrl-N", "Ctrl-N", "Ctrl-P", at(1, 0));
+  sim("motionVMulti", "a\nb\nc\nd\ne\n",
+      "Ctrl-2", "Ctrl-N", at(2, 0), "Ctrl-F", "Ctrl--", "Ctrl-N", at(1, 1),
+      "Ctrl--", "Ctrl-3", "Ctrl-P", at(4, 1));
 
   sim("killYank", "abc\ndef\nghi",
       "Ctrl-F", "Ctrl-Space", "Ctrl-N", "Ctrl-N", "Ctrl-W", "Ctrl-E", "Ctrl-Y",
