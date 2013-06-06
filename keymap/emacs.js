@@ -131,6 +131,8 @@
     "Ctrl-Alt-F": function(cm) { cm.extendSelection(exprEnd(cm, 1)); },
     "Ctrl-Alt-B": function(cm) { cm.extendSelection(exprEnd(cm, -1)); },
 
+    "Alt-;": "toggleComment",
+
     "Ctrl-/": "undo", "Shift-Ctrl--": "undo", "Shift-Alt-,": "goDocStart", "Shift-Alt-.": "goDocEnd",
     "Ctrl-S": "findNext", "Ctrl-R": "findPrev", "Ctrl-G": "clearSearch", "Shift-Alt-5": "replace",
     "Ctrl-Z": "undo", "Cmd-Z": "undo", "Alt-/": "autocomplete", "Alt-V": "goPageUp",
