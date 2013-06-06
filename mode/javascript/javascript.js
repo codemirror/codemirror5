@@ -227,7 +227,10 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   function pushlex(type, info) {
     var result = function() {
       var state = cx.state;
-      state.lexical = new JSLexical(state.indented, cx.stream.column(), type, null, state.lexical, info);
+      var indent = state.indented;
+      if (parserConfig.statementIndent != null && state.lexical.type == "stat")
+        indent = state.lexical.indented;
+      state.lexical = new JSLexical(indent, cx.stream.column(), type, null, state.lexical, info);
     };
     result.lex = true;
     return result;
@@ -442,6 +445,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       if (lexical.type == "stat" && firstChar == "}") lexical = lexical.prev;
       var type = lexical.type, closing = firstChar == type;
       if (parserConfig.statementIndent != null) {
+        if (type == "stat") return lexical.indented + (state.lastType == "operator" || state.lastType == "," ? parserConfig.statementIndent : 0);
         if (type == ")" && lexical.prev && lexical.prev.type == "stat") lexical = lexical.prev;
         if (lexical.type == "stat") return lexical.indented + parserConfig.statementIndent;
       }
