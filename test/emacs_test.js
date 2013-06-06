@@ -66,6 +66,9 @@
       "Ctrl-F", "Ctrl-Down", at(2, 0), "Ctrl-Down", at(6, 0),
       "Ctrl-N", "Ctrl-Up", at(3, 0), "Ctrl-Up", at(0, 0),
       Pos(1, 2), "Ctrl-Down", at(2, 0), Pos(4, 2), "Ctrl-Up", at(3, 0));
+  sim("moveByParagraphMulti", "abc\n\ndef\n\nhij\n\nklm",
+      "Ctrl-U", "2", "Ctrl-Down", at(3, 0),
+      "Shift-Alt-.", "Ctrl-3", "Ctrl-Up", at(1, 0));
 
   sim("moveBySentence", "sentence one! sentence\ntwo\n\nparagraph two",
       "Alt-E", at(0, 13), "Alt-E", at(1, 3), "Ctrl-F", "Alt-A", at(0, 13));
@@ -73,9 +76,16 @@
   sim("moveByExpr", "function foo(a, b) {}",
       "Ctrl-Alt-F", at(0, 8), "Ctrl-Alt-F", at(0, 12), "Ctrl-Alt-F", at(0, 18),
       "Ctrl-Alt-B", at(0, 12), "Ctrl-Alt-B", at(0, 9));
+  sim("moveByExprMulti", "foo bar baz bug",
+      "Ctrl-2", "Ctrl-Alt-F", at(0, 7),
+      "Ctrl--", "Ctrl-Alt-F", at(0, 4),
+      "Ctrl--", "Ctrl-2", "Ctrl-Alt-B", at(0, 11));
   sim("delExpr", "var x = [\n  a,\n  b\n  c\n];",
       Pos(0, 8), "Ctrl-Alt-K", txt("var x = ;"), "Ctrl-/",
       Pos(4, 1), "Ctrl-Alt-Backspace", txt("var x = ;"));
+  sim("delExprMulti", "foo bar baz",
+      "Ctrl-2", "Ctrl-Alt-K", txt(" baz"),
+      "Ctrl-/", "Ctrl-E", "Ctrl-2", "Ctrl-Alt-Backspace", txt("foo "));
 
   sim("justOneSpace", "hi      bye  ",
       Pos(0, 4), "Alt-Space", txt("hi bye  "),
@@ -92,6 +102,9 @@
   sim("manipWordCase", "foo BAR bAZ",
       "Alt-C", "Alt-L", "Alt-U", txt("Foo bar BAZ"),
       "Ctrl-A", "Alt-U", "Alt-L", "Alt-C", txt("FOO bar Baz"));
+  sim("manipWordCaseMulti", "foo Bar bAz",
+      "Ctrl-2", "Alt-U", txt("FOO BAR bAz"),
+      "Ctrl-A", "Ctrl-3", "Alt-C", txt("Foo Bar Baz"));
 
   testCM("save", function(cm) {
     var saved = false;
