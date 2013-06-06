@@ -4,7 +4,7 @@ CodeMirror.tagRangeFinder = (function() {
   var xmlTagStart = new RegExp("<(/?)([" + nameStartChar + "][" + nameChar + "]*)", "g");
 
   return function(cm, start) {
-    var line = start.line, ch = start.ch, lineText = cm.getLine(line);
+    var line = start.line, ch = 0, lineText = cm.getLine(line);
 
     function nextLine() {
       if (line >= cm.lastLine()) return;
