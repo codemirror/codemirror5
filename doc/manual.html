@@ -1764,9 +1764,16 @@
         start of the word (true, default), or with the cursor (false).</dd>
         <dt><code><strong>customKeys</strong>: keymap</code></dt>
         <dd>Allows you to provide a custom keymap of keys to be active
-        when the pop-up is active. To bind a key to a behavior that is
-        already present in the default keymap, bind it to the name of
-        the key in the default keymap (for example <code>"Up"</code>).</dd>
+        when the pop-up is active. The handlers will be called with an
+        extra argument, a handle to the completion menu, which
+        has <code>moveFocus(n)</code>, <code>setFocus(n)</code>, <code>pick()</code>,
+        and <code>close()</code> methods (see the source for details),
+        that can be used to change the focused element, pick the
+        current element or close the menu.</dd>
+        <dt><code><strong>extraKeys</strong>: keymap</code></dt>
+        <dd>Like <code>customKeys</code> above, but the bindings will
+        be added to the set of default bindings, instead of replacing
+        them.</dd>
       </dl>
       The following events will be fired on the completions object
       during completion:

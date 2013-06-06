@@ -23,6 +23,39 @@ CodeMirror.showHint = function(cm, getHints, options) {
     else cm.replaceRange(getText(completion), data.from, data.to);
   }
 
+  function buildKeyMap(options, handle) {
+    var baseMap = {
+      Up: function() {handle.moveFocus(-1);},
+      Down: function() {handle.moveFocus(1);},
+      PageUp: function() {handle.moveFocus(-handle.menuSize());},
+      PageDown: function() {handle.moveFocus(handle.menuSize());},
+      Home: function() {handle.setFocus(0);},
+      End: function() {handle.setFocus(handle.length);},
+      Enter: handle.pick,
+      Tab: handle.pick,
+      Esc: handle.close
+    };
+    var ourMap = options.customKeys ? {} : baseMap;
+    function addBinding(key, val) {
+      var bound;
+      if (typeof val != "string")
+        bound = function(cm) { return val(cm, handle); };
+      // This mechanism is deprecated
+      else if (baseMap.hasOwnProperty(val))
+        bound = baseMap[val];
+      else
+        bound = val;
+      ourMap[key] = bound;
+    }
+    if (options.customKeys)
+      for (var key in options.customKeys) if (options.customKeys.hasOwnProperty(key))
+        addBinding(key, options.customKeys[key]);
+    if (options.extraKeys)
+      for (var key in options.extraKeys) if (options.extraKeys.hasOwnProperty(key))
+        addBinding(key, options.extraKeys[key]);
+    return ourMap;
+  }
+
   function showHints(data) {
     if (!data || !data.list.length) {
       if (continued) {
@@ -99,28 +132,17 @@ CodeMirror.showHint = function(cm, getHints, options) {
       return Math.floor(hints.clientHeight / hints.firstChild.offsetHeight) || 1;
     }
 
-    var ourMap, baseMap = {
-      Up: function() {changeActive(selectedHint - 1);},
-      Down: function() {changeActive(selectedHint + 1);},
-      PageUp: function() {changeActive(selectedHint - screenAmount());},
-      PageDown: function() {changeActive(selectedHint + screenAmount());},
-      Home: function() {changeActive(0);},
-      End: function() {changeActive(completions.length - 1);},
-      Enter: pick,
-      Tab: pick,
-      Esc: close
-    };
-    if (options.customKeys) {
-      ourMap = {};
-      for (var key in options.customKeys) if (options.customKeys.hasOwnProperty(key)) {
-        var val = options.customKeys[key];
-        if (baseMap.hasOwnProperty(val)) val = baseMap[val];
-        ourMap[key] = val;
-      }
-    } else ourMap = baseMap;
+    var keyMap = buildKeyMap(options, {
+      moveFocus: function(n) { changeActive(selectedHint + n); },
+      setFocus: function(n) { changeActive(n); },
+      menuSize: function() { return screenAmount(); },
+      length: completions.length,
+      close: close,
+      pick: pick
+    });
 
     cm.state.completionActive = true;
-    cm.addKeyMap(ourMap);
+    cm.addKeyMap(keyMap);
     cm.on("cursorActivity", cursorActivity);
     var closingOnBlur;
     function onBlur(){ closingOnBlur = setTimeout(close, 100); };
@@ -155,7 +177,7 @@ CodeMirror.showHint = function(cm, getHints, options) {
       done = true;
       clearTimeout(once);
       hints.parentNode.removeChild(hints);
-      cm.removeKeyMap(ourMap);
+      cm.removeKeyMap(keyMap);
       cm.off("cursorActivity", cursorActivity);
       cm.off("blur", onBlur);
       cm.off("focus", onFocus);
