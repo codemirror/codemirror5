@@ -1404,7 +1404,7 @@
       lot faster. The return value from this method will be the return
       value of your function.</dd>
 
-      <dt id="indentLine"><code><strong>cm.indentLine</strong>(line: integer, ?dir: string)</code></dt>
+      <dt id="indentLine"><code><strong>cm.indentLine</strong>(line: integer, ?dir: string|integer)</code></dt>
       <dd>Adjust the indentation of the given line. The second
       argument (which defaults to <code>"smart"</code>) may be one of:
         <dl>
@@ -1418,6 +1418,9 @@
           one <a href="#option_indentUnit">indent unit</a>.</dd>
           <dt><code><strong>"subtract"</strong></code></dt>
           <dd>Reduce the indentation of the line.</dd>
+          <dt><code><strong>&lt;integer></strong></code></dt>
+          <dd>Add (positive number) or reduce (negative number) the
+          indentation by the given amount of spaces.</dd>
         </dl></dd>
 
       <dt id="toggleOverwrite"><code><strong>cm.toggleOverwrite</strong>(?value: bool)</code></dt>
@@ -1519,6 +1522,10 @@
       its only argument, and from then on, that function will be called
       (with the instance as argument) whenever a new CodeMirror instance
       is initialized.</dd>
+
+      <dt id="Pos"><code><strong>Pos</strong>(line: integer, ?ch: integer)</code></dt>
+      <dd>A constructor for the <code>{line, ch}</code> objects that
+      are used to represent positions in editor documents.</dd>
     </dl>
 
     <h2 id="addons">Add-ons</h2>
@@ -1647,22 +1654,26 @@
       fails, line-comments it.</dd>
 
       <dt id="addon_foldcode"><a href="../addon/fold/foldcode.js"><code>fold/foldcode.js</code></a></dt>
-      <dd>Helps with code folding.
-      See <a href="../demo/folding.html">the demo</a> for an example.
-      Call <code>CodeMirror.newFoldFunction</code> with a range-finder
-      helper function to create a function that will, when applied to
-      a CodeMirror instance and a line number, attempt to fold or
-      unfold the block starting at the given line. A range-finder is a
-      language-specific function that also takes an instance and a
-      line number, and returns an range to be folded, or null if no
-      block is started on that line. There are files in
+      <dd>Helps with code folding. Add a <code>foldCode</code> method
+      to editor instances, which takes as first argument the position
+      that should be folded (may be a line number or
+      a <a href="#Pos"><code>Pos</code></a>), and as second argument
+      either a range-finder function, or an <code>{rangeFinder,
+      widget}</code> options object, where <code>widget</code> may
+      hold either a string or a DOM node. When called, the method will
+      try to do a code fold starting at the given line, or unfold the
+      fold that is already present. A range-finder function is a
+      language-specific function that takes an instance and a
+      position, and returns a range to be folded, if it finds one.
+      There are files in
       the <a href="../addon/fold/"><code>addon/fold/</code></a>
       directory providing <code>CodeMirror.braceRangeFinder</code>,
       which finds blocks in brace languages (JavaScript, C, Java,
       etc), <code>CodeMirror.indentRangeFinder</code>, for languages
       where indentation determines block structure (Python, Haskell),
       and <code>CodeMirror.tagRangeFinder</code>, for XML-style
-      languages.</dd>
+      languages. See <a href="../demo/folding.html">the demo</a> for
+      an example.</dd>
 
       <dt id="addon_runmode"><a href="../addon/runmode/runmode.js"><code>runmode/runmode.js</code></a></dt>
       <dd>Can be used to run a CodeMirror mode over text without
@@ -1753,9 +1764,16 @@
         start of the word (true, default), or with the cursor (false).</dd>
         <dt><code><strong>customKeys</strong>: keymap</code></dt>
         <dd>Allows you to provide a custom keymap of keys to be active
-        when the pop-up is active. To bind a key to a behavior that is
-        already present in the default keymap, bind it to the name of
-        the key in the default keymap (for example <code>"Up"</code>).</dd>
+        when the pop-up is active. The handlers will be called with an
+        extra argument, a handle to the completion menu, which
+        has <code>moveFocus(n)</code>, <code>setFocus(n)</code>, <code>pick()</code>,
+        and <code>close()</code> methods (see the source for details),
+        that can be used to change the focused element, pick the
+        current element or close the menu.</dd>
+        <dt><code><strong>extraKeys</strong>: keymap</code></dt>
+        <dd>Like <code>customKeys</code> above, but the bindings will
+        be added to the set of default bindings, instead of replacing
+        them.</dd>
       </dl>
       The following events will be fired on the completions object
       during completion:

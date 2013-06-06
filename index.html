@@ -213,20 +213,17 @@
     <li>Chrome, any version</li>
     <li>Safari 5.2 or higher</li>
     <li>Opera 9 or higher (with some key-handling problems on OS X)</li>
-    <li>Internet Explorer 8 or higher in standards mode<br>
-      <em>(<strong>Not</strong> quirks mode. But quasi-standards mode with a
-      transitional doctype is also flaky. <code>&lt;!doctype
-      html></code> is recommended.)</em></li>
+    <li>Internet Explorer 8 or higher<br>
     <li>Internet Explorer 7 (standards mode) is usable, but buggy. It
     has a <a href="http://therealcrisp.xs4all.nl/meuk/IE-zindexbug.html">z-index
     bug</a> that prevents CodeMirror from working properly.</li>
   </ul>
 
-  <p>I am not actively testing against every new browser release, and
-  vendors have a habit of introducing bugs all the time, so I am
-  relying on the community to tell me when something breaks.
-  See <a href="#support">here</a> for information on how to contact
-  me.</p>
+  <p>Note that CodeMirror is only supported in
+  <strong>standards</strong> mode. So not quirks mode,
+  but <em>also</em> not the quasi-standards mode that IE gives you
+  when you specify a transitional doctype. Simply using the
+  HTML5-style <code>&lt;!doctype html></code> is recommended.</li>
 
   <p>Mobile browsers mostly kind of work, but, because of limitations
   and their fundamentally different UI assumptions, show a lot of

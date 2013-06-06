@@ -30,7 +30,7 @@
     if (firstLine == null) return;
     var end = Math.min(to.ch != 0 || to.line == from.line ? to.line + 1 : to.line, self.lastLine() + 1);
     var pad = options.padding == null ? " " : options.padding;
-    var blankLines = options.commentBlankLines;
+    var blankLines = options.commentBlankLines || from.line == to.line;
 
     self.operation(function() {
       if (options.indent) {
@@ -90,9 +90,9 @@
 
     // Try finding line comments
     var lineString = options.lineComment || mode.lineComment, lines = [];
-    var pad = options.padding == null ? " " : options.padding;
-    lineComment: for(;;) {
-      if (!lineString) break;
+    var pad = options.padding == null ? " " : options.padding, didSomething;
+    lineComment: {
+      if (!lineString) break lineComment;
       for (var i = start; i <= end; ++i) {
         var line = self.getLine(i);
         var found = line.indexOf(lineString);
@@ -106,10 +106,11 @@
           var pos = line.indexOf(lineString), endPos = pos + lineString.length;
           if (pos < 0) continue;
           if (line.slice(endPos, endPos + pad.length) == pad) endPos += pad.length;
+          didSomething = true;
           self.replaceRange("", Pos(i, pos), Pos(i, endPos));
         }
       });
-      return true;
+      if (didSomething) return true;
     }
 
     // Try block comments

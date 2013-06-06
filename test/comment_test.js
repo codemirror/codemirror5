@@ -43,4 +43,9 @@ namespace = "comment_";
   test("indented", "javascript", function(cm) {
     cm.lineComment(Pos(1, 0), Pos(2), {indent: true});
   }, simpleProg, "function foo() {\n  // return bar;\n  // }");
+
+  test("singleEmptyLine", "javascript", function(cm) {
+    cm.setCursor(1);
+    cm.execCommand("toggleComment");
+  }, "a;\n\nb;", "a;\n// \nb;");
 })();

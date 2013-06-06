@@ -155,6 +155,16 @@ testCM("indent", function(cm) {
   eq(cm.getLine(1), "\t\t  blah();");
 }, {value: "if (x) {\nblah();\n}", indentUnit: 3, indentWithTabs: true, tabSize: 8});
 
+testCM("indentByNumber", function(cm) {
+  cm.indentLine(0, 2);
+  eq(cm.getLine(0), "  foo");
+  cm.indentLine(0, -200);
+  eq(cm.getLine(0), "foo");
+  cm.setSelection(Pos(0, 0), Pos(1, 2));
+  cm.indentSelection(3);
+  eq(cm.getValue(), "   foo\n   bar\nbaz");
+}, {value: "foo\nbar\nbaz"});
+
 test("core_defaults", function() {
   var defsCopy = {}, defs = CodeMirror.defaults;
   for (var opt in defs) defsCopy[opt] = defs[opt];
