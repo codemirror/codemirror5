@@ -82,6 +82,13 @@
       Pos(0, 4), "Alt-Space", txt("hi b ye  "),
       "Ctrl-A", "Alt-Space", "Ctrl-E", "Alt-Space", txt(" hi b ye "));
 
+  sim("openLine", "foo bar", "Alt-F", "Ctrl-O", txt("foo\n bar"))
+
+  sim("transposeChar", "abcd\n\ne",
+      "Ctrl-F", "Ctrl-T", "Ctrl-T", txt("bcad\n\ne"), at(0, 3),
+      "Ctrl-F", "Ctrl-T", "Ctrl-T", "Ctrl-T", txt("bcda\n\ne"), at(0, 4),
+      "Ctrl-F", "Ctrl-T", txt("bcd\na\ne"), at(1, 1));
+
   testCM("save", function(cm) {
     var saved = false;
     CodeMirror.commands.save = function(cm) { saved = cm.getValue(); };

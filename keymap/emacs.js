@@ -150,6 +150,16 @@
       while (to < text.length && /\s/.test(text.charAt(to))) ++to;
       cm.replaceRange(" ", Pos(pos.line, from), Pos(pos.line, to));
     },
+    "Ctrl-O": function(cm) { cm.replaceSelection("\n", "start"); },
+    "Ctrl-T": function(cm) {
+      var pos = cm.getCursor();
+      if (pos.ch < cm.getLine(pos.line).length) pos = Pos(pos.line, pos.ch + 1);
+      var from = cm.findPosH(pos, -2, "char");
+      var range = cm.getRange(from, pos);
+      if (range.length != 2) return;
+      cm.setSelection(from, pos);
+      cm.replaceSelection(range.charAt(1) + range.charAt(0), "end");
+    },
 
     "Alt-;": "toggleComment",
 
