@@ -89,6 +89,10 @@
       "Ctrl-F", "Ctrl-T", "Ctrl-T", "Ctrl-T", txt("bcda\n\ne"), at(0, 4),
       "Ctrl-F", "Ctrl-T", txt("bcd\na\ne"), at(1, 1));
 
+  sim("manipWordCase", "foo BAR bAZ",
+      "Alt-C", "Alt-L", "Alt-U", txt("Foo bar BAZ"),
+      "Ctrl-A", "Alt-U", "Alt-L", "Alt-C", txt("FOO bar Baz"));
+
   testCM("save", function(cm) {
     var saved = false;
     CodeMirror.commands.save = function(cm) { saved = cm.getValue(); };

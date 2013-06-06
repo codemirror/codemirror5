@@ -104,6 +104,12 @@
       f(prompt(msg, ""));
   }
 
+  function operateOnWord(cm, op) {
+    var start = cm.getCursor(), end = cm.findPosH(start, 1, "word");
+    cm.replaceRange(op(cm.getRange(start, end)), start, end);
+    cm.setCursor(end);
+  }
+
   // Actual keymap
 
   CodeMirror.keyMap.emacs = {
@@ -160,6 +166,16 @@
       cm.setSelection(from, pos);
       cm.replaceSelection(range.charAt(1) + range.charAt(0), "end");
     },
+
+    "Alt-C": function(cm) {
+      operateOnWord(cm, function(w) {
+        var letter = w.search(/\w/);
+        if (letter == -1) return w;
+        return w.slice(0, letter) + w.charAt(letter).toUpperCase() + w.slice(letter + 1).toLowerCase();
+      });
+    },
+    "Alt-U": function(cm) { operateOnWord(cm, function(w) { return w.toUpperCase(); }); },
+    "Alt-L": function(cm) { operateOnWord(cm, function(w) { return w.toLowerCase(); }); },
 
     "Alt-;": "toggleComment",
 
