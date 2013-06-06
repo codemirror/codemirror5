@@ -89,10 +89,24 @@
     }
   }
 
+  // Utilities
+
+  function setMark(cm) {
+    cm.setCursor(cm.getCursor());
+    cm.setExtending(true);
+    cm.on("change", function() { cm.setExtending(false); });
+  }
+
+  function getInput(cm, msg, f) {
+    if (cm.openDialog)
+      cm.openDialog(msg + ": <input type=\"text\" style=\"width: 10em\"/>", f, {bottom: true});
+    else
+      f(prompt(msg, ""));
+  }
+
   // Actual keymap
 
   CodeMirror.keyMap.emacs = {
-    "Ctrl-X": function(cm) {cm.setOption("keyMap", "emacs-Ctrl-X");},
     "Ctrl-W": function(cm) {kill(cm, cm.getCursor("start"), cm.getCursor("end"));},
     "Ctrl-K": function(cm) {
       var start = cm.getCursor(), end = cm.clipPos(Pos(start.line));
@@ -113,11 +127,7 @@
     },
     "Alt-Y": function(cm) {cm.replaceSelection(popFromRing());},
 
-    "Ctrl-Space": function(cm) {
-      cm.setCursor(cm.getCursor());
-      cm.setExtending(true);
-      cm.on("change", function() { cm.setExtending(false); });
-    },
+    "Ctrl-Space": setMark, "Ctrl-Shift-2": setMark,
 
     "Ctrl-Up": function(cm) { cm.extendSelection(paragraphEnd(cm, -1)); },
     "Ctrl-Down": function(cm) { cm.extendSelection(paragraphEnd(cm, 1)); },
@@ -131,6 +141,16 @@
     "Ctrl-Alt-F": function(cm) { cm.extendSelection(exprEnd(cm, 1)); },
     "Ctrl-Alt-B": function(cm) { cm.extendSelection(exprEnd(cm, -1)); },
 
+    "Alt-G": function(cm) {cm.setOption("keyMap", "emacs-Alt-G");},
+    "Ctrl-X": function(cm) {cm.setOption("keyMap", "emacs-Ctrl-X");},
+
+    "Alt-Space": function(cm) {
+      var pos = cm.getCursor(), from = pos.ch, to = pos.ch, text = cm.getLine(pos.line);
+      while (from && /\s/.test(text.charAt(from - 1))) --from;
+      while (to < text.length && /\s/.test(text.charAt(to))) ++to;
+      cm.replaceRange(" ", Pos(pos.line, from), Pos(pos.line, to));
+    },
+
     "Alt-;": "toggleComment",
 
     "Ctrl-/": "undo", "Shift-Ctrl--": "undo", "Shift-Alt-,": "goDocStart", "Shift-Alt-.": "goDocEnd",
@@ -143,6 +163,17 @@
   CodeMirror.keyMap["emacs-Ctrl-X"] = {
     "Ctrl-S": "save", "Ctrl-W": "save", "S": "saveAll", "F": "open", "U": "undo", "K": "close",
     "Delete": function(cm) { kill(cm, cm.getCursor(), sentenceEnd(cm, 1), true); },
+    auto: "emacs", nofallthrough: true, disableInput: true
+  };
+
+  CodeMirror.keyMap["emacs-Alt-G"] = {
+    "G": function(cm) {
+      getInput(cm, "Goto line", function(str) {
+        var num;
+        if (str && !isNaN(num = Number(str)) && num == num|0 && num > 0)
+          cm.setCursor(num - 1);
+      });
+    },
     auto: "emacs", nofallthrough: true, disableInput: true
   };
 })();

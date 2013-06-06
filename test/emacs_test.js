@@ -77,6 +77,11 @@
       Pos(0, 8), "Ctrl-Alt-K", txt("var x = ;"), "Ctrl-/",
       Pos(4, 1), "Ctrl-Alt-Backspace", txt("var x = ;"));
 
+  sim("justOneSpace", "hi      bye  ",
+      Pos(0, 4), "Alt-Space", txt("hi bye  "),
+      Pos(0, 4), "Alt-Space", txt("hi b ye  "),
+      "Ctrl-A", "Alt-Space", "Ctrl-E", "Alt-Space", txt(" hi b ye "));
+
   testCM("save", function(cm) {
     var saved = false;
     CodeMirror.commands.save = function(cm) { saved = cm.getValue(); };
