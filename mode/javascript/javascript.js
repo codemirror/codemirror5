@@ -2,6 +2,7 @@
 
 CodeMirror.defineMode("javascript", function(config, parserConfig) {
   var indentUnit = config.indentUnit;
+  var statementIndentUnit = parserConfig.statementIndentUnit || indentUnit;
   var jsonMode = parserConfig.json;
   var isTS = parserConfig.typescript;
 
@@ -226,8 +227,9 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   }
   function pushlex(type, info) {
     var result = function() {
-      var state = cx.state;
-      state.lexical = new JSLexical(state.indented, cx.stream.column(), type, null, state.lexical, info);
+      var state = cx.state, indent = state.indented;
+      if (state.lexical.type == "stat") indent = state.lexical.indented;
+      state.lexical = new JSLexical(indent, cx.stream.column(), type, null, state.lexical, info);
     };
     result.lex = true;
     return result;
@@ -450,7 +452,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       else if (type == "form" && firstChar == "{") return lexical.indented;
       else if (type == "form") return lexical.indented + indentUnit;
       else if (type == "stat")
-        return lexical.indented + (state.lastType == "operator" || state.lastType == "," ? indentUnit : 0);
+        return lexical.indented + (state.lastType == "operator" || state.lastType == "," ? statementIndentUnit : 0);
       else if (lexical.info == "switch" && !closing)
         return lexical.indented + (/^(?:case|default)\b/.test(textAfter) ? indentUnit : 2 * indentUnit);
       else if (lexical.align) return lexical.column + (closing ? 0 : 1);
