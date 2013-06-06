@@ -1404,7 +1404,7 @@
       lot faster. The return value from this method will be the return
       value of your function.</dd>
 
-      <dt id="indentLine"><code><strong>cm.indentLine</strong>(line: integer, ?dir: string)</code></dt>
+      <dt id="indentLine"><code><strong>cm.indentLine</strong>(line: integer, ?dir: string|integer)</code></dt>
       <dd>Adjust the indentation of the given line. The second
       argument (which defaults to <code>"smart"</code>) may be one of:
         <dl>
@@ -1418,6 +1418,9 @@
           one <a href="#option_indentUnit">indent unit</a>.</dd>
           <dt><code><strong>"subtract"</strong></code></dt>
           <dd>Reduce the indentation of the line.</dd>
+          <dt><code><strong>&lt;integer></strong></code></dt>
+          <dd>Add (positive number) or reduce (negative number) the
+          indentation by the given amount of spaces.</dd>
         </dl></dd>
 
       <dt id="toggleOverwrite"><code><strong>cm.toggleOverwrite</strong>(?value: bool)</code></dt>
