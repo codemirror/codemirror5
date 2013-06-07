@@ -147,8 +147,10 @@ CodeMirror.showHint = function(cm, getHints, options) {
     var closingOnBlur;
     function onBlur(){ closingOnBlur = setTimeout(close, 100); };
     function onFocus(){ clearTimeout(closingOnBlur); };
-    cm.on("blur", onBlur);
-    cm.on("focus", onFocus);
+    if (options.closeOnUnfocus !== false) {
+      cm.on("blur", onBlur);
+      cm.on("focus", onFocus);
+    }
     var startScroll = cm.getScrollInfo();
     function onScroll() {
       var curScroll = cm.getScrollInfo(), editor = cm.getWrapperElement().getBoundingClientRect();
@@ -179,8 +181,10 @@ CodeMirror.showHint = function(cm, getHints, options) {
       hints.parentNode.removeChild(hints);
       cm.removeKeyMap(keyMap);
       cm.off("cursorActivity", cursorActivity);
-      cm.off("blur", onBlur);
-      cm.off("focus", onFocus);
+      if (options.closeOnUnfocus !== false) {
+        cm.off("blur", onBlur);
+        cm.off("focus", onFocus);
+      }
       cm.off("scroll", onScroll);
       if (willContinue !== true) {
         CodeMirror.signal(data, "close");
