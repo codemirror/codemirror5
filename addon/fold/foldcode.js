@@ -4,19 +4,29 @@
   function doFold(cm, pos, options) {
     var finder = options.call ? options : (options && options.rangeFinder);
     if (!finder) return;
-
     if (typeof pos == "number") pos = CodeMirror.Pos(pos, 0);
-    var range = finder(cm, pos);
-    if (!range) return;
+    var minSize = options && options.minFoldSize || 0;
 
-    var present = cm.findMarksAt(range.from), cleared = 0;
-    for (var i = 0; i < present.length; ++i) {
-      if (present[i].__isFold) {
-        ++cleared;
-        present[i].clear();
+    function getRange(allowFolded) {
+      var range = finder(cm, pos);
+      if (!range || range.to.line - range.from.line < minSize) return null;
+      var marks = cm.findMarksAt(range.from);
+      for (var i = 0; i < marks.length; ++i) {
+        if (marks[i].__isFold) {
+          if (!allowFolded) return null;
+          range.cleared = true;
+          marks[i].clear();
+        }
       }
+      return range;
     }
-    if (cleared) return;
+
+    var range = getRange(true);
+    if (options && options.scanUp) while (!range && pos.line > cm.firstLine()) {
+      pos = CodeMirror.Pos(pos.line - 1, 0);
+      range = getRange(false);
+    }
+    if (!range || range.cleared) return;
 
     var myWidget = makeWidget(options);
     CodeMirror.on(myWidget, "mousedown", function() {myRange.clear();});

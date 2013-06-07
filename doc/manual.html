@@ -1633,17 +1633,17 @@
         <dt><code>blockCommentStart, blockCommentEnd, blockCommentLead, lineComment: string</code></dt>
         <dd>Override the <a href="#mode_comment">comment string
         properties</a> of the mode with custom comment strings.</dd>
-        <dt><code>padding</code></dt>
+        <dt><code><strong>padding</strong>: string</code></dt>
         <dd>A string that will be inserted after opening and before
         closing comment markers. Defaults to a single space.</dd>
-        <dt><code>commentBlankLines</code></dt>
+        <dt><code><strong>commentBlankLines</strong>: boolean</code></dt>
         <dd>Whether, when adding line comments, to also comment lines
         that contain only whitespace.</dd>
-        <dt><code>indent</code></dt>
+        <dt><code><strong>indent</strong>: boolean</code></dt>
         <dd>When adding line comments and this is turned on, it will
         align the comment block to the current indentation of the
         first line of the block.</dd>
-        <dt><code>fullLines</code></dt>
+        <dt><code><strong>fullLines</strong>: boolean</code></dt>
         <dd>When block commenting, this controls whether the whole
         lines are indented, or only the precise range that is given.
         Defaults to <code>true</code>.</dd>
@@ -1655,25 +1655,38 @@
 
       <dt id="addon_foldcode"><a href="../addon/fold/foldcode.js"><code>fold/foldcode.js</code></a></dt>
       <dd>Helps with code folding. Add a <code>foldCode</code> method
-      to editor instances, which takes as first argument the position
-      that should be folded (may be a line number or
+      to editor instances, which will try to do a code fold starting
+      at the given line, or unfold the fold that is already present.
+      The method takes as first argument the position that should be
+      folded (may be a line number or
       a <a href="#Pos"><code>Pos</code></a>), and as second argument
-      either a range-finder function, or an <code>{rangeFinder,
-      widget}</code> options object, where <code>widget</code> may
-      hold either a string or a DOM node. When called, the method will
-      try to do a code fold starting at the given line, or unfold the
-      fold that is already present. A range-finder function is a
-      language-specific function that takes an instance and a
-      position, and returns a range to be folded, if it finds one.
-      There are files in
-      the <a href="../addon/fold/"><code>addon/fold/</code></a>
-      directory providing <code>CodeMirror.braceRangeFinder</code>,
-      which finds blocks in brace languages (JavaScript, C, Java,
-      etc), <code>CodeMirror.indentRangeFinder</code>, for languages
-      where indentation determines block structure (Python, Haskell),
-      and <code>CodeMirror.tagRangeFinder</code>, for XML-style
-      languages. See <a href="../demo/folding.html">the demo</a> for
-      an example.</dd>
+      either a range-finder function, or an options object, supporting
+      the following properties:
+      <dl>
+        <dt><code><strong>rangeFinder</strong>: fn(CodeMirror, Pos)</code></dt>
+        <dd>The function that is used to find foldable ranges. There
+        are files in the <a href="../addon/fold/"><code>addon/fold/</code></a>
+        directory providing <code>CodeMirror.braceRangeFinder</code>,
+        which finds blocks in brace languages (JavaScript, C, Java,
+        etc), <code>CodeMirror.indentRangeFinder</code>, for languages
+        where indentation determines block structure (Python,
+        Haskell), and <code>CodeMirror.tagRangeFinder</code>, for
+        XML-style languages.</dd>
+        <dt><code><strong>widget</strong>: string|Element</code></dt>
+        <dd>The widget to show for folded ranges. Can be either a
+        string, in which case it'll become a span with
+        class <code>CodeMirror-foldmarker</code>, or a DOM node.</dd>
+        <dt><code><strong>scanUp</strong>: boolean</code></dt>
+        <dd>When true (default is false), the addon will try to find
+        foldable ranges on the lines above the current one if there
+        isn't an eligible one on the given line.</dd>
+        <dt><code><strong>minFoldSize</strong>: integer</code></dt>
+        <dd>The minimum amount of lines that a fold should span to be
+        accepted. Defaults to 0, which also allows single-line
+        folds.</dd>
+      </dl>
+      See <a href="../demo/folding.html">the demo</a> for an
+      example.</dd>
 
       <dt id="addon_runmode"><a href="../addon/runmode/runmode.js"><code>runmode/runmode.js</code></a></dt>
       <dd>Can be used to run a CodeMirror mode over text without
@@ -1840,7 +1853,7 @@
       minimum amount of selected characters that triggers a highlight
       (default 2), <code>style</code>, for the style to be used to
       highlight the matches (default <code>"matchhighlight"</code>,
-      which will correspond to CSS class <code>cm-matchhighlight),
+      which will correspond to CSS class <code>cm-matchhighlight</code>),
       and <code>showToken</code> which, when enabled, causes the
       current token to be highlighted when nothing is selected
       (defaults to off).
