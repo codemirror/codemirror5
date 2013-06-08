@@ -38,6 +38,11 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
       // strings
       state.tokenize = tokenLiteral(ch);
       return state.tokenize(stream, state);
+    } else if (support.charsetCast == true &&
+        (((ch == "n" || ch == "N") || (ch == "_" && stream.match(/[a-z][a-z0-9]*/i)))
+        && (stream.peek() == "'" || stream.peek() == '"'))) {
+      // charset casting: _utf8'str', N'str', n'str'
+      return "keyword";
     } else if (/^[\(\),\;\[\]]/.test(ch)) {
       // no highlightning
       return null;
@@ -230,7 +235,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     atoms: set("false true null unknown"),
     operatorChars: /^[*+\-%<>!=&|^]/,
     dateSQL: set("date time timestamp"),
-    support: set("ODBCdotTable zerolessFloat"),
+    support: set("ODBCdotTable zerolessFloat charsetCast"),
     hooks: {
       "@":   hookVar,
       "`":   hookIdentifier,
@@ -246,7 +251,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     atoms: set("false true null unknown"),
     operatorChars: /^[*+\-%<>!=&|^]/,
     dateSQL: set("date time timestamp"),
-    support: set("ODBCdotTable zerolessFloat"),
+    support: set("ODBCdotTable zerolessFloat charsetCast"),
     hooks: {
       "@":   hookVar,
       "`":   hookIdentifier,
