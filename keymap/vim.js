@@ -1748,7 +1748,10 @@
         cm.setCursor(curPosFinal);
       },
       undo: function(cm, actionArgs) {
-        repeatFn(cm, CodeMirror.commands.undo, actionArgs.repeat)();
+        cm.operation(function() {
+          repeatFn(cm, CodeMirror.commands.undo, actionArgs.repeat)();
+          cm.setCursor(cm.getCursor('anchor'));
+        });
       },
       redo: function(cm, actionArgs) {
         repeatFn(cm, CodeMirror.commands.redo, actionArgs.repeat)();
@@ -2605,6 +2608,7 @@
         onClose(prompt(shortText, ""));
       }
     }
+
     function findUnescapedSlashes(str) {
       var escapeNextChar = false;
       var slashes = [];
@@ -2840,6 +2844,10 @@
     };
     Vim.ExCommandDispatcher.prototype = {
       processCommand: function(cm, input) {
+        var vim = getVimState(cm);
+        if (vim.visualMode) {
+          exitVisualMode(cm, vim);
+        }
         var inputStream = new CodeMirror.StringStream(input);
         var params = {};
         params.input = input;
@@ -2863,7 +2871,7 @@
             if (command.type == 'exToKey') {
               // Handle Ex to Key mapping.
               for (var i = 0; i < command.toKeys.length; i++) {
-                vim.handleKey(cm, command.toKeys[i]);
+                CodeMirror.Vim.handleKey(cm, command.toKeys[i]);
               }
               return;
             } else if (command.type == 'exToEx') {
@@ -3108,6 +3116,10 @@
         cm.replaceRange(text.join('\n'), curStart, curEnd);
       },
       substitute: function(cm, params) {
+        if (!cm.getSearchCursor) {
+          throw 'Search feature not available. Requires searchcursor.js or ' +
+              'any other getSearchCursor implementation.';
+        }
         var argString = params.argString;
         var slashes = findUnescapedSlashes(argString);
         if (slashes[0] !== 0) {
@@ -3119,6 +3131,7 @@
         var replacePart = '';
         var flagsPart;
         var count;
+        var confirm = false; // Whether to confirm each replace.
         if (slashes[1]) {
           replacePart = argString.substring(slashes[1] + 1, slashes[2]);
         }
@@ -3130,6 +3143,10 @@
           count = parseInt(trailing[1]);
         }
         if (flagsPart) {
+          if (flagsPart.indexOf('c') != -1) {
+            confirm = true;
+            flagsPart.replace('c', '');
+          }
           regexPart = regexPart + '/' + flagsPart;
         }
         if (regexPart) {
@@ -3152,20 +3169,8 @@
           lineEnd = lineStart + count - 1;
         }
         var startPos = clipCursorToContent(cm, { line: lineStart, ch: 0 });
-        function doReplace() {
-          for (var cursor = cm.getSearchCursor(query, startPos);
-               cursor.findNext() &&
-                   isInRange(cursor.from(), lineStart, lineEnd);) {
-            var text = cm.getRange(cursor.from(), cursor.to());
-            var newText = text.replace(query, replacePart);
-            cursor.replace(newText);
-          }
-          var vim = getVimState(cm);
-          if (vim.visualMode) {
-            exitVisualMode(cm, vim);
-          }
-        }
-        cm.operation(doReplace);
+        var cursor = cm.getSearchCursor(query, startPos);
+        doReplace(cm, confirm, lineStart, lineEnd, cursor, query, replacePart);
       },
       redo: CodeMirror.commands.redo,
       undo: CodeMirror.commands.undo,
@@ -3246,6 +3251,95 @@
 
     var exCommandDispatcher = new Vim.ExCommandDispatcher();
 
+    /**
+    * @param {CodeMirror} cm CodeMirror instance we are in.
+    * @param {boolean} confirm Whether to confirm each replace.
+    * @param {Cursor} lineStart Line to start replacing from.
+    * @param {Cursor} lineEnd Line to stop replacing at.
+    * @param {RegExp} query Query for performing matches with.
+    * @param {string} replaceWith Text to replace matches with. May contain $1,
+    *     $2, etc for replacing captured groups using Javascript replace.
+    */
+    function doReplace(cm, confirm, lineStart, lineEnd, searchCursor, query,
+        replaceWith) {
+      // Set up all the functions.
+      var done = false;
+      var lastPos = searchCursor.from();
+      function replaceAll() {
+        cm.operation(function() {
+          while (!done) {
+            replace();
+            next();
+          }
+          stop();
+        });
+      }
+      function replace() {
+        var text = cm.getRange(searchCursor.from(), searchCursor.to());
+        var newText = text.replace(query, replaceWith);
+        searchCursor.replace(newText);
+      }
+      function next() {
+        var found = searchCursor.findNext();
+        if (!found) {
+          done = true;
+        } else if (isInRange(searchCursor.from(), lineStart, lineEnd)) {
+          cm.scrollIntoView(searchCursor.from(), 30);
+          cm.setSelection(searchCursor.from(), searchCursor.to());
+          lastPos = searchCursor.from();
+          done = false;
+        } else {
+          done = true;
+        }
+      }
+      function stop(close) {
+        if (close) { close(); }
+        cm.focus();
+        if (lastPos) {
+          cm.setCursor(lastPos);
+          var vim = getVimState(cm);
+          vim.lastHPos = vim.lastHSPos = lastPos.ch;
+        }
+      }
+      function onPromptKeyDown(e, value, close) {
+        // Swallow all keys.
+        CodeMirror.e_stop(e);
+        var keyName = CodeMirror.keyName(e);
+        switch (keyName) {
+          case 'Y':
+            replace(); next(); break;
+          case 'N':
+            next(); break;
+          case 'A':
+            cm.operation(replaceAll); break;
+          case 'L':
+            replace();
+            // fall through and exit.
+          case 'Q':
+          case 'Esc':
+          case 'Ctrl-C':
+          case 'Ctrl-[':
+            stop(close);
+            break;
+        }
+        if (done) { stop(close); }
+      }
+
+      // Actually do replace.
+      next();
+      if (done) {
+        throw 'No matches for ' + query.source;
+      }
+      if (!confirm) {
+        replaceAll();
+        return;
+      }
+      showPrompt(cm, {
+        prefix: 'replace with <strong>' + replaceWith + '</strong> (y/n/a/q/l)',
+        onKeyDown: onPromptKeyDown
+      });
+    }
+
     // Register Vim with CodeMirror
     function buildVimKeyMap() {
       /**
@@ -3279,7 +3373,7 @@
       // Closure to bind CodeMirror, key, modifier.
       function keyMapper(vimKey) {
         return function(cm) {
-          vim.handleKey(cm, vimKey);
+          CodeMirror.Vim.handleKey(cm, vimKey);
         };
       }
 
@@ -3394,7 +3488,6 @@
     return vimApi;
   };
   // Initialize Vim and make it available as an API.
-  var vim = Vim();
-  CodeMirror.Vim = vim;
+  CodeMirror.Vim = Vim();
 }
 )();
