@@ -2038,6 +2038,78 @@ testVim('ex_substitute_count_with_range', function(cm, vim, helpers) {
   helpers.doEx('1,3s/\\d/0/ 3');
   eq('1\n2\n0\n0', cm.getValue());
 }, { value: '1\n2\n3\n4' });
+function testSubstituteConfirm(name, command, initialValue, expectedValue, keys, finalPos) {
+  testVim(name, function(cm, vim, helpers) {
+    var savedOpenDialog = cm.openDialog;
+    var savedKeyName = CodeMirror.keyName;
+    var onKeyDown;
+    var recordedCallback;
+    var closed = true; // Start out closed, set false on second openDialog.
+    function close() {
+      closed = true;
+    }
+    // First openDialog should save callback.
+    cm.openDialog = function(template, callback, options) {
+      recordedCallback = callback;
+    }
+    // Do first openDialog.
+    helpers.doKeys(':');
+    // Second openDialog should save keyDown handler.
+    cm.openDialog = function(template, callback, options) {
+      onKeyDown = options.onKeyDown;
+      closed = false;
+    };
+    // Return the command to Vim and trigger second openDialog.
+    recordedCallback(command);
+    // The event should really use keyCode, but here just mock it out and use
+    // key and replace keyName to just return key.
+    CodeMirror.keyName = function (e) { return e.key; }
+    keys = keys.toUpperCase();
+    for (var i = 0; i < keys.length; i++) {
+      is(!closed);
+      onKeyDown({ key: keys.charAt(i) }, '', close);
+    }
+    try {
+      eq(expectedValue, cm.getValue());
+      helpers.assertCursorAt(finalPos);
+      is(closed);
+    } catch(e) {
+      throw e
+    } finally {
+      // Restore overriden functions.
+      CodeMirror.keyName = savedKeyName;
+      cm.openDialog = savedOpenDialog;
+    }
+  }, { value: initialValue });
+};
+testSubstituteConfirm('ex_substitute_confirm_emptydoc',
+    '%s/x/b/c', '', '', '', makeCursor(0, 0));
+testSubstituteConfirm('ex_substitute_confirm_nomatch',
+    '%s/x/b/c', 'ba a\nbab', 'ba a\nbab', '', makeCursor(0, 0));
+testSubstituteConfirm('ex_substitute_confirm_accept',
+    '%s/a/b/c', 'ba a\nbab', 'bb b\nbbb', 'yyy', makeCursor(1, 1));
+testSubstituteConfirm('ex_substitute_confirm_random_keys',
+    '%s/a/b/c', 'ba a\nbab', 'bb b\nbbb', 'ysdkywerty', makeCursor(1, 1));
+testSubstituteConfirm('ex_substitute_confirm_some',
+    '%s/a/b/c', 'ba a\nbab', 'bb a\nbbb', 'yny', makeCursor(1, 1));
+testSubstituteConfirm('ex_substitute_confirm_all',
+    '%s/a/b/c', 'ba a\nbab', 'bb b\nbbb', 'a', makeCursor(1, 1));
+testSubstituteConfirm('ex_substitute_confirm_accept_then_all',
+    '%s/a/b/c', 'ba a\nbab', 'bb b\nbbb', 'ya', makeCursor(1, 1));
+testSubstituteConfirm('ex_substitute_confirm_quit',
+    '%s/a/b/c', 'ba a\nbab', 'bb a\nbab', 'yq', makeCursor(0, 3));
+testSubstituteConfirm('ex_substitute_confirm_last',
+    '%s/a/b/c', 'ba a\nbab', 'bb b\nbab', 'yl', makeCursor(0, 3));
+testSubstituteConfirm('ex_substitute_confirm_oneline',
+    '1s/a/b/c', 'ba a\nbab', 'bb b\nbab', 'yl', makeCursor(0, 3));
+testSubstituteConfirm('ex_substitute_confirm_range_accept',
+    '1,2s/a/b/c', 'aa\na \na\na', 'bb\nb \na\na', 'yyy', makeCursor(1, 0));
+testSubstituteConfirm('ex_substitute_confirm_range_some',
+    '1,3s/a/b/c', 'aa\na \na\na', 'ba\nb \nb\na', 'ynyy', makeCursor(2, 0));
+testSubstituteConfirm('ex_substitute_confirm_range_all',
+    '1,3s/a/b/c', 'aa\na \na\na', 'bb\nb \nb\na', 'a', makeCursor(2, 0));
+testSubstituteConfirm('ex_substitute_confirm_range_last',
+    '1,3s/a/b/c', 'aa\na \na\na', 'bb\nb \na\na', 'yyl', makeCursor(1, 0));
 //:noh should clear highlighting of search-results but allow to resume search through n
 testVim('ex_noh_clearSearchHighlight', function(cm, vim, helpers) {
   cm.openDialog = helpers.fakeOpenDialog('match');
