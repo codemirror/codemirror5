@@ -22,13 +22,16 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     if ((ch == "0" && stream.match(/^[xX][0-9a-fA-F]+/))
       || (ch == "x" || ch == "X") && stream.match(/^'[0-9a-fA-F]+'/)) {
       // hex
+      // ref: http://dev.mysql.com/doc/refman/5.5/en/hexadecimal-literals.html
       return "number";
     } else if (((ch == "b" || ch == "B") && stream.match(/^'[01]+'/))
       || (ch == "0" && stream.match(/^b[01]+/))) {
       // bitstring
+      // ref: http://dev.mysql.com/doc/refman/5.5/en/bit-field-literals.html
       return "number";
     } else if (ch.charCodeAt(0) > 47 && ch.charCodeAt(0) < 58) {
       // numbers
+      // ref: http://dev.mysql.com/doc/refman/5.5/en/number-literals.html
       stream.match(/^[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?/);
       return "number";
     } else if (ch == "?" && (stream.eatSpace() || stream.eol() || stream.eat(";"))) {
@@ -36,22 +39,26 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
       return "variable-3";
     } else if (ch == '"' || ch == "'") {
       // strings
+      // ref: http://dev.mysql.com/doc/refman/5.5/en/string-literals.html
       state.tokenize = tokenLiteral(ch);
       return state.tokenize(stream, state);
     } else if (support.charsetCast == true &&
         (((ch == "n" || ch == "N") || (ch == "_" && stream.match(/[a-z][a-z0-9]*/i)))
         && (stream.peek() == "'" || stream.peek() == '"'))) {
       // charset casting: _utf8'str', N'str', n'str'
+      // ref: http://dev.mysql.com/doc/refman/5.5/en/string-literals.html
       return "keyword";
     } else if (/^[\(\),\;\[\]]/.test(ch)) {
       // no highlightning
       return null;
     } else if (ch == "#" || (ch == "-" && stream.eat("-") && stream.eat(" "))) {
       // 1-line comments
+      // ref: https://kb.askmonty.org/en/comment-syntax/
       stream.skipToEnd();
       return "comment";
     } else if (ch == "/" && stream.eat("*")) {
       // multi-line comments
+      // ref: https://kb.askmonty.org/en/comment-syntax/
       state.tokenize = tokenComment;
       return state.tokenize(stream, state);
     } else if (ch == ".") {
@@ -60,6 +67,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
         return "number";
       }
       // .table_name (ODBC)
+      // // ref: http://dev.mysql.com/doc/refman/5.6/en/identifier-qualifiers.html
       if (support.ODBCdotTable == true && stream.match(/^[a-zA-Z_]+/)) {
         return "variable-2";
       }
@@ -70,11 +78,13 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     } else if (ch == '{' &&
         (stream.match(/^( )*(d|D|t|T|ts|TS)( )*'[^']*'( )*}/) || stream.match(/^( )*(d|D|t|T|ts|TS)( )*"[^"]*"( )*}/))) {
       // dates (weird ODBC syntax)
+      // ref: http://dev.mysql.com/doc/refman/5.5/en/date-and-time-literals.html
       return "number";
     } else {
       stream.eatWhile(/^[_\w\d]/);
       var word = stream.current().toLowerCase();
       // dates (standard SQL syntax)
+      // ref: http://dev.mysql.com/doc/refman/5.5/en/date-and-time-literals.html
       if (dateSQL.hasOwnProperty(word) && (stream.match(/^( )+'[^']*'/) || stream.match(/^( )+"[^"]*"/)))
         return "number";
       if (atoms.hasOwnProperty(word)) return "atom";
@@ -171,6 +181,8 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
 
   // `identifier`
   function hookIdentifier(stream) {
+    // MySQL/MariaDB identifiers
+    // ref: http://dev.mysql.com/doc/refman/5.6/en/identifier-qualifiers.html
     var ch;
     while ((ch = stream.next()) != null) {
       if (ch == "`" && !stream.eat("`")) return "variable-2";
