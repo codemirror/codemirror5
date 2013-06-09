@@ -128,11 +128,24 @@ function testVim(name, run, opts, expectedFail) {
       return function(args) {
         if (args instanceof Array) { arguments = args; }
         function executeHandler(handler) {
-          if (typeof handler == 'string') { CodeMirror.commands[handler](cm);
-          } else { handler(cm); }
+          if (typeof handler == 'string') {
+            CodeMirror.commands[handler](cm);
+          } else {
+            handler(cm);
+          }
+          return true;
         }
         for (var i = 0; i < arguments.length; i++) {
-          var handler = CodeMirror.lookupKey(arguments[i], ['vim-insert'], executeHandler);
+          var key = arguments[i];
+          // Find key in keymap and handle.
+          var handled = CodeMirror.lookupKey(key, ['vim-insert'], executeHandler);
+          // Record for insert mode.
+          if (handled === true && cm.vimState.insertMode && arguments[i] != 'Esc') {
+            var lastChange = CodeMirror.Vim.getVimGlobalState_().macroModeState.lastInsertModeChanges;
+            if (lastChange) {
+              lastChange.changes.push(new CodeMirror.Vim.InsertModeKey(key));
+            }
+          }
         }
       }
     }
@@ -1067,6 +1080,14 @@ testVim('i_repeat', function(cm, vim, helpers) {
   eq('testtesttest', cm.getValue());
   helpers.assertCursorAt(0, 11);
 }, { value: '' });
+testVim('i_repeat_delete', function(cm, vim, helpers) {
+  cm.setCursor(0, 4);
+  helpers.doKeys('2', 'i');
+  cm.replaceRange('z', cm.getCursor());
+  helpers.doInsertModeKeys('Backspace', 'Backspace', 'Esc');
+  eq('abe', cm.getValue());
+  helpers.assertCursorAt(0, 1);
+}, { value: 'abcde' });
 testVim('A', function(cm, vim, helpers) {
   helpers.doKeys('A');
   helpers.assertCursorAt(0, lines[0].length);
@@ -1097,7 +1118,6 @@ testVim('o_repeat', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('3', 'o');
   cm.replaceRange('test', cm.getCursor());
-  cm.setCursor(1, 3)
   helpers.doInsertModeKeys('Esc');
   eq('\ntest\ntest\ntest', cm.getValue());
   helpers.assertCursorAt(3, 3);
@@ -1679,6 +1699,22 @@ testVim('._insert_cw_repeat', function(cm, vim, helpers) {
   eq('test test', cm.getValue());
   helpers.assertCursorAt(0, 8);
 }, { value: 'word1 word2 word3' });
+testVim('._delete', function(cm, vim, helpers) {
+  cm.setCursor(0, 5);
+  helpers.doKeys('i');
+  helpers.doInsertModeKeys('Backspace', 'Esc');
+  helpers.doKeys('.');
+  eq('zace', cm.getValue());
+  helpers.assertCursorAt(0, 1);
+}, { value: 'zabcde'});
+testVim('._delete_repeat', function(cm, vim, helpers) {
+  cm.setCursor(0, 6);
+  helpers.doKeys('i');
+  helpers.doInsertModeKeys('Backspace', 'Esc');
+  helpers.doKeys('2', '.');
+  eq('zzce', cm.getValue());
+  helpers.assertCursorAt(0, 1);
+}, { value: 'zzabcde'});
 testVim('f;', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('f', 'x');
