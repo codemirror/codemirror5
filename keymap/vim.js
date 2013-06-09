@@ -449,9 +449,8 @@
         latestRegister: undefined,
         inReplay: false,
         lastInsertModeChanges: {
-          ch: 0,
-          baseRemnantLength: 0,
-          text: ''
+          changes: [], // Change list
+          expectCursorActivityForChange: false // Set to true on change, false on cursorActivity.
         },
         enteredMacroMode: undefined,
         isMacroPlaying: false,
@@ -534,6 +533,11 @@
       clearVimGlobalState_: function() {
         vimGlobalState = null;
       },
+      // Testing hook.
+      getVimGlobalState_: function() {
+        return vimGlobalState;
+      },
+      InsertModeKey: InsertModeKey,
       map: function(lhs, rhs) {
         // Add user defined key bindings.
         exCommandDispatcher.map(lhs, rhs);
@@ -1171,7 +1175,8 @@
         if (macroModeState.inReplay) { return; }
         vim.lastEditInputState = inputState;
         vim.lastEditActionCommand = actionCommand;
-        macroModeState.lastInsertModeChanges.text = '';
+        macroModeState.lastInsertModeChanges.changes = [];
+        macroModeState.lastInsertModeChanges.expectCursorActivityForChange = false;
       }
     };
 
@@ -1652,6 +1657,8 @@
         if (!getVimGlobalState().macroModeState.inReplay) {
           // Only record if not replaying.
           cm.on('change', onChange);
+          cm.on('cursorActivity', onCursorActivity);
+          CodeMirror.on(cm.getInputField(), 'keydown', onKeyEventTargetKeyDown);
         }
       },
       toggleVisualMode: function(cm, actionArgs, vim) {
@@ -3457,7 +3464,11 @@
       var vim = getVimState(cm)
       vim.insertMode = false;
       var inReplay = getVimGlobalState().macroModeState.inReplay;
-      if (!inReplay) { cm.off('change', onChange); }
+      if (!inReplay) {
+        cm.off('change', onChange);
+        cm.off('cursorActivity', onCursorActivity);
+        CodeMirror.off(cm.getInputField(), 'keydown', onKeyEventTargetKeyDown);
+      }
       if (!inReplay && vim.insertModeRepeat > 1) {
         // Perform insert mode repeat for commands like 3,a and 3,o.
         repeatLastEdit(cm, vim, vim.insertModeRepeat - 1,
@@ -3533,35 +3544,60 @@
     }
 
     /**
-     * Listens for changes made in insert mode. Should only be active in insert
-     * mode.
+     * Listens for changes made in insert mode.
+     * Should only be active in insert mode.
      */
     function onChange(cm, changeObj) {
       var macroModeState = getVimGlobalState().macroModeState;
       var lastChange = macroModeState.lastInsertModeChanges;
       while (changeObj) {
-        var changeObjText = changeObj.text.join('\n');
-        if (lastChange.text) {
-          if (lastChange.text.charAt(lastChange.text.length-1) == '\n') {
-            // if last change was newline, update lastChange state for current line
-            lastChange.baseRemnantLength = lastChange.text.length;
-            lastChange.text += changeObjText;
-            lastChange.ch = changeObj.from.ch;
-          } else {
-            // Merge consecutive grainy changes into one chunk
-            var remnantLength = lastChange.baseRemnantLength + changeObj.from.ch - lastChange.ch;
-            var lastText = lastChange.text;
-            var changeObjText = changeObjText;
-            var lastTextRemnant = lastText.substring(0, remnantLength);
-            lastChange.text = lastTextRemnant + changeObjText;
-          }
-        } else { // reset lastChange state
-          lastChange.ch = changeObj.from.ch;
-          lastChange.text = changeObj.text.join('\n');
-          lastChange.baseRemnantLength = 0;
+        lastChange.expectCursorActivityForChange = true;
+        if (changeObj.origin == '+input' || changeObj.origin == 'paste'
+            || changeObj.origin === undefined /* only in testing */) {
+          var text = changeObj.text.join('\n');
+          lastChange.changes.push(text);
         }
         // Change objects may be chained with next.
         changeObj = changeObj.next;
+      }
+    }
+
+    /**
+    * Listens for any kind of cursor activity on CodeMirror.
+    * - For tracking cursor activity in insert mode.
+    * - Should only be active in insert mode.
+    */
+    function onCursorActivity(cm) {
+      var macroModeState = getVimGlobalState().macroModeState;
+      var lastChange = macroModeState.lastInsertModeChanges;
+      if (lastChange.expectCursorActivityForChange) {
+        lastChange.expectCursorActivityForChange = false;
+      } else {
+        // Cursor moved outside the context of an edit. Reset the change.
+        lastChange.changes = [];
+      }
+    }
+
+    /** Wrapper for special keys pressed in insert mode */
+    function InsertModeKey(keyName) {
+      this.keyName = keyName;
+    }
+
+    /**
+    * Handles raw key down events from the text area.
+    * - Should only be active in insert mode.
+    * - For recording deletes in insert mode.
+    */
+    function onKeyEventTargetKeyDown(e) {
+      var macroModeState = getVimGlobalState().macroModeState;
+      var lastChange = macroModeState.lastInsertModeChanges;
+      var keyName = CodeMirror.keyName(e);
+      function onKeyFound(binding) {
+        lastChange.changes.push(new InsertModeKey(keyName));
+        return true;
+      }
+      if (keyName.indexOf('Delete') != -1 || keyName.indexOf('Backspace') != -1) {
+        CodeMirror.lookupKey(keyName, ['vim-insert'], onKeyFound)
       }
     }
 
@@ -3588,7 +3624,7 @@
         }
       }
       function repeatInsert(repeat) {
-        if (macroModeState.lastInsertModeChanges.text) {
+        if (macroModeState.lastInsertModeChanges.changes.length > 0) {
           // For some reason, repeat cw in desktop VIM will does not repeat
           // insert mode changes. Will conform to that behavior.
           repeat = !vim.lastEditActionCommand ? 1 : repeat;
@@ -3622,13 +3658,26 @@
     };
 
     function repeatLastInsertModeChanges(cm, repeat, macroModeState) {
-      var cur = cm.getCursor();
       var lastChange = macroModeState.lastInsertModeChanges;
-      var text = '';
-      while (repeat--) {
-        text += lastChange.text;
+      function keyHandler(binding) {
+        if (typeof binding == 'string') {
+          CodeMirror.commands[binding](cm);
+        } else {
+          binding(cm);
+        }
+        return true;
       }
-      cm.replaceRange(text, cur, cur);
+      for (var i = 0; i < repeat; i++) {
+        for (var j = 0; j < lastChange.changes.length; j++) {
+          var change = lastChange.changes[j];
+          if (change instanceof InsertModeKey) {
+            CodeMirror.lookupKey(change.keyName, ['vim-insert'], keyHandler);
+          } else {
+            var cur = cm.getCursor();
+            cm.replaceRange(change, cur, cur);
+          }
+        }
+      }
     }
 
     return vimApi;
