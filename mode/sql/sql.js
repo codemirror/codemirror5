@@ -42,8 +42,8 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
       // ref: http://dev.mysql.com/doc/refman/5.5/en/string-literals.html
       state.tokenize = tokenLiteral(ch);
       return state.tokenize(stream, state);
-    } else if (support.charsetCast == true &&
-        (((ch == "n" || ch == "N") || (ch == "_" && stream.match(/[a-z][a-z0-9]*/i)))
+    } else if ((((support.nCharCast == true && (ch == "n" || ch == "N"))
+        || (support.charsetCast == true && ch == "_" && stream.match(/[a-z][a-z0-9]*/i)))
         && (stream.peek() == "'" || stream.peek() == '"'))) {
       // charset casting: _utf8'str', N'str', n'str'
       // ref: http://dev.mysql.com/doc/refman/5.5/en/string-literals.html
@@ -193,7 +193,9 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
   // variable token
   function hookVar(stream) {
     // variables
-    // @@ and prefix
+    // @@prefix.varName @varName
+    // varName can be quoted with ` or ' or "
+    // ref: http://dev.mysql.com/doc/refman/5.5/en/user-variables.html
     if (stream.eat("@")) {
       stream.match(/^session\./);
       stream.match(/^local\./);
@@ -217,18 +219,27 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
 
   // short client keyword token
   function hookClient(stream) {
+    // \N means NULL
+    // ref: http://dev.mysql.com/doc/refman/5.5/en/null-values.html
+    if (stream.eat("N")) {
+        return "atom";
+    }
     // \g, etc
+    // ref: http://dev.mysql.com/doc/refman/5.5/en/mysql-commands.html
     return stream.match(/^[a-zA-Z]\b/) ? "variable-2" : null;
   }
 
+  // these keywords are used by all SQL dialects (however, a mode can still overwrite it)
   var sqlKeywords = "alter and as asc between by count create delete desc distinct drop from having in insert into is join like not on or order select set table union update values where ";
 
+  // turn a space-separated list into an array
   function set(str) {
     var obj = {}, words = str.split(" ");
     for (var i = 0; i < words.length; ++i) obj[words[i]] = true;
     return obj;
   }
 
+  // A generic SQL Mode. It's not a standard, it just try to support what is generally supported
   CodeMirror.defineMIME("text/x-sql", {
     name: "sql",
     keywords: set(sqlKeywords + "begin"),
@@ -247,7 +258,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     atoms: set("false true null unknown"),
     operatorChars: /^[*+\-%<>!=&|^]/,
     dateSQL: set("date time timestamp"),
-    support: set("ODBCdotTable zerolessFloat charsetCast"),
+    support: set("ODBCdotTable zerolessFloat nCharCast charsetCast"),
     hooks: {
       "@":   hookVar,
       "`":   hookIdentifier,
@@ -263,7 +274,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     atoms: set("false true null unknown"),
     operatorChars: /^[*+\-%<>!=&|^]/,
     dateSQL: set("date time timestamp"),
-    support: set("ODBCdotTable zerolessFloat charsetCast"),
+    support: set("ODBCdotTable zerolessFloat nCharCast charsetCast"),
     hooks: {
       "@":   hookVar,
       "`":   hookIdentifier,
@@ -279,6 +290,34 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     functions:  set("abs acos add_months ascii asin atan atan2 average bfilename ceil chartorowid chr concat convert cos cosh count decode deref dual dump dup_val_on_index empty error exp false floor found glb greatest hextoraw initcap instr instrb isopen last_day least lenght lenghtb ln lower lpad ltrim lub make_ref max min mod months_between new_time next_day nextval nls_charset_decl_len nls_charset_id nls_charset_name nls_initcap nls_lower nls_sort nls_upper nlssort no_data_found notfound null nvl others power rawtohex reftohex round rowcount rowidtochar rpad rtrim sign sin sinh soundex sqlcode sqlerrm sqrt stddev substr substrb sum sysdate tan tanh to_char to_date to_label to_multi_byte to_number to_single_byte translate true trunc uid upper user userenv variance vsize"),
     builtin:    set("bfile blob character clob dec float int integer mlslabel natural naturaln nchar nclob number numeric nvarchar2 real rowtype signtype smallint string varchar varchar2"),
     operatorChars: /^[*+\-%<>!=~]/,
-    dateSQL:    set("date time timestamp")
+    dateSQL:    set("date time timestamp"),
+    support:    set("nCharCast zerolessFloat")
   });
 }());
+
+/*
+  How Properties of Mime Types are used by SQL Mode
+  =================================================
+
+  keywords:
+    A list of keywords you want to be highlighted.
+  functions:
+    A list of function names you want to be highlighted.
+  builtin:
+    A list of builtin types you want to be highlighted (if you want types to be of class "builtin" instead of "keyword").
+  operatorChars:
+    All characters that must be handled as operators.
+  client:
+    Commands parsed and executed by the client (not the server).
+  support:
+    A list of supported syntaxes which are not common, but are supported by more than 1 DBMS.
+    * ODBCdotTable: .tableName
+    * zerolessFloat: .1
+    * nCharCast: N'string'
+    * charsetCast: _utf8'string'
+  atoms:
+    Keywords that must be highlighted as atoms,. Some DBMS's support more atoms than others:
+    UNKNOWN, INFINITY, UNDERFLOW, NaN...
+  dateSQL:
+    Used for date/time SQL standard syntax, because not all DBMS's support same temporal types.
+*/
