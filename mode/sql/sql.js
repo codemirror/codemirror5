@@ -51,7 +51,8 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     } else if (/^[\(\),\;\[\]]/.test(ch)) {
       // no highlightning
       return null;
-    } else if (ch == "#" || (ch == "-" && stream.eat("-") && stream.eat(" "))) {
+    } else if ((support.commentHash && ch == "#")
+        || (ch == "-" && stream.eat("-") && (!support.commentSpaceRequired || stream.eat(" ")))) {
       // 1-line comments
       // ref: https://kb.askmonty.org/en/comment-syntax/
       stream.skipToEnd();
@@ -258,7 +259,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     atoms: set("false true null unknown"),
     operatorChars: /^[*+\-%<>!=&|^]/,
     dateSQL: set("date time timestamp"),
-    support: set("ODBCdotTable zerolessFloat nCharCast charsetCast"),
+    support: set("ODBCdotTable zerolessFloat nCharCast charsetCast commentHash commentSpaceRequired"),
     hooks: {
       "@":   hookVar,
       "`":   hookIdentifier,
@@ -274,7 +275,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     atoms: set("false true null unknown"),
     operatorChars: /^[*+\-%<>!=&|^]/,
     dateSQL: set("date time timestamp"),
-    support: set("ODBCdotTable zerolessFloat nCharCast charsetCast"),
+    support: set("ODBCdotTable zerolessFloat nCharCast charsetCast commentHash commentSpaceRequired"),
     hooks: {
       "@":   hookVar,
       "`":   hookIdentifier,
@@ -315,6 +316,8 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     * zerolessFloat: .1
     * nCharCast: N'string'
     * charsetCast: _utf8'string'
+    * commentHash: use # char for comments
+    * commentSpaceRequired: require a space after -- for comments
   atoms:
     Keywords that must be highlighted as atoms,. Some DBMS's support more atoms than others:
     UNKNOWN, INFINITY, UNDERFLOW, NaN...
