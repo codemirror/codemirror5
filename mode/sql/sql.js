@@ -226,7 +226,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     }
     // \g, etc
     // ref: http://dev.mysql.com/doc/refman/5.5/en/mysql-commands.html
-    return stream.match(/^[a-zA-Z]\b/) ? "variable-2" : null;
+    return stream.match(/^[a-zA-Z.#!?]/) ? "variable-2" : null;
   }
 
   // these keywords are used by all SQL dialects (however, a mode can still overwrite it)
