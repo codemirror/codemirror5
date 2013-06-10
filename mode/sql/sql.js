@@ -193,7 +193,9 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
   // variable token
   function hookVar(stream) {
     // variables
-    // @@ and prefix
+    // @@prefix.varName @varName
+    // varName can be quoted with ` or ' or "
+    // ref: http://dev.mysql.com/doc/refman/5.5/en/user-variables.html
     if (stream.eat("@")) {
       stream.match(/^session\./);
       stream.match(/^local\./);
@@ -217,18 +219,27 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
 
   // short client keyword token
   function hookClient(stream) {
+    // \N means NULL
+    // ref: http://dev.mysql.com/doc/refman/5.5/en/null-values.html
+    if (stream.eat("N")) {
+        return "atom";
+    }
     // \g, etc
+    // ref: http://dev.mysql.com/doc/refman/5.5/en/mysql-commands.html
     return stream.match(/^[a-zA-Z]\b/) ? "variable-2" : null;
   }
 
+  // these keywords are used by all SQL dialects (however, a mode can still overwrite it)
   var sqlKeywords = "alter and as asc between by count create delete desc distinct drop from having in insert into is join like not on or order select set table union update values where ";
 
+  // turn a space-separated list into an array
   function set(str) {
     var obj = {}, words = str.split(" ");
     for (var i = 0; i < words.length; ++i) obj[words[i]] = true;
     return obj;
   }
 
+  // A generic SQL Mode. It's not a standard, it just try to support what is generally supported
   CodeMirror.defineMIME("text/x-sql", {
     name: "sql",
     keywords: set(sqlKeywords + "begin"),
