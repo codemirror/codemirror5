@@ -1523,9 +1523,17 @@
       (with the instance as argument) whenever a new CodeMirror instance
       is initialized.</dd>
 
-      <dt id="Pos"><code><strong>Pos</strong>(line: integer, ?ch: integer)</code></dt>
+      <dt id="Pos"><code><strong>CodeMirror.Pos</strong>(line: integer, ?ch: integer)</code></dt>
       <dd>A constructor for the <code>{line, ch}</code> objects that
       are used to represent positions in editor documents.</dd>
+
+      <dt id="changeEnd"><code><strong>CodeMirror.changeEnd</strong>(change: object) → {line, ch}</code></dt>
+      <dd>Utility function that computes an end position from a change
+      (an object with <code>from</code>, <code>to</code>,
+      and <code>text</code> properties, as passed to
+      various <a href="#event_change">event handlers</a>). The
+      returned position will be the end of the changed
+      range, <em>after</em> the change is applied.</dd>
     </dl>
 
     <h2 id="addons">Add-ons</h2>
