@@ -8,7 +8,7 @@ CodeMirror.defineOption("highlightLine", false, function (cm, val, prev) {
             var line = cm.getCursor().line;
             var lastLine = cm.state.currLine ? cm.state.currLine : 0;
             //add class for current line
-            cm.addLineClass(line, "wrap", "line-cursor");
+            cm.addLineClass(line, "wrap", "highlight-line");
             //remove line class for last cursor line
             if (line != lastLine) {
                 cm.removeLineClass(lastLine, "wrap", "highlight-line");
