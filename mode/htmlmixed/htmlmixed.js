@@ -9,6 +9,10 @@ CodeMirror.defineMode("htmlmixed", function(config, parserConfig) {
     var conf = scriptTypesConf[i];
     scriptTypes.push({matches: conf.matches, mode: conf.mode && CodeMirror.getMode(config, conf.mode)});
   }
+  scriptTypes.push({matches: /x-shader\/x-vertex/,
+                    mode: CodeMirror.getMode(config, "x-shader/x-vertex")});
+  scriptTypes.push({matches: /x-shader\/x-fragment/,
+                    mode: CodeMirror.getMode(config, "x-shader/x-fragment")});
   scriptTypes.push({matches: /./,
                     mode: CodeMirror.getMode(config, "text/plain")});
 
