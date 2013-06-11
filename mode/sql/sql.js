@@ -37,7 +37,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     } else if (ch == "?" && (stream.eatSpace() || stream.eol() || stream.eat(";"))) {
       // placeholders
       return "variable-3";
-    } else if (ch == '"' || ch == "'") {
+    } else if (ch == "'" || (ch == '"' && support.doubleQuote)) {
       // strings
       // ref: http://dev.mysql.com/doc/refman/5.5/en/string-literals.html
       state.tokenize = tokenLiteral(ch);
@@ -51,6 +51,10 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     } else if (/^[\(\),\;\[\]]/.test(ch)) {
       // no highlightning
       return null;
+    } else if (support.commentSlashSlash && ch == "/" && stream.eat("/")) {
+      // 1-line comment
+      stream.skipToEnd();
+      return "comment";
     } else if ((support.commentHash && ch == "#")
         || (ch == "-" && stream.eat("-") && (!support.commentSpaceRequired || stream.eat(" ")))) {
       // 1-line comments
@@ -248,7 +252,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     atoms: set("false true null unknown"),
     operatorChars: /^[*+\-%<>!=]/,
     dateSQL: set("date time timestamp"),
-    support: set("ODBCdotTable")
+    support: set("ODBCdotTable doubleQuote")
   });
 
   CodeMirror.defineMIME("text/x-mysql", {
@@ -259,7 +263,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     atoms: set("false true null unknown"),
     operatorChars: /^[*+\-%<>!=&|^]/,
     dateSQL: set("date time timestamp"),
-    support: set("ODBCdotTable zerolessFloat nCharCast charsetCast commentHash commentSpaceRequired"),
+    support: set("ODBCdotTable zerolessFloat doubleQuote nCharCast charsetCast commentHash commentSpaceRequired"),
     hooks: {
       "@":   hookVar,
       "`":   hookIdentifier,
@@ -275,12 +279,26 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     atoms: set("false true null unknown"),
     operatorChars: /^[*+\-%<>!=&|^]/,
     dateSQL: set("date time timestamp"),
-    support: set("ODBCdotTable zerolessFloat nCharCast charsetCast commentHash commentSpaceRequired"),
+    support: set("ODBCdotTable zerolessFloat doubleQuote nCharCast charsetCast commentHash commentSpaceRequired"),
     hooks: {
       "@":   hookVar,
       "`":   hookIdentifier,
       "\\":  hookClient
     }
+  });
+
+  // the query language used by Apache Cassandra is called CQL, but this mime type
+  // is called Cassandra to avoid confusion with Contextual Query Language
+  CodeMirror.defineMIME("text/x-cassandra", {
+    name: "sql",
+    client: { },
+    keywords: set("use select from using consistency where limit first reversed first and in insert into values using consistency ttl update set delete truncate begin batch apply create keyspace with columnfamily primary key index on drop alter type add any one quorum all local_quorum each_quorum"),
+    builtin: set("ascii bigint blob boolean counter decimal double float int text timestamp uuid varchar varint"),
+    atoms: set("false true"),
+    operatorChars: /^[<>=]/,
+    dateSQL: { },
+    support: set("commentSlashSlash"),
+    hooks: { }
   });
 
   // this is based on Peter Raganitsch's 'plsql' mode
@@ -292,7 +310,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     builtin:    set("bfile blob character clob dec float int integer mlslabel natural naturaln nchar nclob number numeric nvarchar2 real rowtype signtype smallint string varchar varchar2"),
     operatorChars: /^[*+\-%<>!=~]/,
     dateSQL:    set("date time timestamp"),
-    support:    set("nCharCast zerolessFloat")
+    support:    set("doubleQuote nCharCast zerolessFloat")
   });
 }());
 
@@ -314,9 +332,11 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     A list of supported syntaxes which are not common, but are supported by more than 1 DBMS.
     * ODBCdotTable: .tableName
     * zerolessFloat: .1
+    * doubleQuote
     * nCharCast: N'string'
     * charsetCast: _utf8'string'
     * commentHash: use # char for comments
+    * commentSlashSlash: use // for comments
     * commentSpaceRequired: require a space after -- for comments
   atoms:
     Keywords that must be highlighted as atoms,. Some DBMS's support more atoms than others:
