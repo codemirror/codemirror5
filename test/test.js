@@ -723,6 +723,7 @@ testCM("everythingFolded", function(cm) {
 });
 
 testCM("structuredFold", function(cm) {
+  if (phantom) return;
   addDoc(cm, 4, 8);
   var range = cm.markText(Pos(1, 2), Pos(6, 2), {
     replacedWith: document.createTextNode("Q")
