@@ -68,11 +68,11 @@ CodeMirror.defineMode("ruby", function(config) {
       return "atom";
     } else if (ch == "@") {
       stream.eat("@");
-      stream.eatWhile(/[\w\?]/);
+      stream.eatWhile(/[\w]/);
       return "variable-2";
     } else if (ch == "$") {
       stream.next();
-      stream.eatWhile(/[\w\?]/);
+      stream.eatWhile(/[\w]/);
       return "variable-3";
     } else if (/\w/.test(ch)) {
       stream.eatWhile(/[\w\?]/);
