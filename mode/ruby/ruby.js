@@ -64,8 +64,26 @@ CodeMirror.defineMode("ruby", function(config) {
     } else if (ch == ":") {
       if (stream.eat("'")) return chain(readQuoted("'", "atom", false), stream, state);
       if (stream.eat('"')) return chain(readQuoted('"', "atom", true), stream, state);
-      stream.eatWhile(/[\w\?]/);
-      return "atom";
+
+      // :> :>> :< :<< are valid symbols
+      if (stream.eat(/[\<\>]/)) {
+        stream.eat(/[\<\>]/);
+        return "atom";
+      }
+
+      // :+ :- :/ :* :| :& :! are valid symbols
+      if (stream.eat(/[\+\-\*\/\&\|\:\!]/)) {
+        return "atom";
+      }
+
+      // Symbols can't start by a digit
+      if (stream.eat(/[a-zA-Z$@_]/)) {
+        stream.eatWhile(/[\w]/);
+        // Only one ? ! = is allowed and only as the last character
+        stream.eat(/[\?\!\=]/);
+        return "atom";
+      }
+      return "operator";
     } else if (ch == "@") {
       stream.eat("@");
       stream.eatWhile(/[\w]/);
@@ -74,8 +92,9 @@ CodeMirror.defineMode("ruby", function(config) {
       stream.next();
       stream.eatWhile(/[\w]/);
       return "variable-3";
-    } else if (/\w/.test(ch)) {
-      stream.eatWhile(/[\w\?]/);
+    } else if (/[a-zA-Z_]/.test(ch)) {
+      stream.eatWhile(/[\w]/);
+      stream.eat(/[\?\!]/);
       if (stream.eat(":")) return "atom";
       return "ident";
     } else if (ch == "|" && (state.varList || state.lastTok == "{" || state.lastTok == "do")) {
