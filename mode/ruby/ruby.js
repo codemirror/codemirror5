@@ -31,14 +31,16 @@ CodeMirror.defineMode("ruby", function(config) {
     }
     if (stream.eatSpace()) return null;
     var ch = stream.next(), m;
-    if (ch == "`" || ch == "'" || ch == '"' ||
-        (ch == "/" && !stream.eol() && stream.peek() != " ")) {
+    if (ch == "`" || ch == "'" || ch == '"') {
       return chain(readQuoted(ch, "string", ch == '"' || ch == "`"), stream, state);
+    } else if (ch == "/" && !stream.eol() && stream.peek() != " ") {
+      return chain(readQuoted(ch, "string-2", true), stream, state);
     } else if (ch == "%") {
       var style, embed = false;
       if (stream.eat("s")) style = "atom";
       else if (stream.eat(/[WQ]/)) { style = "string"; embed = true; }
-      else if (stream.eat(/[wxqr]/)) style = "string";
+      else if (stream.eat(/[r]/)) { style = "string-2"; embed = true; }
+      else if (stream.eat(/[wxq]/)) style = "string";
       var delim = stream.eat(/[^\w\s]/);
       if (!delim) return "operator";
       if (matching.propertyIsEnumerable(delim)) delim = matching[delim];
