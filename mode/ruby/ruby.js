@@ -35,7 +35,7 @@ CodeMirror.defineMode("ruby", function(config) {
         (ch == "/" && !stream.eol() && stream.peek() != " ")) {
       return chain(readQuoted(ch, "string", ch == '"' || ch == "`"), stream, state);
     } else if (ch == "%") {
-      var style, embed = false;
+      var style = "string", embed = false;
       if (stream.eat("s")) style = "atom";
       else if (stream.eat(/[WQ]/)) { style = "string"; embed = true; }
       else if (stream.eat(/[wxqr]/)) style = "string";
