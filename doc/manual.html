@@ -282,17 +282,21 @@
       <dd>Controls whether drag-and-drop is enabled. On by default.</dd>
 
       <dt id="option_onDragEvent"><code><strong>onDragEvent</strong>: function(instance: CodeMirror, event: Event) → boolean</code></dt>
-      <dd>When given, this will be called when the editor is handling
+      <dd><em>Deprecated! See <a href="#event_dom">these</a> event
+      handlers for the current recommended approach.</em><br>When given,
+      this will be called when the editor is handling
       a <code>dragenter</code>, <code>dragover</code>,
-      or <code>drop</code> event. It will be passed the editor instance
-      and the event object as arguments. The callback can choose to
-      handle the event itself, in which case it should
+      or <code>drop</code> event. It will be passed the editor
+      instance and the event object as arguments. The callback can
+      choose to handle the event itself, in which case it should
       return <code>true</code> to indicate that CodeMirror should not
       do anything further.</dd>
 
       <dt id="option_onKeyEvent"><code><strong>onKeyEvent</strong>: function(instance: CodeMirror, event: Event) → boolean</code></dt>
-      <dd>This provides a rather low-level hook into CodeMirror's key
-      handling. If provided, this function will be called on
+      <dd><em>Deprecated! See <a href="#event_dom">these</a> event
+      handlers for the current recommended approach.</em><br>This
+      provides a rather low-level hook into CodeMirror's key handling.
+      If provided, this function will be called on
       every <code>keydown</code>, <code>keyup</code>,
       and <code>keypress</code> event that CodeMirror captures. It
       will be passed two arguments, the editor instance and the key
@@ -471,6 +475,15 @@
       added to the document. The handler may mess with the style of
       the resulting element, or add event handlers, but
       should <em>not</em> try to change the state of the editor.</dd>
+
+      <dt id="event_dom"><code><strong>"mousedown"</strong>,
+      <strong>"dblclick"</strong>, <strong>"keydown"</strong>, <strong>"keypress"</strong>,
+      <strong>"keyup"</strong>, <strong>"dragstart"</strong>, <strong>"dragenter"</strong>,
+      <strong>"dragover"</strong>, <strong>"drop"</strong>
+      (instance: CodeMirror, event: Event)</code></dt>
+      <dd>Fired when CodeMirror is handling a DOM event of this type.
+      You can <code>preventDefault</code> the event to signal that
+      CodeMirror should do no further handling.</dd>
     </dl>
 
     <p>It is also possible to <a href="#on">register</a> events on
