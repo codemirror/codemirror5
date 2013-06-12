@@ -108,7 +108,7 @@
 
   function getPrefix(cm, precise) {
     var digits = cm.state.emacsPrefix;
-    if (!digits) return 1;
+    if (!digits) return precise ? null : 1;
     clearPrefix(cm);
     return digits == "-" ? -1 : Number(digits);
   }
@@ -181,7 +181,7 @@
   function addPrefixMap(cm) {
     cm.state.emacsPrefixMap = true;
     cm.addKeyMap(prefixMap);
-    cm.on("keyHandled", maybeRemovePrefixMap);                          
+    cm.on("keyHandled", maybeRemovePrefixMap);
     cm.on("inputRead", maybeRemovePrefixMap);
   }
 
@@ -189,7 +189,7 @@
     if (typeof arg == "string" && (/^\d$/.test(arg) || arg == "Ctrl-U")) return;
     cm.removeKeyMap(prefixMap);
     cm.state.emacsPrefixMap = false;
-    cm.off("keyHandled", maybeRemovePrefixMap);                          
+    cm.off("keyHandled", maybeRemovePrefixMap);
     cm.off("inputRead", maybeRemovePrefixMap);
   }
 
