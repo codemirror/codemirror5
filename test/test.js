@@ -736,7 +736,7 @@ testCM("structuredFold", function(cm) {
   eq(cm.getValue(), "xxxx\nxxxx\nxxxx");
   addDoc(cm, 4, 8);
   range = cm.markText(Pos(1, 2), Pos(6, 2), {
-    replacedWith: document.createTextNode("x"),
+    replacedWith: document.createTextNode("M"),
     clearOnEnter: true
   });
   var cleared = 0;
@@ -757,6 +757,12 @@ testCM("structuredFold", function(cm) {
   cm.setCursor(1, 2);
   CodeMirror.commands.goCharRight(cm);
   eqPos(cm.getCursor(), Pos(1, 3));
+  range = cm.markText(Pos(2, 0), Pos(4, 4), {
+    replacedWith: document.createTextNode("M")
+  });
+  cm.setCursor(1, 0);
+  CodeMirror.commands.goLineDown(cm);
+  eqPos(cm.getCursor(), Pos(2, 0));
 }, null);
 
 testCM("nestedFold", function(cm) {
