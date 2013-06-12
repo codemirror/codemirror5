@@ -117,9 +117,14 @@ CodeMirror.defineMode("ruby", function(config) {
           state.tokenize.pop();
           break;
         }
-        if (embed && ch == "#" && !escaped && stream.eat("{")) {
-          state.tokenize.push(tokenBaseUntilBrace(arguments.callee));
-          break;
+        if (embed && ch == "#" && !escaped) {
+          if (stream.eat("{")) {
+            state.tokenize.push(tokenBaseUntilBrace(arguments.callee));
+            break;
+          } else if (stream.eat("@")) {
+            stream.eatWhile(/[\w\?]/);
+            return "variable-2";
+          }
         }
         escaped = !escaped && ch == "\\";
       }
