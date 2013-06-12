@@ -84,13 +84,18 @@ CodeMirror.defineMode("ruby", function(config) {
         return "atom";
       }
       return "operator";
-    } else if (ch == "@") {
+    } else if (ch == "@" && stream.match(/^@?[a-zA-Z_]/)) {
       stream.eat("@");
       stream.eatWhile(/[\w]/);
       return "variable-2";
     } else if (ch == "$") {
-      stream.next();
-      stream.eatWhile(/[\w]/);
+      if (stream.eat(/[a-zA-Z_]/)) {
+        stream.eatWhile(/[\w]/);
+      } else if (stream.eat(/\d/)) {
+        stream.eat(/\d/);
+      } else {
+        stream.next(); // Must be a special global like $: or $!
+      }
       return "variable-3";
     } else if (/[a-zA-Z_]/.test(ch)) {
       stream.eatWhile(/[\w]/);
