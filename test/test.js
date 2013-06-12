@@ -1351,6 +1351,9 @@ testCM("dirtyBit", function(cm) {
   eq(cm.isClean(), false);
   cm.redo();
   eq(cm.isClean(), true);
+  cm.replaceSelection("clearme");
+  cm.clearHistory();
+  eq(cm.isClean(), true);
 });
 
 testCM("addKeyMap", function(cm) {
