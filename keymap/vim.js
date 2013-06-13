@@ -984,7 +984,7 @@
         function onPromptClose(input) {
           // Give the prompt some time to close so that if processCommand shows
           // an error, the elements don't overlap.
-          window.setTimeout(10, exCommandDispatcher.processCommand(cm, input));
+          exCommandDispatcher.processCommand(cm, input);
         }
         function onPromptKeyDown(e, _input, close) {
           var keyName = CodeMirror.keyName(e);
