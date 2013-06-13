@@ -19,20 +19,23 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
       if (result !== false) return result;
     }
 
-    if ((ch == "0" && stream.match(/^[xX][0-9a-fA-F]+/))
-      || (ch == "x" || ch == "X") && stream.match(/^'[0-9a-fA-F]+'/)) {
+    if (support.hexNumber == true &&
+      ((ch == "0" && stream.match(/^[xX][0-9a-fA-F]+/))
+      || (ch == "x" || ch == "X") && stream.match(/^'[0-9a-fA-F]+'/))) {
       // hex
       // ref: http://dev.mysql.com/doc/refman/5.5/en/hexadecimal-literals.html
       return "number";
-    } else if (((ch == "b" || ch == "B") && stream.match(/^'[01]+'/))
-      || (ch == "0" && stream.match(/^b[01]+/))) {
+    } else if (support.binaryNumber == true &&
+      (((ch == "b" || ch == "B") && stream.match(/^'[01]+'/))
+      || (ch == "0" && stream.match(/^b[01]+/)))) {
       // bitstring
       // ref: http://dev.mysql.com/doc/refman/5.5/en/bit-field-literals.html
       return "number";
     } else if (ch.charCodeAt(0) > 47 && ch.charCodeAt(0) < 58) {
       // numbers
       // ref: http://dev.mysql.com/doc/refman/5.5/en/number-literals.html
-      stream.match(/^[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?/);
+          stream.match(/^[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?/);
+      support.decimallessFloat == true && stream.eat('.');
       return "number";
     } else if (ch == "?" && (stream.eatSpace() || stream.eol() || stream.eat(";"))) {
       // placeholders
@@ -252,7 +255,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     atoms: set("false true null unknown"),
     operatorChars: /^[*+\-%<>!=]/,
     dateSQL: set("date time timestamp"),
-    support: set("ODBCdotTable doubleQuote")
+    support: set("ODBCdotTable doubleQuote binaryNumber hexNumber")
   });
 
   CodeMirror.defineMIME("text/x-mysql", {
@@ -263,7 +266,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     atoms: set("false true null unknown"),
     operatorChars: /^[*+\-%<>!=&|^]/,
     dateSQL: set("date time timestamp"),
-    support: set("ODBCdotTable zerolessFloat doubleQuote nCharCast charsetCast commentHash commentSpaceRequired"),
+    support: set("ODBCdotTable decimallessFloat zerolessFloat binaryNumber hexNumber doubleQuote nCharCast charsetCast commentHash commentSpaceRequired"),
     hooks: {
       "@":   hookVar,
       "`":   hookIdentifier,
@@ -279,7 +282,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     atoms: set("false true null unknown"),
     operatorChars: /^[*+\-%<>!=&|^]/,
     dateSQL: set("date time timestamp"),
-    support: set("ODBCdotTable zerolessFloat doubleQuote nCharCast charsetCast commentHash commentSpaceRequired"),
+    support: set("ODBCdotTable decimallessFloat zerolessFloat binaryNumber hexNumber doubleQuote nCharCast charsetCast commentHash commentSpaceRequired"),
     hooks: {
       "@":   hookVar,
       "`":   hookIdentifier,
@@ -297,7 +300,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     atoms: set("false true"),
     operatorChars: /^[<>=]/,
     dateSQL: { },
-    support: set("commentSlashSlash"),
+    support: set("commentSlashSlash decimallessFloat"),
     hooks: { }
   });
 
@@ -310,7 +313,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     builtin:    set("bfile blob character clob dec float int integer mlslabel natural naturaln nchar nclob number numeric nvarchar2 real rowtype signtype smallint string varchar varchar2"),
     operatorChars: /^[*+\-%<>!=~]/,
     dateSQL:    set("date time timestamp"),
-    support:    set("doubleQuote nCharCast zerolessFloat")
+    support:    set("doubleQuote nCharCast zerolessFloat binaryNumber hexNumber")
   });
 }());
 
