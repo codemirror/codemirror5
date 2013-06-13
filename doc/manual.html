@@ -798,6 +798,15 @@
       <dd>Set the content of line <code>n</code>.</dd>
       <dt id="removeLine"><code><strong>doc.removeLine</strong>(n: integer)</code></dt>
       <dd>Remove the given line from the document.</dd>
+      <dt id="moveLines"><code><strong>doc.moveLines</strong>(start: integer, end: integer, offset: integer)</code></dt>
+      <dd>Move a block of lines <code>[start:end]</code> by an
+      <code>offset</code>. Negtive <code>offset</code> moves the lines up,
+      positive - down.</dd>
+      <dt id="moveSelectedLines"><code><strong>doc.moveSelectedLines</strong>(offset: integer)</code></dt>
+      <dd>Move a block of lines that are under selection or, if nothing is
+      selected, the line that has the cursor by an <code>offset</code>. Negtive
+      <code>offset</code> moves the lines up, positive - down. Selection is
+      also moved with the lines.</dd>
 
       <dt id="lineCount"><code><strong>doc.lineCount</strong>() → integer</code></dt>
       <dd>Get the number of lines in the editor.</dd>
