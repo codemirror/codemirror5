@@ -1382,7 +1382,7 @@
       the mode specification, rather than the resolved, instantiated
       <a href="#defineMode">mode object</a>.</dd>
 
-      <dt id="getTokenAt"><code><strong>cm.getTokenAt</strong>(pos: {line, ch}) → object</code></dt>
+      <dt id="getTokenAt"><code><strong>cm.getTokenAt</strong>(pos: {line, ch}, ?precise: boolean) → object</code></dt>
       <dd>Retrieves information about the token the current mode found
       before the given position (a <code>{line, ch}</code> object). The
       returned object has the following properties:
@@ -1394,14 +1394,19 @@
         to the token, such as <code>"keyword"</code>
         or <code>"comment"</code> (may also be null).</dd>
         <dt><code><strong>state</strong></code></dt><dd>The mode's state at the end of this token.</dd>
-      </dl></dd>
+      </dl>
+      If <code>precise</code> is true, the token will be guaranteed to be accurate based on recent edits. If false or
+      not specified, the token will use cached state information, which will be faster but might not be accurate if
+      edits were recently made and highlighting has not yet completed.
+      </dd>
 
-      <dt id="getStateAfter"><code><strong>cm.getStateAfter</strong>(?line: integer) → object</code></dt>
+      <dt id="getStateAfter"><code><strong>cm.getStateAfter</strong>(?line: integer, ?precise: boolean) → object</code></dt>
       <dd>Returns the mode's parser state, if any, at the end of the
       given line number. If no line number is given, the state at the
       end of the document is returned. This can be useful for storing
       parsing errors in the state, or getting other kinds of
-      contextual information for a line.</dd>
+      contextual information for a line. <code>precise</code> is defined
+      as in <code>getTokenAt()</code>.</dd>
     </dl>
 
     <h3 id="api_misc">Miscellaneous methods</h3>
