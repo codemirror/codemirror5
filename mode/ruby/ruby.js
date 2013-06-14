@@ -112,6 +112,12 @@ CodeMirror.defineMode("ruby", function(config) {
   function readQuoted(quote, style, embed, unescaped) {
     return function(stream, state) {
       var escaped = false, ch;
+
+      if (state.context.type === 'read-quoted-paused') {
+        state.context = state.context.prev;
+        stream.eat("}");
+      }
+
       while ((ch = stream.next()) != null) {
         if (ch == quote && (unescaped || !escaped)) {
           state.tokenize.pop();
@@ -119,7 +125,10 @@ CodeMirror.defineMode("ruby", function(config) {
         }
         if (embed && ch == "#" && !escaped) {
           if (stream.eat("{")) {
-            state.tokenize.push(tokenBaseUntilBrace(arguments.callee));
+            if (quote == "}") {
+              state.context = {prev: state.context, type: 'read-quoted-paused'};
+            }
+            state.tokenize.push(tokenBaseUntilBrace());
             break;
           } else if (stream.eat("@")) {
             stream.eatWhile(/[\w\?]/);
