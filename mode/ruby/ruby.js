@@ -109,6 +109,17 @@ CodeMirror.defineMode("ruby", function(config) {
       return tokenBase(stream, state);
     };
   }
+  function tokenBaseOnce() {
+    var alreadyCalled = false;
+    return function(stream, state) {
+      if (alreadyCalled) {
+        state.tokenize.pop();
+        return state.tokenize[state.tokenize.length-1](stream, state);
+      }
+      alreadyCalled = true;
+      return tokenBase(stream, state);
+    };
+  }
   function readQuoted(quote, style, embed, unescaped) {
     return function(stream, state) {
       var escaped = false, ch;
@@ -121,9 +132,9 @@ CodeMirror.defineMode("ruby", function(config) {
           if (stream.eat("{")) {
             state.tokenize.push(tokenBaseUntilBrace(arguments.callee));
             break;
-          } else if (stream.eat("@")) {
-            stream.eatWhile(/[\w\?]/);
-            return "variable-2";
+          } else if (/[@\$]/.test(stream.peek())) {
+            state.tokenize.push(tokenBaseOnce());
+            break;
           }
         }
         escaped = !escaped && ch == "\\";
