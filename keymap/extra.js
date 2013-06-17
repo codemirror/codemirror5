@@ -26,10 +26,9 @@
       return targetPos.line + 1 - from.line;
     }
   }
-    
+
   function moveSelectedLines(cm, dist) {
     var head = cm.getCursor("head"), anchor = cm.getCursor("anchor");
-    var inv = (head.line - anchor.line || head.ch - anchor.ch) < 0;
     cm.operation(function() {
       var moved = moveLines(cm, Math.min(head.line, anchor.line), Math.max(head.line, anchor.line), dist);
       cm.setSelection(Pos(anchor.line + moved, anchor.ch), Pos(head.line + moved, head.ch));
