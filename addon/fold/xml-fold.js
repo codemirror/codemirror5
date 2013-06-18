@@ -136,7 +136,7 @@
 
   CodeMirror.findMatchingTag = function(cm, pos) {
     var iter = new Iter(cm, pos.line, pos.ch);
-    var end = toTagEnd(iter), endPos = Pos(iter.line, iter.ch), start = toTagStart(iter);
+    var end = toTagEnd(iter), start = toTagStart(iter);
     if (!end || end == "selfClose" || !start) return;
 
     if (start[1]) { // closing tag
