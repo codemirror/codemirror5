@@ -272,7 +272,7 @@
     { keys: ['u'], type: 'action', action: 'undo' },
     { keys: ['<C-r>'], type: 'action', action: 'redo' },
     { keys: ['m', 'character'], type: 'action', action: 'setMark' },
-    { keys: ['\"', 'character'], type: 'action', action: 'setRegister' },
+    { keys: ['"', 'character'], type: 'action', action: 'setRegister' },
     { keys: ['z', 'z'], type: 'action', action: 'scrollToCursor',
         actionArgs: { position: 'center' }},
     { keys: ['z', '.'], type: 'action', action: 'scrollToCursor',
@@ -327,14 +327,11 @@
     var upperCaseAlphabet = makeKeyRange(65, 26);
     var lowerCaseAlphabet = makeKeyRange(97, 26);
     var numbers = makeKeyRange(48, 10);
-    var SPECIAL_SYMBOLS = '~`!@#$%^&*()_-+=[{}]\\|/?.,<>:;\"\'';
-    var specialSymbols = SPECIAL_SYMBOLS.split('');
+    var specialSymbols = '~`!@#$%^&*()_-+=[{}]\\|/?.,<>:;"\''.split('');
     var specialKeys = ['Left', 'Right', 'Up', 'Down', 'Space', 'Backspace',
         'Esc', 'Home', 'End', 'PageUp', 'PageDown', 'Enter'];
-    var validMarks = upperCaseAlphabet.concat(lowerCaseAlphabet).concat(
-        numbers).concat(['<', '>']);
-    var validRegisters = upperCaseAlphabet.concat(lowerCaseAlphabet).concat(
-        numbers).concat('-\"'.split(''));
+    var validMarks = [].concat(upperCaseAlphabet, lowerCaseAlphabet, numbers, ['<', '>']);
+    var validRegisters = [].concat(upperCaseAlphabet, lowerCaseAlphabet, numbers, ['-', '"']);
 
     function isLine(cm, line) {
       return line >= cm.firstLine() && line <= cm.lastLine();
@@ -529,10 +526,11 @@
         exCommandDispatcher.map(lhs, rhs);
       },
       defineEx: function(name, prefix, func){
-        if (name.indexOf(prefix) === 0) {
-          exCommands[name]=func;
-          exCommandDispatcher.commandMap_[prefix]={name:name, shortName:prefix, type:'api'};
-        }else throw new Error("(Vim.defineEx) \""+prefix+"\" is not a prefix of \""+name+"\", command not registered");
+        if (name.indexOf(prefix) !== 0) {
+          throw new Error('(Vim.defineEx) "'+prefix+'" is not a prefix of "'+name+'", command not registered');
+        }
+        exCommands[name]=func;
+        exCommandDispatcher.commandMap_[prefix]={name:name, shortName:prefix, type:'api'};
       },
       // Initializes vim state variable on the CodeMirror object. Should only be
       // called lazily by handleKey or for testing.
@@ -671,7 +669,7 @@
      */
     function RegisterController(registers) {
       this.registers = registers;
-      this.unamedRegister = registers['\"'] = new Register();
+      this.unamedRegister = registers['"'] = new Register();
     }
     RegisterController.prototype = {
       pushText: function(registerName, operator, text, linewise) {
@@ -757,32 +755,31 @@
               // stroke.
               inputState.keyBuffer.push(key);
               return null;
-            } else {
-              if (inputState.operator && command.type == 'action') {
-                // Ignore matched action commands after an operator. Operators
-                // only operate on motions. This check is really for text
-                // objects since aW, a[ etcs conflicts with a.
-                continue;
-              }
-              // Matches whole comand. Return the command.
-              if (command.keys[keys.length - 1] == 'character') {
-                inputState.selectedCharacter = keys[keys.length - 1];
-                if(inputState.selectedCharacter.length>1){
-                  switch(inputState.selectedCharacter){
-                    case "<CR>":
-                      inputState.selectedCharacter='\n';
-                      break;
-                    case "<Space>":
-                      inputState.selectedCharacter=' ';
-                      break;
-                    default:
-                      continue;
-                  }
+            }
+            if (inputState.operator && command.type == 'action') {
+              // Ignore matched action commands after an operator. Operators
+              // only operate on motions. This check is really for text
+              // objects since aW, a[ etcs conflicts with a.
+              continue;
+            }
+            // Matches whole comand. Return the command.
+            if (command.keys[keys.length - 1] == 'character') {
+              inputState.selectedCharacter = keys[keys.length - 1];
+              if(inputState.selectedCharacter.length>1){
+                switch(inputState.selectedCharacter){
+                  case '<CR>':
+                    inputState.selectedCharacter='\n';
+                    break;
+                  case '<Space>':
+                    inputState.selectedCharacter=' ';
+                    break;
+                  default:
+                    continue;
                 }
               }
-              inputState.keyBuffer = [];
-              return command;
             }
+            inputState.keyBuffer = [];
+            return command;
           }
         }
         // Clear the buffer since there are no partial matches.
@@ -1282,7 +1279,7 @@
           endCh=findFirstNonWhiteSpaceCharacter(cm.getLine(line));
           vim.lastHPos = endCh;
         }
-        vim.lastHSPos = cm.charCoords({line:line, ch:endCh},"div").left;
+        vim.lastHSPos = cm.charCoords({line:line, ch:endCh},'div').left;
         return { line: line, ch: endCh };
       },
       moveByDisplayLines: function(cm, motionArgs, vim) {
@@ -1295,10 +1292,10 @@
           case this.moveToEol:
             break;
           default:
-            vim.lastHSPos = cm.charCoords(cur,"div").left;
+            vim.lastHSPos = cm.charCoords(cur,'div').left;
         }
         var repeat = motionArgs.repeat;
-        var res=cm.findPosV(cur,(motionArgs.forward ? repeat : -repeat),"line",vim.lastHSPos);
+        var res=cm.findPosV(cur,(motionArgs.forward ? repeat : -repeat),'line',vim.lastHSPos);
         if (res.hitSide) {
           if (motionArgs.forward) {
             var lastCharCoords = cm.charCoords(res, 'div');
@@ -1386,7 +1383,7 @@
         var repeat = motionArgs.repeat;
         // repeat is equivalent to which column we want to move to!
         vim.lastHPos = repeat - 1;
-        vim.lastHSPos = cm.charCoords(cm.getCursor(),"div").left;
+        vim.lastHSPos = cm.charCoords(cm.getCursor(),'div').left;
         return moveToColumn(cm, repeat);
       },
       moveToEol: function(cm, motionArgs, vim) {
@@ -1395,7 +1392,7 @@
         var retval={ line: cur.line + motionArgs.repeat - 1, ch: Infinity };
         var end=cm.clipPos(retval);
         end.ch--;
-        vim.lastHSPos = cm.charCoords(end,"div").left;
+        vim.lastHSPos = cm.charCoords(end,'div').left;
         return retval;
       },
       moveToFirstNonWhiteSpaceCharacter: function(cm) {
@@ -1580,7 +1577,7 @@
       },
       scrollToCursor: function(cm, actionArgs) {
         var lineNum = cm.getCursor().line;
-        var charCoords = cm.charCoords({line: lineNum, ch: 0}, "local");
+        var charCoords = cm.charCoords({line: lineNum, ch: 0}, 'local');
         var height = cm.getScrollInfo().clientHeight;
         var y = charCoords.top;
         var lineHeight = charCoords.bottom - y;
@@ -1907,7 +1904,7 @@
       '\'': function(cm, inclusive) {
         return findBeginningAndEnd(cm, "'", inclusive);
       },
-      '\"': function(cm, inclusive) {
+      '"': function(cm, inclusive) {
         return findBeginningAndEnd(cm, '"', inclusive);
       }
     };
@@ -1964,7 +1961,8 @@
     function cursorIsBefore(cur1, cur2) {
       if (cur1.line < cur2.line) {
         return true;
-      } else if (cur1.line == cur2.line && cur1.ch < cur2.ch) {
+      }
+      if (cur1.line == cur2.line && cur1.ch < cur2.ch) {
         return true;
       }
       return false;
@@ -1979,17 +1977,16 @@
       return cm.getLine(lineNum).length;
     }
     function reverse(s){
-      return s.split("").reverse().join("");
+      return s.split('').reverse().join('');
     }
     function trim(s) {
       if (s.trim) {
         return s.trim();
-      } else {
-        return s.replace(/^\s+|\s+$/g, '');
       }
+      return s.replace(/^\s+|\s+$/g, '');
     }
     function escapeRegex(s) {
-      return s.replace(/([.?*+$\[\]\/\\(){}|\-])/g, "\\$1");
+      return s.replace(/([.?*+$\[\]\/\\(){}|\-])/g, '\\$1');
     }
 
     function exitVisualMode(cm, vim) {
@@ -2324,7 +2321,7 @@
         pos = (dir > 0) ? 0 : line.length;
       }
       // Should never get here.
-      throw 'The impossible happened.';
+      throw new Error('The impossible happened.');
     }
 
     /**
@@ -2603,7 +2600,7 @@
             onKeyDown: options.onKeyDown, onKeyUp: options.onKeyUp });
       }
       else {
-        onClose(prompt(shortText, ""));
+        onClose(prompt(shortText, ''));
       }
     }
 
@@ -2688,16 +2685,16 @@
     }
     function regexEqual(r1, r2) {
       if (r1 instanceof RegExp && r2 instanceof RegExp) {
-          var props = ["global", "multiline", "ignoreCase", "source"];
+          var props = ['global', 'multiline', 'ignoreCase', 'source'];
           for (var i = 0; i < props.length; i++) {
               var prop = props[i];
               if (r1[prop] !== r2[prop]) {
-                  return(false);
+                  return false;
               }
           }
-          return(true);
+          return true;
       }
-      return(false);
+      return false;
     }
     // Returns true if the query is valid.
     function updateSearchQuery(cm, rawQuery, ignoreCase, smartCase) {
@@ -2731,7 +2728,7 @@
             if (match[0].length == 0) {
               // Matched empty string, skip to next.
               stream.next();
-              return "searching";
+              return 'searching';
             }
             if (!stream.sol()) {
               // Backtrack 1 to match \b
@@ -2742,7 +2739,7 @@
               }
             }
             stream.match(query);
-            return "searching";
+            return 'searching';
           }
           while (!stream.eol()) {
             stream.next();
@@ -2782,7 +2779,8 @@
           }
         }
         return cursor.from();
-      });}
+      });
+    }
     function clearSearchHighlight(cm) {
       cm.removeOverlay(getSearchState(cm).getOverlay());
       getSearchState(cm).setOverlay(null);
@@ -2926,10 +2924,8 @@
             var mark = getVimState(cm).marks[inputStream.next()];
             if (mark && mark.find()) {
               return mark.find().line;
-            } else {
-              throw "Mark not set";
             }
-            break;
+            throw new Error('Mark not set');
           default:
             inputStream.backUp(1);
             return undefined;
@@ -3049,7 +3045,7 @@
             var args = new CodeMirror.StringStream(params.argString);
             if (args.eat('!')) { reverse = true; }
             if (args.eol()) { return; }
-            if (!args.eatSpace()) { throw 'invalid arguments ' + args.match(/.*/)[0]; }
+            if (!args.eatSpace()) { throw new Error('invalid arguments ' + args.match(/.*/)[0]); }
             var opts = args.match(/[a-z]+/);
             if (opts) {
               opts = opts[0];
@@ -3058,10 +3054,10 @@
               var decimal = opts.indexOf('d') != -1 && 1;
               var hex = opts.indexOf('x') != -1 && 1;
               var octal = opts.indexOf('o') != -1 && 1;
-              if (decimal + hex + octal > 1) { throw 'invalid arguments'; }
+              if (decimal + hex + octal > 1) { throw new Error('invalid arguments'); }
               number = decimal && 'decimal' || hex && 'hex' || octal && 'octal';
             }
-            if (args.eatSpace() && args.match(/\/.*\//)) { throw 'patterns not supported'; }
+            if (args.eatSpace() && args.match(/\/.*\//)) { throw new Error('patterns not supported'); }
           }
         }
         parseArgs();
@@ -3115,8 +3111,8 @@
       },
       substitute: function(cm, params) {
         if (!cm.getSearchCursor) {
-          throw 'Search feature not available. Requires searchcursor.js or ' +
-              'any other getSearchCursor implementation.';
+          throw new Error('Search feature not available. Requires searchcursor.js or ' +
+              'any other getSearchCursor implementation.');
         }
         var argString = params.argString;
         var slashes = findUnescapedSlashes(argString);
@@ -3236,7 +3232,7 @@
                 delete state.marks[mark];
               }
             } else {
-              showConfirm(cm, 'Invalid argument: ' + startMark + "-");
+              showConfirm(cm, 'Invalid argument: ' + startMark + '-');
               return;
             }
           } else {
@@ -3326,7 +3322,7 @@
       // Actually do replace.
       next();
       if (done) {
-        throw 'No matches for ' + query.source;
+        throw new Error('No matches for ' + query.source);
       }
       if (!confirm) {
         replaceAll();
