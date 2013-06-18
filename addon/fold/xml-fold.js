@@ -138,7 +138,6 @@
     var iter = new Iter(cm, pos.line, pos.ch);
     var end = toTagEnd(iter), endPos = Pos(iter.line, iter.ch), start = toTagStart(iter);
     if (!end || end == "selfClose" || !start) return;
-    var here = {from: Pos(iter.line, iter.ch), to: endPos};
 
     if (start[1]) { // closing tag
       return findMatchingOpen(iter, start[2]);
