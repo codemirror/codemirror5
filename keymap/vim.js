@@ -331,10 +331,8 @@
     var specialSymbols = SPECIAL_SYMBOLS.split('');
     var specialKeys = ['Left', 'Right', 'Up', 'Down', 'Space', 'Backspace',
         'Esc', 'Home', 'End', 'PageUp', 'PageDown', 'Enter'];
-    var validMarks = upperCaseAlphabet.concat(lowerCaseAlphabet).concat(
-        numbers).concat(['<', '>']);
-    var validRegisters = upperCaseAlphabet.concat(lowerCaseAlphabet).concat(
-        numbers).concat('-\"'.split(''));
+    var validMarks = [].concat(upperCaseAlphabet, lowerCaseAlphabet, numbers, ['<', '>']);
+    var validRegisters = [].concat(upperCaseAlphabet, lowerCaseAlphabet, numbers, ['-', '"']);
 
     function isLine(cm, line) {
       return line >= cm.firstLine() && line <= cm.lastLine();
