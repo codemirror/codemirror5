@@ -2778,7 +2778,8 @@
           }
         }
         return cursor.from();
-      });}
+      });
+    }
     function clearSearchHighlight(cm) {
       cm.removeOverlay(getSearchState(cm).getOverlay());
       getSearchState(cm).setOverlay(null);
