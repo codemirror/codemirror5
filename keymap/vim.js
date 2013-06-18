@@ -526,10 +526,10 @@
         exCommandDispatcher.map(lhs, rhs);
       },
       defineEx: function(name, prefix, func){
-        if (name.indexOf(prefix) === 0) {
-          exCommands[name]=func;
-          exCommandDispatcher.commandMap_[prefix]={name:name, shortName:prefix, type:'api'};
-        }else throw new Error('(Vim.defineEx) "'+prefix+'" is not a prefix of "'+name+'", command not registered');
+        if (name.indexOf(prefix) !== 0)
+          throw new Error('(Vim.defineEx) "'+prefix+'" is not a prefix of "'+name+'", command not registered');
+        exCommands[name]=func;
+        exCommandDispatcher.commandMap_[prefix]={name:name, shortName:prefix, type:'api'};
       },
       // Initializes vim state variable on the CodeMirror object. Should only be
       // called lazily by handleKey or for testing.
