@@ -766,10 +766,10 @@
                 inputState.selectedCharacter = keys[keys.length - 1];
                 if(inputState.selectedCharacter.length>1){
                   switch(inputState.selectedCharacter){
-                    case "<CR>":
+                    case '<CR>':
                       inputState.selectedCharacter='\n';
                       break;
-                    case "<Space>":
+                    case '<Space>':
                       inputState.selectedCharacter=' ';
                       break;
                     default:
@@ -1279,7 +1279,7 @@
           endCh=findFirstNonWhiteSpaceCharacter(cm.getLine(line));
           vim.lastHPos = endCh;
         }
-        vim.lastHSPos = cm.charCoords({line:line, ch:endCh},"div").left;
+        vim.lastHSPos = cm.charCoords({line:line, ch:endCh},'div').left;
         return { line: line, ch: endCh };
       },
       moveByDisplayLines: function(cm, motionArgs, vim) {
@@ -1292,10 +1292,10 @@
           case this.moveToEol:
             break;
           default:
-            vim.lastHSPos = cm.charCoords(cur,"div").left;
+            vim.lastHSPos = cm.charCoords(cur,'div').left;
         }
         var repeat = motionArgs.repeat;
-        var res=cm.findPosV(cur,(motionArgs.forward ? repeat : -repeat),"line",vim.lastHSPos);
+        var res=cm.findPosV(cur,(motionArgs.forward ? repeat : -repeat),'line',vim.lastHSPos);
         if (res.hitSide) {
           if (motionArgs.forward) {
             var lastCharCoords = cm.charCoords(res, 'div');
@@ -1383,7 +1383,7 @@
         var repeat = motionArgs.repeat;
         // repeat is equivalent to which column we want to move to!
         vim.lastHPos = repeat - 1;
-        vim.lastHSPos = cm.charCoords(cm.getCursor(),"div").left;
+        vim.lastHSPos = cm.charCoords(cm.getCursor(),'div').left;
         return moveToColumn(cm, repeat);
       },
       moveToEol: function(cm, motionArgs, vim) {
@@ -1392,7 +1392,7 @@
         var retval={ line: cur.line + motionArgs.repeat - 1, ch: Infinity };
         var end=cm.clipPos(retval);
         end.ch--;
-        vim.lastHSPos = cm.charCoords(end,"div").left;
+        vim.lastHSPos = cm.charCoords(end,'div').left;
         return retval;
       },
       moveToFirstNonWhiteSpaceCharacter: function(cm) {
@@ -1577,7 +1577,7 @@
       },
       scrollToCursor: function(cm, actionArgs) {
         var lineNum = cm.getCursor().line;
-        var charCoords = cm.charCoords({line: lineNum, ch: 0}, "local");
+        var charCoords = cm.charCoords({line: lineNum, ch: 0}, 'local');
         var height = cm.getScrollInfo().clientHeight;
         var y = charCoords.top;
         var lineHeight = charCoords.bottom - y;
@@ -1976,7 +1976,7 @@
       return cm.getLine(lineNum).length;
     }
     function reverse(s){
-      return s.split("").reverse().join("");
+      return s.split('').reverse().join('');
     }
     function trim(s) {
       if (s.trim) {
@@ -1986,7 +1986,7 @@
       }
     }
     function escapeRegex(s) {
-      return s.replace(/([.?*+$\[\]\/\\(){}|\-])/g, "\\$1");
+      return s.replace(/([.?*+$\[\]\/\\(){}|\-])/g, '\\$1');
     }
 
     function exitVisualMode(cm, vim) {
@@ -2600,7 +2600,7 @@
             onKeyDown: options.onKeyDown, onKeyUp: options.onKeyUp });
       }
       else {
-        onClose(prompt(shortText, ""));
+        onClose(prompt(shortText, ''));
       }
     }
 
@@ -2685,7 +2685,7 @@
     }
     function regexEqual(r1, r2) {
       if (r1 instanceof RegExp && r2 instanceof RegExp) {
-          var props = ["global", "multiline", "ignoreCase", "source"];
+          var props = ['global', 'multiline', 'ignoreCase', 'source'];
           for (var i = 0; i < props.length; i++) {
               var prop = props[i];
               if (r1[prop] !== r2[prop]) {
@@ -2728,7 +2728,7 @@
             if (match[0].length == 0) {
               // Matched empty string, skip to next.
               stream.next();
-              return "searching";
+              return 'searching';
             }
             if (!stream.sol()) {
               // Backtrack 1 to match \b
@@ -2739,7 +2739,7 @@
               }
             }
             stream.match(query);
-            return "searching";
+            return 'searching';
           }
           while (!stream.eol()) {
             stream.next();
@@ -2924,7 +2924,7 @@
             if (mark && mark.find()) {
               return mark.find().line;
             } else {
-              throw new Error("Mark not set");
+              throw new Error('Mark not set');
             }
             break;
           default:
@@ -3233,7 +3233,7 @@
                 delete state.marks[mark];
               }
             } else {
-              showConfirm(cm, 'Invalid argument: ' + startMark + "-");
+              showConfirm(cm, 'Invalid argument: ' + startMark + '-');
               return;
             }
           } else {
