@@ -2688,12 +2688,12 @@
           for (var i = 0; i < props.length; i++) {
               var prop = props[i];
               if (r1[prop] !== r2[prop]) {
-                  return(false);
+                  return false;
               }
           }
-          return(true);
+          return true;
       }
-      return(false);
+      return false;
     }
     // Returns true if the query is valid.
     function updateSearchQuery(cm, rawQuery, ignoreCase, smartCase) {
