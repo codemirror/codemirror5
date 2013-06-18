@@ -526,8 +526,9 @@
         exCommandDispatcher.map(lhs, rhs);
       },
       defineEx: function(name, prefix, func){
-        if (name.indexOf(prefix) !== 0)
+        if (name.indexOf(prefix) !== 0) {
           throw new Error('(Vim.defineEx) "'+prefix+'" is not a prefix of "'+name+'", command not registered');
+        }
         exCommands[name]=func;
         exCommandDispatcher.commandMap_[prefix]={name:name, shortName:prefix, type:'api'};
       },
