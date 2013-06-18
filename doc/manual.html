@@ -1407,6 +1407,14 @@
       edits were recently made and highlighting has not yet completed.
       </dd>
 
+      <dt id="getTokenTypeAt"><code><strong>cm.getTokenTypeAt</strong>(pos: {line, ch}) → string</code></dt>
+      <dd>This is a (much) cheaper version
+      of <a href="#getTokenAt"><code>getTokenAt</code></a> useful for
+      when you just need the type of the token at a given position,
+      and no other information. Will return <code>null</code> for
+      unstyled tokens, and a string, potentially containing multiple
+      space-separated style names, otherwise.</dd>
+
       <dt id="getStateAfter"><code><strong>cm.getStateAfter</strong>(?line: integer, ?precise: boolean) → object</code></dt>
       <dd>Returns the mode's parser state, if any, at the end of the
       given line number. If no line number is given, the state at the

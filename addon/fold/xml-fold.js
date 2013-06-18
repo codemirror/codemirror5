@@ -12,6 +12,11 @@
     this.cm = cm; this.text = cm.getLine(line);
   }
 
+  function tagAt(iter, ch) {
+    var type = iter.cm.getTokenTypeAt(Pos(iter.line, ch));
+    return type && /\btag\b/.test(type);
+  }
+
   function nextLine(iter) {
     if (iter.line >= iter.cm.lastLine()) return;
     iter.ch = 0;
@@ -29,6 +34,7 @@
     for (;;) {
       var gt = iter.text.indexOf(">", iter.ch);
       if (gt == -1) { if (nextLine(iter)) continue; else return; }
+      if (!tagAt(iter, gt + 1)) { iter.ch = gt + 1; continue; }
       var lastSlash = iter.text.lastIndexOf("/", gt);
       var selfClose = lastSlash > -1 && !/\S/.test(iter.text.slice(lastSlash + 1, gt));
       iter.ch = gt + 1;
@@ -39,6 +45,7 @@
     for (;;) {
       var lt = iter.text.lastIndexOf("<", iter.ch - 1);
       if (lt == -1) { if (prevLine(iter)) continue; else return; }
+      if (!tagAt(iter, lt + 1)) { iter.ch = lt; continue; }
       xmlTagStart.lastIndex = lt;
       iter.ch = lt;
       var match = xmlTagStart.exec(iter.text);
@@ -51,6 +58,7 @@
       xmlTagStart.lastIndex = iter.ch;
       var found = xmlTagStart.exec(iter.text);
       if (!found) { if (nextLine(iter)) continue; else return; }
+      if (!tagAt(iter, found.index + 1)) { iter.ch = found.index + 1; continue; }
       iter.ch = found.index + found[0].length;
       return found;
     }
@@ -59,6 +67,7 @@
     for (;;) {
       var gt = iter.text.lastIndexOf(">", iter.ch - 1);
       if (gt == -1) { if (prevLine(iter)) continue; else return; }
+      if (!tagAt(iter, gt + 1)) { iter.ch = gt; continue; }
       var lastSlash = iter.text.lastIndexOf("/", gt);
       var selfClose = lastSlash > -1 && !/\S/.test(iter.text.slice(lastSlash + 1, gt));
       iter.ch = gt + 1;
