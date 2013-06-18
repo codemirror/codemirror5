@@ -272,7 +272,7 @@
     { keys: ['u'], type: 'action', action: 'undo' },
     { keys: ['<C-r>'], type: 'action', action: 'redo' },
     { keys: ['m', 'character'], type: 'action', action: 'setMark' },
-    { keys: ['\"', 'character'], type: 'action', action: 'setRegister' },
+    { keys: ['"', 'character'], type: 'action', action: 'setRegister' },
     { keys: ['z', 'z'], type: 'action', action: 'scrollToCursor',
         actionArgs: { position: 'center' }},
     { keys: ['z', '.'], type: 'action', action: 'scrollToCursor',
@@ -327,7 +327,7 @@
     var upperCaseAlphabet = makeKeyRange(65, 26);
     var lowerCaseAlphabet = makeKeyRange(97, 26);
     var numbers = makeKeyRange(48, 10);
-    var SPECIAL_SYMBOLS = '~`!@#$%^&*()_-+=[{}]\\|/?.,<>:;\"\'';
+    var SPECIAL_SYMBOLS = '~`!@#$%^&*()_-+=[{}]\\|/?.,<>:;"\'';
     var specialSymbols = SPECIAL_SYMBOLS.split('');
     var specialKeys = ['Left', 'Right', 'Up', 'Down', 'Space', 'Backspace',
         'Esc', 'Home', 'End', 'PageUp', 'PageDown', 'Enter'];
@@ -530,7 +530,7 @@
         if (name.indexOf(prefix) === 0) {
           exCommands[name]=func;
           exCommandDispatcher.commandMap_[prefix]={name:name, shortName:prefix, type:'api'};
-        }else throw new Error("(Vim.defineEx) \""+prefix+"\" is not a prefix of \""+name+"\", command not registered");
+        }else throw new Error('(Vim.defineEx) "'+prefix+'" is not a prefix of "'+name+'", command not registered');
       },
       // Initializes vim state variable on the CodeMirror object. Should only be
       // called lazily by handleKey or for testing.
@@ -669,7 +669,7 @@
      */
     function RegisterController(registers) {
       this.registers = registers;
-      this.unamedRegister = registers['\"'] = new Register();
+      this.unamedRegister = registers['"'] = new Register();
     }
     RegisterController.prototype = {
       pushText: function(registerName, operator, text, linewise) {
@@ -1905,7 +1905,7 @@
       '\'': function(cm, inclusive) {
         return findBeginningAndEnd(cm, "'", inclusive);
       },
-      '\"': function(cm, inclusive) {
+      '"': function(cm, inclusive) {
         return findBeginningAndEnd(cm, '"', inclusive);
       }
     };
