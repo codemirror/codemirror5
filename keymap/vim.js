@@ -754,32 +754,31 @@
               // stroke.
               inputState.keyBuffer.push(key);
               return null;
-            } else {
-              if (inputState.operator && command.type == 'action') {
-                // Ignore matched action commands after an operator. Operators
-                // only operate on motions. This check is really for text
-                // objects since aW, a[ etcs conflicts with a.
-                continue;
-              }
-              // Matches whole comand. Return the command.
-              if (command.keys[keys.length - 1] == 'character') {
-                inputState.selectedCharacter = keys[keys.length - 1];
-                if(inputState.selectedCharacter.length>1){
-                  switch(inputState.selectedCharacter){
-                    case '<CR>':
-                      inputState.selectedCharacter='\n';
-                      break;
-                    case '<Space>':
-                      inputState.selectedCharacter=' ';
-                      break;
-                    default:
-                      continue;
-                  }
+            }
+            if (inputState.operator && command.type == 'action') {
+              // Ignore matched action commands after an operator. Operators
+              // only operate on motions. This check is really for text
+              // objects since aW, a[ etcs conflicts with a.
+              continue;
+            }
+            // Matches whole comand. Return the command.
+            if (command.keys[keys.length - 1] == 'character') {
+              inputState.selectedCharacter = keys[keys.length - 1];
+              if(inputState.selectedCharacter.length>1){
+                switch(inputState.selectedCharacter){
+                  case '<CR>':
+                    inputState.selectedCharacter='\n';
+                    break;
+                  case '<Space>':
+                    inputState.selectedCharacter=' ';
+                    break;
+                  default:
+                    continue;
                 }
               }
-              inputState.keyBuffer = [];
-              return command;
             }
+            inputState.keyBuffer = [];
+            return command;
           }
         }
         // Clear the buffer since there are no partial matches.
@@ -1961,7 +1960,8 @@
     function cursorIsBefore(cur1, cur2) {
       if (cur1.line < cur2.line) {
         return true;
-      } else if (cur1.line == cur2.line && cur1.ch < cur2.ch) {
+      }
+      if (cur1.line == cur2.line && cur1.ch < cur2.ch) {
         return true;
       }
       return false;
@@ -1981,9 +1981,8 @@
     function trim(s) {
       if (s.trim) {
         return s.trim();
-      } else {
-        return s.replace(/^\s+|\s+$/g, '');
       }
+      return s.replace(/^\s+|\s+$/g, '');
     }
     function escapeRegex(s) {
       return s.replace(/([.?*+$\[\]\/\\(){}|\-])/g, '\\$1');
@@ -2923,10 +2922,8 @@
             var mark = getVimState(cm).marks[inputStream.next()];
             if (mark && mark.find()) {
               return mark.find().line;
-            } else {
-              throw new Error('Mark not set');
             }
-            break;
+            throw new Error('Mark not set');
           default:
             inputStream.backUp(1);
             return undefined;
