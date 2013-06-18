@@ -2321,7 +2321,7 @@
         pos = (dir > 0) ? 0 : line.length;
       }
       // Should never get here.
-      throw 'The impossible happened.';
+      throw new Error('The impossible happened.');
     }
 
     /**
@@ -2924,7 +2924,7 @@
             if (mark && mark.find()) {
               return mark.find().line;
             } else {
-              throw "Mark not set";
+              throw new Error("Mark not set");
             }
             break;
           default:
@@ -3046,7 +3046,7 @@
             var args = new CodeMirror.StringStream(params.argString);
             if (args.eat('!')) { reverse = true; }
             if (args.eol()) { return; }
-            if (!args.eatSpace()) { throw 'invalid arguments ' + args.match(/.*/)[0]; }
+            if (!args.eatSpace()) { throw new Error('invalid arguments ' + args.match(/.*/)[0]); }
             var opts = args.match(/[a-z]+/);
             if (opts) {
               opts = opts[0];
@@ -3055,10 +3055,10 @@
               var decimal = opts.indexOf('d') != -1 && 1;
               var hex = opts.indexOf('x') != -1 && 1;
               var octal = opts.indexOf('o') != -1 && 1;
-              if (decimal + hex + octal > 1) { throw 'invalid arguments'; }
+              if (decimal + hex + octal > 1) { throw new Error('invalid arguments'); }
               number = decimal && 'decimal' || hex && 'hex' || octal && 'octal';
             }
-            if (args.eatSpace() && args.match(/\/.*\//)) { throw 'patterns not supported'; }
+            if (args.eatSpace() && args.match(/\/.*\//)) { throw new Error('patterns not supported'); }
           }
         }
         parseArgs();
@@ -3112,8 +3112,8 @@
       },
       substitute: function(cm, params) {
         if (!cm.getSearchCursor) {
-          throw 'Search feature not available. Requires searchcursor.js or ' +
-              'any other getSearchCursor implementation.';
+          throw new Error('Search feature not available. Requires searchcursor.js or ' +
+              'any other getSearchCursor implementation.');
         }
         var argString = params.argString;
         var slashes = findUnescapedSlashes(argString);
@@ -3323,7 +3323,7 @@
       // Actually do replace.
       next();
       if (done) {
-        throw 'No matches for ' + query.source;
+        throw new Error('No matches for ' + query.source);
       }
       if (!confirm) {
         replaceAll();
