@@ -327,8 +327,7 @@
     var upperCaseAlphabet = makeKeyRange(65, 26);
     var lowerCaseAlphabet = makeKeyRange(97, 26);
     var numbers = makeKeyRange(48, 10);
-    var SPECIAL_SYMBOLS = '~`!@#$%^&*()_-+=[{}]\\|/?.,<>:;"\'';
-    var specialSymbols = SPECIAL_SYMBOLS.split('');
+    var specialSymbols = '~`!@#$%^&*()_-+=[{}]\\|/?.,<>:;"\''.split('');
     var specialKeys = ['Left', 'Right', 'Up', 'Down', 'Space', 'Backspace',
         'Esc', 'Home', 'End', 'PageUp', 'PageDown', 'Enter'];
     var validMarks = [].concat(upperCaseAlphabet, lowerCaseAlphabet, numbers, ['<', '>']);
