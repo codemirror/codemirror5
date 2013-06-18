@@ -76,9 +76,9 @@
   }
 
   function findMatchingClose(iter, tag) {
-    var stack = [tag];
+    var stack = [];
     for (;;) {
-      var next = toNextTag(iter), end, tagLine = iter.line, tagCh = iter.ch - (next ? next[0].length : 0);
+      var next = toNextTag(iter), end, startLine = iter.line, startCh = iter.ch - (next ? next[0].length : 0);
       if (!next || !(end = toTagEnd(iter))) return;
       if (end == "selfClose") continue;
       if (next[1]) { // closing tag
@@ -86,19 +86,23 @@
           stack.length = i;
           break;
         }
-        if (!stack.length) return Pos(tagLine, tagCh);
+        if (i < 0 && (!tag || tag == next[2])) return {
+          tag: next[2],
+          from: Pos(startLine, startCh),
+          to: Pos(iter.line, iter.ch)
+        };
       } else { // opening tag
         stack.push(next[2]);
       }
     }
   }
   function findMatchingOpen(iter, tag) {
-    var stack = [tag];
+    var stack = [];
     for (;;) {
       var prev = toPrevTag(iter);
       if (!prev) return;
       if (prev == "selfClose") { toTagStart(iter); continue; }
-      var tagLine = iter.line, tagCh = iter.ch;
+      var endLine = iter.line, endCh = iter.ch;
       var start = toTagStart(iter);
       if (!start) return;
       if (start[1]) { // closing tag
@@ -108,7 +112,11 @@
           stack.length = i;
           break;
         }
-        if (!stack.length) return Pos(tagLine, tagCh);
+        if (i < 0 && (!tag || tag == start[2])) return {
+          tag: start[2],
+          from: Pos(iter.line, iter.ch),
+          to: Pos(endLine, endCh)
+        };
       }
     }
   }
@@ -119,24 +127,35 @@
       var openTag = toNextTag(iter), end;
       if (!openTag || iter.line != start.line || !(end = toTagEnd(iter))) return;
       if (!openTag[1] && end != "selfClose") {
-        var startCh = iter.ch, close = findMatchingClose(iter, openTag[2]);
-        return close && {from: Pos(start.line, startCh), to: close};
+        var start = Pos(iter.line, iter.ch);
+        var close = findMatchingClose(iter, openTag[2]);
+        return close && {from: start, to: close.from};
       }
     }
   };
 
   CodeMirror.findMatchingTag = function(cm, pos) {
     var iter = new Iter(cm, pos.line, pos.ch);
-    var end = toTagEnd(iter), start = toTagStart(iter);
+    var end = toTagEnd(iter), endPos = Pos(iter.line, iter.ch), start = toTagStart(iter);
     if (!end || end == "selfClose" || !start) return;
+    var here = {from: Pos(iter.line, iter.ch), to: endPos};
 
     if (start[1]) { // closing tag
-      var open = findMatchingOpen(iter, start[2]);
-      return open && {from: Pos(iter.line, iter.ch), to: open};
+      return findMatchingOpen(iter, start[2]);
     } else { // opening tag
       toTagEnd(iter);
-      var close = findMatchingClose(iter, start[2]);
-      return close && {from: close, to: Pos(iter.line, iter.ch)};
+      return findMatchingClose(iter, start[2]);
+    }
+  };
+
+  CodeMirror.findEnclosingTag = function(cm, pos) {
+    var iter = new Iter(cm, pos.line, pos.ch);
+    for (;;) {
+      var open = findMatchingOpen(iter);
+      if (!open) break;
+      var forward = new Iter(cm, pos.line, pos.ch);
+      var close = findMatchingClose(forward, open.tag);
+      if (close) return {open: open, close: close};
     }
   };
 })();
