@@ -1478,9 +1478,11 @@
             operatorArgs.registerName, 'change', cm.getRange(curStart, curEnd),
             operatorArgs.linewise);
         if (operatorArgs.linewise) {
+          // Push the next line back down, if there is a next line.
           var replacement = curEnd.line === cm.lineCount() ? '' : '\n';
           cm.replaceRange(replacement, curStart, curEnd);
           cm.indentLine(curStart.line, 'smart');
+          // null ch so setCursor moves to end of line
           curStart.ch = null;
         } else {
           // Exclude trailing whitespace if the range is not all whitespace.
