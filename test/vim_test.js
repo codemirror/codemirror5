@@ -820,12 +820,6 @@ testVim('dd_lastline', function(cm, vim, helpers) {
   eq(expectedLineCount, cm.lineCount());
   helpers.assertCursorAt(cm.lineCount() - 1, 0);
 });
-testVim('cw', function(cm, vim, helpers) {
-  cm.setCursor(0, 0);
-  helpers.doKeys('c', '2', 'w');
-  eq(' word3', cm.getValue());
-  helpers.assertCursorAt(0, 0);
-}, { value: 'word1 word2 word3'});
 // Yank commands should behave the exact same as d commands, expect that nothing
 // gets deleted.
 testVim('yw_repeat', function(cm, vim, helpers) {
@@ -856,6 +850,12 @@ testVim('yy_multiply_repeat', function(cm, vim, helpers) {
 // Change commands behave like d commands except that it also enters insert
 // mode. In addition, when the change is linewise, an additional newline is
 // inserted so that insert mode starts on that line.
+testVim('cw', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('c', '2', 'w');
+  eq(' word3', cm.getValue());
+  helpers.assertCursorAt(0, 0);
+}, { value: 'word1 word2 word3'});
 testVim('ck_start_of_document', function(cm, vim, helpers) {
   var curStart = makeCursor(0, 3);
   cm.setCursor(curStart);
