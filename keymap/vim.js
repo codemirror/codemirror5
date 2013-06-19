@@ -1487,9 +1487,15 @@
           // TODO: Fix the above.
           curStart.ch =
               findFirstNonWhiteSpaceCharacter(cm.getLine(curStart.line));
-          // Insert an additional newline so that insert mode can start there.
-          // curEnd should be on the first character of the new line.
-          cm.replaceRange('\n', curStart, curEnd);
+          if (cm.lastLine() < curEnd.line) {
+            // Since this is the last line, inserting a new line would increase
+            // the size of the document.
+            cm.replaceRange('', curStart, curEnd);
+          } else {
+            // Insert an additional newline so that insert mode can start there.
+            // curEnd should be on the first character of the new line.
+            cm.replaceRange('\n', curStart, curEnd);
+          }
         } else {
           // Exclude trailing whitespace if the range is not all whitespace.
           var text = cm.getRange(curStart, curEnd);
