@@ -877,7 +877,6 @@ testVim('cc_multiply_repeat', function(cm, vim, helpers) {
   var register = helpers.getRegisterController().getRegister();
   eq(expectedBuffer, register.text);
   is(register.linewise);
-  helpers.assertCursorAt(0, lines[0].textStart);
   eq('vim-insert', cm.getOption('keyMap'));
 });
 // Swapcase commands edit in place and do not modify registers.

@@ -1478,18 +1478,9 @@
             operatorArgs.registerName, 'change', cm.getRange(curStart, curEnd),
             operatorArgs.linewise);
         if (operatorArgs.linewise) {
-          // Delete starting at the first nonwhitespace character of the first
-          // line, instead of from the start of the first line. This way we get
-          // an indent when we get into insert mode. This behavior isn't quite
-          // correct because we should treat this as a completely new line, and
-          // indent should be whatever codemirror thinks is the right indent.
-          // But cm.indentLine doesn't seem work on empty lines.
-          // TODO: Fix the above.
-          curStart.ch =
-              findFirstNonWhiteSpaceCharacter(cm.getLine(curStart.line));
-          // Insert an additional newline so that insert mode can start there.
-          // curEnd should be on the first character of the new line.
           cm.replaceRange('\n', curStart, curEnd);
+          cm.indentLine(curStart.line, 'smart');
+          curStart.ch = null;
         } else {
           // Exclude trailing whitespace if the range is not all whitespace.
           var text = cm.getRange(curStart, curEnd);
