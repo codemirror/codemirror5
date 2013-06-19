@@ -1466,12 +1466,25 @@
 
     var operators = {
       change: function(cm, operatorArgs, _vim, curStart, curEnd) {
+        if (operatorArgs.linewise) {
+          // Emulate odd vim behavior.
+          var first = cm.firstLine();
+          var last = cm.lastLine();
+          if (curStart.line == last && curEnd.line > last + 1) {
+            operatorArgs.enterInsertMode = false;
+            return;
+          }
+          if (curEnd.line == first + 1 && curStart.line < first) {
+            operatorArgs.enterInsertMode = false;
+            return;
+          }
+        }
         getVimGlobalState().registerController.pushText(
             operatorArgs.registerName, 'change', cm.getRange(curStart, curEnd),
             operatorArgs.linewise);
         if (operatorArgs.linewise) {
           // Push the next line back down, if there is a next line.
-          var replacement = curEnd.line === cm.lastLine() + 1 ? '' : '\n';
+          var replacement = curEnd.line > cm.lastLine() ? '' : '\n';
           cm.replaceRange(replacement, curStart, curEnd);
           cm.indentLine(curStart.line, 'smart');
           // null ch so setCursor moves to end of line.

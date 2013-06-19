@@ -856,6 +856,26 @@ testVim('yy_multiply_repeat', function(cm, vim, helpers) {
 // Change commands behave like d commands except that it also enters insert
 // mode. In addition, when the change is linewise, an additional newline is
 // inserted so that insert mode starts on that line.
+testVim('ck_start_of_document', function(cm, vim, helpers) {
+  var curStart = makeCursor(0, 3);
+  cm.setCursor(curStart);
+  helpers.doKeys('c', 'k');
+  eq(' word1 ', cm.getValue());
+  var register = helpers.getRegisterController().getRegister();
+  eq('', register.text);
+  is(!register.linewise);
+  helpers.assertCursorAt(0, 3);
+}, { value: ' word1 ' });
+testVim('cj_end_of_document', function(cm, vim, helpers) {
+  var curStart = makeCursor(0, 3);
+  cm.setCursor(curStart);
+  helpers.doKeys('c', 'j');
+  eq(' word1 ', cm.getValue());
+  var register = helpers.getRegisterController().getRegister();
+  eq('', register.text);
+  is(!register.linewise);
+  helpers.assertCursorAt(0, 3);
+}, { value: ' word1 ' });
 testVim('cw_repeat', function(cm, vim, helpers) {
   // Assert that cw does delete newline if it should go to the next line, and
   // that repeat works properly.
