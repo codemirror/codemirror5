@@ -1478,7 +1478,8 @@
             operatorArgs.registerName, 'change', cm.getRange(curStart, curEnd),
             operatorArgs.linewise);
         if (operatorArgs.linewise) {
-          cm.replaceRange('\n', curStart, curEnd);
+          var replacement = curEnd.line === cm.lineCount() ? '' : '\n';
+          cm.replaceRange(replacement, curStart, curEnd);
           cm.indentLine(curStart.line, 'smart');
           curStart.ch = null;
         } else {

@@ -879,6 +879,12 @@ testVim('cc_multiply_repeat', function(cm, vim, helpers) {
   is(register.linewise);
   eq('vim-insert', cm.getOption('keyMap'));
 });
+testVim('cc_append', function(cm, vim, helpers) {
+  var expectedLineCount = cm.lineCount();
+  cm.setCursor(cm.lastLine(), 0);
+  helpers.doKeys('c', 'c');
+  eq(expectedLineCount, cm.lineCount());
+});
 // Swapcase commands edit in place and do not modify registers.
 testVim('g~w_repeat', function(cm, vim, helpers) {
   // Assert that dw does delete newline if it should go to the next line, and
