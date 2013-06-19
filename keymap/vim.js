@@ -558,11 +558,6 @@
           }
           return;
         }
-        if (vim.visualMode &&
-            cursorEqual(cm.getCursor('head'), cm.getCursor('anchor'))) {
-          // The selection was cleared. Exit visual mode.
-          exitVisualMode(cm, vim);
-        }
         if (!vim.visualMode &&
             !cursorEqual(cm.getCursor('head'), cm.getCursor('anchor'))) {
           vim.visualMode = true;
