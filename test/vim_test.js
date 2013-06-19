@@ -1499,10 +1499,9 @@ testVim('visual_join', function(cm, vim, helpers) {
   eq(' 1 2 3\n 4\n 5', cm.getValue());
 }, { value: ' 1\n 2\n 3\n 4\n 5' });
 testVim('visual_blank', function(cm, vim, helpers) {
-  cm.setCursor(11, 0);
   helpers.doKeys('v', 'k');
   eq(vim.visualMode, true);
-});
+}, { value: '\n' });
 testVim('/ and n/N', function(cm, vim, helpers) {
   cm.openDialog = helpers.fakeOpenDialog('match');
   helpers.doKeys('/');
