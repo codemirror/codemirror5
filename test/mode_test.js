@@ -84,7 +84,7 @@
     var s = '';
     if (pass) {
       s += '<div class="mt-test ' + passStyle + '">';
-      s +=   '<pre>' + text + '</pre>';
+      s +=   '<pre>' + text.replace('&', '&amp;').replace('<', '&lt;') + '</pre>';
       s +=   '<div class="cm-s-default">';
       s +=   prettyPrintOutputTable(observedOutput);
       s +=   '</div>';
@@ -92,7 +92,7 @@
       return s;
     } else {
       s += '<div class="mt-test ' + passStyle + '">';
-      s +=   '<pre>' + text + '</pre>';
+      s +=   '<pre>' + text.replace('&', '&amp;').replace('<', '&lt;') + '</pre>';
       s +=   '<div class="cm-s-default">';
       s += 'expected:';
       s +=   prettyPrintOutputTable(expectedOutput);
@@ -178,7 +178,7 @@
       s +=
       '<td class="mt-token">' +
         '<span class="cm-' + String(style).replace(/ +/g, " cm-") + '">' +
-        val.replace(/ /g,'\xb7') +
+        val.replace(/ /g,'\xb7').replace('&', '&amp;').replace('<', '&lt;') +
         '</span>' +
         '</td>';
     }
