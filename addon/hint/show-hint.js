@@ -19,7 +19,7 @@
     this.cm = cm;
     this.getHints = getHints;
     this.options = options;
-    this.widget = null;
+    this.widget = this.onClose = null;
   }
 
   Completion.prototype = {
@@ -27,6 +27,7 @@
       if (!this.active()) return;
 
       if (this.widget) this.widget.close();
+      if (this.onClose) this.onClose();
       this.cm.state.completionActive = null;
       CodeMirror.signal(this.cm, "endCompletion", this.cm);
     },
@@ -96,6 +97,7 @@
           debounce = setTimeout(update, 170);
       }
       this.cm.on("cursorActivity", activity);
+      this.onClose = done;
     }
   };
 
