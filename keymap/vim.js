@@ -554,19 +554,16 @@
           // Clear input state and get back to normal mode.
           vim.inputState = new InputState();
           if (vim.visualMode) {
-            exitVisualMode(cm, vim);
+            exitVisualMode(cm);
           }
           return;
         }
-        if (vim.visualMode &&
-            cursorEqual(cm.getCursor('head'), cm.getCursor('anchor'))) {
-          // The selection was cleared. Exit visual mode.
-          exitVisualMode(cm, vim);
-        }
+        // Enter visual mode when the mouse selects text.
         if (!vim.visualMode &&
             !cursorEqual(cm.getCursor('head'), cm.getCursor('anchor'))) {
           vim.visualMode = true;
           vim.visualLine = false;
+          cm.on('mousedown', exitVisualMode);
         }
         if (key != '0' || (key == '0' && vim.inputState.getRepeat() === 0)) {
           // Have to special case 0 since it's both a motion and a number.
@@ -1146,7 +1143,7 @@
           operators[operator](cm, operatorArgs, vim, curStart,
               curEnd, curOriginal);
           if (vim.visualMode) {
-            exitVisualMode(cm, vim);
+            exitVisualMode(cm);
           }
           if (operatorArgs.enterInsertMode) {
             actions.enterInsertMode(cm, {}, vim);
@@ -1272,8 +1269,13 @@
         }
         var repeat = motionArgs.repeat+(motionArgs.repeatOffset||0);
         var line = motionArgs.forward ? cur.line + repeat : cur.line - repeat;
-        if (line < cm.firstLine() || line > cm.lastLine() ) {
-          return null;
+        var first = cm.firstLine();
+        var last = cm.lastLine();
+        // Vim cancels linewise motions that start on an edge and move beyond
+        // that edge. It does not cancel motions that do not start on an edge.
+        if ((line < first && cur.line == first) ||
+            (line > last && cur.line == last)) {
+          return;
         }
         if(motionArgs.toFirstChar){
           endCh=findFirstNonWhiteSpaceCharacter(cm.getLine(line));
@@ -1478,18 +1480,12 @@
             operatorArgs.registerName, 'change', cm.getRange(curStart, curEnd),
             operatorArgs.linewise);
         if (operatorArgs.linewise) {
-          // Delete starting at the first nonwhitespace character of the first
-          // line, instead of from the start of the first line. This way we get
-          // an indent when we get into insert mode. This behavior isn't quite
-          // correct because we should treat this as a completely new line, and
-          // indent should be whatever codemirror thinks is the right indent.
-          // But cm.indentLine doesn't seem work on empty lines.
-          // TODO: Fix the above.
-          curStart.ch =
-              findFirstNonWhiteSpaceCharacter(cm.getLine(curStart.line));
-          // Insert an additional newline so that insert mode can start there.
-          // curEnd should be on the first character of the new line.
-          cm.replaceRange('\n', curStart, curEnd);
+          // Push the next line back down, if there is a next line.
+          var replacement = curEnd.line > cm.lastLine() ? '' : '\n';
+          cm.replaceRange(replacement, curStart, curEnd);
+          cm.indentLine(curStart.line, 'smart');
+          // null ch so setCursor moves to end of line.
+          curStart.ch = null;
         } else {
           // Exclude trailing whitespace if the range is not all whitespace.
           var text = cm.getRange(curStart, curEnd);
@@ -1651,6 +1647,7 @@
         //     equal to the repeat times the size of the previous visual
         //     operation.
         if (!vim.visualMode) {
+          cm.on('mousedown', exitVisualMode);
           vim.visualMode = true;
           vim.visualLine = !!actionArgs.linewise;
           if (vim.visualLine) {
@@ -1692,7 +1689,7 @@
             // mode instead of exiting visual mode.
             vim.visualLine = false;
           } else {
-            exitVisualMode(cm, vim);
+            exitVisualMode(cm);
           }
         }
         updateMark(cm, vim, '<', cursorIsBefore(curStart, curEnd) ? curStart
@@ -1832,7 +1829,7 @@
           cm.replaceRange(replaceWithStr, curStart, curEnd);
           if(vim.visualMode){
             cm.setCursor(curStart);
-            exitVisualMode(cm,vim);
+            exitVisualMode(cm);
           }else{
             cm.setCursor(offsetCursor(curEnd, 0, -1));
           }
@@ -1989,7 +1986,9 @@
       return s.replace(/([.?*+$\[\]\/\\(){}|\-])/g, '\\$1');
     }
 
-    function exitVisualMode(cm, vim) {
+    function exitVisualMode(cm) {
+      cm.off('mousedown', exitVisualMode);
+      var vim = cm.vimState;
       vim.visualMode = false;
       vim.visualLine = false;
       var selectionStart = cm.getCursor('anchor');
@@ -2842,7 +2841,7 @@
       processCommand: function(cm, input) {
         var vim = getVimState(cm);
         if (vim.visualMode) {
-          exitVisualMode(cm, vim);
+          exitVisualMode(cm);
         }
         var inputStream = new CodeMirror.StringStream(input);
         var params = {};
