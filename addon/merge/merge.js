@@ -265,6 +265,8 @@
       wrap.push(rightPane);
     }
 
+    (hasRight ? rightPane : editPane).className += " CodeMirror-diff-pane-rightmost";
+
     wrap.push(elt("div", null, null, "height: 0; clear: both;"));
     var wrapElt = this.wrap = node.appendChild(elt("div", wrap, "CodeMirror-diff CodeMirror-diff-" + panes + "pane"));
     this.edit = CodeMirror(editPane, copyObj(options));

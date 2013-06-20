@@ -1,6 +1,7 @@
 .CodeMirror-diff {
   position: relative;
   border: 1px solid #ddd;
+  white-space: pre;
 }
 
 .CodeMirror-diff, .CodeMirror-diff .CodeMirror {
@@ -13,11 +14,18 @@
 .CodeMirror-diff-3pane .CodeMirror-diff-gap { width: 3.5%; }
 
 .CodeMirror-diff-pane {
-  float: left;
+  display: inline-block;
+  white-space: normal;
+}
+.CodeMirror-diff-pane-rightmost {
+  position: absolute;
+  right: 0px;
+  z-index: 1;
 }
 
 .CodeMirror-diff-gap {
-  float: left;
+  z-index: 2;
+  display: inline-block;
   height: 100%;
   box-sizing: border-box;
   overflow: hidden;
