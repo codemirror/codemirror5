@@ -431,6 +431,17 @@
       <dd>Will be fired when the cursor or selection moves, or any
       change is made to the editor content.</dd>
 
+      <dt id="event_keyHandled"><code><strong>"keyHandled"</strong> (instance: CodeMirror, name: string, event: Event)</code></dt>
+      <dd>Fired after a key is handled through a
+      keymap. <code>name</code> is the name of the handled key (for
+      example <code>"Ctrl-X"</code> or <code>"'q'"</code>),
+      and <code>event</code> is the DOM <code>keydown</code>
+      or <code>keypress</code> event.</dd>
+
+      <dt id="event_inputRead"><code><strong>"inputRead"</strong> (instance: CodeMirror, changeObj: object)</code></dt>
+      <dd>Fired whenever new input is read from the hidden textarea
+      (typed or pasted by the user).</dd>
+
       <dt id="event_beforeSelectionChange"><code><strong>"beforeSelectionChange"</strong> (instance: CodeMirror, selection: {head, anchor})</code></dt>
       <dd>This event is fired before the selection is moved. Its
       handler may modify the resulting selection head and anchor.
