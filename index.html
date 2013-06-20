@@ -285,6 +285,33 @@
 
   <h2 id=releases>Releases</h2>
 
+  <p class="rel">20-06-2013: <a href="http://codemirror.net/codemirror-3.14.zip">Version 3.14</a>:</p>
+
+  <ul class="rel-note">
+    <li>New
+    addons: <a href="doc/manual.html#addon_trailingspace">trailing
+    space highlight</a>, <a href="doc/manual.html#addon_xml-hint">XML
+    completion</a> (rewritten),
+    and <a href="doc/manual.html#addon_merge">diff merging</a>.</li>
+    <li><a href="doc/manual.html#markText"><code>markText</code></a>
+    and <a href="doc/manual.html#addLineWidget"><code>addLineWidget</code></a>
+    now take a <code>handleMouseEvents</code> option.</li>
+    <li>New methods: <a href="doc/manual.html#lineAtHeight"><code>lineAtHeight</code></a>,
+    <a href="doc/manual.html#getTokenTypeAt"><code>getTokenTypeAt</code></a>.</li>
+    <li>More precise cleanness-tracking
+    using <a href="doc/manual.html#changeGeneration"><code>changeGeneration</code></a>
+    and <a href="doc/manual.html#isClean"><code>isClean</code></a>.</li>
+    <li>Many extensions to <a href="demo/emacs.html">Emacs</a> mode
+    (prefixes, more navigation units, and more).</li>
+    <li>New
+    events <a href="doc/manual.html#event_keyHandled"><code>"keyHandled"</code></a>
+    and <a href="doc/manual.html#event_inputRead"><code>"inputRead"</code></a>.</li>
+    <li>Various improvements to <a href="mode/ruby/index.html">Ruby</a>,
+    <a href="mode/smarty/index.html">Smarty</a>, <a href="mode/sql/index.html">SQL</a>,
+    and <a href="demo/vim.html">Vim</a> modes.</li>
+    <li>Full <a href="https://github.com/marijnh/CodeMirror/compare/3.13.0...3.14.0">list of patches</a>.</li>
+  </ul>
+
   <p class="rel">20-05-2013: <a href="http://codemirror.net/codemirror-3.13.zip">Version 3.13</a>:</p>
 
   <ul class="rel-note">
@@ -437,20 +464,6 @@
     <li>Add <a href="doc/manual.html#addKeyMap"><code>addKeyMap</code></a> and <a href="doc/manual.html#removeKeyMap"><code>removeKeyMap</code></a> methods.</li>
     <li>Rewrite <code>formatting</code> and <code>closetag</code> add-ons.</li>
     <li>Full <a href="https://github.com/marijnh/CodeMirror/compare/v3.0rc1...v3.0rc2">list of patches</a>.</li>
-  </ul>
-
-  <p class="rel">20-11-2012: <a href="http://codemirror.net/codemirror-2.36.zip">Version 2.36</a>:</p>
-
-  <ul class="rel-note">
-    <li>New mode: <a href="mode/z80/index.html">Z80 assembly</a>.</li>
-    <li>New theme: <a href="demo/theme.html?twilight">Twilight</a>.</li>
-    <li>Add command-line compression helper.</li>
-    <li>Make <a href="doc/manual.html#scrollIntoView"><code>scrollIntoView</code></a> public.</li>
-    <li>Add <a href="doc/manual.html#defaultTextHeight"><code>defaultTextHeight</code></a> method.</li>
-    <li>Various extensions to the vim keymap.</li>
-    <li>Make <a href="mode/php/index.html">PHP mode</a> build on <a href="mode/htmlmixed/index.html">mixed HTML mode</a>.</li>
-    <li>Add <a href="doc/manual.html#addon_continuecomment">comment-continuing</a> add-on.</li>
-    <li>Full <a href="https://github.com/marijnh/CodeMirror/compare/v2.35...v2.36">list of patches</a>.</li>
   </ul>
 
   <p><a href="doc/oldrelease.html">Older releases...</a></p>

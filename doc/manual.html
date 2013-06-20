@@ -1504,12 +1504,10 @@
     <dl>
       <dt id="version"><code><strong>CodeMirror.version</strong>: string</code></dt>
       <dd>It contains a string that indicates the version of the
-      library. For releases, this simply
-      contains <code>"major.minor"</code> (for
-      example <code>"2.33"</code>. For beta versions, <code>" B"</code>
-      (space, capital B) is added at the end of the string, for
-      development snapshots, <code>" +"</code> (space, plus) is
-      added.</dd>
+      library. This is a triple of
+      integers <code>"major.minor.patch"</code>,
+      where <code>patch</code> is zero for releases, and something
+      else (usually one) for dev snapshots.</dd>
 
       <dt id="fromTextArea"><code><strong>CodeMirror.fromTextArea</strong>(textArea: TextAreaElement, ?config: object)</code></dt>
       <dd>
