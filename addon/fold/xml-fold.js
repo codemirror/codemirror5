@@ -43,7 +43,7 @@
   }
   function toTagStart(iter) {
     for (;;) {
-      var lt = iter.text.lastIndexOf("<", iter.ch - 1);
+      var lt = iter.ch ? iter.text.lastIndexOf("<", iter.ch - 1) : -1;
       if (lt == -1) { if (prevLine(iter)) continue; else return; }
       if (!tagAt(iter, lt + 1)) { iter.ch = lt; continue; }
       xmlTagStart.lastIndex = lt;
@@ -65,7 +65,7 @@
   }
   function toPrevTag(iter) {
     for (;;) {
-      var gt = iter.text.lastIndexOf(">", iter.ch - 1);
+      var gt = iter.ch ? iter.text.lastIndexOf(">", iter.ch - 1) : -1;
       if (gt == -1) { if (prevLine(iter)) continue; else return; }
       if (!tagAt(iter, gt + 1)) { iter.ch = gt; continue; }
       var lastSlash = iter.text.lastIndexOf("/", gt);
