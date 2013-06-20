@@ -30,9 +30,10 @@
     return true;
   }
 
-  function toTagEnd(iter) {
+  function toTagEnd(iter, sameLine) {
     for (;;) {
       var gt = iter.text.indexOf(">", iter.ch);
+      if(gt == -1 && sameLine) return;
       if (gt == -1) { if (nextLine(iter)) continue; else return; }
       if (!tagAt(iter, gt + 1)) { iter.ch = gt + 1; continue; }
       var lastSlash = iter.text.lastIndexOf("/", gt);
@@ -41,11 +42,16 @@
       return selfClose ? "selfClose" : "regular";
     }
   }
-  function toTagStart(iter) {
+  function toTagStart(iter, sameLine) {
     for (;;) {
       var lt = iter.text.lastIndexOf("<", iter.ch - 1);
+      if (lt == -1 && sameLine) return;
       if (lt == -1) { if (prevLine(iter)) continue; else return; }
-      if (!tagAt(iter, lt + 1)) { iter.ch = lt; continue; }
+      if (!tagAt(iter, lt + 1)) {
+        if(lt == 0) {
+          if (prevLine(iter)) continue; else return;      
+        } else iter.ch = lt; continue;
+      }
       xmlTagStart.lastIndex = lt;
       iter.ch = lt;
       var match = xmlTagStart.exec(iter.text);
@@ -134,20 +140,7 @@
     }
   };
 
-  CodeMirror.findMatchingTag = function(cm, pos) {
-    var iter = new Iter(cm, pos.line, pos.ch);
-    var end = toTagEnd(iter), start = toTagStart(iter);
-    if (!end || end == "selfClose" || !start) return;
-
-    if (start[1]) { // closing tag
-      return findMatchingOpen(iter, start[2]);
-    } else { // opening tag
-      toTagEnd(iter);
-      return findMatchingClose(iter, start[2]);
-    }
-  };
-
-  CodeMirror.findEnclosingTag = function(cm, pos) {
+  function findEnclosingTag(cm, pos) {
     var iter = new Iter(cm, pos.line, pos.ch);
     for (;;) {
       var open = findMatchingOpen(iter);
@@ -156,5 +149,29 @@
       var close = findMatchingClose(forward, open.tag);
       if (close) return {open: open, close: close};
     }
+  }
+
+  CodeMirror.findMatchingTag = function(cm, pos) {
+    var iter = new Iter(cm, pos.line, pos.ch);
+    var end = toTagEnd(iter, true), start = toTagStart(iter, true), endPos;
+
+    if (end && start)  { //yes, tag hit
+      iter = new Iter(cm, pos.line, pos.ch);
+      end = toTagEnd(iter); endPos = Pos(iter.line, iter.ch); start = toTagStart(iter);
+
+      if (!end || end == "selfClose" || !start) return;
+      var here = {from: Pos(iter.line, iter.ch), to: endPos};
+
+      if (start[1]) { // closing tag
+        return {open: findMatchingOpen(iter, start[2]), close: here};
+      } else { // opening tag
+        toTagEnd(iter);
+        return {open: here, close: findMatchingClose(iter, start[2])};
+      }
+    } else {
+      return findEnclosingTag(cm, pos);      
+    }
   };
+
+   
 })();
