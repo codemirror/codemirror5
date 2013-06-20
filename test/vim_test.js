@@ -856,26 +856,6 @@ testVim('cw', function(cm, vim, helpers) {
   eq(' word3', cm.getValue());
   helpers.assertCursorAt(0, 0);
 }, { value: 'word1 word2 word3'});
-testVim('ck_start_of_document', function(cm, vim, helpers) {
-  var curStart = makeCursor(0, 3);
-  cm.setCursor(curStart);
-  helpers.doKeys('c', 'k');
-  eq(' word1 ', cm.getValue());
-  var register = helpers.getRegisterController().getRegister();
-  eq('', register.text);
-  is(!register.linewise);
-  helpers.assertCursorAt(0, 3);
-}, { value: ' word1 ' });
-testVim('cj_end_of_document', function(cm, vim, helpers) {
-  var curStart = makeCursor(0, 3);
-  cm.setCursor(curStart);
-  helpers.doKeys('c', 'j');
-  eq(' word1 ', cm.getValue());
-  var register = helpers.getRegisterController().getRegister();
-  eq('', register.text);
-  is(!register.linewise);
-  helpers.assertCursorAt(0, 3);
-}, { value: ' word1 ' });
 testVim('cw_repeat', function(cm, vim, helpers) {
   // Assert that cw does delete newline if it should go to the next line, and
   // that repeat works properly.
