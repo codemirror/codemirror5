@@ -554,7 +554,7 @@
           // Clear input state and get back to normal mode.
           vim.inputState = new InputState();
           if (vim.visualMode) {
-            exitVisualMode(cm, vim);
+            exitVisualMode(cm);
           }
           return;
         }
@@ -1141,7 +1141,7 @@
           operators[operator](cm, operatorArgs, vim, curStart,
               curEnd, curOriginal);
           if (vim.visualMode) {
-            exitVisualMode(cm, vim);
+            exitVisualMode(cm);
           }
           if (operatorArgs.enterInsertMode) {
             actions.enterInsertMode(cm, {}, vim);
@@ -1658,6 +1658,7 @@
         //     equal to the repeat times the size of the previous visual
         //     operation.
         if (!vim.visualMode) {
+          cm.on('mousedown', exitVisualMode);
           vim.visualMode = true;
           vim.visualLine = !!actionArgs.linewise;
           if (vim.visualLine) {
@@ -1699,7 +1700,7 @@
             // mode instead of exiting visual mode.
             vim.visualLine = false;
           } else {
-            exitVisualMode(cm, vim);
+            exitVisualMode(cm);
           }
         }
         updateMark(cm, vim, '<', cursorIsBefore(curStart, curEnd) ? curStart
@@ -1839,7 +1840,7 @@
           cm.replaceRange(replaceWithStr, curStart, curEnd);
           if(vim.visualMode){
             cm.setCursor(curStart);
-            exitVisualMode(cm,vim);
+            exitVisualMode(cm);
           }else{
             cm.setCursor(offsetCursor(curEnd, 0, -1));
           }
@@ -1996,7 +1997,9 @@
       return s.replace(/([.?*+$\[\]\/\\(){}|\-])/g, '\\$1');
     }
 
-    function exitVisualMode(cm, vim) {
+    function exitVisualMode(cm) {
+      cm.off('mousedown', exitVisualMode);
+      var vim = cm.vimState;
       vim.visualMode = false;
       vim.visualLine = false;
       var selectionStart = cm.getCursor('anchor');
@@ -2849,7 +2852,7 @@
       processCommand: function(cm, input) {
         var vim = getVimState(cm);
         if (vim.visualMode) {
-          exitVisualMode(cm, vim);
+          exitVisualMode(cm);
         }
         var inputStream = new CodeMirror.StringStream(input);
         var params = {};
