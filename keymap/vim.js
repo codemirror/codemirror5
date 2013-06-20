@@ -1131,6 +1131,15 @@
           if (linewise) {
             // Expand selection to entire line.
             expandSelectionToLine(cm, curStart, curEnd);
+            // Emulate odd vim behavior.
+            var first = cm.firstLine();
+            var last = cm.lastLine();
+            if (curStart.line == last && curEnd.line > last + 1) {
+              return;
+            }
+            if (curEnd.line == first + 1 && curStart.line < first) {
+              return;
+            }
           } else if (motionArgs.forward) {
             // Clip to trailing newlines only if the motion goes forward.
             clipToLine(cm, curStart, curEnd);
@@ -1466,19 +1475,6 @@
 
     var operators = {
       change: function(cm, operatorArgs, _vim, curStart, curEnd) {
-        if (operatorArgs.linewise) {
-          // Emulate odd vim behavior.
-          var first = cm.firstLine();
-          var last = cm.lastLine();
-          if (curStart.line == last && curEnd.line > last + 1) {
-            operatorArgs.enterInsertMode = false;
-            return;
-          }
-          if (curEnd.line == first + 1 && curStart.line < first) {
-            operatorArgs.enterInsertMode = false;
-            return;
-          }
-        }
         getVimGlobalState().registerController.pushText(
             operatorArgs.registerName, 'change', cm.getRange(curStart, curEnd),
             operatorArgs.linewise);
@@ -1504,20 +1500,12 @@
       },
       // delete is a javascript keyword.
       'delete': function(cm, operatorArgs, _vim, curStart, curEnd) {
-        if (operatorArgs.linewise) {
-          // Emulate odd vim behavior.
-          var first = cm.firstLine();
-          var last = cm.lastLine();
-          if (curStart.line == last && curEnd.line > last + 1)
-            return;
-          if (curEnd.line == first + 1 && curStart.line < first)
-            return;
-          // If the ending line is past the last line, inclusive, instead of
-          // including the trailing \n, include the \n before the starting line
-          if (curEnd.line == last + 1 && curStart.line > first) {
-            curStart.line--;
-            curStart.ch = lineLength(cm, curStart.line);
-          }
+        // If the ending line is past the last line, inclusive, instead of
+        // including the trailing \n, include the \n before the starting line
+        if (operatorArgs.linewise &&
+            curEnd.line > cm.lastLine() && curStart.line > cm.firstLine()) {
+          curStart.line--;
+          curStart.ch = lineLength(cm, curStart.line);
         }
         getVimGlobalState().registerController.pushText(
             operatorArgs.registerName, 'delete', cm.getRange(curStart, curEnd),
