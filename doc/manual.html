@@ -1253,7 +1253,7 @@
       widget again, simply use DOM methods (move it somewhere else, or
       call <code>removeChild</code> on its parent).</dd>
 
-      <dt id="addLineWidget"><code><strong>cm.addLineWidget</strong>(line: integer|LineHandle, node: Element, ?options: object) → LineWidget</code></dt>
+      <dt id="addLineWidget"><code><strong>cm.addLineWidget</strong>(line: integer|LineHandle, node: Element, ?options: object, ?pos: integer) → LineWidget</code></dt>
       <dd>Adds a line widget, an element shown below a line, spanning
       the whole of the editor's width, and moving the lines below it
       downwards. <code>line</code> should be either an integer or a
@@ -1261,7 +1261,7 @@
       will be displayed below the given line. <code>options</code>,
       when given, should be an object that configures the behavior of
       the widget. The following options are supported (all default to
-      false) →
+      false):
         <dl>
           <dt><code><strong>coverGutter</strong>: boolean</code></dt>
           <dd>Whether the widget should cover the gutter.</dd>
@@ -1279,6 +1279,12 @@
           drag events occurring in this widget. Default is false—the
           events will be left alone for the default browser handler,
           or specific handlers on the widget, to capture.</dd>
+          <dt><code><strong>insertAt</strong>: integer</code></dt>
+          <dd>By default, the widget is added below other widgets for
+          the line. This option can be used to place it at a different
+          position (zero for the top, N to put it after the Nth other
+          widget). Note that this only has effect once, when the
+          widget is created.
         </dl>
       Note that the widget node will become a descendant of nodes with
       CodeMirror-specific CSS classes, and those classes might in some
