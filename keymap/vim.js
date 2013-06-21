@@ -1131,15 +1131,6 @@
           if (linewise) {
             // Expand selection to entire line.
             expandSelectionToLine(cm, curStart, curEnd);
-            // Emulate odd vim behavior.
-            var first = cm.firstLine();
-            var last = cm.lastLine();
-            if (curStart.line == last && curEnd.line > last + 1) {
-              return;
-            }
-            if (curEnd.line == first + 1 && curStart.line < first) {
-              return;
-            }
           } else if (motionArgs.forward) {
             // Clip to trailing newlines only if the motion goes forward.
             clipToLine(cm, curStart, curEnd);
@@ -1276,6 +1267,14 @@
         }
         var repeat = motionArgs.repeat+(motionArgs.repeatOffset||0);
         var line = motionArgs.forward ? cur.line + repeat : cur.line - repeat;
+        var first = cm.firstLine();
+        var last = cm.lastLine();
+        // Vim cancels linewise motions that start on an edge and move beyond
+        // that edge. It does not cancel motions that do not start on an edge.
+        if ((line < first && cur.line == first) ||
+            (line > last && cur.line == last)) {
+          return;
+        }
         if(motionArgs.toFirstChar){
           endCh=findFirstNonWhiteSpaceCharacter(cm.getLine(line));
           vim.lastHPos = endCh;
