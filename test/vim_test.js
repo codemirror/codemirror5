@@ -99,7 +99,7 @@ function copyCursor(cur) {
 function testVim(name, run, opts, expectedFail) {
   var vimOpts = {
     lineNumbers: true,
-    keyMap: 'vim',
+    vimMode: true,
     showCursorWhenSelecting: true,
     value: code
   };
@@ -111,8 +111,7 @@ function testVim(name, run, opts, expectedFail) {
   return test('vim_' + name, function() {
     var place = document.getElementById("testground");
     var cm = CodeMirror(place, vimOpts);
-    CodeMirror.Vim.maybeInitState(cm);
-    var vim = cm.vimState;
+    var vim = CodeMirror.Vim.maybeInitVimState_(cm);
 
     function doKeysFn(cm) {
       return function(args) {
@@ -140,7 +139,7 @@ function testVim(name, run, opts, expectedFail) {
           // Find key in keymap and handle.
           var handled = CodeMirror.lookupKey(key, ['vim-insert'], executeHandler);
           // Record for insert mode.
-          if (handled === true && cm.vimState.insertMode && arguments[i] != 'Esc') {
+          if (handled === true && cm.state.vim.insertMode && arguments[i] != 'Esc') {
             var lastChange = CodeMirror.Vim.getVimGlobalState_().macroModeState.lastInsertModeChanges;
             if (lastChange) {
               lastChange.changes.push(new CodeMirror.Vim.InsertModeKey(key));
@@ -184,7 +183,7 @@ function testVim(name, run, opts, expectedFail) {
         return CodeMirror.Vim.getRegisterController();
       }
     }
-    CodeMirror.Vim.clearVimGlobalState_();
+    CodeMirror.Vim.resetVimGlobalState_();
     var successful = false;
     try {
       run(cm, vim, helpers);
@@ -228,7 +227,7 @@ function testJumplist(name, keys, endPos, startPos, dialog) {
   endPos = makeCursor(endPos[0], endPos[1]);
   startPos = makeCursor(startPos[0], startPos[1]);
   testVim(name, function(cm, vim, helpers) {
-    CodeMirror.Vim.clearVimGlobalState_();
+    CodeMirror.Vim.resetVimGlobalState_();
     if(dialog)cm.openDialog = helpers.fakeOpenDialog('word');
     cm.setCursor(startPos);
     helpers.doKeys.apply(null, keys);
@@ -501,15 +500,13 @@ testVim('dl', function(cm, vim, helpers) {
   eqPos(curStart, cm.getCursor());
 }, { value: ' word1 ' });
 testVim('dl_eol', function(cm, vim, helpers) {
-  // TODO:  This test is incorrect.  The cursor should end up at (0, 5).
-  var curStart = makeCursor(0, 6);
-  cm.setCursor(curStart);
+  cm.setCursor(0, 6);
   helpers.doKeys('d', 'l');
   eq(' word1', cm.getValue());
   var register = helpers.getRegisterController().getRegister();
   eq(' ', register.text);
   is(!register.linewise);
-  helpers.assertCursorAt(0, 6);
+  helpers.assertCursorAt(0, 5);
 }, { value: ' word1 ' });
 testVim('dl_repeat', function(cm, vim, helpers) {
   var curStart = makeCursor(0, 0);
@@ -594,38 +591,35 @@ testVim('dw_word', function(cm, vim, helpers) {
 testVim('dw_only_word', function(cm, vim, helpers) {
   // Test that if there is only 1 word left, dw deletes till the end of the
   // line.
-  var curStart = makeCursor(0, 1);
-  cm.setCursor(curStart);
+  cm.setCursor(0, 1);
   helpers.doKeys('d', 'w');
   eq(' ', cm.getValue());
   var register = helpers.getRegisterController().getRegister();
   eq('word1 ', register.text);
   is(!register.linewise);
-  eqPos(curStart, cm.getCursor());
+  helpers.assertCursorAt(0, 0);
 }, { value: ' word1 ' });
 testVim('dw_eol', function(cm, vim, helpers) {
   // Assert that dw does not delete the newline if last word to delete is at end
   // of line.
-  var curStart = makeCursor(0, 1);
-  cm.setCursor(curStart);
+  cm.setCursor(0, 1);
   helpers.doKeys('d', 'w');
   eq(' \nword2', cm.getValue());
   var register = helpers.getRegisterController().getRegister();
   eq('word1', register.text);
   is(!register.linewise);
-  eqPos(curStart, cm.getCursor());
+  helpers.assertCursorAt(0, 0);
 }, { value: ' word1\nword2' });
 testVim('dw_eol_with_multiple_newlines', function(cm, vim, helpers) {
   // Assert that dw does not delete the newline if last word to delete is at end
   // of line and it is followed by multiple newlines.
-  var curStart = makeCursor(0, 1);
-  cm.setCursor(curStart);
+  cm.setCursor(0, 1);
   helpers.doKeys('d', 'w');
   eq(' \n\nword2', cm.getValue());
   var register = helpers.getRegisterController().getRegister();
   eq('word1', register.text);
   is(!register.linewise);
-  eqPos(curStart, cm.getCursor());
+  helpers.assertCursorAt(0, 0);
 }, { value: ' word1\n\nword2' });
 testVim('dw_empty_line_followed_by_whitespace', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
@@ -665,14 +659,13 @@ testVim('dw_end_of_document', function(cm, vim, helpers) {
 testVim('dw_repeat', function(cm, vim, helpers) {
   // Assert that dw does delete newline if it should go to the next line, and
   // that repeat works properly.
-  var curStart = makeCursor(0, 1);
-  cm.setCursor(curStart);
+  cm.setCursor(0, 1);
   helpers.doKeys('d', '2', 'w');
   eq(' ', cm.getValue());
   var register = helpers.getRegisterController().getRegister();
   eq('word1\nword2', register.text);
   is(!register.linewise);
-  eqPos(curStart, cm.getCursor());
+  helpers.assertCursorAt(0, 0);
 }, { value: ' word1\nword2' });
 testVim('de_word_start_and_empty_lines', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
@@ -1001,14 +994,13 @@ testEdit('daW_end_punct', 'foo \tbAr.', /A/, 'daW', 'foo');
 
 // Operator-motion tests
 testVim('D', function(cm, vim, helpers) {
-  var curStart = makeCursor(0, 3);
-  cm.setCursor(curStart);
+  cm.setCursor(0, 3);
   helpers.doKeys('D');
   eq(' wo\nword2\n word3', cm.getValue());
   var register = helpers.getRegisterController().getRegister();
   eq('rd1', register.text);
   is(!register.linewise);
-  helpers.assertCursorAt(0, 3);
+  helpers.assertCursorAt(0, 2);
 }, { value: ' word1\nword2\n word3' });
 testVim('C', function(cm, vim, helpers) {
   var curStart = makeCursor(0, 3);
@@ -1018,7 +1010,7 @@ testVim('C', function(cm, vim, helpers) {
   var register = helpers.getRegisterController().getRegister();
   eq('rd1', register.text);
   is(!register.linewise);
-  helpers.assertCursorAt(0, 3);
+  eqPos(curStart, cm.getCursor());
   eq('vim-insert', cm.getOption('keyMap'));
 }, { value: ' word1\nword2\n word3' });
 testVim('Y', function(cm, vim, helpers) {

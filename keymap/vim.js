@@ -206,8 +206,7 @@
     // Operators
     { keys: ['d'], type: 'operator', operator: 'delete' },
     { keys: ['y'], type: 'operator', operator: 'yank' },
-    { keys: ['c'], type: 'operator', operator: 'change',
-        operatorArgs: { enterInsertMode: true } },
+    { keys: ['c'], type: 'operator', operator: 'change' },
     { keys: ['>'], type: 'operator', operator: 'indent',
         operatorArgs: { indentRight: true }},
     { keys: ['<'], type: 'operator', operator: 'indent',
@@ -231,7 +230,7 @@
         motion: 'moveToEol', motionArgs: { inclusive: true },
         operatorMotionArgs: { visualLine: true }},
     { keys: ['C'], type: 'operatorMotion',
-        operator: 'change', operatorArgs: { enterInsertMode: true },
+        operator: 'change',
         motion: 'moveToEol', motionArgs: { inclusive: true },
         operatorMotionArgs: { visualLine: true }},
     { keys: ['~'], type: 'operatorMotion', operator: 'swapcase',
@@ -315,6 +314,27 @@
   ];
 
   var Vim = function() {
+    CodeMirror.defineOption('vimMode', false, function(cm, val) {
+      if (val) {
+        cm.setOption('keyMap', 'vim');
+        cm.on('beforeSelectionChange', beforeSelectionChange);
+        maybeInitVimState(cm);
+      } else if (cm.state.vim) {
+        cm.setOption('keyMap', 'default');
+        cm.off('beforeSelectionChange', beforeSelectionChange);
+        cm.state.vim = null;
+      }
+    });
+    function beforeSelectionChange(cm, cur) {
+      var vim = cm.state.vim;
+      if (vim.insertMode || vim.exMode) return;
+
+      var head = cur.head;
+      if (head.ch && head.ch == cm.doc.getLine(head.line).length) {
+        head.ch--;
+      }
+    }
+
     var numberRegex = /[\d]/;
     var wordRegexp = [(/\w/), (/[^\w\s]/)], bigWordRegexp = [(/\S/)];
     function makeKeyRange(start, size) {
@@ -450,28 +470,11 @@
       };
     };
 
-    // Global Vim state. Call getVimGlobalState to get and initialize.
-    var vimGlobalState;
-    function getVimGlobalState() {
-      if (!vimGlobalState) {
-        vimGlobalState = {
-          // The current search query.
-          searchQuery: null,
-          // Whether we are searching backwards.
-          searchIsReversed: false,
-          jumpList: createCircularJumpList(),
-          macroModeState: createMacroState(),
-          // Recording latest f, t, F or T motion command.
-          lastChararacterSearch: {increment:0, forward:true, selectedCharacter:''},
-          registerController: new RegisterController({})
-        };
-      }
-      return vimGlobalState;
-    }
-    function getVimState(cm) {
-      if (!cm.vimState) {
+
+    function maybeInitVimState(cm) {
+      if (!cm.state.vim) {
         // Store instance state in the CodeMirror object.
-        cm.vimState = {
+        cm.state.vim = {
           inputState: new InputState(),
           // Vim's input state that triggered the last edit, used to repeat
           // motions and operators with '.'.
@@ -500,7 +503,21 @@
           visualLine: false
         };
       }
-      return cm.vimState;
+      return cm.state.vim;
+    }
+    var vimGlobalState;
+    function resetVimGlobalState() {
+      vimGlobalState = {
+        // The current search query.
+        searchQuery: null,
+        // Whether we are searching backwards.
+        searchIsReversed: false,
+        jumpList: createCircularJumpList(),
+        macroModeState: createMacroState(),
+        // Recording latest f, t, F or T motion command.
+        lastChararacterSearch: {increment:0, forward:true, selectedCharacter:''},
+        registerController: new RegisterController({})
+      };
     }
 
     var vimApi= {
@@ -510,16 +527,19 @@
       // Testing hook, though it might be useful to expose the register
       // controller anyways.
       getRegisterController: function() {
-        return getVimGlobalState().registerController;
+        return vimGlobalState.registerController;
       },
       // Testing hook.
-      clearVimGlobalState_: function() {
-        vimGlobalState = null;
-      },
+      resetVimGlobalState_: resetVimGlobalState,
+
       // Testing hook.
       getVimGlobalState_: function() {
         return vimGlobalState;
       },
+
+      // Testing hook.
+      maybeInitVimState_: maybeInitVimState,
+
       InsertModeKey: InsertModeKey,
       map: function(lhs, rhs) {
         // Add user defined key bindings.
@@ -532,17 +552,12 @@
         exCommands[name]=func;
         exCommandDispatcher.commandMap_[prefix]={name:name, shortName:prefix, type:'api'};
       },
-      // Initializes vim state variable on the CodeMirror object. Should only be
-      // called lazily by handleKey or for testing.
-      maybeInitState: function(cm) {
-        getVimState(cm);
-      },
       // This is the outermost function called by CodeMirror, after keys have
       // been mapped to their Vim equivalents.
       handleKey: function(cm, key) {
         var command;
-        var vim = getVimState(cm);
-        var macroModeState = getVimGlobalState().macroModeState;
+        var vim = maybeInitVimState(cm);
+        var macroModeState = vimGlobalState.macroModeState;
         if (macroModeState.enteredMacroMode) {
           if (key == 'q') {
             actions.exitMacroRecordMode();
@@ -967,7 +982,7 @@
             // cachedCursor is used to save the old position of the cursor
             // when * or # causes vim to seek for the nearest word and shift
             // the cursor before entering the motion.
-            getVimGlobalState().jumpList.cachedCursor = cm.getCursor();
+            vimGlobalState.jumpList.cachedCursor = cm.getCursor();
             cm.setCursor(word.start);
 
             handleQuery(query, true /** ignoreCase */, false /** smartCase */);
@@ -1049,7 +1064,7 @@
             return;
           }
           if (motionArgs.toJumplist) {
-            var jumpList = getVimGlobalState().jumpList;
+            var jumpList = vimGlobalState.jumpList;
             // if the current motion is # or *, use cachedCursor
             var cachedCursor = jumpList.cachedCursor;
             if (cachedCursor) {
@@ -1145,13 +1160,10 @@
           if (vim.visualMode) {
             exitVisualMode(cm);
           }
-          if (operatorArgs.enterInsertMode) {
-            actions.enterInsertMode(cm, {}, vim);
-          }
         }
       },
       recordLastEdit: function(vim, inputState, actionCommand) {
-        var macroModeState = getVimGlobalState().macroModeState;
+        var macroModeState = vimGlobalState.macroModeState;
         if (macroModeState.inReplay) { return; }
         vim.lastEditInputState = inputState;
         vim.lastEditActionCommand = actionCommand;
@@ -1458,7 +1470,7 @@
         return [start, end];
       },
       repeatLastCharacterSearch: function(cm, motionArgs) {
-        var lastSearch = getVimGlobalState().lastChararacterSearch;
+        var lastSearch = vimGlobalState.lastChararacterSearch;
         var repeat = motionArgs.repeat;
         var forward = motionArgs.forward === lastSearch.forward;
         var increment = (lastSearch.increment ? 1 : 0) * (forward ? -1 : 1);
@@ -1476,7 +1488,7 @@
 
     var operators = {
       change: function(cm, operatorArgs, _vim, curStart, curEnd) {
-        getVimGlobalState().registerController.pushText(
+        vimGlobalState.registerController.pushText(
             operatorArgs.registerName, 'change', cm.getRange(curStart, curEnd),
             operatorArgs.linewise);
         if (operatorArgs.linewise) {
@@ -1497,6 +1509,7 @@
           }
           cm.replaceRange('', curStart, curEnd);
         }
+        actions.enterInsertMode(cm, {}, cm.state.vim);
         cm.setCursor(curStart);
       },
       // delete is a javascript keyword.
@@ -1508,7 +1521,7 @@
           curStart.line--;
           curStart.ch = lineLength(cm, curStart.line);
         }
-        getVimGlobalState().registerController.pushText(
+        vimGlobalState.registerController.pushText(
             operatorArgs.registerName, 'delete', cm.getRange(curStart, curEnd),
             operatorArgs.linewise);
         cm.replaceRange('', curStart, curEnd);
@@ -1550,7 +1563,7 @@
         cm.setCursor(curOriginal);
       },
       yank: function(cm, operatorArgs, _vim, curStart, curEnd, curOriginal) {
-        getVimGlobalState().registerController.pushText(
+        vimGlobalState.registerController.pushText(
             operatorArgs.registerName, 'yank',
             cm.getRange(curStart, curEnd), operatorArgs.linewise);
         cm.setCursor(curOriginal);
@@ -1564,7 +1577,7 @@
         }
         var repeat = actionArgs.repeat;
         var forward = actionArgs.forward;
-        var jumpList = getVimGlobalState().jumpList;
+        var jumpList = vimGlobalState.jumpList;
 
         var mark = jumpList.move(cm, forward ? repeat : -repeat);
         var markPos = mark ? mark.find() : undefined;
@@ -1590,7 +1603,7 @@
       replayMacro: function(cm, actionArgs) {
         var registerName = actionArgs.selectedCharacter;
         var repeat = actionArgs.repeat;
-        var macroModeState = getVimGlobalState().macroModeState;
+        var macroModeState = vimGlobalState.macroModeState;
         if (registerName == '@') {
           registerName = macroModeState.latestRegister;
         }
@@ -1600,13 +1613,13 @@
         }
       },
       exitMacroRecordMode: function() {
-        var macroModeState = getVimGlobalState().macroModeState;
+        var macroModeState = vimGlobalState.macroModeState;
         macroModeState.toggle();
         parseKeyBufferToRegister(macroModeState.latestRegister,
                                  macroModeState.macroKeyBuffer);
       },
       enterMacroRecordMode: function(cm, actionArgs) {
-        var macroModeState = getVimGlobalState().macroModeState;
+        var macroModeState = vimGlobalState.macroModeState;
         var registerName = actionArgs.selectedCharacter;
         macroModeState.toggle(cm, registerName);
         emptyMacroKeyBuffer(macroModeState);
@@ -1632,7 +1645,7 @@
         } else {
           cm.setOption('keyMap', 'vim-insert');
         }
-        if (!getVimGlobalState().macroModeState.inReplay) {
+        if (!vimGlobalState.macroModeState.inReplay) {
           // Only record if not replaying.
           cm.on('change', onChange);
           cm.on('cursorActivity', onCursorActivity);
@@ -1725,6 +1738,7 @@
         });
       },
       newLineAndEnterInsertMode: function(cm, actionArgs, vim) {
+        vim.insertMode = true;
         var insertAt = cm.getCursor();
         if (insertAt.line === cm.firstLine() && !actionArgs.after) {
           // Special case for inserting newline before start of document.
@@ -1743,7 +1757,7 @@
       },
       paste: function(cm, actionArgs) {
         var cur = cm.getCursor();
-        var register = getVimGlobalState().registerController.getRegister(
+        var register = vimGlobalState.registerController.getRegister(
             actionArgs.registerName);
         if (!register.text) {
           return;
@@ -1988,7 +2002,7 @@
 
     function exitVisualMode(cm) {
       cm.off('mousedown', exitVisualMode);
-      var vim = cm.vimState;
+      var vim = cm.state.vim;
       vim.visualMode = false;
       vim.visualLine = false;
       var selectionStart = cm.getCursor('anchor');
@@ -2112,12 +2126,11 @@
 
     function recordJumpPosition(cm, oldCur, newCur) {
       if(!cursorEqual(oldCur, newCur)) {
-        getVimGlobalState().jumpList.add(cm, oldCur, newCur);
+        vimGlobalState.jumpList.add(cm, oldCur, newCur);
       }
     }
 
     function recordLastCharacterSearch(increment, args) {
-        var vimGlobalState = getVimGlobalState();
         vimGlobalState.lastChararacterSearch.increment = increment;
         vimGlobalState.lastChararacterSearch.forward = args.forward;
         vimGlobalState.lastChararacterSearch.selectedCharacter = args.selectedCharacter;
@@ -2571,10 +2584,10 @@
     function SearchState() {}
     SearchState.prototype = {
       getQuery: function() {
-        return getVimGlobalState().query;
+        return vimGlobalState.query;
       },
       setQuery: function(query) {
-        getVimGlobalState().query = query;
+        vimGlobalState.query = query;
       },
       getOverlay: function() {
         return this.searchOverlay;
@@ -2583,14 +2596,14 @@
         this.searchOverlay = overlay;
       },
       isReversed: function() {
-        return getVimGlobalState().isReversed;
+        return vimGlobalState.isReversed;
       },
       setReversed: function(reversed) {
-        getVimGlobalState().isReversed = reversed;
+        vimGlobalState.isReversed = reversed;
       }
     };
     function getSearchState(cm) {
-      var vim = getVimState(cm);
+      var vim = cm.state.vim;
       return vim.searchState_ || (vim.searchState_ = new SearchState());
     }
     function dialog(cm, template, shortText, onClose, options) {
@@ -2839,7 +2852,7 @@
     };
     Vim.ExCommandDispatcher.prototype = {
       processCommand: function(cm, input) {
-        var vim = getVimState(cm);
+        var vim = cm.state.vim;
         if (vim.visualMode) {
           exitVisualMode(cm);
         }
@@ -2920,7 +2933,7 @@
           case '$':
             return cm.lastLine();
           case '\'':
-            var mark = getVimState(cm).marks[inputStream.next()];
+            var mark = cm.state.vim.marks[inputStream.next()];
             if (mark && mark.find()) {
               return mark.find().line;
             }
@@ -3030,7 +3043,7 @@
         exCommandDispatcher.map(mapArgs[0], mapArgs[1], cm);
       },
       move: function(cm, params) {
-        commandDispatcher.processCommand(cm, getVimState(cm), {
+        commandDispatcher.processCommand(cm, cm.state.vim, {
             type: 'motion',
             motion: 'moveToLineOrEdgeOfDocument',
             motionArgs: { forward: false, explicitRepeat: true,
@@ -3185,7 +3198,7 @@
           return;
         }
 
-        var state = getVimState(cm);
+        var state = cm.state.vim;
         var stream = new CodeMirror.StringStream(params.argString.trim());
         while (!stream.eol()) {
           stream.eatSpace();
@@ -3256,6 +3269,7 @@
     function doReplace(cm, confirm, lineStart, lineEnd, searchCursor, query,
         replaceWith) {
       // Set up all the functions.
+      cm.state.vim.exMode = true;
       var done = false;
       var lastPos = searchCursor.from();
       function replaceAll() {
@@ -3290,7 +3304,8 @@
         cm.focus();
         if (lastPos) {
           cm.setCursor(lastPos);
-          var vim = getVimState(cm);
+          var vim = cm.state.vim;
+          vim.exMode = false;
           vim.lastHPos = vim.lastHSPos = lastPos.ch;
         }
       }
@@ -3402,9 +3417,8 @@
     CodeMirror.keyMap.vim = buildVimKeyMap();
 
     function exitInsertMode(cm) {
-      var vim = getVimState(cm);
-      vim.insertMode = false;
-      var inReplay = getVimGlobalState().macroModeState.inReplay;
+      var vim = cm.state.vim;
+      var inReplay = vimGlobalState.macroModeState.inReplay;
       if (!inReplay) {
         cm.off('change', onChange);
         cm.off('cursorActivity', onCursorActivity);
@@ -3418,6 +3432,7 @@
       }
       delete vim.insertModeRepeat;
       cm.setCursor(cm.getCursor().line, cm.getCursor().ch-1, true);
+      vim.insertMode = false;
       cm.setOption('keyMap', 'vim');
       cm.toggleOverwrite(false); // exit replace mode if we were in it.
     }
@@ -3445,7 +3460,7 @@
 
     function parseRegisterToKeyBuffer(macroModeState, registerName) {
       var match, key;
-      var register = getVimGlobalState().registerController.getRegister(registerName);
+      var register = vimGlobalState.registerController.getRegister(registerName);
       var text = register.toString();
       var macroKeyBuffer = macroModeState.macroKeyBuffer;
       emptyMacroKeyBuffer(macroModeState);
@@ -3461,7 +3476,7 @@
 
     function parseKeyBufferToRegister(registerName, keyBuffer) {
       var text = keyBuffer.join('');
-      getVimGlobalState().registerController.setRegisterText(registerName, text);
+      vimGlobalState.registerController.setRegisterText(registerName, text);
     }
 
     function emptyMacroKeyBuffer(macroModeState) {
@@ -3489,7 +3504,7 @@
      * Should only be active in insert mode.
      */
     function onChange(_cm, changeObj) {
-      var macroModeState = getVimGlobalState().macroModeState;
+      var macroModeState = vimGlobalState.macroModeState;
       var lastChange = macroModeState.lastInsertModeChanges;
       while (changeObj) {
         lastChange.expectCursorActivityForChange = true;
@@ -3509,7 +3524,7 @@
     * - Should only be active in insert mode.
     */
     function onCursorActivity() {
-      var macroModeState = getVimGlobalState().macroModeState;
+      var macroModeState = vimGlobalState.macroModeState;
       var lastChange = macroModeState.lastInsertModeChanges;
       if (lastChange.expectCursorActivityForChange) {
         lastChange.expectCursorActivityForChange = false;
@@ -3530,7 +3545,7 @@
     * - For recording deletes in insert mode.
     */
     function onKeyEventTargetKeyDown(e) {
-      var macroModeState = getVimGlobalState().macroModeState;
+      var macroModeState = vimGlobalState.macroModeState;
       var lastChange = macroModeState.lastInsertModeChanges;
       var keyName = CodeMirror.keyName(e);
       function onKeyFound() {
@@ -3552,7 +3567,7 @@
      * corresponding enterInsertMode call was made with a count.
      */
     function repeatLastEdit(cm, vim, repeat, repeatForInsert) {
-      var macroModeState = getVimGlobalState().macroModeState;
+      var macroModeState = vimGlobalState.macroModeState;
       macroModeState.inReplay = true;
       var isAction = !!vim.lastEditActionCommand;
       var cachedInputState = vim.inputState;
@@ -3620,6 +3635,7 @@
       }
     }
 
+    resetVimGlobalState();
     return vimApi;
   };
   // Initialize Vim and make it available as an API.

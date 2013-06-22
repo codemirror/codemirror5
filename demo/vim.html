@@ -50,13 +50,13 @@ a loose approximation of actual vim bindings, though.</p>
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true,
         mode: "text/x-csrc",
-        keyMap: "vim",
+        vimMode: true,
         showCursorWhenSelecting: true
       });
       var editor2 = CodeMirror.fromTextArea(document.getElementById("code2"), {
         lineNumbers: true,
         mode: "text/x-csrc",
-        keyMap: "vim",
+        vimMode: true,
         showCursorWhenSelecting: true
       });
     </script>
