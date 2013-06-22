@@ -99,7 +99,7 @@ function copyCursor(cur) {
 function testVim(name, run, opts, expectedFail) {
   var vimOpts = {
     lineNumbers: true,
-    keyMap: 'vim',
+    vimMode: true,
     showCursorWhenSelecting: true,
     value: code
   };
@@ -111,7 +111,6 @@ function testVim(name, run, opts, expectedFail) {
   return test('vim_' + name, function() {
     var place = document.getElementById("testground");
     var cm = CodeMirror(place, vimOpts);
-    CodeMirror.Vim.maybeInitState(cm);
     var vim = cm.vimState;
 
     function doKeysFn(cm) {
@@ -184,7 +183,7 @@ function testVim(name, run, opts, expectedFail) {
         return CodeMirror.Vim.getRegisterController();
       }
     }
-    CodeMirror.Vim.clearVimGlobalState_();
+    CodeMirror.Vim.resetVimGlobalState_();
     var successful = false;
     try {
       run(cm, vim, helpers);
@@ -228,7 +227,7 @@ function testJumplist(name, keys, endPos, startPos, dialog) {
   endPos = makeCursor(endPos[0], endPos[1]);
   startPos = makeCursor(startPos[0], startPos[1]);
   testVim(name, function(cm, vim, helpers) {
-    CodeMirror.Vim.clearVimGlobalState_();
+    CodeMirror.Vim.resetVimGlobalState_();
     if(dialog)cm.openDialog = helpers.fakeOpenDialog('word');
     cm.setCursor(startPos);
     helpers.doKeys.apply(null, keys);
