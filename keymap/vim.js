@@ -206,8 +206,7 @@
     // Operators
     { keys: ['d'], type: 'operator', operator: 'delete' },
     { keys: ['y'], type: 'operator', operator: 'yank' },
-    { keys: ['c'], type: 'operator', operator: 'change',
-        operatorArgs: { enterInsertMode: true } },
+    { keys: ['c'], type: 'operator', operator: 'change' },
     { keys: ['>'], type: 'operator', operator: 'indent',
         operatorArgs: { indentRight: true }},
     { keys: ['<'], type: 'operator', operator: 'indent',
@@ -231,7 +230,7 @@
         motion: 'moveToEol', motionArgs: { inclusive: true },
         operatorMotionArgs: { visualLine: true }},
     { keys: ['C'], type: 'operatorMotion',
-        operator: 'change', operatorArgs: { enterInsertMode: true },
+        operator: 'change',
         motion: 'moveToEol', motionArgs: { inclusive: true },
         operatorMotionArgs: { visualLine: true }},
     { keys: ['~'], type: 'operatorMotion', operator: 'swapcase',
@@ -319,6 +318,7 @@
       if (val) {
         cm.setOption('keyMap', 'vim');
         resetVimGlobalState();
+        cm.on('beforeSelectionChange', beforeSelectionChange);
 
         // Store instance state in the CodeMirror object.
         cm.vimState = {
@@ -351,9 +351,20 @@
         };
       } else if (cm.vimState) {
         cm.setOption('keyMap', 'default');
+        cm.off('beforeSelectionChange', beforeSelectionChange);
         cm.vimState = null;
       }
     });
+    function beforeSelectionChange(cm, cur) {
+      var vim = cm.vimState;
+      if (vim.insertMode || vim.exMode) return;
+
+      var head = cur.head;
+      if (head.ch && head.ch == cm.doc.getLine(head.line).length) {
+        head.ch--;
+      }
+    }
+
     var numberRegex = /[\d]/;
     var wordRegexp = [(/\w/), (/[^\w\s]/)], bigWordRegexp = [(/\S/)];
     function makeKeyRange(start, size) {
@@ -1140,9 +1151,6 @@
           if (vim.visualMode) {
             exitVisualMode(cm);
           }
-          if (operatorArgs.enterInsertMode) {
-            actions.enterInsertMode(cm, {}, vim);
-          }
         }
       },
       recordLastEdit: function(vim, inputState, actionCommand) {
@@ -1492,6 +1500,7 @@
           }
           cm.replaceRange('', curStart, curEnd);
         }
+        actions.enterInsertMode(cm, {}, cm.vimState);
         cm.setCursor(curStart);
       },
       // delete is a javascript keyword.
@@ -1720,6 +1729,7 @@
         });
       },
       newLineAndEnterInsertMode: function(cm, actionArgs, vim) {
+        vim.insertMode = true;
         var insertAt = cm.getCursor();
         if (insertAt.line === cm.firstLine() && !actionArgs.after) {
           // Special case for inserting newline before start of document.
@@ -3250,6 +3260,7 @@
     function doReplace(cm, confirm, lineStart, lineEnd, searchCursor, query,
         replaceWith) {
       // Set up all the functions.
+      cm.vimState.exMode = true;
       var done = false;
       var lastPos = searchCursor.from();
       function replaceAll() {
@@ -3285,6 +3296,7 @@
         if (lastPos) {
           cm.setCursor(lastPos);
           var vim = cm.vimState;
+          vim.exMode = false;
           vim.lastHPos = vim.lastHSPos = lastPos.ch;
         }
       }
@@ -3397,7 +3409,6 @@
 
     function exitInsertMode(cm) {
       var vim = cm.vimState;
-      vim.insertMode = false;
       var inReplay = vimGlobalState.macroModeState.inReplay;
       if (!inReplay) {
         cm.off('change', onChange);
@@ -3412,6 +3423,7 @@
       }
       delete vim.insertModeRepeat;
       cm.setCursor(cm.getCursor().line, cm.getCursor().ch-1, true);
+      vim.insertMode = false;
       cm.setOption('keyMap', 'vim');
       cm.toggleOverwrite(false); // exit replace mode if we were in it.
     }
