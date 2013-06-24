@@ -16,22 +16,15 @@
 //   multi-file view, switch the view or focus to the named file.
 // * showError: A function(editor, message) that can be used to
 //   override the way errors are displayed.
+// * completionTip: Customize the content in tooltips for completions.
+//   Is passed a single argument—the completion's data as returned by
+//   Tern—and may return a string, DOM node, or null to indicate that
+//   no tip should be shown. By default the docstring is shown.
+// * typeTip: Like completionTip, but for the tooltips shown for type
+//   queries.
 
 (function() {
   "use strict";
-
-  CodeMirror.getURL = function(url, c) {
-    var xhr = new XMLHttpRequest();
-    xhr.open("get", url, true);
-    xhr.send();
-    xhr.onreadystatechange = function() {
-      if (xhr.readyState != 4) return;
-      if (xhr.status < 400) return c(null, xhr.responseText);
-      var e = new Error(xhr.responseText || "No response");
-      e.status = xhr.status;
-      c(e);
-    };
-  };
 
   CodeMirror.TernServer = function(options) {
     var self = this;
@@ -62,7 +55,7 @@
     delDoc: function(name) {
       var found = this.docs[name];
       if (!found) return;
-      CodeMirror.on(found.doc, "change", this.trackChange);
+      CodeMirror.off(found.doc, "change", this.trackChange);
       delete this.docs[name];
       this.server.delFile(name);
     },
@@ -72,6 +65,8 @@
       CodeMirror.showHint(cm, function(cm, c) { return hint(self, cm, c); }, {async: true});
     },
 
+    getHint: function(cm, c) { return hint(this, cm, c); },
+
     showType: function(cm) { showType(this, cm); },
 
     updateArgHints: function(cm) { updateArgHints(this, cm); },
@@ -80,7 +75,11 @@
 
     jumpBack: function(cm) { jumpBack(this, cm); },
 
-    rename: function(cm) { rename(this, cm); }
+    rename: function(cm) { rename(this, cm); },
+
+    request: function(cm, query, c) {
+      this.server.request(buildRequest(this, findDoc(this, cm.getDoc()), query), c);
+    }
   };
 
   var Pos = CodeMirror.Pos;
@@ -139,10 +138,7 @@
   // Completion
 
   function hint(ts, cm, c) {
-    var doc = findDoc(ts, cm.getDoc());
-    var req = buildRequest(ts, doc, {type: "completions", types: true, docs: true});
-
-    ts.server.request(req, function(error, data) {
+    ts.request(cm, {type: "completions", types: true, docs: true}, function(error, data) {
       if (error) return showError(ts, cm, error);
       var completions = [], after = "";
       var from = data.start, to = data.end;
@@ -156,7 +152,7 @@
         completions.push({text: completion.name + after,
                           displayText: completion.name,
                           className: className,
-                          doc: completion.doc});
+                          data: completion});
       }
 
       var obj = {from: from, to: to, list: completions};
@@ -164,9 +160,10 @@
       CodeMirror.on(obj, "close", function() { remove(tooltip); });
       CodeMirror.on(obj, "select", function(cur, node) {
         remove(tooltip);
-        if (cur.doc) {
+        var content = ts.options.completionTip ? ts.options.completionTip(cur.data) : cur.data.doc;
+        if (content) {
           tooltip = makeTooltip(node.parentNode.getBoundingClientRect().right + window.pageXOffset,
-                                node.getBoundingClientRect().top + window.pageYOffset, cur.doc);
+                                node.getBoundingClientRect().top + window.pageYOffset, content);
           tooltip.className += " " + cls + "hint-doc";
         }
       });
@@ -187,15 +184,18 @@
   // Type queries
 
   function showType(ts, cm) {
-    var doc = findDoc(ts, cm.getDoc());
-    ts.server.request(buildRequest(ts, doc, "type"), function(error, data) {
+    ts.request(cm, "type", function(error, data) {
       if (error) return showError(ts, cm, error);
-      var tip = elt("span", null, elt("strong", null, data.type || "not found"));
-      if (data.doc)
-        tip.appendChild(document.createTextNode(" — " + data.doc));
-      if (data.url) {
-        tip.appendChild(document.createTextNode(" "));
-        tip.appendChild(elt("a", null, "[docs]")).href = data.url;
+      if (ts.options.typeTip) {
+        var tip = ts.options.typeTip(data);
+      } else {
+        var tip = elt("span", null, elt("strong", null, data.type || "not found"));
+        if (data.doc)
+          tip.appendChild(document.createTextNode(" — " + data.doc));
+        if (data.url) {
+          tip.appendChild(document.createTextNode(" "));
+          tip.appendChild(elt("a", null, "[docs]")).href = data.url;
+        }
       }
       tempTooltip(cm, tip);
     });
@@ -204,7 +204,7 @@
   // Maintaining argument hints
 
   function updateArgHints(ts, cm) {
-    if (ts.activeArgHints) { remove(ts.activeArgHints); ts.activeArgHints = null; }
+    closeArgHints(ts);
 
     if (cm.somethingSelected()) return;
     var lex = cm.getTokenAt(cm.getCursor()).state.lexical;
@@ -220,8 +220,7 @@
     if (cache && cache.doc == cm.getDoc() && cmpPos(start, cache.start) == 0)
       return showArgHints(ts, cm, pos);
 
-    var query = {type: "type", preferFunction: true, end: start};
-    ts.server.request(buildRequest(ts, findDoc(ts, cm.getDoc()), query), function(error, data) {
+    ts.request(cm, {type: "type", preferFunction: true, end: start}, function(error, data) {
       if (error || !data.type || !(/^fn\(/).test(data.type)) return;
       ts.cachedArgHints = {
         start: pos,
@@ -235,7 +234,7 @@
   }
 
   function showArgHints(ts, cm, pos) {
-    if (ts.activeArgHints) { remove(ts.activeArgHints); ts.activeArgHints = null; }
+    closeArgHints(ts);
 
     var cache = ts.cachedArgHints, tp = cache.type;
     var tip = elt("span", cache.guess ? cls + "fhint-guess" : null,
@@ -324,8 +323,10 @@
 
   function moveTo(ts, curDoc, doc, start, end) {
     doc.doc.setSelection(end, start);
-    if (curDoc != doc && ts.options.switchToDoc)
+    if (curDoc != doc && ts.options.switchToDoc) {
+      closeArgHints(ts);
       ts.options.switchToDoc(doc.name);
+    }
   }
 
   // The {line,ch} representation of positions makes this rather awkward.
@@ -371,8 +372,7 @@
     var token = cm.getTokenAt(cm.getCursor());
     if (!/\w/.test(token.string)) showError(ts, cm, "Not at a variable");
     dialog(cm, "New name for " + token.string, function(newName) {
-      var req = {type: "rename", newName: newName}, doc = findDoc(ts, cm.getDoc());
-      ts.server.request(buildRequest(ts, doc, req, false), function(error, data) {
+      ts.request(cm, {type: "rename", newName: newName, fullDocs: true}, function(error, data) {
         if (error) return showError(ts, cm, error);
         applyChanges(ts, data.changes);
       });
@@ -400,8 +400,9 @@
 
   // Generic request-building helper
 
-  function buildRequest(ts, doc, query, allowFragments) {
-    var files = [], offsetLines = 0;
+  function buildRequest(ts, doc, query) {
+    var files = [], offsetLines = 0, allowFragments = !query.fullDocs;
+    if (!allowFragments) delete query.fullDocs;
     if (typeof query == "string") query = {type: query};
     query.lineCharPositions = true;
     if (query.end == null) {
@@ -527,5 +528,9 @@
       ts.options.showError(cm, msg);
     else
       tempTooltip(cm, String(msg));
+  }
+
+  function closeArgHints(ts) {
+    if (ts.activeArgHints) { remove(ts.activeArgHints); ts.activeArgHints = null; }
   }
 })();
