@@ -78,6 +78,12 @@
       this.server.delFile(name);
     },
 
+    hideDoc: function(name) {
+      closeArgHints(this);
+      var found = this.docs[name];
+      if (found && found.changed) sendDoc(this, found);
+    },
+
     complete: function(cm) {
       var self = this;
       CodeMirror.showHint(cm, function(cm, c) { return hint(self, cm, c); }, {async: true});
