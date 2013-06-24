@@ -26,6 +26,7 @@ CodeMirror.modeInfo = [
   {name: 'JavaServer Pages', mime: 'application/x-jsp', mode: 'htmlembedded'},
   {name: 'HTML', mime: 'text/html', mode: 'htmlmixed'},
   {name: 'HTTP', mime: 'message/http', mode: 'http'},
+  {name: 'Jade', mime: 'text/x-jade', mode: 'jade'},
   {name: 'JavaScript', mime: 'text/javascript', mode: 'javascript'},
   {name: 'JSON', mime: 'application/x-json', mode: 'javascript'},
   {name: 'JSON', mime: 'application/json', mode: 'javascript'},
