@@ -12,6 +12,8 @@
 // * getFile: A function(name, c) that can be used to access files in
 //   the project that haven't been loaded yet. Simply do c(null) to
 //   indicate that a file is not available.
+// * fileFilter: A function that will be applied to documents before
+//   passing them on to Tern.
 // * switchToDoc: A function(name) that should, when providing a
 //   multi-file view, switch the view or focus to the named file.
 // * showError: A function(editor, message) that can be used to
@@ -63,7 +65,7 @@
 
   CodeMirror.TernServer.prototype = {
     addDoc: function(name, doc) {
-      this.server.addFile(name, doc.getValue());
+      this.server.addFile(name, docValue(this, doc));
       CodeMirror.on(doc, "change", this.trackChange);
       return this.docs[name] = {doc: doc, name: name, changed: null};
     },
@@ -105,7 +107,7 @@
   function getFile(ts, name, c) {
     var buf = ts.docs[name];
     if (buf)
-      c(buf.doc.getValue());
+      c(docValue(ts, buf.doc));
     else if (ts.options.getFile)
       ts.options.getFile(name, c);
     else
@@ -145,7 +147,7 @@
   }
 
   function sendDoc(ts, doc) {
-    ts.server.request({files: [{type: "full", name: doc.name, text: doc.doc.getValue()}]}, function(error) {
+    ts.server.request({files: [{type: "full", name: doc.name, text: docValue(ts, doc.doc)}]}, function(error) {
       if (error) console.error(error);
       else doc.changed = null;
     });
@@ -440,7 +442,7 @@
       } else {
         files.push({type: "full",
                     name: doc.name,
-                    text: doc.doc.getValue()});
+                    text: docValue(ts, doc.doc)});
         query.file = doc.name;
         doc.changed = null;
       }
@@ -450,7 +452,7 @@
     for (var name in ts.docs) {
       var cur = ts.docs[name];
       if (cur.changed && cur != doc) {
-        files.push({type: "full", name: cur.name, text: cur.doc.getValue()});
+        files.push({type: "full", name: cur.name, text: docValue(ts, cur.doc)});
         cur.changed = null;
       }
     }
@@ -549,6 +551,14 @@
   function closeArgHints(ts) {
     if (ts.activeArgHints) { remove(ts.activeArgHints); ts.activeArgHints = null; }
   }
+
+  function docValue(ts, doc) {
+    var val = doc.getValue();
+    if (ts.options.fileFilter) val = ts.options.fileFilter(val);
+    return val;
+  }
+
+  // Worker wrapper
 
   function WorkerServer(ts) {
     var worker = new Worker(ts.options.workerScript);
