@@ -36,6 +36,12 @@ CodeMirror.defineMode("python", function(conf, parserConf) {
     var py3 = {'builtins': ['ascii', 'bytes', 'exec', 'print'],
                'keywords': ['nonlocal', 'False', 'True', 'None']};
 
+    if(parserConf.extra_keywords != undefined){
+        commonkeywords = commonkeywords.concat(parserConf.extra_keywords);
+    }
+    if(parserConf.extra_builtins != undefined){
+        commonBuiltins = commonBuiltins.concat(parserConf.extra_builtins);
+    }
     if (!!parserConf.version && parseInt(parserConf.version, 10) === 3) {
         commonkeywords = commonkeywords.concat(py3.keywords);
         commonBuiltins = commonBuiltins.concat(py3.builtins);
@@ -340,3 +346,13 @@ CodeMirror.defineMode("python", function(conf, parserConf) {
 });
 
 CodeMirror.defineMIME("text/x-python", "python");
+
+var words = function(str){return str.split(' ');};
+
+
+CodeMirror.defineMIME("text/x-cython", {
+  name: "python",
+  extra_keywords: words("by cdef cimport cpdef ctypedef enum except"+
+                        "extern gil include nogil property public"+
+                        "readonly struct union DEF IF ELIF ELSE")
+});
