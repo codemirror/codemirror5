@@ -499,6 +499,21 @@ testCM("bookmarkInsertLeft", function(cm) {
   eqPos(bl.find(), Pos(0, 1));
 }, {value: "abcdef"});
 
+testCM("bookmarkCursor", function(cm) {
+  var pos01 = cm.cursorCoords(Pos(0, 1)), pos11 = cm.cursorCoords(Pos(1, 1)),
+      pos20 = cm.cursorCoords(Pos(2, 0)), pos30 = cm.cursorCoords(Pos(3, 0));
+  cm.setBookmark(Pos(0, 1), {widget: document.createTextNode("←"), insertLeft: true});
+  cm.setBookmark(Pos(2, 0), {widget: document.createTextNode("←"), insertLeft: true});
+  cm.setBookmark(Pos(1, 1), {widget: document.createTextNode("→")});
+  cm.setBookmark(Pos(3, 0), {widget: document.createTextNode("→")});
+  var new01 = cm.cursorCoords(Pos(0, 1)), new11 = cm.cursorCoords(Pos(1, 1)),
+      new20 = cm.cursorCoords(Pos(2, 0)), new30 = cm.cursorCoords(Pos(3, 0));
+  is(new01.left == pos01.left && new01.top == pos01.top, "at left, middle of line");
+  is(new11.left > pos11.left && new11.top == pos11.top, "at right, middle of line");
+  is(new20.left == pos20.left && new20.top == pos20.top, "at left, empty line");
+  is(new30.left > pos30.left && new30.top == pos30.top, "at right, empty line");
+}, {value: "foo\nbar\n\n\nx"});
+
 testCM("getAllMarks", function(cm) {
   addDoc(cm, 10, 10);
   var m1 = cm.setBookmark(Pos(0, 2));
