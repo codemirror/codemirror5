@@ -35,54 +35,56 @@ CodeMirror.defineMode("jade", function () {
         }
         state.justMatchedKeyword = false;
         return "string"; // Token style
-      } else if(stream.sol()) {
-        stream.eatSpace();
-        if(stream.match(keyword_regex1)) {
+      } else if (stream.sol() && stream.eatSpace()) {
+        if (stream.match(keyword_regex1)) {
           state.justMatchedKeyword = true;
           stream.eatSpace();
           return "keyword";
         }
-        if(stream.match(html_regex1) || stream.match(html_regex2)) {
+        if (stream.match(html_regex1) || stream.match(html_regex2)) {
           state.justMatchedKeyword = true;
           return "variable";
         }
-        return null;
-      } else if(stream.eatSpace()) {
+      } else if (stream.sol() && stream.match(keyword_regex1)) {
+        state.justMatchedKeyword = true;
+        stream.eatSpace();
+        return "keyword";
+      } else if (stream.sol() && (stream.match(html_regex1) || stream.match(html_regex2))) {
+        state.justMatchedKeyword = true;
+        return "variable";
+      } else if (stream.eatSpace()) {
         state.justMatchedKeyword = false;
-        if(stream.match(keyword_regex3) && stream.eatSpace()) {
+        if (stream.match(keyword_regex3) && stream.eatSpace()) {
           state.justMatchedKeyword = true;
           return "keyword";
         }
-        return null;
-      } else if(stream.match(symbol_regex1)) {
+      } else if (stream.match(symbol_regex1)) {
         state.justMatchedKeyword = false;
         return "atom";
-      } else if(stream.match(open_paren_regex)) {
+      } else if (stream.match(open_paren_regex)) {
         state.afterParen = true;
         state.justMatchedKeyword = true;
         return "def";
-      } else if(stream.match(close_paren_regex)) {
+      } else if (stream.match(close_paren_regex)) {
         state.afterParen = false;
         state.justMatchedKeyword = true;
         return "def";
-      } else if(stream.match(keyword_regex2)) {
+      } else if (stream.match(keyword_regex2)) {
         state.justMatchedKeyword = true;
         return "keyword";
-      } else if(stream.eatSpace()) {
+      } else if (stream.eatSpace()) {
         state.justMatchedKeyword = false;
-        return null;
       } else {
         stream.next();
-        if(state.justMatchedKeyword){
+        if (state.justMatchedKeyword) {
           return "property";
-        } else if(state.afterParen) {
+        } else if (state.afterParen) {
           return "property";
         }
-        return null;
       }
+      return null;
     }
   };
 });
 
 CodeMirror.defineMIME('text/x-jade', 'jade');
-
