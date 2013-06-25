@@ -103,7 +103,8 @@ CodeMirror.defineMode("css-base", function(config, parserConfig) {
     startState: function(base) {
       return {tokenize: tokenBase,
               baseIndent: base || 0,
-              stack: []};
+              stack: [],
+              lastToken: null};
     },
 
     token: function(stream, state) {
@@ -163,7 +164,7 @@ CodeMirror.defineMode("css-base", function(config, parserConfig) {
       var context = state.stack[state.stack.length-1];
       if (style == "variable") {
         if (type == "variable-definition") state.stack.push("propertyValue");
-        return "variable-2";
+        return state.lastToken = "variable-2";
       } else if (style == "property") {
         var word = stream.current().toLowerCase();
         if (context == "propertyValue") {
@@ -273,9 +274,10 @@ CodeMirror.defineMode("css-base", function(config, parserConfig) {
       else if (context == "@mediaType" && stream.current() == ",") state.stack.pop();
       else if (context == "@mediaType" && type == "(") state.stack.push("@mediaType(");
       else if (context == "@mediaType(" && type == ")") state.stack.pop();
+      else if (type == ":" && state.lastToken == "property") state.stack.push("propertyValue");
       else if (context == "propertyValue" && type == ";") state.stack.pop();
       else if (context == "@import" && type == ";") state.stack.pop();
-      return style;
+      return state.lastToken = style;
     },
 
     indent: function(state, textAfter) {
