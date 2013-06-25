@@ -273,7 +273,6 @@ CodeMirror.defineMode("css-base", function(config, parserConfig) {
       else if (context == "@mediaType" && stream.current() == ",") state.stack.pop();
       else if (context == "@mediaType" && type == "(") state.stack.push("@mediaType(");
       else if (context == "@mediaType(" && type == ")") state.stack.pop();
-      else if ((context == "rule" || context == "block") && type == ":") state.stack.push("propertyValue");
       else if (context == "propertyValue" && type == ";") state.stack.pop();
       else if (context == "@import" && type == ";") state.stack.pop();
       return style;
