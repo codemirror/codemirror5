@@ -64,7 +64,7 @@
     "[tag p] { [tag a] { [property color][operator :][atom #000]; } }");
 
   MT('interpolation_in_property',
-    "[tag foo] { [operator #{][variable-2 $hello][operator }:][atom #000]; }");
+    "[tag foo] { [operator #{][variable-2 $hello][operator }:][number 2]; }");
 
   MT('interpolation_in_selector',
     "[tag foo][operator #{][variable-2 $hello][operator }] { [property color][operator :][atom #000]; }");
