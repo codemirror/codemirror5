@@ -14,7 +14,7 @@ Ported to CodeMirror by Peter Kroon
 .cm-s-lesser-dark .CodeMirror-cursor { border-left: 1px solid white !important; }
 .cm-s-lesser-dark pre { padding: 0 8px; }/*editable code holder*/
 
-div.CodeMirror span.CodeMirror-matchingbracket { color: #7EFC7E; }/*65FC65*/
+.cm-s-lesser-dark.CodeMirror span.CodeMirror-matchingbracket { color: #7EFC7E; }/*65FC65*/
 
 .cm-s-lesser-dark .CodeMirror-gutters { background: #262626; border-right:1px solid #aaa; }
 .cm-s-lesser-dark .CodeMirror-linenumber { color: #777; }
