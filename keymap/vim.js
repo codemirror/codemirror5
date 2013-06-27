@@ -317,38 +317,8 @@
     CodeMirror.defineOption('vimMode', false, function(cm, val) {
       if (val) {
         cm.setOption('keyMap', 'vim');
-        resetVimGlobalState();
         cm.on('beforeSelectionChange', beforeSelectionChange);
-
-        // Store instance state in the CodeMirror object.
-        cm.vimState = {
-          inputState: new InputState(),
-          // Vim's input state that triggered the last edit, used to repeat
-          // motions and operators with '.'.
-          lastEditInputState: undefined,
-          // Vim's action command before the last edit, used to repeat actions
-          // with '.' and insert mode repeat.
-          lastEditActionCommand: undefined,
-          // When using jk for navigation, if you move from a longer line to a
-          // shorter line, the cursor may clip to the end of the shorter line.
-          // If j is pressed again and cursor goes to the next line, the
-          // cursor should go back to its horizontal position on the longer
-          // line if it can. This is to keep track of the horizontal position.
-          lastHPos: -1,
-          // Doing the same with screen-position for gj/gk
-          lastHSPos: -1,
-          // The last motion command run. Cleared if a non-motion command gets
-          // executed in between.
-          lastMotion: null,
-          marks: {},
-          insertMode: false,
-          // Repeat count for changes made in insert mode, triggered by key
-          // sequences like 3,i. Only exists when insertMode is true.
-          insertModeRepeat: undefined,
-          visualMode: false,
-          // If we are in visual line mode. No effect if visualMode is false.
-          visualLine: false
-        };
+        getVimState(cm);
       } else if (cm.vimState) {
         cm.setOption('keyMap', 'default');
         cm.off('beforeSelectionChange', beforeSelectionChange);
@@ -500,6 +470,41 @@
       };
     };
 
+
+    function getVimState(cm) {
+      if (!cm.vimState) {
+        // Store instance state in the CodeMirror object.
+        cm.vimState = {
+          inputState: new InputState(),
+          // Vim's input state that triggered the last edit, used to repeat
+          // motions and operators with '.'.
+          lastEditInputState: undefined,
+          // Vim's action command before the last edit, used to repeat actions
+          // with '.' and insert mode repeat.
+          lastEditActionCommand: undefined,
+          // When using jk for navigation, if you move from a longer line to a
+          // shorter line, the cursor may clip to the end of the shorter line.
+          // If j is pressed again and cursor goes to the next line, the
+          // cursor should go back to its horizontal position on the longer
+          // line if it can. This is to keep track of the horizontal position.
+          lastHPos: -1,
+          // Doing the same with screen-position for gj/gk
+          lastHSPos: -1,
+          // The last motion command run. Cleared if a non-motion command gets
+          // executed in between.
+          lastMotion: null,
+          marks: {},
+          insertMode: false,
+          // Repeat count for changes made in insert mode, triggered by key
+          // sequences like 3,i. Only exists when insertMode is true.
+          insertModeRepeat: undefined,
+          visualMode: false,
+          // If we are in visual line mode. No effect if visualMode is false.
+          visualLine: false
+        };
+      }
+      return cm.vimState;
+    }
     var vimGlobalState;
     function resetVimGlobalState() {
       vimGlobalState = {
@@ -531,6 +536,10 @@
       getVimGlobalState_: function() {
         return vimGlobalState;
       },
+
+      // Testing hook.
+      getVimState_: getVimState,
+
       InsertModeKey: InsertModeKey,
       map: function(lhs, rhs) {
         // Add user defined key bindings.
@@ -547,7 +556,7 @@
       // been mapped to their Vim equivalents.
       handleKey: function(cm, key) {
         var command;
-        var vim = cm.vimState;
+        var vim = getVimState(cm);
         var macroModeState = vimGlobalState.macroModeState;
         if (macroModeState.enteredMacroMode) {
           if (key == 'q') {
@@ -3626,6 +3635,7 @@
       }
     }
 
+    resetVimGlobalState();
     return vimApi;
   };
   // Initialize Vim and make it available as an API.

@@ -111,7 +111,7 @@ function testVim(name, run, opts, expectedFail) {
   return test('vim_' + name, function() {
     var place = document.getElementById("testground");
     var cm = CodeMirror(place, vimOpts);
-    var vim = cm.vimState;
+    var vim = CodeMirror.Vim.getVimState_(cm);
 
     function doKeysFn(cm) {
       return function(args) {
