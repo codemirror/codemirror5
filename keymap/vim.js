@@ -319,14 +319,14 @@
         cm.setOption('keyMap', 'vim');
         cm.on('beforeSelectionChange', beforeSelectionChange);
         getVimState(cm);
-      } else if (cm.vimState) {
+      } else if (cm.state.vim) {
         cm.setOption('keyMap', 'default');
         cm.off('beforeSelectionChange', beforeSelectionChange);
-        cm.vimState = null;
+        cm.state.vim = null;
       }
     });
     function beforeSelectionChange(cm, cur) {
-      var vim = cm.vimState;
+      var vim = cm.state.vim;
       if (vim.insertMode || vim.exMode) return;
 
       var head = cur.head;
@@ -472,9 +472,9 @@
 
 
     function getVimState(cm) {
-      if (!cm.vimState) {
+      if (!cm.state.vim) {
         // Store instance state in the CodeMirror object.
-        cm.vimState = {
+        cm.state.vim = {
           inputState: new InputState(),
           // Vim's input state that triggered the last edit, used to repeat
           // motions and operators with '.'.
@@ -503,7 +503,7 @@
           visualLine: false
         };
       }
-      return cm.vimState;
+      return cm.state.vim;
     }
     var vimGlobalState;
     function resetVimGlobalState() {
@@ -1509,7 +1509,7 @@
           }
           cm.replaceRange('', curStart, curEnd);
         }
-        actions.enterInsertMode(cm, {}, cm.vimState);
+        actions.enterInsertMode(cm, {}, cm.state.vim);
         cm.setCursor(curStart);
       },
       // delete is a javascript keyword.
@@ -2002,7 +2002,7 @@
 
     function exitVisualMode(cm) {
       cm.off('mousedown', exitVisualMode);
-      var vim = cm.vimState;
+      var vim = cm.state.vim;
       vim.visualMode = false;
       vim.visualLine = false;
       var selectionStart = cm.getCursor('anchor');
@@ -2603,7 +2603,7 @@
       }
     };
     function getSearchState(cm) {
-      var vim = cm.vimState;
+      var vim = cm.state.vim;
       return vim.searchState_ || (vim.searchState_ = new SearchState());
     }
     function dialog(cm, template, shortText, onClose, options) {
@@ -2852,7 +2852,7 @@
     };
     Vim.ExCommandDispatcher.prototype = {
       processCommand: function(cm, input) {
-        var vim = cm.vimState;
+        var vim = cm.state.vim;
         if (vim.visualMode) {
           exitVisualMode(cm);
         }
@@ -2933,7 +2933,7 @@
           case '$':
             return cm.lastLine();
           case '\'':
-            var mark = cm.vimState.marks[inputStream.next()];
+            var mark = cm.state.vim.marks[inputStream.next()];
             if (mark && mark.find()) {
               return mark.find().line;
             }
@@ -3043,7 +3043,7 @@
         exCommandDispatcher.map(mapArgs[0], mapArgs[1], cm);
       },
       move: function(cm, params) {
-        commandDispatcher.processCommand(cm, cm.vimState, {
+        commandDispatcher.processCommand(cm, cm.state.vim, {
             type: 'motion',
             motion: 'moveToLineOrEdgeOfDocument',
             motionArgs: { forward: false, explicitRepeat: true,
@@ -3198,7 +3198,7 @@
           return;
         }
 
-        var state = cm.vimState;
+        var state = cm.state.vim;
         var stream = new CodeMirror.StringStream(params.argString.trim());
         while (!stream.eol()) {
           stream.eatSpace();
@@ -3269,7 +3269,7 @@
     function doReplace(cm, confirm, lineStart, lineEnd, searchCursor, query,
         replaceWith) {
       // Set up all the functions.
-      cm.vimState.exMode = true;
+      cm.state.vim.exMode = true;
       var done = false;
       var lastPos = searchCursor.from();
       function replaceAll() {
@@ -3304,7 +3304,7 @@
         cm.focus();
         if (lastPos) {
           cm.setCursor(lastPos);
-          var vim = cm.vimState;
+          var vim = cm.state.vim;
           vim.exMode = false;
           vim.lastHPos = vim.lastHSPos = lastPos.ch;
         }
@@ -3417,7 +3417,7 @@
     CodeMirror.keyMap.vim = buildVimKeyMap();
 
     function exitInsertMode(cm) {
-      var vim = cm.vimState;
+      var vim = cm.state.vim;
       var inReplay = vimGlobalState.macroModeState.inReplay;
       if (!inReplay) {
         cm.off('change', onChange);
