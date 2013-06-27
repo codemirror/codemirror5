@@ -16,6 +16,7 @@
 .CodeMirror-diff-pane {
   display: inline-block;
   white-space: normal;
+  vertical-align: top;
 }
 .CodeMirror-diff-pane-rightmost {
   position: absolute;
