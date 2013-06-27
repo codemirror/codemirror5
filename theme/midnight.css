@@ -1,9 +1,5 @@
 /* Based on the theme at http://bonsaiden.github.com/JavaScript-Garden */
 
-/*<!--breakpoint-->*/
-.cm-s-midnight .breakpoints {width: .8em;}
-.cm-s-midnight .breakpoint { color: #822; }
-
 /*<!--match-->*/
 .cm-s-midnight span.CodeMirror-matchhighlight { background: #494949 }
 .cm-s-midnight.CodeMirror-focused span.CodeMirror-matchhighlight { background: #314D67; !important }
@@ -45,8 +41,3 @@
   text-decoration: underline;
   color: white !important;
 }
-
-.cm-s-midnight .typ { color: #FFAA3E; }
-.cm-s-midnight .atn { color: #606; }
-.cm-s-midnight .atv { color: #080; }
-.cm-s-midnight .dec { color: #606; }
