@@ -1,0 +1,11 @@
+.CodeMirror-linkedmode-range {
+  border: solid 1px #cb4b16;
+  margin: -1px;
+  box-sizing: border-box;
+}
+
+.CodeMirror-linkedmode-empty {
+  border-right: solid 1px #cb4b16;
+  margin-left: -1px;
+  width: 0px;
+}

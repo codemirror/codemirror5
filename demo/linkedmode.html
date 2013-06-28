@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>CodeMirror: Linked Mode Demo</title>
+    <link rel="stylesheet" href="../lib/codemirror.css">
+    <script src="../lib/codemirror.js"></script>
+    <script src="../mode/xml/xml.js"></script>
+    <link rel="stylesheet" href="../addon/edit/linkedmode.css">
+    <script src="../addon/edit/linkedmode.js"></script>
+    <link rel="stylesheet" href="../doc/docs.css">
+
+    <style type="text/css">
+      .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}
+      dt {font-family: monospace; color: #666;}
+    </style>
+  </head>
+  <body>
+    <h1>CodeMirror: Linked Mode Demo</h1>
+
+    <form><textarea id="code" name="code">
+var foo, bar;
+myMethodCall(foo, bar);
+</textarea></form>
+
+    <script>
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {mode: "text/html", lineNumbers: true});
+      var groups = editor.getLinkedGroups([
+        {from: {line: 1, ch: 13}, to: {line: 1, ch: 16}},
+        {from: {line: 1, ch: 18}, to: {line: 1, ch: 21}}
+      ]);
+      var linkedMode = editor.getLinkedMode(groups);
+      linkedMode.setExitPosition({from: {line: 1, ch: 22}});
+      linkedMode.enter();
+      editor.focus();
+    </script>
+
+    <p>Demonstration of primitive search/replace functionality. The
+    keybindings (which can be overridden by custom keymaps) are:</p>
+    <dl>
+      <dt>Ctrl-F / Cmd-F</dt><dd>Start searching</dd>
+      <dt>Ctrl-G / Cmd-G</dt><dd>Find next</dd>
+      <dt>Shift-Ctrl-G / Shift-Cmd-G</dt><dd>Find previous</dd>
+      <dt>Shift-Ctrl-F / Cmd-Option-F</dt><dd>Replace</dd>
+      <dt>Shift-Ctrl-R / Shift-Cmd-Option-F</dt><dd>Replace all</dd>
+    </dl>
+    <p>Searching is enabled by
+    including <a href="../addon/search/search.js">addon/search/search.js</a>
+    and <a href="../addon/search/searchcursor.js">addon/search/searchcursor.js</a>.
+    For good-looking input dialogs, you also want to include
+    <a href="../addon/dialog/dialog.js">addon/dialog/dialog.js</a>
+    and <a href="../addon/dialog/dialog.css">addon/dialog/dialog.css</a>.</p>
+  </body>
+</html>
