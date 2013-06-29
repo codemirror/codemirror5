@@ -1,0 +1,106 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <title>Index</title>
+    <!-- codemirror core -->
+    <script src="../../lib/codemirror.js"></script>
+    <link rel="stylesheet" href="../../lib/codemirror.css">
+    <link rel="stylesheet" href="../../theme/xq-dark.css">
+
+    <!-- smartymixed dependencies -->
+    <script src="../../mode/xml/xml.js"></script>
+    <script src="../../mode/javascript/javascript.js"></script>
+    <script src="../../mode/css/css.js"></script>
+    <script src="../../mode/smarty/smarty.js"></script>
+
+    <!-- smartymixed -->
+    <script src="../../mode/smartymixed/smartymixed.js"></script>
+    <style type="text/css">
+      .CodeMirror { border: 1px solid #eee;
+        height: auto !important;
+        font-size: 1.2em;
+        background: #2a2a2a !important;
+        line-height: 1.3em !important;
+      }      
+      .CodeMirror-scroll {overflow-y: hidden; overflow-x: auto;}
+      .cm-number {color: #ef5939 !important;}
+      .cm-tag {color: #729fcf !important;}
+      .cm-property {color : #967ca4 !important;}
+      .cm-atom {color : #ef5939 !important; font-weight : bold;}
+    </style>
+  </head>
+  <body bgcolor="grey">
+    <textarea id="code" rows="50" cols="60">
+{**
+* @file 1.tpl
+* @brief 
+* @author Ruslan Osmanov <rrosmanov at gmail dot com>
+* @version 1.0
+* @date 29.06.2013
+*}
+<html>
+<head>
+  <title>{$title|htmlspecialchars|truncate:30}</title>
+</head>
+<body>
+  {* Multiline smarty
+  * comment
+  *}
+  <script type="text/javascript">//<![CDATA[
+    var myCodeMirror = CodeMirror.fromTextArea(document.getElementById("code"), {
+      mode           : "smartymixed",
+      theme          : "xq-dark",
+      tabSize        : 2,
+      indentUnit     : 2,
+      indentWithTabs : false,
+      lineNumbers    : true,
+      smartyVersion  : 3,
+    });
+    // ]]>
+  </script>
+
+  {extends file="parent.tpl"}
+  {include file="template.tpl"}
+
+  {* some example Smarty content *}
+  {if isset($name) && $name == 'Blog'}
+    This is a {$var}.
+    {$integer = 451}, {$array[] = "a"}, {$stringvar = "string"}
+    {$integer = 451} {$array[] = "a"} {$stringvar = "string"}
+    {assign var='bob' value=$var.prop}
+  {elseif $name == $foo}
+    {function name=menu level=0}
+    {foreach $data as $entry}
+      {if is_array($entry)}
+      - {$entry@key}
+      {menu data=$entry level=$level+1}
+      {else}
+      {$entry}
+      {* One
+      * Two
+      * Three
+      *}
+      {/if}
+    {/foreach}
+    {/function}
+  {/if}
+  </body>
+  <!-- R.O. -->
+</html>
+    </textarea>
+    <script type="text/javascript">//<![CDATA[
+      var myCodeMirror = CodeMirror.fromTextArea(document.getElementById("code"), {
+        mode           : "smartymixed",
+        theme          : "xq-dark",
+        tabSize        : 2,
+        indentUnit     : 2,
+        indentWithTabs : false,
+        lineNumbers    : true,
+        smartyVersion  : 3,
+      });
+      // ]]>
+    </script>
+  </body>
+</html>
+<!-- vim: set ft=smarty.html ts=2 sts=2 sw=2 et: -->
