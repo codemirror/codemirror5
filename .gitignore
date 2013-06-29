@@ -2,3 +2,5 @@
 /npm-debug.log
 test.html
 .tern-*
+*~
+*.swp
