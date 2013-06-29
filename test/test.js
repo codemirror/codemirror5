@@ -471,6 +471,7 @@ testCM("overlappingMarksInRange", function(cm) {
   cm.markText(Pos(0, 3), Pos(0,5));
   eq(cm.findMarksInRange(Pos(0, 0),Pos(0, 8)).length, 1);
   eq(cm.findMarksInRange(Pos(0, 3),Pos(0, 3)).length, 0);
+  eq(cm.findMarksInRange(Pos(0, 1),Pos(0, 3)).length, 0);
   eq(cm.findMarksInRange(Pos(0, 2),Pos(0, 4)).length, 1);
   eq(cm.findMarksInRange(Pos(0, 5),Pos(0, 6)).length, 1);
   
