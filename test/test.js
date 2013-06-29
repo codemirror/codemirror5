@@ -466,6 +466,16 @@ testCM("noDuplicatesInfindMarksInRange", function(cm) {
   eq(cm.findMarksInRange(Pos(0, 1),Pos(1, 1)).length, 1);
 });
 
+testCM("overlappingMarksInRange", function(cm) {
+  cm.setValue("aaabbbccc");
+  cm.markText(Pos(0, 3), Pos(0,5));
+  eq(cm.findMarksInRange(Pos(0, 0),Pos(0, 8)).length, 1);
+  eq(cm.findMarksInRange(Pos(0, 3),Pos(0, 3)).length, 0);
+  eq(cm.findMarksInRange(Pos(0, 2),Pos(0, 4)).length, 1);
+  eq(cm.findMarksInRange(Pos(0, 5),Pos(0, 6)).length, 1);
+  
+});
+
 testCM("deleteSpanCollapsedInclusiveLeft", function(cm) {
   var from = Pos(1, 0), to = Pos(1, 1);
   var m = cm.markText(from, to, {collapsed: true, inclusiveLeft: true});
