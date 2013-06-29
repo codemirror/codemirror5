@@ -460,6 +460,12 @@ testCM("markClearBetween", function(cm) {
   eq(cm.findMarksAt(Pos(1, 1)).length, 0);
 });
 
+testCM("noDuplicatesInfindMarksInRange", function(cm) {
+  cm.setValue("aaa\nbbb\nccc");
+  cm.markText(Pos(0, 0), Pos(1,3));
+  eq(cm.findMarksInRange(Pos(0, 1),Pos(1, 1)).length, 1);
+});
+
 testCM("deleteSpanCollapsedInclusiveLeft", function(cm) {
   var from = Pos(1, 0), to = Pos(1, 1);
   var m = cm.markText(from, to, {collapsed: true, inclusiveLeft: true});
