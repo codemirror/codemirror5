@@ -318,7 +318,7 @@
       if (val) {
         cm.setOption('keyMap', 'vim');
         cm.on('beforeSelectionChange', beforeSelectionChange);
-        getVimState(cm);
+        maybeInitVimState(cm);
       } else if (cm.state.vim) {
         cm.setOption('keyMap', 'default');
         cm.off('beforeSelectionChange', beforeSelectionChange);
@@ -471,7 +471,7 @@
     };
 
 
-    function getVimState(cm) {
+    function maybeInitVimState(cm) {
       if (!cm.state.vim) {
         // Store instance state in the CodeMirror object.
         cm.state.vim = {
@@ -538,7 +538,7 @@
       },
 
       // Testing hook.
-      getVimState_: getVimState,
+      maybeInitVimState_: maybeInitVimState,
 
       InsertModeKey: InsertModeKey,
       map: function(lhs, rhs) {
@@ -556,7 +556,7 @@
       // been mapped to their Vim equivalents.
       handleKey: function(cm, key) {
         var command;
-        var vim = getVimState(cm);
+        var vim = maybeInitVimState(cm);
         var macroModeState = vimGlobalState.macroModeState;
         if (macroModeState.enteredMacroMode) {
           if (key == 'q') {
