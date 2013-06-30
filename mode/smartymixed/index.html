@@ -1,15 +1,11 @@
-<!DOCTYPE HTML>
+<!doctype html>
 <html>
   <head>
-    <meta http-equiv="content-type" content="text/html; charset=utf-8">
-    <title>Index</title>
-    <!-- codemirror core -->
-    <script src="../../lib/codemirror.js"></script>
+    <meta charset="utf-8">
+    <title>CodeMirror: Smarty mixed mode</title>
     <link rel="stylesheet" href="../../lib/codemirror.css">
-
-    <!-- addons, styling -->
-     <script src="../../addon/edit/matchbrackets.js"></script>
-    <link rel="stylesheet" href="../../theme/xq-dark.css">
+    <script src="../../lib/codemirror.js"></script>
+    <link rel="stylesheet" href="../../doc/docs.css">
 
     <!-- smartymixed dependencies -->
     <script src="../../mode/xml/xml.js"></script>
@@ -18,27 +14,13 @@
 
     <!-- smartymixed -->
     <script src="../../mode/smartymixed/smartymixed.js"></script>
-    <style type="text/css">
-      .CodeMirror { border: 1px solid #eee;
-        height: auto !important;
-        font-size: 1.2em;
-        background: #2a2a2a !important;
-        line-height: 1.3em !important;
-      }      
-      .CodeMirror-scroll {overflow-y: hidden; overflow-x: auto;}
-      .cm-number {color: #ef5939 !important;}
-      .cm-tag {color: #729fcf !important;}
-      .cm-property {color : #967ca4 !important;}
-      .cm-atom {color : #ef5939 !important; font-weight : bold;}
-    </style>
   </head>
-  <body bgcolor="grey">
-    <textarea id="code" rows="50" cols="60">
+  <body>
+    <h1>CodeMirror: Smarty mixed mode</h1>
+    <form><textarea id="code" name="code">
 {**
-* @file 1.tpl
-* @brief 
-* @author Ruslan Osmanov <rrosmanov at gmail dot com>
-* @version 1.0
+* @brief Smarty mixed mode
+* @author Ruslan Osmanov
 * @date 29.06.2013
 *}
 <html>
@@ -55,7 +37,6 @@
     var a = {$just_a_normal_js_object : "value"};
     var myCodeMirror = CodeMirror.fromTextArea(document.getElementById("code"), {
       mode           : "smartymixed",
-      theme          : "xq-dark",
       tabSize        : 2,
       indentUnit     : 2,
       indentWithTabs : false,
@@ -94,21 +75,32 @@
   </body>
   <!-- R.O. -->
 </html>
-    </textarea>
-    <script type="text/javascript">//<![CDATA[
+</textarea></form>
+
+    <script type="text/javascript">
       var myCodeMirror = CodeMirror.fromTextArea(document.getElementById("code"), {
         mode           : "smartymixed",
-        theme          : "xq-dark",
         tabSize        : 2,
         indentUnit     : 2,
         indentWithTabs : false,
         lineNumbers    : true,
         smartyVersion  : 3,
         matchBrackets  : true,
-        align  : false
       });
-      // ]]>
     </script>
+
+    <p>The Smarty mixed mode depends on the XML, JavaScript, and CSS modes.</p>
+
+    <p>It takes the following configuration options:<br/>
+    <ul>
+      <li><code>leftDelimiter</code> - Smarty's left delimeter character. Default is <code>"{"</code>.</li>
+      <li><code>rightDelimiter</code> - Smarty's right delimeter character. Default is <code>"}"</code>.</li>
+      <li><code>smartyVersion</code> - Smarty version. Possible values are: 2 and 3. Default is <b>3</b>.</li>
+    </ul>
+    </p>
+
+    <p><strong>MIME types defined:</strong> <code>text/x-smarty</code>
+    (the same as for the Smarty mode, so don't use them both at a time).</p>
   </body>
 </html>
-<!-- vim: set ft=smarty.html ts=2 sts=2 sw=2 et: -->
+<!-- vim: set ft=html ts=2 sts=2 sw=2 et: -->
