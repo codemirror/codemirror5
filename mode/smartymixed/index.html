@@ -15,7 +15,6 @@
     <script src="../../mode/xml/xml.js"></script>
     <script src="../../mode/javascript/javascript.js"></script>
     <script src="../../mode/css/css.js"></script>
-    <script src="../../mode/smarty/smarty.js"></script>
 
     <!-- smartymixed -->
     <script src="../../mode/smartymixed/smartymixed.js"></script>
@@ -48,9 +47,12 @@
 </head>
 <body>
   {* Multiline smarty
-  * comment
+  * comment, no {$variables} here
   *}
+  {literal}
+  {literal} is now just an HTML text here.
   <script type="text/javascript">//<![CDATA[
+    var a = {$just_a_normal_js_object : "value"};
     var myCodeMirror = CodeMirror.fromTextArea(document.getElementById("code"), {
       mode           : "smartymixed",
       theme          : "xq-dark",
@@ -62,6 +64,7 @@
     });
     // ]]>
   </script>
+  {/literal}
 
   {extends file="parent.tpl"}
   {include file="template.tpl"}

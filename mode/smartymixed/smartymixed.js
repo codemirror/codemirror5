@@ -2,17 +2,16 @@
 * @file smartymixed.js
 * @brief Smarty Mixed Codemirror mode (Smarty + Mixed HTML)
 * @author Ruslan Osmanov <rrosmanov at gmail dot com>
-* @version 1.0
-* @date 29.06.2013
+* @version 1.1
+* @date 30.06.2013
 */
 CodeMirror.defineMode("smartymixed", function(config, parserConfig) {
-	var settings, keyFunctions, last, regs, helpers, parsers,
-	htmlMode = CodeMirror.getMode(config, {
+	var settings, keyFunctions, last, regs, helpers, parsers, htmlMode = CodeMirror.getMode(config, {
 		name: "xml",
 		htmlMode: true
 	}),
-	cssMode    = CodeMirror.getMode(config, "css"),
-	jsMode     = CodeMirror.getMode(config, "javascript"),
+	cssMode = CodeMirror.getMode(config, "css"),
+	jsMode = CodeMirror.getMode(config, "javascript"),
 
 	// our default settings; check to see if they're overridden
 	settings = {
@@ -35,6 +34,8 @@ CodeMirror.defineMode("smartymixed", function(config, parserConfig) {
 		operatorChars: /[+\-*& =<>!?]/,
 		validIdentifier: /[a-zA-Z0-9_]/,
 		stringChar: /['"]/,
+		smartyLiteralOpen: new RegExp(settings.leftDelimiter + 'literal' + settings.rightDelimiter),
+		smartyLiteralClose: new RegExp(settings.leftDelimiter + '\/literal' + settings.rightDelimiter)
 	};
 
 	helpers = {
@@ -55,12 +56,10 @@ CodeMirror.defineMode("smartymixed", function(config, parserConfig) {
 			var close = cur.search(pat),
 			m;
 			if (close > - 1) stream.backUp(cur.length - close);
-			/*
 			else if (m = cur.match(/<\/?$/)) {
 				stream.backUp(cur.length);
 				if (!stream.match(pat, false)) stream.match(cur[0]);
 			}
-			*/
 			return style;
 		}
 	};
@@ -81,8 +80,8 @@ CodeMirror.defineMode("smartymixed", function(config, parserConfig) {
 						return null;
 					} else {
 						state.tokenize = parsers.smarty;
-			      state.localMode = null;
-			      state.localState = null;
+						state.localMode = null;
+						state.localState = null;
 						last = "startTag";
 						return "tag";
 					}
@@ -90,8 +89,8 @@ CodeMirror.defineMode("smartymixed", function(config, parserConfig) {
 			} else {
 				if (stream.match(/[<>]/, false)) {
 					state.tokenize = null;
-			      state.localMode = null;
-			      state.localState = null;
+					state.localMode = null;
+					state.localState = null;
 					return null;
 				}
 
@@ -220,11 +219,10 @@ CodeMirror.defineMode("smartymixed", function(config, parserConfig) {
 		},
 
 		html: function(stream, state) {
-			var tagName = state.htmlState.tagName,
-			style = htmlMode.token(stream, state.htmlState);
+			var tagName = state.htmlState.tagName;
+			var style = htmlMode.token(stream, state.htmlState);
 
 			if (tagName == "script" && /\btag\b/.test(style) && stream.current() == ">") {
-				// Script block: mode to change to depends on type attribute
 				state.tokenize = parsers.script;
 				state.localMode = jsMode;
 				state.localState = jsMode.startState(htmlMode.indent(state.htmlState, ""));
@@ -232,6 +230,7 @@ CodeMirror.defineMode("smartymixed", function(config, parserConfig) {
 				state.tokenize = parsers.css;
 				state.localMode = cssMode;
 				state.localState = cssMode.startState(htmlMode.indent(state.htmlState, ""));
+
 			}
 			return style;
 		},
@@ -284,7 +283,7 @@ CodeMirror.defineMode("smartymixed", function(config, parserConfig) {
 				tokenize: null,
 				last: null,
 				depth: 0,
-				mode: "html"
+				inLiteral: false,
 			};
 		},
 
@@ -295,39 +294,50 @@ CodeMirror.defineMode("smartymixed", function(config, parserConfig) {
 				local = CodeMirror.copyState(tok == parsers.css ? cssMode: (tok == parsers.script ? jsMode: null), state.localState);
 			}
 			return {
-				token:      state.token,
-				tokenize:   state.tokenize,
-				localMode:  state.localMode,
+				token: state.token,
+				tokenize: state.tokenize,
+				localMode: state.localMode,
 				localState: local,
-				htmlState:  CodeMirror.copyState(htmlMode, state.htmlState),
-				last:       state.last,
-				depth:      state.depth,
-				mode:       state.mode
+				htmlState: CodeMirror.copyState(htmlMode, state.htmlState),
+				last: state.last,
+				depth: state.depth,
+				inLiteral: state.inLiteral
 			};
 		},
 
 		token: function(stream, state) {
 			var style;
-			if (stream.eatSpace()) return null;
 
-			if (stream.match(settings.leftDelimiter, true)) {
-				if (stream.eat("*")) { // comment block started
-					// eat until the end of the comment block
-					return helpers.chain(stream, state, parsers.inBlock("comment", "*" + settings.rightDelimiter));
-				} else {
-					// Smarty 3 allows { and } surrounded by whitespace to NOT slip into Smarty mode
-					state.depth++;
-					var isEol = stream.eol();
-					var isFollowedByWhitespace = /\s/.test(stream.peek());
-					if (settings.smartyVersion === 3 && settings.leftDelimiter === "{" && (isEol || isFollowedByWhitespace)) {
-						state.depth--;
-						return null;
+			if (stream.match(settings.leftDelimiter, false)) {
+			  // {literal} and {/literal}
+				if (!state.inLiteral && stream.match(regs.smartyLiteralOpen, true)) {
+					state.inLiteral = true;
+					return "keyword";
+				} else if (state.inLiteral && stream.match(regs.smartyLiteralClose, true)) {
+					state.inLiteral = false;
+					return "keyword";
+				}
+
+				if (!state.inLiteral) {
+					stream.eat(settings.leftDelimiter);
+					if (stream.eat("*")) { // comment block started
+						// eat until the end of the comment block
+						return helpers.chain(stream, state, parsers.inBlock("comment", "*" + settings.rightDelimiter));
 					} else {
-						state.tokenize = parsers.smarty;
-						state.localMode = null;
-						state.localState = null;
-						last = "startTag";
-						return "tag";
+						// Smarty 3 allows { and } surrounded by whitespace to NOT slip into Smarty mode
+						state.depth++;
+						var isEol = stream.eol();
+						var isFollowedByWhitespace = /\s/.test(stream.peek());
+						if (settings.smartyVersion === 3 && settings.leftDelimiter === "{" && (isEol || isFollowedByWhitespace)) {
+							state.depth--;
+							return null;
+						} else {
+							state.tokenize = parsers.smarty;
+							state.localMode = null;
+							state.localState = null;
+							last = "startTag";
+							return "tag";
+						}
 					}
 				}
 			}
@@ -341,10 +351,8 @@ CodeMirror.defineMode("smartymixed", function(config, parserConfig) {
 		indent: function(state, textAfter) {
 			if (!state.localMode || /^\s*<\//.test(textAfter)) {
 				return htmlMode.indent(state.htmlState, textAfter);
-				// XXX indentation for javascript, css and smarty
-			/*} else if (state.localMode.indent) {
+			} else if (state.localMode.indent) {
 				return state.localMode.indent(state.localState, textAfter);
-				*/
 			} else {
 				return CodeMirror.Pass;
 			}
@@ -360,7 +368,7 @@ CodeMirror.defineMode("smartymixed", function(config, parserConfig) {
 		}
 	};
 },
-"xml", "javascript", "css", "smarty");
+"xml", "javascript", "css");
 
 CodeMirror.defineMIME("text/x-smarty", "smartymixed");
 // vim: et ts=2 sts=2 sw=2
