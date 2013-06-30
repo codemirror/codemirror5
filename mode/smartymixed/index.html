@@ -6,6 +6,9 @@
     <!-- codemirror core -->
     <script src="../../lib/codemirror.js"></script>
     <link rel="stylesheet" href="../../lib/codemirror.css">
+
+    <!-- addons, styling -->
+     <script src="../../addon/edit/matchbrackets.js"></script>
     <link rel="stylesheet" href="../../theme/xq-dark.css">
 
     <!-- smartymixed dependencies -->
@@ -55,7 +58,7 @@
       indentUnit     : 2,
       indentWithTabs : false,
       lineNumbers    : true,
-      smartyVersion  : 3,
+      smartyVersion  : 3
     });
     // ]]>
   </script>
@@ -98,6 +101,8 @@
         indentWithTabs : false,
         lineNumbers    : true,
         smartyVersion  : 3,
+        matchBrackets  : true,
+        align  : false
       });
       // ]]>
     </script>
