@@ -93,7 +93,21 @@
     var off = getOffsets(editor, type == DIFF_INSERT ? around.edit : around.orig);
     var offOther = getOffsets(other, type == DIFF_INSERT ? around.orig : around.edit);
     var ratio = (midY - off.top) / (off.bot - off.top);
-    other.scrollTo(null, (offOther.top - halfScreen) + ratio * (offOther.bot - offOther.top));
+    var targetPos = (offOther.top - halfScreen) + ratio * (offOther.bot - offOther.top);
+
+    var botDist, mix;
+    // Some careful tweaking to make sure no space is left out of view
+    // when scrolling to top or bottom.
+    if (targetPos > sInfo.top && (mix = sInfo.top / halfScreen) < 1) {
+      targetPos = targetPos * mix + sInfo.top * (1 - mix);
+    } else if ((botDist = sInfo.height - sInfo.clientHeight - sInfo.top) < halfScreen) {
+      var otherInfo = other.getScrollInfo();
+      var botDistOther = otherInfo.height - otherInfo.clientHeight - targetPos;
+      if (botDistOther > botDist && (mix = botDist / halfScreen) < 1)
+        targetPos = targetPos * mix + (otherInfo.height - otherInfo.clientHeight - botDist) * (1 - mix);
+    }
+
+    other.scrollTo(null, targetPos);
     other.state.scrollSetAt = now;
     other.state.scrollSetBy = dv;
     return true;
@@ -208,8 +222,8 @@
     var vpEdit = dv.edit.getViewport(), vpOrig = dv.orig.getViewport();
     var sTopEdit = dv.edit.getScrollInfo().top, sTopOrig = dv.orig.getScrollInfo().top;
     iterateChunks(dv.diff, function(topOrig, botOrig, topEdit, botEdit) {
-      if (topEdit >= vpEdit.to || botEdit < vpEdit.from ||
-          topOrig >= vpOrig.to || botOrig < vpOrig.from)
+      if (topEdit > vpEdit.to || botEdit < vpEdit.from ||
+          topOrig > vpOrig.to || botOrig < vpOrig.from)
         return;
       var topLpx = dv.orig.heightAtLine(topOrig, "local") - sTopOrig, top = topLpx;
       if (dv.svg) {
