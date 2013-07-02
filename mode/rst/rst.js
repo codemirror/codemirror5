@@ -36,9 +36,11 @@ CodeMirror.defineMode('rst-base', function (config) {
     var TAIL = "(?:\\s*|\\W|$)",
         rx_TAIL = new RegExp(format('^{0}', TAIL));
 
-    var NAME = "(?:[^\\W\\d_](?:[\\w\\+\\.\\-:]*[^\\W_])?)",
+    var NAME =
+        "(?:[^\\W\\d_](?:[\\w!\"#$%&'()\\*\\+,\\-\\.\/:;<=>\\?]*[^\\W_])?)",
         rx_NAME = new RegExp(format('^{0}', NAME));
-    var NAME_WWS = "(?:[^\\W\\d_](?:[\\w\\s\\+\\.\\-:]*[^\\W_])?)";
+    var NAME_WWS =
+        "(?:[^\\W\\d_](?:[\\w\\s!\"#$%&'()\\*\\+,\\-\\.\/:;<=>\\?]*[^\\W_])?)";
     var REF_NAME = format('(?:{0}|`{1}`)', NAME, NAME_WWS);
 
     var TEXT1 = "(?:[^\\s\\|](?:[^\\|]*[^\\s\\|])?)";
