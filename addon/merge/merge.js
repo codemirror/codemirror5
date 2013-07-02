@@ -8,18 +8,18 @@
     this.mv = mv;
     this.type = type;
     this.classes = type == "left"
-      ? {chunk: "CodeMirror-diff-l-chunk",
-         start: "CodeMirror-diff-l-chunk-start",
-         end: "CodeMirror-diff-l-chunk-end",
-         insert: "CodeMirror-diff-l-inserted",
-         del: "CodeMirror-diff-l-deleted",
-         connect: "CodeMirror-diff-l-connect"}
-      : {chunk: "CodeMirror-diff-r-chunk",
-         start: "CodeMirror-diff-r-chunk-start",
-         end: "CodeMirror-diff-r-chunk-end",
-         insert: "CodeMirror-diff-r-inserted",
-         del: "CodeMirror-diff-r-deleted",
-         connect: "CodeMirror-diff-r-connect"};
+      ? {chunk: "CodeMirror-merge-l-chunk",
+         start: "CodeMirror-merge-l-chunk-start",
+         end: "CodeMirror-merge-l-chunk-end",
+         insert: "CodeMirror-merge-l-inserted",
+         del: "CodeMirror-merge-l-deleted",
+         connect: "CodeMirror-merge-l-connect"}
+      : {chunk: "CodeMirror-merge-r-chunk",
+         start: "CodeMirror-merge-r-chunk-start",
+         end: "CodeMirror-merge-r-chunk-end",
+         insert: "CodeMirror-merge-r-inserted",
+         del: "CodeMirror-merge-r-deleted",
+         connect: "CodeMirror-merge-r-connect"};
   }
 
   DiffView.prototype = {
@@ -239,7 +239,7 @@
               "class", dv.classes.connect);
       }
       var copy = dv.copyButtons.appendChild(elt("div", dv.type == "left" ? "\u21dd" : "\u21dc",
-                                                "CodeMirror-diff-copy"));
+                                                "CodeMirror-merge-copy"));
       copy.title = "Revert chunk";
       copy.chunk = {topEdit: topEdit, botEdit: botEdit, topOrig: topOrig, botOrig: botOrig};
       copy.style.top = top + "px";
@@ -264,25 +264,25 @@
 
     if (hasLeft) {
       left = this.left = new DiffView(this, "left");
-      var leftPane = elt("div", null, "CodeMirror-diff-pane");
+      var leftPane = elt("div", null, "CodeMirror-merge-pane");
       wrap.push(leftPane);
       wrap.push(buildGap(left));
     }
 
-    var editPane = elt("div", null, "CodeMirror-diff-pane");
+    var editPane = elt("div", null, "CodeMirror-merge-pane");
     wrap.push(editPane);
 
     if (hasRight) {
       right = this.right = new DiffView(this, "right");
       wrap.push(buildGap(right));
-      var rightPane = elt("div", null, "CodeMirror-diff-pane");
+      var rightPane = elt("div", null, "CodeMirror-merge-pane");
       wrap.push(rightPane);
     }
 
-    (hasRight ? rightPane : editPane).className += " CodeMirror-diff-pane-rightmost";
+    (hasRight ? rightPane : editPane).className += " CodeMirror-merge-pane-rightmost";
 
     wrap.push(elt("div", null, null, "height: 0; clear: both;"));
-    var wrapElt = this.wrap = node.appendChild(elt("div", wrap, "CodeMirror-diff CodeMirror-diff-" + panes + "pane"));
+    var wrapElt = this.wrap = node.appendChild(elt("div", wrap, "CodeMirror-merge CodeMirror-merge-" + panes + "pane"));
     this.edit = CodeMirror(editPane, copyObj(options));
 
     if (left) left.init(leftPane, origLeft, options);
@@ -300,11 +300,11 @@
   };
 
   function buildGap(dv) {
-    var lock = dv.lockButton = elt("div", null, "CodeMirror-diff-scrolllock");
+    var lock = dv.lockButton = elt("div", null, "CodeMirror-merge-scrolllock");
     lock.title = "Toggle locked scrolling";
-    var lockWrap = elt("div", [lock], "CodeMirror-diff-scrolllock-wrap");
+    var lockWrap = elt("div", [lock], "CodeMirror-merge-scrolllock-wrap");
     CodeMirror.on(lock, "click", function() { setScrollLock(dv, !dv.lockScroll); });
-    dv.copyButtons = elt("div", null, "CodeMirror-diff-copybuttons-" + dv.type);
+    dv.copyButtons = elt("div", null, "CodeMirror-merge-copybuttons-" + dv.type);
     CodeMirror.on(dv.copyButtons, "click", function(e) {
       var node = e.target || e.srcElement;
       if (node.chunk) copyChunk(dv, node.chunk);
@@ -315,7 +315,7 @@
     dv.svg = svg;
     if (svg) gapElts.push(svg);
 
-    return dv.gap = elt("div", gapElts, "CodeMirror-diff-gap");
+    return dv.gap = elt("div", gapElts, "CodeMirror-merge-gap");
   }
 
   MergeView.prototype = {

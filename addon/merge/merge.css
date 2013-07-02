@@ -1,30 +1,30 @@
-.CodeMirror-diff {
+.CodeMirror-merge {
   position: relative;
   border: 1px solid #ddd;
   white-space: pre;
 }
 
-.CodeMirror-diff, .CodeMirror-diff .CodeMirror {
+.CodeMirror-merge, .CodeMirror-merge .CodeMirror {
   height: 350px;
 }
 
-.CodeMirror-diff-2pane .CodeMirror-diff-pane { width: 47%; }
-.CodeMirror-diff-2pane .CodeMirror-diff-gap { width: 6%; }
-.CodeMirror-diff-3pane .CodeMirror-diff-pane { width: 31%; }
-.CodeMirror-diff-3pane .CodeMirror-diff-gap { width: 3.5%; }
+.CodeMirror-merge-2pane .CodeMirror-merge-pane { width: 47%; }
+.CodeMirror-merge-2pane .CodeMirror-merge-gap { width: 6%; }
+.CodeMirror-merge-3pane .CodeMirror-merge-pane { width: 31%; }
+.CodeMirror-merge-3pane .CodeMirror-merge-gap { width: 3.5%; }
 
-.CodeMirror-diff-pane {
+.CodeMirror-merge-pane {
   display: inline-block;
   white-space: normal;
   vertical-align: top;
 }
-.CodeMirror-diff-pane-rightmost {
+.CodeMirror-merge-pane-rightmost {
   position: absolute;
   right: 0px;
   z-index: 1;
 }
 
-.CodeMirror-diff-gap {
+.CodeMirror-merge-gap {
   z-index: 2;
   display: inline-block;
   height: 100%;
@@ -37,11 +37,11 @@
   background: #f8f8f8;
 }
 
-.CodeMirror-diff-scrolllock-wrap {
+.CodeMirror-merge-scrolllock-wrap {
   position: absolute;
   bottom: 0; left: 50%;
 }
-.CodeMirror-diff-scrolllock {
+.CodeMirror-merge-scrolllock {
   position: relative;
   left: -50%;
   cursor: pointer;
@@ -49,44 +49,44 @@
   line-height: 1;
 }
 
-.CodeMirror-diff-copybuttons-left, .CodeMirror-diff-copybuttons-right {
+.CodeMirror-merge-copybuttons-left, .CodeMirror-merge-copybuttons-right {
   position: absolute;
   left: 0; top: 0;
   right: 0; bottom: 0;
   line-height: 1;
 }
 
-.CodeMirror-diff-copy {
+.CodeMirror-merge-copy {
   position: absolute;
   cursor: pointer;
   color: #44c;
 }
 
-.CodeMirror-diff-copybuttons-left .CodeMirror-diff-copy { left: 2px; }
-.CodeMirror-diff-copybuttons-right .CodeMirror-diff-copy { right: 2px; }
+.CodeMirror-merge-copybuttons-left .CodeMirror-merge-copy { left: 2px; }
+.CodeMirror-merge-copybuttons-right .CodeMirror-merge-copy { right: 2px; }
 
-.CodeMirror-diff-r-inserted, .CodeMirror-diff-l-inserted {
+.CodeMirror-merge-r-inserted, .CodeMirror-merge-l-inserted {
   background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAACCAYAAACddGYaAAAAGUlEQVQI12MwuCXy3+CWyH8GBgYGJgYkAABZbAQ9ELXurwAAAABJRU5ErkJggg==);
   background-position: bottom left;
   background-repeat: repeat-x;
 }
 
-.CodeMirror-diff-r-deleted, .CodeMirror-diff-l-deleted {
+.CodeMirror-merge-r-deleted, .CodeMirror-merge-l-deleted {
   background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAACCAYAAACddGYaAAAAGUlEQVQI12M4Kyb2/6yY2H8GBgYGJgYkAABURgPz6Ks7wQAAAABJRU5ErkJggg==);
   background-position: bottom left;
   background-repeat: repeat-x;
 }
 
-.CodeMirror-diff-r-chunk { background: #ffffe0; }
-.CodeMirror-diff-r-chunk-start { border-top: 1px solid #ee8; }
-.CodeMirror-diff-r-chunk-end { border-bottom: 1px solid #ee8; }
-.CodeMirror-diff-r-connect { fill: #ffffe0; stroke: #ee8; stroke-width: 1px; }
+.CodeMirror-merge-r-chunk { background: #ffffe0; }
+.CodeMirror-merge-r-chunk-start { border-top: 1px solid #ee8; }
+.CodeMirror-merge-r-chunk-end { border-bottom: 1px solid #ee8; }
+.CodeMirror-merge-r-connect { fill: #ffffe0; stroke: #ee8; stroke-width: 1px; }
 
-.CodeMirror-diff-l-chunk { background: #eef; }
-.CodeMirror-diff-l-chunk-start { border-top: 1px solid #88e; }
-.CodeMirror-diff-l-chunk-end { border-bottom: 1px solid #88e; }
-.CodeMirror-diff-l-connect { fill: #eef; stroke: #88e; stroke-width: 1px; }
+.CodeMirror-merge-l-chunk { background: #eef; }
+.CodeMirror-merge-l-chunk-start { border-top: 1px solid #88e; }
+.CodeMirror-merge-l-chunk-end { border-bottom: 1px solid #88e; }
+.CodeMirror-merge-l-connect { fill: #eef; stroke: #88e; stroke-width: 1px; }
 
-.CodeMirror-diff-l-chunk.CodeMirror-diff-r-chunk { background: #dfd; }
-.CodeMirror-diff-l-chunk-start.CodeMirror-diff-r-chunk-start { border-top: 1px solid #4e4; }
-.CodeMirror-diff-l-chunk-end.CodeMirror-diff-r-chunk-end { border-bottom: 1px solid #4e4; }
+.CodeMirror-merge-l-chunk.CodeMirror-merge-r-chunk { background: #dfd; }
+.CodeMirror-merge-l-chunk-start.CodeMirror-merge-r-chunk-start { border-top: 1px solid #4e4; }
+.CodeMirror-merge-l-chunk-end.CodeMirror-merge-r-chunk-end { border-bottom: 1px solid #4e4; }
