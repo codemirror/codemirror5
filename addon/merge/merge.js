@@ -107,7 +107,7 @@
         targetPos = targetPos * mix + (otherInfo.height - otherInfo.clientHeight - botDist) * (1 - mix);
     }
 
-    other.scrollTo(null, targetPos);
+    other.scrollTo(sInfo.left, targetPos);
     other.state.scrollSetAt = now;
     other.state.scrollSetBy = dv;
     return true;
