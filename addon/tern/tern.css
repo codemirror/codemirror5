@@ -14,6 +14,7 @@
   line-height: 16px;
   text-align: center;
   color: white;
+  -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
 .CodeMirror-Tern-completion-unknown:before {

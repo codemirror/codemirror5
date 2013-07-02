@@ -28,6 +28,7 @@
   z-index: 2;
   display: inline-block;
   height: 100%;
+  -moz-box-sizing: border-box;
   box-sizing: border-box;
   overflow: hidden;
   border-left: 1px solid #ddd;
