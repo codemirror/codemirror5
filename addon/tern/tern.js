@@ -12,8 +12,8 @@
 // * getFile: A function(name, c) that can be used to access files in
 //   the project that haven't been loaded yet. Simply do c(null) to
 //   indicate that a file is not available.
-// * fileFilter: A function that will be applied to documents before
-//   passing them on to Tern.
+// * fileFilter: A function(value, docName, doc) that will be applied
+//   to documents before passing them on to Tern.
 // * switchToDoc: A function(name) that should, when providing a
 //   multi-file view, switch the view or focus to the named file.
 // * showError: A function(editor, message) that can be used to
@@ -65,9 +65,10 @@
 
   CodeMirror.TernServer.prototype = {
     addDoc: function(name, doc) {
-      this.server.addFile(name, docValue(this, doc));
+      var data = {doc: doc, name: name, changed: null};
+      this.server.addFile(name, docValue(this, data));
       CodeMirror.on(doc, "change", this.trackChange);
-      return this.docs[name] = {doc: doc, name: name, changed: null};
+      return this.docs[name] = data;
     },
 
     delDoc: function(name) {
@@ -113,7 +114,7 @@
   function getFile(ts, name, c) {
     var buf = ts.docs[name];
     if (buf)
-      c(docValue(ts, buf.doc));
+      c(docValue(ts, buf));
     else if (ts.options.getFile)
       ts.options.getFile(name, c);
     else
@@ -153,7 +154,7 @@
   }
 
   function sendDoc(ts, doc) {
-    ts.server.request({files: [{type: "full", name: doc.name, text: docValue(ts, doc.doc)}]}, function(error) {
+    ts.server.request({files: [{type: "full", name: doc.name, text: docValue(ts, doc)}]}, function(error) {
       if (error) console.error(error);
       else doc.changed = null;
     });
@@ -448,7 +449,7 @@
       } else {
         files.push({type: "full",
                     name: doc.name,
-                    text: docValue(ts, doc.doc)});
+                    text: docValue(ts, doc)});
         query.file = doc.name;
         doc.changed = null;
       }
@@ -458,7 +459,7 @@
     for (var name in ts.docs) {
       var cur = ts.docs[name];
       if (cur.changed && cur != doc) {
-        files.push({type: "full", name: cur.name, text: docValue(ts, cur.doc)});
+        files.push({type: "full", name: cur.name, text: docValue(ts, cur)});
         cur.changed = null;
       }
     }
@@ -559,8 +560,8 @@
   }
 
   function docValue(ts, doc) {
-    var val = doc.getValue();
-    if (ts.options.fileFilter) val = ts.options.fileFilter(val);
+    var val = doc.doc.getValue();
+    if (ts.options.fileFilter) val = ts.options.fileFilter(val, doc.name, doc.doc);
     return val;
   }
 
