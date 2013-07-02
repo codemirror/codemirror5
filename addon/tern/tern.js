@@ -443,8 +443,8 @@
         files.push(getFragmentAround(doc, startPos, query.end));
         query.file = "#0";
         var offsetLines = files[0].offsetLines;
-        if (query.start != null) query.start = incLine(-offsetLines, query.start);
-        query.end = incLine(-offsetLines, query.end);
+        if (query.start != null) query.start = Pos(query.start.line - -offsetLines, query.start.ch);
+        query.end = Pos(query.end.line - offsetLines, query.end.ch);
       } else {
         files.push({type: "full",
                     name: doc.name,
@@ -468,7 +468,7 @@
 
   function getFragmentAround(data, start, end) {
     var doc = data.doc;
-    var minIndent = null, minLine = null, endLine, tabSize = doc.getOption("tabSize");
+    var minIndent = null, minLine = null, endLine, tabSize = 4;
     for (var p = start.line - 1, min = Math.max(0, p - 50); p >= min; --p) {
       var line = doc.getLine(p), fn = line.search(/\bfunction\b/);
       if (fn < 0) continue;
