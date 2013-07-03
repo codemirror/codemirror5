@@ -36,11 +36,6 @@ CodeMirror.defineMode("smartymixed", function(config) {
   };
 
   helpers = {
-    cont: function(style, lastType) {
-      last = lastType;
-      return style;
-    },
-
     chain: function(stream, state, parser) {
       state.tokenize = parser;
       return parser(stream, state);
@@ -84,7 +79,7 @@ CodeMirror.defineMode("smartymixed", function(config) {
         state.localMode = smartyMode;
         state.localState = smartyMode.startState(htmlMode.indent(state.htmlState, ""));
       }
-      
+
       return style;
     },
 
@@ -158,7 +153,7 @@ CodeMirror.defineMode("smartymixed", function(config) {
         tokenize: state.tokenize,
         localMode: state.localMode,
         localState: local,
-        htmlState: CodeMirror.copyState(htmlMode, state.htmlState),
+        htmlState: CodeMirror.copyState(htmlMode, state.htmlState)
       };
     },
 
