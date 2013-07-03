@@ -43,26 +43,24 @@ window.onload = function() {
   var te_html = document.getElementById("code-html");
   te_html.value = "<html>\n  " + document.documentElement.innerHTML + "\n</html>";
 
-  function foldJS(cm, where) { cm.foldCode(where, CodeMirror.braceRangeFinder); }
   window.editor = CodeMirror.fromTextArea(te, {
     mode: "javascript",
     lineNumbers: true,
     lineWrapping: true,
-    extraKeys: {"Ctrl-Q": function(cm){foldJS(cm, cm.getCursor());}}
+    extraKeys: {"Ctrl-Q": function(cm){ cm.foldCode(cm.getCursor()); }}
   });
-  editor.on("gutterClick", foldJS);
-  foldJS(editor, 9);
+  editor.on("gutterClick", function(cm, n) { cm.foldCode(CodeMirror.Pos(n, 0)); });
+  editor.foldCode(CodeMirror.Pos(8, 0));
 
-  function foldHTML(cm, where) { cm.foldCode(where, CodeMirror.tagRangeFinder); }
   window.editor_html = CodeMirror.fromTextArea(te_html, {
     mode: "text/html",
     lineNumbers: true,
     lineWrapping: true,
-    extraKeys: {"Ctrl-Q": function(cm){foldHTML(cm, cm.getCursor());}}
+    extraKeys: {"Ctrl-Q": function(cm){ cm.foldCode(cm.getCursor()); }}
   });
-  editor_html.on("gutterClick", foldHTML);
-  foldHTML(editor_html, 13);
-  foldHTML(editor_html, 1);
+  editor_html.on("gutterClick", function(cm, n) { cm.foldCode(CodeMirror.Pos(n, 0)); });
+  editor_html.foldCode(CodeMirror.Pos(13, 0));
+  editor_html.foldCode(CodeMirror.Pos(1, 0));
 };
 </script>
   </body>

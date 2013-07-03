@@ -2,7 +2,8 @@
   "use strict";
 
   function doFold(cm, pos, options) {
-    var finder = options.call ? options : (options && options.rangeFinder);
+    var finder = options && (options.call ? options : options.rangeFinder);
+    if (!finder) finder = cm.getHelper(pos, "fold");
     if (!finder) return;
     if (typeof pos == "number") pos = CodeMirror.Pos(pos, 0);
     var minSize = options && options.minFoldSize || 0;

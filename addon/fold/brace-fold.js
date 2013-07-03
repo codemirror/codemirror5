@@ -1,4 +1,4 @@
-CodeMirror.braceRangeFinder = function(cm, start) {
+CodeMirror.registerHelper("fold", "brace", function(cm, start) {
   var line = start.line, lineText = cm.getLine(line);
   var startCh, tokenType;
 
@@ -44,9 +44,10 @@ CodeMirror.braceRangeFinder = function(cm, start) {
   if (end == null || line == end && endCh == startCh) return;
   return {from: CodeMirror.Pos(line, startCh),
           to: CodeMirror.Pos(end, endCh)};
-};
+});
+CodeMirror.braceRangeFinder = CodeMirror.fold.brace; // deprecated
 
-CodeMirror.importRangeFinder = function(cm, start) {
+CodeMirror.registerHelper("fold", "import", function(cm, start) {
   function hasImport(line) {
     if (line < cm.firstLine() || line > cm.lastLine()) return null;
     var start = cm.getTokenAt(CodeMirror.Pos(line, 1));
@@ -68,9 +69,10 @@ CodeMirror.importRangeFinder = function(cm, start) {
     end = next.end;
   }
   return {from: cm.clipPos(CodeMirror.Pos(start, has.startCh + 1)), to: end};
-};
+});
+CodeMirror.importRangeFinder = CodeMirror.fold["import"]; // deprecated
 
-CodeMirror.includeRangeFinder = function(cm, start) {
+CodeMirror.registerHelper("fold", "include", function(cm, start) {
   function hasInclude(line) {
     if (line < cm.firstLine() || line > cm.lastLine()) return null;
     var start = cm.getTokenAt(CodeMirror.Pos(line, 1));
@@ -87,4 +89,5 @@ CodeMirror.includeRangeFinder = function(cm, start) {
   }
   return {from: CodeMirror.Pos(start, has + 1),
           to: cm.clipPos(CodeMirror.Pos(end))};
-};
+});
+CodeMirror.includeRangeFinder = CodeMirror.fold.include; // deprecated

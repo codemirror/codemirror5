@@ -124,7 +124,7 @@
     }
   }
 
-  CodeMirror.tagRangeFinder = function(cm, start) {
+  CodeMirror.registerHelper("fold", "xml", function(cm, start) {
     var iter = new Iter(cm, start.line, 0);
     for (;;) {
       var openTag = toNextTag(iter), end;
@@ -135,7 +135,8 @@
         return close && {from: start, to: close.from};
       }
     }
-  };
+  });
+  CodeMirror.tagRangeFinder = CodeMirror.fold.xml; // deprecated
 
   CodeMirror.findMatchingTag = function(cm, pos, range) {
     var iter = new Iter(cm, pos.line, pos.ch, range);

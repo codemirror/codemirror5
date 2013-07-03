@@ -333,7 +333,8 @@ CodeMirror.defineMode("python", function(conf, parserConf) {
             return state.scopes[0].offset;
         },
 
-        lineComment: "#"
+        lineComment: "#",
+        fold: "indent"
     };
     return external;
 });

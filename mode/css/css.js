@@ -289,7 +289,8 @@ CodeMirror.defineMode("css-base", function(config, parserConfig) {
 
     electricChars: "}",
     blockCommentStart: "/*",
-    blockCommentEnd: "*/"
+    blockCommentEnd: "*/",
+    fold: "brace"
   };
 });
 

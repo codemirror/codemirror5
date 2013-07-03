@@ -1745,24 +1745,28 @@
       fails, line-comments it.</dd>
 
       <dt id="addon_foldcode"><a href="../addon/fold/foldcode.js"><code>fold/foldcode.js</code></a></dt>
-      <dd>Helps with code folding. Add a <code>foldCode</code> method
+      <dd>Helps with code folding. Adds a <code>foldCode</code> method
       to editor instances, which will try to do a code fold starting
       at the given line, or unfold the fold that is already present.
       The method takes as first argument the position that should be
       folded (may be a line number or
-      a <a href="#Pos"><code>Pos</code></a>), and as second argument
-      either a range-finder function, or an options object, supporting
-      the following properties:
+      a <a href="#Pos"><code>Pos</code></a>), and as second optional
+      argument either a range-finder function, or an options object,
+      supporting the following properties:
       <dl>
         <dt><code><strong>rangeFinder</strong>: fn(CodeMirror, Pos)</code></dt>
-        <dd>The function that is used to find foldable ranges. There
-        are files in the <a href="../addon/fold/"><code>addon/fold/</code></a>
-        directory providing <code>CodeMirror.braceRangeFinder</code>,
-        which finds blocks in brace languages (JavaScript, C, Java,
-        etc), <code>CodeMirror.indentRangeFinder</code>, for languages
-        where indentation determines block structure (Python,
-        Haskell), and <code>CodeMirror.tagRangeFinder</code>, for
-        XML-style languages.</dd>
+        <dd>The function that is used to find foldable ranges. If this
+        is not directly passed, it will
+        call <a href="#getHelper"><code>getHelper</code></a> with
+        a <code>"fold"</code> type to find one that's appropriate for
+        the mode. There are files in
+        the <a href="../addon/fold/"><code>addon/fold/</code></a>
+        directory providing <code>CodeMirror.fold.brace</code>, which
+        finds blocks in brace languages (JavaScript, C, Java,
+        etc), <code>CodeMirror.fold.indent</code>, for languages where
+        indentation determines block structure (Python, Haskell),
+        and <code>CodeMirror.fold.xml</code>, for XML-style
+        languages.</dd>
         <dt><code><strong>widget</strong>: string|Element</code></dt>
         <dd>The widget to show for folded ranges. Can be either a
         string, in which case it'll become a span with
