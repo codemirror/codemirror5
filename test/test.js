@@ -501,7 +501,8 @@ testCM("bookmarkInsertLeft", function(cm) {
 
 testCM("bookmarkCursor", function(cm) {
   var pos01 = cm.cursorCoords(Pos(0, 1)), pos11 = cm.cursorCoords(Pos(1, 1)),
-      pos20 = cm.cursorCoords(Pos(2, 0)), pos30 = cm.cursorCoords(Pos(3, 0));
+      pos20 = cm.cursorCoords(Pos(2, 0)), pos30 = cm.cursorCoords(Pos(3, 0)),
+      pos41 = cm.cursorCoords(Pos(4, 1));
   cm.setBookmark(Pos(0, 1), {widget: document.createTextNode("←"), insertLeft: true});
   cm.setBookmark(Pos(2, 0), {widget: document.createTextNode("←"), insertLeft: true});
   cm.setBookmark(Pos(1, 1), {widget: document.createTextNode("→")});
@@ -512,7 +513,9 @@ testCM("bookmarkCursor", function(cm) {
   is(new11.left > pos11.left && new11.top == pos11.top, "at right, middle of line");
   is(new20.left == pos20.left && new20.top == pos20.top, "at left, empty line");
   is(new30.left > pos30.left && new30.top == pos30.top, "at right, empty line");
-}, {value: "foo\nbar\n\n\nx"});
+  cm.setBookmark(Pos(4, 0), {widget: document.createTextNode("→")});
+  is(cm.cursorCoords(Pos(4, 1)).left > pos41.left, "single-char bug");
+}, {value: "foo\nbar\n\n\nx\ny"});
 
 testCM("getAllMarks", function(cm) {
   addDoc(cm, 10, 10);
