@@ -8,9 +8,11 @@
   var nameChar = nameStartChar + "\-\:\.0-9\\u00B7\\u0300-\\u036F\\u203F-\\u2040";
   var xmlTagStart = new RegExp("<(/?)([" + nameStartChar + "][" + nameChar + "]*)", "g");
 
-  function Iter(cm, line, ch) {
+  function Iter(cm, line, ch, range) {
     this.line = line; this.ch = ch;
     this.cm = cm; this.text = cm.getLine(line);
+    this.min = range ? range.from : cm.firstLine();
+    this.max = range ? range.to - 1 : cm.lastLine();
   }
 
   function tagAt(iter, ch) {
@@ -19,13 +21,13 @@
   }
 
   function nextLine(iter) {
-    if (iter.line >= iter.cm.lastLine()) return;
+    if (iter.line >= iter.max) return;
     iter.ch = 0;
     iter.text = iter.cm.getLine(++iter.line);
     return true;
   }
   function prevLine(iter) {
-    if (iter.line <= iter.cm.firstLine()) return;
+    if (iter.line <= iter.min) return;
     iter.text = iter.cm.getLine(--iter.line);
     iter.ch = iter.text.length;
     return true;
@@ -135,8 +137,8 @@
     }
   };
 
-  CodeMirror.findMatchingTag = function(cm, pos) {
-    var iter = new Iter(cm, pos.line, pos.ch);
+  CodeMirror.findMatchingTag = function(cm, pos, range) {
+    var iter = new Iter(cm, pos.line, pos.ch, range);
     var end = toTagEnd(iter), to = end && Pos(iter.line, iter.ch);
     var start = end && toTagStart(iter);
     if (!end || end == "selfClose" || !start || cmp(iter, pos) > 0) return;
@@ -146,18 +148,18 @@
       var open = findMatchingOpen(iter, start[2]);
       return open && {open: open, close: here, at: "close"};
     } else { // opening tag
-      iter = new Iter(cm, to.line, to.ch);
+      iter = new Iter(cm, to.line, to.ch, range);
       var close = findMatchingClose(iter, start[2]);
       return close && {open: here, close: close, at: "open"};
     }
   };
 
-  CodeMirror.findEnclosingTag = function(cm, pos) {
-    var iter = new Iter(cm, pos.line, pos.ch);
+  CodeMirror.findEnclosingTag = function(cm, pos, range) {
+    var iter = new Iter(cm, pos.line, pos.ch, range);
     for (;;) {
       var open = findMatchingOpen(iter);
       if (!open) break;
-      var forward = new Iter(cm, pos.line, pos.ch);
+      var forward = new Iter(cm, pos.line, pos.ch, range);
       var close = findMatchingClose(forward, open.tag);
       if (close) return {open: open, close: close};
     }
