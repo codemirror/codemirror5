@@ -463,6 +463,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     lineComment: jsonMode ? null : "//",
     fold: "brace",
 
+    helperType: jsonMode ? "json" : "javascript",
     jsonMode: jsonMode
   };
 });

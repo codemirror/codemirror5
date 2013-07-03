@@ -1974,11 +1974,14 @@
       with pluggable warning sources
       (see <a href="../addon/lint/json-lint.js"><code>json-lint.js</code></a>
       and <a href="../addon/lint/javascript-lint.js"><code>javascript-lint.js</code></a>
-      in the same directory). Defines a <code>lintWith</code> option
-      that can be set to a warning source (for
-      example <code>CodeMirror.javascriptValidator</code>). Depends
-      on <code>addon/lint/lint.css</code>. A demo can be
-      found <a href="../demo/lint.html">here</a>.</dd>
+      in the same directory). Defines a <code>lint</code> option that
+      can be set to a warning source (for
+      example <code>CodeMirror.lint.javascript</code>), or
+      to <code>true</code>, in which
+      case <a href="#getHelper"><code>getHelper</code></a> with
+      type <code>"lint"</code> is used to determined a validator
+      function. Depends on <code>addon/lint/lint.css</code>. A demo
+      can be found <a href="../demo/lint.html">here</a>.</dd>
 
       <dt id="addon_mark-selection"><a href="../addon/selection/mark-selection.js"><code>selection/mark-selection.js</code></a></dt>
       <dd>Causes the selected text to be marked with the CSS class

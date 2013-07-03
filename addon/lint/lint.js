@@ -1,4 +1,5 @@
-CodeMirror.validate = (function() {
+(function() {
+  "use strict";
   var GUTTER_ID = "CodeMirror-lint-markers";
   var SEVERITIES = /^(?:error|warning)$/;
 
@@ -52,9 +53,11 @@ CodeMirror.validate = (function() {
     this.onMouseOver = function(e) { onMouseOver(cm, e); };
   }
 
-  function parseOptions(options) {
+  function parseOptions(cm, options) {
     if (options instanceof Function) return {getAnnotations: options};
-    else if (!options || !options.getAnnotations) throw new Error("Required option 'getAnnotations' missing (lint addon)");
+    if (!options || options === true) options = {};
+    if (!options.getAnnotations) options.getAnnotations = cm.getHelper(CodeMirror.Pos(0, 0), "lint");
+    if (!options.getAnnotations) throw new Error("Required option 'getAnnotations' missing (lint addon)");
     return options;
   }
 
@@ -175,7 +178,7 @@ CodeMirror.validate = (function() {
     }
   }
 
-  CodeMirror.defineOption("lintWith", false, function(cm, val, old) {
+  function optionHandler(cm, val, old) {
     if (old && old != CodeMirror.Init) {
       clearMarks(cm);
       cm.off("change", onChange);
@@ -186,12 +189,15 @@ CodeMirror.validate = (function() {
     if (val) {
       var gutters = cm.getOption("gutters"), hasLintGutter = false;
       for (var i = 0; i < gutters.length; ++i) if (gutters[i] == GUTTER_ID) hasLintGutter = true;
-      var state = cm.state.lint = new LintState(cm, parseOptions(val), hasLintGutter);
+      var state = cm.state.lint = new LintState(cm, parseOptions(cm, val), hasLintGutter);
       cm.on("change", onChange);
       if (state.options.tooltips != false)
         CodeMirror.on(cm.getWrapperElement(), "mouseover", state.onMouseOver);
 
       startLinting(cm);
     }
-  });
+  }
+
+  CodeMirror.defineOption("lintWith", false, optionHandler); // deprecated
+  CodeMirror.defineOption("lint", false, optionHandler); // deprecated
 })();
