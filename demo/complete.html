@@ -59,7 +59,7 @@ how it works.</p>
 
     <script>
       CodeMirror.commands.autocomplete = function(cm) {
-        CodeMirror.showHint(cm, CodeMirror.javascriptHint);
+        CodeMirror.showHint(cm, CodeMirror.hint.javascript);
       }
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true,

@@ -41,9 +41,11 @@
             to: CodeMirror.Pos(cur.line, token.end)};
   }
 
-  CodeMirror.pythonHint = function(editor) {
+  function pythonHint(editor) {
     return scriptHint(editor, pythonKeywordsU, function (e, cur) {return e.getTokenAt(cur);});
-  };
+  }
+  CodeMirror.pythonHint = pythonHint; // deprecated
+  CodeMirror.registerHelper("hint", "python", pythonHint);
 
   var pythonKeywords = "and del from not while as elif global or with assert else if pass yield"
 + "break except import print class exec in raise continue finally is return def for lambda try";

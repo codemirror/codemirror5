@@ -67,7 +67,7 @@
         var cur = cm.getCursor();
         if (!pred || pred()) setTimeout(function() {
           if (!cm.state.completionActive)
-            CodeMirror.showHint(cm, CodeMirror.xmlHint, {schemaInfo: tags, completeSingle: false});
+            CodeMirror.showHint(cm, CodeMirror.hint.xml, {schemaInfo: tags, completeSingle: false});
         }, 100);
         return CodeMirror.Pass;
       }
@@ -97,7 +97,7 @@
           "' '": completeIfInTag,
           "'='": completeIfInTag,
           "Ctrl-Space": function(cm) {
-            CodeMirror.showHint(cm, CodeMirror.xmlHint, {schemaInfo: tags});
+            CodeMirror.showHint(cm, CodeMirror.hint.xml, {schemaInfo: tags});
           }
         }
       });

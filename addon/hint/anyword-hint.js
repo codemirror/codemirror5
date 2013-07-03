@@ -3,7 +3,7 @@
 
   var WORD = /[\w$]+/, RANGE = 500;
 
-  CodeMirror.anyWordHint = function(editor, options) {
+  CodeMirror.registerHelper("hint", "anyword", function(editor, options) {
     var word = options && options.word || WORD;
     var range = options && options.range || RANGE;
     var cur = editor.getCursor(), curLine = editor.getLine(cur.line);
@@ -30,5 +30,5 @@
     scan(-1);
     scan(1);
     return {list: list, from: CodeMirror.Pos(cur.line, start), to: CodeMirror.Pos(cur.line, end)};
-  };
+  });
 })();

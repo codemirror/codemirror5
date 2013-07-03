@@ -742,7 +742,7 @@
 
     <p>A lot of CodeMirror features are only available through its
     API. Thus, you need to write code (or
-    use <a href="#addons">add-ons</a>) if you want to expose them to
+    use <a href="#addons">addons</a>) if you want to expose them to
     your users.</p>
 
     <p>Whenever points in the document are represented, the API uses
@@ -949,7 +949,7 @@
 
       <dt id="addKeyMap"><code><strong>cm.addKeyMap</strong>(map: object, bottom: boolean)</code></dt>
       <dd>Attach an additional <a href="#keymaps">keymap</a> to the
-      editor. This is mostly useful for add-ons that need to register
+      editor. This is mostly useful for addons that need to register
       some key handlers without trampling on
       the <a href="#option_extraKeys"><code>extraKeys</code></a>
       option. Maps added in this way have a higher precedence than
@@ -969,7 +969,7 @@
       <dt id="addOverlay"><code><strong>cm.addOverlay</strong>(mode: string|object, ?options: object)</code></dt>
       <dd>Enable a highlighting overlay. This is a stateless mini-mode
       that can be used to add extra highlighting. For example,
-      the <a href="../demo/search.html">search add-on</a> uses it to
+      the <a href="../demo/search.html">search addon</a> uses it to
       highlight the term that's currently being
       searched. <code>mode</code> can be a <a href="#option_mode">mode
       spec</a> or a mode object (an object with
@@ -1432,6 +1432,19 @@
       unstyled tokens, and a string, potentially containing multiple
       space-separated style names, otherwise.</dd>
 
+      <dt id="getHelperAt"><code><strong>cm.getHelperAt</strong>(pos: {line, ch}, type: string) → helper</code></dt>
+      <dd>Fetch appropriate helper for the given position. Helpers
+      provide a way to look up functionality appropriate for a mode.
+      The <code>type</code> argument provides the helper namespace
+      (see
+      also <a href="#registerHelper"><code>registerHelper</code></a>),
+      in which the value will be looked up. The key that is used
+      depends on the <a href="#getMode">mode</a> active at the given
+      position. If the mode object contains a property with the same
+      name as the <code>type</code> argument, that is tried first.
+      Next, the mode's <code>helperType</code>, if any, is tried. And
+      finally, the mode's name.</dd>
+
       <dt id="getStateAfter"><code><strong>cm.getStateAfter</strong>(?line: integer, ?precise: boolean) → object</code></dt>
       <dd>Returns the mode's parser state, if any, at the end of the
       given line number. If no line number is given, the state at the
@@ -1571,6 +1584,17 @@
       (with the instance as argument) whenever a new CodeMirror instance
       is initialized.</dd>
 
+      <dt id="registerHelper"><code><strong>CodeMirror.registerHelper</strong>(type: string, name: string, value: helper)</dt>
+      <dd>Registers a helper value with the given <code>name</code> in
+      the given namespace (<code>type</code>). This is used to define
+      functionality that may be looked up by mode. Will create (if it
+      doesn't already exist) a property on the <code>CodeMirror</code>
+      object for the given <code>type</code>, pointing to an object
+      that maps names to values. I.e. after
+      doing <code>CodeMirror.registerHelper("hint", "foo",
+      myFoo)</code>, the value <code>CodeMirror.hint.foo</code> will
+      point to <code>myFoo</code>.</dd>
+
       <dt id="Pos"><code><strong>CodeMirror.Pos</strong>(line: integer, ?ch: integer)</code></dt>
       <dd>A constructor for the <code>{line, ch}</code> objects that
       are used to represent positions in editor documents.</dd>
@@ -1584,7 +1608,7 @@
       range, <em>after</em> the change is applied.</dd>
     </dl>
 
-    <h2 id="addons">Add-ons</h2>
+    <h2 id="addons">Addons</h2>
 
     <p>The <code>addon</code> directory in the distribution contains a
     number of reusable components that implement extra editor
@@ -1806,8 +1830,11 @@
       a <code>{list, from, to}</code> object, where <code>list</code>
       is an array of strings or objects (the completions),
       and <code>from</code> and <code>to</code> give the start and end
-      of the token that is being completed. When completions aren't
-      simple strings, they should be objects with the folowing
+      of the token that is being completed. If no hinting function is
+      given, the addon will try to
+      use <a href="#getHelper"><code>getHelper</code></a> with
+      the <code>"hint"</code> type to find one. When completions
+      aren't simple strings, they should be objects with the folowing
       properties:
       <dl>
         <dt><code><strong>text</strong>: string</code></dt>
@@ -1877,13 +1904,13 @@
 
       <dt id="addon_javascript-hint"><a href="../addon/hint/javascript-hint.js"><code>hint/javascript-hint.js</code></a></dt>
       <dd>Defines a simple hinting function for JavaScript
-      (<code>CodeMirror.javascriptHint</code>) and CoffeeScript
-      (<code>CodeMirror.coffeescriptHint</code>) code. This will
+      (<code>CodeMirror.hint.javascript</code>) and CoffeeScript
+      (<code>CodeMirror.hint.coffeescript</code>) code. This will
       simply use the JavaScript environment that the editor runs in as
       a source of information about objects and their properties.</dd>
 
       <dt id="addon_xml-hint"><a href="../addon/hint/xml-hint.js"><code>hint/xml-hint.js</code></a></dt>
-      <dd>Defines <code>CodeMirror.xmlHint</code>, which produces
+      <dd>Defines <code>CodeMirror.hint.xml</code>, which produces
       hints for XML tagnames, attribute names, and attribute values,
       guided by a <code>schemaInfo</code> option (a property of the
       second argument passed to the hinting function, or the third
@@ -1906,18 +1933,18 @@
       documents. Defines a schema
       object <code>CodeMirror.htmlSchema</code> that you can pass to
       as a <code>schemaInfo</code> option, and
-      a <code>CodeMirror.htmlHint</code> hinting function that
-      automatically calls <code>CodeMirror.xmlHint</code> with this
+      a <code>CodeMirror.hint.html</code> hinting function that
+      automatically calls <code>CodeMirror.hint.xml</code> with this
       schema data. See
       the <a href="../demo/html5complete.html">demo</a>.</dd>
 
       <dt id="addon_python-hint"><a href="../addon/hint/python-hint.js"><code>hint/python-hint.js</code></a></dt>
       <dd>A very simple hinting function for Python code.
-      Defines <code>CodeMirror.pythonHint</code>.</dd>
+      Defines <code>CodeMirror.hint.python</code>.</dd>
 
       <dt id="addon_anyword-hint"><a href="../addon/hint/anyword-hint.js"><code>hint/anyword-hint.js</code></a></dt>
       <dd>A very simple hinting function
-      (<code>CodeMirror.anyWordHint</code>) that simply looks for
+      (<code>CodeMirror.hint.anyword</code>) that simply looks for
       words in the nearby code and completes to those. Takes two
       optional options, <code>word</code>, a regular expression that
       matches words (sequences of one or more character),
@@ -2265,7 +2292,7 @@
           <li><a href="#api_static">Static properties</a></li>
         </ul>
       </li>
-      <li><a href="#addons">Add-ons</a></li>
+      <li><a href="#addons">Addons</a></li>
       <li><a href="#modeapi">Writing CodeMirror Modes</a></li>
     </ul>
 

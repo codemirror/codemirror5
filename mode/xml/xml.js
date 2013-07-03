@@ -316,7 +316,8 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
     blockCommentStart: "<!--",
     blockCommentEnd: "-->",
 
-    configuration: parserConfig.htmlMode ? "html" : "xml"
+    configuration: parserConfig.htmlMode ? "html" : "xml",
+    helperType: parserConfig.htmlMode ? "html" : "xml"
   };
 });
 

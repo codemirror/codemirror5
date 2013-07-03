@@ -20,7 +20,7 @@
 
   var WORD = /[\w$]+/g, RANGE = 500;
 
-  CodeMirror.anyWordHint = function(editor, options) {
+  CodeMirror.registerHelper("hint", "anyword", function(editor, options) {
     var word = options && options.word || WORD;
     var range = options && options.range || RANGE;
     var cur = editor.getCursor(), curLine = editor.getLine(cur.line);
@@ -46,7 +46,7 @@
     scan(-1);
     scan(1);
     return {list: list, from: CodeMirror.Pos(cur.line, start), to: CodeMirror.Pos(cur.line, end)};
-  };
+  });
 })();
 </textarea></form>
 
@@ -58,7 +58,7 @@ to those.</p>
 
     <script>
       CodeMirror.commands.autocomplete = function(cm) {
-        CodeMirror.showHint(cm, CodeMirror.anyWordHint);
+        CodeMirror.showHint(cm, CodeMirror.hint.anyword);
       }
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true,

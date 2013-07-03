@@ -30,7 +30,7 @@
 
     <script type="text/javascript">
       CodeMirror.commands.autocomplete = function(cm) {
-          CodeMirror.showHint(cm, CodeMirror.htmlHint);
+          CodeMirror.showHint(cm, CodeMirror.hint.html);
       }
       window.onload = function() {
         editor = CodeMirror(document.getElementById("code"), {

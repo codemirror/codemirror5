@@ -4,6 +4,8 @@
   CodeMirror.showHint = function(cm, getHints, options) {
     // We want a single cursor position.
     if (cm.somethingSelected()) return;
+    if (getHints == null) getHints = cm.getHelper(cm.getCursor(), "hint");
+    if (getHints == null) return;
 
     if (cm.state.completionActive) cm.state.completionActive.close();
 

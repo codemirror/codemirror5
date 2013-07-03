@@ -3,7 +3,7 @@
 
   var Pos = CodeMirror.Pos;
 
-  CodeMirror.xmlHint = function(cm, options) {
+  function getHints(cm, options) {
     var tags = options && options.schemaInfo;
     var quote = (options && options.quoteChar) || '"';
     if (!tags) return;
@@ -61,5 +61,8 @@
       from: replaceToken ? Pos(cur.line, token.start) : cur,
       to: replaceToken ? Pos(cur.line, token.end) : cur
     };
-  };
+  }
+
+  CodeMirror.xmlHint = getHints; // deprecated
+  CodeMirror.registerHelper("hint", "xml", getHints);
 })();

@@ -327,9 +327,11 @@
     populate(data[tag]);
 
   CodeMirror.htmlSchema = data;
-  CodeMirror.htmlHint = function(cm, options) {
+  function htmlHint(cm, options) {
     var local = {schemaInfo: data};
     if (options) for (var opt in options) local[opt] = options[opt];
-    return CodeMirror.xmlHint(cm, local);
-  };
+    return CodeMirror.hint.xml(cm, local);
+  }
+  CodeMirror.htmlHint = htmlHint; // deprecated
+  CodeMirror.registerHelper("hint", "html", htmlHint);
 })();
