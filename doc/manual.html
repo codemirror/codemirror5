@@ -1915,6 +1915,15 @@
       <dd>A very simple hinting function for Python code.
       Defines <code>CodeMirror.pythonHint</code>.</dd>
 
+      <dt id="addon_anyword-hint"><a href="../addon/hint/anyword-hint.js"><code>hint/anyword-hint.js</code></a></dt>
+      <dd>A very simple hinting function
+      (<code>CodeMirror.anyWordHint</code>) that simply looks for
+      words in the nearby code and completes to those. Takes two
+      optional options, <code>word</code>, a regular expression that
+      matches words (sequences of one or more character),
+      and <code>range</code>, which defines how many lines the addon
+      should scan when completing (defaults to 500).</dd>
+
       <dt id="addon_match-highlighter"><a href="../addon/search/match-highlighter.js"><code>match-highlighter.js</code></a></dt>
       <dd>Adds a <code>highlightSelectionMatches</code> option that
       can be enabled to highlight all instances of a currently
