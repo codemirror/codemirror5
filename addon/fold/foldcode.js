@@ -60,7 +60,7 @@
   // New-style interface
   CodeMirror.defineExtension("foldCode", function(pos, options) { doFold(this, pos, options); });
 
-  CodeMirror.combineRangeFinders = function() {
+  CodeMirror.fold.combine = function() {
     var funcs = Array.prototype.slice.call(arguments, 0);
     return function(cm, start) {
       for (var i = 0; i < funcs.length; ++i) {
