@@ -28,7 +28,7 @@ Give it a try!  No more hardToSpotVars.</textarea></form>
     <script>
 var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
   lineNumbers: true,
-  highlightSelectionMatches: true
+  highlightSelectionMatches: {showToken: /\w/}
 });
 </script>
 

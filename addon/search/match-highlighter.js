@@ -55,11 +55,13 @@
         cm.removeOverlay(state.overlay);
         state.overlay = null;
       }
-
       if (!cm.somethingSelected() && state.showToken) {
-        var tok = cm.getTokenAt(cm.getCursor()).string;
-        if (/\w/.test(tok))
-          cm.addOverlay(state.overlay = makeOverlay(tok, true, state.style));
+        var re = state.showToken === true ? /[\w$]/ : state.showToken;
+        var cur = cm.getCursor(), line = cm.getLine(cur.line), start = cur.ch, end = start;
+        while (start && re.test(line.charAt(start - 1))) --start;
+        while (end < line.length && re.test(line.charAt(end))) ++end;
+        if (start < end)
+          cm.addOverlay(state.overlay = makeOverlay(line.slice(start, end), re, state.style));
         return;
       }
       if (cm.getCursor("head").line != cm.getCursor("anchor").line) return;
@@ -69,15 +71,15 @@
     });
   }
 
-  function boundariesAround(stream) {
-    return (stream.start || /.\b./.test(stream.string.slice(stream.start - 1, stream.start + 1))) &&
-      (stream.pos == stream.string.length || /.\b./.test(stream.string.slice(stream.pos - 1, stream.pos + 1)));
+  function boundariesAround(stream, re) {
+    return (!stream.start || !re.test(stream.string.charAt(stream.start - 1))) &&
+      (stream.pos == stream.string.length || !re.test(stream.string.charAt(stream.pos)));
   }
 
-  function makeOverlay(query, wordBoundaries, style) {
+  function makeOverlay(query, hasBoundary, style) {
     return {token: function(stream) {
       if (stream.match(query) &&
-          (!wordBoundaries || boundariesAround(stream)))
+          (!hasBoundary || boundariesAround(stream, hasBoundary)))
         return style;
       stream.next();
       stream.skipTo(query.charAt(0)) || stream.skipToEnd();

@@ -1812,7 +1812,8 @@
         something can be folded. When not
         given, <a href="#getHelper"><code>getHelper</code></a> will be
         used to determine a default.</dd>
-      </dl></dd>
+      </dl>
+      Demo <a href="../demo/folding.html">here</a>.</dd>
 
       <dt id="addon_runmode"><a href="../addon/runmode/runmode.js"><code>runmode/runmode.js</code></a></dt>
       <dd>Can be used to run a CodeMirror mode over text without
@@ -1994,10 +1995,12 @@
       minimum amount of selected characters that triggers a highlight
       (default 2), <code>style</code>, for the style to be used to
       highlight the matches (default <code>"matchhighlight"</code>,
-      which will correspond to CSS class <code>cm-matchhighlight</code>),
-      and <code>showToken</code> which, when enabled, causes the
-      current token to be highlighted when nothing is selected
-      (defaults to off).
+      which will correspond to CSS
+      class <code>cm-matchhighlight</code>),
+      and <code>showToken</code> which can be set to <code>true</code>
+      or to a regexp matching the characters that make up a word. When
+      enabled, it causes the current word to be highlighted when
+      nothing is selected (defaults to off).
       Demo <a href="../demo/matchhighlighter.html">here</a>.</dd>
 
       <dt id="addon_lint"><a href="../addon/lint/lint.js"><code>lint/lint.js</code></a></dt>
