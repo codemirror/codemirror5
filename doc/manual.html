@@ -1432,7 +1432,7 @@
       unstyled tokens, and a string, potentially containing multiple
       space-separated style names, otherwise.</dd>
 
-      <dt id="getHelperAt"><code><strong>cm.getHelperAt</strong>(pos: {line, ch}, type: string) → helper</code></dt>
+      <dt id="getHelper"><code><strong>cm.getHelper</strong>(pos: {line, ch}, type: string) → helper</code></dt>
       <dd>Fetch appropriate helper for the given position. Helpers
       provide a way to look up functionality appropriate for a mode.
       The <code>type</code> argument provides the helper namespace
@@ -1782,6 +1782,37 @@
       </dl>
       See <a href="../demo/folding.html">the demo</a> for an
       example.</dd>
+
+      <dt id="addon_foldgutter"><a href="../addon/fold/foldgutter.js"><code>fold/foldgutter.js</code></a></dt>
+      <dd>Provides an option <code>foldGutter</code>, which can be
+      used to create a gutter with markers indicating the blocks that
+      can be folded. Create a gutter using
+      the <a href="#option_gutters"><code>gutters</code></a> option,
+      giving it the class <code>CodeMirror-foldgutter</code> or
+      something else if you configure the addon to use a different
+      class, and this addon will show markers next to folded and
+      foldable blocks, and handle clicks in this gutter. The option
+      can be either set to <code>true</code>, or an object containing
+      the following optional option fields:
+      <dl>
+        <dt><code><strong>gutter</strong>: string</code></dt>
+        <dd>The CSS class of the gutter. Defaults
+        to <code>"CodeMirror-foldgutter"</code>. You will have to
+        style this yourself to give it a width (and possibly a
+        background).</dd>
+        <dt><code><strong>indicatorOpen</strong>: string | Element</code></dt>
+        <dd>A CSS class or DOM element to be used as the marker for
+        open, foldable blocks. Defaults
+        to <code>"CodeMirror-foldgutter-open"</code>.</dd>
+        <dt><code><strong>indicatorFolded</strong>: string | Element</code></dt>
+        <dd>A CSS class or DOM element to be used as the marker for
+        folded blocks. Defaults to <code>"CodeMirror-foldgutter-folded"</code>.</dd>
+        <dt><code><strong>rangeFinder</strong>: fn(CodeMirror, Pos)</code></dt>
+        <dd>The range-finder function to use when determining whether
+        something can be folded. When not
+        given, <a href="#getHelper"><code>getHelper</code></a> will be
+        used to determine a default.</dd>
+      </dl></dd>
 
       <dt id="addon_runmode"><a href="../addon/runmode/runmode.js"><code>runmode/runmode.js</code></a></dt>
       <dd>Can be used to run a CodeMirror mode over text without

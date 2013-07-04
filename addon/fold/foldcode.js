@@ -16,7 +16,9 @@
         if (marks[i].__isFold) {
           if (!allowFolded) return null;
           range.cleared = true;
+          var found = marks[i].find();
           marks[i].clear();
+          CodeMirror.signal(cm, "unfold", cm, found.from, found.to);
         }
       }
       return range;
@@ -36,6 +38,7 @@
       clearOnEnter: true,
       __isFold: true
     });
+    CodeMirror.signal(cm, "fold", cm, range.from, range.to);
   }
 
   function makeWidget(options) {
