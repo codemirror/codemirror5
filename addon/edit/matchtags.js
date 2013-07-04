@@ -22,14 +22,18 @@
   }
 
   function doMatchTags(cm) {
+    cm.state.failedTagMatch = false;
     cm.operation(function() {
       clear(cm);
       var cur = cm.getCursor(), range = cm.getViewport();
       range.from = Math.min(range.from, cur.line); range.to = Math.max(cur.line + 1, range.to);
       var match = CodeMirror.findMatchingTag(cm, cur, range);
-      if (cm.state.failedTagMatch = !match) return;
+      if (!match) return;
       var other = match.at == "close" ? match.open : match.close;
-      cm.state.matchedTag = cm.markText(other.from, other.to, {className: "CodeMirror-matchingtag"});
+      if (other)
+        cm.state.matchedTag = cm.markText(other.from, other.to, {className: "CodeMirror-matchingtag"});
+      else
+        cm.state.failedTagMatch = true;
     });
   }
 
@@ -41,7 +45,7 @@
     var found = CodeMirror.findMatchingTag(cm, cm.getCursor());
     if (found) {
       var other = found.at == "close" ? found.open : found.close;
-      cm.setSelection(other.to, other.from);
+      if (other) cm.setSelection(other.to, other.from);
     }
   };
 })();

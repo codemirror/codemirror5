@@ -146,12 +146,10 @@
     var here = {from: Pos(iter.line, iter.ch), to: to, tag: start[2]};
 
     if (start[1]) { // closing tag
-      var open = findMatchingOpen(iter, start[2]);
-      return open && {open: open, close: here, at: "close"};
+      return {open: findMatchingOpen(iter, start[2]), close: here, at: "close"};
     } else { // opening tag
       iter = new Iter(cm, to.line, to.ch, range);
-      var close = findMatchingClose(iter, start[2]);
-      return close && {open: here, close: close, at: "open"};
+      return {open: here, close: findMatchingClose(iter, start[2]), at: "open"};
     }
   };
 
