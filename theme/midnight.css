@@ -2,7 +2,7 @@
 
 /*<!--match-->*/
 .cm-s-midnight span.CodeMirror-matchhighlight { background: #494949 }
-.cm-s-midnight.CodeMirror-focused span.CodeMirror-matchhighlight { background: #314D67; !important }
+.cm-s-midnight.CodeMirror-focused span.CodeMirror-matchhighlight { background: #314D67 !important; }
 
 /*<!--activeline-->*/
 .cm-s-midnight .activeline {background: #253540 !important;}
