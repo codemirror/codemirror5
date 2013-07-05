@@ -140,6 +140,7 @@
 
   CodeMirror.findMatchingTag = function(cm, pos, range) {
     var iter = new Iter(cm, pos.line, pos.ch, range);
+    if (!tagAt(iter, iter.ch)) return;
     var end = toTagEnd(iter), to = end && Pos(iter.line, iter.ch);
     var start = end && toTagStart(iter);
     if (!end || end == "selfClose" || !start || cmp(iter, pos) > 0) return;
