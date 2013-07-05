@@ -11,6 +11,8 @@
     <script src="../../mode/xml/xml.js"></script>
     <script src="../../mode/javascript/javascript.js"></script>
     <script src="../../mode/css/css.js"></script>
+    <script src="../../mode/htmlmixed/htmlmixed.js"></script>
+    <script src="../../mode/smarty/smarty.js"></script>
 
     <!-- smartymixed -->
     <script src="../../mode/smartymixed/smartymixed.js"></script>
@@ -32,7 +34,7 @@
   * comment, no {$variables} here
   *}
   {literal}
-  {literal} is now just an HTML text here.
+  {literal} is just an HTML text.
   <script type="text/javascript">//<![CDATA[
     var a = {$just_a_normal_js_object : "value"};
     var myCodeMirror = CodeMirror.fromTextArea(document.getElementById("code"), {
@@ -45,6 +47,11 @@
     });
     // ]]>
   </script>
+  <style>
+    /* CSS content 
+    {$no_smarty} */
+    .some-class { font-weight: bolder; color: "orange"; }
+  </style>
   {/literal}
 
   {extends file="parent.tpl"}
@@ -53,8 +60,8 @@
   {* some example Smarty content *}
   {if isset($name) && $name == 'Blog'}
     This is a {$var}.
-    {$integer = 451}, {$array[] = "a"}, {$stringvar = "string"}
-    {$integer = 451} {$array[] = "a"} {$stringvar = "string"}
+    {$integer = 4511}, {$array[] = "a"}, {$stringvar = "string"}
+    {$integer = 4512} {$array[] = "a"} {$stringvar = "string"}
     {assign var='bob' value=$var.prop}
   {elseif $name == $foo}
     {function name=menu level=0}
@@ -89,18 +96,12 @@
       });
     </script>
 
-    <p>The Smarty mixed mode depends on the XML, JavaScript, and CSS modes.</p>
+    <p>The Smarty mixed mode depends on the Smarty and HTML mixed modes. HTML
+    mixed mode itself depends on XML, JavaScript, and CSS modes.</p>
 
-    <p>It takes the following configuration options:<br/>
-    <ul>
-      <li><code>leftDelimiter</code> - Smarty's left delimeter character. Default is <code>"{"</code>.</li>
-      <li><code>rightDelimiter</code> - Smarty's right delimeter character. Default is <code>"}"</code>.</li>
-      <li><code>smartyVersion</code> - Smarty version. Possible values are: 2 and 3. Default is <b>3</b>.</li>
-    </ul>
-    </p>
+    <p>It takes the same options, as Smarty and HTML mixed modes.</p>
 
-    <p><strong>MIME types defined:</strong> <code>text/x-smarty</code>
-    (the same as for the Smarty mode, so don't use them both at a time).</p>
+    <p><strong>MIME types defined:</strong> <code>text/x-smarty</code>.</p>
   </body>
 </html>
 <!-- vim: set ft=html ts=2 sts=2 sw=2 et: -->
