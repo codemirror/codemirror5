@@ -17,7 +17,7 @@
 
   CodeMirror.defineExtension("lineComment", function(from, to, options) {
     if (!options) options = noOptions;
-    var self = this, mode = CodeMirror.innerMode(self.getMode(), self.getTokenAt(from).state).mode;
+    var self = this, mode = self.getModeAt(from);
     var commentString = options.lineComment || mode.lineComment;
     if (!commentString) {
       if (options.blockCommentStart || mode.blockCommentStart) {
@@ -52,7 +52,7 @@
 
   CodeMirror.defineExtension("blockComment", function(from, to, options) {
     if (!options) options = noOptions;
-    var self = this, mode = CodeMirror.innerMode(self.getMode(), self.getTokenAt(from).state).mode;
+    var self = this, mode = self.getModeAt(from);
     var startString = options.blockCommentStart || mode.blockCommentStart;
     var endString = options.blockCommentEnd || mode.blockCommentEnd;
     if (!startString || !endString) {
@@ -85,7 +85,7 @@
 
   CodeMirror.defineExtension("uncomment", function(from, to, options) {
     if (!options) options = noOptions;
-    var self = this, mode = CodeMirror.innerMode(self.getMode(), self.getTokenAt(from).state).mode;
+    var self = this, mode = self.getModeAt(from);
     var end = Math.min(to.line, self.lastLine()), start = Math.min(from.line, end);
 
     // Try finding line comments

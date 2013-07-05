@@ -1401,10 +1401,16 @@
 
     <dl>
       <dt id="getMode"><code><strong>doc.getMode</strong>() → object</code></dt>
-      <dd>Gets the mode object for the editor. Note that this is
-      distinct from <code>getOption("mode")</code>, which gives you
+      <dd>Gets the (outer) mode object for the editor. Note that this
+      is distinct from <code>getOption("mode")</code>, which gives you
       the mode specification, rather than the resolved, instantiated
       <a href="#defineMode">mode object</a>.</dd>
+
+      <dt id="getModeAt"><code><strong>doc.getModeAt</strong>(pos: {line, ch}) → object</code></dt>
+      <dd>Gets the inner mode at a given position. This will return
+      the same as <a href="#getMode"><code>getMode</code></a> for
+      simple modes, but will return an inner mode for nesting modes
+      (such as <code>htmlmixed</code>).</dd>
 
       <dt id="getTokenAt"><code><strong>cm.getTokenAt</strong>(pos: {line, ch}, ?precise: boolean) → object</code></dt>
       <dd>Retrieves information about the token the current mode found

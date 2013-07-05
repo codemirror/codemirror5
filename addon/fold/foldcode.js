@@ -60,7 +60,7 @@
   // New-style interface
   CodeMirror.defineExtension("foldCode", function(pos, options) { doFold(this, pos, options); });
 
-  CodeMirror.fold.combine = function() {
+  CodeMirror.registerHelper("fold", "combine", function() {
     var funcs = Array.prototype.slice.call(arguments, 0);
     return function(cm, start) {
       for (var i = 0; i < funcs.length; ++i) {
@@ -68,5 +68,5 @@
         if (found) return found;
       }
     };
-  };
+  });
 })();
