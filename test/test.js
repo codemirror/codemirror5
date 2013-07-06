@@ -137,17 +137,17 @@ testCM("extendSelection", function(cm) {
 testCM("multipleSelections", function(cm) {
   function mouseDown(pos, ctrl, alt, shift, which) {
     which || (which = 1);
-    var coords = cm.cursorCoords(pos);
+    var coords = cm.cursorCoords(pos, "window");
     cm.triggerOnMouseDown({clientX: coords.left, clientY: coords.top, target: cm.display.wrapper, which: which, ctrlKey: ctrl, altKey: alt});
   }
   function mouseMove(pos, ctrl, alt, shift, which) {
     which || (which = 1);
-    var coords = cm.cursorCoords(pos);
+    var coords = cm.cursorCoords(pos, "window");
     cm.triggerOnMouseMove({clientX: coords.left, clientY: coords.top, target: cm.display.wrapper, which: which, ctrlKey: ctrl, altKey: alt});
   }
   function mouseUp(pos, ctrl, alt, shift, which) {
     which || (which = 1);
-    var coords = cm.cursorCoords(pos);
+    var coords = cm.cursorCoords(pos, "window");
     cm.triggerOnMouseUp({clientX: coords.left, clientY: coords.top, target: cm.display.wrapper, which: which, ctrlKey: ctrl, altKey: alt});
   }
   function mouse(path, ctrl, alt, shift, which) {
@@ -204,14 +204,18 @@ testCM("multipleSelections", function(cm) {
   mouseDown(Pos(0, 3), false, true);
   mouseMove(Pos(6, 4), false, true);
   eq(visible(cm.display.selectionDiv.childNodes, "CodeMirror-selected"), 3);
-  var coords = cm.cursorCoords(Pos(6, 4));
+  var coords = cm.cursorCoords(Pos(6, 4), "window");
   cm.triggerOnMouseMove({clientX: coords.left + 10, clientY: coords.top, target: cm.display.wrapper, which: 1, altKey: true});
+  cm.triggerOnMouseUp({clientX: coords.left + 10, clientY: coords.top, target: cm.display.wrapper, which: 1, altKey: true});
   cm.replaceSelections("f");
   eq(cm.getValue(), "bcdf\n\nabcf\n\nab\n\nabcf");
+  mouse([Pos(0, 0)]);
+  mouseDown(Pos(0, 3), false, true);
   mouseMove(Pos(6, 1), false, true);
   eq(visible(cm.display.selectionDiv.childNodes), 4);
   mouseMove(Pos(6, 3), false, true);
-  cm.replaceSelections("g");
+  mouseUp(Pos(6, 3), false, true);
+  cm.replaceSelections("g", "end");
   eq(cm.getValue(), "bcdgf\ng\nabcgf\ng\nabg\ng\nabcgf");
 }, {value: "a\na\na", multipleSelections: true});
 
