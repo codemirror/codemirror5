@@ -37,6 +37,7 @@ window.onload = function() {
   editor = CodeMirror(document.getElementById("editor"), {
     value: "<html>\n  " + document.documentElement.innerHTML + "\n</html>",
     mode: "text/html",
+    multipleSelections: true,
     matchTags: true,
     extraKeys: {"Ctrl-J": "toMatchingTag"}
   });

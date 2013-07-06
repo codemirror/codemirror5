@@ -76,7 +76,8 @@ window.onload = function() {
     foldGutter: {
     	rangeFinder: new CodeMirror.fold.combine(CodeMirror.fold.brace, CodeMirror.fold.comment)
     },    
-    gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"]
+    gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
+    multipleSelections: true
   });
   editor.foldCode(CodeMirror.Pos(8, 0));
 
@@ -86,10 +87,11 @@ window.onload = function() {
     lineWrapping: true,
     extraKeys: {"Ctrl-Q": function(cm){ cm.foldCode(cm.getCursor()); }},
     foldGutter: true,
-    gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"]
+    gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
+    multipleSelections: true
   });
   editor_html.foldCode(CodeMirror.Pos(13, 0));
   editor_html.foldCode(CodeMirror.Pos(1, 0));
 };
 </script>
-  </article>
+</article>

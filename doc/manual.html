@@ -274,6 +274,13 @@
       simply <code>true</code>), focusing of the editor is also
       disallowed.</dd>
 
+      <dt id="option_multipleSelections"><code><strong>multipleSelections</strong>: boolean</code></dt>
+      <dd>If enabled, multiple selections can be created by
+      ctrl+clicking, holding alt and dragging, dragging the middle
+      mouse button (on windows and mac), or calling
+      <a href="#addSelection"><code>addSelection</code></a>.
+      Defaults to false.</dd>
+
       <dt id="option_showCursorWhenSelecting"><code><strong>showCursorWhenSelecting</strong>: boolean</code></dt>
       <dd>Whether the cursor should be drawn when a selection is
       active. Defaults to false.</dd>
@@ -905,6 +912,15 @@
     <h3 id="api_selection">Cursor and selection methods</h3>
 
     <dl>
+      <dt id="eachSelection"><code><strong>doc.eachSelection</strong>(f)</code></dt>
+      <dd>Iterate over all selections. Inside the function, you can
+      use the functions below to get or change the selection.</dd>
+      <dt id="withSelection"><code><strong>doc.withSelection</strong>(f)</code></dt>
+      <dd>Same as <a href="#eachSelection"><code>eachSelection</code></a>,
+      except that inside another call to eachSelection or
+      withSelection, the function gets called only once, for the
+      "current" selection.</dd>
+
       <dt id="getSelection"><code><strong>doc.getSelection</strong>() → string</code></dt>
       <dd>Get the currently selected code.</dd>
       <dt id="replaceSelection"><code><strong>doc.replaceSelection</strong>(replacement: string, ?collapse: string)</code></dt>
@@ -930,7 +946,7 @@
       <dd>Set the cursor position. You can either pass a
       single <code>{line, ch}</code> object, or the line and the
       character as two separate parameters.</dd>
-      <dt id="setSelection"><code><strong>doc.setSelection</strong>(anchor: {line, ch}, ?head: {line, ch})</code></dt>
+      <dt id="setSelection"><code><strong>doc.setSelection</strong>(anchor: {line, ch}, head: {line, ch})</code></dt>
       <dd>Set the selection range. <code>anchor</code>
       and <code>head</code> should be <code>{line, ch}</code>
       objects. <code>head</code> defaults to <code>anchor</code> when
@@ -941,10 +957,13 @@
       will, if shift is held or
       the <a href="#setExtending">extending</a> flag is set, move the
       head of the selection while leaving the anchor at its current
-      place. <code>to</code> is optional, and can be passed to
+      place. <code>pos2</code> is optional, and can be passed to
       ensure a region (for example a word or paragraph) will end up
       selected (in addition to whatever lies between that region and
       the current anchor).</dd>
+      <dt id="addSelection"><code><strong>doc.addSelection</strong>(anchor: {line, ch}, ?head: {line, ch})</code></dt>
+      <dd>Like <code>setSelection</code>, but adds a new selection
+      instead of changing the current one.</dd>
       <dt id="setExtending"><code><strong>doc.setExtending</strong>(value: boolean)</code></dt>
       <dd>Sets or clears the 'extending' flag, which acts similar to
       the shift key, in that it will cause cursor movement and calls

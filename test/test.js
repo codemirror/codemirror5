@@ -134,6 +134,165 @@ testCM("extendSelection", function(cm) {
   eqPos(cm.getCursor("anchor"), Pos(0, 3));
 });
 
+testCM("multipleSelections", function(cm) {
+  function mouseDown(pos, ctrl, alt, shift, which) {
+    which || (which = 1);
+    var coords = cm.cursorCoords(pos, "window");
+    cm.triggerOnMouseDown({clientX: coords.left, clientY: coords.top, target: cm.display.wrapper, which: which, ctrlKey: ctrl, altKey: alt});
+  }
+  function mouseMove(pos, ctrl, alt, shift, which) {
+    which || (which = 1);
+    var coords = cm.cursorCoords(pos, "window");
+    cm.triggerOnMouseMove({clientX: coords.left, clientY: coords.top, target: cm.display.wrapper, which: which, ctrlKey: ctrl, altKey: alt});
+  }
+  function mouseUp(pos, ctrl, alt, shift, which) {
+    which || (which = 1);
+    var coords = cm.cursorCoords(pos, "window");
+    cm.triggerOnMouseUp({clientX: coords.left, clientY: coords.top, target: cm.display.wrapper, which: which, ctrlKey: ctrl, altKey: alt});
+  }
+  function mouse(path, ctrl, alt, shift, which) {
+    var pos = path[0];
+    mouseDown(path[0], ctrl, alt, shift, which);
+    for (var i = 1; i < path.length; i++) {
+      pos = path[i];
+      mouseMove(pos, ctrl, alt, shift, which)
+    }
+    mouseUp(pos, ctrl, alt, shift, which);
+  }
+  function visible(elements) {
+    var visible = 0;
+    for (var i = 0; i < elements.length; i++) {
+      if (elements[i].offsetWidth && elements[i].offsetHeight) {
+        visible++;
+      }
+    }
+    return visible;
+  }
+  mouse([Pos(0, 0), Pos(0, 1)]);
+  mouse([Pos(1, 0), Pos(1, 1)], true);
+  cm.eachSelection(function(sel) { sel.replace("bc", "start"); });
+  cm.eachSelection(function(sel) { sel.replace("a"); });
+  eq(cm.getValue(), "abc\nabc\na");
+  cm.triggerOnKeyDown({keyCode: 35});
+  cm.eachSelection(function(sel) { sel.replace("d", "end"); });
+  cm.triggerOnKeyDown({keyCode: 40});
+  cm.eachSelection(function(sel) { sel.replace("e", "end"); });
+  cm.triggerOnKeyDown({keyCode: 40});
+  cm.eachSelection(function(sel) { sel.replace("f", "end"); });
+  eq(cm.getValue(), "abcd\nabcde\naef");
+  mouse([Pos(1, 2), Pos(2, 3)]);
+  mouse([Pos(0, 0), Pos(1, 3), Pos(1, 4)], true);
+  eqPos(cm.getCursor("head"), Pos(2, 3));
+  eqPos(cm.getCursor("anchor"), Pos(0, 0));
+  mouse([Pos(0)]);
+  mouse([Pos(1)], true);
+  var time = 0;
+  Date.prototype.valueOf = function() { return time++ * 1000; }; // The next two clicks are a second apart
+  mouse([Pos(2)], true);
+  mouse([Pos(2)], true);
+  Date.prototype.valueOf = Date.prototype.getTime;
+  eq(visible(cm.display.cursorsDiv.childNodes), 2);
+  mouse([Pos(1, 2), Pos(1, 4)], true);
+  mouse([Pos(0, 0), Pos(2)], true);
+  cm.eachSelection(function(sel) { sel.replace("a", "end"); });
+  eq(cm.getValue(), "a");
+  cm.addSelection(Pos(0, 0), Pos(0, 1));
+  cm.addSelection(Pos(0, 0), Pos(0, 1));
+  cm.eachSelection(function(sel) { sel.replace("b", "end"); });
+  eq(cm.getValue(), "b");
+  cm.eachSelection(function(sel) { sel.replace("cdef\n\nabcd\n\nab\n\nabcd", "end"); });
+  mouseDown(Pos(0, 3), false, true);
+  mouseMove(Pos(6, 4), false, true);
+  eq(visible(cm.display.selectionDiv.childNodes), 3);
+  var coords = cm.cursorCoords(Pos(6, 4), "window");
+  cm.triggerOnMouseMove({clientX: coords.left + 10, clientY: coords.top, target: cm.display.wrapper, which: 1, altKey: true});
+  cm.triggerOnMouseUp({clientX: coords.left + 10, clientY: coords.top, target: cm.display.wrapper, which: 1, altKey: true});
+  cm.eachSelection(function(sel) { sel.replace("f"); });
+  eq(cm.getValue(), "bcdf\n\nabcf\n\nab\n\nabcf");
+  mouse([Pos(0, 0)]);
+  mouseDown(Pos(0, 3), false, true);
+  mouseMove(Pos(6, 1), false, true);
+  eq(visible(cm.display.selectionDiv.childNodes), 4);
+  mouseMove(Pos(6, 3), false, true);
+  mouseUp(Pos(6, 3), false, true);
+  cm.eachSelection(function(sel) { sel.replace("g", "end"); });
+  eq(cm.getValue(), "bcdgf\ng\nabcgf\ng\nabg\ng\nabcgf");
+}, {value: "a\na\na", multipleSelections: true});
+
+testCM("adjacentSelections", function(cm) {
+  cm.eachSelection(function(sel) { sel.replace("aa"); });
+  cm.setOption("multipleSelections", true);
+  cm.setSelection(Pos(0, 0), Pos(0, 1));
+  cm.addSelection(Pos(0, 1), Pos(0, 2));
+  cm.eachSelection(function(sel) { sel.replace("b", "end"); });
+  cm.eachSelection(function(sel) { sel.replace("c", "end"); });
+  eq(cm.getValue(), "bcbc");
+  cm.execCommand("delGroupBefore");
+  cm.eachSelection(function(sel) { sel.replace("a"); });
+  eq(cm.getValue(), "a");
+});
+
+testCM("mergeSelections", function(cm) {
+  forEach([[[Pos(0, 0), Pos(0, 0)], [Pos(0, 0), Pos(0, 0)]],
+           [[Pos(0, 0), Pos(0, 3)], [Pos(0, 0), Pos(0, 0)]],
+           [[Pos(0, 0), Pos(0, 0)], [Pos(0, 0), Pos(0, 3)]],
+           [[Pos(0, 0), Pos(0, 3)], [Pos(0, 1), Pos(0, 1)]],
+           [[Pos(0, 0), Pos(0, 3)], [Pos(0, 3), Pos(0, 3)]],
+           [[Pos(0, 0), Pos(0, 3)], [Pos(0, 0), Pos(0, 3)]],
+           [[Pos(0, 0), Pos(0, 3)], [Pos(0, 0), Pos(0, 1)]],
+           [[Pos(0, 0), Pos(0, 1)], [Pos(0, 0), Pos(0, 3)]],
+           [[Pos(0, 0), Pos(0, 1)], [Pos(0, 1), Pos(0, 3)], 2]], function(test) {
+    cm.doc.selections.length = 1;
+    cm.setSelection(test[0][0], test[0][1]);
+    cm.addSelection(test[1][0], test[1][1]);
+    eq(cm.doc.selections.length, test[2] || 1);
+  });
+}, {value: "aaa", multipleSelections: true});
+
+testCM("selectiveKeyHandling", function(cm) {
+  cm.setOption("extraKeys", {
+    "Enter": function(cm) {
+      return cm.withSelection(function(sel) {
+        if (cm.getLine(sel.head.line).charAt(0) == "-") sel.replace("\n- ", "end");
+        else return CodeMirror.Pass;
+      });
+    },
+    "'{'": function(cm) {
+      return cm.withSelection(function(sel) {
+        if (cm.getLine(sel.head.line).charAt(0) == "-") sel.replace("{}", "end");
+        else return CodeMirror.Pass;
+      });
+    }
+  });
+  cm.addKeyMap({
+    "Enter": function(cm) {
+      return cm.withSelection(function(sel) {
+        if (cm.getLine(sel.head.line).charAt(0) == "*") sel.replace("\n* ", "end");
+        else return CodeMirror.Pass;
+      });
+    },
+    "'{'": function(cm) {
+      return cm.withSelection(function(sel) {
+        if (cm.getLine(sel.head.line).charAt(0) == "*") sel.replace("{*}", "end");
+        else return CodeMirror.Pass;
+      });
+    },
+    "Esc": function() {} // Dummy handler to call readInput
+  });
+  cm.setSelection(CodeMirror.Pos(0));
+  cm.addSelection(CodeMirror.Pos(1));
+  cm.addSelection(CodeMirror.Pos(2));
+  cm.triggerOnKeyDown({keyCode: 13});
+  eq(cm.getValue(), "- \n- \n* \n* \n\n");
+  cm.triggerOnKeyPress({charCode: 123});
+  cm.display.input.value += "{";
+  cm.focus(); // Call fastPoll()
+  cm.triggerOnKeyDown({keyCode: 27}); // Call readInput()
+  eq(cm.getValue(), "- \n- {}\n* \n* {*}\n\n{");
+  cm.undo();
+  eq(cm.getValue(), "- \n- \n* \n* \n\n");
+}, {value: "- \n* \n", multipleSelections: true, smartIndent: false});
+
 testCM("lines", function(cm) {
   eq(cm.getLine(0), "111111");
   eq(cm.getLine(1), "222222");
@@ -1147,14 +1306,17 @@ testCM("rtlMovement", function(cm) {
     var prevX = cursor.offsetLeft, prevY = cursor.offsetTop;
     for (var i = 0; i <= line.length; ++i) {
       cm.execCommand("goCharRight");
+      cursor = byClassName(cm.getWrapperElement(), "CodeMirror-cursor")[0];
       if (i == line.length) is(cursor.offsetTop > prevY, "next line");
       else is(cursor.offsetLeft > prevX, "moved right");
       prevX = cursor.offsetLeft; prevY = cursor.offsetTop;
     }
     cm.setCursor(0, 0); cm.execCommand(inv ? "goLineStart" : "goLineEnd");
+    cursor = byClassName(cm.getWrapperElement(), "CodeMirror-cursor")[0];
     prevX = cursor.offsetLeft;
     for (var i = 0; i < line.length; ++i) {
       cm.execCommand("goCharLeft");
+      cursor = byClassName(cm.getWrapperElement(), "CodeMirror-cursor")[0];
       is(cursor.offsetLeft < prevX, "moved left");
       prevX = cursor.offsetLeft;
     }

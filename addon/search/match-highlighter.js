@@ -32,9 +32,9 @@
 
   CodeMirror.defineOption("highlightSelectionMatches", false, function(cm, val, old) {
     if (old && old != CodeMirror.Init) {
-      var over = cm.state.matchHighlighter.overlay;
-      if (over) cm.removeOverlay(over);
-      clearTimeout(cm.state.matchHighlighter.timeout);
+      var state = cm.state.matchHighlighter;
+      for (var i = 0; i < state.overlays.length; i++) cm.removeOverlay(state.overlays[i]);
+      clearTimeout(state.timeout);
       cm.state.matchHighlighter = null;
       cm.off("cursorActivity", cursorActivity);
     }

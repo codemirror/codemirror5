@@ -17,14 +17,16 @@
     } else if (!val && prev) {
       cm.off("cursorActivity", updateActiveLine);
       clearActiveLine(cm);
-      delete cm.state.activeLine;
+      delete cm.state.activeLines;
     }
   });
 
   function clearActiveLine(cm) {
-    if ("activeLine" in cm.state) {
-      cm.removeLineClass(cm.state.activeLine, "wrap", WRAP_CLASS);
-      cm.removeLineClass(cm.state.activeLine, "background", BACK_CLASS);
+    if ("activeLines" in cm.state) {
+      for(var i = 0; i < cm.state.activeLines.length; i++) {
+        cm.removeLineClass(cm.state.activeLines[i], "wrap", WRAP_CLASS);
+        cm.removeLineClass(cm.state.activeLines[i], "background", BACK_CLASS);
+      }
     }
   }
 
