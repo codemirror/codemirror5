@@ -311,7 +311,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == ";") return;
     if (type == "(") return cont(pushlex(")", "call"), commasep(expressionNoComma, ")"), poplex, me);
     if (type == ".") return cont(property, me);
-    if (type == "[") return cont(pushlex("]"), expression, expect("]"), poplex, me);
+    if (type == "[") return cont(pushlex("]"), maybeexpression, expect("]"), poplex, me);
   }
   function maybelabel(type) {
     if (type == ":") return cont(poplex, statement);
