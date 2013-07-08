@@ -305,13 +305,17 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (!me) me = maybeoperatorNoComma;
     if (type == "operator") {
       if (/\+\+|--/.test(value)) return cont(me);
-      if (value == "?") return cont(expression, expect(":"), expression);
+      if (value == "?") return cont(questionMark);
       return cont(expression);
     }
     if (type == ";") return;
     if (type == "(") return cont(pushlex(")", "call"), commasep(expressionNoComma, ")"), poplex, me);
     if (type == ".") return cont(property, me);
     if (type == "[") return cont(pushlex("]"), maybeexpression, expect("]"), poplex, me);
+  }
+  function questionMark(type, value) {
+    if (type.match(:>\)/)) return pass();
+  	return pass(expression, expect(":"), expression);
   }
   function maybelabel(type) {
     if (type == ":") return cont(poplex, statement);
