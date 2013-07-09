@@ -159,10 +159,10 @@ testCM("multipleSelections", function(cm) {
     }
     mouseUp(pos, ctrl, alt, shift, which);
   }
-  function visible(elements, className) {
+  function visible(elements) {
     var visible = 0;
     for (var i = 0; i < elements.length; i++) {
-      if((!className || elements[i].className.substr(0, className.length) == className) && elements[i].offsetWidth && elements[i].offsetHeight) {
+      if (elements[i].offsetWidth && elements[i].offsetHeight) {
         visible++;
       }
     }
@@ -191,7 +191,7 @@ testCM("multipleSelections", function(cm) {
   mouse([Pos(2)], true);
   mouse([Pos(2)], true);
   Date.prototype.valueOf = Date.prototype.getTime;
-  eq(visible(cm.display.lineSpace.childNodes, "CodeMirror-cursor"), 2);
+  eq(visible(cm.display.cursorsDiv.childNodes), 2);
   mouse([Pos(1, 2), Pos(1, 4)], true);
   mouse([Pos(0, 0), Pos(2)], true);
   cm.replaceSelections("a", "end");
@@ -203,7 +203,7 @@ testCM("multipleSelections", function(cm) {
   cm.replaceSelections("cdef\n\nabcd\n\nab\n\nabcd", "end");
   mouseDown(Pos(0, 3), false, true);
   mouseMove(Pos(6, 4), false, true);
-  eq(visible(cm.display.selectionDiv.childNodes, "CodeMirror-selected"), 3);
+  eq(visible(cm.display.selectionDiv.childNodes), 3);
   var coords = cm.cursorCoords(Pos(6, 4), "window");
   cm.triggerOnMouseMove({clientX: coords.left + 10, clientY: coords.top, target: cm.display.wrapper, which: 1, altKey: true});
   cm.triggerOnMouseUp({clientX: coords.left + 10, clientY: coords.top, target: cm.display.wrapper, which: 1, altKey: true});
