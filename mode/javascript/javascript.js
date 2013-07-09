@@ -258,17 +258,17 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == "keyword b") return cont(pushlex("form"), statement, poplex);
     if (type == "{") return cont(pushlex("}"), block, poplex);
     if (type == ";") return cont();
-    if (type == "if") return cont(pushlex("form"), expression, statement, poplex, maybeelse(cx.state.indented));
+    if (type == "if") return cont(pushlex("form"), expression, statement, poplex, maybeelse);
     if (type == "function") return cont(functiondef);
     if (type == "for") return cont(pushlex("form"), expect("("), pushlex(")"), forspec1, expect(")"),
-                                      poplex, statement, poplex);
+                                   poplex, statement, poplex);
     if (type == "variable") return cont(pushlex("stat"), maybelabel);
     if (type == "switch") return cont(pushlex("form"), expression, pushlex("}", "switch"), expect("{"),
-                                         block, poplex, poplex);
+                                      block, poplex, poplex);
     if (type == "case") return cont(expression, expect(":"));
     if (type == "default") return cont(expect(":"));
     if (type == "catch") return cont(pushlex("form"), pushcontext, expect("("), funarg, expect(")"),
-                                        statement, poplex, popcontext);
+                                     statement, poplex, popcontext);
     return pass(pushlex("stat"), expression, expect(";"), poplex);
   }
   function expression(type) {
@@ -373,14 +373,8 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (value == "=") return cont(expressionNoComma, vardef2);
     if (type == ",") return cont(vardef1);
   }
-  function maybeelse(indent) {
-    return function(type, value) {
-      if (type == "keyword b" && value == "else") {
-        cx.state.lexical = new JSLexical(indent, 0, "form", null, cx.state.lexical);
-        return cont(statement, poplex);
-      }
-      return pass();
-    };
+  function maybeelse(type, value) {
+    if (type == "keyword b" && value == "else") return cont(pushlex("form"), statement, poplex);
   }
   function forspec1(type) {
     if (type == "var") return cont(vardef1, expect(";"), forspec2);
@@ -441,6 +435,12 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       if (state.tokenize == jsTokenComment) return CodeMirror.Pass;
       if (state.tokenize != jsTokenBase) return 0;
       var firstChar = textAfter && textAfter.charAt(0), lexical = state.lexical;
+      // Kludge to prevent 'maybelse' from blocking lexical scope pops
+      for (var i = state.cc.length - 1; i >= 0; --i) {
+        var c = state.cc[i];
+        if (c == poplex) lexical = lexical.prev;
+        else if (c != maybeelse || /^else\b/.test(textAfter)) break;
+      }
       if (lexical.type == "stat" && firstChar == "}") lexical = lexical.prev;
       if (statementIndent && lexical.type == ")" && lexical.prev.type == "stat")
         lexical = lexical.prev;
