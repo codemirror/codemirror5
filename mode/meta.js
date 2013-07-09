@@ -47,6 +47,7 @@ CodeMirror.modeInfo = [
   {name: 'Plain Text', mime: 'text/plain', mode: 'null'},
   {name: 'Properties files', mime: 'text/x-properties', mode: 'clike'},
   {name: 'Python', mime: 'text/x-python', mode: 'python'},
+  {name: 'Cython', mime: 'text/x-cython', mode: 'python'},
   {name: 'R', mime: 'text/x-rsrc', mode: 'r'},
   {name: 'reStructuredText', mime: 'text/x-rst', mode: 'rst'},
   {name: 'Ruby', mime: 'text/x-ruby', mode: 'ruby'},

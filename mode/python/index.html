@@ -103,6 +103,33 @@ class ExampleClass(ParentClass):
 
 </textarea></div>
 
+
+<h2>Cython mode</h2>
+
+<div><textarea id="code-cython" name="code-cython">
+
+import numpy as np
+cimport cython
+from libc.math cimport sqrt
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+def pairwise_cython(double[:, ::1] X):
+    cdef int M = X.shape[0]
+    cdef int N = X.shape[1]
+    cdef double tmp, d
+    cdef double[:, ::1] D = np.empty((M, M), dtype=np.float64)
+    for i in range(M):
+        for j in range(M):
+            d = 0.0
+            for k in range(N):
+                tmp = X[i, k] - X[j, k]
+                d += tmp * tmp
+            D[i, j] = sqrt(d)
+    return np.asarray(D)
+
+</textarea></div>
+
     <script>
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         mode: {name: "python",
@@ -114,6 +141,15 @@ class ExampleClass(ParentClass):
         matchBrackets: true
     });
 
+    CodeMirror.fromTextArea(document.getElementById("code-cython"), {
+        mode: {name: "text/x-cython",
+               version: 2,
+               singleLineStringErrors: false},
+        lineNumbers: true,
+        indentUnit: 4,
+        tabMode: "shift",
+        matchBrackets: true
+      });
     </script>
     <h2>Configuration Options for Python mode:</h2>
     <ul>
@@ -134,6 +170,6 @@ class ExampleClass(ParentClass):
     </ul>
 
 
-    <p><strong>MIME types defined:</strong> <code>text/x-python</code>.</p>
+    <p><strong>MIME types defined:</strong> <code>text/x-python</code> and <code>text/x-cython</code>.</p>
   </body>
 </html>
