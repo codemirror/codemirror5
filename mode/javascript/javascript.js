@@ -314,7 +314,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == "[") return cont(pushlex("]"), maybeexpression, expect("]"), poplex, me);
   }
   function questionMark(type, value) {
-    if (type.match(:>\)/)) return pass();
+    if (type.match(/:|>|\)/)) return pass();
   	return pass(expression, expect(":"), expression);
   }
   function maybelabel(type) {
