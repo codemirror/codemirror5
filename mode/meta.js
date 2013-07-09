@@ -16,7 +16,7 @@ CodeMirror.modeInfo = [
   {name: 'ECL', mime: 'text/x-ecl', mode: 'ecl'},
   {name: 'Erlang', mime: 'text/x-erlang', mode: 'erlang'},
   {name: 'Gas', mime: 'text/x-gas', mode: 'gas'},
-  {name: 'GitHub Flavored Markdown', mode: 'gfm'},
+  {name: 'GitHub Flavored Markdown', mime: 'text/x-gfm', mode: 'gfm'},
   {name: 'GO', mime: 'text/x-go', mode: 'go'},
   {name: 'Groovy', mime: 'text/x-groovy', mode: 'groovy'},
   {name: 'Haskell', mime: 'text/x-haskell', mode: 'haskell'},
