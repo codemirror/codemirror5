@@ -39,6 +39,10 @@
       
       marker.linkedModeGroup = group;
       
+      CodeMirror.on(marker, "clear", function (cm) { console.log("clear")});
+      CodeMirror.on(marker, "hide", function (cm) { console.log("hide")});
+      CodeMirror.on(marker, "unhide", function (cm) { console.log("unhide")});
+      
       return marker;
     },
     addGroup: function (group) {
@@ -60,9 +64,14 @@
       
       return found;
     },
+    _onChange: function (cm, changeObj) {
+      // TODO create a new marker if the change range matches an existing position and the change inserts text
+      // TODO convert a marker to a bookmark if the change range matches an existing position and the exact range of text is deleted
+      // TODO convert a bookmark to a mark if the change range starts at a bookmark
+    },
     _onKeyDown: function (cm, event) {
       if (event.keyCode === 13) {
-        // ENTER, exit linked mode optionally at exit position
+        // ENTER, stop linked mode optionally at stop position
         var isAtMarker = !!this._getMarkerAtCursor();
         
         // do not insert line break if within a linked position
@@ -70,10 +79,10 @@
           event.preventDefault();
         }
         
-        this.exit(isAtMarker);
+        this.stop(isAtMarker);
       } else if (event.keyCode === 27) {
-        // ESC, exit linked mode without changing cursor
-        this.exit(false);
+        // ESC, stop linked mode without changing cursor
+        this.stop(false);
       } else if (event.keyCode === 9) {
         // TAB, move to next linked position
         var marker = this._getMarkerAtCursor(),
@@ -81,8 +90,8 @@
           nextMarker;
         
         if (!marker) {
-          // tab key outside all linked positions, exit linked mode
-          this.exit(false);
+          // tab key outside all linked positions, stop linked mode
+          this.stop(false);
           return;
         }
         
@@ -122,7 +131,7 @@
       var pos = marker.find();
       this.doc.setSelection(pos.from || pos, pos.to);
     },
-    enter: function () {
+    start: function () {
       var self = this,
         firstMarker;
       
@@ -157,7 +166,7 @@
       // select the first marker
       this._goToMarker(firstMarker);
     },
-    exit: function (goToExit) {
+    stop: function (goToExit) {
       // clear markers
       this.groups.forEach(function (group) {
         var marker;
