@@ -1202,14 +1202,17 @@ testCM("rtlMovement", function(cm) {
     var prevX = cursor.offsetLeft, prevY = cursor.offsetTop;
     for (var i = 0; i <= line.length; ++i) {
       cm.execCommand("goCharRight");
+      cursor = byClassName(cm.getWrapperElement(), "CodeMirror-cursor")[0];
       if (i == line.length) is(cursor.offsetTop > prevY, "next line");
       else is(cursor.offsetLeft > prevX, "moved right");
       prevX = cursor.offsetLeft; prevY = cursor.offsetTop;
     }
     cm.setCursor(0, 0); cm.execCommand(inv ? "goLineStart" : "goLineEnd");
+    cursor = byClassName(cm.getWrapperElement(), "CodeMirror-cursor")[0];
     prevX = cursor.offsetLeft;
     for (var i = 0; i < line.length; ++i) {
       cm.execCommand("goCharLeft");
+      cursor = byClassName(cm.getWrapperElement(), "CodeMirror-cursor")[0];
       is(cursor.offsetLeft < prevX, "moved left");
       prevX = cursor.offsetLeft;
     }
