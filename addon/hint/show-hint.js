@@ -1,6 +1,8 @@
 (function() {
   "use strict";
 
+  function posLess(a, b) {return a.line < b.line || (a.line == b.line && a.ch < b.ch);}
+
   CodeMirror.showHint = function(cm, getHints, options) {
     // We want a single cursor position.
     if (cm.somethingSelected()) return;
@@ -41,7 +43,18 @@
     pick: function(data, i) {
       var completion = data.list[i];
       if (completion.hint) completion.hint(this.cm, data, completion);
-      else this.cm.replaceRange(getText(completion), data.from, data.to);
+      else {
+        var context = this.cm.getRange(data.from, data.to);
+        var cursor = this.cm.getCursor();
+        var pre = posLess(data.from, cursor) ? -this.cm.getRange(data.from, cursor).length : this.cm.getRange(cursor, data.from).length;
+        var post = posLess(cursor, data.to) ? this.cm.getRange(cursor, data.to).length : -this.cm.getRange(data.to, cursor).length;
+        this.cm.eachSelection(function() {
+          var cursor = this.getCursor();
+          var from = this.findPosH(cursor, pre, "char");
+          var to = this.findPosH(cursor, post, "char");
+          if(this.getRange(from, to) == context) this.replaceRange(getText(completion), from, to);
+        });
+      }
       this.close();
     },
 
