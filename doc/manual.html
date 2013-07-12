@@ -375,14 +375,15 @@
 
     <h2 id="events">Events</h2>
 
-    <p>A CodeMirror instance emits a number of events, which allow
-    client code to react to various situations. These are registered
-    with the <a href="#on"><code>on</code></a> method (and
-    removed with the <a href="#off"><code>off</code></a>
-    method). These are the events that fire on the instance object.
-    The name of the event is followed by the arguments that will be
-    passed to the handler. The <code>instance</code> argument always
-    refers to the editor instance.</p>
+    <p>Various CodeMirror-related objects emit events, which allow
+    client code to react to various situations. Handlers for such
+    events can be registed with the <a href="#on"><code>on</code></a>
+    and <a href="#off"><code>off</code></a> methods on the objects
+    that the event fires on.</p>
+
+    <p>An editor instance fires the following events.
+    The <code>instance</code> argument always refers to the editor
+    itself.</p>
 
     <dl>
       <dt id="event_change"><code><strong>"change"</strong> (instance: CodeMirror, changeObj: object)</code></dt>
@@ -497,10 +498,7 @@
       CodeMirror should do no further handling.</dd>
     </dl>
 
-    <p>It is also possible to <a href="#on">register</a> events on
-    other objects. Use <code>CodeMirror.on(handle, "eventName",
-    func)</code> to register handlers on objects that don't have their
-    own <code>on</code> method. Document objects (instances
+    <p>Document objects (instances
     of <a href="#Doc"><code>CodeMirror.Doc</code></a>) emit the
     following events:</p>
 
