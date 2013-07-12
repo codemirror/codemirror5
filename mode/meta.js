@@ -59,6 +59,7 @@ CodeMirror.modeInfo = [
   {name: 'Sieve', mime: 'application/sieve', mode: 'sieve'},
   {name: 'Smalltalk', mime: 'text/x-stsrc', mode: 'smalltalk'},
   {name: 'Smarty', mime: 'text/x-smarty', mode: 'smarty'},
+  {name: 'SmartyMixed', mime: 'text/x-smarty', mode: 'smartymixed'},
   {name: 'SPARQL', mime: 'application/x-sparql-query', mode: 'sparql'},
   {name: 'SQL', mime: 'text/x-sql', mode: 'sql'},
   {name: 'MariaDB', mime: 'text/x-mariadb', mode: 'sql'},
