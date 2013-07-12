@@ -29,7 +29,7 @@
   }
 
   function updateActiveLine(cm) {
-    var line = cm.getLineHandle(cm.getCursor().line);
+    var line = cm.getLineHandleVisualStart(cm.getCursor().line);
     if (cm.state.activeLine == line) return;
     clearActiveLine(cm);
     cm.addLineClass(line, "wrap", WRAP_CLASS);
