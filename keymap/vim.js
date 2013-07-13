@@ -1625,6 +1625,7 @@
         emptyMacroKeyBuffer(macroModeState);
       },
       enterInsertMode: function(cm, actionArgs, vim) {
+        if (cm.getOption('readOnly')) { return; }
         vim.insertMode = true;
         vim.insertModeRepeat = actionArgs && actionArgs.repeat || 1;
         var insertAt = (actionArgs) ? actionArgs.insertAt : null;
