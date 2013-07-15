@@ -32,7 +32,7 @@
     if (!range || range.cleared) return;
 
     var myWidget = makeWidget(options);
-    CodeMirror.on(myWidget, "mousedown", function() {myRange.clear();});
+    CodeMirror.on(myWidget, "mousedown", function() {myRange.doc.cm.foldCode(myRange.find().from);});
     var myRange = cm.markText(range.from, range.to, {
       replacedWith: myWidget,
       clearOnEnter: true,
