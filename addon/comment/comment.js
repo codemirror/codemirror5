@@ -11,8 +11,20 @@
   }
 
   CodeMirror.commands.toggleComment = function(cm) {
-    var from = cm.getCursor("start"), to = cm.getCursor("end");
-    cm.uncomment(from, to) || cm.lineComment(from, to);
+    var prev, selections = [], didSomething;
+    cm.eachSelection(function() {
+      var from = cm.getCursor("start"), to = cm.getCursor("end");
+      if (prev && from.line == prev.line) {
+        if (to.line == prev.line) return;
+        from = {line: prev.line + 1, ch: 0};
+      }
+      didSomething = cm.uncomment(from, to) || didSomething;
+      selections.push([from, to]);
+      prev = to;
+    });
+    if (!didSomething) {
+      for (var i = 0; i < selections.length; i++) cm.lineComment(selections[i][0], selections[i][1]);
+    }
   };
 
   CodeMirror.defineExtension("lineComment", function(from, to, options) {
