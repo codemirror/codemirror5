@@ -28,7 +28,7 @@ CodeMirror.defineMode("vbscript", function(conf, parserConf) {
     var wordOperators = wordRegexp(['and', 'or', 'not', 'xor', 'is', 'mod', 'eqv', 'imp']);
     var commonkeywords = ['dim', 'redim', 'then',  'until', 'randomize',
                           'byval','byref','new','property', 'exit', 'in',
-                          'const','private', 'public', 
+                          'const','private', 'public',
                           'get','set','let', 'stop', 'on error resume next', 'on error goto 0', 'option explicit', 'call', 'me'];
     
     //This list was from: http://msdn.microsoft.com/en-us/library/f8tbc79x(v=vs.84).aspx
