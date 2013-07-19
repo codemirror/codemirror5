@@ -30,17 +30,17 @@ CodeMirror.defineMode("vbscript", function(conf, parserConf) {
                           'byval','byref','new','property', 'exit', 'in',
                           'const','private', 'public',
                           'get','set','let', 'stop', 'on error resume next', 'on error goto 0', 'option explicit', 'call', 'me'];
-    
+
     //This list was from: http://msdn.microsoft.com/en-us/library/f8tbc79x(v=vs.84).aspx
     var atomWords = ['true', 'false', 'nothing', 'empty', 'null'];
     //This list was from: http://msdn.microsoft.com/en-us/library/3ca8tfek(v=vs.84).aspx
-    var builtinFuncsWords = ['abs', 'array', 'asc', 'atn', 'cbool', 'cbyte', 'ccur', 'cdate', 'cdbl', 'chr', 'cint', 'clng', 'cos', 'csng', 'cstr', 'date', 'dateadd', 'datediff', 'datepart', 
+    var builtinFuncsWords = ['abs', 'array', 'asc', 'atn', 'cbool', 'cbyte', 'ccur', 'cdate', 'cdbl', 'chr', 'cint', 'clng', 'cos', 'csng', 'cstr', 'date', 'dateadd', 'datediff', 'datepart',
                         'dateserial', 'datevalue', 'day', 'escape', 'eval', 'execute', 'exp', 'filter', 'formatcurrency', 'formatdatetime', 'formatnumber', 'formatpercent', 'getlocale', 'getobject',
                         'getref', 'hex', 'hour', 'inputbox', 'instr', 'instrrev', 'int', 'fix', 'isarray', 'isdate', 'isempty', 'isnull', 'isnumeric', 'isobject', 'join', 'lbound', 'lcase', 'left',
                         'len', 'loadpicture', 'log', 'ltrim', 'rtrim', 'trim', 'maths', 'mid', 'minute', 'month', 'monthname', 'msgbox', 'now', 'oct', 'replace', 'rgb', 'right', 'rnd', 'round',
                         'scriptengine', 'scriptenginebuildversion', 'scriptenginemajorversion', 'scriptengineminorversion', 'second', 'setlocale', 'sgn', 'sin', 'space', 'split', 'sqr', 'strcomp',
                         'string', 'strreverse', 'tan', 'time', 'timer', 'timeserial', 'timevalue', 'typename', 'ubound', 'ucase', 'unescape', 'vartype', 'weekday', 'weekdayname', 'year'];
-    
+
     //This list was from: http://msdn.microsoft.com/en-us/library/ydz4cfk3(v=vs.84).aspx
     var builtinConsts = ['vbBlack', 'vbRed', 'vbGreen', 'vbYellow', 'vbBlue', 'vbMagenta', 'vbCyan', 'vbWhite', 'vbBinaryCompare', 'vbTextCompare',
                          'vbSunday', 'vbMonday', 'vbTuesday', 'vbWednesday', 'vbThursday', 'vbFriday', 'vbSaturday', 'vbUseSystemDayOfWeek', 'vbFirstJan1', 'vbFirstFourDays', 'vbFirstFullWeek',
@@ -53,7 +53,7 @@ CodeMirror.defineMode("vbscript", function(conf, parserConf) {
     var builtinObjsWords = ['WScript', 'err', 'debug', 'RegExp'];
     var knownProperties = ['description', 'firstindex', 'global', 'helpcontext', 'helpfile', 'ignorecase', 'length', 'number', 'pattern', 'source', 'value', 'count'];
     var knownMethods = ['clear', 'execute', 'raise', 'replace', 'test', 'write', 'writeline', 'close', 'open', 'state', 'eof', 'update', 'addnew', 'end', 'createobject', 'quit'];
-    
+
     var aspBuiltinObjsWords = ['server', 'response', 'request', 'session', 'application'];
     var aspKnownProperties = ['buffer', 'cachecontrol', 'charset', 'contenttype', 'expires', 'expiresabsolute', 'isclientconnected', 'pics', 'status', //response
                               'clientcertificate', 'cookies', 'form', 'querystring', 'servervariables', 'totalbytes', //request
@@ -65,16 +65,16 @@ CodeMirror.defineMode("vbscript", function(conf, parserConf) {
                            'remove', 'removeall', 'lock', 'unlock', //application
                            'abandon', //session
                            'getlasterror', 'htmlencode', 'mappath', 'transfer', 'urlencode']; //server
-    
+
     var knownWords = knownMethods.concat(knownProperties);
 
     builtinObjsWords = builtinObjsWords.concat(builtinConsts);
-    
+
     if (conf.isASP){
         builtinObjsWords = builtinObjsWords.concat(aspBuiltinObjsWords);
         knownWords = knownWords.concat(aspKnownMethods, aspKnownProperties);
     };
-    
+
     var keywords = wordRegexp(commonkeywords);
     var atoms = wordRegexp(atomWords);
     var builtinFuncs = wordRegexp(builtinFuncsWords);
@@ -89,8 +89,8 @@ CodeMirror.defineMode("vbscript", function(conf, parserConf) {
     var doOpening = wordRegexp(['do']);
     var noIndentWords = wordRegexp(['on error resume next', 'exit']);
     var comment = wordRegexp(['rem']);
-    
-    
+
+
     function indent(_stream, state) {
       state.currentIndent++;
     }
@@ -106,7 +106,7 @@ CodeMirror.defineMode("vbscript", function(conf, parserConf) {
         }
 
         var ch = stream.peek();
-        
+
         // Handle Comments
         if (ch === "'") {
             stream.skipToEnd();
@@ -168,21 +168,21 @@ CodeMirror.defineMode("vbscript", function(conf, parserConf) {
         if (stream.match(singleDelimiters)) {
             return null;
         }
-        
+
         if (stream.match(brakets)) {
             return "bracket";
         }
-        
+
         if (stream.match(noIndentWords)) {
             state.doInCurrentLine = true;
-            
+
             return 'keyword';
         }
-        
+
         if (stream.match(doOpening)) {
             indent(stream,state);
             state.doInCurrentLine = true;
-            
+
             return 'keyword';
         }
         if (stream.match(opening)) {
@@ -190,18 +190,18 @@ CodeMirror.defineMode("vbscript", function(conf, parserConf) {
               indent(stream,state);
             else
               state.doInCurrentLine = false;
-            
+
             return 'keyword';
         }
         if (stream.match(middle)) {
             return 'keyword';
         }
-        
-        
+
+
         if (stream.match(doubleClosing)) {
             dedent(stream,state);
             dedent(stream,state);
-            
+
             return 'keyword';
         }
         if (stream.match(closing)) {
@@ -209,30 +209,30 @@ CodeMirror.defineMode("vbscript", function(conf, parserConf) {
               dedent(stream,state);
             else
               state.doInCurrentLine = false;
-            
+
             return 'keyword';
         }
 
         if (stream.match(keywords)) {
             return 'keyword';
         }
-        
+
         if (stream.match(atoms)) {
             return 'atom';
         }
-        
+
         if (stream.match(known)) {
             return 'variable-2';
         }
-        
+
         if (stream.match(builtinFuncs)) {
             return 'builtin';
         }
-        
+
         if (stream.match(builtinObjs)){
             return 'variable-2';
         }
-        
+
         if (stream.match(identifiers)) {
             return 'variable';
         }
@@ -271,22 +271,22 @@ CodeMirror.defineMode("vbscript", function(conf, parserConf) {
     function tokenLexer(stream, state) {
         var style = state.tokenize(stream, state);
         var current = stream.current();
-        
+
         // Handle '.' connected identifiers
         if (current === '.') {
             style = state.tokenize(stream, state);
-            
+
             current = stream.current();
             if (style.substr(0, 8) === 'variable' || style==='builtin' || style==='keyword'){//|| knownWords.indexOf(current.substring(1)) > -1) {
                 if (style === 'builtin' || style === 'keyword') style='variable';
                 if (knownWords.indexOf(current.substr(1)) > -1) style='variable-2';
-                
+
                 return style;
             } else {
                 return ERRORCLASS;
             }
         }
-        
+
         return style;
     }
 
@@ -314,9 +314,9 @@ CodeMirror.defineMode("vbscript", function(conf, parserConf) {
             var style = tokenLexer(stream, state);
 
             state.lastToken = {style:style, content: stream.current()};
-            
+
             if (style==='space') style=null;
-            
+
             return style;
         },
 
