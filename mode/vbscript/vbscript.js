@@ -15,9 +15,9 @@ CodeMirror.defineMode("vbscript", function(conf, parserConf) {
         return new RegExp("^((" + words.join(")|(") + "))\\b", "i");
     }
 
-    var singleOperators = new RegExp("^[\\+\\-\\*/&\\\\\\^<>]");
+    var singleOperators = new RegExp("^[\\+\\-\\*/&\\\\\\^<>=]");
     var doubleOperators = new RegExp("^((<>)|(<=)|(>=))");
-    var singleDelimiters = new RegExp('^[\\.,=]');
+    var singleDelimiters = new RegExp('^[\\.,]');
     var brakets = new RegExp('^[\\(\\)]');
     var identifiers = new RegExp("^[A-Za-z][_A-Za-z0-9]*");
 
