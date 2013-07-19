@@ -1,6 +1,7 @@
 CodeMirror.defineMode("xml", function(config, parserConfig) {
   var indentUnit = config.indentUnit;
   var multilineTagIndentFactor = parserConfig.multilineTagIndentFactor || 1;
+  var multilineTagIndentPastTag = parserConfig.multilineTagIndentPastTag || false;
 
   var Kludges = parserConfig.htmlMode ? {
     autoSelfClosers: {'area': true, 'base': true, 'br': true, 'col': true, 'command': true,
@@ -109,8 +110,13 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
       return null;
     } else if (ch == "<") {
       return "error";
-    } else if (/[\'\"]/.test(ch)) {
-      state.tokenize = inAttribute(ch);
+    } else if (ch == "'") {
+      state.tokenize = inSingleQuoteAttribute;
+      state.stringStartCol = stream.column();
+      return state.tokenize(stream, state);
+    } else if (ch == "\"") {
+      state.tokenize = inDoubleQuoteAttribute;
+      state.stringStartCol = stream.column();
       return state.tokenize(stream, state);
     } else {
       stream.eatWhile(/[^\s\u00a0=<>\"\']/);
@@ -118,16 +124,26 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
     }
   }
 
-  function inAttribute(quote) {
-    return function(stream, state) {
-      while (!stream.eol()) {
-        if (stream.next() == quote) {
-          state.tokenize = inTag;
-          break;
-        }
+  function inSingleQuoteAttribute(stream, state) {
+    while (!stream.eol()) {
+      if (stream.next() == "\'") {
+        state.tokenize = inTag;
+        delete state.stringStartCol;
+        break;
       }
-      return "string";
-    };
+    }
+    return "string";
+  }
+
+  function inDoubleQuoteAttribute(stream, state) {
+    while (!stream.eol()) {
+      if (stream.next() == "\"") {
+        state.tokenize = inTag;
+        delete state.stringStartCol;
+        break;
+      }
+    }
+    return "string";
   }
 
   function inBlock(style, terminator) {
@@ -299,10 +315,22 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
 
     indent: function(state, textAfter, fullLine) {
       var context = state.context;
+      console.log(state)
+      // Indent multi-line strings (e.g. css).
+      if (state.tokenize == inSingleQuoteAttribute ||
+          state.tokenize == inDoubleQuoteAttribute) {
+        return state.stringStartCol + 1;
+      }
       if ((state.tokenize != inTag && state.tokenize != inText) ||
           context && context.noIndent)
         return fullLine ? fullLine.match(/^(\s*)/)[0].length : 0;
-      if (state.tagName) return state.tagStart + indentUnit * multilineTagIndentFactor;
+      // Indent the starts of attribute names.
+      if (state.tagName) {
+        if (multilineTagIndentPastTag)
+          return state.tagStart + state.tagName.length + 2;
+        else
+          return state.tagStart + indentUnit * multilineTagIndentFactor;
+      }
       if (alignCDATA && /<!\[CDATA\[/.test(textAfter)) return 0;
       if (context && /^<\//.test(textAfter))
         context = context.prev;
