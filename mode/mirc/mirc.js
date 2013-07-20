@@ -1,5 +1,5 @@
 //mIRC mode by Ford_Lawnmower :: Based on Velocity mode by Steve O'Hara
-CodeMirror.defineMIME("text/mirc", "mirc");
+CodeMirror.defineMIME("text/x-mirc", "mirc");
 CodeMirror.defineMode("mirc", function() {
   function parseWords(str) {
     var obj = {}, words = str.split(" ");

@@ -141,4 +141,4 @@ CodeMirror.defineMode("velocity", function() {
     };
 });
 
-CodeMirror.defineMIME("text/velocity", "velocity");
+CodeMirror.defineMIME("text/x-velocity", "velocity");

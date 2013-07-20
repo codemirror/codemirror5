@@ -23,4 +23,4 @@ CodeMirror.defineMode("vbscript", function() {
   };
 });
 
-CodeMirror.defineMIME("text/vbscript", "vbscript");
+CodeMirror.defineMIME("text/x-vbs", "vbscript");
