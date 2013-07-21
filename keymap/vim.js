@@ -233,7 +233,8 @@
         operator: 'change',
         motion: 'moveToEol', motionArgs: { inclusive: true },
         operatorMotionArgs: { visualLine: true }},
-    { keys: ['~'], type: 'operatorMotion', operator: 'swapcase',
+    { keys: ['~'], type: 'operatorMotion',
+        operator: 'swapcase', operatorArgs: { shouldMoveCursor: true },
         motion: 'moveByCharacters', motionArgs: { forward: true }},
     // Actions
     { keys: ['<C-i>'], type: 'action', action: 'jumpListWalk',
@@ -1551,7 +1552,7 @@
         cm.setCursor(curStart);
         cm.setCursor(motions.moveToFirstNonWhiteSpaceCharacter(cm));
       },
-      swapcase: function(cm, _operatorArgs, _vim, curStart, curEnd, curOriginal) {
+      swapcase: function(cm, operatorArgs, _vim, curStart, curEnd, curOriginal) {
         var toSwap = cm.getRange(curStart, curEnd);
         var swapped = '';
         for (var i = 0; i < toSwap.length; i++) {
@@ -1560,7 +1561,9 @@
               character.toUpperCase();
         }
         cm.replaceRange(swapped, curStart, curEnd);
-        cm.setCursor(curOriginal);
+        if (!operatorArgs.shouldMoveCursor) {
+          cm.setCursor(curOriginal);
+        }
       },
       yank: function(cm, operatorArgs, _vim, curStart, curEnd, curOriginal) {
         vimGlobalState.registerController.pushText(
