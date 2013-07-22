@@ -252,7 +252,6 @@ CodeMirror.defineMode("css-base", function(config, parserConfig) {
       // Push/pop context stack
       if (type == "{") {
         if (context == "@media" || context == "@mediaType") {
-          state.stack.pop();
           state.stack[state.stack.length-1] = "@media{";
         }
         else {
@@ -261,8 +260,7 @@ CodeMirror.defineMode("css-base", function(config, parserConfig) {
         }
       }
       else if (type == "}") {
-        var lastState = state.stack[state.stack.length - 1];
-        if (lastState == "interpolation") style = "operator";
+        if (context == "interpolation") style = "operator";
         state.stack.pop();
         if (context == "propertyValue") state.stack.pop();
       }
@@ -270,20 +268,37 @@ CodeMirror.defineMode("css-base", function(config, parserConfig) {
       else if (type == "@media") state.stack.push("@media");
       else if (type == "@import") state.stack.push("@import");
       else if (context == "@media" && /\b(keyword|attribute)\b/.test(style))
-        state.stack.push("@mediaType");
-      else if (context == "@mediaType" && stream.current() == ",") state.stack.pop();
-      else if (context == "@mediaType" && type == "(") state.stack.push("@mediaType(");
-      else if (context == "@mediaType(" && type == ")") state.stack.pop();
+        state.stack[state.stack.length-1] = "@mediaType";
+      else if (context == "@mediaType" && stream.current() == ",")
+        state.stack[state.stack.length-1] = "@media";
+      else if (type == "(") {
+        if (context == "@media" || context == "@mediaType") {
+          // Make sure @mediaType is used to avoid error on {
+          state.stack[state.stack.length-1] = "@mediaType";
+          state.stack.push("@mediaType(");
+        }
+      }
+      else if (type == ")") {
+        if (context == "propertyValue" && state.stack[state.stack.length-2] == "@mediaType(") {
+          // In @mediaType( without closing ; after propertyValue
+          state.stack.pop();
+          state.stack.pop();
+        }
+        else if (context == "@mediaType(") {
+          state.stack.pop();
+        }
+      }
       else if (type == ":" && state.lastToken == "property") state.stack.push("propertyValue");
       else if (context == "propertyValue" && type == ";") state.stack.pop();
       else if (context == "@import" && type == ";") state.stack.pop();
+
       return state.lastToken = style;
     },
 
     indent: function(state, textAfter) {
       var n = state.stack.length;
       if (/^\}/.test(textAfter))
-        n -= state.stack[state.stack.length-1] == "propertyValue" ? 2 : 1;
+        n -= state.stack[n-1] == "propertyValue" ? 2 : 1;
       return state.baseIndent + n * indentUnit;
     },
 

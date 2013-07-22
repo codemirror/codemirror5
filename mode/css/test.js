@@ -15,6 +15,12 @@
   MT("atMediaCheckStack",
      "[def @media] [attribute screen] ([property color]) { } [tag foo] { }");
 
+  MT("atMediaPropertyOnly",
+     "[def @media] ([property color]) { } [tag foo] { }");
+
+  MT("atMediaCheckStackInvalidAttribute",
+     "[def @media] [attribute&error foobarhello] { [tag foo] { } }");
+
   MT("atMediaCheckStackInvalidAttribute",
      "[def @media] [attribute&error foobarhello] { } [tag foo] { }");
 
@@ -52,6 +58,10 @@
   // Soft error, because "foobarhello" is not a known property or type.
   MT("atMediaUnknownProperty",
      "[def @media] [attribute screen] [operator and] ([property&error foobarhello]) { }");
+
+  // Make sure nesting works with media queries
+  MT("atMediaMaxWidthNested",
+     "[def @media] [attribute screen] [operator and] ([property max-width][operator :] [number 25px]) { [tag foo] { } }");
 
   MT("tagSelector",
      "[tag foo] { }");
@@ -107,6 +117,9 @@
 
   MT("tagTwoProperties",
      "[tag foo] { [property margin][operator :] [number 0]; [property padding][operator :] [number 0]; }");
+
+  MT("tagTwoPropertiesURL",
+     "[tag foo] { [property background][operator :] [string-2 url]([string //example.com/foo.png]); [property padding][operator :] [number 0]; }");
 
   MT("commentSGML",
      "[comment <!--comment-->]");
