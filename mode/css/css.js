@@ -386,7 +386,7 @@ CodeMirror.defineMode("css-base", function(config, parserConfig) {
     "text-decoration-color", "text-decoration-line", "text-decoration-skip",
     "text-decoration-style", "text-emphasis", "text-emphasis-color",
     "text-emphasis-position", "text-emphasis-style", "text-height",
-    "text-indent", "text-justify", "text-outline", "text-overflow", "text-shadow", 
+    "text-indent", "text-justify", "text-outline", "text-overflow", "text-shadow",
     "text-size-adjust", "text-space-collapse", "text-transform", "text-underline-position",
     "text-wrap", "top", "transform", "transform-origin", "transform-style",
     "transition", "transition-delay", "transition-duration",
