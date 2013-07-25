@@ -1876,8 +1876,8 @@
       a <code>{list, from, to}</code> object, where <code>list</code>
       is an array of strings or objects (the completions),
       and <code>from</code> and <code>to</code> give the start and end
-      of the token that is being completed. If no hinting function is
-      given, the addon will try to
+      of the token that is being completed as <code>{line, ch}</code>
+      objects. If no hinting function is given, the addon will try to
       use <a href="#getHelper"><code>getHelper</code></a> with
       the <code>"hint"</code> type to find one. When completions
       aren't simple strings, they should be objects with the folowing
