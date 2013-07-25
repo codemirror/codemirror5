@@ -379,7 +379,9 @@
     client code to react to various situations. Handlers for such
     events can be registed with the <a href="#on"><code>on</code></a>
     and <a href="#off"><code>off</code></a> methods on the objects
-    that the event fires on.</p>
+    that the event fires on. To fire your own events,
+    use <code>CodeMirror.signal(target, name, args...)</code>,
+    where <code>target</code> is a non-DOM-node object.</p>
 
     <p>An editor instance fires the following events.
     The <code>instance</code> argument always refers to the editor
