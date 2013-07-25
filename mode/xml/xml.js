@@ -134,28 +134,6 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
     return closure;
   }
 
-  function inSingleQuoteAttribute(stream, state) {
-    while (!stream.eol()) {
-      if (stream.next() == "\'") {
-        state.tokenize = inTag;
-        delete state.stringStartCol;
-        break;
-      }
-    }
-    return "string";
-  }
-
-  function inDoubleQuoteAttribute(stream, state) {
-    while (!stream.eol()) {
-      if (stream.next() == "\"") {
-        state.tokenize = inTag;
-        delete state.stringStartCol;
-        break;
-      }
-    }
-    return "string";
-  }
-
   function inBlock(style, terminator) {
     return function(stream, state) {
       while (!stream.eol()) {
