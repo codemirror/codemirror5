@@ -555,14 +555,16 @@
       event handler, the editor state may be inspected
       but <em>not</em> modified, with the exception that the range on
       which the event fires may be cleared.</dd>
-      <dt id="event_clear"><code><strong>"clear"</strong> ()</code></dt>
+      <dt id="event_clear"><code><strong>"clear"</strong> (from: {line, ch}, to: {line, ch})</code></dt>
       <dd>Fired when the range is cleared, either through cursor
       movement in combination
       with <a href="#mark_clearOnEnter"><code>clearOnEnter</code></a>
       or through a call to its <code>clear()</code> method. Will only
       be fired once per handle. Note that deleting the range through
-      text editing does not fire this event, because an undo
-      action might bring the range back into existence.</dd>
+      text editing does not fire this event, because an undo action
+      might bring the range back into existence. <code>from</code>
+      and <code>to</code> give the part of the document that the range
+      spanned when it was cleared.</dd>
       <dt id="event_hide"><code><strong>"hide"</strong> ()</code></dt>
       <dd>Fired when the last part of the marker is removed from the
       document by editing operations.</dd>

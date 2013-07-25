@@ -16,9 +16,7 @@
         if (marks[i].__isFold) {
           if (!allowFolded) return null;
           range.cleared = true;
-          var found = marks[i].find();
           marks[i].clear();
-          CodeMirror.signal(cm, "unfold", cm, found.from, found.to);
         }
       }
       return range;
@@ -32,11 +30,14 @@
     if (!range || range.cleared) return;
 
     var myWidget = makeWidget(options);
-    CodeMirror.on(myWidget, "mousedown", function() {myRange.clear();});
+    CodeMirror.on(myWidget, "mousedown", function() { myRange.clear(); });
     var myRange = cm.markText(range.from, range.to, {
       replacedWith: myWidget,
       clearOnEnter: true,
       __isFold: true
+    });
+    myRange.on("clear", function(from, to) {
+      CodeMirror.signal(cm, "unfold", cm, from, to);
     });
     CodeMirror.signal(cm, "fold", cm, range.from, range.to);
   }
