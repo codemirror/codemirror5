@@ -110,18 +110,28 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
       return null;
     } else if (ch == "<") {
       return "error";
-    } else if (ch == "'") {
-      state.tokenize = inSingleQuoteAttribute;
-      state.stringStartCol = stream.column();
-      return state.tokenize(stream, state);
-    } else if (ch == "\"") {
-      state.tokenize = inDoubleQuoteAttribute;
+    } else if (/[\'\"]/.test(ch)) {
+      state.tokenize = inAttribute(ch);
       state.stringStartCol = stream.column();
       return state.tokenize(stream, state);
     } else {
       stream.eatWhile(/[^\s\u00a0=<>\"\']/);
       return "word";
     }
+  }
+
+  function inAttribute(quote) {
+    var closure = function(stream, state) {
+      while (!stream.eol()) {
+        if (stream.next() == quote) {
+          state.tokenize = inTag;
+          break;
+        }
+      }
+      return "string";
+    };
+    closure.isInAttribute = true;
+    return closure;
   }
 
   function inSingleQuoteAttribute(stream, state) {
@@ -315,10 +325,8 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
 
     indent: function(state, textAfter, fullLine) {
       var context = state.context;
-      console.log(state)
       // Indent multi-line strings (e.g. css).
-      if (state.tokenize == inSingleQuoteAttribute ||
-          state.tokenize == inDoubleQuoteAttribute) {
+      if (state.tokenize.isInAttribute) {
         return state.stringStartCol + 1;
       }
       if ((state.tokenize != inTag && state.tokenize != inText) ||
