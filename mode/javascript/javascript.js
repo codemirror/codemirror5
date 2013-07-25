@@ -299,14 +299,15 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
 
   function maybeoperatorComma(type, value) {
     if (type == ",") return cont(expression);
-    return maybeoperatorNoComma(type, value, maybeoperatorComma);
+    return maybeoperatorNoComma(type, value, false);
   }
-  function maybeoperatorNoComma(type, value, me) {
-    if (!me) me = maybeoperatorNoComma;
+  function maybeoperatorNoComma(type, value, noComma) {
+    var me = noComma == false ? maybeoperatorComma : maybeoperatorNoComma;
+    var expr = noComma == false ? expression : expressionNoComma;
     if (type == "operator") {
       if (/\+\+|--/.test(value)) return cont(me);
-      if (value == "?") return cont(expression, expect(":"), expression);
-      return cont(expression);
+      if (value == "?") return cont(expression, expect(":"), expr);
+      return cont(expr);
     }
     if (type == ";") return;
     if (type == "(") return cont(pushlex(")", "call"), commasep(expressionNoComma, ")"), poplex, me);

@@ -184,7 +184,7 @@
     }
     s += '</tr><tr>';
     for (var i = 0; i < output.length; i += 2) {
-      s += '<td class="mt-style"><span>' + output[i] + '</span></td>';
+      s += '<td class="mt-style"><span>' + (output[i] || null) + '</span></td>';
     }
     s += '</table>';
     return s;
