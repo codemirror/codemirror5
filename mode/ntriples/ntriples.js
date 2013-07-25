@@ -167,4 +167,4 @@ CodeMirror.defineMode("ntriples", function() {
   };
 });
 
-CodeMirror.defineMIME("text/n-triples", "ntriples");
+CodeMirror.defineMIME("text/x-n-triples", "ntriples");

@@ -157,4 +157,4 @@ CodeMirror.defineMode("apl", function() {
   };
 });
 
-CodeMirror.defineMIME("text/apl", "apl");
+CodeMirror.defineMIME("text/x-apl", "apl");

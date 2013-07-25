@@ -142,4 +142,4 @@ CodeMirror.defineMode("turtle", function(config) {
   };
 });
 
-CodeMirror.defineMIME("text/turtle", "turtle");
+CodeMirror.defineMIME("text/x-turtle", "turtle");

@@ -331,4 +331,4 @@ CodeMirror.defineMode("vbscript", function(conf, parserConf) {
     return external;
 });
 
-CodeMirror.defineMIME("text/vbscript", "vbscript");
+CodeMirror.defineMIME("text/x-vbs", "vbscript");
