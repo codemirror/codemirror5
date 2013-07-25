@@ -260,8 +260,7 @@ CodeMirror.defineMode("css-base", function(config, parserConfig) {
         }
       }
       else if (type == "}") {
-        var lastState = state.stack[state.stack.length - 1];
-        if (lastState == "interpolation") style = "operator";
+        if (context == "interpolation") style = "operator";
         state.stack.pop();
         if (context == "propertyValue") state.stack.pop();
       }
@@ -299,7 +298,7 @@ CodeMirror.defineMode("css-base", function(config, parserConfig) {
     indent: function(state, textAfter) {
       var n = state.stack.length;
       if (/^\}/.test(textAfter))
-        n -= state.stack[state.stack.length-1] == "propertyValue" ? 2 : 1;
+        n -= state.stack[n-1] == "propertyValue" ? 2 : 1;
       return state.baseIndent + n * indentUnit;
     },
 
