@@ -122,15 +122,15 @@
   }
 
   function findDoc(ts, doc, name) {
-    for (var name in ts.docs) {
-      var cur = ts.docs[name];
+    for (var n in ts.docs) {
+      var cur = ts.docs[n];
       if (cur.doc == doc) return cur;
     }
     if (!name) for (var i = 0;; ++i) {
-      var n = "[doc" + (i || "") + "]";
+      n = "[doc" + (i || "") + "]";
       if (!ts.docs[n]) { name = n; break; }
     }
-    return ts.addDoc(n, doc);
+    return ts.addDoc(name, doc);
   }
 
   function trackChange(ts, doc, change) {
