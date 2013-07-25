@@ -494,7 +494,7 @@
       <strong>"dragover"</strong>, <strong>"drop"</strong>
       (instance: CodeMirror, event: Event)</code></dt>
       <dd>Fired when CodeMirror is handling a DOM event of this type.
-      You can <code>preventDefault</code> the event to signal that
+      You can set <code>codemirrorIgnore</code> to true on the event to signal that
       CodeMirror should do no further handling.</dd>
     </dl>
 
@@ -986,17 +986,14 @@
 
       <dt id="on"><code><strong>cm.on</strong>(type: string, func: (...args))</code></dt>
       <dd>Register an event handler for the given event type (a
-      string) on the editor instance. There is also
+      string) on the editor instance. You can set <code>codemirrorIgnore</code> to true on
+      the event object to signal that CodeMirror shouldn't to any further handling. There is also
       a <code>CodeMirror.on(object, type, func)</code> version
       that allows registering of events on any object.</dd>
       <dt id="off"><code><strong>cm.off</strong>(type: string, func: (...args))</code></dt>
       <dd>Remove an event handler on the editor instance. An
       equivalent <code>CodeMirror.off(object, type,
       func)</code> also exists.</dd>
-      <dt id="setBypassed"><code><strong>cm.setBypassed</strong>(type: string, bypassed: boolean)</code></dt>
-      <dd>Inform an instance whether a given type of event should be ignored and bypassed to
-      the default handler. An equivalent <code>CodeMirror.setBypassed(object, type,
-      bypassed)</code> also exists.</dd>
     </dl>
 
     <h3 id="api_doc">Document management methods</h3>
