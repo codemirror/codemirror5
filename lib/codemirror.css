@@ -192,6 +192,16 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
   white-space: pre-wrap;
   word-break: normal;
 }
+.CodeMirror-code pre {
+  border-right: 30px solid transparent;
+  width: -webkit-fit-content;
+  width: -moz-fit-content;
+  width: fit-content;
+}
+.CodeMirror-wrap .CodeMirror-code pre {
+  border-right: none;
+  width: auto;
+}
 .CodeMirror-linebackground {
   position: absolute;
   left: 0; right: 0; top: 0; bottom: 0;
