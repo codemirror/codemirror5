@@ -86,7 +86,6 @@
         data = data_;
         if (isDone()) return;
         if (!data || !data.list.length) return done();
-        completion.widget.close();
         completion.widget = new Widget(completion, data);
       }
 
@@ -95,10 +94,12 @@
         var pos = completion.cm.getCursor(), line = completion.cm.getLine(pos.line);
         if (pos.line != startPos.line || line.length - pos.ch != startLen - startPos.ch ||
             pos.ch < startPos.ch || completion.cm.somethingSelected() ||
-            (pos.ch && closeOn.test(line.charAt(pos.ch - 1))))
+            (pos.ch && closeOn.test(line.charAt(pos.ch - 1)))) {
           completion.close();
-        else
+        } else {
           debounce = setTimeout(update, 170);
+          completion.widget.close();
+        }
       }
       this.cm.on("cursorActivity", activity);
       this.onClose = done;
