@@ -127,6 +127,7 @@ CodeMirror.defineMode("nginx", function(config) {
 
     token: function(stream, state) {
       if (stream.eatSpace()) return null;
+      type = null;
       var style = state.tokenize(stream, state);
 
       var context = state.stack[state.stack.length-1];
@@ -159,4 +160,4 @@ CodeMirror.defineMode("nginx", function(config) {
   };
 });
 
-CodeMirror.defineMIME("text/nginx", "nginx");
+CodeMirror.defineMIME("text/nginx", "text/x-nginx-conf");
