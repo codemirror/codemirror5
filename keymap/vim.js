@@ -318,6 +318,7 @@
     CodeMirror.defineOption('vimMode', false, function(cm, val) {
       if (val) {
         cm.setOption('keyMap', 'vim');
+        CodeMirror.signal(cm, "vim-mode-change", "normal");
         cm.on('beforeSelectionChange', beforeSelectionChange);
         maybeInitVimState(cm);
       } else if (cm.state.vim) {
@@ -1646,8 +1647,10 @@
           // Handle Replace-mode as a special case of insert mode.
           cm.toggleOverwrite(true);
           cm.setOption('keyMap', 'vim-replace');
+          CodeMirror.signal(cm, "vim-mode-change", "replace");
         } else {
           cm.setOption('keyMap', 'vim-insert');
+          CodeMirror.signal(cm, "vim-mode-change", "insert");
         }
         if (!vimGlobalState.macroModeState.inReplay) {
           // Only record if not replaying.
@@ -1689,6 +1692,7 @@
           } else {
             cm.setSelection(curStart, curEnd);
           }
+          CodeMirror.signal(cm, "vim-mode-change", "visual");
         } else {
           curStart = cm.getCursor('anchor');
           curEnd = cm.getCursor('head');
@@ -1701,10 +1705,12 @@
             curEnd.ch = cursorIsBefore(curStart, curEnd) ?
                 lineLength(cm, curEnd.line) : 0;
             cm.setSelection(curStart, curEnd);
+            CodeMirror.signal(cm, "vim-mode-change", "visual");
           } else if (vim.visualLine && !actionArgs.linewise) {
             // v pressed in linewise visual mode. Switch to characterwise visual
             // mode instead of exiting visual mode.
             vim.visualLine = false;
+            CodeMirror.signal(cm, "vim-mode-change", "visual");
           } else {
             exitVisualMode(cm);
           }
@@ -2017,6 +2023,7 @@
         // it's not supposed to be.
         cm.setCursor(clipCursorToContent(cm, selectionEnd));
       }
+      CodeMirror.signal(cm, "vim-mode-change", "normal");
     }
 
     // Remove any trailing newlines from the selection. For
@@ -3439,6 +3446,7 @@
       vim.insertMode = false;
       cm.setOption('keyMap', 'vim');
       cm.toggleOverwrite(false); // exit replace mode if we were in it.
+      CodeMirror.signal(cm, "vim-mode-change", "normal");
     }
 
     CodeMirror.keyMap['vim-insert'] = {
