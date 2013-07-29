@@ -70,6 +70,20 @@ var randomStr = myMod.randomElt(myMod.strList);
 var randomInt = myMod.randomElt(myMod.intList);
 </textarea></p>
 
+<p>Demonstrates integration of <a href="http://ternjs.net/">Tern</a>
+and CodeMirror. The following keys are bound:</p>
+
+<dl>
+  <dt>Ctrl-Space</dt><dd>Autocomplete</dd>
+  <dt>Ctrl-I</dt><dd>Find type at cursor</dd>
+  <dt>Alt-.</dt><dd>Jump to definition (Alt-, to jump back)</dd>
+  <dt>Ctrl-Q</dt><dd>Rename variable</dd>
+</dl>
+
+<p>Documentation is sparse for now. See the top of
+the <a href="../addon/tern/tern.js">script</a> for a rough API
+overview.</p>
+
 <script>
   function getURL(url, c) {
     var xhr = new XMLHttpRequest();
