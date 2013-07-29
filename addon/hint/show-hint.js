@@ -98,7 +98,7 @@
           completion.close();
         } else {
           debounce = setTimeout(update, 170);
-          completion.widget.close();
+          if (completion.widget) completion.widget.close();
         }
       }
       this.cm.on("cursorActivity", activity);
