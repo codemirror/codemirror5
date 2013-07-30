@@ -852,6 +852,17 @@ testCM("changedInlineWidget", function(cm) {
   is(hScroll.scrollWidth > hScroll.clientWidth);
 }, {value: "hello there"});
 
+testCM("changedBookmark", function(cm) {
+  cm.setSize("10em");
+  var w = document.createElement("span");
+  w.innerHTML = "x";
+  var m = cm.setBookmark(Pos(0, 4), {widget: w});
+  w.innerHTML = "and now the widget is really really long all of a sudden and a scrollbar is needed";
+  m.changed();
+  var hScroll = byClassName(cm.getWrapperElement(), "CodeMirror-hscrollbar")[0];
+  is(hScroll.scrollWidth > hScroll.clientWidth);
+});
+
 testCM("inlineWidget", function(cm) {
   var w = cm.setBookmark(Pos(0, 2), {widget: document.createTextNode("uu")});
   cm.setCursor(0, 2);
