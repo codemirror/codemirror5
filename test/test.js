@@ -861,7 +861,7 @@ testCM("changedBookmark", function(cm) {
   m.changed();
   var hScroll = byClassName(cm.getWrapperElement(), "CodeMirror-hscrollbar")[0];
   is(hScroll.scrollWidth > hScroll.clientWidth);
-});
+}, {value: "abcdefg"});
 
 testCM("inlineWidget", function(cm) {
   var w = cm.setBookmark(Pos(0, 2), {widget: document.createTextNode("uu")});
