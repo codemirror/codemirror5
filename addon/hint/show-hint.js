@@ -69,13 +69,9 @@
         completion.cm.off("cursorActivity", activity);
         CodeMirror.signal(data, "close");
       }
-      function isDone() {
-        if (finished) return true;
-        if (!completion.widget) { done(); return true; }
-      }
 
       function update() {
-        if (isDone()) return;
+        if (finished) return;
         CodeMirror.signal(data, "update");
         if (completion.options.async)
           completion.getHints(completion.cm, finishUpdate, completion.options);
@@ -84,7 +80,7 @@
       }
       function finishUpdate(data_) {
         data = data_;
-        if (isDone()) return;
+        if (finished) return;
         if (!data || !data.list.length) return done();
         completion.widget = new Widget(completion, data);
       }
