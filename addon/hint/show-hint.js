@@ -67,7 +67,7 @@
         finished = true;
         completion.close();
         completion.cm.off("cursorActivity", activity);
-        CodeMirror.signal(data, "close");
+        if (data) CodeMirror.signal(data, "close");
       }
 
       function update() {
