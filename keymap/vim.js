@@ -1104,6 +1104,11 @@
             if (vim.visualLine) {
               if (cursorIsBefore(selectionStart, selectionEnd)) {
                 selectionStart.ch = 0;
+
+                var lineCount = cm.lineCount();
+                if (selectionEnd.line >= lineCount) {
+                  selectionEnd.line = lineCount - 1;
+                }
                 selectionEnd.ch = lineLength(cm, selectionEnd.line);
               } else {
                 selectionEnd.ch = 0;
