@@ -24,14 +24,15 @@
     }
     if (this.style == null) this.style = DEFAULT_TOKEN_STYLE;
     if (this.minChars == null) this.minChars = DEFAULT_MIN_CHARS;
-    this.overlay = this.timeout = null;
+    this.overlays = [];
+    this.timeout = null;
   }
 
   CodeMirror.defineOption("highlightSelectionMatches", false, function(cm, val, old) {
     if (old && old != CodeMirror.Init) {
-      var over = cm.state.matchHighlighter.overlay;
-      if (over) cm.removeOverlay(over);
-      clearTimeout(cm.state.matchHighlighter.timeout);
+      var state = cm.state.matchHighlighter;
+      for (var i = 0; i < state.overlays.length; i++) cm.removeOverlay(state.overlays[i]);
+      clearTimeout(state.timeout);
       cm.state.matchHighlighter = null;
       cm.off("cursorActivity", cursorActivity);
     }
@@ -51,21 +52,20 @@
   function highlightMatches(cm) {
     cm.operation(function() {
       var state = cm.state.matchHighlighter;
-      if (state.overlay) {
-        cm.removeOverlay(state.overlay);
-        state.overlay = null;
-      }
-
-      if (!cm.somethingSelected() && state.showToken) {
-        var tok = cm.getTokenAt(cm.getCursor()).string;
-        if (/\w/.test(tok))
-          cm.addOverlay(state.overlay = makeOverlay(tok, true, state.style));
-        return;
-      }
-      if (cm.getCursor("head").line != cm.getCursor("anchor").line) return;
-      var selection = cm.getSelection().replace(/^\s+|\s+$/g, "");
-      if (selection.length >= state.minChars)
-        cm.addOverlay(state.overlay = makeOverlay(selection, false, state.style));
+      for (var i = 0; i < state.overlays.length; i++) cm.removeOverlay(state.overlays[i]);
+      state.overlays = [];
+      cm.withSelection(function() {
+        if (!cm.somethingSelected() && state.showToken) {
+          var tok = cm.getTokenAt(cm.getCursor()).string;
+          if (/\w/.test(tok))
+            cm.addOverlay(state.overlays[state.overlays.length] = makeOverlay(tok, true, state.style));
+          return;
+        }
+        if (cm.getCursor("head").line != cm.getCursor("anchor").line) return;
+        var selection = cm.getSelection().replace(/^\s+|\s+$/g, "");
+        if (selection.length >= state.minChars)
+          cm.addOverlay(state.overlays[state.overlays.length] = makeOverlay(selection, false, state.style));
+      });
     });
   }
 
