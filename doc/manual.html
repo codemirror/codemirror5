@@ -872,13 +872,15 @@
     <h3 id="api_selection">Cursor and selection methods</h3>
 
     <dl>
-      <dt id="eachSelection"><code><strong>doc.eachSelection</strong>(f: (...args), ...args)</code></dt>
+      <dt id="eachSelection"><code><strong>doc.eachSelection</strong>(f)</code></dt>
       <dd>Iterate over all selections. Inside the function, you can
-      use the functions below to get or change the selection.
-      </dd>
-      <dt id="replaceSelections"><code><strong>doc.replaceSelections</strong>(replacement: string, ?collapse: string)</code></dt>
-      <dd>A shortcut for <code>doc.eachSelection(doc.replaceSelection)</code>.</dd>
-      
+      use the functions below to get or change the selection.</dd>
+      <dt id="withSelection"><code><strong>doc.withSelection</strong>(f)</code></dt>
+      <dd>Same as <a href="#eachSelection"><code>eachSelection</code></a>,
+      except that inside another call to eachSelection or
+      withSelection, the function gets called only once, for the
+      "current" selection.</dd>
+
       <dt id="getSelection"><code><strong>doc.getSelection</strong>() → string</code></dt>
       <dd>Get the currently selected code.</dd>
       <dt id="replaceSelection"><code><strong>doc.replaceSelection</strong>(replacement: string, ?collapse: string)</code></dt>

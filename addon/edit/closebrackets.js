@@ -28,12 +28,14 @@
     var map = {
       name : "autoCloseBrackets",
       Backspace: function(cm) {
-        if (cm.somethingSelected()) return CodeMirror.Pass;
-        var cur = cm.getCursor(), around = charsAround(cm, cur);
-        if (around && pairs.indexOf(around) % 2 == 0)
-          cm.replaceRange("", CodeMirror.Pos(cur.line, cur.ch - 1), CodeMirror.Pos(cur.line, cur.ch + 1));
-        else
-          return CodeMirror.Pass;
+        return cm.withSelection(function() {
+          if (cm.somethingSelected()) return CodeMirror.Pass;
+          var cur = cm.getCursor(), around = charsAround(cm, cur);
+          if (around && pairs.indexOf(around) % 2 == 0)
+            cm.replaceRange("", CodeMirror.Pos(cur.line, cur.ch - 1), CodeMirror.Pos(cur.line, cur.ch + 1));
+          else
+            return CodeMirror.Pass;
+        });
       }
     };
     var closingBrackets = "";
@@ -49,27 +51,33 @@
         else cm.execCommand("goCharRight");
       }
       map["'" + left + "'"] = function(cm) {
-        if (left == "'" && cm.getTokenAt(cm.getCursor()).type == "comment")
-          return CodeMirror.Pass;
-        if (cm.somethingSelected()) return surround(cm);
-        if (left == right && maybeOverwrite(cm) != CodeMirror.Pass) return;
-        var cur = cm.getCursor(), ahead = CodeMirror.Pos(cur.line, cur.ch + 1);
-        var line = cm.getLine(cur.line), nextChar = line.charAt(cur.ch);
-        if (line.length == cur.ch || closingBrackets.indexOf(nextChar) >= 0 || SPACE_CHAR_REGEX.test(nextChar))
-          cm.replaceSelection(left + right, {head: ahead, anchor: ahead});
-        else
-          return CodeMirror.Pass;
+        return cm.withSelection(function() {
+          if (left == "'" && cm.getTokenAt(cm.getCursor()).type == "comment")
+            return CodeMirror.Pass;
+          if (cm.somethingSelected()) return surround(cm);
+          if (left == right && maybeOverwrite(cm) != CodeMirror.Pass) return;
+          var cur = cm.getCursor(), ahead = CodeMirror.Pos(cur.line, cur.ch + 1);
+          var line = cm.getLine(cur.line), nextChar = line.charAt(cur.ch);
+          if (line.length == cur.ch || closingBrackets.indexOf(nextChar) >= 0 || SPACE_CHAR_REGEX.test(nextChar))
+            cm.replaceSelection(left + right, {head: ahead, anchor: ahead});
+          else
+            return CodeMirror.Pass;
+        });
       };
-      if (left != right) map["'" + right + "'"] = maybeOverwrite;
+      if (left != right) map["'" + right + "'"] = function(cm) {
+        return cm.eachSelection(function() {
+          return maybeOverwrite(cm);
+        });
+      };
     })(pairs.charAt(i), pairs.charAt(i + 1));
     return map;
   }
 
   function buildExplodeHandler(pairs) {
     return function(cm) {
-      var cur = cm.getCursor(), around = charsAround(cm, cur);
-      if (!around || pairs.indexOf(around) % 2 != 0) return CodeMirror.Pass;
-      cm.operation(function() {
+      return cm.withSelection(function() {
+        var cur = cm.getCursor(), around = charsAround(cm, cur);
+        if (!around || pairs.indexOf(around) % 2 != 0) return CodeMirror.Pass;
         var newPos = CodeMirror.Pos(cur.line + 1, 0);
         cm.replaceSelection("\n\n", {anchor: newPos, head: newPos}, "+input");
         cm.indentLine(cur.line + 1, null, true);

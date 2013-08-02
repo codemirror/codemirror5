@@ -170,15 +170,15 @@ testCM("multipleSelections", function(cm) {
   }
   mouse([Pos(0, 0), Pos(0, 1)]);
   mouse([Pos(1, 0), Pos(1, 1)], true);
-  cm.replaceSelections("bc", "start");
-  cm.replaceSelections("a");
+  cm.replaceSelection("bc", "start");
+  cm.replaceSelection("a");
   eq(cm.getValue(), "abc\nabc\na");
   cm.triggerOnKeyDown({keyCode: 35});
-  cm.replaceSelections("d", "end");
+  cm.replaceSelection("d", "end");
   cm.triggerOnKeyDown({keyCode: 40});
-  cm.replaceSelections("e", "end");
+  cm.replaceSelection("e", "end");
   cm.triggerOnKeyDown({keyCode: 40});
-  cm.replaceSelections("f", "end");
+  cm.replaceSelection("f", "end");
   eq(cm.getValue(), "abcd\nabcde\naef");
   mouse([Pos(1, 2), Pos(2, 3)]);
   mouse([Pos(0, 0), Pos(1, 3), Pos(1, 4)], true);
@@ -194,20 +194,20 @@ testCM("multipleSelections", function(cm) {
   eq(visible(cm.display.cursorsDiv.childNodes), 2);
   mouse([Pos(1, 2), Pos(1, 4)], true);
   mouse([Pos(0, 0), Pos(2)], true);
-  cm.replaceSelections("a", "end");
+  cm.replaceSelection("a", "end");
   eq(cm.getValue(), "a");
   cm.addSelection(Pos(0, 0), Pos(0, 1));
   cm.addSelection(Pos(0, 0), Pos(0, 1));
-  cm.replaceSelections("b", "end");
+  cm.replaceSelection("b", "end");
   eq(cm.getValue(), "b");
-  cm.replaceSelections("cdef\n\nabcd\n\nab\n\nabcd", "end");
+  cm.replaceSelection("cdef\n\nabcd\n\nab\n\nabcd", "end");
   mouseDown(Pos(0, 3), false, true);
   mouseMove(Pos(6, 4), false, true);
   eq(visible(cm.display.selectionDiv.childNodes), 3);
   var coords = cm.cursorCoords(Pos(6, 4), "window");
   cm.triggerOnMouseMove({clientX: coords.left + 10, clientY: coords.top, target: cm.display.wrapper, which: 1, altKey: true});
   cm.triggerOnMouseUp({clientX: coords.left + 10, clientY: coords.top, target: cm.display.wrapper, which: 1, altKey: true});
-  cm.replaceSelections("f");
+  cm.replaceSelection("f");
   eq(cm.getValue(), "bcdf\n\nabcf\n\nab\n\nabcf");
   mouse([Pos(0, 0)]);
   mouseDown(Pos(0, 3), false, true);
@@ -215,22 +215,66 @@ testCM("multipleSelections", function(cm) {
   eq(visible(cm.display.selectionDiv.childNodes), 4);
   mouseMove(Pos(6, 3), false, true);
   mouseUp(Pos(6, 3), false, true);
-  cm.replaceSelections("g", "end");
+  cm.replaceSelection("g", "end");
   eq(cm.getValue(), "bcdgf\ng\nabcgf\ng\nabg\ng\nabcgf");
 }, {value: "a\na\na", multipleSelections: true});
 
 testCM("adjacentSelections", function(cm) {
-  cm.replaceSelections("aa");
+  cm.replaceSelection("aa");
   cm.setOption("multipleSelections", true);
   cm.setSelection(Pos(0, 0), Pos(0, 1));
   cm.addSelection(Pos(0, 1), Pos(0, 2));
-  cm.replaceSelections("b", "end");
-  cm.replaceSelections("c", "end");
+  cm.replaceSelection("b", "end");
+  cm.replaceSelection("c", "end");
   eq(cm.getValue(), "bcbc");
   cm.deleteH(-1, "group");
-  cm.replaceSelections("a");
+  cm.replaceSelection("a");
   eq(cm.getValue(), "a");
 });
+
+testCM("selectiveKeyHandling", function(cm) {
+  cm.setOption("extraKeys", {
+    "Enter": function(cm) {
+      return cm.withSelection(function() {
+        if (cm.getLine(cm.getCursor().line).charAt(0) == "-") cm.replaceSelection("\n- ", "end");
+        else return CodeMirror.Pass;
+      });
+    },
+    "'{'": function(cm) {
+      return cm.withSelection(function() {
+        if (cm.getLine(cm.getCursor().line).charAt(0) == "-") cm.replaceSelection("{}", "end");
+        else return CodeMirror.Pass;
+      });
+    }
+  });
+  cm.addKeyMap({
+    "Enter": function(cm) {
+      return cm.withSelection(function() {
+        if (cm.getLine(cm.getCursor().line).charAt(0) == "*") cm.replaceSelection("\n* ", "end");
+        else return CodeMirror.Pass;
+      });
+    },
+    "'{'": function(cm) {
+      return cm.withSelection(function() {
+        if (cm.getLine(cm.getCursor().line).charAt(0) == "*") cm.replaceSelection("{*}", "end");
+        else return CodeMirror.Pass;
+      });
+    },
+    "Esc": function() {} // Dummy handler to call readInput
+  });
+  cm.setSelection(CodeMirror.Pos(0));
+  cm.addSelection(CodeMirror.Pos(1));
+  cm.addSelection(CodeMirror.Pos(2));
+  cm.triggerOnKeyDown({keyCode: 13});
+  eq(cm.getValue(), "- \n- \n* \n* \n\n");
+  cm.triggerOnKeyPress({charCode: 123});
+  cm.display.input.value += "{";
+  cm.focus(); // Call fastPoll()
+  cm.triggerOnKeyDown({keyCode: 27}); // Call readInput()
+  eq(cm.getValue(), "- \n- {}\n* \n* {*}\n\n{");
+  cm.undo();
+  eq(cm.getValue(), "- \n- \n* \n* \n\n");
+}, {value: "- \n* \n", multipleSelections: true, smartIndent: false});
 
 testCM("lines", function(cm) {
   eq(cm.getLine(0), "111111");

@@ -25,7 +25,10 @@
     (e.g. <code>{|}</code>), it will delete the closing bracket for you.</p>
 
 
-    <form><textarea id="code" name="code">(function() {
+    <form><textarea id="code" name="code">// 
+
+
+(function() {
   var DEFAULT_BRACKETS = "()[]{}''\"\"";
 
   CodeMirror.defineOption("autoCloseBrackets", false, function(cm, val, old) {
@@ -57,7 +60,10 @@
 </textarea></form>
 
     <script type="text/javascript">
-      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {autoCloseBrackets: true});
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        autoCloseBrackets: true,
+        multipleSelections: true
+      });
     </script>
   </body>
 </html>
