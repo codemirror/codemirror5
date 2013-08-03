@@ -1105,9 +1105,9 @@
               if (cursorIsBefore(selectionStart, selectionEnd)) {
                 selectionStart.ch = 0;
 
-                var lineCount = cm.lineCount();
-                if (selectionEnd.line >= lineCount) {
-                  selectionEnd.line = lineCount - 1;
+                var lastLine = cm.lastLine();
+                if (selectionEnd.line > lastLine) {
+                  selectionEnd.line = lastLine;
                 }
                 selectionEnd.ch = lineLength(cm, selectionEnd.line);
               } else {
