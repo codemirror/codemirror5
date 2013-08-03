@@ -9,7 +9,7 @@ CodeMirror.defineMode("velocity", function() {
                               "#{end} #{else} #{break} #{stop}");
     var functions = parseWords("#if #elseif #foreach #set #include #parse #macro #define #evaluate " +
                                "#{if} #{elseif} #{foreach} #{set} #{include} #{parse} #{macro} #{define} #{evaluate}");
-    var specials = parseWords("$foreach.count $foreach.hasNext $foreach.first $foreach.last $foreach.topmost $foreach.parent $velocityCount");
+    var specials = parseWords("$foreach.count $foreach.hasNext $foreach.first $foreach.last $foreach.topmost $foreach.parent $velocitycount $!bodycontent $bodycontent");
     var isOperatorChar = /[+\-*&%=<>!?:\/|]/;
 
     function chain(stream, state, f) {
@@ -66,14 +66,14 @@ CodeMirror.defineMode("velocity", function() {
         }
         else {
             // get the whole word
-            stream.eatWhile(/[\w\$_{}]/);
+            stream.eatWhile(/[\w\$_{}@]/);
             var word = stream.current().toLowerCase();
             // is it one of the listed keywords?
             if (keywords && keywords.propertyIsEnumerable(word))
                 return "keyword";
             // is it one of the listed functions?
             if (functions && functions.propertyIsEnumerable(word) ||
-                stream.current().match(/^#[a-z0-9_]+ *$/i) && stream.peek()=="(") {
+                stream.current().match(/^#@?[a-z0-9_]+ *$/i) && stream.peek()=="(") {
                 state.beforeParams = true;
                 return "keyword";
             }
@@ -137,7 +137,11 @@ CodeMirror.defineMode("velocity", function() {
         token: function(stream, state) {
             if (stream.eatSpace()) return null;
             return state.tokenize(stream, state);
-        }
+        },
+        blockCommentStart: "#*",
+        blockCommentEnd: "*#",
+        lineComment: "##",
+        fold: "velocity"
     };
 });
 

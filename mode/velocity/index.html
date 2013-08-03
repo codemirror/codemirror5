@@ -13,7 +13,10 @@
   <body>
     <h1>CodeMirror: Velocity mode</h1>
     <form><textarea id="code" name="code">
-## Velocity Code Demo
+        #tablerows("red" ["dadsdf","dsa"])
+        #@tablerows("red" ["dadsdf","dsa"]) some body content #end
+
+        ## Velocity Code Demo
 #*
    based on PL/SQL mode by Peter Raganitsch, adapted to Velocity by Steve O'Hara ( http://www.pivotal-solutions.co.uk )
    August 2011
@@ -65,10 +68,12 @@ $someObject.getValues("this is a string split
 #macro( tablerows $color $somelist )
     #foreach( $something in $somelist )
         <tr><td bgcolor=$color>$something</td></tr>
+        <tr><td bgcolor=$color>$bodyContent</td></tr>
     #end
 #end
 
 #tablerows("red" ["dadsdf","dsa"])
+#@tablerows("red" ["dadsdf","dsa"]) some body content #end
 
    Variable reference: #set( $monkey = $bill )
    String literal: #set( $monkey.Friend = 'monica' )
