@@ -441,13 +441,7 @@ CodeMirror.defineMode('rst-base', function (config) {
                 return null;
             }
 
-            try {
-                return state.ctx.mode.token(stream, state.ctx.local);
-            } catch (ex) {
-                change(state, to_normal);
-                console.error (ex);
-                return null;
-            }
+            return state.ctx.mode.token(stream, state.ctx.local);
         }
 
         change(state, to_normal);
