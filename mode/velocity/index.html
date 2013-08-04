@@ -13,10 +13,8 @@
   <body>
     <h1>CodeMirror: Velocity mode</h1>
     <form><textarea id="code" name="code">
-        #tablerows("red" ["dadsdf","dsa"])
-        #@tablerows("red" ["dadsdf","dsa"]) some body content #end
 
-        ## Velocity Code Demo
+## Velocity Code Demo
 #*
    based on PL/SQL mode by Peter Raganitsch, adapted to Velocity by Steve O'Hara ( http://www.pivotal-solutions.co.uk )
    August 2011
@@ -45,7 +43,7 @@
 
 #define( $hello ) Hello $who #end #set( $who = "World!") $hello ## displays Hello World!
 
-#foreach( $customer in $customerList )
+#forEach( $customer in $customerList )
 
     $foreach.count $customer.Name
 
@@ -64,6 +62,8 @@
 
 $someObject.getValues("this is a string split
         across lines")
+
+$someObject("This plus $something in the middle").method(7567).property
 
 #macro( tablerows $color $somelist )
     #foreach( $something in $somelist )

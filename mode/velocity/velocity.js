@@ -9,7 +9,7 @@ CodeMirror.defineMode("velocity", function() {
                               "#{end} #{else} #{break} #{stop}");
     var functions = parseWords("#if #elseif #foreach #set #include #parse #macro #define #evaluate " +
                                "#{if} #{elseif} #{foreach} #{set} #{include} #{parse} #{macro} #{define} #{evaluate}");
-    var specials = parseWords("$foreach.count $foreach.hasNext $foreach.first $foreach.last $foreach.topmost $foreach.parent $velocitycount $!bodycontent $bodycontent");
+    var specials = parseWords("$foreach.count $foreach.hasNext $foreach.first $foreach.last $foreach.topmost $foreach.parent.count $foreach.parent.hasNext $foreach.parent.first $foreach.parent.last $foreach.parent $velocityCount $!bodyContent $bodyContent");
     var isOperatorChar = /[+\-*&%=<>!?:\/|]/;
 
     function chain(stream, state, f) {
@@ -20,64 +20,89 @@ CodeMirror.defineMode("velocity", function() {
         var beforeParams = state.beforeParams;
         state.beforeParams = false;
         var ch = stream.next();
-        // start of string?
-        if ((ch == '"' || ch == "'") && state.inParams)
+        // start of unparsed string?
+        if ((ch == "'") && state.inParams) {
             return chain(stream, state, tokenString(ch));
+        }
+        // start of parsed string?
+        else if ((ch == '"')) {
+            if (state.inString) {
+                state.inString = false;
+                state.tokenize = tokenBase;
+                return "string"
+            }
+            else if (state.inParams)
+                return chain(stream, state, tokenString(ch));
+        }
         // is it one of the special signs []{}().,;? Seperator?
         else if (/[\[\]{}\(\),;\.]/.test(ch)) {
-            if (ch == "(" && beforeParams) state.inParams = true;
+            if (ch == "(" && (beforeParams || state.inFunction)) state.inParams = true;
             else if (ch == ")") state.inParams = false;
             return null;
         }
         // start of a number value?
         else if (/\d/.test(ch)) {
             stream.eatWhile(/[\w\.]/);
+            if (!state.inParams) state.inFunction = false;
             return "number";
         }
         // multi line comment?
         else if (ch == "#" && stream.eat("*")) {
+            state.inFunction = false;
             return chain(stream, state, tokenComment);
         }
         // unparsed content?
         else if (ch == "#" && stream.match(/ *\[ *\[/)) {
+            state.inFunction = false;
             return chain(stream, state, tokenUnparsed);
         }
         // single line comment?
         else if (ch == "#" && stream.eat("#")) {
             stream.skipToEnd();
+            state.inFunction = false;
             return "comment";
         }
         // variable?
         else if (ch == "$") {
             stream.eatWhile(/[\w\d\$_\.{}]/);
             // is it one of the specials?
-            if (specials && specials.propertyIsEnumerable(stream.current().toLowerCase())) {
+            if (specials && specials.propertyIsEnumerable(stream.current())) {
+                if (!state.inParams) state.inFunction = false;
                 return "keyword";
             }
             else {
                 state.beforeParams = true;
+                state.inFunction = true;
                 return "builtin";
             }
         }
         // is it a operator?
         else if (isOperatorChar.test(ch)) {
             stream.eatWhile(isOperatorChar);
+            if (!state.inParams) state.inFunction = false;
             return "operator";
         }
         else {
             // get the whole word
             stream.eatWhile(/[\w\$_{}@]/);
-            var word = stream.current().toLowerCase();
+            var word = stream.current();
             // is it one of the listed keywords?
             if (keywords && keywords.propertyIsEnumerable(word))
                 return "keyword";
             // is it one of the listed functions?
             if (functions && functions.propertyIsEnumerable(word) ||
-                stream.current().match(/^#@?[a-z0-9_]+ *$/i) && stream.peek()=="(") {
+                    (stream.current().match(/^#@?[a-z0-9_]+ *$/i) && stream.peek()=="(") && !(functions && functions.propertyIsEnumerable(word.toLowerCase())))
+            {
                 state.beforeParams = true;
+                state.inFunction = true;
                 return "keyword";
             }
+            if (state.inString)
+                return "string";
+            if (state.inFunction)
+                return "builtin";
             // default: just a "word"
+            state.inFunction = false;
             return null;
         }
     }
@@ -86,7 +111,12 @@ CodeMirror.defineMode("velocity", function() {
         return function(stream, state) {
             var escaped = false, next, end = false;
             while ((next = stream.next()) != null) {
-                if (next == quote && !escaped) {
+                if ((next == quote) && !escaped) {
+                    end = true;
+                    break;
+                }
+                if (quote=='"' && stream.peek() == '$' && !escaped) {
+                    state.inString = true;
                     end = true;
                     break;
                 }
@@ -130,7 +160,9 @@ CodeMirror.defineMode("velocity", function() {
             return {
                 tokenize: tokenBase,
                 beforeParams: false,
-                inParams: false
+                inParams: false,
+                inFunction: false,
+                inString: false
             };
         },
 
