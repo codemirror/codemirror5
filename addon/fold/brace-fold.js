@@ -4,7 +4,7 @@ CodeMirror.registerHelper("fold", "brace", function(cm, start) {
 
   function findOpening(openCh) {
     for (var at = start.ch, pass = 0;;) {
-      var found = lineText.lastIndexOf(openCh, at - 1);
+      var found = at <= 0 ? -1 : lineText.lastIndexOf(openCh, at - 1);
       if (found == -1) {
         if (pass == 1) break;
         pass = 1;
