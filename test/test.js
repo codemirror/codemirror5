@@ -517,6 +517,23 @@ testCM("bookmarkCursor", function(cm) {
   is(cm.cursorCoords(Pos(4, 1)).left > pos41.left, "single-char bug");
 }, {value: "foo\nbar\n\n\nx\ny"});
 
+testCM("multiBookmarkCursor", function(cm) {
+  var ms = [], m;
+  function add(insertLeft) {
+    for (var i = 0; i < 3; ++i) {
+      var node = document.createElement("span");
+      node.innerHTML = "X";
+      ms.push(cm.setBookmark(Pos(0, 1), {widget: node, insertLeft: insertLeft}));
+    }
+  }
+  var base1 = cm.cursorCoords(Pos(0, 1)).left, base4 = cm.cursorCoords(Pos(0, 4)).left;
+  add(true);
+  eq(base1, cm.cursorCoords(Pos(0, 1)).left);
+  while (m = ms.pop()) m.clear();
+  add(false);
+  eq(base4, cm.cursorCoords(Pos(0, 1)).left);
+}, {value: "abcdefg"});
+
 testCM("getAllMarks", function(cm) {
   addDoc(cm, 10, 10);
   var m1 = cm.setBookmark(Pos(0, 2));
