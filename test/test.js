@@ -518,6 +518,7 @@ testCM("bookmarkCursor", function(cm) {
 }, {value: "foo\nbar\n\n\nx\ny"});
 
 testCM("multiBookmarkCursor", function(cm) {
+  if (phantom) return;
   var ms = [], m;
   function add(insertLeft) {
     for (var i = 0; i < 3; ++i) {
