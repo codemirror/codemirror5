@@ -261,7 +261,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
   function attribute(type) {
     if (type == "equals") return cont(attvalue, attributes);
     if (!Kludges.allowMissing) setStyle = "error";
-    else if (type == "word") setStyle = "attribute";
+    else if (type == "word") {setStyle = "attribute"; return cont(attribute, attributes);}
     return (type == "endTag" || type == "selfcloseTag") ? pass() : cont();
   }
   function attvalue(type) {
