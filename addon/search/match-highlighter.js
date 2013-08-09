@@ -15,15 +15,18 @@
 (function() {
   var DEFAULT_MIN_CHARS = 2;
   var DEFAULT_TOKEN_STYLE = "matchhighlight";
+  var DEFAULT_DELAY = 100;
 
   function State(options) {
     if (typeof options == "object") {
       this.minChars = options.minChars;
       this.style = options.style;
       this.showToken = options.showToken;
+      this.delay = options.delay;
     }
     if (this.style == null) this.style = DEFAULT_TOKEN_STYLE;
     if (this.minChars == null) this.minChars = DEFAULT_MIN_CHARS;
+    if (this.delay == null) this.delay = DEFAULT_DELAY;
     this.overlay = this.timeout = null;
   }
 
@@ -45,7 +48,7 @@
   function cursorActivity(cm) {
     var state = cm.state.matchHighlighter;
     clearTimeout(state.timeout);
-    state.timeout = setTimeout(function() {highlightMatches(cm);}, 100);
+    state.timeout = setTimeout(function() {highlightMatches(cm);}, state.delay);
   }
 
   function highlightMatches(cm) {
