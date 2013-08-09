@@ -5,54 +5,82 @@
 // document.
 //
 // The option can be set to true to simply enable it, or to a
-// {minChars, style} object to explicitly configure it. minChars is
-// the minimum amount of characters that should be selected for the
-// behavior to occur, and style is the token style to apply to the
-// matches. This will be prefixed by "cm-" to create an actual CSS
-// class name.
+// {minChars, style, showToken} object to explicitly configure it.
+// minChars is the minimum amount of characters that should be
+// selected for the behavior to occur, and style is the token style to
+// apply to the matches. This will be prefixed by "cm-" to create an
+// actual CSS class name. showToken, when enabled, will cause the
+// current token to be highlighted when nothing is selected.
 
 (function() {
   var DEFAULT_MIN_CHARS = 2;
   var DEFAULT_TOKEN_STYLE = "matchhighlight";
-  
+
   function State(options) {
-    this.minChars = typeof options == "object" && options.minChars || DEFAULT_MIN_CHARS;
-    this.style = typeof options == "object" && options.style || DEFAULT_TOKEN_STYLE;
-    this.overlay = null;
+    if (typeof options == "object") {
+      this.minChars = options.minChars;
+      this.style = options.style;
+      this.showToken = options.showToken;
+    }
+    if (this.style == null) this.style = DEFAULT_TOKEN_STYLE;
+    if (this.minChars == null) this.minChars = DEFAULT_MIN_CHARS;
+    this.overlay = this.timeout = null;
   }
 
   CodeMirror.defineOption("highlightSelectionMatches", false, function(cm, val, old) {
-    var prev = old && old != CodeMirror.Init;
-    if (val && !prev) {
-      cm._matchHighlightState = new State(val);
-      cm.on("cursorActivity", highlightMatches);
-    } else if (!val && prev) {
-      var over = cm._matchHighlightState.overlay;
+    if (old && old != CodeMirror.Init) {
+      var over = cm.state.matchHighlighter.overlay;
       if (over) cm.removeOverlay(over);
-      cm._matchHighlightState = null;
-      cm.off("cursorActivity", highlightMatches);
+      clearTimeout(cm.state.matchHighlighter.timeout);
+      cm.state.matchHighlighter = null;
+      cm.off("cursorActivity", cursorActivity);
+    }
+    if (val) {
+      cm.state.matchHighlighter = new State(val);
+      highlightMatches(cm);
+      cm.on("cursorActivity", cursorActivity);
     }
   });
 
+  function cursorActivity(cm) {
+    var state = cm.state.matchHighlighter;
+    clearTimeout(state.timeout);
+    state.timeout = setTimeout(function() {highlightMatches(cm);}, 100);
+  }
+
   function highlightMatches(cm) {
     cm.operation(function() {
-      var state = cm._matchHighlightState;
+      var state = cm.state.matchHighlighter;
       if (state.overlay) {
         cm.removeOverlay(state.overlay);
         state.overlay = null;
       }
-
-      if (!cm.somethingSelected()) return;
+      if (!cm.somethingSelected() && state.showToken) {
+        var re = state.showToken === true ? /[\w$]/ : state.showToken;
+        var cur = cm.getCursor(), line = cm.getLine(cur.line), start = cur.ch, end = start;
+        while (start && re.test(line.charAt(start - 1))) --start;
+        while (end < line.length && re.test(line.charAt(end))) ++end;
+        if (start < end)
+          cm.addOverlay(state.overlay = makeOverlay(line.slice(start, end), re, state.style));
+        return;
+      }
+      if (cm.getCursor("head").line != cm.getCursor("anchor").line) return;
       var selection = cm.getSelection().replace(/^\s+|\s+$/g, "");
-      if (selection.length < state.minChars) return;
-
-      cm.addOverlay(state.overlay = makeOverlay(selection, state.style));
+      if (selection.length >= state.minChars)
+        cm.addOverlay(state.overlay = makeOverlay(selection, false, state.style));
     });
   }
 
-  function makeOverlay(query, style) {
+  function boundariesAround(stream, re) {
+    return (!stream.start || !re.test(stream.string.charAt(stream.start - 1))) &&
+      (stream.pos == stream.string.length || !re.test(stream.string.charAt(stream.pos)));
+  }
+
+  function makeOverlay(query, hasBoundary, style) {
     return {token: function(stream) {
-      if (stream.match(query)) return style;
+      if (stream.match(query) &&
+          (!hasBoundary || boundariesAround(stream, hasBoundary)))
+        return style;
       stream.next();
       stream.skipTo(query.charAt(0)) || stream.skipToEnd();
     }};

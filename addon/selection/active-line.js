@@ -17,23 +17,23 @@
     } else if (!val && prev) {
       cm.off("cursorActivity", updateActiveLine);
       clearActiveLine(cm);
-      delete cm._activeLine;
+      delete cm.state.activeLine;
     }
   });
-  
+
   function clearActiveLine(cm) {
-    if ("_activeLine" in cm) {
-      cm.removeLineClass(cm._activeLine, "wrap", WRAP_CLASS);
-      cm.removeLineClass(cm._activeLine, "background", BACK_CLASS);
+    if ("activeLine" in cm.state) {
+      cm.removeLineClass(cm.state.activeLine, "wrap", WRAP_CLASS);
+      cm.removeLineClass(cm.state.activeLine, "background", BACK_CLASS);
     }
   }
 
   function updateActiveLine(cm) {
-    var line = cm.getLineHandle(cm.getCursor().line);
-    if (cm._activeLine == line) return;
+    var line = cm.getLineHandleVisualStart(cm.getCursor().line);
+    if (cm.state.activeLine == line) return;
     clearActiveLine(cm);
     cm.addLineClass(line, "wrap", WRAP_CLASS);
     cm.addLineClass(line, "background", BACK_CLASS);
-    cm._activeLine = line;
+    cm.state.activeLine = line;
   }
 })();

@@ -25,6 +25,7 @@
     var inp = dialog.getElementsByTagName("input")[0], button;
     if (inp) {
       CodeMirror.on(inp, "keydown", function(e) {
+        if (options && options.onKeyDown && options.onKeyDown(e, inp.value, close)) { return; }
         if (e.keyCode == 13 || e.keyCode == 27) {
           CodeMirror.e_stop(e);
           close();
@@ -32,6 +33,9 @@
           if (e.keyCode == 13) callback(inp.value);
         }
       });
+      if (options && options.onKeyUp) {
+        CodeMirror.on(inp, "keyup", function(e) {options.onKeyUp(e, inp.value, close);});
+      }
       if (options && options.value) inp.value = options.value;
       inp.focus();
       CodeMirror.on(inp, "blur", close);

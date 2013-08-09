@@ -4,7 +4,7 @@ CodeMirror.defineMode("python", function(conf, parserConf) {
     function wordRegexp(words) {
         return new RegExp("^((" + words.join(")|(") + "))\\b");
     }
-    
+
     var singleOperators = parserConf.singleOperators || new RegExp("^[\\+\\-\\*/%&|\\^~<>!]");
     var singleDelimiters = parserConf.singleDelimiters || new RegExp('^[\\(\\)\\[\\]\\{\\}@,:`=;\\.]');
     var doubleOperators = parserConf.doubleOperators || new RegExp("^((==)|(!=)|(<=)|(>=)|(<>)|(<<)|(>>)|(//)|(\\*\\*))");
@@ -36,6 +36,12 @@ CodeMirror.defineMode("python", function(conf, parserConf) {
     var py3 = {'builtins': ['ascii', 'bytes', 'exec', 'print'],
                'keywords': ['nonlocal', 'False', 'True', 'None']};
 
+    if(parserConf.extra_keywords != undefined){
+        commonkeywords = commonkeywords.concat(parserConf.extra_keywords);
+    }
+    if(parserConf.extra_builtins != undefined){
+        commonBuiltins = commonBuiltins.concat(parserConf.extra_builtins);
+    }
     if (!!parserConf.version && parseInt(parserConf.version, 10) === 3) {
         commonkeywords = commonkeywords.concat(py3.keywords);
         commonBuiltins = commonBuiltins.concat(py3.builtins);
@@ -72,15 +78,15 @@ CodeMirror.defineMode("python", function(conf, parserConf) {
         if (stream.eatSpace()) {
             return null;
         }
-        
+
         var ch = stream.peek();
-        
+
         // Handle Comments
         if (ch === '#') {
             stream.skipToEnd();
             return 'comment';
         }
-        
+
         // Handle Number Literals
         if (stream.match(/^[0-9\.]/, false)) {
             var floatLiteral = false;
@@ -116,13 +122,13 @@ CodeMirror.defineMode("python", function(conf, parserConf) {
                 return 'number';
             }
         }
-        
+
         // Handle Strings
         if (stream.match(stringPrefixes)) {
             state.tokenize = tokenStringFactory(stream.current());
             return state.tokenize(stream, state);
         }
-        
+
         // Handle operators and Delimiters
         if (stream.match(tripleDelimiters) || stream.match(doubleDelimiters)) {
             return null;
@@ -135,31 +141,31 @@ CodeMirror.defineMode("python", function(conf, parserConf) {
         if (stream.match(singleDelimiters)) {
             return null;
         }
-        
+
         if (stream.match(keywords)) {
             return 'keyword';
         }
-        
+
         if (stream.match(builtins)) {
             return 'builtin';
         }
-        
+
         if (stream.match(identifiers)) {
             return 'variable';
         }
-        
+
         // Handle non-detected items
         stream.next();
         return ERRORCLASS;
     }
-    
+
     function tokenStringFactory(delimiter) {
         while ('rub'.indexOf(delimiter.charAt(0).toLowerCase()) >= 0) {
             delimiter = delimiter.substr(1);
         }
         var singleline = delimiter.length == 1;
         var OUTCLASS = 'string';
-        
+
         function tokenString(stream, state) {
             while (!stream.eol()) {
                 stream.eatWhile(/[^'"\\]/);
@@ -187,7 +193,7 @@ CodeMirror.defineMode("python", function(conf, parserConf) {
         tokenString.isString = true;
         return tokenString;
     }
-    
+
     function indent(stream, state, type) {
         type = type || 'py';
         var indentUnit = 0;
@@ -210,7 +216,7 @@ CodeMirror.defineMode("python", function(conf, parserConf) {
             type: type
         });
     }
-    
+
     function dedent(stream, state, type) {
         type = type || 'py';
         if (state.scopes.length == 1) return;
@@ -259,7 +265,7 @@ CodeMirror.defineMode("python", function(conf, parserConf) {
             }
             return style;
         }
-        
+
         // Handle decorators
         if (current === '@') {
             return stream.match(identifiers, false) ? 'meta' : ERRORCLASS;
@@ -269,7 +275,7 @@ CodeMirror.defineMode("python", function(conf, parserConf) {
             && state.lastToken === 'meta') {
             style = 'meta';
         }
-        
+
         // Handle scope changes.
         if (current === 'pass' || current === 'return') {
             state.dedent += 1;
@@ -298,7 +304,7 @@ CodeMirror.defineMode("python", function(conf, parserConf) {
             if (state.scopes.length > 1) state.scopes.shift();
             state.dedent -= 1;
         }
-        
+
         return style;
     }
 
@@ -312,29 +318,41 @@ CodeMirror.defineMode("python", function(conf, parserConf) {
               dedent: 0
           };
         },
-        
+
         token: function(stream, state) {
             var style = tokenLexer(stream, state);
-            
+
             state.lastToken = style;
-            
-            if (stream.eol() && stream.lambda) {
+
+            if (stream.eol() && state.lambda) {
                 state.lambda = false;
             }
-            
+
             return style;
         },
-        
+
         indent: function(state) {
             if (state.tokenize != tokenBase) {
                 return state.tokenize.isString ? CodeMirror.Pass : 0;
             }
-            
+
             return state.scopes[0].offset;
-        }
-        
+        },
+
+        lineComment: "#",
+        fold: "indent"
     };
     return external;
 });
 
 CodeMirror.defineMIME("text/x-python", "python");
+
+var words = function(str){return str.split(' ');};
+
+
+CodeMirror.defineMIME("text/x-cython", {
+  name: "python",
+  extra_keywords: words("by cdef cimport cpdef ctypedef enum except"+
+                        "extern gil include nogil property public"+
+                        "readonly struct union DEF IF ELIF ELSE")
+});

@@ -1,10 +1,10 @@
 CodeMirror.defineMode("vb", function(conf, parserConf) {
     var ERRORCLASS = 'error';
-    
+
     function wordRegexp(words) {
         return new RegExp("^((" + words.join(")|(") + "))\\b", "i");
     }
-    
+
     var singleOperators = new RegExp("^[\\+\\-\\*/%&\\\\|\\^~<>!]");
     var singleDelimiters = new RegExp('^[\\(\\)\\[\\]\\{\\}@,:`=;\\.]');
     var doubleOperators = new RegExp("^((==)|(<>)|(<=)|(>=)|(<>)|(<<)|(>>)|(//)|(\\*\\*))");
@@ -15,9 +15,9 @@ CodeMirror.defineMode("vb", function(conf, parserConf) {
     var openingKeywords = ['class','module', 'sub','enum','select','while','if','function',  'get','set','property', 'try'];
     var middleKeywords = ['else','elseif','case', 'catch'];
     var endKeywords = ['next','loop'];
-   
+
     var wordOperators = wordRegexp(['and', 'or', 'not', 'xor', 'in']);
-    var commonkeywords = ['as', 'dim', 'break',  'continue','optional', 'then',  'until', 
+    var commonkeywords = ['as', 'dim', 'break',  'continue','optional', 'then',  'until',
                           'goto', 'byval','byref','new','handles','property', 'return',
                           'const','private', 'protected', 'friend', 'public', 'shared', 'static', 'true','false'];
     var commontypes = ['integer','string','double','decimal','boolean','short','char', 'float','single'];
@@ -34,13 +34,13 @@ CodeMirror.defineMode("vb", function(conf, parserConf) {
 
     var indentInfo = null;
 
-   
+
 
 
     function indent(_stream, state) {
       state.currentIndent++;
     }
-    
+
     function dedent(_stream, state) {
       state.currentIndent--;
     }
@@ -49,16 +49,16 @@ CodeMirror.defineMode("vb", function(conf, parserConf) {
         if (stream.eatSpace()) {
             return null;
         }
-        
+
         var ch = stream.peek();
-        
+
         // Handle Comments
         if (ch === "'") {
             stream.skipToEnd();
             return 'comment';
         }
-        
-        
+
+
         // Handle Number Literals
         if (stream.match(/^((&H)|(&O))?[0-9\.a-f]/i, false)) {
             var floatLiteral = false;
@@ -66,7 +66,7 @@ CodeMirror.defineMode("vb", function(conf, parserConf) {
             if (stream.match(/^\d*\.\d+F?/i)) { floatLiteral = true; }
             else if (stream.match(/^\d+\.\d*F?/)) { floatLiteral = true; }
             else if (stream.match(/^\.\d+F?/)) { floatLiteral = true; }
-            
+
             if (floatLiteral) {
                 // Float literals may be "imaginary"
                 stream.eat(/J/i);
@@ -93,13 +93,13 @@ CodeMirror.defineMode("vb", function(conf, parserConf) {
                 return 'number';
             }
         }
-        
+
         // Handle Strings
         if (stream.match(stringPrefixes)) {
             state.tokenize = tokenStringFactory(stream.current());
             return state.tokenize(stream, state);
         }
-        
+
         // Handle operators and Delimiters
         if (stream.match(tripleDelimiters) || stream.match(doubleDelimiters)) {
             return null;
@@ -137,28 +137,28 @@ CodeMirror.defineMode("vb", function(conf, parserConf) {
             dedent(stream,state);
             return 'keyword';
         }
-        
+
         if (stream.match(types)) {
             return 'keyword';
         }
-        
+
         if (stream.match(keywords)) {
             return 'keyword';
         }
-        
+
         if (stream.match(identifiers)) {
             return 'variable';
         }
-        
+
         // Handle non-detected items
         stream.next();
         return ERRORCLASS;
     }
-    
+
     function tokenStringFactory(delimiter) {
         var singleline = delimiter.length == 1;
         var OUTCLASS = 'string';
-        
+
         return function(stream, state) {
             while (!stream.eol()) {
                 stream.eatWhile(/[^'"]/);
@@ -179,7 +179,7 @@ CodeMirror.defineMode("vb", function(conf, parserConf) {
             return OUTCLASS;
         };
     }
-    
+
 
     function tokenLexer(stream, state) {
         var style = state.tokenize(stream, state);
@@ -195,8 +195,8 @@ CodeMirror.defineMode("vb", function(conf, parserConf) {
                 return ERRORCLASS;
             }
         }
-        
-        
+
+
         var delimiter_index = '[({'.indexOf(current);
         if (delimiter_index !== -1) {
             indent(stream, state );
@@ -212,7 +212,7 @@ CodeMirror.defineMode("vb", function(conf, parserConf) {
                 return ERRORCLASS;
             }
         }
-        
+
         return style;
     }
 
@@ -229,7 +229,7 @@ CodeMirror.defineMode("vb", function(conf, parserConf) {
 
           };
         },
-        
+
         token: function(stream, state) {
             if (stream.sol()) {
               state.currentIndent += state.nextLineIndent;
@@ -237,24 +237,23 @@ CodeMirror.defineMode("vb", function(conf, parserConf) {
               state.doInCurrentLine = 0;
             }
             var style = tokenLexer(stream, state);
-            
+
             state.lastToken = {style:style, content: stream.current()};
-            
-            
-            
+
+
+
             return style;
         },
-        
+
         indent: function(state, textAfter) {
             var trueText = textAfter.replace(/^\s+|\s+$/g, '') ;
             if (trueText.match(closing) || trueText.match(doubleClosing) || trueText.match(middle)) return conf.indentUnit*(state.currentIndent-1);
             if(state.currentIndent < 0) return 0;
             return state.currentIndent * conf.indentUnit;
         }
-        
+
     };
     return external;
 });
 
 CodeMirror.defineMIME("text/x-vb", "vb");
-

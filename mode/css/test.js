@@ -1,6 +1,6 @@
 (function() {
   var mode = CodeMirror.getMode({tabSize: 4}, "css");
-  function MT(name) { test.mode(name, mode, Array.prototype.slice.call(arguments, 2)); }
+  function MT(name) { test.mode(name, mode, Array.prototype.slice.call(arguments, 1)); }
 
   // Requires at least one media query
   MT("atMediaEmpty",
@@ -14,6 +14,12 @@
 
   MT("atMediaCheckStack",
      "[def @media] [attribute screen] ([property color]) { } [tag foo] { }");
+
+  MT("atMediaPropertyOnly",
+     "[def @media] ([property color]) { } [tag foo] { }");
+
+  MT("atMediaCheckStackInvalidAttribute",
+     "[def @media] [attribute&error foobarhello] { [tag foo] { } }");
 
   MT("atMediaCheckStackInvalidAttribute",
      "[def @media] [attribute&error foobarhello] { } [tag foo] { }");
@@ -53,6 +59,10 @@
   MT("atMediaUnknownProperty",
      "[def @media] [attribute screen] [operator and] ([property&error foobarhello]) { }");
 
+  // Make sure nesting works with media queries
+  MT("atMediaMaxWidthNested",
+     "[def @media] [attribute screen] [operator and] ([property max-width][operator :] [number 25px]) { [tag foo] { } }");
+
   MT("tagSelector",
      "[tag foo] { }");
 
@@ -75,7 +85,11 @@
      "[tag foo] { [property font-family][operator :] [string 'hello world']; }");
 
   MT("tagColorKeyword",
-     "[tag foo] { [property color][operator :] [keyword black]; }");
+     "[tag foo] {" +
+       "[property color][operator :] [keyword black];" +
+       "[property color][operator :] [keyword navy];" +
+       "[property color][operator :] [keyword yellow];" +
+       "}");
 
   MT("tagColorHex3",
      "[tag foo] { [property background][operator :] [atom #fff]; }");
@@ -103,4 +117,10 @@
 
   MT("tagTwoProperties",
      "[tag foo] { [property margin][operator :] [number 0]; [property padding][operator :] [number 0]; }");
+
+  MT("tagTwoPropertiesURL",
+     "[tag foo] { [property background][operator :] [string-2 url]([string //example.com/foo.png]); [property padding][operator :] [number 0]; }");
+
+  MT("commentSGML",
+     "[comment <!--comment-->]");
 })();

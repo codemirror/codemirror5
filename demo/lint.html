@@ -7,7 +7,7 @@
     <script src="../lib/codemirror.js"></script>
     <script src="../mode/javascript/javascript.js"></script>
     <script src="http://ajax.aspnetcdn.com/ajax/jshint/r07/jshint.js"></script>
-    <script src="https://raw.github.com/zaach/jsonlint/79b553fb65c192add9066da64043458981b3972b/lib/jsonlint.js"></script>
+    <script src="https://rawgithub.com/zaach/jsonlint/79b553fb65c192add9066da64043458981b3972b/lib/jsonlint.js"></script>
     <link rel="stylesheet" href="../doc/docs.css">
     <link rel="stylesheet" href="../addon/lint/lint.css">
     <script src="../addon/lint/lint.js"></script>
@@ -75,14 +75,14 @@ function updateHints() {
     lineNumbers: true,
     mode: "javascript",
     gutters: ["CodeMirror-lint-markers"],
-    lintWith: CodeMirror.javascriptValidator
+    lint: true
   });
 
   var editor_json = CodeMirror.fromTextArea(document.getElementById("code-json"), {
     lineNumbers: true,
     mode: "application/json",
     gutters: ["CodeMirror-lint-markers"],
-    lintWith: CodeMirror.jsonValidator
+    lint: true
   });
 </script>
 

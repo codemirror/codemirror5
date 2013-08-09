@@ -5,8 +5,6 @@
         <title>SQL Mode for CodeMirror</title>
         <link rel="stylesheet" href="../../lib/codemirror.css" />
         <script src="../../lib/codemirror.js"></script>
-        <script src="../../lib/codemirror.js"></script>
-        <script src="../../lib/util/continuelist.js"></script>
         <script src="sql.js"></script>
         <style>
 .CodeMirror {
@@ -44,7 +42,8 @@ SELECT SQL_NO_CACHE DISTINCT
 		1.1 AS `float_val`, .14 AS `another_float`, 0.09e3 AS `int_with_esp`,
 		0xFA5 AS `hex`, x'fa5' AS `hex2`, 0b101 AS `bin`, b'101' AS `bin2`,
 		DATE '1994-01-01' AS `sql_date`, { T "1994-01-01" } AS `odbc_date`,
-		'myString', UNKNOWN
+		'my string', _utf8'your string', N'her string',
+        TRUE, FALSE, UNKNOWN
 	FROM DUAL
 	-- space needed after '--'
 	# 1 line comment
@@ -57,6 +56,7 @@ SELECT SQL_NO_CACHE DISTINCT
             <code><a href="?mime=text/x-sql">text/x-sql</a></code>,
             <code><a href="?mime=text/x-mysql">text/x-mysql</a></code>,
             <code><a href="?mime=text/x-mariadb">text/x-mariadb</a></code>,
+            <code><a href="?mime=text/x-cassandra">text/x-cassandra</a></code>,
             <code><a href="?mime=text/x-plsql">text/x-plsql</a></code>.
         </p>
         <p>

@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>CodeMirror: Tag Matcher Demo</title>
+    <link rel="stylesheet" href="../lib/codemirror.css">
+    <script src="../lib/codemirror.js"></script>
+    <script src="../addon/fold/xml-fold.js"></script>
+    <script src="../addon/edit/matchtags.js"></script>
+    <script src="../mode/xml/xml.js"></script>
+    <link rel="stylesheet" href="../doc/docs.css">
+
+    <style type="text/css">
+      .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}
+      .CodeMirror-matchingtag { background: rgba(255, 150, 0, .3); }
+    </style>
+  </head>
+  <body>
+    <h1>CodeMirror: Tag Matcher Demo</h1>
+
+    <div id="editor"></div>
+
+    <script>
+window.onload = function() {
+  editor = CodeMirror(document.getElementById("editor"), {
+    value: "<html>\n  " + document.documentElement.innerHTML + "\n</html>",
+    mode: "text/html",
+    matchTags: true,
+    extraKeys: {"Ctrl-J": "toMatchingTag"}
+  });
+};
+    </script>
+
+    <p>Put the cursor on or inside a pair of tags to highlight them.
+    Press Ctrl-J to jump to the tag that matches the one under the
+    cursor.</p>
+  </body>
+</html>

@@ -56,6 +56,8 @@ should be asked on the
   test suite under `mode/XXX/test.js`. Feel free to add new test
   suites to modes that don't have one yet (be sure to link the new
   tests into `test/index.html`).
+- Follow the general code style of the rest of the project (see
+  below). Run `bin/lint` to verify that the linter is happy.
 - Make sure all tests pass. Visit `test/index.html` in your browser to
   run them.
 - Submit a pull request
@@ -65,6 +67,6 @@ should be asked on the
 
 - 2 spaces per indentation level, no tabs.
 - Include semicolons after statements.
-- Note that the linter (`test/lint/lint.js`) which is run after each
-  commit complains about unused variables and functions. Prefix their
-  names with an underscore to muffle it.
+- Note that the linter (`bin/lint`) which is run after each commit
+  complains about unused variables and functions. Prefix their names
+  with an underscore to muffle it.

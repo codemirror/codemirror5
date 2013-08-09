@@ -1,140 +1,197 @@
+/**
+ * Smarty 2 and 3 mode.
+ */
 CodeMirror.defineMode("smarty", function(config) {
-  var keyFuncs = ["debug", "extends", "function", "include", "literal"];
+  "use strict";
+
+  // our default settings; check to see if they're overridden
+  var settings = {
+    rightDelimiter: '}',
+    leftDelimiter: '{',
+    smartyVersion: 2 // for backward compatibility
+  };
+  if (config.hasOwnProperty("leftDelimiter")) {
+    settings.leftDelimiter = config.leftDelimiter;
+  }
+  if (config.hasOwnProperty("rightDelimiter")) {
+    settings.rightDelimiter = config.rightDelimiter;
+  }
+  if (config.hasOwnProperty("smartyVersion") && config.smartyVersion === 3) {
+    settings.smartyVersion = 3;
+  }
+
+  var keyFunctions = ["debug", "extends", "function", "include", "literal"];
   var last;
   var regs = {
     operatorChars: /[+\-*&%=<>!?]/,
-    validIdentifier: /[a-zA-Z0-9\_]/,
-    stringChar: /[\'\"]/
+    validIdentifier: /[a-zA-Z0-9_]/,
+    stringChar: /['"]/
   };
-  var leftDelim = (typeof config.mode.leftDelimiter != 'undefined') ? config.mode.leftDelimiter : "{";
-  var rightDelim = (typeof config.mode.rightDelimiter != 'undefined') ? config.mode.rightDelimiter : "}";
-  function ret(style, lst) { last = lst; return style; }
 
-
-  function tokenizer(stream, state) {
-    function chain(parser) {
+  var helpers = {
+    cont: function(style, lastType) {
+      last = lastType;
+      return style;
+    },
+    chain: function(stream, state, parser) {
       state.tokenize = parser;
       return parser(stream, state);
     }
+  };
 
-    if (stream.match(leftDelim, true)) {
-      if (stream.eat("*")) {
-        return chain(inBlock("comment", "*" + rightDelim));
-      }
-      else {
-        state.tokenize = inSmarty;
-        return "tag";
-      }
-    }
-    else {
-      // I'd like to do an eatWhile() here, but I can't get it to eat only up to the rightDelim string/char
-      stream.next();
-      return null;
-    }
-  }
 
-  function inSmarty(stream, state) {
-    if (stream.match(rightDelim, true)) {
-      state.tokenize = tokenizer;
-      return ret("tag", null);
-    }
+  // our various parsers
+  var parsers = {
 
-    var ch = stream.next();
-    if (ch == "$") {
-      stream.eatWhile(regs.validIdentifier);
-      return ret("variable-2", "variable");
-    }
-    else if (ch == ".") {
-      return ret("operator", "property");
-    }
-    else if (regs.stringChar.test(ch)) {
-      state.tokenize = inAttribute(ch);
-      return ret("string", "string");
-    }
-    else if (regs.operatorChars.test(ch)) {
-      stream.eatWhile(regs.operatorChars);
-      return ret("operator", "operator");
-    }
-    else if (ch == "[" || ch == "]") {
-      return ret("bracket", "bracket");
-    }
-    else if (/\d/.test(ch)) {
-      stream.eatWhile(/\d/);
-      return ret("number", "number");
-    }
-    else {
-      if (state.last == "variable") {
-        if (ch == "@") {
-          stream.eatWhile(regs.validIdentifier);
-          return ret("property", "property");
+    // the main tokenizer
+    tokenizer: function(stream, state) {
+      if (stream.match(settings.leftDelimiter, true)) {
+        if (stream.eat("*")) {
+          return helpers.chain(stream, state, parsers.inBlock("comment", "*" + settings.rightDelimiter));
+        } else {
+          // Smarty 3 allows { and } surrounded by whitespace to NOT slip into Smarty mode
+          state.depth++;
+          var isEol = stream.eol();
+          var isFollowedByWhitespace = /\s/.test(stream.peek());
+          if (settings.smartyVersion === 3 && settings.leftDelimiter === "{" && (isEol || isFollowedByWhitespace)) {
+            state.depth--;
+            return null;
+          } else {
+            state.tokenize = parsers.smarty;
+            last = "startTag";
+            return "tag";
+          }
         }
-        else if (ch == "|") {
-          stream.eatWhile(regs.validIdentifier);
-          return ret("qualifier", "modifier");
-        }
-      }
-      else if (state.last == "whitespace") {
-        stream.eatWhile(regs.validIdentifier);
-        return ret("attribute", "modifier");
-      }
-      else if (state.last == "property") {
-        stream.eatWhile(regs.validIdentifier);
-        return ret("property", null);
-      }
-      else if (/\s/.test(ch)) {
-        last = "whitespace";
+      } else {
+        stream.next();
         return null;
       }
+    },
 
-      var str = "";
-      if (ch != "/") {
-    	str += ch;
-      }
-      var c = "";
-      while ((c = stream.eat(regs.validIdentifier))) {
-        str += c;
-      }
-      var i, j;
-      for (i=0, j=keyFuncs.length; i<j; i++) {
-        if (keyFuncs[i] == str) {
-          return ret("keyword", "keyword");
+    // parsing Smarty content
+    smarty: function(stream, state) {
+      if (stream.match(settings.rightDelimiter, true)) {
+        if (settings.smartyVersion === 3) {
+          state.depth--;
+          if (state.depth <= 0) {
+            state.tokenize = parsers.tokenizer;
+          }
+        } else {
+          state.tokenize = parsers.tokenizer;
         }
+        return helpers.cont("tag", null);
       }
-      if (/\s/.test(ch)) {
-    	return null;
+
+      if (stream.match(settings.leftDelimiter, true)) {
+        state.depth++;
+        return helpers.cont("tag", "startTag");
       }
-      return ret("tag", "tag");
+
+      var ch = stream.next();
+      if (ch == "$") {
+        stream.eatWhile(regs.validIdentifier);
+        return helpers.cont("variable-2", "variable");
+      } else if (ch == "|") {
+        return helpers.cont("operator", "pipe");
+      } else if (ch == ".") {
+        return helpers.cont("operator", "property");
+      } else if (regs.stringChar.test(ch)) {
+        state.tokenize = parsers.inAttribute(ch);
+        return helpers.cont("string", "string");
+      } else if (regs.operatorChars.test(ch)) {
+        stream.eatWhile(regs.operatorChars);
+        return helpers.cont("operator", "operator");
+      } else if (ch == "[" || ch == "]") {
+        return helpers.cont("bracket", "bracket");
+      } else if (ch == "(" || ch == ")") {
+        return helpers.cont("bracket", "operator");
+      } else if (/\d/.test(ch)) {
+        stream.eatWhile(/\d/);
+        return helpers.cont("number", "number");
+      } else {
+
+        if (state.last == "variable") {
+          if (ch == "@") {
+            stream.eatWhile(regs.validIdentifier);
+            return helpers.cont("property", "property");
+          } else if (ch == "|") {
+            stream.eatWhile(regs.validIdentifier);
+            return helpers.cont("qualifier", "modifier");
+          }
+        } else if (state.last == "pipe") {
+          stream.eatWhile(regs.validIdentifier);
+          return helpers.cont("qualifier", "modifier");
+        } else if (state.last == "whitespace") {
+          stream.eatWhile(regs.validIdentifier);
+          return helpers.cont("attribute", "modifier");
+        } if (state.last == "property") {
+          stream.eatWhile(regs.validIdentifier);
+          return helpers.cont("property", null);
+        } else if (/\s/.test(ch)) {
+          last = "whitespace";
+          return null;
+        }
+
+        var str = "";
+        if (ch != "/") {
+          str += ch;
+        }
+        var c = null;
+        while (c = stream.eat(regs.validIdentifier)) {
+          str += c;
+        }
+        for (var i=0, j=keyFunctions.length; i<j; i++) {
+          if (keyFunctions[i] == str) {
+            return helpers.cont("keyword", "keyword");
+          }
+        }
+        if (/\s/.test(ch)) {
+          return null;
+        }
+        return helpers.cont("tag", "tag");
+      }
+    },
+
+    inAttribute: function(quote) {
+      return function(stream, state) {
+        var prevChar = null;
+        var currChar = null;
+        while (!stream.eol()) {
+          currChar = stream.peek();
+          if (stream.next() == quote && prevChar !== '\\') {
+            state.tokenize = parsers.smarty;
+            break;
+          }
+          prevChar = currChar;
+        }
+        return "string";
+      };
+    },
+
+    inBlock: function(style, terminator) {
+      return function(stream, state) {
+        while (!stream.eol()) {
+          if (stream.match(terminator)) {
+            state.tokenize = parsers.tokenizer;
+            break;
+          }
+          stream.next();
+        }
+        return style;
+      };
     }
-  }
+  };
 
-  function inAttribute(quote) {
-    return function(stream, state) {
-      while (!stream.eol()) {
-        if (stream.next() == quote) {
-          state.tokenize = inSmarty;
-          break;
-        }
-      }
-      return "string";
-    };
-  }
 
-  function inBlock(style, terminator) {
-    return function(stream, state) {
-      while (!stream.eol()) {
-        if (stream.match(terminator)) {
-          state.tokenize = tokenizer;
-          break;
-        }
-        stream.next();
-      }
-      return style;
-    };
-  }
-
+  // the public API for CodeMirror
   return {
     startState: function() {
-      return { tokenize: tokenizer, mode: "smarty", last: null };
+      return {
+        tokenize: parsers.tokenizer,
+        mode: "smarty",
+        last: null,
+        depth: 0
+      };
     },
     token: function(stream, state) {
       var style = state.tokenize(stream, state);

@@ -40,6 +40,7 @@
       <li><a href="mode/coffeescript/index.html">CoffeeScript</a></li>
       <li><a href="mode/commonlisp/index.html">Common Lisp</a></li>
       <li><a href="mode/css/index.html">CSS</a></li>
+      <li><a href="mode/python/index.html">Cython</a></li>
       <li><a href="mode/d/index.html">D</a></li>
       <li><a href="mode/diff/index.html">diff</a></li>
       <li><a href="mode/ecl/index.html">ECL</a></li>
@@ -120,28 +121,30 @@
     <h2>Real-world uses:</h2>
 
     <ul>
-      <li><a href="http://jsbin.com">jsbin.com</a> (JS playground)</li>
-      <li><a href="http://www.chris-granger.com/2012/04/12/light-table---a-new-ide-concept/">Light Table</a> (experimental IDE)</li>
-      <li><a href="http://brackets.io">Adobe Brackets</a> (code editor)</li>
-      <li><a href="http://www.mergely.com/">Mergely</a> (interactive diffing)</li>
+      <li><a href="http://www.chris-granger.com/2012/04/12/light-table---a-new-ide-concept/">Light Table</a></li>
+      <li><a href="http://brackets.io">Adobe Brackets</a></li>
+      <li><a href="https://www.webkit.org/blog/2518/state-of-web-inspector/#source-code">WebKit Web inspector</a></li>
+      <li><a href="http://jsbin.com">jsbin.com</a></li>
+      <li><a href="http://jsfiddle.net">jsfiddle.net</a></li>
+      <li><a href="http://blog.bitbucket.org/2013/05/14/edit-your-code-in-the-cloud-with-bitbucket/">Bitbucket</a></li>
       <li><a href="https://script.google.com/">Google Apps Script</a></li>
-      <li><a href="https://github.com/github/android">GitHub's Android app</a></li>
-      <li><a href="http://eloquentjavascript.net/chapter1.html">Eloquent JavaScript</a> (book)</li>
-      <li><a href="http://emmet.io">Emmet</a> (fast XML editing)</li>
-      <li><a href="http://paperjs.org/">Paper.js</a> (graphics scripting)</li>
-      <li><a href="http://codev.it/">Codev</a> (collaborative IDE)</li>
-      <li><a href="http://enjalot.com/tributary/2636296/sinwaves.js">Tributary</a> (augmented editing)</li>
-      <li><a href="http://prose.io/">Prose.io</a> (github content editor)</li>
-      <li><a href="http://www.wescheme.org/">WeScheme</a> (learning tool)</li>
+      <li><a href="http://eloquentjavascript.net/chapter1.html">Eloquent JavaScript</a></li>
+      <li><a href="http://emmet.io">Emmet</a></li>
+      <li><a href="http://prose.io/">Prose.io</a></li>
+      <li><a href="https://upsource.jetbrains.com/#idea/view/923f30395f2603cd9f42a32bcafd13b6c28de0ff/plugins/groovy/src/org/jetbrains/plugins/groovy/intentions/style/ReplaceAbstractClassInstanceByMapIntention.java">Upsource</a></li>
+      <li><a href="http://paperjs.org/">Paper.js</a></li>
+      <li><a href="http://codev.it/">Codev</a></li>
+      <li><a href="http://enjalot.com/tributary/2636296/sinwaves.js">Tributary</a></li>
+      <li><a href="http://www.wescheme.org/">WeScheme</a></li>
+      <li><a href="http://www.mergely.com/">Mergely</a></li>
       <li><a href="http://webglplayground.net/">WebGL playground</a></li>
-      <li><a href="http://ql.io/">ql.io</a> (http API query helper)</li>
-      <li><a href="https://thefiletree.com">The File Tree</a> (collab editor)</li>
-      <li><a href="http://www.jshint.com/">JSHint</a> (JS linter)</li>
-      <li><a href="http://sqlfiddle.com">SQLFiddle</a> (SQL playground)</li>
-      <li><a href="http://try.haxe.org">Try Haxe</a> (Haxe Playground) </li>
-      <li><a href="http://cssdeck.com/">CSSDeck</a> (CSS showcase)</li>
+      <li><a href="https://thefiletree.com">The File Tree</a></li>
+      <li><a href="http://www.jshint.com/">JSHint</a></li>
+      <li><a href="http://sqlfiddle.com">SQLFiddle</a></li>
+      <li><a href="http://cssdeck.com/">CSSDeck</a></li>
       <li><a href="http://www.sketchpatch.net/labs/livecodelabIntro.html">sketchPatch Livecodelab</a></li>
-      <li><a href="https://notex.ch">NoTex</a> (rST authoring)</li>
+      <li><a href="https://notex.ch">NoTex</a></li>
+      <li><a href="https://github.com/github/android">GitHub's Android app</a></li>
       <li><a href="doc/realworld.html">More...</a></li>
     </ul>
 
@@ -212,20 +215,17 @@
     <li>Chrome, any version</li>
     <li>Safari 5.2 or higher</li>
     <li>Opera 9 or higher (with some key-handling problems on OS X)</li>
-    <li>Internet Explorer 8 or higher in standards mode<br>
-      <em>(<strong>Not</strong> quirks mode. But quasi-standards mode with a
-      transitional doctype is also flaky. <code>&lt;!doctype
-      html></code> is recommended.)</em></li>
+    <li>Internet Explorer 8 or higher<br>
     <li>Internet Explorer 7 (standards mode) is usable, but buggy. It
     has a <a href="http://therealcrisp.xs4all.nl/meuk/IE-zindexbug.html">z-index
     bug</a> that prevents CodeMirror from working properly.</li>
   </ul>
 
-  <p>I am not actively testing against every new browser release, and
-  vendors have a habit of introducing bugs all the time, so I am
-  relying on the community to tell me when something breaks.
-  See <a href="#support">here</a> for information on how to contact
-  me.</p>
+  <p>Note that CodeMirror is only supported in
+  <strong>standards</strong> mode. So not quirks mode,
+  but <em>also</em> not the quasi-standards mode that IE gives you
+  when you specify a transitional doctype. Simply using the
+  HTML5-style <code>&lt;!doctype html></code> is recommended.</li>
 
   <p>Mobile browsers mostly kind of work, but, because of limitations
   and their fundamentally different UI assumptions, show a lot of
@@ -262,8 +262,9 @@
     (<span onclick="document.getElementById('paypal').submit();"
     class="quasilink">Paypal</span>,
     <span onclick="document.getElementById('bankinfo').style.display = 'block';"
-           class="quasilink">bank</span>, or
-    <a href="https://www.gittip.com/marijnh">Gittip</a>)</li>
+           class="quasilink">bank</span>,
+    <a href="https://www.gittip.com/marijnh">Gittip</a>, or
+    <a href="https://flattr.com/profile/marijnh">Flattr</a>)</li>
     <li>Purchase <a href="#commercial">commercial support</a></li>
   </ul>
 
@@ -284,6 +285,93 @@
   </ul>
 
   <h2 id=releases>Releases</h2>
+
+  <p class="rel">29-07-2013: <a href="http://codemirror.net/codemirror-3.15.zip">Version 3.15</a>:</p>
+
+  <ul class="rel-note">
+    <li>New modes: <a href="mode/jade/index.html">Jade</a>, <a href="mode/nginx/index.html">Nginx</a>.</li>
+    <li>New addons: <a href="demo/tern.html">Tern</a>, <a href="doc/manual.html#addon_matchtags">matchtags</a>, and <a href="doc/manual.html#addon_foldgutter">foldgutter</a>.</li>
+    <li>Introduced <a href="doc/manual.html#getHelper"><em>helper</em></a> concept (<a href="https://groups.google.com/forum/#!msg/codemirror/cOc0xvUUEUU/nLrX1-qnidgJ">context</a>).</li>
+    <li>New method: <a href="doc/manual.html#getModeAt"><code>getModeAt</code></a>.</li>
+    <li>New themes: base16 <a href="demo/theme.html?base16-dark">dark</a>/<a href="demo/theme.html?base16-light">light</a>, 3024 <a href="demo/theme.html?3024-night">dark</a>/<a href="demo/theme.html?3024-day">light</a>, <a href="demo/theme.html?tomorrow-night-eighties">tomorrow-night</a>.</li>
+    <li>Full <a href="https://github.com/marijnh/CodeMirror/compare/3.14.0...3.15.0">list of patches</a>.</li>
+  </ul>
+
+  <p class="rel">20-06-2013: <a href="http://codemirror.net/codemirror-3.14.zip">Version 3.14</a>:</p>
+
+  <ul class="rel-note">
+    <li>New
+    addons: <a href="doc/manual.html#addon_trailingspace">trailing
+    space highlight</a>, <a href="doc/manual.html#addon_xml-hint">XML
+    completion</a> (rewritten),
+    and <a href="doc/manual.html#addon_merge">diff merging</a>.</li>
+    <li><a href="doc/manual.html#markText"><code>markText</code></a>
+    and <a href="doc/manual.html#addLineWidget"><code>addLineWidget</code></a>
+    now take a <code>handleMouseEvents</code> option.</li>
+    <li>New methods: <a href="doc/manual.html#lineAtHeight"><code>lineAtHeight</code></a>,
+    <a href="doc/manual.html#getTokenTypeAt"><code>getTokenTypeAt</code></a>.</li>
+    <li>More precise cleanness-tracking
+    using <a href="doc/manual.html#changeGeneration"><code>changeGeneration</code></a>
+    and <a href="doc/manual.html#isClean"><code>isClean</code></a>.</li>
+    <li>Many extensions to <a href="demo/emacs.html">Emacs</a> mode
+    (prefixes, more navigation units, and more).</li>
+    <li>New
+    events <a href="doc/manual.html#event_keyHandled"><code>"keyHandled"</code></a>
+    and <a href="doc/manual.html#event_inputRead"><code>"inputRead"</code></a>.</li>
+    <li>Various improvements to <a href="mode/ruby/index.html">Ruby</a>,
+    <a href="mode/smarty/index.html">Smarty</a>, <a href="mode/sql/index.html">SQL</a>,
+    and <a href="demo/vim.html">Vim</a> modes.</li>
+    <li>Full <a href="https://github.com/marijnh/CodeMirror/compare/3.13.0...3.14.0">list of patches</a>.</li>
+  </ul>
+
+  <p class="rel">20-05-2013: <a href="http://codemirror.net/codemirror-3.13.zip">Version 3.13</a>:</p>
+
+  <ul class="rel-note">
+    <li>New modes: <a href="mode/cobol/index.html">COBOL</a> and <a href="mode/haml/index.html">HAML</a>.</li>
+    <li>New options: <a href="doc/manual.html#option_cursorScrollMargin"><code>cursorScrollMargin</code></a> and <a href="doc/manual.html#option_coverGutterNextToScrollbar"><code>coverGutterNextToScrollbar</code></a>.</li>
+    <li>New addon: <a href="doc/manual.html#addon_comment">commenting</a>.</li>
+    <li>More features added to the <a href="demo/vim.html">Vim keymap</a>.</li>
+    <li>Full <a href="https://github.com/marijnh/CodeMirror/compare/v3.12...3.13.0">list of patches</a>.</li>
+  </ul>
+
+  <p class="rel">19-04-2013: <a href="http://codemirror.net/codemirror-3.12.zip">Version 3.12</a>:</p>
+
+  <ul class="rel-note">
+    <li>New mode: <a href="mode/gas/index.html">GNU assembler</a>.</li>
+    <li>New
+    options: <a href="doc/manual.html#option_maxHighlightLength"><code>maxHighlightLength</code></a>
+    and <a href="doc/manual.html#option_historyEventDelay"><code>historyEventDelay</code></a>.</li>
+    <li>Added <a href="doc/manual.html#mark_addToHistory"><code>addToHistory</code></a>
+    option for <code>markText</code>.</li>
+    <li>Various fixes to JavaScript tokenization and indentation corner cases.</li>
+    <li>Further improvements to the vim mode.</li>
+    <li>Full <a href="https://github.com/marijnh/CodeMirror/compare/v3.11...v3.12">list of patches</a>.</li>
+  </ul>
+
+  <p class="rel">20-03-2013: <a href="http://codemirror.net/codemirror-3.11.zip">Version 3.11</a>:</p>
+
+  <ul class="rel-note">
+    <li><strong>Removed code:</strong> <code>collapserange</code>,
+    <code>formatting</code>, and <code>simple-hint</code>
+    addons. <code>plsql</code> and <code>mysql</code> modes
+    (use <a href="mode/sql/index.html"><code>sql</code></a> mode).</li>
+    <li><strong>Moved code:</strong> the range-finding functions for folding now have <a href="addon/fold/">their own files</a>.</li>
+    <li><strong>Changed interface:</strong>
+    the <a href="doc/manual.html#addon_continuecomment"><code>continuecomment</code></a>
+    addon now exposes an option, rather than a command.</li>
+    <li>New
+    modes: <a href="mode/css/scss.html">SCSS</a>, <a href="mode/tcl/index.html">Tcl</a>, <a href="mode/livescript/index.html">LiveScript</a>,
+    and <a href="mode/mirc/index.html">mIRC</a>.</li>
+    <li>New addons: <a href="demo/placeholder.html"><code>placeholder</code></a>, <a href="demo/html5complete.html">HTML completion</a>.</li>
+    <li>New
+    methods: <a href="doc/manual.html#hasFocus"><code>hasFocus</code></a>, <a href="doc/manual.html#defaultCharWidth"><code>defaultCharWidth</code></a>.</li>
+    <li>New events: <a href="doc/manual.html#event_beforeCursorEnter"><code>beforeCursorEnter</code></a>, <a href="doc/manual.html#event_renderLine"><code>renderLine</code></a>.</li>
+    <li>Many improvements to the <a href="doc/manual.html#addon_show-hint"><code>show-hint</code></a> completion
+    dialog addon.</li>
+    <li>Tweak behavior of by-word cursor motion.</li>
+    <li>Further improvements to the <a href="demo/vim.html">vim mode</a>.</li>
+    <li>Full <a href="https://github.com/marijnh/CodeMirror/compare/v3.1...v3.11">list of patches</a>.</li>
+  </ul>
 
   <p class="rel">21-02-2013: <a href="http://codemirror.net/codemirror-3.1.zip">Version 3.1</a>:</p>
 
@@ -377,77 +465,6 @@
     <li>Full <a href="https://github.com/marijnh/CodeMirror/compare/v3.0rc2...v3.0">list of patches</a>.</li>
   </ul>
   
-
-  <p class="rel">20-11-2012: <a href="http://codemirror.net/codemirror-3.0rc2.zip">Version 3.0, release candidate 2</a>:</p>
-
-  <ul class="rel-note">
-    <li>New mode: <a href="mode/http/index.html">HTTP</a>.</li>
-    <li>Improved handling of selection anchor position.</li>
-    <li>Improve IE performance on longer lines.</li>
-    <li>Reduce gutter glitches during horiz. scrolling.</li>
-    <li>Add <a href="doc/manual.html#addKeyMap"><code>addKeyMap</code></a> and <a href="doc/manual.html#removeKeyMap"><code>removeKeyMap</code></a> methods.</li>
-    <li>Rewrite <code>formatting</code> and <code>closetag</code> add-ons.</li>
-    <li>Full <a href="https://github.com/marijnh/CodeMirror/compare/v3.0rc1...v3.0rc2">list of patches</a>.</li>
-  </ul>
-
-  <p class="rel">20-11-2012: <a href="http://codemirror.net/codemirror-2.36.zip">Version 2.36</a>:</p>
-
-  <ul class="rel-note">
-    <li>New mode: <a href="mode/z80/index.html">Z80 assembly</a>.</li>
-    <li>New theme: <a href="demo/theme.html?twilight">Twilight</a>.</li>
-    <li>Add command-line compression helper.</li>
-    <li>Make <a href="doc/manual.html#scrollIntoView"><code>scrollIntoView</code></a> public.</li>
-    <li>Add <a href="doc/manual.html#defaultTextHeight"><code>defaultTextHeight</code></a> method.</li>
-    <li>Various extensions to the vim keymap.</li>
-    <li>Make <a href="mode/php/index.html">PHP mode</a> build on <a href="mode/htmlmixed/index.html">mixed HTML mode</a>.</li>
-    <li>Add <a href="doc/manual.html#addon_continuecomment">comment-continuing</a> add-on.</li>
-    <li>Full <a href="https://github.com/marijnh/CodeMirror/compare/v2.35...v2.36">list of patches</a>.</li>
-  </ul>
-
-  <p class="rel">20-11-2012: <a href="http://codemirror.net/codemirror-3.0rc1.zip">Version 3.0, release candidate 1</a>:</p>
-
-  <ul class="rel-note">
-    <li>New theme: <a href="demo/theme.html?solarized%20light">Solarized</a>.</li>
-    <li>Introduce <a href="doc/manual.html#addLineClass"><code>addLineClass</code></a>
-    and <a href="doc/manual.html#removeLineClass"><code>removeLineClass</code></a>,
-    drop <code>setLineClass</code>.</li>
-    <li>Add a <em>lot</em> of
-    new <a href="doc/manual.html#markText">options for marked text</a>
-    (read-only, atomic, collapsed, widget replacement).</li>
-    <li>Remove the old code folding interface in favour of these new ranges.</li>
-    <li>Add <a href="doc/manual.html#isClean"><code>isClean</code></a>/<a href="doc/manual.html#markClean"><code>markClean</code></a> methods.</li>
-    <li>Remove <code>compoundChange</code> method, use better undo-event-combining heuristic.</li>
-    <li>Improve scrolling performance smoothness.</li>
-    <li>Full <a href="https://github.com/marijnh/CodeMirror/compare/v3.0beta2...v3.0rc1">list of patches</a>.</li>
-  </ul>
-
-  <p class="rel">22-10-2012: <a href="http://codemirror.net/codemirror-2.35.zip">Version 2.35</a>:</p>
-
-  <ul class="rel-note">
-    <li>New (sub) mode: <a href="mode/javascript/typescript.html">TypeScript</a>.</li>
-    <li>Don't overwrite (insert key) when pasting.</li>
-    <li>Fix several bugs in <a href="doc/manual.html#markText"><code>markText</code></a>/undo interaction.</li>
-    <li>Better indentation of JavaScript code without semicolons.</li>
-    <li>Add <a href="doc/manual.html#defineInitHook"><code>defineInitHook</code></a> function.</li>
-    <li>Full <a href="https://github.com/marijnh/CodeMirror/compare/v2.34...v2.35">list of patches</a>.</li>
-  </ul>
-
-  <p class="rel">22-10-2012: <a href="http://codemirror.net/codemirror-3.0beta2.zip">Version 3.0, beta 2</a>:</p>
-
-  <ul class="rel-note">
-    <li>Fix page-based coordinate computation.</li>
-    <li>Fix firing of <a href="doc/manual.html#event_gutterClick"><code>gutterClick</code></a> event.</li>
-    <li>Add <a href="doc/manual.html#option_cursorHeight"><code>cursorHeight</code></a> option.</li>
-    <li>Fix bi-directional text regression.</li>
-    <li>Add <a href="doc/manual.html#option_viewportMargin"><code>viewportMargin</code></a> option.</li>
-    <li>Directly handle mousewheel events (again, hopefully better).</li>
-    <li>Make vertical cursor movement more robust (through widgets, big line gaps).</li>
-    <li>Add <a href="doc/manual.html#option_flattenSpans"><code>flattenSpans</code></a> option.</li>
-    <li>Many optimizations. Poor responsiveness should be fixed.</li>
-    <li>Initialization in hidden state works again.</li>
-    <li>Full <a href="https://github.com/marijnh/CodeMirror/compare/v3.0beta1...v3.0beta2">list of patches</a>.</li>
-  </ul>
-
   <p><a href="doc/oldrelease.html">Older releases...</a></p>
 
 </div></div>

@@ -1,10 +1,10 @@
 <!doctype html>
 <html>
   <head>
-    <meta charset="utf-8"/>
+    <meta charset="utf-8">
     <title>CodeMirror: User Manual</title>
-    <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Droid+Sans|Droid+Sans:bold"/>
-    <link rel="stylesheet" type="text/css" href="docs.css"/>
+    <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Droid+Sans|Droid+Sans:bold">
+    <link rel="stylesheet" type="text/css" href="docs.css">
     <style>dl dl {margin: 0;}</style>
     <script src="../lib/codemirror.js"></script>
     <link rel="stylesheet" href="../lib/codemirror.css">
@@ -14,13 +14,16 @@
     <script src="../mode/xml/xml.js"></script>
     <script src="../mode/css/css.js"></script>
     <script src="../mode/htmlmixed/htmlmixed.js"></script>
+    <style>
+      dt { text-indent: -1.5em; padding-left: 1.5em; }
+    </style>
   </head>
   <body>
 
 <h1><span class="logo-braces">{ }</span> <a href="http://codemirror.net/">CodeMirror</a></h1>
 
 <div class="grey">
-<img src="baboon.png" class="logo" alt="logo"/>
+<img src="baboon.png" class="logo" alt="logo">
 <pre>
 /* User manual and
    reference guide */
@@ -36,10 +39,10 @@
     component, no accompanying buttons, auto-completion, or other IDE
     functionality. It does provide a rich API on top of which such
     functionality can be straightforwardly implemented. See
-    the <a href="#addons">add-ons</a> included in the distribution,
-    and
-    the <a href="https://github.com/jagthedrummer/codemirror-ui">CodeMirror
-    UI</a> project, for reusable implementations of extra features.</p>
+    the <a href="#addons">addons</a> included in the distribution,
+    and the <a href="https://github.com/marijnh/CodeMirror/wiki/CodeMirror-addons">list
+    of externally hosted addons</a>, for reusable
+    implementations of extra features.</p>
 
     <p>CodeMirror works with language-specific modes. Modes are
     JavaScript programs that help color (and optionally indent) text
@@ -68,7 +71,8 @@
     <p>The editor will be appended to the document body, will start
     empty, and will use the mode that we loaded. To have more control
     over the new editor, a configuration object can be passed
-    to <code>CodeMirror</code> as a second argument:</p>
+    to <a href="#CodeMirror"><code>CodeMirror</code></a> as a second
+    argument:</p>
 
     <pre data-lang="javascript">var myCodeMirror = CodeMirror(document.body, {
   value: "function myScript(){return 100;}\n",
@@ -105,13 +109,13 @@
 
     <h2 id="config">Configuration</h2>
 
-    <p>Both the <code>CodeMirror</code> function and
-    its <code>fromTextArea</code> method take as second (optional)
-    argument an object containing configuration options. Any option
-    not supplied like this will be taken
-    from <code>CodeMirror.defaults</code>, an object containing the
-    default options. You can update this object to change the defaults
-    on your page.</p>
+    <p>Both the <a href="#CodeMirror"><code>CodeMirror</code></a>
+    function and its <code>fromTextArea</code> method take as second
+    (optional) argument an object containing configuration options.
+    Any option not supplied like this will be taken
+    from <a href="#defaults"><code>CodeMirror.defaults</code></a>, an
+    object containing the default options. You can update this object
+    to change the defaults on your page.</p>
 
     <p>Options are not checked in any way, so setting bogus option
     values is bound to lead to odd errors.</p>
@@ -119,11 +123,11 @@
     <p>These are the supported options:</p>
 
     <dl>
-      <dt id="option_value"><code>value (string or Doc)</code></dt>
+      <dt id="option_value"><code><strong>value</strong>: string|CodeMirror.Doc</code></dt>
       <dd>The starting value of the editor. Can be a string, or
       a <a href="#api_doc">document object</a>.</dd>
 
-      <dt id="option_mode"><code>mode (string or object)</code></dt>
+      <dt id="option_mode"><code><strong>mode</strong>: string|object</code></dt>
       <dd>The mode to use. When not given, this will default to the
       first mode that was loaded. It may be a string, which either
       simply names the mode or is
@@ -140,7 +144,7 @@
       mode names to their constructors, and the second maps MIME types
       to mode specs.</dd>
 
-      <dt id="option_theme"><code>theme (string)</code></dt>
+      <dt id="option_theme"><code><strong>theme</strong>: string</code></dt>
       <dd>The theme to style the editor with. You must make sure the
       CSS file defining the corresponding <code>.cm-s-[name]</code>
       styles is loaded (see
@@ -152,29 +156,29 @@
       the <code>cm-s-foo</code> and the <code>cm-s-bar</code> classes
       to the editor.</dd>
 
-      <dt id="option_indentUnit"><code>indentUnit (integer)</code></dt>
+      <dt id="option_indentUnit"><code><strong>indentUnit</strong>: integer</code></dt>
       <dd>How many spaces a block (whatever that means in the edited
       language) should be indented. The default is 2.</dd>
 
-      <dt id="option_smartIndent"><code>smartIndent (boolean)</code></dt>
+      <dt id="option_smartIndent"><code><strong>smartIndent</strong>: boolean</code></dt>
       <dd>Whether to use the context-sensitive indentation that the
       mode provides (or just indent the same as the line before).
       Defaults to true.</dd>
 
-      <dt id="option_tabSize"><code>tabSize (integer)</code></dt>
+      <dt id="option_tabSize"><code><strong>tabSize</strong>: integer</code></dt>
       <dd>The width of a tab character. Defaults to 4.</dd>
 
-      <dt id="option_indentWithTabs"><code>indentWithTabs (boolean)</code></dt>
+      <dt id="option_indentWithTabs"><code><strong>indentWithTabs</strong>: boolean</code></dt>
       <dd>Whether, when indenting, the first N*<code>tabSize</code>
       spaces should be replaced by N tabs. Default is false.</dd>
 
-      <dt id="option_electricChars"><code>electricChars (boolean)</code></dt>
+      <dt id="option_electricChars"><code><strong>electricChars</strong>: boolean</code></dt>
       <dd>Configures whether the editor should re-indent the current
       line when a character is typed that might change its proper
       indentation (only works if the mode supports indentation).
       Default is true.</dd>
 
-      <dt id="option_rtlMoveVisually"><code>rtlMoveVisually (boolean)</code></dt>
+      <dt id="option_rtlMoveVisually"><code><strong>rtlMoveVisually</strong>: boolean</code></dt>
       <dd>Determines whether horizontal cursor movement through
       right-to-left (Arabic, Hebrew) text is visual (pressing the left
       arrow moves the cursor left) or logical (pressing the left arrow
@@ -182,7 +186,7 @@
       right in right-to-left text). The default is <code>false</code>
       on Windows, and <code>true</code> on other platforms.</dd>
 
-      <dt id="option_keyMap"><code>keyMap (string)</code></dt>
+      <dt id="option_keyMap"><code><strong>keyMap</strong>: string</code></dt>
       <dd>Configures the keymap to use. The default
       is <code>"default"</code>, which is the only keymap defined
       in <code>codemirror.js</code> itself. Extra keymaps are found in
@@ -190,28 +194,28 @@
       the <a href="#keymaps">section on keymaps</a> for more
       information.</dd>
 
-      <dt id="option_extraKeys"><code>extraKeys (object)</code></dt>
+      <dt id="option_extraKeys"><code><strong>extraKeys</strong>: object</code></dt>
       <dd>Can be used to specify extra keybindings for the editor,
       alongside the ones defined
       by <a href="#option_keyMap"><code>keyMap</code></a>. Should be
       either null, or a valid <a href="#keymaps">keymap</a> value.</dd>
 
-      <dt id="option_lineWrapping"><code>lineWrapping (boolean)</code></dt>
+      <dt id="option_lineWrapping"><code><strong>lineWrapping</strong>: boolean</code></dt>
       <dd>Whether CodeMirror should scroll or wrap for long lines.
       Defaults to <code>false</code> (scroll).</dd>
 
-      <dt id="option_lineNumbers"><code>lineNumbers (boolean)</code></dt>
+      <dt id="option_lineNumbers"><code><strong>lineNumbers</strong>: boolean</code></dt>
       <dd>Whether to show line numbers to the left of the editor.</dd>
 
-      <dt id="option_firstLineNumber"><code>firstLineNumber (integer)</code></dt>
+      <dt id="option_firstLineNumber"><code><strong>firstLineNumber</strong>: integer</code></dt>
       <dd>At which number to start counting lines. Default is 1.</dd>
 
-      <dt id="option_lineNumberFormatter"><code>lineNumberFormatter (function)</code></dt>
+      <dt id="option_lineNumberFormatter"><code><strong>lineNumberFormatter</strong>: function(line: integer) → string</code></dt>
       <dd>A function used to format line numbers. The function is
       passed the line number, and should return a string that will be
       shown in the gutter.</dd>
 
-      <dt id="option_gutters"><code>gutters (array)</code></dt>
+      <dt id="option_gutters"><code><strong>gutters</strong>: array&lt;string&gt;</code></dt>
       <dd>Can be used to add extra gutters (beyond or instead of the
       line number gutter). Should be an array of CSS class names, each
       of which defines a <code>width</code> (and optionally a
@@ -223,31 +227,43 @@
       names are the keys passed
       to <a href="#setGutterMarker"><code>setGutterMarker</code></a>.</dd>
 
-      <dt id="option_fixedGutter"><code>fixedGutter (boolean)</code></dt>
+      <dt id="option_fixedGutter"><code><strong>fixedGutter</strong>: boolean</code></dt>
       <dd>Determines whether the gutter scrolls along with the content
       horizontally (false) or whether it stays fixed during horizontal
       scrolling (true, the default).</dd>
 
-      <dt id="option_readOnly"><code>readOnly (boolean)</code></dt>
+      <dt id="option_coverGutterNextToScrollbar"><code><strong>coverGutterNextToScrollbar</strong>: boolean</code></dt>
+      <dd>When <a href="#option_fixedGutter"><code>fixedGutter</code></a>
+      is on, and there is a horizontal scrollbar, by default the
+      gutter will be visible to the left of this scrollbar. If this
+      option is set to true, it will be covered by an element with
+      class <code>CodeMirror-gutter-filler</code>.</dd>
+
+      <dt id="option_readOnly"><code><strong>readOnly</strong>: boolean|string</code></dt>
       <dd>This disables editing of the editor content by the user. If
       the special value <code>"nocursor"</code> is given (instead of
       simply <code>true</code>), focusing of the editor is also
       disallowed.</dd>
 
-      <dt id="option_showCursorWhenSelecting"><code>showCursorWhenSelecting (boolean)</code></dt>
+      <dt id="option_showCursorWhenSelecting"><code><strong>showCursorWhenSelecting</strong>: boolean</code></dt>
       <dd>Whether the cursor should be drawn when a selection is
       active. Defaults to false.</dd>
 
-      <dt id="option_undoDepth"><code>undoDepth (integer)</code></dt>
+      <dt id="option_undoDepth"><code><strong>undoDepth</strong>: integer</code></dt>
       <dd>The maximum number of undo levels that the editor stores.
       Defaults to 40.</dd>
 
-      <dt id="option_tabindex"><code>tabindex (integer)</code></dt>
+      <dt id="option_historyEventDelay"><code><strong>historyEventDelay</strong>: integer</code></dt>
+      <dd>The period of inactivity (in milliseconds) that will cause a
+      new history event to be started when typing or deleting.
+      Defaults to 500.</dd>
+
+      <dt id="option_tabindex"><code><strong>tabindex</strong>: integer</code></dt>
       <dd>The <a href="http://www.w3.org/TR/html401/interact/forms.html#adef-tabindex">tab
       index</a> to assign to the editor. If not given, no tab index
       will be assigned.</dd>
 
-      <dt id="option_autofocus"><code>autofocus (boolean)</code></dt>
+      <dt id="option_autofocus"><code><strong>autofocus</strong>: boolean</code></dt>
       <dd>Can be used to make CodeMirror focus itself on
       initialization. Defaults to off.
       When <a href="#fromTextArea"><code>fromTextArea</code></a> is
@@ -262,21 +278,25 @@
     might want to skip them the first time you read this manual.</p>
 
     <dl>
-      <dt id="option_dragDrop"><code>dragDrop (boolean)</code></dt>
+      <dt id="option_dragDrop"><code><strong>dragDrop</strong>: boolean</code></dt>
       <dd>Controls whether drag-and-drop is enabled. On by default.</dd>
 
-      <dt id="option_onDragEvent"><code>onDragEvent (function)</code></dt>
-      <dd>When given, this will be called when the editor is handling
+      <dt id="option_onDragEvent"><code><strong>onDragEvent</strong>: function(instance: CodeMirror, event: Event) → boolean</code></dt>
+      <dd><em>Deprecated! See <a href="#event_dom">these</a> event
+      handlers for the current recommended approach.</em><br>When given,
+      this will be called when the editor is handling
       a <code>dragenter</code>, <code>dragover</code>,
-      or <code>drop</code> event. It will be passed the editor instance
-      and the event object as arguments. The callback can choose to
-      handle the event itself, in which case it should
+      or <code>drop</code> event. It will be passed the editor
+      instance and the event object as arguments. The callback can
+      choose to handle the event itself, in which case it should
       return <code>true</code> to indicate that CodeMirror should not
       do anything further.</dd>
 
-      <dt id="option_onKeyEvent"><code>onKeyEvent (function)</code></dt>
-      <dd>This provides a rather low-level hook into CodeMirror's key
-      handling. If provided, this function will be called on
+      <dt id="option_onKeyEvent"><code><strong>onKeyEvent</strong>: function(instance: CodeMirror, event: Event) → boolean</code></dt>
+      <dd><em>Deprecated! See <a href="#event_dom">these</a> event
+      handlers for the current recommended approach.</em><br>This
+      provides a rather low-level hook into CodeMirror's key handling.
+      If provided, this function will be called on
       every <code>keydown</code>, <code>keyup</code>,
       and <code>keypress</code> event that CodeMirror captures. It
       will be passed two arguments, the editor instance and the key
@@ -293,32 +313,40 @@
       is <code>keydown</code> (or <code>keypress</code> for actions
       that need character data).</dd>
 
-      <dt id="option_cursorBlinkRate"><code>cursorBlinkRate (number)</code></dt>
+      <dt id="option_cursorBlinkRate"><code><strong>cursorBlinkRate</strong>: number</code></dt>
       <dd>Half-period in milliseconds used for cursor blinking. The default blink
       rate is 530ms.</dd>
 
-      <dt id="option_cursorHeight"><code>cursorHeight (number)</code></dt>
+      <dt id="option_cursorScrollMargin"><code><strong>cursorScrollMargin</strong>: number</code></dt>
+      <dd>How much extra space to always keep above and below the
+      cursor when approaching the top or bottom of the visible view in
+      a scrollable document. Default is 0.</dd>
+
+      <dt id="option_cursorHeight"><code><strong>cursorHeight</strong>: number</code></dt>
       <dd>Determines the height of the cursor. Default is 1, meaning
       it spans the whole height of the line. For some fonts (and by
       some tastes) a smaller height (for example <code>0.85</code>),
       which causes the cursor to not reach all the way to the bottom
       of the line, looks better</dd>
 
-      <dt id="option_workTime"><code>workTime, workDelay (number)</code></dt>
+      <dt id="option_workTime"><code><strong>workTime</strong>, <strong>workDelay</strong>: number</code></dt>
       <dd>Highlighting is done by a pseudo background-thread that will
       work for <code>workTime</code> milliseconds, and then use
       timeout to sleep for <code>workDelay</code> milliseconds. The
       defaults are 200 and 300, you can change these options to make
       the highlighting more or less aggressive.</dd>
 
-      <dt id="option_pollInterval"><code>pollInterval (number)</code></dt>
+      <dt id="option_workDelay"><code><strong>workDelay</strong>: number</code></dt>
+      <dd>See <a href="#option_workTime"><code>workTime</code></a>.</dd>
+
+      <dt id="option_pollInterval"><code><strong>pollInterval</strong>: number</code></dt>
       <dd>Indicates how quickly CodeMirror should poll its input
       textarea for changes (when focused). Most input is captured by
       events, but some things, like IME input on some browsers, don't
       generate events that allow CodeMirror to properly detect it.
       Thus, it polls. Default is 100 milliseconds.</dd>
 
-      <dt id="option_flattenSpans"><code>flattenSpans (boolean)</code></dt>
+      <dt id="option_flattenSpans"><code><strong>flattenSpans</strong>: boolean</code></dt>
       <dd>By default, CodeMirror will combine adjacent tokens into a
       single span if they have the same class. This will result in a
       simpler DOM tree, and thus perform better. With some kinds of
@@ -326,7 +354,14 @@
       document looks. You can set this option to false to disable this
       behavior.</dd>
 
-      <dt id="option_viewportMargin"><code>viewportMargin (integer)</code></dt>
+      <dt id="option_maxHighlightLength"><code><strong>maxHighlightLength</strong>: number</code></dt>
+      <dd>When highlighting long lines, in order to stay responsive,
+      the editor will give up and simply style the rest of the line as
+      plain text when it reaches a certain position. The default is
+      10000. You can set this to <code>Infinity</code> to turn off
+      this behavior.</dd>
+
+      <dt id="option_viewportMargin"><code><strong>viewportMargin</strong>: integer</code></dt>
       <dd>Specifies the amount of lines that are rendered above and
       below the part of the document that's currently scrolled into
       view. This affects the amount of updates needed when scrolling,
@@ -340,19 +375,22 @@
 
     <h2 id="events">Events</h2>
 
-    <p>A CodeMirror instance emits a number of events, which allow
-    client code to react to various situations. These are registered
-    with the <a href="#on"><code>on</code></a> method (and
-    removed with the <a href="#off"><code>off</code></a>
-    method). These are the events that fire on the instance object.
-    The name of the event is followed by the arguments that will be
-    passed to the handler. The <code>instance</code> argument always
-    refers to the editor instance.</p>
+    <p>Various CodeMirror-related objects emit events, which allow
+    client code to react to various situations. Handlers for such
+    events can be registed with the <a href="#on"><code>on</code></a>
+    and <a href="#off"><code>off</code></a> methods on the objects
+    that the event fires on. To fire your own events,
+    use <code>CodeMirror.signal(target, name, args...)</code>,
+    where <code>target</code> is a non-DOM-node object.</p>
+
+    <p>An editor instance fires the following events.
+    The <code>instance</code> argument always refers to the editor
+    itself.</p>
 
     <dl>
-      <dt id="event_change"><code>"change" (instance, changeObj)</code></dt>
+      <dt id="event_change"><code><strong>"change"</strong> (instance: CodeMirror, changeObj: object)</code></dt>
       <dd>Fires every time the content of the editor is changed.
-      The <code>changeObj</code> is a <code>{from, to, text,
+      The <code>changeObj</code> is a <code>{from, to, text, removed,
       next}</code> object containing information about the changes
       that occurred as second argument. <code>from</code>
       and <code>to</code> are the positions (in the pre-change
@@ -360,36 +398,54 @@
       example, it might be <code>{ch:0, line:18}</code> if the
       position is at the beginning of line #19). <code>text</code> is
       an array of strings representing the text that replaced the
-      changed range (split by line). If multiple changes happened
-      during a single operation, the object will have
+      changed range (split by line). <code>removed</code> is the text
+      that used to be between <code>from</code> and <code>to</code>,
+      which is overwritten by this change. If multiple changes
+      happened during a single operation, the object will have
       a <code>next</code> property pointing to another change object
       (which may point to another, etc).</dd>
 
-      <dt id="event_beforeChange"><code>"beforeChange" (instance, change)</code></dt>
+      <dt id="event_beforeChange"><code><strong>"beforeChange"</strong> (instance: CodeMirror, changeObj: object)</code></dt>
       <dd>This event is fired before a change is applied, and its
       handler may choose to modify or cancel the change.
-      The <code>change</code> object
+      The <code>changeObj</code> object
       has <code>from</code>, <code>to</code>, and <code>text</code>
       properties, as with
       the <a href="#event_change"><code>"change"</code></a> event, but
       never a <code>next</code> property, since this is fired for each
-      individual change, and not batched per operation. It also
-      has <code>update(from, to, text)</code>
-      and <code>cancel()</code> methods, which may be used to modify
-      or cancel the change. All three arguments to <code>update</code>
-      are optional, and can be left off to leave the existing value
-      for that field intact. <strong>Note:</strong> you may not do
-      anything from a <code>"beforeChange"</code> handler that would
-      cause changes to the document or its visualization. Doing so
-      will, since this handler is called directly from the bowels of
-      the CodeMirror implementation, probably cause the editor to
-      become corrupted.</dd>
+      individual change, and not batched per operation. It also has
+      a <code>cancel()</code> method, which can be called to cancel
+      the change, and, <strong>if</strong> the change isn't coming
+      from an undo or redo event, an <code>update(from, to,
+      text)</code> method, which may be used to modify the change.
+      Undo or redo changes can't be modified, because they hold some
+      metainformation for restoring old marked ranges that is only
+      valid for that specific change. All three arguments
+      to <code>update</code> are optional, and can be left off to
+      leave the existing value for that field
+      intact. <strong>Note:</strong> you may not do anything from
+      a <code>"beforeChange"</code> handler that would cause changes
+      to the document or its visualization. Doing so will, since this
+      handler is called directly from the bowels of the CodeMirror
+      implementation, probably cause the editor to become
+      corrupted.</dd>
 
-      <dt id="event_cursorActivity"><code>"cursorActivity" (instance)</code></dt>
+      <dt id="event_cursorActivity"><code><strong>"cursorActivity"</strong> (instance: CodeMirror)</code></dt>
       <dd>Will be fired when the cursor or selection moves, or any
       change is made to the editor content.</dd>
 
-      <dt id="event_beforeSelectionChange"><code>"beforeSelectionChange" (instance, selection)</code></dt>
+      <dt id="event_keyHandled"><code><strong>"keyHandled"</strong> (instance: CodeMirror, name: string, event: Event)</code></dt>
+      <dd>Fired after a key is handled through a
+      keymap. <code>name</code> is the name of the handled key (for
+      example <code>"Ctrl-X"</code> or <code>"'q'"</code>),
+      and <code>event</code> is the DOM <code>keydown</code>
+      or <code>keypress</code> event.</dd>
+
+      <dt id="event_inputRead"><code><strong>"inputRead"</strong> (instance: CodeMirror, changeObj: object)</code></dt>
+      <dd>Fired whenever new input is read from the hidden textarea
+      (typed or pasted by the user).</dd>
+
+      <dt id="event_beforeSelectionChange"><code><strong>"beforeSelectionChange"</strong> (instance: CodeMirror, selection: {head, anchor})</code></dt>
       <dd>This event is fired before the selection is moved. Its
       handler may modify the resulting selection head and anchor.
       The <code>selection</code> parameter is an object
@@ -401,13 +457,13 @@
       handlers — they should not do anything to directly update the
       state of the editor.</dd>
 
-      <dt id="event_viewportChange"><code>"viewportChange" (instance, from, to)</code></dt>
+      <dt id="event_viewportChange"><code><strong>"viewportChange"</strong> (instance: CodeMirror, from: number, to: number)</code></dt>
       <dd>Fires whenever the <a href="#getViewport">view port</a> of
       the editor changes (due to scrolling, editing, or any other
       factor). The <code>from</code> and <code>to</code> arguments
       give the new start and end of the viewport.</dd>
 
-      <dt id="event_gutterClick"><code>"gutterClick" (instance, line, gutter, clickEvent)</code></dt>
+      <dt id="event_gutterClick"><code><strong>"gutterClick"</strong> (instance: CodeMirror, line: integer, gutter: string, clickEvent: Event)</code></dt>
       <dd>Fires when the editor gutter (the line-number area) is
       clicked. Will pass the editor instance as first argument, the
       (zero-based) number of the line that was clicked as second
@@ -415,25 +471,42 @@
       argument, and the raw <code>mousedown</code> event object as
       fourth argument.</dd>
 
-      <dt id="event_focus"><code>"focus", "blur" (instance)</code></dt>
-      <dd>These fire whenever the editor is focused or unfocused.</dd>
+      <dt id="event_focus"><code><strong>"focus"</strong> (instance: CodeMirror)</code></dt>
+      <dd>Fires whenever the editor is focused.</dd>
 
-      <dt id="event_scroll"><code>"scroll" (instance)</code></dt>
+      <dt id="event_blur"><code><strong>"blur"</strong> (instance: CodeMirror)</code></dt>
+      <dd>Fires whenever the editor is unfocused.</dd>
+
+      <dt id="event_scroll"><code><strong>"scroll"</strong> (instance: CodeMirror)</code></dt>
       <dd>Fires when the editor is scrolled.</dd>
 
-      <dt id="event_update"><code>"update" (instance)</code></dt>
+      <dt id="event_update"><code><strong>"update"</strong> (instance: CodeMirror)</code></dt>
       <dd>Will be fired whenever CodeMirror updates its DOM display.</dd>
+
+      <dt id="event_renderLine"><code><strong>"renderLine"</strong> (instance: CodeMirror, line: LineHandle, element: Element)</code></dt>
+      <dd>Fired whenever a line is (re-)rendered to the DOM. Fired
+      right after the DOM element is built, <em>before</em> it is
+      added to the document. The handler may mess with the style of
+      the resulting element, or add event handlers, but
+      should <em>not</em> try to change the state of the editor.</dd>
+
+      <dt id="event_dom"><code><strong>"mousedown"</strong>,
+      <strong>"dblclick"</strong>, <strong>"contextmenu"</strong>, <strong>"keydown"</strong>, <strong>"keypress"</strong>,
+      <strong>"keyup"</strong>, <strong>"dragstart"</strong>, <strong>"dragenter"</strong>,
+      <strong>"dragover"</strong>, <strong>"drop"</strong>
+      (instance: CodeMirror, event: Event)</code></dt>
+      <dd>Fired when CodeMirror is handling a DOM event of this type.
+      You can <code>preventDefault</code> the event, or give it a
+      truthy <code>codemirrorIgnore</code> property, to signal that
+      CodeMirror should do no further handling.</dd>
     </dl>
 
-    <p>It is also possible to <a href="#on">register</a> events on
-    other objects. Use <code>CodeMirror.on(handle, "eventName",
-    func)</code> to register handlers on objects that don't have their
-    own <code>on</code> method. Document objects (instances
+    <p>Document objects (instances
     of <a href="#Doc"><code>CodeMirror.Doc</code></a>) emit the
     following events:</p>
 
     <dl>
-      <dt id="event_doc_change"><code>"change" (doc, changeObj)</code></dt>
+      <dt id="event_doc_change"><code><strong>"change"</strong> (doc: CodeMirror.Doc, changeObj: object)</code></dt>
       <dd>Fired whenever a change occurs to the
       document. <code>changeObj</code> has a similar type as the
       object passed to the
@@ -442,15 +515,15 @@
       document change events are not batched (whereas editor change
       events are).</dd>
 
-      <dt id="event_doc_beforeChange"><code>"beforeChange" (doc, change)</code></dt>
+      <dt id="event_doc_beforeChange"><code><strong>"beforeChange"</strong> (doc: CodeMirror.Doc, change: object)</code></dt>
       <dd>See the <a href="#event_beforeChange">description of the
       same event</a> on editor instances.</dd>
 
-      <dt id="event_doc_cursorActivity"><code>"cursorActivity" (doc)</code></dt>
+      <dt id="event_doc_cursorActivity"><code><strong>"cursorActivity"</strong> (doc: CodeMirror.Doc)</code></dt>
       <dd>Fired whenever the cursor or selection in this document
       changes.</dd>
 
-      <dt id="event_doc_beforeSelectionChange"><code>"beforeSelectionChange" (doc, selection)</code></dt>
+      <dt id="event_doc_beforeSelectionChange"><code><strong>"beforeSelectionChange"</strong> (doc: CodeMirror.Doc, selection: {head, anchor})</code></dt>
       <dd>Equivalent to
       the <a href="#event_beforeSelectionChange">event by the same
       name</a> as fired on editor instances.</dd>
@@ -461,44 +534,54 @@
     support these events:</p>
 
     <dl>
-      <dt id="event_delete"><code>"delete" ()</code></dt>
+      <dt id="event_delete"><code><strong>"delete"</strong> ()</code></dt>
       <dd>Will be fired when the line object is deleted. A line object
       is associated with the <em>start</em> of the line. Mostly useful
       when you need to find out when your <a href="#setGutterMarker">gutter
       markers</a> on a given line are removed.</dd>
-      <dt id="event_line_change"><code>"change" ()</code></dt>
+      <dt id="event_line_change"><code><strong>"change"</strong> (line: LineHandle, changeObj: object)</code></dt>
       <dd>Fires when the line's text content is changed in any way
-      (but the line is not deleted outright).</dd>
+      (but the line is not deleted outright). The <code>change</code>
+      object is similar to the one passed
+      to <a href="#event_change">change event</a> on the editor
+      object.</dd>
     </dl>
 
-    <p>Marked range handles, as returned
+    <p>Marked range handles (<code>CodeMirror.TextMarker</code>), as returned
     by <a href="#markText"><code>markText</code></a>
     and <a href="#setBookmark"><code>setBookmark</code></a>, emit the
     following events:</p>
 
     <dl>
-      <dt id="event_clear"><code>"clear" ()</code></dt>
+      <dt id="event_beforeCursorEnter"><code><strong>"beforeCursorEnter"</strong> ()</code></dt>
+      <dd>Fired when the cursor enters the marked range. From this
+      event handler, the editor state may be inspected
+      but <em>not</em> modified, with the exception that the range on
+      which the event fires may be cleared.</dd>
+      <dt id="event_clear"><code><strong>"clear"</strong> (from: {line, ch}, to: {line, ch})</code></dt>
       <dd>Fired when the range is cleared, either through cursor
       movement in combination
       with <a href="#mark_clearOnEnter"><code>clearOnEnter</code></a>
       or through a call to its <code>clear()</code> method. Will only
       be fired once per handle. Note that deleting the range through
-      text editing does not fire this event, because an undo
-      action might bring the range back into existence.</dd>
-      <dt id="event_hide"><code>"hide" ()</code></dt>
+      text editing does not fire this event, because an undo action
+      might bring the range back into existence. <code>from</code>
+      and <code>to</code> give the part of the document that the range
+      spanned when it was cleared.</dd>
+      <dt id="event_hide"><code><strong>"hide"</strong> ()</code></dt>
       <dd>Fired when the last part of the marker is removed from the
       document by editing operations.</dd>
-      <dt id="event_unhide"><code>"unhide" ()</code></dt>
+      <dt id="event_unhide"><code><strong>"unhide"</strong> ()</code></dt>
       <dd>Fired when, after the marker was removed by editing, a undo
       operation brought the marker back.</dd>
     </dl>
 
-    <p>Line widgets, returned
+    <p>Line widgets (<code>CodeMirror.LineWidget</code>), returned
     by <a href="#addLineWidget"><code>addLineWidget</code></a>, fire
     these events:</p>
 
     <dl>
-      <dt id="event_redraw"><code>"redraw" ()</code></dt>
+      <dt id="event_redraw"><code><strong>"redraw"</strong> ()</code></dt>
       <dd>Fired whenever the editor re-adds the widget to the DOM.
       This will happen once right after the widget is added (if it is
       scrolled into view), and then again whenever it is scrolled out
@@ -522,6 +605,17 @@
     and <code>Alt-</code> (in that order!) to specify a modifier. So
     for example, <code>Shift-Ctrl-Space</code> would be a valid key
     identifier.</p>
+
+    <p>Common example: map the Tab key to insert spaces instead of a tab
+    character.</p>
+
+    <pre data-lang="javascript">
+{
+  Tab: function(cm) {
+    var spaces = Array(cm.getOption("indentUnit") + 1).join(" ");
+    cm.replaceSelection(spaces, "end", "+input");
+  }
+}</pre>
 
     <p>Alternatively, a character can be specified directly by
     surrounding it in single quotes, for example <code>'$'</code>
@@ -562,8 +656,11 @@
     <p>When a keymap contains a <code>nofallthrough</code> property
     set to <code>true</code>, keys matched against that map will be
     ignored if they don't match any of the bindings in the map (no
-    further child maps will be tried, and the default effect of
-    inserting a character will not occur).</p>
+    further child maps will be tried). When
+    the <code>disableInput</code> property is set
+    to <code>true</code>, the default effect of inserting a character
+    will be suppressed when the keymap is active as the top-level
+    map.</p>
 
     <h2 id="styling">Customized Styling</h2>
 
@@ -581,13 +678,13 @@
     this file serve the following roles:</p>
 
     <dl>
-      <dt id="class_CodeMirror"><code>CodeMirror</code></dt>
+      <dt id="class_CodeMirror"><code><strong>CodeMirror</strong></code></dt>
       <dd>The outer element of the editor. This should be used for the
       editor width, height, borders and positioning. Can also be used
       to set styles that should hold for everything inside the editor
       (such as font and font size), or to set a background.</dd>
 
-      <dt id="class_CodeMirror_scroll"><code>CodeMirror-scroll</code></dt>
+      <dt id="class_CodeMirror_scroll"><code><strong>CodeMirror-scroll</strong></code></dt>
       <dd>Whether the editor scrolls (<code>overflow: auto</code> +
       fixed height). By default, it does. Setting
       the <code>CodeMirror</code> class to have <code>height:
@@ -596,41 +693,41 @@
       to <a href="../demo/resize.html">resize to fit its
       content</a>.</dd>
 
-      <dt id="class_CodeMirror_focused"><code>CodeMirror-focused</code></dt>
+      <dt id="class_CodeMirror_focused"><code><strong>CodeMirror-focused</strong></code></dt>
       <dd>Whenever the editor is focused, the top element gets this
       class. This is used to hide the cursor and give the selection a
       different color when the editor is not focused.</dd>
 
-      <dt id="class_CodeMirror_gutters"><code>CodeMirror-gutters</code></dt>
+      <dt id="class_CodeMirror_gutters"><code><strong>CodeMirror-gutters</strong></code></dt>
       <dd>This is the backdrop for all gutters. Use it to set the
       default gutter background color, and optionally add a border on
       the right of the gutters.</dd>
 
-      <dt id="class_CodeMirror_linenumbers"><code>CodeMirror-linenumbers</code></dt>
+      <dt id="class_CodeMirror_linenumbers"><code><strong>CodeMirror-linenumbers</strong></code></dt>
       <dd>Use this for giving a background or width to the line number
       gutter.</dd>
 
-      <dt id="class_CodeMirror_linenumber"><code>CodeMirror-linenumber</code></dt>
+      <dt id="class_CodeMirror_linenumber"><code><strong>CodeMirror-linenumber</strong></code></dt>
       <dd>Used to style the actual individual line numbers. These
       won't be children of the <code>CodeMirror-linenumbers</code>
       (plural) element, but rather will be absolutely positioned to
       overlay it. Use this to set alignment and text properties for
       the line numbers.</dd>
 
-      <dt id="class_CodeMirror_lines"><code>CodeMirror-lines</code></dt>
+      <dt id="class_CodeMirror_lines"><code><strong>CodeMirror-lines</strong></code></dt>
       <dd>The visible lines. This is where you specify vertical
       padding for the editor content.</dd>
 
-      <dt id="class_CodeMirror_cursor"><code>CodeMirror-cursor</code></dt>
+      <dt id="class_CodeMirror_cursor"><code><strong>CodeMirror-cursor</strong></code></dt>
       <dd>The cursor is a block element that is absolutely positioned.
       You can make it look whichever way you want.</dd>
 
-      <dt id="class_CodeMirror_selected"><code>CodeMirror-selected</code></dt>
+      <dt id="class_CodeMirror_selected"><code><strong>CodeMirror-selected</strong></code></dt>
       <dd>The selection is represented by <code>span</code> elements
       with this class.</dd>
 
-      <dt id="class_CodeMirror_matchingbracket"><code>CodeMirror-matchingbracket</code>,
-        <code>CodeMirror-nonmatchingbracket</code></dt>
+      <dt id="class_CodeMirror_matchingbracket"><code><strong>CodeMirror-matchingbracket</strong></code>,
+        <code><strong>CodeMirror-nonmatchingbracket</strong></code></dt>
       <dd>These are used to style matched (or unmatched) brackets.</dd>
     </dl>
 
@@ -648,7 +745,7 @@
 
     <p>A lot of CodeMirror features are only available through its
     API. Thus, you need to write code (or
-    use <a href="#addons">add-ons</a>) if you want to expose them to
+    use <a href="#addons">addons</a>) if you want to expose them to
     your users.</p>
 
     <p>Whenever points in the document are represented, the API uses
@@ -666,52 +763,77 @@
     prefixed with <code>cm.</code> are <em>only</em> available
     on <code>CodeMirror</code> instances.</p>
 
+    <h3 id="api_constructor">Constructor</h3>
+
+    <p id="CodeMirror">Constructing an editor instance is done with
+    the <code><strong>CodeMirror</strong>(place: Element|fn(Element),
+    ?option: object)</code> constructor. If the <code>place</code>
+    argument is a DOM element, the editor will be appended to it. If
+    it is a function, it will be called, and is expected to place the
+    editor into the document. <code>options</code> may be an element
+    mapping <a href="#config">option names</a> to values. The options
+    that it doesn't explicitly specify (or all options, if it is not
+    passed) will be taken
+    from <a href="#defaults"><code>CodeMirror.defaults</code></a>.</p>
+
+    <p>Note that the options object passed to the constructor will be
+    mutated when the instance's options
+    are <a href="#setOption">changed</a>, so you shouldn't share such
+    objects between instances.</p>
+
+    <p>See <a href="#fromTextArea"><code>CodeMirror.fromTextArea</code></a>
+    for another way to construct an editor instance.</p>
+
     <h3 id="api_content">Content manipulation methods</h3>
 
     <dl>
-      <dt id="getValue"><code>doc.getValue() → string</code></dt>
+      <dt id="getValue"><code><strong>doc.getValue</strong>(?separator: string) → string</code></dt>
       <dd>Get the current editor content. You can pass it an optional
       argument to specify the string to be used to separate lines
       (defaults to <code>"\n"</code>).</dd>
-      <dt id="setValue"><code>doc.setValue(string)</code></dt>
+      <dt id="setValue"><code><strong>doc.setValue</strong>(content: string)</code></dt>
       <dd>Set the editor content.</dd>
 
-      <dt id="getRange"><code>doc.getRange(from, to) → string</code></dt>
+      <dt id="getRange"><code><strong>doc.getRange</strong>(from: {line, ch}, to: {line, ch}, ?separator: string) → string</code></dt>
       <dd>Get the text between the given points in the editor, which
       should be <code>{line, ch}</code> objects. An optional third
       argument can be given to indicate the line separator string to
       use (defaults to <code>"\n"</code>).</dd>
-      <dt id="replaceRange"><code>doc.replaceRange(string, from, to)</code></dt>
+      <dt id="replaceRange"><code><strong>doc.replaceRange</strong>(replacement: string, from: {line, ch}, to: {line, ch})</code></dt>
       <dd>Replace the part of the document between <code>from</code>
       and <code>to</code> with the given string. <code>from</code>
       and <code>to</code> must be <code>{line, ch}</code>
       objects. <code>to</code> can be left off to simply insert the
       string at position <code>from</code>.</dd>
 
-      <dt id="getLine"><code>doc.getLine(n) → string</code></dt>
+      <dt id="getLine"><code><strong>doc.getLine</strong>(n: integer) → string</code></dt>
       <dd>Get the content of line <code>n</code>.</dd>
-      <dt id="setLine"><code>doc.setLine(n, text)</code></dt>
+      <dt id="setLine"><code><strong>doc.setLine</strong>(n: integer, text: string)</code></dt>
       <dd>Set the content of line <code>n</code>.</dd>
-      <dt id="removeLine"><code>doc.removeLine(n)</code></dt>
+      <dt id="removeLine"><code><strong>doc.removeLine</strong>(n: integer)</code></dt>
       <dd>Remove the given line from the document.</dd>
 
-      <dt id="lineCount"><code>doc.lineCount() → number</code></dt>
+      <dt id="lineCount"><code><strong>doc.lineCount</strong>() → integer</code></dt>
       <dd>Get the number of lines in the editor.</dd>
-      <dt id="firstLine"><code>doc.firstLine() → number</code></dt>
-      <dt id="lastLine"><code>doc.lastLine() → number</code></dt>
-      <dd>Get the first and last lines of the editor. This will
-      usually be zero and <code>doc.lineCount() - 1</code> respectively,
-      but for <a href="#linkedDoc_from">linked sub-views</a>,
+      <dt id="firstLine"><code><strong>doc.firstLine</strong>() → integer</code></dt>
+      <dd>Get the first line of the editor. This will
+      usually be zero but for <a href="#linkedDoc_from">linked sub-views</a>,
       or <a href="#api_doc">documents</a> instantiated with a non-zero
       first line, it might return other values.</dd>
+      <dt id="lastLine"><code><strong>doc.lastLine</strong>() → integer</code></dt>
+      <dd>Get the last line of the editor. This will
+      usually be <code>doc.lineCount() - 1</code>,
+      but for <a href="#linkedDoc_from">linked sub-views</a>,
+      it might return other values.</dd>
 
-      <dt id="getLineHandle"><code>doc.getLineHandle(num) → lineHandle</code></dt>
+      <dt id="getLineHandle"><code><strong>doc.getLineHandle</strong>(num: integer) → LineHandle</code></dt>
       <dd>Fetches the line handle for the given line number.</dd>
-      <dt id="getLineNumber"><code>doc.getLineNumber(handle) → integer</code></dt>
+      <dt id="getLineNumber"><code><strong>doc.getLineNumber</strong>(handle: LineHandle) → integer</code></dt>
       <dd>Given a line handle, returns the current position of that
       line (or <code>null</code> when it is no longer in the
       document).</dd>
-      <dt id="eachLine"><code>doc.eachLine(f) | doc.eachLine(start, end, f)</code></dt>
+      <dt id="eachLine"><code><strong>doc.eachLine</strong>(f: (line: LineHandle))</code></dt>
+      <dt><code><strong>doc.eachLine</strong>(start: integer, end: integer, f: (line: LineHandle))</code></dt>
       <dd>Iterate over the whole document, or if <code>start</code>
       and <code>end</code> line numbers are given, the range
       from <code>start</code> up to (not including) <code>end</code>,
@@ -722,26 +844,41 @@
       a <code>text</code> property containing the line's content (as a
       string).</dd>
 
-      <dt id="markClean"><code>doc.markClean()</code></dt>
+      <dt id="markClean"><code><strong>doc.markClean</strong>()</code></dt>
       <dd>Set the editor content as 'clean', a flag that it will
       retain until it is edited, and which will be set again when such
       an edit is undone again. Useful to track whether the content
-      needs to be saved.</dd>
-      <dt id="isClean"><code>doc.isClean() → boolean</code></dt>
-      <dd>Returns whether the document is currently clean (not
+      needs to be saved. This function is deprecated in favor
+      of <a href="#changeGeneration"><code>changeGeneration</code></a>,
+      which allows multiple subsystems to track different notions of
+      cleanness without interfering.</dd>
+      <dt id="changeGeneration"><code><strong>doc.changeGeneration</strong>() → integer</code></dt>
+      <dd>Returns a number that can later be passed
+      to <a href="#isClean"><code>isClean</code></a> to test whether
+      any edits were made (and not undone) in the meantime.</dd>
+      <dt id="isClean"><code><strong>doc.isClean</strong>(?generation: integer) → boolean</code></dt>
+      <dd>Returns whether the document is currently clean — not
       modified since initialization or the last call
-      to <a href="#markClean"><code>markClean</code></a>).</dd>
+      to <a href="#markClean"><code>markClean</code></a> if no
+      argument is passed, or since the matching call
+      to <a href="#changeGeneration"><code>changeGeneration</code></a>
+      if a generation value is given.</dd>
     </dl>
 
     <h3 id="api_selection">Cursor and selection methods</h3>
 
     <dl>
-      <dt id="getSelection"><code>doc.getSelection() → string</code></dt>
+      <dt id="getSelection"><code><strong>doc.getSelection</strong>() → string</code></dt>
       <dd>Get the currently selected code.</dd>
-      <dt id="replaceSelection"><code>doc.replaceSelection(string)</code></dt>
-      <dd>Replace the selection with the given string.</dd>
+      <dt id="replaceSelection"><code><strong>doc.replaceSelection</strong>(replacement: string, ?collapse: string)</code></dt>
+      <dd>Replace the selection with the given string. By default, the
+      new selection will span the inserted text. The
+      optional <code>collapse</code> argument can be used to change
+      this—passing <code>"start"</code> or <code>"end"</code> will
+      collapse the selection to the start or end of the inserted
+      text.</dd>
 
-      <dt id="getCursor"><code>doc.getCursor(start) → object</code></dt>
+      <dt id="getCursor"><code><strong>doc.getCursor</strong>(?start: string) → {line, ch}</code></dt>
       <dd><code>start</code> is a an optional string indicating which
       end of the selection to return. It may
       be <code>"start"</code>, <code>"end"</code>, <code>"head"</code>
@@ -750,18 +887,18 @@
       selection). Omitting the argument is the same as
       passing <code>"head"</code>. A <code>{line, ch}</code> object
       will be returned.</dd>
-      <dt id="somethingSelected"><code>doc.somethingSelected() → boolean</code></dt>
+      <dt id="somethingSelected"><code><strong>doc.somethingSelected</strong>() → boolean</code></dt>
       <dd>Return true if any text is selected.</dd>
-      <dt id="setCursor"><code>doc.setCursor(pos)</code></dt>
+      <dt id="setCursor"><code><strong>doc.setCursor</strong>(pos: {line, ch})</code></dt>
       <dd>Set the cursor position. You can either pass a
       single <code>{line, ch}</code> object, or the line and the
       character as two separate parameters.</dd>
-      <dt id="setSelection"><code>doc.setSelection(anchor, head)</code></dt>
+      <dt id="setSelection"><code><strong>doc.setSelection</strong>(anchor: {line, ch}, head: {line, ch})</code></dt>
       <dd>Set the selection range. <code>anchor</code>
       and <code>head</code> should be <code>{line, ch}</code>
       objects. <code>head</code> defaults to <code>anchor</code> when
       not given.</dd>
-      <dt id="extendSelection"><code>doc.extendSelection(pos, pos2)</code></dt>
+      <dt id="extendSelection"><code><strong>doc.extendSelection</strong>(from: {line, ch}, ?to: {line, ch})</code></dt>
       <dd>Similar
       to <a href="#setSelection"><code>setSelection</code></a>, but
       will, if shift is held or
@@ -771,13 +908,16 @@
       ensure a region (for example a word or paragraph) will end up
       selected (in addition to whatever lies between that region and
       the current anchor).</dd>
-      <dt id="setExtending"><code>doc.setExtending(bool)</code></dt>
+      <dt id="setExtending"><code><strong>doc.setExtending</strong>(value: boolean)</code></dt>
       <dd>Sets or clears the 'extending' flag, which acts similar to
       the shift key, in that it will cause cursor movement and calls
       to <a href="#extendSelection"><code>extendSelection</code></a>
       to leave the selection anchor in place.</dd>
 
-      <dt id="findPosH"><code>cm.findPosH(start, amount, unit, visually) → object</code></dt>
+      <dt id="hasFocus"><code><strong>cm.hasFocus</strong>() → boolean</code></dt>
+      <dd>Tells you whether the editor currently has focus.</dd>
+
+      <dt id="findPosH"><code><strong>cm.findPosH</strong>(start: {line, ch}, amount: integer, unit: string, visually: boolean) → {line, ch, ?hitSide: boolean}</code></dt>
       <dd>Used to find the target position for horizontal cursor
       motion. <code>start</code> is a <code>{line, ch}</code>
       object, <code>amount</code> an integer (may be negative),
@@ -790,7 +930,7 @@
       the motion was clipped by hitting the end or start of the
       document, the returned value will have a <code>hitSide</code>
       property set to true.</dd>
-      <dt id="findPosV"><code>cm.findPosV(start, amount, unit) → object</code></dt>
+      <dt id="findPosV"><code><strong>cm.findPosV</strong>(start: {line, ch}, amount: integer, unit: string) → {line, ch, ?hitSide: boolean}</code></dt>
       <dd>Similar to <a href="#findPosH"><code>findPosH</code></a>,
       but used for vertical motion. <code>unit</code> may
       be <code>"line"</code> or <code>"page"</code>. The other
@@ -801,36 +941,38 @@
     <h3 id="api_configuration">Configuration methods</h3>
 
     <dl>
-      <dt id="setOption"><code>cm.setOption(option, value)</code></dt>
+      <dt id="setOption"><code><strong>cm.setOption</strong>(option: string, value: any)</code></dt>
       <dd>Change the configuration of the editor. <code>option</code>
       should the name of an <a href="#config">option</a>,
       and <code>value</code> should be a valid value for that
       option.</dd>
-      <dt id="getOption"><code>cm.getOption(option) → value</code></dt>
+      <dt id="getOption"><code><strong>cm.getOption</strong>(option: string) → any</code></dt>
       <dd>Retrieves the current value of the given option for this
       editor instance.</dd>
 
-      <dt id="addKeyMap"><code>cm.addKeyMap(map)</code></dt>
-      <dd>Attach an additional <a href="#keymaps">keymap</a> to the editor. This is mostly
-      useful for add-ons that need to register some key handlers
-      without trampling on
+      <dt id="addKeyMap"><code><strong>cm.addKeyMap</strong>(map: object, bottom: boolean)</code></dt>
+      <dd>Attach an additional <a href="#keymaps">keymap</a> to the
+      editor. This is mostly useful for addons that need to register
+      some key handlers without trampling on
       the <a href="#option_extraKeys"><code>extraKeys</code></a>
-      option. Maps added in this way have a lower precedence
-      than <code>extraKeys</code>, a higher precedence than the
-      base <a href="#option_keyMap"><code>keyMap</code></a>, and
-      between them, the maps added earlier have a higher precedence
-      than those added later.</dd>
-      <dt id="removeKeyMap"><code>cm.removeKeyMap(map)</code></dt>
+      option. Maps added in this way have a higher precedence than
+      the <code>extraKeys</code>
+      and <a href="#option_keyMap"><code>keyMap</code></a> options,
+      and between them, the maps added earlier have a lower precedence
+      than those added later, unless the <code>bottom</code> argument
+      was passed, in which case they end up below other keymaps added
+      with this method.</dd>
+      <dt id="removeKeyMap"><code><strong>cm.removeKeyMap</strong>(map: object)</code></dt>
       <dd>Disable a keymap added
       with <a href="#addKeyMap"><code>addKeyMap</code></a>. Either
       pass in the keymap object itself, or a string, which will be
       compared against the <code>name</code> property of the active
       keymaps.</dd>
 
-      <dt id="addOverlay"><code>cm.addOverlay(mode, options)</code></dt>
+      <dt id="addOverlay"><code><strong>cm.addOverlay</strong>(mode: string|object, ?options: object)</code></dt>
       <dd>Enable a highlighting overlay. This is a stateless mini-mode
       that can be used to add extra highlighting. For example,
-      the <a href="../demo/search.html">search add-on</a> uses it to
+      the <a href="../demo/search.html">search addon</a> uses it to
       highlight the term that's currently being
       searched. <code>mode</code> can be a <a href="#option_mode">mode
       spec</a> or a mode object (an object with
@@ -841,18 +983,18 @@
       allow the overlay styling, when not <code>null</code>, to
       override the styling of the base mode entirely, instead of the
       two being applied together.</dd>
-      <dt id="removeOverlay"><code>cm.removeOverlay(mode)</code></dt>
-      <dd>Pass this the exact argument passed for
-      the <code>mode</code> parameter
-      to <a href="#addOverlay"><code>addOverlay</code></a> to remove
-      an overlay again.</dd>
+      <dt id="removeOverlay"><code><strong>cm.removeOverlay</strong>(mode: string|object)</code></dt>
+      <dd>Pass this the exact value passed for the <code>mode</code>
+      parameter to <a href="#addOverlay"><code>addOverlay</code></a>,
+      or a string that corresponds to the <code>name</code> propery of
+      that value, to remove an overlay again.</dd>
 
-      <dt id="on"><code>cm.on(type, func)</code></dt>
+      <dt id="on"><code><strong>cm.on</strong>(type: string, func: (...args))</code></dt>
       <dd>Register an event handler for the given event type (a
       string) on the editor instance. There is also
       a <code>CodeMirror.on(object, type, func)</code> version
       that allows registering of events on any object.</dd>
-      <dt id="off"><code>cm.off(type, func)</code></dt>
+      <dt id="off"><code><strong>cm.off</strong>(type: string, func: (...args))</code></dt>
       <dd>Remove an event handler on the editor instance. An
       equivalent <code>CodeMirror.off(object, type,
       func)</code> also exists.</dd>
@@ -871,50 +1013,51 @@
     it start at a line number other than 0, respectively.</p>
 
     <dl>
-      <dt id="getDoc"><code>cm.getDoc() → doc</code></dt>
+      <dt id="getDoc"><code><strong>cm.getDoc</strong>() → Doc</code></dt>
       <dd>Retrieve the currently active document from an editor.</dd>
-      <dt id="getEditor"><code>doc.getEditor() → editor</code></dt>
+      <dt id="getEditor"><code><strong>doc.getEditor</strong>() → CodeMirror</code></dt>
       <dd>Retrieve the editor associated with a document. May
       return <code>null</code>.</dd>
 
-      <dt id="swapDoc"><code>cm.swapDoc(doc) → doc</code></dt>
+      <dt id="swapDoc"><code><strong>cm.swapDoc</strong>(doc: CodeMirror.Doc) → Doc</code></dt>
       <dd>Attach a new document to the editor. Returns the old
       document, which is now no longer associated with an editor.</dd>
 
-      <dt id="copy"><code>doc.copy(copyHistory) → doc</code></dt>
+      <dt id="copy"><code><strong>doc.copy</strong>(copyHistory: boolean) → Doc</code></dt>
       <dd>Create an identical copy of the given doc.
       When <code>copyHistory</code> is true, the history will also be
       copied. Can not be called directly on an editor.</dd>
 
-      <dt id="linkedDoc"><code>doc.linkedDoc(options) → doc</code></dt>
+      <dt id="linkedDoc"><code><strong>doc.linkedDoc</strong>(options: object) → Doc</code></dt>
       <dd>Create a new document that's linked to the target document.
       Linked documents will stay in sync (changes to one are also
       applied to the other) until <a href="#unlinkDoc">unlinked</a>.
       These are the options that are supported:
         <dl>
-          <dt id="linkedDoc_sharedHist"><code>sharedHist (boolean)</code></dt>
+          <dt id="linkedDoc_sharedHist"><code><strong>sharedHist</strong>: boolean</code></dt>
           <dd>When turned on, the linked copy will share an undo
           history with the original. Thus, something done in one of
           the two can be undone in the other, and vice versa.</dd>
-          <dt id="linkedDoc_from"><code>from, to (integer)</code></dt>
+          <dt id="linkedDoc_from"><code><strong>from</strong>: integer</code></dt>
+          <dt id="linkedDoc_to"><code><strong>to</strong>: integer</code></dt>
           <dd>Can be given to make the new document a subview of the
           original. Subviews only show a given range of lines. Note
           that line coordinates inside the subview will be consistent
           with those of the parent, so that for example a subview
           starting at line 10 will refer to its first line as line 10,
           not 0.</dd>
-          <dt id="linkedDoc_mode"><code>mode (mode spec)</code></dt>
+          <dt id="linkedDoc_mode"><code><strong>mode</strong>: string|object</code></dt>
           <dd>By default, the new document inherits the mode of the
           parent. This option can be set to
           a <a href="#option_mode">mode spec</a> to give it a
           different mode.</dd>
         </dl></dd>
-      <dt id="unlinkDoc"><code>doc.unlinkDoc(doc)</code></dt>
+      <dt id="unlinkDoc"><code><strong>doc.unlinkDoc</strong>(doc: CodeMirror.Doc)</code></dt>
       <dd>Break the link between two documents. After calling this,
       changes will no longer propagate between the documents, and, if
       they had a shared history, the history will become
       separate.</dd>
-      <dt id="iterLinkedDocs"><code>doc.iterLinkedDocs(function)</code></dt>
+      <dt id="iterLinkedDocs"><code><strong>doc.iterLinkedDocs</strong>(function: (doc: CodeMirror.Doc, sharedHist: boolean))</code></dt>
       <dd>Will call the given function for all documents linked to the
       target document. It will be passed two arguments, the linked document
       and a boolean indicating whether that document shares history
@@ -924,20 +1067,20 @@
     <h3 id="api_history">History-related methods</h3>
 
     <dl>
-      <dt id="undo"><code>doc.undo()</code></dt>
+      <dt id="undo"><code><strong>doc.undo</strong>()</code></dt>
       <dd>Undo one edit (if any undo events are stored).</dd>
-      <dt id="redo"><code>doc.redo()</code></dt>
+      <dt id="redo"><code><strong>doc.redo</strong>()</code></dt>
       <dd>Redo one undone edit.</dd>
 
-      <dt id="historySize"><code>doc.historySize() → object</code></dt>
+      <dt id="historySize"><code><strong>doc.historySize</strong>() → {undo: integer, redo: integer}</code></dt>
       <dd>Returns an object with <code>{undo, redo}</code> properties,
       both of which hold integers, indicating the amount of stored
       undo and redo operations.</dd>
-      <dt id="clearHistory"><code>doc.clearHistory()</code></dt>
+      <dt id="clearHistory"><code><strong>doc.clearHistory</strong>()</code></dt>
       <dd>Clears the editor's undo history.</dd>
-      <dt id="getHistory"><code>doc.getHistory() → object</code></dt>
+      <dt id="getHistory"><code><strong>doc.getHistory</strong>() → object</code></dt>
       <dd>Get a (JSON-serializeable) representation of the undo history.</dd>
-      <dt id="setHistory"><code>doc.setHistory(object)</code></dt>
+      <dt id="setHistory"><code><strong>doc.setHistory</strong>(history: object)</code></dt>
       <dd>Replace the editor's undo history with the one provided,
       which must be a value as returned
       by <a href="#getHistory"><code>getHistory</code></a>. Note that
@@ -949,43 +1092,51 @@
     <h3 id="api_marker">Text-marking methods</h3>
 
     <dl>
-      <dt id="markText"><code>doc.markText(from, to, options) → object</code></dt>
+      <dt id="markText"><code><strong>doc.markText</strong>(from: {line, ch}, to: {line, ch}, ?options: object) → TextMarker</code></dt>
       <dd>Can be used to mark a range of text with a specific CSS
       class name. <code>from</code> and <code>to</code> should
       be <code>{line, ch}</code> objects. The <code>options</code>
       parameter is optional. When given, it should be an object that
       may contain the following configuration options:
       <dl>
-        <dt id="mark_className"><code>className (string)</code></dt>
+        <dt id="mark_className"><code><strong>className</strong>: string</code></dt>
         <dd>Assigns a CSS class to the marked stretch of text.</dd>
-        <dt id="mark_inclusiveLeft"><code>inclusiveLeft (boolean)</code></dt><dd>Determines whether
+        <dt id="mark_inclusiveLeft"><code><strong>inclusiveLeft</strong>: boolean</code></dt>
+        <dd>Determines whether
         text inserted on the left of the marker will end up inside
         or outside of it.</dd>
-        <dt id="mark_inclusiveRight"><code>inclusiveRight</code> (boolean)</dt><dd>Like <code>inclusiveLeft</code>,
+        <dt id="mark_inclusiveRight"><code><strong>inclusiveRight</strong>: boolean</code></dt>
+        <dd>Like <code>inclusiveLeft</code>,
         but for the right side.</dd>
-        <dt id="mark_atomic"><code>atomic (boolean)</code></dt>
+        <dt id="mark_atomic"><code><strong>atomic</strong>: boolean</code></dt>
         <dd>Atomic ranges act as a single unit when cursor movement is
         concerned—i.e. it is impossible to place the cursor inside of
         them. In atomic ranges, <code>inclusiveLeft</code>
         and <code>inclusiveRight</code> have a different meaning—they
         will prevent the cursor from being placed respectively
         directly before and directly after the range.</dd>
-        <dt id="mark_collapsed"><code>collapsed (boolean)</code></dt>
+        <dt id="mark_collapsed"><code><strong>collapsed</strong>: boolean</code></dt>
         <dd>Collapsed ranges do not show up in the display. Setting a
         range to be collapsed will automatically make it atomic.</dd>
-        <dt id="mark_clearOnEnter"><code>clearOnEnter (boolean)</code></dt>
+        <dt id="mark_clearOnEnter"><code><strong>clearOnEnter</strong>: boolean</code></dt>
         <dd>When enabled, will cause the mark to clear itself whenever
         the cursor enters its range. This is mostly useful for
         text-replacement widgets that need to 'snap open' when the
-        user tries to edit them. A
-        the <a href="#event_clear"><code>"clear"</code></a> event
+        user tries to edit them. The
+        <a href="#event_clear"><code>"clear"</code></a> event
         fired on the range handle can be used to be notified when this
         happens.</dd>
-        <dt id="mark_replacedWith"><code>replacedWith (dom node)</code></dt>
+        <dt id="mark_replacedWith"><code><strong>replacedWith</strong>: Element</code></dt>
         <dd>Use a given node to display this range. Implies both
         collapsed and atomic. The given DOM node <em>must</em> be an
         inline element (as opposed to a block element).</dd>
-        <dt id="mark_readOnly"><code>readOnly</code></dt>
+        <dt><code><strong>handleMouseEvents</strong>: boolean</code></dt>
+        <dd>When <code>replacedWith</code> is given, this determines
+        whether the editor will capture mouse and drag events
+        occurring in this widget. Default is false—the events will be
+        left alone for the default browser handler, or specific
+        handlers on the widget, to capture.</dd>
+        <dt id="mark_readOnly"><code><strong>readOnly</strong>: boolean</code></dt>
         <dd>A read-only span can, as long as it is not cleared, not be
         modified except by
         calling <a href="#setValue"><code>setValue</code></a> to reset
@@ -994,12 +1145,20 @@
         existing undo events being partially nullified by read-only
         spans would corrupt the history (in the current
         implementation).</dd>
-        <dt id="mark_startStyle"><code>startStyle</code></dt><dd>Can be used to specify
+        <dt id="mark_addToHistory"><code><strong>addToHistory</strong>: boolean</code></dt>
+        <dd>When set to true (default is false), adding this marker
+        will create an event in the undo history that can be
+        individually undone (clearing the marker).</dd>
+        <dt id="mark_startStyle"><code><strong>startStyle</strong>: string</code></dt><dd>Can be used to specify
         an extra CSS class to be applied to the leftmost span that
         is part of the marker.</dd>
-        <dt id="mark_endStyle"><code>endStyle</code></dt><dd>Equivalent
+        <dt id="mark_endStyle"><code><strong>endStyle</strong>: string</code></dt><dd>Equivalent
         to <code>startStyle</code>, but for the rightmost span.</dd>
-        <dt id="mark_shared"><code>shared</code></dt><dd>When the
+        <dt id="mark_title"><code><strong>title</strong>:
+        string</code></dt><dd>When given, will give the nodes created
+        for this span a HTML <code>title</code> attribute with the
+        given value.</dd>
+        <dt id="mark_shared"><code><strong>shared</strong>: boolean</code></dt><dd>When the
         target document is <a href="#linkedDoc">linked</a> to other
         documents, you can set <code>shared</code> to true to make the
         marker appear in all documents. By default, a marker appears
@@ -1008,19 +1167,18 @@
       The method will return an object that represents the marker
       (with constuctor <code>CodeMirror.TextMarker</code>), which
       exposes three methods:
-      <code>clear()</code>, to remove the mark,
-      <code>find()</code>, which returns a <code>{from, to}</code>
-      object (both holding document positions), indicating the current
-      position of the marked range, or <code>undefined</code> if the
-      marker is no longer in the document, and
-      finally <code>getOptions(copyWidget)</code>, which returns an
-      object representing the options for the marker.
-      If <code>copyWidget</code> is given an true, it will clone the
-      value of
-      the <a href="#mark_replacedWith"><code>replacedWith</code></a>
-      option, if any.</dd>
+      <code><strong>clear</strong>()</code>, to remove the mark,
+      <code><strong>find</strong>()</code>, which returns
+      a <code>{from, to}</code> object (both holding document
+      positions), indicating the current position of the marked range,
+      or <code>undefined</code> if the marker is no longer in the
+      document, and finally <code><strong>changed</strong>()</code>,
+      which you can call if you've done something that might change
+      the size of the marker (for example changing the content of
+      a <a href="#mark_replacedWith"><code>replacedWith</code></a>
+      node), and want to cheaply update the display.</dd>
 
-      <dt id="setBookmark"><code>doc.setBookmark(pos, options) → object</code></dt>
+      <dt id="setBookmark"><code><strong>doc.setBookmark</strong>(pos: {line, ch}, ?options: object) → TextMarker</code></dt>
       <dd>Inserts a bookmark, a handle that follows the text around it
       as it is being edited, at the given position. A bookmark has two
       methods <code>find()</code> and <code>clear()</code>. The first
@@ -1029,27 +1187,27 @@
       The options argument is optional. If given, the following
       properties are recognized:
       <dl>
-        <dt><code>widget</code></dt><dd>Can be used to display a DOM
+        <dt><code><strong>widget</strong>: Element</code></dt><dd>Can be used to display a DOM
         node at the current location of the bookmark (analogous to
         the <a href="#mark_replacedWith"><code>replacedWith</code></a>
         option to <code>markText</code>).</dd>
-        <dt><code>insertLeft</code></dt><dd>By default, text typed
+        <dt><code><strong>insertLeft</strong>: boolean</code></dt><dd>By default, text typed
         when the cursor is on top of the bookmark will end up to the
         right of the bookmark. Set this option to true to make it go
         to the left instead.</dd>
       </dl></dd>
 
-      <dt id="findMarksAt"><code>doc.findMarksAt(pos) → array</code></dt>
+      <dt id="findMarksAt"><code><strong>doc.findMarksAt</strong>(pos: {line, ch}) → array&lt;TextMarker&gt;</code></dt>
       <dd>Returns an array of all the bookmarks and marked ranges
       present at the given position.</dd>
-      <dt id="getAllMarks"><code>doc.getAllMarks() → array</code></dt>
+      <dt id="getAllMarks"><code><strong>doc.getAllMarks</strong>() → array&lt;TextMarker&gt;</code></dt>
       <dd>Returns an array containing all marked ranges in the document.</dd>
     </dl>
 
     <h3 id="api_decoration">Widget, gutter, and decoration methods</h3>
-    
+
     <dl>
-      <dt id="setGutterMarker"><code>cm.setGutterMarker(line, gutterID, value) → lineHandle</code></dt>
+      <dt id="setGutterMarker"><code><strong>cm.setGutterMarker</strong>(line: integer|LineHandle, gutterID: string, value: Element) → LineHandle</code></dt>
       <dd>Sets the gutter marker for the given gutter (identified by
       its CSS class, see
       the <a href="#option_gutters"><code>gutters</code></a> option)
@@ -1057,12 +1215,12 @@
       clear the marker, or a DOM element, to set it. The DOM element
       will be shown in the specified gutter next to the specified
       line.</dd>
-      
-      <dt id="clearGutter"><code>cm.clearGutter(gutterID)</code></dt>
+
+      <dt id="clearGutter"><code><strong>cm.clearGutter</strong>(gutterID: string)</code></dt>
       <dd>Remove all gutter markers in
       the <a href="#option_gutters">gutter</a> with the given ID.</dd>
 
-      <dt id="addLineClass"><code>cm.addLineClass(line, where, class) → lineHandle</code></dt>
+      <dt id="addLineClass"><code><strong>cm.addLineClass</strong>(line: integer|LineHandle, where: string, class: string) → LineHandle</code></dt>
       <dd>Set a CSS class name for the given line. <code>line</code>
       can be a number or a line handle. <code>where</code> determines
       to which element this class should be applied, can can be one
@@ -1073,7 +1231,7 @@
       gutter elements). <code>class</code> should be the name of the
       class to apply.</dd>
 
-      <dt id="removeLineClass"><code>cm.removeLineClass(line, where, class) → lineHandle</code></dt>
+      <dt id="removeLineClass"><code><strong>cm.removeLineClass</strong>(line: integer|LineHandle, where: string, class: string) → LineHandle</code></dt>
       <dd>Remove a CSS class from a line. <code>line</code> can be a
       line handle or number. <code>where</code> should be one
       of <code>"text"</code>, <code>"background"</code>,
@@ -1082,7 +1240,7 @@
       can be left off to remove all classes for the specified node, or
       be a string to remove only a specific class.</dd>
 
-      <dt id="lineInfo"><code>cm.lineInfo(line) → object</code></dt>
+      <dt id="lineInfo"><code><strong>cm.lineInfo</strong>(line: integer|LineHandle) → object</code></dt>
       <dd>Returns the line number, text content, and marker status of
       the given line, which can be either a number or a line handle.
       The returned object has the structure <code>{line, handle, text,
@@ -1093,7 +1251,7 @@
       line, and the various class properties refer to classes added
       with <a href="#addLineClass"><code>addLineClass</code></a>.</dd>
 
-      <dt id="addWidget"><code>cm.addWidget(pos, node, scrollIntoView)</code></dt>
+      <dt id="addWidget"><code><strong>cm.addWidget</strong>(pos: {line, ch}, node: Element, scrollIntoView: boolean)</code></dt>
       <dd>Puts <code>node</code>, which should be an absolutely
       positioned DOM node, into the editor, positioned right below the
       given <code>{line, ch}</code> position.
@@ -1102,7 +1260,7 @@
       widget again, simply use DOM methods (move it somewhere else, or
       call <code>removeChild</code> on its parent).</dd>
 
-      <dt id="addLineWidget"><code>cm.addLineWidget(line, node, options) → object</code></dt>
+      <dt id="addLineWidget"><code><strong>cm.addLineWidget</strong>(line: integer|LineHandle, node: Element, ?options: object) → LineWidget</code></dt>
       <dd>Adds a line widget, an element shown below a line, spanning
       the whole of the editor's width, and moving the lines below it
       downwards. <code>line</code> should be either an integer or a
@@ -1112,17 +1270,28 @@
       the widget. The following options are supported (all default to
       false):
         <dl>
-          <dt><code>coverGutter (boolean)</code></dt>
+          <dt><code><strong>coverGutter</strong>: boolean</code></dt>
           <dd>Whether the widget should cover the gutter.</dd>
-          <dt><code>noHScroll (boolean)</code></dt>
+          <dt><code><strong>noHScroll</strong>: boolean</code></dt>
           <dd>Whether the widget should stay fixed in the face of
           horizontal scrolling.</dd>
-          <dt><code>above (boolean)</code></dt>
+          <dt><code><strong>above</strong>: boolean</code></dt>
           <dd>Causes the widget to be placed above instead of below
           the text of the line.</dd>
-          <dt><code>showIfHidden (boolean)</code></dt>
+          <dt><code><strong>showIfHidden</strong>: boolean</code></dt>
           <dd>When true, will cause the widget to be rendered even if
           the line it is associated with is hidden.</dd>
+          <dt><code><strong>handleMouseEvents</strong>: boolean</code></dt>
+          <dd>Determines whether the editor will capture mouse and
+          drag events occurring in this widget. Default is false—the
+          events will be left alone for the default browser handler,
+          or specific handlers on the widget, to capture.</dd>
+          <dt><code><strong>insertAt</strong>: integer</code></dt>
+          <dd>By default, the widget is added below other widgets for
+          the line. This option can be used to place it at a different
+          position (zero for the top, N to put it after the Nth other
+          widget). Note that this only has effect once, when the
+          widget is created.
         </dl>
       Note that the widget node will become a descendant of nodes with
       CodeMirror-specific CSS classes, and those classes might in some
@@ -1130,18 +1299,19 @@
       the widget placement. It'll have a <code>line</code> property
       pointing at the line handle that it is associated with, and the following methods:
         <dl>
-          <dt id="widget_clear"><code>clear()</code></dt><dd>Removes the widget.</dd>
-          <dt id="widget_changed"><code>changed()</code></dt><dd>Call
+          <dt id="widget_clear"><code><strong>clear</strong>()</code></dt><dd>Removes the widget.</dd>
+          <dt id="widget_changed"><code><strong>changed</strong>()</code></dt><dd>Call
           this if you made some change to the widget's DOM node that
           might affect its height. It'll force CodeMirror to update
           the height of the line that contains the widget.</dd>
         </dl>
       </dd>
+    </dl>
 
     <h3 id="api_sizing">Sizing, scrolling and positioning methods</h3>
 
     <dl>
-      <dt id="setSize"><code>cm.setSize(width, height)</code></dt>
+      <dt id="setSize"><code><strong>cm.setSize</strong>(width: number|string, height: number|string)</code></dt>
       <dd>Programatically set the size of the editor (overriding the
       applicable <a href="#css-resize">CSS
       rules</a>). <code>width</code> and <code>height</code> height
@@ -1150,23 +1320,25 @@
       pass <code>null</code> for either of them to indicate that that
       dimension should not be changed.</dd>
 
-      <dt id="scrollTo"><code>cm.scrollTo(x, y)</code></dt>
+      <dt id="scrollTo"><code><strong>cm.scrollTo</strong>(x: number, y: number)</code></dt>
       <dd>Scroll the editor to a given (pixel) position. Both
       arguments may be left as <code>null</code>
       or <code>undefined</code> to have no effect.</dd>
-      <dt id="getScrollInfo"><code>cm.getScrollInfo()</code></dt>
+      <dt id="getScrollInfo"><code><strong>cm.getScrollInfo</strong>() → {left, top, width, height, clientWidth, clientHeight}</code></dt>
       <dd>Get an <code>{left, top, width, height, clientWidth,
       clientHeight}</code> object that represents the current scroll
       position, the size of the scrollable area, and the size of the
       visible area (minus scrollbars).</dd>
-      <dt id="scrollIntoView"><code>cm.scrollIntoView(pos)</code></dt>
+      <dt id="scrollIntoView"><code><strong>cm.scrollIntoView</strong>(pos: {line, ch}|{left, top, right, bottom}, ?margin: number)</code></dt>
       <dd>Scrolls the given element into view. <code>pos</code> may be
       either a <code>{line, ch}</code> position, referring to a given
       character, <code>null</code>, to refer to the cursor, or
       a <code>{left, top, right, bottom}</code> object, in
-      editor-local coordinates.</dd>
+      editor-local coordinates. The <code>margin</code> parameter is
+      optional. When given, it indicates the amount of pixels around
+      the given area that should be made visible as well.</dd>
 
-      <dt id="cursorCoords"><code>cm.cursorCoords(where, mode) → object</code></dt>
+      <dt id="cursorCoords"><code><strong>cm.cursorCoords</strong>(where: boolean|{line, ch}, mode: string) → {left, top, bottom}</code></dt>
       <dd>Returns an <code>{left, top, bottom}</code> object
       containing the coordinates of the cursor position.
       If <code>mode</code> is <code>"local"</code>, they will be
@@ -1177,21 +1349,41 @@
       end (<code>false</code>) of the selection, or, if a <code>{line,
       ch}</code> object is given, it specifies the precise position at
       which you want to measure.</dd>
-      <dt id="charCoords"><code>cm.charCoords(pos, mode) → object</code></dt>
+      <dt id="charCoords"><code><strong>cm.charCoords</strong>(pos: {line, ch}, ?mode: string) → {left, right, top, bottom}</code></dt>
       <dd>Returns the position and dimensions of an arbitrary
       character. <code>pos</code> should be a <code>{line, ch}</code>
       object. This differs from <code>cursorCoords</code> in that
       it'll give the size of the whole character, rather than just the
       position that the cursor would have when it would sit at that
       position.</dd>
-      <dt id="coordsChar"><code>cm.coordsChar(object) → pos</code></dt>
-      <dd>Given an <code>{left, top}</code> object (in page coordinates),
-      returns the <code>{line, ch}</code> position that corresponds to
-      it.</dd>
-      <dt id="defaultTextHeight"><code>cm.defaultTextHeight() → number</code></dt>
+      <dt id="coordsChar"><code><strong>cm.coordsChar</strong>(object: {left, top}, ?mode: string) → {line, ch}</code></dt>
+      <dd>Given an <code>{left, top}</code> object, returns
+      the <code>{line, ch}</code> position that corresponds to it. The
+      optional <code>mode</code> parameter determines relative to what
+      the coordinates are interpreted. It may
+      be <code>"window"</code>, <code>"page"</code> (the default),
+      or <code>"local"</code>.</dd>
+      <dt id="lineAtHeight"><code><strong>cm.lineAtHeight</strong>(height: number, ?mode: string) → number</code></dt>
+      <dd>Computes the line at the given pixel
+      height. <code>mode</code> can be one of the same strings
+      that <a href="#coordsChar"><code>coordsChar</code></a>
+      accepts.</dd>
+      <dt id="heightAtLine"><code><strong>cm.heightAtLine</strong>(line: number, ?mode: string) → number</code></dt>
+      <dd>Computes the height of the top of a line, in the coordinate
+      system specified by <code>mode</code>
+      (see <a href="#coordsChar"><code>coordsChar</code></a>), which
+      defaults to <code>"page"</code>. When a line below the bottom of
+      the document is specified, the returned value is the bottom of
+      the last line in the document.</dd>
+      <dt id="defaultTextHeight"><code><strong>cm.defaultTextHeight</strong>() → number</code></dt>
       <dd>Returns the line height of the default font for the editor.</dd>
+      <dt id="defaultCharWidth"><code><strong>cm.defaultCharWidth</strong>() → number</code></dt>
+      <dd>Returns the pixel width of an 'x' in the default font for
+      the editor. (Note that for non-monospace fonts, this is mostly
+      useless, and even for monospace fonts, non-ascii characters
+      might have a different width).</dd>
 
-      <dt id="getViewport"><code>cm.getViewport() → object</code></dt>
+      <dt id="getViewport"><code><strong>cm.getViewport</strong>() → {from: number, to: number}</code></dt>
       <dd>Returns a <code>{from, to}</code> object indicating the
       start (inclusive) and end (exclusive) of the currently rendered
       part of the document. In big documents, when most content is
@@ -1200,7 +1392,7 @@
       the <a href="#event_viewportChange"><code>viewportChange</code></a>
       event.</dd>
 
-      <dt id="refresh"><code>cm.refresh()</code></dt>
+      <dt id="refresh"><code><strong>cm.refresh</strong>()</code></dt>
       <dd>If your code does something to change the size of the editor
       element (window resizes are already listened for), or unhides
       it, you should probably follow up by calling this method to
@@ -1210,43 +1402,75 @@
     <h3 id="api_mode">Mode, state, and token-related methods</h3>
 
     <p>When writing language-aware functionality, it can often be
-    useful to hook into the knowledge thate the CodeMirror language
+    useful to hook into the knowledge that the CodeMirror language
     mode has. See <a href="#modeapi">the section on modes</a> for a
     more detailed description of how these work.</p>
 
     <dl>
-      <dt id="getMode"><code>doc.getMode() → object</code></dt>
-      <dd>Gets the mode object for the editor. Note that this is
-      distinct from <code>getOption("mode")</code>, which gives you
+      <dt id="getMode"><code><strong>doc.getMode</strong>() → object</code></dt>
+      <dd>Gets the (outer) mode object for the editor. Note that this
+      is distinct from <code>getOption("mode")</code>, which gives you
       the mode specification, rather than the resolved, instantiated
       <a href="#defineMode">mode object</a>.</dd>
 
-      <dt id="getTokenAt"><code>cm.getTokenAt(pos) → object</code></dt>
+      <dt id="getModeAt"><code><strong>doc.getModeAt</strong>(pos: {line, ch}) → object</code></dt>
+      <dd>Gets the inner mode at a given position. This will return
+      the same as <a href="#getMode"><code>getMode</code></a> for
+      simple modes, but will return an inner mode for nesting modes
+      (such as <code>htmlmixed</code>).</dd>
+
+      <dt id="getTokenAt"><code><strong>cm.getTokenAt</strong>(pos: {line, ch}, ?precise: boolean) → object</code></dt>
       <dd>Retrieves information about the token the current mode found
       before the given position (a <code>{line, ch}</code> object). The
       returned object has the following properties:
       <dl>
-        <dt><code>start</code></dt><dd>The character (on the given line) at which the token starts.</dd>
-        <dt><code>end</code></dt><dd>The character at which the token ends.</dd>
-        <dt><code>string</code></dt><dd>The token's string.</dd>
-        <dt><code>type</code></dt><dd>The token type the mode assigned
+        <dt><code><strong>start</strong></code></dt><dd>The character (on the given line) at which the token starts.</dd>
+        <dt><code><strong>end</strong></code></dt><dd>The character at which the token ends.</dd>
+        <dt><code><strong>string</strong></code></dt><dd>The token's string.</dd>
+        <dt><code><strong>type</strong></code></dt><dd>The token type the mode assigned
         to the token, such as <code>"keyword"</code>
         or <code>"comment"</code> (may also be null).</dd>
-        <dt><code>state</code></dt><dd>The mode's state at the end of this token.</dd>
-      </dl></dd>
+        <dt><code><strong>state</strong></code></dt><dd>The mode's state at the end of this token.</dd>
+      </dl>
+      If <code>precise</code> is true, the token will be guaranteed to be accurate based on recent edits. If false or
+      not specified, the token will use cached state information, which will be faster but might not be accurate if
+      edits were recently made and highlighting has not yet completed.
+      </dd>
 
-      <dt id="getStateAfter"><code>cm.getStateAfter(line) → state</code></dt>
+      <dt id="getTokenTypeAt"><code><strong>cm.getTokenTypeAt</strong>(pos: {line, ch}) → string</code></dt>
+      <dd>This is a (much) cheaper version
+      of <a href="#getTokenAt"><code>getTokenAt</code></a> useful for
+      when you just need the type of the token at a given position,
+      and no other information. Will return <code>null</code> for
+      unstyled tokens, and a string, potentially containing multiple
+      space-separated style names, otherwise.</dd>
+
+      <dt id="getHelper"><code><strong>cm.getHelper</strong>(pos: {line, ch}, type: string) → helper</code></dt>
+      <dd>Fetch appropriate helper for the given position. Helpers
+      provide a way to look up functionality appropriate for a mode.
+      The <code>type</code> argument provides the helper namespace
+      (see
+      also <a href="#registerHelper"><code>registerHelper</code></a>),
+      in which the value will be looked up. The key that is used
+      depends on the <a href="#getMode">mode</a> active at the given
+      position. If the mode object contains a property with the same
+      name as the <code>type</code> argument, that is tried first.
+      Next, the mode's <code>helperType</code>, if any, is tried. And
+      finally, the mode's name.</dd>
+
+      <dt id="getStateAfter"><code><strong>cm.getStateAfter</strong>(?line: integer, ?precise: boolean) → object</code></dt>
       <dd>Returns the mode's parser state, if any, at the end of the
       given line number. If no line number is given, the state at the
       end of the document is returned. This can be useful for storing
       parsing errors in the state, or getting other kinds of
-      contextual information for a line.</dd>
+      contextual information for a line. <code>precise</code> is defined
+      as in <code>getTokenAt()</code>.</dd>
     </dl>
 
     <h3 id="api_misc">Miscellaneous methods</h3>
 
     <dl>
-      <dt id="operation"><code>cm.operation(func) → result</code></dt>
+      <dt id="operation"><code><strong>cm.operation</strong>(func: () → any) → any</code></dt>
       <dd>CodeMirror internally buffers changes and only updates its
       DOM structure after it has finished performing some operation.
       If you need to perform a lot of operations on a CodeMirror
@@ -1256,101 +1480,148 @@
       lot faster. The return value from this method will be the return
       value of your function.</dd>
 
-      <dt id="indentLine"><code>cm.indentLine(line, dir)</code></dt>
+      <dt id="indentLine"><code><strong>cm.indentLine</strong>(line: integer, ?dir: string|integer)</code></dt>
       <dd>Adjust the indentation of the given line. The second
       argument (which defaults to <code>"smart"</code>) may be one of:
         <dl>
-          <dt><code>"prev"</code></dt>
+          <dt><code><strong>"prev"</strong></code></dt>
           <dd>Base indentation on the indentation of the previous line.</dd>
-          <dt><code>"smart"</code></dt>
+          <dt><code><strong>"smart"</strong></code></dt>
           <dd>Use the mode's smart indentation if available, behave
           like <code>"prev"</code> otherwise.</dd>
-          <dt><code>"add"</code></dt>
+          <dt><code><strong>"add"</strong></code></dt>
           <dd>Increase the indentation of the line by
           one <a href="#option_indentUnit">indent unit</a>.</dd>
-          <dt><code>"subtract"</code></dt>
+          <dt><code><strong>"subtract"</strong></code></dt>
           <dd>Reduce the indentation of the line.</dd>
+          <dt><code><strong>&lt;integer></strong></code></dt>
+          <dd>Add (positive number) or reduce (negative number) the
+          indentation by the given amount of spaces.</dd>
         </dl></dd>
 
-      <dt id="posFromIndex"><code>doc.posFromIndex(index) → object</code></dt>
+      <dt id="toggleOverwrite"><code><strong>cm.toggleOverwrite</strong>(?value: bool)</code></dt>
+      <dd>Switches between overwrite and normal insert mode (when not
+      given an argument), or sets the overwrite mode to a specific
+      state (when given an argument).</dd>
+
+      <dt id="posFromIndex"><code><strong>doc.posFromIndex</strong>(index: integer) → {line, ch}</code></dt>
       <dd>Calculates and returns a <code>{line, ch}</code> object for a
       zero-based <code>index</code> who's value is relative to the start of the
       editor's text. If the <code>index</code> is out of range of the text then
       the returned object is clipped to start or end of the text
       respectively.</dd>
-      <dt id="indexFromPos"><code>doc.indexFromPos(object) → number</code></dt>
+      <dt id="indexFromPos"><code><strong>doc.indexFromPos</strong>(object: {line, ch}) → integer</code></dt>
       <dd>The reverse of <a href="#posFromIndex"><code>posFromIndex</code></a>.</dd>
 
-      <dt id="focus"><code>cm.focus()</code></dt>
+      <dt id="focus"><code><strong>cm.focus</strong>()</code></dt>
       <dd>Give the editor focus.</dd>
 
-      <dt id="getInputField"><code>cm.getInputField() → textarea</code></dt>
+      <dt id="getInputField"><code><strong>cm.getInputField</strong>() → TextAreaElement</code></dt>
       <dd>Returns the hidden textarea used to read input.</dd>
-      <dt id="getWrapperElement"><code>cm.getWrapperElement() → node</code></dt>
+      <dt id="getWrapperElement"><code><strong>cm.getWrapperElement</strong>() → Element</code></dt>
       <dd>Returns the DOM node that represents the editor, and
       controls its size. Remove this from your tree to delete an
       editor instance.</dd>
-      <dt id="getScrollerElement"><code>cm.getScrollerElement() → node</code></dt>
+      <dt id="getScrollerElement"><code><strong>cm.getScrollerElement</strong>() → Element</code></dt>
       <dd>Returns the DOM node that is responsible for the scrolling
       of the editor.</dd>
-      <dt id="getGutterElement"><code>cm.getGutterElement() → node</code></dt>
+      <dt id="getGutterElement"><code><strong>cm.getGutterElement</strong>() → Element</code></dt>
       <dd>Fetches the DOM node that contains the editor gutters.</dd>
     </dl>
 
     <h3 id="api_static">Static properties</h3>
-
-    <p id="version">The <code>CodeMirror</code> object itself provides
-    several useful properties. Firstly, its <code>version</code>
-    property contains a string that indicates the version of the
-    library. For releases, this simply
-    contains <code>"major.minor"</code> (for
-    example <code>"2.33"</code>. For beta versions, <code>" B"</code>
-    (space, capital B) is added at the end of the string, for
-    development snapshots, <code>" +"</code> (space, plus) is
-    added.</p>
-
-    <p id="fromTextArea">The <code>CodeMirror.fromTextArea</code>
-    method provides another way to initialize an editor. It takes a
-    textarea DOM node as first argument and an optional configuration
-    object as second. It will replace the textarea with a CodeMirror
-    instance, and wire up the form of that textarea (if any) to make
-    sure the editor contents are put into the textarea when the form
-    is submitted. A CodeMirror instance created this way has three
-    additional methods:</p>
+    <p>The <code>CodeMirror</code> object itself provides
+    several useful properties.</p>
 
     <dl>
-      <dt id="save"><code>cm.save()</code></dt>
-      <dd>Copy the content of the editor into the textarea.</dd>
+      <dt id="version"><code><strong>CodeMirror.version</strong>: string</code></dt>
+      <dd>It contains a string that indicates the version of the
+      library. This is a triple of
+      integers <code>"major.minor.patch"</code>,
+      where <code>patch</code> is zero for releases, and something
+      else (usually one) for dev snapshots.</dd>
 
-      <dt id="toTextArea"><code>cm.toTextArea()</code></dt>
-      <dd>Remove the editor, and restore the original textarea (with
-      the editor's current content).</dd>
+      <dt id="fromTextArea"><code><strong>CodeMirror.fromTextArea</strong>(textArea: TextAreaElement, ?config: object)</code></dt>
+      <dd>
+        The method provides another way to initialize an editor. It takes a
+        textarea DOM node as first argument and an optional configuration
+        object as second. It will replace the textarea with a CodeMirror
+        instance, and wire up the form of that textarea (if any) to make
+        sure the editor contents are put into the textarea when the form
+        is submitted. A CodeMirror instance created this way has three
+        additional methods:
+        <dl>
+          <dt id="save"><code><strong>cm.save</strong>()</code></dt>
+          <dd>Copy the content of the editor into the textarea.</dd>
 
-      <dt id="getTextArea"><code>cm.getTextArea() → textarea</code></dt>
-      <dd>Returns the textarea that the instance was based on.</dd>
+          <dt id="toTextArea"><code><strong>cm.toTextArea</strong>()</code></dt>
+          <dd>Remove the editor, and restore the original textarea (with
+          the editor's current content).</dd>
+
+          <dt id="getTextArea"><code><strong>cm.getTextArea</strong>() → TextAreaElement</code></dt>
+          <dd>Returns the textarea that the instance was based on.</dd>
+        </dl>
+      </dd>
+
+      <dt id="defaults"><code><strong>CodeMirror.defaults</strong>: object</code></dt>
+      <dd>An object containing default values for
+      all <a href="#config">options</a>. You can assign to its
+      properties to modify defaults (though this won't affect editors
+      that have already been created).</dd>
+
+      <dt id="defineExtension"><code><strong>CodeMirror.defineExtension</strong>(name: string, value: any)</code></dt>
+      <dd>If you want to define extra methods in terms of the
+      CodeMirror API, it is possible to
+      use <code>defineExtension</code>. This will cause the given
+      value (usually a method) to be added to all CodeMirror instances
+      created from then on.</dd>
+
+      <dt id="defineDocExtension"><code><strong>CodeMirror.defineDocExtension</strong>(name: string, value: any)</code></dt>
+      <dd>Like <a href="#defineExtenstion"><code>defineExtension</code></a>,
+      but the method will be added to the interface
+      for <a href="#Doc"><code>Doc</code></a> objects instead.</dd>
+
+      <dt id="defineOption"><code><strong>CodeMirror.defineOption</strong>(name: string,
+      default: any, updateFunc: function)</code></dt>
+      <dd>Similarly, <code>defineOption</code> can be used to define new options for
+      CodeMirror. The <code>updateFunc</code> will be called with the
+      editor instance and the new value when an editor is initialized,
+      and whenever the option is modified
+      through <a href="#setOption"><code>setOption</code></a>.</dd>
+
+      <dt id="defineInitHook"><code><strong>CodeMirror.defineInitHook</strong>(func: function)</code></dt>
+      <dd>If your extention just needs to run some
+      code whenever a CodeMirror instance is initialized,
+      use <code>CodeMirror.defineInitHook</code>. Give it a function as
+      its only argument, and from then on, that function will be called
+      (with the instance as argument) whenever a new CodeMirror instance
+      is initialized.</dd>
+
+      <dt id="registerHelper"><code><strong>CodeMirror.registerHelper</strong>(type: string, name: string, value: helper)</code></dt>
+      <dd>Registers a helper value with the given <code>name</code> in
+      the given namespace (<code>type</code>). This is used to define
+      functionality that may be looked up by mode. Will create (if it
+      doesn't already exist) a property on the <code>CodeMirror</code>
+      object for the given <code>type</code>, pointing to an object
+      that maps names to values. I.e. after
+      doing <code>CodeMirror.registerHelper("hint", "foo",
+      myFoo)</code>, the value <code>CodeMirror.hint.foo</code> will
+      point to <code>myFoo</code>.</dd>
+
+      <dt id="Pos"><code><strong>CodeMirror.Pos</strong>(line: integer, ?ch: integer)</code></dt>
+      <dd>A constructor for the <code>{line, ch}</code> objects that
+      are used to represent positions in editor documents.</dd>
+
+      <dt id="changeEnd"><code><strong>CodeMirror.changeEnd</strong>(change: object) → {line, ch}</code></dt>
+      <dd>Utility function that computes an end position from a change
+      (an object with <code>from</code>, <code>to</code>,
+      and <code>text</code> properties, as passed to
+      various <a href="#event_change">event handlers</a>). The
+      returned position will be the end of the changed
+      range, <em>after</em> the change is applied.</dd>
     </dl>
 
-    <p id="defineExtension">If you want to define extra methods in terms
-    of the CodeMirror API, it is possible to
-    use <code>CodeMirror.defineExtension(name, value)</code>. This
-    will cause the given value (usually a method) to be added to all
-    CodeMirror instances created from then on.</p>
-
-    <p id="defineOption">Similarly, <code>CodeMirror.defineOption(name,
-    default, updateFunc)</code> can be used to define new options for
-    CodeMirror. The <code>updateFunc</code> will be called with the
-    editor instance and the new value when an editor is initialized,
-    and whenever the option is modified
-    through <a href="#setOption"><code>setOption</code></a>.</p>
-
-    <p id="defineInitHook">If your extention just needs to run some
-    code whenever a CodeMirror instance is initialized,
-    use <code>CodeMirror.defineInitHook</code>. Give it a function as
-    its only argument, and from then on, that function will be called
-    (with the instance as argument) whenever a new CodeMirror instance
-    is initialized.</p>
-
-    <h2 id="addons">Add-ons</h2>
+    <h2 id="addons">Addons</h2>
 
     <p>The <code>addon</code> directory in the distribution contains a
     number of reusable components that implement extra editor
@@ -1364,6 +1635,7 @@
       prompt (should include an <code>input</code> tag), and a
       callback function that is called when text has been entered.
       Depends on <code>addon/dialog/dialog.css</code>.</dd>
+
       <dt id="addon_searchcursor"><a href="../addon/search/searchcursor.js"><code>search/searchcursor.js</code></a></dt>
       <dd>Adds the <code>getSearchCursor(query, start, caseFold) →
       cursor</code> method to CodeMirror instances, which can be used
@@ -1376,18 +1648,20 @@
       relevant when matching a string. It will cause the search to be
       case-insensitive. A search cursor has the following methods:
         <dl>
-          <dt><code>findNext(), findPrevious() → boolean</code></dt>
+          <dt><code><strong>findNext</strong>() → boolean</code></dt>
+          <dt><code><strong>findPrevious</strong>() → boolean</code></dt>
           <dd>Search forward or backward from the current position.
           The return value indicates whether a match was found. If
           matching a regular expression, the return value will be the
           array returned by the <code>match</code> method, in case you
           want to extract matched groups.</dd>
-          <dt><code>from(), to() → object</code></dt>
+          <dt><code><strong>from</strong>() → {line, ch}</code></dt>
+          <dt><code><strong>to</strong>() → {line, ch}</code></dt>
           <dd>These are only valid when the last call
           to <code>findNext</code> or <code>findPrevious</code> did
           not return false. They will return <code>{line, ch}</code>
           objects pointing at the start and end of the match.</dd>
-          <dt><code>replace(text)</code></dt>
+          <dt><code><strong>replace</strong>(text: string)</code></dt>
           <dd>Replaces the currently found match with the given text
           and adjusts the cursor position to reflect the
           replacement.</dd>
@@ -1400,6 +1674,7 @@
       on <code>searchcursor.js</code>, and will make use
       of <a href="#addon_dialog"><code>openDialog</code></a> when
       available to make prompting for search queries less ugly.</dd>
+
       <dt id="addon_matchbrackets"><a href="../addon/edit/matchbrackets.js"><code>edit/matchbrackets.js</code></a></dt>
       <dd>Defines an option <code>matchBrackets</code> which, when set
       to true, causes matching brackets to be highlighted whenever the
@@ -1408,34 +1683,151 @@
       once, and a method <code>findMatchingBracket</code> that can be
       used to run the bracket-finding algorithm that this uses
       internally.</dd>
+
       <dt id="addon_closebrackets"><a href="../addon/edit/closebrackets.js"><code>edit/closebrackets.js</code></a></dt>
       <dd>Defines an option <code>autoCloseBrackets</code> that will
       auto-close brackets and quotes when typed. By default, it'll
-      auto-close <code>()[]{}''""</code>, but you can pass it a
-      string similar to that (containing pairs of matching characters)
-      to customize it. <a href="../demo/closebrackets.html">Demo
-      here</a>.</dd>
+      auto-close <code>()[]{}''""</code>, but you can pass it a string
+      similar to that (containing pairs of matching characters), or an
+      object with <code>pairs</code> and
+      optionally <code>explode</code> properties to customize
+      it. <code>explode</code> should be a similar string that gives
+      the pairs of characters that, when enter is pressed between
+      them, should have the second character also moved to its own
+      line. <a href="../demo/closebrackets.html">Demo here</a>.</dd>
+
+      <dt id="addon_matchtags"><a href="../addon/edit/matchtags.js"><code>edit/matchtags.js</code></a></dt>
+      <dd>Defines an option <code>matchTags</code> that, when enabled,
+      will cause the tags around the cursor to be highlighted (using
+      the <code>CodeMirror-matchingbrackets</code> class). Also
+      defines
+      a <a href="#commands">command</a> <code>toMatchingTag</code>,
+      which you can bind a key to in order to jump to the tag mathing
+      the one under the cursor. Depends on
+      the <code>addon/fold/xml-fold.js</code>
+      addon. <a href="../demo/matchtags.html">Demo here.</a></dd>
+
+      <dt id="addon_trailingspace"><a href="../addon/edit/trailingspace.js"><code>edit/trailingspace.js</code></a></dt>
+      <dd>Adds an option <code>showTrailingSpace</code> which, when
+      enabled, adds the CSS class <code>cm-trailingspace</code> to
+      stretches of whitespace at the end of lines.
+      The <a href="../demo/trailingspace.html">demo</a> has a nice
+      squiggly underline style for this class.</dd>
+
+      <dt id="addon_comment"><a href="../addon/comment/comment.js"><code>comment/comment.js</code></a></dt>
+      <dd>Addon for commenting and uncommenting code. Adds three
+      methods to CodeMirror instances:
+      <dl>
+        <dt id="lineComment"><code><strong>lineComment</strong>(from: {line, ch}, to: {line, ch}, ?options: object)</code></dt>
+        <dd>Set the lines in the given range to be line comments. Will
+        fall back to <code>blockComment</code> when no line comment
+        style is defined for the mode.</dd>
+        <dt id="blockComment"><code><strong>blockComment</strong>(from: {line, ch}, to: {line, ch}, ?options: object)</code></dt>
+        <dd>Wrap the code in the given range in a block comment. Will
+        fall back to <code>lineComment</code> when no block comment
+        style is defined for the mode.</dd>
+        <dt id="uncomment"><code><strong>uncomment</strong>(from: {line, ch}, to: {line, ch}, ?options: object) → boolean</code></dt>
+        <dd>Try to uncomment the given range.
+          Returns <code>true</code> if a comment range was found and
+          removed, <code>false</code> otherwise.</dd>
+      </dl>
+      The <code>options</code> object accepted by these methods may
+      have the following properties:
+      <dl>
+        <dt><code>blockCommentStart, blockCommentEnd, blockCommentLead, lineComment: string</code></dt>
+        <dd>Override the <a href="#mode_comment">comment string
+        properties</a> of the mode with custom comment strings.</dd>
+        <dt><code><strong>padding</strong>: string</code></dt>
+        <dd>A string that will be inserted after opening and before
+        closing comment markers. Defaults to a single space.</dd>
+        <dt><code><strong>commentBlankLines</strong>: boolean</code></dt>
+        <dd>Whether, when adding line comments, to also comment lines
+        that contain only whitespace.</dd>
+        <dt><code><strong>indent</strong>: boolean</code></dt>
+        <dd>When adding line comments and this is turned on, it will
+        align the comment block to the current indentation of the
+        first line of the block.</dd>
+        <dt><code><strong>fullLines</strong>: boolean</code></dt>
+        <dd>When block commenting, this controls whether the whole
+        lines are indented, or only the precise range that is given.
+        Defaults to <code>true</code>.</dd>
+      </dl>
+      The addon also defines
+      a <code>toggleComment</code> <a href="#commands">command</a>,
+      which will try to uncomment the current selection, and if that
+      fails, line-comments it.</dd>
+
       <dt id="addon_foldcode"><a href="../addon/fold/foldcode.js"><code>fold/foldcode.js</code></a></dt>
-      <dd>Helps with code folding.
-      See <a href="../demo/folding.html">the demo</a> for an example.
-      Call <code>CodeMirror.newFoldFunction</code> with a range-finder
-      helper function to create a function that will, when applied to
-      a CodeMirror instance and a line number, attempt to fold or
-      unfold the block starting at the given line. A range-finder is a
-      language-specific function that also takes an instance and a
-      line number, and returns an range to be folded, or null if
-      no block is started on that line. This file
-      provides <code>CodeMirror.braceRangeFinder</code>, which finds
-      blocks in brace languages (JavaScript, C, Java,
-      etc), <code>CodeMirror.indentRangeFinder</code>, for languages
-      where indentation determines block structure (Python, Haskell),
-      and <code>CodeMirror.tagRangeFinder</code>, for XML-style
-      languages.</dd>
-      <dt id="addon_collapserange"><a href="../addon/fold/collapserange.js"><code>fold/collapserange.js</code></a></dt>
-      <dd>Another approach to
-      folding. <a href="../demo/collapserange.html">See demo</a>.
-      Allows the user to select a range to fold by clicking in the
-      gutter.</dd>
+      <dd>Helps with code folding. Adds a <code>foldCode</code> method
+      to editor instances, which will try to do a code fold starting
+      at the given line, or unfold the fold that is already present.
+      The method takes as first argument the position that should be
+      folded (may be a line number or
+      a <a href="#Pos"><code>Pos</code></a>), and as second optional
+      argument either a range-finder function, or an options object,
+      supporting the following properties:
+      <dl>
+        <dt><code><strong>rangeFinder</strong>: fn(CodeMirror, Pos)</code></dt>
+        <dd>The function that is used to find foldable ranges. If this
+        is not directly passed, it will
+        call <a href="#getHelper"><code>getHelper</code></a> with
+        a <code>"fold"</code> type to find one that's appropriate for
+        the mode. There are files in
+        the <a href="../addon/fold/"><code>addon/fold/</code></a>
+        directory providing <code>CodeMirror.fold.brace</code>, which
+        finds blocks in brace languages (JavaScript, C, Java,
+        etc), <code>CodeMirror.fold.indent</code>, for languages where
+        indentation determines block structure (Python, Haskell),
+        and <code>CodeMirror.fold.xml</code>, for XML-style
+        languages.</dd>
+        <dt><code><strong>widget</strong>: string|Element</code></dt>
+        <dd>The widget to show for folded ranges. Can be either a
+        string, in which case it'll become a span with
+        class <code>CodeMirror-foldmarker</code>, or a DOM node.</dd>
+        <dt><code><strong>scanUp</strong>: boolean</code></dt>
+        <dd>When true (default is false), the addon will try to find
+        foldable ranges on the lines above the current one if there
+        isn't an eligible one on the given line.</dd>
+        <dt><code><strong>minFoldSize</strong>: integer</code></dt>
+        <dd>The minimum amount of lines that a fold should span to be
+        accepted. Defaults to 0, which also allows single-line
+        folds.</dd>
+      </dl>
+      See <a href="../demo/folding.html">the demo</a> for an
+      example.</dd>
+
+      <dt id="addon_foldgutter"><a href="../addon/fold/foldgutter.js"><code>fold/foldgutter.js</code></a></dt>
+      <dd>Provides an option <code>foldGutter</code>, which can be
+      used to create a gutter with markers indicating the blocks that
+      can be folded. Create a gutter using
+      the <a href="#option_gutters"><code>gutters</code></a> option,
+      giving it the class <code>CodeMirror-foldgutter</code> or
+      something else if you configure the addon to use a different
+      class, and this addon will show markers next to folded and
+      foldable blocks, and handle clicks in this gutter. The option
+      can be either set to <code>true</code>, or an object containing
+      the following optional option fields:
+      <dl>
+        <dt><code><strong>gutter</strong>: string</code></dt>
+        <dd>The CSS class of the gutter. Defaults
+        to <code>"CodeMirror-foldgutter"</code>. You will have to
+        style this yourself to give it a width (and possibly a
+        background).</dd>
+        <dt><code><strong>indicatorOpen</strong>: string | Element</code></dt>
+        <dd>A CSS class or DOM element to be used as the marker for
+        open, foldable blocks. Defaults
+        to <code>"CodeMirror-foldgutter-open"</code>.</dd>
+        <dt><code><strong>indicatorFolded</strong>: string | Element</code></dt>
+        <dd>A CSS class or DOM element to be used as the marker for
+        folded blocks. Defaults to <code>"CodeMirror-foldgutter-folded"</code>.</dd>
+        <dt><code><strong>rangeFinder</strong>: fn(CodeMirror, Pos)</code></dt>
+        <dd>The range-finder function to use when determining whether
+        something can be folded. When not
+        given, <a href="#getHelper"><code>getHelper</code></a> will be
+        used to determine a default.</dd>
+      </dl>
+      Demo <a href="../demo/folding.html">here</a>.</dd>
+
       <dt id="addon_runmode"><a href="../addon/runmode/runmode.js"><code>runmode/runmode.js</code></a></dt>
       <dd>Can be used to run a CodeMirror mode over text without
       actually opening an editor instance.
@@ -1445,6 +1837,7 @@
       (without including all of CodeMirror) and
       for <a href="../addon/runmode/runmode.node.js">running under
       node.js</a>.</dd>
+
       <dt id="addon_overlay"><a href="../addon/mode/overlay.js"><code>mode/overlay.js</code></a></dt>
       <dd>Mode combinator that can be used to extend a mode with an
       'overlay' — a secondary mode is run over the stream, along with
@@ -1453,12 +1846,13 @@
       Defines <code>CodeMirror.overlayMode</code>, which is used to
       create such a mode. See <a href="../demo/mustache.html">this
       demo</a> for a detailed example.</dd>
+
       <dt id="addon_multiplex"><a href="../addon/mode/multiplex.js"><code>mode/multiplex.js</code></a></dt>
       <dd>Mode combinator that can be used to easily 'multiplex'
       between several modes.
       Defines <code>CodeMirror.multiplexingMode</code> which, when
       given as first argument a mode object, and as other arguments
-      any number of <code>{open, close, mode [, delimStyle]}</code>
+      any number of <code>{open, close, mode [, delimStyle, innerStyle]}</code>
       objects, will return a mode object that starts parsing using the
       mode passed as first argument, but will switch to another mode
       as soon as it encounters a string that occurs in one of
@@ -1467,55 +1861,192 @@
       the <code>close</code> string is encountered.
       Pass <code>"\n"</code> for <code>open</code> or <code>close</code>
       if you want to switch on a blank line.
-      When <code>delimStyle</code> is specified, it will be the token
-      style returned for the delimiter tokens. The outer mode will not
-      see the content between the delimiters.
+      <ul><li>When <code>delimStyle</code> is specified, it will be the token
+      style returned for the delimiter tokens.</li>
+      <li>When <code>innerStyle</code> is specified, it will be the token
+      style added for each inner mode token.</li></ul>
+      The outer mode will not see the content between the delimiters.
       See <a href="../demo/multiplex.html">this demo</a> for an
       example.</dd>
+
       <dt id="addon_show-hint"><a href="../addon/hint/show-hint.js"><code>hint/show-hint.js</code></a></dt>
       <dd>Provides a framework for showing autocompletion hints.
       Defines <code>CodeMirror.showHint</code>, which takes a
-      CodeMirror instance and a hinting function, and pops up a widget
-      that allows the user to select a completion. Hinting functions
-      are function that take an editor instance, and return
+      CodeMirror instance, a hinting function, and optionally an
+      options object, and pops up a widget that allows the user to
+      select a completion. Hinting functions are function that take an
+      editor instance and an optional options object, and return
       a <code>{list, from, to}</code> object, where <code>list</code>
-      is an array of strings (the completions), and <code>from</code>
-      and <code>to</code> give the start and end of the token that is
-      being completed. Depends
-      on <code>addon/hint/show-hint.css</code>. See the other files in
-      the <a href="../addon/hint/"><code>addon/hint</code></a> for
-      hint sources for various languages. Check
+      is an array of strings or objects (the completions),
+      and <code>from</code> and <code>to</code> give the start and end
+      of the token that is being completed as <code>{line, ch}</code>
+      objects. If no hinting function is given, the addon will try to
+      use <a href="#getHelper"><code>getHelper</code></a> with
+      the <code>"hint"</code> type to find one. When completions
+      aren't simple strings, they should be objects with the folowing
+      properties:
+      <dl>
+        <dt><code><strong>text</strong>: string</code></dt>
+        <dd>The completion text. This is the only required
+        property.</dd>
+        <dt><code><strong>displayText</strong>: string</code></dt>
+        <dd>The text that should be displayed in the menu.</dd>
+        <dt><code><strong>className</strong>: string</code></dt>
+        <dd>A CSS class name to apply to the completion's line in the
+        menu.</dd>
+        <dt><code><strong>render</strong>: fn(Element, self, data)</code></dt>
+        <dd>A method used to create the DOM structure for showing the
+        completion by appending it to its first argument.</dd>
+        <dt><code><strong>hint</strong>: fn(CodeMirror, self, data)</code></dt>
+        <dd>A method used to actually apply the completion, instead of
+        the default behavior.</dd>
+      </dl>
+      The plugin understands the following options (the options object
+      will also be passed along to the hinting function, which may
+      understand additional options):
+      <dl>
+        <dt><code><strong>async</strong>: boolean</code></dt>
+        <dd>When set to true, the hinting function's signature should
+        be <code>(cm, callback, ?options)</code>, and the completion
+        interface will only be popped up when the hinting function
+        calls the callback, passing it the object holding the
+        completions.</dd>
+        <dt><code><strong>completeSingle</strong>: boolean</code></dt>
+        <dd>Determines whether, when only a single completion is
+        available, it is completed without showing the dialog.
+        Defaults to true.</dd>
+        <dt><code><strong>alignWithWord</strong>: boolean</code></dt>
+        <dd>Whether the pop-up should be horizontally aligned with the
+        start of the word (true, default), or with the cursor (false).</dd>
+        <dt><code><strong>closeOnUnfocus</strong>: boolean</code></dt>
+        <dd>When enabled (which is the default), the pop-up will close
+        when the editor is unfocused.</dd>
+        <dt><code><strong>customKeys</strong>: keymap</code></dt>
+        <dd>Allows you to provide a custom keymap of keys to be active
+        when the pop-up is active. The handlers will be called with an
+        extra argument, a handle to the completion menu, which
+        has <code>moveFocus(n)</code>, <code>setFocus(n)</code>, <code>pick()</code>,
+        and <code>close()</code> methods (see the source for details),
+        that can be used to change the focused element, pick the
+        current element or close the menu.</dd>
+        <dt><code><strong>extraKeys</strong>: keymap</code></dt>
+        <dd>Like <code>customKeys</code> above, but the bindings will
+        be added to the set of default bindings, instead of replacing
+        them.</dd>
+      </dl>
+      The following events will be fired on the completions object
+      during completion:
+      <dl>
+        <dt><code><strong>"shown"</strong> ()</code></dt>
+        <dd>Fired when the pop-up is shown.</dd>
+        <dt><code><strong>"select"</strong> (completion, Element)</code></dt>
+        <dd>Fired when a completion is selected. Passed the completion
+        value (string or object) and the DOM node that represents it
+        in the menu.</dd>
+        <dt><code><strong>"close"</strong> ()</code></dt>
+        <dd>Fired when the completion is finished.</dd>
+      </dl>
+      This addon depends styles
+      from <code>addon/hint/show-hint.css</code>. Check
       out <a href="../demo/complete.html">the demo</a> for an
       example.</dd>
+
+      <dt id="addon_javascript-hint"><a href="../addon/hint/javascript-hint.js"><code>hint/javascript-hint.js</code></a></dt>
+      <dd>Defines a simple hinting function for JavaScript
+      (<code>CodeMirror.hint.javascript</code>) and CoffeeScript
+      (<code>CodeMirror.hint.coffeescript</code>) code. This will
+      simply use the JavaScript environment that the editor runs in as
+      a source of information about objects and their properties.</dd>
+
+      <dt id="addon_xml-hint"><a href="../addon/hint/xml-hint.js"><code>hint/xml-hint.js</code></a></dt>
+      <dd>Defines <code>CodeMirror.hint.xml</code>, which produces
+      hints for XML tagnames, attribute names, and attribute values,
+      guided by a <code>schemaInfo</code> option (a property of the
+      second argument passed to the hinting function, or the third
+      argument passed to <code>CodeMirror.showHint</code>).<br>The
+      schema info should be an object mapping tag names to information
+      about these tags, with optionally a <code>"!top"</code> property
+      containing a list of the names of valid top-level tags. The
+      values of the properties should be objects with optional
+      properties <code>children</code> (an array of valid child
+      element names, omit to simply allow all tags to appear)
+      and <code>attrs</code> (an object mapping attribute names
+      to <code>null</code> for free-form attributes, and an array of
+      valid values for restricted
+      attributes). <a href="../demo/xmlcomplete.html">Demo
+      here.</a></dd>
+
+      <dt id="addon_html-hint"><a href="../addon/hint/html-hint.js"><code>hint/html-hint.js</code></a></dt>
+      <dd>Provides schema info to
+      the <a href="#addon_xml-hint">xml-hint</a> addon for HTML
+      documents. Defines a schema
+      object <code>CodeMirror.htmlSchema</code> that you can pass to
+      as a <code>schemaInfo</code> option, and
+      a <code>CodeMirror.hint.html</code> hinting function that
+      automatically calls <code>CodeMirror.hint.xml</code> with this
+      schema data. See
+      the <a href="../demo/html5complete.html">demo</a>.</dd>
+
+      <dt id="addon_python-hint"><a href="../addon/hint/python-hint.js"><code>hint/python-hint.js</code></a></dt>
+      <dd>A very simple hinting function for Python code.
+      Defines <code>CodeMirror.hint.python</code>.</dd>
+
+      <dt id="addon_anyword-hint"><a href="../addon/hint/anyword-hint.js"><code>hint/anyword-hint.js</code></a></dt>
+      <dd>A very simple hinting function
+      (<code>CodeMirror.hint.anyword</code>) that simply looks for
+      words in the nearby code and completes to those. Takes two
+      optional options, <code>word</code>, a regular expression that
+      matches words (sequences of one or more character),
+      and <code>range</code>, which defines how many lines the addon
+      should scan when completing (defaults to 500).</dd>
+
       <dt id="addon_match-highlighter"><a href="../addon/search/match-highlighter.js"><code>match-highlighter.js</code></a></dt>
       <dd>Adds a <code>highlightSelectionMatches</code> option that
       can be enabled to highlight all instances of a currently
-      selected word.
+      selected word. Can be set either to true or to an object
+      containing the following options: <code>minChars</code>, for the
+      minimum amount of selected characters that triggers a highlight
+      (default 2), <code>style</code>, for the style to be used to
+      highlight the matches (default <code>"matchhighlight"</code>,
+      which will correspond to CSS
+      class <code>cm-matchhighlight</code>),
+      and <code>showToken</code> which can be set to <code>true</code>
+      or to a regexp matching the characters that make up a word. When
+      enabled, it causes the current word to be highlighted when
+      nothing is selected (defaults to off).
       Demo <a href="../demo/matchhighlighter.html">here</a>.</dd>
+
       <dt id="addon_lint"><a href="../addon/lint/lint.js"><code>lint/lint.js</code></a></dt>
       <dd>Defines an interface component for showing linting warnings,
       with pluggable warning sources
       (see <a href="../addon/lint/json-lint.js"><code>json-lint.js</code></a>
       and <a href="../addon/lint/javascript-lint.js"><code>javascript-lint.js</code></a>
-      in the same directory). Defines a <code>lintWith</code> option
-      that can be set to a warning source (for
-      example <code>CodeMirror.javascriptValidator</code>). Depends
-      on <code>addon/lint/lint.css</code>. A demo can be
-      found <a href="../demo/lint.html">here</a>.</dd>
+      in the same directory). Defines a <code>lint</code> option that
+      can be set to a warning source (for
+      example <code>CodeMirror.lint.javascript</code>), or
+      to <code>true</code>, in which
+      case <a href="#getHelper"><code>getHelper</code></a> with
+      type <code>"lint"</code> is used to determined a validator
+      function. Depends on <code>addon/lint/lint.css</code>. A demo
+      can be found <a href="../demo/lint.html">here</a>.</dd>
+
       <dt id="addon_mark-selection"><a href="../addon/selection/mark-selection.js"><code>selection/mark-selection.js</code></a></dt>
       <dd>Causes the selected text to be marked with the CSS class
       <code>CodeMirror-selectedtext</code> when the <code>styleSelectedText</code> option
       is enabled. Useful to change the colour of the selection (in addition to the background),
       like in <a href="../demo/markselection.html">this demo</a>.</dd>
+
       <dt id="addon_active-line"><a href="../addon/selection/active-line.js"><code>selection/active-line.js</code></a></dt>
       <dd>Defines a <code>styleActiveLine</code> option that, when enabled,
-      gives the wrapper of the active line the class <code>CodeMirror-activeline</code>, 
+      gives the wrapper of the active line the class <code>CodeMirror-activeline</code>,
       and adds a background with the class <code>CodeMirror-activeline-background</code>.
       is enabled. See the <a href="../demo/activeline.html">demo</a>.</dd>
+
       <dt id="addon_closetag"><a href="../addon/edit/closetag.js"><code>edit/closetag.js</code></a></dt>
       <dd>Provides utility functions for adding automatic tag closing
       to XML modes. See
       the <a href="../demo/closetag.html">demo</a>.</dd>
+
       <dt id="addon_loadmode"><a href="../addon/mode/loadmode.js"><code>mode/loadmode.js</code></a></dt>
       <dd>Defines a <code>CodeMirror.requireMode(modename,
       callback)</code> function that will try to load a given mode and
@@ -1528,11 +2059,34 @@
       which will ensure the given mode is loaded and cause the given
       editor instance to refresh its mode when the loading
       succeeded. See the <a href="../demo/loadmode.html">demo</a>.</dd>
-      <dt id="addon_continuecomment"><a href="../addon/edit/continuecomment.js"><code>edit/continuecomment.js</code></a></dt>
-      <dd>Adds a <a href="#commands">command</a>
-      called <code>newlineAndIndentContinueComment</code> that you can
-      bind <code>Enter</code> to in order to have the editor prefix
-      new lines inside C-like block comments with an asterisk.</dd>
+
+      <dt id="addon_continuecomment"><a href="../addon/comment/continuecomment.js"><code>comment/continuecomment.js</code></a></dt>
+      <dd>Adds an <code>continueComments</code> option, which can be
+      set to true to have the editor prefix new lines inside C-like
+      block comments with an asterisk when Enter is pressed. It can
+      also be set to a string in order to bind this functionality to a
+      specific key..</dd>
+
+      <dt id="addon_placeholder"><a href="../addon/display/placeholder.js"><code>display/placeholder.js</code></a></dt>
+      <dd>Adds a <code>placeholder</code> option that can be used to
+      make text appear in the editor when it is empty and not focused.
+      Also gives the editor a <code>CodeMirror-empty</code> CSS class
+      whenever it doesn't contain any text.
+      See <a href="../demo/placeholder.html">the demo</a>.</dd>
+
+      <dt id="addon_merge"><a href="../addon/merge/merge.js"><code>merge/merge.js</code></a></dt>
+      <dd>Implements an interface for merging changes, using either a
+      2-way or a 3-way view. The <code>CodeMirror.MergeView</code>
+      constructor takes arguments similar to
+      the <a href="#CodeMirror"><code>CodeMirror</code></a>
+      constructor, first a node to append the interface to, and then
+      an options object. Two extra optional options are
+      recognized, <code>origLeft</code> and <code>origRight</code>,
+      which may be strings that provide original versions of the
+      document, which will be shown to the left and right of the
+      editor in non-editable CodeMirror instances. The merge interface
+      will highlight changes between the editable document and the
+      original(s) (<a href="../demo/merge.html">demo</a>).</dd>
     </dl>
 
     <h2 id="modeapi">Writing CodeMirror Modes</h2>
@@ -1592,42 +2146,43 @@
     the following API:</p>
 
     <dl>
-      <dt><code>eol() → boolean</code></dt>
+      <dt><code><strong></strong><strong>eol</strong>() → boolean</code></dt>
       <dd>Returns true only if the stream is at the end of the
       line.</dd>
-      <dt><code>sol() → boolean</code></dt>
+      <dt><code><strong></strong><strong>sol</strong>() → boolean</code></dt>
       <dd>Returns true only if the stream is at the start of the
       line.</dd>
 
-      <dt><code>peek() → character</code></dt>
+      <dt><code><strong>peek</strong>() → string</code></dt>
       <dd>Returns the next character in the stream without advancing
       it. Will return an <code>null</code> at the end of the
       line.</dd>
-      <dt><code>next() → character</code></dt>
+      <dt><code><strong>next</strong>() → string</code></dt>
       <dd>Returns the next character in the stream and advances it.
       Also returns <code>null</code> when no more characters are
       available.</dd>
 
-      <dt><code>eat(match) → character</code></dt>
+      <dt><code><strong>eat</strong>(match: string|regexp|function(char: string) → boolean) → string</code></dt>
       <dd><code>match</code> can be a character, a regular expression,
       or a function that takes a character and returns a boolean. If
       the next character in the stream 'matches' the given argument,
       it is consumed and returned. Otherwise, <code>undefined</code>
       is returned.</dd>
-      <dt><code>eatWhile(match) → boolean</code></dt>
+      <dt><code><strong>eatWhile</strong>(match: string|regexp|function(char: string) → boolean) → boolean</code></dt>
       <dd>Repeatedly calls <code>eat</code> with the given argument,
       until it fails. Returns true if any characters were eaten.</dd>
-      <dt><code>eatSpace() → boolean</code></dt>
+      <dt><code><strong>eatSpace</strong>() → boolean</code></dt>
       <dd>Shortcut for <code>eatWhile</code> when matching
       white-space.</dd>
-      <dt><code>skipToEnd()</code></dt>
+      <dt><code><strong>skipToEnd</strong>()</code></dt>
       <dd>Moves the position to the end of the line.</dd>
-      <dt><code>skipTo(ch) → boolean</code></dt>
+      <dt><code><strong>skipTo</strong>(ch: string) → boolean</code></dt>
       <dd>Skips to the next occurrence of the given character, if
       found on the current line (doesn't advance the stream if the
       character does not occur on the line). Returns true if the
       character was found.</dd>
-      <dt><code>match(pattern, consume, caseFold) → boolean</code></dt>
+      <dt><code><strong>match</strong>(pattern: string, ?consume: boolean, ?caseFold: boolean) → boolean</code></dt>
+      <dt><code><strong>match</strong>(pattern: regexp, ?consume: boolean) → array&lt;string&gt;</code></dt>
       <dd>Act like a
       multi-character <code>eat</code>—if <code>consume</code> is true
       or not given—or a look-ahead that doesn't update the stream
@@ -1639,18 +2194,18 @@
       returned by <code>match</code>, in case you need to extract
       matched groups.</dd>
 
-      <dt><code>backUp(n)</code></dt>
+      <dt><code><strong>backUp</strong>(n: integer)</code></dt>
       <dd>Backs up the stream <code>n</code> characters. Backing it up
       further than the start of the current token will cause things to
       break, so be careful.</dd>
-      <dt><code>column() → integer</code></dt>
+      <dt><code><strong>column</strong>() → integer</code></dt>
       <dd>Returns the column (taking into account tabs) at which the
       current token starts.</dd>
-      <dt><code>indentation() → integer</code></dt>
+      <dt><code><strong>indentation</strong>() → integer</code></dt>
       <dd>Tells you how far the current line has been indented, in
       spaces. Corrects for tab characters.</dd>
 
-      <dt><code>current() → string</code></dt>
+      <dt><code><strong>current</strong>() → string</code></dt>
       <dd>Get the string between the start of the current token and
       the current stream position.</dd>
     </dl>
@@ -1690,6 +2245,15 @@
     return <code>CodeMirror.Pass</code> to indicate that it
     could not come up with a precise indentation.</p>
 
+    <p id="mode_comment">To work well with
+    the <a href="#addon_comment">commenting addon</a>, a mode may
+    define <code>lineComment</code> (string that starts a line
+    comment), <code>blockCommentStart</code>, <code>blockCommentEnd</code>
+    (strings that start and end block comments),
+    and <code>blockCommentLead</code> (a string to put at the start of
+    continued lines in a block comment). All of these are
+    optional.</p>
+
     <p id="electricChars">Finally, a mode may define
     an <code>electricChars</code> property, which should hold a string
     containing all the characters that should trigger the behaviour
@@ -1723,11 +2287,10 @@
     extra methods, <code>innerMode</code> which, given a state object,
     returns a <code>{state, mode}</code> object with the inner mode
     and its state for the current position. These are used by utility
-    scripts such as the <a href="#addon_formatting">autoformatter</a>
-    and the <a href="#addon_closetag">tag closer</a> to get context
-    information. Use the <code>CodeMirror.innerMode</code> helper
-    function to, starting from a mode and a state, recursively walk
-    down to the innermost mode and state.</p>
+    scripts such as the <a href="#addon_closetag">tag closer</a> to
+    get context information. Use the <code>CodeMirror.innerMode</code>
+    helper function to, starting from a mode and a state, recursively
+    walk down to the innermost mode and state.</p>
 
     <p>To make indentation work properly in a nested parser, it is
     advisable to give the <code>startState</code> method of modes that
@@ -1769,6 +2332,7 @@
       <li><a href="#styling">Customized Styling</a></li>
       <li><a href="#api">Programming API</a>
         <ul>
+          <li><a href="#constructor">Constructor</a></li>
           <li><a href="#api_content">Content manipulation</a></li>
           <li><a href="#api_selection">Selection</a></li>
           <li><a href="#api_configuration">Configuration</a></li>
@@ -1782,7 +2346,7 @@
           <li><a href="#api_static">Static properties</a></li>
         </ul>
       </li>
-      <li><a href="#addons">Add-ons</a></li>
+      <li><a href="#addons">Addons</a></li>
       <li><a href="#modeapi">Writing CodeMirror Modes</a></li>
     </ul>
 

@@ -1,7 +1,7 @@
 // LUA mode. Ported to CodeMirror 2 from Franciszek Wawrzak's
 // CodeMirror 1 mode.
 // highlights keywords, strings, comments (no leveling supported! ("[==[")), tokens, basic indenting
- 
+
 CodeMirror.defineMode("lua", function(config, parserConfig) {
   var indentUnit = config.indentUnit;
 
@@ -12,7 +12,7 @@ CodeMirror.defineMode("lua", function(config, parserConfig) {
     return new RegExp("^(?:" + words.join("|") + ")$", "i");
   }
   var specials = wordRE(parserConfig.specials || []);
- 
+
   // long list of standard functions from lua manual
   var builtins = wordRE([
     "_G","_VERSION","assert","collectgarbage","dofile","error","getfenv","getmetatable","ipairs","load",
@@ -47,8 +47,8 @@ CodeMirror.defineMode("lua", function(config, parserConfig) {
     "table.concat","table.insert","table.maxn","table.remove","table.sort"
   ]);
   var keywords = wordRE(["and","break","elseif","false","nil","not","or","return",
-			 "true","function", "end", "if", "then", "else", "do", 
-			 "while", "repeat", "until", "for", "in", "local" ]);
+                         "true","function", "end", "if", "then", "else", "do",
+                         "while", "repeat", "until", "for", "in", "local" ]);
 
   var indentTokens = wordRE(["function", "if","repeat","do", "\\(", "{"]);
   var dedentTokens = wordRE(["end", "until", "\\)", "}"]);
@@ -68,7 +68,7 @@ CodeMirror.defineMode("lua", function(config, parserConfig) {
         return (state.cur = bracketed(readBracket(stream), "comment"))(stream, state);
       stream.skipToEnd();
       return "comment";
-    } 
+    }
     if (ch == "\"" || ch == "'")
       return (state.cur = string(ch))(stream, state);
     if (ch == "[" && /[\[=]/.test(stream.peek()))
@@ -108,7 +108,7 @@ CodeMirror.defineMode("lua", function(config, parserConfig) {
       return "string";
     };
   }
-    
+
   return {
     startState: function(basecol) {
       return {basecol: basecol || 0, indentDepth: 0, cur: normal};
@@ -121,7 +121,7 @@ CodeMirror.defineMode("lua", function(config, parserConfig) {
       if (style == "variable") {
         if (keywords.test(word)) style = "keyword";
         else if (builtins.test(word)) style = "builtin";
-	else if (specials.test(word)) style = "variable-2";
+        else if (specials.test(word)) style = "variable-2";
       }
       if ((style != "comment") && (style != "string")){
         if (indentTokens.test(word)) ++state.indentDepth;
@@ -133,7 +133,11 @@ CodeMirror.defineMode("lua", function(config, parserConfig) {
     indent: function(state, textAfter) {
       var closing = dedentPartial.test(textAfter);
       return state.basecol + indentUnit * (state.indentDepth - (closing ? 1 : 0));
-    }
+    },
+
+    lineComment: "--",
+    blockCommentStart: "--[[",
+    blockCommentEnd: "]]"
   };
 });
 

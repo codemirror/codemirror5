@@ -57,7 +57,7 @@ CodeMirror.defineMode('shell', function() {
         return 'number';
       }
     }
-    stream.eatWhile(/\w/);
+    stream.eatWhile(/[\w-]/);
     var cur = stream.current();
     if (stream.peek() === '=' && /\w+/.test(cur)) return 'def';
     return words.hasOwnProperty(cur) ? words[cur] : null;
@@ -114,5 +114,5 @@ CodeMirror.defineMode('shell', function() {
     }
   };
 });
-  
+
 CodeMirror.defineMIME('text/x-sh', 'shell');

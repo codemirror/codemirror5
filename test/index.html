@@ -8,10 +8,15 @@
     <link rel="stylesheet" href="mode_test.css">
     <script src="../lib/codemirror.js"></script>
     <script src="../addon/mode/overlay.js"></script>
+    <script src="../addon/mode/multiplex.js"></script>
     <script src="../addon/search/searchcursor.js"></script>
+    <script src="../addon/dialog/dialog.js"></script>
+    <script src="../addon/edit/matchbrackets.js"></script>
+    <script src="../addon/comment/comment.js"></script>
     <script src="../mode/javascript/javascript.js"></script>
     <script src="../mode/xml/xml.js"></script>
     <script src="../keymap/vim.js"></script>
+    <script src="../keymap/emacs.js"></script>
 
     <style type="text/css">
       .ok {color: #090;}
@@ -53,9 +58,17 @@
     <script src="driver.js"></script>
     <script src="test.js"></script>
     <script src="doc_test.js"></script>
+    <script src="comment_test.js"></script>
     <script src="mode_test.js"></script>
+    <script src="../mode/javascript/test.js"></script>
     <script src="../mode/css/css.js"></script>
     <script src="../mode/css/test.js"></script>
+    <script src="../mode/css/scss_test.js"></script>
+    <script src="../mode/xml/xml.js"></script>
+    <script src="../mode/htmlmixed/htmlmixed.js"></script>
+    <script src="../mode/ruby/ruby.js"></script>
+    <script src="../mode/haml/haml.js"></script>
+    <script src="../mode/haml/test.js"></script>
     <script src="../mode/markdown/markdown.js"></script>
     <script src="../mode/markdown/test.js"></script>
     <script src="../mode/gfm/gfm.js"></script>
@@ -64,7 +77,9 @@
     <script src="../mode/stex/test.js"></script>
     <script src="../mode/xquery/xquery.js"></script>
     <script src="../mode/xquery/test.js"></script>
+    <script src="../addon/mode/multiplex_test.js"></script>
     <script src="vim_test.js"></script>
+    <script src="emacs_test.js"></script>
     <script>
       window.onload = runHarness;
       CodeMirror.on(window, 'hashchange', runHarness);
@@ -83,7 +98,7 @@
           running = false, // Flag that states tests are running
          quit = false, // Flag to quit tests ASAP
          verbose = false; // Adds message for *every* test to output
-      
+
       function runHarness(){
         if (running) {
           quit = true;
@@ -114,7 +129,7 @@
           "</form>";
         runTests(displayTest);
       }
-      
+
       function setStatus(message, className, force){
         if (quit && !force) return;
         if (!message) throw("must provide message");

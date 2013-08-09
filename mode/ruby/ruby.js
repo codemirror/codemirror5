@@ -10,7 +10,7 @@ CodeMirror.defineMode("ruby", function(config) {
     "redo", "rescue", "retry", "return", "self", "super", "then", "true", "undef", "unless",
     "until", "when", "while", "yield", "nil", "raise", "throw", "catch", "fail", "loop", "callcc",
     "caller", "lambda", "proc", "public", "protected", "private", "require", "load",
-    "require_relative", "extend", "autoload"
+    "require_relative", "extend", "autoload", "__END__", "__FILE__", "__LINE__", "__dir__"
   ]);
   var indentWords = wordObj(["def", "class", "case", "for", "while", "do", "module", "then",
                              "catch", "loop", "proc", "begin"]);
@@ -31,14 +31,16 @@ CodeMirror.defineMode("ruby", function(config) {
     }
     if (stream.eatSpace()) return null;
     var ch = stream.next(), m;
-    if (ch == "`" || ch == "'" || ch == '"' ||
-        (ch == "/" && !stream.eol() && stream.peek() != " ")) {
+    if (ch == "`" || ch == "'" || ch == '"') {
       return chain(readQuoted(ch, "string", ch == '"' || ch == "`"), stream, state);
+    } else if (ch == "/" && !stream.eol() && stream.peek() != " ") {
+      return chain(readQuoted(ch, "string-2", true), stream, state);
     } else if (ch == "%") {
-      var style, embed = false;
+      var style = "string", embed = true;
       if (stream.eat("s")) style = "atom";
-      else if (stream.eat(/[WQ]/)) { style = "string"; embed = true; }
-      else if (stream.eat(/[wxqr]/)) style = "string";
+      else if (stream.eat(/[WQ]/)) style = "string";
+      else if (stream.eat(/[r]/)) style = "string-2";
+      else if (stream.eat(/[wxq]/)) { style = "string"; embed = false; }
       var delim = stream.eat(/[^\w\s]/);
       if (!delim) return "operator";
       if (matching.propertyIsEnumerable(delim)) delim = matching[delim];
@@ -64,18 +66,42 @@ CodeMirror.defineMode("ruby", function(config) {
     } else if (ch == ":") {
       if (stream.eat("'")) return chain(readQuoted("'", "atom", false), stream, state);
       if (stream.eat('"')) return chain(readQuoted('"', "atom", true), stream, state);
-      stream.eatWhile(/[\w\?]/);
-      return "atom";
-    } else if (ch == "@") {
+
+      // :> :>> :< :<< are valid symbols
+      if (stream.eat(/[\<\>]/)) {
+        stream.eat(/[\<\>]/);
+        return "atom";
+      }
+
+      // :+ :- :/ :* :| :& :! are valid symbols
+      if (stream.eat(/[\+\-\*\/\&\|\:\!]/)) {
+        return "atom";
+      }
+
+      // Symbols can't start by a digit
+      if (stream.eat(/[a-zA-Z$@_]/)) {
+        stream.eatWhile(/[\w]/);
+        // Only one ? ! = is allowed and only as the last character
+        stream.eat(/[\?\!\=]/);
+        return "atom";
+      }
+      return "operator";
+    } else if (ch == "@" && stream.match(/^@?[a-zA-Z_]/)) {
       stream.eat("@");
-      stream.eatWhile(/[\w\?]/);
+      stream.eatWhile(/[\w]/);
       return "variable-2";
     } else if (ch == "$") {
-      stream.next();
-      stream.eatWhile(/[\w\?]/);
+      if (stream.eat(/[a-zA-Z_]/)) {
+        stream.eatWhile(/[\w]/);
+      } else if (stream.eat(/\d/)) {
+        stream.eat(/\d/);
+      } else {
+        stream.next(); // Must be a special global like $: or $!
+      }
       return "variable-3";
-    } else if (/\w/.test(ch)) {
-      stream.eatWhile(/[\w\?]/);
+    } else if (/[a-zA-Z_]/.test(ch)) {
+      stream.eatWhile(/[\w]/);
+      stream.eat(/[\?\!]/);
       if (stream.eat(":")) return "atom";
       return "ident";
     } else if (ch == "|" && (state.varList || state.lastTok == "{" || state.lastTok == "do")) {
@@ -109,17 +135,42 @@ CodeMirror.defineMode("ruby", function(config) {
       return tokenBase(stream, state);
     };
   }
+  function tokenBaseOnce() {
+    var alreadyCalled = false;
+    return function(stream, state) {
+      if (alreadyCalled) {
+        state.tokenize.pop();
+        return state.tokenize[state.tokenize.length-1](stream, state);
+      }
+      alreadyCalled = true;
+      return tokenBase(stream, state);
+    };
+  }
   function readQuoted(quote, style, embed, unescaped) {
     return function(stream, state) {
       var escaped = false, ch;
+
+      if (state.context.type === 'read-quoted-paused') {
+        state.context = state.context.prev;
+        stream.eat("}");
+      }
+
       while ((ch = stream.next()) != null) {
         if (ch == quote && (unescaped || !escaped)) {
           state.tokenize.pop();
           break;
         }
-        if (embed && ch == "#" && !escaped && stream.eat("{")) {
-          state.tokenize.push(tokenBaseUntilBrace(arguments.callee));
-          break;
+        if (embed && ch == "#" && !escaped) {
+          if (stream.eat("{")) {
+            if (quote == "}") {
+              state.context = {prev: state.context, type: 'read-quoted-paused'};
+            }
+            state.tokenize.push(tokenBaseUntilBrace());
+            break;
+          } else if (/[@\$]/.test(stream.peek())) {
+            state.tokenize.push(tokenBaseOnce());
+            break;
+          }
         }
         escaped = !escaped && ch == "\\";
       }
@@ -186,8 +237,9 @@ CodeMirror.defineMode("ruby", function(config) {
       return ct.indented + (closing ? 0 : config.indentUnit) +
         (state.continuedLine ? config.indentUnit : 0);
     },
-     electricChars: "}de" // enD and rescuE
 
+    electricChars: "}de", // enD and rescuE
+    lineComment: "#"
   };
 });
 

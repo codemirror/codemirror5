@@ -247,7 +247,7 @@ CodeMirror.defineMode("erlang", function(cmCfg) {
           return rval(state,stream,"function");
         }
       }
-      return rval(state,stream,"atom");               
+      return rval(state,stream,"atom");
     }
 
     // number
@@ -456,8 +456,9 @@ CodeMirror.defineMode("erlang", function(cmCfg) {
 
     indent:
       function(state, textAfter) {
-//        console.log(state.tokenStack);
         return myIndent(state,textAfter);
-      }
+      },
+
+    lineComment: "%"
   };
 });

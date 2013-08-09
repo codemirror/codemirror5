@@ -1,0 +1,122 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>CodeMirror: Tern Demo</title>
+    <link rel="stylesheet" href="../lib/codemirror.css">
+    <script src="../lib/codemirror.js"></script>
+    <script src="../mode/javascript/javascript.js"></script>
+    <link rel="stylesheet" href="../doc/docs.css">
+    <script src="../addon/dialog/dialog.js"></script>
+    <link rel="stylesheet" href="../addon/dialog/dialog.css">
+    <script src="../addon/hint/show-hint.js"></script>
+    <link rel="stylesheet" href="../addon/hint/show-hint.css">
+    <script src="../addon/tern/tern.js"></script>
+    <link rel="stylesheet" href="../addon/tern/tern.css">
+
+    <!-- NOTE: if you are going to actually deploy this in production,
+         DO NOT hot-link these files. Host them yourself. -->
+    <script src="http://marijnhaverbeke.nl/acorn/acorn.js"></script>
+    <script src="http://marijnhaverbeke.nl/acorn/acorn_loose.js"></script>
+    <script src="http://marijnhaverbeke.nl/acorn/util/walk.js"></script>
+    <script src="http://ternjs.net/lib/signal.js"></script>
+    <script src="http://ternjs.net/lib/tern.js"></script>
+    <script src="http://ternjs.net/lib/def.js"></script>
+    <script src="http://ternjs.net/lib/comment.js"></script>
+    <script src="http://ternjs.net/lib/infer.js"></script>
+    <script src="http://ternjs.net/plugin/doc_comment.js"></script>
+
+    <style>
+      .CodeMirror {border: 1px solid #ddd;}
+    </style>
+  </head>
+  <body>
+    <h1>CodeMirror: Tern Demo</h1>
+
+    <form><textarea id="code" name="code">// Use ctrl-space to complete something
+// Put the cursor in or after an expression, press ctrl-i to
+// find its type
+
+var foo = ["array", "of", "strings"];
+var bar = foo.slice(0, 2).join("").split("a")[0];
+
+// Works for locally defined types too.
+
+function CTor() { this.size = 10; }
+CTor.prototype.hallo = "hallo";
+
+var baz = new CTor;
+baz.
+
+// You can press ctrl-q when the cursor is on a variable name to
+// rename it. Try it with CTor...
+
+// When the cursor is in an argument list, the arguments are
+// shown below the editor.
+
+[1].reduce(  );
+
+// And a little more advanced code...
+
+(function(exports) {
+  exports.randomElt = function(arr) {
+    return arr[Math.floor(arr.length * Math.random())];
+  };
+  exports.strList = "foo".split("");
+  exports.intList = exports.strList.map(function(s) { return s.charCodeAt(0); });
+})(window.myMod = {});
+
+var randomStr = myMod.randomElt(myMod.strList);
+var randomInt = myMod.randomElt(myMod.intList);
+</textarea></p>
+
+<p>Demonstrates integration of <a href="http://ternjs.net/">Tern</a>
+and CodeMirror. The following keys are bound:</p>
+
+<dl>
+  <dt>Ctrl-Space</dt><dd>Autocomplete</dd>
+  <dt>Ctrl-I</dt><dd>Find type at cursor</dd>
+  <dt>Alt-.</dt><dd>Jump to definition (Alt-, to jump back)</dd>
+  <dt>Ctrl-Q</dt><dd>Rename variable</dd>
+</dl>
+
+<p>Documentation is sparse for now. See the top of
+the <a href="../addon/tern/tern.js">script</a> for a rough API
+overview.</p>
+
+<script>
+  function getURL(url, c) {
+    var xhr = new XMLHttpRequest();
+    xhr.open("get", url, true);
+    xhr.send();
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState != 4) return;
+      if (xhr.status < 400) return c(null, xhr.responseText);
+      var e = new Error(xhr.responseText || "No response");
+      e.status = xhr.status;
+      c(e);
+    };
+  }
+
+  var server;
+  getURL("http://ternjs.net/defs/ecma5.json", function(err, code) {
+    if (err) throw new Error("Request for ecma5.json: " + err);
+    server = new CodeMirror.TernServer({defs: [JSON.parse(code)]});
+    editor.setOption("extraKeys", {
+      "Ctrl-Space": function(cm) { server.complete(cm); },
+      "Ctrl-I": function(cm) { server.showType(cm); },
+      "Alt-.": function(cm) { server.jumpToDef(cm); },
+      "Alt-,": function(cm) { server.jumpBack(cm); },
+      "Ctrl-Q": function(cm) { server.rename(cm); },
+    })
+    editor.on("cursorActivity", function(cm) { server.updateArgHints(cm); });
+  });
+
+  var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+    lineNumbers: true,
+    mode: "javascript"
+  });
+</script>
+
+  </body>
+</html>

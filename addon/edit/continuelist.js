@@ -1,28 +1,25 @@
 (function() {
+  'use strict';
+
+  var listRE = /^(\s*)([*+-]|(\d+)\.)(\s*)/,
+      unorderedBullets = '*+-';
+
   CodeMirror.commands.newlineAndIndentContinueMarkdownList = function(cm) {
-    var pos = cm.getCursor(), token = cm.getTokenAt(pos);
-    var space;
-    if (token.className == "string") {
-      var full = cm.getRange({line: pos.line, ch: 0}, {line: pos.line, ch: token.end});
-      var listStart = /\*|\d+\./, listContinue;
-      if (token.string.search(listStart) == 0) {
-        var reg = /^[\W]*(\d+)\./g;
-        var matches = reg.exec(full);
-        if(matches)
-          listContinue = (parseInt(matches[1]) + 1) + ".  ";
-        else
-          listContinue = "*   ";
-        space = full.slice(0, token.start);
-        if (!/^\s*$/.test(space)) {
-          space = "";
-          for (var i = 0; i < token.start; ++i) space += " ";
-        }
-      }
+    var pos = cm.getCursor(),
+        inList = cm.getStateAfter(pos.line).list,
+        match;
+
+    if (!inList || !(match = cm.getLine(pos.line).match(listRE))) {
+      cm.execCommand('newlineAndIndent');
+      return;
     }
 
-    if (space != null)
-      cm.replaceSelection("\n" + space + listContinue, "end");
-    else
-      cm.execCommand("newlineAndIndent");
+    var indent = match[1], after = match[4];
+    var bullet = unorderedBullets.indexOf(match[2]) >= 0
+      ? match[2]
+      : (parseInt(match[3], 10) + 1) + '.';
+
+    cm.replaceSelection('\n' + indent + bullet + after, 'end');
   };
-})();
+
+}());

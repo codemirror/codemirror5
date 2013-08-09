@@ -59,9 +59,9 @@
     return {tokens: tokens, plain: plain};
   }
 
-  test.mode = function(name, mode, tokens) {
+  test.mode = function(name, mode, tokens, modeName) {
     var data = parseTokens(tokens);
-    return test(mode.name + "_" + name, function() {
+    return test((modeName || mode.name) + "_" + name, function() {
       return compare(data.plain, data.tokens, mode);
     });
   };
@@ -84,7 +84,7 @@
     var s = '';
     if (pass) {
       s += '<div class="mt-test ' + passStyle + '">';
-      s +=   '<pre>' + text + '</pre>';
+      s +=   '<pre>' + text.replace('&', '&amp;').replace('<', '&lt;') + '</pre>';
       s +=   '<div class="cm-s-default">';
       s +=   prettyPrintOutputTable(observedOutput);
       s +=   '</div>';
@@ -92,7 +92,7 @@
       return s;
     } else {
       s += '<div class="mt-test ' + passStyle + '">';
-      s +=   '<pre>' + text + '</pre>';
+      s +=   '<pre>' + text.replace('&', '&amp;').replace('<', '&lt;') + '</pre>';
       s +=   '<div class="cm-s-default">';
       s += 'expected:';
       s +=   prettyPrintOutputTable(expectedOutput);
@@ -178,13 +178,13 @@
       s +=
       '<td class="mt-token">' +
         '<span class="cm-' + String(style).replace(/ +/g, " cm-") + '">' +
-        val.replace(/ /g,'\xb7') +
+        val.replace(/ /g,'\xb7').replace('&', '&amp;').replace('<', '&lt;') +
         '</span>' +
         '</td>';
     }
     s += '</tr><tr>';
     for (var i = 0; i < output.length; i += 2) {
-      s += '<td class="mt-style"><span>' + output[i] + '</span></td>';
+      s += '<td class="mt-style"><span>' + (output[i] || null) + '</span></td>';
     }
     s += '</table>';
     return s;

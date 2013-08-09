@@ -33,23 +33,23 @@ CodeMirror.defineMode("turtle", function(config) {
       return null;
     }
     else if (ch == ":") {
-	  return "operator";
-	} else {
+          return "operator";
+        } else {
       stream.eatWhile(/[_\w\d]/);
       if(stream.peek() == ":") {
         return "variable-3";
       } else {
-	     var word = stream.current();
-	
-	     if(keywords.test(word)) {
-			return "meta";
-	     }
-	
-	     if(ch >= "A" && ch <= "Z") {
-		    return "comment";
-		 } else {
-			return "keyword";
-		 }
+             var word = stream.current();
+
+             if(keywords.test(word)) {
+                        return "meta";
+             }
+
+             if(ch >= "A" && ch <= "Z") {
+                    return "comment";
+                 } else {
+                        return "keyword";
+                 }
       }
       var word = stream.current();
       if (ops.test(word))
@@ -119,7 +119,7 @@ CodeMirror.defineMode("turtle", function(config) {
           state.context.col = stream.column();
         }
       }
-      
+
       return style;
     },
 

@@ -6,7 +6,8 @@
     <link rel="stylesheet" href="../../lib/codemirror.css">
     <script src="../../lib/codemirror.js"></script>
     <script src="../../addon/edit/matchbrackets.js"></script>
-    <script src="../../addon/edit/continuecomment.js"></script>
+    <script src="../../addon/comment/continuecomment.js"></script>
+    <script src="../../addon/comment/comment.js"></script>
     <script src="javascript.js"></script>
     <link rel="stylesheet" href="../../doc/docs.css">
     <style type="text/css">.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
@@ -68,7 +69,8 @@ StringStream.prototype = {
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true,
         matchBrackets: true,
-        extraKeys: {"Enter": "newlineAndIndentContinueComment"}
+        continueComments: "Enter",
+        extraKeys: {"Ctrl-Q": "toggleComment"}
       });
     </script>
 
@@ -76,10 +78,14 @@ StringStream.prototype = {
       JavaScript mode supports a two configuration
       options:
       <ul>
-        <li><code>json</code> which will set the mode to expect JSON data rather than a JavaScript program.</li>
-        <li>
-          <code>typescript</code> which will activate additional syntax highlighting and some other things for TypeScript code (<a href="typescript.html">demo</a>).
-        </li>
+        <li><code>json</code> which will set the mode to expect JSON
+        data rather than a JavaScript program.</li>
+        <li><code>typescript</code> which will activate additional
+        syntax highlighting and some other things for TypeScript code
+        (<a href="typescript.html">demo</a>).</li>
+        <li><code>statementIndent</code> which (given a number) will
+        determine the amount of indentation to use for statements
+        continued on a new line.</li>
       </ul>
     </p>
 

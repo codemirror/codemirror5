@@ -4,7 +4,7 @@ CodeMirror.defineMode("haskell", function() {
     setState(f);
     return f(source, setState);
   }
-  
+
   // These should all be Unicode extended, as per the Haskell 2010 report
   var smallRE = /[a-z_]/;
   var largeRE = /[A-Z]/;
@@ -15,12 +15,12 @@ CodeMirror.defineMode("haskell", function() {
   var symbolRE = /[-!#$%&*+.\/<=>?@\\^|~:]/;
   var specialRE = /[(),;[\]`{}]/;
   var whiteCharRE = /[ \t\v\f]/; // newlines are handled in tokenizer
-    
+
   function normal(source, setState) {
     if (source.eatWhile(whiteCharRE)) {
       return null;
     }
-      
+
     var ch = source.next();
     if (specialRE.test(ch)) {
       if (ch == '{' && source.eat('-')) {
@@ -32,7 +32,7 @@ CodeMirror.defineMode("haskell", function() {
       }
       return null;
     }
-    
+
     if (ch == '\'') {
       if (source.eat('\\')) {
         source.next();  // should handle other escapes here
@@ -45,11 +45,11 @@ CodeMirror.defineMode("haskell", function() {
       }
       return "error";
     }
-    
+
     if (ch == '"') {
       return switchState(source, setState, stringLiteral);
     }
-      
+
     if (largeRE.test(ch)) {
       source.eatWhile(idRE);
       if (source.eat('.')) {
@@ -57,12 +57,12 @@ CodeMirror.defineMode("haskell", function() {
       }
       return "variable-2";
     }
-      
+
     if (smallRE.test(ch)) {
       source.eatWhile(idRE);
       return "variable";
     }
-      
+
     if (digitRE.test(ch)) {
       if (ch == '0') {
         if (source.eat(/[xX]/)) {
@@ -87,7 +87,7 @@ CodeMirror.defineMode("haskell", function() {
       }
       return t;
     }
-      
+
     if (symbolRE.test(ch)) {
       if (ch == '-' && source.eat(/-/)) {
         source.eatWhile(/-/);
@@ -101,12 +101,12 @@ CodeMirror.defineMode("haskell", function() {
         t = "variable-2";
       }
       source.eatWhile(symbolRE);
-      return t;    
+      return t;
     }
-      
+
     return "error";
   }
-    
+
   function ncomment(type, nest) {
     if (nest == 0) {
       return normal;
@@ -130,7 +130,7 @@ CodeMirror.defineMode("haskell", function() {
       return type;
     };
   }
-    
+
   function stringLiteral(source, setState) {
     while (!source.eol()) {
       var ch = source.next();
@@ -153,7 +153,7 @@ CodeMirror.defineMode("haskell", function() {
     setState(normal);
     return "error";
   }
-  
+
   function stringGap(source, setState) {
     if (source.eat('\\')) {
       return switchState(source, setState, stringLiteral);
@@ -162,8 +162,8 @@ CodeMirror.defineMode("haskell", function() {
     setState(normal);
     return "error";
   }
-  
-  
+
+
   var wellKnownWords = (function() {
     var wkw = {};
     function setType(t) {
@@ -172,19 +172,19 @@ CodeMirror.defineMode("haskell", function() {
           wkw[arguments[i]] = t;
       };
     }
-    
+
     setType("keyword")(
       "case", "class", "data", "default", "deriving", "do", "else", "foreign",
       "if", "import", "in", "infix", "infixl", "infixr", "instance", "let",
       "module", "newtype", "of", "then", "type", "where", "_");
-      
+
     setType("keyword")(
       "\.\.", ":", "::", "=", "\\", "\"", "<-", "->", "@", "~", "=>");
-      
+
     setType("builtin")(
       "!!", "$!", "$", "&&", "+", "++", "-", ".", "/", "/=", "<", "<=", "=<<",
       "==", ">", ">=", ">>", ">>=", "^", "^^", "||", "*", "**");
-      
+
     setType("builtin")(
       "Bool", "Bounded", "Char", "Double", "EQ", "Either", "Enum", "Eq",
       "False", "FilePath", "Float", "Floating", "Fractional", "Functor", "GT",
@@ -192,7 +192,7 @@ CodeMirror.defineMode("haskell", function() {
       "Maybe", "Monad", "Nothing", "Num", "Ord", "Ordering", "Rational", "Read",
       "ReadS", "Real", "RealFloat", "RealFrac", "Right", "Show", "ShowS",
       "String", "True");
-      
+
     setType("builtin")(
       "abs", "acos", "acosh", "all", "and", "any", "appendFile", "asTypeOf",
       "asin", "asinh", "atan", "atan2", "atanh", "break", "catch", "ceiling",
@@ -220,21 +220,25 @@ CodeMirror.defineMode("haskell", function() {
       "toRational", "truncate", "uncurry", "undefined", "unlines", "until",
       "unwords", "unzip", "unzip3", "userError", "words", "writeFile", "zip",
       "zip3", "zipWith", "zipWith3");
-      
+
     return wkw;
   })();
-    
-  
-  
+
+
+
   return {
     startState: function ()  { return { f: normal }; },
     copyState:  function (s) { return { f: s.f }; },
-    
+
     token: function(stream, state) {
       var t = state.f(stream, function(s) { state.f = s; });
       var w = stream.current();
       return (w in wellKnownWords) ? wellKnownWords[w] : t;
-    }
+    },
+
+    blockCommentStart: "{-",
+    blockCommentEnd: "-}",
+    lineComment: "--"
   };
 
 });

@@ -19,11 +19,15 @@ var scopePasser = walk.make({
 });
 
 function checkFile(fileName) {
-  var file = fs.readFileSync(fileName, "utf8");
-  var badChar = file.match(/[\x00-\x08\x0b\x0c\x0e-\x19\uFEFF]/);
-  if (badChar)
-    fail("Undesirable character " + badChar[0].charCodeAt(0) + " at position " + badChar.index,
-         {source: fileName});
+  var file = fs.readFileSync(fileName, "utf8"), notAllowed;
+  if (notAllowed = file.match(/[\x00-\x08\x0b\x0c\x0e-\x19\uFEFF\t]|[ \t]\n/)) {
+    var msg;
+    if (notAllowed[0] == "\t") msg = "Found tab character";
+    else if (notAllowed[0].indexOf("\n") > -1) msg = "Trailing whitespace";
+    else msg = "Undesirable character " + notAllowed[0].charCodeAt(0);
+    var info = acorn.getLineInfo(file, notAllowed.index);
+    fail(msg + " at line " + info.line + ", column " + info.column, {source: fileName});
+  }
 
   try {
     var parsed = acorn.parse(file, {
@@ -91,7 +95,7 @@ function checkFile(fileName) {
 var failed = false;
 function fail(msg, pos) {
   if (pos.start) msg += " (" + pos.start.line + ":" + pos.start.column + ")";
-  console.log(pos.source.match(/[^\/]+$/)[0] + ": " + msg);
+  console.log(pos.source + ": " + msg);
   failed = true;
 }
 
@@ -99,7 +103,7 @@ function checkDir(dir) {
   fs.readdirSync(dir).forEach(function(file) {
     var fname = dir + "/" + file;
     if (/\.js$/.test(file)) checkFile(fname);
-    else if (fs.lstatSync(fname).isDirectory()) checkDir(fname);
+    else if (file != "dep" && fs.lstatSync(fname).isDirectory()) checkDir(fname);
   });
 }
 

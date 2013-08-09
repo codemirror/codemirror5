@@ -4,7 +4,7 @@
   function forEach(arr, f) {
     for (var i = 0, e = arr.length; i < e; ++i) f(arr[i]);
   }
-  
+
   function arrayContains(arr, item) {
     if (!Array.prototype.indexOf) {
       var i = arr.length;
@@ -21,8 +21,10 @@
   function scriptHint(editor, keywords, getToken, options) {
     // Find the token at the cursor
     var cur = editor.getCursor(), token = getToken(editor, cur), tprop = token;
+    token.state = CodeMirror.innerMode(editor.getMode(), token.state).state;
+
     // If it's not a 'word-style' token, ignore the token.
-		if (!/^[\w$_]*$/.test(token.string)) {
+    if (!/^[\w$_]*$/.test(token.string)) {
       token = tprop = {start: cur.ch, end: cur.ch, string: "", state: token.state,
                        type: token.string == "." ? "property" : null};
     }
@@ -42,9 +44,9 @@
           }
         } while (level > 0);
         tprop = getToken(editor, Pos(cur.line, tprop.start));
-	if (tprop.type.indexOf("variable") === 0)
-	  tprop.type = "function";
-	else return; // no clue
+        if (tprop.type.indexOf("variable") === 0)
+          tprop.type = "function";
+        else return; // no clue
       }
       if (!context) var context = [];
       context.push(tprop);
@@ -54,11 +56,13 @@
             to: Pos(cur.line, token.end)};
   }
 
-  CodeMirror.javascriptHint = function(editor, options) {
+  function javascriptHint(editor, options) {
     return scriptHint(editor, javascriptKeywords,
                       function (e, cur) {return e.getTokenAt(cur);},
                       options);
   };
+  CodeMirror.javascriptHint = javascriptHint; // deprecated
+  CodeMirror.registerHelper("hint", "javascript", javascriptHint);
 
   function getCoffeeScriptToken(editor, cur) {
   // This getToken, it is for coffeescript, imitates the behavior of
@@ -78,9 +82,11 @@
     return token;
   }
 
-  CodeMirror.coffeescriptHint = function(editor, options) {
+  function coffeescriptHint(editor, options) {
     return scriptHint(editor, coffeescriptKeywords, getCoffeeScriptToken, options);
-  };
+  }
+  CodeMirror.coffeescriptHint = coffeescriptHint; // deprecated
+  CodeMirror.registerHelper("hint", "coffeescript", coffeescriptHint);
 
   var stringProps = ("charAt charCodeAt indexOf lastIndexOf substring substr slice trim trimLeft trimRight " +
                      "toUpperCase toLowerCase split concat match replace search").split(" ");
