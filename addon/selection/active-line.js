@@ -17,6 +17,7 @@
     } else if (!val && prev) {
       cm.off("cursorActivity", updateActiveLine);
       clearActiveLine(cm);
+      delete cm.state.activeLines;
     }
   });
 
@@ -27,12 +28,12 @@
         cm.removeLineClass(cm.state.activeLines[i], "background", BACK_CLASS);
       }
     }
-    cm.state.activeLines = [];
   }
 
   function updateActiveLine(cm) {
     cm.operation(function() {
       clearActiveLine(cm);
+      cm.state.activeLines = [];
       cm.eachSelection(function() {
         var line = cm.getLineHandle(cm.getCursor().line);
         cm.addLineClass(line, "wrap", WRAP_CLASS);
