@@ -232,6 +232,23 @@ testCM("adjacentSelections", function(cm) {
   eq(cm.getValue(), "a");
 });
 
+testCM("mergeSelections", function(cm) {
+  forEach([[[Pos(0, 0), Pos(0, 0)], [Pos(0, 0), Pos(0, 0)]],
+           [[Pos(0, 0), Pos(0, 3)], [Pos(0, 0), Pos(0, 0)]],
+           [[Pos(0, 0), Pos(0, 0)], [Pos(0, 0), Pos(0, 3)]],
+           [[Pos(0, 0), Pos(0, 3)], [Pos(0, 1), Pos(0, 1)]],
+           [[Pos(0, 0), Pos(0, 3)], [Pos(0, 3), Pos(0, 3)]],
+           [[Pos(0, 0), Pos(0, 3)], [Pos(0, 0), Pos(0, 3)]],
+           [[Pos(0, 0), Pos(0, 3)], [Pos(0, 0), Pos(0, 1)]],
+           [[Pos(0, 0), Pos(0, 1)], [Pos(0, 0), Pos(0, 3)]],
+           [[Pos(0, 0), Pos(0, 1)], [Pos(0, 1), Pos(0, 3)], 2]], function(test) {
+    cm.doc.selections.length = 1;
+    cm.setSelection(test[0][0], test[0][1]);
+    cm.addSelection(test[1][0], test[1][1]);
+    eq(cm.doc.selections.length, test[2] || 1);
+  });
+}, {value: "aaa", multipleSelections: true});
+
 testCM("selectiveKeyHandling", function(cm) {
   cm.setOption("extraKeys", {
     "Enter": function(cm) {
