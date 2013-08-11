@@ -11,18 +11,10 @@ CodeMirror.defineMIME("text/x-erlang", "erlang");
 
 CodeMirror.defineMode("erlang", function(cmCfg) {
 
-  function rval(state,stream,type) {
+  function rval(state,_stream,type) {
     // distinguish between "." as terminator and record field operator
-    if (type == "record") {
-      state.context = "record";
-    }else{
-      state.context = false;
-    }
+    state.in_record = (type == "record");
 
-    // remember last significant bit on last line for indenting
-    if (type != "whitespace" && type != "comment") {
-      state.lastToken = stream.current();
-    }
     //     erlang             -> CodeMirror tag
     switch (type) {
       case "atom":        return "atom";
@@ -133,6 +125,19 @@ CodeMirror.defineMode("erlang", function(cmCfg) {
   }
 
   function tokenize(stream, state) {
+    // in multi-line string
+    if (state.in_string) {
+      state.in_string =  (!doubleQuote(stream));
+      return rval(state,stream,"string");
+    }
+
+    // in multi-line atom
+    if (state.in_atom) {
+      state.in_atom =  (!singleQuote(stream));
+      return rval(state,stream,"atom");
+    }
+
+    // whitespace
     if (stream.eatSpace()) {
       return rval(state,stream,"whitespace");
     }
@@ -183,20 +188,14 @@ CodeMirror.defineMode("erlang", function(cmCfg) {
 
     // quoted atom
     if (ch == '\'') {
-      if (singleQuote(stream)) {
-        return rval(state,stream,"atom");
-      }else{
-        return rval(state,stream,"error");
-      }
+      state.in_atom = (!singleQuote(stream));
+      return rval(state,stream,"atom");
     }
 
     // string
     if (ch == '"') {
-      if (doubleQuote(stream)) {
-        return rval(state,stream,"string");
-      }else{
-        return rval(state,stream,"error");
-      }
+      state.in_string = (!doubleQuote(stream));
+      return rval(state,stream,"string");
     }
 
     // variable
@@ -282,7 +281,7 @@ CodeMirror.defineMode("erlang", function(cmCfg) {
     // separators
     if (greedy(stream,sepRE,separatorWords)) {
       // distinguish between "." as terminator and record field operator
-      if (state.context == false) {
+      if (!state.in_record) {
         pushToken(state,stream);
       }
       return rval(state,stream,"separator");
@@ -359,15 +358,19 @@ CodeMirror.defineMode("erlang", function(cmCfg) {
     var token = (peekToken(state)).token;
     var wordAfter = takewhile(textAfter,/[^a-z]/);
 
-    if (isMember(token,openParenWords)) {
-      return (peekToken(state)).column+token.length;
-    }else if (token == "." || token == ""){
+    if (state.in_string || state.in_atom) {
       return 0;
+    }else if (token == "." || token == "") {
+      return 0;
+    }else if (isMember(token,openParenWords)) {
+      return (peekToken(state)).column+token.length;
     }else if (token == "->") {
       if (wordAfter == "end") {
         return peekToken(state,2).column;
       }else if (peekToken(state,2).token == "fun") {
         return peekToken(state,2).column+indent;
+      }else if (peekToken(state,2).token == ".") {
+        return indent;
       }else{
         return (peekToken(state)).indent+indent;
       }
@@ -445,8 +448,9 @@ CodeMirror.defineMode("erlang", function(cmCfg) {
     startState:
       function() {
         return {tokenStack: [],
-                context: false,
-                lastToken: null};
+                in_record:  false,
+                in_string:  false,
+                in_atom:    false};
       },
 
     token:
