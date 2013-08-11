@@ -32,7 +32,7 @@
 rec_info(demo) -> record_info(fields,demo).
 
 demo() -> expand_recs(?MODULE,#demo{a="A",b="BB"}).
-  
+
 expand_recs(M,List) when is_list(List) ->
   [expand_recs(M,L)||L<-List];
 expand_recs(M,Tup) when is_tuple(Tup) ->
