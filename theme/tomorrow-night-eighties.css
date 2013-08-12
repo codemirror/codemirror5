@@ -30,4 +30,5 @@
 .cm-s-tomorrow-night-eighties span.cm-tag {color: #f2777a;}
 .cm-s-tomorrow-night-eighties span.cm-link {color: #a16a94;}
 
+.cm-s-tomorrow-night-eighties .CodeMirror-activeline-background {background: #343600 !important;}
 .cm-s-tomorrow-night-eighties .CodeMirror-matchingbracket { text-decoration: underline; color: white !important;}

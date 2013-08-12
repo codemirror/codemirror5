@@ -25,3 +25,6 @@
 .cm-s-vibrant-ink .cm-header { color: #FF6400; }
 .cm-s-vibrant-ink .cm-hr { color: #AEAEAE; }
 .cm-s-vibrant-ink .cm-link { color: blue; }
+
+.cm-s-vibrant-ink .CodeMirror-activeline-background {background: #27282E !important;}
+.cm-s-vibrant-ink .CodeMirror-matchingbracket {outline:1px solid grey; color:white !important;}

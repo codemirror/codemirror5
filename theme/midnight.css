@@ -37,6 +37,7 @@
 .cm-s-midnight span.cm-tag {color: #008;}
 .cm-s-midnight span.cm-link {color: #AE81FF;}
 
+.cm-s-midnight .CodeMirror-activeline-background {background: #192741 !important;}
 .cm-s-midnight .CodeMirror-matchingbracket {
   text-decoration: underline;
   color: white !important;
