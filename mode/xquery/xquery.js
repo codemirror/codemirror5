@@ -442,7 +442,11 @@ CodeMirror.defineMode("xquery", function() {
       if (stream.eatSpace()) return null;
       var style = state.tokenize(stream, state);
       return style;
-    }
+    },
+    
+    blockCommentStart: "(:",
+    blockCommentEnd: ":)"
+    
   };
 
 });

@@ -10,6 +10,7 @@
 <script src="../addon/fold/foldgutter.js"></script>
 <script src="../addon/fold/brace-fold.js"></script>
 <script src="../addon/fold/xml-fold.js"></script>
+<script src="../addon/fold/comment-fold.js"></script>
 <script src="../mode/javascript/javascript.js"></script>
 <script src="../mode/xml/xml.js"></script>
 <style type="text/css">
@@ -55,7 +56,10 @@
       <div style="max-width: 50em; margin-bottom: 1em">JavaScript:<br><textarea id="code" name="code"></textarea></div>
       <div style="max-width: 50em">HTML:<br><textarea id="code-html" name="code-html"></textarea></div>
     </form>
-    <script id="script">
+    <script id="script"> 
+/*
+ * Demonstration of code folding
+ */
 window.onload = function() {
   var te = document.getElementById("code");
   var sc = document.getElementById("script");
@@ -69,7 +73,9 @@ window.onload = function() {
     lineNumbers: true,
     lineWrapping: true,
     extraKeys: {"Ctrl-Q": function(cm){ cm.foldCode(cm.getCursor()); }},
-    foldGutter: true,
+    foldGutter: {
+    	rangeFinder: new CodeMirror.fold.combine(CodeMirror.fold.brace, CodeMirror.fold.comment)
+    },    
     gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"]
   });
   editor.foldCode(CodeMirror.Pos(8, 0));
