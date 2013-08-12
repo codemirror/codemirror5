@@ -23,3 +23,6 @@
 .cm-s-blackboard .cm-header { color: #FF6400; }
 .cm-s-blackboard .cm-hr { color: #AEAEAE; }
 .cm-s-blackboard .cm-link { color: #8DA6CE; }
+
+.cm-s-blackboard .CodeMirror-activeline-background {background: #3C3636 !important;}
+.cm-s-blackboard .CodeMirror-matchingbracket {outline:1px solid grey;color:white !important}

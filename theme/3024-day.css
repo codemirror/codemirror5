@@ -30,4 +30,5 @@
 .cm-s-3024-day span.cm-tag {color: #db2d20;}
 .cm-s-3024-day span.cm-link {color: #a16a94;}
 
+.cm-s-3024-day .CodeMirror-activeline-background {background: #e8f2ff !important;}
 .cm-s-3024-day .CodeMirror-matchingbracket { text-decoration: underline; color: white !important;}

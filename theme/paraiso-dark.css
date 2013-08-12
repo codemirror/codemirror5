@@ -30,4 +30,5 @@
 .cm-s-paraiso-dark span.cm-tag {color: #ef6155;}
 .cm-s-paraiso-dark span.cm-link {color: #815ba4;}
 
+.cm-s-paraiso-dark .CodeMirror-activeline-background {background: #4D344A !important;}
 .cm-s-paraiso-dark .CodeMirror-matchingbracket { text-decoration: underline; color: white !important;}
