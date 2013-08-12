@@ -32,6 +32,8 @@
 <script src="../lib/codemirror.js"></script>
 <script src="../mode/javascript/javascript.js"></script>
 <script src="../keymap/extra.js"></script>
+<script src="../addon/selection/active-line.js"></script>
+<script src="../addon/edit/matchbrackets.js"></script>
 <style type="text/css">
       .CodeMirror {border: 1px solid black; font-size:13px}
     </style>
@@ -96,7 +98,9 @@ function findSequence(goal) {
 
 <script>
   var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-    lineNumbers: true
+    lineNumbers: true,
+    styleActiveLine: true,
+    matchBrackets: true
   });
   var input = document.getElementById("select");
   function selectTheme() {

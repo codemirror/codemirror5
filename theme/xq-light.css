@@ -40,4 +40,4 @@ THE SOFTWARE.
 .cm-s-xq-light span.cm-attribute {color: #7F007F;}
 
 .cm-s-xq-light .CodeMirror-activeline-background {background: #e8f2ff !important;}
-.cm-s-xq-light .CodeMirror-matchingbracket {border:1px solid grey;color:black !important;background:yellow;}
+.cm-s-xq-light .CodeMirror-matchingbracket {outline:1px solid grey;color:black !important;background:yellow;}

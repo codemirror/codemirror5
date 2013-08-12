@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 .cm-s-xq-dark.CodeMirror { background: #0a001f; color: #f8f8f8; }
-.cm-s-xq-dark span.CodeMirror-selected { background: #a8f !important; }
+.cm-s-xq-dark .CodeMirror-selected { background: #27007A !important; }
 .cm-s-xq-dark .CodeMirror-gutters { background: #0a001f; border-right: 1px solid #aaa; }
 .cm-s-xq-dark .CodeMirror-linenumber { color: #f8f8f8; }
 .cm-s-xq-dark .CodeMirror-cursor { border-left: 1px solid white !important; }
@@ -44,3 +44,6 @@ THE SOFTWARE.
 .cm-s-xq-dark span.cm-bracket {color: #cc7;}
 .cm-s-xq-dark span.cm-tag {color: #FFBD40;}
 .cm-s-xq-dark span.cm-attribute {color: #FFF700;}
+
+.cm-s-xq-dark .CodeMirror-activeline-background {background: #27282E !important;}
+.cm-s-xq-dark .CodeMirror-matchingbracket {outline:1px solid grey; color:white !important;}

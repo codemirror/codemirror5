@@ -19,3 +19,6 @@
 .cm-s-night span.cm-comment { color: #6900a1; }
 .cm-s-night span.cm-builtin, .cm-s-night span.cm-special { color: #ff9e59; }
 .cm-s-night span.cm-link { color: #845dc4; }
+
+.cm-s-night .CodeMirror-activeline-background {background: #1C005A !important;}
+.cm-s-night .CodeMirror-matchingbracket {outline:1px solid grey; color:white !important;}

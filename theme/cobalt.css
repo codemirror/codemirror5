@@ -16,3 +16,6 @@
 .cm-s-cobalt span.cm-bracket { color: #d8d8d8; }
 .cm-s-cobalt span.cm-builtin, .cm-s-cobalt span.cm-special { color: #ff9e59; }
 .cm-s-cobalt span.cm-link { color: #845dc4; }
+
+.cm-s-cobalt .CodeMirror-activeline-background {background: #002D57 !important;}
+.cm-s-cobalt .CodeMirror-matchingbracket {outline:1px solid grey;color:white !important}

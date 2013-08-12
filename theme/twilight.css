@@ -24,3 +24,5 @@
 .cm-s-twilight .cm-hr { color: #AEAEAE; }
 .cm-s-twilight .cm-link {   color:#ad9361; font-style:italic; text-decoration:none; } /**/
 
+.cm-s-twilight .CodeMirror-activeline-background {background: #27282E !important;}
+.cm-s-twilight .CodeMirror-matchingbracket {outline:1px solid grey; color:white !important;}
