@@ -14,7 +14,7 @@
 <script src="../mode/css/css.js"></script>
 <script src="../mode/htmlmixed/htmlmixed.js"></script>
 <style>
-  dt { text-indent: -2em; padding-left: 2em; }
+  dt { text-indent: -2em; padding-left: 5em; }
   dd { margin-left: 1.5em; }
   dl dl {margin: 0;}
 </style>
@@ -1817,8 +1817,9 @@
         finds blocks in brace languages (JavaScript, C, Java,
         etc), <code>CodeMirror.fold.indent</code>, for languages where
         indentation determines block structure (Python, Haskell),
-        and <code>CodeMirror.fold.xml</code>, for XML-style
-        languages.</dd>
+        and <code>CodeMirror.fold.xml</code>, for XML-style languages,
+        and <code>CodeMirror.fold.comment</code>, for folding comment
+        blocks.</dd>
         <dt><code><strong>widget</strong>: string|Element</code></dt>
         <dd>The widget to show for folded ranges. Can be either a
         string, in which case it'll become a span with

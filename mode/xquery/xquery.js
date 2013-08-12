@@ -443,10 +443,10 @@ CodeMirror.defineMode("xquery", function() {
       var style = state.tokenize(stream, state);
       return style;
     },
-    
+
     blockCommentStart: "(:",
     blockCommentEnd: ":)"
-    
+
   };
 
 });
