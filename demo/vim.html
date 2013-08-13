@@ -1,25 +1,35 @@
 <!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>CodeMirror: Vim bindings demo</title>
-    <link rel="stylesheet" href="../lib/codemirror.css">
-    <script src="../lib/codemirror.js"></script>
-    <script src="../addon/dialog/dialog.js"></script>
-    <script src="../addon/search/searchcursor.js"></script>
-    <script src="../mode/clike/clike.js"></script>
-    <script src="../keymap/vim.js"></script>
-    <link rel="stylesheet" href="../doc/docs.css">
-    <link rel="stylesheet" href="../addon/dialog/dialog.css">
 
-    <style type="text/css">
+<title>CodeMirror: Vim bindings demo</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../doc/docs.css">
+
+<link rel="stylesheet" href="../lib/codemirror.css">
+<link rel="stylesheet" href="../addon/dialog/dialog.css">
+<script src="../lib/codemirror.js"></script>
+<script src="../addon/dialog/dialog.js"></script>
+<script src="../addon/search/searchcursor.js"></script>
+<script src="../mode/clike/clike.js"></script>
+<script src="../keymap/vim.js"></script>
+<style type="text/css">
       .CodeMirror {border-top: 1px solid #eee; border-bottom: 1px solid #eee;}
     </style>
-  </head>
-  <body>
-    <h1>CodeMirror: Vim bindings demo</h1>
+<div id=nav>
+  <a href="http://codemirror.net"><img id=logo src="../doc/logo.png"></a>
 
-    <form><textarea id="code" name="code">
+  <ul>
+    <li><a href="../index.html">Home</a>
+    <li><a href="../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a class=active href="#">Vim bindings</a>
+  </ul>
+</div>
+
+<article>
+<h2>Vim bindings demo</h2>
+<form><textarea id="code" name="code">
 #include "syscalls.h"
 /* getchar:  simple buffered version */
 int getchar(void)
@@ -61,5 +71,4 @@ a loose approximation of actual vim bindings, though.</p>
       });
     </script>
 
-  </body>
-</html>
+  </article>

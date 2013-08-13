@@ -1,11 +1,13 @@
 <!doctype html>
-<html>
-  <head>
-    <title>CodeMirror: NGINX mode</title>
-    <link rel="stylesheet" href="../../lib/codemirror.css">
-    <script src="../../lib/codemirror.js"></script>
-    <script src="nginx.js"></script>
-    <style>.CodeMirror {background: #f8f8f8;}</style>
+
+<title>CodeMirror: NGINX mode</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../../doc/docs.css">
+
+<link rel="stylesheet" href="../../lib/codemirror.css">
+<script src="../../lib/codemirror.js"></script>
+<script src="nginx.js"></script>
+<style>.CodeMirror {background: #f8f8f8;}</style>
     <link rel="stylesheet" href="../../doc/docs.css">
   </head>
 
@@ -18,10 +20,23 @@
       height: 600px;
     }
   </style>
+<div id=nav>
+  <a href="http://codemirror.net"><img id=logo src="../../doc/logo.png"></a>
 
-  <body>
-    <h1>CodeMirror: NGINX mode</h1>
-    <form><textarea id="code" name="code" style="height: 800px;">
+  <ul>
+    <li><a href="../../index.html">Home</a>
+    <li><a href="../../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="../index.html">Language modes</a>
+    <li><a class=active href="#">NGINX</a>
+  </ul>
+</div>
+
+<article>
+<h2>NGINX mode</h2>
+<form><textarea id="code" name="code" style="height: 800px;">
 server {
   listen 173.255.219.235:80;
   server_name website.com.au;
@@ -163,5 +178,4 @@ server {
 
     <p><strong>MIME types defined:</strong> <code>text/nginx</code>.</p>
 
-  </body>
-</html>
+  </article>

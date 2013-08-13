@@ -1,22 +1,25 @@
 <!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8"/>
-    <title>CodeMirror: Compression Helper</title>
-    <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Droid+Sans|Droid+Sans:bold"/>
-    <link rel="stylesheet" type="text/css" href="docs.css"/>
-  </head>
-  <body>
 
-<h1><span class="logo-braces">{ }</span> <a href="http://codemirror.net/">CodeMirror</a></h1>
+<title>CodeMirror: Compression Helper</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="docs.css">
 
-<div class="grey">
-<img src="baboon.png" class="logo" alt="logo"/>
-<pre>
-/* Script compression
-   helper */
-</pre>
+<div id=nav>
+  <a href="http://codemirror.net"><img id=logo src="logo.png"></a>
+
+  <ul>
+    <li><a href="../index.html">Home</a>
+    <li><a href="manual.html">Manual</a>
+    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a class=active href="#">Compression helper</a>
+  </ul>
 </div>
+
+<article>
+
+<h2>Script compression helper</h2>
 
     <p>To optimize loading CodeMirror, especially when including a
     bunch of different modes, it is recommended that you combine and
@@ -28,7 +31,7 @@
 
     <form id="form" action="http://marijnhaverbeke.nl/uglifyjs" method="post">
       <input type="hidden" id="download" name="download" value="codemirror-compressed.js"/>
-      <p>Version: <select id="version" onchange="setVersion(this);" style="padding: 1px">
+      <p>Version: <select id="version" onchange="setVersion(this);" style="padding: 1px;">
         <option value="http://codemirror.net/">HEAD</option>
         <option value="http://marijnhaverbeke.nl/git/codemirror?a=blob_plain;hb=3.15.0;f=">3.15</option>
         <option value="http://marijnhaverbeke.nl/git/codemirror?a=blob_plain;hb=3.14.0;f=">3.14</option>
@@ -210,5 +213,4 @@
        }
     </script>
 
-  </body>
-</html>
+</article>

@@ -1,39 +1,46 @@
 <!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>CodeMirror: Tern Demo</title>
-    <link rel="stylesheet" href="../lib/codemirror.css">
-    <script src="../lib/codemirror.js"></script>
-    <script src="../mode/javascript/javascript.js"></script>
-    <link rel="stylesheet" href="../doc/docs.css">
-    <script src="../addon/dialog/dialog.js"></script>
-    <link rel="stylesheet" href="../addon/dialog/dialog.css">
-    <script src="../addon/hint/show-hint.js"></script>
-    <link rel="stylesheet" href="../addon/hint/show-hint.css">
-    <script src="../addon/tern/tern.js"></script>
-    <link rel="stylesheet" href="../addon/tern/tern.css">
 
-    <!-- NOTE: if you are going to actually deploy this in production,
-         DO NOT hot-link these files. Host them yourself. -->
-    <script src="http://marijnhaverbeke.nl/acorn/acorn.js"></script>
-    <script src="http://marijnhaverbeke.nl/acorn/acorn_loose.js"></script>
-    <script src="http://marijnhaverbeke.nl/acorn/util/walk.js"></script>
-    <script src="http://ternjs.net/lib/signal.js"></script>
-    <script src="http://ternjs.net/lib/tern.js"></script>
-    <script src="http://ternjs.net/lib/def.js"></script>
-    <script src="http://ternjs.net/lib/comment.js"></script>
-    <script src="http://ternjs.net/lib/infer.js"></script>
-    <script src="http://ternjs.net/plugin/doc_comment.js"></script>
+<title>CodeMirror: Tern Demo</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../doc/docs.css">
 
-    <style>
+<link rel="stylesheet" href="../lib/codemirror.css">
+<link rel="stylesheet" href="../addon/dialog/dialog.css">
+<link rel="stylesheet" href="../addon/hint/show-hint.css">
+<link rel="stylesheet" href="../addon/tern/tern.css">
+<script src="../lib/codemirror.js"></script>
+<script src="../mode/javascript/javascript.js"></script>
+<script src="../addon/dialog/dialog.js"></script>
+<script src="../addon/hint/show-hint.js"></script>
+<script src="../addon/tern/tern.js"></script>
+<script src="http://marijnhaverbeke.nl/acorn/acorn.js"></script>
+<script src="http://marijnhaverbeke.nl/acorn/acorn_loose.js"></script>
+<script src="http://marijnhaverbeke.nl/acorn/util/walk.js"></script>
+<script src="http://ternjs.net/lib/signal.js"></script>
+<script src="http://ternjs.net/lib/tern.js"></script>
+<script src="http://ternjs.net/lib/def.js"></script>
+<script src="http://ternjs.net/lib/comment.js"></script>
+<script src="http://ternjs.net/lib/infer.js"></script>
+<script src="http://ternjs.net/plugin/doc_comment.js"></script>
+<style>
       .CodeMirror {border: 1px solid #ddd;}
     </style>
-  </head>
-  <body>
-    <h1>CodeMirror: Tern Demo</h1>
+<div id=nav>
+  <a href="http://codemirror.net"><img id=logo src="../doc/logo.png"></a>
 
-    <form><textarea id="code" name="code">// Use ctrl-space to complete something
+  <ul>
+    <li><a href="../index.html">Home</a>
+    <li><a href="../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a class=active href="#">Tern</a>
+  </ul>
+</div>
+
+<article>
+<h2>Tern Demo</h2>
+<form><textarea id="code" name="code">// Use ctrl-space to complete something
 // Put the cursor in or after an expression, press ctrl-i to
 // find its type
 
@@ -118,5 +125,4 @@ overview.</p>
   });
 </script>
 
-  </body>
-</html>
+  </article>

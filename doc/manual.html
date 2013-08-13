@@ -1,38 +1,63 @@
 <!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>CodeMirror: User Manual</title>
-    <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Droid+Sans|Droid+Sans:bold">
-    <link rel="stylesheet" type="text/css" href="docs.css">
-    <style>dl dl {margin: 0;}</style>
-    <script src="../lib/codemirror.js"></script>
-    <link rel="stylesheet" href="../lib/codemirror.css">
-    <script src="../addon/runmode/runmode.js"></script>
-    <script src="../addon/runmode/colorize.js"></script>
-    <script src="../mode/javascript/javascript.js"></script>
-    <script src="../mode/xml/xml.js"></script>
-    <script src="../mode/css/css.js"></script>
-    <script src="../mode/htmlmixed/htmlmixed.js"></script>
-    <style>
-      dt { text-indent: -1.5em; padding-left: 1.5em; }
-    </style>
-  </head>
-  <body>
 
-<h1><span class="logo-braces">{ }</span> <a href="http://codemirror.net/">CodeMirror</a></h1>
+<title>CodeMirror: User Manual</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="docs.css">
+<script src="activebookmark.js"></script>
 
-<div class="grey">
-<img src="baboon.png" class="logo" alt="logo">
-<pre>
-/* User manual and
-   reference guide */
-</pre>
+<script src="../lib/codemirror.js"></script>
+<link rel="stylesheet" href="../lib/codemirror.css">
+<script src="../addon/runmode/runmode.js"></script>
+<script src="../addon/runmode/colorize.js"></script>
+<script src="../mode/javascript/javascript.js"></script>
+<script src="../mode/xml/xml.js"></script>
+<script src="../mode/css/css.js"></script>
+<script src="../mode/htmlmixed/htmlmixed.js"></script>
+<style>
+  dt { text-indent: -2em; padding-left: 2em; }
+  dd { margin-left: 1.5em; }
+  dl dl {margin: 0;}
+</style>
+
+<div id=nav>
+  <a href="http://codemirror.net"><img id=logo src="logo.png"></a>
+
+  <ul>
+    <li><a href="../index.html">Home</a>
+    <li><a href="#overview" class=active data-default="true">Manual</a>
+    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="#usage">Basic Usage</a></li>
+    <li><a href="#config">Configuration</a></li>
+    <li><a href="#events">Events</a></li>
+    <li><a href="#keymaps">Keymaps</a></li>
+    <li><a href="#styling">Customized Styling</a></li>
+    <li><a href="#api">Programming API</a>
+      <ul>
+        <li><a href="#api_constructor">Constructor</a></li>
+        <li><a href="#api_content">Content manipulation</a></li>
+        <li><a href="#api_selection">Selection</a></li>
+        <li><a href="#api_configuration">Configuration</a></li>
+        <li><a href="#api_doc">Document management</a></li>
+        <li><a href="#api_history">History</a></li>
+        <li><a href="#api_marker">Text-marking</a></li>
+        <li><a href="#api_decoration">Widget, gutter, and decoration</a></li>
+        <li><a href="#api_sizing">Sizing, scrolling, and positioning</a></li>
+        <li><a href="#api_mode">Mode, state, and tokens</a></li>
+        <li><a href="#api_misc">Miscellaneous methods</a></li>
+        <li><a href="#api_static">Static properties</a></li>
+      </ul>
+    </li>
+    <li><a href="#addons">Addons</a></li>
+    <li><a href="#modeapi">Writing CodeMirror Modes</a></li>
+  </ul>
 </div>
 
-<div class="clear"><div class="leftbig blk">
+<article>
 
-    <h2 id="overview">Overview</h2>
+<section class=first id=overview>
+    <h2>User manual and reference guide</h2>
 
     <p>CodeMirror is a code-editor component that can be embedded in
     Web pages. The core library provides <em>only</em> the editor
@@ -50,8 +75,10 @@
     of modes (see the <a href="../mode/"><code>mode/</code></a>
     directory), and it isn't hard to <a href="#modeapi">write new
     ones</a> for other languages.</p>
+</section>
 
-    <h2 id="usage">Basic Usage</h2>
+<section id=usage>
+    <h2>Basic Usage</h2>
 
     <p>The easiest way to use CodeMirror is to simply load the script
     and style sheet found under <code>lib/</code> in the distribution,
@@ -107,7 +134,9 @@
     of a form) is submitted. See the <a href="#fromTextArea">API
     reference</a> for a full description of this method.</p>
 
-    <h2 id="config">Configuration</h2>
+</section>
+<section id=config>
+    <h2>Configuration</h2>
 
     <p>Both the <a href="#CodeMirror"><code>CodeMirror</code></a>
     function and its <code>fromTextArea</code> method take as second
@@ -372,8 +401,10 @@
       This <em>will</em> have bad effects on performance of big
       documents.</dd>
     </dl>
+</section>
 
-    <h2 id="events">Events</h2>
+<section id=events>
+    <h2>Events</h2>
 
     <p>Various CodeMirror-related objects emit events, which allow
     client code to react to various situations. Handlers for such
@@ -589,8 +620,10 @@
       or the line the widget is on require the widget to be
       redrawn.</dd>
     </dl>
+</section>
 
-    <h2 id="keymaps">Keymaps</h2>
+<section id=keymaps>
+    <h2>Keymaps</h2>
 
     <p>Keymaps are ways to associate keys with functionality. A keymap
     is an object mapping strings that identify the keys to functions
@@ -661,8 +694,10 @@
     to <code>true</code>, the default effect of inserting a character
     will be suppressed when the keymap is active as the top-level
     map.</p>
+</section>
 
-    <h2 id="styling">Customized Styling</h2>
+<section id=styling>
+    <h2>Customized Styling</h2>
 
     <p>Up to a certain extent, CodeMirror's look can be changed by
     modifying style sheet files. The style sheets supplied by modes
@@ -740,8 +775,10 @@
     <p>Themes are also simply CSS files, which define colors for
     various syntactic elements. See the files in
     the <a href="../theme/"><code>theme</code></a> directory.</p>
+</section>
 
-    <h2 id="api">Programming API</h2>
+<section id=api>
+    <h2>Programming API</h2>
 
     <p>A lot of CodeMirror features are only available through its
     API. Thus, you need to write code (or
@@ -1620,8 +1657,10 @@
       returned position will be the end of the changed
       range, <em>after</em> the change is applied.</dd>
     </dl>
+</section>
 
-    <h2 id="addons">Addons</h2>
+<section id=addons>
+    <h2>Addons</h2>
 
     <p>The <code>addon</code> directory in the distribution contains a
     number of reusable components that implement extra editor
@@ -2088,8 +2127,10 @@
       will highlight changes between the editable document and the
       original(s) (<a href="../demo/merge.html">demo</a>).</dd>
     </dl>
+</section>
 
-    <h2 id="modeapi">Writing CodeMirror Modes</h2>
+<section id=modeapi>
+    <h2>Writing CodeMirror Modes</h2>
 
     <p>Modes typically consist of a single JavaScript file. This file
     defines, in the simplest case, a lexer (tokenizer) for your
@@ -2318,43 +2359,8 @@
     specifies the properties that should be added. This is mostly
     useful to add utilities that can later be looked
     up through <a href="#getMode"><code>getMode</code></a>.</p>
+</section>
 
-</div><div class="rightsmall blk">
-
-    <h2>Contents</h2>
-
-    <ul>
-      <li><a href="#overview">Overview</a></li>
-      <li><a href="#usage">Basic Usage</a></li>
-      <li><a href="#config">Configuration</a></li>
-      <li><a href="#events">Events</a></li>
-      <li><a href="#keymaps">Keymaps</a></li>
-      <li><a href="#styling">Customized Styling</a></li>
-      <li><a href="#api">Programming API</a>
-        <ul>
-          <li><a href="#constructor">Constructor</a></li>
-          <li><a href="#api_content">Content manipulation</a></li>
-          <li><a href="#api_selection">Selection</a></li>
-          <li><a href="#api_configuration">Configuration</a></li>
-          <li><a href="#api_doc">Document management</a></li>
-          <li><a href="#api_history">History</a></li>
-          <li><a href="#api_marker">Text-marking</a></li>
-          <li><a href="#api_decoration">Widget, gutter, and decoration</a></li>
-          <li><a href="#api_sizing">Sizing, scrolling, and positioning</a></li>
-          <li><a href="#api_mode">Mode, state, and tokens</a></li>
-          <li><a href="#api_misc">Miscellaneous methods</a></li>
-          <li><a href="#api_static">Static properties</a></li>
-        </ul>
-      </li>
-      <li><a href="#addons">Addons</a></li>
-      <li><a href="#modeapi">Writing CodeMirror Modes</a></li>
-    </ul>
-
-</div></div>
-
-<div style="height: 2em">&nbsp;</div>
+</article>
 
 <script>setTimeout(function(){CodeMirror.colorize();}, 20);</script>
-
-  </body>
-</html>

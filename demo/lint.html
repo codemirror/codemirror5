@@ -1,25 +1,37 @@
 <!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>CodeMirror: Linter Demo</title>
-    <link rel="stylesheet" href="../lib/codemirror.css">
-    <script src="../lib/codemirror.js"></script>
-    <script src="../mode/javascript/javascript.js"></script>
-    <script src="http://ajax.aspnetcdn.com/ajax/jshint/r07/jshint.js"></script>
-    <script src="https://rawgithub.com/zaach/jsonlint/79b553fb65c192add9066da64043458981b3972b/lib/jsonlint.js"></script>
-    <link rel="stylesheet" href="../doc/docs.css">
-    <link rel="stylesheet" href="../addon/lint/lint.css">
-    <script src="../addon/lint/lint.js"></script>
-    <script src="../addon/lint/javascript-lint.js"></script>
-    <script src="../addon/lint/json-lint.js"></script>
 
-    <style type="text/css">
+<title>CodeMirror: Linter Demo</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../doc/docs.css">
+
+<link rel="stylesheet" href="../lib/codemirror.css">
+<link rel="stylesheet" href="../addon/lint/lint.css">
+<script src="../lib/codemirror.js"></script>
+<script src="../mode/javascript/javascript.js"></script>
+<script src="http://ajax.aspnetcdn.com/ajax/jshint/r07/jshint.js"></script>
+<script src="https://rawgithub.com/zaach/jsonlint/79b553fb65c192add9066da64043458981b3972b/lib/jsonlint.js"></script>
+<script src="../addon/lint/lint.js"></script>
+<script src="../addon/lint/javascript-lint.js"></script>
+<script src="../addon/lint/json-lint.js"></script>
+<style type="text/css">
       .CodeMirror {border: 1px solid black;}
     </style>
-  </head>
-  <body>
-    <h1>CodeMirror: Linter Demo</h1>
+<div id=nav>
+  <a href="http://codemirror.net"><img id=logo src="../doc/logo.png"></a>
+
+  <ul>
+    <li><a href="../index.html">Home</a>
+    <li><a href="../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a class=active href="#">Linter</a>
+  </ul>
+</div>
+
+<article>
+<h2>Linter Demo</h2>
+
 
     <p><textarea id="code-js">var widgets = []
 function updateHints() {
@@ -86,5 +98,4 @@ function updateHints() {
   });
 </script>
 
-  </body>
-</html>
+  </article>

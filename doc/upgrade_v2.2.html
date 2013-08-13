@@ -1,36 +1,37 @@
 <!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8"/>
-    <title>CodeMirror: Upgrading to v2.2</title>
-    <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Droid+Sans|Droid+Sans:bold"/>
-    <link rel="stylesheet" type="text/css" href="docs.css"/>
-  </head>
-  <body>
 
-<h1><span class="logo-braces">{ }</span> <a href="http://codemirror.net/">CodeMirror</a></h1>
+<title>CodeMirror: Version 2.2 upgrade guide</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="docs.css">
 
-<div class="grey">
-<img src="baboon.png" class="logo" alt="logo"/>
-<pre>
-/* Upgrading to
-   v2.2 */
-</pre>
+<div id=nav>
+  <a href="http://codemirror.net"><img id=logo src="logo.png"></a>
+
+  <ul>
+    <li><a href="../index.html">Home</a>
+    <li><a href="manual.html">Manual</a>
+    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a class=active href="#">2.2 upgrade guide</a>
+  </ul>
 </div>
 
-<div class="left">
+<article>
+
+<h2>Upgrading to v2.2</h2>
 
 <p>There are a few things in the 2.2 release that require some care
 when upgrading.</p>
 
-<h2>No more default.css</h2>
+<h3>No more default.css</h3>
 
 <p>The default theme is now included
 in <a href="../lib/codemirror.css"><code>codemirror.css</code></a>, so
 you do not have to included it separately anymore. (It was tiny, so
 even if you're not using it, the extra data overhead is negligible.)
 
-<h2>Different key customization</h2>
+<h3>Different key customization</h3>
 
 <p>CodeMirror has moved to a system
 where <a href="manual.html#option_keyMap">keymaps</a> are used to
@@ -81,7 +82,7 @@ and <code>"insertTab"</code> commands provided for alternate
 behaviors. Or you can write your own handler function to do something
 different altogether.</p>
 
-<h2>Tabs</h2>
+<h3>Tabs</h3>
 
 <p>Handling of tabs changed completely. The display width of tabs can
 now be set with the <code>tabSize</code> option, and tabs can
@@ -92,7 +93,4 @@ for the <code>cm-tab</code> class.</p>
 hard-wired into browsers. If you are relying on 8-space tabs, make
 sure you explicitly set <code>tabSize: 8</code> in your options.</p>
 
-</div>
-
-  </body>
-</html>
+</article>
