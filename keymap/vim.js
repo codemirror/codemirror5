@@ -1287,6 +1287,11 @@
         }
         var repeat = motionArgs.repeat+(motionArgs.repeatOffset||0);
         var line = motionArgs.forward ? cur.line + repeat : cur.line - repeat;
+        var hidden;
+        if (hidden = cm.hasHiddenLines() && cm.getHiddenRegion(line)) {
+          var skip = motionArgs.forward ? hidden.to - line : hidden.from - line;
+          line = line + skip;
+        }
         var first = cm.firstLine();
         var last = cm.lastLine();
         // Vim cancels linewise motions that start on an edge and move beyond
