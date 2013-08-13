@@ -170,15 +170,15 @@ testCM("multipleSelections", function(cm) {
   }
   mouse([Pos(0, 0), Pos(0, 1)]);
   mouse([Pos(1, 0), Pos(1, 1)], true);
-  cm.replaceSelection("bc", "start");
-  cm.replaceSelection("a");
+  cm.eachSelection(function(sel) { sel.replace("bc", "start"); });
+  cm.eachSelection(function(sel) { sel.replace("a"); });
   eq(cm.getValue(), "abc\nabc\na");
   cm.triggerOnKeyDown({keyCode: 35});
-  cm.replaceSelection("d", "end");
+  cm.eachSelection(function(sel) { sel.replace("d", "end"); });
   cm.triggerOnKeyDown({keyCode: 40});
-  cm.replaceSelection("e", "end");
+  cm.eachSelection(function(sel) { sel.replace("e", "end"); });
   cm.triggerOnKeyDown({keyCode: 40});
-  cm.replaceSelection("f", "end");
+  cm.eachSelection(function(sel) { sel.replace("f", "end"); });
   eq(cm.getValue(), "abcd\nabcde\naef");
   mouse([Pos(1, 2), Pos(2, 3)]);
   mouse([Pos(0, 0), Pos(1, 3), Pos(1, 4)], true);
@@ -194,20 +194,20 @@ testCM("multipleSelections", function(cm) {
   eq(visible(cm.display.cursorsDiv.childNodes), 2);
   mouse([Pos(1, 2), Pos(1, 4)], true);
   mouse([Pos(0, 0), Pos(2)], true);
-  cm.replaceSelection("a", "end");
+  cm.eachSelection(function(sel) { sel.replace("a", "end"); });
   eq(cm.getValue(), "a");
   cm.addSelection(Pos(0, 0), Pos(0, 1));
   cm.addSelection(Pos(0, 0), Pos(0, 1));
-  cm.replaceSelection("b", "end");
+  cm.eachSelection(function(sel) { sel.replace("b", "end"); });
   eq(cm.getValue(), "b");
-  cm.replaceSelection("cdef\n\nabcd\n\nab\n\nabcd", "end");
+  cm.eachSelection(function(sel) { sel.replace("cdef\n\nabcd\n\nab\n\nabcd", "end"); });
   mouseDown(Pos(0, 3), false, true);
   mouseMove(Pos(6, 4), false, true);
   eq(visible(cm.display.selectionDiv.childNodes), 3);
   var coords = cm.cursorCoords(Pos(6, 4), "window");
   cm.triggerOnMouseMove({clientX: coords.left + 10, clientY: coords.top, target: cm.display.wrapper, which: 1, altKey: true});
   cm.triggerOnMouseUp({clientX: coords.left + 10, clientY: coords.top, target: cm.display.wrapper, which: 1, altKey: true});
-  cm.replaceSelection("f");
+  cm.eachSelection(function(sel) { sel.replace("f"); });
   eq(cm.getValue(), "bcdf\n\nabcf\n\nab\n\nabcf");
   mouse([Pos(0, 0)]);
   mouseDown(Pos(0, 3), false, true);
@@ -215,20 +215,20 @@ testCM("multipleSelections", function(cm) {
   eq(visible(cm.display.selectionDiv.childNodes), 4);
   mouseMove(Pos(6, 3), false, true);
   mouseUp(Pos(6, 3), false, true);
-  cm.replaceSelection("g", "end");
+  cm.eachSelection(function(sel) { sel.replace("g", "end"); });
   eq(cm.getValue(), "bcdgf\ng\nabcgf\ng\nabg\ng\nabcgf");
 }, {value: "a\na\na", multipleSelections: true});
 
 testCM("adjacentSelections", function(cm) {
-  cm.replaceSelection("aa");
+  cm.eachSelection(function(sel) { sel.replace("aa"); });
   cm.setOption("multipleSelections", true);
   cm.setSelection(Pos(0, 0), Pos(0, 1));
   cm.addSelection(Pos(0, 1), Pos(0, 2));
-  cm.replaceSelection("b", "end");
-  cm.replaceSelection("c", "end");
+  cm.eachSelection(function(sel) { sel.replace("b", "end"); });
+  cm.eachSelection(function(sel) { sel.replace("c", "end"); });
   eq(cm.getValue(), "bcbc");
-  cm.deleteH(-1, "group");
-  cm.replaceSelection("a");
+  cm.execCommand("delGroupBefore");
+  cm.eachSelection(function(sel) { sel.replace("a"); });
   eq(cm.getValue(), "a");
 });
 
@@ -252,28 +252,28 @@ testCM("mergeSelections", function(cm) {
 testCM("selectiveKeyHandling", function(cm) {
   cm.setOption("extraKeys", {
     "Enter": function(cm) {
-      return cm.withSelection(function() {
-        if (cm.getLine(cm.getCursor().line).charAt(0) == "-") cm.replaceSelection("\n- ", "end");
+      return cm.withSelection(function(sel) {
+        if (cm.getLine(sel.head.line).charAt(0) == "-") sel.replace("\n- ", "end");
         else return CodeMirror.Pass;
       });
     },
     "'{'": function(cm) {
-      return cm.withSelection(function() {
-        if (cm.getLine(cm.getCursor().line).charAt(0) == "-") cm.replaceSelection("{}", "end");
+      return cm.withSelection(function(sel) {
+        if (cm.getLine(sel.head.line).charAt(0) == "-") sel.replace("{}", "end");
         else return CodeMirror.Pass;
       });
     }
   });
   cm.addKeyMap({
     "Enter": function(cm) {
-      return cm.withSelection(function() {
-        if (cm.getLine(cm.getCursor().line).charAt(0) == "*") cm.replaceSelection("\n* ", "end");
+      return cm.withSelection(function(sel) {
+        if (cm.getLine(sel.head.line).charAt(0) == "*") sel.replace("\n* ", "end");
         else return CodeMirror.Pass;
       });
     },
     "'{'": function(cm) {
-      return cm.withSelection(function() {
-        if (cm.getLine(cm.getCursor().line).charAt(0) == "*") cm.replaceSelection("{*}", "end");
+      return cm.withSelection(function(sel) {
+        if (cm.getLine(sel.head.line).charAt(0) == "*") sel.replace("{*}", "end");
         else return CodeMirror.Pass;
       });
     },
