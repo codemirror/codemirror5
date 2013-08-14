@@ -1,21 +1,36 @@
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>CodeMirror: VB.NET mode</title>
-    <link rel="stylesheet" href="../../lib/codemirror.css">
-    <script src="../../lib/codemirror.js"></script>
-    <script src="vb.js"></script>
-    <link rel="stylesheet" href="../../doc/docs.css">
-    <link href="http://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet" type="text/css">
-    <style>
+<!doctype html>
+
+<title>CodeMirror: VB.NET mode</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../../doc/docs.css">
+
+<link rel="stylesheet" href="../../lib/codemirror.css">
+<link href="http://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet" type="text/css">
+<script src="../../lib/codemirror.js"></script>
+<script src="vb.js"></script>
+<script type="text/javascript" src="../../addon/runmode/runmode.js"></script>
+<style>
       .CodeMirror {border: 1px solid #aaa; height:210px; height: auto;}
       .CodeMirror-scroll { overflow-x: auto; overflow-y: hidden;}
       .CodeMirror pre { font-family: Inconsolata; font-size: 14px}
-    </style> 
-    <script type="text/javascript" src="../../addon/runmode/runmode.js"></script>
-  </head>
-  <body onload="init()">
-    <h1>CodeMirror: VB.NET mode</h1>
+    </style>
+<div id=nav>
+  <a href="http://codemirror.net"><img id=logo src="../../doc/logo.png"></a>
+
+  <ul>
+    <li><a href="../../index.html">Home</a>
+    <li><a href="../../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="../index.html">Language modes</a>
+    <li><a class=active href="#">VB.NET</a>
+  </ul>
+</div>
+
+<article>
+<h2>VB.NET mode</h2>
+
 <script type="text/javascript">
 function test(golden, text) {
   var ok = true;
@@ -76,8 +91,8 @@ function runTest() {
   initText(editor);
 	
 }
+document.body.onload = init;
 </script>
-
 
   <div id="edit">
   <textarea style="width:95%;height:200px;padding:5px;" name="solution" id="solution" ></textarea>
@@ -85,4 +100,4 @@ function runTest() {
   <pre id="testresult"></pre>
   <p>MIME type defined: <code>text/x-vb</code>.</p>
 
-</body></html>
+</article>

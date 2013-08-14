@@ -1,25 +1,35 @@
 <!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8"/>
-    <title>CodeMirror: Internals</title>
-    <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Droid+Sans|Droid+Sans:bold"/>
-    <link rel="stylesheet" type="text/css" href="docs.css"/>
-    <style>dl dl {margin: 0;} .update {color: #d40 !important}</style>
-  </head>
-  <body>
 
-<h1><span class="logo-braces">{ }</span> <a href="http://codemirror.net/">CodeMirror</a></h1>
+<title>CodeMirror: Internals</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="docs.css">
+<style>dl dl {margin: 0;} .update {color: #d40 !important}</style>
+<script src="activebookmark.js"></script>
 
-<div class="grey">
-<img src="baboon.png" class="logo" alt="logo"/>
-<pre>
-/* (Re-) Implementing A Syntax-
-   Highlighting Editor in JavaScript */
-</pre>
+<div id=nav>
+  <a href="http://codemirror.net"><img id=logo src="logo.png"></a>
+
+  <ul>
+    <li><a href="../index.html">Home</a>
+    <li><a href="manual.html">Manual</a>
+    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="#top">Introduction</a></li>
+    <li><a href="#approach">General Approach</a></li>
+    <li><a href="#input">Input</a></li>
+    <li><a href="#selection">Selection</a></li>
+    <li><a href="#update">Intelligent Updating</a></li>
+    <li><a href="#parse">Parsing</a></li>
+    <li><a href="#summary">What Gives?</a></li>
+    <li><a href="#btree">Content Representation</a></li>
+    <li><a href="#keymap">Key Maps</a></li>
+  </ul>
 </div>
 
-<div class="clear"><div class="leftbig blk">
+<article>
+
+<h2 id=top>(Re-) Implementing A Syntax-Highlighting Editor in JavaScript</h2>
 
 <p style="font-size: 85%" id="intro">
   <strong>Topic:</strong> JavaScript, code editor implementation<br>
@@ -103,7 +113,8 @@ also kept breaking in newly released versions, requiring me to come up
 with <em>new</em> scary hacks in order to keep up. This was starting
 to lose its appeal.</p>
 
-<h2 id="approach">General Approach</h2>
+<section id=approach>
+  <h2>General Approach</h2>
 
 <p>What CodeMirror 2 does is try to sidestep most of the hairy hacks
 that came up in version 1. I owe a lot to the
@@ -136,8 +147,9 @@ ensure that the visible part of the document has been added, and can
 do the rest only when needed. (Fortunately, the <code>onscroll</code>
 event works almost the same on all browsers, and lends itself well to
 displaying things only as they are scrolled into view.)</p>
-
-<h2 id="input">Input</h2>
+</section>
+<section id="input">
+  <h2>Input</h2>
 
 <p>ACE uses its hidden textarea only as a text input shim, and does
 all cursor movement and things like text deletion itself by directly
@@ -165,8 +177,9 @@ href="#keymap">[no longer the case]</a></p>
 <p>Of course, since only a small part of the document sits in the
 textarea, keys like page up and ctrl-end won't do the right thing.
 CodeMirror is catching those events and handling them itself.</p>
-
-<h2 id="selection">Selection</h2>
+</section>
+<section id="selection">
+  <h2>Selection</h2>
 
 <p>Getting and setting the selection range of a textarea in modern
 browsers is trivial—you just use the <code>selectionStart</code>
@@ -213,8 +226,9 @@ pressing a certain key had (only) the effect of moving the cursor.
 This, of course, doesn't work if the first time the key is used was
 for extending an inverted selection, but it works most of the
 time.</p>
-
-<h2 id="update">Intelligent Updating</h2>
+</section>
+<section id="update">
+  <h2>Intelligent Updating</h2>
 
 <p>One thing that always comes up when you have a complicated internal
 state that's reflected in some user-visible external representation
@@ -274,8 +288,9 @@ selection info for that line into a snippet of HTML. The patch updater
 uses this to reset individual lines, the refresh updater builds an
 HTML chunk for the whole visible document at once, and then uses a
 single <code>innerHTML</code> update to do the refresh.</p>
-
-<h2 id="parse">Parsers can be Simple</h2>
+</section>
+<section id="parse">
+  <h2>Parsers can be Simple</h2>
 
 <p>When I wrote CodeMirror 1, I
 thought <a href="http://codemirror.net/story.html#parser">interruptable
@@ -315,8 +330,9 @@ finishes the whole document in a single 100-millisecond time slice—it
 manages some 1500 lines during that time on Chrome. All it has to do
 is munge strings, so there is no real reason for it to be slow
 anymore.</p>
-
-<h2 id="summary">What Gives?</h2>
+</section>
+<section id="summary">
+  <h2>What Gives?</h2>
 
 <p>Given all this, what can you expect from CodeMirror 2?</p>
 
@@ -368,8 +384,9 @@ some changes to the codebase that cause some of the text above to no
 longer be current. I've left the text intact, but added markers at the
 passages that are now inaccurate. The new situation is described
 below.</p>
-
-<h2 id="btree">Content Representation</h2>
+</section>
+<section id="btree">
+  <h2>Content Representation</h2>
 
 <p>The original implementation of CodeMirror 2 represented the
 document as a flat array of line objects. This worked well—splicing
@@ -419,8 +436,9 @@ below a given number. This means that there are some weird editing
 patterns that may result in a seriously unbalanced tree, but even such
 an unbalanced tree will perform well, unless you spend a day making
 strangely repeating edits to a really big document.</p>
-
-<h2 id="keymap">Keymaps</h2>
+</section>
+<section id="keymap">
+  <h2>Keymaps</h2>
 
 <p><a href="#approach">Above</a>, I claimed that directly catching key
 events for things like cursor movement is impractical because it
@@ -482,24 +500,4 @@ composing is finished, but many don't fire anything when the character
 is updated <em>during</em> composition. So we poll, whenever the
 editor is focused, to provide immediate updates of the display.</p>
 
-</div><div class="rightsmall blk">
-
-    <h2>Contents</h2>
-
-    <ul>
-      <li><a href="#intro">Introduction</a></li>
-      <li><a href="#approach">General Approach</a></li>
-      <li><a href="#input">Input</a></li>
-      <li><a href="#selection">Selection</a></li>
-      <li><a href="#update">Intelligent Updating</a></li>
-      <li><a href="#parse">Parsing</a></li>
-      <li><a href="#summary">What Gives?</a></li>
-      <li><a href="#btree">Content Representation</a></li>
-      <li><a href="#keymap">Key Maps</a></li>
-    </ul>
-
-</div></div>
-
-<div style="height: 2em">&nbsp;</div>
-
-</body></html>
+</article>

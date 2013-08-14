@@ -1,49 +1,62 @@
 <!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>CodeMirror: Test Suite</title>
-    <link rel="stylesheet" href="../lib/codemirror.css">
-    <link rel="stylesheet" href="../doc/docs.css">
-    <link rel="stylesheet" href="mode_test.css">
-    <script src="../lib/codemirror.js"></script>
-    <script src="../addon/mode/overlay.js"></script>
-    <script src="../addon/mode/multiplex.js"></script>
-    <script src="../addon/search/searchcursor.js"></script>
-    <script src="../addon/dialog/dialog.js"></script>
-    <script src="../addon/edit/matchbrackets.js"></script>
-    <script src="../addon/comment/comment.js"></script>
-    <script src="../mode/javascript/javascript.js"></script>
-    <script src="../mode/xml/xml.js"></script>
-    <script src="../keymap/vim.js"></script>
-    <script src="../keymap/emacs.js"></script>
 
-    <style type="text/css">
-      .ok {color: #090;}
-      .fail {color: #e00;}
-      .error {color: #c90;}
-      .done {font-weight: bold;}
-      #progress {
-        background: #45d;
-        color: white;
-        text-shadow: 0 0 1px #45d, 0 0 2px #45d, 0 0 3px #45d;
-        font-weight: bold;
-        white-space: pre;
-      }
-      #testground {
-        visibility: hidden;
-      }
-      #testground.offscreen {
-        visibility: visible;
-        position: absolute;
-        left: -10000px;
-        top: -10000px;
-      }
-      .CodeMirror { border: 1px solid black; }
-    </style>
-  </head>
-  <body>
-    <h1>CodeMirror: Test Suite</h1>
+<title>CodeMirror: Test Suite</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../doc/docs.css">
+
+<link rel="stylesheet" href="../lib/codemirror.css">
+<link rel="stylesheet" href="mode_test.css">
+<script src="../lib/codemirror.js"></script>
+<script src="../addon/mode/overlay.js"></script>
+<script src="../addon/mode/multiplex.js"></script>
+<script src="../addon/search/searchcursor.js"></script>
+<script src="../addon/dialog/dialog.js"></script>
+<script src="../addon/edit/matchbrackets.js"></script>
+<script src="../addon/comment/comment.js"></script>
+<script src="../mode/javascript/javascript.js"></script>
+<script src="../mode/xml/xml.js"></script>
+<script src="../keymap/vim.js"></script>
+<script src="../keymap/emacs.js"></script>
+
+<style type="text/css">
+  .ok {color: #090;}
+  .fail {color: #e00;}
+  .error {color: #c90;}
+  .done {font-weight: bold;}
+  #progress {
+  background: #45d;
+  color: white;
+  text-shadow: 0 0 1px #45d, 0 0 2px #45d, 0 0 3px #45d;
+  font-weight: bold;
+  white-space: pre;
+  }
+  #testground {
+  visibility: hidden;
+  }
+  #testground.offscreen {
+  visibility: visible;
+  position: absolute;
+  left: -10000px;
+  top: -10000px;
+  }
+  .CodeMirror { border: 1px solid black; }
+</style>
+
+<div id=nav>
+  <a href="http://codemirror.net"><img id=logo src="../doc/logo.png"></a>
+
+  <ul>
+    <li><a href="../index.html">Home</a>
+    <li><a href="../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a class=active href="#">Test suite</a>
+  </ul>
+</div>
+
+<article>
+  <h2>Test Suite</h2>
 
     <p>A limited set of programmatic sanity tests for CodeMirror.</p>
 
@@ -192,5 +205,5 @@
         }
       }
     </script>
-  </body>
-</html>
+
+</article>

@@ -1,22 +1,32 @@
 <!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>CodeMirror: Mode-Changing Demo</title>
-    <link rel="stylesheet" href="../lib/codemirror.css">
-    <script src="../lib/codemirror.js"></script>
-    <script src="../mode/javascript/javascript.js"></script>
-    <script src="../mode/scheme/scheme.js"></script>
-    <link rel="stylesheet" href="../doc/docs.css">
 
-    <style type="text/css">
+<title>CodeMirror: Mode-Changing Demo</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../doc/docs.css">
+
+<link rel="stylesheet" href="../lib/codemirror.css">
+<script src="../lib/codemirror.js"></script>
+<script src="../mode/javascript/javascript.js"></script>
+<script src="../mode/scheme/scheme.js"></script>
+<style type="text/css">
       .CodeMirror {border: 1px solid black;}
     </style>
-  </head>
-  <body>
-    <h1>CodeMirror: Mode-Changing demo</h1>
+<div id=nav>
+  <a href="http://codemirror.net"><img id=logo src="../doc/logo.png"></a>
 
-    <form><textarea id="code" name="code">
+  <ul>
+    <li><a href="../index.html">Home</a>
+    <li><a href="../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a class=active href="#">Mode-Changing</a>
+  </ul>
+</div>
+
+<article>
+<h2>Mode-Changing Demo</h2>
+<form><textarea id="code" name="code">
 ;; If there is Scheme code in here, the editor will be in Scheme mode.
 ;; If you put in JS instead, it'll switch to JS mode.
 
@@ -46,5 +56,4 @@ either JavaScript or Scheme mode based on that.</p>
     editor.setOption("mode", looksLikeScheme(editor.getValue()) ? "scheme" : "javascript");
   }
 </script>
-  </body>
-</html>
+  </article>

@@ -1,20 +1,32 @@
 <!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>CodeMirror: Multiple Buffer & Split View Demo</title>
-    <link rel="stylesheet" href="../lib/codemirror.css">
-    <script src="../lib/codemirror.js"></script>
-    <script src="../mode/javascript/javascript.js"></script>
-    <script src="../mode/css/css.js"></script>
-    <link rel="stylesheet" href="../doc/docs.css">
 
-    <style type="text/css" id=style>
+<title>CodeMirror: Multiple Buffer & Split View Demo</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../doc/docs.css">
+
+<link rel="stylesheet" href="../lib/codemirror.css">
+<script src="../lib/codemirror.js"></script>
+<script src="../mode/javascript/javascript.js"></script>
+<script src="../mode/css/css.js"></script>
+<style type="text/css" id=style>
       .CodeMirror {border: 1px solid black; height: 250px;}
     </style>
-  </head>
-  <body>
-    <h1>CodeMirror: Multiple Buffer & Split View Demo</h1>
+<div id=nav>
+  <a href="http://codemirror.net"><img id=logo src="../doc/logo.png"></a>
+
+  <ul>
+    <li><a href="../index.html">Home</a>
+    <li><a href="../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a class=active href="#">Multiple Buffer & Split View</a>
+  </ul>
+</div>
+
+<article>
+<h2>Multiple Buffer & Split View Demo</h2>
+
 
     <div id=code_top></div>
     <div>
@@ -94,5 +106,4 @@ selectBuffer(ed_bot, "js");
     using <a href="../doc/manual.html#swapDoc"><code>swapDoc</code></a>
     to use a single editor to display multiple documents.</p>
 
-  </body>
-</html>
+  </article>

@@ -1,35 +1,36 @@
 <!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>CodeMirror: COBOL mode</title>
-    <link rel="stylesheet" href="../../lib/codemirror.css">
-    <script src="../../lib/codemirror.js"></script>
-    <script src="../../addon/edit/matchbrackets.js"></script>
-    <script src="cobol.js"></script>
-    <link rel="stylesheet" href="../../theme/neat.css">
-    <link rel="stylesheet" href="../../theme/elegant.css">
-    <link rel="stylesheet" href="../../theme/erlang-dark.css">
-    <link rel="stylesheet" href="../../theme/night.css">
-    <link rel="stylesheet" href="../../theme/monokai.css">
-    <link rel="stylesheet" href="../../theme/cobalt.css">
-    <link rel="stylesheet" href="../../theme/eclipse.css">
-    <link rel="stylesheet" href="../../theme/rubyblue.css">
-    <link rel="stylesheet" href="../../theme/lesser-dark.css">
-    <link rel="stylesheet" href="../../theme/xq-dark.css">
-    <link rel="stylesheet" href="../../theme/xq-light.css">
-    <link rel="stylesheet" href="../../theme/ambiance.css">
-    <link rel="stylesheet" href="../../theme/blackboard.css">
-    <link rel="stylesheet" href="../../theme/vibrant-ink.css">
-    <link rel="stylesheet" href="../../theme/solarized.css">
-    <link rel="stylesheet" href="../../theme/twilight.css">
-    <link rel="stylesheet" href="../../theme/midnight.css">
-    <link rel="stylesheet" href="../../addon/dialog/dialog.css">
-    <script src="../../addon/selection/active-line.js"></script>
-    <script src="../../addon/search/search.js"></script>
-    <script src="../../addon/dialog/dialog.js"></script>
-    <script src="../../addon/search/searchcursor.js"></script>
-    <style>
+
+<title>CodeMirror: COBOL mode</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../../doc/docs.css">
+
+<link rel="stylesheet" href="../../lib/codemirror.css">
+<link rel="stylesheet" href="../../theme/neat.css">
+<link rel="stylesheet" href="../../theme/elegant.css">
+<link rel="stylesheet" href="../../theme/erlang-dark.css">
+<link rel="stylesheet" href="../../theme/night.css">
+<link rel="stylesheet" href="../../theme/monokai.css">
+<link rel="stylesheet" href="../../theme/cobalt.css">
+<link rel="stylesheet" href="../../theme/eclipse.css">
+<link rel="stylesheet" href="../../theme/rubyblue.css">
+<link rel="stylesheet" href="../../theme/lesser-dark.css">
+<link rel="stylesheet" href="../../theme/xq-dark.css">
+<link rel="stylesheet" href="../../theme/xq-light.css">
+<link rel="stylesheet" href="../../theme/ambiance.css">
+<link rel="stylesheet" href="../../theme/blackboard.css">
+<link rel="stylesheet" href="../../theme/vibrant-ink.css">
+<link rel="stylesheet" href="../../theme/solarized.css">
+<link rel="stylesheet" href="../../theme/twilight.css">
+<link rel="stylesheet" href="../../theme/midnight.css">
+<link rel="stylesheet" href="../../addon/dialog/dialog.css">
+<script src="../../lib/codemirror.js"></script>
+<script src="../../addon/edit/matchbrackets.js"></script>
+<script src="cobol.js"></script>
+<script src="../../addon/selection/active-line.js"></script>
+<script src="../../addon/search/search.js"></script>
+<script src="../../addon/dialog/dialog.js"></script>
+<script src="../../addon/search/searchcursor.js"></script>
+<style>
         .CodeMirror {
           border: 1px solid #eee;
           font-size : 20px;
@@ -37,8 +38,23 @@
         }
         .CodeMirror-activeline-background {background: #555555 !important;}
     </style>
-  </head>
-  <body>
+<div id=nav>
+  <a href="http://codemirror.net"><img id=logo src="../../doc/logo.png"></a>
+
+  <ul>
+    <li><a href="../../index.html">Home</a>
+    <li><a href="../../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="../index.html">Language modes</a>
+    <li><a class=active href="#">COBOL</a>
+  </ul>
+</div>
+
+<article>
+<h2>COBOL mode</h2>
+
     <p> Select Theme <select onchange="selectTheme()" id="selectTheme">
         <option>default</option>
         <option>ambiance</option>
@@ -191,5 +207,4 @@
         }
       }
     </script>
-  </body>
-</html>
+  </article>

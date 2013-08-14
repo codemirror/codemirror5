@@ -1,15 +1,16 @@
 <!doctype html>
-<head>
-  <meta charset="utf-8">
-  <link rel=stylesheet href="../lib/codemirror.css">
-  <script src="../lib/codemirror.js"></script>
-  <script src="../mode/xml/xml.js"></script>
-  <script src="../addon/merge/dep/diff_match_patch.js"></script>
-  <link rel=stylesheet href="../addon/merge/merge.css">
-  <script src="../addon/merge/merge.js"></script>
-  <link rel="stylesheet" href="../doc/docs.css">
-  <title>CodeMirror: merge view demo</title>
-  <style>
+
+<title>CodeMirror: merge view demo</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../doc/docs.css">
+
+<link rel=stylesheet href="../lib/codemirror.css">
+<link rel=stylesheet href="../addon/merge/merge.css">
+<script src="../lib/codemirror.js"></script>
+<script src="../mode/xml/xml.js"></script>
+<script src="../addon/merge/dep/diff_match_patch.js"></script>
+<script src="../addon/merge/merge.js"></script>
+<style>
     .CodeMirror { line-height: 1.2; }
     body { max-width: 80em; }
     span.clicky {
@@ -20,9 +21,22 @@
       border-radius: 3px;
     }
   </style>
-</head>
+<div id=nav>
+  <a href="http://codemirror.net"><img id=logo src="../doc/logo.png"></a>
 
-<h1>CodeMirror: merge view demo</h1>
+  <ul>
+    <li><a href="../index.html">Home</a>
+    <li><a href="../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a class=active href="#">merge view</a>
+  </ul>
+</div>
+
+<article>
+<h2>merge view demo</h2>
+
 
 <div id=view></div>
 
@@ -61,3 +75,4 @@ window.onload = function() {
   initUI(2);
 };
 </script>
+</article>

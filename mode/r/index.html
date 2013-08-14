@@ -1,23 +1,36 @@
 <!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>CodeMirror: R mode</title>
-    <link rel="stylesheet" href="../../lib/codemirror.css">
-    <script src="../../lib/codemirror.js"></script>
-    <script src="r.js"></script>
-    <style>
+
+<title>CodeMirror: R mode</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../../doc/docs.css">
+
+<link rel="stylesheet" href="../../lib/codemirror.css">
+<script src="../../lib/codemirror.js"></script>
+<script src="r.js"></script>
+<style>
       .CodeMirror { border-top: 1px solid silver; border-bottom: 1px solid silver; }
       .cm-s-default span.cm-semi { color: blue; font-weight: bold; }
       .cm-s-default span.cm-dollar { color: orange; font-weight: bold; }
       .cm-s-default span.cm-arrow { color: brown; }
       .cm-s-default span.cm-arg-is { color: brown; }
     </style>
-    <link rel="stylesheet" href="../../doc/docs.css">
-  </head>
-  <body>
-    <h1>CodeMirror: R mode</h1>
-    <form><textarea id="code" name="code">
+<div id=nav>
+  <a href="http://codemirror.net"><img id=logo src="../../doc/logo.png"></a>
+
+  <ul>
+    <li><a href="../../index.html">Home</a>
+    <li><a href="../../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="../index.html">Language modes</a>
+    <li><a class=active href="#">R</a>
+  </ul>
+</div>
+
+<article>
+<h2>R mode</h2>
+<form><textarea id="code" name="code">
 # Code from http://www.mayin.org/ajayshah/KB/R/
 
 # FIRST LEARN ABOUT LISTS --
@@ -70,5 +83,4 @@ powerful <- function(x) {list(x2=x*x, x3=x*x*x, x4=x*x*x*x)}
     by <a href="http://ubalo.com/">Ubalo</a>, who hold
     the <a href="LICENSE">license</a>.</p>
 
-  </body>
-</html>
+  </article>

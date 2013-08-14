@@ -1,23 +1,34 @@
 <!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>CodeMirror: XML Autocomplete Demo</title>
-    <link rel="stylesheet" href="../lib/codemirror.css">
-    <script src="../lib/codemirror.js"></script>
-    <script src="../addon/hint/show-hint.js"></script>
-    <link rel="stylesheet" href="../addon/hint/show-hint.css">
-    <script src="../addon/hint/xml-hint.js"></script>
-    <script src="../mode/xml/xml.js"></script>
-    <link rel="stylesheet" href="../doc/docs.css">
-    <style type="text/css">
+
+<title>CodeMirror: XML Autocomplete Demo</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../doc/docs.css">
+
+<link rel="stylesheet" href="../lib/codemirror.css">
+<link rel="stylesheet" href="../addon/hint/show-hint.css">
+<script src="../lib/codemirror.js"></script>
+<script src="../addon/hint/show-hint.js"></script>
+<script src="../addon/hint/xml-hint.js"></script>
+<script src="../mode/xml/xml.js"></script>
+<style type="text/css">
       .CodeMirror { border: 1px solid #eee; }
     </style>
-  </head>
-  <body>
-    <h1>CodeMirror: XML Autocomplete demo</h1>
+<div id=nav>
+  <a href="http://codemirror.net"><img id=logo src="../doc/logo.png"></a>
 
-    <form><textarea id="code" name="code"><!-- write some xml below -->
+  <ul>
+    <li><a href="../index.html">Home</a>
+    <li><a href="../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a class=active href="#">XML Autocomplete</a>
+  </ul>
+</div>
+
+<article>
+<h2>XML Autocomplete Demo</h2>
+<form><textarea id="code" name="code"><!-- write some xml below -->
 </textarea></form>
 
     <p>Press <strong>ctrl-space</strong>, or type a '<' character to
@@ -102,5 +113,4 @@
         }
       });
     </script>
-  </body>
-</html>
+  </article>
