@@ -486,7 +486,7 @@ CodeMirror.defineMode("css-base", function(config, parserConfig) {
     "inactiveborder", "inactivecaption", "inactivecaptiontext", "infinite",
     "infobackground", "infotext", "inherit", "initial", "inline", "inline-axis",
     "inline-block", "inline-table", "inset", "inside", "intrinsic", "invert",
-    "italic", "justify", "kannada", "katakana", "katakana-iroha", "khmer",
+    "italic", "justify", "kannada", "katakana", "katakana-iroha", "keep-all", "khmer",
     "landscape", "lao", "large", "larger", "left", "level", "lighter",
     "line-through", "linear", "lines", "list-item", "listbox", "listitem",
     "local", "logical", "loud", "lower", "lower-alpha", "lower-armenian",
