@@ -1,18 +1,31 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>CodeMirror: C-like mode</title>
-    <link rel="stylesheet" href="../../lib/codemirror.css">
-    <script src="../../lib/codemirror.js"></script>
-    <script src="../../addon/edit/matchbrackets.js"></script>
-    <script src="clike.js"></script>
-    <link rel="stylesheet" href="../../doc/docs.css">
-    <style>.CodeMirror {border: 2px inset #dee;}</style>
-  </head>
-  <body>
-    <h1>CodeMirror: C-like mode</h1>
-    <h2>C example</h2>
+ <!doctype html>
+
+<title>CodeMirror: C-like mode</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../../doc/docs.css">
+
+<link rel="stylesheet" href="../../lib/codemirror.css">
+<script src="../../lib/codemirror.js"></script>
+<script src="../../addon/edit/matchbrackets.js"></script>
+<script src="clike.js"></script>
+<style>.CodeMirror {border: 2px inset #dee;}</style>
+<div id=nav>
+  <a href="http://codemirror.net"><img id=logo src="../../doc/logo.png"></a>
+
+  <ul>
+    <li><a href="../../index.html">Home</a>
+    <li><a href="../../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="../index.html">Language modes</a>
+    <li><a class=active href="#">C-like</a>
+  </ul>
+</div>
+
+<article>
+<h2>C-like mode</h2>
+
 <div><textarea id="c-code">
 /* C demo code */
 
@@ -84,8 +97,6 @@ void* zmq_thread_init(void* zmq_context, int signal_fd) {
 <h2>C++ example</h2>
 
 <div><textarea id="cpp-code">
-/* C++ demo code */
-
 #include <iostream>
 #include "mystuff/util.h"
 
@@ -124,8 +135,6 @@ void Class::Method2(MyType<T, V>* value) {
 <h2>Java example</h2>
 
 <div><textarea id="java-code">
-/* Java demo code */
-
 import com.demo.util.MyType;
 import com.demo.util.MyInterface;
 
@@ -183,5 +192,6 @@ public class Class<T, V> implements MyInterface {
     (C code), <code>text/x-c++src</code> (C++
     code), <code>text/x-java</code> (Java
     code), <code>text/x-csharp</code> (C#).</p>
+  </article>
   </body>
 </html>
