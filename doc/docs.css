@@ -10,22 +10,6 @@ section, article { display: block; padding: 0; }
 
 body {
   background: #f8f8f8;
-}
-
-article {
-  max-width: 700px;
-  margin: 0 auto;
-  border-left: 2px solid #E30808;
-  border-right: 1px solid #ddd;
-  padding: 30px 50px 100px 50px;
-  background: white;
-  z-index: 2;
-  position: relative;
-  min-height: 100%;
-  box-sizing: border-box;
-}
-
-body {
   font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif;
   line-height: 1.5;
 }
@@ -50,6 +34,20 @@ a, a:visited, a:link, .quasilink {
   cursor: pointer;
 }
 
+article {
+  max-width: 700px;
+  margin: 0 auto;
+  border-left: 2px solid #E30808;
+  border-right: 1px solid #ddd;
+  padding: 30px 50px 100px 50px;
+  background: white;
+  z-index: 2;
+  position: relative;
+  min-height: 100%;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+}
+
 #nav {
   position: fixed;
   top: 30px;
@@ -57,6 +55,16 @@ a, a:visited, a:link, .quasilink {
   padding-right: 350px;
   text-align: right;
   z-index: 1;
+}
+
+@media screen and (max-width: 1000px) {
+  article {
+    margin: 0 0 0 160px;
+  }
+  #nav {
+    left: 0; right: none;
+    width: 160px;
+  }
 }
 
 #nav ul {
