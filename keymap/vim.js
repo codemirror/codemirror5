@@ -1292,7 +1292,6 @@
           var skip = motionArgs.forward ? hidden.to - line + 1 : hidden.from - line - 1;
           line = line + skip;
         }
-        window.console.log(line);
         var first = cm.firstLine();
         var last = cm.lastLine();
         // Vim cancels linewise motions that start on an edge and move beyond
