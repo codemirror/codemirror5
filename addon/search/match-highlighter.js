@@ -54,15 +54,15 @@
       var state = cm.state.matchHighlighter;
       for (var i = 0; i < state.overlays.length; i++) cm.removeOverlay(state.overlays[i]);
       state.overlays = [];
-      cm.withSelection(function() {
-        if (!cm.somethingSelected() && state.showToken) {
-          var tok = cm.getTokenAt(cm.getCursor()).string;
+      cm.withSelection(function(sel) {
+        if (!sel.somethingSelected() && state.showToken) {
+          var tok = cm.getTokenAt(sel.find()).string;
           if (/\w/.test(tok))
             cm.addOverlay(state.overlays[state.overlays.length] = makeOverlay(tok, true, state.style));
           return;
         }
-        if (cm.getCursor("head").line != cm.getCursor("anchor").line) return;
-        var selection = cm.getSelection().replace(/^\s+|\s+$/g, "");
+        if (sel.find().line != sel.anchor.line) return;
+        var selection = sel.get().replace(/^\s+|\s+$/g, "");
         if (selection.length >= state.minChars)
           cm.addOverlay(state.overlays[state.overlays.length] = makeOverlay(selection, false, state.style));
       });

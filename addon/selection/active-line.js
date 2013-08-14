@@ -34,8 +34,8 @@
     cm.operation(function() {
       clearActiveLine(cm);
       cm.state.activeLines = [];
-      cm.eachSelection(function() {
-        var line = cm.getLineHandle(cm.getCursor().line);
+      cm.eachSelection(function(sel) {
+        var line = cm.getLineHandle(sel.find().line);
         cm.addLineClass(line, "wrap", WRAP_CLASS);
         cm.addLineClass(line, "background", BACK_CLASS);
         cm.state.activeLines.push(line);

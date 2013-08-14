@@ -12,8 +12,8 @@
     cm.operation(function() {
       if (cm.state.matchedTags) { cm.state.matchedTags(); cm.state.matchedTags = null; }
       var markers = [];
-      cm.withSelection(function() {
-        var cur = cm.getCursor();
+      cm.withSelection(function(sel) {
+        var cur = sel.find();
         var match = CodeMirror.findMatchingTag(cm, cur) || CodeMirror.findEnclosingTag(cm, cur);
         if (!match) return;
         markers.push(cm.markText(match.open.from, match.open.to, {className: "CodeMirror-matchingbracket"}));
@@ -24,11 +24,11 @@
   }
 
   CodeMirror.commands.toMatchingTag = function(cm) {
-    cm.withSelection(function() {
-      var found = CodeMirror.findMatchingTag(cm, cm.getCursor());
+    cm.withSelection(function(sel) {
+      var found = CodeMirror.findMatchingTag(cm, sel.find());
       if (found) {
         var other = found.at == "close" ? found.open : found.close;
-        cm.setSelection(other.to, other.from);
+        sel.move(other.to, other.from);
       }
     });
   };

@@ -43,8 +43,8 @@
 
   function autoCloseTag(cm, ch) {
     var opt = cm.getOption("autoCloseTags");
-    return cm.withSelection(function() {
-      var pos = cm.getCursor(), tok = cm.getTokenAt(pos);
+    return cm.withSelection(function(sel) {
+      var pos = sel.find(), tok = cm.getTokenAt(pos);
       var inner = CodeMirror.innerMode(cm.getMode(), tok.state), state = inner.state;
       if (inner.mode.name != "xml") return CodeMirror.Pass;
 
@@ -64,8 +64,7 @@
 
         var doIndent = indentTags && indexOf(indentTags, lowerTagName) > -1;
         var curPos = doIndent ? CodeMirror.Pos(pos.line + 1, 0) : CodeMirror.Pos(pos.line, pos.ch + 1);
-        cm.replaceSelection(">" + (doIndent ? "\n\n" : "") + "</" + tagName + ">",
-                            {head: curPos, anchor: curPos});
+        sel.replace(">" + (doIndent ? "\n\n" : "") + "</" + tagName + ">", {head: curPos, anchor: curPos});
         if (doIndent) {
           cm.indentLine(pos.line + 1);
           cm.indentLine(pos.line + 2);
@@ -73,7 +72,7 @@
         return;
       } else if (ch == "/" && tok.string == "<") {
         var tagName = state.context && state.context.tagName;
-        if (tagName) cm.replaceSelection("/" + tagName + ">", "end");
+        if (tagName) sel.replace("/" + tagName + ">", "end");
         return;
       }
       return CodeMirror.Pass;
