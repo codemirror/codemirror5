@@ -35,5 +35,5 @@
   CodeMirror.defineExtension("hideLine", function(start, end, options) { return doHide(this, start, end, options); });
   CodeMirror.defineExtension("showLine", function(marker) { doShow(this, marker); });
   CodeMirror.defineExtension("getHiddenRegion", function(line) { return getHiddenRegion(this, line); });
-  CodeMirror.defineExtension("hasHiddenLines", function() { return this.state.hasOwnProperty('hiddenLines'); });
+  CodeMirror.defineOption("checkHiddenLines", false);
 })();
