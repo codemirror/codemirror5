@@ -1,0 +1,28 @@
+<!doctype html>
+<head>
+<title>CodeMirror: Demos</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../doc/docs.css">
+<style type="text/css" id=style>
+  .CodeMirror {border: 1px solid black; height: 250px;}
+</style>
+</head>
+<body>
+<div id=nav>
+  <a href="http://codemirror.net"><img id=logo src="../doc/logo.png"></a>
+  <ul>
+    <li><a href="../index.html">Home</a>
+    <li><a href="../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+    <li><a class="active" href="#">Demos</a>
+  </ul>
+</div>
+
+<article>
+  <?php
+	$files = array("Active Line" => "activeline.html", "Any Word Completion" => "anywordhint.html", "Bi-directional Text" => "bidi.html", "B-Tree Visualization" => "btree.html", "Buffers" => "buffers.html", "Change Mode" => "changemode.html", "Close Brackets" => "closebrackets.html", "Close Tag" => "closetag.html", "Complete" => "complete.html", "Emacs" => "emacs.html", "Code Folding" => "folding.html", "Fullscreen" => "fullscreen.html", "HTML Completion" => "html5complete.html", "Indent Wrap" => "indentwrap.html", "Lint" => "lint.html", "Load Mode" => "loadmode.html", "Marker" => "marker.html", "Mark Selection" => "markselection.html", "Match Highlighter" => "matchhighlighter.html", "Match Tags" => "matchtags.html", "Merge" => "merge.html", "Multiplex" => "multiplex.html", "Mustache" => "mustache.html", "Placeholder" => "placeholder.html", "Preview" => "preview.html", "Resize" => "resize.html", "Run Mode" => "runmode.html", "Search" => "search.html", "Automatically Derive Odd Wrapping Behavior" => "spanaffectswrapping_shim.html", "Tern" => "tern.html", "Theme" => "theme.html", "Trailing Space" => "trailingspace.html", "Variable Height" => "variableheight.html", "Vim" => "vim.html", "Visible Tabs" => "visibletabs.html", "Widget" => "widget.html", "XML Completion" => "xmlcomplete.html");
+	foreach ($files as $text => $file)
+	  print "<a href=\"$file\" title=\"$text Demo\">$text</a><br>\r\n  "; ?> 
+</article>
+</body>
+</html>
