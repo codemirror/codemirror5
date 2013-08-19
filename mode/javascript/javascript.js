@@ -78,18 +78,19 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     type = tp; content = cont;
     return style;
   }
-
   function jsTokenBase(stream, state) {
     var ch = stream.next();
     if (ch == '"' || ch == "'")
       return chain(stream, state, jsTokenString(ch));
+    else if (ch == "." && stream.match(/^\d+(?:[eE][+\-]?\d+)?/))
+      return ret("number", "number");
     else if (/[\[\]{}\(\),;\:\.]/.test(ch))
       return ret(ch);
     else if (ch == "0" && stream.eat(/x/i)) {
       stream.eatWhile(/[\da-f]/i);
       return ret("number", "number");
     }
-    else if (/\d/.test(ch) || ch == "-" && stream.eat(/\d/)) {
+    else if (/\d/.test(ch)) {
       stream.match(/^\d*(?:\.\d*)?(?:[eE][+\-]?\d+)?/);
       return ret("number", "number");
     }
