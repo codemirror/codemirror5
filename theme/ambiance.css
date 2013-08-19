@@ -65,11 +65,9 @@
   border-left: 1px solid #7991E8;
 }
 
-.cm-s-ambiance .activeline {
+.cm-s-ambiance .CodeMirror-activeline-background {
   background: none repeat scroll 0% 0% rgba(255, 255, 255, 0.031);
 }
-
-.cm-s-ambiance .CodeMirror-activeline-background {background: #3C3636 !important;}
 
 .cm-s-ambiance.CodeMirror,
 .cm-s-ambiance .CodeMirror-gutters {

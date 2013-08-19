@@ -5,7 +5,7 @@
 .cm-s-midnight.CodeMirror-focused span.CodeMirror-matchhighlight { background: #314D67 !important; }
 
 /*<!--activeline-->*/
-.cm-s-midnight .activeline {background: #253540 !important;}
+.cm-s-midnight .CodeMirror-activeline-background {background: #253540 !important;}
 
 .cm-s-midnight.CodeMirror {
     background: #0F192A;
@@ -37,7 +37,6 @@
 .cm-s-midnight span.cm-tag {color: #449;}
 .cm-s-midnight span.cm-link {color: #AE81FF;}
 
-.cm-s-midnight .CodeMirror-activeline-background {background: #192741 !important;}
 .cm-s-midnight .CodeMirror-matchingbracket {
   text-decoration: underline;
   color: white !important;
