@@ -1,0 +1,55 @@
+html {
+  cursor: text;
+}
+
+.editbox {
+  margin: .4em;
+  padding: 0;
+  font-family: monospace;
+  font-size: 10pt;
+  color: black;
+}
+
+.editbox p {
+  margin: 0;
+}
+
+span.xml-tagname {
+  color: #A0B;
+}
+
+span.xml-attribute {
+  color: #281;
+}
+
+span.xml-punctuation {
+  color: black;
+}
+
+span.xml-attname {
+  color: #00F;
+}
+
+span.xml-comment {
+  color: #A70;
+}
+
+span.xml-cdata {
+  color: #48A;
+}
+
+span.xml-processing {
+  color: #999;
+}
+
+span.xml-entity {
+  color: #A22;
+}
+
+span.xml-error {
+ color: #F00 !important;
+}
+
+span.xml-text {
+  color: black;
+}
