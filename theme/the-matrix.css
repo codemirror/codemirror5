@@ -22,3 +22,5 @@
 .cm-s-the-matrix span.cm-bracket {color: #cc7;}
 .cm-s-the-matrix span.cm-tag {color: #FFBD40;}
 .cm-s-the-matrix span.cm-attribute {color: #FFF700;}
+
+.cm-s-the-matrix .CodeMirror-activeline-background {background: #040;}
