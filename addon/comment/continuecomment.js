@@ -10,7 +10,7 @@
     var mode = CodeMirror.innerMode(cm.getMode(), token.state).mode;
     var space;
 
-    if (token.type == "comment" && mode.blockCommentStart) {
+    if (token.type == "comment" && mode.blockCommentStart && mode.blockCommentContinue) {
       var end = token.string.indexOf(mode.blockCommentEnd);
       var full = cm.getRange(CodeMirror.Pos(pos.line, 0), CodeMirror.Pos(pos.line, token.end)), found;
       if (end != -1 && end == token.string.length - mode.blockCommentEnd.length) {
