@@ -43,12 +43,18 @@ window.onload = function() {
   var te_html = document.getElementById("code-html");
   te_html.value = "<html>\n  " + document.documentElement.innerHTML + "\n</html>";
 
+  function fold(cm, foldFn) {
+    for(var i = cm.doc.selections.length; i--; )
+      foldFn(cm, cm.doc.selections[i].find());
+  }
+
   function foldJS(cm, where) { cm.foldCode(where, CodeMirror.braceRangeFinder); }
   window.editor = CodeMirror.fromTextArea(te, {
     mode: "javascript",
     lineNumbers: true,
     lineWrapping: true,
-    extraKeys: {"Ctrl-Q": function(cm){foldJS(cm, cm.getCursor());}}
+    multipleSelections: true,
+    extraKeys: {"Ctrl-Q": function(cm){fold(cm, foldJS);}}
   });
   editor.on("gutterClick", foldJS);
   foldJS(editor, 9);
@@ -58,7 +64,8 @@ window.onload = function() {
     mode: "text/html",
     lineNumbers: true,
     lineWrapping: true,
-    extraKeys: {"Ctrl-Q": function(cm){foldHTML(cm, cm.getCursor());}}
+    multipleSelections: true,
+    extraKeys: {"Ctrl-Q": function(cm){fold(cm, foldHTML);}}
   });
   editor_html.on("gutterClick", foldHTML);
   foldHTML(editor_html, 13);
