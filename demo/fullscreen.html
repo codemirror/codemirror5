@@ -5,18 +5,12 @@
 <link rel=stylesheet href="../doc/docs.css">
 
 <link rel="stylesheet" href="../lib/codemirror.css">
+<link rel="stylesheet" href="../addon/display/fullscreen.css">
 <link rel="stylesheet" href="../theme/night.css">
 <script src="../lib/codemirror.js"></script>
 <script src="../mode/xml/xml.js"></script>
-<style type="text/css">
-      .CodeMirror-fullscreen {
-        display: block;
-        position: absolute;
-        top: 0; left: 0;
-        width: 100%;
-        z-index: 9999;
-      }
-    </style>
+<script src="../addon/display/fullscreen.js"></script>
+
 <div id=nav>
   <a href="http://codemirror.net"><img id=logo src="../doc/logo.png"></a>
 
@@ -114,43 +108,23 @@
 
 </textarea></form>
   <script>
-    function isFullScreen(cm) {
-      return /\bCodeMirror-fullscreen\b/.test(cm.getWrapperElement().className);
-    }
-    function winHeight() {
-      return window.innerHeight || (document.documentElement || document.body).clientHeight;
-    }
-    function setFullScreen(cm, full) {
-      var wrap = cm.getWrapperElement();
-      if (full) {
-        wrap.className += " CodeMirror-fullscreen";
-        wrap.style.height = winHeight() + "px";
-        document.documentElement.style.overflow = "hidden";
-      } else {
-        wrap.className = wrap.className.replace(" CodeMirror-fullscreen", "");
-        wrap.style.height = "";
-        document.documentElement.style.overflow = "";
-      }
-      cm.refresh();
-    }
-    CodeMirror.on(window, "resize", function() {
-      var showing = document.body.getElementsByClassName("CodeMirror-fullscreen")[0];
-      if (!showing) return;
-      showing.CodeMirror.getWrapperElement().style.height = winHeight() + "px";
-    });
     var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
       lineNumbers: true,
       theme: "night",
       extraKeys: {
         "F11": function(cm) {
-          setFullScreen(cm, !isFullScreen(cm));
+          cm.setOption("fullScreen", !cm.getOption("fullScreen"));
         },
         "Esc": function(cm) {
-          if (isFullScreen(cm)) setFullScreen(cm, false);
+          if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false);
         }
       }
     });
   </script>
 
-    <p>Press <strong>F11</strong> when cursor is in the editor to toggle full screen editing. <strong>Esc</strong> can also be used to <i>exit</i> full screen editing.</p>
+    <p>Demonstration of
+    the <a href="../doc/manual.html#addon_fullscreen">fullscreen</a>
+    addon. Press <strong>F11</strong> when cursor is in the editor to
+    toggle full screen editing. <strong>Esc</strong> can also be used
+    to <i>exit</i> full screen editing.</p>
   </article>
