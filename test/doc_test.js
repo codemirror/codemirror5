@@ -243,7 +243,10 @@
   });
 
   testDoc("copyDoc", "A='u'", function(a) {
+    a.setOption("multipleSelections", true);
+    a.addSelection(Pos(0, 1));
     var copy = a.getDoc().copy(true);
+    eq(copy.selections.length, 2);
     a.setValue("foo");
     copy.setValue("bar");
     var old = a.swapDoc(copy);
