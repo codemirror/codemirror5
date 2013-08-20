@@ -27,7 +27,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       return null;
     }
     if (/\d/.test(ch)) {
-      stream.eatWhile(/[\w\.]/);
+      stream.eatWhile(/[\d\.]/);
       return "number";
     }
     if (ch == "/") {
