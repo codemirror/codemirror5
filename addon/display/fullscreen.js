@@ -24,7 +24,7 @@
     document.documentElement.style.overflow = "";
     var info = cm.state.fullScreenRestore;
     wrap.style.width = info.width; wrap.style.height = info.height;
-    window.scrollTo(scroll.left, scroll.top);
+    window.scrollTo(info.scrollLeft, info.scrollTop);
     cm.refresh();
   }
 })();
