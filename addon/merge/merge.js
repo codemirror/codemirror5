@@ -31,9 +31,20 @@
       this.diff = getDiff(orig, options.value);
       this.diffOutOfDate = false;
 
+      this.showDifferences = options.highlightDifferences === undefined ? true: !!(options.highlightDifferences);
       this.forceUpdate = registerUpdate(this);
       setScrollLock(this, true, false);
       registerScroll(this);
+    },
+    highlightDifferences: function(highlight) {
+      var originalHighlightDifferences = this.showDifferences;
+
+      if( highlight === undefined ) this.showDifferences= true;
+      else this.showDifferences = !!(highlight);
+
+      if( this.showDifferences != originalHighlightDifferences ) {
+        this.forceUpdate();
+      }
     }
   };
 
@@ -46,8 +57,9 @@
         dv.diff = getDiff(dv.orig.getValue(), dv.edit.getValue());
         dv.diffOutOfDate = false;
       }
-      updateMarks(dv.edit, dv.diff, edit, DIFF_INSERT, dv.classes);
-      updateMarks(dv.orig, dv.diff, orig, DIFF_DELETE, dv.classes);
+      if( !dv.showDifferences) edit.from = edit.to = orig.from = orig.to = 0;
+      updateMarks(dv.edit, dv.diff, edit, DIFF_INSERT, dv.classes, dv.showDifferences);
+      updateMarks(dv.orig, dv.diff, orig, DIFF_DELETE, dv.classes, dv.showDifferences);
       drawConnectors(dv);
     }
     function set(slow) {
@@ -143,7 +155,12 @@
   }
 
   // FIXME maybe add a margin around viewport to prevent too many updates
-  function updateMarks(editor, diff, state, type, classes) {
+  function updateMarks(editor, diff, state, type, classes, showDifferences) {
+    if(! showDifferences ) {
+      clearMarks(editor, state.marked, classes);
+      return;
+    }
+
     var vp = editor.getViewport();
     editor.operation(function() {
       if (state.from == state.to || vp.from - state.to > 20 || state.from - vp.to > 20) {
@@ -217,6 +234,7 @@
       attrs(dv.svg, "width", w, "height", dv.gap.offsetHeight);
     }
     clear(dv.copyButtons);
+    if( !dv.showDifferences ) return;
 
     var flip = dv.type == "left";
     var vpEdit = dv.edit.getViewport(), vpOrig = dv.orig.getViewport();
@@ -322,7 +340,11 @@
     constuctor: MergeView,
     editor: function() { return this.edit; },
     rightOriginal: function() { return this.right && this.right.orig; },
-    leftOriginal: function() { return this.left && this.left.orig; }
+    leftOriginal: function() { return this.left && this.left.orig; },
+    highlightDifferences: function(highlight) {
+      if( this.right ) this.right.highlightDifferences(highlight);
+      if( this.left ) this.left.highlightDifferences(highlight);
+    }
   };
 
   // Operations on diffs
