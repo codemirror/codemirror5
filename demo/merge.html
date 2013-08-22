@@ -68,8 +68,7 @@ function initUI(panes) {
 }
 
 function toggleDifferences() {
-  hilight= !hilight;
-  dv.highlightDifferences( hilight );
+  dv.setShowDifferences(hilight = !hilight);
 }
 
 window.onload = function() {

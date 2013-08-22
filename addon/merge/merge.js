@@ -31,19 +31,16 @@
       this.diff = getDiff(orig, options.value);
       this.diffOutOfDate = false;
 
-      this.showDifferences = options.highlightDifferences === undefined ? true: !!(options.highlightDifferences);
+      this.showDifferences = options.showDifferences !== false;
       this.forceUpdate = registerUpdate(this);
       setScrollLock(this, true, false);
       registerScroll(this);
     },
-    highlightDifferences: function(highlight) {
-      var originalHighlightDifferences = this.showDifferences;
-
-      if( highlight === undefined ) this.showDifferences= true;
-      else this.showDifferences = !!(highlight);
-
-      if( this.showDifferences != originalHighlightDifferences ) {
-        this.forceUpdate();
+    setShowDifferences: function(val) {
+      val = val !== false;
+      if (val != this.showDifferences) {
+        this.showDifferences = val;
+        this.forceUpdate("full");
       }
     }
   };
@@ -52,14 +49,22 @@
     var edit = {from: 0, to: 0, marked: []};
     var orig = {from: 0, to: 0, marked: []};
     var debounceChange;
-    function update() {
+    function update(mode) {
+      if (mode == "full") {
+        if (dv.svg) clear(dv.svg);
+        clear(dv.copyButtons);
+        clearMarks(dv.edit, edit.marked, dv.classes);
+        clearMarks(dv.orig, orig.marked, dv.classes);
+        edit.from = edit.to = orig.from = orig.to = 0;
+      }
       if (dv.diffOutOfDate) {
         dv.diff = getDiff(dv.orig.getValue(), dv.edit.getValue());
         dv.diffOutOfDate = false;
       }
-      if( !dv.showDifferences) edit.from = edit.to = orig.from = orig.to = 0;
-      updateMarks(dv.edit, dv.diff, edit, DIFF_INSERT, dv.classes, dv.showDifferences);
-      updateMarks(dv.orig, dv.diff, orig, DIFF_DELETE, dv.classes, dv.showDifferences);
+      if (dv.showDifferences) {
+        updateMarks(dv.edit, dv.diff, edit, DIFF_INSERT, dv.classes);
+        updateMarks(dv.orig, dv.diff, orig, DIFF_DELETE, dv.classes);
+      }
       drawConnectors(dv);
     }
     function set(slow) {
@@ -155,12 +160,7 @@
   }
 
   // FIXME maybe add a margin around viewport to prevent too many updates
-  function updateMarks(editor, diff, state, type, classes, showDifferences) {
-    if(! showDifferences ) {
-      clearMarks(editor, state.marked, classes);
-      return;
-    }
-
+  function updateMarks(editor, diff, state, type, classes) {
     var vp = editor.getViewport();
     editor.operation(function() {
       if (state.from == state.to || vp.from - state.to > 20 || state.from - vp.to > 20) {
@@ -228,13 +228,14 @@
   // Updating the gap between editor and original
 
   function drawConnectors(dv) {
+    if (!dv.showDifferences) return;
+
     if (dv.svg) {
       clear(dv.svg);
       var w = dv.gap.offsetWidth;
       attrs(dv.svg, "width", w, "height", dv.gap.offsetHeight);
     }
     clear(dv.copyButtons);
-    if( !dv.showDifferences ) return;
 
     var flip = dv.type == "left";
     var vpEdit = dv.edit.getViewport(), vpOrig = dv.orig.getViewport();
@@ -341,9 +342,9 @@
     editor: function() { return this.edit; },
     rightOriginal: function() { return this.right && this.right.orig; },
     leftOriginal: function() { return this.left && this.left.orig; },
-    highlightDifferences: function(highlight) {
-      if( this.right ) this.right.highlightDifferences(highlight);
-      if( this.left ) this.left.highlightDifferences(highlight);
+    setShowDifferences: function(val) {
+      if (this.right) this.right.setShowDifferences(val);
+      if (this.left) this.left.setShowDifferences(val);
     }
   };
 
