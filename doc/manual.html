@@ -502,6 +502,16 @@
       argument, and the raw <code>mousedown</code> event object as
       fourth argument.</dd>
 
+      <dt id="event_gutterContextMenu"><code><strong>"gutterContextMenu"</strong> (instance: CodeMirror, line: integer, gutter: string, contextMenu: Event: Event)</code></dt>
+      <dd>Fires when the editor gutter (the line-number area)
+      receives a <code>contextmenu</code> event. Will pass the editor
+      instance as first argument, the (zero-based) number of the line
+      that was clicked as second argument, the CSS class of the
+      gutter that was clicked as third argument, and the raw
+      <code>contextmenu</code> mouse event object as fourth argument.
+      You can <code>preventDefault</code> the event, to signal that
+      CodeMirror should do no further handling.</dd>
+
       <dt id="event_focus"><code><strong>"focus"</strong> (instance: CodeMirror)</code></dt>
       <dd>Fires whenever the editor is focused.</dd>
 
