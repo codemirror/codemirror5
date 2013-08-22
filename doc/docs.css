@@ -103,6 +103,7 @@ article {
 }
 
 #logo {
+  border: 0;
   margin-right: 7px;
   margin-bottom: 25px;
 }
