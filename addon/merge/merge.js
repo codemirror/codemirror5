@@ -71,13 +71,15 @@
       clearTimeout(debounceChange);
       debounceChange = setTimeout(update, slow == true ? 250 : 100);
     }
-    dv.edit.on("change", function() {
+    function change() {
       if (!dv.diffOutOfDate) {
         dv.diffOutOfDate = true;
         edit.from = edit.to = orig.from = orig.to = 0;
       }
       set(true);
-    });
+    }
+    dv.edit.on("change", change);
+    dv.orig.on("change", change);
     dv.edit.on("viewportChange", set);
     dv.orig.on("viewportChange", set);
     update();
