@@ -31,10 +31,18 @@
       this.diff = getDiff(orig, options.value);
       this.diffOutOfDate = false;
 
+      this.showCopyButtons = options.showCopyButtons !== false;
       this.showDifferences = options.showDifferences !== false;
       this.forceUpdate = registerUpdate(this);
       setScrollLock(this, true, false);
       registerScroll(this);
+    },
+    setShowCopyButtons: function(val) {
+      val = val !== false;
+      if (val != this.showCopyButtons) {
+        this.showCopyButtons = val;
+        this.forceUpdate("full");
+      }
     },
     setShowDifferences: function(val) {
       val = val !== false;
@@ -257,11 +265,13 @@
               "d", "M -1 " + topRpx + curveTop + " L " + (w + 2) + " " + botLpx + curveBot + " z",
               "class", dv.classes.connect);
       }
-      var copy = dv.copyButtons.appendChild(elt("div", dv.type == "left" ? "\u21dd" : "\u21dc",
-                                                "CodeMirror-merge-copy"));
-      copy.title = "Revert chunk";
-      copy.chunk = {topEdit: topEdit, botEdit: botEdit, topOrig: topOrig, botOrig: botOrig};
-      copy.style.top = top + "px";
+      if(dv.showCopyButtons) {
+        var copy = dv.copyButtons.appendChild(elt("div", dv.type == "left" ? "\u21dd" : "\u21dc",
+                                                  "CodeMirror-merge-copy"));
+        copy.title = "Revert chunk";
+        copy.chunk = {topEdit: topEdit, botEdit: botEdit, topOrig: topOrig, botOrig: botOrig};
+        copy.style.top = top + "px";
+      }
     });
   }
 
@@ -345,6 +355,10 @@
     setShowDifferences: function(val) {
       if (this.right) this.right.setShowDifferences(val);
       if (this.left) this.left.setShowDifferences(val);
+    },
+    setShowCopyButtons: function(val) {
+      if (this.right) this.right.setShowCopyButtons(val);
+      if (this.left) this.left.setShowCopyButtons(val);
     }
   };
 
