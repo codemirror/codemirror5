@@ -387,8 +387,20 @@
       <dd>When highlighting long lines, in order to stay responsive,
       the editor will give up and simply style the rest of the line as
       plain text when it reaches a certain position. The default is
-      10000. You can set this to <code>Infinity</code> to turn off
+      10 000. You can set this to <code>Infinity</code> to turn off
       this behavior.</dd>
+
+      <dt id="option_crudeMeasuringFrom"><code><strong>crudeMeasuringFrom</strong>: number</code></dt>
+      <dd>When measuring the character positions in long lines, any
+      line longer than this number (default is 10 000),
+      when <a href="#option_lineWrapping">line wrapping</a>
+      is <strong>off</strong>, will simply be assumed to consist of
+      same-sized characters. This means that, on the one hand,
+      measuring will be inaccurate when characters of varying size,
+      right-to-left text, markers, or other irregular elements are
+      present. On the other hand, it means that having such a line
+      won't freeze the user interface because of the expensiveness of
+      the measurements.</dd>
 
       <dt id="option_viewportMargin"><code><strong>viewportMargin</strong>: integer</code></dt>
       <dd>Specifies the amount of lines that are rendered above and
