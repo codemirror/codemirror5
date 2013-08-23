@@ -277,16 +277,14 @@ CodeMirror.defineMode("css-base", function(config, parserConfig) {
           state.stack[state.stack.length-1] = "@mediaType";
           state.stack.push("@mediaType(");
         }
+        else state.stack.push("(");
       }
       else if (type == ")") {
-        if (context == "propertyValue" && state.stack[state.stack.length-2] == "@mediaType(") {
+        if (context == "propertyValue") {
           // In @mediaType( without closing ; after propertyValue
           state.stack.pop();
-          state.stack.pop();
         }
-        else if (context == "@mediaType(") {
-          state.stack.pop();
-        }
+        state.stack.pop();
       }
       else if (type == ":" && state.lastToken == "property") state.stack.push("propertyValue");
       else if (context == "propertyValue" && type == ";") state.stack.pop();
@@ -593,6 +591,12 @@ CodeMirror.defineMode("css-base", function(config, parserConfig) {
     valueKeywords: valueKeywords,
     allowNested: true,
     hooks: {
+      ":": function(stream, state) {
+        if (stream.match(/\s*{/)) {
+          return [null, "{"];
+        }
+        return false;
+      },
       "$": function(stream) {
         stream.match(/^[\w-]+/);
         if (stream.peek() == ":") {
