@@ -70,27 +70,3 @@
   background-position: right bottom;
   width: 100%; height: 100%;
 }
-
-/* Styles for the overview ruler  
-.annotationOverview {
-  cursor: pointer;
-  border-radius: 2px;
-  left: 2px;
-  width: 8px;
-}
-.annotationOverview.error {
-  background-color: lightcoral;
-  border: 1px solid darkred;
-}
-.annotationOverview.warning {
-  background-color: Gold;
-  border: 1px solid black;
-}
-
-.annotationHTML.overlay {
-  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHCAYAAADEUlfTAAAAAXNSR0IArs4c6QAAAAZiS0dEAAAAAAAA+UO7fwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9sJEAQvB2JVdrAAAAAdaVRYdENvbW1lbnQAAAAAAENyZWF0ZWQgd2l0aCBHSU1QZC5lBwAAAD1JREFUCNdtjkESADAEAzemf69f66HMqGlOIhYiFRFRtSQBWAY7mzx+EDTL6sSgb1jTk7Q87rxyqe37fXsAa78gLyZnRgEAAAAASUVORK5CYII=");
-  background-position: right bottom;
-  position: relative;
-  top: -16px;
-}
-*/
