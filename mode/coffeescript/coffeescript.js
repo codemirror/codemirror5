@@ -33,7 +33,7 @@ CodeMirror.defineMode('coffeescript', function(conf) {
 
     var stringPrefixes = new RegExp("^('{3}|\"{3}|['\"])");
     var regexPrefixes = new RegExp("^(/{3}|/)");
-    var commonConstants = ['Infinity', 'NaN', 'undefined', 'null', 'true', 'false', 'on', 'off', 'yes', 'no'];
+    var commonConstants = ['Infinity', 'NaN', 'undefined', 'null', 'true', 'false', 'yes', 'no'];
     var constants = wordRegexp(commonConstants);
 
     // Tokenizers
