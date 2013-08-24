@@ -591,7 +591,7 @@ CodeMirror.defineMode("css-base", function(config, parserConfig) {
     valueKeywords: valueKeywords,
     allowNested: true,
     hooks: {
-      ":": function(stream, state) {
+      ":": function(stream) {
         if (stream.match(/\s*{/)) {
           return [null, "{"];
         }
