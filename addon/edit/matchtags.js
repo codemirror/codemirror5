@@ -8,7 +8,7 @@
       clear(cm);
     }
     if (val) {
-      cm.state.matchBothTags = (val.bothTags);
+      cm.state.matchBothTags = typeof val == "object" && val.bothTags;
       cm.on("cursorActivity", doMatchTags);
       cm.on("viewportChange", maybeUpdateMatch);
       doMatchTags(cm);
@@ -18,7 +18,7 @@
   function clear(cm) {
     if (cm.state.tagHit) cm.state.tagHit.clear();
     if (cm.state.tagOther) cm.state.tagOther.clear();
-    cm.state.tagHit = null; cm.state.tagOther = null;
+    cm.state.tagHit = cm.state.tagOther = null;
   }
 
   function doMatchTags(cm) {
@@ -29,9 +29,9 @@
       range.from = Math.min(range.from, cur.line); range.to = Math.max(cur.line + 1, range.to);
       var match = CodeMirror.findMatchingTag(cm, cur, range);
       if (!match) return;
-      if(cm.state.matchBothTags) {
+      if (cm.state.matchBothTags) {
         var hit = match.at == "open" ? match.open : match.close;
-        if(hit)cm.state.tagHit = cm.markText(hit.from, hit.to, {className: "CodeMirror-matchingtag"});
+        if (hit) cm.state.tagHit = cm.markText(hit.from, hit.to, {className: "CodeMirror-matchingtag"});
       }
       var other = match.at == "close" ? match.open : match.close;
       if (other)
