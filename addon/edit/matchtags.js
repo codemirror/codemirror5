@@ -18,7 +18,7 @@
   function clear(cm) {
     if (cm.state.tagHit) cm.state.tagHit.clear();
     if (cm.state.tagOther) cm.state.tagOther.clear();
-    cm.state.tagHit = null; cm.state.tagOther = null;  
+    cm.state.tagHit = null; cm.state.tagOther = null;
   }
 
   function doMatchTags(cm) {
@@ -41,7 +41,7 @@
     });
   }
 
-  function maybeUpdateMatch(cm) {    
+  function maybeUpdateMatch(cm) {
     if (cm.state.failedTagMatch) doMatchTags(cm);
   }
 
