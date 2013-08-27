@@ -40,6 +40,10 @@
  *   TODO: Implement the remaining special marks. They have more complex
  *       behavior.
  *
+ * Events:
+ *  'vim-mode-change' - raised on the editor anytime the current mode changes,
+ *                      Event object: {mode: "visual", subMode: "linewise"}
+ *
  * Code structure:
  *  1. Default keymap
  *  2. Variable declarations and short basic helpers
@@ -318,7 +322,7 @@
     CodeMirror.defineOption('vimMode', false, function(cm, val) {
       if (val) {
         cm.setOption('keyMap', 'vim');
-        CodeMirror.signal(cm, "vim-mode-change", "normal");
+        CodeMirror.signal(cm, "vim-mode-change", {mode: "normal"});
         cm.on('beforeSelectionChange', beforeSelectionChange);
         maybeInitVimState(cm);
       } else if (cm.state.vim) {
@@ -580,6 +584,7 @@
             !cursorEqual(cm.getCursor('head'), cm.getCursor('anchor'))) {
           vim.visualMode = true;
           vim.visualLine = false;
+          CodeMirror.signal(cm, "vim-mode-change", {mode: "visual"});
           cm.on('mousedown', exitVisualMode);
         }
         if (key != '0' || (key == '0' && vim.inputState.getRepeat() === 0)) {
@@ -1647,10 +1652,10 @@
           // Handle Replace-mode as a special case of insert mode.
           cm.toggleOverwrite(true);
           cm.setOption('keyMap', 'vim-replace');
-          CodeMirror.signal(cm, "vim-mode-change", "replace");
+          CodeMirror.signal(cm, "vim-mode-change", {mode: "replace"});
         } else {
           cm.setOption('keyMap', 'vim-insert');
-          CodeMirror.signal(cm, "vim-mode-change", "insert");
+          CodeMirror.signal(cm, "vim-mode-change", {mode: "insert"});
         }
         if (!vimGlobalState.macroModeState.inReplay) {
           // Only record if not replaying.
@@ -1692,7 +1697,7 @@
           } else {
             cm.setSelection(curStart, curEnd);
           }
-          CodeMirror.signal(cm, "vim-mode-change", "visual");
+          CodeMirror.signal(cm, "vim-mode-change", {mode: "visual", subMode: vim.visualLine ? "linewise" : ""});
         } else {
           curStart = cm.getCursor('anchor');
           curEnd = cm.getCursor('head');
@@ -1705,12 +1710,12 @@
             curEnd.ch = cursorIsBefore(curStart, curEnd) ?
                 lineLength(cm, curEnd.line) : 0;
             cm.setSelection(curStart, curEnd);
-            CodeMirror.signal(cm, "vim-mode-change", "visual");
+            CodeMirror.signal(cm, "vim-mode-change", {mode: "visual", subMode: "linewise"});
           } else if (vim.visualLine && !actionArgs.linewise) {
             // v pressed in linewise visual mode. Switch to characterwise visual
             // mode instead of exiting visual mode.
             vim.visualLine = false;
-            CodeMirror.signal(cm, "vim-mode-change", "visual");
+            CodeMirror.signal(cm, "vim-mode-change", {mode: "visual"});
           } else {
             exitVisualMode(cm);
           }
@@ -2023,7 +2028,7 @@
         // it's not supposed to be.
         cm.setCursor(clipCursorToContent(cm, selectionEnd));
       }
-      CodeMirror.signal(cm, "vim-mode-change", "normal");
+      CodeMirror.signal(cm, "vim-mode-change", {mode: "normal"});
     }
 
     // Remove any trailing newlines from the selection. For
@@ -3446,7 +3451,7 @@
       vim.insertMode = false;
       cm.setOption('keyMap', 'vim');
       cm.toggleOverwrite(false); // exit replace mode if we were in it.
-      CodeMirror.signal(cm, "vim-mode-change", "normal");
+      CodeMirror.signal(cm, "vim-mode-change", {mode: "normal"});
     }
 
     CodeMirror.keyMap['vim-insert'] = {
