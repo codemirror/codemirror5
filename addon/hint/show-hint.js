@@ -167,6 +167,7 @@
     // If we're at the edge of the screen, then we want the menu to appear on the left of the cursor.
     var winW = window.innerWidth || Math.max(document.body.offsetWidth, document.documentElement.offsetWidth);
     var winH = window.innerHeight || Math.max(document.body.offsetHeight, document.documentElement.offsetHeight);
+    (options.container || document.body).appendChild(hints);
     var box = hints.getBoundingClientRect();
     var overlapX = box.right - winW, overlapY = box.bottom - winH;
     if (overlapX > 0) {
@@ -187,7 +188,6 @@
       }
       hints.style.top = (top = pos.bottom - overlapY) + "px";
     }
-    (options.container || document.body).appendChild(hints);
 
     cm.addKeyMap(this.keyMap = buildKeyMap(options, {
       moveFocus: function(n) { widget.changeActive(widget.selectedHint + n); },
