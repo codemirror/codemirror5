@@ -31,11 +31,18 @@
   }
 
   function updateActiveLine(cm) {
-    var line = cm.getLineHandleVisualStart(cm.getCursor().line);
-    if (cm.state.activeLine == line) return;
     clearActiveLine(cm);
-    cm.addLineClass(line, "wrap", WRAP_CLASS);
-    cm.addLineClass(line, "background", BACK_CLASS);
-    cm.state.activeLine = line;
+    cm.state.activeLines = [];
+    cm.eachSelection(function(sel) {
+      var line;
+      for (var i = sel.from.line; i <= sel.to.line; i++) {
+        line = cm.getLineHandle(i);
+        if (!Array.prototype.indexOf || -1 == cm.state.activeLines.indexOf(line)){
+          cm.addLineClass(line, "wrap", WRAP_CLASS);
+          cm.addLineClass(line, "background", BACK_CLASS);
+          cm.state.activeLines.push(line);
+        }
+      }
+    });
   }
 })();
