@@ -4,12 +4,12 @@
 - [Submitting bug reports](#submitting-bug-reports-)
 - [Contributing code](#contributing-code-)
 
-## Getting help [^](#how-to-contribute)
+## Getting help
 
 Community discussion, questions, and informal bug reporting is done on the
 [CodeMirror Google group](http://groups.google.com/group/codemirror).
 
-## Submitting bug reports [^](#how-to-contribute)
+## Submitting bug reports
 
 The preferred way to report bugs is to use the
 [GitHub issue tracker](http://github.com/marijnh/CodeMirror/issues). Before
@@ -45,7 +45,7 @@ should be asked on the
   [jsbin.com](http://jsbin.com/ihunin/edit), enter it there, press save, and
   include the resulting link in your bug report.
 
-## Contributing code [^](#how-to-contribute)
+## Contributing code
 
 - Make sure you have a [GitHub Account](https://github.com/signup/free)
 - Fork [CodeMirror](https://github.com/marijnh/CodeMirror/)
