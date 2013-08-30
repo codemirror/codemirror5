@@ -1340,6 +1340,7 @@ testCM("atomicMarker", function(cm) {
   eqPos(cm.getCursor(), Pos(8, 3));
   m.clear();
   m = atom(1, 1, 3, 8);
+  cm.setCursor(Pos(0, 0));
   cm.setCursor(Pos(2, 0));
   eqPos(cm.getCursor(), Pos(3, 8));
   cm.execCommand("goCharLeft");
