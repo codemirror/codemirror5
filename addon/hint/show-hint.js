@@ -52,6 +52,7 @@
         this.pick(data, 0);
       else
         this.showWidget(data);
+      return true;
     },
 
     showWidget: function(data) {
