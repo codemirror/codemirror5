@@ -233,7 +233,8 @@
     closeArgHints(ts);
 
     if (cm.somethingSelected()) return;
-    var lex = cm.getTokenAt(cm.getCursor()).state.lexical;
+    var state = cm.getTokenAt(cm.getCursor()).state;
+    var lex = state.lexical || state.localState.lexical;
     if (lex.info != "call") return;
 
     var ch = lex.column, pos = lex.pos || 0;
@@ -316,8 +317,8 @@
   function jumpToDef(ts, cm) {
     function inner(varName) {
       var req = {type: "definition", variable: varName || null};
-      var doc = findDoc(ts, cm.getDoc());
-      ts.server.request(buildRequest(ts, doc, req), function(error, data) {
+      var doc = findDoc(ts, cm.getDoc());      
+      ts.request(cm, req, function(error, data) {
         if (error) return showError(ts, cm, error);
         if (!data.file && data.url) { window.open(data.url); return; }
 
