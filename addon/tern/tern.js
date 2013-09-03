@@ -233,7 +233,10 @@
     closeArgHints(ts);
 
     if (cm.somethingSelected()) return;
-    var lex = cm.getTokenAt(cm.getCursor()).state.lexical;
+    var state = cm.getTokenAt(cm.getCursor()).state;
+    var inner = CodeMirror.innerMode(cm.getMode(), state);
+    if (inner.mode.name != "javascript") return;
+    var lex = inner.state.lexical;
     if (lex.info != "call") return;
 
     var ch = lex.column, pos = lex.pos || 0;
