@@ -62,6 +62,7 @@
 /* DEFAULT THEME */
 
 .cm-s-default .cm-keyword {color: #708;}
+.cm-s-default .cm-function {color: #ff8c00;}
 .cm-s-default .cm-atom {color: #219;}
 .cm-s-default .cm-number {color: #164;}
 .cm-s-default .cm-def {color: #00f;}
