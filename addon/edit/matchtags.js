@@ -21,8 +21,9 @@
     cm.state.tagHit = cm.state.tagOther = null;
   }
 
-  function doMatchTags(cm) {
+  function doMatchTags(cm) {     
     cm.state.failedTagMatch = false;
+    if (cm.getSelection() !== "") return;
     cm.operation(function() {
       clear(cm);
       var cur = cm.getCursor(), range = cm.getViewport();
