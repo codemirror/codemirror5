@@ -1,4 +1,4 @@
-CodeMirror.defineMode("haskell", function() {
+CodeMirror.defineMode("haskell", function(_config, modeConfig) {
 
   function switchState(source, setState, f) {
     setState(f);
@@ -220,6 +220,10 @@ CodeMirror.defineMode("haskell", function() {
       "toRational", "truncate", "uncurry", "undefined", "unlines", "until",
       "unwords", "unzip", "unzip3", "userError", "words", "writeFile", "zip",
       "zip3", "zipWith", "zipWith3");
+
+    var override = modeConfig.overrideKeywords;
+    if (override) for (var word in override) if (override.hasOwnProperty(word))
+      wkw[word] = override[word];
 
     return wkw;
   })();
