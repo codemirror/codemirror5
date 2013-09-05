@@ -241,7 +241,7 @@ CodeMirror.defineMode("less", function(config) {
       else if (type == "}") state.stack.pop();
       else if (type == "@media") state.stack.push("@media");
       else if (context == "{" && type != "comment" && type !== "tag") state.stack.push("rule");
-      else if (stream.peek() === ":")style = type;
+      else if (stream.peek() === ":" && stream.current().match(/@/) === null)style = type;
       return style;
     },
 
