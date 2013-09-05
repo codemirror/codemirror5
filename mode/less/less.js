@@ -1,7 +1,8 @@
 /*
   LESS mode - http://www.lesscss.org/
   Ported to CodeMirror by Peter Kroon <plakroon@gmail.com>
-  Report bugs/issues here: https://github.com/marijnh/CodeMirror/issues  GitHub: @peterkroon
+  Report bugs/issues here: https://github.com/marijnh/CodeMirror/issues
+  GitHub: @peterkroon
 */
 
 CodeMirror.defineMode("less", function(config) {
@@ -241,7 +242,7 @@ CodeMirror.defineMode("less", function(config) {
       else if (type == "}") state.stack.pop();
       else if (type == "@media") state.stack.push("@media");
       else if (context == "{" && type != "comment" && type !== "tag") state.stack.push("rule");
-      else if (stream.peek() === ":" && stream.current().match(/@/) === null && stream.current().match(/#/) === null)style = type;
+      else if (stream.peek() === ":" && stream.current().match(/@|#/) === null)style = type;
       return style;
     },
 
