@@ -234,7 +234,7 @@ CodeMirror.defineMode("less", function(config) {
         state.stack.pop();
       if (type == "{") {
         if (context == "@media") state.stack[state.stack.length-1] = "@media{";
-        else state.stack.push("{");
+        else state.stack.push("doBlock");
       }
       else if (type == "}") state.stack.pop();
       else if (type == "@media") state.stack.push("@media");
