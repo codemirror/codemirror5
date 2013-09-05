@@ -50,7 +50,7 @@ CodeMirror.defineMode("less", function(config) {
     }
     else if (/[,+<>*\/]/.test(ch)) {
       if(stream.peek() == "=" || type == "a")return ret("string", "string");
-      if(ch === ",")return ret(null, ch);
+			if(ch === ",")return ret(null, ch);
       return ret(null, "select-op");
     }
     else if (/[;{}:\[\]()~\|]/.test(ch)) {
@@ -164,8 +164,9 @@ CodeMirror.defineMode("less", function(config) {
         }
         if(t_v)return ret("tag", "tag"); else return ret("variable", "variable");
       }else{
-        if(state.stack[state.stack.length-1] === "{" || type === "select-op")return ret("tag", "tag");
-        return ret("variable", "variable");
+				if(state.stack[state.stack.length-1] === "{" || type === "select-op"  || (state.stack[state.stack.length-1] === "rule" && type === ",") )return ret("tag", "tag");
+        else if(state.stack[state.stack.length-1] === "font-family") return ret(null, null);
+				return ret("variable", "variable");
       }
     }
   }
@@ -223,7 +224,7 @@ CodeMirror.defineMode("less", function(config) {
     token: function(stream, state) {
       if (stream.eatSpace()) return null;
       var style = state.tokenize(stream, state);
-
+			
       var context = state.stack[state.stack.length-1];
       if (type == "hash" && context == "rule") style = "atom";
       else if (style == "variable") {
@@ -242,7 +243,8 @@ CodeMirror.defineMode("less", function(config) {
       }
       else if (type == "}") state.stack.pop();
       else if (type == "@media") state.stack.push("@media");
-      else if (context == "{" && type != "comment" && type !== "tag") state.stack.push("rule");
+			else if (stream.current() === "font-family") state.stack.push("font-family");
+			else if (context == "{" && type != "comment" && type !== "tag") state.stack.push("rule");
       else if (stream.peek() === ":" && stream.current().match(/@|#/) === null)style = type;
       return style;
     },
