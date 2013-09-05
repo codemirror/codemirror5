@@ -50,6 +50,7 @@ CodeMirror.defineMode("less", function(config) {
     }
     else if (/[,+<>*\/]/.test(ch)) {
       if(stream.peek() == "=" || type == "a")return ret("string", "string");
+      if(ch === ",")return ret(null, ch);
       return ret(null, "select-op");
     }
     else if (/[;{}:\[\]()~\|]/.test(ch)) {
@@ -227,7 +228,6 @@ CodeMirror.defineMode("less", function(config) {
       if (type == "hash" && context == "rule") style = "atom";
       else if (style == "variable") {
         if (context == "rule") style = null; //"tag"
-        else if (context === "doBlock") style = "tag";
         else if (!context || context == "@media{") {
           style = stream.current() == "when"  ? "variable" :
           /[\s,|\s\)|\s]/.test(stream.peek()) ? "tag"      : type;
