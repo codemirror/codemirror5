@@ -180,7 +180,11 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
       if (!cx) return CodeMirror.Pass;
       if (cx.align) return cx.col + (textAfter.charAt(0) == cx.type ? 0 : 1);
       else return cx.indent + config.indentUnit;
-    }
+    },
+
+    blockCommentStart: "/*",
+    blockCommentEnd: "*/",
+    lineComment: support.commentSlashSlash ? "//" : support.commentHash ? "#" : null
   };
 });
 
