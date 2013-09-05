@@ -4,7 +4,7 @@
   function getHints(cm) {
     var cur = cm.getCursor(), token = cm.getTokenAt(cur);
     var inner = CodeMirror.innerMode(cm.getMode(), token.state);
-    if (inner.mode.name != "css-base") return;
+    if (inner.mode.name != "css") return;
 
     // If it's not a 'word-style' token, ignore the token.
     if (!/^[\w$_-]*$/.test(token.string)) {

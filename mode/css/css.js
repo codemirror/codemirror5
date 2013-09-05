@@ -1,9 +1,7 @@
-CodeMirror.defineMode("css", function(config) {
-  return CodeMirror.getMode(config, "text/css");
-});
-
-CodeMirror.defineMode("css-base", function(config, parserConfig) {
+CodeMirror.defineMode("css", function(config, parserConfig) {
   "use strict";
+
+  if (!parserConfig.propertyKeywords) parserConfig = CodeMirror.resolveMode("text/css");
 
   var indentUnit = config.indentUnit,
       hooks = parserConfig.hooks || {},
@@ -580,7 +578,7 @@ CodeMirror.defineMode("css-base", function(config, parserConfig) {
         return false;
       }
     },
-    name: "css-base"
+    name: "css"
   });
 
   CodeMirror.defineMIME("text/x-scss", {
@@ -624,6 +622,6 @@ CodeMirror.defineMode("css-base", function(config, parserConfig) {
         }
       }
     },
-    name: "css-base"
+    name: "css"
   });
 })();
