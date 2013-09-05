@@ -118,7 +118,7 @@ CodeMirror.defineMode("less", function(config) {
       }else if(stream.current().match(/(^http$|^https$)/) != null){
         stream.eatWhile(/[\w\\\-_%.{:\/]/);
         return ret("string", "string");
-      }else if(stream.peek() == "<" || stream.peek() == ">"){
+      }else if(stream.peek() == "<" || stream.peek() == ">" || stream.peek() == "+"){
         return ret("tag", "tag");
       }else if( /\(/.test(stream.peek()) ){
         return ret(null, ch);
@@ -143,6 +143,7 @@ CodeMirror.defineMode("less", function(config) {
       }else if(type == "compare" || type == "a" || type == "("){
         return ret("string", "string");
       }else if(type == "|" || stream.current() == "-" || type == "["){
+        if(type == "|" )return ret("tag", "tag");
         return ret(null, ch);
       }else if(stream.peek() == ":") {
         stream.next();
@@ -161,6 +162,10 @@ CodeMirror.defineMode("less", function(config) {
         }
         if(t_v)return ret("tag", "tag"); else return ret("variable", "variable");
       }else{
+        if( state.stack[state.stack.length-1] === "doBlock"){
+					if(type == ":")return ret(null, null);
+					if(stream.peek() !== ";")return ret("tag", "tag");
+				}
         return ret("variable", "variable");
       }
     }
@@ -224,6 +229,7 @@ CodeMirror.defineMode("less", function(config) {
       if (type == "hash" && context == "rule") style = "atom";
       else if (style == "variable") {
         if (context == "rule") style = null; //"tag"
+        else if (context === "doBlock") style = "tag";
         else if (!context || context == "@media{") {
           style = stream.current() == "when"  ? "variable" :
           /[\s,|\s\)|\s]/.test(stream.peek()) ? "tag"      : type;
