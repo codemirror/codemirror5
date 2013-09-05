@@ -187,6 +187,25 @@ test("core_defaults", function() {
   }
 });
 
+test("core_defaults_copy_array", function() {
+    var place = document.getElementById("testground"), cm1 = CodeMirror(place, {lineNumbers: true});
+    var tmp = document.createElement("div");
+    document.body.appendChild(tmp);
+    var cm2 = CodeMirror(tmp);
+    try {
+      eq(CodeMirror.defaults.gutters.length, 0, "default is no gutters");
+      eq(cm1.getOption("gutters").length, 1, "cm1 has lineNumbers gutter");
+      eq(cm2.getOption("gutters").length, 0, "cm2 has no gutters");
+      is(cm1.getOption("gutters") != CodeMirror.defaults.gutters, "gutters instances is not the default, it was copied");
+      is(cm2.getOption("gutters") != CodeMirror.defaults.gutters, "gutters instances is not the default, it was copied");
+      is(cm1.getOption("gutters") != cm2.getOption("gutters"), "gutters instances are different");
+    }
+    finally {
+      place.removeChild(cm1.getWrapperElement());
+      document.body.removeChild(tmp);
+    }
+});
+
 testCM("lineInfo", function(cm) {
   eq(cm.lineInfo(-1), null);
   var mark = document.createElement("span");
