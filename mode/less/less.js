@@ -162,10 +162,6 @@ CodeMirror.defineMode("less", function(config) {
         }
         if(t_v)return ret("tag", "tag"); else return ret("variable", "variable");
       }else{
-        if( state.stack[state.stack.length-1] === "doBlock"){
-					if(type == ":")return ret(null, null);
-					if(stream.peek() !== ";")return ret("tag", "tag");
-				}
         return ret("variable", "variable");
       }
     }
@@ -239,12 +235,12 @@ CodeMirror.defineMode("less", function(config) {
       if (context == "rule" && /^[\{\};]$/.test(type))
         state.stack.pop();
       if (type == "{") {
-        if (context == "@media") state.stack[state.stack.length-1] = "@media{";
+        if (context == "@media") state.stack[state.stack.length-1] = "@media{";				
         else state.stack.push("{");
       }
       else if (type == "}") state.stack.pop();
       else if (type == "@media") state.stack.push("@media");
-      else if (context == "{" && type != "comment") state.stack.push("rule");
+      else if (context == "{" && type != "comment" && type !== "tag") state.stack.push("rule");
       return style;
     },
 
