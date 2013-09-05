@@ -163,6 +163,7 @@ CodeMirror.defineMode("less", function(config) {
         }
         if(t_v)return ret("tag", "tag"); else return ret("variable", "variable");
       }else{
+        if(state.stack[state.stack.length-1] === "{" || type === "select-op")return ret("tag", "tag");
         return ret("variable", "variable");
       }
     }
