@@ -104,7 +104,6 @@ CodeMirror.defineMode("less", function(config) {
       return ret(null, ch);
     } else {
       stream.eatWhile(/[\w\\\-_%.{]/);
-      //console.log(type);
       if(type == "string"){
         return ret("string", "string");
       } else if(stream.current().match(/(^http$|^https$)/) != null){
@@ -242,7 +241,6 @@ CodeMirror.defineMode("less", function(config) {
 
     indent: function(state, textAfter) {
       var n = state.stack.length;
-      console.log(n);
 
       if (/^\}/.test(textAfter))
         n -= state.stack[state.stack.length-1] == "rule" ? 2 : 1;
