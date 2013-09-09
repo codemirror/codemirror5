@@ -239,9 +239,18 @@
     var lex = inner.state.lexical;
     if (lex.info != "call") return;
 
-    var ch = lex.column, pos = lex.pos || 0;
-    for (var line = cm.getCursor().line, e = Math.max(0, line - 9), found = false; line >= e; --line)
-      if (cm.getLine(line).charAt(ch) == "(") {found = true; break;}
+    var ch, pos = lex.pos || 0, tabSize = cm.getOption("tabSize");
+    for (var line = cm.getCursor().line, e = Math.max(0, line - 9), found = false; line >= e; --line) {
+      var str = cm.getLine(line), extra = 0;
+      for (var pos = 0;;) {
+        var tab = str.indexOf("\t", pos);
+        if (tab == -1) break;
+        extra += tabSize - (tab + extra) % tabSize - 1;
+        pos = tab + 1;
+      }
+      ch = lex.column - extra;
+      if (str.charAt(ch) == "(") {found = true; break;}
+    }
     if (!found) return;
 
     var start = Pos(line, ch);
