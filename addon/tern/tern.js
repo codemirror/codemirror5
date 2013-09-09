@@ -24,6 +24,9 @@
 //   no tip should be shown. By default the docstring is shown.
 // * typeTip: Like completionTip, but for the tooltips shown for type
 //   queries.
+// * responseFilter: A function(doc, query, request, error, data) that 
+//   will be applied to the Tern responses before treating them
+//   
 //
 // It is possible to run the Tern server in a web worker by specifying
 // these additional options:
@@ -102,8 +105,17 @@
 
     rename: function(cm) { rename(this, cm); },
 
-    request: function(cm, query, c) {
-      this.server.request(buildRequest(this, findDoc(this, cm.getDoc()), query), c);
+    request: function (cm, query, c) {
+      var self = this;
+      var doc = findDoc(this, cm.getDoc());
+      var request = buildRequest(this, doc, query);
+
+      this.server.request(request, function (error, data) {
+        if (self.options.responseFilter) {
+          data = self.options.responseFilter(doc, query, request, error, data);
+        }
+        c(error, data);
+      });
     }
   };
 
@@ -329,7 +341,7 @@
     function inner(varName) {
       var req = {type: "definition", variable: varName || null};
       var doc = findDoc(ts, cm.getDoc());
-      ts.server.request(buildRequest(ts, doc, req), function(error, data) {
+      ts.request(cm, req, function(error, data) {
         if (error) return showError(ts, cm, error);
         if (!data.file && data.url) { window.open(data.url); return; }
 
