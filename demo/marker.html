@@ -34,7 +34,7 @@ var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
 });
 editor.on("gutterClick", function(cm, n) {
   var info = cm.lineInfo(n);
-  cm.setGutterMarker(n, "breakpoints", info.markers ? null : makeMarker());
+  cm.setGutterMarker(n, "breakpoints", info.gutterMarkers ? null : makeMarker());
 });
 
 function makeMarker() {
