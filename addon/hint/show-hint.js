@@ -111,10 +111,10 @@
     var baseMap = {
       Up: function() {handle.moveFocus(-1);},
       Down: function() {handle.moveFocus(1);},
-      PageUp: function() {handle.moveFocus(-handle.menuSize());},
-      PageDown: function() {handle.moveFocus(handle.menuSize());},
+      PageUp: function() {handle.moveFocus(-handle.menuSize() + 1, true);},
+      PageDown: function() {handle.moveFocus(handle.menuSize() - 1, true);},
       Home: function() {handle.setFocus(0);},
-      End: function() {handle.setFocus(handle.length);},
+      End: function() {handle.setFocus(handle.length - 1);},
       Enter: handle.pick,
       Tab: handle.pick,
       Esc: handle.close
@@ -190,7 +190,7 @@
     }
 
     cm.addKeyMap(this.keyMap = buildKeyMap(options, {
-      moveFocus: function(n) { widget.changeActive(widget.selectedHint + n); },
+      moveFocus: function(n, avoidWrap) { widget.changeActive(widget.selectedHint + n, avoidWrap); },
       setFocus: function(n) { widget.changeActive(n); },
       menuSize: function() { return widget.screenAmount(); },
       length: completions.length,
@@ -250,8 +250,11 @@
       this.completion.pick(this.data, this.selectedHint);
     },
 
-    changeActive: function(i) {
-      i = Math.max(0, Math.min(i, this.data.list.length - 1));
+    changeActive: function(i, avoidWrap) {
+      if (i >= this.data.list.length)
+        i = avoidWrap ? this.data.list.length - 1 : 0;
+      else if (i < 0)
+        i = avoidWrap ? 0  : this.data.list.length - 1;
       if (this.selectedHint == i) return;
       var node = this.hints.childNodes[this.selectedHint];
       node.className = node.className.replace(" CodeMirror-hint-active", "");
