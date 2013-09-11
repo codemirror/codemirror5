@@ -34,26 +34,6 @@ var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
 });
 editor.on("gutterClick", function(cm, n) {
   var info = cm.lineInfo(n);
-  cm.setGutterMarker(n, "breakpoints", info.markers ? null : makeMarker());
-});
-
-function makeMarker() {
-  var marker = document.createElement("div");
-  marker.innerHTML = "●";
-  marker.className = "breakpoint";
-  return marker;
-}
-</textarea></form>
-
-<p>Click the line-number gutter to add or remove 'breakpoints'.</p>
-
-    <script>
-var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-  lineNumbers: true,
-  gutters: ["CodeMirror-linenumbers", "breakpoints"]
-});
-editor.on("gutterClick", function(cm, n) {
-  var info = cm.lineInfo(n);
   cm.setGutterMarker(n, "breakpoints", info.gutterMarkers ? null : makeMarker());
 });
 
@@ -63,6 +43,10 @@ function makeMarker() {
   marker.innerHTML = "●";
   return marker;
 }
-    </script>
+</textarea></form>
+
+<p>Click the line-number gutter to add or remove 'breakpoints'.</p>
+
+    <script>eval(document.getElementById("code").value);</script>
 
   </article>
