@@ -69,7 +69,7 @@
         this.matches = function(reverse, pos) {
           var ln = pos.line, idx = (reverse ? target.length - 1 : 0), match = target[idx], line = fold(doc.getLine(ln));
           var offsetA = (reverse ? line.indexOf(match) + match.length : line.lastIndexOf(match));
-          if (reverse ? offsetA >= pos.ch || offsetA != match.length
+          if (reverse ? offsetA > pos.ch || offsetA != match.length
               : offsetA < pos.ch || offsetA != line.length - match.length)
             return;
           for (;;) {
