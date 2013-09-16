@@ -60,6 +60,7 @@
       if (dv.diffOutOfDate) {
         dv.diff = getDiff(dv.orig.getValue(), dv.edit.getValue());
         dv.diffOutOfDate = false;
+        CodeMirror.signal(dv.edit, "updateDiff", dv.diff);
       }
       if (dv.showDifferences) {
         updateMarks(dv.edit, dv.diff, edit, DIFF_INSERT, dv.classes);
