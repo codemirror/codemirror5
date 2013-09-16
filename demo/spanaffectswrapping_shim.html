@@ -32,7 +32,7 @@
 
     <script id="script">
       var a = document.getElementById("area"), bad = Object.create(null);
-      var chars = "a~`!@#$%^&*()-_=+}{[]\|'\"/?.>,<:;", l = chars.length;
+      var chars = "a~`!@#$%^&*()-_=+}{[]\\|'\"/?.>,<:;", l = chars.length;
       for (var x = 0; x < l; ++x) for (var y = 0; y < l; ++y) {
         var s1 = "foooo" + chars.charAt(x), s2 = chars.charAt(y) + "br";
         a.appendChild(document.createTextNode(s1 + s2));
