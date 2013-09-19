@@ -55,6 +55,10 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     else if (ch == "." && stream.match(/^-?[_a-z][_a-z0-9-]*/i)) {
       return ret("qualifier", "qualifier");
     }
+    else if (ch == "." && stream.match(/^[0-9]*/i)) {
+      stream.eatWhile(/[\w%]/);
+      return ret("number", "unit");
+    }
     else if (ch == ":") {
       return ret("operator", ch);
     }
