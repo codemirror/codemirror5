@@ -1,5 +1,6 @@
 (function() {
   "use strict";
+  // declare global: diff_match_patch, DIFF_INSERT, DIFF_DELETE, DIFF_EQUAL
 
   var Pos = CodeMirror.Pos;
   var svgNS = "http://www.w3.org/2000/svg";

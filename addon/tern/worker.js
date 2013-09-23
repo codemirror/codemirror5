@@ -1,3 +1,5 @@
+// declare global: tern, server
+
 var server;
 
 this.onmessage = function(e) {

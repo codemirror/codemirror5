@@ -2,6 +2,9 @@
 
 window.CodeMirror = {};
 
+(function() {
+"use strict";
+
 function splitLines(string){ return string.split(/\r?\n|\r/); };
 
 function StringStream(string) {
@@ -130,3 +133,4 @@ CodeMirror.runMode = function (string, modespec, callback, options) {
     }
   }
 };
+})();

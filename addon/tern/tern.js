@@ -42,6 +42,7 @@
 
 (function() {
   "use strict";
+  // declare global: tern
 
   CodeMirror.TernServer = function(options) {
     var self = this;
@@ -609,7 +610,7 @@
     worker.onmessage = function(e) {
       var data = e.data;
       if (data.type == "getFile") {
-        getFile(ts, name, function(err, text) {
+        getFile(ts, data.name, function(err, text) {
           send({type: "getFile", err: String(err), text: text, id: data.id});
         });
       } else if (data.type == "debug") {
