@@ -165,10 +165,10 @@ Active line. Negative margin compensates left padding of the text in the
 view-port
 */
 .cm-s-solarized.cm-s-dark .CodeMirror-activeline-background {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.10);
 }
 .cm-s-solarized.cm-s-light .CodeMirror-activeline-background {
-  background: rgba(0, 0, 0, 0.05);
+  background: rgba(0, 0, 0, 0.10);
 }
 
 /*
