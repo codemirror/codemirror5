@@ -37,7 +37,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
       stream.match(/^\s*\w*/);
       return ret("keyword", "important");
     }
-    else if (/\d/.test(ch)) {
+    else if (/\d/.test(ch) || ch == "." && stream.eat(/\d/)) {
       stream.eatWhile(/[\w.%]/);
       return ret("number", "unit");
     }
