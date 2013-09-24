@@ -85,13 +85,15 @@
 
   CodeMirror.defineExtension("wrapParagraphsInRange", function(from, to, options) {
     options = options || {};
-    var cm = this;
-    cm.operation(function() {
-      for (var line = from.line; line <= to.line;) {
-        var para = findParagraph(cm, Pos(line, 0), options);
-        wrapRange(cm, Pos(para.from, 0), Pos(para.to - 1), options);
-        line = para.to;
-      }
+    var cm = this, paras = [];
+    for (var line = from.line; line <= to.line;) {
+      var para = findParagraph(cm, Pos(line, 0), options);
+      paras.push(para);
+      line = para.to;
+    }
+    if (paras.length) cm.operation(function() {
+      for (var i = paras.length - 1; i >= 0; --i)
+        wrapRange(cm, Pos(paras[i].from, 0), Pos(paras[i].to - 1), options);
     });
   });
 })();
