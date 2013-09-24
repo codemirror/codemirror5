@@ -14,9 +14,10 @@
 <script src="../mode/css/css.js"></script>
 <script src="../mode/htmlmixed/htmlmixed.js"></script>
 <style>
-  dt { text-indent: -2em; padding-left: 2em; }
-  dd { margin-left: 1.5em; }
-  dl dl {margin: 0;}
+  dt { text-indent: -2em; padding-left: 2em; margin-top: 1em; }
+  dd { margin-left: 1.5em; margin-bottom: 1em; }
+  dt {margin-top: 1em;}
+  dd dl, dd dt, dd dd, dd ul { margin-top: 0; margin-bottom: 0; }
 </style>
 
 <div id=nav>
@@ -2146,6 +2147,39 @@
       taking up the whole browser window). Depends
       on <a href="../addon/display/fullscreen.css"><code>fullscreen.css</code></a>. <a href="../demo/fullscreen.html">Demo
       here</a>.</dd>
+
+      <dt id="addon_hardwrap"><a href="../addon/wrap/hardwrap.js"><code>wrap/hardwrap.js</code></a></dt>
+      <dd>Addon to perform hard line wrapping/breaking for paragraphs
+      of text. Adds these methods to editor instances:
+        <dl>
+          <dt><code><strong>wrapParagraph</strong>(?pos: {line, ch}, ?options: object)</code></dt>
+          <dd>Wraps the paragraph at the given position.
+          If <code>pos</code> is not given, it defaults to the cursor
+          position.</dd>
+          <dt><code><strong>wrapRange</strong>(from: {line, ch}, to: {line, ch}, ?options: object)</code></dt>
+          <dd>Wraps the given range as one big paragraph.</dd>
+          <dt><code><strong>wrapParagraphsInRange</strong>(from: {line, ch}, to: {line, ch}, ?options: object)</code></dt>
+          <dd>Wrapps the paragraphs in (and overlapping with) the
+          given range individually.</dd>
+        </dl>
+        The following options are recognized:
+        <dl>
+          <dt><code><strong>paragraphStart</strong>, <strong>paragraphEnd</strong>: RegExp</code></dt>
+          <dd>Blank lines are always considered paragraph boundaries.
+          These options can be used to specify a pattern that causes
+          lines to be considered the start or end of a paragraph.</dd>
+          <dt><code><strong>column</strong>: number</code></dt>
+          <dd>The column to wrap at. Defaults to 80.</dd>
+          <dt><code><strong>wrapOn</strong>: RegExp</code></dt>
+          <dd>A regular expression that matches only those
+          two-character strings that allow wrapping. By default, the
+          addon wraps on whitespace and after dash characters.</dd>
+          <dt><code><strong>killTrailingSpace</strong>: boolean</code></dt>
+          <dd>Whether trailing space caused by wrapping should be
+          preserved, or deleted. Defaults to true.</dd>
+        </dl>
+        A demo of the addon is available <a href="../demo/hardwrap.html">here</a>.
+      </dd>
 
       <dt id="addon_merge"><a href="../addon/merge/merge.js"><code>merge/merge.js</code></a></dt>
       <dd>Implements an interface for merging changes, using either a
