@@ -16,11 +16,11 @@
 .cm-s-the-matrix span.cm-comment {color: #CCCCCC;}
 .cm-s-the-matrix span.cm-string {color: #39C;}
 .cm-s-the-matrix span.cm-meta {color: #C9F;}
-.cm-s-the-matrix span.cm-error {color: #FF0000;}
 .cm-s-the-matrix span.cm-qualifier {color: #FFF700;}
 .cm-s-the-matrix span.cm-builtin {color: #30a;}
 .cm-s-the-matrix span.cm-bracket {color: #cc7;}
 .cm-s-the-matrix span.cm-tag {color: #FFBD40;}
 .cm-s-the-matrix span.cm-attribute {color: #FFF700;}
+.cm-s-the-matrix span.cm-error {color: #FF0000;}
 
 .cm-s-the-matrix .CodeMirror-activeline-background {background: #040;}

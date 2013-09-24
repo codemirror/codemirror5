@@ -25,10 +25,10 @@
 .cm-s-base16-dark span.cm-variable {color: #90a959;}
 .cm-s-base16-dark span.cm-variable-2 {color: #6a9fb5;}
 .cm-s-base16-dark span.cm-def {color: #d28445;}
-.cm-s-base16-dark span.cm-error {background: #ac4142; color: #b0b0b0;}
 .cm-s-base16-dark span.cm-bracket {color: #e0e0e0;}
 .cm-s-base16-dark span.cm-tag {color: #ac4142;}
 .cm-s-base16-dark span.cm-link {color: #aa759f;}
+.cm-s-base16-dark span.cm-error {background: #ac4142; color: #b0b0b0;}
 
 .cm-s-base16-dark .CodeMirror-activeline-background {background: #2F2F2F !important;}
 .cm-s-base16-dark .CodeMirror-matchingbracket { text-decoration: underline; color: white !important;}

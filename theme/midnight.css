@@ -32,10 +32,10 @@
 .cm-s-midnight span.cm-variable {color: #FFAA3E;}
 .cm-s-midnight span.cm-variable-2 {color: #FFAA3E;}
 .cm-s-midnight span.cm-def {color: #4DD;}
-.cm-s-midnight span.cm-error {background: #F92672; color: #F8F8F0;}
 .cm-s-midnight span.cm-bracket {color: #D1EDFF;}
 .cm-s-midnight span.cm-tag {color: #449;}
 .cm-s-midnight span.cm-link {color: #AE81FF;}
+.cm-s-midnight span.cm-error {background: #F92672; color: #F8F8F0;}
 
 .cm-s-midnight .CodeMirror-matchingbracket {
   text-decoration: underline;

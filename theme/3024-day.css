@@ -25,10 +25,10 @@
 .cm-s-3024-day span.cm-variable {color: #01a252;}
 .cm-s-3024-day span.cm-variable-2 {color: #01a0e4;}
 .cm-s-3024-day span.cm-def {color: #e8bbd0;}
-.cm-s-3024-day span.cm-error {background: #db2d20; color: #5c5855;}
 .cm-s-3024-day span.cm-bracket {color: #3a3432;}
 .cm-s-3024-day span.cm-tag {color: #db2d20;}
 .cm-s-3024-day span.cm-link {color: #a16a94;}
+.cm-s-3024-day span.cm-error {background: #db2d20; color: #5c5855;}
 
 .cm-s-3024-day .CodeMirror-activeline-background {background: #e8f2ff !important;}
 .cm-s-3024-day .CodeMirror-matchingbracket { text-decoration: underline; color: white !important;}

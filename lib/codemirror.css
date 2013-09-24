@@ -74,7 +74,6 @@
 .cm-s-default .cm-string {color: #a11;}
 .cm-s-default .cm-string-2 {color: #f50;}
 .cm-s-default .cm-meta {color: #555;}
-.cm-s-default .cm-error {color: #f00;}
 .cm-s-default .cm-qualifier {color: #555;}
 .cm-s-default .cm-builtin {color: #30a;}
 .cm-s-default .cm-bracket {color: #997;}
@@ -91,6 +90,7 @@
 .cm-em {font-style: italic;}
 .cm-link {text-decoration: underline;}
 
+.cm-s-default .cm-error {color: #f00;}
 .cm-invalidchar {color: #f00;}
 
 div.CodeMirror span.CodeMirror-matchingbracket {color: #0f0;}

@@ -25,10 +25,10 @@
 .cm-s-tomorrow-night-eighties span.cm-variable {color: #99cc99;}
 .cm-s-tomorrow-night-eighties span.cm-variable-2 {color: #6699cc;}
 .cm-s-tomorrow-night-eighties span.cm-def {color: #f99157;}
-.cm-s-tomorrow-night-eighties span.cm-error {background: #f2777a; color: #6A6A6A;}
 .cm-s-tomorrow-night-eighties span.cm-bracket {color: #CCCCCC;}
 .cm-s-tomorrow-night-eighties span.cm-tag {color: #f2777a;}
 .cm-s-tomorrow-night-eighties span.cm-link {color: #a16a94;}
+.cm-s-tomorrow-night-eighties span.cm-error {background: #f2777a; color: #6A6A6A;}
 
 .cm-s-tomorrow-night-eighties .CodeMirror-activeline-background {background: #343600 !important;}
 .cm-s-tomorrow-night-eighties .CodeMirror-matchingbracket { text-decoration: underline; color: white !important;}
