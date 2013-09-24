@@ -109,8 +109,9 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
       type = "equals";
       return null;
     } else if (ch == "<") {
-      stream.match(/^\/?\w*\/?>/);
-      return "tag error";
+      state.tokenize = inText;
+      var next = state.tokenize(stream, state);
+      return next ? next + " error" : "error";
     } else if (/[\'\"]/.test(ch)) {
       state.tokenize = inAttribute(ch);
       state.stringStartCol = stream.column();
