@@ -166,5 +166,3 @@ CodeMirror.defineMode("gherkin", function () {
 });
 
 CodeMirror.defineMIME("text/x-feature", "gherkin");
-if (!CodeMirror.mimeModes.hasOwnProperty("text/x-feature"))
-  CodeMirror.defineMIME("text/x-feature", "gherkin");
