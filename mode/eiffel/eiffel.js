@@ -74,7 +74,6 @@ CodeMirror.defineMode("eiffel", function(config) {
                              "catch", "loop", "proc", "begin"]);
   var dedentWords = wordObj(["end", "until"]);
   var operators = wordObj([":=", "and then","and", "or","<<",">>"]);
-  var matching = {"[": "]", "{": "}", "(": ")","<<":">>"};
   var curPunc;
 
   function chain(newtok, stream, state) {
@@ -85,23 +84,20 @@ CodeMirror.defineMode("eiffel", function(config) {
   function tokenBase(stream, state) {
     curPunc = null;
     if (stream.eatSpace()) return null;
-    var ch = stream.next(), m;
+    var ch = stream.next();
     if (ch == '"') {
       return chain(readQuoted(ch, "string"), stream, state);
     } else if (ch == "-"&&stream.eat("-")) {
       stream.skipToEnd();
       return "comment";
-    } else if (ch == "<" && (m = stream.match(/^<-?[\`\"\']?([a-zA-Z_?]\w*)[\`\"\']?(?:;|$)/))) {
-      return chain(readHereDoc(m[1]), stream, state);
     } else if (/\d/.test(ch)) {
       stream.match(/^[\d_]*(?:\.[\d_]+)?(?:[eE][+\-]?[\d_]+)?/);
       return "number";
     } else if (ch == ":"&&stream.eat("=")) {
-       
       return "operator";
     } else if (/[a-zA-Z_]/.test(ch)) {
       stream.eatWhile(/[\w]/);
-      stream.eat(/[\?\!]/); 
+      stream.eat(/[\?\!]/);
       return "ident";
     } else if (ch == "|" && (state.varList || state.lastTok == "{" || state.lastTok == "do")) {
       curPunc = "|";
@@ -117,32 +113,6 @@ CodeMirror.defineMode("eiffel", function(config) {
     }
   }
 
-  function tokenBaseUntilBrace() {
-    var depth = 1;
-    return function(stream, state) {
-      if (stream.peek() == "}") {
-        depth--;
-        if (depth == 0) {
-          state.tokenize.pop();
-          return state.tokenize[state.tokenize.length-1](stream, state);
-        }
-      } else if (stream.peek() == "{") {
-        depth++;
-      }
-      return tokenBase(stream, state);
-    };
-  }
-  function tokenBaseOnce() {
-    var alreadyCalled = false;
-    return function(stream, state) {
-      if (alreadyCalled) {
-        state.tokenize.pop();
-        return state.tokenize[state.tokenize.length-1](stream, state);
-      }
-      alreadyCalled = true;
-      return tokenBase(stream, state);
-    };
-  }
   function readQuoted(quote, style,  unescaped) {
     return function(stream, state) {
       var escaped = false, ch;
@@ -151,12 +121,11 @@ CodeMirror.defineMode("eiffel", function(config) {
         state.context = state.context.prev;
         stream.eat("}");
       }
-
       while ((ch = stream.next()) != null) {
         if (ch == quote && (unescaped || !escaped)) {
           state.tokenize.pop();
           break;
-        } 
+        }
         escaped = !escaped && ch == "%";
       }
       return style;
@@ -179,7 +148,6 @@ CodeMirror.defineMode("eiffel", function(config) {
       if (style == "ident") {
         var word = stream.current();
         style = keywords.propertyIsEnumerable(stream.current()) ? "keyword"
-          
           : operators.propertyIsEnumerable(stream.current()) ? "operator"
           : /^[A-Z_0-9]*$/g.test(word) ? "tag"
           : "variable";
