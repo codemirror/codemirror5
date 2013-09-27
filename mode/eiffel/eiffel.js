@@ -87,13 +87,14 @@ CodeMirror.defineMode("eiffel", function() {
     } else if (ch == "-"&&stream.eat("-")) {
       stream.skipToEnd();
       return "comment";
-    } else if (/\d/.test(ch)) {
-      stream.match(/^[\d_]*(?:\.[\d_]+)?(?:[eE][+\-]?[\d_]+)?/);
-      return "number";
     } else if (ch == ":"&&stream.eat("=")) {
       return "operator";
-    } else if (/[a-zA-Z_]/.test(ch)) {
-      stream.eatWhile(/[\w]/);
+    } else if (/[0-9]/.test(ch)) {
+      stream.eatWhile(/[xXbBCc0-9\.]/);
+      stream.eat(/[\?\!]/);
+      return "ident";
+    } else if (/[a-zA-Z_0-9]/.test(ch)) {
+      stream.eatWhile(/[a-zA-Z_0-9]/);
       stream.eat(/[\?\!]/);
       return "ident";
     } else if (/[=+\-\/*^%<>~]/.test(ch)) {
@@ -129,7 +130,12 @@ CodeMirror.defineMode("eiffel", function() {
         var word = stream.current();
         style = keywords.propertyIsEnumerable(stream.current()) ? "keyword"
           : operators.propertyIsEnumerable(stream.current()) ? "operator"
-          : /^[A-Z_0-9]*$/g.test(word) ? "tag"
+          : /^[A-Z][A-Z_0-9]*$/g.test(word) ? "tag"
+          : /^0[bB][0-1]+$/g.test(word) ? "number"
+          : /^0[cC][0-7]+$/g.test(word) ? "number"
+          : /^0[xX][a-fA-F0-9]+$/g.test(word) ? "number"
+          : /^([0-9]+\.[0-9]*)|([0-9]*\.[0-9]+)$/g.test(word) ? "number"
+          : /^[0-9]+$/g.test(word) ? "number"
           : "variable";
       }
       return style;
