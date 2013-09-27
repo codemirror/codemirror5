@@ -7,7 +7,6 @@
 <link rel="stylesheet" href="../../lib/codemirror.css">
 <link rel="stylesheet" href="../../theme/estudio.css">
 <script src="../../lib/codemirror.js"></script>
-<script src="../../addon/edit/matchbrackets.js"></script>
 <script src="eiffel.js"></script>
 <style>
       .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}
@@ -419,7 +418,6 @@ end
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         mode: "text/x-eiffel",
         tabMode: "indent",
-        matchBrackets: true,
         indentUnit: 4,
         lineNumbers: true,
         theme:'estudio'

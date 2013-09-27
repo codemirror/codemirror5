@@ -1,4 +1,4 @@
-CodeMirror.defineMode("eiffel", function(config) {
+CodeMirror.defineMode("eiffel", function() {
   function wordObj(words) {
     var o = {};
     for (var i = 0, e = words.length; i < e; ++i) o[words[i]] = true;
@@ -70,9 +70,6 @@ CodeMirror.defineMode("eiffel", function(config) {
     'not',
     'or'
   ]);
-  var indentWords = wordObj(["if", "class", "case", "for", "while", "do", "module", "then",
-                             "catch", "loop", "proc", "begin"]);
-  var dedentWords = wordObj(["end", "until"]);
   var operators = wordObj([":=", "and then","and", "or","<<",">>"]);
   var curPunc;
 
@@ -99,12 +96,6 @@ CodeMirror.defineMode("eiffel", function(config) {
       stream.eatWhile(/[\w]/);
       stream.eat(/[\?\!]/);
       return "ident";
-    } else if (ch == "|" && (state.varList || state.lastTok == "{" || state.lastTok == "do")) {
-      curPunc = "|";
-      return null;
-    } else if (/[\(\)\[\]{}\\;]/.test(ch)) {
-      curPunc = ch;
-      return null;
     } else if (/[=+\-\/*^%<>~]/.test(ch)) {
       stream.eatWhile(/[=+\-\/*^%<>~]/);
       return "operator";
@@ -116,11 +107,6 @@ CodeMirror.defineMode("eiffel", function(config) {
   function readQuoted(quote, style,  unescaped) {
     return function(stream, state) {
       var escaped = false, ch;
-
-      if (state.context.type === 'read-quoted-paused') {
-        state.context = state.context.prev;
-        stream.eat("}");
-      }
       while ((ch = stream.next()) != null) {
         if (ch == quote && (unescaped || !escaped)) {
           state.tokenize.pop();
@@ -134,43 +120,20 @@ CodeMirror.defineMode("eiffel", function(config) {
 
   return {
     startState: function() {
-      return {tokenize: [tokenBase],
-              indented: 0,
-              context: {type: "top", indented: -config.indentUnit},
-              continuedLine: false,
-              lastTok: null,
-              varList: false};
+      return {tokenize: [tokenBase]};
     },
 
     token: function(stream, state) {
-      if (stream.sol()) state.indented = stream.indentation();
-      var style = state.tokenize[state.tokenize.length-1](stream, state), kwtype;
+      var style = state.tokenize[state.tokenize.length-1](stream, state);
       if (style == "ident") {
         var word = stream.current();
         style = keywords.propertyIsEnumerable(stream.current()) ? "keyword"
           : operators.propertyIsEnumerable(stream.current()) ? "operator"
           : /^[A-Z_0-9]*$/g.test(word) ? "tag"
           : "variable";
-        if (indentWords.propertyIsEnumerable(word)) kwtype = "indent";
-        else if (dedentWords.propertyIsEnumerable(word)) kwtype = "dedent";
-        else if ((word == "if" || word == "unless") && stream.column() == stream.indentation())
-          kwtype = "indent";
       }
-      if (curPunc || (style && style != "comment")) state.lastTok = word || curPunc || style;
-      if (curPunc == "|") state.varList = !state.varList;
-
-      if (kwtype == "indent" || /[\(\[\{]/.test(curPunc))
-        state.context = {prev: state.context, type: curPunc || style, indented: state.indented};
-      else if ((kwtype == "dedent" || /[\)\]\}]/.test(curPunc)) && state.context.prev)
-        state.context = state.context.prev;
-
-      if (stream.eol())
-        state.continuedLine = (curPunc == "\\" || style == "operator");
       return style;
     },
-
-
-    electricChars: "}de", // enD and rescuE
     lineComment: "--"
   };
 });
