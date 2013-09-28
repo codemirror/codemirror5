@@ -82,7 +82,7 @@ CodeMirror.defineMode("eiffel", function() {
     curPunc = null;
     if (stream.eatSpace()) return null;
     var ch = stream.next();
-    if (ch == '"') {
+    if (ch == '"'||ch == "'") {
       return chain(readQuoted(ch, "string"), stream, state);
     } else if (ch == "-"&&stream.eat("-")) {
       stream.skipToEnd();
