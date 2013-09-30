@@ -45,6 +45,9 @@
     var isRE = query.match(/^\/(.*)\/([a-z]*)$/);
     return isRE ? new RegExp(isRE[1], isRE[2].indexOf("i") == -1 ? "" : "i") : query;
   }
+  function sameQuery(q1, q2) {
+    return q1 == q2 || (q1 instanceof RegExp && q2 instanceof RegExp && q1.source == q2.source);
+  }
   var queryDialog =
     'Search: <input type="text" style="width: 10em"/> <span style="color: #888">(Use /re/ syntax for regexp search)</span>';
   function doSearch(cm, rev, options) {
@@ -54,10 +57,9 @@
     function doQuery(query) {
       cm.operation(function() {
         if (!query) return;
-        if (!state.query ||
-            (state.query instanceof RegExp && state.query.source != query) ||
-            query != state.query) {
-          state.query = parseQuery(query);
+        var q = parseQuery(query);
+        if (!state.query || !sameQuery(state.query, q)) {
+          state.query = q;
           cm.removeOverlay(state.overlay);
           state.overlay = searchOverlay(state.query);
           cm.addOverlay(state.overlay);
