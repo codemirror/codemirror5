@@ -124,7 +124,7 @@
 
   MT("commentSGML",
      "[comment <!--comment-->]");
-		 
+
   IT("tagSelector",
     "strong, em [1 { background][2 : rgba][3 (255, 255, 0, .2][2 )][1 ;]}");
 })();

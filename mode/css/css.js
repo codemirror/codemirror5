@@ -259,13 +259,13 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
       }
       else if (type == "}") {
         if (context == "interpolation") style = "operator";
-				// Pop off end of array until { is reached
+        // Pop off end of array until { is reached
         while(state.stack.length){
           var removed = state.stack.pop();
           if(removed.indexOf("{") > -1){
-						break;
-					}
-				}
+            break;
+          }
+        }
       }
       else if (type == "interpolation") state.stack.push("interpolation");
       else if (type == "@media") state.stack.push("@media");
@@ -283,13 +283,13 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
         else state.stack.push("(");
       }
       else if (type == ")") {
-				// Pop off end of array until ( is reached
+        // Pop off end of array until ( is reached
         while(state.stack.length){
           var removed = state.stack.pop();
           if(removed.indexOf("(") > -1){
-						break;
-					}
-				}
+            break;
+          }
+        }
       }
       else if (type == ":" && state.lastToken == "property") state.stack.push("propertyValue");
       else if (context == "propertyValue" && type == ";") state.stack.pop();
@@ -609,10 +609,10 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
         }
         return ["variable", "variable"];
       },
-      ",": function(stream, state) {
+      ",": function(_stream, state) {
         if (state.stack[state.stack.length - 1] == "propertyValue") {
           return ["operator", ";"];
-				}
+        }
       },
       "/": function(stream, state) {
         if (stream.eat("/")) {
