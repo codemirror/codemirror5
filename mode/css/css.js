@@ -3,7 +3,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
 
   if (!parserConfig.propertyKeywords) parserConfig = CodeMirror.resolveMode("text/css");
 
-  var indentUnit = config.indentUnit,
+  var indentUnit = config.indentUnit || config.tabSize || 2,
       hooks = parserConfig.hooks || {},
       atMediaTypes = parserConfig.atMediaTypes || {},
       atMediaFeatures = parserConfig.atMediaFeatures || {},
