@@ -65,7 +65,7 @@ CodeMirror.defineMode("less", function(config) {
       } else {
         return ret(null, ch);
       }
-    } else if (ch == ".") {      
+    } else if (ch == ".") {
       if(type == "(")return ret("string", "string"); // allow url(../image.png)
       stream.eatWhile(/[\a-zA-Z0-9\-_]/);
       if(stream.peek() === " ")stream.eatSpace();
@@ -95,11 +95,11 @@ CodeMirror.defineMode("less", function(config) {
           //default
           else return ret("number", "unit");
         } else {//when not a valid hexvalue in the current stream e.g. #footer
-          stream.eatWhile(/[\w\\\-]/);          
+          stream.eatWhile(/[\w\\\-]/);
           return ret("atom", stream.current());
         }
       } else {//when not a valid hexvalue length
-        stream.eatWhile(/[\w\\\-]/);        
+        stream.eatWhile(/[\w\\\-]/);
         if(state.stack[state.stack.length-1] === "rule")return ret("atom", stream.current());return ret("atom", stream.current());
         return ret("atom", "tag");
       }
@@ -107,14 +107,14 @@ CodeMirror.defineMode("less", function(config) {
       stream.eatWhile(/[\w\-]/);
       return ret(null, ch);
     } else {
-      stream.eatWhile(/[\w\\\-_%.{]/);      
+      stream.eatWhile(/[\w\\\-_%.{]/);
       if(stream.current().match(/\\/) !== null){
         if(stream.current().charAt(stream.current().length-1) === "\\"){
           stream.eat(/\'|\"|\)|\(/);
           while(stream.eatWhile(/[\w\\\-_%.{]/)){
-            stream.eat(/\'|\"|\)|\(/);            
+            stream.eat(/\'|\"|\)|\(/);
           }
-          return ret("string", stream.current()); 
+          return ret("string", stream.current());
         }
       } //else if(type === "tag")return ret("tag", "tag");
         else if(type == "string"){
@@ -149,13 +149,13 @@ CodeMirror.defineMode("less", function(config) {
         if( /[{<>.a-zA-Z\/]/.test(stream.peek())  || stream.eol() )return ret("tag", "tag"); // e.g. button.icon-plus
         return ret("string", "string"); // let url(/images/logo.png) without quotes return as string
       } else if( stream.eol() || stream.peek() == "[" || stream.peek() == "#" || type == "tag" ){
-        
+
         if(stream.current().substring(stream.current().length-1,stream.current().length) == "{")stream.backUp(1);
         else if(state.stack[state.stack.length-1] === "border-color" || state.stack[state.stack.length-1] === "background-position" || state.stack[state.stack.length-1] === "font-family")return ret(null, stream.current());
         else if(type === "tag")return ret("tag", "tag");
         else if((type === ":" || type === "unit") && state.stack[state.stack.length-1] === "rule")return ret(null, stream.current());
         else if(state.stack[state.stack.length-1] === "rule" && type === "tag")return ret("string", stream.current());
-        else if(state.stack[state.stack.length-1] === ";" && type === ":")return ret(null, stream.current()); 
+        else if(state.stack[state.stack.length-1] === ";" && type === ":")return ret(null, stream.current());
         //else if(state.stack[state.stack.length-1] === ";" || type === "")return ret("variable", stream.current());
         else if(stream.peek() === "#" && type !== undefined && type.match(/\+|,|tag|select\-op|}|{|;/g) === null)return ret("string", stream.current());
         else if(type === "variable")return ret(null, stream.current());
@@ -163,7 +163,7 @@ CodeMirror.defineMode("less", function(config) {
         else if(state.stack.length === 0 && (type === ";" || type === "comment"))return ret("tag", stream.current());
         else if((state.stack[state.stack.length-1] === "{" || type === ";") && state.stack[state.stack.length-1] !== "@media{")return ret("variable", stream.current());
         else if(state.stack[state.stack.length-2] === "{" && state.stack[state.stack.length-1] === ";")return ret("variable", stream.current());
-        
+
         return ret("tag", "tag");
       } else if(type == "compare" || type == "a" || type == "("){
         return ret("string", "string");
@@ -194,23 +194,23 @@ CodeMirror.defineMode("less", function(config) {
       } else if(state.stack[state.stack.length-1]  === "font-family" || state.stack[state.stack.length-1]  === "background-position" || state.stack[state.stack.length-1]  === "border-color"){
         return ret(null, null);
       } else {
-      
+
         if(state.stack[state.stack.length-1] === null && type === ":")return ret(null, stream.current());
-        
+
         //else if((type === ")" && state.stack[state.stack.length-1] === "rule") || (state.stack[state.stack.length-2] === "{" && state.stack[state.stack.length-1] === "rule" && type === "variable"))return ret(null, stream.current());
-        
+
         else if(/\^|\$/.test(stream.current()) && stream.peek().match(/\~|=/) !== null)return ret("string", "string");//att^=val
-        
+
         else if(type === "unit" && state.stack[state.stack.length-1] === "rule")return ret(null, "unit");
         else if(type === "unit" && state.stack[state.stack.length-1] === ";")return ret(null, "unit");
         else if(type === ")" && state.stack[state.stack.length-1] === "rule")return ret(null, "unit");
         else if(type.match("@") !== null  && state.stack[state.stack.length-1] === "rule")return ret(null, "unit");
         //else if(type === "unit" && state.stack[state.stack.length-1] === "rule")return ret(null, stream.current());
-        
+
         else if((type === ";" || type === "}" || type === ",") && state.stack[state.stack.length-1] === ";")return ret("tag", stream.current());
         else if((type === ";" && stream.peek() !== undefined && stream.peek().match(/{|./) === null) || (type === ";" && stream.eatSpace() && stream.peek().match(/{|./) === null))return ret("variable", stream.current());
         else if((type === "@media" && state.stack[state.stack.length-1] === "@media") || type === "@namespace")return ret("tag", stream.current());
-        
+
         else if(type === "{"  && state.stack[state.stack.length-1] === ";" && stream.peek() === "{")return ret("tag", "tag");
         else if((type === "{" || type === ":") && state.stack[state.stack.length-1] === ";")return ret(null, stream.current());
         else if((state.stack[state.stack.length-1] === "{" && stream.eatSpace() && stream.peek().match(/.|#/) === null) || type === "select-op"  || (state.stack[state.stack.length-1] === "rule" && type === ",") )return ret("tag", "tag");
@@ -218,7 +218,7 @@ CodeMirror.defineMode("less", function(config) {
         else if((stream.eatSpace() && stream.peek() === "{") || stream.eol() || stream.peek() === "{")return ret("tag", "tag");
         //this one messes up indentation
         //else if((type === "}" && stream.peek() !== ":") || (type === "}" && stream.eatSpace() && stream.peek() !== ":"))return(type, "tag");
-        
+
         else if(type === ")" && (stream.current() == "and" || stream.current() == "and "))return ret("variable", "variable");
         else if(type === ")" && (stream.current() == "when" || stream.current() == "when "))return ret("variable", "variable");
         else if(type === ")" || type === "comment" || type === "{")return ret("tag", "tag");
@@ -226,14 +226,14 @@ CodeMirror.defineMode("less", function(config) {
         else if((stream.eatSpace() && stream.peek() === "#") || stream.peek() === "#")return ret("tag", "tag");
         else if(state.stack.length === 0)return ret("tag", "tag");
         else if(type === ";" && stream.peek() !== undefined && stream.peek().match(/^[.|\#]/g) !== null)return ret("tag", "tag");
-        
+
         else if(type === ":"){stream.eatSpace();return ret(null, stream.current());}
-        
-        else if(stream.current() === "and " || stream.current() === "and")return ret("variable", stream.current());        
+
+        else if(stream.current() === "and " || stream.current() === "and")return ret("variable", stream.current());
         else if(type === ";" && state.stack[state.stack.length-1] === "{")return ret("variable", stream.current());
-        
-        else if(state.stack[state.stack.length-1] === "rule")return ret(null, stream.current()); 
-        
+
+        else if(state.stack[state.stack.length-1] === "rule")return ret(null, stream.current());
+
         return ret("tag", stream.current());
       }
     }
