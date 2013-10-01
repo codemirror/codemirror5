@@ -37,6 +37,7 @@
                                  Pos(cur.line, token.type == "string" ? token.start : token.end));
         var atName = before.match(/([^\s\u00a0=<>\"\']+)=$/), atValues;
         if (!atName || !attrs.hasOwnProperty(atName[1]) || !(atValues = attrs[atName[1]])) return;
+        if (typeof atValues == 'function') atValues = atValues.call(this, cm); // Functions can be used to supply values for autocomplete widget
         if (token.type == "string") {
           prefix = token.string;
           if (/['"]/.test(token.string.charAt(0))) {
