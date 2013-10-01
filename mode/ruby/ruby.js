@@ -36,11 +36,11 @@ CodeMirror.defineMode("ruby", function(config) {
     } else if (ch == "/" && !stream.eol() && stream.peek() != " ") {
       return chain(readQuoted(ch, "string-2", true), stream, state);
     } else if (ch == "%") {
-      var style = "string", embed = false;
+      var style = "string", embed = true;
       if (stream.eat("s")) style = "atom";
-      else if (stream.eat(/[WQ]/)) { style = "string"; embed = true; }
-      else if (stream.eat(/[r]/)) { style = "string-2"; embed = true; }
-      else if (stream.eat(/[wxq]/)) style = "string";
+      else if (stream.eat(/[WQ]/)) style = "string";
+      else if (stream.eat(/[r]/)) style = "string-2";
+      else if (stream.eat(/[wxq]/)) { style = "string"; embed = false; }
       var delim = stream.eat(/[^\w\s]/);
       if (!delim) return "operator";
       if (matching.propertyIsEnumerable(delim)) delim = matching[delim];

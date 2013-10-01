@@ -49,7 +49,7 @@ CodeMirror.runMode = function(string, modespec, callback, options) {
     var stream = new CodeMirror.StringStream(lines[i]);
     while (!stream.eol()) {
       var style = mode.token(stream, state);
-      callback(stream.current(), style, i, stream.start);
+      callback(stream.current(), style, i, stream.start, state);
       stream.start = stream.pos;
     }
   }

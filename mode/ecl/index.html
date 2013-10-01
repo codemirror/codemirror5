@@ -1,16 +1,30 @@
-﻿<!doctype html>
-<html>
-  <head>
-    <title>CodeMirror: ECL mode</title>
-    <link rel="stylesheet" href="../../lib/codemirror.css">
-    <script src="../../lib/codemirror.js"></script>
-    <script src="ecl.js"></script>
-    <link rel="stylesheet" href="../../doc/docs.css">
-    <style>.CodeMirror {border: 1px solid black;}</style>
-  </head>
-  <body>
-    <h1>CodeMirror: ECL mode</h1>
-    <form><textarea id="code" name="code">
+<!doctype html>
+
+<title>CodeMirror: ECL mode</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../../doc/docs.css">
+
+<link rel="stylesheet" href="../../lib/codemirror.css">
+<script src="../../lib/codemirror.js"></script>
+<script src="ecl.js"></script>
+<style>.CodeMirror {border: 1px solid black;}</style>
+<div id=nav>
+  <a href="http://codemirror.net"><img id=logo src="../../doc/logo.png"></a>
+
+  <ul>
+    <li><a href="../../index.html">Home</a>
+    <li><a href="../../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="../index.html">Language modes</a>
+    <li><a class=active href="#">ECL</a>
+  </ul>
+</div>
+
+<article>
+<h2>ECL mode</h2>
+<form><textarea id="code" name="code">
 /*
 sample useless code to demonstrate ecl syntax highlighting
 this is a multiline comment!
@@ -35,5 +49,4 @@ output(d);
     <p>Based on CodeMirror's clike mode.  For more information see <a href="http://hpccsystems.com">HPCC Systems</a> web site.</p>
     <p><strong>MIME types defined:</strong> <code>text/x-ecl</code>.</p>
 
-  </body>
-</html>
+  </article>

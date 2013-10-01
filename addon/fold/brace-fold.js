@@ -4,7 +4,7 @@ CodeMirror.registerHelper("fold", "brace", function(cm, start) {
 
   function findOpening(openCh) {
     for (var at = start.ch, pass = 0;;) {
-      var found = lineText.lastIndexOf(openCh, at - 1);
+      var found = at <= 0 ? -1 : lineText.lastIndexOf(openCh, at - 1);
       if (found == -1) {
         if (pass == 1) break;
         pass = 1;
@@ -12,7 +12,7 @@ CodeMirror.registerHelper("fold", "brace", function(cm, start) {
         continue;
       }
       if (pass == 1 && found < start.ch) break;
-      tokenType = cm.getTokenAt(CodeMirror.Pos(line, found + 1)).type;
+      tokenType = cm.getTokenTypeAt(CodeMirror.Pos(line, found + 1));
       if (!/^(comment|string)/.test(tokenType)) return found + 1;
       at = found - 1;
     }
@@ -34,7 +34,7 @@ CodeMirror.registerHelper("fold", "brace", function(cm, start) {
       if (nextClose < 0) nextClose = text.length;
       pos = Math.min(nextOpen, nextClose);
       if (pos == text.length) break;
-      if (cm.getTokenAt(CodeMirror.Pos(i, pos + 1)).type == tokenType) {
+      if (cm.getTokenTypeAt(CodeMirror.Pos(i, pos + 1)) == tokenType) {
         if (pos == nextOpen) ++count;
         else if (!--count) { end = i; endCh = pos; break outer; }
       }

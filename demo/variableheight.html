@@ -1,24 +1,34 @@
 <!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>CodeMirror: Variable Height Demo</title>
-    <link rel="stylesheet" href="../lib/codemirror.css">
-    <script src="../lib/codemirror.js"></script>
-    <script src="../mode/markdown/markdown.js"></script>
-    <script src="../mode/xml/xml.js"></script>
-    <link rel="stylesheet" href="../doc/docs.css">
 
-    <style type="text/css">
+<title>CodeMirror: Variable Height Demo</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../doc/docs.css">
+
+<link rel="stylesheet" href="../lib/codemirror.css">
+<script src="../lib/codemirror.js"></script>
+<script src="../mode/markdown/markdown.js"></script>
+<script src="../mode/xml/xml.js"></script>
+<style type="text/css">
       .CodeMirror {border: 1px solid silver; border-width: 1px 2px; }
       .cm-header { font-size: 150%; font-family: arial; }
       .cm-strong { font-size: 140%; }
     </style>
-  </head>
-  <body>
-    <h1>CodeMirror: Variable Height Demo</h1>
+<div id=nav>
+  <a href="http://codemirror.net"><img id=logo src="../doc/logo.png"></a>
 
-    <form><textarea id="code" name="code"># A First Level Header
+  <ul>
+    <li><a href="../index.html">Home</a>
+    <li><a href="../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a class=active href="#">Variable Height</a>
+  </ul>
+</div>
+
+<article>
+<h2>Variable Height Demo</h2>
+<form><textarea id="code" name="code"># A First Level Header
 
 **Bold** text in a normal-size paragraph.
 
@@ -48,5 +58,4 @@ dog's back.
         mode: "markdown"
       });
     </script>
-  </body>
-</html>
+  </article>

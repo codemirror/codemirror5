@@ -124,9 +124,7 @@ CodeMirror.defineMode('rst-base', function (config) {
                     token = 'keyword';
 
                     if (stream.current().match(/^(?:math|latex)/)) {
-                        state.tmp = {
-                            mode: mode_stex, local: mode_stex.startState()
-                        };
+                        state.tmp_stex = true;
                     }
                     break;
                 case 2:
@@ -135,6 +133,12 @@ CodeMirror.defineMode('rst-base', function (config) {
                     token = 'meta';
                     break;
                 case 3:
+                    if (state.tmp_stex) {
+                        state.tmp_stex = undefined; state.tmp = {
+                            mode: mode_stex, local: mode_stex.startState()
+                        };
+                    }
+
                     if (state.tmp) {
                         if (stream.peek() == '`') {
                             change(state, to_normal, context(rx_role_pre, 4));
@@ -345,24 +349,24 @@ CodeMirror.defineMode('rst-base', function (config) {
                     change(state, to_explicit, context(rx_directive, 2));
                     assert(stream.match(rx_directive_tail));
                     token = 'meta';
-                    break;
-                default:
+
                     if (stream.match(/^latex\s*$/) || state.tmp_stex) {
-                        state.tmp_stex = undefined;
-                        change(state, to_mode, {
+                        state.tmp_stex = undefined; change(state, to_mode, {
                             mode: mode_stex, local: mode_stex.startState()
                         });
-                    } else if (stream.match(/^python\s*$/) || state.tmp_py) {
-                        state.tmp_py = undefined;
-                        change(state, to_mode, {
+                    }
+                    break;
+                case 2:
+                    change(state, to_explicit, context(rx_directive, 3));
+                    if (stream.match(/^python\s*$/) || state.tmp_py) {
+                        state.tmp_py = undefined; change(state, to_mode, {
                             mode: mode_python, local: mode_python.startState()
                         });
                     }
-
-                    else {
-                        change(state, to_normal);
-                        assert(stream.current() == '');
-                    }
+                    break;
+                default:
+                    change(state, to_normal);
+                    assert(stream.current() == '');
             }
         } else if (phase(state) == rx_link || stream.match(rx_link, false)) {
 
@@ -437,12 +441,7 @@ CodeMirror.defineMode('rst-base', function (config) {
                 return null;
             }
 
-            try {
-                return state.ctx.mode.token(stream, state.ctx.local);
-            } catch (ex) {
-                change(state, to_normal);
-                return null;
-            }
+            return state.ctx.mode.token(stream, state.ctx.local);
         }
 
         change(state, to_normal);
@@ -482,7 +481,9 @@ CodeMirror.defineMode('rst-base', function (config) {
         },
 
         innerMode: function (state) {
-            return {state: state.ctx.local, mode: state.ctx.mode};
+            return state.tmp ? {state: state.tmp.local, mode: state.tmp.mode}
+                 : state.ctx ? {state: state.ctx.local, mode: state.ctx.mode}
+                             : null;
         },
 
         token: function (stream, state) {

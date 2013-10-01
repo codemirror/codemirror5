@@ -1,4 +1,6 @@
 (function() {
+  "use strict";
+  // declare global: JSHINT
 
   var bogus = [ "Dangerous comment" ];
 

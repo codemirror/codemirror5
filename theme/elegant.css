@@ -6,5 +6,8 @@
 .cm-s-elegant span.cm-qualifier {color: #555;}
 .cm-s-elegant span.cm-keyword {color: #730;}
 .cm-s-elegant span.cm-builtin {color: #30a;}
-.cm-s-elegant span.cm-error {background-color: #fdd;}
 .cm-s-elegant span.cm-link {color: #762;}
+.cm-s-elegant span.cm-error {background-color: #fdd;}
+
+.cm-s-elegant .CodeMirror-activeline-background {background: #e8f2ff !important;}
+.cm-s-elegant .CodeMirror-matchingbracket {outline:1px solid grey; color:black !important;}

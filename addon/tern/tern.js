@@ -24,6 +24,9 @@
 //   no tip should be shown. By default the docstring is shown.
 // * typeTip: Like completionTip, but for the tooltips shown for type
 //   queries.
+// * responseFilter: A function(doc, query, request, error, data) that
+//   will be applied to the Tern responses before treating them
+//
 //
 // It is possible to run the Tern server in a web worker by specifying
 // these additional options:
@@ -39,6 +42,7 @@
 
 (function() {
   "use strict";
+  // declare global: tern
 
   CodeMirror.TernServer = function(options) {
     var self = this;
@@ -102,8 +106,16 @@
 
     rename: function(cm) { rename(this, cm); },
 
-    request: function(cm, query, c) {
-      this.server.request(buildRequest(this, findDoc(this, cm.getDoc()), query), c);
+    request: function (cm, query, c) {
+      var self = this;
+      var doc = findDoc(this, cm.getDoc());
+      var request = buildRequest(this, doc, query);
+
+      this.server.request(request, function (error, data) {
+        if (!error && self.options.responseFilter)
+          data = self.options.responseFilter(doc, query, request, error, data);
+        c(error, data);
+      });
     }
   };
 
@@ -122,15 +134,15 @@
   }
 
   function findDoc(ts, doc, name) {
-    for (var name in ts.docs) {
-      var cur = ts.docs[name];
+    for (var n in ts.docs) {
+      var cur = ts.docs[n];
       if (cur.doc == doc) return cur;
     }
     if (!name) for (var i = 0;; ++i) {
-      var n = "[doc" + (i || "") + "]";
+      n = "[doc" + (i || "") + "]";
       if (!ts.docs[n]) { name = n; break; }
     }
-    return ts.addDoc(n, doc);
+    return ts.addDoc(name, doc);
   }
 
   function trackChange(ts, doc, change) {
@@ -163,7 +175,7 @@
   // Completion
 
   function hint(ts, cm, c) {
-    ts.request(cm, {type: "completions", types: true, docs: true}, function(error, data) {
+    ts.request(cm, {type: "completions", types: true, docs: true, urls: true}, function(error, data) {
       if (error) return showError(ts, cm, error);
       var completions = [], after = "";
       var from = data.start, to = data.end;
@@ -183,6 +195,7 @@
       var obj = {from: from, to: to, list: completions};
       var tooltip = null;
       CodeMirror.on(obj, "close", function() { remove(tooltip); });
+      CodeMirror.on(obj, "update", function() { remove(tooltip); });
       CodeMirror.on(obj, "select", function(cur, node) {
         remove(tooltip);
         var content = ts.options.completionTip ? ts.options.completionTip(cur.data) : cur.data.doc;
@@ -232,12 +245,24 @@
     closeArgHints(ts);
 
     if (cm.somethingSelected()) return;
-    var lex = cm.getTokenAt(cm.getCursor()).state.lexical;
+    var state = cm.getTokenAt(cm.getCursor()).state;
+    var inner = CodeMirror.innerMode(cm.getMode(), state);
+    if (inner.mode.name != "javascript") return;
+    var lex = inner.state.lexical;
     if (lex.info != "call") return;
 
-    var ch = lex.column, pos = lex.pos || 0;
-    for (var line = cm.getCursor().line, e = Math.max(0, line - 9), found = false; line >= e; --line)
-      if (cm.getLine(line).charAt(ch) == "(") {found = true; break;}
+    var ch, pos = lex.pos || 0, tabSize = cm.getOption("tabSize");
+    for (var line = cm.getCursor().line, e = Math.max(0, line - 9), found = false; line >= e; --line) {
+      var str = cm.getLine(line), extra = 0;
+      for (var pos = 0;;) {
+        var tab = str.indexOf("\t", pos);
+        if (tab == -1) break;
+        extra += tabSize - (tab + extra) % tabSize - 1;
+        pos = tab + 1;
+      }
+      ch = lex.column - extra;
+      if (str.charAt(ch) == "(") {found = true; break;}
+    }
     if (!found) return;
 
     var start = Pos(line, ch);
@@ -585,7 +610,7 @@
     worker.onmessage = function(e) {
       var data = e.data;
       if (data.type == "getFile") {
-        getFile(ts, name, function(err, text) {
+        getFile(ts, data.name, function(err, text) {
           send({type: "getFile", err: String(err), text: text, id: data.id});
         });
       } else if (data.type == "debug") {

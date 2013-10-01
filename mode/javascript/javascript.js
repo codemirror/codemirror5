@@ -78,18 +78,19 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     type = tp; content = cont;
     return style;
   }
-
   function jsTokenBase(stream, state) {
     var ch = stream.next();
     if (ch == '"' || ch == "'")
       return chain(stream, state, jsTokenString(ch));
+    else if (ch == "." && stream.match(/^\d+(?:[eE][+\-]?\d+)?/))
+      return ret("number", "number");
     else if (/[\[\]{}\(\),;\:\.]/.test(ch))
       return ret(ch);
     else if (ch == "0" && stream.eat(/x/i)) {
       stream.eatWhile(/[\da-f]/i);
       return ret("number", "number");
     }
-    else if (/\d/.test(ch) || ch == "-" && stream.eat(/\d/)) {
+    else if (/\d/.test(ch)) {
       stream.match(/^\d*(?:\.\d*)?(?:[eE][+\-]?\d+)?/);
       return ret("number", "number");
     }
@@ -299,14 +300,15 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
 
   function maybeoperatorComma(type, value) {
     if (type == ",") return cont(expression);
-    return maybeoperatorNoComma(type, value, maybeoperatorComma);
+    return maybeoperatorNoComma(type, value, false);
   }
-  function maybeoperatorNoComma(type, value, me) {
-    if (!me) me = maybeoperatorNoComma;
+  function maybeoperatorNoComma(type, value, noComma) {
+    var me = noComma == false ? maybeoperatorComma : maybeoperatorNoComma;
+    var expr = noComma == false ? expression : expressionNoComma;
     if (type == "operator") {
       if (/\+\+|--/.test(value)) return cont(me);
-      if (value == "?") return cont(expression, expect(":"), expression);
-      return cont(expression);
+      if (value == "?") return cont(expression, expect(":"), expr);
+      return cont(expr);
     }
     if (type == ";") return;
     if (type == "(") return cont(pushlex(")", "call"), commasep(expressionNoComma, ")"), poplex, me);

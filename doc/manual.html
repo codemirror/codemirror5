@@ -1,38 +1,64 @@
 <!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>CodeMirror: User Manual</title>
-    <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Droid+Sans|Droid+Sans:bold">
-    <link rel="stylesheet" type="text/css" href="docs.css">
-    <style>dl dl {margin: 0;}</style>
-    <script src="../lib/codemirror.js"></script>
-    <link rel="stylesheet" href="../lib/codemirror.css">
-    <script src="../addon/runmode/runmode.js"></script>
-    <script src="../addon/runmode/colorize.js"></script>
-    <script src="../mode/javascript/javascript.js"></script>
-    <script src="../mode/xml/xml.js"></script>
-    <script src="../mode/css/css.js"></script>
-    <script src="../mode/htmlmixed/htmlmixed.js"></script>
-    <style>
-      dt { text-indent: -1.5em; padding-left: 1.5em; }
-    </style>
-  </head>
-  <body>
 
-<h1><span class="logo-braces">{ }</span> <a href="http://codemirror.net/">CodeMirror</a></h1>
+<title>CodeMirror: User Manual</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="docs.css">
+<script src="activebookmark.js"></script>
 
-<div class="grey">
-<img src="baboon.png" class="logo" alt="logo">
-<pre>
-/* User manual and
-   reference guide */
-</pre>
+<script src="../lib/codemirror.js"></script>
+<link rel="stylesheet" href="../lib/codemirror.css">
+<script src="../addon/runmode/runmode.js"></script>
+<script src="../addon/runmode/colorize.js"></script>
+<script src="../mode/javascript/javascript.js"></script>
+<script src="../mode/xml/xml.js"></script>
+<script src="../mode/css/css.js"></script>
+<script src="../mode/htmlmixed/htmlmixed.js"></script>
+<style>
+  dt { text-indent: -2em; padding-left: 2em; margin-top: 1em; }
+  dd { margin-left: 1.5em; margin-bottom: 1em; }
+  dt {margin-top: 1em;}
+  dd dl, dd dt, dd dd, dd ul { margin-top: 0; margin-bottom: 0; }
+</style>
+
+<div id=nav>
+  <a href="http://codemirror.net"><img id=logo src="logo.png"></a>
+
+  <ul>
+    <li><a href="../index.html">Home</a>
+    <li><a href="#overview" class=active data-default="true">Manual</a>
+    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="#usage">Basic Usage</a></li>
+    <li><a href="#config">Configuration</a></li>
+    <li><a href="#events">Events</a></li>
+    <li><a href="#keymaps">Keymaps</a></li>
+    <li><a href="#styling">Customized Styling</a></li>
+    <li><a href="#api">Programming API</a>
+      <ul>
+        <li><a href="#api_constructor">Constructor</a></li>
+        <li><a href="#api_content">Content manipulation</a></li>
+        <li><a href="#api_selection">Selection</a></li>
+        <li><a href="#api_configuration">Configuration</a></li>
+        <li><a href="#api_doc">Document management</a></li>
+        <li><a href="#api_history">History</a></li>
+        <li><a href="#api_marker">Text-marking</a></li>
+        <li><a href="#api_decoration">Widget, gutter, and decoration</a></li>
+        <li><a href="#api_sizing">Sizing, scrolling, and positioning</a></li>
+        <li><a href="#api_mode">Mode, state, and tokens</a></li>
+        <li><a href="#api_misc">Miscellaneous methods</a></li>
+        <li><a href="#api_static">Static properties</a></li>
+      </ul>
+    </li>
+    <li><a href="#addons">Addons</a></li>
+    <li><a href="#modeapi">Writing CodeMirror Modes</a></li>
+  </ul>
 </div>
 
-<div class="clear"><div class="leftbig blk">
+<article>
 
-    <h2 id="overview">Overview</h2>
+<section class=first id=overview>
+    <h2>User manual and reference guide</h2>
 
     <p>CodeMirror is a code-editor component that can be embedded in
     Web pages. The core library provides <em>only</em> the editor
@@ -50,8 +76,10 @@
     of modes (see the <a href="../mode/"><code>mode/</code></a>
     directory), and it isn't hard to <a href="#modeapi">write new
     ones</a> for other languages.</p>
+</section>
 
-    <h2 id="usage">Basic Usage</h2>
+<section id=usage>
+    <h2>Basic Usage</h2>
 
     <p>The easiest way to use CodeMirror is to simply load the script
     and style sheet found under <code>lib/</code> in the distribution,
@@ -107,7 +135,9 @@
     of a form) is submitted. See the <a href="#fromTextArea">API
     reference</a> for a full description of this method.</p>
 
-    <h2 id="config">Configuration</h2>
+</section>
+<section id=config>
+    <h2>Configuration</h2>
 
     <p>Both the <a href="#CodeMirror"><code>CodeMirror</code></a>
     function and its <code>fromTextArea</code> method take as second
@@ -315,7 +345,7 @@
 
       <dt id="option_cursorBlinkRate"><code><strong>cursorBlinkRate</strong>: number</code></dt>
       <dd>Half-period in milliseconds used for cursor blinking. The default blink
-      rate is 530ms.</dd>
+      rate is 530ms. By setting this to zero, blinking can be disabled.</dd>
 
       <dt id="option_cursorScrollMargin"><code><strong>cursorScrollMargin</strong>: number</code></dt>
       <dd>How much extra space to always keep above and below the
@@ -358,8 +388,20 @@
       <dd>When highlighting long lines, in order to stay responsive,
       the editor will give up and simply style the rest of the line as
       plain text when it reaches a certain position. The default is
-      10000. You can set this to <code>Infinity</code> to turn off
+      10 000. You can set this to <code>Infinity</code> to turn off
       this behavior.</dd>
+
+      <dt id="option_crudeMeasuringFrom"><code><strong>crudeMeasuringFrom</strong>: number</code></dt>
+      <dd>When measuring the character positions in long lines, any
+      line longer than this number (default is 10 000),
+      when <a href="#option_lineWrapping">line wrapping</a>
+      is <strong>off</strong>, will simply be assumed to consist of
+      same-sized characters. This means that, on the one hand,
+      measuring will be inaccurate when characters of varying size,
+      right-to-left text, markers, or other irregular elements are
+      present. On the other hand, it means that having such a line
+      won't freeze the user interface because of the expensiveness of
+      the measurements.</dd>
 
       <dt id="option_viewportMargin"><code><strong>viewportMargin</strong>: integer</code></dt>
       <dd>Specifies the amount of lines that are rendered above and
@@ -372,14 +414,18 @@
       This <em>will</em> have bad effects on performance of big
       documents.</dd>
     </dl>
+</section>
 
-    <h2 id="events">Events</h2>
+<section id=events>
+    <h2>Events</h2>
 
     <p>Various CodeMirror-related objects emit events, which allow
     client code to react to various situations. Handlers for such
     events can be registed with the <a href="#on"><code>on</code></a>
     and <a href="#off"><code>off</code></a> methods on the objects
-    that the event fires on.</p>
+    that the event fires on. To fire your own events,
+    use <code>CodeMirror.signal(target, name, args...)</code>,
+    where <code>target</code> is a non-DOM-node object.</p>
 
     <p>An editor instance fires the following events.
     The <code>instance</code> argument always refers to the editor
@@ -469,6 +515,16 @@
       argument, and the raw <code>mousedown</code> event object as
       fourth argument.</dd>
 
+      <dt id="event_gutterContextMenu"><code><strong>"gutterContextMenu"</strong> (instance: CodeMirror, line: integer, gutter: string, contextMenu: Event: Event)</code></dt>
+      <dd>Fires when the editor gutter (the line-number area)
+      receives a <code>contextmenu</code> event. Will pass the editor
+      instance as first argument, the (zero-based) number of the line
+      that was clicked as second argument, the CSS class of the
+      gutter that was clicked as third argument, and the raw
+      <code>contextmenu</code> mouse event object as fourth argument.
+      You can <code>preventDefault</code> the event, to signal that
+      CodeMirror should do no further handling.</dd>
+
       <dt id="event_focus"><code><strong>"focus"</strong> (instance: CodeMirror)</code></dt>
       <dd>Fires whenever the editor is focused.</dd>
 
@@ -494,7 +550,8 @@
       <strong>"dragover"</strong>, <strong>"drop"</strong>
       (instance: CodeMirror, event: Event)</code></dt>
       <dd>Fired when CodeMirror is handling a DOM event of this type.
-      You can <code>preventDefault</code> the event to signal that
+      You can <code>preventDefault</code> the event, or give it a
+      truthy <code>codemirrorIgnore</code> property, to signal that
       CodeMirror should do no further handling.</dd>
     </dl>
 
@@ -555,14 +612,16 @@
       event handler, the editor state may be inspected
       but <em>not</em> modified, with the exception that the range on
       which the event fires may be cleared.</dd>
-      <dt id="event_clear"><code><strong>"clear"</strong> ()</code></dt>
+      <dt id="event_clear"><code><strong>"clear"</strong> (from: {line, ch}, to: {line, ch})</code></dt>
       <dd>Fired when the range is cleared, either through cursor
       movement in combination
       with <a href="#mark_clearOnEnter"><code>clearOnEnter</code></a>
       or through a call to its <code>clear()</code> method. Will only
       be fired once per handle. Note that deleting the range through
-      text editing does not fire this event, because an undo
-      action might bring the range back into existence.</dd>
+      text editing does not fire this event, because an undo action
+      might bring the range back into existence. <code>from</code>
+      and <code>to</code> give the part of the document that the range
+      spanned when it was cleared.</dd>
       <dt id="event_hide"><code><strong>"hide"</strong> ()</code></dt>
       <dd>Fired when the last part of the marker is removed from the
       document by editing operations.</dd>
@@ -584,8 +643,10 @@
       or the line the widget is on require the widget to be
       redrawn.</dd>
     </dl>
+</section>
 
-    <h2 id="keymaps">Keymaps</h2>
+<section id=keymaps>
+    <h2>Keymaps</h2>
 
     <p>Keymaps are ways to associate keys with functionality. A keymap
     is an object mapping strings that identify the keys to functions
@@ -656,8 +717,10 @@
     to <code>true</code>, the default effect of inserting a character
     will be suppressed when the keymap is active as the top-level
     map.</p>
+</section>
 
-    <h2 id="styling">Customized Styling</h2>
+<section id=styling>
+    <h2>Customized Styling</h2>
 
     <p>Up to a certain extent, CodeMirror's look can be changed by
     modifying style sheet files. The style sheets supplied by modes
@@ -735,8 +798,10 @@
     <p>Themes are also simply CSS files, which define colors for
     various syntactic elements. See the files in
     the <a href="../theme/"><code>theme</code></a> directory.</p>
+</section>
 
-    <h2 id="api">Programming API</h2>
+<section id=api>
+    <h2>Programming API</h2>
 
     <p>A lot of CodeMirror features are only available through its
     API. Thus, you need to write code (or
@@ -888,7 +953,7 @@
       <dd>Set the cursor position. You can either pass a
       single <code>{line, ch}</code> object, or the line and the
       character as two separate parameters.</dd>
-      <dt id="setSelection"><code><strong>doc.setSelection</strong>(anchor: {line, ch}, head: {line, ch})</code></dt>
+      <dt id="setSelection"><code><strong>doc.setSelection</strong>(anchor: {line, ch}, ?head: {line, ch})</code></dt>
       <dd>Set the selection range. <code>anchor</code>
       and <code>head</code> should be <code>{line, ch}</code>
       objects. <code>head</code> defaults to <code>anchor</code> when
@@ -899,7 +964,7 @@
       will, if shift is held or
       the <a href="#setExtending">extending</a> flag is set, move the
       head of the selection while leaving the anchor at its current
-      place. <code>pos2</code> is optional, and can be passed to
+      place. <code>to</code> is optional, and can be passed to
       ensure a region (for example a word or paragraph) will end up
       selected (in addition to whatever lies between that region and
       the current anchor).</dd>
@@ -1615,8 +1680,10 @@
       returned position will be the end of the changed
       range, <em>after</em> the change is applied.</dd>
     </dl>
+</section>
 
-    <h2 id="addons">Addons</h2>
+<section id=addons>
+    <h2>Addons</h2>
 
     <p>The <code>addon</code> directory in the distribution contains a
     number of reusable components that implement extra editor
@@ -1694,7 +1761,7 @@
       <dt id="addon_matchtags"><a href="../addon/edit/matchtags.js"><code>edit/matchtags.js</code></a></dt>
       <dd>Defines an option <code>matchTags</code> that, when enabled,
       will cause the tags around the cursor to be highlighted (using
-      the <code>CodeMirror-matchingbrackets</code> class). Also
+      the <code>CodeMirror-matchingtag</code> class). Also
       defines
       a <a href="#commands">command</a> <code>toMatchingTag</code>,
       which you can bind a key to in order to jump to the tag mathing
@@ -1773,8 +1840,9 @@
         finds blocks in brace languages (JavaScript, C, Java,
         etc), <code>CodeMirror.fold.indent</code>, for languages where
         indentation determines block structure (Python, Haskell),
-        and <code>CodeMirror.fold.xml</code>, for XML-style
-        languages.</dd>
+        and <code>CodeMirror.fold.xml</code>, for XML-style languages,
+        and <code>CodeMirror.fold.comment</code>, for folding comment
+        blocks.</dd>
         <dt><code><strong>widget</strong>: string|Element</code></dt>
         <dd>The widget to show for folded ranges. Can be either a
         string, in which case it'll become a span with
@@ -1799,7 +1867,14 @@
       giving it the class <code>CodeMirror-foldgutter</code> or
       something else if you configure the addon to use a different
       class, and this addon will show markers next to folded and
-      foldable blocks, and handle clicks in this gutter. The option
+      foldable blocks, and handle clicks in this gutter. Note that
+      CSS styles should be applied to make the gutter, and the fold
+      markers within it, visible. A default set of CSS styles are
+      available in:
+      <a href="../addon/fold/foldgutter.css">
+        <code>addon/fold/foldgutter.css</code>
+      </a>.
+      The option
       can be either set to <code>true</code>, or an object containing
       the following optional option fields:
       <dl>
@@ -1807,7 +1882,7 @@
         <dd>The CSS class of the gutter. Defaults
         to <code>"CodeMirror-foldgutter"</code>. You will have to
         style this yourself to give it a width (and possibly a
-        background).</dd>
+        background). See the default gutter style rules above.</dd>
         <dt><code><strong>indicatorOpen</strong>: string | Element</code></dt>
         <dd>A CSS class or DOM element to be used as the marker for
         open, foldable blocks. Defaults
@@ -1874,8 +1949,8 @@
       a <code>{list, from, to}</code> object, where <code>list</code>
       is an array of strings or objects (the completions),
       and <code>from</code> and <code>to</code> give the start and end
-      of the token that is being completed. If no hinting function is
-      given, the addon will try to
+      of the token that is being completed as <code>{line, ch}</code>
+      objects. If no hinting function is given, the addon will try to
       use <a href="#getHelper"><code>getHelper</code></a> with
       the <code>"hint"</code> type to find one. When completions
       aren't simple strings, they should be objects with the folowing
@@ -1982,6 +2057,10 @@
       schema data. See
       the <a href="../demo/html5complete.html">demo</a>.</dd>
 
+      <dt id="addon_css-hint"><a href="../addon/hint/css-hint.js"><code>hint/css-hint.js</code></a></dt>
+      <dd>A minimal hinting function for CSS code.
+      Defines <code>CodeMirror.hint.css</code>.</dd>
+
       <dt id="addon_python-hint"><a href="../addon/hint/python-hint.js"><code>hint/python-hint.js</code></a></dt>
       <dd>A very simple hinting function for Python code.
       Defines <code>CodeMirror.hint.python</code>.</dd>
@@ -2055,7 +2134,7 @@
       editor instance to refresh its mode when the loading
       succeeded. See the <a href="../demo/loadmode.html">demo</a>.</dd>
 
-      <dt id="addon_continuecomment"><a href="../addon/edit/continuecomment.js"><code>edit/continuecomment.js</code></a></dt>
+      <dt id="addon_continuecomment"><a href="../addon/comment/continuecomment.js"><code>comment/continuecomment.js</code></a></dt>
       <dd>Adds an <code>continueComments</code> option, which can be
       set to true to have the editor prefix new lines inside C-like
       block comments with an asterisk when Enter is pressed. It can
@@ -2068,6 +2147,46 @@
       Also gives the editor a <code>CodeMirror-empty</code> CSS class
       whenever it doesn't contain any text.
       See <a href="../demo/placeholder.html">the demo</a>.</dd>
+
+      <dt id="addon_fullscreen"><a href="../addon/display/fullscreen.js"><code>display/fullscreen.js</code></a></dt>
+      <dd>Defines an option <code>fullScreen</code> that, when set
+      to <code>true</code>, will make the editor full-screen (as in,
+      taking up the whole browser window). Depends
+      on <a href="../addon/display/fullscreen.css"><code>fullscreen.css</code></a>. <a href="../demo/fullscreen.html">Demo
+      here</a>.</dd>
+
+      <dt id="addon_hardwrap"><a href="../addon/wrap/hardwrap.js"><code>wrap/hardwrap.js</code></a></dt>
+      <dd>Addon to perform hard line wrapping/breaking for paragraphs
+      of text. Adds these methods to editor instances:
+        <dl>
+          <dt><code><strong>wrapParagraph</strong>(?pos: {line, ch}, ?options: object)</code></dt>
+          <dd>Wraps the paragraph at the given position.
+          If <code>pos</code> is not given, it defaults to the cursor
+          position.</dd>
+          <dt><code><strong>wrapRange</strong>(from: {line, ch}, to: {line, ch}, ?options: object)</code></dt>
+          <dd>Wraps the given range as one big paragraph.</dd>
+          <dt><code><strong>wrapParagraphsInRange</strong>(from: {line, ch}, to: {line, ch}, ?options: object)</code></dt>
+          <dd>Wrapps the paragraphs in (and overlapping with) the
+          given range individually.</dd>
+        </dl>
+        The following options are recognized:
+        <dl>
+          <dt><code><strong>paragraphStart</strong>, <strong>paragraphEnd</strong>: RegExp</code></dt>
+          <dd>Blank lines are always considered paragraph boundaries.
+          These options can be used to specify a pattern that causes
+          lines to be considered the start or end of a paragraph.</dd>
+          <dt><code><strong>column</strong>: number</code></dt>
+          <dd>The column to wrap at. Defaults to 80.</dd>
+          <dt><code><strong>wrapOn</strong>: RegExp</code></dt>
+          <dd>A regular expression that matches only those
+          two-character strings that allow wrapping. By default, the
+          addon wraps on whitespace and after dash characters.</dd>
+          <dt><code><strong>killTrailingSpace</strong>: boolean</code></dt>
+          <dd>Whether trailing space caused by wrapping should be
+          preserved, or deleted. Defaults to true.</dd>
+        </dl>
+        A demo of the addon is available <a href="../demo/hardwrap.html">here</a>.
+      </dd>
 
       <dt id="addon_merge"><a href="../addon/merge/merge.js"><code>merge/merge.js</code></a></dt>
       <dd>Implements an interface for merging changes, using either a
@@ -2083,8 +2202,10 @@
       will highlight changes between the editable document and the
       original(s) (<a href="../demo/merge.html">demo</a>).</dd>
     </dl>
+</section>
 
-    <h2 id="modeapi">Writing CodeMirror Modes</h2>
+<section id=modeapi>
+    <h2>Writing CodeMirror Modes</h2>
 
     <p>Modes typically consist of a single JavaScript file. This file
     defines, in the simplest case, a lexer (tokenizer) for your
@@ -2279,7 +2400,7 @@
     state.</p>
 
     <p id="innerMode">In a nested mode, it is recommended to add an
-    extra methods, <code>innerMode</code> which, given a state object,
+    extra method, <code>innerMode</code> which, given a state object,
     returns a <code>{state, mode}</code> object with the inner mode
     and its state for the current position. These are used by utility
     scripts such as the <a href="#addon_closetag">tag closer</a> to
@@ -2313,43 +2434,8 @@
     specifies the properties that should be added. This is mostly
     useful to add utilities that can later be looked
     up through <a href="#getMode"><code>getMode</code></a>.</p>
+</section>
 
-</div><div class="rightsmall blk">
-
-    <h2>Contents</h2>
-
-    <ul>
-      <li><a href="#overview">Overview</a></li>
-      <li><a href="#usage">Basic Usage</a></li>
-      <li><a href="#config">Configuration</a></li>
-      <li><a href="#events">Events</a></li>
-      <li><a href="#keymaps">Keymaps</a></li>
-      <li><a href="#styling">Customized Styling</a></li>
-      <li><a href="#api">Programming API</a>
-        <ul>
-          <li><a href="#constructor">Constructor</a></li>
-          <li><a href="#api_content">Content manipulation</a></li>
-          <li><a href="#api_selection">Selection</a></li>
-          <li><a href="#api_configuration">Configuration</a></li>
-          <li><a href="#api_doc">Document management</a></li>
-          <li><a href="#api_history">History</a></li>
-          <li><a href="#api_marker">Text-marking</a></li>
-          <li><a href="#api_decoration">Widget, gutter, and decoration</a></li>
-          <li><a href="#api_sizing">Sizing, scrolling, and positioning</a></li>
-          <li><a href="#api_mode">Mode, state, and tokens</a></li>
-          <li><a href="#api_misc">Miscellaneous methods</a></li>
-          <li><a href="#api_static">Static properties</a></li>
-        </ul>
-      </li>
-      <li><a href="#addons">Addons</a></li>
-      <li><a href="#modeapi">Writing CodeMirror Modes</a></li>
-    </ul>
-
-</div></div>
-
-<div style="height: 2em">&nbsp;</div>
+</article>
 
 <script>setTimeout(function(){CodeMirror.colorize();}, 20);</script>
-
-  </body>
-</html>

@@ -1,41 +1,35 @@
 <!doctype html>
-<html>
-    <head>
-        <meta charset="utf-8">
-        <title>SQL Mode for CodeMirror</title>
-        <link rel="stylesheet" href="../../lib/codemirror.css" />
-        <script src="../../lib/codemirror.js"></script>
-        <script src="sql.js"></script>
-        <style>
+
+<title>CodeMirror: SQL Mode for CodeMirror</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../../doc/docs.css">
+
+<link rel="stylesheet" href="../../lib/codemirror.css" />
+<script src="../../lib/codemirror.js"></script>
+<script src="sql.js"></script>
+<style>
 .CodeMirror {
     border-top: 1px solid black;
     border-bottom: 1px solid black;
 }
         </style>
-        <link rel="stylesheet" href="../../doc/docs.css">
-        <script>
-var init = function() {
-    var mime = 'text/x-mariadb';
+<div id=nav>
+  <a href="http://codemirror.net"><img id=logo src="../../doc/logo.png"></a>
 
-    // get mime type
-    if (window.location.href.indexOf('mime=') > -1) {
-        mime = window.location.href.substr(window.location.href.indexOf('mime=') + 5);
-    }
+  <ul>
+    <li><a href="../../index.html">Home</a>
+    <li><a href="../../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="../index.html">Language modes</a>
+    <li><a class=active href="#">SQL Mode for CodeMirror</a>
+  </ul>
+</div>
 
-    window.editor = CodeMirror.fromTextArea(document.getElementById('code'), {
-        mode: mime,
-        indentWithTabs: true,
-        smartIndent: true,
-        lineNumbers: true,
-        matchBrackets : true,
-        autofocus: true
-    });
-};
-        </script>
-    </head>
-    <body onload="init();">
-        <h1>SQL Mode for CodeMirror</h1>
-        <form>
+<article>
+<h2>SQL Mode for CodeMirror</h2>
+<form>
             <textarea id="code" name="code">-- SQL Mode for CodeMirror
 SELECT SQL_NO_CACHE DISTINCT
 		@var1 AS `val1`, @'val2', @global.'sql_mode',
@@ -59,10 +53,22 @@ SELECT SQL_NO_CACHE DISTINCT
             <code><a href="?mime=text/x-cassandra">text/x-cassandra</a></code>,
             <code><a href="?mime=text/x-plsql">text/x-plsql</a></code>.
         </p>
-        <p>
-            <strong>Tests:</strong>
-            <a href="../../test/index.html#sql_*">normal</a>,
-            <a href="../../test/index.html#verbose,sql_*">verbose</a>.
-        </p>
-    </body>
-</html>
+<script>
+window.onload = function() {
+  var mime = 'text/x-mariadb';
+  // get mime type
+  if (window.location.href.indexOf('mime=') > -1) {
+    mime = window.location.href.substr(window.location.href.indexOf('mime=') + 5);
+  }
+  window.editor = CodeMirror.fromTextArea(document.getElementById('code'), {
+    mode: mime,
+    indentWithTabs: true,
+    smartIndent: true,
+    lineNumbers: true,
+    matchBrackets : true,
+    autofocus: true
+  });
+};
+</script>
+
+</article>

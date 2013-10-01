@@ -1,20 +1,31 @@
 <!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>CodeMirror: Autocomplete Demo</title>
-    <link rel="stylesheet" href="../lib/codemirror.css">
-    <script src="../lib/codemirror.js"></script>
-    <script src="../addon/hint/show-hint.js"></script>
-    <link rel="stylesheet" href="../addon/hint/show-hint.css">
-    <script src="../addon/hint/javascript-hint.js"></script>
-    <script src="../mode/javascript/javascript.js"></script>
-    <link rel="stylesheet" href="../doc/docs.css">
-  </head>
-  <body>
-    <h1>CodeMirror: Autocomplete demo</h1>
 
-    <form><textarea id="code" name="code">
+<title>CodeMirror: Autocomplete Demo</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../doc/docs.css">
+
+<link rel="stylesheet" href="../lib/codemirror.css">
+<link rel="stylesheet" href="../addon/hint/show-hint.css">
+<script src="../lib/codemirror.js"></script>
+<script src="../addon/hint/show-hint.js"></script>
+<script src="../addon/hint/javascript-hint.js"></script>
+<script src="../mode/javascript/javascript.js"></script>
+<div id=nav>
+  <a href="http://codemirror.net"><img id=logo src="../doc/logo.png"></a>
+
+  <ul>
+    <li><a href="../index.html">Home</a>
+    <li><a href="../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a class=active href="#">Autocomplete</a>
+  </ul>
+</div>
+
+<article>
+<h2>Autocomplete Demo</h2>
+<form><textarea id="code" name="code">
 function getCompletions(token, context) {
   var found = [], start = token.string;
   function maybeAdd(str) {
@@ -52,19 +63,18 @@ function getCompletions(token, context) {
 }
 </textarea></form>
 
-<p>Press <strong>ctrl-space</strong> to activate autocompletion. See
-the code (<a href="../addon/hint/show-hint.js">here</a>
-and <a href="../addon/hint/javascript-hint.js">here</a>) to figure out
-how it works.</p>
+<p>Press <strong>ctrl-space</strong> to activate autocompletion. Built
+on top of the <a href="../doc/manual.html#addon_show-hint"><code>show-hint</code></a>
+and <a href="../doc/manual.html#addon_javascript-hint"><code>javascript-hint</code></a>
+addons.</p>
 
     <script>
       CodeMirror.commands.autocomplete = function(cm) {
         CodeMirror.showHint(cm, CodeMirror.hint.javascript);
-      }
+      };
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true,
         extraKeys: {"Ctrl-Space": "autocomplete"}
       });
     </script>
-  </body>
-</html>
+  </article>

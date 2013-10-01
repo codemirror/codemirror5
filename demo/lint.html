@@ -1,25 +1,40 @@
 <!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>CodeMirror: Linter Demo</title>
-    <link rel="stylesheet" href="../lib/codemirror.css">
-    <script src="../lib/codemirror.js"></script>
-    <script src="../mode/javascript/javascript.js"></script>
-    <script src="http://ajax.aspnetcdn.com/ajax/jshint/r07/jshint.js"></script>
-    <script src="https://rawgithub.com/zaach/jsonlint/79b553fb65c192add9066da64043458981b3972b/lib/jsonlint.js"></script>
-    <link rel="stylesheet" href="../doc/docs.css">
-    <link rel="stylesheet" href="../addon/lint/lint.css">
-    <script src="../addon/lint/lint.js"></script>
-    <script src="../addon/lint/javascript-lint.js"></script>
-    <script src="../addon/lint/json-lint.js"></script>
 
-    <style type="text/css">
+<title>CodeMirror: Linter Demo</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../doc/docs.css">
+
+<link rel="stylesheet" href="../lib/codemirror.css">
+<link rel="stylesheet" href="../addon/lint/lint.css">
+<script src="../lib/codemirror.js"></script>
+<script src="../mode/javascript/javascript.js"></script>
+<script src="../mode/css/css.js"></script>
+<script src="http://ajax.aspnetcdn.com/ajax/jshint/r07/jshint.js"></script>
+<script src="https://rawgithub.com/zaach/jsonlint/79b553fb65c192add9066da64043458981b3972b/lib/jsonlint.js"></script>
+<script src="https://rawgithub.com/stubbornella/csslint/master/release/csslint.js"></script>
+<script src="../addon/lint/lint.js"></script>
+<script src="../addon/lint/javascript-lint.js"></script>
+<script src="../addon/lint/json-lint.js"></script>
+<script src="../addon/lint/css-lint.js"></script>
+<style type="text/css">
       .CodeMirror {border: 1px solid black;}
     </style>
-  </head>
-  <body>
-    <h1>CodeMirror: Linter Demo</h1>
+<div id=nav>
+  <a href="http://codemirror.net"><img id=logo src="../doc/logo.png"></a>
+
+  <ul>
+    <li><a href="../index.html">Home</a>
+    <li><a href="../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a class=active href="#">Linter</a>
+  </ul>
+</div>
+
+<article>
+<h2>Linter Demo</h2>
+
 
     <p><textarea id="code-js">var widgets = []
 function updateHints() {
@@ -70,6 +85,66 @@ function updateHints() {
 ]
 </textarea></p>
 
+    <p><textarea id="code-css">@charset "UTF-8";
+
+@import url("booya.css") print, screen;
+@import "whatup.css" screen;
+@import "wicked.css";
+
+/*Error*/
+@charset "UTF-8";
+
+
+@namespace "http://www.w3.org/1999/xhtml";
+@namespace svg "http://www.w3.org/2000/svg";
+
+/*Warning: empty ruleset */
+.foo {
+}
+
+h1 {
+    font-weight: bold;
+}
+
+/*Warning: qualified heading */
+.foo h1 {
+    font-weight: bold;
+}
+
+/*Warning: adjoining classes */
+.foo.bar {
+    zoom: 1;
+}
+
+li.inline {
+    width: 100%;  /*Warning: 100% can be problematic*/
+}
+
+li.last {
+  display: inline;
+  padding-left: 3px !important;
+  padding-right: 3px;
+  border-right: 0px;
+}
+
+@media print {
+    li.inline {
+      color: black;
+    }
+}
+
+@page {
+  margin: 10%;
+  counter-increment: page;
+
+  @top-center {
+    font-family: sans-serif;
+    font-weight: bold;
+    font-size: 2em;
+    content: counter(page);
+  }
+}
+</textarea></p>
 <script>
   var editor = CodeMirror.fromTextArea(document.getElementById("code-js"), {
     lineNumbers: true,
@@ -84,7 +159,13 @@ function updateHints() {
     gutters: ["CodeMirror-lint-markers"],
     lint: true
   });
+  
+  var editor_css = CodeMirror.fromTextArea(document.getElementById("code-css"), {
+    lineNumbers: true,
+    mode: "css",
+    gutters: ["CodeMirror-lint-markers"],
+    lint: true
+  });
 </script>
 
-  </body>
-</html>
+  </article>

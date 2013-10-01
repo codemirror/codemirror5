@@ -1,5 +1,7 @@
 // Depends on jsonlint.js from https://github.com/zaach/jsonlint
 
+// declare global: jsonlint
+
 CodeMirror.registerHelper("lint", "json", function(text) {
   var found = [];
   jsonlint.parseError = function(str, hash) {

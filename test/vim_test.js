@@ -1023,6 +1023,11 @@ testVim('Y', function(cm, vim, helpers) {
   is(!register.linewise);
   helpers.assertCursorAt(0, 3);
 }, { value: ' word1\nword2\n word3' });
+testVim('~', function(cm, vim, helpers) {
+  helpers.doKeys('3', '~');
+  eq('ABCdefg', cm.getValue());
+  helpers.assertCursorAt(0, 3);
+}, { value: 'abcdefg' });
 
 // Action tests
 testVim('ctrl-a', function(cm, vim, helpers) {

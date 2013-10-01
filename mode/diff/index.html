@@ -1,23 +1,36 @@
 <!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>CodeMirror: Diff mode</title>
-    <link rel="stylesheet" href="../../lib/codemirror.css">
-    <script src="../../lib/codemirror.js"></script>
-    <script src="diff.js"></script>
-    <style>
+
+<title>CodeMirror: Diff mode</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../../doc/docs.css">
+
+<link rel="stylesheet" href="../../lib/codemirror.css">
+<script src="../../lib/codemirror.js"></script>
+<script src="diff.js"></script>
+<style>
       .CodeMirror {border-top: 1px solid #ddd; border-bottom: 1px solid #ddd;}
       span.cm-meta {color: #a0b !important;}
       span.cm-error { background-color: black; opacity: 0.4;}
       span.cm-error.cm-string { background-color: red; }
       span.cm-error.cm-tag { background-color: #2b2; }
     </style>
-    <link rel="stylesheet" href="../../doc/docs.css">
-  </head>
-  <body>
-    <h1>CodeMirror: Diff mode</h1>
-    <form><textarea id="code" name="code">
+<div id=nav>
+  <a href="http://codemirror.net"><img id=logo src="../../doc/logo.png"></a>
+
+  <ul>
+    <li><a href="../../index.html">Home</a>
+    <li><a href="../../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="../index.html">Language modes</a>
+    <li><a class=active href="#">Diff</a>
+  </ul>
+</div>
+
+<article>
+<h2>Diff mode</h2>
+<form><textarea id="code" name="code">
 diff --git a/index.html b/index.html
 index c1d9156..7764744 100644
 --- a/index.html
@@ -101,5 +114,4 @@ index 04646a9..9a39cc7 100644
 
     <p><strong>MIME types defined:</strong> <code>text/x-diff</code>.</p>
 
-  </body>
-</html>
+  </article>

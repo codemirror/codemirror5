@@ -1,18 +1,31 @@
 <!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>CodeMirror: Velocity mode</title>
-    <link rel="stylesheet" href="../../lib/codemirror.css">
-    <script src="../../lib/codemirror.js"></script>
-    <script src="velocity.js"></script>
-    <link rel="stylesheet" href="../../theme/night.css">
-    <style>.CodeMirror {border: 1px solid black;}</style>
-    <link rel="stylesheet" href="../../doc/docs.css">
-  </head>
-  <body>
-    <h1>CodeMirror: Velocity mode</h1>
-    <form><textarea id="code" name="code">
+
+<title>CodeMirror: Velocity mode</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../../doc/docs.css">
+
+<link rel="stylesheet" href="../../lib/codemirror.css">
+<link rel="stylesheet" href="../../theme/night.css">
+<script src="../../lib/codemirror.js"></script>
+<script src="velocity.js"></script>
+<style>.CodeMirror {border: 1px solid black;}</style>
+<div id=nav>
+  <a href="http://codemirror.net"><img id=logo src="../../doc/logo.png"></a>
+
+  <ul>
+    <li><a href="../../index.html">Home</a>
+    <li><a href="../../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="../index.html">Language modes</a>
+    <li><a class=active href="#">Velocity</a>
+  </ul>
+</div>
+
+<article>
+<h2>Velocity mode</h2>
+<form><textarea id="code" name="code">
 ## Velocity Code Demo
 #*
    based on PL/SQL mode by Peter Raganitsch, adapted to Velocity by Steve O'Hara ( http://www.pivotal-solutions.co.uk )
@@ -62,13 +75,17 @@
 $someObject.getValues("this is a string split
         across lines")
 
+$someObject("This plus $something in the middle").method(7567).property
+
 #macro( tablerows $color $somelist )
     #foreach( $something in $somelist )
         <tr><td bgcolor=$color>$something</td></tr>
+        <tr><td bgcolor=$color>$bodyContent</td></tr>
     #end
 #end
 
 #tablerows("red" ["dadsdf","dsa"])
+#@tablerows("red" ["dadsdf","dsa"]) some body content #end
 
    Variable reference: #set( $monkey = $bill )
    String literal: #set( $monkey.Friend = 'monica' )
@@ -99,5 +116,4 @@ Addition: #set( $value = $foo + 1 )
 
     <p><strong>MIME types defined:</strong> <code>text/velocity</code>.</p>
 
-  </body>
-</html>
+  </article>
