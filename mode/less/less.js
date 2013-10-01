@@ -64,7 +64,7 @@ CodeMirror.defineMode("less", function(config) {
         if(type == "r")return ret("string", "string");
       } else {
         return ret(null, ch);
-      }     
+      }
     } else if (ch == ".") {      
       if(type == "(")return ret("string", "string"); // allow url(../image.png)
       stream.eatWhile(/[\a-zA-Z0-9\-_]/);
