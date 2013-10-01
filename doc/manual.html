@@ -1867,7 +1867,14 @@
       giving it the class <code>CodeMirror-foldgutter</code> or
       something else if you configure the addon to use a different
       class, and this addon will show markers next to folded and
-      foldable blocks, and handle clicks in this gutter. The option
+      foldable blocks, and handle clicks in this gutter. Note that
+      CSS styles should be applied to make the gutter, and the fold
+      markers within it, visible. A default set of CSS styles are
+      available in:
+      <a href="../addon/fold/foldgutter.css">
+        <code>addon/fold/foldgutter.css</code>
+      </a>.
+      The option
       can be either set to <code>true</code>, or an object containing
       the following optional option fields:
       <dl>
@@ -1875,7 +1882,7 @@
         <dd>The CSS class of the gutter. Defaults
         to <code>"CodeMirror-foldgutter"</code>. You will have to
         style this yourself to give it a width (and possibly a
-        background).</dd>
+        background). See the default gutter style rules above.</dd>
         <dt><code><strong>indicatorOpen</strong>: string | Element</code></dt>
         <dd>A CSS class or DOM element to be used as the marker for
         open, foldable blocks. Defaults
