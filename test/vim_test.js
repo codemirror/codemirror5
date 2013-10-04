@@ -2340,6 +2340,24 @@ testVim('ex_map_key2ex', function(cm, vim, helpers) {
   eq(written, true);
   eq(actualCm, cm);
 });
+testVim('state_disable', function(cm, vim, helpers){
+  cm.setCursor(0, 1);
+  CodeMirror.Vim.getVimGlobalState_().disable = true;
+  helpers.doKeys('g','j','g','j');
+  helpers.assertCursorAt(0, 1);
+  helpers.doKeys('y', 'y', 'p');
+  eq('line 1\n\nline 2', cm.getValue());
+  helpers.doKeys('d', 'd');
+  eq('line 1\n\nline 2', cm.getValue());
+  CodeMirror.Vim.getVimGlobalState_().disable = false;
+  helpers.doKeys('g','j','g','j');
+  helpers.assertCursorAt(2, 1);
+  helpers.doKeys('y', 'y', 'p');
+  eq('line 1\n\nline 2\nline 2', cm.getValue());
+  helpers.doKeys('d', 'd');
+  eq('line 1\n\nline 2', cm.getValue());
+  helpers.assertCursorAt(2, 0);
+},{value: 'line 1\n\nline 2'});
 // Testing registration of functions as ex-commands and mapping to <Key>-keys
 testVim('ex_api_test', function(cm, vim, helpers) {
   var res=false;
