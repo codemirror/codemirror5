@@ -1175,6 +1175,13 @@ testVim('p_line', function(cm, vim, helpers) {
   eq('___\n  a\nd\n  a\nd', cm.getValue());
   helpers.assertCursorAt(1, 2);
 }, { value: '___' });
+testVim('p_lastline', function(cm, vim, helpers) {
+  cm.setCursor(0, 1);
+  helpers.getRegisterController().pushText('"', 'yank', '  a\nd', true);
+  helpers.doKeys('2', 'p');
+  eq('___\n  a\nd\n  a\nd', cm.getValue());
+  helpers.assertCursorAt(1, 2);
+}, { value: '___' });
 testVim('P', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.getRegisterController().pushText('"', 'yank', 'abc\ndef', false);
