@@ -514,6 +514,7 @@
     var vimGlobalState;
     function resetVimGlobalState() {
       vimGlobalState = {
+        disable: false,
         // The current search query.
         searchQuery: null,
         // Whether we are searching backwards.
@@ -561,6 +562,9 @@
       // This is the outermost function called by CodeMirror, after keys have
       // been mapped to their Vim equivalents.
       handleKey: function(cm, key) {
+        if (vimGlobalState.disable) {
+          return;
+        }
         var command;
         var vim = maybeInitVimState(cm);
         var macroModeState = vimGlobalState.macroModeState;
