@@ -507,6 +507,11 @@
       factor). The <code>from</code> and <code>to</code> arguments
       give the new start and end of the viewport.</dd>
 
+      <dt id="event_swapDoc"><code><strong>"swapDoc"</strong> (instance: CodeMirror, oldDoc: Doc)</code></dt>
+      <dd>This is signalled when the editor's document is replaced
+      using the <a href="#swapDoc"><code>swapDoc</code></a>
+      method.</dd>
+
       <dt id="event_gutterClick"><code><strong>"gutterClick"</strong> (instance: CodeMirror, line: integer, gutter: string, clickEvent: Event)</code></dt>
       <dd>Fires when the editor gutter (the line-number area) is
       clicked. Will pass the editor instance as first argument, the
