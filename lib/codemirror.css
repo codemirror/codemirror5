@@ -2,6 +2,7 @@
 
 .CodeMirror {
   /* Set height, width, borders, and global font properties here */
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
   font-family: monospace;
   height: 300px;
 }
