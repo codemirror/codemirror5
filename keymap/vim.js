@@ -769,44 +769,74 @@
       matchCommand: function(key, keyMap, vim) {
         var inputState = vim.inputState;
         var keys = inputState.keyBuffer.concat(key);
+        var matchedCommands = [];
+        var selectedCharacter;
         for (var i = 0; i < keyMap.length; i++) {
           var command = keyMap[i];
           if (matchKeysPartial(keys, command.keys)) {
-            if (keys.length < command.keys.length) {
-              // Matches part of a multi-key command. Buffer and wait for next
-              // stroke.
-              inputState.keyBuffer.push(key);
-              return null;
-            }
             if (inputState.operator && command.type == 'action') {
               // Ignore matched action commands after an operator. Operators
               // only operate on motions. This check is really for text
               // objects since aW, a[ etcs conflicts with a.
               continue;
             }
-            // Matches whole comand. Return the command.
+            // Match commands that take <character> as an argument.
             if (command.keys[keys.length - 1] == 'character') {
-              inputState.selectedCharacter = keys[keys.length - 1];
-              if(inputState.selectedCharacter.length>1){
-                switch(inputState.selectedCharacter){
+              selectedCharacter = keys[keys.length - 1];
+              if(selectedCharacter.length>1){
+                switch(selectedCharacter){
                   case '<CR>':
-                    inputState.selectedCharacter='\n';
+                    selectedCharacter='\n';
                     break;
                   case '<Space>':
-                    inputState.selectedCharacter=' ';
+                    selectedCharacter=' ';
                     break;
                   default:
                     continue;
                 }
               }
             }
+            // Add the command to the list of matched commands. Choose the best
+            // command later.
+            matchedCommands.push(command);
+          }
+        }
+
+        // Returns the command if it is a full match, or null if not.
+        function getFullyMatchedCommandOrNull(command) {
+          if (keys.length < command.keys.length) {
+            // Matches part of a multi-key command. Buffer and wait for next
+            // stroke.
+            inputState.keyBuffer.push(key);
+            return null;
+          } else {
+            if (command.keys[keys.length - 1] == 'character') {
+              inputState.selectedCharacter = selectedCharacter;
+            }
+            // Clear the buffer since a full match was found.
             inputState.keyBuffer = [];
             return command;
           }
         }
-        // Clear the buffer since there are no partial matches.
-        inputState.keyBuffer = [];
-        return null;
+
+        if (!matchedCommands.length) {
+          // Clear the buffer since there were no matches.
+          inputState.keyBuffer = [];
+          return null;
+        } else if (matchedCommands.length == 1) {
+          return getFullyMatchedCommandOrNull(matchedCommands[0]);
+        } else {
+          // Find the best match in the list of matchedCommands.
+          var context = vim.visualMode ? 'visual' : 'normal';
+          var bestMatch = matchedCommands[0]; // Default to first in the list.
+          for (var i = 0; i < matchedCommands.length; i++) {
+            if (matchedCommands[i].context == context) {
+              bestMatch = matchedCommands[i];
+              break;
+            }
+          }
+          return getFullyMatchedCommandOrNull(bestMatch);
+        }
       },
       processCommand: function(cm, vim, command) {
         vim.inputState.repeatOverride = command.repeatOverride;
