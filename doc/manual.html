@@ -1399,14 +1399,16 @@
       clientHeight}</code> object that represents the current scroll
       position, the size of the scrollable area, and the size of the
       visible area (minus scrollbars).</dd>
-      <dt id="scrollIntoView"><code><strong>cm.scrollIntoView</strong>(pos: {line, ch}|{left, top, right, bottom}, ?margin: number)</code></dt>
-      <dd>Scrolls the given element into view. <code>pos</code> may be
-      either a <code>{line, ch}</code> position, referring to a given
-      character, <code>null</code>, to refer to the cursor, or
-      a <code>{left, top, right, bottom}</code> object, in
-      editor-local coordinates. The <code>margin</code> parameter is
-      optional. When given, it indicates the amount of pixels around
-      the given area that should be made visible as well.</dd>
+      <dt id="scrollIntoView"><code><strong>cm.scrollIntoView</strong>(what: {line, ch}|{left, top, right, bottom}|{from, to}|null, ?margin: number)</code></dt>
+      <dd>Scrolls the given position into view. <code>what</code> may
+      be <code>null</code> to scroll the cursor into view,
+      a <code>{line, ch}</code> position to scroll a character into
+      view, a <code>{left, top, right, bottom}</code> pixel range (in
+      editor-local coordinates), or a range <code>{from, to}</code>
+      containing either two character positions or two pixel squares.
+      The <code>margin</code> parameter is optional. When given, it
+      indicates the amount of vertical pixels around the given area
+      that should be made visible as well.</dd>
 
       <dt id="cursorCoords"><code><strong>cm.cursorCoords</strong>(where: boolean|{line, ch}, mode: string) → {left, top, bottom}</code></dt>
       <dd>Returns an <code>{left, top, bottom}</code> object
