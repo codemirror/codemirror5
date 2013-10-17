@@ -40,7 +40,7 @@ CodeMirror.defineMode('coffeescript', function(conf) {
     function tokenBase(stream, state) {
         // Handle scope changes
         if (stream.sol()) {
-            var scopeOffset = state.scopes[0].offset;
+            var scopeOffset = state.scope.offset;
             if (stream.eatSpace()) {
                 var lineOffset = stream.indentation();
                 if (lineOffset > scopeOffset) {
@@ -212,41 +212,42 @@ CodeMirror.defineMode('coffeescript', function(conf) {
         type = type || 'coffee';
         var indentUnit = 0;
         if (type === 'coffee') {
-            for (var i = 0; i < state.scopes.length; i++) {
-                if (state.scopes[i].type === 'coffee') {
-                    indentUnit = state.scopes[i].offset + conf.indentUnit;
+            for (var scope = state.scope; scope; scope = scope.prev) {
+                if (scope.type === 'coffee') {
+                    indentUnit = scope.offset + conf.indentUnit;
                     break;
                 }
             }
         } else {
             indentUnit = stream.column() + stream.current().length;
         }
-        state.scopes.unshift({
+        state.scope = {
             offset: indentUnit,
-            type: type
-        });
+            type: type,
+            prev: state.scope
+        };
     }
 
     function dedent(stream, state) {
-        if (state.scopes.length == 1) return;
-        if (state.scopes[0].type === 'coffee') {
+        if (!state.scope.prev) return;
+        if (state.scope.type === 'coffee') {
             var _indent = stream.indentation();
-            var _indent_index = -1;
-            for (var i = 0; i < state.scopes.length; ++i) {
-                if (_indent === state.scopes[i].offset) {
-                    _indent_index = i;
+            var matched = false;
+            for (var scope = state.scope; scope; scope = scope.prev) {
+                if (_indent === scope.offset) {
+                    matched = true;
                     break;
                 }
             }
-            if (_indent_index === -1) {
+            if (!matched) {
                 return true;
             }
-            while (state.scopes[0].offset !== _indent) {
-                state.scopes.shift();
+            while (state.scope.prev && state.scope.offset !== _indent) {
+                state.scope = state.scope.prev;
             }
             return false;
         } else {
-            state.scopes.shift();
+            state.scope = state.scope.prev;
             return false;
         }
     }
@@ -272,7 +273,7 @@ CodeMirror.defineMode('coffeescript', function(conf) {
         }
         if (((current === '->' || current === '=>') &&
                   !state.lambda &&
-                  state.scopes[0].type == 'coffee' &&
+                  state.scope.type == 'coffee' &&
                   stream.peek() === '')
                || style === 'indent') {
             indent(stream, state);
@@ -300,8 +301,8 @@ CodeMirror.defineMode('coffeescript', function(conf) {
                 return ERRORCLASS;
             }
         }
-        if (state.dedent > 0 && stream.eol() && state.scopes[0].type == 'coffee') {
-            if (state.scopes.length > 1) state.scopes.shift();
+        if (state.dedent > 0 && stream.eol() && state.scope.type == 'coffee') {
+            if (state.scope.prev) state.scope = state.scope.prev;
             state.dedent -= 1;
         }
 
@@ -312,7 +313,7 @@ CodeMirror.defineMode('coffeescript', function(conf) {
         startState: function(basecolumn) {
             return {
               tokenize: tokenBase,
-              scopes: [{offset:basecolumn || 0, type:'coffee'}],
+              scope: {offset:basecolumn || 0, type:'coffee', prev: null},
               lastToken: null,
               lambda: false,
               dedent: 0
@@ -336,7 +337,7 @@ CodeMirror.defineMode('coffeescript', function(conf) {
                 return 0;
             }
 
-            return state.scopes[0].offset;
+            return state.scope.offset;
         },
 
         lineComment: "#",
