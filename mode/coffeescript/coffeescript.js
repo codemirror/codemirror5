@@ -37,10 +37,11 @@ CodeMirror.defineMode("coffeescript", function(conf) {
   function tokenBase(stream, state) {
     // Handle scope changes
     if (stream.sol()) {
+      if (state.scope.align === null) state.scope.align = false;
       var scopeOffset = state.scope.offset;
       if (stream.eatSpace()) {
         var lineOffset = stream.indentation();
-        if (lineOffset > scopeOffset) {
+        if (lineOffset > scopeOffset && state.scope.type == "coffee") {
           return "indent";
         } else if (lineOffset < scopeOffset) {
           return "dedent";
@@ -202,21 +203,23 @@ CodeMirror.defineMode("coffeescript", function(conf) {
 
   function indent(stream, state, type) {
     type = type || "coffee";
-    var indentUnit = 0;
-    if (type === "coffee") {
-      for (var scope = state.scope; scope; scope = scope.prev) {
-        if (scope.type === "coffee") {
-          indentUnit = scope.offset + conf.indentUnit;
-          break;
-        }
+    var offset = 0, align = false, alignOffset = null;
+    for (var scope = state.scope; scope; scope = scope.prev) {
+      if (scope.type === "coffee") {
+        offset = scope.offset + conf.indentUnit;
+        break;
       }
-    } else {
-      indentUnit = stream.column() + stream.current().length;
+    }
+    if (type !== "coffee") {
+      align = null;
+      alignOffset = stream.column() + stream.current().length;
     }
     state.scope = {
-      offset: indentUnit,
+      offset: offset,
       type: type,
-      prev: state.scope
+      prev: state.scope,
+      align: align,
+      alignOffset: alignOffset
     };
   }
 
@@ -263,8 +266,6 @@ CodeMirror.defineMode("coffeescript", function(conf) {
     if (current === "return") {
       state.dedent += 1;
     }
-    if ((current === "->" || current === "=>"))
-      console.log(!state.lambda, state.scope.type == "coffee", stream.peek());
     if (((current === "->" || current === "=>") &&
          !state.lambda &&
          state.scope.type == "coffee" &&
@@ -307,7 +308,7 @@ CodeMirror.defineMode("coffeescript", function(conf) {
     startState: function(basecolumn) {
       return {
         tokenize: tokenBase,
-        scope: {offset:basecolumn || 0, type:"coffee", prev: null},
+        scope: {offset:basecolumn || 0, type:"coffee", prev: null, align: false},
         lastToken: null,
         lambda: false,
         dedent: 0
@@ -315,7 +316,11 @@ CodeMirror.defineMode("coffeescript", function(conf) {
     },
 
     token: function(stream, state) {
+      var fillAlign = state.scope.align === null && state.scope;
+      if (fillAlign && stream.sol()) fillAlign.align = false;
+
       var style = tokenLexer(stream, state);
+      if (fillAlign && style && style != "comment") fillAlign.align = true;
 
       state.lastToken = {style:style, content: stream.current()};
 
@@ -326,12 +331,13 @@ CodeMirror.defineMode("coffeescript", function(conf) {
       return style;
     },
 
-    indent: function(state) {
-      if (state.tokenize != tokenBase) {
-        return 0;
-      }
-
-      return state.scope.offset;
+    indent: function(state, text) {
+      if (state.tokenize != tokenBase) return 0;
+      var closes = state.scope.type === (text && text.charAt(0));
+      if (state.scope.align)
+        return state.scope.alignOffset - (closes ? 1 : 0);
+      else
+        return (closes ? state.scope.prev : state.scope).offset;
     },
 
     lineComment: "#",
