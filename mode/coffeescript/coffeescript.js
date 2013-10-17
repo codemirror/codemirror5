@@ -263,10 +263,12 @@ CodeMirror.defineMode("coffeescript", function(conf) {
     if (current === "return") {
       state.dedent += 1;
     }
+    if ((current === "->" || current === "=>"))
+      console.log(!state.lambda, state.scope.type == "coffee", stream.peek());
     if (((current === "->" || current === "=>") &&
          !state.lambda &&
          state.scope.type == "coffee" &&
-         stream.peek() === "")
+         !stream.peek())
         || style === "indent") {
       indent(stream, state);
     }
