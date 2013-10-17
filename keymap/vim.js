@@ -609,6 +609,9 @@
           }
           commandDispatcher.processCommand(cm, vim, command);
         }
+      },
+      handleEx: function(cm, input) {
+        exCommandDispatcher.processCommand(cm, input);
       }
     };
 
