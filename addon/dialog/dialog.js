@@ -26,11 +26,15 @@
     if (inp) {
       CodeMirror.on(inp, "keydown", function(e) {
         if (options && options.onKeyDown && options.onKeyDown(e, inp.value, close)) { return; }
-        if (e.keyCode == 13 || e.keyCode == 27) {
+        var keyName = CodeMirror.keyName(e);
+        if (keyName == 'Enter' || keyName == 'Esc') {
           CodeMirror.e_stop(e);
-          close();
-          me.focus();
-          if (e.keyCode == 13) callback(inp.value);
+          if (keyName == 'Esc' &&
+              (!options || !options.closeOn || options.closeOn.indexOf(keyName) != -1)) {
+            close();
+            me.focus();
+          }
+          if (keyName == 'Enter') callback(inp.value);
         }
       });
       if (options && options.onKeyUp) {
@@ -38,15 +42,27 @@
       }
       if (options && options.value) inp.value = options.value;
       inp.focus();
-      CodeMirror.on(inp, "blur", close);
-    } else if (button = dialog.getElementsByTagName("button")[0]) {
-      CodeMirror.on(button, "click", function() {
-        close();
-        me.focus();
-      });
-      button.focus();
-      CodeMirror.on(button, "blur", close);
+      if (!options || !options.closeOn || options.closeOn.indexOf('blur') != -1)
+        CodeMirror.on(inp, "blur", close);
     }
+    var buttons = document.getElementsByTagName("button");
+    for (var i = 0; i < buttons.length; i++) {
+      var b = buttons[i];
+      CodeMirror.on(b, "click", function(e) {
+        var query = inp ? inp.value : undefined;
+        if (options && options.onButtonClick && options.onButtonClick(e, close, query)) { return; }
+        if (!options || !options.closeOn || options.closeOn.indexOf('click') != -1) {
+          close();
+          me.focus();
+        }
+      });
+      if (i == 0 && !inp) {
+        b.focus();
+        if (!options || !options.closeOn || options.closeOn.indexOf('blur') != -1)
+          CodeMirror.on(button, "blur", close);
+      }
+    }
+
     return close;
   });
 

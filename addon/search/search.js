@@ -33,8 +33,8 @@
     // Heuristic: if the query string is all lowercase, do a case insensitive search.
     return cm.getSearchCursor(query, pos, typeof query == "string" && query == query.toLowerCase());
   }
-  function dialog(cm, text, shortText, f) {
-    if (cm.openDialog) cm.openDialog(text, f);
+  function dialog(cm, text, shortText, f, options) {
+    if (cm.openDialog) cm.openDialog(text, f, !options || !options.dialogOptions ? undefined : options.dialogOptions);
     else f(prompt(shortText, ""));
   }
   function confirmDialog(cm, text, shortText, fs) {
@@ -45,22 +45,56 @@
     var isRE = query.match(/^\/(.*)\/([a-z]*)$/);
     return isRE ? new RegExp(isRE[1], isRE[2].indexOf("i") == -1 ? "" : "i") : query;
   }
+  function sameQuery(q1, q2) {
+    return q1 == q2 || (q1 instanceof RegExp && q2 instanceof RegExp && q1.source == q2.source);
+  }
   var queryDialog =
     'Search: <input type="text" style="width: 10em"/> <span style="color: #888">(Use /re/ syntax for regexp search)</span>';
-  function doSearch(cm, rev) {
+  function doSearch(cm, rev, options) {
     var state = getSearchState(cm);
     if (state.query) return findNext(cm, rev);
-    dialog(cm, queryDialog, "Search for:", function(query) {
+
+    function doQuery(query) {
       cm.operation(function() {
-        if (!query || state.query) return;
-        state.query = parseQuery(query);
-        cm.removeOverlay(state.overlay);
-        state.overlay = searchOverlay(state.query);
-        cm.addOverlay(state.overlay);
-        state.posFrom = state.posTo = cm.getCursor();
+        if (!query) return;
+        var q = parseQuery(query);
+        if (!state.query || !sameQuery(state.query, q)) {
+          state.query = q;
+          cm.removeOverlay(state.overlay);
+          state.overlay = searchOverlay(state.query);
+          cm.addOverlay(state.overlay);
+          state.posFrom = state.posTo = cm.getCursor();
+        }
+
         findNext(cm, rev);
       });
-    });
+    }
+
+    if (!options || !options.dialogOptions || !options.dialogOptions.onButtonClick) {
+      options.dialogOptions.onButtonClick = function(e, close, query) {
+        if (!e || !e.target) { return; }
+        var doClose = true;
+        if (e.target.hasAttribute("name")) {
+          rev = false;
+          switch (e.target.getAttribute("name")) {
+          case "findPrev": rev = true;
+          case "findNext":
+            doClose = false;
+            if (query) doQuery(query);
+            break;
+          }
+        }
+
+        if (doClose) {
+          close();
+          cm.focus();
+        }
+
+        return true;
+      };
+    }
+
+    dialog(cm, (options && options.queryDialog) || queryDialog, "Search for:", doQuery, options);
   }
   function findNext(cm, rev) {cm.operation(function() {
     var state = getSearchState(cm);
@@ -124,9 +158,9 @@
     });
   }
 
-  CodeMirror.commands.find = function(cm) {clearSearch(cm); doSearch(cm);};
-  CodeMirror.commands.findNext = doSearch;
-  CodeMirror.commands.findPrev = function(cm) {doSearch(cm, true);};
+  CodeMirror.commands.find = function(cm, options) {clearSearch(cm); doSearch(cm, false, options);};
+  CodeMirror.commands.findNext = function(cm, options) {doSearch(cm, false, options);};
+  CodeMirror.commands.findPrev = function(cm, options) {doSearch(cm, true, options);};
   CodeMirror.commands.clearSearch = clearSearch;
   CodeMirror.commands.replace = replace;
   CodeMirror.commands.replaceAll = function(cm) {replace(cm, true);};
