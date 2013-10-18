@@ -1,7 +1,7 @@
 (function() {
   "use strict";
 
-  function doFold(cm, pos, options) {
+  function doFold(cm, pos, options, force) {
     var finder = options && (options.call ? options : options.rangeFinder);
     if (!finder) finder = cm.getHelper(pos, "fold");
     if (!finder) return;
@@ -13,7 +13,7 @@
       if (!range || range.to.line - range.from.line < minSize) return null;
       var marks = cm.findMarksAt(range.from);
       for (var i = 0; i < marks.length; ++i) {
-        if (marks[i].__isFold) {
+        if (marks[i].__isFold && force !== "fold") {
           if (!allowFolded) return null;
           range.cleared = true;
           marks[i].clear();
@@ -27,7 +27,7 @@
       pos = CodeMirror.Pos(pos.line - 1, 0);
       range = getRange(false);
     }
-    if (!range || range.cleared) return;
+    if (!range || range.cleared || force === "unfold") return;
 
     var myWidget = makeWidget(options);
     CodeMirror.on(myWidget, "mousedown", function() { myRange.clear(); });
@@ -59,7 +59,9 @@
   };
 
   // New-style interface
-  CodeMirror.defineExtension("foldCode", function(pos, options) { doFold(this, pos, options); });
+  CodeMirror.defineExtension("foldCode", function(pos, options, force) {
+    doFold(this, pos, options, force);
+  });
 
   CodeMirror.registerHelper("fold", "combine", function() {
     var funcs = Array.prototype.slice.call(arguments, 0);

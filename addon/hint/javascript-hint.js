@@ -33,21 +33,6 @@
       tprop = getToken(editor, Pos(cur.line, tprop.start));
       if (tprop.string != ".") return;
       tprop = getToken(editor, Pos(cur.line, tprop.start));
-      if (tprop.string == ')') {
-        var level = 1;
-        do {
-          tprop = getToken(editor, Pos(cur.line, tprop.start));
-          switch (tprop.string) {
-          case ')': level++; break;
-          case '(': level--; break;
-          default: break;
-          }
-        } while (level > 0);
-        tprop = getToken(editor, Pos(cur.line, tprop.start));
-        if (tprop.type.indexOf("variable") === 0)
-          tprop.type = "function";
-        else return; // no clue
-      }
       if (!context) var context = [];
       context.push(tprop);
     }
@@ -110,11 +95,11 @@
       for (var name in obj) maybeAdd(name);
     }
 
-    if (context) {
+    if (context && context.length) {
       // If this is a property, see if it belongs to some object we can
       // find in the current environment.
       var obj = context.pop(), base;
-      if (obj.type.indexOf("variable") === 0) {
+      if (obj.type && obj.type.indexOf("variable") === 0) {
         if (options && options.additionalContext)
           base = options.additionalContext[obj.string];
         base = base || window[obj.string];
@@ -132,8 +117,7 @@
       while (base != null && context.length)
         base = base[context.pop().string];
       if (base != null) gatherCompletions(base);
-    }
-    else {
+    } else {
       // If not, just look in the window object and any local scope
       // (reading into JS mode internals to get at the local and global variables)
       for (var v = token.state.localVars; v; v = v.next) maybeAdd(v.name);

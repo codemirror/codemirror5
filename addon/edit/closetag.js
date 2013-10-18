@@ -72,7 +72,7 @@
   function autoCloseSlash(cm) {
     var pos = cm.getCursor(), tok = cm.getTokenAt(pos);
     var inner = CodeMirror.innerMode(cm.getMode(), tok.state), state = inner.state;
-    if (tok.string.charAt(0) != "<" || inner.mode.name != "xml") return CodeMirror.Pass;
+    if (tok.string.charAt(0) != "<" || tok.start != pos.ch - 1 || inner.mode.name != "xml") return CodeMirror.Pass;
 
     var tagName = state.context && state.context.tagName;
     if (tagName) cm.replaceSelection("/" + tagName + ">", "end");

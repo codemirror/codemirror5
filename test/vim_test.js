@@ -1175,6 +1175,13 @@ testVim('p_line', function(cm, vim, helpers) {
   eq('___\n  a\nd\n  a\nd', cm.getValue());
   helpers.assertCursorAt(1, 2);
 }, { value: '___' });
+testVim('p_lastline', function(cm, vim, helpers) {
+  cm.setCursor(0, 1);
+  helpers.getRegisterController().pushText('"', 'yank', '  a\nd', true);
+  helpers.doKeys('2', 'p');
+  eq('___\n  a\nd\n  a\nd', cm.getValue());
+  helpers.assertCursorAt(1, 2);
+}, { value: '___' });
 testVim('P', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.getRegisterController().pushText('"', 'yank', 'abc\ndef', false);
@@ -1479,6 +1486,34 @@ testVim('visual_blank', function(cm, vim, helpers) {
   helpers.doKeys('v', 'k');
   eq(vim.visualMode, true);
 }, { value: '\n' });
+testVim('s_normal', function(cm, vim, helpers) {
+  cm.setCursor(0, 1);
+  helpers.doKeys('s');
+  helpers.doInsertModeKeys('Esc');
+  helpers.assertCursorAt(0, 0);
+  eq('ac', cm.getValue());
+}, { value: 'abc'});
+testVim('s_visual', function(cm, vim, helpers) {
+  cm.setCursor(0, 1);
+  helpers.doKeys('v', 's');
+  helpers.doInsertModeKeys('Esc');
+  helpers.assertCursorAt(0, 0);
+  eq('ac', cm.getValue());
+}, { value: 'abc'});
+testVim('S_normal', function(cm, vim, helpers) {
+  cm.setCursor(0, 1);
+  helpers.doKeys('j', 'S');
+  helpers.doInsertModeKeys('Esc');
+  helpers.assertCursorAt(1, 0);
+  eq('aa\n\ncc', cm.getValue());
+}, { value: 'aa\nbb\ncc'});
+testVim('S_visual', function(cm, vim, helpers) {
+  cm.setCursor(0, 1);
+  helpers.doKeys('v', 'j', 'S');
+  helpers.doInsertModeKeys('Esc');
+  helpers.assertCursorAt(0, 0);
+  eq('\ncc', cm.getValue());
+}, { value: 'aa\nbb\ncc'});
 testVim('/ and n/N', function(cm, vim, helpers) {
   cm.openDialog = helpers.fakeOpenDialog('match');
   helpers.doKeys('/');

@@ -359,6 +359,11 @@
       which causes the cursor to not reach all the way to the bottom
       of the line, looks better</dd>
 
+      <dt id="option_resetSelectionOnContextMenu"><code><strong>resetSelectionOnContextMenu</strong>: boolean</dt>
+      <dd>Controls whether, when the context menu is opened with a
+      click outside of the current selection, the cursor is moved to
+      the point of the click. Defaults to <code>true</code>.</dd>
+
       <dt id="option_workTime"><code><strong>workTime</strong>, <strong>workDelay</strong>: number</code></dt>
       <dd>Highlighting is done by a pseudo background-thread that will
       work for <code>workTime</code> milliseconds, and then use
@@ -506,6 +511,11 @@
       the editor changes (due to scrolling, editing, or any other
       factor). The <code>from</code> and <code>to</code> arguments
       give the new start and end of the viewport.</dd>
+
+      <dt id="event_swapDoc"><code><strong>"swapDoc"</strong> (instance: CodeMirror, oldDoc: Doc)</code></dt>
+      <dd>This is signalled when the editor's document is replaced
+      using the <a href="#swapDoc"><code>swapDoc</code></a>
+      method.</dd>
 
       <dt id="event_gutterClick"><code><strong>"gutterClick"</strong> (instance: CodeMirror, line: integer, gutter: string, clickEvent: Event)</code></dt>
       <dd>Fires when the editor gutter (the line-number area) is
@@ -1374,7 +1384,7 @@
       <dt id="setSize"><code><strong>cm.setSize</strong>(width: number|string, height: number|string)</code></dt>
       <dd>Programatically set the size of the editor (overriding the
       applicable <a href="#css-resize">CSS
-      rules</a>). <code>width</code> and <code>height</code> height
+      rules</a>). <code>width</code> and <code>height</code>
       can be either numbers (interpreted as pixels) or CSS units
       (<code>"100%"</code>, for example). You can
       pass <code>null</code> for either of them to indicate that that
@@ -1389,14 +1399,16 @@
       clientHeight}</code> object that represents the current scroll
       position, the size of the scrollable area, and the size of the
       visible area (minus scrollbars).</dd>
-      <dt id="scrollIntoView"><code><strong>cm.scrollIntoView</strong>(pos: {line, ch}|{left, top, right, bottom}, ?margin: number)</code></dt>
-      <dd>Scrolls the given element into view. <code>pos</code> may be
-      either a <code>{line, ch}</code> position, referring to a given
-      character, <code>null</code>, to refer to the cursor, or
-      a <code>{left, top, right, bottom}</code> object, in
-      editor-local coordinates. The <code>margin</code> parameter is
-      optional. When given, it indicates the amount of pixels around
-      the given area that should be made visible as well.</dd>
+      <dt id="scrollIntoView"><code><strong>cm.scrollIntoView</strong>(what: {line, ch}|{left, top, right, bottom}|{from, to}|null, ?margin: number)</code></dt>
+      <dd>Scrolls the given position into view. <code>what</code> may
+      be <code>null</code> to scroll the cursor into view,
+      a <code>{line, ch}</code> position to scroll a character into
+      view, a <code>{left, top, right, bottom}</code> pixel range (in
+      editor-local coordinates), or a range <code>{from, to}</code>
+      containing either two character positions or two pixel squares.
+      The <code>margin</code> parameter is optional. When given, it
+      indicates the amount of vertical pixels around the given area
+      that should be made visible as well.</dd>
 
       <dt id="cursorCoords"><code><strong>cm.cursorCoords</strong>(where: boolean|{line, ch}, mode: string) → {left, top, bottom}</code></dt>
       <dd>Returns an <code>{left, top, bottom}</code> object
@@ -1761,7 +1773,7 @@
       <dt id="addon_matchtags"><a href="../addon/edit/matchtags.js"><code>edit/matchtags.js</code></a></dt>
       <dd>Defines an option <code>matchTags</code> that, when enabled,
       will cause the tags around the cursor to be highlighted (using
-      the <code>CodeMirror-matchingbrackets</code> class). Also
+      the <code>CodeMirror-matchingtag</code> class). Also
       defines
       a <a href="#commands">command</a> <code>toMatchingTag</code>,
       which you can bind a key to in order to jump to the tag mathing
@@ -1867,7 +1879,14 @@
       giving it the class <code>CodeMirror-foldgutter</code> or
       something else if you configure the addon to use a different
       class, and this addon will show markers next to folded and
-      foldable blocks, and handle clicks in this gutter. The option
+      foldable blocks, and handle clicks in this gutter. Note that
+      CSS styles should be applied to make the gutter, and the fold
+      markers within it, visible. A default set of CSS styles are
+      available in:
+      <a href="../addon/fold/foldgutter.css">
+        <code>addon/fold/foldgutter.css</code>
+      </a>.
+      The option
       can be either set to <code>true</code>, or an object containing
       the following optional option fields:
       <dl>
@@ -1875,7 +1894,7 @@
         <dd>The CSS class of the gutter. Defaults
         to <code>"CodeMirror-foldgutter"</code>. You will have to
         style this yourself to give it a width (and possibly a
-        background).</dd>
+        background). See the default gutter style rules above.</dd>
         <dt><code><strong>indicatorOpen</strong>: string | Element</code></dt>
         <dd>A CSS class or DOM element to be used as the marker for
         open, foldable blocks. Defaults
