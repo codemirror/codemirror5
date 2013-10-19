@@ -63,7 +63,11 @@ CodeMirror.defineMode("gfm", function(config) {
       }
       if (stream.sol() || state.ateSpace) {
         state.ateSpace = false;
-        if(stream.match(/^(?:[a-zA-Z0-9\-_]+\/)?(?:[a-zA-Z0-9\-_]+@)?(?:[a-f0-9]{7,40}\b)/)) {
+        if (stream.match(/^(?:~~([^ ~]|[^ ~].*[^ ~])~~)/)) {
+          // ~~strikethrough text~~
+          // strikethrough text can't start or end with a space
+          return 'strikethrough';
+        } else if (stream.match(/^(?:[a-zA-Z0-9\-_]+\/)?(?:[a-zA-Z0-9\-_]+@)?(?:[a-f0-9]{7,40}\b)/)) {
           // User/Project@SHA
           // User@SHA
           // SHA
