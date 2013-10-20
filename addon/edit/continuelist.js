@@ -6,7 +6,7 @@
 
   CodeMirror.commands.newlineAndIndentContinueMarkdownList = function(cm) {
     var pos = cm.getCursor(),
-        inList = cm.getStateAfter(pos.line).list,
+        inList = cm.getStateAfter(pos.line).list !== false,
         match;
 
     if (!inList || !(match = cm.getLine(pos.line).match(listRE))) {
