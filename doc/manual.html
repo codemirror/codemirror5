@@ -359,7 +359,7 @@
       which causes the cursor to not reach all the way to the bottom
       of the line, looks better</dd>
 
-      <dt id="option_resetSelectionOnContextMenu"><code><strong>resetSelectionOnContextMenu</strong>: boolean</dt>
+      <dt id="option_resetSelectionOnContextMenu"><code><strong>resetSelectionOnContextMenu</strong>: boolean</code></dt>
       <dd>Controls whether, when the context menu is opened with a
       click outside of the current selection, the cursor is moved to
       the point of the click. Defaults to <code>true</code>.</dd>
@@ -1788,6 +1788,19 @@
       The <a href="../demo/trailingspace.html">demo</a> has a nice
       squiggly underline style for this class.</dd>
 
+      <dt id="addon_closetag"><a href="../addon/edit/closetag.js"><code>edit/closetag.js</code></a></dt>
+      <dd>Provides utility functions for adding automatic tag closing
+      to XML modes. See
+      the <a href="../demo/closetag.html">demo</a>.</dd>
+
+      <dt id="addon_continuelist"><a href="../addon/edit/continuelist.js"><code>edit/continuelist.js</code></a></dt>
+      <dd>Markdown specific. Defines
+      a <code>"newlineAndIndentContinueMarkdownList"</code> <a href="#commands">command</a>
+      command that can be bound to <code>enter</code> to automatically
+      insert the leading characters for continuing a list. See
+      the <a href="../mode/markdown/index.html">Markdown mode
+      demo</a>.</dd>
+
       <dt id="addon_comment"><a href="../addon/comment/comment.js"><code>comment/comment.js</code></a></dt>
       <dd>Addon for commenting and uncommenting code. Adds three
       methods to CodeMirror instances:
@@ -1919,6 +1932,22 @@
       (without including all of CodeMirror) and
       for <a href="../addon/runmode/runmode.node.js">running under
       node.js</a>.</dd>
+
+      <dt id="addon_colorize"><a href="../addon/runmode/colorize.js"><code>runmode/colorize.js</code></a></dt>
+      <dd>Provides a convenient way to syntax-highlight code snippets
+      in a webpage. Depends on
+      the <a href="#addon_runmode"><code>runmode</code></a> addon (or
+      its standalone variant). Provides
+      a <code>CodeMirror.colorize</code> function that can be called
+      with an array (or other array-ish collection) of DOM nodes that
+      represent the code snippets. By default, it'll get
+      all <code>pre</code> tags. Will read the <code>data-lang</code>
+      attribute of these nodes to figure out their language, and
+      syntax-color their content using the relevant CodeMirror mode
+      (you'll have to load the scripts for the relevant modes
+      yourself). A second argument may be provided to give a default
+      mode, used when no language attribute is found for a node. Used
+      in this manual to highlight example code.</dd>
 
       <dt id="addon_overlay"><a href="../addon/mode/overlay.js"><code>mode/overlay.js</code></a></dt>
       <dd>Mode combinator that can be used to extend a mode with an
@@ -2086,7 +2115,13 @@
       and <code>range</code>, which defines how many lines the addon
       should scan when completing (defaults to 500).</dd>
 
-      <dt id="addon_match-highlighter"><a href="../addon/search/match-highlighter.js"><code>match-highlighter.js</code></a></dt>
+      <dt id="addon_sql_hint"><a href="../addon/hint/sql-hint.js"><code>hint/sql-hint.js</code></a></dt>
+      <dd>A simple SQL hinter. Defines <code>CodeMirror.hint.sql</code>.</dd>
+
+      <dt id="addon_pig_hint"><a href="../addon/hint/pig-hint.js"><code>hint/pig-hint.js</code></a></dt>
+      <dd>A simple hinter for <a href="../mode/pig/index.html">Pig Latin</a>. Defines <code>CodeMirror.hint.pig</code>.</dd>
+
+      <dt id="addon_match-highlighter"><a href="../addon/search/match-highlighter.js"><code>search/match-highlighter.js</code></a></dt>
       <dd>Adds a <code>highlightSelectionMatches</code> option that
       can be enabled to highlight all instances of a currently
       selected word. Can be set either to true or to an object
@@ -2105,8 +2140,9 @@
       <dt id="addon_lint"><a href="../addon/lint/lint.js"><code>lint/lint.js</code></a></dt>
       <dd>Defines an interface component for showing linting warnings,
       with pluggable warning sources
-      (see <a href="../addon/lint/json-lint.js"><code>json-lint.js</code></a>
-      and <a href="../addon/lint/javascript-lint.js"><code>javascript-lint.js</code></a>
+      (see <a href="../addon/lint/json-lint.js"><code>json-lint.js</code></a>,
+      <a href="../addon/lint/javascript-lint.js"><code>javascript-lint.js</code></a>,
+      and <a href="../addon/lint/css-lint.js"><code>css-lint.js</code></a>
       in the same directory). Defines a <code>lint</code> option that
       can be set to a warning source (for
       example <code>CodeMirror.lint.javascript</code>), or
@@ -2127,11 +2163,6 @@
       gives the wrapper of the active line the class <code>CodeMirror-activeline</code>,
       and adds a background with the class <code>CodeMirror-activeline-background</code>.
       is enabled. See the <a href="../demo/activeline.html">demo</a>.</dd>
-
-      <dt id="addon_closetag"><a href="../addon/edit/closetag.js"><code>edit/closetag.js</code></a></dt>
-      <dd>Provides utility functions for adding automatic tag closing
-      to XML modes. See
-      the <a href="../demo/closetag.html">demo</a>.</dd>
 
       <dt id="addon_loadmode"><a href="../addon/mode/loadmode.js"><code>mode/loadmode.js</code></a></dt>
       <dd>Defines a <code>CodeMirror.requireMode(modename,
@@ -2213,6 +2244,18 @@
       editor in non-editable CodeMirror instances. The merge interface
       will highlight changes between the editable document and the
       original(s) (<a href="../demo/merge.html">demo</a>).</dd>
+
+      <dt id="addon_tern"><a href="../addon/tern/tern.js"><code>tern/tern.js</code></a></dt>
+      <dd>Provides integration with
+      the <a href="http://ternjs.net">Tern</a> JavaScript analysis
+      engine, for completion, definition finding, and minor
+      refactoring help. See the <a href="../demo/tern.html">demo</a>
+      for a very simple integration. For more involved scenarios, see
+      the comments at the top of
+      the <a href="../addon/tern/tern.js">addon</a> and the
+      implementation of the
+      (multi-file) <a href="http://ternjs.net/doc/demo.html">demonstration
+      on the Tern website</a>.</dd>
     </dl>
 </section>
 
