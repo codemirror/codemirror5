@@ -2269,15 +2269,15 @@
     advanced modes can also handle indentation for the language.</p>
 
     <p id="defineMode">The mode script should
-    call <code>CodeMirror.defineMode</code> to register itself with
-    CodeMirror. This function takes two arguments. The first should be
-    the name of the mode, for which you should use a lowercase string,
-    preferably one that is also the name of the files that define the
-    mode (i.e. <code>"xml"</code> is defined in <code>xml.js</code>). The
-    second argument should be a function that, given a CodeMirror
-    configuration object (the thing passed to
-    the <code>CodeMirror</code> function) and an optional mode
-    configuration object (as in
+    call <code><strong>CodeMirror.defineMode</strong></code> to
+    register itself with CodeMirror. This function takes two
+    arguments. The first should be the name of the mode, for which you
+    should use a lowercase string, preferably one that is also the
+    name of the files that define the mode (i.e. <code>"xml"</code> is
+    defined in <code>xml.js</code>). The second argument should be a
+    function that, given a CodeMirror configuration object (the thing
+    passed to the <code>CodeMirror</code> function) and an optional
+    mode configuration object (as in
     the <a href="#option_mode"><code>mode</code></a> option), returns
     a mode object.</p>
 
@@ -2297,19 +2297,32 @@
     reading a token, and which can be mutated by the tokenizer.</p>
 
     <p id="startState">Modes that use a state must define
-    a <code>startState</code> method on their mode object. This is a
-    function of no arguments that produces a state object to be used
-    at the start of a document.</p>
+    a <code><strong>startState</strong></code> method on their mode
+    object. This is a function of no arguments that produces a state
+    object to be used at the start of a document.</p>
 
     <p id="token">The most important part of a mode object is
-    its <code>token(stream, state)</code> method. All modes must
-    define this method. It should read one token from the stream it is
-    given as an argument, optionally update its state, and return a
-    style string, or <code>null</code> for tokens that do not have to
-    be styled. For your styles, you are encouraged to use the
-    'standard' names defined in the themes (without
+    its <code><strong>token</strong>(stream, state)</code> method. All
+    modes must define this method. It should read one token from the
+    stream it is given as an argument, optionally update its state,
+    and return a style string, or <code>null</code> for tokens that do
+    not have to be styled. For your styles, you are encouraged to use
+    the 'standard' names defined in the themes (without
     the <code>cm-</code> prefix). If that fails, it is also possible
     to come up with your own and write your own CSS theme file.<p>
+
+    <p id="token_style_line">A typical token string would
+    be <code>"variable"</code> or <code>"comment"</code>. Multiple
+    styles can be returned (separated by spaces), for
+    example <code>"string error"</code> for a thing that looks like a
+    string but is invalid somehow (say, missing its closing quote).
+    When a style is prefixed by <code>"line-"</code>
+    or <code>"line-background-"</code>, the style will be applied to
+    the whole line, analogous to what
+    the <a href="#addLineClass"><code>addLineClass</code></a> method
+    does—styling the <code>"text"</code> in the simple case, and
+    the <code>"background"</code> element
+    when <code>"line-background-"</code> is prefixed.</p>
 
     <p id="StringStream">The stream object that's passed
     to <code>token</code> encapsulates a line of code (tokens may
@@ -2317,10 +2330,10 @@
     the following API:</p>
 
     <dl>
-      <dt><code><strong></strong><strong>eol</strong>() → boolean</code></dt>
+      <dt><code><strong>eol</strong>() → boolean</code></dt>
       <dd>Returns true only if the stream is at the end of the
       line.</dd>
-      <dt><code><strong></strong><strong>sol</strong>() → boolean</code></dt>
+      <dt><code><strong>sol</strong>() → boolean</code></dt>
       <dd>Returns true only if the stream is at the start of the
       line.</dd>
 
@@ -2383,9 +2396,10 @@
 
     <p id="blankLine">By default, blank lines are simply skipped when
     tokenizing a document. For languages that have significant blank
-    lines, you can define a <code>blankLine(state)</code> method on
-    your mode that will get called whenever a blank line is passed
-    over, so that it can update the parser state.</p>
+    lines, you can define
+    a <code><strong>blankLine</strong>(state)</code> method on your
+    mode that will get called whenever a blank line is passed over, so
+    that it can update the parser state.</p>
 
     <p id="copyState">Because state object are mutated, and CodeMirror
     needs to keep valid versions of a state around so that it can
@@ -2395,17 +2409,17 @@
     which hold arrays get a copy of these arrays (since arrays tend to
     be used as mutable stacks). When this is not correct, for example
     because a mode mutates non-array properties of its state object, a
-    mode object should define a <code>copyState</code> method,
-    which is given a state and should return a safe copy of that
-    state.</p>
+    mode object should define
+    a <code><strong>copyState</strong></code> method, which is given a
+    state and should return a safe copy of that state.</p>
 
     <p id="indent">If you want your mode to provide smart indentation
     (through the <a href="#indentLine"><code>indentLine</code></a>
     method and the <code>indentAuto</code>
     and <code>newlineAndIndent</code> commands, to which keys can be
     <a href="#option_extraKeys">bound</a>), you must define
-    an <code>indent(state, textAfter)</code> method on your mode
-    object.</p>
+    an <code><strong>indent</strong>(state, textAfter)</code> method
+    on your mode object.</p>
 
     <p>The indentation method should inspect the given state object,
     and optionally the <code>textAfter</code> string, which contains
@@ -2418,8 +2432,9 @@
 
     <p id="mode_comment">To work well with
     the <a href="#addon_comment">commenting addon</a>, a mode may
-    define <code>lineComment</code> (string that starts a line
-    comment), <code>blockCommentStart</code>, <code>blockCommentEnd</code>
+    define <code><strong>lineComment</strong></code> (string that
+    starts a line
+    comment), <code><strong>blockCommentStart</strong></code>, <code><strong>blockCommentEnd</strong></code>
     (strings that start and end block comments),
     and <code>blockCommentLead</code> (a string to put at the start of
     continued lines in a block comment). All of these are
@@ -2455,13 +2470,14 @@
     state.</p>
 
     <p id="innerMode">In a nested mode, it is recommended to add an
-    extra method, <code>innerMode</code> which, given a state object,
-    returns a <code>{state, mode}</code> object with the inner mode
-    and its state for the current position. These are used by utility
-    scripts such as the <a href="#addon_closetag">tag closer</a> to
-    get context information. Use the <code>CodeMirror.innerMode</code>
-    helper function to, starting from a mode and a state, recursively
-    walk down to the innermost mode and state.</p>
+    extra method, <code><strong>innerMode</strong></code> which, given
+    a state object, returns a <code>{state, mode}</code> object with
+    the inner mode and its state for the current position. These are
+    used by utility scripts such as the <a href="#addon_closetag">tag
+    closer</a> to get context information. Use
+    the <code>CodeMirror.innerMode</code> helper function to, starting
+    from a mode and a state, recursively walk down to the innermost
+    mode and state.</p>
 
     <p>To make indentation work properly in a nested parser, it is
     advisable to give the <code>startState</code> method of modes that
@@ -2470,25 +2486,25 @@
     parser do this, for example, to allow JavaScript and CSS code
     inside the mixed-mode HTML mode to be properly indented.</p>
 
-    <p>It is possible, and encouraged, to associate your mode, or a
-    certain configuration of your mode, with
+    <p id="defineMIME">It is possible, and encouraged, to associate
+    your mode, or a certain configuration of your mode, with
     a <a href="http://en.wikipedia.org/wiki/MIME">MIME</a> type. For
     example, the JavaScript mode associates itself
     with <code>text/javascript</code>, and its JSON variant
     with <code>application/json</code>. To do this,
-    call <code>CodeMirror.defineMIME(mime, modeSpec)</code>,
-    where <code>modeSpec</code> can be a string or object specifying a
-    mode, as in the <a href="#option_mode"><code>mode</code></a>
-    option.</p>
+    call <code><strong>CodeMirror.defineMIME</strong>(mime,
+    modeSpec)</code>, where <code>modeSpec</code> can be a string or
+    object specifying a mode, as in
+    the <a href="#option_mode"><code>mode</code></a> option.</p>
 
     <p id="extendMode">Sometimes, it is useful to add or override mode
     object properties from external code.
-    The <code>CodeMirror.extendMode</code> can be used to add
-    properties to mode objects produced for a specific mode. Its first
-    argument is the name of the mode, its second an object that
-    specifies the properties that should be added. This is mostly
-    useful to add utilities that can later be looked
-    up through <a href="#getMode"><code>getMode</code></a>.</p>
+    The <code><strong>CodeMirror.extendMode</strong></code> function
+    can be used to add properties to mode objects produced for a
+    specific mode. Its first argument is the name of the mode, its
+    second an object that specifies the properties that should be
+    added. This is mostly useful to add utilities that can later be
+    looked up through <a href="#getMode"><code>getMode</code></a>.</p>
 </section>
 
 </article>
