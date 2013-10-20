@@ -30,6 +30,10 @@ a, a:visited, a:link, .quasilink {
   text-decoration: none;
 }
 
+em {
+  padding-right: 2px;
+}
+
 .quasilink {
   cursor: pointer;
 }
