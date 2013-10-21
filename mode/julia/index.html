@@ -1,0 +1,91 @@
+<!doctype html>
+
+<title>CodeMirror: Julia mode</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../../doc/docs.css">
+
+<link rel="stylesheet" href="../../lib/codemirror.css">
+<script src="../../lib/codemirror.js"></script>
+<script src="julia.js"></script>
+<style type="text/css">.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
+<div id=nav>
+  <a href="http://codemirror.net"><img id=logo src="../../doc/logo.png"></a>
+
+  <ul>
+    <li><a href="../../index.html">Home</a>
+    <li><a href="../../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="../index.html">Language modes</a>
+    <li><a class=active href="#">Julia</a>
+  </ul>
+</div>
+
+<article>
+<h2>Julia mode</h2>
+
+    <div><textarea id="code" name="code">
+#numbers
+1234
+1234im
+.234
+.234im
+2.23im
+23e2
+0x234
+
+#strings
+'a'
+"asdf"
+r"regex"
+b"bytestring"
+
+#identifiers
+a
+as123
+function_name!
+
+#operators
+-
++
+=
+==
+>
+<
+>=
+<=
+&
+~
+.>=
+.<=
+.==
++=
+-=
+...
+
+#keywords and operators
+if else elseif while for
+in begin let end do
+try catch finally return break continue
+global local const 
+export import importall using
+function macro module baremodule 
+type immutable quote
+all true false any enumerate
+
+
+    </textarea></div>
+    <script>
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        mode: {name: "julia",
+               },
+        lineNumbers: true,
+        indentUnit: 4,
+        tabMode: "shift",
+        matchBrackets: true
+      });
+    </script>
+
+    <p><strong>MIME types defined:</strong> <code>text/x-julia</code>.</p>
+</article>
