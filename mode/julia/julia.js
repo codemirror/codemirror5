@@ -7,11 +7,8 @@ CodeMirror.defineMode("julia", function(conf, parserConf) {
 
   var singleOperators = parserConf.singleOperators || /^[?:=+&\-*%|$^~<>!/\\]/;
   var singleDelimiters = parserConf.singleDelimiters || /^[;,()[\]{}]/;
-
   var doubleOperators = parserConf.doubleOperators || /^(==)|(!=)|(<=)|(<:)|(>=)|(\.>)|(\.<)|(<<)|(>>)|(->)|[//]{2}/;
-
   var doubleDelimiters = parserConf.doubleDelimiters || /^(\+=)|(-=)|(\*=)|(%=)|(\\=)|(\^=)|(&=)|(\|=)|(&=)|([//]=)/;
- 
   var tripleDelimiters = parserConf.tripleDelimiters || /^(>>=)|(<<=)|(\.>=)|(\.<=)|(\.==)|(>>>)/;
   var identifiers = parserConf.identifiers|| /^[_A-Za-z][_A-Za-z0-9]*!*/
   var blockOpeners = ["begin", "function", "type", "immutable", "let", "macro", "for", "while", "quote", "if", "else", "elseif"];
