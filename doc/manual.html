@@ -1615,13 +1615,14 @@
 
       <dt id="fromTextArea"><code><strong>CodeMirror.fromTextArea</strong>(textArea: TextAreaElement, ?config: object)</code></dt>
       <dd>
-        The method provides another way to initialize an editor. It takes a
-        textarea DOM node as first argument and an optional configuration
-        object as second. It will replace the textarea with a CodeMirror
-        instance, and wire up the form of that textarea (if any) to make
-        sure the editor contents are put into the textarea when the form
-        is submitted. A CodeMirror instance created this way has three
-        additional methods:
+        The method provides another way to initialize an editor. It
+        takes a textarea DOM node as first argument and an optional
+        configuration object as second. It will replace the textarea
+        with a CodeMirror instance, and wire up the form of that
+        textarea (if any) to make sure the editor contents are put
+        into the textarea when the form is submitted. The text in the
+        textarea will provide the content for the editor. A CodeMirror
+        instance created this way has three additional methods:
         <dl>
           <dt id="save"><code><strong>cm.save</strong>()</code></dt>
           <dd>Copy the content of the editor into the textarea.</dd>
