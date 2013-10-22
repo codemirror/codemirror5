@@ -21,7 +21,7 @@ CodeMirror.defineMode("julia", function(conf, parserConf) {
   var builtinList = ['all', 'true', 'false', 'any', 'enumerate', 'open', 'close', 'linspace', 'nothing', 'NaN', 'Inf', 'print', 'println', 'Int8', 'Uint8', 'Int16', 'Uint16', 'Int32', 'Uint32', 'Int64', 'Uint64', 'Int128', 'Uint128', 'Bool', 'Char', 'Float16', 'Float32', 'Float64', 'Array', 'Vector', 'Matrix', 'String', 'error', 'warn', 'info'];
 
   //var stringPrefixes = new RegExp("^[br]?('|\")")
-  var stringPrefixes = /^[br]?('|")/
+  var stringPrefixes = /^[br]?('|")/;
   var keywords = wordRegexp(keywordList);
   var builtins = wordRegexp(builtinList);
   var openers = wordRegexp(blockOpeners);
@@ -88,7 +88,7 @@ CodeMirror.defineMode("julia", function(conf, parserConf) {
     }
 
     if(match=stream.match(openers, false)) {
-      state.scopes.push(match)
+      state.scopes.push(match);
     }
 
     if(!in_array(state) && stream.match(closers, false)) {
