@@ -5,7 +5,7 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
     return new RegExp("^((" + words.join(")|(") + "))\\b");
   }
 
-  var operators = parserConf.operators || /^(?:[|&^\\%*+\-<>!=\/]=?|\?|~|:|$|<:|\.[<>]|<<=?|>>>?=?|\.[<>]=|->?|\/\/|in)/;
+  var operators = parserConf.operators || /^(?:[|&^\\%*+\-<>!=\/]=?|\?|~|:|$|<:|\.[<>]|<<=?|>>>?=?|\.[<>=]=|->?|\/\/|in|\.{3})/;
   var delimiters = parserConf.delimiters || /^[;,()[\]{}]/;
   var identifiers = parserConf.identifiers|| /^[_A-Za-z][_A-Za-z0-9]*!*/;
   var blockOpeners = ["begin", "function", "type", "immutable", "let", "macro", "for", "while", "quote", "if", "else", "elseif"];
@@ -41,7 +41,9 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
   // tokenizers
   function tokenBase(stream, state) {
     // Handle scope changes
-    if(state.leaving_expr) {
+    leaving_expr = state.leaving_expr
+    state.leaving_expr = false
+    if(leaving_expr) {
       if(stream.match(/^'+/)) {
         return 'operator';
       }
