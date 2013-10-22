@@ -8,13 +8,13 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
   var operators = parserConf.operators || /^(?:[|&^\\%*+\-<>!=\/]=?|\?|~|:|$|<:|\.[<>]|<<=?|>>>?=?|\.[<>=]=|->?|\/\/|in|\.{3})/;
   var delimiters = parserConf.delimiters || /^[;,()[\]{}]/;
   var identifiers = parserConf.identifiers|| /^[_A-Za-z][_A-Za-z0-9]*!*/;
-  var blockOpeners = ["begin", "function", "type", "immutable", "let", "macro", "for", "while", "quote", "if", "else", "elseif"];
-  var blockClosers = ["end", "else", "elseif"];
-  var keywordList = ['if', 'else', 'elseif', 'while', 'for', 'in', 'begin', 'let', 'end', 'do', 'try', 'catch', 'finally', 'return', 'break', 'continue', 'global', 'local', 'const', 'export', 'import', 'importall', 'using', 'function', 'macro', 'module', 'baremodule', 'type', 'immutable', 'quote'];
+  var blockOpeners = ["begin", "function", "type", "immutable", "let", "macro", "for", "while", "quote", "if", "else", "elseif", "try", "finally", "catch"];
+  var blockClosers = ["end", "else", "elseif", "catch", "finally"];
+  var keywordList = ['if', 'else', 'elseif', 'while', 'for', 'in', 'begin', 'let', 'end', 'do', 'try', 'catch', 'finally', 'return', 'break', 'continue', 'global', 'local', 'const', 'export', 'import', 'importall', 'using', 'function', 'macro', 'module', 'baremodule', 'type', 'immutable', 'quote', 'typealias'];
   var builtinList = ['all', 'true', 'false', 'any', 'enumerate', 'open', 'close', 'linspace', 'nothing', 'NaN', 'Inf', 'print', 'println', 'Int8', 'Uint8', 'Int16', 'Uint16', 'Int32', 'Uint32', 'Int64', 'Uint64', 'Int128', 'Uint128', 'Bool', 'Char', 'Float16', 'Float32', 'Float64', 'Array', 'Vector', 'Matrix', 'String', 'error', 'warn', 'info'];
 
   //var stringPrefixes = new RegExp("^[br]?('|\")")
-  var stringPrefixes = /^[br]?('|")/;
+  var stringPrefixes = /^[br]?('|"{3}|")/;
   var keywords = wordRegexp(keywordList);
   var builtins = wordRegexp(builtinList);
   var openers = wordRegexp(blockOpeners);
@@ -245,7 +245,7 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
 
     indent: function(state, textAfter) {
       var delta = 0;
-      if(textAfter=="end" || textAfter=="]" || textAfter=="}" || textAfter=="else" || textAfter=="elseif") {
+      if(textAfter=="end" || textAfter=="]" || textAfter=="}" || textAfter=="else" || textAfter=="elseif" || textAfter=="catch" || textAfter=="finally") {
         delta = -1;
       }
       return (state.scopes.length + delta) * 2;
@@ -253,7 +253,7 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
 
     lineComment: "#",
     fold: "indent",
-    electricChars: "endlsif]}"
+    electricChars: "edlsifyh]}"
   };
   return external;
 });
