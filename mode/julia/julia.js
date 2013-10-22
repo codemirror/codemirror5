@@ -105,7 +105,7 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
       var imMatcher = RegExp(/^im\b/);
       var floatLiteral = false;
       // Floats
-      if (stream.match(/^\d*\.\d+(e[\+\-]?\d+)?/i)) { floatLiteral = true; }
+      if (stream.match(/^\d*\.\d+([ef][\+\-]?\d+)?/i)) { floatLiteral = true; }
       if (stream.match(/^\d+\.\d*/)) { floatLiteral = true; }
       if (stream.match(/^\.\d+/)) { floatLiteral = true; }
       if (floatLiteral) {
