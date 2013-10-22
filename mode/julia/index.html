@@ -42,6 +42,10 @@
 r"regex"
 b"bytestring"
 
+"""
+multiline string
+"""
+
 #identifiers
 a
 as123
@@ -55,6 +59,15 @@ function_name!
 x=[1, 2, 3]
 x[end-1]
 x={"julia"=>"language of technical computing"}
+
+#exception handling
+try
+  f()
+catch
+  @printf "Error"
+finally
+  g()
+end
 
 #types
 immutable Color{T<:Number}
