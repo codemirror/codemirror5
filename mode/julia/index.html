@@ -32,6 +32,7 @@
 .234
 .234im
 2.23im
+2.3f3
 23e2
 0x234
 
@@ -40,6 +41,10 @@
 "asdf"
 r"regex"
 b"bytestring"
+
+"""
+multiline string
+"""
 
 #identifiers
 a
@@ -55,6 +60,15 @@ x=[1, 2, 3]
 x[end-1]
 x={"julia"=>"language of technical computing"}
 
+#exception handling
+try
+  f()
+catch
+  @printf "Error"
+finally
+  g()
+end
+
 #types
 immutable Color{T<:Number}
   r::T
@@ -68,6 +82,9 @@ function change!(x::Vector{Float64})
     x[i] *= 2
   end
 end
+
+#function invocation
+f('b', (2, 3)...)
 
 #operators
 -
