@@ -1,19 +1,15 @@
-CodeMirror.defineMode("julia", function(conf, parserConf) {
+CodeMirror.defineMode("julia", function(_conf, parserConf) {
   var ERRORCLASS = 'error';
 
   function wordRegexp(words) {
     return new RegExp("^((" + words.join(")|(") + "))\\b");
   }
 
-  var singleOperators = parserConf.singleOperators || /^[?:=+&\-*%|$^~<>!/\\]/;
-  var singleDelimiters = parserConf.singleDelimiters || /^[;,()[\]{}]/;
-  var doubleOperators = parserConf.doubleOperators || /^(==)|(!=)|(<=)|(<:)|(>=)|(\.>)|(\.<)|(<<)|(>>)|(->)|[//]{2}/;
-  var doubleDelimiters = parserConf.doubleDelimiters || /^(\+=)|(-=)|(\*=)|(%=)|(\\=)|(\^=)|(&=)|(\|=)|(&=)|([//]=)/;
-  var tripleDelimiters = parserConf.tripleDelimiters || /^(>>=)|(<<=)|(\.>=)|(\.<=)|(\.==)|(>>>)/;
-  var identifiers = parserConf.identifiers|| /^[_A-Za-z][_A-Za-z0-9]*!*/
+  var operators = parserConf.operators || /^(?:[|&^\\%*+\-<>!=\/]=?|\?|~|:|$|<:|\.[<>]|<<=?|>>>?=?|\.[<>]=|->?|\/\/|in)/;
+  var delimiters = parserConf.delimiters || /^[;,()[\]{}]/;
+  var identifiers = parserConf.identifiers|| /^[_A-Za-z][_A-Za-z0-9]*!*/;
   var blockOpeners = ["begin", "function", "type", "immutable", "let", "macro", "for", "while", "quote", "if", "else", "elseif"];
   var blockClosers = ["end", "else", "elseif"];
-  var wordOperators = wordRegexp(['in']);
   var keywordList = ['if', 'else', 'elseif', 'while', 'for', 'in', 'begin', 'let', 'end', 'do', 'try', 'catch', 'finally', 'return', 'break', 'continue', 'global', 'local', 'const', 'export', 'import', 'importall', 'using', 'function', 'macro', 'module', 'baremodule', 'type', 'immutable', 'quote'];
   var builtinList = ['all', 'true', 'false', 'any', 'enumerate', 'open', 'close', 'linspace', 'nothing', 'NaN', 'Inf', 'print', 'println', 'Int8', 'Uint8', 'Int16', 'Uint16', 'Int32', 'Uint32', 'Int64', 'Uint64', 'Int128', 'Uint128', 'Bool', 'Char', 'Float16', 'Float32', 'Float64', 'Array', 'Vector', 'Matrix', 'String', 'error', 'warn', 'info'];
 
@@ -26,7 +22,7 @@ CodeMirror.defineMode("julia", function(conf, parserConf) {
   var indentInfo = null;
 
   function in_array(state) {
-    ch = cur_scope(state);
+    var ch = cur_scope(state);
     if(ch=="[" || ch=="{") {
       return true;
     }
@@ -84,6 +80,7 @@ CodeMirror.defineMode("julia", function(conf, parserConf) {
       state.leaving_expr=true;
     }
 
+    var match;
     if(match=stream.match(openers, false)) {
       state.scopes.push(match);
     }
@@ -145,15 +142,10 @@ CodeMirror.defineMode("julia", function(conf, parserConf) {
     }
 
     // Handle operators and Delimiters
-    if (stream.match(tripleDelimiters) || stream.match(doubleDelimiters)) {
-      return null;
-    }
-    if (stream.match(doubleOperators)
-      || stream.match(singleOperators)
-      || stream.match(wordOperators)) {
+    if (stream.match(operators)) {
       return 'operator';
     }
-    if (stream.match(singleDelimiters)) {
+    if (stream.match(delimiters)) {
       return null;
     }
 
@@ -235,7 +227,7 @@ CodeMirror.defineMode("julia", function(conf, parserConf) {
   }
 
   var external = {
-    startState: function(basecolumn) {
+    startState: function() {
       return {
         tokenize: tokenBase,
         scopes: [],
