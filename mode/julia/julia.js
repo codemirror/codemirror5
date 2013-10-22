@@ -5,22 +5,25 @@ CodeMirror.defineMode("julia", function(conf, parserConf) {
     return new RegExp("^((" + words.join(")|(") + "))\\b");
   }
 
-  var singleOperators = parserConf.singleOperators || new RegExp("^[?:\\+\\-\\*/%&|\\^~<>!]");
-  var singleDelimiters = parserConf.singleDelimiters || new RegExp('^[\\(\\)\\[\\]\\{\\}@,:`=;\\.]');
-  var doubleOperators = parserConf.doubleOperators || new RegExp("^((==)|(!=)|(<=)|(<:)|(>=)|(\\.>)|(\\.<)|(\\.==)|(<>)|(<<)|(>>)|(//)|(\\*\\*))");
-  var doubleDelimiters = parserConf.doubleDelimiters || new RegExp("^((\\+=)|(\\-=)|(\\*=)|(%=)|(/=)|(&=)|(\\|=)|(\\^=))");
-  var tripleDelimiters = parserConf.tripleDelimiters || new RegExp("^((//=)|(>>=)|(<<=)|(\\.>=)|(\\.<=)|(\\*\\*=))");
-  var identifiers = parserConf.identifiers|| new RegExp("^[_A-Za-z][_A-Za-z0-9]*[!]*");
+  var singleOperators = parserConf.singleOperators || /^[?:=+&\-*%|$^~<>!/\\]/;
+  var singleDelimiters = parserConf.singleDelimiters || /^[;,()[\]{}]/;
+
+  var doubleOperators = parserConf.doubleOperators || /^(==)|(!=)|(<=)|(<:)|(>=)|(\.>)|(\.<)|(<<)|(>>)|(->)|[//]{2}/;
+
+  var doubleDelimiters = parserConf.doubleDelimiters || /^(\+=)|(-=)|(\*=)|(%=)|(\\=)|(\^=)|(&=)|(\|=)|(&=)|([//]=)/;
+ 
+  var tripleDelimiters = parserConf.tripleDelimiters || /^(>>=)|(<<=)|(\.>=)|(\.<=)|(\.==)|(>>>)/;
+  var identifiers = parserConf.identifiers|| /^[_A-Za-z][_A-Za-z0-9]*!*/
   var blockOpeners = ["begin", "function", "type", "immutable", "let", "macro", "for", "while", "quote", "if", "else", "elseif"];
-  var blockClosers = ["end", "else", "elseif"]
+  var blockClosers = ["end", "else", "elseif"];
   var wordOperators = wordRegexp(['in']);
-  var commonkeywords = ['if', 'else', 'elseif', 'while', 'for', 'in', 'begin', 'let', 'end', 'do', 'try', 'catch', 'finally', 'return', 'break', 'continue', 'global', 'local', 'const', 'export', 'import', 'importall', 'using', 'function', 'macro', 'module', 'baremodule', 'type', 'immutable', 'quote'];
-  var commonBuiltins = ['all', 'true', 'false', 'any', 'enumerate'];
+  var keywordList = ['if', 'else', 'elseif', 'while', 'for', 'in', 'begin', 'let', 'end', 'do', 'try', 'catch', 'finally', 'return', 'break', 'continue', 'global', 'local', 'const', 'export', 'import', 'importall', 'using', 'function', 'macro', 'module', 'baremodule', 'type', 'immutable', 'quote'];
+  var builtinList = ['all', 'true', 'false', 'any', 'enumerate', 'open', 'close', 'linspace', 'nothing', 'NaN', 'Inf', 'print', 'println', 'Int8', 'Uint8', 'Int16', 'Uint16', 'Int32', 'Uint32', 'Int64', 'Uint64', 'Int128', 'Uint128', 'Bool', 'Char', 'Float16', 'Float32', 'Float64', 'Array', 'Vector', 'Matrix', 'String', 'error', 'warn', 'info'];
 
-  var stringPrefixes = new RegExp("^[br]?('|\")")
-
-  var keywords = wordRegexp(commonkeywords);
-  var builtins = wordRegexp(commonBuiltins);
+  //var stringPrefixes = new RegExp("^[br]?('|\")")
+  var stringPrefixes = /^[br]?('|")/
+  var keywords = wordRegexp(keywordList);
+  var builtins = wordRegexp(builtinList);
   var openers = wordRegexp(blockOpeners);
   var closers = wordRegexp(blockClosers);
   var indentInfo = null;
@@ -46,7 +49,7 @@ CodeMirror.defineMode("julia", function(conf, parserConf) {
   function tokenBase(stream, state) {
     // Handle scope changes
     if(state.leaving_expr) {
-      if(stream.match(RegExp("^'+"))) {
+      if(stream.match(/^'+/)) {
         return 'operator';
       }
       if(stream.match("...")) {
@@ -103,7 +106,7 @@ CodeMirror.defineMode("julia", function(conf, parserConf) {
     }
     // Handle Number Literals
     if (stream.match(/^[0-9\.]/, false)) {
-      var imMatcher = RegExp("^im\\b");
+      var imMatcher = RegExp(/^im\b/);
       var floatLiteral = false;
       // Floats
       if (stream.match(/^\d*\.\d+(e[\+\-]?\d+)?/i)) { floatLiteral = true; }

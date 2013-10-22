@@ -46,13 +46,42 @@ a
 as123
 function_name!
 
+#literal identifier multiples
+3x
+4[1, 2, 3]
+
+#dicts and indexing
+x=[1, 2, 3]
+x[end-1]
+x={"julia"=>"language of technical computing"}
+
+#types
+immutable Color{T<:Number}
+  r::T
+  g::T
+  b::T
+end
+
+#functions
+function change!(x::Vector{Float64})
+  for i = 1:length(x)
+    x[i] *= 2
+  end
+end
+
 #operators
 -
 +
 =
+/
+\
+//
+->
 ==
 >
 <
+|
+&
 >=
 <=
 &
@@ -62,6 +91,7 @@ function_name!
 .==
 +=
 -=
+/=
 ...
 
 #keywords and operators
