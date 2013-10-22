@@ -8,6 +8,7 @@
   function findMatchingBracket(cm, where, strict) {
     var state = cm.state.matchBrackets;
     var maxScanLen = (state && state.maxScanLineLength) || 10000;
+    var maxScanLines = (state && state.maxScanLines) || 100;
 
     var cur = where || cm.getCursor(), line = cm.getLineHandle(cur.line), pos = cur.ch - 1;
     var match = (pos >= 0 && matching[line.text.charAt(pos)]) || matching[line.text.charAt(++pos)];
@@ -32,7 +33,7 @@
         }
       }
     }
-    for (var i = cur.line, found, e = forward ? Math.min(i + 100, cm.lineCount()) : Math.max(-1, i - 100); i != e; i+=d) {
+    for (var i = cur.line, found, e = forward ? Math.min(i + maxScanLines, cm.lineCount()) : Math.max(-1, i - maxScanLines); i != e; i+=d) {
       if (i == cur.line) found = scan(line, i, pos);
       else found = scan(cm.getLineHandle(i), i);
       if (found) break;
