@@ -5,13 +5,13 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
     return new RegExp("^((" + words.join(")|(") + "))\\b");
   }
 
-  var operators = parserConf.operators || /^(?:[|&^\\%*+\-<>!=\/]=?|\?|~|:|$|<:|\.[<>]|<<=?|>>>?=?|\.[<>=]=|->?|\/\/|in|\.{3})/;
+  var operators = parserConf.operators || /^(?:\.?[|&^\\%*+\-<>!=\/]=?|\?|~|:|\$|<:|\.[<>]|<<=?|>>>?=?|\.[<>=]=|->?|\/\/|\bin\b|\.{3})/;
   var delimiters = parserConf.delimiters || /^[;,()[\]{}]/;
   var identifiers = parserConf.identifiers|| /^[_A-Za-z][_A-Za-z0-9]*!*/;
   var blockOpeners = ["begin", "function", "type", "immutable", "let", "macro", "for", "while", "quote", "if", "else", "elseif", "try", "finally", "catch"];
   var blockClosers = ["end", "else", "elseif", "catch", "finally"];
-  var keywordList = ['if', 'else', 'elseif', 'while', 'for', 'in', 'begin', 'let', 'end', 'do', 'try', 'catch', 'finally', 'return', 'break', 'continue', 'global', 'local', 'const', 'export', 'import', 'importall', 'using', 'function', 'macro', 'module', 'baremodule', 'type', 'immutable', 'quote', 'typealias'];
-  var builtinList = ['all', 'true', 'false', 'any', 'enumerate', 'open', 'close', 'linspace', 'nothing', 'NaN', 'Inf', 'print', 'println', 'Int8', 'Uint8', 'Int16', 'Uint16', 'Int32', 'Uint32', 'Int64', 'Uint64', 'Int128', 'Uint128', 'Bool', 'Char', 'Float16', 'Float32', 'Float64', 'Array', 'Vector', 'Matrix', 'String', 'error', 'warn', 'info'];
+  var keywordList = ['if', 'else', 'elseif', 'while', 'for', 'begin', 'let', 'end', 'do', 'try', 'catch', 'finally', 'return', 'break', 'continue', 'global', 'local', 'const', 'export', 'import', 'importall', 'using', 'function', 'macro', 'module', 'baremodule', 'type', 'immutable', 'quote', 'typealias', 'abstract', 'bitstype', 'ccall'];
+  var builtinList = ['true', 'false', 'enumerate', 'open', 'close', 'nothing', 'NaN', 'Inf', 'print', 'println', 'Int8', 'Uint8', 'Int16', 'Uint16', 'Int32', 'Uint32', 'Int64', 'Uint64', 'Int128', 'Uint128', 'Bool', 'Char', 'Float16', 'Float32', 'Float64', 'Array', 'Vector', 'Matrix', 'String', 'UTF8String', 'ASCIIString', 'error', 'warn', 'info', '@printf'];
 
   //var stringPrefixes = new RegExp("^[br]?('|\")")
   var stringPrefixes = /^[br]?('|"{3}|")/;
@@ -19,6 +19,7 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
   var builtins = wordRegexp(builtinList);
   var openers = wordRegexp(blockOpeners);
   var closers = wordRegexp(blockClosers);
+  var macro = /@[_A-Za-z][_A-Za-z0-9]*!*/
   var indentInfo = null;
 
   function in_array(state) {
@@ -147,6 +148,7 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
     if (stream.match(operators)) {
       return 'operator';
     }
+
     if (stream.match(delimiters)) {
       return null;
     }
@@ -159,6 +161,9 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
       return 'builtin';
     }
 
+    if (stream.match(macro)) {
+      return 'meta';
+    }
 
     if (stream.match(identifiers)) {
       state.leaving_expr=true;
@@ -218,11 +223,6 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
         style = 'meta';
       }
       return style;
-    }
-
-    // Handle macro calls
-    if (current === '@') {
-      return stream.match(identifiers, false) ? 'meta' : ERRORCLASS;
     }
 
     return style;
