@@ -103,7 +103,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
         return ret("comment", "comment");
       }
       else if (state.lastType == "operator" || state.lastType == "keyword c" ||
-               /^[\[{}\(,;:]$/.test(state.lastType)) {
+               state.lastType == "sof" || /^[\[{}\(,;:]$/.test(state.lastType)) {
         nextUntilUnescaped(stream, "/");
         stream.eatWhile(/[gimy]/); // 'y' is "sticky" option in Mozilla
         return ret("regexp", "string-2");
@@ -410,7 +410,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     startState: function(basecolumn) {
       return {
         tokenize: jsTokenBase,
-        lastType: null,
+        lastType: "sof",
         cc: [],
         lexical: new JSLexical((basecolumn || 0) - indentUnit, 0, "block", false),
         localVars: parserConfig.localVars,
