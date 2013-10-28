@@ -1,8 +1,9 @@
 CodeMirror.registerHelper("fold", "indent", function(cm, start) {
   var lastLine = cm.lastLine(),
       tabSize = cm.getOption("tabSize"),
-      firstLine = cm.getLine(start.line),
-      myIndent = CodeMirror.countColumn(firstLine, null, tabSize);
+      firstLine = cm.getLine(start.line);
+  if (!tabSize || !firstLine) return;
+  var myIndent = CodeMirror.countColumn(firstLine, null, tabSize);
 
   function foldEnded(curColumn, prevColumn) {
     return curColumn < myIndent ||
