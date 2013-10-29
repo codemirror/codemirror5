@@ -1,4 +1,4 @@
-CodeMirror.defineMode("peg", function (config) {
+CodeMirror.defineMode("pegjs", function (config) {
   var jsMode = CodeMirror.getMode(config, "javascript");
 
   function identifier(stream) {
@@ -100,4 +100,4 @@ CodeMirror.defineMode("peg", function (config) {
       return null;
     }
   };
-});
+}, "javascript");

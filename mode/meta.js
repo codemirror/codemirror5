@@ -48,6 +48,7 @@ CodeMirror.modeInfo = [
   {name: 'OCaml', mime: 'text/x-ocaml', mode: 'ocaml'},
   {name: 'Octave', mime: 'text/x-octave', mode: 'octave'},
   {name: 'Pascal', mime: 'text/x-pascal', mode: 'pascal'},
+  {name: 'PEG.js', mime: null, mode: 'pegjs'},
   {name: 'Perl', mime: 'text/x-perl', mode: 'perl'},
   {name: 'PHP', mime: 'text/x-php', mode: 'php'},
   {name: 'PHP(HTML)', mime: 'application/x-httpd-php', mode: 'php'},
