@@ -54,7 +54,8 @@
     if (tok.end > pos.ch) tagName = tagName.slice(0, tagName.length - tok.end + pos.ch);
     var lowerTagName = tagName.toLowerCase();
     // Don't process the '>' at the end of an end-tag or self-closing tag
-    if (tok.type == "tag" && state.type == "closeTag" ||
+    if (tok.type == "string" && (tok.string.charAt(tok.string.length - 1) != '"' || tok.string.length == 1) ||
+        tok.type == "tag" && state.type == "closeTag" ||
         tok.string.indexOf("/") == (tok.string.length - 1) || // match something like <someTagName />
         dontCloseTags && indexOf(dontCloseTags, lowerTagName) > -1)
       return CodeMirror.Pass;
@@ -72,7 +73,9 @@
   function autoCloseSlash(cm) {
     var pos = cm.getCursor(), tok = cm.getTokenAt(pos);
     var inner = CodeMirror.innerMode(cm.getMode(), tok.state), state = inner.state;
-    if (tok.string.charAt(0) != "<" || tok.start != pos.ch - 1 || inner.mode.name != "xml") return CodeMirror.Pass;
+    if (tok.type == "string" || tok.string.charAt(0) != "<" ||
+        tok.start != pos.ch - 1 || inner.mode.name != "xml")
+      return CodeMirror.Pass;
 
     var tagName = state.context && state.context.tagName;
     if (tagName) cm.replaceSelection("/" + tagName + ">", "end");
