@@ -204,7 +204,7 @@ CodeMirror.defineMode("less", function(config) {
         else if(type === "unit" && state.stack[state.stack.length-1] === "rule")return ret(null, "unit");
         else if(type === "unit" && state.stack[state.stack.length-1] === ";")return ret(null, "unit");
         else if(type === ")" && state.stack[state.stack.length-1] === "rule")return ret(null, "unit");
-        else if(type.match("@") !== null  && state.stack[state.stack.length-1] === "rule")return ret(null, "unit");
+        else if(type && type.match("@") !== null  && state.stack[state.stack.length-1] === "rule")return ret(null, "unit");
         //else if(type === "unit" && state.stack[state.stack.length-1] === "rule")return ret(null, stream.current());
 
         else if((type === ";" || type === "}" || type === ",") && state.stack[state.stack.length-1] === ";")return ret("tag", stream.current());
