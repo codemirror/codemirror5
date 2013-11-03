@@ -24,9 +24,11 @@
 
 .cm-s-mbo .CodeMirror-activeline-background {background: #494b41 !important;}
 .cm-s-mbo .CodeMirror-matchingbracket {
-   text-decoration: underline;
+  text-decoration: underline;
   color: #f5e107 !important;
  }
+ 
+.cm-s-mbo .CodeMirror-matchingtag {background: #4e4e4e;}
 
 div.CodeMirror span.CodeMirror-searching {
   background-color: none;
