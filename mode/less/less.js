@@ -70,7 +70,7 @@ CodeMirror.defineMode("less", function(config) {
       stream.eatWhile(/[\a-zA-Z0-9\-_]/);
       if(stream.peek() === " ")stream.eatSpace();
       if(stream.peek() === ")" || type === ":")return ret("number", "unit");//rgba(0,0,0,.25);
-      else if(state.stack[state.stack.length-1] === "rule" && stream.peek().match(/{|,|\+|\(/) === null)return ret("number", "unit");
+      else if(state.stack[state.stack.length-1] === "rule" && stream.peek() && stream.peek().match(/{|,|\+|\(/) === null)return ret("number", "unit");
       return ret("tag", "tag");
     } else if (ch == "#") {
       //we don't eat white-space, we want the hex color and or id only
