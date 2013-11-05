@@ -87,7 +87,7 @@ testCM("selection", function(cm) {
   is(!cm.somethingSelected());
   eq(cm.getSelection(), "");
   eqPos(cm.getCursor(true), Pos(1, 0));
-  cm.replaceSelection("abc");
+  cm.replaceSelection("abc", "around");
   eq(cm.getSelection(), "abc");
   eq(cm.getValue(), "111111\nabc222222\n333333");
   cm.replaceSelection("def", "end");
@@ -1375,14 +1375,14 @@ testCM("readOnlyMarker", function(cm) {
   eqPos(cm.getCursor(), Pos(0, 2));
   eq(cm.getLine(0), "abcde");
   cm.execCommand("selectAll");
-  cm.replaceSelection("oops");
+  cm.replaceSelection("oops", "around");
   eq(cm.getValue(), "oopsbcd");
   cm.undo();
   eqPos(m.find().from, Pos(0, 1));
   eqPos(m.find().to, Pos(0, 4));
   m.clear();
   cm.setCursor(Pos(0, 2));
-  cm.replaceSelection("hi");
+  cm.replaceSelection("hi", "around");
   eq(cm.getLine(0), "abhicde");
   eqPos(cm.getCursor(), Pos(0, 4));
   m = mark(0, 2, 2, 2, true);
@@ -1394,7 +1394,7 @@ testCM("readOnlyMarker", function(cm) {
   cm.execCommand("goCharLeft");
   eqPos(cm.getCursor(), Pos(0, 2));
   cm.setSelection(Pos(0, 1), Pos(0, 3));
-  cm.replaceSelection("xx");
+  cm.replaceSelection("xx", "around");
   eqPos(cm.getCursor(), Pos(0, 3));
   eq(cm.getLine(0), "axxhicde");
 }, {value: "abcde\nfghij\nklmno\n"});
@@ -1507,9 +1507,9 @@ testCM("beforeSelectionChange", function(cm) {
     if (!len || pos.ch == len) return Pos(pos.line, pos.ch - 1);
     return pos;
   }
-  cm.on("beforeSelectionChange", function(cm, sel) {
-    sel.head = notAtEnd(cm, sel.head);
-    sel.anchor = notAtEnd(cm, sel.anchor);
+  cm.on("beforeSelectionChange", function(cm, obj) {
+    obj.update([{anchor: notAtEnd(cm, obj.ranges[0].anchor),
+                 head: notAtEnd(cm, obj.ranges[0].head)}]);
   });
 
   addDoc(cm, 10, 10);
@@ -1563,3 +1563,73 @@ testCM("lineStyleFromMode", function(cm) {
   eq(parenElts[0].nodeName, "DIV");
   is(!/parens.*parens/.test(parenElts[0].className));
 }, {value: "line1: [br] [br]\nline2: (par) (par)\nline3: nothing"});
+
+// Multiple selections
+
+function hasSelections(cm) {
+  var sels = cm.listSelections();
+  var given = (arguments.length - 1) / 4;
+  if (sels.length != given)
+    throw new Failure("expected " + given + " selections, found " + sels.length);
+  for (var i = 0, p = 1; i < given; i++, p += 4) {
+    var anchor = Pos(arguments[p], arguments[p + 1]);
+    var head = Pos(arguments[p + 2], arguments[p + 3]);
+    eqPos(sels[i].anchor, anchor, "anchor of selection " + i);
+    eqPos(sels[i].head, head, "head of selection " + i);
+  }
+}
+
+testCM("replaceMultiSelection", function(cm) {
+  var selections = [{anchor: Pos(0, 0), head: Pos(0, 1)},
+                    {anchor: Pos(0, 2), head: Pos(0, 3)},
+                    {anchor: Pos(0, 4), head: Pos(0, 5)},
+                    {anchor: Pos(2, 1), head: Pos(2, 4)},
+                    {anchor: Pos(2, 5), head: Pos(2, 6)}];
+  var val = "123456\n123456\n123456";
+  cm.setValue(val);
+  cm.setSelections(selections);
+  cm.replaceSelection("ab", "around");
+  eq(cm.getValue(), "ab2ab4ab6\n123456\n1ab5ab");
+  hasSelections(cm, 0, 0, 0, 2,
+                0, 3, 0, 5,
+                0, 6, 0, 8,
+                2, 1, 2, 3,
+                2, 4, 2, 6);
+  cm.setValue(val);
+  cm.setSelections(selections);
+  cm.replaceSelection("", "around");
+  eq(cm.getValue(), "246\n123456\n15");
+  hasSelections(cm, 0, 0, 0, 0,
+                0, 1, 0, 1,
+                0, 2, 0, 2,
+                2, 1, 2, 1,
+                2, 2, 2, 2);
+  cm.setValue(val);
+  cm.setSelections(selections);
+  cm.replaceSelection("X\nY\nZ", "around");
+  hasSelections(cm, 0, 0, 2, 1,
+                2, 2, 4, 1,
+                4, 2, 6, 1,
+                8, 1, 10, 1,
+                10, 2, 12, 1);
+  cm.replaceSelection("a", "around");
+  hasSelections(cm, 0, 0, 0, 1,
+                0, 2, 0, 3,
+                0, 4, 0, 5,
+                2, 1, 2, 2,
+                2, 3, 2, 4);
+  cm.replaceSelection("xy", "start");
+  hasSelections(cm, 0, 0, 0, 0,
+                0, 3, 0, 3,
+                0, 6, 0, 6,
+                2, 1, 2, 1,
+                2, 4, 2, 4);
+  cm.replaceSelection("z\nf");
+  hasSelections(cm, 1, 1, 1, 1,
+                2, 1, 2, 1,
+                3, 1, 3, 1,
+                6, 1, 6, 1,
+                7, 1, 7, 1);
+  eq(cm.getValue(), "z\nfxy2z\nfxy4z\nfxy6\n123456\n1z\nfxy5z\nfxy");
+});
+

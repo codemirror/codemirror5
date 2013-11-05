@@ -333,13 +333,14 @@
         cm.state.vim = null;
       }
     });
-    function beforeSelectionChange(cm, cur) {
+    function beforeSelectionChange(cm, obj) {
       var vim = cm.state.vim;
       if (vim.insertMode || vim.exMode) return;
 
-      var head = cur.head;
+      var head = obj.ranges[0].head;
       if (head.ch && head.ch == cm.doc.getLine(head.line).length) {
-        head.ch--;
+        obj.update([{anchor: obj.ranges[0].anchor,
+                     head: {line: head.line, ch: head.ch - 1}}]);
       }
     }
 
