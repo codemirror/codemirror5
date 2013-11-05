@@ -11,6 +11,18 @@
   MT("emStrongUnderscore",
      "[strong __][em&strong _foo__][em _] bar");
 
+  MT("strikethrough",
+     "This [strikethrough ~~needs~~] should to be done");
+
+  MT("strikethroughWithStartingSpace",
+     "This ~~ space~~ should break it");
+
+  MT("strikethroughWithEndingSpace",
+     "This ~~space ~~ should break it");
+
+  MT("strikethroughOneLetter",
+     "This [strikethrough ~~a~~] should work");
+
   MT("fencedCodeBlocks",
      "[comment ```]",
      "[comment foo]",
