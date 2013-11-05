@@ -42,7 +42,6 @@
 
 .CodeMirror div.CodeMirror-cursor {
   border-left: 1px solid black;
-  z-index: 3;
 }
 /* Shown when moving in bi-directional text */
 .CodeMirror div.CodeMirror-secondarycursor {
@@ -52,10 +51,9 @@
   width: auto;
   border: 0;
   background: #7e7;
-  z-index: 1;
 }
 /* Can style cursor different in overwrite (non-insert) mode */
-.CodeMirror div.CodeMirror-cursor.CodeMirror-overwrite {}
+div.CodeMirror-overwrite div.CodeMirror-cursor {}
 
 .cm-tab { display: inline-block; }
 
@@ -236,11 +234,15 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
 
 .CodeMirror div.CodeMirror-cursor {
   position: absolute;
-  visibility: hidden;
   border-right: none;
   width: 0;
 }
-.CodeMirror-focused div.CodeMirror-cursor {
+
+div.CodeMirror-cursors {
+  visibility: hidden;
+  z-index: 3;
+}
+.CodeMirror-focused div.CodeMirror-cursors {
   visibility: visible;
 }
 
@@ -257,7 +259,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
 
 @media print {
   /* Hide the cursor when printing */
-  .CodeMirror div.CodeMirror-cursor {
+  .CodeMirror div.CodeMirror-cursors {
     visibility: hidden;
   }
 }

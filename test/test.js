@@ -1145,18 +1145,21 @@ testCM("rtlMovement", function(cm) {
            "<img src=\"/בדיקה3.jpg\">"], function(line) {
     var inv = line.charAt(0) == "خ";
     cm.setValue(line + "\n"); cm.execCommand(inv ? "goLineEnd" : "goLineStart");
-    var cursor = byClassName(cm.getWrapperElement(), "CodeMirror-cursor")[0];
+    var cursors = byClassName(cm.getWrapperElement(), "CodeMirror-cursors")[0];
+    var cursor = cursors.firstChild;
     var prevX = cursor.offsetLeft, prevY = cursor.offsetTop;
     for (var i = 0; i <= line.length; ++i) {
       cm.execCommand("goCharRight");
+      cursor = cursors.firstChild;
       if (i == line.length) is(cursor.offsetTop > prevY, "next line");
       else is(cursor.offsetLeft > prevX, "moved right");
       prevX = cursor.offsetLeft; prevY = cursor.offsetTop;
     }
     cm.setCursor(0, 0); cm.execCommand(inv ? "goLineStart" : "goLineEnd");
-    prevX = cursor.offsetLeft;
+    prevX = cursors.firstChild.offsetLeft;
     for (var i = 0; i < line.length; ++i) {
       cm.execCommand("goCharLeft");
+      cursor = cursors.firstChild;
       is(cursor.offsetLeft < prevX, "moved left");
       prevX = cursor.offsetLeft;
     }
