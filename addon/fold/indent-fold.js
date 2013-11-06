@@ -13,7 +13,7 @@ CodeMirror.registerHelper("fold", "indent", function(cm, start) {
     if (curIndent > myIndent) {
       // Lines with a greater indent are considered part of the block.
       lastLineInFold = i;
-    } else if (curIndent == 0 && curLine.length == 0) {
+    } else if (!/\S/.test(curLine)) {
       // Empty lines might be breaks within the block we're trying to fold.
     } else {
       // A non-empty line at an indent equal to or less than ours marks the
