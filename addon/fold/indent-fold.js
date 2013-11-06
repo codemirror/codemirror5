@@ -1,5 +1,6 @@
 CodeMirror.registerHelper("fold", "indent", function(cm, start) {
   var tabSize = cm.getOption("tabSize"), firstLine = cm.getLine(start.line);
+  if (!/\S/.test(firstLine)) return;
   var getIndent = function(lineNum) {
     return CodeMirror.countColumn(lineNum, null, tabSize);
   };
@@ -7,7 +8,7 @@ CodeMirror.registerHelper("fold", "indent", function(cm, start) {
   var lastLineInFold = null;
   // Go through lines until we find a line that definitely doesn't belong in
   // the block we're folding, or to the end.
-  for (var i = start.line + 1, end = cm.lineCount(); i < end; ++i) {
+  for (var i = start.line + 1, end = cm.lastLine(); i <= end; ++i) {
     var curLine = cm.getLine(i);
     var curIndent = getIndent(curLine);
     if (curIndent > myIndent) {
@@ -21,7 +22,7 @@ CodeMirror.registerHelper("fold", "indent", function(cm, start) {
       break;
     }
   }
-  return {
+  if (lastLineInFold) return {
     from: CodeMirror.Pos(start.line, firstLine.length),
     to: CodeMirror.Pos(lastLineInFold, cm.getLine(lastLineInFold).length)
   };
