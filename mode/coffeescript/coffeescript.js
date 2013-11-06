@@ -336,9 +336,9 @@ CodeMirror.defineMode("coffeescript", function(conf) {
     indent: function(state, text) {
       if (state.tokenize != tokenBase) return 0;
       var scope = state.scope;
-      var closer = "])}".indexOf(text.charAt(0)) > -1;
+      var closer = text && "])}".indexOf(text.charAt(0)) > -1;
       if (closer) while (scope.type == "coffee" && scope.prev) scope = scope.prev;
-      var closes = scope.type === text.charAt(0);
+      var closes = closer && scope.type === text.charAt(0);
       if (scope.align)
         return scope.alignOffset - (closes ? 1 : 0);
       else
