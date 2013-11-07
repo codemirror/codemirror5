@@ -262,7 +262,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
         // Pop off end of array until { is reached
         while(state.stack.length){
           var removed = state.stack.pop();
-          if(removed.indexOf("{") > -1){
+          if(removed.indexOf("{") > -1 || removed == "block" || removed == "rule"){
             break;
           }
         }
@@ -609,8 +609,8 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
         }
         return ["variable", "variable"];
       },
-      ",": function(_stream, state) {
-        if (state.stack[state.stack.length - 1] == "propertyValue") {
+      ",": function(stream, state) {
+        if (state.stack[state.stack.length - 1] == "propertyValue" && stream.match(/^ *\$/, false)) {
           return ["operator", ";"];
         }
       },
