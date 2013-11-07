@@ -127,4 +127,16 @@
 
   IT("tagSelector",
     "strong, em [1 { background][2 : rgba][3 (255, 255, 0, .2][2 )][1 ;]}");
+
+  IT("atMedia",
+    "[1 @media { foo ][2 { ][1 } ]}");
+
+  IT("comma",
+    "foo [1 { font-family][2 : verdana, sans-serif][1 ; ]}");
+
+  IT("parentheses",
+    "foo [1 { background][2 : url][3 (\"bar\"][2 )][1 ; ]}");
+
+  IT("pseudo",
+    "foo:before [1 { ]}");
 })();

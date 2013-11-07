@@ -81,4 +81,13 @@
 
   IT('mixin',
     "@mixin container[1 (][2 $a: 10][1 , ][2 $b: 10][1 , ][2 $c: 10]) [1 {]}");
+
+  IT('nested',
+    "foo [1 { bar ][2 { ][1 } ]}");
+
+  IT('comma',
+    "foo [1 { font-family][2 : verdana, sans-serif][1 ; ]}");
+
+  IT('parentheses',
+    "foo [1 { color][2 : darken][3 ($blue, 9%][2 )][1 ; ]}");
 })();
