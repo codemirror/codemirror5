@@ -257,6 +257,9 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     state.taskOpen = false;
     state.taskClosed = false;
 
+    // Get sol() value now, before character is consumed
+    var sol = stream.sol();
+
     var ch = stream.next();
 
     if (ch === '\\') {
@@ -355,7 +358,9 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     }
     var t = getType(state);
     if (ch === '*' || (ch === '_' && !ignoreUnderscore)) {
-      if (state.strong === ch && stream.eat(ch)) { // Remove STRONG
+      if (sol && stream.peek() === ' ') {
+        // Do nothing, surrounded by newline and space
+      } else if (state.strong === ch && stream.eat(ch)) { // Remove STRONG
         state.strong = false;
         return t;
       } else if (!state.strong && stream.eat(ch)) { // Add STRONG
