@@ -2726,10 +2726,9 @@
       return regexp;
     }
     function showConfirm(cm, text) {
-      if (cm.openConfirm) {
-        cm.openConfirm('<span style="color: red">' + text +
-            '</span> <button type="button">OK</button>', function() {},
-            {bottom: true});
+      if (cm.openNotification) {
+        cm.openNotification('<span style="color: red">' + text + '</span>',
+                            {bottom: true, duration: 5000});
       } else {
         alert(text);
       }
