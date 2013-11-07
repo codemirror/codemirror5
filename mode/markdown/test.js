@@ -577,6 +577,10 @@
   MT("emEscapedBySpaceOut",
      "foo _ bar[em _hello_]world");
 
+  MT("emEscapedByNewline",
+     "foo",
+     "_ bar[em _hello_]world");
+
   // Unclosed emphasis characters
   // Instead of simply marking as EM / STRONG, it would be nice to have an
   // incomplete flag for EM and STRONG, that is styled slightly different.
