@@ -9,7 +9,9 @@ CodeMirror.defineMode("velocity", function() {
                               "#{end} #{else} #{break} #{stop}");
     var functions = parseWords("#if #elseif #foreach #set #include #parse #macro #define #evaluate " +
                                "#{if} #{elseif} #{foreach} #{set} #{include} #{parse} #{macro} #{define} #{evaluate}");
-    var specials = parseWords("$foreach.count $foreach.hasNext $foreach.first $foreach.last $foreach.topmost $foreach.parent.count $foreach.parent.hasNext $foreach.parent.first $foreach.parent.last $foreach.parent $velocityCount $!bodyContent $bodyContent");
+    var specials = parseWords("$foreach.count $foreach.hasNext $foreach.first $foreach.last $foreach.topmost $foreach.parent.count "
+    		                 +"$foreach.parent.hasNext $foreach.parent.first $foreach.parent.last $foreach.parent $velocityCount "
+    		                 +"$!bodyContent $bodyContent");
     var isOperatorChar = /[+\-*&%=<>!?:\/|]/;
 
     function chain(stream, state, f) {
@@ -69,7 +71,7 @@ CodeMirror.defineMode("velocity", function() {
         }
         // variable?
         else if (ch == "$") {
-            stream.eatWhile(/[\w\d\$_\.{}]/);
+            stream.eatWhile(/[\w\d\$_\.\!{}]/);
             // is it one of the specials?
             if (specials && specials.propertyIsEnumerable(stream.current())) {
                 return "keyword";
