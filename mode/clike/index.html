@@ -165,12 +165,12 @@ public class Class<T, V> implements MyInterface {
 </textarea></div>
 
     <script>
-      var editor = CodeMirror.fromTextArea(document.getElementById("c-code"), {
+      var cEditor = CodeMirror.fromTextArea(document.getElementById("c-code"), {
         lineNumbers: true,
         matchBrackets: true,
         mode: "text/x-csrc"
       });
-      var editor = CodeMirror.fromTextArea(document.getElementById("cpp-code"), {
+      var cppEditor = CodeMirror.fromTextArea(document.getElementById("cpp-code"), {
         lineNumbers: true,
         matchBrackets: true,
         mode: "text/x-c++src"
