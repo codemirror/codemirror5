@@ -129,4 +129,18 @@
     cm.execCommand("delWordAfter");
     eq(cm.getValue(), "fo \nab ghi\n");
   }, {value: "foo bar baz\nabc def ghi\n"});
+
+  testCM("goLineStart", function(cm) {
+    select(cm, Pos(0, 2), Pos(0, 3), Pos(1, 1));
+    cm.execCommand("goLineStart");
+    hasSelections(cm, 0, 0, 0, 0,
+                  1, 0, 1, 0);
+    select(cm, Pos(1, 1), Pos(0, 1));
+    cm.setExtending(true);
+    cm.execCommand("goLineStart");
+    hasSelections(cm, 0, 1, 0, 0,
+                  1, 1, 1, 0);
+  }, {value: "foo\nbar\nbaz"});
+
+  
 })();
