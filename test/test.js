@@ -132,8 +132,8 @@ testCM("extendSelection", function(cm) {
   eqPos(cm.getCursor("anchor"), Pos(4, 5));
   cm.setExtending(false);
   cm.extendSelection(Pos(0, 3), Pos(0, 4));
-  eqPos(cm.getCursor("head"), Pos(0, 4));
-  eqPos(cm.getCursor("anchor"), Pos(0, 3));
+  eqPos(cm.getCursor("head"), Pos(0, 3));
+  eqPos(cm.getCursor("anchor"), Pos(0, 4));
 });
 
 testCM("lines", function(cm) {
