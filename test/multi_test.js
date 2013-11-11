@@ -104,4 +104,29 @@
     cm.execCommand("killLine");
     eq(cm.getValue(), "faz");
   }, {value: "foo\nbar\nbaz"});
+
+  testCM("deleteLine", function(cm) {
+    select(cm, Pos(0, 0),
+           {head: Pos(0, 1), anchor: Pos(2, 0)},
+           Pos(4, 0));
+    cm.execCommand("deleteLine");
+    eq(cm.getValue(), "4\n6\n7");
+    select(cm, Pos(2, 1));
+    cm.execCommand("deleteLine");
+    eq(cm.getValue(), "4\n6\n");
+  }, {value: "1\n2\n3\n4\n5\n6\n7"});
+
+  testCM("deleteH", function(cm) {
+    select(cm, Pos(0, 4), {anchor: Pos(1, 4), head: Pos(1, 5)});
+    cm.execCommand("delWordAfter");
+    eq(cm.getValue(), "foo bar baz\nabc ef ghi\n");
+    cm.execCommand("delWordAfter");
+    eq(cm.getValue(), "foo  baz\nabc  ghi\n");
+    cm.execCommand("delCharBefore");
+    cm.execCommand("delCharBefore");
+    eq(cm.getValue(), "fo baz\nab ghi\n");
+    select(cm, Pos(0, 3), Pos(0, 4), Pos(0, 5));
+    cm.execCommand("delWordAfter");
+    eq(cm.getValue(), "fo \nab ghi\n");
+  }, {value: "foo bar baz\nabc def ghi\n"});
 })();
