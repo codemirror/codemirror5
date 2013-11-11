@@ -1708,11 +1708,14 @@
     <dl>
       <dt id="addon_dialog"><a href="../addon/dialog/dialog.js"><code>dialog/dialog.js</code></a></dt>
       <dd>Provides a very simple way to query users for text input.
-      Adds an <code>openDialog</code> method to CodeMirror instances,
-      which can be called with an HTML fragment that provides the
-      prompt (should include an <code>input</code> tag), and a
-      callback function that is called when text has been entered.
-      Depends on <code>addon/dialog/dialog.css</code>.</dd>
+      Adds an <strong><code>openDialog</code></strong> method to
+      CodeMirror instances, which can be called with an HTML fragment
+      that provides the prompt (should include an <code>input</code>
+      tag), and a callback function that is called when text has been
+      entered. Also adds
+      an <strong><code>openNotification</code></strong> function that
+      simply shows an HTML fragment as a notification. Depends
+      on <code>addon/dialog/dialog.css</code>.</dd>
 
       <dt id="addon_searchcursor"><a href="../addon/search/searchcursor.js"><code>search/searchcursor.js</code></a></dt>
       <dd>Adds the <code>getSearchCursor(query, start, caseFold) →
