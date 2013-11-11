@@ -10,12 +10,12 @@
     var maxScanLen = (state && state.maxScanLineLength) || 10000;
     var maxScanLines = (state && state.maxScanLines) || 100;
 
-    var cur = where || cm.getCursor(), line = cm.getLineHandle(cur.line), pos = cur.ch - 1;
+    var line = cm.getLineHandle(where.line), pos = where.ch - 1;
     var match = (pos >= 0 && matching[line.text.charAt(pos)]) || matching[line.text.charAt(++pos)];
     if (!match) return null;
     var forward = match.charAt(1) == ">", d = forward ? 1 : -1;
-    if (strict && forward != (pos == cur.ch)) return null;
-    var style = cm.getTokenTypeAt(Pos(cur.line, pos + 1));
+    if (strict && forward != (pos == where.ch)) return null;
+    var style = cm.getTokenTypeAt(Pos(where.line, pos + 1));
 
     var stack = [line.text.charAt(pos)], re = /[(){}[\]]/;
     function scan(line, lineNo, start) {
@@ -33,41 +33,50 @@
         }
       }
     }
-    for (var i = cur.line, found, e = forward ? Math.min(i + maxScanLines, cm.lineCount()) : Math.max(-1, i - maxScanLines); i != e; i+=d) {
-      if (i == cur.line) found = scan(line, i, pos);
+    for (var i = where.line, found, e = forward ? Math.min(i + maxScanLines, cm.lineCount()) : Math.max(-1, i - maxScanLines); i != e; i+=d) {
+      if (i == where.line) found = scan(line, i, pos);
       else found = scan(cm.getLineHandle(i), i);
       if (found) break;
     }
-    return {from: Pos(cur.line, pos), to: found && Pos(i, found.pos),
+    return {from: Pos(where.line, pos), to: found && Pos(i, found.pos),
             match: found && found.match, forward: forward};
   }
 
   function matchBrackets(cm, autoclear) {
     // Disable brace matching in long lines, since it'll cause hugely slow updates
     var maxHighlightLen = cm.state.matchBrackets.maxHighlightLineLength || 1000;
-    var found = findMatchingBracket(cm);
-    if (!found || cm.getLine(found.from.line).length > maxHighlightLen ||
-       found.to && cm.getLine(found.to.line).length > maxHighlightLen)
-      return;
+    var marks = [], ranges = cm.listSelections();
+    for (var i = 0; i < ranges.length; i++) {
+      var match = ranges[i].empty() && findMatchingBracket(cm, ranges[i].head);
+      if (match && cm.getLine(match.from.line).length <= maxHighlightLen &&
+          match.to && cm.getLine(match.to.line).length <= maxHighlightLen) {
+        var style = match.match ? "CodeMirror-matchingbracket" : "CodeMirror-nonmatchingbracket";
+        marks.push(cm.markText(match.from, Pos(match.from.line, match.from.ch + 1), {className: style}));
+        if (match.to)
+          marks.push(cm.markText(match.to, Pos(match.to.line, match.to.ch + 1), {className: style}));
+      }
+    }
 
-    var style = found.match ? "CodeMirror-matchingbracket" : "CodeMirror-nonmatchingbracket";
-    var one = cm.markText(found.from, Pos(found.from.line, found.from.ch + 1), {className: style});
-    var two = found.to && cm.markText(found.to, Pos(found.to.line, found.to.ch + 1), {className: style});
-    // Kludge to work around the IE bug from issue #1193, where text
-    // input stops going to the textare whever this fires.
-    if (ie_lt8 && cm.state.focused) cm.display.input.focus();
-    var clear = function() {
-      cm.operation(function() { one.clear(); two && two.clear(); });
-    };
-    if (autoclear) setTimeout(clear, 800);
-    else return clear;
+    if (marks.length) {
+      // Kludge to work around the IE bug from issue #1193, where text
+      // input stops going to the textare whever this fires.
+      if (ie_lt8 && cm.state.focused) cm.display.input.focus();
+
+      var clear = function() {
+        cm.operation(function() {
+          for (var i = 0; i < marks.length; i++) marks[i].clear();
+        });
+      };
+      if (autoclear) setTimeout(clear, 800);
+      else return clear;
+    }
   }
 
   var currentlyHighlighted = null;
   function doMatchBrackets(cm) {
     cm.operation(function() {
       if (currentlyHighlighted) {currentlyHighlighted(); currentlyHighlighted = null;}
-      if (!cm.somethingSelected()) currentlyHighlighted = matchBrackets(cm, false);
+      currentlyHighlighted = matchBrackets(cm, false);
     });
   }
 
