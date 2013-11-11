@@ -77,4 +77,39 @@
       CodeMirror.on(b, "focus", function() { ++blurring; });
     }
   });
+
+  /*
+   * openNotification
+   * Opens a notification, that can be closed with an optional timer
+   * (default 5000ms timer) and always closes on click.
+   *
+   * If a notification is opened while another is opened, it will close the
+   * currently opened one and open the new one immediately.
+   */
+  var currentNotificationClose;
+  CodeMirror.defineExtension("openNotification", function(template, callback, options) {
+    var dialog = dialogDiv(this, template, options && options.bottom);
+    var duration = options && (options.duration === undefined ? 5000 : options.duration);
+    var closed = false, me = this, doneTimer;
+
+    function close() {
+      if (closed) return;
+      closed = true;
+      clearTimeout(doneTimer);
+      doneTimer = null;
+      if (callback) callback(me);
+      dialog.parentNode.removeChild(dialog);
+    }
+
+    if (currentNotificationClose) currentNotificationClose();
+    currentNotificationClose = close;
+
+    CodeMirror.on(dialog, 'click', function(e) {
+      CodeMirror.e_preventDefault(e);
+      close();
+    });
+    if (duration) {
+      doneTimer = setTimeout(close, options.duration);
+    }
+  });
 })();
