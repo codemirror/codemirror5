@@ -74,7 +74,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   ,   ulRE = /^[*\-+]\s+/
   ,   olRE = /^[0-9]+\.\s+/
   ,   taskListRE = /^\[(x| )\](?=\s)/ // Must follow ulRE or olRE
-  ,   headerRE = /^(?:\={1,}|-{1,})$/
+  ,   atxHeaderRE = /^#+/
+  ,   setextHeaderRE = /^(?:\={1,}|-{1,})$/
   ,   textRE = /^[^!\[\]*_\\<>` "'(]+/;
 
   function switchInline(stream, state, f) {
@@ -127,14 +128,17 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       state.listDepth = 0;
     }
 
+    var match = null;
     if (state.indentationDiff >= 4) {
       state.indentation -= 4;
       stream.skipToEnd();
       return code;
     } else if (stream.eatSpace()) {
       return null;
-    } else if (stream.peek() === '#' || (state.prevLineHasContent && stream.match(headerRE)) ) {
-      state.header = true;
+    } else if (match = stream.match(atxHeaderRE)) {
+      state.header = match[0].length <= 6 ? match[0].length : 6;
+    } else if (state.prevLineHasContent && (match = stream.match(setextHeaderRE))) {
+      state.header = match[0].charAt(0) == '=' ? 1 : 2;
     } else if (stream.eat('>')) {
       state.indentation++;
       state.quote = 1;
@@ -207,7 +211,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
     if (state.code) { styles.push(code); }
 
-    if (state.header) { styles.push(header); }
+    if (state.header) { styles.push(header); styles.push(header + state.header); }
     if (state.quote) { styles.push(state.quote % 2 ? quote1 : quote2); }
     if (state.list !== false) {
       var listMod = (state.listDepth - 1) % 3;
@@ -471,7 +475,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         linkTitle: false,
         em: false,
         strong: false,
-        header: false,
+        header: 0,
         taskList: false,
         list: false,
         listDepth: 0,
@@ -522,7 +526,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         }
 
         // Reset state.header
-        state.header = false;
+        state.header = 0;
 
         // Reset state.taskList
         state.taskList = false;

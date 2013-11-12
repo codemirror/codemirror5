@@ -87,27 +87,31 @@
   // http://daringfireball.net/projects/markdown/syntax#header
 
   MT("atxH1",
-     "[header # foo]");
+     "[header&header1 # foo]");
 
   MT("atxH2",
-     "[header ## foo]");
+     "[header&header2 ## foo]");
 
   MT("atxH3",
-     "[header ### foo]");
+     "[header&header3 ### foo]");
 
   MT("atxH4",
-     "[header #### foo]");
+     "[header&header4 #### foo]");
 
   MT("atxH5",
-     "[header ##### foo]");
+     "[header&header5 ##### foo]");
 
   MT("atxH6",
-     "[header ###### foo]");
+     "[header&header6 ###### foo]");
 
   // H6 - 7x '#' should still be H6, per Dingus
   // http://daringfireball.net/projects/markdown/dingus
   MT("atxH6NotH7",
-     "[header ####### foo]");
+     "[header&header6 ####### foo]");
+
+  // Inline styles should be parsed inside headers
+  MT("atxH1inline",
+     "[header&header1 # foo ][header&header1&em *bar*]");
 
   // Setext headers - H1, H2
   // Per documentation, "Any number of underlining =’s or -’s will work."
@@ -119,22 +123,22 @@
   // Check if single underlining = works
   MT("setextH1",
      "foo",
-     "[header =]");
+     "[header&header1 =]");
 
   // Check if 3+ ='s work
   MT("setextH1",
      "foo",
-     "[header ===]");
+     "[header&header1 ===]");
 
   // Check if single underlining - works
   MT("setextH2",
      "foo",
-     "[header -]");
+     "[header&header2 -]");
 
   // Check if 3+ -'s work
   MT("setextH2",
      "foo",
-     "[header ---]");
+     "[header&header2 ---]");
 
   // Single-line blockquote with trailing space
   MT("blockquoteSpace",
