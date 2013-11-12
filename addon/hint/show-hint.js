@@ -147,12 +147,12 @@
 
     var hints = this.hints = document.createElement("ul");
     hints.className = "CodeMirror-hints";
-    this.selectedHint = 0;
+    this.selectedHint = options.getDefaultSelection ? options.getDefaultSelection(cm,options,data) : 0;
 
     var completions = data.list;
     for (var i = 0; i < completions.length; ++i) {
       var elt = hints.appendChild(document.createElement("li")), cur = completions[i];
-      var className = "CodeMirror-hint" + (i ? "" : " CodeMirror-hint-active");
+      var className = "CodeMirror-hint" + (i==this.selectedHint ? " CodeMirror-hint-active" : "");
       if (cur.className != null) className = cur.className + " " + className;
       elt.className = className;
       if (cur.render) cur.render(elt, data, cur);
