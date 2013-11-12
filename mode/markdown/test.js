@@ -109,6 +109,10 @@
   MT("atxH6NotH7",
      "[header&header6 ####### foo]");
 
+  // Inline styles should be parsed inside headers
+  MT("atxH1inline",
+     "[header&header1 # foo ][header&header1&em *bar*]");
+
   // Setext headers - H1, H2
   // Per documentation, "Any number of underlining =’s or -’s will work."
   // http://daringfireball.net/projects/markdown/syntax#header
