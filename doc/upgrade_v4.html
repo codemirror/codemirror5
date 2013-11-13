@@ -19,6 +19,7 @@
     <li><a href="#beforeSelectionChange">The beforeSelectionChange event</a>
     <li><a href="#replaceSelection">replaceSelection and collapsing</a>
     <li><a href="#changeEvent">change event data</a>
+    <li><a href="#deprecated">Deprecated interfaces dropped</a>
   </ul>
 </div>
 
@@ -76,6 +77,21 @@ pointers from one change object to the next, the library will now
 simply fire
 multiple <a href="manual.html#event_change"><code>"change"</code></a>
 events. Existing code will probably continue to work unmodified.</p>
+
+</section>
+
+<section id=deprecated><h2>Deprecated interfaces dropped</h2>
+
+<p>A few properties that have been deprecated for a while are now
+gone. Most notably, the names for folding and completing functions
+(<code>CodeMirror.braceRangeFinder</code>, <code>CodeMirror.javascriptHint</code>,
+etc) are now gone
+(use <code>CodeMirror.fold.brace</code>, <code>CodeMirror.hint.javascript</code>).</p>
+
+<p>The <code>className</code> property in the return value
+of <a href="manual.html#getTokenAt"><code>getTokenAt</code></a>, which
+has been superseded by the <code>type</code> property, is also no
+longer present.</p>
 
 </section>
 </article>

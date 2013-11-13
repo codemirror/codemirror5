@@ -6,7 +6,14 @@
 // replace by making sure the match is no longer selected when hitting
 // Ctrl-G.
 
-(function() {
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"), require("./searchcursor"), require("../dialog/dialog"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror", "./searchcursor", "../dialog/dialog"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
   "use strict";
   function searchOverlay(query, caseInsensitive) {
     var startChar;
@@ -139,4 +146,4 @@
   CodeMirror.commands.clearSearch = clearSearch;
   CodeMirror.commands.replace = replace;
   CodeMirror.commands.replaceAll = function(cm) {replace(cm, true);};
-})();
+});

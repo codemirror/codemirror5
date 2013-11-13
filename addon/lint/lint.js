@@ -1,4 +1,11 @@
-(function() {
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
   "use strict";
   var GUTTER_ID = "CodeMirror-lint-markers";
   var SEVERITIES = /^(?:error|warning)$/;
@@ -178,7 +185,7 @@
     }
   }
 
-  function optionHandler(cm, val, old) {
+  CodeMirror.defineOption("lint", false, function(cm, val, old) {
     if (old && old != CodeMirror.Init) {
       clearMarks(cm);
       cm.off("change", onChange);
@@ -196,8 +203,5 @@
 
       startLinting(cm);
     }
-  }
-
-  CodeMirror.defineOption("lintWith", false, optionHandler); // deprecated
-  CodeMirror.defineOption("lint", false, optionHandler); // deprecated
-})();
+  });
+});

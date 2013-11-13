@@ -58,7 +58,6 @@ function updateVisual() {
         var gray = Math.min(line.text.length * 3, 230), col = gray.toString(16);
         if (col.length == 1) col = "0" + col;
         lineElt.style.background = "#" + col + col + col;
-                          console.log(line.height, line);
         lineElt.style.width = Math.max(Math.round(line.height / 3), 1) + "px";
       }
     } else {

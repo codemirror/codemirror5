@@ -1,5 +1,3 @@
-/* Just enough of CodeMirror to run runMode under node.js */
-
 window.CodeMirror = {};
 
 (function() {
