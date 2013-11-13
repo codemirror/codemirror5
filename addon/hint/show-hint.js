@@ -143,6 +143,13 @@
     return ourMap;
   }
 
+  function getHintElement(stopAt, el) {
+    while (el && el != stopAt) {
+      if (el.nodeName.toUpperCase() === "LI") return el;
+      el = el.parentNode;
+    }
+  }
+
   function Widget(completion, data) {
     this.completion = completion;
     this.data = data;
@@ -219,12 +226,12 @@
     });
 
     CodeMirror.on(hints, "dblclick", function(e) {
-      var t = widget.getHintElement(hints, e.target || e.srcElement);
+      var t = getHintElement(hints, e.target || e.srcElement);
       if (t && t.hintId != null) {widget.changeActive(t.hintId); widget.pick();}
     });
 
     CodeMirror.on(hints, "click", function(e) {
-      var t = widget.getHintElement(hints, e.target || e.srcElement);
+      var t = getHintElement(hints, e.target || e.srcElement);
       if (t && t.hintId != null) widget.changeActive(t.hintId);
     });
 
@@ -274,25 +281,6 @@
 
     screenAmount: function() {
       return Math.floor(this.hints.clientHeight / this.hints.firstChild.offsetHeight) || 1;
-    },
-
-    getHintElement: function (parentEl, el) {
-      while (el && el !== parentEl && !this.isHintElement(el)) {
-        el = el.parentNode;
-      }
-
-      return el === parentEl
-        ? void(0)
-        : el
-      ;
-    },
-
-    isHintElement: function (el) {
-      return el &&
-             el.nodeName &&
-             el.nodeName.toUpperCase() === 'LI' &&
-             el.className.indexOf(HINT_ELEMENT_CLASS) >= 0
-      ;
     }
   };
 })();
