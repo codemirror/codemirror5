@@ -68,7 +68,7 @@
         return;
       }
       if (cm.getCursor("head").line != cm.getCursor("anchor").line) return;
-      var selection = cm.getSelection().replace(/^\s+|\s+$/g, "");
+      var selection = cm.getSelections()[0].replace(/^\s+|\s+$/g, "");
       if (selection.length >= state.minChars)
         cm.addOverlay(state.overlay = makeOverlay(selection, false, state.style));
     });

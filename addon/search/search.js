@@ -7,6 +7,7 @@
 // Ctrl-G.
 
 (function() {
+  "use strict";
   function searchOverlay(query, caseInsensitive) {
     var startChar;
     if (typeof query == "string") {
@@ -16,11 +17,6 @@
     } else {
       query = new RegExp("^(?:" + query.source + ")", query.ignoreCase ? "i" : "");
     }
-    if (typeof query == "string") return {token: function(stream) {
-      if (stream.match(query)) return "searching";
-      stream.next();
-      stream.skipTo(query.charAt(0)) || stream.skipToEnd();
-    }};
     return {token: function(stream) {
       if (stream.match(query)) return "searching";
       while (!stream.eol()) {
