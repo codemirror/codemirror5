@@ -1523,9 +1523,9 @@ testCM("beforeSelectionChange", function(cm) {
 testCM("change_removedText", function(cm) {
   cm.setValue("abc\ndef");
 
-  var removedText;
+  var removedText = [];
   cm.on("change", function(cm, change) {
-    removedText = [change.removed, change.next && change.next.removed];
+    removedText.push(change.removed);
   });
 
   cm.operation(function() {
@@ -1533,14 +1533,19 @@ testCM("change_removedText", function(cm) {
     cm.replaceRange("123", Pos(0,0));
   });
 
+  eq(removedText.length, 2);
   eq(removedText[0].join("\n"), "abc\nd");
   eq(removedText[1].join("\n"), "");
 
+  var removedText = [];
   cm.undo();
+  eq(removedText.length, 2);
   eq(removedText[0].join("\n"), "123");
   eq(removedText[1].join("\n"), "xyz");
 
+  var removedText = [];
   cm.redo();
+  eq(removedText.length, 2);
   eq(removedText[0].join("\n"), "abc\nd");
   eq(removedText[1].join("\n"), "");
 });

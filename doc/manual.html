@@ -453,7 +453,7 @@
       <dt id="event_change"><code><strong>"change"</strong> (instance: CodeMirror, changeObj: object)</code></dt>
       <dd>Fires every time the content of the editor is changed.
       The <code>changeObj</code> is a <code>{from, to, text, removed,
-      next}</code> object containing information about the changes
+      origin}</code> object containing information about the changes
       that occurred as second argument. <code>from</code>
       and <code>to</code> are the positions (in the pre-change
       coordinate system) where the change started and ended (for
@@ -462,10 +462,7 @@
       an array of strings representing the text that replaced the
       changed range (split by line). <code>removed</code> is the text
       that used to be between <code>from</code> and <code>to</code>,
-      which is overwritten by this change. If multiple changes
-      happened during a single operation, the object will have
-      a <code>next</code> property pointing to another change object
-      (which may point to another, etc).</dd>
+      which is overwritten by this change.</dd>
 
       <dt id="event_beforeChange"><code><strong>"beforeChange"</strong> (instance: CodeMirror, changeObj: object)</code></dt>
       <dd>This event is fired before a change is applied, and its
