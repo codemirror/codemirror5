@@ -41,43 +41,58 @@
                     "h5", "h6", "head", "html", "iframe", "layer", "legend", "object", "ol", "p", "select", "table", "ul"];
 
   function autoCloseGT(cm) {
-    var pos = cm.getCursor(), tok = cm.getTokenAt(pos);
-    var inner = CodeMirror.innerMode(cm.getMode(), tok.state), state = inner.state;
-    if (inner.mode.name != "xml" || !state.tagName) return CodeMirror.Pass;
+    var ranges = cm.listSelections(), replacements = [];
+    for (var i = 0; i < ranges.length; i++) {
+      if (!ranges[i].empty()) return CodeMirror.Pass;
+      var pos = ranges[i].head, tok = cm.getTokenAt(pos);
+      var inner = CodeMirror.innerMode(cm.getMode(), tok.state), state = inner.state;
+      if (inner.mode.name != "xml" || !state.tagName) return CodeMirror.Pass;
+      var opt = cm.getOption("autoCloseTags"), html = inner.mode.configuration == "html";
+      var dontCloseTags = (typeof opt == "object" && opt.dontCloseTags) || (html && htmlDontClose);
+      var indentTags = (typeof opt == "object" && opt.indentTags) || (html && htmlIndent);
 
-    var opt = cm.getOption("autoCloseTags"), html = inner.mode.configuration == "html";
-    var dontCloseTags = (typeof opt == "object" && opt.dontCloseTags) || (html && htmlDontClose);
-    var indentTags = (typeof opt == "object" && opt.indentTags) || (html && htmlIndent);
+      var tagName = state.tagName;
+      if (tok.end > pos.ch) tagName = tagName.slice(0, tagName.length - tok.end + pos.ch);
+      var lowerTagName = tagName.toLowerCase();
+      // Don't process the '>' at the end of an end-tag or self-closing tag
+      if (tok.type == "string" && (tok.end != pos.ch || !/[\"\']/.test(tok.string.charAt(tok.string.length - 1)) || tok.string.length == 1) ||
+          tok.type == "tag" && state.type == "closeTag" ||
+          tok.string.indexOf("/") == (tok.string.length - 1) || // match something like <someTagName />
+          dontCloseTags && indexOf(dontCloseTags, lowerTagName) > -1)
+        return CodeMirror.Pass;
 
-    var tagName = state.tagName;
-    if (tok.end > pos.ch) tagName = tagName.slice(0, tagName.length - tok.end + pos.ch);
-    var lowerTagName = tagName.toLowerCase();
-    // Don't process the '>' at the end of an end-tag or self-closing tag
-    if (tok.type == "string" && (tok.end != pos.ch || !/[\"\']/.test(tok.string.charAt(tok.string.length - 1)) || tok.string.length == 1) ||
-        tok.type == "tag" && state.type == "closeTag" ||
-        tok.string.indexOf("/") == (tok.string.length - 1) || // match something like <someTagName />
-        dontCloseTags && indexOf(dontCloseTags, lowerTagName) > -1)
-      return CodeMirror.Pass;
+      var indent = indentTags && indexOf(indentTags, lowerTagName) > -1;
+      replacements[i] = {indent: indent,
+                         text: ">" + (indent ? "\n\n" : "") + "</" + tagName + ">",
+                         newPos: indent ? CodeMirror.Pos(pos.line + 1, 0) : CodeMirror.Pos(pos.line, pos.ch + 1)};
+    }
 
-    var doIndent = indentTags && indexOf(indentTags, lowerTagName) > -1;
-    var curPos = doIndent ? CodeMirror.Pos(pos.line + 1, 0) : CodeMirror.Pos(pos.line, pos.ch + 1);
-    cm.replaceSelection(">" + (doIndent ? "\n\n" : "") + "</" + tagName + ">",
-                        {head: curPos, anchor: curPos});
-    if (doIndent) {
-      cm.indentLine(pos.line + 1);
-      cm.indentLine(pos.line + 2);
+    for (var i = ranges.length - 1; i >= 0; i--) {
+      var info = replacements[i];
+      cm.replaceRange(info.text, ranges[i].head, ranges[i].anchor, "+insert");
+      var sel = cm.listSelections().slice(0);
+      sel[i] = {head: info.newPos, anchor: info.newPos};
+      cm.setSelections(sel);
+      if (info.indent) {
+        cm.indentLine(info.newPos.line);
+        cm.indentLine(info.newPos.line + 1);
+      }
     }
   }
 
   function autoCloseSlash(cm) {
-    var pos = cm.getCursor(), tok = cm.getTokenAt(pos);
-    var inner = CodeMirror.innerMode(cm.getMode(), tok.state), state = inner.state;
-    if (tok.type == "string" || tok.string.charAt(0) != "<" ||
-        tok.start != pos.ch - 1 || inner.mode.name != "xml")
-      return CodeMirror.Pass;
-
-    var tagName = state.context && state.context.tagName;
-    if (tagName) cm.replaceSelection("/" + tagName + ">", "end");
+    var ranges = cm.listSelections(), replacements = [];
+    for (var i = 0; i < ranges.length; i++) {
+      if (!ranges[i].empty()) return CodeMirror.Pass;
+      var pos = ranges[i].head, tok = cm.getTokenAt(pos);
+      var inner = CodeMirror.innerMode(cm.getMode(), tok.state), state = inner.state;
+      if (tok.type == "string" || tok.string.charAt(0) != "<" ||
+          tok.start != pos.ch - 1 || inner.mode.name != "xml" ||
+          !state.context || !state.context.tagName)
+        return CodeMirror.Pass;
+      replacements[i] = "/" + state.context.tagName + ">";
+    }
+    cm.replaceSelections(replacements, null, "+input");
   }
 
   function indexOf(collection, elt) {
