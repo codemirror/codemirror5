@@ -507,14 +507,15 @@
       <dd>Fired whenever new input is read from the hidden textarea
       (typed or pasted by the user).</dd>
 
-      <dt id="event_beforeSelectionChange"><code><strong>"beforeSelectionChange"</strong> (instance: CodeMirror, selection: {head, anchor})</code></dt>
+      <dt id="event_beforeSelectionChange"><code><strong>"beforeSelectionChange"</strong> (instance: CodeMirror, obj: {ranges, update})</code></dt>
       <dd>This event is fired before the selection is moved. Its
-      handler may modify the resulting selection head and anchor.
-      The <code>selection</code> parameter is an object
-      with <code>head</code> and <code>anchor</code> properties
-      holding <code>{line, ch}</code> objects, which the handler can
-      read and update. Handlers for this event have the same
-      restriction
+      handler may inspect the set of selection ranges, present as an
+      array of <code>{anchor, head}</code> objects in
+      the <code>ranges</code> property of the <code>obj</code>
+      argument, and optionally change them by calling
+      the <code>update</code> method on this object, passing an array
+      of ranges in the same format. Handlers for this event have the
+      same restriction
       as <a href="#event_beforeChange"><code>"beforeChange"</code></a>
       handlers — they should not do anything to directly update the
       state of the editor.</dd>
@@ -951,46 +952,88 @@
     <h3 id="api_selection">Cursor and selection methods</h3>
 
     <dl>
-      <dt id="getSelection"><code><strong>doc.getSelection</strong>() → string</code></dt>
-      <dd>Get the currently selected code.</dd>
-      <dt id="replaceSelection"><code><strong>doc.replaceSelection</strong>(replacement: string, ?collapse: string)</code></dt>
-      <dd>Replace the selection with the given string. By default, the
-      new selection will span the inserted text. The
-      optional <code>collapse</code> argument can be used to change
-      this—passing <code>"start"</code> or <code>"end"</code> will
-      collapse the selection to the start or end of the inserted
-      text.</dd>
+      <dt id="getSelection"><code><strong>doc.getSelection</strong>(?lineSep: string) → string</code></dt>
+      <dd>Get the currently selected code. Optionally pass a line
+      separator to put between the lines in the output. When multiple
+      selections are present, they are concatenated with instances
+      of <code>lineSep</code> in between.</dd>
+      <dt id="getSelections"><code><strong>doc.getSelections</strong>(?lineSep: string) → string</code></dt>
+      <dd>Returns an array containing a string for each selection,
+      representing the content of the selections.</dd>
+
+      <dt id="replaceSelection"><code><strong>doc.replaceSelection</strong>(replacement: string, ?select: string)</code></dt>
+      <dd>Replace the selection(s) with the given string. By default,
+      the new selection ends up after the inserted text. The
+      optional <code>select</code> argument can be used to change
+      this—passing <code>"around"</code> will cause the new text to be
+      selected, passing <code>"start"</code> will collapse the
+      selection to the start of the inserted text.</dd>
+      <dt id="replaceSelections"><code><strong>doc.replaceSelections</strong>(replacements: array&lt;string&gt;, ?select: string)</code></dt>
+      <dd>The length of the given array should be the same as the
+      number of active selections. Replaces the content of the
+      selections with the strings in the array.
+      The <code>select</code> argument works the same as
+      in <a href="#replaceSelection"><code>replaceSelection</code></a>.</dd>
 
       <dt id="getCursor"><code><strong>doc.getCursor</strong>(?start: string) → {line, ch}</code></dt>
-      <dd><code>start</code> is a an optional string indicating which
-      end of the selection to return. It may
-      be <code>"start"</code>, <code>"end"</code>, <code>"head"</code>
+      <dd>Retrieve one end of the <em>primary</em>
+      selection. <code>start</code> is a an optional string indicating
+      which end of the selection to return. It may
+      be <code>"from"</code>, <code>"to"</code>, <code>"head"</code>
       (the side of the selection that moves when you press
       shift+arrow), or <code>"anchor"</code> (the fixed side of the
       selection). Omitting the argument is the same as
       passing <code>"head"</code>. A <code>{line, ch}</code> object
       will be returned.</dd>
+      <dt id="listSelections"><code><strong>doc.listSelections</strong>() → array&lt;{anchor, head}&lt;</code></dt>
+      <dd>Retrieves a list of all current selections. These will
+      always be sorted, and never overlap (overlapping selections are
+      merged). Each object in the array contains <code>anchor</code>
+      and <code>head</code> properties referring to <code>{line,
+      ch}</code> objects.</dd>
+      
       <dt id="somethingSelected"><code><strong>doc.somethingSelected</strong>() → boolean</code></dt>
       <dd>Return true if any text is selected.</dd>
       <dt id="setCursor"><code><strong>doc.setCursor</strong>(pos: {line, ch})</code></dt>
       <dd>Set the cursor position. You can either pass a
       single <code>{line, ch}</code> object, or the line and the
-      character as two separate parameters.</dd>
+      character as two separate parameters. Will replace all
+      selections with a single, empty selection at the given
+      position.</dd>
+
       <dt id="setSelection"><code><strong>doc.setSelection</strong>(anchor: {line, ch}, ?head: {line, ch})</code></dt>
-      <dd>Set the selection range. <code>anchor</code>
+      <dd>Set a single selection range. <code>anchor</code>
       and <code>head</code> should be <code>{line, ch}</code>
       objects. <code>head</code> defaults to <code>anchor</code> when
       not given.</dd>
+      <dt id="setSelections"><code><strong>doc.setSelections</strong>(ranges: array&lt;{anchor, head}&gt;, ?primary: integer)</code></dt>
+      <dd>Sets a new set of selections. There must be at least one
+      selection in the given array. When <code>primary</code> is
+      given, it determines which selection is the primary one
+      (defaults to the last one).</dd>
+      <dt id="addSelection"><code><strong>doc.addSelection</strong>(anchor: {line, ch}, ?head: {line, ch})</code></dt>
+      <dd>Adds a new selection to the existing set of selections, and
+      makes it the primary selection.</dd>
+
       <dt id="extendSelection"><code><strong>doc.extendSelection</strong>(from: {line, ch}, ?to: {line, ch})</code></dt>
       <dd>Similar
       to <a href="#setSelection"><code>setSelection</code></a>, but
       will, if shift is held or
       the <a href="#setExtending">extending</a> flag is set, move the
       head of the selection while leaving the anchor at its current
-      place. <code>to</code> is optional, and can be passed to
-      ensure a region (for example a word or paragraph) will end up
-      selected (in addition to whatever lies between that region and
-      the current anchor).</dd>
+      place. <code>to</code> is optional, and can be passed to ensure
+      a region (for example a word or paragraph) will end up selected
+      (in addition to whatever lies between that region and the
+      current anchor). When multiple selections are present, all but
+      the primary selection will be dropped by this method.</dd>
+      <dt id="extendSelections"><code><strong>doc.extendSelections</strong>(heads: array&lt;{line, ch}&gt;)</code></dt>
+      <dd>An equivalent
+      of <a href="#extendSelection"><code>extendSelection</code></a>
+      that acts on all selections at once.</dd>
+      <dt id="extendSelectionsBy"><code><strong>doc.extendSelectionsBy</strong>(f: function(range: {anchor, head}) → {anchor, head}))</code></dt>
+      <dd>Applies the given function to all existing selections, and
+      calls <a href="#extendSelections"><code>extendSelections</code></a>
+      on the result.</dd>
       <dt id="setExtending"><code><strong>doc.setExtending</strong>(value: boolean)</code></dt>
       <dd>Sets or clears the 'extending' flag, which acts similar to
       the shift key, in that it will cause cursor movement and calls
@@ -1000,7 +1043,7 @@
       <dt id="hasFocus"><code><strong>cm.hasFocus</strong>() → boolean</code></dt>
       <dd>Tells you whether the editor currently has focus.</dd>
 
-      <dt id="findPosH"><code><strong>cm.findPosH</strong>(start: {line, ch}, amount: integer, unit: string, visually: boolean) → {line, ch, ?hitSide: boolean}</code></dt>
+      <dt id="findPosH"><code><strong>cm.findPosH</strong>(start: {line, ch}, amount: integer, unit: string, visually: boolean) → {line, ch, ?hitSide: boolean}</code></dt>
       <dd>Used to find the target position for horizontal cursor
       motion. <code>start</code> is a <code>{line, ch}</code>
       object, <code>amount</code> an integer (may be negative),
