@@ -12,28 +12,42 @@
   CodeMirror.defineOption("styleActiveLine", false, function(cm, val, old) {
     var prev = old && old != CodeMirror.Init;
     if (val && !prev) {
+      cm.state.activeLines = [];
       updateActiveLine(cm);
       cm.on("cursorActivity", updateActiveLine);
     } else if (!val && prev) {
       cm.off("cursorActivity", updateActiveLine);
-      clearActiveLine(cm);
-      delete cm.state.activeLine;
+      clearActiveLines(cm);
+      delete cm.state.activeLines;
     }
   });
 
-  function clearActiveLine(cm) {
-    if ("activeLine" in cm.state) {
-      cm.removeLineClass(cm.state.activeLine, "wrap", WRAP_CLASS);
-      cm.removeLineClass(cm.state.activeLine, "background", BACK_CLASS);
+  function clearActiveLines(cm) {
+    for (var i = 0; i < cm.state.activeLines.length; i++) {
+      cm.removeLineClass(cm.state.activeLines[i], "wrap", WRAP_CLASS);
+      cm.removeLineClass(cm.state.activeLines[i], "background", BACK_CLASS);
     }
   }
 
+  function sameArray(a, b) {
+    if (a.length != b.length) return false;
+    for (var i = 0; i < a.length; i++)
+      if (a[i] != b[i]) return false;
+    return true;
+  }
+
   function updateActiveLine(cm) {
-    var line = cm.getLineHandleVisualStart(cm.getCursor().line);
-    if (cm.state.activeLine == line) return;
-    clearActiveLine(cm);
-    cm.addLineClass(line, "wrap", WRAP_CLASS);
-    cm.addLineClass(line, "background", BACK_CLASS);
-    cm.state.activeLine = line;
+    var ranges = cm.listSelections(), active = [];
+    for (var i = 0; i < ranges.length; i++) {
+      var line = cm.getLineHandleVisualStart(ranges[i].head.line);
+      if (active[active.length - 1] != line) active.push(line);
+    }
+    if (sameArray(cm.state.activeLines, active)) return;
+    clearActiveLines(cm);
+    for (var i = 0; i < active.length; i++) {
+      cm.addLineClass(active[i], "wrap", WRAP_CLASS);
+      cm.addLineClass(active[i], "background", BACK_CLASS);
+    }
+    cm.state.activeLines = active;
   }
 })();

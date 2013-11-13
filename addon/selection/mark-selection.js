@@ -34,10 +34,7 @@
 
   var CHUNK_SIZE = 8;
   var Pos = CodeMirror.Pos;
-
-  function cmp(pos1, pos2) {
-    return pos1.line - pos2.line || pos1.ch - pos2.ch;
-  }
+  var cmp = CodeMirror.cmpPos;
 
   function coverRange(cm, from, to, addAt) {
     if (cmp(from, to) == 0) return;
@@ -63,13 +60,16 @@
 
   function reset(cm) {
     clear(cm);
-    var from = cm.getCursor("start"), to = cm.getCursor("end");
-    coverRange(cm, from, to);
+    var ranges = cm.listSelections();
+    for (var i = 0; i < ranges.length; i++)
+      coverRange(cm, ranges[i].from(), ranges[i].to());
   }
 
   function update(cm) {
+    if (!cm.somethingSelected()) return clear(cm);
+    if (cm.listSelections().length > 1) return reset(cm);
+
     var from = cm.getCursor("start"), to = cm.getCursor("end");
-    if (cmp(from, to) == 0) return clear(cm);
 
     var array = cm.state.markedSelection;
     if (!array.length) return coverRange(cm, from, to);
