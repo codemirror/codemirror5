@@ -86,6 +86,7 @@ and CodeMirror. The following keys are bound:</p>
   <dt>Ctrl-I</dt><dd>Find type at cursor</dd>
   <dt>Alt-.</dt><dd>Jump to definition (Alt-, to jump back)</dd>
   <dt>Ctrl-Q</dt><dd>Rename variable</dd>
+  <dt>Ctrl-.</dt><dd>Select all occurrences of a variable</dd>
 </dl>
 
 <p>Documentation is sparse for now. See the top of
@@ -116,6 +117,7 @@ overview.</p>
       "Alt-.": function(cm) { server.jumpToDef(cm); },
       "Alt-,": function(cm) { server.jumpBack(cm); },
       "Ctrl-Q": function(cm) { server.rename(cm); },
+      "Ctrl-.": function(cm) { server.selectName(cm); }
     })
     editor.on("cursorActivity", function(cm) { server.updateArgHints(cm); });
   });
