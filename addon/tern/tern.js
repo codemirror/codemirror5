@@ -106,6 +106,8 @@
 
     rename: function(cm) { rename(this, cm); },
 
+    selectName: function(cm) { selectName(this, cm); },
+
     request: function (cm, query, c, pos) {
       var self = this;
       var doc = findDoc(this, cm.getDoc());
@@ -429,6 +431,25 @@
     });
   }
 
+  function selectName(ts, cm) {
+    var cur = cm.getCursor(), token = cm.getTokenAt(cur);
+    if (!/\w/.test(token.string)) showError(ts, cm, "Not at a variable");
+    var name = findDoc(ts, cm.doc).name;
+    ts.request(cm, {type: "refs"}, function(error, data) {
+      if (error) return showError(ts, cm, error);
+      var ranges = [], cur = 0;
+      for (var i = 0; i < data.refs.length; i++) {
+        var ref = data.refs[i];
+        if (ref.file == name) {
+          ranges.push({anchor: ref.start, head: ref.end});
+          if (cmpPos(cur, ref.start) >= 0 && cmpPos(cur, ref.end) <= 0)
+            cur = ranges.length - 1;
+        }
+      }
+      cm.setSelections(ranges, cur);
+    });
+  }
+
   var nextChangeOrig = 0;
   function applyChanges(ts, changes) {
     var perFile = Object.create(null);
@@ -521,7 +542,7 @@
 
   // Generic utilities
 
-  function cmpPos(a, b) { return a.line - b.line || a.ch - b.ch; }
+  var cmpPos = CodeMirror.cmpPos;
 
   function elt(tagname, cls /*, ... elts*/) {
     var e = document.createElement(tagname);
