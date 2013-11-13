@@ -1,3 +1,13 @@
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
+"use strict";
+
 CodeMirror.defineMode("xml", function(config, parserConfig) {
   var indentUnit = config.indentUnit;
   var multilineTagIndentFactor = parserConfig.multilineTagIndentFactor || 1;
@@ -343,3 +353,5 @@ CodeMirror.defineMIME("text/xml", "xml");
 CodeMirror.defineMIME("application/xml", "xml");
 if (!CodeMirror.mimeModes.hasOwnProperty("text/html"))
   CodeMirror.defineMIME("text/html", {name: "xml", htmlMode: true});
+
+});

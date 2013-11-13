@@ -1,3 +1,13 @@
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"), require("../python/python"), require("../stex/stex"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror", "../python/python", "../stex/stex"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
+"use strict";
+
 CodeMirror.defineMode('rst-base', function (config) {
 
     ///////////////////////////////////////////////////////////////////////////
@@ -558,3 +568,5 @@ CodeMirror.defineMIME('text/x-rst', 'rst');
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
+
+});

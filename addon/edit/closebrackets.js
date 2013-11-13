@@ -1,4 +1,11 @@
-(function() {
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
   var DEFAULT_BRACKETS = "()[]{}''\"\"";
   var DEFAULT_EXPLODE_ON_ENTER = "[]{}";
   var SPACE_CHAR_REGEX = /\s/;
@@ -109,4 +116,4 @@
       });
     };
   }
-})();
+});

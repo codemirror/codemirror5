@@ -1,4 +1,11 @@
-(function() {
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
   "use strict";
   // declare global: diff_match_patch, DIFF_INSERT, DIFF_DELETE, DIFF_EQUAL
 
@@ -471,4 +478,4 @@
   function posMin(a, b) { return (a.line - b.line || a.ch - b.ch) < 0 ? a : b; }
   function posMax(a, b) { return (a.line - b.line || a.ch - b.ch) > 0 ? a : b; }
   function posEq(a, b) { return a.line == b.line && a.ch == b.ch; }
-})();
+});

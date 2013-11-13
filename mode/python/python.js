@@ -1,3 +1,14 @@
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
+"use strict";
+
+
 CodeMirror.defineMode("python", function(conf, parserConf) {
     var ERRORCLASS = 'error';
 
@@ -355,14 +366,13 @@ CodeMirror.defineMode("python", function(conf, parserConf) {
 
 CodeMirror.defineMIME("text/x-python", "python");
 
-(function() {
-  "use strict";
-  var words = function(str){return str.split(' ');};
+var words = function(str){return str.split(' ');};
 
-  CodeMirror.defineMIME("text/x-cython", {
-    name: "python",
-    extra_keywords: words("by cdef cimport cpdef ctypedef enum except"+
-                          "extern gil include nogil property public"+
-                          "readonly struct union DEF IF ELIF ELSE")
-  });
-})();
+CodeMirror.defineMIME("text/x-cython", {
+  name: "python",
+  extra_keywords: words("by cdef cimport cpdef ctypedef enum except"+
+                        "extern gil include nogil property public"+
+                        "readonly struct union DEF IF ELIF ELSE")
+});
+
+});

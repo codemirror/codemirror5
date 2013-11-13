@@ -91,6 +91,9 @@
 &lt;link rel="stylesheet" href="../lib/codemirror.css">
 &lt;script src="mode/javascript/javascript.js">&lt;/script></pre>
 
+    <p>(Alternatively, use a module loader. <a href="#modloader">More
+    about that later.</a>)</p>
+
     <p>Having done this, an editor instance can be created like
     this:</p>
 
@@ -135,7 +138,41 @@
     of a form) is submitted. See the <a href="#fromTextArea">API
     reference</a> for a full description of this method.</p>
 
+    <h3 id=modloader>Module loaders</h3>
+
+    <p>The files in the CodeMirror distribution contain shims for
+    loading them (and their dependencies) in AMD or CommonJS
+    environments. If the variables <code>exports</code>
+    and <code>module</code> exist and have type object, CommonJS-style
+    require will be used. If not, but there is a
+    function <code>define</code> with an <code>amd</code> property
+    present, AMD-style (RequireJS) will be used.</p>
+
+    <p>It is possible to
+    use <a href="http://browserify.org/">Browserify</a> or similar
+    tools to statically build modules using CodeMirror. Alternatively,
+    use <a href="http://requirejs.org/">RequireJS</a> to dynamically
+    load dependencies at runtime. Both of these approaches have the
+    advantage that they don't use the global namespace and can, thus,
+    do things like load multiple versions of CodeMirror alongside each
+    other.</p>
+
+    <p>Here's a simple example of using RequireJS to load CodeMirror:</p>
+
+    <pre data-lang="javascript">require([
+  "cm/lib/codemirror", "cm/mode/htmlmixed/htmlmixed"
+], function(CodeMirror) {
+  CodeMirror.fromTextArea(document.getElementById("code"), {
+    lineNumbers: true,
+    mode: "htmlmixed"
+  });
+});</pre>
+
+    <p>It will automatically load the modes that the mixed HTML mode
+    depends on (XML, JavaScript, and CSS).</p>
+
 </section>
+
 <section id=config>
     <h2>Configuration</h2>
 
@@ -2117,7 +2154,7 @@
         <dt><code><strong>"close"</strong> ()</code></dt>
         <dd>Fired when the completion is finished.</dd>
       </dl>
-      This addon depends styles
+      This addon depends on styles
       from <code>addon/hint/show-hint.css</code>. Check
       out <a href="../demo/complete.html">the demo</a> for an
       example.</dd>

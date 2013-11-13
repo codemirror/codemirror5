@@ -1,6 +1,14 @@
-CodeMirror.defineMode("css", function(config, parserConfig) {
-  "use strict";
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
+"use strict";
 
+CodeMirror.defineMode("css", function(config, parserConfig) {
   if (!parserConfig.propertyKeywords) parserConfig = CodeMirror.resolveMode("text/css");
 
   var indentUnit = config.indentUnit || config.tabSize || 2,
@@ -312,7 +320,6 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
   };
 });
 
-(function() {
   function keySet(array) {
     var keys = {};
     for (var i = 0; i < array.length; ++i) {
@@ -636,4 +643,5 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     },
     name: "css"
   });
-})();
+
+});

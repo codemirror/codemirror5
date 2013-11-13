@@ -5,6 +5,17 @@
 * @version 3.0
 * @date 05.07.2013
 */
+
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"), require("../htmlmixed/htmlmixed"), require("../smarty/smarty"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror", "../htmlmixed/htmlmixed", "../smarty/smarty"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
+"use strict";
+
 CodeMirror.defineMode("smartymixed", function(config) {
   var settings, regs, helpers, parsers,
   htmlMixedMode = CodeMirror.getMode(config, "htmlmixed"),
@@ -168,8 +179,9 @@ CodeMirror.defineMode("smartymixed", function(config) {
       };
     }
   };
-},
-"htmlmixed");
+}, "htmlmixed", "smarty");
 
 CodeMirror.defineMIME("text/x-smarty", "smartymixed");
 // vim: et ts=2 sts=2 sw=2
+
+});

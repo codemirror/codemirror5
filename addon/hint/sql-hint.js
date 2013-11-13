@@ -1,4 +1,11 @@
-(function () {
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"), require("../../mode/sql/sql"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror", "../../mode/sql/sql"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
   "use strict";
 
   var tables;
@@ -102,4 +109,4 @@
     };
   }
   CodeMirror.registerHelper("hint", "sql", sqlHint);
-})();
+});

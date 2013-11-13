@@ -1,5 +1,15 @@
 // TODO actually recognize syntax of TypeScript constructs
 
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
+"use strict";
+
 CodeMirror.defineMode("javascript", function(config, parserConfig) {
   var indentUnit = config.indentUnit;
   var statementIndent = parserConfig.statementIndent;
@@ -615,3 +625,5 @@ CodeMirror.defineMIME("application/json", {name: "javascript", json: true});
 CodeMirror.defineMIME("application/x-json", {name: "javascript", json: true});
 CodeMirror.defineMIME("text/typescript", { name: "javascript", typescript: true });
 CodeMirror.defineMIME("application/typescript", { name: "javascript", typescript: true });
+
+});
