@@ -174,7 +174,7 @@
     if (dup > 1 && event.origin == "+input") {
       var one = event.text.join("\n"), txt = "";
       for (var i = 1; i < dup; ++i) txt += one;
-      cm.replaceSelection(txt, "end", "+input");
+      cm.replaceSelection(txt, null, "+input");
     }
   }
 
@@ -255,7 +255,7 @@
       cm.replaceRange(getFromRing(getPrefix(cm)), start, start, "paste");
       cm.setSelection(start, cm.getCursor());
     },
-    "Alt-Y": function(cm) {cm.replaceSelection(popFromRing());},
+    "Alt-Y": function(cm) {cm.replaceSelection(popFromRing(), "around");},
 
     "Ctrl-Space": setMark, "Ctrl-Shift-2": setMark,
 
@@ -312,7 +312,7 @@
       var range = cm.getRange(from, pos);
       if (range.length != 2) return;
       cm.setSelection(from, pos);
-      cm.replaceSelection(range.charAt(1) + range.charAt(0), "end");
+      cm.replaceSelection(range.charAt(1) + range.charAt(0));
     }),
 
     "Alt-C": repeated(function(cm) {

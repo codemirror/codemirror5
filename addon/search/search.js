@@ -7,6 +7,7 @@
 // Ctrl-G.
 
 (function() {
+  "use strict";
   function searchOverlay(query) {
     if (typeof query == "string") return {token: function(stream) {
       if (stream.match(query)) return "searching";
