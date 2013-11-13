@@ -44,7 +44,7 @@ CodeMirror.defineMode("htmlmixed", function(config, parserConfig) {
     if (close > -1) stream.backUp(cur.length - close);
     else if (m = cur.match(/<\/?$/)) {
       stream.backUp(cur.length);
-      if (!stream.match(pat, false)) stream.match(cur[0]);
+      if (!stream.match(pat, false)) stream.match(cur);
     }
     return style;
   }
