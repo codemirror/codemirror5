@@ -299,11 +299,12 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   poplex.lex = true;
 
   function expect(wanted) {
-    return function(type) {
+    function exp(type) {
       if (type == wanted) return cont();
       else if (wanted == ";") return pass();
-      else return cont(arguments.callee);
+      else return cont(exp);
     };
+    return exp;
   }
 
   function statement(type, value) {

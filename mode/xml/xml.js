@@ -242,12 +242,13 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
     };
   }
   function endclosetag(err) {
-    return function(type) {
+    function f(type) {
       if (err) setStyle = "error";
       if (type == "endTag") { popContext(); return cont(); }
       setStyle = "error";
-      return cont(arguments.callee);
+      return cont(f);
     };
+    return f;
   }
   function maybePopContext(nextTagName) {
     var parentTagName;
