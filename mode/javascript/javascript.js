@@ -19,7 +19,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       "var": kw("var"), "const": kw("var"), "let": kw("var"),
       "function": kw("function"), "catch": kw("catch"),
       "for": kw("for"), "switch": kw("switch"), "case": kw("case"), "default": kw("default"),
-      "in": operator, "typeof": operator, "instanceof": operator,
+      "in": operator, "of": operator, "typeof": operator, "instanceof": operator,
       "true": atom, "false": atom, "null": atom, "undefined": atom, "NaN": atom, "Infinity": atom,
       "this": kw("this")
     };
@@ -385,16 +385,16 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   function forspec1(type) {
     if (type == "var") return cont(vardef1, expect(";"), forspec2);
     if (type == ";") return cont(forspec2);
-    if (type == "variable") return cont(formaybein);
+    if (type == "variable") return cont(formaybeinof);
     return pass(expression, expect(";"), forspec2);
   }
-  function formaybein(_type, value) {
-    if (value == "in") return cont(expression);
+  function formaybeinof(_type, value) {
+    if (value == "in" || value == "of") return cont(expression);
     return cont(maybeoperatorComma, forspec2);
   }
   function forspec2(type, value) {
     if (type == ";") return cont(forspec3);
-    if (value == "in") return cont(expression);
+    if (value == "in" || value == "of") return cont(expression);
     return pass(expression, expect(";"), forspec3);
   }
   function forspec3(type) {
