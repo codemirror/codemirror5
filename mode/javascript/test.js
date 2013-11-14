@@ -7,4 +7,46 @@
 
   MT("comma-and-binop",
      "[keyword function](){ [keyword var] [def x] = [number 1] + [number 2], [def y]; }");
+
+  MT("destructuring",
+     "([keyword function]([def a], [[[def b], [def c] ]]) {",
+     "  [keyword let] {[def d], [property foo]: [def c]=[number 10], [def x]} = [variable foo]([variable-2 a]);",
+     "  [[[variable-2 c], [variable y] ]] = [variable-2 c];",
+     "})();");
+
+  MT("class",
+     "[keyword class] [variable Point]([variable SuperThing]) {",
+     "  [[ [string-2 /expr/] ]]: [number 24],",
+     "  [property constructor]([def x], [def y]) {",
+     "    [keyword super]([string 'something']);",
+     "    [keyword this].[property x] = [variable-2 x];",
+     "  }",
+     "}");
+
+  MT("module",
+     "[keyword module] [string 'foo'] {",
+     "  [keyword export] [keyword let] [def x] = [number 42];",
+     "  [keyword export] [keyword *] [keyword from] [string 'somewhere'];",
+     "}");
+
+  MT("import",
+     "[keyword function] [variable foo]() {",
+     "  [keyword import] [def $] [keyword from] [string 'jquery'];",
+     "  [keyword module] [def crypto] [keyword from] [string 'crypto'];",
+     "  [keyword import] { [def encrypt], [def decrypt] } [keyword from] [string 'crypto'];",
+     "}");
+
+  MT("const",
+     "[keyword function] [variable f]() {",
+     "  [keyword const] [[ [def a], [def b] ]] = [[ [number 1], [number 2] ]];",
+     "}");
+
+  MT("for/of",
+     "[keyword for]([keyword let] [variable of] [keyword of] [variable something]) {}");
+
+  MT("generator",
+     "[keyword function*] [variable repeat]([def n]) {",
+     "  [keyword for]([keyword var] [def i] = [number 0]; [variable-2 i] < [variable-2 n]; ++[variable-2 i])",
+     "    [keyword yield] [variable-2 i];",
+     "}");
 })();
