@@ -60,4 +60,10 @@
      "[keyword function] [variable f]([def a], [meta ...][def b]) {",
      "  [variable something]([variable-2 a], [meta ...][variable-2 b]);",
      "}");
+
+  MT("comprehension",
+     "[keyword function] [variable f]() {",
+     "  [[ [variable x] + [number 1] [keyword for] ([keyword var] [def x] [keyword in] [variable y]) [keyword if] [variable pred]([variable-2 x]) ]];",
+     "  ([variable u] [keyword for] ([keyword var] [def u] [keyword of] [variable generateValues]()) [keyword if] ([variable-2 u].[property color] === [string 'blue']));",
+     "}");
 })();

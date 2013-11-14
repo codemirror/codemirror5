@@ -299,8 +299,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == ";") return cont();
     if (type == "if") return cont(pushlex("form"), expression, statement, poplex, maybeelse);
     if (type == "function") return cont(functiondef);
-    if (type == "for") return cont(pushlex("form"), expect("("), pushlex(")"), forspec1, expect(")"),
-                                   poplex, statement, poplex);
+    if (type == "for") return cont(pushlex("form"), forspec, poplex, statement, poplex);
     if (type == "variable") return cont(pushlex("stat"), maybelabel);
     if (type == "switch") return cont(pushlex("form"), expression, pushlex("}", "switch"), expect("{"),
                                       block, poplex, poplex);
@@ -331,9 +330,9 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (atomicTypes.hasOwnProperty(type)) return cont(maybeop);
     if (type == "function") return cont(functiondef);
     if (type == "keyword c") return cont(noComma ? maybeexpressionNoComma : maybeexpression);
-    if (type == "(") return cont(pushlex(")"), maybeexpression, expect(")"), poplex, maybeop);
+    if (type == "(") return cont(pushlex(")"), maybeexpression, comprehension, expect(")"), poplex, maybeop);
     if (type == "operator" || type == "spread") return cont(noComma ? expressionNoComma : expression);
-    if (type == "[") return cont(commasep(expressionNoComma, "]"), maybeop);
+    if (type == "[") return cont(pushlex("]"), expressionNoComma, maybeArrayComprehension, poplex, maybeop);
     if (type == "{") return cont(commasep(objprop, "}"), maybeop);
     return cont();
   }
@@ -413,7 +412,8 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     }
     return function(type) {
       if (type == end) return cont();
-      else return pass(pushlex(end, info), what, proceed, poplex);
+      if (info === false) return pass(what, proceed);
+      return pass(pushlex(end, info), what, proceed, poplex);
     };
   }
   function block(type) {
@@ -450,6 +450,9 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   }
   function maybeelse(type, value) {
     if (type == "keyword b" && value == "else") return cont(pushlex("form"), statement, poplex);
+  }
+  function forspec(type) {
+    if (type == "(") return cont(pushlex(")"), forspec1, expect(")"));
   }
   function forspec1(type) {
     if (type == "var") return cont(vardef, expect(";"), forspec2);
@@ -507,6 +510,15 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   }
   function maybeFrom(_type, value) {
     if (value == "from") { cx.marked = "keyword"; return cont(expression); }
+  }
+  function maybeArrayComprehension(type) {
+    if (type == "for") return pass(comprehension);
+    if (type == ",") return cont(commasep(expressionNoComma, "]", false));
+    return pass(commasep(expressionNoComma, "]", false));
+  }
+  function comprehension(type) {
+    if (type == "for") return cont(forspec, comprehension);
+    if (type == "if") return cont(expression, comprehension);
   }
 
   // Interface
