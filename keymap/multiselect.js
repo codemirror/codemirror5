@@ -36,11 +36,6 @@
     cm.addSelection(cur.from(), cur.to());
   };
 
-  // Go to a single selection
-  pc["Alt-Esc"] = mac["Alt-Esc"] = function(cm) {
-    cm.setSelection(cm.getCursor("anchor"), cm.getCursor("head"));
-  };
-
   // Select matching parts of current selection
   var dialogText = 'Match: <input type="text" style="width: 10em"/> <span style="color: #888">(Use /re/ syntax for regexp)</span>';
   pc["Alt-F"] = mac["Alt-F"] = function(cm) {
