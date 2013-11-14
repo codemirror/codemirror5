@@ -46,7 +46,7 @@
   function csharpHint(editor) {	
     return scriptHint(editor, getAllKeywords(csharpKeywords), function (e, cur) {return e.getTokenAt(cur);});
     }
-  CodeMirror.csharpHintHint = csharpHint; // deprecated
+  CodeMirror.csharpHint = csharpHint; // deprecated
   CodeMirror.registerHelper("hint", "csharp", csharpHint);
   
   function javaHint(editor) {
@@ -63,6 +63,8 @@
   
   var addedKeywords="";
   
+  //below are all the reserved words plus some of the more common method names
+  //but the list is no way pretending to be complete
   var clikeKeywordString="abstract assert boolean break byte case catch char class const do default double else enum false "+
   "finally for float goto if int interface long new null private protected public return short static string switch throw "+
   "this try var void true using volatile while ";
@@ -83,7 +85,7 @@
   "replace replaceAll replaceFirst substring toUpperCase toLowerCase trim"+
   "StringBuffer System Thread ThreadGroup ThreadLocal Throwable Triple Void";
   
-  var scalaKeywords="assert assume require print println printf readLine readBoolean readByte readShort " +
+  var scalaKeywords="assume require print println printf readLine readBoolean readByte readShort " +
   "readChar readInt readLong readFloat readDouble " +
   "AnyVal App Application Array BufferedIterator BigDecimal BigInt Char Console Either " +
   "Enumeration Equiv Error Exception Fractional Function IndexedSeq Integral Iterable " +
