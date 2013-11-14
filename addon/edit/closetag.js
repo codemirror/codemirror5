@@ -24,16 +24,15 @@
 
 (function() {
   CodeMirror.defineOption("autoCloseTags", false, function(cm, val, old) {
-    if (val && (old == CodeMirror.Init || !old)) {
-      var map = {name: "autoCloseTags"};
-      if (typeof val != "object" || val.whenClosing)
-        map["'/'"] = function(cm) { return autoCloseSlash(cm); };
-      if (typeof val != "object" || val.whenOpening)
-        map["'>'"] = function(cm) { return autoCloseGT(cm); };
-      cm.addKeyMap(map);
-    } else if (!val && (old != CodeMirror.Init && old)) {
+    if (old != CodeMirror.Init && old)
       cm.removeKeyMap("autoCloseTags");
-    }
+    if (!val) return;
+    var map = {name: "autoCloseTags"};
+    if (typeof val != "object" || val.whenClosing)
+      map["'/'"] = function(cm) { return autoCloseSlash(cm); };
+    if (typeof val != "object" || val.whenOpening)
+      map["'>'"] = function(cm) { return autoCloseGT(cm); };
+    cm.addKeyMap(map);
   });
 
   var htmlDontClose = ["area", "base", "br", "col", "command", "embed", "hr", "img", "input", "keygen", "link", "meta", "param",
