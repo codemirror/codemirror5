@@ -49,4 +49,15 @@
      "  [keyword for]([keyword var] [def i] = [number 0]; [variable-2 i] < [variable-2 n]; ++[variable-2 i])",
      "    [keyword yield] [variable-2 i];",
      "}");
+
+  MT("fatArrow",
+     "[variable array].[property filter]([def a] => [variable-2 a] + [number 1]);",
+     "[variable a];", // No longer in scope
+     "[keyword let] [variable f] = ([[ [def a], [def b] ]], [def c]) => [variable-2 a] + [variable-2 c];",
+     "[variable c];");
+
+  MT("spread",
+     "[keyword function] [variable f]([def a], [meta ...][def b]) {",
+     "  [variable something]([variable-2 a], [meta ...][variable-2 b]);",
+     "}");
 })();

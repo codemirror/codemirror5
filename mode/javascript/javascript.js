@@ -82,10 +82,12 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       return chain(stream, state, jsTokenString(ch));
     else if (ch == "." && stream.match(/^\d+(?:[eE][+\-]?\d+)?/))
       return ret("number", "number");
-    else if (ch == "." && stream.eat(".."))
+    else if (ch == "." && stream.match(".."))
       return ret("spread", "meta");
     else if (/[\[\]{}\(\),;\:\.]/.test(ch))
       return ret(ch);
+    else if (ch == "=" && stream.eat(">"))
+      return ret("=>");
     else if (ch == "0" && stream.eat(/x/i)) {
       stream.eatWhile(/[\da-f]/i);
       return ret("number", "number");
@@ -147,6 +149,38 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       maybeEnd = (ch == "*");
     }
     return ret("comment", "comment");
+  }
+
+  var brackets = "([{}])";
+  // This is a crude lookahead trick to try and notice that we're
+  // parsing the argument patterns for a fat-arrow function before we
+  // actually hit the arrow token. It only works if the arrow is on
+  // the same line as the arguments and there's no strange noise
+  // (comments) in between. Fallback is to only notice when we hit the
+  // arrow, and not declare the arguments as locals for the arrow
+  // body.
+  function findFatArrow(stream, state) {
+    if (state.fatArrowAt) state.fatArrowAt = null;
+    var arrow = stream.string.indexOf("=>", stream.start);
+    if (arrow < 0) return;
+
+    var depth = 0, sawSomething = false;
+    for (var pos = arrow - 1; pos >= 0; --pos) {
+      var ch = stream.string.charAt(pos);
+      var bracket = brackets.indexOf(ch);
+      if (bracket >= 0 && bracket < 3) {
+        if (!depth) { ++pos; break; }
+        if (--depth == 0) break;
+      } else if (bracket >= 3 && bracket < 6) {
+        ++depth;
+      } else if (/[$\w]/.test(ch)) {
+        sawSomething = true;
+      } else if (sawSomething && !depth) {
+        ++pos;
+        break;
+      }
+    }
+    if (sawSomething && !depth) state.fatArrowAt = pos;
   }
 
   // Parser
@@ -287,6 +321,12 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     return expressionInner(type, true);
   }
   function expressionInner(type, noComma) {
+    if (cx.state.fatArrowAt == cx.stream.start) {
+      var body = noComma ? arrowBodyNoComma : arrowBody;
+      if (type == "(") return cont(pushcontext, commasep(pattern, ")"), expect("=>"), body, popcontext);
+      else if (type == "variable") return pass(pushcontext, pattern, expect("=>"), body, popcontext);
+    }
+
     var maybeop = noComma ? maybeoperatorNoComma : maybeoperatorComma;
     if (atomicTypes.hasOwnProperty(type)) return cont(maybeop);
     if (type == "function") return cont(functiondef);
@@ -313,6 +353,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   function maybeoperatorNoComma(type, value, noComma) {
     var me = noComma == false ? maybeoperatorComma : maybeoperatorNoComma;
     var expr = noComma == false ? expression : expressionNoComma;
+    if (value == "=>") return cont(pushcontext, noComma ? arrowBodyNoComma : arrowBody, popcontext);
     if (type == "operator") {
       if (/\+\+|--/.test(value)) return cont(me);
       if (value == "?") return cont(expression, expect(":"), expr);
@@ -322,6 +363,16 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == "(") return cont(commasep(expressionNoComma, ")", "call"), me);
     if (type == ".") return cont(property, me);
     if (type == "[") return cont(pushlex("]"), maybeexpression, expect("]"), poplex, me);
+  }
+  function arrowBody(type) {
+    findFatArrow(cx.stream, cx.state);
+    if (type == "{") return pass(statement);
+    return pass(expression);
+  }
+  function arrowBodyNoComma(type) {
+    findFatArrow(cx.stream, cx.state);
+    if (type == "{") return pass(statement);
+    return pass(expressionNoComma);
   }
   function maybelabel(type) {
     if (type == ":") return cont(poplex, statement);
@@ -479,6 +530,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
         if (!state.lexical.hasOwnProperty("align"))
           state.lexical.align = false;
         state.indented = stream.indentation();
+        findFatArrow(stream, state);
       }
       if (state.tokenize != jsTokenComment && stream.eatSpace()) return null;
       var style = state.tokenize(stream, state);
