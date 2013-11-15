@@ -22,7 +22,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       "in": operator, "typeof": operator, "instanceof": operator,
       "true": atom, "false": atom, "null": atom, "undefined": atom, "NaN": atom, "Infinity": atom,
       "this": kw("this"), "module": kw("module"), "class": kw("class"), "super": kw("atom"),
-      "yield": C, "export": kw("export"), "import": kw("import")
+      "yield": C, "export": kw("export"), "import": kw("import"), "extends": C
     };
 
     // Extend the 'normal' keywords with the TypeScript language extensions
@@ -502,8 +502,8 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   function className(type, value) {
     if (type == "variable") {register(value); return cont(classNameAfter);}
   }
-  function classNameAfter(type) {
-    if (type == "(") return pass(expression);
+  function classNameAfter(_type, value) {
+    if (value == "extends") return cont(expression);
   }
   function objlit(type) {
     if (type == "{") return cont(commasep(objprop, "}"));

@@ -15,7 +15,7 @@
      "})();");
 
   MT("class",
-     "[keyword class] [variable Point]([variable SuperThing]) {",
+     "[keyword class] [variable Point] [keyword extends] [variable SuperThing] {",
      "  [[ [string-2 /expr/] ]]: [number 24],",
      "  [property constructor]([def x], [def y]) {",
      "    [keyword super]([string 'something']);",
