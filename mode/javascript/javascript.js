@@ -54,11 +54,6 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
 
   var isOperatorChar = /[+\-*&%=<>!?|~^]/;
 
-  function chain(stream, state, f) {
-    state.tokenize = f;
-    return f(stream, state);
-  }
-
   function nextUntilUnescaped(stream, end) {
     var escaped = false, next;
     while ((next = stream.next()) != null) {
@@ -76,54 +71,51 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     type = tp; content = cont;
     return style;
   }
-  function jsTokenBase(stream, state) {
+  function tokenBase(stream, state) {
     var ch = stream.next();
-    if (ch == '"' || ch == "'")
-      return chain(stream, state, jsTokenString(ch));
-    else if (ch == "." && stream.match(/^\d+(?:[eE][+\-]?\d+)?/))
+    if (ch == '"' || ch == "'") {
+      state.tokenize = tokenString(ch);
+      return state.tokenize(stream, state);
+    } else if (ch == "." && stream.match(/^\d+(?:[eE][+\-]?\d+)?/)) {
       return ret("number", "number");
-    else if (ch == "." && stream.match(".."))
+    } else if (ch == "." && stream.match("..")) {
       return ret("spread", "meta");
-    else if (/[\[\]{}\(\),;\:\.]/.test(ch))
+    } else if (/[\[\]{}\(\),;\:\.]/.test(ch)) {
       return ret(ch);
-    else if (ch == "=" && stream.eat(">"))
+    } else if (ch == "=" && stream.eat(">")) {
       return ret("=>");
-    else if (ch == "0" && stream.eat(/x/i)) {
+    } else if (ch == "0" && stream.eat(/x/i)) {
       stream.eatWhile(/[\da-f]/i);
       return ret("number", "number");
-    }
-    else if (/\d/.test(ch)) {
+    } else if (/\d/.test(ch)) {
       stream.match(/^\d*(?:\.\d*)?(?:[eE][+\-]?\d+)?/);
       return ret("number", "number");
-    }
-    else if (ch == "/") {
+    } else if (ch == "/") {
       if (stream.eat("*")) {
-        return chain(stream, state, jsTokenComment);
-      }
-      else if (stream.eat("/")) {
+        state.tokenize = tokenComment;
+        return tokenComment(stream, state);
+      } else if (stream.eat("/")) {
         stream.skipToEnd();
         return ret("comment", "comment");
-      }
-      else if (state.lastType == "operator" || state.lastType == "keyword c" ||
+      } else if (state.lastType == "operator" || state.lastType == "keyword c" ||
                state.lastType == "sof" || /^[\[{}\(,;:]$/.test(state.lastType)) {
         nextUntilUnescaped(stream, "/");
         stream.eatWhile(/[gimy]/); // 'y' is "sticky" option in Mozilla
         return ret("regexp", "string-2");
-      }
-      else {
+      } else {
         stream.eatWhile(isOperatorChar);
         return ret("operator", null, stream.current());
       }
-    }
-    else if (ch == "#") {
+    } else if (ch == "`") {
+      state.tokenize = tokenQuasi;
+      return tokenQuasi(stream, state);
+    } else if (ch == "#") {
       stream.skipToEnd();
       return ret("error", "error");
-    }
-    else if (isOperatorChar.test(ch)) {
+    } else if (isOperatorChar.test(ch)) {
       stream.eatWhile(isOperatorChar);
       return ret("operator", null, stream.current());
-    }
-    else {
+    } else {
       stream.eatWhile(/[\w\$_]/);
       var word = stream.current(), known = keywords.propertyIsEnumerable(word) && keywords[word];
       return (known && state.lastType != ".") ? ret(known.type, known.style, word) :
@@ -131,24 +123,36 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     }
   }
 
-  function jsTokenString(quote) {
+  function tokenString(quote) {
     return function(stream, state) {
       if (!nextUntilUnescaped(stream, quote))
-        state.tokenize = jsTokenBase;
+        state.tokenize = tokenBase;
       return ret("string", "string");
     };
   }
 
-  function jsTokenComment(stream, state) {
+  function tokenComment(stream, state) {
     var maybeEnd = false, ch;
     while (ch = stream.next()) {
       if (ch == "/" && maybeEnd) {
-        state.tokenize = jsTokenBase;
+        state.tokenize = tokenBase;
         break;
       }
       maybeEnd = (ch == "*");
     }
     return ret("comment", "comment");
+  }
+
+  function tokenQuasi(stream, state) {
+    var escaped = false, next;
+    while ((next = stream.next()) != null) {
+      if (!escaped && (next == "`" || next == "$" && stream.eat("{"))) {
+        state.tokenize = tokenBase;
+        break;
+      }
+      escaped = !escaped && next == "\\";
+    }
+    return ret("quasi", "string-2", stream.current());
   }
 
   var brackets = "([{}])";
@@ -249,7 +253,8 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       state.localVars = {name: varname, next: state.localVars};
     } else {
       if (inList(state.globalVars)) return;
-      state.globalVars = {name: varname, next: state.globalVars};
+      if (parserConfig.globalVars)
+        state.globalVars = {name: varname, next: state.globalVars};
     }
   }
 
@@ -358,10 +363,23 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       if (value == "?") return cont(expression, expect(":"), expr);
       return cont(expr);
     }
+    if (type == "quasi") { cx.cc.push(me); return quasi(value); }
     if (type == ";") return;
     if (type == "(") return cont(commasep(expressionNoComma, ")", "call"), me);
     if (type == ".") return cont(property, me);
     if (type == "[") return cont(pushlex("]"), maybeexpression, expect("]"), poplex, me);
+  }
+  function quasi(value) {
+    if (!value) debugger;
+    if (value.slice(value.length - 2) != "${") return cont();
+    return cont(expression, continueQuasi);
+  }
+  function continueQuasi(type) {
+    if (type == "}") {
+      cx.marked = "string-2";
+      cx.state.tokenize = tokenQuasi;
+      return cont();
+    }
   }
   function arrowBody(type) {
     findFatArrow(cx.stream, cx.state);
@@ -525,16 +543,17 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
 
   return {
     startState: function(basecolumn) {
-      return {
-        tokenize: jsTokenBase,
+      var state = {
+        tokenize: tokenBase,
         lastType: "sof",
         cc: [],
         lexical: new JSLexical((basecolumn || 0) - indentUnit, 0, "block", false),
         localVars: parserConfig.localVars,
-        globalVars: parserConfig.globalVars,
         context: parserConfig.localVars && {vars: parserConfig.localVars},
         indented: 0
       };
+      if (parserConfig.globalVars) state.globalVars = parserConfig.globalVars;
+      return state;
     },
 
     token: function(stream, state) {
@@ -544,7 +563,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
         state.indented = stream.indentation();
         findFatArrow(stream, state);
       }
-      if (state.tokenize != jsTokenComment && stream.eatSpace()) return null;
+      if (state.tokenize != tokenComment && stream.eatSpace()) return null;
       var style = state.tokenize(stream, state);
       if (type == "comment") return style;
       state.lastType = type == "operator" && (content == "++" || content == "--") ? "incdec" : type;
@@ -552,8 +571,8 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     },
 
     indent: function(state, textAfter) {
-      if (state.tokenize == jsTokenComment) return CodeMirror.Pass;
-      if (state.tokenize != jsTokenBase) return 0;
+      if (state.tokenize == tokenComment) return CodeMirror.Pass;
+      if (state.tokenize != tokenBase) return 0;
       var firstChar = textAfter && textAfter.charAt(0), lexical = state.lexical;
       // Kludge to prevent 'maybelse' from blocking lexical scope pops
       for (var i = state.cc.length - 1; i >= 0; --i) {
