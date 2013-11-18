@@ -578,7 +578,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       for (var i = state.cc.length - 1; i >= 0; --i) {
         var c = state.cc[i];
         if (c == poplex) lexical = lexical.prev;
-        else if (c != maybeelse || /^else\b/.test(textAfter)) break;
+        else if (c != maybeelse) break;
       }
       if (lexical.type == "stat" && firstChar == "}") lexical = lexical.prev;
       if (statementIndent && lexical.type == ")" && lexical.prev.type == "stat")
