@@ -10,7 +10,11 @@
     } else {
       dialog.className = "CodeMirror-dialog CodeMirror-dialog-top";
     }
-    dialog.innerHTML = template;
+    if (typeof template == "string") {
+      dialog.innerHTML = template;
+    } else { // Assuming it's a detached DOM element.
+      dialog.appendChild(template);
+    }
     return dialog;
   }
 
