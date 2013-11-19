@@ -208,6 +208,19 @@
       indentation (only works if the mode supports indentation).
       Default is true.</dd>
 
+      <dt id="option_specialChars"><code><strong>specialChars</strong>: RegExp</code></dt>
+      <dd>A regular expression used to determine which characters
+      should be replaced by a
+      special <a href="#option_specialCharPlaceholder">placeholder</a>.
+      Mostly useful for non-printing special characters. The default
+      is <code>/[\u0000-\u0019\u00ad\u200b\u2028\u2029\ufeff]/</code>.</dd>
+      <dt id="option_specialCharPlaceholder"><code><strong>specialCharPlaceholder</strong>: function(char) → Element</code></dt>
+      <dd>A function that, given a special character identified by
+      the <a href="#option_specialChars"><code>specialChars</code></a>
+      option, produces a DOM node that is used to represent the
+      character. By default, a red dot (<span style="color: red">•</span>)
+      is shown, with a title tooltip to indicate the character code.</dd>
+
       <dt id="option_rtlMoveVisually"><code><strong>rtlMoveVisually</strong>: boolean</code></dt>
       <dd>Determines whether horizontal cursor movement through
       right-to-left (Arabic, Hebrew) text is visual (pressing the left
