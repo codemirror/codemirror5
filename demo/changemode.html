@@ -44,11 +44,11 @@ either JavaScript or Scheme mode based on that.</p>
     lineNumbers: true,
     tabMode: "indent"
   });
+  var pending;
   editor.on("change", function() {
     clearTimeout(pending);
-    setTimeout(update, 400);
+    pending = setTimeout(update, 400);
   });
-  var pending;
   function looksLikeScheme(code) {
     return !/^\s*\(\s*function\b/.test(code) && /^\s*[;\(]/.test(code);
   }
