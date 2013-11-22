@@ -46,7 +46,7 @@
       if (completion.hint) completion.hint(this.cm, data, completion);
       else this.cm.replaceRange(getText(completion), data.from, data.to);
       this.close();
-      CodeMirror.signal(data, "picked", completion);
+      CodeMirror.signal(data, "pick", completion);
     },
 
     showHints: function(data) {
