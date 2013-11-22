@@ -54,15 +54,11 @@ CodeMirror.defineMode("pegjs", function (config) {
         }
         return "comment";
       } else if (state.inChracterClass) {
-        if (stream.match(/^[^\]\\]+/)) {
-          return;
-        } else if (stream.match(/^\\./)) {
-          return;
-        } else {
-          stream.next();
-          state.inChracterClass = false;
-          return 'bracket';
-        }
+          while (state.inChracterClass && !stream.eol()) {
+            if (!(stream.match(/^[^\]\\]+/) || stream.match(/^\\./))) {
+              state.inChracterClass = false;
+            }
+          }
       } else if (stream.peek() === '[') {
         stream.next();
         state.inChracterClass = true;
