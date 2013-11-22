@@ -20,6 +20,19 @@ CodeMirror.defineMode("pegjs", function (config) {
     token: function (stream, state) {
       if (stream)
 
+      //normal rules don't apply in a character class
+      if (state.inChracterClass) {
+        if (stream.match(/^[^\]\\]+/)) {
+          return;
+        } else if (stream.match(/^\\./)) {
+          return;
+        } else {
+          stream.next();
+          state.inChracterClass = false;
+          return 'bracket';
+        }
+      }
+
       //check for state changes
       if (!state.inString && !state.inComment && ((stream.peek() == '"') || (stream.peek() == "'"))) {
         state.stringType = stream.peek();
@@ -30,7 +43,6 @@ CodeMirror.defineMode("pegjs", function (config) {
         state.inComment = true;
       }
 
-      //return state
       if (state.inString) {
         while (state.inString && !stream.eol()) {
           if (stream.peek() === state.stringType) {
@@ -53,16 +65,6 @@ CodeMirror.defineMode("pegjs", function (config) {
           }
         }
         return "comment";
-      } else if (state.inChracterClass) {
-        if (stream.match(/^[^\]\\]+/)) {
-          return;
-        } else if (stream.match(/^\\./)) {
-          return;
-        } else {
-          stream.next();
-          state.inChracterClass = false;
-          return 'bracket';
-        }
       } else if (stream.peek() === '[') {
         stream.next();
         state.inChracterClass = true;
