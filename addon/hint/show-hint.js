@@ -45,8 +45,8 @@
       var completion = data.list[i];
       if (completion.hint) completion.hint(this.cm, data, completion);
       else this.cm.replaceRange(getText(completion), data.from, data.to);
-      this.close();
       CodeMirror.signal(data, "pick", completion);
+      this.close();
     },
 
     showHints: function(data) {
