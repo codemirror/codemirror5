@@ -1,4 +1,4 @@
-CodeMirror.defineMode("gfm", function(config) {
+CodeMirror.defineMode("gfm", function(config, modeConfig) {
   var codeDepth = 0;
   function blankLine(state) {
     state.code = false;
@@ -87,11 +87,16 @@ CodeMirror.defineMode("gfm", function(config) {
     },
     blankLine: blankLine
   };
-  CodeMirror.defineMIME("gfmBase", {
-    name: "markdown",
+
+  var markdownConfig = {
     underscoresBreakWords: false,
     taskLists: true,
     fencedCodeBlocks: true
-  });
+  };
+  for (var attr in modeConfig) {
+    markdownConfig[attr] = modeConfig[attr];
+  }
+  markdownConfig.name = "markdown";
+  CodeMirror.defineMIME("gfmBase", markdownConfig);
   return CodeMirror.overlayMode(CodeMirror.getMode(config, "gfmBase"), gfmOverlay);
 }, "markdown");
