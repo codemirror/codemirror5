@@ -1,6 +1,57 @@
 (function() {
   var mode = CodeMirror.getMode({tabSize: 4}, "markdown");
   function MT(name) { test.mode(name, mode, Array.prototype.slice.call(arguments, 1)); }
+  var modeHighlightFormatting = CodeMirror.getMode({tabSize: 4}, {name: "markdown", highlightFormatting: true});
+  function FT(name) { test.mode(name, modeHighlightFormatting, Array.prototype.slice.call(arguments, 1)); }
+
+  FT("formatting_emAsterisk",
+     "[em&formatting&formatting-em *][em foo][em&formatting&formatting-em *]");
+
+  FT("formatting_emUnderscore",
+     "[em&formatting&formatting-em _][em foo][em&formatting&formatting-em _]");
+
+  FT("formatting_strongAsterisk",
+     "[strong&formatting&formatting-strong **][strong foo][strong&formatting&formatting-strong **]");
+
+  FT("formatting_strongUnderscore",
+     "[strong&formatting&formatting-strong __][strong foo][strong&formatting&formatting-strong __]");
+
+  FT("formatting_codeBackticks",
+     "[comment&formatting&formatting-code `][comment foo][comment&formatting&formatting-code `]");
+
+  FT("formatting_doubleBackticks",
+     "[comment&formatting&formatting-code ``][comment foo ` bar][comment&formatting&formatting-code ``]");
+
+  FT("formatting_atxHeader",
+     "[header&header1&formatting&formatting-header&formatting-header1 #][header&header1  foo # bar ][header&header1&formatting&formatting-header&formatting-header1 #]");
+
+  FT("formatting_setextHeader",
+     "foo",
+     "[header&header1&formatting&formatting-header&formatting-header1 =]");
+
+  FT("formatting_blockquote",
+     "[atom&formatting&formatting-quote > ][atom foo]");
+
+  FT("formatting_list",
+     "[variable-2&formatting&formatting-list - ][variable-2 foo]");
+  FT("formatting_list",
+     "[variable-2&formatting&formatting-list 1. ][variable-2 foo]");
+
+  FT("formatting_link",
+     "[link&formatting&formatting-link [][link foo][link&formatting&formatting-link ]]][string&formatting&formatting-link-string (][string http://example.com/][string&formatting&formatting-link-string )]");
+
+  FT("formatting_linkReference",
+     "[link&formatting&formatting-link [][link foo][link&formatting&formatting-link ]]][string&formatting&formatting-link-string [][string bar][string&formatting&formatting-link-string ]]]",
+     "[link&formatting&formatting-link [][link bar][link&formatting&formatting-link ]]:] [string http://example.com/]");
+
+  FT("formatting_linkWeb",
+     "[link&formatting&formatting-link <][link http://example.com/][link&formatting&formatting-link >]");
+
+  FT("formatting_linkEmail",
+     "[link&formatting&formatting-link <][link user@example.com][link&formatting&formatting-link >]");
+
+  FT("formatting_escape",
+     "[formatting&formatting-escape \\]*");
 
   MT("plainText",
      "foo");
@@ -650,6 +701,10 @@
 
   MT("doubleEscapeHash",
      "\\\\# foo");
+
+  MT("escapeNewline",
+     "\\",
+     "[em *foo*]");
 
 
   // Tests to make sure GFM-specific things aren't getting through

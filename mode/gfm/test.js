@@ -1,6 +1,23 @@
 (function() {
   var mode = CodeMirror.getMode({tabSize: 4}, "gfm");
   function MT(name) { test.mode(name, mode, Array.prototype.slice.call(arguments, 1)); }
+  var modeHighlightFormatting = CodeMirror.getMode({tabSize: 4}, {name: "gfm", highlightFormatting: true});
+  function FT(name) { test.mode(name, modeHighlightFormatting, Array.prototype.slice.call(arguments, 1)); }
+
+  FT("codeBackticks",
+     "[comment&formatting&formatting-code `][comment foo][comment&formatting&formatting-code `]");
+
+  FT("doubleBackticks",
+     "[comment&formatting&formatting-code ``][comment foo ` bar][comment&formatting&formatting-code ``]");
+
+  FT("codeBlock",
+     "[comment&formatting&formatting-code-block ```css]",
+     "[tag foo]",
+     "[comment&formatting&formatting-code-block ```]");
+
+  FT("taskList",
+     "[variable-2&formatting&formatting-list - ][meta&formatting&formatting-task [ ]]][variable-2  foo]",
+     "[variable-2&formatting&formatting-list - ][property&formatting&formatting-task [x]]][variable-2  foo]");
 
   MT("emInWordAsterisk",
      "foo[em *bar*]hello");
