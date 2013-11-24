@@ -96,6 +96,12 @@ function copyCursor(cur) {
   return { ch: cur.ch, line: cur.line };
 }
 
+function forEach(arr, func) {
+  for (var i = 0; i < arr.length; i++) {
+    func(arr[i]);
+  }
+}
+
 function testVim(name, run, opts, expectedFail) {
   var vimOpts = {
     lineNumbers: true,
@@ -1047,7 +1053,7 @@ testVim('ctrl-x', function(cm, vim, helpers) {
   eq('-3', cm.getValue());
 }, {value: '0'});
 testVim('<C-x>/<C-a> search forward', function(cm, vim, helpers) {
-  ['<C-x>', '<C-a>'].forEach(function(key) {
+  forEach(['<C-x>', '<C-a>'], function(key) {
     cm.setCursor(0, 0);
     helpers.doKeys(key);
     helpers.assertCursorAt(0, 5);
@@ -2080,7 +2086,7 @@ testVim('[(, ])', function(cm, vim, helpers) {
   helpers.assertCursorAt(8,0);
 }, { value: squareBracketMotionSandbox});
 testVim('[*, ]*, [/, ]/', function(cm, vim, helpers) {
-  ['*', '/'].forEach(function(key){
+  forEach(['*', '/'], function(key){
     cm.setCursor(7, 0);
     helpers.doKeys('2', '[', key);
     helpers.assertCursorAt(2,2);
