@@ -35,6 +35,7 @@
     }
     var inp = dialog.getElementsByTagName("input")[0], button;
     if (inp) {
+      if (options && options.value) inp.value = options.value;
       CodeMirror.on(inp, "keydown", function(e) {
         if (options && options.onKeyDown && options.onKeyDown(e, inp.value, close)) { return; }
         if (e.keyCode == 13 || e.keyCode == 27) {
