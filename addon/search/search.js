@@ -33,9 +33,9 @@
     // Heuristic: if the query string is all lowercase, do a case insensitive search.
     return cm.getSearchCursor(query, pos, typeof query == "string" && query == query.toLowerCase());
   }
-  function dialog(cm, text, shortText, f) {
-    if (cm.openDialog) cm.openDialog(text, f);
-    else f(prompt(shortText, ""));
+  function dialog(cm, text, shortText, deflt, f) {
+    if (cm.openDialog) cm.openDialog(text, f, {value: deflt});
+    else f(prompt(shortText, deflt));
   }
   function confirmDialog(cm, text, shortText, fs) {
     if (cm.openConfirm) cm.openConfirm(text, fs);
@@ -50,7 +50,7 @@
   function doSearch(cm, rev) {
     var state = getSearchState(cm);
     if (state.query) return findNext(cm, rev);
-    dialog(cm, queryDialog, "Search for:", function(query) {
+    dialog(cm, queryDialog, "Search for:", cm.getSelection(), function(query) {
       cm.operation(function() {
         if (!query || state.query) return;
         state.query = parseQuery(query);
@@ -85,10 +85,10 @@
   var replacementQueryDialog = 'With: <input type="text" style="width: 10em"/>';
   var doReplaceConfirm = "Replace? <button>Yes</button> <button>No</button> <button>Stop</button>";
   function replace(cm, all) {
-    dialog(cm, replaceQueryDialog, "Replace:", function(query) {
+    dialog(cm, replaceQueryDialog, "Replace:", cm.getSelection(), function(query) {
       if (!query) return;
       query = parseQuery(query);
-      dialog(cm, replacementQueryDialog, "Replace with:", function(text) {
+      dialog(cm, replacementQueryDialog, "Replace with:", "", function(text) {
         if (all) {
           cm.operation(function() {
             for (var cursor = getSearchCursor(cm, query); cursor.findNext();) {
