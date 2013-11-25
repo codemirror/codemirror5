@@ -1,3 +1,7 @@
+// Kludge in HTML5 tag recognition in IE8
+document.createElement("section");
+document.createElement("article");
+
 (function() {
   var pending = false, prevVal = null;
 
@@ -37,6 +41,8 @@
     }
   }
 
-  window.addEventListener("scroll", updateSoon);
-  window.addEventListener("load", updateSoon);
+  if (window.addEventListener) {
+    window.addEventListener("scroll", updateSoon);
+    window.addEventListener("load", updateSoon);
+  }
 })();

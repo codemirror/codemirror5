@@ -39,7 +39,7 @@ em {
 
 article {
   max-width: 700px;
-  margin: 0 auto;
+  margin: 0 0 0 160px;
   border-left: 2px solid #E30808;
   border-right: 1px solid #ddd;
   padding: 30px 50px 100px 50px;
@@ -54,19 +54,20 @@ article {
 #nav {
   position: fixed;
   top: 30px;
-  right: 50%;
+  left: 0; right: none;
+  width: 160px;
   padding-right: 350px;
   text-align: right;
   z-index: 1;
 }
 
-@media screen and (max-width: 1000px) {
+@media screen and (min-width: 1000px) {
   article {
-    margin: 0 0 0 160px;
+    margin: 0 auto;
   }
   #nav {
-    left: 0; right: none;
-    width: 160px;
+    right: 50%;
+    width: auto;
   }
 }
 
