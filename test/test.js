@@ -1141,7 +1141,7 @@ testCM("verticalMovementCommandsWrapping", function(cm) {
 
 testCM("rtlMovement", function(cm) {
   forEach(["خحج", "خحabcخحج", "abخحخحجcd", "abخde", "abخح2342خ1حج", "خ1ح2خح3حxج",
-           "خحcd", "1خحcd", "abcdeح1ج", "خمرحبها مها!", "foobarر",
+           "خحcd", "1خحcd", "abcdeح1ج", "خمرحبها مها!", "foobarر", "خ ة ق",
            "<img src=\"/בדיקה3.jpg\">"], function(line) {
     var inv = line.charAt(0) == "خ";
     cm.setValue(line + "\n"); cm.execCommand(inv ? "goLineEnd" : "goLineStart");
