@@ -1,7 +1,17 @@
 CodeMirror.defineMode("jinja2", function() {
-    var keywords = ["block", "endblock", "for", "endfor", "in", "true", "false",
-                    "loop", "none", "self", "super", "if", "as", "not", "and",
-                    "else", "import", "with", "without", "context"];
+    var keywords = ["and", "as", "block", "endblock", "by", "cycle", "debug", "else", "elif",
+                    "extends", "filter", "endfilter", "firstof", "for",
+                    "endfor", "if", "endif", "ifchanged", "endifchanged",
+                    "ifequal", "endifequal", "ifnotequal",
+                    "endifnotequal", "in", "include", "load", "not", "now", "or",
+                    "parsed", "regroup", "reversed", "spaceless",
+                    "endspaceless", "ssi", "templatetag", "openblock",
+                    "closeblock", "openvariable", "closevariable",
+                    "openbrace", "closebrace", "opencomment",
+                    "closecomment", "widthratio", "url", "with", "endwith",
+                    "get_current_language", "trans", "noop", "blocktrans",
+                    "endblocktrans", "get_available_languages",
+                    "get_current_language_bidi", "plural"];
     keywords = new RegExp("^((" + keywords.join(")|(") + "))\\b");
 
     function tokenBase (stream, state) {
