@@ -53,7 +53,8 @@
     if (tok.end > pos.ch) tagName = tagName.slice(0, tagName.length - tok.end + pos.ch);
     var lowerTagName = tagName.toLowerCase();
     // Don't process the '>' at the end of an end-tag or self-closing tag
-    if (tok.type == "string" && (tok.end != pos.ch || !/[\"\']/.test(tok.string.charAt(tok.string.length - 1)) || tok.string.length == 1) ||
+    if (!tagName ||
+        tok.type == "string" && (tok.end != pos.ch || !/[\"\']/.test(tok.string.charAt(tok.string.length - 1)) || tok.string.length == 1) ||
         tok.type == "tag" && state.type == "closeTag" ||
         tok.string.indexOf("/") == (tok.string.length - 1) || // match something like <someTagName />
         dontCloseTags && indexOf(dontCloseTags, lowerTagName) > -1)
