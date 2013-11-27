@@ -2003,6 +2003,33 @@ testVim('zt==z<CR>', function(cm, vim, helpers){
   eq(zVals[2], zVals[5]);
 });
 
+var scrollMotionSandbox =
+  '\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n'
+  '\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n'
+  '\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n'
+  '\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n';
+testVim('scrollMotion', function(cm, vim, helpers){
+  var prevCursor, prevScrollInfo;
+  cm.setCursor(0, 0);
+  // ctrl-y at the top of the file should have no effect.
+  helpers.doKeys('<C-y>');
+  eq(0, cm.getCursor().line);
+  prevScrollInfo = cm.getScrollInfo();
+  helpers.doKeys('<C-e>');
+  eq(1, cm.getCursor().line);
+  eq(true, prevScrollInfo.top < cm.getScrollInfo().top);
+  // Jump to the end of the sandbox.
+  cm.setCursor(1000, 0);
+  prevCursor = cm.getCursor();
+  // ctrl-e at the bottom of the file should have no effect.
+  helpers.doKeys('<C-e>');
+  eq(prevCursor.line, cm.getCursor().line);
+  prevScrollInfo = cm.getScrollInfo();
+  helpers.doKeys('<C-y>');
+  eq(prevCursor.line - 1, cm.getCursor().line);
+  eq(true, prevScrollInfo.top > cm.getScrollInfo().top);
+}, { value: scrollMotionSandbox});
+
 var squareBracketMotionSandbox = ''+
   '({\n'+//0
   '  ({\n'+//11
