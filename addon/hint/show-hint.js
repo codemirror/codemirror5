@@ -235,7 +235,10 @@
 
     CodeMirror.on(hints, "click", function(e) {
       var t = getHintElement(hints, e.target || e.srcElement);
-      if (t && t.hintId != null) widget.changeActive(t.hintId);
+      if (t && t.hintId != null) {
+        widget.changeActive(t.hintId);
+        if (options.completeOnSingleClick) widget.pick();
+      }
     });
 
     CodeMirror.on(hints, "mousedown", function() {
