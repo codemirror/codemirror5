@@ -84,6 +84,7 @@
     { keys: ['<End>'], type: 'keyToKey', toKeys: ['$'] },
     { keys: ['<PageUp>'], type: 'keyToKey', toKeys: ['<C-b>'] },
     { keys: ['<PageDown>'], type: 'keyToKey', toKeys: ['<C-f>'] },
+    { keys: ['<CR>'], type: 'keyToKey', toKeys: ['j', '^'], context: 'normal' },
     // Motions
     { keys: ['H'], type: 'motion',
         motion: 'moveToTopLine',
@@ -152,6 +153,12 @@
     { keys: ['<C-u>'], type: 'motion',
         motion: 'moveByScroll',
         motionArgs: { forward: false, explicitRepeat: true }},
+    { keys: ['<C-e>'], type: 'motion',
+        motion: 'moveByScroll',
+        motionArgs: { forward: true, linewise: true, staticCursor: true }},
+    { keys: ['<C-y>'], type: 'motion',
+        motion: 'moveByScroll',
+        motionArgs: { forward: false, linewise: true, staticCursor: true }},
     { keys: ['g', 'g'], type: 'motion',
         motion: 'moveToLineOrEdgeOfDocument',
         motionArgs: { forward: false, explicitRepeat: true, linewise: true, toJumplist: true }},
@@ -1168,7 +1175,9 @@
                     : selectionStart);
           } else if (!operator) {
             curEnd = clipCursorToContent(cm, curEnd);
-            cm.setCursor(curEnd.line, curEnd.ch);
+            if (!motionArgs.staticCursor) {
+              cm.setCursor(curEnd.line, curEnd.ch);
+            }
           }
         }
 
