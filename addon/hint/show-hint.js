@@ -226,16 +226,22 @@
       hints.style.left = (left + startScroll.left - curScroll.left) + "px";
     });
 
-    CodeMirror.on(hints, "dblclick", function(e) {
+    function onSelectClick(e) {
+      var t = getHintElement(hints, e.target || e.srcElement);
+      if (t && t.hintId != null) {widget.changeActive(t.hintId);}
+    }
+
+    function onPickClick(e) {
       var t = getHintElement(hints, e.target || e.srcElement);
       if (t && t.hintId != null) {widget.changeActive(t.hintId); widget.pick();}
-    });
+    }
 
-    CodeMirror.on(hints, "click", function(e) {
-      var t = getHintElement(hints, e.target || e.srcElement);
-      if (t && t.hintId != null) widget.changeActive(t.hintId);
-    });
-
+    if (options.completeSingleClick) {
+      CodeMirror.on(hints, "click", onPickClick);
+    } else {
+      CodeMirror.on(hints, "click", onSelectClick);
+      CodeMirror.on(hints, "dblclick", onPickClick);
+    }
     CodeMirror.on(hints, "mousedown", function() {
       setTimeout(function(){cm.focus();}, 20);
     });
