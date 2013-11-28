@@ -7,7 +7,15 @@
 // Ctrl-G.
 
 (function() {
-  function searchOverlay(query) {
+  function searchOverlay(query, caseInsensitive) {
+    var startChar;
+    if (typeof query == "string") {
+      startChar = query.charAt(0);
+      query = new RegExp("^" + query.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&"),
+                         caseInsensitive ? "i" : "");
+    } else {
+      query = new RegExp("^(?:" + query.source + ")", query.ignoreCase ? "i" : "");
+    }
     if (typeof query == "string") return {token: function(stream) {
       if (stream.match(query)) return "searching";
       stream.next();
@@ -17,6 +25,8 @@
       if (stream.match(query)) return "searching";
       while (!stream.eol()) {
         stream.next();
+        if (startChar)
+          stream.skipTo(startChar) || stream.skipToEnd();
         if (stream.match(query, false)) break;
       }
     }};
@@ -29,9 +39,12 @@
   function getSearchState(cm) {
     return cm.state.search || (cm.state.search = new SearchState());
   }
+  function queryCaseInsensitive(query) {
+    return typeof query == "string" && query == query.toLowerCase();
+  }
   function getSearchCursor(cm, query, pos) {
     // Heuristic: if the query string is all lowercase, do a case insensitive search.
-    return cm.getSearchCursor(query, pos, typeof query == "string" && query == query.toLowerCase());
+    return cm.getSearchCursor(query, pos, queryCaseInsensitive(query));
   }
   function dialog(cm, text, shortText, deflt, f) {
     if (cm.openDialog) cm.openDialog(text, f, {value: deflt});
@@ -54,7 +67,7 @@
       cm.operation(function() {
         if (!query || state.query) return;
         state.query = parseQuery(query);
-        cm.removeOverlay(state.overlay);
+        cm.removeOverlay(state.overlay, queryCaseInsensitive(state.query));
         state.overlay = searchOverlay(state.query);
         cm.addOverlay(state.overlay);
         state.posFrom = state.posTo = cm.getCursor();
