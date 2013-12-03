@@ -459,6 +459,13 @@ testCM("markTextAllowEmpty", function(cm) {
   is(!m3.find());
 }, {value: "abcde"});
 
+testCM("markTextStacked", function(cm) {
+  var m1 = cm.markText(Pos(0, 0), Pos(0, 0), {clearWhenEmpty: false});
+  var m2 = cm.markText(Pos(0, 0), Pos(0, 0), {clearWhenEmpty: false});
+  cm.replaceRange("B", Pos(0, 1));
+  is(m1.find() && m2.find());
+}, {value: "A"});
+
 testCM("undoPreservesNewMarks", function(cm) {
   cm.markText(Pos(0, 3), Pos(0, 4));
   cm.markText(Pos(1, 1), Pos(1, 3));
