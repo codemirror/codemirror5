@@ -55,6 +55,7 @@
   });
 
   test("expandingCaseFold", "<b>İİ İİ</b>", "<b>uu uu</b>", function(doc) {
+    if (phantom) return; // A Phantom bug makes this hang
     run(doc, "</b>", true, 0, 8, 0, 12, 1, 8, 1, 12);
     run(doc, "İİ", true, 0, 3, 0, 5, 0, 6, 0, 8);
   });
