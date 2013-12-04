@@ -212,10 +212,11 @@ CodeMirror.defineMode("python", function(conf, parserConf) {
                     break;
                 }
             }
-        } else if (type == ')' && (stream.eol() || stream.match(/\s*#?/, false))) {
-            // When defining or calling a function, if you have an open paren,
-            // then newline, whitespace, or a comment, indent the next line a
-            // fixed amount, to be able to put arguments one per line.
+        } else if (stream.eol() || stream.match(/\s*#?/, false)) {
+            // An open paren/bracket/brace with no tokens following it on the
+            // line will cause the next line to be indednted a fixed amount, to
+            // make it easier to put arguments, list items, etc. on their own
+            // lines.
             indentUnit = stream.indentation() + hangingIndent;
         } else {
             indentUnit = stream.column() + stream.current().length;
