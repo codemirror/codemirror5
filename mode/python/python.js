@@ -11,6 +11,7 @@ CodeMirror.defineMode("python", function(conf, parserConf) {
     var doubleDelimiters = parserConf.doubleDelimiters || new RegExp("^((\\+=)|(\\-=)|(\\*=)|(%=)|(/=)|(&=)|(\\|=)|(\\^=))");
     var tripleDelimiters = parserConf.tripleDelimiters || new RegExp("^((//=)|(>>=)|(<<=)|(\\*\\*=))");
     var identifiers = parserConf.identifiers|| new RegExp("^[_A-Za-z][_A-Za-z0-9]*");
+    var hangingIndent = parserConfig.hangingIndent || 4;
 
     var wordOperators = wordRegexp(['and', 'or', 'not', 'is', 'in']);
     var commonkeywords = ['as', 'assert', 'break', 'class', 'continue',
@@ -211,6 +212,11 @@ CodeMirror.defineMode("python", function(conf, parserConf) {
                     break;
                 }
             }
+        } else if (type == ')' && (stream.eol() || stream.match(/\s*#?/, false))) {
+            // When defining or calling a function, if you have an open paren,
+            // then newline, whitespace, or a comment, indent the next line a
+            // fixed amount, to be able to put arguments one per line.
+            indentUnit = stream.indentation() + hangingIndent;
         } else {
             indentUnit = stream.column() + stream.current().length;
         }
