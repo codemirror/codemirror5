@@ -110,6 +110,8 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
       return null;
     } else if (ch == "<") {
       state.tokenize = inText;
+      state.state = baseState;
+      state.tagName = state.tagStart = null;
       var next = state.tokenize(stream, state);
       return next ? next + " error" : "error";
     } else if (/[\'\"]/.test(ch)) {
