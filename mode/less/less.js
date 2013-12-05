@@ -244,7 +244,7 @@ CodeMirror.defineMode("less", function(config) {
         if(type === "(" && stream.current().length >=1)if(stream.peek() === ":")return ret("variable","variable");
         if(type === "(" && stream.eatSpace() && stream.peek() && stream.peek() === "{" && stream.current().match(protocol) === null)return ret("tag","tag");
         return ret("string", "string");
-      } else if(type == "|" || stream.current() == "-" || type == "["){        
+      } else if(type == "|" || stream.current() == "-" || type == "["){
         if(type == "|" && stream.peek().match(/\]|=|\~/) !== null)return ret("number", stream.current());
         else if(type == "|" )return ret("tag", "tag");
         else if(type == "["){
