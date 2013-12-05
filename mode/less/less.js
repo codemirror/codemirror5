@@ -74,6 +74,7 @@ CodeMirror.defineMode("less", function(config) {
           return ret(null, ch);
         } else {
           if(stream.current() === ":-")stream.backUp(1);//property:-12px, only handle :
+          if(state.stack[state.stack.length-1] !== undefined && state.stack[state.stack.length-1] === "font-family")stream.backUp(stream.current().length-1);
           return ret(null, ch);
         }
       } else if(ch == "~"){
