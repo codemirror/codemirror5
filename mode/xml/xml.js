@@ -195,7 +195,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
           !Kludges.contextGrabbers[parentTagName].hasOwnProperty(nextTagName)) {
         return;
       }
-      popContext();
+      popContext(state);
     }
   }
 
