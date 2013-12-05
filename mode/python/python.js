@@ -212,11 +212,10 @@ CodeMirror.defineMode("python", function(conf, parserConf) {
                     break;
                 }
             }
-        } else if (stream.eol() || stream.match(/\s*#?/, false)) {
-            // An open paren/bracket/brace with no tokens following it on the
-            // line will cause the next line to be indednted a fixed amount, to
-            // make it easier to put arguments, list items, etc. on their own
-            // lines.
+        } else if (stream.match(/\s*($|#)/, false)) {
+            // An open paren/bracket/brace with only space or comments after it
+            // on the line will indent the next line a fixed amount, to make it
+            // easier to put arguments, list items, etc. on their own lines.
             indentUnit = stream.indentation() + hangingIndent;
         } else {
             indentUnit = stream.column() + stream.current().length;
