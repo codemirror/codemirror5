@@ -315,10 +315,10 @@ CodeMirror.defineMode("less", function(config) {
         else if(type === ")" && (stream.current() == "and" || stream.current() == "and "))return ret("variable", "variable");
         else if(type === ")" && (stream.current() == "when" || stream.current() == "when "))return ret("variable", "variable");
         else if(type === ")" && (stream.current() == "not" || stream.current() == "not "))return ret("variable", "variable");
-        
+
         else if(type === "{" && state.stack[state.stack.length-1] === "{" && stream.peek() && stream.peek() === ".")return ret("tag", stream.current());
         else if(type === "{" && state.stack[state.stack.length-1] === "{" && stream.eol())return ret("tag", stream.current());
-        
+
         else if(type === "{" && state.stack[state.stack.length-1] === "{")return ret("variable", "variable");
         else if(type === ")" || type === "comment" || type === "{")return ret("tag", "tag");        
         else if(stream.sol())return ret("tag", "tag");
@@ -328,7 +328,7 @@ CodeMirror.defineMode("less", function(config) {
 
         //null
         else if(type === ":"){stream.eatSpace();return ret(null, stream.current());}
-        
+
         else if(state.stack[state.stack.length-2] === "{" && state.stack[state.stack.length-1] === "rule" && stream.peek())return ret("tag", stream.current());
 
         else if(stream.current() === "and " || stream.current() === "and")return ret("variable", stream.current());
@@ -336,7 +336,7 @@ CodeMirror.defineMode("less", function(config) {
         else if(state.stack[state.stack.length-1] === "rule" && type === "}")return ret("tag", type);//when the closing ) is not present, prevent to much funjy behaviour
         //null
         else if(state.stack[state.stack.length-1] === "rule" && type !== "}")return ret(null, stream.current());
-        
+
         else if(state.stack[state.stack.length-1] === "(")return ret("string",stream.current());//when populating -webkit-what( content
 
         return ret("tag", stream.current());
