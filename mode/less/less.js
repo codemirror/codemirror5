@@ -320,7 +320,7 @@ CodeMirror.defineMode("less", function(config) {
         else if(type === "{" && state.stack[state.stack.length-1] === "{" && stream.eol())return ret("tag", stream.current());
 
         else if(type === "{" && state.stack[state.stack.length-1] === "{")return ret("variable", "variable");
-        else if(type === ")" || type === "comment" || type === "{")return ret("tag", "tag");        
+        else if(type === ")" || type === "comment" || type === "{")return ret("tag", "tag");
         else if(stream.sol())return ret("tag", "tag");
         else if((stream.eatSpace() && stream.peek() === "#") || stream.peek() === "#")return ret("tag", "tag");
         else if(state.stack.length === 0)return ret("tag", "tag");
