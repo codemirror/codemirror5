@@ -41,8 +41,8 @@ CodeMirror.defineMode("less", function(config) {
       else if (ch == "\"" || ch == "'") {
       state.tokenize = tokenString(ch);
       return state.tokenize(stream, state);
-    } else if (ch == "/") { // e.g.: .png will not be parsed as a class        
-      if(stream.eat("/")){        
+    } else if (ch == "/") { // e.g.: .png will not be parsed as a class
+      if(stream.eat("/")){
         state.tokenize = tokenSComment;
         return tokenSComment(stream, state);
       } else {
@@ -81,7 +81,7 @@ CodeMirror.defineMode("less", function(config) {
       } else {
         return ret(null, ch);
       }
-    } else if (ch == ".") {      
+    } else if (ch == ".") {
       stream.eatWhile(/[\a-zA-Z0-9\-_]/);
       if(stream.peek() === " ")stream.eatSpace();
       if(stream.peek() === ")" || type === ":")return ret("number", "unit");//rgba(0,0,0,.25);
@@ -126,29 +126,29 @@ CodeMirror.defineMode("less", function(config) {
       return ret(null, ch);
     } else {
       stream.eatWhile(/[\w\\\-_%.{]/);
-      
+
       if(stream.current().match(/\\/) !== null){
         stringParser(stream);
         return ret("string", stream.current());
       } //else if(type === "tag")return ret("tag", "tag");
         else if(type === "string"){
-        
+
         if(state.stack[state.stack.length-1] === "{" && stream.peek() === ":")return ret("variable", "variable");
         if(stream.peek() === "/")stream.eatWhile(/[\w\\\-_%.{:\/]/);
         if(stream.peek() === ":"){
           stream.next();
           if(stream.peek() === "/"){
-            stream.eatWhile(/[\w\\\-_%.{\:\/\u00BF-\u1FFF\u2C00-\uD7FF]/);        
+            stream.eatWhile(/[\w\\\-_%.{\:\/\u00BF-\u1FFF\u2C00-\uD7FF]/);
             //string parser
             return ret("string", stream.current());
           }else stream.backUp(1);
         }
         //fix for code below a font-family, border-color, background-position, property remains correct color, result -> more smooth editing
-        if(stream.peek() === ":")return ret("variable","variable");        
+        if(stream.peek() === ":")return ret("variable","variable");
         if(stream.eatSpace() && (stream.eol() || (stream.peek() && stream.peek() === "{")) )return ret("tag",stream.current());
         return ret("string", stream.current());
       } else if(stream.current().match(protocol) !== null){
-        stream.eatWhile(/[\w\\\-_%.{\:\/\u00BF-\u1FFF\u2C00-\uD7FF]/);        
+        stream.eatWhile(/[\w\\\-_%.{\:\/\u00BF-\u1FFF\u2C00-\uD7FF]/);
         //string parser
         return ret("string", stream.current());
       } else if(stream.peek() === "<" || stream.peek() === ">" || stream.peek() === "+"){
@@ -191,7 +191,7 @@ CodeMirror.defineMode("less", function(config) {
         if( /[{<>.a-zA-Z\/]/.test(stream.peek())  || stream.eol() )return ret("tag", "tag"); // e.g. button.icon-plus
         return ret("string", "string"); // let url(/images/logo.png) without quotes return as string
       } else if( stream.eol() || stream.peek() == "[" || stream.peek() == "#" || type == "tag" ){
-        
+
         stream.eatSpace();
         //if(type === "[")return ret("string",stream.current());
         if(stream.current().substring(stream.current().length-1,stream.current().length) == "{")stream.backUp(1);
@@ -212,10 +212,10 @@ CodeMirror.defineMode("less", function(config) {
         //else if(state.stack[state.stack.length-1] === ";" || type === "")return ret("variable", stream.current());
         else if(stream.peek() === "#" && type !== undefined && type.match(/\+|,|tag|select\-op|}|{|;/g) === null)return ret("string", stream.current());
         else if(type === "variable")return ret(null, stream.current());
-        
+
         else if(state.stack[state.stack.length-1] === "{" && type === "comment")return ret("variable", stream.current());
         else if(state.stack.length === 0 && (type === ";" || type === "comment"))return ret("tag", stream.current());
-        
+
         else if(state.stack[state.stack.length-1] === "{" && (type === "{" || type === "tag") && stream.current().match(/\s+/))return ret("tag", stream.current());
         else if((state.stack[state.stack.length-1] === "{" || type === ";") && state.stack[state.stack.length-1] !== "@media{")return ret("variable", stream.current());
         else if(state.stack[state.stack.length-2] === "{" && state.stack[state.stack.length-1] === ";")return ret("variable", stream.current());
@@ -226,12 +226,12 @@ CodeMirror.defineMode("less", function(config) {
         else if(type === "unit" && state.stack[state.stack.length-1] === ";")return ret(null,stream.current());
         //null
         else if(type === ")" && state.stack[state.stack.length-1] === "rule")return ret(null,stream.current());// let 'no-repeat' be null and not tag -> background: url(/images/logo.png) no-repeat
-        
+
         else if(state.stack[state.stack.length-1] === "(")return ret("string","string");//when populating -> background-image: -webkit-wht( content
-        
+
         return ret("tag", "tag");
       } else if(type == "compare" || type == "a" || type == "("){
-        
+
         /* handles device-aspect-ratio -> @media screen and (device-aspect-ratio: 16/9) { … }*/
         if(type === "(" && state.stack[state.stack.length-1] === "(" && state.stack[state.stack.length-2] === "@media")return ret("string","string");
         /*
@@ -397,7 +397,7 @@ CodeMirror.defineMode("less", function(config) {
     token: function(stream, state) {
       if (stream.eatSpace()) return null;
       var style = state.tokenize(stream, state);
-      
+
       var context = state.stack[state.stack.length-1];
       if (type == "hash" && context == "rule") style = "atom";
       else if (style == "variable") {
@@ -437,13 +437,13 @@ CodeMirror.defineMode("less", function(config) {
       var n_func = function(num){
         return n !== 0 ? state.stack[state.stack.length-num] : '';
       };
-      
+
       if (/^\}/.test(textAfter))
         n -= n_func(1) === "rule" ? 2 : 1;
       else if (n_func(1).match(at_rule))//"@media")
         n -= n_func(1).match(at_rule) ? 1 : 0;
       else if (n_func(2) === "{")
-        n -= n_func(1) === "rule" ? 1 : 0;      
+        n -= n_func(1) === "rule" ? 1 : 0;
       else if (/^\)/.test(textAfter))
         n -= n_func(1) === "(" ? 2 : 1;
       else if (n_func(1) === "(")
