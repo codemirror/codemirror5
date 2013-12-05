@@ -377,14 +377,23 @@ CodeMirror.defineMode("less", function(config) {
 
   function tokenString(quote) {
     return function(stream, state) {
-      var escaped = false, ch;
+      var escaped = false, ch, sl, local_type = "string";
       while ((ch = stream.next()) != null) {
+        if (ch.match(/\(|\)/) !== null) {
+          sl = stream.current();
+          if(sl.substring(sl.length-2,sl.length-1) !== "\\" && sl.substring(sl.length-1,sl.length).match(/\(|\)/) !== null){
+            stream.backUp(1);
+            local_type = "number";
+            break;
+          }
+        }
         if (ch == quote && !escaped)
           break;
         escaped = !escaped && ch == "\\";
       }
       if (!escaped) state.tokenize = tokenBase;
-      return ret("string", stream.current());
+      if (ch !== quote) local_type = "number";
+      return ret(local_type, stream.current());
     };
   }
 
