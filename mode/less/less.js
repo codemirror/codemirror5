@@ -25,7 +25,7 @@ CodeMirror.defineMode("less", function(config) {
   var protocol = /(^http$|^https$|^file$|^ftp$)/;
   //taken from https://developer.mozilla.org/en-US/docs/Web/CSS/At-rule
   var at_rule = /(^@charset$|^@import$|^@namespace$|^@media$|^@page$|^@font\-face$|^fon\-feature\-settings$|^@keyframes$|^@supports$|^@document$)/;
-  
+
   function tokenBase(stream, state) {
     var ch = stream.next();
 
