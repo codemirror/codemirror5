@@ -442,7 +442,6 @@ CodeMirror.defineMode("less", function(config) {
     },
 
     indent: function(state, textAfter) {
-      //console.log(state.stack);
       var n = state.stack.length;
       var n_func = function(num){
         return n !== 0 ? state.stack[state.stack.length-num] : '';
