@@ -24,7 +24,7 @@ CodeMirror.defineMode("less", function(config) {
   var selectors = /(^\:root$|^\:nth\-child$|^\:nth\-last\-child$|^\:nth\-of\-type$|^\:nth\-last\-of\-type$|^\:first\-child$|^\:last\-child$|^\:first\-of\-type$|^\:last\-of\-type$|^\:only\-child$|^\:only\-of\-type$|^\:empty$|^\:link|^\:visited$|^\:active$|^\:hover$|^\:focus$|^\:target$|^\:lang$|^\:enabled^\:disabled$|^\:checked$|^\:first\-line$|^\:first\-letter$|^\:before$|^\:after$|^\:not$|^\:required$|^\:invalid$)/;
   var protocol = /(^http$|^https$|^file$|^ftp$)/;
   //taken from https://developer.mozilla.org/en-US/docs/Web/CSS/At-rule
-  var at_rule = /(^@charset$|^@import$|^@namespace$|^@media$|^@page$|^@font\-face$|^fon\-feature\-settings$|^@keyframes$|^@supports$|^@document$)/;
+  var at_rule = /(^@charset$|^@import$|^@namespace$|^@media$|^@page$|^@font\-face$|^font\-feature\-settings$|^@keyframes$|^@supports$|^@document$)/;
 
   function tokenBase(stream, state) {
     var ch = stream.next();
