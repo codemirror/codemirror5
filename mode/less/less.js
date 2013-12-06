@@ -458,7 +458,6 @@ CodeMirror.defineMode("less", function(config) {
         n -= n_func(1) === "(" ? 2 : 1;
       else if (n_func(1) === "(")
         n -= n_func(1) === "(" ? 1 : 0;
-      //console.log(n);
       return state.baseIndent + n * indentUnit;
     },
 
