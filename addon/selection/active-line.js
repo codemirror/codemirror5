@@ -15,7 +15,7 @@
       updateActiveLine(cm, cm.getCursor().line);
       cm.on("beforeSelectionChange", selectionChange);
     } else if (!val && prev) {
-      cm.off("beforeSelecionChange", selectionChange);
+      cm.off("beforeSelectionChange", selectionChange);
       clearActiveLine(cm);
       delete cm.state.activeLine;
     }
