@@ -57,7 +57,9 @@
         tok.type == "string" && (tok.end != pos.ch || !/[\"\']/.test(tok.string.charAt(tok.string.length - 1)) || tok.string.length == 1) ||
         tok.type == "tag" && state.type == "closeTag" ||
         tok.string.indexOf("/") == (tok.string.length - 1) || // match something like <someTagName />
-        dontCloseTags && indexOf(dontCloseTags, lowerTagName) > -1)
+        dontCloseTags && indexOf(dontCloseTags, lowerTagName) > -1 ||
+        CodeMirror.scanForClosingTag && CodeMirror.scanForClosingTag(cm, pos, tagName,
+                                                                     Math.min(cm.lastLine() + 1, pos.line + 50)))
       return CodeMirror.Pass;
 
     var doIndent = indentTags && indexOf(indentTags, lowerTagName) > -1;
