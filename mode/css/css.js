@@ -119,6 +119,16 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
 
   // Parser
 
+  function wordAsValue(stream) {
+    var word = stream.current().toLowerCase();
+    if (valueKeywords.hasOwnProperty(word))
+      override = "atom";
+    else if (colorKeywords.hasOwnProperty(word))
+      override = "keyword";
+    else
+      override = "variable";
+  }
+
   var states = {};
 
   states.top = function(type, _stream, state) {
@@ -135,14 +145,17 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     } else if (type == "word") {
       override = "tag";
     } else if (type == "variable-definition") {
-      return pushContext(state, "maybeprop");
+      return "maybeprop";
     } else if (type == "interpolation") {
       return pushContext(state, "interpolation");
+    } else if (type == ":") {
+      return "pseudo";
     } else if (allowNested && type == "(") {
       return pushContext(state, "params");
     }
     return state.context.type;
   };
+
   states.block = function(type, stream, state) {
     if (type == "word") {
       if (propertyKeywords.hasOwnProperty(stream.current().toLowerCase())) {
@@ -164,10 +177,12 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
       return states.top(type, stream, state);
     }
   };
+
   states.maybeprop = function(type, _stream, state) {
     if (type == ":") return pushContext(state, "prop");
     else return state.context.type;
   };
+
   states.prop = function(type, stream, state) {
     if (type == ";") return popContext(state);
     if (type == "}" || type == "{") return popAndPass(type, stream, state);
@@ -176,91 +191,71 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     if (type == "hash" && !/^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/.test(stream.current())) {
       override += " error";
     } else if (type == "word") {
-      var word = stream.current().toLowerCase();
-      if (valueKeywords.hasOwnProperty(word))
-        override = "string-2";
-      else if (colorKeywords.hasOwnProperty(word))
-        override = "keyword";
-      else
-        override = "variable-2";
+      wordAsValue(stream);
     } else if (type == "interpolation") {
       return pushContext(state, "interpolation");
     }
     return "prop";
   };
+
   states.parens = function(type, stream, state) {
     if (type == "{" || type == "}") return popAndPass(type, stream, state);
     if (type == ")") return popContext(state);
     return "parens";
   };
-  states.media = function(type, stream, state) {
-    if (type == "(") return "media_parens";
-    if (type == "}") return popAndPass(type, stream, state);
-    if (type == "{") return popContext(state) && pushContext(state, "top");
+
+  states.pseudo = function(type, stream, state) {
     if (type == "word") {
-      var word = stream.current();
-      if (mediaTypes[word]) {
-        override = "attribute";
-        return "mediatype";
-      } else if (/^(only|not)$/.test(word)) {
-        override = "keyword";
-        return "mediatype";
-      } else if (word == "and" || mediaFeatures.hasOwnProperty(word)) {
-        override = "error";
-        return "media";
-      } else {
-        override = "attribute error";
-        return "mediatype";
-      }
+      override = "variable-2";
+      return state.context.type;
     }
-    return "media";
+    return pass(type, stream, state);
   };
-  states.mediatype = function(type, stream, state) {
-    if (type == ",") return "media";
+
+  states.media = function(type, stream, state) {
     if (type == "(") return pushContext(state, "media_parens");
     if (type == "}") return popAndPass(type, stream, state);
-    if (type == "{") return popContext(state) && pushContext(state, "top");
+    if (type == "{") return popContext(state) && pushContext(state, allowNested ? "block" : "top");
+
     if (type == "word") {
-      var word = stream.current();
-      if (mediaTypes.hasOwnProperty(word))
+      var word = stream.current().toLowerCase();
+      if (word == "only" || word == "not" || word == "and")
+        override = "keyword";
+      else if (mediaTypes.hasOwnProperty(word))
         override = "attribute";
-      else if (word == "and")
-        override = "operator";
+      else if (mediaFeatures.hasOwnProperty(word))
+        override = "property";
       else
         override = "error";
     }
-    return "mediatype";
+    return state.context.type;
   };
+
   states.media_parens = function(type, stream, state) {
     if (type == ")") return popContext(state);
     if (type == "{" || type == "}") return popAndPass(type, stream, state, 2);
-    if (type == "word") {
-      var word = stream.current().toLowerCase();
-      if (propertyKeywords.hasOwnProperty(word))
-        override = "property";
-      else if (word == "and")
-        override = "operator";
-      else
-        override = "error";
-    }
-    return "media_parens";
+    return states.media(type, stream, state);
   };
+
   states.at = function(type, stream, state) {
     if (type == ";") return popContext(state);
     if (type == "{" || type == "}") return popAndPass(type, stream, state);
     if (type == "word") override = "tag";
-    else if (type == "hash") override = "atom";
+    else if (type == "hash") override = "builtin";
     return "at";
   };
+
   states.interpolation = function(type, stream, state) {
     if (type == "}") return popContext(state);
     if (type == "{" || type == ";") return popAndPass(type, stream, state);
     if (type != "variable") override = "error";
     return "interpolation";
   };
+
   states.params = function(type, stream, state) {
     if (type == ")") return popContext(state);
     if (type == "{" || type == "}") return popAndPass(type, stream, state);
+    if (type == "word") wordAsValue(stream);
     return "params";
   };
 
@@ -601,6 +596,39 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
       "#": function(stream) {
         if (!stream.eat("{")) return false;
         return [null, "interpolation"];
+      }
+    },
+    name: "css"
+  });
+
+  CodeMirror.defineMIME("text/x-less", {
+    mediaTypes: mediaTypes,
+    mediaFeatures: mediaFeatures,
+    propertyKeywords: propertyKeywords,
+    colorKeywords: colorKeywords,
+    valueKeywords: valueKeywords,
+    allowNested: true,
+    tokenHooks: {
+      "/": function(stream, state) {
+        if (stream.eat("/")) {
+          stream.skipToEnd();
+          return ["comment", "comment"];
+        } else if (stream.eat("*")) {
+          state.tokenize = tokenCComment;
+          return tokenCComment(stream, state);
+        } else {
+          return ["operator", "operator"];
+        }
+      },
+      "@": function(stream) {
+        if (stream.match(/^(media|import)\b/, false)) return false;
+        stream.eatWhile(/[\w\\\-]/);
+        if (stream.match(/^\s*:/, false))
+          return ["variable-2", "variable-definition"];
+        return ["variable-2", "variable"];
+      },
+      "&": function() {
+        return ["atom", "atom"];
       }
     },
     name: "css"

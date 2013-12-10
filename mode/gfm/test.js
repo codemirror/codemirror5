@@ -114,7 +114,7 @@
 
   MT("notALink",
      "[comment ```css]",
-     "[tag foo] {[property color][operator :][keyword black];}",
+     "[tag foo] {[property color]:[keyword black];}",
      "[comment ```][link http://www.example.com/]");
 
   MT("notALink",

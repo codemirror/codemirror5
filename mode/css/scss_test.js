@@ -4,19 +4,19 @@
   function IT(name) { test.indentation(name, mode, Array.prototype.slice.call(arguments, 1), "scss"); }
 
   MT('url_with_quotation',
-    "[tag foo] { [property background]:[string-2 url]([string test.jpg]) }");
+    "[tag foo] { [property background]:[atom url]([string test.jpg]) }");
 
   MT('url_with_double_quotes',
-    "[tag foo] { [property background]:[string-2 url]([string \"test.jpg\"]) }");
+    "[tag foo] { [property background]:[atom url]([string \"test.jpg\"]) }");
 
   MT('url_with_single_quotes',
-    "[tag foo] { [property background]:[string-2 url]([string \'test.jpg\']) }");
+    "[tag foo] { [property background]:[atom url]([string \'test.jpg\']) }");
 
   MT('string',
     "[def @import] [string \"compass/css3\"]");
 
   MT('important_keyword',
-    "[tag foo] { [property background]:[string-2 url]([string \'test.jpg\']) [keyword !important] }");
+    "[tag foo] { [property background]:[atom url]([string \'test.jpg\']) [keyword !important] }");
 
   MT('variable',
     "[variable-2 $blue]:[atom #333]");
@@ -80,7 +80,7 @@
     "[tag p] { [builtin #hello] { [property color]:[keyword red]; } }");
 
   IT('mixin',
-    "@mixin container[1 ($a: 10, $b: 10, $c: 10]) [1 {]}");
+    "[1 @mixin container ($a: 10, $b: 10, $c: 10) {]}");
 
   IT('nested',
     "foo [1 { bar ][2 { ][1 } ]}");
@@ -90,4 +90,12 @@
 
   IT('parentheses',
     "foo [1 { color][2 : darken][3 ($blue, 9%][2 )][1 ; ]}");
+
+  IT('vardef',
+     "$name[1 : 'val'];",
+     "tag [1 {]",
+     "[1  inner ][2 {]",
+     "[2    margin][3 : 3px][2 ;]",
+     "[2  ][1 }]",
+     "}");
 })();
