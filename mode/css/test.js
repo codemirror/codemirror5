@@ -62,7 +62,7 @@
 
   // Make sure nesting works with media queries
   MT("atMediaMaxWidthNested",
-     "[def @media] [attribute screen] [operator and] ([property max-width][operator :] [number 25px]) { [tag foo] { } }");
+     "[def @media] [attribute screen] [operator and] ([property max-width]: [number 25px]) { [tag foo] { } }");
 
   MT("tagSelector",
      "[tag foo] { }");
@@ -74,53 +74,53 @@
      "[builtin #foo] { [error #foo] }");
 
   MT("tagSelectorUnclosed",
-     "[tag foo] { [property margin][operator :] [number 0] } [tag bar] { }");
+     "[tag foo] { [property margin]: [number 0] } [tag bar] { }");
 
   MT("tagStringNoQuotes",
-     "[tag foo] { [property font-family][operator :] [variable-2 hello] [variable-2 world]; }");
+     "[tag foo] { [property font-family]: [variable-2 hello] [variable-2 world]; }");
 
   MT("tagStringDouble",
-     "[tag foo] { [property font-family][operator :] [string \"hello world\"]; }");
+     "[tag foo] { [property font-family]: [string \"hello world\"]; }");
 
   MT("tagStringSingle",
-     "[tag foo] { [property font-family][operator :] [string 'hello world']; }");
+     "[tag foo] { [property font-family]: [string 'hello world']; }");
 
   MT("tagColorKeyword",
      "[tag foo] {" +
-       "[property color][operator :] [keyword black];" +
-       "[property color][operator :] [keyword navy];" +
-       "[property color][operator :] [keyword yellow];" +
+       "[property color]: [keyword black];" +
+       "[property color]: [keyword navy];" +
+       "[property color]: [keyword yellow];" +
        "}");
 
   MT("tagColorHex3",
-     "[tag foo] { [property background][operator :] [atom #fff]; }");
+     "[tag foo] { [property background]: [atom #fff]; }");
 
   MT("tagColorHex6",
-     "[tag foo] { [property background][operator :] [atom #ffffff]; }");
+     "[tag foo] { [property background]: [atom #ffffff]; }");
 
   MT("tagColorHex4",
-     "[tag foo] { [property background][operator :] [atom&error #ffff]; }");
+     "[tag foo] { [property background]: [atom&error #ffff]; }");
 
   MT("tagColorHexInvalid",
-     "[tag foo] { [property background][operator :] [atom&error #ffg]; }");
+     "[tag foo] { [property background]: [atom&error #ffg]; }");
 
   MT("tagNegativeNumber",
-     "[tag foo] { [property margin][operator :] [number -5px]; }");
+     "[tag foo] { [property margin]: [number -5px]; }");
 
   MT("tagPositiveNumber",
-     "[tag foo] { [property padding][operator :] [number 5px]; }");
+     "[tag foo] { [property padding]: [number 5px]; }");
 
   MT("tagVendor",
-     "[tag foo] { [meta -foo-][property box-sizing][operator :] [meta -foo-][string-2 border-box]; }");
+     "[tag foo] { [meta -foo-][property box-sizing]: [meta -foo-][string-2 border-box]; }");
 
   MT("tagBogusProperty",
-     "[tag foo] { [property&error barhelloworld][operator :] [number 0]; }");
+     "[tag foo] { [property&error barhelloworld]: [number 0]; }");
 
   MT("tagTwoProperties",
-     "[tag foo] { [property margin][operator :] [number 0]; [property padding][operator :] [number 0]; }");
+     "[tag foo] { [property margin]: [number 0]; [property padding]: [number 0]; }");
 
   MT("tagTwoPropertiesURL",
-     "[tag foo] { [property background][operator :] [string-2 url]([string //example.com/foo.png]); [property padding][operator :] [number 0]; }");
+     "[tag foo] { [property background]: [string-2 url]([string //example.com/foo.png]); [property padding]: [number 0]; }");
 
   MT("commentSGML",
      "[comment <!--comment-->]");

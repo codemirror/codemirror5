@@ -18,57 +18,48 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
   function tokenBase(stream, state) {
     var ch = stream.next();
     if (hooks[ch]) {
-      // result[0] is style and result[1] is type
       var result = hooks[ch](stream, state);
       if (result !== false) return result;
     }
-    if (ch == "@") {stream.eatWhile(/[\w\\\-]/); return ret("def", stream.current());}
-    else if (ch == "=") ret(null, "compare");
-    else if ((ch == "~" || ch == "|") && stream.eat("=")) return ret(null, "compare");
-    else if (ch == "\"" || ch == "'") {
+    if (ch == "@") {
+      stream.eatWhile(/[\w\\\-]/);
+      return ret("def", stream.current());
+    } else if (ch == "=" || (ch == "~" || ch == "|") && stream.eat("=")) {
+      return ret(null, "compare");
+    } else if (ch == "\"" || ch == "'") {
       state.tokenize = tokenString(ch);
       return state.tokenize(stream, state);
-    }
-    else if (ch == "#") {
+    } else if (ch == "#") {
       stream.eatWhile(/[\w\\\-]/);
       return ret("atom", "hash");
-    }
-    else if (ch == "!") {
+    } else if (ch == "!") {
       stream.match(/^\s*\w*/);
       return ret("keyword", "important");
-    }
-    else if (/\d/.test(ch) || ch == "." && stream.eat(/\d/)) {
+    } else if (/\d/.test(ch) || ch == "." && stream.eat(/\d/)) {
       stream.eatWhile(/[\w.%]/);
       return ret("number", "unit");
-    }
-    else if (ch === "-") {
-      if (/\d/.test(stream.peek())) {
+    } else if (ch === "-") {
+      if (/[\d.]/.test(stream.peek())) {
         stream.eatWhile(/[\w.%]/);
         return ret("number", "unit");
       } else if (stream.match(/^[^-]+-/)) {
         return ret("meta", "meta");
       }
-    }
-    else if (/[,+>*\/]/.test(ch)) {
+    } else if (/[,+>*\/]/.test(ch)) {
       return ret(null, "select-op");
-    }
-    else if (ch == "." && stream.match(/^-?[_a-z][_a-z0-9-]*/i)) {
+    } else if (ch == "." && stream.match(/^-?[_a-z][_a-z0-9-]*/i)) {
       return ret("qualifier", "qualifier");
-    }
-    else if (ch == ":") {
-      return ret("operator", ch);
-    }
-    else if (/[;{}\[\]\(\)]/.test(ch)) {
+    } else if (/[:;{}\[\]\(\)]/.test(ch)) {
       return ret(null, ch);
-    }
-    else if (ch == "u" && stream.match("rl(")) {
+    } else if (ch == "u" && stream.match("rl(")) {
       stream.backUp(1);
       state.tokenize = tokenParenthesized;
       return ret("property", "variable");
-    }
-    else {
+    } else if (/[\w\\\-]/.test(ch)) {
       stream.eatWhile(/[\w\\\-]/);
       return ret("property", "variable");
+    } else {
+      return ret(null, null);
     }
   }
 
@@ -106,6 +97,12 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     },
 
     token: function(stream, state) {
+      if (!state.tokenize && stream.eatSpace()) return null;
+      var style = (state.tokenize || tokenBase)(stream, state);
+      if (style && typeof style == "object") {
+        type = style[1];
+        style = style[0];
+      }
 
       // Use these terms when applicable (see http://www.xanthir.com/blog/b4E50)
       //
@@ -152,11 +149,6 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
       //
       // sequence of selectors:
       // One or more of the named type of selector chained with commas.
-
-      state.tokenize = state.tokenize || tokenBase;
-      if (state.tokenize == tokenBase && stream.eatSpace()) return null;
-      var style = state.tokenize(stream, state);
-      if (style && typeof style != "string") style = ret(style[0], style[1]);
 
       // Changing style returned based on context
       var context = state.stack[state.stack.length-1];
