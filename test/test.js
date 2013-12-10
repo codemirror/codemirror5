@@ -871,6 +871,23 @@ testCM("badNestedFold", function(cm) {
   is(/overlap/i.test(caught.message), "wrong error");
 });
 
+testCM("nestedFoldOnSide", function(cm) {
+  var m1 = cm.markText(Pos(0, 1), Pos(2, 1), {collapsed: true, inclusiveRight: true});
+  var m2 = cm.markText(Pos(0, 1), Pos(0, 2), {collapsed: true});
+  cm.markText(Pos(0, 1), Pos(0, 2), {collapsed: true}).clear();
+  try { cm.markText(Pos(0, 1), Pos(0, 2), {collapsed: true, inclusiveLeft: true}); }
+  catch(e) { var caught = e; }
+  is(caught && /overlap/i.test(caught.message));
+  var m3 = cm.markText(Pos(2, 0), Pos(2, 1), {collapsed: true});
+  var m4 = cm.markText(Pos(2, 0), Pos(2, 1), {collapse: true, inclusiveRight: true});
+  m1.clear(); m4.clear();
+  m1 = cm.markText(Pos(0, 1), Pos(2, 1), {collapsed: true});
+  cm.markText(Pos(2, 0), Pos(2, 1), {collapsed: true}).clear();
+  try { cm.markText(Pos(2, 0), Pos(2, 1), {collapsed: true, inclusiveRight: true}); }
+  catch(e) { var caught = e; }
+  is(caught && /overlap/i.test(caught.message));
+}, {value: "ab\ncd\ef"});
+
 testCM("wrappingInlineWidget", function(cm) {
   cm.setSize("11em");
   var w = document.createElement("span");
