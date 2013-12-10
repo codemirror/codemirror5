@@ -1,11 +1,7 @@
 (function() {
-  var mode = CodeMirror.getMode({tabSize: 1}, "css");
+  var mode = CodeMirror.getMode({indentUnit: 1}, "css");
   function MT(name) { test.mode(name, mode, Array.prototype.slice.call(arguments, 1)); }
   function IT(name) { test.indentation(name, mode, Array.prototype.slice.call(arguments, 1)); }
-
-  // Requires at least one media query
-  MT("atMediaEmpty",
-     "[def @media] [error {] }");
 
   MT("atMediaMultiple",
      "[def @media] [keyword not] [attribute screen] [operator and] ([property color]), [keyword not] [attribute print] [operator and] ([property color]) { }");
@@ -58,7 +54,7 @@
 
   // Soft error, because "foobarhello" is not a known property or type.
   MT("atMediaUnknownProperty",
-     "[def @media] [attribute screen] [operator and] ([property&error foobarhello]) { }");
+     "[def @media] [attribute screen] [operator and] ([error foobarhello]) { }");
 
   // Make sure nesting works with media queries
   MT("atMediaMaxWidthNested",
@@ -124,6 +120,10 @@
 
   MT("commentSGML",
      "[comment <!--comment-->]");
+
+  MT("commentSGML2",
+     "[comment <!--comment]",
+     "[comment -->] [tag div] {}");
 
   IT("tagSelector",
     "strong, em [1 { background][2 : rgba][3 (255, 255, 0, .2][2 )][1 ;]}");

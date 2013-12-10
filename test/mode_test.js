@@ -132,11 +132,10 @@
       if (line == "" && mode.blankLine) mode.blankLine(state);
       /* Start copied code from CodeMirror.highlight */
       while (!stream.eol()) {
-				var compare = mode.token(stream, state), substr = stream.current();
-				if(compareIndentation) compare = mode.indent(state) || null;
+        var compare = mode.token(stream, state), substr = stream.current();
+        if (compareIndentation) compare = mode.indent(state) || null;
         else if (compare && compare.indexOf(" ") > -1) compare = compare.split(' ').sort().join(' ');
-
-				stream.start = stream.pos;
+        stream.start = stream.pos;
         if (pos && st[pos-2] == compare && !newLine) {
           st[pos-1] += substr;
         } else if (substr) {

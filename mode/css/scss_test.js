@@ -1,5 +1,5 @@
 (function() {
-  var mode = CodeMirror.getMode({tabSize: 1}, "text/x-scss");
+  var mode = CodeMirror.getMode({indentUnit: 1}, "text/x-scss");
   function MT(name) { test.mode(name, mode, Array.prototype.slice.call(arguments, 1), "scss"); }
   function IT(name) { test.indentation(name, mode, Array.prototype.slice.call(arguments, 1), "scss"); }
 
@@ -65,13 +65,13 @@
     "[tag p] { [tag a] { [property color]:[atom #000]; } }");
 
   MT('interpolation_in_property',
-    "[tag foo] { [operator #{][variable-2 $hello][operator }:][number 2]; }");
+    "[tag foo] { #{[variable-2 $hello]}:[number 2]; }");
 
   MT('interpolation_in_selector',
-    "[tag foo][operator #{][variable-2 $hello][operator }] { [property color]:[atom #000]; }");
+    "[tag foo]#{[variable-2 $hello]} { [property color]:[atom #000]; }");
 
   MT('interpolation_error',
-    "[tag foo][operator #{][error foo][operator }] { [property color]:[atom #000]; }");
+    "[tag foo]#{[error foo]} { [property color]:[atom #000]; }");
 
   MT("divide_operator",
     "[tag foo] { [property width]:[number 4] [operator /] [number 2] }");
@@ -80,7 +80,7 @@
     "[tag p] { [builtin #hello] { [property color]:[keyword red]; } }");
 
   IT('mixin',
-    "@mixin container[1 (][2 $a: 10][1 , ][2 $b: 10][1 , ][2 $c: 10]) [1 {]}");
+    "@mixin container[1 ($a: 10, $b: 10, $c: 10]) [1 {]}");
 
   IT('nested',
     "foo [1 { bar ][2 { ][1 } ]}");
