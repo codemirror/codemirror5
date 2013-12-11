@@ -10,6 +10,7 @@
 <script src="../addon/hint/show-hint.js"></script>
 <script src="../addon/hint/javascript-hint.js"></script>
 <script src="../mode/javascript/javascript.js"></script>
+
 <div id=nav>
   <a href="http://codemirror.net"><img id=logo src="../doc/logo.png"></a>
 
@@ -69,9 +70,6 @@ and <a href="../doc/manual.html#addon_javascript-hint"><code>javascript-hint</co
 addons.</p>
 
     <script>
-      CodeMirror.commands.autocomplete = function(cm) {
-        CodeMirror.showHint(cm, CodeMirror.hint.javascript);
-      };
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true,
         extraKeys: {"Ctrl-Space": "autocomplete"}

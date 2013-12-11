@@ -7,8 +7,10 @@
   CodeMirror.showHint = function(cm, getHints, options) {
     // We want a single cursor position.
     if (cm.somethingSelected()) return;
-    if (getHints == null) getHints = cm.getHelper(cm.getCursor(), "hint");
-    if (getHints == null) return;
+    if (getHints == null) {
+      if (options && options.async) return;
+      else getHints = CodeMirror.hint.auto;
+    }
 
     if (cm.state.completionActive) cm.state.completionActive.close();
 
@@ -284,4 +286,36 @@
       return Math.floor(this.hints.clientHeight / this.hints.firstChild.offsetHeight) || 1;
     }
   };
+
+  CodeMirror.registerHelper("hint", "auto", function(cm, options) {
+    var helpers = cm.getHelpers(cm.getCursor(), "hint");
+    if (helpers.length) {
+      for (var i = 0; i < helpers.length; i++) {
+        var cur = helpers[i](cm, options);
+        if (cur && cur.list.length) return cur;
+      }
+    } else {
+      var words = cm.getHelper(cm.getCursor(), "hintWords");
+      if (words) return CodeMirror.hint.fromList(cm, {words: words});
+    }
+  });
+
+  CodeMirror.registerHelper("hint", "fromList", function(cm, options) {
+    var cur = cm.getCursor(), token = cm.getTokenAt(cur);
+    if (!/^[\w$_]*$/.test(token.string)) return null;
+    var found = [];
+    for (var i = 0; i < options.words.length; i++) {
+      var word = options.words[i];
+      if (word.slice(0, token.string.length) == token.string)
+        found.push(word);
+    }
+
+    if (found.length) return {
+      list: found,
+      from: CodeMirror.Pos(cur.line, token.start),
+            to: CodeMirror.Pos(cur.line, token.end)
+    };
+  });
+
+  CodeMirror.commands.autocomplete = CodeMirror.showHint;
 })();

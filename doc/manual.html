@@ -1533,18 +1533,35 @@
       unstyled tokens, and a string, potentially containing multiple
       space-separated style names, otherwise.</dd>
 
+      <dt id="getHelpers"><code><strong>cm.getHelpers</strong>(pos: {line, ch}, type: string) → array&lt;helper&gt;</code></dt>
+      <dd>Fetch the set of applicable helper values for the given
+      position. Helpers provide a way to look up functionality
+      appropriate for a mode. The <code>type</code> argument provides
+      the helper namespace (see
+      <a href="#registerHelper"><code>registerHelper</code></a>), in
+      which the values will be looked up. When the mode itself has a
+      property that corresponds to the <code>type</code>, that
+      directly determines the keys that are used to look up the helper
+      values (it may be either a single string, or an array of
+      strings). Failing that, the mode's <code>helperType</code>
+      property and finally the mode's name are used.</dd>
+      <dd>For example, the JavaScript mode has a
+      property <code>fold</code> containing <code>"brace"</code>. When
+      the <code>brace-fold</code> addon is loaded, that defines a
+      helper named <code>brace</code> in the <code>fold</code>
+      namespace. This is then used by
+      the <a href="#addon_foldcode"><code>foldcode</code></a> addon to
+      figure out that it can use that folding function to fold
+      JavaScript code.</dd>
+      <dd>When any <a href="#registerGlobalHelper">'global'</a>
+      helpers are defined for the given namespace, their predicates
+      are called on the current mode and editor, and all those that
+      declare they are applicable will also be added to the array that
+      is returned.</dd>
+
       <dt id="getHelper"><code><strong>cm.getHelper</strong>(pos: {line, ch}, type: string) → helper</code></dt>
-      <dd>Fetch appropriate helper for the given position. Helpers
-      provide a way to look up functionality appropriate for a mode.
-      The <code>type</code> argument provides the helper namespace
-      (see
-      also <a href="#registerHelper"><code>registerHelper</code></a>),
-      in which the value will be looked up. The key that is used
-      depends on the <a href="#getMode">mode</a> active at the given
-      position. If the mode object contains a property with the same
-      name as the <code>type</code> argument, that is tried first.
-      Next, the mode's <code>helperType</code>, if any, is tried. And
-      finally, the mode's name.</dd>
+      <dd>Returns the first applicable helper value.
+      See <a href="#getHelpers"><code>getHelpers</code></a>.</dd>
 
       <dt id="getStateAfter"><code><strong>cm.getStateAfter</strong>(?line: integer, ?precise: boolean) → object</code></dt>
       <dd>Returns the mode's parser state, if any, at the end of the
@@ -1689,7 +1706,7 @@
       (with the instance as argument) whenever a new CodeMirror instance
       is initialized.</dd>
 
-      <dt id="registerHelper"><code><strong>CodeMirror.registerHelper</strong>(type: string, name: string, value: helper)</code></dt>
+      <dt id="registerHelper"><code><strong>CodeMirror.registerHelper</strong>(type: string, name: string, value: helper)</code></dt>
       <dd>Registers a helper value with the given <code>name</code> in
       the given namespace (<code>type</code>). This is used to define
       functionality that may be looked up by mode. Will create (if it
@@ -1699,6 +1716,14 @@
       doing <code>CodeMirror.registerHelper("hint", "foo",
       myFoo)</code>, the value <code>CodeMirror.hint.foo</code> will
       point to <code>myFoo</code>.</dd>
+
+      <dt id="registerGlobalHelper"><code><strong>CodeMirror.registerGlobalHelper</strong>(type: string, name: string, predicate: fn(mode, CodeMirror), value: helper)</code></dt>
+      <dd>Acts
+      like <a href="#registerHelper"><code>registerHelper</code></a>,
+      but also registers this helper as 'global', meaning that it will
+      be included by <a href="#getHelpers"><code>getHelpers</code></a>
+      whenever the given <code>predicate</code> returns true when
+      called with the local mode and editor.</dd>
 
       <dt id="Pos"><code><strong>CodeMirror.Pos</strong>(line: integer, ?ch: integer)</code></dt>
       <dd>A constructor for the <code>{line, ch}</code> objects that
@@ -1881,11 +1906,12 @@
       supporting the following properties:
       <dl>
         <dt><code><strong>rangeFinder</strong>: fn(CodeMirror, Pos)</code></dt>
-        <dd>The function that is used to find foldable ranges. If this
-        is not directly passed, it will
-        call <a href="#getHelper"><code>getHelper</code></a> with
-        a <code>"fold"</code> type to find one that's appropriate for
-        the mode. There are files in
+        <dd id="helper_fold_auto">The function that is used to find
+        foldable ranges. If this is not directly passed, it will
+        default to <code>CodeMirror.fold.auto</code>, which
+        uses <a href="#getHelpers"><code>getHelpers</code></a> with
+        a <code>"fold"</code> type to find folding functions
+        appropriate for the local mode. There are files in
         the <a href="../addon/fold/"><code>addon/fold/</code></a>
         directory providing <code>CodeMirror.fold.brace</code>, which
         finds blocks in brace languages (JavaScript, C, Java,
@@ -1944,8 +1970,8 @@
         <dt><code><strong>rangeFinder</strong>: fn(CodeMirror, Pos)</code></dt>
         <dd>The range-finder function to use when determining whether
         something can be folded. When not
-        given, <a href="#getHelper"><code>getHelper</code></a> will be
-        used to determine a default.</dd>
+        given, <a href="#helper_fold_auto"><code>CodeMirror.fold.auto</code></a>
+        will be used as default.</dd>
       </dl>
       Demo <a href="../demo/folding.html">here</a>.</dd>
 
@@ -2017,9 +2043,17 @@
       is an array of strings or objects (the completions),
       and <code>from</code> and <code>to</code> give the start and end
       of the token that is being completed as <code>{line, ch}</code>
-      objects. If no hinting function is given, the addon will try to
-      use <a href="#getHelper"><code>getHelper</code></a> with
-      the <code>"hint"</code> type to find one. When completions
+      objects.</dd>
+      <dd>If no hinting function is given, the addon will
+      use <code>CodeMirror.hint.auto</code>, with
+      calls <a href="#getHelpers"><code>getHelpers</code></a> with
+      the <code>"hint"</code> type to find applicable hinting
+      functions, and tries them one by one. If that fails, it looks
+      for a <code>"hintWords"</code> helper to fetch a list of
+      completable words for the mode, and
+      uses <code>CodeMirror.hint.fromList</code> to complete from
+      those.</dd>
+      <dd>When completions
       aren't simple strings, they should be objects with the folowing
       properties:
       <dl>
@@ -2522,6 +2556,13 @@
     modeSpec)</code>, where <code>modeSpec</code> can be a string or
     object specifying a mode, as in
     the <a href="#option_mode"><code>mode</code></a> option.</p>
+
+    <p>If a mode specification wants to add some properties to the
+    resulting mode object, typically for use
+    with <a href="#getHelpers"><code>getHelpers</code></a>, it may
+    contain a <code>modeProps</code> property, which holds an object.
+    This object's properties will be copied to the actual mode
+    object.</p>
 
     <p id="extendMode">Sometimes, it is useful to add or override mode
     object properties from external code.
