@@ -1020,6 +1020,24 @@ testCM("moveVstuck", function(cm) {
   eqPos(cm.getCursor(), Pos(0, 26));
 }, {lineWrapping: true}, ie_lt8 || opera_lt10);
 
+testCM("collapseOnMove", function(cm) {
+  cm.setSelection(Pos(0, 1), Pos(2, 4));
+  cm.execCommand("goLineUp");
+  is(!cm.somethingSelected());
+  eqPos(cm.getCursor(), Pos(0, 1));
+  cm.setSelection(Pos(0, 1), Pos(2, 4));
+  cm.execCommand("goPageDown");
+  is(!cm.somethingSelected());
+  eqPos(cm.getCursor(), Pos(2, 4));
+  cm.execCommand("goLineUp");
+  cm.execCommand("goLineUp");
+  eqPos(cm.getCursor(), Pos(0, 4));
+  cm.setSelection(Pos(0, 1), Pos(2, 4));
+  cm.execCommand("goCharLeft");
+  is(!cm.somethingSelected());
+  eqPos(cm.getCursor(), Pos(0, 1));
+}, {value: "aaaaa\nb\nccccc"});
+
 testCM("clickTab", function(cm) {
   var p0 = cm.charCoords(Pos(0, 0));
   eqPos(cm.coordsChar({left: p0.left + 5, top: p0.top + 5}), Pos(0, 0));
