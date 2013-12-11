@@ -112,7 +112,7 @@
     if (options.async)
       options.getAnnotations(cm, updateLinting, options);
     else
-      updateLinting(cm, options.getAnnotations(cm.getValue(), options));
+      updateLinting(cm, options.getAnnotations(cm.getValue(), options.options));
   }
 
   function updateLinting(cm, annotationsNotSorted) {
