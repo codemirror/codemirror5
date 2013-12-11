@@ -117,7 +117,6 @@
         return state.curMode.indent(state.curState, textAfter);
       },
 
-      electricChars: "/{}:",
       blockCommentStart: "/*",
       blockCommentEnd: "*/",
       lineComment: "//",

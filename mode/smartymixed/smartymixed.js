@@ -159,8 +159,6 @@ CodeMirror.defineMode("smartymixed", function(config) {
       return htmlMixedMode.indent(state.htmlMixedState, textAfter);
     },
 
-    electricChars: "/{}:",
-
     innerMode: function(state) {
       return {
         state: state.localState || state.htmlMixedState,
