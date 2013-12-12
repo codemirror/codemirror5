@@ -69,14 +69,13 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     return function(stream, state) {
       var escaped = false, ch;
       while ((ch = stream.next()) != null) {
-        if (ch == quote && !escaped)
+        if (ch == quote && !escaped) {
+          if (nonInclusive) stream.backUp(1);
           break;
+        }
         escaped = !escaped && ch == "\\";
       }
-      if (!escaped) {
-        if (nonInclusive) stream.backUp(1);
-        state.tokenize = null;
-      }
+      if (!escaped) state.tokenize = null;
       return ret("string", "string");
     };
   }
