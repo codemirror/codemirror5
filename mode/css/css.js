@@ -300,12 +300,12 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     return keys;
   }
 
-  var mediaTypes = keySet([
+  var mediaTypes_ = [
     "all", "aural", "braille", "handheld", "print", "projection", "screen",
     "tty", "tv", "embossed"
-  ]);
+  ], mediaTypes = keySet(mediaTypes_);
 
-  var mediaFeatures = keySet([
+  var mediaFeatures_ = [
     "width", "min-width", "max-width", "height", "min-height", "max-height",
     "device-width", "min-device-width", "max-device-width", "device-height",
     "min-device-height", "max-device-height", "aspect-ratio",
@@ -314,9 +314,9 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "max-color", "color-index", "min-color-index", "max-color-index",
     "monochrome", "min-monochrome", "max-monochrome", "resolution",
     "min-resolution", "max-resolution", "scan", "grid"
-  ]);
+  ], mediaFeatures = keySet(mediaFeatures_);
 
-  var propertyKeywords = keySet([
+  var propertyKeywords_ = [
     "align-content", "align-items", "align-self", "alignment-adjust",
     "alignment-baseline", "anchor-point", "animation", "animation-delay",
     "animation-direction", "animation-duration", "animation-iteration-count",
@@ -404,9 +404,9 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "stroke-miterlimit", "stroke-opacity", "stroke-width", "text-rendering",
     "baseline-shift", "dominant-baseline", "glyph-orientation-horizontal",
     "glyph-orientation-vertical", "kerning", "text-anchor", "writing-mode"
-  ]);
+  ], propertyKeywords = keySet(propertyKeywords_);
 
-  var colorKeywords = keySet([
+  var colorKeywords_ = [
     "aliceblue", "antiquewhite", "aqua", "aquamarine", "azure", "beige",
     "bisque", "black", "blanchedalmond", "blue", "blueviolet", "brown",
     "burlywood", "cadetblue", "chartreuse", "chocolate", "coral", "cornflowerblue",
@@ -433,9 +433,9 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "slateblue", "slategray", "snow", "springgreen", "steelblue", "tan",
     "teal", "thistle", "tomato", "turquoise", "violet", "wheat", "white",
     "whitesmoke", "yellow", "yellowgreen"
-  ]);
+  ], colorKeywords = keySet(colorKeywords_);
 
-  var valueKeywords = keySet([
+  var valueKeywords_ = [
     "above", "absolute", "activeborder", "activecaption", "afar",
     "after-white-space", "ahead", "alias", "all", "all-scroll", "alternate",
     "always", "amharic", "amharic-abegede", "antialiased", "appworkspace",
@@ -518,7 +518,10 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "visibleStroke", "visual", "w-resize", "wait", "wave", "wider",
     "window", "windowframe", "windowtext", "x-large", "x-small", "xor",
     "xx-large", "xx-small"
-  ]);
+  ], valueKeywords = keySet(valueKeywords_);
+
+  var allWords = mediaTypes_.concat(mediaFeatures_).concat(propertyKeywords_).concat(colorKeywords_).concat(valueKeywords_);
+  CodeMirror.registerHelper("hintWords", "css", allWords);
 
   function tokenCComment(stream, state) {
     var maybeEnd = false, ch;

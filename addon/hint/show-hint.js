@@ -302,7 +302,6 @@
 
   CodeMirror.registerHelper("hint", "fromList", function(cm, options) {
     var cur = cm.getCursor(), token = cm.getTokenAt(cur);
-    if (!/^[\w$_]*$/.test(token.string)) return null;
     var found = [];
     for (var i = 0; i < options.words.length; i++) {
       var word = options.words[i];
