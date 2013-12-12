@@ -82,10 +82,12 @@ events. Existing code will probably continue to work unmodified.</p>
 
 <section id=deprecated><h2>Deprecated interfaces dropped</h2>
 
-<p>A few properties that have been deprecated for a while are now
-gone. Most notably, the names for folding and completing functions
+<p>A few properties and methods that have been deprecated for a while
+are now gone. Most notably, the <code>onKeyEvent</code> and <code>onDragEvent</code> options (use the corresponding <a href="manual.html#event_dom">events</a> instead).</p>
+
+<p>The long names for folding and completing functions
 (<code>CodeMirror.braceRangeFinder</code>, <code>CodeMirror.javascriptHint</code>,
-etc) are now gone
+etc) are also gone
 (use <code>CodeMirror.fold.brace</code>, <code>CodeMirror.hint.javascript</code>).</p>
 
 <p>The <code>className</code> property in the return value

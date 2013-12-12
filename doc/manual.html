@@ -361,38 +361,6 @@
       <dt id="option_dragDrop"><code><strong>dragDrop</strong>: boolean</code></dt>
       <dd>Controls whether drag-and-drop is enabled. On by default.</dd>
 
-      <dt id="option_onDragEvent"><code><strong>onDragEvent</strong>: function(instance: CodeMirror, event: Event) → boolean</code></dt>
-      <dd><em>Deprecated! See <a href="#event_dom">these</a> event
-      handlers for the current recommended approach.</em><br>When given,
-      this will be called when the editor is handling
-      a <code>dragenter</code>, <code>dragover</code>,
-      or <code>drop</code> event. It will be passed the editor
-      instance and the event object as arguments. The callback can
-      choose to handle the event itself, in which case it should
-      return <code>true</code> to indicate that CodeMirror should not
-      do anything further.</dd>
-
-      <dt id="option_onKeyEvent"><code><strong>onKeyEvent</strong>: function(instance: CodeMirror, event: Event) → boolean</code></dt>
-      <dd><em>Deprecated! See <a href="#event_dom">these</a> event
-      handlers for the current recommended approach.</em><br>This
-      provides a rather low-level hook into CodeMirror's key handling.
-      If provided, this function will be called on
-      every <code>keydown</code>, <code>keyup</code>,
-      and <code>keypress</code> event that CodeMirror captures. It
-      will be passed two arguments, the editor instance and the key
-      event. This key event is pretty much the raw key event, except
-      that a <code>stop()</code> method is always added to it. You
-      could feed it to, for example, <code>jQuery.Event</code> to
-      further normalize it.<br>This function can inspect the key
-      event, and handle it if it wants to. It may return true to tell
-      CodeMirror to ignore the event. Be wary that, on some browsers,
-      stopping a <code>keydown</code> does not stop
-      the <code>keypress</code> from firing, whereas on others it
-      does. If you respond to an event, you should probably inspect
-      its <code>type</code> property and only do something when it
-      is <code>keydown</code> (or <code>keypress</code> for actions
-      that need character data).</dd>
-
       <dt id="option_cursorBlinkRate"><code><strong>cursorBlinkRate</strong>: number</code></dt>
       <dd>Half-period in milliseconds used for cursor blinking. The default blink
       rate is 530ms. By setting this to zero, blinking can be disabled.</dd>
@@ -414,15 +382,12 @@
       click outside of the current selection, the cursor is moved to
       the point of the click. Defaults to <code>true</code>.</dd>
 
-      <dt id="option_workTime"><code><strong>workTime</strong>, <strong>workDelay</strong>: number</code></dt>
+      <dt id="option_workTime"><code id="option_wordkDelay"><strong>workTime</strong>, <strong>workDelay</strong>: number</code></dt>
       <dd>Highlighting is done by a pseudo background-thread that will
       work for <code>workTime</code> milliseconds, and then use
       timeout to sleep for <code>workDelay</code> milliseconds. The
       defaults are 200 and 300, you can change these options to make
       the highlighting more or less aggressive.</dd>
-
-      <dt id="option_workDelay"><code><strong>workDelay</strong>: number</code></dt>
-      <dd>See <a href="#option_workTime"><code>workTime</code></a>.</dd>
 
       <dt id="option_pollInterval"><code><strong>pollInterval</strong>: number</code></dt>
       <dd>Indicates how quickly CodeMirror should poll its input
