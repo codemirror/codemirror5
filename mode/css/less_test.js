@@ -1,7 +1,7 @@
 (function() {
   "use strict";
 
-  var mode = CodeMirror.getMode({indentUnit: 1}, "text/x-less");
+  var mode = CodeMirror.getMode({indentUnit: 2}, "text/x-less");
   function MT(name) { test.mode(name, mode, Array.prototype.slice.call(arguments, 1), "less"); }
 
   MT("variable",
