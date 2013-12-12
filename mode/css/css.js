@@ -178,9 +178,9 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     }
   };
 
-  states.maybeprop = function(type, _stream, state) {
+  states.maybeprop = function(type, stream, state) {
     if (type == ":") return pushContext(state, "prop");
-    else return state.context.type;
+    return pass(type, stream, state);
   };
 
   states.prop = function(type, stream, state) {
@@ -280,7 +280,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
 
     indent: function(state, textAfter) {
       var cx = state.context;
-      if (/^\}/.test(textAfter)) cx = cx.prev;
+      if (/^\}/.test(textAfter) && cx.prev) cx = cx.prev;
       return cx.indent;
     },
 
