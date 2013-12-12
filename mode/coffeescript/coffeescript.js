@@ -119,13 +119,13 @@ CodeMirror.defineMode("coffeescript", function(conf) {
 
     // Handle strings
     if (stream.match(stringPrefixes)) {
-      state.tokenize = tokenFactory(stream.current(), "string");
+      state.tokenize = tokenFactory(stream.current(), false, "string");
       return state.tokenize(stream, state);
     }
     // Handle regex literals
     if (stream.match(regexPrefixes)) {
       if (stream.current() != "/" || stream.match(/^.*\//, false)) { // prevent highlight of division
-        state.tokenize = tokenFactory(stream.current(), "string-2");
+        state.tokenize = tokenFactory(stream.current(), true, "string-2");
         return state.tokenize(stream, state);
       } else {
         stream.backUp(1);
@@ -161,8 +161,7 @@ CodeMirror.defineMode("coffeescript", function(conf) {
     return ERRORCLASS;
   }
 
-  function tokenFactory(delimiter, outclass) {
-    var singleline = delimiter.length == 1;
+  function tokenFactory(delimiter, singleline, outclass) {
     return function(stream, state) {
       while (!stream.eol()) {
         stream.eatWhile(/[^'"\/\\]/);
