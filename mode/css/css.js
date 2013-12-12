@@ -281,6 +281,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     indent: function(state, textAfter) {
       var cx = state.context;
       if (/^\}/.test(textAfter) && cx.prev) cx = cx.prev;
+      if (/^\{/.test(textAfter) && cx.type == "media") cx = cx.prev;
       return cx.indent;
     },
 
