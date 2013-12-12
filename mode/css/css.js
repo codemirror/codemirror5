@@ -97,8 +97,8 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     this.prev = prev;
   }
 
-  function pushContext(state, type) {
-    state.context = new Context(type, state.context.indent + indentUnit, state.context);
+  function pushContext(state, stream, type) {
+    state.context = new Context(type, stream.indentation() + indentUnit, state.context);
     return type;
   }
 
@@ -130,15 +130,15 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
 
   var states = {};
 
-  states.top = function(type, _stream, state) {
+  states.top = function(type, stream, state) {
     if (type == "{") {
-      return pushContext(state, "block");
+      return pushContext(state, stream, "block");
     } else if (type == "}" && state.context.prev) {
       return popContext(state);
     } else if (type == "@media") {
-      return pushContext(state, "media");
+      return pushContext(state, stream, "media");
     } else if (type && type.charAt(0) == "@") {
-      return pushContext(state, "at");
+      return pushContext(state, stream, "at");
     } else if (type == "hash") {
       override = "builtin";
     } else if (type == "word") {
@@ -146,11 +146,11 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     } else if (type == "variable-definition") {
       return "maybeprop";
     } else if (type == "interpolation") {
-      return pushContext(state, "interpolation");
+      return pushContext(state, stream, "interpolation");
     } else if (type == ":") {
       return "pseudo";
     } else if (allowNested && type == "(") {
-      return pushContext(state, "params");
+      return pushContext(state, stream, "params");
     }
     return state.context.type;
   };
@@ -178,21 +178,21 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
   };
 
   states.maybeprop = function(type, stream, state) {
-    if (type == ":") return pushContext(state, "prop");
+    if (type == ":") return pushContext(state, stream, "prop");
     return pass(type, stream, state);
   };
 
   states.prop = function(type, stream, state) {
     if (type == ";") return popContext(state);
     if (type == "}" || type == "{") return popAndPass(type, stream, state);
-    if (type == "(") return pushContext(state, "parens");
+    if (type == "(") return pushContext(state, stream, "parens");
 
     if (type == "hash" && !/^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/.test(stream.current())) {
       override += " error";
     } else if (type == "word") {
       wordAsValue(stream);
     } else if (type == "interpolation") {
-      return pushContext(state, "interpolation");
+      return pushContext(state, stream, "interpolation");
     }
     return "prop";
   };
@@ -212,9 +212,9 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
   };
 
   states.media = function(type, stream, state) {
-    if (type == "(") return pushContext(state, "media_parens");
+    if (type == "(") return pushContext(state, stream, "media_parens");
     if (type == "}") return popAndPass(type, stream, state);
-    if (type == "{") return popContext(state) && pushContext(state, allowNested ? "block" : "top");
+    if (type == "{") return popContext(state) && pushContext(state, stream, allowNested ? "block" : "top");
 
     if (type == "word") {
       var word = stream.current().toLowerCase();
@@ -278,10 +278,16 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     },
 
     indent: function(state, textAfter) {
-      var cx = state.context;
-      if (/^\}/.test(textAfter) && cx.prev) cx = cx.prev;
-      if (/^\{/.test(textAfter) && cx.type == "media") cx = cx.prev;
-      return cx.indent;
+      var cx = state.context, ch = textAfter && textAfter.charAt(0);
+      var indent = cx.indent;
+      if (cx.prev &&
+          (ch == "}" && (cx.type == "block" || cx.type == "top" || cx.type == "interpolation") ||
+           ch == ")" && (cx.type == "parens" || cx.type == "params" || cx.type == "media_parens") ||
+           ch == "{" && (cx.type == "at" || cx.type == "media"))) {
+        indent = cx.indent - indentUnit;
+        cx = cx.prev;
+      }
+      return indent;
     },
 
     electricChars: "}",
