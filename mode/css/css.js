@@ -65,17 +65,17 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     }
   }
 
-  function tokenString(quote, nonInclusive) {
+  function tokenString(quote) {
     return function(stream, state) {
       var escaped = false, ch;
       while ((ch = stream.next()) != null) {
         if (ch == quote && !escaped) {
-          if (nonInclusive) stream.backUp(1);
+          if (quote == ")") stream.backUp(1);
           break;
         }
         escaped = !escaped && ch == "\\";
       }
-      if (!escaped) state.tokenize = null;
+      if (ch == quote || !escaped && quote != ")") state.tokenize = null;
       return ret("string", "string");
     };
   }
@@ -83,7 +83,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
   function tokenParenthesized(stream, state) {
     stream.next(); // Must be '('
     if (!stream.match(/\s*[\"\']/, false))
-      state.tokenize = tokenString(")", true);
+      state.tokenize = tokenString(")");
     else
       state.tokenize = null;
     return ret(null, "(");
