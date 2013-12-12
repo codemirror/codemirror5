@@ -206,7 +206,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
 
   states.pseudo = function(type, stream, state) {
     if (type == "word") {
-      override = "variable-2";
+      override = "variable-3";
       return state.context.type;
     }
     return pass(type, stream, state);
@@ -601,7 +601,8 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
         return [null, "interpolation"];
       }
     },
-    name: "css"
+    name: "css",
+    helperType: "scss"
   });
 
   CodeMirror.defineMIME("text/x-less", {
@@ -634,6 +635,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
         return ["atom", "atom"];
       }
     },
-    name: "css"
+    name: "css",
+    helperType: "less"
   });
 })();
