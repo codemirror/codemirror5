@@ -15,7 +15,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
 
     var jsKeywords = {
       "if": kw("if"), "while": A, "with": A, "else": B, "do": B, "try": B, "finally": B,
-      "return": C, "break": C, "continue": C, "new": C, "delete": C, "throw": C,
+      "return": C, "break": C, "continue": C, "new": C, "delete": C, "throw": C, "debugger": C,
       "var": kw("var"), "const": kw("var"), "let": kw("var"),
       "function": kw("function"), "catch": kw("catch"),
       "for": kw("for"), "switch": kw("switch"), "case": kw("case"), "default": kw("default"),
@@ -304,7 +304,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == ";") return cont();
     if (type == "if") return cont(pushlex("form"), expression, statement, poplex, maybeelse);
     if (type == "function") return cont(functiondef);
-    if (type == "for") return cont(pushlex("form"), forspec, poplex, statement, poplex);
+    if (type == "for") return cont(pushlex("form"), forspec, statement, poplex);
     if (type == "variable") return cont(pushlex("stat"), maybelabel);
     if (type == "switch") return cont(pushlex("form"), expression, pushlex("}", "switch"), expect("{"),
                                       block, poplex, poplex);
@@ -370,7 +370,6 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == "[") return cont(pushlex("]"), maybeexpression, expect("]"), poplex, me);
   }
   function quasi(value) {
-    if (!value) debugger;
     if (value.slice(value.length - 2) != "${") return cont();
     return cont(expression, continueQuasi);
   }
@@ -474,7 +473,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == "keyword b" && value == "else") return cont(pushlex("form"), statement, poplex);
   }
   function forspec(type) {
-    if (type == "(") return cont(pushlex(")"), forspec1, expect(")"));
+    if (type == "(") return cont(pushlex(")"), forspec1, expect(")"), poplex);
   }
   function forspec1(type) {
     if (type == "var") return cont(vardef, expect(";"), forspec2);
@@ -538,7 +537,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     return pass(expressionNoComma, maybeArrayComprehension);
   }
   function maybeArrayComprehension(type) {
-    if (type == "for") return pass(comprehension);
+    if (type == "for") return pass(comprehension, expect("]"));
     if (type == ",") return cont(commasep(expressionNoComma, "]"));
     return pass(commasep(expressionNoComma, "]"));
   }

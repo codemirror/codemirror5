@@ -63,10 +63,44 @@
 
   MT("comprehension",
      "[keyword function] [variable f]() {",
-     "  [[ [variable x] + [number 1] [keyword for] ([keyword var] [def x] [keyword in] [variable y]) [keyword if] [variable pred]([variable-2 x]) ]];",
+     "  [[([variable x] + [number 1]) [keyword for] ([keyword var] [def x] [keyword in] [variable y]) [keyword if] [variable pred]([variable-2 x]) ]];",
      "  ([variable u] [keyword for] ([keyword var] [def u] [keyword of] [variable generateValues]()) [keyword if] ([variable-2 u].[property color] === [string 'blue']));",
      "}");
 
   MT("quasi",
      "[variable re][string-2 `fofdlakj${][variable x] + ([variable re][string-2 `foo`]) + [number 1][string-2 }fdsa`] + [number 2]");
+
+  MT("indent_statement",
+     "[keyword var] [variable x] = [number 10]",
+     "[variable x] += [variable y] +",
+     "  [atom Infinity]",
+     "[keyword debugger];");
+
+  MT("indent_if",
+     "[keyword if] ([number 1])",
+     "  [keyword break];",
+     "[keyword else] [keyword if] ([number 2])",
+     "  [keyword continue];",
+     "[keyword else]",
+     "  [number 10];",
+     "[keyword if] ([number 1]) {",
+     "  [keyword break];",
+     "} [keyword else] [keyword if] ([number 2]) {",
+     "  [keyword continue];",
+     "} [keyword else] {",
+     "  [number 10];",
+     "}");
+
+  MT("indent_for",
+     "[keyword for] ([keyword var] [variable i] = [number 0];",
+     "     [variable i] < [number 100];",
+     "     [variable i]++)",
+     "  [variable doSomething]([variable i]);",
+     "[keyword debugger];");
+
+  MT("indent_c_style",
+     "[keyword function] [variable foo]()",
+     "{",
+     "  [keyword debugger];",
+     "}");
 })();
