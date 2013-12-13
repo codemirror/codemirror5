@@ -30,7 +30,7 @@
           insert = full.slice(0, token.start);
           if (!/^\s*$/.test(insert)) {
             insert = "";
-            for (var i = 0; i < token.start; ++i) insert += " ";
+            for (var j = 0; j < token.start; ++j) insert += " ";
           }
         } else if ((found = full.indexOf(mode.blockCommentContinue)) != -1 &&
                    found + mode.blockCommentContinue.length > token.start &&
