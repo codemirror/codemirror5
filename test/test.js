@@ -1312,6 +1312,17 @@ testCM("lineWidgetFocus", function(cm) {
   }
 });
 
+testCM("lineWidgetCautiousRedraw", function(cm) {
+  var node = document.createElement("div");
+  node.innerHTML = "hahah";
+  var w = cm.addLineWidget(0, node);
+  var redrawn = false;
+  w.on("redraw", function() { redrawn = true; });
+  cm.replaceSelection("0");
+  is(!redrawn);
+}, {value: "123\n456"});
+
+
 testCM("getLineNumber", function(cm) {
   addDoc(cm, 2, 20);
   var h1 = cm.getLineHandle(1);
