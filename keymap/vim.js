@@ -153,12 +153,6 @@
     { keys: ['<C-u>'], type: 'motion',
         motion: 'moveByScroll',
         motionArgs: { forward: false, explicitRepeat: true }},
-    { keys: ['<C-e>'], type: 'motion',
-        motion: 'moveByScroll',
-        motionArgs: { forward: true, linewise: true, staticCursor: true }},
-    { keys: ['<C-y>'], type: 'motion',
-        motion: 'moveByScroll',
-        motionArgs: { forward: false, linewise: true, staticCursor: true }},
     { keys: ['g', 'g'], type: 'motion',
         motion: 'moveToLineOrEdgeOfDocument',
         motionArgs: { forward: false, explicitRepeat: true, linewise: true, toJumplist: true }},
@@ -254,6 +248,12 @@
         actionArgs: { forward: true }},
     { keys: ['<C-o>'], type: 'action', action: 'jumpListWalk',
         actionArgs: { forward: false }},
+    { keys: ['<C-e>'], type: 'action',
+        action: 'scroll',
+        actionArgs: { forward: true, linewise: true }},
+    { keys: ['<C-y>'], type: 'action',
+        action: 'scroll',
+        actionArgs: { forward: false, linewise: true }},
     { keys: ['a'], type: 'action', action: 'enterInsertMode', isEdit: true,
         actionArgs: { insertAt: 'charAfter' }},
     { keys: ['A'], type: 'action', action: 'enterInsertMode', isEdit: true,
@@ -1175,9 +1175,7 @@
                     : selectionStart);
           } else if (!operator) {
             curEnd = clipCursorToContent(cm, curEnd);
-            if (!motionArgs.staticCursor) {
-              cm.setCursor(curEnd.line, curEnd.ch);
-            }
+            cm.setCursor(curEnd.line, curEnd.ch);
           }
         }
 
@@ -1644,6 +1642,44 @@
         var markPos = mark ? mark.find() : undefined;
         markPos = markPos ? markPos : cm.getCursor();
         cm.setCursor(markPos);
+      },
+      scroll: function(cm, actionArgs, vim) {
+        if (vim.visualMode) {
+          return;
+        }
+        var repeat = actionArgs.repeat || 1;
+        var lineHeight = cm.defaultTextHeight();
+        var top = cm.getScrollInfo().top;
+        var bottom = top + cm.getScrollInfo().clientHeight;
+        var delta = lineHeight * repeat;
+        var newPos = actionArgs.forward ? top + delta : top - delta;
+        var cursor = cm.getCursor();
+        var cursorCoords = cm.charCoords(cursor, 'local');
+        if (actionArgs.forward) {
+          if (newPos > cursorCoords.top) {
+             cursor.line -= (newPos - cursorCoords.top) / lineHeight;
+             cursor.line = Math.floor(cursor.line);
+             cm.setCursor(cursor);
+             cursorCoords = cm.charCoords(cursor, 'local');
+             cm.scrollTo(null, cursorCoords.top);
+          } else {
+             // Cursor stays within bounds.  Just reposition the scroll window.
+             cm.scrollTo(null, newPos);
+          }
+        } else {
+          var newBottom = newPos + cm.getScrollInfo().clientHeight;
+          if (newBottom < cursorCoords.bottom) {
+             cursor.line += (cursorCoords.bottom - newBottom) / lineHeight; 
+             cursor.line = Math.floor(cursor.line);
+             cm.setCursor(cursor);
+             cursorCoords = cm.charCoords(cursor, 'local');
+             cm.scrollTo(
+                 null, cursorCoords.bottom - cm.getScrollInfo().clientHeight);
+          } else {
+             // Cursor stays within bounds.  Just reposition the scroll window.
+             cm.scrollTo(null, newPos);
+          }
+        }
       },
       scrollToCursor: function(cm, actionArgs) {
         var lineNum = cm.getCursor().line;
