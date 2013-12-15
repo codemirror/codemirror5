@@ -69,17 +69,22 @@ CodeMirror.startState = function (mode, a1, a2) {
 var modes = CodeMirror.modes = {}, mimeModes = CodeMirror.mimeModes = {};
 CodeMirror.defineMode = function (name, mode) { modes[name] = mode; };
 CodeMirror.defineMIME = function (mime, spec) { mimeModes[mime] = spec; };
-CodeMirror.getMode = function (options, spec) {
-  if (typeof spec == "string" && mimeModes.hasOwnProperty(spec))
+CodeMirror.resolveMode = function(spec) {
+  if (typeof spec == "string" && mimeModes.hasOwnProperty(spec)) {
     spec = mimeModes[spec];
-  if (typeof spec == "string")
-    var mname = spec, config = {};
-  else if (spec != null)
-    var mname = spec.name, config = spec;
-  var mfactory = modes[mname];
-  if (!mfactory) throw new Error("Unknown mode: " + spec);
-  return mfactory(options, config || {});
+  } else if (spec && typeof spec.name == "string" && mimeModes.hasOwnProperty(spec.name)) {
+    spec = mimeModes[spec.name];
+  }
+  if (typeof spec == "string") return {name: spec};
+  else return spec || {name: "null"};
 };
+CodeMirror.getMode = function (options, spec) {
+  spec = CodeMirror.resolveMode(spec);
+  var mfactory = modes[spec.name];
+  if (!mfactory) throw new Error("Unknown mode: " + spec);
+  return mfactory(options, spec);
+};
+CodeMirror.registerHelper = CodeMirror.registerGlobalHelper = Math.min;
 
 CodeMirror.runMode = function (string, modespec, callback, options) {
   var mode = CodeMirror.getMode({ indentUnit: 2 }, modespec);

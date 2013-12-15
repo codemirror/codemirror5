@@ -76,17 +76,22 @@ exports.defineMode("null", function() {
 });
 exports.defineMIME("text/plain", "null");
 
-exports.getMode = function(options, spec) {
-  if (typeof spec == "string" && mimeModes.hasOwnProperty(spec))
+exports.resolveMode = function(spec) {
+  if (typeof spec == "string" && mimeModes.hasOwnProperty(spec)) {
     spec = mimeModes[spec];
-  if (typeof spec == "string")
-    var mname = spec, config = {};
-  else if (spec != null)
-    var mname = spec.name, config = spec;
-  var mfactory = modes[mname];
-  if (!mfactory) throw new Error("Unknown mode: " + spec);
-  return mfactory(options, config || {});
+  } else if (spec && typeof spec.name == "string" && mimeModes.hasOwnProperty(spec.name)) {
+    spec = mimeModes[spec.name];
+  }
+  if (typeof spec == "string") return {name: spec};
+  else return spec || {name: "null"};
 };
+exports.getMode = function(options, spec) {
+  spec = exports.resolveMode(mimeModes[spec]);
+  var mfactory = modes[spec.name];
+  if (!mfactory) throw new Error("Unknown mode: " + spec);
+  return mfactory(options, spec);
+};
+CodeMirror.registerHelper = CodeMirror.registerGlobalHelper = Math.min;
 
 exports.runMode = function(string, modespec, callback) {
   var mode = exports.getMode({indentUnit: 2}, modespec);
