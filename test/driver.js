@@ -99,6 +99,10 @@ function label(str, msg) {
 function eq(a, b, msg) {
   if (a != b) throw new Failure(label(a + " != " + b, msg));
 }
+function near(a, b, margin, msg) {
+  if (Math.abs(a - b) > margin)
+    throw new Failure(label(a + " is not close to " + b + " (" + margin + ")", msg));
+}
 function eqPos(a, b, msg) {
   function str(p) { return "{line:" + p.line + ",ch:" + p.ch + "}"; }
   if (a == b) return;

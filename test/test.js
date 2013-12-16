@@ -541,10 +541,14 @@ testCM("bookmarkCursor", function(cm) {
   cm.setBookmark(Pos(3, 0), {widget: document.createTextNode("→")});
   var new01 = cm.cursorCoords(Pos(0, 1)), new11 = cm.cursorCoords(Pos(1, 1)),
       new20 = cm.cursorCoords(Pos(2, 0)), new30 = cm.cursorCoords(Pos(3, 0));
-  is(new01.left == pos01.left && new01.top == pos01.top, "at left, middle of line");
-  is(new11.left > pos11.left && new11.top == pos11.top, "at right, middle of line");
-  is(new20.left == pos20.left && new20.top == pos20.top, "at left, empty line");
-  is(new30.left > pos30.left && new30.top == pos30.top, "at right, empty line");
+  near(new01.left, pos01.left, 1);
+  near(new01.top, pos01.top, 1);
+  is(new11.left > pos11.left, "at right, middle of line");
+  near(new11.top == pos11.top, 1);
+  near(new20.left, pos20.left, 1);
+  near(new20.top, pos20.top, 1);
+  is(new30.left > pos30.left, "at right, empty line");
+  near(new30.top, pos30, 1);
   cm.setBookmark(Pos(4, 0), {widget: document.createTextNode("→")});
   is(cm.cursorCoords(Pos(4, 1)).left > pos41.left, "single-char bug");
 }, {value: "foo\nbar\n\n\nx\ny"});
@@ -561,10 +565,10 @@ testCM("multiBookmarkCursor", function(cm) {
   }
   var base1 = cm.cursorCoords(Pos(0, 1)).left, base4 = cm.cursorCoords(Pos(0, 4)).left;
   add(true);
-  is(Math.abs(base1 - cm.cursorCoords(Pos(0, 1)).left) < .1);
+  near(base1, cm.cursorCoords(Pos(0, 1)).left, 1);
   while (m = ms.pop()) m.clear();
   add(false);
-  is(Math.abs(base4 - cm.cursorCoords(Pos(0, 1)).left) < .1);
+  near(base4, cm.cursorCoords(Pos(0, 1)).left, 1);
 }, {value: "abcdefg"});
 
 testCM("getAllMarks", function(cm) {
@@ -1240,7 +1244,7 @@ testCM("bidiUpdate", function(cm) {
 }, {value: "abcd\n"});
 
 testCM("movebyTextUnit", function(cm) {
-  cm.setValue("בְּרֵאשִ\ńéée\n");
+  cm.setValue("בְּרֵאשִ\nééé́\n");
   cm.execCommand("goLineEnd");
   for (var i = 0; i < 4; ++i) cm.execCommand("goCharRight");
   eqPos(cm.getCursor(), Pos(0, 0));
@@ -1248,10 +1252,9 @@ testCM("movebyTextUnit", function(cm) {
   eqPos(cm.getCursor(), Pos(1, 0));
   cm.execCommand("goCharRight");
   cm.execCommand("goCharRight");
-  eqPos(cm.getCursor(), Pos(1, 3));
+  eqPos(cm.getCursor(), Pos(1, 4));
   cm.execCommand("goCharRight");
-  cm.execCommand("goCharRight");
-  eqPos(cm.getCursor(), Pos(1, 6));
+  eqPos(cm.getCursor(), Pos(1, 7));
 });
 
 testCM("lineChangeEvents", function(cm) {
@@ -1652,11 +1655,11 @@ testCM("lineStyleFromMode", function(cm) {
   });
   cm.setOption("mode", "test_mode");
   var bracketElts = byClassName(cm.getWrapperElement(), "brackets");
-  eq(bracketElts.length, 1);
+  eq(bracketElts.length, 1, "brackets count");
   eq(bracketElts[0].nodeName, "PRE");
   is(!/brackets.*brackets/.test(bracketElts[0].className));
   var parenElts = byClassName(cm.getWrapperElement(), "parens");
-  eq(parenElts.length, 1);
+  eq(parenElts.length, 1, "parens count");
   eq(parenElts[0].nodeName, "DIV");
   is(!/parens.*parens/.test(parenElts[0].className));
   eq(parenElts[0].parentElement.nodeName, "DIV");
