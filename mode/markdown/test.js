@@ -276,6 +276,11 @@
      "1. bar",
      "2. hello");
 
+  // List after header
+  MT("listAfterHeader",
+     "[header&header1 # foo]",
+     "[variable-2 - bar]");
+
   // Formatting in lists (*)
   MT("listAsteriskFormatting",
      "[variable-2 * ][variable-2&em *foo*][variable-2  bar]",
