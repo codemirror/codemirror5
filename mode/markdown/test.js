@@ -33,9 +33,9 @@
      "[atom&formatting&formatting-quote > ][atom foo]");
 
   FT("formatting_list",
-     "[variable-2&formatting&formatting-list - ][variable-2 foo]");
+     "[variable-2&formatting&formatting-list&formatting-list-ul - ][variable-2 foo]");
   FT("formatting_list",
-     "[variable-2&formatting&formatting-list 1. ][variable-2 foo]");
+     "[variable-2&formatting&formatting-list&formatting-list-ol 1. ][variable-2 foo]");
 
   FT("formatting_link",
      "[link&formatting&formatting-link [][link foo][link&formatting&formatting-link ]]][string&formatting&formatting-link-string (][string http://example.com/][string&formatting&formatting-link-string )]");
