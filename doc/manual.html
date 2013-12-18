@@ -935,10 +935,14 @@
       of <a href="#changeGeneration"><code>changeGeneration</code></a>,
       which allows multiple subsystems to track different notions of
       cleanness without interfering.</dd>
-      <dt id="changeGeneration"><code><strong>doc.changeGeneration</strong>() → integer</code></dt>
+      <dt id="changeGeneration"><code><strong>doc.changeGeneration</strong>(?closeEvent: boolean) → integer</code></dt>
       <dd>Returns a number that can later be passed
       to <a href="#isClean"><code>isClean</code></a> to test whether
-      any edits were made (and not undone) in the meantime.</dd>
+      any edits were made (and not undone) in the meantime.
+      If <code>closeEvent</code> is true, the current history event
+      will be ‘closed’, meaning it can't be combined with further
+      changes (rapid typing or deleting events are typically
+      combined).</dd>
       <dt id="isClean"><code><strong>doc.isClean</strong>(?generation: integer) → boolean</code></dt>
       <dd>Returns whether the document is currently clean — not
       modified since initialization or the last call

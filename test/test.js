@@ -1479,6 +1479,21 @@ testCM("dirtyBit", function(cm) {
   eq(cm.isClean(), true);
 });
 
+testCM("changeGeneration", function(cm) {
+  cm.replaceSelection("x", null, "+insert");
+  var softGen = cm.changeGeneration();
+  cm.replaceSelection("x", null, "+insert");
+  cm.undo();
+  eq(cm.getValue(), "");
+  is(!cm.isClean(softGen));
+  cm.replaceSelection("x", null, "+insert");
+  var hardGen = cm.changeGeneration(true);
+  cm.replaceSelection("x", null, "+insert");
+  cm.undo();
+  eq(cm.getValue(), "x");
+  is(cm.isClean(hardGen));
+});
+
 testCM("addKeyMap", function(cm) {
   function sendKey(code) {
     cm.triggerOnKeyDown({type: "keydown", keyCode: code,
