@@ -1650,7 +1650,6 @@
         var repeat = actionArgs.repeat || 1;
         var lineHeight = cm.defaultTextHeight();
         var top = cm.getScrollInfo().top;
-        var bottom = top + cm.getScrollInfo().clientHeight;
         var delta = lineHeight * repeat;
         var newPos = actionArgs.forward ? top + delta : top - delta;
         var cursor = cm.getCursor();
@@ -1669,7 +1668,7 @@
         } else {
           var newBottom = newPos + cm.getScrollInfo().clientHeight;
           if (newBottom < cursorCoords.bottom) {
-             cursor.line += (cursorCoords.bottom - newBottom) / lineHeight; 
+             cursor.line += (cursorCoords.bottom - newBottom) / lineHeight;
              cursor.line = Math.floor(cursor.line);
              cm.setCursor(cursor);
              cursorCoords = cm.charCoords(cursor, 'local');
