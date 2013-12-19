@@ -104,7 +104,7 @@
     return {
       line: Math.floor( num ),
       ch: +num.toString().split( '.' ).pop()
-    }
+    };
   }
 
   function generateCursor( lineNum, charNum ){
