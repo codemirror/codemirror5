@@ -1656,8 +1656,8 @@
         var cursorCoords = cm.charCoords(cursor, 'local');
         if (actionArgs.forward) {
           if (newPos > cursorCoords.top) {
-             cursor.line -= (newPos - cursorCoords.top) / lineHeight;
-             cursor.line = Math.floor(cursor.line);
+             cursor.line += (newPos - cursorCoords.top) / lineHeight;
+             cursor.line = Math.ceil(cursor.line);
              cm.setCursor(cursor);
              cursorCoords = cm.charCoords(cursor, 'local');
              cm.scrollTo(null, cursorCoords.top);
@@ -1668,7 +1668,7 @@
         } else {
           var newBottom = newPos + cm.getScrollInfo().clientHeight;
           if (newBottom < cursorCoords.bottom) {
-             cursor.line += (cursorCoords.bottom - newBottom) / lineHeight;
+             cursor.line -= (cursorCoords.bottom - newBottom) / lineHeight;
              cursor.line = Math.floor(cursor.line);
              cm.setCursor(cursor);
              cursorCoords = cm.charCoords(cursor, 'local');
