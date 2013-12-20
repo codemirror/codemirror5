@@ -97,7 +97,7 @@ exports.getMode = function(options, spec) {
   if (!mfactory) throw new Error("Unknown mode: " + spec);
   return mfactory(options, spec);
 };
-CodeMirror.registerHelper = CodeMirror.registerGlobalHelper = Math.min;
+exports.registerHelper = exports.registerGlobalHelper = Math.min;
 
 exports.runMode = function(string, modespec, callback) {
   var mode = exports.getMode({indentUnit: 2}, modespec);
