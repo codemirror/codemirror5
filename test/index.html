@@ -107,6 +107,7 @@
           progressTotal = document.getElementById("progress_total").childNodes[0];
       var count = 0,
           failed = 0,
+          skipped = 0,
           bad = "",
           running = false, // Flag that states tests are running
          quit = false, // Flag to quit tests ASAP
@@ -170,6 +171,10 @@
         if (type == "ok") {
           message = "Test '" + name + "' succeeded";
           if (!verbose) customMessage = false;
+        } else if (type == "skipped") {
+          message = "Test '" + name + "' skipped";
+          ++skipped;
+          if (!verbose) customMessage = false;
         } else if (type == "expected") {
           message = "Test '" + name + "' failed as expected";
           if (!verbose) customMessage = false;
@@ -187,6 +192,9 @@
           } else {
             type += " ok";
             message = "All passed";
+            if (skipped) {
+              message += " (" + skipped + " skipped)";
+            }
           }
           if (debug && debug.length) {
             var bogusTests = totalTests - count;

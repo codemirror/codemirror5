@@ -42,6 +42,10 @@ function testCM(name, run, opts, expectedFail) {
 }
 
 function runTests(callback) {
+  // Search for '?filter=' or '&filter=' in the url.
+  var match = window.location.search.match(/[&?]filter=([^&]*)/);
+  var filter = match && new RegExp(decodeURIComponent(match[1]), 'i');
+
   if (debug) {
     if (indexOf(debug, "verbose") === 0) {
       verbose = true;
@@ -56,8 +60,12 @@ function runTests(callback) {
     if (i === tests.length){
       running = false;
       return callback("done");
-    }
+    } 
     var test = tests[i], expFail = test.expectedFail, startTime = +new Date;
+    if (filter && !test.name.match(filter)) { 
+      callback("skipped", test.name, message);
+      return step(i + 1);
+    }
     if (debug !== null) {
       var debugIndex = indexOf(debug, test.name);
       if (debugIndex !== -1) {
