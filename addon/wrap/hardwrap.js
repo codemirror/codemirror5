@@ -36,6 +36,7 @@
     var killTrailing = options.killTrailingSpace !== false;
     var changes = [], curLine = "", curNo = from.line;
     var lines = cm.getRange(from, to, false);
+    if (!lines.length) return;
     var leadingSpace = lines[0].match(/^[ \t]*/)[0];
 
     for (var i = 0; i < lines.length; ++i) {
