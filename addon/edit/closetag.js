@@ -67,8 +67,8 @@
     cm.replaceSelection(">" + (doIndent ? "\n\n" : "") + "</" + tagName + ">",
                         {head: curPos, anchor: curPos});
     if (doIndent) {
-      cm.indentLine(pos.line + 1);
-      cm.indentLine(pos.line + 2);
+      cm.indentLine(pos.line + 1, null, true);
+      cm.indentLine(pos.line + 2, null);
     }
   }
 
