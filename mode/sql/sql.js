@@ -177,7 +177,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
 
     indent: function(state, textAfter) {
       var cx = state.context;
-      if (!cx) return CodeMirror.Pass;
+      if (!cx) return 0;
       if (cx.align) return cx.col + (textAfter.charAt(0) == cx.type ? 0 : 1);
       else return cx.indent + config.indentUnit;
     },
