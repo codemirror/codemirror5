@@ -133,7 +133,7 @@ CodeMirror.runMode = function (string, modespec, callback, options) {
     };
   }
 
-  var lines = splitLines(string), state = CodeMirror.startState(mode);
+  var lines = splitLines(string), state = (options && options.state) || CodeMirror.startState(mode);
   for (var i = 0, e = lines.length; i < e; ++i) {
     if (i) callback("\n");
     var stream = new CodeMirror.StringStream(lines[i]);

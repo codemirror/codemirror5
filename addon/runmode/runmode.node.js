@@ -101,7 +101,7 @@ exports.registerHelper = exports.registerGlobalHelper = Math.min;
 
 exports.runMode = function(string, modespec, callback) {
   var mode = exports.getMode({indentUnit: 2}, modespec);
-  var lines = splitLines(string), state = exports.startState(mode);
+  var lines = splitLines(string), state = (options && options.state) || exports.startState(mode);
   for (var i = 0, e = lines.length; i < e; ++i) {
     if (i) callback("\n");
     var stream = new exports.StringStream(lines[i]);
