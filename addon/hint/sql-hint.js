@@ -74,7 +74,6 @@
     var previousWord = "";
     var table = "";
     var separator = [];
-    var lineNum = 0;
     var validRange = {
       start: CodeMirror.Pos( 0, 0 ),
       end: CodeMirror.Pos( editor.lastLine(), editor.getLineHandle( editor.lastLine() ).length )
@@ -103,7 +102,7 @@
 
     var query = doc.getRange(validRange.start, validRange.end, false);
 
-    for(var i = 0; i < query.length; i++){
+    for(var i=0; i < query.length; i++){
       var lineText = query[i];
       eachWord( lineText, function( word ){
         var wordUpperCase = word.toUpperCase();
