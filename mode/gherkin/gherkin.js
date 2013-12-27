@@ -64,7 +64,7 @@ CodeMirror.defineMode("gherkin", function () {
             return "bracket";
           } else {
             stream.match(/[^\|]*/);
-            return state.tableHeaderLine ? "property" : "string";
+            return state.tableHeaderLine ? "header" : "string";
           }
         }
 
@@ -148,7 +148,7 @@ CodeMirror.defineMode("gherkin", function () {
 
       // PLACEHOLDER
       } else if (state.allowPlaceholders && stream.match(/<[^>]*>?/)) {
-        return "attribute";
+        return "variable";
 
       // Fall through
       } else {
