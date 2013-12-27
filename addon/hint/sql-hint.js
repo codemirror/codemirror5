@@ -58,110 +58,64 @@
     }
   }
 
-  function indexOf( collection, elt ){
-    if( collection.indexOf ) return collection.indexOf( elt );
-    for( var i = 0, e = collection.length; i < e; ++i )
-      if( collection[i] == elt ) return i;
-    return -1;
-  }
-
-  function getLineNo( line ){
-    if( line.parent == null ) return null;
-    var cur = line.parent, no = indexOf( cur.lines, line );
-    for( var chunk = cur.parent; chunk; cur = chunk, chunk = chunk.parent ){
-      for( var i = 0; ; ++i ){
-        if( chunk.children[i] == cur ) break;
-        no += chunk.children[i].chunkSize();
-      }
-    }
-    return no + cur.first;
-  }
-
-  function getLineText( line, range ){
-    if( !range.start || !range.end ){
-      return;
-    }
-    var currentLineNo = getLineNo( line );
-    var lineText = "";      //default value is blank string.
-    if( range.start.line === range.end.line ){
-      lineText = line.text.substr( range.start.ch, range.end.ch - range.start.ch );
-    }else if( range.start.line === currentLineNo ){
-      lineText = line.text.substr( range.start.ch + 1 );
-    }else if( range.end.line === currentLineNo ){
-      lineText = line.text.substr( 0, range.end.ch + 1 );
-    }else{
-      lineText = line.text;
-    }
-    return lineText?lineText:"";
-  }
-
   function convertCurToNumber( cur ){
     // max characters of a line is 999,999.
     return cur.line + cur.ch / Math.pow( 10, 6 );
   }
 
   function convertNumberToCur( num ){
-    return {
-      line: Math.floor( num ),
-      ch: +num.toString().split( '.' ).pop()
-    };
-  }
-
-  function generateCursor( lineNum, charNum ){
-      return { line: lineNum, ch: charNum };
+    return CodeMirror.Pos(Math.floor( num ), +num.toString().split( '.' ).pop());
   }
 
   function findTableByAlias(alias, editor) {
+    var doc = editor.doc;
+    var fullQuery = doc.getValue();
     var aliasUpperCase = alias.toUpperCase();
     var previousWord = "";
     var table = "";
-    var cur = editor.getCursor();
     var separator = [];
     var lineNum = 0;
     var validRange = {
-      start: generateCursor( 0, 0 ),
-      end: generateCursor( editor.lastLine(), editor.getLineHandle( editor.lastLine() ).length )
+      start: CodeMirror.Pos( 0, 0 ),
+      end: CodeMirror.Pos( editor.lastLine(), editor.getLineHandle( editor.lastLine() ).length )
     };
 
     //add separator
-    separator.push( generateCursor( 0, 0 ) );
-    editor.eachLine( function( line ){
-      if( line.text.indexOf( CONS.QUERY_DIV ) > -1 ){
-        separator.push( generateCursor( lineNum, line.text.indexOf( CONS.QUERY_DIV ) ) );
-      }
-      lineNum++;
-    } );
-    separator.push( generateCursor( editor.lastLine(), editor.getLineHandle( editor.lastLine() ).text.length ) );
+    var indexOfSeparator = fullQuery.indexOf( CONS.QUERY_DIV );
+    while( indexOfSeparator != -1 ){
+      separator.push( doc.posFromIndex(indexOfSeparator));
+      indexOfSeparator = fullQuery.indexOf( CONS.QUERY_DIV, indexOfSeparator+1);
+    }
+    separator.unshift( CodeMirror.Pos( 0, 0 ) );
+    separator.push( CodeMirror.Pos( editor.lastLine(), editor.getLineHandle( editor.lastLine() ).text.length ) );
 
     //find valieRange
     var prevItem = 0;
-    var current = convertCurToNumber( cur );
-    separator.forEach( function( item ){
-      var _v = convertCurToNumber( item );
+    var current = convertCurToNumber( editor.getCursor() );
+    for( var i=0; i< separator.length; i++){
+      var _v = convertCurToNumber( separator[i] );
       if( current > prevItem && current <= _v ){
-        validRange = {
-          start: convertNumberToCur( prevItem ),
-          end: convertNumberToCur( _v )
-        };
+        validRange = { start: convertNumberToCur( prevItem ), end: convertNumberToCur( _v ) };
+        break;
       }
       prevItem = _v;
-    } );
+    }
 
-    editor.eachLine( validRange.start.line, validRange.end.line + 1, function( line ){
-      var lineText = getLineText( line, validRange );
+    var query = doc.getRange(validRange.start, validRange.end, false);
 
+    for(var i = 0; i < query.length; i++){
+      var lineText = query[i];
       eachWord( lineText, function( word ){
         var wordUpperCase = word.toUpperCase();
-        if( wordUpperCase === aliasUpperCase ){
-          if( tables.hasOwnProperty( previousWord ) ){
+        if( wordUpperCase === aliasUpperCase && tables.hasOwnProperty( previousWord ) ){
             table = previousWord;
-          }
         }
         if( wordUpperCase !== CONS.ALIAS_KEYWORD ){
           previousWord = word;
         }
-      } );
-    } );
+      });
+      if( table ){ break; }
+    }
     return table;
   }
 
@@ -170,9 +124,7 @@
     keywords = keywords || getKeywords(editor);
     var cur = editor.getCursor();
     var token = editor.getTokenAt(cur);
-
     var result = [];
-
     var search = token.string.trim();
 
     addMatches(result, search, keywords,
