@@ -195,7 +195,7 @@ function testVim(name, run, opts, expectedFail) {
       run(cm, vim, helpers);
       successful = true;
     } finally {
-      if ((debug && !successful) || verbose) {
+      if (!successful || verbose) {
         place.style.visibility = "visible";
       } else {
         place.removeChild(cm.getWrapperElement());
