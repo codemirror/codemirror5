@@ -64,7 +64,7 @@
 
     var doIndent = indentTags && indexOf(indentTags, lowerTagName) > -1;
     var curPos = doIndent ? CodeMirror.Pos(pos.line + 1, 0) : CodeMirror.Pos(pos.line, pos.ch + 1);
-    cm.replaceSelection(">" + (doIndent ? "\n\n" : "") + "</" + tagName + ">",
+    cm.replaceSelection(">" + (doIndent ? "\n\t\n" : "") + "</" + tagName + ">",
                         {head: curPos, anchor: curPos});
     if (doIndent) {
       cm.indentLine(pos.line + 1, null, true);
