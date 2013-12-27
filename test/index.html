@@ -128,11 +128,10 @@
           var strings = window.location.hash.substr(1).split(",");
           while (strings.length) {
             var s = strings.shift();
-            if (s === "verbose") {
+            if (s === "verbose")
               verbose = true;
-            } else {
-              filters.push(new RegExp(decodeURIComponent(s, 'i')));
-            }
+            else
+              filters.push(parseTestFilter(decodeURIComponent(s)));;
           }
         }
         quit = false;
