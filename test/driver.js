@@ -42,9 +42,6 @@ function testCM(name, run, opts, expectedFail) {
 }
 
 function runTests(callback) {
-  if (indexOf(window.location.hash.substr(1), "verbose") === 0) {
-    verbose = true;
-  }
   var totalTime = 0;
   function step(i) {
     if (i === tests.length){
