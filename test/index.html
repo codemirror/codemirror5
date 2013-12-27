@@ -110,8 +110,8 @@
           skipped = 0,
           bad = "",
           running = false, // Flag that states tests are running
-         quit = false, // Flag to quit tests ASAP
-         verbose = false; // Adds message for *every* test to output
+          quit = false, // Flag to quit tests ASAP
+          verbose = false; // Adds message for *every* test to output
 
       function runHarness(){
         if (running) {
@@ -120,19 +120,21 @@
           setTimeout(function(){runHarness();}, 500);
           return;
         }
+        filters = [];
         if (window.location.hash.substr(1)){
-          debug = window.location.hash.substr(1).split(",");
-        } else {
-          debug = null;
+          var strings = window.location.hash.substr(1).split(",");
+          while (strings.length) {
+            filters.push(new RegExp(decodeURIComponent(strings.shift(), 'i')));
+          }
         }
         quit = false;
         running = true;
         setStatus("Loading tests...");
         count = 0;
         failed = 0;
+        skipped = 0;
         bad = "";
         verbose = false;
-        debugUsed = Array();
         totalTests = countTests();
         progressTotal.nodeValue = " of " + totalTests;
         progressRan.nodeValue = count;
@@ -165,7 +167,7 @@
       }
       function displayTest(type, name, customMessage) {
         var message = "???";
-        if (type != "done") ++count;
+        if (type != "done" && type != "skipped") ++count;
         progress.style.width = (count * (progress.parentNode.clientWidth - 2) / totalTests) + "px";
         progressRan.nodeValue = count;
         if (type == "ok") {
@@ -196,14 +198,7 @@
               message += " (" + skipped + " skipped)";
             }
           }
-          if (debug && debug.length) {
-            var bogusTests = totalTests - count;
-            message += " — " + bogusTests + " nonexistent test" +
-              (bogusTests > 1 ? "s" : "") + " requested by location.hash: " +
-              "`" + debug.join("`, `") + "`";
-          } else {
-            progressTotal.nodeValue = '';
-          }
+          progressTotal.nodeValue = '';
           customMessage = true; // Hack to avoid adding to output
         }
         if (verbose && !customMessage)  customMessage = message;
