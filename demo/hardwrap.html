@@ -61,9 +61,7 @@ var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
   }
 });
 var wait, options = {column: 60};
-var done = false;
 editor.on("change", function(cm, change) {
-if (done) return; done = true;
   clearTimeout(wait);
   wait = setTimeout(function() {
     cm.wrapParagraphsInRange(change.from, CodeMirror.changeEnd(change), options);
