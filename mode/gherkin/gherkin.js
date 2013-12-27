@@ -157,6 +157,7 @@ CodeMirror.defineMode("gherkin", function () {
 
       // Fall through
       } else {
+        stream.next();
         stream.eatWhile(/[^":<]/);
       }
 
