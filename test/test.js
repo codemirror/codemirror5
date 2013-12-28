@@ -909,6 +909,7 @@ testCM("wrappingInlineWidget", function(cm) {
   eq(curR.bottom, cur1.bottom);
   cm.replaceRange("", Pos(0, 9), Pos(0));
   curR = cm.cursorCoords(Pos(0, 9));
+  if (phantom) return;
   eq(curR.top, cur1.top);
   eq(curR.bottom, cur1.bottom);
 }, {value: "1 2 3 xxx 4", lineWrapping: true});
@@ -1338,6 +1339,7 @@ testCM("getLineNumber", function(cm) {
 });
 
 testCM("jumpTheGap", function(cm) {
+  if (phantom) return;
   var longLine = "abcdef ghiklmnop qrstuvw xyz ";
   longLine += longLine; longLine += longLine; longLine += longLine;
   cm.setLine(2, longLine);
