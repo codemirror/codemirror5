@@ -27,6 +27,7 @@ function byClassName(elt, cls) {
 }
 
 var ie_lt8 = /MSIE [1-7]\b/.test(navigator.userAgent);
+var ie_lt9 = /MSIE [1-8]\b/.test(navigator.userAgent);
 var mac = /Mac/.test(navigator.platform);
 var phantom = /PhantomJS/.test(navigator.userAgent);
 var opera = /Opera\/\./.test(navigator.userAgent);
@@ -1233,7 +1234,7 @@ testCM("rtlMovement", function(cm) {
       prevX = cursor.offsetLeft;
     }
   });
-});
+}, null, ie_lt9);
 
 // Verify that updating a line clears its bidi ordering
 testCM("bidiUpdate", function(cm) {
