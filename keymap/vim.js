@@ -334,6 +334,8 @@
     { keys: [':'], type: 'ex' }
   ];
 
+  var Pos = CodeMirror.Pos;
+
   var Vim = function() {
     CodeMirror.defineOption('vimMode', false, function(cm, val) {
       if (val) {
@@ -358,7 +360,7 @@
       var head = obj.ranges[0].head;
       if (head.ch && head.ch == cm.doc.getLine(head.line).length) {
         obj.update([{anchor: obj.ranges[0].anchor,
-                     head: {line: head.line, ch: head.ch - 1}}]);
+                     head: Pos(head.line, head.ch - 1)}]);
       }
     }
     function getOnPasteFn(cm) {
@@ -1107,8 +1109,8 @@
         var operator = inputState.operator;
         var operatorArgs = inputState.operatorArgs || {};
         var registerName = inputState.registerName;
-        var selectionEnd = cm.getCursor('head');
-        var selectionStart = cm.getCursor('anchor');
+        var selectionEnd = copyCursor(cm.getCursor('head'));
+        var selectionStart = copyCursor(cm.getCursor('anchor'));
         // The difference between cur and selection cursors are that cur is
         // being operated on and ignores that there is a selection.
         var curStart = copyCursor(selectionEnd);
@@ -1164,7 +1166,7 @@
           }
           // TODO: Handle null returns from motion commands better.
           if (!curEnd) {
-            curEnd = { ch: curStart.ch, line: curStart.line };
+            curEnd = Pos(curStart.line, curStart.ch);
           }
           if (vim.visualMode) {
             // Check if the selection crossed over itself. Will need to shift
@@ -1267,22 +1269,22 @@
     var motions = {
       moveToTopLine: function(cm, motionArgs) {
         var line = getUserVisibleLines(cm).top + motionArgs.repeat -1;
-        return { line: line, ch: findFirstNonWhiteSpaceCharacter(cm.getLine(line)) };
+        return Pos(line, findFirstNonWhiteSpaceCharacter(cm.getLine(line)));
       },
       moveToMiddleLine: function(cm) {
         var range = getUserVisibleLines(cm);
         var line = Math.floor((range.top + range.bottom) * 0.5);
-        return { line: line, ch: findFirstNonWhiteSpaceCharacter(cm.getLine(line)) };
+        return Pos(line, findFirstNonWhiteSpaceCharacter(cm.getLine(line)));
       },
       moveToBottomLine: function(cm, motionArgs) {
         var line = getUserVisibleLines(cm).bottom - motionArgs.repeat +1;
-        return { line: line, ch: findFirstNonWhiteSpaceCharacter(cm.getLine(line)) };
+        return Pos(line, findFirstNonWhiteSpaceCharacter(cm.getLine(line)));
       },
       expandToLine: function(cm, motionArgs) {
         // Expands forward to end of line, and then to next line if repeat is
         // >1. Does not handle backward motion!
         var cur = cm.getCursor();
-        return { line: cur.line + motionArgs.repeat - 1, ch: Infinity };
+        return Pos(cur.line + motionArgs.repeat - 1, Infinity);
       },
       findNext: function(cm, motionArgs) {
         var state = getSearchState(cm);
@@ -1337,7 +1339,7 @@
           // Vim places the cursor on the first non-whitespace character of
           // the line if there is one, else it places the cursor at the end
           // of the line, regardless of whether a mark was found.
-          best.ch = findFirstNonWhiteSpaceCharacter(cm.getLine(best.line));
+          best = Pos(best.line, findFirstNonWhiteSpaceCharacter(cm.getLine(best.line)));
         }
         return best;
       },
@@ -1345,7 +1347,7 @@
         var cur = cm.getCursor();
         var repeat = motionArgs.repeat;
         var ch = motionArgs.forward ? cur.ch + repeat : cur.ch - repeat;
-        return { line: cur.line, ch: ch };
+        return Pos(cur.line, ch);
       },
       moveByLines: function(cm, motionArgs, vim) {
         var cur = cm.getCursor();
@@ -1380,8 +1382,8 @@
           endCh=findFirstNonWhiteSpaceCharacter(cm.getLine(line));
           vim.lastHPos = endCh;
         }
-        vim.lastHSPos = cm.charCoords({line:line, ch:endCh},'div').left;
-        return { line: line, ch: endCh };
+        vim.lastHSPos = cm.charCoords(Pos(line, endCh),'div').left;
+        return Pos(line, endCh);
       },
       moveByDisplayLines: function(cm, motionArgs, vim) {
         var cur = cm.getCursor();
@@ -1403,7 +1405,7 @@
             var goalCoords = { top: lastCharCoords.top + 8, left: vim.lastHSPos };
             var res = cm.coordsChar(goalCoords, 'div');
           } else {
-            var resCoords = cm.charCoords({ line: cm.firstLine(), ch: 0}, 'div');
+            var resCoords = cm.charCoords(Pos(cm.firstLine(), 0), 'div');
             resCoords.left = vim.lastHSPos;
             res = cm.coordsChar(resCoords, 'div');
           }
@@ -1436,7 +1438,7 @@
             line += inc;
           }
         }
-        return { line: line, ch: 0 };
+        return Pos(line, 0);
       },
       moveByScroll: function(cm, motionArgs, vim) {
         var scrollbox = cm.getScrollInfo();
@@ -1490,7 +1492,7 @@
       moveToEol: function(cm, motionArgs, vim) {
         var cur = cm.getCursor();
         vim.lastHPos = Infinity;
-        var retval={ line: cur.line + motionArgs.repeat - 1, ch: Infinity };
+        var retval= Pos(cur.line + motionArgs.repeat - 1, Infinity);
         var end=cm.clipPos(retval);
         end.ch--;
         vim.lastHSPos = cm.charCoords(end,'div').left;
@@ -1500,8 +1502,8 @@
         // Go to the start of the line where the text begins, or the end for
         // whitespace-only lines
         var cursor = cm.getCursor();
-        return { line: cursor.line,
-            ch: findFirstNonWhiteSpaceCharacter(cm.getLine(cursor.line)) };
+        return Pos(cursor.line,
+                   findFirstNonWhiteSpaceCharacter(cm.getLine(cursor.line)));
       },
       moveToMatchedSymbol: function(cm) {
         var cursor = cm.getCursor();
@@ -1514,7 +1516,7 @@
         do {
           symbol = lineText.charAt(ch++);
           if (symbol && isMatchableSymbol(symbol)) {
-            var endContext = cm.getTokenAt({line:line, ch:ch}).type;
+            var endContext = cm.getTokenAt(Pos(line, ch)).type;
             var endCtxLevel = getContextLevel(endContext);
             if (startCtxLevel >= endCtxLevel) {
               break;
@@ -1522,22 +1524,22 @@
           }
         } while (symbol);
         if (symbol) {
-          return findMatchedSymbol(cm, {line:line, ch:ch-1}, symbol);
+          return findMatchedSymbol(cm, Pos(line, ch-1), symbol);
         } else {
           return cursor;
         }
       },
       moveToStartOfLine: function(cm) {
         var cursor = cm.getCursor();
-        return { line: cursor.line, ch: 0 };
+        return Pos(cursor.line, 0);
       },
       moveToLineOrEdgeOfDocument: function(cm, motionArgs) {
         var lineNum = motionArgs.forward ? cm.lastLine() : cm.firstLine();
         if (motionArgs.repeatIsExplicit) {
           lineNum = motionArgs.repeat - cm.getOption('firstLineNumber');
         }
-        return { line: lineNum,
-            ch: findFirstNonWhiteSpaceCharacter(cm.getLine(lineNum)) };
+        return Pos(lineNum,
+                   findFirstNonWhiteSpaceCharacter(cm.getLine(lineNum)));
       },
       textObjectManipulation: function(cm, motionArgs) {
         var character = motionArgs.selectedCharacter;
@@ -1682,7 +1684,7 @@
         var top = cm.getScrollInfo().top;
         var delta = lineHeight * repeat;
         var newPos = actionArgs.forward ? top + delta : top - delta;
-        var cursor = cm.getCursor();
+        var cursor = copyCursor(cm.getCursor());
         var cursorCoords = cm.charCoords(cursor, 'local');
         if (actionArgs.forward) {
           if (newPos > cursorCoords.top) {
@@ -1712,7 +1714,7 @@
       },
       scrollToCursor: function(cm, actionArgs) {
         var lineNum = cm.getCursor().line;
-        var charCoords = cm.charCoords({line: lineNum, ch: 0}, 'local');
+        var charCoords = cm.charCoords(Pos(lineNum, 0), 'local');
         var height = cm.getScrollInfo().clientHeight;
         var y = charCoords.top;
         var lineHeight = charCoords.bottom - y;
@@ -1757,7 +1759,7 @@
         var insertAt = (actionArgs) ? actionArgs.insertAt : null;
         if (insertAt == 'eol') {
           var cursor = cm.getCursor();
-          cursor = { line: cursor.line, ch: lineLength(cm, cursor.line) };
+          cursor = Pos(cursor.line, lineLength(cm, cursor.line));
           cm.setCursor(cursor);
         } else if (insertAt == 'charAfter') {
           cm.setCursor(offsetCursor(cm.getCursor(), 0, 1));
@@ -1795,15 +1797,13 @@
           vim.visualLine = !!actionArgs.linewise;
           if (vim.visualLine) {
             curStart.ch = 0;
-            curEnd = clipCursorToContent(cm, {
-              line: curStart.line + repeat - 1,
-              ch: lineLength(cm, curStart.line)
-            }, true /** includeLineBreak */);
+            curEnd = clipCursorToContent(
+              cm, Pos(curStart.line + repeat - 1, lineLength(cm, curStart.line)),
+              true /** includeLineBreak */);
           } else {
-            curEnd = clipCursorToContent(cm, {
-              line: curStart.line,
-              ch: curStart.ch + repeat
-            }, true /** includeLineBreak */);
+            curEnd = clipCursorToContent(
+              cm, Pos(curStart.line, curStart.ch + repeat),
+              true /** includeLineBreak */);
           }
           // Make the initial selection.
           if (!actionArgs.repeatIsExplicit && !vim.visualLine) {
@@ -1853,29 +1853,29 @@
           // Repeat is the number of lines to join. Minimum 2 lines.
           var repeat = Math.max(actionArgs.repeat, 2);
           curStart = cm.getCursor();
-          curEnd = clipCursorToContent(cm, { line: curStart.line + repeat - 1,
-              ch: Infinity });
+          curEnd = clipCursorToContent(cm, Pos(curStart.line + repeat - 1,
+                                               Infinity));
         }
         var finalCh = 0;
         cm.operation(function() {
           for (var i = curStart.line; i < curEnd.line; i++) {
             finalCh = lineLength(cm, curStart.line);
-            var tmp = { line: curStart.line + 1,
-                ch: lineLength(cm, curStart.line + 1) };
+            var tmp = Pos(curStart.line + 1,
+                          lineLength(cm, curStart.line + 1));
             var text = cm.getRange(curStart, tmp);
             text = text.replace(/\n\s*/g, ' ');
             cm.replaceRange(text, curStart, tmp);
           }
-          var curFinalPos = { line: curStart.line, ch: finalCh };
+          var curFinalPos = Pos(curStart.line, finalCh);
           cm.setCursor(curFinalPos);
         });
       },
       newLineAndEnterInsertMode: function(cm, actionArgs, vim) {
         vim.insertMode = true;
-        var insertAt = cm.getCursor();
+        var insertAt = copyCursor(cm.getCursor());
         if (insertAt.line === cm.firstLine() && !actionArgs.after) {
           // Special case for inserting newline before start of document.
-          cm.replaceRange('\n', { line: cm.firstLine(), ch: 0 });
+          cm.replaceRange('\n', Pos(cm.firstLine(), 0));
           cm.setCursor(cm.firstLine(), 0);
         } else {
           insertAt.line = (actionArgs.after) ? insertAt.line :
@@ -1889,7 +1889,7 @@
         this.enterInsertMode(cm, { repeat: actionArgs.repeat }, vim);
       },
       paste: function(cm, actionArgs) {
-        var cur = cm.getCursor();
+        var cur = copyCursor(cm.getCursor());
         var register = vimGlobalState.registerController.getRegister(
             actionArgs.registerName);
         if (!register.text) {
@@ -1916,11 +1916,13 @@
         var curPosFinal;
         var idx;
         if (linewise && actionArgs.after) {
-          curPosFinal = { line: cur.line + 1,
-              ch: findFirstNonWhiteSpaceCharacter(cm.getLine(cur.line + 1)) };
+          curPosFinal = Pos(
+            cur.line + 1,
+            findFirstNonWhiteSpaceCharacter(cm.getLine(cur.line + 1)));
         } else if (linewise && !actionArgs.after) {
-          curPosFinal = { line: cur.line,
-              ch: findFirstNonWhiteSpaceCharacter(cm.getLine(cur.line)) };
+          curPosFinal = Pos(
+            cur.line,
+            findFirstNonWhiteSpaceCharacter(cm.getLine(cur.line)));
         } else if (!linewise && actionArgs.after) {
           idx = cm.indexFromPos(cur);
           curPosFinal = cm.posFromIndex(idx + text.length - 1);
@@ -1956,14 +1958,14 @@
           curEnd=cm.getCursor('end');
           // workaround to catch the character under the cursor
           //  existing workaround doesn't cover actions
-          curEnd=cm.clipPos({line: curEnd.line, ch: curEnd.ch+1});
+          curEnd=cm.clipPos(Pos(curEnd.line, curEnd.ch+1));
         }else{
           var line = cm.getLine(curStart.line);
           replaceTo = curStart.ch + actionArgs.repeat;
           if (replaceTo > line.length) {
             replaceTo=line.length;
           }
-          curEnd = { line: curStart.line, ch: replaceTo };
+          curEnd = Pos(curStart.line, replaceTo);
         }
         if(replaceWith=='\n'){
           if(!vim.visualMode) cm.replaceRange('', curStart, curEnd);
@@ -2001,14 +2003,14 @@
         if (token) {
           var increment = actionArgs.increase ? 1 : -1;
           var number = parseInt(token) + (increment * actionArgs.repeat);
-          var from = {ch:start, line:cur.line};
-          var to = {ch:end, line:cur.line};
+          var from = Pos(cur.line, start);
+          var to = Pos(cur.line, end);
           numberStr = number.toString();
           cm.replaceRange(numberStr, from, to);
         } else {
           return;
         }
-        cm.setCursor({line: cur.line, ch: start + numberStr.length - 1});
+        cm.setCursor(Pos(cur.line, start + numberStr.length - 1));
       },
       repeatLastEdit: function(cm, actionArgs, vim) {
         var lastEditInputState = vim.lastEditInputState;
@@ -2066,7 +2068,7 @@
       var maxCh = lineLength(cm, line) - 1;
       maxCh = (includeLineBreak) ? maxCh + 1 : maxCh;
       var ch = Math.min(Math.max(0, cur.ch), maxCh);
-      return { line: line, ch: ch };
+      return Pos(line, ch);
     }
     function copyArgs(args) {
       var ret = {};
@@ -2078,7 +2080,7 @@
       return ret;
     }
     function offsetCursor(cur, offsetLine, offsetCh) {
-      return { line: cur.line + offsetLine, ch: cur.ch + offsetCh };
+      return Pos(cur.line + offsetLine, cur.ch + offsetCh);
     }
     function matchKeysPartial(pressed, mapped) {
       for (var i = 0; i < pressed.length; i++) {
@@ -2097,7 +2099,7 @@
       };
     }
     function copyCursor(cur) {
-      return { line: cur.line, ch: cur.ch };
+      return Pos(cur.line, cur.ch);
     }
     function cursorEqual(cur1, cur2) {
       return cur1.ch == cur2.ch && cur1.line == cur2.line;
@@ -2254,8 +2256,8 @@
         }
       }
 
-      return { start: { line: cur.line, ch: wordStart },
-        end: { line: cur.line, ch: wordEnd }};
+      return { start: Pos(cur.line, wordStart),
+               end: Pos(cur.line, wordEnd) };
     }
 
     function recordJumpPosition(cm, oldCur, newCur) {
@@ -2343,7 +2345,7 @@
       }
     };
     function findSymbol(cm, repeat, forward, symb) {
-      var cur = cm.getCursor();
+      var cur = copyCursor(cm.getCursor());
       var increment = forward ? 1 : -1;
       var endLine = forward ? cm.lineCount() : -1;
       var curCh = cur.ch;
@@ -2386,7 +2388,7 @@
         }
       }
       if (state.nextCh || state.curMoveThrough) {
-        return { line: line, ch: state.index };
+        return Pos(line, state.index);
       }
       return cur;
     }
@@ -2500,7 +2502,7 @@
           break;
         }
         words.push(word);
-        cur = {line: word.line, ch: forward ? (word.to - 1) : word.from};
+        cur = Pos(word.line, forward ? (word.to - 1) : word.from);
       }
       var shortCircuit = words.length != repeat;
       var firstWord = words[0];
@@ -2511,19 +2513,19 @@
           // We did not start in the middle of a word. Discard the extra word at the end.
           lastWord = words.pop();
         }
-        return {line: lastWord.line, ch: lastWord.from};
+        return Pos(lastWord.line, lastWord.from);
       } else if (forward && wordEnd) {
-        return {line: lastWord.line, ch: lastWord.to - 1};
+        return Pos(lastWord.line, lastWord.to - 1);
       } else if (!forward && wordEnd) {
         // ge
         if (!shortCircuit && (firstWord.to != curStart.ch || firstWord.line != curStart.line)) {
           // We did not start in the middle of a word. Discard the extra word at the end.
           lastWord = words.pop();
         }
-        return {line: lastWord.line, ch: lastWord.to};
+        return Pos(lastWord.line, lastWord.to);
       } else {
         // b
-        return {line: lastWord.line, ch: lastWord.from};
+        return Pos(lastWord.line, lastWord.from);
       }
     }
 
@@ -2539,14 +2541,14 @@
         }
         start = idx;
       }
-      return { line: cm.getCursor().line, ch: idx };
+      return Pos(cm.getCursor().line, idx);
     }
 
     function moveToColumn(cm, repeat) {
       // repeat is always >= 1, so repeat - 1 always corresponds
       // to the column we want to go to.
       var line = cm.getCursor().line;
-      return clipCursorToContent(cm, { line: line, ch: repeat - 1 });
+      return clipCursorToContent(cm, Pos(line, repeat - 1));
     }
 
     function updateMark(cm, vim, markName, pos) {
@@ -2589,7 +2591,7 @@
       var ch = cur.ch;
       symb = symb ? symb : cm.getLine(line).charAt(ch);
 
-      var symbContext = cm.getTokenAt({line:line, ch:ch+1}).type;
+      var symbContext = cm.getTokenAt(Pos(line, ch + 1)).type;
       var symbCtxLevel = getContextLevel(symbContext);
 
       var reverseSymb = ({
@@ -2625,7 +2627,7 @@
           }
           nextCh = lineText.charAt(index);
         }
-        var revSymbContext = cm.getTokenAt({line:line, ch:index+1}).type;
+        var revSymbContext = cm.getTokenAt(Pos(line, index + 1)).type;
         var revSymbCtxLevel = getContextLevel(revSymbContext);
         if (symbCtxLevel >= revSymbCtxLevel) {
           if (nextCh === symb) {
@@ -2637,7 +2639,7 @@
       }
 
       if (nextCh) {
-        return { line: line, ch: index };
+        return Pos(line, index);
       }
       return cur;
     }
@@ -2657,7 +2659,7 @@
     // have identical opening and closing symbols
     // TODO support across multiple lines
     function findBeginningAndEnd(cm, symb, inclusive) {
-      var cur = cm.getCursor();
+      var cur = copyCursor(cm.getCursor());
       var line = cm.getLine(cur.line);
       var chars = line.split('');
       var start, end, i, len;
@@ -2709,8 +2711,8 @@
       }
 
       return {
-        start: { line: cur.line, ch: start },
-        end: { line: cur.line, ch: end }
+        start: Pos(cur.line, start),
+        end: Pos(cur.line, end)
       };
     }
 
@@ -2935,7 +2937,7 @@
             // SearchCursor may have returned null because it hit EOF, wrap
             // around and try again.
             cursor = cm.getSearchCursor(query,
-                (prev) ? { line: cm.lastLine() } : {line: cm.firstLine(), ch: 0} );
+                (prev) ? Pos(cm.lastLine()) : Pos(cm.firstLine(), 0) );
             if (!cursor.find(prev)) {
               return;
             }
@@ -3241,8 +3243,8 @@
         var lineStart = params.line || cm.firstLine();
         var lineEnd = params.lineEnd || params.line || cm.lastLine();
         if (lineStart == lineEnd) { return; }
-        var curStart = { line: lineStart, ch: 0 };
-        var curEnd = { line: lineEnd, ch: lineLength(cm, lineEnd) };
+        var curStart = Pos(lineStart, 0);
+        var curEnd = Pos(lineEnd, lineLength(cm, lineEnd));
         var text = cm.getRange(curStart, curEnd).split('\n');
         var numberRegex = (number == 'decimal') ? /(-?)([\d]+)/ :
            (number == 'hex') ? /(-?)(?:0x)?([0-9a-f]+)/i :
@@ -3339,7 +3341,7 @@
           lineStart = lineEnd;
           lineEnd = lineStart + count - 1;
         }
-        var startPos = clipCursorToContent(cm, { line: lineStart, ch: 0 });
+        var startPos = clipCursorToContent(cm, Pos(lineStart, 0));
         var cursor = cm.getSearchCursor(query, startPos);
         doReplace(cm, confirm, lineStart, lineEnd, cursor, query, replacePart);
       },
