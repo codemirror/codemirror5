@@ -257,6 +257,9 @@ div.CodeMirror-cursors {
 /* IE7 hack to prevent it from returning funny offsetTops on the spans */
 .CodeMirror span { *vertical-align: text-bottom; }
 
+/* Used to force a border model for a node */
+.cm-force-border { padding-right: .1px; }
+
 @media print {
   /* Hide the cursor when printing */
   .CodeMirror div.CodeMirror-cursors {
