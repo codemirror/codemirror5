@@ -197,14 +197,11 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
   function htmlBlock(stream, state) {
     var style = htmlMode.token(stream, state.htmlState);
-    if (htmlFound && style === 'tag' && state.htmlState.type !== 'openTag' && !state.htmlState.context) {
+    if ((htmlFound && !state.htmlState.tagName && !state.htmlState.context) ||
+        (state.md_inside && stream.current().indexOf(">") > -1)) {
       state.f = inlineNormal;
       state.block = blockNormal;
-    }
-    if (state.md_inside && stream.current().indexOf(">")!=-1) {
-      state.f = inlineNormal;
-      state.block = blockNormal;
-      state.htmlState.context = undefined;
+      state.htmlState = null;
     }
     return style;
   }
@@ -421,13 +418,14 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     }
 
     if (ch === '<' && stream.match(/^\w/, false)) {
-      if (stream.string.indexOf(">")!=-1) {
+      if (stream.string.indexOf(">") != -1) {
         var atts = stream.string.substring(1,stream.string.indexOf(">"));
         if (/markdown\s*=\s*('|"){0,1}1('|"){0,1}/.test(atts)) {
           state.md_inside = true;
         }
       }
       stream.backUp(1);
+      state.htmlState = CodeMirror.startState(htmlMode);
       return switchBlock(stream, state, htmlBlock);
     }
 
@@ -601,7 +599,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     return savedInlineRE[endChar];
   }
 
-  return {
+  var mode = {
     startState: function() {
       return {
         f: blockNormal,
@@ -610,7 +608,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         thisLineHasContent: false,
 
         block: blockNormal,
-        htmlState: CodeMirror.startState(htmlMode),
+        htmlState: null,
         indentation: 0,
 
         inline: inlineNormal,
@@ -641,7 +639,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         thisLineHasContent: s.thisLineHasContent,
 
         block: s.block,
-        htmlState: CodeMirror.copyState(htmlMode, s.htmlState),
+        htmlState: s.htmlState && CodeMirror.copyState(htmlMode, s.htmlState),
         indentation: s.indentation,
 
         localMode: s.localMode,
@@ -671,10 +669,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       state.formatting = false;
 
       if (stream.sol()) {
-        var forceBlankLine = false;
-        if (stream.match(/^\s*$/, true) || state.header) {
-          forceBlankLine = true;
-        }
+        var forceBlankLine = stream.match(/^\s*$/, true) || state.header;
 
         // Reset state.header
         state.header = 0;
@@ -712,11 +707,17 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       return state.f(stream, state);
     },
 
+    innerMode: function(state) {
+      if (state.block == htmlBlock) return {state: state.htmlState, mode: htmlMode};
+      if (state.block == local) return {state: state.localState, mode: state.localMode};
+      return {state: state, mode: mode};
+    },
+
     blankLine: blankLine,
 
     getType: getType
   };
-
+  return mode;
 }, "xml");
 
 CodeMirror.defineMIME("text/x-markdown", "markdown");
