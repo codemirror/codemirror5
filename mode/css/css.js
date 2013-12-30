@@ -161,7 +161,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
         override = "property";
         return "maybeprop";
       } else if (allowNested) {
-        override = "tag";
+        override = stream.match(/^\s*:/, false) ? "property" : "tag";
         return "block";
       } else {
         override += " error";
@@ -184,6 +184,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
 
   states.prop = function(type, stream, state) {
     if (type == ";") return popContext(state);
+    if (type == "{" && allowNested) return pushContext(state, stream, "propBlock");
     if (type == "}" || type == "{") return popAndPass(type, stream, state);
     if (type == "(") return pushContext(state, stream, "parens");
 
@@ -195,6 +196,12 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
       return pushContext(state, stream, "interpolation");
     }
     return "prop";
+  };
+
+  states.propBlock = function(type, _stream, state) {
+    if (type == "}") return popContext(state);
+    if (type == "word") { override = "property"; return "maybeprop"; }
+    return state.context.type;
   };
 
   states.parens = function(type, stream, state) {
