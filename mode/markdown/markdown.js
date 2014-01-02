@@ -47,6 +47,11 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   if (modeCfg.highlightFormatting === undefined)
     modeCfg.highlightFormatting = false;
 
+  // Maximum number of nested blockquotes. Set to 0 for infinite nesting.
+  // Excess `>` will emit `error` token.
+  if (modeCfg.maxBlockquoteDepth === undefined)
+    modeCfg.maxBlockquoteDepth = 0;
+
   // Should underscores in words open/close em/strong?
   if (modeCfg.underscoresBreakWords === undefined)
     modeCfg.underscoresBreakWords = true;
@@ -61,8 +66,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
   var header   = 'header'
   ,   code     = 'comment'
-  ,   quote1   = 'atom'
-  ,   quote2   = 'number'
+  ,   quote    = 'quote'
   ,   list1    = 'variable-2'
   ,   list2    = 'variable-3'
   ,   list3    = 'keyword'
@@ -120,6 +124,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
   function blockNormal(stream, state) {
 
+    var sol = stream.sol();
+
     var prevLineIsList = (state.list !== false);
     if (state.list !== false && state.indentationDiff >= 0) { // Continued list
       if (state.indentationDiff < 4) { // Only adjust indentation if *not* a code block
@@ -153,13 +159,9 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       return getType(state);
     } else if (stream.eat('>')) {
       state.indentation++;
-      state.quote = 1;
+      state.quote = sol ? 1 : state.quote + 1;
       if (modeCfg.highlightFormatting) state.formatting = "quote";
       stream.eatSpace();
-      while (stream.eat('>')) {
-        stream.eatSpace();
-        state.quote++;
-      }
       return getType(state);
     } else if (stream.peek() === '[') {
       return switchInline(stream, state, footnoteLink);
@@ -239,6 +241,16 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         if (state.formatting[i] === "header") {
           styles.push(formatting + "-" + state.formatting[i] + state.header);
         }
+
+        // Add `formatting-quote` and `formatting-quote-#` for blockquotes
+        // Add `error` instead if the maximum blockquote nesting depth is passed
+        if (state.formatting[i] === "quote") {
+          if (!modeCfg.maxBlockquoteDepth || modeCfg.maxBlockquoteDepth >= state.quote) {
+            styles.push(formatting + "-" + state.formatting[i] + "-" + state.quote);
+          } else {
+            styles.push("error");
+          }
+        }
       }
     }
 
@@ -264,7 +276,18 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     if (state.code) { styles.push(code); }
 
     if (state.header) { styles.push(header); styles.push(header + state.header); }
-    if (state.quote) { styles.push(state.quote % 2 ? quote1 : quote2); }
+
+    if (state.quote) {
+      styles.push(quote);
+
+      // Add `quote-#` where the maximum for `#` is modeCfg.maxBlockquoteDepth
+      if (!modeCfg.maxBlockquoteDepth || modeCfg.maxBlockquoteDepth >= state.quote) {
+        styles.push(quote + "-" + state.quote);
+      } else {
+        styles.push(quote + "-" + modeCfg.maxBlockquoteDepth);
+      }
+    }
+
     if (state.list !== false) {
       var listMod = (state.listDepth - 1) % 3;
       if (!listMod) {

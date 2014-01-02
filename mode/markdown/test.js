@@ -30,7 +30,7 @@
      "[header&header1&formatting&formatting-header&formatting-header1 =]");
 
   FT("formatting_blockquote",
-     "[atom&formatting&formatting-quote > ][atom foo]");
+     "[quote&quote-1&formatting&formatting-quote&formatting-quote-1 > ][quote&quote-1 foo]");
 
   FT("formatting_list",
      "[variable-2&formatting&formatting-list&formatting-list-ul - ][variable-2 foo]");
@@ -193,50 +193,50 @@
 
   // Single-line blockquote with trailing space
   MT("blockquoteSpace",
-     "[atom > foo]");
+     "[quote&quote-1 > foo]");
 
   // Single-line blockquote
   MT("blockquoteNoSpace",
-     "[atom >foo]");
+     "[quote&quote-1 >foo]");
 
   // No blank line before blockquote
   MT("blockquoteNoBlankLine",
      "foo",
-     "[atom > bar]");
+     "[quote&quote-1 > bar]");
 
   // Nested blockquote
   MT("blockquoteSpace",
-     "[atom > foo]",
-     "[number > > foo]",
-     "[atom > > > foo]");
+     "[quote&quote-1 > foo]",
+     "[quote&quote-1 >][quote&quote-2 > foo]",
+     "[quote&quote-1 >][quote&quote-2 >][quote&quote-3 > foo]");
 
   // Single-line blockquote followed by normal paragraph
   MT("blockquoteThenParagraph",
-     "[atom >foo]",
+     "[quote&quote-1 >foo]",
      "",
      "bar");
 
   // Multi-line blockquote (lazy mode)
   MT("multiBlockquoteLazy",
-     "[atom >foo]",
-     "[atom bar]");
+     "[quote&quote-1 >foo]",
+     "[quote&quote-1 bar]");
 
   // Multi-line blockquote followed by normal paragraph (lazy mode)
   MT("multiBlockquoteLazyThenParagraph",
-     "[atom >foo]",
-     "[atom bar]",
+     "[quote&quote-1 >foo]",
+     "[quote&quote-1 bar]",
      "",
      "hello");
 
   // Multi-line blockquote (non-lazy mode)
   MT("multiBlockquote",
-     "[atom >foo]",
-     "[atom >bar]");
+     "[quote&quote-1 >foo]",
+     "[quote&quote-1 >bar]");
 
   // Multi-line blockquote followed by normal paragraph (non-lazy mode)
   MT("multiBlockquoteThenParagraph",
-     "[atom >foo]",
-     "[atom >bar]",
+     "[quote&quote-1 >foo]",
+     "[quote&quote-1 >bar]",
      "",
      "hello");
 
@@ -366,7 +366,7 @@
      "",
      "[variable-2 * bar]",
      "",
-     "    [variable-2&atom > hello]");
+     "    [variable-2&quote&quote-1 > hello]");
 
   // Code block
   MT("blockquoteCode",
@@ -424,7 +424,7 @@
      "",
      "    [variable-3 + bar]",
      "",
-     "        [atom&variable-3 > hello]");
+     "        [quote&quote-1&variable-3 > hello]");
 
   MT("listCode",
      "[variable-2 * foo]",
