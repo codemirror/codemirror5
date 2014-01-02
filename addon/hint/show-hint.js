@@ -64,9 +64,14 @@
       this.widget = new Widget(this, data);
       CodeMirror.signal(data, "shown");
 
-      var debounce = null, completion = this, finished;
+      var debounce = 0, completion = this, finished;
       var closeOn = this.options.closeCharacters || /[\s()\[\]{};:>,]/;
       var startPos = this.cm.getCursor(), startLen = this.cm.getLine(startPos.line).length;
+
+      var requestAnimationFrame = window.requestAnimationFrame || function(fn) {
+        return setTimeout(fn, 1000/60);
+      };
+      var cancelAnimationFrame = window.cancelAnimationFrame || clearTimeout;
 
       function done() {
         if (finished) return;
@@ -91,15 +96,22 @@
         completion.widget = new Widget(completion, data);
       }
 
+      function clearDebounce() {
+        if (debounce) {
+          cancelAnimationFrame(debounce);
+          debounce = 0;
+        }
+      }
+
       function activity() {
-        clearTimeout(debounce);
+        clearDebounce();
         var pos = completion.cm.getCursor(), line = completion.cm.getLine(pos.line);
         if (pos.line != startPos.line || line.length - pos.ch != startLen - startPos.ch ||
             pos.ch < startPos.ch || completion.cm.somethingSelected() ||
             (pos.ch && closeOn.test(line.charAt(pos.ch - 1)))) {
           completion.close();
         } else {
-          debounce = setTimeout(update, 170);
+          debounce = requestAnimationFrame(update);
           if (completion.widget) completion.widget.close();
         }
       }
