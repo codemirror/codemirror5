@@ -357,9 +357,9 @@
         vim.onPasteFn = function() {
           if (!vim.insertMode) {
             cm.setCursor(offsetCursor(cm.getCursor(), 0, 1));
-            actions.enterInsertMode(cm, {}, vim);;
-          } 
-        }
+            actions.enterInsertMode(cm, {}, vim);
+          }
+        };
       }
       return vim.onPasteFn;
     }
