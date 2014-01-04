@@ -275,16 +275,14 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
       return {tokenize: inText,
               state: baseState,
               indented: 0,
-              startOfLine: true,
               tagName: null, tagStart: null,
               context: null};
     },
 
     token: function(stream, state) {
-      if (!state.tagName && stream.sol()) {
-        state.startOfLine = true;
+      if (!state.tagName && stream.sol())
         state.indented = stream.indentation();
-      }
+
       if (stream.eatSpace()) return null;
       tagName = type = null;
       var style = state.tokenize(stream, state);
@@ -294,7 +292,6 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
         if (setStyle)
           style = setStyle == "error" ? style + " error" : setStyle;
       }
-      state.startOfLine = false;
       return style;
     },
 
