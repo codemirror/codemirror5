@@ -249,6 +249,8 @@
     }),
     "Alt-W": function(cm) {
       addToRing(cm.getSelection());
+      cm.setExtending(false);
+      cm.setCursor(cm.getCursor());
     },
     "Ctrl-Y": function(cm) {
       var start = cm.getCursor();
