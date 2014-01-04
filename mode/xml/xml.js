@@ -171,15 +171,13 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
     };
   }
 
-  function pushContext(state, tagName, startOfLine) {
-    var noIndent = Kludges.doNotIndent.hasOwnProperty(tagName) || (state.context && state.context.noIndent);
-    state.context = {
-      prev: state.context,
-      tagName: tagName,
-      indent: state.indented,
-      startOfLine: startOfLine,
-      noIndent: noIndent
-    };
+  function Context(state, tagName, startOfLine) {
+    this.prev = state.context;
+    this.tagName = tagName;
+    this.indent = state.indented;
+    this.startOfLine = startOfLine;
+    if (Kludges.doNotIndent.hasOwnProperty(tagName) || (state.context && state.context.noIndent))
+      this.noIndent = true;
   }
   function popContext(state) {
     if (state.context) state.context = state.context.prev;
@@ -234,7 +232,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
     return closeState(type, stream, state);
   }
 
-  function attrState(type, stream, state) {
+  function attrState(type, _stream, state) {
     if (type == "word") {
       setStyle = "attribute";
       return attrEqState;
@@ -246,7 +244,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
         maybePopContext(state, tagName.toLowerCase());
       } else {
         maybePopContext(state, tagName.toLowerCase());
-        pushContext(state, tagName, tagStart == stream.indentation());
+        state.context = new Context(state, tagName, tagStart == state.indented);
       }
       return baseState;
     }
