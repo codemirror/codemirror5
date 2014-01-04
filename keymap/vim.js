@@ -334,9 +334,11 @@
         CodeMirror.signal(cm, "vim-mode-change", {mode: "normal"});
         cm.on('beforeSelectionChange', beforeSelectionChange);
         maybeInitVimState(cm);
+        CodeMirror.on(cm.getInputField(), 'paste', getOnPasteFn(cm));
       } else if (cm.state.vim) {
         cm.setOption('keyMap', 'default');
         cm.off('beforeSelectionChange', beforeSelectionChange);
+        CodeMirror.off(cm.getInputField(), 'paste', getOnPasteFn(cm));
         cm.state.vim = null;
       }
     });
@@ -348,6 +350,18 @@
       if (head.ch && head.ch == cm.doc.getLine(head.line).length) {
         head.ch--;
       }
+    }
+    function getOnPasteFn(cm) {
+      var vim = cm.state.vim;
+      if (!vim.onPasteFn) {
+        vim.onPasteFn = function() {
+          if (!vim.insertMode) {
+            cm.setCursor(offsetCursor(cm.getCursor(), 0, 1));
+            actions.enterInsertMode(cm, {}, vim);;
+          } 
+        }
+      }
+      return vim.onPasteFn;
     }
 
     var numberRegex = /[\d]/;
