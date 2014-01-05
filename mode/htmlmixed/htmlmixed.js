@@ -15,6 +15,7 @@ CodeMirror.defineMode("htmlmixed", function(config, parserConfig) {
   function html(stream, state) {
     var tagName = state.htmlState.tagName;
     var style = htmlMode.token(stream, state.htmlState);
+    var nextMode;
     if (tagName == "script" && /\btag\b/.test(style) && stream.current() == ">") {
       // Script block: mode to change to depends on type attribute
       var scriptType = stream.string.slice(Math.max(0, stream.pos - 100), stream.pos).match(/\btype\s*=\s*("[^"]+"|'[^']+'|\S+)[^<]*$/i);
@@ -36,9 +37,9 @@ CodeMirror.defineMode("htmlmixed", function(config, parserConfig) {
       state.localMode = cssMode;
       state.localState = cssMode.startState(htmlMode.indent(state.htmlState, ""));
     }
-    return style;
+    return 'html' + ( style ? ' ' + style : '' );
   }
-  function maybeBackup(stream, pat, style) {
+  function maybeBackup(stream, state, pat, style) {
     var cur = stream.current();
     var close = cur.search(pat), m;
     if (close > -1) stream.backUp(cur.length - close);
@@ -46,7 +47,7 @@ CodeMirror.defineMode("htmlmixed", function(config, parserConfig) {
       stream.backUp(cur.length);
       if (!stream.match(pat, false)) stream.match(cur);
     }
-    return style;
+    return ( state.localMode ? state.localMode.name : 'html' ) + ( style ? ' ' + style : '' );
   }
   function script(stream, state) {
     if (stream.match(/^<\/\s*script\s*>/i, false)) {
@@ -54,7 +55,7 @@ CodeMirror.defineMode("htmlmixed", function(config, parserConfig) {
       state.localState = state.localMode = null;
       return html(stream, state);
     }
-    return maybeBackup(stream, /<\/\s*script\s*>/,
+    return maybeBackup(stream, state, /<\/\s*script\s*>/,
                        state.localMode.token(stream, state.localState));
   }
   function css(stream, state) {
@@ -63,7 +64,7 @@ CodeMirror.defineMode("htmlmixed", function(config, parserConfig) {
       state.localState = state.localMode = null;
       return html(stream, state);
     }
-    return maybeBackup(stream, /<\/\s*style\s*>/,
+    return maybeBackup(stream, state, /<\/\s*style\s*>/,
                        cssMode.token(stream, state.localState));
   }
 
