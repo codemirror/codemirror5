@@ -4,16 +4,16 @@
 
   // Requires at least one media query
   MT("elementName",
-     "[tag %h1] Hey There");
+     "[tag %h1] [html Hey There]");
 
   MT("oneElementPerLine",
-     "[tag %h1] Hey There %h2");
+     "[tag %h1] [html Hey There %h2]");
 
   MT("idSelector",
-     "[tag %h1][attribute #test] Hey There");
+     "[tag %h1][attribute #test] [html Hey There]");
 
   MT("classSelector",
-     "[tag %h1][attribute .hello] Hey There");
+     "[tag %h1][attribute .hello] [html Hey There]");
 
   MT("docType",
      "[tag !!! XML]");
@@ -22,13 +22,13 @@
      "[comment / Hello WORLD]");
 
   MT("notComment",
-     "[tag %h1] This is not a / comment ");
+     "[tag %h1] [html This is not a / comment ]");
 
   MT("attributes",
      "[tag %a]([variable title][operator =][string \"test\"]){[atom :title] [operator =>] [string \"test\"]}");
 
   MT("htmlCode",
-     "[tag <h1>]Title[tag </h1>]");
+     "[html&tag <h1>][html Title][html&tag </h1>]");
 
   MT("rubyBlock",
      "[operator =][variable-2 @item]");
@@ -42,14 +42,14 @@
 
   MT("multilinePlaintext",
       "[tag %p]",
-      "  Hello,",
-      "  World");
+      "  [html Hello,]",
+      "  [html World]");
 
   MT("multilineRuby",
       "[tag %p]",
       "  [comment -# this is a comment]",
       "     [comment and this is a comment too]",
-      "  Date/Time",
+      "  [html Date/Time]",
       "  [operator -] [variable now] [operator =] [tag DateTime][operator .][variable now]",
       "  [tag %strong=] [variable now]",
       "  [operator -] [keyword if] [variable now] [operator >] [tag DateTime][operator .][variable parse]([string \"December 31, 2006\"])",
@@ -70,9 +70,9 @@
      "   [comment and this is a comment too]");
 
   MT("multilineHTMLComment",
-    "[comment <!--]",
-    "  [comment what a comment]",
-    "  [comment -->]");
+    "[html&comment <!--]",
+    "  [html&comment what a comment]",
+    "  [html&comment -->]");
 
   MT("hamlAfterRubyTag",
     "[attribute .block]",
@@ -87,8 +87,8 @@
 
   MT("interpolationInHashAttribute",
      //"[tag %div]{[atom :id] [operator =>] [string \"#{][variable test][string }_#{][variable ting][string }\"]} test");
-     "[tag %div]{[atom :id] [operator =>] [string \"#{][variable test][string }_#{][variable ting][string }\"]} test");
+     "[tag %div]{[atom :id] [operator =>] [string \"#{][variable test][string }_#{][variable ting][string }\"]} [html test]");
 
   MT("interpolationInHTMLAttribute",
-     "[tag %div]([variable title][operator =][string \"#{][variable test][string }_#{][variable ting]()[string }\"]) Test");
+     "[tag %div]([variable title][operator =][string \"#{][variable test][string }_#{][variable ting]()[string }\"]) [html Test]");
 })();
