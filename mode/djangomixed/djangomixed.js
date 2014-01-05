@@ -12,7 +12,7 @@ CodeMirror.defineMode("djangomixed", function(config) {
     rightVarDelimiter: '}}',
     leftVarDelimiter: '{{',
     rightCommentDelimiter: '#}',
-    leftCommentDelimiter: '{#',
+    leftCommentDelimiter: '{#'
   };
 
   regs = {
@@ -67,23 +67,23 @@ CodeMirror.defineMode("djangomixed", function(config) {
     },
 
     django: function(stream, state) {
-		if (stream.match(settings.leftCommentDelimiter, false)) {
-          return helpers.chain(stream, state, parsers.inBlock("comment", settings.rightCommentDelimiter));
-		} else if (stream.match(settings.rightDelimiter, false)) {
-			stream.eat(settings.rightDelimiter);
-			state.tokenize = parsers.html;
-			state.localMode = htmlMixedMode;
-			state.localState = state.htmlMixedState;
-			return "django tag";
-		} else if (stream.match(settings.rightVarDelimiter, false)) {
-			stream.eat(settings.rightVarDelimiter);
-			state.tokenize = parsers.html;
-			state.localMode = htmlMixedMode;
-			state.localState = state.htmlMixedState;
-			return "django tag";
-		}
-
-		return helpers.maybeBackup(stream, regs.eitherRightDelimeter, djangoMode.token(stream, state.localState));
+      if (stream.match(settings.leftCommentDelimiter, false)) {
+        return helpers.chain(stream, state, parsers.inBlock("comment", settings.rightCommentDelimiter));
+      } else if (stream.match(settings.rightDelimiter, false)) {
+        stream.eat(settings.rightDelimiter);
+        state.tokenize = parsers.html;
+        state.localMode = htmlMixedMode;
+        state.localState = state.htmlMixedState;
+        return "django tag";
+      } else if (stream.match(settings.rightVarDelimiter, false)) {
+        stream.eat(settings.rightVarDelimiter);
+        state.tokenize = parsers.html;
+        state.localMode = htmlMixedMode;
+        state.localState = state.htmlMixedState;
+        return "django tag";
+      }
+  
+      return helpers.maybeBackup(stream, regs.eitherRightDelimeter, djangoMode.token(stream, state.localState));
     },
 
     inBlock: function(style, terminator) {

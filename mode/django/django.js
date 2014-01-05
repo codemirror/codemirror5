@@ -5,7 +5,7 @@ CodeMirror.defineMode("django", function(config) {
   "use strict";
 
   // cf http://stackoverflow.com/questions/8996541
-  var exit_after_tag = ( config.mode == "text/x-django" ) ? true : false; 
+  var exit_after_tag = ( config.mode == "text/x-django" ) ? true : false;
 
   // our default settings; check to see if they're overridden
   var settings = {
@@ -14,7 +14,7 @@ CodeMirror.defineMode("django", function(config) {
     rightVarDelimiter: '}}',
     leftVarDelimiter: '{{',
     rightCommentDelimiter: '#}',
-    leftCommentDelimiter: '{#',
+    leftCommentDelimiter: '{#'
   };
 
   var last;
