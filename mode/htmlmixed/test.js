@@ -17,6 +17,6 @@
      "[html&tag <h1>][html Title][html&tag </h1>]",
      "[html&tag <style>][css&tag h1][css { ][css&property color][css : ][css&keyword red][css }][html&tag </style>]",
      "[html&tag <script>][javascript&keyword var][javascript  ][javascript&variable foo][javascript  = ][javascript&variable bar][javascript () + ][javascript&number 42][javascript ;][html&tag </script>]",
-	"[html&tag <div>][html The end.][html&tag </div>]");
+     "[html&tag <div>][html The end.][html&tag </div>]");
 
 })();

@@ -15,7 +15,6 @@ CodeMirror.defineMode("htmlmixed", function(config, parserConfig) {
   function html(stream, state) {
     var tagName = state.htmlState.tagName;
     var style = htmlMode.token(stream, state.htmlState);
-    var nextMode;
     if (tagName == "script" && /\btag\b/.test(style) && stream.current() == ">") {
       // Script block: mode to change to depends on type attribute
       var scriptType = stream.string.slice(Math.max(0, stream.pos - 100), stream.pos).match(/\btype\s*=\s*("[^"]+"|'[^']+'|\S+)[^<]*$/i);
