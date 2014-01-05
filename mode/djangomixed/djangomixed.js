@@ -82,7 +82,7 @@ CodeMirror.defineMode("djangomixed", function(config) {
         state.localState = state.htmlMixedState;
         return "django tag";
       }
-  
+
       return helpers.maybeBackup(stream, regs.eitherRightDelimeter, djangoMode.token(stream, state.localState));
     },
 

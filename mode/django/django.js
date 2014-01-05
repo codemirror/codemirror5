@@ -139,8 +139,7 @@ CodeMirror.defineMode("django", function(config) {
       return function(stream, state) {
         while (!stream.eol()) {
           if (stream.match(terminator)) {
-            state.tokenize = ( exit_after_tag == true ) ? null : tokenizer;
-            state.tokenize = parsers.tokenizer;
+            state.tokenize = ( exit_after_tag == true ) ? null : parsers.tokenizer;
             break;
           }
           stream.next();
