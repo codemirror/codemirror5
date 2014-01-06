@@ -84,7 +84,7 @@
   function getCompletions(token, context) {
     var found = [], start = token.string;
     function maybeAdd(str) {
-      if (str.indexOf(start) == 0 && !arrayContains(found, str)) found.push(str);
+      if (str.lastIndexOf(start, 0) == 0 && !arrayContains(found, str)) found.push(str);
     }
 
     function gatherCompletions(obj) {

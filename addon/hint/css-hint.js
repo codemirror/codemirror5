@@ -20,7 +20,7 @@
     var result = [];
     function add(keywords) {
       for (var name in keywords)
-        if (!word || name.indexOf(word) == 0)
+        if (!word || name.lastIndexOf(word, 0) == 0)
           result.push(name);
     }
 

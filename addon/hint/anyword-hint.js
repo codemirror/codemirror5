@@ -20,7 +20,7 @@
         var text = editor.getLine(line), m;
         while (m = re.exec(text)) {
           if (line == cur.line && m[0] === curWord) continue;
-          if ((!curWord || m[0].indexOf(curWord) == 0) && !Object.prototype.hasOwnProperty.call(seen, m[0])) {
+          if ((!curWord || m[0].lastIndexOf(curWord, 0) == 0) && !Object.prototype.hasOwnProperty.call(seen, m[0])) {
             seen[m[0]] = true;
             list.push(m[0]);
           }
