@@ -24,11 +24,16 @@
     return str.length == 2 ? str : null;
   }
 
+  function isInsertMode(cm) {
+    var vim = cm.state.vim;
+    return !vim || vim.insertMode;
+  }
+
   function buildKeymap(pairs) {
     var map = {
       name : "autoCloseBrackets",
       Backspace: function(cm) {
-        if (cm.somethingSelected()) return CodeMirror.Pass;
+        if (cm.somethingSelected() || !isInsertMode(cm)) return CodeMirror.Pass;
         var cur = cm.getCursor(), around = charsAround(cm, cur);
         if (around && pairs.indexOf(around) % 2 == 0)
           cm.replaceRange("", CodeMirror.Pos(cur.line, cur.ch - 1), CodeMirror.Pos(cur.line, cur.ch + 1));
@@ -49,7 +54,7 @@
         else cm.execCommand("goCharRight");
       }
       map["'" + left + "'"] = function(cm) {
-        if (left == "'" && cm.getTokenAt(cm.getCursor()).type == "comment")
+        if ((left == "'" && cm.getTokenAt(cm.getCursor()).type == "comment") || !isInsertMode(cm))
           return CodeMirror.Pass;
         if (cm.somethingSelected()) return surround(cm);
         if (left == right && maybeOverwrite(cm) != CodeMirror.Pass) return;
@@ -70,7 +75,7 @@
   function buildExplodeHandler(pairs) {
     return function(cm) {
       var cur = cm.getCursor(), around = charsAround(cm, cur);
-      if (!around || pairs.indexOf(around) % 2 != 0) return CodeMirror.Pass;
+      if (!around || pairs.indexOf(around) % 2 != 0 || !isInsertMode(cm)) return CodeMirror.Pass;
       cm.operation(function() {
         var newPos = CodeMirror.Pos(cur.line + 1, 0);
         cm.replaceSelection("\n\n", {anchor: newPos, head: newPos}, "+input");
