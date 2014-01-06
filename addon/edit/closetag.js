@@ -43,7 +43,7 @@
   function autoCloseGT(cm) {
     var pos = cm.getCursor(), tok = cm.getTokenAt(pos);
     var inner = CodeMirror.innerMode(cm.getMode(), tok.state), state = inner.state;
-    if (inner.mode.name != "xml" || !state.tagName) return CodeMirror.Pass;
+    if (inner.mode.name != "xml" || !state.tagName || cm.getOption("disableInput")) return CodeMirror.Pass;
 
     var opt = cm.getOption("autoCloseTags"), html = inner.mode.configuration == "html";
     var dontCloseTags = (typeof opt == "object" && opt.dontCloseTags) || (html && htmlDontClose);
@@ -76,7 +76,8 @@
     var pos = cm.getCursor(), tok = cm.getTokenAt(pos);
     var inner = CodeMirror.innerMode(cm.getMode(), tok.state), state = inner.state;
     if (tok.type == "string" || tok.string.charAt(0) != "<" ||
-        tok.start != pos.ch - 1 || inner.mode.name != "xml")
+        tok.start != pos.ch - 1 || inner.mode.name != "xml" ||
+        cm.getOption("disableInput"))
       return CodeMirror.Pass;
 
     var tagName = state.context && state.context.tagName;

@@ -5,7 +5,7 @@
 
   function continueComment(cm) {
     var pos = cm.getCursor(), token = cm.getTokenAt(pos);
-    if (token.type != "comment") return CodeMirror.Pass;
+    if (token.type != "comment" || cm.getOption("disableInput")) return CodeMirror.Pass;
     var mode = CodeMirror.innerMode(cm.getMode(), token.state).mode;
 
     var insert;
