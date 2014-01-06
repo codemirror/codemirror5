@@ -254,7 +254,6 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
   function attrEqState(type, stream, state) {
     if (type == "equals") return attrValueState;
     if (!Kludges.allowMissing) setStyle = "error";
-    else if (type == "word") { setStyle = "attribute"; return attrState; }
     return attrState(type, stream, state);
   }
   function attrValueState(type, stream, state) {
