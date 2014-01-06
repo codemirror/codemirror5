@@ -331,12 +331,14 @@
     CodeMirror.defineOption('vimMode', false, function(cm, val) {
       if (val) {
         cm.setOption('keyMap', 'vim');
+        cm.setOption('disableInput', true);
         CodeMirror.signal(cm, "vim-mode-change", {mode: "normal"});
         cm.on('beforeSelectionChange', beforeSelectionChange);
         maybeInitVimState(cm);
         CodeMirror.on(cm.getInputField(), 'paste', getOnPasteFn(cm));
       } else if (cm.state.vim) {
         cm.setOption('keyMap', 'default');
+        cm.setOption('disableInput', false);
         cm.off('beforeSelectionChange', beforeSelectionChange);
         CodeMirror.off(cm.getInputField(), 'paste', getOnPasteFn(cm));
         cm.state.vim = null;
@@ -1749,6 +1751,7 @@
           cm.setCursor(motions.moveToFirstNonWhiteSpaceCharacter(cm));
         }
         cm.setOption('keyMap', 'vim-insert');
+        cm.setOption('disableInput', false);
         if (actionArgs && actionArgs.replace) {
           // Handle Replace-mode as a special case of insert mode.
           cm.toggleOverwrite(true);
@@ -3509,7 +3512,6 @@
 
       var cmToVimKeymap = {
         'nofallthrough': true,
-        'disableInput': true,
         'style': 'fat-cursor'
       };
       function bindKeys(keys, modifier) {
@@ -3556,6 +3558,7 @@
       cm.setCursor(cm.getCursor().line, cm.getCursor().ch-1, true);
       vim.insertMode = false;
       cm.setOption('keyMap', 'vim');
+      cm.setOption('disableInput', true);
       cm.toggleOverwrite(false); // exit replace mode if we were in it.
       CodeMirror.signal(cm, "vim-mode-change", {mode: "normal"});
     }
