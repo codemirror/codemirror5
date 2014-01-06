@@ -402,6 +402,13 @@
       document looks. You can set this option to false to disable this
       behavior.</dd>
 
+      <dt id="option_addModeClass"><code><strong>addModeClass</strong>: boolean</code></dt>
+      <dd>When enabled (off by default), an extra CSS class will be
+      added to each token, indicating the
+      (<a href="#innerMode">inner</a>) mode that produced it, prefixed
+      with <code>"cm-m-"</code>. For example, tokens from the XML mode
+      will get the <code>cm-m-xml</code> class.</dd>
+
       <dt id="option_maxHighlightLength"><code><strong>maxHighlightLength</strong>: number</code></dt>
       <dd>When highlighting long lines, in order to stay responsive,
       the editor will give up and simply style the rest of the line as
