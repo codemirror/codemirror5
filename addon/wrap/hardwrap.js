@@ -36,7 +36,7 @@
     var killTrailing = options.killTrailingSpace !== false;
     var changes = [], curLine = "", curNo = from.line;
     var lines = cm.getRange(from, to, false);
-    if (!lines.length) return;
+    if (!lines.length) return false;
     var leadingSpace = lines[0].match(/^[ \t]*/)[0];
 
     for (var i = 0; i < lines.length; ++i) {
@@ -79,17 +79,18 @@
         cm.replaceRange(change.text, change.from, change.to);
       }
     });
+    return changes.length > 0;
   }
 
   CodeMirror.defineExtension("wrapParagraph", function(pos, options) {
     options = options || {};
     if (!pos) pos = this.getCursor();
     var para = findParagraph(this, pos, options);
-    wrapRange(this, Pos(para.from, 0), Pos(para.to - 1), options);
+    return wrapRange(this, Pos(para.from, 0), Pos(para.to - 1), options);
   });
 
   CodeMirror.defineExtension("wrapRange", function(from, to, options) {
-    wrapRange(this, from, to, options || {});
+    return wrapRange(this, from, to, options || {});
   });
 
   CodeMirror.defineExtension("wrapParagraphsInRange", function(from, to, options) {
@@ -100,9 +101,11 @@
       paras.push(para);
       line = para.to;
     }
+    var madeChange = false;
     if (paras.length) cm.operation(function() {
       for (var i = paras.length - 1; i >= 0; --i)
-        wrapRange(cm, Pos(paras[i].from, 0), Pos(paras[i].to - 1), options);
+        madeChange = madeChange || wrapRange(cm, Pos(paras[i].from, 0), Pos(paras[i].to - 1), options);
     });
+    return madeChange;
   });
 })();
