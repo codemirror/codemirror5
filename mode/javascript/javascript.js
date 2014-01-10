@@ -83,7 +83,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     } else if (/[\[\]{}\(\),;\:\.]/.test(ch)) {
       return ret(ch);
     } else if (ch == "=" && stream.eat(">")) {
-      return ret("=>");
+      return ret("=>", "operator");
     } else if (ch == "0" && stream.eat(/x/i)) {
       stream.eatWhile(/[\da-f]/i);
       return ret("number", "number");
@@ -104,7 +104,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
         return ret("regexp", "string-2");
       } else {
         stream.eatWhile(isOperatorChar);
-        return ret("operator", null, stream.current());
+        return ret("operator", "operator", stream.current());
       }
     } else if (ch == "`") {
       state.tokenize = tokenQuasi;
@@ -114,7 +114,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       return ret("error", "error");
     } else if (isOperatorChar.test(ch)) {
       stream.eatWhile(isOperatorChar);
-      return ret("operator", null, stream.current());
+      return ret("operator", "operator", stream.current());
     } else {
       stream.eatWhile(/[\w\$_]/);
       var word = stream.current(), known = keywords.propertyIsEnumerable(word) && keywords[word];
