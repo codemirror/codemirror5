@@ -732,7 +732,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
     innerMode: function(state) {
       if (state.block == htmlBlock) return {state: state.htmlState, mode: htmlMode};
-      if (state.block == local) return {state: state.localState, mode: state.localMode};
+      if (state.localState) return {state: state.localState, mode: state.localMode};
       return {state: state, mode: mode};
     },
 
