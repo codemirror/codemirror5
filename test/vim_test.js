@@ -2401,6 +2401,26 @@ testVim('ex_map_key2ex', function(cm, vim, helpers) {
   eq(written, true);
   eq(actualCm, cm);
 });
+testVim('ex_map_key2key_visual_api', function(cm, vim, helpers) {
+  CodeMirror.Vim.map('b', ':w', 'visual');
+  var tmp = CodeMirror.commands.save;
+  var written = false;
+  var actualCm;
+  CodeMirror.commands.save = function(cm) {
+    written = true;
+    actualCm = cm;
+  };
+  // Mapping should not work in normal mode.
+  helpers.doKeys('b');
+  eq(written, false);
+  // Mapping should work in visual mode.
+  helpers.doKeys('v', 'b');
+  eq(written, true);
+  eq(actualCm, cm);
+
+  CodeMirror.commands.save = tmp;
+});
+
 // Testing registration of functions as ex-commands and mapping to <Key>-keys
 testVim('ex_api_test', function(cm, vim, helpers) {
   var res=false;

@@ -572,9 +572,9 @@
       maybeInitVimState_: maybeInitVimState,
 
       InsertModeKey: InsertModeKey,
-      map: function(lhs, rhs) {
+      map: function(lhs, rhs, ctx) {
         // Add user defined key bindings.
-        exCommandDispatcher.map(lhs, rhs);
+        exCommandDispatcher.map(lhs, rhs, ctx);
       },
       defineEx: function(name, prefix, func){
         if (name.indexOf(prefix) !== 0) {
@@ -856,11 +856,17 @@
         } else {
           // Find the best match in the list of matchedCommands.
           var context = vim.visualMode ? 'visual' : 'normal';
-          var bestMatch = matchedCommands[0]; // Default to first in the list.
+          var bestMatch; // Default to first in the list.
           for (var i = 0; i < matchedCommands.length; i++) {
-            if (matchedCommands[i].context == context) {
-              bestMatch = matchedCommands[i];
+            var current = matchedCommands[i];
+            if (current.context == context) {
+              bestMatch = current;
               break;
+            } else if (!bestMatch && !current.context) {
+              // Only set an imperfect match to best match if no best match is
+              // set and the imperfect match is not restricted to another
+              // context.
+              bestMatch = current;
             }
           }
           return getFullyMatchedCommandOrNull(bestMatch);
@@ -2957,14 +2963,16 @@
     // pair of commands that have a shared prefix, at least one of their
     // shortNames must not match the prefix of the other command.
     var defaultExCommandMap = [
-      { name: 'map', type: 'builtIn' },
-      { name: 'write', shortName: 'w', type: 'builtIn' },
-      { name: 'undo', shortName: 'u', type: 'builtIn' },
-      { name: 'redo', shortName: 'red', type: 'builtIn' },
-      { name: 'sort', shortName: 'sor', type: 'builtIn'},
-      { name: 'substitute', shortName: 's', type: 'builtIn'},
-      { name: 'nohlsearch', shortName: 'noh', type: 'builtIn'},
-      { name: 'delmarks', shortName: 'delm', type: 'builtin'}
+      { name: 'map' },
+      { name: 'nmap', shortName: 'nm' },
+      { name: 'vmap', shortName: 'vm' },
+      { name: 'write', shortName: 'w' },
+      { name: 'undo', shortName: 'u' },
+      { name: 'redo', shortName: 'red' },
+      { name: 'sort', shortName: 'sor' },
+      { name: 'substitute', shortName: 's' },
+      { name: 'nohlsearch', shortName: 'noh' },
+      { name: 'delmarks', shortName: 'delm' }
     ];
     Vim.ExCommandDispatcher = function() {
       this.buildCommandMap_();
@@ -3099,8 +3107,9 @@
           this.commandMap_[key] = command;
         }
       },
-      map: function(lhs, rhs) {
+      map: function(lhs, rhs, ctx) {
         if (lhs != ':' && lhs.charAt(0) == ':') {
+          if (ctx) { throw Error('Mode not supported for ex mappings'); }
           var commandName = lhs.substring(1);
           if (rhs != ':' && rhs.charAt(0) == ':') {
             // Ex to Ex mapping
@@ -3120,17 +3129,21 @@
         } else {
           if (rhs != ':' && rhs.charAt(0) == ':') {
             // Key to Ex mapping.
-            defaultKeymap.unshift({
+            var mapping = {
               keys: parseKeyString(lhs),
               type: 'keyToEx',
-              exArgs: { input: rhs.substring(1) }});
+              exArgs: { input: rhs.substring(1) }};
+            if (ctx) { mapping.context = ctx; }
+            defaultKeymap.unshift(mapping);
           } else {
             // Key to key mapping
-            defaultKeymap.unshift({
+            var mapping = {
               keys: parseKeyString(lhs),
               type: 'keyToKey',
               toKeys: parseKeyString(rhs)
-            });
+            };
+            if (ctx) { mapping.context = ctx; }
+            defaultKeymap.unshift(mapping);
           }
         }
       }
@@ -3152,7 +3165,7 @@
     }
 
     var exCommands = {
-      map: function(cm, params) {
+      map: function(cm, params, ctx) {
         var mapArgs = params.args;
         if (!mapArgs || mapArgs.length < 2) {
           if (cm) {
@@ -3160,8 +3173,10 @@
           }
           return;
         }
-        exCommandDispatcher.map(mapArgs[0], mapArgs[1], cm);
+        exCommandDispatcher.map(mapArgs[0], mapArgs[1], ctx);
       },
+      nmap: function(cm, params) { this.map(cm, params, 'normal'); },
+      vmap: function(cm, params) { this.map(cm, params, 'visual'); },
       move: function(cm, params) {
         commandDispatcher.processCommand(cm, cm.state.vim, {
             type: 'motion',
