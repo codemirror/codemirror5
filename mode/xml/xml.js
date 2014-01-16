@@ -298,8 +298,8 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
       if (state.tokenize.isInAttribute) {
         return state.stringStartCol + 1;
       }
-      if ((state.tokenize != inTag && state.tokenize != inText) ||
-          context && context.noIndent)
+      if (context && context.noIndent) return CodeMirror.Pass;
+      if (state.tokenize != inTag && state.tokenize != inText)
         return fullLine ? fullLine.match(/^(\s*)/)[0].length : 0;
       // Indent the starts of attribute names.
       if (state.tagName) {
