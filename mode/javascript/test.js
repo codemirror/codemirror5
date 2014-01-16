@@ -103,4 +103,11 @@
      "{",
      "  [keyword debugger];",
      "}");
+
+  MT("multilinestring",
+     "[keyword var] [variable x] [operator =] [string 'foo\\]",
+     "[string bar'];");
+
+  MT("scary_regexp",
+     "[string-2 /foo[[/]]bar/];");
 })();

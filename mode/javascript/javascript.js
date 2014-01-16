@@ -54,14 +54,16 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
 
   var isOperatorChar = /[+\-*&%=<>!?|~^]/;
 
-  function nextUntilUnescaped(stream, end) {
-    var escaped = false, next;
+  function readRegexp(stream) {
+    var escaped = false, next, inSet = false;
     while ((next = stream.next()) != null) {
-      if (next == end && !escaped)
-        return false;
+      if (!escaped) {
+        if (next == "/" && !inSet) return;
+        if (next == "[") inSet = true;
+        else if (inSet && next == "]") inSet = false;
+      }
       escaped = !escaped && next == "\\";
     }
-    return escaped;
   }
 
   // Used as scratch variables to communicate multiple values without
@@ -99,7 +101,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
         return ret("comment", "comment");
       } else if (state.lastType == "operator" || state.lastType == "keyword c" ||
                state.lastType == "sof" || /^[\[{}\(,;:]$/.test(state.lastType)) {
-        nextUntilUnescaped(stream, "/");
+        readRegexp(stream);
         stream.eatWhile(/[gimy]/); // 'y' is "sticky" option in Mozilla
         return ret("regexp", "string-2");
       } else {
@@ -125,8 +127,12 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
 
   function tokenString(quote) {
     return function(stream, state) {
-      if (!nextUntilUnescaped(stream, quote))
-        state.tokenize = tokenBase;
+      var escaped = false, next;
+      while ((next = stream.next()) != null) {
+        if (next == quote && !escaped) break;
+        escaped = !escaped && next == "\\";
+      }
+      if (!escaped) state.tokenize = tokenBase;
       return ret("string", "string");
     };
   }
