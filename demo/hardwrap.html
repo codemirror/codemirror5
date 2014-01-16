@@ -64,7 +64,7 @@ var wait, options = {column: 60};
 editor.on("change", function(cm, change) {
   clearTimeout(wait);
   wait = setTimeout(function() {
-    cm.wrapParagraphsInRange(change.from, CodeMirror.changeEnd(change), options);
+    console.log(cm.wrapParagraphsInRange(change.from, CodeMirror.changeEnd(change), options));
   }, 200);
 });
 </script>

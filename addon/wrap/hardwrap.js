@@ -56,7 +56,7 @@
           findBreakPoint(curLine, column, wrapOn, killTrailing);
         // If this isn't broken, or is broken at a different point, remove old break
         if (!firstBreak || firstBreak.from != oldLen || firstBreak.to != oldLen + spaceInserted) {
-          changes.push({text: spaceInserted ? " " : "",
+          changes.push({text: [spaceInserted ? " " : ""],
                         from: Pos(curNo, oldLen),
                         to: Pos(curNo + 1, spaceTrimmed.length)});
         } else {
@@ -66,7 +66,7 @@
       }
       while (curLine.length > column) {
         var bp = findBreakPoint(curLine, column, wrapOn, killTrailing);
-        changes.push({text: "\n" + leadingSpace,
+        changes.push({text: ["", leadingSpace],
                       from: Pos(curNo, bp.from),
                       to: Pos(curNo, bp.to)});
         curLine = leadingSpace + curLine.slice(bp.to);
@@ -79,7 +79,7 @@
         cm.replaceRange(change.text, change.from, change.to);
       }
     });
-    return {from: from, to: cm.clipPos(Pos(curNo))};
+    return changes.length ? {from: changes[0].from, to: CodeMirror.changeEnd(changes[changes.length - 1])} : null;
   }
 
   CodeMirror.defineExtension("wrapParagraph", function(pos, options) {
