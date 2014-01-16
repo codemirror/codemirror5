@@ -10,6 +10,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
       propertyKeywords = parserConfig.propertyKeywords || {},
       colorKeywords = parserConfig.colorKeywords || {},
       valueKeywords = parserConfig.valueKeywords || {},
+      fontProperties = parserConfig.fontProperties || {},
       allowNested = parserConfig.allowNested;
 
   var type, override;
@@ -137,6 +138,8 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
       return popContext(state);
     } else if (type == "@media") {
       return pushContext(state, stream, "media");
+    } else if (type == "@font-face") {
+      return "font_face_before";
     } else if (type && type.charAt(0) == "@") {
       return pushContext(state, stream, "at");
     } else if (type == "hash") {
@@ -243,6 +246,24 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     return states.media(type, stream, state);
   };
 
+  states.font_face_before = function(type, stream, state) {
+    if (type == "{")
+      return pushContext(state, stream, "font_face");
+    return pass(type, stream, state);
+  };
+
+  states.font_face = function(type, stream, state) {
+    if (type == "}") return popContext(state);
+    if (type == "word") {
+      if (!fontProperties.hasOwnProperty(stream.current().toLowerCase()))
+        override = "error";
+      else
+        override = "property";
+      return "maybeprop";
+    }
+    return "font_face";
+  };
+
   states.at = function(type, stream, state) {
     if (type == ";") return popContext(state);
     if (type == "{" || type == "}") return popAndPass(type, stream, state);
@@ -288,7 +309,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
       var cx = state.context, ch = textAfter && textAfter.charAt(0);
       var indent = cx.indent;
       if (cx.prev &&
-          (ch == "}" && (cx.type == "block" || cx.type == "top" || cx.type == "interpolation") ||
+          (ch == "}" && (cx.type == "block" || cx.type == "top" || cx.type == "interpolation" || cx.type == "font_face") ||
            ch == ")" && (cx.type == "parens" || cx.type == "params" || cx.type == "media_parens") ||
            ch == "{" && (cx.type == "at" || cx.type == "media"))) {
         indent = cx.indent - indentUnit;
@@ -533,6 +554,11 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "xx-large", "xx-small"
   ], valueKeywords = keySet(valueKeywords_);
 
+  var fontProperties_ = [
+    "font-family", "src", "unicode-range", "font-variant", "font-feature-settings",
+    "font-stretch", "font-weight", "font-style"
+  ], fontProperties = keySet(fontProperties_);
+
   var allWords = mediaTypes_.concat(mediaFeatures_).concat(propertyKeywords_).concat(colorKeywords_).concat(valueKeywords_);
   CodeMirror.registerHelper("hintWords", "css", allWords);
 
@@ -564,6 +590,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     propertyKeywords: propertyKeywords,
     colorKeywords: colorKeywords,
     valueKeywords: valueKeywords,
+    fontProperties: fontProperties,
     tokenHooks: {
       "<": function(stream, state) {
         if (!stream.match("!--")) return false;
@@ -585,6 +612,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     propertyKeywords: propertyKeywords,
     colorKeywords: colorKeywords,
     valueKeywords: valueKeywords,
+    fontProperties: fontProperties,
     allowNested: true,
     tokenHooks: {
       "/": function(stream, state) {
@@ -624,6 +652,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     propertyKeywords: propertyKeywords,
     colorKeywords: colorKeywords,
     valueKeywords: valueKeywords,
+    fontProperties: fontProperties,
     allowNested: true,
     tokenHooks: {
       "/": function(stream, state) {
