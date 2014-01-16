@@ -36,7 +36,7 @@
     var killTrailing = options.killTrailingSpace !== false;
     var changes = [], curLine = "", curNo = from.line;
     var lines = cm.getRange(from, to, false);
-    if (!lines.length) return false;
+    if (!lines.length) return null;
     var leadingSpace = lines[0].match(/^[ \t]*/)[0];
 
     for (var i = 0; i < lines.length; ++i) {
@@ -79,7 +79,7 @@
         cm.replaceRange(change.text, change.from, change.to);
       }
     });
-    return changes.length > 0;
+    return {from: from, to: cm.clipPos(Pos(curNo))};
   }
 
   CodeMirror.defineExtension("wrapParagraph", function(pos, options) {
