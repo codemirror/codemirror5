@@ -125,6 +125,9 @@
   sim("transposeExpr", "do foo[bar] dah",
       Pos(0, 6), "Ctrl-Alt-T", txt("do [bar]foo dah"));
 
+  sim("clearMark", "abcde", Pos(0, 2), "Ctrl-Space", "Ctrl-F", "Ctrl-F",
+      "Ctrl-G", "Ctrl-W", txt("abcde"));
+
   testCM("save", function(cm) {
     var saved = false;
     CodeMirror.commands.save = function(cm) { saved = cm.getValue(); };

@@ -201,6 +201,11 @@
     cm.on("change", function() { cm.setExtending(false); });
   }
 
+  function clearMark(cm) {
+    cm.setExtending(false);
+    cm.setCursor(cm.getCursor());
+  }
+
   function getInput(cm, msg, f) {
     if (cm.openDialog)
       cm.openDialog(msg + ": <input type=\"text\" style=\"width: 10em\"/>", f, {bottom: true});
@@ -234,6 +239,11 @@
     }
   }
 
+  function quit(cm) {
+    cm.execCommand("clearSearch");
+    clearMark(cm);
+  }
+
   // Actual keymap
 
   var keyMap = CodeMirror.keyMap.emacs = {
@@ -249,8 +259,7 @@
     }),
     "Alt-W": function(cm) {
       addToRing(cm.getSelection());
-      cm.setExtending(false);
-      cm.setCursor(cm.getCursor());
+      clearMark(cm);
     },
     "Ctrl-Y": function(cm) {
       var start = cm.getCursor();
@@ -336,7 +345,7 @@
     "Ctrl-/": repeated("undo"), "Shift-Ctrl--": repeated("undo"),
     "Ctrl-Z": repeated("undo"), "Cmd-Z": repeated("undo"),
     "Shift-Alt-,": "goDocStart", "Shift-Alt-.": "goDocEnd",
-    "Ctrl-S": "findNext", "Ctrl-R": "findPrev", "Ctrl-G": "clearSearch", "Shift-Alt-5": "replace",
+    "Ctrl-S": "findNext", "Ctrl-R": "findPrev", "Ctrl-G": quit, "Shift-Alt-5": "replace",
     "Alt-/": "autocomplete",
     "Ctrl-J": "newlineAndIndent", "Enter": false, "Tab": "indentAuto",
 
