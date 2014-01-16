@@ -57,6 +57,10 @@ CodeMirror.defineMode('mllike', function(_config, parserConfig) {
       stream.eatWhile(/\w/);
       return 'quote';
     }
+    if (ch === '/' && parserConfig.slashComments && stream.eat('/')) {
+      stream.skipToEnd();
+      return 'comment';
+    }
     if (/\d/.test(ch)) {
       stream.eatWhile(/[\d]/);
       if (stream.eat('.')) {
@@ -108,7 +112,8 @@ CodeMirror.defineMode('mllike', function(_config, parserConfig) {
     },
 
     blockCommentStart: "(*",
-    blockCommentEnd: "*)"
+    blockCommentEnd: "*)",
+    lineComment: parserConfig.slashComments ? "//" : null
   };
 });
 
@@ -181,5 +186,6 @@ CodeMirror.defineMIME('text/x-fsharp', {
     'not': 'builtin',
     'true': 'builtin',
     'false': 'builtin'
-  }
+  },
+  slashComments: true
 });
