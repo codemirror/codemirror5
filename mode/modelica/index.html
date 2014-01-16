@@ -1,0 +1,79 @@
+<!doctype html>
+<!-- install to codemirror distribution or replace "../../" with "http://codemirror.net/" -->
+
+<title>CodeMirror: Modelica mode</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../../doc/docs.css"/>
+
+<link rel="stylesheet" href="../../lib/codemirror.css"/>
+<link rel="stylesheet" href="../../addon/fold/foldgutter.css"/>
+<script src="../../lib/codemirror.js"></script>
+<script src="../../addon/fold/foldcode.js"></script>
+<script src="../../addon/fold/foldgutter.js"></script>
+<script src="../../addon/fold/brace-fold.js"></script>
+<script src="../../addon/fold/comment-fold.js"></script>
+<script src="modelica.js"></script>
+<style type="text/css">.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
+<div id=nav>
+  <a href="http://codemirror.net"><img id=logo src="../../doc/logo.png"></a>
+
+  <ul>
+    <li><a href="../../index.html">Home</a>
+    <li><a href="../../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="../../mode/index.html">Language modes</a>
+    <li><a class=active href="#">Modelica</a>
+  </ul>
+</div>
+
+<article>
+<h2>Modelica mode</h2>
+<form><textarea id="code" name="code">
+type Voltage = Real(unit="V");
+type Current = Real(unit="A");
+    
+connector Pin "Electrical pin"
+  Voltage v; flow Current i;
+end Pin;
+
+model Resistor "Resistor model"
+  Pin p, n "Positive and negative pin";
+  parameter Real R(unit="Ohm") "Resistance";
+equation
+  R*p.i = p.v - n.v; // Ohm's law
+  p.i + n.i = 0;
+end Resistor;
+
+model SimpleCircuit "Composed circuit model"
+  Resistor R1(R=100), R2(R=200), R3(R=300);
+equation
+  connect(R1.p, R2.p);
+  connect(R1.p, R3.p);
+  annotation (
+    Documentation(info="<html>
+This example is from the 
+<a href='https://modelica.org/documents/ModelicaTutorial14.pdf'>Modelica Tutorial</a>.
+      </html>"),
+    experiment(stopTime=2));
+end SimpleCircuit;
+</textarea></form>
+<script>
+  var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+    mode: "modelica",
+    lineNumbers: true,
+    lineWrapping: true,
+    extraKeys: {"Ctrl-Q": function(cm){ cm.foldCode(cm.getCursor()); }},
+    foldGutter: {
+    	rangeFinder: new CodeMirror.fold.combine(CodeMirror.fold.modelicaBrace, CodeMirror.fold.comment)
+    },
+    gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"]
+  });
+  editor.getMode().foldAnnotations(editor);
+</script>
+<p>The Modelica mode was generated with Jison from a generic lexical specification.</p>
+<p>It uses the CodeMirror <code>fold</code> addon for lengthy code enclosed in braces, 
+    in particular annotations and modifications, as well as for multi-line comments.</p>
+<p><strong>MIME type defined:</strong> <code>text/x-modelica</code></p>
+</article>
