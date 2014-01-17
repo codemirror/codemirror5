@@ -2003,6 +2003,45 @@ testVim('zt==z<CR>', function(cm, vim, helpers){
   eq(zVals[2], zVals[5]);
 });
 
+var moveTillCharacterSandbox =
+  'The quick brown fox \n'
+  'jumped over the lazy dog.'
+testVim('moveTillCharacter', function(cm, vim, helpers){
+  cm.setCursor(0, 0);
+  // Search for the 'q'.
+  cm.openDialog = helpers.fakeOpenDialog('q');
+  helpers.doKeys('/');
+  eq(4, cm.getCursor().ch);
+  // Jump to just before the first o in the list.
+  helpers.doKeys('t');
+  helpers.doKeys('o');
+  eq('The quick brown fox \n', cm.getValue());
+  // Delete that one character.
+  helpers.doKeys('d');
+  helpers.doKeys('t');
+  helpers.doKeys('o');
+  eq('The quick bown fox \n', cm.getValue());
+  // Delete everything until the next 'o'.
+  helpers.doKeys('.');
+  eq('The quick box \n', cm.getValue());
+  // An unmatched character should have no effect.
+  helpers.doKeys('d');
+  helpers.doKeys('t');
+  helpers.doKeys('q');
+  eq('The quick box \n', cm.getValue());
+  // Matches should only be possible on single lines.
+  helpers.doKeys('d');
+  helpers.doKeys('t');
+  helpers.doKeys('z');
+  eq('The quick box \n', cm.getValue());
+  // After all that, the search for 'q' should still be active, so the 'N' command
+  // can run it again in reverse. Use that to delete everything back to the 'q'.
+  helpers.doKeys('d');
+  helpers.doKeys('N');
+  eq('The ox \n', cm.getValue());
+  eq(4, cm.getCursor().ch);
+}, { value: moveTillCharacterSandbox});
+
 var scrollMotionSandbox =
   '\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n'
   '\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n'
