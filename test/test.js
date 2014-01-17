@@ -1625,8 +1625,9 @@ testCM("change_removedText", function(cm) {
 testCM("lineStyleFromMode", function(cm) {
   CodeMirror.defineMode("test_mode", function() {
     return {token: function(stream) {
-      if (stream.match(/^\[[^\]]*\]/)) return "line-brackets";
-      if (stream.match(/^\([^\)]*\)/)) return "line-background-parens";
+      if (stream.match(/^\[[^\]]*\]/)) return "  line-brackets  ";
+      if (stream.match(/^\([^\)]*\)/)) return "  line-background-parens  ";
+      if (stream.match(/^<[^>]*>/)) return "  span  line-line  line-background-bg  ";
       stream.match(/^\s+|^\S+/);
     }};
   });
@@ -1640,7 +1641,13 @@ testCM("lineStyleFromMode", function(cm) {
   eq(parenElts[0].nodeName, "DIV");
   is(!/parens.*parens/.test(parenElts[0].className));
   eq(parenElts[0].parentElement.nodeName, "DIV");
-}, {value: "line1: [br] [br]\nline2: (par) (par)\nline3: nothing"});
+
+  eq(byClassName(cm.getWrapperElement(), "bg").length, 1);
+  eq(byClassName(cm.getWrapperElement(), "line").length, 1);
+  var spanElts = byClassName(cm.getWrapperElement(), "cm-span");
+  eq(spanElts.length, 2);
+  is(/^\s*cm-span\s*$/.test(spanElts[0].className));
+}, {value: "line1: [br] [br]\nline2: (par) (par)\nline3: <tag> <tag>"});
 
 CodeMirror.registerHelper("xxx", "a", "A");
 CodeMirror.registerHelper("xxx", "b", "B");
