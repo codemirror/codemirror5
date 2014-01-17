@@ -1635,13 +1635,11 @@ testCM("lineStyleFromMode", function(cm) {
   eq(bracketElts.length, 1);
   eq(bracketElts[0].nodeName, "PRE");
   is(!/brackets.*brackets/.test(bracketElts[0].className));
-  eq(bracketElts[0].getElementsByTagName("span").length, 0);
   var parenElts = byClassName(cm.getWrapperElement(), "parens");
   eq(parenElts.length, 1);
   eq(parenElts[0].nodeName, "DIV");
   is(!/parens.*parens/.test(parenElts[0].className));
   eq(parenElts[0].parentElement.nodeName, "DIV");
-  eq(parenElts[0].parentElement.getElementsByTagName("span").length, 0);
 }, {value: "line1: [br] [br]\nline2: (par) (par)\nline3: nothing"});
 
 CodeMirror.registerHelper("xxx", "a", "A");
