@@ -1457,7 +1457,7 @@
             motionArgs.selectedCharacter);
         var increment = motionArgs.forward ? -1 : 1;
         recordLastCharacterSearch(increment, motionArgs);
-        if(!curEnd)return cm.getCursor();
+        if (!curEnd) return null;
         curEnd.ch += increment;
         return curEnd;
       },
