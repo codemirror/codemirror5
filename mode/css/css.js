@@ -249,7 +249,6 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
   };
 
   states.keyframes = function(type, stream, state) {
-    if (type == "(") return pushContext(state, stream, "media_parens");
     if (type == "}") return popAndPass(type, stream, state);
     if (type == "{") return popContext(state) && pushContext(state, stream, allowNested ? "block" : "top");
 
