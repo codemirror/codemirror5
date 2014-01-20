@@ -138,6 +138,8 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
       return popContext(state);
     } else if (type == "@media") {
       return pushContext(state, stream, "media");
+    } else if (type == "@keyframes" || type == "@-moz-keyframes" || type == "@-ms-keyframes" || type == "@-o-keyframes" ||  type == "@-webkit-keyframes") {
+      return pushContext(state, stream, "keyframes");
     } else if (type == "@font-face") {
       return "font_face_before";
     } else if (type && type.charAt(0) == "@") {
@@ -244,6 +246,17 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     if (type == ")") return popContext(state);
     if (type == "{" || type == "}") return popAndPass(type, stream, state, 2);
     return states.media(type, stream, state);
+  };
+
+  states.keyframes = function(type, stream, state) {
+    if (type == "(") return pushContext(state, stream, "media_parens");
+    if (type == "}") return popAndPass(type, stream, state);
+    if (type == "{") return popContext(state) && pushContext(state, stream, allowNested ? "block" : "top");
+
+    if (type == "word") {
+        override = "tag";
+    }
+    return state.context.type;
   };
 
   states.font_face_before = function(type, stream, state) {
