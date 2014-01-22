@@ -2264,6 +2264,8 @@ testVim('ex_sort_decimal_mixed_reverse', function(cm, vim, helpers) {
   helpers.doEx('sort! d');
   eq('a3\nb2\nc1\nz\ny', cm.getValue());
 }, { value: 'a3\nz\nc1\ny\nb2'});
+
+
 testVim('ex_substitute_same_line', function(cm, vim, helpers) {
   cm.setCursor(1, 0);
   helpers.doEx('s/one/two');
@@ -2299,6 +2301,25 @@ testVim('ex_substitute_empty_query', function(cm, vim, helpers) {
   helpers.doEx('s//b');
   eq('abb ab2 ab3', cm.getValue());
 }, { value: 'a11 a12 a13' });
+testVim('ex_substitute_slash_regex', function(cm, vim, helpers) {
+  cm.setCursor(1, 0);
+  helpers.doEx('%s/\\//|');
+  eq('one|two \n three|four', cm.getValue());
+}, { value: 'one/two \n three/four'});
+testVim('ex_substitute_backslashslash_regex', function(cm, vim, helpers) {
+  cm.setCursor(1, 0);
+  helpers.doEx('%s/\\\\/,');
+  eq('one,two \n three,four', cm.getValue());
+}, { value: 'one\\two \n three\\four'});
+testVim('ex_substitute_slash_replacement', function(cm, vim, helpers) {
+  cm.setCursor(1, 0);
+  helpers.doEx('%s/,/\\/');
+  eq('one/two \n three/four', cm.getValue());
+}, { value: 'one,two \n three,four'});
+testVim('ex_substitute_backslash_replacement', function(cm, vim, helpers) {
+  helpers.doEx('%s/,/\\\\/g');
+  eq('one\\two \n three\\four', cm.getValue());
+}, { value: 'one,two \n three,four'});
 testVim('ex_substitute_count', function(cm, vim, helpers) {
   cm.setCursor(1, 0);
   helpers.doEx('s/\\d/0/i 2');

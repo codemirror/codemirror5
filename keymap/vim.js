@@ -2750,10 +2750,28 @@
         if (!escapeNextChar && c == '/') {
           slashes.push(i);
         }
-        escapeNextChar = (c == '\\');
+        escapeNextChar = !escapeNextChar && (c == '\\');
       }
       return slashes;
     }
+
+    function unescapeString(str) {
+      var escapeNextChar = false;
+      var out = [];
+      for (var i = 0; i < str.length; i++) {
+        var c = str.charAt(i);
+        var next = str.charAt(i+1);
+        var slashComesNext = (next == '\\') || (next == '/');
+        if (c !== '\\' || escapeNextChar || !slashComesNext) {
+          out.push(c);
+          escapeNextChar = false;
+        } else {
+          escapeNextChar = true;
+        }
+      }
+      return out.join('');
+    }
+
     /**
      * Extract the regular expression from the query and return a Regexp object.
      * Returns null if the query is blank.
@@ -3278,7 +3296,7 @@
         var count;
         var confirm = false; // Whether to confirm each replace.
         if (slashes[1]) {
-          replacePart = argString.substring(slashes[1] + 1, slashes[2]);
+          replacePart = unescapeString(argString.substring(slashes[1] + 1, slashes[2]));
         }
         if (slashes[2]) {
           // After the 3rd slash, we can have flags followed by a space followed
