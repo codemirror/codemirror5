@@ -609,20 +609,40 @@ testCM("scrollSnap", function(cm) {
 testCM("scrollIntoView", function(cm) {
   if (phantom) return;
   var outer = cm.getWrapperElement().getBoundingClientRect();
-  function test(line, ch) {
+  function test(line, ch, msg) {
     var pos = Pos(line, ch);
     cm.scrollIntoView(pos);
     var box = cm.charCoords(pos, "window");
-    is(box.left >= outer.left && box.right <= outer.right &&
-       box.top >= outer.top && box.bottom <= outer.bottom);
+    is(box.left >= outer.left, msg + " (left)");
+    is(box.right <= outer.right, msg + " (right)");
+    is(box.top >= outer.top, msg + " (top)");
+    is(box.bottom <= outer.bottom, msg + " (bottom)");
   }
   addDoc(cm, 200, 200);
-  test(199, 199);
-  test(0, 0);
-  test(100, 100);
-  test(199, 0);
-  test(0, 199);
-  test(100, 100);
+  test(199, 199, "bottom right");
+  test(0, 0, "top left");
+  test(100, 100, "center");
+  test(199, 0, "bottom left");
+  test(0, 199, "top right");
+  test(100, 100, "center again");
+});
+
+testCM("scrollBackAndForth", function(cm) {
+  addDoc(cm, 1, 200);
+  cm.operation(function() {
+    cm.scrollIntoView(Pos(199, 0));
+    cm.scrollIntoView(Pos(4, 0));
+  });
+  is(cm.getScrollInfo().top > 0);
+});
+
+testCM("selectAllNoScroll", function(cm) {
+  addDoc(cm, 1, 200);
+  cm.execCommand("selectAll");
+  eq(cm.getScrollInfo().top, 0);
+  cm.setCursor(199);
+  cm.execCommand("selectAll");
+  is(cm.getScrollInfo().top > 0);
 });
 
 testCM("selectionPos", function(cm) {
