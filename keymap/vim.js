@@ -3598,7 +3598,7 @@
         vim.lastEditInputState.repeatOverride = vim.insertModeRepeat;
       }
       delete vim.insertModeRepeat;
-      cm.setCursor(cm.getCursor().line, cm.getCursor().ch-1, true);
+      cm.setCursor(cm.getCursor().line, cm.getCursor().ch-1);
       vim.insertMode = false;
       cm.setOption('keyMap', 'vim');
       cm.setOption('disableInput', true);

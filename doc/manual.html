@@ -1004,28 +1004,31 @@
       
       <dt id="somethingSelected"><code><strong>doc.somethingSelected</strong>() → boolean</code></dt>
       <dd>Return true if any text is selected.</dd>
-      <dt id="setCursor"><code><strong>doc.setCursor</strong>(pos: {line, ch})</code></dt>
+      <dt id="setCursor"><code><strong>doc.setCursor</strong>(pos: {line, ch}|number, ?ch: number, ?scroll: boolean)</code></dt>
       <dd>Set the cursor position. You can either pass a
       single <code>{line, ch}</code> object, or the line and the
       character as two separate parameters. Will replace all
-      selections with a single, empty selection at the given
-      position.</dd>
+      selections with a single, empty selection at the given position.
+      The cursor is scrolled into view when <code>scroll</code> is
+      false (it defaults to true).</dd>
 
-      <dt id="setSelection"><code><strong>doc.setSelection</strong>(anchor: {line, ch}, ?head: {line, ch})</code></dt>
+      <dt id="setSelection"><code><strong>doc.setSelection</strong>(anchor: {line, ch}, ?head: {line, ch}, ?scroll: boolean)</code></dt>
       <dd>Set a single selection range. <code>anchor</code>
       and <code>head</code> should be <code>{line, ch}</code>
       objects. <code>head</code> defaults to <code>anchor</code> when
-      not given.</dd>
-      <dt id="setSelections"><code><strong>doc.setSelections</strong>(ranges: array&lt;{anchor, head}&gt;, ?primary: integer)</code></dt>
+      not given. The <code>scroll</code> argument determines whether
+      the primary selection head is scrolled into view, and defaults
+      to true.</dd>
+      <dt id="setSelections"><code><strong>doc.setSelections</strong>(ranges: array&lt;{anchor, head}&gt;, ?primary: integer, ?scroll: boolean)</code></dt>
       <dd>Sets a new set of selections. There must be at least one
       selection in the given array. When <code>primary</code> is
       given, it determines which selection is the primary one
-      (defaults to the last one).</dd>
+      (defaults to the last one). Unless <code>scroll</code> is false, the primary selection head is scrolled into view.</dd>
       <dt id="addSelection"><code><strong>doc.addSelection</strong>(anchor: {line, ch}, ?head: {line, ch})</code></dt>
       <dd>Adds a new selection to the existing set of selections, and
       makes it the primary selection.</dd>
 
-      <dt id="extendSelection"><code><strong>doc.extendSelection</strong>(from: {line, ch}, ?to: {line, ch})</code></dt>
+      <dt id="extendSelection"><code><strong>doc.extendSelection</strong>(from: {line, ch}, ?to: {line, ch}, ?scroll: boolean)</code></dt>
       <dd>Similar
       to <a href="#setSelection"><code>setSelection</code></a>, but
       will, if shift is held or
@@ -1035,12 +1038,14 @@
       a region (for example a word or paragraph) will end up selected
       (in addition to whatever lies between that region and the
       current anchor). When multiple selections are present, all but
-      the primary selection will be dropped by this method.</dd>
-      <dt id="extendSelections"><code><strong>doc.extendSelections</strong>(heads: array&lt;{line, ch}&gt;)</code></dt>
+      the primary selection will be dropped by this method.
+      Unless <code>scroll</code> is false, the primary selection head
+      is scrolled into view.</dd>
+      <dt id="extendSelections"><code><strong>doc.extendSelections</strong>(heads: array&lt;{line, ch}&gt;, ?scroll: boolean)</code></dt>
       <dd>An equivalent
       of <a href="#extendSelection"><code>extendSelection</code></a>
       that acts on all selections at once.</dd>
-      <dt id="extendSelectionsBy"><code><strong>doc.extendSelectionsBy</strong>(f: function(range: {anchor, head}) → {anchor, head}))</code></dt>
+      <dt id="extendSelectionsBy"><code><strong>doc.extendSelectionsBy</strong>(f: function(range: {anchor, head}) → {anchor, head}), ?scroll: boolean)</code></dt>
       <dd>Applies the given function to all existing selections, and
       calls <a href="#extendSelections"><code>extendSelections</code></a>
       on the result.</dd>
