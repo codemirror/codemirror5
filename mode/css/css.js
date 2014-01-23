@@ -136,6 +136,8 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
       return pushContext(state, stream, "block");
     } else if (type == "}" && state.context.prev) {
       return popContext(state);
+    } else if (type == "@document") {
+      return pushContext(state, stream, "keyframes");
     } else if (type == "@media") {
       return pushContext(state, stream, "media");
     } else if (type == "@font-face") {
