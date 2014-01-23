@@ -141,8 +141,8 @@ testCM("lines", function(cm) {
   eq(cm.getLine(0), "111111");
   eq(cm.getLine(1), "222222");
   eq(cm.getLine(-1), null);
-  cm.removeLine(1);
-  cm.setLine(1, "abc");
+  cm.replaceRange("", Pos(1, 0), Pos(2, 0))
+  cm.replaceRange("abc", Pos(1, 0), Pos(1));
   eq(cm.getValue(), "111111\nabc");
 }, {value: "111111\n222222\n333333"});
 
@@ -265,7 +265,7 @@ testCM("posFromIndex", function(cm) {
 });
 
 testCM("undo", function(cm) {
-  cm.setLine(0, "def");
+  cm.replaceRange("def", Pos(0, 0), Pos(0));
   eq(cm.historySize().undo, 1);
   cm.undo();
   eq(cm.getValue(), "abc");
@@ -682,8 +682,8 @@ testCM("selectionPos", function(cm) {
 
 testCM("restoreHistory", function(cm) {
   cm.setValue("abc\ndef");
-  cm.setLine(1, "hello");
-  cm.setLine(0, "goop");
+  cm.replaceRange("hello", Pos(1, 0), Pos(1));
+  cm.replaceRange("goop", Pos(0, 0), Pos(0));
   cm.undo();
   var storedVal = cm.getValue(), storedHist = cm.getHistory();
   if (window.JSON) storedHist = JSON.parse(JSON.stringify(storedHist));
@@ -748,11 +748,11 @@ testCM("collapsedLines", function(cm) {
   cm.setCursor(Pos(3, 0));
   CodeMirror.commands.goLineDown(cm);
   eqPos(cm.getCursor(), Pos(5, 0));
-  cm.setLine(3, "abcdefg");
+  cm.replaceRange("abcdefg", Pos(3, 0), Pos(3));
   cm.setCursor(Pos(3, 6));
   CodeMirror.commands.goLineDown(cm);
   eqPos(cm.getCursor(), Pos(5, 4));
-  cm.setLine(3, "ab");
+  cm.replaceRange("ab", Pos(3, 0), Pos(3));
   cm.setCursor(Pos(3, 2));
   CodeMirror.commands.goLineDown(cm);
   eqPos(cm.getCursor(), Pos(5, 2));
@@ -1074,15 +1074,15 @@ testCM("verticalScroll", function(cm) {
   cm.setSize(100, 200);
   cm.setValue("foo\nbar\nbaz\n");
   var sc = cm.getScrollerElement(), baseWidth = sc.scrollWidth;
-  cm.setLine(0, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaah");
+  cm.replaceRange("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaah", Pos(0, 0), Pos(0));
   is(sc.scrollWidth > baseWidth, "scrollbar present");
-  cm.setLine(0, "foo");
+  cm.replaceRange("foo", Pos(0, 0), Pos(0));
   if (!phantom) eq(sc.scrollWidth, baseWidth, "scrollbar gone");
-  cm.setLine(0, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaah");
-  cm.setLine(1, "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbh");
+  cm.replaceRange("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaah", Pos(0, 0), Pos(0));
+  cm.replaceRange("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbh", Pos(1, 0), Pos(1));
   is(sc.scrollWidth > baseWidth, "present again");
   var curWidth = sc.scrollWidth;
-  cm.setLine(0, "foo");
+  cm.replaceRange("foo", Pos(0, 0), Pos(0));
   is(sc.scrollWidth < curWidth, "scrollbar smaller");
   is(sc.scrollWidth > baseWidth, "but still present");
 });
@@ -1362,7 +1362,7 @@ testCM("jumpTheGap", function(cm) {
   if (phantom) return;
   var longLine = "abcdef ghiklmnop qrstuvw xyz ";
   longLine += longLine; longLine += longLine; longLine += longLine;
-  cm.setLine(2, longLine);
+  cm.replaceRange(longLine, Pos(2, 0), Pos(2));
   cm.setSize("200px", null);
   cm.getWrapperElement().style.lineHeight = 2;
   cm.refresh();
@@ -1606,8 +1606,8 @@ testCM("beforeChange", function(cm) {
 }, {value: "abcdefghijk"});
 
 testCM("beforeChangeUndo", function(cm) {
-  cm.setLine(0, "hi");
-  cm.setLine(0, "bye");
+  cm.replaceRange("hi", Pos(0, 0), Pos(0));
+  cm.replaceRange("bye", Pos(0, 0), Pos(0));
   eq(cm.historySize().undo, 2);
   cm.on("beforeChange", function(cm, change) {
     is(!change.update);
