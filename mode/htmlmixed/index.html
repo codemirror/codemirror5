@@ -67,6 +67,13 @@
 
     <p>The HTML mixed mode depends on the XML, JavaScript, and CSS modes.</p>
 
+    <p>In addition to the standard <code>cm-*</code> type names,
+    each parsed token is also given a class name based on the
+    originating mode, either <code>cm-html</code>, <code>cm-css</code>
+    or <code>cm-javascript</code>. This allows you to apply styles
+    to the stretches of CSS and JS code within the page, or to give
+    different styles for CSS strings and JavaScript strings.</p>
+
     <p>It takes an optional mode configuration
     option, <code>scriptTypes</code>, which can be used to add custom
     behavior for specific <code>&lt;script type="..."></code> tags. If
