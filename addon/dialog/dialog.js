@@ -38,11 +38,12 @@
       if (options && options.value) inp.value = options.value;
       CodeMirror.on(inp, "keydown", function(e) {
         if (options && options.onKeyDown && options.onKeyDown(e, inp.value, close)) { return; }
-        if (e.keyCode == 13 || e.keyCode == 27) {
+        var doSearch = e.keyCode == 13 || e.keyCode == 27 || e.keyCode == 114 || (e.keyCode == 71 && e.ctrlKey);
+    		if (doSearch || e.keyCode == 27) {
           CodeMirror.e_stop(e);
           close();
           me.focus();
-          if (e.keyCode == 13) callback(inp.value);
+          if (doSearch) callback(inp.value);
         }
       });
       if (options && options.onKeyUp) {
