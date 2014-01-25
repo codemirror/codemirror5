@@ -2041,6 +2041,14 @@ testVim('moveTillCharacter', function(cm, vim, helpers){
   eq('The ox \n', cm.getValue());
   eq(4, cm.getCursor().ch);
 }, { value: moveTillCharacterSandbox});
+testVim('searchForPipe', function(cm, vim, helpers){
+  cm.setCursor(0, 0);
+  // Search for the '|'.
+  cm.openDialog = helpers.fakeOpenDialog('|');
+  helpers.doKeys('/');
+  eq(4, cm.getCursor().ch);
+}, { value: 'this|that'});
+
 
 var scrollMotionSandbox =
   '\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n'

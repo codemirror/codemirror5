@@ -2825,6 +2825,7 @@
       if (!regexPart) {
         return null;
       }
+      regexPart = escapeString(regexPart, ['|']);
       if (smartCase) {
         ignoreCase = (/^[^A-Z]*$/).test(regexPart);
       }
@@ -3313,7 +3314,6 @@
           return;
         }
         var regexPart = argString.substring(slashes[0] + 1, slashes[1]);
-        regexPart = escapeString(regexPart, ['|']);
         var replacePart = '';
         var flagsPart;
         var count;
