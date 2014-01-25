@@ -2755,19 +2755,41 @@
       return slashes;
     }
 
-    function unescapeString(str) {
+    // Removes a '\' before any character that matches one of the specials.
+    function unescapeString(str, specials) {
       var escapeNextChar = false;
       var out = [];
       for (var i = 0; i < str.length; i++) {
         var c = str.charAt(i);
-        var next = str.charAt(i+1);
-        var slashComesNext = (next == '\\') || (next == '/');
-        if (c !== '\\' || escapeNextChar || !slashComesNext) {
+        var specialComesNext = false;
+        for (var j = 0; j < specials.length; j++) {
+          if (str.charAt(i+1) === specials[j]) {
+            specialComesNext = true;
+            break;
+          }
+        }
+        if (c !== '\\' || escapeNextChar || !specialComesNext) {
           out.push(c);
           escapeNextChar = false;
         } else {
           escapeNextChar = true;
         }
+      }
+      return out.join('');
+    }
+
+    // Inserts a '\' before any character that matches one of the specials
+    function escapeString(str, specials) {
+      var out = [];
+      for (var i = 0; i < str.length; i++) {
+        var c = str.charAt(i);
+        for (var j = 0; j < specials.length; j++) {
+          if (c === specials[j]) {
+            out.push('\\');
+            break;
+          }
+        }
+        out.push(c);
       }
       return out.join('');
     }
@@ -3291,12 +3313,14 @@
           return;
         }
         var regexPart = argString.substring(slashes[0] + 1, slashes[1]);
+        regexPart = escapeString(regexPart, ['|']);
         var replacePart = '';
         var flagsPart;
         var count;
         var confirm = false; // Whether to confirm each replace.
         if (slashes[1]) {
-          replacePart = unescapeString(argString.substring(slashes[1] + 1, slashes[2]));
+          replacePart = argString.substring(slashes[1] + 1, slashes[2]);
+          replacePart = unescapeString(replacePart, ['\\', '/']);
         }
         if (slashes[2]) {
           // After the 3rd slash, we can have flags followed by a space followed

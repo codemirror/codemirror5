@@ -2306,6 +2306,11 @@ testVim('ex_substitute_slash_regex', function(cm, vim, helpers) {
   helpers.doEx('%s/\\//|');
   eq('one|two \n three|four', cm.getValue());
 }, { value: 'one/two \n three/four'});
+testVim('ex_substitute_pipe_regex', function(cm, vim, helpers) {
+  cm.setCursor(1, 0);
+  helpers.doEx('%s/|/,');
+  eq('one,two \n three,four', cm.getValue());
+}, { value: 'one|two \n three|four'});
 testVim('ex_substitute_backslashslash_regex', function(cm, vim, helpers) {
   cm.setCursor(1, 0);
   helpers.doEx('%s/\\\\/,');
