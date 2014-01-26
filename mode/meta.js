@@ -39,7 +39,7 @@ CodeMirror.modeInfo = [
   {name: 'TypeScript', mime: 'application/typescript', mode: 'javascript'},
   {name: 'Jinja2', mime: null, mode: 'jinja2'},
   {name: 'Julia', mime: 'text/x-julia', mode: 'julia'},
-  {name: 'LESS', mime: 'text/x-less', mode: 'less'},
+  {name: 'LESS', mime: 'text/x-less', mode: 'css'},
   {name: 'LiveScript', mime: 'text/x-livescript', mode: 'livescript'},
   {name: 'Lua', mime: 'text/x-lua', mode: 'lua'},
   {name: 'Markdown (GitHub-flavour)', mime: 'text/x-markdown', mode: 'markdown'},
