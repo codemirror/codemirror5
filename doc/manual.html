@@ -2249,11 +2249,14 @@
       succeeded. See the <a href="../demo/loadmode.html">demo</a>.</dd>
 
       <dt id="addon_continuecomment"><a href="../addon/comment/continuecomment.js"><code>comment/continuecomment.js</code></a></dt>
-      <dd>Adds an <code>continueComments</code> option, which can be
-      set to true to have the editor prefix new lines inside C-like
-      block comments with an asterisk when Enter is pressed. It can
-      also be set to a string in order to bind this functionality to a
-      specific key..</dd>
+      <dd>Adds a <code>continueComments</code> option, which sets whether the
+      editor will make the next line continue a comment when you press Enter
+      inside a comment block. Can be set to a boolean to enable/disable this
+      functionality. Set to a string, it will continue comments using a custom
+      shortcut. Set to an object, it will use the <code>key</code> property for
+      a custom shortcut and the boolean <code>continueLineComment</code>
+      property to determine whether single-line comments should be continued
+      (defaulting to <code>true</code>).</dd>
 
       <dt id="addon_placeholder"><a href="../addon/display/placeholder.js"><code>display/placeholder.js</code></a></dt>
       <dd>Adds a <code>placeholder</code> option that can be used to
