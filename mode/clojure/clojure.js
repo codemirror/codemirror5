@@ -45,7 +45,7 @@ CodeMirror.defineMode("clojure", function (options) {
         sign: /[+-]/,
         exponent: /e/i,
         keyword_char: /[^\s\(\[\;\)\]]/,
-        symbol: /[\w*+!\-\._?:\/]/
+        symbol: /[\w*+!\-\._?:<>\/]/
     };
 
     function stateStack(indent, type, prev) { // represents a state stack object
