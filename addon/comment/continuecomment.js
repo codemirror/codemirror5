@@ -27,7 +27,7 @@
       }
       if (insert != null) insert += mode.blockCommentContinue;
     }
-    if (insert == null && mode.lineComment) {
+    if (insert == null && mode.lineComment && mode.continueLineComments != false) {
       var line = cm.getLine(pos.line), found = line.indexOf(mode.lineComment);
       if (found > -1) {
         insert = line.slice(0, found);
