@@ -31,45 +31,38 @@
 <article>
 <h2>Search/Replace Demo</h2>
 <form><textarea id="code" name="code">
-  <dt id="option_indentWithTabs"><code>indentWithTabs (boolean)</code></dt>
-  <dd>Whether, when indenting, the first N*8 spaces should be
-  replaced by N tabs. Default is false.</dd>
+<dl>
+  <dt id="option_indentWithTabs"><code><strong>indentWithTabs</strong>: boolean</code></dt>
+  <dd>Whether, when indenting, the first N*<code>tabSize</code>
+  spaces should be replaced by N tabs. Default is false.</dd>
 
-  <dt id="option_tabMode"><code>tabMode (string)</code></dt>
-  <dd>Determines what happens when the user presses the tab key.
-  Must be one of the following:
-    <dl>
-      <dt><code>"classic" (the default)</code></dt>
-      <dd>When nothing is selected, insert a tab. Otherwise,
-      behave like the <code>"shift"</code> mode. (When shift is
-      held, this behaves like the <code>"indent"</code> mode.)</dd>
-      <dt><code>"shift"</code></dt>
-      <dd>Indent all selected lines by
-      one <a href="#option_indentUnit"><code>indentUnit</code></a>.
-      If shift was held while pressing tab, un-indent all selected
-      lines one unit.</dd>
-      <dt><code>"indent"</code></dt>
-      <dd>Indent the line the 'correctly', based on its syntactic
-      context. Only works if the
-      mode <a href="#indent">supports</a> it.</dd>
-      <dt><code>"default"</code></dt>
-      <dd>Do not capture tab presses, let the browser apply its
-      default behaviour (which usually means it skips to the next
-      control).</dd>
-    </dl></dd>
+  <dt id="option_electricChars"><code><strong>electricChars</strong>: boolean</code></dt>
+  <dd>Configures whether the editor should re-indent the current
+  line when a character is typed that might change its proper
+  indentation (only works if the mode supports indentation).
+  Default is true.</dd>
 
-  <dt id="option_enterMode"><code>enterMode (string)</code></dt>
-  <dd>Determines whether and how new lines are indented when the
-  enter key is pressed. The following modes are supported:
-    <dl>
-      <dt><code>"indent" (the default)</code></dt>
-      <dd>Use the mode's indentation rules to give the new line
-      the correct indentation.</dd>
-      <dt><code>"keep"</code></dt>
-      <dd>Indent the line the same as the previous line.</dd>
-      <dt><code>"flat"</code></dt>
-      <dd>Do not indent the new line.</dd>
-    </dl></dd>
+  <dt id="option_specialChars"><code><strong>specialChars</strong>: RegExp</code></dt>
+  <dd>A regular expression used to determine which characters
+  should be replaced by a
+  special <a href="#option_specialCharPlaceholder">placeholder</a>.
+  Mostly useful for non-printing special characters. The default
+  is <code>/[\u0000-\u0019\u00ad\u200b\u2028\u2029\ufeff]/</code>.</dd>
+  <dt id="option_specialCharPlaceholder"><code><strong>specialCharPlaceholder</strong>: function(char) → Element</code></dt>
+  <dd>A function that, given a special character identified by
+  the <a href="#option_specialChars"><code>specialChars</code></a>
+  option, produces a DOM node that is used to represent the
+  character. By default, a red dot (<span style="color: red">•</span>)
+  is shown, with a title tooltip to indicate the character code.</dd>
+
+  <dt id="option_rtlMoveVisually"><code><strong>rtlMoveVisually</strong>: boolean</code></dt>
+  <dd>Determines whether horizontal cursor movement through
+  right-to-left (Arabic, Hebrew) text is visual (pressing the left
+  arrow moves the cursor left) or logical (pressing the left arrow
+  moves to the next lower index in the string, which is visually
+  right in right-to-left text). The default is <code>false</code>
+  on Windows, and <code>true</code> on other platforms.</dd>
+</dl>
 </textarea></form>
 
     <script>

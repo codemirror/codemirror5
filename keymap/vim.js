@@ -3523,18 +3523,10 @@
        * Shift + key modifier to the resulting letter, while preserving other
        * modifers.
        */
-      // TODO: Figure out a way to catch capslock.
       function cmKeyToVimKey(key, modifier) {
         var vimKey = key;
-        if (isUpperCase(vimKey)) {
-          // Convert to lower case if shift is not the modifier since the key
-          // we get from CodeMirror is always upper case.
-          if (modifier == 'Shift') {
-            modifier = null;
-          }
-          else {
+        if (isUpperCase(vimKey) && modifier == 'Ctrl') {
             vimKey = vimKey.toLowerCase();
-          }
         }
         if (modifier) {
           // Vim will parse modifier+key combination as a single key.
@@ -3560,9 +3552,9 @@
       function bindKeys(keys, modifier) {
         for (var i = 0; i < keys.length; i++) {
           var key = keys[i];
-          if (!modifier && inArray(key, specialSymbols)) {
-            // Wrap special symbols with '' because that's how CodeMirror binds
-            // them.
+          if (!modifier && key.length == 1) {
+            // Wrap all keys without modifiers with '' to identify them by their
+            // key characters instead of key identifiers.
             key = "'" + key + "'";
           }
           var vimKey = cmKeyToVimKey(keys[i], modifier);
@@ -3571,7 +3563,7 @@
         }
       }
       bindKeys(upperCaseAlphabet);
-      bindKeys(upperCaseAlphabet, 'Shift');
+      bindKeys(lowerCaseAlphabet);
       bindKeys(upperCaseAlphabet, 'Ctrl');
       bindKeys(specialSymbols);
       bindKeys(specialSymbols, 'Ctrl');

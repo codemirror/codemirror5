@@ -448,7 +448,7 @@
 
     <p>Various CodeMirror-related objects emit events, which allow
     client code to react to various situations. Handlers for such
-    events can be registed with the <a href="#on"><code>on</code></a>
+    events can be registered with the <a href="#on"><code>on</code></a>
     and <a href="#off"><code>off</code></a> methods on the objects
     that the event fires on. To fire your own events,
     use <code>CodeMirror.signal(target, name, args...)</code>,
@@ -1305,7 +1305,7 @@
         only in its target document.</dd>
       </dl>
       The method will return an object that represents the marker
-      (with constuctor <code>CodeMirror.TextMarker</code>), which
+      (with constructor <code>CodeMirror.TextMarker</code>), which
       exposes three methods:
       <code><strong>clear</strong>()</code>, to remove the mark,
       <code><strong>find</strong>()</code>, which returns
@@ -2108,7 +2108,7 @@
       uses <code>CodeMirror.hint.fromList</code> to complete from
       those.</dd>
       <dd>When completions
-      aren't simple strings, they should be objects with the folowing
+      aren't simple strings, they should be objects with the following
       properties:
       <dl>
         <dt><code><strong>text</strong>: string</code></dt>

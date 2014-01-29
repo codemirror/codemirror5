@@ -403,10 +403,11 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "font-stretch", "font-style", "font-synthesis", "font-variant",
     "font-variant-alternates", "font-variant-caps", "font-variant-east-asian",
     "font-variant-ligatures", "font-variant-numeric", "font-variant-position",
-    "font-weight", "grid-cell", "grid-column", "grid-column-align",
-    "grid-column-sizing", "grid-column-span", "grid-columns", "grid-flow",
-    "grid-row", "grid-row-align", "grid-row-sizing", "grid-row-span",
-    "grid-rows", "grid-template", "hanging-punctuation", "height", "hyphens",
+    "font-weight", "grid", "grid-area", "grid-auto-columns", "grid-auto-flow",
+    "grid-auto-position", "grid-auto-rows", "grid-column", "grid-column-end",
+    "grid-column-start", "grid-row", "grid-row-end", "grid-row-start",
+    "grid-template", "grid-template-areas", "grid-template-columns",
+    "grid-template-rows", "hanging-punctuation", "height", "hyphens",
     "icon", "image-orientation", "image-rendering", "image-resolution",
     "inline-box-align", "justify-content", "left", "letter-spacing",
     "line-break", "line-height", "line-stacking", "line-stacking-ruby",
@@ -683,7 +684,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
         }
       },
       "@": function(stream) {
-        if (stream.match(/^(charset|document|font-face|import|keyframes|media|namespace|page|supports)\b/, false)) return false;
+        if (stream.match(/^(charset|document|font-face|import|(-(moz|ms|o|webkit)-)?keyframes|media|namespace|page|supports)\b/, false)) return false;
         stream.eatWhile(/[\w\\\-]/);
         if (stream.match(/^\s*:/, false))
           return ["variable-2", "variable-definition"];

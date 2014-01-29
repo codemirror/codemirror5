@@ -41,8 +41,7 @@ either JavaScript or Scheme mode based on that.</p>
 <script>
   var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
     mode: "scheme",
-    lineNumbers: true,
-    tabMode: "indent"
+    lineNumbers: true
   });
   var pending;
   editor.on("change", function() {
