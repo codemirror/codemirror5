@@ -58,9 +58,10 @@
           var range = ranges[i], cur = range.head, curType;
           if (left == "'" && cm.getTokenTypeAt(cur) == "comment")
             return CodeMirror.Pass;
+          var next = cm.getRange(cur, CodeMirror.Pos(cur.line, cur.ch + 1));
           if (!range.empty())
             curType = "surround";
-          else if ((next = cm.getRange(cur, CodeMirror.Pos(cur.line, cur.ch + 1))) == right)
+          else if (left == right && next == right)
             curType = "skip";
           else if (left == right && CodeMirror.isWordChar(next))
             return CodeMirror.Pass;
