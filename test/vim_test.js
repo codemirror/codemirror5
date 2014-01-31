@@ -2332,7 +2332,7 @@ testVim('ex_substitute_visual_range', function(cm, vim, helpers) {
 }, { value: '1\n2\n3\n4\n5' });
 testVim('ex_substitute_capture', function(cm, vim, helpers) {
   cm.setCursor(1, 0);
-  helpers.doEx('s/(\\d+)/$1$1/')
+  helpers.doEx('s/\\(\\d+\\)/$1$1/')
   eq('a1111 a1212 a1313', cm.getValue());
 }, { value: 'a11 a12 a13' });
 testVim('ex_substitute_empty_query', function(cm, vim, helpers) {
@@ -2352,6 +2352,16 @@ testVim('ex_substitute_pipe_regex', function(cm, vim, helpers) {
   cm.setCursor(1, 0);
   helpers.doEx('%s/|/,');
   eq('one,two \n three,four', cm.getValue());
+}, { value: 'one|two \n three|four'});
+testVim('ex_substitute_or_regex', function(cm, vim, helpers) {
+  cm.setCursor(1, 0);
+  helpers.doEx('%s/o\\|e\\|u/a');
+  eq('ana|twa \n thraa|faar', cm.getValue());
+}, { value: 'one|two \n three|four'});
+testVim('ex_substitute_or_word_regex', function(cm, vim, helpers) {
+  cm.setCursor(1, 0);
+  helpers.doEx('%s/\\(one\\|two\\)/five');
+  eq('five|five \n three|four', cm.getValue());
 }, { value: 'one|two \n three|four'});
 testVim('ex_substitute_backslashslash_regex', function(cm, vim, helpers) {
   cm.setCursor(1, 0);

@@ -2759,41 +2759,41 @@
       return slashes;
     }
 
-    // Removes a '\' before any character that matches one of the specials.
-    function unescapeString(str, specials) {
+    // For any character in the string that matches one of the specials,
+    // adds a '\' if unescaped, or removes one if escaped.
+    function flipEscaping(str, specials) {
       var escapeNextChar = false;
       var out = [];
-      for (var i = 0; i < str.length; i++) {
-        var c = str.charAt(i);
+      for (var i = -1; i < str.length; i++) {
+        var c = str.charAt(i) || '';
+        var n = str.charAt(i+1) || '';
         var specialComesNext = false;
         for (var j = 0; j < specials.length; j++) {
-          if (str.charAt(i+1) === specials[j]) {
+          if (n === specials[j]) {
             specialComesNext = true;
             break;
           }
         }
-        if (c !== '\\' || escapeNextChar || !specialComesNext) {
-          out.push(c);
-          escapeNextChar = false;
+        if (escapeNextChar) {
+          if (c !== '\\' || !specialComesNext) {
+            out.push(c);
+            escapeNextChar = false;
+          } else {
+            escapeNextChar = true;
+          }
         } else {
-          escapeNextChar = true;
-        }
-      }
-      return out.join('');
-    }
-
-    // Inserts a '\' before any character that matches one of the specials
-    function escapeString(str, specials) {
-      var out = [];
-      for (var i = 0; i < str.length; i++) {
-        var c = str.charAt(i);
-        for (var j = 0; j < specials.length; j++) {
-          if (c === specials[j]) {
-            out.push('\\');
-            break;
+          if (c === '\\') {
+            escapeNextChar = true;
+            if (!specialComesNext) {
+              out.push('\\');
+            }
+          } else {
+            out.push(c);
+            if (specialComesNext && n !== '\\') {
+              out.push('\\');
+            }
           }
         }
-        out.push(c);
       }
       return out.join('');
     }
@@ -2829,7 +2829,7 @@
       if (!regexPart) {
         return null;
       }
-      regexPart = escapeString(regexPart, ['|']);
+      regexPart = flipEscaping(regexPart, ['|', '(', ')']);
       if (smartCase) {
         ignoreCase = (/^[^A-Z]*$/).test(regexPart);
       }
@@ -3324,7 +3324,7 @@
         var confirm = false; // Whether to confirm each replace.
         if (slashes[1]) {
           replacePart = argString.substring(slashes[1] + 1, slashes[2]);
-          replacePart = unescapeString(replacePart, ['\\', '/']);
+          replacePart = flipEscaping(replacePart, ['\\', '/']);
         }
         if (slashes[2]) {
           // After the 3rd slash, we can have flags followed by a space followed
