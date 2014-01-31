@@ -264,4 +264,22 @@
     cm.execCommand("goDocEnd");
     hasSelections(cm, 1, 1, 1, 3);
   }, {value: "abc\ndef"});
+
+  testCM("selectionHistory", function(cm) {
+    for (var i = 0; i < 3; ++i)
+      cm.addSelection(Pos(0, i * 2), Pos(0, i * 2 + 1));
+    cm.execCommand("undoSelection");
+    eq(cm.getSelection(), "1\n2");
+    cm.execCommand("undoSelection");
+    eq(cm.getSelection(), "1");
+    cm.execCommand("undoSelection");
+    eq(cm.getSelection(), "");
+    eqPos(cm.getCursor(), Pos(0, 0));
+    cm.execCommand("redoSelection");
+    eq(cm.getSelection(), "1");
+    cm.execCommand("redoSelection");
+    eq(cm.getSelection(), "1\n2");
+    cm.execCommand("redoSelection");
+    eq(cm.getSelection(), "1\n2\n3");
+  }, {value: "1 2 3"});
 })();

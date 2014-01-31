@@ -1712,3 +1712,28 @@ testCM("helpers", function(cm) {
   cm.setOption("mode", "javascript");
   eq(cm.getHelpers(Pos(0, 0), "xxx").join("/"), "");
 });
+
+testCM("selectionHistory", function(cm) {
+  for (var i = 0; i < 3; i++) {
+    cm.setExtending(true);
+    cm.execCommand("goCharRight");
+    cm.setExtending(false);
+    cm.execCommand("goCharRight");
+    cm.execCommand("goCharRight");
+  }
+  cm.execCommand("undoSelection");
+  eq(cm.getSelection(), "c");
+  cm.execCommand("undoSelection");
+  eq(cm.getSelection(), "");
+  eqPos(cm.getCursor(), Pos(0, 4));
+  cm.execCommand("undoSelection");
+  eq(cm.getSelection(), "b");
+  cm.execCommand("redoSelection");
+  eq(cm.getSelection(), "");
+  eqPos(cm.getCursor(), Pos(0, 4));
+  cm.execCommand("redoSelection");
+  eq(cm.getSelection(), "c");
+  cm.execCommand("redoSelection");
+  eq(cm.getSelection(), "");
+  eqPos(cm.getCursor(), Pos(0, 6));
+}, {value: "a b c d"});

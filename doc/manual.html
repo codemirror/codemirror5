@@ -331,7 +331,8 @@
 
       <dt id="option_undoDepth"><code><strong>undoDepth</strong>: integer</code></dt>
       <dd>The maximum number of undo levels that the editor stores.
-      Defaults to 40.</dd>
+      Note that this includes selection change events. Defaults to
+      200.</dd>
 
       <dt id="option_historyEventDelay"><code><strong>historyEventDelay</strong>: integer</code></dt>
       <dd>The period of inactivity (in milliseconds) that will cause a
@@ -1208,6 +1209,11 @@
       <dd>Undo one edit (if any undo events are stored).</dd>
       <dt id="redo"><code><strong>doc.redo</strong>()</code></dt>
       <dd>Redo one undone edit.</dd>
+
+      <dt id="undoSelection"><code><strong>doc.undoSelection</strong>()</code></dt>
+      <dd>Undo one edit or selection change.</dd>
+      <dt id="redoSelection"><code><strong>doc.redoSelection</strong>()</code></dt>
+      <dd>Redo one undone edit or selection change.</dd>
 
       <dt id="historySize"><code><strong>doc.historySize</strong>() → {undo: integer, redo: integer}</code></dt>
       <dd>Returns an object with <code>{undo, redo}</code> properties,
