@@ -143,6 +143,18 @@ def pairwise_cython(double[:, ::1] X):
 
 </textarea></div>
 
+<h2>IPython mode</h2>
+
+<div><textarea id="code-ipython" name="code-ipython">
+# IPython mode is just a slightly altered Python Mode
+# with `?` being an extra single operator.
+
+import numpy as nm
+nm?
+nm??
+</textarea></div>
+
+
     <script>
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         mode: {name: "python",
@@ -155,6 +167,15 @@ def pairwise_cython(double[:, ::1] X):
 
     CodeMirror.fromTextArea(document.getElementById("code-cython"), {
         mode: {name: "text/x-cython",
+               version: 2,
+               singleLineStringErrors: false},
+        lineNumbers: true,
+        indentUnit: 4,
+        matchBrackets: true
+      });
+
+    CodeMirror.fromTextArea(document.getElementById("code-ipython"), {
+        mode: {name: "ipython",
                version: 2,
                singleLineStringErrors: false},
         lineNumbers: true,
@@ -182,5 +203,5 @@ def pairwise_cython(double[:, ::1] X):
     </ul>
 
 
-    <p><strong>MIME types defined:</strong> <code>text/x-python</code> and <code>text/x-cython</code>.</p>
+    <p><strong>MIME types defined:</strong> <code>text/x-python</code>, <code>text/x-cython</code> and <code>text/x-ipython</code>.</p>
   </article>

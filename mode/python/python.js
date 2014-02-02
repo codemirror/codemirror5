@@ -372,3 +372,13 @@ CodeMirror.defineMIME("text/x-python", "python");
                           "readonly struct union DEF IF ELIF ELSE")
   });
 })();
+
+// IPython mode is just a slightly altered Python Mode with `?` beeing a extra
+// single operator.
+CodeMirror.defineMode("ipython", function(conf, parserConf) {
+  parserConf.singleOperators = new RegExp("^[\\+\\-\\*/%&|\\^~<>!\\?]");
+  parserConf.name = 'python'
+  return CodeMirror.getMode(conf, parserConf);
+}, 'python');
+
+CodeMirror.defineMIME("text/x-ipython", "ipython");
