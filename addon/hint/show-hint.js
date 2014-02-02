@@ -225,7 +225,8 @@
       menuSize: function() { return widget.screenAmount(); },
       length: completions.length,
       close: function() { completion.close(); },
-      pick: function() { widget.pick(); }
+      pick: function() { widget.pick(); },
+      data: data
     }));
 
     if (options.closeOnUnfocus !== false) {
