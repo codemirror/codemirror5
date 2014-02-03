@@ -83,15 +83,13 @@ exports.defineMode("null", function() {
 exports.defineMIME("text/plain", "null");
 
 exports.resolveMode = function(spec) {
-  if (typeof spec == "string" && mimeModes.hasOwnProperty(spec))
+  if (typeof spec == "string" && mimeModes.hasOwnProperty(spec)) {
     spec = mimeModes[spec];
-  else if (spec && typeof spec.name == "string" && mimeModes.hasOwnProperty(spec.name))
+  } else if (spec && typeof spec.name == "string" && mimeModes.hasOwnProperty(spec.name)) {
     spec = mimeModes[spec.name];
-  if (typeof spec == "string")
-    spec = {name: spec};
-  else if (spec == null)
-    spec = {name: "null"};
-  return spec;
+  }
+  if (typeof spec == "string") return {name: spec};
+  else return spec || {name: "null"};
 };
 exports.getMode = function(options, spec) {
   spec = exports.resolveMode(spec);
