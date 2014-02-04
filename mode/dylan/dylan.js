@@ -334,7 +334,9 @@ CodeMirror.defineMode("dylan", function(config, parserConfig) {
             if (state.tokenize != tokenBase)
                 return 0;
             return 0;
-        }
+        },
+	blockCommentStart: "/*",
+	blockCommentEnd: "*/"
     }
 });
 
