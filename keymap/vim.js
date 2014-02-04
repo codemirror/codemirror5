@@ -2633,7 +2633,8 @@
       var end = findMatchedSymbol(cm, cur, revSymb);
       var start = findMatchedSymbol(cm, end);
 
-      if((start.ch > end.ch) || (start.line > end.line)) {
+      if((start.line == end.line && start.ch > end.ch)
+          || (start.line > end.line)) {
         var tmp = start;
         start = end;
         end = tmp;
