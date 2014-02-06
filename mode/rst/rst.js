@@ -158,7 +158,7 @@ CodeMirror.defineMode('rst-base', function (config) {
 
     if (stream.sol() && stream.match(rx_examples, false)) {
       change(state, to_mode, {
-        mode: mode_python, local: mode_python.startState()
+        mode: mode_python, local: CodeMirror.startState(mode_python)
       });
     } else if (stream.sol() && stream.match(rx_explicit)) {
       change(state, to_explicit);
@@ -192,7 +192,7 @@ CodeMirror.defineMode('rst-base', function (config) {
       case 3:
         if (state.tmp_stex) {
           state.tmp_stex = undefined; state.tmp = {
-            mode: mode_stex, local: mode_stex.startState()
+            mode: mode_stex, local: CodeMirror.startState(mode_stex)
           };
         }
 
@@ -409,7 +409,7 @@ CodeMirror.defineMode('rst-base', function (config) {
 
         if (stream.match(/^latex\s*$/) || state.tmp_stex) {
           state.tmp_stex = undefined; change(state, to_mode, {
-            mode: mode_stex, local: mode_stex.startState()
+            mode: mode_stex, local: CodeMirror.startState(mode_stex)
           });
         }
         break;
@@ -417,7 +417,7 @@ CodeMirror.defineMode('rst-base', function (config) {
         change(state, to_explicit, context(rx_directive, 3));
         if (stream.match(/^python\s*$/) || state.tmp_py) {
           state.tmp_py = undefined; change(state, to_mode, {
-            mode: mode_python, local: mode_python.startState()
+            mode: mode_python, local: CodeMirror.startState(mode_python)
           });
         }
         break;
