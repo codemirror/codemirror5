@@ -477,13 +477,18 @@ CodeMirror.defineMode('rst-base', function (config) {
         },
 
         copyState: function (state) {
-            return {tok: state.tok, ctx: state.ctx};
+            var ctx = state.ctx, tmp = state.tmp;
+            if (ctx.local)
+              ctx = {mode: ctx.mode, local: CodeMirror.copyState(ctx.mode, ctx.local)};
+            if (tmp)
+              tmp = {mode: tmp.mode, local: CodeMirror.copyState(tmp.mode, tmp.local)};
+            return {tok: state.tok, ctx: ctx, tmp: tmp};
         },
 
         innerMode: function (state) {
-            return state.tmp ? {state: state.tmp.local, mode: state.tmp.mode}
-                 : state.ctx ? {state: state.ctx.local, mode: state.ctx.mode}
-                             : null;
+            return state.tmp      ? {state: state.tmp.local, mode: state.tmp.mode}
+                 : state.ctx.mode ? {state: state.ctx.local, mode: state.ctx.mode}
+                                  : null;
         },
 
         token: function (stream, state) {
