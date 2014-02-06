@@ -249,7 +249,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         styles.push(formatting + "-" + state.formatting[i]);
 
         if (state.formatting[i] === "header") {
-          styles.push(formatting + "-" + state.formatting[i] + state.header);
+          styles.push(formatting + "-" + state.formatting[i] + "-" + state.header);
         }
 
         // Add `formatting-quote` and `formatting-quote-#` for blockquotes
@@ -285,7 +285,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
     if (state.code) { styles.push(code); }
 
-    if (state.header) { styles.push(header); styles.push(header + state.header); }
+    if (state.header) { styles.push(header); styles.push(header + "-" + state.header); }
 
     if (state.quote) {
       styles.push(quote);

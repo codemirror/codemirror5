@@ -36,6 +36,8 @@
   min-width: 20px;
   text-align: right;
   color: #999;
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
 }
 
 /* CURSOR */

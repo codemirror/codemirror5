@@ -2162,7 +2162,11 @@
         has <code>moveFocus(n)</code>, <code>setFocus(n)</code>, <code>pick()</code>,
         and <code>close()</code> methods (see the source for details),
         that can be used to change the focused element, pick the
-        current element or close the menu.</dd>
+        current element or close the menu. Additionnaly <code>menuSize()</code>
+        can give you access to the size of the current dropdown menu,
+        <code>length</code> give you the number of availlable completions, and
+        <code>data</code> give you full access to the completion returned by the
+        hinting function.</dd>
         <dt><code><strong>extraKeys</strong>: keymap</code></dt>
         <dd>Like <code>customKeys</code> above, but the bindings will
         be added to the set of default bindings, instead of replacing

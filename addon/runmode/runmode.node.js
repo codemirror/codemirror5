@@ -94,7 +94,7 @@ exports.resolveMode = function(spec) {
   else return spec || {name: "null"};
 };
 exports.getMode = function(options, spec) {
-  spec = exports.resolveMode(mimeModes[spec]);
+  spec = exports.resolveMode(spec);
   var mfactory = modes[spec.name];
   if (!mfactory) throw new Error("Unknown mode: " + spec);
   return mfactory(options, spec);
