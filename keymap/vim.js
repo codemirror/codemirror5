@@ -358,9 +358,11 @@
       if (vim.insertMode || vim.exMode) return;
 
       var head = obj.ranges[0].head;
+      var anchor = obj.ranges[0].anchor;
       if (head.ch && head.ch == cm.doc.getLine(head.line).length) {
-        obj.update([{anchor: obj.ranges[0].anchor,
-                     head: Pos(head.line, head.ch - 1)}]);
+        var pos = Pos(head.line, head.ch - 1);
+        obj.update([{anchor: cursorEqual(head, anchor) ? pos : anchor,
+                     head: pos}]);
       }
     }
     function getOnPasteFn(cm) {
