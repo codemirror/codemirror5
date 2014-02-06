@@ -2639,7 +2639,7 @@
     // TODO: perhaps this finagling of start and end positions belonds
     // in codmirror/replaceRange?
     function selectCompanionObject(cm, revSymb, inclusive) {
-      var cur = cm.getCursor();
+      var cur = copyCursor(cm.getCursor());
       var end = findMatchedSymbol(cm, cur, revSymb);
       var start = findMatchedSymbol(cm, end);
 
