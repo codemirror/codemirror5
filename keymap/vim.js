@@ -2784,10 +2784,10 @@
               out.push('\\');
             }
           } else {
+            out.push(c);
             if (specialComesNext && n !== '\\') {
               out.push('\\');
             }
-            out.push(c);
           }
         }
       }
@@ -2825,7 +2825,7 @@
       if (!regexPart) {
         return null;
       }
-      regexPart = flipEscaping(regexPart, ['|']);
+      regexPart = flipEscaping(regexPart, ['|', '(', ')']);
       if (smartCase) {
         ignoreCase = (/^[^A-Z]*$/).test(regexPart);
       }
