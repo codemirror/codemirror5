@@ -1,14 +1,45 @@
-span.cm-dylan-definition,
+span.cm-dylan-definition {
+    color: #2800C9;
+}
+
 span.cm-dylan-keyword {
-    color: #1730FB;
+    color: #2572FC;
 }
 
 span.cm-dylan-symbol {
     color: #824D9C;
 }
 
+span.cm-dylan-hash {
+    color: #FF00FF;
+}
+
+span.cm-dylan-hex {
+    color: #885;
+}
+
+span.cm-dylan-binary {
+    color: #4c4;
+}
+
+span.cm-dylan-variable {
+    color: #222;
+}
+
+span.cm-dylan-symbolGlobal {
+    color: #8D4CC9;
+}
+
+span.cm-dylan-symbolConstant {
+    color: #F10C0C;
+}
+
 span.cm-dylan-symbolClass {
     color: #228B22;
+}
+
+span.cm-dylan-simpleDefinition {
+    color: #65c;
 }
 
 span.cm-dylan-atom {
@@ -23,10 +54,10 @@ span.cm-dylan-string {
     color: #933D6C;
 }
 
-span.cm-dylan-hash {
-    color: #444
-}
-
 span.cm-dylan-symbolKeyword {
     color: #A86F4B
 }
+span.cm-bracket {
+    color: #997;
+}
+

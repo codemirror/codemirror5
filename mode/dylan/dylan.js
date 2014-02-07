@@ -99,7 +99,11 @@ CodeMirror.defineMode("dylan", function(config, parserConfig) {
         if (patterns.hasOwnProperty(patternName))
             patterns[patternName] = new RegExp("^" + patterns[patternName]);
 
-    ['keyword', 'definition'].forEach(function (type) {
+    [
+	'keyword', 
+	'definition', 
+	'simpleDefinition', 
+    ].forEach(function (type) {
         patterns[type] = words[type].map(function (word) {
             return new RegExp('^' + word);
         });
