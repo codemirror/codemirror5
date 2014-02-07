@@ -22,11 +22,10 @@
 
 <div id=nav>
   <a href="http://codemirror.net"><img id=logo src="logo.png"></a>
-
   <ul>
-    <li><a href="../index.html">Home</a>
-    <li><a href="#overview" class=active data-default="true">Manual</a>
-    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+    <li><a href="../index.html">Home</a></li>
+    <li><a href="#overview" class=active data-default="true">Manual</a></li>
+    <li><a href="https://github.com/marijnh/codemirror">Code</a></li>
   </ul>
   <ul>
     <li><a href="#usage">Basic Usage</a></li>
@@ -2082,6 +2081,12 @@
         <dt><code><strong>hint</strong>: fn(CodeMirror, self, data)</code></dt>
         <dd>A method used to actually apply the completion, instead of
         the default behavior.</dd>
+        <dt><code><strong>from</strong>: {line, ch}</code></dt>
+        <dd>Optional <code>from</code> position that will be used by <code>pick()</code> instead
+        of the global one passed with the full list of completions.</dd>
+        <dt><code><strong>to</strong>: {line, ch}</code></dt>
+        <dd>Optional <code>to</code> position that will be used by <code>pick()</code> instead
+        of the global one passed with the full list of completions.</dd>
       </dl>
       The plugin understands the following options (the options object
       will also be passed along to the hinting function, which may
