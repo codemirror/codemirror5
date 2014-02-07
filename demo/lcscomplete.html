@@ -1,0 +1,154 @@
+<!doctype html>
+
+<title>CodeMirror: Longuest Common Substring Complete Demo</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../doc/docs.css">
+
+<link rel="stylesheet" href="../lib/codemirror.css">
+<link rel="stylesheet" href="../addon/hint/show-hint.css">
+<script src="../lib/codemirror.js"></script>
+<script src="../addon/hint/show-hint.js"></script>
+<script src="../mode/python/python.js"></script>
+<script src="../addon/hint/anyword-hint.js"></script>
+<style type="text/css">
+      .CodeMirror { border: 1px solid #eee; }
+    </style>
+<div id=nav>
+  <a href="http://codemirror.net"><img id=logo src="../doc/logo.png"></a>
+
+  <ul>
+    <li><a href="../index.html">Home</a></li>
+    <li><a href="../doc/manual.html">Manual</a></li>
+    <li><a href="https://github.com/marijnh/codemirror">Code</a></li>
+  </ul>
+  <ul>
+    <li><a class=active href="#">LCS Completer</a></li>
+  </ul>
+</div>
+
+<article>
+<h2>Longuest Common Substring Completions</h2>
+<form><textarea id="code" name="code">
+def aLongMethodeNameWithTypeFoo(type):
+	pass
+    
+def aLongMethodeNameWithTypeBar(type):
+	pass
+    
+def aLongMethodeNameWithInstanceFoo(instance):
+	pass
+
+def aLongMethodeNameWithInstanceBar(instance):
+	pass
+    
+# try completing by pressing ctrl+space twice
+a
+</textarea></form>
+
+    <p>Press <kbd>ctrl-space</kbd> to activate autocompletion.  Pressing <kbd>ctrl-space</kbd> again while the completer widget is shown will complete to the <a href='http://en.wikipedia.org/wiki/Longest_common_substring_problem' >longuest common substring</a> matching all the completions. </p>
+
+    <script>
+        
+        // From wikibooks
+        // https://en.wikibooks.org/wiki/Algorithm_Implementation/Strings/Longest_common_substring
+        var longestCommonSubstring = function(str1, str2){
+            if (!str1 || !str2)
+                return {
+                    length: 0,
+                    sequence: "",
+                    offset: 0
+                };
+    
+            var sequence = "",
+                str1Length = str1.length,
+                str2Length = str2.length,
+                num = new Array(str1Length),
+                maxlen = 0,
+                lastSubsBegin = 0;
+    
+            for (var i = 0; i < str1Length; i++) {
+                var subArray = new Array(str2Length);
+                for (var j = 0; j < str2Length; j++)
+                    subArray[j] = 0;
+                num[i] = subArray;
+            }
+            var thisSubsBegin = null;
+            for (var i = 0; i < str1Length; i++)
+            {
+                for (var j = 0; j < str2Length; j++)
+                {
+                    if (str1[i] !== str2[j])
+                        num[i][j] = 0;
+                    else
+                    {
+                        if ((i === 0) || (j === 0))
+                            num[i][j] = 1;
+                        else
+                            num[i][j] = 1 + num[i - 1][j - 1];
+    
+                        if (num[i][j] > maxlen)
+                        {
+                            maxlen = num[i][j];
+                            thisSubsBegin = i - num[i][j] + 1;
+                            if (lastSubsBegin === thisSubsBegin)
+                            {//if the current LCS is the same as the last time this block ran
+                                sequence += str1[i];
+                            }
+                            else //this block resets the string builder if a different LCS is found
+                            {
+                                lastSubsBegin = thisSubsBegin;
+                                sequence= ""; //clear it
+                                sequence += str1.substr(lastSubsBegin, (i + 1) - lastSubsBegin);
+                            }
+                        }
+                    }
+                }
+            }
+            return {
+                length: maxlen,
+                sequence: sequence,
+                offset: thisSubsBegin
+            };
+        };
+        
+        var insertLonguestCommonSubstring = function(cm){
+            return function(cp, obj){
+                
+                // we use the data field that contains all the completions
+                // to implement or custom logic.
+                var data = obj.data;
+                
+                // if only one object, pick() it
+                // as it is the only completion
+                var cpl = obj.data.list;
+
+                if(cpl.length === 1){
+                    obj.pick();
+                    return;
+                }
+                
+                cpl.sort();                
+                var common;
+                var c0 = cpl[0];
+                var c1 = cpl[cpl.length-1];
+                common = longestCommonSubstring(c0, c1).sequence;
+    
+                if(common !== undefined ){
+                    cm.replaceRange(common, data.from, data.to);
+                }
+            };
+        };
+        
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        lineNumbers: true,
+        extraKeys: {
+          "mode":"python",
+          "Ctrl-Space": function(cm) {
+            CodeMirror.showHint(cm, CodeMirror.hint.anyword,{
+                extraKeys: {'Ctrl-Space': insertLonguestCommonSubstring(cm)}
+            });
+          }
+        }
+      });
+    </script>
+  </article>
