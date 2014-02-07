@@ -54,7 +54,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   }();
 
   var isOperatorChar = /[+\-*&%=<>!?|~^]/;
-  var isJsonldKeyword = /^@(context|id|value|language|type|container|list|set|reverse|index|base|vocab|graph)(?=\")/;
+  var isJsonldKeyword = /^@(context|id|value|language|type|container|list|set|reverse|index|base|vocab|graph)"/;
 
   function readRegexp(stream) {
     var escaped = false, next, inSet = false;
@@ -129,16 +129,17 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
 
   function tokenString(quote) {
     return function(stream, state) {
-      var escaped = false, type = ret("string", "string"), next;
+      var escaped = false, next;
       if(jsonldMode && stream.peek() == "@" && stream.match(isJsonldKeyword)){
-        type = ret("jsonld-keyword", "meta");
+        state.tokenize = tokenBase;
+        return ret("jsonld-keyword", "meta");
       }
       while ((next = stream.next()) != null) {
         if (next == quote && !escaped) break;
         escaped = !escaped && next == "\\";
       }
       if (!escaped) state.tokenize = tokenBase;
-      return type;
+      return ret("string", "string");
     };
   }
 
