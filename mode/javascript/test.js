@@ -110,17 +110,22 @@
 
   MT("scary_regexp",
      "[string-2 /foo[[/]]bar/];");
-     
-  var jsonld_mode = CodeMirror.getMode({indentUnit: 2, jsonld: true}, "javascript");
-  function LD(name) { test.mode(name, jsonld_mode, Array.prototype.slice.call(arguments, 1)); }
-  
-  LD("basic_json_ld",
+
+  var jsonld_mode = CodeMirror.getMode(
+    {indentUnit: 2},
+    {name: "javascript", jsonld: true}
+  );
+  function LD(name) {
+    test.mode(name, jsonld_mode, Array.prototype.slice.call(arguments, 1));
+  }
+
+  LD("json_ld_basic",
     '{',
     '  [meta "@context"]: [string "http://json-ld.org/contexts/person.jsonld"],',
     '  [property "name"]: [string "John Lennon"]',
     '}');
-    
-  LD("fake_json_ld",
+
+  LD("json_ld_fake",
     '{',
     '  [property "@fake"]: [string "@fake"]',
     '}');
