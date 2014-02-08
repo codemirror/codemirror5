@@ -3,7 +3,7 @@ CodeMirror.defineMode("puppet", function () {
     var words = {};
     // Taken, mostly, from the Puppet official variable standards regex
     var variable_regex = /({)?([a-z][a-z0-9_]*)?((::[a-z][a-z0-9_]*)*::)?[a-zA-Z0-9_]+(})?/;
-    
+
     // Takes a string of words separated by spaces and adds them as
     // keys with the value of the first argument 'style'
     function define(style, string) {
@@ -17,7 +17,16 @@ CodeMirror.defineMode("puppet", function () {
     define('keyword', 'class define site node include import inherits');
     define('keyword', 'case if else in and elsif default or');
     define('atom', 'false true running present absent file directory undef');
-    define('builtin', 'action augeas burst chain computer cron destination dport exec file filebucket group host icmp iniface interface jump k5login limit log_level log_prefix macauthorization mailalias maillist mcx mount nagios_command nagios_contact nagios_contactgroup nagios_host nagios_hostdependency nagios_hostescalation nagios_hostextinfo nagios_hostgroup nagios_service nagios_servicedependency nagios_serviceescalation nagios_serviceextinfo nagios_servicegroup nagios_timeperiod name notify outiface package proto reject resources router schedule scheduled_task selboolean selmodule service source sport ssh_authorized_key sshkey stage state table tidy todest toports tosource user vlan yumrepo zfs zone zpool');
+    define('builtin', 'action augeas burst chain computer cron destination dport exec ' +
+        'file filebucket group host icmp iniface interface jump k5login limit log_level ' +
+        'log_prefix macauthorization mailalias maillist mcx mount nagios_command ' +
+        'nagios_contact nagios_contactgroup nagios_host nagios_hostdependency ' +
+        'nagios_hostescalation nagios_hostextinfo nagios_hostgroup nagios_service ' +
+        'nagios_servicedependency nagios_serviceescalation nagios_serviceextinfo ' +
+        'nagios_servicegroup nagios_timeperiod name notify outiface package proto reject ' +
+        'resources router schedule scheduled_task selboolean selmodule service source ' +
+        'sport ssh_authorized_key sshkey stage state table tidy todest toports tosource ' +
+        'user vlan yumrepo zfs zone zpool');
 
     // After finding a start of a string ('|") this function attempts to find the end;
     // If a variable is encountered along the way, we display it differently when it
@@ -44,8 +53,6 @@ CodeMirror.defineMode("puppet", function () {
 
     // Main function
     function tokenize(stream, state) {
-        // Test for occurrences without advancing characters
-        var sol = stream.sol();
         // Matches one whole word
         var word = stream.match(/[\w]+/, false);
         // Matches attributes (i.e. ensure => present ; 'ensure' would be matched)
@@ -55,7 +62,7 @@ CodeMirror.defineMode("puppet", function () {
         var resource = stream.match(/(\s+)?[\w:_]+(\s+)?{/, false);
         // Matches virtual and exported resources (i.e. @@user { ; and the like)
         var special_resource = stream.match(/(\s+)?[@]{1,2}[\w:_]+(\s+)?{/, false);
-        
+
         // Finally advance the stream
         var ch = stream.next();
 
