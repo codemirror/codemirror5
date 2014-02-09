@@ -1,0 +1,51 @@
+<!doctype html>
+
+<title>CodeMirror: Right to Left Layout Demo</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../doc/docs.css">
+
+<link rel="stylesheet" href="../lib/codemirror.css">
+<script src="../lib/codemirror.js"></script>
+<script src="../mode/markdown/markdown.js"></script>
+<style type="text/css">
+      .CodeMirror {border: 1px solid black}
+    </style>
+<div id=nav>
+  <a href="http://codemirror.net"><img id=logo src="../doc/logo.png"></a>
+
+  <ul>
+    <li><a href="../index.html">Home</a>
+    <li><a href="../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a class=active href="#">Right to Left Layout</a>
+  </ul>
+</div>
+
+<article>
+<h2>Right to Left Layout Demo</h2>
+<textarea id="code" name="code">
+# مرتب
+متن *مرتب* یا [مارک‌دان]، نوشته‌ای است که شیوه نمایش آن با علامت‌های ساده‌ای مشخص شده است. یعنی شکل نمایش متن را لابه‌لای واژه‌ها می‌نویسید. مثلا *خاص* بودن یک عبارت و یا **تاکید** روی نکته‌ها با کمک ستاره انجام می‌شود.
+
+> وقتی *مرتب* می‌نویسید، مطمئن هستید که چیزی در متن پنهان نشده. در مقابل نرم‌افزار [ورد] که گاهی می‌بینید نشان‌گر روی یک خط خالی ایستاده و به صورت *مورب* قرار گرفته؛ انگار چیزی آن زیر هست. راستش آن زیر، [چیز خیلی مزخرفی] هست.
+
+[مارک‌دان]: https://daringfireball.net/projects/markdown
+[ورد]: http://office.microsoft.com/en-us/word
+[چیز خیلی مزخرفی]: http://www.antipope.org/charlie/blog-static/2013/10/why-microsoft-word-must-die.html
+</textarea>
+
+    <script>
+var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+  mode: "markdown",
+  lineNumbers: false,
+  lineWrapping: true,
+  rtlMoveVisually: false,
+  rtlLayout: true
+});
+</script>
+
+  <p>Demonstration of right to left layout support.</p>
+
+</article>

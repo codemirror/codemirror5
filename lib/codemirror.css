@@ -225,6 +225,14 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
   overflow-x: hidden;
 }
 
+.CodeMirror-rtl {
+  direction: rtl;
+}
+.CodeMirror-rtl .CodeMirror-vscrollbar {
+  right: initial;
+  left: 0;
+}
+
 .CodeMirror-measure {
   position: absolute;
   width: 100%;
