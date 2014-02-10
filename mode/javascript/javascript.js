@@ -130,7 +130,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   function tokenString(quote) {
     return function(stream, state) {
       var escaped = false, next;
-      if(jsonldMode && stream.peek() == "@" && stream.match(isJsonldKeyword)){
+      if (jsonldMode && stream.peek() == "@" && stream.match(isJsonldKeyword)){
         state.tokenize = tokenBase;
         return ret("jsonld-keyword", "meta");
       }
@@ -615,7 +615,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       else return lexical.indented + (closing ? 0 : indentUnit);
     },
 
-    electricChars: ":{}@",
+    electricChars: ":{}",
     blockCommentStart: jsonMode ? null : "/*",
     blockCommentEnd: jsonMode ? null : "*/",
     lineComment: jsonMode ? null : "//",
