@@ -2332,9 +2332,19 @@ testVim('ex_substitute_visual_range', function(cm, vim, helpers) {
 }, { value: '1\n2\n3\n4\n5' });
 testVim('ex_substitute_capture', function(cm, vim, helpers) {
   cm.setCursor(1, 0);
-  helpers.doEx('s/\\(\\d+\\)/$1$1/')
+  helpers.doEx('s/\\(\\d+\\)/\\1\\1/')
   eq('a1111 a1212 a1313', cm.getValue());
 }, { value: 'a11 a12 a13' });
+testVim('ex_substitute_nocapture', function(cm, vim, helpers) {
+  cm.setCursor(1, 0);
+  helpers.doEx('s/\\(\\d+\\)/$1$1/')
+  eq('a$1$1 a$1$1 a$1$1', cm.getValue());
+}, { value: 'a11 a12 a13' });
+testVim('ex_substitute_nocapture', function(cm, vim, helpers) {
+  cm.setCursor(1, 0);
+  helpers.doEx('s/b/$/')
+  eq('a $ c', cm.getValue());
+}, { value: 'a b c' });
 testVim('ex_substitute_empty_query', function(cm, vim, helpers) {
   // If the query is empty, use last query.
   cm.setCursor(1, 0);
