@@ -99,19 +99,24 @@ CodeMirror.defineMode("dylan", function(config, parserConfig) {
         if (patterns.hasOwnProperty(patternName))
             patterns[patternName] = new RegExp("^" + patterns[patternName]);
 
+    // Names beginning "with-" and "without-" are commonly
+    // used as statement macro
+    patterns['keyword'] = [/^with(?:out)?-[-_a-zA-Z?!*@<>$%]+/];
+    
+    // protected words lookup table
+    var wordLookup = {};
+
     [
 	'keyword', 
 	'definition', 
-	'simpleDefinition', 
+	'simpleDefinition',
+	'signalingCalls'
     ].forEach(function (type) {
-        patterns[type] = words[type].map(function (word) {
-            return new RegExp('^' + word);
-        });
+	words[type].forEach(function(word) {
+		wordLookup[word] = type;
+	});
     });
 
-    // Names beginning "with-" and "without-" are commonly
-    // used as statement macro
-    patterns['keyword'].push(/^with(?:out)?-[-_a-zA-Z?!*@<>$%]+/);
 
     function chain (stream, state, f) {
         state.tokenize = f;
@@ -197,13 +202,19 @@ CodeMirror.defineMode("dylan", function(config, parserConfig) {
                     return ret(name, null, stream.current());
             }
         }
-        if (stream.match("define"))
-            return ret("definition")
-        else if (stream.match(symbol))
-            return ret("variable");
-        else {
-            stream.next();
-            return ret("other");
+        if (stream.match("define")) {
+            return ret("definition");
+	} else {
+	    stream.eatWhile(/[\w\-]/);
+	    // Keyword
+	    if(wordLookup[stream.current()]) {
+		return ret(wordLookup[stream.current()], null, stream.current());
+            } else if (stream.current().match(symbol)) {
+            	return ret("variable");
+	    } else {
+		stream.next();
+                return ret("other");
+	    }
         }
     }
 

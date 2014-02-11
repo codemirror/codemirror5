@@ -6,6 +6,10 @@ span.cm-dylan-keyword {
     color: #2572FC;
 }
 
+span.cm-dylan-signalingCalls {
+    color: #723;
+}
+
 span.cm-dylan-symbol {
     color: #824D9C;
 }
