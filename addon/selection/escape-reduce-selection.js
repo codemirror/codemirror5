@@ -15,7 +15,7 @@
   "use strict";
   CodeMirror.defineOption("escapeReducesSelections", false, function(cm) {
     var lastBlurTime = 0;
-    cm.on("blur", function(event){
+    cm.on("blur", function(){
       lastBlurTime = new Date();
     });
     document.addEventListener('keyup', function(event) {
@@ -23,26 +23,9 @@
       if (event.keyCode === 27)
         // Check if this CodeMirror instance was blurred by this escape
         if(new Date() - lastBlurTime < 500) {
-          // Use the top most selection as the only selection
-          var top = null,
-              ranges = cm.doc.sel.ranges,
-              length = ranges.length,
-              range, i;
-          // Return if there were no selections
-          if (length === 0) return;
-
-          for (i = 0; i < length; i++) {
-            range = ranges[i];
-            // Set top if top doesn't exists, top-most line, or first most character
-            if ((top == null) || (top.anchor.line > range.anchor.line)
-              || ((top.anchor.line === range.anchor.line) && (top.anchor.ch > range.anchor.ch))) {
-              top = range;
-            }
-          }
-
-          // Set selection to the top selection
-          cm.setSelection(top.anchor, top.head);
-          cm.refresh();
+          // Use the most original selection as the default selection
+          var range = cm.listSelections()[0];
+          cm.setSelection(range.anchor, range.head);
           cm.focus();
         }
     });
