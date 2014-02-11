@@ -5,6 +5,14 @@
   font-family: monospace;
   height: 300px;
 }
+
+.CodeMirror *, .CodeMirror *:before, .CodeMirror *:after {
+  /* Protect against "you must use border-box" */
+  -webkit-box-sizing: content-box;
+     -moz-box-sizing: content-box;
+          box-sizing: content-box;
+}
+
 .CodeMirror-scroll {
   /* Set scrolling behaviour here */
   overflow: auto;
