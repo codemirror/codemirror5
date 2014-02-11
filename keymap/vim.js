@@ -2771,18 +2771,40 @@
       return slashes;
     }
 
-    function unescapeString(str) {
+    // For any character in the string that matches one of the specials,
+    // adds a '\' if unescaped, or removes one if escaped.
+    function flipEscaping(str, specials) {
       var escapeNextChar = false;
       var out = [];
-      for (var i = 0; i < str.length; i++) {
-        var c = str.charAt(i);
-        var next = str.charAt(i+1);
-        var slashComesNext = (next == '\\') || (next == '/');
-        if (c !== '\\' || escapeNextChar || !slashComesNext) {
-          out.push(c);
-          escapeNextChar = false;
+      for (var i = -1; i < str.length; i++) {
+        var c = str.charAt(i) || '';
+        var n = str.charAt(i+1) || '';
+        var specialComesNext = false;
+        for (var j = 0; j < specials.length; j++) {
+          if (n === specials[j]) {
+            specialComesNext = true;
+            break;
+          }
+        }
+        if (escapeNextChar) {
+          if (c !== '\\' || !specialComesNext) {
+            out.push(c);
+            escapeNextChar = false;
+          } else {
+            escapeNextChar = true;
+          }
         } else {
-          escapeNextChar = true;
+          if (c === '\\') {
+            escapeNextChar = true;
+            if (!specialComesNext) {
+              out.push('\\');
+            }
+          } else {
+            out.push(c);
+            if (specialComesNext && n !== '\\') {
+              out.push('\\');
+            }
+          }
         }
       }
       return out.join('');
@@ -2819,6 +2841,7 @@
       if (!regexPart) {
         return null;
       }
+      regexPart = flipEscaping(regexPart, ['|', '(', ')']);
       if (smartCase) {
         ignoreCase = (/^[^A-Z]*$/).test(regexPart);
       }
@@ -3312,7 +3335,8 @@
         var count;
         var confirm = false; // Whether to confirm each replace.
         if (slashes[1]) {
-          replacePart = unescapeString(argString.substring(slashes[1] + 1, slashes[2]));
+          replacePart = argString.substring(slashes[1] + 1, slashes[2]);
+          replacePart = flipEscaping(replacePart, ['\\', '/']);
         }
         if (slashes[2]) {
           // After the 3rd slash, we can have flags followed by a space followed

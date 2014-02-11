@@ -53,7 +53,9 @@ article {
 
 #nav {
   position: fixed;
-  top: 30px;
+  padding-top: 30px;
+  max-height: 100%;
+  overflow-y:scroll;
   left: 0; right: none;
   width: 160px;
   padding-right: 350px;
