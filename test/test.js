@@ -295,7 +295,7 @@ testCM("undoDepth", function(cm) {
   cm.replaceRange("f", Pos(0));
   cm.undo(); cm.undo(); cm.undo();
   eq(cm.getValue(), "abcd");
-}, {value: "abc", undoDepth: 2});
+}, {value: "abc", undoDepth: 4});
 
 testCM("undoDoesntClearValue", function(cm) {
   cm.undo();
@@ -351,6 +351,13 @@ testCM("undoSelection", function(cm) {
   eqPos(cm.getCursor(true), Pos(0, 2));
   eqPos(cm.getCursor(false), Pos(0, 2));
 }, {value: "abcdefgh\n"});
+
+testCM("undoSelectionAsBefore", function(cm) {
+  cm.replaceSelection("abc", "around");
+  cm.undo();
+  cm.redo();
+  eq(cm.getSelection(), "abc");
+});
 
 testCM("markTextSingleLine", function(cm) {
   forEach([{a: 0, b: 1, c: "", f: 2, t: 5},
