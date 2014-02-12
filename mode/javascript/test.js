@@ -110,4 +110,42 @@
 
   MT("scary_regexp",
      "[string-2 /foo[[/]]bar/];");
+
+  var jsonld_mode = CodeMirror.getMode(
+    {indentUnit: 2},
+    {name: "javascript", jsonld: true}
+  );
+  function LD(name) {
+    test.mode(name, jsonld_mode, Array.prototype.slice.call(arguments, 1));
+  }
+
+  LD("json_ld_keywords",
+    '{',
+    '  [meta "@context"]: {',
+    '    [meta "@base"]: [string "http://example.com"],',
+    '    [meta "@vocab"]: [string "http://xmlns.com/foaf/0.1/"],',
+    '    [property "likesFlavor"]: {',
+    '      [meta "@container"]: [meta "@list"]',
+    '      [meta "@reverse"]: [string "@beFavoriteOf"]',
+    '    },',
+    '    [property "nick"]: { [meta "@container"]: [meta "@set"] },',
+    '    [property "nick"]: { [meta "@container"]: [meta "@index"] }',
+    '  },',
+    '  [meta "@graph"]: [[ {',
+    '    [meta "@id"]: [string "http://dbpedia.org/resource/John_Lennon"],',
+    '    [property "name"]: [string "John Lennon"],',
+    '    [property "modified"]: {',
+    '      [meta "@value"]: [string "2010-05-29T14:17:39+02:00"],',
+    '      [meta "@type"]: [string "http://www.w3.org/2001/XMLSchema#dateTime"]',
+    '    }',
+    '  } ]]',
+    '}');
+
+  LD("json_ld_fake",
+    '{',
+    '  [property "@fake"]: [string "@fake"],',
+    '  [property "@contextual"]: [string "@identifier"],',
+    '  [property "user@domain.com"]: [string "@graphical"],',
+    '  [property "@ID"]: [string "@@ID"]',
+    '}');
 })();
