@@ -1,4 +1,11 @@
-(function () {
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
   var Pos = CodeMirror.Pos;
 
   function forEach(arr, f) {
@@ -47,7 +54,6 @@
                       function (e, cur) {return e.getTokenAt(cur);},
                       options);
   };
-  CodeMirror.javascriptHint = javascriptHint; // deprecated
   CodeMirror.registerHelper("hint", "javascript", javascriptHint);
 
   function getCoffeeScriptToken(editor, cur) {
@@ -71,7 +77,6 @@
   function coffeescriptHint(editor, options) {
     return scriptHint(editor, coffeescriptKeywords, getCoffeeScriptToken, options);
   }
-  CodeMirror.coffeescriptHint = coffeescriptHint; // deprecated
   CodeMirror.registerHelper("hint", "coffeescript", coffeescriptHint);
 
   var stringProps = ("charAt charCodeAt indexOf lastIndexOf substring substr slice trim trimLeft trimRight " +
@@ -128,4 +133,4 @@
     }
     return found;
   }
-})();
+});

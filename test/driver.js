@@ -44,23 +44,25 @@ function testCM(name, run, opts, expectedFail) {
 function runTests(callback) {
   var totalTime = 0;
   function step(i) {
-    if (i === tests.length){
-      running = false;
-      return callback("done");
-    } 
-    var test = tests[i], expFail = test.expectedFail, startTime = +new Date;
-    if (filters.length) {
-      for (var j = 0; j < filters.length; j++) {
-        if (test.name.match(filters[j])) {
-          break;
-        }
+    for (;;) {
+      if (i === tests.length) {
+        running = false;
+        return callback("done");
       }
-      if (j == filters.length) {      
+      var test = tests[i], skip = false;
+      if (filters.length) {
+        skip = true;
+        for (var j = 0; j < filters.length; j++)
+          if (test.name.match(filters[j])) skip = false;
+      }
+      if (skip) {
         callback("skipped", test.name, message);
-        return step(i + 1);
+        i++;
+      } else {
+        break;
       }
     }
-    var threw = false;
+    var expFail = test.expectedFail, startTime = +new Date, threw = false;
     try {
       var message = test.func();
     } catch(e) {
@@ -98,6 +100,10 @@ function label(str, msg) {
 }
 function eq(a, b, msg) {
   if (a != b) throw new Failure(label(a + " != " + b, msg));
+}
+function near(a, b, margin, msg) {
+  if (Math.abs(a - b) > margin)
+    throw new Failure(label(a + " is not close to " + b + " (" + margin + ")", msg));
 }
 function eqPos(a, b, msg) {
   function str(p) { return "{line:" + p.line + ",ch:" + p.ch + "}"; }
