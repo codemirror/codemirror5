@@ -2332,14 +2332,35 @@ testVim('ex_substitute_visual_range', function(cm, vim, helpers) {
 }, { value: '1\n2\n3\n4\n5' });
 testVim('ex_substitute_capture', function(cm, vim, helpers) {
   cm.setCursor(1, 0);
+  // \n should be a backreference.
   helpers.doEx('s/\\(\\d+\\)/\\1\\1/')
   eq('a1111 a1212 a1313', cm.getValue());
 }, { value: 'a11 a12 a13' });
+testVim('ex_substitute_capture2', function(cm, vim, helpers) {
+  cm.setCursor(1, 0);
+  // \n should be a backreference, even if followed by '$'
+  helpers.doEx('s/\\(\\d+\\)/$\\1\\1/')
+  eq('a $00 b', cm.getValue());
+}, { value: 'a 0 b' });
+testVim('ex_substitute_javascript', function(cm, vim, helpers) {
+  cm.setCursor(1, 0);
+  // Throw all the things that javascript likes to treat as special values
+  // into the replace part. All should be literal (this is VIM).
+  helpers.doEx('s/\\(\\d+\\)/$$ $\' $` $& \\1/')
+  eq('a $$ $\' $` $& 0 b', cm.getValue());
+}, { value: 'a 0 b' });
 testVim('ex_substitute_nocapture', function(cm, vim, helpers) {
   cm.setCursor(1, 0);
+  // $n should be literal, since that is the javascript form, not VIM.
   helpers.doEx('s/\\(\\d+\\)/$1$1/')
   eq('a$1$1 a$1$1 a$1$1', cm.getValue());
 }, { value: 'a11 a12 a13' });
+testVim('ex_substitute_nocapture2', function(cm, vim, helpers) {
+  cm.setCursor(1, 0);
+  // \$n should be literal, since that is the javascript form, not VIM. 
+  helpers.doEx('s/\\(\\d+\\)/\\$1\\1/')
+  eq('a $10 b', cm.getValue());
+}, { value: 'a 0 b' });
 testVim('ex_substitute_nocapture', function(cm, vim, helpers) {
   cm.setCursor(1, 0);
   helpers.doEx('s/b/$/')

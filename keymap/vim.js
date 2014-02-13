@@ -2785,13 +2785,13 @@
         } else {
           if (c === '\\') {
             escapeNextChar = true;
-            if (fixBackReferences && isNumber(n)) {
+            if (fixBackReferences && (isNumber(n) || n === '$')) {
               out.push('$');
             } else if (!specialComesNext) {
               out.push('\\');
             }
           } else {
-            if (fixBackReferences && isNumber(n)) {
+            if (fixBackReferences && c === '$') {
               out.push('$');
             }
             out.push(c);
