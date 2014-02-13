@@ -738,7 +738,9 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
     blankLine: blankLine,
 
-    getType: getType
+    getType: getType,
+
+    fold: "markdown"
   };
   return mode;
 }, "xml");
