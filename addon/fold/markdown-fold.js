@@ -1,23 +1,34 @@
 CodeMirror.registerHelper("fold", "markdown", function(cm, start) {
-  var level, end, maxDepth = 100, firstLine = cm.getLine(start.line), lastLine = cm.lastLine();
+  var maxDepth = 100;
 
-  function headerLevel(line) {
-    if (!line) return maxDepth;
-    var match = line.match(/^#+/);
-    return match ? match[0].length : maxDepth;
+  function isHeader(lineNo) {
+    var tokentype = cm.getTokenTypeAt(CodeMirror.Pos(lineNo, 0));
+    return tokentype && /\bheader\b/.test(tokentype);
   }
 
-  level = headerLevel(firstLine);
+  function headerLevel(lineNo, line, nextLine) {
+    var match = line && line.match(/^#+/);
+    if (match && isHeader(lineNo)) return match[0].length;
+    match = nextLine && nextLine.match(/^[=\-]+\s*$/);
+    if (match && isHeader(lineNo + 1)) return nextLine[0] == "=" ? 1 : 2;
+    return maxDepth;
+  }
+
+  var firstLine = cm.getLine(start.line), nextLine = cm.getLine(start.line + 1);
+  var level = headerLevel(start.line, firstLine, nextLine);
   if (level === maxDepth) return undefined;
 
-  for (end = start.line + 1; end < lastLine; ++end) {
-    if (headerLevel(cm.getLine(end + 1)) <= level) {
-      break;
-    }
+  var lastLineNo = cm.lastLine();
+  var end = start.line, nextNextLine = cm.getLine(end + 2);
+  while (end < lastLineNo) {
+    if (headerLevel(end + 1, nextLine, nextNextLine) <= level) break;
+    ++end;
+    nextLine = nextNextLine;
+    nextNextLine = cm.getLine(end + 2);
   }
 
   return {
-    from: CodeMirror.Pos(start.line, cm.getLine(start.line).length),
+    from: CodeMirror.Pos(start.line, firstLine.length),
     to: CodeMirror.Pos(end, cm.getLine(end).length)
   };
 });
