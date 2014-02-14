@@ -50,7 +50,7 @@ function checkFile(fileName) {
       ecmaVersion: 3,
       strictSemicolons: true,
       allowTrailingCommas: false,
-      forbidReserved: true,
+      forbidReserved: "everywhere",
       sourceFile: fileName
     });
   } catch (e) {
