@@ -1532,22 +1532,44 @@
             ch: findFirstNonWhiteSpaceCharacter(cm.getLine(lineNum)) };
       },
       textObjectManipulation: function(cm, motionArgs) {
+        // TODO: lots of possible exceptions that can be thrown here. Try da(
+        //     outside of a () block.
+
+        // TODO: adding <> >< to this map doesn't work, presumably because
+        // they're operators
+        var mirroredPairs = {'(': ')', ')': '(',
+                             '{': '}', '}': '{',
+                             '[': ']', ']': '['};
+        var selfPaired = {'\'': true, '"': true};
+
         var character = motionArgs.selectedCharacter;
+
         // Inclusive is the difference between a and i
         // TODO: Instead of using the additional text object map to perform text
         //     object operations, merge the map into the defaultKeyMap and use
         //     motionArgs to define behavior. Define separate entries for 'aw',
         //     'iw', 'a[', 'i[', etc.
         var inclusive = !motionArgs.textObjectInner;
-        if (!textObjects[character]) {
+
+        var tmp;
+        if (mirroredPairs[character]) {
+          tmp = selectCompanionObject(cm, mirroredPairs[character], inclusive);
+        } else if (selfPaired[character]) {
+          tmp = findBeginningAndEnd(cm, character, inclusive);
+        } else if (character === 'W') {
+          tmp = expandWordUnderCursor(cm, inclusive, true /** forward */,
+                                                     true /** bigWord */);
+        } else if (character === 'w') {
+          tmp = expandWordUnderCursor(cm, inclusive, true /** forward */,
+                                                     false /** bigWord */);
+        } else {
           // No text object defined for this, don't move.
           return null;
         }
-        var tmp = textObjects[character](cm, inclusive);
-        var start = tmp.start;
-        var end = tmp.end;
-        return [start, end];
+
+        return [tmp.start, tmp.end];
       },
+
       repeatLastCharacterSearch: function(cm, motionArgs) {
         var lastSearch = vimGlobalState.lastChararacterSearch;
         var repeat = motionArgs.repeat;
@@ -2012,36 +2034,6 @@
           repeat = vim.lastEditInputState.repeatOverride || repeat;
         }
         repeatLastEdit(cm, vim, repeat, false /** repeatForInsert */);
-      }
-    };
-
-    var textObjects = {
-      // TODO: lots of possible exceptions that can be thrown here. Try da(
-      //     outside of a () block.
-      // TODO: implement text objects for the reverse like }. Should just be
-      //     an additional mapping after moving to the defaultKeyMap.
-      'w': function(cm, inclusive) {
-        return expandWordUnderCursor(cm, inclusive, true /** forward */,
-            false /** bigWord */);
-      },
-      'W': function(cm, inclusive) {
-        return expandWordUnderCursor(cm, inclusive,
-            true /** forward */, true /** bigWord */);
-      },
-      '{': function(cm, inclusive) {
-        return selectCompanionObject(cm, '}', inclusive);
-      },
-      '(': function(cm, inclusive) {
-        return selectCompanionObject(cm, ')', inclusive);
-      },
-      '[': function(cm, inclusive) {
-        return selectCompanionObject(cm, ']', inclusive);
-      },
-      '\'': function(cm, inclusive) {
-        return findBeginningAndEnd(cm, "'", inclusive);
-      },
-      '"': function(cm, inclusive) {
-        return findBeginningAndEnd(cm, '"', inclusive);
       }
     };
 
@@ -2634,13 +2626,25 @@
       return cur;
     }
 
+    // TODO: perhaps this finagling of start and end positions belonds
+    // in codmirror/replaceRange?
     function selectCompanionObject(cm, revSymb, inclusive) {
       var cur = cm.getCursor();
-
       var end = findMatchedSymbol(cm, cur, revSymb);
       var start = findMatchedSymbol(cm, end);
-      start.ch += inclusive ? 1 : 0;
-      end.ch += inclusive ? 0 : 1;
+
+      if((start.line == end.line && start.ch > end.ch)
+          || (start.line > end.line)) {
+        var tmp = start;
+        start = end;
+        end = tmp;
+      }
+
+      if(inclusive) {
+        end.ch += 1;
+      } else {
+        start.ch += 1;
+      }
 
       return { start: start, end: end };
     }
@@ -2755,18 +2759,46 @@
       return slashes;
     }
 
-    function unescapeString(str) {
+    // For any character in the string that matches one of the specials,
+    // adds a '\' if unescaped, or removes one if escaped. If fixBackReferences
+    // is true, translates '\[0..9]' to '$[0..9]'
+    function flipEscaping(str, specials, fixBackReferences) {
       var escapeNextChar = false;
       var out = [];
-      for (var i = 0; i < str.length; i++) {
-        var c = str.charAt(i);
-        var next = str.charAt(i+1);
-        var slashComesNext = (next == '\\') || (next == '/');
-        if (c !== '\\' || escapeNextChar || !slashComesNext) {
-          out.push(c);
-          escapeNextChar = false;
+      for (var i = -1; i < str.length; i++) {
+        var c = str.charAt(i) || '';
+        var n = str.charAt(i+1) || '';
+        var specialComesNext = false;
+        for (var j = 0; j < specials.length; j++) {
+          if (n === specials[j]) {
+            specialComesNext = true;
+            break;
+          }
+        }
+        if (escapeNextChar) {
+          if (c !== '\\' || !specialComesNext) {
+            out.push(c);
+            escapeNextChar = false;
+          } else {
+            escapeNextChar = true;
+          }
         } else {
-          escapeNextChar = true;
+          if (c === '\\') {
+            escapeNextChar = true;
+            if (fixBackReferences && (isNumber(n) || n === '$')) {
+              out.push('$');
+            } else if (!specialComesNext) {
+              out.push('\\');
+            }
+          } else {
+            if (fixBackReferences && c === '$') {
+              out.push('$');
+            }
+            out.push(c);
+            if (specialComesNext && n !== '\\') {
+              out.push('\\');
+            }
+          }
         }
       }
       return out.join('');
@@ -2803,6 +2835,7 @@
       if (!regexPart) {
         return null;
       }
+      regexPart = flipEscaping(regexPart, ['|', '(', ')'], false);
       if (smartCase) {
         ignoreCase = (/^[^A-Z]*$/).test(regexPart);
       }
@@ -3296,7 +3329,8 @@
         var count;
         var confirm = false; // Whether to confirm each replace.
         if (slashes[1]) {
-          replacePart = unescapeString(argString.substring(slashes[1] + 1, slashes[2]));
+          replacePart = argString.substring(slashes[1] + 1, slashes[2]);
+          replacePart = flipEscaping(replacePart, ['\\', '/'], true);
         }
         if (slashes[2]) {
           // After the 3rd slash, we can have flags followed by a space followed

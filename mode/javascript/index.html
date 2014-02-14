@@ -89,11 +89,13 @@ StringStream.prototype = {
     </script>
 
     <p>
-      JavaScript mode supports a two configuration
-      options:
+      JavaScript mode supports several configuration options:
       <ul>
         <li><code>json</code> which will set the mode to expect JSON
         data rather than a JavaScript program.</li>
+        <li><code>jsonld</code> which will set the mode to expect
+        <a href="http://json-ld.org">JSON-LD</a> linked data rather
+        than a JavaScript program (<a href="json-ld.html">demo</a>).</li>
         <li><code>typescript</code> which will activate additional
         syntax highlighting and some other things for TypeScript code
         (<a href="typescript.html">demo</a>).</li>
@@ -103,5 +105,5 @@ StringStream.prototype = {
       </ul>
     </p>
 
-    <p><strong>MIME types defined:</strong> <code>text/javascript</code>, <code>application/json</code>, <code>text/typescript</code>, <code>application/typescript</code>.</p>
+    <p><strong>MIME types defined:</strong> <code>text/javascript</code>, <code>application/json</code>, <code>application/ld+json</code>, <code>text/typescript</code>, <code>application/typescript</code>.</p>
   </article>

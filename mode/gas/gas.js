@@ -211,7 +211,7 @@ CodeMirror.defineMode("gas", function(_config, parserConfig) {
     });
   }
 
-  var arch = parserConfig.architecture.toLowerCase();
+  var arch = (parserConfig.architecture || "x86").toLowerCase();
   if (arch === "x86") {
     x86(parserConfig);
   } else if (arch === "arm" || arch === "armv6") {

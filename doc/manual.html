@@ -22,11 +22,10 @@
 
 <div id=nav>
   <a href="http://codemirror.net"><img id=logo src="logo.png"></a>
-
   <ul>
-    <li><a href="../index.html">Home</a>
-    <li><a href="#overview" class=active data-default="true">Manual</a>
-    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+    <li><a href="../index.html">Home</a></li>
+    <li><a href="#overview" class=active data-default="true">Manual</a></li>
+    <li><a href="https://github.com/marijnh/codemirror">Code</a></li>
   </ul>
   <ul>
     <li><a href="#usage">Basic Usage</a></li>
@@ -2082,6 +2081,12 @@
         <dt><code><strong>hint</strong>: fn(CodeMirror, self, data)</code></dt>
         <dd>A method used to actually apply the completion, instead of
         the default behavior.</dd>
+        <dt><code><strong>from</strong>: {line, ch}</code></dt>
+        <dd>Optional <code>from</code> position that will be used by <code>pick()</code> instead
+        of the global one passed with the full list of completions.</dd>
+        <dt><code><strong>to</strong>: {line, ch}</code></dt>
+        <dd>Optional <code>to</code> position that will be used by <code>pick()</code> instead
+        of the global one passed with the full list of completions.</dd>
       </dl>
       The plugin understands the following options (the options object
       will also be passed along to the hinting function, which may
@@ -2110,7 +2115,11 @@
         has <code>moveFocus(n)</code>, <code>setFocus(n)</code>, <code>pick()</code>,
         and <code>close()</code> methods (see the source for details),
         that can be used to change the focused element, pick the
-        current element or close the menu.</dd>
+        current element or close the menu. Additionnaly <code>menuSize()</code>
+        can give you access to the size of the current dropdown menu,
+        <code>length</code> give you the number of availlable completions, and
+        <code>data</code> give you full access to the completion returned by the
+        hinting function.</dd>
         <dt><code><strong>extraKeys</strong>: keymap</code></dt>
         <dd>Like <code>customKeys</code> above, but the bindings will
         be added to the set of default bindings, instead of replacing
@@ -2249,11 +2258,14 @@
       succeeded. See the <a href="../demo/loadmode.html">demo</a>.</dd>
 
       <dt id="addon_continuecomment"><a href="../addon/comment/continuecomment.js"><code>comment/continuecomment.js</code></a></dt>
-      <dd>Adds an <code>continueComments</code> option, which can be
-      set to true to have the editor prefix new lines inside C-like
-      block comments with an asterisk when Enter is pressed. It can
-      also be set to a string in order to bind this functionality to a
-      specific key..</dd>
+      <dd>Adds a <code>continueComments</code> option, which sets whether the
+      editor will make the next line continue a comment when you press Enter
+      inside a comment block. Can be set to a boolean to enable/disable this
+      functionality. Set to a string, it will continue comments using a custom
+      shortcut. Set to an object, it will use the <code>key</code> property for
+      a custom shortcut and the boolean <code>continueLineComment</code>
+      property to determine whether single-line comments should be continued
+      (defaulting to <code>true</code>).</dd>
 
       <dt id="addon_placeholder"><a href="../addon/display/placeholder.js"><code>display/placeholder.js</code></a></dt>
       <dd>Adds a <code>placeholder</code> option that can be used to

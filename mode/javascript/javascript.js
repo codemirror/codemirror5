@@ -3,7 +3,8 @@
 CodeMirror.defineMode("javascript", function(config, parserConfig) {
   var indentUnit = config.indentUnit;
   var statementIndent = parserConfig.statementIndent;
-  var jsonMode = parserConfig.json;
+  var jsonldMode = parserConfig.jsonld;
+  var jsonMode = parserConfig.json || jsonldMode;
   var isTS = parserConfig.typescript;
 
   // Tokenizer
@@ -53,6 +54,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   }();
 
   var isOperatorChar = /[+\-*&%=<>!?|~^]/;
+  var isJsonldKeyword = /^@(context|id|value|language|type|container|list|set|reverse|index|base|vocab|graph)"/;
 
   function readRegexp(stream) {
     var escaped = false, next, inSet = false;
@@ -128,6 +130,10 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   function tokenString(quote) {
     return function(stream, state) {
       var escaped = false, next;
+      if (jsonldMode && stream.peek() == "@" && stream.match(isJsonldKeyword)){
+        state.tokenize = tokenBase;
+        return ret("jsonld-keyword", "meta");
+      }
       while ((next = stream.next()) != null) {
         if (next == quote && !escaped) break;
         escaped = !escaped && next == "\\";
@@ -195,7 +201,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
 
   // Parser
 
-  var atomicTypes = {"atom": true, "number": true, "variable": true, "string": true, "regexp": true, "this": true};
+  var atomicTypes = {"atom": true, "number": true, "variable": true, "string": true, "regexp": true, "this": true, "jsonld-keyword": true};
 
   function JSLexical(indented, column, type, align, prev, info) {
     this.indented = indented;
@@ -408,7 +414,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       cx.marked = "property";
       if (value == "get" || value == "set") return cont(getterSetter);
     } else if (type == "number" || type == "string") {
-      cx.marked = type + " property";
+      cx.marked = jsonldMode ? "property" : (type + " property");
     } else if (type == "[") {
       return cont(expression, expect("]"), afterprop);
     }
@@ -616,6 +622,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     fold: "brace",
 
     helperType: jsonMode ? "json" : "javascript",
+    jsonldMode: jsonldMode,
     jsonMode: jsonMode
   };
 });
@@ -626,5 +633,6 @@ CodeMirror.defineMIME("application/javascript", "javascript");
 CodeMirror.defineMIME("application/ecmascript", "javascript");
 CodeMirror.defineMIME("application/json", {name: "javascript", json: true});
 CodeMirror.defineMIME("application/x-json", {name: "javascript", json: true});
+CodeMirror.defineMIME("application/ld+json", {name: "javascript", jsonld: true});
 CodeMirror.defineMIME("text/typescript", { name: "javascript", typescript: true });
 CodeMirror.defineMIME("application/typescript", { name: "javascript", typescript: true });

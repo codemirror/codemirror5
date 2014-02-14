@@ -46,7 +46,7 @@
     pick: function(data, i) {
       var completion = data.list[i];
       if (completion.hint) completion.hint(this.cm, data, completion);
-      else this.cm.replaceRange(getText(completion), data.from, data.to);
+      else this.cm.replaceRange(getText(completion), completion.from||data.from, completion.to||data.to);
       CodeMirror.signal(data, "pick", completion);
       this.close();
     },
@@ -193,25 +193,30 @@
     var winW = window.innerWidth || Math.max(document.body.offsetWidth, document.documentElement.offsetWidth);
     var winH = window.innerHeight || Math.max(document.body.offsetHeight, document.documentElement.offsetHeight);
     (options.container || document.body).appendChild(hints);
-    var box = hints.getBoundingClientRect();
-    var overlapX = box.right - winW, overlapY = box.bottom - winH;
+    var box = hints.getBoundingClientRect(), overlapY = box.bottom - winH;
+    if (overlapY > 0) {
+      var height = box.bottom - box.top, curTop = box.top - (pos.bottom - pos.top);
+      if (curTop - height > 0) { // Fits above cursor
+        hints.style.top = (top = curTop - height) + "px";
+        below = false;
+      } else if (height > winH) {
+        hints.style.height = (winH - 5) + "px";
+        hints.style.top = (top = pos.bottom - box.top) + "px";
+        var cursor = cm.getCursor();
+        if (data.from.ch != cursor.ch) {
+          pos = cm.cursorCoords(cursor);
+          hints.style.left = (left = pos.left) + "px";
+          box = hints.getBoundingClientRect();
+        }
+      }
+    }
+    var overlapX = box.left - winW;
     if (overlapX > 0) {
       if (box.right - box.left > winW) {
         hints.style.width = (winW - 5) + "px";
         overlapX -= (box.right - box.left) - winW;
       }
       hints.style.left = (left = pos.left - overlapX) + "px";
-    }
-    if (overlapY > 0) {
-      var height = box.bottom - box.top;
-      if (box.top - (pos.bottom - pos.top) - height > 0) {
-        overlapY = height + (pos.bottom - pos.top);
-        below = false;
-      } else if (height > winH) {
-        hints.style.height = (winH - 5) + "px";
-        overlapY -= height - winH;
-      }
-      hints.style.top = (top = pos.bottom - overlapY) + "px";
     }
 
     cm.addKeyMap(this.keyMap = buildKeyMap(options, {
@@ -220,7 +225,8 @@
       menuSize: function() { return widget.screenAmount(); },
       length: completions.length,
       close: function() { completion.close(); },
-      pick: function() { widget.pick(); }
+      pick: function() { widget.pick(); },
+      data: data
     }));
 
     if (options.closeOnUnfocus !== false) {

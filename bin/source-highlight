@@ -40,7 +40,7 @@ function ensureMode(name) {
 ensureMode(modeName);
 
 function esc(str) {
-  return str.replace(/[<&]/, function(ch) { return ch == "&" ? "&amp;" : "&lt;"; });
+  return str.replace(/[<&]/g, function(ch) { return ch == "&" ? "&amp;" : "&lt;"; });
 }
 
 var code = fs.readFileSync("/dev/stdin", "utf8");
