@@ -8,10 +8,6 @@
     pos = pos ? doc.clipPos(pos) : Pos(0, 0);
     this.pos = {from: pos, to: pos};
 
-    // Prevent nonsensical behavior from queries that match everything.
-    if (typeof query == "string" ? query == "" : query.test(""))
-      query = /x^/;
-
     // The matches method is filled in based on the type of query.
     // It takes a position and a direction, and returns an object
     // describing the next occurrence of the query, or null if no
