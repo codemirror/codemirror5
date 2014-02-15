@@ -113,7 +113,7 @@
             for (var cursor = getSearchCursor(cm, query); cursor.findNext();) {
               if (typeof query != "string") {
                 var match = cm.getRange(cursor.from(), cursor.to()).match(query);
-                cursor.replace(text.replace(/\$(\d)/, function(_, i) {return match[i];}));
+                cursor.replace(text.replace(/\$(\d)/g, function(_, i) {return match[i];}));
               } else cursor.replace(text);
             }
           });
@@ -134,7 +134,7 @@
           };
           var doReplace = function(match) {
             cursor.replace(typeof query == "string" ? text :
-                           text.replace(/\$(\d)/, function(_, i) {return match[i];}));
+                           text.replace(/\$(\d)/g, function(_, i) {return match[i];}));
             advance();
           };
           advance();
