@@ -92,6 +92,7 @@ http://ethanschoonover.com/solarized/img/solarized-palette.png
 .cm-s-solarized .cm-tab:before {
   content: "➤";   /*visualize tab character*/
   color: #586e75;
+  position:absolute;
 }
 .cm-s-solarized .cm-error,
 .cm-s-solarized .cm-invalidchar {
