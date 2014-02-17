@@ -2772,8 +2772,9 @@
     }
 
     // For any character in the string that matches one of the specials,
-    // adds a '\' if unescaped, or removes one if escaped.
-    function flipEscaping(str, specials) {
+    // adds a '\' if unescaped, or removes one if escaped. If fixBackReferences
+    // is true, translates '\[0..9]' to '$[0..9]'
+    function flipEscaping(str, specials, fixBackReferences) {
       var escapeNextChar = false;
       var out = [];
       for (var i = -1; i < str.length; i++) {
@@ -2796,10 +2797,15 @@
         } else {
           if (c === '\\') {
             escapeNextChar = true;
-            if (!specialComesNext) {
+            if (fixBackReferences && (isNumber(n) || n === '$')) {
+              out.push('$');
+            } else if (!specialComesNext) {
               out.push('\\');
             }
           } else {
+            if (fixBackReferences && c === '$') {
+              out.push('$');
+            }
             out.push(c);
             if (specialComesNext && n !== '\\') {
               out.push('\\');
@@ -2841,7 +2847,7 @@
       if (!regexPart) {
         return null;
       }
-      regexPart = flipEscaping(regexPart, ['|', '(', ')']);
+      regexPart = flipEscaping(regexPart, ['|', '(', ')'], false);
       if (smartCase) {
         ignoreCase = (/^[^A-Z]*$/).test(regexPart);
       }
@@ -3336,7 +3342,7 @@
         var confirm = false; // Whether to confirm each replace.
         if (slashes[1]) {
           replacePart = argString.substring(slashes[1] + 1, slashes[2]);
-          replacePart = flipEscaping(replacePart, ['\\', '/']);
+          replacePart = flipEscaping(replacePart, ['\\', '/'], true);
         }
         if (slashes[2]) {
           // After the 3rd slash, we can have flags followed by a space followed

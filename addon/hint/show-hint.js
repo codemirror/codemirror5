@@ -316,15 +316,16 @@
   };
 
   CodeMirror.registerHelper("hint", "auto", function(cm, options) {
-    var helpers = cm.getHelpers(cm.getCursor(), "hint");
+    var helpers = cm.getHelpers(cm.getCursor(), "hint"), words;
     if (helpers.length) {
       for (var i = 0; i < helpers.length; i++) {
         var cur = helpers[i](cm, options);
         if (cur && cur.list.length) return cur;
       }
-    } else {
-      var words = cm.getHelper(cm.getCursor(), "hintWords");
+    } else if (words = cm.getHelper(cm.getCursor(), "hintWords")) {
       if (words) return CodeMirror.hint.fromList(cm, {words: words});
+    } else if (CodeMirror.hint.anyword) {
+      return CodeMirror.hint.anyword(cm, options);
     }
   });
 
