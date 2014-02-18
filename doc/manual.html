@@ -18,6 +18,9 @@
   dd { margin-left: 1.5em; margin-bottom: 1em; }
   dt {margin-top: 1em;}
   dd dl, dd dt, dd dd, dd ul { margin-top: 0; margin-bottom: 0; }
+  dt + dt { margin-top: 0; }
+  dt.command { position: relative; }
+  span.keybinding { position: absolute; right: 0; font-size: 80%; color: #555; text-indent: 0; }
 </style>
 
 <div id=nav>
@@ -31,7 +34,8 @@
     <li><a href="#usage">Basic Usage</a></li>
     <li><a href="#config">Configuration</a></li>
     <li><a href="#events">Events</a></li>
-    <li><a href="#keymaps">Keymaps</a></li>
+    <li><a href="#keymaps">Key maps</a></li>
+    <li><a href="#commands">Commands</a></li>
     <li><a href="#styling">Customized Styling</a></li>
     <li><a href="#api">Programming API</a>
       <ul>
@@ -266,18 +270,18 @@
       on Windows, and <code>true</code> on other platforms.</dd>
 
       <dt id="option_keyMap"><code><strong>keyMap</strong>: string</code></dt>
-      <dd>Configures the keymap to use. The default
-      is <code>"default"</code>, which is the only keymap defined
-      in <code>codemirror.js</code> itself. Extra keymaps are found in
-      the <a href="../keymap/"><code>keymap</code></a> directory. See
-      the <a href="#keymaps">section on keymaps</a> for more
+      <dd>Configures the key map to use. The default
+      is <code>"default"</code>, which is the only key map defined
+      in <code>codemirror.js</code> itself. Extra key maps are found in
+      the <a href="../keymap/"><code>key map</code></a> directory. See
+      the <a href="#keymaps">section on key maps</a> for more
       information.</dd>
 
       <dt id="option_extraKeys"><code><strong>extraKeys</strong>: object</code></dt>
-      <dd>Can be used to specify extra keybindings for the editor,
+      <dd>Can be used to specify extra key bindings for the editor,
       alongside the ones defined
       by <a href="#option_keyMap"><code>keyMap</code></a>. Should be
-      either null, or a valid <a href="#keymaps">keymap</a> value.</dd>
+      either null, or a valid <a href="#keymaps">key map</a> value.</dd>
 
       <dt id="option_lineWrapping"><code><strong>lineWrapping</strong>: boolean</code></dt>
       <dd>Whether CodeMirror should scroll or wrap for long lines.
@@ -504,7 +508,7 @@
 
       <dt id="event_keyHandled"><code><strong>"keyHandled"</strong> (instance: CodeMirror, name: string, event: Event)</code></dt>
       <dd>Fired after a key is handled through a
-      keymap. <code>name</code> is the name of the handled key (for
+      key map. <code>name</code> is the name of the handled key (for
       example <code>"Ctrl-X"</code> or <code>"'q'"</code>),
       and <code>event</code> is the DOM <code>keydown</code>
       or <code>keypress</code> event.</dd>
@@ -676,9 +680,9 @@
 </section>
 
 <section id=keymaps>
-    <h2>Keymaps</h2>
+    <h2>Key Maps</h2>
 
-    <p>Keymaps are ways to associate keys with functionality. A keymap
+    <p>Key maps are ways to associate keys with functionality. A key map
     is an object mapping strings that identify the keys to functions
     that implement their functionality.</p>
 
@@ -708,23 +712,22 @@
     or <code>'q'</code>. Due to limitations in the way browsers fire
     key events, these may not be prefixed with modifiers.</p>
 
-    <p>The <code>CodeMirror.keyMap</code> object associates keymaps
-    with names. User code and keymap definitions can assign extra
-    properties to this object. Anywhere where a keymap is expected, a
+    <p>The <code>CodeMirror.keyMap</code> object associates key maps
+    with names. User code and key map definitions can assign extra
+    properties to this object. Anywhere where a key map is expected, a
     string can be given, which will be looked up in this object. It
-    also contains the <code>"default"</code> keymap holding the
+    also contains the <code>"default"</code> key map holding the
     default bindings.</p>
 
-    <p id="commands">The values of properties in keymaps can be either functions of
+    <p>The values of properties in key maps can be either functions of
     a single argument (the CodeMirror instance), strings, or
-    <code>false</code>. Such strings refer to properties of the
-    <code>CodeMirror.commands</code> object, which defines a number of
-    common commands that are used by the default keybindings, and maps
-    them to functions. If the property is set to <code>false</code>,
-    CodeMirror leaves handling of the key up to the browser. A key
-    handler function may return <code>CodeMirror.Pass</code> to indicate
-    that it has decided not to handle the key, and other handlers (or
-    the default behavior) should be given a turn.</p>
+    <code>false</code>. Strings refer
+    to <a href="#commands">commands</a>, which are described below. If
+    the property is set to <code>false</code>, CodeMirror leaves
+    handling of the key up to the browser. A key handler function may
+    return <code>CodeMirror.Pass</code> to indicate that it has
+    decided not to handle the key, and other handlers (or the default
+    behavior) should be given a turn.</p>
 
     <p>Keys mapped to command names that start with the
     characters <code>"go"</code> (which should be used for
@@ -733,20 +736,201 @@
     "goLineUp"</code> matches both up and shift-up). This is used to
     easily implement shift-selection.</p>
 
-    <p>Keymaps can defer to each other by defining
+    <p>Key maps can defer to each other by defining
     a <code>fallthrough</code> property. This indicates that when a
     key is not found in the map itself, one or more other maps should
-    be searched. It can hold either a single keymap or an array of
-    keymaps.</p>
+    be searched. It can hold either a single key map or an array of
+    key maps.</p>
 
-    <p>When a keymap contains a <code>nofallthrough</code> property
+    <p>When a key map contains a <code>nofallthrough</code> property
     set to <code>true</code>, keys matched against that map will be
     ignored if they don't match any of the bindings in the map (no
     further child maps will be tried). When
     the <code>disableInput</code> property is set
     to <code>true</code>, the default effect of inserting a character
-    will be suppressed when the keymap is active as the top-level
+    will be suppressed when the key map is active as the top-level
     map.</p>
+</section>
+
+<section id=commands>
+    <h2>Commands</h2>
+
+    <p>Commands are parameter-less actions that can be performed on an
+    editor. Their main use is for key bindings. Commands are defined by
+    adding properties to the <code>CodeMirror.commands</code> object.
+    A number of common commands are defined by the library itself,
+    most of them used by the default key bindings. The value of a
+    command property must be a function of one argument (an editor
+    instance).</p>
+
+    <p>Some of the commands below are referenced in the default
+    key map, but not defined by the core library. These are intended to
+    be defined by user code or addons.</p>
+
+    <p>Commands can also be run with
+    the <a href="#execCommand"><code>execCommand</code></a>
+    method.</p>
+
+    <dl>
+      <dt class=command id=command_selectAll><code><strong>selectAll</strong></code><span class=keybinding>Ctrl-A (PC), Cmd-A (Mac)</span></dt>
+      <dd>Select the whole content of the editor.</dd>
+
+      <dt class=command id=command_singleSelection><code><strong>singleSelection</strong></code><span class=keybinding>Esc</span></dt>
+      <dd>When multiple selections are present, this deselects all but
+      the primary selection.</dd>
+
+      <dt class=command id=command_killLine><code><strong>killLine</strong></code><span class=keybinding>Ctrl-K (Mac)</span></dt>
+      <dd>Emacs-style line killing. Deletes the part of the line after
+      the cursor. If that consists only of whitespace, the newline at
+      the end of the line is also deleted.</dd>
+
+      <dt class=command id=command_deleteLine><code><strong>deleteLine</strong></code><span class=keybinding>Ctrl-D (PC), Cmd-D (Mac)</span></dt>
+      <dd>Deletes the whole line under the cursor, including newline at the end.</dd>
+
+      <dt class=command id=command_delLineLeft><code><strong>delLineLeft</strong></code><span class=keybinding>Cmd-Backspace (Mac)</span></dt>
+      <dd>Delete the part of the line before the cursor.</dd>
+
+      <dt class=command id=command_undo><code><strong>undo</strong></code><span class=keybinding>Ctrl-Z (PC), Cmd-Z (Mac)</span></dt>
+      <dd>Undo the last change.</dd>
+
+      <dt class=command id=command_redo><code><strong>redo</strong></code><span class=keybinding>Ctrl-Y (PC), Shift-Cmd-Z (Mac), Cmd-Y (Mac)</span></dt>
+      <dd>Redo the last undone change.</dd>
+
+      <dt class=command id=command_undoSelection><code><strong>undoSelection</strong></code><span class=keybinding>Ctrl-U (PC), Cmd-U (Mac)</span></dt>
+      <dd>Undo the last change to the selection, or if there are no
+      selection-only changes at the top of the history, undo the last
+      change.</dd>
+
+      <dt class=command id=command_redoSelection><code><strong>redoSelection</strong></code><span class=keybinding>Alt-U (PC), Shift-Cmd-U (Mac)</span></dt>
+      <dd>Redo the last change to the selection, or the last text change if
+      no selection changes remain.</dd>
+
+      <dt class=command id=command_goDocStart><code><strong>goDocStart</strong></code><span class=keybinding>Ctrl-Up (PC), Cmd-Up (Mac)</span></dt>
+      <dd>Move the cursor to the start of the document.</dd>
+
+      <dt class=command id=command_goDocEnd><code><strong>goDocEnd</strong></code><span class=keybinding>Ctrl-Down (PC), Cmd-End (Mac), Cmd-Down (Mac)</span></dt>
+      <dd>Move the cursor to the end of the document.</dd>
+
+      <dt class=command id=command_goLineStart><code><strong>goLineStart</strong></code><span class=keybinding>Alt-Left (PC), Cmd-Left (Mac), Ctrl-A (Mac)</span></dt>
+      <dd>Move the cursor to the start of the line.</dd>
+
+      <dt class=command id=command_goLineStartSmart><code><strong>goLineStartSmart</strong></code><span class=keybinding>Home</span></dt>
+      <dd>Move to the start of the text on the line, or if we are
+      already there, to the actual start of the line (including
+      whitespace).</dd>
+
+      <dt class=command id=command_goLineEnd><code><strong>goLineEnd</strong></code><span class=keybinding>Alt-Right (PC), Cmd-Right (Mac), Ctrl-E (Mac)</span></dt>
+      <dd>Move the cursor to the end of the line.</dd>
+
+      <dt class=command id=command_goLineLeft><code><strong>goLineLeft</strong></code></dt>
+      <dd>Move the cursor to the left side of the visual line it is on. If
+      this line is wrapped, that may not be the start of the line.</dd>
+
+      <dt class=command id=command_goLineRight><code><strong>goLineRight</strong></code></dt>
+      <dd>Move the cursor to the right side of the visual line it is on.</dd>
+
+      <dt class=command id=command_goLineUp><code><strong>goLineUp</strong></code><span class=keybinding>Up, Ctrl-P (Mac)</span></dt>
+      <dd>Move the cursor up one line.</dd>
+
+      <dt class=command id=command_goLineDown><code><strong>goLineDown</strong></code><span class=keybinding>Down, Ctrl-N (Mac)</span></dt>
+      <dd>Move down one line.</dd>
+
+      <dt class=command id=command_goPageUp><code><strong>goPageUp</strong></code><span class=keybinding>PageUp, Shift-Ctrl-V (Mac)</span></dt>
+      <dd>Move the cursor up one screen, and scroll up by the same distance.</dd>
+
+      <dt class=command id=command_goPageDown><code><strong>goPageDown</strong></code><span class=keybinding>PageDown, Ctrl-V (Mac)</span></dt>
+      <dd>Move the cursor down one screen, and scroll down by the same distance.</dd>
+
+      <dt class=command id=command_goCharLeft><code><strong>goCharLeft</strong></code><span class=keybinding>Left, Ctrl-B (Mac)</span></dt>
+      <dd>Move the cursor one character left, going to the previous line
+      when hitting the start of line.</dd>
+
+      <dt class=command id=command_goCharRight><code><strong>goCharRight</strong></code><span class=keybinding>Right, Ctrl-F (Mac)</span></dt>
+      <dd>Move the cursor one character right, going to the next line
+      when hitting the end of line.</dd>
+
+      <dt class=command id=command_goColumnLeft><code><strong>goColumnLeft</strong></code></dt>
+      <dd>Move the cursor one character left, but don't cross line boundaries.</dd>
+
+      <dt class=command id=command_goColumnRight><code><strong>goColumnRight</strong></code></dt>
+      <dd>Move the cursor one character right, don't cross line boundaries.</dd>
+
+      <dt class=command id=command_goWordLeft><code><strong>goWordLeft</strong></code><span class=keybinding>Alt-B (Mac)</span></dt>
+      <dd>Move the cursor to the start of the previous word.</dd>
+
+      <dt class=command id=command_goWordRight><code><strong>goWordRight</strong></code><span class=keybinding>Alt-F (Mac)</span></dt>
+      <dd>Move the cursor to the end of the next word.</dd>
+
+      <dt class=command id=command_goGroupLeft><code><strong>goGroupLeft</strong></code><span class=keybinding>Ctrl-Left (PC), Alt-Left (Mac)</span></dt>
+      <dd>Move to the left of the group before the cursor. A group is
+      a stretch of word characters, a stretch of punctuation
+      characters, a newline, or a stretch of <em>more than one</em>
+      whitespace character.</dd>
+
+      <dt class=command id=command_goGroupRight><code><strong>goGroupRight</strong></code><span class=keybinding>Ctrl-Right (PC), Alt-Right (Mac)</span></dt>
+      <dd>Move to the right of the group after the cursor
+      (see <a href="#command_goGroupLeft">above</a>).</dd>
+
+      <dt class=command id=command_delCharBefore><code><strong>delCharBefore</strong></code><span class=keybinding>Shift-Backspace, Ctrl-H (Mac)</span></dt>
+      <dd>Delete the character before the cursor.</dd>
+
+      <dt class=command id=command_delCharAfter><code><strong>delCharAfter</strong></code><span class=keybinding>Delete, Ctrl-D (Mac)</span></dt>
+      <dd>Delete the character after the cursor.</dd>
+
+      <dt class=command id=command_delWordBefore><code><strong>delWordBefore</strong></code><span class=keybinding>Alt-Backspace (Mac)</span></dt>
+      <dd>Delete up to the start of the word before the cursor.</dd>
+
+      <dt class=command id=command_delWordAfter><code><strong>delWordAfter</strong></code><span class=keybinding>Alt-D (Mac)</span></dt>
+      <dd>Delete up to the end of the word after the cursor.</dd>
+
+      <dt class=command id=command_delGroupBefore><code><strong>delGroupBefore</strong></code><span class=keybinding>Ctrl-Backspace (PC), Alt-Backspace (Mac)</span></dt>
+      <dd>Delete to the left of the <a href="#command_goGroupLeft">group</a> before the cursor.</dd>
+
+      <dt class=command id=command_delGroupAfter><code><strong>delGroupAfter</strong></code><span class=keybinding>Ctrl-Delete (PC), Ctrl-Alt-Backspace (Mac), Alt-Delete (Mac)</span></dt>
+      <dd>Delete to the start of the <a href="#command_goGroupLeft">group</a> after the cursor.</dd>
+
+      <dt class=command id=command_indentAuto><code><strong>indentAuto</strong></code><span class=keybinding>Shift-Tab</span></dt>
+      <dd>Auto-indent the current line or selection.</dd>
+
+      <dt class=command id=command_indentMore><code><strong>indentMore</strong></code><span class=keybinding>Ctrl-] (PC), Cmd-] (Mac)</span></dt>
+      <dd>Indent the current line or selection by one <a href="#option_indentUnit">indent unit</a>.</dd>
+
+      <dt class=command id=command_indentLess><code><strong>indentLess</strong></code><span class=keybinding>Ctrl-[ (PC), Cmd-[ (Mac)</span></dt>
+      <dd>Dedent the current line or selection by one <a href="#option_indentUnit">indent unit</a>.</dd>
+
+      <dt class=command id=command_insertTab><code><strong>insertTab</strong></code></dt>
+      <dd>Insert a tab character at the cursor.</dd>
+
+      <dt class=command id=command_defaultTab><code><strong>defaultTab</strong></code><span class=keybinding>Tab</span></dt>
+      <dd>If something is selected, indent it by
+      one <a href="#option_indentUnit">indent unit</a>. If nothing is
+      selected, insert a tab character.</dd>
+
+      <dt class=command id=command_transposeChars><code><strong>transposeChars</strong></code><span class=keybinding>Ctrl-T (Mac)</span></dt>
+      <dd>Swap the characters before and after the cursor.</dd>
+
+      <dt class=command id=command_newlineAndIndent><code><strong>newlineAndIndent</strong></code><span class=keybinding>Enter</span></dt>
+      <dd>Insert a newline and auto-indent the new line.</dd>
+
+      <dt class=command id=command_toggleOverwrite><code><strong>toggleOverwrite</strong></code><span class=keybinding>Insert</span></dt>
+      <dd>Flip the <a href="#toggleOverwrite">overwrite</a> flag.</dd>
+
+      <dt class=command id=command_save><code><strong>save</strong></code><span class=keybinding>Ctrl-S (PC), Cmd-S (Mac)</span></dt>
+      <dd>Not defined by the core library, only referred to in
+      key maps. Intended to provide an easy way for user code to define
+      a save command.</dd>
+
+      <dt class=command id=command_find><code><strong>find</strong></code><span class=keybinding>Ctrl-F (PC), Cmd-F (Mac)</span></dt>
+      <dt class=command id=command_findNext><code><strong>findNext</strong></code><span class=keybinding>Ctrl-G (PC), Cmd-G (Mac)</span></dt>
+      <dt class=command id=command_findPrev><code><strong>findPrev</strong></code><span class=keybinding>Shift-Ctrl-G (PC), Shift-Cmd-G (Mac)</span></dt>
+      <dt class=command id=command_replace><code><strong>replace</strong></code><span class=keybinding>Shift-Ctrl-F (PC), Cmd-Alt-F (Mac)</span></dt>
+      <dt class=command id=command_replaceAll><code><strong>replaceAll</strong></code><span class=keybinding>Shift-Ctrl-R (PC), Shift-Cmd-Alt-F (Mac)</span></dt>
+      <dd>Not defined by the core library, but defined in
+      the <a href="#addon_search">search addon</a> (or custom client
+      addons).</dd>
+
+    </dl>
+
 </section>
 
 <section id=styling>
@@ -1088,7 +1272,7 @@
       editor instance.</dd>
 
       <dt id="addKeyMap"><code><strong>cm.addKeyMap</strong>(map: object, bottom: boolean)</code></dt>
-      <dd>Attach an additional <a href="#keymaps">keymap</a> to the
+      <dd>Attach an additional <a href="#keymaps">key map</a> to the
       editor. This is mostly useful for addons that need to register
       some key handlers without trampling on
       the <a href="#option_extraKeys"><code>extraKeys</code></a>
@@ -1097,14 +1281,14 @@
       and <a href="#option_keyMap"><code>keyMap</code></a> options,
       and between them, the maps added earlier have a lower precedence
       than those added later, unless the <code>bottom</code> argument
-      was passed, in which case they end up below other keymaps added
+      was passed, in which case they end up below other key maps added
       with this method.</dd>
       <dt id="removeKeyMap"><code><strong>cm.removeKeyMap</strong>(map: object)</code></dt>
       <dd>Disable a keymap added
       with <a href="#addKeyMap"><code>addKeyMap</code></a>. Either
-      pass in the keymap object itself, or a string, which will be
+      pass in the key map object itself, or a string, which will be
       compared against the <code>name</code> property of the active
-      keymaps.</dd>
+      key maps.</dd>
 
       <dt id="addOverlay"><code><strong>cm.addOverlay</strong>(mode: string|object, ?options: object)</code></dt>
       <dd>Enable a highlighting overlay. This is a stateless mini-mode
@@ -2161,7 +2345,7 @@
         <dd>When enabled (which is the default), the pop-up will close
         when the editor is unfocused.</dd>
         <dt><code><strong>customKeys</strong>: keymap</code></dt>
-        <dd>Allows you to provide a custom keymap of keys to be active
+        <dd>Allows you to provide a custom key map of keys to be active
         when the pop-up is active. The handlers will be called with an
         extra argument, a handle to the completion menu, which
         has <code>moveFocus(n)</code>, <code>setFocus(n)</code>, <code>pick()</code>,
