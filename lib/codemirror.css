@@ -116,7 +116,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
   /* 30px is the magic margin used to hide the element's real scrollbars */
   /* See overflow: hidden in .CodeMirror */
   margin-bottom: -30px; margin-right: -30px;
-  padding-bottom: 30px; padding-right: 30px;
+  padding-bottom: 30px;
   height: 100%;
   outline: none; /* Prevent dragging from highlighting the element */
   position: relative;
@@ -125,6 +125,9 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
 }
 .CodeMirror-sizer {
   position: relative;
+  border-right: 30px solid transparent;
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
 }
 
 /* The fake, visible scrollbars. Used to force redraw during scrolling
@@ -199,16 +202,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
   white-space: pre-wrap;
   word-break: normal;
 }
-.CodeMirror-code pre {
-  border-right: 30px solid transparent;
-  width: -webkit-fit-content;
-  width: -moz-fit-content;
-  width: fit-content;
-}
-.CodeMirror-wrap .CodeMirror-code pre {
-  border-right: none;
-  width: auto;
-}
+
 .CodeMirror-linebackground {
   position: absolute;
   left: 0; right: 0; top: 0; bottom: 0;

@@ -2408,6 +2408,10 @@ testVim('ex_substitute_backslash_replacement', function(cm, vim, helpers) {
   helpers.doEx('%s/,/\\\\/g');
   eq('one\\two \n three\\four', cm.getValue());
 }, { value: 'one,two \n three,four'});
+testVim('ex_substitute_multibackslash_replacement', function(cm, vim, helpers) {
+  helpers.doEx('%s/,/\\\\\\\\\\\\\\\\/g'); // 16 backslashes.
+  eq('one\\\\\\\\two \n three\\\\\\\\four', cm.getValue()); // 2*8 backslashes.
+}, { value: 'one,two \n three,four'});
 testVim('ex_substitute_count', function(cm, vim, helpers) {
   cm.setCursor(1, 0);
   helpers.doEx('s/\\d/0/i 2');
