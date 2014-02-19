@@ -96,6 +96,24 @@
     return wrapRange(this, Pos(para.from, 0), Pos(para.to - 1), options);
   });
 
+  CodeMirror.commands.wrapLines = function(cm) {
+    cm.operation(function() {
+      var ranges = cm.listSelections(), at = cm.lastLine() + 1;
+      for (var i = ranges.length - 1; i >= 0; i--) {
+        var range = ranges[i], span;
+        if (range.empty()) {
+          var para = findParagraph(cm, range.head, {});
+          span = {from: Pos(para.from, 0), to: Pos(para.to - 1)};
+        } else {
+          span = {from: range.from(), to: range.to()};
+        }
+        if (span.to.line >= at) continue;
+        at = span.from.line;
+        wrapRange(cm, span.from, span.to, {});
+      }
+    });
+  };
+
   CodeMirror.defineExtension("wrapRange", function(from, to, options) {
     return wrapRange(this, from, to, options || {});
   });
