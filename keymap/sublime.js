@@ -82,11 +82,29 @@
     cm.setSelections(extended, primIndex);
   };
 
+  function wordAt(cm, pos) {
+    var start = pos.ch, end = start, line = cm.getLine(pos.line);
+    while (start && CodeMirror.isWordChar(line.charAt(start - 1))) --start;
+    while (end < line.length && CodeMirror.isWordChar(line.charAt(end))) ++end;
+    return {from: Pos(pos.line, start), to: Pos(pos.line, end), word: line.slice(start, end)};
+  }
+
   cmds[map[ctrl + "D"] = "selectNextOccurrence"] = function(cm) {
-    var at = cm.getCursor("to");
-    var cur = cm.getSearchCursor(cm.getRange(cm.getCursor("from"), at), at);
-    if (!cur.findNext()) return;
-    cm.addSelection(cur.from(), cur.to());
+    var from = cm.getCursor("from"), to = cm.getCursor("to");
+    var fullWord = cm.state.sublimeFindFullWord == cm.doc.sel;
+    if (CodeMirror.cmpPos(from, to) == 0) {
+      var word = wordAt(cm, from);
+      if (!word.word) return;
+      cm.setSelection(word.from, word.to);
+      fullWord = true;
+    } else {
+      var query = cm.getRange(from, to);
+      var cur = cm.getSearchCursor(fullWord ? new RegExp("\\b" + query + "\\b") : query, to);
+      if (cur.findNext())
+        cm.addSelection(cur.from(), cur.to());
+    }
+    if (fullWord)
+      cm.state.sublimeFindFullWord = cm.doc.sel;
   };
 
   var mirror = "(){}[]";
@@ -324,12 +342,9 @@
       for (var i = indices.length - 1, at; i >= 0; i--) {
         var range = ranges[indices[i]];
         if (at && CodeMirror.cmpPos(range.head, at) > 0) continue;
-        var start = range.head.ch, end = start, line = cm.getLine(range.head.line);
-        while (start && CodeMirror.isWordChar(line.charAt(start - 1))) --start;
-        while (end < line.length && CodeMirror.isWordChar(line.charAt(end))) ++end;
-        at = Pos(range.head.line, start);
-        cm.replaceRange(mod(line.slice(start, end)),
-                        at, Pos(range.head.line, end));
+        var word = wordAt(cm, range.head);
+        at = word.from;
+        cm.replaceRange(mod(word.word), word.from, word.to);
       }
     });
   }
