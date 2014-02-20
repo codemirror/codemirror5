@@ -271,6 +271,7 @@
     { keys: ['v'], type: 'action', action: 'toggleVisualMode' },
     { keys: ['V'], type: 'action', action: 'toggleVisualMode',
         actionArgs: { linewise: true }},
+    { keys: ['g', 'v'], type: 'action', action: 'reselectLastSelection' },
     { keys: ['J'], type: 'action', action: 'joinLines', isEdit: true },
     { keys: ['p'], type: 'action', action: 'paste', isEdit: true,
         actionArgs: { after: true, isEdit: true }},
@@ -547,7 +548,8 @@
         macroModeState: createMacroState(),
         // Recording latest f, t, F or T motion command.
         lastChararacterSearch: {increment:0, forward:true, selectedCharacter:''},
-        registerController: new RegisterController({})
+        registerController: new RegisterController({}),
+        lastSelection: null
       };
     }
 
@@ -1665,10 +1667,13 @@
           cm.setCursor(curOriginal);
         }
       },
-      yank: function(cm, operatorArgs, _vim, curStart, curEnd, curOriginal) {
+      yank: function(cm, operatorArgs, vim, curStart, curEnd, curOriginal) {
         vimGlobalState.registerController.pushText(
             operatorArgs.registerName, 'yank',
             cm.getRange(curStart, curEnd), operatorArgs.linewise);
+        if (vim.visualMode) {
+          vimGlobalState.lastSelection = {'curStart': curStart, 'curEnd': curEnd};
+        }
         cm.setCursor(curOriginal);
       }
     };
@@ -1833,6 +1838,7 @@
         } else {
           curStart = cm.getCursor('anchor');
           curEnd = cm.getCursor('head');
+          vimGlobalState.lastSelection = {'curStart': curStart, 'curEnd': curEnd};
           if (!vim.visualLine && actionArgs.linewise) {
             // Shift-V pressed in characterwise visual mode. Switch to linewise
             // visual mode instead of exiting visual mode.
@@ -1856,6 +1862,12 @@
             : curEnd);
         updateMark(cm, vim, '>', cursorIsBefore(curStart, curEnd) ? curEnd
             : curStart);
+      },
+      reselectLastSelection: function(cm, _actionArgs, _vim) {
+        if (vimGlobalState.lastSelection) {
+          var lastSelection = vimGlobalState.lastSelection;
+          cm.setSelection(lastSelection.curStart, lastSelection.curEnd);
+        }
       },
       joinLines: function(cm, actionArgs, vim) {
         var curStart, curEnd;
