@@ -2412,6 +2412,22 @@ testVim('ex_substitute_multibackslash_replacement', function(cm, vim, helpers) {
   helpers.doEx('%s/,/\\\\\\\\\\\\\\\\/g'); // 16 backslashes.
   eq('one\\\\\\\\two \n three\\\\\\\\four', cm.getValue()); // 2*8 backslashes.
 }, { value: 'one,two \n three,four'});
+testVim('ex_substitute_braces_word', function(cm, vim, helpers) {
+  helpers.doEx('%s/\\(ab\\)\\{2\\}//g');
+  eq('ab abb ab{2}', cm.getValue());
+}, { value: 'ababab abb ab{2}'});
+testVim('ex_substitute_braces_range', function(cm, vim, helpers) {
+  helpers.doEx('%s/a\\{2,3\\}//g');
+  eq('a   a', cm.getValue());
+}, { value: 'a aa aaa aaaa'});
+testVim('ex_substitute_braces_literal', function(cm, vim, helpers) {
+  helpers.doEx('%s/ab{2}//g');
+  eq('ababab abb ', cm.getValue());
+}, { value: 'ababab abb ab{2}'});
+testVim('ex_substitute_braces_char', function(cm, vim, helpers) {
+  helpers.doEx('%s/ab\\{2\\}//g');
+  eq('ababab  ab{2}', cm.getValue());
+}, { value: 'ababab abb ab{2}'});
 testVim('ex_substitute_count', function(cm, vim, helpers) {
   cm.setCursor(1, 0);
   helpers.doEx('s/\\d/0/i 2');
