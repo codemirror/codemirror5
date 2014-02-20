@@ -2428,6 +2428,10 @@ testVim('ex_substitute_braces_char', function(cm, vim, helpers) {
   helpers.doEx('%s/ab\\{2\\}//g');
   eq('ababab  ab{2}', cm.getValue());
 }, { value: 'ababab abb ab{2}'});
+testVim('ex_substitute_braces_no_escape', function(cm, vim, helpers) {
+  helpers.doEx('%s/ab\\{2}//g');
+  eq('ababab  ab{2}', cm.getValue());
+}, { value: 'ababab abb ab{2}'});
 testVim('ex_substitute_count', function(cm, vim, helpers) {
   cm.setCursor(1, 0);
   helpers.doEx('s/\\d/0/i 2');
