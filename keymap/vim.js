@@ -2783,8 +2783,9 @@
             if (unescape.indexOf(n) != -1) {
               specialComesNext = true;
             }
+            // Not passing this test means removing a '\'.
             if (!specialComesNext || n === '\\') {
-              out.push('\\');
+              out.push(c);
             }
           } else {
             out.push(c);

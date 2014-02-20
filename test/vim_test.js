@@ -267,6 +267,7 @@ testJumplist('jumplist_skip_delted_mark<c-o>',
 testJumplist('jumplist_skip_delted_mark<c-i>',
              ['*', 'n', 'n', 'k', 'd', 'k', '<C-o>', '<C-i>', '<C-i>'],
              [1,0], [0,2]);
+
 /**
  * @param name Name of the test
  * @param keys An array of keys or a string with a single key to simulate.
@@ -1572,6 +1573,13 @@ testVim('/_case', function(cm, vim, helpers) {
   helpers.doKeys('/');
   helpers.assertCursorAt(1, 6);
 }, { value: 'match nope match \n nope Match' });
+testVim('/_2', function(cm, vim, helpers) {
+  cm.openDialog = helpers.fakeOpenDialog('\\(word\\)\\{2}');
+  helpers.doKeys('/');
+  helpers.assertCursorAt(1, 9);
+  helpers.doKeys('n');
+  helpers.assertCursorAt(2, 1);
+}, { value: 'word\n another wordword\n wordwordword\n' });
 testVim('/_nongreedy', function(cm, vim, helpers) {
   cm.openDialog = helpers.fakeOpenDialog('aa');
   helpers.doKeys('/');
