@@ -2760,10 +2760,11 @@
     }
 
     // Translates a search string from ex (vim) syntax into javascript form.
-    // For any character in the string that matches one of the specials, adds a '\'
-    // if unescaped, or removes one if escaped.
     function fixRegex(str) {
-      var specials = ['|', '(', ')'];
+      // When these match, add a '\' if unescaped or remove one if escaped.
+      var specials = ['|', '(', ')', '{'];
+      // Remove, but never add, a '\' for these.
+      var unescape = ['}'];
       var escapeNextChar = false;
       var out = [];
       for (var i = -1; i < str.length; i++) {
@@ -2778,8 +2779,13 @@
         } else {
           if (c === '\\') {
             escapeNextChar = true;
+            // Treat the unescape list as special for removing, but not adding '\'.
+            if (unescape.indexOf(n) != -1) {
+              specialComesNext = true;
+            }
+            // Not passing this test means removing a '\'.
             if (!specialComesNext || n === '\\') {
-              out.push('\\');
+              out.push(c);
             }
           } else {
             out.push(c);

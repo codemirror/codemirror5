@@ -267,6 +267,7 @@ testJumplist('jumplist_skip_delted_mark<c-o>',
 testJumplist('jumplist_skip_delted_mark<c-i>',
              ['*', 'n', 'n', 'k', 'd', 'k', '<C-o>', '<C-i>', '<C-i>'],
              [1,0], [0,2]);
+
 /**
  * @param name Name of the test
  * @param keys An array of keys or a string with a single key to simulate.
@@ -1572,6 +1573,13 @@ testVim('/_case', function(cm, vim, helpers) {
   helpers.doKeys('/');
   helpers.assertCursorAt(1, 6);
 }, { value: 'match nope match \n nope Match' });
+testVim('/_2', function(cm, vim, helpers) {
+  cm.openDialog = helpers.fakeOpenDialog('\\(word\\)\\{2}');
+  helpers.doKeys('/');
+  helpers.assertCursorAt(1, 9);
+  helpers.doKeys('n');
+  helpers.assertCursorAt(2, 1);
+}, { value: 'word\n another wordword\n wordwordword\n' });
 testVim('/_nongreedy', function(cm, vim, helpers) {
   cm.openDialog = helpers.fakeOpenDialog('aa');
   helpers.doKeys('/');
@@ -2412,6 +2420,26 @@ testVim('ex_substitute_multibackslash_replacement', function(cm, vim, helpers) {
   helpers.doEx('%s/,/\\\\\\\\\\\\\\\\/g'); // 16 backslashes.
   eq('one\\\\\\\\two \n three\\\\\\\\four', cm.getValue()); // 2*8 backslashes.
 }, { value: 'one,two \n three,four'});
+testVim('ex_substitute_braces_word', function(cm, vim, helpers) {
+  helpers.doEx('%s/\\(ab\\)\\{2\\}//g');
+  eq('ab abb ab{2}', cm.getValue());
+}, { value: 'ababab abb ab{2}'});
+testVim('ex_substitute_braces_range', function(cm, vim, helpers) {
+  helpers.doEx('%s/a\\{2,3\\}//g');
+  eq('a   a', cm.getValue());
+}, { value: 'a aa aaa aaaa'});
+testVim('ex_substitute_braces_literal', function(cm, vim, helpers) {
+  helpers.doEx('%s/ab{2}//g');
+  eq('ababab abb ', cm.getValue());
+}, { value: 'ababab abb ab{2}'});
+testVim('ex_substitute_braces_char', function(cm, vim, helpers) {
+  helpers.doEx('%s/ab\\{2\\}//g');
+  eq('ababab  ab{2}', cm.getValue());
+}, { value: 'ababab abb ab{2}'});
+testVim('ex_substitute_braces_no_escape', function(cm, vim, helpers) {
+  helpers.doEx('%s/ab\\{2}//g');
+  eq('ababab  ab{2}', cm.getValue());
+}, { value: 'ababab abb ab{2}'});
 testVim('ex_substitute_count', function(cm, vim, helpers) {
   cm.setCursor(1, 0);
   helpers.doEx('s/\\d/0/i 2');
