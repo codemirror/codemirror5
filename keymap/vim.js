@@ -271,6 +271,7 @@
     { keys: ['v'], type: 'action', action: 'toggleVisualMode' },
     { keys: ['V'], type: 'action', action: 'toggleVisualMode',
         actionArgs: { linewise: true }},
+    { keys: ['g', 'v'], type: 'action', action: 'reselectLastSelection' },
     { keys: ['J'], type: 'action', action: 'joinLines', isEdit: true },
     { keys: ['p'], type: 'action', action: 'paste', isEdit: true,
         actionArgs: { after: true, isEdit: true }},
@@ -531,7 +532,8 @@
           insertModeRepeat: undefined,
           visualMode: false,
           // If we are in visual line mode. No effect if visualMode is false.
-          visualLine: false
+          visualLine: false,
+          lastSelection: null
         };
       }
       return cm.state.vim;
@@ -1857,6 +1859,21 @@
         updateMark(cm, vim, '>', cursorIsBefore(curStart, curEnd) ? curEnd
             : curStart);
       },
+      reselectLastSelection: function(cm, _actionArgs, vim) {
+        if (vim.lastSelection) {
+          var lastSelection = vim.lastSelection;
+          cm.setSelection(lastSelection.curStart, lastSelection.curEnd);
+          if (lastSelection.visualLine) {
+            vim.visualMode = true;
+            vim.visualLine = true;
+          }
+          else {
+            vim.visualMode = true;
+            vim.visualLine = false;
+          }
+          CodeMirror.signal(cm, "vim-mode-change", {mode: "visual", subMode: vim.visualLine ? "linewise" : ""});
+        }
+      },
       joinLines: function(cm, actionArgs, vim) {
         var curStart, curEnd;
         if (vim.visualMode) {
@@ -2120,6 +2137,10 @@
     function exitVisualMode(cm) {
       cm.off('mousedown', exitVisualMode);
       var vim = cm.state.vim;
+      // can't use selection state here because yank has already reset its cursor
+      vim.lastSelection = {'curStart': vim.marks['<'].find(),
+        'curEnd': vim.marks['>'].find(), 'visualMode': vim.visualMode,
+        'visualLine': vim.visualLine};
       vim.visualMode = false;
       vim.visualLine = false;
       var selectionStart = cm.getCursor('anchor');
