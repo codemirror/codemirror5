@@ -477,18 +477,22 @@
       that used to be between <code>from</code> and <code>to</code>,
       which is overwritten by this change.</dd>
 
+      <dt id="event_changes"><code><strong>"changes"</strong> (instance: CodeMirror, changes: array&lt;object&lt;)</dt>
+      <dd>Like the <a href="#event_change"><code>"change"</code></a>
+      event, but batched per <a href="#operation">operation</a>,
+      passing an array containing all the changes that happened in the
+      operation.</dd>
+
       <dt id="event_beforeChange"><code><strong>"beforeChange"</strong> (instance: CodeMirror, changeObj: object)</code></dt>
       <dd>This event is fired before a change is applied, and its
       handler may choose to modify or cancel the change.
       The <code>changeObj</code> object
       has <code>from</code>, <code>to</code>, and <code>text</code>
       properties, as with
-      the <a href="#event_change"><code>"change"</code></a> event, but
-      never a <code>next</code> property, since this is fired for each
-      individual change, and not batched per operation. It also has
-      a <code>cancel()</code> method, which can be called to cancel
-      the change, and, <strong>if</strong> the change isn't coming
-      from an undo or redo event, an <code>update(from, to,
+      the <a href="#event_change"><code>"change"</code></a> event. It
+      also has a <code>cancel()</code> method, which can be called to
+      cancel the change, and, <strong>if</strong> the change isn't
+      coming from an undo or redo event, an <code>update(from, to,
       text)</code> method, which may be used to modify the change.
       Undo or redo changes can't be modified, because they hold some
       metainformation for restoring old marked ranges that is only
@@ -599,9 +603,7 @@
       document. <code>changeObj</code> has a similar type as the
       object passed to the
       editor's <a href="#event_change"><code>"change"</code></a>
-      event, but it never has a <code>next</code> property, because
-      document change events are not batched (whereas editor change
-      events are).</dd>
+      event.</dd>
 
       <dt id="event_doc_beforeChange"><code><strong>"beforeChange"</strong> (doc: CodeMirror.Doc, change: object)</code></dt>
       <dd>See the <a href="#event_beforeChange">description of the
