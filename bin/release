@@ -36,6 +36,6 @@ rewrite("doc/compress.html", function(cmp) {
 });
 
 rewrite("index.html", function(index) {
-  return index.replace(/<strong>version 3.20<\/strong>/,
+  return index.replace(/<strong>version \d+\.\d+<\/strong>/,
                        "<strong>version " + simple + "</strong>");
 });
