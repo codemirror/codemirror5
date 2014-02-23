@@ -38,6 +38,8 @@ CodeMirror.defineMode("toml", function () {
         return 'bracket';
       } else if (state.lhs && stream.peek() === '[' && stream.skipTo(']')) {
         stream.next();//skip closing ]
+        // array of objects has an extra open & close []
+        if (stream.peek() === ']') stream.next();
         return "atom";
       } else if (stream.peek() === "#") {
         stream.skipToEnd();
