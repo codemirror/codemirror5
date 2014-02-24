@@ -532,7 +532,8 @@
           insertModeRepeat: undefined,
           visualMode: false,
           // If we are in visual line mode. No effect if visualMode is false.
-          visualLine: false
+          visualLine: false,
+          lastSelection: null
         };
       }
       return cm.state.vim;
@@ -548,8 +549,7 @@
         macroModeState: createMacroState(),
         // Recording latest f, t, F or T motion command.
         lastChararacterSearch: {increment:0, forward:true, selectedCharacter:''},
-        registerController: new RegisterController({}),
-        lastSelection: null
+        registerController: new RegisterController({})
       };
     }
 
@@ -1859,9 +1859,9 @@
         updateMark(cm, vim, '>', cursorIsBefore(curStart, curEnd) ? curEnd
             : curStart);
       },
-      reselectLastSelection: function(cm, _actionArgs, _vim) {
-        if (vimGlobalState.lastSelection) {
-          var lastSelection = vimGlobalState.lastSelection;
+      reselectLastSelection: function(cm, _actionArgs, vim) {
+        if (vim.lastSelection) {
+          var lastSelection = vim.lastSelection;
           cm.setSelection(lastSelection.curStart, lastSelection.curEnd);
         }
       },
@@ -2139,7 +2139,7 @@
         cm.setCursor(clipCursorToContent(cm, selectionEnd));
       }
       // can't use selection* vars because yank resets its cursor
-      vimGlobalState.lastSelection = {'curStart': vim.marks['<'].find(),
+      vim.lastSelection = {'curStart': vim.marks['<'].find(),
         'curEnd': vim.marks['>'].find()};
       CodeMirror.signal(cm, "vim-mode-change", {mode: "normal"});
     }
