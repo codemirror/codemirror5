@@ -1667,13 +1667,10 @@
           cm.setCursor(curOriginal);
         }
       },
-      yank: function(cm, operatorArgs, vim, curStart, curEnd, curOriginal) {
+      yank: function(cm, operatorArgs, _vim, curStart, curEnd, curOriginal) {
         vimGlobalState.registerController.pushText(
             operatorArgs.registerName, 'yank',
             cm.getRange(curStart, curEnd), operatorArgs.linewise);
-        if (vim.visualMode) {
-          vimGlobalState.lastSelection = {'curStart': curStart, 'curEnd': curEnd};
-        }
         cm.setCursor(curOriginal);
       }
     };
@@ -1838,7 +1835,6 @@
         } else {
           curStart = cm.getCursor('anchor');
           curEnd = cm.getCursor('head');
-          vimGlobalState.lastSelection = {'curStart': curStart, 'curEnd': curEnd};
           if (!vim.visualLine && actionArgs.linewise) {
             // Shift-V pressed in characterwise visual mode. Switch to linewise
             // visual mode instead of exiting visual mode.
@@ -2142,6 +2138,9 @@
         // it's not supposed to be.
         cm.setCursor(clipCursorToContent(cm, selectionEnd));
       }
+      // can't use selection* vars because yank resets its cursor
+      vimGlobalState.lastSelection = {'curStart': vim.marks['<'].find(),
+        'curEnd': vim.marks['>'].find()};
       CodeMirror.signal(cm, "vim-mode-change", {mode: "normal"});
     }
 

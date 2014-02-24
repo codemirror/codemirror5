@@ -1526,6 +1526,13 @@ testVim('visual_blank', function(cm, vim, helpers) {
   helpers.doKeys('v', 'k');
   eq(vim.visualMode, true);
 }, { value: '\n' });
+testVim('reselect_visual', function(cm, vim, helpers) {
+  helpers.doKeys('l', 'v', 'l', 'l', 'y', 'g', 'v');
+  helpers.assertCursorAt(0, 3);
+  eqPos(makeCursor(0, 1), cm.getCursor('anchor'));
+  helpers.doKeys('d');
+  eq('15', cm.getValue());
+}, { value: '12345' });
 testVim('s_normal', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.doKeys('s');
@@ -2357,7 +2364,7 @@ testVim('ex_substitute_nocapture', function(cm, vim, helpers) {
 }, { value: 'a11 a12 a13' });
 testVim('ex_substitute_nocapture2', function(cm, vim, helpers) {
   cm.setCursor(1, 0);
-  // \$n should be literal, since that is the javascript form, not VIM. 
+  // \$n should be literal, since that is the javascript form, not VIM.
   helpers.doEx('s/\\(\\d+\\)/\\$1\\1/')
   eq('a $10 b', cm.getValue());
 }, { value: 'a 0 b' });
