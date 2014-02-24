@@ -2771,43 +2771,71 @@
       return slashes;
     }
 
-    // For any character in the string that matches one of the specials,
-    // adds a '\' if unescaped, or removes one if escaped. If fixBackReferences
-    // is true, translates '\[0..9]' to '$[0..9]'
-    function flipEscaping(str, specials, fixBackReferences) {
+    // Translates a search string from ex (vim) syntax into javascript form.
+    function fixRegex(str) {
+      // When these match, add a '\' if unescaped or remove one if escaped.
+      var specials = ['|', '(', ')', '{'];
+      // Remove, but never add, a '\' for these.
+      var unescape = ['}'];
       var escapeNextChar = false;
       var out = [];
       for (var i = -1; i < str.length; i++) {
         var c = str.charAt(i) || '';
         var n = str.charAt(i+1) || '';
-        var specialComesNext = false;
-        for (var j = 0; j < specials.length; j++) {
-          if (n === specials[j]) {
-            specialComesNext = true;
-            break;
-          }
-        }
+        var specialComesNext = (specials.indexOf(n) != -1);
         if (escapeNextChar) {
           if (c !== '\\' || !specialComesNext) {
             out.push(c);
-            escapeNextChar = false;
-          } else {
-            escapeNextChar = true;
           }
+          escapeNextChar = false;
         } else {
           if (c === '\\') {
             escapeNextChar = true;
-            if (fixBackReferences && (isNumber(n) || n === '$')) {
+            // Treat the unescape list as special for removing, but not adding '\'.
+            if (unescape.indexOf(n) != -1) {
+              specialComesNext = true;
+            }
+            // Not passing this test means removing a '\'.
+            if (!specialComesNext || n === '\\') {
+              out.push(c);
+            }
+          } else {
+            out.push(c);
+            if (specialComesNext && n !== '\\') {
+              out.push('\\');
+            }
+          }
+        }
+      }
+      return out.join('');
+    }
+
+    // Translates the replace part of a search and replace from ex (vim) syntax into
+    // javascript form.  Similar to fixRegex, but additionally fixes back references
+    // (translates '\[0..9]' to '$[0..9]') and follows different rules for escaping '$'.
+    function fixRegexReplace(str) {
+      var escapeNextChar = false;
+      var out = [];
+      for (var i = -1; i < str.length; i++) {
+        var c = str.charAt(i) || '';
+        var n = str.charAt(i+1) || '';
+        if (escapeNextChar) {
+          out.push(c);
+          escapeNextChar = false;
+        } else {
+          if (c === '\\') {
+            escapeNextChar = true;
+            if ((isNumber(n) || n === '$')) {
               out.push('$');
-            } else if (!specialComesNext) {
+            } else if (n !== '/' && n !== '\\') {
               out.push('\\');
             }
           } else {
-            if (fixBackReferences && c === '$') {
+            if (c === '$') {
               out.push('$');
             }
             out.push(c);
-            if (specialComesNext && n !== '\\') {
+            if (n === '/') {
               out.push('\\');
             }
           }
@@ -2847,7 +2875,7 @@
       if (!regexPart) {
         return null;
       }
-      regexPart = flipEscaping(regexPart, ['|', '(', ')'], false);
+      regexPart = fixRegex(regexPart);
       if (smartCase) {
         ignoreCase = (/^[^A-Z]*$/).test(regexPart);
       }
@@ -3342,7 +3370,7 @@
         var confirm = false; // Whether to confirm each replace.
         if (slashes[1]) {
           replacePart = argString.substring(slashes[1] + 1, slashes[2]);
-          replacePart = flipEscaping(replacePart, ['\\', '/'], true);
+          replacePart = fixRegexReplace(replacePart);
         }
         if (slashes[2]) {
           // After the 3rd slash, we can have flags followed by a space followed

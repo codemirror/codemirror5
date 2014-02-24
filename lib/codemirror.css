@@ -59,6 +59,11 @@ div.CodeMirror-overwrite div.CodeMirror-cursor {}
 
 .cm-tab { display: inline-block; }
 
+.CodeMirror-ruler {
+  border-left: 1px solid #ccc;
+  position: absolute;
+}
+
 /* DEFAULT THEME */
 
 .cm-s-default .cm-keyword {color: #708;}
