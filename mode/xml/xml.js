@@ -34,14 +34,16 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
     },
     doNotIndent: {"pre": true},
     allowUnquoted: true,
-    allowMissing: true
+    allowMissing: true,
+    caseFold: true
   } : {
     autoSelfClosers: {},
     implicitlyClosed: {},
     contextGrabbers: {},
     doNotIndent: {},
     allowUnquoted: false,
-    allowMissing: false
+    allowMissing: false,
+    caseFold: false
   };
   var alignCDATA = parserConfig.alignCDATA;
 
@@ -77,6 +79,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
         tagName = "";
         var c;
         while ((c = stream.eat(/[^\s\u00a0=<>\"\'\/?]/))) tagName += c;
+        if (Kludges.caseFold) tagName = tagName.toLowerCase();
         if (!tagName) return "tag error";
         type = isClose ? "closeTag" : "openTag";
         state.tokenize = inTag;
@@ -189,7 +192,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
       if (!state.context) {
         return;
       }
-      parentTagName = state.context.tagName.toLowerCase();
+      parentTagName = state.context.tagName;
       if (!Kludges.contextGrabbers.hasOwnProperty(parentTagName) ||
           !Kludges.contextGrabbers[parentTagName].hasOwnProperty(nextTagName)) {
         return;
@@ -207,7 +210,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
       var err = false;
       if (state.context) {
         if (state.context.tagName != tagName) {
-          if (Kludges.implicitlyClosed.hasOwnProperty(state.context.tagName.toLowerCase()))
+          if (Kludges.implicitlyClosed.hasOwnProperty(state.context.tagName))
             popContext(state);
           err = !state.context || state.context.tagName != tagName;
         }
@@ -241,10 +244,10 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
       var tagName = state.tagName, tagStart = state.tagStart;
       state.tagName = state.tagStart = null;
       if (type == "selfcloseTag" ||
-          Kludges.autoSelfClosers.hasOwnProperty(tagName.toLowerCase())) {
-        maybePopContext(state, tagName.toLowerCase());
+          Kludges.autoSelfClosers.hasOwnProperty(tagName)) {
+        maybePopContext(state, tagName);
       } else {
-        maybePopContext(state, tagName.toLowerCase());
+        maybePopContext(state, tagName);
         state.context = new Context(state, tagName, tagStart == state.indented);
       }
       return baseState;
