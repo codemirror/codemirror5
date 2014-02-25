@@ -1775,3 +1775,11 @@ testCM("selectionChangeReducesRedo", function(cm) {
   cm.undoSelection();
   eq(cm.getValue(), "abc");
 }, {value: "abc"});
+
+testCM("selectionHistoryNonOverlapping", function(cm) {
+  cm.setSelection(Pos(0, 0), Pos(0, 1));
+  cm.setSelection(Pos(0, 2), Pos(0, 3));
+  cm.execCommand("undoSelection");
+  eqPos(cm.getCursor("anchor"), Pos(0, 0));
+  eqPos(cm.getCursor("head"), Pos(0, 1));
+}, {value: "1234"});
