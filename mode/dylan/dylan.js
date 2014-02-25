@@ -136,6 +136,14 @@ CodeMirror.defineMode("dylan", function (config, parserConfig) {
         return 'dylan-' + (style || _type);
     }
 
+    function indent(_stream, state) {
+        state.currentIndent++;
+    }
+    
+    function dedent(_stream, state) {
+        state.currentIndent--;
+    }
+
     function tokenBase(stream, state) {
         // String
         var ch = stream.peek();
@@ -194,6 +202,7 @@ CodeMirror.defineMode("dylan", function (config, parserConfig) {
                 return ret('hash');
             }
         } else if (stream.match('end')) {
+            dedent(stream, state);
             return ret('end', 'keyword');
         }
         for (var name in patterns) {
@@ -206,6 +215,7 @@ CodeMirror.defineMode("dylan", function (config, parserConfig) {
             }
         }
         if (stream.match("define")) {
+            indent(stream, state);
             return ret("definition");
         } else {
             stream.eatWhile(/[\w\-]/);
@@ -253,7 +263,8 @@ CodeMirror.defineMode("dylan", function (config, parserConfig) {
     return {
         startState: function (baseColumn) {
             return {
-                tokenize: tokenBase
+                tokenize: tokenBase,
+                currentIndent: 0
             };
         },
         token: function (stream, state) {
@@ -266,7 +277,7 @@ CodeMirror.defineMode("dylan", function (config, parserConfig) {
             console.log(state, textAfter);
             if (state.tokenize != tokenBase)
                 return 0;
-            return 0;
+            return state.currentIndent * config.indentUnit;
         },
         blockCommentStart: "/*",
         blockCommentEnd: "*/"
