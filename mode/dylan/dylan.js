@@ -1,4 +1,4 @@
-CodeMirror.defineMode("dylan", function(config, parserConfig) {
+CodeMirror.defineMode("dylan", function (config, parserConfig) {
 
     //// Words
     var words = {
@@ -7,8 +7,9 @@ CodeMirror.defineMode("dylan", function(config, parserConfig) {
 
         // Words that introduce simple named definitions like "define library"
         namedDefinition: ['module', 'library', 'macro',
-                          'C-struct', 'C-union',
-                          'C-function', 'C-callable-wrapper'],
+            'C-struct', 'C-union',
+            'C-function', 'C-callable-wrapper'
+        ],
 
         // Words that introduce type definitions like "define class".
         // These are also parameterized like "define method" and are
@@ -18,7 +19,8 @@ CodeMirror.defineMode("dylan", function(config, parserConfig) {
         // Words that introduce trickier definitions like "define method".
         // These require special definitions to be added to startExpressions
         otherParameterizedDefinition: ['method', 'function',
-                                       'C-variable', 'C-address'],
+            'C-variable', 'C-address'
+        ],
 
         // Words that introduce module constant definitions.
         // These must also be simple definitions and are
@@ -33,29 +35,34 @@ CodeMirror.defineMode("dylan", function(config, parserConfig) {
         // Other words that introduce simple definitions
         // (without implicit bodies).
         otherSimpleDefinition: ['generic', 'domain',
-                                'C-pointer-type',
-                                'table'],
+            'C-pointer-type',
+            'table'
+        ],
 
         // Words that begin statements with implicit bodies.
         statement: ['if', 'block', 'begin', 'method', 'case',
-                    'for', 'select', 'when', 'unless', 'until',
-                    'while', 'iterate', 'profiling', 'dynamic-bind'],
+            'for', 'select', 'when', 'unless', 'until',
+            'while', 'iterate', 'profiling', 'dynamic-bind'
+        ],
 
         // Patterns that act as separators in compound statements.
         // This may include any general pattern that must be indented
         // specially.
         separator: ['finally', 'exception', 'cleanup', 'else',
-                    'elseif', 'afterwards'],
+            'elseif', 'afterwards'
+        ],
 
         // Keywords that do not require special indentation handling,
         // but which should be highlighted
         other: ['above', 'below', 'by', 'from', 'handler', 'in',
-                'instance', 'let', 'local', 'otherwise', 'slot',
-                'subclass', 'then', 'to', 'keyed-by', 'virtual'],
+            'instance', 'let', 'local', 'otherwise', 'slot',
+            'subclass', 'then', 'to', 'keyed-by', 'virtual'
+        ],
 
         // Condition signaling function calls
         signalingCalls: ['signal', 'error', 'cerror',
-                         'break', 'check-type', 'abort']
+            'break', 'check-type', 'abort'
+        ]
     };
 
     words['otherDefinition'] =
@@ -97,37 +104,39 @@ CodeMirror.defineMode("dylan", function(config, parserConfig) {
         if (patterns.hasOwnProperty(patternName))
             patterns[patternName] = new RegExp("^" + patterns[patternName]);
 
-    // Names beginning "with-" and "without-" are commonly
-    // used as statement macro
+        // Names beginning "with-" and "without-" are commonly
+        // used as statement macro
     patterns['keyword'] = [/^with(?:out)?-[-_a-zA-Z?!*@<>$%]+/];
-    
+
     // protected words lookup table
     var wordLookup = {};
 
     [
-	'keyword', 
-	'definition', 
-	'simpleDefinition',
-	'signalingCalls'
+        'keyword',
+        'definition',
+        'simpleDefinition',
+        'signalingCalls'
     ].forEach(function (type) {
-	words[type].forEach(function(word) {
-		wordLookup[word] = type;
-	});
+        words[type].forEach(function (word) {
+            wordLookup[word] = type;
+        });
     });
 
 
-    function chain (stream, state, f) {
+    function chain(stream, state, f) {
         state.tokenize = f;
         return f(stream, state);
     }
 
     var type, content;
-    function ret (_type, style, _content) {
-        type = _type; content = _content;
+
+    function ret(_type, style, _content) {
+        type = _type;
+        content = _content;
         return 'dylan-' + (style || _type);
     }
 
-    function tokenBase (stream, state) {
+    function tokenBase(stream, state) {
         // String
         var ch = stream.peek();
         if (ch == '"' || ch == "'") {
@@ -139,12 +148,10 @@ CodeMirror.defineMode("dylan", function(config, parserConfig) {
             stream.next();
             if (stream.eat("*")) {
                 return chain(stream, state, tokenComment);
-            }
-            else if (stream.eat("/")) {
+            } else if (stream.eat("/")) {
                 stream.skipToEnd();
                 return ret("comment");
-            }
-            else {
+            } else {
                 stream.skipTo(" ");
                 return ret("operator");
             }
@@ -186,38 +193,37 @@ CodeMirror.defineMode("dylan", function(config, parserConfig) {
                 stream.eatWhile(/[-a-zA-Z]/);
                 return ret('hash');
             }
-        }
-        else if (stream.match('end')) {
+        } else if (stream.match('end')) {
             return ret('end', 'keyword');
         }
         for (var name in patterns) {
             if (patterns.hasOwnProperty(name)) {
                 var pattern = patterns[name];
-                if ((pattern instanceof Array
-                     && pattern.some(function (p) {
-                         return stream.match(p);
-                     })) || stream.match(pattern))
+                if ((pattern instanceof Array && pattern.some(function (p) {
+                    return stream.match(p);
+                })) || stream.match(pattern))
                     return ret(name, null, stream.current());
             }
         }
         if (stream.match("define")) {
             return ret("definition");
-	} else {
-	    stream.eatWhile(/[\w\-]/);
-	    // Keyword
-	    if(wordLookup[stream.current()]) {
-		return ret(wordLookup[stream.current()], null, stream.current());
+        } else {
+            stream.eatWhile(/[\w\-]/);
+            // Keyword
+            if (wordLookup[stream.current()]) {
+                return ret(wordLookup[stream.current()], null, stream.current());
             } else if (stream.current().match(symbol)) {
-            	return ret("variable");
-	    } else {
-		stream.next();
+                return ret("variable");
+            } else {
+                stream.next();
                 return ret("other");
-	    }
+            }
         }
     }
 
-    function tokenComment (stream, state) {
-        var maybeEnd = false, ch;
+    function tokenComment(stream, state) {
+        var maybeEnd = false,
+            ch;
         while ((ch = stream.next())) {
             if (ch == "/" && maybeEnd) {
                 state.tokenize = tokenBase;
@@ -228,7 +234,7 @@ CodeMirror.defineMode("dylan", function(config, parserConfig) {
         return ret("comment");
     }
 
-    function tokenString (quote, type) {
+    function tokenString(quote, type) {
         return function (stream, state) {
             var next, end = false;
             while ((next = stream.next()) != null) {
@@ -246,15 +252,17 @@ CodeMirror.defineMode("dylan", function(config, parserConfig) {
     // Interface
     return {
         startState: function (baseColumn) {
-            return {tokenize: tokenBase};
-//                    lexical: new Lexical((baseColumn || 0), 0, "block", false),
-//                    cc: []};
+            return {
+                tokenize: tokenBase
+            };
+            //                    lexical: new Lexical((baseColumn || 0), 0, "block", false),
+            //                    cc: []};
         },
         token: function (stream, state) {
             if (stream.eatSpace())
                 return null;
             var style = state.tokenize(stream, state);
-            return style;  // parseDylan(state, style, type, content, stream);
+            return style; // parseDylan(state, style, type, content, stream);
         },
         indent: function (state, textAfter) {
             console.log(state, textAfter);
@@ -262,8 +270,8 @@ CodeMirror.defineMode("dylan", function(config, parserConfig) {
                 return 0;
             return 0;
         },
-	blockCommentStart: "/*",
-	blockCommentEnd: "*/"
+        blockCommentStart: "/*",
+        blockCommentEnd: "*/"
     }
 });
 
