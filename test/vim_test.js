@@ -1533,6 +1533,10 @@ testVim('reselect_visual', function(cm, vim, helpers) {
   helpers.doKeys('d');
   eq('15', cm.getValue());
 }, { value: '12345' });
+testVim('reselect_visual_line', function(cm, vim, helpers) {
+  helpers.doKeys('l', 'V', 'l', 'j', 'j', 'V', 'g', 'v', 'd');
+  eq(' 4\n 5', cm.getValue());
+}, { value: ' 1\n 2\n 3\n 4\n 5' });
 testVim('s_normal', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.doKeys('s');

@@ -1864,7 +1864,7 @@
           var lastSelection = vim.lastSelection;
           cm.setSelection(lastSelection.curStart, lastSelection.curEnd);
           if (lastSelection.visualLine) {
-            vim.visualMode = false;
+            vim.visualMode = true;
             vim.visualLine = true;
           }
           else {
