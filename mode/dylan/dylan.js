@@ -274,7 +274,6 @@ CodeMirror.defineMode("dylan", function (config, parserConfig) {
             return style;
         },
         indent: function (state, textAfter) {
-            console.log(state, textAfter);
             if (state.tokenize != tokenBase)
                 return 0;
             return state.currentIndent * config.indentUnit;
