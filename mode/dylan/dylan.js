@@ -255,14 +255,12 @@ CodeMirror.defineMode("dylan", function (config, parserConfig) {
             return {
                 tokenize: tokenBase
             };
-            //                    lexical: new Lexical((baseColumn || 0), 0, "block", false),
-            //                    cc: []};
         },
         token: function (stream, state) {
             if (stream.eatSpace())
                 return null;
             var style = state.tokenize(stream, state);
-            return style; // parseDylan(state, style, type, content, stream);
+            return style;
         },
         indent: function (state, textAfter) {
             console.log(state, textAfter);
