@@ -1863,6 +1863,15 @@
         if (vim.lastSelection) {
           var lastSelection = vim.lastSelection;
           cm.setSelection(lastSelection.curStart, lastSelection.curEnd);
+          if (lastSelection.visualLine) {
+            vim.visualMode = false;
+            vim.visualLine = true;
+          }
+          else {
+            vim.visualMode = true;
+            vim.visualLine = false;
+          }
+          CodeMirror.signal(cm, "vim-mode-change", {mode: "visual", subMode: vim.visualLine ? "linewise" : ""});
         }
       },
       joinLines: function(cm, actionArgs, vim) {
@@ -2128,6 +2137,10 @@
     function exitVisualMode(cm) {
       cm.off('mousedown', exitVisualMode);
       var vim = cm.state.vim;
+      // can't use selection state here because yank has already reset its cursor
+      vim.lastSelection = {'curStart': vim.marks['<'].find(),
+        'curEnd': vim.marks['>'].find(), 'visualMode': vim.visualMode,
+        'visualLine': vim.visualLine};
       vim.visualMode = false;
       vim.visualLine = false;
       var selectionStart = cm.getCursor('anchor');
@@ -2138,9 +2151,6 @@
         // it's not supposed to be.
         cm.setCursor(clipCursorToContent(cm, selectionEnd));
       }
-      // can't use selection* vars because yank resets its cursor
-      vim.lastSelection = {'curStart': vim.marks['<'].find(),
-        'curEnd': vim.marks['>'].find()};
       CodeMirror.signal(cm, "vim-mode-change", {mode: "normal"});
     }
 
