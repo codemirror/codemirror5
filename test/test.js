@@ -1763,3 +1763,15 @@ testCM("selectionHistory", function(cm) {
   eq(cm.getSelection(), "");
   eqPos(cm.getCursor(), Pos(0, 6));
 }, {value: "a b c d"});
+
+testCM("selectionChangeReducesRedo", function(cm) {
+  cm.replaceSelection("X");
+  cm.execCommand("goCharRight");
+  cm.undoSelection();
+  cm.execCommand("selectAll");
+  cm.undoSelection();
+  eq(cm.getValue(), "Xabc");
+  eqPos(cm.getCursor(), Pos(0, 1));
+  cm.undoSelection();
+  eq(cm.getValue(), "abc");
+}, {value: "abc"});
