@@ -412,6 +412,40 @@
       return false;
     }
 
+    var options = {};
+    function defineOption(name, defaultValue, type) {
+      if (defaultValue === undefined) { throw Error('defaultValue is required'); }
+      if (!type) { type = 'boolean'; }
+      options[name] = {
+        type: type,
+        value: defaultValue
+      };
+    }
+
+    function setOption(name, value) {
+      var option = options[name];
+      if (!option) {
+        throw Error('Unknown option: ' + name);
+      }
+      if (option.type == 'boolean') {
+        if (value && value !== true) {
+          throw Error('Invalid argument: ' + name + '=' + value);
+        } else if (value !== false) {
+          // Boolean options are set to true if value is not defined.
+          value = true;
+        }
+      }
+      option.value = option.type == 'boolean' ? !!value : value;
+    }
+
+    function getOption(name) {
+      var option = options[name];
+      if (!option) {
+        throw Error('Unknown option: ' + name);
+      }
+      return option.value;
+    }
+
     var createCircularJumpList = function() {
       var size = 100;
       var pointer = -1;
@@ -3069,6 +3103,7 @@
       { name: 'write', shortName: 'w' },
       { name: 'undo', shortName: 'u' },
       { name: 'redo', shortName: 'red' },
+      { name: 'set', shortName: 'set' },
       { name: 'sort', shortName: 'sor' },
       { name: 'substitute', shortName: 's' },
       { name: 'nohlsearch', shortName: 'noh' },
@@ -3284,6 +3319,49 @@
             motionArgs: { forward: false, explicitRepeat: true,
               linewise: true },
             repeatOverride: params.line+1});
+      },
+      set: function(cm, params) {
+        var setArgs = params.args;
+        if (!setArgs || setArgs.length < 1) {
+          if (cm) {
+            showConfirm(cm, 'Invalid mapping: ' + params.input);
+          }
+          return;
+        }
+        var expr = setArgs[0].split('=');
+        var optionName = expr[0];
+        var value = expr[1];
+        var forceGet = false;
+
+        if (optionName.charAt(optionName.length - 1) == '?') {
+          // If post-fixed with ?, then the set is actually a get.
+          if (value) { throw Error('Trailing characters: ' + params.argString); }
+          optionName = optionName.substring(0, optionName.length - 1);
+          forceGet = true;
+        }
+        var optionIsBoolean = options[optionName] && options[optionName].type == 'boolean';
+        if (optionIsBoolean) {
+          if(!value && optionName.substring(0, 2) == 'no') {
+            // To set boolean options to false, the option name is prefixed with
+            // 'no'.
+            optionName = optionName.substring(2);
+            value = false;
+          } else if (value == undefined) {
+            // Calling set with a boolean option sets it to true.
+            value = true;
+          }
+        }
+        if (!optionIsBoolean && !value || forceGet) {
+          var oldValue = getOption(optionName);
+          // If no value is provided, then we assume this is a get.
+          if (oldValue === true || oldValue === false) {
+            showConfirm(cm, ' ' + (oldValue ? '' : 'no') + optionName);
+          } else {
+            showConfirm(cm, '  ' + optionName + '=' + oldValue);
+          }
+        } else {
+          setOption(optionName, value);
+        }
       },
       sort: function(cm, params) {
         var reverse, ignoreCase, unique, number;
