@@ -16,16 +16,11 @@
     } else {
       query = new RegExp("^(?:" + query.source + ")", query.ignoreCase ? "i" : "");
     }
-    if (typeof query == "string") return {token: function(stream) {
-      if (stream.match(query)) return "searching";
-      stream.next();
-      stream.skipTo(query.charAt(0)) || stream.skipToEnd();
-    }};
     return {token: function(stream) {
       if (stream.match(query)) return "searching";
       while (!stream.eol()) {
         stream.next();
-        if (startChar)
+        if (startChar && !caseInsensitive)
           stream.skipTo(startChar) || stream.skipToEnd();
         if (stream.match(query, false)) break;
       }
@@ -74,7 +69,7 @@
         if (!query || state.query) return;
         state.query = parseQuery(query);
         cm.removeOverlay(state.overlay, queryCaseInsensitive(state.query));
-        state.overlay = searchOverlay(state.query);
+        state.overlay = searchOverlay(state.query, queryCaseInsensitive(state.query));
         cm.addOverlay(state.overlay);
         state.posFrom = state.posTo = cm.getCursor();
         findNext(cm, rev);
