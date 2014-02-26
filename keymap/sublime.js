@@ -63,8 +63,9 @@
     for (var i = 0; i < ranges.length; i++) {
       var from = ranges[i].from(), to = ranges[i].to();
       for (var line = from.line; line <= to.line; ++line)
-        lineRanges.push({anchor: line == from.line ? from : Pos(line, 0),
-                         head: line == to.line ? to : Pos(line)});
+        if (!(to.line > from.line && line == to.line && to.ch == 0))
+          lineRanges.push({anchor: line == from.line ? from : Pos(line, 0),
+                           head: line == to.line ? to : Pos(line)});
     }
     cm.setSelections(lineRanges, 0);
   };
