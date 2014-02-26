@@ -920,6 +920,15 @@ testCM("nestedFoldOnSide", function(cm) {
   is(caught && /overlap/i.test(caught.message));
 }, {value: "ab\ncd\ef"});
 
+testCM("editInFold", function(cm) {
+  addDoc(cm, 4, 6);
+  var m = cm.markText(Pos(1, 2), Pos(3, 2), {collapsed: true});
+  cm.replaceRange("", Pos(0, 0), Pos(1, 3));
+  cm.replaceRange("", Pos(2, 1), Pos(3, 3));
+  cm.replaceRange("a\nb\nc\nd", Pos(0, 1), Pos(1, 0));
+  cm.cursorCoords(Pos(0, 0));
+});
+
 testCM("wrappingInlineWidget", function(cm) {
   cm.setSize("11em");
   var w = document.createElement("span");
