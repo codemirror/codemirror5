@@ -235,7 +235,8 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     keywords: words(cKeywords + " asm dynamic_cast namespace reinterpret_cast try bool explicit new " +
                     "static_cast typeid catch operator template typename class friend private " +
                     "this using const_cast inline public throw virtual delete mutable protected " +
-                    "wchar_t"),
+                    "wchar_t alignas alignof constexpr decltype nullptr noexcept thread_local final " +
+                    "static_assert override"),
     blockKeywords: words("catch class do else finally for if struct switch try while"),
     atoms: words("true false null"),
     hooks: {"#": cppHook},
