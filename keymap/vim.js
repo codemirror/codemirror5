@@ -415,11 +415,12 @@
     var options = {};
     function defineOption(name, defaultValue, type) {
       if (defaultValue === undefined) { throw Error('defaultValue is required'); }
-      if (!type) { type = 'boolean'; }
+      if (!type) { type = 'string'; }
       options[name] = {
         type: type,
-        value: defaultValue
+        defaultValue: defaultValue
       };
+      setOption(name, defaultValue);
     }
 
     function setOption(name, value) {
@@ -585,6 +586,10 @@
         lastChararacterSearch: {increment:0, forward:true, selectedCharacter:''},
         registerController: new RegisterController({})
       };
+      for (var optionName in options) {
+        var option = options[optionName];
+        option.value = option.defaultValue;
+      }
     }
 
     var vimApi= {
@@ -612,6 +617,9 @@
         // Add user defined key bindings.
         exCommandDispatcher.map(lhs, rhs, ctx);
       },
+      setOption: setOption,
+      getOption: getOption,
+      defineOption: defineOption,
       defineEx: function(name, prefix, func){
         if (name.indexOf(prefix) !== 0) {
           throw new Error('(Vim.defineEx) "'+prefix+'" is not a prefix of "'+name+'", command not registered');
@@ -2766,6 +2774,7 @@
     }
 
     // Search functions
+    defineOption('pcre', true, 'boolean');
     function SearchState() {}
     SearchState.prototype = {
       getQuery: function() {
@@ -2815,7 +2824,7 @@
     }
 
     // Translates a search string from ex (vim) syntax into javascript form.
-    function fixRegex(str) {
+    function translateRegex(str) {
       // When these match, add a '\' if unescaped or remove one if escaped.
       var specials = ['|', '(', ')', '{'];
       // Remove, but never add, a '\' for these.
@@ -2854,15 +2863,17 @@
     }
 
     // Translates the replace part of a search and replace from ex (vim) syntax into
-    // javascript form.  Similar to fixRegex, but additionally fixes back references
+    // javascript form.  Similar to translateRegex, but additionally fixes back references
     // (translates '\[0..9]' to '$[0..9]') and follows different rules for escaping '$'.
-    function fixRegexReplace(str) {
+    function translateRegexReplace(str) {
       var escapeNextChar = false;
       var out = [];
       for (var i = -1; i < str.length; i++) {
         var c = str.charAt(i) || '';
         var n = str.charAt(i+1) || '';
         if (escapeNextChar) {
+          // At any point in the loop, escapeNextChar is true if the previous
+          // character was a '\' and was not escaped.
           out.push(c);
           escapeNextChar = false;
         } else {
@@ -2885,6 +2896,29 @@
         }
       }
       return out.join('');
+    }
+
+    // Unescape \ and / in the replace part, for PCRE mode.
+    function unescapeRegexReplace(str) {
+      var stream = new CodeMirror.StringStream(str);
+      var output = [];
+      while (!stream.eol()) {
+        // Search for \.
+        while (stream.peek() && stream.peek() != '\\') {
+          output.push(stream.next());
+        }
+        if (stream.match('\\/', true)) {
+          // \/ => /
+          output.push('/');
+        } else if (stream.match('\\\\', true)) {
+          // \\ => \
+          output.push('\\');
+        } else {
+          // Don't change anything
+          output.push(stream.next());
+        }
+      }
+      return output.join('');
     }
 
     /**
@@ -2918,7 +2952,9 @@
       if (!regexPart) {
         return null;
       }
-      regexPart = fixRegex(regexPart);
+      if (!getOption('pcre')) {
+        regexPart = translateRegex(regexPart);
+      }
       if (smartCase) {
         ignoreCase = (/^[^A-Z]*$/).test(regexPart);
       }
@@ -3125,7 +3161,7 @@
           this.parseInput_(cm, inputStream, params);
         } catch(e) {
           showConfirm(cm, e);
-          return;
+          throw e;
         }
         var commandName;
         if (!params.commandName) {
@@ -3339,17 +3375,16 @@
           optionName = optionName.substring(0, optionName.length - 1);
           forceGet = true;
         }
+        if (value === undefined && optionName.substring(0, 2) == 'no') {
+          // To set boolean options to false, the option name is prefixed with
+          // 'no'.
+          optionName = optionName.substring(2);
+          value = false;
+        }
         var optionIsBoolean = options[optionName] && options[optionName].type == 'boolean';
-        if (optionIsBoolean) {
-          if(!value && optionName.substring(0, 2) == 'no') {
-            // To set boolean options to false, the option name is prefixed with
-            // 'no'.
-            optionName = optionName.substring(2);
-            value = false;
-          } else if (value == undefined) {
-            // Calling set with a boolean option sets it to true.
-            value = true;
-          }
+        if (optionIsBoolean && value == undefined) {
+          // Calling set with a boolean option sets it to true.
+          value = true;
         }
         if (!optionIsBoolean && !value || forceGet) {
           var oldValue = getOption(optionName);
@@ -3457,7 +3492,11 @@
         var confirm = false; // Whether to confirm each replace.
         if (slashes[1]) {
           replacePart = argString.substring(slashes[1] + 1, slashes[2]);
-          replacePart = fixRegexReplace(replacePart);
+          if (getOption('pcre')) {
+            replacePart = unescapeRegexReplace(replacePart);
+          } else {
+            replacePart = translateRegexReplace(replacePart);
+          }
         }
         if (slashes[2]) {
           // After the 3rd slash, we can have flags followed by a space followed

@@ -1566,6 +1566,7 @@ testVim('S_visual', function(cm, vim, helpers) {
   helpers.assertCursorAt(0, 0);
   eq('\ncc', cm.getValue());
 }, { value: 'aa\nbb\ncc'});
+
 testVim('/ and n/N', function(cm, vim, helpers) {
   cm.openDialog = helpers.fakeOpenDialog('match');
   helpers.doKeys('/');
@@ -1584,7 +1585,16 @@ testVim('/_case', function(cm, vim, helpers) {
   helpers.doKeys('/');
   helpers.assertCursorAt(1, 6);
 }, { value: 'match nope match \n nope Match' });
-testVim('/_2', function(cm, vim, helpers) {
+testVim('/_2_pcre', function(cm, vim, helpers) {
+  CodeMirror.Vim.setOption('pcre', true);
+  cm.openDialog = helpers.fakeOpenDialog('(word){2}');
+  helpers.doKeys('/');
+  helpers.assertCursorAt(1, 9);
+  helpers.doKeys('n');
+  helpers.assertCursorAt(2, 1);
+}, { value: 'word\n another wordword\n wordwordword\n' });
+testVim('/_2_nopcre', function(cm, vim, helpers) {
+  CodeMirror.Vim.setOption('pcre', false);
   cm.openDialog = helpers.fakeOpenDialog('\\(word\\)\\{2}');
   helpers.doKeys('/');
   helpers.assertCursorAt(1, 9);
@@ -2095,6 +2105,7 @@ testVim('moveTillCharacter', function(cm, vim, helpers){
   eq(4, cm.getCursor().ch);
 }, { value: moveTillCharacterSandbox});
 testVim('searchForPipe', function(cm, vim, helpers){
+  CodeMirror.Vim.setOption('pcre', false);
   cm.setCursor(0, 0);
   // Search for the '|'.
   cm.openDialog = helpers.fakeOpenDialog('|');
@@ -2326,7 +2337,7 @@ testVim('ex_sort_decimal_mixed_reverse', function(cm, vim, helpers) {
   eq('a3\nb2\nc1\nz\ny', cm.getValue());
 }, { value: 'a3\nz\nc1\ny\nb2'});
 
-
+// Basic substitute tests.
 testVim('ex_substitute_same_line', function(cm, vim, helpers) {
   cm.setCursor(1, 0);
   helpers.doEx('s/one/two');
@@ -2349,42 +2360,6 @@ testVim('ex_substitute_visual_range', function(cm, vim, helpers) {
   helpers.doEx('\'<,\'>s/\\d/0');
   eq('1\n0\n0\n0\n5', cm.getValue());
 }, { value: '1\n2\n3\n4\n5' });
-testVim('ex_substitute_capture', function(cm, vim, helpers) {
-  cm.setCursor(1, 0);
-  // \n should be a backreference.
-  helpers.doEx('s/\\(\\d+\\)/\\1\\1/')
-  eq('a1111 a1212 a1313', cm.getValue());
-}, { value: 'a11 a12 a13' });
-testVim('ex_substitute_capture2', function(cm, vim, helpers) {
-  cm.setCursor(1, 0);
-  // \n should be a backreference, even if followed by '$'
-  helpers.doEx('s/\\(\\d+\\)/$\\1\\1/')
-  eq('a $00 b', cm.getValue());
-}, { value: 'a 0 b' });
-testVim('ex_substitute_javascript', function(cm, vim, helpers) {
-  cm.setCursor(1, 0);
-  // Throw all the things that javascript likes to treat as special values
-  // into the replace part. All should be literal (this is VIM).
-  helpers.doEx('s/\\(\\d+\\)/$$ $\' $` $& \\1/')
-  eq('a $$ $\' $` $& 0 b', cm.getValue());
-}, { value: 'a 0 b' });
-testVim('ex_substitute_nocapture', function(cm, vim, helpers) {
-  cm.setCursor(1, 0);
-  // $n should be literal, since that is the javascript form, not VIM.
-  helpers.doEx('s/\\(\\d+\\)/$1$1/')
-  eq('a$1$1 a$1$1 a$1$1', cm.getValue());
-}, { value: 'a11 a12 a13' });
-testVim('ex_substitute_nocapture2', function(cm, vim, helpers) {
-  cm.setCursor(1, 0);
-  // \$n should be literal, since that is the javascript form, not VIM.
-  helpers.doEx('s/\\(\\d+\\)/\\$1\\1/')
-  eq('a $10 b', cm.getValue());
-}, { value: 'a 0 b' });
-testVim('ex_substitute_nocapture', function(cm, vim, helpers) {
-  cm.setCursor(1, 0);
-  helpers.doEx('s/b/$/')
-  eq('a $ c', cm.getValue());
-}, { value: 'a b c' });
 testVim('ex_substitute_empty_query', function(cm, vim, helpers) {
   // If the query is empty, use last query.
   cm.setCursor(1, 0);
@@ -2393,74 +2368,127 @@ testVim('ex_substitute_empty_query', function(cm, vim, helpers) {
   helpers.doEx('s//b');
   eq('abb ab2 ab3', cm.getValue());
 }, { value: 'a11 a12 a13' });
-testVim('ex_substitute_slash_regex', function(cm, vim, helpers) {
+testVim('ex_substitute_javascript', function(cm, vim, helpers) {
+  CodeMirror.Vim.setOption('pcre', false);
   cm.setCursor(1, 0);
-  helpers.doEx('%s/\\//|');
-  eq('one|two \n three|four', cm.getValue());
-}, { value: 'one/two \n three/four'});
-testVim('ex_substitute_pipe_regex', function(cm, vim, helpers) {
-  cm.setCursor(1, 0);
-  helpers.doEx('%s/|/,');
-  eq('one,two \n three,four', cm.getValue());
-}, { value: 'one|two \n three|four'});
-testVim('ex_substitute_or_regex', function(cm, vim, helpers) {
-  cm.setCursor(1, 0);
-  helpers.doEx('%s/o\\|e\\|u/a');
-  eq('ana|twa \n thraa|faar', cm.getValue());
-}, { value: 'one|two \n three|four'});
-testVim('ex_substitute_or_word_regex', function(cm, vim, helpers) {
-  cm.setCursor(1, 0);
-  helpers.doEx('%s/\\(one\\|two\\)/five');
-  eq('five|five \n three|four', cm.getValue());
-}, { value: 'one|two \n three|four'});
-testVim('ex_substitute_backslashslash_regex', function(cm, vim, helpers) {
-  cm.setCursor(1, 0);
-  helpers.doEx('%s/\\\\/,');
-  eq('one,two \n three,four', cm.getValue());
-}, { value: 'one\\two \n three\\four'});
-testVim('ex_substitute_slash_replacement', function(cm, vim, helpers) {
-  cm.setCursor(1, 0);
-  helpers.doEx('%s/,/\\/');
-  eq('one/two \n three/four', cm.getValue());
-}, { value: 'one,two \n three,four'});
-testVim('ex_substitute_backslash_replacement', function(cm, vim, helpers) {
-  helpers.doEx('%s/,/\\\\/g');
-  eq('one\\two \n three\\four', cm.getValue());
-}, { value: 'one,two \n three,four'});
-testVim('ex_substitute_multibackslash_replacement', function(cm, vim, helpers) {
-  helpers.doEx('%s/,/\\\\\\\\\\\\\\\\/g'); // 16 backslashes.
-  eq('one\\\\\\\\two \n three\\\\\\\\four', cm.getValue()); // 2*8 backslashes.
-}, { value: 'one,two \n three,four'});
-testVim('ex_substitute_braces_word', function(cm, vim, helpers) {
-  helpers.doEx('%s/\\(ab\\)\\{2\\}//g');
-  eq('ab abb ab{2}', cm.getValue());
-}, { value: 'ababab abb ab{2}'});
-testVim('ex_substitute_braces_range', function(cm, vim, helpers) {
-  helpers.doEx('%s/a\\{2,3\\}//g');
-  eq('a   a', cm.getValue());
-}, { value: 'a aa aaa aaaa'});
-testVim('ex_substitute_braces_literal', function(cm, vim, helpers) {
-  helpers.doEx('%s/ab{2}//g');
-  eq('ababab abb ', cm.getValue());
-}, { value: 'ababab abb ab{2}'});
-testVim('ex_substitute_braces_char', function(cm, vim, helpers) {
-  helpers.doEx('%s/ab\\{2\\}//g');
-  eq('ababab  ab{2}', cm.getValue());
-}, { value: 'ababab abb ab{2}'});
-testVim('ex_substitute_braces_no_escape', function(cm, vim, helpers) {
-  helpers.doEx('%s/ab\\{2}//g');
-  eq('ababab  ab{2}', cm.getValue());
-}, { value: 'ababab abb ab{2}'});
-testVim('ex_substitute_count', function(cm, vim, helpers) {
-  cm.setCursor(1, 0);
-  helpers.doEx('s/\\d/0/i 2');
-  eq('1\n0\n0\n4', cm.getValue());
-}, { value: '1\n2\n3\n4' });
-testVim('ex_substitute_count_with_range', function(cm, vim, helpers) {
-  cm.setCursor(1, 0);
-  helpers.doEx('1,3s/\\d/0/ 3');
-  eq('1\n2\n0\n0', cm.getValue());
-}, { value: '1\n2\n3\n4' });
+  // Throw all the things that javascript likes to treat as special values
+  // into the replace part. All should be literal (this is VIM).
+  helpers.doEx('s/\\(\\d+\\)/$$ $\' $` $& \\1/')
+  eq('a $$ $\' $` $& 0 b', cm.getValue());
+}, { value: 'a 0 b' });
+
+// More complex substitute tests that test both pcre and nopcre options.
+function testSubstitute(name, options) {
+  testVim(name + '_pcre', function(cm, vim, helpers) {
+    cm.setCursor(1, 0);
+    CodeMirror.Vim.setOption('pcre', true);
+    helpers.doEx(options.expr);
+    eq(options.expectedValue, cm.getValue());
+  }, options);
+  // If no noPcreExpr is defined, assume that it's the same as the expr.
+  var noPcreExpr = options.noPcreExpr ? options.noPcreExpr : options.expr;
+  testVim(name + '_nopcre', function(cm, vim, helpers) {
+    cm.setCursor(1, 0);
+    CodeMirror.Vim.setOption('pcre', false);
+    helpers.doEx(noPcreExpr);
+    eq(options.expectedValue, cm.getValue());
+  }, options);
+}
+testSubstitute('ex_substitute_capture', {
+  value: 'a11 a12 a13',
+  expectedValue: 'a1111 a1212 a1313',
+  // $n is a backreference
+  expr: 's/(\\d+)/$1$1/',
+  // \n is a backreference.
+  noPcreExpr: 's/\\(\\d+\\)/\\1\\1/'});
+testSubstitute('ex_substitute_capture2', {
+  value: 'a 0 b',
+  expectedValue: 'a $00 b',
+  expr: 's/(\\d+)/$$$1$1/',
+  noPcreExpr: 's/\\(\\d+\\)/$\\1\\1/'});
+testSubstitute('ex_substitute_nocapture', {
+  value: 'a11 a12 a13',
+  expectedValue: 'a$1$1 a$1$1 a$1$1',
+  expr: 's/(\\d+)/$$1$$1',
+  noPcreExpr: 's/\\(\\d+\\)/$1$1/'});
+testSubstitute('ex_substitute_nocapture2', {
+  value: 'a 0 b',
+  expectedValue: 'a $10 b',
+  expr: 's/(\\d+)/$$1$1',
+  noPcreExpr: 's/\\(\\d+\\)/\\$1\\1/'});
+testSubstitute('ex_substitute_nocapture', {
+  value: 'a b c',
+  expectedValue: 'a $ c',
+  expr: 's/b/$$/',
+  noPcreExpr: 's/b/$/'});
+testSubstitute('ex_substitute_slash_regex', {
+  value: 'one/two \n three/four',
+  expectedValue: 'one|two \n three|four',
+  expr: '%s/\\//|'});
+testSubstitute('ex_substitute_pipe_regex', {
+  value: 'one|two \n three|four',
+  expectedValue: 'one,two \n three,four',
+  expr: '%s/\\|/,/',
+  noPcreExpr: '%s/|/,/'});
+testSubstitute('ex_substitute_or_regex', {
+  value: 'one|two \n three|four',
+  expectedValue: 'ana|twa \n thraa|faar',
+  expr: '%s/o|e|u/a',
+  noPcreExpr: '%s/o\\|e\\|u/a'});
+testSubstitute('ex_substitute_or_word_regex', {
+  value: 'one|two \n three|four',
+  expectedValue: 'five|five \n three|four',
+  expr: '%s/(one|two)/five/',
+  noPcreExpr: '%s/\\(one\\|two\\)/five'});
+testSubstitute('ex_substitute_backslashslash_regex', {
+  value: 'one\\two \n three\\four',
+  expectedValue: 'one,two \n three,four',
+  expr: '%s/\\\\/,'});
+testSubstitute('ex_substitute_slash_replacement', {
+  value: 'one,two \n three,four',
+  expectedValue: 'one/two \n three/four',
+  expr: '%s/,/\\/'});
+testSubstitute('ex_substitute_backslash_replacement', {
+  value: 'one,two \n three,four',
+  expectedValue: 'one\\two \n three\\four',
+  expr: '%s/,/\\\\/g'});
+testSubstitute('ex_substitute_multibackslash_replacement', {
+  value: 'one,two \n three,four',
+  expectedValue: 'one\\\\\\\\two \n three\\\\\\\\four', // 2*8 backslashes.
+  expr: '%s/,/\\\\\\\\\\\\\\\\/g'}); // 16 backslashes.
+testSubstitute('ex_substitute_braces_word', {
+  value: 'ababab abb ab{2}',
+  expectedValue: 'ab abb ab{2}',
+  expr: '%s/(ab){2}//g',
+  noPcreExpr: '%s/\\(ab\\)\\{2\\}//g'});
+testSubstitute('ex_substitute_braces_range', {
+  value: 'a aa aaa aaaa',
+  expectedValue: 'a   a',
+  expr: '%s/a{2,3}//g',
+  noPcreExpr: '%s/a\\{2,3\\}//g'});
+testSubstitute('ex_substitute_braces_literal', {
+  value: 'ababab abb ab{2}',
+  expectedValue: 'ababab abb ',
+  expr: '%s/ab\\{2\\}//g',
+  noPcreExpr: '%s/ab{2}//g'});
+testSubstitute('ex_substitute_braces_char', {
+  value: 'ababab abb ab{2}',
+  expectedValue: 'ababab  ab{2}',
+  expr: '%s/ab{2}//g',
+  noPcreExpr: '%s/ab\\{2\\}//g'});
+testSubstitute('ex_substitute_braces_no_escape', {
+  value: 'ababab abb ab{2}',
+  expectedValue: 'ababab  ab{2}',
+  expr: '%s/ab{2}//g',
+  noPcreExpr: '%s/ab\\{2}//g'});
+testSubstitute('ex_substitute_count', {
+  value: '1\n2\n3\n4',
+  expectedValue: '1\n0\n0\n4',
+  expr: 's/\\d/0/i 2'});
+testSubstitute('ex_substitute_count_with_range', {
+  value: '1\n2\n3\n4',
+  expectedValue: '1\n2\n0\n0',
+  expr: '1,3s/\\d/0/ 3'});
 function testSubstituteConfirm(name, command, initialValue, expectedValue, keys, finalPos) {
   testVim(name, function(cm, vim, helpers) {
     var savedOpenDialog = cm.openDialog;
@@ -2542,6 +2570,63 @@ testVim('ex_noh_clearSearchHighlight', function(cm, vim, helpers) {
   helpers.doKeys('n');
   helpers.assertCursorAt(0, 11,'can\'t resume search after clearing highlighting');
 }, { value: 'match nope match \n nope Match' });
+testVim('set_boolean', function(cm, vim, helpers) {
+  CodeMirror.Vim.defineOption('testoption', true, 'boolean');
+  // Test default value is set.
+  is(CodeMirror.Vim.getOption('testoption'));
+  try {
+    // Test fail to set to non-boolean
+    CodeMirror.Vim.setOption('testoption', '5');
+    fail();
+  } catch (expected) {};
+  // Test setOption
+  CodeMirror.Vim.setOption('testoption', false);
+  is(!CodeMirror.Vim.getOption('testoption'));
+});
+testVim('ex_set_boolean', function(cm, vim, helpers) {
+  CodeMirror.Vim.defineOption('testoption', true, 'boolean');
+  // Test default value is set.
+  is(CodeMirror.Vim.getOption('testoption'));
+  try {
+    // Test fail to set to non-boolean
+    helpers.doEx('set testoption=22');
+    fail();
+  } catch (expected) {};
+  // Test setOption
+  helpers.doEx('set notestoption');
+  is(!CodeMirror.Vim.getOption('testoption'));
+});
+testVim('set_string', function(cm, vim, helpers) {
+  CodeMirror.Vim.defineOption('testoption', 'a', 'string');
+  // Test default value is set.
+  eq('a', CodeMirror.Vim.getOption('testoption'));
+  try {
+    // Test fail to set non-string.
+    CodeMirror.Vim.setOption('testoption', true);
+    fail();
+  } catch (expected) {};
+  try {
+    // Test fail to set 'notestoption'
+    CodeMirror.Vim.setOption('notestoption', 'b');
+    fail();
+  } catch (expected) {};
+  // Test setOption
+  CodeMirror.Vim.setOption('testoption', 'c');
+  eq('c', CodeMirror.Vim.getOption('testoption'));
+});
+testVim('ex_set_string', function(cm, vim, helpers) {
+  CodeMirror.Vim.defineOption('testoption', 'a', 'string');
+  // Test default value is set.
+  eq('a', CodeMirror.Vim.getOption('testoption'));
+  try {
+    // Test fail to set 'notestoption'
+    helpers.doEx('set notestoption=b');
+    fail();
+  } catch (expected) {};
+  // Test setOption
+  helpers.doEx('set testoption=c')
+  eq('c', CodeMirror.Vim.getOption('testoption'));
+});
 // TODO: Reset key maps after each test.
 testVim('ex_map_key2key', function(cm, vim, helpers) {
   helpers.doEx('map a x');
