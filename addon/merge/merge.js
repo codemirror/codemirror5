@@ -80,16 +80,12 @@
       }
       set(true);
     }
-    function markChange(_cm, marker) {
-      if (!marker.className || !/\bCodeMirror-merge-/.test(marker.className))
-        set(true);
-    }
     dv.edit.on("change", change);
     dv.orig.on("change", change);
-    dv.edit.on("markerAdded", markChange);
-    dv.edit.on("markerCleared", markChange);
-    dv.orig.on("markerAdded", markChange);
-    dv.orig.on("markerCleared", markChange);
+    dv.edit.on("markerAdded", set);
+    dv.edit.on("markerCleared", set);
+    dv.orig.on("markerAdded", set);
+    dv.orig.on("markerCleared", set);
     dv.edit.on("viewportChange", set);
     dv.orig.on("viewportChange", set);
     update();
