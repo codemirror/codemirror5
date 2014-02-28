@@ -1197,14 +1197,14 @@ testVim('p', function(cm, vim, helpers) {
 }, { value: '___' });
 testVim('p_register', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
-  helpers.getRegisterController().getRegister('a').set('abc\ndef', false);
+  helpers.getRegisterController().getRegister('a').setText('abc\ndef', false);
   helpers.doKeys('"', 'a', 'p');
   eq('__abc\ndef_', cm.getValue());
   helpers.assertCursorAt(1, 2);
 }, { value: '___' });
 testVim('p_wrong_register', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
-  helpers.getRegisterController().getRegister('a').set('abc\ndef', false);
+  helpers.getRegisterController().getRegister('a').setText('abc\ndef', false);
   helpers.doKeys('p');
   eq('___', cm.getValue());
   helpers.assertCursorAt(0, 1);
@@ -1724,6 +1724,14 @@ testVim('#', function(cm, vim, helpers) {
   helpers.doKeys('#');
   helpers.assertCursorAt(1, 8);
 }, { value: '    :=  match nomatch match \nnomatch Match' });
+testVim('macroInsert', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('q', 'a', '0', 'i');
+  cm.replaceRange('foo', cm.getCursor());
+  helpers.doInsertModeKeys('Esc');
+  helpers.doKeys('q', '@', 'a');
+  eq('foofoo', cm.getValue());
+}, { value: ''});
 testVim('.', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('2', 'd', 'w');

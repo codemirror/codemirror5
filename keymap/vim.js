@@ -515,7 +515,8 @@
 
     var createMacroState = function() {
       return {
-        macroKeyBuffer: [],
+        keyBuffer: [],
+        insertModeBuffer: [],
         latestRegister: undefined,
         inReplay: false,
         lastInsertModeChanges: {
@@ -725,12 +726,11 @@
      */
     function Register(text, linewise) {
       this.clear();
-      if (text) {
-        this.set(text, linewise);
-      }
+      this.text = text || '';
+      this.linewise = !!linewise;
     }
     Register.prototype = {
-      set: function(text, linewise) {
+      setText: function(text, linewise) {
         this.text = text;
         this.linewise = !!linewise;
       },
@@ -796,7 +796,7 @@
               break;
           }
           // Make sure the unnamed register is set to what just happened
-          this.unamedRegister.set(text, linewise);
+          this.unamedRegister.setText(text, linewise);
           return;
         }
 
@@ -808,12 +808,9 @@
           // register.
           this.unamedRegister.append(text, linewise);
         } else {
-          register.set(text, linewise);
-          this.unamedRegister.set(text, linewise);
+          register.setText(text, linewise);
+          this.unamedRegister.setText(text, linewise);
         }
-      },
-      setRegisterText: function(name, text, linewise) {
-        this.getRegister(name).set(text, linewise);
       },
       // Gets the register named @name.  If one of @name doesn't already exist,
       // create it.  If @name is invalid, return the unamedRegister.
@@ -1799,8 +1796,7 @@
       exitMacroRecordMode: function() {
         var macroModeState = vimGlobalState.macroModeState;
         macroModeState.toggle();
-        parseKeyBufferToRegister(macroModeState.latestRegister,
-                                 macroModeState.macroKeyBuffer);
+        saveMacroToRegister(macroModeState);
       },
       enterMacroRecordMode: function(cm, actionArgs) {
         var macroModeState = vimGlobalState.macroModeState;
@@ -3767,7 +3763,8 @@
 
     function exitInsertMode(cm) {
       var vim = cm.state.vim;
-      var inReplay = vimGlobalState.macroModeState.inReplay;
+      var macroModeState = vimGlobalState.macroModeState;
+      var inReplay = macroModeState.inReplay;
       if (!inReplay) {
         cm.off('change', onChange);
         cm.off('cursorActivity', onCursorActivity);
@@ -3786,6 +3783,9 @@
       cm.setOption('disableInput', true);
       cm.toggleOverwrite(false); // exit replace mode if we were in it.
       CodeMirror.signal(cm, "vim-mode-change", {mode: "normal"});
+      if (macroModeState.enteredMacroMode) {
+        logInsertModeChange(macroModeState);
+      }
     }
 
     CodeMirror.keyMap['vim-insert'] = {
@@ -3813,27 +3813,30 @@
       var match, key;
       var register = vimGlobalState.registerController.getRegister(registerName);
       var text = register.toString();
-      var macroKeyBuffer = macroModeState.macroKeyBuffer;
+      var keyBuffer = macroModeState.keyBuffer;
       emptyMacroKeyBuffer(macroModeState);
       do {
         match = (/<\w+-.+?>|<\w+>|./).exec(text);
         if(match === null)break;
         key = match[0];
         text = text.substring(match.index + key.length);
-        macroKeyBuffer.push(key);
+        keyBuffer.push(key);
       } while (text);
-      return macroKeyBuffer;
+      return keyBuffer;
     }
 
-    function parseKeyBufferToRegister(registerName, keyBuffer) {
-      var text = keyBuffer.join('');
-      vimGlobalState.registerController.setRegisterText(registerName, text);
+    function saveMacroToRegister(macroModeState) {
+      var name = macroModeState.latestRegister;
+      var text = macroModeState.keyBuffer.join('');
+      var register = vimGlobalState.registerController.getRegister(name);
+      register.text = text;
+      register.insertModeChanges = macroModeState.insertModeBuffer.slice(0);
     }
 
     function emptyMacroKeyBuffer(macroModeState) {
       if(macroModeState.isMacroPlaying)return;
-      var macroKeyBuffer = macroModeState.macroKeyBuffer;
-      macroKeyBuffer.length = 0;
+      macroModeState.keyBuffer.length = 0;
+      macroModeState.insertModeBuffer.length = 0;
     }
 
     function executeMacroKeyBuffer(cm, macroModeState, keyBuffer) {
@@ -3846,8 +3849,13 @@
 
     function logKey(macroModeState, key) {
       if(macroModeState.isMacroPlaying)return;
-      var macroKeyBuffer = macroModeState.macroKeyBuffer;
-      macroKeyBuffer.push(key);
+      macroModeState.keyBuffer.push(key);
+    }
+
+    function logInsertModeChange(macroModeState) {
+      if(macroModeState.isMacroPlaying)return;
+      macroModeState.insertModeBuffer.push(
+        macroModeState.lastInsertModeChanges);
     }
 
     /**
