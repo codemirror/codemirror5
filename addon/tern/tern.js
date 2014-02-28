@@ -176,7 +176,7 @@
 
   function sendDoc(ts, doc) {
     ts.server.request({files: [{type: "full", name: doc.name, text: docValue(ts, doc)}]}, function(error) {
-      if (error) console.error(error);
+      if (error) window.console.error(error);
       else doc.changed = null;
     });
   }
@@ -642,7 +642,7 @@
           send({type: "getFile", err: String(err), text: text, id: data.id});
         });
       } else if (data.type == "debug") {
-        console.log(data.message);
+        window.console.log(data.message);
       } else if (data.id && pending[data.id]) {
         pending[data.id](data.err, data.body);
         delete pending[data.id];
