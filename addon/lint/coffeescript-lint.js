@@ -1,6 +1,8 @@
 // Depends on coffeelint.js from http://www.coffeelint.org/js/coffeelint.js
 
-CodeMirror.coffeeValidator = function(text) {
+// declare global: coffeelint
+
+CodeMirror.registerHelper("lint", "coffeescript", function(text) {
   var found = [];
   var parseError = function(err) {
     var loc = err.lineNumber;
@@ -21,4 +23,5 @@ CodeMirror.coffeeValidator = function(text) {
                 message: e.message});
   }
   return found;
-};
+});
+CodeMirror.coffeeValidator = CodeMirror.lint.coffeescript; // deprecated

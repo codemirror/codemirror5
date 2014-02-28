@@ -1,4 +1,6 @@
 (function() {
+  "use strict";
+  // declare global: JSHINT
 
   var bogus = [ "Dangerous comment" ];
 
@@ -9,18 +11,15 @@
                  "Unmatched ", " and instead saw", " is not defined",
                  "Unclosed string", "Stopping, unable to continue" ];
 
-  function validator(options, text) {
+  function validator(text, options) {
     JSHINT(text, options);
     var errors = JSHINT.data().errors, result = [];
     if (errors) parseErrors(errors, result);
     return result;
   }
 
-  CodeMirror.javascriptValidatorWithOptions = function(options) {
-    return function(text) { return validator(options, text); };
-  };
-
-  CodeMirror.javascriptValidator = CodeMirror.javascriptValidatorWithOptions(null);
+  CodeMirror.registerHelper("lint", "javascript", validator);
+  CodeMirror.javascriptValidator = CodeMirror.lint.javascript; // deprecated
 
   function cleanup(error) {
     // All problems are warnings by default

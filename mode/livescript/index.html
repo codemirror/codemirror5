@@ -1,17 +1,31 @@
 <!doctype html>
-<html>
-  <head>
-    <title>CodeMirror: LiveScript mode</title>
-    <link rel="stylesheet" href="../../lib/codemirror.css">
-    <script src="../../lib/codemirror.js"></script>
-    <script src="livescript.js"></script>
-    <style>.CodeMirror {font-size: 80%;border-top: 1px solid silver; border-bottom: 1px solid silver;}</style>
-    <link rel="stylesheet" href="../../doc/docs.css">
-    <link rel="stylesheet" href="../../theme/solarized.css">
-  </head>
-  <body>
-    <h1>CodeMirror: LiveScript mode</h1>
-    <form><textarea id="code" name="code">
+
+<title>CodeMirror: LiveScript mode</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../../doc/docs.css">
+
+<link rel="stylesheet" href="../../lib/codemirror.css">
+<link rel="stylesheet" href="../../theme/solarized.css">
+<script src="../../lib/codemirror.js"></script>
+<script src="livescript.js"></script>
+<style>.CodeMirror {font-size: 80%;border-top: 1px solid silver; border-bottom: 1px solid silver;}</style>
+<div id=nav>
+  <a href="http://codemirror.net"><img id=logo src="../../doc/logo.png"></a>
+
+  <ul>
+    <li><a href="../../index.html">Home</a>
+    <li><a href="../../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="../index.html">Language modes</a>
+    <li><a class=active href="#">LiveScript</a>
+  </ul>
+</div>
+
+<article>
+<h2>LiveScript mode</h2>
+<form><textarea id="code" name="code">
 # LiveScript mode for CodeMirror
 # The following script, prelude.ls, is used to
 # demonstrate LiveScript mode for CodeMirror.
@@ -442,5 +456,4 @@ export prelude = out$
 
     <p>The LiveScript mode was written by Kenneth Bentley (<a href="LICENSE">license</a>).</p>
 
-  </body>
-</html>
+  </article>

@@ -14,8 +14,11 @@
 .cm-s-night span.cm-meta { color: #7678e2; }
 .cm-s-night span.cm-variable-2, .cm-s-night span.cm-tag { color: #99b2ff; }
 .cm-s-night span.cm-variable-3, .cm-s-night span.cm-def { color: white; }
-.cm-s-night span.cm-error { color: #9d1e15; }
 .cm-s-night span.cm-bracket { color: #8da6ce; }
 .cm-s-night span.cm-comment { color: #6900a1; }
 .cm-s-night span.cm-builtin, .cm-s-night span.cm-special { color: #ff9e59; }
 .cm-s-night span.cm-link { color: #845dc4; }
+.cm-s-night span.cm-error { color: #9d1e15; }
+
+.cm-s-night .CodeMirror-activeline-background {background: #1C005A !important;}
+.cm-s-night .CodeMirror-matchingbracket {outline:1px solid grey; color:white !important;}

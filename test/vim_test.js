@@ -99,7 +99,7 @@ function copyCursor(cur) {
 function testVim(name, run, opts, expectedFail) {
   var vimOpts = {
     lineNumbers: true,
-    keyMap: 'vim',
+    vimMode: true,
     showCursorWhenSelecting: true,
     value: code
   };
@@ -111,8 +111,7 @@ function testVim(name, run, opts, expectedFail) {
   return test('vim_' + name, function() {
     var place = document.getElementById("testground");
     var cm = CodeMirror(place, vimOpts);
-    CodeMirror.Vim.maybeInitState(cm);
-    var vim = cm.vimState;
+    var vim = CodeMirror.Vim.maybeInitVimState_(cm);
 
     function doKeysFn(cm) {
       return function(args) {
@@ -140,7 +139,7 @@ function testVim(name, run, opts, expectedFail) {
           // Find key in keymap and handle.
           var handled = CodeMirror.lookupKey(key, ['vim-insert'], executeHandler);
           // Record for insert mode.
-          if (handled === true && cm.vimState.insertMode && arguments[i] != 'Esc') {
+          if (handled === true && cm.state.vim.insertMode && arguments[i] != 'Esc') {
             var lastChange = CodeMirror.Vim.getVimGlobalState_().macroModeState.lastInsertModeChanges;
             if (lastChange) {
               lastChange.changes.push(new CodeMirror.Vim.InsertModeKey(key));
@@ -184,7 +183,7 @@ function testVim(name, run, opts, expectedFail) {
         return CodeMirror.Vim.getRegisterController();
       }
     }
-    CodeMirror.Vim.clearVimGlobalState_();
+    CodeMirror.Vim.resetVimGlobalState_();
     var successful = false;
     try {
       run(cm, vim, helpers);
@@ -228,7 +227,7 @@ function testJumplist(name, keys, endPos, startPos, dialog) {
   endPos = makeCursor(endPos[0], endPos[1]);
   startPos = makeCursor(startPos[0], startPos[1]);
   testVim(name, function(cm, vim, helpers) {
-    CodeMirror.Vim.clearVimGlobalState_();
+    CodeMirror.Vim.resetVimGlobalState_();
     if(dialog)cm.openDialog = helpers.fakeOpenDialog('word');
     cm.setCursor(startPos);
     helpers.doKeys.apply(null, keys);
@@ -296,8 +295,10 @@ testMotion('l', 'l', makeCursor(0, 1));
 testMotion('l_repeat', ['2', 'l'], makeCursor(0, 2));
 testMotion('j', 'j', offsetCursor(word1.end, 1, 0), word1.end);
 testMotion('j_repeat', ['2', 'j'], offsetCursor(word1.end, 2, 0), word1.end);
+testMotion('j_repeat_clip', ['1000', 'j'], endOfDocument);
 testMotion('k', 'k', offsetCursor(word3.end, -1, 0), word3.end);
 testMotion('k_repeat', ['2', 'k'], makeCursor(0, 4), makeCursor(2, 4));
+testMotion('k_repeat_clip', ['1000', 'k'], makeCursor(0, 4), makeCursor(2, 4));
 testMotion('w', 'w', word1.start);
 testMotion('w_multiple_newlines_no_space', 'w', makeCursor(12, 2), makeCursor(11, 2));
 testMotion('w_multiple_newlines_with_space', 'w', makeCursor(14, 0), makeCursor(12, 51));
@@ -499,15 +500,13 @@ testVim('dl', function(cm, vim, helpers) {
   eqPos(curStart, cm.getCursor());
 }, { value: ' word1 ' });
 testVim('dl_eol', function(cm, vim, helpers) {
-  // TODO:  This test is incorrect.  The cursor should end up at (0, 5).
-  var curStart = makeCursor(0, 6);
-  cm.setCursor(curStart);
+  cm.setCursor(0, 6);
   helpers.doKeys('d', 'l');
   eq(' word1', cm.getValue());
   var register = helpers.getRegisterController().getRegister();
   eq(' ', register.text);
   is(!register.linewise);
-  helpers.assertCursorAt(0, 6);
+  helpers.assertCursorAt(0, 5);
 }, { value: ' word1 ' });
 testVim('dl_repeat', function(cm, vim, helpers) {
   var curStart = makeCursor(0, 0);
@@ -592,38 +591,35 @@ testVim('dw_word', function(cm, vim, helpers) {
 testVim('dw_only_word', function(cm, vim, helpers) {
   // Test that if there is only 1 word left, dw deletes till the end of the
   // line.
-  var curStart = makeCursor(0, 1);
-  cm.setCursor(curStart);
+  cm.setCursor(0, 1);
   helpers.doKeys('d', 'w');
   eq(' ', cm.getValue());
   var register = helpers.getRegisterController().getRegister();
   eq('word1 ', register.text);
   is(!register.linewise);
-  eqPos(curStart, cm.getCursor());
+  helpers.assertCursorAt(0, 0);
 }, { value: ' word1 ' });
 testVim('dw_eol', function(cm, vim, helpers) {
   // Assert that dw does not delete the newline if last word to delete is at end
   // of line.
-  var curStart = makeCursor(0, 1);
-  cm.setCursor(curStart);
+  cm.setCursor(0, 1);
   helpers.doKeys('d', 'w');
   eq(' \nword2', cm.getValue());
   var register = helpers.getRegisterController().getRegister();
   eq('word1', register.text);
   is(!register.linewise);
-  eqPos(curStart, cm.getCursor());
+  helpers.assertCursorAt(0, 0);
 }, { value: ' word1\nword2' });
 testVim('dw_eol_with_multiple_newlines', function(cm, vim, helpers) {
   // Assert that dw does not delete the newline if last word to delete is at end
   // of line and it is followed by multiple newlines.
-  var curStart = makeCursor(0, 1);
-  cm.setCursor(curStart);
+  cm.setCursor(0, 1);
   helpers.doKeys('d', 'w');
   eq(' \n\nword2', cm.getValue());
   var register = helpers.getRegisterController().getRegister();
   eq('word1', register.text);
   is(!register.linewise);
-  eqPos(curStart, cm.getCursor());
+  helpers.assertCursorAt(0, 0);
 }, { value: ' word1\n\nword2' });
 testVim('dw_empty_line_followed_by_whitespace', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
@@ -663,14 +659,13 @@ testVim('dw_end_of_document', function(cm, vim, helpers) {
 testVim('dw_repeat', function(cm, vim, helpers) {
   // Assert that dw does delete newline if it should go to the next line, and
   // that repeat works properly.
-  var curStart = makeCursor(0, 1);
-  cm.setCursor(curStart);
+  cm.setCursor(0, 1);
   helpers.doKeys('d', '2', 'w');
   eq(' ', cm.getValue());
   var register = helpers.getRegisterController().getRegister();
   eq('word1\nword2', register.text);
   is(!register.linewise);
-  eqPos(curStart, cm.getCursor());
+  helpers.assertCursorAt(0, 0);
 }, { value: ' word1\nword2' });
 testVim('de_word_start_and_empty_lines', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
@@ -818,12 +813,6 @@ testVim('dd_lastline', function(cm, vim, helpers) {
   eq(expectedLineCount, cm.lineCount());
   helpers.assertCursorAt(cm.lineCount() - 1, 0);
 });
-testVim('cw', function(cm, vim, helpers) {
-  cm.setCursor(0, 0);
-  helpers.doKeys('c', '2', 'w');
-  eq(' word3', cm.getValue());
-  helpers.assertCursorAt(0, 0);
-}, { value: 'word1 word2 word3'});
 // Yank commands should behave the exact same as d commands, expect that nothing
 // gets deleted.
 testVim('yw_repeat', function(cm, vim, helpers) {
@@ -854,6 +843,12 @@ testVim('yy_multiply_repeat', function(cm, vim, helpers) {
 // Change commands behave like d commands except that it also enters insert
 // mode. In addition, when the change is linewise, an additional newline is
 // inserted so that insert mode starts on that line.
+testVim('cw', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('c', '2', 'w');
+  eq(' word3', cm.getValue());
+  helpers.assertCursorAt(0, 0);
+}, { value: 'word1 word2 word3'});
 testVim('cw_repeat', function(cm, vim, helpers) {
   // Assert that cw does delete newline if it should go to the next line, and
   // that repeat works properly.
@@ -877,8 +872,13 @@ testVim('cc_multiply_repeat', function(cm, vim, helpers) {
   var register = helpers.getRegisterController().getRegister();
   eq(expectedBuffer, register.text);
   is(register.linewise);
-  helpers.assertCursorAt(0, lines[0].textStart);
   eq('vim-insert', cm.getOption('keyMap'));
+});
+testVim('cc_append', function(cm, vim, helpers) {
+  var expectedLineCount = cm.lineCount();
+  cm.setCursor(cm.lastLine(), 0);
+  helpers.doKeys('c', 'c');
+  eq(expectedLineCount, cm.lineCount());
 });
 // Swapcase commands edit in place and do not modify registers.
 testVim('g~w_repeat', function(cm, vim, helpers) {
@@ -994,14 +994,13 @@ testEdit('daW_end_punct', 'foo \tbAr.', /A/, 'daW', 'foo');
 
 // Operator-motion tests
 testVim('D', function(cm, vim, helpers) {
-  var curStart = makeCursor(0, 3);
-  cm.setCursor(curStart);
+  cm.setCursor(0, 3);
   helpers.doKeys('D');
   eq(' wo\nword2\n word3', cm.getValue());
   var register = helpers.getRegisterController().getRegister();
   eq('rd1', register.text);
   is(!register.linewise);
-  helpers.assertCursorAt(0, 3);
+  helpers.assertCursorAt(0, 2);
 }, { value: ' word1\nword2\n word3' });
 testVim('C', function(cm, vim, helpers) {
   var curStart = makeCursor(0, 3);
@@ -1011,7 +1010,7 @@ testVim('C', function(cm, vim, helpers) {
   var register = helpers.getRegisterController().getRegister();
   eq('rd1', register.text);
   is(!register.linewise);
-  helpers.assertCursorAt(0, 3);
+  eqPos(curStart, cm.getCursor());
   eq('vim-insert', cm.getOption('keyMap'));
 }, { value: ' word1\nword2\n word3' });
 testVim('Y', function(cm, vim, helpers) {
@@ -1024,6 +1023,11 @@ testVim('Y', function(cm, vim, helpers) {
   is(!register.linewise);
   helpers.assertCursorAt(0, 3);
 }, { value: ' word1\nword2\n word3' });
+testVim('~', function(cm, vim, helpers) {
+  helpers.doKeys('3', '~');
+  eq('ABCdefg', cm.getValue());
+  helpers.assertCursorAt(0, 3);
+}, { value: 'abcdefg' });
 
 // Action tests
 testVim('ctrl-a', function(cm, vim, helpers) {
@@ -1167,6 +1171,13 @@ testVim('p_wrong_register', function(cm, vim, helpers) {
 testVim('p_line', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.getRegisterController().pushText('"', 'yank', '  a\nd\n', true);
+  helpers.doKeys('2', 'p');
+  eq('___\n  a\nd\n  a\nd', cm.getValue());
+  helpers.assertCursorAt(1, 2);
+}, { value: '___' });
+testVim('p_lastline', function(cm, vim, helpers) {
+  cm.setCursor(0, 1);
+  helpers.getRegisterController().pushText('"', 'yank', '  a\nd', true);
   helpers.doKeys('2', 'p');
   eq('___\n  a\nd\n  a\nd', cm.getValue());
   helpers.assertCursorAt(1, 2);
@@ -1471,6 +1482,38 @@ testVim('visual_join', function(cm, vim, helpers) {
   helpers.doKeys('l', 'V', 'l', 'j', 'j', 'J');
   eq(' 1 2 3\n 4\n 5', cm.getValue());
 }, { value: ' 1\n 2\n 3\n 4\n 5' });
+testVim('visual_blank', function(cm, vim, helpers) {
+  helpers.doKeys('v', 'k');
+  eq(vim.visualMode, true);
+}, { value: '\n' });
+testVim('s_normal', function(cm, vim, helpers) {
+  cm.setCursor(0, 1);
+  helpers.doKeys('s');
+  helpers.doInsertModeKeys('Esc');
+  helpers.assertCursorAt(0, 0);
+  eq('ac', cm.getValue());
+}, { value: 'abc'});
+testVim('s_visual', function(cm, vim, helpers) {
+  cm.setCursor(0, 1);
+  helpers.doKeys('v', 's');
+  helpers.doInsertModeKeys('Esc');
+  helpers.assertCursorAt(0, 0);
+  eq('ac', cm.getValue());
+}, { value: 'abc'});
+testVim('S_normal', function(cm, vim, helpers) {
+  cm.setCursor(0, 1);
+  helpers.doKeys('j', 'S');
+  helpers.doInsertModeKeys('Esc');
+  helpers.assertCursorAt(1, 0);
+  eq('aa\n\ncc', cm.getValue());
+}, { value: 'aa\nbb\ncc'});
+testVim('S_visual', function(cm, vim, helpers) {
+  cm.setCursor(0, 1);
+  helpers.doKeys('v', 'j', 'S');
+  helpers.doInsertModeKeys('Esc');
+  helpers.assertCursorAt(0, 0);
+  eq('\ncc', cm.getValue());
+}, { value: 'aa\nbb\ncc'});
 testVim('/ and n/N', function(cm, vim, helpers) {
   cm.openDialog = helpers.fakeOpenDialog('match');
   helpers.doKeys('/');

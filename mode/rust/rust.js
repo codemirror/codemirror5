@@ -428,7 +428,8 @@ CodeMirror.defineMode("rust", function() {
     electricChars: "{}",
     blockCommentStart: "/*",
     blockCommentEnd: "*/",
-    lineComment: "//"
+    lineComment: "//",
+    fold: "brace"
   };
 });
 

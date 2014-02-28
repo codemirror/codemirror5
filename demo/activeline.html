@@ -1,23 +1,32 @@
 <!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>CodeMirror: Active Line Demo</title>
-    <link rel="stylesheet" href="../lib/codemirror.css">
-    <script src="../lib/codemirror.js"></script>
-    <script src="../mode/xml/xml.js"></script>
-    <script src="../addon/selection/active-line.js"></script>
-    <link rel="stylesheet" href="../doc/docs.css">
 
-    <style type="text/css">
+<title>CodeMirror: Active Line Demo</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../doc/docs.css">
+
+<link rel="stylesheet" href="../lib/codemirror.css">
+<script src="../lib/codemirror.js"></script>
+<script src="../mode/xml/xml.js"></script>
+<script src="../addon/selection/active-line.js"></script>
+<style type="text/css">
       .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}
-      .CodeMirror-activeline-background {background: #e8f2ff !important;}
     </style>
-  </head>
-  <body>
-    <h1>CodeMirror: Active Line Demo</h1>
+<div id=nav>
+  <a href="http://codemirror.net"><img id=logo src="../doc/logo.png"></a>
 
-    <form><textarea id="code" name="code">
+  <ul>
+    <li><a href="../index.html">Home</a>
+    <li><a href="../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a class=active href="#">Active Line</a>
+  </ul>
+</div>
+
+<article>
+<h2>Active Line Demo</h2>
+<form><textarea id="code" name="code">
 <?xml version="1.0" encoding="UTF-8"?>
 <rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"
      xmlns:georss="http://www.georss.org/georss"
@@ -66,5 +75,4 @@ var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
 
     <p>Styling the current cursor line.</p>
 
-  </body>
-</html>
+  </article>

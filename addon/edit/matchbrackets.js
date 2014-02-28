@@ -8,24 +8,24 @@
   function findMatchingBracket(cm, where, strict) {
     var state = cm.state.matchBrackets;
     var maxScanLen = (state && state.maxScanLineLength) || 10000;
+    var maxScanLines = (state && state.maxScanLines) || 100;
 
     var cur = where || cm.getCursor(), line = cm.getLineHandle(cur.line), pos = cur.ch - 1;
     var match = (pos >= 0 && matching[line.text.charAt(pos)]) || matching[line.text.charAt(++pos)];
     if (!match) return null;
     var forward = match.charAt(1) == ">", d = forward ? 1 : -1;
     if (strict && forward != (pos == cur.ch)) return null;
-    var style = cm.getTokenAt(Pos(cur.line, pos + 1)).type;
+    var style = cm.getTokenTypeAt(Pos(cur.line, pos + 1));
 
     var stack = [line.text.charAt(pos)], re = /[(){}[\]]/;
     function scan(line, lineNo, start) {
       if (!line.text) return;
       var pos = forward ? 0 : line.text.length - 1, end = forward ? line.text.length : -1;
       if (line.text.length > maxScanLen) return null;
-      var checkTokenStyles = line.text.length < 1000;
       if (start != null) pos = start + d;
       for (; pos != end; pos += d) {
         var ch = line.text.charAt(pos);
-        if (re.test(ch) && (!checkTokenStyles || cm.getTokenAt(Pos(lineNo, pos + 1)).type == style)) {
+        if (re.test(ch) && cm.getTokenTypeAt(Pos(lineNo, pos + 1)) == style) {
           var match = matching[ch];
           if (match.charAt(1) == ">" == forward) stack.push(ch);
           else if (stack.pop() != match.charAt(0)) return {pos: pos, match: false};
@@ -33,7 +33,7 @@
         }
       }
     }
-    for (var i = cur.line, found, e = forward ? Math.min(i + 100, cm.lineCount()) : Math.max(-1, i - 100); i != e; i+=d) {
+    for (var i = cur.line, found, e = forward ? Math.min(i + maxScanLines, cm.lineCount()) : Math.max(-1, i - maxScanLines); i != e; i+=d) {
       if (i == cur.line) found = scan(line, i, pos);
       else found = scan(cm.getLineHandle(i), i);
       if (found) break;

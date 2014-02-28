@@ -2,6 +2,9 @@
 
 window.CodeMirror = {};
 
+(function() {
+"use strict";
+
 function splitLines(string){ return string.split(/\r?\n|\r/); };
 
 function StringStream(string) {
@@ -43,12 +46,14 @@ StringStream.prototype = {
   match: function(pattern, consume, caseInsensitive) {
     if (typeof pattern == "string") {
       var cased = function(str) {return caseInsensitive ? str.toLowerCase() : str;};
-      if (cased(this.string).indexOf(cased(pattern), this.pos) == this.pos) {
+      var substr = this.string.substr(this.pos, pattern.length);
+      if (cased(substr) == cased(pattern)) {
         if (consume !== false) this.pos += pattern.length;
         return true;
       }
     } else {
       var match = this.string.slice(this.pos).match(pattern);
+      if (match && match.index > 0) return null;
       if (match && consume !== false) this.pos += match[0].length;
       return match;
     }
@@ -123,8 +128,9 @@ CodeMirror.runMode = function (string, modespec, callback, options) {
     var stream = new CodeMirror.StringStream(lines[i]);
     while (!stream.eol()) {
       var style = mode.token(stream, state);
-      callback(stream.current(), style, i, stream.start);
+      callback(stream.current(), style, i, stream.start, state);
       stream.start = stream.pos;
     }
   }
 };
+})();

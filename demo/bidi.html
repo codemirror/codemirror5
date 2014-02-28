@@ -1,21 +1,31 @@
 <!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>CodeMirror: Bi-directional Text Demo</title>
-    <link rel="stylesheet" href="../lib/codemirror.css">
-    <script src="../lib/codemirror.js"></script>
-    <script src="../mode/xml/xml.js"></script>
-    <link rel="stylesheet" href="../doc/docs.css">
 
-    <style type="text/css">
+<title>CodeMirror: Bi-directional Text Demo</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../doc/docs.css">
+
+<link rel="stylesheet" href="../lib/codemirror.css">
+<script src="../lib/codemirror.js"></script>
+<script src="../mode/xml/xml.js"></script>
+<style type="text/css">
       .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}
     </style>
-  </head>
-  <body>
-    <h1>CodeMirror: Bi-directional Text Demo</h1>
+<div id=nav>
+  <a href="http://codemirror.net"><img id=logo src="../doc/logo.png"></a>
 
-    <form><textarea id="code" name="code"><!-- Piece of the CodeMirror manual, 'translated' into Arabic by
+  <ul>
+    <li><a href="../index.html">Home</a>
+    <li><a href="../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a class=active href="#">Bi-directional Text</a>
+  </ul>
+</div>
+
+<article>
+<h2>Bi-directional Text Demo</h2>
+<form><textarea id="code" name="code"><!-- Piece of the CodeMirror manual, 'translated' into Arabic by
      Google Translate -->
 
 <dl>
@@ -48,8 +58,7 @@
     <script>
 var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
   mode: "text/html",
-  lineNumbers: true,
-  lineWrapping: true
+  lineNumbers: true
 });
 </script>
 
@@ -57,5 +66,9 @@ var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
   the <a href="http://marijnhaverbeke.nl/blog/cursor-in-bidi-text.html">related
   blog post</a> for more background.</p>
 
-  </body>
-</html>
+  <p><strong>Note:</strong> There is
+  a <a href="https://github.com/marijnh/CodeMirror/issues/1757">known
+  bug</a> with cursor motion and mouse clicks in bi-directional lines
+  that are line wrapped.</p>
+
+</article>

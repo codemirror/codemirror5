@@ -3,7 +3,7 @@
 
   var Pos = CodeMirror.Pos;
 
-  CodeMirror.xmlHint = function(cm, options) {
+  function getHints(cm, options) {
     var tags = options && options.schemaInfo;
     var quote = (options && options.quoteChar) || '"';
     if (!tags) return;
@@ -37,6 +37,7 @@
                                  Pos(cur.line, token.type == "string" ? token.start : token.end));
         var atName = before.match(/([^\s\u00a0=<>\"\']+)=$/), atValues;
         if (!atName || !attrs.hasOwnProperty(atName[1]) || !(atValues = attrs[atName[1]])) return;
+        if (typeof atValues == 'function') atValues = atValues.call(this, cm); // Functions can be used to supply values for autocomplete widget
         if (token.type == "string") {
           prefix = token.string;
           if (/['"]/.test(token.string.charAt(0))) {
@@ -61,5 +62,8 @@
       from: replaceToken ? Pos(cur.line, token.start) : cur,
       to: replaceToken ? Pos(cur.line, token.end) : cur
     };
-  };
+  }
+
+  CodeMirror.xmlHint = getHints; // deprecated
+  CodeMirror.registerHelper("hint", "xml", getHints);
 })();

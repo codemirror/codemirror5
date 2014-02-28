@@ -17,11 +17,12 @@
 .cm-s-monokai span.cm-variable {color: #a6e22e;}
 .cm-s-monokai span.cm-variable-2 {color: #9effff;}
 .cm-s-monokai span.cm-def {color: #fd971f;}
-.cm-s-monokai span.cm-error {background: #f92672; color: #f8f8f0;}
 .cm-s-monokai span.cm-bracket {color: #f8f8f2;}
 .cm-s-monokai span.cm-tag {color: #f92672;}
 .cm-s-monokai span.cm-link {color: #ae81ff;}
+.cm-s-monokai span.cm-error {background: #f92672; color: #f8f8f0;}
 
+.cm-s-monokai .CodeMirror-activeline-background {background: #373831 !important;}
 .cm-s-monokai .CodeMirror-matchingbracket {
   text-decoration: underline;
   color: white !important;

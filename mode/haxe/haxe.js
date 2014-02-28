@@ -297,7 +297,7 @@ CodeMirror.defineMode("haxe", function(config, parserConfig) {
   function metadef(type) {
     if(type == ":") return cont(metadef);
     if(type == "variable") return cont(metadef);
-    if(type == "(") return cont(pushlex(")"), comasep(metaargs, ")"), poplex, statement);
+    if(type == "(") return cont(pushlex(")"), commasep(metaargs, ")"), poplex, statement);
   }
   function metaargs(type) {
     if(type == "variable") return cont();

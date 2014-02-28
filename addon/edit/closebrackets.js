@@ -54,7 +54,9 @@
         if (cm.somethingSelected()) return surround(cm);
         if (left == right && maybeOverwrite(cm) != CodeMirror.Pass) return;
         var cur = cm.getCursor(), ahead = CodeMirror.Pos(cur.line, cur.ch + 1);
-        var line = cm.getLine(cur.line), nextChar = line.charAt(cur.ch);
+        var line = cm.getLine(cur.line), nextChar = line.charAt(cur.ch), curChar = cur.ch > 0 ? line.charAt(cur.ch - 1) : "";
+        if (left == right && CodeMirror.isWordChar(curChar))
+          return CodeMirror.Pass;
         if (line.length == cur.ch || closingBrackets.indexOf(nextChar) >= 0 || SPACE_CHAR_REGEX.test(nextChar))
           cm.replaceSelection(left + right, {head: ahead, anchor: ahead});
         else

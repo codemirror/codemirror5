@@ -1,31 +1,32 @@
 <!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>CodeMirror: Closebrackets Demo</title>
-    <link rel="stylesheet" href="../lib/codemirror.css">
-    <script src="../lib/codemirror.js"></script>
-    <script src="../addon/edit/closebrackets.js"></script>
-    <script src="../mode/javascript/javascript.js"></script>
-    <link rel="stylesheet" href="../doc/docs.css">
-    <style type="text/css">
+
+<title>CodeMirror: Closebrackets Demo</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../doc/docs.css">
+
+<link rel="stylesheet" href="../lib/codemirror.css">
+<script src="../lib/codemirror.js"></script>
+<script src="../addon/edit/closebrackets.js"></script>
+<script src="../mode/javascript/javascript.js"></script>
+<style type="text/css">
       .CodeMirror {border-top: 1px solid #888; border-bottom: 1px solid #888;}
     </style>
-  </head>
-  <body>
+<div id=nav>
+  <a href="http://codemirror.net"><img id=logo src="../doc/logo.png"></a>
 
-    <h1>CodeMirror: Closebrackets Demo</h1>
+  <ul>
+    <li><a href="../index.html">Home</a>
+    <li><a href="../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a class=active href="#">Closebrackets</a>
+  </ul>
+</div>
 
-    <p>Type a bracket like '[', '(', '{', '&quot;', or '''
-    and <a href="../doc/manual.html#addon_closebrackets">the addon</a>
-    will auto-close it. Type the closing variant when directly in
-    front of a matching character and it will overwrite it.</p>
-
-    <p>If you backspace over a starting bracket while inside empty brackets
-    (e.g. <code>{|}</code>), it will delete the closing bracket for you.</p>
-
-
-    <form><textarea id="code" name="code">(function() {
+<article>
+<h2>Closebrackets Demo</h2>
+<form><textarea id="code" name="code">(function() {
   var DEFAULT_BRACKETS = "()[]{}''\"\"";
 
   CodeMirror.defineOption("autoCloseBrackets", false, function(cm, val, old) {
@@ -59,5 +60,4 @@
     <script type="text/javascript">
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {autoCloseBrackets: true});
     </script>
-  </body>
-</html>
+  </article>

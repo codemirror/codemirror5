@@ -1,8 +1,9 @@
 (function() {
   "use strict";
 
-  function doFold(cm, pos, options) {
-    var finder = options.call ? options : (options && options.rangeFinder);
+  function doFold(cm, pos, options, force) {
+    var finder = options && (options.call ? options : options.rangeFinder);
+    if (!finder) finder = cm.getHelper(pos, "fold");
     if (!finder) return;
     if (typeof pos == "number") pos = CodeMirror.Pos(pos, 0);
     var minSize = options && options.minFoldSize || 0;
@@ -12,7 +13,7 @@
       if (!range || range.to.line - range.from.line < minSize) return null;
       var marks = cm.findMarksAt(range.from);
       for (var i = 0; i < marks.length; ++i) {
-        if (marks[i].__isFold) {
+        if (marks[i].__isFold && force !== "fold") {
           if (!allowFolded) return null;
           range.cleared = true;
           marks[i].clear();
@@ -26,15 +27,19 @@
       pos = CodeMirror.Pos(pos.line - 1, 0);
       range = getRange(false);
     }
-    if (!range || range.cleared) return;
+    if (!range || range.cleared || force === "unfold") return;
 
     var myWidget = makeWidget(options);
-    CodeMirror.on(myWidget, "mousedown", function() {myRange.clear();});
+    CodeMirror.on(myWidget, "mousedown", function() { myRange.clear(); });
     var myRange = cm.markText(range.from, range.to, {
       replacedWith: myWidget,
       clearOnEnter: true,
       __isFold: true
     });
+    myRange.on("clear", function(from, to) {
+      CodeMirror.signal(cm, "unfold", cm, from, to);
+    });
+    CodeMirror.signal(cm, "fold", cm, range.from, range.to);
   }
 
   function makeWidget(options) {
@@ -54,9 +59,11 @@
   };
 
   // New-style interface
-  CodeMirror.defineExtension("foldCode", function(pos, options) { doFold(this, pos, options); });
+  CodeMirror.defineExtension("foldCode", function(pos, options, force) {
+    doFold(this, pos, options, force);
+  });
 
-  CodeMirror.combineRangeFinders = function() {
+  CodeMirror.registerHelper("fold", "combine", function() {
     var funcs = Array.prototype.slice.call(arguments, 0);
     return function(cm, start) {
       for (var i = 0; i < funcs.length; ++i) {
@@ -64,5 +71,5 @@
         if (found) return found;
       }
     };
-  };
+  });
 })();

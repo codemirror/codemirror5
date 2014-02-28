@@ -1,19 +1,32 @@
 <!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>CodeMirror: C-like mode</title>
-    <link rel="stylesheet" href="../../lib/codemirror.css">
-    <script src="../../lib/codemirror.js"></script>
-    <script src="../../addon/edit/matchbrackets.js"></script>
-    <script src="clike.js"></script>
-    <link rel="stylesheet" href="../../doc/docs.css">
-    <style>.CodeMirror {border: 2px inset #dee;}</style>
-  </head>
-  <body>
-    <h1>CodeMirror: C-like mode</h1>
 
-<form><textarea id="code" name="code">
+<title>CodeMirror: C-like mode</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../../doc/docs.css">
+
+<link rel="stylesheet" href="../../lib/codemirror.css">
+<script src="../../lib/codemirror.js"></script>
+<script src="../../addon/edit/matchbrackets.js"></script>
+<script src="clike.js"></script>
+<style>.CodeMirror {border: 2px inset #dee;}</style>
+<div id=nav>
+  <a href="http://codemirror.net"><img id=logo src="../../doc/logo.png"></a>
+
+  <ul>
+    <li><a href="../../index.html">Home</a>
+    <li><a href="../../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="../index.html">Language modes</a>
+    <li><a class=active href="#">C-like</a>
+  </ul>
+</div>
+
+<article>
+<h2>C-like mode</h2>
+
+<div><textarea id="c-code">
 /* C demo code */
 
 #include <zmq.h>
@@ -79,13 +92,93 @@ void* zmq_thread_init(void* zmq_context, int signal_fd) {
   pthread_detach(thread);
   return context;
 }
-</textarea></form>
+</textarea></div>
+
+<h2>C++ example</h2>
+
+<div><textarea id="cpp-code">
+#include <iostream>
+#include "mystuff/util.h"
+
+namespace {
+enum Enum {
+  VAL1, VAL2, VAL3
+};
+
+int Helper(const MyType& param) {
+  return 0;
+}
+} // namespace
+
+class ForwardDec;
+
+template <class T, class V>
+class Class : public BaseClass {
+  const MyType<T, V> member_;
+
+ public:
+  const MyType<T, V>& Method() const {
+    return member_;
+  }
+
+  void Method2(MyType<T, V>* value);
+}
+
+template <class T, class V>
+void Class::Method2(MyType<T, V>* value) {
+  std::out << 1 >> method();
+  value->Method3(member_);
+  member_ = value;
+}
+</textarea></div>
+
+<h2>Java example</h2>
+
+<div><textarea id="java-code">
+import com.demo.util.MyType;
+import com.demo.util.MyInterface;
+
+public enum Enum {
+  VAL1, VAL2, VAL3
+}
+
+public class Class<T, V> implements MyInterface {
+  public static final MyType<T, V> member;
+  
+  private class InnerClass {
+    public int zero() {
+      return 0;
+    }
+  }
+
+  @Override
+  public MyType method() {
+    return member;
+  }
+
+  public void method2(MyType<T, V> value) {
+    method();
+    value.method3();
+    member = value;
+  }
+}
+</textarea></div>
 
     <script>
-      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+      var cEditor = CodeMirror.fromTextArea(document.getElementById("c-code"), {
         lineNumbers: true,
         matchBrackets: true,
         mode: "text/x-csrc"
+      });
+      var cppEditor = CodeMirror.fromTextArea(document.getElementById("cpp-code"), {
+        lineNumbers: true,
+        matchBrackets: true,
+        mode: "text/x-c++src"
+      });
+      var javaEditor = CodeMirror.fromTextArea(document.getElementById("java-code"), {
+        lineNumbers: true,
+        matchBrackets: true,
+        mode: "text/x-java"
       });
     </script>
 
@@ -99,5 +192,4 @@ void* zmq_thread_init(void* zmq_context, int signal_fd) {
     (C code), <code>text/x-c++src</code> (C++
     code), <code>text/x-java</code> (Java
     code), <code>text/x-csharp</code> (C#).</p>
-  </body>
-</html>
+</article>

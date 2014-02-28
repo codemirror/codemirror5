@@ -14,7 +14,7 @@ Ported to CodeMirror by Peter Kroon
 .cm-s-lesser-dark .CodeMirror-cursor { border-left: 1px solid white !important; }
 .cm-s-lesser-dark pre { padding: 0 8px; }/*editable code holder*/
 
-div.CodeMirror span.CodeMirror-matchingbracket { color: #7EFC7E; }/*65FC65*/
+.cm-s-lesser-dark.CodeMirror span.CodeMirror-matchingbracket { color: #7EFC7E; }/*65FC65*/
 
 .cm-s-lesser-dark .CodeMirror-gutters { background: #262626; border-right:1px solid #aaa; }
 .cm-s-lesser-dark .CodeMirror-linenumber { color: #777; }
@@ -32,7 +32,6 @@ div.CodeMirror span.CodeMirror-matchingbracket { color: #7EFC7E; }/*65FC65*/
 .cm-s-lesser-dark span.cm-string { color: #BCD279; }
 .cm-s-lesser-dark span.cm-string-2 {color: #f50;}
 .cm-s-lesser-dark span.cm-meta { color: #738C73; }
-.cm-s-lesser-dark span.cm-error { color: #9d1e15; }
 .cm-s-lesser-dark span.cm-qualifier {color: #555;}
 .cm-s-lesser-dark span.cm-builtin { color: #ff9e59; }
 .cm-s-lesser-dark span.cm-bracket { color: #EBEFE7; }
@@ -42,3 +41,7 @@ div.CodeMirror span.CodeMirror-matchingbracket { color: #7EFC7E; }/*65FC65*/
 .cm-s-lesser-dark span.cm-quote {color: #090;}
 .cm-s-lesser-dark span.cm-hr {color: #999;}
 .cm-s-lesser-dark span.cm-link {color: #00c;}
+.cm-s-lesser-dark span.cm-error { color: #9d1e15; }
+
+.cm-s-lesser-dark .CodeMirror-activeline-background {background: #3C3A3A !important;}
+.cm-s-lesser-dark .CodeMirror-matchingbracket {outline:1px solid grey; color:white !important;}

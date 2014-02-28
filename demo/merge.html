@@ -1,0 +1,82 @@
+<!doctype html>
+
+<title>CodeMirror: merge view demo</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../doc/docs.css">
+
+<link rel=stylesheet href="../lib/codemirror.css">
+<link rel=stylesheet href="../addon/merge/merge.css">
+<script src="../lib/codemirror.js"></script>
+<script src="../mode/xml/xml.js"></script>
+<script src="../addon/merge/dep/diff_match_patch.js"></script>
+<script src="../addon/merge/merge.js"></script>
+<style>
+    .CodeMirror { line-height: 1.2; }
+    body { max-width: 80em; }
+    span.clicky {
+      cursor: pointer;
+      background: #d70;
+      color: white;
+      padding: 0 3px;
+      border-radius: 3px;
+    }
+  </style>
+<div id=nav>
+  <a href="http://codemirror.net"><img id=logo src="../doc/logo.png"></a>
+
+  <ul>
+    <li><a href="../index.html">Home</a>
+    <li><a href="../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a class=active href="#">merge view</a>
+  </ul>
+</div>
+
+<article>
+<h2>merge view demo</h2>
+
+
+<div id=view></div>
+
+<p>The <a href="../doc/manual.html#addon_merge"><code>merge</code></a>
+addon provides an interface for displaying and merging diffs,
+either <span class=clicky onclick="initUI(2)">two-way</span>
+or <span class=clicky onclick="initUI(3)">three-way</span>. The left
+(or center) pane is editable, and the differences with the other
+pane(s) are <span class=clicky onclick="toggleDifferences()">optionally</span> shown live as you edit it.</p>
+
+<p>This addon depends on
+the <a href="https://code.google.com/p/google-diff-match-patch/">google-diff-match-patch</a>
+library to compute the diffs.</p>
+
+<script>
+var value, orig1, orig2, dv, hilight= true;
+function initUI(panes) {
+  if (value == null) return;
+  var target = document.getElementById("view");
+  target.innerHTML = "";
+  dv = CodeMirror.MergeView(target, {
+    value: value,
+    origLeft: panes == 3 ? orig1 : null,
+    orig: orig2,
+    lineNumbers: true,
+    mode: "text/html",
+    highlightDifferences: hilight
+  });
+}
+
+function toggleDifferences() {
+  dv.setShowDifferences(hilight = !hilight);
+}
+
+window.onload = function() {
+  value = document.documentElement.innerHTML;
+  orig1 = value.replace(/\.\.\//g, "codemirror/").replace("yellow", "orange");
+  orig2 = value.replace(/\u003cscript/g, "\u003cscript type=text/javascript ")
+    .replace("white", "purple;\n      font: comic sans;\n      text-decoration: underline;\n      height: 15em");
+  initUI(2);
+};
+</script>
+</article>

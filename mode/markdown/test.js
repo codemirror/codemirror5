@@ -5,6 +5,20 @@
   MT("plainText",
      "foo");
 
+  // Don't style single trailing space
+  MT("trailingSpace1",
+     "foo ");
+
+  // Two or more trailing spaces should be styled with line break character
+  MT("trailingSpace2",
+     "foo[trailing-space-a  ][trailing-space-new-line  ]");
+
+  MT("trailingSpace3",
+     "foo[trailing-space-a  ][trailing-space-b  ][trailing-space-new-line  ]");
+
+  MT("trailingSpace4",
+     "foo[trailing-space-a  ][trailing-space-b  ][trailing-space-a  ][trailing-space-new-line  ]");
+
   // Code blocks using 4 spaces (regardless of CodeMirror.tabSize value)
   MT("codeBlocksUsing4Spaces",
      "    [comment foo]");
@@ -73,27 +87,31 @@
   // http://daringfireball.net/projects/markdown/syntax#header
 
   MT("atxH1",
-     "[header # foo]");
+     "[header&header1 # foo]");
 
   MT("atxH2",
-     "[header ## foo]");
+     "[header&header2 ## foo]");
 
   MT("atxH3",
-     "[header ### foo]");
+     "[header&header3 ### foo]");
 
   MT("atxH4",
-     "[header #### foo]");
+     "[header&header4 #### foo]");
 
   MT("atxH5",
-     "[header ##### foo]");
+     "[header&header5 ##### foo]");
 
   MT("atxH6",
-     "[header ###### foo]");
+     "[header&header6 ###### foo]");
 
   // H6 - 7x '#' should still be H6, per Dingus
   // http://daringfireball.net/projects/markdown/dingus
   MT("atxH6NotH7",
-     "[header ####### foo]");
+     "[header&header6 ####### foo]");
+
+  // Inline styles should be parsed inside headers
+  MT("atxH1inline",
+     "[header&header1 # foo ][header&header1&em *bar*]");
 
   // Setext headers - H1, H2
   // Per documentation, "Any number of underlining =’s or -’s will work."
@@ -105,22 +123,22 @@
   // Check if single underlining = works
   MT("setextH1",
      "foo",
-     "[header =]");
+     "[header&header1 =]");
 
   // Check if 3+ ='s work
   MT("setextH1",
      "foo",
-     "[header ===]");
+     "[header&header1 ===]");
 
   // Check if single underlining - works
   MT("setextH2",
      "foo",
-     "[header -]");
+     "[header&header2 -]");
 
   // Check if 3+ -'s work
   MT("setextH2",
      "foo",
-     "[header ---]");
+     "[header&header2 ---]");
 
   // Single-line blockquote with trailing space
   MT("blockquoteSpace",
@@ -533,8 +551,14 @@
   MT("linkWeb",
      "[link <http://example.com/>] foo");
 
+  MT("linkWebDouble",
+     "[link <http://example.com/>] foo [link <http://example.com/>]");
+
   MT("linkEmail",
      "[link <user@example.com>] foo");
+
+  MT("linkEmailDouble",
+     "[link <user@example.com>] foo [link <user@example.com>]");
 
   MT("emAsterisk",
      "[em *foo*] bar");
@@ -556,6 +580,10 @@
 
   MT("emEscapedBySpaceOut",
      "foo _ bar[em _hello_]world");
+
+  MT("emEscapedByNewline",
+     "foo",
+     "_ bar[em _hello_]world");
 
   // Unclosed emphasis characters
   // Instead of simply marking as EM / STRONG, it would be nice to have an

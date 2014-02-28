@@ -74,7 +74,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   ,   ulRE = /^[*\-+]\s+/
   ,   olRE = /^[0-9]+\.\s+/
   ,   taskListRE = /^\[(x| )\](?=\s)/ // Must follow ulRE or olRE
-  ,   headerRE = /^(?:\={1,}|-{1,})$/
+  ,   atxHeaderRE = /^#+/
+  ,   setextHeaderRE = /^(?:\={1,}|-{1,})$/
   ,   textRE = /^[^!\[\]*_\\<>` "'(]+/;
 
   function switchInline(stream, state, f) {
@@ -103,6 +104,9 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       state.f = inlineNormal;
       state.block = blockNormal;
     }
+    // Reset state.trailingSpace
+    state.trailingSpace = 0;
+    state.trailingSpaceNewLine = false;
     // Mark this line as blank
     state.thisLineHasContent = false;
     return null;
@@ -124,14 +128,17 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       state.listDepth = 0;
     }
 
+    var match = null;
     if (state.indentationDiff >= 4) {
       state.indentation -= 4;
       stream.skipToEnd();
       return code;
     } else if (stream.eatSpace()) {
       return null;
-    } else if (stream.peek() === '#' || (state.prevLineHasContent && stream.match(headerRE)) ) {
-      state.header = true;
+    } else if (match = stream.match(atxHeaderRE)) {
+      state.header = match[0].length <= 6 ? match[0].length : 6;
+    } else if (state.prevLineHasContent && (match = stream.match(setextHeaderRE))) {
+      state.header = match[0].charAt(0) == '=' ? 1 : 2;
     } else if (stream.eat('>')) {
       state.indentation++;
       state.quote = 1;
@@ -204,7 +211,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
     if (state.code) { styles.push(code); }
 
-    if (state.header) { styles.push(header); }
+    if (state.header) { styles.push(header); styles.push(header + state.header); }
     if (state.quote) { styles.push(state.quote % 2 ? quote1 : quote2); }
     if (state.list !== false) {
       var listMod = (state.listDepth - 1) % 3;
@@ -215,6 +222,12 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       } else {
         styles.push(list3);
       }
+    }
+
+    if (state.trailingSpaceNewLine) {
+      styles.push("trailing-space-new-line");
+    } else if (state.trailingSpace) {
+      styles.push("trailing-space-" + (state.trailingSpace % 2 ? "a" : "b"));
     }
 
     return styles.length ? styles.join(' ') : null;
@@ -247,6 +260,9 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
     state.taskOpen = false;
     state.taskClosed = false;
+
+    // Get sol() value now, before character is consumed
+    var sol = stream.sol();
 
     var ch = stream.next();
 
@@ -308,11 +324,11 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       return type;
     }
 
-    if (ch === '<' && stream.match(/^(https?|ftps?):\/\/(?:[^\\>]|\\.)+>/, true)) {
+    if (ch === '<' && stream.match(/^(https?|ftps?):\/\/(?:[^\\>]|\\.)+>/, false)) {
       return switchInline(stream, state, inlineElement(linkinline, '>'));
     }
 
-    if (ch === '<' && stream.match(/^[^> \\]+@(?:[^\\>]|\\.)+>/, true)) {
+    if (ch === '<' && stream.match(/^[^> \\]+@(?:[^\\>]|\\.)+>/, false)) {
       return switchInline(stream, state, inlineElement(linkemail, '>'));
     }
 
@@ -346,7 +362,9 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     }
     var t = getType(state);
     if (ch === '*' || (ch === '_' && !ignoreUnderscore)) {
-      if (state.strong === ch && stream.eat(ch)) { // Remove STRONG
+      if (sol && stream.peek() === ' ') {
+        // Do nothing, surrounded by newline and space
+      } else if (state.strong === ch && stream.eat(ch)) { // Remove STRONG
         state.strong = false;
         return t;
       } else if (!state.strong && stream.eat(ch)) { // Add STRONG
@@ -366,6 +384,14 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         } else { // Not surrounded by spaces, back up pointer
           stream.backUp(1);
         }
+      }
+    }
+
+    if (ch === ' ') {
+      if (stream.match(/ +$/, false)) {
+        state.trailingSpace++;
+      } else if (state.trailingSpace) {
+        state.trailingSpaceNewLine = true;
       }
     }
 
@@ -449,11 +475,13 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         linkTitle: false,
         em: false,
         strong: false,
-        header: false,
+        header: 0,
         taskList: false,
         list: false,
         listDepth: 0,
-        quote: 0
+        quote: 0,
+        trailingSpace: 0,
+        trailingSpaceNewLine: false
       };
     },
 
@@ -481,6 +509,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         list: s.list,
         listDepth: s.listDepth,
         quote: s.quote,
+        trailingSpace: s.trailingSpace,
+        trailingSpaceNewLine: s.trailingSpaceNewLine,
         md_inside: s.md_inside
       };
     },
@@ -496,13 +526,17 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         }
 
         // Reset state.header
-        state.header = false;
+        state.header = 0;
 
         // Reset state.taskList
         state.taskList = false;
 
         // Reset state.code
         state.code = false;
+
+        // Reset state.trailingSpace
+        state.trailingSpace = 0;
+        state.trailingSpaceNewLine = false;
 
         state.f = state.block;
         var indentation = stream.match(/^\s*/, true)[0].replace(/\t/g, '    ').length;
