@@ -782,6 +782,17 @@ testCM("collapsedRangeCoordsChar", function(cm) {
   eqPos(cm.coordsChar(pos_1_3), Pos(3, 3));
 }, {value: "123456\nabcdef\nghijkl\nmnopqr\n"});
 
+testCM("collapsedRangeBetweenLinesSelected", function(cm) {
+  var widget = document.createElement("span");
+  widget.textContent = "\u2194";
+  cm.markText(Pos(0, 3), Pos(1, 0), {replacedWith: widget});
+  cm.setSelection(Pos(0, 3), Pos(1, 0));
+  var selElts = byClassName(cm.getWrapperElement(), "CodeMirror-selected");
+  for (var i = 0, w = 0; i < selElts.length; i++)
+    w += selElts[i].offsetWidth;
+  is(w > 0);
+}, {value: "one\ntwo"});
+
 testCM("hiddenLinesAutoUnfold", function(cm) {
   var range = foldLines(cm, 1, 3, true), cleared = 0;
   CodeMirror.on(range, "clear", function() {cleared++;});
