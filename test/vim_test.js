@@ -1724,7 +1724,7 @@ testVim('#', function(cm, vim, helpers) {
   helpers.doKeys('#');
   helpers.assertCursorAt(1, 8);
 }, { value: '    :=  match nomatch match \nnomatch Match' });
-testVim('macroInsert', function(cm, vim, helpers) {
+testVim('macro_insert', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('q', 'a', '0', 'i');
   cm.replaceRange('foo', cm.getCursor());
@@ -1732,6 +1732,19 @@ testVim('macroInsert', function(cm, vim, helpers) {
   helpers.doKeys('q', '@', 'a');
   eq('foofoo', cm.getValue());
 }, { value: ''});
+testVim('macro_parens', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('q', 'z', 'i');
+  cm.replaceRange('(', cm.getCursor());
+  helpers.doInsertModeKeys('Esc');
+  helpers.doKeys('e', 'a');
+  cm.replaceRange(')', cm.getCursor());
+  helpers.doInsertModeKeys('Esc');
+  helpers.doKeys('q');
+  helpers.doKeys('w', '@', 'z');
+  helpers.doKeys('w', '@', 'z');
+  eq('(see) (spot) (run)', cm.getValue());
+}, { value: 'see spot run'});
 testVim('.', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('2', 'd', 'w');
