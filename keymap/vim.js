@@ -1,5 +1,6 @@
 /**
  * Supported keybindings:
+
  *
  *   Motion:
  *   h, j, k, l
@@ -210,6 +211,7 @@
     { keys: ['|'], type: 'motion',
         motion: 'moveToColumn',
         motionArgs: { }},
+    { keys: ['o'], type: 'motion', motion: 'moveToOtherHighlightedEnd', motionArgs: { },context:'visual'},
     // Operators
     { keys: ['d'], type: 'operator', operator: 'delete' },
     { keys: ['y'], type: 'operator', operator: 'yank' },
@@ -265,13 +267,12 @@
     { keys: ['o'], type: 'action', action: 'newLineAndEnterInsertMode',
         isEdit: true, interlaceInsertRepeat: true,
         actionArgs: { after: true }},
-    { keys: ['O'], type: 'action', action: 'newLineAndEnterInsertMode',
+       { keys: ['O'], type: 'action', action: 'newLineAndEnterInsertMode',
         isEdit: true, interlaceInsertRepeat: true,
         actionArgs: { after: false }},
     { keys: ['v'], type: 'action', action: 'toggleVisualMode' },
     { keys: ['V'], type: 'action', action: 'toggleVisualMode',
         actionArgs: { linewise: true }},
-    { keys: ['g', 'v'], type: 'action', action: 'reselectLastSelection' },
     { keys: ['J'], type: 'action', action: 'joinLines', isEdit: true },
     { keys: ['p'], type: 'action', action: 'paste', isEdit: true,
         actionArgs: { after: true, isEdit: true }},
@@ -412,41 +413,6 @@
       return false;
     }
 
-    var options = {};
-    function defineOption(name, defaultValue, type) {
-      if (defaultValue === undefined) { throw Error('defaultValue is required'); }
-      if (!type) { type = 'string'; }
-      options[name] = {
-        type: type,
-        defaultValue: defaultValue
-      };
-      setOption(name, defaultValue);
-    }
-
-    function setOption(name, value) {
-      var option = options[name];
-      if (!option) {
-        throw Error('Unknown option: ' + name);
-      }
-      if (option.type == 'boolean') {
-        if (value && value !== true) {
-          throw Error('Invalid argument: ' + name + '=' + value);
-        } else if (value !== false) {
-          // Boolean options are set to true if value is not defined.
-          value = true;
-        }
-      }
-      option.value = option.type == 'boolean' ? !!value : value;
-    }
-
-    function getOption(name) {
-      var option = options[name];
-      if (!option) {
-        throw Error('Unknown option: ' + name);
-      }
-      return option.value;
-    }
-
     var createCircularJumpList = function() {
       var size = 100;
       var pointer = -1;
@@ -567,8 +533,7 @@
           insertModeRepeat: undefined,
           visualMode: false,
           // If we are in visual line mode. No effect if visualMode is false.
-          visualLine: false,
-          lastSelection: null
+          visualLine: false
         };
       }
       return cm.state.vim;
@@ -583,13 +548,9 @@
         jumpList: createCircularJumpList(),
         macroModeState: createMacroState(),
         // Recording latest f, t, F or T motion command.
-        lastChararacterSearch: {increment:0, forward:true, selectedCharacter:''},
+        lastCharacterSearch: {increment:0, forward:true, selectedCharacter:''},
         registerController: new RegisterController({})
       };
-      for (var optionName in options) {
-        var option = options[optionName];
-        option.value = option.defaultValue;
-      }
     }
 
     var vimApi= {
@@ -617,9 +578,6 @@
         // Add user defined key bindings.
         exCommandDispatcher.map(lhs, rhs, ctx);
       },
-      setOption: setOption,
-      getOption: getOption,
-      defineOption: defineOption,
       defineEx: function(name, prefix, func){
         if (name.indexOf(prefix) !== 0) {
           throw new Error('(Vim.defineEx) "'+prefix+'" is not a prefix of "'+name+'", command not registered');
@@ -1143,8 +1101,8 @@
         var operator = inputState.operator;
         var operatorArgs = inputState.operatorArgs || {};
         var registerName = inputState.registerName;
-        var selectionEnd = cm.getCursor('head');
-        var selectionStart = cm.getCursor('anchor');
+        var selectionEnd = cm.getCursor('head'); 
+        var selectionStart = cm.getCursor('anchor'); 
         // The difference between cur and selection cursors are that cur is
         // being operated on and ignores that there is a selection.
         var curStart = copyCursor(selectionEnd);
@@ -1205,7 +1163,7 @@
           if (vim.visualMode) {
             // Check if the selection crossed over itself. Will need to shift
             // the start point if that happened.
-            if (cursorIsBefore(selectionStart, selectionEnd) &&
+                if (cursorIsBefore(selectionStart, selectionEnd) &&
                 (cursorEqual(selectionStart, curEnd) ||
                     cursorIsBefore(curEnd, selectionStart))) {
               // The end of the selection has moved from after the start to
@@ -1218,6 +1176,8 @@
               selectionStart.ch -= 1;
             }
             selectionEnd = curEnd;
+	    selectionStart  = (motionResult instanceof Array) ? curStart : selectionStart ;
+
             if (vim.visualLine) {
               if (cursorIsBefore(selectionStart, selectionEnd)) {
                 selectionStart.ch = 0;
@@ -1232,7 +1192,7 @@
                 selectionStart.ch = lineLength(cm, selectionStart.line);
               }
             }
-            cm.setSelection(selectionStart, selectionEnd);
+	    cm.setSelection(selectionStart,selectionEnd);
             updateMark(cm, vim, '<',
                 cursorIsBefore(selectionStart, selectionEnd) ? selectionStart
                     : selectionEnd);
@@ -1338,6 +1298,11 @@
           return mark.find();
         }
         return null;
+      },
+      moveToOtherHighlightedEnd : function(cm) {
+        var newStart = cm.getCursor('head');
+        var newEnd = cm.getCursor('anchor');
+	return [newStart,newEnd] ;
       },
       jumpToMark: function(cm, motionArgs, vim) {
         var best = cm.getCursor();
@@ -1615,7 +1580,7 @@
       },
 
       repeatLastCharacterSearch: function(cm, motionArgs) {
-        var lastSearch = vimGlobalState.lastChararacterSearch;
+        var lastSearch = vimGlobalState.lastCharacterSearch;
         var repeat = motionArgs.repeat;
         var forward = motionArgs.forward === lastSearch.forward;
         var increment = (lastSearch.increment ? 1 : 0) * (forward ? -1 : 1);
@@ -1901,21 +1866,6 @@
         updateMark(cm, vim, '>', cursorIsBefore(curStart, curEnd) ? curEnd
             : curStart);
       },
-      reselectLastSelection: function(cm, _actionArgs, vim) {
-        if (vim.lastSelection) {
-          var lastSelection = vim.lastSelection;
-          cm.setSelection(lastSelection.curStart, lastSelection.curEnd);
-          if (lastSelection.visualLine) {
-            vim.visualMode = true;
-            vim.visualLine = true;
-          }
-          else {
-            vim.visualMode = true;
-            vim.visualLine = false;
-          }
-          CodeMirror.signal(cm, "vim-mode-change", {mode: "visual", subMode: vim.visualLine ? "linewise" : ""});
-        }
-      },
       joinLines: function(cm, actionArgs, vim) {
         var curStart, curEnd;
         if (vim.visualMode) {
@@ -2179,10 +2129,6 @@
     function exitVisualMode(cm) {
       cm.off('mousedown', exitVisualMode);
       var vim = cm.state.vim;
-      // can't use selection state here because yank has already reset its cursor
-      vim.lastSelection = {'curStart': vim.marks['<'].find(),
-        'curEnd': vim.marks['>'].find(), 'visualMode': vim.visualMode,
-        'visualLine': vim.visualLine};
       vim.visualMode = false;
       vim.visualLine = false;
       var selectionStart = cm.getCursor('anchor');
@@ -2312,9 +2258,9 @@
     }
 
     function recordLastCharacterSearch(increment, args) {
-        vimGlobalState.lastChararacterSearch.increment = increment;
-        vimGlobalState.lastChararacterSearch.forward = args.forward;
-        vimGlobalState.lastChararacterSearch.selectedCharacter = args.selectedCharacter;
+        vimGlobalState.lastCharacterSearch.increment = increment;
+        vimGlobalState.lastCharacterSearch.forward = args.forward;
+        vimGlobalState.lastCharacterSearch.selectedCharacter = args.selectedCharacter;
     }
 
     var symbolToMode = {
@@ -2774,7 +2720,6 @@
     }
 
     // Search functions
-    defineOption('pcre', true, 'boolean');
     function SearchState() {}
     SearchState.prototype = {
       getQuery: function() {
@@ -2824,7 +2769,7 @@
     }
 
     // Translates a search string from ex (vim) syntax into javascript form.
-    function translateRegex(str) {
+    function fixRegex(str) {
       // When these match, add a '\' if unescaped or remove one if escaped.
       var specials = ['|', '(', ')', '{'];
       // Remove, but never add, a '\' for these.
@@ -2863,17 +2808,15 @@
     }
 
     // Translates the replace part of a search and replace from ex (vim) syntax into
-    // javascript form.  Similar to translateRegex, but additionally fixes back references
+    // javascript form.  Similar to fixRegex, but additionally fixes back references
     // (translates '\[0..9]' to '$[0..9]') and follows different rules for escaping '$'.
-    function translateRegexReplace(str) {
+    function fixRegexReplace(str) {
       var escapeNextChar = false;
       var out = [];
       for (var i = -1; i < str.length; i++) {
         var c = str.charAt(i) || '';
         var n = str.charAt(i+1) || '';
         if (escapeNextChar) {
-          // At any point in the loop, escapeNextChar is true if the previous
-          // character was a '\' and was not escaped.
           out.push(c);
           escapeNextChar = false;
         } else {
@@ -2896,29 +2839,6 @@
         }
       }
       return out.join('');
-    }
-
-    // Unescape \ and / in the replace part, for PCRE mode.
-    function unescapeRegexReplace(str) {
-      var stream = new CodeMirror.StringStream(str);
-      var output = [];
-      while (!stream.eol()) {
-        // Search for \.
-        while (stream.peek() && stream.peek() != '\\') {
-          output.push(stream.next());
-        }
-        if (stream.match('\\/', true)) {
-          // \/ => /
-          output.push('/');
-        } else if (stream.match('\\\\', true)) {
-          // \\ => \
-          output.push('\\');
-        } else {
-          // Don't change anything
-          output.push(stream.next());
-        }
-      }
-      return output.join('');
     }
 
     /**
@@ -2952,9 +2872,7 @@
       if (!regexPart) {
         return null;
       }
-      if (!getOption('pcre')) {
-        regexPart = translateRegex(regexPart);
-      }
+      regexPart = fixRegex(regexPart);
       if (smartCase) {
         ignoreCase = (/^[^A-Z]*$/).test(regexPart);
       }
@@ -3139,7 +3057,6 @@
       { name: 'write', shortName: 'w' },
       { name: 'undo', shortName: 'u' },
       { name: 'redo', shortName: 'red' },
-      { name: 'set', shortName: 'set' },
       { name: 'sort', shortName: 'sor' },
       { name: 'substitute', shortName: 's' },
       { name: 'nohlsearch', shortName: 'noh' },
@@ -3161,7 +3078,7 @@
           this.parseInput_(cm, inputStream, params);
         } catch(e) {
           showConfirm(cm, e);
-          throw e;
+          return;
         }
         var commandName;
         if (!params.commandName) {
@@ -3356,48 +3273,6 @@
               linewise: true },
             repeatOverride: params.line+1});
       },
-      set: function(cm, params) {
-        var setArgs = params.args;
-        if (!setArgs || setArgs.length < 1) {
-          if (cm) {
-            showConfirm(cm, 'Invalid mapping: ' + params.input);
-          }
-          return;
-        }
-        var expr = setArgs[0].split('=');
-        var optionName = expr[0];
-        var value = expr[1];
-        var forceGet = false;
-
-        if (optionName.charAt(optionName.length - 1) == '?') {
-          // If post-fixed with ?, then the set is actually a get.
-          if (value) { throw Error('Trailing characters: ' + params.argString); }
-          optionName = optionName.substring(0, optionName.length - 1);
-          forceGet = true;
-        }
-        if (value === undefined && optionName.substring(0, 2) == 'no') {
-          // To set boolean options to false, the option name is prefixed with
-          // 'no'.
-          optionName = optionName.substring(2);
-          value = false;
-        }
-        var optionIsBoolean = options[optionName] && options[optionName].type == 'boolean';
-        if (optionIsBoolean && value == undefined) {
-          // Calling set with a boolean option sets it to true.
-          value = true;
-        }
-        if (!optionIsBoolean && !value || forceGet) {
-          var oldValue = getOption(optionName);
-          // If no value is provided, then we assume this is a get.
-          if (oldValue === true || oldValue === false) {
-            showConfirm(cm, ' ' + (oldValue ? '' : 'no') + optionName);
-          } else {
-            showConfirm(cm, '  ' + optionName + '=' + oldValue);
-          }
-        } else {
-          setOption(optionName, value);
-        }
-      },
       sort: function(cm, params) {
         var reverse, ignoreCase, unique, number;
         function parseArgs() {
@@ -3492,11 +3367,7 @@
         var confirm = false; // Whether to confirm each replace.
         if (slashes[1]) {
           replacePart = argString.substring(slashes[1] + 1, slashes[2]);
-          if (getOption('pcre')) {
-            replacePart = unescapeRegexReplace(replacePart);
-          } else {
-            replacePart = translateRegexReplace(replacePart);
-          }
+          replacePart = fixRegexReplace(replacePart);
         }
         if (slashes[2]) {
           // After the 3rd slash, we can have flags followed by a space followed
