@@ -210,6 +210,7 @@
     { keys: ['|'], type: 'motion',
         motion: 'moveToColumn',
         motionArgs: { }},
+    { keys: ['o'], type: 'motion', motion: 'moveToOtherHighlightedEnd', motionArgs: { },context:'visual'},
     // Operators
     { keys: ['d'], type: 'operator', operator: 'delete' },
     { keys: ['y'], type: 'operator', operator: 'yank' },
@@ -1232,6 +1233,7 @@
               selectionStart.ch -= 1;
             }
             selectionEnd = curEnd;
+            selectionStart = (motionResult instanceof Array) ? curStart : selectionStart;
             if (vim.visualLine) {
               if (cursorIsBefore(selectionStart, selectionEnd)) {
                 selectionStart.ch = 0;
@@ -1352,6 +1354,16 @@
           return mark.find();
         }
         return null;
+      },
+      moveToOtherHighlightedEnd: function(cm) {
+        var curEnd = copyCursor(cm.getCursor('head'));
+        var curStart = copyCursor(cm.getCursor('anchor'));
+        if (cursorIsBefore(curStart, curEnd)) {
+           curEnd.ch += 1;
+        } else if (cursorIsBefore(curEnd, curStart)) {
+           curStart.ch -= 1;
+        }
+        return ([curEnd,curStart]);
       },
       jumpToMark: function(cm, motionArgs, vim) {
         var best = cm.getCursor();

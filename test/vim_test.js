@@ -1552,6 +1552,19 @@ testVim('s_visual', function(cm, vim, helpers) {
   helpers.assertCursorAt(0, 0);
   eq('ac', cm.getValue());
 }, { value: 'abc'});
+testVim('o_visual', function(cm,vim,helpers) {
+  cm.setCursor(0,0);
+  helpers.doKeys('v','l','l','l','o');
+  helpers.assertCursorAt(0,0);
+  helpers.doKeys('v','v','j','j','j','o');
+  helpers.assertCursorAt(0,0);
+  helpers.doKeys('o');
+  helpers.doKeys('l','l')
+  helpers.assertCursorAt(3,2);
+  helpers.doKeys('d');
+  eq('p',cm.getValue());
+}, { value: 'abcd\nefgh\nijkl\nmnop'});
+  
 testVim('S_normal', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.doKeys('j', 'S');
