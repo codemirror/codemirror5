@@ -3859,8 +3859,8 @@
       for (var i = 0, len = keyBuffer.length; i < len; i++) {
         CodeMirror.Vim.handleKey(cm, keyBuffer[i]);
         if (vim.insertMode) {
-//          repeatInsertModeChanges(cm, register.insertModeChanges[j++].changes, 1);
-//          exitInsertMode(cm);
+          repeatInsertModeChanges(cm, register.insertModeChanges[j++].changes, 1);
+          exitInsertMode(cm);
         }
       };
       macroModeState.isMacroPlaying = false;
@@ -3966,7 +3966,7 @@
           repeat = !vim.lastEditActionCommand ? 1 : repeat;
           var changeObject = macroModeState.lastInsertModeChanges;
           macroModeState.lastInsertModeChanges = {};
-          repeatInsertModeChanges(cm, changeObject.changes, repeat); 
+          repeatInsertModeChanges(cm, changeObject.changes, repeat);
           macroModeState.lastInsertModeChanges = changeObject;
         }
       }
