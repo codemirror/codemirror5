@@ -3148,6 +3148,7 @@
       { name: 'map' },
       { name: 'nmap', shortName: 'nm' },
       { name: 'vmap', shortName: 'vm' },
+      { name: 'unmap' },
       { name: 'write', shortName: 'w' },
       { name: 'undo', shortName: 'u' },
       { name: 'redo', shortName: 'red' },
@@ -3299,14 +3300,16 @@
             this.commandMap_[commandName] = {
               name: commandName,
               type: 'exToEx',
-              toInput: rhs.substring(1)
+              toInput: rhs.substring(1),
+              user: true
             };
           } else {
             // Ex to key mapping
             this.commandMap_[commandName] = {
               name: commandName,
               type: 'exToKey',
-              toKeys: parseKeyString(rhs)
+              toKeys: parseKeyString(rhs),
+              user: true
             };
           }
         } else {
@@ -3315,7 +3318,8 @@
             var mapping = {
               keys: parseKeyString(lhs),
               type: 'keyToEx',
-              exArgs: { input: rhs.substring(1) }};
+              exArgs: { input: rhs.substring(1) },
+              user: true};
             if (ctx) { mapping.context = ctx; }
             defaultKeymap.unshift(mapping);
           } else {
@@ -3323,12 +3327,45 @@
             var mapping = {
               keys: parseKeyString(lhs),
               type: 'keyToKey',
-              toKeys: parseKeyString(rhs)
+              toKeys: parseKeyString(rhs),
+              user: true
             };
             if (ctx) { mapping.context = ctx; }
             defaultKeymap.unshift(mapping);
           }
         }
+      },
+      unmap: function(lhs, ctx) {
+        var arrayEquals = function(a, b) {
+          if (a === b) return true;
+          if (a == null || b == null) return true;
+          if (a.length != b.length) return false;
+          for (var i = 0; i < a.length; i++) {
+            if (a[i] !== b[i]) return false;
+          }
+          return true;
+        };
+        if (lhs != ':' && lhs.charAt(0) == ':') {
+          // Ex to Ex or Ex to key mapping
+          if (ctx) { throw Error('Mode not supported for ex mappings'); }
+          var commandName = lhs.substring(1);
+          if (this.commandMap_[commandName] && this.commandMap_[commandName].user) {
+            delete this.commandMap_[commandName];
+            return;
+          }
+        } else {
+          // Key to Ex or key to key mapping
+          var keys = parseKeyString(lhs);
+          for (var i = 0; i < defaultKeymap.length; i++) {
+            if (arrayEquals(keys, defaultKeymap[i].keys)
+                && defaultKeymap[i].context === ctx
+                && defaultKeymap[i].user) {
+              defaultKeymap.splice(i, 1);
+              return;
+            }
+          }
+        }
+        throw Error('No such mapping.');
       }
     };
 
@@ -3360,6 +3397,16 @@
       },
       nmap: function(cm, params) { this.map(cm, params, 'normal'); },
       vmap: function(cm, params) { this.map(cm, params, 'visual'); },
+      unmap: function(cm, params, ctx) {
+        var mapArgs = params.args;
+        if (!mapArgs || mapArgs.length < 1) {
+          if (cm) {
+            showConfirm(cm, 'No such mapping: ' + params.input);
+          }
+          return;
+        }
+        exCommandDispatcher.unmap(mapArgs[0], ctx);
+      },
       move: function(cm, params) {
         commandDispatcher.processCommand(cm, cm.state.vim, {
             type: 'motion',
