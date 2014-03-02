@@ -3066,6 +3066,7 @@
       { name: 'map' },
       { name: 'nmap', shortName: 'nm' },
       { name: 'vmap', shortName: 'vm' },
+      { name: 'unmap' },
       { name: 'write', shortName: 'w' },
       { name: 'undo', shortName: 'u' },
       { name: 'redo', shortName: 'red' },
@@ -3246,6 +3247,32 @@
             defaultKeymap.unshift(mapping);
           }
         }
+      },
+      unmap: function(lhs, ctx) {
+        var arrayEquals = function(a, b) {
+          if (a === b) return true;
+          if (a == null || b == null) return true;
+          if (a.length != b.length) return false;
+          for (var i = 0; i < a.length; i++) {
+            if (a[i] !== b[i]) return false;
+          }
+          return true;
+        };
+        if (lhs != ':' && lhs.charAt(0) == ':') {
+          // Ex to Ex or Ex to key mapping
+          if (ctx) { throw Error('Mode not supported for ex mappings'); }
+          var commandName = lhs.substring(1);
+          delete this.commandMap_[commandName];
+        } else {
+          // Key to Ex or key to key mapping
+          var keys = parseKeyString(lhs);
+          for (var i = 0; i < defaultKeymap.length; i++) {
+            if (arrayEquals(keys, defaultKeymap[i].keys) && defaultKeymap[i].context === ctx) {
+              defaultKeymap.splice(i, 1);
+              return;
+            }
+          }
+        }
       }
     };
 
@@ -3277,6 +3304,16 @@
       },
       nmap: function(cm, params) { this.map(cm, params, 'normal'); },
       vmap: function(cm, params) { this.map(cm, params, 'visual'); },
+      unmap: function(cm, params, ctx) {
+        var mapArgs = params.args;
+        if (!mapArgs || mapArgs.length < 1) {
+          if (cm) {
+            showConfirm(cm, 'Invalid unmapping: ' + params.input);
+          }
+          return;
+        }
+        exCommandDispatcher.unmap(mapArgs[0], ctx);
+      },
       move: function(cm, params) {
         commandDispatcher.processCommand(cm, cm.state.vim, {
             type: 'motion',

@@ -2549,6 +2549,11 @@ testVim('ex_map_key2key', function(cm, vim, helpers) {
   helpers.assertCursorAt(0, 0);
   eq('bc', cm.getValue());
 }, { value: 'abc' });
+testVim('ex_unmap_key2key', function(cm, vim, helpers) {
+  helpers.doEx('unmap a');
+  helpers.doKeys('a');
+  eq('vim-insert', cm.getOption('keyMap'));
+}, { value: 'abc' });
 testVim('ex_map_key2key_to_colon', function(cm, vim, helpers) {
   helpers.doEx('map ; :');
   var dialogOpened = false;
