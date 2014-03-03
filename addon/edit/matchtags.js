@@ -57,7 +57,7 @@
     var found = CodeMirror.findMatchingTag(cm, cm.getCursor());
     if (found) {
       var other = found.at == "close" ? found.open : found.close;
-      if (other) cm.setSelection(other.to, other.from);
+      if (other) cm.extendSelection(other.to, other.from);
     }
   };
 });
