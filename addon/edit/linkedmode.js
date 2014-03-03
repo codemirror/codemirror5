@@ -16,6 +16,10 @@
     span.className = className;
     return span;
   }
+  function clearMarker(marker) {
+    marker.clear();
+    marker.off("unhide");
+  }
   function LinkedMode(cm, groupArray, options) {
     this.cm = cm;
     this.doc = cm.doc;
@@ -33,7 +37,7 @@
     off: function (type, f) {
       CodeMirror.off(this, type, f);
     },
-    _createMarker: function (from, to, group, isFirst) {
+    _createMarker: function (from, to, group, index) {
       var marker;
       
       if (isRangeEmpty(from, to)) {
@@ -50,8 +54,13 @@
       marker.originalStartPos = from;
       marker.linkedModeGroup = group;
 
+      // Restore the original marker on undo
+      marker.on("unhide", function () {
+        group.markers[index] = marker;
+      });
+
       // Stop on the first marker by default unless specified in options
-      marker.isStop = isFirst || (group.options && group.options.stopOnAllPositions);
+      marker.isStop = (index === 0) || (group.options && group.options.stopOnAllPositions);
       
       return marker;
     },
@@ -79,7 +88,7 @@
     },
     _onBeforeChange: function (cm, changeObj) {
       // Prevent overlapping edits
-      // Ignore undo/redo changes with a line break
+      // Ignore undo/redo and changes with a line break
       var self = this,
         hasLineBreak = changeObj.text.length > 1,
         isUndoRedo = !changeObj.update,
@@ -90,7 +99,6 @@
           // Do not move to the the exit cursor position
           self.stop(false);
         }
-
         return;
       }
 
@@ -109,7 +117,7 @@
           targetRange = self._findMarker(fromMarker),
           offsetStart = changeObj.from.ch - targetRange.from.ch,
           offsetEnd = changeObj.to.ch - targetRange.to.ch,
-          replaceMarker = (offsetStart === 0 && offsetEnd === 0),
+          doReplaceMarker = (offsetStart === 0 && offsetEnd === 0),
           text = changeObj.text[0],
           range,
           from,
@@ -125,21 +133,21 @@
             console.assert(range);
 
             // Add offset to range
-            from = { line: range.from.line, ch: range.from.ch += offsetStart };
-            to   = { line: range.to.line,   ch: range.to.ch += offsetEnd };
+            from = new CodeMirror.Pos(range.from.line, range.from.ch += offsetStart);
+            to   = new CodeMirror.Pos(range.to.line,   range.to.ch += offsetEnd);
             
             cm.replaceRange(text, from, to, changeObj.origin);
 
-            if (replaceMarker) {
-              // Clear the old marker
-              m.clear();
+            // Replace the old marker if it was hidden due to edits
+            if (doReplaceMarker) {
+              var updateRangeTo = new CodeMirror.Pos(range.from.line, range.from.ch + text.length),
+                replacementMarker = self._createMarker(range.from, updateRangeTo, group, i);
 
-              var updateRangeTo = { line: range.from.line, ch: range.from.ch + text.length };
-              group.markers[i] = self._createMarker(range.from, updateRangeTo, group, i === 0);
+              group.markers[i] = replacementMarker;
             }
           });
 
-          if (replaceMarker)
+          if (doReplaceMarker)
             self._invalidateSortedMarkers();
 
           // Release lock
@@ -150,21 +158,24 @@
         self.stop(false);
       }
     },
-    _nextMarker: function (currentMarker) {
+    _nextMarker: function (currentMarker, dir) {
       var marker,
         nextMarker,
-        index = 0,
-        sortedMarkers = this._getSortedMarkers();
+        sortedMarkers = this._getSortedMarkers(),
+        index = (dir > 0) ? 0 : sortedMarkers.length - 1,
+        isExit = (currentMarker === this.exitMarker),
+        isFirst = (currentMarker === sortedMarkers[0]);
 
-      if ((currentMarker === this.exitMarker) && this.options.noCycle) {
-        // Do not cycle if we're current at the exit position
-        return;
-      } else {
-        index = sortedMarkers.indexOf(currentMarker) + 1;
+      if (this.options.noCycle) {
+        if ((isExit && (dir > 0)) || (isFirst && (dir < 0)))
+          return;
+      } else if (!isExit) {
+        index = sortedMarkers.indexOf(currentMarker) + dir;
       }
 
       while (!nextMarker) {
-        marker = sortedMarkers[index++];
+        marker = sortedMarkers[index];
+        index = index + dir;
 
         if (!marker) {
           // No more markers, exit
@@ -197,13 +208,14 @@
         this.stop(isAtMarker);
       } else if (event.keyCode === 9) {
         // TAB, move to next linked position
-        var nextMarker;
+        var nextMarker,
+          dir = (event.shiftKey) ? -1 : 1;
         
         if (!marker) {
           // tab key outside all linked positions, always go to first marker 
           nextMarker = this._getSortedMarkers()[0];
         } else {
-          nextMarker = this._nextMarker(marker);
+          nextMarker = this._nextMarker(marker, dir);
         }
         
         // do not insert tab char
@@ -263,7 +275,7 @@
 
       this.groups.forEach(function (group) {
         group.positions.forEach(function (pos, index) {
-          var marker = self._createMarker(pos.from, pos.to, group, (index === 0));
+          var marker = self._createMarker(pos.from, pos.to, group, index);
 
           // Store markers with the group
           group.markers.push(marker);
@@ -310,7 +322,7 @@
           if (range && !res.text)
             res.text = self.cm.getRange(range.from, range.to);
           
-          marker.clear();
+          clearMarker(marker);
         });
         
         allGroupResults.push(res);
@@ -322,7 +334,7 @@
           this._goToMarker(this.exitMarker);
         }
         
-        this.exitMarker.clear();
+        clearMarker(this.exitMarker);
         this.exitMarker = null;
       }
       
