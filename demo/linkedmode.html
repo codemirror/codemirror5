@@ -19,24 +19,36 @@
     <h1>CodeMirror: Linked Mode Demo</h1>
 
     <form><textarea id="code" name="code">
-var foo, bar;
-myMethodCall(foo, bar);
+<span id="">text</span>
+<span>
+  text
+</span>
 </textarea></form>
 
     <script>
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {mode: "text/html", lineNumbers: true});
       var groups = editor.getLinkedGroups([
-        {from: {line: 1, ch: 13}, to: {line: 1, ch: 16}},
-        {from: {line: 1, ch: 18}, to: {line: 1, ch: 21}}
-      ]);
+        [
+          {from: {line: 0, ch: 1}, to: {line: 0, ch: 5}}, {from: {line: 0, ch: 18}, to: {line: 0, ch: 22}},
+          {from: {line: 1, ch: 1}, to: {line: 1, ch: 5}}, {from: {line: 3, ch: 2}, to: {line: 3, ch: 6}}
+        ],
+        [
+          {from: {line: 0, ch: 12}, to: {line: 0, ch: 16}},
+          {from: {line: 2, ch: 2}, to: {line: 2, ch: 6}}
+        ],
+        {from: {line: 0, ch: 10}}
+      ]/*, { stopOnAllPositions: true }*/);
       var linkedMode = editor.getLinkedMode(groups);
-      linkedMode.setExitPosition({from: {line: 1, ch: 22}});
+      linkedMode.setExit({line: 3, ch: 18});
       linkedMode.start();
+      linkedMode.on("stop", function (results) {
+        console.log("stop: ", results);
+      });
       editor.focus();
     </script>
 
-    <p>Set cursor inside arguments to myMethodCall. Press TAB to cycle between arguments,
-    ENTER to exit linked mode at the end of the method call, ESC to exit linked mode
-    at the current cursor position.</p>
+    <p>Press TAB to cycle between positions, ENTER to exit linked mode at the
+    end of the method call, ESC to exit linked mode at the current cursor
+    position.</p>
   </body>
 </html>
