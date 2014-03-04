@@ -3217,14 +3217,16 @@
             this.commandMap_[commandName] = {
               name: commandName,
               type: 'exToEx',
-              toInput: rhs.substring(1)
+              toInput: rhs.substring(1),
+              user: true
             };
           } else {
             // Ex to key mapping
             this.commandMap_[commandName] = {
               name: commandName,
               type: 'exToKey',
-              toKeys: parseKeyString(rhs)
+              toKeys: parseKeyString(rhs),
+              user: true
             };
           }
         } else {
@@ -3233,7 +3235,8 @@
             var mapping = {
               keys: parseKeyString(lhs),
               type: 'keyToEx',
-              exArgs: { input: rhs.substring(1) }};
+              exArgs: { input: rhs.substring(1) },
+              user: true};
             if (ctx) { mapping.context = ctx; }
             defaultKeymap.unshift(mapping);
           } else {
@@ -3241,7 +3244,8 @@
             var mapping = {
               keys: parseKeyString(lhs),
               type: 'keyToKey',
-              toKeys: parseKeyString(rhs)
+              toKeys: parseKeyString(rhs),
+              user: true
             };
             if (ctx) { mapping.context = ctx; }
             defaultKeymap.unshift(mapping);
@@ -3262,12 +3266,16 @@
           // Ex to Ex or Ex to key mapping
           if (ctx) { throw Error('Mode not supported for ex mappings'); }
           var commandName = lhs.substring(1);
-          delete this.commandMap_[commandName];
+          if (this.commandMap_[commandName] && this.commandMap_[commandName].user) {
+            delete this.commandMap_[commandName];
+          }
         } else {
           // Key to Ex or key to key mapping
           var keys = parseKeyString(lhs);
           for (var i = 0; i < defaultKeymap.length; i++) {
-            if (arrayEquals(keys, defaultKeymap[i].keys) && defaultKeymap[i].context === ctx) {
+            if (arrayEquals(keys, defaultKeymap[i].keys)
+                && defaultKeymap[i].context === ctx
+                && defaultKeymap[i].user) {
               defaultKeymap.splice(i, 1);
               return;
             }
