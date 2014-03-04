@@ -80,7 +80,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
         var isClose = stream.eat("/");
         tagName = "";
         var c, d=0;
-        while ((c = stream.eat(/[^\s\u00a0=<>\"\'\/?]/))) { tagName += c; d++ }
+        while ((c = stream.eat(/[^\s\u00a0=<>\"\'\/?]/))) { tagName += c; d++; }
         if (Kludges.caseFold) tagName = tagName.toLowerCase();
         if (!tagName) return "tag error";
         type = isClose ? "closeTag" : "openTag";
@@ -127,7 +127,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
       return state.tokenize(stream, state);
     } else {
       stream.eatWhile(/[^\s\u00a0=<>\"\']/);
-      if (Kludges.themeBrackets) 
+      if (Kludges.themeBrackets)
         if ( stream.string.substr(stream.start-1,1) === "<" || stream.string.substr(stream.start-1,1) === "/" ) return "tagDefault";
       return "word";
     }
