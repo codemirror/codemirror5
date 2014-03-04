@@ -35,7 +35,8 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
     doNotIndent: {"pre": true},
     allowUnquoted: true,
     allowMissing: true,
-    caseFold: true
+    caseFold: true,
+    themeBrackets: parserConfig.themeBrackets ? parserConfig.themeBrackets : false 
   } : {
     autoSelfClosers: {},
     implicitlyClosed: {},
@@ -43,7 +44,8 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
     doNotIndent: {},
     allowUnquoted: false,
     allowMissing: false,
-    caseFold: false
+    caseFold: false,
+    themeBrackets: parserConfig.themeBrackets ? parserConfig.themeBrackets : false
   };
   var alignCDATA = parserConfig.alignCDATA;
 
@@ -83,8 +85,8 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
         if (!tagName) return "tag error";
         type = isClose ? "closeTag" : "openTag";
         state.tokenize = inTag;
-        stream.backUp(d);
-        return "tag tagOpen";
+        if (Kludges.themeBrackets) stream.backUp(d);
+        return !Kludges.themeBrackets ? "tag" : "tag tagOpen";
       }
     } else if (ch == "&") {
       var ok;
@@ -109,7 +111,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
     if (ch == ">" || (ch == "/" && stream.eat(">"))) {
       state.tokenize = inText;
       type = ch == ">" ? "endTag" : "selfcloseTag";
-      return "tag tagClose";
+      return !Kludges.themeBrackets ? "tag" : "tag tagClose";
     } else if (ch == "=") {
       type = "equals";
       return null;
@@ -125,7 +127,8 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
       return state.tokenize(stream, state);
     } else {
       stream.eatWhile(/[^\s\u00a0=<>\"\']/);
-      if ( stream.string.substr(stream.start-1,1) === "<" || stream.string.substr(stream.start-1,1) === "/" ) return "tagDefault";
+      if (Kludges.themeBrackets) 
+        if ( stream.string.substr(stream.start-1,1) === "<" || stream.string.substr(stream.start-1,1) === "/" ) return "tagDefault";
       return "word";
     }
   }
