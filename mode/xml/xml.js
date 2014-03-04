@@ -36,7 +36,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
     allowUnquoted: true,
     allowMissing: true,
     caseFold: true,
-    themeBrackets: parserConfig.themeBrackets ? parserConfig.themeBrackets : false 
+    themeBrackets: parserConfig.themeBrackets ? parserConfig.themeBrackets : false
   } : {
     autoSelfClosers: {},
     implicitlyClosed: {},
