@@ -77,13 +77,14 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
       } else {
         var isClose = stream.eat("/");
         tagName = "";
-        var c;
-        while ((c = stream.eat(/[^\s\u00a0=<>\"\'\/?]/))) tagName += c;
+        var c, d=0;
+        while ((c = stream.eat(/[^\s\u00a0=<>\"\'\/?]/))) { tagName += c; d++ }
         if (Kludges.caseFold) tagName = tagName.toLowerCase();
         if (!tagName) return "tag error";
         type = isClose ? "closeTag" : "openTag";
         state.tokenize = inTag;
-        return "tag";
+        stream.backUp(d);
+        return "tag tagOpen";
       }
     } else if (ch == "&") {
       var ok;
@@ -108,7 +109,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
     if (ch == ">" || (ch == "/" && stream.eat(">"))) {
       state.tokenize = inText;
       type = ch == ">" ? "endTag" : "selfcloseTag";
-      return "tag";
+      return "tag tagClose";
     } else if (ch == "=") {
       type = "equals";
       return null;
@@ -124,6 +125,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
       return state.tokenize(stream, state);
     } else {
       stream.eatWhile(/[^\s\u00a0=<>\"\']/);
+      if ( stream.string.substr(stream.start-1,1) === "<" || stream.string.substr(stream.start-1,1) === "/" ) return "tagDefault";
       return "word";
     }
   }
@@ -225,7 +227,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
   }
   function closeState(type, _stream, state) {
     if (type != "endTag") {
-      setStyle = "error";
+      setStyle = type == "tagDefault" ? "tag" : "error";
       return closeState;
     }
     popContext(state);
@@ -252,7 +254,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
       }
       return baseState;
     }
-    setStyle = "error";
+    setStyle = type == "tagDefault" ? "tag" : "error";
     return attrState;
   }
   function attrEqState(type, stream, state) {
