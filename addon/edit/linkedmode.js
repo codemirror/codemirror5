@@ -39,7 +39,7 @@
     },
     _createMarker: function (from, to, group, index) {
       var marker;
-      
+
       if (isRangeEmpty(from, to)) {
         marker = this.doc.setBookmark(from, { widget: emptyRangeSpan(this.options.emptyClassName) });
       } else {
@@ -50,7 +50,7 @@
           inclusiveRight: true
         });
       }
-      
+
       marker.originalStartPos = from;
       marker.linkedModeGroup = group;
 
@@ -61,7 +61,7 @@
 
       // Stop on the first marker by default unless specified in options
       marker.isStop = (index === 0) || (group.options && group.options.stopOnAllPositions);
-      
+
       return marker;
     },
     setExit: function (posOrRange) {
@@ -70,7 +70,7 @@
     _getMarkerAt: function (pos) {
       var markers = this.doc.findMarksAt(pos),
         found;
-      
+
       // linked mode markers will not overlap, return the first linked mode marker
       markers.some(function (marker) {
         if (marker.linkedModeGroup) {
@@ -80,11 +80,11 @@
 
         return false;
       });
-      
+
       return found;
     },
-    _getMarkerAtCursor: function () {
-      return this._getMarkerAt(this.cm.getCursor());
+    _getMarkerAtCursor: function (cm) {
+      return this._getMarkerAt(cm.getCursor());
     },
     _onBeforeChange: function (cm, changeObj) {
       // Prevent overlapping edits
@@ -135,7 +135,7 @@
             // Add offset to range
             from = new CodeMirror.Pos(range.from.line, range.from.ch += offsetStart);
             to   = new CodeMirror.Pos(range.to.line,   range.to.ch += offsetEnd);
-            
+
             cm.replaceRange(text, from, to, changeObj.origin);
 
             // Replace the old marker if it was hidden due to edits
@@ -194,30 +194,30 @@
         return;
       }
 
-      var marker = this._getMarkerAtCursor();
+      var marker = this._getMarkerAtCursor(cm);
 
       if (event.keyCode === 13) {
         // ENTER, stop linked mode optionally at stop position
         var isAtMarker = !!marker;
-        
+
         // do not insert line break if within a linked position
         if (isAtMarker) {
           event.preventDefault();
         }
-        
+
         this.stop(isAtMarker);
       } else if (event.keyCode === 9) {
         // TAB, move to next linked position
         var nextMarker,
           dir = (event.shiftKey) ? -1 : 1;
-        
+
         if (!marker) {
-          // tab key outside all linked positions, always go to first marker 
+          // tab key outside all linked positions, always go to first marker
           nextMarker = this._getSortedMarkers()[0];
         } else {
           nextMarker = this._nextMarker(marker, dir);
         }
-        
+
         // do not insert tab char
         event.preventDefault();
 
@@ -280,19 +280,19 @@
           // Store markers with the group
           group.markers.push(marker);
         });
-        
+
         // positions are invalid once linked mode is active, clear them
         group.positions = null;
       });
-      
+
       // mark the exit position
       if (this.exitRange) {
         this.exitMarker = this._createMarker(this.exitRange.from, this.exitRange.to, "exit");
-        
+
         // clear exit position
         this.exitRange = null;
       }
-      
+
       // install keydown event handler
       this._onKeyDown = this._onKeyDown.bind(this);
       this.cm.on("keydown", this._onKeyDown);
@@ -300,7 +300,7 @@
       // use beforeChange events to detect which markers to repair
       this._onBeforeChange = this._onBeforeChange.bind(this);
       this.cm.on("beforeChange", this._onBeforeChange);
-      
+
       // select the first marker
       this._goToMarker(this._getSortedMarkers()[0]);
     },
@@ -308,9 +308,7 @@
       var self = this,
         allGroupResults = [],
         range,
-        res,
-        from,
-        to;
+        res;
 
       this.groups.forEach(function (group) {
         res = { ranges: [], text: null };
@@ -321,23 +319,23 @@
 
           if (range && !res.text)
             res.text = self.cm.getRange(range.from, range.to);
-          
+
           clearMarker(marker);
         });
-        
+
         allGroupResults.push(res);
       });
-      
+
       // set selection at exit position
       if (this.exitMarker) {
         if (goToExit) {
           this._goToMarker(this.exitMarker);
         }
-        
+
         clearMarker(this.exitMarker);
         this.exitMarker = null;
       }
-      
+
       this.cm.off("keydown", this._onKeyDown);
       this.cm.off("beforeChange", this._onBeforeChange);
 
