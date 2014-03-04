@@ -43,7 +43,7 @@
 </textarea></form>
     <script>
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-        mode: "text/html",
+        mode: { name: "text/html", alignCDATA: true, themeBrackets: false },
         lineNumbers: true
       });
     </script>
@@ -56,6 +56,11 @@
       <dt><code>alignCDATA (boolean)</code></dt>
       <dd>Setting this to true will force the opening tag of CDATA
       blocks to not be indented.</dd>
+      <dt><code>themeBrackets (boolean)</code></dt>
+      <dd>Setting this to true will theme the open(&lt;) and closing(&gt;) brackets.<br />
+      3 Css styles are needed:<pre>.cm-s-default .cm-tagClose { background-color: orange; }
+.cm-s-default .cm-tagOpen { background-color: orange; }
+.cm-s-default .cm-tagDefault { color: #170; }</pre></dd>
     </dl>
 
     <p><strong>MIME types defined:</strong> <code>application/xml</code>, <code>text/html</code>.</p>
