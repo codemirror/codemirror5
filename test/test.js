@@ -1817,3 +1817,16 @@ testCM("selectionHistoryNonOverlapping", function(cm) {
   eqPos(cm.getCursor("anchor"), Pos(0, 0));
   eqPos(cm.getCursor("head"), Pos(0, 1));
 }, {value: "1234"});
+
+testCM("cursorMotionSplitsHistory", function(cm) {
+  cm.replaceSelection("a", null, "+input");
+  cm.execCommand("goCharRight");
+  cm.replaceSelection("b", null, "+input");
+  cm.replaceSelection("c", null, "+input");
+  cm.undo();
+  eq(cm.getValue(), "a1234");
+  eqPos(cm.getCursor(), Pos(0, 2));
+  cm.undo();
+  eq(cm.getValue(), "1234");
+  eqPos(cm.getCursor(), Pos(0, 0));
+}, {value: "1234"});
