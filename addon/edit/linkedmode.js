@@ -1,5 +1,6 @@
 /*jslint indent: 2, nomen: true, vars: true, plusplus: true*/
-/*global document, CodeMirror*/
+/*global JSON, document, CodeMirror*/
+// declare global: JSON
 /**
  * Linked mode extension for CodeMirror.
  * Based on Eclipse http://help.eclipse.org/indigo/topic/org.eclipse.platform.doc.isv/reference/api/org/eclipse/jface/text/link/package-summary.html
@@ -20,10 +21,21 @@
  * var exitPos = new CodeMirror.LinkedPosition(cm.doc, new CodeMirror.Pos(...));
  *
  * // create model
- * var model = new CodeMirror.LinkedModeModel([linkedGroup1, ..., linkedGroupN);
+ * var model = new CodeMirror.LinkedModeModel([linkedGroup1, ..., linkedGroupN]);
  *
  * // register event handlers
+ * // errorCallback(model:LinkedModeModel, err:string)
  * model.on("error", errorCallback);
+ *
+ * // TODO
+ * // focusCallback(model:LinkedModeModel, linkedPosition:LinkedPosition, linkedGroup:LinkedGroup)
+ * // cm.on("linkedModeFocus", focusCallback);
+ *
+ * // TODO
+ * // blurCallback(model:LinkedModeModel, linkedPosition:LinkedPosition, linkedGroup:LinkedGroup)
+ * // cm.on("linkedModeBlur", blurCallback);
+ *
+ * // exitCallback(model:LinkedModeModel)
  * model.on("exit", exitCallback);
  *
  * // enter linked mode
@@ -46,6 +58,8 @@
  * Future plans:
  * - Nested linked modes
  * - Error checking for overlapping ranges
+ * - linkedModeFocus and linkedModeBlur events
+ * - Smart sorting based on LinkedPosition document
  *
  * See demos/linkedmode.html for a more complete usage example.
  */
@@ -81,7 +95,7 @@
 
     // linked mode markers will not overlap, return the first linked mode marker
     markers.some(function (marker) {
-      if (marker.linkedPositionGroup && (!type || (marker.type === type))) {
+      if (marker.linkedPosition && (!type || (marker.type === type))) {
         found = marker;
         return true;
       }
@@ -108,6 +122,7 @@
 
     this._marks = [];
     this._codeMirrorInstances = [];
+    this._mapPositionsToGroup = {};
   }
   LinkedModeModel.prototype = {
     on: function (type, f) {
@@ -116,11 +131,12 @@
     off: function (type, f) {
       CodeMirror.off(this, type, f);
     },
-    _createMarker: function (doc, from, to, group, index) {
+    _createMarker: function (doc, from, to, linkedPos, index) {
       var self = this,
         marker,
         isBookmark = isRangeEmpty(from, to),
-        editor = doc.getEditor();
+        editor = doc.getEditor(),
+        group = self._lookupGroup(linkedPos);
 
       if (isBookmark) {
         marker = doc.setBookmark(from, { widget: emptyRangeSpan(this.options.emptyClassName) });
@@ -140,32 +156,35 @@
       // Save all TextMarkers to clear when we exit linked mode
       this._marks.push(marker);
 
-      marker.linkedPositionGroup = group;
+      marker.linkedPosition = linkedPos;
 
       // Restore the original marker on undo
       if (!isBookmark) {
         marker.on("unhide", function () {
-          group.markers[index] = marker;
-          self._invalidateSortedMarkers();
+          linkedPos.marker = marker;
+          self._invalidateSortedPositions();
         });
 
         // Restore prior bookmarks
-        var previous = group.markers[index];
+        var previous = linkedPos.marker;
         if (previous && previous.type === "bookmark") {
           marker.on("hide", function () {
-            group.markers[index] = previous;
-            self._invalidateSortedMarkers();
+            linkedPos.marker = previous;
+            self._invalidateSortedPositions();
           });
         }
       }
 
       // Stop on the first marker by default unless specified in options
-      marker.isStop = (index === 0) || (group.options && group.options.stopOnAllPositions);
+      linkedPos.isStop = (index === 0) || !group || (group.options && group.options.stopOnAllPositions);
 
       return marker;
     },
     setExit: function (position) {
       this.exitPosition = position;
+    },
+    _lookupGroup: function (linkedPos) {
+      return this._mapPositionsToGroup[linkedPos];
     },
     _onBeforeChange: function (cm, changeObj) {
       // Prevent overlapping edits
@@ -186,7 +205,8 @@
 
       var toMarker = getMarkerAt(editDoc, changeObj.to),
         fromMarker = getMarkerAt(editDoc, changeObj.from, toMarker && toMarker.type),
-        isExit = (fromMarker === this.exitMarker) || (toMarker === this.exitMarker),
+        exitMarker = this.exitPosition.marker,
+        isExit = (fromMarker === exitMarker) || (toMarker === exitMarker),
         isSameMarker = fromMarker && toMarker && (fromMarker === toMarker);
 
       if (!isExit && isSameMarker) {
@@ -197,42 +217,42 @@
         changeObj.cancel();
 
         // Assumes marker and change are on the same line
-        var group = fromMarker.linkedPositionGroup,
+        var group = self._lookupGroup(fromMarker.linkedPosition),
           targetRange = findMarker(fromMarker),
           offsetStart = changeObj.from.ch - targetRange.from.ch,
           offsetEnd = changeObj.to.ch - targetRange.to.ch,
           doReplaceMarker = (offsetStart === 0 && offsetEnd === 0),
           text = changeObj.text[0],
+          marker,
           range,
           from,
           to;
 
         // Update all markers in the group
         cm.operation(function () {
-          var marks = group.markers.slice(0);
-
-          marks.forEach(function (m, i) {
+          group.positions.forEach(function (linkedPos, i) {
             // We should only have valid ranges
-            range = findMarker(m);
+            marker = linkedPos.marker;
+            range = findMarker(marker);
             console.assert(range);
 
             // Add offset to range
             from = new CodeMirror.Pos(range.from.line, range.from.ch += offsetStart);
             to   = new CodeMirror.Pos(range.to.line,   range.to.ch += offsetEnd);
 
-            m.doc.replaceRange(text, from, to, changeObj.origin);
+            marker.doc.replaceRange(text, from, to, changeObj.origin);
 
             // Replace the old marker if it was hidden due to edits
             if (doReplaceMarker) {
               var updateRangeTo = new CodeMirror.Pos(range.from.line, range.from.ch + text.length),
-                replacementMarker = self._createMarker(m.doc, range.from, updateRangeTo, group, i);
+                replacementMarker = self._createMarker(linkedPos.doc, range.from, updateRangeTo, linkedPos, i);
 
-              group.markers[i] = replacementMarker;
+              linkedPos.marker = replacementMarker;
             }
           });
 
           if (doReplaceMarker)
-            self._invalidateSortedMarkers();
+            self._invalidateSortedPositions();
 
           // Release lock
           self.lock = false;
@@ -242,34 +262,34 @@
         self.exit(false);
       }
     },
-    _nextMarker: function (currentMarker, dir) {
-      var marker,
-        nextMarker,
-        sortedMarkers = this._getSortedMarkers(),
-        index = (dir > 0) ? 0 : sortedMarkers.length - 1,
-        isExit = (currentMarker === this.exitMarker),
-        isFirst = (currentMarker === sortedMarkers[0]);
+    _nextPosition: function (currentPosition, dir) {
+      var linkedPos,
+        nextPosition,
+        sortedPositions = this._getSortedPositions(),
+        index = (dir > 0) ? 0 : sortedPositions.length - 1,
+        isExit = (currentPosition === this.exitPosition),
+        isFirst = (currentPosition === sortedPositions[0]);
 
       if (this.options.noCycle) {
         if ((isExit && (dir > 0)) || (isFirst && (dir < 0)))
           return;
       } else if (!isExit) {
-        index = sortedMarkers.indexOf(currentMarker) + dir;
+        index = sortedPositions.indexOf(currentPosition) + dir;
       }
 
-      while (!nextMarker) {
-        marker = sortedMarkers[index];
+      while (!nextPosition) {
+        linkedPos = sortedPositions[index];
         index = index + dir;
 
-        if (!marker) {
-          // No more markers, go to exit or first marker if no exit specified
-          nextMarker = this.exitMarker || sortedMarkers[0];
-        } else if (marker.isStop) {
-          nextMarker = marker;
+        if (!linkedPos) {
+          // No more positions, go to exit or first position if no exit specified
+          nextPosition = this.exitPosition || sortedPositions[0];
+        } else if (linkedPos.isStop) {
+          nextPosition = linkedPos;
         }
       }
 
-      return nextMarker;
+      return nextPosition;
     },
     _onKeyDown: function (cm, event) {
       if (event.keyCode === 27) {
@@ -292,21 +312,21 @@
         this.exit(isAtMarker);
       } else if (event.keyCode === 9) {
         // TAB, move to next linked position
-        var nextMarker,
+        var nextPosition,
           dir = (event.shiftKey) ? -1 : 1;
 
         if (!marker) {
           // tab key outside all linked positions, always go to first marker
-          nextMarker = this._getSortedMarkers()[0];
+          nextPosition = this._getSortedPositions()[0];
         } else {
-          nextMarker = this._nextMarker(marker, dir);
+          nextPosition = this._nextPosition(marker.linkedPosition, dir);
         }
 
         // do not insert tab char
         event.preventDefault();
 
-        if (nextMarker)
-          this._goToMarker(nextMarker);
+        if (nextPosition)
+          this._goToMarker(nextPosition.marker);
         else
           this.exit(true);
       }
@@ -314,79 +334,79 @@
     _goToMarker: function (marker) {
       var range = findMarker(marker);
       marker.doc.setSelection(range.from, range.to);
+      marker.doc.getEditor().focus();
     },
-    _invalidateSortedMarkers: function () {
-      this._sortedMarkers = null;
+    _invalidateSortedPositions: function () {
+      this._sortedPositions = null;
     },
-    _getSortedMarkers: function () {
-      if (this._sortedMarkers)
-        return this._sortedMarkers;
+    _getSortedPositions: function () {
+      if (this._sortedPositions)
+        return this._sortedPositions;
 
-      var _sortedMarkers = [];
-      this._sortedMarkers = _sortedMarkers;
+      var _sortedPositions = [];
+      this._sortedPositions = _sortedPositions;
 
       this.groups.forEach(function (group) {
-        group.markers.forEach(function (m) {
+        group.positions.forEach(function (linkedPos) {
           // Update start position in document
-          m._pos = findMarker(m).from;
+          linkedPos._pos = findMarker(linkedPos.marker).from;
 
           // flat list of all markers
-          _sortedMarkers.push(m);
+          _sortedPositions.push(linkedPos);
         });
       });
 
-      // TODO sorting with markers from multiple documents
+      // TODO real sorting with markers from multiple documents
       // sort markers by start position in document
-      _sortedMarkers = _sortedMarkers.sort(function (a, b) {
+      _sortedPositions = _sortedPositions.sort(function (a, b) {
+        var docCompare = a.marker.doc.id - b.marker.doc.id;
+
+        if (docCompare !== 0)
+          return docCompare;
+
         var lineCompare = a._pos.line - b._pos.line;
 
-        if (lineCompare !== 0) {
+        if (lineCompare !== 0)
           return lineCompare;
-        }
 
         return a._pos.ch - b._pos.ch;
       });
 
-      return _sortedMarkers;
+      return _sortedPositions;
     },
     _enter: function () {
       var self = this,
-        error = false,
-        marker;
+        error = false;
 
-      function _tryCreateMarker(doc, from, to, group, index) {
+      function _tryCreateMarker(doc, from, to, linkedPos, index) {
         var tryMarker;
 
         try {
-          tryMarker = self._createMarker(doc, from, to, group, index);
+          tryMarker = self._createMarker(doc, from, to, linkedPos, index);
         } catch (err) {
           error = true;
-          CodeMirror.signal(self, "error", err);
+          CodeMirror.signal(self, "error", self, err);
         }
 
         return tryMarker;
       }
 
       self.groups.forEach(function (group) {
-        group.positions.forEach(function (pos, index) {
-          marker = _tryCreateMarker(pos.doc, pos.from, pos.to, group, index);
-
-          // Store markers with the group
-          if (marker)
-            group.markers.push(marker);
+        group.positions.forEach(function (linkedPos, index) {
+          self._mapPositionsToGroup[linkedPos] = group;
+          linkedPos.marker = _tryCreateMarker(linkedPos.doc, linkedPos._from, linkedPos._to, linkedPos, index);
         });
-
-        // positions are invalid once linked mode is active, clear them
-        group.positions = null;
       });
 
-      // mark the exit position
-      if (self.exitPosition) {
-        self.exitMarker = _tryCreateMarker(self.exitPosition.doc, self.exitPosition.from, self.exitPosition.to, "exit");
+      var sortedPositions = self._getSortedPositions(),
+        firstPos = sortedPositions[0];
 
-        // clear exit position
-        self.exitPosition = null;
-      }
+      if (!firstPos)
+        CodeMirror.signal(self, "error", self, "No LinkedPosition found");
+
+      // mark the exit position
+      if (self.exitPosition)
+        self.exitPosition.marker = _tryCreateMarker(self.exitPosition.doc, self.exitPosition._from, self.exitPosition._to, self.exitPosition);
 
       if (error)
         return false;
@@ -403,7 +423,7 @@
       });
 
       // select the first marker
-      self._goToMarker(self._getSortedMarkers()[0]);
+      self._goToMarker(firstPos.marker);
 
       return true;
     },
@@ -416,40 +436,51 @@
       self.groups.forEach(function (group) {
         res = { ranges: [], text: null };
 
-        group.markers.forEach(function (marker) {
-          range = findMarker(marker);
+        group.positions.forEach(function (linkedPos) {
+          range = findMarker(linkedPos.marker);
           res.ranges.push(range);
 
           if (range && !res.text)
-            res.text = marker.doc.getRange(range.from, range.to);
+            res.text = linkedPos.marker.doc.getRange(range.from, range.to);
         });
 
         allGroupResults.push(res);
       });
+      self.groups = [];
 
       // set selection at exit position
-      if (self.exitMarker && goToExit) {
-        self._goToMarker(self.exitMarker);
+      if (self.exitPosition && goToExit) {
+        self._goToMarker(self.exitPosition.marker);
       }
 
       self._marks.forEach(function (marker) {
         clearMarker(marker);
       });
+      self._marks = [];
 
       self._codeMirrorInstances.forEach(function (cm) {
         cm.off("keydown", self._onKeyDown);
         cm.off("beforeChange", self._onBeforeChange);
       });
+      self._codeMirrorInstances = [];
+
+      self._mapPositionsToGroup = {};
 
       // Pass ranges and text to "exit" event
-      CodeMirror.signal(self, "exit", allGroupResults);
+      CodeMirror.signal(self, "exit", self, allGroupResults);
     }
   };
   function LinkedPosition(doc, from, to) {
     this.doc = doc;
-    this.from = from;
-    this.to = to;
+    this._from = from;
+    this._to = to;
+    this.marker = null;
   }
+  LinkedPosition.prototype = {
+    toString: function () {
+      return this.doc.id + JSON.stringify(this._from) + JSON.stringify(this._to);
+    }
+  };
   function LinkedPositionGroup(posArray, options) {
     var self = this;
     options = options || {};
@@ -466,8 +497,6 @@
         p = new LinkedPosition(options.doc, rangeOrPosition.from, rangeOrPosition.to);
       self.positions.push(p);
     });
-
-    this.markers = [];
 
     this.options = {
       stopOnAllPositions: options.stopOnAllPositions || false
