@@ -793,6 +793,20 @@ testCM("collapsedRangeBetweenLinesSelected", function(cm) {
   is(w > 0);
 }, {value: "one\ntwo"});
 
+testCM("randomCollapsedRanges", function(cm) {
+  addDoc(cm, 20, 500);
+  cm.operation(function() {
+    for (var i = 0; i < 200; i++) {
+      var start = Pos(Math.floor(Math.random() * 500), Math.floor(Math.random() * 20));
+      if (i % 4)
+        try { cm.markText(start, Pos(start.line + 2, 1), {collapsed: true}); }
+        catch(e) { if (!/overlapping/.test(String(e))) throw e; }
+      else
+        cm.markText(start, Pos(start.line, start.ch + 4), {"className": "foo"});
+    }
+  });
+});
+
 testCM("hiddenLinesAutoUnfold", function(cm) {
   var range = foldLines(cm, 1, 3, true), cleared = 0;
   CodeMirror.on(range, "clear", function() {cleared++;});
