@@ -79,9 +79,9 @@
           var sels = cm.getSelections();
           for (var i = 0; i < sels.length; i++)
             sels[i] = left + sels[i] + right;
-          cm.replaceSelections(sels, "around", "+insert");
+          cm.replaceSelections(sels, "around");
         } else if (type == "both") {
-          cm.replaceSelection(left + right, null, "+insert");
+          cm.replaceSelection(left + right, null);
           cm.execCommand("goCharLeft");
         }
       };
@@ -109,7 +109,7 @@
         if (!around || pairs.indexOf(around) % 2 != 0) return CodeMirror.Pass;
       }
       cm.operation(function() {
-        cm.replaceSelection("\n\n", null, "+input");
+        cm.replaceSelection("\n\n", null);
         cm.execCommand("goCharLeft");
         ranges = cm.listSelections();
         for (var i = 0; i < ranges.length; i++) {

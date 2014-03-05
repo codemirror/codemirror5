@@ -1563,12 +1563,12 @@ testCM("readOnlyMarker", function(cm) {
 
 testCM("dirtyBit", function(cm) {
   eq(cm.isClean(), true);
-  cm.replaceSelection("boo");
+  cm.replaceSelection("boo", null, "test");
   eq(cm.isClean(), false);
   cm.undo();
   eq(cm.isClean(), true);
-  cm.replaceSelection("boo");
-  cm.replaceSelection("baz");
+  cm.replaceSelection("boo", null, "test");
+  cm.replaceSelection("baz", null, "test");
   cm.undo();
   eq(cm.isClean(), false);
   cm.markClean();
@@ -1580,15 +1580,15 @@ testCM("dirtyBit", function(cm) {
 });
 
 testCM("changeGeneration", function(cm) {
-  cm.replaceSelection("x", null, "+insert");
+  cm.replaceSelection("x");
   var softGen = cm.changeGeneration();
-  cm.replaceSelection("x", null, "+insert");
+  cm.replaceSelection("x");
   cm.undo();
   eq(cm.getValue(), "");
   is(!cm.isClean(softGen));
-  cm.replaceSelection("x", null, "+insert");
+  cm.replaceSelection("x");
   var hardGen = cm.changeGeneration(true);
-  cm.replaceSelection("x", null, "+insert");
+  cm.replaceSelection("x");
   cm.undo();
   eq(cm.getValue(), "x");
   is(cm.isClean(hardGen));
@@ -1819,10 +1819,10 @@ testCM("selectionHistoryNonOverlapping", function(cm) {
 }, {value: "1234"});
 
 testCM("cursorMotionSplitsHistory", function(cm) {
-  cm.replaceSelection("a", null, "+input");
+  cm.replaceSelection("a");
   cm.execCommand("goCharRight");
-  cm.replaceSelection("b", null, "+input");
-  cm.replaceSelection("c", null, "+input");
+  cm.replaceSelection("b");
+  cm.replaceSelection("c");
   cm.undo();
   eq(cm.getValue(), "a1234");
   eqPos(cm.getCursor(), Pos(0, 2));

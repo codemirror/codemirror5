@@ -30,6 +30,6 @@
       replacements[i] = "\n" + indent + bullet + after;
     }
 
-    cm.replaceSelections(replacements, null, "+insert");
+    cm.replaceSelections(replacements);
   };
 });

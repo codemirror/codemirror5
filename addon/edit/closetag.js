@@ -104,7 +104,7 @@
         return CodeMirror.Pass;
       replacements[i] = "/" + state.context.tagName + ">";
     }
-    cm.replaceSelections(replacements, null, "+input");
+    cm.replaceSelections(replacements);
   }
 
   function indexOf(collection, elt) {
