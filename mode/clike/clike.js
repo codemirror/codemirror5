@@ -206,7 +206,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     // Unicode strings/chars.
     if (stream.match(/(u8|u|U|L)/)) {
       if (stream.match(/["']/, /* eat */ false)) {
-        return "string"
+        return "string";
       }
       return false;
     }
