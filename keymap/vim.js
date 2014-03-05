@@ -1356,13 +1356,11 @@
         return null;
       },
       moveToOtherHighlightedEnd: function(cm) {
-        var curEnd = cm.getCursor('head');
-        var curStart = cm.getCursor('anchor');
-        var _curEndOriginal = copyCursor(curEnd);
-        var _curStartOriginal = copyCursor(curStart);
-        if (cursorIsBefore(curStart, curEnd) && (cursorEqual(curStart, curEnd) || cursorIsBefore(curEnd, curStart))) {
+        var curEnd = copyCursor(cm.getCursor('head'));
+        var curStart = copyCursor(cm.getCursor('anchor'));
+        if (cursorIsBefore(curStart, curEnd)) {
            curEnd.ch += 1;
-        } else if (cursorIsBefore(curEnd, curStart) && (cursorEqual(curStart, curEnd) || cursorIsBefore(curStart, curEnd))) {
+        } else if (cursorIsBefore(curEnd, curStart)) {
            curStart.ch -= 1;
         }
         return ([curEnd,curStart]);
