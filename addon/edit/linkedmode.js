@@ -7,12 +7,45 @@
  * Define groups of ranges in one or more documents that are linked,
  * i.e. edits in one range are mirrored in all other ranges for that group.
  * When using multiple groups, the user may navigate through each group,
- * optionally cycling back to the original position.
+ * optionally cycling back to the original position. An optional exit position
+ * defines where the cursor should move when editing is complete.
  *
- * These are supported options:
+ * Basic usage:
  *
- * `TODO` (default true)
- *   TODO
+ * // create linked positions/groups
+ * var linkedPos1 = new CodeMirror.LinkedPositon(cm.doc, from1, to1);
+ * var linkedGroup1 = new CodeMirror.LinkedPositionGroup([linkedPos1, ..., linkedPosN]);
+ *
+ * // create exit position (usually not a range, so `to` arg is omitted)
+ * var exitPos = new CodeMirror.LinkedPosition(cm.doc, new CodeMirror.Pos(...));
+ *
+ * // create model
+ * var model = new CodeMirror.LinkedModeModel([linkedGroup1, ..., linkedGroupN);
+ *
+ * // register event handlers
+ * model.on("error", errorCallback);
+ * model.on("exit", exitCallback);
+ *
+ * // enter linked mode
+ * cm.enterLinkedMode(model);
+ *
+ * Advanced usage:
+ * - Using LinkedPosition instance from different documents is supported
+ * - By default, only the first position in a LinkedPositionGroup is allowed
+ *   to be focused on TAB key travsersal. To enable all positions to be
+ *   traversed, use the `stopOnAllPositions: boolean` option in the
+ *   LinkedPositionGroup contstructor.
+ * - LinkedModeModel contstructor options:
+ *   - `noCycle: boolean` exit linked mode when the first or exit position is
+ *      reached. Default: false.
+ *   - `rangeClassName: string` CSS class for a LinkedPosition range.
+ *      Default: CodeMirror-linkedmode-range.
+ *   - `emptyClassName: string` CSS class for an empty LinkedPosition range.
+ *      Default: CodeMirror-linkedmode-empty.
+ *
+ * Future plans:
+ * - Nested linked modes
+ * - Error checking for overlapping ranges
  *
  * See demos/linkedmode.html for a more complete usage example.
  */
@@ -45,7 +78,7 @@
   function getMarkerAt(doc, pos, type) {
     var markers = doc.findMarksAt(pos),
       found;
-    
+
     // linked mode markers will not overlap, return the first linked mode marker
     markers.some(function (marker) {
       if (marker.linkedPositionGroup && (!type || (marker.type === type))) {
@@ -55,7 +88,7 @@
 
       return false;
     });
-    
+
     return found;
   }
   function getMarkerAtCursor(cm, type) {
@@ -88,7 +121,7 @@
         marker,
         isBookmark = isRangeEmpty(from, to),
         editor = doc.getEditor();
-      
+
       if (isBookmark) {
         marker = doc.setBookmark(from, { widget: emptyRangeSpan(this.options.emptyClassName) });
       } else {
@@ -106,7 +139,7 @@
 
       // Save all TextMarkers to clear when we exit linked mode
       this._marks.push(marker);
-      
+
       marker.linkedPositionGroup = group;
 
       // Restore the original marker on undo
@@ -128,7 +161,7 @@
 
       // Stop on the first marker by default unless specified in options
       marker.isStop = (index === 0) || (group.options && group.options.stopOnAllPositions);
-      
+
       return marker;
     },
     setExit: function (position) {
@@ -174,8 +207,6 @@
           from,
           to;
 
-        // TODO handle multiple docs
-
         // Update all markers in the group
         cm.operation(function () {
           var marks = group.markers.slice(0);
@@ -188,7 +219,7 @@
             // Add offset to range
             from = new CodeMirror.Pos(range.from.line, range.from.ch += offsetStart);
             to   = new CodeMirror.Pos(range.to.line,   range.to.ch += offsetEnd);
-            
+
             m.doc.replaceRange(text, from, to, changeObj.origin);
 
             // Replace the old marker if it was hidden due to edits
@@ -252,25 +283,25 @@
       if (event.keyCode === 13) {
         // ENTER, exit linked mode optionally at exit position
         var isAtMarker = !!marker;
-        
+
         // do not insert line break if within a linked position
         if (isAtMarker) {
           event.preventDefault();
         }
-        
+
         this.exit(isAtMarker);
       } else if (event.keyCode === 9) {
         // TAB, move to next linked position
         var nextMarker,
           dir = (event.shiftKey) ? -1 : 1;
-        
+
         if (!marker) {
-          // tab key outside all linked positions, always go to first marker 
+          // tab key outside all linked positions, always go to first marker
           nextMarker = this._getSortedMarkers()[0];
         } else {
           nextMarker = this._nextMarker(marker, dir);
         }
-        
+
         // do not insert tab char
         event.preventDefault();
 
@@ -344,22 +375,22 @@
           if (marker)
             group.markers.push(marker);
         });
-        
+
         // positions are invalid once linked mode is active, clear them
         group.positions = null;
       });
-      
+
       // mark the exit position
       if (self.exitPosition) {
         self.exitMarker = _tryCreateMarker(self.exitPosition.doc, self.exitPosition.from, self.exitPosition.to, "exit");
-        
+
         // clear exit position
         self.exitPosition = null;
       }
 
       if (error)
         return false;
-      
+
       // install keydown event handler
       self._onKeyDown = self._onKeyDown.bind(self);
 
@@ -370,7 +401,7 @@
         cm.on("keydown", self._onKeyDown);
         cm.on("beforeChange", self._onBeforeChange);
       });
-      
+
       // select the first marker
       self._goToMarker(self._getSortedMarkers()[0]);
 
@@ -380,9 +411,7 @@
       var self = this,
         allGroupResults = [],
         range,
-        res,
-        from,
-        to;
+        res;
 
       self.groups.forEach(function (group) {
         res = { ranges: [], text: null };
@@ -394,10 +423,10 @@
           if (range && !res.text)
             res.text = marker.doc.getRange(range.from, range.to);
         });
-        
+
         allGroupResults.push(res);
       });
-      
+
       // set selection at exit position
       if (self.exitMarker && goToExit) {
         self._goToMarker(self.exitMarker);
@@ -406,7 +435,7 @@
       self._marks.forEach(function (marker) {
         clearMarker(marker);
       });
-      
+
       self._codeMirrorInstances.forEach(function (cm) {
         cm.off("keydown", self._onKeyDown);
         cm.off("beforeChange", self._onBeforeChange);
