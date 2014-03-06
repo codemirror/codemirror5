@@ -534,8 +534,6 @@
 
     var createMacroState = function() {
       return {
-        keyBufferxxx: [],
-        insertModeBufferxxx: [],
         latestRegister: undefined,
         isPlaying: false,
         isRecording: false,
@@ -761,8 +759,8 @@
         }
         this.keyBuffer.push(text);
       },
-      pushInsertModeChange: function(change) {
-        this.insertModeChanges.push(change);
+      pushInsertModeChanges: function(changes) {
+        this.insertModeChanges.push(createInsertModeChanges(changes));
       },
       clear: function() {
         this.text = [];
@@ -3838,31 +3836,6 @@
       fallthrough: ['vim-insert']
     };
 
-    function parseRegisterToKeyBufferxxx(macroModeState, registerName) {
-      var match, key;
-      var register = vimGlobalState.registerController.getRegister(registerName);
-      var text = register.toString();
-      var keyBuffer = macroModeState.keyBuffer;
-      emptyMacroKeyBuffer(macroModeState);
-      do {
-        match = (/<\w+-.+?>|<\w+>|./).exec(text);
-        if (match === null)break;
-        key = match[0];
-        text = text.substring(match.index + key.length);
-        keyBuffer.push(key);
-      } while (text);
-      return keyBuffer;
-    }
-
-    function saveMacroToRegisterxxx(macroModeState) {
-      var name = macroModeState.latestRegister;
-      var text = macroModeState.keyBuffer.join('');
-      var register = vimGlobalState.registerController.getRegister(name);
-      register.setText(text, false);
-      register.insertModeChanges = macroModeState.insertModeBuffer;
-      macroModeState.insertModeBuffer = [];
-    }
-
     function emptyMacroKeyBuffer(macroModeState) {
       if (macroModeState.isPlaying) { return; }
       macroModeState.keyBuffer.length = 0;
@@ -3900,7 +3873,7 @@
       var registerName = macroModeState.latestRegister;
       var register = vimGlobalState.registerController.getRegister(registerName);
       if (register) {
-        register.pushInsertModeChange(macroModeState.lastInsertModeChanges);
+        register.pushInsertModeChanges(macroModeState.lastInsertModeChanges);
       }
     }
 
