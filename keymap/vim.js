@@ -3168,7 +3168,8 @@
       { name: 'sort', shortName: 'sor' },
       { name: 'substitute', shortName: 's' },
       { name: 'nohlsearch', shortName: 'noh' },
-      { name: 'delmarks', shortName: 'delm' }
+      { name: 'delmarks', shortName: 'delm' },
+      { name: 'registers', shortName: 'reg' }
     ];
     Vim.ExCommandDispatcher = function() {
       this.buildCommandMap_();
@@ -3468,6 +3469,33 @@
         } else {
           setOption(optionName, value);
         }
+      },
+      registers: function(cm,params) {
+        var regArgs = params.args;
+        var registers = vimGlobalState.registerController.registers;
+        var regInfo = '----------Registers----------<br><br>';
+        var text;
+        if (!regArgs) {
+          for (var registerName in registers) {
+            text = registers[registerName].text;
+            if (text.length) {
+            regInfo += '"' + registerName + '    ' + text + '<br>';
+            }
+          }
+        } else {
+          var registerName;
+          regArgs = regArgs.join('');
+          for (var i = 0 ; i < regArgs.length ; i++) {
+            registerName = regArgs[i];
+            if (!vimGlobalState.registerController.isValidRegister(registerName)) {
+              continue;
+            }
+            registers[registerName] = registers[registerName] || new Register();
+            text = registers[registerName].text;
+            regInfo += '"' + registerName + '    ' + text + '<br>';
+            }
+        }
+        showConfirm(cm,regInfo);
       },
       sort: function(cm, params) {
         var reverse, ignoreCase, unique, number;
