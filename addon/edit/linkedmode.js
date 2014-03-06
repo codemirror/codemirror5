@@ -145,7 +145,7 @@
         marker = doc.markText(from, to, {
           className: this.options.rangeClassName,
           clearWhenEmpty: false,
-          inclusiveLeft: false,
+          inclusiveLeft: true,
           inclusiveRight: true
         });
       }
