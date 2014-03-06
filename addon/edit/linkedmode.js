@@ -110,6 +110,7 @@
   }
   function clearMarker(marker) {
     marker.clear();
+    marker.off("hide");
     marker.off("unhide");
   }
   function LinkedModeModel(groupArray, options) {
