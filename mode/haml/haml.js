@@ -141,10 +141,6 @@
           style = null;
         }
         return style;
-      },
-
-      indent: function(state) {
-        return state.indented;
       }
     };
   }, "htmlmixed", "ruby");

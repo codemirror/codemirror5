@@ -5,14 +5,14 @@
 
   function continueComment(cm) {
     var pos = cm.getCursor(), token = cm.getTokenAt(pos);
-    if (token.type != "comment") return CodeMirror.Pass;
+    if (token.type != "comment" || cm.getOption("disableInput")) return CodeMirror.Pass;
     var mode = CodeMirror.innerMode(cm.getMode(), token.state).mode;
 
     var insert;
     if (mode.blockCommentStart && mode.blockCommentContinue) {
       var end = token.string.indexOf(mode.blockCommentEnd);
       var full = cm.getRange(CodeMirror.Pos(pos.line, 0), CodeMirror.Pos(pos.line, token.end)), found;
-      if (end != -1 && end == token.string.length - mode.blockCommentEnd.length) {
+      if (end != -1 && end == token.string.length - mode.blockCommentEnd.length && pos.ch >= end) {
         // Comment ended, don't continue it
       } else if (token.string.indexOf(mode.blockCommentStart) == 0) {
         insert = full.slice(0, token.start);

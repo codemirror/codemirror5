@@ -1,37 +1,41 @@
 <!doctype html>
 
-<title>CodeMirror: HTML completion demo</title>
-<meta charset="utf-8"/>
-<link rel=stylesheet href="../doc/docs.css">
+<head>
+  <title>CodeMirror: HTML completion demo</title>
+  <meta charset="utf-8"/>
+  <link rel=stylesheet href="../doc/docs.css">
 
-<link rel="stylesheet" href="../lib/codemirror.css">
-<link rel="stylesheet" href="../addon/hint/show-hint.css">
-<script src="../lib/codemirror.js"></script>
-<script src="../addon/hint/show-hint.js"></script>
-<script src="../addon/hint/xml-hint.js"></script>
-<script src="../addon/hint/html-hint.js"></script>
-<script src="../mode/xml/xml.js"></script>
-<script src="../mode/javascript/javascript.js"></script>
-<script src="../mode/css/css.js"></script>
-<script src="../mode/htmlmixed/htmlmixed.js"></script>
-<style type="text/css">
-      .CodeMirror {border-top: 1px solid #888; border-bottom: 1px solid #888;}
-    </style>
-<div id=nav>
-  <a href="http://codemirror.net"><img id=logo src="../doc/logo.png"></a>
+  <link rel="stylesheet" href="../lib/codemirror.css">
+  <link rel="stylesheet" href="../addon/hint/show-hint.css">
+  <script src="../lib/codemirror.js"></script>
+  <script src="../addon/hint/show-hint.js"></script>
+  <script src="../addon/hint/xml-hint.js"></script>
+  <script src="../addon/hint/html-hint.js"></script>
+  <script src="../mode/xml/xml.js"></script>
+  <script src="../mode/javascript/javascript.js"></script>
+  <script src="../mode/css/css.js"></script>
+  <script src="../mode/htmlmixed/htmlmixed.js"></script>
+  <style type="text/css">
+    .CodeMirror {border-top: 1px solid #888; border-bottom: 1px solid #888;}
+  </style>
+</head>
 
-  <ul>
-    <li><a href="../index.html">Home</a>
-    <li><a href="../doc/manual.html">Manual</a>
-    <li><a href="https://github.com/marijnh/codemirror">Code</a>
-  </ul>
-  <ul>
-    <li><a class=active href="#">HTML completion</a>
-  </ul>
-</div>
+<body>
+  <div id=nav>
+    <a href="http://codemirror.net"><img id=logo src="../doc/logo.png"></a>
 
-<article>
-<h2>HTML completion demo</h2>
+    <ul>
+      <li><a href="../index.html">Home</a>
+      <li><a href="../doc/manual.html">Manual</a>
+      <li><a href="https://github.com/marijnh/codemirror">Code</a>
+    </ul>
+    <ul>
+      <li><a class=active href="#">HTML completion</a>
+    </ul>
+  </div>
+
+  <article>
+    <h2>HTML completion demo</h2>
 
     <p>Shows the <a href="xmlcomplete.html">XML completer</a>
     parameterized with information about the tags in HTML.
@@ -40,15 +44,13 @@
     <div id="code"></div>
 
     <script type="text/javascript">
-      CodeMirror.commands.autocomplete = function(cm) {
-          CodeMirror.showHint(cm, CodeMirror.hint.html);
-      }
       window.onload = function() {
         editor = CodeMirror(document.getElementById("code"), {
           mode: "text/html",
           extraKeys: {"Ctrl-Space": "autocomplete"},
-          value: "<!doctype html>\n<html>\n  " + document.documentElement.innerHTML + "\n</html>"
+          value: document.documentElement.innerHTML
         });
       };
     </script>
   </article>
+</body>

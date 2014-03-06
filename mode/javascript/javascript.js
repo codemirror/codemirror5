@@ -15,7 +15,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
 
     var jsKeywords = {
       "if": kw("if"), "while": A, "with": A, "else": B, "do": B, "try": B, "finally": B,
-      "return": C, "break": C, "continue": C, "new": C, "delete": C, "throw": C,
+      "return": C, "break": C, "continue": C, "new": C, "delete": C, "throw": C, "debugger": C,
       "var": kw("var"), "const": kw("var"), "let": kw("var"),
       "function": kw("function"), "catch": kw("catch"),
       "for": kw("for"), "switch": kw("switch"), "case": kw("case"), "default": kw("default"),
@@ -54,14 +54,16 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
 
   var isOperatorChar = /[+\-*&%=<>!?|~^]/;
 
-  function nextUntilUnescaped(stream, end) {
-    var escaped = false, next;
+  function readRegexp(stream) {
+    var escaped = false, next, inSet = false;
     while ((next = stream.next()) != null) {
-      if (next == end && !escaped)
-        return false;
+      if (!escaped) {
+        if (next == "/" && !inSet) return;
+        if (next == "[") inSet = true;
+        else if (inSet && next == "]") inSet = false;
+      }
       escaped = !escaped && next == "\\";
     }
-    return escaped;
   }
 
   // Used as scratch variables to communicate multiple values without
@@ -83,7 +85,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     } else if (/[\[\]{}\(\),;\:\.]/.test(ch)) {
       return ret(ch);
     } else if (ch == "=" && stream.eat(">")) {
-      return ret("=>");
+      return ret("=>", "operator");
     } else if (ch == "0" && stream.eat(/x/i)) {
       stream.eatWhile(/[\da-f]/i);
       return ret("number", "number");
@@ -99,12 +101,12 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
         return ret("comment", "comment");
       } else if (state.lastType == "operator" || state.lastType == "keyword c" ||
                state.lastType == "sof" || /^[\[{}\(,;:]$/.test(state.lastType)) {
-        nextUntilUnescaped(stream, "/");
+        readRegexp(stream);
         stream.eatWhile(/[gimy]/); // 'y' is "sticky" option in Mozilla
         return ret("regexp", "string-2");
       } else {
         stream.eatWhile(isOperatorChar);
-        return ret("operator", null, stream.current());
+        return ret("operator", "operator", stream.current());
       }
     } else if (ch == "`") {
       state.tokenize = tokenQuasi;
@@ -114,7 +116,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       return ret("error", "error");
     } else if (isOperatorChar.test(ch)) {
       stream.eatWhile(isOperatorChar);
-      return ret("operator", null, stream.current());
+      return ret("operator", "operator", stream.current());
     } else {
       stream.eatWhile(/[\w\$_]/);
       var word = stream.current(), known = keywords.propertyIsEnumerable(word) && keywords[word];
@@ -125,8 +127,12 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
 
   function tokenString(quote) {
     return function(stream, state) {
-      if (!nextUntilUnescaped(stream, quote))
-        state.tokenize = tokenBase;
+      var escaped = false, next;
+      while ((next = stream.next()) != null) {
+        if (next == quote && !escaped) break;
+        escaped = !escaped && next == "\\";
+      }
+      if (!escaped) state.tokenize = tokenBase;
       return ret("string", "string");
     };
   }
@@ -304,7 +310,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == ";") return cont();
     if (type == "if") return cont(pushlex("form"), expression, statement, poplex, maybeelse);
     if (type == "function") return cont(functiondef);
-    if (type == "for") return cont(pushlex("form"), forspec, poplex, statement, poplex);
+    if (type == "for") return cont(pushlex("form"), forspec, statement, poplex);
     if (type == "variable") return cont(pushlex("stat"), maybelabel);
     if (type == "switch") return cont(pushlex("form"), expression, pushlex("}", "switch"), expect("{"),
                                       block, poplex, poplex);
@@ -370,7 +376,6 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == "[") return cont(pushlex("]"), maybeexpression, expect("]"), poplex, me);
   }
   function quasi(value) {
-    if (!value) debugger;
     if (value.slice(value.length - 2) != "${") return cont();
     return cont(expression, continueQuasi);
   }
@@ -474,7 +479,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == "keyword b" && value == "else") return cont(pushlex("form"), statement, poplex);
   }
   function forspec(type) {
-    if (type == "(") return cont(pushlex(")"), forspec1, expect(")"));
+    if (type == "(") return cont(pushlex(")"), forspec1, expect(")"), poplex);
   }
   function forspec1(type) {
     if (type == "var") return cont(vardef, expect(";"), forspec2);
@@ -538,7 +543,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     return pass(expressionNoComma, maybeArrayComprehension);
   }
   function maybeArrayComprehension(type) {
-    if (type == "for") return pass(comprehension);
+    if (type == "for") return pass(comprehension, expect("]"));
     if (type == ",") return cont(commasep(expressionNoComma, "]"));
     return pass(commasep(expressionNoComma, "]"));
   }

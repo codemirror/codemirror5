@@ -47,7 +47,11 @@ CodeMirror.multiplexingMode = function(outer /*, others */) {
         return outerToken;
       } else {
         var curInner = state.innerActive, oldContent = stream.string;
-        var found = indexOf(oldContent, curInner.close, stream.pos);
+        if (!curInner.close && stream.sol()) {
+          state.innerActive = state.inner = null;
+          return this.token(stream, state);
+        }
+        var found = curInner.close ? indexOf(oldContent, curInner.close, stream.pos) : -1;
         if (found == stream.pos) {
           stream.match(curInner.close);
           state.innerActive = state.inner = null;
@@ -56,8 +60,6 @@ CodeMirror.multiplexingMode = function(outer /*, others */) {
         if (found > -1) stream.string = oldContent.slice(0, found);
         var innerToken = curInner.mode.token(stream, state.inner);
         if (found > -1) stream.string = oldContent;
-        var cur = stream.current(), found = cur.indexOf(curInner.close);
-        if (found > -1) stream.backUp(cur.length - found);
 
         if (curInner.innerStyle) {
           if (innerToken) innerToken = innerToken + ' ' + curInner.innerStyle;

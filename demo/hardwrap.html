@@ -55,13 +55,16 @@ are reflown as you are typing.</p>
 <script>
 var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
   mode: "markdown",
-  lineNumbers: true
+  lineNumbers: true,
+  extraKeys: {
+    "Ctrl-Q": function(cm) { cm.wrapParagraph(cm.getCursor(), options); }
+  }
 });
 var wait, options = {column: 60};
 editor.on("change", function(cm, change) {
   clearTimeout(wait);
   wait = setTimeout(function() {
-    cm.wrapParagraphsInRange(change.from, CodeMirror.changeEnd(change), options);
+    console.log(cm.wrapParagraphsInRange(change.from, CodeMirror.changeEnd(change), options));
   }, 200);
 });
 </script>

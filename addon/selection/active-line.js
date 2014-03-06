@@ -12,10 +12,10 @@
   CodeMirror.defineOption("styleActiveLine", false, function(cm, val, old) {
     var prev = old && old != CodeMirror.Init;
     if (val && !prev) {
-      updateActiveLine(cm);
-      cm.on("cursorActivity", updateActiveLine);
+      updateActiveLine(cm, cm.getCursor().line);
+      cm.on("beforeSelectionChange", selectionChange);
     } else if (!val && prev) {
-      cm.off("cursorActivity", updateActiveLine);
+      cm.off("beforeSelectionChange", selectionChange);
       clearActiveLine(cm);
       delete cm.state.activeLine;
     }
@@ -28,12 +28,18 @@
     }
   }
 
-  function updateActiveLine(cm) {
-    var line = cm.getLineHandleVisualStart(cm.getCursor().line);
+  function updateActiveLine(cm, selectedLine) {
+    var line = cm.getLineHandleVisualStart(selectedLine);
     if (cm.state.activeLine == line) return;
-    clearActiveLine(cm);
-    cm.addLineClass(line, "wrap", WRAP_CLASS);
-    cm.addLineClass(line, "background", BACK_CLASS);
-    cm.state.activeLine = line;
+    cm.operation(function() {
+      clearActiveLine(cm);
+      cm.addLineClass(line, "wrap", WRAP_CLASS);
+      cm.addLineClass(line, "background", BACK_CLASS);
+      cm.state.activeLine = line;
+    });
+  }
+
+  function selectionChange(cm, sel) {
+    updateActiveLine(cm, sel.head.line);
   }
 })();

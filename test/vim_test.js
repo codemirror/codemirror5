@@ -96,6 +96,12 @@ function copyCursor(cur) {
   return { ch: cur.ch, line: cur.line };
 }
 
+function forEach(arr, func) {
+  for (var i = 0; i < arr.length; i++) {
+    func(arr[i]);
+  }
+}
+
 function testVim(name, run, opts, expectedFail) {
   var vimOpts = {
     lineNumbers: true,
@@ -189,7 +195,7 @@ function testVim(name, run, opts, expectedFail) {
       run(cm, vim, helpers);
       successful = true;
     } finally {
-      if ((debug && !successful) || verbose) {
+      if (!successful || verbose) {
         place.style.visibility = "visible";
       } else {
         place.removeChild(cm.getWrapperElement());
@@ -1047,7 +1053,7 @@ testVim('ctrl-x', function(cm, vim, helpers) {
   eq('-3', cm.getValue());
 }, {value: '0'});
 testVim('<C-x>/<C-a> search forward', function(cm, vim, helpers) {
-  ['<C-x>', '<C-a>'].forEach(function(key) {
+  forEach(['<C-x>', '<C-a>'], function(key) {
     cm.setCursor(0, 0);
     helpers.doKeys(key);
     helpers.assertCursorAt(0, 5);
@@ -1997,6 +2003,72 @@ testVim('zt==z<CR>', function(cm, vim, helpers){
   eq(zVals[2], zVals[5]);
 });
 
+var moveTillCharacterSandbox =
+  'The quick brown fox \n'
+  'jumped over the lazy dog.'
+testVim('moveTillCharacter', function(cm, vim, helpers){
+  cm.setCursor(0, 0);
+  // Search for the 'q'.
+  cm.openDialog = helpers.fakeOpenDialog('q');
+  helpers.doKeys('/');
+  eq(4, cm.getCursor().ch);
+  // Jump to just before the first o in the list.
+  helpers.doKeys('t');
+  helpers.doKeys('o');
+  eq('The quick brown fox \n', cm.getValue());
+  // Delete that one character.
+  helpers.doKeys('d');
+  helpers.doKeys('t');
+  helpers.doKeys('o');
+  eq('The quick bown fox \n', cm.getValue());
+  // Delete everything until the next 'o'.
+  helpers.doKeys('.');
+  eq('The quick box \n', cm.getValue());
+  // An unmatched character should have no effect.
+  helpers.doKeys('d');
+  helpers.doKeys('t');
+  helpers.doKeys('q');
+  eq('The quick box \n', cm.getValue());
+  // Matches should only be possible on single lines.
+  helpers.doKeys('d');
+  helpers.doKeys('t');
+  helpers.doKeys('z');
+  eq('The quick box \n', cm.getValue());
+  // After all that, the search for 'q' should still be active, so the 'N' command
+  // can run it again in reverse. Use that to delete everything back to the 'q'.
+  helpers.doKeys('d');
+  helpers.doKeys('N');
+  eq('The ox \n', cm.getValue());
+  eq(4, cm.getCursor().ch);
+}, { value: moveTillCharacterSandbox});
+
+var scrollMotionSandbox =
+  '\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n'
+  '\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n'
+  '\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n'
+  '\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n';
+testVim('scrollMotion', function(cm, vim, helpers){
+  var prevCursor, prevScrollInfo;
+  cm.setCursor(0, 0);
+  // ctrl-y at the top of the file should have no effect.
+  helpers.doKeys('<C-y>');
+  eq(0, cm.getCursor().line);
+  prevScrollInfo = cm.getScrollInfo();
+  helpers.doKeys('<C-e>');
+  eq(1, cm.getCursor().line);
+  eq(true, prevScrollInfo.top < cm.getScrollInfo().top);
+  // Jump to the end of the sandbox.
+  cm.setCursor(1000, 0);
+  prevCursor = cm.getCursor();
+  // ctrl-e at the bottom of the file should have no effect.
+  helpers.doKeys('<C-e>');
+  eq(prevCursor.line, cm.getCursor().line);
+  prevScrollInfo = cm.getScrollInfo();
+  helpers.doKeys('<C-y>');
+  eq(prevCursor.line - 1, cm.getCursor().line);
+  eq(true, prevScrollInfo.top > cm.getScrollInfo().top);
+}, { value: scrollMotionSandbox});
+
 var squareBracketMotionSandbox = ''+
   '({\n'+//0
   '  ({\n'+//11
@@ -2080,7 +2152,7 @@ testVim('[(, ])', function(cm, vim, helpers) {
   helpers.assertCursorAt(8,0);
 }, { value: squareBracketMotionSandbox});
 testVim('[*, ]*, [/, ]/', function(cm, vim, helpers) {
-  ['*', '/'].forEach(function(key){
+  forEach(['*', '/'], function(key){
     cm.setCursor(7, 0);
     helpers.doKeys('2', '[', key);
     helpers.assertCursorAt(2,2);
@@ -2192,6 +2264,8 @@ testVim('ex_sort_decimal_mixed_reverse', function(cm, vim, helpers) {
   helpers.doEx('sort! d');
   eq('a3\nb2\nc1\nz\ny', cm.getValue());
 }, { value: 'a3\nz\nc1\ny\nb2'});
+
+
 testVim('ex_substitute_same_line', function(cm, vim, helpers) {
   cm.setCursor(1, 0);
   helpers.doEx('s/one/two');
@@ -2227,6 +2301,25 @@ testVim('ex_substitute_empty_query', function(cm, vim, helpers) {
   helpers.doEx('s//b');
   eq('abb ab2 ab3', cm.getValue());
 }, { value: 'a11 a12 a13' });
+testVim('ex_substitute_slash_regex', function(cm, vim, helpers) {
+  cm.setCursor(1, 0);
+  helpers.doEx('%s/\\//|');
+  eq('one|two \n three|four', cm.getValue());
+}, { value: 'one/two \n three/four'});
+testVim('ex_substitute_backslashslash_regex', function(cm, vim, helpers) {
+  cm.setCursor(1, 0);
+  helpers.doEx('%s/\\\\/,');
+  eq('one,two \n three,four', cm.getValue());
+}, { value: 'one\\two \n three\\four'});
+testVim('ex_substitute_slash_replacement', function(cm, vim, helpers) {
+  cm.setCursor(1, 0);
+  helpers.doEx('%s/,/\\/');
+  eq('one/two \n three/four', cm.getValue());
+}, { value: 'one,two \n three,four'});
+testVim('ex_substitute_backslash_replacement', function(cm, vim, helpers) {
+  helpers.doEx('%s/,/\\\\/g');
+  eq('one\\two \n three\\four', cm.getValue());
+}, { value: 'one,two \n three,four'});
 testVim('ex_substitute_count', function(cm, vim, helpers) {
   cm.setCursor(1, 0);
   helpers.doEx('s/\\d/0/i 2');
@@ -2368,6 +2461,26 @@ testVim('ex_map_key2ex', function(cm, vim, helpers) {
   eq(written, true);
   eq(actualCm, cm);
 });
+testVim('ex_map_key2key_visual_api', function(cm, vim, helpers) {
+  CodeMirror.Vim.map('b', ':w', 'visual');
+  var tmp = CodeMirror.commands.save;
+  var written = false;
+  var actualCm;
+  CodeMirror.commands.save = function(cm) {
+    written = true;
+    actualCm = cm;
+  };
+  // Mapping should not work in normal mode.
+  helpers.doKeys('b');
+  eq(written, false);
+  // Mapping should work in visual mode.
+  helpers.doKeys('v', 'b');
+  eq(written, true);
+  eq(actualCm, cm);
+
+  CodeMirror.commands.save = tmp;
+});
+
 // Testing registration of functions as ex-commands and mapping to <Key>-keys
 testVim('ex_api_test', function(cm, vim, helpers) {
   var res=false;

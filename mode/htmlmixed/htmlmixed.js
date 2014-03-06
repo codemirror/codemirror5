@@ -93,8 +93,6 @@ CodeMirror.defineMode("htmlmixed", function(config, parserConfig) {
         return CodeMirror.Pass;
     },
 
-    electricChars: "/{}:",
-
     innerMode: function(state) {
       return {state: state.localState || state.htmlState, mode: state.localMode || htmlMode};
     }

@@ -1,14 +1,11 @@
-CodeMirror.defineMode('ocaml', function() {
+CodeMirror.defineMode('mllike', function(_config, parserConfig) {
 
   var words = {
-    'true': 'atom',
-    'false': 'atom',
     'let': 'keyword',
     'rec': 'keyword',
     'in': 'keyword',
     'of': 'keyword',
     'and': 'keyword',
-    'succ': 'keyword',
     'if': 'keyword',
     'then': 'keyword',
     'else': 'keyword',
@@ -25,16 +22,18 @@ CodeMirror.defineMode('ocaml', function() {
     'match': 'keyword',
     'with': 'keyword',
     'try': 'keyword',
-    'raise': 'keyword',
-    'begin': 'keyword',
-    'end': 'keyword',
     'open': 'builtin',
-    'trace': 'builtin',
     'ignore': 'builtin',
-    'exit': 'builtin',
-    'print_string': 'builtin',
-    'print_endline': 'builtin'
+    'begin': 'keyword',
+    'end': 'keyword'
   };
+
+  var extraWords = parserConfig.extraWords || {};
+  for (var prop in extraWords) {
+    if (extraWords.hasOwnProperty(prop)) {
+      words[prop] = parserConfig.extraWords[prop];
+    }
+  }
 
   function tokenBase(stream, state) {
     var ch = stream.next();
@@ -57,6 +56,10 @@ CodeMirror.defineMode('ocaml', function() {
     if (ch === '`') {
       stream.eatWhile(/\w/);
       return 'quote';
+    }
+    if (ch === '/' && parserConfig.slashComments && stream.eat('/')) {
+      stream.skipToEnd();
+      return 'comment';
     }
     if (/\d/.test(ch)) {
       stream.eatWhile(/[\d]/);
@@ -109,8 +112,80 @@ CodeMirror.defineMode('ocaml', function() {
     },
 
     blockCommentStart: "(*",
-    blockCommentEnd: "*)"
+    blockCommentEnd: "*)",
+    lineComment: parserConfig.slashComments ? "//" : null
   };
 });
 
-CodeMirror.defineMIME('text/x-ocaml', 'ocaml');
+CodeMirror.defineMIME('text/x-ocaml', {
+  name: 'mllike',
+  extraWords: {
+    'succ': 'keyword',
+    'trace': 'builtin',
+    'exit': 'builtin',
+    'print_string': 'builtin',
+    'print_endline': 'builtin',
+    'true': 'atom',
+    'false': 'atom',
+    'raise': 'keyword'
+  }
+});
+
+CodeMirror.defineMIME('text/x-fsharp', {
+  name: 'mllike',
+  extraWords: {
+    'abstract': 'keyword',
+    'as': 'keyword',
+    'assert': 'keyword',
+    'base': 'keyword',
+    'class': 'keyword',
+    'default': 'keyword',
+    'delegate': 'keyword',
+    'downcast': 'keyword',
+    'downto': 'keyword',
+    'elif': 'keyword',
+    'exception': 'keyword',
+    'extern': 'keyword',
+    'finally': 'keyword',
+    'global': 'keyword',
+    'inherit': 'keyword',
+    'inline': 'keyword',
+    'interface': 'keyword',
+    'internal': 'keyword',
+    'lazy': 'keyword',
+    'let!': 'keyword',
+    'member' : 'keyword',
+    'module': 'keyword',
+    'namespace': 'keyword',
+    'new': 'keyword',
+    'null': 'keyword',
+    'override': 'keyword',
+    'private': 'keyword',
+    'public': 'keyword',
+    'return': 'keyword',
+    'return!': 'keyword',
+    'select': 'keyword',
+    'static': 'keyword',
+    'struct': 'keyword',
+    'upcast': 'keyword',
+    'use': 'keyword',
+    'use!': 'keyword',
+    'val': 'keyword',
+    'when': 'keyword',
+    'yield': 'keyword',
+    'yield!': 'keyword',
+
+    'List': 'builtin',
+    'Seq': 'builtin',
+    'Map': 'builtin',
+    'Set': 'builtin',
+    'int': 'builtin',
+    'string': 'builtin',
+    'raise': 'builtin',
+    'failwith': 'builtin',
+    'not': 'builtin',
+    'true': 'builtin',
+    'false': 'builtin'
+  },
+  slashComments: true
+});

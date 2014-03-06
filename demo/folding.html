@@ -1,22 +1,26 @@
 <!doctype html>
 
-<title>CodeMirror: Code Folding Demo</title>
-<meta charset="utf-8"/>
-<link rel=stylesheet href="../doc/docs.css">
+<head>
+  <title>CodeMirror: Code Folding Demo</title>
+  <meta charset="utf-8"/>
+  <link rel=stylesheet href="../doc/docs.css">
 
-<link rel="stylesheet" href="../lib/codemirror.css">
-<link rel="stylesheet" href="../addon/fold/foldgutter.css" />
-<script src="../lib/codemirror.js"></script>
-<script src="../addon/fold/foldcode.js"></script>
-<script src="../addon/fold/foldgutter.js"></script>
-<script src="../addon/fold/brace-fold.js"></script>
-<script src="../addon/fold/xml-fold.js"></script>
-<script src="../addon/fold/comment-fold.js"></script>
-<script src="../mode/javascript/javascript.js"></script>
-<script src="../mode/xml/xml.js"></script>
-<style type="text/css">
-      .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}
-</style>
+  <link rel="stylesheet" href="../lib/codemirror.css">
+  <link rel="stylesheet" href="../addon/fold/foldgutter.css" />
+  <script src="../lib/codemirror.js"></script>
+  <script src="../addon/fold/foldcode.js"></script>
+  <script src="../addon/fold/foldgutter.js"></script>
+  <script src="../addon/fold/brace-fold.js"></script>
+  <script src="../addon/fold/xml-fold.js"></script>
+  <script src="../addon/fold/comment-fold.js"></script>
+  <script src="../mode/javascript/javascript.js"></script>
+  <script src="../mode/xml/xml.js"></script>
+  <style type="text/css">
+    .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}
+  </style>
+</head>
+
+<body>
 <div id=nav>
   <a href="http://codemirror.net"><img id=logo src="../doc/logo.png"></a>
 
@@ -31,12 +35,14 @@
 </div>
 
 <article>
-<h2>Code Folding Demo</h2>
-<form>
-      <div style="max-width: 50em; margin-bottom: 1em">JavaScript:<br><textarea id="code" name="code"></textarea></div>
-      <div style="max-width: 50em">HTML:<br><textarea id="code-html" name="code-html"></textarea></div>
-    </form>
-    <script id="script">
+  <h2>Code Folding Demo</h2>
+  <form>
+    <div style="max-width: 50em; margin-bottom: 1em">JavaScript:<br>
+    <textarea id="code" name="code"></textarea></div>
+    <div style="max-width: 50em">HTML:<br>
+    <textarea id="code-html" name="code-html"></textarea></div>
+  </form>
+  <script id="script">
 /*
  * Demonstration of code folding
  */
@@ -46,19 +52,17 @@ window.onload = function() {
   te.value = (sc.textContent || sc.innerText || sc.innerHTML).replace(/^\s*/, "");
   sc.innerHTML = "";
   var te_html = document.getElementById("code-html");
-  te_html.value = "<html>\n  " + document.documentElement.innerHTML + "\n</html>";
+  te_html.value = document.documentElement.innerHTML;
 
   window.editor = CodeMirror.fromTextArea(te, {
     mode: "javascript",
     lineNumbers: true,
     lineWrapping: true,
     extraKeys: {"Ctrl-Q": function(cm){ cm.foldCode(cm.getCursor()); }},
-    foldGutter: {
-    	rangeFinder: new CodeMirror.fold.combine(CodeMirror.fold.brace, CodeMirror.fold.comment)
-    },
+    foldGutter: true,
     gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"]
   });
-  editor.foldCode(CodeMirror.Pos(8, 0));
+  editor.foldCode(CodeMirror.Pos(11, 0));
 
   window.editor_html = CodeMirror.fromTextArea(te_html, {
     mode: "text/html",
@@ -68,8 +72,9 @@ window.onload = function() {
     foldGutter: true,
     gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"]
   });
-  editor_html.foldCode(CodeMirror.Pos(13, 0));
-  editor_html.foldCode(CodeMirror.Pos(1, 0));
+  editor_html.foldCode(CodeMirror.Pos(0, 0));
+  editor_html.foldCode(CodeMirror.Pos(21, 0));
 };
-</script>
-  </article>
+  </script>
+</article>
+</body>

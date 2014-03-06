@@ -68,8 +68,7 @@
       var delay;
       // Initialize CodeMirror editor with a nice html5 canvas demo.
       var editor = CodeMirror.fromTextArea(document.getElementById('code'), {
-        mode: 'text/html',
-        tabMode: 'indent'
+        mode: 'text/html'
       });
       editor.on("change", function() {
         clearTimeout(delay);

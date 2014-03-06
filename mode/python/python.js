@@ -11,6 +11,7 @@ CodeMirror.defineMode("python", function(conf, parserConf) {
     var doubleDelimiters = parserConf.doubleDelimiters || new RegExp("^((\\+=)|(\\-=)|(\\*=)|(%=)|(/=)|(&=)|(\\|=)|(\\^=))");
     var tripleDelimiters = parserConf.tripleDelimiters || new RegExp("^((//=)|(>>=)|(<<=)|(\\*\\*=))");
     var identifiers = parserConf.identifiers|| new RegExp("^[_A-Za-z][_A-Za-z0-9]*");
+    var hangingIndent = parserConf.hangingIndent || parserConf.indentUnit;
 
     var wordOperators = wordRegexp(['and', 'or', 'not', 'is', 'in']);
     var commonkeywords = ['as', 'assert', 'break', 'class', 'continue',
@@ -211,6 +212,11 @@ CodeMirror.defineMode("python", function(conf, parserConf) {
                     break;
                 }
             }
+        } else if (stream.match(/\s*($|#)/, false)) {
+            // An open paren/bracket/brace with only space or comments after it
+            // on the line will indent the next line a fixed amount, to make it
+            // easier to put arguments, list items, etc. on their own lines.
+            indentUnit = stream.indentation() + hangingIndent;
         } else {
             indentUnit = stream.column() + stream.current().length;
         }

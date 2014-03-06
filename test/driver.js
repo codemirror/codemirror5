@@ -1,4 +1,4 @@
-var tests = [], debug = null, debugUsed = new Array(), allNames = [];
+var tests = [], filters = [], allNames = [];
 
 function Failure(why) {this.message = why;}
 Failure.prototype.toString = function() { return this.message; };
@@ -32,7 +32,7 @@ function testCM(name, run, opts, expectedFail) {
       run(cm);
       successful = true;
     } finally {
-      if ((debug && !successful) || verbose) {
+      if (!successful || verbose) {
         place.style.visibility = "visible";
       } else {
         place.removeChild(cm.getWrapperElement());
@@ -42,38 +42,22 @@ function testCM(name, run, opts, expectedFail) {
 }
 
 function runTests(callback) {
-  if (debug) {
-    if (indexOf(debug, "verbose") === 0) {
-      verbose = true;
-      debug.splice(0, 1);
-    }
-    if (debug.length < 1) {
-      debug = null;
-    }
-  }
   var totalTime = 0;
   function step(i) {
     if (i === tests.length){
       running = false;
       return callback("done");
-    }
+    } 
     var test = tests[i], expFail = test.expectedFail, startTime = +new Date;
-    if (debug !== null) {
-      var debugIndex = indexOf(debug, test.name);
-      if (debugIndex !== -1) {
-        // Remove from array for reporting incorrect tests later
-        debug.splice(debugIndex, 1);
-      } else {
-        var wildcardName = test.name.split("_")[0] + "_*";
-        debugIndex = indexOf(debug, wildcardName);
-        if (debugIndex !== -1) {
-          // Remove from array for reporting incorrect tests later
-          debug.splice(debugIndex, 1);
-          debugUsed.push(wildcardName);
-        } else {
-          debugIndex = indexOf(debugUsed, wildcardName);
-          if (debugIndex == -1) return step(i + 1);
+    if (filters.length) {
+      for (var j = 0; j < filters.length; j++) {
+        if (test.name.match(filters[j])) {
+          break;
         }
+      }
+      if (j == filters.length) {      
+        callback("skipped", test.name, message);
+        return step(i + 1);
       }
     }
     var threw = false;
@@ -127,13 +111,21 @@ function is(a, msg) {
 }
 
 function countTests() {
-  if (!debug) return tests.length;
+  if (!filters.length) return tests.length;
   var sum = 0;
   for (var i = 0; i < tests.length; ++i) {
     var name = tests[i].name;
-    if (indexOf(debug, name) != -1 ||
-        indexOf(debug, name.split("_")[0] + "_*") != -1)
-      ++sum;
+    for (var j = 0; j < filters.length; j++) {
+      if (name.match(filters[j])) {
+        ++sum;
+        break;
+      }
+    }
   }
   return sum;
+}
+
+function parseTestFilter(s) {
+  if (/_\*$/.test(s)) return new RegExp("^" + s.slice(0, s.length - 2), "i");
+  else return new RegExp(s, "i");
 }

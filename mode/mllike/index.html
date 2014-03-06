@@ -1,13 +1,13 @@
 <!doctype html>
 
-<title>CodeMirror: OCaml mode</title>
+<title>CodeMirror: ML-like mode</title>
 <meta charset="utf-8"/>
 <link rel=stylesheet href="../../doc/docs.css">
 
 <link rel=stylesheet href=../../lib/codemirror.css>
 <script src=../../lib/codemirror.js></script>
 <script src=../../addon/edit/matchbrackets.js></script>
-<script src=ocaml.js></script>
+<script src=mllike.js></script>
 <style type=text/css>
   .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}
 </style>
@@ -21,7 +21,7 @@
   </ul>
   <ul>
     <li><a href="../index.html">Language modes</a>
-    <li><a class=active href="#">OCaml</a>
+    <li><a class=active href="#">ML-like</a>
   </ul>
 </div>
 
@@ -29,7 +29,7 @@
 <h2>OCaml mode</h2>
 
 
-<textarea id=code>
+<textarea id="ocamlCode">
 (* Summing a list of integers *)
 let rec sum xs =
   match xs with
@@ -89,7 +89,7 @@ let rec sort = function
 
 and insert elem = function
   | [] -&gt; [elem]
-  | x :: l -&gt; 
+  | x :: l -&gt;
       if elem &lt; x then elem :: x :: l else x :: insert elem l;;
 
 (* Imperative features *)
@@ -134,13 +134,46 @@ let () =
 (* OCaml page on Wikipedia - http://en.wikipedia.org/wiki/OCaml *)
 </textarea>
 
+<h2>F# mode</h2>
+<textarea id="fsharpCode">
+module CodeMirror.FSharp
+
+let rec fib = function
+    | 0 -> 0
+    | 1 -> 1
+    | n -> fib (n - 1) + fib (n - 2)
+
+type Point =
+    {
+        x : int
+        y : int
+    }
+
+type Color =
+    | Red
+    | Green
+    | Blue
+
+[0 .. 10]
+|> List.map ((+) 2)
+|> List.fold (fun x y -> x + y) 0
+|> printf "%i"
+</textarea>
+
+
 <script>
-  var editor = CodeMirror.fromTextArea(document.getElementById('code'), {
-    mode: 'ocaml',
+  var ocamlEditor = CodeMirror.fromTextArea(document.getElementById('ocamlCode'), {
+    mode: 'text/x-ocaml',
+    lineNumbers: true,
+    matchBrackets: true
+  });
+
+  var fsharpEditor = CodeMirror.fromTextArea(document.getElementById('fsharpCode'), {
+    mode: 'text/x-fsharp',
     lineNumbers: true,
     matchBrackets: true
   });
 </script>
 
-<p><strong>MIME types defined:</strong> <code>text/x-ocaml</code>.</p>
+<p><strong>MIME types defined:</strong> <code>text/x-ocaml</code> (OCaml) and <code>text/x-fsharp</code> (F#).</p>
 </article>

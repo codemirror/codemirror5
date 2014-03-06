@@ -150,7 +150,6 @@ def pairwise_cython(double[:, ::1] X):
                singleLineStringErrors: false},
         lineNumbers: true,
         indentUnit: 4,
-        tabMode: "shift",
         matchBrackets: true
     });
 
@@ -160,7 +159,6 @@ def pairwise_cython(double[:, ::1] X):
                singleLineStringErrors: false},
         lineNumbers: true,
         indentUnit: 4,
-        tabMode: "shift",
         matchBrackets: true
       });
     </script>
@@ -168,6 +166,7 @@ def pairwise_cython(double[:, ::1] X):
     <ul>
       <li>version - 2/3 - The version of Python to recognize.  Default is 2.</li>
       <li>singleLineStringErrors - true/false - If you have a single-line string that is not terminated at the end of the line, this will show subsequent lines as errors if true, otherwise it will consider the newline as the end of the string. Default is false.</li>
+      <li>hangingIndent - int - If you want to write long arguments to a function starting on a new line, how much that line should be indented. Defaults to one normal indentation unit.</li>
     </ul>
     <h2>Advanced Configuration Options:</h2>
     <p>Usefull for superset of python syntax like Enthought enaml, IPython magics and  questionmark help</p>

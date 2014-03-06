@@ -402,6 +402,13 @@
       document looks. You can set this option to false to disable this
       behavior.</dd>
 
+      <dt id="option_addModeClass"><code><strong>addModeClass</strong>: boolean</code></dt>
+      <dd>When enabled (off by default), an extra CSS class will be
+      added to each token, indicating the
+      (<a href="#innerMode">inner</a>) mode that produced it, prefixed
+      with <code>"cm-m-"</code>. For example, tokens from the XML mode
+      will get the <code>cm-m-xml</code> class.</dd>
+
       <dt id="option_maxHighlightLength"><code><strong>maxHighlightLength</strong>: number</code></dt>
       <dd>When highlighting long lines, in order to stay responsive,
       the editor will give up and simply style the rest of the line as
@@ -439,7 +446,7 @@
 
     <p>Various CodeMirror-related objects emit events, which allow
     client code to react to various situations. Handlers for such
-    events can be registed with the <a href="#on"><code>on</code></a>
+    events can be registered with the <a href="#on"><code>on</code></a>
     and <a href="#off"><code>off</code></a> methods on the objects
     that the event fires on. To fire your own events,
     use <code>CodeMirror.signal(target, name, args...)</code>,
@@ -935,10 +942,14 @@
       of <a href="#changeGeneration"><code>changeGeneration</code></a>,
       which allows multiple subsystems to track different notions of
       cleanness without interfering.</dd>
-      <dt id="changeGeneration"><code><strong>doc.changeGeneration</strong>() → integer</code></dt>
+      <dt id="changeGeneration"><code><strong>doc.changeGeneration</strong>(?closeEvent: boolean) → integer</code></dt>
       <dd>Returns a number that can later be passed
       to <a href="#isClean"><code>isClean</code></a> to test whether
-      any edits were made (and not undone) in the meantime.</dd>
+      any edits were made (and not undone) in the meantime.
+      If <code>closeEvent</code> is true, the current history event
+      will be ‘closed’, meaning it can't be combined with further
+      changes (rapid typing or deleting events are typically
+      combined).</dd>
       <dt id="isClean"><code><strong>doc.isClean</strong>(?generation: integer) → boolean</code></dt>
       <dd>Returns whether the document is currently clean — not
       modified since initialization or the last call
@@ -1209,6 +1220,9 @@
         <a href="#event_clear"><code>"clear"</code></a> event
         fired on the range handle can be used to be notified when this
         happens.</dd>
+        <dt id="mark_clearWhenEmpty"><code><strong>clearWhenEmpty</strong>: boolean</code></dt>
+        <dd>Determines whether the mark is automatically cleared when
+        it becomes empty. Default is true.</dd>
         <dt id="mark_replacedWith"><code><strong>replacedWith</strong>: Element</code></dt>
         <dd>Use a given node to display this range. Implies both
         collapsed and atomic. The given DOM node <em>must</em> be an
@@ -1248,7 +1262,7 @@
         only in its target document.</dd>
       </dl>
       The method will return an object that represents the marker
-      (with constuctor <code>CodeMirror.TextMarker</code>), which
+      (with constructor <code>CodeMirror.TextMarker</code>), which
       exposes three methods:
       <code><strong>clear</strong>()</code>, to remove the mark,
       <code><strong>find</strong>()</code>, which returns
@@ -1530,18 +1544,35 @@
       unstyled tokens, and a string, potentially containing multiple
       space-separated style names, otherwise.</dd>
 
+      <dt id="getHelpers"><code><strong>cm.getHelpers</strong>(pos: {line, ch}, type: string) → array&lt;helper&gt;</code></dt>
+      <dd>Fetch the set of applicable helper values for the given
+      position. Helpers provide a way to look up functionality
+      appropriate for a mode. The <code>type</code> argument provides
+      the helper namespace (see
+      <a href="#registerHelper"><code>registerHelper</code></a>), in
+      which the values will be looked up. When the mode itself has a
+      property that corresponds to the <code>type</code>, that
+      directly determines the keys that are used to look up the helper
+      values (it may be either a single string, or an array of
+      strings). Failing that, the mode's <code>helperType</code>
+      property and finally the mode's name are used.</dd>
+      <dd>For example, the JavaScript mode has a
+      property <code>fold</code> containing <code>"brace"</code>. When
+      the <code>brace-fold</code> addon is loaded, that defines a
+      helper named <code>brace</code> in the <code>fold</code>
+      namespace. This is then used by
+      the <a href="#addon_foldcode"><code>foldcode</code></a> addon to
+      figure out that it can use that folding function to fold
+      JavaScript code.</dd>
+      <dd>When any <a href="#registerGlobalHelper">'global'</a>
+      helpers are defined for the given namespace, their predicates
+      are called on the current mode and editor, and all those that
+      declare they are applicable will also be added to the array that
+      is returned.</dd>
+
       <dt id="getHelper"><code><strong>cm.getHelper</strong>(pos: {line, ch}, type: string) → helper</code></dt>
-      <dd>Fetch appropriate helper for the given position. Helpers
-      provide a way to look up functionality appropriate for a mode.
-      The <code>type</code> argument provides the helper namespace
-      (see
-      also <a href="#registerHelper"><code>registerHelper</code></a>),
-      in which the value will be looked up. The key that is used
-      depends on the <a href="#getMode">mode</a> active at the given
-      position. If the mode object contains a property with the same
-      name as the <code>type</code> argument, that is tried first.
-      Next, the mode's <code>helperType</code>, if any, is tried. And
-      finally, the mode's name.</dd>
+      <dd>Returns the first applicable helper value.
+      See <a href="#getHelpers"><code>getHelpers</code></a>.</dd>
 
       <dt id="getStateAfter"><code><strong>cm.getStateAfter</strong>(?line: integer, ?precise: boolean) → object</code></dt>
       <dd>Returns the mode's parser state, if any, at the end of the
@@ -1686,7 +1717,7 @@
       (with the instance as argument) whenever a new CodeMirror instance
       is initialized.</dd>
 
-      <dt id="registerHelper"><code><strong>CodeMirror.registerHelper</strong>(type: string, name: string, value: helper)</code></dt>
+      <dt id="registerHelper"><code><strong>CodeMirror.registerHelper</strong>(type: string, name: string, value: helper)</code></dt>
       <dd>Registers a helper value with the given <code>name</code> in
       the given namespace (<code>type</code>). This is used to define
       functionality that may be looked up by mode. Will create (if it
@@ -1696,6 +1727,14 @@
       doing <code>CodeMirror.registerHelper("hint", "foo",
       myFoo)</code>, the value <code>CodeMirror.hint.foo</code> will
       point to <code>myFoo</code>.</dd>
+
+      <dt id="registerGlobalHelper"><code><strong>CodeMirror.registerGlobalHelper</strong>(type: string, name: string, predicate: fn(mode, CodeMirror), value: helper)</code></dt>
+      <dd>Acts
+      like <a href="#registerHelper"><code>registerHelper</code></a>,
+      but also registers this helper as 'global', meaning that it will
+      be included by <a href="#getHelpers"><code>getHelpers</code></a>
+      whenever the given <code>predicate</code> returns true when
+      called with the local mode and editor.</dd>
 
       <dt id="Pos"><code><strong>CodeMirror.Pos</strong>(line: integer, ?ch: integer)</code></dt>
       <dd>A constructor for the <code>{line, ch}</code> objects that
@@ -1716,7 +1755,10 @@
 
     <p>The <code>addon</code> directory in the distribution contains a
     number of reusable components that implement extra editor
-    functionality. In brief, they are:</p>
+    functionality (on top of extension functions
+    like <a href="#defineOption"><code>defineOption</code></a>, <a href="#defineExtension"><code>defineExtension</code></a>,
+    and <a href="#registerHelper"><code>registerHelper</code></a>). In
+    brief, they are:</p>
 
     <dl>
       <dt id="addon_dialog"><a href="../addon/dialog/dialog.js"><code>dialog/dialog.js</code></a></dt>
@@ -1875,11 +1917,12 @@
       supporting the following properties:
       <dl>
         <dt><code><strong>rangeFinder</strong>: fn(CodeMirror, Pos)</code></dt>
-        <dd>The function that is used to find foldable ranges. If this
-        is not directly passed, it will
-        call <a href="#getHelper"><code>getHelper</code></a> with
-        a <code>"fold"</code> type to find one that's appropriate for
-        the mode. There are files in
+        <dd id="helper_fold_auto">The function that is used to find
+        foldable ranges. If this is not directly passed, it will
+        default to <code>CodeMirror.fold.auto</code>, which
+        uses <a href="#getHelpers"><code>getHelpers</code></a> with
+        a <code>"fold"</code> type to find folding functions
+        appropriate for the local mode. There are files in
         the <a href="../addon/fold/"><code>addon/fold/</code></a>
         directory providing <code>CodeMirror.fold.brace</code>, which
         finds blocks in brace languages (JavaScript, C, Java,
@@ -1938,8 +1981,8 @@
         <dt><code><strong>rangeFinder</strong>: fn(CodeMirror, Pos)</code></dt>
         <dd>The range-finder function to use when determining whether
         something can be folded. When not
-        given, <a href="#getHelper"><code>getHelper</code></a> will be
-        used to determine a default.</dd>
+        given, <a href="#helper_fold_auto"><code>CodeMirror.fold.auto</code></a>
+        will be used as default.</dd>
       </dl>
       Demo <a href="../demo/folding.html">here</a>.</dd>
 
@@ -2011,10 +2054,18 @@
       is an array of strings or objects (the completions),
       and <code>from</code> and <code>to</code> give the start and end
       of the token that is being completed as <code>{line, ch}</code>
-      objects. If no hinting function is given, the addon will try to
-      use <a href="#getHelper"><code>getHelper</code></a> with
-      the <code>"hint"</code> type to find one. When completions
-      aren't simple strings, they should be objects with the folowing
+      objects.</dd>
+      <dd>If no hinting function is given, the addon will
+      use <code>CodeMirror.hint.auto</code>, with
+      calls <a href="#getHelpers"><code>getHelpers</code></a> with
+      the <code>"hint"</code> type to find applicable hinting
+      functions, and tries them one by one. If that fails, it looks
+      for a <code>"hintWords"</code> helper to fetch a list of
+      completable words for the mode, and
+      uses <code>CodeMirror.hint.fromList</code> to complete from
+      those.</dd>
+      <dd>When completions
+      aren't simple strings, they should be objects with the following
       properties:
       <dl>
         <dt><code><strong>text</strong>: string</code></dt>
@@ -2059,7 +2110,11 @@
         has <code>moveFocus(n)</code>, <code>setFocus(n)</code>, <code>pick()</code>,
         and <code>close()</code> methods (see the source for details),
         that can be used to change the focused element, pick the
-        current element or close the menu.</dd>
+        current element or close the menu. Additionnaly <code>menuSize()</code>
+        can give you access to the size of the current dropdown menu,
+        <code>length</code> give you the number of availlable completions, and
+        <code>data</code> give you full access to the completion returned by the
+        hinting function.</dd>
         <dt><code><strong>extraKeys</strong>: keymap</code></dt>
         <dd>Like <code>customKeys</code> above, but the bindings will
         be added to the set of default bindings, instead of replacing
@@ -2119,7 +2174,7 @@
       the <a href="../demo/html5complete.html">demo</a>.</dd>
 
       <dt id="addon_css-hint"><a href="../addon/hint/css-hint.js"><code>hint/css-hint.js</code></a></dt>
-      <dd>A minimal hinting function for CSS code.
+      <dd>A hinting function for CSS, SCSS, or LESS code.
       Defines <code>CodeMirror.hint.css</code>.</dd>
 
       <dt id="addon_python-hint"><a href="../addon/hint/python-hint.js"><code>hint/python-hint.js</code></a></dt>
@@ -2516,6 +2571,13 @@
     modeSpec)</code>, where <code>modeSpec</code> can be a string or
     object specifying a mode, as in
     the <a href="#option_mode"><code>mode</code></a> option.</p>
+
+    <p>If a mode specification wants to add some properties to the
+    resulting mode object, typically for use
+    with <a href="#getHelpers"><code>getHelpers</code></a>, it may
+    contain a <code>modeProps</code> property, which holds an object.
+    This object's properties will be copied to the actual mode
+    object.</p>
 
     <p id="extendMode">Sometimes, it is useful to add or override mode
     object properties from external code.

@@ -48,4 +48,16 @@ namespace = "comment_";
     cm.setCursor(1);
     cm.execCommand("toggleComment");
   }, "a;\n\nb;", "a;\n// \nb;");
+
+  test("dontMessWithStrings", "javascript", function(cm) {
+    cm.execCommand("toggleComment");
+  }, "console.log(\"/*string*/\");", "// console.log(\"/*string*/\");");
+
+  test("dontMessWithStrings2", "javascript", function(cm) {
+    cm.execCommand("toggleComment");
+  }, "console.log(\"// string\");", "// console.log(\"// string\");");
+
+  test("dontMessWithStrings3", "javascript", function(cm) {
+    cm.execCommand("toggleComment");
+  }, "// console.log(\"// string\");", "console.log(\"// string\");");
 })();

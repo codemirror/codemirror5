@@ -2,10 +2,11 @@
  * Author: Hans Engel
  * Branched from CodeMirror's Scheme mode (by Koh Zi Han, based on implementation by Koh Zi Chun)
  */
-CodeMirror.defineMode("clojure", function () {
+CodeMirror.defineMode("clojure", function (options) {
     var BUILTIN = "builtin", COMMENT = "comment", STRING = "string", CHARACTER = "string-2",
         ATOM = "atom", NUMBER = "number", BRACKET = "bracket", KEYWORD = "keyword";
-    var INDENT_WORD_SKIP = 2;
+    var INDENT_WORD_SKIP = options.indentUnit || 2;
+    var NORMAL_INDENT_UNIT = options.indentUnit || 2;
 
     function makeKeywords(str) {
         var obj = {}, words = str.split(" ");
@@ -44,7 +45,7 @@ CodeMirror.defineMode("clojure", function () {
         sign: /[+-]/,
         exponent: /e/i,
         keyword_char: /[^\s\(\[\;\)\]]/,
-        symbol: /[\w*+!\-\._?:\/]/
+        symbol: /[\w*+!\-\._?:<>\/]/
     };
 
     function stateStack(indent, type, prev) { // represents a state stack object
@@ -179,8 +180,8 @@ CodeMirror.defineMode("clojure", function () {
                             stream.eatSpace();
                             if (stream.eol() || stream.peek() == ";") {
                                 // nothing significant after
-                                // we restart indentation 1 space after
-                                pushStack(state, indentTemp + 1, ch);
+                                // we restart indentation the user defined spaces after
+                                pushStack(state, indentTemp + NORMAL_INDENT_UNIT, ch);
                             } else {
                                 pushStack(state, indentTemp + stream.current().length, ch); // else we match
                             }

@@ -57,7 +57,7 @@
         run.apply(null, editors);
         successful = true;
       } finally {
-        if ((debug && !successful) || verbose) {
+        if (!successful || verbose) {
           place.style.visibility = "visible";
         } else {
           for (var i = 0; i < editors.length; ++i)

@@ -72,11 +72,13 @@
     <script src="test.js"></script>
     <script src="doc_test.js"></script>
     <script src="comment_test.js"></script>
+    <script src="search_test.js"></script>
     <script src="mode_test.js"></script>
     <script src="../mode/javascript/test.js"></script>
     <script src="../mode/css/css.js"></script>
     <script src="../mode/css/test.js"></script>
     <script src="../mode/css/scss_test.js"></script>
+    <script src="../mode/css/less_test.js"></script>
     <script src="../mode/xml/xml.js"></script>
     <script src="../mode/htmlmixed/htmlmixed.js"></script>
     <script src="../mode/ruby/ruby.js"></script>
@@ -107,10 +109,11 @@
           progressTotal = document.getElementById("progress_total").childNodes[0];
       var count = 0,
           failed = 0,
+          skipped = 0,
           bad = "",
           running = false, // Flag that states tests are running
-         quit = false, // Flag to quit tests ASAP
-         verbose = false; // Adds message for *every* test to output
+          quit = false, // Flag to quit tests ASAP
+          verbose = false; // Adds message for *every* test to output
 
       function runHarness(){
         if (running) {
@@ -119,19 +122,25 @@
           setTimeout(function(){runHarness();}, 500);
           return;
         }
+        filters = [];
+        verbose = false;
         if (window.location.hash.substr(1)){
-          debug = window.location.hash.substr(1).split(",");
-        } else {
-          debug = null;
+          var strings = window.location.hash.substr(1).split(",");
+          while (strings.length) {
+            var s = strings.shift();
+            if (s === "verbose")
+              verbose = true;
+            else
+              filters.push(parseTestFilter(decodeURIComponent(s)));;
+          }
         }
         quit = false;
         running = true;
         setStatus("Loading tests...");
         count = 0;
         failed = 0;
+        skipped = 0;
         bad = "";
-        verbose = false;
-        debugUsed = Array();
         totalTests = countTests();
         progressTotal.nodeValue = " of " + totalTests;
         progressRan.nodeValue = count;
@@ -164,11 +173,15 @@
       }
       function displayTest(type, name, customMessage) {
         var message = "???";
-        if (type != "done") ++count;
+        if (type != "done" && type != "skipped") ++count;
         progress.style.width = (count * (progress.parentNode.clientWidth - 2) / totalTests) + "px";
         progressRan.nodeValue = count;
         if (type == "ok") {
           message = "Test '" + name + "' succeeded";
+          if (!verbose) customMessage = false;
+        } else if (type == "skipped") {
+          message = "Test '" + name + "' skipped";
+          ++skipped;
           if (!verbose) customMessage = false;
         } else if (type == "expected") {
           message = "Test '" + name + "' failed as expected";
@@ -187,15 +200,11 @@
           } else {
             type += " ok";
             message = "All passed";
+            if (skipped) {
+              message += " (" + skipped + " skipped)";
+            }
           }
-          if (debug && debug.length) {
-            var bogusTests = totalTests - count;
-            message += " — " + bogusTests + " nonexistent test" +
-              (bogusTests > 1 ? "s" : "") + " requested by location.hash: " +
-              "`" + debug.join("`, `") + "`";
-          } else {
-            progressTotal.nodeValue = '';
-          }
+          progressTotal.nodeValue = '';
           customMessage = true; // Hack to avoid adding to output
         }
         if (verbose && !customMessage)  customMessage = message;

@@ -3,15 +3,15 @@
   function MT(name) { test.mode(name, mode, Array.prototype.slice.call(arguments, 1)); }
 
   MT("locals",
-     "[keyword function] [variable foo]([def a], [def b]) { [keyword var] [def c] = [number 10]; [keyword return] [variable-2 a] + [variable-2 c] + [variable d]; }");
+     "[keyword function] [variable foo]([def a], [def b]) { [keyword var] [def c] [operator =] [number 10]; [keyword return] [variable-2 a] [operator +] [variable-2 c] [operator +] [variable d]; }");
 
   MT("comma-and-binop",
-     "[keyword function](){ [keyword var] [def x] = [number 1] + [number 2], [def y]; }");
+     "[keyword function](){ [keyword var] [def x] [operator =] [number 1] [operator +] [number 2], [def y]; }");
 
   MT("destructuring",
      "([keyword function]([def a], [[[def b], [def c] ]]) {",
-     "  [keyword let] {[def d], [property foo]: [def c]=[number 10], [def x]} = [variable foo]([variable-2 a]);",
-     "  [[[variable-2 c], [variable y] ]] = [variable-2 c];",
+     "  [keyword let] {[def d], [property foo]: [def c][operator =][number 10], [def x]} [operator =] [variable foo]([variable-2 a]);",
+     "  [[[variable-2 c], [variable y] ]] [operator =] [variable-2 c];",
      "})();");
 
   MT("class",
@@ -19,13 +19,13 @@
      "  [[ [string-2 /expr/] ]]: [number 24],",
      "  [property constructor]([def x], [def y]) {",
      "    [keyword super]([string 'something']);",
-     "    [keyword this].[property x] = [variable-2 x];",
+     "    [keyword this].[property x] [operator =] [variable-2 x];",
      "  }",
      "}");
 
   MT("module",
      "[keyword module] [string 'foo'] {",
-     "  [keyword export] [keyword let] [def x] = [number 42];",
+     "  [keyword export] [keyword let] [def x] [operator =] [number 42];",
      "  [keyword export] [keyword *] [keyword from] [string 'somewhere'];",
      "}");
 
@@ -38,7 +38,7 @@
 
   MT("const",
      "[keyword function] [variable f]() {",
-     "  [keyword const] [[ [def a], [def b] ]] = [[ [number 1], [number 2] ]];",
+     "  [keyword const] [[ [def a], [def b] ]] [operator =] [[ [number 1], [number 2] ]];",
      "}");
 
   MT("for/of",
@@ -46,14 +46,14 @@
 
   MT("generator",
      "[keyword function*] [variable repeat]([def n]) {",
-     "  [keyword for]([keyword var] [def i] = [number 0]; [variable-2 i] < [variable-2 n]; ++[variable-2 i])",
+     "  [keyword for]([keyword var] [def i] [operator =] [number 0]; [variable-2 i] [operator <] [variable-2 n]; [operator ++][variable-2 i])",
      "    [keyword yield] [variable-2 i];",
      "}");
 
   MT("fatArrow",
-     "[variable array].[property filter]([def a] => [variable-2 a] + [number 1]);",
+     "[variable array].[property filter]([def a] [operator =>] [variable-2 a] [operator +] [number 1]);",
      "[variable a];", // No longer in scope
-     "[keyword let] [variable f] = ([[ [def a], [def b] ]], [def c]) => [variable-2 a] + [variable-2 c];",
+     "[keyword let] [variable f] [operator =] ([[ [def a], [def b] ]], [def c]) [operator =>] [variable-2 a] [operator +] [variable-2 c];",
      "[variable c];");
 
   MT("spread",
@@ -63,10 +63,51 @@
 
   MT("comprehension",
      "[keyword function] [variable f]() {",
-     "  [[ [variable x] + [number 1] [keyword for] ([keyword var] [def x] [keyword in] [variable y]) [keyword if] [variable pred]([variable-2 x]) ]];",
-     "  ([variable u] [keyword for] ([keyword var] [def u] [keyword of] [variable generateValues]()) [keyword if] ([variable-2 u].[property color] === [string 'blue']));",
+     "  [[([variable x] [operator +] [number 1]) [keyword for] ([keyword var] [def x] [keyword in] [variable y]) [keyword if] [variable pred]([variable-2 x]) ]];",
+     "  ([variable u] [keyword for] ([keyword var] [def u] [keyword of] [variable generateValues]()) [keyword if] ([variable-2 u].[property color] [operator ===] [string 'blue']));",
      "}");
 
   MT("quasi",
-     "[variable re][string-2 `fofdlakj${][variable x] + ([variable re][string-2 `foo`]) + [number 1][string-2 }fdsa`] + [number 2]");
+     "[variable re][string-2 `fofdlakj${][variable x] [operator +] ([variable re][string-2 `foo`]) [operator +] [number 1][string-2 }fdsa`] [operator +] [number 2]");
+
+  MT("indent_statement",
+     "[keyword var] [variable x] [operator =] [number 10]",
+     "[variable x] [operator +=] [variable y] [operator +]",
+     "  [atom Infinity]",
+     "[keyword debugger];");
+
+  MT("indent_if",
+     "[keyword if] ([number 1])",
+     "  [keyword break];",
+     "[keyword else] [keyword if] ([number 2])",
+     "  [keyword continue];",
+     "[keyword else]",
+     "  [number 10];",
+     "[keyword if] ([number 1]) {",
+     "  [keyword break];",
+     "} [keyword else] [keyword if] ([number 2]) {",
+     "  [keyword continue];",
+     "} [keyword else] {",
+     "  [number 10];",
+     "}");
+
+  MT("indent_for",
+     "[keyword for] ([keyword var] [variable i] [operator =] [number 0];",
+     "     [variable i] [operator <] [number 100];",
+     "     [variable i][operator ++])",
+     "  [variable doSomething]([variable i]);",
+     "[keyword debugger];");
+
+  MT("indent_c_style",
+     "[keyword function] [variable foo]()",
+     "{",
+     "  [keyword debugger];",
+     "}");
+
+  MT("multilinestring",
+     "[keyword var] [variable x] [operator =] [string 'foo\\]",
+     "[string bar'];");
+
+  MT("scary_regexp",
+     "[string-2 /foo[[/]]bar/];");
 })();

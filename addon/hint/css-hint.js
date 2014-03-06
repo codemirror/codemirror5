@@ -1,50 +1,46 @@
 (function () {
   "use strict";
 
-  function getHints(cm) {
+  var pseudoClasses = {link: 1, visited: 1, active: 1, hover: 1, focus: 1,
+                       "first-letter": 1, "first-line": 1, "first-child": 1,
+                       before: 1, after: 1, lang: 1};
+
+  CodeMirror.registerHelper("hint", "css", function(cm) {
     var cur = cm.getCursor(), token = cm.getTokenAt(cur);
     var inner = CodeMirror.innerMode(cm.getMode(), token.state);
     if (inner.mode.name != "css") return;
 
-    // If it's not a 'word-style' token, ignore the token.
-    if (!/^[\w$_-]*$/.test(token.string)) {
-      token = {
-        start: cur.ch, end: cur.ch, string: "", state: token.state,
-        type: null
-      };
-      var stack = token.state.stack;
-      var lastToken = stack && stack.length > 0 ? stack[stack.length - 1] : "";
-      if (token.string == ":" || lastToken.indexOf("property") == 0)
-        token.type = "variable";
-      else if (token.string == "{" || lastToken.indexOf("rule") == 0)
-        token.type = "property";
+    var word = token.string, start = token.start, end = token.end;
+    if (/[^\w$_-]/.test(word)) {
+      word = ""; start = end = cur.ch;
     }
-
-    if (!token.type)
-      return;
 
     var spec = CodeMirror.resolveMode("text/css");
-    var keywords = null;
-    if (token.type.indexOf("property") == 0)
-      keywords = spec.propertyKeywords;
-    else if (token.type.indexOf("variable") == 0)
-      keywords = spec.valueKeywords;
-
-    if (!keywords)
-      return;
 
     var result = [];
-    for (var name in keywords) {
-      if (name.indexOf(token.string) == 0 /* > -1 */)
-        result.push(name);
+    function add(keywords) {
+      for (var name in keywords)
+        if (!word || name.lastIndexOf(word, 0) == 0)
+          result.push(name);
     }
 
-    return {
-      list: result,
-      from: CodeMirror.Pos(cur.line, token.start),
-      to: CodeMirror.Pos(cur.line, token.end)
-    };
-  }
+    var st = token.state.state;
+    if (st == "pseudo" || token.type == "variable-3") {
+      add(pseudoClasses);
+    } else if (st == "block" || st == "maybeprop") {
+      add(spec.propertyKeywords);
+    } else if (st == "prop" || st == "parens" || st == "at" || st == "params") {
+      add(spec.valueKeywords);
+      add(spec.colorKeywords);
+    } else if (st == "media" || st == "media_parens") {
+      add(spec.mediaTypes);
+      add(spec.mediaFeatures);
+    }
 
-  CodeMirror.registerHelper("hint", "css", getHints);
+    if (result.length) return {
+      list: result,
+      from: CodeMirror.Pos(cur.line, start),
+      to: CodeMirror.Pos(cur.line, end)
+    };
+  });
 })();

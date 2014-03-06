@@ -47,6 +47,7 @@
                   match: match};
       };
     } else { // String query
+      var origQuery = query;
       if (caseFold) query = query.toLowerCase();
       var fold = caseFold ? function(str){return str.toLowerCase();} : function(str){return str;};
       var target = query.split("\n");
@@ -58,33 +59,45 @@
           this.matches = function() {};
         } else {
           this.matches = function(reverse, pos) {
-            var line = fold(doc.getLine(pos.line)), len = query.length, match;
-            if (reverse ? (pos.ch >= len && (match = line.lastIndexOf(query, pos.ch - len)) != -1)
-                        : (match = line.indexOf(query, pos.ch)) != -1)
-              return {from: Pos(pos.line, match),
-                      to: Pos(pos.line, match + len)};
+            if (reverse) {
+              var orig = doc.getLine(pos.line).slice(0, pos.ch), line = fold(orig);
+              var match = line.lastIndexOf(query);
+              if (match > -1) {
+                match = adjustPos(orig, line, match);
+                return {from: Pos(pos.line, match), to: Pos(pos.line, match + origQuery.length)};
+              }
+             } else {
+               var orig = doc.getLine(pos.line).slice(pos.ch), line = fold(orig);
+               var match = line.indexOf(query);
+               if (match > -1) {
+                 match = adjustPos(orig, line, match) + pos.ch;
+                 return {from: Pos(pos.line, match), to: Pos(pos.line, match + origQuery.length)};
+               }
+            }
           };
         }
       } else {
+        var origTarget = origQuery.split("\n");
         this.matches = function(reverse, pos) {
-          var ln = pos.line, idx = (reverse ? target.length - 1 : 0), match = target[idx], line = fold(doc.getLine(ln));
-          var offsetA = (reverse ? line.indexOf(match) + match.length : line.lastIndexOf(match));
-          if (reverse ? offsetA > pos.ch || offsetA != match.length
-              : offsetA < pos.ch || offsetA != line.length - match.length)
-            return;
-          for (;;) {
-            if (reverse ? !ln : ln == doc.lineCount() - 1) return;
-            line = fold(doc.getLine(ln += reverse ? -1 : 1));
-            match = target[reverse ? --idx : ++idx];
-            if (idx > 0 && idx < target.length - 1) {
-              if (line != match) return;
-              else continue;
-            }
-            var offsetB = (reverse ? line.lastIndexOf(match) : line.indexOf(match) + match.length);
-            if (reverse ? offsetB != line.length - match.length : offsetB != match.length)
-              return;
-            var start = Pos(pos.line, offsetA), end = Pos(ln, offsetB);
-            return {from: reverse ? end : start, to: reverse ? start : end};
+          var last = target.length - 1;
+          if (reverse) {
+            if (pos.line - (target.length - 1) < doc.firstLine()) return;
+            if (fold(doc.getLine(pos.line).slice(0, origTarget[last].length)) != target[target.length - 1]) return;
+            var to = Pos(pos.line, origTarget[last].length);
+            for (var ln = pos.line - 1, i = last - 1; i >= 1; --i, --ln)
+              if (target[i] != fold(doc.getLine(ln))) return;
+            var line = doc.getLine(ln), cut = line.length - origTarget[0].length;
+            if (fold(line.slice(cut)) != target[0]) return;
+            return {from: Pos(ln, cut), to: to};
+          } else {
+            if (pos.line + (target.length - 1) > doc.lastLine()) return;
+            var line = doc.getLine(pos.line), cut = line.length - origTarget[0].length;
+            if (fold(line.slice(cut)) != target[0]) return;
+            var from = Pos(pos.line, cut);
+            for (var ln = pos.line + 1, i = 1; i < last; ++i, ++ln)
+              if (target[i] != fold(doc.getLine(ln))) return;
+            if (doc.getLine(ln).slice(0, origTarget[last].length) != target[last]) return;
+            return {from: from, to: Pos(ln, origTarget[last].length)};
           }
         };
       }
@@ -106,7 +119,6 @@
 
       for (;;) {
         if (this.pos = this.matches(reverse, pos)) {
-          if (!this.pos.from || !this.pos.to) { console.log(this.matches, this.pos); }
           this.atOccurrence = true;
           return this.pos.match || true;
         }
@@ -133,6 +145,18 @@
                         lines[lines.length - 1].length + (lines.length == 1 ? this.pos.from.ch : 0));
     }
   };
+
+  // Maps a position in a case-folded line back to a position in the original line
+  // (compensating for codepoints increasing in number during folding)
+  function adjustPos(orig, folded, pos) {
+    if (orig.length == folded.length) return pos;
+    for (var pos1 = Math.min(pos, orig.length);;) {
+      var len1 = orig.slice(0, pos1).toLowerCase().length;
+      if (len1 < pos) ++pos1;
+      else if (len1 > pos) --pos1;
+      else return pos1;
+    }
+  }
 
   CodeMirror.defineExtension("getSearchCursor", function(query, pos, caseFold) {
     return new SearchCursor(this.doc, query, pos, caseFold);

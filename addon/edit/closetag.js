@@ -43,7 +43,7 @@
   function autoCloseGT(cm) {
     var pos = cm.getCursor(), tok = cm.getTokenAt(pos);
     var inner = CodeMirror.innerMode(cm.getMode(), tok.state), state = inner.state;
-    if (inner.mode.name != "xml" || !state.tagName) return CodeMirror.Pass;
+    if (inner.mode.name != "xml" || !state.tagName || cm.getOption("disableInput")) return CodeMirror.Pass;
 
     var opt = cm.getOption("autoCloseTags"), html = inner.mode.configuration == "html";
     var dontCloseTags = (typeof opt == "object" && opt.dontCloseTags) || (html && htmlDontClose);
@@ -57,7 +57,9 @@
         tok.type == "string" && (tok.end != pos.ch || !/[\"\']/.test(tok.string.charAt(tok.string.length - 1)) || tok.string.length == 1) ||
         tok.type == "tag" && state.type == "closeTag" ||
         tok.string.indexOf("/") == (tok.string.length - 1) || // match something like <someTagName />
-        dontCloseTags && indexOf(dontCloseTags, lowerTagName) > -1)
+        dontCloseTags && indexOf(dontCloseTags, lowerTagName) > -1 ||
+        CodeMirror.scanForClosingTag && CodeMirror.scanForClosingTag(cm, pos, tagName,
+                                                                     Math.min(cm.lastLine() + 1, pos.line + 50)))
       return CodeMirror.Pass;
 
     var doIndent = indentTags && indexOf(indentTags, lowerTagName) > -1;
@@ -65,8 +67,8 @@
     cm.replaceSelection(">" + (doIndent ? "\n\n" : "") + "</" + tagName + ">",
                         {head: curPos, anchor: curPos});
     if (doIndent) {
-      cm.indentLine(pos.line + 1);
-      cm.indentLine(pos.line + 2);
+      cm.indentLine(pos.line + 1, null, true);
+      cm.indentLine(pos.line + 2, null);
     }
   }
 
@@ -74,11 +76,13 @@
     var pos = cm.getCursor(), tok = cm.getTokenAt(pos);
     var inner = CodeMirror.innerMode(cm.getMode(), tok.state), state = inner.state;
     if (tok.type == "string" || tok.string.charAt(0) != "<" ||
-        tok.start != pos.ch - 1 || inner.mode.name != "xml")
+        tok.start != pos.ch - 1 || inner.mode.name != "xml" ||
+        cm.getOption("disableInput"))
       return CodeMirror.Pass;
 
     var tagName = state.context && state.context.tagName;
     if (tagName) cm.replaceSelection("/" + tagName + ">", "end");
+    else return CodeMirror.Pass;
   }
 
   function indexOf(collection, elt) {

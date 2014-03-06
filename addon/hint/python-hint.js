@@ -31,10 +31,6 @@
 
     var completionList = getCompletions(token, context);
     completionList = completionList.sort();
-    //prevent autocomplete for last word, instead show dropdown with one word
-    if(completionList.length == 1) {
-      completionList.push(" ");
-    }
 
     return {list: completionList,
             from: CodeMirror.Pos(cur.line, token.start),
@@ -66,7 +62,7 @@
   function getCompletions(token, context) {
     var found = [], start = token.string;
     function maybeAdd(str) {
-      if (str.indexOf(start) == 0 && !arrayContains(found, str)) found.push(str);
+      if (str.lastIndexOf(start, 0) == 0 && !arrayContains(found, str)) found.push(str);
     }
 
     function gatherCompletions(_obj) {
