@@ -210,6 +210,7 @@
     { keys: ['|'], type: 'motion',
         motion: 'moveToColumn',
         motionArgs: { }},
+    { keys: ['o'], type: 'motion', motion: 'moveToOtherHighlightedEnd', motionArgs: { },context:'visual'},
     // Operators
     { keys: ['d'], type: 'operator', operator: 'delete' },
     { keys: ['y'], type: 'operator', operator: 'yank' },
@@ -1237,6 +1238,7 @@
               selectionStart.ch -= 1;
             }
             selectionEnd = curEnd;
+            selectionStart = (motionResult instanceof Array) ? curStart : selectionStart;
             if (vim.visualLine) {
               if (cursorIsBefore(selectionStart, selectionEnd)) {
                 selectionStart.ch = 0;
@@ -1357,6 +1359,16 @@
           return mark.find();
         }
         return null;
+      },
+      moveToOtherHighlightedEnd: function(cm) {
+        var curEnd = copyCursor(cm.getCursor('head'));
+        var curStart = copyCursor(cm.getCursor('anchor'));
+        if (cursorIsBefore(curStart, curEnd)) {
+           curEnd.ch += 1;
+        } else if (cursorIsBefore(curEnd, curStart)) {
+           curStart.ch -= 1;
+        }
+        return ([curEnd,curStart]);
       },
       jumpToMark: function(cm, motionArgs, vim) {
         var best = cm.getCursor();
@@ -3159,6 +3171,7 @@
       { name: 'map' },
       { name: 'nmap', shortName: 'nm' },
       { name: 'vmap', shortName: 'vm' },
+      { name: 'unmap' },
       { name: 'write', shortName: 'w' },
       { name: 'undo', shortName: 'u' },
       { name: 'redo', shortName: 'red' },
@@ -3166,7 +3179,8 @@
       { name: 'sort', shortName: 'sor' },
       { name: 'substitute', shortName: 's' },
       { name: 'nohlsearch', shortName: 'noh' },
-      { name: 'delmarks', shortName: 'delm' }
+      { name: 'delmarks', shortName: 'delm' },
+      { name: 'registers', shortName: 'reg' }
     ];
     Vim.ExCommandDispatcher = function() {
       this.buildCommandMap_();
@@ -3310,14 +3324,16 @@
             this.commandMap_[commandName] = {
               name: commandName,
               type: 'exToEx',
-              toInput: rhs.substring(1)
+              toInput: rhs.substring(1),
+              user: true
             };
           } else {
             // Ex to key mapping
             this.commandMap_[commandName] = {
               name: commandName,
               type: 'exToKey',
-              toKeys: parseKeyString(rhs)
+              toKeys: parseKeyString(rhs),
+              user: true
             };
           }
         } else {
@@ -3326,7 +3342,8 @@
             var mapping = {
               keys: parseKeyString(lhs),
               type: 'keyToEx',
-              exArgs: { input: rhs.substring(1) }};
+              exArgs: { input: rhs.substring(1) },
+              user: true};
             if (ctx) { mapping.context = ctx; }
             defaultKeymap.unshift(mapping);
           } else {
@@ -3334,12 +3351,45 @@
             var mapping = {
               keys: parseKeyString(lhs),
               type: 'keyToKey',
-              toKeys: parseKeyString(rhs)
+              toKeys: parseKeyString(rhs),
+              user: true
             };
             if (ctx) { mapping.context = ctx; }
             defaultKeymap.unshift(mapping);
           }
         }
+      },
+      unmap: function(lhs, ctx) {
+        var arrayEquals = function(a, b) {
+          if (a === b) return true;
+          if (a == null || b == null) return true;
+          if (a.length != b.length) return false;
+          for (var i = 0; i < a.length; i++) {
+            if (a[i] !== b[i]) return false;
+          }
+          return true;
+        };
+        if (lhs != ':' && lhs.charAt(0) == ':') {
+          // Ex to Ex or Ex to key mapping
+          if (ctx) { throw Error('Mode not supported for ex mappings'); }
+          var commandName = lhs.substring(1);
+          if (this.commandMap_[commandName] && this.commandMap_[commandName].user) {
+            delete this.commandMap_[commandName];
+            return;
+          }
+        } else {
+          // Key to Ex or key to key mapping
+          var keys = parseKeyString(lhs);
+          for (var i = 0; i < defaultKeymap.length; i++) {
+            if (arrayEquals(keys, defaultKeymap[i].keys)
+                && defaultKeymap[i].context === ctx
+                && defaultKeymap[i].user) {
+              defaultKeymap.splice(i, 1);
+              return;
+            }
+          }
+        }
+        throw Error('No such mapping.');
       }
     };
 
@@ -3371,6 +3421,16 @@
       },
       nmap: function(cm, params) { this.map(cm, params, 'normal'); },
       vmap: function(cm, params) { this.map(cm, params, 'visual'); },
+      unmap: function(cm, params, ctx) {
+        var mapArgs = params.args;
+        if (!mapArgs || mapArgs.length < 1) {
+          if (cm) {
+            showConfirm(cm, 'No such mapping: ' + params.input);
+          }
+          return;
+        }
+        exCommandDispatcher.unmap(mapArgs[0], ctx);
+      },
       move: function(cm, params) {
         commandDispatcher.processCommand(cm, cm.state.vim, {
             type: 'motion',
@@ -3420,6 +3480,31 @@
         } else {
           setOption(optionName, value);
         }
+      },
+      registers: function(cm,params) {
+        var regArgs = params.args;
+        var registers = vimGlobalState.registerController.registers;
+        var regInfo = '----------Registers----------<br><br>';
+        if (!regArgs) {
+          for (var registerName in registers) {
+            var text = registers[registerName].text;
+            if (text.length) {
+              regInfo += '"' + registerName + '    ' + text + '<br>';
+            }
+          }
+        } else {
+          var registerName;
+          regArgs = regArgs.join('');
+          for (var i = 0; i < regArgs.length; i++) {
+            registerName = regArgs.charAt(i);
+            if (!vimGlobalState.registerController.isValidRegister(registerName)) {
+              continue;
+            }
+            var register = registers[registerName] || new Register();
+            regInfo += '"' + registerName + '    ' + register.text + '<br>';
+          }
+        }
+        showConfirm(cm, regInfo);
       },
       sort: function(cm, params) {
         var reverse, ignoreCase, unique, number;
