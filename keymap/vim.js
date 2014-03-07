@@ -1997,10 +1997,7 @@
           return;
         }
         if (actionArgs.repeat > 1) {
-          var oneText = text;
-          for (var i = 1; i < actionArgs.repeat; i++) {
-            text += oneText;
-          }
+          var text = Array(actionArgs.repeat + 1).join(text)
         }
         var linewise = register.linewise;
         if (linewise) {
@@ -2994,7 +2991,15 @@
       return regexp;
     }
     function showConfirm(cm, text) {
-      if (cm.openNotification) {
+      if (cm.showConfirm) {
+        // showConfirm is normally undefined on the cm object, but serves as
+        // an injection point for unit tests.  It is important that we
+        // unregister before calling through, because any thrown
+        // errors will come back through this point.
+        var intercept = cm.showConfirm;
+        cm.showConfirm = undefined;
+        intercept(text);
+      } else if (cm.openNotification) {
         cm.openNotification('<span style="color: red">' + text + '</span>',
                             {bottom: true, duration: 5000});
       } else {
@@ -3483,7 +3488,7 @@
         var regInfo = '----------Registers----------<br><br>';
         if (!regArgs) {
           for (var registerName in registers) {
-            var text = registers[registerName].text;
+            var text = registers[registerName].toString();
             if (text.length) {
               regInfo += '"' + registerName + '    ' + text + '<br>';
             }

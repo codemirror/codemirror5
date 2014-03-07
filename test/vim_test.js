@@ -173,7 +173,8 @@ function testVim(name, run, opts, expectedFail) {
     }
     function fakeOpenDialog(result) {
       return function(text, callback) {
-        return callback(result);
+        var val = callback(result);
+        return val;
       }
     }
     var helpers = {
@@ -1792,6 +1793,34 @@ testVim('macro_search_2f', function(cm, vim, helpers) {
   helpers.doKeys('@', 'a');
   helpers.assertCursorAt(0,9);
 }, { value: 'The quick brown fox jumped over the lazy dog.'});
+testVim('yank_register', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('"', 'a', 'y', 'y');
+  helpers.doKeys('j', '"', 'b', 'y', 'y');
+  cm.openDialog = helpers.fakeOpenDialog('registers');
+  cm.showConfirm = function(text) {
+    eq(false, text.match('a\\s+foo') == null);
+    eq(false, text.match('b\\s+bar') == null);
+  };
+  helpers.doKeys(':');
+}, { value: 'foo\nbar'});
+testVim('macro_register', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('q', 'a', 'i');
+  cm.replaceRange('gangnam', cm.getCursor());
+  helpers.doInsertModeKeys('Esc');
+  helpers.doKeys('q');
+  helpers.doKeys('q', 'b', 'o');
+  cm.replaceRange('style', cm.getCursor());
+  helpers.doInsertModeKeys('Esc');
+  helpers.doKeys('q');
+  cm.openDialog = helpers.fakeOpenDialog('registers');
+  cm.showConfirm = function(text) {
+    eq(false, text.match('a\\s+i') == null);
+    eq(false, text.match('b\\s+o') == null);
+  };
+  helpers.doKeys(':');
+}, { value: ''});
 testVim('.', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('2', 'd', 'w');
