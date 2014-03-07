@@ -71,6 +71,7 @@ function runTests(callback) {
       else if (e instanceof Failure) callback("fail", test.name, e.message);
       else {
         var pos = /(?:\bat |@).*?([^\/:]+):(\d+)/.exec(e.stack);
+        if (pos) console["log"](e.stack);
         callback("error", test.name, e.toString() + (pos ? " (" + pos[1] + ":" + pos[2] + ")" : ""));
       }
     }
