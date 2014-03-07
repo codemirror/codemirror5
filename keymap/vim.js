@@ -1997,7 +1997,7 @@
           return;
         }
         if (actionArgs.repeat > 1) {
-          var text = Array(actionArgs.repeat + 1).join(text)
+          var text = Array(actionArgs.repeat + 1).join(text);
         }
         var linewise = register.linewise;
         if (linewise) {
