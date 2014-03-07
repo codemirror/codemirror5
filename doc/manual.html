@@ -1079,12 +1079,17 @@
       should be <code>{line, ch}</code> objects. An optional third
       argument can be given to indicate the line separator string to
       use (defaults to <code>"\n"</code>).</dd>
-      <dt id="replaceRange"><code><strong>doc.replaceRange</strong>(replacement: string, from: {line, ch}, to: {line, ch})</code></dt>
+      <dt id="replaceRange"><code><strong>doc.replaceRange</strong>(replacement: string, from: {line, ch}, to: {line, ch}, ?origin: string)</code></dt>
       <dd>Replace the part of the document between <code>from</code>
       and <code>to</code> with the given string. <code>from</code>
       and <code>to</code> must be <code>{line, ch}</code>
       objects. <code>to</code> can be left off to simply insert the
-      string at position <code>from</code>.</dd>
+      string at position <code>from</code>. When <code>origin</code>
+      is given, it will be passed on
+      to <a href="#event_change"><code>"change"</code> events</a>, and
+      its first letter will be used to determine whether this change
+      can be merged with previous history events, in the way described
+      for <a href="#selection_origin">selection origins</a>.</dd>
 
       <dt id="getLine"><code><strong>doc.getLine</strong>(n: integer) → string</code></dt>
       <dd>Get the content of line <code>n</code>.</dd>
@@ -1203,16 +1208,19 @@
       objects. <code>head</code> defaults to <code>anchor</code> when
       not given. These options are supported:
       <dl>
-        <dt><code><strong>scroll</strong>: boolean</code></dt>
+        <dt id="selection_scroll"><code><strong>scroll</strong>: boolean</code></dt>
         <dd>Determines whether the selection head should be scrolled
         into view. Defaults to true.</dd>
-        <dt><code><strong>merge</strong>: boolean|string</code></dt>
-        <dd>Controls whether the selection history event may be merged
-        with the previous one. Defaults to false.
-        When <code>true</code>, it may be merged when it is similar,
-        and close in <a href="#option_historyEventDelay">time</a> to a
-        previous mergeable event. When it has the value <code>"always"</code>, it
-        will be merged regardless of similarity.</dd>
+        <dt id="selection_origin"><code><strong>origin</strong>: string</code></dt>
+        <dd>Detemines whether the selection history event may be
+        merged with the previous one. When an origin starts with the
+        character <code>+</code>, and the last recorded selection had
+        the same origin and was similar (close
+        in <a href="#option_historyEventDelay">time</a>, both
+        collapsed or both non-collapsed), the new one will replace the
+        old one. When it starts with <code>*</code>, it will always
+        replace the previous event (if that had the same origin).
+        Built-in motion uses the <code>"+move"</code> origin.</dd>
       </dl></dd>
 
       <dt id="setSelections"><code><strong>doc.setSelections</strong>(ranges: array&lt;{anchor, head}&gt;, ?primary: integer, ?options: object)</code></dt>
