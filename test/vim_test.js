@@ -173,8 +173,12 @@ function testVim(name, run, opts, expectedFail) {
     }
     function fakeOpenDialog(result) {
       return function(text, callback) {
-        var val = callback(result);
-        return val;
+        return callback(result);
+      }
+    }
+    function fakeOpenNotification(matcher) {
+      return function(text) {
+        matcher(text);
       }
     }
     var helpers = {
@@ -186,16 +190,19 @@ function testVim(name, run, opts, expectedFail) {
       doEx: doExFn(cm),
       assertCursorAt: assertCursorAtFn(cm),
       fakeOpenDialog: fakeOpenDialog,
+      fakeOpenNotification: fakeOpenNotification,
       getRegisterController: function() {
         return CodeMirror.Vim.getRegisterController();
       }
     }
     CodeMirror.Vim.resetVimGlobalState_();
     var successful = false;
+    var savedOpenNotification = cm.openNotification;
     try {
       run(cm, vim, helpers);
       successful = true;
     } finally {
+      cm.openNotification = savedOpenNotification;
       if (!successful || verbose) {
         place.style.visibility = "visible";
       } else {
@@ -1798,10 +1805,10 @@ testVim('yank_register', function(cm, vim, helpers) {
   helpers.doKeys('"', 'a', 'y', 'y');
   helpers.doKeys('j', '"', 'b', 'y', 'y');
   cm.openDialog = helpers.fakeOpenDialog('registers');
-  cm.showConfirm = function(text) {
+  cm.openNotification = helpers.fakeOpenNotification(function(text) {
     eq(false, text.match('a\\s+foo') == null);
     eq(false, text.match('b\\s+bar') == null);
-  };
+  });
   helpers.doKeys(':');
 }, { value: 'foo\nbar'});
 testVim('macro_register', function(cm, vim, helpers) {
@@ -1815,10 +1822,10 @@ testVim('macro_register', function(cm, vim, helpers) {
   helpers.doInsertModeKeys('Esc');
   helpers.doKeys('q');
   cm.openDialog = helpers.fakeOpenDialog('registers');
-  cm.showConfirm = function(text) {
+  cm.openNotification = helpers.fakeOpenNotification(function(text) {
     eq(false, text.match('a\\s+i') == null);
     eq(false, text.match('b\\s+o') == null);
-  };
+  });
   helpers.doKeys(':');
 }, { value: ''});
 testVim('.', function(cm, vim, helpers) {
