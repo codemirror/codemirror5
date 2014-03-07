@@ -396,12 +396,12 @@
     var curpos = cm.getCursor();
     if(curpos.line>0)
       cm.addSelection({line:curpos.line-1,ch:curpos.ch});
-  }
+  };
   cmds[map["Shift-Alt-Down"] = "selectLinesDownward"] = function(cm) {
     var curpos = cm.getCursor();
     if(curpos.line>0)
       cm.addSelection({line:curpos.line+1,ch:curpos.ch});
-  }
+  };
 
   map["Shift-" + ctrl + "["] = "fold";
   map["Shift-" + ctrl + "]"] = "unfold";
