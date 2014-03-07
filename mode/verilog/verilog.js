@@ -1,33 +1,139 @@
 CodeMirror.defineMode("verilog", function(config, parserConfig) {
+
   var indentUnit = config.indentUnit,
-      keywords = parserConfig.keywords || {},
-      blockKeywords = parserConfig.blockKeywords || {},
-      atoms = parserConfig.atoms || {},
-      hooks = parserConfig.hooks || {},
+      statementIndentUnit = parserConfig.statementIndentUnit || indentUnit,
+      dontAlignCalls = parserConfig.dontAlignCalls,
+      noIndentKeywords = parserConfig.noIndentKeywords || [],
       multiLineStrings = parserConfig.multiLineStrings;
-  var isOperatorChar = /[&|~><!\)\(*#%@+\/=?\:;}{,\.\^\-\[\]]/;
+
+  function words(str) {
+    var obj = {}, words = str.split(" ");
+    for (var i = 0; i < words.length; ++i) obj[words[i]] = true;
+    return obj;
+  }
+
+  /**
+   * Keywords from IEEE 1800-2012
+   */
+  var keywords = words(
+    "accept_on alias always always_comb always_ff always_latch and assert assign assume automatic before begin bind " +
+    "bins binsof bit break buf bufif0 bufif1 byte case casex casez cell chandle checker class clocking cmos config " +
+    "const constraint context continue cover covergroup coverpoint cross deassign default defparam design disable " +
+    "dist do edge else end endcase endchecker endclass endclocking endconfig endfunction endgenerate endgroup " +
+    "endinterface endmodule endpackage endprimitive endprogram endproperty endspecify endsequence endtable endtask " +
+    "enum event eventually expect export extends extern final first_match for force foreach forever fork forkjoin " +
+    "function generate genvar global highz0 highz1 if iff ifnone ignore_bins illegal_bins implements implies import " +
+    "incdir include initial inout input inside instance int integer interconnect interface intersect join join_any " +
+    "join_none large let liblist library local localparam logic longint macromodule matches medium modport module " +
+    "nand negedge nettype new nexttime nmos nor noshowcancelled not notif0 notif1 null or output package packed " +
+    "parameter pmos posedge primitive priority program property protected pull0 pull1 pulldown pullup " +
+    "pulsestyle_ondetect pulsestyle_onevent pure rand randc randcase randsequence rcmos real realtime ref reg " +
+    "reject_on release repeat restrict return rnmos rpmos rtran rtranif0 rtranif1 s_always s_eventually s_nexttime " +
+    "s_until s_until_with scalared sequence shortint shortreal showcancelled signed small soft solve specify " +
+    "specparam static string strong strong0 strong1 struct super supply0 supply1 sync_accept_on sync_reject_on " +
+    "table tagged task this throughout time timeprecision timeunit tran tranif0 tranif1 tri tri0 tri1 triand trior " +
+    "trireg type typedef union unique unique0 unsigned until until_with untyped use uwire var vectored virtual void " +
+    "wait wait_order wand weak weak0 weak1 while wildcard wire with within wor xnor xor");
+
+  /** Operators from IEEE 1800-2012
+     unary_operator ::=
+       + | - | ! | ~ | & | ~& | | | ~| | ^ | ~^ | ^~
+     binary_operator ::=
+       + | - | * | / | % | == | != | === | !== | ==? | !=? | && | || | **
+       | < | <= | > | >= | & | | | ^ | ^~ | ~^ | >> | << | >>> | <<<
+       | -> | <->
+     inc_or_dec_operator ::= ++ | --
+     unary_module_path_operator ::=
+       ! | ~ | & | ~& | | | ~| | ^ | ~^ | ^~
+     binary_module_path_operator ::=
+       == | != | && | || | & | | | ^ | ^~ | ~^
+  */
+  var isOperatorChar = /[\+\-\*\/!~&|^%=?:]/;
+  var isBracketChar = /[\[\]{}()]/;
+
+  var unsignedNumber = /\d[0-9_]*/;
+  var decimalLiteral = /\d*\s*'s?d\s*\d[0-9_]*/i;
+  var binaryLiteral = /\d*\s*'s?b\s*[xz01][xz01_]*/i;
+  var octLiteral = /\d*\s*'s?o\s*[xz0-7][xz0-7_]*/i;
+  var hexLiteral = /\d*\s*'s?h\s*[0-9a-fxz?][0-9a-fxz?_]*/i;
+  var realLiteral = /(\d[\d_]*(\.\d[\d_]*)?E-?[\d_]+)|(\d[\d_]*\.\d[\d_]*)/i;
+
+  var closingBracketOrWord = /^((\w+)|[)}\]])/;
+  var closingBracket = /[)}\]]/;
 
   var curPunc;
+  var curKeyword;
+
+  // Block openings which are closed by a matching keyword in the form of ("end" + keyword)
+  // E.g. "task" => "endtask"
+  var blockKeywords = words(
+    "case checker class clocking config function generate group interface module package" +
+    "primitive program property specify sequence table task"
+  );
+
+  // Opening/closing pairs
+  var openClose = {};
+  for (var keyword in blockKeywords) {
+    openClose[keyword] = "end" + keyword;
+  }
+  openClose["begin"] = "end";
+  openClose["casex"] = "endcase";
+  openClose["casez"] = "endcase";
+  openClose["do"   ] = "while";
+  openClose["fork" ] = "join;join_any;join_none";
+
+  for (var i in noIndentKeywords) {
+    var keyword = noIndentKeywords[i];
+    if (openClose[keyword]) {
+      openClose[keyword] = undefined;
+    }
+  }
+
+  var statementKeywords = words("always always_comb always_ff always_latch assert assign assume else for foreach forever if initial repeat while");
 
   function tokenBase(stream, state) {
-    var ch = stream.next();
-    if (hooks[ch]) {
-      var result = hooks[ch](stream, state);
-      if (result !== false) return result;
+    var ch = stream.peek();
+    if (/[,;:\.]/.test(ch)) {
+      curPunc = stream.next();
+      return null;
     }
+    if (isBracketChar.test(ch)) {
+      curPunc = stream.next();
+      return "bracket";
+    }
+    // Macros (tick-defines)
+    if (ch == '`') {
+      stream.next();
+      if (stream.eatWhile(/[\w\$_]/)) {
+        return "def";
+      } else {
+        return null;
+      }
+    }
+    // System calls
+    if (ch == '$') {
+      stream.next();
+      if (stream.eatWhile(/[\w\$_]/)) {
+        return "meta";
+      } else {
+        return null;
+      }
+    }
+    // Time literals
+    if (ch == '#') {
+      stream.next();
+      stream.eatWhile(/[\d_.]/);
+      return "def";
+    }
+    // Strings
     if (ch == '"') {
+      stream.next();
       state.tokenize = tokenString(ch);
       return state.tokenize(stream, state);
     }
-    if (/[\[\]{}\(\),;\:\.]/.test(ch)) {
-      curPunc = ch;
-      return null;
-    }
-    if (/[\d']/.test(ch)) {
-      stream.eatWhile(/[\w\.']/);
-      return "number";
-    }
+    // Comments
     if (ch == "/") {
+      stream.next();
       if (stream.eat("*")) {
         state.tokenize = tokenComment;
         return tokenComment(stream, state);
@@ -36,19 +142,43 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
         stream.skipToEnd();
         return "comment";
       }
+      stream.backUp(1);
     }
-    if (isOperatorChar.test(ch)) {
-      stream.eatWhile(isOperatorChar);
-      return "operator";
+
+    // Numeric literals
+    if (stream.match(realLiteral) ||
+        stream.match(decimalLiteral) ||
+        stream.match(binaryLiteral) ||
+        stream.match(octLiteral) ||
+        stream.match(hexLiteral) ||
+        stream.match(unsignedNumber) ||
+        stream.match(realLiteral)) {
+      return "number";
     }
-    stream.eatWhile(/[\w\$_]/);
-    var cur = stream.current();
-    if (keywords.propertyIsEnumerable(cur)) {
-      if (blockKeywords.propertyIsEnumerable(cur)) curPunc = "newstatement";
-      return "keyword";
+
+    // Operators
+    if (stream.eatWhile(isOperatorChar)) {
+      return "meta";
     }
-    if (atoms.propertyIsEnumerable(cur)) return "atom";
-    return "variable";
+
+    // Keywords / plain variables
+    if (stream.eatWhile(/[\w\$_]/)) {
+      var cur = stream.current();
+      if (keywords[cur]) {
+        if (openClose[cur]) {
+          curPunc = "newblock";
+        }
+        if (statementKeywords[cur]) {
+          curPunc = "newstatement";
+        }
+        curKeyword = cur;
+        return "keyword";
+      }
+      return "variable";
+    }
+
+    stream.next();
+    return null;
   }
 
   function tokenString(quote) {
@@ -84,18 +214,56 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
     this.prev = prev;
   }
   function pushContext(state, col, type) {
-    return state.context = new Context(state.indented, col, type, null, state.context);
+    var indent = state.indented;
+    var c = new Context(indent, col, type, null, state.context);
+    return state.context = c;
   }
   function popContext(state) {
     var t = state.context.type;
-    if (t == ")" || t == "]" || t == "}")
+    if (t == ")" || t == "]" || t == "}") {
       state.indented = state.context.indented;
+    }
     return state.context = state.context.prev;
   }
 
-  // Interface
+  function isClosing(text, contextClosing) {
+    if (text == contextClosing) {
+      return true;
+    } else {
+      // contextClosing may be mulitple keywords separated by ;
+      var closingKeywords = contextClosing.split(";");
+      for (var i in closingKeywords) {
+        if (text == closingKeywords[i]) {
+          return true;
+        }
+      }
+      return false;
+    }
+  }
 
+  function buildElectricInputRegEx() {
+    // Reindentation should occur on any bracket char: {}()[]
+    // or on a match of any of the block closing keywords, at
+    // the end of a line
+    var allClosings = [];
+    for (var i in openClose) {
+      if (openClose[i]) {
+        var closings = openClose[i].split(";");
+        for (var j in closings) {
+          allClosings.push(closings[j]);
+        }
+      }
+    }
+    var re = new RegExp("[{}()\\[\\]]|(" + allClosings.join("|") + ")$");
+    return re;
+  }
+
+  // Interface
   return {
+
+    // Regex to force current line to reindent
+    electricInput: buildElectricInputRegEx(),
+
     startState: function(basecolumn) {
       return {
         tokenize: null,
@@ -114,69 +282,58 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
       }
       if (stream.eatSpace()) return null;
       curPunc = null;
+      curKeyword = null;
       var style = (state.tokenize || tokenBase)(stream, state);
-      if (style == "comment" || style == "meta") return style;
+      if (style == "comment" || style == "meta" || style == "variable") return style;
       if (ctx.align == null) ctx.align = true;
 
-      if ((curPunc == ";" || curPunc == ":") && ctx.type == "statement") popContext(state);
-      else if (curPunc == "{") pushContext(state, stream.column(), "}");
-      else if (curPunc == "[") pushContext(state, stream.column(), "]");
-      else if (curPunc == "(") pushContext(state, stream.column(), ")");
-      else if (curPunc == "}") {
-        while (ctx.type == "statement") ctx = popContext(state);
-        if (ctx.type == "}") ctx = popContext(state);
-        while (ctx.type == "statement") ctx = popContext(state);
+      if (curPunc == ctx.type) {
+        popContext(state);
       }
-      else if (curPunc == ctx.type) popContext(state);
-      else if (ctx.type == "}" || ctx.type == "top" || (ctx.type == "statement" && curPunc == "newstatement"))
+      else if ((curPunc == ";" && ctx.type == "statement") ||
+               (ctx.type && isClosing(curKeyword, ctx.type))) {
+        ctx = popContext(state);
+        while (ctx && ctx.type == "statement") ctx = popContext(state);
+      }
+      else if (curPunc == "{") { pushContext(state, stream.column(), "}"); }
+      else if (curPunc == "[") { pushContext(state, stream.column(), "]"); }
+      else if (curPunc == "(") { pushContext(state, stream.column(), ")"); }
+      else if (ctx && ctx.type == "endcase" && curPunc == ":") { pushContext(state, stream.column(), "statement"); }
+      else if (curPunc == "newstatement") {
         pushContext(state, stream.column(), "statement");
+      } else if (curPunc == "newblock") {
+        var close = openClose[curKeyword];
+        pushContext(state, stream.column(), close);
+      }
+
       state.startOfLine = false;
       return style;
     },
 
     indent: function(state, textAfter) {
-      if (state.tokenize != tokenBase && state.tokenize != null) return 0;
-      var firstChar = textAfter && textAfter.charAt(0), ctx = state.context, closing = firstChar == ctx.type;
-      if (ctx.type == "statement") return ctx.indented + (firstChar == "{" ? 0 : indentUnit);
-      else if (ctx.align) return ctx.column + (closing ? 0 : 1);
+      if (state.tokenize != tokenBase && state.tokenize != null) return CodeMirror.Pass;
+      var ctx = state.context, firstChar = textAfter && textAfter.charAt(0);
+      if (ctx.type == "statement" && firstChar == "}") ctx = ctx.prev;
+      var closing = false;
+      var possibleClosing = textAfter.match(closingBracketOrWord);
+      if (possibleClosing) {
+        closing = isClosing(possibleClosing[0], ctx.type);
+      }
+      if (ctx.type == "statement") return ctx.indented + (firstChar == "{" ? 0 : statementIndentUnit);
+      else if (closingBracket.test(ctx.type) && ctx.align && !dontAlignCalls) return ctx.column + (closing ? 0 : 1);
+      else if (ctx.type == ")" && !closing) return ctx.indented + statementIndentUnit;
       else return ctx.indented + (closing ? 0 : indentUnit);
     },
 
-    electricChars: "{}"
+    blockCommentStart: "/*",
+    blockCommentEnd: "*/",
+    lineComment: "//"
   };
 });
 
-(function() {
-  function words(str) {
-    var obj = {}, words = str.split(" ");
-    for (var i = 0; i < words.length; ++i) obj[words[i]] = true;
-    return obj;
-  }
-
-  var verilogKeywords = "always and assign automatic begin buf bufif0 bufif1 case casex casez cell cmos config " +
-    "deassign default defparam design disable edge else end endcase endconfig endfunction endgenerate endmodule " +
-    "endprimitive endspecify endtable endtask event for force forever fork function generate genvar highz0 " +
-    "highz1 if ifnone incdir include initial inout input instance integer join large liblist library localparam " +
-    "macromodule medium module nand negedge nmos nor noshowcancelled not notif0 notif1 or output parameter pmos " +
-    "posedge primitive pull0 pull1 pulldown pullup pulsestyle_onevent pulsestyle_ondetect rcmos real realtime " +
-    "reg release repeat rnmos rpmos rtran rtranif0 rtranif1 scalared showcancelled signed small specify specparam " +
-    "strong0 strong1 supply0 supply1 table task time tran tranif0 tranif1 tri tri0 tri1 triand trior trireg " +
-    "unsigned use vectored wait wand weak0 weak1 while wire wor xnor xor";
-
-  var verilogBlockKeywords = "begin bufif0 bufif1 case casex casez config else end endcase endconfig endfunction " +
-    "endgenerate endmodule endprimitive endspecify endtable endtask for forever function generate if ifnone " +
-    "macromodule module primitive repeat specify table task while";
-
-  function metaHook(stream) {
-    stream.eatWhile(/[\w\$_]/);
-    return "meta";
-  }
-
-  CodeMirror.defineMIME("text/x-verilog", {
-    name: "verilog",
-    keywords: words(verilogKeywords),
-    blockKeywords: words(verilogBlockKeywords),
-    atoms: words("null"),
-    hooks: {"`": metaHook, "$": metaHook}
-  });
-}());
+CodeMirror.defineMIME("text/x-verilog", {
+  name: "verilog"
+});
+CodeMirror.defineMIME("text/x-systemverilog", {
+  name: "systemverilog"
+});
