@@ -89,6 +89,10 @@
     }
     dv.edit.on("change", change);
     dv.orig.on("change", change);
+    dv.edit.on("markerAdded", set);
+    dv.edit.on("markerCleared", set);
+    dv.orig.on("markerAdded", set);
+    dv.orig.on("markerCleared", set);
     dv.edit.on("viewportChange", set);
     dv.orig.on("viewportChange", set);
     update();
