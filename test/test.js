@@ -1830,3 +1830,16 @@ testCM("cursorMotionSplitsHistory", function(cm) {
   eq(cm.getValue(), "1234");
   eqPos(cm.getCursor(), Pos(0, 0));
 }, {value: "1234"});
+
+testCM("selChangeInOperationDoesNotSplit", function(cm) {
+  for (var i = 0; i < 4; i++) {
+    cm.operation(function() {
+      cm.replaceSelection("x");
+      cm.setCursor(Pos(0, cm.getCursor().ch - 1));
+    });
+  }
+  eqPos(cm.getCursor(), Pos(0, 0));
+  eq(cm.getValue(), "xxxxa");
+  cm.undo();
+  eq(cm.getValue(), "a");
+}, {value: "a"});
