@@ -533,28 +533,32 @@
       };
     };
 
-    var createMacroState = function() {
-      return {
-        latestRegister: undefined,
-        isPlaying: false,
-        isRecording: false,
-        onRecordingDone: undefined,
-        lastInsertModeChanges: createInsertModeChanges(),
-        toggle: function(cm, registerName) {
-          if (this.onRecordingDone) { //onExit
-            this.onRecordingDone(); // close dialog
-            this.onRecordingDone = undefined;
-            this.isRecording = false;
-          } else { //onEnter
-            this.latestRegister = registerName;
-            this.onRecordingDone = cm.openDialog(
+    function MacroModeState() {
+      this.latestRegister = undefined;
+      this.isPlaying = false;
+      this.isRecording = false;
+      this.onRecordingDone = undefined;
+      this.lastInsertModeChanges = createInsertModeChanges();
+    }
+    MacroModeState.prototype = {
+      exitMacroRecordMode: function() {
+        var macroModeState = vimGlobalState.macroModeState;
+        macroModeState.onRecordingDone(); // close dialog
+        macroModeState.onRecordingDone = undefined;
+        macroModeState.isRecording = false;
+      },
+      enterMacroRecordMode: function(cm, registerName) {
+        var register =
+            vimGlobalState.registerController.getRegister(registerName);
+        if (register) {
+          register.clear();
+          this.latestRegister = registerName;
+          this.onRecordingDone = cm.openDialog(
               '(recording)['+registerName+']', null, {bottom:true});
-            this.isRecording = true;
-          }
+          this.isRecording = true;
         }
-      };
+      }
     };
-
 
     function maybeInitVimState(cm) {
       if (!cm.state.vim) {
@@ -599,7 +603,7 @@
         // Whether we are searching backwards.
         searchIsReversed: false,
         jumpList: createCircularJumpList(),
-        macroModeState: createMacroState(),
+        macroModeState: new MacroModeState,
         // Recording latest f, t, F or T motion command.
         lastChararacterSearch: {increment:0, forward:true, selectedCharacter:''},
         registerController: new RegisterController({})
@@ -653,7 +657,7 @@
         var macroModeState = vimGlobalState.macroModeState;
         if (macroModeState.isRecording) {
           if (key == 'q') {
-            actions.exitMacroRecordMode();
+            macroModeState.exitMacroRecordMode();
             vim.inputState = new InputState();
             return;
           }
@@ -674,6 +678,9 @@
           CodeMirror.signal(cm, "vim-mode-change", {mode: "visual"});
           cm.on('mousedown', exitVisualMode);
         }
+        if (macroModeState.isRecording) {
+          logKey(macroModeState, key);
+        }
         if (key != '0' || (key == '0' && vim.inputState.getRepeat() === 0)) {
           // Have to special case 0 since it's both a motion and a number.
           command = commandDispatcher.matchCommand(key, defaultKeymap, vim);
@@ -691,9 +698,6 @@
             this.handleKey(cm, command.toKeys[i]);
           }
         } else {
-          if (macroModeState.isRecording) {
-            logKey(macroModeState, key);
-          }
           commandDispatcher.processCommand(cm, vim, command);
         }
       },
@@ -764,11 +768,11 @@
         this.insertModeChanges.push(createInsertModeChanges(changes));
       },
       clear: function() {
-        this.text = [];
+        this.keyBuffer = [];
         this.insertModeChanges = [];
         this.linewise = false;
       },
-      toString: function() { 
+      toString: function() {
         return this.keyBuffer.join('');
       }
     };
@@ -1826,18 +1830,10 @@
           executeMacroRegister(cm, vim, macroModeState, registerName);
         }
       },
-      exitMacroRecordMode: function() {
-        var macroModeState = vimGlobalState.macroModeState;
-        macroModeState.toggle();
-      },
       enterMacroRecordMode: function(cm, actionArgs) {
         var macroModeState = vimGlobalState.macroModeState;
         var registerName = actionArgs.selectedCharacter;
-        var register = vimGlobalState.registerController.getRegister(registerName);
-        if (register) {
-          register.clear();
-          macroModeState.toggle(cm, registerName);
-        }
+        macroModeState.enterMacroRecordMode(cm, registerName);
       },
       enterInsertMode: function(cm, actionArgs, vim) {
         if (cm.getOption('readOnly')) { return; }
@@ -3920,11 +3916,6 @@
       'Backspace': 'goCharLeft',
       fallthrough: ['vim-insert']
     };
-
-    function emptyMacroKeyBuffer(macroModeState) {
-      if (macroModeState.isPlaying) { return; }
-      macroModeState.keyBuffer.length = 0;
-    }
 
     function executeMacroRegister(cm, vim, macroModeState, registerName) {
       var register = vimGlobalState.registerController.getRegister(registerName);

@@ -1758,6 +1758,40 @@ testVim('macro_parens', function(cm, vim, helpers) {
   helpers.doKeys('w', '@', 'z');
   eq('(see) (spot) (run)', cm.getValue());
 }, { value: 'see spot run'});
+testVim('macro_overwrite', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('q', 'z', '0', 'i');
+  cm.replaceRange('I ', cm.getCursor());
+  helpers.doInsertModeKeys('Esc');
+  helpers.doKeys('q');
+  helpers.doKeys('e');
+  // Now replace the macro with something else.
+  helpers.doKeys('q', 'z', 'a');
+  cm.replaceRange('.', cm.getCursor());
+  helpers.doInsertModeKeys('Esc');
+  helpers.doKeys('q');
+  helpers.doKeys('e', '@', 'z');
+  helpers.doKeys('e', '@', 'z');
+  eq('I see. spot. run.', cm.getValue());
+}, { value: 'see spot run'});
+testVim('macro_search_f', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('q', 'a', 'f', ' ');
+  helpers.assertCursorAt(0,3);
+  helpers.doKeys('q', '0');
+  helpers.assertCursorAt(0,0);
+  helpers.doKeys('@', 'a');
+  helpers.assertCursorAt(0,3);
+}, { value: 'The quick brown fox jumped over the lazy dog.'});
+testVim('macro_search_2f', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('q', 'a', '2', 'f', ' ');
+  helpers.assertCursorAt(0,9);
+  helpers.doKeys('q', '0');
+  helpers.assertCursorAt(0,0);
+  helpers.doKeys('@', 'a');
+  helpers.assertCursorAt(0,9);
+}, { value: 'The quick brown fox jumped over the lazy dog.'});
 testVim('.', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('2', 'd', 'w');
