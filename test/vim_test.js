@@ -1753,6 +1753,17 @@ testVim('macro_insert', function(cm, vim, helpers) {
   helpers.doKeys('q', '@', 'a');
   eq('foofoo', cm.getValue());
 }, { value: ''});
+testVim('macro_space', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('<Space>', '<Space>');
+  helpers.assertCursorAt(0, 2);
+  helpers.doKeys('q', 'a', '<Space>', '<Space>', 'q');
+  helpers.assertCursorAt(0, 4);
+  helpers.doKeys('@', 'a');
+  helpers.assertCursorAt(0, 6);
+  helpers.doKeys('@', 'a');
+  helpers.assertCursorAt(0, 8);
+}, { value: 'one line of text.'});
 testVim('macro_parens', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('q', 'z', 'i');

@@ -678,9 +678,6 @@
           CodeMirror.signal(cm, "vim-mode-change", {mode: "visual"});
           cm.on('mousedown', exitVisualMode);
         }
-        if (macroModeState.isRecording) {
-          logKey(macroModeState, key);
-        }
         if (key != '0' || (key == '0' && vim.inputState.getRepeat() === 0)) {
           // Have to special case 0 since it's both a motion and a number.
           command = commandDispatcher.matchCommand(key, defaultKeymap, vim);
@@ -690,6 +687,9 @@
             // Increment count unless count is 0 and key is 0.
             vim.inputState.pushRepeatDigit(key);
           }
+          if (macroModeState.isRecording) {
+            logKey(macroModeState, key);
+          }
           return;
         }
         if (command.type == 'keyToKey') {
@@ -698,6 +698,9 @@
             this.handleKey(cm, command.toKeys[i]);
           }
         } else {
+          if (macroModeState.isRecording) {
+            logKey(macroModeState, key);
+          }
           commandDispatcher.processCommand(cm, vim, command);
         }
       },
@@ -3920,8 +3923,15 @@
       var imc = 0;
       macroModeState.isPlaying = true;
       for (var i = 0; i < keyBuffer.length; i++) {
-        for (var j = 0; j < keyBuffer[i].length; j++) {
-          CodeMirror.Vim.handleKey(cm, keyBuffer[i].charAt(j));
+        var text = keyBuffer[i];
+        var match, key;
+        while (text) {
+          // Pull off one command key, which is either a single character
+          // or a special sequence wrapped in '<' and '>', e.g. '<Space>'.
+          match = (/<\w+-.+?>|<\w+>|./).exec(text);
+          key = match[0];
+          text = text.substring(match.index + key.length);
+          CodeMirror.Vim.handleKey(cm, key);
           if (vim.insertMode) {
             repeatInsertModeChanges(
                 cm, register.insertModeChanges[imc++].changes, 1);
