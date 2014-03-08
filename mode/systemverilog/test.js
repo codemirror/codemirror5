@@ -1,7 +1,6 @@
 (function() {
   var mode = CodeMirror.getMode({indentUnit: 4}, "systemverilog");
   function MT(name) { test.mode(name, mode, Array.prototype.slice.call(arguments, 1)); }
-  function IGNORE(name) { }
 
   MT("Binary literals",
      "[number 1'b0]",
@@ -84,22 +83,24 @@
      "[meta ^]"
   );
 
-  IGNORE("Keywords",
-     "[keyword logic]"
+  MT("Keywords",
+     "[keyword logic]",
+     "[keyword logic] [variable foo]",
+     "[keyword reg] [variable abc]"
   );
 
-  IGNORE("Variables",
+  MT("Variables",
      "[number 12] [variable foo]",
      "[variable foo] [number 14]"
   );
 
-  IGNORE("Tick defines",
+  MT("Tick defines",
      "[def `FOO]",
      "[def `foo]",
      "[def `FOO_bar]"
   );
 
-  IGNORE("System calls",
+  MT("System calls",
      "[meta $display]",
      "[meta $vpi_printf]"
   );
