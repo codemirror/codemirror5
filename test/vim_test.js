@@ -1572,7 +1572,7 @@ testVim('o_visual', function(cm,vim,helpers) {
   helpers.doKeys('d');
   eq('p',cm.getValue());
 }, { value: 'abcd\nefgh\nijkl\nmnop'});
-  
+
 testVim('S_normal', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.doKeys('j', 'S');
@@ -1817,8 +1817,8 @@ testVim('yank_register', function(cm, vim, helpers) {
   helpers.doKeys('j', '"', 'b', 'y', 'y');
   cm.openDialog = helpers.fakeOpenDialog('registers');
   cm.openNotification = helpers.fakeOpenNotification(function(text) {
-    eq(false, text.match('a\\s+foo') == null);
-    eq(false, text.match('b\\s+bar') == null);
+    is(/a\s+foo/.test(text));
+    is(/b\s+bar/.test(text));
   });
   helpers.doKeys(':');
 }, { value: 'foo\nbar'});
@@ -1834,8 +1834,8 @@ testVim('macro_register', function(cm, vim, helpers) {
   helpers.doKeys('q');
   cm.openDialog = helpers.fakeOpenDialog('registers');
   cm.openNotification = helpers.fakeOpenNotification(function(text) {
-    eq(false, text.match('a\\s+i') == null);
-    eq(false, text.match('b\\s+o') == null);
+    is(/a\s+i/.test(text));
+    is(/b\s+o/.test(text));
   });
   helpers.doKeys(':');
 }, { value: ''});
