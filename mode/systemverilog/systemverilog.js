@@ -33,7 +33,7 @@ CodeMirror.defineMode("systemverilog", function(config, parserConfig) {
     "specparam static string strong strong0 strong1 struct super supply0 supply1 sync_accept_on sync_reject_on " +
     "table tagged task this throughout time timeprecision timeunit tran tranif0 tranif1 tri tri0 tri1 triand trior " +
     "trireg type typedef union unique unique0 unsigned until until_with untyped use uwire var vectored virtual void " +
-    "wait wait_order wand weak weak0 weak1 while wildcard wire with within wor xnor xor")
+    "wait wait_order wand weak weak0 weak1 while wildcard wire with within wor xnor xor");
 
   /** Operators from IEEE 1800-2012
      unary_operator ::=
@@ -60,12 +60,6 @@ CodeMirror.defineMode("systemverilog", function(config, parserConfig) {
 
   var curPunc;
   var curKeyword;
-
-  function words(str) {
-    var obj = {}, words = str.split(" ");
-    for (var i = 0; i < words.length; ++i) obj[words[i]] = true;
-    return obj;
-  }
 
   // Opening/closing pairs
   var openClose = {};
@@ -94,7 +88,7 @@ CodeMirror.defineMode("systemverilog", function(config, parserConfig) {
   openClose["fork"     ] = "join";  // TODO: handle join_any, join_none
 
   var blockClosings = [];
-  for (k in openClose) {
+  for (var k in openClose) {
     blockClosings.push(openClose[k]);
   }
   blockClosings.push("join_any");
@@ -105,7 +99,7 @@ CodeMirror.defineMode("systemverilog", function(config, parserConfig) {
   function endChars(words) {
     var result = "";
     for (var i in words) {
-      var c = words[i].slice(-1)
+      var c = words[i].slice(-1);
       if (result.indexOf(c) < 0) {
         result += c;
       }
@@ -232,7 +226,7 @@ CodeMirror.defineMode("systemverilog", function(config, parserConfig) {
       if (!depth) depth = 0;
       console.log(depth, this);
       if (this.prev) this.prev.log(depth+1);
-    }
+    };
   }
   function pushContext(state, col, type) {
     var indent = state.indented;
@@ -242,8 +236,9 @@ CodeMirror.defineMode("systemverilog", function(config, parserConfig) {
   }
   function popContext(state) {
     var t = state.context.type;
-    if (t == ")" || t == "]" || t == "}")
+    if (t == ")" || t == "]" || t == "}") {
       state.indented = state.context.indented;
+    }
     if (LOG) {console.log("Popped Context"); state.context.prev.log(0);}
     return state.context = state.context.prev;
   }
