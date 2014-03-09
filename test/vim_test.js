@@ -1764,6 +1764,24 @@ testVim('macro_space', function(cm, vim, helpers) {
   helpers.doKeys('@', 'a');
   helpers.assertCursorAt(0, 8);
 }, { value: 'one line of text.'});
+testVim('macro_t_search', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('q', 'a', 't', 'e', 'q');
+  helpers.assertCursorAt(0, 1);
+  helpers.doKeys('l', '@', 'a');
+  helpers.assertCursorAt(0, 6);
+  helpers.doKeys('l', '@', 'a');
+  helpers.assertCursorAt(0, 12);
+}, { value: 'one line of text.'});
+testVim('macro_f_search', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('q', 'b', 'f', 'e', 'q');
+  helpers.assertCursorAt(0, 2);
+  helpers.doKeys('@', 'b');
+  helpers.assertCursorAt(0, 7);
+  helpers.doKeys('@', 'b');
+  helpers.assertCursorAt(0, 13);
+}, { value: 'one line of text.'});
 testVim('macro_parens', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('q', 'z', 'i');
