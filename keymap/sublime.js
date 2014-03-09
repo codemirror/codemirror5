@@ -209,16 +209,41 @@
   };
 
   cmds[map["Shift-" + ctrl + "D"] = "duplicateLine"] = function(cm) {
-    var ranges = cm.listSelections(), lines = [];
+    var ranges = cm.listSelections(), lines = [], selections=[];
     for (var i = 0; i < ranges.length; i++) {
       var start = ranges[i].from().line;
-      if (!lines.length || start > lines[lines.length - 1])
-        lines.push(start);
+      if (ranges[i].anchor.ch == ranges[i].head.ch && ranges[i].anchor.line == ranges[i].head.line){
+        if (start > lines[lines.length - 1] || !lines.length)
+          lines.push(start);
+      }else{
+        selections.push(ranges[i]);
+      }
     }
     cm.operation(function() {
       for (var i = lines.length - 1; i >= 0; i--) {
         var line = lines[i];
         cm.replaceRange(cm.getLine(line) + "\n", Pos(line, 0));
+      }
+    });
+    cm.operation(function() {
+      for (var i = selections.length - 1; i >= 0; i--) {
+        var start,end;
+        if(selections[i].anchor.line>selections[i].head.line){
+          start = selections[i].head;
+          end = selections[i].anchor;
+        }else if(selections[i].anchor.line<selections[i].head.line){
+          start = selections[i].anchor;
+          end = selections[i].head;
+        }else{
+          if(selections[i].anchor.ch>selections[i].head.ch){
+            start = selections[i].head;
+            end = selections[i].anchor;
+          }else if(selections[i].anchor.ch<selections[i].head.ch){
+            start = selections[i].anchor;
+            end = selections[i].head;
+          }
+        }
+        cm.replaceRange(cm.getRange(start,end),start);
       }
     });
   };
