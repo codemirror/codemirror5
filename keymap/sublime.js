@@ -212,8 +212,7 @@
     var ranges = cm.listSelections(), lines = [], selections=[];
     for (var i = 0; i < ranges.length; i++) {
       var start = ranges[i].from().line;
-      if (ranges[i].anchor.ch == ranges[i].head.ch && ranges[i].anchor.line == ranges[i].head.line){
-        if (start > lines[lines.length - 1] || !lines.length)
+      if (ranges[i].empty()){
           lines.push(start);
       }else{
         selections.push(ranges[i]);
@@ -418,14 +417,17 @@
     cm.scrollTo(null, (pos.top + pos.bottom) / 2 - cm.getScrollInfo().clientHeight / 2);
   };
   cmds[map["Shift-Alt-Up"] = "selectLinesUpward"] = function(cm) {
-    var curpos = cm.getCursor();
-    if(curpos.line>0)
-      cm.addSelection({line:curpos.line-1,ch:curpos.ch});
+    var curs = cm.listSelections();
+    for (var i = 0; i < curs.length; i++) {
+      if(curs[i].anchor.line>0)
+        cm.addSelection({line:curs[i].anchor.line-1,ch:curs[i].anchor.ch});
+    };
   };
   cmds[map["Shift-Alt-Down"] = "selectLinesDownward"] = function(cm) {
-    var curpos = cm.getCursor();
-    if(curpos.line>0)
-      cm.addSelection({line:curpos.line+1,ch:curpos.ch});
+    var curs = cm.listSelections();
+    for (var i = 0; i < curs.length; i++) {
+        cm.addSelection({line:curs[i].anchor.line+1,ch:curs[i].anchor.ch});
+    };
   };
 
   map["Shift-" + ctrl + "["] = "fold";
