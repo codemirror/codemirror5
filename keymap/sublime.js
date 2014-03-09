@@ -209,13 +209,11 @@
   };
 
   cmds[map["Shift-" + ctrl + "D"] = "duplicateLine"] = function(cm) {
-    var ranges = cm.listSelections(), lines = [], selections=[];
+    var ranges = cm.listSelections(), lines = [];
     for (var i = 0; i < ranges.length; i++) {
       var start = ranges[i].from().line;
       if (ranges[i].empty()){
           lines.push(start);
-      }else{
-        selections.push(ranges[i]);
       }
     }
     cm.operation(function() {
@@ -224,6 +222,14 @@
         cm.replaceRange(cm.getLine(line) + "\n", Pos(line, 0));
       }
     });
+    ranges = cm.listSelections()
+    var selections=[];
+    for (var i = 0; i < ranges.length; i++) {
+      var start = ranges[i].from().line;
+      if (!ranges[i].empty()){
+        selections.push(ranges[i]);
+      }
+    }
     cm.operation(function() {
       for (var i = selections.length - 1; i >= 0; i--) {
         var start,end;
