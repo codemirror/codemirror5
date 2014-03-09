@@ -212,13 +212,43 @@
     var ranges = cm.listSelections(), lines = [];
     for (var i = 0; i < ranges.length; i++) {
       var start = ranges[i].from().line;
-      if (!lines.length || start > lines[lines.length - 1])
-        lines.push(start);
+      if (ranges[i].empty()){
+          lines.push(start);
+      }
     }
     cm.operation(function() {
       for (var i = lines.length - 1; i >= 0; i--) {
         var line = lines[i];
         cm.replaceRange(cm.getLine(line) + "\n", Pos(line, 0));
+      }
+    });
+    ranges = cm.listSelections();
+    var selections=[];
+    for (var i = 0; i < ranges.length; i++) {
+      var start = ranges[i].from().line;
+      if (!ranges[i].empty()){
+        selections.push(ranges[i]);
+      }
+    }
+    cm.operation(function() {
+      for (var i = selections.length - 1; i >= 0; i--) {
+        var start,end;
+        if(selections[i].anchor.line>selections[i].head.line){
+          start = selections[i].head;
+          end = selections[i].anchor;
+        }else if(selections[i].anchor.line<selections[i].head.line){
+          start = selections[i].anchor;
+          end = selections[i].head;
+        }else{
+          if(selections[i].anchor.ch>selections[i].head.ch){
+            start = selections[i].head;
+            end = selections[i].anchor;
+          }else if(selections[i].anchor.ch<selections[i].head.ch){
+            start = selections[i].anchor;
+            end = selections[i].head;
+          }
+        }
+        cm.replaceRange(cm.getRange(start,end),start);
       }
     });
   };
@@ -391,6 +421,19 @@
   cmds[mapK[ctrl + "C"] = "showInCenter"] = function(cm) {
     var pos = cm.cursorCoords(null, "local");
     cm.scrollTo(null, (pos.top + pos.bottom) / 2 - cm.getScrollInfo().clientHeight / 2);
+  };
+  cmds[map["Shift-Alt-Up"] = "selectLinesUpward"] = function(cm) {
+    var curs = cm.listSelections();
+    for (var i = 0; i < curs.length; i++) {
+      if(curs[i].anchor.line>0)
+        cm.addSelection({line:curs[i].anchor.line-1,ch:curs[i].anchor.ch});
+    };
+  };
+  cmds[map["Shift-Alt-Down"] = "selectLinesDownward"] = function(cm) {
+    var curs = cm.listSelections();
+    for (var i = 0; i < curs.length; i++) {
+        cm.addSelection({line:curs[i].anchor.line+1,ch:curs[i].anchor.ch});
+    };
   };
 
   map["Shift-" + ctrl + "["] = "fold";
