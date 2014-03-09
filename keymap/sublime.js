@@ -222,7 +222,7 @@
         cm.replaceRange(cm.getLine(line) + "\n", Pos(line, 0));
       }
     });
-    ranges = cm.listSelections()
+    ranges = cm.listSelections();
     var selections=[];
     for (var i = 0; i < ranges.length; i++) {
       var start = ranges[i].from().line;
