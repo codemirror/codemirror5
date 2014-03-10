@@ -177,7 +177,7 @@
     if (!/\bCodeMirror-lint-mark-/.test((e.target || e.srcElement).className)) return;
     for (var i = 0; i < nearby.length; i += 2) {
       var spans = cm.findMarksAt(cm.coordsChar({left: e.clientX + nearby[i],
-                                                top: e.clientY + nearby[i + 1]}));
+                                                top: e.clientY + nearby[i + 1]}, "client"));
       for (var j = 0; j < spans.length; ++j) {
         var span = spans[j], ann = span.__annotation;
         if (ann) return popupSpanTooltip(ann, e);
