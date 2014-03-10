@@ -184,6 +184,15 @@
          val("abc\nabc\ndef\ndef\nghi\nghi"), hasSel(1, 1, 1, 1,
                                                      3, 1, 3, 1,
                                                      5, 1, 5, 1));
+  stTest("duplicateLineSelection", "abcdef",
+         setSel(0, 1, 0, 1,
+                0, 2, 0, 4,
+                0, 5, 0, 5),
+         "duplicateLine",
+         val("abcdef\nabcdcdef\nabcdcdef"), hasSel(2, 1, 2, 1,
+                                                   2, 4, 2, 6,
+                                                   2, 7, 2, 7));
+
   stTest("selectLinesUpward", "123\n345\n789\n012",
          setSel(0, 1, 0, 1,
                 1, 1, 1, 3,
