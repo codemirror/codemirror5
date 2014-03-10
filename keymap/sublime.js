@@ -393,6 +393,20 @@
     cm.scrollTo(null, (pos.top + pos.bottom) / 2 - cm.getScrollInfo().clientHeight / 2);
   };
 
+  cmds[map["Shift-Alt-Up"] = "selectLinesUpward"] = function(cm) {
+    var curs = cm.listSelections();
+    for (var i = 0; i < curs.length; i++) {
+      if(curs[i].anchor.line>0)
+        cm.addSelection({line:curs[i].anchor.line-1,ch:curs[i].anchor.ch});
+    };
+  };
+  cmds[map["Shift-Alt-Down"] = "selectLinesDownward"] = function(cm) {
+    var curs = cm.listSelections();
+    for (var i = 0; i < curs.length; i++) {
+      cm.addSelection({line:curs[i].anchor.line+1,ch:curs[i].anchor.ch});
+    };
+  };
+
   map["Shift-" + ctrl + "["] = "fold";
   map["Shift-" + ctrl + "]"] = "unfold";
   mapK[ctrl + "0"] = mapK[ctrl + "j"] = "unfoldAll";
