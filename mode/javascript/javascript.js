@@ -582,7 +582,8 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
         context: parserConfig.localVars && {vars: parserConfig.localVars},
         indented: 0
       };
-      if (parserConfig.globalVars) state.globalVars = parserConfig.globalVars;
+      if (parserConfig.globalVars && typeof parserConfig.globalVars == "object")
+        state.globalVars = parserConfig.globalVars;
       return state;
     },
 
