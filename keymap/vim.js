@@ -537,6 +537,7 @@
       this.latestRegister = undefined;
       this.isPlaying = false;
       this.isRecording = false;
+      this.replaySearchQueries = [];
       this.onRecordingDone = undefined;
       this.lastInsertModeChanges = createInsertModeChanges();
     }
@@ -752,6 +753,7 @@
       this.clear();
       this.keyBuffer = [text || ''];
       this.insertModeChanges = [];
+      this.searchQueries = [];
       this.linewise = !!linewise;
     }
     Register.prototype = {
@@ -770,9 +772,13 @@
       pushInsertModeChanges: function(changes) {
         this.insertModeChanges.push(createInsertModeChanges(changes));
       },
+      pushSearchQuery: function(query) {
+        this.searchQueries.push(query);
+      },
       clear: function() {
         this.keyBuffer = [];
         this.insertModeChanges = [];
+        this.searchQueries = [];
         this.linewise = false;
       },
       toString: function() {
@@ -1064,6 +1070,10 @@
         function onPromptClose(query) {
           cm.scrollTo(originalScrollPos.left, originalScrollPos.top);
           handleQuery(query, true /** ignoreCase */, true /** smartCase */);
+          var macroModeState = vimGlobalState.macroModeState;
+          if (macroModeState.isRecording) {
+            logSearchQuery(macroModeState, query);
+          }
         }
         function onPromptKeyUp(_e, query) {
           var parsedQuery;
@@ -1094,13 +1104,19 @@
         }
         switch (command.searchArgs.querySrc) {
           case 'prompt':
-            showPrompt(cm, {
-                onClose: onPromptClose,
-                prefix: promptPrefix,
-                desc: searchPromptDesc,
-                onKeyUp: onPromptKeyUp,
-                onKeyDown: onPromptKeyDown
-            });
+            var macroModeState = vimGlobalState.macroModeState;
+            if (macroModeState.isPlaying) {
+              var query = macroModeState.replaySearchQueries.shift();
+              handleQuery(query, true /** ignoreCase */, false /** smartCase */);
+            } else {
+              showPrompt(cm, {
+                  onClose: onPromptClose,
+                  prefix: promptPrefix,
+                  desc: searchPromptDesc,
+                  onKeyUp: onPromptKeyUp,
+                  onKeyDown: onPromptKeyDown
+              });
+            }
             break;
           case 'wordUnderCursor':
             var word = expandWordUnderCursor(cm, false /** inclusive */,
@@ -3922,6 +3938,7 @@
       var keyBuffer = register.keyBuffer;
       var imc = 0;
       macroModeState.isPlaying = true;
+      macroModeState.replaySearchQueries = register.searchQueries.slice(0);
       for (var i = 0; i < keyBuffer.length; i++) {
         var text = keyBuffer[i];
         var match, key;
@@ -3957,6 +3974,15 @@
       var register = vimGlobalState.registerController.getRegister(registerName);
       if (register) {
         register.pushInsertModeChanges(macroModeState.lastInsertModeChanges);
+      }
+    }
+
+    function logSearchQuery(macroModeState, query) {
+      if (macroModeState.isPlaying) { return; }
+      var registerName = macroModeState.latestRegister;
+      var register = vimGlobalState.registerController.getRegister(registerName);
+      if (register) {
+        register.pushSearchQuery(query);
       }
     }
 
