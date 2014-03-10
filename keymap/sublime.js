@@ -209,16 +209,14 @@
   };
 
   cmds[map["Shift-" + ctrl + "D"] = "duplicateLine"] = function(cm) {
-    var ranges = cm.listSelections(), lines = [];
-    for (var i = 0; i < ranges.length; i++) {
-      var start = ranges[i].from().line;
-      if (!lines.length || start > lines[lines.length - 1])
-        lines.push(start);
-    }
     cm.operation(function() {
-      for (var i = lines.length - 1; i >= 0; i--) {
-        var line = lines[i];
-        cm.replaceRange(cm.getLine(line) + "\n", Pos(line, 0));
+      var rangeCount = cm.listSelections().length;
+      for (var i = 0; i < rangeCount; i++) {
+        var range = cm.listSelections()[i];
+        if (range.empty())
+          cm.replaceRange(cm.getLine(range.head.line) + "\n", Pos(range.head.line, 0));
+        else
+          cm.replaceRange(cm.getRange(range.from(), range.to()), range.from());
       }
     });
   };
