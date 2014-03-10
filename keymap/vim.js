@@ -384,7 +384,7 @@
     var specialKeys = ['Left', 'Right', 'Up', 'Down', 'Space', 'Backspace',
         'Esc', 'Home', 'End', 'PageUp', 'PageDown', 'Enter'];
     var validMarks = [].concat(upperCaseAlphabet, lowerCaseAlphabet, numbers, ['<', '>']);
-    var validRegisters = [].concat(upperCaseAlphabet, lowerCaseAlphabet, numbers, ['-', '"']);
+    var validRegisters = [].concat(upperCaseAlphabet, lowerCaseAlphabet, numbers, ['-', '"','.',':']);
 
     function isLine(cm, line) {
       return line >= cm.firstLine() && line <= cm.lastLine();
@@ -797,6 +797,8 @@
     function RegisterController(registers) {
       this.registers = registers;
       this.unnamedRegister = registers['"'] = new Register();
+      registers['.'] = new Register();
+      registers[':'] = new Register();
     }
     RegisterController.prototype = {
       pushText: function(registerName, operator, text, linewise) {
@@ -3200,10 +3202,14 @@
     Vim.ExCommandDispatcher.prototype = {
       processCommand: function(cm, input) {
         var vim = cm.state.vim;
+        var commandHistoryRegister = vimGlobalState.registerController.getRegister(':');
+        var previousCommand = commandHistoryRegister.toString();
         if (vim.visualMode) {
           exitVisualMode(cm);
         }
         var inputStream = new CodeMirror.StringStream(input);
+        // update ": with the latest command whether valid or invalid
+        commandHistoryRegister.setText(inputStream.string);
         var params = {};
         params.input = input;
         try {
@@ -3222,6 +3228,9 @@
           var command = this.matchCommand_(params.commandName);
           if (command) {
             commandName = command.name;
+            if (commandName == 'registers') {
+              commandHistoryRegister.setText(previousCommand);
+            }
             this.parseCommandArgs_(inputStream, params, command);
             if (command.type == 'exToKey') {
               // Handle Ex to Key mapping.
@@ -3513,7 +3522,7 @@
               continue;
             }
             var register = registers[registerName] || new Register();
-            regInfo += '"' + registerName + '    ' + register.text + '<br>';
+            regInfo += '"' + registerName + '    ' + register.toString() + '<br>';
           }
         }
         showConfirm(cm, regInfo);
@@ -3888,6 +3897,7 @@
     function exitInsertMode(cm) {
       var vim = cm.state.vim;
       var macroModeState = vimGlobalState.macroModeState;
+      var imcRegister = vimGlobalState.registerController.getRegister('.');
       var isPlaying = macroModeState.isPlaying;
       if (!isPlaying) {
         cm.off('change', onChange);
@@ -3906,6 +3916,8 @@
       cm.setOption('keyMap', 'vim');
       cm.setOption('disableInput', true);
       cm.toggleOverwrite(false); // exit replace mode if we were in it.
+      // update the ". register before exiting insert mode
+      imcRegister.setText(macroModeState.lastInsertModeChanges.changes.join(''));
       CodeMirror.signal(cm, "vim-mode-change", {mode: "normal"});
       if (macroModeState.isRecording) {
         logInsertModeChange(macroModeState);
