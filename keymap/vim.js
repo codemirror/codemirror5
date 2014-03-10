@@ -384,7 +384,7 @@
     var specialKeys = ['Left', 'Right', 'Up', 'Down', 'Space', 'Backspace',
         'Esc', 'Home', 'End', 'PageUp', 'PageDown', 'Enter'];
     var validMarks = [].concat(upperCaseAlphabet, lowerCaseAlphabet, numbers, ['<', '>']);
-    var validRegisters = [].concat(upperCaseAlphabet, lowerCaseAlphabet, numbers, ['-', '"','.',':']);
+    var validRegisters = [].concat(upperCaseAlphabet, lowerCaseAlphabet, numbers, ['-', '"', '.', ':']);
 
     function isLine(cm, line) {
       return line >= cm.firstLine() && line <= cm.lastLine();
@@ -3194,7 +3194,7 @@
       { name: 'substitute', shortName: 's' },
       { name: 'nohlsearch', shortName: 'noh' },
       { name: 'delmarks', shortName: 'delm' },
-      { name: 'registers', shortName: 'reg' }
+      { name: 'registers', shortName: 'reg', excludeFromCommandHistory: true }
     ];
     Vim.ExCommandDispatcher = function() {
       this.buildCommandMap_();
@@ -3209,7 +3209,7 @@
         }
         var inputStream = new CodeMirror.StringStream(input);
         // update ": with the latest command whether valid or invalid
-        commandHistoryRegister.setText(inputStream.string);
+        commandHistoryRegister.setText(input);
         var params = {};
         params.input = input;
         try {
@@ -3228,7 +3228,7 @@
           var command = this.matchCommand_(params.commandName);
           if (command) {
             commandName = command.name;
-            if (commandName == 'registers') {
+            if (command.excludeFromCommandHistory) {
               commandHistoryRegister.setText(previousCommand);
             }
             this.parseCommandArgs_(inputStream, params, command);
@@ -3897,7 +3897,7 @@
     function exitInsertMode(cm) {
       var vim = cm.state.vim;
       var macroModeState = vimGlobalState.macroModeState;
-      var imcRegister = vimGlobalState.registerController.getRegister('.');
+      var insertModeChangeRegister = vimGlobalState.registerController.getRegister('.');
       var isPlaying = macroModeState.isPlaying;
       if (!isPlaying) {
         cm.off('change', onChange);
@@ -3917,7 +3917,7 @@
       cm.setOption('disableInput', true);
       cm.toggleOverwrite(false); // exit replace mode if we were in it.
       // update the ". register before exiting insert mode
-      imcRegister.setText(macroModeState.lastInsertModeChanges.changes.join(''));
+      insertModeChangeRegister.setText(macroModeState.lastInsertModeChanges.changes.join(''));
       CodeMirror.signal(cm, "vim-mode-change", {mode: "normal"});
       if (macroModeState.isRecording) {
         logInsertModeChange(macroModeState);

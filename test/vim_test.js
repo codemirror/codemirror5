@@ -1879,16 +1879,22 @@ testVim('macro_register', function(cm, vim, helpers) {
   });
   helpers.doKeys(':');
 }, { value: ''});
-testVim('ro_registers', function(cm,vim,helpers) {
+testVim('._register', function(cm,vim,helpers) {
   cm.setCursor(0,0);
   helpers.doKeys('i');
   cm.replaceRange('foo',cm.getCursor());
   helpers.doInsertModeKeys('Esc');
-  helpers.doEx('sort');
   cm.openDialog = helpers.fakeOpenDialog('registers');
   cm.openNotification = helpers.fakeOpenNotification(function(text) {
     is(/\.\s+foo/.test(text));
-    is(/:\s+sort/.test(text));
+  });
+  helpers.doKeys(':');
+}, {value: ''});
+testVim(':_register', function(cm,vim,helpers) {
+  helpers.doEx('bar');
+  cm.openDialog = helpers.fakeOpenDialog('registers');
+  cm.openNotification = helpers.fakeOpenNotification(function(text) {
+    is(/:\s+bar/.test(text));
   });
   helpers.doKeys(':');
 }, {value: ''});
