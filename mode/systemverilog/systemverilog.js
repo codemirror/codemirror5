@@ -85,14 +85,15 @@ CodeMirror.defineMode("systemverilog", function(config, parserConfig) {
   openClose["table"    ] = "endtable";
   openClose["task"     ] = "endtask";
   openClose["do"       ] = "while";
-  openClose["fork"     ] = "join";  // TODO: handle join_any, join_none
+  openClose["fork"     ] = "join;join_any;join_none";
 
   var blockClosings = [];
   for (var k in openClose) {
-    blockClosings.push(openClose[k]);
+    var closings = openClose[k].split(";");
+    for (var w in closings) {
+      blockClosings.push(closings[w]);
+    }
   }
-  blockClosings.push("join_any");
-  blockClosings.push("join_none");
 
   var statementKeywods = words("always always_comb always_ff always_latch assert assign assume else for foreach forever if initial repeat while");
 
@@ -243,6 +244,21 @@ CodeMirror.defineMode("systemverilog", function(config, parserConfig) {
     return state.context = state.context.prev;
   }
 
+  function isClosingKeyword(text, contextClosing) {
+    if (text == contextClosing) {
+      return true;
+    } else {
+      // contextClosing may be mulitple keywords separated by ;
+      var closingKeywords = contextClosing.split(";");
+      for (i in closingKeywords) {
+        if (text == closingKeywords[i]) {
+          return true;
+        }
+      }
+      return false;
+    }
+  }
+
   // Interface
   return {
 
@@ -280,7 +296,7 @@ CodeMirror.defineMode("systemverilog", function(config, parserConfig) {
         //ctx = popContext(state);    // TODO: This breaks the simple "if (a)\n" case 
         while (ctx && ctx.type == "statement") ctx = popContext(state);
       }
-      else if (ctx.type && ctx.type == curKeyword) {
+      else if (ctx.type && isClosingKeyword(curKeyword, ctx.type)) {
         ctx = popContext(state);
         while (ctx && ctx.type == "statement") ctx = popContext(state);
       }
@@ -303,7 +319,7 @@ CodeMirror.defineMode("systemverilog", function(config, parserConfig) {
       var ctx = state.context, firstChar = textAfter && textAfter.charAt(0);
       if (ctx.type == "statement" && firstChar == "}") ctx = ctx.prev;
       var textAfterToSpace = textAfter.split(" ")[0];
-      var closing = (textAfterToSpace == ctx.type);
+      var closing = isClosingKeyword(textAfterToSpace, ctx.type);
       if (ctx.type == "statement") return ctx.indented + (firstChar == "{" ? 0 : statementIndentUnit);
       else if (ctx.type == ")" && !closing) return ctx.indented + statementIndentUnit;
       else return ctx.indented + (closing ? 0 : indentUnit);
