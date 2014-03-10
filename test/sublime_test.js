@@ -184,6 +184,31 @@
          val("abc\nabc\ndef\ndef\nghi\nghi"), hasSel(1, 1, 1, 1,
                                                      3, 1, 3, 1,
                                                      5, 1, 5, 1));
+  stTest("selectLinesUpward", "123\n345\n789\n012",
+         setSel(0, 1, 0, 1,
+                1, 1, 1, 3,
+                2, 0, 2, 0,
+                3, 0, 3, 0),
+         "selectLinesUpward",
+         hasSel(0, 1, 0, 1,
+                0, 3, 0, 3,
+                1, 0, 1, 0,
+                1, 1, 1, 3,
+                2, 0, 2, 0,
+                3, 0, 3, 0));
+
+  stTest("selectLinesDownward", "123\n345\n789\n012",
+         setSel(0, 1, 0, 1,
+                1, 1, 1, 3,
+                2, 0, 2, 0,
+                3, 0, 3, 0),
+         "selectLinesDownward",
+         hasSel(0, 1, 0, 1,
+                1, 1, 1, 3,
+                2, 0, 2, 0,
+                2, 3, 2, 3,
+                3, 0, 3, 0));
+
   stTest("sortLines", "c\nb\na\nC\nB\nA",
          "sortLines", val("A\nB\nC\na\nb\nc"),
          "undo",

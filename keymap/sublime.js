@@ -394,17 +394,24 @@
   };
 
   cmds[map["Shift-Alt-Up"] = "selectLinesUpward"] = function(cm) {
-    var curs = cm.listSelections();
-    for (var i = 0; i < curs.length; i++) {
-      if(curs[i].anchor.line>0)
-        cm.addSelection({line:curs[i].anchor.line-1,ch:curs[i].anchor.ch});
-    };
+    cm.operation(function() {
+      var ranges = cm.listSelections();
+      for (var i = 0; i < ranges.length; i++) {
+        var range = ranges[i];
+        if (range.head.line > cm.firstLine())
+          cm.addSelection(Pos(range.head.line - 1, range.head.ch));
+      }
+    });
   };
   cmds[map["Shift-Alt-Down"] = "selectLinesDownward"] = function(cm) {
-    var curs = cm.listSelections();
-    for (var i = 0; i < curs.length; i++) {
-      cm.addSelection({line:curs[i].anchor.line+1,ch:curs[i].anchor.ch});
-    };
+    cm.operation(function() {
+      var ranges = cm.listSelections();
+      for (var i = 0; i < ranges.length; i++) {
+        var range = ranges[i];
+        if (range.head.line < cm.lastLine())
+          cm.addSelection(Pos(range.head.line + 1, range.head.ch));
+      }
+    });
   };
 
   map["Shift-" + ctrl + "["] = "fold";
