@@ -1770,7 +1770,7 @@ testVim('macro_t_search', function(cm, vim, helpers) {
   helpers.assertCursorAt(0, 1);
   helpers.doKeys('l', '@', 'a');
   helpers.assertCursorAt(0, 6);
-  helpers.doKeys('l', '@', 'a');
+  helpers.doKeys('l', ';');
   helpers.assertCursorAt(0, 12);
 }, { value: 'one line of text.'});
 testVim('macro_f_search', function(cm, vim, helpers) {
@@ -1779,9 +1779,31 @@ testVim('macro_f_search', function(cm, vim, helpers) {
   helpers.assertCursorAt(0, 2);
   helpers.doKeys('@', 'b');
   helpers.assertCursorAt(0, 7);
-  helpers.doKeys('@', 'b');
+  helpers.doKeys(';');
   helpers.assertCursorAt(0, 13);
 }, { value: 'one line of text.'});
+testVim('macro_slash_search', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('q', 'c');
+  cm.openDialog = helpers.fakeOpenDialog('e');
+  helpers.doKeys('/', 'q');
+  helpers.assertCursorAt(0, 2);
+  helpers.doKeys('@', 'c');
+  helpers.assertCursorAt(0, 7);
+  helpers.doKeys('n');
+  helpers.assertCursorAt(0, 13);
+}, { value: 'one line of text.'});
+testVim('macro_multislash_search', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('q', 'd');
+  cm.openDialog = helpers.fakeOpenDialog('e');
+  helpers.doKeys('/');
+  cm.openDialog = helpers.fakeOpenDialog('t');
+  helpers.doKeys('/', 'q');
+  helpers.assertCursorAt(0, 12);
+  helpers.doKeys('@', 'd');
+  helpers.assertCursorAt(0, 15);
+}, { value: 'one line of text to rule them all.'});
 testVim('macro_parens', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('q', 'z', 'i');
