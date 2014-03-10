@@ -1,3 +1,13 @@
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../lib/codemirror"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../lib/codemirror"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
+  "use strict";
+
 CodeMirror.modeInfo = [
   {name: 'APL', mime: 'text/apl', mode: 'apl'},
   {name: 'Asterisk', mime: 'text/x-asterisk', mode: 'asterisk'},
@@ -40,7 +50,7 @@ CodeMirror.modeInfo = [
   {name: 'TypeScript', mime: 'application/typescript', mode: 'javascript'},
   {name: 'Jinja2', mime: null, mode: 'jinja2'},
   {name: 'Julia', mime: 'text/x-julia', mode: 'julia'},
-  {name: 'LESS', mime: 'text/x-less', mode: 'less'},
+  {name: 'LESS', mime: 'text/x-less', mode: 'css'},
   {name: 'LiveScript', mime: 'text/x-livescript', mode: 'livescript'},
   {name: 'Lua', mime: 'text/x-lua', mode: 'lua'},
   {name: 'Markdown (GitHub-flavour)', mime: 'text/x-markdown', mode: 'markdown'},
@@ -88,8 +98,9 @@ CodeMirror.modeInfo = [
   {name: 'Velocity', mime: 'text/velocity', mode: 'velocity'},
   {name: 'Verilog', mime: 'text/x-verilog', mode: 'verilog'},
   {name: 'XML', mime: 'application/xml', mode: 'xml'},
-  {name: 'HTML', mime: 'text/html', mode: 'xml'},
   {name: 'XQuery', mime: 'application/xquery', mode: 'xquery'},
   {name: 'YAML', mime: 'text/x-yaml', mode: 'yaml'},
   {name: 'Z80', mime: 'text/x-z80', mode: 'z80'}
 ];
+
+});

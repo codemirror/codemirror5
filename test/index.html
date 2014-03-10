@@ -6,6 +6,7 @@
 
 <link rel="stylesheet" href="../lib/codemirror.css">
 <link rel="stylesheet" href="mode_test.css">
+<script src="../doc/activebookmark.js"></script>
 <script src="../lib/codemirror.js"></script>
 <script src="../addon/mode/overlay.js"></script>
 <script src="../addon/mode/multiplex.js"></script>
@@ -17,6 +18,7 @@
 <script src="../mode/xml/xml.js"></script>
 <script src="../keymap/vim.js"></script>
 <script src="../keymap/emacs.js"></script>
+<script src="../keymap/sublime.js"></script>
 
 <style type="text/css">
   .ok {color: #090;}
@@ -71,6 +73,7 @@
     <script src="driver.js"></script>
     <script src="test.js"></script>
     <script src="doc_test.js"></script>
+    <script src="multi_test.js"></script>
     <script src="comment_test.js"></script>
     <script src="search_test.js"></script>
     <script src="mode_test.js"></script>
@@ -96,6 +99,7 @@
     <script src="../addon/mode/multiplex_test.js"></script>
     <script src="vim_test.js"></script>
     <script src="emacs_test.js"></script>
+    <script src="sublime_test.js"></script>
     <script>
       window.onload = runHarness;
       CodeMirror.on(window, 'hashchange', runHarness);

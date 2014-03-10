@@ -1,4 +1,12 @@
-(function(){
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
+  "use strict";
   var Pos = CodeMirror.Pos;
 
   function SearchCursor(doc, query, pos, caseFold) {
@@ -164,4 +172,15 @@
   CodeMirror.defineDocExtension("getSearchCursor", function(query, pos, caseFold) {
     return new SearchCursor(this, query, pos, caseFold);
   });
-})();
+
+  CodeMirror.defineExtension("selectMatches", function(query, caseFold) {
+    var ranges = [], next;
+    var cur = this.getSearchCursor(query, this.getCursor("from"), caseFold);
+    while (next = cur.findNext()) {
+      if (CodeMirror.cmpPos(cur.to(), this.getCursor("to")) > 0) break;
+      ranges.push({anchor: cur.from(), head: cur.to()});
+    }
+    if (ranges.length)
+      this.setSelections(ranges, 0);
+  });
+});

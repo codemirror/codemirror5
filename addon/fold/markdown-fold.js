@@ -1,3 +1,13 @@
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
+"use strict";
+
 CodeMirror.registerHelper("fold", "markdown", function(cm, start) {
   var maxDepth = 100;
 
@@ -31,4 +41,6 @@ CodeMirror.registerHelper("fold", "markdown", function(cm, start) {
     from: CodeMirror.Pos(start.line, firstLine.length),
     to: CodeMirror.Pos(end, cm.getLine(end).length)
   };
+});
+
 });
