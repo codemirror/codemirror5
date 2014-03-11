@@ -83,6 +83,38 @@
     cm.setSelections(extended, primIndex);
   };
 
+  cmds[map[ctrl + "Enter"] = "insertLineAfter"] = function(cm) {
+	  var len = cm.listSelections().length,cursorPos=[],curpos = cm.getCursor();
+      for (var i = 0; i < len; i++) {
+        var range = cm.listSelections()[i];
+        cm.replaceRange("\n",  Pos(range.to().line+1, 0), Pos(range.to().line+1, 0), "+input");
+        cursorPos[i]=range.to().line+1;
+      }
+      for (var j = 0; j < cursorPos.length; j++) {
+    	  if(j==0)cm.setCursor(cursorPos[j],0,null);
+    	  else{
+    		  cm.addSelection({line:cursorPos[j],ch:0});
+    	  }
+    	  cm.indentLine(cursorPos[j], null, true);
+      }
+	  };
+	  
+	  cmds[map["Shift-" + ctrl + "Enter"] = "insertLineBefore"] = function(cm) {
+		  var len = cm.listSelections().length,cursorPos=[],curpos = cm.getCursor();
+	      for (var i = 0; i < len; i++) {
+	        var range = cm.listSelections()[i];
+	        cm.replaceRange("\n",  Pos(range.from().line, 0), Pos(range.from().line, 0), "+input");
+	        cursorPos[i]=range.from().line;
+	      }
+	      for (var j = 0; j < cursorPos.length; j++) {
+	    	  if(j==0)cm.setCursor(cursorPos[j],0,null);
+	    	  else{
+	    		  cm.addSelection({line:cursorPos[j],ch:0});
+	    	  }
+	    	  cm.indentLine(cursorPos[j], null, true);
+	      }
+		  };
+		  
   function wordAt(cm, pos) {
     var start = pos.ch, end = start, line = cm.getLine(pos.line);
     while (start && CodeMirror.isWordChar(line.charAt(start - 1))) --start;
