@@ -273,11 +273,14 @@ CodeMirror.defineMode("dylan", function (config, parserConfig) {
             var style = state.tokenize(stream, state);
             return style;
         },
+        /*
+        // This isn't working for me.
         indent: function (state, textAfter) {
             if (state.tokenize != tokenBase)
                 return 0;
             return state.currentIndent * config.indentUnit;
         },
+        */
         blockCommentStart: "/*",
         blockCommentEnd: "*/"
     }
