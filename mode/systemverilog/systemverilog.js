@@ -97,17 +97,6 @@ CodeMirror.defineMode("systemverilog", function(config, parserConfig) {
 
   var statementKeywods = words("always always_comb always_ff always_latch assert assign assume else for foreach forever if initial repeat while");
 
-  function endChars(words) {
-    var result = "";
-    for (var i in words) {
-      var c = words[i].slice(-1);
-      if (result.indexOf(c) < 0) {
-        result += c;
-      }
-    }
-    return result;
-  }
-
   function tokenBase(stream, state) {
     var ch = stream.peek();
     if (/[,;\.]/.test(ch)) {
@@ -263,7 +252,7 @@ CodeMirror.defineMode("systemverilog", function(config, parserConfig) {
   return {
 
     // Characters to force current line to reindent
-    electricChars: "{}()[];" + endChars(blockClosings),
+    electricChars: "{}()[];abcdefghijklmnopqrstuvwxyz",
 
     startState: function(basecolumn) {
       return {
