@@ -171,7 +171,7 @@ end function locator-error;
 /// Useful locator protocols
 
 define open generic locator-test
-    (locator :: <directory-locator>) => (test ::<function>);
+    (locator :: <directory-locator>) => (test :: <function>);
 
 define method locator-test
     (locator :: <directory-locator>) => (test :: <function>)
