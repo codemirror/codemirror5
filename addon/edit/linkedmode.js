@@ -35,7 +35,7 @@
  * // blurCallback(model:LinkedModeModel, linkedPosition:LinkedPosition, linkedGroup:LinkedGroup)
  * // cm.on("linkedModeBlur", blurCallback);
  *
- * // exitCallback(model:LinkedModeModel)
+ * // exitCallback(model:LinkedModeModel, doit:boolean, results:array<{group:LinkedPositionGroup, ranges:array<{from:Pos, to:Pos}>, text:string}>)
  * model.on("exit", exitCallback);
  *
  * // enter linked mode
@@ -60,12 +60,17 @@
  * - Error checking for overlapping ranges
  * - linkedModeFocus and linkedModeBlur events
  * - Smart sorting based on LinkedPosition document
+ * - Custom exit key codes (IExitPolicy)
  *
  * See demos/linkedmode.html for a more complete usage example.
  */
 (function () {
   "use strict";
   var _currentModel;
+  function eventMixin(ctor) {
+    ctor.prototype.on = function(type, f) {CodeMirror.on(this, type, f);};
+    ctor.prototype.off = function(type, f) {CodeMirror.off(this, type, f);};
+  }
   function makeArray(arr) {
     return Array.isArray(arr) ? arr : [arr];
   }
@@ -83,7 +88,10 @@
   function findMarker (marker) {
     var range = marker.find();
 
-    if (range && range.from)
+    if (!range)
+      return false;
+
+    if (range.from)
       return range;
 
     // Convert a bookmark position to a range
@@ -125,13 +133,8 @@
     this._codeMirrorInstances = [];
     this._mapPositionsToGroup = {};
   }
+  eventMixin(LinkedModeModel);
   LinkedModeModel.prototype = {
-    on: function (type, f) {
-      CodeMirror.on(this, type, f);
-    },
-    off: function (type, f) {
-      CodeMirror.off(this, type, f);
-    },
     _createMarker: function (doc, from, to, linkedPos, index) {
       var self = this,
         marker,
@@ -189,15 +192,20 @@
     },
     _onBeforeChange: function (cm, changeObj) {
       // Prevent overlapping edits
-      // Ignore undo/redo and changes with a line break
+      // Ignore undo/redo or changes with a line break
       var self = this,
         editDoc = cm.getDoc(),
         hasLineBreak = changeObj.text.length > 1,
-        isUndoRedo = !changeObj.update,
-        skip = self.lock || hasLineBreak || isUndoRedo;
+        isUndo = changeObj.origin === "undo",
+        isRedo = changeObj.origin === "redo",
+        changeGeneration = (isUndo) ? self.changeGeneration - 1 : self.changeGeneration,
+        // FIXME editDoc.changeGeneration() is wrong after previous undo? Should use editDoc.isClean(changeGeneration) here
+        isClean = editDoc.changeGeneration() <= changeGeneration,
+        skip = hasLineBreak || isUndo || isRedo;
 
-      if (skip) {
-        if (hasLineBreak) {
+      if (self.lock || skip) {
+        // Exit if inserting a line break or undoing linkedmode
+        if (hasLineBreak || (isUndo && isClean)) {
           // Do not move to the the exit cursor position
           self.exit(false);
         }
@@ -208,9 +216,10 @@
         fromMarker = getMarkerAt(editDoc, changeObj.from, toMarker && toMarker.type),
         exitMarker = this.exitPosition.marker,
         isExit = (fromMarker === exitMarker) || (toMarker === exitMarker),
-        isSameMarker = fromMarker && toMarker && (fromMarker === toMarker);
+        isSameMarker = fromMarker && toMarker && (fromMarker === toMarker),
+        targetRange = findMarker(fromMarker);
 
-      if (!isExit && isSameMarker) {
+      if (!isExit && isSameMarker && targetRange) {
         // Prevent the new operation from creating an overlapping edit
         self.lock = true;
 
@@ -219,7 +228,6 @@
 
         // Assumes marker and change are on the same line
         var group = self._lookupGroup(fromMarker.linkedPosition),
-          targetRange = findMarker(fromMarker),
           offsetStart = changeObj.from.ch - targetRange.from.ch,
           offsetEnd = changeObj.to.ch - targetRange.to.ch,
           doReplaceMarker = (offsetStart === 0 && offsetEnd === 0),
@@ -235,7 +243,9 @@
             // We should only have valid ranges
             marker = linkedPos.marker;
             range = findMarker(marker);
-            console.assert(range);
+
+            if (!range)
+              return;
 
             // Add offset to range
             from = new CodeMirror.Pos(range.from.line, range.from.ch += offsetStart);
@@ -259,7 +269,8 @@
           self.lock = false;
         });
       } else {
-        // Update (1) not in any marker or (2) spans different markers
+        // Update (1) not in any marker, (2) spans different markers or (3)
+        // target marker range is invalid
         self.exit(false);
       }
     },
@@ -302,7 +313,7 @@
       var marker = getMarkerAtCursor(cm);
 
       if (event.keyCode === 13) {
-        // ENTER, exit linked mode optionally at exit position
+        // ENTER key, exit linked mode optionally at exit position
         var isAtMarker = !!marker;
 
         // do not insert line break if within a linked position
@@ -334,8 +345,11 @@
     },
     _goToMarker: function (marker) {
       var range = findMarker(marker);
-      marker.doc.setSelection(range.from, range.to);
-      marker.doc.getEditor().focus();
+
+      if (range) {
+        marker.doc.setSelection(range.from, range.to);
+        marker.doc.getEditor().focus();
+      }
     },
     _invalidateSortedPositions: function () {
       this._sortedPositions = null;
@@ -350,7 +364,8 @@
       this.groups.forEach(function (group) {
         group.positions.forEach(function (linkedPos) {
           // Update start position in document
-          linkedPos._pos = findMarker(linkedPos.marker).from;
+          var range = findMarker(linkedPos.marker);
+          linkedPos._pos = (range && range.from) || { line: Number.MAX_VALUE, ch: Number.MAX_VALUE };
 
           // flat list of all markers
           _sortedPositions.push(linkedPos);
@@ -375,9 +390,12 @@
 
       return _sortedPositions;
     },
-    _enter: function () {
+    _doEnter: function (cm) {
       var self = this,
         error = false;
+
+      // Save the original changeGeneration so we can exit linkedmode if undone
+      self.changeGeneration = cm.getDoc().changeGeneration(true);
 
       function _tryCreateMarker(doc, from, to, linkedPos, index) {
         var tryMarker;
@@ -423,10 +441,20 @@
         cm.on("beforeChange", self._onBeforeChange);
       });
 
+      // Save current model
+      _currentModel = self;
+
       // select the first marker
       self._goToMarker(firstPos.marker);
 
       return true;
+    },
+    _enter: function (cm) {
+      var doEnter = this._doEnter(cm);
+      if (!doEnter)
+        this.exit(false);
+
+      return doEnter;
     },
     exit: function (goToExit) {
       var self = this,
@@ -435,14 +463,15 @@
         res;
 
       self.groups.forEach(function (group) {
-        res = { ranges: [], text: null };
+        res = { group: group, ranges: [], text: null };
 
         group.positions.forEach(function (linkedPos) {
           range = findMarker(linkedPos.marker);
-          res.ranges.push(range);
 
-          if (range && !res.text)
+          if (range && !res.text) {
+            res.ranges.push(range);
             res.text = linkedPos.marker.doc.getRange(range.from, range.to);
+          }
         });
 
         allGroupResults.push(res);
@@ -463,12 +492,17 @@
         cm.off("keydown", self._onKeyDown);
         cm.off("beforeChange", self._onBeforeChange);
       });
-      self._codeMirrorInstances = [];
 
+      // Remove all state
+      self._codeMirrorInstances = [];
       self._mapPositionsToGroup = {};
+      _currentModel = null;
 
       // Pass ranges and text to "exit" event
-      CodeMirror.signal(self, "exit", self, allGroupResults);
+      allGroupResults.forEach(function (res) {
+        CodeMirror.signal(res.group, "exit", res.group, res);
+      });
+      CodeMirror.signal(self, "exit", self, goToExit, allGroupResults);
     }
   };
   function LinkedPosition(doc, from, to) {
@@ -503,6 +537,7 @@
       stopOnAllPositions: options.stopOnAllPositions || false
     };
   }
+  eventMixin(LinkedPositionGroup);
   function enterLinkedMode(model) {
     console.assert(model);
 
@@ -510,8 +545,7 @@
     if (_currentModel /* && !_currentModel.options.allowNested */)
       _currentModel.exit(false);
 
-    _currentModel = model;
-    _currentModel._enter();
+    model._enter(this);
   }
   CodeMirror.LinkedPosition = LinkedPosition;
   CodeMirror.LinkedModeModel = LinkedModeModel;
