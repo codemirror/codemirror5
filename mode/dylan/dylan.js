@@ -1,4 +1,4 @@
-CodeMirror.defineMode("dylan", function (config, parserConfig) {
+CodeMirror.defineMode("dylan", function(_config) {
   // Words
   var words = {
     // Words that introduce unnamed definitions like "define interface"
@@ -128,8 +128,8 @@ CodeMirror.defineMode("dylan", function (config, parserConfig) {
     "definition",
     "simpleDefinition",
     "signalingCalls"
-  ].forEach(function (type) {
-    words[type].forEach(function (word) {
+  ].forEach(function(type) {
+    words[type].forEach(function(word) {
       wordLookup[word] = type;
       styleLookup[word] = styles[type];
     });
@@ -147,14 +147,6 @@ CodeMirror.defineMode("dylan", function (config, parserConfig) {
     type = _type;
     content = _content;
     return style;
-  }
-
-  function indent(_stream, state) {
-    state.currentIndent++;
-  }
-
-  function dedent(_stream, state) {
-    state.currentIndent--;
   }
 
   function tokenBase(stream, state) {
@@ -215,20 +207,18 @@ CodeMirror.defineMode("dylan", function (config, parserConfig) {
         return ret("hash", "keyword");
       }
     } else if (stream.match("end")) {
-      dedent(stream, state);
       return ret("end", "keyword");
     }
     for (var name in patterns) {
       if (patterns.hasOwnProperty(name)) {
         var pattern = patterns[name];
-        if ((pattern instanceof Array && pattern.some(function (p) {
+        if ((pattern instanceof Array && pattern.some(function(p) {
           return stream.match(p);
         })) || stream.match(pattern))
           return ret(name, patternStyles[name], stream.current());
       }
     }
     if (stream.match("define")) {
-      indent(stream, state);
       return ret("definition", "def");
     } else {
       stream.eatWhile(/[\w\-]/);
@@ -258,7 +248,7 @@ CodeMirror.defineMode("dylan", function (config, parserConfig) {
   }
 
   function tokenString(quote, type, style) {
-    return function (stream, state) {
+    return function(stream, state) {
       var next, end = false;
       while ((next = stream.next()) != null) {
         if (next == quote) {
@@ -274,26 +264,18 @@ CodeMirror.defineMode("dylan", function (config, parserConfig) {
 
   // Interface
   return {
-    startState: function (baseColumn) {
+    startState: function() {
       return {
         tokenize: tokenBase,
         currentIndent: 0
       };
     },
-    token: function (stream, state) {
+    token: function(stream, state) {
       if (stream.eatSpace())
         return null;
       var style = state.tokenize(stream, state);
       return style;
     },
-    /*
-    // This isn't working for me.
-    indent: function (state, textAfter) {
-      if (state.tokenize != tokenBase)
-        return 0;
-      return state.currentIndent * config.indentUnit;
-    },
-    */
     blockCommentStart: "/*",
     blockCommentEnd: "*/"
   };

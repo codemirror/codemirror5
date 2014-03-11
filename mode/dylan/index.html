@@ -55,7 +55,6 @@ define open generic locator-base
 define open generic locator-extension
     (locator :: <locator>) => (extension :: false-or(<string>));
 
-
 /// Locator classes
 
 define open abstract class <directory-locator> (<physical-locator>)
@@ -104,7 +103,6 @@ define method make
        name:      name)
 end method make;
 
-
 /// Locator coercion
 
 //---*** andrewa: This caching scheme doesn't work yet, so disable it.
@@ -154,7 +152,6 @@ define sealed sideways method as
   end
 end method as;
 
-
 /// Locator conditions
 
 define class <locator-error> (<format-string-condition>, <error>)
@@ -167,7 +164,6 @@ define function locator-error
              format-arguments: format-arguments))
 end function locator-error;
 
-
 /// Useful locator protocols
 
 define open generic locator-test
@@ -209,7 +205,6 @@ define method locator-directory
   end
 end method locator-directory;
 
-
 /// Simplify locator
 
 define open generic simplify-locator
@@ -250,7 +245,6 @@ define method simplify-locator
   end
 end method simplify-locator;
 
-
 /// Subdirectory locator
 
 define open generic subdirectory-locator
@@ -268,7 +262,6 @@ define method subdirectory-locator
        relative?: locator.locator-relative?)
 end method subdirectory-locator;
 
-
 /// Relative locator
 
 define open generic relative-locator
@@ -330,14 +323,12 @@ define method relative-locator
   end
 end method relative-locator;
 
-
 /// Merge locators
 
 define open generic merge-locators
     (locator :: <physical-locator>, from-locator :: <physical-locator>)
  => (merged-locator :: <physical-locator>);
 
-
 /// Merge locators
 
 define method merge-locators
@@ -386,7 +377,6 @@ define method merge-locators
   end
 end method merge-locators;
 
-
 /// Locator protocols
 
 define sideways method supports-open-locator?
