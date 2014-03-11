@@ -15,6 +15,7 @@ CodeMirror.modeInfo = [
   {name: 'diff', mime: 'text/x-diff', mode: 'diff'},
   {name: 'DTD', mime: 'application/xml-dtd', mode: 'dtd'},
   {name: 'ECL', mime: 'text/x-ecl', mode: 'ecl'},
+  {name: 'Egison', mime: 'text/x-egison', mode: 'egison'},
   {name: 'Eiffel', mime: 'text/x-eiffel', mode: 'eiffel'},
   {name: 'Erlang', mime: 'text/x-erlang', mode: 'erlang'},
   {name: 'Fortran', mime: 'text/x-fortran', mode: 'fortran'},
