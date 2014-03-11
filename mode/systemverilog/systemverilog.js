@@ -239,7 +239,7 @@ CodeMirror.defineMode("systemverilog", function(config, parserConfig) {
     } else {
       // contextClosing may be mulitple keywords separated by ;
       var closingKeywords = contextClosing.split(";");
-      for (i in closingKeywords) {
+      for (var i in closingKeywords) {
         if (text == closingKeywords[i]) {
           return true;
         }
