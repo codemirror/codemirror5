@@ -1,17 +1,35 @@
 <!doctype html>
-<html>
-  <head>
-    <title>CodeMirror: Dylan mode</title>
-    <link rel="stylesheet" href="../../lib/codemirror.css">
-    <script src="../../lib/codemirror.js"></script>
-    <script src="dylan.js"></script>
-    <link rel="stylesheet" href="dylan.css">
-    <style>.CodeMirror {border-top: 1px solid #ddd; border-bottom: 1px solid #ddd;}</style>
-    <link rel="stylesheet" href="../../doc/docs.css">
-  </head>
-  <body>
-    <h1>CodeMirror: Dylan mode</h1>
-    <form><textarea id="code" name="code">
+
+<title>CodeMirror: Dylan mode</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../../doc/docs.css">
+
+<link rel="stylesheet" href="../../lib/codemirror.css">
+<script src="../../lib/codemirror.js"></script>
+<script src="../../addon/edit/matchbrackets.js"></script>
+<script src="../../addon/comment/continuecomment.js"></script>
+<script src="../../addon/comment/comment.js"></script>
+<script src="dylan.js"></script>
+<style type="text/css">.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
+<div id=nav>
+  <a href="http://codemirror.net"><img id=logo src="../../doc/logo.png"></a>
+
+  <ul>
+    <li><a href="../../index.html">Home</a>
+    <li><a href="../../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="../index.html">Language modes</a>
+    <li><a class=active href="#">Dylan</a>
+  </ul>
+</div>
+
+<article>
+<h2>Dylan mode</h2>
+
+
+<div><textarea id="code" name="code">
 Module:       locators-internals
 Synopsis:     Abstract modeling of locations
 Author:       Andy Armstrong
@@ -381,17 +399,19 @@ define sideways method open-locator
  => (stream :: <stream>)
   apply(open-file-stream, locator, keywords)
 end method open-locator;
-</textarea></form>
+</textarea></div>
+
     <script>
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         mode: "text/x-dylan",
-        tabMode: "indent",
+        lineNumbers: true,
         matchBrackets: true,
+        continueComments: "Enter",
+        extraKeys: {"Ctrl-Q": "toggleComment"},
+        tabMode: "indent",
         indentUnit: 2
       });
     </script>
 
     <p><strong>MIME types defined:</strong> <code>text/x-dylan</code>.</p>
-
-  </body>
-</html>
+</article>
