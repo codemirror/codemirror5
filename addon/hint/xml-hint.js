@@ -11,22 +11,30 @@
     var inner = CodeMirror.innerMode(cm.getMode(), token.state);
     if (inner.mode.name != "xml") return;
     var result = [], replaceToken = false, prefix;
-    var isTag = token.string.charAt(0) == "<";
-    if (!inner.state.tagName || isTag) { // Tag completion
-      if (isTag) {
-        prefix = token.string.slice(1);
-        replaceToken = true;
-      }
+    var tag = /\btag\b/.test(token.type), tagName = tag && /^\w/.test(token.string), tagStart;
+    if (tagName) {
+      var before = cm.getLine(cur.line).slice(Math.max(0, token.start - 2), token.start);
+      var tagType = /<\/$/.test(before) ? "close" : /<$/.test(before) ? "open" : null;
+      if (tagType) tagStart = token.start - (tagType == "close" ? 2 : 1);
+    } else if (tag && token.string == "<") {
+      tagType = "open";
+    } else if (tag && token.string == "</") {
+      tagType = "close";
+    }
+    if (!tag && !inner.state.tagName || tagType) {
+      if (tagName)
+        prefix = token.string;
+      replaceToken = tagType;
       var cx = inner.state.context, curTag = cx && tags[cx.tagName];
       var childList = cx ? curTag && curTag.children : tags["!top"];
-      if (childList) {
+      if (childList && tagType != "close") {
         for (var i = 0; i < childList.length; ++i) if (!prefix || childList[i].lastIndexOf(prefix, 0) == 0)
           result.push("<" + childList[i]);
-      } else {
+      } else if (tagType != "close") {
         for (var name in tags) if (tags.hasOwnProperty(name) && name != "!top" && (!prefix || name.lastIndexOf(prefix, 0) == 0))
           result.push("<" + name);
       }
-      if (cx && (!prefix || ("/" + cx.tagName).lastIndexOf(prefix, 0) == 0))
+      if (cx && (!prefix || tagType == "close" && cx.tagName.lastIndexOf(prefix, 0) == 0))
         result.push("</" + cx.tagName + ">");
     } else {
       // Attribute completion
@@ -59,7 +67,7 @@
     }
     return {
       list: result,
-      from: replaceToken ? Pos(cur.line, token.start) : cur,
+      from: replaceToken ? Pos(cur.line, tagStart == null ? token.start : tagStart) : cur,
       to: replaceToken ? Pos(cur.line, token.end) : cur
     };
   }
