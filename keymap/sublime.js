@@ -104,7 +104,7 @@
       if (cur.findNext())
         cm.addSelection(cur.from(), cur.to());
       else{
-        cur = cm.getSearchCursor(fullWord ? new RegExp("\\b" + query + "\\b") : query, Pos(0,0));
+        cur = cm.getSearchCursor(fullWord ? new RegExp("\\b" + query + "\\b") : query, Pos(cm.firstLine(),0));
         if (cur.findNext())
           cm.addSelection(cur.from(), cur.to());
       }
