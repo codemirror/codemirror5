@@ -4,6 +4,7 @@ CodeMirror.defineMode("systemverilog", function(config, parserConfig) {
 
   var indentUnit = config.indentUnit,
       statementIndentUnit = parserConfig.statementIndentUnit || indentUnit,
+      noIndentKeywords = parserConfig.noIndentKeywords || []
       multiLineStrings = parserConfig.multiLineStrings;
 
   function words(str) {
@@ -87,11 +88,10 @@ CodeMirror.defineMode("systemverilog", function(config, parserConfig) {
   openClose["do"       ] = "while";
   openClose["fork"     ] = "join;join_any;join_none";
 
-  var blockClosings = [];
-  for (var k in openClose) {
-    var closings = openClose[k].split(";");
-    for (var w in closings) {
-      blockClosings.push(closings[w]);
+  for (var i in noIndentKeywords) {
+    var keyword = noIndentKeywords[i];
+    if (openClose[keyword]) {
+      openClose[keyword] = undefined;
     }
   }
 
