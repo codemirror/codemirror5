@@ -1267,11 +1267,11 @@ testVim('mark', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('`', 't');
   helpers.assertCursorAt(2, 2);
-  cm.setCursor(2,0);
+  cm.setCursor(2, 0);
   cm.replaceRange('   h', cm.getCursor());
-  cm.setCursor(0,0);
+  cm.setCursor(0, 0);
   helpers.doKeys('\'', 't');
-  helpers.assertCursorAt(2,3);
+  helpers.assertCursorAt(2, 3);
 });
 testVim('jumpToMark_next', function(cm, vim, helpers) {
   cm.setCursor(2, 2);
