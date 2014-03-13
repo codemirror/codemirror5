@@ -258,7 +258,7 @@ testJumplist('jumplist_gg', ['g', 'g', '<C-o>'], [5,2], [5,2]);
 testJumplist('jumplist_%', ['%', '<C-o>'], [1,5], [1,5]);
 testJumplist('jumplist_{', ['{', '<C-o>'], [1,5], [1,5]);
 testJumplist('jumplist_}', ['}', '<C-o>'], [1,5], [1,5]);
-testJumplist('jumplist_\'', ['m', 'a', 'h', '\'', 'a', 'h', '<C-i>'], [1,5], [1,5]);
+testJumplist('jumplist_\'', ['m', 'a', 'h', '\'', 'a', 'h', '<C-i>'], [1,0], [1,5]);
 testJumplist('jumplist_`', ['m', 'a', 'h', '`', 'a', 'h', '<C-i>'], [1,5], [1,5]);
 testJumplist('jumplist_*_cachedCursor', ['*', '<C-o>'], [1,3], [1,3]);
 testJumplist('jumplist_#_cachedCursor', ['#', '<C-o>'], [1,3], [1,3]);
@@ -1265,11 +1265,13 @@ testVim('mark', function(cm, vim, helpers) {
   cm.setCursor(2, 2);
   helpers.doKeys('m', 't');
   cm.setCursor(0, 0);
-  helpers.doKeys('\'', 't');
-  helpers.assertCursorAt(2, 2);
-  cm.setCursor(0, 0);
   helpers.doKeys('`', 't');
   helpers.assertCursorAt(2, 2);
+  cm.setCursor(2, 0);
+  cm.replaceRange('   h', cm.getCursor());
+  cm.setCursor(0, 0);
+  helpers.doKeys('\'', 't');
+  helpers.assertCursorAt(2, 3);
 });
 testVim('jumpToMark_next', function(cm, vim, helpers) {
   cm.setCursor(2, 2);
@@ -1519,13 +1521,13 @@ testVim('visual_line', function(cm, vim, helpers) {
   eq(' 4\n 5', cm.getValue());
 }, { value: ' 1\n 2\n 3\n 4\n 5' });
 testVim('visual_marks', function(cm, vim, helpers) {
-  helpers.doKeys('l', 'v', 'l', 'l', 'v');
+  helpers.doKeys('l', 'v', 'l', 'l', 'j', 'j', 'v');
   // Test visual mode marks
-  cm.setCursor(0, 0);
+  cm.setCursor(2, 1);
   helpers.doKeys('\'', '<');
   helpers.assertCursorAt(0, 1);
   helpers.doKeys('\'', '>');
-  helpers.assertCursorAt(0, 3);
+  helpers.assertCursorAt(2, 0);
 });
 testVim('visual_join', function(cm, vim, helpers) {
   helpers.doKeys('l', 'V', 'l', 'j', 'j', 'J');
