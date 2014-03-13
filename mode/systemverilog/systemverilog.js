@@ -276,22 +276,17 @@ CodeMirror.defineMode("systemverilog", function(config, parserConfig) {
       var style = (state.tokenize || tokenBase)(stream, state);
       if (style == "comment" || style == "meta" || style == "variable") return style;
 
-      if (curPunc == ";" && ctx.type == "statement") {
-        ctx = popContext(state);
-        while (ctx && ctx.type == "statement") ctx = popContext(state);
-      }
-      else if (curPunc == ctx.type) {
+      if (curPunc == ctx.type) {
         popContext(state);
-        //ctx = popContext(state);    // TODO: This breaks the simple "if (a)\n" case 
-        while (ctx && ctx.type == "statement") ctx = popContext(state);
       }
-      else if (ctx.type && isClosingKeyword(curKeyword, ctx.type)) {
+      else if ((curPunc == ";" && ctx.type == "statement") ||
+               (ctx.type && isClosingKeyword(curKeyword, ctx.type))) {
         ctx = popContext(state);
         while (ctx && ctx.type == "statement") ctx = popContext(state);
       }
-      else if (curPunc == "{") pushContext(state, stream.column(), "}");
-      else if (curPunc == "[") pushContext(state, stream.column(), "]");
-      else if (curPunc == "(") pushContext(state, stream.column(), ")");
+      else if (curPunc == "{") { pushContext(state, stream.column(), "}"); }
+      else if (curPunc == "[") { pushContext(state, stream.column(), "]"); }
+      else if (curPunc == "(") { pushContext(state, stream.column(), ")"); }
       else if (curPunc == "newstatement") {
         pushContext(state, stream.column(), "statement");
       } else if (curPunc == "newblock") {
