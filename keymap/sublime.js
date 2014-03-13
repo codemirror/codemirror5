@@ -152,7 +152,7 @@
         var from = linesToMove[i], to = linesToMove[i + 1];
         var line = cm.getLine(from);
         cm.replaceRange("", Pos(from, 0), Pos(from + 1, 0));
-        if(from == cm.doc.lastLine())
+        if(to-1 == cm.doc.lastLine())
           cm.replaceRange("\n" + line, Pos(to, 0));
         else
           cm.replaceRange(line + "\n", Pos(to, 0));
