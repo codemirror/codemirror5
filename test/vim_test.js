@@ -2550,6 +2550,13 @@ testVim('ex_substitute_javascript', function(cm, vim, helpers) {
   helpers.doEx('s/\\(\\d+\\)/$$ $\' $` $& \\1/')
   eq('a $$ $\' $` $& 0 b', cm.getValue());
 }, { value: 'a 0 b' });
+testVim('ex_substitute_empty_arguments', function(cm,vim,helpers) {
+  cm.setCursor(0, 0);
+  helpers.doEx('s/a/b');
+  cm.setCursor(1, 0);
+  helpers.doEx('s');
+  eq('b b\nb b', cm.getValue());
+}, {value: 'a a\na a'});
 
 // More complex substitute tests that test both pcre and nopcre options.
 function testSubstitute(name, options) {

@@ -603,6 +603,8 @@
         searchQuery: null,
         // Whether we are searching backwards.
         searchIsReversed: false,
+        // Replace part of the last substituted pattern
+        lastSubstituteReplacePart: undefined,
         jumpList: createCircularJumpList(),
         macroModeState: new MacroModeState,
         // Recording latest f, t, F or T motion command.
@@ -3608,38 +3610,41 @@
               'any other getSearchCursor implementation.');
         }
         var argString = params.argString;
-        var slashes = findUnescapedSlashes(argString);
-        if (slashes[0] !== 0) {
-          showConfirm(cm, 'Substitutions should be of the form ' +
-              ':s/pattern/replace/');
-          return;
-        }
-        var regexPart = argString.substring(slashes[0] + 1, slashes[1]);
+        var slashes = argString ? findUnescapedSlashes(argString) : [];
         var replacePart = '';
-        var flagsPart;
-        var count;
-        var confirm = false; // Whether to confirm each replace.
-        if (slashes[1]) {
-          replacePart = argString.substring(slashes[1] + 1, slashes[2]);
-          if (getOption('pcre')) {
-            replacePart = unescapeRegexReplace(replacePart);
-          } else {
-            replacePart = translateRegexReplace(replacePart);
+        if (slashes.length) {
+          if (slashes[0] !== 0) {
+            showConfirm(cm, 'Substitutions should be of the form ' +
+                ':s/pattern/replace/');
+            return;
           }
-        }
-        if (slashes[2]) {
-          // After the 3rd slash, we can have flags followed by a space followed
-          // by count.
-          var trailing = argString.substring(slashes[2] + 1).split(' ');
-          flagsPart = trailing[0];
-          count = parseInt(trailing[1]);
-        }
-        if (flagsPart) {
-          if (flagsPart.indexOf('c') != -1) {
-            confirm = true;
-            flagsPart.replace('c', '');
+          var regexPart = argString.substring(slashes[0] + 1, slashes[1]);
+          var flagsPart;
+          var count;
+          var confirm = false; // Whether to confirm each replace.
+          if (slashes[1]) {
+            replacePart = argString.substring(slashes[1] + 1, slashes[2]);
+            if (getOption('pcre')) {
+              replacePart = unescapeRegexReplace(replacePart);
+            } else {
+              replacePart = translateRegexReplace(replacePart);
+            }
+            vimGlobalState.lastSubstituteReplacePart = replacePart;
           }
-          regexPart = regexPart + '/' + flagsPart;
+          if (slashes[2]) {
+            // After the 3rd slash, we can have flags followed by a space followed
+            // by count.
+            var trailing = argString.substring(slashes[2] + 1).split(' ');
+            flagsPart = trailing[0];
+            count = parseInt(trailing[1]);
+          }
+          if (flagsPart) {
+            if (flagsPart.indexOf('c') != -1) {
+              confirm = true;
+              flagsPart.replace('c', '');
+            }
+            regexPart = regexPart + '/' + flagsPart;
+          }
         }
         if (regexPart) {
           // If regex part is empty, then use the previous query. Otherwise use
@@ -3651,6 +3656,11 @@
             showConfirm(cm, 'Invalid regex: ' + regexPart);
             return;
           }
+        }
+        replacePart = replacePart || vimGlobalState.lastSubstituteReplacePart;
+        if (replacePart === undefined) {
+          showConfirm(cm, 'No previous substitute regular expression');
+          return;
         }
         var state = getSearchState(cm);
         var query = state.getQuery();
