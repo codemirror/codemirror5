@@ -1380,16 +1380,11 @@
         highlightSearchMatches(cm, query);
         return findNext(cm, prev/** prev */, query, motionArgs.repeat);
       },
-      goToMark: function(_cm, motionArgs, vim) {
-        var selectedCharacter = motionArgs.selectedCharacter;
-        var mark = vim.marks[selectedCharacter];
+      goToMark: function(cm, motionArgs, vim) {
+        var mark = vim.marks[motionArgs.selectedCharacter];
         if (mark) {
-          var line = mark.find().line;
-          if (selectedCharacter=='<' || selectedCharacter=='>') {
-            return mark.find();
-          } else {
-            return motionArgs.linewise ? { line: line, ch:findFirstNonWhiteSpaceCharacter(_cm.getLine(line)) } : mark.find();
-          }
+          var pos = mark.find();
+          return motionArgs.linewise ? { line: pos.line, ch:findFirstNonWhiteSpaceCharacter(cm.getLine(pos.line)) } : pos;
         }
         return null;
       },
