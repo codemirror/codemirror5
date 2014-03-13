@@ -194,7 +194,7 @@
     { keys: [','], type: 'motion', motion: 'repeatLastCharacterSearch',
         motionArgs: { forward: false }},
     { keys: ['\'', 'character'], type: 'motion', motion: 'goToMark',
-        motionArgs: {toJumplist: true}},
+        motionArgs: {toJumplist: true, linewise: true}},
     { keys: ['`', 'character'], type: 'motion', motion: 'goToMark',
         motionArgs: {toJumplist: true}},
     { keys: [']', '`'], type: 'motion', motion: 'jumpToMark', motionArgs: { forward: true } },
@@ -1381,9 +1381,15 @@
         return findNext(cm, prev/** prev */, query, motionArgs.repeat);
       },
       goToMark: function(_cm, motionArgs, vim) {
-        var mark = vim.marks[motionArgs.selectedCharacter];
+        var selectedCharacter = motionArgs.selectedCharacter;
+        var mark = vim.marks[selectedCharacter];
         if (mark) {
-          return mark.find();
+          var line = mark.find().line;
+          if (selectedCharacter=='<' || selectedCharacter=='>') {
+            return mark.find();
+          } else {
+            return motionArgs.linewise ? { line: line, ch:findFirstNonWhiteSpaceCharacter(_cm.getLine(line)) } : mark.find();
+          }
         }
         return null;
       },
