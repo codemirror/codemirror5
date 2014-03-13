@@ -603,6 +603,8 @@
         searchQuery: null,
         // Whether we are searching backwards.
         searchIsReversed: false,
+        // Replace part of the last substituted pattern
+        lastSubstituteReplacePart: undefined,
         jumpList: createCircularJumpList(),
         macroModeState: new MacroModeState,
         // Recording latest f, t, F or T motion command.
@@ -2832,12 +2834,6 @@
       setQuery: function(query) {
         vimGlobalState.query = query;
       },
-      getLastSubstitute: function() {
-        return vimGlobalState.lastSubstitute;
-      },
-      setLastSubstitute: function(lastSubstitute) {
-        vimGlobalState.lastSubstitute = lastSubstitute;
-      },
       getOverlay: function() {
         return this.searchOverlay;
       },
@@ -3614,9 +3610,8 @@
               'any other getSearchCursor implementation.');
         }
         var argString = params.argString;
-        var state = getSearchState(cm);
-        var replacePart = state.getLastSubstitute();
         var slashes = argString ? findUnescapedSlashes(argString) : [];
+        var replacePart = '';
         if (slashes.length) {
           if (slashes[0] !== 0) {
             showConfirm(cm, 'Substitutions should be of the form ' +
@@ -3634,7 +3629,7 @@
             } else {
               replacePart = translateRegexReplace(replacePart);
             }
-            state.setLastSubstitute(replacePart);
+            vimGlobalState.lastSubstituteReplacePart = replacePart;
           }
           if (slashes[2]) {
             // After the 3rd slash, we can have flags followed by a space followed
@@ -3662,6 +3657,12 @@
             return;
           }
         }
+        replacePart = vimGlobalState.lastSubstituteReplacePart;
+        if (replacePart === undefined) {
+          showConfirm(cm,'No Replace Part found!');
+          return;
+        }
+        var state = getSearchState(cm);
         var query = state.getQuery();
         var lineStart = (params.line !== undefined) ? params.line : cm.getCursor().line;
         var lineEnd = params.lineEnd || lineStart;
