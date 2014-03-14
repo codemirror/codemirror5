@@ -1241,6 +1241,11 @@ testVim(']p_first_indent_is_larger', function(cm, vim, helpers) {
   helpers.doKeys(']', 'p');
   eq('  ___\n  abc\ndef', cm.getValue());
 }, { value: '  ___' });
+testVim('[p', function(cm, vim, helpers) {
+  helpers.getRegisterController().pushText('"', 'yank', '  abc\n    def\n', true);
+  helpers.doKeys('[', 'p');
+  eq('  abc\n    def\n  ___', cm.getValue());
+}, { value: '  ___' });
 testVim('P', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.getRegisterController().pushText('"', 'yank', 'abc\ndef', false);

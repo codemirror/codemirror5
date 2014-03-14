@@ -201,9 +201,11 @@
     { keys: ['[', '`'], type: 'motion', motion: 'jumpToMark', motionArgs: { forward: false } },
     { keys: [']', '\''], type: 'motion', motion: 'jumpToMark', motionArgs: { forward: true, linewise: true } },
     { keys: ['[', '\''], type: 'motion', motion: 'jumpToMark', motionArgs: { forward: false, linewise: true } },
-    // this is not a motion but must come before the following, more general declaration
+    // the next two aren't motions but must come before more general motion declarations
     { keys: [']', 'p'], type: 'action', action: 'paste', isEdit: true,
         actionArgs: { after: true, isEdit: true, matchIndent: true}},
+    { keys: ['[', 'p'], type: 'action', action: 'paste', isEdit: true,
+        actionArgs: { after: false, isEdit: true, matchIndent: true}},
     { keys: [']', 'character'], type: 'motion',
         motion: 'moveToSymbol',
         motionArgs: { forward: true, toJumplist: true}},
@@ -2024,7 +2026,7 @@
         }
         if (actionArgs.matchIndent) {
           var indent = findFirstNonWhiteSpaceCharacter(cm.getLine(cm.getCursor().line));
-          // chomp last newline to avoid getting matched ^ in a gm regex
+          // chomp last newline b/c don't want it to match /^\s*/gm
           var chompedText = text.replace(/\n$/, '');
           var wasChomped = text !== chompedText;
           var firstIndent = text.match(/^\s*/)[0].length;
