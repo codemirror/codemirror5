@@ -2024,10 +2024,14 @@
         }
         if (actionArgs.matchIndent) {
           var indent = findFirstNonWhiteSpaceCharacter(cm.getLine(cm.getCursor().line));
-          var currentWhiteSpace = Array(indent + 1).join(' ');
+          // chomp last newline to avoid getting matched ^ in a gm regex
           var chompedText = text.replace(/\n$/, '');
           var wasChomped = text !== chompedText;
-          var text = chompedText.replace(/^\s*/gm, currentWhiteSpace);
+          var firstIndent = text.match(/^\s*/)[0].length;
+          var text = chompedText.replace(/^\s*/gm, function(wspace) {
+            var newIndent = indent + (wspace.length - firstIndent);
+            return (newIndent < 0) ? "" : Array(newIndent + 1).join(' ');
+          });
           text += wasChomped ? "\n" : "";
         }
         if (actionArgs.repeat > 1) {
