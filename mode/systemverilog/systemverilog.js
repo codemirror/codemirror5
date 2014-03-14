@@ -61,6 +61,7 @@ CodeMirror.defineMode("systemverilog", function(config, parserConfig) {
   var realLiteral = /([\d_]+(\.[\d_]+)?E-?[\d_]+)|([\d_]+\.[\d_]+)/i;
 
   var closingBracketOrWord = /^\w+|[)}\]]/;
+  var closingBracket = /[)}\]]/;
 
   var curPunc;
   var curKeyword;
@@ -309,7 +310,7 @@ CodeMirror.defineMode("systemverilog", function(config, parserConfig) {
       var possibleClosing = textAfter.match(closingBracketOrWord);
       var closing = isClosing(possibleClosing, ctx.type);
       if (ctx.type == "statement") return ctx.indented + (firstChar == "{" ? 0 : statementIndentUnit);
-      else if (/[)}\]]/.test(ctx.type) && ctx.align && !dontAlignCalls) return ctx.column + (closing ? 0 : 1);
+      else if (closingBracket.test(ctx.type) && ctx.align && !dontAlignCalls) return ctx.column + (closing ? 0 : 1);
       else if (ctx.type == ")" && !closing) return ctx.indented + statementIndentUnit;
       else return ctx.indented + (closing ? 0 : indentUnit);
     },
