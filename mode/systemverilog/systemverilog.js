@@ -4,6 +4,7 @@ CodeMirror.defineMode("systemverilog", function(config, parserConfig) {
 
   var indentUnit = config.indentUnit,
       statementIndentUnit = parserConfig.statementIndentUnit || indentUnit,
+      dontAlignCalls = parserConfig.dontAlignCalls,
       noIndentKeywords = parserConfig.noIndentKeywords || []
       multiLineStrings = parserConfig.multiLineStrings;
 
@@ -275,6 +276,7 @@ CodeMirror.defineMode("systemverilog", function(config, parserConfig) {
       curKeyword = null;
       var style = (state.tokenize || tokenBase)(stream, state);
       if (style == "comment" || style == "meta" || style == "variable") return style;
+      if (ctx.align == null) ctx.align = true;
 
       if (curPunc == ctx.type) {
         popContext(state);
@@ -305,6 +307,7 @@ CodeMirror.defineMode("systemverilog", function(config, parserConfig) {
       var textAfterToSpace = textAfter.split(" ")[0];
       var closing = isClosingKeyword(textAfterToSpace, ctx.type);
       if (ctx.type == "statement") return ctx.indented + (firstChar == "{" ? 0 : statementIndentUnit);
+      else if (/[)}\]]/.test(ctx.type) && ctx.align && !dontAlignCalls) return ctx.column + (closing ? 0 : 1);
       else if (ctx.type == ")" && !closing) return ctx.indented + statementIndentUnit;
       else return ctx.indented + (closing ? 0 : indentUnit);
     },
