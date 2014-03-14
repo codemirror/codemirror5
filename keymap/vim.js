@@ -202,8 +202,8 @@
     { keys: [']', '\''], type: 'motion', motion: 'jumpToMark', motionArgs: { forward: true, linewise: true } },
     { keys: ['[', '\''], type: 'motion', motion: 'jumpToMark', motionArgs: { forward: false, linewise: true } },
     // this is not a motion but must come before the following, more general declaration
-    { keys: [']', 'p'], type: 'action', action: 'indentPaste', isEdit: true,
-        actionArgs: { after: true}},
+    { keys: [']', 'p'], type: 'action', action: 'paste', isEdit: true,
+        actionArgs: { after: true, isEdit: true, matchIndent: true}},
     { keys: [']', 'character'], type: 'motion',
         motion: 'moveToSymbol',
         motionArgs: { forward: true, toJumplist: true}},
@@ -2022,6 +2022,14 @@
         if (!text) {
           return;
         }
+        if (actionArgs.matchIndent) {
+          var indent = findFirstNonWhiteSpaceCharacter(cm.getLine(cm.getCursor().line));
+          var currentWhiteSpace = Array(indent + 1).join(' ');
+          var chompedText = text.replace(/\n$/, '');
+          var wasChomped = text !== chompedText;
+          var text = chompedText.replace(/^\s*/gm, currentWhiteSpace);
+          text += wasChomped ? "\n" : "";
+        }
         if (actionArgs.repeat > 1) {
           var text = Array(actionArgs.repeat + 1).join(text);
         }
@@ -2056,18 +2064,6 @@
           curPosFinal = cm.posFromIndex(idx + text.length);
         }
         cm.setCursor(curPosFinal);
-      },
-      indentPaste: function(cm, actionArgs) {
-        var linewise = vimGlobalState.registerController.unnamedRegister.linewise;
-        var text = vimGlobalState.registerController.unnamedRegister.toString();
-        var indent = findFirstNonWhiteSpaceCharacter(cm.getLine(cm.getCursor().line));
-        var currentWhiteSpace = Array(indent + 1).join(' ');
-        var indentedText = currentWhiteSpace + text.trimLeft();
-
-        vimGlobalState.registerController.unnamedRegister.setText(indentedText, linewise);
-        vimApi.handleKey(cm, 'p');
-        // set back to previous state
-        vimGlobalState.registerController.unnamedRegister.setText(text, linewise);
       },
       undo: function(cm, actionArgs) {
         cm.operation(function() {
