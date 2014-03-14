@@ -82,6 +82,8 @@
     cm.setSelections(extended);
   };
 
+  map["Shift-"+ctrl+"K"]="deleteLine";
+
   function insertLine(cm, above) {
     cm.operation(function() {
       var len = cm.listSelections().length, newSelection = [], last = -1;
@@ -166,6 +168,7 @@
       else if (linesToMove.length) linesToMove[linesToMove.length - 1] = to;
       at = to;
     }
+    cm.scrollIntoView(null,cm.defaultTextHeight());
     cm.operation(function() {
       for (var i = 0; i < linesToMove.length; i += 2) {
         var from = linesToMove[i], to = linesToMove[i + 1];
@@ -192,6 +195,7 @@
       else if (linesToMove.length) linesToMove[linesToMove.length - 1] = to;
       at = to;
     }
+    cm.scrollIntoView(null,cm.defaultTextHeight());
     cm.operation(function() {
       for (var i = linesToMove.length - 2; i >= 0; i -= 2) {
         var from = linesToMove[i], to = linesToMove[i + 1];
@@ -374,6 +378,13 @@
       }
     });
   }
+
+  mapK[ctrl + "Backspace"] = "delLineLeft";
+
+  cmds[mapK[ctrl + "K"] = "delLineRight"] = function(cm) {
+      var cur = cm.getCursor();
+      cm.replaceRange("",cur ,Pos(cur.line,cur.line.length), "+delete");
+  };
 
   cmds[mapK[ctrl + "U"] = "upcaseAtCursor"] = function(cm) {
     modifyWordOrSelection(cm, function(str) { return str.toUpperCase(); });
