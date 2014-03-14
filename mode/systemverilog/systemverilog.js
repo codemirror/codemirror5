@@ -5,7 +5,7 @@ CodeMirror.defineMode("systemverilog", function(config, parserConfig) {
   var indentUnit = config.indentUnit,
       statementIndentUnit = parserConfig.statementIndentUnit || indentUnit,
       dontAlignCalls = parserConfig.dontAlignCalls,
-      noIndentKeywords = parserConfig.noIndentKeywords || []
+      noIndentKeywords = parserConfig.noIndentKeywords || [],
       multiLineStrings = parserConfig.multiLineStrings;
 
   function words(str) {
