@@ -60,6 +60,8 @@ CodeMirror.defineMode("systemverilog", function(config, parserConfig) {
   var hexLiteral = /\d*\s*'s?h\s*[0-9a-fxz?_]+/i;
   var realLiteral = /([\d_]+(\.[\d_]+)?E-?[\d_]+)|([\d_]+\.[\d_]+)/i;
 
+  var closingBracketOrWord = /^\w+|[)}\]]/;
+
   var curPunc;
   var curKeyword;
 
@@ -234,7 +236,7 @@ CodeMirror.defineMode("systemverilog", function(config, parserConfig) {
     return state.context = state.context.prev;
   }
 
-  function isClosingKeyword(text, contextClosing) {
+  function isClosing(text, contextClosing) {
     if (text == contextClosing) {
       return true;
     } else {
@@ -282,7 +284,7 @@ CodeMirror.defineMode("systemverilog", function(config, parserConfig) {
         popContext(state);
       }
       else if ((curPunc == ";" && ctx.type == "statement") ||
-               (ctx.type && isClosingKeyword(curKeyword, ctx.type))) {
+               (ctx.type && isClosing(curKeyword, ctx.type))) {
         ctx = popContext(state);
         while (ctx && ctx.type == "statement") ctx = popContext(state);
       }
@@ -304,8 +306,8 @@ CodeMirror.defineMode("systemverilog", function(config, parserConfig) {
       if (state.tokenize != tokenBase && state.tokenize != null) return CodeMirror.Pass;
       var ctx = state.context, firstChar = textAfter && textAfter.charAt(0);
       if (ctx.type == "statement" && firstChar == "}") ctx = ctx.prev;
-      var textAfterToSpace = textAfter.split(" ")[0];
-      var closing = isClosingKeyword(textAfterToSpace, ctx.type);
+      var possibleClosing = textAfter.match(closingBracketOrWord);
+      var closing = isClosing(possibleClosing, ctx.type);
       if (ctx.type == "statement") return ctx.indented + (firstChar == "{" ? 0 : statementIndentUnit);
       else if (/[)}\]]/.test(ctx.type) && ctx.align && !dontAlignCalls) return ctx.column + (closing ? 0 : 1);
       else if (ctx.type == ")" && !closing) return ctx.indented + statementIndentUnit;
