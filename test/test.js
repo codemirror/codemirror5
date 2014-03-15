@@ -1843,3 +1843,14 @@ testCM("selChangeInOperationDoesNotSplit", function(cm) {
   cm.undo();
   eq(cm.getValue(), "a");
 }, {value: "a"});
+
+testCM("alwaysMergeSelEventWithChangeOrigin", function(cm) {
+  cm.replaceSelection("U", null, "foo");
+  cm.setSelection(Pos(0, 0), Pos(0, 1), {origin: "foo"});
+  cm.undoSelection();
+  eq(cm.getValue(), "a");
+  cm.replaceSelection("V", null, "foo");
+  cm.setSelection(Pos(0, 0), Pos(0, 1), {origin: "bar"});
+  cm.undoSelection();
+  eq(cm.getValue(), "Va");
+}, {value: "a"});
