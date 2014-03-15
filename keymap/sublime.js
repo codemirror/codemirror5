@@ -150,8 +150,16 @@
       for (var i = 0; i < linesToMove.length; i += 2) {
         var from = linesToMove[i], to = linesToMove[i + 1];
         var line = cm.getLine(from);
-        cm.replaceRange("", Pos(from, 0), Pos(from + 1, 0));
-        cm.replaceRange(line + "\n", Pos(to, 0));
+        cm.replaceRange("", Pos(from, 0), Pos(from + 1, 0), "+swapLine");
+        if (to > cm.lastLine()) {
+          cm.replaceRange("\n" + line, Pos(cm.lastLine()), null, "+swapLine");
+          var sels = cm.listSelections(), last = sels[sels.length - 1];
+          var head = last.head.line == to ? Pos(to - 1) : last.head;
+          var anchor = last.anchor.line == to ? Pos(to - 1) : last.anchor;
+          cm.setSelections(sels.slice(0, sels.length - 1).concat([{head: head, anchor: anchor}]));
+        } else {
+          cm.replaceRange(line + "\n", Pos(to, 0), null, "+swapLine");
+        }
       }
     });
   };
@@ -169,10 +177,10 @@
         var from = linesToMove[i], to = linesToMove[i + 1];
         var line = cm.getLine(from);
         if (from == cm.lastLine())
-          cm.replaceRange("", Pos(from - 1), Pos(from));
+          cm.replaceRange("", Pos(from - 1), Pos(from), "+swapLine");
         else
-          cm.replaceRange("", Pos(from, 0), Pos(from + 1, 0));
-        cm.replaceRange(line + "\n", Pos(to, 0));
+          cm.replaceRange("", Pos(from, 0), Pos(from + 1, 0), "+swapLine");
+        cm.replaceRange(line + "\n", Pos(to, 0), null, "+swapLine");
       }
     });
   };

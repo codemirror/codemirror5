@@ -162,6 +162,10 @@
                 1, 0, 2, 0,
                 2, 2, 2, 2));
 
+  stTest("swapLineUpFromEnd", "a\nb\nc",
+         Pos(2, 1), "swapLineUp",
+         hasSel(1, 1, 1, 1), val("a\nc\nb"));
+
   stTest("joinLines", "abc\ndef\nghi\njkl",
          "joinLines", val("abc def\nghi\njkl"), at(0, 4),
          "undo",
