@@ -346,13 +346,17 @@
         cm.state.vim = null;
       }
     });
-    function beforeSelectionChange(cm, cur) {
+    function beforeSelectionChange(cm, obj) {
       var vim = cm.state.vim;
       if (vim.insertMode || vim.exMode) return;
 
-      var head = cur.head;
-      if (head.ch && head.ch == cm.doc.getLine(head.line).length) {
+      var head = obj.head, anchor = obj.anchor;
+      if ((obj.clicktype == 'double') ||
+          (head.ch && head.ch == cm.doc.getLine(head.line).length))
         head.ch--;
+      if (obj.clicktype == 'triple'){
+        head.ch = cm.doc.getLine(anchor.line).length - 1;
+        head.line = anchor.line;
       }
     }
     function getOnPasteFn(cm) {
