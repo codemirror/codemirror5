@@ -73,14 +73,13 @@
   map["Shift-Tab"] = "indentLess";
 
   cmds[map[ctrl + "L"] = "selectLine"] = function(cm) {
-    var ranges = cm.listSelections(), prim = cm.getCursor(), primIndex, extended = [];
+    var ranges = cm.listSelections(), extended = [];
     for (var i = 0; i < ranges.length; i++) {
       var range = ranges[i];
-      if (range.head == prim) primIndex = i;
       extended.push({anchor: Pos(range.from().line, 0),
                      head: Pos(range.to().line + 1, 0)});
     }
-    cm.setSelections(extended, primIndex);
+    cm.setSelections(extended);
   };
 
   function wordAt(cm, pos) {
