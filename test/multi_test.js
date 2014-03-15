@@ -145,7 +145,7 @@
       if (arg.head) sels.push(arg);
       else sels.push({head: arg, anchor: arg});
     }
-    cm.setSelections(sels);
+    cm.setSelections(sels, sels.length - 1);
   }
 
   testCM("indentSelection", function(cm) {
