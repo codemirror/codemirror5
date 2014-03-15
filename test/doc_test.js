@@ -320,6 +320,25 @@
     eq(cleared, 1);
   });
 
+  testDoc("sharedBookmark", "A='ab\ncd\nef\ngh' B<A C<~A/1-2", function(a, b, c) {
+    var mark = b.setBookmark(Pos(1, 1), {shared: true});
+    var found = a.findMarksAt(Pos(1, 1));
+    eq(found.length, 1);
+    eq(found[0], mark);
+    eq(c.findMarksAt(Pos(1, 1)).length, 1);
+    eqPos(mark.find(), Pos(1, 1));
+    b.replaceRange("x\ny\n", Pos(0, 0));
+    eqPos(mark.find(), Pos(3, 1));
+    var cleared = 0;
+    CodeMirror.on(mark, "clear", function() {++cleared;});
+    b.operation(function() {mark.clear();});
+    eq(a.findMarks(Pos(0, 0), Pos(5)).length, 0);
+    eq(b.findMarks(Pos(0, 0), Pos(5)).length, 0);
+    eq(c.findMarks(Pos(0, 0), Pos(5)).length, 0);
+    eq(mark.find(), null);
+    eq(cleared, 1);
+  });
+
   testDoc("undoInSubview", "A='line 0\nline 1\nline 2\nline 3\nline 4' B<A/1-4", function(a, b) {
     b.replaceRange("x", Pos(2, 0));
     a.undo();
