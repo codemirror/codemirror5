@@ -12,10 +12,13 @@
                  "Unclosed string", "Stopping, unable to continue" ];
 
   function validator(text, options) {
-    JSHINT(text, options);
-    var errors = JSHINT.data().errors, result = [];
-    if (errors) parseErrors(errors, result);
-    return result;
+    if(typeof JSHINT !== "undefined"){
+      JSHINT(text, options);
+      var errors = JSHINT.data().errors, result = [];
+      if (errors) parseErrors(errors, result);
+      return result;
+    }
+    return [];
   }
 
   CodeMirror.registerHelper("lint", "javascript", validator);
