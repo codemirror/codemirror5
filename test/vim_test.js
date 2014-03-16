@@ -1747,6 +1747,22 @@ testVim('#', function(cm, vim, helpers) {
   helpers.doKeys('#');
   helpers.assertCursorAt(1, 8);
 }, { value: '    :=  match nomatch match \nnomatch Match' });
+testVim('g*', function(cm, vim, helpers) {
+  cm.setCursor(0, 8);
+  helpers.doKeys('g', '*');
+  helpers.assertCursorAt(0, 18);
+  cm.setCursor(0, 8);
+  helpers.doKeys('3', 'g', '*');
+  helpers.assertCursorAt(1, 8);
+}, { value: 'matches match alsoMatch\nmatchme matching' });
+testVim('g#', function(cm, vim, helpers) {
+  cm.setCursor(0, 8);
+  helpers.doKeys('g', '#');
+  helpers.assertCursorAt(0, 0);
+  cm.setCursor(0, 8);
+  helpers.doKeys('3', 'g', '#');
+  helpers.assertCursorAt(1, 0);
+}, { value: 'matches match alsoMatch\nmatchme matching' });
 testVim('macro_insert', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('q', 'a', '0', 'i');

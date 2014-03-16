@@ -322,9 +322,11 @@
     { keys: ['?'], type: 'search',
         searchArgs: { forward: false, querySrc: 'prompt', toJumplist: true }},
     { keys: ['*'], type: 'search',
-        searchArgs: { forward: true, querySrc: 'wordUnderCursor', toJumplist: true }},
+        searchArgs: { forward: true, querySrc: 'wordUnderCursor', wholeWordOnly: true, toJumplist: true }},
     { keys: ['#'], type: 'search',
-        searchArgs: { forward: false, querySrc: 'wordUnderCursor', toJumplist: true }},
+        searchArgs: { forward: false, querySrc: 'wordUnderCursor', wholeWordOnly: true, toJumplist: true }},
+    { keys: ['g', '*'], type: 'search', searchArgs: { forward: true, querySrc: 'wordUnderCursor', toJumplist: true }},
+    { keys: ['g', '#'], type: 'search', searchArgs: { forward: false, querySrc: 'wordUnderCursor', toJumplist: true }},
     // Ex command
     { keys: [':'], type: 'ex' }
   ];
@@ -1054,6 +1056,7 @@
           return;
         }
         var forward = command.searchArgs.forward;
+        var wholeWordOnly = command.searchArgs.wholeWordOnly;
         getSearchState(cm).setReversed(!forward);
         var promptPrefix = (forward) ? '/' : '?';
         var originalQuery = getSearchState(cm).getQuery();
@@ -1138,8 +1141,8 @@
             }
             var query = cm.getLine(word.start.line).substring(word.start.ch,
                 word.end.ch);
-            if (isKeyword) {
-              query = '\\b' + query + '\\b';
+            if (isKeyword && wholeWordOnly) {
+                query = '\\b' + query + '\\b';
             } else {
               query = escapeRegex(query);
             }
