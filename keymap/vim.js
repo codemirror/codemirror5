@@ -325,8 +325,8 @@
         searchArgs: { forward: true, querySrc: 'wordUnderCursor', toJumplist: true }},
     { keys: ['#'], type: 'search',
         searchArgs: { forward: false, querySrc: 'wordUnderCursor', toJumplist: true }},
-    { keys: ['g','*'], type: 'search', searchArgs: { forward: true, querySrc: 'wordUnderCursor', searchAsInPrompt: true, toJumplist: true }},
-    { keys: ['g','#'], type: 'search', searchArgs: { forward: false, querySrc: 'wordUnderCursor', searchAsInPrompt: true, toJumplist: true }},
+    { keys: ['g', '*'], type: 'search', searchArgs: { forward: true, querySrc: 'wordUnderCursor', searchAsInPrompt: true, toJumplist: true }},
+    { keys: ['g', '#'], type: 'search', searchArgs: { forward: false, querySrc: 'wordUnderCursor', searchAsInPrompt: true, toJumplist: true }},
     // Ex command
     { keys: [':'], type: 'ex' }
   ];
