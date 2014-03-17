@@ -2687,6 +2687,11 @@
         '[': ']', ']': '[',
         '{': '}', '}': '{'})[symb];
 
+      // Try to match the current char under cursor first
+      if (cm.getLine(line).charAt(ch) === reverseSymb) {
+        return cur;
+      }
+
       // Couldn't find a matching symbol, abort
       if (!reverseSymb) {
         return cur;
