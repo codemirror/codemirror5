@@ -24,7 +24,7 @@
      "[tag&bracket </][tag top][tag&bracket >]");
 
   // HTML tests
-  mode = CodeMirror.getMode({indentUnit: 2}, "text/html"); mname = "html";
+  mode = CodeMirror.getMode({indentUnit: 2}, "text/html");
 
   MT("selfclose",
      "[tag&bracket <][tag html][tag&bracket >]",
@@ -39,5 +39,10 @@
 
   MT("valueless",
      "[tag&bracket <][tag input] [attribute type]=[string checkbox] [attribute checked][tag&bracket />]");
+
+  MT("pThenArticle",
+     "[tag&bracket <][tag p][tag&bracket >]",
+     "  foo",
+     "[tag&bracket <][tag article][tag&bracket >]bar");
 
 })();
