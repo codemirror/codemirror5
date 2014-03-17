@@ -82,7 +82,7 @@
     cm.setSelections(extended);
   };
 
-  map["Shift-"+ctrl+"K"]="deleteLine";
+  map["Shift-" + ctrl + "K"] = "deleteLine";
 
   function insertLine(cm, above) {
     cm.operation(function() {
@@ -168,7 +168,6 @@
       else if (linesToMove.length) linesToMove[linesToMove.length - 1] = to;
       at = to;
     }
-    cm.scrollIntoView(null,cm.defaultTextHeight());
     cm.operation(function() {
       for (var i = 0; i < linesToMove.length; i += 2) {
         var from = linesToMove[i], to = linesToMove[i + 1];
@@ -184,6 +183,7 @@
           cm.replaceRange(line + "\n", Pos(to, 0), null, "+swapLine");
         }
       }
+      cm.scrollIntoView();
     });
   };
 
@@ -195,7 +195,6 @@
       else if (linesToMove.length) linesToMove[linesToMove.length - 1] = to;
       at = to;
     }
-    cm.scrollIntoView(null,cm.defaultTextHeight());
     cm.operation(function() {
       for (var i = linesToMove.length - 2; i >= 0; i -= 2) {
         var from = linesToMove[i], to = linesToMove[i + 1];
@@ -206,6 +205,7 @@
           cm.replaceRange("", Pos(from, 0), Pos(from + 1, 0), "+swapLine");
         cm.replaceRange(line + "\n", Pos(to, 0), null, "+swapLine");
       }
+      cm.scrollIntoView();
     });
   };
 
@@ -249,6 +249,7 @@
         else
           cm.replaceRange(cm.getRange(range.from(), range.to()), range.from());
       }
+      cm.scrollIntoView();
     });
   };
 
@@ -382,8 +383,12 @@
   mapK[ctrl + "Backspace"] = "delLineLeft";
 
   cmds[mapK[ctrl + "K"] = "delLineRight"] = function(cm) {
-      var cur = cm.getCursor();
-      cm.replaceRange("",cur ,Pos(cur.line,cur.line.length), "+delete");
+    cm.operation(function() {
+      var ranges = cm.listSelections();
+      for (var i = ranges.length - 1; i >= 0; i--)
+        cm.replaceRange("", ranges[i].anchor, Pos(ranges[i].to().line), "+delete");
+      cm.scrollIntoView();
+    });
   };
 
   cmds[mapK[ctrl + "U"] = "upcaseAtCursor"] = function(cm) {
