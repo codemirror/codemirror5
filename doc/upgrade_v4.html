@@ -20,6 +20,7 @@
     <li><a href="#replaceSelection">replaceSelection and collapsing</a>
     <li><a href="#changeEvent">change event data</a>
     <li><a href="#module">Module loaders</a>
+    <li><a href="#shareddata">Mutating shared data structures</a></li>
     <li><a href="#deprecated">Deprecated interfaces dropped</a>
   </ul>
 </div>
@@ -94,6 +95,17 @@ global <code>CodeMirror</code> variable.</p>
 <p>If you have a module loader present in your environment, CodeMirror
 will attempt to use it, and you might need to change the way you load
 CodeMirror modules.</p>
+
+</section>
+
+<section id=shareddata><h2>Mutating shared data structures</h2>
+
+<p>Data structures produced by the library should not be mutated
+unless explicitly allowed, in general. This is slightly more strict in
+4.0 than it was in earlier versions, which copied the position objects
+returned by <a href="manual.html#getCursor"><code>getCursor</code></a>
+for nebulous, historic reasons. In 4.0, mutating these
+objects <em>will</em> corrupt your editor's selection.</p>
 
 </section>
 
