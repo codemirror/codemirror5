@@ -12,6 +12,7 @@
                  "Unclosed string", "Stopping, unable to continue" ];
 
   function validator(text, options) {
+    if (!window.JSHINT) return [];
     JSHINT(text, options);
     var errors = JSHINT.data().errors, result = [];
     if (errors) parseErrors(errors, result);

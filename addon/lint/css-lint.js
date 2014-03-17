@@ -4,6 +4,7 @@
 
 CodeMirror.registerHelper("lint", "css", function(text) {
   var found = [];
+  if (!window.CSSLint) return found;
   var results = CSSLint.verify(text), messages = results.messages, message = null;
   for ( var i = 0; i < messages.length; i++) {
     message = messages[i];
