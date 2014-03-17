@@ -117,7 +117,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
       state.stringStartCol = stream.column();
       return state.tokenize(stream, state);
     } else {
-      stream.eatWhile(/[^\s\u00a0=<>\"\'\/]/);
+      stream.match(/^[^\s\u00a0=<>\"\']*[^\s\u00a0=<>\"\'\/]/);
       return "word";
     }
   }
