@@ -111,6 +111,22 @@
          "selectLine",
          hasSel(0, 0, 2, 0));
 
+  stTest("insertLineAfter", "abcde\nfghijkl\nmn",
+         setSel(0, 1, 0, 1,
+                0, 3, 0, 3,
+                1, 2, 1, 2,
+                1, 3, 1, 5), "insertLineAfter",
+         hasSel(1, 0, 1, 0,
+                3, 0, 3, 0), val("abcde\n\nfghijkl\n\nmn"));
+
+  stTest("insertLineBefore", "abcde\nfghijkl\nmn",
+         setSel(0, 1, 0, 1,
+                0, 3, 0, 3,
+                1, 2, 1, 2,
+                1, 3, 1, 5), "insertLineBefore",
+         hasSel(0, 0, 0, 0,
+                2, 0, 2, 0), val("\nabcde\n\nfghijkl\nmn"));
+
   stTest("selectNextOccurrence", "a foo bar\nfoobar foo",
          setSel(0, 2, 0, 5),
          "selectNextOccurrence", hasSel(0, 2, 0, 5,

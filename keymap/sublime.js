@@ -82,34 +82,25 @@
     cm.setSelections(extended);
   };
 
-  function insertLine(cm,above) {
-    var len = cm.listSelections().length,cursorPos=[],posNewLine;
-    cm.operation(function (){
+  function insertLine(cm, above) {
+    cm.operation(function() {
+      var len = cm.listSelections().length, newSelection = [], last = -1;
       for (var i = 0; i < len; i++) {
-        var range =cm.listSelections()[i];
-        if(above){
-          posNewLine=range.head.line;
-        }
-        else{
-          posNewLine=range.head.line+1;
-        }
-        cm.replaceRange("\n",  Pos(posNewLine,0), Pos(posNewLine,0), "+input");
-        cursorPos[i]=posNewLine;
+        var head = cm.listSelections()[i].head;
+        if (head.line <= last) continue;
+        var at = Pos(head.line + (above ? 0 : 1), 0);
+        cm.replaceRange("\n", at, null, "+insertLine");
+        cm.indentLine(at.line, null, true);
+        newSelection.push({head: at, anchor: at});
+        last = head.line + 1;
       }
+      cm.setSelections(newSelection);
     });
-    for (var j = 0; j < cursorPos.length; j++) {
-      if(j==0)
-        cm.setCursor(cursorPos[j],0,null);
-      else{
-        cm.addSelection({line:cursorPos[j],ch:0});
-      }
-      cm.indentLine(cursorPos[j], null, true);
-    }
   }
 
-  cmds[map[ctrl + "Enter"] = "insertLineAfter"] = function(cm) { insertLine(cm,false); };
+  cmds[map[ctrl + "Enter"] = "insertLineAfter"] = function(cm) { insertLine(cm, false); };
 
-  cmds[map["Shift-" + ctrl + "Enter"] = "insertLineBefore"] = function(cm) { insertLine(cm,true); };
+  cmds[map["Shift-" + ctrl + "Enter"] = "insertLineBefore"] = function(cm) { insertLine(cm, true); };
 
   function wordAt(cm, pos) {
     var start = pos.ch, end = start, line = cm.getLine(pos.line);
