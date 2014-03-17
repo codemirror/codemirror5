@@ -2739,17 +2739,20 @@
       var end = findMatchedSymbol(cm, cur, revSymb);
       var start = findMatchedSymbol(cm, end);
 
-      if ((start.line == end.line && start.ch > end.ch)
-          || (start.line > end.line)) {
-        var tmp = start;
-        start = end;
-        end = tmp;
-      }
+      // end === start if and only if there is no matched symbol
+      if (end !== start) {
+        if ((start.line == end.line && start.ch > end.ch)
+            || (start.line > end.line)) {
+          var tmp = start;
+          start = end;
+          end = tmp;
+        }
 
-      if (inclusive) {
-        end.ch += 1;
-      } else {
-        start.ch += 1;
+        if (inclusive) {
+          end.ch += 1;
+        } else {
+          start.ch += 1;
+        }
       }
 
       return { start: start, end: end };
