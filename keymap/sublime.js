@@ -454,7 +454,7 @@
       }
     });
   };
-  
+
   function findAndGoTo(cm,next){
     var from = cm.getCursor("from"), to = cm.getCursor("to");
     var selected = CodeMirror.cmpPos(from, to);
@@ -478,10 +478,10 @@
       else{
         if(next){
           cur = cm.getSearchCursor(query, Pos(cm.firstLine(),0));
-          cur.findNext()
-        }else{
+          cur.findNext();
+        } else {
           cur = cm.getSearchCursor(query, Pos(cm.lastLine()+1,0));
-          cur.findPrevious()
+          cur.findPrevious();
         }
         cm.setSelection(cur.from(), cur.to());
       }
