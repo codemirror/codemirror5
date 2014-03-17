@@ -10,6 +10,7 @@
 <script src="../addon/dialog/dialog.js"></script>
 <script src="../addon/search/searchcursor.js"></script>
 <script src="../mode/clike/clike.js"></script>
+<script src="../addon/edit/matchbrackets.js"></script>
 <script src="../keymap/vim.js"></script>
 <style type="text/css">
       .CodeMirror {border-top: 1px solid #eee; border-bottom: 1px solid #eee;}
@@ -64,12 +65,14 @@ implementation</p>
         lineNumbers: true,
         mode: "text/x-csrc",
         vimMode: true,
+        matchBrackets: true,
         showCursorWhenSelecting: true
       });
       var editor2 = CodeMirror.fromTextArea(document.getElementById("code2"), {
         lineNumbers: true,
         mode: "text/x-csrc",
         vimMode: true,
+        matchBrackets: true,
         showCursorWhenSelecting: true
       });
     </script>

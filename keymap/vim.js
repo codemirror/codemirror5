@@ -58,9 +58,9 @@
 
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
-    mod(require("../lib/codemirror"), require("../addon/search/searchcursor"), require("../addon/dialog/dialog"));
+    mod(require("../lib/codemirror"), require("../addon/search/searchcursor"), require("../addon/dialog/dialog"), require("../addon/edit/matchbrackets.js"));
   else if (typeof define == "function" && define.amd) // AMD
-    define(["../lib/codemirror", "../addon/search/searchcursor", "../addon/dialog/dialog"], mod);
+    define(["../lib/codemirror", "../addon/search/searchcursor", "../addon/dialog/dialog", "../addon/edit/matchbrackets"], mod);
   else // Plain browser env
     mod(CodeMirror);
 })(function(CodeMirror) {
@@ -1671,7 +1671,7 @@
 
         var tmp;
         if (mirroredPairs[character]) {
-          tmp = selectCompanionObject(cm, mirroredPairs[character], inclusive);
+          tmp = selectCompanionObject(cm, character, inclusive);
         } else if (selfPaired[character]) {
           tmp = findBeginningAndEnd(cm, character, inclusive);
         } else if (character === 'W') {
@@ -2711,6 +2711,11 @@
         '[': ']', ']': '[',
         '{': '}', '}': '{'})[symb];
 
+      // Try to match the current char under cursor first
+      if (cm.getLine(line).charAt(ch) === reverseSymb) {
+        return cur;
+      }
+
       // Couldn't find a matching symbol, abort
       if (!reverseSymb) {
         return cur;
@@ -2758,22 +2763,42 @@
 
     // TODO: perhaps this finagling of start and end positions belonds
     // in codmirror/replaceRange?
-    function selectCompanionObject(cm, revSymb, inclusive) {
-      var cur = copyCursor(cm.getCursor());
-      var end = findMatchedSymbol(cm, cur, revSymb);
-      var start = findMatchedSymbol(cm, end);
+    function selectCompanionObject(cm, symb, inclusive) {
+      var cur = cm.getCursor(), start, end;
 
-      if ((start.line == end.line && start.ch > end.ch)
-          || (start.line > end.line)) {
-        var tmp = start;
-        start = end;
-        end = tmp;
-      }
+      var specifiedRegExp = ({
+        '(': /[()]/, ')': /[()]/,
+        '[': /[[\]]/, ']': /[[\]]/,
+        '{': /[{}]/, '}': /[{}]/})[symb];
+      var openSym = ({
+        '(': '(', ')': '(',
+        '[': '[', ']': '[',
+        '{': '{', '}': '{'})[symb];
+      var curChar = cm.getLine(cur.line).charAt(cur.ch);
+      var offset = curChar === openSym ? 1 : 0;
 
-      if (inclusive) {
-        end.ch += 1;
+      start = cm.scanForBracket(Pos(cur.line, cur.ch+offset), -1, null, specifiedRegExp);
+      end   = cm.scanForBracket(Pos(cur.line, cur.ch+offset), 1, null, specifiedRegExp);
+
+      if (typeof start == "undefined" || typeof end == "undefined") {
+        start = cur;
+        end   = cur;
       } else {
-        start.ch += 1;
+        start = start.pos;
+        end   = end.pos;
+
+        if ((start.line == end.line && start.ch > end.ch)
+            || (start.line > end.line)) {
+          var tmp = start;
+          start = end;
+          end = tmp;
+        }
+
+        if (inclusive) {
+          end.ch += 1;
+        } else {
+          start.ch += 1;
+        }
       }
 
       return { start: start, end: end };
