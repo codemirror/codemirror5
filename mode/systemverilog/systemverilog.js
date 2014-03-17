@@ -53,12 +53,12 @@ CodeMirror.defineMode("systemverilog", function(config, parserConfig) {
   var isOperatorChar = /[\+\-\*\/!~&|^%=?:]/;
   var isBracketChar = /[\[\]{}()]/;
 
-  var unsignedNumber = /[0-9_]+/;
-  var decimalLiteral = /\d*\s*'s?d\s*[0-9_]+/i;
-  var binaryLiteral = /\d*\s*'s?b\s*[xz01_]+/i;
-  var octLiteral = /\d*\s*'s?o\s*[xz0-7_]+/i;
-  var hexLiteral = /\d*\s*'s?h\s*[0-9a-fxz?_]+/i;
-  var realLiteral = /([\d_]+(\.[\d_]+)?E-?[\d_]+)|([\d_]+\.[\d_]+)/i;
+  var unsignedNumber = /\d[0-9_]*/;
+  var decimalLiteral = /\d*\s*'s?d\s*\d[0-9_]*/i;
+  var binaryLiteral = /\d*\s*'s?b\s*[xz01][xz01_]*/i;
+  var octLiteral = /\d*\s*'s?o\s*[xz0-7][xz0-7_]*/i;
+  var hexLiteral = /\d*\s*'s?h\s*[0-9a-fxz?][0-9a-fxz?_]*/i;
+  var realLiteral = /(\d[\d_]*(\.\d[\d_]*)?E-?[\d_]+)|(\d[\d_]*\.\d[\d_]*)/i;
 
   var closingBracketOrWord = /^\w+|[)}\]]/;
   var closingBracket = /[)}\]]/;

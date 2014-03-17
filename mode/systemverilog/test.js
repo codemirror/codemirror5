@@ -90,6 +90,8 @@
   );
 
   MT("Variables",
+     "[variable _leading_underscore]",
+     "[variable _if]",
      "[number 12] [variable foo]",
      "[variable foo] [number 14]"
   );
