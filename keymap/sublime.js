@@ -454,6 +454,41 @@
       }
     });
   };
+  
+  function findAndGoTo(cm,next){
+    var from = cm.getCursor("from"), to = cm.getCursor("to");
+    var selected = CodeMirror.cmpPos(from, to);
+    if (!selected) {
+      var word = wordAt(cm, from);
+      if (!word.word) return;
+      cm.setSelection(word.from, word.to);
+      from = word.from;
+      to = word.to;
+      selected = true;
+    }
+    if (selected){
+      var query = cm.getRange(from, to);
+      var searchstart = (next ? to : {line:from.line,ch:from.ch-1});
+      var cur = cm.getSearchCursor(query, searchstart);
+      var found;
+      if(next) found = cur.findNext();
+      else found = cur.findPrevious();
+      if (found)
+        cm.setSelection(cur.from(), cur.to());
+      else{
+        if(next){
+          cur = cm.getSearchCursor(query, Pos(cm.firstLine(),0));
+          cur.findNext()
+        }else{
+          cur = cm.getSearchCursor(query, Pos(cm.lastLine()+1,0));
+          cur.findPrevious()
+        }
+        cm.setSelection(cur.from(), cur.to());
+      }
+    }
+  };
+  cmds[map[ctrl+"F3"] = "findUnder"] = function(cm) {findAndGoTo(cm,true);};
+  cmds[map[ctrl+"Shift-F3"] = "findUnderPrevious"] = function(cm) {findAndGoTo(cm,false);};
 
   map["Shift-" + ctrl + "["] = "fold";
   map["Shift-" + ctrl + "]"] = "unfold";
