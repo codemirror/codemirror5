@@ -82,6 +82,37 @@
     cm.setSelections(extended);
   };
 
+  map["Shift-"+ctrl+"K"]="deleteLine";
+
+  function insertLine(cm,above) {
+    var len = cm.listSelections().length,cursorPos=[],posNewLine;
+    cm.operation(function (){
+      for (var i = 0; i < len; i++) {
+        var range =cm.listSelections()[i];
+        if(above){
+          posNewLine=range.head.line;
+        }
+        else{
+          posNewLine=range.head.line+1;
+        }
+        cm.replaceRange("\n",  Pos(posNewLine,0), Pos(posNewLine,0), "+input");
+        cursorPos[i]=posNewLine;
+      }
+    });
+    for (var j = 0; j < cursorPos.length; j++) {
+      if(j==0)
+        cm.setCursor(cursorPos[j],0,null);
+      else{
+        cm.addSelection({line:cursorPos[j],ch:0});
+      }
+      cm.indentLine(cursorPos[j], null, true);
+    }
+  }
+
+  cmds[map[ctrl + "Enter"] = "insertLineAfter"] = function(cm) { insertLine(cm,false); };
+
+  cmds[map["Shift-" + ctrl + "Enter"] = "insertLineBefore"] = function(cm) { insertLine(cm,true); };
+
   function wordAt(cm, pos) {
     var start = pos.ch, end = start, line = cm.getLine(pos.line);
     while (start && CodeMirror.isWordChar(line.charAt(start - 1))) --start;
@@ -146,6 +177,7 @@
       else if (linesToMove.length) linesToMove[linesToMove.length - 1] = to;
       at = to;
     }
+    cm.scrollIntoView(null,cm.defaultTextHeight());
     cm.operation(function() {
       for (var i = 0; i < linesToMove.length; i += 2) {
         var from = linesToMove[i], to = linesToMove[i + 1];
@@ -172,6 +204,7 @@
       else if (linesToMove.length) linesToMove[linesToMove.length - 1] = to;
       at = to;
     }
+    cm.scrollIntoView(null,cm.defaultTextHeight());
     cm.operation(function() {
       for (var i = linesToMove.length - 2; i >= 0; i -= 2) {
         var from = linesToMove[i], to = linesToMove[i + 1];
@@ -354,6 +387,13 @@
       }
     });
   }
+
+  mapK[ctrl + "Backspace"] = "delLineLeft";
+
+  cmds[mapK[ctrl + "K"] = "delLineRight"] = function(cm) {
+      var cur = cm.getCursor();
+      cm.replaceRange("",cur ,Pos(cur.line,cur.line.length), "+delete");
+  };
 
   cmds[mapK[ctrl + "U"] = "upcaseAtCursor"] = function(cm) {
     modifyWordOrSelection(cm, function(str) { return str.toUpperCase(); });
