@@ -55,7 +55,7 @@ option to <code>"sublime"</code>.</p>
   var value = "// The bindings defined specifically in the Sublime Text mode\nvar bindings = {\n";
   var map = CodeMirror.keyMap.sublime, mapK = CodeMirror.keyMap["sublime-Ctrl-K"];
   for (var key in map) {
-    if (key != "Ctrl-K" && key != "fallthrough" && !/find/.test(map[key]))
+    if (key != "Ctrl-K" && key != "fallthrough" && (!/find/.test(map[key]) || /findUnder/.test(map[key])))
       value += "  \"" + key + "\": \"" + map[key] + "\",\n";
   }
   for (var key in mapK) {
