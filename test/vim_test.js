@@ -1028,6 +1028,9 @@ testEdit('di)_close_spc', 'foo (bAr) baz', /\)/, 'di)', 'foo () baz');
 testEdit('da(_close_spc', 'foo (bAr) baz', /\)/, 'da(', 'foo  baz');
 testEdit('da)_close_spc', 'foo (bAr) baz', /\)/, 'da)', 'foo  baz');
 
+testEdit('da{_on_{_should_delete_inner_block', 'o{ in{abc} }', /{a/, 'da{', 'o{ in }');
+testMotion('di(_outside_should_stay', ['d', 'i', '('], { line: 0, ch: 0}, { line: 0, ch: 0});
+
 //  Open and close on different lines, equally indented
 testEdit('di{_middle_spc', 'a{\n\tbar\n}b', /r/, 'di{', 'a{}b');
 testEdit('di}_middle_spc', 'a{\n\tbar\n}b', /r/, 'di}', 'a{}b');
