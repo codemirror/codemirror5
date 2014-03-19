@@ -103,7 +103,7 @@ CodeMirror.defineMode("systemverilog", function(config, parserConfig) {
 
   function tokenBase(stream, state) {
     var ch = stream.peek();
-    if (/[,;\.]/.test(ch)) {
+    if (/[,;:\.]/.test(ch)) {
       curPunc = stream.next();
       return null;
     }
@@ -292,6 +292,7 @@ CodeMirror.defineMode("systemverilog", function(config, parserConfig) {
       else if (curPunc == "{") { pushContext(state, stream.column(), "}"); }
       else if (curPunc == "[") { pushContext(state, stream.column(), "]"); }
       else if (curPunc == "(") { pushContext(state, stream.column(), ")"); }
+      else if (ctx && ctx.type == "endcase" && curPunc == ":") { pushContext(state, stream.column(), "statement"); }
       else if (curPunc == "newstatement") {
         pushContext(state, stream.column(), "statement");
       } else if (curPunc == "newblock") {
