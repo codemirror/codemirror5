@@ -124,6 +124,11 @@
       var cur = cm.getSearchCursor(fullWord ? new RegExp("\\b" + query + "\\b") : query, to);
       if (cur.findNext())
         cm.addSelection(cur.from(), cur.to());
+      else{
+        cur = cm.getSearchCursor(fullWord ? new RegExp("\\b" + query + "\\b") : query, Pos(cm.firstLine(),0));
+        if (cur.findNext())
+          cm.addSelection(cur.from(), cur.to());
+      }
     }
     if (fullWord)
       cm.state.sublimeFindFullWord = cm.doc.sel;
