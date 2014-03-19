@@ -19,6 +19,7 @@
     <li><a href="#beforeSelectionChange">The beforeSelectionChange event</a>
     <li><a href="#replaceSelection">replaceSelection and collapsing</a>
     <li><a href="#changeEvent">change event data</a>
+    <li><a href="#showIfHidden">showIfHidden option to line widgets</a>
     <li><a href="#module">Module loaders</a>
     <li><a href="#shareddata">Mutating shared data structures</a></li>
     <li><a href="#deprecated">Deprecated interfaces dropped</a>
@@ -79,6 +80,16 @@ pointers from one change object to the next, the library will now
 simply fire
 multiple <a href="manual.html#event_change"><code>"change"</code></a>
 events. Existing code will probably continue to work unmodified.</p>
+
+</section>
+
+<section id=showIfHidden><h2>showIfHidden option to line widgets</h2>
+
+<p>This option, which conceptually caused line widgets to be visible
+even if their line was hidden, was never really well-defined, and was
+buggy from the start. It would be a rather expensive feature, both in
+code complexity and run-time performance, to implement properly. It
+has been dropped entirely in 4.0.</p>
 
 </section>
 
