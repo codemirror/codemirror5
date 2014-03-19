@@ -60,7 +60,7 @@ CodeMirror.defineMode("systemverilog", function(config, parserConfig) {
   var hexLiteral = /\d*\s*'s?h\s*[0-9a-fxz?][0-9a-fxz?_]*/i;
   var realLiteral = /(\d[\d_]*(\.\d[\d_]*)?E-?[\d_]+)|(\d[\d_]*\.\d[\d_]*)/i;
 
-  var closingBracketOrWord = /^\w+|[)}\]]/;
+  var closingBracketOrWord = /^((\w+)|[)}\]])/;
   var closingBracket = /[)}\]]/;
 
   var curPunc;
@@ -307,8 +307,11 @@ CodeMirror.defineMode("systemverilog", function(config, parserConfig) {
       if (state.tokenize != tokenBase && state.tokenize != null) return CodeMirror.Pass;
       var ctx = state.context, firstChar = textAfter && textAfter.charAt(0);
       if (ctx.type == "statement" && firstChar == "}") ctx = ctx.prev;
+      var closing = false;
       var possibleClosing = textAfter.match(closingBracketOrWord);
-      var closing = isClosing(possibleClosing, ctx.type);
+      if (possibleClosing) {
+        closing = isClosing(possibleClosing[0], ctx.type);
+      }
       if (ctx.type == "statement") return ctx.indented + (firstChar == "{" ? 0 : statementIndentUnit);
       else if (closingBracket.test(ctx.type) && ctx.align && !dontAlignCalls) return ctx.column + (closing ? 0 : 1);
       else if (ctx.type == ")" && !closing) return ctx.indented + statementIndentUnit;
