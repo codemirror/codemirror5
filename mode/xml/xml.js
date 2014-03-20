@@ -58,7 +58,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
   var alignCDATA = parserConfig.alignCDATA;
 
   // Return variables for tokenizers
-  var tagName, type, setStyle;
+  var type, setStyle;
 
   function inText(stream, state) {
     function chain(parser) {
@@ -85,15 +85,9 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
         state.tokenize = inBlock("meta", "?>");
         return "meta";
       } else {
-        var isClose = stream.eat("/");
-        tagName = "";
-        var c;
-        while ((c = stream.eat(/[^\s\u00a0=<>\"\'\/?]/))) tagName += c;
-        if (Kludges.caseFold) tagName = tagName.toLowerCase();
-        if (!tagName) return "tag error";
-        type = isClose ? "closeTag" : "openTag";
+        type = stream.eat("/") ? "closeTag" : "openTag";
         state.tokenize = inTag;
-        return "tag";
+        return "tag bracket";
       }
     } else if (ch == "&") {
       var ok;
@@ -118,7 +112,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
     if (ch == ">" || (ch == "/" && stream.eat(">"))) {
       state.tokenize = inText;
       type = ch == ">" ? "endTag" : "selfcloseTag";
-      return "tag";
+      return "tag bracket";
     } else if (ch == "=") {
       type = "equals";
       return null;
@@ -133,7 +127,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
       state.stringStartCol = stream.column();
       return state.tokenize(stream, state);
     } else {
-      stream.eatWhile(/[^\s\u00a0=<>\"\']/);
+      stream.match(/^[^\s\u00a0=<>\"\']*[^\s\u00a0=<>\"\'\/]/);
       return "word";
     }
   }
@@ -213,24 +207,40 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
 
   function baseState(type, stream, state) {
     if (type == "openTag") {
-      state.tagName = tagName;
       state.tagStart = stream.column();
-      return attrState;
+      return tagNameState;
     } else if (type == "closeTag") {
-      var err = false;
-      if (state.context) {
-        if (state.context.tagName != tagName) {
-          if (Kludges.implicitlyClosed.hasOwnProperty(state.context.tagName))
-            popContext(state);
-          err = !state.context || state.context.tagName != tagName;
-        }
-      } else {
-        err = true;
-      }
-      if (err) setStyle = "error";
-      return err ? closeStateErr : closeState;
+      return closeTagNameState;
     } else {
       return baseState;
+    }
+  }
+  function tagNameState(type, stream, state) {
+    if (type == "word") {
+      state.tagName = stream.current();
+      setStyle = "tag";
+      return attrState;
+    } else {
+      setStyle = "error";
+      return tagNameState;
+    }
+  }
+  function closeTagNameState(type, stream, state) {
+    if (type == "word") {
+      var tagName = stream.current();
+      if (state.context && state.context.tagName != tagName &&
+          Kludges.implicitlyClosed.hasOwnProperty(state.context.tagName))
+        popContext(state);
+      if (state.context && state.context.tagName == tagName) {
+        setStyle = "tag";
+        return closeState;
+      } else {
+        setStyle = "tag error";
+        return closeStateErr;
+      }
+    } else {
+      setStyle = "error";
+      return closeStateErr;
     }
   }
 
@@ -296,7 +306,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
         state.indented = stream.indentation();
 
       if (stream.eatSpace()) return null;
-      tagName = type = null;
+      type = null;
       var style = state.tokenize(stream, state);
       if ((style || type) && style != "comment") {
         setStyle = null;
@@ -324,8 +334,27 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
           return state.tagStart + indentUnit * multilineTagIndentFactor;
       }
       if (alignCDATA && /<!\[CDATA\[/.test(textAfter)) return 0;
-      if (context && /^<\//.test(textAfter))
-        context = context.prev;
+      var tagAfter = textAfter && /^<(\/)?(\w*)/.exec(textAfter);
+      if (tagAfter && tagAfter[1]) { // Closing tag spotted
+        while (context) {
+          if (context.tagName == tagAfter[2]) {
+            context = context.prev;
+            break;
+          } else if (Kludges.implicitlyClosed.hasOwnProperty(context.tagName)) {
+            context = context.prev;
+          } else {
+            break;
+          }
+        }
+      } else if (tagAfter) { // Opening tag spotted
+        while (context) {
+          var grabbers = Kludges.contextGrabbers[context.tagName];
+          if (grabbers && grabbers.hasOwnProperty(tagAfter[2]))
+            context = context.prev;
+          else
+            break;
+        }
+      }
       while (context && !context.startOfLine)
         context = context.prev;
       if (context) return context.indent + indentUnit;

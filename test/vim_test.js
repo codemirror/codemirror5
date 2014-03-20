@@ -258,7 +258,7 @@ testJumplist('jumplist_gg', ['g', 'g', '<C-o>'], [5,2], [5,2]);
 testJumplist('jumplist_%', ['%', '<C-o>'], [1,5], [1,5]);
 testJumplist('jumplist_{', ['{', '<C-o>'], [1,5], [1,5]);
 testJumplist('jumplist_}', ['}', '<C-o>'], [1,5], [1,5]);
-testJumplist('jumplist_\'', ['m', 'a', 'h', '\'', 'a', 'h', '<C-i>'], [1,5], [1,5]);
+testJumplist('jumplist_\'', ['m', 'a', 'h', '\'', 'a', 'h', '<C-i>'], [1,0], [1,5]);
 testJumplist('jumplist_`', ['m', 'a', 'h', '`', 'a', 'h', '<C-i>'], [1,5], [1,5]);
 testJumplist('jumplist_*_cachedCursor', ['*', '<C-o>'], [1,3], [1,3]);
 testJumplist('jumplist_#_cachedCursor', ['#', '<C-o>'], [1,3], [1,3]);
@@ -1270,11 +1270,13 @@ testVim('mark', function(cm, vim, helpers) {
   cm.setCursor(2, 2);
   helpers.doKeys('m', 't');
   cm.setCursor(0, 0);
-  helpers.doKeys('\'', 't');
-  helpers.assertCursorAt(2, 2);
-  cm.setCursor(0, 0);
   helpers.doKeys('`', 't');
   helpers.assertCursorAt(2, 2);
+  cm.setCursor(2, 0);
+  cm.replaceRange('   h', cm.getCursor());
+  cm.setCursor(0, 0);
+  helpers.doKeys('\'', 't');
+  helpers.assertCursorAt(2, 3);
 });
 testVim('jumpToMark_next', function(cm, vim, helpers) {
   cm.setCursor(2, 2);
@@ -1524,13 +1526,13 @@ testVim('visual_line', function(cm, vim, helpers) {
   eq(' 4\n 5', cm.getValue());
 }, { value: ' 1\n 2\n 3\n 4\n 5' });
 testVim('visual_marks', function(cm, vim, helpers) {
-  helpers.doKeys('l', 'v', 'l', 'l', 'v');
+  helpers.doKeys('l', 'v', 'l', 'l', 'j', 'j', 'v');
   // Test visual mode marks
-  cm.setCursor(0, 0);
+  cm.setCursor(2, 1);
   helpers.doKeys('\'', '<');
   helpers.assertCursorAt(0, 1);
   helpers.doKeys('\'', '>');
-  helpers.assertCursorAt(0, 3);
+  helpers.assertCursorAt(2, 0);
 });
 testVim('visual_join', function(cm, vim, helpers) {
   helpers.doKeys('l', 'V', 'l', 'j', 'j', 'J');
@@ -1750,6 +1752,22 @@ testVim('#', function(cm, vim, helpers) {
   helpers.doKeys('#');
   helpers.assertCursorAt(1, 8);
 }, { value: '    :=  match nomatch match \nnomatch Match' });
+testVim('g*', function(cm, vim, helpers) {
+  cm.setCursor(0, 8);
+  helpers.doKeys('g', '*');
+  helpers.assertCursorAt(0, 18);
+  cm.setCursor(0, 8);
+  helpers.doKeys('3', 'g', '*');
+  helpers.assertCursorAt(1, 8);
+}, { value: 'matches match alsoMatch\nmatchme matching' });
+testVim('g#', function(cm, vim, helpers) {
+  cm.setCursor(0, 8);
+  helpers.doKeys('g', '#');
+  helpers.assertCursorAt(0, 0);
+  cm.setCursor(0, 8);
+  helpers.doKeys('3', 'g', '#');
+  helpers.assertCursorAt(1, 0);
+}, { value: 'matches match alsoMatch\nmatchme matching' });
 testVim('macro_insert', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('q', 'a', '0', 'i');
@@ -1769,6 +1787,46 @@ testVim('macro_space', function(cm, vim, helpers) {
   helpers.doKeys('@', 'a');
   helpers.assertCursorAt(0, 8);
 }, { value: 'one line of text.'});
+testVim('macro_t_search', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('q', 'a', 't', 'e', 'q');
+  helpers.assertCursorAt(0, 1);
+  helpers.doKeys('l', '@', 'a');
+  helpers.assertCursorAt(0, 6);
+  helpers.doKeys('l', ';');
+  helpers.assertCursorAt(0, 12);
+}, { value: 'one line of text.'});
+testVim('macro_f_search', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('q', 'b', 'f', 'e', 'q');
+  helpers.assertCursorAt(0, 2);
+  helpers.doKeys('@', 'b');
+  helpers.assertCursorAt(0, 7);
+  helpers.doKeys(';');
+  helpers.assertCursorAt(0, 13);
+}, { value: 'one line of text.'});
+testVim('macro_slash_search', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('q', 'c');
+  cm.openDialog = helpers.fakeOpenDialog('e');
+  helpers.doKeys('/', 'q');
+  helpers.assertCursorAt(0, 2);
+  helpers.doKeys('@', 'c');
+  helpers.assertCursorAt(0, 7);
+  helpers.doKeys('n');
+  helpers.assertCursorAt(0, 13);
+}, { value: 'one line of text.'});
+testVim('macro_multislash_search', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('q', 'd');
+  cm.openDialog = helpers.fakeOpenDialog('e');
+  helpers.doKeys('/');
+  cm.openDialog = helpers.fakeOpenDialog('t');
+  helpers.doKeys('/', 'q');
+  helpers.assertCursorAt(0, 12);
+  helpers.doKeys('@', 'd');
+  helpers.assertCursorAt(0, 15);
+}, { value: 'one line of text to rule them all.'});
 testVim('macro_parens', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('q', 'z', 'i');
@@ -1844,6 +1902,25 @@ testVim('macro_register', function(cm, vim, helpers) {
   });
   helpers.doKeys(':');
 }, { value: ''});
+testVim('._register', function(cm,vim,helpers) {
+  cm.setCursor(0,0);
+  helpers.doKeys('i');
+  cm.replaceRange('foo',cm.getCursor());
+  helpers.doInsertModeKeys('Esc');
+  cm.openDialog = helpers.fakeOpenDialog('registers');
+  cm.openNotification = helpers.fakeOpenNotification(function(text) {
+    is(/\.\s+foo/.test(text));
+  });
+  helpers.doKeys(':');
+}, {value: ''});
+testVim(':_register', function(cm,vim,helpers) {
+  helpers.doEx('bar');
+  cm.openDialog = helpers.fakeOpenDialog('registers');
+  cm.openNotification = helpers.fakeOpenNotification(function(text) {
+    is(/:\s+bar/.test(text));
+  });
+  helpers.doKeys(':');
+}, {value: ''});
 testVim('.', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('2', 'd', 'w');
@@ -2496,6 +2573,13 @@ testVim('ex_substitute_javascript', function(cm, vim, helpers) {
   helpers.doEx('s/\\(\\d+\\)/$$ $\' $` $& \\1/')
   eq('a $$ $\' $` $& 0 b', cm.getValue());
 }, { value: 'a 0 b' });
+testVim('ex_substitute_empty_arguments', function(cm,vim,helpers) {
+  cm.setCursor(0, 0);
+  helpers.doEx('s/a/b');
+  cm.setCursor(1, 0);
+  helpers.doEx('s');
+  eq('b b\nb b', cm.getValue());
+}, {value: 'a a\na a'});
 
 // More complex substitute tests that test both pcre and nopcre options.
 function testSubstitute(name, options) {

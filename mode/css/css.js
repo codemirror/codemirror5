@@ -16,6 +16,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
       mediaTypes = parserConfig.mediaTypes || {},
       mediaFeatures = parserConfig.mediaFeatures || {},
       propertyKeywords = parserConfig.propertyKeywords || {},
+      nonStandardPropertyKeywords = parserConfig.nonStandardPropertyKeywords || {},
       colorKeywords = parserConfig.colorKeywords || {},
       valueKeywords = parserConfig.valueKeywords || {},
       fontProperties = parserConfig.fontProperties || {},
@@ -170,8 +171,12 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
 
   states.block = function(type, stream, state) {
     if (type == "word") {
-      if (propertyKeywords.hasOwnProperty(stream.current().toLowerCase())) {
+      var word = stream.current().toLowerCase();
+      if (propertyKeywords.hasOwnProperty(word)) {
         override = "property";
+        return "maybeprop";
+      } else if (nonStandardPropertyKeywords.hasOwnProperty(word)) {
+        override = "string-2";
         return "maybeprop";
       } else if (allowNested) {
         override = stream.match(/^\s*:/, false) ? "property" : "tag";
@@ -444,7 +449,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "vertical-align", "visibility", "voice-balance", "voice-duration",
     "voice-family", "voice-pitch", "voice-range", "voice-rate", "voice-stress",
     "voice-volume", "volume", "white-space", "widows", "width", "word-break",
-    "word-spacing", "word-wrap", "z-index", "zoom",
+    "word-spacing", "word-wrap", "z-index",
     // SVG-specific
     "clip-path", "clip-rule", "mask", "enable-background", "filter", "flood-color",
     "flood-opacity", "lighting-color", "stop-color", "stop-opacity", "pointer-events",
@@ -456,6 +461,14 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "baseline-shift", "dominant-baseline", "glyph-orientation-horizontal",
     "glyph-orientation-vertical", "kerning", "text-anchor", "writing-mode"
   ], propertyKeywords = keySet(propertyKeywords_);
+
+  var nonStandardPropertyKeywords = [
+    "scrollbar-arrow-color", "scrollbar-base-color", "scrollbar-dark-shadow-color",
+    "scrollbar-face-color", "scrollbar-highlight-color", "scrollbar-shadow-color",
+    "scrollbar-3d-light-color", "scrollbar-track-color", "shape-inside",
+    "searchfield-cancel-button", "searchfield-decoration", "searchfield-results-button",
+    "searchfield-results-decoration", "zoom"
+  ], nonStandardPropertyKeywords = keySet(nonStandardPropertyKeywords);
 
   var colorKeywords_ = [
     "aliceblue", "antiquewhite", "aqua", "aquamarine", "azure", "beige",
@@ -576,7 +589,8 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "font-stretch", "font-weight", "font-style"
   ], fontProperties = keySet(fontProperties_);
 
-  var allWords = mediaTypes_.concat(mediaFeatures_).concat(propertyKeywords_).concat(colorKeywords_).concat(valueKeywords_);
+  var allWords = mediaTypes_.concat(mediaFeatures_).concat(propertyKeywords_)
+    .concat(nonStandardPropertyKeywords).concat(colorKeywords_).concat(valueKeywords_);
   CodeMirror.registerHelper("hintWords", "css", allWords);
 
   function tokenCComment(stream, state) {
@@ -605,6 +619,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     mediaTypes: mediaTypes,
     mediaFeatures: mediaFeatures,
     propertyKeywords: propertyKeywords,
+    nonStandardPropertyKeywords: nonStandardPropertyKeywords,
     colorKeywords: colorKeywords,
     valueKeywords: valueKeywords,
     fontProperties: fontProperties,
@@ -627,6 +642,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     mediaTypes: mediaTypes,
     mediaFeatures: mediaFeatures,
     propertyKeywords: propertyKeywords,
+    nonStandardPropertyKeywords: nonStandardPropertyKeywords,
     colorKeywords: colorKeywords,
     valueKeywords: valueKeywords,
     fontProperties: fontProperties,
@@ -667,6 +683,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     mediaTypes: mediaTypes,
     mediaFeatures: mediaFeatures,
     propertyKeywords: propertyKeywords,
+    nonStandardPropertyKeywords: nonStandardPropertyKeywords,
     colorKeywords: colorKeywords,
     valueKeywords: valueKeywords,
     fontProperties: fontProperties,

@@ -51,9 +51,12 @@ int getchar(void)
 
 <p>The vim keybindings are enabled by
 including <a href="../keymap/vim.js">keymap/vim.js</a> and setting
-the <code>keyMap</code> option to <code>"vim"</code>. Because
-CodeMirror's internal API is quite different from Vim, they are only
-a loose approximation of actual vim bindings, though.</p>
+the <code>vimMode</code> option to <code>true</code>. This will also
+automatically change the <code>keyMap</code> option to <code>"vim"</code>.</p>
+
+<p>Note that while the vim mode tries to emulate the most useful features of
+vim as faithfully as possible, it does not strive to become a complete vim
+implementation</p>
 
     <script>
       CodeMirror.commands.save = function(){ alert("Saving"); };

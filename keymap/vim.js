@@ -201,7 +201,7 @@
     { keys: [','], type: 'motion', motion: 'repeatLastCharacterSearch',
         motionArgs: { forward: false }},
     { keys: ['\'', 'character'], type: 'motion', motion: 'goToMark',
-        motionArgs: {toJumplist: true}},
+        motionArgs: {toJumplist: true, linewise: true}},
     { keys: ['`', 'character'], type: 'motion', motion: 'goToMark',
         motionArgs: {toJumplist: true}},
     { keys: [']', '`'], type: 'motion', motion: 'jumpToMark', motionArgs: { forward: true } },
@@ -329,9 +329,11 @@
     { keys: ['?'], type: 'search',
         searchArgs: { forward: false, querySrc: 'prompt', toJumplist: true }},
     { keys: ['*'], type: 'search',
-        searchArgs: { forward: true, querySrc: 'wordUnderCursor', toJumplist: true }},
+        searchArgs: { forward: true, querySrc: 'wordUnderCursor', wholeWordOnly: true, toJumplist: true }},
     { keys: ['#'], type: 'search',
-        searchArgs: { forward: false, querySrc: 'wordUnderCursor', toJumplist: true }},
+        searchArgs: { forward: false, querySrc: 'wordUnderCursor', wholeWordOnly: true, toJumplist: true }},
+    { keys: ['g', '*'], type: 'search', searchArgs: { forward: true, querySrc: 'wordUnderCursor', toJumplist: true }},
+    { keys: ['g', '#'], type: 'search', searchArgs: { forward: false, querySrc: 'wordUnderCursor', toJumplist: true }},
     // Ex command
     { keys: [':'], type: 'ex' }
   ];
@@ -396,7 +398,7 @@
     var specialKeys = ['Left', 'Right', 'Up', 'Down', 'Space', 'Backspace',
         'Esc', 'Home', 'End', 'PageUp', 'PageDown', 'Enter'];
     var validMarks = [].concat(upperCaseAlphabet, lowerCaseAlphabet, numbers, ['<', '>']);
-    var validRegisters = [].concat(upperCaseAlphabet, lowerCaseAlphabet, numbers, ['-', '"']);
+    var validRegisters = [].concat(upperCaseAlphabet, lowerCaseAlphabet, numbers, ['-', '"', '.', ':']);
 
     function isLine(cm, line) {
       return line >= cm.firstLine() && line <= cm.lastLine();
@@ -549,6 +551,7 @@
       this.latestRegister = undefined;
       this.isPlaying = false;
       this.isRecording = false;
+      this.replaySearchQueries = [];
       this.onRecordingDone = undefined;
       this.lastInsertModeChanges = createInsertModeChanges();
     }
@@ -614,6 +617,8 @@
         searchQuery: null,
         // Whether we are searching backwards.
         searchIsReversed: false,
+        // Replace part of the last substituted pattern
+        lastSubstituteReplacePart: undefined,
         jumpList: createCircularJumpList(),
         macroModeState: new MacroModeState,
         // Recording latest f, t, F or T motion command.
@@ -764,6 +769,7 @@
       this.clear();
       this.keyBuffer = [text || ''];
       this.insertModeChanges = [];
+      this.searchQueries = [];
       this.linewise = !!linewise;
     }
     Register.prototype = {
@@ -782,9 +788,13 @@
       pushInsertModeChanges: function(changes) {
         this.insertModeChanges.push(createInsertModeChanges(changes));
       },
+      pushSearchQuery: function(query) {
+        this.searchQueries.push(query);
+      },
       clear: function() {
         this.keyBuffer = [];
         this.insertModeChanges = [];
+        this.searchQueries = [];
         this.linewise = false;
       },
       toString: function() {
@@ -803,6 +813,8 @@
     function RegisterController(registers) {
       this.registers = registers;
       this.unnamedRegister = registers['"'] = new Register();
+      registers['.'] = new Register();
+      registers[':'] = new Register();
     }
     RegisterController.prototype = {
       pushText: function(registerName, operator, text, linewise) {
@@ -1056,6 +1068,7 @@
           return;
         }
         var forward = command.searchArgs.forward;
+        var wholeWordOnly = command.searchArgs.wholeWordOnly;
         getSearchState(cm).setReversed(!forward);
         var promptPrefix = (forward) ? '/' : '?';
         var originalQuery = getSearchState(cm).getQuery();
@@ -1076,6 +1089,10 @@
         function onPromptClose(query) {
           cm.scrollTo(originalScrollPos.left, originalScrollPos.top);
           handleQuery(query, true /** ignoreCase */, true /** smartCase */);
+          var macroModeState = vimGlobalState.macroModeState;
+          if (macroModeState.isRecording) {
+            logSearchQuery(macroModeState, query);
+          }
         }
         function onPromptKeyUp(_e, query) {
           var parsedQuery;
@@ -1106,13 +1123,19 @@
         }
         switch (command.searchArgs.querySrc) {
           case 'prompt':
-            showPrompt(cm, {
-                onClose: onPromptClose,
-                prefix: promptPrefix,
-                desc: searchPromptDesc,
-                onKeyUp: onPromptKeyUp,
-                onKeyDown: onPromptKeyDown
-            });
+            var macroModeState = vimGlobalState.macroModeState;
+            if (macroModeState.isPlaying) {
+              var query = macroModeState.replaySearchQueries.shift();
+              handleQuery(query, true /** ignoreCase */, false /** smartCase */);
+            } else {
+              showPrompt(cm, {
+                  onClose: onPromptClose,
+                  prefix: promptPrefix,
+                  desc: searchPromptDesc,
+                  onKeyUp: onPromptKeyUp,
+                  onKeyDown: onPromptKeyDown
+              });
+            }
             break;
           case 'wordUnderCursor':
             var word = expandWordUnderCursor(cm, false /** inclusive */,
@@ -1130,8 +1153,8 @@
             }
             var query = cm.getLine(word.start.line).substring(word.start.ch,
                 word.end.ch);
-            if (isKeyword) {
-              query = '\\b' + query + '\\b';
+            if (isKeyword && wholeWordOnly) {
+                query = '\\b' + query + '\\b';
             } else {
               query = escapeRegex(query);
             }
@@ -1372,10 +1395,11 @@
         highlightSearchMatches(cm, query);
         return findNext(cm, prev/** prev */, query, motionArgs.repeat);
       },
-      goToMark: function(_cm, motionArgs, vim) {
+      goToMark: function(cm, motionArgs, vim) {
         var mark = vim.marks[motionArgs.selectedCharacter];
         if (mark) {
-          return mark.find();
+          var pos = mark.find();
+          return motionArgs.linewise ? { line: pos.line, ch: findFirstNonWhiteSpaceCharacter(cm.getLine(pos.line)) } : pos;
         }
         return null;
       },
@@ -3188,7 +3212,7 @@
       { name: 'substitute', shortName: 's' },
       { name: 'nohlsearch', shortName: 'noh' },
       { name: 'delmarks', shortName: 'delm' },
-      { name: 'registers', shortName: 'reg' }
+      { name: 'registers', shortName: 'reg', excludeFromCommandHistory: true }
     ];
     Vim.ExCommandDispatcher = function() {
       this.buildCommandMap_();
@@ -3196,10 +3220,14 @@
     Vim.ExCommandDispatcher.prototype = {
       processCommand: function(cm, input) {
         var vim = cm.state.vim;
+        var commandHistoryRegister = vimGlobalState.registerController.getRegister(':');
+        var previousCommand = commandHistoryRegister.toString();
         if (vim.visualMode) {
           exitVisualMode(cm);
         }
         var inputStream = new CodeMirror.StringStream(input);
+        // update ": with the latest command whether valid or invalid
+        commandHistoryRegister.setText(input);
         var params = {};
         params.input = input;
         try {
@@ -3218,6 +3246,9 @@
           var command = this.matchCommand_(params.commandName);
           if (command) {
             commandName = command.name;
+            if (command.excludeFromCommandHistory) {
+              commandHistoryRegister.setText(previousCommand);
+            }
             this.parseCommandArgs_(inputStream, params, command);
             if (command.type == 'exToKey') {
               // Handle Ex to Key mapping.
@@ -3509,7 +3540,7 @@
               continue;
             }
             var register = registers[registerName] || new Register();
-            regInfo += '"' + registerName + '    ' + register.text + '<br>';
+            regInfo += '"' + registerName + '    ' + register.toString() + '<br>';
           }
         }
         showConfirm(cm, regInfo);
@@ -3595,38 +3626,41 @@
               'any other getSearchCursor implementation.');
         }
         var argString = params.argString;
-        var slashes = findUnescapedSlashes(argString);
-        if (slashes[0] !== 0) {
-          showConfirm(cm, 'Substitutions should be of the form ' +
-              ':s/pattern/replace/');
-          return;
-        }
-        var regexPart = argString.substring(slashes[0] + 1, slashes[1]);
+        var slashes = argString ? findUnescapedSlashes(argString) : [];
         var replacePart = '';
-        var flagsPart;
-        var count;
-        var confirm = false; // Whether to confirm each replace.
-        if (slashes[1]) {
-          replacePart = argString.substring(slashes[1] + 1, slashes[2]);
-          if (getOption('pcre')) {
-            replacePart = unescapeRegexReplace(replacePart);
-          } else {
-            replacePart = translateRegexReplace(replacePart);
+        if (slashes.length) {
+          if (slashes[0] !== 0) {
+            showConfirm(cm, 'Substitutions should be of the form ' +
+                ':s/pattern/replace/');
+            return;
           }
-        }
-        if (slashes[2]) {
-          // After the 3rd slash, we can have flags followed by a space followed
-          // by count.
-          var trailing = argString.substring(slashes[2] + 1).split(' ');
-          flagsPart = trailing[0];
-          count = parseInt(trailing[1]);
-        }
-        if (flagsPart) {
-          if (flagsPart.indexOf('c') != -1) {
-            confirm = true;
-            flagsPart.replace('c', '');
+          var regexPart = argString.substring(slashes[0] + 1, slashes[1]);
+          var flagsPart;
+          var count;
+          var confirm = false; // Whether to confirm each replace.
+          if (slashes[1]) {
+            replacePart = argString.substring(slashes[1] + 1, slashes[2]);
+            if (getOption('pcre')) {
+              replacePart = unescapeRegexReplace(replacePart);
+            } else {
+              replacePart = translateRegexReplace(replacePart);
+            }
+            vimGlobalState.lastSubstituteReplacePart = replacePart;
           }
-          regexPart = regexPart + '/' + flagsPart;
+          if (slashes[2]) {
+            // After the 3rd slash, we can have flags followed by a space followed
+            // by count.
+            var trailing = argString.substring(slashes[2] + 1).split(' ');
+            flagsPart = trailing[0];
+            count = parseInt(trailing[1]);
+          }
+          if (flagsPart) {
+            if (flagsPart.indexOf('c') != -1) {
+              confirm = true;
+              flagsPart.replace('c', '');
+            }
+            regexPart = regexPart + '/' + flagsPart;
+          }
         }
         if (regexPart) {
           // If regex part is empty, then use the previous query. Otherwise use
@@ -3638,6 +3672,11 @@
             showConfirm(cm, 'Invalid regex: ' + regexPart);
             return;
           }
+        }
+        replacePart = replacePart || vimGlobalState.lastSubstituteReplacePart;
+        if (replacePart === undefined) {
+          showConfirm(cm, 'No previous substitute regular expression');
+          return;
         }
         var state = getSearchState(cm);
         var query = state.getQuery();
@@ -3884,6 +3923,7 @@
     function exitInsertMode(cm) {
       var vim = cm.state.vim;
       var macroModeState = vimGlobalState.macroModeState;
+      var insertModeChangeRegister = vimGlobalState.registerController.getRegister('.');
       var isPlaying = macroModeState.isPlaying;
       if (!isPlaying) {
         cm.off('change', onChange);
@@ -3902,6 +3942,8 @@
       cm.setOption('keyMap', 'vim');
       cm.setOption('disableInput', true);
       cm.toggleOverwrite(false); // exit replace mode if we were in it.
+      // update the ". register before exiting insert mode
+      insertModeChangeRegister.setText(macroModeState.lastInsertModeChanges.changes.join(''));
       CodeMirror.signal(cm, "vim-mode-change", {mode: "normal"});
       if (macroModeState.isRecording) {
         logInsertModeChange(macroModeState);
@@ -3934,6 +3976,7 @@
       var keyBuffer = register.keyBuffer;
       var imc = 0;
       macroModeState.isPlaying = true;
+      macroModeState.replaySearchQueries = register.searchQueries.slice(0);
       for (var i = 0; i < keyBuffer.length; i++) {
         var text = keyBuffer[i];
         var match, key;
@@ -3969,6 +4012,15 @@
       var register = vimGlobalState.registerController.getRegister(registerName);
       if (register) {
         register.pushInsertModeChanges(macroModeState.lastInsertModeChanges);
+      }
+    }
+
+    function logSearchQuery(macroModeState, query) {
+      if (macroModeState.isPlaying) { return; }
+      var registerName = macroModeState.latestRegister;
+      var register = vimGlobalState.registerController.getRegister(registerName);
+      if (register) {
+        register.pushSearchQuery(query);
       }
     }
 
