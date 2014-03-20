@@ -2775,6 +2775,7 @@
         '[': '[', ']': '[',
         '{': '{', '}': '{'})[symb];
       var curChar = cm.getLine(cur.line).charAt(cur.ch);
+      // Due to the behavior of scanForBracket, we need an offset in boundary case.
       var offset = curChar === openSym ? 1 : 0;
 
       start = cm.scanForBracket(Pos(cur.line, cur.ch+offset), -1, null, specifiedRegExp);

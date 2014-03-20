@@ -28,6 +28,8 @@
 
   // specifiedRegExp is used to specify which type of bracket to scan
   // should be a regexp, e.g. /[[\]]/
+  //
+  // Boundary case: if current cursor is on an open bracket, then the where.ch should add one
   function scanForBracket(cm, where, dir, style, config, specifiedRegExp) {
     var maxScanLen = (config && config.maxScanLineLength) || 10000;
     var maxScanLines = (config && config.maxScanLines) || 500;
