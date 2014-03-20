@@ -21,7 +21,7 @@
     if (strict && (dir > 0) != (pos == where.ch)) return null;
     var style = cm.getTokenTypeAt(Pos(where.line, pos + 1));
 
-    var found = scanForBracket(cm, Pos(where.line, pos + (dir > 0 ? 1 : 0)), dir, style || null, null, config);
+    var found = scanForBracket(cm, Pos(where.line, pos + (dir > 0 ? 1 : 0)), dir, style || null, config);
     return {from: Pos(where.line, pos), to: found && found.pos,
             match: found && found.ch == match.charAt(0), forward: dir > 0};
   }
@@ -30,12 +30,12 @@
   // should be a regexp, e.g. /[[\]]/
   //
   // Note: If "where" is on an open bracket, then this bracket is ignored.
-  function scanForBracket(cm, where, dir, style, bracketRegex, config) {
+  function scanForBracket(cm, where, dir, style, config) {
     var maxScanLen = (config && config.maxScanLineLength) || 10000;
     var maxScanLines = (config && config.maxScanLines) || 500;
 
     var stack = [];
-    var re = bracketRegex ? bracketRegex : /[(){}[\]]/;
+    var re = config && config.bracketRegex ? config.bracketRegex : /[(){}[\]]/;
     var lineEnd = dir > 0 ? Math.min(where.line + maxScanLines, cm.lastLine() + 1)
                           : Math.max(cm.firstLine() - 1, where.line - maxScanLines);
     for (var lineNo = where.line; lineNo != lineEnd; lineNo += dir) {
@@ -104,10 +104,10 @@
   });
 
   CodeMirror.defineExtension("matchBrackets", function() {matchBrackets(this, true);});
-  CodeMirror.defineExtension("findMatchingBracket", function(pos, strict){
-    return findMatchingBracket(this, pos, strict);
+  CodeMirror.defineExtension("findMatchingBracket", function(pos, strict, config){
+    return findMatchingBracket(this, pos, strict, config);
   });
-  CodeMirror.defineExtension("scanForBracket", function(pos, dir, style, bracketRegex){
-    return scanForBracket(this, pos, dir, style, bracketRegex);
+  CodeMirror.defineExtension("scanForBracket", function(pos, dir, style, config){
+    return scanForBracket(this, pos, dir, style, config);
   });
 });
