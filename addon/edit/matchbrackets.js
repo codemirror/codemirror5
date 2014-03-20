@@ -26,11 +26,16 @@
             match: found && found.ch == match.charAt(0), forward: dir > 0};
   }
 
-  function scanForBracket(cm, where, dir, style, config) {
+  // specifiedRegExp is used to specify which type of bracket to scan
+  // should be a regexp, e.g. /[[\]]/
+  //
+  // Boundary case: if current cursor is on an open bracket, then the where.ch should add one
+  function scanForBracket(cm, where, dir, style, config, specifiedRegExp) {
     var maxScanLen = (config && config.maxScanLineLength) || 10000;
     var maxScanLines = (config && config.maxScanLines) || 500;
 
-    var stack = [], re = /[(){}[\]]/;
+    var stack = [];
+    var re = typeof specifiedRegExp == "undefined" ? /[(){}[\]]/ : specifiedRegExp;
     var lineEnd = dir > 0 ? Math.min(where.line + maxScanLines, cm.lastLine() + 1)
                           : Math.max(cm.firstLine() - 1, where.line - maxScanLines);
     for (var lineNo = where.line; lineNo != lineEnd; lineNo += dir) {
@@ -102,7 +107,7 @@
   CodeMirror.defineExtension("findMatchingBracket", function(pos, strict){
     return findMatchingBracket(this, pos, strict);
   });
-  CodeMirror.defineExtension("scanForBracket", function(pos, dir, style){
-    return scanForBracket(this, pos, dir, style);
+  CodeMirror.defineExtension("scanForBracket", function(pos, dir, style, specifiedRegExp){
+    return scanForBracket(this, pos, dir, style, null, specifiedRegExp);
   });
 });
