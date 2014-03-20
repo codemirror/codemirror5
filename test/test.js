@@ -1407,6 +1407,28 @@ testCM("lineWidgetCautiousRedraw", function(cm) {
   is(!redrawn);
 }, {value: "123\n456"});
 
+testCM("lineWidgetChanged", function(cm) {
+  addDoc(cm, 2, 300);
+  cm.setSize(null, cm.defaultTextHeight() * 50);
+  cm.scrollTo(null, cm.heightAtLine(125, "local"));
+  function w() {
+    var node = document.createElement("div");
+    node.style.cssText = "background: yellow; height: 50px;";
+    return node;
+  }
+  var info0 = cm.getScrollInfo();
+  var w0 = cm.addLineWidget(0, w());
+  var w150 = cm.addLineWidget(150, w());
+  var w300 = cm.addLineWidget(300, w());
+  var info1 = cm.getScrollInfo();
+  eq(info0.height + 150, info1.height);
+  eq(info0.top + 50, info1.top);
+  w0.node.style.height = w150.node.style.height = w300.node.style.height = "10px";
+  w0.changed(); w150.changed(); w300.changed();
+  var info2 = cm.getScrollInfo();
+  eq(info0.height + 30, info2.height);
+  eq(info0.top + 10, info2.top);
+});
 
 testCM("getLineNumber", function(cm) {
   addDoc(cm, 2, 20);
