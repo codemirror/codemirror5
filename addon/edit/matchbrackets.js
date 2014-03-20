@@ -21,21 +21,21 @@
     if (strict && (dir > 0) != (pos == where.ch)) return null;
     var style = cm.getTokenTypeAt(Pos(where.line, pos + 1));
 
-    var found = scanForBracket(cm, Pos(where.line, pos + (dir > 0 ? 1 : 0)), dir, style || null, config);
+    var found = scanForBracket(cm, Pos(where.line, pos + (dir > 0 ? 1 : 0)), dir, style || null, null, config);
     return {from: Pos(where.line, pos), to: found && found.pos,
             match: found && found.ch == match.charAt(0), forward: dir > 0};
   }
 
-  // specifiedRegExp is used to specify which type of bracket to scan
+  // bracketRegex is used to specify which type of bracket to scan
   // should be a regexp, e.g. /[[\]]/
   //
-  // Boundary case: if current cursor is on an open bracket, then the where.ch should add one
-  function scanForBracket(cm, where, dir, style, config, specifiedRegExp) {
+  // Note: If "where" is on an open bracket, then this bracket is ignored.
+  function scanForBracket(cm, where, dir, style, bracketRegex, config) {
     var maxScanLen = (config && config.maxScanLineLength) || 10000;
     var maxScanLines = (config && config.maxScanLines) || 500;
 
     var stack = [];
-    var re = typeof specifiedRegExp == "undefined" ? /[(){}[\]]/ : specifiedRegExp;
+    var re = bracketRegex ? bracketRegex : /[(){}[\]]/;
     var lineEnd = dir > 0 ? Math.min(where.line + maxScanLines, cm.lastLine() + 1)
                           : Math.max(cm.firstLine() - 1, where.line - maxScanLines);
     for (var lineNo = where.line; lineNo != lineEnd; lineNo += dir) {
@@ -107,7 +107,7 @@
   CodeMirror.defineExtension("findMatchingBracket", function(pos, strict){
     return findMatchingBracket(this, pos, strict);
   });
-  CodeMirror.defineExtension("scanForBracket", function(pos, dir, style, specifiedRegExp){
-    return scanForBracket(this, pos, dir, style, null, specifiedRegExp);
+  CodeMirror.defineExtension("scanForBracket", function(pos, dir, style, bracketRegex){
+    return scanForBracket(this, pos, dir, style, bracketRegex);
   });
 });
