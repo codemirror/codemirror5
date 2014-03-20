@@ -28,17 +28,21 @@
 
   <h2>Version 4.x</h2>
 
-  <p class="rel">17-03-2014: <a href="http://codemirror.net/codemirror-4.0rc2.zip">Version 4.0 release candidate 2</a>:</p>
+  <p class="rel">20-03-2014: <a href="http://codemirror.net/codemirror-4.0.zip">Version 4.0</a>:</p>
 
-  <p class="rel-note">Second release candidate for 4.0. Fixes some
-  context menu bugs, a wheel-scrolling glitch, and several missing
-  cases in the Sublime Text bindings.</p>
+  <p class="rel-note">This is a new major version of CodeMirror. There
+  are a few <strong>incompatible</strong> changes in the API. Upgrade
+  with care, and read the <a href="upgrade_v4.html">upgrading
+  guide</a>.</p>
 
-  <p class="rel">10-03-2014: <a href="http://codemirror.net/codemirror-4.0rc1.zip">Version 4.0 release candidate 1</a>:</p>
-
-  <p class="rel-note">First release candidate for 4.0, which supports
-  multiple selections, selection undo, and improved (faster, less
-  kludgy) character measuring.</p>
+  <ul class="rel-note">
+    <li>Multiple selections (ctrl-click, alt-drag, <a href="manual.html#setSelections">API</a>).</li>
+    <li>Sublime Text <a href="../demo/sublime.html">bindings</a>.</li>
+    <li><a href="manual.html#modloader">Module loader shims</a> wrapped around all modules.</li>
+    <li>Selection <a href="manual.html#command_undoSelection">undo</a>/<a href="manual.html#command_redoSelection">redo</a>.</li>
+    <li>Improved character measuring (faster, handles wrapped lines more robustly).</li>
+    <li>Full <a href="https://github.com/marijnh/CodeMirror/compare/3.23.0...4.0.3">list of patches</a>.</li>
+  </ul>
 
   <h2>Version 3.x</h2>
 
