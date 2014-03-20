@@ -72,6 +72,11 @@
 
   map["Shift-Tab"] = "indentLess";
 
+  cmds[map["Esc"] = "singleSelectionTop"] = function(cm) {
+    var range = cm.listSelections()[0];
+    cm.setSelection(range.anchor, range.head, {scroll: false});
+  };
+
   cmds[map[ctrl + "L"] = "selectLine"] = function(cm) {
     var ranges = cm.listSelections(), extended = [];
     for (var i = 0; i < ranges.length; i++) {
