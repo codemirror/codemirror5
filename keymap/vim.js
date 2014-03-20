@@ -1647,7 +1647,7 @@
 
         var tmp;
         if (mirroredPairs[character]) {
-          tmp = selectCompanionObject(cm, mirroredPairs[character], inclusive);
+          tmp = selectCompanionObject(cm, character, inclusive);
         } else if (selfPaired[character]) {
           tmp = findBeginningAndEnd(cm, character, inclusive);
         } else if (character === 'W') {
@@ -2739,10 +2739,70 @@
 
     // TODO: perhaps this finagling of start and end positions belonds
     // in codmirror/replaceRange?
-    function selectCompanionObject(cm, revSymb, inclusive) {
-      var cur = copyCursor(cm.getCursor());
-      var end = findMatchedSymbol(cm, cur, revSymb);
-      var start = findMatchedSymbol(cm, end);
+    function selectCompanionObject(cm, symb, inclusive) {
+      var cur = cm.getCursor();
+      var end = CodeMirror.Pos(), start = CodeMirror.Pos();
+      var symbContext = cm.getTokenAt({line: cur.line, ch: cur.ch+1}).type;
+      var symbCtxLevel = getContextLevel(symbContext);
+      var revSymb = ({
+        '(': ')', ')': '(',
+        '[': ']', ']': '[',
+        '{': '}', '}': '{'})[symb];
+
+      // First, get end position of the brackets
+      if (cm.getLine(cur.line).charAt(cur.ch) === symb) {
+        end = cur;
+      } else {
+        // set our increment to move forward (+1) or backwards (-1)
+        // depending on which bracket we're matching
+        var increment = ({'(': -1, '{': -1, '[': -1})[symb] || 1;
+        var endLine = increment === 1 ? cm.lineCount() : -1;
+        var depth = 1, nextCh = "", index = cur.ch, line = cur.line, lineText = cm.getLine(line);
+        // Simple search for closing paren--just count openings and closings till
+        // we find our match
+        // TODO: use info from CodeMirror to ignore closing brackets in comments
+        // and quotes, etc.
+        while (line !== endLine && depth > 0) {
+          index += increment;
+          nextCh = lineText.charAt(index);
+          if (!nextCh) {
+            line += increment;
+            lineText = cm.getLine(line) || '';
+            if (increment > 0) {
+              index = 0;
+            } else {
+              var lineLen = lineText.length;
+              // maybe no need to check this
+              index = (lineLen > 0) ? (lineLen-1) : 0;
+            }
+            nextCh = lineText.charAt(index);
+          }
+          var revSymbContext = cm.getTokenAt({line:line, ch:index+1}).type;
+          var revSymbCtxLevel = getContextLevel(revSymbContext);
+          if (symbCtxLevel >= revSymbCtxLevel) {
+            if (nextCh === symb) {
+              depth--;
+            } else if (nextCh === revSymb) {
+              depth++;
+            }
+          }
+        }
+
+        if (nextCh) {
+          end.line = line;
+          end.ch = index;
+        } else {
+          end = cur;
+        }
+      }
+
+      // Second, get start position by findMatchingBracket in matchbrackets.js
+      var matched = cm.findMatchingBracket(end);
+      if (matched !== null) {
+        start = matched.to;
+      } else {
+        start = end;
+      }
 
       // end === start if and only if there is no matched symbol
       if (end !== start) {
