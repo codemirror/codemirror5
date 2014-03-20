@@ -58,9 +58,9 @@
 
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
-    mod(require("../lib/codemirror"), require("../addon/search/searchcursor"), require("../addon/dialog/dialog"));
+    mod(require("../lib/codemirror"), require("../addon/search/searchcursor"), require("../addon/dialog/dialog"), require("../addon/edit/matchbrackets.js"));
   else if (typeof define == "function" && define.amd) // AMD
-    define(["../lib/codemirror", "../addon/search/searchcursor", "../addon/dialog/dialog"], mod);
+    define(["../lib/codemirror", "../addon/search/searchcursor", "../addon/dialog/dialog", "../addon/edit/matchbrackets"], mod);
   else // Plain browser env
     mod(CodeMirror);
 })(function(CodeMirror) {
@@ -2740,72 +2740,29 @@
     // TODO: perhaps this finagling of start and end positions belonds
     // in codmirror/replaceRange?
     function selectCompanionObject(cm, symb, inclusive) {
-      var cur = cm.getCursor();
-      var end = CodeMirror.Pos(), start = CodeMirror.Pos();
-      var symbContext = cm.getTokenAt({line: cur.line, ch: cur.ch+1}).type;
-      var symbCtxLevel = getContextLevel(symbContext);
-      var revSymb = ({
-        '(': ')', ')': '(',
-        '[': ']', ']': '[',
-        '{': '}', '}': '{'})[symb];
+      var cur = cm.getCursor(), start, end;
 
-      // First, get end position of the brackets
-      if (cm.getLine(cur.line).charAt(cur.ch) === symb) {
-        end = cur;
+      var specifiedRegExp = ({
+        '(': /[()]/, ')': /[()]/,
+        '[': /[[\]]/, ']': /[[\]]/,
+        '{': /[{}]/, '}': /[{}]/})[symb];
+      var openSym = ({
+        '(': '(', ')': '(',
+        '[': '[', ']': '[',
+        '{': '{', '}': '{'})[symb];
+      var curChar = cm.getLine(cur.line).charAt(cur.ch);
+      var offset = curChar === openSym ? 1 : 0;
+
+      start = cm.scanForBracket(Pos(cur.line, cur.ch+offset), -1, null, specifiedRegExp);
+      end   = cm.scanForBracket(Pos(cur.line, cur.ch+offset), 1, null, specifiedRegExp);
+
+      if (typeof start == "undefined" || typeof end == "undefined") {
+        start = cur;
+        end   = cur;
       } else {
-        // set our increment to move forward (+1) or backwards (-1)
-        // depending on which bracket we're matching
-        var increment = ({'(': -1, '{': -1, '[': -1})[symb] || 1;
-        var endLine = increment === 1 ? cm.lineCount() : -1;
-        var depth = 1, nextCh = "", index = cur.ch, line = cur.line, lineText = cm.getLine(line);
-        // Simple search for closing paren--just count openings and closings till
-        // we find our match
-        // TODO: use info from CodeMirror to ignore closing brackets in comments
-        // and quotes, etc.
-        while (line !== endLine && depth > 0) {
-          index += increment;
-          nextCh = lineText.charAt(index);
-          if (!nextCh) {
-            line += increment;
-            lineText = cm.getLine(line) || '';
-            if (increment > 0) {
-              index = 0;
-            } else {
-              var lineLen = lineText.length;
-              // maybe no need to check this
-              index = (lineLen > 0) ? (lineLen-1) : 0;
-            }
-            nextCh = lineText.charAt(index);
-          }
-          var revSymbContext = cm.getTokenAt({line:line, ch:index+1}).type;
-          var revSymbCtxLevel = getContextLevel(revSymbContext);
-          if (symbCtxLevel >= revSymbCtxLevel) {
-            if (nextCh === symb) {
-              depth--;
-            } else if (nextCh === revSymb) {
-              depth++;
-            }
-          }
-        }
+        start = start.pos;
+        end   = end.pos;
 
-        if (nextCh) {
-          end.line = line;
-          end.ch = index;
-        } else {
-          end = cur;
-        }
-      }
-
-      // Second, get start position by findMatchingBracket in matchbrackets.js
-      var matched = cm.findMatchingBracket(end);
-      if (matched !== null) {
-        start = matched.to;
-      } else {
-        start = end;
-      }
-
-      // end === start if and only if there is no matched symbol
-      if (end !== start) {
         if ((start.line == end.line && start.ch > end.ch)
             || (start.line > end.line)) {
           var tmp = start;
