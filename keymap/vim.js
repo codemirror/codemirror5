@@ -347,12 +347,14 @@
         cm.setOption('disableInput', true);
         CodeMirror.signal(cm, "vim-mode-change", {mode: "normal"});
         cm.on('beforeSelectionChange', beforeSelectionChange);
+        cm.on('cursorActivity', onCursorActivity);
         maybeInitVimState(cm);
         CodeMirror.on(cm.getInputField(), 'paste', getOnPasteFn(cm));
       } else if (cm.state.vim) {
         cm.setOption('keyMap', 'default');
         cm.setOption('disableInput', false);
         cm.off('beforeSelectionChange', beforeSelectionChange);
+        cm.off('cursorActivity', onCursorActivity);
         CodeMirror.off(cm.getInputField(), 'paste', getOnPasteFn(cm));
         cm.state.vim = null;
       }
@@ -367,6 +369,14 @@
         var pos = Pos(head.line, head.ch - 1);
         obj.update([{anchor: cursorEqual(head, anchor) ? pos : anchor,
                      head: pos}]);
+      }
+    }
+    function onCursorActivity(cm, origin) {
+      if (origin == '*mouse') {
+        var cur = cm.doc.getCursor();
+        var vim = cm.state.vim;
+        if (vim.insertMode || vim.exMode) return;
+        vim.lastHPos = cur.ch;
       }
     }
     function getOnPasteFn(cm) {
@@ -1902,7 +1912,7 @@
         if (!vimGlobalState.macroModeState.isPlaying) {
           // Only record if not replaying.
           cm.on('change', onChange);
-          cm.on('cursorActivity', onCursorActivity);
+          cm.on('cursorActivity', onCursorActivityInInsertMode);
           CodeMirror.on(cm.getInputField(), 'keydown', onKeyEventTargetKeyDown);
         }
       },
@@ -3953,7 +3963,7 @@
       var isPlaying = macroModeState.isPlaying;
       if (!isPlaying) {
         cm.off('change', onChange);
-        cm.off('cursorActivity', onCursorActivity);
+        cm.off('cursorActivity', onCursorActivityInInsertMode);
         CodeMirror.off(cm.getInputField(), 'keydown', onKeyEventTargetKeyDown);
       }
       if (!isPlaying && vim.insertModeRepeat > 1) {
@@ -4076,7 +4086,7 @@
     * - For tracking cursor activity in insert mode.
     * - Should only be active in insert mode.
     */
-    function onCursorActivity() {
+    function onCursorActivityInInsertMode() {
       var macroModeState = vimGlobalState.macroModeState;
       if (macroModeState.isPlaying) { return; }
       var lastChange = macroModeState.lastInsertModeChanges;
