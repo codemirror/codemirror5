@@ -125,12 +125,13 @@
       cm.setSelection(word.from, word.to);
       fullWord = true;
     } else {
-      var query = cm.getRange(from, to);
-      var cur = cm.getSearchCursor(fullWord ? new RegExp("\\b" + query + "\\b") : query, to);
-      if (cur.findNext())
+      var text = cm.getRange(from, to);
+      var query = fullWord ? new RegExp("\\b" + text + "\\b") : text;
+      var cur = cm.getSearchCursor(query, to);
+      if (cur.findNext()) {
         cm.addSelection(cur.from(), cur.to());
-      else{
-        cur = cm.getSearchCursor(fullWord ? new RegExp("\\b" + query + "\\b") : query, Pos(cm.firstLine(),0));
+      } else {
+        cur = cm.getSearchCursor(query, Pos(cm.firstLine(), 0));
         if (cur.findNext())
           cm.addSelection(cur.from(), cur.to());
       }
