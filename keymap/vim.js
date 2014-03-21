@@ -2038,14 +2038,30 @@
           return;
         }
         if (actionArgs.matchIndent) {
-          var indent = findFirstNonWhiteSpaceCharacter(cm.getLine(cm.getCursor().line));
+          // length that considers tabs and cm.options.tabSize
+          var whitespaceLength = function(str) {
+            var tabs = (str.split("\t").length - 1);
+            var spaces = (str.split(" ").length - 1);
+            return tabs * cm.options.tabSize + spaces * 1;
+          };
+          var currentLine = cm.getLine(cm.getCursor().line);
+          var indent = whitespaceLength(currentLine.match(/^\s*/)[0]);
           // chomp last newline b/c don't want it to match /^\s*/gm
           var chompedText = text.replace(/\n$/, '');
           var wasChomped = text !== chompedText;
-          var firstIndent = text.match(/^\s*/)[0].length;
+          var firstIndent = whitespaceLength(text.match(/^\s*/)[0]);
           var text = chompedText.replace(/^\s*/gm, function(wspace) {
-            var newIndent = indent + (wspace.length - firstIndent);
-            return (newIndent < 0) ? "" : Array(newIndent + 1).join(' ');
+            var newIndent = indent + (whitespaceLength(wspace) - firstIndent);
+            if (newIndent < 0) {
+              return "";
+            }
+            else if (cm.options.indentWithTabs) {
+              var quotient = Math.floor(newIndent / cm.options.tabSize);
+              return Array(quotient + 1).join('\t');
+            }
+            else {
+              return Array(newIndent + 1).join(' ');
+            }
           });
           text += wasChomped ? "\n" : "";
         }
