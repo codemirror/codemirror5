@@ -1619,20 +1619,19 @@
         var ch = cursor.ch;
         var lineText = cm.getLine(line);
         var symbol;
-        var startContext = cm.getTokenAt(cursor).type;
-        var startCtxLevel = getContextLevel(startContext);
         do {
           symbol = lineText.charAt(ch++);
           if (symbol && isMatchableSymbol(symbol)) {
-            var endContext = cm.getTokenAt(Pos(line, ch)).type;
-            var endCtxLevel = getContextLevel(endContext);
-            if (startCtxLevel >= endCtxLevel) {
+            var ignoreStyle = ["string", "comment"];
+            var style = cm.getTokenTypeAt(Pos(line, ch));
+            if (ignoreStyle.indexOf(style) < 0) {
               break;
             }
           }
         } while (symbol);
         if (symbol) {
-          return findMatchedSymbol(cm, Pos(line, ch-1), symbol);
+          var matched = cm.findMatchingBracket(Pos(line, ch-1));
+          return matched.to;
         } else {
           return cursor;
         }
@@ -2692,73 +2691,6 @@
         }
       }
       return idx;
-    }
-
-    function getContextLevel(ctx) {
-      return (ctx === 'string' || ctx === 'comment') ? 1 : 0;
-    }
-
-    function findMatchedSymbol(cm, cur, symb) {
-      var line = cur.line;
-      var ch = cur.ch;
-      symb = symb ? symb : cm.getLine(line).charAt(ch);
-
-      var symbContext = cm.getTokenAt(Pos(line, ch + 1)).type;
-      var symbCtxLevel = getContextLevel(symbContext);
-
-      var reverseSymb = ({
-        '(': ')', ')': '(',
-        '[': ']', ']': '[',
-        '{': '}', '}': '{'})[symb];
-
-      // Try to match the current char under cursor first
-      if (cm.getLine(line).charAt(ch) === reverseSymb) {
-        return cur;
-      }
-
-      // Couldn't find a matching symbol, abort
-      if (!reverseSymb) {
-        return cur;
-      }
-
-      // set our increment to move forward (+1) or backwards (-1)
-      // depending on which bracket we're matching
-      var increment = ({'(': 1, '{': 1, '[': 1})[symb] || -1;
-      var endLine = increment === 1 ? cm.lineCount() : -1;
-      var depth = 1, nextCh = symb, index = ch, lineText = cm.getLine(line);
-      // Simple search for closing paren--just count openings and closings till
-      // we find our match
-      // TODO: use info from CodeMirror to ignore closing brackets in comments
-      // and quotes, etc.
-      while (line !== endLine && depth > 0) {
-        index += increment;
-        nextCh = lineText.charAt(index);
-        if (!nextCh) {
-          line += increment;
-          lineText = cm.getLine(line) || '';
-          if (increment > 0) {
-            index = 0;
-          } else {
-            var lineLen = lineText.length;
-            index = (lineLen > 0) ? (lineLen-1) : 0;
-          }
-          nextCh = lineText.charAt(index);
-        }
-        var revSymbContext = cm.getTokenAt(Pos(line, index + 1)).type;
-        var revSymbCtxLevel = getContextLevel(revSymbContext);
-        if (symbCtxLevel >= revSymbCtxLevel) {
-          if (nextCh === symb) {
-            depth++;
-          } else if (nextCh === reverseSymb) {
-            depth--;
-          }
-        }
-      }
-
-      if (nextCh) {
-        return Pos(line, index);
-      }
-      return cur;
     }
 
     // TODO: perhaps this finagling of start and end positions belonds
