@@ -2032,7 +2032,15 @@
           var firstIndent = text.match(/^\s*/)[0].length;
           var text = chompedText.replace(/^\s*/gm, function(wspace) {
             var newIndent = indent + (wspace.length - firstIndent);
-            return (newIndent < 0) ? "" : Array(newIndent + 1).join(' ');
+            if (newIndent < 0) {
+              return "";
+            }
+            else if (cm.options.indentWithTabs) {
+              return Array(newIndent + 1).join('\t');
+            }
+            else {
+              return Array(newIndent + 1).join(' ');
+            }
           });
           text += wasChomped ? "\n" : "";
         }

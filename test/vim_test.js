@@ -1241,6 +1241,12 @@ testVim(']p_first_indent_is_larger', function(cm, vim, helpers) {
   helpers.doKeys(']', 'p');
   eq('  ___\n  abc\ndef', cm.getValue());
 }, { value: '  ___' });
+testVim(']p_with_tab_indents', function(cm, vim, helpers) {
+  cm.options.indentWithTabs = true;
+  helpers.getRegisterController().pushText('"', 'yank', '\t\tabc\n\t\t\tdef\n', true);
+  helpers.doKeys(']', 'p');
+  eq('\t___\n\tabc\n\t\tdef', cm.getValue());
+}, { value: '\t___' });
 testVim('[p', function(cm, vim, helpers) {
   helpers.getRegisterController().pushText('"', 'yank', '  abc\n    def\n', true);
   helpers.doKeys('[', 'p');
