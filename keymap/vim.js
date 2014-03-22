@@ -779,8 +779,10 @@
       },
       pushText: function(text, linewise) {
         // if this register has ever been set to linewise, use linewise.
-        if (linewise || this.linewise) {
-          this.keyBuffer.push('\n');
+        if (linewise) {
+          if (!this.linewise) {
+            this.keyBuffer.push('\n');
+          }
           this.linewise = true;
         }
         this.keyBuffer.push(text);
@@ -857,10 +859,10 @@
         // If we've gotten to this point, we've actually specified a register
         var append = isUpperCase(registerName);
         if (append) {
-          register.append(text, linewise);
+          register.pushText(text, linewise);
           // The unnamed register always has the same value as the last used
           // register.
-          this.unnamedRegister.append(text, linewise);
+          this.unnamedRegister.setText(text, linewise);
         } else {
           register.setText(text, linewise);
           this.unnamedRegister.setText(text, linewise);
