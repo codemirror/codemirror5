@@ -1926,6 +1926,50 @@ testVim('yank_register', function(cm, vim, helpers) {
   });
   helpers.doKeys(':');
 }, { value: 'foo\nbar'});
+testVim('yank_append_line_to_line_register', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('"', 'a', 'y', 'y');
+  helpers.doKeys('j', '"', 'A', 'y', 'y');
+  cm.openDialog = helpers.fakeOpenDialog('registers');
+  cm.openNotification = helpers.fakeOpenNotification(function(text) {
+    is(/a\s+foo\nbar/.test(text));
+    is(/"\s+foo\nbar/.test(text));
+  });
+  helpers.doKeys(':');
+}, { value: 'foo\nbar'});
+testVim('yank_append_word_to_word_register', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('"', 'a', 'y', 'w');
+  helpers.doKeys('j', '"', 'A', 'y', 'w');
+  cm.openDialog = helpers.fakeOpenDialog('registers');
+  cm.openNotification = helpers.fakeOpenNotification(function(text) {
+    is(/a\s+foobar/.test(text));
+    is(/"\s+foobar/.test(text));
+  });
+  helpers.doKeys(':');
+}, { value: 'foo\nbar'});
+testVim('yank_append_line_to_word_register', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('"', 'a', 'y', 'w');
+  helpers.doKeys('j', '"', 'A', 'y', 'y');
+  cm.openDialog = helpers.fakeOpenDialog('registers');
+  cm.openNotification = helpers.fakeOpenNotification(function(text) {
+    is(/a\s+foo\nbar/.test(text));
+    is(/"\s+foo\nbar/.test(text));
+  });
+  helpers.doKeys(':');
+}, { value: 'foo\nbar'});
+testVim('yank_append_word_to_line_register', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('"', 'a', 'y', 'y');
+  helpers.doKeys('j', '"', 'A', 'y', 'w');
+  cm.openDialog = helpers.fakeOpenDialog('registers');
+  cm.openNotification = helpers.fakeOpenNotification(function(text) {
+    is(/a\s+foo\nbar/.test(text));
+    is(/"\s+foo\nbar/.test(text));
+  });
+  helpers.doKeys(':');
+}, { value: 'foo\nbar'});
 testVim('macro_register', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('q', 'a', 'i');
@@ -2982,3 +3026,5 @@ testVim('beforeSelectionChange', function(cm, vim, helpers) {
   cm.setCursor(0, 100);
   eqPos(cm.getCursor('head'), cm.getCursor('anchor'));
 }, { value: 'abc' });
+
+
