@@ -1899,6 +1899,7 @@ testVim('yank_append_line_to_line_register', function(cm, vim, helpers) {
   cm.openDialog = helpers.fakeOpenDialog('registers');
   cm.openNotification = helpers.fakeOpenNotification(function(text) {
     is(/a\s+foo\nbar/.test(text));
+    is(/"\s+foo\nbar/.test(text));
   });
   helpers.doKeys(':');
 }, { value: 'foo\nbar'});
@@ -1909,6 +1910,7 @@ testVim('yank_append_word_to_word_register', function(cm, vim, helpers) {
   cm.openDialog = helpers.fakeOpenDialog('registers');
   cm.openNotification = helpers.fakeOpenNotification(function(text) {
     is(/a\s+foobar/.test(text));
+    is(/"\s+foobar/.test(text));
   });
   helpers.doKeys(':');
 }, { value: 'foo\nbar'});
@@ -1919,6 +1921,7 @@ testVim('yank_append_line_to_word_register', function(cm, vim, helpers) {
   cm.openDialog = helpers.fakeOpenDialog('registers');
   cm.openNotification = helpers.fakeOpenNotification(function(text) {
     is(/a\s+foo\nbar/.test(text));
+    is(/"\s+foo\nbar/.test(text));
   });
   helpers.doKeys(':');
 }, { value: 'foo\nbar'});
@@ -1929,6 +1932,7 @@ testVim('yank_append_word_to_line_register', function(cm, vim, helpers) {
   cm.openDialog = helpers.fakeOpenDialog('registers');
   cm.openNotification = helpers.fakeOpenNotification(function(text) {
     is(/a\s+foo\nbar/.test(text));
+    is(/"\s+foo\nbar/.test(text));
   });
   helpers.doKeys(':');
 }, { value: 'foo\nbar'});

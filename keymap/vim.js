@@ -860,13 +860,12 @@
         var append = isUpperCase(registerName);
         if (append) {
           register.pushText(text, linewise);
-          // The unnamed register always has the same value as the last used
-          // register.
-          this.unnamedRegister.setText(text, linewise);
         } else {
           register.setText(text, linewise);
-          this.unnamedRegister.setText(text, linewise);
         }
+        // The unnamed register always has the same value as the last used
+        // register.
+        this.unnamedRegister.setText(register.toString(), linewise);
       },
       // Gets the register named @name.  If one of @name doesn't already exist,
       // create it.  If @name is invalid, return the unnamedRegister.
