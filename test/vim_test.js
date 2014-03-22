@@ -2109,6 +2109,14 @@ testVim('._delete_repeat', function(cm, vim, helpers) {
   eq('zzce', cm.getValue());
   helpers.assertCursorAt(0, 1);
 }, { value: 'zzabcde'});
+testVim('._visual_>', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('V', 'j', '>');
+  cm.setCursor(2, 0)
+  helpers.doKeys('.');
+  eq('  1\n  2\n  3\n  4', cm.getValue());
+  helpers.assertCursorAt(2, 2);
+}, { value: '1\n2\n3\n4'});
 testVim('f;', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('f', 'x');

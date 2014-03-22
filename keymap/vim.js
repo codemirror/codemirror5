@@ -1326,16 +1326,32 @@
             motionArgs.inclusive = true;
           }
           // Swap start and end if motion was backward.
-          if (cursorIsBefore(curEnd, curStart)) {
+          if (curEnd && cursorIsBefore(curEnd, curStart)) {
             var tmp = curStart;
             curStart = curEnd;
             curEnd = tmp;
             inverted = true;
+          } else if (!curEnd) {
+            curEnd = copyCursor(curStart);
           }
           if (motionArgs.inclusive && !(vim.visualMode && inverted)) {
             // Move the selection end one to the right to include the last
             // character.
             curEnd.ch++;
+          }
+          if (operatorArgs.relCurEnd) {
+            curEnd.line = curStart.line + operatorArgs.relCurEnd.line;
+            if (operatorArgs.relCurEnd.line) curEnd.ch = operatorArgs.relCurEnd.ch;
+            else curEnd.ch = curStart.ch + operatorArgs.relCurEnd.ch;
+          }
+          else if (vim.visualMode) {
+            // Set relative curEnd position w.r.t. curStart in operatorArgs
+            // to be used by repeatLastEdit action.
+            var relCurEnd = Pos();
+            relCurEnd.line = curEnd.line - curStart.line;
+            if (relCurEnd.line) relCurEnd.ch = curEnd.ch;
+            else relCurEnd.ch = curEnd.ch - curStart.ch;
+            operatorArgs.relCurEnd = relCurEnd;
           }
           var linewise = motionArgs.linewise ||
               (vim.visualMode && vim.visualLine);
