@@ -91,16 +91,21 @@
       <span class="bigbutton right" onclick="document.getElementById('paypal').submit();">DONATE WITH PAYPAL</span>
       <div style="position: relative">
         or <span onclick="document.getElementById('bankinfo').style.display = 'block';" class=quasilink>Bank</span>,
+        <span onclick="document.getElementById('bcinfo').style.display = 'block';" class=quasilink>Bitcoin</span>,
         <a href="https://www.gittip.com/marijnh">Gittip</a>,
         <a href="https://flattr.com/profile/marijnh">Flattr</a><br>
-        <div id=bankinfo>
-          <span id=bankinfo_close onclick="document.getElementById('bankinfo').style.display = '';">×</span>
+        <div id=bankinfo class=bankinfo>
+          <span class=bankinfo_close onclick="document.getElementById('bankinfo').style.display = '';">×</span>
           Bank: <i>Rabobank</i><br/>
           Country: <i>Netherlands</i><br/>
           SWIFT: <i>RABONL2U</i><br/>
           Account: <i>147850770</i><br/>
           Name: <i>Marijn Haverbeke</i><br/>
           IBAN: <i>NL26 RABO 0147 8507 70</i>
+        </div>
+        <div id=bcinfo class=bankinfo>
+          <span class=bankinfo_close onclick="document.getElementById('bcinfo').style.display = '';">×</span>
+          Bitcoin address: 1HVnnU8E9yLPeFyNgNtUPB5deXBvUmZ6Nx
         </div>
         <form action="https://www.paypal.com/cgi-bin/webscr" method="post" id="paypal">
           <input type="hidden" name="cmd" value="_s-xclick"/>
