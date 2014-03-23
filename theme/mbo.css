@@ -3,33 +3,33 @@
 
 #status-bar, .cm-s-mbo .CodeMirror-gutters, #main-toolbar{
   background: #333;
-	color: rgba(255,255,255,0.9);
+  color: rgba(255,255,255,0.9);
 }
 
 #sidebar{
-	background: #414141;
+  background: #414141;
 }
 
 .inline-widget{ /* Quick-edit styles */
-	background-color: rgb(45, 47, 44);
+  background-color: rgb(45, 47, 44);
 }
 
 .css-prop-defn code, .css-prop-defn h1, .css-prop-values dl dt{
-	color: #999;
+  color: #999;
 }
 
 .divider-holder .divider{
-	border-right: 1px solid rgb(50, 51, 49);
-	border-left: 1px solid rgb(34, 36, 32);
+  border-right: 1px solid rgb(50, 51, 49);
+  border-left: 1px solid rgb(34, 36, 32);
 }
 
 a.more-info{
-	background-color: #454545;
-	border: 1px solid #555;
-	border-bottom: none;
-	box-shadow: inset 0 1px 0 #777;
-	text-shadow: none;
-	color: #CCC;
+  background-color: #454545;
+  border: 1px solid #555;
+  border-bottom: none;
+  box-shadow: inset 0 1px 0 #777;
+  text-shadow: none;
+  color: #CCC;
 }
 
 .cm-s-mbo.CodeMirror .CodeMirror-matchingtag{
@@ -42,8 +42,8 @@ a.more-info{
 }
 
 .cm-s-mbo.CodeMirror, #editor-holder #not-editor {
-	background-color: #2c2c2c;
-	color: #ffffe9;
+  background-color: #2c2c2c;
+  color: #ffffe9;
 }
 
 .cm-s-mbo.CodeMirror div.CodeMirror-cursor {
@@ -92,5 +92,5 @@ a.more-info{
 }
 
 .cm-s-mbo.CodeMirror .CodeMirror-linenumber {
-	padding-left: 18px;
+  padding-left: 18px;
 }
