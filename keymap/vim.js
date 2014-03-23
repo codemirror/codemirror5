@@ -1667,6 +1667,13 @@
         var selfPaired = {'\'': true, '"': true};
 
         var character = motionArgs.selectedCharacter;
+        // 'b' refers to  '()' block.
+        // 'B' refers to  '{}' block.
+        if (character == 'b') {
+          character = '(';
+        } else if (character == 'B') {
+          character = '{';
+        }
 
         // Inclusive is the difference between a and i
         // TODO: Instead of using the additional text object map to perform text
