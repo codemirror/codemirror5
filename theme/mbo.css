@@ -2,25 +2,25 @@
 /* make your own here: http://tmtheme-editor.herokuapp.com/#/theme/Mbo */
 
 #status-bar, .cm-s-mbo .CodeMirror-gutters, #main-toolbar{
-  background:#333;
-	color:rgba(255,255,255,0.9);
+  background: #333;
+	color: rgba(255,255,255,0.9);
 }
 
 #sidebar{
-	background:#414141;
+	background: #414141;
 }
 
 .inline-widget{ /* Quick-edit styles */
-	background-color:rgb(45, 47, 44);
+	background-color: rgb(45, 47, 44);
 }
 
 .css-prop-defn code, .css-prop-defn h1, .css-prop-values dl dt{
-	color:#999;
+	color: #999;
 }
 
 .divider-holder .divider{
-	border-right:1px solid rgb(50, 51, 49);
-	border-left:1px solid rgb(34, 36, 32);
+	border-right: 1px solid rgb(50, 51, 49);
+	border-left: 1px solid rgb(34, 36, 32);
 }
 
 a.more-info{
@@ -37,8 +37,8 @@ a.more-info{
 }
 
 .cm-s-mbo.CodeMirror-focused .CodeMirror-activeline-background, .cm-s-mbo.CodeMirror-focused .CodeMirror-activeline .CodeMirror-gutter-elt {
-    background:#525252;
-    color: #d9d9d9;
+  background: #525252;
+  color: #d9d9d9;
 }
 
 .cm-s-mbo.CodeMirror, #editor-holder #not-editor {
@@ -53,7 +53,6 @@ a.more-info{
 
 .cm-s-mbo.CodeMirror .CodeMirror-selected { 
   background: #777777;
-  
 }
 
 .cm-s-mbo .cm-keyword     {color: #ffb928;}
@@ -78,9 +77,9 @@ a.more-info{
 }
 
 .cm-s-mbo.CodeMirror .CodeMirror-matchingbracket {
-    color: #F54B07;
-    font-weight: bold;
-    text-decoration: underline;
+  color: #F54B07;
+  font-weight: bold;
+  text-decoration: underline;
 }
 
 .cm-s-mbo.CodeMirror .CodeMirror-searching {
@@ -89,7 +88,7 @@ a.more-info{
 }
 
 .cm-s-mbo.CodeMirror div.CodeMirror span.cm-matchhighlight.CodeMirror-searching.CodeMirror-selectedtext {
-    background-color: #808080;
+  background-color: #808080;
 }
 
 .cm-s-mbo.CodeMirror .CodeMirror-linenumber {
