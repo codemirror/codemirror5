@@ -14,7 +14,8 @@
     var keywords = ["block", "endblock", "for", "endfor", "in", "true", "false",
                     "loop", "none", "self", "super", "if", "endif", "as", "not", "and",
                     "else", "import", "with", "endwith", "without", "context", "ifequal", "endifequal",
-                    "ifnotequal", "endifnotequal", "extends", "include", "load", "length"];
+                    "ifnotequal", "endifnotequal", "extends", "include", "load", "length", "comment",
+                    "endcomment"];
       keywords = new RegExp("^((" + keywords.join(")|(") + "))\\b");
 
       function tokenBase (stream, state) {
