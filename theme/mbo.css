@@ -1,13 +1,9 @@
 /* By mbonaci */
 /* make your own here: http://tmtheme-editor.herokuapp.com/#/theme/Mbo */
 
-#status-bar, .cm-s-mbo .CodeMirror-gutters, #main-toolbar{
+.cm-s-mbo .CodeMirror-gutters {
   background: #333;
   color: rgba(255,255,255,0.9);
-}
-
-#sidebar{
-  background: #414141;
 }
 
 .inline-widget{ /* Quick-edit styles */
@@ -41,7 +37,7 @@ a.more-info{
   color: #d9d9d9;
 }
 
-.cm-s-mbo.CodeMirror, #editor-holder #not-editor {
+.cm-s-mbo.CodeMirror {
   background-color: #2c2c2c;
   color: #ffffe9;
 }
