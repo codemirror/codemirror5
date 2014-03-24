@@ -28,24 +28,24 @@
 <article>
 <h2>Django template mode</h2>
 <form><textarea id="code" name="code">
-    <!doctype html>
-    <html>
-        <head>
-            <title>My Django web application</title>
-        </head>
-        <body>
-            <h1>
-                {{ page.title }}
-            </h1>
-            <ul class="my-list">
-                {% for item in items %}
-                    <li>{% item.name %}</li>
-                {% empty %}
-                    <li>You have no items in your list.</li>
-                {% endfor %}
-            </ul>
-        </body>
-    </html>
+<!doctype html>
+<html>
+    <head>
+        <title>My Django web application</title>
+    </head>
+    <body>
+        <h1>
+            {{ page.title }}
+        </h1>
+        <ul class="my-list">
+            {% for item in items %}
+                <li>{% item.name %}</li>
+            {% empty %}
+                <li>You have no items in your list.</li>
+            {% endfor %}
+        </ul>
+    </body>
+</html>
 </textarea></form>
 
     <script>
@@ -57,7 +57,7 @@
       });
     </script>
 
-    <p>Mode for html with embedded Django template markup.</p>
+    <p>Mode for HTML with embedded Django template markup.</p>
 
     <p><strong>MIME types defined:</strong> <code>text/x-django</code></p>
   </article>
