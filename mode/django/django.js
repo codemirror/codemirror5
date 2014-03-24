@@ -19,6 +19,7 @@
       keywords = new RegExp("^((" + keywords.join(")|(") + "))\\b");
 
       function tokenBase (stream, state) {
+          stream.eatWhile(/[^\{]/);
           var ch = stream.next();
           if (ch == "{") {
               if (ch = stream.eat(/\{|%|#/)) {
