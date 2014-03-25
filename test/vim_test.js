@@ -1018,25 +1018,19 @@ testEdit('di)_open_spc', 'foo (bAr) baz', /\(/, 'di)', 'foo () baz');
 testEdit('dib_open_spc', 'foo (bAr) baz', /\(/, 'dib', 'foo () baz');
 testEdit('da(_open_spc', 'foo (bAr) baz', /\(/, 'da(', 'foo  baz');
 testEdit('da)_open_spc', 'foo (bAr) baz', /\(/, 'da)', 'foo  baz');
-testEdit('dab_open_spc', 'foo (bAr) baz', /\(/, 'dab', 'foo  baz');
 
 testEdit('di(_middle_spc', 'foo (bAr) baz', /A/, 'di(', 'foo () baz');
 testEdit('di)_middle_spc', 'foo (bAr) baz', /A/, 'di)', 'foo () baz');
-testEdit('dib_middle_spc', 'foo (bAr) baz', /A/, 'dib', 'foo () baz');
 testEdit('da(_middle_spc', 'foo (bAr) baz', /A/, 'da(', 'foo  baz');
 testEdit('da)_middle_spc', 'foo (bAr) baz', /A/, 'da)', 'foo  baz');
-testEdit('dab_middle_spc', 'foo (bAr) baz', /A/, 'dab', 'foo  baz');
 
 testEdit('di(_close_spc', 'foo (bAr) baz', /\)/, 'di(', 'foo () baz');
 testEdit('di)_close_spc', 'foo (bAr) baz', /\)/, 'di)', 'foo () baz');
-testEdit('dib_close_spc', 'foo (bAr) baz', /\)/, 'dib', 'foo () baz');
 testEdit('da(_close_spc', 'foo (bAr) baz', /\)/, 'da(', 'foo  baz');
 testEdit('da)_close_spc', 'foo (bAr) baz', /\)/, 'da)', 'foo  baz');
-testEdit('dab_close_spc', 'foo (bAr) baz', /\)/, 'dab', 'foo  baz');
 
 //  delete around and inner b.
 testEdit('dab_on_(_should_delete_around_()block', 'o( in(abc) )', /\(a/, 'dab', 'o( in )');
-testEdit('dib_on_(_should_delete_inner_()block', 'o( in(abc) )', /\(a/, 'dib', 'o( in() )');
 
 //  delete around and inner B.
 testEdit('daB_on_{_should_delete_around_{}block', 'o{ in{abc} }', /{a/, 'daB', 'o{ in }');
@@ -1052,7 +1046,6 @@ testMotion('di(_outside_should_stay', ['d', 'i', '('], { line: 0, ch: 0}, { line
 //  Open and close on different lines, equally indented
 testEdit('di{_middle_spc', 'a{\n\tbar\n}b', /r/, 'di{', 'a{}b');
 testEdit('di}_middle_spc', 'a{\n\tbar\n}b', /r/, 'di}', 'a{}b');
-testEdit('diB_middle_spc', 'a{\n\tbar\n}b', /r/, 'diB', 'a{}b');
 testEdit('da{_middle_spc', 'a{\n\tbar\n}b', /r/, 'da{', 'ab');
 testEdit('da}_middle_spc', 'a{\n\tbar\n}b', /r/, 'da}', 'ab');
 testEdit('daB_middle_spc', 'a{\n\tbar\n}b', /r/, 'daB', 'ab');
@@ -1060,10 +1053,8 @@ testEdit('daB_middle_spc', 'a{\n\tbar\n}b', /r/, 'daB', 'ab');
 // open and close on diff lines, open indented less than close
 testEdit('di{_middle_spc', 'a{\n\tbar\n\t}b', /r/, 'di{', 'a{}b');
 testEdit('di}_middle_spc', 'a{\n\tbar\n\t}b', /r/, 'di}', 'a{}b');
-testEdit('diB_middle_spc', 'a{\n\tbar\n\t}b', /r/, 'diB', 'a{}b');
 testEdit('da{_middle_spc', 'a{\n\tbar\n\t}b', /r/, 'da{', 'ab');
 testEdit('da}_middle_spc', 'a{\n\tbar\n\t}b', /r/, 'da}', 'ab');
-testEdit('daB_middle_spc', 'a{\n\tbar\n\t}b', /r/, 'daB', 'ab');
 
 // open and close on diff lines, open indented more than close
 testEdit('di[_middle_spc', 'a\t[\n\tbar\n]b', /r/, 'di[', 'a\t[]b');
