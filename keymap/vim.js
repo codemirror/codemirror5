@@ -376,14 +376,6 @@
                      head: pos}]);
       }
     }
-    function onCursorActivity(cm, origin) {
-      if (origin == '*mouse') {
-        var cur = cm.doc.getCursor();
-        var vim = cm.state.vim;
-        if (vim.insertMode || vim.exMode) return;
-        vim.lastHPos = cur.ch;
-      }
-    }
     function getOnPasteFn(cm) {
       var vim = cm.state.vim;
       if (!vim.onPasteFn) {
@@ -1916,7 +1908,6 @@
         if (!vimGlobalState.macroModeState.isPlaying) {
           // Only record if not replaying.
           cm.on('change', onChange);
-          cm.on('cursorActivity', onCursorActivityInInsertMode);
           CodeMirror.on(cm.getInputField(), 'keydown', onKeyEventTargetKeyDown);
         }
       },
@@ -3928,7 +3919,6 @@
       var isPlaying = macroModeState.isPlaying;
       if (!isPlaying) {
         cm.off('change', onChange);
-        cm.off('cursorActivity', onCursorActivityInInsertMode);
         CodeMirror.off(cm.getInputField(), 'keydown', onKeyEventTargetKeyDown);
       }
       if (!isPlaying && vim.insertModeRepeat > 1) {
@@ -3938,8 +3928,8 @@
         vim.lastEditInputState.repeatOverride = vim.insertModeRepeat;
       }
       delete vim.insertModeRepeat;
-      cm.setCursor(cm.getCursor().line, cm.getCursor().ch-1);
       vim.insertMode = false;
+      cm.setCursor(cm.getCursor().line, cm.getCursor().ch-1);
       cm.setOption('keyMap', 'vim');
       cm.setOption('disableInput', true);
       cm.toggleOverwrite(false); // exit replace mode if we were in it.
@@ -4048,18 +4038,23 @@
 
     /**
     * Listens for any kind of cursor activity on CodeMirror.
-    * - For tracking cursor activity in insert mode.
-    * - Should only be active in insert mode.
     */
-    function onCursorActivityInInsertMode() {
-      var macroModeState = vimGlobalState.macroModeState;
-      if (macroModeState.isPlaying) { return; }
-      var lastChange = macroModeState.lastInsertModeChanges;
-      if (lastChange.expectCursorActivityForChange) {
-        lastChange.expectCursorActivityForChange = false;
-      } else {
-        // Cursor moved outside the context of an edit. Reset the change.
-        lastChange.changes = [];
+    function onCursorActivity(cm, origin) {
+      var vim = cm.state.vim;
+      if (vim.insertMode) {
+        // Tracking cursor activity in insert mode (for macro support).
+        var macroModeState = vimGlobalState.macroModeState;
+        if (macroModeState.isPlaying) { return; }
+        var lastChange = macroModeState.lastInsertModeChanges;
+        if (lastChange.expectCursorActivityForChange) {
+          lastChange.expectCursorActivityForChange = false;
+        } else {
+          // Cursor moved outside the context of an edit. Reset the change.
+          lastChange.changes = [];
+        }
+      } else if (origin == '*mouse') {
+        // Reset lastHPos if mouse click was done in normal mode.
+        vim.lastHPos = cm.doc.getCursor().ch;
       }
     }
 
