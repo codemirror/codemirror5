@@ -1339,19 +1339,17 @@
             // character.
             curEnd.ch++;
           }
-          if (operatorArgs.relCurEnd) {
-            curEnd.line = curStart.line + operatorArgs.relCurEnd.line;
-            if (operatorArgs.relCurEnd.line) curEnd.ch = operatorArgs.relCurEnd.ch;
-            else curEnd.ch = curStart.ch + operatorArgs.relCurEnd.ch;
-          }
-          else if (vim.visualMode) {
-            // Set relative curEnd position w.r.t. curStart in operatorArgs
-            // to be used by repeatLastEdit action.
-            var relCurEnd = Pos();
-            relCurEnd.line = curEnd.line - curStart.line;
-            if (relCurEnd.line) relCurEnd.ch = curEnd.ch;
-            else relCurEnd.ch = curEnd.ch - curStart.ch;
-            operatorArgs.relCurEnd = relCurEnd;
+          if (operatorArgs.selOffset) {
+            // Replaying a visual mode operation
+            curEnd.line = curStart.line + operatorArgs.selOffset.line;
+            if (operatorArgs.selOffset.line) {curEnd.ch = operatorArgs.selOffset.ch; }
+            else { curEnd.ch = curStart.ch + operatorArgs.selOffset.ch; }
+          } else if (vim.visualMode) {
+            var selOffset = Pos();
+            selOffset.line = curEnd.line - curStart.line;
+            if (selOffset.line) { selOffset.ch = curEnd.ch; }
+            else { selOffset.ch = curEnd.ch - curStart.ch; }
+            operatorArgs.selOffset = selOffset;
           }
           var linewise = motionArgs.linewise ||
               (vim.visualMode && vim.visualLine);
@@ -1364,7 +1362,7 @@
           }
           operatorArgs.registerName = registerName;
           // Keep track of linewise as it affects how paste and change behave.
-          operatorArgs.linewise = linewise;
+          operatorArgs.linewise = linewise || operatorArgs.linewise;
           operators[operator](cm, operatorArgs, vim, curStart,
               curEnd, curOriginal);
           if (vim.visualMode) {
