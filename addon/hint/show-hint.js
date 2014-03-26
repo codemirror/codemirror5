@@ -20,7 +20,7 @@ CodeMirror.showHint = function(cm, getHints, options) {
 
   function pickCompletion(cm, data, completion) {
     if (completion.hint) completion.hint(cm, data, completion);
-    else cm.replaceRange(getText(completion), data.from, data.to);
+    else cm.replaceRange(getText(completion), data.from, data.to, "completion");
   }
 
   function showHints(data) {
