@@ -71,6 +71,7 @@
     <option value="demo/search.html">Search interface</option>
     <option value="demo/vim.html">Vim bindings</option>
     <option value="demo/emacs.html">Emacs bindings</option>
+    <option value="demo/sublime.html">Sublime Text bindings</option>
     <option value="demo/tern.html">Tern integration</option>
     <option value="demo/merge.html">Merge/diff interface</option>
     <option value="demo/fullscreen.html">Full-screen editor</option>
@@ -84,22 +85,27 @@
   </script>
   <div style="position: relative; margin: 1em 0;">
     <a class="bigbutton left" href="http://codemirror.net/codemirror.zip">DOWNLOAD LATEST RELEASE</a>
-    <div><strong>version 3.22</strong> (<a href="doc/releases.html">Release notes</a>)</div>
+    <div><strong>version 4.0</strong> (<a href="doc/releases.html">Release notes</a>)</div>
     <div>or use the <a href="doc/compress.html">minification helper</a></div>
     <div style="position: absolute; top: 0; right: 0; text-align: right">
       <span class="bigbutton right" onclick="document.getElementById('paypal').submit();">DONATE WITH PAYPAL</span>
       <div style="position: relative">
         or <span onclick="document.getElementById('bankinfo').style.display = 'block';" class=quasilink>Bank</span>,
+        <span onclick="document.getElementById('bcinfo').style.display = 'block';" class=quasilink>Bitcoin</span>,
         <a href="https://www.gittip.com/marijnh">Gittip</a>,
         <a href="https://flattr.com/profile/marijnh">Flattr</a><br>
-        <div id=bankinfo>
-          <span id=bankinfo_close onclick="document.getElementById('bankinfo').style.display = '';">×</span>
+        <div id=bankinfo class=bankinfo>
+          <span class=bankinfo_close onclick="document.getElementById('bankinfo').style.display = '';">×</span>
           Bank: <i>Rabobank</i><br/>
           Country: <i>Netherlands</i><br/>
           SWIFT: <i>RABONL2U</i><br/>
           Account: <i>147850770</i><br/>
           Name: <i>Marijn Haverbeke</i><br/>
           IBAN: <i>NL26 RABO 0147 8507 70</i>
+        </div>
+        <div id=bcinfo class=bankinfo>
+          <span class=bankinfo_close onclick="document.getElementById('bcinfo').style.display = '';">×</span>
+          Bitcoin address: 1HVnnU8E9yLPeFyNgNtUPB5deXBvUmZ6Nx
         </div>
         <form action="https://www.paypal.com/cgi-bin/webscr" method="post" id="paypal">
           <input type="hidden" name="cmd" value="_s-xclick"/>
@@ -121,7 +127,7 @@
     <li><a href="doc/manual.html#addon_show-hint">Autocompletion</a> (<a href="demo/xmlcomplete.html">XML</a>)
     <li><a href="doc/manual.html#addon_foldcode">Code folding</a>
     <li><a href="doc/manual.html#option_extraKeys">Configurable</a> keybindings
-    <li><a href="demo/vim.html">Vim</a> and <a href="demo/emacs.html">Emacs</a> bindings
+    <li><a href="demo/vim.html">Vim</a>, <a href="demo/emacs.html">Emacs</a>, and <a href="demo/sublime.html">Sublime Text</a> bindings
     <li><a href="doc/manual.html#addon_search">Search and replace</a> interface
     <li><a href="doc/manual.html#addon_matchbrackets">Bracket</a> and <a href="doc/manual.html#addon_matchtags">tag</a> matching
     <li>Support for <a href="demo/buffers.html">split views</a>

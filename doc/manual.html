@@ -18,6 +18,9 @@
   dd { margin-left: 1.5em; margin-bottom: 1em; }
   dt {margin-top: 1em;}
   dd dl, dd dt, dd dd, dd ul { margin-top: 0; margin-bottom: 0; }
+  dt + dt { margin-top: 0; }
+  dt.command { position: relative; }
+  span.keybinding { position: absolute; right: 0; font-size: 80%; color: #555; text-indent: 0; }
 </style>
 
 <div id=nav>
@@ -31,7 +34,8 @@
     <li><a href="#usage">Basic Usage</a></li>
     <li><a href="#config">Configuration</a></li>
     <li><a href="#events">Events</a></li>
-    <li><a href="#keymaps">Keymaps</a></li>
+    <li><a href="#keymaps">Key maps</a></li>
+    <li><a href="#commands">Commands</a></li>
     <li><a href="#styling">Customized Styling</a></li>
     <li><a href="#api">Programming API</a>
       <ul>
@@ -57,7 +61,10 @@
 <article>
 
 <section class=first id=overview>
-    <h2>User manual and reference guide</h2>
+    <h2 style="position: relative">
+      User manual and reference guide
+      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 4.0.4</span>
+    </h2>
 
     <p>CodeMirror is a code-editor component that can be embedded in
     Web pages. The core library provides <em>only</em> the editor
@@ -89,6 +96,9 @@
     <pre data-lang="text/html">&lt;script src="lib/codemirror.js">&lt;/script>
 &lt;link rel="stylesheet" href="../lib/codemirror.css">
 &lt;script src="mode/javascript/javascript.js">&lt;/script></pre>
+
+    <p>(Alternatively, use a module loader. <a href="#modloader">More
+    about that later.</a>)</p>
 
     <p>Having done this, an editor instance can be created like
     this:</p>
@@ -134,7 +144,41 @@
     of a form) is submitted. See the <a href="#fromTextArea">API
     reference</a> for a full description of this method.</p>
 
+    <h3 id=modloader>Module loaders</h3>
+
+    <p>The files in the CodeMirror distribution contain shims for
+    loading them (and their dependencies) in AMD or CommonJS
+    environments. If the variables <code>exports</code>
+    and <code>module</code> exist and have type object, CommonJS-style
+    require will be used. If not, but there is a
+    function <code>define</code> with an <code>amd</code> property
+    present, AMD-style (RequireJS) will be used.</p>
+
+    <p>It is possible to
+    use <a href="http://browserify.org/">Browserify</a> or similar
+    tools to statically build modules using CodeMirror. Alternatively,
+    use <a href="http://requirejs.org/">RequireJS</a> to dynamically
+    load dependencies at runtime. Both of these approaches have the
+    advantage that they don't use the global namespace and can, thus,
+    do things like load multiple versions of CodeMirror alongside each
+    other.</p>
+
+    <p>Here's a simple example of using RequireJS to load CodeMirror:</p>
+
+    <pre data-lang="javascript">require([
+  "cm/lib/codemirror", "cm/mode/htmlmixed/htmlmixed"
+], function(CodeMirror) {
+  CodeMirror.fromTextArea(document.getElementById("code"), {
+    lineNumbers: true,
+    mode: "htmlmixed"
+  });
+});</pre>
+
+    <p>It will automatically load the modes that the mixed HTML mode
+    depends on (XML, JavaScript, and CSS).</p>
+
 </section>
+
 <section id=config>
     <h2>Configuration</h2>
 
@@ -229,18 +273,18 @@
       on Windows, and <code>true</code> on other platforms.</dd>
 
       <dt id="option_keyMap"><code><strong>keyMap</strong>: string</code></dt>
-      <dd>Configures the keymap to use. The default
-      is <code>"default"</code>, which is the only keymap defined
-      in <code>codemirror.js</code> itself. Extra keymaps are found in
-      the <a href="../keymap/"><code>keymap</code></a> directory. See
-      the <a href="#keymaps">section on keymaps</a> for more
+      <dd>Configures the key map to use. The default
+      is <code>"default"</code>, which is the only key map defined
+      in <code>codemirror.js</code> itself. Extra key maps are found in
+      the <a href="../keymap/"><code>key map</code></a> directory. See
+      the <a href="#keymaps">section on key maps</a> for more
       information.</dd>
 
       <dt id="option_extraKeys"><code><strong>extraKeys</strong>: object</code></dt>
-      <dd>Can be used to specify extra keybindings for the editor,
+      <dd>Can be used to specify extra key bindings for the editor,
       alongside the ones defined
       by <a href="#option_keyMap"><code>keyMap</code></a>. Should be
-      either null, or a valid <a href="#keymaps">keymap</a> value.</dd>
+      either null, or a valid <a href="#keymaps">key map</a> value.</dd>
 
       <dt id="option_lineWrapping"><code><strong>lineWrapping</strong>: boolean</code></dt>
       <dd>Whether CodeMirror should scroll or wrap for long lines.
@@ -293,12 +337,13 @@
 
       <dt id="option_undoDepth"><code><strong>undoDepth</strong>: integer</code></dt>
       <dd>The maximum number of undo levels that the editor stores.
-      Defaults to 40.</dd>
+      Note that this includes selection change events. Defaults to
+      200.</dd>
 
       <dt id="option_historyEventDelay"><code><strong>historyEventDelay</strong>: integer</code></dt>
       <dd>The period of inactivity (in milliseconds) that will cause a
       new history event to be started when typing or deleting.
-      Defaults to 500.</dd>
+      Defaults to 1250.</dd>
 
       <dt id="option_tabindex"><code><strong>tabindex</strong>: integer</code></dt>
       <dd>The <a href="http://www.w3.org/TR/html401/interact/forms.html#adef-tabindex">tab
@@ -323,38 +368,6 @@
       <dt id="option_dragDrop"><code><strong>dragDrop</strong>: boolean</code></dt>
       <dd>Controls whether drag-and-drop is enabled. On by default.</dd>
 
-      <dt id="option_onDragEvent"><code><strong>onDragEvent</strong>: function(instance: CodeMirror, event: Event) → boolean</code></dt>
-      <dd><em>Deprecated! See <a href="#event_dom">these</a> event
-      handlers for the current recommended approach.</em><br>When given,
-      this will be called when the editor is handling
-      a <code>dragenter</code>, <code>dragover</code>,
-      or <code>drop</code> event. It will be passed the editor
-      instance and the event object as arguments. The callback can
-      choose to handle the event itself, in which case it should
-      return <code>true</code> to indicate that CodeMirror should not
-      do anything further.</dd>
-
-      <dt id="option_onKeyEvent"><code><strong>onKeyEvent</strong>: function(instance: CodeMirror, event: Event) → boolean</code></dt>
-      <dd><em>Deprecated! See <a href="#event_dom">these</a> event
-      handlers for the current recommended approach.</em><br>This
-      provides a rather low-level hook into CodeMirror's key handling.
-      If provided, this function will be called on
-      every <code>keydown</code>, <code>keyup</code>,
-      and <code>keypress</code> event that CodeMirror captures. It
-      will be passed two arguments, the editor instance and the key
-      event. This key event is pretty much the raw key event, except
-      that a <code>stop()</code> method is always added to it. You
-      could feed it to, for example, <code>jQuery.Event</code> to
-      further normalize it.<br>This function can inspect the key
-      event, and handle it if it wants to. It may return true to tell
-      CodeMirror to ignore the event. Be wary that, on some browsers,
-      stopping a <code>keydown</code> does not stop
-      the <code>keypress</code> from firing, whereas on others it
-      does. If you respond to an event, you should probably inspect
-      its <code>type</code> property and only do something when it
-      is <code>keydown</code> (or <code>keypress</code> for actions
-      that need character data).</dd>
-
       <dt id="option_cursorBlinkRate"><code><strong>cursorBlinkRate</strong>: number</code></dt>
       <dd>Half-period in milliseconds used for cursor blinking. The default blink
       rate is 530ms. By setting this to zero, blinking can be disabled.</dd>
@@ -376,15 +389,12 @@
       click outside of the current selection, the cursor is moved to
       the point of the click. Defaults to <code>true</code>.</dd>
 
-      <dt id="option_workTime"><code><strong>workTime</strong>, <strong>workDelay</strong>: number</code></dt>
+      <dt id="option_workTime"><code id="option_wordkDelay"><strong>workTime</strong>, <strong>workDelay</strong>: number</code></dt>
       <dd>Highlighting is done by a pseudo background-thread that will
       work for <code>workTime</code> milliseconds, and then use
       timeout to sleep for <code>workDelay</code> milliseconds. The
       defaults are 200 and 300, you can change these options to make
       the highlighting more or less aggressive.</dd>
-
-      <dt id="option_workDelay"><code><strong>workDelay</strong>: number</code></dt>
-      <dd>See <a href="#option_workTime"><code>workTime</code></a>.</dd>
 
       <dt id="option_pollInterval"><code><strong>pollInterval</strong>: number</code></dt>
       <dd>Indicates how quickly CodeMirror should poll its input
@@ -459,7 +469,7 @@
       <dt id="event_change"><code><strong>"change"</strong> (instance: CodeMirror, changeObj: object)</code></dt>
       <dd>Fires every time the content of the editor is changed.
       The <code>changeObj</code> is a <code>{from, to, text, removed,
-      next}</code> object containing information about the changes
+      origin}</code> object containing information about the changes
       that occurred as second argument. <code>from</code>
       and <code>to</code> are the positions (in the pre-change
       coordinate system) where the change started and ended (for
@@ -468,10 +478,13 @@
       an array of strings representing the text that replaced the
       changed range (split by line). <code>removed</code> is the text
       that used to be between <code>from</code> and <code>to</code>,
-      which is overwritten by this change. If multiple changes
-      happened during a single operation, the object will have
-      a <code>next</code> property pointing to another change object
-      (which may point to another, etc).</dd>
+      which is overwritten by this change.</dd>
+
+      <dt id="event_changes"><code><strong>"changes"</strong> (instance: CodeMirror, changes: array&lt;object&lt;)</code></dt>
+      <dd>Like the <a href="#event_change"><code>"change"</code></a>
+      event, but batched per <a href="#operation">operation</a>,
+      passing an array containing all the changes that happened in the
+      operation.</dd>
 
       <dt id="event_beforeChange"><code><strong>"beforeChange"</strong> (instance: CodeMirror, changeObj: object)</code></dt>
       <dd>This event is fired before a change is applied, and its
@@ -479,12 +492,10 @@
       The <code>changeObj</code> object
       has <code>from</code>, <code>to</code>, and <code>text</code>
       properties, as with
-      the <a href="#event_change"><code>"change"</code></a> event, but
-      never a <code>next</code> property, since this is fired for each
-      individual change, and not batched per operation. It also has
-      a <code>cancel()</code> method, which can be called to cancel
-      the change, and, <strong>if</strong> the change isn't coming
-      from an undo or redo event, an <code>update(from, to,
+      the <a href="#event_change"><code>"change"</code></a> event. It
+      also has a <code>cancel()</code> method, which can be called to
+      cancel the change, and, <strong>if</strong> the change isn't
+      coming from an undo or redo event, an <code>update(from, to,
       text)</code> method, which may be used to modify the change.
       Undo or redo changes can't be modified, because they hold some
       metainformation for restoring old marked ranges that is only
@@ -504,7 +515,7 @@
 
       <dt id="event_keyHandled"><code><strong>"keyHandled"</strong> (instance: CodeMirror, name: string, event: Event)</code></dt>
       <dd>Fired after a key is handled through a
-      keymap. <code>name</code> is the name of the handled key (for
+      key map. <code>name</code> is the name of the handled key (for
       example <code>"Ctrl-X"</code> or <code>"'q'"</code>),
       and <code>event</code> is the DOM <code>keydown</code>
       or <code>keypress</code> event.</dd>
@@ -513,14 +524,15 @@
       <dd>Fired whenever new input is read from the hidden textarea
       (typed or pasted by the user).</dd>
 
-      <dt id="event_beforeSelectionChange"><code><strong>"beforeSelectionChange"</strong> (instance: CodeMirror, selection: {head, anchor})</code></dt>
+      <dt id="event_beforeSelectionChange"><code><strong>"beforeSelectionChange"</strong> (instance: CodeMirror, obj: {ranges, update})</code></dt>
       <dd>This event is fired before the selection is moved. Its
-      handler may modify the resulting selection head and anchor.
-      The <code>selection</code> parameter is an object
-      with <code>head</code> and <code>anchor</code> properties
-      holding <code>{line, ch}</code> objects, which the handler can
-      read and update. Handlers for this event have the same
-      restriction
+      handler may inspect the set of selection ranges, present as an
+      array of <code>{anchor, head}</code> objects in
+      the <code>ranges</code> property of the <code>obj</code>
+      argument, and optionally change them by calling
+      the <code>update</code> method on this object, passing an array
+      of ranges in the same format. Handlers for this event have the
+      same restriction
       as <a href="#event_beforeChange"><code>"beforeChange"</code></a>
       handlers — they should not do anything to directly update the
       state of the editor.</dd>
@@ -594,9 +606,7 @@
       document. <code>changeObj</code> has a similar type as the
       object passed to the
       editor's <a href="#event_change"><code>"change"</code></a>
-      event, but it never has a <code>next</code> property, because
-      document change events are not batched (whereas editor change
-      events are).</dd>
+      event.</dd>
 
       <dt id="event_doc_beforeChange"><code><strong>"beforeChange"</strong> (doc: CodeMirror.Doc, change: object)</code></dt>
       <dd>See the <a href="#event_beforeChange">description of the
@@ -675,11 +685,15 @@
 </section>
 
 <section id=keymaps>
-    <h2>Keymaps</h2>
+    <h2>Key Maps</h2>
 
-    <p>Keymaps are ways to associate keys with functionality. A keymap
+    <p>Key maps are ways to associate keys with functionality. A key map
     is an object mapping strings that identify the keys to functions
     that implement their functionality.</p>
+
+    <p>The CodeMirror distributions comes
+    with <a href="../demo/emacs.html">Emacs</a>, <a href="../demo/vim.html">Vim</a>,
+    and <a href="../demo/sublime.html">Sublime Text</a>-style keymaps.</p>
 
     <p>Keys are identified either by name or by character.
     The <code>CodeMirror.keyNames</code> object defines names for
@@ -698,7 +712,7 @@
 {
   Tab: function(cm) {
     var spaces = Array(cm.getOption("indentUnit") + 1).join(" ");
-    cm.replaceSelection(spaces, "end", "+input");
+    cm.replaceSelection(spaces);
   }
 }</pre>
 
@@ -707,23 +721,22 @@
     or <code>'q'</code>. Due to limitations in the way browsers fire
     key events, these may not be prefixed with modifiers.</p>
 
-    <p>The <code>CodeMirror.keyMap</code> object associates keymaps
-    with names. User code and keymap definitions can assign extra
-    properties to this object. Anywhere where a keymap is expected, a
+    <p>The <code>CodeMirror.keyMap</code> object associates key maps
+    with names. User code and key map definitions can assign extra
+    properties to this object. Anywhere where a key map is expected, a
     string can be given, which will be looked up in this object. It
-    also contains the <code>"default"</code> keymap holding the
+    also contains the <code>"default"</code> key map holding the
     default bindings.</p>
 
-    <p id="commands">The values of properties in keymaps can be either functions of
+    <p>The values of properties in key maps can be either functions of
     a single argument (the CodeMirror instance), strings, or
-    <code>false</code>. Such strings refer to properties of the
-    <code>CodeMirror.commands</code> object, which defines a number of
-    common commands that are used by the default keybindings, and maps
-    them to functions. If the property is set to <code>false</code>,
-    CodeMirror leaves handling of the key up to the browser. A key
-    handler function may return <code>CodeMirror.Pass</code> to indicate
-    that it has decided not to handle the key, and other handlers (or
-    the default behavior) should be given a turn.</p>
+    <code>false</code>. Strings refer
+    to <a href="#commands">commands</a>, which are described below. If
+    the property is set to <code>false</code>, CodeMirror leaves
+    handling of the key up to the browser. A key handler function may
+    return <code>CodeMirror.Pass</code> to indicate that it has
+    decided not to handle the key, and other handlers (or the default
+    behavior) should be given a turn.</p>
 
     <p>Keys mapped to command names that start with the
     characters <code>"go"</code> (which should be used for
@@ -732,20 +745,205 @@
     "goLineUp"</code> matches both up and shift-up). This is used to
     easily implement shift-selection.</p>
 
-    <p>Keymaps can defer to each other by defining
+    <p>Key maps can defer to each other by defining
     a <code>fallthrough</code> property. This indicates that when a
     key is not found in the map itself, one or more other maps should
-    be searched. It can hold either a single keymap or an array of
-    keymaps.</p>
+    be searched. It can hold either a single key map or an array of
+    key maps.</p>
 
-    <p>When a keymap contains a <code>nofallthrough</code> property
+    <p>When a key map contains a <code>nofallthrough</code> property
     set to <code>true</code>, keys matched against that map will be
     ignored if they don't match any of the bindings in the map (no
     further child maps will be tried). When
     the <code>disableInput</code> property is set
     to <code>true</code>, the default effect of inserting a character
-    will be suppressed when the keymap is active as the top-level
+    will be suppressed when the key map is active as the top-level
     map.</p>
+</section>
+
+<section id=commands>
+    <h2>Commands</h2>
+
+    <p>Commands are parameter-less actions that can be performed on an
+    editor. Their main use is for key bindings. Commands are defined by
+    adding properties to the <code>CodeMirror.commands</code> object.
+    A number of common commands are defined by the library itself,
+    most of them used by the default key bindings. The value of a
+    command property must be a function of one argument (an editor
+    instance).</p>
+
+    <p>Some of the commands below are referenced in the default
+    key map, but not defined by the core library. These are intended to
+    be defined by user code or addons.</p>
+
+    <p>Commands can also be run with
+    the <a href="#execCommand"><code>execCommand</code></a>
+    method.</p>
+
+    <dl>
+      <dt class=command id=command_selectAll><code><strong>selectAll</strong></code><span class=keybinding>Ctrl-A (PC), Cmd-A (Mac)</span></dt>
+      <dd>Select the whole content of the editor.</dd>
+
+      <dt class=command id=command_singleSelection><code><strong>singleSelection</strong></code><span class=keybinding>Esc</span></dt>
+      <dd>When multiple selections are present, this deselects all but
+      the primary selection.</dd>
+
+      <dt class=command id=command_killLine><code><strong>killLine</strong></code><span class=keybinding>Ctrl-K (Mac)</span></dt>
+      <dd>Emacs-style line killing. Deletes the part of the line after
+      the cursor. If that consists only of whitespace, the newline at
+      the end of the line is also deleted.</dd>
+
+      <dt class=command id=command_deleteLine><code><strong>deleteLine</strong></code><span class=keybinding>Ctrl-D (PC), Cmd-D (Mac)</span></dt>
+      <dd>Deletes the whole line under the cursor, including newline at the end.</dd>
+
+      <dt class=command id=command_delLineLeft><code><strong>delLineLeft</strong></code><span class=keybinding>Cmd-Backspace (Mac)</span></dt>
+      <dd>Delete the part of the line before the cursor.</dd>
+
+      <dt class=command id=command_undo><code><strong>undo</strong></code><span class=keybinding>Ctrl-Z (PC), Cmd-Z (Mac)</span></dt>
+      <dd>Undo the last change.</dd>
+
+      <dt class=command id=command_redo><code><strong>redo</strong></code><span class=keybinding>Ctrl-Y (PC), Shift-Cmd-Z (Mac), Cmd-Y (Mac)</span></dt>
+      <dd>Redo the last undone change.</dd>
+
+      <dt class=command id=command_undoSelection><code><strong>undoSelection</strong></code><span class=keybinding>Ctrl-U (PC), Cmd-U (Mac)</span></dt>
+      <dd>Undo the last change to the selection, or if there are no
+      selection-only changes at the top of the history, undo the last
+      change.</dd>
+
+      <dt class=command id=command_redoSelection><code><strong>redoSelection</strong></code><span class=keybinding>Alt-U (PC), Shift-Cmd-U (Mac)</span></dt>
+      <dd>Redo the last change to the selection, or the last text change if
+      no selection changes remain.</dd>
+
+      <dt class=command id=command_goDocStart><code><strong>goDocStart</strong></code><span class=keybinding>Ctrl-Up (PC), Cmd-Up (Mac)</span></dt>
+      <dd>Move the cursor to the start of the document.</dd>
+
+      <dt class=command id=command_goDocEnd><code><strong>goDocEnd</strong></code><span class=keybinding>Ctrl-Down (PC), Cmd-End (Mac), Cmd-Down (Mac)</span></dt>
+      <dd>Move the cursor to the end of the document.</dd>
+
+      <dt class=command id=command_goLineStart><code><strong>goLineStart</strong></code><span class=keybinding>Alt-Left (PC), Cmd-Left (Mac), Ctrl-A (Mac)</span></dt>
+      <dd>Move the cursor to the start of the line.</dd>
+
+      <dt class=command id=command_goLineStartSmart><code><strong>goLineStartSmart</strong></code><span class=keybinding>Home</span></dt>
+      <dd>Move to the start of the text on the line, or if we are
+      already there, to the actual start of the line (including
+      whitespace).</dd>
+
+      <dt class=command id=command_goLineEnd><code><strong>goLineEnd</strong></code><span class=keybinding>Alt-Right (PC), Cmd-Right (Mac), Ctrl-E (Mac)</span></dt>
+      <dd>Move the cursor to the end of the line.</dd>
+
+      <dt class=command id=command_goLineLeft><code><strong>goLineLeft</strong></code></dt>
+      <dd>Move the cursor to the left side of the visual line it is on. If
+      this line is wrapped, that may not be the start of the line.</dd>
+
+      <dt class=command id=command_goLineRight><code><strong>goLineRight</strong></code></dt>
+      <dd>Move the cursor to the right side of the visual line it is on.</dd>
+
+      <dt class=command id=command_goLineUp><code><strong>goLineUp</strong></code><span class=keybinding>Up, Ctrl-P (Mac)</span></dt>
+      <dd>Move the cursor up one line.</dd>
+
+      <dt class=command id=command_goLineDown><code><strong>goLineDown</strong></code><span class=keybinding>Down, Ctrl-N (Mac)</span></dt>
+      <dd>Move down one line.</dd>
+
+      <dt class=command id=command_goPageUp><code><strong>goPageUp</strong></code><span class=keybinding>PageUp, Shift-Ctrl-V (Mac)</span></dt>
+      <dd>Move the cursor up one screen, and scroll up by the same distance.</dd>
+
+      <dt class=command id=command_goPageDown><code><strong>goPageDown</strong></code><span class=keybinding>PageDown, Ctrl-V (Mac)</span></dt>
+      <dd>Move the cursor down one screen, and scroll down by the same distance.</dd>
+
+      <dt class=command id=command_goCharLeft><code><strong>goCharLeft</strong></code><span class=keybinding>Left, Ctrl-B (Mac)</span></dt>
+      <dd>Move the cursor one character left, going to the previous line
+      when hitting the start of line.</dd>
+
+      <dt class=command id=command_goCharRight><code><strong>goCharRight</strong></code><span class=keybinding>Right, Ctrl-F (Mac)</span></dt>
+      <dd>Move the cursor one character right, going to the next line
+      when hitting the end of line.</dd>
+
+      <dt class=command id=command_goColumnLeft><code><strong>goColumnLeft</strong></code></dt>
+      <dd>Move the cursor one character left, but don't cross line boundaries.</dd>
+
+      <dt class=command id=command_goColumnRight><code><strong>goColumnRight</strong></code></dt>
+      <dd>Move the cursor one character right, don't cross line boundaries.</dd>
+
+      <dt class=command id=command_goWordLeft><code><strong>goWordLeft</strong></code><span class=keybinding>Alt-B (Mac)</span></dt>
+      <dd>Move the cursor to the start of the previous word.</dd>
+
+      <dt class=command id=command_goWordRight><code><strong>goWordRight</strong></code><span class=keybinding>Alt-F (Mac)</span></dt>
+      <dd>Move the cursor to the end of the next word.</dd>
+
+      <dt class=command id=command_goGroupLeft><code><strong>goGroupLeft</strong></code><span class=keybinding>Ctrl-Left (PC), Alt-Left (Mac)</span></dt>
+      <dd>Move to the left of the group before the cursor. A group is
+      a stretch of word characters, a stretch of punctuation
+      characters, a newline, or a stretch of <em>more than one</em>
+      whitespace character.</dd>
+
+      <dt class=command id=command_goGroupRight><code><strong>goGroupRight</strong></code><span class=keybinding>Ctrl-Right (PC), Alt-Right (Mac)</span></dt>
+      <dd>Move to the right of the group after the cursor
+      (see <a href="#command_goGroupLeft">above</a>).</dd>
+
+      <dt class=command id=command_delCharBefore><code><strong>delCharBefore</strong></code><span class=keybinding>Shift-Backspace, Ctrl-H (Mac)</span></dt>
+      <dd>Delete the character before the cursor.</dd>
+
+      <dt class=command id=command_delCharAfter><code><strong>delCharAfter</strong></code><span class=keybinding>Delete, Ctrl-D (Mac)</span></dt>
+      <dd>Delete the character after the cursor.</dd>
+
+      <dt class=command id=command_delWordBefore><code><strong>delWordBefore</strong></code><span class=keybinding>Alt-Backspace (Mac)</span></dt>
+      <dd>Delete up to the start of the word before the cursor.</dd>
+
+      <dt class=command id=command_delWordAfter><code><strong>delWordAfter</strong></code><span class=keybinding>Alt-D (Mac)</span></dt>
+      <dd>Delete up to the end of the word after the cursor.</dd>
+
+      <dt class=command id=command_delGroupBefore><code><strong>delGroupBefore</strong></code><span class=keybinding>Ctrl-Backspace (PC), Alt-Backspace (Mac)</span></dt>
+      <dd>Delete to the left of the <a href="#command_goGroupLeft">group</a> before the cursor.</dd>
+
+      <dt class=command id=command_delGroupAfter><code><strong>delGroupAfter</strong></code><span class=keybinding>Ctrl-Delete (PC), Ctrl-Alt-Backspace (Mac), Alt-Delete (Mac)</span></dt>
+      <dd>Delete to the start of the <a href="#command_goGroupLeft">group</a> after the cursor.</dd>
+
+      <dt class=command id=command_indentAuto><code><strong>indentAuto</strong></code><span class=keybinding>Shift-Tab</span></dt>
+      <dd>Auto-indent the current line or selection.</dd>
+
+      <dt class=command id=command_indentMore><code><strong>indentMore</strong></code><span class=keybinding>Ctrl-] (PC), Cmd-] (Mac)</span></dt>
+      <dd>Indent the current line or selection by one <a href="#option_indentUnit">indent unit</a>.</dd>
+
+      <dt class=command id=command_indentLess><code><strong>indentLess</strong></code><span class=keybinding>Ctrl-[ (PC), Cmd-[ (Mac)</span></dt>
+      <dd>Dedent the current line or selection by one <a href="#option_indentUnit">indent unit</a>.</dd>
+
+      <dt class=command id=command_insertTab><code><strong>insertTab</strong></code></dt>
+      <dd>Insert a tab character at the cursor.</dd>
+
+      <dt class=command id=command_insertSoftTab><code><strong>insertSoftTab</strong></code></dt>
+      <dd>Insert the amount of spaces that match the width a tab at
+      the cursor position would have.</dd>
+
+      <dt class=command id=command_defaultTab><code><strong>defaultTab</strong></code><span class=keybinding>Tab</span></dt>
+      <dd>If something is selected, indent it by
+      one <a href="#option_indentUnit">indent unit</a>. If nothing is
+      selected, insert a tab character.</dd>
+
+      <dt class=command id=command_transposeChars><code><strong>transposeChars</strong></code><span class=keybinding>Ctrl-T (Mac)</span></dt>
+      <dd>Swap the characters before and after the cursor.</dd>
+
+      <dt class=command id=command_newlineAndIndent><code><strong>newlineAndIndent</strong></code><span class=keybinding>Enter</span></dt>
+      <dd>Insert a newline and auto-indent the new line.</dd>
+
+      <dt class=command id=command_toggleOverwrite><code><strong>toggleOverwrite</strong></code><span class=keybinding>Insert</span></dt>
+      <dd>Flip the <a href="#toggleOverwrite">overwrite</a> flag.</dd>
+
+      <dt class=command id=command_save><code><strong>save</strong></code><span class=keybinding>Ctrl-S (PC), Cmd-S (Mac)</span></dt>
+      <dd>Not defined by the core library, only referred to in
+      key maps. Intended to provide an easy way for user code to define
+      a save command.</dd>
+
+      <dt class=command id=command_find><code><strong>find</strong></code><span class=keybinding>Ctrl-F (PC), Cmd-F (Mac)</span></dt>
+      <dt class=command id=command_findNext><code><strong>findNext</strong></code><span class=keybinding>Ctrl-G (PC), Cmd-G (Mac)</span></dt>
+      <dt class=command id=command_findPrev><code><strong>findPrev</strong></code><span class=keybinding>Shift-Ctrl-G (PC), Shift-Cmd-G (Mac)</span></dt>
+      <dt class=command id=command_replace><code><strong>replace</strong></code><span class=keybinding>Shift-Ctrl-F (PC), Cmd-Alt-F (Mac)</span></dt>
+      <dt class=command id=command_replaceAll><code><strong>replaceAll</strong></code><span class=keybinding>Shift-Ctrl-R (PC), Shift-Cmd-Alt-F (Mac)</span></dt>
+      <dd>Not defined by the core library, but defined in
+      the <a href="#addon_search">search addon</a> (or custom client
+      addons).</dd>
+
+    </dl>
+
 </section>
 
 <section id=styling>
@@ -888,19 +1086,20 @@
       should be <code>{line, ch}</code> objects. An optional third
       argument can be given to indicate the line separator string to
       use (defaults to <code>"\n"</code>).</dd>
-      <dt id="replaceRange"><code><strong>doc.replaceRange</strong>(replacement: string, from: {line, ch}, to: {line, ch})</code></dt>
+      <dt id="replaceRange"><code><strong>doc.replaceRange</strong>(replacement: string, from: {line, ch}, to: {line, ch}, ?origin: string)</code></dt>
       <dd>Replace the part of the document between <code>from</code>
       and <code>to</code> with the given string. <code>from</code>
       and <code>to</code> must be <code>{line, ch}</code>
       objects. <code>to</code> can be left off to simply insert the
-      string at position <code>from</code>.</dd>
+      string at position <code>from</code>. When <code>origin</code>
+      is given, it will be passed on
+      to <a href="#event_change"><code>"change"</code> events</a>, and
+      its first letter will be used to determine whether this change
+      can be merged with previous history events, in the way described
+      for <a href="#selection_origin">selection origins</a>.</dd>
 
       <dt id="getLine"><code><strong>doc.getLine</strong>(n: integer) → string</code></dt>
       <dd>Get the content of line <code>n</code>.</dd>
-      <dt id="setLine"><code><strong>doc.setLine</strong>(n: integer, text: string)</code></dt>
-      <dd>Set the content of line <code>n</code>.</dd>
-      <dt id="removeLine"><code><strong>doc.removeLine</strong>(n: integer)</code></dt>
-      <dd>Remove the given line from the document.</dd>
 
       <dt id="lineCount"><code><strong>doc.lineCount</strong>() → integer</code></dt>
       <dd>Get the number of lines in the editor.</dd>
@@ -961,56 +1160,120 @@
     <h3 id="api_selection">Cursor and selection methods</h3>
 
     <dl>
-      <dt id="getSelection"><code><strong>doc.getSelection</strong>() → string</code></dt>
-      <dd>Get the currently selected code.</dd>
-      <dt id="replaceSelection"><code><strong>doc.replaceSelection</strong>(replacement: string, ?collapse: string)</code></dt>
-      <dd>Replace the selection with the given string. By default, the
-      new selection will span the inserted text. The
-      optional <code>collapse</code> argument can be used to change
-      this—passing <code>"start"</code> or <code>"end"</code> will
-      collapse the selection to the start or end of the inserted
-      text.</dd>
+      <dt id="getSelection"><code><strong>doc.getSelection</strong>(?lineSep: string) → string</code></dt>
+      <dd>Get the currently selected code. Optionally pass a line
+      separator to put between the lines in the output. When multiple
+      selections are present, they are concatenated with instances
+      of <code>lineSep</code> in between.</dd>
+      <dt id="getSelections"><code><strong>doc.getSelections</strong>(?lineSep: string) → string</code></dt>
+      <dd>Returns an array containing a string for each selection,
+      representing the content of the selections.</dd>
+
+      <dt id="replaceSelection"><code><strong>doc.replaceSelection</strong>(replacement: string, ?select: string)</code></dt>
+      <dd>Replace the selection(s) with the given string. By default,
+      the new selection ends up after the inserted text. The
+      optional <code>select</code> argument can be used to change
+      this—passing <code>"around"</code> will cause the new text to be
+      selected, passing <code>"start"</code> will collapse the
+      selection to the start of the inserted text.</dd>
+      <dt id="replaceSelections"><code><strong>doc.replaceSelections</strong>(replacements: array&lt;string&gt;, ?select: string)</code></dt>
+      <dd>The length of the given array should be the same as the
+      number of active selections. Replaces the content of the
+      selections with the strings in the array.
+      The <code>select</code> argument works the same as
+      in <a href="#replaceSelection"><code>replaceSelection</code></a>.</dd>
 
       <dt id="getCursor"><code><strong>doc.getCursor</strong>(?start: string) → {line, ch}</code></dt>
-      <dd><code>start</code> is a an optional string indicating which
-      end of the selection to return. It may
-      be <code>"start"</code>, <code>"end"</code>, <code>"head"</code>
+      <dd>Retrieve one end of the <em>primary</em>
+      selection. <code>start</code> is a an optional string indicating
+      which end of the selection to return. It may
+      be <code>"from"</code>, <code>"to"</code>, <code>"head"</code>
       (the side of the selection that moves when you press
       shift+arrow), or <code>"anchor"</code> (the fixed side of the
       selection). Omitting the argument is the same as
       passing <code>"head"</code>. A <code>{line, ch}</code> object
       will be returned.</dd>
+      <dt id="listSelections"><code><strong>doc.listSelections</strong>() → array&lt;{anchor, head}&lt;</code></dt>
+      <dd>Retrieves a list of all current selections. These will
+      always be sorted, and never overlap (overlapping selections are
+      merged). Each object in the array contains <code>anchor</code>
+      and <code>head</code> properties referring to <code>{line,
+      ch}</code> objects.</dd>
+      
       <dt id="somethingSelected"><code><strong>doc.somethingSelected</strong>() → boolean</code></dt>
       <dd>Return true if any text is selected.</dd>
-      <dt id="setCursor"><code><strong>doc.setCursor</strong>(pos: {line, ch})</code></dt>
+      <dt id="setCursor"><code><strong>doc.setCursor</strong>(pos: {line, ch}|number, ?ch: number, ?options: object)</code></dt>
       <dd>Set the cursor position. You can either pass a
       single <code>{line, ch}</code> object, or the line and the
-      character as two separate parameters.</dd>
-      <dt id="setSelection"><code><strong>doc.setSelection</strong>(anchor: {line, ch}, ?head: {line, ch})</code></dt>
-      <dd>Set the selection range. <code>anchor</code>
+      character as two separate parameters. Will replace all
+      selections with a single, empty selection at the given position.
+      The supported options are the same as for <a href="#setSelection"><code>setSelection</code></a>.</dd>
+
+      <dt id="setSelection"><code><strong>doc.setSelection</strong>(anchor: {line, ch}, ?head: {line, ch}, ?options: object)</code></dt>
+      <dd>Set a single selection range. <code>anchor</code>
       and <code>head</code> should be <code>{line, ch}</code>
       objects. <code>head</code> defaults to <code>anchor</code> when
-      not given.</dd>
-      <dt id="extendSelection"><code><strong>doc.extendSelection</strong>(from: {line, ch}, ?to: {line, ch})</code></dt>
+      not given. These options are supported:
+      <dl>
+        <dt id="selection_scroll"><code><strong>scroll</strong>: boolean</code></dt>
+        <dd>Determines whether the selection head should be scrolled
+        into view. Defaults to true.</dd>
+        <dt id="selection_origin"><code><strong>origin</strong>: string</code></dt>
+        <dd>Detemines whether the selection history event may be
+        merged with the previous one. When an origin starts with the
+        character <code>+</code>, and the last recorded selection had
+        the same origin and was similar (close
+        in <a href="#option_historyEventDelay">time</a>, both
+        collapsed or both non-collapsed), the new one will replace the
+        old one. When it starts with <code>*</code>, it will always
+        replace the previous event (if that had the same origin).
+        Built-in motion uses the <code>"+move"</code> origin.</dd>
+      </dl></dd>
+
+      <dt id="setSelections"><code><strong>doc.setSelections</strong>(ranges: array&lt;{anchor, head}&gt;, ?primary: integer, ?options: object)</code></dt>
+      <dd>Sets a new set of selections. There must be at least one
+      selection in the given array. When <code>primary</code> is a
+      number, it determines which selection is the primary one. When
+      it is not given, the primary index is taken from the previous
+      selection, or set to the last range if the previous selection
+      had less ranges than the new one. Supports the same options
+      as <a href="#setSelection"><code>setSelection</code></a>.</dd>
+      <dt id="addSelection"><code><strong>doc.addSelection</strong>(anchor: {line, ch}, ?head: {line, ch})</code></dt>
+      <dd>Adds a new selection to the existing set of selections, and
+      makes it the primary selection.</dd>
+
+      <dt id="extendSelection"><code><strong>doc.extendSelection</strong>(from: {line, ch}, ?to: {line, ch}, ?options: object)</code></dt>
       <dd>Similar
       to <a href="#setSelection"><code>setSelection</code></a>, but
       will, if shift is held or
       the <a href="#setExtending">extending</a> flag is set, move the
       head of the selection while leaving the anchor at its current
-      place. <code>to</code> is optional, and can be passed to
-      ensure a region (for example a word or paragraph) will end up
-      selected (in addition to whatever lies between that region and
-      the current anchor).</dd>
+      place. <code>to</code> is optional, and can be passed to ensure
+      a region (for example a word or paragraph) will end up selected
+      (in addition to whatever lies between that region and the
+      current anchor). When multiple selections are present, all but
+      the primary selection will be dropped by this method.
+      Supports the same options as <a href="#setSelection"><code>setSelection</code></a>.</dd>
+      <dt id="extendSelections"><code><strong>doc.extendSelections</strong>(heads: array&lt;{line, ch}&gt;, ?options: object)</code></dt>
+      <dd>An equivalent
+      of <a href="#extendSelection"><code>extendSelection</code></a>
+      that acts on all selections at once.</dd>
+      <dt id="extendSelectionsBy"><code><strong>doc.extendSelectionsBy</strong>(f: function(range: {anchor, head}) → {anchor, head}), ?options: object)</code></dt>
+      <dd>Applies the given function to all existing selections, and
+      calls <a href="#extendSelections"><code>extendSelections</code></a>
+      on the result.</dd>
       <dt id="setExtending"><code><strong>doc.setExtending</strong>(value: boolean)</code></dt>
       <dd>Sets or clears the 'extending' flag, which acts similar to
       the shift key, in that it will cause cursor movement and calls
       to <a href="#extendSelection"><code>extendSelection</code></a>
       to leave the selection anchor in place.</dd>
+      <dt id="getExtending"><code><strong>doc.getExtending</strong>() → boolean</code></dt>
+      <dd>Get the value of the 'extending' flag.</dd>
 
       <dt id="hasFocus"><code><strong>cm.hasFocus</strong>() → boolean</code></dt>
       <dd>Tells you whether the editor currently has focus.</dd>
 
-      <dt id="findPosH"><code><strong>cm.findPosH</strong>(start: {line, ch}, amount: integer, unit: string, visually: boolean) → {line, ch, ?hitSide: boolean}</code></dt>
+      <dt id="findPosH"><code><strong>cm.findPosH</strong>(start: {line, ch}, amount: integer, unit: string, visually: boolean) → {line, ch, ?hitSide: boolean}</code></dt>
       <dd>Used to find the target position for horizontal cursor
       motion. <code>start</code> is a <code>{line, ch}</code>
       object, <code>amount</code> an integer (may be negative),
@@ -1044,7 +1307,7 @@
       editor instance.</dd>
 
       <dt id="addKeyMap"><code><strong>cm.addKeyMap</strong>(map: object, bottom: boolean)</code></dt>
-      <dd>Attach an additional <a href="#keymaps">keymap</a> to the
+      <dd>Attach an additional <a href="#keymaps">key map</a> to the
       editor. This is mostly useful for addons that need to register
       some key handlers without trampling on
       the <a href="#option_extraKeys"><code>extraKeys</code></a>
@@ -1053,14 +1316,14 @@
       and <a href="#option_keyMap"><code>keyMap</code></a> options,
       and between them, the maps added earlier have a lower precedence
       than those added later, unless the <code>bottom</code> argument
-      was passed, in which case they end up below other keymaps added
+      was passed, in which case they end up below other key maps added
       with this method.</dd>
       <dt id="removeKeyMap"><code><strong>cm.removeKeyMap</strong>(map: object)</code></dt>
       <dd>Disable a keymap added
       with <a href="#addKeyMap"><code>addKeyMap</code></a>. Either
-      pass in the keymap object itself, or a string, which will be
+      pass in the key map object itself, or a string, which will be
       compared against the <code>name</code> property of the active
-      keymaps.</dd>
+      key maps.</dd>
 
       <dt id="addOverlay"><code><strong>cm.addOverlay</strong>(mode: string|object, ?options: object)</code></dt>
       <dd>Enable a highlighting overlay. This is a stateless mini-mode
@@ -1164,6 +1427,11 @@
       <dd>Undo one edit (if any undo events are stored).</dd>
       <dt id="redo"><code><strong>doc.redo</strong>()</code></dt>
       <dd>Redo one undone edit.</dd>
+
+      <dt id="undoSelection"><code><strong>doc.undoSelection</strong>()</code></dt>
+      <dd>Undo one edit or selection change.</dd>
+      <dt id="redoSelection"><code><strong>doc.redoSelection</strong>()</code></dt>
+      <dd>Redo one undone edit or selection change.</dd>
 
       <dt id="historySize"><code><strong>doc.historySize</strong>() → {undo: integer, redo: integer}</code></dt>
       <dd>Returns an object with <code>{undo, redo}</code> properties,
@@ -1291,6 +1559,9 @@
         when the cursor is on top of the bookmark will end up to the
         right of the bookmark. Set this option to true to make it go
         to the left instead.</dd>
+        <dt><code><strong>shared</strong>: boolean</code></dt><dd>See
+        the corresponding <a href="#mark_shared">option</a>
+        to <code>markText</code>.</dd>
       </dl></dd>
 
       <dt id="findMarks"><code><strong>doc.findMarks</strong>(from: {line, ch}, to: {line, ch}) → array&lt;TextMarker&gt;</code></dt>
@@ -1377,9 +1648,6 @@
           <dt><code><strong>above</strong>: boolean</code></dt>
           <dd>Causes the widget to be placed above instead of below
           the text of the line.</dd>
-          <dt><code><strong>showIfHidden</strong>: boolean</code></dt>
-          <dd>When true, will cause the widget to be rendered even if
-          the line it is associated with is hidden.</dd>
           <dt><code><strong>handleMouseEvents</strong>: boolean</code></dt>
           <dd>Determines whether the editor will capture mouse and
           drag events occurring in this widget. Default is false—the
@@ -2112,7 +2380,7 @@
         <dd>When enabled (which is the default), the pop-up will close
         when the editor is unfocused.</dd>
         <dt><code><strong>customKeys</strong>: keymap</code></dt>
-        <dd>Allows you to provide a custom keymap of keys to be active
+        <dd>Allows you to provide a custom key map of keys to be active
         when the pop-up is active. The handlers will be called with an
         extra argument, a handle to the completion menu, which
         has <code>moveFocus(n)</code>, <code>setFocus(n)</code>, <code>pick()</code>,
@@ -2143,7 +2411,7 @@
         <dt><code><strong>"close"</strong> ()</code></dt>
         <dd>Fired when the completion is finished.</dd>
       </dl>
-      This addon depends styles
+      This addon depends on styles
       from <code>addon/hint/show-hint.css</code>. Check
       out <a href="../demo/complete.html">the demo</a> for an
       example.</dd>
@@ -2203,9 +2471,6 @@
 
       <dt id="addon_sql-hint"><a href="../addon/hint/sql-hint.js"><code>hint/sql-hint.js</code></a></dt>
       <dd>A simple SQL hinter. Defines <code>CodeMirror.hint.sql</code>.</dd>
-
-      <dt id="addon_pig-hint"><a href="../addon/hint/pig-hint.js"><code>hint/pig-hint.js</code></a></dt>
-      <dd>A simple hinter for <a href="../mode/pig/index.html">Pig Latin</a>. Defines <code>CodeMirror.hint.pig</code>.</dd>
 
       <dt id="addon_match-highlighter"><a href="../addon/search/match-highlighter.js"><code>search/match-highlighter.js</code></a></dt>
       <dd>Adds a <code>highlightSelectionMatches</code> option that

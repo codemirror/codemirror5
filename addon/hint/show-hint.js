@@ -1,4 +1,11 @@
-(function() {
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
   "use strict";
 
   var HINT_ELEMENT_CLASS        = "CodeMirror-hint";
@@ -6,7 +13,7 @@
 
   CodeMirror.showHint = function(cm, getHints, options) {
     // We want a single cursor position.
-    if (cm.somethingSelected()) return;
+    if (cm.listSelections().length > 1 || cm.somethingSelected()) return;
     if (getHints == null) {
       if (options && options.async) return;
       else getHints = CodeMirror.hint.auto;
@@ -46,7 +53,8 @@
     pick: function(data, i) {
       var completion = data.list[i];
       if (completion.hint) completion.hint(this.cm, data, completion);
-      else this.cm.replaceRange(getText(completion), completion.from||data.from, completion.to||data.to);
+      else this.cm.replaceRange(getText(completion), completion.from || data.from,
+                                completion.to || data.to, "complete");
       CodeMirror.signal(data, "pick", completion);
       this.close();
     },
@@ -93,6 +101,7 @@
         data = data_;
         if (finished) return;
         if (!data || !data.list.length) return done();
+        if (completion.widget) completion.widget.close();
         completion.widget = new Widget(completion, data);
       }
 
@@ -339,4 +348,4 @@
   });
 
   CodeMirror.commands.autocomplete = CodeMirror.showHint;
-})();
+});

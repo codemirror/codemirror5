@@ -33,6 +33,8 @@
       <input type="hidden" id="download" name="download" value="codemirror-compressed.js"/>
       <p>Version: <select id="version" onchange="setVersion(this);" style="padding: 1px;">
         <option value="http://codemirror.net/">HEAD</option>
+        <option value="http://marijnhaverbeke.nl/git/codemirror?a=blob_plain;hb=4.0.3;f=">4.0</option>
+        <option value="http://marijnhaverbeke.nl/git/codemirror?a=blob_plain;hb=3.23.0;f=">3.23</option>
         <option value="http://marijnhaverbeke.nl/git/codemirror?a=blob_plain;hb=3.22.0;f=">3.22</option>
         <option value="http://marijnhaverbeke.nl/git/codemirror?a=blob_plain;hb=3.21.0;f=">3.21</option>
         <option value="http://marijnhaverbeke.nl/git/codemirror?a=blob_plain;hb=3.20.0;f=">3.20</option>
@@ -91,7 +93,9 @@
           <option value="http://codemirror.net/mode/css/css.js">css.js</option>
           <option value="http://codemirror.net/mode/d/d.js">d.js</option>
           <option value="http://codemirror.net/mode/diff/diff.js">diff.js</option>
+          <option value="http://codemirror.net/mode/django/django.js">django.js</option>
           <option value="http://codemirror.net/mode/dtd/dtd.js">dtd.js</option>
+          <option value="http://codemirror.net/mode/dylan/dylan.js">dylan.js</option>
           <option value="http://codemirror.net/mode/ecl/ecl.js">ecl.js</option>
           <option value="http://codemirror.net/mode/eiffel/eiffel.js">eiffel.js</option>
           <option value="http://codemirror.net/mode/erlang/erlang.js">erlang.js</option>
@@ -110,8 +114,7 @@
           <option value="http://codemirror.net/mode/jade/jade.js">jade.js</option>
           <option value="http://codemirror.net/mode/javascript/javascript.js">javascript.js</option>
           <option value="http://codemirror.net/mode/jinja2/jinja2.js">jinja2.js</option>
-          <option value="http://codemirror.net/mode/julia/julia.js">jinja2.js</option>
-          <option value="http://codemirror.net/mode/less/less.js">less.js</option>
+          <option value="http://codemirror.net/mode/julia/julia.js">julia.js</option>
           <option value="http://codemirror.net/mode/livescript/livescript.js">livescript.js</option>
           <option value="http://codemirror.net/mode/lua/lua.js">lua.js</option>
           <option value="http://codemirror.net/mode/markdown/markdown.js">markdown.js</option>
@@ -130,8 +133,7 @@
           <option value="http://codemirror.net/mode/puppet/puppet.js">puppet.js</option>
           <option value="http://codemirror.net/mode/q/q.js">q.js</option>
           <option value="http://codemirror.net/mode/r/r.js">r.js</option>
-          <option value="http://codemirror.net/mode/rpm/changes/changes.js">rpm/changes.js</option>
-          <option value="http://codemirror.net/mode/rpm/spec/spec.js">rpm/spec.js</option>
+          <option value="http://codemirror.net/mode/rpm/rpm.js">rpm.js</option>
           <option value="http://codemirror.net/mode/rst/rst.js">rst.js</option>
           <option value="http://codemirror.net/mode/ruby/ruby.js">ruby.js</option>
           <option value="http://codemirror.net/mode/rust/rust.js">rust.js</option>
@@ -193,7 +195,6 @@
           <option value="http://codemirror.net/addon/merge/merge.js">merge.js</option>
           <option value="http://codemirror.net/addon/mode/multiplex.js">multiplex.js</option>
           <option value="http://codemirror.net/addon/mode/overlay.js">overlay.js</option>
-          <option value="http://codemirror.net/addon/hint/pig-hint.js">pig-hint.js</option>
           <option value="http://codemirror.net/addon/display/placeholder.js">placeholder.js</option>
           <option value="http://codemirror.net/addon/hint/python-hint.js">python-hint.js</option>
           <option value="http://codemirror.net/addon/display/rulers.js">rulers.js</option>
@@ -212,6 +213,7 @@
         </optgroup>
         <optgroup label="Keymaps">
           <option value="http://codemirror.net/keymap/emacs.js">emacs.js</option>
+          <option value="http://codemirror.net/keymap/sublime.js">sublime.js</option>
           <option value="http://codemirror.net/keymap/vim.js">vim.js</option>
         </optgroup>
       </select>

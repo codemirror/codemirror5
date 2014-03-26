@@ -2,6 +2,16 @@
 
 // declare global: coffeelint
 
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
+"use strict";
+
 CodeMirror.registerHelper("lint", "coffeescript", function(text) {
   var found = [];
   var parseError = function(err) {
@@ -24,4 +34,5 @@ CodeMirror.registerHelper("lint", "coffeescript", function(text) {
   }
   return found;
 });
-CodeMirror.coffeeValidator = CodeMirror.lint.coffeescript; // deprecated
+
+});

@@ -176,6 +176,11 @@ function testVim(name, run, opts, expectedFail) {
         return callback(result);
       }
     }
+    function fakeOpenNotification(matcher) {
+      return function(text) {
+        matcher(text);
+      }
+    }
     var helpers = {
       doKeys: doKeysFn(cm),
       // Warning: Only emulates keymap events, not character insertions. Use
@@ -185,16 +190,19 @@ function testVim(name, run, opts, expectedFail) {
       doEx: doExFn(cm),
       assertCursorAt: assertCursorAtFn(cm),
       fakeOpenDialog: fakeOpenDialog,
+      fakeOpenNotification: fakeOpenNotification,
       getRegisterController: function() {
         return CodeMirror.Vim.getRegisterController();
       }
     }
     CodeMirror.Vim.resetVimGlobalState_();
     var successful = false;
+    var savedOpenNotification = cm.openNotification;
     try {
       run(cm, vim, helpers);
       successful = true;
     } finally {
+      cm.openNotification = savedOpenNotification;
       if (!successful || verbose) {
         place.style.visibility = "visible";
       } else {
@@ -250,7 +258,7 @@ testJumplist('jumplist_gg', ['g', 'g', '<C-o>'], [5,2], [5,2]);
 testJumplist('jumplist_%', ['%', '<C-o>'], [1,5], [1,5]);
 testJumplist('jumplist_{', ['{', '<C-o>'], [1,5], [1,5]);
 testJumplist('jumplist_}', ['}', '<C-o>'], [1,5], [1,5]);
-testJumplist('jumplist_\'', ['m', 'a', 'h', '\'', 'a', 'h', '<C-i>'], [1,5], [1,5]);
+testJumplist('jumplist_\'', ['m', 'a', 'h', '\'', 'a', 'h', '<C-i>'], [1,0], [1,5]);
 testJumplist('jumplist_`', ['m', 'a', 'h', '`', 'a', 'h', '<C-i>'], [1,5], [1,5]);
 testJumplist('jumplist_*_cachedCursor', ['*', '<C-o>'], [1,3], [1,3]);
 testJumplist('jumplist_#_cachedCursor', ['#', '<C-o>'], [1,3], [1,3]);
@@ -502,7 +510,7 @@ testVim('dl', function(cm, vim, helpers) {
   helpers.doKeys('d', 'l');
   eq('word1 ', cm.getValue());
   var register = helpers.getRegisterController().getRegister();
-  eq(' ', register.text);
+  eq(' ', register.toString());
   is(!register.linewise);
   eqPos(curStart, cm.getCursor());
 }, { value: ' word1 ' });
@@ -511,7 +519,7 @@ testVim('dl_eol', function(cm, vim, helpers) {
   helpers.doKeys('d', 'l');
   eq(' word1', cm.getValue());
   var register = helpers.getRegisterController().getRegister();
-  eq(' ', register.text);
+  eq(' ', register.toString());
   is(!register.linewise);
   helpers.assertCursorAt(0, 5);
 }, { value: ' word1 ' });
@@ -521,7 +529,7 @@ testVim('dl_repeat', function(cm, vim, helpers) {
   helpers.doKeys('2', 'd', 'l');
   eq('ord1 ', cm.getValue());
   var register = helpers.getRegisterController().getRegister();
-  eq(' w', register.text);
+  eq(' w', register.toString());
   is(!register.linewise);
   eqPos(curStart, cm.getCursor());
 }, { value: ' word1 ' });
@@ -531,7 +539,7 @@ testVim('dh', function(cm, vim, helpers) {
   helpers.doKeys('d', 'h');
   eq(' wrd1 ', cm.getValue());
   var register = helpers.getRegisterController().getRegister();
-  eq('o', register.text);
+  eq('o', register.toString());
   is(!register.linewise);
   eqPos(offsetCursor(curStart, 0 , -1), cm.getCursor());
 }, { value: ' word1 ' });
@@ -541,7 +549,7 @@ testVim('dj', function(cm, vim, helpers) {
   helpers.doKeys('d', 'j');
   eq(' word3', cm.getValue());
   var register = helpers.getRegisterController().getRegister();
-  eq(' word1\nword2\n', register.text);
+  eq(' word1\nword2\n', register.toString());
   is(register.linewise);
   helpers.assertCursorAt(0, 1);
 }, { value: ' word1\nword2\n word3' });
@@ -551,7 +559,7 @@ testVim('dj_end_of_document', function(cm, vim, helpers) {
   helpers.doKeys('d', 'j');
   eq(' word1 ', cm.getValue());
   var register = helpers.getRegisterController().getRegister();
-  eq('', register.text);
+  eq('', register.toString());
   is(!register.linewise);
   helpers.assertCursorAt(0, 3);
 }, { value: ' word1 ' });
@@ -561,7 +569,7 @@ testVim('dk', function(cm, vim, helpers) {
   helpers.doKeys('d', 'k');
   eq(' word3', cm.getValue());
   var register = helpers.getRegisterController().getRegister();
-  eq(' word1\nword2\n', register.text);
+  eq(' word1\nword2\n', register.toString());
   is(register.linewise);
   helpers.assertCursorAt(0, 1);
 }, { value: ' word1\nword2\n word3' });
@@ -571,7 +579,7 @@ testVim('dk_start_of_document', function(cm, vim, helpers) {
   helpers.doKeys('d', 'k');
   eq(' word1 ', cm.getValue());
   var register = helpers.getRegisterController().getRegister();
-  eq('', register.text);
+  eq('', register.toString());
   is(!register.linewise);
   helpers.assertCursorAt(0, 3);
 }, { value: ' word1 ' });
@@ -581,7 +589,7 @@ testVim('dw_space', function(cm, vim, helpers) {
   helpers.doKeys('d', 'w');
   eq('word1 ', cm.getValue());
   var register = helpers.getRegisterController().getRegister();
-  eq(' ', register.text);
+  eq(' ', register.toString());
   is(!register.linewise);
   eqPos(curStart, cm.getCursor());
 }, { value: ' word1 ' });
@@ -591,7 +599,7 @@ testVim('dw_word', function(cm, vim, helpers) {
   helpers.doKeys('d', 'w');
   eq(' word2', cm.getValue());
   var register = helpers.getRegisterController().getRegister();
-  eq('word1 ', register.text);
+  eq('word1 ', register.toString());
   is(!register.linewise);
   eqPos(curStart, cm.getCursor());
 }, { value: ' word1 word2' });
@@ -602,7 +610,7 @@ testVim('dw_only_word', function(cm, vim, helpers) {
   helpers.doKeys('d', 'w');
   eq(' ', cm.getValue());
   var register = helpers.getRegisterController().getRegister();
-  eq('word1 ', register.text);
+  eq('word1 ', register.toString());
   is(!register.linewise);
   helpers.assertCursorAt(0, 0);
 }, { value: ' word1 ' });
@@ -613,7 +621,7 @@ testVim('dw_eol', function(cm, vim, helpers) {
   helpers.doKeys('d', 'w');
   eq(' \nword2', cm.getValue());
   var register = helpers.getRegisterController().getRegister();
-  eq('word1', register.text);
+  eq('word1', register.toString());
   is(!register.linewise);
   helpers.assertCursorAt(0, 0);
 }, { value: ' word1\nword2' });
@@ -624,7 +632,7 @@ testVim('dw_eol_with_multiple_newlines', function(cm, vim, helpers) {
   helpers.doKeys('d', 'w');
   eq(' \n\nword2', cm.getValue());
   var register = helpers.getRegisterController().getRegister();
-  eq('word1', register.text);
+  eq('word1', register.toString());
   is(!register.linewise);
   helpers.assertCursorAt(0, 0);
 }, { value: ' word1\n\nword2' });
@@ -670,7 +678,7 @@ testVim('dw_repeat', function(cm, vim, helpers) {
   helpers.doKeys('d', '2', 'w');
   eq(' ', cm.getValue());
   var register = helpers.getRegisterController().getRegister();
-  eq('word1\nword2', register.text);
+  eq('word1\nword2', register.toString());
   is(!register.linewise);
   helpers.assertCursorAt(0, 0);
 }, { value: ' word1\nword2' });
@@ -751,7 +759,7 @@ testVim('d_inclusive', function(cm, vim, helpers) {
   helpers.doKeys('d', 'e');
   eq('  ', cm.getValue());
   var register = helpers.getRegisterController().getRegister();
-  eq('word1', register.text);
+  eq('word1', register.toString());
   is(!register.linewise);
   eqPos(curStart, cm.getCursor());
 }, { value: ' word1 ' });
@@ -761,7 +769,7 @@ testVim('d_reverse', function(cm, vim, helpers) {
   helpers.doKeys('d', 'b');
   eq(' word2 ', cm.getValue());
   var register = helpers.getRegisterController().getRegister();
-  eq('word1\n', register.text);
+  eq('word1\n', register.toString());
   is(!register.linewise);
   helpers.assertCursorAt(0, 1);
 }, { value: ' word1\nword2 ' });
@@ -773,7 +781,7 @@ testVim('dd', function(cm, vim, helpers) {
   helpers.doKeys('d', 'd');
   eq(expectedLineCount, cm.lineCount());
   var register = helpers.getRegisterController().getRegister();
-  eq(expectedBuffer, register.text);
+  eq(expectedBuffer, register.toString());
   is(register.linewise);
   helpers.assertCursorAt(0, lines[1].textStart);
 });
@@ -785,7 +793,7 @@ testVim('dd_prefix_repeat', function(cm, vim, helpers) {
   helpers.doKeys('2', 'd', 'd');
   eq(expectedLineCount, cm.lineCount());
   var register = helpers.getRegisterController().getRegister();
-  eq(expectedBuffer, register.text);
+  eq(expectedBuffer, register.toString());
   is(register.linewise);
   helpers.assertCursorAt(0, lines[2].textStart);
 });
@@ -797,7 +805,7 @@ testVim('dd_motion_repeat', function(cm, vim, helpers) {
   helpers.doKeys('d', '2', 'd');
   eq(expectedLineCount, cm.lineCount());
   var register = helpers.getRegisterController().getRegister();
-  eq(expectedBuffer, register.text);
+  eq(expectedBuffer, register.toString());
   is(register.linewise);
   helpers.assertCursorAt(0, lines[2].textStart);
 });
@@ -809,7 +817,7 @@ testVim('dd_multiply_repeat', function(cm, vim, helpers) {
   helpers.doKeys('2', 'd', '3', 'd');
   eq(expectedLineCount, cm.lineCount());
   var register = helpers.getRegisterController().getRegister();
-  eq(expectedBuffer, register.text);
+  eq(expectedBuffer, register.toString());
   is(register.linewise);
   helpers.assertCursorAt(0, lines[6].textStart);
 });
@@ -830,7 +838,7 @@ testVim('yw_repeat', function(cm, vim, helpers) {
   helpers.doKeys('y', '2', 'w');
   eq(' word1\nword2', cm.getValue());
   var register = helpers.getRegisterController().getRegister();
-  eq('word1\nword2', register.text);
+  eq('word1\nword2', register.toString());
   is(!register.linewise);
   eqPos(curStart, cm.getCursor());
 }, { value: ' word1\nword2' });
@@ -843,7 +851,7 @@ testVim('yy_multiply_repeat', function(cm, vim, helpers) {
   helpers.doKeys('2', 'y', '3', 'y');
   eq(expectedLineCount, cm.lineCount());
   var register = helpers.getRegisterController().getRegister();
-  eq(expectedBuffer, register.text);
+  eq(expectedBuffer, register.toString());
   is(register.linewise);
   eqPos(curStart, cm.getCursor());
 });
@@ -864,7 +872,7 @@ testVim('cw_repeat', function(cm, vim, helpers) {
   helpers.doKeys('c', '2', 'w');
   eq(' ', cm.getValue());
   var register = helpers.getRegisterController().getRegister();
-  eq('word1\nword2', register.text);
+  eq('word1\nword2', register.toString());
   is(!register.linewise);
   eqPos(curStart, cm.getCursor());
   eq('vim-insert', cm.getOption('keyMap'));
@@ -877,7 +885,7 @@ testVim('cc_multiply_repeat', function(cm, vim, helpers) {
   helpers.doKeys('2', 'c', '3', 'c');
   eq(expectedLineCount, cm.lineCount());
   var register = helpers.getRegisterController().getRegister();
-  eq(expectedBuffer, register.text);
+  eq(expectedBuffer, register.toString());
   is(register.linewise);
   eq('vim-insert', cm.getOption('keyMap'));
 });
@@ -896,7 +904,7 @@ testVim('g~w_repeat', function(cm, vim, helpers) {
   helpers.doKeys('g', '~', '2', 'w');
   eq(' WORD1\nWORD2', cm.getValue());
   var register = helpers.getRegisterController().getRegister();
-  eq('', register.text);
+  eq('', register.toString());
   is(!register.linewise);
   eqPos(curStart, cm.getCursor());
 }, { value: ' word1\nword2' });
@@ -908,7 +916,7 @@ testVim('g~g~', function(cm, vim, helpers) {
   helpers.doKeys('2', 'g', '~', '3', 'g', '~');
   eq(expectedValue, cm.getValue());
   var register = helpers.getRegisterController().getRegister();
-  eq('', register.text);
+  eq('', register.toString());
   is(!register.linewise);
   eqPos(curStart, cm.getCursor());
 }, { value: ' word1\nword2\nword3\nword4\nword5\nword6' });
@@ -919,7 +927,7 @@ testVim('>{motion}', function(cm, vim, helpers) {
   helpers.doKeys('>', 'k');
   eq(expectedValue, cm.getValue());
   var register = helpers.getRegisterController().getRegister();
-  eq('', register.text);
+  eq('', register.toString());
   is(!register.linewise);
   helpers.assertCursorAt(0, 3);
 }, { value: ' word1\nword2\nword3 ', indentUnit: 2 });
@@ -930,7 +938,7 @@ testVim('>>', function(cm, vim, helpers) {
   helpers.doKeys('2', '>', '>');
   eq(expectedValue, cm.getValue());
   var register = helpers.getRegisterController().getRegister();
-  eq('', register.text);
+  eq('', register.toString());
   is(!register.linewise);
   helpers.assertCursorAt(0, 3);
 }, { value: ' word1\nword2\nword3 ', indentUnit: 2 });
@@ -941,7 +949,7 @@ testVim('<{motion}', function(cm, vim, helpers) {
   helpers.doKeys('<', 'k');
   eq(expectedValue, cm.getValue());
   var register = helpers.getRegisterController().getRegister();
-  eq('', register.text);
+  eq('', register.toString());
   is(!register.linewise);
   helpers.assertCursorAt(0, 1);
 }, { value: '   word1\n  word2\nword3 ', indentUnit: 2 });
@@ -952,7 +960,7 @@ testVim('<<', function(cm, vim, helpers) {
   helpers.doKeys('2', '<', '<');
   eq(expectedValue, cm.getValue());
   var register = helpers.getRegisterController().getRegister();
-  eq('', register.text);
+  eq('', register.toString());
   is(!register.linewise);
   helpers.assertCursorAt(0, 1);
 }, { value: '   word1\n  word2\nword3 ', indentUnit: 2 });
@@ -960,7 +968,12 @@ testVim('<<', function(cm, vim, helpers) {
 // Edit tests
 function testEdit(name, before, pos, edit, after) {
   return testVim(name, function(cm, vim, helpers) {
-             cm.setCursor(0, before.search(pos));
+             var ch = before.search(pos)
+             var line = before.substring(0, ch).split('\n').length - 1;
+             if (line) {
+               ch = before.substring(0, ch).split('\n').pop().length;
+             }
+             cm.setCursor(line, ch);
              helpers.doKeys.apply(this, edit.split(''));
              eq(after, cm.getValue());
            }, {value: before});
@@ -1002,6 +1015,7 @@ testEdit('daW_end_punct', 'foo \tbAr.', /A/, 'daW', 'foo');
 //    Open and close on same line
 testEdit('di(_open_spc', 'foo (bAr) baz', /\(/, 'di(', 'foo () baz');
 testEdit('di)_open_spc', 'foo (bAr) baz', /\(/, 'di)', 'foo () baz');
+testEdit('dib_open_spc', 'foo (bAr) baz', /\(/, 'dib', 'foo () baz');
 testEdit('da(_open_spc', 'foo (bAr) baz', /\(/, 'da(', 'foo  baz');
 testEdit('da)_open_spc', 'foo (bAr) baz', /\(/, 'da)', 'foo  baz');
 
@@ -1015,11 +1029,26 @@ testEdit('di)_close_spc', 'foo (bAr) baz', /\)/, 'di)', 'foo () baz');
 testEdit('da(_close_spc', 'foo (bAr) baz', /\)/, 'da(', 'foo  baz');
 testEdit('da)_close_spc', 'foo (bAr) baz', /\)/, 'da)', 'foo  baz');
 
+//  delete around and inner b.
+testEdit('dab_on_(_should_delete_around_()block', 'o( in(abc) )', /\(a/, 'dab', 'o( in )');
+
+//  delete around and inner B.
+testEdit('daB_on_{_should_delete_around_{}block', 'o{ in{abc} }', /{a/, 'daB', 'o{ in }');
+testEdit('diB_on_{_should_delete_inner_{}block', 'o{ in{abc} }', /{a/, 'diB', 'o{ in{} }');
+
+testEdit('da{_on_{_should_delete_inner_block', 'o{ in{abc} }', /{a/, 'da{', 'o{ in }');
+testEdit('di[_on_(_should_not_delete', 'foo (bAr) baz', /\(/, 'di[', 'foo (bAr) baz');
+testEdit('di[_on_)_should_not_delete', 'foo (bAr) baz', /\)/, 'di[', 'foo (bAr) baz');
+testEdit('da[_on_(_should_not_delete', 'foo (bAr) baz', /\(/, 'da[', 'foo (bAr) baz');
+testEdit('da[_on_)_should_not_delete', 'foo (bAr) baz', /\)/, 'da[', 'foo (bAr) baz');
+testMotion('di(_outside_should_stay', ['d', 'i', '('], { line: 0, ch: 0}, { line: 0, ch: 0});
+
 //  Open and close on different lines, equally indented
 testEdit('di{_middle_spc', 'a{\n\tbar\n}b', /r/, 'di{', 'a{}b');
 testEdit('di}_middle_spc', 'a{\n\tbar\n}b', /r/, 'di}', 'a{}b');
 testEdit('da{_middle_spc', 'a{\n\tbar\n}b', /r/, 'da{', 'ab');
 testEdit('da}_middle_spc', 'a{\n\tbar\n}b', /r/, 'da}', 'ab');
+testEdit('daB_middle_spc', 'a{\n\tbar\n}b', /r/, 'daB', 'ab');
 
 // open and close on diff lines, open indented less than close
 testEdit('di{_middle_spc', 'a{\n\tbar\n\t}b', /r/, 'di{', 'a{}b');
@@ -1039,7 +1068,7 @@ testVim('D', function(cm, vim, helpers) {
   helpers.doKeys('D');
   eq(' wo\nword2\n word3', cm.getValue());
   var register = helpers.getRegisterController().getRegister();
-  eq('rd1', register.text);
+  eq('rd1', register.toString());
   is(!register.linewise);
   helpers.assertCursorAt(0, 2);
 }, { value: ' word1\nword2\n word3' });
@@ -1049,7 +1078,7 @@ testVim('C', function(cm, vim, helpers) {
   helpers.doKeys('C');
   eq(' wo\nword2\n word3', cm.getValue());
   var register = helpers.getRegisterController().getRegister();
-  eq('rd1', register.text);
+  eq('rd1', register.toString());
   is(!register.linewise);
   eqPos(curStart, cm.getCursor());
   eq('vim-insert', cm.getOption('keyMap'));
@@ -1060,7 +1089,7 @@ testVim('Y', function(cm, vim, helpers) {
   helpers.doKeys('Y');
   eq(' word1\nword2\n word3', cm.getValue());
   var register = helpers.getRegisterController().getRegister();
-  eq('rd1', register.text);
+  eq('rd1', register.toString());
   is(!register.linewise);
   helpers.assertCursorAt(0, 3);
 }, { value: ' word1\nword2\n word3' });
@@ -1197,14 +1226,14 @@ testVim('p', function(cm, vim, helpers) {
 }, { value: '___' });
 testVim('p_register', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
-  helpers.getRegisterController().getRegister('a').set('abc\ndef', false);
+  helpers.getRegisterController().getRegister('a').setText('abc\ndef', false);
   helpers.doKeys('"', 'a', 'p');
   eq('__abc\ndef_', cm.getValue());
   helpers.assertCursorAt(1, 2);
 }, { value: '___' });
 testVim('p_wrong_register', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
-  helpers.getRegisterController().getRegister('a').set('abc\ndef', false);
+  helpers.getRegisterController().getRegister('a').setText('abc\ndef', false);
   helpers.doKeys('p');
   eq('___', cm.getValue());
   helpers.assertCursorAt(0, 1);
@@ -1223,6 +1252,31 @@ testVim('p_lastline', function(cm, vim, helpers) {
   eq('___\n  a\nd\n  a\nd', cm.getValue());
   helpers.assertCursorAt(1, 2);
 }, { value: '___' });
+testVim(']p_first_indent_is_smaller', function(cm, vim, helpers) {
+  helpers.getRegisterController().pushText('"', 'yank', '  abc\n    def\n', true);
+  helpers.doKeys(']', 'p');
+  eq('  ___\n  abc\n    def', cm.getValue());
+}, { value: '  ___' });
+testVim(']p_first_indent_is_larger', function(cm, vim, helpers) {
+  helpers.getRegisterController().pushText('"', 'yank', '    abc\n  def\n', true);
+  helpers.doKeys(']', 'p');
+  eq('  ___\n  abc\ndef', cm.getValue());
+}, { value: '  ___' });
+testVim(']p_with_tab_indents', function(cm, vim, helpers) {
+  helpers.getRegisterController().pushText('"', 'yank', '\t\tabc\n\t\t\tdef\n', true);
+  helpers.doKeys(']', 'p');
+  eq('\t___\n\tabc\n\t\tdef', cm.getValue());
+}, { value: '\t___', indentWithTabs: true});
+testVim(']p_with_spaces_translated_to_tabs', function(cm, vim, helpers) {
+  helpers.getRegisterController().pushText('"', 'yank', '  abc\n    def\n', true);
+  helpers.doKeys(']', 'p');
+  eq('\t___\n\tabc\n\t\tdef', cm.getValue());
+}, { value: '\t___', indentWithTabs: true, tabSize: 2 });
+testVim('[p', function(cm, vim, helpers) {
+  helpers.getRegisterController().pushText('"', 'yank', '  abc\n    def\n', true);
+  helpers.doKeys('[', 'p');
+  eq('  abc\n    def\n  ___', cm.getValue());
+}, { value: '  ___' });
 testVim('P', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.getRegisterController().pushText('"', 'yank', 'abc\ndef', false);
@@ -1257,11 +1311,13 @@ testVim('mark', function(cm, vim, helpers) {
   cm.setCursor(2, 2);
   helpers.doKeys('m', 't');
   cm.setCursor(0, 0);
-  helpers.doKeys('\'', 't');
-  helpers.assertCursorAt(2, 2);
-  cm.setCursor(0, 0);
   helpers.doKeys('`', 't');
   helpers.assertCursorAt(2, 2);
+  cm.setCursor(2, 0);
+  cm.replaceRange('   h', cm.getCursor());
+  cm.setCursor(0, 0);
+  helpers.doKeys('\'', 't');
+  helpers.assertCursorAt(2, 3);
 });
 testVim('jumpToMark_next', function(cm, vim, helpers) {
   cm.setCursor(2, 2);
@@ -1511,13 +1567,13 @@ testVim('visual_line', function(cm, vim, helpers) {
   eq(' 4\n 5', cm.getValue());
 }, { value: ' 1\n 2\n 3\n 4\n 5' });
 testVim('visual_marks', function(cm, vim, helpers) {
-  helpers.doKeys('l', 'v', 'l', 'l', 'v');
+  helpers.doKeys('l', 'v', 'l', 'l', 'j', 'j', 'v');
   // Test visual mode marks
-  cm.setCursor(0, 0);
+  cm.setCursor(2, 1);
   helpers.doKeys('\'', '<');
   helpers.assertCursorAt(0, 1);
   helpers.doKeys('\'', '>');
-  helpers.assertCursorAt(0, 3);
+  helpers.assertCursorAt(2, 0);
 });
 testVim('visual_join', function(cm, vim, helpers) {
   helpers.doKeys('l', 'V', 'l', 'j', 'j', 'J');
@@ -1552,6 +1608,19 @@ testVim('s_visual', function(cm, vim, helpers) {
   helpers.assertCursorAt(0, 0);
   eq('ac', cm.getValue());
 }, { value: 'abc'});
+testVim('o_visual', function(cm,vim,helpers) {
+  cm.setCursor(0,0);
+  helpers.doKeys('v','l','l','l','o');
+  helpers.assertCursorAt(0,0);
+  helpers.doKeys('v','v','j','j','j','o');
+  helpers.assertCursorAt(0,0);
+  helpers.doKeys('o');
+  helpers.doKeys('l','l')
+  helpers.assertCursorAt(3,2);
+  helpers.doKeys('d');
+  eq('p',cm.getValue());
+}, { value: 'abcd\nefgh\nijkl\nmnop'});
+
 testVim('S_normal', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.doKeys('j', 'S');
@@ -1724,6 +1793,219 @@ testVim('#', function(cm, vim, helpers) {
   helpers.doKeys('#');
   helpers.assertCursorAt(1, 8);
 }, { value: '    :=  match nomatch match \nnomatch Match' });
+testVim('g*', function(cm, vim, helpers) {
+  cm.setCursor(0, 8);
+  helpers.doKeys('g', '*');
+  helpers.assertCursorAt(0, 18);
+  cm.setCursor(0, 8);
+  helpers.doKeys('3', 'g', '*');
+  helpers.assertCursorAt(1, 8);
+}, { value: 'matches match alsoMatch\nmatchme matching' });
+testVim('g#', function(cm, vim, helpers) {
+  cm.setCursor(0, 8);
+  helpers.doKeys('g', '#');
+  helpers.assertCursorAt(0, 0);
+  cm.setCursor(0, 8);
+  helpers.doKeys('3', 'g', '#');
+  helpers.assertCursorAt(1, 0);
+}, { value: 'matches match alsoMatch\nmatchme matching' });
+testVim('macro_insert', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('q', 'a', '0', 'i');
+  cm.replaceRange('foo', cm.getCursor());
+  helpers.doInsertModeKeys('Esc');
+  helpers.doKeys('q', '@', 'a');
+  eq('foofoo', cm.getValue());
+}, { value: ''});
+testVim('macro_space', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('<Space>', '<Space>');
+  helpers.assertCursorAt(0, 2);
+  helpers.doKeys('q', 'a', '<Space>', '<Space>', 'q');
+  helpers.assertCursorAt(0, 4);
+  helpers.doKeys('@', 'a');
+  helpers.assertCursorAt(0, 6);
+  helpers.doKeys('@', 'a');
+  helpers.assertCursorAt(0, 8);
+}, { value: 'one line of text.'});
+testVim('macro_t_search', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('q', 'a', 't', 'e', 'q');
+  helpers.assertCursorAt(0, 1);
+  helpers.doKeys('l', '@', 'a');
+  helpers.assertCursorAt(0, 6);
+  helpers.doKeys('l', ';');
+  helpers.assertCursorAt(0, 12);
+}, { value: 'one line of text.'});
+testVim('macro_f_search', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('q', 'b', 'f', 'e', 'q');
+  helpers.assertCursorAt(0, 2);
+  helpers.doKeys('@', 'b');
+  helpers.assertCursorAt(0, 7);
+  helpers.doKeys(';');
+  helpers.assertCursorAt(0, 13);
+}, { value: 'one line of text.'});
+testVim('macro_slash_search', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('q', 'c');
+  cm.openDialog = helpers.fakeOpenDialog('e');
+  helpers.doKeys('/', 'q');
+  helpers.assertCursorAt(0, 2);
+  helpers.doKeys('@', 'c');
+  helpers.assertCursorAt(0, 7);
+  helpers.doKeys('n');
+  helpers.assertCursorAt(0, 13);
+}, { value: 'one line of text.'});
+testVim('macro_multislash_search', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('q', 'd');
+  cm.openDialog = helpers.fakeOpenDialog('e');
+  helpers.doKeys('/');
+  cm.openDialog = helpers.fakeOpenDialog('t');
+  helpers.doKeys('/', 'q');
+  helpers.assertCursorAt(0, 12);
+  helpers.doKeys('@', 'd');
+  helpers.assertCursorAt(0, 15);
+}, { value: 'one line of text to rule them all.'});
+testVim('macro_parens', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('q', 'z', 'i');
+  cm.replaceRange('(', cm.getCursor());
+  helpers.doInsertModeKeys('Esc');
+  helpers.doKeys('e', 'a');
+  cm.replaceRange(')', cm.getCursor());
+  helpers.doInsertModeKeys('Esc');
+  helpers.doKeys('q');
+  helpers.doKeys('w', '@', 'z');
+  helpers.doKeys('w', '@', 'z');
+  eq('(see) (spot) (run)', cm.getValue());
+}, { value: 'see spot run'});
+testVim('macro_overwrite', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('q', 'z', '0', 'i');
+  cm.replaceRange('I ', cm.getCursor());
+  helpers.doInsertModeKeys('Esc');
+  helpers.doKeys('q');
+  helpers.doKeys('e');
+  // Now replace the macro with something else.
+  helpers.doKeys('q', 'z', 'a');
+  cm.replaceRange('.', cm.getCursor());
+  helpers.doInsertModeKeys('Esc');
+  helpers.doKeys('q');
+  helpers.doKeys('e', '@', 'z');
+  helpers.doKeys('e', '@', 'z');
+  eq('I see. spot. run.', cm.getValue());
+}, { value: 'see spot run'});
+testVim('macro_search_f', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('q', 'a', 'f', ' ');
+  helpers.assertCursorAt(0,3);
+  helpers.doKeys('q', '0');
+  helpers.assertCursorAt(0,0);
+  helpers.doKeys('@', 'a');
+  helpers.assertCursorAt(0,3);
+}, { value: 'The quick brown fox jumped over the lazy dog.'});
+testVim('macro_search_2f', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('q', 'a', '2', 'f', ' ');
+  helpers.assertCursorAt(0,9);
+  helpers.doKeys('q', '0');
+  helpers.assertCursorAt(0,0);
+  helpers.doKeys('@', 'a');
+  helpers.assertCursorAt(0,9);
+}, { value: 'The quick brown fox jumped over the lazy dog.'});
+testVim('yank_register', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('"', 'a', 'y', 'y');
+  helpers.doKeys('j', '"', 'b', 'y', 'y');
+  cm.openDialog = helpers.fakeOpenDialog('registers');
+  cm.openNotification = helpers.fakeOpenNotification(function(text) {
+    is(/a\s+foo/.test(text));
+    is(/b\s+bar/.test(text));
+  });
+  helpers.doKeys(':');
+}, { value: 'foo\nbar'});
+testVim('yank_append_line_to_line_register', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('"', 'a', 'y', 'y');
+  helpers.doKeys('j', '"', 'A', 'y', 'y');
+  cm.openDialog = helpers.fakeOpenDialog('registers');
+  cm.openNotification = helpers.fakeOpenNotification(function(text) {
+    is(/a\s+foo\nbar/.test(text));
+    is(/"\s+foo\nbar/.test(text));
+  });
+  helpers.doKeys(':');
+}, { value: 'foo\nbar'});
+testVim('yank_append_word_to_word_register', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('"', 'a', 'y', 'w');
+  helpers.doKeys('j', '"', 'A', 'y', 'w');
+  cm.openDialog = helpers.fakeOpenDialog('registers');
+  cm.openNotification = helpers.fakeOpenNotification(function(text) {
+    is(/a\s+foobar/.test(text));
+    is(/"\s+foobar/.test(text));
+  });
+  helpers.doKeys(':');
+}, { value: 'foo\nbar'});
+testVim('yank_append_line_to_word_register', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('"', 'a', 'y', 'w');
+  helpers.doKeys('j', '"', 'A', 'y', 'y');
+  cm.openDialog = helpers.fakeOpenDialog('registers');
+  cm.openNotification = helpers.fakeOpenNotification(function(text) {
+    is(/a\s+foo\nbar/.test(text));
+    is(/"\s+foo\nbar/.test(text));
+  });
+  helpers.doKeys(':');
+}, { value: 'foo\nbar'});
+testVim('yank_append_word_to_line_register', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('"', 'a', 'y', 'y');
+  helpers.doKeys('j', '"', 'A', 'y', 'w');
+  cm.openDialog = helpers.fakeOpenDialog('registers');
+  cm.openNotification = helpers.fakeOpenNotification(function(text) {
+    is(/a\s+foo\nbar/.test(text));
+    is(/"\s+foo\nbar/.test(text));
+  });
+  helpers.doKeys(':');
+}, { value: 'foo\nbar'});
+testVim('macro_register', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('q', 'a', 'i');
+  cm.replaceRange('gangnam', cm.getCursor());
+  helpers.doInsertModeKeys('Esc');
+  helpers.doKeys('q');
+  helpers.doKeys('q', 'b', 'o');
+  cm.replaceRange('style', cm.getCursor());
+  helpers.doInsertModeKeys('Esc');
+  helpers.doKeys('q');
+  cm.openDialog = helpers.fakeOpenDialog('registers');
+  cm.openNotification = helpers.fakeOpenNotification(function(text) {
+    is(/a\s+i/.test(text));
+    is(/b\s+o/.test(text));
+  });
+  helpers.doKeys(':');
+}, { value: ''});
+testVim('._register', function(cm,vim,helpers) {
+  cm.setCursor(0,0);
+  helpers.doKeys('i');
+  cm.replaceRange('foo',cm.getCursor());
+  helpers.doInsertModeKeys('Esc');
+  cm.openDialog = helpers.fakeOpenDialog('registers');
+  cm.openNotification = helpers.fakeOpenNotification(function(text) {
+    is(/\.\s+foo/.test(text));
+  });
+  helpers.doKeys(':');
+}, {value: ''});
+testVim(':_register', function(cm,vim,helpers) {
+  helpers.doEx('bar');
+  cm.openDialog = helpers.fakeOpenDialog('registers');
+  cm.openNotification = helpers.fakeOpenNotification(function(text) {
+    is(/:\s+bar/.test(text));
+  });
+  helpers.doKeys(':');
+}, {value: ''});
 testVim('.', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('2', 'd', 'w');
@@ -2128,7 +2410,7 @@ testVim('scrollMotion', function(cm, vim, helpers){
   prevScrollInfo = cm.getScrollInfo();
   helpers.doKeys('<C-e>');
   eq(1, cm.getCursor().line);
-  eq(true, prevScrollInfo.top < cm.getScrollInfo().top);
+  is(prevScrollInfo.top < cm.getScrollInfo().top);
   // Jump to the end of the sandbox.
   cm.setCursor(1000, 0);
   prevCursor = cm.getCursor();
@@ -2138,7 +2420,7 @@ testVim('scrollMotion', function(cm, vim, helpers){
   prevScrollInfo = cm.getScrollInfo();
   helpers.doKeys('<C-y>');
   eq(prevCursor.line - 1, cm.getCursor().line);
-  eq(true, prevScrollInfo.top > cm.getScrollInfo().top);
+  is(prevScrollInfo.top > cm.getScrollInfo().top);
 }, { value: scrollMotionSandbox});
 
 var squareBracketMotionSandbox = ''+
@@ -2376,6 +2658,13 @@ testVim('ex_substitute_javascript', function(cm, vim, helpers) {
   helpers.doEx('s/\\(\\d+\\)/$$ $\' $` $& \\1/')
   eq('a $$ $\' $` $& 0 b', cm.getValue());
 }, { value: 'a 0 b' });
+testVim('ex_substitute_empty_arguments', function(cm,vim,helpers) {
+  cm.setCursor(0, 0);
+  helpers.doEx('s/a/b');
+  cm.setCursor(1, 0);
+  helpers.doEx('s');
+  eq('b b\nb b', cm.getValue());
+}, {value: 'a a\na a'});
 
 // More complex substitute tests that test both pcre and nopcre options.
 function testSubstitute(name, options) {
@@ -2634,6 +2923,19 @@ testVim('ex_map_key2key', function(cm, vim, helpers) {
   helpers.assertCursorAt(0, 0);
   eq('bc', cm.getValue());
 }, { value: 'abc' });
+testVim('ex_unmap_key2key', function(cm, vim, helpers) {
+  helpers.doEx('unmap a');
+  helpers.doKeys('a');
+  eq('vim-insert', cm.getOption('keyMap'));
+}, { value: 'abc' });
+testVim('ex_unmap_key2key_does_not_remove_default', function(cm, vim, helpers) {
+  try {
+    helpers.doEx('unmap a');
+    fail();
+  } catch (expected) {}
+  helpers.doKeys('a');
+  eq('vim-insert', cm.getOption('keyMap'));
+}, { value: 'abc' });
 testVim('ex_map_key2key_to_colon', function(cm, vim, helpers) {
   helpers.doEx('map ; :');
   var dialogOpened = false;
@@ -2718,3 +3020,11 @@ testVim('ex_map_key2key_from_colon', function(cm, vim, helpers) {
   helpers.assertCursorAt(0, 0);
   eq('bc', cm.getValue());
 }, { value: 'abc' });
+
+// Test event handlers
+testVim('beforeSelectionChange', function(cm, vim, helpers) {
+  cm.setCursor(0, 100);
+  eqPos(cm.getCursor('head'), cm.getCursor('anchor'));
+}, { value: 'abc' });
+
+

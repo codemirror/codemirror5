@@ -23,6 +23,9 @@ rewrite("lib/codemirror.js", function(lib) {
 rewrite("package.json", function(pack) {
   return pack.replace(/"version":"\d+\.\d+\.\d+"/, "\"version\":\"" + number + "\"");
 });
+rewrite("doc/manual.html", function(manual) {
+  return manual.replace(/>version \d+\.\d+\.\d+<\/span>/, ">version " + number + "</span>");
+});
 
 if (bumpOnly) process.exit(0);
 
