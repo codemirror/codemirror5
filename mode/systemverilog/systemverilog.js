@@ -1,7 +1,5 @@
 CodeMirror.defineMode("systemverilog", function(config, parserConfig) {
 
-  var LOG = false;
-
   var indentUnit = config.indentUnit,
       statementIndentUnit = parserConfig.statementIndentUnit || indentUnit,
       dontAlignCalls = parserConfig.dontAlignCalls,
@@ -222,16 +220,10 @@ CodeMirror.defineMode("systemverilog", function(config, parserConfig) {
     this.type = type;
     this.align = align;
     this.prev = prev;
-    this.log = function(depth) {
-      if (!depth) depth = 0;
-      console.log(depth, this);
-      if (this.prev) this.prev.log(depth+1);
-    };
   }
   function pushContext(state, col, type) {
     var indent = state.indented;
     var c = new Context(indent, col, type, null, state.context);
-    if (LOG) {console.log("Pushed Context"); c.log(0);}
     return state.context = c;
   }
   function popContext(state) {
@@ -239,7 +231,6 @@ CodeMirror.defineMode("systemverilog", function(config, parserConfig) {
     if (t == ")" || t == "]" || t == "}") {
       state.indented = state.context.indented;
     }
-    if (LOG) {console.log("Popped Context"); state.context.prev.log(0);}
     return state.context = state.context.prev;
   }
 
