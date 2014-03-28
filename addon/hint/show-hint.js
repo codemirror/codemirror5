@@ -13,7 +13,12 @@
 
   CodeMirror.showHint = function(cm, getHints, options) {
     // We want a single cursor position.
-    if (cm.listSelections().length > 1 || cm.somethingSelected()) return;
+    if(cm.somethingSelected()){ // To show autoCompletion for the selectedText
+      var curFrom=cm.getCursor("from"),curTo=cm.getCursor("to");
+      cm.setSelection(curTo,curFrom);
+      console.log("noidea");  
+    }
+    if (cm.listSelections().length > 1) return;
     if (getHints == null) {
       if (options && options.async) return;
       else getHints = CodeMirror.hint.auto;
@@ -53,8 +58,15 @@
     pick: function(data, i) {
       var completion = data.list[i];
       if (completion.hint) completion.hint(this.cm, data, completion);
-      else this.cm.replaceRange(getText(completion), completion.from || data.from,
-                                completion.to || data.to, "complete");
+      else {
+        if(this.cm.somethingSelected()){
+          this.cm.replaceSelection(getText(completion));
+          var cur=this.cm.getCursor();
+          this.cm.setCursor({line:cur.line,ch:cur.ch});
+        }
+        else
+          this.cm.replaceRange(getText(completion), completion.from || data.from,completion.to || data.to, "complete");
+      }
       CodeMirror.signal(data, "pick", completion);
       this.close();
     },
@@ -73,7 +85,7 @@
       CodeMirror.signal(data, "shown");
 
       var debounce = 0, completion = this, finished;
-      var closeOn = this.options.closeCharacters || /[\s()\[\]{};:>,]/;
+      var closeOn = this.options.closeCharacters || /\s[()\[\]{};:>,]/;
       var startPos = this.cm.getCursor(), startLen = this.cm.getLine(startPos.line).length;
 
       var requestAnimationFrame = window.requestAnimationFrame || function(fn) {
@@ -116,7 +128,7 @@
         clearDebounce();
         var pos = completion.cm.getCursor(), line = completion.cm.getLine(pos.line);
         if (pos.line != startPos.line || line.length - pos.ch != startLen - startPos.ch ||
-            pos.ch < startPos.ch || completion.cm.somethingSelected() ||
+            pos.ch < startPos.ch ||
             (pos.ch && closeOn.test(line.charAt(pos.ch - 1)))) {
           completion.close();
         } else {
