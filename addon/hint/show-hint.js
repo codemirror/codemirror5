@@ -85,7 +85,7 @@
       CodeMirror.signal(data, "shown");
 
       var debounce = 0, completion = this, finished;
-      var closeOn = this.options.closeCharacters || /\s[()\[\]{};:>,]/;
+      var closeOn = this.options.closeCharacters || /[()\[\]{};:>,]/;
       var startPos = this.cm.getCursor(), startLen = this.cm.getLine(startPos.line).length;
 
       var requestAnimationFrame = window.requestAnimationFrame || function(fn) {
