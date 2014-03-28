@@ -14,7 +14,7 @@ CodeMirror.defineMode("systemverilog", function(config, parserConfig) {
     return obj;
   }
 
-  /** 
+  /**
    * Keywords from IEEE 1800-2012
    */
   var keywords = words(
@@ -129,6 +129,12 @@ CodeMirror.defineMode("systemverilog", function(config, parserConfig) {
         return null;
       }
     }
+    // Time literals
+    if (ch == '#') {
+      stream.next();
+      stream.eatWhile(/[\d_.]/);
+      return "def";
+    }
     // Strings
     if (ch == '"') {
       stream.next();
@@ -155,7 +161,7 @@ CodeMirror.defineMode("systemverilog", function(config, parserConfig) {
         stream.match(binaryLiteral) ||
         stream.match(octLiteral) ||
         stream.match(hexLiteral) ||
-        stream.match(unsignedNumber) || 
+        stream.match(unsignedNumber) ||
         stream.match(realLiteral)) {
       return "number";
     }
@@ -263,7 +269,7 @@ CodeMirror.defineMode("systemverilog", function(config, parserConfig) {
         tokenize: null,
         context: new Context((basecolumn || 0) - indentUnit, 0, "top", false),
         indented: 0,
-        startOfLine: true,
+        startOfLine: true
       };
     },
 
