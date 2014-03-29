@@ -1352,7 +1352,8 @@
             operatorArgs.selOffset = selOffset;
           }
           var linewise = motionArgs.linewise ||
-              (vim.visualMode && vim.visualLine);
+              (vim.visualMode && vim.visualLine) ||
+              operatorArgs.linewise;
           if (linewise) {
             // Expand selection to entire line.
             expandSelectionToLine(cm, curStart, curEnd);
@@ -1362,7 +1363,7 @@
           }
           operatorArgs.registerName = registerName;
           // Keep track of linewise as it affects how paste and change behave.
-          operatorArgs.linewise = linewise || operatorArgs.linewise;
+          operatorArgs.linewise = linewise;
           operators[operator](cm, operatorArgs, vim, curStart,
               curEnd, curOriginal);
           if (vim.visualMode) {
