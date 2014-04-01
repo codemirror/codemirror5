@@ -1776,6 +1776,20 @@ testCM("lineStyleFromMode", function(cm) {
   is(/^\s*cm-span\s*$/.test(spanElts[0].className));
 }, {value: "line1: [br] [br]\nline2: (par) (par)\nline3: <tag> <tag>"});
 
+testCM("lineStyleFromBlankLine", function(cm) {
+  CodeMirror.defineMode("lineStyleFromBlankLine_mode", function() {
+    return {token: function(stream) { stream.skipToEnd(); return "comment"; },
+            blankLine: function() { return "line-blank"; }};
+  });
+  cm.setOption("mode", "lineStyleFromBlankLine_mode");
+  var blankElts = byClassName(cm.getWrapperElement(), "blank");
+  eq(blankElts.length, 1);
+  eq(blankElts[0].nodeName, "PRE");
+  cm.replaceRange("x", Pos(1, 0));
+  blankElts = byClassName(cm.getWrapperElement(), "blank");
+  eq(blankElts.length, 0);
+}, {value: "foo\n\nbar"});
+
 CodeMirror.registerHelper("xxx", "a", "A");
 CodeMirror.registerHelper("xxx", "b", "B");
 CodeMirror.defineMode("yyy", function() {
