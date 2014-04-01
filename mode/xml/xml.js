@@ -361,7 +361,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
       else return 0;
     },
 
-    electricChars: "/",
+    electricInput: /<\/[\s\w:]+>$/,
     blockCommentStart: "<!--",
     blockCommentEnd: "-->",
 
