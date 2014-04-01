@@ -74,31 +74,23 @@ CodeMirror.defineMode("systemverilog", function(config, parserConfig) {
   var curPunc;
   var curKeyword;
 
+  // Block openings which are closed by a matching keyword in the form of ("end" + keyword)
+  // E.g. "task" => "endtask"
+  var blockKeywords = words(
+    "case checker class clocking config function generate group interface module package" + 
+    "primitive program property specify sequence table task"
+  );
+
   // Opening/closing pairs
   var openClose = {};
-  openClose["begin"    ] = "end";
-  openClose["case"     ] = "endcase";
-  openClose["casex"    ] = "endcase";
-  openClose["casez"    ] = "endcase";
-  openClose["checker"  ] = "endchecker";
-  openClose["class"    ] = "endclass";
-  openClose["clocking" ] = "endclocking";
-  openClose["config"   ] = "endconfig";
-  openClose["function" ] = "endfunction";
-  openClose["generate" ] = "endgenerate";
-  openClose["group"    ] = "endgroup";
-  openClose["interface"] = "endinterface";
-  openClose["module"   ] = "endmodule";
-  openClose["package"  ] = "endpackage";
-  openClose["primitive"] = "endprimitive";
-  openClose["program"  ] = "endprogram";
-  openClose["property" ] = "endproperty";
-  openClose["specify"  ] = "endspecify";
-  openClose["sequence" ] = "endsequence";
-  openClose["table"    ] = "endtable";
-  openClose["task"     ] = "endtask";
-  openClose["do"       ] = "while";
-  openClose["fork"     ] = "join;join_any;join_none";
+  for (var keyword in blockKeywords) {
+    openClose[keyword] = "end" + keyword;
+  }
+  openClose["begin"] = "end";
+  openClose["casex"] = "endcase";
+  openClose["casez"] = "endcase";
+  openClose["do"   ] = "while";
+  openClose["fork" ] = "join;join_any;join_none";
 
   for (var i in noIndentKeywords) {
     var keyword = noIndentKeywords[i];
@@ -107,7 +99,7 @@ CodeMirror.defineMode("systemverilog", function(config, parserConfig) {
     }
   }
 
-  var statementKeywods = words("always always_comb always_ff always_latch assert assign assume else for foreach forever if initial repeat while");
+  var statementKeywords = words("always always_comb always_ff always_latch assert assign assume else for foreach forever if initial repeat while");
 
   function tokenBase(stream, state) {
     var ch = stream.peek();
@@ -186,7 +178,7 @@ CodeMirror.defineMode("systemverilog", function(config, parserConfig) {
         if (openClose[cur]) {
           curPunc = "newblock";
         }
-        if (statementKeywods[cur]) {
+        if (statementKeywords[cur]) {
           curPunc = "newstatement";
         }
         curKeyword = cur;
