@@ -2804,12 +2804,20 @@
     continued lines in a block comment). All of these are
     optional.</p>
 
-    <p id="electricChars">Finally, a mode may define
-    an <code>electricChars</code> property, which should hold a string
-    containing all the characters that should trigger the behaviour
-    described for
+    <p id="electricChars">Finally, a mode may define either
+    an <code>electricChars</code> or an <code>electricInput</code>
+    property, which are used to automatically reindent the line when
+    certain patterns are typed and
     the <a href="#option_electricChars"><code>electricChars</code></a>
-    option.</p>
+    option is enabled. <code>electricChars</code> may be a string, and
+    will trigger a reindent whenever one of the characters in that
+    string are typed. Often, it is more appropriate to
+    use <code>electricInput</code>, which should hold a regular
+    expression, and will trigger indentation when the part of the
+    line <em>before</em> the cursor matches the expression. It should
+    usually end with a <code>$</code> character, so that it only
+    matches when the indentation-changing pattern was just typed, not when something was
+    typed after the pattern.</p>
 
     <p>So, to summarize, a mode <em>must</em> provide
     a <code>token</code> method, and it <em>may</em>
