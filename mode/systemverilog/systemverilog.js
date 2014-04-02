@@ -77,7 +77,7 @@ CodeMirror.defineMode("systemverilog", function(config, parserConfig) {
   // Block openings which are closed by a matching keyword in the form of ("end" + keyword)
   // E.g. "task" => "endtask"
   var blockKeywords = words(
-    "case checker class clocking config function generate group interface module package" + 
+    "case checker class clocking config function generate group interface module package" +
     "primitive program property specify sequence table task"
   );
 
