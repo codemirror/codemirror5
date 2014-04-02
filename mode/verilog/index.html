@@ -1,13 +1,13 @@
 <!doctype html>
 
-<title>CodeMirror: SystemVerilog mode</title>
+<title>CodeMirror: Verilog/SystemVerilog mode</title>
 <meta charset="utf-8"/>
 <link rel=stylesheet href="../../doc/docs.css">
 
 <link rel="stylesheet" href="../../lib/codemirror.css">
 <script src="../../lib/codemirror.js"></script>
 <script src="../../addon/edit/matchbrackets.js"></script>
-<script src="systemverilog.js"></script>
+<script src="verilog.js"></script>
 <style type="text/css">.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
 <div id=nav>
   <a href="http://codemirror.net"><img id=logo src="../../doc/logo.png"></a>
@@ -19,7 +19,7 @@
   </ul>
   <ul>
     <li><a href="../index.html">Language modes</a>
-    <li><a class=active href="#">SystemVerilog</a>
+    <li><a class=active href="#">Verilog/SystemVerilog</a>
   </ul>
 </div>
 
@@ -102,19 +102,19 @@ endclass
     lineNumbers: true,
     matchBrackets: true,
     mode: {
-      name: "systemverilog",
+      name: "verilog",
       noIndentKeywords: ["package"]
     }
   });
 </script>
 
 <p>
-Syntax highlighting and indentation for the SystemVerilog languague (IEEE 1800).
+Syntax highlighting and indentation for the Verilog and SystemVerilog languages (IEEE 1800).
 <h2>Configuration options:</h2>
   <ul>
     <li><strong>noIndentKeywords</strong> - List of keywords which should not cause identation to increase. E.g. ["package", "module"]. Default: None</li>
   </ul>
 </p>
 
-<p><strong>MIME types defined:</strong> <code>text/x-systemverilog</code> and <code>text/x-verilog</code>.</p>
+<p><strong>MIME types defined:</strong> <code>text/x-verilog</code> and <code>text/x-systemverilog</code>.</p>
 </article>

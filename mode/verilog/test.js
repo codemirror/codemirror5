@@ -1,5 +1,5 @@
 (function() {
-  var mode = CodeMirror.getMode({indentUnit: 4}, "systemverilog");
+  var mode = CodeMirror.getMode({indentUnit: 4}, "verilog");
   function MT(name) { test.mode(name, mode, Array.prototype.slice.call(arguments, 1)); }
 
   MT("Binary literals",

@@ -8,7 +8,7 @@
 })(function(CodeMirror) {
 "use strict";
 
-CodeMirror.defineMode("systemverilog", function(config, parserConfig) {
+CodeMirror.defineMode("verilog", function(config, parserConfig) {
 
   var indentUnit = config.indentUnit,
       statementIndentUnit = parserConfig.statementIndentUnit || indentUnit,
@@ -326,6 +326,9 @@ CodeMirror.defineMode("systemverilog", function(config, parserConfig) {
 
 (function() {
 
+  CodeMirror.defineMIME("text/x-verilog", {
+    name: "verilog"
+  });
   CodeMirror.defineMIME("text/x-systemverilog", {
     name: "systemverilog"
   });
