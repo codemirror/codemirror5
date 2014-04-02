@@ -38,8 +38,9 @@
         for (var i = 0; i < childList.length; ++i) if (!prefix || childList[i].lastIndexOf(prefix, 0) == 0)
           result.push("<" + childList[i]);
       } else if (tagType != "close") {
-        for (var name in tags) if (tags.hasOwnProperty(name) && name != "!top" && (!prefix || name.lastIndexOf(prefix, 0) == 0))
-          result.push("<" + name);
+        for (var name in tags)
+          if (tags.hasOwnProperty(name) && name != "!top" && name != "!attrs" && (!prefix || name.lastIndexOf(prefix, 0) == 0))
+            result.push("<" + name);
       }
       if (cx && (!prefix || tagType == "close" && cx.tagName.lastIndexOf(prefix, 0) == 0))
         result.push("</" + cx.tagName + ">");
