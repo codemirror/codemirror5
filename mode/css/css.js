@@ -1,6 +1,14 @@
-CodeMirror.defineMode("css", function(config, parserConfig) {
-  "use strict";
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
+"use strict";
 
+CodeMirror.defineMode("css", function(config, parserConfig) {
   if (!parserConfig.propertyKeywords) parserConfig = CodeMirror.resolveMode("text/css");
 
   var indentUnit = config.indentUnit,
@@ -8,6 +16,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
       mediaTypes = parserConfig.mediaTypes || {},
       mediaFeatures = parserConfig.mediaFeatures || {},
       propertyKeywords = parserConfig.propertyKeywords || {},
+      nonStandardPropertyKeywords = parserConfig.nonStandardPropertyKeywords || {},
       colorKeywords = parserConfig.colorKeywords || {},
       valueKeywords = parserConfig.valueKeywords || {},
       fontProperties = parserConfig.fontProperties || {},
@@ -140,6 +149,8 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
       return pushContext(state, stream, "media");
     } else if (type == "@font-face") {
       return "font_face_before";
+    } else if (/^@(-(moz|ms|o|webkit)-)?keyframes$/.test(type)) {
+      return "keyframes";
     } else if (type && type.charAt(0) == "@") {
       return pushContext(state, stream, "at");
     } else if (type == "hash") {
@@ -160,8 +171,12 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
 
   states.block = function(type, stream, state) {
     if (type == "word") {
-      if (propertyKeywords.hasOwnProperty(stream.current().toLowerCase())) {
+      var word = stream.current().toLowerCase();
+      if (propertyKeywords.hasOwnProperty(word)) {
         override = "property";
+        return "maybeprop";
+      } else if (nonStandardPropertyKeywords.hasOwnProperty(word)) {
+        override = "string-2";
         return "maybeprop";
       } else if (allowNested) {
         override = stream.match(/^\s*:/, false) ? "property" : "tag";
@@ -264,6 +279,12 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     return "font_face";
   };
 
+  states.keyframes = function(type, stream, state) {
+    if (type == "word") { override = "variable"; return "keyframes"; }
+    if (type == "{") return pushContext(state, stream, "top");
+    return pass(type, stream, state);
+  };
+
   states.at = function(type, stream, state) {
     if (type == ";") return popContext(state);
     if (type == "{" || type == "}") return popAndPass(type, stream, state);
@@ -308,6 +329,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     indent: function(state, textAfter) {
       var cx = state.context, ch = textAfter && textAfter.charAt(0);
       var indent = cx.indent;
+      if (cx.type == "prop" && ch == "}") cx = cx.prev;
       if (cx.prev &&
           (ch == "}" && (cx.type == "block" || cx.type == "top" || cx.type == "interpolation" || cx.type == "font_face") ||
            ch == ")" && (cx.type == "parens" || cx.type == "params" || cx.type == "media_parens") ||
@@ -325,7 +347,6 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
   };
 });
 
-(function() {
   function keySet(array) {
     var keys = {};
     for (var i = 0; i < array.length; ++i) {
@@ -353,10 +374,10 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
   var propertyKeywords_ = [
     "align-content", "align-items", "align-self", "alignment-adjust",
     "alignment-baseline", "anchor-point", "animation", "animation-delay",
-    "animation-direction", "animation-duration", "animation-iteration-count",
-    "animation-name", "animation-play-state", "animation-timing-function",
-    "appearance", "azimuth", "backface-visibility", "background",
-    "background-attachment", "background-clip", "background-color",
+    "animation-direction", "animation-duration", "animation-fill-mode",
+    "animation-iteration-count", "animation-name", "animation-play-state",
+    "animation-timing-function", "appearance", "azimuth", "backface-visibility",
+    "background", "background-attachment", "background-clip", "background-color",
     "background-image", "background-origin", "background-position",
     "background-repeat", "background-size", "baseline-shift", "binding",
     "bleed", "bookmark-label", "bookmark-level", "bookmark-state",
@@ -387,10 +408,11 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "font-stretch", "font-style", "font-synthesis", "font-variant",
     "font-variant-alternates", "font-variant-caps", "font-variant-east-asian",
     "font-variant-ligatures", "font-variant-numeric", "font-variant-position",
-    "font-weight", "grid-cell", "grid-column", "grid-column-align",
-    "grid-column-sizing", "grid-column-span", "grid-columns", "grid-flow",
-    "grid-row", "grid-row-align", "grid-row-sizing", "grid-row-span",
-    "grid-rows", "grid-template", "hanging-punctuation", "height", "hyphens",
+    "font-weight", "grid", "grid-area", "grid-auto-columns", "grid-auto-flow",
+    "grid-auto-position", "grid-auto-rows", "grid-column", "grid-column-end",
+    "grid-column-start", "grid-row", "grid-row-end", "grid-row-start",
+    "grid-template", "grid-template-areas", "grid-template-columns",
+    "grid-template-rows", "hanging-punctuation", "height", "hyphens",
     "icon", "image-orientation", "image-rendering", "image-resolution",
     "inline-box-align", "justify-content", "left", "letter-spacing",
     "line-break", "line-height", "line-stacking", "line-stacking-ruby",
@@ -427,7 +449,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "vertical-align", "visibility", "voice-balance", "voice-duration",
     "voice-family", "voice-pitch", "voice-range", "voice-rate", "voice-stress",
     "voice-volume", "volume", "white-space", "widows", "width", "word-break",
-    "word-spacing", "word-wrap", "z-index", "zoom",
+    "word-spacing", "word-wrap", "z-index",
     // SVG-specific
     "clip-path", "clip-rule", "mask", "enable-background", "filter", "flood-color",
     "flood-opacity", "lighting-color", "stop-color", "stop-opacity", "pointer-events",
@@ -439,6 +461,14 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "baseline-shift", "dominant-baseline", "glyph-orientation-horizontal",
     "glyph-orientation-vertical", "kerning", "text-anchor", "writing-mode"
   ], propertyKeywords = keySet(propertyKeywords_);
+
+  var nonStandardPropertyKeywords = [
+    "scrollbar-arrow-color", "scrollbar-base-color", "scrollbar-dark-shadow-color",
+    "scrollbar-face-color", "scrollbar-highlight-color", "scrollbar-shadow-color",
+    "scrollbar-3d-light-color", "scrollbar-track-color", "shape-inside",
+    "searchfield-cancel-button", "searchfield-decoration", "searchfield-results-button",
+    "searchfield-results-decoration", "zoom"
+  ], nonStandardPropertyKeywords = keySet(nonStandardPropertyKeywords);
 
   var colorKeywords_ = [
     "aliceblue", "antiquewhite", "aqua", "aquamarine", "azure", "beige",
@@ -559,7 +589,8 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "font-stretch", "font-weight", "font-style"
   ], fontProperties = keySet(fontProperties_);
 
-  var allWords = mediaTypes_.concat(mediaFeatures_).concat(propertyKeywords_).concat(colorKeywords_).concat(valueKeywords_);
+  var allWords = mediaTypes_.concat(mediaFeatures_).concat(propertyKeywords_)
+    .concat(nonStandardPropertyKeywords).concat(colorKeywords_).concat(valueKeywords_);
   CodeMirror.registerHelper("hintWords", "css", allWords);
 
   function tokenCComment(stream, state) {
@@ -588,6 +619,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     mediaTypes: mediaTypes,
     mediaFeatures: mediaFeatures,
     propertyKeywords: propertyKeywords,
+    nonStandardPropertyKeywords: nonStandardPropertyKeywords,
     colorKeywords: colorKeywords,
     valueKeywords: valueKeywords,
     fontProperties: fontProperties,
@@ -610,6 +642,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     mediaTypes: mediaTypes,
     mediaFeatures: mediaFeatures,
     propertyKeywords: propertyKeywords,
+    nonStandardPropertyKeywords: nonStandardPropertyKeywords,
     colorKeywords: colorKeywords,
     valueKeywords: valueKeywords,
     fontProperties: fontProperties,
@@ -650,6 +683,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     mediaTypes: mediaTypes,
     mediaFeatures: mediaFeatures,
     propertyKeywords: propertyKeywords,
+    nonStandardPropertyKeywords: nonStandardPropertyKeywords,
     colorKeywords: colorKeywords,
     valueKeywords: valueKeywords,
     fontProperties: fontProperties,
@@ -667,7 +701,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
         }
       },
       "@": function(stream) {
-        if (stream.match(/^(charset|document|font-face|import|keyframes|media|namespace|page|supports)\b/, false)) return false;
+        if (stream.match(/^(charset|document|font-face|import|(-(moz|ms|o|webkit)-)?keyframes|media|namespace|page|supports)\b/, false)) return false;
         stream.eatWhile(/[\w\\\-]/);
         if (stream.match(/^\s*:/, false))
           return ["variable-2", "variable-definition"];
@@ -680,4 +714,5 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     name: "css",
     helperType: "less"
   });
-})();
+
+});

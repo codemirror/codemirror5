@@ -1,3 +1,13 @@
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror", require("../xml/xml")));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror", "../xml/xml"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
+"use strict";
+
 CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
   var htmlFound = CodeMirror.modes.hasOwnProperty("xml");
@@ -239,7 +249,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         styles.push(formatting + "-" + state.formatting[i]);
 
         if (state.formatting[i] === "header") {
-          styles.push(formatting + "-" + state.formatting[i] + state.header);
+          styles.push(formatting + "-" + state.formatting[i] + "-" + state.header);
         }
 
         // Add `formatting-quote` and `formatting-quote-#` for blockquotes
@@ -275,7 +285,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
     if (state.code) { styles.push(code); }
 
-    if (state.header) { styles.push(header); styles.push(header + state.header); }
+    if (state.header) { styles.push(header); styles.push(header + "-" + state.header); }
 
     if (state.quote) {
       styles.push(quote);
@@ -738,9 +748,13 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
     blankLine: blankLine,
 
-    getType: getType
+    getType: getType,
+
+    fold: "markdown"
   };
   return mode;
 }, "xml");
 
 CodeMirror.defineMIME("text/x-markdown", "markdown");
+
+});

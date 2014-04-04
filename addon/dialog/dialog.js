@@ -1,6 +1,13 @@
 // Open simple dialogs on top of an editor. Relies on dialog.css.
 
-(function() {
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
   function dialogDiv(cm, template, bottom) {
     var wrap = cm.getWrapperElement();
     var dialog;
@@ -39,6 +46,7 @@
       CodeMirror.on(inp, "keydown", function(e) {
         if (options && options.onKeyDown && options.onKeyDown(e, inp.value, close)) { return; }
         if (e.keyCode == 13 || e.keyCode == 27) {
+          inp.blur();
           CodeMirror.e_stop(e);
           close();
           me.focus();
@@ -119,4 +127,4 @@
     if (duration)
       doneTimer = setTimeout(close, options.duration);
   });
-})();
+});

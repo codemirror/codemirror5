@@ -53,10 +53,13 @@ article {
 
 #nav {
   position: fixed;
-  top: 30px;
+  padding-top: 30px;
+  max-height: 100%;
+  box-sizing: -moz-border-box;
+  box-sizing: border-box;
+  overflow-y: auto;
   left: 0; right: none;
   width: 160px;
-  padding-right: 350px;
   text-align: right;
   z-index: 1;
 }
@@ -68,6 +71,7 @@ article {
   #nav {
     right: 50%;
     width: auto;
+    border-right: 349px solid transparent;
   }
 }
 
@@ -94,6 +98,7 @@ article {
 
 #nav li li a {
   padding-right: 20px;
+  display: inline-block;
 }
 
 #nav ul a {
@@ -103,6 +108,7 @@ article {
 
 #nav ul a.active, #nav ul a:hover {
   border-bottom: 1px solid #E30808;
+  margin-bottom: -1px;
   color: #E30808;
 }
 
@@ -133,7 +139,7 @@ section.first {
   z-index: 25;
 }
 
-#bankinfo {
+.bankinfo {
   text-align: left;
   display: none;
   padding: 0 .5em;
@@ -145,7 +151,7 @@ section.first {
   left: 30px;
 }
 
-#bankinfo_close {
+.bankinfo_close {
   position: absolute;
   top: 0; right: 6px;
   font-weight: bold;

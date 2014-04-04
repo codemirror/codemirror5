@@ -1,3 +1,13 @@
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
+"use strict";
+
 CodeMirror.defineMode("gas", function(_config, parserConfig) {
   'use strict';
 
@@ -211,7 +221,7 @@ CodeMirror.defineMode("gas", function(_config, parserConfig) {
     });
   }
 
-  var arch = parserConfig.architecture.toLowerCase();
+  var arch = (parserConfig.architecture || "x86").toLowerCase();
   if (arch === "x86") {
     x86(parserConfig);
   } else if (arch === "arm" || arch === "armv6") {
@@ -327,4 +337,6 @@ CodeMirror.defineMode("gas", function(_config, parserConfig) {
     blockCommentStart: "/*",
     blockCommentEnd: "*/"
   };
+});
+
 });

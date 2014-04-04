@@ -4,7 +4,14 @@
 // active line's wrapping <div> the CSS class "CodeMirror-activeline",
 // and gives its background <div> the class "CodeMirror-activeline-background".
 
-(function() {
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
   "use strict";
   var WRAP_CLASS = "CodeMirror-activeline";
   var BACK_CLASS = "CodeMirror-activeline-background";
@@ -12,34 +19,48 @@
   CodeMirror.defineOption("styleActiveLine", false, function(cm, val, old) {
     var prev = old && old != CodeMirror.Init;
     if (val && !prev) {
-      updateActiveLine(cm, cm.getCursor().line);
+      cm.state.activeLines = [];
+      updateActiveLines(cm, cm.listSelections());
       cm.on("beforeSelectionChange", selectionChange);
     } else if (!val && prev) {
       cm.off("beforeSelectionChange", selectionChange);
-      clearActiveLine(cm);
-      delete cm.state.activeLine;
+      clearActiveLines(cm);
+      delete cm.state.activeLines;
     }
   });
 
-  function clearActiveLine(cm) {
-    if ("activeLine" in cm.state) {
-      cm.removeLineClass(cm.state.activeLine, "wrap", WRAP_CLASS);
-      cm.removeLineClass(cm.state.activeLine, "background", BACK_CLASS);
+  function clearActiveLines(cm) {
+    for (var i = 0; i < cm.state.activeLines.length; i++) {
+      cm.removeLineClass(cm.state.activeLines[i], "wrap", WRAP_CLASS);
+      cm.removeLineClass(cm.state.activeLines[i], "background", BACK_CLASS);
     }
   }
 
-  function updateActiveLine(cm, selectedLine) {
-    var line = cm.getLineHandleVisualStart(selectedLine);
-    if (cm.state.activeLine == line) return;
+  function sameArray(a, b) {
+    if (a.length != b.length) return false;
+    for (var i = 0; i < a.length; i++)
+      if (a[i] != b[i]) return false;
+    return true;
+  }
+
+  function updateActiveLines(cm, ranges) {
+    var active = [];
+    for (var i = 0; i < ranges.length; i++) {
+      var line = cm.getLineHandleVisualStart(ranges[i].head.line);
+      if (active[active.length - 1] != line) active.push(line);
+    }
+    if (sameArray(cm.state.activeLines, active)) return;
     cm.operation(function() {
-      clearActiveLine(cm);
-      cm.addLineClass(line, "wrap", WRAP_CLASS);
-      cm.addLineClass(line, "background", BACK_CLASS);
-      cm.state.activeLine = line;
+      clearActiveLines(cm);
+      for (var i = 0; i < active.length; i++) {
+        cm.addLineClass(active[i], "wrap", WRAP_CLASS);
+        cm.addLineClass(active[i], "background", BACK_CLASS);
+      }
+      cm.state.activeLines = active;
     });
   }
 
   function selectionChange(cm, sel) {
-    updateActiveLine(cm, sel.head.line);
+    updateActiveLines(cm, sel.ranges);
   }
-})();
+});

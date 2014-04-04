@@ -1,3 +1,13 @@
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
+"use strict";
+
 CodeMirror.defineMode("ruby", function(config) {
   function wordObj(words) {
     var o = {};
@@ -34,6 +44,7 @@ CodeMirror.defineMode("ruby", function(config) {
     if (ch == "`" || ch == "'" || ch == '"') {
       return chain(readQuoted(ch, "string", ch == '"' || ch == "`"), stream, state);
     } else if (ch == "/" && !stream.eol() && stream.peek() != " ") {
+      if (stream.eat("=")) return "operator";
       return chain(readQuoted(ch, "string-2", true), stream, state);
     } else if (ch == "%") {
       var style = "string", embed = true;
@@ -247,3 +258,4 @@ CodeMirror.defineMode("ruby", function(config) {
 
 CodeMirror.defineMIME("text/x-ruby", "ruby");
 
+});

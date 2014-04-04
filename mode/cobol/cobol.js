@@ -2,6 +2,16 @@
  * Author: Gautam Mehta
  * Branched from CodeMirror's Scheme mode
  */
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
+"use strict";
+
 CodeMirror.defineMode("cobol", function () {
   var BUILTIN = "builtin", COMMENT = "comment", STRING = "string",
       ATOM = "atom", NUMBER = "number", KEYWORD = "keyword", MODTAG = "header",
@@ -238,3 +248,5 @@ CodeMirror.defineMode("cobol", function () {
 });
 
 CodeMirror.defineMIME("text/x-cobol", "cobol");
+
+});

@@ -1,9 +1,20 @@
 // TODO actually recognize syntax of TypeScript constructs
 
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
+"use strict";
+
 CodeMirror.defineMode("javascript", function(config, parserConfig) {
   var indentUnit = config.indentUnit;
   var statementIndent = parserConfig.statementIndent;
-  var jsonMode = parserConfig.json;
+  var jsonldMode = parserConfig.jsonld;
+  var jsonMode = parserConfig.json || jsonldMode;
   var isTS = parserConfig.typescript;
 
   // Tokenizer
@@ -53,6 +64,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   }();
 
   var isOperatorChar = /[+\-*&%=<>!?|~^]/;
+  var isJsonldKeyword = /^@(context|id|value|language|type|container|list|set|reverse|index|base|vocab|graph)"/;
 
   function readRegexp(stream) {
     var escaped = false, next, inSet = false;
@@ -128,6 +140,10 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   function tokenString(quote) {
     return function(stream, state) {
       var escaped = false, next;
+      if (jsonldMode && stream.peek() == "@" && stream.match(isJsonldKeyword)){
+        state.tokenize = tokenBase;
+        return ret("jsonld-keyword", "meta");
+      }
       while ((next = stream.next()) != null) {
         if (next == quote && !escaped) break;
         escaped = !escaped && next == "\\";
@@ -195,7 +211,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
 
   // Parser
 
-  var atomicTypes = {"atom": true, "number": true, "variable": true, "string": true, "regexp": true, "this": true};
+  var atomicTypes = {"atom": true, "number": true, "variable": true, "string": true, "regexp": true, "this": true, "jsonld-keyword": true};
 
   function JSLexical(indented, column, type, align, prev, info) {
     this.indented = indented;
@@ -295,11 +311,12 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   poplex.lex = true;
 
   function expect(wanted) {
-    return function(type) {
+    function exp(type) {
       if (type == wanted) return cont();
       else if (wanted == ";") return pass();
-      else return cont(arguments.callee);
+      else return cont(exp);
     };
+    return exp;
   }
 
   function statement(type, value) {
@@ -339,7 +356,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
 
     var maybeop = noComma ? maybeoperatorNoComma : maybeoperatorComma;
     if (atomicTypes.hasOwnProperty(type)) return cont(maybeop);
-    if (type == "function") return cont(functiondef);
+    if (type == "function") return cont(functiondef, maybeop);
     if (type == "keyword c") return cont(noComma ? maybeexpressionNoComma : maybeexpression);
     if (type == "(") return cont(pushlex(")"), maybeexpression, comprehension, expect(")"), poplex, maybeop);
     if (type == "operator" || type == "spread") return cont(noComma ? expressionNoComma : expression);
@@ -408,7 +425,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       cx.marked = "property";
       if (value == "get" || value == "set") return cont(getterSetter);
     } else if (type == "number" || type == "string") {
-      cx.marked = type + " property";
+      cx.marked = jsonldMode ? "property" : (type + " property");
     } else if (type == "[") {
       return cont(expression, expect("]"), afterprop);
     }
@@ -565,7 +582,8 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
         context: parserConfig.localVars && {vars: parserConfig.localVars},
         indented: 0
       };
-      if (parserConfig.globalVars) state.globalVars = parserConfig.globalVars;
+      if (parserConfig.globalVars && typeof parserConfig.globalVars == "object")
+        state.globalVars = parserConfig.globalVars;
       return state;
     },
 
@@ -616,6 +634,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     fold: "brace",
 
     helperType: jsonMode ? "json" : "javascript",
+    jsonldMode: jsonldMode,
     jsonMode: jsonMode
   };
 });
@@ -626,5 +645,8 @@ CodeMirror.defineMIME("application/javascript", "javascript");
 CodeMirror.defineMIME("application/ecmascript", "javascript");
 CodeMirror.defineMIME("application/json", {name: "javascript", json: true});
 CodeMirror.defineMIME("application/x-json", {name: "javascript", json: true});
+CodeMirror.defineMIME("application/ld+json", {name: "javascript", jsonld: true});
 CodeMirror.defineMIME("text/typescript", { name: "javascript", typescript: true });
 CodeMirror.defineMIME("application/typescript", { name: "javascript", typescript: true });
+
+});

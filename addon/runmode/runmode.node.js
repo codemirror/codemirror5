@@ -1,5 +1,7 @@
 /* Just enough of CodeMirror to run runMode under node.js */
 
+// declare global: StringStream
+
 function splitLines(string){ return string.split(/\r?\n|\r/); };
 
 function StringStream(string) {
@@ -92,14 +94,14 @@ exports.resolveMode = function(spec) {
   else return spec || {name: "null"};
 };
 exports.getMode = function(options, spec) {
-  spec = exports.resolveMode(mimeModes[spec]);
+  spec = exports.resolveMode(spec);
   var mfactory = modes[spec.name];
   if (!mfactory) throw new Error("Unknown mode: " + spec);
   return mfactory(options, spec);
 };
 exports.registerHelper = exports.registerGlobalHelper = Math.min;
 
-exports.runMode = function(string, modespec, callback) {
+exports.runMode = function(string, modespec, callback, options) {
   var mode = exports.getMode({indentUnit: 2}, modespec);
   var lines = splitLines(string), state = (options && options.state) || exports.startState(mode);
   for (var i = 0, e = lines.length; i < e; ++i) {
@@ -112,3 +114,5 @@ exports.runMode = function(string, modespec, callback) {
     }
   }
 };
+
+require.cache[require.resolve("../../lib/codemirror")] = require.cache[require.resolve("./runmode.node")];

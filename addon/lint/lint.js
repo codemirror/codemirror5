@@ -1,4 +1,11 @@
-(function() {
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
   "use strict";
   var GUTTER_ID = "CodeMirror-lint-markers";
   var SEVERITIES = /^(?:error|warning)$/;
@@ -170,7 +177,7 @@
     if (!/\bCodeMirror-lint-mark-/.test((e.target || e.srcElement).className)) return;
     for (var i = 0; i < nearby.length; i += 2) {
       var spans = cm.findMarksAt(cm.coordsChar({left: e.clientX + nearby[i],
-                                                top: e.clientY + nearby[i + 1]}));
+                                                top: e.clientY + nearby[i + 1]}, "client"));
       for (var j = 0; j < spans.length; ++j) {
         var span = spans[j], ann = span.__annotation;
         if (ann) return popupSpanTooltip(ann, e);
@@ -178,7 +185,7 @@
     }
   }
 
-  function optionHandler(cm, val, old) {
+  CodeMirror.defineOption("lint", false, function(cm, val, old) {
     if (old && old != CodeMirror.Init) {
       clearMarks(cm);
       cm.off("change", onChange);
@@ -196,8 +203,5 @@
 
       startLinting(cm);
     }
-  }
-
-  CodeMirror.defineOption("lintWith", false, optionHandler); // deprecated
-  CodeMirror.defineOption("lint", false, optionHandler); // deprecated
-})();
+  });
+});

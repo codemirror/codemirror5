@@ -10,6 +10,7 @@
 <script src="../addon/dialog/dialog.js"></script>
 <script src="../addon/search/searchcursor.js"></script>
 <script src="../mode/clike/clike.js"></script>
+<script src="../addon/edit/matchbrackets.js"></script>
 <script src="../keymap/vim.js"></script>
 <style type="text/css">
       .CodeMirror {border-top: 1px solid #eee; border-bottom: 1px solid #eee;}
@@ -51,9 +52,12 @@ int getchar(void)
 
 <p>The vim keybindings are enabled by
 including <a href="../keymap/vim.js">keymap/vim.js</a> and setting
-the <code>keyMap</code> option to <code>"vim"</code>. Because
-CodeMirror's internal API is quite different from Vim, they are only
-a loose approximation of actual vim bindings, though.</p>
+the <code>vimMode</code> option to <code>true</code>. This will also
+automatically change the <code>keyMap</code> option to <code>"vim"</code>.</p>
+
+<p>Note that while the vim mode tries to emulate the most useful features of
+vim as faithfully as possible, it does not strive to become a complete vim
+implementation</p>
 
     <script>
       CodeMirror.commands.save = function(){ alert("Saving"); };
@@ -61,12 +65,14 @@ a loose approximation of actual vim bindings, though.</p>
         lineNumbers: true,
         mode: "text/x-csrc",
         vimMode: true,
+        matchBrackets: true,
         showCursorWhenSelecting: true
       });
       var editor2 = CodeMirror.fromTextArea(document.getElementById("code2"), {
         lineNumbers: true,
         mode: "text/x-csrc",
         vimMode: true,
+        matchBrackets: true,
         showCursorWhenSelecting: true
       });
     </script>

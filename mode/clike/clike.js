@@ -1,3 +1,13 @@
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
+"use strict";
+
 CodeMirror.defineMode("clike", function(config, parserConfig) {
   var indentUnit = config.indentUnit,
       statementIndentUnit = parserConfig.statementIndentUnit || indentUnit,
@@ -191,6 +201,30 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     return "meta";
   }
 
+  function cpp11StringHook(stream, state) {
+    stream.backUp(1);
+    // Raw strings.
+    if (stream.match(/(R|u8R|uR|UR|LR)/)) {
+      var match = stream.match(/"(.{0,16})\(/);
+      if (!match) {
+        return false;
+      }
+      state.cpp11RawStringDelim = match[1];
+      state.tokenize = tokenRawString;
+      return tokenRawString(stream, state);
+    }
+    // Unicode strings/chars.
+    if (stream.match(/(u8|u|U|L)/)) {
+      if (stream.match(/["']/, /* eat */ false)) {
+        return "string";
+      }
+      return false;
+    }
+    // Ignore this hook.
+    stream.next();
+    return false;
+  }
+
   // C#-style strings where "" escapes a quote.
   function tokenAtString(stream, state) {
     var next;
@@ -199,6 +233,19 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
         state.tokenize = null;
         break;
       }
+    }
+    return "string";
+  }
+
+  // C++11 raw string literal is <prefix>"<delim>( anything )<delim>", where
+  // <delim> can be a string up to 16 characters long.
+  function tokenRawString(stream, state) {
+    var closingSequence = new RegExp(".*?\\)" + state.cpp11RawStringDelim + '"');
+    var match = stream.match(closingSequence);
+    if (match) {
+      state.tokenize = null;
+    } else {
+      stream.skipToEnd();
     }
     return "string";
   }
@@ -235,10 +282,17 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     keywords: words(cKeywords + " asm dynamic_cast namespace reinterpret_cast try bool explicit new " +
                     "static_cast typeid catch operator template typename class friend private " +
                     "this using const_cast inline public throw virtual delete mutable protected " +
-                    "wchar_t"),
+                    "wchar_t alignas alignof constexpr decltype nullptr noexcept thread_local final " +
+                    "static_assert override"),
     blockKeywords: words("catch class do else finally for if struct switch try while"),
     atoms: words("true false null"),
-    hooks: {"#": cppHook},
+    hooks: {
+      "#": cppHook,
+      "u": cpp11StringHook,
+      "U": cpp11StringHook,
+      "L": cpp11StringHook,
+      "R": cpp11StringHook
+    },
     modeProps: {fold: ["brace", "include"]}
   });
   CodeMirror.defineMIME("text/x-java", {
@@ -379,3 +433,5 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     modeProps: {fold: ["brace", "include"]}
   });
 }());
+
+});

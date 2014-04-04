@@ -28,7 +28,7 @@
      "[tag %a]([variable title][operator =][string \"test\"]){[atom :title] [operator =>] [string \"test\"]}");
 
   MT("htmlCode",
-     "[tag <h1>]Title[tag </h1>]");
+     "[tag&bracket <][tag h1][tag&bracket >]Title[tag&bracket </][tag h1][tag&bracket >]");
 
   MT("rubyBlock",
      "[operator =][variable-2 @item]");

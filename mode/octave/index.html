@@ -27,25 +27,16 @@
 
     <div><textarea id="code" name="code">
 %numbers
-1234
-1234i
-1234j
-.234
-.234j
-2.23i
-23e2
-12E1j
-123D-4
-0x234
+[1234 1234i 1234j]
+[.234 .234j 2.23i]
+[23e2 12E1j 123D-4 0x234]
 
 %strings
 'asda''a'
 "asda""a"
 
 %identifiers
-a
-as123
-__asd__
+a + as123 - __asd__
 
 %operators
 -
@@ -73,10 +64,8 @@ classdef properties events methods
 global persistent
 
 %one line comment
-...one line comment
 %{ multi 
 line commment %}
-1
 
     </textarea></div>
     <script>
@@ -86,7 +75,6 @@ line commment %}
                singleLineStringErrors: false},
         lineNumbers: true,
         indentUnit: 4,
-        tabMode: "shift",
         matchBrackets: true
       });
     </script>

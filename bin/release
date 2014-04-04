@@ -23,6 +23,9 @@ rewrite("lib/codemirror.js", function(lib) {
 rewrite("package.json", function(pack) {
   return pack.replace(/"version":"\d+\.\d+\.\d+"/, "\"version\":\"" + number + "\"");
 });
+rewrite("doc/manual.html", function(manual) {
+  return manual.replace(/>version \d+\.\d+\.\d+<\/span>/, ">version " + number + "</span>");
+});
 
 if (bumpOnly) process.exit(0);
 
@@ -36,6 +39,6 @@ rewrite("doc/compress.html", function(cmp) {
 });
 
 rewrite("index.html", function(index) {
-  return index.replace(/<strong>version 3.20<\/strong>/,
+  return index.replace(/<strong>version \d+\.\d+<\/strong>/,
                        "<strong>version " + simple + "</strong>");
 });
