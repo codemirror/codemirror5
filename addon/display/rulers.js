@@ -31,7 +31,7 @@
     var val = cm.getOption("rulers");
     var cw = cm.defaultCharWidth();
     var left = cm.charCoords(CodeMirror.Pos(cm.firstLine(), 0), "div").left;
-    var bot = -cm.display.scroller.offsetHeight;
+    var bot = 0;
     for (var i = 0; i < val.length; i++) {
       var elt = document.createElement("div");
       var col, cls = null;
