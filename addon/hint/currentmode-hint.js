@@ -74,7 +74,7 @@
         return found;
     }
 
-    function currentModeHint(editor, options) {
+    function currentModeHint(editor) {
         if (currentModeKeywords === null) {
             currentModeKeywords = new Array();
             currentModeBuiltins = new Array();
