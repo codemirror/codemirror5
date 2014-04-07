@@ -52,9 +52,23 @@
   cmds[map["Alt-Right"] = "goSubwordRight"] = function(cm) { moveSubword(cm, 1); };
 
   cmds[map[ctrl + "Up"] = "scrollLineUp"] = function(cm) {
+    if(!cm.somethingSelected()){
+      var visibleTopLine = Math.floor((cm.getScrollInfo().top + cm.getScrollInfo().clientHeight) / cm.defaultTextHeight());
+      var cur = cm.getCursor();
+      if(cur.line >= visibleTopLine){
+        cm.setCursor({line:visibleTopLine-1, ch:cur.ch});
+      }
+    }
     cm.scrollTo(null, cm.getScrollInfo().top - cm.defaultTextHeight());
   };
   cmds[map[ctrl + "Down"] = "scrollLineDown"] = function(cm) {
+    if(!cm.somethingSelected()){
+      var visibleTopLine = cm.getScrollInfo().top/cm.defaultTextHeight();
+      var cur = cm.getCursor();
+      if(cur.line-1 < visibleTopLine){
+        cm.setCursor({line:visibleTopLine+1, ch:cur.ch});
+      }
+    }
     cm.scrollTo(null, cm.getScrollInfo().top + cm.defaultTextHeight());
   };
 
