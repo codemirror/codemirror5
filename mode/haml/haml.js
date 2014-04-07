@@ -8,9 +8,6 @@
 })(function(CodeMirror) {
 "use strict";
 
-(function() {
-  "use strict";
-
   // full haml mode. This handled embeded ruby and html fragments too
   CodeMirror.defineMode("haml", function(config) {
     var htmlMode = CodeMirror.getMode(config, {name: "htmlmixed"});
@@ -75,7 +72,7 @@
       // donot handle --> as valid ruby, make it HTML close comment instead
       if (state.startOfLine && !stream.match("-->", false) && (ch == "=" || ch == "-" )) {
         state.tokenize = ruby;
-        return null;
+        return state.tokenize(stream, state);
       }
 
       if (state.previousToken.style == "hamlTag" ||
@@ -83,10 +80,10 @@
           state.previousToken.style == "hamlAttribute") {
         if (ch == "(") {
           state.tokenize = rubyInQuote(")");
-          return null;
+          return state.tokenize(stream, state);
         } else if (ch == "{") {
           state.tokenize = rubyInQuote("}");
-          return null;
+          return state.tokenize(stream, state);
         }
       }
 
@@ -156,6 +153,4 @@
   }, "htmlmixed", "ruby");
 
   CodeMirror.defineMIME("text/x-haml", "haml");
-})();
-
 });
