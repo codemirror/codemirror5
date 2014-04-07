@@ -348,7 +348,7 @@ CodeMirror.defineMode("erlang", function(cmCfg) {
     switch (type) {
       case "atom":        return "atom";
       case "attribute":   return "attribute";
-      case "boolean":     return "special";
+      case "boolean":     return "atom";
       case "builtin":     return "builtin";
       case "close_paren": return null;
       case "colon":       return null;
