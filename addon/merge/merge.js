@@ -169,7 +169,7 @@
       var mark = arr[i];
       if (mark instanceof CodeMirror.TextMarker) {
         mark.clear();
-      } else {
+      } else if (mark.parent) {
         editor.removeLineClass(mark, "background", classes.chunk);
         editor.removeLineClass(mark, "background", classes.start);
         editor.removeLineClass(mark, "background", classes.end);
