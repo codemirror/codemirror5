@@ -7,6 +7,8 @@
 <link rel="stylesheet" href="../../lib/codemirror.css">
 <script src="../../lib/codemirror.js"></script>
 <script src="../../addon/edit/matchbrackets.js"></script>
+<link rel="stylesheet" href="../../addon/hint/show-hint.css">
+<script src="../../addon/hint/show-hint.js"></script>
 <script src="clike.js"></script>
 <style>.CodeMirror {border: 2px inset #dee;}</style>
 <div id=nav>
@@ -185,6 +187,8 @@ public class Class<T, V> implements MyInterface {
         matchBrackets: true,
         mode: "text/x-java"
       });
+      var mac = CodeMirror.keyMap.default == CodeMirror.keyMap.macDefault;
+      CodeMirror.keyMap.default[(mac ? "Cmd" : "Ctrl") + "-Space"] = "autocomplete";
     </script>
 
     <p>Simple mode that tries to handle C-like languages as well as it
