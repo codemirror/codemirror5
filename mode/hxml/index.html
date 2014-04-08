@@ -1,0 +1,46 @@
+<!doctype html>
+
+<title>CodeMirror: Hxml mode</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../../doc/docs.css">
+
+<link rel="stylesheet" href="../../lib/codemirror.css">
+<script src="../../lib/codemirror.js"></script>
+<script src="hxml.js"></script>
+<style type="text/css">.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
+<div id=nav>
+  <a href="http://codemirror.net"><img id=logo src="../../doc/logo.png"></a>
+
+  <ul>
+    <li><a href="../../index.html">Home</a>
+    <li><a href="../../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="../index.html">Language modes</a>
+    <li><a class=active href="#">mode</a>
+  </ul>
+</div>
+
+<article>
+<h2>Hxml mode</h2>
+
+
+<div><textarea id="code" name="code">
+-cp test
+-js path/to/file.js
+#-remap nme:flash
+--next
+-D source-map-content
+-cmd 'test'
+-lib lime
+</textarea></div>
+
+    <script>
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        lineNumbers: true
+      });
+    </script>
+
+    <p><strong>MIME types defined:</strong> <code>text/x-hxml</code>.</p>
+  </article>
