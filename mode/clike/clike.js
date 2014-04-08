@@ -250,6 +250,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
   }
 
   function def(mimes, mode) {
+    if (typeof mimes == "string") mimes = [mimes];
     var words = [];
     function add(obj) {
       if (obj) for (var prop in obj) if (obj.hasOwnProperty(prop))
@@ -294,7 +295,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     },
     modeProps: {fold: ["brace", "include"]}
   });
-  CodeMirror.defineMIME("text/x-java", {
+  def("text/x-java", {
     name: "clike",
     keywords: words("abstract assert boolean break byte case catch char class const continue default " +
                     "do double else enum extends final finally float for goto if implements import " +
@@ -311,7 +312,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     },
     modeProps: {fold: ["brace", "import"]}
   });
-  CodeMirror.defineMIME("text/x-csharp", {
+  def("text/x-csharp", {
     name: "clike",
     keywords: words("abstract as base break case catch checked class const continue" +
                     " default delegate do else enum event explicit extern finally fixed for" +
@@ -337,7 +338,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       }
     }
   });
-  CodeMirror.defineMIME("text/x-scala", {
+  def("text/x-scala", {
     name: "clike",
     keywords: words(
 
