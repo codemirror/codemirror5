@@ -52,24 +52,22 @@
   cmds[map["Alt-Right"] = "goSubwordRight"] = function(cm) { moveSubword(cm, 1); };
 
   cmds[map[ctrl + "Up"] = "scrollLineUp"] = function(cm) {
-    if(!cm.somethingSelected()){
-      var visibleBottomLine = cm.lineAtHeight(cm.getScrollInfo().top + cm.getScrollInfo().clientHeight, "local");
-      var cur = cm.getCursor();
-      if(cur.line >= visibleBottomLine){
-        cm.setCursor({line:visibleBottomLine-1, ch:cur.ch});
-      }
+    var info = cm.getScrollInfo();
+    if (!cm.somethingSelected()) {
+      var visibleBottomLine = cm.lineAtHeight(info.top + info.clientHeight, "local");
+      if (cm.getCursor().line >= visibleBottomLine)
+        cm.execCommand("goLineUp");
     }
-    cm.scrollTo(null, cm.getScrollInfo().top - cm.defaultTextHeight());
+    cm.scrollTo(null, info.top - cm.defaultTextHeight());
   };
   cmds[map[ctrl + "Down"] = "scrollLineDown"] = function(cm) {
-    if(!cm.somethingSelected()){
-      var visibleTopLine = cm.lineAtHeight(cm.getScrollInfo().top, "local")+1;
-      var cur = cm.getCursor();
-      if(cur.line-1 < visibleTopLine){
-        cm.setCursor({line:visibleTopLine+1, ch:cur.ch});
-      }
+    var info = cm.getScrollInfo();
+    if (!cm.somethingSelected()) {
+      var visibleTopLine = cm.lineAtHeight(info.top, "local")+1;
+      if (cm.getCursor().line <= visibleTopLine)
+        cm.execCommand("goLineDown");
     }
-    cm.scrollTo(null, cm.getScrollInfo().top + cm.defaultTextHeight());
+    cm.scrollTo(null, info.top + cm.defaultTextHeight());
   };
 
   cmds[map["Shift-" + ctrl + "L"] = "splitSelectionByLine"] = function(cm) {
