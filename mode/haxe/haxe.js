@@ -477,7 +477,7 @@ CodeMirror.defineMode("hxml", function () {
           state.define = true;
         }
 
-        stream.eatWhile(/[A-Z]/i)
+        stream.eatWhile(/[A-Z]/i);
         return style;
       }
 
