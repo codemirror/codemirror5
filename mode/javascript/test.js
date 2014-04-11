@@ -104,6 +104,22 @@
      "  [keyword debugger];",
      "}");
 
+  MT("indent_else",
+     "[keyword for] (;;)",
+     "  [keyword if] ([variable foo])",
+     "    [keyword if] ([variable bar])",
+     "      [number 1];",
+     "    [keyword else]",
+     "      [number 2];",
+     "  [keyword else]",
+     "    [number 3];");
+
+  MT("indent_below_if",
+     "[keyword for] (;;)",
+     "  [keyword if] ([variable foo])",
+     "    [number 1];",
+     "[number 2];");
+
   MT("multilinestring",
      "[keyword var] [variable x] [operator =] [string 'foo\\]",
      "[string bar'];");

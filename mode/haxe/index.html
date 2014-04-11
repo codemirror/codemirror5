@@ -26,7 +26,7 @@
 <h2>Haxe mode</h2>
 
 
-<div><textarea id="code" name="code">
+<div><p><textarea id="code-haxe" name="code">
 import one.two.Three;
 
 @attr("test")
@@ -89,15 +89,36 @@ enum Color
 	grey( v : Int );
 	rgb (r:Int,g:Int,b:Int);
 }
-</textarea></div>
+</textarea></p>
+
+<p>Hxml mode:</p>
+
+<p><textarea id="code-hxml">
+-cp test
+-js path/to/file.js
+#-remap nme:flash
+--next
+-D source-map-content
+-cmd 'test'
+-lib lime
+</textarea></p>
+</div>
 
     <script>
-      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+      var editor = CodeMirror.fromTextArea(document.getElementById("code-haxe"), {
+      	mode: "haxe",
+        lineNumbers: true,
+        indentUnit: 4,
+        indentWithTabs: true
+      });
+      
+      editor = CodeMirror.fromTextArea(document.getElementById("code-hxml"), {
+      	mode: "hxml",
         lineNumbers: true,
         indentUnit: 4,
         indentWithTabs: true
       });
     </script>
 
-    <p><strong>MIME types defined:</strong> <code>text/x-haxe</code>.</p>
+    <p><strong>MIME types defined:</strong> <code>text/x-haxe, text/x-hxml</code>.</p>
   </article>
