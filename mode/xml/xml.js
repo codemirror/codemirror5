@@ -310,7 +310,10 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
       var context = state.context;
       // Indent multi-line strings (e.g. css).
       if (state.tokenize.isInAttribute) {
-        return state.stringStartCol + 1;
+        if (state.tagStart == state.indented)
+          return state.stringStartCol + 1;
+        else
+          return state.indented + indentUnit;
       }
       if (context && context.noIndent) return CodeMirror.Pass;
       if (state.tokenize != inTag && state.tokenize != inText)
