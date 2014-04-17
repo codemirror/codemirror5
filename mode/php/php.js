@@ -21,30 +21,20 @@
     };
   }
 
-  // Two helper functions for encapsList
-  function matchFirst(list) {
-    return function (stream) {
-      for (var i = 0; i < list.length; ++i)
-        if (stream.match(list[i][0]))
-          return list[i][1];
-      return false;
-    };
-  }
+  // Helper for stringWithEscapes
   function matchSequence(list) {
-    if (list.length == 0) return encapsList;
+    if (list.length == 0) return stringWithEscapes;
     return function (stream, state) {
-      var result = list[0](stream, state);
-      if (result !== false) {
+      var patterns = list[0];
+      for (var i = 0; i < patterns.length; i++) if (stream.match(patterns[i][0])) {
         state.tokenize = matchSequence(list.slice(1));
-        return result;
+        return patterns[i][1];
       }
-      else {
-        state.tokenize = encapsList;
-        return "string";
-      }
+      state.tokenize = stringWithEscapes;
+      return "string";
     };
   }
-  function encapsList(stream, state) {
+  function stringWithEscapes(stream, state) {
     var escaped = false, next, end = false;
 
     if (stream.current() == '"') return "string";
@@ -61,20 +51,18 @@
       if (stream.match("[", false)) {
         // Match array operator
         state.tokenize = matchSequence([
-          matchFirst([["[", null]]),
-          matchFirst([
-            [/\d[\w\.]*/, "number"],
-            [/\$[a-zA-Z_][a-zA-Z0-9_]*/, "variable-2"],
-            [/[\w\$]+/, "variable"]
-          ]),
-          matchFirst([["]", null]])
+          [["[", null]],
+          [[/\d[\w\.]*/, "number"],
+           [/\$[a-zA-Z_][a-zA-Z0-9_]*/, "variable-2"],
+           [/[\w\$]+/, "variable"]],
+          [["]", null]]
         ]);
       }
       if (stream.match(/\-\>\w/, false)) {
         // Match object operator
         state.tokenize = matchSequence([
-          matchFirst([["->", null]]),
-          matchFirst([[/[\w]+/, "variable"]])
+          [["->", null]],
+          [[/[\w]+/, "variable"]]
         ]);
       }
       return "variable-2";
@@ -143,7 +131,7 @@
         if (!state.phpEncapsStack)
           state.phpEncapsStack = [];
         state.phpEncapsStack.push(0);
-        state.tokenize = encapsList;
+        state.tokenize = stringWithEscapes;
         return state.tokenize(stream, state);
       },
       "{": function(_stream, state) {
@@ -154,7 +142,7 @@
       "}": function(_stream, state) {
         if (state.phpEncapsStack && state.phpEncapsStack.length > 0)
           if (--state.phpEncapsStack[state.phpEncapsStack.length - 1] == 0)
-            state.tokenize = encapsList;
+            state.tokenize = stringWithEscapes;
         return false;
       }
     }
