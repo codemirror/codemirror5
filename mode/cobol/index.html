@@ -193,7 +193,7 @@
       function selectFontsize() {
         var fontSizeInput = document.getElementById("selectFontSize");
         var fontSize = fontSizeInput.options[fontSizeInput.selectedIndex].innerHTML;
-        editor.getWrapperElement().style["font-size"] = fontSize;
+        editor.getWrapperElement().style.fontSize = fontSize;
         editor.refresh();
       }
       function selectReadOnly() {
