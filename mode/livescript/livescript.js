@@ -13,7 +13,7 @@
           for (i$ = 0, len$ = nr.length; i$ < len$; ++i$) {
             r = nr[i$];
             if (r.regex && (m = stream.match(r.regex))) {
-              state.next = r.next;
+              state.next = r.next || state.next;
               return r.token;
             }
           }
@@ -192,7 +192,7 @@
         next: 'start'
       }, {
         token: 'text',
-        regex: '.',
+        regex: '',
         next: 'start'
       }
     ],
@@ -254,11 +254,11 @@
     if (Array.isArray(r)) {
       for (var i = 0, len = r.length; i < len; ++i) {
         var rr = r[i];
-        if (rr.regex) {
+        if (typeof rr.regex === 'string') {
           Rules[idx][i].regex = new RegExp('^' + rr.regex);
         }
       }
-    } else if (r.regex) {
+    } else if (typeof rr.regex === 'string') {
       Rules[idx].regex = new RegExp('^' + r.regex);
     }
   }
