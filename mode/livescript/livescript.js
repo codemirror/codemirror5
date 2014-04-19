@@ -203,7 +203,7 @@
         next: 'start'
       }, {
         token: 'text',
-        regex: '.',
+        regex: '',
         next: 'start'
       }
     ],
