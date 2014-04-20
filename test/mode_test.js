@@ -52,7 +52,7 @@
           pos = end;
         }
         text = text.replace(/\[\[|\]\]/g, function(s) {return s.charAt(0);});
-        tokens.push(style, text);
+        tokens.push({style: style, text: text});
         plain += text;
       }
     }
@@ -73,10 +73,10 @@
   function compare(text, expected, mode) {
 
     var expectedOutput = [];
-    for (var i = 0; i < expected.length; i += 2) {
-      var sty = expected[i];
+    for (var i = 0; i < expected.length; ++i) {
+      var sty = expected[i].style;
       if (sty && sty.indexOf(" ")) sty = sty.split(' ').sort().join(' ');
-      expectedOutput.push(sty, expected[i + 1]);
+      expectedOutput.push({style: sty, text: expected[i].text});
     }
 
     var observedOutput = highlight(text, mode);
@@ -102,7 +102,7 @@
   }
 
   function highlight(string, mode) {
-    var state = mode.startState()
+    var state = mode.startState();
 
     var lines = string.replace(/\r\n/g,'\n').split('\n');
     var st = [], pos = 0;
@@ -126,14 +126,14 @@
         var substr = stream.current();
         if (compare && compare.indexOf(" ") > -1) compare = compare.split(' ').sort().join(' ');
         stream.start = stream.pos;
-        if (pos && st[pos-2] == compare && !newLine) {
-          st[pos-1] += substr;
+        if (pos && st[pos-1].style == compare && !newLine) {
+          st[pos-1].text += substr;
         } else if (substr) {
-          st[pos++] = compare; st[pos++] = substr;
+          st[pos++] = {style: compare, text: substr};
         }
         // Give up when line is ridiculously long
         if (stream.pos > 5000) {
-          st[pos++] = null; st[pos++] = this.text.slice(stream.pos);
+          st[pos++] = {style: null, text: this.text.slice(stream.pos)};
           break;
         }
         newLine = false;
@@ -146,15 +146,15 @@
   function highlightOutputsDifferent(o1, o2) {
     var minLen = Math.min(o1.length, o2.length);
     for (var i = 0; i < minLen; ++i)
-      if (o1[i] != o2[i]) return i >> 1;
+      if (o1[i].style != o2[i].style || o1[i].text != o2[i].text) return i;
     if (o1.length > minLen || o2.length > minLen) return minLen;
   }
 
   function prettyPrintOutputTable(output, diffAt) {
     var s = '<table class="mt-output">';
     s += '<tr>';
-    for (var i = 0; i < output.length; i += 2) {
-      var style = output[i], val = output[i+1];
+    for (var i = 0; i < output.length; ++i) {
+      var style = output[i].style, val = output[i].text;
       s +=
       '<td class="mt-token"' + (i == diffAt * 2 ? " style='background: pink'" : "") + '>' +
         '<span class="cm-' + esc(String(style)) + '">' +
@@ -163,8 +163,8 @@
         '</td>';
     }
     s += '</tr><tr>';
-    for (var i = 0; i < output.length; i += 2) {
-      s += '<td class="mt-style"><span>' + (output[i] || null) + '</span></td>';
+    for (var i = 0; i < output.length; ++i) {
+      s += '<td class="mt-style"><span>' + (output[i].style || null) + '</span></td>';
     }
     s += '</table>';
     return s;
