@@ -24,7 +24,7 @@
           result.push(name);
     }
 
-    var st = token.state.state;
+    var st = inner.state.state;
     if (st == "pseudo" || token.type == "variable-3") {
       add(pseudoClasses);
     } else if (st == "block" || st == "maybeprop") {
