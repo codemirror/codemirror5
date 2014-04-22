@@ -14,7 +14,8 @@
     <li><a href="https://github.com/marijnh/codemirror">Code</a>
   </ul>
   <ul>
-    <li><a class=active data-default="true" href="#v3">Version 3.x</a>
+    <li><a class=active data-default="true" href="#v4">Version 4.x</a>
+    <li><a href="#v3">Version 3.x</a>
     <li><a href="#v2">Version 2.x</a>
     <li><a href="#v1">Version 0.x</a>
   </ul>
@@ -26,7 +27,22 @@
 
 <section id=v3 class=first>
 
-  <h2>Version 4.x</h2>
+  <h2 id="v4">Version 4.x</h2>
+
+  <p class="rel">22-04-2014: <a href="http://codemirror.net/codemirror-4.1.zip">Version 4.1</a>:</p>
+
+  <ul class="rel-note">
+    <li><em>Slightly incompatible</em>:
+    The <a href="manual.html#event_cursorActivity"><code>"cursorActivity"</code></a>
+    event now fires after all other events for the operation (and only
+    for handlers that were actually registered at the time the
+    activity happened).</li>
+    <li>New command: <a href="manual.html#command_insertSoftTab"><code>insertSoftTab</code></a>.</li>
+    <li>New mode: <a href="../mode/django/index.html">Django</a>.</li>
+    <li>Improved modes: <a href="../mode/verilog/index.html">Verilog</a> (rewritten), <a href="../mode/jinja2/index.html">Jinja2</a>, <a href="../mode/haxe/index.html">Haxe</a>, <a href="../mode/php/index.html">PHP</a> (string interpolation highlighted), <a href="../mode/javascript/index.html">JavaScript</a> (indentation of trailing else, template strings), <a href="../mode/livescript/index.html">LiveScript</a> (multi-line strings).</li>
+    <li>Many small issues from the 3.x→4.x transition were found and fixed.</li>
+    <li>Full <a href="https://github.com/marijnh/CodeMirror/compare/4.0.3...4.1.0">list of patches</a>.</li>
+  </ul>
 
   <p class="rel">20-03-2014: <a href="http://codemirror.net/codemirror-4.0.zip">Version 4.0</a>:</p>
 
@@ -44,7 +60,13 @@
     <li>Full <a href="https://github.com/marijnh/CodeMirror/compare/3.23.0...4.0.3">list of patches</a>.</li>
   </ul>
 
-  <h2>Version 3.x</h2>
+  <h2 id="v3">Version 3.x</h2>
+
+  <p class="rel">22-04-2014: <a href="http://codemirror.net/codemirror-3.24.zip">Version 3.24</a>:</p>
+
+  <p class="rel-note">Merges the improvements from 4.1 that could
+  easily be applied to the 3.x code. Also improves the way the editor
+  size is updated when line widgets change.</p>
 
   <p class="rel">20-03-2014: <a href="http://codemirror.net/codemirror-3.23.zip">Version 3.23</a>:</p>
 
