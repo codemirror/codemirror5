@@ -75,5 +75,13 @@ addons.</p>
         extraKeys: {"Ctrl-Space": "autocomplete"},
         mode: {name: "javascript", globalVars: true}
       });
+document.querySelector("img#logo").addEventListener("click", function(e) {
+    editor.setSelection(CodeMirror.Pos(0, 0), CodeMirror.Pos(0, 10));
+      console.log("before focus", editor.display.input.selectionEnd);
+    editor.focus();
+      console.log("after focus", editor.display.input.selectionEnd);
+    e.stopPropagation();
+    e.preventDefault();
+}, false);
     </script>
   </article>
