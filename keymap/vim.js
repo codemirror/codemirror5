@@ -405,7 +405,7 @@
     var specialKeys = ['Left', 'Right', 'Up', 'Down', 'Space', 'Backspace',
         'Esc', 'Home', 'End', 'PageUp', 'PageDown', 'Enter'];
     var validMarks = [].concat(upperCaseAlphabet, lowerCaseAlphabet, numbers, ['<', '>']);
-    var validRegisters = [].concat(upperCaseAlphabet, lowerCaseAlphabet, numbers, ['-', '"', '.', ':']);
+    var validRegisters = [].concat(upperCaseAlphabet, lowerCaseAlphabet, numbers, ['-', '"', '.', ':', '/']);
 
     function isLine(cm, line) {
       return line >= cm.firstLine() && line <= cm.lastLine();
@@ -824,6 +824,7 @@
       this.unnamedRegister = registers['"'] = new Register();
       registers['.'] = new Register();
       registers[':'] = new Register();
+      registers['/'] = new Register();
     }
     RegisterController.prototype = {
       pushText: function(registerName, operator, text, linewise) {
@@ -3014,6 +3015,9 @@
      *   through to the Regex object.
      */
     function parseQuery(query, ignoreCase, smartCase) {
+      // First update the last search register
+      var lastSearchRegister = vimGlobalState.registerController.getRegister('/');
+      lastSearchRegister.setText(query);
       // Check if the query is already a regex.
       if (query instanceof RegExp) { return query; }
       // First try to extract regex + flags from the input. If no flags found,
