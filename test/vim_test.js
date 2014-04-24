@@ -2056,6 +2056,46 @@ testVim(':_register', function(cm,vim,helpers) {
   });
   helpers.doKeys(':');
 }, {value: ''});
+testVim('search_register_escape', function(cm, vim, helpers) {
+  // Check that the register is restored if the user escapes rather than confirms.
+  cm.openDialog = helpers.fakeOpenDialog('waldo');
+  helpers.doKeys('/');
+  var onKeyDown;
+  cm.openDialog = function(template, callback, options) {
+    var onKeyDown = options.onKeyDown;
+    var onKeyUp = options.onKeyUp;
+    var KEYCODES = {
+      f: 70,
+      o: 79,
+      Esc: 27
+    };
+    var close = function() {};
+    // Fake some keyboard events coming in.
+    onKeyDown({keyCode: KEYCODES.f}, '', close);
+    onKeyUp({keyCode: KEYCODES.f}, '', close);
+    onKeyDown({keyCode: KEYCODES.o}, 'f', close);
+    onKeyUp({keyCode: KEYCODES.o}, 'f', close);
+    onKeyDown({keyCode: KEYCODES.o}, 'fo', close);
+    onKeyUp({keyCode: KEYCODES.o}, 'fo', close);
+    onKeyDown({keyCode: KEYCODES.Esc}, 'foo', close);
+  };
+  helpers.doKeys('/');
+  cm.openDialog = helpers.fakeOpenDialog('registers');
+  cm.openNotification = helpers.fakeOpenNotification(function(text) {
+    is(/waldo/.test(text));
+    is(!/foo/.test(text));
+  });
+  helpers.doKeys(':');
+}, {value: ''});
+testVim('search_register', function(cm, vim, helpers) {
+  cm.openDialog = helpers.fakeOpenDialog('foo');
+  helpers.doKeys('/');
+  cm.openDialog = helpers.fakeOpenDialog('registers');
+  cm.openNotification = helpers.fakeOpenNotification(function(text) {
+    is(/\/\s+foo/.test(text));
+  });
+  helpers.doKeys(':');
+}, {value: ''});
 testVim('.', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('2', 'd', 'w');
