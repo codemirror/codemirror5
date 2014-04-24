@@ -14,42 +14,42 @@ CodeMirror.defineMode('jade', function (config) {
   var DOCTYPE = 'meta';
   var ID = 'builtin';
   var CLASS = 'qualifier';
- 
+
   var ATTRS_NEST = {
     '{': '}',
     '(': ')',
     '[': ']'
   };
-  
+
   var jsMode = CodeMirror.getMode(config, 'javascript');
-  
+
   function State() {
     this.javaScriptLine = false;
     this.javaScriptLineExcludesColon = false;
-    
+
     this.javaScriptArguments = false;
     this.javaScriptArgumentsDepth = 0;
-    
+
     this.isInterpolating = false;
     this.interpolationNesting = 0;
-    
+
     this.jsState = jsMode.startState();
-    
+
     this.restOfLine = '';
-    
+
     this.isIncludeFiltered = false;
     this.isEach = false;
-    
+
     this.lastTag = '';
     this.scriptType = '';
-    
+
     // Attributes Mode
     this.isAttrs = false;
     this.attrsNest = [];
     this.inAttributeName = true;
     this.attributeIsType = false;
     this.attrValue = '';
-    
+
     // Indented Mode
     this.indentOf = Infinity;
     this.indentToken = '';
@@ -79,9 +79,9 @@ CodeMirror.defineMode('jade', function (config) {
     if (this.innerMode && this.innerState) {
       res.innerState = CodeMirror.copyState(this.innerMode, this.innerState);
     }
-    
+
     res.restOfLine = this.restOfLine;
-    
+
     res.isIncludeFiltered = this.isIncludeFiltered;
     res.isEach = this.isEach;
     res.lastTag = this.lastTag;
@@ -97,7 +97,7 @@ CodeMirror.defineMode('jade', function (config) {
     res.innerModeForLine = this.innerModeForLine;
 
     return res;
-  }
+  };
 
   function javaScript(stream, state) {
     if (stream.sol()) {
@@ -136,19 +136,19 @@ CodeMirror.defineMode('jade', function (config) {
       return tok || true;
     }
   }
-  
-  function yieldStatement(stream, state) {
+
+  function yieldStatement(stream) {
     if (stream.match(/^yield\b/)) {
         return 'keyword';
     }
   }
 
-  function doctype(stream, state) {
+  function doctype(stream) {
     if (stream.match(/^(?:doctype) *([^\n]+)?/)) {
         return DOCTYPE;
     }
   }
-  
+
   function interpolation(stream, state) {
     if (stream.match('#{')) {
       state.isInterpolating = true;
@@ -172,14 +172,14 @@ CodeMirror.defineMode('jade', function (config) {
       return jsMode.token(stream, state.jsState) || true;
     }
   }
-  
+
   function caseStatement(stream, state) {
     if (stream.match(/^case\b/)) {
       state.javaScriptLine = true;
       return KEYWORD;
     }
   }
-  
+
   function when(stream, state) {
     if (stream.match(/^when\b/)) {
       state.javaScriptLine = true;
@@ -187,20 +187,20 @@ CodeMirror.defineMode('jade', function (config) {
       return KEYWORD;
     }
   }
-  
-  function defaultStatement(stream, state) {
+
+  function defaultStatement(stream) {
     if (stream.match(/^default\b/)) {
       return KEYWORD;
     }
   }
-  
+
   function extendsStatement(stream, state) {
     if (stream.match(/^extends?\b/)) {
       state.restOfLine = 'string';
       return KEYWORD;
     }
   }
-  
+
   function append(stream, state) {
     if (stream.match(/^append\b/)) {
       state.restOfLine = 'variable';
@@ -219,14 +219,14 @@ CodeMirror.defineMode('jade', function (config) {
       return KEYWORD;
     }
   }
-  
+
   function include(stream, state) {
     if (stream.match(/^include\b/)) {
       state.restOfLine = 'string';
       return KEYWORD;
     }
   }
-  
+
   function includeFiltered(stream, state) {
     if (stream.match(/^include:([a-zA-Z0-9\-]+)/, false) && stream.match('include')) {
       state.isIncludeFiltered = true;
@@ -242,14 +242,14 @@ CodeMirror.defineMode('jade', function (config) {
       return tok;
     }
   }
-  
+
   function mixin(stream, state) {
     if (stream.match(/^mixin\b/)) {
       state.javaScriptLine = true;
       return KEYWORD;
     }
   }
-  
+
   function call(stream, state) {
     if (stream.match(/^\+([-\w]+)/)) {
       if (!stream.match(/^\( *[-\w]+ *=/, false)) {
@@ -274,16 +274,15 @@ CodeMirror.defineMode('jade', function (config) {
       return true;
     }
   }
-  
+
   function conditional(stream, state) {
     if (stream.match(/^(if|unless|else if|else)\b/)) {
       state.javaScriptLine = true;
       return KEYWORD;
     }
   }
-  
+
   function each(stream, state) {
-    var captures;
     if (stream.match(/^(- *)?(each|for)\b/)) {
       state.isEach = true;
       return KEYWORD;
@@ -303,14 +302,14 @@ CodeMirror.defineMode('jade', function (config) {
       }
     }
   }
-  
+
   function whileStatement(stream, state) {
     if (stream.match(/^while\b/)) {
       state.javaScriptLine = true;
       return KEYWORD;
     }
   }
-  
+
   function tag(stream, state) {
     var captures;
     if (captures = stream.match(/^(\w(?:[-:\w]*\w)?)\/?/)) {
@@ -321,7 +320,7 @@ CodeMirror.defineMode('jade', function (config) {
       return 'tag';
     }
   }
-  
+
   function filter(stream, state) {
     if (stream.match(/^:([\w\-]+)/)) {
       var innerMode;
@@ -338,26 +337,26 @@ CodeMirror.defineMode('jade', function (config) {
       return 'atom';
     }
   }
-  
+
   function code(stream, state) {
     if (stream.match(/^(!?=|-)/)) {
       state.javaScriptLine = true;
       return 'punctuation';
     }
   }
-  
-  function id(stream, state) {
+
+  function id(stream) {
     if (stream.match(/^#([\w-]+)/)) {
       return ID;
     }
   }
-  
-  function className(stream, state) {
+
+  function className(stream) {
     if (stream.match(/^\.([\w-]+)/)) {
       return CLASS;
     }
   }
-  
+
   function attrs(stream, state) {
     if (stream.peek() == '(') {
       stream.next();
@@ -369,7 +368,7 @@ CodeMirror.defineMode('jade', function (config) {
       return 'punctuation';
     }
   }
-  
+
   function attrsContinued(stream, state) {
     if (state.isAttrs) {
       if (ATTRS_NEST[stream.peek()]) {
@@ -393,7 +392,7 @@ CodeMirror.defineMode('jade', function (config) {
         }
         return 'attribute';
       }
-      
+
       var tok = jsMode.token(stream, state.jsState);
       if (state.attributeIsType && tok === 'string') {
         state.scriptType = stream.current().toString();
@@ -413,7 +412,7 @@ CodeMirror.defineMode('jade', function (config) {
       return tok || true;
     }
   }
-  
+
   function attributesBlock(stream, state) {
     if (stream.match(/^&attributes\b/)) {
       state.javaScriptArguments = true;
@@ -421,13 +420,13 @@ CodeMirror.defineMode('jade', function (config) {
       return 'keyword';
     }
   }
-  
-  function indent(stream, state) {
+
+  function indent(stream) {
     if (stream.sol() && stream.eatSpace()) {
       return 'indent';
     }
   }
-  
+
   function comment(stream, state) {
     if (stream.match(/^ *\/\/(-)?([^\n]*)/)) {
       state.indentOf = stream.indentation();
@@ -435,13 +434,13 @@ CodeMirror.defineMode('jade', function (config) {
       return 'comment';
     }
   }
-  
-  function colon(stream, state) {
+
+  function colon(stream) {
     if (stream.match(/^: */)) {
       return 'colon';
     }
   }
-  
+
   function text(stream, state) {
     if (stream.match(/^(?:\| ?| )([^\n]+)/)) {
       return 'string';
@@ -453,7 +452,7 @@ CodeMirror.defineMode('jade', function (config) {
       return innerMode(stream, state, true);
     }
   }
-  
+
   function dot(stream, state) {
     if (stream.eat('.')) {
       var innerMode = null;
@@ -466,20 +465,20 @@ CodeMirror.defineMode('jade', function (config) {
       return 'dot';
     }
   }
-  
-  function fail(stream, state) {
+
+  function fail(stream) {
     stream.next();
     return null;
   }
- 
-  
+
+
   function setInnerMode(stream, state, mode) {
     mode = CodeMirror.mimeModes[mode] || mode;
     mode = config.innerModes ? config.innerModes(mode) || mode : mode;
     mode = CodeMirror.mimeModes[mode] || mode;
     mode = CodeMirror.getMode(config, mode);
     state.indentOf = stream.indentation();
-    
+
     if (mode && mode.name !== 'null') {
       state.innerMode = mode;
     } else {
@@ -518,8 +517,8 @@ CodeMirror.defineMode('jade', function (config) {
       return tok;
     }
   }
-  
-  
+
+
   function startState() {
     return new State();
   }
@@ -580,7 +579,7 @@ CodeMirror.defineMode('jade', function (config) {
     startState: startState,
     copyState: copyState,
     token: nextToken
-  }
+  };
 });
 
 CodeMirror.defineMIME('text/x-jade', 'jade');
