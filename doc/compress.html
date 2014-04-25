@@ -3,6 +3,9 @@
 <title>CodeMirror: Compression Helper</title>
 <meta charset="utf-8"/>
 <link rel=stylesheet href="docs.css">
+<script src="../lib/codemirror.js"></script>
+<script src="../mode/javascript/javascript.js"></script>
+<link rel=stylesheet href="../lib/codemirror.css">
 
 <div id=nav>
   <a href="http://codemirror.net"><img id=logo src="logo.png"></a>
@@ -222,10 +225,12 @@
         <button type="submit">Compress</button> with <a href="http://github.com/mishoo/UglifyJS/">UglifyJS</a>
       </p>
 
-      <p>Custom code to add to the compressed file:<textarea name="js_code" style="width: 100%; height: 15em;" class="field"></textarea></p>
+      <p>Custom code to add to the compressed file:<textarea name="js_code" style="width: 100%; height: 15em;" class="field" id="js_code"></textarea></p>
     </form>
 
     <script type="text/javascript">
+      CodeMirror.fromTextArea(document.getElementById("js_code")).getWrapperElement().className += " field";
+
       function setVersion(ver) {
         var urlprefix = ver.options[ver.selectedIndex].value;
         var select = document.getElementById("files"), m;
