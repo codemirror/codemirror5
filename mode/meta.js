@@ -20,6 +20,7 @@ CodeMirror.modeInfo = [
   {name: 'Clojure', mime: 'text/x-clojure', mode: 'clojure'},
   {name: 'CoffeeScript', mime: 'text/x-coffeescript', mode: 'coffeescript'},
   {name: 'Common Lisp', mime: 'text/x-common-lisp', mode: 'commonlisp'},
+  {name: 'Cypher', mime: 'application/x-cypher-query', mode: 'cypher'},
   {name: 'CSS', mime: 'text/css', mode: 'css'},
   {name: 'D', mime: 'text/x-d', mode: 'd'},
   {name: 'diff', mime: 'text/x-diff', mode: 'diff'},
