@@ -98,7 +98,7 @@ function copyCursor(cur) {
 
 function forEach(arr, func) {
   for (var i = 0; i < arr.length; i++) {
-    func(arr[i]);
+    func(arr[i], i, arr);
   }
 }
 
@@ -2325,7 +2325,8 @@ testVim('HML', function(cm, vim, helpers) {
   return upper + lower;
 })()});
 
-var zVals = ['zb','zz','zt','z-','z.','z<CR>'].map(function(e, idx){
+var zVals = [];
+forEach(['zb','zz','zt','z-','z.','z<CR>'], function(e, idx){
   var lineNum = 250;
   var lines = 35;
   testVim(e, function(cm, vim, helpers) {
