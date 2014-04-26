@@ -506,8 +506,8 @@ CodeMirror.defineMode("hxml", function () {
       stream.next();
       return null;
     },
-	
-	lineComment: "#"
+    
+    lineComment: "#"
   };
 });
 
