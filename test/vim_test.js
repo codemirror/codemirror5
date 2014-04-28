@@ -1620,7 +1620,20 @@ testVim('o_visual', function(cm,vim,helpers) {
   helpers.doKeys('d');
   eq('p',cm.getValue());
 }, { value: 'abcd\nefgh\nijkl\nmnop'});
-
+testVim('U_visual', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('v', 'l', 'j', 'l');
+  helpers.doKeys('U');
+  helpers.assertCursorAt(0, 0);
+  eq('AB\nCD', cm.getValue());
+}, { value: 'ab\ncd'});
+testVim('u_visual', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('v', 'l', 'j', 'l');
+  helpers.doKeys('u');
+  helpers.assertCursorAt(0, 0);
+  eq('ab\ncd', cm.getValue());
+}, { value: 'AB\nCD'});
 testVim('S_normal', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.doKeys('j', 'S');
