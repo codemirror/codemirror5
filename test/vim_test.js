@@ -1620,20 +1620,25 @@ testVim('o_visual', function(cm,vim,helpers) {
   helpers.doKeys('d');
   eq('p',cm.getValue());
 }, { value: 'abcd\nefgh\nijkl\nmnop'});
-testVim('U_visual', function(cm, vim, helpers) {
+testVim('uppercase/lowercase_visual', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
-  helpers.doKeys('v', 'l', 'j', 'l');
+  helpers.doKeys('v', 'l', 'l');
   helpers.doKeys('U');
   helpers.assertCursorAt(0, 0);
-  eq('AB\nCD', cm.getValue());
-}, { value: 'ab\ncd'});
-testVim('u_visual', function(cm, vim, helpers) {
-  cm.setCursor(0, 0);
-  helpers.doKeys('v', 'l', 'j', 'l');
+  helpers.doKeys('v', 'l', 'l');
   helpers.doKeys('u');
   helpers.assertCursorAt(0, 0);
-  eq('ab\ncd', cm.getValue());
-}, { value: 'AB\nCD'});
+  helpers.doKeys('l', 'l', 'l', '.');
+  helpers.assertCursorAt(0, 3);
+  cm.setCursor(0, 0);
+  helpers.doKeys('q', 'a', 'v', 'j', 'U', 'q');
+  helpers.assertCursorAt(0, 0);
+  helpers.doKeys('j', '@', 'a');
+  helpers.assertCursorAt(1, 0);
+  cm.setCursor(3, 0);
+  helpers.doKeys('V', 'U', 'j', '.');
+  eq('ABCDEF\nGHIJKL\nMnopq\nSHORT LINE\nLONG LINE OF TEXT', cm.getValue());
+}, { value: 'abcdef\nghijkl\nmnopq\nshort line\nlong line of text'});
 testVim('S_normal', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.doKeys('j', 'S');
