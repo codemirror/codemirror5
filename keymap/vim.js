@@ -297,8 +297,8 @@
     { keys: ['R'], type: 'action', action: 'enterInsertMode', isEdit: true,
         actionArgs: { replace: true }},
     { keys: ['u'], type: 'action', action: 'undo' },
-    { keys: ['u'], type: 'action', action: 'convertSelectedTextToLowerCase', context: 'visual' },
-    { keys: ['U'],type: 'action', action: 'convertSelectedTextToUpperCase', context: 'visual'},
+    { keys: ['u'], type: 'action', action: 'changeCase', actionArgs: {toLower: true}, context: 'visual' },
+    { keys: ['U'],type: 'action', action: 'changeCase', actionArgs: {toLower: false}, context: 'visual'},
     { keys: ['<C-r>'], type: 'action', action: 'redo' },
     { keys: ['m', 'character'], type: 'action', action: 'setMark' },
     { keys: ['"', 'character'], type: 'action', action: 'setRegister' },
@@ -2219,9 +2219,10 @@
         }
         repeatLastEdit(cm, vim, repeat, false /** repeatForInsert */);
       },
-      convertSelectedTextToLowerCase: function(cm, _vim) {
+      changeCase: function(cm, actionArgs, _vim) {
         var selectionStart = cm.getCursor('anchor');
         var selectionEnd = cm.getCursor('head');
+        var toLower = actionArgs.toLower;
         if (cursorIsBefore(selectionEnd, selectionStart)) {
           var tmp = selectionStart;
           selectionStart = selectionEnd;
@@ -2230,22 +2231,11 @@
           selectionEnd = cm.clipPos(Pos(selectionEnd.line, selectionEnd.ch+1));
         }
         var text = cm.getRange(selectionStart, selectionEnd);
-        cm.replaceRange(text.toLowerCase(), selectionStart, selectionEnd);
-        cm.setCursor(selectionStart);
-        exitVisualMode(cm);
-      },
-      convertSelectedTextToUpperCase: function(cm, _vim) {
-        var selectionStart = cm.getCursor('anchor');
-        var selectionEnd = cm.getCursor('head');
-        if (cursorIsBefore(selectionEnd, selectionStart)) {
-          var tmp = selectionStart;
-          selectionStart = selectionEnd;
-          selectionEnd = tmp;
+        if (toLower) {
+          cm.replaceRange(text.toLowerCase(), selectionStart, selectionEnd);
         } else {
-          selectionEnd = cm.clipPos(Pos(selectionEnd.line, selectionEnd.ch+1));
+          cm.replaceRange(text.toUpperCase(), selectionStart, selectionEnd);
         }
-        var text = cm.getRange(selectionStart, selectionEnd);
-        cm.replaceRange(text.toUpperCase(), selectionStart, selectionEnd);
         cm.setCursor(selectionStart);
         exitVisualMode(cm);
       }
