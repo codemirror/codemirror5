@@ -1652,7 +1652,7 @@
           }
         } while (symbol);
         if (symbol) {
-          var matched = cm.findMatchingBracket(Pos(line, ch-1));
+          var matched = cm.findMatchingBracket(Pos(line, ch));
           return matched.to;
         } else {
           return cursor;
