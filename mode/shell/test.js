@@ -37,10 +37,11 @@
   MT("comment",
      "text [comment # Blurb]");
 
-  // TODO: numbers at EOL are not styled 'number'
+  MT("numbers",
+     "[number 0] [number 1] [number 2]");
   MT("keywords",
      "[keyword while] [atom true]; [keyword do]",
-     "  [builtin sleep] 3",
+     "  [builtin sleep] [number 3]",
      "[keyword done]");
   MT("options",
      "[builtin ls] [attribute -l] [attribute --human-readable]");
