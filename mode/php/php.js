@@ -183,8 +183,7 @@
         state.curState = state.html;
         return "meta";
       } else {
-        var result = phpMode.token(stream, state.curState);
-        return (stream.pos <= stream.start) ? phpMode.token(stream, state.curState) : result;
+        return phpMode.token(stream, state.curState);
       }
     }
 

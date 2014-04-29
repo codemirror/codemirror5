@@ -120,10 +120,7 @@ CodeMirror.defineMode('shell', function() {
     startState: function() {return {tokens:[]};},
     token: function(stream, state) {
       if (stream.eatSpace()) return null;
-      for (;;) {
-        var type = tokenize(stream, state);
-        if (stream.pos > stream.start) return type;
-      }
+      return tokenize(stream, state);
     }
   };
 });
