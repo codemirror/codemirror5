@@ -27,6 +27,11 @@
   MT("doubleQuotedVarBracesVarBraces",
      '[string "][def ${a}${b}][string "]');
 
+  MT("notAString",
+     "text\\'text");
+  MT("escapes",
+     "outside\\'\\\"\\`\\\\[string \"inside\\`\\'\\\"\\\\`\\$notAVar\"]outside\\$\\(notASubShell\\)");
+
   MT("subshell",
      "[builtin echo] [quote $(whoami)] s log, stardate [quote `date`].");
   MT("doubleQuotedSubshell",
