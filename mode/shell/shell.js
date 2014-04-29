@@ -38,6 +38,10 @@ CodeMirror.defineMode('shell', function() {
     var sol = stream.sol();
     var ch = stream.next();
 
+    if (ch === '\\') {
+      stream.next();
+      return null;
+    }
     if (ch === '\'' || ch === '"' || ch === '`') {
       state.tokens.unshift(tokenString(ch));
       return tokenize(stream, state);
