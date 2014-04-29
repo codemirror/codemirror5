@@ -16,13 +16,12 @@
   MT("singleQuotedVarBraces",
      "[string 'text ${var} text']");
 
-  // TODO: would be better to style spaces after interpolation as string.
   MT("doubleQuotedVar",
-     '[string "text ][def $var] [string text"]');
+     '[string "text ][def $var][string  text"]');
   MT("doubleQuotedVarBraces",
      '[string "text][def ${var}][string text"]');
   MT("doubleQuotedVarPunct",
-     '[string "text ][def $@] [string text"]');
+     '[string "text ][def $@][string  text"]');
   MT("doubleQuotedVarVar",
      '[string "][def $a$b][string "]');
   MT("doubleQuotedVarBracesVarBraces",
