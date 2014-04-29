@@ -297,8 +297,8 @@
     { keys: ['R'], type: 'action', action: 'enterInsertMode', isEdit: true,
         actionArgs: { replace: true }},
     { keys: ['u'], type: 'action', action: 'undo' },
-    { keys: ['u'], type: 'action', action: 'changeCase', actionArgs: {toLower: true}, context: 'visual' },
-    { keys: ['U'],type: 'action', action: 'changeCase', actionArgs: {toLower: false}, context: 'visual'},
+    { keys: ['u'], type: 'action', action: 'changeCase', actionArgs: {toLower: true}, context: 'visual', isEdit: true },
+    { keys: ['U'],type: 'action', action: 'changeCase', actionArgs: {toLower: false}, context: 'visual', isEdit: true },
     { keys: ['<C-r>'], type: 'action', action: 'redo' },
     { keys: ['m', 'character'], type: 'action', action: 'setMark' },
     { keys: ['"', 'character'], type: 'action', action: 'setRegister' },
@@ -632,7 +632,8 @@
         macroModeState: new MacroModeState,
         // Recording latest f, t, F or T motion command.
         lastChararacterSearch: {increment:0, forward:true, selectedCharacter:''},
-        registerController: new RegisterController({})
+        registerController: new RegisterController({}),
+        lastSelectedArea: {}
       };
       for (var optionName in options) {
         var option = options[optionName];
@@ -2219,10 +2220,11 @@
         }
         repeatLastEdit(cm, vim, repeat, false /** repeatForInsert */);
       },
-      changeCase: function(cm, actionArgs, _vim) {
+      changeCase: function(cm, actionArgs, vim) {
         var selectionStart = cm.getCursor('anchor');
         var selectionEnd = cm.getCursor('head');
         var toLower = actionArgs.toLower;
+        var lastSelectedArea = vimGlobalState.lastSelectedArea;
         if (cursorIsBefore(selectionEnd, selectionStart)) {
           var tmp = selectionStart;
           selectionStart = selectionEnd;
@@ -2230,12 +2232,15 @@
         } else {
           selectionEnd = cm.clipPos(Pos(selectionEnd.line, selectionEnd.ch+1));
         }
-        var text = cm.getRange(selectionStart, selectionEnd);
-        if (toLower) {
-          cm.replaceRange(text.toLowerCase(), selectionStart, selectionEnd);
+        if (!vim.visualMode) {
+          selectionStart =  cm.getCursor();
+          selectionEnd.line = selectionStart.line + lastSelectedArea.line;
+          selectionEnd.ch = lastSelectedArea.line ? lastSelectedArea.ch : selectionStart.ch + lastSelectedArea.ch;
         } else {
-          cm.replaceRange(text.toUpperCase(), selectionStart, selectionEnd);
+          vimGlobalState.lastSelectedArea = {line: selectionEnd.line - selectionStart.line,ch: lastSelectedArea.line ? selectionEnd.ch : selectionEnd.ch - selectionStart.ch};
         }
+        var text = cm.getRange(selectionStart, selectionEnd);
+        cm.replaceRange(toLower ? text.toLowerCase() : text.toUpperCase(), selectionStart, selectionEnd);
         cm.setCursor(selectionStart);
         exitVisualMode(cm);
       }
