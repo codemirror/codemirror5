@@ -86,6 +86,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
         escaped = !escaped && ch == "\\";
       }
       if (ch == quote || !escaped && quote != ")") state.tokenize = null;
+      if (stream.pos == stream.start) return tokenBase(stream, state);
       return ret("string", "string");
     };
   }
