@@ -33,6 +33,7 @@ CodeMirror.defineMode('shell', function() {
     'touch vi vim wall wc wget who write yes zsh');
 
   function tokenBase(stream, state) {
+    if (stream.eatSpace()) return null;
 
     var sol = stream.sol();
     var ch = stream.next();
@@ -119,7 +120,6 @@ CodeMirror.defineMode('shell', function() {
   return {
     startState: function() {return {tokens:[]};},
     token: function(stream, state) {
-      if (stream.eatSpace()) return null;
       for (;;) {
         var type = tokenize(stream, state);
         if (stream.pos > stream.start) return type;
