@@ -112,6 +112,9 @@
   MT("vanillaLinkExtension",
      "foo [link http://www.example.com/index.html] bar");
 
+  MT("vanillaLinkEmphasis",
+     "foo [em *][link http://www.example.com/index.html][em *] bar");
+
   MT("notALink",
      "[comment ```css]",
      "[tag foo] {[property color]:[keyword black];}",
