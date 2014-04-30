@@ -1550,9 +1550,7 @@
         // will move the cursor to where it should be in the end.
         var curStart = cm.getCursor();
         var repeat = motionArgs.repeat;
-        var curEnd = cm.findPosV(curStart, (motionArgs.forward ? repeat : -repeat), 'page');
-        cm.setCursor(curStart);
-        return curEnd;
+        return cm.findPosV(curStart, (motionArgs.forward ? repeat : -repeat), 'page');
       },
       moveByParagraph: function(cm, motionArgs) {
         var line = cm.getCursor().line;
