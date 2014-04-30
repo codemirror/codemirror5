@@ -271,6 +271,7 @@
         actionArgs: { insertAt: 'charAfter' }},
     { keys: ['A'], type: 'action', action: 'enterInsertMode', isEdit: true,
         actionArgs: { insertAt: 'eol' }},
+    { keys: ['A'], type: 'action', action: 'enterInsertMode', isEdit: true, actionArgs: { insertAt: 'endOfSelectedArea' }, context: 'visual' },
     { keys: ['i'], type: 'action', action: 'enterInsertMode', isEdit: true,
         actionArgs: { insertAt: 'inplace' }},
     { keys: ['I'], type: 'action', action: 'enterInsertMode', isEdit: true,
@@ -1914,6 +1915,13 @@
           cm.setCursor(offsetCursor(cm.getCursor(), 0, 1));
         } else if (insertAt == 'firstNonBlank') {
           cm.setCursor(motions.moveToFirstNonWhiteSpaceCharacter(cm));
+        } else if (insertAt == 'endOfSelectedArea') {
+          var selectionEnd = cm.getCursor('head');
+          var selectionStart = cm.getCursor('anchor');
+          var cursor = cm.getCursor();
+          cursor = cursorIsBefore(selectionStart, selectionEnd) ? Pos(cursor.line, selectionEnd.ch+1) : Pos(cursor.line, selectionEnd.ch);
+          cm.setCursor(cursor);
+          exitVisualMode(cm);
         }
         cm.setOption('keyMap', 'vim-insert');
         cm.setOption('disableInput', false);

@@ -1141,6 +1141,13 @@ testVim('a_eol', function(cm, vim, helpers) {
   helpers.assertCursorAt(0, lines[0].length);
   eq('vim-insert', cm.getOption('keyMap'));
 });
+testVim('a_endOfSelectedArea', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('v', 'j', 'l');
+  helpers.doKeys('A');
+  helpers.assertCursorAt(1, 2);
+  eq('vim-insert', cm.getOption('keyMap'));
+}, {value: 'foo\nbar'});
 testVim('i', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.doKeys('i');
