@@ -632,7 +632,7 @@
         macroModeState: new MacroModeState,
         // Recording latest f, t, F or T motion command.
         lastChararacterSearch: {increment:0, forward:true, selectedCharacter:''},
-        registerController: new RegisterController({}),
+        registerController: new RegisterController({})
       };
       for (var optionName in options) {
         var option = options[optionName];
