@@ -67,7 +67,8 @@
   };
 
   function esc(str) {
-    return str.replace('&', '&amp;').replace('<', '&lt;');
+    return str.replace('&', '&amp;').replace('<', '&lt;').replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+;
   }
 
   function compare(text, expected, mode) {
@@ -89,7 +90,7 @@
       s +=   '<div class="cm-s-default">';
       s += 'expected:';
       s +=   prettyPrintOutputTable(expectedOutput, diff);
-      s += 'observed:';
+      s += 'observed: [<a onclick="this.parentElement.className+=\' mt-state-unhide\'">display states</a>]';
       s +=   prettyPrintOutputTable(observedOutput, diff);
       s +=   '</div>';
       s += '</div>';
@@ -99,6 +100,19 @@
         s += "<div class='mt-test mt-fail'>" + esc(observedOutput.indentFailures[i]) + "</div>";
     }
     if (s) throw new Failure(s);
+  }
+
+  function stringify(obj) {
+    function replacer(key, obj) {
+      if (typeof obj == "function") {
+        var m = obj.toString().match(/function\s*[^\s(]*/);
+        return m ? m[0] : "function";
+      }
+      return obj;
+    }
+    if (window.JSON && JSON.stringify)
+      return JSON.stringify(obj, replacer, 2);
+    return "[unsupported]";  // Fail safely if no native JSON.
   }
 
   function highlight(string, mode) {
@@ -129,7 +143,7 @@
         if (pos && st[pos-1].style == compare && !newLine) {
           st[pos-1].text += substr;
         } else if (substr) {
-          st[pos++] = {style: compare, text: substr};
+          st[pos++] = {style: compare, text: substr, state: stringify(state)};
         }
         // Give up when line is ridiculously long
         if (stream.pos > 5000) {
@@ -158,7 +172,7 @@
       s +=
       '<td class="mt-token"' + (i == diffAt * 2 ? " style='background: pink'" : "") + '>' +
         '<span class="cm-' + esc(String(style)) + '">' +
-        esc(val.replace(/ /g,'\xb7')) +
+        esc(val.replace(/ /g,'\xb7')) +  // · MIDDLE DOT
         '</span>' +
         '</td>';
     }
@@ -166,7 +180,13 @@
     for (var i = 0; i < output.length; ++i) {
       s += '<td class="mt-style"><span>' + (output[i].style || null) + '</span></td>';
     }
-    s += '</table>';
+    if(output[0].state) {
+      s += '</tr><tr class="mt-state-row" title="State AFTER each token">';
+      for (var i = 0; i < output.length; ++i) {
+        s += '<td class="mt-state"><pre>' + esc(output[i].state) + '</pre></td>';
+      }
+    }
+    s += '</tr></table>';
     return s;
   }
 })();
