@@ -1918,9 +1918,8 @@
         } else if (insertAt == 'endOfSelectedArea') {
           var selectionEnd = cm.getCursor('head');
           var selectionStart = cm.getCursor('anchor');
-          var cursor = cm.getCursor();
-          cursor = cursorIsBefore(selectionStart, selectionEnd) ? Pos(cursor.line, selectionEnd.ch+1) : Pos(cursor.line, selectionEnd.ch);
-          cm.setCursor(cursor);
+          selectionEnd = cursorIsBefore(selectionStart, selectionEnd) ? Pos(selectionEnd.line, selectionEnd.ch+1) : (selectionEnd.line < selectionStart.line ? Pos(selectionStart.line, 0) : selectionEnd);
+          cm.setCursor(selectionEnd);
           exitVisualMode(cm);
         }
         cm.setOption('keyMap', 'vim-insert');
