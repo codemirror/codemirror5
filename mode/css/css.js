@@ -54,7 +54,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
       if (/[\d.]/.test(stream.peek())) {
         stream.eatWhile(/[\w.%]/);
         return ret("number", "unit");
-      } else if (stream.match(/^[^-]+-/)) {
+      } else if (stream.match(/^\w+-/)) {
         return ret("meta", "meta");
       }
     } else if (/[,+>*\/]/.test(ch)) {
