@@ -633,7 +633,6 @@
         // Recording latest f, t, F or T motion command.
         lastChararacterSearch: {increment:0, forward:true, selectedCharacter:''},
         registerController: new RegisterController({}),
-        lastSelectedArea: {}
       };
       for (var optionName in options) {
         var option = options[optionName];
@@ -2221,10 +2220,10 @@
         repeatLastEdit(cm, vim, repeat, false /** repeatForInsert */);
       },
       changeCase: function(cm, actionArgs, vim) {
-        var selectionStart = cm.getCursor('anchor');
-        var selectionEnd = cm.getCursor('head');
+        var selectedAreaRange = getSelectedAreaRange(cm, vim);
+        var selectionStart = selectedAreaRange[0];
+        var selectionEnd = selectedAreaRange[1];
         var toLower = actionArgs.toLower;
-        var lastSelectedArea = vimGlobalState.lastSelectedArea;
         if (cursorIsBefore(selectionEnd, selectionStart)) {
           var tmp = selectionStart;
           selectionStart = selectionEnd;
@@ -2232,17 +2231,9 @@
         } else {
           selectionEnd = cm.clipPos(Pos(selectionEnd.line, selectionEnd.ch+1));
         }
-        if (!vim.visualMode) {
-          selectionStart =  cm.getCursor();
-          selectionEnd.line = selectionStart.line + lastSelectedArea.line;
-          selectionEnd.ch = lastSelectedArea.line ? lastSelectedArea.ch : selectionStart.ch + lastSelectedArea.ch;
-        } else {
-          vimGlobalState.lastSelectedArea = {line: selectionEnd.line - selectionStart.line,ch: lastSelectedArea.line ? selectionEnd.ch : selectionEnd.ch - selectionStart.ch};
-        }
         var text = cm.getRange(selectionStart, selectionEnd);
         cm.replaceRange(toLower ? text.toLowerCase() : text.toUpperCase(), selectionStart, selectionEnd);
         cm.setCursor(selectionStart);
-        exitVisualMode(cm);
       }
     };
 
@@ -2324,6 +2315,22 @@
     }
     function escapeRegex(s) {
       return s.replace(/([.?*+$\[\]\/\\(){}|\-])/g, '\\$1');
+    }
+    function getSelectedAreaRange(cm, vim) {
+      var selectionStart = cm.getCursor('anchor');
+      var selectionEnd = cm.getCursor('head');
+      var lastSelection = vim.lastSelection;
+      if (!vim.visualMode) {
+        var line = lastSelection.curEnd.line - lastSelection.curStart.line;
+        var ch = line ? lastSelection.curEnd.ch : lastSelection.curEnd.ch - lastSelection.curStart.ch;
+        selectionEnd = {line: selectionEnd.line + line, ch: line ? selectionEnd.ch : ch + selectionEnd.ch};
+        if (lastSelection.visualLine) {
+          return [{line: selectionStart.line, ch: 0}, {line: selectionEnd.line, ch: lineLength(cm, selectionEnd.line)}];
+        }
+      } else {
+        exitVisualMode(cm);
+      }
+      return [selectionStart, selectionEnd];
     }
 
     function exitVisualMode(cm) {

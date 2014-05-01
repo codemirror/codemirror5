@@ -1635,8 +1635,10 @@ testVim('uppercase/lowercase_visual', function(cm, vim, helpers) {
   helpers.assertCursorAt(0, 0);
   helpers.doKeys('j', '@', 'a');
   helpers.assertCursorAt(1, 0);
-  eq('ABCDEF\nGHIJKL\nMnopq', cm.getValue());
-}, { value: 'abcdef\nghijkl\nmnopq'});
+  cm.setCursor(3, 0);
+  helpers.doKeys('V', 'U', 'j', '.');
+  eq('ABCDEF\nGHIJKL\nMnopq\nSHORT LINE\nLONG LINE OF TEXT', cm.getValue());
+}, { value: 'abcdef\nghijkl\nmnopq\nshort line\nlong line of text'});
 testVim('S_normal', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.doKeys('j', 'S');
