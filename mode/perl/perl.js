@@ -788,6 +788,8 @@ CodeMirror.defineMode("perl",function(){
                         return (state.tokenize||tokenPerl)(stream,state);},
                 electricChars:"{}"};});
 
+CodeMirror.registerHelper("wordChars", "perl", /[\\w$]/);
+
 CodeMirror.defineMIME("text/x-perl", "perl");
 
 // it's like "peek", but need for look-ahead or look-behind if index < 0
