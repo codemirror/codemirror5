@@ -645,6 +645,8 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   };
 });
 
+CodeMirror.registerHelper("wordChars", "javascript", /[\\w$]/);
+
 CodeMirror.defineMIME("text/javascript", "javascript");
 CodeMirror.defineMIME("text/ecmascript", "javascript");
 CodeMirror.defineMIME("application/javascript", "javascript");
