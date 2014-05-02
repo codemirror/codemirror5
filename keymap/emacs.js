@@ -325,14 +325,6 @@
     "Ctrl-O": repeated(function(cm) { cm.replaceSelection("\n", "start"); }),
     "Ctrl-T": repeated(function(cm) {
       cm.execCommand("transposeChars");
-      return;
-      var pos = cm.getCursor();
-      if (pos.ch < cm.getLine(pos.line).length) pos = Pos(pos.line, pos.ch + 1);
-      var from = cm.findPosH(pos, -2, "char");
-      var range = cm.getRange(from, pos);
-      if (range.length != 2) return;
-      cm.setSelection(from, pos);
-      cm.replaceSelection(range.charAt(1) + range.charAt(0), null, "+transpose");
     }),
 
     "Alt-C": repeated(function(cm) {
