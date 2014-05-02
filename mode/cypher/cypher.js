@@ -1,19 +1,22 @@
 // By the Neo4j Team and contributors.
 // https://github.com/neo4j-contrib/CodeMirror
 
-(function() {
-  var wordRegexp;
-
-  wordRegexp = function(words) {
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
+  "use strict";
+  var wordRegexp = function(words) {
     return new RegExp("^(?:" + words.join("|") + ")$", "i");
   };
 
   CodeMirror.defineMode("cypher", function(config) {
-    var curPunc, funcs, indentUnit, keywords, operatorChars, popContext, preds, pushContext, tokenBase, tokenLiteral;
-    tokenBase = function(stream/*, state*/) {
-      var ch, curPunc, type, word;
-      ch = stream.next();
-      curPunc = null;
+    var tokenBase = function(stream/*, state*/) {
+      var ch = stream.next(), curPunc = null;
       if (ch === "\"" || ch === "'") {
         stream.match(/.+?["']/);
         return "string";
@@ -33,36 +36,14 @@
           stream.eatWhile(/[\w\d_\-]/);
           return "atom";
         }
-        word = stream.current();
-        type = void 0;
-        if (funcs.test(word)) {
-          return "builtin";
-        }
-        if (preds.test(word)) {
-          return "def";
-        } else if (keywords.test(word)) {
-          return "keyword";
-        } else {
-          return "variable";
-        }
+        var word = stream.current();
+        if (funcs.test(word)) return "builtin";
+        if (preds.test(word)) return "def";
+        if (keywords.test(word)) return "keyword";
+        return "variable";
       }
     };
-    tokenLiteral = function(quote) {
-      return function(stream, state) {
-        var ch, escaped;
-        escaped = false;
-        ch = void 0;
-        while ((ch = stream.next()) != null) {
-          if (ch === quote && !escaped) {
-            state.tokenize = tokenBase;
-            break;
-          }
-          escaped = !escaped && ch === "\\";
-        }
-        return "string";
-      };
-    };
-    pushContext = function(state, type, col) {
+    var pushContext = function(state, type, col) {
       return state.context = {
         prev: state.context,
         indent: state.indent,
@@ -70,16 +51,17 @@
         type: type
       };
     };
-    popContext = function(state) {
+    var popContext = function(state) {
       state.indent = state.context.indent;
       return state.context = state.context.prev;
     };
-    indentUnit = config.indentUnit;
-    curPunc = void 0;
-    funcs = wordRegexp(["abs", "acos", "allShortestPaths", "asin", "atan", "atan2", "avg", "ceil", "coalesce", "collect", "cos", "cot", "count", "degrees", "e", "endnode", "exp", "extract", "filter", "floor", "haversin", "head", "id", "labels", "last", "left", "length", "log", "log10", "lower", "ltrim", "max", "min", "node", "nodes", "percentileCont", "percentileDisc", "pi", "radians", "rand", "range", "reduce", "rel", "relationship", "relationships", "replace", "right", "round", "rtrim", "shortestPath", "sign", "sin", "split", "sqrt", "startnode", "stdev", "stdevp", "str", "substring", "sum", "tail", "tan", "timestamp", "toFloat", "toInt", "trim", "type", "upper"]);
-    preds = wordRegexp(["all", "and", "any", "has", "in", "none", "not", "or", "single", "xor"]);
-    keywords = wordRegexp(["as", "asc", "ascending", "assert", "by", "case", "commit", "constraint", "create", "csv", "cypher", "delete", "desc", "descending", "distinct", "drop", "else", "end", "false", "foreach", "from", "headers", "in", "index", "is", "limit", "load", "match", "merge", "null", "on", "optional", "order", "periodic", "remove", "return", "scan", "set", "skip", "start", "then", "true", "union", "unique", "using", "when", "where", "with"]);
-    operatorChars = /[*+\-<>=&|~%^]/;
+    var indentUnit = config.indentUnit;
+    var curPunc;
+    var funcs = wordRegexp(["abs", "acos", "allShortestPaths", "asin", "atan", "atan2", "avg", "ceil", "coalesce", "collect", "cos", "cot", "count", "degrees", "e", "endnode", "exp", "extract", "filter", "floor", "haversin", "head", "id", "labels", "last", "left", "length", "log", "log10", "lower", "ltrim", "max", "min", "node", "nodes", "percentileCont", "percentileDisc", "pi", "radians", "rand", "range", "reduce", "rel", "relationship", "relationships", "replace", "right", "round", "rtrim", "shortestPath", "sign", "sin", "split", "sqrt", "startnode", "stdev", "stdevp", "str", "substring", "sum", "tail", "tan", "timestamp", "toFloat", "toInt", "trim", "type", "upper"]);
+    var preds = wordRegexp(["all", "and", "any", "has", "in", "none", "not", "or", "single", "xor"]);
+    var keywords = wordRegexp(["as", "asc", "ascending", "assert", "by", "case", "commit", "constraint", "create", "csv", "cypher", "delete", "desc", "descending", "distinct", "drop", "else", "end", "false", "foreach", "from", "headers", "in", "index", "is", "limit", "load", "match", "merge", "null", "on", "optional", "order", "periodic", "remove", "return", "scan", "set", "skip", "start", "then", "true", "union", "unique", "using", "when", "where", "with"]);
+    var operatorChars = /[*+\-<>=&|~%^]/;
+
     return {
       startState: function(/*base*/) {
         return {
@@ -90,7 +72,6 @@
         };
       },
       token: function(stream, state) {
-        var style;
         if (stream.sol()) {
           if (state.context && (state.context.align == null)) {
             state.context.align = false;
@@ -100,7 +81,7 @@
         if (stream.eatSpace()) {
           return null;
         }
-        style = state.tokenize(stream, state);
+        var style = state.tokenize(stream, state);
         if (style !== "comment" && state.context && (state.context.align == null) && state.context.type !== "pattern") {
           state.context.align = true;
         }
@@ -130,24 +111,18 @@
         return style;
       },
       indent: function(state, textAfter) {
-        var closing, context, firstChar;
-        firstChar = textAfter && textAfter.charAt(0);
-        context = state.context;
+        var firstChar = textAfter && textAfter.charAt(0);
+        var context = state.context;
         if (/[\]\}]/.test(firstChar)) {
           while (context && context.type === "pattern") {
             context = context.prev;
           }
         }
-        closing = context && firstChar === context.type;
-        if (!context) {
-          return 0;
-        } else if (context.type === "keywords") {
-          return CodeMirror.commands.newlineAndIndent;
-        } else if (context.align) {
-          return context.col + (closing ? 0 : 1);
-        } else {
-          return context.indent + (closing ? 0 : indentUnit);
-        }
+        var closing = context && firstChar === context.type;
+        if (!context) return 0;
+        if (context.type === "keywords") return CodeMirror.commands.newlineAndIndent;
+        if (context.align) return context.col + (closing ? 0 : 1);
+        return context.indent + (closing ? 0 : indentUnit);
       }
     };
   });
@@ -155,18 +130,14 @@
   CodeMirror.modeExtensions["cypher"] = {
     autoFormatLineBreaks: function(text) {
       var i, lines, reProcessedPortion;
-      lines = text.split("\n");
-      reProcessedPortion = /\s+\b(return|where|order by|match|with|skip|limit|create|delete|set)\b\s/g;
-      i = 0;
-      while (i < lines.length) {
+      var lines = text.split("\n");
+      var reProcessedPortion = /\s+\b(return|where|order by|match|with|skip|limit|create|delete|set)\b\s/g;
+      for (var i = 0; i < lines.length; i++)
         lines[i] = lines[i].replace(reProcessedPortion, " \n$1 ").trim();
-        i++;
-      }
       return lines.join("\n");
     }
   };
 
   CodeMirror.defineMIME("application/x-cypher-query", "cypher");
 
-}).call(this);
-
+});
