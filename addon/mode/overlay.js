@@ -3,8 +3,9 @@
 // functionality, but a second (typically simple) mode is used, which
 // can override the style of text. Both modes get to parse all of the
 // text, but when both assign a non-null style to a piece of code, the
-// overlay wins, unless the combine argument was true, in which case
-// the styles are combined.
+// overlay wins, unless the combine argument was true and not overridden,
+// or state.overlay.combineTokens was true, in which case the styles are
+// combined.
 
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
@@ -54,8 +55,13 @@ CodeMirror.overlayMode = function(base, overlay, combine) {
       }
       stream.pos = Math.min(state.basePos, state.overlayPos);
 
+      // state.overlay.combineTokens always takes precedence over combine,
+      // unless set to null
       if (state.overlayCur == null) return state.baseCur;
-      if (state.baseCur != null && combine) return state.baseCur + " " + state.overlayCur;
+      else if (state.baseCur != null &&
+               state.overlay.combineTokens ||
+               combine && state.overlay.combineTokens == null)
+        return state.baseCur + " " + state.overlayCur;
       else return state.overlayCur;
     },
 

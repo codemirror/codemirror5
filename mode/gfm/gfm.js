@@ -30,6 +30,8 @@ CodeMirror.defineMode("gfm", function(config, modeConfig) {
       };
     },
     token: function(stream, state) {
+      state.combineTokens = null;
+
       // Hack to prevent formatting override inside code blocks (block and inline)
       if (state.codeBlock) {
         if (stream.match(/^```/)) {
@@ -77,11 +79,13 @@ CodeMirror.defineMode("gfm", function(config, modeConfig) {
           // User/Project@SHA
           // User@SHA
           // SHA
+          state.combineTokens = true;
           return "link";
         } else if (stream.match(/^(?:[a-zA-Z0-9\-_]+\/)?(?:[a-zA-Z0-9\-_]+)?#[0-9]+\b/)) {
           // User/Project#Num
           // User#Num
           // #Num
+          state.combineTokens = true;
           return "link";
         }
       }
@@ -90,6 +94,7 @@ CodeMirror.defineMode("gfm", function(config, modeConfig) {
         // URLs
         // Taken from http://daringfireball.net/2010/07/improved_regex_for_matching_urls
         // And then (issue #1160) simplified to make it not crash the Chrome Regexp engine
+        state.combineTokens = true;
         return "link";
       }
       stream.next();
