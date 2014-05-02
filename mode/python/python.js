@@ -38,6 +38,10 @@
 
   CodeMirror.registerHelper("hintWords", "python", commonKeywords.concat(commonBuiltins));
 
+  function top(state) {
+    return state.scopes[state.scopes.length - 1];
+  }
+
   CodeMirror.defineMode("python", function(conf, parserConf) {
     var ERRORCLASS = "error";
 
@@ -56,7 +60,7 @@
     if(parserConf.extra_builtins != undefined){
       myBuiltins = myBuiltins.concat(parserConf.extra_builtins);
     }
-    if (!!parserConf.version && parseInt(parserConf.version, 10) === 3) {
+    if (parserConf.version && parseInt(parserConf.version, 10) == 3) {
       myKeywords = myKeywords.concat(py3.keywords);
       myBuiltins = myBuiltins.concat(py3.builtins);
       var stringPrefixes = new RegExp("^(([rb]|(br))?('{3}|\"{3}|['\"]))", "i");
@@ -68,35 +72,28 @@
     var keywords = wordRegexp(myKeywords);
     var builtins = wordRegexp(myBuiltins);
 
-    var indentInfo = null;
-
     // tokenizers
     function tokenBase(stream, state) {
       // Handle scope changes
-      if (stream.sol()) {
-        var scopeOffset = state.scopes[0].offset;
+      if (stream.sol() && top(state).type == "py") {
+        var scopeOffset = top(state).offset;
         if (stream.eatSpace()) {
           var lineOffset = stream.indentation();
-          if (lineOffset > scopeOffset) {
-            indentInfo = "indent";
-          } else if (lineOffset < scopeOffset) {
-            indentInfo = "dedent";
-          }
+          if (lineOffset > scopeOffset)
+            pushScope(stream, state, "py");
+          else if (lineOffset < scopeOffset)
+            return dedent(stream, state) ? ERRORCLASS : null;
           return null;
-        } else {
-          if (scopeOffset > 0) {
-            dedent(stream, state);
-          }
+        } else if (scopeOffset > 0 && dedent(stream, state)) {
+          return state.tokenize(stream, state) + " " + ERRORCLASS;
         }
       }
-      if (stream.eatSpace()) {
-        return null;
-      }
+      if (stream.eatSpace()) return null;
 
       var ch = stream.peek();
 
       // Handle Comments
-      if (ch === "#") {
+      if (ch == "#") {
         stream.skipToEnd();
         return "comment";
       }
@@ -116,11 +113,11 @@
         // Integers
         var intLiteral = false;
         // Hex
-        if (stream.match(/^0x[0-9a-f]+/i)) { intLiteral = true; }
+        if (stream.match(/^0x[0-9a-f]+/i)) intLiteral = true;
         // Binary
-        if (stream.match(/^0b[01]+/i)) { intLiteral = true; }
+        if (stream.match(/^0b[01]+/i)) intLiteral = true;
         // Octal
-        if (stream.match(/^0o[0-7]+/i)) { intLiteral = true; }
+        if (stream.match(/^0o[0-7]+/i)) intLiteral = true;
         // Decimal
         if (stream.match(/^[1-9]\d*(e[\+\-]?\d+)?/)) {
           // Decimal literals may be "imaginary"
@@ -129,7 +126,7 @@
           intLiteral = true;
         }
         // Zero by itself with no other piece of number.
-        if (stream.match(/^0(?![\dx])/i)) { intLiteral = true; }
+        if (stream.match(/^0(?![\dx])/i)) intLiteral = true;
         if (intLiteral) {
           // Integer literals may be "long"
           stream.eat(/L/i);
@@ -144,34 +141,29 @@
       }
 
       // Handle operators and Delimiters
-      if (stream.match(tripleDelimiters) || stream.match(doubleDelimiters)) {
+      if (stream.match(tripleDelimiters) || stream.match(doubleDelimiters))
         return null;
-      }
+
       if (stream.match(doubleOperators)
           || stream.match(singleOperators)
-          || stream.match(wordOperators)) {
+          || stream.match(wordOperators))
         return "operator";
-      }
-      if (stream.match(singleDelimiters)) {
+
+      if (stream.match(singleDelimiters))
         return null;
-      }
 
-      if (stream.match(keywords)) {
+      if (stream.match(keywords))
         return "keyword";
-      }
 
-      if (stream.match(builtins)) {
+      if (stream.match(builtins))
         return "builtin";
-      }
 
-      if (stream.match(/^(self|cls)\b/)) {
+      if (stream.match(/^(self|cls)\b/))
         return "variable-2";
-      }
 
       if (stream.match(identifiers)) {
-        if (state.lastToken == "def" || state.lastToken == "class") {
+        if (state.lastToken == "def" || state.lastToken == "class")
           return "def";
-        }
         return "variable";
       }
 
@@ -181,9 +173,9 @@
     }
 
     function tokenStringFactory(delimiter) {
-      while ("rub".indexOf(delimiter.charAt(0).toLowerCase()) >= 0) {
+      while ("rub".indexOf(delimiter.charAt(0).toLowerCase()) >= 0)
         delimiter = delimiter.substr(1);
-      }
+
       var singleline = delimiter.length == 1;
       var OUTCLASS = "string";
 
@@ -192,9 +184,8 @@
           stream.eatWhile(/[^'"\\]/);
           if (stream.eat("\\")) {
             stream.next();
-            if (singleline && stream.eol()) {
+            if (singleline && stream.eol())
               return OUTCLASS;
-            }
           } else if (stream.match(delimiter)) {
             state.tokenize = tokenBase;
             return OUTCLASS;
@@ -203,11 +194,10 @@
           }
         }
         if (singleline) {
-          if (parserConf.singleLineStringErrors) {
+          if (parserConf.singleLineStringErrors)
             return ERRORCLASS;
-          } else {
+          else
             state.tokenize = tokenBase;
-          }
         }
         return OUTCLASS;
       }
@@ -215,76 +205,35 @@
       return tokenString;
     }
 
-    function indent(stream, state, type) {
-      type = type || "py";
-      var indentUnit = 0;
-      if (type === "py") {
-        if (state.scopes[0].type !== "py") {
-          state.scopes[0].offset = stream.indentation();
-          return;
-        }
-        for (var i = 0; i < state.scopes.length; ++i) {
-          if (state.scopes[i].type === "py") {
-            indentUnit = state.scopes[i].offset + conf.indentUnit;
-            break;
-          }
-        }
-      } else if (stream.match(/\s*($|#)/, false)) {
-        // An open paren/bracket/brace with only space or comments after it
-        // on the line will indent the next line a fixed amount, to make it
-        // easier to put arguments, list items, etc. on their own lines.
-        indentUnit = stream.indentation() + hangingIndent;
-      } else {
-        indentUnit = stream.column() + stream.current().length;
+    function pushScope(stream, state, type) {
+      var offset = 0, align = null;
+      if (type == "py") {
+        while (top(state).type != "py")
+          state.scopes.pop();
       }
-      state.scopes.unshift({
-        offset: indentUnit,
-        type: type
-      });
+      offset = top(state).offset + (type == "py" ? conf.indentUnit : hangingIndent);
+      if (type != "py" && !stream.match(/^(\s|#.*)*$/, false))
+        align = stream.column() + 1;
+      state.scopes.push({offset: offset, type: type, align: align});
     }
 
-    function dedent(stream, state, type) {
-      type = type || "py";
-      if (state.scopes.length == 1) return;
-      if (state.scopes[0].type === "py") {
-        var _indent = stream.indentation();
-        var _indent_index = -1;
-        for (var i = 0; i < state.scopes.length; ++i) {
-          if (_indent === state.scopes[i].offset) {
-            _indent_index = i;
-            break;
-          }
-        }
-        if (_indent_index === -1) {
-          return true;
-        }
-        while (state.scopes[0].offset !== _indent) {
-          state.scopes.shift();
-        }
-        return false;
-      } else {
-        if (type === "py") {
-          state.scopes[0].offset = stream.indentation();
-          return false;
-        } else {
-          if (state.scopes[0].type != type) {
-            return true;
-          }
-          state.scopes.shift();
-          return false;
-        }
+    function dedent(stream, state) {
+      var indented = stream.indentation();
+      while (top(state).offset > indented) {
+        if (top(state).type != "py") return true;
+        state.scopes.pop();
       }
+      return top(state).offset == indented;
     }
 
     function tokenLexer(stream, state) {
-      indentInfo = null;
       var style = state.tokenize(stream, state);
       var current = stream.current();
 
       // Handle '.' connected identifiers
-      if (current === ".") {
+      if (current == ".") {
         style = stream.match(identifiers, false) ? null : ERRORCLASS;
-        if (style === null && state.lastStyle === "meta") {
+        if (style == null && state.lastStyle == "meta") {
           // Apply 'meta' style to '.' connected identifiers when
           // appropriate.
           style = "meta";
@@ -293,41 +242,32 @@
       }
 
       // Handle decorators
-      if (current === "@") {
+      if (current == "@")
         return stream.match(identifiers, false) ? "meta" : ERRORCLASS;
-      }
 
-      if ((style === "variable" || style === "builtin")
-          && state.lastStyle === "meta") {
+      if ((style == "variable" || style == "builtin")
+          && state.lastStyle == "meta")
         style = "meta";
-      }
 
       // Handle scope changes.
-      if (current === "pass" || current === "return") {
+      if (current == "pass" || current == "return")
         state.dedent += 1;
-      }
-      if (current === "lambda") state.lambda = true;
-      if ((current === ":" && !state.lambda && state.scopes[0].type == "py")
-          || indentInfo === "indent") {
-        indent(stream, state);
-      }
+
+      if (current == "lambda") state.lambda = true;
+      if (current == ":" && !state.lambda && top(state).type == "py")
+        pushScope(stream, state, "py");
+
       var delimiter_index = "[({".indexOf(current);
-      if (delimiter_index !== -1) {
-        indent(stream, state, "])}".slice(delimiter_index, delimiter_index+1));
-      }
-      if (indentInfo === "dedent") {
-        if (dedent(stream, state)) {
-          return ERRORCLASS;
-        }
-      }
+      if (delimiter_index != -1)
+        pushScope(stream, state, "])}".slice(delimiter_index, delimiter_index+1));
+
       delimiter_index = "])}".indexOf(current);
-      if (delimiter_index !== -1) {
-        if (dedent(stream, state, current)) {
-          return ERRORCLASS;
-        }
+      if (delimiter_index != -1) {
+        if (top(state).type == current) state.scopes.pop();
+        else return ERRORCLASS;
       }
-      if (state.dedent > 0 && stream.eol() && state.scopes[0].type == "py") {
-        if (state.scopes.length > 1) state.scopes.shift();
+      if (state.dedent > 0 && stream.eol() && top(state).type == "py") {
+        if (state.scopes.length > 1) state.scopes.pop();
         state.dedent -= 1;
       }
 
@@ -338,7 +278,7 @@
       startState: function(basecolumn) {
         return {
           tokenize: tokenBase,
-          scopes: [{offset: basecolumn || 0, type: "py"}],
+          scopes: [{offset: basecolumn || 0, type: "py", align: null}],
           lastStyle: null,
           lastToken: null,
           lambda: false,
@@ -352,22 +292,24 @@
         state.lastStyle = style;
 
         var current = stream.current();
-        if (current && style) {
+        if (current && style)
           state.lastToken = current;
-        }
 
-        if (stream.eol() && state.lambda) {
+        if (stream.eol() && state.lambda)
           state.lambda = false;
-        }
         return style;
       },
 
-      indent: function(state) {
-        if (state.tokenize != tokenBase) {
+      indent: function(state, textAfter) {
+        if (state.tokenize != tokenBase)
           return state.tokenize.isString ? CodeMirror.Pass : 0;
-        }
 
-        return state.scopes[0].offset;
+        var scope = top(state);
+        var closing = textAfter && textAfter.charAt(0) == scope.type;
+        if (scope.align != null)
+          return scope.align - (closing ? 1 : 0);
+        else
+          return scope.offset - (closing ? conf.indentUnit : 0);
       },
 
       lineComment: "#",
@@ -378,7 +320,7 @@
 
   CodeMirror.defineMIME("text/x-python", "python");
 
-  var words = function(str){return str.split(" ");};
+  var words = function(str) { return str.split(" "); };
 
   CodeMirror.defineMIME("text/x-cython", {
     name: "python",
