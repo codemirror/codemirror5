@@ -11,6 +11,7 @@
 
 .mt-output .mt-state {
   font-size: x-small;
+  vertical-align: top;
 }
 
 .mt-output .mt-state-row {
