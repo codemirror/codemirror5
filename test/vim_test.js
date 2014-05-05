@@ -1639,6 +1639,19 @@ testVim('uppercase/lowercase_visual', function(cm, vim, helpers) {
   helpers.doKeys('V', 'U', 'j', '.');
   eq('ABCDEF\nGHIJKL\nMnopq\nSHORT LINE\nLONG LINE OF TEXT', cm.getValue());
 }, { value: 'abcdef\nghijkl\nmnopq\nshort line\nlong line of text'});
+testVim('visual_paste', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('v', 'l', 'l', 'y', 'j', 'v', 'l', 'p');
+  helpers.assertCursorAt(1, 4);
+  eq('this is a\nunthi test for visual paste', cm.getValue());
+  cm.setCursor(0, 0);
+  // in case of pasting whole line
+  helpers.doKeys('y', 'y');
+  cm.setCursor(1, 6);
+  helpers.doKeys('v', 'l', 'l', 'l', 'p');
+  helpers.assertCursorAt(2, 0);
+  eq('this is a\nunthi \nthis is a\n for visual paste', cm.getValue());
+}, { value: 'this is a\nunit test for visual paste'});
 testVim('S_normal', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.doKeys('j', 'S');
