@@ -72,6 +72,9 @@
     this.cachedArgHints = null;
     this.activeArgHints = null;
     this.jumpStack = [];
+
+    this.getHint = function(cm, c) { return hint(self, cm, c); };
+    this.getHint.async = true;
   };
 
   CodeMirror.TernServer.prototype = {
@@ -97,11 +100,8 @@
     },
 
     complete: function(cm) {
-      var self = this;
-      CodeMirror.showHint(cm, function(cm, c) { return hint(self, cm, c); }, {async: true});
+      cm.showHint({hint: this.getHint});
     },
-
-    getHint: function(cm, c) { return hint(this, cm, c); },
 
     showType: function(cm, pos) { showType(this, cm, pos); },
 

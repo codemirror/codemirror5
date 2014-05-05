@@ -2317,11 +2317,11 @@
 
       <dt id="addon_show-hint"><a href="../addon/hint/show-hint.js"><code>hint/show-hint.js</code></a></dt>
       <dd>Provides a framework for showing autocompletion hints.
-      Defines <code>CodeMirror.showHint</code>, which takes a
-      CodeMirror instance, a hinting function, and optionally an
+      Defines <code>editor.showHint</code>, which takes an optional
       options object, and pops up a widget that allows the user to
-      select a completion. Hinting functions are function that take an
-      editor instance and an optional options object, and return
+      select a completion. Finding hints is done with a hinting
+      functions (the <code>hint</code> option), which is a function
+      that take an editor instance and options object, and return
       a <code>{list, from, to}</code> object, where <code>list</code>
       is an array of strings or objects (the completions),
       and <code>from</code> and <code>to</code> give the start and end
@@ -2336,9 +2336,8 @@
       completable words for the mode, and
       uses <code>CodeMirror.hint.fromList</code> to complete from
       those.</dd>
-      <dd>When completions
-      aren't simple strings, they should be objects with the following
-      properties:
+      <dd>When completions aren't simple strings, they should be
+      objects with the following properties:
       <dl>
         <dt><code><strong>text</strong>: string</code></dt>
         <dd>The completion text. This is the only required
@@ -2365,11 +2364,13 @@
       will also be passed along to the hinting function, which may
       understand additional options):
       <dl>
-        <dt><code><strong>async</strong>: boolean</code></dt>
-        <dd>When set to true, the hinting function's signature should
-        be <code>(cm, callback, ?options)</code>, and the completion
-        interface will only be popped up when the hinting function
-        calls the callback, passing it the object holding the
+        <dt><code><strong>hint</strong>: function</code></dt>
+        <dd>A hinting function, as specified above. It is possible to
+        set the <code>async</code> property on a hinting function to
+        true, in which case it will be called with
+        arguments <code>(cm, callback, ?options)</code>, and the
+        completion interface will only be popped up when the hinting
+        function calls the callback, passing it the object holding the
         completions.</dd>
         <dt><code><strong>completeSingle</strong>: boolean</code></dt>
         <dd>Determines whether, when only a single completion is
