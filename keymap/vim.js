@@ -2111,8 +2111,8 @@
           var selectedArea = getSelectedAreaRange(cm, vim);
           var selectionStart = selectedArea[0];
           var selectionEnd = selectedArea[1];
-          // push the previously selected text to unamed register
-          register.setText(cm.getRange(selectionStart, selectionEnd));
+          // push the previously selected text to unnamed register
+          vimGlobalState.registerController.unnamedRegister.setText(cm.getRange(selectionStart, selectionEnd));
           cm.replaceRange(text, selectionStart, selectionEnd);
           curPosFinal = cm.posFromIndex(cm.indexFromPos(selectionStart) + text.length - 1);
           if(linewise)curPosFinal.ch=0;
