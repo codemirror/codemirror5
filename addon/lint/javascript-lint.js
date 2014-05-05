@@ -17,11 +17,18 @@
   var errors = [ "Missing semicolon", "Extra comma", "Missing property name",
                  "Unmatched ", " and instead saw", " is not defined",
                  "Unclosed string", "Stopping, unable to continue" ];
-
+  
+  
   function validator(text, options) {
-    if (!window.JSHINT) return [];
-    JSHINT(text, options);
-    var errors = JSHINT.data().errors, result = [];
+    var jsHintFun = CodeMirror.JSHINT;
+    if (!jsHintFun){
+      if (window && window.JSHINT && typeof window.JSHINT == "function"){
+        jsHintFun = window.JSHINT;
+      };
+    };
+    if (!jsHintFun) return [];
+    jsHintFun(text, options);
+    var errors = jsHintFun.data().errors, result = [];
     if (errors) parseErrors(errors, result);
     return result;
   }
