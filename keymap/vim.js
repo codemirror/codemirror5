@@ -2051,7 +2051,7 @@
         }
         this.enterInsertMode(cm, { repeat: actionArgs.repeat }, vim);
       },
-      paste: function(cm, actionArgs) {
+      paste: function(cm, actionArgs, vim) {
         var cur = copyCursor(cm.getCursor());
         var register = vimGlobalState.registerController.getRegister(
             actionArgs.registerName);
@@ -2092,7 +2092,9 @@
         }
         var linewise = register.linewise;
         if (linewise) {
-          if (actionArgs.after) {
+          if(vim.visualMode) {
+            text = vim.visualLine ? text.slice(0, -1) : '\n' + text.slice(0, text.length - 1) + '\n';
+          } else if (actionArgs.after) {
             // Move the newline at the end to the start instead, and paste just
             // before the newline character of the line we are on right now.
             text = '\n' + text.slice(0, text.length - 1);
@@ -2103,24 +2105,35 @@
         } else {
           cur.ch += actionArgs.after ? 1 : 0;
         }
-        cm.replaceRange(text, cur);
-        // Now fine tune the cursor to where we want it.
         var curPosFinal;
         var idx;
-        if (linewise && actionArgs.after) {
-          curPosFinal = Pos(
-            cur.line + 1,
-            findFirstNonWhiteSpaceCharacter(cm.getLine(cur.line + 1)));
-        } else if (linewise && !actionArgs.after) {
-          curPosFinal = Pos(
-            cur.line,
-            findFirstNonWhiteSpaceCharacter(cm.getLine(cur.line)));
-        } else if (!linewise && actionArgs.after) {
-          idx = cm.indexFromPos(cur);
-          curPosFinal = cm.posFromIndex(idx + text.length - 1);
+        if (vim.visualMode) {
+          var selectedArea = getSelectedAreaRange(cm, vim);
+          var selectionStart = selectedArea[0];
+          var selectionEnd = selectedArea[1];
+          // push the previously selected text to unnamed register
+          vimGlobalState.registerController.unnamedRegister.setText(cm.getRange(selectionStart, selectionEnd));
+          cm.replaceRange(text, selectionStart, selectionEnd);
+          curPosFinal = cm.posFromIndex(cm.indexFromPos(selectionStart) + text.length - 1);
+          if(linewise)curPosFinal.ch=0;
         } else {
-          idx = cm.indexFromPos(cur);
-          curPosFinal = cm.posFromIndex(idx + text.length);
+          cm.replaceRange(text, cur);
+          // Now fine tune the cursor to where we want it.
+          if (linewise && actionArgs.after) {
+            curPosFinal = Pos(
+              cur.line + 1,
+              findFirstNonWhiteSpaceCharacter(cm.getLine(cur.line + 1)));
+          } else if (linewise && !actionArgs.after) {
+            curPosFinal = Pos(
+              cur.line,
+              findFirstNonWhiteSpaceCharacter(cm.getLine(cur.line)));
+          } else if (!linewise && actionArgs.after) {
+            idx = cm.indexFromPos(cur);
+            curPosFinal = cm.posFromIndex(idx + text.length - 1);
+          } else {
+            idx = cm.indexFromPos(cur);
+            curPosFinal = cm.posFromIndex(idx + text.length);
+          }
         }
         cm.setCursor(curPosFinal);
       },
@@ -2220,13 +2233,6 @@
         var selectionStart = selectedAreaRange[0];
         var selectionEnd = selectedAreaRange[1];
         var toLower = actionArgs.toLower;
-        if (cursorIsBefore(selectionEnd, selectionStart)) {
-          var tmp = selectionStart;
-          selectionStart = selectionEnd;
-          selectionEnd = tmp;
-        } else {
-          selectionEnd = cm.clipPos(Pos(selectionEnd.line, selectionEnd.ch+1));
-        }
         var text = cm.getRange(selectionStart, selectionEnd);
         cm.replaceRange(toLower ? text.toLowerCase() : text.toUpperCase(), selectionStart, selectionEnd);
         cm.setCursor(selectionStart);
@@ -2324,6 +2330,13 @@
           return [{line: selectionStart.line, ch: 0}, {line: selectionEnd.line, ch: lineLength(cm, selectionEnd.line)}];
         }
       } else {
+        if (cursorIsBefore(selectionEnd, selectionStart)) {
+          var tmp = selectionStart;
+          selectionStart = selectionEnd;
+          selectionEnd = tmp;
+        } else {
+          selectionEnd = cm.clipPos(Pos(selectionEnd.line, selectionEnd.ch+1));
+        }
         exitVisualMode(cm);
       }
       return [selectionStart, selectionEnd];
