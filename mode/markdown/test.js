@@ -89,6 +89,14 @@
      "        [comment hello]",
      "    [comment world]");
 
+  // Code blocks should end even after extra indented lines
+  MT("codeBlocksWithTrailingIndentedLine",
+     "    [comment foo]",
+     "        [comment bar]",
+     "    [comment baz]",
+     "    ",
+     "hello");
+
   // Code blocks using 1 tab (regardless of CodeMirror.indentWithTabs value)
   MT("codeBlocksUsing1Tab",
      "\t[comment foo]");

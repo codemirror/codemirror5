@@ -709,8 +709,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
         if (forceBlankLine) {
           state.prevLineHasContent = false;
-          blankLine(state);
-          return this.token(stream, state);
+          return blankLine(state);
         } else {
           state.prevLineHasContent = state.thisLineHasContent;
           state.thisLineHasContent = true;
