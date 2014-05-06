@@ -1651,16 +1651,19 @@ testVim('visual_paste', function(cm, vim, helpers) {
   helpers.doKeys('v', 'l', 'l', 'l', 'p');
   helpers.assertCursorAt(2, 0);
   eq('this is a\nunthi \nthis is a\n for visual paste', cm.getValue());
-  // This checks the contents of the register used to paste the text
+}, { value: 'this is a\nunit test for visual paste'});
+
+// This checks the contents of the register used to paste the text
+testVim('v_paste_from_register', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('"', 'a', 'y', 'w');
-  cm.setCursor(3, 1);
+  cm.setCursor(1, 0);
   helpers.doKeys('v', 'p');
   cm.openDialog = helpers.fakeOpenDialog('registers');
   cm.openNotification = helpers.fakeOpenNotification(function(text) {
-    is(/a\s+this/.test(text));
+    is(/a\s+register/.test(text));
   });
-}, { value: 'this is a\nunit test for visual paste'});
+}, { value: 'register contents\nare not erased'});
 testVim('S_normal', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.doKeys('j', 'S');
