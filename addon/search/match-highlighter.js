@@ -76,8 +76,9 @@
           cm.addOverlay(state.overlay = makeOverlay(line.slice(start, end), re, state.style));
         return;
       }
-      if (cm.getCursor("head").line != cm.getCursor("anchor").line) return;
-      var selection = cm.getSelections()[0].replace(/^\s+|\s+$/g, "");
+      var from = cm.getCursor("from"), to = cm.getCursor("to");
+      if (from.line != to.line) return;
+      var selection = cm.getRange(from, to).replace(/^\s+|\s+$/g, "");
       if (selection.length >= state.minChars)
         cm.addOverlay(state.overlay = makeOverlay(selection, false, state.style));
     });
