@@ -209,7 +209,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
   function htmlBlock(stream, state) {
     var style = htmlMode.token(stream, state.htmlState);
-    if ((htmlFound && !state.htmlState.tagName && !state.htmlState.context) ||
+    if ((htmlFound && state.htmlState.tagStart === null && !state.htmlState.context) ||
         (state.md_inside && stream.current().indexOf(">") > -1)) {
       state.f = inlineNormal;
       state.block = blockNormal;
