@@ -43,6 +43,11 @@
  * Events:
  *  'vim-mode-change' - raised on the editor anytime the current mode changes,
  *                      Event object: {mode: "visual", subMode: "linewise"}
+ *  'vim-command-keypress' - raised when part of a command sequence is input
+ *                           in normal mode only, for implementing a vim-like
+ *                           status bar output
+ *  'vim-command-done' - raised when a command sequence has completed and results
+ *                       in an edit
  *
  * Code structure:
  *  1. Default keymap
@@ -714,6 +719,7 @@
             // Increment count unless count is 0 and key is 0.
             vim.inputState.pushRepeatDigit(key);
           }
+          CodeMirror.signal(cm, 'vim-command-keypress', {type: 'repeatDigit', keys: key});
           if (macroModeState.isRecording) {
             logKey(macroModeState, key);
           }
@@ -1005,12 +1011,16 @@
         }
       },
       processMotion: function(cm, vim, command) {
+        if (vim.inputState.selectedCharacter) {
+            CodeMirror.signal(cm, 'vim-command-keypress', {type: command.type, keys: vim.inputState.selectedCharacter});
+        }
         vim.inputState.motion = command.motion;
         vim.inputState.motionArgs = copyArgs(command.motionArgs);
         this.evalInput(cm, vim);
       },
       processOperator: function(cm, vim, command) {
         var inputState = vim.inputState;
+        CodeMirror.signal(cm, 'vim-command-keypress', {type: command.type, keys: command.keys.join('')});
         if (inputState.operator) {
           if (inputState.operator == command.operator) {
             // Typing an operator twice like 'dd' makes the operator operate
@@ -1034,6 +1044,7 @@
       processOperatorMotion: function(cm, vim, command) {
         var visualMode = vim.visualMode;
         var operatorMotionArgs = copyArgs(command.operatorMotionArgs);
+        CodeMirror.signal(cm, 'vim-command-keypress', {type: command.type, keys: command.keys.join('')});
         if (operatorMotionArgs) {
           // Operator motions may have special behavior in visual mode.
           if (visualMode && operatorMotionArgs.visualLine) {
@@ -1051,7 +1062,10 @@
         var repeatIsExplicit = !!repeat;
         var actionArgs = copyArgs(command.actionArgs) || {};
         if (inputState.selectedCharacter) {
+          CodeMirror.signal(cm, 'vim-command-keypress', {type: command.type, keys: inputState.selectedCharacter});
           actionArgs.selectedCharacter = inputState.selectedCharacter;
+        } else {
+          CodeMirror.signal(cm, 'vim-command-keypress', {type: command.type, keys: command.keys.join('')});
         }
         // Actions may or may not have motions and operators. Do these first.
         if (command.operator) {
@@ -1069,6 +1083,8 @@
         vim.inputState = new InputState();
         vim.lastMotion = null;
         if (command.isEdit) {
+          // only signal vim-command-done on edit actions
+          CodeMirror.signal(cm, 'vim-command-done', {type: command.action});
           this.recordLastEdit(vim, inputState, command);
         }
         actions[command.action](cm, actionArgs, vim);
@@ -1367,6 +1383,7 @@
           operatorArgs.registerName = registerName;
           // Keep track of linewise as it affects how paste and change behave.
           operatorArgs.linewise = linewise;
+          CodeMirror.signal(cm, 'vim-command-done', {type: operator});
           operators[operator](cm, operatorArgs, vim, curStart,
               curEnd, curOriginal);
           if (vim.visualMode) {
@@ -2146,6 +2163,8 @@
       },
       undo: function(cm, actionArgs) {
         cm.operation(function() {
+          // Special case, undo is not considered an edit
+          CodeMirror.signal(cm, 'vim-command-done', {type: 'undo'});
           repeatFn(cm, CodeMirror.commands.undo, actionArgs.repeat)();
           cm.setCursor(cm.getCursor('anchor'));
         });
