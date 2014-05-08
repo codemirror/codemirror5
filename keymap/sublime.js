@@ -183,10 +183,17 @@
     });
   };
 
+  // Returns whether the range represents a zero-length selection.
+  function isCursor(range) {
+    return range.from().line == range.to().line && range.from().ch == range.to().ch;
+  }
+
   cmds[map["Shift-" + ctrl + "Up"] = "swapLineUp"] = function(cm) {
     var ranges = cm.listSelections(), linesToMove = [], at = cm.firstLine() - 1;
     for (var i = 0; i < ranges.length; i++) {
       var range = ranges[i], from = range.from().line - 1, to = range.to().line;
+      // If a selection extends just past the end of line L, exclude line L+1.
+      if (range.to().ch == 0 && !isCursor(range)) to--;
       if (from > at) linesToMove.push(from, to);
       else if (linesToMove.length) linesToMove[linesToMove.length - 1] = to;
       at = to;
@@ -214,6 +221,8 @@
     var ranges = cm.listSelections(), linesToMove = [], at = cm.lastLine() + 1;
     for (var i = ranges.length - 1; i >= 0; i--) {
       var range = ranges[i], from = range.to().line + 1, to = range.from().line;
+      // If a selection extends just past the end of line L, exclude line L+1.
+      if (range.to().ch == 0 && !isCursor(range)) from--;
       if (from < at) linesToMove.push(from, to);
       else if (linesToMove.length) linesToMove[linesToMove.length - 1] = to;
       at = to;
