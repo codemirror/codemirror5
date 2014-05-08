@@ -44,7 +44,7 @@
  *  'vim-mode-change' - raised on the editor anytime the current mode changes,
  *                      Event object: {mode: "visual", subMode: "linewise"}
  *  'vim-command-keypress' - raised when part of a command sequence is input
- *                           in normal mode only, for implementing a vim-like 
+ *                           in normal mode only, for implementing a vim-like
  *                           status bar output
  *  'vim-command-done' - raised when a command sequence has completed and results
  *                       in an edit
