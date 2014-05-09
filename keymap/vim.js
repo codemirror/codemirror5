@@ -688,13 +688,13 @@
         if (macroModeState.isRecording) {
           if (key == 'q') {
             macroModeState.exitMacroRecordMode();
-            vim.inputState = new InputState();
+            clearInputState(cm);
             return;
           }
         }
         if (key == '<Esc>') {
           // Clear input state and get back to normal mode.
-          vim.inputState = new InputState();
+          clearInputState(cm);
           if (vim.visualMode) {
             exitVisualMode(cm);
           }
@@ -771,6 +771,11 @@
       }
       return repeat;
     };
+
+    function clearInputState(cm, reason) {
+      cm.state.vim.inputState = new InputState();
+      CodeMirror.signal(cm, 'vim-command-done', reason);
+    }
 
     /*
      * Register stores information about copy and paste registers.  Besides
@@ -1024,7 +1029,7 @@
             return;
           } else {
             // 2 different operators in a row doesn't make sense.
-            vim.inputState = new InputState();
+            clearInputState(cm);
           }
         }
         inputState.operator = command.operator;
@@ -1069,7 +1074,7 @@
         actionArgs.repeat = repeat || 1;
         actionArgs.repeatIsExplicit = repeatIsExplicit;
         actionArgs.registerName = inputState.registerName;
-        vim.inputState = new InputState();
+        clearInputState(cm);
         vim.lastMotion = null;
         if (command.isEdit) {
           this.recordLastEdit(vim, inputState, command);
@@ -1250,7 +1255,7 @@
               inputState.selectedCharacter;
         }
         motionArgs.repeat = repeat;
-        vim.inputState = new InputState();
+        clearInputState(cm);
         if (motion) {
           var motionResult = motions[motion](cm, motionArgs, vim);
           vim.lastMotion = motions[motion];
@@ -3954,6 +3959,7 @@
       // Closure to bind CodeMirror, key, modifier.
       function keyMapper(vimKey) {
         return function(cm) {
+          CodeMirror.signal(cm, 'vim-keypress', vimKey);
           CodeMirror.Vim.handleKey(cm, vimKey);
         };
       }

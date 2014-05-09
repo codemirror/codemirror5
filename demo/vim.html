@@ -45,6 +45,7 @@ int getchar(void)
   return (--n >= 0) ? (unsigned char) *bufp++ : EOF;
 }
 </textarea></form>
+<div id="command-display" style="width: 300px; height: 30px;"></div>
 
     <form><textarea id="code2" name="code2">
         I am another file! You can yank from my neighbor and paste here.
@@ -74,6 +75,16 @@ implementation</p>
         vimMode: true,
         matchBrackets: true,
         showCursorWhenSelecting: true
+      });
+      var commandDisplay = document.getElementById('command-display');
+      var keys = '';
+      CodeMirror.on(editor, 'vim-keypress', function(key) {
+        keys = keys + key;
+        commandDisplay.innerHTML = keys;
+      });
+      CodeMirror.on(editor, 'vim-command-done', function(e) {
+        keys = '';
+        commandDisplay.innerHTML = keys;
       });
     </script>
 
