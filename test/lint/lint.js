@@ -31,6 +31,8 @@ var scopePasser = walk.make({
   ScopeBody: function(node, prev, c) { c(node, node.scope); }
 });
 
+var cBlob = /^\/\/ CodeMirror \d+\.\d+\.\d+, copyright \(c\) by Marijn Haverbeke and others\n\/\/ Distributed under an MIT license: http:\/\/codemirror.net\/LICENSE\n\n/;
+
 function checkFile(fileName) {
   var file = fs.readFileSync(fileName, "utf8"), notAllowed;
   if (notAllowed = file.match(/[\x00-\x08\x0b\x0c\x0e-\x19\uFEFF\t]|[ \t]\n/)) {
@@ -41,6 +43,9 @@ function checkFile(fileName) {
     var info = acorn.getLineInfo(file, notAllowed.index);
     fail(msg + " at line " + info.line + ", column " + info.column, {source: fileName});
   }
+
+  if (!cBlob.test(file))
+    fail("Missing license blob", {source: fileName});
   
   var globalsSeen = Object.create(null);
 
@@ -152,7 +157,7 @@ function checkDir(dir) {
   fs.readdirSync(dir).forEach(function(file) {
     var fname = dir + "/" + file;
     if (/\.js$/.test(file)) checkFile(fname);
-    else if (file != "dep" && fs.lstatSync(fname).isDirectory()) checkDir(fname);
+    else if (fs.lstatSync(fname).isDirectory()) checkDir(fname);
   });
 }
 

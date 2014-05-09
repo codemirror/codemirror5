@@ -1,3 +1,6 @@
+// CodeMirror 4.1.1, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
+
 /**
  * Author: Gautam Mehta
  * Branched from CodeMirror's Scheme mode

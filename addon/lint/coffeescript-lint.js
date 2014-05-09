@@ -1,3 +1,6 @@
+// CodeMirror 4.1.1, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
+
 // Depends on coffeelint.js from http://www.coffeelint.org/js/coffeelint.js
 
 // declare global: coffeelint

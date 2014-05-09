@@ -1,3 +1,6 @@
+// CodeMirror 4.1.1, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
+
 // Glue code between CodeMirror and Tern.
 //
 // Create a CodeMirror.TernServer to wrap an actual Tern server,

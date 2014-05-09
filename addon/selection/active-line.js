@@ -1,3 +1,6 @@
+// CodeMirror 4.1.1, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
+
 // Because sometimes you need to style the cursor's line.
 //
 // Adds an option 'styleActiveLine' which, when enabled, gives the

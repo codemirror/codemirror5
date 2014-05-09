@@ -1,3 +1,6 @@
+// CodeMirror 4.1.1, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
+
 // Depends on csslint.js from https://github.com/stubbornella/csslint
 
 // declare global: CSSLint

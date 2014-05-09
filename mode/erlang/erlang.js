@@ -1,3 +1,6 @@
+// CodeMirror 4.1.1, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
+
 /*jshint unused:true, eqnull:true, curly:true, bitwise:true */
 /*jshint undef:true, latedef:true, trailing:true */
 /*global CodeMirror:true */

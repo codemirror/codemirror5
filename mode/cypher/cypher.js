@@ -1,3 +1,6 @@
+// CodeMirror 4.1.1, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
+
 // By the Neo4j Team and contributors.
 // https://github.com/neo4j-contrib/CodeMirror
 
