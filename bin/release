@@ -30,7 +30,7 @@ rewrite("doc/manual.html", function(manual) {
 function walkDir(dir) {
   fs.readdirSync(dir).forEach(function(file) {
     var fname = dir + "/" + file;
-    if (/\.js$/.test(file)) rewrite(file, function(script) {
+    if (/\.js$/.test(file)) rewrite(fname, function(script) {
       return script.replace(/^\/\/ CodeMirror \d+\.\d+\.\d+, copyright/,
                             "// CodeMirror " + number + ", copyright");
     });
