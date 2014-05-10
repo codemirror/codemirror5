@@ -379,7 +379,7 @@
     alignWithWord: true,
     closeCharacters: /[\s()\[\]{};:>,]/,
     closeOnUnfocus: true,
-    completeOnSignleClick: false,
+    completeOnSingleClick: false,
     container: null,
     customKeys: null,
     extraKeys: null
