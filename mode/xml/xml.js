@@ -124,7 +124,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
       state.state = baseState;
       state.tagName = state.tagStart = null;
       var next = state.tokenize(stream, state);
-      return next ? next + " error" : "error";
+      return next ? next + " tag error" : "tag error";
     } else if (/[\'\"]/.test(ch)) {
       state.tokenize = inAttribute(ch);
       state.stringStartCol = stream.column();
