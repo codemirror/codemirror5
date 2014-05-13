@@ -442,7 +442,6 @@
   }
 
   function selectName(ts, cm) {
-    var cur = cm.getCursor(), token = cm.getTokenAt(cur);
     var name = findDoc(ts, cm.doc).name;
     ts.request(cm, {type: "refs"}, function(error, data) {
       if (error) return showError(ts, cm, error);
