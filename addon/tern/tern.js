@@ -432,7 +432,7 @@
 
   function rename(ts, cm) {
     var token = cm.getTokenAt(cm.getCursor());
-    if (!/\w/.test(token.string)) showError(ts, cm, "Not at a variable");
+    if (!/\w/.test(token.string)) return showError(ts, cm, "Not at a variable");
     dialog(cm, "New name for " + token.string, function(newName) {
       ts.request(cm, {type: "rename", newName: newName, fullDocs: true}, function(error, data) {
         if (error) return showError(ts, cm, error);
@@ -443,7 +443,6 @@
 
   function selectName(ts, cm) {
     var cur = cm.getCursor(), token = cm.getTokenAt(cur);
-    if (!/\w/.test(token.string)) showError(ts, cm, "Not at a variable");
     var name = findDoc(ts, cm.doc).name;
     ts.request(cm, {type: "refs"}, function(error, data) {
       if (error) return showError(ts, cm, error);
