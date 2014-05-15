@@ -17,7 +17,7 @@
 //   indicate that a file is not available.
 // * fileFilter: A function(value, docName, doc) that will be applied
 //   to documents before passing them on to Tern.
-// * switchToDoc: A function(name) that should, when providing a
+// * switchToDoc: A function(name, doc) that should, when providing a
 //   multi-file view, switch the view or focus to the named file.
 // * showError: A function(editor, message) that can be used to
 //   override the way errors are displayed.
@@ -88,17 +88,17 @@
       return this.docs[name] = data;
     },
 
-    delDoc: function(name) {
-      var found = this.docs[name];
+    delDoc: function(id) {
+      var found = resolveDoc(this, id);
       if (!found) return;
       CodeMirror.off(found.doc, "change", this.trackChange);
-      delete this.docs[name];
-      this.server.delFile(name);
+      delete this.docs[found.name];
+      this.server.delFile(found.name);
     },
 
-    hideDoc: function(name) {
+    hideDoc: function(id) {
       closeArgHints(this);
-      var found = this.docs[name];
+      var found = resolveDoc(this, id);
       if (found && found.changed) sendDoc(this, found);
     },
 
@@ -155,6 +155,12 @@
       if (!ts.docs[n]) { name = n; break; }
     }
     return ts.addDoc(name, doc);
+  }
+
+  function resolveDoc(ts, id) {
+    if (typeof id == "string") return ts.docs[id];
+    if (id instanceof CodeMirror) id = id.getDoc();
+    if (id instanceof CodeMirror.Doc) return findDoc(ts, id);
   }
 
   function trackChange(ts, doc, change) {
@@ -387,7 +393,7 @@
     doc.doc.setSelection(end, start);
     if (curDoc != doc && ts.options.switchToDoc) {
       closeArgHints(ts);
-      ts.options.switchToDoc(doc.name);
+      ts.options.switchToDoc(doc.name, doc.doc);
     }
   }
 
