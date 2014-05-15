@@ -1,5 +1,5 @@
 .CodeMirror-Tern-completion {
-  padding-left: 22px;
+  padding-left: 22px !important;
   position: relative;
 }
 .CodeMirror-Tern-completion:before {
