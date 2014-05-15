@@ -1890,3 +1890,16 @@ testCM("alwaysMergeSelEventWithChangeOrigin", function(cm) {
   cm.undoSelection();
   eq(cm.getValue(), "Va");
 }, {value: "a"});
+
+testCM("getTokenTypeAt", function(cm) {
+  eq(cm.getTokenTypeAt(Pos(0, 0)), "number");
+  eq(cm.getTokenTypeAt(Pos(0, 6)), "string");
+  cm.addOverlay({
+    token: function(stream) {
+      if (stream.match("foo")) return "foo";
+      else stream.next();
+    }
+  });
+  eq(byClassName(cm.getWrapperElement(), "cm-foo").length, 1);
+  eq(cm.getTokenTypeAt(Pos(0, 6)), "string");
+}, {value: "1 + 'foo'", mode: "javascript"});

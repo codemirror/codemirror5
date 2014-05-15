@@ -53,6 +53,14 @@
     }
   };
 
+  function ensureDiff(dv) {
+    if (dv.diffOutOfDate) {
+      dv.diff = getDiff(dv.orig.getValue(), dv.edit.getValue());
+      dv.diffOutOfDate = false;
+      CodeMirror.signal(dv.edit, "updateDiff", dv.diff);
+    }
+  }
+
   function registerUpdate(dv) {
     var edit = {from: 0, to: 0, marked: []};
     var orig = {from: 0, to: 0, marked: []};
@@ -65,11 +73,7 @@
         clearMarks(dv.orig, orig.marked, dv.classes);
         edit.from = edit.to = orig.from = orig.to = 0;
       }
-      if (dv.diffOutOfDate) {
-        dv.diff = getDiff(dv.orig.getValue(), dv.edit.getValue());
-        dv.diffOutOfDate = false;
-        CodeMirror.signal(dv.edit, "updateDiff", dv.diff);
-      }
+      ensureDiff(dv);
       if (dv.showDifferences) {
         updateMarks(dv.edit, dv.diff, edit, DIFF_INSERT, dv.classes);
         updateMarks(dv.orig, dv.diff, orig, DIFF_DELETE, dv.classes);
@@ -165,7 +169,7 @@
       var mark = arr[i];
       if (mark instanceof CodeMirror.TextMarker) {
         mark.clear();
-      } else {
+      } else if (mark.parent) {
         editor.removeLineClass(mark, "background", classes.chunk);
         editor.removeLineClass(mark, "background", classes.start);
         editor.removeLineClass(mark, "background", classes.end);
@@ -362,10 +366,10 @@
       if (this.left) this.left.setShowDifferences(val);
     },
     rightChunks: function() {
-      return this.right && getChunks(this.right.diff);
+      return this.right && getChunks(this.right);
     },
     leftChunks: function() {
-      return this.left && getChunks(this.left.diff);
+      return this.left && getChunks(this.left);
     }
   };
 
@@ -416,9 +420,10 @@
       f(startOrig, orig.line + 1, startEdit, edit.line + 1);
   }
 
-  function getChunks(diff) {
+  function getChunks(dv) {
+    ensureDiff(dv);
     var collect = [];
-    iterateChunks(diff, function(topOrig, botOrig, topEdit, botEdit) {
+    iterateChunks(dv.diff, function(topOrig, botOrig, topEdit, botEdit) {
       collect.push({origFrom: topOrig, origTo: botOrig,
                     editFrom: topEdit, editTo: botEdit});
     });

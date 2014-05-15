@@ -31,7 +31,7 @@
     var val = cm.getOption("rulers");
     var cw = cm.defaultCharWidth();
     var left = cm.charCoords(CodeMirror.Pos(cm.firstLine(), 0), "div").left;
-    var bot = -cm.display.scroller.offsetHeight;
+    var minH = cm.display.scroller.offsetHeight + 30;
     for (var i = 0; i < val.length; i++) {
       var elt = document.createElement("div");
       var col, cls = null;
@@ -42,7 +42,7 @@
         cls = val[i].className;
       }
       elt.className = "CodeMirror-ruler" + (cls ? " " + cls : "");
-      elt.style.cssText = "left: " + (left + col * cw) + "px; top: -50px; bottom: " + bot + "px";
+      elt.style.cssText = "left: " + (left + col * cw) + "px; top: -50px; bottom: -20px; min-height: " + minH + "px";
       cm.display.lineSpace.insertBefore(elt, cm.display.cursorDiv);
     }
   }

@@ -4062,7 +4062,7 @@
     /**
     * Listens for any kind of cursor activity on CodeMirror.
     */
-    function onCursorActivity(cm, origin) {
+    function onCursorActivity(cm) {
       var vim = cm.state.vim;
       if (vim.insertMode) {
         // Tracking cursor activity in insert mode (for macro support).
@@ -4075,7 +4075,7 @@
           // Cursor moved outside the context of an edit. Reset the change.
           lastChange.changes = [];
         }
-      } else if (origin == '*mouse') {
+      } else if (cm.doc.history.lastSelOrigin == '*mouse') {
         // Reset lastHPos if mouse click was done in normal mode.
         vim.lastHPos = cm.doc.getCursor().ch;
       }

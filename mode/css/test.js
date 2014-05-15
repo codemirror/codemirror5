@@ -116,4 +116,7 @@
      "  [property src]: [atom url]([string http://blah]),",
      "    [atom url]([string http://foo]);",
      "}");
+
+  MT("empty_url",
+     "[def @import] [tag url]() [tag screen];");
 })();
