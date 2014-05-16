@@ -709,7 +709,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
         if (forceBlankLine) {
           state.prevLineHasContent = false;
-          return blankLine(state);
+          blankLine(state);
+          return this.token(stream, state);
         } else {
           state.prevLineHasContent = state.thisLineHasContent;
           state.thisLineHasContent = true;
@@ -737,7 +738,9 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         state.indentation = adjustedIndentation;
         if (indentation > 0) return null;
       }
-      return state.f(stream, state);
+      var result = state.f(stream, state);
+      if (stream.start == stream.pos) return this.token(stream, state);
+      else return result;
     },
 
     innerMode: function(state) {

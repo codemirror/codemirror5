@@ -120,6 +120,8 @@
       /* Start copied code from CodeMirror.highlight */
       while (!stream.eol()) {
         var compare = mode.token(stream, state), substr = stream.current();
+        if (stream.start >= stream.pos)
+          throw new Failure("Failed to advance the stream." + stream.string + " " + stream.pos);
         if (compare && compare.indexOf(" ") > -1) compare = compare.split(' ').sort().join(' ');
         stream.start = stream.pos;
         if (pos && st[pos-2] == compare && !newLine) {
