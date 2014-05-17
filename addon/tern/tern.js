@@ -390,7 +390,7 @@
   }
 
   function moveTo(ts, curDoc, doc, start, end) {
-    doc.doc.setSelection(end, start);
+    doc.doc.setSelection(start, end);
     if (curDoc != doc && ts.options.switchToDoc) {
       closeArgHints(ts);
       ts.options.switchToDoc(doc.name, doc.doc);
