@@ -84,13 +84,20 @@
           var lineOffset = stream.indentation();
           if (lineOffset > scopeOffset)
             pushScope(stream, state, "py");
-          else if (lineOffset < scopeOffset)
-            return dedent(stream, state) ? ERRORCLASS : null;
+          else if (lineOffset < scopeOffset && dedent(stream, state))
+            state.errorToken = true;
           return null;
-        } else if (scopeOffset > 0 && dedent(stream, state)) {
-          return state.tokenize(stream, state) + " " + ERRORCLASS;
+        } else {
+          var style = tokenBaseInner(stream, state);
+          if (scopeOffset > 0 && dedent(stream, state))
+            style += " " + ERRORCLASS;
+          return style;
         }
       }
+      return tokenBaseInner(stream, state);
+    }
+
+    function tokenBaseInner(stream, state) {
       if (stream.eatSpace()) return null;
 
       var ch = stream.peek();
@@ -226,7 +233,7 @@
         if (top(state).type != "py") return true;
         state.scopes.pop();
       }
-      return top(state).offset == indented;
+      return top(state).offset != indented;
     }
 
     function tokenLexer(stream, state) {
@@ -260,7 +267,7 @@
       if (current == ":" && !state.lambda && top(state).type == "py")
         pushScope(stream, state, "py");
 
-      var delimiter_index = "[({".indexOf(current);
+      var delimiter_index = current.length == 1 ? "[({".indexOf(current) : -1;
       if (delimiter_index != -1)
         pushScope(stream, state, "])}".slice(delimiter_index, delimiter_index+1));
 
@@ -290,6 +297,8 @@
       },
 
       token: function(stream, state) {
+        var addErr = state.errorToken;
+        if (addErr) state.errorToken = false;
         var style = tokenLexer(stream, state);
 
         state.lastStyle = style;
@@ -300,7 +309,7 @@
 
         if (stream.eol() && state.lambda)
           state.lambda = false;
-        return style;
+        return addErr ? style + " " + ERRORCLASS : style;
       },
 
       indent: function(state, textAfter) {
