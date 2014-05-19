@@ -27,21 +27,6 @@ rewrite("doc/manual.html", function(manual) {
   return manual.replace(/>version \d+\.\d+\.\d+<\/span>/, ">version " + number + "</span>");
 });
 
-function walkDir(dir) {
-  fs.readdirSync(dir).forEach(function(file) {
-    var fname = dir + "/" + file;
-    if (/\.js$/.test(file)) rewrite(fname, function(script) {
-      return script.replace(/^\/\/ CodeMirror \d+\.\d+\.\d+, copyright/,
-                            "// CodeMirror " + number + ", copyright");
-    });
-    else if (fs.lstatSync(fname).isDirectory()) walkDir(fname);
-  });
-}
-walkDir("mode");
-walkDir("lib");
-walkDir("addon");
-walkDir("keymap");
-
 if (bumpOnly) process.exit(0);
 
 child.exec("bash bin/authors.sh", function(){});

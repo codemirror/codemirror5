@@ -1,4 +1,4 @@
-// CodeMirror 4.1.1, copyright (c) by Marijn Haverbeke and others
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
 // Distributed under an MIT license: http://codemirror.net/LICENSE
 
 // LUA mode. Ported to CodeMirror 2 from Franciszek Wawrzak's

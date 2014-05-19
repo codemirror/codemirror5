@@ -31,7 +31,7 @@ var scopePasser = walk.make({
   ScopeBody: function(node, prev, c) { c(node, node.scope); }
 });
 
-var cBlob = /^\/\/ CodeMirror \d+\.\d+\.\d+, copyright \(c\) by Marijn Haverbeke and others\n\/\/ Distributed under an MIT license: http:\/\/codemirror.net\/LICENSE\n\n/;
+var cBlob = /^\/\/ CodeMirror, copyright \(c\) by Marijn Haverbeke and others\n\/\/ Distributed under an MIT license: http:\/\/codemirror.net\/LICENSE\n\n/;
 
 function checkFile(fileName) {
   var file = fs.readFileSync(fileName, "utf8"), notAllowed;
