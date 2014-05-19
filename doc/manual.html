@@ -2166,7 +2166,9 @@
         properties</a> of the mode with custom comment strings.</dd>
         <dt><code><strong>padding</strong>: string</code></dt>
         <dd>A string that will be inserted after opening and before
-        closing comment markers. Defaults to a single space.</dd>
+        closing comment markers. Defaults to a single space. If the
+        current mode only supports line comments this will insert the
+        padding character once per line commented.</dd>
         <dt><code><strong>commentBlankLines</strong>: boolean</code></dt>
         <dd>Whether, when adding line comments, to also comment lines
         that contain only whitespace.</dd>
