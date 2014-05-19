@@ -1548,6 +1548,19 @@ testCM("atomicMarker", function(cm) {
   eq(cm.getValue().length, 53, "del chunk");
 });
 
+testCM("selectionBias", function(cm) {
+  cm.markText(Pos(0, 1), Pos(0, 3), {atomic: true});
+  cm.setCursor(Pos(0, 2));
+  eqPos(cm.getCursor(), Pos(0, 3));
+  cm.setCursor(Pos(0, 2));
+  eqPos(cm.getCursor(), Pos(0, 1));
+  cm.setCursor(Pos(0, 2), null, {bias: -1});
+  eqPos(cm.getCursor(), Pos(0, 1));
+  cm.setCursor(Pos(0, 4));
+  cm.setCursor(Pos(0, 2), null, {bias: 1});
+  eqPos(cm.getCursor(), Pos(0, 3), "A");
+}, {value: "12345"});
+
 testCM("readOnlyMarker", function(cm) {
   function mark(ll, cl, lr, cr, at) {
     return cm.markText(Pos(ll, cl), Pos(lr, cr),

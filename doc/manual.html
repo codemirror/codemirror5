@@ -1228,6 +1228,14 @@
         old one. When it starts with <code>*</code>, it will always
         replace the previous event (if that had the same origin).
         Built-in motion uses the <code>"+move"</code> origin.</dd>
+        <dt id="selection_bias"><code><strong>bias</strong>: number</code></dt>
+        <dd>Determine the direction into which the selection endpoints
+        should be adjusted when they fall inside
+        an <a href="#mark_atomic">atomic</a> range. Can be either -1
+        (backward) or 1 (forward). When not given, the bias will be
+        based on the relative position of the old selection—the editor
+        will try to move further away from that, to prevent getting
+        stuck.</dd>
       </dl></dd>
 
       <dt id="setSelections"><code><strong>doc.setSelections</strong>(ranges: array&lt;{anchor, head}&gt;, ?primary: integer, ?options: object)</code></dt>
