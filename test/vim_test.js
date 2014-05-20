@@ -2037,6 +2037,15 @@ testVim('search_register_escape', function(cm, vim, helpers) {
   });
   helpers.doKeys(':');
 }, {value: ''});
+testVim('search_register', function(cm, vim, helpers) {
+  cm.openDialog = helpers.fakeOpenDialog('foo');
+  helpers.doKeys('/');
+  cm.openDialog = helpers.fakeOpenDialog('registers');
+  cm.openNotification = helpers.fakeOpenNotification(function(text) {
+    is(/\/\s+foo/.test(text));
+  });
+  helpers.doKeys(':');
+}, {value: ''});
 testVim('.', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('2', 'd', 'w');
