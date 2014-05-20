@@ -108,10 +108,10 @@
 
   sim("openLine", "foo bar", "Alt-F", "Ctrl-O", txt("foo\n bar"))
 
-  sim("transposeChar", "abcd\n\ne",
-      "Ctrl-F", "Ctrl-T", "Ctrl-T", txt("bcad\n\ne"), at(0, 3),
-      "Ctrl-F", "Ctrl-T", "Ctrl-T", "Ctrl-T", txt("bcda\n\ne"), at(0, 4),
-      "Ctrl-F", "Ctrl-T", txt("bcd\na\ne"), at(1, 1));
+  sim("transposeChar", "abcd\ne",
+      "Ctrl-F", "Ctrl-T", "Ctrl-T", txt("bcad\ne"), at(0, 3),
+      "Ctrl-F", "Ctrl-T", "Ctrl-T", "Ctrl-T", txt("bcda\ne"), at(0, 4),
+      "Ctrl-F", "Ctrl-T", txt("bcde\na"), at(1, 0));
 
   sim("manipWordCase", "foo BAR bAZ",
       "Alt-C", "Alt-L", "Alt-U", txt("Foo bar BAZ"),
