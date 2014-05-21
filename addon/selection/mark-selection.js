@@ -1,3 +1,6 @@
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
+
 // Because sometimes you need to mark the selected *text*.
 //
 // Adds an option 'styleSelectedText' which, when enabled, gives

@@ -98,7 +98,7 @@ function copyCursor(cur) {
 
 function forEach(arr, func) {
   for (var i = 0; i < arr.length; i++) {
-    func(arr[i]);
+    func(arr[i], i, arr);
   }
 }
 
@@ -1141,6 +1141,13 @@ testVim('a_eol', function(cm, vim, helpers) {
   helpers.assertCursorAt(0, lines[0].length);
   eq('vim-insert', cm.getOption('keyMap'));
 });
+testVim('a_endOfSelectedArea', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('v', 'j', 'l');
+  helpers.doKeys('A');
+  helpers.assertCursorAt(1, 2);
+  eq('vim-insert', cm.getOption('keyMap'));
+}, {value: 'foo\nbar'});
 testVim('i', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.doKeys('i');
@@ -1620,7 +1627,50 @@ testVim('o_visual', function(cm,vim,helpers) {
   helpers.doKeys('d');
   eq('p',cm.getValue());
 }, { value: 'abcd\nefgh\nijkl\nmnop'});
+testVim('uppercase/lowercase_visual', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('v', 'l', 'l');
+  helpers.doKeys('U');
+  helpers.assertCursorAt(0, 0);
+  helpers.doKeys('v', 'l', 'l');
+  helpers.doKeys('u');
+  helpers.assertCursorAt(0, 0);
+  helpers.doKeys('l', 'l', 'l', '.');
+  helpers.assertCursorAt(0, 3);
+  cm.setCursor(0, 0);
+  helpers.doKeys('q', 'a', 'v', 'j', 'U', 'q');
+  helpers.assertCursorAt(0, 0);
+  helpers.doKeys('j', '@', 'a');
+  helpers.assertCursorAt(1, 0);
+  cm.setCursor(3, 0);
+  helpers.doKeys('V', 'U', 'j', '.');
+  eq('ABCDEF\nGHIJKL\nMnopq\nSHORT LINE\nLONG LINE OF TEXT', cm.getValue());
+}, { value: 'abcdef\nghijkl\nmnopq\nshort line\nlong line of text'});
+testVim('visual_paste', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('v', 'l', 'l', 'y', 'j', 'v', 'l', 'p');
+  helpers.assertCursorAt(1, 4);
+  eq('this is a\nunthi test for visual paste', cm.getValue());
+  cm.setCursor(0, 0);
+  // in case of pasting whole line
+  helpers.doKeys('y', 'y');
+  cm.setCursor(1, 6);
+  helpers.doKeys('v', 'l', 'l', 'l', 'p');
+  helpers.assertCursorAt(2, 0);
+  eq('this is a\nunthi \nthis is a\n for visual paste', cm.getValue());
+}, { value: 'this is a\nunit test for visual paste'});
 
+// This checks the contents of the register used to paste the text
+testVim('v_paste_from_register', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('"', 'a', 'y', 'w');
+  cm.setCursor(1, 0);
+  helpers.doKeys('v', 'p');
+  cm.openDialog = helpers.fakeOpenDialog('registers');
+  cm.openNotification = helpers.fakeOpenNotification(function(text) {
+    is(/a\s+register/.test(text));
+  });
+}, { value: 'register contents\nare not erased'});
 testVim('S_normal', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.doKeys('j', 'S');
@@ -2325,7 +2375,8 @@ testVim('HML', function(cm, vim, helpers) {
   return upper + lower;
 })()});
 
-var zVals = ['zb','zz','zt','z-','z.','z<CR>'].map(function(e, idx){
+var zVals = [];
+forEach(['zb','zz','zt','z-','z.','z<CR>'], function(e, idx){
   var lineNum = 250;
   var lines = 35;
   testVim(e, function(cm, vim, helpers) {

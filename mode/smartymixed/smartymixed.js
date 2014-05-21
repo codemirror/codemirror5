@@ -1,3 +1,6 @@
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
+
 /**
 * @file smartymixed.js
 * @brief Smarty Mixed Codemirror mode (Smarty + Mixed HTML)

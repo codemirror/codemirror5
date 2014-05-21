@@ -1,3 +1,6 @@
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
+
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
     mod(require("../../lib/codemirror"));
@@ -108,7 +111,8 @@
       if (obj.type && obj.type.indexOf("variable") === 0) {
         if (options && options.additionalContext)
           base = options.additionalContext[obj.string];
-        base = base || window[obj.string];
+        if (!options || options.useGlobalScope !== false)
+          base = base || window[obj.string];
       } else if (obj.type == "string") {
         base = "";
       } else if (obj.type == "atom") {
@@ -128,7 +132,8 @@
       // (reading into JS mode internals to get at the local and global variables)
       for (var v = token.state.localVars; v; v = v.next) maybeAdd(v.name);
       for (var v = token.state.globalVars; v; v = v.next) maybeAdd(v.name);
-      gatherCompletions(window);
+      if (!options || options.useGlobalScope !== false)
+        gatherCompletions(window);
       forEach(keywords, maybeAdd);
     }
     return found;

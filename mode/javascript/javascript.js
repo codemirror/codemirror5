@@ -1,3 +1,6 @@
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
+
 // TODO actually recognize syntax of TypeScript constructs
 
 (function(mod) {
@@ -644,6 +647,8 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     jsonMode: jsonMode
   };
 });
+
+CodeMirror.registerHelper("wordChars", "javascript", /[\\w$]/);
 
 CodeMirror.defineMIME("text/javascript", "javascript");
 CodeMirror.defineMIME("text/ecmascript", "javascript");

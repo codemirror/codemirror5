@@ -3,6 +3,9 @@
 <title>CodeMirror: Compression Helper</title>
 <meta charset="utf-8"/>
 <link rel=stylesheet href="docs.css">
+<script src="../lib/codemirror.js"></script>
+<script src="../mode/javascript/javascript.js"></script>
+<link rel=stylesheet href="../lib/codemirror.css">
 
 <div id=nav>
   <a href="http://codemirror.net"><img id=logo src="logo.png"></a>
@@ -29,10 +32,11 @@
     click <strong>Compress</strong> to download the minified script
     file.</p>
 
-    <form id="form" action="http://marijnhaverbeke.nl/uglifyjs" method="post">
+    <form id="form" action="http://marijnhaverbeke.nl/uglifyjs" method="post" onsubmit="generateHeader();">
       <input type="hidden" id="download" name="download" value="codemirror-compressed.js"/>
       <p>Version: <select id="version" onchange="setVersion(this);" style="padding: 1px;">
         <option value="http://codemirror.net/">HEAD</option>
+        <option value="http://marijnhaverbeke.nl/git/codemirror?a=blob_plain;hb=4.2.0;f=">4.2</option>
         <option value="http://marijnhaverbeke.nl/git/codemirror?a=blob_plain;hb=4.1.0;f=">4.1</option>
         <option value="http://marijnhaverbeke.nl/git/codemirror?a=blob_plain;hb=4.0.3;f=">4.0</option>
         <option value="http://marijnhaverbeke.nl/git/codemirror?a=blob_plain;hb=3.23.0;f=">3.23</option>
@@ -92,6 +96,7 @@
           <option value="http://codemirror.net/mode/coffeescript/coffeescript.js">coffeescript.js</option>
           <option value="http://codemirror.net/mode/commonlisp/commonlisp.js">commonlisp.js</option>
           <option value="http://codemirror.net/mode/css/css.js">css.js</option>
+          <option value="http://codemirror.net/mode/cypher/cypher.js">cypher.js</option>
           <option value="http://codemirror.net/mode/d/d.js">d.js</option>
           <option value="http://codemirror.net/mode/diff/diff.js">diff.js</option>
           <option value="http://codemirror.net/mode/django/django.js">django.js</option>
@@ -221,11 +226,13 @@
       <p>
         <button type="submit">Compress</button> with <a href="http://github.com/mishoo/UglifyJS/">UglifyJS</a>
       </p>
-
-      <p>Custom code to add to the compressed file:<textarea name="js_code" style="width: 100%; height: 15em;" class="field"></textarea></p>
+      <input type="hidden" id="header" name="header">
+      <p>Custom code to add to the compressed file:<textarea name="js_code" style="width: 100%; height: 15em;" class="field" id="js_code"></textarea></p>
     </form>
 
     <script type="text/javascript">
+      CodeMirror.fromTextArea(document.getElementById("js_code")).getWrapperElement().className += " field";
+
       function setVersion(ver) {
         var urlprefix = ver.options[ver.selectedIndex].value;
         var select = document.getElementById("files"), m;
@@ -238,6 +245,36 @@
             else if (m = opt.value.match(/http:\/\/marijnhaverbeke.nl\/git\/codemirror\?a=blob_plain;hb=[^;]+;f=(.*)$/))
               opt.value = urlprefix + m[1];
           }
+       }
+       
+       function generateHeader() {
+         var versionNode = document.getElementById("version");
+         var version = versionNode.options[versionNode.selectedIndex].label
+         var filesNode = document.getElementById("files");
+         var optGroupHeaderIncluded;
+
+         // Generate the comment
+         var str = "/* CodeMirror - Minified & Bundled\n";
+         str += "   Generated on " + new Date().toLocaleDateString() + " with http://codemirror.net/doc/compress.html\n";
+         str += "   Version: " + version + "\n\n";
+
+         for (var group = filesNode.firstChild; group; group = group.nextSibling) {
+           optGroupHeaderIncluded = false;
+           for (var option = group.firstChild; option; option = option.nextSibling) {
+             if (option.nodeName !== "OPTION") {
+               continue;
+             } else if (option.selected) {
+               if (!optGroupHeaderIncluded) {
+                 str += "   " + group.label + ":\n";
+                 optGroupHeaderIncluded = true;
+               }
+               str += "   - " + option.label + "\n";
+             }
+           }
+         }
+         str += " */\n\n";
+
+         document.getElementById("header").value = str;
        }
     </script>
 

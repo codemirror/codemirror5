@@ -1,3 +1,6 @@
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
+
 (function() {
   var mode = CodeMirror.getMode({tabSize: 4}, "markdown");
   function MT(name) { test.mode(name, mode, Array.prototype.slice.call(arguments, 1)); }
@@ -88,6 +91,14 @@
      "    [comment bar]",
      "        [comment hello]",
      "    [comment world]");
+
+  // Code blocks should end even after extra indented lines
+  MT("codeBlocksWithTrailingIndentedLine",
+     "    [comment foo]",
+     "        [comment bar]",
+     "    [comment baz]",
+     "    ",
+     "hello");
 
   // Code blocks using 1 tab (regardless of CodeMirror.indentWithTabs value)
   MT("codeBlocksUsing1Tab",
@@ -721,4 +732,23 @@
      "[comment ```]",
      "foo",
      "[comment ```]");
+
+  // Tests that require XML mode
+
+  MT("xmlMode",
+     "[tag&bracket <][tag div][tag&bracket >]",
+     "*foo*",
+     "[tag&bracket <][tag http://github.com][tag&bracket />]",
+     "[tag&bracket </][tag div][tag&bracket >]",
+     "[link <http://github.com/>]");
+
+  MT("xmlModeWithMarkdownInside",
+     "[tag&bracket <][tag div] [attribute markdown]=[string 1][tag&bracket >]",
+     "[em *foo*]",
+     "[link <http://github.com/>]",
+     "[tag </div>]",
+     "[link <http://github.com/>]",
+     "[tag&bracket <][tag div][tag&bracket >]",
+     "[tag&bracket </][tag div][tag&bracket >]");
+
 })();
