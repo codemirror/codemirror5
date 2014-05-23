@@ -2394,7 +2394,7 @@
       // can't use selection state here because yank has already reset its cursor
       // Also, Bookmarks make the visual selections robust to edit operations
       vim.lastSelection = {'curStartMark': cm.setBookmark(selectionStart), 'curEndMark': cm.setBookmark(selectionEnd), 'visualMode': vim.visualMode, 'visualLine': vim.visualLine};
-      if(cursorIsBefore(selectionEnd, selectionStart)) {
+      if (cursorIsBefore(selectionEnd, selectionStart)) {
         vim.lastSelection.curStartMark = cm.setBookmark(selectionEnd);
         vim.lastSelection.curEndMark = cm.setBookmark(selectionStart);
       }
