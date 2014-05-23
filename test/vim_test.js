@@ -1591,16 +1591,35 @@ testVim('visual_blank', function(cm, vim, helpers) {
   eq(vim.visualMode, true);
 }, { value: '\n' });
 testVim('reselect_visual', function(cm, vim, helpers) {
-  helpers.doKeys('l', 'v', 'l', 'l', 'y', 'g', 'v');
-  helpers.assertCursorAt(0, 3);
+  helpers.doKeys('l', 'v', 'l', 'l', 'l', 'y', 'g', 'v');
+  helpers.assertCursorAt(0, 4);
   eqPos(makeCursor(0, 1), cm.getCursor('anchor'));
-  helpers.doKeys('d');
-  eq('15', cm.getValue());
-}, { value: '12345' });
+  helpers.doKeys('v');
+  cm.setCursor(1, 0);
+  helpers.doKeys('v', 'l', 'l', 'p');
+  eq('123456\n2345\nbar', cm.getValue());
+  cm.setCursor(0, 0);
+  helpers.doKeys('g', 'v');
+  helpers.assertCursorAt(1, 3);
+  eqPos(makeCursor(1, 0), cm.getCursor('anchor'));
+  helpers.doKeys('v');
+  cm.setCursor(2, 0);
+  helpers.doKeys('v', 'l', 'l', 'g', 'v');
+  helpers.assertCursorAt(1, 3);
+  eqPos(makeCursor(1, 0), cm.getCursor('anchor'));
+  helpers.doKeys('g', 'v');
+  helpers.assertCursorAt(2, 2);
+  eqPos(makeCursor(2, 0), cm.getCursor('anchor'));
+  eq('123456\n2345\nbar', cm.getValue());
+}, { value: '123456\nfoo\nbar' });
 testVim('reselect_visual_line', function(cm, vim, helpers) {
   helpers.doKeys('l', 'V', 'l', 'j', 'j', 'V', 'g', 'v', 'd');
-  eq(' 4\n 5', cm.getValue());
-}, { value: ' 1\n 2\n 3\n 4\n 5' });
+  eq(' foo\n and\n bar', cm.getValue());
+  cm.setCursor(0, 0);
+  helpers.doKeys('V', 'y', 'j');
+  helpers.doKeys('V', 'p' , 'g', 'v', 'd');
+  eq(' foo\n bar', cm.getValue());
+}, { value: ' hello\n this\n is \n foo\n and\n bar' });
 testVim('s_normal', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.doKeys('s');
@@ -2053,46 +2072,6 @@ testVim(':_register', function(cm,vim,helpers) {
   cm.openDialog = helpers.fakeOpenDialog('registers');
   cm.openNotification = helpers.fakeOpenNotification(function(text) {
     is(/:\s+bar/.test(text));
-  });
-  helpers.doKeys(':');
-}, {value: ''});
-testVim('search_register_escape', function(cm, vim, helpers) {
-  // Check that the register is restored if the user escapes rather than confirms.
-  cm.openDialog = helpers.fakeOpenDialog('waldo');
-  helpers.doKeys('/');
-  var onKeyDown;
-  cm.openDialog = function(template, callback, options) {
-    var onKeyDown = options.onKeyDown;
-    var onKeyUp = options.onKeyUp;
-    var KEYCODES = {
-      f: 70,
-      o: 79,
-      Esc: 27
-    };
-    var close = function() {};
-    // Fake some keyboard events coming in.
-    onKeyDown({keyCode: KEYCODES.f}, '', close);
-    onKeyUp({keyCode: KEYCODES.f}, '', close);
-    onKeyDown({keyCode: KEYCODES.o}, 'f', close);
-    onKeyUp({keyCode: KEYCODES.o}, 'f', close);
-    onKeyDown({keyCode: KEYCODES.o}, 'fo', close);
-    onKeyUp({keyCode: KEYCODES.o}, 'fo', close);
-    onKeyDown({keyCode: KEYCODES.Esc}, 'foo', close);
-  };
-  helpers.doKeys('/');
-  cm.openDialog = helpers.fakeOpenDialog('registers');
-  cm.openNotification = helpers.fakeOpenNotification(function(text) {
-    is(/waldo/.test(text));
-    is(!/foo/.test(text));
-  });
-  helpers.doKeys(':');
-}, {value: ''});
-testVim('search_register', function(cm, vim, helpers) {
-  cm.openDialog = helpers.fakeOpenDialog('foo');
-  helpers.doKeys('/');
-  cm.openDialog = helpers.fakeOpenDialog('registers');
-  cm.openNotification = helpers.fakeOpenNotification(function(text) {
-    is(/\/\s+foo/.test(text));
   });
   helpers.doKeys(':');
 }, {value: ''});
