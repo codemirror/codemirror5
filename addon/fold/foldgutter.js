@@ -78,7 +78,7 @@
           cm.findMarksAt(pos).filter(function (m) {return m.__isFold;})
             .forEach(function (m) { m.clear(); });
       } else {
-        
+
         if (range && range.from.line + 1 < range.to.line)
           mark = marker(opts.indicatorOpen);
       }
