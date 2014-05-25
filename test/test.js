@@ -1558,7 +1558,7 @@ testCM("selectionBias", function(cm) {
   eqPos(cm.getCursor(), Pos(0, 1));
   cm.setCursor(Pos(0, 4));
   cm.setCursor(Pos(0, 2), null, {bias: 1});
-  eqPos(cm.getCursor(), Pos(0, 3), "A");
+  eqPos(cm.getCursor(), Pos(0, 3));
 }, {value: "12345"});
 
 testCM("readOnlyMarker", function(cm) {
