@@ -637,7 +637,9 @@
         macroModeState: new MacroModeState,
         // Recording latest f, t, F or T motion command.
         lastChararacterSearch: {increment:0, forward:true, selectedCharacter:''},
-        registerController: new RegisterController({})
+        registerController: new RegisterController({}),
+        // search history buffers
+        searchHistoryController: new SearchHistoryController({})
       };
       for (var optionName in options) {
         var option = options[optionName];
@@ -908,7 +910,45 @@
         }
       }
     };
-
+    function SearchHistoryController() {
+        this.historyBuffer = [];
+        this.iterator;
+        this.initialPrefix = null;
+    }
+    SearchHistoryController.prototype = {
+      // the query argument here acts a user entered prefix for a small time
+      // until we start autocompletion in which case it is the autocompleted.
+      nextMatch: function (query, up) {
+        var historyBuffer = this.historyBuffer;
+        var dir = up ? -1 : 1;
+        if (this.initialPrefix === null) this.initialPrefix = query;
+        for (var i = this.iterator + dir; up ? i >= 0 : i < historyBuffer.length; i+= dir) {
+          var element = historyBuffer[i];
+          for (var j = 0; j <= element.length; j++) {
+            if (this.initialPrefix == element.substring(0, j)) {
+              this.iterator = i;
+              return element;
+            }
+          }
+        }
+        // should return the user input in case we reach the end of buffer.
+        if (i >= historyBuffer.length) {
+          this.iterator = historyBuffer.length;
+          return this.initialPrefix;
+        }
+        // return the last autocompleted query as it is.
+        if (i < 0 ) return query;
+      },
+      pushQuery: function(query) {
+        var index = this.historyBuffer.indexOf(query);
+        if (index > -1) this.historyBuffer.splice(index, 1);
+        if (query.length) this.historyBuffer.push(query);
+      },
+      reset: function() {
+        this.initialPrefix = null;
+        this.iterator = this.historyBuffer.length;
+      }
+    };
     var commandDispatcher = {
       matchCommand: function(key, keyMap, vim) {
         var inputState = vim.inputState;
@@ -1095,6 +1135,8 @@
         var originalQuery = getSearchState(cm).getQuery();
         var originalScrollPos = cm.getScrollInfo();
         function handleQuery(query, ignoreCase, smartCase) {
+          vimGlobalState.searchHistoryController.pushQuery(query);
+          vimGlobalState.searchHistoryController.reset();
           try {
             updateSearchQuery(cm, query, ignoreCase, smartCase);
           } catch (e) {
@@ -1115,7 +1157,16 @@
             logSearchQuery(macroModeState, query);
           }
         }
-        function onPromptKeyUp(_e, query) {
+        function onPromptKeyUp(e, query, close) {
+          var keyName = CodeMirror.keyName(e), up;
+          if (keyName == 'Up' || keyName == 'Down') {
+            up = keyName == 'Up' ? true : false;
+            query = vimGlobalState.searchHistoryController.nextMatch(query, up) || '';
+            close(query);
+          } else {
+            if ( keyName != 'Left' && keyName != 'Right' && keyName != 'Ctrl' && keyName != 'Alt' && keyName != 'Shift')
+              vimGlobalState.searchHistoryController.reset();
+          }
           var parsedQuery;
           try {
             parsedQuery = updateSearchQuery(cm, query,
@@ -1130,13 +1181,14 @@
             cm.scrollTo(originalScrollPos.left, originalScrollPos.top);
           }
         }
-        function onPromptKeyDown(e, _query, close) {
+        function onPromptKeyDown(e, query, close) {
           var keyName = CodeMirror.keyName(e);
           if (keyName == 'Esc' || keyName == 'Ctrl-C' || keyName == 'Ctrl-[') {
+            vimGlobalState.searchHistoryController.pushQuery(query);
+            vimGlobalState.searchHistoryController.reset();
             updateSearchQuery(cm, originalQuery);
             clearSearchHighlight(cm);
             cm.scrollTo(originalScrollPos.left, originalScrollPos.top);
-
             CodeMirror.e_stop(e);
             close();
             cm.focus();
