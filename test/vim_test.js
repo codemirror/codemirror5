@@ -1886,6 +1886,24 @@ testVim('macro_insert', function(cm, vim, helpers) {
   helpers.doKeys('q', '@', 'a');
   eq('foofoo', cm.getValue());
 }, { value: ''});
+testVim('macro_insert_repeat', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('q', 'a', '$', 'a');
+  cm.replaceRange('larry.', cm.getCursor());
+  helpers.doInsertModeKeys('Esc');
+  helpers.doKeys('a');
+  cm.replaceRange('curly.', cm.getCursor());
+  helpers.doInsertModeKeys('Esc');
+  helpers.doKeys('q');
+  helpers.doKeys('a');
+  cm.replaceRange('moe.', cm.getCursor());
+  helpers.doInsertModeKeys('Esc');
+  helpers.doKeys('@', 'a');
+  // At this point, the most recent edit should be the 2nd insert change
+  // inside the macro, i.e. "curly.".
+  helpers.doKeys('.');
+  eq('larry.curly.moe.larry.curly.curly.', cm.getValue());
+}, { value: ''});
 testVim('macro_space', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('<Space>', '<Space>');

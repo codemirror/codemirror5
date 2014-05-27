@@ -4104,8 +4104,10 @@
           text = text.substring(match.index + key.length);
           CodeMirror.Vim.handleKey(cm, key);
           if (vim.insertMode) {
-            repeatInsertModeChanges(
-                cm, register.insertModeChanges[imc++].changes, 1);
+            var changes = register.insertModeChanges[imc++].changes;
+            vimGlobalState.macroModeState.lastInsertModeChanges.changes =
+                changes;
+            repeatInsertModeChanges(cm, changes, 1);
             exitInsertMode(cm);
           }
         }
