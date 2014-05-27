@@ -637,7 +637,8 @@
         macroModeState: new MacroModeState,
         // Recording latest f, t, F or T motion command.
         lastChararacterSearch: {increment:0, forward:true, selectedCharacter:''},
-        registerController: new RegisterController({})
+        registerController: new RegisterController({}),
+        searchHistoryBuffer: []
       };
       for (var optionName in options) {
         var option = options[optionName];
@@ -1088,6 +1089,8 @@
           // Search depends on SearchCursor.
           return;
         }
+        var searchHistoryBuffer = vimGlobalState.searchHistoryBuffer;
+        var searchBufferIterator = vimGlobalState.searchHistoryBuffer.length;
         var forward = command.searchArgs.forward;
         var wholeWordOnly = command.searchArgs.wholeWordOnly;
         getSearchState(cm).setReversed(!forward);
@@ -1095,6 +1098,11 @@
         var originalQuery = getSearchState(cm).getQuery();
         var originalScrollPos = cm.getScrollInfo();
         function handleQuery(query, ignoreCase, smartCase) {
+          // make sure we don't make duplicate entries in the search history buffer
+          var index = searchHistoryBuffer.indexOf(query);
+          if (index > -1) vimGlobalState.searchHistoryBuffer.splice(index, 1);
+          vimGlobalState.searchHistoryBuffer.push(query);
+          searchBufferIterator++;
           try {
             updateSearchQuery(cm, query, ignoreCase, smartCase);
           } catch (e) {
@@ -1115,7 +1123,24 @@
             logSearchQuery(macroModeState, query);
           }
         }
-        function onPromptKeyUp(_e, query) {
+        function onPromptKeyUp(e, query) {
+          var keyName = CodeMirror.keyName(e);
+          if (keyName == 'Up') {
+            searchBufferIterator+= searchBufferIterator > 0 ? -1 : 0;
+            query = searchHistoryBuffer[searchBufferIterator];
+          }
+          if (keyName == 'Down') {
+            searchBufferIterator+= searchBufferIterator < searchHistoryBuffer.length ? 1 : 0;
+            query = searchHistoryBuffer[searchBufferIterator];
+          }
+          showPrompt(cm, {
+                  onClose: onPromptClose,
+                  prefix: promptPrefix,
+                  desc: searchPromptDesc,
+                  onKeyUp: onPromptKeyUp,
+                  onKeyDown: onPromptKeyDown,
+                  value: query
+              });
           var parsedQuery;
           try {
             parsedQuery = updateSearchQuery(cm, query,
@@ -1136,7 +1161,6 @@
             updateSearchQuery(cm, originalQuery);
             clearSearchHighlight(cm);
             cm.scrollTo(originalScrollPos.left, originalScrollPos.top);
-
             CodeMirror.e_stop(e);
             close();
             cm.focus();

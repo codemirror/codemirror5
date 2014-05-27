@@ -2080,25 +2080,26 @@ testVim('search_register_escape', function(cm, vim, helpers) {
   cm.openDialog = helpers.fakeOpenDialog('waldo');
   helpers.doKeys('/');
   var onKeyDown;
+  var onKeyUp;
+  var KEYCODES = {
+    f: 70,
+    o: 79,
+    Esc: 27
+  };
   cm.openDialog = function(template, callback, options) {
-    var onKeyDown = options.onKeyDown;
-    var onKeyUp = options.onKeyUp;
-    var KEYCODES = {
-      f: 70,
-      o: 79,
-      Esc: 27
-    };
+    onKeyDown = options.onKeyDown;
+    onKeyUp = options.onKeyUp;
     var close = function() {};
-    // Fake some keyboard events coming in.
-    onKeyDown({keyCode: KEYCODES.f}, '', close);
-    onKeyUp({keyCode: KEYCODES.f}, '', close);
-    onKeyDown({keyCode: KEYCODES.o}, 'f', close);
-    onKeyUp({keyCode: KEYCODES.o}, 'f', close);
-    onKeyDown({keyCode: KEYCODES.o}, 'fo', close);
-    onKeyUp({keyCode: KEYCODES.o}, 'fo', close);
-    onKeyDown({keyCode: KEYCODES.Esc}, 'foo', close);
   };
   helpers.doKeys('/');
+  // Fake some keyboard events coming in.
+  onKeyDown({keyCode: KEYCODES.f}, '', close);
+  onKeyUp({keyCode: KEYCODES.f}, '', close);
+  onKeyDown({keyCode: KEYCODES.o}, 'f', close);
+  onKeyUp({keyCode: KEYCODES.o}, 'f', close);
+  onKeyDown({keyCode: KEYCODES.o}, 'fo', close);
+  onKeyUp({keyCode: KEYCODES.o}, 'fo', close);
+  onKeyDown({keyCode: KEYCODES.Esc}, 'foo', close);
   cm.openDialog = helpers.fakeOpenDialog('registers');
   cm.openNotification = helpers.fakeOpenNotification(function(text) {
     is(/waldo/.test(text));
@@ -2114,6 +2115,41 @@ testVim('search_register', function(cm, vim, helpers) {
     is(/\/\s+foo/.test(text));
   });
   helpers.doKeys(':');
+}, {value: ''});
+testVim('search_history', function(cm, vim, helpers) {
+  cm.openDialog = helpers.fakeOpenDialog('this');
+  helpers.doKeys('/');
+  cm.openDialog = helpers.fakeOpenDialog('checks');
+  helpers.doKeys('/');
+  cm.openDialog = helpers.fakeOpenDialog('search');
+  helpers.doKeys('/');
+  cm.openDialog = helpers.fakeOpenDialog('history');
+  helpers.doKeys('/');
+  var onKeyDown;
+  var onKeyUp;
+  var query;
+  var keyCodes = {
+    Up: 38,
+    Down: 40
+  };
+  cm.openDialog = function(template, callback, options) {
+    onKeyUp = options.onKeyUp;
+    onKeyDown = options.onKeyDown;
+    var close = function() {};
+    query = options.value;
+  };
+  helpers.doKeys('/');
+  onKeyDown({keyCode: keyCodes.Up}, '', close);
+  onKeyUp({keyCode: keyCodes.Up}, '', close);
+  onKeyDown({keyCode: keyCodes.Up}, '', close);
+  onKeyUp({keyCode: keyCodes.Up}, '', close);
+  onKeyDown({keyCode: keyCodes.Up}, '', close);
+  onKeyUp({keyCode: keyCodes.Up}, '', close);
+  onKeyDown({keyCode: keyCodes.Up}, '', close);
+  onKeyUp({keyCode: keyCodes.Up}, '', close);
+  onKeyDown({keyCode: keyCodes.Down}, '', close);
+  onKeyUp({keyCode: keyCodes.Down}, '', close);
+  eq(query, 'checks');
 }, {value: ''});
 testVim('.', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
