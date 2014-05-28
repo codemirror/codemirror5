@@ -370,7 +370,8 @@
 
       <dt id="option_cursorBlinkRate"><code><strong>cursorBlinkRate</strong>: number</code></dt>
       <dd>Half-period in milliseconds used for cursor blinking. The default blink
-      rate is 530ms. By setting this to zero, blinking can be disabled.</dd>
+      rate is 530ms. By setting this to zero, blinking can be disabled. A
+      negative value hides the cursor entirely.</dd>
 
       <dt id="option_cursorScrollMargin"><code><strong>cursorScrollMargin</strong>: number</code></dt>
       <dd>How much extra space to always keep above and below the
@@ -1199,7 +1200,7 @@
       merged). Each object in the array contains <code>anchor</code>
       and <code>head</code> properties referring to <code>{line,
       ch}</code> objects.</dd>
-      
+
       <dt id="somethingSelected"><code><strong>doc.somethingSelected</strong>() → boolean</code></dt>
       <dd>Return true if any text is selected.</dd>
       <dt id="setCursor"><code><strong>doc.setCursor</strong>(pos: {line, ch}|number, ?ch: number, ?options: object)</code></dt>
