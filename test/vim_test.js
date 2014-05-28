@@ -2125,6 +2125,8 @@ testVim('search_history', function(cm, vim, helpers) {
   helpers.doKeys('/');
   cm.openDialog = helpers.fakeOpenDialog('history');
   helpers.doKeys('/');
+  cm.openDialog = helpers.fakeOpenDialog('checks');
+  helpers.doKeys('/');
   var onKeyDown;
   var onKeyUp;
   var query;
@@ -2141,15 +2143,19 @@ testVim('search_history', function(cm, vim, helpers) {
   helpers.doKeys('/');
   onKeyDown({keyCode: keyCodes.Up}, '', close);
   onKeyUp({keyCode: keyCodes.Up}, '', close);
+  eq(query, 'checks');
   onKeyDown({keyCode: keyCodes.Up}, '', close);
   onKeyUp({keyCode: keyCodes.Up}, '', close);
+  eq(query, 'history');
   onKeyDown({keyCode: keyCodes.Up}, '', close);
   onKeyUp({keyCode: keyCodes.Up}, '', close);
+  eq(query, 'search');
   onKeyDown({keyCode: keyCodes.Up}, '', close);
   onKeyUp({keyCode: keyCodes.Up}, '', close);
+  eq(query, 'this');
   onKeyDown({keyCode: keyCodes.Down}, '', close);
   onKeyUp({keyCode: keyCodes.Down}, '', close);
-  eq(query, 'checks');
+  eq(query, 'search');
 }, {value: ''});
 testVim('.', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
