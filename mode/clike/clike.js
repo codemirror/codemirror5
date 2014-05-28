@@ -242,7 +242,11 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
   // C++11 raw string literal is <prefix>"<delim>( anything )<delim>", where
   // <delim> can be a string up to 16 characters long.
   function tokenRawString(stream, state) {
-    var closingSequence = new RegExp(".*?\\)" + state.cpp11RawStringDelim + '"');
+    var closingSequence = new RegExp(
+      ".*?\\)" +
+      // Escape characters that have special regex meanings.
+      state.cpp11RawStringDelim.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&') +
+      '"');
     var match = stream.match(closingSequence);
     if (match) {
       state.tokenize = null;
