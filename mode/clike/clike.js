@@ -207,7 +207,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     stream.backUp(1);
     // Raw strings.
     if (stream.match(/(R|u8R|uR|UR|LR)/)) {
-      var match = stream.match(/"(.{0,16})\(/);
+      var match = stream.match(/"([^\s\\()]{0,16})\(/);
       if (!match) {
         return false;
       }
