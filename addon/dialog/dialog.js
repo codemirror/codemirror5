@@ -33,6 +33,12 @@
       cm.state.currentNotificationClose();
     cm.state.currentNotificationClose = newVal;
   }
+  CodeMirror.defineExtension("updateDialog", function(cm, options) {
+    var dialog = cm.getWrapperElement().lastChild;
+    var input = dialog.getElementsByTagName("input")[0];
+    input.value = options.value || '';
+    input.focus();
+  });
 
   CodeMirror.defineExtension("openDialog", function(template, callback, options) {
     closeNotification(this, null);

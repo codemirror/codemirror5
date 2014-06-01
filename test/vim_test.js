@@ -2129,7 +2129,7 @@ testVim('search_history', function(cm, vim, helpers) {
   helpers.doKeys('/');
   var onKeyDown;
   var onKeyUp;
-  var query;
+  var query = '';
   var keyCodes = {
     Up: 38,
     Down: 40
@@ -2138,23 +2138,25 @@ testVim('search_history', function(cm, vim, helpers) {
     onKeyUp = options.onKeyUp;
     onKeyDown = options.onKeyDown;
     var close = function() {};
-    query = options.value;
+  };
+  cm.updateDialog = function(cm, options) {
+    query = options.value || '';
   };
   helpers.doKeys('/');
-  onKeyDown({keyCode: keyCodes.Up}, '', close);
-  onKeyUp({keyCode: keyCodes.Up}, '', close);
+  onKeyDown({keyCode: keyCodes.Up}, query, close);
+  onKeyUp({keyCode: keyCodes.Up}, query);
   eq(query, 'checks');
-  onKeyDown({keyCode: keyCodes.Up}, '', close);
-  onKeyUp({keyCode: keyCodes.Up}, '', close);
+  onKeyDown({keyCode: keyCodes.Up}, query, close);
+  onKeyUp({keyCode: keyCodes.Up}, query);
   eq(query, 'history');
-  onKeyDown({keyCode: keyCodes.Up}, '', close);
-  onKeyUp({keyCode: keyCodes.Up}, '', close);
+  onKeyDown({keyCode: keyCodes.Up}, query, close);
+  onKeyUp({keyCode: keyCodes.Up}, query);
   eq(query, 'search');
-  onKeyDown({keyCode: keyCodes.Up}, '', close);
-  onKeyUp({keyCode: keyCodes.Up}, '', close);
+  onKeyDown({keyCode: keyCodes.Up}, query, close);
+  onKeyUp({keyCode: keyCodes.Up}, query);
   eq(query, 'this');
-  onKeyDown({keyCode: keyCodes.Down}, '', close);
-  onKeyUp({keyCode: keyCodes.Down}, '', close);
+  onKeyDown({keyCode: keyCodes.Down}, query, close);
+  onKeyUp({keyCode: keyCodes.Down}, query);
   eq(query, 'search');
 }, {value: ''});
 testVim('.', function(cm, vim, helpers) {

@@ -638,6 +638,8 @@
         // Recording latest f, t, F or T motion command.
         lastChararacterSearch: {increment:0, forward:true, selectedCharacter:''},
         registerController: new RegisterController({}),
+        // search and exCommand history buffers
+        historyBuffersController: new historyBuffersController({}),
         searchHistoryBuffer: []
       };
       for (var optionName in options) {
@@ -909,7 +911,63 @@
         }
       }
     };
-
+    function historyBuffersController() {
+      this.previousPrefix = null;
+      this.hintArray = [];
+      this.hintArrayIterator = -1;
+    }
+    historyBuffersController.prototype = {
+      getItem: function(prefix, array, up, index) {
+        var previousPrefix = this.previousPrefix;
+        var query;
+        if (prefix.length && !inArray(prefix, array)) {
+          if ((prefix != previousPrefix)) {
+            this.hintArray = [];
+            for (var i = 0; i < array.length; i++) {
+              var element = array[i];
+              for (var j = 0; j < element.length; j++) {
+                if (prefix == element.substring(0, j)) {
+                  this.hintArray.push(element);
+                }
+              }
+            }
+            this.hintArrayIterator = this.hintArray.length;
+            this.previousPrefix = prefix;
+          }
+        }
+        if (this.hintArray.length && prefix.length) {
+          if (up) {
+            this.hintArrayIterator+= this.hintArrayIterator > 0  ? -1 : 0;
+          } else {
+            this.hintArrayIterator+=  this.hintArrayIterator < this.hintArray.length ? 1 : 0;
+          }
+          query = this.hintArray[this.hintArrayIterator];
+          if (this.hintArrayIterator == this.hintArray.length) query = previousPrefix;
+          return {query: query, index: this.hintArrayIterator};
+        } else {
+          this.previousPrefix = null;
+          this.hintArray = [];
+          if (!prefix.length) index = array.length;
+          if (up) {
+            index+= index > 0 ? -1 : 0;
+          } else {
+            index+= index < array.length ? 1 : 0;
+          }
+          query = array[index];
+          return {query: query, index: index};
+        }
+      },
+      pushItem: function(item, array) {
+        var index = array.indexOf(item);
+        if (index > -1) array.splice(index, 1);
+        if (item.length) array.push(item);
+      },
+      clearHelpers: function() {
+        this.previousPrefix = null;
+        this.hintArray = [];
+        this.hintArrayIterator = 0;
+      }
+    };
     var commandDispatcher = {
       matchCommand: function(key, keyMap, vim) {
         var inputState = vim.inputState;
@@ -1089,8 +1147,7 @@
           // Search depends on SearchCursor.
           return;
         }
-        var searchHistoryBuffer = vimGlobalState.searchHistoryBuffer;
-        var searchBufferIterator = vimGlobalState.searchHistoryBuffer.length;
+        var bufferIterator = vimGlobalState.searchHistoryBuffer.length;
         var forward = command.searchArgs.forward;
         var wholeWordOnly = command.searchArgs.wholeWordOnly;
         getSearchState(cm).setReversed(!forward);
@@ -1098,11 +1155,8 @@
         var originalQuery = getSearchState(cm).getQuery();
         var originalScrollPos = cm.getScrollInfo();
         function handleQuery(query, ignoreCase, smartCase) {
-          // make sure we don't make duplicate entries in the search history buffer
-          var index = searchHistoryBuffer.indexOf(query);
-          if (index > -1) vimGlobalState.searchHistoryBuffer.splice(index, 1);
-          vimGlobalState.searchHistoryBuffer.push(query);
-          searchBufferIterator++;
+          vimGlobalState.historyBuffersController.pushItem(query, vimGlobalState.searchHistoryBuffer);
+          vimGlobalState.historyBuffersController.clearHelpers();
           try {
             updateSearchQuery(cm, query, ignoreCase, smartCase);
           } catch (e) {
@@ -1125,22 +1179,21 @@
         }
         function onPromptKeyUp(e, query) {
           var keyName = CodeMirror.keyName(e);
-          if (keyName == 'Up') {
-            searchBufferIterator+= searchBufferIterator > 0 ? -1 : 0;
-            query = searchHistoryBuffer[searchBufferIterator];
+          var up, queryFromBuffer = {};
+          if (keyName == 'Up' || keyName == 'Down') {
+            up = keyName == 'Up' ? true : false;
+            queryFromBuffer = vimGlobalState.historyBuffersController.getItem(query, vimGlobalState.searchHistoryBuffer, up, bufferIterator);
+            bufferIterator = queryFromBuffer.index;
+            query = queryFromBuffer.query;
+            cm.updateDialog(cm, {
+                onClose: onPromptClose,
+                prefix: promptPrefix,
+                desc: searchPromptDesc,
+                onKeyUp: onPromptKeyUp,
+                onKeyDown: onPromptKeyDown,
+                value: query
+            });
           }
-          if (keyName == 'Down') {
-            searchBufferIterator+= searchBufferIterator < searchHistoryBuffer.length ? 1 : 0;
-            query = searchHistoryBuffer[searchBufferIterator];
-          }
-          showPrompt(cm, {
-                  onClose: onPromptClose,
-                  prefix: promptPrefix,
-                  desc: searchPromptDesc,
-                  onKeyUp: onPromptKeyUp,
-                  onKeyDown: onPromptKeyDown,
-                  value: query
-              });
           var parsedQuery;
           try {
             parsedQuery = updateSearchQuery(cm, query,
@@ -1155,9 +1208,12 @@
             cm.scrollTo(originalScrollPos.left, originalScrollPos.top);
           }
         }
-        function onPromptKeyDown(e, _query, close) {
+        function onPromptKeyDown(e, query, close) {
           var keyName = CodeMirror.keyName(e);
           if (keyName == 'Esc' || keyName == 'Ctrl-C' || keyName == 'Ctrl-[') {
+            // clear the query search helpers in the history buffers controller
+            vimGlobalState.historyBuffersController.clearHelpers();
+            vimGlobalState.historyBuffersController.pushItem(query, vimGlobalState.searchHistoryBuffer);
             updateSearchQuery(cm, originalQuery);
             clearSearchHighlight(cm);
             cm.scrollTo(originalScrollPos.left, originalScrollPos.top);
