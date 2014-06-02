@@ -1591,16 +1591,35 @@ testVim('visual_blank', function(cm, vim, helpers) {
   eq(vim.visualMode, true);
 }, { value: '\n' });
 testVim('reselect_visual', function(cm, vim, helpers) {
-  helpers.doKeys('l', 'v', 'l', 'l', 'y', 'g', 'v');
-  helpers.assertCursorAt(0, 3);
+  helpers.doKeys('l', 'v', 'l', 'l', 'l', 'y', 'g', 'v');
+  helpers.assertCursorAt(0, 4);
   eqPos(makeCursor(0, 1), cm.getCursor('anchor'));
-  helpers.doKeys('d');
-  eq('15', cm.getValue());
-}, { value: '12345' });
+  helpers.doKeys('v');
+  cm.setCursor(1, 0);
+  helpers.doKeys('v', 'l', 'l', 'p');
+  eq('123456\n2345\nbar', cm.getValue());
+  cm.setCursor(0, 0);
+  helpers.doKeys('g', 'v');
+  helpers.assertCursorAt(1, 3);
+  eqPos(makeCursor(1, 0), cm.getCursor('anchor'));
+  helpers.doKeys('v');
+  cm.setCursor(2, 0);
+  helpers.doKeys('v', 'l', 'l', 'g', 'v');
+  helpers.assertCursorAt(1, 3);
+  eqPos(makeCursor(1, 0), cm.getCursor('anchor'));
+  helpers.doKeys('g', 'v');
+  helpers.assertCursorAt(2, 2);
+  eqPos(makeCursor(2, 0), cm.getCursor('anchor'));
+  eq('123456\n2345\nbar', cm.getValue());
+}, { value: '123456\nfoo\nbar' });
 testVim('reselect_visual_line', function(cm, vim, helpers) {
   helpers.doKeys('l', 'V', 'l', 'j', 'j', 'V', 'g', 'v', 'd');
-  eq(' 4\n 5', cm.getValue());
-}, { value: ' 1\n 2\n 3\n 4\n 5' });
+  eq(' foo\n and\n bar', cm.getValue());
+  cm.setCursor(0, 0);
+  helpers.doKeys('V', 'y', 'j');
+  helpers.doKeys('V', 'p' , 'g', 'v', 'd');
+  eq(' foo\n bar', cm.getValue());
+}, { value: ' hello\n this\n is \n foo\n and\n bar' });
 testVim('s_normal', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.doKeys('s');
@@ -1866,24 +1885,6 @@ testVim('macro_insert', function(cm, vim, helpers) {
   helpers.doInsertModeKeys('Esc');
   helpers.doKeys('q', '@', 'a');
   eq('foofoo', cm.getValue());
-}, { value: ''});
-testVim('macro_insert_repeat', function(cm, vim, helpers) {
-  cm.setCursor(0, 0);
-  helpers.doKeys('q', 'a', '$', 'a');
-  cm.replaceRange('larry.', cm.getCursor());
-  helpers.doInsertModeKeys('Esc');
-  helpers.doKeys('a');
-  cm.replaceRange('curly.', cm.getCursor());
-  helpers.doInsertModeKeys('Esc');
-  helpers.doKeys('q');
-  helpers.doKeys('a');
-  cm.replaceRange('moe.', cm.getCursor());
-  helpers.doInsertModeKeys('Esc');
-  helpers.doKeys('@', 'a');
-  // At this point, the most recent edit should be the 2nd insert change
-  // inside the macro, i.e. "curly.".
-  helpers.doKeys('.');
-  eq('larry.curly.moe.larry.curly.curly.', cm.getValue());
 }, { value: ''});
 testVim('macro_space', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
