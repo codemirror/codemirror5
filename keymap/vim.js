@@ -638,9 +638,9 @@
         // Recording latest f, t, F or T motion command.
         lastChararacterSearch: {increment:0, forward:true, selectedCharacter:''},
         registerController: new RegisterController({}),
-        // search and exCommand history buffers
-        historyBuffersController: new historyBuffersController({}),
-        searchHistoryBuffer: []
+        // search history buffers
+        searchHistoryController: new SearchHistoryController({})
+        //exCommandHistoryController: new ExCommandHistoryController({})
       };
       for (var optionName in options) {
         var option = options[optionName];
@@ -911,61 +911,47 @@
         }
       }
     };
-    function historyBuffersController() {
-      this.previousPrefix = null;
-      this.hintArray = [];
-      this.hintArrayIterator = -1;
+    function SearchHistoryController() {
+        this.historyBuffer = [];
+        this.iterator;
+        this.previousPrefix = null;
     }
-    historyBuffersController.prototype = {
-      getItem: function(prefix, array, up, index) {
-        var previousPrefix = this.previousPrefix;
-        var query;
-        if (prefix.length && !inArray(prefix, array)) {
-          if ((prefix != previousPrefix)) {
-            this.hintArray = [];
-            for (var i = 0; i < array.length; i++) {
-              var element = array[i];
+    SearchHistoryController.prototype = {
+      getQuery: function (prefix, up) {
+        var historyBuffer = this.historyBuffer;
+        if (prefix.length) {
+          if (!inArray(prefix, historyBuffer)) {
+            this.previousPrefix = prefix;
+            this.iterator = historyBuffer.length;
+          }
+          if (this.previousPrefix) {
+            for (var i = up ? this.iterator-1 : this.iterator+1; up ? i >= 0 : i < historyBuffer.length; up ? i-- : i++) {
+              var element = historyBuffer[i];
               for (var j = 0; j < element.length; j++) {
-                if (prefix == element.substring(0, j)) {
-                  this.hintArray.push(element);
+                if (this.previousPrefix == element.substring(0, j)) {
+                  this.iterator = i;
+                  return element;
                 }
               }
             }
-            this.hintArrayIterator = this.hintArray.length;
-            this.previousPrefix = prefix;
+            if (i >= historyBuffer.length) return this.previousPrefix;
+            if (i < 0 ) return prefix;
           }
-        }
-        if (this.hintArray.length && prefix.length) {
-          if (up) {
-            this.hintArrayIterator+= this.hintArrayIterator > 0  ? -1 : 0;
-          } else {
-            this.hintArrayIterator+=  this.hintArrayIterator < this.hintArray.length ? 1 : 0;
-          }
-          query = this.hintArray[this.hintArrayIterator];
-          if (this.hintArrayIterator == this.hintArray.length) query = previousPrefix;
-          return {query: query, index: this.hintArrayIterator};
         } else {
           this.previousPrefix = null;
-          this.hintArray = [];
-          if (!prefix.length) index = array.length;
-          if (up) {
-            index+= index > 0 ? -1 : 0;
-          } else {
-            index+= index < array.length ? 1 : 0;
-          }
-          query = array[index];
-          return {query: query, index: index};
+          this.iterator = historyBuffer.length;
         }
+        if (up) {
+          this.iterator+= this.iterator > 0 ? -1 : 0;
+        } else {
+          this.iterator+= this.iterator < this.historyBuffer.length ? 1 : 0;
+        }
+        return historyBuffer[this.iterator];
       },
-      pushItem: function(item, array) {
-        var index = array.indexOf(item);
-        if (index > -1) array.splice(index, 1);
-        if (item.length) array.push(item);
-      },
-      clearHelpers: function() {
-        this.previousPrefix = null;
-        this.hintArray = [];
-        this.hintArrayIterator = 0;
+      pushQuery: function(query) {
+        var index = this.historyBuffer.indexOf(query);
+        if (index > -1) this.historyBuffer.splice(index, 1);
+        if (query.length) this.historyBuffer.push(query);
       }
     };
     var commandDispatcher = {
@@ -1147,7 +1133,6 @@
           // Search depends on SearchCursor.
           return;
         }
-        var bufferIterator = vimGlobalState.searchHistoryBuffer.length;
         var forward = command.searchArgs.forward;
         var wholeWordOnly = command.searchArgs.wholeWordOnly;
         getSearchState(cm).setReversed(!forward);
@@ -1155,8 +1140,8 @@
         var originalQuery = getSearchState(cm).getQuery();
         var originalScrollPos = cm.getScrollInfo();
         function handleQuery(query, ignoreCase, smartCase) {
-          vimGlobalState.historyBuffersController.pushItem(query, vimGlobalState.searchHistoryBuffer);
-          vimGlobalState.historyBuffersController.clearHelpers();
+          vimGlobalState.searchHistoryController.pushQuery(query);
+          vimGlobalState.searchHistoryController.previousPrefix = null;
           try {
             updateSearchQuery(cm, query, ignoreCase, smartCase);
           } catch (e) {
@@ -1177,22 +1162,12 @@
             logSearchQuery(macroModeState, query);
           }
         }
-        function onPromptKeyUp(e, query) {
-          var keyName = CodeMirror.keyName(e);
-          var up, queryFromBuffer = {};
+        function onPromptKeyUp(e, query, close) {
+          var keyName = CodeMirror.keyName(e), up;
           if (keyName == 'Up' || keyName == 'Down') {
             up = keyName == 'Up' ? true : false;
-            queryFromBuffer = vimGlobalState.historyBuffersController.getItem(query, vimGlobalState.searchHistoryBuffer, up, bufferIterator);
-            bufferIterator = queryFromBuffer.index;
-            query = queryFromBuffer.query;
-            cm.updateDialog(cm, {
-                onClose: onPromptClose,
-                prefix: promptPrefix,
-                desc: searchPromptDesc,
-                onKeyUp: onPromptKeyUp,
-                onKeyDown: onPromptKeyDown,
-                value: query
-            });
+            query = vimGlobalState.searchHistoryController.getQuery(query, up) || '';
+            close(query);
           }
           var parsedQuery;
           try {
@@ -1211,9 +1186,8 @@
         function onPromptKeyDown(e, query, close) {
           var keyName = CodeMirror.keyName(e);
           if (keyName == 'Esc' || keyName == 'Ctrl-C' || keyName == 'Ctrl-[') {
-            // clear the query search helpers in the history buffers controller
-            vimGlobalState.historyBuffersController.clearHelpers();
-            vimGlobalState.historyBuffersController.pushItem(query, vimGlobalState.searchHistoryBuffer);
+            vimGlobalState.searchHistoryController.pushQuery(query);
+            vimGlobalState.searchHistoryController.previousPrefix = null;
             updateSearchQuery(cm, originalQuery);
             clearSearchHighlight(cm);
             cm.scrollTo(originalScrollPos.left, originalScrollPos.top);

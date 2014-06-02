@@ -2089,8 +2089,8 @@ testVim('search_register_escape', function(cm, vim, helpers) {
   cm.openDialog = function(template, callback, options) {
     onKeyDown = options.onKeyDown;
     onKeyUp = options.onKeyUp;
-    var close = function() {};
   };
+  var close = function() {};
   helpers.doKeys('/');
   // Fake some keyboard events coming in.
   onKeyDown({keyCode: KEYCODES.f}, '', close);
@@ -2137,26 +2137,25 @@ testVim('search_history', function(cm, vim, helpers) {
   cm.openDialog = function(template, callback, options) {
     onKeyUp = options.onKeyUp;
     onKeyDown = options.onKeyDown;
-    var close = function() {};
   };
-  cm.updateDialog = function(cm, options) {
-    query = options.value || '';
-  };
+  var close = function(newVal) {
+    if (typeof newVal == 'string') query = newVal;
+  }
   helpers.doKeys('/');
   onKeyDown({keyCode: keyCodes.Up}, query, close);
-  onKeyUp({keyCode: keyCodes.Up}, query);
+  onKeyUp({keyCode: keyCodes.Up}, query, close);
   eq(query, 'checks');
   onKeyDown({keyCode: keyCodes.Up}, query, close);
-  onKeyUp({keyCode: keyCodes.Up}, query);
+  onKeyUp({keyCode: keyCodes.Up}, query, close);
   eq(query, 'history');
   onKeyDown({keyCode: keyCodes.Up}, query, close);
-  onKeyUp({keyCode: keyCodes.Up}, query);
+  onKeyUp({keyCode: keyCodes.Up}, query, close);
   eq(query, 'search');
   onKeyDown({keyCode: keyCodes.Up}, query, close);
-  onKeyUp({keyCode: keyCodes.Up}, query);
+  onKeyUp({keyCode: keyCodes.Up}, query, close);
   eq(query, 'this');
   onKeyDown({keyCode: keyCodes.Down}, query, close);
-  onKeyUp({keyCode: keyCodes.Down}, query);
+  onKeyUp({keyCode: keyCodes.Down}, query, close);
   eq(query, 'search');
 }, {value: ''});
 testVim('.', function(cm, vim, helpers) {

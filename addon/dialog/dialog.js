@@ -33,21 +33,19 @@
       cm.state.currentNotificationClose();
     cm.state.currentNotificationClose = newVal;
   }
-  CodeMirror.defineExtension("updateDialog", function(cm, options) {
-    var dialog = cm.getWrapperElement().lastChild;
-    var input = dialog.getElementsByTagName("input")[0];
-    input.value = options.value || '';
-    input.focus();
-  });
 
   CodeMirror.defineExtension("openDialog", function(template, callback, options) {
     closeNotification(this, null);
     var dialog = dialogDiv(this, template, options && options.bottom);
     var closed = false, me = this;
-    function close() {
-      if (closed) return;
-      closed = true;
-      dialog.parentNode.removeChild(dialog);
+    function close(newVal) {
+      if (typeof newVal == 'string') {
+        inp.value = newVal;
+      } else {
+        if (closed) return;
+        closed = true;
+        dialog.parentNode.removeChild(dialog);
+      }
     }
     var inp = dialog.getElementsByTagName("input")[0], button;
     if (inp) {
