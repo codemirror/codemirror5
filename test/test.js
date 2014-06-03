@@ -1916,3 +1916,13 @@ testCM("getTokenTypeAt", function(cm) {
   eq(byClassName(cm.getWrapperElement(), "cm-foo").length, 1);
   eq(cm.getTokenTypeAt(Pos(0, 6)), "string");
 }, {value: "1 + 'foo'", mode: "javascript"});
+
+testCM("resizeLineWidget", function(cm) {
+  addDoc(cm, 200, 3);
+  var widget = document.createElement("pre");
+  widget.innerHTML = "imwidget";
+  widget.style.background = "yellow";
+  cm.addLineWidget(1, widget, {noHScroll: true});
+  cm.setSize(40);
+  is(widget.parentNode.offsetWidth < 42);
+});
