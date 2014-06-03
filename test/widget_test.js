@@ -3,15 +3,17 @@
 
   namespace = "widget_";
 
-  function makeLineWidget(cm, height, line) {
-    var widgetEl = document.createElement('div');
-    widgetEl.style.height = height + 'px';
-    widgetEl.textContent = 'dummy text';
+  function makeLineWidget(cm, height) {
+    return function(line) {
+      var widgetEl = document.createElement('div');
+      widgetEl.style.height = height + 'px';
+      widgetEl.textContent = 'dummy text';
 
-    return {
-      el : widgetEl,
-      widget : cm.addLineWidget(line, widgetEl, {})
-    };
+      return {
+        el : widgetEl,
+        widget : cm.addLineWidget(line, widgetEl, {})
+      };
+    }
   }
 
   function each(arr, fn) {
@@ -34,7 +36,7 @@
 	      cm.scrollIntoView({ line : startingViewportLine, ch: 0 });
       }
 
-      var widgetInfos = widgetAtLines.map(makeLineWidget.bind(null, cm, initialHeight));
+      var widgetInfos = widgetAtLines.map(makeLineWidget(cm, initialHeight));
       var expectedHeightAfterAdd = startingDocHeight + (widgetInfos.length * initialHeight);
       eq(expectedHeightAfterAdd, cm.getScrollInfo().height, 'addLineWidget(): widget height should be added to document height.');
 
