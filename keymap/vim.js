@@ -638,8 +638,10 @@
         // Recording latest f, t, F or T motion command.
         lastChararacterSearch: {increment:0, forward:true, selectedCharacter:''},
         registerController: new RegisterController({}),
-        // search history buffers
-        searchHistoryController: new SearchHistoryController({})
+        // search history buffer
+        searchHistoryController: new HistoryController({}),
+        // ex Command history buffer
+        exCommandHistoryController : new HistoryController({})
       };
       for (var optionName in options) {
         var option = options[optionName];
@@ -910,18 +912,18 @@
         }
       }
     };
-    function SearchHistoryController() {
+    function HistoryController() {
         this.historyBuffer = [];
         this.iterator;
         this.initialPrefix = null;
     }
-    SearchHistoryController.prototype = {
-      // the query argument here acts a user entered prefix for a small time
+    HistoryController.prototype = {
+      // the input argument here acts a user entered prefix for a small time
       // until we start autocompletion in which case it is the autocompleted.
-      nextMatch: function (query, up) {
+      nextMatch: function (input, up) {
         var historyBuffer = this.historyBuffer;
         var dir = up ? -1 : 1;
-        if (this.initialPrefix === null) this.initialPrefix = query;
+        if (this.initialPrefix === null) this.initialPrefix = input;
         for (var i = this.iterator + dir; up ? i >= 0 : i < historyBuffer.length; i+= dir) {
           var element = historyBuffer[i];
           for (var j = 0; j <= element.length; j++) {
@@ -936,13 +938,13 @@
           this.iterator = historyBuffer.length;
           return this.initialPrefix;
         }
-        // return the last autocompleted query as it is.
-        if (i < 0 ) return query;
+        // return the last autocompleted query or exCommand as it is.
+        if (i < 0 ) return input;
       },
-      pushQuery: function(query) {
-        var index = this.historyBuffer.indexOf(query);
+      pushInput: function(input) {
+        var index = this.historyBuffer.indexOf(input);
         if (index > -1) this.historyBuffer.splice(index, 1);
-        if (query.length) this.historyBuffer.push(query);
+        if (input.length) this.historyBuffer.push(input);
       },
       reset: function() {
         this.initialPrefix = null;
@@ -1135,7 +1137,7 @@
         var originalQuery = getSearchState(cm).getQuery();
         var originalScrollPos = cm.getScrollInfo();
         function handleQuery(query, ignoreCase, smartCase) {
-          vimGlobalState.searchHistoryController.pushQuery(query);
+          vimGlobalState.searchHistoryController.pushInput(query);
           vimGlobalState.searchHistoryController.reset();
           try {
             updateSearchQuery(cm, query, ignoreCase, smartCase);
@@ -1184,7 +1186,7 @@
         function onPromptKeyDown(e, query, close) {
           var keyName = CodeMirror.keyName(e);
           if (keyName == 'Esc' || keyName == 'Ctrl-C' || keyName == 'Ctrl-[') {
-            vimGlobalState.searchHistoryController.pushQuery(query);
+            vimGlobalState.searchHistoryController.pushInput(query);
             vimGlobalState.searchHistoryController.reset();
             updateSearchQuery(cm, originalQuery);
             clearSearchHighlight(cm);
@@ -1246,14 +1248,26 @@
         function onPromptClose(input) {
           // Give the prompt some time to close so that if processCommand shows
           // an error, the elements don't overlap.
+          vimGlobalState.exCommandHistoryController.pushInput(input);
+          vimGlobalState.exCommandHistoryController.reset();
           exCommandDispatcher.processCommand(cm, input);
         }
-        function onPromptKeyDown(e, _input, close) {
-          var keyName = CodeMirror.keyName(e);
+        function onPromptKeyDown(e, input, close) {
+          var keyName = CodeMirror.keyName(e), up;
           if (keyName == 'Esc' || keyName == 'Ctrl-C' || keyName == 'Ctrl-[') {
+            vimGlobalState.exCommandHistoryController.pushInput(input);
+            vimGlobalState.exCommandHistoryController.reset();
             CodeMirror.e_stop(e);
             close();
             cm.focus();
+          }
+          if (keyName == 'Up' || keyName == 'Down') {
+            up = keyName == 'Up' ? true : false;
+            input = vimGlobalState.exCommandHistoryController.nextMatch(input, up) || '';
+            close(input);
+          } else {
+            if ( keyName != 'Left' && keyName != 'Right' && keyName != 'Ctrl' && keyName != 'Alt' && keyName != 'Shift')
+              vimGlobalState.exCommandHistoryController.reset();
           }
         }
         if (command.type == 'keyToEx') {
