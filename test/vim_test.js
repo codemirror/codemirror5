@@ -2176,6 +2176,44 @@ testVim('search_history', function(cm, vim, helpers) {
   onKeyUp({keyCode: keyCodes.Down}, query, close);
   eq(query, 'search');
 }, {value: ''});
+testVim('exCommand_history', function(cm, vim, helpers) {
+  cm.openDialog = helpers.fakeOpenDialog('registers');
+  helpers.doKeys(':');
+  cm.openDialog = helpers.fakeOpenDialog('sort');
+  helpers.doKeys(':');
+  cm.openDialog = helpers.fakeOpenDialog('map');
+  helpers.doKeys(':');
+  cm.openDialog = helpers.fakeOpenDialog('invalid');
+  helpers.doKeys(':');
+  var onKeyDown;
+  var onKeyUp;
+  var input = '';
+  var keyCodes = {
+    Up: 38,
+    Down: 40,
+    s: 115
+  };
+  cm.openDialog = function(template, callback, options) {
+    onKeyUp = options.onKeyUp;
+    onKeyDown = options.onKeyDown;
+  };
+  var close = function(newVal) {
+    if (typeof newVal == 'string') input = newVal;
+  }
+  helpers.doKeys(':');
+  onKeyDown({keyCode: keyCodes.Up}, input, close);
+  eq(input, 'invalid');
+  onKeyDown({keyCode: keyCodes.Up}, input, close);
+  eq(input, 'map');
+  onKeyDown({keyCode: keyCodes.Up}, input, close);
+  eq(input, 'sort');
+  onKeyDown({keyCode: keyCodes.Up}, input, close);
+  eq(input, 'registers');
+  onKeyDown({keyCode: keyCodes.s}, '', close);
+  input = 's';
+  onKeyDown({keyCode: keyCodes.Up}, input, close);
+  eq(input, 'sort');
+}, {value: ''});
 testVim('.', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('2', 'd', 'w');

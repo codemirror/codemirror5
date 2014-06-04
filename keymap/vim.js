@@ -639,7 +639,8 @@
         lastChararacterSearch: {increment:0, forward:true, selectedCharacter:''},
         registerController: new RegisterController({}),
         // search history buffers
-        searchHistoryController: new SearchHistoryController({})
+        searchHistoryController: new SearchHistoryController({}),
+        exCommandHistoryController: new ExCommandHistoryController({})
       };
       for (var optionName in options) {
         var option = options[optionName];
@@ -949,6 +950,42 @@
         this.iterator = this.historyBuffer.length;
       }
     };
+    function ExCommandHistoryController() {
+      this.historyBuffer = [];
+      this.iterator;
+      this.initialPrefix = null;
+    }
+    ExCommandHistoryController.prototype = {
+      // same logic as in search history controller
+      nextMatch: function (command, up) {
+        var historyBuffer = this.historyBuffer;
+        var dir = up ? -1 : 1;
+        if (this.initialPrefix === null) this.initialPrefix = command;
+        for (var i = this.iterator + dir; up ? i >= 0 : i < historyBuffer.length; i+= dir) {
+          var element = historyBuffer[i];
+          for (var j = 0; j <= element.length; j++) {
+            if (this.initialPrefix == element.substring(0, j)) {
+              this.iterator = i;
+              return element;
+            }
+          }
+        }
+        if (i >= historyBuffer.length) {
+          this.iterator = historyBuffer.length;
+          return this.initialPrefix;
+        }
+        if (i < 0 ) return command;
+      },
+      pushInput: function(command) {
+        var index = this.historyBuffer.indexOf(command);
+        if (index > -1) this.historyBuffer.splice(index, 1);
+        if (command.length) this.historyBuffer.push(command);
+      },
+      reset: function() {
+        this.initialPrefix = null;
+        this.iterator = this.historyBuffer.length;
+      }
+    };
     var commandDispatcher = {
       matchCommand: function(key, keyMap, vim) {
         var inputState = vim.inputState;
@@ -1246,14 +1283,26 @@
         function onPromptClose(input) {
           // Give the prompt some time to close so that if processCommand shows
           // an error, the elements don't overlap.
+          vimGlobalState.exCommandHistoryController.pushInput(input);
+          vimGlobalState.exCommandHistoryController.reset();
           exCommandDispatcher.processCommand(cm, input);
         }
-        function onPromptKeyDown(e, _input, close) {
-          var keyName = CodeMirror.keyName(e);
+        function onPromptKeyDown(e, input, close) {
+          var keyName = CodeMirror.keyName(e), up;
           if (keyName == 'Esc' || keyName == 'Ctrl-C' || keyName == 'Ctrl-[') {
+            vimGlobalState.exCommandHistoryController.pushInput(input);
+            vimGlobalState.exCommandHistoryController.reset();
             CodeMirror.e_stop(e);
             close();
             cm.focus();
+          }
+          if (keyName == 'Up' || keyName == 'Down') {
+            up = keyName == 'Up' ? true : false;
+            input = vimGlobalState.exCommandHistoryController.nextMatch(input, up) || '';
+            close(input);
+          } else {
+            if ( keyName != 'Left' && keyName != 'Right' && keyName != 'Ctrl' && keyName != 'Alt' && keyName != 'Shift')
+              vimGlobalState.exCommandHistoryController.reset();
           }
         }
         if (command.type == 'keyToEx') {
