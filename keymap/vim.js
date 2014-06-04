@@ -914,44 +914,30 @@
         this.historyBuffer = [];
         this.iterator;
         this.initialPrefix = null;
-        this.isUserInput = true;
     }
     SearchHistoryController.prototype = {
-      nextMatch: function (prefix, up) {
+      // the query argument here acts a user entered prefix for a small time
+      // until we start autocompletion in which case it is the autocompleted.
+      nextMatch: function (query, up) {
         var historyBuffer = this.historyBuffer;
         var dir = up ? -1 : 1;
-        if (this.iterator === undefined) this.iterator = historyBuffer.length;
-        if (!prefix.length) {
-          this.initialPrefix = null;
-          this.iterator = historyBuffer.length;
-          this.isUserInput = false;
-        }
-        if (this.isUserInput) {
-          if (!this.initialPrefix) this.initialPrefix = prefix;
-          for (var i = this.iterator + dir; up ? i >= 0 : i < historyBuffer.length; i+= dir) {
-            var element = historyBuffer[i];
-            for (var j = 0; j <= element.length; j++) {
-              if (this.initialPrefix == element.substring(0, j)) {
-                this.iterator = i;
-                return element;
-              }
+        if (this.initialPrefix === null) this.initialPrefix = query;
+        for (var i = this.iterator + dir; up ? i >= 0 : i < historyBuffer.length; i+= dir) {
+          var element = historyBuffer[i];
+          for (var j = 0; j <= element.length; j++) {
+            if (this.initialPrefix == element.substring(0, j)) {
+              this.iterator = i;
+              return element;
             }
           }
-          // should return the user input in case we reach the end of buffer.
-          if (i >= historyBuffer.length) {
-            this.iterator = historyBuffer.length;
-            return this.initialPrefix;
-          }
-          // return the last autocompleted query as it is.
-          if (i < 0 ) return prefix;
-        } else {
-          if (up) {
-            this.iterator+= this.iterator  > 0 ? -1 : 0;
-          } else {
-            this.iterator+= this.iterator < historyBuffer.length ? 1 : 0;
-          }
-          return historyBuffer[this.iterator];
         }
+        // should return the user input in case we reach the end of buffer.
+        if (i >= historyBuffer.length) {
+          this.iterator = historyBuffer.length;
+          return this.initialPrefix;
+        }
+        // return the last autocompleted query as it is.
+        if (i < 0 ) return query;
       },
       pushQuery: function(query) {
         var index = this.historyBuffer.indexOf(query);
@@ -961,7 +947,6 @@
       reset: function() {
         this.initialPrefix = null;
         this.iterator = this.historyBuffer.length;
-        this.isUserInput = true;
       }
     };
     var commandDispatcher = {
@@ -1179,7 +1164,8 @@
             query = vimGlobalState.searchHistoryController.nextMatch(query, up) || '';
             close(query);
           } else {
-            vimGlobalState.searchHistoryController.reset();
+            if ( keyName != 'Left' && keyName != 'Right' && keyName != 'Ctrl' && keyName != 'Alt' && keyName != 'Shift')
+              vimGlobalState.searchHistoryController.reset();
           }
           var parsedQuery;
           try {
