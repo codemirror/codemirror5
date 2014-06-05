@@ -1409,21 +1409,23 @@ testCM("lineWidgetCautiousRedraw", function(cm) {
 
 testCM("lineWidgetChanged", function(cm) {
   addDoc(cm, 2, 300);
-  cm.setSize(null, cm.defaultTextHeight() * 50);
+  cm.setOption('lineNumbers', true);
+  cm.setSize(600, cm.defaultTextHeight() * 50);
   cm.scrollTo(null, cm.heightAtLine(125, "local"));
   function w() {
     var node = document.createElement("div");
-    node.style.cssText = "background: yellow; height: 50px;";
+    node.style.cssText = "background: yellow;line-height: 50px;";
+    node.innerHTML = new Array(3).join('<div style="display: inline-block; height: 1px; width: 275px;"></div>');
     return node;
   }
   var info0 = cm.getScrollInfo();
-  var w0 = cm.addLineWidget(0, w());
-  var w150 = cm.addLineWidget(150, w());
-  var w300 = cm.addLineWidget(300, w());
+  var w0 = cm.addLineWidget(0, w(), { coverGutter: true });
+  var w150 = cm.addLineWidget(150, w(), { coverGutter: true });
+  var w300 = cm.addLineWidget(300, w(), { coverGutter: true });
   var info1 = cm.getScrollInfo();
   eq(info0.height + 150, info1.height);
   eq(info0.top + 50, info1.top);
-  w0.node.style.height = w150.node.style.height = w300.node.style.height = "10px";
+  w0.node.style.lineHeight = w150.node.style.lineHeight = w300.node.style.lineHeight = "10px";
   w0.changed(); w150.changed(); w300.changed();
   var info2 = cm.getScrollInfo();
   eq(info0.height + 30, info2.height);
