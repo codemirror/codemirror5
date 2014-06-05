@@ -2835,7 +2835,12 @@ testVim('ex_sort_decimal_mixed_reverse', function(cm, vim, helpers) {
   helpers.doEx('sort! d');
   eq('a3\nb2\nc1\nz\ny', cm.getValue());
 }, { value: 'a3\nz\nc1\ny\nb2'});
-
+// test for :global command
+testVim('ex_global', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doEx('g/one/s//two');
+  eq('two two\n two two', cm.getValue());
+}, {value: 'one one\n one one'});
 // Basic substitute tests.
 testVim('ex_substitute_same_line', function(cm, vim, helpers) {
   cm.setCursor(1, 0);

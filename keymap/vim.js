@@ -3394,10 +3394,13 @@
       { name: 'substitute', shortName: 's' },
       { name: 'nohlsearch', shortName: 'noh' },
       { name: 'delmarks', shortName: 'delm' },
-      { name: 'registers', shortName: 'reg', excludeFromCommandHistory: true }
+      { name: 'registers', shortName: 'reg', excludeFromCommandHistory: true },
+      { name: 'global', shortName: 'g' }
     ];
     Vim.ExCommandDispatcher = function() {
       this.buildCommandMap_();
+      // range specified by :g command
+      this.range = null;
     };
     Vim.ExCommandDispatcher.prototype = {
       processCommand: function(cm, input) {
@@ -3802,11 +3805,83 @@
         }
         cm.replaceRange(text.join('\n'), curStart, curEnd);
       },
+      global: function(cm, params) {
+        // a global ex command is of the form :[range]g/pattern/[cmd]
+        if (!cm.getSearchCursor) {
+          throw new Error('Search feature not available. Requires searchcursor.js or ' +
+              'any other getSearchCursor implementation.');
+        }
+        if (this.range) {
+          showConfirm(cm, 'Cannot call global recursive!');
+          this.range = null;
+          return;
+        }
+        // set to true if no cmd is specified or no slash at the first position in the argString
+        var onlyQuery = true;
+        var lineStart = (params.line !== undefined) ? params.line : cm.firstLine();
+        var lineEnd = params.lineEnd || cm.lastLine();
+        var argString = params.argString;
+        if (!argString) {
+          showConfirm (cm, 'Regular expression missing from global');
+          return;
+        }
+        var slashes = findUnescapedSlashes(argString);
+        var cmd;
+        var regexPart = '';
+        if (slashes.length) {
+          if (slashes[0] == 0) {
+            regexPart = argString.substring(slashes[0] + 1, slashes[1]);
+          } else {
+            regexPart = argString.substring(2, argString.length);
+          }
+          if (slashes[1]) {
+            cmd = slashes[0] == 0 ? argString.substring(slashes[1] + 1, argString.length) : cmd;
+          }
+          if (cmd) onlyQuery = false;
+        } else {
+          regexPart = argString.substring(2, argString.length);
+        }
+        if (regexPart) {
+          try {
+            updateSearchQuery(cm, regexPart, true /** ignoreCase */,
+              true /** smartCase */);
+          } catch (e) {
+            showConfirm(cm, 'Invalid regex: ' + regexPart);
+            return;
+          }
+        }
+        var state = getSearchState(cm);
+        var query = state.getQuery();
+        if (onlyQuery) {
+          var startPos = clipCursorToContent(cm, Pos(lineStart, 0));
+          var cursor = cm.getSearchCursor(query, startPos);
+          var content = '';
+          var done = false;
+          while(!done) {
+            if (!cursor.findNext()) {
+              done = true;
+            } else if (isInRange(cursor.from(), lineStart, lineEnd)) {
+              content+= cm.getLine(cursor.from().line) + '<br>';
+              done = false;
+            } else {
+              done = true;
+            }
+          }
+          if (done) {
+            showConfirm(cm, content.length ? content : 'no matches for ' + query.source);
+            return;
+          }
+        }
+        this.range = {lineStart: lineStart, lineEnd: lineEnd};
+        exCommandDispatcher.processCommand(cm, cmd);
+      },
       substitute: function(cm, params) {
         if (!cm.getSearchCursor) {
           throw new Error('Search feature not available. Requires searchcursor.js or ' +
               'any other getSearchCursor implementation.');
         }
+        // range specified by the :global command
+        var range = this.range;
         var argString = params.argString;
         var slashes = argString ? findUnescapedSlashes(argString) : [];
         var replacePart = '';
@@ -3862,8 +3937,15 @@
         }
         var state = getSearchState(cm);
         var query = state.getQuery();
-        var lineStart = (params.line !== undefined) ? params.line : cm.getCursor().line;
-        var lineEnd = params.lineEnd || lineStart;
+        var lineStart, lineEnd;
+        lineStart = lineEnd = cm.getCursor().line;
+        if (params.line !== undefined) {
+          lineStart = params.line;
+          lineEnd = params.lineEnd || lineStart;
+        } else if (range) {
+          lineStart = range.lineStart;
+          lineEnd = range.lineEnd;
+        }
         if (count) {
           lineStart = lineEnd;
           lineEnd = lineStart + count - 1;
@@ -3871,6 +3953,7 @@
         var startPos = clipCursorToContent(cm, Pos(lineStart, 0));
         var cursor = cm.getSearchCursor(query, startPos);
         doReplace(cm, confirm, lineStart, lineEnd, cursor, query, replacePart);
+        this.range = null;
       },
       redo: CodeMirror.commands.redo,
       undo: CodeMirror.commands.undo,
