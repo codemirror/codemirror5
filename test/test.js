@@ -1407,27 +1407,79 @@ testCM("lineWidgetCautiousRedraw", function(cm) {
   is(!redrawn);
 }, {value: "123\n456"});
 
+
+var knownScrollbarWidth;
+function scrollbarWidth(measure) {
+  if (knownScrollbarWidth != null) return knownScrollbarWidth;
+  var div = document.createElement('div');
+  div.style.cssText = "width: 50px; height: 50px; overflow-x: scroll";
+  document.body.appendChild(div);
+  knownScrollbarWidth = div.offsetHeight - div.clientHeight;
+  document.body.removeChild(div);
+  return knownScrollbarWidth || 0;
+}
+
 testCM("lineWidgetChanged", function(cm) {
   addDoc(cm, 2, 300);
-  cm.setSize(null, cm.defaultTextHeight() * 50);
+  var halfScrollbarWidth = scrollbarWidth(cm.display.measure)/2;
+  cm.setOption('lineNumbers', true);
+  cm.setSize(600, cm.defaultTextHeight() * 50);
   cm.scrollTo(null, cm.heightAtLine(125, "local"));
+
+  var expectedWidgetHeight = 60;
+  var expectedLinesInWidget = 3;
   function w() {
     var node = document.createElement("div");
-    node.style.cssText = "background: yellow; height: 50px;";
+    // we use these children with just under half width of the line to check measurements are made with correct width
+    // when placed in the measure div.
+    // If the widget is measured at a width much narrower than it is displayed at, the underHalf children will span two lines and break the test.
+    // If the widget is measured at a width much wider than it is displayed at, the overHalf children will combine and break the test.
+    // Note that this test only checks widgets where coverGutter is true, because these require extra styling to get the width right.
+    // It may also be worthwhile to check this for non-coverGutter widgets.
+    // Visually:
+    // Good:
+    // | ------------- display width ------------- |
+    // | ------- widget-width when measured ------ |
+    // | | -- under-half -- | | -- under-half -- | | 
+    // | | --- over-half --- |                     |
+    // | | --- over-half --- |                     |
+    // Height: measured as 3 lines, same as it will be when actually displayed
+
+    // Bad (too narrow):
+    // | ------------- display width ------------- |
+    // | ------ widget-width when measured ----- |  < -- uh oh
+    // | | -- under-half -- |                    |
+    // | | -- under-half -- |                    |  < -- when measured, shoved to next line
+    // | | --- over-half --- |                   |
+    // | | --- over-half --- |                   |
+    // Height: measured as 4 lines, more than expected . Will be displayed as 3 lines!
+
+    // Bad (too wide):
+    // | ------------- display width ------------- |
+    // | -------- widget-width when measured ------- | < -- uh oh
+    // | | -- under-half -- | | -- under-half -- |   | 
+    // | | --- over-half --- | | --- over-half --- | | < -- when measured, combined on one line
+    // Height: measured as 2 lines, less than expected. Will be displayed as 3 lines!
+
+    var barelyUnderHalfWidthHtml = '<div style="display: inline-block; height: 1px; width: '+(285 - halfScrollbarWidth)+'px;"></div>';
+    var barelyOverHalfWidthHtml = '<div style="display: inline-block; height: 1px; width: '+(305 - halfScrollbarWidth)+'px;"></div>';
+    node.innerHTML = new Array(3).join(barelyUnderHalfWidthHtml) + new Array(3).join(barelyOverHalfWidthHtml);
+    node.style.cssText = "background: yellow;font-size:0;line-height: " + (expectedWidgetHeight/expectedLinesInWidget) + "px;";
     return node;
   }
   var info0 = cm.getScrollInfo();
-  var w0 = cm.addLineWidget(0, w());
-  var w150 = cm.addLineWidget(150, w());
-  var w300 = cm.addLineWidget(300, w());
+  var w0 = cm.addLineWidget(0, w(), { coverGutter: true });
+  var w150 = cm.addLineWidget(150, w(), { coverGutter: true });
+  var w300 = cm.addLineWidget(300, w(), { coverGutter: true });
   var info1 = cm.getScrollInfo();
-  eq(info0.height + 150, info1.height);
-  eq(info0.top + 50, info1.top);
-  w0.node.style.height = w150.node.style.height = w300.node.style.height = "10px";
+  eq(info0.height + (3 * expectedWidgetHeight), info1.height);
+  eq(info0.top + expectedWidgetHeight, info1.top);
+  expectedWidgetHeight = 12;
+  w0.node.style.lineHeight = w150.node.style.lineHeight = w300.node.style.lineHeight = (expectedWidgetHeight/expectedLinesInWidget) + "px";
   w0.changed(); w150.changed(); w300.changed();
   var info2 = cm.getScrollInfo();
-  eq(info0.height + 30, info2.height);
-  eq(info0.top + 10, info2.top);
+  eq(info0.height + (3 * expectedWidgetHeight), info2.height);
+  eq(info0.top + expectedWidgetHeight, info2.top);
 });
 
 testCM("getLineNumber", function(cm) {
