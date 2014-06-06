@@ -3874,6 +3874,8 @@
           trailing = tokens[2] ? tokens[2].split(' ') : [];
         } else {
           // either the argString is empty or its of the form ' hello/world'
+          // actually splitBySlash returns a list of tokens
+          // only if the string starts with a '/'
           if (argString && argString.length) {
             showConfirm(cm, 'Substitutions should be of the form ' +
                 ':s/pattern/replace/');
