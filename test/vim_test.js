@@ -2839,8 +2839,10 @@ testVim('ex_sort_decimal_mixed_reverse', function(cm, vim, helpers) {
 testVim('ex_global', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doEx('g/one/s//two');
-  eq('two two\n two two', cm.getValue());
-}, {value: 'one one\n one one'});
+  eq('two two\n two two\n two two', cm.getValue());
+  helpers.doEx('1,2g/two/s//one');
+  eq('one one\n one one\n two two', cm.getValue());
+}, {value: 'one one\n one one\n one one'});
 // Basic substitute tests.
 testVim('ex_substitute_same_line', function(cm, vim, helpers) {
   cm.setCursor(1, 0);

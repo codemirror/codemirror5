@@ -3055,6 +3055,18 @@
         onClose(prompt(shortText, ''));
       }
     }
+    function splitBySlash(argString) {
+      var slashes = findUnescapedSlashes(argString) || [];
+      if (!slashes.length) return [];
+      var tokens = [];
+      // in case of strings like foo/bar
+      if (slashes[0] !== 0) return;
+      for (var i = 0; i < slashes.length; i++) {
+        if (typeof slashes[i] == 'number')
+          tokens.push(argString.substring(slashes[i] + 1, slashes[i+1]));
+      }
+      return tokens;
+    }
 
     function findUnescapedSlashes(str) {
       var escapeNextChar = false;
@@ -3399,8 +3411,6 @@
     ];
     Vim.ExCommandDispatcher = function() {
       this.buildCommandMap_();
-      // range specified by :g command
-      this.range = null;
     };
     Vim.ExCommandDispatcher.prototype = {
       processCommand: function(cm, input) {
@@ -3806,97 +3816,68 @@
         cm.replaceRange(text.join('\n'), curStart, curEnd);
       },
       global: function(cm, params) {
-        // a global ex command is of the form :[range]g/pattern/[cmd]
-        if (!cm.getSearchCursor) {
-          throw new Error('Search feature not available. Requires searchcursor.js or ' +
-              'any other getSearchCursor implementation.');
-        }
-        if (this.range) {
-          showConfirm(cm, 'Cannot call global recursive!');
-          this.range = null;
-          return;
-        }
-        // set to true if no cmd is specified or no slash at the first position in the argString
-        var onlyQuery = true;
-        var lineStart = (params.line !== undefined) ? params.line : cm.firstLine();
-        var lineEnd = params.lineEnd || cm.lastLine();
+        // a global command is of the form
+        // :[range]g/pattern/[cmd]
+        // argString holds the string /pattern/[cmd]
         var argString = params.argString;
         if (!argString) {
-          showConfirm (cm, 'Regular expression missing from global');
+          showConfirm(cm, 'Regular Expression missing from global');
           return;
         }
-        var slashes = findUnescapedSlashes(argString);
-        var cmd;
-        var regexPart = '';
-        if (slashes.length) {
-          if (slashes[0] == 0) {
-            regexPart = argString.substring(slashes[0] + 1, slashes[1]);
-          } else {
-            regexPart = argString.substring(2, argString.length);
-          }
-          if (slashes[1]) {
-            cmd = slashes[0] == 0 ? argString.substring(slashes[1] + 1, argString.length) : cmd;
-          }
-          if (cmd) onlyQuery = false;
-        } else {
-          regexPart = argString.substring(2, argString.length);
+        // range is specified here
+        var lineStart = (params.line !== undefined) ? params.line : cm.firstLine();
+        var lineEnd = params.lineEnd || params.line || cm.lastLine();
+        // get the tokens from argString
+        var tokens = splitBySlash(argString);
+        var regexPart = argString, cmd;
+        if (tokens.length) {
+          regexPart = tokens[0];
+          cmd = tokens.slice(1, tokens.length).join('/');
         }
         if (regexPart) {
+        // If regex part is empty, then use the previous query. Otherwise use
+        // the regex part as the new query.
           try {
-            updateSearchQuery(cm, regexPart, true /** ignoreCase */,
-              true /** smartCase */);
+           updateSearchQuery(cm, regexPart, true /** ignoreCase */,
+             true /** smartCase */);
           } catch (e) {
-            showConfirm(cm, 'Invalid regex: ' + regexPart);
-            return;
+           showConfirm(cm, 'Invalid regex: ' + regexPart);
+           return;
           }
         }
-        var state = getSearchState(cm);
-        var query = state.getQuery();
-        if (onlyQuery) {
-          var startPos = clipCursorToContent(cm, Pos(lineStart, 0));
-          var cursor = cm.getSearchCursor(query, startPos);
-          var content = '';
-          var done = false;
-          while(!done) {
-            if (!cursor.findNext()) {
-              done = true;
-            } else if (isInRange(cursor.from(), lineStart, lineEnd)) {
-              content+= cm.getLine(cursor.from().line) + '<br>';
-              done = false;
-            } else {
-              done = true;
-            }
-          }
-          if (done) {
-            showConfirm(cm, content.length ? content : 'no matches for ' + query.source);
-            return;
+        // now that we have the regexPart, search for regex matches in the specified range of lines
+        var query = getSearchState(cm).getQuery();
+        var matchedLines = [], content = '';
+        for (var i = lineStart; i <= lineEnd; i++) {
+          var matched = query.test(cm.getLine(i));
+          if (matched) {
+            matchedLines.push(i+1);
+            content+= cm.getLine(i) + '<br>';
           }
         }
-        this.range = {lineStart: lineStart, lineEnd: lineEnd};
-        exCommandDispatcher.processCommand(cm, cmd);
+        // if there is no [cmd], just display the list of matched lines
+        if (!cmd) {
+          showConfirm(cm, content);
+          return;
+        }
+        for (var i = 0; i < matchedLines.length ; i++) {
+          var command = matchedLines[i] + cmd;
+          exCommandDispatcher.processCommand(cm, command);
+        }
       },
       substitute: function(cm, params) {
         if (!cm.getSearchCursor) {
           throw new Error('Search feature not available. Requires searchcursor.js or ' +
               'any other getSearchCursor implementation.');
         }
-        // range specified by the :global command
-        var range = this.range;
         var argString = params.argString;
-        var slashes = argString ? findUnescapedSlashes(argString) : [];
-        var replacePart = '';
-        if (slashes.length) {
-          if (slashes[0] !== 0) {
-            showConfirm(cm, 'Substitutions should be of the form ' +
-                ':s/pattern/replace/');
-            return;
-          }
-          var regexPart = argString.substring(slashes[0] + 1, slashes[1]);
-          var flagsPart;
-          var count;
-          var confirm = false; // Whether to confirm each replace.
-          if (slashes[1]) {
-            replacePart = argString.substring(slashes[1] + 1, slashes[2]);
+        var tokens = argString ? splitBySlash(argString) : [];
+        var regexPart, replacePart = '', trailing, flagsPart, count;
+        var confirm = false; // Whether to confirm each replace.
+        if (tokens.length) {
+          regexPart = tokens[0];
+          replacePart = tokens[1];
+          if (replacePart !== undefined) {
             if (getOption('pcre')) {
               replacePart = unescapeRegexReplace(replacePart);
             } else {
@@ -3904,13 +3885,22 @@
             }
             vimGlobalState.lastSubstituteReplacePart = replacePart;
           }
-          if (slashes[2]) {
-            // After the 3rd slash, we can have flags followed by a space followed
-            // by count.
-            var trailing = argString.substring(slashes[2] + 1).split(' ');
-            flagsPart = trailing[0];
-            count = parseInt(trailing[1]);
+          trailing = tokens[2] ? tokens[2].split(' ') : [];
+        } else {
+          // either the argString is empty or its of the form ' hello/world'
+          // actually splitBySlash returns a list of tokens
+          // only if the string starts with a '/'
+          if (argString && argString.length) {
+            showConfirm(cm, 'Substitutions should be of the form ' +
+                ':s/pattern/replace/');
+            return;
           }
+        }
+        // After the 3rd slash, we can have flags followed by a space followed
+        // by count.
+        if (trailing) {
+          flagsPart = trailing[0];
+          count = parseInt(trailing[1]);
           if (flagsPart) {
             if (flagsPart.indexOf('c') != -1) {
               confirm = true;
@@ -3937,15 +3927,8 @@
         }
         var state = getSearchState(cm);
         var query = state.getQuery();
-        var lineStart, lineEnd;
-        lineStart = lineEnd = cm.getCursor().line;
-        if (params.line !== undefined) {
-          lineStart = params.line;
-          lineEnd = params.lineEnd || lineStart;
-        } else if (range) {
-          lineStart = range.lineStart;
-          lineEnd = range.lineEnd;
-        }
+        var lineStart = (params.line !== undefined) ? params.line : cm.getCursor().line;
+        var lineEnd = params.lineEnd || lineStart;
         if (count) {
           lineStart = lineEnd;
           lineEnd = lineStart + count - 1;
@@ -3953,7 +3936,6 @@
         var startPos = clipCursorToContent(cm, Pos(lineStart, 0));
         var cursor = cm.getSearchCursor(query, startPos);
         doReplace(cm, confirm, lineStart, lineEnd, cursor, query, replacePart);
-        this.range = null;
       },
       redo: CodeMirror.commands.redo,
       undo: CodeMirror.commands.undo,
