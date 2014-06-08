@@ -343,7 +343,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == "catch") return cont(pushlex("form"), pushcontext, expect("("), funarg, expect(")"),
                                      statement, poplex, popcontext);
     if (type == "module") return cont(pushlex("form"), pushcontext, afterModule, popcontext, poplex);
-    if (type == "class") return cont(pushlex("form"), className, objlit, poplex);
+    if (type == "class") return cont(pushlex("form"), className, poplex);
     if (type == "export") return cont(pushlex("form"), afterExport, poplex);
     if (type == "import") return cont(pushlex("form"), afterImport, poplex);
     return pass(pushlex("stat"), expression, expect(";"), poplex);
@@ -540,11 +540,27 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   function className(type, value) {
     if (type == "variable") {register(value); return cont(classNameAfter);}
   }
-  function classNameAfter(_type, value) {
-    if (value == "extends") return cont(expression);
+  function classNameAfter(type, value) {
+    if (value == "extends") return cont(expression, classNameAfter);
+    if (type == "{") return cont(pushlex("}"), classBody, poplex);
   }
-  function objlit(type) {
-    if (type == "{") return contCommasep(objprop, "}");
+  function classBody(type, value) {
+    if (type == "variable" || cx.style == "keyword") {
+      cx.marked = "property";
+      if (value == "get" || value == "set") return cont(classGetterSetter, functiondef, classBody);
+      return cont(functiondef, classBody);
+    }
+    if (value == "*") {
+      cx.marked = "keyword";
+      return cont(classBody);
+    }
+    if (type == ";") return cont(classBody);
+    if (type == "}") return cont();
+  }
+  function classGetterSetter(type) {
+    if (type != "variable") return pass();
+    cx.marked = "property";
+    return cont();
   }
   function afterModule(type, value) {
     if (type == "string") return cont(statement);

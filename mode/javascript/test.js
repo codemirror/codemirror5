@@ -17,9 +17,17 @@
      "  [[[variable-2 c], [variable y] ]] [operator =] [variable-2 c];",
      "})();");
 
+  MT("class_body",
+     "[keyword class] [variable Foo] {",
+     "  [property constructor]() {}",
+     "  [property sayName]() {",
+     "    [keyword return] [string-2 `foo${][variable foo][string-2 }oo`];",
+     "  }",
+     "}");
+
   MT("class",
      "[keyword class] [variable Point] [keyword extends] [variable SuperThing] {",
-     "  [[ [string-2 /expr/] ]]: [number 24],",
+     "  [property get] [property prop]() { [keyword return] [number 24]; }",
      "  [property constructor]([def x], [def y]) {",
      "    [keyword super]([string 'something']);",
      "    [keyword this].[property x] [operator =] [variable-2 x];",
