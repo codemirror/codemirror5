@@ -3413,7 +3413,7 @@
       this.buildCommandMap_();
     };
     Vim.ExCommandDispatcher.prototype = {
-      processCommand: function(cm, input) {
+      processCommand: function(cm, input, opt_params) {
         var vim = cm.state.vim;
         var commandHistoryRegister = vimGlobalState.registerController.getRegister(':');
         var previousCommand = commandHistoryRegister.toString();
@@ -3423,7 +3423,7 @@
         var inputStream = new CodeMirror.StringStream(input);
         // update ": with the latest command whether valid or invalid
         commandHistoryRegister.setText(input);
-        var params = {};
+        var params = opt_params || {};
         params.input = input;
         try {
           this.parseInput_(cm, inputStream, params);
@@ -3835,8 +3835,8 @@
           cmd = tokens.slice(1, tokens.length).join('/');
         }
         if (regexPart) {
-        // If regex part is empty, then use the previous query. Otherwise use
-        // the regex part as the new query.
+          // If regex part is empty, then use the previous query. Otherwise
+          // use the regex part as the new query.
           try {
            updateSearchQuery(cm, regexPart, true /** ignoreCase */,
              true /** smartCase */);
@@ -3845,7 +3845,8 @@
            return;
           }
         }
-        // now that we have the regexPart, search for regex matches in the specified range of lines
+        // now that we have the regexPart, search for regex matches in the
+        // specified range of lines
         var query = getSearchState(cm).getQuery();
         var matchedLines = [], content = '';
         for (var i = lineStart; i <= lineEnd; i++) {
@@ -3860,10 +3861,17 @@
           showConfirm(cm, content);
           return;
         }
-        for (var i = 0; i < matchedLines.length ; i++) {
-          var command = matchedLines[i] + cmd;
-          exCommandDispatcher.processCommand(cm, command);
-        }
+        var index = 0;
+        var nextCommand = function() {
+          if (index < matchedLines.length) {
+            var command = matchedLines[index] + cmd;
+            exCommandDispatcher.processCommand(cm, command, {
+              callback: nextCommand
+            });
+          }
+          index++;
+        };
+        nextCommand();
       },
       substitute: function(cm, params) {
         if (!cm.getSearchCursor) {
@@ -3935,7 +3943,7 @@
         }
         var startPos = clipCursorToContent(cm, Pos(lineStart, 0));
         var cursor = cm.getSearchCursor(query, startPos);
-        doReplace(cm, confirm, lineStart, lineEnd, cursor, query, replacePart);
+        doReplace(cm, confirm, lineStart, lineEnd, cursor, query, replacePart, params.callback);
       },
       redo: CodeMirror.commands.redo,
       undo: CodeMirror.commands.undo,
@@ -4024,9 +4032,10 @@
     * @param {RegExp} query Query for performing matches with.
     * @param {string} replaceWith Text to replace matches with. May contain $1,
     *     $2, etc for replacing captured groups using Javascript replace.
+    * @param {function()} callback A callback for when the replace is done.
     */
     function doReplace(cm, confirm, lineStart, lineEnd, searchCursor, query,
-        replaceWith) {
+        replaceWith, callback) {
       // Set up all the functions.
       cm.state.vim.exMode = true;
       var done = false;
@@ -4067,6 +4076,7 @@
           vim.exMode = false;
           vim.lastHPos = vim.lastHSPos = lastPos.ch;
         }
+        if (callback) { callback(); };
       }
       function onPromptKeyDown(e, _value, close) {
         // Swallow all keys.
@@ -4078,7 +4088,13 @@
           case 'N':
             next(); break;
           case 'A':
-            cm.operation(replaceAll); break;
+            // replaceAll contains a call to close of its own. We don't want it
+            // to fire too early or multiple times.
+            var savedCallback = callback;
+            callback = undefined;
+            cm.operation(replaceAll);
+            callback = savedCallback;
+            break;
           case 'L':
             replace();
             // fall through and exit.
@@ -4100,6 +4116,7 @@
       }
       if (!confirm) {
         replaceAll();
+        if (callback) { callback(); };
         return;
       }
       showPrompt(cm, {

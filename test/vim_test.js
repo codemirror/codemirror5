@@ -2843,6 +2843,33 @@ testVim('ex_global', function(cm, vim, helpers) {
   helpers.doEx('1,2g/two/s//one');
   eq('one one\n one one\n two two', cm.getValue());
 }, {value: 'one one\n one one\n one one'});
+testVim('ex_global_confirm', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  var onKeyDown;
+  var openDialogSave = cm.openDialog;
+  var KEYCODES = {
+    a: 65,
+    n: 78,
+    q: 81,
+    y: 89
+  };
+  // Intercept the ex command, 'global'
+  cm.openDialog = function(template, callback, options) {
+    // Intercept the prompt for the embedded ex command, 'substitute'
+    cm.openDialog = function(template, callback, options) {
+      onKeyDown = options.onKeyDown;
+    };
+    callback('g/one/s//two/gc');
+  };
+  helpers.doKeys(':');
+  var close = function() {};
+  onKeyDown({keyCode: KEYCODES.n}, '', close);
+  onKeyDown({keyCode: KEYCODES.y}, '', close);
+  onKeyDown({keyCode: KEYCODES.a}, '', close);
+  onKeyDown({keyCode: KEYCODES.q}, '', close);
+  onKeyDown({keyCode: KEYCODES.y}, '', close);
+  eq('one two\n two two\n one one\n two one\n one one', cm.getValue());
+}, {value: 'one one\n one one\n one one\n one one\n one one'});
 // Basic substitute tests.
 testVim('ex_substitute_same_line', function(cm, vim, helpers) {
   cm.setCursor(1, 0);
