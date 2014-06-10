@@ -3403,7 +3403,7 @@
       { name: 'redo', shortName: 'red' },
       { name: 'set', shortName: 'set' },
       { name: 'sort', shortName: 'sor' },
-      { name: 'substitute', shortName: 's' },
+      { name: 'substitute', shortName: 's', possiblyAsync: true },
       { name: 'nohlsearch', shortName: 'noh' },
       { name: 'delmarks', shortName: 'delm' },
       { name: 'registers', shortName: 'reg', excludeFromCommandHistory: true },
@@ -3431,6 +3431,7 @@
           showConfirm(cm, e);
           throw e;
         }
+        var command;
         var commandName;
         if (!params.commandName) {
           // If only a line range is defined, move to the line.
@@ -3438,7 +3439,7 @@
             commandName = 'move';
           }
         } else {
-          var command = this.matchCommand_(params.commandName);
+          command = this.matchCommand_(params.commandName);
           if (command) {
             commandName = command.name;
             if (command.excludeFromCommandHistory) {
@@ -3464,6 +3465,12 @@
         }
         try {
           exCommands[commandName](cm, params);
+          // Possibly asynchronous commands (e.g. substitute, which might have a
+          // user confirmation), are responsible for calling the callback when
+          // done. All others have it taken care of for them here.
+          if ((!command || !command.possiblyAsync) && params.callback) {
+            params.callback();
+          }
         } catch(e) {
           showConfirm(cm, e);
           throw e;
