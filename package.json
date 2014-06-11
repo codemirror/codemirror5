@@ -16,5 +16,15 @@
                     "email": "marijnh@gmail.com",
                     "web": "http://marijnhaverbeke.nl"}],
     "repository": {"type": "git",
-                   "url": "https://github.com/marijnh/CodeMirror.git"}
+                   "url": "https://github.com/marijnh/CodeMirror.git"},
+    "spm": {
+        "main": "lib/codemirror.js",
+        "output": ["lib/codemirror.css"],
+        "ignore": [
+          "bin",
+          "demo",
+          "doc",
+          "test"
+        ]
+    }
 }
