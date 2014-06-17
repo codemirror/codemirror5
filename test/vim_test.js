@@ -2859,7 +2859,7 @@ testVim('ex_global_confirm', function(cm, vim, helpers) {
     cm.openDialog = function(template, callback, options) {
       onKeyDown = options.onKeyDown;
     };
-    callback('g/one/s//two/c');
+    callback('g/one/s//two/gc');
   };
   helpers.doKeys(':');
   var close = function() {};
@@ -2873,24 +2873,24 @@ testVim('ex_global_confirm', function(cm, vim, helpers) {
 // Basic substitute tests.
 testVim('ex_substitute_same_line', function(cm, vim, helpers) {
   cm.setCursor(1, 0);
-  helpers.doEx('s/one/two');
+  helpers.doEx('s/one/two/g');
   eq('one one\n two two', cm.getValue());
 }, { value: 'one one\n one one'});
-testVim('ex_substitute_global', function(cm, vim, helpers) {
+testVim('ex_substitute_full_file', function(cm, vim, helpers) {
   cm.setCursor(1, 0);
-  helpers.doEx('%s/one/two');
+  helpers.doEx('%s/one/two/g');
   eq('two two\n two two', cm.getValue());
 }, { value: 'one one\n one one'});
 testVim('ex_substitute_input_range', function(cm, vim, helpers) {
   cm.setCursor(1, 0);
-  helpers.doEx('1,3s/\\d/0');
+  helpers.doEx('1,3s/\\d/0/g');
   eq('0\n0\n0\n4', cm.getValue());
 }, { value: '1\n2\n3\n4' });
 testVim('ex_substitute_visual_range', function(cm, vim, helpers) {
   cm.setCursor(1, 0);
   // Set last visual mode selection marks '< and '> at lines 2 and 4
   helpers.doKeys('V', '2', 'j', 'v');
-  helpers.doEx('\'<,\'>s/\\d/0');
+  helpers.doEx('\'<,\'>s/\\d/0/g');
   eq('1\n0\n0\n0\n5', cm.getValue());
 }, { value: '1\n2\n3\n4\n5' });
 testVim('ex_substitute_empty_query', function(cm, vim, helpers) {
@@ -2898,7 +2898,7 @@ testVim('ex_substitute_empty_query', function(cm, vim, helpers) {
   cm.setCursor(1, 0);
   cm.openDialog = helpers.fakeOpenDialog('1');
   helpers.doKeys('/');
-  helpers.doEx('s//b');
+  helpers.doEx('s//b/g');
   eq('abb ab2 ab3', cm.getValue());
 }, { value: 'a11 a12 a13' });
 testVim('ex_substitute_javascript', function(cm, vim, helpers) {
@@ -2906,15 +2906,15 @@ testVim('ex_substitute_javascript', function(cm, vim, helpers) {
   cm.setCursor(1, 0);
   // Throw all the things that javascript likes to treat as special values
   // into the replace part. All should be literal (this is VIM).
-  helpers.doEx('s/\\(\\d+\\)/$$ $\' $` $& \\1/')
+  helpers.doEx('s/\\(\\d+\\)/$$ $\' $` $& \\1/g')
   eq('a $$ $\' $` $& 0 b', cm.getValue());
 }, { value: 'a 0 b' });
 testVim('ex_substitute_empty_arguments', function(cm,vim,helpers) {
   cm.setCursor(0, 0);
-  helpers.doEx('s/a/b');
+  helpers.doEx('s/a/b/g');
   cm.setCursor(1, 0);
   helpers.doEx('s');
-  eq('b b\nb b', cm.getValue());
+  eq('b b\nb a', cm.getValue());
 }, {value: 'a a\na a'});
 
 // More complex substitute tests that test both pcre and nopcre options.
@@ -2938,24 +2938,24 @@ testSubstitute('ex_substitute_capture', {
   value: 'a11 a12 a13',
   expectedValue: 'a1111 a1212 a1313',
   // $n is a backreference
-  expr: 's/(\\d+)/$1$1/',
+  expr: 's/(\\d+)/$1$1/g',
   // \n is a backreference.
-  noPcreExpr: 's/\\(\\d+\\)/\\1\\1/'});
+  noPcreExpr: 's/\\(\\d+\\)/\\1\\1/g'});
 testSubstitute('ex_substitute_capture2', {
   value: 'a 0 b',
   expectedValue: 'a $00 b',
-  expr: 's/(\\d+)/$$$1$1/',
-  noPcreExpr: 's/\\(\\d+\\)/$\\1\\1/'});
+  expr: 's/(\\d+)/$$$1$1/g',
+  noPcreExpr: 's/\\(\\d+\\)/$\\1\\1/g'});
 testSubstitute('ex_substitute_nocapture', {
   value: 'a11 a12 a13',
   expectedValue: 'a$1$1 a$1$1 a$1$1',
-  expr: 's/(\\d+)/$$1$$1',
-  noPcreExpr: 's/\\(\\d+\\)/$1$1/'});
+  expr: 's/(\\d+)/$$1$$1/g',
+  noPcreExpr: 's/\\(\\d+\\)/$1$1/g'});
 testSubstitute('ex_substitute_nocapture2', {
   value: 'a 0 b',
   expectedValue: 'a $10 b',
-  expr: 's/(\\d+)/$$1$1',
-  noPcreExpr: 's/\\(\\d+\\)/\\$1\\1/'});
+  expr: 's/(\\d+)/$$1$1/g',
+  noPcreExpr: 's/\\(\\d+\\)/\\$1\\1/g'});
 testSubstitute('ex_substitute_nocapture', {
   value: 'a b c',
   expectedValue: 'a $ c',
@@ -2973,13 +2973,13 @@ testSubstitute('ex_substitute_pipe_regex', {
 testSubstitute('ex_substitute_or_regex', {
   value: 'one|two \n three|four',
   expectedValue: 'ana|twa \n thraa|faar',
-  expr: '%s/o|e|u/a',
-  noPcreExpr: '%s/o\\|e\\|u/a'});
+  expr: '%s/o|e|u/a/g',
+  noPcreExpr: '%s/o\\|e\\|u/a/g'});
 testSubstitute('ex_substitute_or_word_regex', {
   value: 'one|two \n three|four',
   expectedValue: 'five|five \n three|four',
-  expr: '%s/(one|two)/five/',
-  noPcreExpr: '%s/\\(one\\|two\\)/five'});
+  expr: '%s/(one|two)/five/g',
+  noPcreExpr: '%s/\\(one\\|two\\)/five/g'});
 testSubstitute('ex_substitute_backslashslash_regex', {
   value: 'one\\two \n three\\four',
   expectedValue: 'one,two \n three,four',
@@ -3004,8 +3004,8 @@ testSubstitute('ex_substitute_braces_word', {
 testSubstitute('ex_substitute_braces_range', {
   value: 'a aa aaa aaaa',
   expectedValue: 'a   a',
-  expr: '%s/a{2,3}//',
-  noPcreExpr: '%s/a\\{2,3\\}//'});
+  expr: '%s/a{2,3}//g',
+  noPcreExpr: '%s/a\\{2,3\\}//g'});
 testSubstitute('ex_substitute_braces_literal', {
   value: 'ababab abb ab{2}',
   expectedValue: 'ababab abb ',
@@ -3032,7 +3032,7 @@ testSubstitute('ex_substitute_count_with_range', {
 testSubstitute('ex_substitute_not_global', {
   value: 'aaa\nbaa\ncaa',
   expectedValue: 'xaa\nbxa\ncxa',
-  expr: '%s/a/x/g'});
+  expr: '%s/a/x/'});
 function testSubstituteConfirm(name, command, initialValue, expectedValue, keys, finalPos) {
   testVim(name, function(cm, vim, helpers) {
     var savedOpenDialog = cm.openDialog;
@@ -3082,29 +3082,29 @@ testSubstituteConfirm('ex_substitute_confirm_emptydoc',
 testSubstituteConfirm('ex_substitute_confirm_nomatch',
     '%s/x/b/c', 'ba a\nbab', 'ba a\nbab', '', makeCursor(0, 0));
 testSubstituteConfirm('ex_substitute_confirm_accept',
-    '%s/a/b/c', 'ba a\nbab', 'bb b\nbbb', 'yyy', makeCursor(1, 1));
+    '%s/a/b/cg', 'ba a\nbab', 'bb b\nbbb', 'yyy', makeCursor(1, 1));
 testSubstituteConfirm('ex_substitute_confirm_random_keys',
-    '%s/a/b/c', 'ba a\nbab', 'bb b\nbbb', 'ysdkywerty', makeCursor(1, 1));
+    '%s/a/b/cg', 'ba a\nbab', 'bb b\nbbb', 'ysdkywerty', makeCursor(1, 1));
 testSubstituteConfirm('ex_substitute_confirm_some',
-    '%s/a/b/c', 'ba a\nbab', 'bb a\nbbb', 'yny', makeCursor(1, 1));
+    '%s/a/b/cg', 'ba a\nbab', 'bb a\nbbb', 'yny', makeCursor(1, 1));
 testSubstituteConfirm('ex_substitute_confirm_all',
-    '%s/a/b/c', 'ba a\nbab', 'bb b\nbbb', 'a', makeCursor(1, 1));
+    '%s/a/b/cg', 'ba a\nbab', 'bb b\nbbb', 'a', makeCursor(1, 1));
 testSubstituteConfirm('ex_substitute_confirm_accept_then_all',
-    '%s/a/b/c', 'ba a\nbab', 'bb b\nbbb', 'ya', makeCursor(1, 1));
+    '%s/a/b/cg', 'ba a\nbab', 'bb b\nbbb', 'ya', makeCursor(1, 1));
 testSubstituteConfirm('ex_substitute_confirm_quit',
-    '%s/a/b/c', 'ba a\nbab', 'bb a\nbab', 'yq', makeCursor(0, 3));
+    '%s/a/b/cg', 'ba a\nbab', 'bb a\nbab', 'yq', makeCursor(0, 3));
 testSubstituteConfirm('ex_substitute_confirm_last',
-    '%s/a/b/c', 'ba a\nbab', 'bb b\nbab', 'yl', makeCursor(0, 3));
+    '%s/a/b/cg', 'ba a\nbab', 'bb b\nbab', 'yl', makeCursor(0, 3));
 testSubstituteConfirm('ex_substitute_confirm_oneline',
-    '1s/a/b/c', 'ba a\nbab', 'bb b\nbab', 'yl', makeCursor(0, 3));
+    '1s/a/b/cg', 'ba a\nbab', 'bb b\nbab', 'yl', makeCursor(0, 3));
 testSubstituteConfirm('ex_substitute_confirm_range_accept',
-    '1,2s/a/b/c', 'aa\na \na\na', 'bb\nb \na\na', 'yyy', makeCursor(1, 0));
+    '1,2s/a/b/cg', 'aa\na \na\na', 'bb\nb \na\na', 'yyy', makeCursor(1, 0));
 testSubstituteConfirm('ex_substitute_confirm_range_some',
-    '1,3s/a/b/c', 'aa\na \na\na', 'ba\nb \nb\na', 'ynyy', makeCursor(2, 0));
+    '1,3s/a/b/cg', 'aa\na \na\na', 'ba\nb \nb\na', 'ynyy', makeCursor(2, 0));
 testSubstituteConfirm('ex_substitute_confirm_range_all',
-    '1,3s/a/b/c', 'aa\na \na\na', 'bb\nb \nb\na', 'a', makeCursor(2, 0));
+    '1,3s/a/b/cg', 'aa\na \na\na', 'bb\nb \nb\na', 'a', makeCursor(2, 0));
 testSubstituteConfirm('ex_substitute_confirm_range_last',
-    '1,3s/a/b/c', 'aa\na \na\na', 'bb\nb \na\na', 'yyl', makeCursor(1, 0));
+    '1,3s/a/b/cg', 'aa\na \na\na', 'bb\nb \na\na', 'yyl', makeCursor(1, 0));
 //:noh should clear highlighting of search-results but allow to resume search through n
 testVim('ex_noh_clearSearchHighlight', function(cm, vim, helpers) {
   cm.openDialog = helpers.fakeOpenDialog('match');

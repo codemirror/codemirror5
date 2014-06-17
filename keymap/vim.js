@@ -3889,7 +3889,7 @@
         var tokens = argString ? splitBySlash(argString) : [];
         var regexPart, replacePart = '', trailing, flagsPart, count;
         var confirm = false; // Whether to confirm each replace.
-        var global = true; // True to replace all instances on a line, false to replace only 1.
+        var global = false; // True to replace all instances on a line, false to replace only 1.
         if (tokens.length) {
           regexPart = tokens[0];
           replacePart = tokens[1];
@@ -3923,7 +3923,7 @@
               flagsPart.replace('c', '');
             }
             if (flagsPart.indexOf('g') != -1) {
-              global = false;
+              global = true;
               flagsPart.replace('g', '');
             }
             regexPart = regexPart + '/' + flagsPart;
