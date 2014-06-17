@@ -3889,6 +3889,7 @@
         var tokens = argString ? splitBySlash(argString) : [];
         var regexPart, replacePart = '', trailing, flagsPart, count;
         var confirm = false; // Whether to confirm each replace.
+        var global = true; // True to replace all instances on a line, false to replace only 1.
         if (tokens.length) {
           regexPart = tokens[0];
           replacePart = tokens[1];
@@ -3921,6 +3922,10 @@
               confirm = true;
               flagsPart.replace('c', '');
             }
+            if (flagsPart.indexOf('g') != -1) {
+              global = false;
+              flagsPart.replace('g', '');
+            }
             regexPart = regexPart + '/' + flagsPart;
           }
         }
@@ -3950,7 +3955,7 @@
         }
         var startPos = clipCursorToContent(cm, Pos(lineStart, 0));
         var cursor = cm.getSearchCursor(query, startPos);
-        doReplace(cm, confirm, lineStart, lineEnd, cursor, query, replacePart, params.callback);
+        doReplace(cm, confirm, global, lineStart, lineEnd, cursor, query, replacePart, params.callback);
       },
       redo: CodeMirror.commands.redo,
       undo: CodeMirror.commands.undo,
@@ -4041,7 +4046,7 @@
     *     $2, etc for replacing captured groups using Javascript replace.
     * @param {function()} callback A callback for when the replace is done.
     */
-    function doReplace(cm, confirm, lineStart, lineEnd, searchCursor, query,
+    function doReplace(cm, confirm, global, lineStart, lineEnd, searchCursor, query,
         replaceWith, callback) {
       // Set up all the functions.
       cm.state.vim.exMode = true;
@@ -4062,17 +4067,21 @@
         searchCursor.replace(newText);
       }
       function next() {
-        var found = searchCursor.findNext();
-        if (!found) {
-          done = true;
-        } else if (isInRange(searchCursor.from(), lineStart, lineEnd)) {
+        var found;
+        // The below only loops to skip over multiple occurrences on the same
+        // line when 'global' is not true.
+        while(found = searchCursor.findNext() &&
+              isInRange(searchCursor.from(), lineStart, lineEnd)) {
+          if (!global && lastPos && searchCursor.from().line == lastPos.line) {
+            continue;
+          }
           cm.scrollIntoView(searchCursor.from(), 30);
           cm.setSelection(searchCursor.from(), searchCursor.to());
           lastPos = searchCursor.from();
           done = false;
-        } else {
-          done = true;
+          return;
         }
+        done = true;
       }
       function stop(close) {
         if (close) { close(); }
@@ -4083,7 +4092,7 @@
           vim.exMode = false;
           vim.lastHPos = vim.lastHSPos = lastPos.ch;
         }
-        if (callback) { callback(); };
+        if (callback) { callback(); }
       }
       function onPromptKeyDown(e, _value, close) {
         // Swallow all keys.

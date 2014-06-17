@@ -2859,7 +2859,7 @@ testVim('ex_global_confirm', function(cm, vim, helpers) {
     cm.openDialog = function(template, callback, options) {
       onKeyDown = options.onKeyDown;
     };
-    callback('g/one/s//two/gc');
+    callback('g/one/s//two/c');
   };
   helpers.doKeys(':');
   var close = function() {};
@@ -3004,8 +3004,8 @@ testSubstitute('ex_substitute_braces_word', {
 testSubstitute('ex_substitute_braces_range', {
   value: 'a aa aaa aaaa',
   expectedValue: 'a   a',
-  expr: '%s/a{2,3}//g',
-  noPcreExpr: '%s/a\\{2,3\\}//g'});
+  expr: '%s/a{2,3}//',
+  noPcreExpr: '%s/a\\{2,3\\}//'});
 testSubstitute('ex_substitute_braces_literal', {
   value: 'ababab abb ab{2}',
   expectedValue: 'ababab abb ',
@@ -3029,6 +3029,10 @@ testSubstitute('ex_substitute_count_with_range', {
   value: '1\n2\n3\n4',
   expectedValue: '1\n2\n0\n0',
   expr: '1,3s/\\d/0/ 3'});
+testSubstitute('ex_substitute_not_global', {
+  value: 'aaa\nbaa\ncaa',
+  expectedValue: 'xaa\nbxa\ncxa',
+  expr: '%s/a/x/g'});
 function testSubstituteConfirm(name, command, initialValue, expectedValue, keys, finalPos) {
   testVim(name, function(cm, vim, helpers) {
     var savedOpenDialog = cm.openDialog;
