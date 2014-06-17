@@ -1414,7 +1414,7 @@
           } else if (!curEnd) {
             curEnd = copyCursor(curStart);
           }
-          if (motionArgs.inclusive && !(vim.visualMode && inverted)) {
+          if (motionArgs.inclusive && !vim.visualMode) {
             // Move the selection end one to the right to include the last
             // character.
             curEnd.ch++;
