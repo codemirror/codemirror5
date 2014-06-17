@@ -356,6 +356,7 @@
       if (val) {
         cm.setOption('keyMap', 'vim');
         cm.setOption('disableInput', true);
+        cm.setOption('showCursorWhenSelecting', false);
         CodeMirror.signal(cm, "vim-mode-change", {mode: "normal"});
         cm.on('beforeSelectionChange', beforeSelectionChange);
         cm.on('cursorActivity', onCursorActivity);
@@ -1994,7 +1995,9 @@
         } else if (insertAt == 'endOfSelectedArea') {
           var selectionEnd = cm.getCursor('head');
           var selectionStart = cm.getCursor('anchor');
-          selectionEnd = cursorIsBefore(selectionStart, selectionEnd) ? Pos(selectionEnd.line, selectionEnd.ch+1) : (selectionEnd.line < selectionStart.line ? Pos(selectionStart.line, 0) : selectionEnd);
+          if (selectionEnd.line < selectionStart.line) {
+            selectionEnd = Pos(selectionStart.line, 0);
+          }
           cm.setCursor(selectionEnd);
           exitVisualMode(cm);
         }
@@ -2036,16 +2039,7 @@
               cm, Pos(curStart.line, curStart.ch + repeat),
               true /** includeLineBreak */);
           }
-          // Make the initial selection.
-          if (!actionArgs.repeatIsExplicit && !vim.visualLine) {
-            // This is a strange case. Here the implicit repeat is 1. The
-            // following commands lets the cursor hover over the 1 character
-            // selection.
-            cm.setCursor(curEnd);
-            cm.setSelection(curEnd, curStart);
-          } else {
-            cm.setSelection(curStart, curEnd);
-          }
+          cm.setSelection(curStart, curEnd);
           CodeMirror.signal(cm, "vim-mode-change", {mode: "visual", subMode: vim.visualLine ? "linewise" : ""});
         } else {
           curStart = cm.getCursor('anchor');
@@ -2262,9 +2256,6 @@
         if (vim.visualMode){
           curStart=cm.getCursor('start');
           curEnd=cm.getCursor('end');
-          // workaround to catch the character under the cursor
-          //  existing workaround doesn't cover actions
-          curEnd=cm.clipPos(Pos(curEnd.line, curEnd.ch+1));
         }else{
           var line = cm.getLine(curStart.line);
           replaceTo = curStart.ch + actionArgs.repeat;
@@ -2441,8 +2432,6 @@
           var tmp = selectionStart;
           selectionStart = selectionEnd;
           selectionEnd = tmp;
-        } else {
-          selectionEnd = cm.clipPos(Pos(selectionEnd.line, selectionEnd.ch+1));
         }
         exitVisualMode(cm);
       }
