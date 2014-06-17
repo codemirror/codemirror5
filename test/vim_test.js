@@ -521,7 +521,7 @@ testVim('dl_eol', function(cm, vim, helpers) {
   var register = helpers.getRegisterController().getRegister();
   eq(' ', register.toString());
   is(!register.linewise);
-  helpers.assertCursorAt(0, 5);
+  helpers.assertCursorAt(0, 6);
 }, { value: ' word1 ' });
 testVim('dl_repeat', function(cm, vim, helpers) {
   var curStart = makeCursor(0, 0);
@@ -612,7 +612,7 @@ testVim('dw_only_word', function(cm, vim, helpers) {
   var register = helpers.getRegisterController().getRegister();
   eq('word1 ', register.toString());
   is(!register.linewise);
-  helpers.assertCursorAt(0, 0);
+  helpers.assertCursorAt(0, 1);
 }, { value: ' word1 ' });
 testVim('dw_eol', function(cm, vim, helpers) {
   // Assert that dw does not delete the newline if last word to delete is at end
@@ -623,7 +623,7 @@ testVim('dw_eol', function(cm, vim, helpers) {
   var register = helpers.getRegisterController().getRegister();
   eq('word1', register.toString());
   is(!register.linewise);
-  helpers.assertCursorAt(0, 0);
+  helpers.assertCursorAt(0, 1);
 }, { value: ' word1\nword2' });
 testVim('dw_eol_with_multiple_newlines', function(cm, vim, helpers) {
   // Assert that dw does not delete the newline if last word to delete is at end
@@ -634,7 +634,7 @@ testVim('dw_eol_with_multiple_newlines', function(cm, vim, helpers) {
   var register = helpers.getRegisterController().getRegister();
   eq('word1', register.toString());
   is(!register.linewise);
-  helpers.assertCursorAt(0, 0);
+  helpers.assertCursorAt(0, 1);
 }, { value: ' word1\n\nword2' });
 testVim('dw_empty_line_followed_by_whitespace', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
@@ -680,7 +680,7 @@ testVim('dw_repeat', function(cm, vim, helpers) {
   var register = helpers.getRegisterController().getRegister();
   eq('word1\nword2', register.toString());
   is(!register.linewise);
-  helpers.assertCursorAt(0, 0);
+  helpers.assertCursorAt(0, 1);
 }, { value: ' word1\nword2' });
 testVim('de_word_start_and_empty_lines', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
@@ -1070,7 +1070,7 @@ testVim('D', function(cm, vim, helpers) {
   var register = helpers.getRegisterController().getRegister();
   eq('rd1', register.toString());
   is(!register.linewise);
-  helpers.assertCursorAt(0, 2);
+  helpers.assertCursorAt(0, 3);
 }, { value: ' word1\nword2\n word3' });
 testVim('C', function(cm, vim, helpers) {
   var curStart = makeCursor(0, 3);
@@ -1564,7 +1564,7 @@ testVim('delmark_all', function(cm, vim, helpers) {
 });
 testVim('visual', function(cm, vim, helpers) {
   helpers.doKeys('l', 'v', 'l', 'l');
-  helpers.assertCursorAt(0, 3);
+  helpers.assertCursorAt(0, 4);
   eqPos(makeCursor(0, 1), cm.getCursor('anchor'));
   helpers.doKeys('d');
   eq('15', cm.getValue());
@@ -1592,7 +1592,7 @@ testVim('visual_blank', function(cm, vim, helpers) {
 }, { value: '\n' });
 testVim('reselect_visual', function(cm, vim, helpers) {
   helpers.doKeys('l', 'v', 'l', 'l', 'l', 'y', 'g', 'v');
-  helpers.assertCursorAt(0, 4);
+  helpers.assertCursorAt(0, 5);
   eqPos(makeCursor(0, 1), cm.getCursor('anchor'));
   helpers.doKeys('v');
   cm.setCursor(1, 0);
@@ -1605,10 +1605,10 @@ testVim('reselect_visual', function(cm, vim, helpers) {
   helpers.doKeys('v');
   cm.setCursor(2, 0);
   helpers.doKeys('v', 'l', 'l', 'g', 'v');
-  helpers.assertCursorAt(1, 3);
+  helpers.assertCursorAt(1, 4);
   eqPos(makeCursor(1, 0), cm.getCursor('anchor'));
   helpers.doKeys('g', 'v');
-  helpers.assertCursorAt(2, 2);
+  helpers.assertCursorAt(2, 3);
   eqPos(makeCursor(2, 0), cm.getCursor('anchor'));
   eq('123456\n2345\nbar', cm.getValue());
 }, { value: '123456\nfoo\nbar' });
@@ -1642,7 +1642,7 @@ testVim('o_visual', function(cm,vim,helpers) {
   helpers.assertCursorAt(0,0);
   helpers.doKeys('o');
   helpers.doKeys('l','l')
-  helpers.assertCursorAt(3,2);
+  helpers.assertCursorAt(3, 3);
   helpers.doKeys('d');
   eq('p',cm.getValue());
 }, { value: 'abcd\nefgh\nijkl\nmnop'});
@@ -1668,15 +1668,15 @@ testVim('uppercase/lowercase_visual', function(cm, vim, helpers) {
 testVim('visual_paste', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('v', 'l', 'l', 'y', 'j', 'v', 'l', 'p');
-  helpers.assertCursorAt(1, 4);
-  eq('this is a\nunthi test for visual paste', cm.getValue());
+  helpers.assertCursorAt(1, 5);
+  eq('this is a\nunithitest for visual paste', cm.getValue());
   cm.setCursor(0, 0);
   // in case of pasting whole line
   helpers.doKeys('y', 'y');
   cm.setCursor(1, 6);
   helpers.doKeys('v', 'l', 'l', 'l', 'p');
   helpers.assertCursorAt(2, 0);
-  eq('this is a\nunthi \nthis is a\n for visual paste', cm.getValue());
+  eq('this is a\nunithi\nthis is a\n for visual paste', cm.getValue());
 }, { value: 'this is a\nunit test for visual paste'});
 
 // This checks the contents of the register used to paste the text
