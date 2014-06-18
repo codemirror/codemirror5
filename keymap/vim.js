@@ -371,7 +371,7 @@
         cm.state.vim = null;
       }
     });
-    function beforeSelectionChange(cm, obj) {
+    function beforeSelectionChange(cm, _obj) {
       var vim = cm.state.vim;
       if (vim.insertMode || vim.exMode) return;
     }
