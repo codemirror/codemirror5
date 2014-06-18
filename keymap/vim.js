@@ -1353,11 +1353,13 @@
               // The end of the selection has moved from after the start to
               // before the start. We will shift the start right by 1.
               selectionStart.ch += 1;
+              curEnd.ch -= 1;
             } else if (cursorIsBefore(selectionEnd, selectionStart) &&
                 (cursorEqual(selectionStart, curEnd) ||
                     cursorIsBefore(selectionStart, curEnd))) {
               // The opposite happened. We will shift the start left by 1.
               selectionStart.ch -= 1;
+              curEnd.ch += 1;
             }
             selectionEnd = curEnd;
             selectionStart = (motionResult instanceof Array) ? curStart : selectionStart;
