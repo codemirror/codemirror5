@@ -106,7 +106,7 @@
       cm.showHint({hint: this.getHint});
     },
 
-    showType: function(cm, pos) { showType(this, cm, pos); },
+    showType: function(cm, pos, cb) { showType(this, cm, pos, cb); },
 
     updateArgHints: function(cm) { updateArgHints(this, cm); },
 
@@ -239,7 +239,7 @@
 
   // Type queries
 
-  function showType(ts, cm, pos) {
+  function showType(ts, cm, pos, cb) {
     ts.request(cm, "type", function(error, data) {
       if (error) return showError(ts, cm, error);
       if (ts.options.typeTip) {
@@ -254,6 +254,7 @@
         }
       }
       tempTooltip(cm, tip);
+      if (cb) cb();
     }, pos);
   }
 
