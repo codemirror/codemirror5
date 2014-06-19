@@ -1361,6 +1361,7 @@
               selectionStart.ch -= 1;
               curEnd.ch += 1;
             }
+            vim.lastHPos = curEnd.ch;
             selectionEnd = curEnd;
             selectionStart = (motionResult instanceof Array) ? curStart : selectionStart;
             if (vim.visualLine) {
