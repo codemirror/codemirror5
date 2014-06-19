@@ -356,6 +356,7 @@
       if (val) {
         cm.setOption('keyMap', 'vim');
         cm.setOption('disableInput', true);
+        cm.setOption('showCursorWhenSelecting', false);
         CodeMirror.signal(cm, "vim-mode-change", {mode: "normal"});
         cm.on('beforeSelectionChange', beforeSelectionChange);
         cm.on('cursorActivity', onCursorActivity);
@@ -370,17 +371,9 @@
         cm.state.vim = null;
       }
     });
-    function beforeSelectionChange(cm, obj) {
+    function beforeSelectionChange(cm, _obj) {
       var vim = cm.state.vim;
       if (vim.insertMode || vim.exMode) return;
-
-      var head = obj.ranges[0].head;
-      var anchor = obj.ranges[0].anchor;
-      if (head.ch && head.ch == cm.doc.getLine(head.line).length) {
-        var pos = Pos(head.line, head.ch - 1);
-        obj.update([{anchor: cursorEqual(head, anchor) ? pos : anchor,
-                     head: pos}]);
-      }
     }
     function getOnPasteFn(cm) {
       var vim = cm.state.vim;
@@ -611,6 +604,8 @@
           // executed in between.
           lastMotion: null,
           marks: {},
+          // fake cursor for visual mode
+          fakeCursor: null,
           insertMode: false,
           // Repeat count for changes made in insert mode, triggered by key
           // sequences like 3,i. Only exists when insertMode is true.
@@ -1360,12 +1355,15 @@
               // The end of the selection has moved from after the start to
               // before the start. We will shift the start right by 1.
               selectionStart.ch += 1;
+              curEnd.ch -= 1;
             } else if (cursorIsBefore(selectionEnd, selectionStart) &&
                 (cursorEqual(selectionStart, curEnd) ||
                     cursorIsBefore(selectionStart, curEnd))) {
               // The opposite happened. We will shift the start left by 1.
               selectionStart.ch -= 1;
+              curEnd.ch += 1;
             }
+            vim.lastHPos = curEnd.ch;
             selectionEnd = curEnd;
             selectionStart = (motionResult instanceof Array) ? curStart : selectionStart;
             if (vim.visualLine) {
@@ -1413,7 +1411,7 @@
           } else if (!curEnd) {
             curEnd = copyCursor(curStart);
           }
-          if (motionArgs.inclusive && !(vim.visualMode && inverted)) {
+          if (motionArgs.inclusive && !vim.visualMode) {
             // Move the selection end one to the right to include the last
             // character.
             curEnd.ch++;
@@ -1994,7 +1992,9 @@
         } else if (insertAt == 'endOfSelectedArea') {
           var selectionEnd = cm.getCursor('head');
           var selectionStart = cm.getCursor('anchor');
-          selectionEnd = cursorIsBefore(selectionStart, selectionEnd) ? Pos(selectionEnd.line, selectionEnd.ch+1) : (selectionEnd.line < selectionStart.line ? Pos(selectionStart.line, 0) : selectionEnd);
+          if (selectionEnd.line < selectionStart.line) {
+            selectionEnd = Pos(selectionStart.line, 0);
+          }
           cm.setCursor(selectionEnd);
           exitVisualMode(cm);
         }
@@ -2036,16 +2036,7 @@
               cm, Pos(curStart.line, curStart.ch + repeat),
               true /** includeLineBreak */);
           }
-          // Make the initial selection.
-          if (!actionArgs.repeatIsExplicit && !vim.visualLine) {
-            // This is a strange case. Here the implicit repeat is 1. The
-            // following commands lets the cursor hover over the 1 character
-            // selection.
-            cm.setCursor(curEnd);
-            cm.setSelection(curEnd, curStart);
-          } else {
-            cm.setSelection(curStart, curEnd);
-          }
+          cm.setSelection(curStart, curEnd);
           CodeMirror.signal(cm, "vim-mode-change", {mode: "visual", subMode: vim.visualLine ? "linewise" : ""});
         } else {
           curStart = cm.getCursor('anchor');
@@ -2262,9 +2253,6 @@
         if (vim.visualMode){
           curStart=cm.getCursor('start');
           curEnd=cm.getCursor('end');
-          // workaround to catch the character under the cursor
-          //  existing workaround doesn't cover actions
-          curEnd=cm.clipPos(Pos(curEnd.line, curEnd.ch+1));
         }else{
           var line = cm.getLine(curStart.line);
           replaceTo = curStart.ch + actionArgs.repeat;
@@ -2441,8 +2429,6 @@
           var tmp = selectionStart;
           selectionStart = selectionEnd;
           selectionEnd = tmp;
-        } else {
-          selectionEnd = cm.clipPos(Pos(selectionEnd.line, selectionEnd.ch+1));
         }
         exitVisualMode(cm);
       }
@@ -2481,6 +2467,9 @@
         cm.setCursor(clipCursorToContent(cm, selectionEnd));
       }
       CodeMirror.signal(cm, "vim-mode-change", {mode: "normal"});
+      if (vim.fakeCursor) {
+        vim.fakeCursor.clear();
+      }
     }
 
     // Remove any trailing newlines from the selection. For
@@ -4346,6 +4335,20 @@
       } else if (cm.doc.history.lastSelOrigin == '*mouse') {
         // Reset lastHPos if mouse click was done in normal mode.
         vim.lastHPos = cm.doc.getCursor().ch;
+      } else if (vim.visualMode) {
+        var from, head;
+        from = head = cm.getCursor('head');
+        var anchor = cm.getCursor('anchor');
+        var to = Pos(head.line, from.ch + (cursorIsBefore(anchor, head) ? -1 : 1));
+        if (cursorIsBefore(to, from)) {
+          var temp = from;
+          from = to;
+          to = temp;
+        }
+        if (vim.fakeCursor) {
+          vim.fakeCursor.clear();
+        }
+        vim.fakeCursor = cm.markText(from, to, {className: 'fake-fat-cursor'});
       }
     }
 
