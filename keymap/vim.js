@@ -604,6 +604,8 @@
           // executed in between.
           lastMotion: null,
           marks: {},
+          // fake cursor for visual mode
+          fakeCursor: null,
           insertMode: false,
           // Repeat count for changes made in insert mode, triggered by key
           // sequences like 3,i. Only exists when insertMode is true.
@@ -2467,6 +2469,9 @@
         cm.setCursor(clipCursorToContent(cm, selectionEnd));
       }
       CodeMirror.signal(cm, "vim-mode-change", {mode: "normal"});
+      if (vim.fakeCursor) {
+        vim.fakeCursor.clear();
+      }
     }
 
     // Remove any trailing newlines from the selection. For
@@ -4332,6 +4337,20 @@
       } else if (cm.doc.history.lastSelOrigin == '*mouse') {
         // Reset lastHPos if mouse click was done in normal mode.
         vim.lastHPos = cm.doc.getCursor().ch;
+      } else if (vim.visualMode) {
+        var from, head;
+        from = head = cm.getCursor('head');
+        var anchor = cm.getCursor('anchor');
+        var to = Pos(head.line, from.ch + (cursorIsBefore(anchor, head) ? -1 : 1));
+        if (cursorIsBefore(to, from)) {
+          var temp = from;
+          from = to;
+          to = temp;
+        }
+        if (vim.fakeCursor) {
+          vim.fakeCursor.clear();
+        }
+        vim.fakeCursor = cm.markText(from, to, {className: 'fake-fat-cursor'});
       }
     }
 
