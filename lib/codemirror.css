@@ -63,7 +63,45 @@ div.CodeMirror-overwrite div.CodeMirror-cursor {}
   border-left: 1px solid #ccc;
   position: absolute;
 }
+.fake-fat-cursor {
+  width: auto;
+  border: 0;
+  background: #7e7;
 
+  -webkit-animation: blink 1s infinite;
+  -moz-animation: blink 1s infinite;
+  animation: blink 1s infinite;
+}
+
+@-moz-keyframes blink {  
+  0% { 
+    visibility: visible;
+   }
+  100% {
+   visibility: hidden;
+   background: white;
+   }
+}
+
+@-webkit-keyframes blink {  
+  0% { 
+    visibility: visible;
+   }
+  100% {
+   visibility: hidden;
+   background: white;
+   }
+}
+
+@keyframes blink {  
+  0% { 
+    visibility: visible;
+   }
+  100% {
+   visibility: hidden;
+   background: white;
+   }
+}
 /* DEFAULT THEME */
 
 .cm-s-default .cm-keyword {color: #708;}
