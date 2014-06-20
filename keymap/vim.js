@@ -358,14 +358,12 @@
         cm.setOption('disableInput', true);
         cm.setOption('showCursorWhenSelecting', false);
         CodeMirror.signal(cm, "vim-mode-change", {mode: "normal"});
-        cm.on('beforeSelectionChange', beforeSelectionChange);
         cm.on('cursorActivity', onCursorActivity);
         maybeInitVimState(cm);
         CodeMirror.on(cm.getInputField(), 'paste', getOnPasteFn(cm));
       } else if (cm.state.vim) {
         cm.setOption('keyMap', 'default');
         cm.setOption('disableInput', false);
-        cm.off('beforeSelectionChange', beforeSelectionChange);
         cm.off('cursorActivity', onCursorActivity);
         CodeMirror.off(cm.getInputField(), 'paste', getOnPasteFn(cm));
         cm.state.vim = null;
@@ -2471,7 +2469,6 @@
       CodeMirror.signal(cm, "vim-mode-change", {mode: "normal"});
       if (vim.fakeCursor) {
         vim.fakeCursor.clear();
-        cm.setOption('showCursorWhenSelecting', true);
       }
     }
 
@@ -4338,10 +4335,10 @@
       } else if (cm.doc.history.lastSelOrigin == '*mouse') {
         // Reset lastHPos if mouse click was done in normal mode.
         vim.lastHPos = cm.doc.getCursor().ch;
-      }
-      if (cm.somethingSelected()) {
-        vim.visualMode = true;
-        cm.setOption('showCursorWhenSelecting', false);
+        if (cm.somethingSelected()) {
+          // If something is still selected, enter visual mode.
+          vim.visualMode = true;
+        }
       }
       if (vim.visualMode) {
         var from, head;
