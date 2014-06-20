@@ -1948,7 +1948,8 @@
         textarea (if any) to make sure the editor contents are put
         into the textarea when the form is submitted. The text in the
         textarea will provide the content for the editor. A CodeMirror
-        instance created this way has three additional methods:
+        instance created this way has three additional methods and an
+        additional event:
         <dl>
           <dt id="save"><code><strong>cm.save</strong>()</code></dt>
           <dd>Copy the content of the editor into the textarea.</dd>
@@ -1959,6 +1960,19 @@
 
           <dt id="getTextArea"><code><strong>cm.getTextArea</strong>() → TextAreaElement</code></dt>
           <dd>Returns the textarea that the instance was based on.</dd>
+		  
+          <dt id="event_beforeSave"><code><strong>beforeSave</strong>(instance: CodeMirror, changeObj: object)</code></dt>
+          <dd>This event is fired before the content of the editor is copied 
+          to the textarea, and its handler may choose to modify the value, 
+          or cancel the save. The <code>changeObj</code> object
+          has a <code>value</code> property, allowing the value to be
+          modified before it is updated back to the textarea. It also 
+          has a <code>cancel()</code> method, which can be called to
+          cancel the change. <strong>Note:</strong> you may not do anything 
+          from a <code>"beforeSave"</code> handler that would cause changes
+          to the CodeMirror or its visualization. Doing so will, since this
+          handler is called directly from the bowels of the CodeMirror
+          implementation, probably cause the editor to become corrupted.</dd>	  
         </dl>
       </dd>
 
