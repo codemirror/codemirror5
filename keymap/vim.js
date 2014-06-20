@@ -4338,7 +4338,12 @@
       } else if (cm.doc.history.lastSelOrigin == '*mouse') {
         // Reset lastHPos if mouse click was done in normal mode.
         vim.lastHPos = cm.doc.getCursor().ch;
-      } else if (vim.visualMode) {
+      }
+      if (cm.somethingSelected()) {
+        vim.visualMode = true;
+        cm.setOption('showCursorWhenSelecting', false);
+      }
+      if (vim.visualMode) {
         var from, head;
         from = head = cm.getCursor('head');
         var anchor = cm.getCursor('anchor');
@@ -4352,7 +4357,6 @@
           vim.fakeCursor.clear();
         }
         vim.fakeCursor = cm.markText(from, to, {className: 'cm-animate-fat-cursor'});
-        cm.setOption('showCursorWhenSelecting', false);
       }
     }
 
