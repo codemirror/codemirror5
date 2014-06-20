@@ -604,7 +604,7 @@
           // executed in between.
           lastMotion: null,
           marks: {},
-          // fake cursor for visual mode
+          // Mark for rendering fake cursor for visual mode.
           fakeCursor: null,
           insertMode: false,
           // Repeat count for changes made in insert mode, triggered by key
@@ -2471,6 +2471,7 @@
       CodeMirror.signal(cm, "vim-mode-change", {mode: "normal"});
       if (vim.fakeCursor) {
         vim.fakeCursor.clear();
+        cm.setOption('showCursorWhenSelecting', true);
       }
     }
 
@@ -4350,7 +4351,8 @@
         if (vim.fakeCursor) {
           vim.fakeCursor.clear();
         }
-        vim.fakeCursor = cm.markText(from, to, {className: 'fake-fat-cursor'});
+        vim.fakeCursor = cm.markText(from, to, {className: 'cm-animate-fat-cursor'});
+        cm.setOption('showCursorWhenSelecting', false);
       }
     }
 
