@@ -491,8 +491,8 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "navajowhite", "navy", "oldlace", "olive", "olivedrab", "orange", "orangered",
     "orchid", "palegoldenrod", "palegreen", "paleturquoise", "palevioletred",
     "papayawhip", "peachpuff", "peru", "pink", "plum", "powderblue",
-    "purple", "red", "rosybrown", "royalblue", "saddlebrown", "salmon",
-    "sandybrown", "seagreen", "seashell", "sienna", "silver", "skyblue",
+    "purple", "rebeccapurple", "red", "rosybrown", "royalblue", "saddlebrown",
+    "salmon", "sandybrown", "seagreen", "seashell", "sienna", "silver", "skyblue",
     "slateblue", "slategray", "snow", "springgreen", "steelblue", "tan",
     "teal", "thistle", "tomato", "turquoise", "violet", "wheat", "white",
     "whitesmoke", "yellow", "yellowgreen"
