@@ -1573,6 +1573,10 @@ testVim('visual_line', function(cm, vim, helpers) {
   helpers.doKeys('l', 'V', 'l', 'j', 'j', 'd');
   eq(' 4\n 5', cm.getValue());
 }, { value: ' 1\n 2\n 3\n 4\n 5' });
+testVim('visual_block', function(cm, vim, helpers) {
+  helpers.doKeys('l', '<C-v>', 'l', 'j', 'j', 'd');
+  eq('14\n58\nad', cm.getValue());
+}, {value: '1234\n5678\nabcd'});
 testVim('visual_marks', function(cm, vim, helpers) {
   helpers.doKeys('l', 'v', 'l', 'l', 'j', 'j', 'v');
   // Test visual mode marks
@@ -1613,13 +1617,13 @@ testVim('reselect_visual', function(cm, vim, helpers) {
   eq('123456\n2345\nbar', cm.getValue());
 }, { value: '123456\nfoo\nbar' });
 testVim('reselect_visual_line', function(cm, vim, helpers) {
-  helpers.doKeys('l', 'V', 'l', 'j', 'j', 'V', 'g', 'v', 'd');
-  eq(' foo\n and\n bar', cm.getValue());
-  cm.setCursor(0, 0);
+  helpers.doKeys('l', 'V', 'j', 'j', 'V', 'g', 'v', 'd');
+  eq('\nfoo\nand\nbar', cm.getValue());
+  cm.setCursor(1, 0);
   helpers.doKeys('V', 'y', 'j');
   helpers.doKeys('V', 'p' , 'g', 'v', 'd');
-  eq(' foo\n bar', cm.getValue());
-}, { value: ' hello\n this\n is \n foo\n and\n bar' });
+  eq('\nfoo\nbar', cm.getValue());
+}, { value: 'hello\nthis\nis\nfoo\nand\nbar' });
 testVim('s_normal', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.doKeys('s');
