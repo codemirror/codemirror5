@@ -40,6 +40,9 @@
   box-sizing: content-box;
 }
 
+.CodeMirror-guttermarker { color: black; }
+.CodeMirror-guttermarker-subtle { color: #999; }
+
 /* CURSOR */
 
 .CodeMirror div.CodeMirror-cursor {
@@ -86,6 +89,7 @@ div.CodeMirror-overwrite div.CodeMirror-cursor {}
   border-left: 1px solid #ccc;
   position: absolute;
 }
+
 /* DEFAULT THEME */
 
 .cm-s-default .cm-keyword {color: #708;}
@@ -120,6 +124,8 @@ div.CodeMirror-overwrite div.CodeMirror-cursor {}
 
 .cm-s-default .cm-error {color: #f00;}
 .cm-invalidchar {color: #f00;}
+
+/* Default styles for common addons */
 
 div.CodeMirror span.CodeMirror-matchingbracket {color: #0f0;}
 div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}

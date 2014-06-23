@@ -146,6 +146,9 @@ http://ethanschoonover.com/solarized/img/solarized-palette.png
   color: #586e75;
   padding: 0 5px;
 }
+.cm-s-solarized .CodeMirror-guttermarker-subtle { color: #586e75; }
+.cm-s-solarized.cm-s-dark .CodeMirror-guttermarker { color: #ddd; }
+.cm-s-solarized.cm-s-light .CodeMirror-guttermarker { color: #cb4b16; }
 
 .cm-s-solarized .CodeMirror-gutter .CodeMirror-gutter-text {
   color: #586e75;

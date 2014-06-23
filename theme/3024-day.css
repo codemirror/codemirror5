@@ -10,8 +10,12 @@
 
 .cm-s-3024-day.CodeMirror {background: #f7f7f7; color: #3a3432;}
 .cm-s-3024-day div.CodeMirror-selected {background: #d6d5d4 !important;}
+
 .cm-s-3024-day .CodeMirror-gutters {background: #f7f7f7; border-right: 0px;}
+.cm-s-3024-day .CodeMirror-guttermarker { color: #db2d20; }
+.cm-s-3024-day .CodeMirror-guttermarker-subtle { color: #807d7c; }
 .cm-s-3024-day .CodeMirror-linenumber {color: #807d7c;}
+
 .cm-s-3024-day .CodeMirror-cursor {border-left: 1px solid #5c5855 !important;}
 
 .cm-s-3024-day span.cm-comment {color: #cdab53;}
