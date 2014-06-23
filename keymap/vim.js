@@ -2571,6 +2571,7 @@
       updateLastSelection(cm, vim);
       vim.visualMode = false;
       vim.visualLine = false;
+      vim.visualBlock = false;
       if (!cursorEqual(selectionStart, selectionEnd)) {
         // Clear the selection and set the cursor only if the selection has not
         // already been cleared. Otherwise we risk moving the cursor somewhere

@@ -1574,9 +1574,19 @@ testVim('visual_line', function(cm, vim, helpers) {
   eq(' 4\n 5', cm.getValue());
 }, { value: ' 1\n 2\n 3\n 4\n 5' });
 testVim('visual_block', function(cm, vim, helpers) {
-  helpers.doKeys('l', '<C-v>', 'l', 'j', 'j', 'd');
-  eq('14\n58\nad', cm.getValue());
-}, {value: '1234\n5678\nabcd'});
+  // test the block selection with lines of different length
+  // i.e. extending the selection
+  // till the end of the longest line.
+  helpers.doKeys('<C-v>', 'l', 'j', 'j', '6', 'l', 'd');
+  helpers.doKeys('d', 'd', 'd', 'd');
+  eq('', cm.getValue());
+  // check for left side selection in case
+  // of moving up to a shorter line.
+  cm.replaceRange('hello world\n{\nthis is\nsparta!', cm.getCursor());
+  cm.setCursor(3, 4);
+  helpers.doKeys('<C-v>', 'l', 'k', 'k', 'd');
+  eq('hello world\n{\nt is\nsta!', cm.getValue());
+}, {value: '1234\n5678\nabcdefg'});
 testVim('visual_marks', function(cm, vim, helpers) {
   helpers.doKeys('l', 'v', 'l', 'l', 'j', 'j', 'v');
   // Test visual mode marks
