@@ -1613,6 +1613,16 @@ testCM("selectionBias", function(cm) {
   eqPos(cm.getCursor(), Pos(0, 3));
 }, {value: "12345"});
 
+testCM("selectionHomeEnd", function(cm) {
+  cm.markText(Pos(1, 0), Pos(1, 1), {atomic: true, inclusiveLeft: true});
+  cm.markText(Pos(1, 3), Pos(1, 4), {atomic: true, inclusiveRight: true});
+  cm.setCursor(Pos(1, 2));
+  cm.execCommand("goLineStart");
+  eqPos(cm.getCursor(), Pos(1, 1));
+  cm.execCommand("goLineEnd");
+  eqPos(cm.getCursor(), Pos(1, 3));
+}, {value: "ab\ncdef\ngh"});
+
 testCM("readOnlyMarker", function(cm) {
   function mark(ll, cl, lr, cr, at) {
     return cm.markText(Pos(ll, cl), Pos(lr, cr),
