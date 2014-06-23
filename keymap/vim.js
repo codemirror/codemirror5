@@ -2471,6 +2471,7 @@
       var primIndex = getIndex(ranges, cm.getCursor('head'));
       // sets to true when selectionEnd already lies inside the existing selections
       var contains = getIndex(ranges, selectionEnd) < 0 ? false : true;
+      selectionEnd = cm.clipPos(selectionEnd);
       // difference in distance of selectionEnd from each end of the block.
       var near  = Math.abs(firstRange.line - selectionEnd.line) - Math.abs(lastRange.line - selectionEnd.line);
       if (near > 0) {
@@ -2502,14 +2503,14 @@
         end = tmp;
       }
       while (start <= end) {
-        var anchor = {line: start, ch: firstRange.ch};
+        var anchor = {line: start, ch: (near > 0) ? firstRange.ch : lastRange.ch};
         var head = {line: start, ch: selectionEnd.ch};
         var range = {anchor: anchor, head: head};
         selections.push(range);
-        start++;
         if (cursorEqual(head, selectionEnd)) {
             primIndex = selections.indexOf(range);
         }
+        start++;
       }
       cm.setSelections(selections, primIndex);
     }
