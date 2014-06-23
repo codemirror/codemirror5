@@ -369,10 +369,6 @@
         cm.state.vim = null;
       }
     });
-    function beforeSelectionChange(cm, _obj) {
-      var vim = cm.state.vim;
-      if (vim.insertMode || vim.exMode) return;
-    }
     function getOnPasteFn(cm) {
       var vim = cm.state.vim;
       if (!vim.onPasteFn) {
