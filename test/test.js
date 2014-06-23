@@ -53,6 +53,23 @@ test("core_fromTextArea", function() {
   eq(te.value, "xxx");
 });
 
+test("core_fromTextArea_valueOverride", function() {
+  var te = document.getElementById("code");
+  te.value = "CONTENT";
+  var opt = {value: "OTHER CONTENT"};
+  var cm = CodeMirror.fromTextArea(te, opt);
+  eq(cm.getValue(), opt.value);
+});
+ 
+test("core_fromTextArea_beforeSave", function() {
+  var te = document.getElementById("code");
+  te.value = "CONTENT";
+  var cm = CodeMirror.fromTextArea(te);
+  cm.on("beforeSave",function (inst,opt) {opt.value = "OTHER CONTENT"});
+  cm.save();
+  eq(te.value, "OTHER CONTENT");
+});
+
 testCM("getRange", function(cm) {
   eq(cm.getLine(0), "1234");
   eq(cm.getLine(1), "5678");
