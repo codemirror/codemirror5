@@ -27,28 +27,11 @@
 .cm-s-zenburn span.cm-attribute { color: #dfaf8f; }
 .cm-s-zenburn span.cm-qualifier { color: #7cb8bb; }
 .cm-s-zenburn span.cm-meta { color: #f0dfaf; }
-.cm-s-default span.cm-header { color: #f0efd0; }
-.cm-s-default span.cm-operator { color: #f0efd0; }
+.cm-s-zenburn span.cm-header { color: #f0efd0; }
+.cm-s-zenburn span.cm-operator { color: #f0efd0; }
 .cm-s-zenburn span.CodeMirror-matchingbracket { box-sizing: border-box; background: transparent; border-bottom: 1px solid; }
 .cm-s-zenburn span.CodeMirror-nonmatchingbracket { border-bottom: 1px solid; background: none; }
-.cm-s-zenburn span.cm-rainbow.cm-bracket { color: #a0a090; }
-.cm-s-zenburn span.cm-rainbow.cm-bracket.cm-bracket1 { color: #a0a090; }
-.cm-s-zenburn span.cm-rainbow.cm-bracket.cm-bracket2 { color: #a0a090; }
-.cm-s-zenburn span.cm-rainbow.cm-bracket.cm-bracket3 { color: #a0a090; }
-.cm-s-zenburn span.cm-rainbow.cm-bracket.cm-bracket4 { color: #a0a090; }
-.cm-s-zenburn span.cm-rainbow.cm-bracket.cm-bracket5 { color: #a0a090; }
-.cm-s-zenburn span.cm-rainbow.cm-bracket.cm-bracket6 { color: #a0a090; }
-.cm-s-zenburn span.cm-rainbow.cm-bracket.cm-bracket7 { color: #a0a090; }
-.cm-s-zenburn span.cm-rainbow.cm-bracket.cm-bracket8 { color: #a0a090; }
-.cm-s-zenburn span.cm-rainbow.cm-bracket.cm-bracket9 { color: #a0a090; }
-.cm-s-zenburn span.cm-rainbow.cm-bracket.cm-bracket10 { color: #a0a090; }
-.cm-s-zenburn span.cm-rainbow.cm-bracket.cm-bracket11 { color: #a0a090; }
-.cm-s-zenburn span.cm-rainbow.cm-bracket.cm-bracket12 { color: #a0a090; }
 .cm-s-zenburn .CodeMirror-activeline { background: #000000; }
 .cm-s-zenburn .CodeMirror-activeline-background { background: #000000; }
 .cm-s-zenburn .CodeMirror-selected { background: #4f4f4f; }
 .cm-s-zenburn .CodeMirror-focused .CodeMirror-selected { background: #4f4f4f; }
-.cm-s-zenburn span.CodeMirror-searching { background: #5f5f5f; color: #ffffef !important; }
-.cm-s-zenburn span.CodeMirror-searching-active { background: #bc8383; color: #ffffef !important; }
-.cm-s-zenburn .cm-searching { background: #5f5f5f; color: #ffffef !important; }
-.cm-s-zenburn .searching-current { background: #bc8383; color: #ffffef !important; }
