@@ -99,6 +99,7 @@
           } else if (type == "both") {
             cm.replaceSelection(left + right, null);
             cm.execCommand("goCharLeft");
+            if (!cm.getTokenTypeAt(cm.getCursor())) cm.execCommand("delCharAfter");
           } else if (type == "addFour") {
             cm.replaceSelection(left + left + left + left, "before");
             cm.execCommand("goCharRight");
