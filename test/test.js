@@ -1548,6 +1548,19 @@ testCM("atomicMarker", function(cm) {
   eq(cm.getValue().length, 53, "del chunk");
 });
 
+testCM("selectionBias", function(cm) {
+  cm.markText(Pos(0, 1), Pos(0, 3), {atomic: true});
+  cm.setCursor(Pos(0, 2));
+  eqPos(cm.getCursor(), Pos(0, 3));
+  cm.setCursor(Pos(0, 2));
+  eqPos(cm.getCursor(), Pos(0, 1));
+  cm.setCursor(Pos(0, 2), null, {bias: -1});
+  eqPos(cm.getCursor(), Pos(0, 1));
+  cm.setCursor(Pos(0, 4));
+  cm.setCursor(Pos(0, 2), null, {bias: 1});
+  eqPos(cm.getCursor(), Pos(0, 3));
+}, {value: "12345"});
+
 testCM("readOnlyMarker", function(cm) {
   function mark(ll, cl, lr, cr, at) {
     return cm.markText(Pos(ll, cl), Pos(lr, cr),
@@ -1890,3 +1903,26 @@ testCM("alwaysMergeSelEventWithChangeOrigin", function(cm) {
   cm.undoSelection();
   eq(cm.getValue(), "Va");
 }, {value: "a"});
+
+testCM("getTokenTypeAt", function(cm) {
+  eq(cm.getTokenTypeAt(Pos(0, 0)), "number");
+  eq(cm.getTokenTypeAt(Pos(0, 6)), "string");
+  cm.addOverlay({
+    token: function(stream) {
+      if (stream.match("foo")) return "foo";
+      else stream.next();
+    }
+  });
+  eq(byClassName(cm.getWrapperElement(), "cm-foo").length, 1);
+  eq(cm.getTokenTypeAt(Pos(0, 6)), "string");
+}, {value: "1 + 'foo'", mode: "javascript"});
+
+testCM("resizeLineWidget", function(cm) {
+  addDoc(cm, 200, 3);
+  var widget = document.createElement("pre");
+  widget.innerHTML = "imwidget";
+  widget.style.background = "yellow";
+  cm.addLineWidget(1, widget, {noHScroll: true});
+  cm.setSize(40);
+  is(widget.parentNode.offsetWidth < 42);
+});

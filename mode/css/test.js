@@ -1,3 +1,6 @@
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
+
 (function() {
   var mode = CodeMirror.getMode({indentUnit: 2}, "css");
   function MT(name) { test.mode(name, mode, Array.prototype.slice.call(arguments, 1)); }
@@ -115,5 +118,18 @@
      "  [error nonsense]: [string 'abc'];",
      "  [property src]: [atom url]([string http://blah]),",
      "    [atom url]([string http://foo]);",
+     "}");
+
+  MT("empty_url",
+     "[def @import] [tag url]() [tag screen];");
+
+  MT("parens",
+     "[qualifier .foo] {",
+     "  [property background-image]: [variable fade]([atom #000], [number 20%]);",
+     "  [property border-image]: [variable linear-gradient](",
+     "    [atom to] [atom bottom],",
+     "    [variable fade]([atom #000], [number 20%]) [number 0%],",
+     "    [variable fade]([atom #000], [number 20%]) [number 100%]",
+     "  );",
      "}");
 })();

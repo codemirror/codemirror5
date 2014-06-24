@@ -1,3 +1,6 @@
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
+
 /*jshint unused:true, eqnull:true, curly:true, bitwise:true */
 /*jshint undef:true, latedef:true, trailing:true */
 /*global CodeMirror:true */
@@ -358,7 +361,7 @@ CodeMirror.defineMode("erlang", function(cmCfg) {
     switch (type) {
       case "atom":        return "atom";
       case "attribute":   return "attribute";
-      case "boolean":     return "special";
+      case "boolean":     return "atom";
       case "builtin":     return "builtin";
       case "close_paren": return null;
       case "colon":       return null;

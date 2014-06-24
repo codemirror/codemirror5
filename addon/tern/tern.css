@@ -76,6 +76,7 @@
 
 .CodeMirror-Tern-hint-doc {
   max-width: 25em;
+  margin-top: -3px;
 }
 
 .CodeMirror-Tern-fname { color: black; }

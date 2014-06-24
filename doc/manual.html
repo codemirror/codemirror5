@@ -63,7 +63,7 @@
 <section class=first id=overview>
     <h2 style="position: relative">
       User manual and reference guide
-      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 4.0.4</span>
+      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 4.2.1</span>
     </h2>
 
     <p>CodeMirror is a code-editor component that can be embedded in
@@ -370,7 +370,8 @@
 
       <dt id="option_cursorBlinkRate"><code><strong>cursorBlinkRate</strong>: number</code></dt>
       <dd>Half-period in milliseconds used for cursor blinking. The default blink
-      rate is 530ms. By setting this to zero, blinking can be disabled.</dd>
+      rate is 530ms. By setting this to zero, blinking can be disabled. A
+      negative value hides the cursor entirely.</dd>
 
       <dt id="option_cursorScrollMargin"><code><strong>cursorScrollMargin</strong>: number</code></dt>
       <dd>How much extra space to always keep above and below the
@@ -1199,7 +1200,7 @@
       merged). Each object in the array contains <code>anchor</code>
       and <code>head</code> properties referring to <code>{line,
       ch}</code> objects.</dd>
-      
+
       <dt id="somethingSelected"><code><strong>doc.somethingSelected</strong>() → boolean</code></dt>
       <dd>Return true if any text is selected.</dd>
       <dt id="setCursor"><code><strong>doc.setCursor</strong>(pos: {line, ch}|number, ?ch: number, ?options: object)</code></dt>
@@ -1228,6 +1229,14 @@
         old one. When it starts with <code>*</code>, it will always
         replace the previous event (if that had the same origin).
         Built-in motion uses the <code>"+move"</code> origin.</dd>
+        <dt id="selection_bias"><code><strong>bias</strong>: number</code></dt>
+        <dd>Determine the direction into which the selection endpoints
+        should be adjusted when they fall inside
+        an <a href="#mark_atomic">atomic</a> range. Can be either -1
+        (backward) or 1 (forward). When not given, the bias will be
+        based on the relative position of the old selection—the editor
+        will try to move further away from that, to prevent getting
+        stuck.</dd>
       </dl></dd>
 
       <dt id="setSelections"><code><strong>doc.setSelections</strong>(ranges: array&lt;{anchor, head}&gt;, ?primary: integer, ?options: object)</code></dt>
@@ -1590,7 +1599,7 @@
       <dd>Remove all gutter markers in
       the <a href="#option_gutters">gutter</a> with the given ID.</dd>
 
-      <dt id="addLineClass"><code><strong>cm.addLineClass</strong>(line: integer|LineHandle, where: string, class: string) → LineHandle</code></dt>
+      <dt id="addLineClass"><code><strong>doc.addLineClass</strong>(line: integer|LineHandle, where: string, class: string) → LineHandle</code></dt>
       <dd>Set a CSS class name for the given line. <code>line</code>
       can be a number or a line handle. <code>where</code> determines
       to which element this class should be applied, can can be one
@@ -1601,7 +1610,7 @@
       gutter elements). <code>class</code> should be the name of the
       class to apply.</dd>
 
-      <dt id="removeLineClass"><code><strong>cm.removeLineClass</strong>(line: integer|LineHandle, where: string, class: string) → LineHandle</code></dt>
+      <dt id="removeLineClass"><code><strong>doc.removeLineClass</strong>(line: integer|LineHandle, where: string, class: string) → LineHandle</code></dt>
       <dd>Remove a CSS class from a line. <code>line</code> can be a
       line handle or number. <code>where</code> should be one
       of <code>"text"</code>, <code>"background"</code>,
@@ -2157,8 +2166,9 @@
         <dd>Override the <a href="#mode_comment">comment string
         properties</a> of the mode with custom comment strings.</dd>
         <dt><code><strong>padding</strong>: string</code></dt>
-        <dd>A string that will be inserted after opening and before
-        closing comment markers. Defaults to a single space.</dd>
+        <dd>A string that will be inserted after opening and leading
+        markers, and before closing comment markers. Defaults to a
+        single space.</dd>
         <dt><code><strong>commentBlankLines</strong>: boolean</code></dt>
         <dd>Whether, when adding line comments, to also comment lines
         that contain only whitespace.</dd>
@@ -2254,6 +2264,8 @@
         given, <a href="#helper_fold_auto"><code>CodeMirror.fold.auto</code></a>
         will be used as default.</dd>
       </dl>
+      The <code>foldOptions</code> editor option can be set to an
+      object to provide an editor-wide default configuration.
       Demo <a href="../demo/folding.html">here</a>.</dd>
 
       <dt id="addon_runmode"><a href="../addon/runmode/runmode.js"><code>runmode/runmode.js</code></a></dt>
@@ -2315,18 +2327,18 @@
 
       <dt id="addon_show-hint"><a href="../addon/hint/show-hint.js"><code>hint/show-hint.js</code></a></dt>
       <dd>Provides a framework for showing autocompletion hints.
-      Defines <code>CodeMirror.showHint</code>, which takes a
-      CodeMirror instance, a hinting function, and optionally an
+      Defines <code>editor.showHint</code>, which takes an optional
       options object, and pops up a widget that allows the user to
-      select a completion. Hinting functions are function that take an
-      editor instance and an optional options object, and return
+      select a completion. Finding hints is done with a hinting
+      functions (the <code>hint</code> option), which is a function
+      that take an editor instance and options object, and return
       a <code>{list, from, to}</code> object, where <code>list</code>
       is an array of strings or objects (the completions),
       and <code>from</code> and <code>to</code> give the start and end
       of the token that is being completed as <code>{line, ch}</code>
       objects.</dd>
       <dd>If no hinting function is given, the addon will
-      use <code>CodeMirror.hint.auto</code>, with
+      use <code>CodeMirror.hint.auto</code>, which
       calls <a href="#getHelpers"><code>getHelpers</code></a> with
       the <code>"hint"</code> type to find applicable hinting
       functions, and tries them one by one. If that fails, it looks
@@ -2334,9 +2346,8 @@
       completable words for the mode, and
       uses <code>CodeMirror.hint.fromList</code> to complete from
       those.</dd>
-      <dd>When completions
-      aren't simple strings, they should be objects with the following
-      properties:
+      <dd>When completions aren't simple strings, they should be
+      objects with the following properties:
       <dl>
         <dt><code><strong>text</strong>: string</code></dt>
         <dd>The completion text. This is the only required
@@ -2363,11 +2374,13 @@
       will also be passed along to the hinting function, which may
       understand additional options):
       <dl>
-        <dt><code><strong>async</strong>: boolean</code></dt>
-        <dd>When set to true, the hinting function's signature should
-        be <code>(cm, callback, ?options)</code>, and the completion
-        interface will only be popped up when the hinting function
-        calls the callback, passing it the object holding the
+        <dt><code><strong>hint</strong>: function</code></dt>
+        <dd>A hinting function, as specified above. It is possible to
+        set the <code>async</code> property on a hinting function to
+        true, in which case it will be called with
+        arguments <code>(cm, callback, ?options)</code>, and the
+        completion interface will only be popped up when the hinting
+        function calls the callback, passing it the object holding the
         completions.</dd>
         <dt><code><strong>completeSingle</strong>: boolean</code></dt>
         <dd>Determines whether, when only a single completion is
@@ -2555,12 +2568,13 @@
       <dt id="addon_rulers"><a href="../addon/display/rulers.js"><code>display/rulers.js</code></a></dt>
       <dd>Adds a <code>rulers</code> option, which can be used to show
       one or more vertical rulers in the editor. The option, if
-      defined, should be given an array of <code>{column,
-      className}</code> objects or numbers. The ruler will be
-      displayed at the column indicated by the number or
-      the <code>column</code> property. The <code>className</code>
-      property can be used to assign a custom style to a
-      ruler. <a href="../demo/rulers.html">Demo here</a>.</dd>
+      defined, should be given an array of <code>{column [, className,
+      color, lineStyle, width]}</code> objects or numbers (wich
+      indicate a column). The ruler will be displayed at the column
+      indicated by the number or the <code>column</code> property.
+      The <code>className</code> property can be used to assign a
+      custom style to a ruler. <a href="../demo/rulers.html">Demo
+      here</a>.</dd>
 
       <dt id="addon_hardwrap"><a href="../addon/wrap/hardwrap.js"><code>wrap/hardwrap.js</code></a></dt>
       <dd>Addon to perform hard line wrapping/breaking for paragraphs

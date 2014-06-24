@@ -1,3 +1,6 @@
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
+
 /**
  * Link to the project's GitHub page:
  * https://github.com/duralog/CodeMirror
@@ -11,20 +14,19 @@
   else // Plain browser env
     mod(CodeMirror);
 })(function(CodeMirror) {
-"use strict";
+  "use strict";
 
-(function() {
   CodeMirror.defineMode('livescript', function(){
-    var tokenBase, external;
-    tokenBase = function(stream, state){
-      var next_rule, nr, i$, len$, r, m;
-      if (next_rule = state.next || 'start') {
+    var tokenBase = function(stream, state) {
+      var next_rule = state.next || "start";
+      if (next_rule) {
         state.next = state.next;
-        if (Array.isArray(nr = Rules[next_rule])) {
-          for (i$ = 0, len$ = nr.length; i$ < len$; ++i$) {
-            r = nr[i$];
+        var nr = Rules[next_rule];
+        if (nr.splice) {
+          for (var i$ = 0; i$ < nr.length; ++i$) {
+            var r = nr[i$], m;
             if (r.regex && (m = stream.match(r.regex))) {
-              state.next = r.next;
+              state.next = r.next || state.next;
               return r.token;
             }
           }
@@ -44,7 +46,7 @@
       stream.next();
       return 'error';
     };
-    external = {
+    var external = {
       startState: function(){
         return {
           next: 'start',
@@ -52,8 +54,8 @@
         };
       },
       token: function(stream, state){
-        var style;
-        style = tokenBase(stream, state);
+        while (stream.pos == stream.start)
+          var style = tokenBase(stream, state);
         state.lastToken = {
           style: style,
           indent: stream.indentation(),
@@ -62,8 +64,7 @@
         return style.replace(/\./g, ' ');
       },
       indent: function(state){
-        var indentation;
-        indentation = state.lastToken.indent;
+        var indentation = state.lastToken.indent;
         if (state.lastToken.content.match(indenter)) {
           indentation += 2;
         }
@@ -203,7 +204,7 @@
         next: 'start'
       }, {
         token: 'text',
-        regex: '.',
+        regex: '',
         next: 'start'
       }
     ],
@@ -262,19 +263,18 @@
   };
   for (var idx in Rules) {
     var r = Rules[idx];
-    if (Array.isArray(r)) {
+    if (r.splice) {
       for (var i = 0, len = r.length; i < len; ++i) {
         var rr = r[i];
-        if (rr.regex) {
+        if (typeof rr.regex === 'string') {
           Rules[idx][i].regex = new RegExp('^' + rr.regex);
         }
       }
-    } else if (r.regex) {
+    } else if (typeof rr.regex === 'string') {
       Rules[idx].regex = new RegExp('^' + r.regex);
     }
   }
-})();
 
-CodeMirror.defineMIME('text/x-livescript', 'livescript');
+  CodeMirror.defineMIME('text/x-livescript', 'livescript');
 
 });

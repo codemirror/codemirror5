@@ -1,3 +1,6 @@
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
+
 // A rough approximation of Sublime Text's keybindings
 // Depends on addon/search/searchcursor.js and optionally addon/dialog/dialogs.js
 
@@ -52,10 +55,22 @@
   cmds[map["Alt-Right"] = "goSubwordRight"] = function(cm) { moveSubword(cm, 1); };
 
   cmds[map[ctrl + "Up"] = "scrollLineUp"] = function(cm) {
-    cm.scrollTo(null, cm.getScrollInfo().top - cm.defaultTextHeight());
+    var info = cm.getScrollInfo();
+    if (!cm.somethingSelected()) {
+      var visibleBottomLine = cm.lineAtHeight(info.top + info.clientHeight, "local");
+      if (cm.getCursor().line >= visibleBottomLine)
+        cm.execCommand("goLineUp");
+    }
+    cm.scrollTo(null, info.top - cm.defaultTextHeight());
   };
   cmds[map[ctrl + "Down"] = "scrollLineDown"] = function(cm) {
-    cm.scrollTo(null, cm.getScrollInfo().top + cm.defaultTextHeight());
+    var info = cm.getScrollInfo();
+    if (!cm.somethingSelected()) {
+      var visibleTopLine = cm.lineAtHeight(info.top, "local")+1;
+      if (cm.getCursor().line <= visibleTopLine)
+        cm.execCommand("goLineDown");
+    }
+    cm.scrollTo(null, info.top + cm.defaultTextHeight());
   };
 
   cmds[map["Shift-" + ctrl + "L"] = "splitSelectionByLine"] = function(cm) {
@@ -172,9 +187,12 @@
   };
 
   cmds[map["Shift-" + ctrl + "Up"] = "swapLineUp"] = function(cm) {
-    var ranges = cm.listSelections(), linesToMove = [], at = cm.firstLine() - 1;
+    var ranges = cm.listSelections(), linesToMove = [], at = cm.firstLine() - 1, newSels = [];
     for (var i = 0; i < ranges.length; i++) {
       var range = ranges[i], from = range.from().line - 1, to = range.to().line;
+      newSels.push({anchor: Pos(range.anchor.line - 1, range.anchor.ch),
+                    head: Pos(range.head.line - 1, range.head.ch)});
+      if (range.to().ch == 0 && !range.empty()) --to;
       if (from > at) linesToMove.push(from, to);
       else if (linesToMove.length) linesToMove[linesToMove.length - 1] = to;
       at = to;
@@ -184,16 +202,12 @@
         var from = linesToMove[i], to = linesToMove[i + 1];
         var line = cm.getLine(from);
         cm.replaceRange("", Pos(from, 0), Pos(from + 1, 0), "+swapLine");
-        if (to > cm.lastLine()) {
+        if (to > cm.lastLine())
           cm.replaceRange("\n" + line, Pos(cm.lastLine()), null, "+swapLine");
-          var sels = cm.listSelections(), last = sels[sels.length - 1];
-          var head = last.head.line == to ? Pos(to - 1) : last.head;
-          var anchor = last.anchor.line == to ? Pos(to - 1) : last.anchor;
-          cm.setSelections(sels.slice(0, sels.length - 1).concat([{head: head, anchor: anchor}]));
-        } else {
+        else
           cm.replaceRange(line + "\n", Pos(to, 0), null, "+swapLine");
-        }
       }
+      cm.setSelections(newSels);
       cm.scrollIntoView();
     });
   };
@@ -202,6 +216,7 @@
     var ranges = cm.listSelections(), linesToMove = [], at = cm.lastLine() + 1;
     for (var i = ranges.length - 1; i >= 0; i--) {
       var range = ranges[i], from = range.to().line + 1, to = range.from().line;
+      if (range.to().ch == 0 && !range.empty()) from--;
       if (from < at) linesToMove.push(from, to);
       else if (linesToMove.length) linesToMove[linesToMove.length - 1] = to;
       at = to;

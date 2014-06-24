@@ -1,3 +1,6 @@
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
+
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
     mod(require("../../lib/codemirror"));
@@ -22,6 +25,7 @@
     var style = cm.getTokenTypeAt(Pos(where.line, pos + 1));
 
     var found = scanForBracket(cm, Pos(where.line, pos + (dir > 0 ? 1 : 0)), dir, style || null, config);
+    if (found == null) return null;
     return {from: Pos(where.line, pos), to: found && found.pos,
             match: found && found.ch == match.charAt(0), forward: dir > 0};
   }
@@ -30,9 +34,12 @@
   // should be a regexp, e.g. /[[\]]/
   //
   // Note: If "where" is on an open bracket, then this bracket is ignored.
+  //
+  // Returns false when no bracket was found, null when it reached
+  // maxScanLines and gave up
   function scanForBracket(cm, where, dir, style, config) {
     var maxScanLen = (config && config.maxScanLineLength) || 10000;
-    var maxScanLines = (config && config.maxScanLines) || 500;
+    var maxScanLines = (config && config.maxScanLines) || 1000;
 
     var stack = [];
     var re = config && config.bracketRegex ? config.bracketRegex : /[(){}[\]]/;
@@ -54,6 +61,7 @@
         }
       }
     }
+    return lineNo - dir == (dir > 0 ? cm.lastLine() : cm.firstLine()) ? false : null;
   }
 
   function matchBrackets(cm, autoclear, config) {
@@ -62,11 +70,10 @@
     var marks = [], ranges = cm.listSelections();
     for (var i = 0; i < ranges.length; i++) {
       var match = ranges[i].empty() && findMatchingBracket(cm, ranges[i].head, false, config);
-      if (match && cm.getLine(match.from.line).length <= maxHighlightLen &&
-          match.to && cm.getLine(match.to.line).length <= maxHighlightLen) {
+      if (match && cm.getLine(match.from.line).length <= maxHighlightLen) {
         var style = match.match ? "CodeMirror-matchingbracket" : "CodeMirror-nonmatchingbracket";
         marks.push(cm.markText(match.from, Pos(match.from.line, match.from.ch + 1), {className: style}));
-        if (match.to)
+        if (match.to && cm.getLine(match.to.line).length <= maxHighlightLen)
           marks.push(cm.markText(match.to, Pos(match.to.line, match.to.ch + 1), {className: style}));
       }
     }

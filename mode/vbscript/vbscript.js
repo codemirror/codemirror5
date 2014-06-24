@@ -1,3 +1,6 @@
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
+
 /*
 For extra ASP classic objects, initialize CodeMirror instance with this option:
     isASP: true

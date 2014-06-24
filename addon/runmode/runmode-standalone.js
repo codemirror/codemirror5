@@ -1,3 +1,6 @@
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
+
 window.CodeMirror = {};
 
 (function() {
@@ -139,6 +142,7 @@ CodeMirror.runMode = function (string, modespec, callback, options) {
   for (var i = 0, e = lines.length; i < e; ++i) {
     if (i) callback("\n");
     var stream = new CodeMirror.StringStream(lines[i]);
+    if (!stream.string && mode.blankLine) mode.blankLine(state);
     while (!stream.eol()) {
       var style = mode.token(stream, state);
       callback(stream.current(), style, i, stream.start, state);

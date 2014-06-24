@@ -1,3 +1,6 @@
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
+
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
     mod(require("../../lib/codemirror"));
@@ -341,14 +344,11 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
   };
 });
 
-(function() {
-
-  CodeMirror.defineMIME("text/x-verilog", {
-    name: "verilog"
-  });
-  CodeMirror.defineMIME("text/x-systemverilog", {
-    name: "systemverilog"
-  });
-}());
+CodeMirror.defineMIME("text/x-verilog", {
+  name: "verilog"
+});
+CodeMirror.defineMIME("text/x-systemverilog", {
+  name: "systemverilog"
+});
 
 });

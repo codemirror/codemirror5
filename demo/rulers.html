@@ -9,12 +9,6 @@
 <script src="../addon/display/rulers.js"></script>
 <style type="text/css">
   .CodeMirror {border-top: 1px solid #888; border-bottom: 1px solid #888;}
-  .ruler1 { border-left: 1px solid #fcc; }
-  .ruler2 { border-left: 1px solid #f5f577; }
-  .ruler3 { border-left: 1px solid #cfc; }
-  .ruler4 { border-left: 1px solid #aff; }
-  .ruler5 { border-left: 1px solid #ccf; }
-  .ruler6 { border-left: 1px solid #fcf; }
 </style>
 <div id=nav>
   <a href="http://codemirror.net"><img id=logo src="../doc/logo.png"></a>
@@ -34,9 +28,10 @@
 
 <script type="text/javascript">
   var nums = "0123456789", space = "          ";
+  var colors = ["#fcc", "#f5f577", "#cfc", "#aff", "#ccf", "#fcf"];
   var rulers = [], value = "";
   for (var i = 1; i <= 6; i++) {
-    rulers.push({className: "ruler" + i, column: i * 10});
+    rulers.push({color: colors[i], column: i * 10, lineStyle: "dashed"});
     for (var j = 1; j < i; j++) value += space;
     value += nums + "\n";
   }

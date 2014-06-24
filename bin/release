@@ -20,9 +20,11 @@ rewrite("lib/codemirror.js", function(lib) {
   return lib.replace(/CodeMirror\.version = "\d+\.\d+\.\d+"/,
                      "CodeMirror.version = \"" + number + "\"");
 });
-rewrite("package.json", function(pack) {
+function rewriteJSON(pack) {
   return pack.replace(/"version":"\d+\.\d+\.\d+"/, "\"version\":\"" + number + "\"");
-});
+}
+rewrite("package.json", rewriteJSON);
+rewrite("bower.json", rewriteJSON);
 rewrite("doc/manual.html", function(manual) {
   return manual.replace(/>version \d+\.\d+\.\d+<\/span>/, ">version " + number + "</span>");
 });

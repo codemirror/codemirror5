@@ -1,3 +1,6 @@
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
+
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
     mod(require("../../lib/codemirror"));
@@ -121,7 +124,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
       state.state = baseState;
       state.tagName = state.tagStart = null;
       var next = state.tokenize(stream, state);
-      return next ? next + " error" : "error";
+      return next ? next + " tag error" : "tag error";
     } else if (/[\'\"]/.test(ch)) {
       state.tokenize = inAttribute(ch);
       state.stringStartCol = stream.column();
@@ -321,7 +324,10 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
       var context = state.context;
       // Indent multi-line strings (e.g. css).
       if (state.tokenize.isInAttribute) {
-        return state.stringStartCol + 1;
+        if (state.tagStart == state.indented)
+          return state.stringStartCol + 1;
+        else
+          return state.indented + indentUnit;
       }
       if (context && context.noIndent) return CodeMirror.Pass;
       if (state.tokenize != inTag && state.tokenize != inText)
@@ -334,7 +340,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
           return state.tagStart + indentUnit * multilineTagIndentFactor;
       }
       if (alignCDATA && /<!\[CDATA\[/.test(textAfter)) return 0;
-      var tagAfter = textAfter && /^<(\/)?(\w*)/.exec(textAfter);
+      var tagAfter = textAfter && /^<(\/)?([\w_:\.-]*)/.exec(textAfter);
       if (tagAfter && tagAfter[1]) { // Closing tag spotted
         while (context) {
           if (context.tagName == tagAfter[2]) {

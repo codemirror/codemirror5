@@ -1,3 +1,6 @@
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
+
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
     mod(require("../../lib/codemirror"), require("../../mode/css/css"));
@@ -31,7 +34,7 @@
           result.push(name);
     }
 
-    var st = token.state.state;
+    var st = inner.state.state;
     if (st == "pseudo" || token.type == "variable-3") {
       add(pseudoClasses);
     } else if (st == "block" || st == "maybeprop") {
