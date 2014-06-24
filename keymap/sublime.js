@@ -494,6 +494,7 @@
 
   function findAndGoTo(cm, forward) {
     var target = getTarget(cm);
+    if (!target) return;
     var query = target.query;
     var cur = cm.getSearchCursor(query, forward ? target.to : target.from);
 
@@ -512,6 +513,7 @@
   cmds[map["Shift-" + ctrl + "F3"] = "findUnderPrevious"] = function(cm) { findAndGoTo(cm,false); };
   cmds[map["Alt-F3"] = "findAllUnder"] = function(cm) {
     var target = getTarget(cm);
+    if (!target) return;
     var cur = cm.getSearchCursor(target.query);
     var matches = [];
     var primaryIndex = -1;
