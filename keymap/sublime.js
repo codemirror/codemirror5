@@ -489,13 +489,13 @@
       from = word.from;
       to = word.to;
     }
-    return {from: from, to: to, query: cm.getRange(from, to)};
+    return {from: from, to: to, query: cm.getRange(from, to), word: word};
   }
 
   function findAndGoTo(cm, forward) {
     var target = getTarget(cm);
     var query = target.query;
-    var cur = cm.getSearchCursor(query, forward ? to : from);
+    var cur = cm.getSearchCursor(query, forward ? target.to : target.from);
 
     if (forward ? cur.findNext() : cur.findPrevious()) {
       cm.setSelection(cur.from(), cur.to());
@@ -504,7 +504,7 @@
                                               : cm.clipPos(Pos(cm.lastLine())));
       if (forward ? cur.findNext() : cur.findPrevious())
         cm.setSelection(cur.from(), cur.to());
-      else if (word)
+      else if (target.word)
         cm.setSelection(target.from, target.to);
     }
   };
