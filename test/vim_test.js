@@ -1586,6 +1586,36 @@ testVim('visual_block', function(cm, vim, helpers) {
   cm.setCursor(3, 4);
   helpers.doKeys('<C-v>', 'l', 'k', 'k', 'd');
   eq('hello world\n{\nt is\nsta!', cm.getValue());
+  cm.replaceRange('12345\n67891\nabcde', {line: 0, ch: 0}, {line: cm.lastLine(), ch: 6});
+  cm.setCursor(1, 2);
+  helpers.doKeys('<C-v>', '2', 'l', 'k');
+  // circle around the anchor
+  // and check the selections
+  var selections = cm.getSelections();
+  eq('345891', selections.join(''));
+  helpers.doKeys('4', 'h');
+  selections = cm.getSelections();
+  eq('123678', selections.join(''));
+  helpers.doKeys('j', 'j');
+  selections = cm.getSelections();
+  eq('678abc', selections.join(''));
+  helpers.doKeys('4', 'l');
+  selections = cm.getSelections();
+  eq('891cde', selections.join(''));
+  // switch between visual modes
+  cm.setCursor(1, 1);
+  // blockwise to characterwise visual
+  helpers.doKeys('<C-v>', '<C-v>', 'j', 'l', 'v');
+  selections = cm.getSelections();
+  eq('7891\nabc', selections.join(''));
+  // characterwise to blockwise
+  helpers.doKeys('<C-v>');
+  selections = cm.getSelections();
+  eq('78bc', selections.join(''));
+  // blockwise to linewise visual
+  helpers.doKeys('V');
+  selections = cm.getSelections();
+  eq('67891\nabcde', selections.join(''));
 }, {value: '1234\n5678\nabcdefg'});
 testVim('visual_marks', function(cm, vim, helpers) {
   helpers.doKeys('l', 'v', 'l', 'l', 'j', 'j', 'v');
