@@ -2066,6 +2066,7 @@
             if (actionArgs.blockwise) {
               // This means Ctrl-V pressed in linewise visual
               vim.visualBlock = true;
+              selectBlock(cm, curEnd);
               CodeMirror.signal(cm, 'vim-mode-change', {mode: 'visual', subMode: 'blockwise'});
             } else if (!actionArgs.linewise) {
               // v pressed in linewise, switch to characterwise visual mode
@@ -2078,9 +2079,20 @@
             if (actionArgs.linewise) {
               // Shift-V pressed in blockwise visual mode
               vim.visualLine = true;
+              var selections = cm.listSelections();
+              curStart = Pos(selections[0].anchor.line, 0);
+              curEnd = Pos(selections[selections.length-1].anchor.line, lineLength(cm, selections[selections.length-1].anchor.line));
+              cm.setSelection(curStart, curEnd);
               CodeMirror.signal(cm, 'vim-mode-change', {mode: 'visual', subMode: 'linewise'});
             } else if (!actionArgs.blockwise) {
               // v pressed in blockwise mode, Switch to characterwise
+              var selections = cm.listSelections();
+              if (curEnd != selections[0].head) {
+                curStart = selections[0].anchor;
+              } else {
+                curStart = selections[selections.length-1].anchor;
+              }
+              cm.setSelection(curStart, curEnd);
               CodeMirror.signal(cm, 'vim-mode-change', {mode: 'visual'});
             } else {
               exitVisualMode(cm);
@@ -2097,7 +2109,7 @@
               CodeMirror.signal(cm, "vim-mode-change", {mode: "visual", subMode: "linewise"});
             } else if (actionArgs.blockwise) {
               vim.visualBlock = true;
-              // write code for block selection;
+              selectBlock(cm, curEnd);
               CodeMirror.signal(cm, 'vim-mode-change', {mode: 'visual', subMode: 'blockwise'});
             } else {
               exitVisualMode(cm);
@@ -2464,7 +2476,8 @@
       var selections = [], ranges = cm.listSelections();
       var firstRange = ranges[0].anchor, lastRange = ranges[ranges.length-1].anchor;
       var start, end;
-      var primIndex = getIndex(ranges, cm.getCursor('head'));
+      var curEnd = cm.getCursor('head');
+      var primIndex = getIndex(ranges, curEnd);
       // sets to true when selectionEnd already lies inside the existing selections
       var contains = getIndex(ranges, selectionEnd) < 0 ? false : true;
       selectionEnd = cm.clipPos(selectionEnd);
@@ -2501,6 +2514,15 @@
       while (start <= end) {
         var anchor = {line: start, ch: (near > 0) ? firstRange.ch : lastRange.ch};
         var head = {line: start, ch: selectionEnd.ch};
+        // Shift the anchor right or left
+        // as each selection crosses itself.
+        if ((anchor.ch < curEnd.ch) && ((head.ch == anchor.ch) || (anchor.ch - head.ch == 1))) {
+          anchor.ch++;
+          head.ch--;
+        } else if ((anchor.ch > curEnd.ch) && ((head.ch == anchor.ch) || (anchor.ch - head.ch == -1))) {
+          anchor.ch--;
+          head.ch++;
+        }
         var range = {anchor: anchor, head: head};
         selections.push(range);
         if (cursorEqual(head, selectionEnd)) {
