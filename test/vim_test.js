@@ -2056,6 +2056,12 @@ testVim('yank_register', function(cm, vim, helpers) {
     is(/b\s+bar/.test(text));
   });
   helpers.doKeys(':');
+  cm.setCursor(0, 1);
+  helpers.doKeys('<C-v>', 'l', 'j', '"', 'a', 'y');
+  cm.openNotification = helpers.fakeOpenNotification(function(text) {
+    is(/a\s+oo\nar/.test(text));
+  });
+  helpers.doKeys(':');
 }, { value: 'foo\nbar'});
 testVim('yank_append_line_to_line_register', function(cm, vim, helpers) {
   cm.setCursor(0, 0);

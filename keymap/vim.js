@@ -1904,10 +1904,14 @@
           cm.setCursor(curOriginal);
         }
       },
-      yank: function(cm, operatorArgs, _vim, curStart, curEnd, curOriginal) {
+      yank: function(cm, operatorArgs, vim, curStart, curEnd, curOriginal) {
+        var text = cm.getRange(curStart, curEnd);
+        if (vim.visualBlock) {
+          text = cm.getSelections().join('\n');
+        }
         vimGlobalState.registerController.pushText(
             operatorArgs.registerName, 'yank',
-            cm.getRange(curStart, curEnd), operatorArgs.linewise);
+            text, operatorArgs.linewise);
         cm.setCursor(curOriginal);
       }
     };
@@ -2038,6 +2042,7 @@
         var repeat = actionArgs.repeat;
         var curStart = cm.getCursor();
         var curEnd;
+        var selections = cm.listSelections();
         // TODO: The repeat should actually select number of characters/lines
         //     equal to the repeat times the size of the previous visual
         //     operation.
@@ -2079,14 +2084,12 @@
             if (actionArgs.linewise) {
               // Shift-V pressed in blockwise visual mode
               vim.visualLine = true;
-              var selections = cm.listSelections();
               curStart = Pos(selections[0].anchor.line, 0);
               curEnd = Pos(selections[selections.length-1].anchor.line, lineLength(cm, selections[selections.length-1].anchor.line));
               cm.setSelection(curStart, curEnd);
               CodeMirror.signal(cm, 'vim-mode-change', {mode: 'visual', subMode: 'linewise'});
             } else if (!actionArgs.blockwise) {
               // v pressed in blockwise mode, Switch to characterwise
-              var selections = cm.listSelections();
               if (curEnd != selections[0].head) {
                 curStart = selections[0].anchor;
               } else {
