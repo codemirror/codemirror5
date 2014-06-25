@@ -1388,7 +1388,9 @@
                 selectionStart.ch = lineLength(cm, selectionStart.line);
               }
             } else if (vim.visualBlock) {
-              selectBlock(cm, selectionEnd);
+              // Select a block and
+              // return the diagonally opposite end.
+              selectionStart = selectBlock(cm, selectionEnd);
             }
             if (!vim.visualBlock) {
               cm.setSelection(selectionStart, selectionEnd);
@@ -1453,6 +1455,9 @@
           operatorArgs.registerName = registerName;
           // Keep track of linewise as it affects how paste and change behave.
           operatorArgs.linewise = linewise;
+          if (!vim.visualBlock) {
+            cm.extendSelection(curStart, curEnd);
+          }
           operators[operator](cm, operatorArgs, vim, curStart,
               curEnd, curOriginal);
           if (vim.visualMode) {
@@ -1904,10 +1909,11 @@
           cm.setCursor(curOriginal);
         }
       },
-      yank: function(cm, operatorArgs, _vim, curStart, curEnd, curOriginal) {
+      yank: function(cm, operatorArgs, _vim, _curStart, _curEnd, curOriginal) {
+        var text = cm.getSelection();
         vimGlobalState.registerController.pushText(
             operatorArgs.registerName, 'yank',
-            cm.getRange(curStart, curEnd), operatorArgs.linewise);
+            text, operatorArgs.linewise);
         cm.setCursor(curOriginal);
       }
     };
@@ -2038,6 +2044,7 @@
         var repeat = actionArgs.repeat;
         var curStart = cm.getCursor();
         var curEnd;
+        var selections = cm.listSelections();
         // TODO: The repeat should actually select number of characters/lines
         //     equal to the repeat times the size of the previous visual
         //     operation.
@@ -2079,14 +2086,12 @@
             if (actionArgs.linewise) {
               // Shift-V pressed in blockwise visual mode
               vim.visualLine = true;
-              var selections = cm.listSelections();
               curStart = Pos(selections[0].anchor.line, 0);
               curEnd = Pos(selections[selections.length-1].anchor.line, lineLength(cm, selections[selections.length-1].anchor.line));
               cm.setSelection(curStart, curEnd);
               CodeMirror.signal(cm, 'vim-mode-change', {mode: 'visual', subMode: 'linewise'});
             } else if (!actionArgs.blockwise) {
               // v pressed in blockwise mode, Switch to characterwise
-              var selections = cm.listSelections();
               if (curEnd != selections[0].head) {
                 curStart = selections[0].anchor;
               } else {
@@ -2475,7 +2480,7 @@
     function selectBlock(cm, selectionEnd) {
       var selections = [], ranges = cm.listSelections();
       var firstRange = ranges[0].anchor, lastRange = ranges[ranges.length-1].anchor;
-      var start, end;
+      var start, end, selectionStart;
       var curEnd = cm.getCursor('head');
       var primIndex = getIndex(ranges, curEnd);
       // sets to true when selectionEnd already lies inside the existing selections
@@ -2511,8 +2516,9 @@
         start = end;
         end = tmp;
       }
+      selectionStart = (near > 0) ? firstRange : lastRange;
       while (start <= end) {
-        var anchor = {line: start, ch: (near > 0) ? firstRange.ch : lastRange.ch};
+        var anchor = {line: start, ch: selectionStart.ch};
         var head = {line: start, ch: selectionEnd.ch};
         // Shift the anchor right or left
         // as each selection crosses itself.
@@ -2531,6 +2537,7 @@
         start++;
       }
       cm.setSelections(selections, primIndex);
+      return selectionStart;
     }
     function getIndex(ranges, head) {
       for (var i = 0; i < ranges.length; i++) {
