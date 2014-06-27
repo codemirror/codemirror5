@@ -3,24 +3,19 @@
   <head>
     <meta charset="utf-8">
     <title>CodeMirror: Powershell mode</title>
-    <link rel="stylesheet" href="../../lib/codemirror.css">
-    <script src="../../lib/codemirror.js"></script>
-    <script src="../../addon/edit/matchbrackets.js"></script>
-  <script src="../../addon/comment/comment.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/4.3.0/codemirror.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/4.3.0/codemirror.js"></script>
     <script src="powershell.js"></script>
-    <link rel="stylesheet" href="../../doc/docs.css">
     <style type="text/css">.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
   </head>
   <body>
     <h1>CodeMirror: Powershell mode</h1>
     
     <div><textarea id="code" name="code">
-# Literals
+# Number Literals
 1234
 0.0e101
 .123
-0b01010011100
-0o01234567
 0x0987654321abcdef
 7
 2147483647
@@ -29,64 +24,341 @@
 0x100000000L
 79228162514264337593543950336
 0xdeadbeef
-3.14j
-10.j
-10j
-.001j
-1e100j
-3.14e-10j
-
 
 # String Literals
-'For\''
-"God\""
-"""so loved
-the world"""
-''
-@" Multi
-line
-string "@
+'Literal escaping'''
+not-string
+"Double-quote escaping 1`""
+not-string
+"Double-quote escaping 2"""
+not-string
+@"
+Multiline
+string
+"@
+not-string
+@"
+Multiline
+string with quotes "'
+"@
+not-string
+@'
+Multiline literal
+string with quotes "'
+'@
 
 # Identifiers
 $Variable = value
 ${Variable with spaces in it} = value
 
 # Operators
-+ - * / % & | ^ ~ < >
-== != <= >= <> << >> // **
-and or not in is
+= += -= *= /= %=
+++ -- .. -f * / % + -
+-not ! -bnot
+-split -isplit -csplit
+-join
+-is -isnot -as
+-eq -ieq -ceq -ne -ine -cne
+-gt -igt -cgt -ge -ige -cge
+-lt -ilt -clt -le -ile -cle
+-like -ilike -clike -notlike -inotlike -cnotlike
+-match -imatch -cmatch -notmatch -inotmatch -cnotmatch
+-contains -icontains -ccontains -notcontains -inotcontains -cnotcontains
+-replace -ireplace -creplace
+-band	-bor -bxor
+-and -or -xor
 
-# Delimiters
-() [] {} , : ` = ; @ .  # Note that @ and . require the proper context.
-+= -= *= /= %= &= |= ^=
-//= >>= <<= **=
+# Punctuation
+() [] {} , : ` = ; .
 
 # Keywords
-as assert break class continue def del elif else except
-finally for from global if import lambda pass raise
-return try while with yield
+elseif begin function for foreach return else trap while do data dynamicparam
+until end break if throw param continue finally in switch exit filter from try
+process catch
 
-# Types
-bool classmethod complex dict enumerate float frozenset int list object
-property reversed set slice staticmethod str super tuple type
-
-# Some Example code
-import os
-from package import ParentClass
-
-@nonsenseDecorator
-def doesNothing():
-    pass
-
-class ExampleClass(ParentClass):
-    @staticmethod
-    def example(inputStr):
-        a = list(inputStr)
-        a.reverse()
-        return ''.join(a)
-
-    def __init__(self, mixin = 'Hello'):
-        self.mixin = mixin
+#Built-ins
+A:
+Add-Computer
+Add-Content
+Add-History
+Add-Member
+Add-PSSnapin
+Add-Type
+B:
+C:
+Checkpoint-Computer
+Clear-Content
+Clear-EventLog
+Clear-History
+Clear-Host
+Clear-Item
+Clear-ItemProperty
+Clear-Variable
+Compare-Object
+Complete-Transaction
+Connect-PSSession
+ConvertFrom-Csv
+ConvertFrom-Json
+ConvertFrom-SecureString
+ConvertFrom-StringData
+Convert-Path
+ConvertTo-Csv
+ConvertTo-Html
+ConvertTo-Json
+ConvertTo-SecureString
+ConvertTo-Xml
+Copy-Item
+Copy-ItemProperty
+D:
+Debug-Process
+Disable-ComputerRestore
+Disable-PSBreakpoint
+Disable-PSRemoting
+Disable-PSSessionConfiguration
+Disconnect-PSSession
+E:
+Enable-ComputerRestore
+Enable-PSBreakpoint
+Enable-PSRemoting
+Enable-PSSessionConfiguration
+Enter-PSSession
+Exit-PSSession
+Export-Alias
+Export-Clixml
+Export-Console
+Export-Counter
+Export-Csv
+Export-FormatData
+Export-ModuleMember
+Export-PSSession
+F:
+ForEach-Object
+Format-Custom
+Format-List
+Format-Table
+Format-Wide
+G:
+Get-Acl
+Get-Alias
+Get-AuthenticodeSignature
+Get-ChildItem
+Get-Command
+Get-ComputerRestorePoint
+Get-Content
+Get-ControlPanelItem
+Get-Counter
+Get-Credential
+Get-Culture
+Get-Date
+Get-Event
+Get-EventLog
+Get-EventSubscriber
+Get-ExecutionPolicy
+Get-FormatData
+Get-Help
+Get-History
+Get-Host
+Get-HotFix
+Get-Item
+Get-ItemProperty
+Get-Job
+Get-Location
+Get-Member
+Get-Module
+Get-PfxCertificate
+Get-Process
+Get-PSBreakpoint
+Get-PSCallStack
+Get-PSDrive
+Get-PSProvider
+Get-PSSession
+Get-PSSessionConfiguration
+Get-PSSnapin
+Get-Random
+Get-Service
+Get-TraceSource
+Get-Transaction
+Get-TypeData
+Get-UICulture
+Get-Unique
+Get-Variable
+Get-Verb
+Get-WinEvent
+Get-WmiObject
+Group-Object
+H:
+help
+I:
+Import-Alias
+Import-Clixml
+Import-Counter
+Import-Csv
+Import-LocalizedData
+Import-Module
+Import-PSSession
+ImportSystemModules
+Invoke-Command
+Invoke-Expression
+Invoke-History
+Invoke-Item
+Invoke-RestMethod
+Invoke-WebRequest
+Invoke-WmiMethod
+J:
+Join-Path
+K:
+L:
+Limit-EventLog
+M:
+Measure-Command
+Measure-Object
+mkdir
+more
+Move-Item
+Move-ItemProperty
+N:
+New-Alias
+New-Event
+New-EventLog
+New-Item
+New-ItemProperty
+New-Module
+New-ModuleManifest
+New-Object
+New-PSDrive
+New-PSSession
+New-PSSessionConfigurationFile
+New-PSSessionOption
+New-PSTransportOption
+New-Service
+New-TimeSpan
+New-Variable
+New-WebServiceProxy
+New-WinEvent
+O:
+oss
+Out-Default
+Out-File
+Out-GridView
+Out-Host
+Out-Null
+Out-Printer
+Out-String
+P:
+Pause
+Pop-Location
+prompt
+Push-Location
+Q:
+R:
+Read-Host
+Receive-Job
+Receive-PSSession
+Register-EngineEvent
+Register-ObjectEvent
+Register-PSSessionConfiguration
+Register-WmiEvent
+Remove-Computer
+Remove-Event
+Remove-EventLog
+Remove-Item
+Remove-ItemProperty
+Remove-Job
+Remove-Module
+Remove-PSBreakpoint
+Remove-PSDrive
+Remove-PSSession
+Remove-PSSnapin
+Remove-TypeData
+Remove-Variable
+Remove-WmiObject
+Rename-Computer
+Rename-Item
+Rename-ItemProperty
+Reset-ComputerMachinePassword
+Resolve-Path
+Restart-Computer
+Restart-Service
+Restore-Computer
+Resume-Job
+Resume-Service
+S:
+Save-Help
+Select-Object
+Select-String
+Select-Xml
+Send-MailMessage
+Set-Acl
+Set-Alias
+Set-AuthenticodeSignature
+Set-Content
+Set-Date
+Set-ExecutionPolicy
+Set-Item
+Set-ItemProperty
+Set-Location
+Set-PSBreakpoint
+Set-PSDebug
+Set-PSSessionConfiguration
+Set-Service
+Set-StrictMode
+Set-TraceSource
+Set-Variable
+Set-WmiInstance
+Show-Command
+Show-ControlPanelItem
+Show-EventLog
+Sort-Object
+Split-Path
+Start-Job
+Start-Process
+Start-Service
+Start-Sleep
+Start-Transaction
+Start-Transcript
+Stop-Computer
+Stop-Job
+Stop-Process
+Stop-Service
+Stop-Transcript
+Suspend-Job
+Suspend-Service
+T:
+TabExpansion2
+Tee-Object
+Test-ComputerSecureChannel
+Test-Connection
+Test-ModuleManifest
+Test-Path
+Test-PSSessionConfigurationFile
+Trace-Command
+U:
+Unblock-File
+Undo-Transaction
+Unregister-Event
+Unregister-PSSessionConfiguration
+Update-FormatData
+Update-Help
+Update-List
+Update-TypeData
+Use-Transaction
+V:
+W:
+Wait-Event
+Wait-Job
+Wait-Process
+Where-Object
+Write-Debug
+Write-Error
+Write-EventLog
+Write-Host
+Write-Output
+Write-Progress
+Write-Verbose
+Write-Warning
+X:
+Y:
+Z:
 
 </textarea></div>
     <script>
