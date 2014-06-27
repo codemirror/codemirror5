@@ -228,9 +228,9 @@
     (completion.options.container || document.body).appendChild(hints);
     var box = hints.getBoundingClientRect(), overlapY = box.bottom - winH;
     if (overlapY > 0) {
-      var height = box.bottom - box.top, curTop = box.top - (pos.bottom - pos.top);
+      var height = box.bottom - box.top, curTop = pos.top - (pos.bottom - box.top);
       if (curTop - height > 0) { // Fits above cursor
-        hints.style.top = (top = curTop - height) + "px";
+        hints.style.top = (top = pos.top - height) + "px";
         below = false;
       } else if (height > winH) {
         hints.style.height = (winH - 5) + "px";
