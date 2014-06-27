@@ -230,7 +230,10 @@
     if (overlapY > 0) {
       var height = box.bottom - box.top, curTop = box.top - (pos.bottom - pos.top);
       if (curTop - height > 0) { // Fits above cursor
-        hints.style.top = (top = curTop - height) + "px";
+        var adjustHeight = hints.style.top.substr(0,hints.style.top.length-2);
+        adjustHeight = parseInt(adjustHeight);
+        adjustHeight = adjustHeight - height - (pos.bottom - pos.top);
+        hints.style.top = adjustHeight + "px";
         below = false;
       } else if (height > winH) {
         hints.style.height = (winH - 5) + "px";
