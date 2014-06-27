@@ -1388,7 +1388,9 @@
                 selectionStart.ch = lineLength(cm, selectionStart.line);
               }
             } else if (vim.visualBlock) {
-              selectBlock(cm, selectionEnd);
+              // Select a block and
+              // return the diagonally opposite end.
+              selectionStart = selectBlock(cm, selectionEnd);
             }
             if (!vim.visualBlock) {
               cm.setSelection(selectionStart, selectionEnd);
@@ -1453,6 +1455,9 @@
           operatorArgs.registerName = registerName;
           // Keep track of linewise as it affects how paste and change behave.
           operatorArgs.linewise = linewise;
+          if (!vim.visualBlock) {
+            cm.extendSelection(curStart, curEnd);
+          }
           operators[operator](cm, operatorArgs, vim, curStart,
               curEnd, curOriginal);
           if (vim.visualMode) {
@@ -1904,11 +1909,8 @@
           cm.setCursor(curOriginal);
         }
       },
-      yank: function(cm, operatorArgs, vim, curStart, curEnd, curOriginal) {
-        var text = cm.getRange(curStart, curEnd);
-        if (vim.visualBlock) {
-          text = cm.getSelections().join('\n');
-        }
+      yank: function(cm, operatorArgs, _vim, _curStart, _curEnd, curOriginal) {
+        var text = cm.getSelection();
         vimGlobalState.registerController.pushText(
             operatorArgs.registerName, 'yank',
             text, operatorArgs.linewise);
@@ -2478,7 +2480,7 @@
     function selectBlock(cm, selectionEnd) {
       var selections = [], ranges = cm.listSelections();
       var firstRange = ranges[0].anchor, lastRange = ranges[ranges.length-1].anchor;
-      var start, end;
+      var start, end, selectionStart;
       var curEnd = cm.getCursor('head');
       var primIndex = getIndex(ranges, curEnd);
       // sets to true when selectionEnd already lies inside the existing selections
@@ -2514,8 +2516,9 @@
         start = end;
         end = tmp;
       }
+      selectionStart = (near > 0) ? firstRange : lastRange;
       while (start <= end) {
-        var anchor = {line: start, ch: (near > 0) ? firstRange.ch : lastRange.ch};
+        var anchor = {line: start, ch: selectionStart.ch};
         var head = {line: start, ch: selectionEnd.ch};
         // Shift the anchor right or left
         // as each selection crosses itself.
@@ -2534,6 +2537,7 @@
         start++;
       }
       cm.setSelections(selections, primIndex);
+      return selectionStart;
     }
     function getIndex(ranges, head) {
       for (var i = 0; i < ranges.length; i++) {
