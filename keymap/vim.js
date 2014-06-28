@@ -1415,6 +1415,7 @@
             curStart = selectionStart;
             curEnd = selectionEnd;
             motionArgs.inclusive = true;
+            operatorArgs.shouldMoveCursor = false;
           }
           // Swap start and end if motion was backward.
           if (curEnd && cursorIsBefore(curEnd, curStart)) {
@@ -1896,17 +1897,33 @@
         cm.setCursor(curStart);
         cm.setCursor(motions.moveToFirstNonWhiteSpaceCharacter(cm));
       },
-      swapcase: function(cm, operatorArgs, _vim, curStart, curEnd, curOriginal) {
-        var toSwap = cm.getRange(curStart, curEnd);
-        var swapped = '';
-        for (var i = 0; i < toSwap.length; i++) {
-          var character = toSwap.charAt(i);
-          swapped += isUpperCase(character) ? character.toLowerCase() :
-              character.toUpperCase();
+      swapcase: function(cm, operatorArgs, _vim, _curStart, _curEnd, _curOriginal) {
+        var selections = cm.getSelections();
+        var ranges = cm.listSelections();
+        var curStart  = ranges[0].anchor;
+        var curEnd = ranges[0].head;
+        // extendSelection swaps curStart and
+        // curEnd, so make sure
+        // curStart < curEnd
+        if (cursorIsBefore(curEnd, curStart)) {
+          var cur = curStart;
+          curStart = curEnd;
+          curEnd = cur;
         }
-        cm.replaceRange(swapped, curStart, curEnd);
+        var swapped = [];
+        for (var j = 0; j < selections.length; j++) {
+          var toSwap = selections[j];
+          var text = '';
+          for (var i = 0; i < toSwap.length; i++) {
+            var character = toSwap.charAt(i);
+            text += isUpperCase(character) ? character.toLowerCase() :
+                character.toUpperCase();
+          }
+          swapped.push(text);
+        }
+        cm.replaceSelections(swapped);
         if (!operatorArgs.shouldMoveCursor) {
-          cm.setCursor(curOriginal);
+          cm.setCursor(curStart);
         }
       },
       yank: function(cm, operatorArgs, _vim, _curStart, _curEnd, curOriginal) {

@@ -918,8 +918,19 @@ testVim('g~g~', function(cm, vim, helpers) {
   var register = helpers.getRegisterController().getRegister();
   eq('', register.toString());
   is(!register.linewise);
-  eqPos(curStart, cm.getCursor());
+  eqPos({line: curStart.line, ch:0}, cm.getCursor());
 }, { value: ' word1\nword2\nword3\nword4\nword5\nword6' });
+testVim('visual_block_~', function(cm, vim, helpers) {
+  cm.setCursor(1, 1);
+  helpers.doKeys('<C-v>', 'l', 'l', 'j', '~');
+  helpers.assertCursorAt(1, 1);
+  eq('hello\nwoRLd\naBCDe', cm.getValue());
+  cm.setCursor(2, 0);
+  helpers.doKeys('v', 'l', 'l', '~');
+  helpers.assertCursorAt(2, 0);
+  eq('hello\nwoRLd\nAbcDe', cm.getValue());
+},{value: 'hello\nwOrld\nabcde' });
+
 testVim('>{motion}', function(cm, vim, helpers) {
   cm.setCursor(1, 3);
   var expectedLineCount = cm.lineCount();
