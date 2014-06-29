@@ -4,7 +4,7 @@ CodeMirror.defineMode('powershell', function() {
     function wordRegexp(words) {
         var escaped = [];
         for (var i = 0; i < words.length; i++) {
-          escaped[i] = words[i].replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+            escaped[i] = words[i].replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
         }
 
         return new RegExp('^(' + escaped.join('|') + ')\\b', 'i');
@@ -21,6 +21,7 @@ CodeMirror.defineMode('powershell', function() {
         'param', 'process', 'return', 'switch', 'throw', 'trap', 'try', 'until', 'where', 'while'
     ]);
 
+    var punctuation = /[\[\]\(\){},;`\.]|@[({]/;
     var wordOperators = wordRegexp([
         '-f',
         '-not', '-bnot',
@@ -36,9 +37,10 @@ CodeMirror.defineMode('powershell', function() {
         '-band', '-bor', '-bxor',
         '-and', '-or', '-xor'
     ]);
-
-    var punctuation = /[\[\]\(\){},;`\.]|@[({]/;
     var symbolOperators = /[+\-*\/%]=|\+\+|--|\.\.|[+\-*&^%:=<>!|\/]/;
+
+    var numbers = /^[+-]?(0x[\da-f]+|(\d+(\.\d+)?|\.\d*)(e[\+\-]?\d+)?)[ld]?([kmgtp]b)?/i;
+
     var strings = /("|')(\`?.)*?\1/;
     var identifiers = /^[A-Za-z\_][A-Za-z\-\_\d]*\b/;
     var builtins = joinRegexps([
@@ -137,6 +139,10 @@ CodeMirror.defineMode('powershell', function() {
             return 'string';
         }
 
+        if (stream.match(numbers)) {
+            return 'number';
+        }
+
         if (stream.match(wordOperators) || stream.match(symbolOperators)) {
             return 'operator';
         }
@@ -155,38 +161,6 @@ CodeMirror.defineMode('powershell', function() {
 
         if (stream.match(atoms)) {
             return 'atom';
-        }
-
-        // Handle Number Literals
-        if (stream.match(/^[0-9\.]/, false)) {
-            var floatLiteral = false;
-            // Floats
-            if (stream.match(/^\d*\.\d+(e[\+\-]?\d+)?/i)) { floatLiteral = true; }
-            if (stream.match(/^\d+\.\d*/)) { floatLiteral = true; }
-            if (stream.match(/^\.\d+/)) { floatLiteral = true; }
-            if (floatLiteral) {
-                // Float literals may be "imaginary"
-                stream.eat(/J/i);
-                return 'number';
-            }
-            // Integers
-            var intLiteral = false;
-            // Hex
-            if (stream.match(/^0x[0-9a-f]+/i)) { intLiteral = true; }
-            // Decimal
-            if (stream.match(/^[1-9]\d*(e[\+\-]?\d+)?/)) {
-                // Decimal literals may be "imaginary"
-                stream.eat(/J/i);
-                // TODO - Can you have imaginary longs?
-                intLiteral = true;
-            }
-            // Zero by itself with no other piece of number.
-            if (stream.match(/^0(?![\dx])/i)) { intLiteral = true; }
-            if (intLiteral) {
-                // Integer literals may be "long"
-                stream.eat(/L/i);
-                return 'number';
-            }
         }
 
         var ch = stream.next();
