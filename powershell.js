@@ -34,7 +34,7 @@ CodeMirror.defineMode('powershell', function() {
         /param|process|return|switch|throw|trap|try|until|where|while/
     ], { suffix: notCharacterOrDash });
 
-    var punctuation = /[\[\]\(\){},;`\.]|@[({]/;
+    var punctuation = /[\[\]{},;`\.]|@[({]/;
     var wordOperators = buildRegexp([
         'f',
         /b?not/,
@@ -50,7 +50,6 @@ CodeMirror.defineMode('powershell', function() {
 
     var numbers = /^[+-]?(0x[\da-f]+|(\d+(\.\d+)?|\.\d*)(e[\+\-]?\d+)?)[ld]?([kmgtp]b)?/i;
 
-    var strings = /("|')(\`?.)*?\1/;
     var identifiers = /^[A-Za-z\_][A-Za-z\-\_\d]*\b/;
 
     var symbolBuiltins = /[A-Z]:|%|\?/i;
@@ -148,7 +147,6 @@ CodeMirror.defineMode('powershell', function() {
 
     var grammar = {
         keyword: keywords,
-        string: strings,
         number: numbers,
         operator: operators,
         builtin: builtins,
@@ -165,20 +163,42 @@ CodeMirror.defineMode('powershell', function() {
             return null;
         }
 
+        var parent = state.returnStack[state.returnStack.length - 1];
+        if (parent && parent.shouldReturnFrom(state)) {
+            state.tokenize = parent.tokenize;
+            state.returnStack.pop();
+            return state.tokenize(stream, state);
+        }
+
+        if (stream.eat('(')) {
+            state.bracketNesting += 1;
+            return 'punctuation';
+        }
+
+        if (stream.eat(')')) {
+            state.bracketNesting -= 1;
+            return 'punctuation';
+        }
+
         for (var key in grammar) {
-            if (stream.match(grammar[key]))
+            if (stream.match(grammar[key])) {
                 return key;
+            }
+        }
+
+        // single-quote string
+        if (stream.match(/'([^']|'')+'/)) {
+            return 'string';
         }
 
         var ch = stream.next();
         if (ch === '$') {
-            if (stream.eat('{')) {
-                state.tokenize = tokenVariable;
-                return tokenVariable(stream, state);
-            } else {
-                stream.eatWhile(/[\w\\\-:]/);
-                return 'variable-2';
-            }
+            return tokenVariable(stream, state);
+        }
+
+        // double-quote string
+        if (ch === '"') {
+            return tokenDoubleQuoteString(stream, state);
         }
 
         if (ch === '<' && stream.eat('#')) {
@@ -204,19 +224,77 @@ CodeMirror.defineMode('powershell', function() {
         return 'error';
     }
 
+    function tokenDoubleQuoteString(stream, state) {
+        var ch;
+        while((ch = stream.peek()) != null) {
+            if (ch === '$') {
+                state.tokenize = tokenInterpolation;
+                return 'string';
+            }
+
+            stream.next();
+            if (ch === '`') {
+                stream.next();
+                continue;
+            }
+
+            if (ch === '"' && !stream.eat('"')) {
+                state.tokenize = tokenBase;
+                return 'string';
+            }
+        }
+
+        return 'error';
+    }
+
+    function tokenInterpolation(stream, state) {
+        if (stream.match('$(')) {
+            var savedBracketNesting = state.bracketNesting;
+            state.returnStack.push({
+                /*jshint loopfunc:true */
+                shouldReturnFrom: function(state) {
+                    return state.bracketNesting === savedBracketNesting;
+                },
+                tokenize: tokenDoubleQuoteString
+            });
+            state.tokenize = tokenBase;
+            state.bracketNesting += 1;
+            return 'punctuation';
+        } else {
+            stream.next();
+            state.returnStack.push({
+                shouldReturnFrom: function() { return true; },
+                tokenize: tokenDoubleQuoteString
+            });
+            state.tokenize = tokenVariable;
+            return state.tokenize(stream, state);
+        }
+    }
+
     function tokenComment(stream, state) {
-      var maybeEnd = false, ch;
-      while ((ch = stream.next()) != null) {
+        var maybeEnd = false, ch;
+        while ((ch = stream.next()) != null) {
           if (maybeEnd && ch == '>') {
               state.tokenize = tokenBase;
               break;
           }
           maybeEnd = (ch === '#');
-      }
-      return('comment');
+        }
+        return 'comment';
     }
 
     function tokenVariable(stream, state) {
+        if (stream.eat('{')) {
+            state.tokenize = tokenVariableWithBraces;
+            return tokenVariableWithBraces(stream, state);
+        } else {
+            stream.eatWhile(/[\w\\\-:]/);
+            state.tokenize = tokenBase;
+            return 'variable-2';
+        }
+    }
+
+    function tokenVariableWithBraces(stream, state) {
         var ch;
         while ((ch = stream.next()) != null) {
             if (ch === '}') {
@@ -224,7 +302,7 @@ CodeMirror.defineMode('powershell', function() {
                 break;
             }
         }
-        return('variable-2');
+        return 'variable-2';
     }
 
     function tokenMultiString(stream, state) {
@@ -241,7 +319,11 @@ CodeMirror.defineMode('powershell', function() {
 
     var external = {
         startState: function() {
-            return { tokenize: tokenBase };
+            return {
+                returnStack: [],
+                bracketNesting: 0,
+                tokenize: tokenBase
+            };
         },
 
         token: function(stream, state) {

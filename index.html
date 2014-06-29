@@ -21,21 +21,25 @@
 
 # String Literals
 'Literal escaping'''
-not-string
-"Double-quote escaping 1`""
-not-string
-"Double-quote escaping 2"""
-not-string
+'Literal $variable'
+"Escaping 1`""
+"Escaping 2"""
+"Escaped `$variable"
+"Text, $variable and more text"
+"Text, ${variable with spaces} and more text."
+"Text, $($expression + 3) and more text."
+"Text, $("interpolation $("inception")") and more text."
+
 @"
 Multiline
 string
 "@
-not-string
+# --
 @"
 Multiline
 string with quotes "'
 "@
-not-string
+# --
 @'
 Multiline literal
 string with quotes "'
@@ -76,7 +80,8 @@ until end break if throw param continue finally in switch exit filter from try
 process catch
 
 # Built-in variables
-$$ $? $^ $args $ConfirmPreference $ConsoleFileName $DebugPreference $Error
+$$ $? $^ $_
+$args $ConfirmPreference $ConsoleFileName $DebugPreference $Error
 $ErrorActionPreference $ErrorView $ExecutionContext $false $FormatEnumerationLimit
 $HOME $Host $input $MaximumAliasCount $MaximumDriveCount $MaximumErrorCount
 $MaximumFunctionCount $MaximumHistoryCount $MaximumVariableCount $MyInvocation
@@ -86,7 +91,7 @@ $PSEmailServer $PSHOME $PSScriptRoot $PSSessionApplicationName
 $PSSessionConfigurationName $PSSessionOption $PSUICulture $PSVersionTable $PWD
 $ShellId $StackTrace $true $VerbosePreference $WarningPreference $WhatIfPreference
 $true $false $null
- 
+
 # Built-in functions
 A:
 Add-Computer Add-Content Add-History Add-Member Add-PSSnapin Add-Type
@@ -118,7 +123,7 @@ Get-WinEvent Get-WmiObject Group-Object
 H:
 help
 I:
-Import-Alias Import-Clixml Import-Counter Import-Csv Import-LocalizedData Import-Module 
+Import-Alias Import-Clixml Import-Counter Import-Csv Import-LocalizedData Import-Module
 Import-PSSession ImportSystemModules Invoke-Command Invoke-Expression Invoke-History
 Invoke-Item Invoke-RestMethod Invoke-WebRequest Invoke-WmiMethod
 J:
@@ -131,7 +136,7 @@ Measure-Command Measure-Object mkdir more Move-Item Move-ItemProperty
 N:
 New-Alias New-Event New-EventLog New-Item New-ItemProperty New-Module New-ModuleManifest
 New-Object New-PSDrive New-PSSession New-PSSessionConfigurationFile New-PSSessionOption
-New-PSTransportOption New-Service New-TimeSpan New-Variable New-WebServiceProxy 
+New-PSTransportOption New-Service New-TimeSpan New-Variable New-WebServiceProxy
 New-WinEvent
 O:
 oss Out-Default Out-File Out-GridView Out-Host Out-Null Out-Printer Out-String
@@ -139,24 +144,24 @@ P:
 Pause Pop-Location prompt Push-Location
 Q:
 R:
-Read-Host Receive-Job Receive-PSSession Register-EngineEvent Register-ObjectEvent 
-Register-PSSessionConfiguration Register-WmiEvent Remove-Computer Remove-Event 
-Remove-EventLog Remove-Item Remove-ItemProperty Remove-Job Remove-Module 
+Read-Host Receive-Job Receive-PSSession Register-EngineEvent Register-ObjectEvent
+Register-PSSessionConfiguration Register-WmiEvent Remove-Computer Remove-Event
+Remove-EventLog Remove-Item Remove-ItemProperty Remove-Job Remove-Module
 Remove-PSBreakpoint Remove-PSDrive Remove-PSSession Remove-PSSnapin Remove-TypeData
-Remove-Variable Remove-WmiObject Rename-Computer Rename-Item Rename-ItemProperty 
-Reset-ComputerMachinePassword Resolve-Path Restart-Computer Restart-Service 
+Remove-Variable Remove-WmiObject Rename-Computer Rename-Item Rename-ItemProperty
+Reset-ComputerMachinePassword Resolve-Path Restart-Computer Restart-Service
 Restore-Computer Resume-Job Resume-Service
 S:
 Save-Help Select-Object Select-String Select-Xml Send-MailMessage Set-Acl Set-Alias
 Set-AuthenticodeSignature Set-Content Set-Date Set-ExecutionPolicy Set-Item
-Set-ItemProperty Set-Location Set-PSBreakpoint Set-PSDebug 
+Set-ItemProperty Set-Location Set-PSBreakpoint Set-PSDebug
 Set-PSSessionConfiguration Set-Service Set-StrictMode Set-TraceSource Set-Variable
 Set-WmiInstance Show-Command Show-ControlPanelItem Show-EventLog Sort-Object
 Split-Path Start-Job Start-Process Start-Service Start-Sleep Start-Transaction
 Start-Transcript Stop-Computer Stop-Job Stop-Process Stop-Service Stop-Transcript
 Suspend-Job Suspend-Service
 T:
-TabExpansion2 Tee-Object Test-ComputerSecureChannel Test-Connection 
+TabExpansion2 Tee-Object Test-ComputerSecureChannel Test-Connection
 Test-ModuleManifest Test-Path Test-PSSessionConfigurationFile Trace-Command
 U:
 Unblock-File Undo-Transaction Unregister-Event Unregister-PSSessionConfiguration
