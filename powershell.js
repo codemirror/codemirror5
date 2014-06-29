@@ -1,6 +1,15 @@
-CodeMirror.defineMode('powershell', function() {
-    'use strict';
+(function(mod) {
+  'use strict';
+  if (typeof exports == 'object' && typeof module == 'object') // CommonJS
+    mod(require('codemirror'));
+  else if (typeof define == 'function' && define.amd) // AMD
+    define(['codemirror'], mod);
+  else // Plain browser env
+    mod(window.CodeMirror);
+})(function(CodeMirror) {
+'use strict';
 
+CodeMirror.defineMode('powershell', function() {
     function buildRegexp(patterns, options) {
         options = options || {};
         var prefix = options.prefix !== undefined ? options.prefix : '^';
@@ -240,3 +249,4 @@ CodeMirror.defineMode('powershell', function() {
 });
 
 CodeMirror.defineMIME('text/x-powershell', 'powershell');
+});
