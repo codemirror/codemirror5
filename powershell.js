@@ -1,17 +1,20 @@
-CodeMirror.defineMode("powershell", function() {
+CodeMirror.defineMode('powershell', function() {
+    'use strict';
+
     function wordRegexp(words) {
         var escaped = [];
         for (var i = 0; i < words.length; i++) {
           escaped[i] = words[i].replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
         }
-        
-        return new RegExp("^(" + escaped.join("|") + ")\\b");
+
+        return new RegExp('^(' + escaped.join('|') + ')\\b', 'i');
     }
-    
+
     function joinRegexps(patterns) {
-        return new RegExp("^(" + patterns.join("|") + ")(?=\s|$)");
+        return new RegExp('^(' + patterns.join('|') + ')(?=\\s|$)', 'i');
     }
-    
+
+    var atoms = wordRegexp(['$true', '$false', '$null']);
     var keywords = wordRegexp([
         'begin', 'break', 'catch', 'continue', 'data', 'default', 'do', 'dynamicparam',
         'else', 'elseif', 'end', 'exit', 'filter', 'finally', 'for', 'foreach', 'from', 'function', 'if', 'in',
@@ -25,7 +28,7 @@ CodeMirror.defineMode("powershell", function() {
         '-is', '-isnot', '-as',
         '-eq', '-ieq', '-ceq', '-ne', '-ine', '-cne',
         '-gt', '-igt', '-cgt', '-ge', '-ige', '-cge',
-        '-lt', '-ilt', '-clt', '-le', '-ile', '-cle',        
+        '-lt', '-ilt', '-clt', '-le', '-ile', '-cle',
         '-like', '-ilike', '-clike', '-notlike', '-inotlike', '-cnotlike',
         '-match', '-imatch', '-cmatch', '-notmatch', '-inotmatch', '-cnotmatch',
         '-contains', '-icontains', '-ccontains', '-notcontains', '-inotcontains', '-cnotcontains',
@@ -33,13 +36,13 @@ CodeMirror.defineMode("powershell", function() {
         '-band', '-bor', '-bxor',
         '-and', '-or', '-xor'
     ]);
-       
-    var punctuation = /[\[\]\(\){},;`\.]/;    
+
+    var punctuation = /[\[\]\(\){},;`\.]|@[({]/;
     var symbolOperators = /[+\-*\/%]=|\+\+|--|\.\.|[+\-*&^%:=<>!|\/]/;
     var strings = /("|')(\`?.)*?\1/;
     var identifiers = /^[A-Za-z\_][A-Za-z\-\_\d]*\b/;
     var builtins = joinRegexps([
-        '[A-Z]:',                
+        '[A-Z]:',
         'cd|help|mkdir|more|oss|prompt',
         '%|\\?|ac|asnp|cat|cd|chdir|clc|clear|clhy|cli|clp|cls|clv|cnsn|compare|copy|cp|cpi|cpp|cvpa|dbp|del|diff|dir|dnsn|ebp'
           + '|echo|epal|epcsv|epsn|erase|etsn|exsn|fc|fl|foreach|ft|fw|gal|gbp|gc|gci|gcm|gcs|gdr|ghy|gi|gjb|gl|gm|gmo|gp|gps'
@@ -116,44 +119,44 @@ CodeMirror.defineMode("powershell", function() {
         'Where-Object',
         'Write-(Debug|Error|EventLog|Host|Output|Progress|Verbose|Warning)'
     ]);
-	
-    var indentInfo = null;
 
     // tokenizers
     function tokenBase(stream, state) {
         // Handle Comments
         //var ch = stream.peek();
-		
+
         if (stream.eatSpace()) {
             return null;
         }
-        
+
         if (stream.match(keywords)) {
             return 'keyword';
         }
-		
+
         if (stream.match(strings)) {
             return 'string';
         }
-		
+
         if (stream.match(wordOperators) || stream.match(symbolOperators)) {
             return 'operator';
         }
-        
+
         if (stream.match(builtins)) {
             return 'builtin';
         }
-        
+
         if (stream.match(punctuation)) {
             return 'punctuation';
         }
-        
+
         if (stream.match(identifiers)) {
             return 'identifier';
         }
-        		
-        // Handle Variables
-        			
+
+        if (stream.match(atoms)) {
+            return 'atom';
+        }
+
         // Handle Number Literals
         if (stream.match(/^[0-9\.]/, false)) {
             var floatLiteral = false;
@@ -192,24 +195,24 @@ CodeMirror.defineMode("powershell", function() {
                 state.tokenize = tokenVariable;
                 return tokenVariable(stream, state);
             } else {
-                stream.eatWhile(/[\w\\\-]/);
+                stream.eatWhile(/[\w\\\-:]/);
                 return 'variable-2';
             }
         }
-		
+
         if (ch === '<' && stream.eat('#')) {
             state.tokenize = tokenComment;
             return tokenComment(stream, state);
         }
-        
+
         if (ch === '#') {
             stream.skipToEnd();
             return 'comment';
         }
 
-        if (ch === '@') {      
+        if (ch === '@') {
             var quoteMatch = stream.eat(/["']/);
-            if (quoteMatch && stream.eol()) {        
+            if (quoteMatch && stream.eol()) {
                 state.tokenize = tokenMultiString;
                 state.startQuote = quoteMatch[0];
                 return tokenMultiString(stream, state);
@@ -219,41 +222,42 @@ CodeMirror.defineMode("powershell", function() {
         stream.next();
         return 'error';
     }
-	
+
     function tokenComment(stream, state) {
       var maybeEnd = false, ch;
       while ((ch = stream.next()) != null) {
-          if (maybeEnd && ch == ">") {
+          if (maybeEnd && ch == '>') {
               state.tokenize = tokenBase;
               break;
           }
           maybeEnd = (ch === '#');
       }
-      return("comment");
+      return('comment');
     }
-   
+
 	function tokenVariable(stream, state) {
+      var ch;
       while ((ch = stream.next()) != null) {
-      if (ch == "}") {
+      if (ch === '}') {
         state.tokenize = tokenBase;
         break;
       }
     }
-    return("variable-2");
+    return('variable-2');
 	}
-	
+
     function tokenMultiString(stream, state) {
-        var quote = state.startQuote;        
+        var quote = state.startQuote;
         if (stream.sol() && stream.match(new RegExp(quote + '@'))) {
             state.tokenize = tokenBase;
         }
         else {
             stream.skipToEnd();
         }
-        
-        return "string";
+
+        return 'string';
     }
-	
+
     function tokenLexer(stream, state) {
         //indentInfo = null;
         var style = state.tokenize(stream, state);
@@ -282,11 +286,11 @@ CodeMirror.defineMode("powershell", function() {
             return style;
         },
 
-        blockCommentStart: "<#",
-        blockCommentEnd: "#>",
-        lineComment: "#"
+        blockCommentStart: '<#',
+        blockCommentEnd: '#>',
+        lineComment: '#'
     };
     return external;
 });
 
-CodeMirror.defineMIME("text/x-powershell", "powershell");
+CodeMirror.defineMIME('text/x-powershell', 'powershell');

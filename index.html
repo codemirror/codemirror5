@@ -4,13 +4,13 @@
     <meta charset="utf-8">
     <title>CodeMirror: Powershell mode</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/4.3.0/codemirror.css">
+    <link rel="stylesheet" href="tests.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/4.3.0/codemirror.js"></script>
     <script src="powershell.js"></script>
-    <style type="text/css">.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
   </head>
   <body>
     <h1>CodeMirror: Powershell mode</h1>
-    
+
     <div><textarea id="code" name="code">
 # Number Literals
 1234
@@ -47,9 +47,14 @@ Multiline literal
 string with quotes "'
 '@
 
-# Identifiers
-$Variable = value
-${Variable with spaces in it} = value
+# Array and Hash literals
+@( 'a','b','c' )
+@{ 'key': 'value' }
+
+# Variables
+$Variable = 5
+$global:variable = 5
+${Variable with spaces} = 5
 
 # Operators
 = += -= *= /= %=
@@ -358,21 +363,16 @@ Write-Verbose
 Write-Warning
 X:
 Y:
-Z:
-
-</textarea></div>
+Z:</textarea></div>
     <script>
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-        mode: {name: "powershell",
-               version: 2,
-               singleLineStringErrors: false},
+        mode: "powershell",
         lineNumbers: true,
         indentUnit: 4,
         tabMode: "shift",
         matchBrackets: true
       });
     </script>
-
 
     <p><strong>MIME types defined:</strong> <code>text/x-powershell</code>.</p>
   </body>
