@@ -1900,16 +1900,6 @@
       swapcase: function(cm, operatorArgs, _vim, _curStart, _curEnd, _curOriginal) {
         var selections = cm.getSelections();
         var ranges = cm.listSelections();
-        var curStart  = ranges[0].anchor;
-        var curEnd = ranges[0].head;
-        // extendSelection swaps curStart and
-        // curEnd, so make sure
-        // curStart < curEnd
-        if (cursorIsBefore(curEnd, curStart)) {
-          var cur = curStart;
-          curStart = curEnd;
-          curEnd = cur;
-        }
         var swapped = [];
         for (var j = 0; j < selections.length; j++) {
           var toSwap = selections[j];
@@ -1922,8 +1912,12 @@
           swapped.push(text);
         }
         cm.replaceSelections(swapped);
+        var curStart  = ranges[0].anchor;
+        var curEnd = ranges[0].head;
         if (!operatorArgs.shouldMoveCursor) {
-          cm.setCursor(curStart);
+          // extendSelection swaps curStart and curEnd, so make sure
+          // curStart < curEnd
+          cm.setCursor(cursorIsBefore(curStart, curEnd) ? curStart : curEnd);
         }
       },
       yank: function(cm, operatorArgs, _vim, _curStart, _curEnd, curOriginal) {
