@@ -27,12 +27,12 @@ CodeMirror.defineMode('powershell', function() {
         return new RegExp(prefix + '(' + patterns.join('|') + ')' + suffix, 'i');
     }
 
-    var atoms = buildRegexp(['$true', '$false', '$null']);
+    var notCharacterOrDash = '(?=[^A-Z\\d\\-_]|$)';
     var keywords = buildRegexp([
         /begin|break|catch|continue|data|default|do|dynamicparam/,
         /else|elseif|end|exit|filter|finally|for|foreach|from|function|if|in/,
         /param|process|return|switch|throw|trap|try|until|where|while/
-    ], { suffix: '(?=[^A-Z\\-]|$)' });
+    ], { suffix: notCharacterOrDash });
 
     var punctuation = /[\[\]\(\){},;`\.]|@[({]/;
     var wordOperators = buildRegexp([
@@ -130,8 +130,21 @@ CodeMirror.defineMode('powershell', function() {
         /measure|mi|mount|move|mp|mv|nal|ndr|ni|nmo|npssc|nsn|nv|ogv|oh|popd|ps|pushd|pwd|r|rbp|rcjb|rcsn|rd|rdr|ren|ri/,
         /rjb|rm|rmdir|rmo|rni|rnp|rp|rsn|rsnp|rujb|rv|rvpa|rwmi|sajb|sal|saps|sasv|sbp|sc|select|set|shcm|si|sl|sleep|sls/,
         /sort|sp|spjb|spps|spsv|start|sujb|sv|swmi|tee|trcm|type|where|wjb|write/,
-    ], { prefix: '', suffix: '(?=[^A-Z\\-]|$)' });
-    var builtins = buildRegexp([ symbolBuiltins, namedBuiltins ], { suffix: '' });
+    ], { prefix: '', suffix: '' });
+    var variableBuiltins = buildRegexp([
+        /[$?^_]|Args|ConfirmPreference|ConsoleFileName|DebugPreference|Error|ErrorActionPreference|ErrorView|ExecutionContext/,
+        /FormatEnumerationLimit|Home|Host|Input|MaximumAliasCount|MaximumDriveCount|MaximumErrorCount|MaximumFunctionCount/,
+        /MaximumHistoryCount|MaximumVariableCount|MyInvocation|NestedPromptLevel|OutputEncoding|Pid|Profile|ProgressPreference/,
+        /PSBoundParameters|PSCommandPath|PSCulture|PSDefaultParameterValues|PSEmailServer|PSHome|PSScriptRoot|PSSessionApplicationName/,
+        /PSSessionConfigurationName|PSSessionOption|PSUICulture|PSVersionTable|Pwd|ShellId|StackTrace|VerbosePreference/,
+        /WarningPreference|WhatIfPreference/,
+
+        /Event|EventArgs|EventSubscriber|Sender/,
+        /Matches|Ofs|ForEach|LastExitCode|PSCmdlet|PSItem|PSSenderInfo|This/,
+        /true|false|null/
+    ], { prefix: '\\$', suffix: '' });
+
+    var builtins = buildRegexp([ symbolBuiltins, namedBuiltins, variableBuiltins ], { suffix: notCharacterOrDash });
 
     var grammar = {
         keyword: keywords,
@@ -140,8 +153,7 @@ CodeMirror.defineMode('powershell', function() {
         operator: operators,
         builtin: builtins,
         punctuation: punctuation,
-        indetifier: identifiers,
-        atom: atoms
+        indetifier: identifiers
     };
 
     // tokenizers
