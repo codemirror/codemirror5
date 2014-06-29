@@ -1,28 +1,32 @@
 CodeMirror.defineMode('powershell', function() {
     'use strict';
 
-    function wordRegexp(words) {
-        var escaped = [];
-        for (var i = 0; i < words.length; i++) {
-            escaped[i] = words[i].replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+    function buildRegexp(patterns, options) {
+        options = options || {};
+        var prefix = options.prefix !== undefined ? options.prefix : '^';
+        var suffix = options.suffix !== undefined ? options.suffix : '\\b';
+
+        for (var i = 0; i < patterns.length; i++) {
+            if (patterns[i] instanceof RegExp) {
+                patterns[i] = patterns[i].source;
+            }
+            else {
+                patterns[i] = patterns[i].replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+            }
         }
 
-        return new RegExp('^(' + escaped.join('|') + ')\\b', 'i');
+        return new RegExp(prefix + '(' + patterns.join('|') + ')' + suffix, 'i');
     }
 
-    function joinRegexps(patterns) {
-        return new RegExp('^(' + patterns.join('|') + ')(?=\\s|$)', 'i');
-    }
-
-    var atoms = wordRegexp(['$true', '$false', '$null']);
-    var keywords = wordRegexp([
-        'begin', 'break', 'catch', 'continue', 'data', 'default', 'do', 'dynamicparam',
-        'else', 'elseif', 'end', 'exit', 'filter', 'finally', 'for', 'foreach', 'from', 'function', 'if', 'in',
-        'param', 'process', 'return', 'switch', 'throw', 'trap', 'try', 'until', 'where', 'while'
-    ]);
+    var atoms = buildRegexp(['$true', '$false', '$null']);
+    var keywords = buildRegexp([
+        /begin|break|catch|continue|data|default|do|dynamicparam/,
+        /else|elseif|end|exit|filter|finally|for|foreach|from|function|if|in/,
+        /param|process|return|switch|throw|trap|try|until|where|while/
+    ], { suffix: '(?=[^A-Z\\-]|$)' });
 
     var punctuation = /[\[\]\(\){},;`\.]|@[({]/;
-    var wordOperators = wordRegexp([
+    var wordOperators = buildRegexp([
         '-f',
         '-not', '-bnot',
         '-split', '-isplit', '-csplit', '-join',
@@ -36,91 +40,105 @@ CodeMirror.defineMode('powershell', function() {
         '-replace', '-ireplace', '-creplace',
         '-band', '-bor', '-bxor',
         '-and', '-or', '-xor'
-    ]);
+    ], { prefix: '' });
     var symbolOperators = /[+\-*\/%]=|\+\+|--|\.\.|[+\-*&^%:=<>!|\/]/;
+    var operators = buildRegexp([wordOperators, symbolOperators], { suffix: '' });
 
     var numbers = /^[+-]?(0x[\da-f]+|(\d+(\.\d+)?|\.\d*)(e[\+\-]?\d+)?)[ld]?([kmgtp]b)?/i;
 
     var strings = /("|')(\`?.)*?\1/;
     var identifiers = /^[A-Za-z\_][A-Za-z\-\_\d]*\b/;
-    var builtins = joinRegexps([
-        '[A-Z]:',
-        'cd|help|mkdir|more|oss|prompt',
-        '%|\\?|ac|asnp|cat|cd|chdir|clc|clear|clhy|cli|clp|cls|clv|cnsn|compare|copy|cp|cpi|cpp|cvpa|dbp|del|diff|dir|dnsn|ebp'
-          + '|echo|epal|epcsv|epsn|erase|etsn|exsn|fc|fl|foreach|ft|fw|gal|gbp|gc|gci|gcm|gcs|gdr|ghy|gi|gjb|gl|gm|gmo|gp|gps'
-          + '|group|gsn|gsnp|gsv|gu|gv|gwmi|h|history|icm|iex|ihy|ii|ipal|ipcsv|ipmo|ipsn|irm|ise|iwmi|iwr|kill|lp|ls|man|md'
-          + '|measure|mi|mount|move|mp|mv|nal|ndr|ni|nmo|npssc|nsn|nv|ogv|oh|popd|ps|pushd|pwd|r|rbp|rcjb|rcsn|rd|rdr|ren|ri'
-          + '|rjb|rm|rmdir|rmo|rni|rnp|rp|rsn|rsnp|rujb|rv|rvpa|rwmi|sajb|sal|saps|sasv|sbp|sc|select|set|shcm|si|sl|sleep|sls'
-          + '|sort|sp|spjb|spps|spsv|start|sujb|sv|swmi|tee|trcm|type|where|wjb|write',
-        'Add-(Computer|Content|History|Member|PSSnapin|Type)',
-        'Checkpoint-Computer',
-        'Clear-(Content|EventLog|History|Host|Item|ItemProperty|Variable)',
-        'Compare-Object',
-        'Complete-Transaction',
-        'Connect-PSSession',
-        'ConvertFrom-(Csv|Json|SecureString|StringData)',
-        'Convert-Path',
-        'ConvertTo-(Csv|Html|Json|SecureString|Xml)',
-        'Copy-Item(Property)?',
-        'Debug-Process',
-        'Disable-(ComputerRestore|PSBreakpoint|PSRemoting|PSSessionConfiguration)',
-        'Disconnect-PSSession',
-        'Enable-(ComputerRestore|PSBreakpoint|PSRemoting|PSSessionConfiguration)',
-        '(Enter|Exit)-PSSession',
-        'Export-(Alias|Clixml|Console|Counter|Csv|FormatData|ModuleMember|PSSession)',
-        'ForEach-Object',
-        'Format-(Custom|List|Table|Wide)',
-        'Get-(Acl|Alias|AuthenticodeSignature|ChildItem|Command|ComputerRestorePoint|Content|ControlPanelItem|Counter|Credential'
+
+    var symbolBuiltins = /[A-Z]:|%|\?/i;
+    var namedBuiltins = buildRegexp([
+        /Add-(Computer|Content|History|Member|PSSnapin|Type)/,
+        /Checkpoint-Computer/,
+        /Clear-(Content|EventLog|History|Host|Item(Property)?|Variable)/,
+        /Compare-Object/,
+        /Complete-Transaction/,
+        /Connect-PSSession/,
+        /ConvertFrom-(Csv|Json|SecureString|StringData)/,
+        /Convert-Path/,
+        /ConvertTo-(Csv|Html|Json|SecureString|Xml)/,
+        /Copy-Item(Property)?/,
+        /Debug-Process/,
+        /Disable-(ComputerRestore|PSBreakpoint|PSRemoting|PSSessionConfiguration)/,
+        /Disconnect-PSSession/,
+        /Enable-(ComputerRestore|PSBreakpoint|PSRemoting|PSSessionConfiguration)/,
+        /(Enter|Exit)-PSSession/,
+        /Export-(Alias|Clixml|Console|Counter|Csv|FormatData|ModuleMember|PSSession)/,
+        /ForEach-Object/,
+        /Format-(Custom|List|Table|Wide)/,
+        new RegExp('Get-(Acl|Alias|AuthenticodeSignature|ChildItem|Command|ComputerRestorePoint|Content|ControlPanelItem|Counter|Credential'
           + '|Culture|Date|Event|EventLog|EventSubscriber|ExecutionPolicy|FormatData|Help|History|Host|HotFix|Item|ItemProperty|Job'
           + '|Location|Member|Module|PfxCertificate|Process|PSBreakpoint|PSCallStack|PSDrive|PSProvider|PSSession|PSSessionConfiguration'
-          + '|PSSnapin|Random|Service|TraceSource|Transaction|TypeData|UICulture|Unique|Variable|Verb|WinEvent|WmiObject)',
-        'Group-Object',
-        'Import-(Alias|Clixml|Counter|Csv|LocalizedData|Module|PSSession)',
-        'ImportSystemModules',
-        'Invoke-(Command|Expression|History|Item|RestMethod|WebRequest|WmiMethod)',
-        'Join-Path',
-        'Limit-EventLog',
-        'Measure-(Command|Object)',
-        'Move-Item(Property)?',
-        'New-(Alias|Event|EventLog|Item(Property)?|Module|ModuleManifest|Object|PSDrive|PSSession|PSSessionConfigurationFile'
-          + '|PSSessionOption|PSTransportOption|Service|TimeSpan|Variable|WebServiceProxy|WinEvent)',
-        'Out-(Default|File|GridView|Host|Null|Printer|String)',
-        'Pause',
-        '(Pop|Push)-Location',
-        'Read-Host',
-        'Receive-(Job|PSSession)',
-        'Register-(EngineEvent|ObjectEvent|PSSessionConfiguration|WmiEvent)',
-        'Remove-(Computer|Event|EventLog|Item(Property)?|Job|Module|PSBreakpoint|PSDrive|PSSession|PSSnapin|TypeData|Variable|WmiObject)',
-        'Rename-(Computer|Item(Property)?)',
-        'Reset-ComputerMachinePassword',
-        'Resolve-Path',
-        'Restart-(Computer|Service)',
-        'Restore-Computer',
-        'Resume-(Job|Service)',
-        'Save-Help',
-        'Select-(Object|String|Xml)',
-        'Send-MailMessage',
-        'Set-(Acl|Alias|AuthenticodeSignature|Content|Date|ExecutionPolicy|Item(Property)?|Location|PSBreakpoint|PSDebug'
-          + '|PSSessionConfiguration|Service|StrictMode|TraceSource|Variable|WmiInstance)',
-        'Show-(Command|ControlPanelItem|EventLog)',
-        'Sort-Object',
-        'Split-Path',
-        'Start-(Job|Process|Service|Sleep|Transaction|Transcript)',
-        'Stop-(Computer|Job|Process|Service|Transcript)',
-        'Suspend-(Job|Service)',
-        'TabExpansion2',
-        'Tee-Object',
-        'Test-(ComputerSecureChannel|Connection|ModuleManifest|Path|PSSessionConfigurationFile)',
-        'Trace-Command',
-        'Unblock-File',
-        'Undo-Transaction',
-        'Unregister-(Event|PSSessionConfiguration)',
-        'Update-(FormatData|Help|List|TypeData)',
-        'Use-Transaction',
-        'Wait-(Event|Job|Process)',
-        'Where-Object',
-        'Write-(Debug|Error|EventLog|Host|Output|Progress|Verbose|Warning)'
-    ]);
+          + '|PSSnapin|Random|Service|TraceSource|Transaction|TypeData|UICulture|Unique|Variable|Verb|WinEvent|WmiObject)'),
+        /Group-Object/,
+        /Import-(Alias|Clixml|Counter|Csv|LocalizedData|Module|PSSession)/,
+        /ImportSystemModules/,
+        /Invoke-(Command|Expression|History|Item|RestMethod|WebRequest|WmiMethod)/,
+        /Join-Path/,
+        /Limit-EventLog/,
+        /Measure-(Command|Object)/,
+        /Move-Item(Property)?/,
+        new RegExp('New-(Alias|Event|EventLog|Item(Property)?|Module|ModuleManifest|Object|PSDrive|PSSession|PSSessionConfigurationFile'
+          + '|PSSessionOption|PSTransportOption|Service|TimeSpan|Variable|WebServiceProxy|WinEvent)'),
+        /Out-(Default|File|GridView|Host|Null|Printer|String)/,
+        /Pause/,
+        /(Pop|Push)-Location/,
+        /Read-Host/,
+        /Receive-(Job|PSSession)/,
+        /Register-(EngineEvent|ObjectEvent|PSSessionConfiguration|WmiEvent)/,
+        /Remove-(Computer|Event|EventLog|Item(Property)?|Job|Module|PSBreakpoint|PSDrive|PSSession|PSSnapin|TypeData|Variable|WmiObject)/,
+        /Rename-(Computer|Item(Property)?)/,
+        /Reset-ComputerMachinePassword/,
+        /Resolve-Path/,
+        /Restart-(Computer|Service)/,
+        /Restore-Computer/,
+        /Resume-(Job|Service)/,
+        /Save-Help/,
+        /Select-(Object|String|Xml)/,
+        /Send-MailMessage/,
+        new RegExp('Set-(Acl|Alias|AuthenticodeSignature|Content|Date|ExecutionPolicy|Item(Property)?|Location|PSBreakpoint|PSDebug'
+          + '|PSSessionConfiguration|Service|StrictMode|TraceSource|Variable|WmiInstance)'),
+        /Show-(Command|ControlPanelItem|EventLog)/,
+        /Sort-Object/,
+        /Split-Path/,
+        /Start-(Job|Process|Service|Sleep|Transaction|Transcript)/,
+        /Stop-(Computer|Job|Process|Service|Transcript)/,
+        /Suspend-(Job|Service)/,
+        /TabExpansion2/,
+        /Tee-Object/,
+        /Test-(ComputerSecureChannel|Connection|ModuleManifest|Path|PSSessionConfigurationFile)/,
+        /Trace-Command/,
+        /Unblock-File/,
+        /Undo-Transaction/,
+        /Unregister-(Event|PSSessionConfiguration)/,
+        /Update-(FormatData|Help|List|TypeData)/,
+        /Use-Transaction/,
+        /Wait-(Event|Job|Process)/,
+        /Where-Object/,
+        /Write-(Debug|Error|EventLog|Host|Output|Progress|Verbose|Warning)/,
+        /cd|help|mkdir|more|oss|prompt/,
+        /ac|asnp|cat|cd|chdir|clc|clear|clhy|cli|clp|cls|clv|cnsn|compare|copy|cp|cpi|cpp|cvpa|dbp|del|diff|dir|dnsn|ebp/,
+        /echo|epal|epcsv|epsn|erase|etsn|exsn|fc|fl|foreach|ft|fw|gal|gbp|gc|gci|gcm|gcs|gdr|ghy|gi|gjb|gl|gm|gmo|gp|gps/,
+        /group|gsn|gsnp|gsv|gu|gv|gwmi|h|history|icm|iex|ihy|ii|ipal|ipcsv|ipmo|ipsn|irm|ise|iwmi|iwr|kill|lp|ls|man|md/,
+        /measure|mi|mount|move|mp|mv|nal|ndr|ni|nmo|npssc|nsn|nv|ogv|oh|popd|ps|pushd|pwd|r|rbp|rcjb|rcsn|rd|rdr|ren|ri/,
+        /rjb|rm|rmdir|rmo|rni|rnp|rp|rsn|rsnp|rujb|rv|rvpa|rwmi|sajb|sal|saps|sasv|sbp|sc|select|set|shcm|si|sl|sleep|sls/,
+        /sort|sp|spjb|spps|spsv|start|sujb|sv|swmi|tee|trcm|type|where|wjb|write/,
+    ], { prefix: '', suffix: '(?=[^A-Z\\-]|$)' });
+    var builtins = buildRegexp([ symbolBuiltins, namedBuiltins ], { suffix: '' });
+
+    var grammar = {
+        keyword: keywords,
+        string: strings,
+        number: numbers,
+        operator: operators,
+        builtin: builtins,
+        punctuation: punctuation,
+        indetifier: identifiers,
+        atom: atoms
+    };
 
     // tokenizers
     function tokenBase(stream, state) {
@@ -131,36 +149,9 @@ CodeMirror.defineMode('powershell', function() {
             return null;
         }
 
-        if (stream.match(keywords)) {
-            return 'keyword';
-        }
-
-        if (stream.match(strings)) {
-            return 'string';
-        }
-
-        if (stream.match(numbers)) {
-            return 'number';
-        }
-
-        if (stream.match(wordOperators) || stream.match(symbolOperators)) {
-            return 'operator';
-        }
-
-        if (stream.match(builtins)) {
-            return 'builtin';
-        }
-
-        if (stream.match(punctuation)) {
-            return 'punctuation';
-        }
-
-        if (stream.match(identifiers)) {
-            return 'identifier';
-        }
-
-        if (stream.match(atoms)) {
-            return 'atom';
+        for (var key in grammar) {
+            if (stream.match(grammar[key]))
+                return key;
         }
 
         var ch = stream.next();
@@ -232,32 +223,13 @@ CodeMirror.defineMode('powershell', function() {
         return 'string';
     }
 
-    function tokenLexer(stream, state) {
-        //indentInfo = null;
-        var style = state.tokenize(stream, state);
-        //var current = stream.current();
-        return style;
-    }
-
     var external = {
-        startState: function(basecolumn) {
-            return {
-              tokenize: tokenBase,
-              scopes: [{offset:basecolumn || 0, type:'py'}],
-              lastToken: null,
-              lambda: false,
-              dedent: 0
-          };
+        startState: function() {
+            return { tokenize: tokenBase };
         },
 
         token: function(stream, state) {
-            var style = tokenLexer(stream, state);
-            state.lastToken = {style:style, content: stream.current()};
-            if (stream.eol() && stream.lambda) {
-                state.lambda = false;
-            }
-
-            return style;
+            return state.tokenize(stream, state);
         },
 
         blockCommentStart: '<#',
