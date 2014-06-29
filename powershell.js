@@ -36,20 +36,15 @@ CodeMirror.defineMode('powershell', function() {
 
     var punctuation = /[\[\]\(\){},;`\.]|@[({]/;
     var wordOperators = buildRegexp([
-        '-f',
-        '-not', '-bnot',
-        '-split', '-isplit', '-csplit', '-join',
-        '-is', '-isnot', '-as',
-        '-eq', '-ieq', '-ceq', '-ne', '-ine', '-cne',
-        '-gt', '-igt', '-cgt', '-ge', '-ige', '-cge',
-        '-lt', '-ilt', '-clt', '-le', '-ile', '-cle',
-        '-like', '-ilike', '-clike', '-notlike', '-inotlike', '-cnotlike',
-        '-match', '-imatch', '-cmatch', '-notmatch', '-inotmatch', '-cnotmatch',
-        '-contains', '-icontains', '-ccontains', '-notcontains', '-inotcontains', '-cnotcontains',
-        '-replace', '-ireplace', '-creplace',
-        '-band', '-bor', '-bxor',
-        '-and', '-or', '-xor'
-    ], { prefix: '' });
+        'f',
+        /b?not/,
+        /[ic]?split/, 'join',
+        /is(not)?/, 'as',
+        /[ic]?(eq|ne|[gl][te])/,
+        /[ic]?(not)?(like|match|contains)/,
+        /[ic]?replace/,
+        /b?(and|or|xor)/
+    ], { prefix: '-' });
     var symbolOperators = /[+\-*\/%]=|\+\+|--|\.\.|[+\-*&^%:=<>!|\/]/;
     var operators = buildRegexp([wordOperators, symbolOperators], { suffix: '' });
 
@@ -209,16 +204,16 @@ CodeMirror.defineMode('powershell', function() {
       return('comment');
     }
 
-	function tokenVariable(stream, state) {
-      var ch;
-      while ((ch = stream.next()) != null) {
-      if (ch === '}') {
-        state.tokenize = tokenBase;
-        break;
-      }
+    function tokenVariable(stream, state) {
+        var ch;
+        while ((ch = stream.next()) != null) {
+            if (ch === '}') {
+                state.tokenize = tokenBase;
+                break;
+            }
+        }
+        return('variable-2');
     }
-    return('variable-2');
-	}
 
     function tokenMultiString(stream, state) {
         var quote = state.startQuote;
