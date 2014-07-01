@@ -1858,6 +1858,8 @@
       },
       // delete is a javascript keyword.
       'delete': function(cm, operatorArgs, vim, curStart, curEnd) {
+        // Save the '>' mark before cm.replaceRange clears it.
+        var selectionEnd = vim.visualMode ? vim.marks['>'].find() : null;
         // If the ending line is past the last line, inclusive, instead of
         // including the trailing \n, include the \n before the starting line
         if (operatorArgs.linewise &&
@@ -1875,6 +1877,10 @@
           cm.replaceSelections(replacement);
         } else {
           cm.replaceRange('', curStart, curEnd);
+        }
+        // restore the saved bookmark
+        if (selectionEnd) {
+          vim.marks['>'] = cm.setBookmark(selectionEnd);
         }
         if (operatorArgs.linewise) {
           cm.setCursor(motions.moveToFirstNonWhiteSpaceCharacter(cm));
@@ -2085,7 +2091,6 @@
           curStart = cm.getCursor('anchor');
           curEnd = cm.getCursor('head');
           if (vim.visualLine) {
-            vim.visualLine = false;
             if (actionArgs.blockwise) {
               // This means Ctrl-V pressed in linewise visual
               vim.visualBlock = true;
@@ -2097,8 +2102,8 @@
             } else {
               exitVisualMode(cm);
             }
+            vim.visualLine = false;
           } else if (vim.visualBlock) {
-            vim.visualBlock = false;
             if (actionArgs.linewise) {
               // Shift-V pressed in blockwise visual mode
               vim.visualLine = true;
@@ -2118,6 +2123,7 @@
             } else {
               exitVisualMode(cm);
             }
+            vim.visualBlock = false;
           } else if (actionArgs.linewise) {
               // Shift-V pressed in characterwise visual mode. Switch to linewise
               // visual mode instead of exiting visual mode.
@@ -2142,27 +2148,40 @@
             : curStart);
       },
       reselectLastSelection: function(cm, _actionArgs, vim) {
+        var curStart = vim.marks['<'].find();
+        var curEnd = vim.marks['>'].find();
         var lastSelection = vim.lastSelection;
         if (lastSelection) {
-          var curStart = lastSelection.curStartMark.find();
-          var curEnd = lastSelection.curEndMark.find();
-          cm.setSelection(curStart, curEnd);
+          // Set the selections as per last selection
+          var selectionStart = lastSelection.curStartMark.find();
+          var selectionEnd = lastSelection.curEndMark.find();
+          var blockwise = lastSelection.visualBlock;
+          // update last selection
+          updateLastSelection(cm, vim, curStart, curEnd);
+          if (blockwise) {
+            cm.setCursor(selectionStart);
+            selectionStart = selectBlock(cm, selectionEnd);
+          } else {
+            cm.setSelection(selectionStart, selectionEnd);
+            selectionStart = cm.getCursor('anchor');
+            selectionEnd = cm.getCursor('head');
+          }
           if (vim.visualMode) {
-            updateLastSelection(cm, vim);
-            var selectionStart = cm.getCursor('anchor');
-            var selectionEnd = cm.getCursor('head');
             updateMark(cm, vim, '<', cursorIsBefore(selectionStart, selectionEnd) ? selectionStart
-            : selectionEnd);
+              : selectionEnd);
             updateMark(cm, vim, '>', cursorIsBefore(selectionStart, selectionEnd) ? selectionEnd
-            : selectionStart);
+              : selectionStart);
           }
+          // Last selection is updated now
+          vim.visualMode = true;
           if (lastSelection.visualLine) {
-            vim.visualMode = true;
             vim.visualLine = true;
-          }
-          else {
-            vim.visualMode = true;
+            vim.visualBlock = false;
+          } else if (lastSelection.visualBlock) {
             vim.visualLine = false;
+            vim.visualBlock = true;
+          } else {
+            vim.visualBlock = vim.visualLine = false;
           }
           CodeMirror.signal(cm, "vim-mode-change", {mode: "visual", subMode: vim.visualLine ? "linewise" : ""});
         }
@@ -2552,6 +2571,10 @@
         }
         start++;
       }
+      // Update selectionEnd and selectionStart
+      // after selection crossing
+      selectionEnd.ch = selections[0].head.ch;
+      selectionStart.ch = selections[0].anchor.ch;
       cm.setSelections(selections, primIndex);
       return selectionStart;
     }
@@ -2586,22 +2609,27 @@
       }
       return [selectionStart, selectionEnd];
     }
-    function updateLastSelection(cm, vim) {
-      // We need the vim mark '<' to get the selection in case of yank and put
-      var selectionStart =  vim.marks['<'].find() || cm.getCursor('anchor');
-      var selectionEnd =  vim.marks['>'].find() ||cm.getCursor('head');
-      // To accommodate the effect lastPastedText in the last selection
+    function updateLastSelection(cm, vim, selectionStart, selectionEnd) {
+      if (!selectionStart || !selectionEnd) {
+        selectionStart = vim.marks['<'].find() || cm.getCursor('anchor');
+        selectionEnd = vim.marks['>'].find() || cm.getCursor('head');
+      }
+      // To accommodate the effect of lastPastedText in the last selection
       if (vim.lastPastedText) {
-        selectionEnd = cm.posFromIndex(cm.indexFromPos(selectionStart) + vim.lastPastedText.length-1);
+        selectionEnd = cm.posFromIndex(cm.indexFromPos(selectionStart) + vim.lastPastedText.length);
         vim.lastPastedText = null;
       }
+      var ranges = cm.listSelections();
+      // This check ensures to set the cursor
+      // position where we left off in previous selection
+      var swap = getIndex(ranges, selectionStart) > -1;
       // can't use selection state here because yank has already reset its cursor
       // Also, Bookmarks make the visual selections robust to edit operations
-      vim.lastSelection = {'curStartMark': cm.setBookmark(selectionStart), 'curEndMark': cm.setBookmark(selectionEnd), 'visualMode': vim.visualMode, 'visualLine': vim.visualLine};
-      if (cursorIsBefore(selectionEnd, selectionStart)) {
-        vim.lastSelection.curStartMark = cm.setBookmark(selectionEnd);
-        vim.lastSelection.curEndMark = cm.setBookmark(selectionStart);
-      }
+      vim.lastSelection = {'curStartMark': cm.setBookmark(swap ? selectionEnd : selectionStart),
+                           'curEndMark': cm.setBookmark(swap ? selectionStart : selectionEnd),
+                           'visualMode': vim.visualMode,
+                           'visualLine': vim.visualLine,
+                           'visualBlock': vim.visualBlock};
     }
 
     function exitVisualMode(cm) {
