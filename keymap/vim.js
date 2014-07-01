@@ -2157,7 +2157,7 @@
           }
           updateMark(cm, vim, '<', cursorIsBefore(selectionStart, selectionEnd) ? selectionStart
             : selectionEnd);
-            updateMark(cm, vim, '>', cursorIsBefore(selectionStart, selectionEnd) ? selectionEnd
+          updateMark(cm, vim, '>', cursorIsBefore(selectionStart, selectionEnd) ? selectionEnd
             : selectionStart);
           // Last selection is updated now
           vim.visualMode = true;
@@ -2594,21 +2594,19 @@
     }
     function updateLastSelection(cm, vim, selectionStart, selectionEnd) {
       var swap = false;
-      if ((selectionStart == undefined) || (selectionEnd == undefined)) {
+      if (!selectionStart || !selectionEnd) {
         selectionStart = vim.marks['<'].find() || cm.getCursor('anchor');
         selectionEnd = vim.marks['>'].find() || cm.getCursor('head');
       }
-      // To accommodate the effect lastPastedText in the last selection
+      // To accommodate the effect of lastPastedText in the last selection
       if (vim.lastPastedText) {
         selectionEnd = cm.posFromIndex(cm.indexFromPos(selectionStart) + vim.lastPastedText.length);
         vim.lastPastedText = null;
       }
         var ranges = cm.listSelections();
         // This check ensures to set the cursor
-        // position where we left off in visual block.
-        if (getIndex(ranges, selectionStart) > -1) {
-          swap = true;
-        }
+        // position where we left off in previous selection
+        var swap = getIndex(ranges, selectionStart) > -1;
       // can't use selection state here because yank has already reset its cursor
       // Also, Bookmarks make the visual selections robust to edit operations
       vim.lastSelection = {'curStartMark': cm.setBookmark(swap ? selectionEnd : selectionStart),
@@ -2621,9 +2619,9 @@
     function exitVisualMode(cm) {
       cm.off('mousedown', exitVisualMode);
       var vim = cm.state.vim;
-      updateLastSelection(cm, vim);
       var selectionStart = cm.getCursor('anchor');
       var selectionEnd = cm.getCursor('head');
+      updateLastSelection(cm, vim);
       vim.visualMode = false;
       vim.visualLine = false;
       vim.visualBlock = false;
