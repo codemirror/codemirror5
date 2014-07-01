@@ -1655,12 +1655,13 @@ testVim('reselect_visual', function(cm, vim, helpers) {
   eq('123456\n2345\nbar', cm.getValue());
   cm.setCursor(0, 0);
   helpers.doKeys('g', 'v');
-  helpers.assertCursorAt(1, 3);
+  // here the fake cursor is at (1, 3)
+  helpers.assertCursorAt(2, 0);
   eqPos(makeCursor(1, 0), cm.getCursor('anchor'));
   helpers.doKeys('v');
   cm.setCursor(2, 0);
   helpers.doKeys('v', 'l', 'l', 'g', 'v');
-  helpers.assertCursorAt(1, 4);
+  helpers.assertCursorAt(2, 0);
   eqPos(makeCursor(1, 0), cm.getCursor('anchor'));
   helpers.doKeys('g', 'v');
   helpers.assertCursorAt(2, 3);
@@ -1675,6 +1676,15 @@ testVim('reselect_visual_line', function(cm, vim, helpers) {
   helpers.doKeys('V', 'p' , 'g', 'v', 'd');
   eq('\nfoo\nbar', cm.getValue());
 }, { value: 'hello\nthis\nis\nfoo\nand\nbar' });
+testVim('reselect_visual_block', function(cm, vim, helpers) {
+  cm.setCursor(1, 2);
+  helpers.doKeys('<C-v>', 'k', 'h', 'h', '<C-v>');
+  cm.setCursor(2, 0);
+  helpers.doKeys('v', 'l', 'l', 'g', 'v');
+  helpers.assertCursorAt(0, 0);
+  helpers.doKeys('g', 'v');
+  helpers.assertCursorAt(2, 3);
+}, { value: '123456\nfoo\nbar' });
 testVim('s_normal', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.doKeys('s');
