@@ -1853,6 +1853,8 @@
       },
       // delete is a javascript keyword.
       'delete': function(cm, operatorArgs, vim, curStart, curEnd) {
+        // Save the '>' mark before cm.replaceRange clears it.
+        var selectionEnd = vim.visualMode ? vim.marks['>'].find() : null;
         // If the ending line is past the last line, inclusive, instead of
         // including the trailing \n, include the \n before the starting line
         if (operatorArgs.linewise &&
@@ -1870,6 +1872,10 @@
           cm.replaceSelections(replacement);
         } else {
           cm.replaceRange('', curStart, curEnd);
+        }
+        // restore the saved bookmark
+        if (selectionEnd) {
+          vim.marks['>'] = cm.setBookmark(selectionEnd);
         }
         if (operatorArgs.linewise) {
           cm.setCursor(motions.moveToFirstNonWhiteSpaceCharacter(cm));
@@ -2080,7 +2086,6 @@
           curStart = cm.getCursor('anchor');
           curEnd = cm.getCursor('head');
           if (vim.visualLine) {
-            vim.visualLine = false;
             if (actionArgs.blockwise) {
               // This means Ctrl-V pressed in linewise visual
               vim.visualBlock = true;
@@ -2092,8 +2097,8 @@
             } else {
               exitVisualMode(cm);
             }
+            vim.visualLine = false;
           } else if (vim.visualBlock) {
-            vim.visualBlock = false;
             if (actionArgs.linewise) {
               // Shift-V pressed in blockwise visual mode
               vim.visualLine = true;
@@ -2113,6 +2118,7 @@
             } else {
               exitVisualMode(cm);
             }
+            vim.visualBlock = false;
           } else if (actionArgs.linewise) {
               // Shift-V pressed in characterwise visual mode. Switch to linewise
               // visual mode instead of exiting visual mode.
@@ -2599,7 +2605,6 @@
       return [selectionStart, selectionEnd];
     }
     function updateLastSelection(cm, vim, selectionStart, selectionEnd) {
-      var swap = false;
       if (!selectionStart || !selectionEnd) {
         selectionStart = vim.marks['<'].find() || cm.getCursor('anchor');
         selectionEnd = vim.marks['>'].find() || cm.getCursor('head');

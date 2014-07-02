@@ -1670,26 +1670,33 @@ testVim('reselect_visual', function(cm, vim, helpers) {
 }, { value: '123456\nfoo\nbar' });
 testVim('reselect_visual_line', function(cm, vim, helpers) {
   helpers.doKeys('l', 'V', 'j', 'j', 'V', 'g', 'v', 'd');
-  eq('\nfoo\nand\nbar', cm.getValue());
+  eq('foo\nand\nbar', cm.getValue());
   cm.setCursor(1, 0);
   helpers.doKeys('V', 'y', 'j');
   helpers.doKeys('V', 'p' , 'g', 'v', 'd');
-  eq('\nfoo\nbar', cm.getValue());
+  eq('foo\nand', cm.getValue());
 }, { value: 'hello\nthis\nis\nfoo\nand\nbar' });
 testVim('reselect_visual_block', function(cm, vim, helpers) {
   cm.setCursor(1, 2);
-  helpers.doKeys('<C-v>', 'k', 'h', 'h', '<C-v>');
-  cm.setCursor(2, 0);
-  helpers.doKeys('v', 'l', 'l', 'g', 'v');
-  helpers.assertCursorAt(0, 0);
+  helpers.doKeys('<C-v>', 'k', 'h', '<C-v>');
+  cm.setCursor(2, 1);
+  helpers.doKeys('v', 'l', 'g', 'v');
+  helpers.assertCursorAt(0, 1);
+  // Ensure visual 'block'
+  // is selected rather than characterwise
+  // visual block.
+  eq(cm.getSelections().join(''), '23oo')
   helpers.doKeys('g', 'v');
   helpers.assertCursorAt(2, 3);
+  // Ensure selection of deleted range
+  cm.setCursor(1, 1);
+  helpers.doKeys('v', '<C-v>', 'j', 'd', 'g', 'v');
+  eq(cm.getSelections().join(''), 'or');
 }, { value: '123456\nfoo\nbar' });
 testVim('s_normal', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.doKeys('s');
   helpers.doInsertModeKeys('Esc');
-  helpers.assertCursorAt(0, 0);
   eq('ac', cm.getValue());
 }, { value: 'abc'});
 testVim('s_visual', function(cm, vim, helpers) {
