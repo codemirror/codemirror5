@@ -1682,9 +1682,8 @@ testVim('reselect_visual_block', function(cm, vim, helpers) {
   cm.setCursor(2, 1);
   helpers.doKeys('v', 'l', 'g', 'v');
   helpers.assertCursorAt(0, 1);
-  // Ensure visual 'block'
-  // is selected rather than characterwise
-  // visual block.
+  // Ensure selection is done with visual block mode rather than one
+  // continuous range.
   eq(cm.getSelections().join(''), '23oo')
   helpers.doKeys('g', 'v');
   helpers.assertCursorAt(2, 3);
