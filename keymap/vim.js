@@ -2155,10 +2155,12 @@
             selectionStart = cm.getCursor('anchor');
             selectionEnd = cm.getCursor('head');
           }
-          updateMark(cm, vim, '<', cursorIsBefore(selectionStart, selectionEnd) ? selectionStart
-            : selectionEnd);
-          updateMark(cm, vim, '>', cursorIsBefore(selectionStart, selectionEnd) ? selectionEnd
-            : selectionStart);
+          if (vim.visualMode) {
+            updateMark(cm, vim, '<', cursorIsBefore(selectionStart, selectionEnd) ? selectionStart
+              : selectionEnd);
+            updateMark(cm, vim, '>', cursorIsBefore(selectionStart, selectionEnd) ? selectionEnd
+              : selectionStart);
+          }
           // Last selection is updated now
           vim.visualMode = true;
           if (lastSelection.visualLine) {
@@ -2558,6 +2560,10 @@
         }
         start++;
       }
+      // Update selectionEnd and selectionStart
+      // after selection crossing
+      selectionEnd.ch = selections[0].head.ch;
+      selectionStart.ch = selections[0].anchor.ch;
       cm.setSelections(selections, primIndex);
       return selectionStart;
     }
@@ -2603,10 +2609,10 @@
         selectionEnd = cm.posFromIndex(cm.indexFromPos(selectionStart) + vim.lastPastedText.length);
         vim.lastPastedText = null;
       }
-        var ranges = cm.listSelections();
-        // This check ensures to set the cursor
-        // position where we left off in previous selection
-        var swap = getIndex(ranges, selectionStart) > -1;
+      var ranges = cm.listSelections();
+      // This check ensures to set the cursor
+      // position where we left off in previous selection
+      var swap = getIndex(ranges, selectionStart) > -1;
       // can't use selection state here because yank has already reset its cursor
       // Also, Bookmarks make the visual selections robust to edit operations
       vim.lastSelection = {'curStartMark': cm.setBookmark(swap ? selectionEnd : selectionStart),

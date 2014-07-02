@@ -1661,7 +1661,7 @@ testVim('reselect_visual', function(cm, vim, helpers) {
   helpers.doKeys('v');
   cm.setCursor(2, 0);
   helpers.doKeys('v', 'l', 'l', 'g', 'v');
-  helpers.assertCursorAt(2, 0);
+  helpers.assertCursorAt(1, 4);
   eqPos(makeCursor(1, 0), cm.getCursor('anchor'));
   helpers.doKeys('g', 'v');
   helpers.assertCursorAt(2, 3);
