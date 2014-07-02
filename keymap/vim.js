@@ -225,7 +225,8 @@
     { keys: ['|'], type: 'motion',
         motion: 'moveToColumn',
         motionArgs: { }},
-    { keys: ['o'], type: 'motion', motion: 'moveToOtherHighlightedEnd', motionArgs: { },context:'visual'},
+    { keys: ['o'], type: 'motion', motion: 'moveToOtherHighlightedEnd', motionArgs: { }, context:'visual'},
+    { keys: ['O'], type: 'motion', motion: 'moveToOtherHighlightedEnd', motionArgs: {sameLine: true}, context:'visual'},
     // Operators
     { keys: ['d'], type: 'operator', operator: 'delete' },
     { keys: ['y'], type: 'operator', operator: 'yank' },
@@ -1363,10 +1364,10 @@
               selectionStart.ch -= 1;
               offset = 1;
             }
-            // in case of visual Block
-            // selectionStart and curEnd
-            // may not be on the same line
-            if (!vim.visualBlock) {
+            // in case of visual Block selectionStart and curEnd
+            // may not be on the same line,
+            // Also, In case of v_o this should not happen.
+            if (!vim.visualBlock && !(motionResult instanceof Array)) {
               curEnd.ch += offset;
             }
             if (vim.lastHPos != Infinity) {
@@ -1521,15 +1522,19 @@
         }
         return null;
       },
-      moveToOtherHighlightedEnd: function(cm) {
-        var curEnd = copyCursor(cm.getCursor('head'));
-        var curStart = copyCursor(cm.getCursor('anchor'));
-        if (cursorIsBefore(curStart, curEnd)) {
-           curEnd.ch += 1;
-        } else if (cursorIsBefore(curEnd, curStart)) {
-           curStart.ch -= 1;
+      moveToOtherHighlightedEnd: function(cm, motionArgs, vim) {
+        var ranges = cm.listSelections();
+        var curEnd = cm.getCursor('head');
+        var curStart = ranges[0].anchor;
+        var curIndex = cursorEqual(ranges[0].head, curEnd) ? ranges.length-1 : 0;
+        if (motionArgs.sameLine && vim.visualBlock) {
+          curStart = Pos(curEnd.line, ranges[curIndex].anchor.ch);
+          curEnd = Pos(ranges[curIndex].head.line, curEnd.ch);
+        } else {
+          curStart = ranges[curIndex].anchor;
         }
-        return ([curEnd,curStart]);
+        cm.setCursor(curEnd);
+        return ([curEnd, curStart]);
       },
       jumpToMark: function(cm, motionArgs, vim) {
         var best = cm.getCursor();

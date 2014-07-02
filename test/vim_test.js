@@ -1689,17 +1689,26 @@ testVim('s_visual', function(cm, vim, helpers) {
   helpers.assertCursorAt(0, 0);
   eq('ac', cm.getValue());
 }, { value: 'abc'});
-testVim('o_visual', function(cm,vim,helpers) {
+testVim('o_visual', function(cm, vim, helpers) {
   cm.setCursor(0,0);
   helpers.doKeys('v','l','l','l','o');
   helpers.assertCursorAt(0,0);
   helpers.doKeys('v','v','j','j','j','o');
   helpers.assertCursorAt(0,0);
-  helpers.doKeys('o');
+  helpers.doKeys('O');
   helpers.doKeys('l','l')
   helpers.assertCursorAt(3, 3);
   helpers.doKeys('d');
   eq('p',cm.getValue());
+}, { value: 'abcd\nefgh\nijkl\nmnop'});
+testVim('o_visual_block', function(cm, vim, helpers) {
+  cm.setCursor(0, 1);
+  helpers.doKeys('<C-v>','3','j','l','l', 'o');
+  helpers.assertCursorAt(0, 1);
+  helpers.doKeys('O');
+  helpers.assertCursorAt(0, 4);
+  helpers.doKeys('o');
+  helpers.assertCursorAt(3, 1);
 }, { value: 'abcd\nefgh\nijkl\nmnop'});
 testVim('uppercase/lowercase_visual', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
