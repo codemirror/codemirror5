@@ -1526,12 +1526,12 @@
         var ranges = cm.listSelections();
         var curEnd = cm.getCursor('head');
         var curStart = ranges[0].anchor;
-        var index = cursorEqual(ranges[0].head, curEnd) ? ranges.length-1 : 0;
+        var curIndex = cursorEqual(ranges[0].head, curEnd) ? ranges.length-1 : 0;
         if (motionArgs.sameLine && vim.visualBlock) {
-          curStart = Pos(curEnd.line, ranges[index].anchor.ch);
-          curEnd = Pos(ranges[index].head.line, curEnd.ch);
+          curStart = Pos(curEnd.line, ranges[curIndex].anchor.ch);
+          curEnd = Pos(ranges[curIndex].head.line, curEnd.ch);
         } else {
-          curStart = ranges[index].anchor;
+          curStart = ranges[curIndex].anchor;
         }
         cm.setCursor(curEnd);
         return ([curEnd, curStart]);

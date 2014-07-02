@@ -1702,9 +1702,9 @@ testVim('o_visual', function(cm, vim, helpers) {
   eq('p',cm.getValue());
 }, { value: 'abcd\nefgh\nijkl\nmnop'});
 testVim('o_visual_block', function(cm, vim, helpers) {
-  cm.setCursor(0,1);
+  cm.setCursor(0, 1);
   helpers.doKeys('<C-v>','3','j','l','l', 'o');
-  helpers.assertCursorAt(0,1);
+  helpers.assertCursorAt(0, 1);
   helpers.doKeys('O');
   helpers.assertCursorAt(0, 4);
   helpers.doKeys('o');
