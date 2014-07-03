@@ -49,6 +49,7 @@ CodeMirror.modeInfo = [
   {name: 'HTTP', mime: 'message/http', mode: 'http'},
   {name: 'Jade', mime: 'text/x-jade', mode: 'jade'},
   {name: 'JavaScript', mime: 'text/javascript', mode: 'javascript'},
+  {name: 'JavaScript', mime: 'application/javascript', mode: 'javascript'},
   {name: 'JSON', mime: 'application/x-json', mode: 'javascript'},
   {name: 'JSON', mime: 'application/json', mode: 'javascript'},
   {name: 'JSON-LD', mime: 'application/ld+json', mode: 'javascript'},
