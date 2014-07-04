@@ -1,3 +1,16 @@
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
+
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
+"use strict";
+
 CodeMirror.defineMode("kotlin", function (config, parserConfig) {
   function words(str) {
     var obj = {}, words = str.split(" ");
@@ -29,7 +42,7 @@ CodeMirror.defineMode("kotlin", function (config, parserConfig) {
     }
     if (/[\[\]{}\(\),;\:\.]/.test(ch)) {
       curPunc = ch;
-      return null
+      return null;
     }
     if (/\d/.test(ch)) {
       if (stream.eat(/eE/)) {
@@ -263,3 +276,5 @@ CodeMirror.defineMode("kotlin", function (config, parserConfig) {
 });
 
 CodeMirror.defineMIME("text/x-kotlin", "kotlin");
+
+});
