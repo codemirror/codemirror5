@@ -36,6 +36,22 @@
     return str.length == 2 ? str : null;
   }
 
+  // Project the token type that will exists after the given char is
+  // typed, and use it to determine whether it would cause the start
+  // of a string token.
+  function enteringString(cm, pos, ch) {
+    var line = cm.getLine(pos.line);
+    var token = cm.getTokenAt(pos);
+    if (/\bstring2?\b/.test(token.type)) return false;
+    var stream = new CodeMirror.StringStream(line.slice(0, pos.ch) + ch + line.slice(pos.ch), 4);
+    stream.pos = stream.start = token.start;
+    for (;;) {
+      var type1 = cm.getMode().token(stream, token.state);
+      if (stream.pos >= pos.ch + 1) return /\bstring2?\b/.test(type1);
+      stream.start = stream.pos;
+    }
+  }
+
   function buildKeymap(pairs) {
     var map = {
       name : "autoCloseBrackets",
@@ -61,8 +77,6 @@
         var ranges = cm.listSelections(), type, next;
         for (var i = 0; i < ranges.length; i++) {
           var range = ranges[i], cur = range.head, curType;
-          if (left == "'" && cm.getTokenTypeAt(cur) == "comment")
-            return CodeMirror.Pass;
           var next = cm.getRange(cur, Pos(cur.line, cur.ch + 1));
           if (!range.empty())
             curType = "surround";
@@ -75,9 +89,10 @@
                      cm.getRange(Pos(cur.line, cur.ch - 2), cur) == left + left &&
                      (cur.ch <= 2 || cm.getRange(Pos(cur.line, cur.ch - 3), Pos(cur.line, cur.ch - 2)) != left))
             curType = "addFour";
-          else if (left == right && CodeMirror.isWordChar(next))
-            return CodeMirror.Pass;
-          else if (cm.getLine(cur.line).length == cur.ch || closingBrackets.indexOf(next) >= 0 || SPACE_CHAR_REGEX.test(next))
+          else if (left == '"' || left == "'") {
+            if (!CodeMirror.isWordChar(next) && enteringString(cm, cur, left)) curType = "both";
+            else return CodeMirror.Pass;
+          } else if (cm.getLine(cur.line).length == cur.ch || closingBrackets.indexOf(next) >= 0 || SPACE_CHAR_REGEX.test(next))
             curType = "both";
           else
             return CodeMirror.Pass;
