@@ -1318,6 +1318,13 @@ testVim('r', function(cm, vim, helpers) {
   helpers.doKeys('v', 'j', 'h', 'r', '<Space>');
   eq('wuuu  \n    her', cm.getValue(),'Replacing selection by space-characters failed');
 }, { value: 'wordet\nanother' });
+testVim('r_visual_block', function(cm, vim, helpers) {
+  cm.setCursor(2, 3);
+  helpers.doKeys('<C-v>', 'k', 'k', 'h', 'h', 'r', 'l');
+  eq('1lll\n5lll\nalllefg', cm.getValue());
+  helpers.doKeys('<C-v>', 'l', 'j', 'r', '<Space>');
+  eq('1  l\n5  l\nalllefg', cm.getValue());
+}, {value: '1234\n5678\nabcdefg'});
 testVim('R', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.doKeys('R');
