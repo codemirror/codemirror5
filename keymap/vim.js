@@ -2370,10 +2370,11 @@
         var curStart = cm.getCursor();
         var replaceTo;
         var curEnd;
-        if (vim.visualMode){
-          curStart=cm.getCursor('start');
-          curEnd=cm.getCursor('end');
-        }else{
+        var selections = cm.listSelections();
+        if (vim.visualMode) {
+          curStart = cm.getCursor('start');
+          curEnd = cm.getCursor('end');
+        } else {
           var line = cm.getLine(curStart.line);
           replaceTo = curStart.ch + actionArgs.repeat;
           if (replaceTo > line.length) {
@@ -2381,19 +2382,29 @@
           }
           curEnd = Pos(curStart.line, replaceTo);
         }
-        if (replaceWith=='\n'){
+        if (replaceWith=='\n') {
           if (!vim.visualMode) cm.replaceRange('', curStart, curEnd);
           // special case, where vim help says to replace by just one line-break
           (CodeMirror.commands.newlineAndIndentContinueComment || CodeMirror.commands.newlineAndIndent)(cm);
-        }else {
-          var replaceWithStr=cm.getRange(curStart, curEnd);
+        } else {
+          var replaceWithStr = cm.getRange(curStart, curEnd);
           //replace all characters in range by selected, but keep linebreaks
-          replaceWithStr=replaceWithStr.replace(/[^\n]/g,replaceWith);
-          cm.replaceRange(replaceWithStr, curStart, curEnd);
-          if (vim.visualMode){
+          replaceWithStr = replaceWithStr.replace(/[^\n]/g, replaceWith);
+          if (vim.visualBlock) {
+            // Tabs are split in visua block before replacing
+            var spaces = new Array(cm.options.tabSize+1).join(' ');
+            replaceWithStr = cm.getSelection();
+            replaceWithStr = replaceWithStr.replace(/\t/g, spaces).replace(/[^\n]/g, replaceWith).split('\n');
+            cm.replaceSelections(replaceWithStr);
+          } else {
+            cm.replaceRange(replaceWithStr, curStart, curEnd);
+          }
+          if (vim.visualMode) {
+            curStart = cursorIsBefore(selections[0].anchor, selections[0].head) ?
+                         selections[0].anchor : selections[0].head;
             cm.setCursor(curStart);
             exitVisualMode(cm);
-          }else{
+          } else {
             cm.setCursor(offsetCursor(curEnd, 0, -1));
           }
         }
