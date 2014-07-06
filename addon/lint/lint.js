@@ -11,7 +11,6 @@
 })(function(CodeMirror) {
   "use strict";
   var GUTTER_ID = "CodeMirror-lint-markers";
-  var SEVERITIES = /^(?:error|warning)$/;
 
   function showTooltip(e, content) {
     var tt = document.createElement("div");
@@ -110,7 +109,7 @@
 
   function annotationTooltip(ann) {
     var severity = ann.severity;
-    if (!SEVERITIES.test(severity)) severity = "error";
+    if (!severity) severity = "error";
     var tip = document.createElement("div");
     tip.className = "CodeMirror-lint-message-" + severity;
     tip.appendChild(document.createTextNode(ann.message));
@@ -141,7 +140,7 @@
       for (var i = 0; i < anns.length; ++i) {
         var ann = anns[i];
         var severity = ann.severity;
-        if (!SEVERITIES.test(severity)) severity = "error";
+        if (!severity) severity = "error";
         maxSeverity = getMaxSeverity(maxSeverity, severity);
 
         if (options.formatAnnotation) ann = options.formatAnnotation(ann);
