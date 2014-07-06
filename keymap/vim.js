@@ -2343,12 +2343,15 @@
           // special case, where vim help says to replace by just one line-break
           (CodeMirror.commands.newlineAndIndentContinueComment || CodeMirror.commands.newlineAndIndent)(cm);
         } else {
+          //vim treats tabs as multiple chars while replacing.
+          var spaces = new Array(cm.options.indentUnit+1).join(' ');
           var replaceWithStr = cm.getRange(curStart, curEnd);
+          //First replace the tabs with spaces and then,
           //replace all characters in range by selected, but keep linebreaks
-          replaceWithStr = replaceWithStr.replace(/[^\n]/g, replaceWith);
+          replaceWithStr = replaceWithStr.replace(/\t/g, spaces).replace(/[^\n]/g, replaceWith);
           if (vim.visualBlock) {
             replaceWithStr = cm.getSelection();
-            replaceWithStr = replaceWithStr.replace(/[^\n]/g, replaceWith).split('\n');
+            replaceWithStr = replaceWithStr.replace(/\t/g, spaces).replace(/[^\n]/g, replaceWith).split('\n');
             cm.replaceSelections(replaceWithStr);
           } else {
             cm.replaceRange(replaceWithStr, curStart, curEnd);

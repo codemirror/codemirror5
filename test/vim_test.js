@@ -1324,6 +1324,12 @@ testVim('r_visual_block', function(cm, vim, helpers) {
   eq('1lll\n5lll\nalllefg', cm.getValue());
   helpers.doKeys('<C-v>', 'l', 'j', 'r', '<Space>');
   eq('1  l\n5  l\nalllefg', cm.getValue());
+  cm.setCursor(2, 0);
+  helpers.doKeys('o');
+  helpers.doInsertModeKeys('Esc');
+  cm.replaceRange('\t\t', cm.getCursor());
+  helpers.doKeys('<C-v>', 'h', 'h', 'r', 'r');
+  eq('1  l\n5  l\nalllefg\nrrrr', cm.getValue());
 }, {value: '1234\n5678\nabcdefg'});
 testVim('R', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
