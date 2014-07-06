@@ -2347,13 +2347,15 @@
           //replace all characters in range by selected, but keep linebreaks
           replaceWithStr = replaceWithStr.replace(/[^\n]/g, replaceWith);
           if (vim.visualBlock) {
-            replaceWithStr = cm.getSelection().replace(/[^\n]/g, replaceWith).split('\n');
+            replaceWithStr = cm.getSelection();
+            replaceWithStr = replaceWithStr.replace(/[^\n]/g, replaceWith).split('\n');
             cm.replaceSelections(replaceWithStr);
           } else {
             cm.replaceRange(replaceWithStr, curStart, curEnd);
           }
           if (vim.visualMode) {
-            curStart = cursorIsBefore(selections[0].anchor, selections[0].head) ? selections[0].anchor : selections[0].head;
+            curStart = cursorIsBefore(selections[0].anchor, selections[0].head) ?
+                         selections[0].anchor : selections[0].head;
             cm.setCursor(curStart);
             exitVisualMode(cm);
           } else {
