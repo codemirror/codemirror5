@@ -1458,7 +1458,7 @@
           // Keep track of linewise as it affects how paste and change behave.
           operatorArgs.linewise = linewise;
           if (!vim.visualBlock) {
-            cm.extendSelection(curEnd, curStart);
+            cm.extendSelection(curStart, curEnd);
           }
           operators[operator](cm, operatorArgs, vim, curStart,
               curEnd, curOriginal);
@@ -1842,8 +1842,7 @@
             operatorArgs.registerName, 'change', text,
             operatorArgs.linewise);
         if (operatorArgs.linewise) {
-          // 'C' in visual block extends the block till eol
-          // for all lines
+          // 'C' in visual block extends the block till eol for all lines
           if (vim.visualBlock){
             var startLine = curStart.line;
             while (startLine <= curEnd.line) {
@@ -1954,8 +1953,6 @@
         var curStart  = ranges[0].anchor;
         var curEnd = ranges[0].head;
         if (!operatorArgs.shouldMoveCursor) {
-          // extendSelection swaps curStart and curEnd, so make sure
-          // curStart < curEnd
           cm.setCursor(cursorIsBefore(curStart, curEnd) ? curStart : curEnd);
         }
       },
