@@ -895,6 +895,20 @@ testVim('cc_append', function(cm, vim, helpers) {
   helpers.doKeys('c', 'c');
   eq(expectedLineCount, cm.lineCount());
 });
+testVim('c_visual_block', function(cm, vim, helpers) {
+  cm.setCursor(0, 1);
+  helpers.doKeys('<C-v>', '2', 'j', 'l', 'l', 'l', 'c');
+  var replacement = new Array(cm.listSelections().length+1).join('hello ').split(' ');
+  replacement.pop();
+  cm.replaceSelections(replacement);
+  eq('1hello\n5hello\nahellofg', cm.getValue());
+  cm.setCursor(2, 3);
+  helpers.doKeys('<C-v>', '2', 'k', 'h', 'C');
+  replacement = new Array(cm.listSelections().length+1).join('world ').split(' ');
+  replacement.pop();
+  cm.replaceSelections(replacement);
+  eq('1hworld\n5hworld\nahworld', cm.getValue());
+}, {value: '1234\n5678\nabcdefg'});
 // Swapcase commands edit in place and do not modify registers.
 testVim('g~w_repeat', function(cm, vim, helpers) {
   // Assert that dw does delete newline if it should go to the next line, and
