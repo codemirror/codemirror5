@@ -1831,17 +1831,39 @@
     };
 
     var operators = {
-      change: function(cm, operatorArgs, _vim, curStart, curEnd) {
+      change: function(cm, operatorArgs, vim) {
+        var selections = cm.listSelections();
+        var start = selections[0], end = selections[selections.length-1];
+        var curStart = cursorIsBefore(start.anchor, start.head) ? start.anchor : start.head;
+        var curEnd = cursorIsBefore(end.anchor, end.head) ? end.head : end.anchor;
+        var text = cm.getSelection();
+        var replacement = new Array(selections.length).join('1').split('1');
         vimGlobalState.registerController.pushText(
-            operatorArgs.registerName, 'change', cm.getRange(curStart, curEnd),
+            operatorArgs.registerName, 'change', text,
             operatorArgs.linewise);
         if (operatorArgs.linewise) {
-          // Push the next line back down, if there is a next line.
-          var replacement = curEnd.line > cm.lastLine() ? '' : '\n';
-          cm.replaceRange(replacement, curStart, curEnd);
-          cm.indentLine(curStart.line, 'smart');
-          // null ch so setCursor moves to end of line.
-          curStart.ch = null;
+          // 'C' in visual block extends the block till eol for all lines
+          if (vim.visualBlock){
+            var startLine = curStart.line;
+            while (startLine <= curEnd.line) {
+              var endCh = lineLength(cm, startLine);
+              var head = Pos(startLine, endCh);
+              var anchor = Pos(startLine, curStart.ch);
+              startLine++;
+              cm.replaceRange('', anchor, head);
+            }
+          } else {
+            // Push the next line back down, if there is a next line.
+            replacement = '\n';
+            if (curEnd.line == curStart.line && curEnd.line == cm.lastLine()) {
+              replacement = '';
+            }
+            cm.replaceRange(replacement, curStart, curEnd);
+            cm.indentLine(curStart.line, 'smart');
+            // null ch so setCursor moves to end of line.
+            curStart.ch = null;
+            cm.setCursor(curStart);
+          }
         } else {
           // Exclude trailing whitespace if the range is not all whitespace.
           var text = cm.getRange(curStart, curEnd);
@@ -1851,15 +1873,20 @@
               curEnd = offsetCursor(curEnd, 0, - match[0].length);
             }
           }
-          cm.replaceRange('', curStart, curEnd);
+          if (vim.visualBlock) {
+            cm.replaceSelections(replacement);
+          } else {
+            cm.setCursor(curStart);
+            cm.replaceRange('', curStart, curEnd);
+          }
         }
         actions.enterInsertMode(cm, {}, cm.state.vim);
-        cm.setCursor(curStart);
       },
       // delete is a javascript keyword.
       'delete': function(cm, operatorArgs, vim, curStart, curEnd) {
         // Save the '>' mark before cm.replaceRange clears it.
         var selectionEnd = vim.visualMode ? vim.marks['>'].find() : null;
+        var text = cm.getSelection();
         // If the ending line is past the last line, inclusive, instead of
         // including the trailing \n, include the \n before the starting line
         if (operatorArgs.linewise &&
@@ -1868,7 +1895,7 @@
           curStart.ch = lineLength(cm, curStart.line);
         }
         vimGlobalState.registerController.pushText(
-            operatorArgs.registerName, 'delete', cm.getRange(curStart, curEnd),
+            operatorArgs.registerName, 'delete', text,
             operatorArgs.linewise);
         if (vim.visualBlock) {
           var selections = cm.listSelections();
@@ -1926,8 +1953,6 @@
         var curStart  = ranges[0].anchor;
         var curEnd = ranges[0].head;
         if (!operatorArgs.shouldMoveCursor) {
-          // extendSelection swaps curStart and curEnd, so make sure
-          // curStart < curEnd
           cm.setCursor(cursorIsBefore(curStart, curEnd) ? curStart : curEnd);
         }
       },
