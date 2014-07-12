@@ -2348,7 +2348,7 @@
           replaceWithStr = replaceWithStr.replace(/[^\n]/g, replaceWith);
           if (vim.visualBlock) {
             // Tabs are split in visua block before replacing
-            var spaces = new Array(cm.options.indentUnit+1).join(' ');
+            var spaces = new Array(cm.options.tabSize+1).join(' ');
             replaceWithStr = cm.getSelection();
             replaceWithStr = replaceWithStr.replace(/\t/g, spaces).replace(/[^\n]/g, replaceWith).split('\n');
             cm.replaceSelections(replaceWithStr);

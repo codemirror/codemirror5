@@ -1329,7 +1329,7 @@ testVim('r_visual_block', function(cm, vim, helpers) {
   helpers.doInsertModeKeys('Esc');
   cm.replaceRange('\t\t', cm.getCursor());
   helpers.doKeys('<C-v>', 'h', 'h', 'r', 'r');
-  eq('1  l\n5  l\nalllefg\nrrrr', cm.getValue());
+  eq('1  l\n5  l\nalllefg\nrrrrrrrr', cm.getValue());
 }, {value: '1234\n5678\nabcdefg'});
 testVim('R', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
