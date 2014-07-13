@@ -369,6 +369,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
 
 
     ),
+    multiLineStrings: true,
     blockKeywords: words("catch class do else finally for forSome if match switch try while"),
     atoms: words("true false null"),
     hooks: {
