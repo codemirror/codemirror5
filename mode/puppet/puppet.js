@@ -64,6 +64,18 @@ CodeMirror.defineMode("puppet", function () {
     return "string";
   }
 
+  function tokenRegex(stream, state) {
+    var current, prev = false;
+    while (!stream.eol() && (current = stream.next())) {
+      if (current == '/' && prev == '\\') {
+        continue;
+      } else if (current == '/') {
+        return 'variable-3';
+      }
+      prev = current;
+    }
+  }
+
   // Main function
   function tokenize(stream, state) {
     // Matches one whole word
@@ -176,8 +188,7 @@ CodeMirror.defineMode("puppet", function () {
     // Match characters that we are going to assume
     // are trying to be regex
     if (ch == '/') {
-      stream.match(/.*\//);
-      return 'variable-3';
+      return tokenRegex(stream, state);
     }
     // Match all the numbers
     if (ch.match(/[0-9]/)) {
