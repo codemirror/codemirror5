@@ -1683,7 +1683,7 @@ testVim('reselect_visual', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('g', 'v');
   // here the fake cursor is at (1, 3)
-  helpers.assertCursorAt(2, 0);
+  helpers.assertCursorAt(1, 4);
   eqPos(makeCursor(1, 0), cm.getCursor('anchor'));
   helpers.doKeys('v');
   cm.setCursor(2, 0);
@@ -1753,7 +1753,7 @@ testVim('o_visual_block', function(cm, vim, helpers) {
   helpers.doKeys('o');
   helpers.assertCursorAt(3, 1);
 }, { value: 'abcd\nefgh\nijkl\nmnop'});
-testVim('uppercase/lowercase_visual', function(cm, vim, helpers) {
+testVim('changeCase_visual', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('v', 'l', 'l');
   helpers.doKeys('U');
@@ -1772,6 +1772,18 @@ testVim('uppercase/lowercase_visual', function(cm, vim, helpers) {
   helpers.doKeys('V', 'U', 'j', '.');
   eq('ABCDEF\nGHIJKL\nMnopq\nSHORT LINE\nLONG LINE OF TEXT', cm.getValue());
 }, { value: 'abcdef\nghijkl\nmnopq\nshort line\nlong line of text'});
+testVim('changeCase_visual_block', function(cm, vim, helpers) {
+  cm.setCursor(2, 1);
+  helpers.doKeys('<C-v>', 'k', 'k', 'h', 'U');
+  eq('ABcdef\nGHijkl\nMNopq\nfoo', cm.getValue());
+  cm.setCursor(0, 2);
+  helpers.doKeys('.');
+  eq('ABCDef\nGHIJkl\nMNOPq\nfoo', cm.getValue());
+  // check when last line is shorter.
+  cm.setCursor(2, 2);
+  helpers.doKeys('.');
+  eq('ABCDef\nGHIJkl\nMNOPq\nfoO', cm.getValue());
+}, { value: 'abcdef\nghijkl\nmnopq\nfoo'});
 testVim('visual_paste', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('v', 'l', 'l', 'y', 'j', 'v', 'l', 'p');
