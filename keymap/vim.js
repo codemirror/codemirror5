@@ -2443,10 +2443,12 @@
       changeCase: function(cm, actionArgs, vim) {
         var selectionStart = getSelectedAreaRange(cm, vim)[0];
         var text = cm.getSelection();
-        // save the curEnd marker to avoid its removal due to cm.replaceRange
+        var lastSelectionCurEnd;
+        var blockSelection;
         if (vim.lastSelection) {
-          var lastSelectionCurEnd = vim.lastSelection.curEndMark.find();
-          var blockSelection = vim.lastSelection.visualBlock;
+        // save the curEnd marker to avoid its removal due to cm.replaceRange
+          lastSelectionCurEnd = vim.lastSelection.curEndMark.find();
+          blockSelection = vim.lastSelection.visualBlock;
         }
         var toLower = actionArgs.toLower;
         text = toLower ? text.toLowerCase() : text.toUpperCase();
@@ -2623,13 +2625,14 @@
     }
     function getSelectedAreaRange(cm, vim) {
       var selections = cm.listSelections();
-      var start =  selections[0], end = selections[selections.length-1];
+      var start =  selections[0];
+      var end = selections[selections.length-1];
       var selectionStart = cursorIsBefore(start.anchor, start.head) ? start.anchor : start.head;
       var selectionEnd = cursorIsBefore(end.anchor, end.head) ? end.head : end.anchor;
       var lastSelection = vim.lastSelection;
       var getLastSelectedAreaRange = function() {
-        var start = vim.lastSelection.curStartMark.find();
-        var end = vim.lastSelection.curEndMark.find();
+        var start = lastSelection.curStartMark.find();
+        var end = lastSelection.curEndMark.find();
         if (lastSelection.visualBlock) {
           var anchor = Pos(Math.min(start.line, end.line), Math.min(start.ch, end.ch));
           var head = Pos(Math.max(start.line, end.line), Math.max(start.ch, end.ch));
@@ -2637,12 +2640,14 @@
           var height = head.line - anchor.line;
           selectionEnd = Pos(selectionStart.line + height, selectionStart.ch + width);
           var endCh = cm.clipPos(selectionEnd).ch;
+          // We do not want selection crossing while selecting here.
+          // So, we cut down the selection.
           while (endCh != selectionEnd.ch) {
-            if (endCh == selectionStart.ch) {
+            if (endCh-1 == selectionStart.ch) {
               break;
             }
             selectionEnd.line--;
-            endCh  = cm.clipPos(selectionEnd).ch;
+            endCh = cm.clipPos(selectionEnd).ch;
           }
           cm.setCursor(selectionStart);
           selectBlock(cm, selectionEnd);
@@ -2657,8 +2662,9 @@
           cm.setSelection(selectionStart, selectionEnd);
         }
         return [selectionStart, selectionEnd];
-      }
+      };
       if (!vim.visualMode) {
+      // In case of replaying the action.
         return getLastSelectedAreaRange();
       }
       return [selectionStart, selectionEnd];

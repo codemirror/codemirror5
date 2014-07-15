@@ -1762,11 +1762,15 @@ testVim('changeCase_visual', function(cm, vim, helpers) {
 testVim('changeCase_visual_block', function(cm, vim, helpers) {
   cm.setCursor(2, 1);
   helpers.doKeys('<C-v>', 'k', 'k', 'h', 'U');
-  eq('ABcdef\nGHijkl\nMNopq', cm.getValue());
+  eq('ABcdef\nGHijkl\nMNopq\nfoo', cm.getValue());
   cm.setCursor(0, 2);
   helpers.doKeys('.');
-  eq('ABCDef\nGHIJkl\nMNOPq', cm.getValue());
-}, { value: 'abcdef\nghijkl\nmnopq'});
+  eq('ABCDef\nGHIJkl\nMNOPq\nfoo', cm.getValue());
+  // check when last line is shorter.
+  cm.setCursor(2, 2);
+  helpers.doKeys('.');
+  eq('ABCDef\nGHIJkl\nMNOPq\nfoO', cm.getValue());
+}, { value: 'abcdef\nghijkl\nmnopq\nfoo'});
 testVim('visual_paste', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('v', 'l', 'l', 'y', 'j', 'v', 'l', 'p');
