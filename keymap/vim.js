@@ -2627,7 +2627,7 @@
       var selectionStart = cursorIsBefore(start.anchor, start.head) ? start.anchor : start.head;
       var selectionEnd = cursorIsBefore(end.anchor, end.head) ? end.head : end.anchor;
       var lastSelection = vim.lastSelection;
-      if (!vim.visualMode) {
+      var getLastSelectedAreaRange = function() {
         var start = vim.lastSelection.curStartMark.find();
         var end = vim.lastSelection.curEndMark.find();
         if (lastSelection.visualBlock) {
@@ -2636,6 +2636,14 @@
           var width = head.ch - anchor.ch;
           var height = head.line - anchor.line;
           selectionEnd = Pos(selectionStart.line + height, selectionStart.ch + width);
+          var endCh = cm.clipPos(selectionEnd).ch;
+          while (endCh != selectionEnd.ch) {
+            if (endCh == selectionStart.ch) {
+              break;
+            }
+            selectionEnd.line--;
+            endCh  = cm.clipPos(selectionEnd).ch;
+          }
           cm.setCursor(selectionStart);
           selectBlock(cm, selectionEnd);
         } else {
@@ -2648,6 +2656,10 @@
           }
           cm.setSelection(selectionStart, selectionEnd);
         }
+        return [selectionStart, selectionEnd];
+      }
+      if (!vim.visualMode) {
+        return getLastSelectedAreaRange();
       }
       return [selectionStart, selectionEnd];
     }
