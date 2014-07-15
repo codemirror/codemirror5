@@ -2348,6 +2348,9 @@
           }
         }
         cm.setCursor(curPosFinal);
+        if (vim.visualMode) {
+          exitVisualMode(cm);
+        }
       },
       undo: function(cm, actionArgs) {
         cm.operation(function() {
@@ -2438,17 +2441,24 @@
         repeatLastEdit(cm, vim, repeat, false /** repeatForInsert */);
       },
       changeCase: function(cm, actionArgs, vim) {
-        var selectedAreaRange = getSelectedAreaRange(cm, vim);
-        var selectionStart = selectedAreaRange[0];
-        var selectionEnd = selectedAreaRange[1];
+        var selectionStart = getSelectedAreaRange(cm, vim)[0];
+        var text = cm.getSelection();
         // save the curEnd marker to avoid its removal due to cm.replaceRange
-        var lastSelectionCurEnd = vim.lastSelection.curEndMark.find();
+        if (vim.lastSelection) {
+          var lastSelectionCurEnd = vim.lastSelection.curEndMark.find();
+          var blockSelection = vim.lastSelection.visualBlock;
+        }
         var toLower = actionArgs.toLower;
-        var text = cm.getRange(selectionStart, selectionEnd);
-        cm.replaceRange(toLower ? text.toLowerCase() : text.toUpperCase(), selectionStart, selectionEnd);
+        text = toLower ? text.toLowerCase() : text.toUpperCase();
+        cm.replaceSelections(vim.visualBlock || blockSelection ? text.split('\n') : [text]);
         // restore the last selection curEnd marker
-        vim.lastSelection.curEndMark = cm.setBookmark(lastSelectionCurEnd);
+        if (lastSelectionCurEnd) {
+          vim.lastSelection.curEndMark = cm.setBookmark(lastSelectionCurEnd);
+        }
         cm.setCursor(selectionStart);
+        if (vim.visualMode) {
+          exitVisualMode(cm);
+        }
       }
     };
 
@@ -2612,25 +2622,32 @@
       return -1;
     }
     function getSelectedAreaRange(cm, vim) {
-      var selectionStart = cm.getCursor('anchor');
-      var selectionEnd = cm.getCursor('head');
+      var selections = cm.listSelections();
+      var start =  selections[0], end = selections[selections.length-1];
+      var selectionStart = cursorIsBefore(start.anchor, start.head) ? start.anchor : start.head;
+      var selectionEnd = cursorIsBefore(end.anchor, end.head) ? end.head : end.anchor;
       var lastSelection = vim.lastSelection;
       if (!vim.visualMode) {
-        var lastSelectionCurStart = vim.lastSelection.curStartMark.find();
-        var lastSelectionCurEnd = vim.lastSelection.curEndMark.find();
-        var line = lastSelectionCurEnd.line - lastSelectionCurStart.line;
-        var ch = line ? lastSelectionCurEnd.ch : lastSelectionCurEnd.ch - lastSelectionCurStart.ch;
-        selectionEnd = {line: selectionEnd.line + line, ch: line ? selectionEnd.ch : ch + selectionEnd.ch};
-        if (lastSelection.visualLine) {
-          return [{line: selectionStart.line, ch: 0}, {line: selectionEnd.line, ch: lineLength(cm, selectionEnd.line)}];
+        var start = vim.lastSelection.curStartMark.find();
+        var end = vim.lastSelection.curEndMark.find();
+        if (lastSelection.visualBlock) {
+          var anchor = Pos(Math.min(start.line, end.line), Math.min(start.ch, end.ch));
+          var head = Pos(Math.max(start.line, end.line), Math.max(start.ch, end.ch));
+          var width = head.ch - anchor.ch;
+          var height = head.line - anchor.line;
+          selectionEnd = Pos(selectionStart.line + height, selectionStart.ch + width);
+          cm.setCursor(selectionStart);
+          selectBlock(cm, selectionEnd);
+        } else {
+          var line = end.line - start.line;
+          var ch = end.ch - start.ch;
+          selectionEnd = {line: selectionEnd.line + line, ch: line ? selectionEnd.ch : ch + selectionEnd.ch};
+          if (lastSelection.visualLine) {
+            selectionStart = Pos(selectionStart.line, 0);
+            selectionEnd = Pos(selectionEnd.line, lineLength(cm, selectionEnd.line));
+          }
+          cm.setSelection(selectionStart, selectionEnd);
         }
-      } else {
-        if (cursorIsBefore(selectionEnd, selectionStart)) {
-          var tmp = selectionStart;
-          selectionStart = selectionEnd;
-          selectionEnd = tmp;
-        }
-        exitVisualMode(cm);
       }
       return [selectionStart, selectionEnd];
     }
