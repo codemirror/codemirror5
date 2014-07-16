@@ -15,7 +15,7 @@
 .CodeMirror-lines {
   padding: 4px 0; /* Vertical padding around content */
 }
-.CodeMirror pre {
+div.CodeMirror pre {
   padding: 0 4px; /* Horizontal padding of content */
 }
 
@@ -214,7 +214,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
 .CodeMirror-lines {
   cursor: text;
 }
-.CodeMirror pre {
+div.CodeMirror pre {
   /* Reset some styles that the rest of the page might have set */
   -moz-border-radius: 0; -webkit-border-radius: 0; border-radius: 0;
   border-width: 0;
