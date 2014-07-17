@@ -2624,15 +2624,20 @@
       return -1;
     }
     function getSelectedAreaRange(cm, vim) {
-      var selections = cm.listSelections();
-      var start =  selections[0];
-      var end = selections[selections.length-1];
-      var selectionStart = cursorIsBefore(start.anchor, start.head) ? start.anchor : start.head;
-      var selectionEnd = cursorIsBefore(end.anchor, end.head) ? end.head : end.anchor;
       var lastSelection = vim.lastSelection;
+      var getCurrentSelectedAreaRange = function() {
+        var selections = cm.listSelections();
+        var start =  selections[0];
+        var end = selections[selections.length-1];
+        var selectionStart = cursorIsBefore(start.anchor, start.head) ? start.anchor : start.head;
+        var selectionEnd = cursorIsBefore(end.anchor, end.head) ? end.head : end.anchor;
+        return [selectionStart, selectionEnd];
+      };
       var getLastSelectedAreaRange = function() {
         var start = lastSelection.curStartMark.find();
         var end = lastSelection.curEndMark.find();
+        var selectionStart = cm.getCursor();
+        var selectionEnd = cm.getCursor();
         if (lastSelection.visualBlock) {
           var anchor = Pos(Math.min(start.line, end.line), Math.min(start.ch, end.ch));
           var head = Pos(Math.max(start.line, end.line), Math.max(start.ch, end.ch));
@@ -2666,8 +2671,9 @@
       if (!vim.visualMode) {
       // In case of replaying the action.
         return getLastSelectedAreaRange();
+      } else {
+        return getCurrentSelectedAreaRange();
       }
-      return [selectionStart, selectionEnd];
     }
     function updateLastSelection(cm, vim, selectionStart, selectionEnd) {
       if (!selectionStart || !selectionEnd) {
