@@ -944,7 +944,22 @@ testVim('visual_block_~', function(cm, vim, helpers) {
   helpers.assertCursorAt(2, 0);
   eq('hello\nwoRLd\nAbcDe', cm.getValue());
 },{value: 'hello\nwOrld\nabcde' });
-
+testVim('._swapCase_visualBlock', function(cm, vim, helpers) {
+  helpers.doKeys('<C-v>', 'j', 'j', 'l', '~');
+  cm.setCursor(0, 3);
+  helpers.doKeys('.');
+  eq('HelLO\nWorLd\nAbcdE', cm.getValue());
+},{value: 'hEllo\nwOrlD\naBcDe' });
+testVim('._delete_visualBlock', function(cm, vim, helpers) {
+  helpers.doKeys('<C-v>', 'j', 'x');
+  eq('ive\ne\nsome\nsugar', cm.getValue());
+  helpers.doKeys('.');
+  eq('ve\n\nsome\nsugar', cm.getValue());
+  helpers.doKeys('j', 'j', '.');
+  eq('ve\n\nome\nugar', cm.getValue());
+  helpers.doKeys('u', '<C-r>', '.');
+  eq('ve\n\nme\ngar', cm.getValue());
+},{value: 'give\nme\nsome\nsugar' });
 testVim('>{motion}', function(cm, vim, helpers) {
   cm.setCursor(1, 3);
   var expectedLineCount = cm.lineCount();
