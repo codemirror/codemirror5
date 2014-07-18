@@ -1444,8 +1444,8 @@
               var width = block.width;
               var height = block.height;
               curEnd = Pos(curStart.line + height, curStart.ch + width);
-              // Manually create new selections to avoid cutting down of
-              // selections when selectBlock is used instead.
+              // selectBlock creates a 'proper' rectangular block.
+              // We do not want that in all cases, so we manually set selections.
               var selections = [];
               for (var i = curStart.line; i < curEnd.line; i++) {
                 var anchor = Pos(i, curStart.ch);
@@ -2692,8 +2692,8 @@
           var height = block.height;
           selectionEnd = Pos(selectionStart.line + height, selectionStart.ch + width);
           var selections = [];
-          // We again set up selections manually instead of using selectBlock
-          // to avoid cutting the range of selections.
+          // selectBlock creates a 'proper' rectangular block.
+          // We do not want that in all cases, so we manually set selections.
           for (var i = selectionStart.line; i < selectionEnd.line; i++) {
             var anchor = Pos(i, selectionStart.ch);
             var head = Pos(i, selectionEnd.ch);
