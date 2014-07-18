@@ -102,22 +102,79 @@ function forEach(arr, func) {
   }
 }
 
+function doInsertModeKeysFn(cm) {
+  return function(args) {
+    if (args instanceof Array) { arguments = args; }
+    function executeHandler(handler) {
+      if (typeof handler == 'string') {
+        CodeMirror.commands[handler](cm);
+      } else {
+        handler(cm);
+      }
+      return true;
+    }
+    for (var i = 0; i < arguments.length; i++) {
+      var key = arguments[i];
+      // Find key in keymap and handle.
+      var handled = CodeMirror.lookupKey(key, ['vim-insert'], executeHandler);
+      // Record for insert mode.
+      if (handled === true && cm.state.vim.insertMode && arguments[i] != 'Esc') {
+        var lastChange = CodeMirror.Vim.getVimGlobalState_().macroModeState.lastInsertModeChanges;
+        if (lastChange) {
+          lastChange.changes.push(new CodeMirror.Vim.InsertModeKey(key));
+        }
+      }
+    }
+  }
+}
+
+var place = document.getElementById("testground");
+
+var sharedCm;
+function resetSharedCm(vimOpts) {
+  if (!sharedCm) {
+    sharedCm = CodeMirror(place, vimOpts);
+  }
+  sharedCm.operation(function() {
+    sharedCm.setValue(vimOpts['value']);
+    sharedCm.setCursor(0, 0);
+    sharedCm.setOption('vimMode', false);
+    delete sharedCm.state.vim;
+    sharedCm.setOption('vimMode', true);
+    doInsertModeKeysFn(sharedCm)('Esc');
+  });
+}
+
 function testVim(name, run, opts, expectedFail) {
+  var canUseSharedCm = true;
   var vimOpts = {
     lineNumbers: true,
     vimMode: true,
     showCursorWhenSelecting: true,
     value: code
   };
+  if (opts && opts.isolate) {
+    canUseSharedCm = false;
+    delete opts.isolate;
+  }
   for (var prop in opts) {
     if (opts.hasOwnProperty(prop)) {
       vimOpts[prop] = opts[prop];
     }
+    if (prop != 'value') {
+      canUseSharedCm = false;
+    }
   }
   return test('vim_' + name, function() {
-    var place = document.getElementById("testground");
-    var cm = CodeMirror(place, vimOpts);
+    var cm;
+    if (canUseSharedCm) {
+      resetSharedCm(vimOpts);
+      cm = sharedCm;
+    } else {
+      cm = CodeMirror(place, vimOpts);
+    }
     var vim = CodeMirror.Vim.maybeInitVimState_(cm);
+    CodeMirror.Vim.resetVimGlobalState_();
 
     function doKeysFn(cm) {
       return function(args) {
@@ -126,31 +183,6 @@ function testVim(name, run, opts, expectedFail) {
         }
         for (var i = 0; i < arguments.length; i++) {
           CodeMirror.Vim.handleKey(cm, arguments[i]);
-        }
-      }
-    }
-    function doInsertModeKeysFn(cm) {
-      return function(args) {
-        if (args instanceof Array) { arguments = args; }
-        function executeHandler(handler) {
-          if (typeof handler == 'string') {
-            CodeMirror.commands[handler](cm);
-          } else {
-            handler(cm);
-          }
-          return true;
-        }
-        for (var i = 0; i < arguments.length; i++) {
-          var key = arguments[i];
-          // Find key in keymap and handle.
-          var handled = CodeMirror.lookupKey(key, ['vim-insert'], executeHandler);
-          // Record for insert mode.
-          if (handled === true && cm.state.vim.insertMode && arguments[i] != 'Esc') {
-            var lastChange = CodeMirror.Vim.getVimGlobalState_().macroModeState.lastInsertModeChanges;
-            if (lastChange) {
-              lastChange.changes.push(new CodeMirror.Vim.InsertModeKey(key));
-            }
-          }
         }
       }
     }
@@ -195,17 +227,22 @@ function testVim(name, run, opts, expectedFail) {
         return CodeMirror.Vim.getRegisterController();
       }
     }
-    CodeMirror.Vim.resetVimGlobalState_();
     var successful = false;
     var savedOpenNotification = cm.openNotification;
+    var savedOpenDialog = cm.openDialog;
     try {
       run(cm, vim, helpers);
       successful = true;
     } finally {
       cm.openNotification = savedOpenNotification;
+      cm.openDialog = savedOpenDialog;
       if (!successful || verbose) {
         place.style.visibility = "visible";
-      } else {
+        if (cm == sharedCm) {
+          // Create a new sharedCm to maintain state of broken test case.
+          sharedCm = CodeMirror(place, vimOpts);
+        }
+      } else if (cm != sharedCm) {
         place.removeChild(cm.getWrapperElement());
       }
     }
@@ -2746,6 +2783,7 @@ var scrollMotionSandbox =
   '\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n'
   '\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n';
 testVim('scrollMotion', function(cm, vim, helpers){
+  cm.scrollTo(0, 0);
   var prevCursor, prevScrollInfo;
   cm.setCursor(0, 0);
   // ctrl-y at the top of the file should have no effect.
@@ -2765,7 +2803,7 @@ testVim('scrollMotion', function(cm, vim, helpers){
   helpers.doKeys('<C-y>');
   eq(prevCursor.line - 1, cm.getCursor().line);
   is(prevScrollInfo.top > cm.getScrollInfo().top);
-}, { value: scrollMotionSandbox});
+}, { value: scrollMotionSandbox, isolate: true });
 
 var squareBracketMotionSandbox = ''+
   '({\n'+//0
