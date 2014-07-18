@@ -135,12 +135,14 @@ function resetSharedCm(vimOpts) {
   if (!sharedCm) {
     sharedCm = CodeMirror(place, vimOpts);
   }
-  sharedCm.setValue(vimOpts['value']);
-  sharedCm.setCursor(0, 0);
-  sharedCm.setOption('vimMode', false);
-  delete sharedCm.state.vim;
-  sharedCm.setOption('vimMode', true);
-  doInsertModeKeysFn(sharedCm)('Esc');
+  sharedCm.operation(function() {
+    sharedCm.setValue(vimOpts['value']);
+    sharedCm.setCursor(0, 0);
+    sharedCm.setOption('vimMode', false);
+    delete sharedCm.state.vim;
+    sharedCm.setOption('vimMode', true);
+    doInsertModeKeysFn(sharedCm)('Esc');
+  });
 }
 
 function testVim(name, run, opts, expectedFail) {
