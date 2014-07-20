@@ -561,7 +561,9 @@
     MacroModeState.prototype = {
       exitMacroRecordMode: function() {
         var macroModeState = vimGlobalState.macroModeState;
-        macroModeState.onRecordingDone(); // close dialog
+        if (macroModeState.onRecordingDone) {
+          macroModeState.onRecordingDone(); // close dialog
+        }
         macroModeState.onRecordingDone = undefined;
         macroModeState.isRecording = false;
       },
@@ -571,8 +573,10 @@
         if (register) {
           register.clear();
           this.latestRegister = registerName;
-          this.onRecordingDone = cm.openDialog(
-              '(recording)['+registerName+']', null, {bottom:true});
+          if (cm.openDialog) {
+            this.onRecordingDone = cm.openDialog(
+                '(recording)['+registerName+']', null, {bottom:true});
+          }
           this.isRecording = true;
         }
       }
