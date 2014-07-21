@@ -29,6 +29,20 @@
 
   <h2 id="v4">Version 4.x</h2>
 
+  <p class="rel">21-07-2014: <a href="http://codemirror.net/codemirror-4.4.zip">Version 4.4</a>:</p>
+
+  <ul class="rel-note">
+    <li><strong>Note:</strong> Some events might now fire in slightly
+    different order (<code>"change"</code> is still guaranteed to fire
+    before <code>"cursorActivity"</code>)</li>
+    <li>Nested operations in multiple editors are now synced (complete
+    at same time, reducing DOM reflows)</li>
+    <li>Visual block mode for <a href="../demo/vim.html">vim</a> (&lt;C-v>) is nearly complete</li>
+    <li>New mode: <a href="../mode/kotlin/index.html">Kotlin</a></li>
+    <li>Better multi-selection paste for text copied from multiple CodeMirror selections</li>
+    <li>Full <a href="https://github.com/marijnh/CodeMirror/compare/4.3.0...4.4.0">list of patches</a>.</li>
+  </ul>
+
   <p class="rel">23-06-2014: <a href="http://codemirror.net/codemirror-4.3.zip">Version 4.3</a>:</p>
 
   <ul class="rel-note">
