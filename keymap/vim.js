@@ -4527,7 +4527,7 @@
     // Use this option to customize the two-character ESC keymap.
     // If you want to use characters other than i j or k you'll have to add
     // lines to the vim-insert and await-second keymaps later in this file.
-    defineOption('enableInsertModeEscKeys', true, 'boolean');
+    defineOption('enableInsertModeEscKeys', false, 'boolean');
     defineOption('insertModeEscKeys', 'kj', 'string');
     // The timeout in milliseconds for the two-character ESC keymap should be
     // adjusted according to your typing speed to prevent false positives.
