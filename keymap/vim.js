@@ -2098,6 +2098,11 @@
         vim.insertMode = true;
         vim.insertModeRepeat = actionArgs && actionArgs.repeat || 1;
         var insertAt = (actionArgs) ? actionArgs.insertAt : null;
+        if (vim.visualMode) {
+          var selections = getSelectedAreaRange(cm, vim);
+          var selectionStart = selections[0];
+          var selectionEnd = selections[1];
+        }
         if (insertAt == 'eol') {
           var cursor = cm.getCursor();
           cursor = Pos(cursor.line, lineLength(cm, cursor.line));
@@ -2105,15 +2110,34 @@
         } else if (insertAt == 'charAfter') {
           cm.setCursor(offsetCursor(cm.getCursor(), 0, 1));
         } else if (insertAt == 'firstNonBlank') {
-          cm.setCursor(motions.moveToFirstNonWhiteSpaceCharacter(cm));
-        } else if (insertAt == 'endOfSelectedArea') {
-          var selectionEnd = cm.getCursor('head');
-          var selectionStart = cm.getCursor('anchor');
-          if (selectionEnd.line < selectionStart.line) {
-            selectionEnd = Pos(selectionStart.line, 0);
+          if (vim.visualMode && !vim.visualBlock) {
+            if (selectionEnd.line < selectionStart.line) {
+              cm.setCursor(selectionEnd);
+            } else {
+              selectionStart = Pos(selectionStart.line, 0);
+              cm.setCursor(selectionStart);
+            }
+            cm.setCursor(motions.moveToFirstNonWhiteSpaceCharacter(cm));
+          } else if (vim.visualBlock) {
+            selectionEnd = Pos(selectionEnd.line, selectionStart.ch);
+            cm.setCursor(selectionStart);
+            selectBlock(cm, selectionEnd);
+          } else {
+            cm.setCursor(motions.moveToFirstNonWhiteSpaceCharacter(cm));
           }
-          cm.setCursor(selectionEnd);
-          exitVisualMode(cm);
+        } else if (insertAt == 'endOfSelectedArea') {
+          if (vim.visualBlock) {
+            selectionStart = Pos(selectionStart.line, selectionEnd.ch);
+            cm.setCursor(selectionStart);
+            selectBlock(cm, selectionEnd);
+          } else if (selectionEnd.line < selectionStart.line) {
+            selectionEnd = Pos(selectionStart.line, 0);
+            cm.setCursor(selectionEnd);
+          }
+        } else if (insertAt == 'inplace') {
+          if (vim.visualMode){
+            return;
+          }
         }
         cm.setOption('keyMap', 'vim-insert');
         cm.setOption('disableInput', false);
@@ -2130,6 +2154,9 @@
           // Only record if not replaying.
           cm.on('change', onChange);
           CodeMirror.on(cm.getInputField(), 'keydown', onKeyEventTargetKeyDown);
+        }
+        if (vim.visualMode) {
+          exitVisualMode(cm);
         }
       },
       toggleVisualMode: function(cm, actionArgs, vim) {
@@ -2764,13 +2791,13 @@
       updateLastSelection(cm, vim);
       vim.visualMode = false;
       vim.visualLine = false;
-      vim.visualBlock = false;
-      if (!cursorEqual(selectionStart, selectionEnd)) {
+      if (!cursorEqual(selectionStart, selectionEnd) && !vim.visualBlock) {
         // Clear the selection and set the cursor only if the selection has not
         // already been cleared. Otherwise we risk moving the cursor somewhere
         // it's not supposed to be.
         cm.setCursor(clipCursorToContent(cm, selectionEnd));
       }
+      vim.visualBlock = false;
       CodeMirror.signal(cm, "vim-mode-change", {mode: "normal"});
       if (vim.fakeCursor) {
         vim.fakeCursor.clear();
