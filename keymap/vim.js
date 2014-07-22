@@ -4506,23 +4506,19 @@
       var isPlaying = macroModeState.isPlaying;
       var lastChange = macroModeState.lastInsertModeChanges;
       // In case of visual block, the insertModeChanges are not saved as a
-      // single word.So, we convert them to a single word
+      // single word, so we convert them to a single word
       // so as to update the ". register as expected in real vim.
-      if (lastChange.inVisualBlock && !isPlaying) {
-        var selLength = vim.lastSelection.visualBlock.height;
+      var text = [];
+      if (!isPlaying) {
+        var selLength = lastChange.inVisualBlock ? vim.lastSelection.visualBlock.height : 1;
         var changes = lastChange.changes;
-        var text = [];
-        for (var i = 0; i < changes.length; i += selLength) {
-          // Remove any Backspace first.
-          if (changes[i] instanceof InsertModeKey) {
-            text.pop();
-            continue;
+        for (var i = 0; i < changes.length; i++) {
+          var insModeKey = (changes[i] instanceof InsertModeKey);
+          if (!(i%selLength) || insModeKey) {
+            text.push(changes[i]);
           }
-          text.push(changes[i]);
         }
         lastChange.changes = text;
-      }
-      if (!isPlaying) {
         cm.off('change', onChange);
         CodeMirror.off(cm.getInputField(), 'keydown', onKeyEventTargetKeyDown);
       }
@@ -4539,7 +4535,7 @@
       cm.setOption('disableInput', true);
       cm.toggleOverwrite(false); // exit replace mode if we were in it.
       // update the ". register before exiting insert mode
-      insertModeChangeRegister.setText(macroModeState.lastInsertModeChanges.changes.join(''));
+      insertModeChangeRegister.setText(lastChange.changes.join(''));
       CodeMirror.signal(cm, "vim-mode-change", {mode: "normal"});
       if (macroModeState.isRecording) {
         logInsertModeChange(macroModeState);
@@ -4772,30 +4768,31 @@
         }
         return true;
       }
+      var curStart = cm.getCursor();
       var inVisualBlock = vimGlobalState.macroModeState.lastInsertModeChanges.inVisualBlock;
       if (inVisualBlock) {
-        // Again set up block selection for repeating the changes.
+        // Set up block selection again for repeating the changes.
         var vim = cm.state.vim;
-        var curStart = cm.getCursor();
         var block = vim.lastSelection.visualBlock;
         var curEnd = Pos(curStart.line + block.height-1, curStart.ch);
         cm.setCursor(curStart);
         selectBlock(cm, curEnd);
-        var selLength = cm.listSelections().length;
-        var replacement = new Array(selLength+1).join(changes.join('')+' ').split(' ');
-        replacement.pop();
-        cm.replaceSelections(replacement);
-      } else {
-        for (var i = 0; i < repeat; i++) {
-          for (var j = 0; j < changes.length; j++) {
-            var change = changes[j];
-            if (change instanceof InsertModeKey) {
-              CodeMirror.lookupKey(change.keyName, ['vim-insert'], keyHandler);
-            } else {
-              var cur = cm.getCursor();
-              cm.replaceRange(change, cur, cur);
-            }
+        repeat = cm.listSelections().length;
+        cm.setCursor(curStart);
+      }
+      for (var i = 0; i < repeat; i++) {
+        for (var j = 0; j < changes.length; j++) {
+          var change = changes[j];
+          if (change instanceof InsertModeKey) {
+            CodeMirror.lookupKey(change.keyName, ['vim-insert'], keyHandler);
+          } else {
+            var cur = cm.getCursor();
+            cm.replaceRange(change, cur, cur);
           }
+        }
+        if (inVisualBlock) {
+          curStart.line++;
+          cm.setCursor(curStart);
         }
       }
     }
