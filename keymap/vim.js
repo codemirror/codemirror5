@@ -4527,7 +4527,7 @@
     // Use this option to customize the two-character ESC keymap.
     // If you want to use characters other than i j or k you'll have to add
     // lines to the vim-insert and await-second keymaps later in this file.
-    defineOption('enableInsertModeEscKeys', false, 'boolean');
+    defineOption('enableInsertModeEscKeys', true, 'boolean');
     defineOption('insertModeEscKeys', 'kj', 'string');
     // The timeout in milliseconds for the two-character ESC keymap should be
     // adjusted according to your typing speed to prevent false positives.
@@ -4561,6 +4561,12 @@
           return CodeMirror.Pass;
           // This is not the handler you're looking for. Just insert as usual.
         } else {
+          if (cm.state.vim.insertMode) {
+            var lastChange = vimGlobalState.macroModeState.lastInsertModeChanges;
+            if (lastChange && lastChange.changes.length) {
+              lastChange.changes.pop();
+            }
+          }
           cm.state.vim.awaitingEscapeSecondCharacter = false;
           cm.replaceRange('', {ch: cm.getCursor().ch - 1, line: cm.getCursor().line},
                           cm.getCursor(), "+input");
