@@ -4532,7 +4532,7 @@
     // The timeout in milliseconds for the two-character ESC keymap should be
     // adjusted according to your typing speed to prevent false positives.
     defineOption('insertModeEscKeysTimeout', 200, 'number');
-    function firstEscCharacterHandler(ch){
+    function firstEscCharacterHandler(ch) {
       return function(cm){
         var keys = getOption('insertModeEscKeys');
         var firstEscCharacter = keys && keys.length > 1 && keys.charAt(0);
@@ -4551,7 +4551,7 @@
               },
               getOption('insertModeEscKeysTimeout'));
         }
-      }
+      };
     }
     function secondEscCharacterHandler(ch){
       return function(cm) {
@@ -4572,7 +4572,7 @@
                           cm.getCursor(), "+input");
           exitInsertMode(cm);
         }
-      }
+      };
     }
 
     CodeMirror.keyMap['vim-insert'] = {
