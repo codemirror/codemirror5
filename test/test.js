@@ -359,6 +359,15 @@ testCM("undoSelectionAsBefore", function(cm) {
   eq(cm.getSelection(), "abc");
 });
 
+testCM("selectionChangeConfusesHistory", function(cm) {
+  cm.replaceSelection("abc", null, "dontmerge");
+  cm.operation(function() {
+    cm.setCursor(Pos(0, 0));
+    cm.replaceSelection("abc", null, "dontmerge");
+  });
+  eq(cm.historySize().undo, 2);
+});
+
 testCM("markTextSingleLine", function(cm) {
   forEach([{a: 0, b: 1, c: "", f: 2, t: 5},
            {a: 0, b: 4, c: "", f: 0, t: 2},
