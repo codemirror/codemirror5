@@ -4512,10 +4512,14 @@
       if (!isPlaying) {
         var selLength = lastChange.inVisualBlock ? vim.lastSelection.visualBlock.height : 1;
         var changes = lastChange.changes;
-        for (var i = 0; i < changes.length; i++) {
-          var insModeKey = (changes[i] instanceof InsertModeKey);
-          if (!(i%selLength) || insModeKey) {
-            text.push(changes[i]);
+        var text = [];
+        var i = 0;
+        while (i < changes.length) {
+          text.push(changes[i]);
+          if (changes[i] instanceof InsertModeKey) {
+             i++;
+          } else {
+             i+= selLength;
           }
         }
         lastChange.changes = text;
