@@ -141,7 +141,8 @@ CodeMirror.defineMode("ruby", function(config) {
     } else if (ch == "-" && stream.eat(">")) {
       return "arrow";
     } else if (/[=+\-\/*:\.^%<>~|]/.test(ch)) {
-      stream.eatWhile(/[=+\-\/*:\.^%<>~|]/);
+      var more = stream.eatWhile(/[=+\-\/*:\.^%<>~|]/);
+      if (ch == "." && !more) curPunc = ".";
       return "operator";
     } else {
       return null;
@@ -232,20 +233,25 @@ CodeMirror.defineMode("ruby", function(config) {
     token: function(stream, state) {
       if (stream.sol()) state.indented = stream.indentation();
       var style = state.tokenize[state.tokenize.length-1](stream, state), kwtype;
+      var thisTok = curPunc;
       if (style == "ident") {
         var word = stream.current();
-        style = keywords.propertyIsEnumerable(stream.current()) ? "keyword"
+        style = state.lastTok == "." ? "property"
+          : keywords.propertyIsEnumerable(stream.current()) ? "keyword"
           : /^[A-Z]/.test(word) ? "tag"
           : (state.lastTok == "def" || state.lastTok == "class" || state.varList) ? "def"
           : "variable";
-        if (indentWords.propertyIsEnumerable(word)) kwtype = "indent";
-        else if (dedentWords.propertyIsEnumerable(word)) kwtype = "dedent";
-        else if ((word == "if" || word == "unless") && stream.column() == stream.indentation())
-          kwtype = "indent";
-        else if (word == "do" && state.context.indented < state.indented)
-          kwtype = "indent";
+        if (style == "keyword") {
+          thisTok = word;
+          if (indentWords.propertyIsEnumerable(word)) kwtype = "indent";
+          else if (dedentWords.propertyIsEnumerable(word)) kwtype = "dedent";
+          else if ((word == "if" || word == "unless") && stream.column() == stream.indentation())
+            kwtype = "indent";
+          else if (word == "do" && state.context.indented < state.indented)
+            kwtype = "indent";
+        }
       }
-      if (curPunc || (style && style != "comment")) state.lastTok = word || curPunc || style;
+      if (curPunc || (style && style != "comment")) state.lastTok = thisTok;
       if (curPunc == "|") state.varList = !state.varList;
 
       if (kwtype == "indent" || /[\(\[\{]/.test(curPunc))
