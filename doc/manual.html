@@ -838,12 +838,17 @@
       <dt class=command id=command_goLineEnd><code><strong>goLineEnd</strong></code><span class=keybinding>Alt-Right (PC), Ctrl-E (Mac)</span></dt>
       <dd>Move the cursor to the end of the line.</dd>
 
+      <dt class=command id=command_goLineRight><code><strong>goLineRight</strong></code><span class=keybinding>Cmd-Right (Mac)</span></dt>
+      <dd>Move the cursor to the right side of the visual line it is on.</dd>
+
       <dt class=command id=command_goLineLeft><code><strong>goLineLeft</strong></code><span class=keybinding>Cmd-Left (Mac)</span></dt>
       <dd>Move the cursor to the left side of the visual line it is on. If
       this line is wrapped, that may not be the start of the line.</dd>
 
-      <dt class=command id=command_goLineRight><code><strong>goLineRight</strong></code><span class=keybinding>Cmd-Right (Mac)</span></dt>
-      <dd>Move the cursor to the right side of the visual line it is on.</dd>
+      <dt class=command id=command_goLineLeftSmart><code><strong>goLineLeftSmart</strong></code></dt>
+      <dd>Move the cursor to the left side of the visual line it is
+      on. If that takes it to the start of the line, behave
+      like <a href="#command_goLineStartSmart"><code>goLineStartSmart</code></a>.</dd>
 
       <dt class=command id=command_goLineUp><code><strong>goLineUp</strong></code><span class=keybinding>Up, Ctrl-P (Mac)</span></dt>
       <dd>Move the cursor up one line.</dd>
