@@ -4514,7 +4514,14 @@
         var changes = lastChange.changes;
         var text = [];
         var i = 0;
+        // In case of multiple selections in blockwise visual,
+        // the inserted text, for example: 'f<Backspace>oo', is stored as
+        // 'f', 'f', InsertModeKey 'o', 'o', 'o', 'o'. (if you have a block with 2 lines).
+        // We push the contents of the changes array as per the following:
+        // 1. In case of InsertModeKey, just increment by 1.
+        // 2. In case of a character, jump by selLength (2 in the example).
         while (i < changes.length) {
+          // This loop will convert 'ff<bs>oooo' to 'f<bs>oo'.
           text.push(changes[i]);
           if (changes[i] instanceof InsertModeKey) {
              i++;
