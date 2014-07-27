@@ -9,6 +9,7 @@
 <script src="../mode/xml/xml.js"></script>
 <style type="text/css">
       .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}
+      .CodeMirror pre > * { text-indent: 0px; }
     </style>
 <div id=nav>
   <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../doc/logo.png"></a>
@@ -58,17 +59,19 @@
     <script>
 var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
   mode: "text/html",
-  lineNumbers: true
+  lineNumbers: true,
+  lineWrapping: true
+});
+// See indentwrap.html demo.
+var charWidth = editor.defaultCharWidth(), basePadding = 4;
+editor.on("renderLine", function(cm, line, elt) {
+  var off = CodeMirror.countColumn(line.text, null, cm.getOption("tabSize")) * charWidth;
+  elt.style.textIndent = "-" + off + "px";
+  elt.style.paddingLeft = (basePadding + off) + "px";
 });
 </script>
 
   <p>Demonstration of bi-directional text support. See
   the <a href="http://marijnhaverbeke.nl/blog/cursor-in-bidi-text.html">related
   blog post</a> for more background.</p>
-
-  <p><strong>Note:</strong> There is
-  a <a href="https://github.com/codemirror/CodeMirror/issues/1757">known
-  bug</a> with cursor motion and mouse clicks in bi-directional lines
-  that are line wrapped.</p>
-
 </article>

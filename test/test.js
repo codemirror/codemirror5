@@ -667,6 +667,7 @@ testCM("selectionPos", function(cm) {
   addDoc(cm, 200, 100);
   cm.setSelection(Pos(1, 100), Pos(98, 100));
   var lineWidth = cm.charCoords(Pos(0, 200), "local").left;
+  var padding = cm.charCoords(Pos(0, 0, true), "local").left;
   var lineHeight = (cm.charCoords(Pos(99)).top - cm.charCoords(Pos(0)).top) / 100;
   cm.scrollTo(0, 0);
   var selElt = byClassName(cm.getWrapperElement(), "CodeMirror-selected");
@@ -676,6 +677,7 @@ testCM("selectionPos", function(cm) {
     var box = selElt[i].getBoundingClientRect();
     var atLeft = box.left - outer.left < 30;
     var width = box.right - box.left;
+    if (width <= padding) continue;
     var atRight = box.right - outer.left > .8 * lineWidth;
     if (atLeft && atRight) {
       sawMiddle = true;
@@ -1093,7 +1095,7 @@ testCM("moveVstuck", function(cm) {
   }
   cm.setCursor(Pos(0, val.length - 1));
   cm.moveV(-1, "line");
-  eqPos(cm.getCursor(), Pos(0, 26));
+  eqPos(cm.getCursor(), Pos(0, 27, false));
 }, {lineWrapping: true}, ie_lt8 || opera_lt10);
 
 testCM("collapseOnMove", function(cm) {
@@ -1303,8 +1305,7 @@ testCM("rtlMovement", function(cm) {
   forEach(["خحج", "خحabcخحج", "abخحخحجcd", "abخde", "abخح2342خ1حج", "خ1ح2خح3حxج",
            "خحcd", "1خحcd", "abcdeح1ج", "خمرحبها مها!", "foobarر", "خ ة ق",
            "<img src=\"/בדיקה3.jpg\">"], function(line) {
-    var inv = line.charAt(0) == "خ";
-    cm.setValue(line + "\n"); cm.execCommand(inv ? "goLineEnd" : "goLineStart");
+    cm.setValue(line + "\n"); cm.execCommand("goLineStart");
     var cursors = byClassName(cm.getWrapperElement(), "CodeMirror-cursors")[0];
     var cursor = cursors.firstChild;
     var prevX = cursor.offsetLeft, prevY = cursor.offsetTop;
@@ -1315,7 +1316,7 @@ testCM("rtlMovement", function(cm) {
       else is(cursor.offsetLeft > prevX, "moved right");
       prevX = cursor.offsetLeft; prevY = cursor.offsetTop;
     }
-    cm.setCursor(0, 0); cm.execCommand(inv ? "goLineStart" : "goLineEnd");
+    cm.setCursor(0, 0); cm.execCommand("goLineEnd");
     prevX = cursors.firstChild.offsetLeft;
     for (var i = 0; i < line.length; ++i) {
       cm.execCommand("goCharLeft");
@@ -1334,8 +1335,19 @@ testCM("bidiUpdate", function(cm) {
   eqPos(cm.getCursor(), Pos(0, 4));
 }, {value: "abcd\n"});
 
+// Verify that changing the direction of a line updates the display
+testCM("directionUpdate", function(cm) {
+  cm.setDirection();
+  cm.setDirectionLine(0, "rtl");
+  cm.setDirectionLine(0, null);
+
+  var preElt = cm.display.view[0].node;
+  is(preElt.style.direction != "rtl", "Improper direction of line.");
+}, {defaultDirection: "rtl", value: "aaaa\n"});
+
 testCM("movebyTextUnit", function(cm) {
-  cm.setValue("בְּרֵאשִ\nééé́\n");
+  cm.setValue("בְּרֵאשִ\nééé́\n")
+  cm.setDirectionLine(0, "rtl");
   cm.execCommand("goLineEnd");
   for (var i = 0; i < 4; ++i) cm.execCommand("goCharRight");
   eqPos(cm.getCursor(), Pos(0, 0));
