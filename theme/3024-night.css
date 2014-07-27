@@ -11,7 +11,10 @@
 .cm-s-3024-night.CodeMirror {background: #090300; color: #d6d5d4;}
 .cm-s-3024-night div.CodeMirror-selected {background: #3a3432 !important;}
 .cm-s-3024-night .CodeMirror-gutters {background: #090300; border-right: 0px;}
+.cm-s-3024-night .CodeMirror-guttermarker { color: #db2d20; }
+.cm-s-3024-night .CodeMirror-guttermarker-subtle { color: #5c5855; }
 .cm-s-3024-night .CodeMirror-linenumber {color: #5c5855;}
+
 .cm-s-3024-night .CodeMirror-cursor {border-left: 1px solid #807d7c !important;}
 
 .cm-s-3024-night span.cm-comment {color: #cdab53;}

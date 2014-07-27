@@ -19,7 +19,7 @@ var topAllowedGlobals = Object.create(null);
 ("Error RegExp Number String Array Function Object Math Date undefined " +
  "parseInt parseFloat Infinity NaN isNaN " +
  "window document navigator prompt alert confirm console " +
- "FileReader Worker postMessage importScripts " +
+ "screen FileReader Worker postMessage importScripts " +
  "setInterval clearInterval setTimeout clearTimeout " +
  "CodeMirror " +
  "test exports require module define")

@@ -3,6 +3,8 @@
 .cm-s-mbo.CodeMirror {background: #2c2c2c; color: #ffffe9;}
 .cm-s-mbo div.CodeMirror-selected {background: #716C62 !important;}
 .cm-s-mbo .CodeMirror-gutters {background: #4e4e4e; border-right: 0px;}
+.cm-s-mbo .CodeMirror-guttermarker { color: white; }
+.cm-s-mbo .CodeMirror-guttermarker-subtle { color: grey; }
 .cm-s-mbo .CodeMirror-linenumber {color: #dadada;}
 .cm-s-mbo .CodeMirror-cursor {border-left: 1px solid #ffffec !important;}
 
@@ -20,7 +22,7 @@
 .cm-s-mbo span.cm-bracket {color: #fffffc; font-weight: bold;}
 .cm-s-mbo span.cm-tag {color: #9ddfe9;}
 .cm-s-mbo span.cm-link {color: #f54b07;}
-.cm-s-mbo span.cm-error {background: #636363; color: #ffffec;}
+.cm-s-mbo span.cm-error {border-bottom: #636363; color: #ffffec;}
 
 .cm-s-mbo .CodeMirror-activeline-background {background: #494b41 !important;}
 .cm-s-mbo .CodeMirror-matchingbracket {
@@ -28,7 +30,7 @@
   color: #f5e107 !important;
  }
  
-.cm-s-mbo .CodeMirror-matchingtag {background: #4e4e4e;}
+.cm-s-mbo .CodeMirror-matchingtag { background: rgba(255, 255, 255, .37); }
 
 .cm-s-mbo span.cm-searching {
   background-color: none;

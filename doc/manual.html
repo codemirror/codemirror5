@@ -63,7 +63,7 @@
 <section class=first id=overview>
     <h2 style="position: relative">
       User manual and reference guide
-      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 4.2.1</span>
+      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 4.4.1</span>
     </h2>
 
     <p>CodeMirror is a code-editor component that can be embedded in
@@ -797,8 +797,14 @@
       <dt class=command id=command_deleteLine><code><strong>deleteLine</strong></code><span class=keybinding>Ctrl-D (PC), Cmd-D (Mac)</span></dt>
       <dd>Deletes the whole line under the cursor, including newline at the end.</dd>
 
-      <dt class=command id=command_delLineLeft><code><strong>delLineLeft</strong></code><span class=keybinding>Cmd-Backspace (Mac)</span></dt>
+      <dt class=command id=command_delLineLeft><code><strong>delLineLeft</strong></code></dt>
       <dd>Delete the part of the line before the cursor.</dd>
+
+      <dt class=command id=command_delWrappedLineLeft><code><strong>delWrappedLineLeft</strong></code><span class=keybinding>Cmd-Backspace (Mac)</span></dt>
+      <dd>Delete the part of the line from the left side of the visual line the cursor is on to the cursor.</dd>
+
+      <dt class=command id=command_delWrappedLineRight><code><strong>delWrappedLineRight</strong></code><span class=keybinding>Cmd-Delete (Mac)</span></dt>
+      <dd>Delete the part of the line from the cursor to the right side of the visual line the cursor is on.</dd>
 
       <dt class=command id=command_undo><code><strong>undo</strong></code><span class=keybinding>Ctrl-Z (PC), Cmd-Z (Mac)</span></dt>
       <dd>Undo the last change.</dd>
@@ -815,13 +821,13 @@
       <dd>Redo the last change to the selection, or the last text change if
       no selection changes remain.</dd>
 
-      <dt class=command id=command_goDocStart><code><strong>goDocStart</strong></code><span class=keybinding>Ctrl-Up (PC), Cmd-Up (Mac)</span></dt>
+      <dt class=command id=command_goDocStart><code><strong>goDocStart</strong></code><span class=keybinding>Ctrl-Up (PC), Cmd-Up (Mac), Cmd-Home (Mac)</span></dt>
       <dd>Move the cursor to the start of the document.</dd>
 
       <dt class=command id=command_goDocEnd><code><strong>goDocEnd</strong></code><span class=keybinding>Ctrl-Down (PC), Cmd-End (Mac), Cmd-Down (Mac)</span></dt>
       <dd>Move the cursor to the end of the document.</dd>
 
-      <dt class=command id=command_goLineStart><code><strong>goLineStart</strong></code><span class=keybinding>Alt-Left (PC), Cmd-Left (Mac), Ctrl-A (Mac)</span></dt>
+      <dt class=command id=command_goLineStart><code><strong>goLineStart</strong></code><span class=keybinding>Alt-Left (PC), Ctrl-A (Mac)</span></dt>
       <dd>Move the cursor to the start of the line.</dd>
 
       <dt class=command id=command_goLineStartSmart><code><strong>goLineStartSmart</strong></code><span class=keybinding>Home</span></dt>
@@ -829,15 +835,20 @@
       already there, to the actual start of the line (including
       whitespace).</dd>
 
-      <dt class=command id=command_goLineEnd><code><strong>goLineEnd</strong></code><span class=keybinding>Alt-Right (PC), Cmd-Right (Mac), Ctrl-E (Mac)</span></dt>
+      <dt class=command id=command_goLineEnd><code><strong>goLineEnd</strong></code><span class=keybinding>Alt-Right (PC), Ctrl-E (Mac)</span></dt>
       <dd>Move the cursor to the end of the line.</dd>
 
-      <dt class=command id=command_goLineLeft><code><strong>goLineLeft</strong></code></dt>
+      <dt class=command id=command_goLineRight><code><strong>goLineRight</strong></code><span class=keybinding>Cmd-Right (Mac)</span></dt>
+      <dd>Move the cursor to the right side of the visual line it is on.</dd>
+
+      <dt class=command id=command_goLineLeft><code><strong>goLineLeft</strong></code><span class=keybinding>Cmd-Left (Mac)</span></dt>
       <dd>Move the cursor to the left side of the visual line it is on. If
       this line is wrapped, that may not be the start of the line.</dd>
 
-      <dt class=command id=command_goLineRight><code><strong>goLineRight</strong></code></dt>
-      <dd>Move the cursor to the right side of the visual line it is on.</dd>
+      <dt class=command id=command_goLineLeftSmart><code><strong>goLineLeftSmart</strong></code></dt>
+      <dd>Move the cursor to the left side of the visual line it is
+      on. If that takes it to the start of the line, behave
+      like <a href="#command_goLineStartSmart"><code>goLineStartSmart</code></a>.</dd>
 
       <dt class=command id=command_goLineUp><code><strong>goLineUp</strong></code><span class=keybinding>Up, Ctrl-P (Mac)</span></dt>
       <dd>Move the cursor up one line.</dd>

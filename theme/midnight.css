@@ -16,6 +16,8 @@
 
 .cm-s-midnight div.CodeMirror-selected {background: #314D67 !important;}
 .cm-s-midnight .CodeMirror-gutters {background: #0F192A; border-right: 1px solid;}
+.cm-s-midnight .CodeMirror-guttermarker { color: white; }
+.cm-s-midnight .CodeMirror-guttermarker-subtle { color: #d0d0d0; }
 .cm-s-midnight .CodeMirror-linenumber {color: #D0D0D0;}
 .cm-s-midnight .CodeMirror-cursor {
     border-left: 1px solid #F8F8F0 !important;
