@@ -265,6 +265,8 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
   overflow-x: hidden;
 }
 
+.CodeMirror-rtl pre { direction: rtl; }
+
 .CodeMirror-measure {
   position: absolute;
   width: 100%;
