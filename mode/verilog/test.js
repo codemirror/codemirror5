@@ -112,7 +112,119 @@
 
   MT("line_comment", "[comment // Hello world]");
 
+  // Alignment tests
+  MT("align_port_map_style1",
+     /**
+      * mod mod(.a(a),
+      *         .b(b)
+      *        );
+      */        
+     "[variable mod] [variable mod][bracket (].[variable a][bracket (][variable a][bracket )],",
+     "        .[variable b][bracket (][variable b][bracket )]",
+     "       [bracket )];",
+     ""
+  );
+
+  MT("align_port_map_style2",
+     /**
+      * mod mod(
+      *     .a(a),
+      *     .b(b)
+      * );
+      */        
+     "[variable mod] [variable mod][bracket (]",
+     "    .[variable a][bracket (][variable a][bracket )],",
+     "    .[variable b][bracket (][variable b][bracket )]",
+     "[bracket )];",
+     ""
+  );
+
   // Indentation tests
+  MT("indent_single_statement_if",
+      "[keyword if] [bracket (][variable foo][bracket )]",
+      "    [keyword break];",
+      ""
+  );
+
+  MT("no_indent_after_single_line_if",
+      "[keyword if] [bracket (][variable foo][bracket )] [keyword break];",
+      ""
+  );
+
+  MT("indent_after_if_begin_same_line",
+      "[keyword if] [bracket (][variable foo][bracket )] [keyword begin]",
+      "    [keyword break];",
+      "    [keyword break];",
+      "[keyword end]",
+      ""
+  );
+
+  MT("indent_after_if_begin_next_line",
+      "[keyword if] [bracket (][variable foo][bracket )]",
+      "    [keyword begin]",
+      "        [keyword break];",
+      "        [keyword break];",
+      "    [keyword end]",
+      ""
+  );
+
+  MT("indent_single_statement_if_else",
+      "[keyword if] [bracket (][variable foo][bracket )]",
+      "    [keyword break];",
+      "[keyword else]",
+      "    [keyword break];",
+      ""
+  );
+
+  MT("indent_if_else_begin_same_line",
+      "[keyword if] [bracket (][variable foo][bracket )] [keyword begin]",
+      "    [keyword break];",
+      "    [keyword break];",
+      "[keyword end] [keyword else] [keyword begin]",
+      "    [keyword break];",
+      "    [keyword break];",
+      "[keyword end]",
+      ""
+  );
+
+  MT("indent_if_else_begin_next_line",
+      "[keyword if] [bracket (][variable foo][bracket )]",
+      "    [keyword begin]",
+      "        [keyword break];",
+      "        [keyword break];",
+      "    [keyword end]",
+      "[keyword else]",
+      "    [keyword begin]",
+      "        [keyword break];",
+      "        [keyword break];",
+      "    [keyword end]",
+      ""
+  );
+
+  MT("indent_if_nested_without_begin",
+      "[keyword if] [bracket (][variable foo][bracket )]",
+      "    [keyword if] [bracket (][variable foo][bracket )]",
+      "        [keyword if] [bracket (][variable foo][bracket )]",
+      "            [keyword break];",
+      ""
+  );
+
+  MT("indent_case",
+      "[keyword case] [bracket (][variable state][bracket )]",
+      "    [variable FOO]:",
+      "        [keyword break];",
+      "    [variable BAR]:",
+      "        [keyword break];",
+      "[keyword endcase]",
+      ""
+  );
+
+  MT("unindent_after_end_with_preceding_text",
+      "[keyword begin]",
+      "    [keyword break]; [keyword end]",
+      ""
+  );
+
   MT("export_function_does_not_indent",
      "[keyword export] [string \"DPI-C\"] [keyword function] [variable helloFromSV];",
      ""
