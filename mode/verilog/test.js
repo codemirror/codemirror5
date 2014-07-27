@@ -118,7 +118,7 @@
       * mod mod(.a(a),
       *         .b(b)
       *        );
-      */        
+      */
      "[variable mod] [variable mod][bracket (].[variable a][bracket (][variable a][bracket )],",
      "        .[variable b][bracket (][variable b][bracket )]",
      "       [bracket )];",
@@ -131,7 +131,7 @@
       *     .a(a),
       *     .b(b)
       * );
-      */        
+      */
      "[variable mod] [variable mod][bracket (]",
      "    .[variable a][bracket (][variable a][bracket )],",
      "    .[variable b][bracket (][variable b][bracket )]",

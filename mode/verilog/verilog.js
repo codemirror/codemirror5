@@ -95,7 +95,7 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
   openClose["do"   ] = "while";
   openClose["fork" ] = "join;join_any;join_none";
 
-  // This is a bit of a hack but will work to not indent after import/epxort statements 
+  // This is a bit of a hack but will work to not indent after import/epxort statements
   // as long as the function/task name is on the same line
   openClose["import"] = "function;task";
   openClose["export"] = "function;task";
