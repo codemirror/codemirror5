@@ -336,11 +336,7 @@
 
     wrap.push(elt("div", null, null, "height: 0; clear: both;"));
 
-    var bothWays = "";
-    if (options.allowEditingOriginals === true) {
-      bothWays = "-both-ways";
-    }
-    var wrapElt = this.wrap = node.appendChild(elt("div", wrap, "CodeMirror-merge CodeMirror-merge-" + panes + "pane" + bothWays));
+    var wrapElt = this.wrap = node.appendChild(elt("div", wrap, "CodeMirror-merge CodeMirror-merge-" + panes + "pane"));
     this.edit = CodeMirror(editPane, copyObj(options));
 
     if (left) left.init(leftPane, origLeft, options);

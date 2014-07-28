@@ -13,11 +13,6 @@
 .CodeMirror-merge-3pane .CodeMirror-merge-pane { width: 31%; }
 .CodeMirror-merge-3pane .CodeMirror-merge-gap { width: 3.5%; }
 
-.CodeMirror-merge-2pane-both-ways .CodeMirror-merge-pane { width: 47%; }
-.CodeMirror-merge-2pane-both-ways .CodeMirror-merge-gap { width: 12%; }
-.CodeMirror-merge-3pane-both-ways .CodeMirror-merge-pane { width: 31%; }
-.CodeMirror-merge-3pane-both-ways .CodeMirror-merge-gap { width: 7%; }
-
 .CodeMirror-merge-pane {
   display: inline-block;
   white-space: normal;
