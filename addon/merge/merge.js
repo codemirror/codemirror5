@@ -37,7 +37,7 @@
     constructor: DiffView,
     init: function(pane, orig, options) {
       this.edit = this.mv.edit;
-      this.orig = CodeMirror(pane, copyObj({value: orig, readOnly: true}, copyObj(options)));
+      this.orig = CodeMirror(pane, copyObj({value: orig, readOnly: !this.mv.options.allowEditingOriginals}, copyObj(options)));
 
       this.diff = getDiff(asString(orig), asString(options.value));
       this.diffOutOfDate = false;
@@ -282,16 +282,27 @@
       if (dv.copyButtons) {
         var copy = dv.copyButtons.appendChild(elt("div", dv.type == "left" ? "\u21dd" : "\u21dc",
                                                   "CodeMirror-merge-copy"));
-        copy.title = "Revert chunk";
+        var editOriginals = dv.mv.options.allowEditingOriginals;
+        copy.title = editOriginals ? "Push to left" : "Revert chunk";
         copy.chunk = {topEdit: topEdit, botEdit: botEdit, topOrig: topOrig, botOrig: botOrig};
         copy.style.top = top + "px";
+
+        if (editOriginals) {
+          var topReverse = dv.orig.heightAtLine(topEdit, "local") - sTopEdit;
+          var copyReverse = dv.copyButtons.appendChild(elt("div", dv.type == "right" ? "\u21dd" : "\u21dc",
+                                                           "CodeMirror-merge-copy-reverse"));
+          copyReverse.title = "Push to right";
+          copyReverse.chunk = {topEdit: topOrig, botEdit: botOrig, topOrig: topEdit, botOrig: botEdit};
+          copyReverse.style.top = topReverse + "px";
+          dv.type == "right" ? copyReverse.style.left = "2px" : copyReverse.style.right = "2px";
+        }
       }
     });
   }
 
-  function copyChunk(dv, chunk) {
+  function copyChunk(dv, to, from, chunk) {
     if (dv.diffOutOfDate) return;
-    dv.edit.replaceRange(dv.orig.getRange(Pos(chunk.topOrig, 0), Pos(chunk.botOrig, 0)),
+    to.replaceRange(from.getRange(Pos(chunk.topOrig, 0), Pos(chunk.botOrig, 0)),
                          Pos(chunk.topEdit, 0), Pos(chunk.botEdit, 0));
   }
 
@@ -326,6 +337,7 @@
     (hasRight ? rightPane : editPane).className += " CodeMirror-merge-pane-rightmost";
 
     wrap.push(elt("div", null, null, "height: 0; clear: both;"));
+
     var wrapElt = this.wrap = node.appendChild(elt("div", wrap, "CodeMirror-merge CodeMirror-merge-" + panes + "pane"));
     this.edit = CodeMirror(editPane, copyObj(options));
 
@@ -353,7 +365,12 @@
       dv.copyButtons = elt("div", null, "CodeMirror-merge-copybuttons-" + dv.type);
       CodeMirror.on(dv.copyButtons, "click", function(e) {
         var node = e.target || e.srcElement;
-        if (node.chunk) copyChunk(dv, node.chunk);
+        if (!node.chunk) return;
+        if (node.className == "CodeMirror-merge-copy-reverse") {
+          copyChunk(dv, dv.orig, dv.edit, node.chunk);
+          return;
+        }
+        copyChunk(dv, dv.edit, dv.orig, node.chunk);
       });
       gapElts.unshift(dv.copyButtons);
     }
