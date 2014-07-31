@@ -2797,13 +2797,10 @@
       updateLastSelection(cm, vim);
       vim.visualMode = false;
       vim.visualLine = false;
-      if (!cursorEqual(selectionStart, selectionEnd) && !vim.visualBlock) {
-        // Clear the selection and set the cursor only if the selection has not
-        // already been cleared. Otherwise we risk moving the cursor somewhere
-        // it's not supposed to be.
+      vim.visualBlock = false;
+      if (!cursorEqual(selectionStart, selectionEnd)) {
         cm.setCursor(clipCursorToContent(cm, selectionEnd));
       }
-      vim.visualBlock = false;
       CodeMirror.signal(cm, "vim-mode-change", {mode: "normal"});
       if (vim.fakeCursor) {
         vim.fakeCursor.clear();

@@ -1651,6 +1651,11 @@ testVim('visual', function(cm, vim, helpers) {
   helpers.doKeys('d');
   eq('15', cm.getValue());
 }, { value: '12345' });
+testVim('visual_exit', function(cm, vim, helpers) {
+  helpers.doKeys('<C-v>', 'l', 'j', 'j', '<Esc>');
+  eq(cm.getCursor('anchor'), cm.getCursor('head'));
+  eq(vim.visualMode, false);
+}, { value: 'hello\nworld\nfoo' });
 testVim('visual_line', function(cm, vim, helpers) {
   helpers.doKeys('l', 'V', 'l', 'j', 'j', 'd');
   eq(' 4\n 5', cm.getValue());
