@@ -4647,13 +4647,6 @@
       // you wanted to use keys other than i j and k for two-character
       // escape sequences. Don't forget to add them in the await-second
       // section as well.
-      //
-      // Known Issue: Macro recording becomes polluted with the first
-      //              character of your sequence each time you use it.
-      //              Until this is fixed, use the actual ESC key during
-      //              macro recording. Most likely the removal of the
-      //              first character from the buffer in the function
-      //              secondEscCharacterHandler is what needs fixing.
       "'i'": firstEscCharacterHandler('i'),
       "'j'": firstEscCharacterHandler('j'),
       "'k'": firstEscCharacterHandler('k'),
