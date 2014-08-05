@@ -1865,6 +1865,19 @@ testVim('S_normal', function(cm, vim, helpers) {
   helpers.assertCursorAt(1, 0);
   eq('aa\n\ncc', cm.getValue());
 }, { value: 'aa\nbb\ncc'});
+testVim('blockwise_paste', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('<C-v>', '3', 'j', 'l', 'y');
+  cm.setCursor(0, 2);
+  helpers.doKeys('v', '2', 'l', 'p');
+  eq('hehe\nwoworld\nfofoo\nbabar', cm.getValue());
+  cm.setCursor(0, 0);
+  helpers.doKeys('v', '4', 'l', 'y');
+  cm.setCursor(0, 0);
+  helpers.doKeys('<C-v>', '3', 'j', 'p');
+  eq('heheehe\noworld\nofoo\nabar', cm.getValue());
+}, { value: 'hello\nworld\nfoo\nbar'});
+
 testVim('S_visual', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.doKeys('v', 'j', 'S');
