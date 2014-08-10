@@ -902,6 +902,7 @@ testVim('c_visual_block', function(cm, vim, helpers) {
   replacement.pop();
   cm.replaceSelections(replacement);
   eq('1hello\n5hello\nahellofg', cm.getValue());
+  helpers.doInsertModeKeys('Esc');
   cm.setCursor(2, 3);
   helpers.doKeys('<C-v>', '2', 'k', 'h', 'C');
   replacement = new Array(cm.listSelections().length+1).join('world ').split(' ');
@@ -2664,7 +2665,8 @@ testVim('fc,;', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('f', '4');
   cm.setCursor(0, 0);
-  helpers.doKeys('c', ';', 'Esc');
+  helpers.doKeys('c', ';');
+  helpers.doInsertModeKeys('Esc');
   eq('56789', cm.getValue());
   helpers.doKeys('u');
   cm.setCursor(0, 9);
@@ -2675,7 +2677,8 @@ testVim('Fc,;', function(cm, vim, helpers) {
   cm.setCursor(0, 9);
   helpers.doKeys('F', '4');
   cm.setCursor(0, 9);
-  helpers.doKeys('c', ';', 'Esc');
+  helpers.doKeys('c', ';');
+  helpers.doInsertModeKeys('Esc');
   eq('01239', cm.getValue());
   helpers.doKeys('u');
   cm.setCursor(0, 0);
@@ -2686,7 +2689,8 @@ testVim('tc,;', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('t', '4');
   cm.setCursor(0, 0);
-  helpers.doKeys('c', ';', 'Esc');
+  helpers.doKeys('c', ';');
+  helpers.doInsertModeKeys('Esc');
   eq('456789', cm.getValue());
   helpers.doKeys('u');
   cm.setCursor(0, 9);
@@ -2697,7 +2701,8 @@ testVim('Tc,;', function(cm, vim, helpers) {
   cm.setCursor(0, 9);
   helpers.doKeys('T', '4');
   cm.setCursor(0, 9);
-  helpers.doKeys('c', ';', 'Esc');
+  helpers.doKeys('c', ';');
+  helpers.doInsertModeKeys('Esc');
   eq('012349', cm.getValue());
   helpers.doKeys('u');
   cm.setCursor(0, 0);

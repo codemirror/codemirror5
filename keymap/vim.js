@@ -354,8 +354,53 @@
 
   var Pos = CodeMirror.Pos;
 
+  var modifierCodes = [16, 17, 18, 91];
+  var specialKey = {Enter:'CR',Backspace:'BS',Delete:'Del'};
   var Vim = function() {
     CodeMirror.defineOption('vimMode', false, function(cm, val) {
+      function lookupKey(e) {
+        var keyCode = e.keyCode;
+        if (modifierCodes.indexOf(keyCode) != -1) { return; }
+        var hasModifier = e.ctrlKey || e.shiftKey || e.metaKey || e.ctrlKey;
+        var key = CodeMirror.keyNames[keyCode];
+        key = specialKey[key] || key;
+        var name = '';
+        if (e.ctrlKey) { name += 'C-'; }
+        if (e.altKey) { name += 'A-'; }
+        if ((!hasModifier || e.shiftKey) && key.length < 2) {
+          // Shift key bindings can only specified for special characters.
+          return;
+        } else if (e.shiftKey) { name += 'S-'; }
+        if (key.length == 1) { key = key.toLowerCase(); }
+        name += key;
+        if (hasModifier) { name = '<' + name + '>'; }
+        return name;
+      }
+      // Keys with modifiers are handled using keydown due to limitations of
+      // keypress event.
+      function handleKeyDown(cm, e) {
+        var name = lookupKey(e);
+        if (!name) { return; }
+
+        console.log(name);
+        CodeMirror.signal(cm, 'vim-keypress', name);
+        if (CodeMirror.Vim.handleKey(cm, name)) {
+          CodeMirror.e_stop(e);
+        }
+      }
+      // Keys without modifiers are handled using keypress to work best with
+      // non-standard keyboard layouts.
+      function handleKeyPress(cm, e) {
+        var code = e.charCode || e.keyCode;
+        if (e.ctrlKey || e.metaKey || e.altKey) { return; }
+        var name = String.fromCharCode(code);
+
+        console.log(name);
+        CodeMirror.signal(cm, 'vim-keypress', name);
+        if (CodeMirror.Vim.handleKey(cm, name)) {
+          CodeMirror.e_stop(e);
+        }
+      }
       if (val) {
         cm.setOption('keyMap', 'vim');
         cm.setOption('disableInput', true);
@@ -364,12 +409,16 @@
         cm.on('cursorActivity', onCursorActivity);
         maybeInitVimState(cm);
         CodeMirror.on(cm.getInputField(), 'paste', getOnPasteFn(cm));
+        cm.on('keypress', handleKeyPress);
+        cm.on('keydown', handleKeyDown);
       } else if (cm.state.vim) {
         cm.setOption('keyMap', 'default');
         cm.setOption('disableInput', false);
         cm.off('cursorActivity', onCursorActivity);
         CodeMirror.off(cm.getInputField(), 'paste', getOnPasteFn(cm));
         cm.state.vim = null;
+        cm.off('keypress', handleKeyPress);
+        cm.off('keydown', handleKeyDown);
       }
     });
     function getOnPasteFn(cm) {
@@ -693,7 +742,7 @@
           if (key == 'q') {
             macroModeState.exitMacroRecordMode();
             clearInputState(cm);
-            return;
+            return true;
           }
         }
         if (key == '<Esc>') {
@@ -702,7 +751,11 @@
           if (vim.visualMode) {
             exitVisualMode(cm);
           }
-          return;
+          return true;
+        }
+        if (vim.insertMode) {
+          // TODO: handle insert mode keys in this path.
+          return false;
         }
         // Enter visual mode when the mouse selects text.
         if (!vim.visualMode &&
@@ -724,7 +777,7 @@
           if (macroModeState.isRecording) {
             logKey(macroModeState, key);
           }
-          return;
+          return isNumber(key) || vim.inputState.keyBuffer.length;
         }
         if (command.type == 'keyToKey') {
           // TODO: prevent infinite recursion.
@@ -737,6 +790,7 @@
           }
           commandDispatcher.processCommand(cm, vim, command);
         }
+        return true;
       },
       handleEx: function(cm, input) {
         exCommandDispatcher.processCommand(cm, input);
@@ -960,6 +1014,7 @@
         var selectedCharacter;
         for (var i = 0; i < keyMap.length; i++) {
           var command = keyMap[i];
+          if (vim.insertMode && command.context != 'insert') { continue; }
           if (matchKeysPartial(keys, command.keys)) {
             if (inputState.operator && command.type == 'action') {
               // Ignore matched action commands after an operator. Operators
@@ -1014,7 +1069,9 @@
           return getFullyMatchedCommandOrNull(matchedCommands[0]);
         } else {
           // Find the best match in the list of matchedCommands.
-          var context = vim.visualMode ? 'visual' : 'normal';
+          var context = vim.visualMode ? 'visual' :
+                        vim.insertMode ? 'insert' :
+                                         'normal';
           var bestMatch; // Default to first in the list.
           for (var i = 0; i < matchedCommands.length; i++) {
             var current = matchedCommands[i];
@@ -4574,65 +4631,10 @@
       });
     }
 
-    // Register Vim with CodeMirror
-    function buildVimKeyMap() {
-      /**
-       * Handle the raw key event from CodeMirror. Translate the
-       * Shift + key modifier to the resulting letter, while preserving other
-       * modifers.
-       */
-      function cmKeyToVimKey(key, modifier) {
-        var vimKey = key;
-        if (isUpperCase(vimKey) && modifier == 'Ctrl') {
-            vimKey = vimKey.toLowerCase();
-        }
-        if (modifier) {
-          // Vim will parse modifier+key combination as a single key.
-          vimKey = modifier.charAt(0) + '-' + vimKey;
-        }
-        var specialKey = ({Enter:'CR',Backspace:'BS',Delete:'Del'})[vimKey];
-        vimKey = specialKey ? specialKey : vimKey;
-        vimKey = vimKey.length > 1 ? '<'+ vimKey + '>' : vimKey;
-        return vimKey;
-      }
-
-      // Closure to bind CodeMirror, key, modifier.
-      function keyMapper(vimKey) {
-        return function(cm) {
-          CodeMirror.signal(cm, 'vim-keypress', vimKey);
-          CodeMirror.Vim.handleKey(cm, vimKey);
-        };
-      }
-
-      var cmToVimKeymap = {
+    CodeMirror.keyMap.vim = {
         'nofallthrough': true,
         'style': 'fat-cursor'
       };
-      function bindKeys(keys, modifier) {
-        for (var i = 0; i < keys.length; i++) {
-          var key = keys[i];
-          if (!modifier && key.length == 1) {
-            // Wrap all keys without modifiers with '' to identify them by their
-            // key characters instead of key identifiers.
-            key = "'" + key + "'";
-          }
-          var vimKey = cmKeyToVimKey(keys[i], modifier);
-          var cmKey = modifier ? modifier + '-' + key : key;
-          cmToVimKeymap[cmKey] = keyMapper(vimKey);
-        }
-      }
-      bindKeys(upperCaseAlphabet);
-      bindKeys(lowerCaseAlphabet);
-      bindKeys(upperCaseAlphabet, 'Ctrl');
-      bindKeys(specialSymbols);
-      bindKeys(specialSymbols, 'Ctrl');
-      bindKeys(numbers);
-      bindKeys(numbers, 'Ctrl');
-      bindKeys(specialKeys);
-      bindKeys(specialKeys, 'Ctrl');
-      return cmToVimKeymap;
-    }
-    CodeMirror.keyMap.vim = buildVimKeyMap();
 
     function exitInsertMode(cm) {
       var vim = cm.state.vim;
