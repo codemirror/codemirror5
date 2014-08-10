@@ -1869,13 +1869,20 @@ testVim('blockwise_paste', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('<C-v>', '3', 'j', 'l', 'y');
   cm.setCursor(0, 2);
-  helpers.doKeys('v', '2', 'l', 'p');
-  eq('hehe\nwoworld\nfofoo\nbabar', cm.getValue());
+  // paste one char after the current cursor position
+  helpers.doKeys('p');
+  eq('helhelo\nworwold\nfoofo\nbarba', cm.getValue());
   cm.setCursor(0, 0);
   helpers.doKeys('v', '4', 'l', 'y');
   cm.setCursor(0, 0);
   helpers.doKeys('<C-v>', '3', 'j', 'p');
-  eq('heheehe\noworld\nofoo\nabar', cm.getValue());
+  eq('helheelhelo\norwold\noofo\narba', cm.getValue());
+  // extend short lines in case of different line lengths.
+  cm.setCursor(0, 0);
+  helpers.doKeys('<C-v>', 'j', 'j', 'y');
+  cm.setCursor(0, 9);
+  helpers.doKeys('p');
+  eq('helheelhelho\norwold    o\noofo      o\narba', cm.getValue());
 }, { value: 'hello\nworld\nfoo\nbar'});
 
 testVim('S_visual', function(cm, vim, helpers) {

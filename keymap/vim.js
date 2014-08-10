@@ -2338,7 +2338,6 @@
       },
       paste: function(cm, actionArgs, vim) {
         var cur = copyCursor(cm.getCursor());
-        var selections = cm.listSelections();
         var register = vimGlobalState.registerController.getRegister(
             actionArgs.registerName);
         var text = register.toString();
@@ -2396,7 +2395,6 @@
         }
         var curPosFinal;
         var idx;
-        var selections = cm.listSelections();
         if (vim.visualMode) {
           //  save the pasted text for reselection if the need arises
           vim.lastPastedText = text;
@@ -2405,6 +2403,7 @@
           var selectionStart = selectedArea[0];
           var selectionEnd = selectedArea[1];
           var selectedText = cm.getSelection();
+          var selections = cm.listSelections();
           var emptyStrings = new Array(selections.length).join('1').split('1');
           // save the curEnd marker before it get cleared due to cm.replaceRange.
           if (vim.lastSelection) {
@@ -2439,29 +2438,36 @@
           }
         } else {
           if (blockwise) {
-            var height = text.length-1;
-            selectBlock(cm, Pos(cur.line + height, cur.ch));
+            cur.ch+= 1;
+            cm.setCursor(cur);
+            for (var i = 0; i < text.length; i++) {
+              var lastCh = lineLength(cm, cur.line+i);
+              if (lastCh < cur.ch) {
+                extendLineToColumn(cm, cur.line+i, cur.ch);
+              }
+            }
+            cm.setCursor(cur);
+            selectBlock(cm, Pos(cur.line + text.length-1, cur.ch));
             cm.replaceSelections(text);
+            curPosFinal = cur;
           } else {
             cm.replaceRange(text, cur);
-          }
-          // Now fine tune the cursor to where we want it.
-          if (blockwise) {
-            curPosFinal = cur;
-          } else if (linewise && actionArgs.after) {
-            curPosFinal = Pos(
-            cur.line + 1,
-            findFirstNonWhiteSpaceCharacter(cm.getLine(cur.line + 1)));
-          } else if (linewise && !actionArgs.after) {
-            curPosFinal = Pos(
-              cur.line,
-              findFirstNonWhiteSpaceCharacter(cm.getLine(cur.line)));
-          } else if (!linewise && actionArgs.after) {
-            idx = cm.indexFromPos(cur);
-            curPosFinal = cm.posFromIndex(idx + text.length - 1);
-          } else {
-            idx = cm.indexFromPos(cur);
-            curPosFinal = cm.posFromIndex(idx + text.length);
+            // Now fine tune the cursor to where we want it.
+            if (linewise && actionArgs.after) {
+              curPosFinal = Pos(
+              cur.line + 1,
+              findFirstNonWhiteSpaceCharacter(cm.getLine(cur.line + 1)));
+            } else if (linewise && !actionArgs.after) {
+              curPosFinal = Pos(
+                cur.line,
+                findFirstNonWhiteSpaceCharacter(cm.getLine(cur.line)));
+            } else if (!linewise && actionArgs.after) {
+              idx = cm.indexFromPos(cur);
+              curPosFinal = cm.posFromIndex(idx + text.length - 1);
+            } else {
+              idx = cm.indexFromPos(cur);
+              curPosFinal = cm.posFromIndex(idx + text.length);
+            }
           }
         }
         cm.setCursor(curPosFinal);
@@ -2670,6 +2676,12 @@
     }
     function escapeRegex(s) {
       return s.replace(/([.?*+$\[\]\/\\(){}|\-])/g, '\\$1');
+    }
+    function extendLineToColumn(cm, lineNum, column) {
+      var endCh = lineLength(cm, lineNum);
+      var spaces = new Array(column-endCh+1).join(' ');
+      cm.setCursor(Pos(lineNum, endCh));
+      cm.replaceRange(spaces, cm.getCursor());
     }
     // This functions selects a rectangular block
     // of text with selectionEnd as any of its corner
