@@ -1,5 +1,6 @@
-// Slim Highlighting for CodeMirror copyright (c) HicknHack Software Gmbh
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
 // Distributed under an MIT license: http://codemirror.net/LICENSE
+// Slim Highlighting for CodeMirror copyright (c) HicknHack Software Gmbh
 
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
@@ -105,10 +106,10 @@
         if (state.line == state.tokenize) {
           state.line = state.stack.tokenize;
           state.stack = state.stack.parent;
-        }      
+        }
     }
-        
-    function lineContinuable(column, tokenize) {     
+
+    function lineContinuable(column, tokenize) {
       return function(stream, state) {
         finishContinue(state);
         if (stream.match(/^\\$/)) {
@@ -117,7 +118,7 @@
         }
         var style = tokenize(stream, state);
         if (stream.eol() && stream.current().match(/(?:^|[^\\])(?:\\\\)*\\$/)) {
-          stream.backUp(1);          
+          stream.backUp(1);
         }
         return style;
       };
@@ -152,10 +153,10 @@
       var runSplat = function(stream, state) {
         if (state.rubyState.tokenize.length == 1 && !state.rubyState.context.prev) {
           stream.backUp(1);
-          if (stream.eatSpace()) {          
+          if (stream.eatSpace()) {
             state.rubyState = rubyState;
-            state.tokenize = tokenize;          
-            return tokenize(stream, state);            
+            state.tokenize = tokenize;
+            return tokenize(stream, state);
           }
           stream.next();
         }
@@ -221,7 +222,7 @@
       state.line = comment;
       return comment(stream, state);
     }
-    
+
     function attributeWrapper(stream, state) {
       if (stream.eat(state.stack.endQuote)) {
         state.line = state.stack.line;
@@ -259,7 +260,7 @@
       }
       return startRubySplat(attributeWrapper)(stream, state);
     }
-    
+
     function startAttributeWrapperMode(state, endQuote, tokenize) {
       state.stack = {
         parent: state.stack,
@@ -269,10 +270,10 @@
         line: state.line,
         endQuote: endQuote
       };
-      state.line = state.tokenize = attributeWrapper;      
+      state.line = state.tokenize = attributeWrapper;
       return null;
     }
-    
+
     function sub(stream, state) {
       if (stream.match(/^#\{/)) {
         state.tokenize = rubyInQuote("}", state.tokenize);
@@ -280,9 +281,9 @@
       }
       var subStream = new CodeMirror.StringStream(stream.string.slice(state.stack.indented), stream.tabSize);
       subStream.pos = stream.pos - state.stack.indented;
-      subStream.start = stream.start - state.stack.indented;      
-      subStream.lastColumnPos = stream.lastColumnPos - state.stack.indented;      
-      subStream.lastColumnValue = stream.lastColumnValue - state.stack.indented;      
+      subStream.start = stream.start - state.stack.indented;
+      subStream.lastColumnPos = stream.lastColumnPos - state.stack.indented;
+      subStream.lastColumnValue = stream.lastColumnValue - state.stack.indented;
       var style = state.subMode.token(subStream, state.subState);
       stream.pos = subStream.pos + state.stack.indented;
       return style;
@@ -292,7 +293,7 @@
       state.line = state.tokenize = sub;
       return state.tokenize(stream, state);
     }
-    
+
     function createMode(mode) {
       var query = embedded[mode];
       var spec = CodeMirror.mimeModes[query];
@@ -422,7 +423,7 @@
       // should never happen, because of forward lookup
       return slimAttribute(stream, state);
     }
-    
+
     function slimAttributeValue(stream, state) {
       var ch = stream.peek();
       if (ch == '"' || ch == "\'") {
@@ -446,7 +447,7 @@
       stream.backUp(1);
       if (stream.match(/^[^\s],(?=:)/)) {
         state.tokenize = startRubySplat(slimAttributeSymbols);
-        return null;        
+        return null;
       }
       stream.next();
       return slimAttribute(stream, state);
@@ -464,7 +465,7 @@
           if (!fresh) return style;
           state.tokenize = rubyInQuote("}", state.tokenize);
           return null;
-        }        
+        }
         var escaped = false, ch;
         while ((ch = stream.next()) != null) {
           if (ch == quote && (unescaped || !escaped)) {
@@ -549,7 +550,7 @@
         if (style) state.last = style;
         return styleMap.hasOwnProperty(style) ? styleMap[style] : style;
       },
-      
+
       blankLine: function(state) {
         if (state.subMode && state.subMode.blankLine) {
           return state.subMode.blankLine(state.subState);
