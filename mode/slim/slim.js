@@ -168,7 +168,7 @@
         state.rubyState = rubyMode.startState();
         state.tokenize = runSplat;
         return ruby(stream, state);
-      }
+      };
     }
 
     function ruby(stream, state) {
