@@ -332,7 +332,7 @@
       return "slimSubmode";
     }
 
-    function doctypeLine(stream, state) {
+    function doctypeLine(stream, _state) {
       stream.skipToEnd();
       return "slimDoctype";
     }
