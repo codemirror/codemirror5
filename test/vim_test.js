@@ -1883,6 +1883,18 @@ testVim('blockwise_paste', function(cm, vim, helpers) {
   cm.setCursor(0, 9);
   helpers.doKeys('p');
   eq('helheelhelho\norwold    o\noofo      o\narba', cm.getValue());
+  // yank and paste from register
+  cm.setCursor(0, 0);
+  helpers.doKeys('<C-v>', '3', 'j', '"', 'a', 'y');
+  cm.setCursor(0, 3);
+  helpers.doKeys('"', 'a', 'p');
+  eq('helhheelhelho\norwoold    o\noofoo      o\narbaa', cm.getValue());
+  // cut and paste
+  cm.setCursor(1, 0);
+  helpers.doKeys('<C-v>', '2', 'j', 'x');
+  cm.setCursor(0, 1);
+  helpers.doKeys('p');
+  eq('heolhheelhelho\nrwooold    o\nofaoo      o\nrbaa', cm.getValue());
 }, { value: 'hello\nworld\nfoo\nbar'});
 
 testVim('S_visual', function(cm, vim, helpers) {

@@ -1926,17 +1926,19 @@
         var curEnd = cursorIsBefore(end.anchor, end.head) ? end.head : end.anchor;
         // Save the '>' mark before cm.replaceRange clears it.
         var selectionEnd, selectionStart;
+        var blockwise = vim.visualBlock;
         if (vim.visualMode) {
           selectionEnd = vim.marks['>'].find();
           selectionStart = vim.marks['<'].find();
         } else if (vim.lastSelection) {
           selectionEnd = vim.lastSelection.curStartMark.find();
           selectionStart = vim.lastSelection.curEndMark.find();
+          blockwise = vim.lastSelection.visualBlock;
         }
         var text = cm.getSelection();
         vimGlobalState.registerController.pushText(
             operatorArgs.registerName, 'delete', text,
-            operatorArgs.linewise);
+            operatorArgs.linewise, blockwise);
         var replacement = new Array(selections.length).join('1').split('1');
         // If the ending line is past the last line, inclusive, instead of
         // including the trailing \n, include the \n before the starting line
