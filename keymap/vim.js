@@ -72,284 +72,284 @@
   var defaultKeymap = [
     // Key to key mapping. This goes first to make it possible to override
     // existing mappings.
-    { keys: ['<Left>'], type: 'keyToKey', toKeys: ['h'] },
-    { keys: ['<Right>'], type: 'keyToKey', toKeys: ['l'] },
-    { keys: ['<Up>'], type: 'keyToKey', toKeys: ['k'] },
-    { keys: ['<Down>'], type: 'keyToKey', toKeys: ['j'] },
-    { keys: ['<Space>'], type: 'keyToKey', toKeys: ['l'] },
-    { keys: ['<BS>'], type: 'keyToKey', toKeys: ['h'] },
-    { keys: ['<C-Space>'], type: 'keyToKey', toKeys: ['W'] },
-    { keys: ['<C-BS>'], type: 'keyToKey', toKeys: ['B'] },
-    { keys: ['<S-Space>'], type: 'keyToKey', toKeys: ['w'] },
-    { keys: ['<S-BS>'], type: 'keyToKey', toKeys: ['b'] },
-    { keys: ['<C-n>'], type: 'keyToKey', toKeys: ['j'] },
-    { keys: ['<C-p>'], type: 'keyToKey', toKeys: ['k'] },
-    { keys: ['<C-[>'], type: 'keyToKey', toKeys: ['<Esc>'] },
-    { keys: ['<C-c>'], type: 'keyToKey', toKeys: ['<Esc>'] },
-    { keys: ['s'], type: 'keyToKey', toKeys: ['c', 'l'], context: 'normal' },
-    { keys: ['s'], type: 'keyToKey', toKeys: ['x', 'i'], context: 'visual'},
-    { keys: ['S'], type: 'keyToKey', toKeys: ['c', 'c'], context: 'normal' },
-    { keys: ['S'], type: 'keyToKey', toKeys: ['d', 'c', 'c'], context: 'visual' },
-    { keys: ['<Home>'], type: 'keyToKey', toKeys: ['0'] },
-    { keys: ['<End>'], type: 'keyToKey', toKeys: ['$'] },
-    { keys: ['<PageUp>'], type: 'keyToKey', toKeys: ['<C-b>'] },
-    { keys: ['<PageDown>'], type: 'keyToKey', toKeys: ['<C-f>'] },
-    { keys: ['<CR>'], type: 'keyToKey', toKeys: ['j', '^'], context: 'normal' },
+    { keys: '<Left>', type: 'keyToKey', toKeys: 'h' },
+    { keys: '<Right>', type: 'keyToKey', toKeys: 'l' },
+    { keys: '<Up>', type: 'keyToKey', toKeys: 'k' },
+    { keys: '<Down>', type: 'keyToKey', toKeys: 'j' },
+    { keys: '<Space>', type: 'keyToKey', toKeys: 'l' },
+    { keys: '<BS>', type: 'keyToKey', toKeys: 'h' },
+    { keys: '<C-Space>', type: 'keyToKey', toKeys: 'W' },
+    { keys: '<C-BS>', type: 'keyToKey', toKeys: 'B' },
+    { keys: '<S-Space>', type: 'keyToKey', toKeys: 'w' },
+    { keys: '<S-BS>', type: 'keyToKey', toKeys: 'b' },
+    { keys: '<C-n>', type: 'keyToKey', toKeys: 'j' },
+    { keys: '<C-p>', type: 'keyToKey', toKeys: 'k' },
+    { keys: '<C->', type: 'keyToKey', toKeys: '<Esc>' },
+    { keys: '<C-c>', type: 'keyToKey', toKeys: '<Esc>' },
+    { keys: 's', type: 'keyToKey', toKeys: 'cl', context: 'normal' },
+    { keys: 's', type: 'keyToKey', toKeys: 'xi', context: 'visual'},
+    { keys: 'S', type: 'keyToKey', toKeys: 'cc', context: 'normal' },
+    { keys: 'S', type: 'keyToKey', toKeys: 'dcc', context: 'visual' },
+    { keys: '<Home>', type: 'keyToKey', toKeys: '0' },
+    { keys: '<End>', type: 'keyToKey', toKeys: '$' },
+    { keys: '<PageUp>', type: 'keyToKey', toKeys: '<C-b>' },
+    { keys: '<PageDown>', type: 'keyToKey', toKeys: '<C-f>' },
+    { keys: '<CR>', type: 'keyToKey', toKeys: 'j^', context: 'normal' },
     // Motions
-    { keys: ['H'], type: 'motion',
+    { keys: 'H', type: 'motion',
         motion: 'moveToTopLine',
         motionArgs: { linewise: true, toJumplist: true }},
-    { keys: ['M'], type: 'motion',
+    { keys: 'M', type: 'motion',
         motion: 'moveToMiddleLine',
         motionArgs: { linewise: true, toJumplist: true }},
-    { keys: ['L'], type: 'motion',
+    { keys: 'L', type: 'motion',
         motion: 'moveToBottomLine',
         motionArgs: { linewise: true, toJumplist: true }},
-    { keys: ['h'], type: 'motion',
+    { keys: 'h', type: 'motion',
         motion: 'moveByCharacters',
         motionArgs: { forward: false }},
-    { keys: ['l'], type: 'motion',
+    { keys: 'l', type: 'motion',
         motion: 'moveByCharacters',
         motionArgs: { forward: true }},
-    { keys: ['j'], type: 'motion',
+    { keys: 'j', type: 'motion',
         motion: 'moveByLines',
         motionArgs: { forward: true, linewise: true }},
-    { keys: ['k'], type: 'motion',
+    { keys: 'k', type: 'motion',
         motion: 'moveByLines',
         motionArgs: { forward: false, linewise: true }},
-    { keys: ['g','j'], type: 'motion',
+    { keys: 'gj', type: 'motion',
         motion: 'moveByDisplayLines',
         motionArgs: { forward: true }},
-    { keys: ['g','k'], type: 'motion',
+    { keys: 'gk', type: 'motion',
         motion: 'moveByDisplayLines',
         motionArgs: { forward: false }},
-    { keys: ['w'], type: 'motion',
+    { keys: 'w', type: 'motion',
         motion: 'moveByWords',
         motionArgs: { forward: true, wordEnd: false }},
-    { keys: ['W'], type: 'motion',
+    { keys: 'W', type: 'motion',
         motion: 'moveByWords',
         motionArgs: { forward: true, wordEnd: false, bigWord: true }},
-    { keys: ['e'], type: 'motion',
+    { keys: 'e', type: 'motion',
         motion: 'moveByWords',
         motionArgs: { forward: true, wordEnd: true, inclusive: true }},
-    { keys: ['E'], type: 'motion',
+    { keys: 'E', type: 'motion',
         motion: 'moveByWords',
         motionArgs: { forward: true, wordEnd: true, bigWord: true,
             inclusive: true }},
-    { keys: ['b'], type: 'motion',
+    { keys: 'b', type: 'motion',
         motion: 'moveByWords',
         motionArgs: { forward: false, wordEnd: false }},
-    { keys: ['B'], type: 'motion',
+    { keys: 'B', type: 'motion',
         motion: 'moveByWords',
         motionArgs: { forward: false, wordEnd: false, bigWord: true }},
-    { keys: ['g', 'e'], type: 'motion',
+    { keys: 'ge', type: 'motion',
         motion: 'moveByWords',
         motionArgs: { forward: false, wordEnd: true, inclusive: true }},
-    { keys: ['g', 'E'], type: 'motion',
+    { keys: 'gE', type: 'motion',
         motion: 'moveByWords',
         motionArgs: { forward: false, wordEnd: true, bigWord: true,
             inclusive: true }},
-    { keys: ['{'], type: 'motion', motion: 'moveByParagraph',
+    { keys: '{', type: 'motion', motion: 'moveByParagraph',
         motionArgs: { forward: false, toJumplist: true }},
-    { keys: ['}'], type: 'motion', motion: 'moveByParagraph',
+    { keys: '}', type: 'motion', motion: 'moveByParagraph',
         motionArgs: { forward: true, toJumplist: true }},
-    { keys: ['<C-f>'], type: 'motion',
+    { keys: '<C-f>', type: 'motion',
         motion: 'moveByPage', motionArgs: { forward: true }},
-    { keys: ['<C-b>'], type: 'motion',
+    { keys: '<C-b>', type: 'motion',
         motion: 'moveByPage', motionArgs: { forward: false }},
-    { keys: ['<C-d>'], type: 'motion',
+    { keys: '<C-d>', type: 'motion',
         motion: 'moveByScroll',
         motionArgs: { forward: true, explicitRepeat: true }},
-    { keys: ['<C-u>'], type: 'motion',
+    { keys: '<C-u>', type: 'motion',
         motion: 'moveByScroll',
         motionArgs: { forward: false, explicitRepeat: true }},
-    { keys: ['g', 'g'], type: 'motion',
+    { keys: 'gg', type: 'motion',
         motion: 'moveToLineOrEdgeOfDocument',
         motionArgs: { forward: false, explicitRepeat: true, linewise: true, toJumplist: true }},
-    { keys: ['G'], type: 'motion',
+    { keys: 'G', type: 'motion',
         motion: 'moveToLineOrEdgeOfDocument',
         motionArgs: { forward: true, explicitRepeat: true, linewise: true, toJumplist: true }},
-    { keys: ['0'], type: 'motion', motion: 'moveToStartOfLine' },
-    { keys: ['^'], type: 'motion',
+    { keys: '0', type: 'motion', motion: 'moveToStartOfLine' },
+    { keys: '^', type: 'motion',
         motion: 'moveToFirstNonWhiteSpaceCharacter' },
-    { keys: ['+'], type: 'motion',
+    { keys: '+', type: 'motion',
         motion: 'moveByLines',
         motionArgs: { forward: true, toFirstChar:true }},
-    { keys: ['-'], type: 'motion',
+    { keys: '-', type: 'motion',
         motion: 'moveByLines',
         motionArgs: { forward: false, toFirstChar:true }},
-    { keys: ['_'], type: 'motion',
+    { keys: '_', type: 'motion',
         motion: 'moveByLines',
         motionArgs: { forward: true, toFirstChar:true, repeatOffset:-1 }},
-    { keys: ['$'], type: 'motion',
+    { keys: '$', type: 'motion',
         motion: 'moveToEol',
         motionArgs: { inclusive: true }},
-    { keys: ['%'], type: 'motion',
+    { keys: '%', type: 'motion',
         motion: 'moveToMatchedSymbol',
         motionArgs: { inclusive: true, toJumplist: true }},
-    { keys: ['f', 'character'], type: 'motion',
+    { keys: 'f<character>', type: 'motion',
         motion: 'moveToCharacter',
         motionArgs: { forward: true , inclusive: true }},
-    { keys: ['F', 'character'], type: 'motion',
+    { keys: 'F<character>', type: 'motion',
         motion: 'moveToCharacter',
         motionArgs: { forward: false }},
-    { keys: ['t', 'character'], type: 'motion',
+    { keys: 't<character>', type: 'motion',
         motion: 'moveTillCharacter',
         motionArgs: { forward: true, inclusive: true }},
-    { keys: ['T', 'character'], type: 'motion',
+    { keys: 'T<character>', type: 'motion',
         motion: 'moveTillCharacter',
         motionArgs: { forward: false }},
-    { keys: [';'], type: 'motion', motion: 'repeatLastCharacterSearch',
+    { keys: ';', type: 'motion', motion: 'repeatLastCharacterSearch',
         motionArgs: { forward: true }},
-    { keys: [','], type: 'motion', motion: 'repeatLastCharacterSearch',
+    { keys: ',', type: 'motion', motion: 'repeatLastCharacterSearch',
         motionArgs: { forward: false }},
-    { keys: ['\'', 'character'], type: 'motion', motion: 'goToMark',
+    { keys: '\'<character>', type: 'motion', motion: 'goToMark',
         motionArgs: {toJumplist: true, linewise: true}},
-    { keys: ['`', 'character'], type: 'motion', motion: 'goToMark',
+    { keys: '`<character>', type: 'motion', motion: 'goToMark',
         motionArgs: {toJumplist: true}},
-    { keys: [']', '`'], type: 'motion', motion: 'jumpToMark', motionArgs: { forward: true } },
-    { keys: ['[', '`'], type: 'motion', motion: 'jumpToMark', motionArgs: { forward: false } },
-    { keys: [']', '\''], type: 'motion', motion: 'jumpToMark', motionArgs: { forward: true, linewise: true } },
-    { keys: ['[', '\''], type: 'motion', motion: 'jumpToMark', motionArgs: { forward: false, linewise: true } },
+    { keys: ']`', type: 'motion', motion: 'jumpToMark', motionArgs: { forward: true } },
+    { keys: '[`', type: 'motion', motion: 'jumpToMark', motionArgs: { forward: false } },
+    { keys: ']\'', type: 'motion', motion: 'jumpToMark', motionArgs: { forward: true, linewise: true } },
+    { keys: '[\'', type: 'motion', motion: 'jumpToMark', motionArgs: { forward: false, linewise: true } },
     // the next two aren't motions but must come before more general motion declarations
-    { keys: [']', 'p'], type: 'action', action: 'paste', isEdit: true,
+    { keys: ']p', type: 'action', action: 'paste', isEdit: true,
         actionArgs: { after: true, isEdit: true, matchIndent: true}},
-    { keys: ['[', 'p'], type: 'action', action: 'paste', isEdit: true,
+    { keys: '[p', type: 'action', action: 'paste', isEdit: true,
         actionArgs: { after: false, isEdit: true, matchIndent: true}},
-    { keys: [']', 'character'], type: 'motion',
+    { keys: ']<character>', type: 'motion',
         motion: 'moveToSymbol',
         motionArgs: { forward: true, toJumplist: true}},
-    { keys: ['[', 'character'], type: 'motion',
+    { keys: '[<character>', type: 'motion',
         motion: 'moveToSymbol',
         motionArgs: { forward: false, toJumplist: true}},
-    { keys: ['|'], type: 'motion',
+    { keys: '|', type: 'motion',
         motion: 'moveToColumn',
         motionArgs: { }},
-    { keys: ['o'], type: 'motion', motion: 'moveToOtherHighlightedEnd', motionArgs: { }, context:'visual'},
-    { keys: ['O'], type: 'motion', motion: 'moveToOtherHighlightedEnd', motionArgs: {sameLine: true}, context:'visual'},
+    { keys: 'o', type: 'motion', motion: 'moveToOtherHighlightedEnd', motionArgs: { }, context:'visual'},
+    { keys: 'O', type: 'motion', motion: 'moveToOtherHighlightedEnd', motionArgs: {sameLine: true}, context:'visual'},
     // Operators
-    { keys: ['d'], type: 'operator', operator: 'delete' },
-    { keys: ['y'], type: 'operator', operator: 'yank' },
-    { keys: ['c'], type: 'operator', operator: 'change' },
-    { keys: ['>'], type: 'operator', operator: 'indent',
+    { keys: 'd', type: 'operator', operator: 'delete' },
+    { keys: 'y', type: 'operator', operator: 'yank' },
+    { keys: 'c', type: 'operator', operator: 'change' },
+    { keys: '>', type: 'operator', operator: 'indent',
         operatorArgs: { indentRight: true }},
-    { keys: ['<'], type: 'operator', operator: 'indent',
+    { keys: '<', type: 'operator', operator: 'indent',
         operatorArgs: { indentRight: false }},
-    { keys: ['g', '~'], type: 'operator', operator: 'swapcase' },
-    { keys: ['n'], type: 'motion', motion: 'findNext',
+    { keys: 'g~', type: 'operator', operator: 'swapcase' },
+    { keys: 'n', type: 'motion', motion: 'findNext',
         motionArgs: { forward: true, toJumplist: true }},
-    { keys: ['N'], type: 'motion', motion: 'findNext',
+    { keys: 'N', type: 'motion', motion: 'findNext',
         motionArgs: { forward: false, toJumplist: true }},
     // Operator-Motion dual commands
-    { keys: ['x'], type: 'operatorMotion', operator: 'delete',
+    { keys: 'x', type: 'operatorMotion', operator: 'delete',
         motion: 'moveByCharacters', motionArgs: { forward: true },
         operatorMotionArgs: { visualLine: false }},
-    { keys: ['X'], type: 'operatorMotion', operator: 'delete',
+    { keys: 'X', type: 'operatorMotion', operator: 'delete',
         motion: 'moveByCharacters', motionArgs: { forward: false },
         operatorMotionArgs: { visualLine: true }},
-    { keys: ['D'], type: 'operatorMotion', operator: 'delete',
+    { keys: 'D', type: 'operatorMotion', operator: 'delete',
       motion: 'moveToEol', motionArgs: { inclusive: true },
         operatorMotionArgs: { visualLine: true }},
-    { keys: ['Y'], type: 'operatorMotion', operator: 'yank',
+    { keys: 'Y', type: 'operatorMotion', operator: 'yank',
         motion: 'moveToEol', motionArgs: { inclusive: true },
         operatorMotionArgs: { visualLine: true }},
-    { keys: ['C'], type: 'operatorMotion',
+    { keys: 'C', type: 'operatorMotion',
         operator: 'change',
         motion: 'moveToEol', motionArgs: { inclusive: true },
         operatorMotionArgs: { visualLine: true }},
-    { keys: ['~'], type: 'operatorMotion',
+    { keys: '~', type: 'operatorMotion',
         operator: 'swapcase', operatorArgs: { shouldMoveCursor: true },
         motion: 'moveByCharacters', motionArgs: { forward: true }},
     // Actions
-    { keys: ['<C-i>'], type: 'action', action: 'jumpListWalk',
+    { keys: '<C-i>', type: 'action', action: 'jumpListWalk',
         actionArgs: { forward: true }},
-    { keys: ['<C-o>'], type: 'action', action: 'jumpListWalk',
+    { keys: '<C-o>', type: 'action', action: 'jumpListWalk',
         actionArgs: { forward: false }},
-    { keys: ['<C-e>'], type: 'action',
+    { keys: '<C-e>', type: 'action',
         action: 'scroll',
         actionArgs: { forward: true, linewise: true }},
-    { keys: ['<C-y>'], type: 'action',
+    { keys: '<C-y>', type: 'action',
         action: 'scroll',
         actionArgs: { forward: false, linewise: true }},
-    { keys: ['a'], type: 'action', action: 'enterInsertMode', isEdit: true,
+    { keys: 'a', type: 'action', action: 'enterInsertMode', isEdit: true,
         actionArgs: { insertAt: 'charAfter' }},
-    { keys: ['A'], type: 'action', action: 'enterInsertMode', isEdit: true,
+    { keys: 'A', type: 'action', action: 'enterInsertMode', isEdit: true,
         actionArgs: { insertAt: 'eol' }},
-    { keys: ['A'], type: 'action', action: 'enterInsertMode', isEdit: true, actionArgs: { insertAt: 'endOfSelectedArea' }, context: 'visual' },
-    { keys: ['i'], type: 'action', action: 'enterInsertMode', isEdit: true,
+    { keys: 'A', type: 'action', action: 'enterInsertMode', isEdit: true, actionArgs: { insertAt: 'endOfSelectedArea' }, context: 'visual' },
+    { keys: 'i', type: 'action', action: 'enterInsertMode', isEdit: true,
         actionArgs: { insertAt: 'inplace' }},
-    { keys: ['I'], type: 'action', action: 'enterInsertMode', isEdit: true,
+    { keys: 'I', type: 'action', action: 'enterInsertMode', isEdit: true,
         actionArgs: { insertAt: 'firstNonBlank' }},
-    { keys: ['o'], type: 'action', action: 'newLineAndEnterInsertMode',
+    { keys: 'o', type: 'action', action: 'newLineAndEnterInsertMode',
         isEdit: true, interlaceInsertRepeat: true,
         actionArgs: { after: true }},
-    { keys: ['O'], type: 'action', action: 'newLineAndEnterInsertMode',
+    { keys: 'O', type: 'action', action: 'newLineAndEnterInsertMode',
         isEdit: true, interlaceInsertRepeat: true,
         actionArgs: { after: false }},
-    { keys: ['v'], type: 'action', action: 'toggleVisualMode' },
-    { keys: ['V'], type: 'action', action: 'toggleVisualMode',
+    { keys: 'v', type: 'action', action: 'toggleVisualMode' },
+    { keys: 'V', type: 'action', action: 'toggleVisualMode',
         actionArgs: { linewise: true }},
-    { keys: ['<C-v>'], type: 'action', action: 'toggleVisualMode',
+    { keys: '<C-v>', type: 'action', action: 'toggleVisualMode',
         actionArgs: { blockwise: true }},
-    { keys: ['g', 'v'], type: 'action', action: 'reselectLastSelection' },
-    { keys: ['J'], type: 'action', action: 'joinLines', isEdit: true },
-    { keys: ['p'], type: 'action', action: 'paste', isEdit: true,
+    { keys: 'gv', type: 'action', action: 'reselectLastSelection' },
+    { keys: 'J', type: 'action', action: 'joinLines', isEdit: true },
+    { keys: 'p', type: 'action', action: 'paste', isEdit: true,
         actionArgs: { after: true, isEdit: true }},
-    { keys: ['P'], type: 'action', action: 'paste', isEdit: true,
+    { keys: 'P', type: 'action', action: 'paste', isEdit: true,
         actionArgs: { after: false, isEdit: true }},
-    { keys: ['r', 'character'], type: 'action', action: 'replace', isEdit: true },
-    { keys: ['@', 'character'], type: 'action', action: 'replayMacro' },
-    { keys: ['q', 'character'], type: 'action', action: 'enterMacroRecordMode' },
+    { keys: 'r<character>', type: 'action', action: 'replace', isEdit: true },
+    { keys: '@<character>', type: 'action', action: 'replayMacro' },
+    { keys: 'q<character>', type: 'action', action: 'enterMacroRecordMode' },
     // Handle Replace-mode as a special case of insert mode.
-    { keys: ['R'], type: 'action', action: 'enterInsertMode', isEdit: true,
+    { keys: 'R', type: 'action', action: 'enterInsertMode', isEdit: true,
         actionArgs: { replace: true }},
-    { keys: ['u'], type: 'action', action: 'undo' },
-    { keys: ['u'], type: 'action', action: 'changeCase', actionArgs: {toLower: true}, context: 'visual', isEdit: true },
-    { keys: ['U'],type: 'action', action: 'changeCase', actionArgs: {toLower: false}, context: 'visual', isEdit: true },
-    { keys: ['<C-r>'], type: 'action', action: 'redo' },
-    { keys: ['m', 'character'], type: 'action', action: 'setMark' },
-    { keys: ['"', 'character'], type: 'action', action: 'setRegister' },
-    { keys: ['z', 'z'], type: 'action', action: 'scrollToCursor',
+    { keys: 'u', type: 'action', action: 'undo' },
+    { keys: 'u', type: 'action', action: 'changeCase', actionArgs: {toLower: true}, context: 'visual', isEdit: true },
+    { keys: 'U',type: 'action', action: 'changeCase', actionArgs: {toLower: false}, context: 'visual', isEdit: true },
+    { keys: '<C-r>', type: 'action', action: 'redo' },
+    { keys: 'm<character>', type: 'action', action: 'setMark' },
+    { keys: '"<character>', type: 'action', action: 'setRegister' },
+    { keys: 'zz', type: 'action', action: 'scrollToCursor',
         actionArgs: { position: 'center' }},
-    { keys: ['z', '.'], type: 'action', action: 'scrollToCursor',
+    { keys: 'z.', type: 'action', action: 'scrollToCursor',
         actionArgs: { position: 'center' },
         motion: 'moveToFirstNonWhiteSpaceCharacter' },
-    { keys: ['z', 't'], type: 'action', action: 'scrollToCursor',
+    { keys: 'zt', type: 'action', action: 'scrollToCursor',
         actionArgs: { position: 'top' }},
-    { keys: ['z', '<CR>'], type: 'action', action: 'scrollToCursor',
+    { keys: 'z<CR>', type: 'action', action: 'scrollToCursor',
         actionArgs: { position: 'top' },
         motion: 'moveToFirstNonWhiteSpaceCharacter' },
-    { keys: ['z', '-'], type: 'action', action: 'scrollToCursor',
+    { keys: 'z-', type: 'action', action: 'scrollToCursor',
         actionArgs: { position: 'bottom' }},
-    { keys: ['z', 'b'], type: 'action', action: 'scrollToCursor',
+    { keys: 'zb', type: 'action', action: 'scrollToCursor',
         actionArgs: { position: 'bottom' },
         motion: 'moveToFirstNonWhiteSpaceCharacter' },
-    { keys: ['.'], type: 'action', action: 'repeatLastEdit' },
-    { keys: ['<C-a>'], type: 'action', action: 'incrementNumberToken',
+    { keys: '.', type: 'action', action: 'repeatLastEdit' },
+    { keys: '<C-a>', type: 'action', action: 'incrementNumberToken',
         isEdit: true,
         actionArgs: {increase: true, backtrack: false}},
-    { keys: ['<C-x>'], type: 'action', action: 'incrementNumberToken',
+    { keys: '<C-x>', type: 'action', action: 'incrementNumberToken',
         isEdit: true,
         actionArgs: {increase: false, backtrack: false}},
     // Text object motions
-    { keys: ['a', 'character'], type: 'motion',
+    { keys: 'a<character>', type: 'motion',
         motion: 'textObjectManipulation' },
-    { keys: ['i', 'character'], type: 'motion',
+    { keys: 'i<character>', type: 'motion',
         motion: 'textObjectManipulation',
         motionArgs: { textObjectInner: true }},
     // Search
-    { keys: ['/'], type: 'search',
+    { keys: '/', type: 'search',
         searchArgs: { forward: true, querySrc: 'prompt', toJumplist: true }},
-    { keys: ['?'], type: 'search',
+    { keys: '?', type: 'search',
         searchArgs: { forward: false, querySrc: 'prompt', toJumplist: true }},
-    { keys: ['*'], type: 'search',
+    { keys: '*', type: 'search',
         searchArgs: { forward: true, querySrc: 'wordUnderCursor', wholeWordOnly: true, toJumplist: true }},
-    { keys: ['#'], type: 'search',
+    { keys: '#', type: 'search',
         searchArgs: { forward: false, querySrc: 'wordUnderCursor', wholeWordOnly: true, toJumplist: true }},
-    { keys: ['g', '*'], type: 'search', searchArgs: { forward: true, querySrc: 'wordUnderCursor', toJumplist: true }},
-    { keys: ['g', '#'], type: 'search', searchArgs: { forward: false, querySrc: 'wordUnderCursor', toJumplist: true }},
+    { keys: 'g*', type: 'search', searchArgs: { forward: true, querySrc: 'wordUnderCursor', toJumplist: true }},
+    { keys: 'g#', type: 'search', searchArgs: { forward: false, querySrc: 'wordUnderCursor', toJumplist: true }},
     // Ex command
-    { keys: [':'], type: 'ex' }
+    { keys: ':', type: 'ex' }
   ];
 
   var Pos = CodeMirror.Pos;
@@ -373,7 +373,7 @@
         } else if (e.shiftKey) { name += 'S-'; }
         if (key.length == 1) { key = key.toLowerCase(); }
         name += key;
-        if (hasModifier) { name = '<' + name + '>'; }
+        if (name.length > 1) { name = '<' + name + '>'; }
         return name;
       }
       // Keys with modifiers are handled using keydown due to limitations of
@@ -755,6 +755,7 @@
         }
         if (vim.insertMode) {
           // TODO: handle insert mode keys in this path.
+          clearInputState(cm);
           return false;
         }
         // Enter visual mode when the mouse selects text.
@@ -765,24 +766,28 @@
           CodeMirror.signal(cm, "vim-mode-change", {mode: "visual"});
           cm.on('mousedown', exitVisualMode);
         }
-        if (key != '0' || (key == '0' && vim.inputState.getRepeat() === 0)) {
-          // Have to special case 0 since it's both a motion and a number.
-          command = commandDispatcher.matchCommand(key, defaultKeymap, vim);
-        }
-        if (!command) {
-          if (isNumber(key)) {
-            // Increment count unless count is 0 and key is 0.
-            vim.inputState.pushRepeatDigit(key);
-          }
+        var keys = vim.inputState.keyBuffer = vim.inputState.keyBuffer + key;
+        if (/^[1-9]\d*$/.test(keys)) {
           if (macroModeState.isRecording) {
             logKey(macroModeState, key);
           }
-          return isNumber(key) || vim.inputState.keyBuffer.length;
+          return true;
+        }
+        var keysMatcher = /^(\d*)(.*)$/.exec(keys);
+        command = commandDispatcher.matchCommand(keysMatcher[2] || keysMatcher[1], defaultKeymap, vim);
+        if (!command) {
+          if (macroModeState.isRecording) {
+            logKey(macroModeState, key);
+          }
+          return vim.inputState.keyBuffer.length;
+        }
+        if (keysMatcher[1] && keysMatcher[1] != '0') {
+          vim.inputState.pushRepeatDigit(keysMatcher[1]);
         }
         if (command.type == 'keyToKey') {
           // TODO: prevent infinite recursion.
           for (var i = 0; i < command.toKeys.length; i++) {
-            this.handleKey(cm, command.toKeys[i]);
+            this.handleKey(cm, command.toKeys.charAt(i));
           }
         } else {
           if (macroModeState.isRecording) {
@@ -1007,86 +1012,32 @@
       }
     };
     var commandDispatcher = {
-      matchCommand: function(key, keyMap, vim) {
+      matchCommand: function(keys, keyMap, vim) {
         var inputState = vim.inputState;
-        var keys = inputState.keyBuffer.concat(key);
-        var matchedCommands = [];
-        var selectedCharacter;
-        for (var i = 0; i < keyMap.length; i++) {
-          var command = keyMap[i];
-          if (vim.insertMode && command.context != 'insert') { continue; }
-          if (matchKeysPartial(keys, command.keys)) {
-            if (inputState.operator && command.type == 'action') {
-              // Ignore matched action commands after an operator. Operators
-              // only operate on motions. This check is really for text
-              // objects since aW, a[ etcs conflicts with a.
-              continue;
-            }
-            // Match commands that take <character> as an argument.
-            if (command.keys[keys.length - 1] == 'character') {
-              selectedCharacter = keys[keys.length - 1];
-              if (selectedCharacter.length>1){
-                switch(selectedCharacter){
-                  case '<CR>':
-                    selectedCharacter='\n';
-                    break;
-                  case '<Space>':
-                    selectedCharacter=' ';
-                    break;
-                  default:
-                    continue;
-                }
-              }
-            }
-            // Add the command to the list of matched commands. Choose the best
-            // command later.
-            matchedCommands.push(command);
-          }
+        var context = vim.visualMode ? 'visual' :
+                      vim.insertMode ? 'insert' :
+                                       'normal';
+        var matches = commandMatches(keys, keyMap, context, inputState);
+        if (!matches.full && !matches.partial) {
+          inputState.keyBuffer = '';
+          return undefined;
+        } else if (!matches.full && matches.partial) {
+          return undefined;
         }
 
-        // Returns the command if it is a full match, or null if not.
-        function getFullyMatchedCommandOrNull(command) {
-          if (keys.length < command.keys.length) {
-            // Matches part of a multi-key command. Buffer and wait for next
-            // stroke.
-            inputState.keyBuffer.push(key);
-            return null;
-          } else {
-            if (command.keys[keys.length - 1] == 'character') {
-              inputState.selectedCharacter = selectedCharacter;
-            }
-            // Clear the buffer since a full match was found.
-            inputState.keyBuffer = [];
-            return command;
+        inputState.keyBuffer = '';
+        var bestMatch;
+        for (var i = 0; i < matches.full.length; i++) {
+          var match = matches.full[i];
+          if (!bestMatch ||
+              match.context == context) {
+            bestMatch = match;
           }
         }
-
-        if (!matchedCommands.length) {
-          // Clear the buffer since there were no matches.
-          inputState.keyBuffer = [];
-          return null;
-        } else if (matchedCommands.length == 1) {
-          return getFullyMatchedCommandOrNull(matchedCommands[0]);
-        } else {
-          // Find the best match in the list of matchedCommands.
-          var context = vim.visualMode ? 'visual' :
-                        vim.insertMode ? 'insert' :
-                                         'normal';
-          var bestMatch; // Default to first in the list.
-          for (var i = 0; i < matchedCommands.length; i++) {
-            var current = matchedCommands[i];
-            if (current.context == context) {
-              bestMatch = current;
-              break;
-            } else if (!bestMatch && !current.context) {
-              // Only set an imperfect match to best match if no best match is
-              // set and the imperfect match is not restricted to another
-              // context.
-              bestMatch = current;
-            }
-          }
-          return getFullyMatchedCommandOrNull(bestMatch);
+        if (bestMatch.keys.slice(-11) == '<character>') {
+          inputState.selectedCharacter = lastChar(keys);
         }
+        return bestMatch;
       },
       processCommand: function(cm, vim, command) {
         vim.inputState.repeatOverride = command.repeatOverride;
@@ -2691,14 +2642,51 @@
     function offsetCursor(cur, offsetLine, offsetCh) {
       return Pos(cur.line + offsetLine, cur.ch + offsetCh);
     }
-    function matchKeysPartial(pressed, mapped) {
-      for (var i = 0; i < pressed.length; i++) {
-        // 'character' means any character. For mark, register commads, etc.
-        if (pressed[i] != mapped[i] && mapped[i] != 'character') {
-          return false;
+    function commandMatches(keys, keyMap, context, inputState) {
+      var match, partial = [], full = [];
+      for (var i = 0; i < keyMap.length; i++) {
+        var command = keyMap[i];
+        if (context == 'insert' && command.context != 'insert' ||
+            command.context && command.context != context ||
+            inputState.operator && command.type == 'action' ||
+            !(match = commandMatch(keys, command.keys))) { continue; }
+        if (match == 'partial') { partial.push(command); }
+        if (match == 'full') { full.push(command); }
+      }
+      return {
+        partial: partial.length && partial,
+        full: full.length && full,
+      }
+    }
+    function commandMatch(pressed, mapped) {
+      if (mapped.slice(-11) == '<character>') {
+        // Last character matches anything.
+        var prefixLen = mapped.length - 11;
+        var pressedPrefix = pressed.slice(0, prefixLen);
+        var mappedPrefix = mapped.slice(0, prefixLen);
+        return pressedPrefix == mappedPrefix && pressed.length > prefixLen ? 'full' :
+               mappedPrefix.indexOf(pressedPrefix) == 0 ? 'partial' : false;
+      } else {
+        return pressed == mapped ? 'full' :
+               mapped.indexOf(pressed) == 0 ? 'partial' : false;
+      }
+    }
+    function lastChar(keys) {
+      var match = /^.*(<[\w\-]+>)$/.exec(keys);
+      var selectedCharacter = match ? match[1] : keys.slice(-1);
+      if (selectedCharacter.length > 1){
+        switch(selectedCharacter){
+          case '<CR>':
+            selectedCharacter='\n';
+            break;
+          case '<Space>':
+            selectedCharacter=' ';
+            break;
+          default:
+            break;
         }
       }
-      return true;
+      return selectedCharacter;
     }
     function repeatFn(cm, fn, repeat) {
       return function() {
@@ -4063,7 +4051,7 @@
             this.commandMap_[commandName] = {
               name: commandName,
               type: 'exToKey',
-              toKeys: parseKeyString(rhs),
+              toKeys: rhs,
               user: true
             };
           }
@@ -4071,7 +4059,7 @@
           if (rhs != ':' && rhs.charAt(0) == ':') {
             // Key to Ex mapping.
             var mapping = {
-              keys: parseKeyString(lhs),
+              keys: lhs,
               type: 'keyToEx',
               exArgs: { input: rhs.substring(1) },
               user: true};
@@ -4080,9 +4068,9 @@
           } else {
             // Key to key mapping
             var mapping = {
-              keys: parseKeyString(lhs),
+              keys: lhs,
               type: 'keyToKey',
-              toKeys: parseKeyString(rhs),
+              toKeys: rhs,
               user: true
             };
             if (ctx) { mapping.context = ctx; }
@@ -4110,9 +4098,9 @@
           }
         } else {
           // Key to Ex or key to key mapping
-          var keys = parseKeyString(lhs);
+          var keys = lhs;
           for (var i = 0; i < defaultKeymap.length; i++) {
-            if (arrayEquals(keys, defaultKeymap[i].keys)
+            if (keys == defaultKeymap[i].keys
                 && defaultKeymap[i].context === ctx
                 && defaultKeymap[i].user) {
               defaultKeymap.splice(i, 1);
@@ -4123,21 +4111,6 @@
         throw Error('No such mapping.');
       }
     };
-
-    // Converts a key string sequence of the form a<C-w>bd<Left> into Vim's
-    // keymap representation.
-    function parseKeyString(str) {
-      var key, match;
-      var keys = [];
-      while (str) {
-        match = (/<\w+-.+?>|<\w+>|./).exec(str);
-        if (match === null)break;
-        key = match[0];
-        str = str.substring(match.index + key.length);
-        keys.push(key);
-      }
-      return keys;
-    }
 
     var exCommands = {
       map: function(cm, params, ctx) {
