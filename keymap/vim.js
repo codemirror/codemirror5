@@ -221,6 +221,7 @@
 
   var modifierCodes = [16, 17, 18, 91];
   var specialKey = {Enter:'CR',Backspace:'BS',Delete:'Del'};
+  var mac = /Mac/.test(navigator.platform);
   var Vim = function() {
     CodeMirror.defineOption('vimMode', false, function(cm, val) {
       function lookupKey(e) {
@@ -232,7 +233,7 @@
         var name = '';
         if (e.ctrlKey) { name += 'C-'; }
         if (e.altKey) { name += 'A-'; }
-        if ((!hasModifier || e.shiftKey) && key.length < 2) {
+        if (mac && e.metaKey || (!hasModifier || e.shiftKey) && key.length < 2) {
           // Shift key bindings can only specified for special characters.
           return;
         } else if (e.shiftKey) { name += 'S-'; }
