@@ -2390,9 +2390,8 @@
           } else {
             cur.ch = 0;
           }
-        } else if (blockwise) {
-          text = text.split('\n');
         } else {
+          text = blockwise ? text.split('\n') : text;
           cur.ch += actionArgs.after ? 1 : 0;
         }
         var curPosFinal;
@@ -2440,7 +2439,6 @@
           }
         } else {
           if (blockwise) {
-            cur.ch+= 1;
             cm.setCursor(cur);
             for (var i = 0; i < text.length; i++) {
               var lastCh = lineLength(cm, cur.line+i);
