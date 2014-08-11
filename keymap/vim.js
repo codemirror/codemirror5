@@ -249,7 +249,7 @@
 
         console.log(name);
         CodeMirror.signal(cm, 'vim-keypress', name);
-        if (CodeMirror.Vim.handleKey(cm, name)) {
+        if (CodeMirror.Vim.handleKey(cm, name, 'user')) {
           CodeMirror.e_stop(e);
         }
       }
@@ -262,7 +262,7 @@
 
         console.log(name);
         CodeMirror.signal(cm, 'vim-keypress', name);
-        if (CodeMirror.Vim.handleKey(cm, name)) {
+        if (CodeMirror.Vim.handleKey(cm, name, 'user')) {
           CodeMirror.e_stop(e);
         }
       }
@@ -599,7 +599,7 @@
       },
       // This is the outermost function called by CodeMirror, after keys have
       // been mapped to their Vim equivalents.
-      handleKey: function(cm, key) {
+      handleKey: function(cm, key, origin) {
         var command;
         var vim = maybeInitVimState(cm);
         var macroModeState = vimGlobalState.macroModeState;
@@ -608,6 +608,9 @@
             macroModeState.exitMacroRecordMode();
             clearInputState(cm);
             return true;
+          }
+          if (origin != 'mapping') {
+            logKey(macroModeState, key);
           }
         }
         if (key == '<Esc>') {
@@ -633,31 +636,24 @@
         }
         var keys = vim.inputState.keyBuffer = vim.inputState.keyBuffer + key;
         if (/^[1-9]\d*$/.test(keys)) {
-          if (macroModeState.isRecording) {
-            logKey(macroModeState, key);
-          }
           return true;
         }
         var keysMatcher = /^(\d*)(.*)$/.exec(keys);
-        command = commandDispatcher.matchCommand(keysMatcher[2] || keysMatcher[1], defaultKeymap, vim);
-        if (!command) {
-          if (macroModeState.isRecording) {
-            logKey(macroModeState, key);
-          }
-          return vim.inputState.keyBuffer.length;
-        }
+        var match = commandDispatcher.matchCommand(keysMatcher[2] || keysMatcher[1], defaultKeymap, vim);
+        if (match.type == 'none') { clearInputState(cm); return false; }
+        else if (match.type == 'partial') { return true; }
+
+        vim.inputState.keyBuffer = '';
+        var command = match.command;
         if (keysMatcher[1] && keysMatcher[1] != '0') {
           vim.inputState.pushRepeatDigit(keysMatcher[1]);
         }
         if (command.type == 'keyToKey') {
           // TODO: prevent infinite recursion.
           for (var i = 0; i < command.toKeys.length; i++) {
-            this.handleKey(cm, command.toKeys.charAt(i));
+            this.handleKey(cm, command.toKeys.charAt(i), 'mapping');
           }
         } else {
-          if (macroModeState.isRecording) {
-            logKey(macroModeState, key);
-          }
           commandDispatcher.processCommand(cm, vim, command);
         }
         return true;
@@ -884,13 +880,11 @@
                                        'normal';
         var matches = commandMatches(keys, keyMap, context, inputState);
         if (!matches.full && !matches.partial) {
-          inputState.keyBuffer = '';
-          return undefined;
+          return {type: 'none'};
         } else if (!matches.full && matches.partial) {
-          return undefined;
+          return {type: 'partial'};
         }
 
-        inputState.keyBuffer = '';
         var bestMatch;
         for (var i = 0; i < matches.full.length; i++) {
           var match = matches.full[i];
@@ -902,7 +896,7 @@
         if (bestMatch.keys.slice(-11) == '<character>') {
           inputState.selectedCharacter = lastChar(keys);
         }
-        return bestMatch;
+        return {type: 'full', command: bestMatch};
       },
       processCommand: function(cm, vim, command) {
         vim.inputState.repeatOverride = command.repeatOverride;
@@ -3792,7 +3786,7 @@
             if (command.type == 'exToKey') {
               // Handle Ex to Key mapping.
               for (var i = 0; i < command.toKeys.length; i++) {
-                CodeMirror.Vim.handleKey(cm, command.toKeys[i]);
+                CodeMirror.Vim.handleKey(cm, command.toKeys[i], 'mapping');
               }
               return;
             } else if (command.type == 'exToEx') {
@@ -4629,7 +4623,7 @@
           match = (/<\w+-.+?>|<\w+>|./).exec(text);
           key = match[0];
           text = text.substring(match.index + key.length);
-          CodeMirror.Vim.handleKey(cm, key);
+          CodeMirror.Vim.handleKey(cm, key, 'macro');
           if (vim.insertMode) {
             var changes = register.insertModeChanges[imc++].changes;
             vimGlobalState.macroModeState.lastInsertModeChanges.changes =
