@@ -1877,19 +1877,22 @@ testVim('blockwise_paste', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('<C-v>', '3', 'j', 'p');
   eq('helheelhelo\norwold\noofo\narba', cm.getValue());
+}, { value: 'hello\nworld\nfoo\nbar'});
+testVim('blockwise_paste_long/short_line', function(cm, vim, helpers) {
   // extend short lines in case of different line lengths.
   cm.setCursor(0, 0);
   helpers.doKeys('<C-v>', 'j', 'j', 'y');
-  cm.setCursor(0, 9);
+  cm.setCursor(0, 3);
   helpers.doKeys('p');
-  eq('helheelhelho\norwold    o\noofo      o\narba', cm.getValue());
-  // cut and paste
+  eq('hellho\nfoo f\nbar b', cm.getValue());
+}, { value: 'hello\nfoo\nbar'});
+testVim('blockwise_paste_cut_paste', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('<C-v>', '2', 'j', 'x');
   cm.setCursor(0, 0);
   helpers.doKeys('P');
-  eq('helheelhelho\norwold    o\noofo      o\narba', cm.getValue());
-}, { value: 'hello\nworld\nfoo\nbar'});
+  eq('cut\nand\npaste\nme', cm.getValue());
+}, { value: 'cut\nand\npaste\nme'});
 testVim('blockwise_paste_from_register', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('<C-v>', '2', 'j', '"', 'a', 'y');
