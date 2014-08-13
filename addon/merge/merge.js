@@ -1,6 +1,14 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
 // Distributed under an MIT license: http://codemirror.net/LICENSE
 
+
+/**
+ * Changes
+ * Making getDiff function configurable, so that user can use any diff algorithm
+ * that he/she wants. Also changing the expected diff format so that move
+ * operations can be supported. I have patched the output of diff-match-patch
+ * to make it similar to the new diff format that is supported by merge.js
+ */
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
     mod(require("../../lib/codemirror"));
@@ -109,7 +117,8 @@
       this.edit = this.mv.edit;
       this.orig = CodeMirror(pane, copyObj({value: orig, readOnly: true}, copyObj(options)));
 
-      // User can pass getDiff function based on which diff algo he/she wants to use
+      // User can pass getDiff function based on which diff algo he/she wants to
+      // use.
       if (options.getDiff) {
         this.getDiff = options.getDiff;
       }
