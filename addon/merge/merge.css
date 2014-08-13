@@ -62,6 +62,20 @@
   color: #44c;
 }
 
+.Codemirror-moved-msg {
+  background-color: #f5f5f5;
+  border-top: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+  padding: 3px 3px 3px 8px;
+  height: 22px;
+  line-height: 22px;
+  font-size: 13px;
+  font-weight: normal;
+  -webkit-box-sizing: content-box;
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
+}
+
 .CodeMirror-merge-copybuttons-left .CodeMirror-merge-copy { left: 2px; }
 .CodeMirror-merge-copybuttons-right .CodeMirror-merge-copy { right: 2px; }
 
@@ -81,8 +95,10 @@
 .CodeMirror-merge-r-chunk-start { border-top: 1px solid #ee8; }
 .CodeMirror-merge-r-chunk-end { border-bottom: 1px solid #ee8; }
 .CodeMirror-merge-r-connect { fill: #ffffe0; stroke: #ee8; stroke-width: 1px; }
+.CodeMirror-merge-r-chunk-moved { background: rgba(255, 255, 0, 0.4); }
 
 .CodeMirror-merge-l-chunk { background: #eef; }
+.CodeMirror-merge-l-chunk-moved { background: rgba(255, 255, 0, 0.4); }
 .CodeMirror-merge-l-chunk-start { border-top: 1px solid #88e; }
 .CodeMirror-merge-l-chunk-end { border-bottom: 1px solid #88e; }
 .CodeMirror-merge-l-connect { fill: #eef; stroke: #88e; stroke-width: 1px; }
