@@ -104,10 +104,10 @@
       state.line = state.tokenize;
     }
     function finishContinue(state) {
-        if (state.line == state.tokenize) {
-          state.line = state.stack.tokenize;
-          state.stack = state.stack.parent;
-        }
+      if (state.line == state.tokenize) {
+        state.line = state.stack.tokenize;
+        state.stack = state.stack.parent;
+      }
     }
 
     function lineContinuable(column, tokenize) {

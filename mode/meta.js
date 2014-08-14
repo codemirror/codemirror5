@@ -86,6 +86,7 @@ CodeMirror.modeInfo = [
   {name: "SCSS", mime: "text/x-scss", mode: "css"},
   {name: "Shell", mime: "text/x-sh", mode: "shell"},
   {name: "Sieve", mime: "application/sieve", mode: "sieve"},
+  {name: "Slim", mime: "text/x-slim", mode: "slim"},
   {name: "Smalltalk", mime: "text/x-stsrc", mode: "smalltalk"},
   {name: "Smarty", mime: "text/x-smarty", mode: "smarty"},
   {name: "SmartyMixed", mime: "text/x-smarty", mode: "smartymixed"},
