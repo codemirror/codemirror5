@@ -44,16 +44,23 @@ CodeMirror.defineMode("sass", function(config) {
       return "string";
     }
   }
-  function multilineComment(stream, state) {
-    if (stream.skipTo("*/")) {
-      stream.next();
-      stream.next();
-      state.tokenizer = tokenBase;
-    } else {
-      stream.next();
-    }
+  function multilineComment(indentation) {
+    return function(stream, state) {
+      if (stream.sol() && stream.indentation() < indentation) {
+        state.tokenizer = tokenBase;
+        return tokenBase(stream, state);
+      }
 
-    return "comment";
+      if (stream.skipTo("*/")) {
+        stream.next();
+        stream.next();
+        state.tokenizer = tokenBase;
+      } else {
+        stream.next();
+      }
+
+      return "comment";
+    };
   }
 
   function buildStringTokenizer(quote, greedy) {
@@ -120,7 +127,7 @@ CodeMirror.defineMode("sass", function(config) {
 
     // Multiline Comment
     if (stream.match("/*")) {
-      state.tokenizer = multilineComment;
+      state.tokenizer = multilineComment(stream.indentation());
       return state.tokenizer(stream, state);
     }
 
