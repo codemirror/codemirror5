@@ -1,6 +1,14 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
 // Distributed under an MIT license: http://codemirror.net/LICENSE
 
+
+/**
+ * Changes
+ * Making getDiff function configurable, so that user can use any diff algorithm
+ * that he/she wants. Also changing the expected diff format so that move
+ * operations can be supported. I have patched the output of diff-match-patch
+ * to make it similar to the new diff format that is supported by merge.js
+ */
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
     mod(require("../../lib/codemirror"));
@@ -10,10 +18,78 @@
     mod(CodeMirror);
 })(function(CodeMirror) {
   "use strict";
-  // declare global: diff_match_patch, DIFF_INSERT, DIFF_DELETE, DIFF_EQUAL
-
   var Pos = CodeMirror.Pos;
   var svgNS = "http://www.w3.org/2000/svg";
+
+  var DiffType = {
+    DIFF_EQUAL: 0,
+    DIFF_INSERT: 1,
+    DIFF_DELETE: -1,
+    DIFF_CHANGED: 2,
+    DIFF_MOVED_IN: 3,
+    DIFF_MOVED_OUT: 4,
+    DIFF_MOVED_CHANGED: 5,
+    DIFF_MOVED_CHANGED_OUT: 6
+  };
+
+  var EditorType = {
+    LHS: -1,
+    RHS: 1
+  };
+
+
+  /**
+   * The diff algorithm returns a sequence of the following DiffChunk objects,
+   * each of which represents an operation that when applied will convert source
+   * text to destination text. It also stores metadata like line numbers to
+   * represent a move operation of some text in source to destination.
+   *
+   * DiffChunk can contain recursive sub-chunks because it needs to be
+   * expressive enough to represent insert and deletes within a move operation."
+   */
+  CodeMirror.DiffChunk = function(type, lhsStart, lhsEnd, rhsStart, rhsEnd,
+      opt_chunks) {
+
+    /**
+     * The type of DiffChunk. It defined whether this chunk was unchanged,
+     * changed, added, deleted or moved.
+     * @type {DiffType}
+     */
+    this.type = type;
+
+    /**
+     * The starting line index of the chunk in left text.
+     * @type {Pos}
+     */
+    this.lhsStart = lhsStart;
+
+    /**
+     * The ending line index of the chunk in left text.
+     * @type {Pos}
+     */
+    this.lhsEnd = lhsEnd;
+
+    /**
+     * The starting line index of the chunk in right text.
+     * @type {Pos}
+     */
+    this.rhsStart = rhsStart;
+
+    /**
+     * The ending line index of the chunk in right text.
+     * @type {Pos}
+     */
+    this.rhsEnd = rhsEnd;
+
+    /**
+     * This is not calculated in this file, diffmergedirective.js will call
+     * rediff again on changed section and then calculate the diff on word level
+     * and fill this array.
+     * @type {!Array.<DiffChunk>}
+     */
+    this.chunks = opt_chunks ? opt_chunks : [];
+  };
+  var DiffChunk = CodeMirror.DiffChunk;
 
   function DiffView(mv, type) {
     this.mv = mv;
@@ -24,13 +100,15 @@
          end: "CodeMirror-merge-l-chunk-end",
          insert: "CodeMirror-merge-l-inserted",
          del: "CodeMirror-merge-l-deleted",
-         connect: "CodeMirror-merge-l-connect"}
+         connect: "CodeMirror-merge-l-connect",
+         movedChunk: "CodeMirror-merge-l-chunk-moved"}
       : {chunk: "CodeMirror-merge-r-chunk",
          start: "CodeMirror-merge-r-chunk-start",
          end: "CodeMirror-merge-r-chunk-end",
          insert: "CodeMirror-merge-r-inserted",
          del: "CodeMirror-merge-r-deleted",
-         connect: "CodeMirror-merge-r-connect"};
+         connect: "CodeMirror-merge-r-connect",
+         movedChunk: "CodeMirror-merge-r-chunk-moved"};
   }
 
   DiffView.prototype = {
@@ -39,7 +117,13 @@
       this.edit = this.mv.edit;
       this.orig = CodeMirror(pane, copyObj({value: orig, readOnly: true}, copyObj(options)));
 
-      this.diff = getDiff(asString(orig), asString(options.value));
+      // User can pass getDiff function based on which diff algo he/she wants to
+      // use.
+      if (options.getDiff) {
+        this.getDiff = options.getDiff;
+      }
+
+      this.diff = this.getDiff(asString(orig), asString(options.value));
       this.diffOutOfDate = false;
 
       this.showDifferences = options.showDifferences !== false;
@@ -58,7 +142,7 @@
 
   function ensureDiff(dv) {
     if (dv.diffOutOfDate) {
-      dv.diff = getDiff(dv.orig.getValue(), dv.edit.getValue());
+      dv.diff = dv.getDiff(dv.orig.getValue(), dv.edit.getValue());
       dv.diffOutOfDate = false;
       CodeMirror.signal(dv.edit, "updateDiff", dv.diff);
     }
@@ -78,8 +162,8 @@
       }
       ensureDiff(dv);
       if (dv.showDifferences) {
-        updateMarks(dv.edit, dv.diff, edit, DIFF_INSERT, dv.classes);
-        updateMarks(dv.orig, dv.diff, orig, DIFF_DELETE, dv.classes);
+        updateMarks(dv.edit, dv.diff, edit, DiffType.DIFF_INSERT, dv.classes);
+        updateMarks(dv.orig, dv.diff, orig, DiffType.DIFF_DELETE, dv.classes);
       }
       drawConnectors(dv);
     }
@@ -108,10 +192,10 @@
 
   function registerScroll(dv) {
     dv.edit.on("scroll", function() {
-      syncScroll(dv, DIFF_INSERT) && drawConnectors(dv);
+      syncScroll(dv, DiffType.DIFF_INSERT) && drawConnectors(dv);
     });
     dv.orig.on("scroll", function() {
-      syncScroll(dv, DIFF_DELETE) && drawConnectors(dv);
+      syncScroll(dv, DiffType.DIFF_DELETE) && drawConnectors(dv);
     });
   }
 
@@ -120,7 +204,7 @@
     if (dv.diffOutOfDate) return false;
     if (!dv.lockScroll) return true;
     var editor, other, now = +new Date;
-    if (type == DIFF_INSERT) { editor = dv.edit; other = dv.orig; }
+    if (type == DiffType.DIFF_INSERT) { editor = dv.edit; other = dv.orig; }
     else { editor = dv.orig; other = dv.edit; }
     // Don't take action if the position of this editor was recently set
     // (to prevent feedback loops)
@@ -128,9 +212,9 @@
 
     var sInfo = editor.getScrollInfo(), halfScreen = .5 * sInfo.clientHeight, midY = sInfo.top + halfScreen;
     var mid = editor.lineAtHeight(midY, "local");
-    var around = chunkBoundariesAround(dv.diff, mid, type == DIFF_INSERT);
-    var off = getOffsets(editor, type == DIFF_INSERT ? around.edit : around.orig);
-    var offOther = getOffsets(other, type == DIFF_INSERT ? around.orig : around.edit);
+    var around = chunkBoundariesAround(dv.diff, mid, type == DiffType.DIFF_INSERT);
+    var off = getOffsets(editor, type == DiffType.DIFF_INSERT ? around.edit : around.orig);
+    var offOther = getOffsets(other, type == DiffType.DIFF_INSERT ? around.orig : around.edit);
     var ratio = (midY - off.top) / (off.bot - off.top);
     var targetPos = (offOther.top - halfScreen) + ratio * (offOther.bot - offOther.top);
 
@@ -161,7 +245,7 @@
 
   function setScrollLock(dv, val, action) {
     dv.lockScroll = val;
-    if (val && action != false) syncScroll(dv, DIFF_INSERT) && drawConnectors(dv);
+    if (val && action != false) syncScroll(dv, DiffType.DIFF_INSERT) && drawConnectors(dv);
     dv.lockButton.innerHTML = val ? "\u21db\u21da" : "\u21db&nbsp;&nbsp;\u21da";
   }
 
@@ -170,12 +254,14 @@
   function clearMarks(editor, arr, classes) {
     for (var i = 0; i < arr.length; ++i) {
       var mark = arr[i];
-      if (mark instanceof CodeMirror.TextMarker) {
+      if (mark instanceof CodeMirror.TextMarker ||
+          mark instanceof CodeMirror.LineWidget) {
         mark.clear();
       } else if (mark.parent) {
         editor.removeLineClass(mark, "background", classes.chunk);
         editor.removeLineClass(mark, "background", classes.start);
         editor.removeLineClass(mark, "background", classes.end);
+        editor.removeLineClass(mark, "background", classes.movedChunk);
       }
     }
     arr.length = 0;
@@ -202,14 +288,14 @@
     });
   }
 
-  function markChanges(editor, diff, type, marks, from, to, classes) {
-    var pos = Pos(0, 0);
+  function markChanges(editor, diff, editorType, marks, from, to, classes) {
     var top = Pos(from, 0), bot = editor.clipPos(Pos(to - 1));
-    var cls = type == DIFF_DELETE ? classes.del : classes.insert;
-    function markChunk(start, end) {
+    var cls = editorType == EditorType.LHS ? classes.del : classes.insert;
+    function markChunk(start, end, opt_moved) {
       var bfrom = Math.max(from, start), bto = Math.min(to, end);
       for (var i = bfrom; i < bto; ++i) {
-        var line = editor.addLineClass(i, "background", classes.chunk);
+        var line = editor.addLineClass(i, "background",
+            move ? classes.movedChunk : classes.chunk);
         if (i == start) editor.addLineClass(line, "background", classes.start);
         if (i == end - 1) editor.addLineClass(line, "background", classes.end);
         marks.push(line);
@@ -223,28 +309,99 @@
       }
     }
 
-    var chunkStart = 0;
+    var chunkStart = 0, chunkEnd = 0;
+    var moveLineWidgetOptions = {coverGutter: true};
     for (var i = 0; i < diff.length; ++i) {
-      var part = diff[i], tp = part[0], str = part[1];
-      if (tp == DIFF_EQUAL) {
-        var cleanFrom = pos.line + (startOfLineClean(diff, i) ? 0 : 1);
-        moveOver(pos, str);
-        var cleanTo = pos.line + (endOfLineClean(diff, i) ? 1 : 0);
-        if (cleanTo > cleanFrom) {
-          if (i) markChunk(chunkStart, cleanFrom);
-          chunkStart = cleanTo;
-        }
-      } else {
-        if (tp == type) {
-          var end = moveOver(pos, str, true);
-          var a = posMax(top, pos), b = posMin(bot, end);
-          if (!posEq(a, b))
-            marks.push(editor.markText(a, b, {className: cls}));
-          pos = end;
-        }
+      var part = diff[i], diffType = part.type;
+
+      // We have all information in DIFF_MOVED_IN and DIFF_MOVED_CHANGED, so
+      // ignoring OUT diffs.
+      if (diffType == DiffType.DIFF_MOVED_OUT ||
+          diffType == DiffType.DIFF_MOVED_CHANGED_OUT) {
+        continue;
+      }
+
+      var msg = document.createElement("div");
+      msg.className = "Codemirror-moved-msg";
+      var move = false;
+      switch (editorType) {
+        case EditorType.LHS:
+          if (diffType == DiffType.DIFF_MOVED_IN ||
+              diffType == DiffType.DIFF_MOVED_CHANGED) {
+            move = true;
+            if (from <= part.lhsStart.line - 1 && to > part.lhsStart.line - 1) {
+              // TODO(mtaran): Add i18n support here.
+              msg.appendChild(document.createTextNode("Lines " + (
+                  part.lhsStart.line + 1) + "-" + (part.lhsEnd.line + 1) +
+                  " moved to " + (part.rhsStart.line + 1) + "-" + (
+                  part.rhsEnd.line + 1)));
+              var lineWidget = editor.addLineWidget(part.lhsStart.line - 1, msg,
+                  moveLineWidgetOptions);
+              marks.push(lineWidget);
+            }
+          }
+          if (diffType == DiffType.DIFF_INSERT) {
+            chunkStart = chunkEnd;
+          } else {
+            chunkStart = part.lhsStart.line;
+            chunkEnd = part.lhsEnd.line + 1;
+          }
+          break;
+        case EditorType.RHS:
+          if (diffType == DiffType.DIFF_MOVED_IN ||
+              diffType == DiffType.DIFF_MOVED_CHANGED) {
+            move = true;
+            if (from <= part.rhsStart.line - 1 && to > part.rhsStart.line - 1) {
+              // TODO(mtaran): Add i18n support here.
+              msg.appendChild(document.createTextNode("Lines " + (
+                  part.rhsStart.line + 1) + "-" + (part.rhsEnd.line + 1) +
+                  " moved from " + (part.lhsStart.line + 1) + "-" + (
+                  part.lhsEnd.line + 1)));
+              var lineWidget = editor.addLineWidget(part.rhsStart.line - 1, msg,
+                  moveLineWidgetOptions);
+              marks.push(lineWidget);
+            }
+          }
+          if (diffType == DiffType.DIFF_DELETE) {
+            chunkStart = chunkEnd;
+          } else {
+            chunkStart = part.rhsStart.line;
+            chunkEnd = part.rhsEnd.line + 1;
+          }
+          break;
+      }
+
+      switch (diffType) {
+        case DiffType.DIFF_EQUAL:
+          break;
+        case DiffType.DIFF_CHANGED:
+        case DiffType.DIFF_MOVED_CHANGED:
+          for (var j = 0; j < part.chunks.length; j++) {
+            var subChunk = part.chunks[j];
+            if (subChunk.type == DiffType.DIFF_EQUAL)
+              continue;
+            var start, end;
+            switch (editorType) {
+              case EditorType.LHS:
+                start = subChunk.lhsStart;
+                end = subChunk.lhsEnd;
+                break;
+              case EditorType.RHS:
+                start = subChunk.rhsStart;
+                end = subChunk.rhsEnd;
+                break;
+            }
+            if (start != null && end != null && !posEq(start, end))
+              marks.push(editor.markText(start, end, {className: cls}));
+          }
+        case DiffType.DIFF_INSERT:
+        case DiffType.DIFF_DELETE:
+        case DiffType.DIFF_MOVED_IN:
+          markChunk(chunkStart, chunkEnd, move);
+          break;
+
       }
     }
-    if (chunkStart <= pos.line) markChunk(chunkStart, pos.line + 1);
   }
 
   // Updating the gap between editor and original
@@ -387,13 +544,129 @@
     else return obj.getValue();
   }
 
-  // Operations on diffs
 
-  var dmp = new diff_match_patch();
-  function getDiff(a, b) {
+
+  /* Coverts diff-match-patch output to diff chunk
+     which would be used by rediff to give output.
+     This is for backward compaitabilty.
+     It discards un-important chunks like DIFF_EQUAL,
+     which have no role in UI rendering.
+  */
+
+  /* Converts
+     [[DIFF_EQUAL, "1\n2\n3\n4\n5\n"], [DIFF_DELETE, "A\nB\nC\nD\n"],
+     [DIFF_EQUAL, "6\n7\n8\n9\n0\n"], [DIFF_INSERT, "A\nE\nC\nD\n"]]
+     to
+     [{
+      "type": DIFF_CHANGED,
+      "lhsStart": {
+          "line": 5, "ch": null
+      },
+      "lhsEnd": {
+          "line": 8, "ch": null
+      },
+      "rhsStart": {
+          "line": 5, "ch": null
+      },
+      "rhsEnd": {
+          "line": 4, "ch": null
+      },
+      "chunks": [{
+          "type": DIFF_DELETE,
+          "lhsStart": {
+              "line": 9, "ch": 0
+          },
+          "lhsEnd": {
+              "line": 9, "ch": 0
+          },
+          "rhsStart": null,
+          "rhsEnd": null,
+          "chunks": []
+      }]
+    }, {
+        "type": DIFF_CHANGED,
+        "lhsStart": {
+            "line": 14, "ch": null
+        },
+        "lhsEnd": {
+            "line": 14, "ch": 0
+        },
+        "rhsStart": {
+            "line": 10, "ch": null
+        },
+        "rhsEnd": {
+            "line": 14, "ch": 0
+        },
+        "chunks": [{
+            "type": DIFF_INSERT,
+            "lhsStart": null,
+            "lhsEnd": null,
+            "rhsStart": {
+                "line": 14, "ch": 0
+            },
+            "rhsEnd": {
+                "line": 14, "ch": 0
+            },
+            "chunks": []
+      }]
+  }]
+  */
+  function convertToDiffChunk(diff) {
+    var startEdit = 0, startOrig = 0;
+    var newdiff = [];
+    var edit = Pos(0, 0), orig = Pos(0, 0);
+    var subchunks = [];
+    for (var i = 0; i < diff.length; ++i) {
+      var part = diff[i], diffType = part[0];
+      if (diffType == DiffType.DIFF_EQUAL) {
+        var startOff = startOfLineClean(diff, i) ? 0 : 1;
+        var cleanFromEdit = edit.line + startOff,
+          cleanFromOrig = orig.line + startOff;
+        moveOver(edit, part[1], null, orig);
+        var endOff = endOfLineClean(diff, i) ? 1 : 0;
+        var cleanToEdit = edit.line + endOff,
+          cleanToOrig = orig.line + endOff;
+        if (cleanToEdit > cleanFromEdit) {
+          if (i) {
+            diffChunk = new DiffChunk(DiffType.DIFF_CHANGED,
+              Pos(startOrig, null), Pos(cleanFromOrig - 1, null),
+              Pos(startEdit, null), Pos(cleanFromEdit - 1, null),
+              subchunks);
+            newdiff.push(diffChunk);
+            subchunks = [];
+
+          }
+          startEdit = cleanToEdit; startOrig = cleanToOrig;
+        }
+      } else {
+        var beg = clonePos(diffType == DiffType.DIFF_INSERT ? edit : orig);
+        var end = moveOver(diffType == DiffType.DIFF_INSERT ?
+              edit : orig, part[1]);
+        if (diffType == DiffType.DIFF_INSERT) {
+          subchunks.push(new DiffChunk(diffType, null, null, beg,
+            clonePos(end)));
+        } else {
+          subchunks.push(new DiffChunk(diffType, beg,
+            clonePos(end), null, null));
+        }
+      }
+    }
+    if (startEdit <= edit.line || startOrig <= orig.line) {
+      var diffChunk = new DiffChunk(DiffType.DIFF_CHANGED,
+        Pos(startOrig, null), Pos(orig.line, orig.ch),
+        Pos(startEdit, null), Pos(edit.line, edit.ch), subchunks);
+      newdiff.push(diffChunk);
+    }
+    return newdiff;
+  }
+
+
+  DiffView.prototype.getDiff = function(a, b) {
+    var dmp = new diff_match_patch();
     var diff = dmp.diff_main(a, b);
     dmp.diff_cleanupSemantic(diff);
-    // The library sometimes leaves in empty parts, which confuse the algorithm
+    // The library sometimes leaves in empty parts,
+    // which confuses the algorithm
     for (var i = 0; i < diff.length; ++i) {
       var part = diff[i];
       if (!part[1]) {
@@ -403,30 +676,43 @@
         diff[i][1] += part[1];
       }
     }
+
+    diff = convertToDiffChunk(diff);
     return diff;
   }
 
   function iterateChunks(diff, f) {
     var startEdit = 0, startOrig = 0;
-    var edit = Pos(0, 0), orig = Pos(0, 0);
     for (var i = 0; i < diff.length; ++i) {
-      var part = diff[i], tp = part[0];
-      if (tp == DIFF_EQUAL) {
-        var startOff = startOfLineClean(diff, i) ? 0 : 1;
-        var cleanFromEdit = edit.line + startOff, cleanFromOrig = orig.line + startOff;
-        moveOver(edit, part[1], null, orig);
-        var endOff = endOfLineClean(diff, i) ? 1 : 0;
-        var cleanToEdit = edit.line + endOff, cleanToOrig = orig.line + endOff;
-        if (cleanToEdit > cleanFromEdit) {
-          if (i) f(startOrig, cleanFromOrig, startEdit, cleanFromEdit);
-          startEdit = cleanToEdit; startOrig = cleanToOrig;
-        }
-      } else {
-        moveOver(tp == DIFF_INSERT ? edit : orig, part[1]);
+      var part = diff[i], diffType = part.type;
+      switch (diffType) {
+        case DiffType.DIFF_DELETE:
+          f(part.lhsStart.line, part.lhsEnd.line + 1, startEdit, startEdit);
+          break;
+        case DiffType.DIFF_INSERT:
+          f(startOrig, startOrig, part.rhsStart.line, part.rhsEnd.line + 1);
+          break;
+        case DiffType.DIFF_CHANGED:
+          f(part.lhsStart.line, part.lhsEnd.line + 1, part.rhsStart.line,
+            part.rhsEnd.line + 1);
+          startEdit = part.rhsEnd.line + 1;
+          startOrig = part.lhsEnd.line + 1;
+          break;
+        case DiffType.DIFF_EQUAL:
+          startEdit = part.rhsEnd.line + 1;
+          startOrig = part.lhsEnd.line + 1;
+          break;
+        case DiffType.DIFF_MOVED_OUT:
+        case DiffType.DIFF_MOVED_CHANGED_OUT:
+          startOrig = part.lhsEnd.line + 1;
+        case DiffType.DIFF_MOVED_IN:
+        case DiffType.DIFF_MOVED_CHANGED:
+          f(part.lhsStart.line, part.lhsEnd.line + 1, part.rhsStart.line,
+            part.rhsEnd.line + 1);
+          startEdit = part.rhsEnd.line + 1;
+          break;
       }
     }
-    if (startEdit <= edit.line || startOrig <= orig.line)
-      f(startOrig, orig.line + 1, startEdit, edit.line + 1);
   }
 
   function getChunks(dv) {
@@ -516,4 +802,5 @@
   function posMin(a, b) { return (a.line - b.line || a.ch - b.ch) < 0 ? a : b; }
   function posMax(a, b) { return (a.line - b.line || a.ch - b.ch) > 0 ? a : b; }
   function posEq(a, b) { return a.line == b.line && a.ch == b.ch; }
+  function clonePos(a) { return Pos(a.line, a.ch); }
 });
