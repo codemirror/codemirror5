@@ -44,14 +44,14 @@ CodeMirror.defineMode("sass", function(config) {
       return "string";
     }
   }
-  function multilineComment(indentation) {
+  function comment(indentation, multiLine) {
     return function(stream, state) {
-      if (stream.sol() && stream.indentation() < indentation) {
+      if (stream.sol() && stream.indentation() <= indentation) {
         state.tokenizer = tokenBase;
         return tokenBase(stream, state);
       }
 
-      if (stream.skipTo("*/")) {
+      if (multiLine && stream.skipTo("*/")) {
         stream.next();
         stream.next();
         state.tokenizer = tokenBase;
@@ -119,15 +119,13 @@ CodeMirror.defineMode("sass", function(config) {
   function tokenBase(stream, state) {
     var ch = stream.peek();
 
-    // Single line Comment
-    if (stream.match("//")) {
-      stream.skipToEnd();
-      return "comment";
-    }
-
-    // Multiline Comment
+    // Comment
     if (stream.match("/*")) {
-      state.tokenizer = multilineComment(stream.indentation());
+      state.tokenizer = comment(stream.indentation(), true);
+      return state.tokenizer(stream, state);
+    }
+    if (stream.match("//")) {
+      state.tokenizer = comment(stream.indentation(), false);
       return state.tokenizer(stream, state);
     }
 
