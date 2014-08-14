@@ -71,7 +71,7 @@
     function update(mode) {
       if (mode == "full") {
         if (dv.svg) clear(dv.svg);
-        clear(dv.copyButtons);
+        if (dv.copyButtons) clear(dv.copyButtons);
         clearMarks(dv.edit, edit.marked, dv.classes);
         clearMarks(dv.orig, orig.marked, dv.classes);
         edit.from = edit.to = orig.from = orig.to = 0;
@@ -257,7 +257,7 @@
       var w = dv.gap.offsetWidth;
       attrs(dv.svg, "width", w, "height", dv.gap.offsetHeight);
     }
-    clear(dv.copyButtons);
+    if (dv.copyButtons) clear(dv.copyButtons);
 
     var flip = dv.type == "left";
     var vpEdit = dv.edit.getViewport(), vpOrig = dv.orig.getViewport();
@@ -279,11 +279,13 @@
               "d", "M -1 " + topRpx + curveTop + " L " + (w + 2) + " " + botLpx + curveBot + " z",
               "class", dv.classes.connect);
       }
-      var copy = dv.copyButtons.appendChild(elt("div", dv.type == "left" ? "\u21dd" : "\u21dc",
-                                                "CodeMirror-merge-copy"));
-      copy.title = "Revert chunk";
-      copy.chunk = {topEdit: topEdit, botEdit: botEdit, topOrig: topOrig, botOrig: botOrig};
-      copy.style.top = top + "px";
+      if (dv.copyButtons) {
+        var copy = dv.copyButtons.appendChild(elt("div", dv.type == "left" ? "\u21dd" : "\u21dc",
+                                                  "CodeMirror-merge-copy"));
+        copy.title = "Revert chunk";
+        copy.chunk = {topEdit: topEdit, botEdit: botEdit, topOrig: topOrig, botOrig: botOrig};
+        copy.style.top = top + "px";
+      }
     });
   }
 
@@ -298,6 +300,7 @@
   var MergeView = CodeMirror.MergeView = function(node, options) {
     if (!(this instanceof MergeView)) return new MergeView(node, options);
 
+    this.options = options;
     var origLeft = options.origLeft, origRight = options.origRight == null ? options.orig : options.origRight;
     var hasLeft = origLeft != null, hasRight = origRight != null;
     var panes = 1 + (hasLeft ? 1 : 0) + (hasRight ? 1 : 0);
@@ -345,12 +348,15 @@
     lock.title = "Toggle locked scrolling";
     var lockWrap = elt("div", [lock], "CodeMirror-merge-scrolllock-wrap");
     CodeMirror.on(lock, "click", function() { setScrollLock(dv, !dv.lockScroll); });
-    dv.copyButtons = elt("div", null, "CodeMirror-merge-copybuttons-" + dv.type);
-    CodeMirror.on(dv.copyButtons, "click", function(e) {
-      var node = e.target || e.srcElement;
-      if (node.chunk) copyChunk(dv, node.chunk);
-    });
-    var gapElts = [dv.copyButtons, lockWrap];
+    var gapElts = [lockWrap];
+    if (dv.mv.options.revertButtons !== false) {
+      dv.copyButtons = elt("div", null, "CodeMirror-merge-copybuttons-" + dv.type);
+      CodeMirror.on(dv.copyButtons, "click", function(e) {
+        var node = e.target || e.srcElement;
+        if (node.chunk) copyChunk(dv, node.chunk);
+      });
+      gapElts.unshift(dv.copyButtons);
+    }
     var svg = document.createElementNS && document.createElementNS(svgNS, "svg");
     if (svg && !svg.createSVGRect) svg = null;
     dv.svg = svg;
