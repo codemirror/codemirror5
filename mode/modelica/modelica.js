@@ -175,14 +175,14 @@
       indent: function(state, textAfter) {
         if (state.tokenize != tokenBase && state.tokenize != null)
           return CodeMirror.Pass;
-          
+
         var ctx = state.context, firstChar = textAfter && textAfter.charAt(0);
-        
+
         if (ctx.type == "statement" && firstChar == "}")
           ctx = ctx.prev;
-          
+
         var closing = firstChar == ctx.type;
-        
+
         if (ctx.type == "statement")
           return ctx.indented + (firstChar == "{" ? 0 : statementIndentUnit);
         else if (ctx.align && (!dontAlignCalls || ctx.type != ")"))
@@ -211,20 +211,20 @@
   function def(mimes, mode) {
     if (typeof mimes == "string")
       mimes = [mimes];
-      
+
     var words = [];
-    
+
     function add(obj) {
       if (obj)
         for (var prop in obj)
           if (obj.hasOwnProperty(prop))
             words.push(prop);
     }
-    
+
     add(mode.keywords);
     add(mode.builtin);
     add(mode.atoms);
-    
+
     if (words.length) {
       mode.helperType = mimes[0];
       CodeMirror.registerHelper("hintWords", mimes[0], words);
