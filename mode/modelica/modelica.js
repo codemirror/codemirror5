@@ -1,5 +1,7 @@
-// CodeMirror, copyright (c) by Lennart Ochel and others
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
 // Distributed under an MIT license: http://codemirror.net/LICENSE
+
+// Modelica support for CodeMirror, copyright (c) by Lennart Ochel
 
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
