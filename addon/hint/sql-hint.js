@@ -132,7 +132,7 @@
     var cur = editor.getCursor();
     var result = [];
     var token = editor.getTokenAt(cur), start, end, search;
-    if (token.string.match(/^\.?[\w@]+$/)) {
+    if (token.string.match(/^[.\w@]\w*$/)) {
       search = token.string;
       start = token.start;
       end = token.end;
