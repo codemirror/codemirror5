@@ -195,7 +195,7 @@
 
       blockCommentStart: "/*",
       blockCommentEnd: "*/",
-      lineComment: "//",
+      lineComment: "//"
     };
   });
 
