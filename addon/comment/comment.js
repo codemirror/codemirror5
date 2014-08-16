@@ -157,7 +157,7 @@
     // Positions of the last startString before the start of the selection, and the first endString after it.
     var lastStart = startLine.lastIndexOf(startString, from.ch);
     var firstEnd = lastStart == -1 ? -1 : startLine.slice(0, from.ch).indexOf(endString, lastStart + startString.length);
-    if (lastStart != -1 && firstEnd != -1) return false;
+    if (lastStart != -1 && firstEnd != -1 && firstEnd + endString.length != from.ch) return false;
     // Positions of the first endString after the end of the selection, and the last startString before it.
     firstEnd = endLine.indexOf(endString, to.ch);
     var almostLastStart = endLine.slice(to.ch).lastIndexOf(startString, firstEnd - to.ch);
