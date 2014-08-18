@@ -2721,33 +2721,47 @@
       selectionEnd = cm.clipPos(selectionEnd);
       var contains = getIndex(ranges, selectionEnd) < 0 ? false : true;
       var isClipped = !cursorEqual(originalSelectionEnd, selectionEnd);
+      // This function helps to check selection crossing
+      // in case of short lines.
+      var processSelectionCrossing = function() {
+        if (isClipped) {
+          if (curEnd.ch >= selectionStart.ch) {
+            selectionStart.ch++;
+          }
+        } else if (curEnd.ch == lineLength(cm, curEnd.line)) {
+          if (cursorEqual(ranges[primIndex].anchor, ranges[primIndex].head) && ranges.length>1) {
+            if (direction == 'up') {
+              if (contains || primIndex>0) {
+              start = firstRange.line;
+              end = selectionEnd.line;
+              selectionStart = ranges[primIndex-1].anchor;
+            }
+          } else {
+              if (contains || primIndex == 0) {
+                end = lastRange.line;
+                start = selectionEnd.line;
+                selectionStart = ranges[primIndex+1].anchor;
+              }
+            }
+            if (selectionEnd.ch >= selectionStart.ch) {
+              selectionStart.ch--;
+            }
+          }
+        }
+      };
       switch(direction) {
         case 'up':
           start = contains ? firstRange.line : selectionEnd.line;
           end = contains ? selectionEnd.line : lastRange.line;
           selectionStart = lastRange;
-          if (isClipped) {
-            if (curEnd.ch >= selectionStart.ch) {
-              selectionStart.ch++;
-            }
-          } else if (curEnd.ch == lineLength(cm, curEnd.line)) {
-            if (cursorEqual(ranges[primIndex].anchor, ranges[primIndex].head) && ranges.length > 1) {
-              if (contains || primIndex>0) {
-                start = firstRange.line;
-                end = selectionEnd.line;
-                selectionStart = ranges[primIndex-1].anchor;
-              }
-              if (selectionEnd.ch >= selectionStart.ch) {
-                selectionStart.ch--;
-              }
-            }
-          }
+          processSelectionCrossing();
           break;
         case 'down':
           start = contains ? selectionEnd.line : firstRange.line;
           end = contains ? lastRange.line : selectionEnd.line;
           selectionStart = firstRange;
-          if (isClipped) {
+          processSelectionCrossing();
+          /*if (isClipped) {
             if (curEnd.ch >= selectionStart.ch) {
               selectionStart.ch++;
             }
@@ -2762,7 +2776,7 @@
                 selectionStart.ch--;
               }
             }
-          }
+          }*/
           break;
         case 'left':
           if ((selectionEnd.ch <= selectionStart.ch) && (curEnd.ch > selectionStart.ch)) {

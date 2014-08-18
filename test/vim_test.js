@@ -1704,7 +1704,7 @@ testVim('visual_block', function(cm, vim, helpers) {
   selections = cm.getSelections();
   eq('67891\nabcde', selections.join(''));
 }, {value: '1234\n5678\nabcdefg'});
-testVim('visual_block_bugs', function(cm, vim, helpers) {
+testVim('visual_block_crossing_short_line', function(cm, vim, helpers) {
   // visual block with long and short lines
   cm.setCursor(0, 3);
   helpers.doKeys('<C-v>', 'j', 'j', 'j');
@@ -1713,8 +1713,10 @@ testVim('visual_block_bugs', function(cm, vim, helpers) {
   helpers.doKeys('3', 'k');
   selections = cm.getSelections().join();
   eq('4', selections);
-  // check cursor after exiting blockwise visual
-  helpers.doKeys('<Esc>');
+}, {value: '123456\n78\nabcdefg\nfoobar'});
+testVim('visual_block_curPos_on_exit', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('<C-v>', '3' , 'l', '<Esc>');
   eqPos(makeCursor(0, 3), cm.getCursor());
 }, {value: '123456\n78\nabcdefg\nfoobar'});
 
