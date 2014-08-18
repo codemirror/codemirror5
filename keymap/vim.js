@@ -2761,22 +2761,6 @@
           end = contains ? lastRange.line : selectionEnd.line;
           selectionStart = firstRange;
           processSelectionCrossing();
-          /*if (isClipped) {
-            if (curEnd.ch >= selectionStart.ch) {
-              selectionStart.ch++;
-            }
-          } else if (curEnd.ch == lineLength(cm, curEnd.line)) {
-            if (cursorEqual(ranges[primIndex].anchor, ranges[primIndex].head) && ranges.length > 1) {
-              if (contains || primIndex==0) {
-                end = lastRange.line;
-                start = selectionEnd.line;
-                selectionStart = ranges[primIndex+1].anchor;
-              }
-              if (selectionEnd.ch >= selectionStart.ch) {
-                selectionStart.ch--;
-              }
-            }
-          }*/
           break;
         case 'left':
           if ((selectionEnd.ch <= selectionStart.ch) && (curEnd.ch > selectionStart.ch)) {
