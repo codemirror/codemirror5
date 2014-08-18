@@ -1672,7 +1672,7 @@ testVim('visual_block', function(cm, vim, helpers) {
   cm.replaceRange('hello world\n{\nthis is\nsparta!', cm.getCursor());
   cm.setCursor(3, 4);
   helpers.doKeys('<C-v>', 'l', 'k', 'k', 'd');
-  eq('hello world\n{\nt is\nsta!', cm.getValue());
+  eq('hello world\n{\ntis\nsa!', cm.getValue());
   cm.replaceRange('12345\n67891\nabcde', {line: 0, ch: 0}, {line: cm.lastLine(), ch: 6});
   cm.setCursor(1, 2);
   helpers.doKeys('<C-v>', '2', 'l', 'k');
@@ -1704,6 +1704,22 @@ testVim('visual_block', function(cm, vim, helpers) {
   selections = cm.getSelections();
   eq('67891\nabcde', selections.join(''));
 }, {value: '1234\n5678\nabcdefg'});
+testVim('visual_block_crossing_short_line', function(cm, vim, helpers) {
+  // visual block with long and short lines
+  cm.setCursor(0, 3);
+  helpers.doKeys('<C-v>', 'j', 'j', 'j');
+  var selections = cm.getSelections().join();
+  eq('4,,d,b', selections);
+  helpers.doKeys('3', 'k');
+  selections = cm.getSelections().join();
+  eq('4', selections);
+}, {value: '123456\n78\nabcdefg\nfoobar'});
+testVim('visual_block_curPos_on_exit', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('<C-v>', '3' , 'l', '<Esc>');
+  eqPos(makeCursor(0, 3), cm.getCursor());
+}, {value: '123456\n78\nabcdefg\nfoobar'});
+
 testVim('visual_marks', function(cm, vim, helpers) {
   helpers.doKeys('l', 'v', 'l', 'l', 'j', 'j', 'v');
   // Test visual mode marks
@@ -1900,6 +1916,13 @@ testVim('blockwise_paste_from_register', function(cm, vim, helpers) {
   helpers.doKeys('"', 'a', 'p');
   eq('foobfar\nhellho\nworlwd', cm.getValue());
 }, { value: 'foobar\nhello\nworld'});
+testVim('blockwise_paste_last_line', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('<C-v>', '2', 'j', 'l', 'y');
+  cm.setCursor(3, 0);
+  helpers.doKeys('p');
+  eq('cut\nand\npaste\nmcue\n an\n pa', cm.getValue());
+}, { value: 'cut\nand\npaste\nme'});
 
 testVim('S_visual', function(cm, vim, helpers) {
   cm.setCursor(0, 1);

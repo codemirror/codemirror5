@@ -2391,7 +2391,12 @@
             cur.ch = 0;
           }
         } else {
-          text = blockwise ? text.split('\n') : text;
+          if (blockwise) {
+            text = text.split('\n');
+            for (var i = 0; i < text.length; i++) {
+              text[i] = (text[i] == '') ? ' ' : text[i];
+            }
+          }
           cur.ch += actionArgs.after ? 1 : 0;
         }
         var curPosFinal;
@@ -2441,9 +2446,13 @@
           if (blockwise) {
             cm.setCursor(cur);
             for (var i = 0; i < text.length; i++) {
-              var lastCh = lineLength(cm, cur.line+i);
+              var line = cur.line+i;
+              if (line > cm.lastLine()) {
+                cm.replaceRange('\n',  Pos(line, 0));
+              }
+              var lastCh = lineLength(cm, line);
               if (lastCh < cur.ch) {
-                extendLineToColumn(cm, cur.line+i, cur.ch);
+                extendLineToColumn(cm, line, cur.ch);
               }
             }
             cm.setCursor(cur);
@@ -2692,55 +2701,86 @@
     function selectBlock(cm, selectionEnd) {
       var selections = [], ranges = cm.listSelections();
       var firstRange = ranges[0].anchor, lastRange = ranges[ranges.length-1].anchor;
-      var start, end, selectionStart;
+      var start, end, direction, selectionStart;
       var curEnd = cm.getCursor('head');
+      var originalSelectionEnd = copyCursor(selectionEnd);
+      start = firstRange.line;
+      end = lastRange.line;
+      if (selectionEnd.line < curEnd.line) {
+        direction = 'up';
+      } else if (selectionEnd.line > curEnd.line) {
+        direction = 'down';
+      } else {
+        if (selectionEnd.ch != curEnd.ch) {
+          direction = selectionEnd.ch > curEnd.ch ? 'right' : 'left';
+        }
+        selectionStart = cm.getCursor('anchor');
+      }
       var primIndex = getIndex(ranges, curEnd);
       // sets to true when selectionEnd already lies inside the existing selections
-      var contains = getIndex(ranges, selectionEnd) < 0 ? false : true;
       selectionEnd = cm.clipPos(selectionEnd);
-      // difference in distance of selectionEnd from each end of the block.
-      var near  = Math.abs(firstRange.line - selectionEnd.line) - Math.abs(lastRange.line - selectionEnd.line);
-      if (near > 0) {
-        end = selectionEnd.line;
-        start = firstRange.line;
-        if (lastRange.line == selectionEnd.line && contains) {
-          start = end;
+      var contains = getIndex(ranges, selectionEnd) < 0 ? false : true;
+      var isClipped = !cursorEqual(originalSelectionEnd, selectionEnd);
+      // This function helps to check selection crossing
+      // in case of short lines.
+      var processSelectionCrossing = function() {
+        if (isClipped) {
+          if (curEnd.ch >= selectionStart.ch) {
+            selectionStart.ch++;
+          }
+        } else if (curEnd.ch == lineLength(cm, curEnd.line)) {
+          if (cursorEqual(ranges[primIndex].anchor, ranges[primIndex].head) && ranges.length>1) {
+            if (direction == 'up') {
+              if (contains || primIndex>0) {
+              start = firstRange.line;
+              end = selectionEnd.line;
+              selectionStart = ranges[primIndex-1].anchor;
+            }
+          } else {
+              if (contains || primIndex == 0) {
+                end = lastRange.line;
+                start = selectionEnd.line;
+                selectionStart = ranges[primIndex+1].anchor;
+              }
+            }
+            if (selectionEnd.ch >= selectionStart.ch) {
+              selectionStart.ch--;
+            }
+          }
         }
-      } else if (near < 0) {
-        start = selectionEnd.line;
-        end = lastRange.line;
-        if (firstRange.line == selectionEnd.line && contains) {
-          end = start;
-        }
-      } else {
-        // Case where selectionEnd line is halfway between the 2 ends.
-        // We remove the primary selection in this case
-        if (primIndex == 0) {
-          start = selectionEnd.line;
-          end = lastRange.line;
-        } else {
-          start = firstRange.line;
+      };
+      switch(direction) {
+        case 'up':
+          start = contains ? firstRange.line : selectionEnd.line;
+          end = contains ? selectionEnd.line : lastRange.line;
+          selectionStart = lastRange;
+          processSelectionCrossing();
+          break;
+        case 'down':
+          start = contains ? selectionEnd.line : firstRange.line;
+          end = contains ? lastRange.line : selectionEnd.line;
+          selectionStart = firstRange;
+          processSelectionCrossing();
+          break;
+        case 'left':
+          if ((selectionEnd.ch <= selectionStart.ch) && (curEnd.ch > selectionStart.ch)) {
+            selectionStart.ch++;
+            selectionEnd.ch--;
+          }
+          break;
+        case 'right':
+          if ((selectionStart.ch <= selectionEnd.ch) && (curEnd.ch < selectionStart.ch)) {
+            selectionStart.ch--;
+            selectionEnd.ch++;
+          }
+          break;
+        default:
+          start = selectionStart.line;
           end = selectionEnd.line;
-        }
       }
-      if (start > end) {
-        var tmp = start;
-        start = end;
-        end = tmp;
-      }
-      selectionStart = (near > 0) ? firstRange : lastRange;
       while (start <= end) {
         var anchor = {line: start, ch: selectionStart.ch};
         var head = {line: start, ch: selectionEnd.ch};
-        // Shift the anchor right or left
-        // as each selection crosses itself.
-        if ((anchor.ch < curEnd.ch) && ((head.ch == anchor.ch) || (anchor.ch - head.ch == 1))) {
-          anchor.ch++;
-          head.ch--;
-        } else if ((anchor.ch > curEnd.ch) && ((head.ch == anchor.ch) || (anchor.ch - head.ch == -1))) {
-          anchor.ch--;
-          head.ch++;
-        }
         var range = {anchor: anchor, head: head};
         selections.push(range);
         if (cursorEqual(head, selectionEnd)) {
@@ -2752,16 +2792,29 @@
       // after selection crossing
       selectionEnd.ch = selections[0].head.ch;
       selectionStart.ch = selections[0].anchor.ch;
+      if (cursorEqual(selectionEnd, selections[0].head)) {
+        selectionStart.line = selections[selections.length-1].anchor.line;
+      } else {
+        selectionStart.line = selections[0].anchor.line;
+      }
       cm.setSelections(selections, primIndex);
       return selectionStart;
     }
-    function getIndex(ranges, head) {
+    // getIndex returns the index of the cursor in the selections.
+    function getIndex(ranges, cursor, end) {
+      var pos = -1;
       for (var i = 0; i < ranges.length; i++) {
-        if (cursorEqual(ranges[i].head, head)) {
-          return i;
+        var atAnchor = cursorEqual(ranges[i].anchor, cursor);
+        var atHead = cursorEqual(ranges[i].head, cursor);
+        if (end == 'head') {
+        pos = atHead ? i : pos;
+        } else if (end == 'anchor') {
+          pos = atAnchor ? i : pos;
+        } else {
+          pos = (atAnchor || atHead) ? i : pos;
         }
       }
-      return -1;
+      return pos;
     }
     function getSelectedAreaRange(cm, vim) {
       var lastSelection = vim.lastSelection;
@@ -2825,7 +2878,7 @@
       var ranges = cm.listSelections();
       // This check ensures to set the cursor
       // position where we left off in previous selection
-      var swap = getIndex(ranges, selectionStart) > -1;
+      var swap = getIndex(ranges, selectionStart, 'head') > -1;
       if (vim.visualBlock) {
         var height = Math.abs(selectionStart.line - selectionEnd.line)+1;
         var width =  Math.abs(selectionStart.ch - selectionEnd.ch);
@@ -2845,6 +2898,11 @@
       var vim = cm.state.vim;
       var selectionStart = cm.getCursor('anchor');
       var selectionEnd = cm.getCursor('head');
+      // hack to place the cursor at the right place
+      // in case of visual block
+      if (vim.visualBlock && (cursorIsBefore(selectionStart, selectionEnd))) {
+          selectionEnd.ch--;
+      }
       updateLastSelection(cm, vim);
       vim.visualMode = false;
       vim.visualLine = false;
