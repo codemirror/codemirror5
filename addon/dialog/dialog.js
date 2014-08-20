@@ -87,7 +87,7 @@
         me.focus();
       });
 
-      CodeMirror.on(button, "blur", close);
+      if (options.closeOnBlur) CodeMirror.on(button, "blur", close);
 
       button.focus();
     }
