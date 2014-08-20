@@ -35,8 +35,9 @@
   }
 
   CodeMirror.defineExtension("openDialog", function(template, callback, options) {
+    if (!options) options = {};
     closeNotification(this, null);
-    var dialog = dialogDiv(this, template, options && options.bottom);
+    var dialog = dialogDiv(this, template, options.bottom);
     var closed = false, me = this;
     function close(newVal) {
       if (typeof newVal == 'string') {
@@ -46,12 +47,12 @@
         closed = true;
         dialog.parentNode.removeChild(dialog);
         me.focus();
-        if (options && options.onClose) options.onClose(dialog);
+        if (options.onClose) options.onClose(dialog);
       }
     }
     var inp = dialog.getElementsByTagName("input")[0], button;
     if (inp) {
-      if (options && options.value) inp.value = options.value;
+      if (options.value) inp.value = options.value;
       CodeMirror.on(inp, "keydown", function(e) {
         if (options && options.onKeyDown && options.onKeyDown(e, inp.value, close)) { return; }
         if (e.keyCode == 13 || e.keyCode == 27) {
@@ -61,10 +62,10 @@
           if (e.keyCode == 13) callback(inp.value);
         }
       });
-      if (options && options.onKeyUp) {
+      if (options.onKeyUp) {
         CodeMirror.on(inp, "keyup", function(e) {options.onKeyUp(e, inp.value, close);});
       }
-      if (options && options.value) inp.value = options.value;
+      if (options.value) inp.value = options.value;
       inp.focus();
       CodeMirror.on(inp, "blur", close);
     } else if (button = dialog.getElementsByTagName("button")[0]) {
