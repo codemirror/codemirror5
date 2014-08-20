@@ -36,6 +36,7 @@
 
   CodeMirror.defineExtension("openDialog", function(template, callback, options) {
     if (!options) options = {};
+    if (typeof options.closeOnBlur == 'undefined') options.closeOnBlur = true;
     if (typeof options.closeOnEnter == 'undefined') options.closeOnEnter = true;
     closeNotification(this, null);
     var dialog = dialogDiv(this, template, options.bottom);
@@ -68,7 +69,7 @@
       }
       if (options.value) inp.value = options.value;
       inp.focus();
-      CodeMirror.on(inp, "blur", close);
+      if (options.closeOnBlur) CodeMirror.on(inp, "blur", close);
     } else if (button = dialog.getElementsByTagName("button")[0]) {
       CodeMirror.on(button, "click", function() {
         close();
