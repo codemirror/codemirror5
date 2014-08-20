@@ -320,8 +320,10 @@
         var closing = textAfter && textAfter.charAt(0) == scope.type;
         if (scope.align != null)
           return scope.align - (closing ? 1 : 0);
+        else if (closing && state.scopes.length > 1)
+          return state.scopes[state.scopes.length - 2].offset;
         else
-          return scope.offset - (closing ? conf.indentUnit : 0);
+          return scope.offset;
       },
 
       lineComment: "#",

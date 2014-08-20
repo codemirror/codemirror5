@@ -11,7 +11,7 @@
 })(function(CodeMirror) {
   "use strict";
 
-  var listRE = /^(\s*)([*+-]|(\d+)\.)(\s*)/,
+  var listRE = /^(\s*)([*+-]|(\d+)\.)(\s+)/,
       unorderedBullets = "*+-";
 
   CodeMirror.commands.newlineAndIndentContinueMarkdownList = function(cm) {

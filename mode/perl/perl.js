@@ -791,7 +791,7 @@ CodeMirror.defineMode("perl",function(){
                         return (state.tokenize||tokenPerl)(stream,state);},
                 electricChars:"{}"};});
 
-CodeMirror.registerHelper("wordChars", "perl", /[\\w$]/);
+CodeMirror.registerHelper("wordChars", "perl", /[\w$]/);
 
 CodeMirror.defineMIME("text/x-perl", "perl");
 

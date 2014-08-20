@@ -10,7 +10,6 @@
 }
 .CodeMirror-foldgutter-open,
 .CodeMirror-foldgutter-folded {
-  color: #555;
   cursor: pointer;
 }
 .CodeMirror-foldgutter-open:after {

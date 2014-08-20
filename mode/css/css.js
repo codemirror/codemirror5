@@ -461,13 +461,13 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "glyph-orientation-vertical", "text-anchor", "writing-mode"
   ], propertyKeywords = keySet(propertyKeywords_);
 
-  var nonStandardPropertyKeywords = [
+  var nonStandardPropertyKeywords_ = [
     "scrollbar-arrow-color", "scrollbar-base-color", "scrollbar-dark-shadow-color",
     "scrollbar-face-color", "scrollbar-highlight-color", "scrollbar-shadow-color",
     "scrollbar-3d-light-color", "scrollbar-track-color", "shape-inside",
     "searchfield-cancel-button", "searchfield-decoration", "searchfield-results-button",
     "searchfield-results-decoration", "zoom"
-  ], nonStandardPropertyKeywords = keySet(nonStandardPropertyKeywords);
+  ], nonStandardPropertyKeywords = keySet(nonStandardPropertyKeywords_);
 
   var colorKeywords_ = [
     "aliceblue", "antiquewhite", "aqua", "aquamarine", "azure", "beige",
@@ -491,8 +491,8 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "navajowhite", "navy", "oldlace", "olive", "olivedrab", "orange", "orangered",
     "orchid", "palegoldenrod", "palegreen", "paleturquoise", "palevioletred",
     "papayawhip", "peachpuff", "peru", "pink", "plum", "powderblue",
-    "purple", "red", "rosybrown", "royalblue", "saddlebrown", "salmon",
-    "sandybrown", "seagreen", "seashell", "sienna", "silver", "skyblue",
+    "purple", "rebeccapurple", "red", "rosybrown", "royalblue", "saddlebrown",
+    "salmon", "sandybrown", "seagreen", "seashell", "sienna", "silver", "skyblue",
     "slateblue", "slategray", "snow", "springgreen", "steelblue", "tan",
     "teal", "thistle", "tomato", "turquoise", "violet", "wheat", "white",
     "whitesmoke", "yellow", "yellowgreen"
@@ -589,7 +589,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
   ], fontProperties = keySet(fontProperties_);
 
   var allWords = mediaTypes_.concat(mediaFeatures_).concat(propertyKeywords_)
-    .concat(nonStandardPropertyKeywords).concat(colorKeywords_).concat(valueKeywords_);
+    .concat(nonStandardPropertyKeywords_).concat(colorKeywords_).concat(valueKeywords_);
   CodeMirror.registerHelper("hintWords", "css", allWords);
 
   function tokenCComment(stream, state) {
@@ -659,7 +659,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
         }
       },
       ":": function(stream) {
-        if (stream.match(/\s*{/))
+        if (stream.match(/\s*\{/))
           return [null, "{"];
         return false;
       },

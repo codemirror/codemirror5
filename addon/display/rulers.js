@@ -43,7 +43,7 @@
         col = conf;
       } else {
         col = conf.column;
-        if (conf.className) elt.className = " " + conf.className;
+        if (conf.className) elt.className += " " + conf.className;
         if (conf.color) elt.style.borderColor = conf.color;
         if (conf.lineStyle) elt.style.borderLeftStyle = conf.lineStyle;
         if (conf.width) elt.style.borderLeftWidth = conf.width;

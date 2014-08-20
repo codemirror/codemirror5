@@ -3,6 +3,8 @@
 .cm-s-blackboard.CodeMirror { background: #0C1021; color: #F8F8F8; }
 .cm-s-blackboard .CodeMirror-selected { background: #253B76 !important; }
 .cm-s-blackboard .CodeMirror-gutters { background: #0C1021; border-right: 0; }
+.cm-s-blackboard .CodeMirror-guttermarker { color: #FBDE2D; }
+.cm-s-blackboard .CodeMirror-guttermarker-subtle { color: #888; }
 .cm-s-blackboard .CodeMirror-linenumber { color: #888; }
 .cm-s-blackboard .CodeMirror-cursor { border-left: 1px solid #A7A7A7 !important; }
 

@@ -17,7 +17,8 @@
   var map = CodeMirror.keyMap.sublime = {fallthrough: "default"};
   var cmds = CodeMirror.commands;
   var Pos = CodeMirror.Pos;
-  var ctrl = CodeMirror.keyMap["default"] == CodeMirror.keyMap.pcDefault ? "Ctrl-" : "Cmd-";
+  var mac = CodeMirror.keyMap["default"] == CodeMirror.keyMap.macDefault;
+  var ctrl = mac ? "Cmd-" : "Ctrl-";
 
   // This is not exactly Sublime's algorithm. I couldn't make heads or tails of that.
   function findPosSubword(doc, start, dir) {
@@ -186,7 +187,9 @@
     });
   };
 
-  cmds[map["Shift-" + ctrl + "Up"] = "swapLineUp"] = function(cm) {
+  var swapLineCombo = mac ? "Cmd-Ctrl-" : "Shift-Ctrl-";
+
+  cmds[map[swapLineCombo + "Up"] = "swapLineUp"] = function(cm) {
     var ranges = cm.listSelections(), linesToMove = [], at = cm.firstLine() - 1, newSels = [];
     for (var i = 0; i < ranges.length; i++) {
       var range = ranges[i], from = range.from().line - 1, to = range.to().line;
@@ -212,7 +215,7 @@
     });
   };
 
-  cmds[map["Shift-" + ctrl + "Down"] = "swapLineDown"] = function(cm) {
+  cmds[map[swapLineCombo + "Down"] = "swapLineDown"] = function(cm) {
     var ranges = cm.listSelections(), linesToMove = [], at = cm.lastLine() + 1;
     for (var i = ranges.length - 1; i >= 0; i--) {
       var range = ranges[i], from = range.to().line + 1, to = range.from().line;
@@ -481,7 +484,7 @@
     });
   };
 
-  function findAndGoTo(cm, forward) {
+  function getTarget(cm) {
     var from = cm.getCursor("from"), to = cm.getCursor("to");
     if (CodeMirror.cmpPos(from, to) == 0) {
       var word = wordAt(cm, from);
@@ -489,9 +492,14 @@
       from = word.from;
       to = word.to;
     }
+    return {from: from, to: to, query: cm.getRange(from, to), word: word};
+  }
 
-    var query = cm.getRange(from, to);
-    var cur = cm.getSearchCursor(query, forward ? to : from);
+  function findAndGoTo(cm, forward) {
+    var target = getTarget(cm);
+    if (!target) return;
+    var query = target.query;
+    var cur = cm.getSearchCursor(query, forward ? target.to : target.from);
 
     if (forward ? cur.findNext() : cur.findPrevious()) {
       cm.setSelection(cur.from(), cur.to());
@@ -500,12 +508,25 @@
                                               : cm.clipPos(Pos(cm.lastLine())));
       if (forward ? cur.findNext() : cur.findPrevious())
         cm.setSelection(cur.from(), cur.to());
-      else if (word)
-        cm.setSelection(from, to);
+      else if (target.word)
+        cm.setSelection(target.from, target.to);
     }
   };
   cmds[map[ctrl + "F3"] = "findUnder"] = function(cm) { findAndGoTo(cm, true); };
   cmds[map["Shift-" + ctrl + "F3"] = "findUnderPrevious"] = function(cm) { findAndGoTo(cm,false); };
+  cmds[map["Alt-F3"] = "findAllUnder"] = function(cm) {
+    var target = getTarget(cm);
+    if (!target) return;
+    var cur = cm.getSearchCursor(target.query);
+    var matches = [];
+    var primaryIndex = -1;
+    while (cur.findNext()) {
+      matches.push({anchor: cur.from(), head: cur.to()});
+      if (cur.from().line <= target.from.line && cur.from().ch <= target.from.ch)
+        primaryIndex++;
+    }
+    cm.setSelections(matches, primaryIndex);
+  };
 
   map["Shift-" + ctrl + "["] = "fold";
   map["Shift-" + ctrl + "]"] = "unfold";

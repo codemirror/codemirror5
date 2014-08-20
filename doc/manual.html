@@ -63,7 +63,7 @@
 <section class=first id=overview>
     <h2 style="position: relative">
       User manual and reference guide
-      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 4.2.0</span>
+      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 4.4.1</span>
     </h2>
 
     <p>CodeMirror is a code-editor component that can be embedded in
@@ -370,7 +370,8 @@
 
       <dt id="option_cursorBlinkRate"><code><strong>cursorBlinkRate</strong>: number</code></dt>
       <dd>Half-period in milliseconds used for cursor blinking. The default blink
-      rate is 530ms. By setting this to zero, blinking can be disabled.</dd>
+      rate is 530ms. By setting this to zero, blinking can be disabled. A
+      negative value hides the cursor entirely.</dd>
 
       <dt id="option_cursorScrollMargin"><code><strong>cursorScrollMargin</strong>: number</code></dt>
       <dd>How much extra space to always keep above and below the
@@ -796,8 +797,14 @@
       <dt class=command id=command_deleteLine><code><strong>deleteLine</strong></code><span class=keybinding>Ctrl-D (PC), Cmd-D (Mac)</span></dt>
       <dd>Deletes the whole line under the cursor, including newline at the end.</dd>
 
-      <dt class=command id=command_delLineLeft><code><strong>delLineLeft</strong></code><span class=keybinding>Cmd-Backspace (Mac)</span></dt>
+      <dt class=command id=command_delLineLeft><code><strong>delLineLeft</strong></code></dt>
       <dd>Delete the part of the line before the cursor.</dd>
+
+      <dt class=command id=command_delWrappedLineLeft><code><strong>delWrappedLineLeft</strong></code><span class=keybinding>Cmd-Backspace (Mac)</span></dt>
+      <dd>Delete the part of the line from the left side of the visual line the cursor is on to the cursor.</dd>
+
+      <dt class=command id=command_delWrappedLineRight><code><strong>delWrappedLineRight</strong></code><span class=keybinding>Cmd-Delete (Mac)</span></dt>
+      <dd>Delete the part of the line from the cursor to the right side of the visual line the cursor is on.</dd>
 
       <dt class=command id=command_undo><code><strong>undo</strong></code><span class=keybinding>Ctrl-Z (PC), Cmd-Z (Mac)</span></dt>
       <dd>Undo the last change.</dd>
@@ -814,13 +821,13 @@
       <dd>Redo the last change to the selection, or the last text change if
       no selection changes remain.</dd>
 
-      <dt class=command id=command_goDocStart><code><strong>goDocStart</strong></code><span class=keybinding>Ctrl-Up (PC), Cmd-Up (Mac)</span></dt>
+      <dt class=command id=command_goDocStart><code><strong>goDocStart</strong></code><span class=keybinding>Ctrl-Up (PC), Cmd-Up (Mac), Cmd-Home (Mac)</span></dt>
       <dd>Move the cursor to the start of the document.</dd>
 
       <dt class=command id=command_goDocEnd><code><strong>goDocEnd</strong></code><span class=keybinding>Ctrl-Down (PC), Cmd-End (Mac), Cmd-Down (Mac)</span></dt>
       <dd>Move the cursor to the end of the document.</dd>
 
-      <dt class=command id=command_goLineStart><code><strong>goLineStart</strong></code><span class=keybinding>Alt-Left (PC), Cmd-Left (Mac), Ctrl-A (Mac)</span></dt>
+      <dt class=command id=command_goLineStart><code><strong>goLineStart</strong></code><span class=keybinding>Alt-Left (PC), Ctrl-A (Mac)</span></dt>
       <dd>Move the cursor to the start of the line.</dd>
 
       <dt class=command id=command_goLineStartSmart><code><strong>goLineStartSmart</strong></code><span class=keybinding>Home</span></dt>
@@ -828,15 +835,20 @@
       already there, to the actual start of the line (including
       whitespace).</dd>
 
-      <dt class=command id=command_goLineEnd><code><strong>goLineEnd</strong></code><span class=keybinding>Alt-Right (PC), Cmd-Right (Mac), Ctrl-E (Mac)</span></dt>
+      <dt class=command id=command_goLineEnd><code><strong>goLineEnd</strong></code><span class=keybinding>Alt-Right (PC), Ctrl-E (Mac)</span></dt>
       <dd>Move the cursor to the end of the line.</dd>
 
-      <dt class=command id=command_goLineLeft><code><strong>goLineLeft</strong></code></dt>
+      <dt class=command id=command_goLineRight><code><strong>goLineRight</strong></code><span class=keybinding>Cmd-Right (Mac)</span></dt>
+      <dd>Move the cursor to the right side of the visual line it is on.</dd>
+
+      <dt class=command id=command_goLineLeft><code><strong>goLineLeft</strong></code><span class=keybinding>Cmd-Left (Mac)</span></dt>
       <dd>Move the cursor to the left side of the visual line it is on. If
       this line is wrapped, that may not be the start of the line.</dd>
 
-      <dt class=command id=command_goLineRight><code><strong>goLineRight</strong></code></dt>
-      <dd>Move the cursor to the right side of the visual line it is on.</dd>
+      <dt class=command id=command_goLineLeftSmart><code><strong>goLineLeftSmart</strong></code></dt>
+      <dd>Move the cursor to the left side of the visual line it is
+      on. If that takes it to the start of the line, behave
+      like <a href="#command_goLineStartSmart"><code>goLineStartSmart</code></a>.</dd>
 
       <dt class=command id=command_goLineUp><code><strong>goLineUp</strong></code><span class=keybinding>Up, Ctrl-P (Mac)</span></dt>
       <dd>Move the cursor up one line.</dd>
@@ -1199,7 +1211,7 @@
       merged). Each object in the array contains <code>anchor</code>
       and <code>head</code> properties referring to <code>{line,
       ch}</code> objects.</dd>
-      
+
       <dt id="somethingSelected"><code><strong>doc.somethingSelected</strong>() → boolean</code></dt>
       <dd>Return true if any text is selected.</dd>
       <dt id="setCursor"><code><strong>doc.setCursor</strong>(pos: {line, ch}|number, ?ch: number, ?options: object)</code></dt>
@@ -1598,7 +1610,7 @@
       <dd>Remove all gutter markers in
       the <a href="#option_gutters">gutter</a> with the given ID.</dd>
 
-      <dt id="addLineClass"><code><strong>cm.addLineClass</strong>(line: integer|LineHandle, where: string, class: string) → LineHandle</code></dt>
+      <dt id="addLineClass"><code><strong>doc.addLineClass</strong>(line: integer|LineHandle, where: string, class: string) → LineHandle</code></dt>
       <dd>Set a CSS class name for the given line. <code>line</code>
       can be a number or a line handle. <code>where</code> determines
       to which element this class should be applied, can can be one
@@ -1609,7 +1621,7 @@
       gutter elements). <code>class</code> should be the name of the
       class to apply.</dd>
 
-      <dt id="removeLineClass"><code><strong>cm.removeLineClass</strong>(line: integer|LineHandle, where: string, class: string) → LineHandle</code></dt>
+      <dt id="removeLineClass"><code><strong>doc.removeLineClass</strong>(line: integer|LineHandle, where: string, class: string) → LineHandle</code></dt>
       <dd>Remove a CSS class from a line. <code>line</code> can be a
       line handle or number. <code>where</code> should be one
       of <code>"text"</code>, <code>"background"</code>,
@@ -2620,7 +2632,9 @@
       document, which will be shown to the left and right of the
       editor in non-editable CodeMirror instances. The merge interface
       will highlight changes between the editable document and the
-      original(s) (<a href="../demo/merge.html">demo</a>).</dd>
+      original(s), and, unless a <code>revertButtons</code> option
+      of <code>false</code> is given, show buttons that allow the user
+      to revert changes (<a href="../demo/merge.html">demo</a>).</dd>
 
       <dt id="addon_tern"><a href="../addon/tern/tern.js"><code>tern/tern.js</code></a></dt>
       <dd>Provides integration with

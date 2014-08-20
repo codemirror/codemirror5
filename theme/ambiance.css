@@ -56,9 +56,12 @@
 
 .cm-s-ambiance .CodeMirror-linenumber {
   text-shadow: 0px 1px 1px #4d4d4d;
-  color: #222;
+  color: #111;
   padding: 0 5px;
 }
+
+.cm-s-ambiance .CodeMirror-guttermarker { color: #aaa; }
+.cm-s-ambiance .CodeMirror-guttermarker-subtle { color: #111; }
 
 .cm-s-ambiance .CodeMirror-lines .CodeMirror-cursor {
   border-left: 1px solid #7991E8;

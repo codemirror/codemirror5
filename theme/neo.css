@@ -32,6 +32,9 @@
   color:#e0e2e5;
 }
 
+.cm-s-neo .CodeMirror-guttermarker { color: #1d75b3; }
+.cm-s-neo .CodeMirror-guttermarker-subtle { color: #e0e2e5; }
+
 .cm-s-neo div.CodeMirror-cursor {
   width: auto;
   border: 0;

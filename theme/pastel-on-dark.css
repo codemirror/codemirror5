@@ -19,6 +19,8 @@
 	border-right: 0px;
 	padding: 0 3px;
 }
+.cm-s-pastel-on-dark .CodeMirror-guttermarker { color: white; }
+.cm-s-pastel-on-dark .CodeMirror-guttermarker-subtle { color: #8F938F; }
 .cm-s-pastel-on-dark .CodeMirror-linenumber { color: #8F938F; }
 .cm-s-pastel-on-dark .CodeMirror-cursor { border-left: 1px solid #A7A7A7 !important; }
 .cm-s-pastel-on-dark span.cm-comment { color: #A6C6FF; }

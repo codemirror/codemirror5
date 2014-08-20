@@ -62,6 +62,12 @@
   color: #44c;
 }
 
+.CodeMirror-merge-copy-reverse {
+  position: absolute;
+  cursor: pointer;
+  color: #44c;
+}
+
 .CodeMirror-merge-copybuttons-left .CodeMirror-merge-copy { left: 2px; }
 .CodeMirror-merge-copybuttons-right .CodeMirror-merge-copy { right: 2px; }
 
