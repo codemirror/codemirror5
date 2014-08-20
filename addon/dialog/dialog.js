@@ -36,6 +36,7 @@
 
   CodeMirror.defineExtension("openDialog", function(template, callback, options) {
     if (!options) options = {};
+    if (typeof options.closeOnEnter == 'undefined') options.closeOnEnter = true;
     closeNotification(this, null);
     var dialog = dialogDiv(this, template, options.bottom);
     var closed = false, me = this;
@@ -55,12 +56,12 @@
       if (options.value) inp.value = options.value;
       CodeMirror.on(inp, "keydown", function(e) {
         if (options && options.onKeyDown && options.onKeyDown(e, inp.value, close)) { return; }
-        if (e.keyCode == 13 || e.keyCode == 27) {
+        if (e.keyCode == 27 || (options.closeOnEnter && e.keyCode == 13)) {
           inp.blur();
           CodeMirror.e_stop(e);
           close();
-          if (e.keyCode == 13) callback(inp.value);
         }
+        if (e.keyCode == 13) callback(inp.value);
       });
       if (options.onKeyUp) {
         CodeMirror.on(inp, "keyup", function(e) {options.onKeyUp(e, inp.value, close);});
