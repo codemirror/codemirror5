@@ -72,7 +72,6 @@
       if (options.onKeyUp) {
         CodeMirror.on(inp, "keyup", function(e) {options.onKeyUp(e, inp.value, close);});
       }
-      if (options.value) inp.value = options.value;
       inp.focus();
       if (options.closeOnBlur) CodeMirror.on(inp, "blur", close);
     } else if (button = dialog.getElementsByTagName("button")[0]) {
