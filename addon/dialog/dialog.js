@@ -45,6 +45,7 @@
         if (closed) return;
         closed = true;
         dialog.parentNode.removeChild(dialog);
+        me.focus();
       }
     }
     var inp = dialog.getElementsByTagName("input")[0], button;
@@ -56,7 +57,6 @@
           inp.blur();
           CodeMirror.e_stop(e);
           close();
-          me.focus();
           if (e.keyCode == 13) callback(inp.value);
         }
       });
