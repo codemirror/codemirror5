@@ -46,6 +46,7 @@
         closed = true;
         dialog.parentNode.removeChild(dialog);
         me.focus();
+        if (options && options.onClose) options.onClose(dialog);
       }
     }
     var inp = dialog.getElementsByTagName("input")[0], button;
