@@ -2082,9 +2082,14 @@
           removed from the DOM. No return value.</dd>
         </dl>
 
-      Also adds an <strong><code>openNotification</code></strong> function
-      that simply shows an HTML fragment as a notification. Depends
-      on <code>addon/dialog/dialog.css</code>.</dd>
+      <p>Also adds an <strong><code>openNotification(template, options) →
+      closeFunction</code></strong> function that simply shows an HTML
+      fragment as a notification at the top of the editor. It takes a
+      single option: <code>duration</code>, the amount of time after
+      which the notification will be automatically closed. If <code>
+      duration</code> is zero, the dialog will not be closed automatically.</p>
+
+      <p>Depends on <code>addon/dialog/dialog.css</code>.</p></dd>
 
       <dt id="addon_searchcursor"><a href="../addon/search/searchcursor.js"><code>search/searchcursor.js</code></a></dt>
       <dd>Adds the <code>getSearchCursor(query, start, caseFold) →
