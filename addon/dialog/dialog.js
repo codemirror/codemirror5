@@ -145,5 +145,7 @@
     });
     if (duration)
       doneTimer = setTimeout(close, options.duration);
+
+    return close;
   });
 });

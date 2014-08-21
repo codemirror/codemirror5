@@ -2053,14 +2053,43 @@
     <dl>
       <dt id="addon_dialog"><a href="../addon/dialog/dialog.js"><code>dialog/dialog.js</code></a></dt>
       <dd>Provides a very simple way to query users for text input.
-      Adds an <strong><code>openDialog</code></strong> method to
-      CodeMirror instances, which can be called with an HTML fragment
-      or a detached DOM node that provides the prompt (should include
-      an <code>input</code> tag), and a callback function that is called
-      when text has been entered. Also adds
-      an <strong><code>openNotification</code></strong> function that
-      simply shows an HTML fragment as a notification. Depends
-      on <code>addon/dialog/dialog.css</code>.</dd>
+      Adds the <strong><code>openDialog(template, callback, options) →
+      closeFunction</code></strong> method to CodeMirror instances,
+      which can be called with an HTML fragment or a detached DOM
+      node that provides the prompt (should include an <code>input</code>
+      or <code>button</code> tag), and a callback function that is called
+      when the user presses enter. It returns a function <code>closeFunction</code>
+      which, if called, will close the dialog immediately.
+      <strong><code>openDialog</code></strong> takes the following options:
+        <dl>
+          <dt><code><strong>closeOnEnter</strong></code>:</dt>
+          <dd>If true, the dialog will be closed when the user presses
+          enter in the input. Defaults to <code>true</code>.</dd>
+          <dt><code><strong>onKeyDown</strong></code>:</dt>
+          <dd>An event handler of the signature <code>(event, value, closeFunction)</code>
+          that will be called whenever <code>keydown</code> fires in the
+          dialog's input. If your callback returns <code>true</code>,
+          the dialog will not do any further processing of the event.</dd>
+          <dt><code><strong>onKeyUp</strong></code>:</dt>
+          <dd>Same as <code>onKeyDown</code> but for the
+          <code>keyup</code> event.</dd>
+          <dt><code><strong>onInput</strong></code>:</dt>
+          <dd>Same as <code>onKeyDown</code> but for the
+          <code>input</code> event.</dd>
+          <dt><code><strong>onClose</strong></code>:</dt>
+          <dd>A callback of the signature <code>(dialogInstance)</code>
+          that will be called after the dialog has been closed and
+          removed from the DOM. No return value.</dd>
+        </dl>
+
+      <p>Also adds an <strong><code>openNotification(template, options) →
+      closeFunction</code></strong> function that simply shows an HTML
+      fragment as a notification at the top of the editor. It takes a
+      single option: <code>duration</code>, the amount of time after
+      which the notification will be automatically closed. If <code>
+      duration</code> is zero, the dialog will not be closed automatically.</p>
+
+      <p>Depends on <code>addon/dialog/dialog.css</code>.</p></dd>
 
       <dt id="addon_searchcursor"><a href="../addon/search/searchcursor.js"><code>search/searchcursor.js</code></a></dt>
       <dd>Adds the <code>getSearchCursor(query, start, caseFold) →
