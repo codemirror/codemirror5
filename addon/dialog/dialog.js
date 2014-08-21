@@ -15,11 +15,11 @@
     var wrap = cm.getWrapperElement();
     var dialog;
     dialog = wrap.appendChild(document.createElement("div"));
-    if (bottom) {
+    if (bottom)
       dialog.className = "CodeMirror-dialog CodeMirror-dialog-bottom";
-    } else {
+    else
       dialog.className = "CodeMirror-dialog CodeMirror-dialog-top";
-    }
+
     if (typeof template == "string") {
       dialog.innerHTML = template;
     } else { // Assuming it's a detached DOM element.
@@ -36,8 +36,6 @@
 
   CodeMirror.defineExtension("openDialog", function(template, callback, options) {
     if (!options) options = {};
-    if (typeof options.closeOnBlur == 'undefined') options.closeOnBlur = true;
-    if (typeof options.closeOnEnter == 'undefined') options.closeOnEnter = true;
 
     closeNotification(this, null);
 
@@ -60,17 +58,14 @@
     if (inp) {
       if (options.value) inp.value = options.value;
 
-      if (options.onInput) {
+      if (options.onInput)
         CodeMirror.on(inp, "input", function(e) { options.onInput(e, inp.value, close);});
-      }
-
-      if (options.onKeyUp) {
+      if (options.onKeyUp)
         CodeMirror.on(inp, "keyup", function(e) {options.onKeyUp(e, inp.value, close);});
-      }
 
       CodeMirror.on(inp, "keydown", function(e) {
         if (options && options.onKeyDown && options.onKeyDown(e, inp.value, close)) { return; }
-        if (e.keyCode == 27 || (options.closeOnEnter && e.keyCode == 13)) {
+        if (e.keyCode == 27 || (options.closeOnEnter !== false && e.keyCode == 13)) {
           inp.blur();
           CodeMirror.e_stop(e);
           close();
@@ -78,7 +73,7 @@
         if (e.keyCode == 13) callback(inp.value);
       });
 
-      if (options.closeOnBlur) CodeMirror.on(inp, "blur", close);
+      if (options.closeOnBlur !== false) CodeMirror.on(inp, "blur", close);
 
       inp.focus();
     } else if (button = dialog.getElementsByTagName("button")[0]) {
@@ -87,7 +82,7 @@
         me.focus();
       });
 
-      if (options.closeOnBlur) CodeMirror.on(button, "blur", close);
+      if (options.closeOnBlur !== false) CodeMirror.on(button, "blur", close);
 
       button.focus();
     }
