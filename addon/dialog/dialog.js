@@ -129,8 +129,8 @@
   CodeMirror.defineExtension("openNotification", function(template, options) {
     closeNotification(this, close);
     var dialog = dialogDiv(this, template, options && options.bottom);
-    var duration = options && (options.duration === undefined ? 5000 : options.duration);
     var closed = false, doneTimer;
+    var duration = options && typeof options.duration !== "undefined" ? options.duration : 5000;
 
     function close() {
       if (closed) return;
@@ -143,8 +143,9 @@
       CodeMirror.e_preventDefault(e);
       close();
     });
+
     if (duration)
-      doneTimer = setTimeout(close, options.duration);
+      doneTimer = setTimeout(close, duration);
 
     return close;
   });
