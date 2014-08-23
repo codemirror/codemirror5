@@ -84,8 +84,10 @@
     { keys: '<S-BS>', type: 'keyToKey', toKeys: 'b' },
     { keys: '<C-n>', type: 'keyToKey', toKeys: 'j' },
     { keys: '<C-p>', type: 'keyToKey', toKeys: 'k' },
-    { keys: '<C->', type: 'keyToKey', toKeys: '<Esc>' },
+    { keys: '<C-[>', type: 'keyToKey', toKeys: '<Esc>' },
     { keys: '<C-c>', type: 'keyToKey', toKeys: '<Esc>' },
+    { keys: '<C-[>', type: 'keyToKey', toKeys: '<Esc>', context: 'insert' },
+    { keys: '<C-c>', type: 'keyToKey', toKeys: '<Esc>', context: 'insert' },
     { keys: 's', type: 'keyToKey', toKeys: 'cl', context: 'normal' },
     { keys: 's', type: 'keyToKey', toKeys: 'xi', context: 'visual'},
     { keys: 'S', type: 'keyToKey', toKeys: 'cc', context: 'normal' },
@@ -563,6 +565,7 @@
       }
     }
 
+    var lastInsertModeKeyTimer;
     var vimApi= {
       buildKeyMap: function() {
         // TODO: Convert keymap into dictionary format for fast lookup.
@@ -603,61 +606,120 @@
       handleKey: function(cm, key, origin) {
         var command;
         var vim = maybeInitVimState(cm);
-        var macroModeState = vimGlobalState.macroModeState;
-        if (macroModeState.isRecording) {
-          if (key == 'q') {
-            macroModeState.exitMacroRecordMode();
+        function handleMacroRecording() {
+          var macroModeState = vimGlobalState.macroModeState;
+          if (macroModeState.isRecording) {
+            if (key == 'q') {
+              macroModeState.exitMacroRecordMode();
+              clearInputState(cm);
+              return true;
+            }
+            if (origin != 'mapping') {
+              logKey(macroModeState, key);
+            }
+          }
+        }
+        function handleEsc() {
+          if (key == '<Esc>') {
+            // Clear input state and get back to normal mode.
             clearInputState(cm);
+            if (vim.visualMode) {
+              exitVisualMode(cm);
+            } else if (vim.insertMode) {
+              exitInsertMode(cm);
+            }
             return true;
           }
-          if (origin != 'mapping') {
-            logKey(macroModeState, key);
+        }
+        function handleExternalSelection() {
+          // Enter visual mode when the mouse selects text.
+          if (!vim.visualMode && !vim.insertMode &&
+              !cursorEqual(cm.getCursor('head'), cm.getCursor('anchor'))) {
+            vim.visualMode = true;
+            vim.visualLine = false;
+            CodeMirror.signal(cm, "vim-mode-change", {mode: "visual"});
+            cm.on('mousedown', exitVisualMode);
           }
         }
-        if (key == '<Esc>') {
-          // Clear input state and get back to normal mode.
-          clearInputState(cm);
-          if (vim.visualMode) {
-            exitVisualMode(cm);
-          }
-          return true;
-        }
-        if (vim.insertMode) {
-          // TODO: handle insert mode keys in this path.
-          clearInputState(cm);
-          return false;
-        }
-        // Enter visual mode when the mouse selects text.
-        if (!vim.visualMode &&
-            !cursorEqual(cm.getCursor('head'), cm.getCursor('anchor'))) {
-          vim.visualMode = true;
-          vim.visualLine = false;
-          CodeMirror.signal(cm, "vim-mode-change", {mode: "visual"});
-          cm.on('mousedown', exitVisualMode);
-        }
-        var keys = vim.inputState.keyBuffer = vim.inputState.keyBuffer + key;
-        if (/^[1-9]\d*$/.test(keys)) {
-          return true;
-        }
-        var keysMatcher = /^(\d*)(.*)$/.exec(keys);
-        var match = commandDispatcher.matchCommand(keysMatcher[2] || keysMatcher[1], defaultKeymap, vim);
-        if (match.type == 'none') { clearInputState(cm); return false; }
-        else if (match.type == 'partial') { return true; }
-
-        vim.inputState.keyBuffer = '';
-        var command = match.command;
-        if (keysMatcher[1] && keysMatcher[1] != '0') {
-          vim.inputState.pushRepeatDigit(keysMatcher[1]);
-        }
-        if (command.type == 'keyToKey') {
+        function doKeyToKey(keys) {
           // TODO: prevent infinite recursion.
-          for (var i = 0; i < command.toKeys.length; i++) {
-            this.handleKey(cm, command.toKeys.charAt(i), 'mapping');
+          var match;
+          while (keys) {
+            // Pull off one command key, which is either a single character
+            // or a special sequence wrapped in '<' and '>', e.g. '<Space>'.
+            match = (/<\w+-.+?>|<\w+>|./).exec(keys);
+            key = match[0];
+            keys = keys.substring(match.index + key.length);
+            CodeMirror.Vim.handleKey(cm, key, 'mapping');
           }
-        } else {
-          commandDispatcher.processCommand(cm, vim, command);
         }
-        return true;
+
+        function handleKeyInsertMode() {
+          if (handleEsc()) { return true; }
+          var keys = vim.inputState.keyBuffer = vim.inputState.keyBuffer + key;
+          var keysAreChars = key.length == 1;
+          var match = commandDispatcher.matchCommand(keys, defaultKeymap, vim.inputState, 'insert');
+          // Need to check all key substrings in insert mode.
+          while (keys.length > 1 && match.type != 'full') {
+            var keys = vim.inputState.keyBuffer = keys.slice(1);
+            var thisMatch = commandDispatcher.matchCommand(keys, defaultKeymap, vim.inputState, 'insert');
+            if (thisMatch.type != 'none') { match = thisMatch; }
+          }
+          if (match.type == 'none') { clearInputState(cm); return false; }
+          else if (match.type == 'partial') {
+            if (lastInsertModeKeyTimer) { window.clearTimeout(lastInsertModeKeyTimer); }
+            lastInsertModeKeyTimer = window.setTimeout(
+              function() { if (vim.insertMode && vim.inputState.keyBuffer) { clearInputState(cm); } },
+              getOption('insertModeEscKeysTimeout'));
+            return !keysAreChars;
+          }
+
+          if (lastInsertModeKeyTimer) { window.clearTimeout(lastInsertModeKeyTimer); }
+          if (keysAreChars) {
+            var here = cm.getCursor();
+            cm.replaceRange('', offsetCursor(here, 0, -(keys.length - 1)), here, '+input');
+          }
+          clearInputState(cm);
+          var command = match.command;
+          if (command.type == 'keyToKey') {
+            doKeyToKey(command.toKeys);
+          } else {
+            commandDispatcher.processCommand(cm, vim, command);
+          }
+          return !keysAreChars;
+        }
+
+        function handleKeyGeneral() {
+          if (handleMacroRecording() || handleEsc()) { return true; };
+          handleExternalSelection();
+
+          var keys = vim.inputState.keyBuffer = vim.inputState.keyBuffer + key;
+          if (/^[1-9]\d*$/.test(keys)) {
+            return true;
+          }
+          var keysMatcher = /^(\d*)(.*)$/.exec(keys);
+          var context = vim.visualMode ? 'visual' :
+                                         'normal';
+          var match = commandDispatcher.matchCommand(keysMatcher[2] || keysMatcher[1], defaultKeymap, vim.inputState, context);
+          if (match.type == 'none') { clearInputState(cm); return false; }
+          else if (match.type == 'partial') { return true; }
+
+          vim.inputState.keyBuffer = '';
+          var command = match.command;
+          var keysMatcher = /^(\d*)(.*)$/.exec(keys);
+          if (keysMatcher[1] && keysMatcher[1] != '0') {
+            vim.inputState.pushRepeatDigit(keysMatcher[1]);
+          }
+          if (command.type == 'keyToKey') {
+            doKeyToKey(command.toKeys);
+          } else {
+            commandDispatcher.processCommand(cm, vim, command);
+          }
+          return true;
+        }
+
+        if (vim.insertMode) { return handleKeyInsertMode(); }
+        else { return handleKeyGeneral(); }
       },
       handleEx: function(cm, input) {
         exCommandDispatcher.processCommand(cm, input);
@@ -874,11 +936,7 @@
       }
     };
     var commandDispatcher = {
-      matchCommand: function(keys, keyMap, vim) {
-        var inputState = vim.inputState;
-        var context = vim.visualMode ? 'visual' :
-                      vim.insertMode ? 'insert' :
-                                       'normal';
+      matchCommand: function(keys, keyMap, inputState, context) {
         var matches = commandMatches(keys, keyMap, context, inputState);
         if (!matches.full && !matches.partial) {
           return {type: 'none'};
@@ -2472,7 +2530,8 @@
         if (vim.visualMode) {
           exitVisualMode(cm);
         }
-      }
+      },
+      exitInsertMode: exitInsertMode,
     };
 
     /*
@@ -3733,6 +3792,7 @@
     // shortNames must not match the prefix of the other command.
     var defaultExCommandMap = [
       { name: 'map' },
+      { name: 'imap', shortName: 'im' },
       { name: 'nmap', shortName: 'nm' },
       { name: 'vmap', shortName: 'vm' },
       { name: 'unmap' },
@@ -3983,6 +4043,7 @@
         }
         exCommandDispatcher.map(mapArgs[0], mapArgs[1], ctx);
       },
+      imap: function(cm, params) { this.map(cm, params, 'insert'); },
       nmap: function(cm, params) { this.map(cm, params, 'normal'); },
       vmap: function(cm, params) { this.map(cm, params, 'visual'); },
       unmap: function(cm, params, ctx) {
@@ -4523,63 +4584,13 @@
       }
     }
 
-    defineOption('enableInsertModeEscKeys', false, 'boolean');
-    // Use this option to customize the two-character ESC keymap.
-    // If you want to use characters other than i j or k you'll have to add
-    // lines to the vim-insert and await-second keymaps later in this file.
-    defineOption('insertModeEscKeys', 'kj', 'string');
     // The timeout in milliseconds for the two-character ESC keymap should be
     // adjusted according to your typing speed to prevent false positives.
     defineOption('insertModeEscKeysTimeout', 200, 'number');
-    function firstEscCharacterHandler(ch) {
-      return function(cm){
-        var keys = getOption('insertModeEscKeys');
-        var firstEscCharacter = keys && keys.length > 1 && keys.charAt(0);
-        if (!getOption('enableInsertModeEscKeys')|| firstEscCharacter !== ch) {
-          return CodeMirror.Pass;
-        } else {
-          cm.replaceRange(ch, cm.getCursor(), cm.getCursor(), "+input");
-          cm.setOption('keyMap', 'await-second');
-          cm.state.vim.awaitingEscapeSecondCharacter = true;
-          setTimeout(
-              function(){
-                if(cm.state.vim.awaitingEscapeSecondCharacter) {
-                    cm.state.vim.awaitingEscapeSecondCharacter = false;
-                    cm.setOption('keyMap', 'vim-insert');
-                }
-              },
-              getOption('insertModeEscKeysTimeout'));
-        }
-      };
-    }
-    function secondEscCharacterHandler(ch){
-      return function(cm) {
-        var keys = getOption('insertModeEscKeys');
-        var secondEscCharacter = keys && keys.length > 1 && keys.charAt(1);
-        if (!getOption('enableInsertModeEscKeys')|| secondEscCharacter !== ch) {
-          return CodeMirror.Pass;
-          // This is not the handler you're looking for. Just insert as usual.
-        } else {
-          if (cm.state.vim.insertMode) {
-            var lastChange = vimGlobalState.macroModeState.lastInsertModeChanges;
-            if (lastChange && lastChange.changes.length) {
-              lastChange.changes.pop();
-            }
-          }
-          cm.state.vim.awaitingEscapeSecondCharacter = false;
-          cm.replaceRange('', {ch: cm.getCursor().ch - 1, line: cm.getCursor().line},
-                          cm.getCursor(), "+input");
-          exitInsertMode(cm);
-        }
-      };
-    }
 
     CodeMirror.keyMap['vim-insert'] = {
       // TODO: override navigation keys so that Esc will cancel automatic
       // indentation from o, O, i_<CR>
-      'Esc': exitInsertMode,
-      'Ctrl-[': exitInsertMode,
-      'Ctrl-C': exitInsertMode,
       'Ctrl-N': 'autocomplete',
       'Ctrl-P': 'autocomplete',
       'Enter': function(cm) {
@@ -4587,20 +4598,10 @@
             CodeMirror.commands.newlineAndIndent;
         fn(cm);
       },
-      // The next few lines are where you'd add additional handlers if
-      // you wanted to use keys other than i j and k for two-character
-      // escape sequences. Don't forget to add them in the await-second
-      // section as well.
-      "'i'": firstEscCharacterHandler('i'),
-      "'j'": firstEscCharacterHandler('j'),
-      "'k'": firstEscCharacterHandler('k'),
       fallthrough: ['default']
     };
 
     CodeMirror.keyMap['await-second'] = {
-      "'i'": secondEscCharacterHandler('i'),
-      "'j'": secondEscCharacterHandler('j'),
-      "'k'": secondEscCharacterHandler('k'),
       fallthrough: ['vim-insert']
     };
 
