@@ -250,7 +250,6 @@
         var name = lookupKey(e);
         if (!name) { return; }
 
-        console.log(name);
         CodeMirror.signal(cm, 'vim-keypress', name);
         if (CodeMirror.Vim.handleKey(cm, name, 'user')) {
           CodeMirror.e_stop(e);
@@ -263,7 +262,6 @@
         if (e.ctrlKey || e.metaKey || e.altKey) { return; }
         var name = String.fromCharCode(code);
 
-        console.log(name);
         CodeMirror.signal(cm, 'vim-keypress', name);
         if (CodeMirror.Vim.handleKey(cm, name, 'user')) {
           CodeMirror.e_stop(e);
@@ -314,9 +312,6 @@
     var upperCaseAlphabet = makeKeyRange(65, 26);
     var lowerCaseAlphabet = makeKeyRange(97, 26);
     var numbers = makeKeyRange(48, 10);
-    var specialSymbols = '~`!@#$%^&*()_-+=[{}]\\|/?.,<>:;"\''.split('');
-    var specialKeys = ['Left', 'Right', 'Up', 'Down', 'Space', 'Backspace',
-        'Esc', 'Home', 'End', 'PageUp', 'PageDown', 'Enter'];
     var validMarks = [].concat(upperCaseAlphabet, lowerCaseAlphabet, numbers, ['<', '>']);
     var validRegisters = [].concat(upperCaseAlphabet, lowerCaseAlphabet, numbers, ['-', '"', '.', ':', '/']);
 
@@ -604,7 +599,6 @@
       // This is the outermost function called by CodeMirror, after keys have
       // been mapped to their Vim equivalents.
       handleKey: function(cm, key, origin) {
-        var command;
         var vim = maybeInitVimState(cm);
         function handleMacroRecording() {
           var macroModeState = vimGlobalState.macroModeState;
@@ -689,14 +683,13 @@
           return !keysAreChars;
         }
 
-        function handleKeyGeneral() {
+        function handleKeyNonInsertMode() {
           if (handleMacroRecording() || handleEsc()) { return true; };
           handleExternalSelection();
 
           var keys = vim.inputState.keyBuffer = vim.inputState.keyBuffer + key;
-          if (/^[1-9]\d*$/.test(keys)) {
-            return true;
-          }
+          if (/^[1-9]\d*$/.test(keys)) { return true; }
+
           var keysMatcher = /^(\d*)(.*)$/.exec(keys);
           var context = vim.visualMode ? 'visual' :
                                          'normal';
@@ -719,7 +712,7 @@
         }
 
         if (vim.insertMode) { return handleKeyInsertMode(); }
-        else { return handleKeyGeneral(); }
+        else { return handleKeyNonInsertMode(); }
       },
       handleEx: function(cm, input) {
         exCommandDispatcher.processCommand(cm, input);
@@ -947,8 +940,7 @@
         var bestMatch;
         for (var i = 0; i < matches.full.length; i++) {
           var match = matches.full[i];
-          if (!bestMatch ||
-              match.context == context) {
+          if (!bestMatch || match.context == context) {
             bestMatch = match;
           }
         }
@@ -2531,7 +2523,7 @@
           exitVisualMode(cm);
         }
       },
-      exitInsertMode: exitInsertMode,
+      exitInsertMode: exitInsertMode
     };
 
     /*
@@ -2562,6 +2554,9 @@
       return Pos(cur.line + offsetLine, cur.ch + offsetCh);
     }
     function commandMatches(keys, keyMap, context, inputState) {
+      // Partial matches are not applied. They inform the key handler
+      // that the current key sequence is a subsequence of a valid key
+      // sequence, so that the key buffer is not cleared.
       var match, partial = [], full = [];
       for (var i = 0; i < keyMap.length; i++) {
         var command = keyMap[i];
@@ -2574,8 +2569,8 @@
       }
       return {
         partial: partial.length && partial,
-        full: full.length && full,
-      }
+        full: full.length && full
+      };
     }
     function commandMatch(pressed, mapped) {
       if (mapped.slice(-11) == '<character>') {
@@ -3999,15 +3994,6 @@
         }
       },
       unmap: function(lhs, ctx) {
-        var arrayEquals = function(a, b) {
-          if (a === b) return true;
-          if (a == null || b == null) return true;
-          if (a.length != b.length) return false;
-          for (var i = 0; i < a.length; i++) {
-            if (a[i] !== b[i]) return false;
-          }
-          return true;
-        };
         if (lhs != ':' && lhs.charAt(0) == ':') {
           // Ex to Ex or Ex to key mapping
           if (ctx) { throw Error('Mode not supported for ex mappings'); }
