@@ -250,7 +250,6 @@
         var name = lookupKey(e);
         if (!name) { return; }
 
-        console.log(name);
         CodeMirror.signal(cm, 'vim-keypress', name);
         if (CodeMirror.Vim.handleKey(cm, name, 'user')) {
           CodeMirror.e_stop(e);
@@ -263,7 +262,6 @@
         if (e.ctrlKey || e.metaKey || e.altKey) { return; }
         var name = String.fromCharCode(code);
 
-        console.log(name);
         CodeMirror.signal(cm, 'vim-keypress', name);
         if (CodeMirror.Vim.handleKey(cm, name, 'user')) {
           CodeMirror.e_stop(e);
@@ -314,9 +312,6 @@
     var upperCaseAlphabet = makeKeyRange(65, 26);
     var lowerCaseAlphabet = makeKeyRange(97, 26);
     var numbers = makeKeyRange(48, 10);
-    var specialSymbols = '~`!@#$%^&*()_-+=[{}]\\|/?.,<>:;"\''.split('');
-    var specialKeys = ['Left', 'Right', 'Up', 'Down', 'Space', 'Backspace',
-        'Esc', 'Home', 'End', 'PageUp', 'PageDown', 'Enter'];
     var validMarks = [].concat(upperCaseAlphabet, lowerCaseAlphabet, numbers, ['<', '>']);
     var validRegisters = [].concat(upperCaseAlphabet, lowerCaseAlphabet, numbers, ['-', '"', '.', ':', '/']);
 
@@ -604,7 +599,6 @@
       // This is the outermost function called by CodeMirror, after keys have
       // been mapped to their Vim equivalents.
       handleKey: function(cm, key, origin) {
-        var command;
         var vim = maybeInitVimState(cm);
         function handleMacroRecording() {
           var macroModeState = vimGlobalState.macroModeState;
@@ -2531,7 +2525,7 @@
           exitVisualMode(cm);
         }
       },
-      exitInsertMode: exitInsertMode,
+      exitInsertMode: exitInsertMode
     };
 
     /*
@@ -2574,8 +2568,8 @@
       }
       return {
         partial: partial.length && partial,
-        full: full.length && full,
-      }
+        full: full.length && full
+      };
     }
     function commandMatch(pressed, mapped) {
       if (mapped.slice(-11) == '<character>') {
@@ -3999,15 +3993,6 @@
         }
       },
       unmap: function(lhs, ctx) {
-        var arrayEquals = function(a, b) {
-          if (a === b) return true;
-          if (a == null || b == null) return true;
-          if (a.length != b.length) return false;
-          for (var i = 0; i < a.length; i++) {
-            if (a[i] !== b[i]) return false;
-          }
-          return true;
-        };
         if (lhs != ':' && lhs.charAt(0) == ':') {
           // Ex to Ex or Ex to key mapping
           if (ctx) { throw Error('Mode not supported for ex mappings'); }
