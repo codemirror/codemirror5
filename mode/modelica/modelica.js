@@ -17,13 +17,11 @@
 
   CodeMirror.defineMode("modelica", function(config, parserConfig) {
     var indentUnit = config.indentUnit,
-        statementIndentUnit = parserConfig.statementIndentUnit || indentUnit,
-        dontAlignCalls = parserConfig.dontAlignCalls,
+        statementIndentUnit = indentUnit,
+        dontAlignCalls = false,
         keywords = parserConfig.keywords || {},
         builtin = parserConfig.builtin || {},
-        blockKeywords = {},
         atoms = parserConfig.atoms || {},
-        hooks = {},
         multiLineStrings = true;
 
     var isOperatorChar = /[+\-*.&%=<>!?|\/]/;
@@ -32,10 +30,6 @@
 
     function tokenBase(stream, state) {
       var ch = stream.next();
-      if (hooks[ch]) {
-        var result = hooks[ch](stream, state);
-        if (result !== false) return result;
-      }
       if (ch == '"' || ch == "'") {
         state.tokenize = tokenString(ch);
         return state.tokenize(stream, state);
@@ -65,11 +59,9 @@
       stream.eatWhile(/[\w\$_]/);
       var cur = stream.current();
       if (keywords.propertyIsEnumerable(cur)) {
-        if (blockKeywords.propertyIsEnumerable(cur)) curPunc = "newstatement";
         return "keyword";
       }
       if (builtin.propertyIsEnumerable(cur)) {
-        if (blockKeywords.propertyIsEnumerable(cur)) curPunc = "newstatement";
         return "builtin";
       }
       if (atoms.propertyIsEnumerable(cur)) return "atom";
@@ -208,7 +200,9 @@
     return obj;
   }
 
-  var modelicaKeywords = "abs acos actualStream algorithm edge pre reinit and annotation asin assert atan atan2 block break cardinality ceil class connect connector constant constrainedby cos cosh delay der discrete div each else elseif elsewhen encapsulated end enumeration equation exp expandable extends external false final floor flow for function getInstanceName homotopy if import impure in initial inner input inStream Integer integer log log10 loop mod model not operator or outer output package parameter partial protected public pure record redeclare rem replaceable return semiLinear sign sin sinh spatialDistribution sqrt stream String tan tanh then true type when while within";
+  var modelicaKeywords = "algorithm and annotation assert block break class connect connector constant constrainedby der discrete each else elseif elsewhen encapsulated end enumeration equation expandable extends external false final flow for function if import impure in initial inner input loop model not operator or outer output package parameter partial protected public pure record redeclare replaceable return stream then true type when while within";
+  var modelicaBuiltin = "abs acos actualStream asin atan atan2 cardinality ceil cos cosh delay div edge exp floor getInstanceName homotopy inStream integer log log10 mod pre reinit rem semiLinear sign sin sinh spatialDistribution sqrt tan tanh";
+  var modelicaAtoms = "Real Boolean Integer String";
 
   function def(mimes, mode) {
     if (typeof mimes == "string")
@@ -239,7 +233,7 @@
   def(["text/x-modelica"], {
     name: "modelica",
     keywords: words(modelicaKeywords),
-    builtin: {},
-    atoms: words("Real Boolean Integer String")
+    builtin: words(modelicaBuiltin),
+    atoms: words(modelicaAtoms)
   });
 });
