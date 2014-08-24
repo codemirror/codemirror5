@@ -16,21 +16,18 @@
   "use strict";
 
   CodeMirror.defineMode("modelica", function(config, parserConfig) {
-    var indentUnit = config.indentUnit,
-        statementIndentUnit = indentUnit,
-        dontAlignCalls = false,
-        keywords = parserConfig.keywords || {},
-        builtin = parserConfig.builtin || {},
-        atoms = parserConfig.atoms || {},
-        multiLineStrings = true;
+
+    var indentUnit = config.indentUnit;
+    var keywords = parserConfig.keywords || {};
+    var builtin = parserConfig.builtin || {};
+    var atoms = parserConfig.atoms || {};
 
     var isOperatorChar = /[+\-*.&%=<>!?|\/]/;
-
     var curPunc;
 
     function tokenBase(stream, state) {
       var ch = stream.next();
-      if (ch == '"' || ch == "'") {
+      if (ch == '"') {
         state.tokenize = tokenString(ch);
         return state.tokenize(stream, state);
       }
@@ -57,13 +54,10 @@
         return "operator";
       }
       stream.eatWhile(/[\w\$_]/);
+
       var cur = stream.current();
-      if (keywords.propertyIsEnumerable(cur)) {
-        return "keyword";
-      }
-      if (builtin.propertyIsEnumerable(cur)) {
-        return "builtin";
-      }
+      if (keywords.propertyIsEnumerable(cur)) return "keyword";
+      if (builtin.propertyIsEnumerable(cur)) return "builtin";
       if (atoms.propertyIsEnumerable(cur)) return "atom";
       return "variable";
     }
@@ -75,7 +69,7 @@
           if (next == quote && !escaped) {end = true; break;}
           escaped = !escaped && next == "\\";
         }
-        if (end || !(escaped || multiLineStrings))
+        if (end)
           state.tokenize = null;
         return "string";
       };
@@ -114,14 +108,12 @@
     }
 
     // Interface
-
     return {
       startState: function(basecolumn) {
         return {
           tokenize: null,
           context: new Context((basecolumn || 0) - indentUnit, 0, "top", false),
-          indented: 0,
-          startOfLine: true
+          indented: 0
         };
       },
 
@@ -131,7 +123,6 @@
           if (ctx.align == null)
             ctx.align = false;
           state.indented = stream.indentation();
-          state.startOfLine = true;
         }
         if (stream.eatSpace())
           return null;
@@ -162,7 +153,6 @@
           popContext(state);
         else if (((ctx.type == "}" || ctx.type == "top") && curPunc != ';') || (ctx.type == "statement" && curPunc == "newstatement"))
           pushContext(state, stream.column(), "statement");
-        state.startOfLine = false;
         return style;
       },
 
@@ -178,11 +168,11 @@
         var closing = firstChar == ctx.type;
 
         if (ctx.type == "statement")
-          return ctx.indented + (firstChar == "{" ? 0 : statementIndentUnit);
-        else if (ctx.align && (!dontAlignCalls || ctx.type != ")"))
+          return ctx.indented + (firstChar == "{" ? 0 : indentUnit);
+        else if (ctx.align)
           return ctx.column + (closing ? 0 : 1);
         else if (ctx.type == ")" && !closing)
-          return ctx.indented + statementIndentUnit;
+          return ctx.indented + indentUnit;
         else
           return ctx.indented + (closing ? 0 : indentUnit);
       },
