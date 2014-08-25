@@ -97,7 +97,7 @@
       token: function(stream, state) {
         if (stream.eatSpace())
           return null;
-        
+
         return (state.tokenize || tokenBase)(stream, state);
       },
 
