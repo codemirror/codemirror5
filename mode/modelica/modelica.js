@@ -17,7 +17,6 @@
 
   CodeMirror.defineMode("modelica", function(config, parserConfig) {
 
-    var indentUnit = config.indentUnit;
     var keywords = parserConfig.keywords || {};
     var builtin = parserConfig.builtin || {};
     var atoms = parserConfig.atoms || {};
@@ -88,7 +87,7 @@
 
     // Interface
     return {
-      startState: function(basecolumn) {
+      startState: function() {
         return {
           tokenize: null
         };
