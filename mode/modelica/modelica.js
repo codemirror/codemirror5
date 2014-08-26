@@ -78,6 +78,20 @@
       else return "variable";
     }
 
+    function tokenQIdent(stream, state) {
+      var ch;
+
+      while (stream.eat(/[^']/)) { }
+
+      state.tokenize = null;
+      state.sol = false;
+
+      if(stream.eat("'"))
+        return "variable";
+      else
+        return "error";
+    }
+
     function tokenUnsignedNuber(stream, state) {
       stream.eatWhile(isDigit);
       if (stream.eat('.')) {
@@ -144,7 +158,10 @@
         else if(isNonDigit.test(ch)) {
           state.tokenize = tokenIdent;
         }
-        // TODO: Q-IDENT
+        // Q-IDENT
+        else if(ch == "'" && stream.peek() && stream.peek() != "'") {
+          state.tokenize = tokenQIdent;
+        }
         // STRING
         else if(ch == '"') {
           state.tokenize = tokenString;
