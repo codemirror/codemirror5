@@ -79,8 +79,6 @@
     }
 
     function tokenQIdent(stream, state) {
-      var ch;
-
       while (stream.eat(/[^']/)) { }
 
       state.tokenize = null;
