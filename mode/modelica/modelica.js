@@ -17,6 +17,7 @@
 
   CodeMirror.defineMode("modelica", function(config, parserConfig) {
 
+    var indentUnit = config.indentUnit;
     var keywords = parserConfig.keywords || {};
     var builtin = parserConfig.builtin || {};
     var atoms = parserConfig.atoms || {};
@@ -49,6 +50,7 @@
       while ((ch = stream.next()) != null) {
         if (ch == '"' && !escaped) {
           state.tokenize = null;
+          state.sol = false;
           break;
         }
         escaped = !escaped && ch == "\\";
@@ -61,9 +63,15 @@
       stream.eatWhile(isDigit);
       while (stream.eat(isDigit) || stream.eat(isNonDigit)) { }
 
-      state.tokenize = null;
 
       var cur = stream.current();
+
+      if(state.sol && (cur == "package" || cur == "model" || cur == "when" || cur == "connector")) state.level++;
+      else if(state.sol && cur == "end" && state.level > 0) state.level--;
+
+      state.tokenize = null;
+      state.sol = false;
+
       if (keywords.propertyIsEnumerable(cur)) return "keyword";
       else if (builtin.propertyIsEnumerable(cur)) return "builtin";
       else if (atoms.propertyIsEnumerable(cur)) return "atom";
@@ -82,6 +90,7 @@
       }
 
       state.tokenize = null;
+      state.sol = false;
       return "number";
     }
 
@@ -89,13 +98,19 @@
     return {
       startState: function() {
         return {
-          tokenize: null
+          tokenize: null,
+          level: 0,
+          sol: true
         };
       },
 
       token: function(stream, state) {
-        if(typeof state.tokenize == "function") {
+        if(state.tokenize != null) {
           return state.tokenize(stream, state);
+        }
+
+        if(stream.sol()) {
+          state.sol = true;
         }
 
         // WHITESPACE
@@ -145,6 +160,22 @@
         }
 
         return state.tokenize(stream, state);
+      },
+
+      indent: function(state, textAfter) {
+        if (state.tokenize != null) return CodeMirror.Pass;
+
+        var level = state.level;
+        if(/(algorithm)/.test(textAfter)) level--;
+        if(/(equation)/.test(textAfter)) level--;
+        if(/(initial algorithm)/.test(textAfter)) level--;
+        if(/(initial equation)/.test(textAfter)) level--;
+        if(/(end)/.test(textAfter)) level--;
+
+        if(level > 0)
+          return indentUnit*level;
+        else
+          return 0;
       },
 
       blockCommentStart: "/*",
