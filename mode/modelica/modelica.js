@@ -21,68 +21,85 @@
     var builtin = parserConfig.builtin || {};
     var atoms = parserConfig.atoms || {};
 
-    var isOperatorChar = /[+\-*.&%=<>!?|\/]/;
+    var isSingleOperatorChar = /[;=\(:\),{}.*<>+\-\/^\[\]]/;
+    var isDoubleOperatorChar = /(:=|<=|>=|==|<>|\.\+|\.\-|\.\*|\.\/|\.\^)/;
+    var isDigit = /[0-9]/;
+    var isNonDigit = /[_a-zA-Z]/;
+    var isWhitespace = /\s/;
 
-    function tokenBase(stream, state) {
-      var ch = stream.next();
-      if (ch == '"') {
-        state.tokenize = tokenString;
-        return state.tokenize(stream, state);
-      }
-      if (/[\[\]{}\(\),;\:\.]/.test(ch)) {
-        return null;
-      }
-      if (/\d/.test(ch)) {
-        stream.eatWhile(/[\w\.]/);
-        return "number";
-      }
-      if (ch == "/") {
-        if (stream.eat("*")) {
-          state.tokenize = tokenComment;
-          return state.tokenize(stream, state);
-        }
-        if (stream.eat("/")) {
-          stream.skipToEnd();
-          return "comment";
-        }
-      }
-      if (isOperatorChar.test(ch)) {
-        stream.eatWhile(isOperatorChar);
-        return "operator";
-      }
-      stream.eatWhile(/[\w\$_]/);
-
-      var cur = stream.current();
-      if (keywords.propertyIsEnumerable(cur)) return "keyword";
-      if (builtin.propertyIsEnumerable(cur)) return "builtin";
-      if (atoms.propertyIsEnumerable(cur)) return "atom";
-      return "variable";
+    function tokenUnknown(stream, state) {
+      state.tokenize = null;
+      return "error";
     }
 
-    function tokenString(stream, state) {
-      var escaped = false, next, end = false;
-      while ((next = stream.next()) != null) {
-        if (next == '"' && !escaped) {
-          end = true;
-          break;
-        }
-        escaped = !escaped && next == "\\";
-      }
-      if (end)
-        state.tokenize = null;
-      return "string";
+    function tokenLineComment(stream, state) {
+      stream.skipToEnd();
+      state.tokenize = null;
+      return "comment";
     }
 
-    function tokenComment(stream, state) {
+    function tokenBlockComment(stream, state) {
       var maybeEnd = false, ch;
       while (ch = stream.next()) {
-        if (ch == "/" && maybeEnd) {
+        if (maybeEnd && ch == "/") {
           state.tokenize = null;
           break;
         }
         maybeEnd = (ch == "*");
       }
       return "comment";
+    }
+
+    function tokenWhitespace(stream, state) {
+      stream.eatSpace();
+      state.tokenize = null;
+      return null;
+    }
+
+    function tokenOperator(stream, state) {
+      state.tokenize = null;
+      return "operator";
+    }
+
+     function tokenString(stream, state) {
+       var escaped = false, ch;
+       while ((ch = stream.next()) != null) {
+         if (ch == '"' && !escaped) {
+           state.tokenize = null;
+           break;
+         }
+         escaped = !escaped && ch == "\\";
+       }
+
+       return "string";
+     }
+
+    function tokenIdent(stream, state) {
+      stream.eatWhile(isDigit);
+      while (stream.eat(isDigit) || stream.eat(isNonDigit)) { }
+
+      state.tokenize = null;
+
+      var cur = stream.current();
+      if (keywords.propertyIsEnumerable(cur)) return "keyword";
+      else if (builtin.propertyIsEnumerable(cur)) return "builtin";
+      else if (atoms.propertyIsEnumerable(cur)) return "atom";
+      else return "variable";
+    }
+
+    function tokenUnsignedNuber(stream, state) {
+      stream.eatWhile(isDigit);
+      if (stream.eat('.')) {
+        stream.eatWhile(isDigit);
+      }
+      if (stream.eat('e') || stream.eat('E')) {
+        if (!stream.eat('-'))
+          stream.eat('+');
+        stream.eatWhile(isDigit);
+      }
+
+      state.tokenize = null;
+      return "number";
     }
 
     // Interface
@@ -94,10 +111,51 @@
       },
 
       token: function(stream, state) {
-        if (stream.eatSpace())
-          return null;
+        if(typeof state.tokenize == "function") {
+          return state.tokenize(stream, state);
+        }
 
-        return (state.tokenize || tokenBase)(stream, state);
+        var ch = stream.next();
+
+        // LINECOMMENT
+        if(ch == '/' && stream.eat('/')) {
+          state.tokenize = tokenLineComment;
+        }
+        // BLOCKCOMMENT
+        else if(ch == '/' && stream.eat('*')) {
+          state.tokenize = tokenBlockComment;
+        }
+        // WHITESPACE
+        else if(isWhitespace.test(ch)) {
+          state.tokenize = tokenWhitespace;
+        }
+        // TWO SYMBOL TOKENS
+        else if(isDoubleOperatorChar.test(ch+stream.peek())) {
+          ch = stream.next();
+          state.tokenize = tokenOperator;
+        }
+        // SINGLE SYMBOL TOKENS
+        else if(isSingleOperatorChar.test(ch)) {
+          state.tokenize = tokenOperator;
+        }
+        // IDENT
+        else if(isNonDigit.test(ch)) {
+          state.tokenize = tokenIdent;
+        }
+        // TODO: Q-IDENT
+        // STRING
+        else if(ch == '"') {
+          state.tokenize = tokenString;
+        }
+        // UNSIGNED_NUBER
+        else if(isDigit.test(ch)) {
+          state.tokenize = tokenUnsignedNuber;
+        }
+        // ERROR
+        else
+          state.tokenize = tokenUnknown;
+
+        return state.tokenize(stream, state);
       },
 
       blockCommentStart: "/*",
