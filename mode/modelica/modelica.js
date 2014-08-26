@@ -25,12 +25,6 @@
     var isDoubleOperatorChar = /(:=|<=|>=|==|<>|\.\+|\.\-|\.\*|\.\/|\.\^)/;
     var isDigit = /[0-9]/;
     var isNonDigit = /[_a-zA-Z]/;
-    var isWhitespace = /\s/;
-
-    function tokenUnknown(stream, state) {
-      state.tokenize = null;
-      return "error";
-    }
 
     function tokenLineComment(stream, state) {
       stream.skipToEnd();
@@ -50,29 +44,18 @@
       return "comment";
     }
 
-    function tokenWhitespace(stream, state) {
-      stream.eatSpace();
-      state.tokenize = null;
-      return null;
+    function tokenString(stream, state) {
+      var escaped = false, ch;
+      while ((ch = stream.next()) != null) {
+        if (ch == '"' && !escaped) {
+          state.tokenize = null;
+          break;
+        }
+        escaped = !escaped && ch == "\\";
+      }
+
+      return "string";
     }
-
-    function tokenOperator(stream, state) {
-      state.tokenize = null;
-      return "operator";
-    }
-
-     function tokenString(stream, state) {
-       var escaped = false, ch;
-       while ((ch = stream.next()) != null) {
-         if (ch == '"' && !escaped) {
-           state.tokenize = null;
-           break;
-         }
-         escaped = !escaped && ch == "\\";
-       }
-
-       return "string";
-     }
 
     function tokenIdent(stream, state) {
       stream.eatWhile(isDigit);
@@ -115,6 +98,12 @@
           return state.tokenize(stream, state);
         }
 
+        // WHITESPACE
+        if(stream.eatSpace()) {
+          state.tokenize = null;
+          return null;
+        }
+
         var ch = stream.next();
 
         // LINECOMMENT
@@ -125,18 +114,16 @@
         else if(ch == '/' && stream.eat('*')) {
           state.tokenize = tokenBlockComment;
         }
-        // WHITESPACE
-        else if(isWhitespace.test(ch)) {
-          state.tokenize = tokenWhitespace;
-        }
         // TWO SYMBOL TOKENS
         else if(isDoubleOperatorChar.test(ch+stream.peek())) {
-          ch = stream.next();
-          state.tokenize = tokenOperator;
+          stream.next();
+          state.tokenize = null;
+          return "operator";
         }
         // SINGLE SYMBOL TOKENS
         else if(isSingleOperatorChar.test(ch)) {
-          state.tokenize = tokenOperator;
+          state.tokenize = null;
+          return "operator";
         }
         // IDENT
         else if(isNonDigit.test(ch)) {
@@ -152,8 +139,10 @@
           state.tokenize = tokenUnsignedNuber;
         }
         // ERROR
-        else
-          state.tokenize = tokenUnknown;
+        else {
+          state.tokenize = null;
+          return "error";
+        }
 
         return state.tokenize(stream, state);
       },
