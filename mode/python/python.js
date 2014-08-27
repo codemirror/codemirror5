@@ -15,12 +15,12 @@
     return new RegExp("^((" + words.join(")|(") + "))\\b");
   }
 
-  var wordOperators = wordRegexp(["and", "or", "not", "is", "in"]);
+  var wordOperators = wordRegexp(["and", "or", "not", "is"]);
   var commonKeywords = ["as", "assert", "break", "class", "continue",
                         "def", "del", "elif", "else", "except", "finally",
                         "for", "from", "global", "if", "import",
                         "lambda", "pass", "raise", "return",
-                        "try", "while", "with", "yield"];
+                        "try", "while", "with", "yield", "in"];
   var commonBuiltins = ["abs", "all", "any", "bin", "bool", "bytearray", "callable", "chr",
                         "classmethod", "compile", "complex", "delattr", "dict", "dir", "divmod",
                         "enumerate", "eval", "filter", "float", "format", "frozenset",
