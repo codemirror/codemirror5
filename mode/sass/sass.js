@@ -280,7 +280,8 @@ CodeMirror.defineMode("sass", function(config) {
 
     if (style !== null) {
       var startOfToken = stream.pos - current.length;
-      var withCurrentIndent = startOfToken + (config.indentUnit * state.indentCount);
+      var indentCount = state.indentCount || 0;
+      var withCurrentIndent = startOfToken + (config.indentUnit * indentCount);
 
       var newScopes = [];
 
