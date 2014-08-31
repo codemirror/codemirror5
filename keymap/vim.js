@@ -683,14 +683,13 @@
           return !keysAreChars;
         }
 
-        function handleKeyGeneral() {
+        function handleKeyNonInsertMode() {
           if (handleMacroRecording() || handleEsc()) { return true; };
           handleExternalSelection();
 
           var keys = vim.inputState.keyBuffer = vim.inputState.keyBuffer + key;
-          if (/^[1-9]\d*$/.test(keys)) {
-            return true;
-          }
+          if (/^[1-9]\d*$/.test(keys)) { return true; }
+
           var keysMatcher = /^(\d*)(.*)$/.exec(keys);
           var context = vim.visualMode ? 'visual' :
                                          'normal';
@@ -713,7 +712,7 @@
         }
 
         if (vim.insertMode) { return handleKeyInsertMode(); }
-        else { return handleKeyGeneral(); }
+        else { return handleKeyNonInsertMode(); }
       },
       handleEx: function(cm, input) {
         exCommandDispatcher.processCommand(cm, input);
@@ -941,8 +940,7 @@
         var bestMatch;
         for (var i = 0; i < matches.full.length; i++) {
           var match = matches.full[i];
-          if (!bestMatch ||
-              match.context == context) {
+          if (!bestMatch || match.context == context) {
             bestMatch = match;
           }
         }
@@ -2556,6 +2554,9 @@
       return Pos(cur.line + offsetLine, cur.ch + offsetCh);
     }
     function commandMatches(keys, keyMap, context, inputState) {
+      // Partial matches are not applied. They inform the key handler
+      // that the current key sequence is a subsequence of a valid key
+      // sequence, so that the key buffer is not cleared.
       var match, partial = [], full = [];
       for (var i = 0; i < keyMap.length; i++) {
         var command = keyMap[i];
