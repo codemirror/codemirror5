@@ -102,7 +102,7 @@
             var chr = cm.getRange(pos, from);
             if (chr.match(/\W/) === null) return false;
         }
-        if (to.ch < cm.getLine(from.line).length - 1) {
+        if (to.ch < cm.getLine(from.line).length) {
             var pos = {line: to.line, ch: to.ch + 1};
             var chr = cm.getRange(to, pos);
             if (chr.match(/\W/) === null) return false;
