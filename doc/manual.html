@@ -1312,6 +1312,10 @@
       be <code>"line"</code> or <code>"page"</code>. The other
       arguments and the returned value have the same interpretation as
       they have in <code>findPosH</code>.</dd>
+
+      <dt id="findWordAt"><code><strong>cm.findWordAt</strong>(pos: {line, ch}) → {anchor: {line, ch}, head: {line, ch}}</code></dt>
+      <dd>Returns the start and end of the 'word' (the stretch of
+      letters, whitespace, or punctuation) at the given position.</dd>
     </dl>
 
     <h3 id="api_configuration">Configuration methods</h3>
