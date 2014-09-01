@@ -44,7 +44,7 @@
     if (this.style == null) this.style = DEFAULT_TOKEN_STYLE;
     if (this.minChars == null) this.minChars = DEFAULT_MIN_CHARS;
     if (this.delay == null) this.delay = DEFAULT_DELAY;
-    if (this.wordsOnly == null) this.delay = DEFAULT_WORDS_ONLY;
+    if (this.wordsOnly == null) this.wordsOnly = DEFAULT_WORDS_ONLY;
     this.overlay = this.timeout = null;
   }
 
