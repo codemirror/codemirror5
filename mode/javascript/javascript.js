@@ -19,6 +19,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   var jsonldMode = parserConfig.jsonld;
   var jsonMode = parserConfig.json || jsonldMode;
   var isTS = parserConfig.typescript;
+  var wordRE = parserConfig.wordCharacters || /[\w$]/;
 
   // Tokenizer
 
@@ -132,8 +133,8 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     } else if (isOperatorChar.test(ch)) {
       stream.eatWhile(isOperatorChar);
       return ret("operator", "operator", stream.current());
-    } else {
-      stream.eatWhile(/[\w\$_]/);
+    } else if (wordRE.test(ch)) {
+      stream.eatWhile(wordRE);
       var word = stream.current(), known = keywords.propertyIsEnumerable(word) && keywords[word];
       return (known && state.lastType != ".") ? ret(known.type, known.style, word) :
                      ret("variable", "variable", word);
@@ -202,7 +203,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
         if (--depth == 0) break;
       } else if (bracket >= 3 && bracket < 6) {
         ++depth;
-      } else if (/[$\w]/.test(ch)) {
+      } else if (wordRE.test(ch)) {
         sawSomething = true;
       } else if (sawSomething && !depth) {
         ++pos;

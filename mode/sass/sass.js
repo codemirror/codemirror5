@@ -303,6 +303,7 @@ CodeMirror.defineMode("sass", function(config) {
       return {
         tokenizer: tokenBase,
         scopes: [{offset: 0, type: "sass"}],
+        indentCount: 0,
         definedVars: [],
         definedMixins: []
       };
