@@ -362,7 +362,10 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
     if (ch === '\\') {
       stream.next();
-      if (modeCfg.highlightFormatting) return getType(state) + " escape";
+      if (modeCfg.highlightFormatting) {
+        var type = getType(state);
+        return type ? type + " formatting-escape" : "formatting-escape";
+      }
     }
 
     // Matches link titles present on next line

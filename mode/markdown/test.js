@@ -54,7 +54,7 @@
      "[link&formatting&formatting-link <][link user@example.com][link&formatting&formatting-link >]");
 
   FT("formatting_escape",
-     "[formatting&formatting-escape \\]*");
+     "[formatting-escape \\*]");
 
   MT("plainText",
      "foo");
