@@ -391,7 +391,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   function maybeoperatorNoComma(type, value, noComma) {
     var me = noComma == false ? maybeoperatorComma : maybeoperatorNoComma;
     var expr = noComma == false ? expression : expressionNoComma;
-    if (value == "=>") return cont(pushcontext, noComma ? arrowBodyNoComma : arrowBody, popcontext);
+    if (type == "=>") return cont(pushcontext, noComma ? arrowBodyNoComma : arrowBody, popcontext);
     if (type == "operator") {
       if (/\+\+|--/.test(value)) return cont(me);
       if (value == "?") return cont(expression, expect(":"), expr);
@@ -417,13 +417,11 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   }
   function arrowBody(type) {
     findFatArrow(cx.stream, cx.state);
-    if (type == "{") return pass(statement);
-    return pass(expression);
+    return pass(type == "{" ? statement : expression);
   }
   function arrowBodyNoComma(type) {
     findFatArrow(cx.stream, cx.state);
-    if (type == "{") return pass(statement);
-    return pass(expressionNoComma);
+    return pass(type == "{" ? statement : expressionNoComma);
   }
   function maybelabel(type) {
     if (type == ":") return cont(poplex, statement);
