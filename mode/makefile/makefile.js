@@ -14,12 +14,6 @@
 CodeMirror.defineMode('makefile', function() {
 
   var words = {};
-  function define(style, string) {
-    var split = string.split(' ');
-    for(var i = 0; i < split.length; i++) {
-      words[split[i]] = style;
-    }
-  };
 
   function tokenBase(stream, state) {
     if (stream.eatSpace()) return null;
@@ -112,13 +106,11 @@ CodeMirror.defineMode('makefile', function() {
 
   var tokenDollar = function(stream, state) {
     if (state.tokens.length > 1) stream.eat('$');
-    var ch = stream.next(), hungry = /\w/;
     state.tokens[0] = tokenString(')');
     return tokenize(stream, state);
   };
   var tokenDollarB = function(stream, state) {
     if (state.tokens.length > 1) stream.eat('$');
-    var ch = stream.next(), hungry = /\w/;
     state.tokens[0] = tokenString('}');
     return tokenize(stream, state);
   };
