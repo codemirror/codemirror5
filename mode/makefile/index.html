@@ -31,11 +31,6 @@
 <h2>Makefile mode</h2>
 
 <div><textarea id=code>
-# Makefile for L-SMASH
-
-# note:
-# Currently, this Makefile is not tested except GNU make.
-
 include config.mak
 
 vpath %.c $(SRCDIR)
@@ -47,7 +42,7 @@ SRC_ALL = $(SRCS) $(SRC_TOOLS)
 
 #### main rules ####
 
-.PHONY: all lib install install-lib clean distclean dep depend
+.PHONY: all lib install install-lib clean depend
 
 all: $(STATICLIB) $(SHAREDLIB) $(TOOLS)
 
@@ -61,10 +56,6 @@ $(STATICLIBNAME): $(OBJS)
 $(SHAREDLIBNAME): $(OBJS)
 	$(LD) $(SO_LDFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 	-@ $(if $(STRIP), $(STRIP) -x $@)
-
-# $(TOOLS) is automatically generated as config.mak2 by configure.
-# The reason for having config.mak2 is for making this Makefile easy to read.
-include config.mak2
 
 %.o: %.c .depend config.h
 	$(CC) -c $(CFLAGS) -o $@ $<
@@ -100,33 +91,11 @@ uninstall:
 clean:
 	$(RM) */*.o *.a *.so *.dll *.dylib $(addprefix cli/, *.exe $(TOOLS_ALL)) .depend
 
-distclean: clean
-	$(RM) config.* *.pc
-
-dep: .depend
-
 depend: .depend
 
 ifneq ($(wildcard .depend),)
 include .depend
 endif
-
-#The dependency of each source file is solved automatically by follows.
-.depend: config.mak
-	@$(RM) .depend
-	@$(foreach SRC, $(SRC_ALL:%=$(SRCDIR)/%), $(CC) $(SRC) $(CFLAGS) -g0 -MT $(SRC:$(SRCDIR)/%.c=%.o) -MM >> .depend;)
-
-liblsmash.pc:
-	./configure
-
-config.h:
-	./configure
-
-config.mak2:
-	./configure
-
-config.mak:
-	./configure
 </textarea></div>
 
 <script>
