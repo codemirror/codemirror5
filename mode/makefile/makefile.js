@@ -77,12 +77,10 @@ CodeMirror.defineMode('makefile', function() {
     }
     if (ch === '$' && (stream.eat('@') || stream.eat('<') || stream.eat('^'))) { return "quote"; }
 
-    /*
     if (ch === '\'' || ch === '"' || ch === '`') {
       state.tokens.unshift(tokenString(ch));
       return tokenize(stream, state);
     }
-    */
     stream.eatWhile(/[\w-]/);
     return words.hasOwnProperty(cur) ? words[cur] : null;
   }
