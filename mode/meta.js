@@ -60,6 +60,7 @@ CodeMirror.modeInfo = [
   {name: "LESS", mime: "text/x-less", mode: "css"},
   {name: "LiveScript", mime: "text/x-livescript", mode: "livescript"},
   {name: "Lua", mime: "text/x-lua", mode: "lua"},
+  {name: "Makefile", mime: "text/x-makefile", mode: "makefile"},
   {name: "Markdown (GitHub-flavour)", mime: "text/x-markdown", mode: "markdown"},
   {name: "mIRC", mime: "text/mirc", mode: "mirc"},
   {name: "Modelica", mime: "text/x-modelica", mode: "modelica"},
