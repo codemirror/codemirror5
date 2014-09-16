@@ -111,7 +111,8 @@ CodeMirror.defineMode('shell', function() {
     token: function(stream, state) {
       if (stream.eatSpace()) return null;
       return tokenize(stream, state);
-    }
+    },
+    lineComment: '#'
   };
 });
 
