@@ -700,14 +700,15 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       state.formatting = false;
 
       if (stream.sol()) {
-        var forceBlankLine = stream.match(/^\s*$/, true) || state.header;
+        var forceBlankLine = !!state.header;
 
         // Reset state.header
         state.header = 0;
 
-        if (forceBlankLine) {
+        if (stream.match(/^\s*$/, true) || forceBlankLine) {
           state.prevLineHasContent = false;
-          return blankLine(state);
+          blankLine(state);
+          return forceBlankLine ? this.token(stream, state) : null;
         } else {
           state.prevLineHasContent = state.thisLineHasContent;
           state.thisLineHasContent = true;
