@@ -119,9 +119,9 @@
   function startLinting(cm) {
     var state = cm.state.lint, options = state.options;
     if (options.async)
-      options.getAnnotations(cm, updateLinting, options);
+      options.getAnnotations(cm.getValue(), updateLinting, options, cm);
     else
-      updateLinting(cm, options.getAnnotations(cm.getValue(), options.options));
+      updateLinting(cm, options.getAnnotations(cm.getValue(), options, cm));
   }
 
   function updateLinting(cm, annotationsNotSorted) {
