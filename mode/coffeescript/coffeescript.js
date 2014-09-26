@@ -310,7 +310,7 @@ CodeMirror.defineMode("coffeescript", function(conf) {
       if (state.scope.type == current)
         state.scope = state.scope.prev;
     }
-    if (state.dedent > 0 && stream.eol() && state.scope.type == "coffee") {
+    if (state.dedent > 0 && stream.eol() && ["coffee", "}"].indexOf(state.scope.type) > -1) {
       if (state.scope.prev) state.scope = state.scope.prev;
       state.dedent -= 1;
     }
