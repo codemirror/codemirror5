@@ -217,7 +217,7 @@ CodeMirror.defineMode("coffeescript", function(conf) {
     type = type || "coffee";
     var offset = 0, align = false, alignOffset = null;
     for (var scope = state.scope; scope; scope = scope.prev) {
-      if (scope.type === "coffee") {
+      if (scope.type === "coffee" || scope.type == "}") {
         offset = scope.offset + conf.indentUnit;
         break;
       }
@@ -278,7 +278,7 @@ CodeMirror.defineMode("coffeescript", function(conf) {
 
     // Handle scope changes.
     if (current === "return") {
-      state.dedent += 1;
+      state.dedent = true;
     }
     if (((current === "->" || current === "=>") &&
          !state.lambda &&
@@ -310,9 +310,10 @@ CodeMirror.defineMode("coffeescript", function(conf) {
       if (state.scope.type == current)
         state.scope = state.scope.prev;
     }
-    if (state.dedent > 0 && stream.eol() && state.scope.type == "coffee") {
-      if (state.scope.prev) state.scope = state.scope.prev;
-      state.dedent -= 1;
+    if (state.dedent && stream.eol()) {
+      if (state.scope.type == "coffee" && state.scope.prev)
+        state.scope = state.scope.prev;
+      state.dedent = false;
     }
 
     return style;
