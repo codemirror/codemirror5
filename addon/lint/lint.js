@@ -118,10 +118,11 @@
 
   function startLinting(cm) {
     var state = cm.state.lint, options = state.options;
+    var passOptions = options.options || options; // Support deprecated passing of `options` property in options
     if (options.async)
-      options.getAnnotations(cm.getValue(), updateLinting, options, cm);
+      options.getAnnotations(cm.getValue(), updateLinting, passOptions, cm);
     else
-      updateLinting(cm, options.getAnnotations(cm.getValue(), options, cm));
+      updateLinting(cm, options.getAnnotations(cm.getValue(), passOptions, cm));
   }
 
   function updateLinting(cm, annotationsNotSorted) {
