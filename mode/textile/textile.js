@@ -13,37 +13,37 @@
 'use strict';
 
 var TOKEN_STYLES = {
-  addition: 'addition',
-  attributes: 'attributes',
-  bold: 'bold',
-  cite: 'cite',
-  code: 'code',
-  definitionList: 'definition-list',
-  deletion: 'deletion',
-  div: 'div',
+  addition: 'positive',
+  attributes: 'attribute',
+  bold: 'strong',
+  cite: 'keyword',
+  code: 'atom',
+  definitionList: 'number',
+  deletion: 'negative',
+  div: 'punctuation',
   em: 'em',
-  footnote: 'footnote',
-  footCite: 'footnote-citation',
+  footnote: 'variable',
+  footCite: 'qualifier',
   header: 'header',
-  html: 'html',
-  image: 'image',
-  italic: 'italic',
+  html: 'comment',
+  image: 'string',
+  italic: 'em',
   link: 'link',
-  linkDefinition: 'link-definition',
+  linkDefinition: 'link',
   list1: 'variable-2',
   list2: 'variable-3',
   list3: 'keyword',
-  notextile: 'notextile',
-  pre: 'pre',
-  p: 'p',
-  quote: 'quote',
-  span: 'span',
-  specialChar: 'special-char',
+  notextile: 'string-2',
+  pre: 'operator',
+  p: 'property',
+  quote: 'bracket',
+  span: 'quote',
+  specialChar: 'tag',
   strong: 'strong',
-  sub: 'sub',
-  sup: 'sup',
-  table: 'table',
-  tableHeading: 'table-heading'
+  sub: 'builtin',
+  sup: 'builtin',
+  table: 'variable-3',
+  tableHeading: 'operator'
 };
 
 function Parser(regExpFactory, state, stream) {
@@ -204,11 +204,12 @@ Parser.prototype.textileDisabled = function() {
     case 'notextile':
     case 'code':
     case 'pre':
-      return type;
+      return this.styleFor(type);
     default:
       if (this.state.notextile) {
-        return type ? (type + ' notextile') : 'notextile';
+        return this.styleFor('notextile') + (type ? (' ' + this.styleFor(type)) : '');
       }
+
       return null;
   }
 };
