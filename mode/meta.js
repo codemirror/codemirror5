@@ -99,6 +99,7 @@ CodeMirror.modeInfo = [
   {name: "LaTeX", mime: "text/x-latex", mode: "stex"},
   {name: "SystemVerilog", mime: "text/x-systemverilog", mode: "verilog"},
   {name: "Tcl", mime: "text/x-tcl", mode: "tcl"},
+  {name: "Textile", mime: "text/x-textile", mode: "textile"},
   {name: "TiddlyWiki ", mime: "text/x-tiddlywiki", mode: "tiddlywiki"},
   {name: "Tiki wiki", mime: "text/tiki", mode: "tiki"},
   {name: "TOML", mime: "text/x-toml", mode: "toml"},
