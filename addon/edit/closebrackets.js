@@ -78,24 +78,25 @@
         for (var i = 0; i < ranges.length; i++) {
           var range = ranges[i], cur = range.head, curType;
           var next = cm.getRange(cur, Pos(cur.line, cur.ch + 1));
-          if (!range.empty())
+          if (!range.empty()) {
             curType = "surround";
-          else if (left == right && next == right) {
+          } else if (left == right && next == right) {
             if (cm.getRange(cur, Pos(cur.line, cur.ch + 3)) == left + left + left)
               curType = "skipThree";
             else
               curType = "skip";
           } else if (left == right && cur.ch > 1 &&
                      cm.getRange(Pos(cur.line, cur.ch - 2), cur) == left + left &&
-                     (cur.ch <= 2 || cm.getRange(Pos(cur.line, cur.ch - 3), Pos(cur.line, cur.ch - 2)) != left))
+                     (cur.ch <= 2 || cm.getRange(Pos(cur.line, cur.ch - 3), Pos(cur.line, cur.ch - 2)) != left)) {
             curType = "addFour";
-          else if (left == '"' || left == "'") {
+          } else if (left == '"' || left == "'") {
             if (!CodeMirror.isWordChar(next) && enteringString(cm, cur, left)) curType = "both";
             else return CodeMirror.Pass;
-          } else if (cm.getLine(cur.line).length == cur.ch || closingBrackets.indexOf(next) >= 0 || SPACE_CHAR_REGEX.test(next))
+          } else if (cm.getLine(cur.line).length == cur.ch || closingBrackets.indexOf(next) >= 0 || SPACE_CHAR_REGEX.test(next)) {
             curType = "both";
-          else
+          } else {
             return CodeMirror.Pass;
+          }
           if (!type) type = curType;
           else if (type != curType) return CodeMirror.Pass;
         }
