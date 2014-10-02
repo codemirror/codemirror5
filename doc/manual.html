@@ -2585,6 +2585,25 @@
       editor instance to refresh its mode when the loading
       succeeded. See the <a href="../demo/loadmode.html">demo</a>.</dd>
 
+      <dt id="addon_meta"><a href="../mode/meta.js"><code>mode/meta.js</code></a></dt>
+      <dd>Provides meta-information about all the modes in the
+      distribution in a single file.
+      Defines <code>CodeMirror.modeInfo</code>, an array of objects
+      with <code>{name, mime, mode}</code> properties,
+      where <code>name</code> is the human-readable
+      name, <code>mime</code> the MIME type, and <code>mode</code> the
+      name of the mode file that defines this MIME. There are optional
+      properties <code>mimes</code>, which holds an array of MIME
+      types for modes with multiple MIMEs associated,
+      and <code>ext</code>, which holds an array of file extensions
+      associated with this mode. Two convenience
+      functions, <code>CodeMirror.findModeByMIME</code>
+      and <code>CodeMirror.findModeByExtension</code> are provided,
+      which return such an object given a MIME or extension string.
+      Note that, for historical reasons, this file resides in the
+      top-level <code>mode</code> directory, not
+      under <code>addon</code>. <a href="../demo/loadmode.html">Demo</a>.</dd>
+
       <dt id="addon_continuecomment"><a href="../addon/comment/continuecomment.js"><code>comment/continuecomment.js</code></a></dt>
       <dd>Adds a <code>continueComments</code> option, which sets whether the
       editor will make the next line continue a comment when you press Enter
