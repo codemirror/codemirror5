@@ -75,10 +75,8 @@ CodeMirror.startState = function (mode, a1, a2) {
 
 var modes = CodeMirror.modes = {}, mimeModes = CodeMirror.mimeModes = {};
 CodeMirror.defineMode = function (name, mode) {
-  if (arguments.length > 2) {
-    mode.dependencies = [];
-    for (var i = 2; i < arguments.length; ++i) mode.dependencies.push(arguments[i]);
-  }
+  if (arguments.length > 2)
+    mode.dependencies = Array.prototype.slice.call(arguments, 2);
   modes[name] = mode;
 };
 CodeMirror.defineMIME = function (mime, spec) { mimeModes[mime] = spec; };
