@@ -229,7 +229,7 @@
       function lookupKey(e) {
         var keyCode = e.keyCode;
         if (modifierCodes.indexOf(keyCode) != -1) { return; }
-        var hasModifier = e.ctrlKey || e.shiftKey || e.metaKey || e.ctrlKey;
+        var hasModifier = e.ctrlKey || e.shiftKey || e.metaKey;
         var key = CodeMirror.keyNames[keyCode];
         key = specialKey[key] || key;
         var name = '';
@@ -259,7 +259,8 @@
       // non-standard keyboard layouts.
       function handleKeyPress(cm, e) {
         var code = e.charCode || e.keyCode;
-        if (e.ctrlKey || e.metaKey || e.altKey) { return; }
+        if (e.ctrlKey || e.metaKey || e.altKey ||
+            e.shiftKey && code < 32) { return; }
         var name = String.fromCharCode(code);
 
         CodeMirror.signal(cm, 'vim-keypress', name);
@@ -691,6 +692,7 @@
           if (/^[1-9]\d*$/.test(keys)) { return true; }
 
           var keysMatcher = /^(\d*)(.*)$/.exec(keys);
+          if (!keysMatcher) { clearInputState(cm); return false; }
           var context = vim.visualMode ? 'visual' :
                                          'normal';
           var match = commandDispatcher.matchCommand(keysMatcher[2] || keysMatcher[1], defaultKeymap, vim.inputState, context);
