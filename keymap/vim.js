@@ -1862,10 +1862,15 @@
         // including the trailing \n, include the \n before the starting line
         if (operatorArgs.linewise &&
             curEnd.line == cm.lastLine() && curStart.line == curEnd.line) {
-          var tmp = copyCursor(curEnd);
-          curStart.line--;
-          curStart.ch = lineLength(cm, curStart.line);
-          curEnd = tmp;
+          if (curEnd.line == 0) {
+            curStart.ch = 0;
+          }
+          else {
+            var tmp = copyCursor(curEnd);
+            curStart.line--;
+            curStart.ch = lineLength(cm, curStart.line);
+            curEnd = tmp;
+          }
           cm.replaceRange('', curStart, curEnd);
         } else {
           cm.replaceSelections(replacement);

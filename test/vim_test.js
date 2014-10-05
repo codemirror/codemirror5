@@ -828,6 +828,15 @@ testVim('dd_lastline', function(cm, vim, helpers) {
   eq(expectedLineCount, cm.lineCount());
   helpers.assertCursorAt(cm.lineCount() - 1, 0);
 });
+testVim('dd_only_line', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  var expectedRegister = cm.getValue() + "\n";
+  helpers.doKeys('d','d');
+  eq(1, cm.lineCount());
+  eq('', cm.getValue());
+  var register = helpers.getRegisterController().getRegister();
+  eq(expectedRegister, register.toString());
+}, { value: "thisistheonlyline" });
 // Yank commands should behave the exact same as d commands, expect that nothing
 // gets deleted.
 testVim('yw_repeat', function(cm, vim, helpers) {
