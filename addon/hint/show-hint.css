@@ -32,7 +32,7 @@
   cursor: pointer;
 }
 
-.CodeMirror-hint-active {
+li.CodeMirror-hint-active {
   background: #08f;
   color: white;
 }

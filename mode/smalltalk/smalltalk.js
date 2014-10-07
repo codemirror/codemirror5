@@ -53,7 +53,7 @@ CodeMirror.defineMode('smalltalk', function(config) {
         stream.next();
         token = nextSymbol(stream, new Context(nextSymbol, context));
       } else {
-        if (stream.eatWhile(/[^ .{}\[\]()]/))
+        if (stream.eatWhile(/[^\s.{}\[\]()]/))
           token.name = 'string-2';
         else
           token.name = 'meta';
@@ -61,7 +61,7 @@ CodeMirror.defineMode('smalltalk', function(config) {
 
     } else if (aChar === '$') {
       if (stream.next() === '<') {
-        stream.eatWhile(/[^ >]/);
+        stream.eatWhile(/[^\s>]/);
         stream.next();
       }
       token.name = 'string-2';

@@ -828,6 +828,15 @@ testVim('dd_lastline', function(cm, vim, helpers) {
   eq(expectedLineCount, cm.lineCount());
   helpers.assertCursorAt(cm.lineCount() - 1, 0);
 });
+testVim('dd_only_line', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  var expectedRegister = cm.getValue() + "\n";
+  helpers.doKeys('d','d');
+  eq(1, cm.lineCount());
+  eq('', cm.getValue());
+  var register = helpers.getRegisterController().getRegister();
+  eq(expectedRegister, register.toString());
+}, { value: "thisistheonlyline" });
 // Yank commands should behave the exact same as d commands, expect that nothing
 // gets deleted.
 testVim('yw_repeat', function(cm, vim, helpers) {
@@ -902,6 +911,7 @@ testVim('c_visual_block', function(cm, vim, helpers) {
   replacement.pop();
   cm.replaceSelections(replacement);
   eq('1hello\n5hello\nahellofg', cm.getValue());
+  helpers.doKeys('<Esc>');
   cm.setCursor(2, 3);
   helpers.doKeys('<C-v>', '2', 'k', 'h', 'C');
   replacement = new Array(cm.listSelections().length+1).join('world ').split(' ');
@@ -916,7 +926,7 @@ testVim('c_visual_block_replay', function(cm, vim, helpers) {
   replacement.pop();
   cm.replaceSelections(replacement);
   eq('1fo4\n5fo8\nafodefg', cm.getValue());
-  helpers.doInsertModeKeys('Esc');
+  helpers.doKeys('<Esc>');
   cm.setCursor(0, 0);
   helpers.doKeys('.');
   eq('foo4\nfoo8\nfoodefg', cm.getValue());
@@ -1210,7 +1220,7 @@ testVim('i', function(cm, vim, helpers) {
 testVim('i_repeat', function(cm, vim, helpers) {
   helpers.doKeys('3', 'i');
   cm.replaceRange('test', cm.getCursor());
-  helpers.doInsertModeKeys('Esc');
+  helpers.doKeys('<Esc>');
   eq('testtesttest', cm.getValue());
   helpers.assertCursorAt(0, 11);
 }, { value: '' });
@@ -1218,7 +1228,8 @@ testVim('i_repeat_delete', function(cm, vim, helpers) {
   cm.setCursor(0, 4);
   helpers.doKeys('2', 'i');
   cm.replaceRange('z', cm.getCursor());
-  helpers.doInsertModeKeys('Backspace', 'Backspace', 'Esc');
+  helpers.doInsertModeKeys('Backspace', 'Backspace');
+  helpers.doKeys('<Esc>');
   eq('abe', cm.getValue());
   helpers.assertCursorAt(0, 1);
 }, { value: 'abcde' });
@@ -1245,7 +1256,7 @@ testVim('I_repeat', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.doKeys('3', 'I');
   cm.replaceRange('test', cm.getCursor());
-  helpers.doInsertModeKeys('Esc');
+  helpers.doKeys('<Esc>');
   eq('testtesttestblah', cm.getValue());
   helpers.assertCursorAt(0, 11);
 }, { value: 'blah' });
@@ -1268,7 +1279,7 @@ testVim('o_repeat', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('3', 'o');
   cm.replaceRange('test', cm.getCursor());
-  helpers.doInsertModeKeys('Esc');
+  helpers.doKeys('<Esc>');
   eq('\ntest\ntest\ntest', cm.getValue());
   helpers.assertCursorAt(3, 3);
 }, { value: '' });
@@ -1384,7 +1395,7 @@ testVim('r_visual_block', function(cm, vim, helpers) {
   eq('1  l\n5  l\nalllefg', cm.getValue());
   cm.setCursor(2, 0);
   helpers.doKeys('o');
-  helpers.doInsertModeKeys('Esc');
+  helpers.doKeys('<Esc>');
   cm.replaceRange('\t\t', cm.getCursor());
   helpers.doKeys('<C-v>', 'h', 'h', 'r', 'r');
   eq('1  l\n5  l\nalllefg\nrrrrrrrr', cm.getValue());
@@ -1787,13 +1798,13 @@ testVim('reselect_visual_block', function(cm, vim, helpers) {
 testVim('s_normal', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.doKeys('s');
-  helpers.doInsertModeKeys('Esc');
+  helpers.doKeys('<Esc>');
   eq('ac', cm.getValue());
 }, { value: 'abc'});
 testVim('s_visual', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.doKeys('v', 's');
-  helpers.doInsertModeKeys('Esc');
+  helpers.doKeys('<Esc>');
   helpers.assertCursorAt(0, 0);
   eq('ac', cm.getValue());
 }, { value: 'abc'});
@@ -1877,7 +1888,7 @@ testVim('v_paste_from_register', function(cm, vim, helpers) {
 testVim('S_normal', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.doKeys('j', 'S');
-  helpers.doInsertModeKeys('Esc');
+  helpers.doKeys('<Esc>');
   helpers.assertCursorAt(1, 0);
   eq('aa\n\ncc', cm.getValue());
 }, { value: 'aa\nbb\ncc'});
@@ -1927,7 +1938,7 @@ testVim('blockwise_paste_last_line', function(cm, vim, helpers) {
 testVim('S_visual', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.doKeys('v', 'j', 'S');
-  helpers.doInsertModeKeys('Esc');
+  helpers.doKeys('<Esc>');
   helpers.assertCursorAt(0, 0);
   eq('\ncc', cm.getValue());
 }, { value: 'aa\nbb\ncc'});
@@ -2109,7 +2120,7 @@ testVim('macro_insert', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('q', 'a', '0', 'i');
   cm.replaceRange('foo', cm.getCursor());
-  helpers.doInsertModeKeys('Esc');
+  helpers.doKeys('<Esc>');
   helpers.doKeys('q', '@', 'a');
   eq('foofoo', cm.getValue());
 }, { value: ''});
@@ -2117,14 +2128,14 @@ testVim('macro_insert_repeat', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('q', 'a', '$', 'a');
   cm.replaceRange('larry.', cm.getCursor());
-  helpers.doInsertModeKeys('Esc');
+  helpers.doKeys('<Esc>');
   helpers.doKeys('a');
   cm.replaceRange('curly.', cm.getCursor());
-  helpers.doInsertModeKeys('Esc');
+  helpers.doKeys('<Esc>');
   helpers.doKeys('q');
   helpers.doKeys('a');
   cm.replaceRange('moe.', cm.getCursor());
-  helpers.doInsertModeKeys('Esc');
+  helpers.doKeys('<Esc>');
   helpers.doKeys('@', 'a');
   // At this point, the most recent edit should be the 2nd insert change
   // inside the macro, i.e. "curly.".
@@ -2186,10 +2197,10 @@ testVim('macro_parens', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('q', 'z', 'i');
   cm.replaceRange('(', cm.getCursor());
-  helpers.doInsertModeKeys('Esc');
+  helpers.doKeys('<Esc>');
   helpers.doKeys('e', 'a');
   cm.replaceRange(')', cm.getCursor());
-  helpers.doInsertModeKeys('Esc');
+  helpers.doKeys('<Esc>');
   helpers.doKeys('q');
   helpers.doKeys('w', '@', 'z');
   helpers.doKeys('w', '@', 'z');
@@ -2199,13 +2210,13 @@ testVim('macro_overwrite', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('q', 'z', '0', 'i');
   cm.replaceRange('I ', cm.getCursor());
-  helpers.doInsertModeKeys('Esc');
+  helpers.doKeys('<Esc>');
   helpers.doKeys('q');
   helpers.doKeys('e');
   // Now replace the macro with something else.
   helpers.doKeys('q', 'z', 'a');
   cm.replaceRange('.', cm.getCursor());
-  helpers.doInsertModeKeys('Esc');
+  helpers.doKeys('<Esc>');
   helpers.doKeys('q');
   helpers.doKeys('e', '@', 'z');
   helpers.doKeys('e', '@', 'z');
@@ -2296,11 +2307,11 @@ testVim('macro_register', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('q', 'a', 'i');
   cm.replaceRange('gangnam', cm.getCursor());
-  helpers.doInsertModeKeys('Esc');
+  helpers.doKeys('<Esc>');
   helpers.doKeys('q');
   helpers.doKeys('q', 'b', 'o');
   cm.replaceRange('style', cm.getCursor());
-  helpers.doInsertModeKeys('Esc');
+  helpers.doKeys('<Esc>');
   helpers.doKeys('q');
   cm.openDialog = helpers.fakeOpenDialog('registers');
   cm.openNotification = helpers.fakeOpenNotification(function(text) {
@@ -2313,7 +2324,7 @@ testVim('._register', function(cm,vim,helpers) {
   cm.setCursor(0,0);
   helpers.doKeys('i');
   cm.replaceRange('foo',cm.getCursor());
-  helpers.doInsertModeKeys('Esc');
+  helpers.doKeys('<Esc>');
   cm.openDialog = helpers.fakeOpenDialog('registers');
   cm.openNotification = helpers.fakeOpenNotification(function(text) {
     is(/\.\s+foo/.test(text));
@@ -2464,7 +2475,7 @@ testVim('._repeat', function(cm, vim, helpers) {
 testVim('._insert', function(cm, vim, helpers) {
   helpers.doKeys('i');
   cm.replaceRange('test', cm.getCursor());
-  helpers.doInsertModeKeys('Esc');
+  helpers.doKeys('<Esc>');
   helpers.doKeys('.');
   eq('testestt', cm.getValue());
   helpers.assertCursorAt(0, 6);
@@ -2473,7 +2484,7 @@ testVim('._insert_repeat', function(cm, vim, helpers) {
   helpers.doKeys('i');
   cm.replaceRange('test', cm.getCursor());
   cm.setCursor(0, 4);
-  helpers.doInsertModeKeys('Esc');
+  helpers.doKeys('<Esc>');
   helpers.doKeys('2', '.');
   eq('testesttestt', cm.getValue());
   helpers.assertCursorAt(0, 10);
@@ -2482,7 +2493,7 @@ testVim('._repeat_insert', function(cm, vim, helpers) {
   helpers.doKeys('3', 'i');
   cm.replaceRange('te', cm.getCursor());
   cm.setCursor(0, 2);
-  helpers.doInsertModeKeys('Esc');
+  helpers.doKeys('<Esc>');
   helpers.doKeys('.');
   eq('tetettetetee', cm.getValue());
   helpers.assertCursorAt(0, 10);
@@ -2491,7 +2502,7 @@ testVim('._insert_o', function(cm, vim, helpers) {
   helpers.doKeys('o');
   cm.replaceRange('z', cm.getCursor());
   cm.setCursor(1, 1);
-  helpers.doInsertModeKeys('Esc');
+  helpers.doKeys('<Esc>');
   helpers.doKeys('.');
   eq('\nz\nz', cm.getValue());
   helpers.assertCursorAt(2, 0);
@@ -2499,7 +2510,7 @@ testVim('._insert_o', function(cm, vim, helpers) {
 testVim('._insert_o_repeat', function(cm, vim, helpers) {
   helpers.doKeys('o');
   cm.replaceRange('z', cm.getCursor());
-  helpers.doInsertModeKeys('Esc');
+  helpers.doKeys('<Esc>');
   cm.setCursor(1, 0);
   helpers.doKeys('2', '.');
   eq('\nz\nz\nz', cm.getValue());
@@ -2508,7 +2519,7 @@ testVim('._insert_o_repeat', function(cm, vim, helpers) {
 testVim('._insert_o_indent', function(cm, vim, helpers) {
   helpers.doKeys('o');
   cm.replaceRange('z', cm.getCursor());
-  helpers.doInsertModeKeys('Esc');
+  helpers.doKeys('<Esc>');
   cm.setCursor(1, 2);
   helpers.doKeys('.');
   eq('{\n  z\n  z', cm.getValue());
@@ -2517,7 +2528,7 @@ testVim('._insert_o_indent', function(cm, vim, helpers) {
 testVim('._insert_cw', function(cm, vim, helpers) {
   helpers.doKeys('c', 'w');
   cm.replaceRange('test', cm.getCursor());
-  helpers.doInsertModeKeys('Esc');
+  helpers.doKeys('<Esc>');
   cm.setCursor(0, 3);
   helpers.doKeys('2', 'l');
   helpers.doKeys('.');
@@ -2529,7 +2540,7 @@ testVim('._insert_cw_repeat', function(cm, vim, helpers) {
   // changes. Will conform to that behavior.
   helpers.doKeys('c', 'w');
   cm.replaceRange('test', cm.getCursor());
-  helpers.doInsertModeKeys('Esc');
+  helpers.doKeys('<Esc>');
   cm.setCursor(0, 4);
   helpers.doKeys('l');
   helpers.doKeys('2', '.');
@@ -2539,7 +2550,8 @@ testVim('._insert_cw_repeat', function(cm, vim, helpers) {
 testVim('._delete', function(cm, vim, helpers) {
   cm.setCursor(0, 5);
   helpers.doKeys('i');
-  helpers.doInsertModeKeys('Backspace', 'Esc');
+  helpers.doInsertModeKeys('Backspace');
+  helpers.doKeys('<Esc>');
   helpers.doKeys('.');
   eq('zace', cm.getValue());
   helpers.assertCursorAt(0, 1);
@@ -2547,7 +2559,8 @@ testVim('._delete', function(cm, vim, helpers) {
 testVim('._delete_repeat', function(cm, vim, helpers) {
   cm.setCursor(0, 6);
   helpers.doKeys('i');
-  helpers.doInsertModeKeys('Backspace', 'Esc');
+  helpers.doInsertModeKeys('Backspace');
+  helpers.doKeys('<Esc>');
   helpers.doKeys('2', '.');
   eq('zzce', cm.getValue());
   helpers.assertCursorAt(0, 1);
@@ -2664,7 +2677,7 @@ testVim('fc,;', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('f', '4');
   cm.setCursor(0, 0);
-  helpers.doKeys('c', ';', 'Esc');
+  helpers.doKeys('c', ';', '<Esc>');
   eq('56789', cm.getValue());
   helpers.doKeys('u');
   cm.setCursor(0, 9);
@@ -2675,7 +2688,7 @@ testVim('Fc,;', function(cm, vim, helpers) {
   cm.setCursor(0, 9);
   helpers.doKeys('F', '4');
   cm.setCursor(0, 9);
-  helpers.doKeys('c', ';', 'Esc');
+  helpers.doKeys('c', ';', '<Esc>');
   eq('01239', cm.getValue());
   helpers.doKeys('u');
   cm.setCursor(0, 0);
@@ -2686,7 +2699,7 @@ testVim('tc,;', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('t', '4');
   cm.setCursor(0, 0);
-  helpers.doKeys('c', ';', 'Esc');
+  helpers.doKeys('c', ';', '<Esc>');
   eq('456789', cm.getValue());
   helpers.doKeys('u');
   cm.setCursor(0, 9);
@@ -2697,7 +2710,7 @@ testVim('Tc,;', function(cm, vim, helpers) {
   cm.setCursor(0, 9);
   helpers.doKeys('T', '4');
   cm.setCursor(0, 9);
-  helpers.doKeys('c', ';', 'Esc');
+  helpers.doKeys('c', ';', '<Esc>');
   eq('012349', cm.getValue());
   helpers.doKeys('u');
   cm.setCursor(0, 0);
@@ -3488,6 +3501,13 @@ testVim('ex_map_key2key_visual_api', function(cm, vim, helpers) {
 
   CodeMirror.commands.save = tmp;
 });
+testVim('ex_imap', function(cm, vim, helpers) {
+  CodeMirror.Vim.map('jk', '<Esc>', 'insert');
+  helpers.doKeys('i');
+  is(vim.insertMode);
+  helpers.doKeys('j', 'k');
+  is(!vim.insertMode);
+})
 
 // Testing registration of functions as ex-commands and mapping to <Key>-keys
 testVim('ex_api_test', function(cm, vim, helpers) {

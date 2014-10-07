@@ -80,19 +80,6 @@ CodeMirror.defineMode('rst-base', function (config) {
     });
   }
 
-  function AssertException(message) {
-    this.message = message;
-  }
-
-  AssertException.prototype.toString = function () {
-    return 'AssertException: ' + this.message;
-  };
-
-  function assert(expression, message) {
-    if (!expression) throw new AssertException(message);
-    return expression;
-  }
-
   ///////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////
 
@@ -185,12 +172,12 @@ CodeMirror.defineMode('rst-base', function (config) {
       switch (stage(state)) {
       case 0:
         change(state, to_normal, context(rx_role_pre, 1));
-        assert(stream.match(/^:/));
+        stream.match(/^:/);
         token = 'meta';
         break;
       case 1:
         change(state, to_normal, context(rx_role_pre, 2));
-        assert(stream.match(rx_NAME));
+        stream.match(rx_NAME);
         token = 'keyword';
 
         if (stream.current().match(/^(?:math|latex)/)) {
@@ -199,7 +186,7 @@ CodeMirror.defineMode('rst-base', function (config) {
         break;
       case 2:
         change(state, to_normal, context(rx_role_pre, 3));
-        assert(stream.match(/^:`/));
+        stream.match(/^:`/);
         token = 'meta';
         break;
       case 3:
@@ -221,21 +208,20 @@ CodeMirror.defineMode('rst-base', function (config) {
         }
 
         change(state, to_normal, context(rx_role_pre, 4));
-        assert(stream.match(rx_TEXT2));
+        stream.match(rx_TEXT2);
         token = 'string';
         break;
       case 4:
         change(state, to_normal, context(rx_role_pre, 5));
-        assert(stream.match(/^`/));
+        stream.match(/^`/);
         token = 'meta';
         break;
       case 5:
         change(state, to_normal, context(rx_role_pre, 6));
-        assert(stream.match(rx_TAIL));
+        stream.match(rx_TAIL);
         break;
       default:
         change(state, to_normal);
-        assert(stream.current() == '');
       }
     } else if (phase(state) == rx_role_suf ||
                stream.match(rx_role_suf, false)) {
@@ -243,62 +229,60 @@ CodeMirror.defineMode('rst-base', function (config) {
       switch (stage(state)) {
       case 0:
         change(state, to_normal, context(rx_role_suf, 1));
-        assert(stream.match(/^`/));
+        stream.match(/^`/);
         token = 'meta';
         break;
       case 1:
         change(state, to_normal, context(rx_role_suf, 2));
-        assert(stream.match(rx_TEXT2));
+        stream.match(rx_TEXT2);
         token = 'string';
         break;
       case 2:
         change(state, to_normal, context(rx_role_suf, 3));
-        assert(stream.match(/^`:/));
+        stream.match(/^`:/);
         token = 'meta';
         break;
       case 3:
         change(state, to_normal, context(rx_role_suf, 4));
-        assert(stream.match(rx_NAME));
+        stream.match(rx_NAME);
         token = 'keyword';
         break;
       case 4:
         change(state, to_normal, context(rx_role_suf, 5));
-        assert(stream.match(/^:/));
+        stream.match(/^:/);
         token = 'meta';
         break;
       case 5:
         change(state, to_normal, context(rx_role_suf, 6));
-        assert(stream.match(rx_TAIL));
+        stream.match(rx_TAIL);
         break;
       default:
         change(state, to_normal);
-        assert(stream.current() == '');
       }
     } else if (phase(state) == rx_role || stream.match(rx_role, false)) {
 
       switch (stage(state)) {
       case 0:
         change(state, to_normal, context(rx_role, 1));
-        assert(stream.match(/^:/));
+        stream.match(/^:/);
         token = 'meta';
         break;
       case 1:
         change(state, to_normal, context(rx_role, 2));
-        assert(stream.match(rx_NAME));
+        stream.match(rx_NAME);
         token = 'keyword';
         break;
       case 2:
         change(state, to_normal, context(rx_role, 3));
-        assert(stream.match(/^:/));
+        stream.match(/^:/);
         token = 'meta';
         break;
       case 3:
         change(state, to_normal, context(rx_role, 4));
-        assert(stream.match(rx_TAIL));
+        stream.match(rx_TAIL);
         break;
       default:
         change(state, to_normal);
-        assert(stream.current() == '');
       }
     } else if (phase(state) == rx_substitution_ref ||
                stream.match(rx_substitution_ref, false)) {
@@ -306,7 +290,7 @@ CodeMirror.defineMode('rst-base', function (config) {
       switch (stage(state)) {
       case 0:
         change(state, to_normal, context(rx_substitution_ref, 1));
-        assert(stream.match(rx_substitution_text));
+        stream.match(rx_substitution_text);
         token = 'variable-2';
         break;
       case 1:
@@ -315,7 +299,6 @@ CodeMirror.defineMode('rst-base', function (config) {
         break;
       default:
         change(state, to_normal);
-        assert(stream.current() == '');
       }
     } else if (stream.match(rx_footnote_ref)) {
       change(state, to_normal);
@@ -341,21 +324,20 @@ CodeMirror.defineMode('rst-base', function (config) {
         break;
       case 1:
         change(state, to_normal, context(rx_link_ref2, 2));
-        assert(stream.match(/^`/));
+        stream.match(/^`/);
         token = 'link';
         break;
       case 2:
         change(state, to_normal, context(rx_link_ref2, 3));
-        assert(stream.match(rx_TEXT2));
+        stream.match(rx_TEXT2);
         break;
       case 3:
         change(state, to_normal, context(rx_link_ref2, 4));
-        assert(stream.match(/^`_/));
+        stream.match(/^`_/);
         token = 'link';
         break;
       default:
         change(state, to_normal);
-        assert(stream.current() == '');
       }
     } else if (stream.match(rx_verbatim)) {
       change(state, to_verbatim);
@@ -380,26 +362,25 @@ CodeMirror.defineMode('rst-base', function (config) {
       switch (stage(state)) {
       case 0:
         change(state, to_explicit, context(rx_substitution, 1));
-        assert(stream.match(rx_substitution_text));
+        stream.match(rx_substitution_text);
         token = 'variable-2';
         break;
       case 1:
         change(state, to_explicit, context(rx_substitution, 2));
-        assert(stream.match(rx_substitution_sepa));
+        stream.match(rx_substitution_sepa);
         break;
       case 2:
         change(state, to_explicit, context(rx_substitution, 3));
-        assert(stream.match(rx_substitution_name));
+        stream.match(rx_substitution_name);
         token = 'keyword';
         break;
       case 3:
         change(state, to_explicit, context(rx_substitution, 4));
-        assert(stream.match(rx_substitution_tail));
+        stream.match(rx_substitution_tail);
         token = 'meta';
         break;
       default:
         change(state, to_normal);
-        assert(stream.current() == '');
       }
     } else if (phase(state) == rx_directive ||
                stream.match(rx_directive, false)) {
@@ -407,7 +388,7 @@ CodeMirror.defineMode('rst-base', function (config) {
       switch (stage(state)) {
       case 0:
         change(state, to_explicit, context(rx_directive, 1));
-        assert(stream.match(rx_directive_name));
+        stream.match(rx_directive_name);
         token = 'keyword';
 
         if (stream.current().match(/^(?:math|latex)/))
@@ -417,7 +398,7 @@ CodeMirror.defineMode('rst-base', function (config) {
         break;
       case 1:
         change(state, to_explicit, context(rx_directive, 2));
-        assert(stream.match(rx_directive_tail));
+        stream.match(rx_directive_tail);
         token = 'meta';
 
         if (stream.match(/^latex\s*$/) || state.tmp_stex) {
@@ -436,25 +417,23 @@ CodeMirror.defineMode('rst-base', function (config) {
         break;
       default:
         change(state, to_normal);
-        assert(stream.current() == '');
       }
     } else if (phase(state) == rx_link || stream.match(rx_link, false)) {
 
       switch (stage(state)) {
       case 0:
         change(state, to_explicit, context(rx_link, 1));
-        assert(stream.match(rx_link_head));
-        assert(stream.match(rx_link_name));
+        stream.match(rx_link_head);
+        stream.match(rx_link_name);
         token = 'link';
         break;
       case 1:
         change(state, to_explicit, context(rx_link, 2));
-        assert(stream.match(rx_link_tail));
+        stream.match(rx_link_tail);
         token = 'meta';
         break;
       default:
         change(state, to_normal);
-        assert(stream.current() == '');
       }
     } else if (stream.match(rx_footnote)) {
       change(state, to_normal);

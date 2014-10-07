@@ -213,7 +213,8 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     while ((ch = stream.next()) != null) {
       if (ch == "`" && !stream.eat("`")) return "variable-2";
     }
-    return null;
+    stream.backUp(stream.current().length - 1);
+    return stream.eatWhile(/\w/) ? "variable-2" : null;
   }
 
   // variable token

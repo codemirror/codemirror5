@@ -28,7 +28,7 @@
   <ul>
     <li><a href="../index.html">Home</a></li>
     <li><a href="#overview" class=active data-default="true">Manual</a></li>
-    <li><a href="https://github.com/marijnh/codemirror">Code</a></li>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a></li>
   </ul>
   <ul>
     <li><a href="#usage">Basic Usage</a></li>
@@ -63,7 +63,7 @@
 <section class=first id=overview>
     <h2 style="position: relative">
       User manual and reference guide
-      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 4.5.1</span>
+      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 4.6.1</span>
     </h2>
 
     <p>CodeMirror is a code-editor component that can be embedded in
@@ -72,7 +72,7 @@
     functionality. It does provide a rich API on top of which such
     functionality can be straightforwardly implemented. See
     the <a href="#addons">addons</a> included in the distribution,
-    and the <a href="https://github.com/marijnh/CodeMirror/wiki/CodeMirror-addons">list
+    and the <a href="https://github.com/codemirror/CodeMirror/wiki/CodeMirror-addons">list
     of externally hosted addons</a>, for reusable
     implementations of extra features.</p>
 
@@ -2584,6 +2584,25 @@
       which will ensure the given mode is loaded and cause the given
       editor instance to refresh its mode when the loading
       succeeded. See the <a href="../demo/loadmode.html">demo</a>.</dd>
+
+      <dt id="addon_meta"><a href="../mode/meta.js"><code>mode/meta.js</code></a></dt>
+      <dd>Provides meta-information about all the modes in the
+      distribution in a single file.
+      Defines <code>CodeMirror.modeInfo</code>, an array of objects
+      with <code>{name, mime, mode}</code> properties,
+      where <code>name</code> is the human-readable
+      name, <code>mime</code> the MIME type, and <code>mode</code> the
+      name of the mode file that defines this MIME. There are optional
+      properties <code>mimes</code>, which holds an array of MIME
+      types for modes with multiple MIMEs associated,
+      and <code>ext</code>, which holds an array of file extensions
+      associated with this mode. Two convenience
+      functions, <code>CodeMirror.findModeByMIME</code>
+      and <code>CodeMirror.findModeByExtension</code> are provided,
+      which return such an object given a MIME or extension string.
+      Note that, for historical reasons, this file resides in the
+      top-level <code>mode</code> directory, not
+      under <code>addon</code>. <a href="../demo/loadmode.html">Demo</a>.</dd>
 
       <dt id="addon_continuecomment"><a href="../addon/comment/continuecomment.js"><code>comment/continuecomment.js</code></a></dt>
       <dd>Adds a <code>continueComments</code> option, which sets whether the

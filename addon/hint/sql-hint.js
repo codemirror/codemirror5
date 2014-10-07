@@ -43,18 +43,53 @@
     }
   }
 
-  function columnCompletion(result, editor) {
+  function nameCompletion(result, editor) {
     var cur = editor.getCursor();
     var token = editor.getTokenAt(cur);
+    var useBacktick = (token.string.charAt(0) == "`");
     var string = token.string.substr(1);
-    var prevCur = Pos(cur.line, token.start);
-    var table = editor.getTokenAt(prevCur).string;
-    if (!tables.hasOwnProperty(table))
-      table = findTableByAlias(table, editor);
-    var columns = tables[table];
-    if (!columns) return;
+    var prevToken = editor.getTokenAt(Pos(cur.line, token.start));
+    if (token.string.charAt(0) == "." || prevToken.string == "."){
+      //Suggest colunm names
+      if (prevToken.string == ".") {
+        var prevToken = editor.getTokenAt(Pos(cur.line, token.start - 1));
+      }
+      var table = prevToken.string;
+      //Check if backtick is used in table name. If yes, use it for columns too.
+      var useBacktickTable = false;
+      if (table.match(/`/g)) {
+        useBacktickTable = true;
+        table = table.replace(/`/g, "");
+      }
+      //Check if table is available. If not, find table by Alias
+      if (!tables.hasOwnProperty(table))
+        table = findTableByAlias(table, editor);
+      var columns = tables[table];
+      if (!columns) return;
 
-    addMatches(result, string, columns, function(w) {return "." + w;});
+      if (useBacktick) {
+        addMatches(result, string, columns, function(w) {return "`" + w + "`";});
+      }
+      else if(useBacktickTable) {
+        addMatches(result, string, columns, function(w) {return ".`" + w + "`";});
+      }
+      else {
+        addMatches(result, string, columns, function(w) {return "." + w;});
+      }
+    }
+    else {
+      //Suggest table names
+      while (token.start && string.charAt(0) == ".") {
+        token = editor.getTokenAt(Pos(cur.line, token.start - 1));
+        string = token.string + string;
+      }
+      if (useBacktick) {
+        addMatches(result, string, tables, function(w) {return "`" + w + "`";});
+      }
+      else {
+        addMatches(result, string, tables, function(w) {return w;});
+      }
+    }
   }
 
   function eachWord(lineText, f) {
@@ -132,7 +167,7 @@
     var cur = editor.getCursor();
     var result = [];
     var token = editor.getTokenAt(cur), start, end, search;
-    if (token.string.match(/^[.\w@]\w*$/)) {
+    if (token.string.match(/^[.`\w@]\w*$/)) {
       search = token.string;
       start = token.start;
       end = token.end;
@@ -140,16 +175,8 @@
       start = end = cur.ch;
       search = "";
     }
-    if (search.charAt(0) == ".") {
-      columnCompletion(result, editor);
-      if (!result.length) {
-        while (start && search.charAt(0) == ".") {
-          token = editor.getTokenAt(Pos(cur.line, token.start - 1));
-          start = token.start;
-          search = token.string + search;
-        }
-        addMatches(result, search, tables, function(w) {return w;});
-      }
+    if (search.charAt(0) == "." || search.charAt(0) == "`") {
+      nameCompletion(result, editor);
     } else {
       addMatches(result, search, tables, function(w) {return w;});
       addMatches(result, search, keywords, function(w) {return w.toUpperCase();});

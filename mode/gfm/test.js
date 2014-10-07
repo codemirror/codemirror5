@@ -150,4 +150,15 @@
      "[comment `foo]",
      "",
      "[link http://www.example.com/]");
+
+  MT("headerCodeBlockGithub",
+     "[header&header-1 # heading]",
+     "",
+     "[comment ```]",
+     "[comment code]",
+     "[comment ```]",
+     "",
+     "Commit: [link be6a8cc1c1ecfe9489fb51e4869af15a13fc2cd2]",
+     "Issue: [link #1]",
+     "Link: [link http://www.example.com/]");
 })();
