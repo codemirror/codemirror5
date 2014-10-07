@@ -1,17 +1,17 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
 // Distributed under an MIT license: http://codemirror.net/LICENSE
 
+// declare global: diff_match_patch, DIFF_INSERT, DIFF_DELETE, DIFF_EQUAL
+
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
-    mod(require("../../lib/codemirror"));
+    mod(require("../../lib/codemirror"), require("diff_match_patch"));
   else if (typeof define == "function" && define.amd) // AMD
-    define(["../../lib/codemirror"], mod);
+    define(["../../lib/codemirror", "diff_match_patch"], mod);
   else // Plain browser env
-    mod(CodeMirror);
-})(function(CodeMirror) {
+    mod(CodeMirror, diff_match_patch);
+})(function(CodeMirror, diff_match_patch) {
   "use strict";
-  // declare global: diff_match_patch, DIFF_INSERT, DIFF_DELETE, DIFF_EQUAL
-
   var Pos = CodeMirror.Pos;
   var svgNS = "http://www.w3.org/2000/svg";
 
@@ -37,7 +37,7 @@
     constructor: DiffView,
     init: function(pane, orig, options) {
       this.edit = this.mv.edit;
-      this.orig = CodeMirror(pane, copyObj({value: orig, readOnly: true}, copyObj(options)));
+      this.orig = CodeMirror(pane, copyObj({value: orig, readOnly: !this.mv.options.allowEditingOriginals}, copyObj(options)));
 
       this.diff = getDiff(asString(orig), asString(options.value));
       this.diffOutOfDate = false;
@@ -71,7 +71,7 @@
     function update(mode) {
       if (mode == "full") {
         if (dv.svg) clear(dv.svg);
-        clear(dv.copyButtons);
+        if (dv.copyButtons) clear(dv.copyButtons);
         clearMarks(dv.edit, edit.marked, dv.classes);
         clearMarks(dv.orig, orig.marked, dv.classes);
         edit.from = edit.to = orig.from = orig.to = 0;
@@ -257,7 +257,7 @@
       var w = dv.gap.offsetWidth;
       attrs(dv.svg, "width", w, "height", dv.gap.offsetHeight);
     }
-    clear(dv.copyButtons);
+    if (dv.copyButtons) clear(dv.copyButtons);
 
     var flip = dv.type == "left";
     var vpEdit = dv.edit.getViewport(), vpOrig = dv.orig.getViewport();
@@ -279,17 +279,30 @@
               "d", "M -1 " + topRpx + curveTop + " L " + (w + 2) + " " + botLpx + curveBot + " z",
               "class", dv.classes.connect);
       }
-      var copy = dv.copyButtons.appendChild(elt("div", dv.type == "left" ? "\u21dd" : "\u21dc",
-                                                "CodeMirror-merge-copy"));
-      copy.title = "Revert chunk";
-      copy.chunk = {topEdit: topEdit, botEdit: botEdit, topOrig: topOrig, botOrig: botOrig};
-      copy.style.top = top + "px";
+      if (dv.copyButtons) {
+        var copy = dv.copyButtons.appendChild(elt("div", dv.type == "left" ? "\u21dd" : "\u21dc",
+                                                  "CodeMirror-merge-copy"));
+        var editOriginals = dv.mv.options.allowEditingOriginals;
+        copy.title = editOriginals ? "Push to left" : "Revert chunk";
+        copy.chunk = {topEdit: topEdit, botEdit: botEdit, topOrig: topOrig, botOrig: botOrig};
+        copy.style.top = top + "px";
+
+        if (editOriginals) {
+          var topReverse = dv.orig.heightAtLine(topEdit, "local") - sTopEdit;
+          var copyReverse = dv.copyButtons.appendChild(elt("div", dv.type == "right" ? "\u21dd" : "\u21dc",
+                                                           "CodeMirror-merge-copy-reverse"));
+          copyReverse.title = "Push to right";
+          copyReverse.chunk = {topEdit: topOrig, botEdit: botOrig, topOrig: topEdit, botOrig: botEdit};
+          copyReverse.style.top = topReverse + "px";
+          dv.type == "right" ? copyReverse.style.left = "2px" : copyReverse.style.right = "2px";
+        }
+      }
     });
   }
 
-  function copyChunk(dv, chunk) {
+  function copyChunk(dv, to, from, chunk) {
     if (dv.diffOutOfDate) return;
-    dv.edit.replaceRange(dv.orig.getRange(Pos(chunk.topOrig, 0), Pos(chunk.botOrig, 0)),
+    to.replaceRange(from.getRange(Pos(chunk.topOrig, 0), Pos(chunk.botOrig, 0)),
                          Pos(chunk.topEdit, 0), Pos(chunk.botEdit, 0));
   }
 
@@ -298,6 +311,7 @@
   var MergeView = CodeMirror.MergeView = function(node, options) {
     if (!(this instanceof MergeView)) return new MergeView(node, options);
 
+    this.options = options;
     var origLeft = options.origLeft, origRight = options.origRight == null ? options.orig : options.origRight;
     var hasLeft = origLeft != null, hasRight = origRight != null;
     var panes = 1 + (hasLeft ? 1 : 0) + (hasRight ? 1 : 0);
@@ -323,6 +337,7 @@
     (hasRight ? rightPane : editPane).className += " CodeMirror-merge-pane-rightmost";
 
     wrap.push(elt("div", null, null, "height: 0; clear: both;"));
+
     var wrapElt = this.wrap = node.appendChild(elt("div", wrap, "CodeMirror-merge CodeMirror-merge-" + panes + "pane"));
     this.edit = CodeMirror(editPane, copyObj(options));
 
@@ -345,12 +360,20 @@
     lock.title = "Toggle locked scrolling";
     var lockWrap = elt("div", [lock], "CodeMirror-merge-scrolllock-wrap");
     CodeMirror.on(lock, "click", function() { setScrollLock(dv, !dv.lockScroll); });
-    dv.copyButtons = elt("div", null, "CodeMirror-merge-copybuttons-" + dv.type);
-    CodeMirror.on(dv.copyButtons, "click", function(e) {
-      var node = e.target || e.srcElement;
-      if (node.chunk) copyChunk(dv, node.chunk);
-    });
-    var gapElts = [dv.copyButtons, lockWrap];
+    var gapElts = [lockWrap];
+    if (dv.mv.options.revertButtons !== false) {
+      dv.copyButtons = elt("div", null, "CodeMirror-merge-copybuttons-" + dv.type);
+      CodeMirror.on(dv.copyButtons, "click", function(e) {
+        var node = e.target || e.srcElement;
+        if (!node.chunk) return;
+        if (node.className == "CodeMirror-merge-copy-reverse") {
+          copyChunk(dv, dv.orig, dv.edit, node.chunk);
+          return;
+        }
+        copyChunk(dv, dv.edit, dv.orig, node.chunk);
+      });
+      gapElts.unshift(dv.copyButtons);
+    }
     var svg = document.createElementNS && document.createElementNS(svgNS, "svg");
     if (svg && !svg.createSVGRect) svg = null;
     dv.svg = svg;

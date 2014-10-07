@@ -28,7 +28,7 @@
   <ul>
     <li><a href="../index.html">Home</a></li>
     <li><a href="#overview" class=active data-default="true">Manual</a></li>
-    <li><a href="https://github.com/marijnh/codemirror">Code</a></li>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a></li>
   </ul>
   <ul>
     <li><a href="#usage">Basic Usage</a></li>
@@ -63,7 +63,7 @@
 <section class=first id=overview>
     <h2 style="position: relative">
       User manual and reference guide
-      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 4.3.1</span>
+      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 4.6.1</span>
     </h2>
 
     <p>CodeMirror is a code-editor component that can be embedded in
@@ -72,7 +72,7 @@
     functionality. It does provide a rich API on top of which such
     functionality can be straightforwardly implemented. See
     the <a href="#addons">addons</a> included in the distribution,
-    and the <a href="https://github.com/marijnh/CodeMirror/wiki/CodeMirror-addons">list
+    and the <a href="https://github.com/codemirror/CodeMirror/wiki/CodeMirror-addons">list
     of externally hosted addons</a>, for reusable
     implementations of extra features.</p>
 
@@ -797,8 +797,14 @@
       <dt class=command id=command_deleteLine><code><strong>deleteLine</strong></code><span class=keybinding>Ctrl-D (PC), Cmd-D (Mac)</span></dt>
       <dd>Deletes the whole line under the cursor, including newline at the end.</dd>
 
-      <dt class=command id=command_delLineLeft><code><strong>delLineLeft</strong></code><span class=keybinding>Cmd-Backspace (Mac)</span></dt>
+      <dt class=command id=command_delLineLeft><code><strong>delLineLeft</strong></code></dt>
       <dd>Delete the part of the line before the cursor.</dd>
+
+      <dt class=command id=command_delWrappedLineLeft><code><strong>delWrappedLineLeft</strong></code><span class=keybinding>Cmd-Backspace (Mac)</span></dt>
+      <dd>Delete the part of the line from the left side of the visual line the cursor is on to the cursor.</dd>
+
+      <dt class=command id=command_delWrappedLineRight><code><strong>delWrappedLineRight</strong></code><span class=keybinding>Cmd-Delete (Mac)</span></dt>
+      <dd>Delete the part of the line from the cursor to the right side of the visual line the cursor is on.</dd>
 
       <dt class=command id=command_undo><code><strong>undo</strong></code><span class=keybinding>Ctrl-Z (PC), Cmd-Z (Mac)</span></dt>
       <dd>Undo the last change.</dd>
@@ -815,13 +821,13 @@
       <dd>Redo the last change to the selection, or the last text change if
       no selection changes remain.</dd>
 
-      <dt class=command id=command_goDocStart><code><strong>goDocStart</strong></code><span class=keybinding>Ctrl-Up (PC), Cmd-Up (Mac)</span></dt>
+      <dt class=command id=command_goDocStart><code><strong>goDocStart</strong></code><span class=keybinding>Ctrl-Up (PC), Cmd-Up (Mac), Cmd-Home (Mac)</span></dt>
       <dd>Move the cursor to the start of the document.</dd>
 
       <dt class=command id=command_goDocEnd><code><strong>goDocEnd</strong></code><span class=keybinding>Ctrl-Down (PC), Cmd-End (Mac), Cmd-Down (Mac)</span></dt>
       <dd>Move the cursor to the end of the document.</dd>
 
-      <dt class=command id=command_goLineStart><code><strong>goLineStart</strong></code><span class=keybinding>Alt-Left (PC), Cmd-Left (Mac), Ctrl-A (Mac)</span></dt>
+      <dt class=command id=command_goLineStart><code><strong>goLineStart</strong></code><span class=keybinding>Alt-Left (PC), Ctrl-A (Mac)</span></dt>
       <dd>Move the cursor to the start of the line.</dd>
 
       <dt class=command id=command_goLineStartSmart><code><strong>goLineStartSmart</strong></code><span class=keybinding>Home</span></dt>
@@ -829,15 +835,20 @@
       already there, to the actual start of the line (including
       whitespace).</dd>
 
-      <dt class=command id=command_goLineEnd><code><strong>goLineEnd</strong></code><span class=keybinding>Alt-Right (PC), Cmd-Right (Mac), Ctrl-E (Mac)</span></dt>
+      <dt class=command id=command_goLineEnd><code><strong>goLineEnd</strong></code><span class=keybinding>Alt-Right (PC), Ctrl-E (Mac)</span></dt>
       <dd>Move the cursor to the end of the line.</dd>
 
-      <dt class=command id=command_goLineLeft><code><strong>goLineLeft</strong></code></dt>
+      <dt class=command id=command_goLineRight><code><strong>goLineRight</strong></code><span class=keybinding>Cmd-Right (Mac)</span></dt>
+      <dd>Move the cursor to the right side of the visual line it is on.</dd>
+
+      <dt class=command id=command_goLineLeft><code><strong>goLineLeft</strong></code><span class=keybinding>Cmd-Left (Mac)</span></dt>
       <dd>Move the cursor to the left side of the visual line it is on. If
       this line is wrapped, that may not be the start of the line.</dd>
 
-      <dt class=command id=command_goLineRight><code><strong>goLineRight</strong></code></dt>
-      <dd>Move the cursor to the right side of the visual line it is on.</dd>
+      <dt class=command id=command_goLineLeftSmart><code><strong>goLineLeftSmart</strong></code></dt>
+      <dd>Move the cursor to the left side of the visual line it is
+      on. If that takes it to the start of the line, behave
+      like <a href="#command_goLineStartSmart"><code>goLineStartSmart</code></a>.</dd>
 
       <dt class=command id=command_goLineUp><code><strong>goLineUp</strong></code><span class=keybinding>Up, Ctrl-P (Mac)</span></dt>
       <dd>Move the cursor up one line.</dd>
@@ -1301,6 +1312,10 @@
       be <code>"line"</code> or <code>"page"</code>. The other
       arguments and the returned value have the same interpretation as
       they have in <code>findPosH</code>.</dd>
+
+      <dt id="findWordAt"><code><strong>cm.findWordAt</strong>(pos: {line, ch}) → {anchor: {line, ch}, head: {line, ch}}</code></dt>
+      <dd>Returns the start and end of the 'word' (the stretch of
+      letters, whitespace, or punctuation) at the given position.</dd>
     </dl>
 
     <h3 id="api_configuration">Configuration methods</h3>
@@ -2042,14 +2057,43 @@
     <dl>
       <dt id="addon_dialog"><a href="../addon/dialog/dialog.js"><code>dialog/dialog.js</code></a></dt>
       <dd>Provides a very simple way to query users for text input.
-      Adds an <strong><code>openDialog</code></strong> method to
-      CodeMirror instances, which can be called with an HTML fragment
-      or a detached DOM node that provides the prompt (should include
-      an <code>input</code> tag), and a callback function that is called
-      when text has been entered. Also adds
-      an <strong><code>openNotification</code></strong> function that
-      simply shows an HTML fragment as a notification. Depends
-      on <code>addon/dialog/dialog.css</code>.</dd>
+      Adds the <strong><code>openDialog(template, callback, options) →
+      closeFunction</code></strong> method to CodeMirror instances,
+      which can be called with an HTML fragment or a detached DOM
+      node that provides the prompt (should include an <code>input</code>
+      or <code>button</code> tag), and a callback function that is called
+      when the user presses enter. It returns a function <code>closeFunction</code>
+      which, if called, will close the dialog immediately.
+      <strong><code>openDialog</code></strong> takes the following options:
+        <dl>
+          <dt><code><strong>closeOnEnter</strong></code>:</dt>
+          <dd>If true, the dialog will be closed when the user presses
+          enter in the input. Defaults to <code>true</code>.</dd>
+          <dt><code><strong>onKeyDown</strong></code>:</dt>
+          <dd>An event handler of the signature <code>(event, value, closeFunction)</code>
+          that will be called whenever <code>keydown</code> fires in the
+          dialog's input. If your callback returns <code>true</code>,
+          the dialog will not do any further processing of the event.</dd>
+          <dt><code><strong>onKeyUp</strong></code>:</dt>
+          <dd>Same as <code>onKeyDown</code> but for the
+          <code>keyup</code> event.</dd>
+          <dt><code><strong>onInput</strong></code>:</dt>
+          <dd>Same as <code>onKeyDown</code> but for the
+          <code>input</code> event.</dd>
+          <dt><code><strong>onClose</strong></code>:</dt>
+          <dd>A callback of the signature <code>(dialogInstance)</code>
+          that will be called after the dialog has been closed and
+          removed from the DOM. No return value.</dd>
+        </dl>
+
+      <p>Also adds an <strong><code>openNotification(template, options) →
+      closeFunction</code></strong> function that simply shows an HTML
+      fragment as a notification at the top of the editor. It takes a
+      single option: <code>duration</code>, the amount of time after
+      which the notification will be automatically closed. If <code>
+      duration</code> is zero, the dialog will not be closed automatically.</p>
+
+      <p>Depends on <code>addon/dialog/dialog.css</code>.</p></dd>
 
       <dt id="addon_searchcursor"><a href="../addon/search/searchcursor.js"><code>search/searchcursor.js</code></a></dt>
       <dd>Adds the <code>getSearchCursor(query, start, caseFold) →
@@ -2541,6 +2585,25 @@
       editor instance to refresh its mode when the loading
       succeeded. See the <a href="../demo/loadmode.html">demo</a>.</dd>
 
+      <dt id="addon_meta"><a href="../mode/meta.js"><code>mode/meta.js</code></a></dt>
+      <dd>Provides meta-information about all the modes in the
+      distribution in a single file.
+      Defines <code>CodeMirror.modeInfo</code>, an array of objects
+      with <code>{name, mime, mode}</code> properties,
+      where <code>name</code> is the human-readable
+      name, <code>mime</code> the MIME type, and <code>mode</code> the
+      name of the mode file that defines this MIME. There are optional
+      properties <code>mimes</code>, which holds an array of MIME
+      types for modes with multiple MIMEs associated,
+      and <code>ext</code>, which holds an array of file extensions
+      associated with this mode. Two convenience
+      functions, <code>CodeMirror.findModeByMIME</code>
+      and <code>CodeMirror.findModeByExtension</code> are provided,
+      which return such an object given a MIME or extension string.
+      Note that, for historical reasons, this file resides in the
+      top-level <code>mode</code> directory, not
+      under <code>addon</code>. <a href="../demo/loadmode.html">Demo</a>.</dd>
+
       <dt id="addon_continuecomment"><a href="../addon/comment/continuecomment.js"><code>comment/continuecomment.js</code></a></dt>
       <dd>Adds a <code>continueComments</code> option, which sets whether the
       editor will make the next line continue a comment when you press Enter
@@ -2621,7 +2684,9 @@
       document, which will be shown to the left and right of the
       editor in non-editable CodeMirror instances. The merge interface
       will highlight changes between the editable document and the
-      original(s) (<a href="../demo/merge.html">demo</a>).</dd>
+      original(s), and, unless a <code>revertButtons</code> option
+      of <code>false</code> is given, show buttons that allow the user
+      to revert changes (<a href="../demo/merge.html">demo</a>).</dd>
 
       <dt id="addon_tern"><a href="../addon/tern/tern.js"><code>tern/tern.js</code></a></dt>
       <dd>Provides integration with

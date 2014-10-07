@@ -17,7 +17,7 @@
   <ul>
     <li><a href="../../index.html">Home</a>
     <li><a href="../../doc/manual.html">Manual</a>
-    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
   </ul>
   <ul>
     <li><a href="../index.html">Language modes</a>
@@ -102,6 +102,11 @@ StringStream.prototype = {
         <li><code>statementIndent</code> which (given a number) will
         determine the amount of indentation to use for statements
         continued on a new line.</li>
+        <li><code>wordCharacters</code>, a regexp that indicates which
+        characters should be considered part of an identifier.
+        Defaults to <code>/[\w$]/</code>, which does not handle
+        non-ASCII identifiers. Can be set to something more elaborate
+        to improve Unicode support.</li>
       </ul>
     </p>
 

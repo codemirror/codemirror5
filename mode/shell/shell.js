@@ -128,7 +128,8 @@ CodeMirror.defineMode('shell', function() {
     startState: function() {return {tokens:[]};},
     token: function(stream, state) {
       return tokenize(stream, state);
-    }
+    },
+    lineComment: '#'
   };
 });
 

@@ -5,7 +5,7 @@
   var mode = CodeMirror.getMode({indentUnit: 4}, "verilog");
   function MT(name) { test.mode(name, mode, Array.prototype.slice.call(arguments, 1)); }
 
-  MT("Binary literals",
+  MT("binary_literals",
      "[number 1'b0]",
      "[number 1'b1]",
      "[number 1'bx]",
@@ -30,14 +30,14 @@
      "[number 'b0101]"
   );
 
-  MT("Octal literals",
+  MT("octal_literals",
      "[number 3'o7]",
      "[number 3'O7]",
      "[number 3'so7]",
      "[number 3'SO7]"
   );
 
-  MT("Decimal literals",
+  MT("decimal_literals",
      "[number 0]",
      "[number 1]",
      "[number 7]",
@@ -52,7 +52,7 @@
      "[number 32 'd 123]"
   );
 
-  MT("Hex literals",
+  MT("hex_literals",
      "[number 4'h0]",
      "[number 4'ha]",
      "[number 4'hF]",
@@ -69,7 +69,7 @@
      "[number 32'hFFF?]"
   );
 
-  MT("Real number literals",
+  MT("real_number_literals",
      "[number 1.2]",
      "[number 0.1]",
      "[number 2394.26331]",
@@ -82,36 +82,158 @@
      "[number 236.123_763_e-12]"
   );
 
-  MT("Operators",
+  MT("operators",
      "[meta ^]"
   );
 
-  MT("Keywords",
+  MT("keywords",
      "[keyword logic]",
      "[keyword logic] [variable foo]",
      "[keyword reg] [variable abc]"
   );
 
-  MT("Variables",
+  MT("variables",
      "[variable _leading_underscore]",
      "[variable _if]",
      "[number 12] [variable foo]",
      "[variable foo] [number 14]"
   );
 
-  MT("Tick defines",
+  MT("tick_defines",
      "[def `FOO]",
      "[def `foo]",
      "[def `FOO_bar]"
   );
 
-  MT("System calls",
+  MT("system_calls",
      "[meta $display]",
      "[meta $vpi_printf]"
   );
 
-  MT("Line comment", "[comment // Hello world]");
+  MT("line_comment", "[comment // Hello world]");
 
+  // Alignment tests
+  MT("align_port_map_style1",
+     /**
+      * mod mod(.a(a),
+      *         .b(b)
+      *        );
+      */
+     "[variable mod] [variable mod][bracket (].[variable a][bracket (][variable a][bracket )],",
+     "        .[variable b][bracket (][variable b][bracket )]",
+     "       [bracket )];",
+     ""
+  );
+
+  MT("align_port_map_style2",
+     /**
+      * mod mod(
+      *     .a(a),
+      *     .b(b)
+      * );
+      */
+     "[variable mod] [variable mod][bracket (]",
+     "    .[variable a][bracket (][variable a][bracket )],",
+     "    .[variable b][bracket (][variable b][bracket )]",
+     "[bracket )];",
+     ""
+  );
+
+  // Indentation tests
+  MT("indent_single_statement_if",
+      "[keyword if] [bracket (][variable foo][bracket )]",
+      "    [keyword break];",
+      ""
+  );
+
+  MT("no_indent_after_single_line_if",
+      "[keyword if] [bracket (][variable foo][bracket )] [keyword break];",
+      ""
+  );
+
+  MT("indent_after_if_begin_same_line",
+      "[keyword if] [bracket (][variable foo][bracket )] [keyword begin]",
+      "    [keyword break];",
+      "    [keyword break];",
+      "[keyword end]",
+      ""
+  );
+
+  MT("indent_after_if_begin_next_line",
+      "[keyword if] [bracket (][variable foo][bracket )]",
+      "    [keyword begin]",
+      "        [keyword break];",
+      "        [keyword break];",
+      "    [keyword end]",
+      ""
+  );
+
+  MT("indent_single_statement_if_else",
+      "[keyword if] [bracket (][variable foo][bracket )]",
+      "    [keyword break];",
+      "[keyword else]",
+      "    [keyword break];",
+      ""
+  );
+
+  MT("indent_if_else_begin_same_line",
+      "[keyword if] [bracket (][variable foo][bracket )] [keyword begin]",
+      "    [keyword break];",
+      "    [keyword break];",
+      "[keyword end] [keyword else] [keyword begin]",
+      "    [keyword break];",
+      "    [keyword break];",
+      "[keyword end]",
+      ""
+  );
+
+  MT("indent_if_else_begin_next_line",
+      "[keyword if] [bracket (][variable foo][bracket )]",
+      "    [keyword begin]",
+      "        [keyword break];",
+      "        [keyword break];",
+      "    [keyword end]",
+      "[keyword else]",
+      "    [keyword begin]",
+      "        [keyword break];",
+      "        [keyword break];",
+      "    [keyword end]",
+      ""
+  );
+
+  MT("indent_if_nested_without_begin",
+      "[keyword if] [bracket (][variable foo][bracket )]",
+      "    [keyword if] [bracket (][variable foo][bracket )]",
+      "        [keyword if] [bracket (][variable foo][bracket )]",
+      "            [keyword break];",
+      ""
+  );
+
+  MT("indent_case",
+      "[keyword case] [bracket (][variable state][bracket )]",
+      "    [variable FOO]:",
+      "        [keyword break];",
+      "    [variable BAR]:",
+      "        [keyword break];",
+      "[keyword endcase]",
+      ""
+  );
+
+  MT("unindent_after_end_with_preceding_text",
+      "[keyword begin]",
+      "    [keyword break]; [keyword end]",
+      ""
+  );
+
+  MT("export_function_does_not_indent",
+     "[keyword export] [string \"DPI-C\"] [keyword function] [variable helloFromSV];",
+     ""
+  );
+
+  MT("export_task_does_not_indent",
+     "[keyword export] [string \"DPI-C\"] [keyword task] [variable helloFromSV];",
+     ""
+  );
 
 
 })();

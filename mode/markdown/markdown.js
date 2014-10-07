@@ -360,15 +360,12 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
     var ch = stream.next();
 
-    if (state.escape) {
-      state.escape = false;
-      return getType(state);
-    }
-
     if (ch === '\\') {
-      if (modeCfg.highlightFormatting) state.formatting = "escape";
-      state.escape = true;
-      return getType(state);
+      stream.next();
+      if (modeCfg.highlightFormatting) {
+        var type = getType(state);
+        return type ? type + " formatting-escape" : "formatting-escape";
+      }
     }
 
     // Matches link titles present on next line
@@ -650,7 +647,6 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         inline: inlineNormal,
         text: handleText,
 
-        escape: false,
         formatting: false,
         linkText: false,
         linkHref: false,
@@ -683,7 +679,6 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
         inline: s.inline,
         text: s.text,
-        escape: false,
         formatting: false,
         linkTitle: s.linkTitle,
         em: s.em,
@@ -705,21 +700,19 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       state.formatting = false;
 
       if (stream.sol()) {
-        var forceBlankLine = stream.match(/^\s*$/, true) || state.header;
+        var forceBlankLine = !!state.header;
 
         // Reset state.header
         state.header = 0;
 
-        if (forceBlankLine) {
+        if (stream.match(/^\s*$/, true) || forceBlankLine) {
           state.prevLineHasContent = false;
-          return blankLine(state);
+          blankLine(state);
+          return forceBlankLine ? this.token(stream, state) : null;
         } else {
           state.prevLineHasContent = state.thisLineHasContent;
           state.thisLineHasContent = true;
         }
-
-        // Reset state.escape
-        state.escape = false;
 
         // Reset state.taskList
         state.taskList = false;

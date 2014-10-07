@@ -359,6 +359,15 @@ testCM("undoSelectionAsBefore", function(cm) {
   eq(cm.getSelection(), "abc");
 });
 
+testCM("selectionChangeConfusesHistory", function(cm) {
+  cm.replaceSelection("abc", null, "dontmerge");
+  cm.operation(function() {
+    cm.setCursor(Pos(0, 0));
+    cm.replaceSelection("abc", null, "dontmerge");
+  });
+  eq(cm.historySize().undo, 2);
+});
+
 testCM("markTextSingleLine", function(cm) {
   forEach([{a: 0, b: 1, c: "", f: 2, t: 5},
            {a: 0, b: 4, c: "", f: 0, t: 2},
@@ -1987,4 +1996,39 @@ testCM("resizeLineWidget", function(cm) {
   cm.addLineWidget(1, widget, {noHScroll: true});
   cm.setSize(40);
   is(widget.parentNode.offsetWidth < 42);
+});
+
+testCM("combinedOperations", function(cm) {
+  var place = document.getElementById("testground");
+  var other = CodeMirror(place, {value: "123"});
+  try {
+    cm.operation(function() {
+      cm.addLineClass(0, "wrap", "foo");
+      other.addLineClass(0, "wrap", "foo");
+    });
+    eq(byClassName(cm.getWrapperElement(), "foo").length, 1);
+    eq(byClassName(other.getWrapperElement(), "foo").length, 1);
+    cm.operation(function() {
+      cm.removeLineClass(0, "wrap", "foo");
+      other.removeLineClass(0, "wrap", "foo");
+    });
+    eq(byClassName(cm.getWrapperElement(), "foo").length, 0);
+    eq(byClassName(other.getWrapperElement(), "foo").length, 0);
+  } finally {
+    place.removeChild(other.getWrapperElement());
+  }
+}, {value: "abc"});
+
+testCM("eventOrder", function(cm) {
+  var seen = [];
+  cm.on("change", function() {
+    if (!seen.length) cm.replaceSelection(".");
+    seen.push("change");
+  });
+  cm.on("cursorActivity", function() {
+    cm.replaceSelection("!");
+    seen.push("activity");
+  });
+  cm.replaceSelection("/");
+  eq(seen.join(","), "change,change,activity,change");
 });

@@ -19,6 +19,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   var jsonldMode = parserConfig.jsonld;
   var jsonMode = parserConfig.json || jsonldMode;
   var isTS = parserConfig.typescript;
+  var wordRE = parserConfig.wordCharacters || /[\w$]/;
 
   // Tokenizer
 
@@ -132,8 +133,8 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     } else if (isOperatorChar.test(ch)) {
       stream.eatWhile(isOperatorChar);
       return ret("operator", "operator", stream.current());
-    } else {
-      stream.eatWhile(/[\w\$_]/);
+    } else if (wordRE.test(ch)) {
+      stream.eatWhile(wordRE);
       var word = stream.current(), known = keywords.propertyIsEnumerable(word) && keywords[word];
       return (known && state.lastType != ".") ? ret(known.type, known.style, word) :
                      ret("variable", "variable", word);
@@ -202,7 +203,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
         if (--depth == 0) break;
       } else if (bracket >= 3 && bracket < 6) {
         ++depth;
-      } else if (/[$\w]/.test(ch)) {
+      } else if (wordRE.test(ch)) {
         sawSomething = true;
       } else if (sawSomething && !depth) {
         ++pos;
@@ -298,6 +299,8 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     var result = function() {
       var state = cx.state, indent = state.indented;
       if (state.lexical.type == "stat") indent = state.lexical.indented;
+      else for (var outer = state.lexical; outer && outer.type == ")" && outer.align; outer = outer.prev)
+        indent = outer.indented;
       state.lexical = new JSLexical(indent, cx.stream.column(), type, null, state.lexical, info);
     };
     result.lex = true;
@@ -388,7 +391,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   function maybeoperatorNoComma(type, value, noComma) {
     var me = noComma == false ? maybeoperatorComma : maybeoperatorNoComma;
     var expr = noComma == false ? expression : expressionNoComma;
-    if (value == "=>") return cont(pushcontext, noComma ? arrowBodyNoComma : arrowBody, popcontext);
+    if (type == "=>") return cont(pushcontext, noComma ? arrowBodyNoComma : arrowBody, popcontext);
     if (type == "operator") {
       if (/\+\+|--/.test(value)) return cont(me);
       if (value == "?") return cont(expression, expect(":"), expr);
@@ -414,13 +417,11 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   }
   function arrowBody(type) {
     findFatArrow(cx.stream, cx.state);
-    if (type == "{") return pass(statement);
-    return pass(expression);
+    return pass(type == "{" ? statement : expression);
   }
   function arrowBodyNoComma(type) {
     findFatArrow(cx.stream, cx.state);
-    if (type == "{") return pass(statement);
-    return pass(expressionNoComma);
+    return pass(type == "{" ? statement : expressionNoComma);
   }
   function maybelabel(type) {
     if (type == ":") return cont(poplex, statement);
@@ -667,7 +668,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   };
 });
 
-CodeMirror.registerHelper("wordChars", "javascript", /[\\w$]/);
+CodeMirror.registerHelper("wordChars", "javascript", /[\w$]/);
 
 CodeMirror.defineMIME("text/javascript", "javascript");
 CodeMirror.defineMIME("text/ecmascript", "javascript");

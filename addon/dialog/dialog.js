@@ -15,11 +15,11 @@
     var wrap = cm.getWrapperElement();
     var dialog;
     dialog = wrap.appendChild(document.createElement("div"));
-    if (bottom) {
+    if (bottom)
       dialog.className = "CodeMirror-dialog CodeMirror-dialog-bottom";
-    } else {
+    else
       dialog.className = "CodeMirror-dialog CodeMirror-dialog-top";
-    }
+
     if (typeof template == "string") {
       dialog.innerHTML = template;
     } else { // Assuming it's a detached DOM element.
@@ -35,8 +35,11 @@
   }
 
   CodeMirror.defineExtension("openDialog", function(template, callback, options) {
+    if (!options) options = {};
+
     closeNotification(this, null);
-    var dialog = dialogDiv(this, template, options && options.bottom);
+
+    var dialog = dialogDiv(this, template, options.bottom);
     var closed = false, me = this;
     function close(newVal) {
       if (typeof newVal == 'string') {
@@ -45,34 +48,43 @@
         if (closed) return;
         closed = true;
         dialog.parentNode.removeChild(dialog);
+        me.focus();
+
+        if (options.onClose) options.onClose(dialog);
       }
     }
+
     var inp = dialog.getElementsByTagName("input")[0], button;
     if (inp) {
-      if (options && options.value) inp.value = options.value;
+      if (options.value) inp.value = options.value;
+
+      if (options.onInput)
+        CodeMirror.on(inp, "input", function(e) { options.onInput(e, inp.value, close);});
+      if (options.onKeyUp)
+        CodeMirror.on(inp, "keyup", function(e) {options.onKeyUp(e, inp.value, close);});
+
       CodeMirror.on(inp, "keydown", function(e) {
         if (options && options.onKeyDown && options.onKeyDown(e, inp.value, close)) { return; }
-        if (e.keyCode == 13 || e.keyCode == 27) {
+        if (e.keyCode == 27 || (options.closeOnEnter !== false && e.keyCode == 13)) {
           inp.blur();
           CodeMirror.e_stop(e);
           close();
-          me.focus();
-          if (e.keyCode == 13) callback(inp.value);
         }
+        if (e.keyCode == 13) callback(inp.value);
       });
-      if (options && options.onKeyUp) {
-        CodeMirror.on(inp, "keyup", function(e) {options.onKeyUp(e, inp.value, close);});
-      }
-      if (options && options.value) inp.value = options.value;
+
+      if (options.closeOnBlur !== false) CodeMirror.on(inp, "blur", close);
+
       inp.focus();
-      CodeMirror.on(inp, "blur", close);
     } else if (button = dialog.getElementsByTagName("button")[0]) {
       CodeMirror.on(button, "click", function() {
         close();
         me.focus();
       });
+
+      if (options.closeOnBlur !== false) CodeMirror.on(button, "blur", close);
+
       button.focus();
-      CodeMirror.on(button, "blur", close);
     }
     return close;
   });
@@ -117,8 +129,8 @@
   CodeMirror.defineExtension("openNotification", function(template, options) {
     closeNotification(this, close);
     var dialog = dialogDiv(this, template, options && options.bottom);
-    var duration = options && (options.duration === undefined ? 5000 : options.duration);
     var closed = false, doneTimer;
+    var duration = options && typeof options.duration !== "undefined" ? options.duration : 5000;
 
     function close() {
       if (closed) return;
@@ -131,7 +143,10 @@
       CodeMirror.e_preventDefault(e);
       close();
     });
+
     if (duration)
-      doneTimer = setTimeout(close, options.duration);
+      doneTimer = setTimeout(close, duration);
+
+    return close;
   });
 });

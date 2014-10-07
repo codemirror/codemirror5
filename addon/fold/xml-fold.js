@@ -151,8 +151,9 @@
     if (iter.text.indexOf(">") == -1 && iter.text.indexOf("<") == -1) return;
     var end = toTagEnd(iter), to = end && Pos(iter.line, iter.ch);
     var start = end && toTagStart(iter);
-    if (!end || end == "selfClose" || !start || cmp(iter, pos) > 0) return;
+    if (!end || !start || cmp(iter, pos) > 0) return;
     var here = {from: Pos(iter.line, iter.ch), to: to, tag: start[2]};
+    if (end == "selfClose") return {open: here, close: null, at: "open"};
 
     if (start[1]) { // closing tag
       return {open: findMatchingOpen(iter, start[2]), close: here, at: "close"};

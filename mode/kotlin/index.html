@@ -14,7 +14,7 @@
   <ul>
     <li><a href="../../index.html">Home</a>
     <li><a href="../../doc/manual.html">Manual</a>
-    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
   </ul>
   <ul>
     <li><a href="../index.html">Language modes</a>
@@ -79,7 +79,8 @@ public class HttpServer(private val appServer: AppServer) {
     <script>
         var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
             mode: {name: "kotlin"},
-            lineNumbers: true
+            lineNumbers: true,
+            indentUnit: 4
         });
     </script>
     <h3>Mode for Kotlin (http://kotlin.jetbrains.org/)</h3>

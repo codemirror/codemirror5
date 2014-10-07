@@ -7,6 +7,9 @@
 <link rel="stylesheet" href="../../lib/codemirror.css" />
 <script src="../../lib/codemirror.js"></script>
 <script src="sql.js"></script>
+<link rel="stylesheet" href="../../addon/hint/show-hint.css" />
+<script src="../../addon/hint/show-hint.js"></script>
+<script src="../../addon/hint/sql-hint.js"></script>
 <style>
 .CodeMirror {
     border-top: 1px solid black;
@@ -19,7 +22,7 @@
   <ul>
     <li><a href="../../index.html">Home</a>
     <li><a href="../../doc/manual.html">Manual</a>
-    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
   </ul>
   <ul>
     <li><a href="../index.html">Language modes</a>
@@ -68,7 +71,12 @@ window.onload = function() {
     smartIndent: true,
     lineNumbers: true,
     matchBrackets : true,
-    autofocus: true
+    autofocus: true,
+    extraKeys: {"Ctrl-Space": "autocomplete"},
+    hintOptions: {tables: {
+      users: {name: null, score: null, birthDate: null},
+      countries: {name: null, population: null, size: null}
+    }}
   });
 };
 </script>

@@ -57,6 +57,10 @@
   border: 0;
   background: #7e7;
 }
+.CodeMirror.cm-keymap-fat-cursor div.CodeMirror-cursors {
+  z-index: 1;
+}
+
 .cm-animate-fat-cursor {
   width: auto;
   border: 0;
@@ -213,6 +217,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
 
 .CodeMirror-lines {
   cursor: text;
+  min-height: 1px; /* prevents collapsing before first draw */
 }
 .CodeMirror pre {
   /* Reset some styles that the rest of the page might have set */
@@ -272,7 +277,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
 div.CodeMirror-cursors {
   visibility: hidden;
   position: relative;
-  z-index: 1;
+  z-index: 3;
 }
 .CodeMirror-focused div.CodeMirror-cursors {
   visibility: visible;
@@ -299,3 +304,6 @@ div.CodeMirror-cursors {
     visibility: hidden;
   }
 }
+
+/* Help users use markselection to safely style text background */
+span.CodeMirror-selectedtext { background: none; }
