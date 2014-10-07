@@ -2527,7 +2527,11 @@
       should scan when completing (defaults to 500).</dd>
 
       <dt id="addon_sql-hint"><a href="../addon/hint/sql-hint.js"><code>hint/sql-hint.js</code></a></dt>
-      <dd>A simple SQL hinter. Defines <code>CodeMirror.hint.sql</code>.</dd>
+      <dd>A simple SQL hinter. Defines <code>CodeMirror.hint.sql</code>.
+      Takes two optional options, <code>tables</code>, a object with
+      table names as keys and array of respective column names as values,
+      and <code>defaultTable</code>, a string corresponding to a
+      table name in <code>tables</code> for autocompletion.</dd>
 
       <dt id="addon_match-highlighter"><a href="../addon/search/match-highlighter.js"><code>search/match-highlighter.js</code></a></dt>
       <dd>Adds a <code>highlightSelectionMatches</code> option that
