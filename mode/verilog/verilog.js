@@ -80,7 +80,7 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
   // Block openings which are closed by a matching keyword in the form of ("end" + keyword)
   // E.g. "task" => "endtask"
   var blockKeywords = words(
-    "case checker class clocking config function generate group interface module package" +
+    "case checker class clocking config function generate interface module package" +
     "primitive program property specify sequence table task"
   );
 
@@ -94,11 +94,7 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
   openClose["casez"] = "endcase";
   openClose["do"   ] = "while";
   openClose["fork" ] = "join;join_any;join_none";
-
-  // This is a bit of a hack but will work to not indent after import/epxort statements
-  // as long as the function/task name is on the same line
-  openClose["import"] = "function;task";
-  openClose["export"] = "function;task";
+  openClose["covergroup"] = "endgroup";
 
   for (var i in noIndentKeywords) {
     var keyword = noIndentKeywords[i];
@@ -107,7 +103,8 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
     }
   }
 
-  var statementKeywords = words("always always_comb always_ff always_latch assert assign assume else for foreach forever if initial repeat while");
+  // Keywords which open statements that are ended with a semi-colon
+  var statementKeywords = words("always always_comb always_ff always_latch assert assign assume else export for foreach forever if import initial repeat while");
 
   function tokenBase(stream, state) {
     var ch = stream.peek();
@@ -320,8 +317,16 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
       else if (curPunc == "newstatement") {
         pushContext(state, stream.column(), "statement");
       } else if (curPunc == "newblock") {
-        var close = openClose[curKeyword];
-        pushContext(state, stream.column(), close);
+        if (curKeyword == "function" && ctx && (ctx.type == "statement" || ctx.type == "endgroup")) {
+          // The 'function' keyword can appear in some other contexts where it actually does not
+          // indicate a function (import/export DPI and covergroup definitions).
+          // Do nothing in this case
+        } else if (curKeyword == "task" && ctx && ctx.type == "statement") {
+          // Same thing for task
+        } else {
+          var close = openClose[curKeyword];
+          pushContext(state, stream.column(), close);
+        }
       }
 
       state.startOfLine = false;
