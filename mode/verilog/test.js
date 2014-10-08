@@ -225,15 +225,49 @@
       ""
   );
 
-  MT("export_function_does_not_indent",
+  MT("export_function_one_line_does_not_indent",
      "[keyword export] [string \"DPI-C\"] [keyword function] [variable helloFromSV];",
      ""
   );
 
-  MT("export_task_does_not_indent",
+  MT("export_task_one_line_does_not_indent",
      "[keyword export] [string \"DPI-C\"] [keyword task] [variable helloFromSV];",
      ""
   );
 
+  MT("export_function_two_lines_indents_properly",
+    "[keyword export]",
+    "    [string \"DPI-C\"] [keyword function] [variable helloFromSV];",
+    ""
+  );
+
+  MT("export_task_two_lines_indents_properly",
+    "[keyword export]",
+    "    [string \"DPI-C\"] [keyword task] [variable helloFromSV];",
+    ""
+  );
+
+  MT("import_function_one_line_does_not_indent",
+    "[keyword import] [string \"DPI-C\"] [keyword function] [variable helloFromC];",
+    ""
+  );
+
+  MT("import_task_one_line_does_not_indent",
+    "[keyword import] [string \"DPI-C\"] [keyword task] [variable helloFromC];",
+    ""
+  );
+
+  MT("import_package_single_line_does_not_indent",
+    "[keyword import] [variable p]::[variable x];",
+    "[keyword import] [variable p]::[variable y];",
+    ""
+  );
+
+  MT("covergoup_with_function_indents_properly",
+    "[keyword covergroup] [variable cg] [keyword with] [keyword function] [variable sample][bracket (][keyword bit] [variable b][bracket )];",
+    "    [variable c] : [keyword coverpoint] [variable c];",
+    "[keyword endgroup]: [variable cg]",
+    ""
+  );
 
 })();
