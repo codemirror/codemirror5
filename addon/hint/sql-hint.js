@@ -166,14 +166,10 @@
 
   CodeMirror.registerHelper("hint", "sql", function(editor, options) {
     tables = (options && options.tables) || {};
-    defaultTable = (options && options.defaultTable) || false;
-    if ((defaultTable) && (defaultTable in tables)) {
-      defaultTable = tables[defaultTable];
-    }
-    else {
-      defaultTable = [];
-    }
+    var defaultTableName = options && options.defaultTable;
+    defaultTable = (defaultTableName && tables[defaultTableName] || []);
     keywords = keywords || getKeywords(editor);
+
     var cur = editor.getCursor();
     var result = [];
     var token = editor.getTokenAt(cur), start, end, search;
