@@ -481,7 +481,7 @@
       that used to be between <code>from</code> and <code>to</code>,
       which is overwritten by this change.</dd>
 
-      <dt id="event_changes"><code><strong>"changes"</strong> (instance: CodeMirror, changes: array&lt;object&lt;)</code></dt>
+      <dt id="event_changes"><code><strong>"changes"</strong> (instance: CodeMirror, changes: array&lt;object&gt;)</code></dt>
       <dd>Like the <a href="#event_change"><code>"change"</code></a>
       event, but batched per <a href="#operation">operation</a>,
       passing an array containing all the changes that happened in the
@@ -1205,7 +1205,7 @@
       selection). Omitting the argument is the same as
       passing <code>"head"</code>. A <code>{line, ch}</code> object
       will be returned.</dd>
-      <dt id="listSelections"><code><strong>doc.listSelections</strong>() → array&lt;{anchor, head}&lt;</code></dt>
+      <dt id="listSelections"><code><strong>doc.listSelections</strong>() → array&lt;{anchor, head}&gt;</code></dt>
       <dd>Retrieves a list of all current selections. These will
       always be sorted, and never overlap (overlapping selections are
       merged). Each object in the array contains <code>anchor</code>
