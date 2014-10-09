@@ -251,7 +251,8 @@ CodeMirror.defineMode("stex", function() {
         },
         token: function(stream, state) {
             return state.f(stream, state);
-        }
+        },
+        lineComment: "%"
     };
 });
 
