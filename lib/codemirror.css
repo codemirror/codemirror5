@@ -4,6 +4,7 @@
   /* Set height, width, borders, and global font properties here */
   font-family: monospace;
   height: 300px;
+  color: black;
 }
 
 /* PADDING */
@@ -139,11 +140,9 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
    the editor. You probably shouldn't touch them. */
 
 .CodeMirror {
-  line-height: 1;
   position: relative;
   overflow: hidden;
   background: white;
-  color: black;
 }
 
 .CodeMirror-scroll {
@@ -215,6 +214,11 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
   cursor: default;
   z-index: 4;
 }
+.CodeMirror-gutter-wrapper {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
 
 .CodeMirror-lines {
   cursor: text;
@@ -255,6 +259,10 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
 }
 
 .CodeMirror-widget {}
+
+.CodeMirror-code {
+  outline: none;
+}
 
 .CodeMirror-measure {
   position: absolute;
