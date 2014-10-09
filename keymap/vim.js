@@ -172,13 +172,13 @@
     { keys: '<C-o>', type: 'action', action: 'jumpListWalk', actionArgs: { forward: false }},
     { keys: '<C-e>', type: 'action', action: 'scroll', actionArgs: { forward: true, linewise: true }},
     { keys: '<C-y>', type: 'action', action: 'scroll', actionArgs: { forward: false, linewise: true }},
-    { keys: 'a', type: 'action', action: 'enterInsertMode', isEdit: true, actionArgs: { insertAt: 'charAfter' }},
-    { keys: 'A', type: 'action', action: 'enterInsertMode', isEdit: true, actionArgs: { insertAt: 'eol' }},
+    { keys: 'a', type: 'action', action: 'enterInsertMode', isEdit: true, actionArgs: { insertAt: 'charAfter' }, context: 'normal' },
+    { keys: 'A', type: 'action', action: 'enterInsertMode', isEdit: true, actionArgs: { insertAt: 'eol' }, context: 'normal' },
     { keys: 'A', type: 'action', action: 'enterInsertMode', isEdit: true, actionArgs: { insertAt: 'endOfSelectedArea' }, context: 'visual' },
-    { keys: 'i', type: 'action', action: 'enterInsertMode', isEdit: true, actionArgs: { insertAt: 'inplace' }},
+    { keys: 'i', type: 'action', action: 'enterInsertMode', isEdit: true, actionArgs: { insertAt: 'inplace' }, context: 'normal' },
     { keys: 'I', type: 'action', action: 'enterInsertMode', isEdit: true, actionArgs: { insertAt: 'firstNonBlank' }},
-    { keys: 'o', type: 'action', action: 'newLineAndEnterInsertMode', isEdit: true, interlaceInsertRepeat: true, actionArgs: { after: true }},
-    { keys: 'O', type: 'action', action: 'newLineAndEnterInsertMode', isEdit: true, interlaceInsertRepeat: true, actionArgs: { after: false }},
+    { keys: 'o', type: 'action', action: 'newLineAndEnterInsertMode', isEdit: true, interlaceInsertRepeat: true, actionArgs: { after: true }, context: 'normal' },
+    { keys: 'O', type: 'action', action: 'newLineAndEnterInsertMode', isEdit: true, interlaceInsertRepeat: true, actionArgs: { after: false }, context: 'normal' },
     { keys: 'v', type: 'action', action: 'toggleVisualMode' },
     { keys: 'V', type: 'action', action: 'toggleVisualMode', actionArgs: { linewise: true }},
     { keys: '<C-v>', type: 'action', action: 'toggleVisualMode', actionArgs: { blockwise: true }},
@@ -191,7 +191,7 @@
     { keys: 'q<character>', type: 'action', action: 'enterMacroRecordMode' },
     // Handle Replace-mode as a special case of insert mode.
     { keys: 'R', type: 'action', action: 'enterInsertMode', isEdit: true, actionArgs: { replace: true }},
-    { keys: 'u', type: 'action', action: 'undo' },
+    { keys: 'u', type: 'action', action: 'undo', context: 'normal' },
     { keys: 'u', type: 'action', action: 'changeCase', actionArgs: {toLower: true}, context: 'visual', isEdit: true },
     { keys: 'U',type: 'action', action: 'changeCase', actionArgs: {toLower: false}, context: 'visual', isEdit: true },
     { keys: '<C-r>', type: 'action', action: 'redo' },
@@ -945,7 +945,7 @@
         var bestMatch;
         for (var i = 0; i < matches.full.length; i++) {
           var match = matches.full[i];
-          if (!bestMatch || match.context == context) {
+          if (!bestMatch) {
             bestMatch = match;
           }
         }
@@ -1507,8 +1507,8 @@
 
             var equal = cursorEqual(cursor, best);
             var between = (motionArgs.forward) ?
-              cusrorIsBetween(cursor, mark, best) :
-              cusrorIsBetween(best, mark, cursor);
+              cursorIsBetween(cursor, mark, best) :
+              cursorIsBetween(best, mark, cursor);
 
             if (equal || between) {
               best = mark;
@@ -1760,7 +1760,11 @@
           return null;
         }
 
-        return [tmp.start, tmp.end];
+        if (!cm.state.vim.visualMode) {
+          return [tmp.start, tmp.end];
+        } else {
+          return expandSelection(cm, tmp.start, tmp.end);
+        }
       },
 
       repeatLastCharacterSearch: function(cm, motionArgs) {
@@ -2634,7 +2638,13 @@
       }
       return false;
     }
-    function cusrorIsBetween(cur1, cur2, cur3) {
+    function cursorMin(cur1, cur2) {
+      return cursorIsBefore(cur1, cur2) ? cur1 : cur2;
+    }
+    function cursorMax(cur1, cur2) {
+      return cursorIsBefore(cur1, cur2) ? cur2 : cur1;
+    }
+    function cursorIsBetween(cur1, cur2, cur3) {
       // returns true if cur2 is between cur1 and cur3.
       var cur1before2 = cursorIsBefore(cur1, cur2);
       var cur2before3 = cursorIsBefore(cur2, cur3);
@@ -2861,6 +2871,33 @@
                            'visualLine': vim.visualLine,
                            'visualBlock': block};
     }
+    function expandSelection(cm, start, end) {
+      var head = cm.getCursor('head');
+      var anchor = cm.getCursor('anchor');
+      var tmp;
+      if (cursorIsBefore(end, start)) {
+        tmp = end;
+        end = start;
+        start = tmp;
+      }
+      if (cursorIsBefore(head, anchor)) {
+        head = cursorMin(start, head);
+        anchor = cursorMax(anchor, end);
+      } else {
+        anchor = cursorMin(start, anchor);
+        head = cursorMax(head, end);
+      }
+      return [anchor, head];
+    }
+    function getHead(cm) {
+      var cur = cm.getCursor('head');
+      if (cm.getSelection().length == 1) {
+        // Small corner case when only 1 character is selected. The "real"
+        // head is the left of head and anchor.
+        cur = cursorMin(cur, cm.getCursor('anchor'));
+      }
+      return cur;
+    }
 
     function exitVisualMode(cm) {
       cm.off('mousedown', exitVisualMode);
@@ -2933,7 +2970,7 @@
     }
 
     function expandWordUnderCursor(cm, inclusive, _forward, bigWord, noSymbol) {
-      var cur = cm.getCursor();
+      var cur = getHead(cm);
       var line = cm.getLine(cur.line);
       var idx = cur.ch;
 
@@ -3319,7 +3356,7 @@
     // TODO: perhaps this finagling of start and end positions belonds
     // in codmirror/replaceRange?
     function selectCompanionObject(cm, symb, inclusive) {
-      var cur = cm.getCursor(), start, end;
+      var cur = getHead(cm), start, end;
 
       var bracketRegexp = ({
         '(': /[()]/, ')': /[()]/,
@@ -3364,7 +3401,7 @@
     // have identical opening and closing symbols
     // TODO support across multiple lines
     function findBeginningAndEnd(cm, symb, inclusive) {
-      var cur = copyCursor(cm.getCursor());
+      var cur = copyCursor(getHead(cm));
       var line = cm.getLine(cur.line);
       var chars = line.split('');
       var start, end, i, len;
