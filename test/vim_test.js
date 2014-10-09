@@ -1125,6 +1125,28 @@ testEdit('di]_middle_spc', 'a\t[\n\tbar\n]b', /r/, 'di]', 'a\t[]b');
 testEdit('da[_middle_spc', 'a\t[\n\tbar\n]b', /r/, 'da[', 'a\tb');
 testEdit('da]_middle_spc', 'a\t[\n\tbar\n]b', /r/, 'da]', 'a\tb');
 
+function testSelection(name, before, pos, keys, sel) {
+  return testVim(name, function(cm, vim, helpers) {
+             var ch = before.search(pos)
+             var line = before.substring(0, ch).split('\n').length - 1;
+             if (line) {
+               ch = before.substring(0, ch).split('\n').pop().length;
+             }
+             cm.setCursor(line, ch);
+             helpers.doKeys.apply(this, keys.split(''));
+             eq(sel, cm.getSelection());
+           }, {value: before});
+}
+testSelection('viw_middle_spc', 'foo \tbAr\t baz', /A/, 'viw', 'bAr');
+testSelection('vaw_middle_spc', 'foo \tbAr\t baz', /A/, 'vaw', 'bAr\t ');
+testSelection('viw_middle_punct', 'foo \tbAr,\t baz', /A/, 'viw', 'bAr');
+testSelection('vaW_middle_punct', 'foo \tbAr,\t baz', /A/, 'vaW', 'bAr,\t ');
+testSelection('viw_start_spc', 'foo \tbAr\t baz', /b/, 'viw', 'bAr');
+testSelection('viw_end_spc', 'foo \tbAr\t baz', /r/, 'viw', 'bAr');
+testSelection('viw_eol', 'foo \tbAr', /r/, 'viw', 'bAr');
+testSelection('vi{_middle_spc', 'a{\n\tbar\n\t}b', /r/, 'vi{', '\n\tbar\n\t');
+testSelection('va{_middle_spc', 'a{\n\tbar\n\t}b', /r/, 'va{', '{\n\tbar\n\t}');
+
 // Operator-motion tests
 testVim('D', function(cm, vim, helpers) {
   cm.setCursor(0, 3);
