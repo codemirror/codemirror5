@@ -44,14 +44,16 @@ addon provides an interface for displaying and merging diffs,
 either <span class=clicky onclick="initUI(2)">two-way</span>
 or <span class=clicky onclick="initUI(3)">three-way</span>. The left
 (or center) pane is editable, and the differences with the other
-pane(s) are <span class=clicky onclick="toggleDifferences()">optionally</span> shown live as you edit it.</p>
+pane(s) are <span class=clicky onclick="toggleDifferences()">optionally</span> shown live as you edit it (or
+you can just <span class=clicky onclick="toggleMergeArrows()">toggle</span> the merge arrows for a plain beautiful
+side-by-side diff interface.</p>
 
 <p>This addon depends on
 the <a href="https://code.google.com/p/google-diff-match-patch/">google-diff-match-patch</a>
 library to compute the diffs.</p>
 
 <script>
-var value, orig1, orig2, dv, hilight= true;
+var value, orig1, orig2, dv, showArrows= true, hilight= true;
 function initUI(panes) {
   if (value == null) return;
   var target = document.getElementById("view");
@@ -62,12 +64,17 @@ function initUI(panes) {
     orig: orig2,
     lineNumbers: true,
     mode: "text/html",
-    highlightDifferences: hilight
+    highlightDifferences: hilight,
+    showMergeArrows: showArrows
   });
 }
 
 function toggleDifferences() {
   dv.setShowDifferences(hilight = !hilight);
+}
+
+function toggleMergeArrows() {
+  dv.setMergeArrows(showArrows = !showArrows);
 }
 
 window.onload = function() {

@@ -2682,12 +2682,14 @@
       constructor takes arguments similar to
       the <a href="#CodeMirror"><code>CodeMirror</code></a>
       constructor, first a node to append the interface to, and then
-      an options object. Two extra optional options are
+      an options object. Three extra optional options are
       recognized, <code>origLeft</code> and <code>origRight</code>,
       which may be strings that provide original versions of the
-      document, which will be shown to the left and right of the
-      editor in non-editable CodeMirror instances. The merge interface
-      will highlight changes between the editable document and the
+      document (which will be shown to the left and right of the
+      editor in non-editable CodeMirror instances), as well as
+      <code>showMergeArrows</code>, which provides the possibility
+      to toggle the merge arrows available between panels.
+      The merge interface will highlight changes between the editable document and the
       original(s), and, unless a <code>revertButtons</code> option
       of <code>false</code> is given, show buttons that allow the user
       to revert changes (<a href="../demo/merge.html">demo</a>).</dd>

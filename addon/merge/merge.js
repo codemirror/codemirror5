@@ -43,6 +43,7 @@
       this.diffOutOfDate = false;
 
       this.showDifferences = options.showDifferences !== false;
+      this.showMergeArrows = options.showMergeArrows !== false;
       this.forceUpdate = registerUpdate(this);
       setScrollLock(this, true, false);
       registerScroll(this);
@@ -51,6 +52,13 @@
       val = val !== false;
       if (val != this.showDifferences) {
         this.showDifferences = val;
+        this.forceUpdate("full");
+      }
+    },
+    setMergeArrows: function(val) {
+      val = val !== false;
+      if (val != this.showMergeArrows) {
+        this.showMergeArrows = val;
         this.forceUpdate("full");
       }
     }
@@ -280,13 +288,14 @@
               "class", dv.classes.connect);
       }
       if (dv.copyButtons) {
-        var copy = dv.copyButtons.appendChild(elt("div", dv.type == "left" ? "\u21dd" : "\u21dc",
-                                                  "CodeMirror-merge-copy"));
-        var editOriginals = dv.mv.options.allowEditingOriginals;
-        copy.title = editOriginals ? "Push to left" : "Revert chunk";
-        copy.chunk = {topEdit: topEdit, botEdit: botEdit, topOrig: topOrig, botOrig: botOrig};
-        copy.style.top = top + "px";
-
+        if(dv.showMergeArrows) {
+          var copy = dv.copyButtons.appendChild(elt("div", dv.type == "left" ? "\u21dd" : "\u21dc",
+                                                    "CodeMirror-merge-copy"));
+          var editOriginals = dv.mv.options.allowEditingOriginals;
+          copy.title = editOriginals ? "Push to left" : "Revert chunk";
+          copy.chunk = {topEdit: topEdit, botEdit: botEdit, topOrig: topOrig, botOrig: botOrig};
+          copy.style.top = top + "px";
+        }
         if (editOriginals) {
           var topReverse = dv.orig.heightAtLine(topEdit, "local") - sTopEdit;
           var copyReverse = dv.copyButtons.appendChild(elt("div", dv.type == "right" ? "\u21dd" : "\u21dc",
@@ -390,6 +399,10 @@
     setShowDifferences: function(val) {
       if (this.right) this.right.setShowDifferences(val);
       if (this.left) this.left.setShowDifferences(val);
+    },
+    setMergeArrows: function(val) {
+      if (this.right) this.right.setMergeArrows(val);
+      if (this.left) this.left.setMergeArrows(val);
     },
     rightChunks: function() {
       return this.right && getChunks(this.right);
