@@ -166,6 +166,7 @@
     { keys: 'Y', type: 'operatorMotion', operator: 'yank', motion: 'moveToEol', motionArgs: { inclusive: true }, operatorMotionArgs: { visualLine: true }},
     { keys: 'C', type: 'operatorMotion', operator: 'change', motion: 'moveToEol', motionArgs: { inclusive: true }, operatorMotionArgs: { visualLine: true }},
     { keys: '~', type: 'operatorMotion', operator: 'swapcase', operatorArgs: { shouldMoveCursor: true }, motion: 'moveByCharacters', motionArgs: { forward: true }},
+    { keys: '<C-w>', type: 'operatorMotion', operator: 'delete', motion: 'moveByWords', motionArgs: { forward: false, wordEnd: false }, context: 'insert' },
     // Actions
     { keys: '<C-i>', type: 'action', action: 'jumpListWalk', actionArgs: { forward: true }},
     { keys: '<C-o>', type: 'action', action: 'jumpListWalk', actionArgs: { forward: false }},
@@ -235,10 +236,12 @@
         var name = '';
         if (e.ctrlKey) { name += 'C-'; }
         if (e.altKey) { name += 'A-'; }
-        if (mac && e.metaKey || (!hasModifier || e.shiftKey) && key.length < 2) {
+        if (mac && e.metaKey || (!hasModifier && e.shiftKey) && key.length < 2) {
           // Shift key bindings can only specified for special characters.
           return;
-        } else if (e.shiftKey) { name += 'S-'; }
+        } else if (e.shiftKey && !/^[A-Za-z]$/.test(key)) {
+          name += 'S-';
+        }
         if (key.length == 1) { key = key.toLowerCase(); }
         name += key;
         if (name.length > 1) { name = '<' + name + '>'; }
