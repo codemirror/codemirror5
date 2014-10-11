@@ -107,6 +107,7 @@
     {name: "TiddlyWiki ", mime: "text/x-tiddlywiki", mode: "tiddlywiki"},
     {name: "Tiki wiki", mime: "text/tiki", mode: "tiki"},
     {name: "TOML", mime: "text/x-toml", mode: "toml"},
+    {name: "Tornado", mime: "text/x-tornado", mode: "tornado"},
     {name: "Turtle", mime: "text/turtle", mode: "turtle", ext: ["ttl"]},
     {name: "TypeScript", mime: "application/typescript", mode: "javascript", ext: ["ts"]},
     {name: "VB.NET", mime: "text/x-vb", mode: "vb", ext: ["vb"]},
