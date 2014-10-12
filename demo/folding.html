@@ -1,69 +1,95 @@
 <!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>CodeMirror: Code Folding Demo</title>
-    <link rel="stylesheet" href="../lib/codemirror.css">
-    <script src="../lib/codemirror.js"></script>
-    <script src="../addon/fold/foldcode.js"></script>
-    <script src="../addon/fold/brace-fold.js"></script>
-    <script src="../addon/fold/xml-fold.js"></script>
-    <script src="../mode/javascript/javascript.js"></script>
-    <script src="../mode/xml/xml.js"></script>
-    <link rel="stylesheet" href="../doc/docs.css">
 
-    <style type="text/css">
-      .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}
-      .CodeMirror-foldmarker {
-        color: blue;
-        text-shadow: #b9f 1px 1px 2px, #b9f -1px -1px 2px, #b9f 1px -1px 2px, #b9f -1px 1px 2px;
-        font-family: arial;
-        line-height: .3;
-        cursor: pointer;
-      }
-    </style>
-  </head>
-  <body>
-    <h1>CodeMirror: Code Folding Demo</h1>
+<head>
+  <title>CodeMirror: Code Folding Demo</title>
+  <meta charset="utf-8"/>
+  <link rel=stylesheet href="../doc/docs.css">
 
-    <p>Demonstration of code folding using the code
-    in <a href="../addon/fold/foldcode.js"><code>foldcode.js</code></a>.
-    Press ctrl-q or click on the gutter to fold a block, again
-    to unfold.</p>
-    <form>
-      <div style="max-width: 50em; margin-bottom: 1em">JavaScript:<br><textarea id="code" name="code"></textarea></div>
-      <div style="max-width: 50em">HTML:<br><textarea id="code-html" name="code-html"></textarea></div>
-    </form>
-    <script id="script">
+  <link rel="stylesheet" href="../lib/codemirror.css">
+  <link rel="stylesheet" href="../addon/fold/foldgutter.css" />
+  <script src="../lib/codemirror.js"></script>
+  <script src="../addon/fold/foldcode.js"></script>
+  <script src="../addon/fold/foldgutter.js"></script>
+  <script src="../addon/fold/brace-fold.js"></script>
+  <script src="../addon/fold/xml-fold.js"></script>
+  <script src="../addon/fold/markdown-fold.js"></script>
+  <script src="../addon/fold/comment-fold.js"></script>
+  <script src="../mode/javascript/javascript.js"></script>
+  <script src="../mode/xml/xml.js"></script>
+  <script src="../mode/markdown/markdown.js"></script>
+  <style type="text/css">
+    .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}
+  </style>
+</head>
+
+<body>
+<div id=nav>
+  <a href="http://codemirror.net"><img id=logo src="../doc/logo.png"></a>
+
+  <ul>
+    <li><a href="../index.html">Home</a>
+    <li><a href="../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a class=active href="#">Code Folding</a>
+  </ul>
+</div>
+
+<article>
+  <h2>Code Folding Demo</h2>
+  <form>
+    <div style="max-width: 50em; margin-bottom: 1em">JavaScript:<br>
+    <textarea id="code" name="code"></textarea></div>
+    <div style="max-width: 50em; margin-bottom: 1em">HTML:<br>
+    <textarea id="code-html" name="code-html"></textarea></div>
+    <div style="max-width: 50em">Markdown:<br>
+    <textarea id="code-markdown" name="code"></textarea></div>
+  </form>
+  <script id="script">
+/*
+ * Demonstration of code folding
+ */
 window.onload = function() {
   var te = document.getElementById("code");
   var sc = document.getElementById("script");
   te.value = (sc.textContent || sc.innerText || sc.innerHTML).replace(/^\s*/, "");
   sc.innerHTML = "";
   var te_html = document.getElementById("code-html");
-  te_html.value = "<html>\n  " + document.documentElement.innerHTML + "\n</html>";
+  te_html.value = document.documentElement.innerHTML;
+  var te_markdown = document.getElementById("code-markdown");
+  te_markdown.value = "# Foo\n## Bar\n\nblah blah\n\n## Baz\n\nblah blah\n\n# Quux\n\nblah blah\n"
 
-  function foldJS(cm, where) { cm.foldCode(where, CodeMirror.braceRangeFinder); }
   window.editor = CodeMirror.fromTextArea(te, {
     mode: "javascript",
     lineNumbers: true,
     lineWrapping: true,
-    extraKeys: {"Ctrl-Q": function(cm){foldJS(cm, cm.getCursor());}}
+    extraKeys: {"Ctrl-Q": function(cm){ cm.foldCode(cm.getCursor()); }},
+    foldGutter: true,
+    gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"]
   });
-  editor.on("gutterClick", foldJS);
-  foldJS(editor, 9);
+  editor.foldCode(CodeMirror.Pos(13, 0));
 
-  function foldHTML(cm, where) { cm.foldCode(where, CodeMirror.tagRangeFinder); }
   window.editor_html = CodeMirror.fromTextArea(te_html, {
     mode: "text/html",
     lineNumbers: true,
     lineWrapping: true,
-    extraKeys: {"Ctrl-Q": function(cm){foldHTML(cm, cm.getCursor());}}
+    extraKeys: {"Ctrl-Q": function(cm){ cm.foldCode(cm.getCursor()); }},
+    foldGutter: true,
+    gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"]
   });
-  editor_html.on("gutterClick", foldHTML);
-  foldHTML(editor_html, 13);
-  foldHTML(editor_html, 1);
+  editor_html.foldCode(CodeMirror.Pos(0, 0));
+  editor_html.foldCode(CodeMirror.Pos(21, 0));
+
+  window.editor_markdown = CodeMirror.fromTextArea(te_markdown, {
+    mode: "markdown",
+    lineNumbers: true,
+    lineWrapping: true,
+    extraKeys: {"Ctrl-Q": function(cm){ cm.foldCode(cm.getCursor()); }},
+    foldGutter: true,
+    gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"]
+  });
 };
-</script>
-  </body>
-</html>
+  </script>
+</article>
+</body>

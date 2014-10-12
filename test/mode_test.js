@@ -52,7 +52,7 @@
           pos = end;
         }
         text = text.replace(/\[\[|\]\]/g, function(s) {return s.charAt(0);});
-        tokens.push(style, text);
+        tokens.push({style: style, text: text});
         plain += text;
       }
     }
@@ -66,77 +66,88 @@
     });
   };
 
+  function esc(str) {
+    return str.replace('&', '&amp;').replace('<', '&lt;').replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+;
+  }
+
   function compare(text, expected, mode) {
 
     var expectedOutput = [];
-    for (var i = 0; i < expected.length; i += 2) {
-      var sty = expected[i];
+    for (var i = 0; i < expected.length; ++i) {
+      var sty = expected[i].style;
       if (sty && sty.indexOf(" ")) sty = sty.split(' ').sort().join(' ');
-      expectedOutput.push(sty, expected[i + 1]);
+      expectedOutput.push({style: sty, text: expected[i].text});
     }
 
     var observedOutput = highlight(text, mode);
 
-    var pass, passStyle = "";
-    pass = highlightOutputsEqual(expectedOutput, observedOutput);
-    passStyle = pass ? 'mt-pass' : 'mt-fail';
-
-    var s = '';
-    if (pass) {
-      s += '<div class="mt-test ' + passStyle + '">';
-      s +=   '<pre>' + text.replace('&', '&amp;').replace('<', '&lt;') + '</pre>';
-      s +=   '<div class="cm-s-default">';
-      s +=   prettyPrintOutputTable(observedOutput);
-      s +=   '</div>';
-      s += '</div>';
-      return s;
-    } else {
-      s += '<div class="mt-test ' + passStyle + '">';
-      s +=   '<pre>' + text.replace('&', '&amp;').replace('<', '&lt;') + '</pre>';
+    var s = "";
+    var diff = highlightOutputsDifferent(expectedOutput, observedOutput);
+    if (diff != null) {
+      s += '<div class="mt-test mt-fail">';
+      s +=   '<pre>' + esc(text) + '</pre>';
       s +=   '<div class="cm-s-default">';
       s += 'expected:';
-      s +=   prettyPrintOutputTable(expectedOutput);
-      s += 'observed:';
-      s +=   prettyPrintOutputTable(observedOutput);
+      s +=   prettyPrintOutputTable(expectedOutput, diff);
+      s += 'observed: [<a onclick="this.parentElement.className+=\' mt-state-unhide\'">display states</a>]';
+      s +=   prettyPrintOutputTable(observedOutput, diff);
       s +=   '</div>';
       s += '</div>';
-      throw s;
     }
+    if (observedOutput.indentFailures) {
+      for (var i = 0; i < observedOutput.indentFailures.length; i++)
+        s += "<div class='mt-test mt-fail'>" + esc(observedOutput.indentFailures[i]) + "</div>";
+    }
+    if (s) throw new Failure(s);
   }
 
-  /**
-   * Emulation of CodeMirror's internal highlight routine for testing. Multi-line
-   * input is supported.
-   *
-   * @param string to highlight
-   *
-   * @param mode the mode that will do the actual highlighting
-   *
-   * @return array of [style, token] pairs
-   */
+  function stringify(obj) {
+    function replacer(key, obj) {
+      if (typeof obj == "function") {
+        var m = obj.toString().match(/function\s*[^\s(]*/);
+        return m ? m[0] : "function";
+      }
+      return obj;
+    }
+    if (window.JSON && JSON.stringify)
+      return JSON.stringify(obj, replacer, 2);
+    return "[unsupported]";  // Fail safely if no native JSON.
+  }
+
   function highlight(string, mode) {
-    var state = mode.startState()
+    var state = mode.startState();
 
     var lines = string.replace(/\r\n/g,'\n').split('\n');
     var st = [], pos = 0;
     for (var i = 0; i < lines.length; ++i) {
       var line = lines[i], newLine = true;
+      if (mode.indent) {
+        var ws = line.match(/^\s*/)[0];
+        var indent = mode.indent(state, line.slice(ws.length));
+        if (indent != CodeMirror.Pass && indent != ws.length)
+          (st.indentFailures || (st.indentFailures = [])).push(
+            "Indentation of line " + (i + 1) + " is " + indent + " (expected " + ws.length + ")");
+      }
       var stream = new CodeMirror.StringStream(line);
       if (line == "" && mode.blankLine) mode.blankLine(state);
       /* Start copied code from CodeMirror.highlight */
       while (!stream.eol()) {
-        var style = mode.token(stream, state), substr = stream.current();
-        if (style && style.indexOf(" ") > -1) style = style.split(' ').sort().join(' ');
-
+        for (var j = 0; j < 10 && stream.start >= stream.pos; j++)
+          var compare = mode.token(stream, state);
+        if (j == 10)
+          throw new Failure("Failed to advance the stream." + stream.string + " " + stream.pos);
+        var substr = stream.current();
+        if (compare && compare.indexOf(" ") > -1) compare = compare.split(' ').sort().join(' ');
         stream.start = stream.pos;
-        if (pos && st[pos-2] == style && !newLine) {
-          st[pos-1] += substr;
+        if (pos && st[pos-1].style == compare && !newLine) {
+          st[pos-1].text += substr;
         } else if (substr) {
-          st[pos++] = style; st[pos++] = substr;
+          st[pos++] = {style: compare, text: substr, state: stringify(state)};
         }
         // Give up when line is ridiculously long
         if (stream.pos > 5000) {
-          st[pos++] = null; st[pos++] = this.text.slice(stream.pos);
+          st[pos++] = {style: null, text: this.text.slice(stream.pos)};
           break;
         }
         newLine = false;
@@ -146,47 +157,36 @@
     return st;
   }
 
-  /**
-   * Compare two arrays of output from highlight.
-   *
-   * @param o1 array of [style, token] pairs
-   *
-   * @param o2 array of [style, token] pairs
-   *
-   * @return boolean; true iff outputs equal
-   */
-  function highlightOutputsEqual(o1, o2) {
-    if (o1.length != o2.length) return false;
-    for (var i = 0; i < o1.length; ++i)
-      if (o1[i] != o2[i]) return false;
-    return true;
+  function highlightOutputsDifferent(o1, o2) {
+    var minLen = Math.min(o1.length, o2.length);
+    for (var i = 0; i < minLen; ++i)
+      if (o1[i].style != o2[i].style || o1[i].text != o2[i].text) return i;
+    if (o1.length > minLen || o2.length > minLen) return minLen;
   }
 
-  /**
-   * Print tokens and corresponding styles in a table. Spaces in the token are
-   * replaced with 'interpunct' dots (&middot;).
-   *
-   * @param output array of [style, token] pairs
-   *
-   * @return html string
-   */
-  function prettyPrintOutputTable(output) {
+  function prettyPrintOutputTable(output, diffAt) {
     var s = '<table class="mt-output">';
     s += '<tr>';
-    for (var i = 0; i < output.length; i += 2) {
-      var style = output[i], val = output[i+1];
+    for (var i = 0; i < output.length; ++i) {
+      var style = output[i].style, val = output[i].text;
       s +=
-      '<td class="mt-token">' +
-        '<span class="cm-' + String(style).replace(/ +/g, " cm-") + '">' +
-        val.replace(/ /g,'\xb7').replace('&', '&amp;').replace('<', '&lt;') +
+      '<td class="mt-token"' + (i == diffAt * 2 ? " style='background: pink'" : "") + '>' +
+        '<span class="cm-' + esc(String(style)) + '">' +
+        esc(val.replace(/ /g,'\xb7')) +  // · MIDDLE DOT
         '</span>' +
         '</td>';
     }
     s += '</tr><tr>';
-    for (var i = 0; i < output.length; i += 2) {
-      s += '<td class="mt-style"><span>' + output[i] + '</span></td>';
+    for (var i = 0; i < output.length; ++i) {
+      s += '<td class="mt-style"><span>' + (output[i].style || null) + '</span></td>';
     }
-    s += '</table>';
+    if(output[0].state) {
+      s += '</tr><tr class="mt-state-row" title="State AFTER each token">';
+      for (var i = 0; i < output.length; ++i) {
+        s += '<td class="mt-state"><pre>' + esc(output[i].state) + '</pre></td>';
+      }
+    }
+    s += '</tr></table>';
     return s;
   }
 })();

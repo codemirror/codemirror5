@@ -1,5 +1,15 @@
-(function() {
-  "use strict";
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
+
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"), require("../htmlmixed/htmlmixed"), require("../ruby/ruby"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror", "../htmlmixed/htmlmixed", "../ruby/ruby"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
+"use strict";
 
   // full haml mode. This handled embeded ruby and html fragments too
   CodeMirror.defineMode("haml", function(config) {
@@ -65,7 +75,7 @@
       // donot handle --> as valid ruby, make it HTML close comment instead
       if (state.startOfLine && !stream.match("-->", false) && (ch == "=" || ch == "-" )) {
         state.tokenize = ruby;
-        return null;
+        return state.tokenize(stream, state);
       }
 
       if (state.previousToken.style == "hamlTag" ||
@@ -73,10 +83,10 @@
           state.previousToken.style == "hamlAttribute") {
         if (ch == "(") {
           state.tokenize = rubyInQuote(")");
-          return null;
+          return state.tokenize(stream, state);
         } else if (ch == "{") {
           state.tokenize = rubyInQuote("}");
-          return null;
+          return state.tokenize(stream, state);
         }
       }
 
@@ -141,13 +151,9 @@
           style = null;
         }
         return style;
-      },
-
-      indent: function(state) {
-        return state.indented;
       }
     };
   }, "htmlmixed", "ruby");
 
   CodeMirror.defineMIME("text/x-haml", "haml");
-})();
+});

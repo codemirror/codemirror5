@@ -4,3 +4,5 @@ test.html
 .tern-*
 *~
 *.swp
+.idea
+*.iml

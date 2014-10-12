@@ -1,4 +1,14 @@
-(function () {
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
+
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
   var Pos = CodeMirror.Pos;
 
   function forEach(arr, f) {
@@ -21,6 +31,7 @@
   function scriptHint(editor, keywords, getToken, options) {
     // Find the token at the cursor
     var cur = editor.getCursor(), token = getToken(editor, cur), tprop = token;
+    if (/\b(?:string|comment)\b/.test(token.type)) return;
     token.state = CodeMirror.innerMode(editor.getMode(), token.state).state;
 
     // If it's not a 'word-style' token, ignore the token.
@@ -33,21 +44,6 @@
       tprop = getToken(editor, Pos(cur.line, tprop.start));
       if (tprop.string != ".") return;
       tprop = getToken(editor, Pos(cur.line, tprop.start));
-      if (tprop.string == ')') {
-        var level = 1;
-        do {
-          tprop = getToken(editor, Pos(cur.line, tprop.start));
-          switch (tprop.string) {
-          case ')': level++; break;
-          case '(': level--; break;
-          default: break;
-          }
-        } while (level > 0);
-        tprop = getToken(editor, Pos(cur.line, tprop.start));
-        if (tprop.type.indexOf("variable") === 0)
-          tprop.type = "function";
-        else return; // no clue
-      }
       if (!context) var context = [];
       context.push(tprop);
     }
@@ -56,11 +52,12 @@
             to: Pos(cur.line, token.end)};
   }
 
-  CodeMirror.javascriptHint = function(editor, options) {
+  function javascriptHint(editor, options) {
     return scriptHint(editor, javascriptKeywords,
                       function (e, cur) {return e.getTokenAt(cur);},
                       options);
   };
+  CodeMirror.registerHelper("hint", "javascript", javascriptHint);
 
   function getCoffeeScriptToken(editor, cur) {
   // This getToken, it is for coffeescript, imitates the behavior of
@@ -80,9 +77,10 @@
     return token;
   }
 
-  CodeMirror.coffeescriptHint = function(editor, options) {
+  function coffeescriptHint(editor, options) {
     return scriptHint(editor, coffeescriptKeywords, getCoffeeScriptToken, options);
-  };
+  }
+  CodeMirror.registerHelper("hint", "coffeescript", coffeescriptHint);
 
   var stringProps = ("charAt charCodeAt indexOf lastIndexOf substring substr slice trim trimLeft trimRight " +
                      "toUpperCase toLowerCase split concat match replace search").split(" ");
@@ -97,7 +95,7 @@
   function getCompletions(token, context, keywords, options) {
     var found = [], start = token.string;
     function maybeAdd(str) {
-      if (str.indexOf(start) == 0 && !arrayContains(found, str)) found.push(str);
+      if (str.lastIndexOf(start, 0) == 0 && !arrayContains(found, str)) found.push(str);
     }
     function gatherCompletions(obj) {
       if (typeof obj == "string") forEach(stringProps, maybeAdd);
@@ -106,14 +104,15 @@
       for (var name in obj) maybeAdd(name);
     }
 
-    if (context) {
+    if (context && context.length) {
       // If this is a property, see if it belongs to some object we can
       // find in the current environment.
       var obj = context.pop(), base;
-      if (obj.type.indexOf("variable") === 0) {
+      if (obj.type && obj.type.indexOf("variable") === 0) {
         if (options && options.additionalContext)
           base = options.additionalContext[obj.string];
-        base = base || window[obj.string];
+        if (!options || options.useGlobalScope !== false)
+          base = base || window[obj.string];
       } else if (obj.type == "string") {
         base = "";
       } else if (obj.type == "atom") {
@@ -128,15 +127,15 @@
       while (base != null && context.length)
         base = base[context.pop().string];
       if (base != null) gatherCompletions(base);
-    }
-    else {
+    } else {
       // If not, just look in the window object and any local scope
       // (reading into JS mode internals to get at the local and global variables)
       for (var v = token.state.localVars; v; v = v.next) maybeAdd(v.name);
       for (var v = token.state.globalVars; v; v = v.next) maybeAdd(v.name);
-      gatherCompletions(window);
+      if (!options || options.useGlobalScope !== false)
+        gatherCompletions(window);
       forEach(keywords, maybeAdd);
     }
     return found;
   }
-})();
+});

@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="744.09448819"
+   height="1052.3622047"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.4 r9939"
+   inkscape:export-filename="/home/marijn/src/js/codemirror/doc/logo.png"
+   inkscape:export-xdpi="27.450405"
+   inkscape:export-ydpi="27.450405"
+   sodipodi:docname="logo.svg">
+  <defs
+     id="defs4">
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath4138">
+      <path
+         transform="matrix(1.05,0,0,1,-290.76164,27.927128)"
+         d="m 705.08647,231.61324 a 70.710678,104.55079 0 1 1 -141.42135,0 70.710678,104.55079 0 1 1 141.42135,0 z"
+         sodipodi:ry="104.55079"
+         sodipodi:rx="70.710678"
+         sodipodi:cy="231.61324"
+         sodipodi:cx="634.37579"
+         id="path4140"
+         style="fill:#ffffff;fill-opacity:1;stroke:none"
+         sodipodi:type="arc" />
+    </clipPath>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.4"
+     inkscape:cx="291.72812"
+     inkscape:cy="789.2497"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1600"
+     inkscape:window-height="875"
+     inkscape:window-x="0"
+     inkscape:window-y="25"
+     inkscape:window-maximized="0" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <text
+       xml:space="preserve"
+       style="font-size:15px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#a21313;fill-opacity:1;stroke:none;font-family:Ubuntu Mono;-inkscape-font-specification:Ubuntu Mono"
+       x="247.48738"
+       y="163.42795"
+       id="text4006"
+       sodipodi:linespacing="125%"
+       clip-path="url(#clipPath4138)"
+       transform="translate(0.50507287,0.50507595)"><tspan
+         sodipodi:role="line"
+         id="tspan4008"
+         x="247.48738"
+         y="163.42795">    if (unit == &quot;char&quot;) moveOnce();</tspan><tspan
+         sodipodi:role="line"
+         x="247.48738"
+         y="182.17795"
+         id="tspan4010">    else if (unit == &quot;column&quot;) moveOnce(true);</tspan><tspan
+         sodipodi:role="line"
+         x="247.48738"
+         y="200.92795"
+         id="tspan4012">    else if (unit == &quot;word&quot; || unit == &quot;group&quot;) {</tspan><tspan
+         sodipodi:role="line"
+         x="247.48738"
+         y="219.67795"
+         id="tspan4014">      var sawType = null, group = unit == &quot;group&quot;;</tspan><tspan
+         sodipodi:role="line"
+         x="247.48738"
+         y="238.42795"
+         id="tspan4016">      for (var first = true;; first = false) {</tspan><tspan
+         sodipodi:role="line"
+         x="247.48738"
+         y="257.17795"
+         id="tspan4018">        if (dir &lt; 0 &amp;&amp; !moveOnce(!first)) break;</tspan><tspan
+         sodipodi:role="line"
+         x="247.48738"
+         y="275.92795"
+         id="tspan4020">        var cur = lineObj.text.charAt(ch) || &quot;\n&quot;;</tspan><tspan
+         sodipodi:role="line"
+         x="247.48738"
+         y="294.67795"
+         id="tspan4022">        var type = isWordChar(cur) ? &quot;w&quot;</tspan><tspan
+         sodipodi:role="line"
+         x="247.48738"
+         y="313.42795"
+         id="tspan4024">          : !group ? null</tspan><tspan
+         sodipodi:role="line"
+         x="247.48738"
+         y="332.17795"
+         id="tspan4026">          : /\s/.test(cur) ? null</tspan><tspan
+         sodipodi:role="line"
+         x="247.48738"
+         y="350.92795"
+         id="tspan4028">          : &quot;p&quot;; // punctuation</tspan><tspan
+         sodipodi:role="line"
+         x="247.48738"
+         y="369.67795"
+         id="tspan4046">        if (sawType &amp;&amp; sawType</tspan></text>
+    <path
+       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-opacity:1;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none"
+       d="M 374.84375 136.8125 C 371.96854 136.71001 368.64305 137.97919 365.15625 142.03125 C 361.97051 140.84608 359.22347 140.35622 356.84375 140.375 C 346.53162 140.4564 343.3125 149.71875 343.3125 149.71875 C 326.2234 146.67934 325.625 162.59375 325.625 162.59375 C 309.43195 163.37101 312.4375 177.375 312.4375 177.375 C 295.67899 180.15651 301.1875 194 301.1875 194 C 284.10838 199.04575 293.4375 212.46875 293.4375 212.46875 C 293.4375 212.46875 277.68174 220.31271 288.1875 232.25 C 288.1875 232.25 273.81776 243.63282 285.90625 253.34375 C 285.90625 253.34375 271.57897 263.97487 286.40625 275.03125 C 286.40625 275.03125 273.84147 285.48036 289.96875 295.3125 C 289.96875 295.3125 278.92374 306.07108 295.59375 314.65625 C 295.59375 314.65625 287.70844 329.01862 305.96875 335.125 C 305.96875 335.125 300.47495 348.88874 319.09375 351.46875 C 319.09375 351.46875 315.90162 357.19564 321.59375 361.15625 C 321.59375 361.15625 310.04416 364.78661 312.5625 374.40625 C 313.83361 379.26171 316.82684 380.49158 323.53125 380.1875 C 323.53125 380.1875 329.096 395.54812 350.46875 398.96875 L 353.125 402.59375 C 353.125 402.59375 342.80592 409.64088 359.125 421.5 C 359.125 421.5 354.16126 425.74314 363.28125 433.34375 C 363.28125 433.34375 357.54117 438.3362 365.75 442.625 C 365.75 442.625 361.35822 445.96166 366.09375 448.125 C 366.09375 448.125 370.88293 490.18262 355.40625 534.4375 C 355.40625 534.4375 341.28721 542.04782 350.1875 556.96875 C 350.1875 556.96875 331.59675 562.24093 345.09375 575.53125 C 345.09375 575.53125 342.0547 585.56155 349.375 585.78125 C 349.375 585.78125 346.16048 592.54552 354.4375 594.5625 C 354.4375 594.5625 353.17883 603.88113 364.09375 602.1875 C 369.44813 608.40994 378.92733 608.70518 385.21875 602.34375 C 396.13361 604.03738 394.875 594.71875 394.875 594.71875 C 403.15197 592.70177 399.9375 585.9375 399.9375 585.9375 C 407.25781 585.7178 404.21875 575.6875 404.21875 575.6875 C 417.71573 562.39718 399.125 557.09375 399.125 557.09375 C 408.0253 542.17282 393.90625 534.5625 393.90625 534.5625 C 378.42953 490.30762 383.21875 448.28125 383.21875 448.28125 C 387.95421 446.11791 383.5625 442.78125 383.5625 442.78125 C 391.77129 438.49245 386.03125 433.5 386.03125 433.5 C 395.15125 425.89939 390.1875 421.65625 390.1875 421.65625 C 406.5066 409.79713 396.1875 402.75 396.1875 402.75 L 398.84375 399.125 C 420.21649 395.70437 425.78125 380.34375 425.78125 380.34375 C 432.48566 380.64783 435.47889 379.41796 436.75 374.5625 C 439.26834 364.94286 427.75 361.3125 427.75 361.3125 C 433.44213 357.35188 430.21875 351.59375 430.21875 351.59375 C 448.83755 349.01373 443.34375 335.28125 443.34375 335.28125 C 461.60406 329.17487 453.71875 314.78125 453.71875 314.78125 C 470.38876 306.19608 459.34375 295.46875 459.34375 295.46875 C 475.47103 285.63661 462.90625 275.1875 462.90625 275.1875 C 477.73353 264.13112 463.40625 253.5 463.40625 253.5 C 475.49474 243.78907 461.15625 232.375 461.15625 232.375 C 471.66201 220.43771 455.875 212.625 455.875 212.625 C 455.875 212.625 465.20411 199.202 448.125 194.15625 C 448.125 194.15625 453.66476 180.31276 436.90625 177.53125 C 436.90625 177.53125 439.88054 163.52726 423.6875 162.75 C 423.6875 162.75 423.0891 146.8356 406 149.875 C 406 149.875 401.14687 135.83532 384.15625 142.15625 C 384.15625 142.15625 380.33279 137.00815 374.84375 136.8125 z M 375.34375 155 C 416.3488 155 449.59375 201.78944 449.59375 259.53125 C 449.59375 317.27306 416.3488 364.09375 375.34375 364.09375 C 334.3387 364.09375 301.09375 317.27306 301.09375 259.53125 C 301.09375 201.78944 334.3387 155 375.34375 155 z "
+       id="rect3058" />
+    <text
+       sodipodi:linespacing="125%"
+       id="text4207"
+       y="491.91403"
+       x="149.69542"
+       style="font-size:95px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#a21313;fill-opacity:1;stroke:none;font-family:Source Sans;-inkscape-font-specification:Source Sans"
+       xml:space="preserve"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"><tspan
+         y="491.91403"
+         x="149.69542"
+         id="tspan4209"
+         sodipodi:role="line">Code  Mirror</tspan></text>
+  </g>
+</svg>

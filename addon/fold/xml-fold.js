@@ -1,4 +1,14 @@
-(function() {
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
+
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
   "use strict";
 
   var Pos = CodeMirror.Pos;
@@ -8,9 +18,11 @@
   var nameChar = nameStartChar + "\-\:\.0-9\\u00B7\\u0300-\\u036F\\u203F-\\u2040";
   var xmlTagStart = new RegExp("<(/?)([" + nameStartChar + "][" + nameChar + "]*)", "g");
 
-  function Iter(cm, line, ch) {
+  function Iter(cm, line, ch, range) {
     this.line = line; this.ch = ch;
     this.cm = cm; this.text = cm.getLine(line);
+    this.min = range ? range.from : cm.firstLine();
+    this.max = range ? range.to - 1 : cm.lastLine();
   }
 
   function tagAt(iter, ch) {
@@ -19,13 +31,13 @@
   }
 
   function nextLine(iter) {
-    if (iter.line >= iter.cm.lastLine()) return;
+    if (iter.line >= iter.max) return;
     iter.ch = 0;
     iter.text = iter.cm.getLine(++iter.line);
     return true;
   }
   function prevLine(iter) {
-    if (iter.line <= iter.cm.firstLine()) return;
+    if (iter.line <= iter.min) return;
     iter.text = iter.cm.getLine(--iter.line);
     iter.ch = iter.text.length;
     return true;
@@ -122,7 +134,7 @@
     }
   }
 
-  CodeMirror.tagRangeFinder = function(cm, start) {
+  CodeMirror.registerHelper("fold", "xml", function(cm, start) {
     var iter = new Iter(cm, start.line, 0);
     for (;;) {
       var openTag = toNextTag(iter), end;
@@ -133,33 +145,38 @@
         return close && {from: start, to: close.from};
       }
     }
-  };
-
-  CodeMirror.findMatchingTag = function(cm, pos) {
-    var iter = new Iter(cm, pos.line, pos.ch);
+  });
+  CodeMirror.findMatchingTag = function(cm, pos, range) {
+    var iter = new Iter(cm, pos.line, pos.ch, range);
+    if (iter.text.indexOf(">") == -1 && iter.text.indexOf("<") == -1) return;
     var end = toTagEnd(iter), to = end && Pos(iter.line, iter.ch);
     var start = end && toTagStart(iter);
-    if (!end || end == "selfClose" || !start || cmp(iter, pos) > 0) return;
+    if (!end || !start || cmp(iter, pos) > 0) return;
     var here = {from: Pos(iter.line, iter.ch), to: to, tag: start[2]};
+    if (end == "selfClose") return {open: here, close: null, at: "open"};
 
     if (start[1]) { // closing tag
-      var open = findMatchingOpen(iter, start[2]);
-      return open && {open: open, close: here, at: "close"};
+      return {open: findMatchingOpen(iter, start[2]), close: here, at: "close"};
     } else { // opening tag
-      iter = new Iter(cm, to.line, to.ch);
-      var close = findMatchingClose(iter, start[2]);
-      return close && {open: here, close: close, at: "open"};
+      iter = new Iter(cm, to.line, to.ch, range);
+      return {open: here, close: findMatchingClose(iter, start[2]), at: "open"};
     }
   };
 
-  CodeMirror.findEnclosingTag = function(cm, pos) {
-    var iter = new Iter(cm, pos.line, pos.ch);
+  CodeMirror.findEnclosingTag = function(cm, pos, range) {
+    var iter = new Iter(cm, pos.line, pos.ch, range);
     for (;;) {
       var open = findMatchingOpen(iter);
       if (!open) break;
-      var forward = new Iter(cm, pos.line, pos.ch);
+      var forward = new Iter(cm, pos.line, pos.ch, range);
       var close = findMatchingClose(forward, open.tag);
       if (close) return {open: open, close: close};
     }
   };
-})();
+
+  // Used by addon/edit/closetag.js
+  CodeMirror.scanForClosingTag = function(cm, pos, name, end) {
+    var iter = new Iter(cm, pos.line, pos.ch, end ? {from: 0, to: end} : null);
+    return findMatchingClose(iter, name);
+  };
+});

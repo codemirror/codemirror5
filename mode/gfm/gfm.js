@@ -1,4 +1,17 @@
-CodeMirror.defineMode("gfm", function(config) {
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
+
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"), require("../markdown/markdown"), require("../../addon/mode/overlay"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror", "../markdown/markdown", "../../addon/mode/overlay"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
+"use strict";
+
+CodeMirror.defineMode("gfm", function(config, modeConfig) {
   var codeDepth = 0;
   function blankLine(state) {
     state.code = false;
@@ -20,6 +33,8 @@ CodeMirror.defineMode("gfm", function(config) {
       };
     },
     token: function(stream, state) {
+      state.combineTokens = null;
+
       // Hack to prevent formatting override inside code blocks (block and inline)
       if (state.codeBlock) {
         if (stream.match(/^```/)) {
@@ -67,18 +82,22 @@ CodeMirror.defineMode("gfm", function(config) {
           // User/Project@SHA
           // User@SHA
           // SHA
+          state.combineTokens = true;
           return "link";
         } else if (stream.match(/^(?:[a-zA-Z0-9\-_]+\/)?(?:[a-zA-Z0-9\-_]+)?#[0-9]+\b/)) {
           // User/Project#Num
           // User#Num
           // #Num
+          state.combineTokens = true;
           return "link";
         }
       }
-      if (stream.match(/^((?:[a-z][\w-]+:(?:\/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]+|\([^\s()<>]*\))+(?:\([^\s()<>]*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))/i)) {
+      if (stream.match(/^((?:[a-z][\w-]+:(?:\/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]|\([^\s()<>]*\))+(?:\([^\s()<>]*\)|[^\s`*!()\[\]{};:'".,<>?«»“”‘’]))/i) &&
+         stream.string.slice(stream.start - 2, stream.start) != "](") {
         // URLs
         // Taken from http://daringfireball.net/2010/07/improved_regex_for_matching_urls
         // And then (issue #1160) simplified to make it not crash the Chrome Regexp engine
+        state.combineTokens = true;
         return "link";
       }
       stream.next();
@@ -86,11 +105,18 @@ CodeMirror.defineMode("gfm", function(config) {
     },
     blankLine: blankLine
   };
-  CodeMirror.defineMIME("gfmBase", {
-    name: "markdown",
+
+  var markdownConfig = {
     underscoresBreakWords: false,
     taskLists: true,
     fencedCodeBlocks: true
-  });
+  };
+  for (var attr in modeConfig) {
+    markdownConfig[attr] = modeConfig[attr];
+  }
+  markdownConfig.name = "markdown";
+  CodeMirror.defineMIME("gfmBase", markdownConfig);
   return CodeMirror.overlayMode(CodeMirror.getMode(config, "gfmBase"), gfmOverlay);
 }, "markdown");
+
+});

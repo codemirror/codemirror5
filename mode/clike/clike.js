@@ -1,3 +1,16 @@
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
+
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
+"use strict";
+
 CodeMirror.defineMode("clike", function(config, parserConfig) {
   var indentUnit = config.indentUnit,
       statementIndentUnit = parserConfig.statementIndentUnit || indentUnit,
@@ -158,11 +171,11 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     electricChars: "{}",
     blockCommentStart: "/*",
     blockCommentEnd: "*/",
-    lineComment: "//"
+    lineComment: "//",
+    fold: "brace"
   };
 });
 
-(function() {
   function words(str) {
     var obj = {}, words = str.split(" ");
     for (var i = 0; i < words.length; ++i) obj[words[i]] = true;
@@ -190,6 +203,30 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     return "meta";
   }
 
+  function cpp11StringHook(stream, state) {
+    stream.backUp(1);
+    // Raw strings.
+    if (stream.match(/(R|u8R|uR|UR|LR)/)) {
+      var match = stream.match(/"([^\s\\()]{0,16})\(/);
+      if (!match) {
+        return false;
+      }
+      state.cpp11RawStringDelim = match[1];
+      state.tokenize = tokenRawString;
+      return tokenRawString(stream, state);
+    }
+    // Unicode strings/chars.
+    if (stream.match(/(u8|u|U|L)/)) {
+      if (stream.match(/["']/, /* eat */ false)) {
+        return "string";
+      }
+      return false;
+    }
+    // Ignore this hook.
+    stream.next();
+    return false;
+  }
+
   // C#-style strings where "" escapes a quote.
   function tokenAtString(stream, state) {
     var next;
@@ -202,28 +239,66 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     return "string";
   }
 
-  function mimes(ms, mode) {
-    for (var i = 0; i < ms.length; ++i) CodeMirror.defineMIME(ms[i], mode);
+  // C++11 raw string literal is <prefix>"<delim>( anything )<delim>", where
+  // <delim> can be a string up to 16 characters long.
+  function tokenRawString(stream, state) {
+    // Escape characters that have special regex meanings.
+    var delim = state.cpp11RawStringDelim.replace(/[^\w\s]/g, '\\$&');
+    var match = stream.match(new RegExp(".*?\\)" + delim + '"'));
+    if (match)
+      state.tokenize = null;
+    else
+      stream.skipToEnd();
+    return "string";
   }
 
-  mimes(["text/x-csrc", "text/x-c", "text/x-chdr"], {
+  function def(mimes, mode) {
+    if (typeof mimes == "string") mimes = [mimes];
+    var words = [];
+    function add(obj) {
+      if (obj) for (var prop in obj) if (obj.hasOwnProperty(prop))
+        words.push(prop);
+    }
+    add(mode.keywords);
+    add(mode.builtin);
+    add(mode.atoms);
+    if (words.length) {
+      mode.helperType = mimes[0];
+      CodeMirror.registerHelper("hintWords", mimes[0], words);
+    }
+
+    for (var i = 0; i < mimes.length; ++i)
+      CodeMirror.defineMIME(mimes[i], mode);
+  }
+
+  def(["text/x-csrc", "text/x-c", "text/x-chdr"], {
     name: "clike",
     keywords: words(cKeywords),
     blockKeywords: words("case do else for if switch while struct"),
     atoms: words("null"),
-    hooks: {"#": cppHook}
+    hooks: {"#": cppHook},
+    modeProps: {fold: ["brace", "include"]}
   });
-  mimes(["text/x-c++src", "text/x-c++hdr"], {
+
+  def(["text/x-c++src", "text/x-c++hdr"], {
     name: "clike",
     keywords: words(cKeywords + " asm dynamic_cast namespace reinterpret_cast try bool explicit new " +
                     "static_cast typeid catch operator template typename class friend private " +
                     "this using const_cast inline public throw virtual delete mutable protected " +
-                    "wchar_t"),
+                    "wchar_t alignas alignof constexpr decltype nullptr noexcept thread_local final " +
+                    "static_assert override"),
     blockKeywords: words("catch class do else finally for if struct switch try while"),
     atoms: words("true false null"),
-    hooks: {"#": cppHook}
+    hooks: {
+      "#": cppHook,
+      "u": cpp11StringHook,
+      "U": cpp11StringHook,
+      "L": cpp11StringHook,
+      "R": cpp11StringHook
+    },
+    modeProps: {fold: ["brace", "include"]}
   });
-  CodeMirror.defineMIME("text/x-java", {
+  def("text/x-java", {
     name: "clike",
     keywords: words("abstract assert boolean break byte case catch char class const continue default " +
                     "do double else enum extends final finally float for goto if implements import " +
@@ -237,9 +312,10 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
         stream.eatWhile(/[\w\$_]/);
         return "meta";
       }
-    }
+    },
+    modeProps: {fold: ["brace", "import"]}
   });
-  CodeMirror.defineMIME("text/x-csharp", {
+  def("text/x-csharp", {
     name: "clike",
     keywords: words("abstract as base break case catch checked class const continue" +
                     " default delegate do else enum event explicit extern finally fixed for" +
@@ -265,7 +341,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       }
     }
   });
-  CodeMirror.defineMIME("text/x-scala", {
+  def("text/x-scala", {
     name: "clike",
     keywords: words(
 
@@ -293,6 +369,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
 
 
     ),
+    multiLineStrings: true,
     blockKeywords: words("catch class do else finally for forSome if match switch try while"),
     atoms: words("true false null"),
     hooks: {
@@ -302,7 +379,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       }
     }
   });
-  mimes(["x-shader/x-vertex", "x-shader/x-fragment"], {
+  def(["x-shader/x-vertex", "x-shader/x-fragment"], {
     name: "clike",
     keywords: words("float int bool void " +
                     "vec2 vec3 vec4 ivec2 ivec3 ivec4 bvec2 bvec3 bvec4 " +
@@ -356,6 +433,19 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
                 "gl_MaxVertexTextureImageUnits gl_MaxTextureImageUnits " +
                 "gl_MaxFragmentUniformComponents gl_MaxCombineTextureImageUnits " +
                 "gl_MaxDrawBuffers"),
-    hooks: {"#": cppHook}
+    hooks: {"#": cppHook},
+    modeProps: {fold: ["brace", "include"]}
   });
-}());
+
+  def("text/x-nesc", {
+    name: "clike",
+    keywords: words(cKeywords + "as atomic async call command component components configuration event generic " +
+                    "implementation includes interface module new norace nx_struct nx_union post provides " +
+                    "signal task uses abstract extends"),
+    blockKeywords: words("case do else for if switch while struct"),
+    atoms: words("null"),
+    hooks: {"#": cppHook},
+    modeProps: {fold: ["brace", "include"]}
+  });
+
+});

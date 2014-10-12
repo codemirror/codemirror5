@@ -1,25 +1,16 @@
-/*
-Copyright (C) 2011 by MarkLogic Corporation
-Author: Mike Brevoort <mike@brevoort.com>
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
+"use strict";
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-*/
 CodeMirror.defineMode("xquery", function() {
 
   // The keywords object is set to the result of this self executing
@@ -348,7 +339,7 @@ CodeMirror.defineMode("xquery", function() {
       return chain(stream, state, tokenString(ch, tokenAttribute));
 
     if(!isInXmlAttributeBlock(state))
-      pushStateStack(state, { type: "attribute", name: name, tokenize: tokenAttribute});
+      pushStateStack(state, { type: "attribute", tokenize: tokenAttribute});
 
     stream.eat(/[a-zA-Z_:]/);
     stream.eatWhile(/[-a-zA-Z0-9_:.]/);
@@ -442,9 +433,15 @@ CodeMirror.defineMode("xquery", function() {
       if (stream.eatSpace()) return null;
       var style = state.tokenize(stream, state);
       return style;
-    }
+    },
+
+    blockCommentStart: "(:",
+    blockCommentEnd: ":)"
+
   };
 
 });
 
 CodeMirror.defineMIME("application/xquery", "xquery");
+
+});
