@@ -57,7 +57,7 @@
       }
     }
   };
-  
+
   function jumpToFirstDiff(diff, edit) {
     if  (diff.length <= 1) return; // contents are identical
     var lines = numberOfLinesUntilFirstDifference(diff);
