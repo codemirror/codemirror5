@@ -61,7 +61,7 @@
   function jumpToFirstDiff(diff, edit) {
     if  (diff.length <= 1) return; // contents are identical
     var lines = numberOfLinesUntilFirstDifference(diff);
-    if  (lines > 1)  edit.scrollTo(0, lines * 8);
+    if  (lines > 1) edit.scrollTo(0, (lines * 15) - (15 * 8));
   }
 
   function numberOfLinesUntilFirstDifference(diff) {
