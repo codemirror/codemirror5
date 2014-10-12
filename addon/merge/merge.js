@@ -46,6 +46,8 @@
       this.forceUpdate = registerUpdate(this);
       setScrollLock(this, true, false);
       registerScroll(this);
+      
+      if (this.mv.options.jumpToFirstDiff) {  jumpToFirstDiff(this.diff, this.edit); };
     },
     setShowDifferences: function(val) {
       val = val !== false;
@@ -55,6 +57,16 @@
       }
     }
   };
+  
+  function jumpToFirstDiff(diff, edit) {
+    if  (diff.length <= 1) return; // contents are identical
+    var lines = numberOfLinesUntilFirstDifference(diff);
+    if  (lines > 1)  edit.scrollTo(0, lines * 8)
+  }
+
+  function numberOfLinesUntilFirstDifference(diff) {
+    return (diff[0][1].match(/\n/g) || []).length;
+  }
 
   function ensureDiff(dv) {
     if (dv.diffOutOfDate) {
