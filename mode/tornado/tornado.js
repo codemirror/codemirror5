@@ -17,8 +17,8 @@
     var keywords = ["block", "for", "in", "true", "false",
                     "none", "self", "super", "if", "end", "as", "not", "and",
                     "else", "import", "with", "without", "context",
-					"try", "except", "put", "escape", "xhtml_escape", "url_escape",
-            		"json_encode", "squeeze", "linkify", "datetime",
+		    "try", "except", "put", "escape", "xhtml_escape", "url_escape",
+            	    "json_encode", "squeeze", "linkify", "datetime",
                     "extends", "include", "load", "length", "comment",
                     "pass", "while", "set", "import", "from",
                     "autoescape", "raw", "module"];
