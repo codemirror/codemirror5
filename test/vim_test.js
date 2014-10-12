@@ -1147,6 +1147,17 @@ testSelection('viw_eol', 'foo \tbAr', /r/, 'viw', 'bAr');
 testSelection('vi{_middle_spc', 'a{\n\tbar\n\t}b', /r/, 'vi{', '\n\tbar\n\t');
 testSelection('va{_middle_spc', 'a{\n\tbar\n\t}b', /r/, 'va{', '{\n\tbar\n\t}');
 
+testVim('mouse_select', function(cm, vim, helpers) {
+  cm.setSelection(Pos(0, 2), Pos(0, 4), {origin: '*mouse'});
+  is(cm.state.vim.visualMode);
+  is(!cm.state.vim.visualLine);
+  is(!cm.state.vim.visualBlock);
+  helpers.doKeys('<Esc>');
+  is(!cm.somethingSelected());
+  helpers.doKeys('g', 'v');
+  eq('cd', cm.getSelection());
+}, {value: 'abcdef'});
+
 // Operator-motion tests
 testVim('D', function(cm, vim, helpers) {
   cm.setCursor(0, 3);

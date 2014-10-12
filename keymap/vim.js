@@ -629,16 +629,6 @@
             return true;
           }
         }
-        function handleExternalSelection() {
-          // Enter visual mode when the mouse selects text.
-          if (!vim.visualMode && !vim.insertMode &&
-              !cursorEqual(cm.getCursor('head'), cm.getCursor('anchor'))) {
-            vim.visualMode = true;
-            vim.visualLine = false;
-            CodeMirror.signal(cm, "vim-mode-change", {mode: "visual"});
-            cm.on('mousedown', exitVisualMode);
-          }
-        }
         function doKeyToKey(keys) {
           // TODO: prevent infinite recursion.
           var match;
@@ -689,7 +679,6 @@
 
         function handleKeyNonInsertMode() {
           if (handleMacroRecording() || handleEsc()) { return true; };
-          handleExternalSelection();
 
           var keys = vim.inputState.keyBuffer = vim.inputState.keyBuffer + key;
           if (/^[1-9]\d*$/.test(keys)) { return true; }
@@ -4738,10 +4727,7 @@
       } else if (cm.doc.history.lastSelOrigin == '*mouse') {
         // Reset lastHPos if mouse click was done in normal mode.
         vim.lastHPos = cm.doc.getCursor().ch;
-        if (cm.somethingSelected()) {
-          // If something is still selected, enter visual mode.
-          vim.visualMode = true;
-        }
+        handleExternalSelection(cm, vim);
       }
       if (vim.visualMode) {
         var from, head;
@@ -4757,6 +4743,22 @@
           vim.fakeCursor.clear();
         }
         vim.fakeCursor = cm.markText(from, to, {className: 'cm-animate-fat-cursor'});
+      }
+    }
+
+    function handleExternalSelection(cm, vim) {
+      var anchor = cm.getCursor('anchor');
+      var head = cm.getCursor('head');
+      // Enter visual mode when the mouse selects text.
+      if (!vim.visualMode && !vim.insertMode && cm.somethingSelected()) {
+        vim.visualMode = true;
+        vim.visualLine = false;
+        CodeMirror.signal(cm, "vim-mode-change", {mode: "visual"});
+        cm.on('mousedown', exitVisualMode);
+      }
+      if (vim.visualMode) {
+        updateMark(cm, vim, '<', cursorMin(head, anchor));
+        updateMark(cm, vim, '>', cursorMax(head, anchor));
       }
     }
 
