@@ -62,8 +62,8 @@
 
   CodeMirror.defineMode("tornado", function(config) {
     var htmlBase = CodeMirror.getMode(config, "text/html");
-    var djangoInner = CodeMirror.getMode(config, "tornado:inner");
-    return CodeMirror.overlayMode(htmlBase, djangoInner);
+    var tornadoInner = CodeMirror.getMode(config, "tornado:inner");
+    return CodeMirror.overlayMode(htmlBase, tornadoInner);
   });
 
   CodeMirror.defineMIME("text/x-tornado", "tornado");
