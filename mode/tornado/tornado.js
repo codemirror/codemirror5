@@ -19,7 +19,7 @@
 +                   "exec","extends","false","finally","for","from","global","if","import","in",
 +                   "include","is","json_encode","lambda","length","linkify","load","module",
 +                   "none","not","or","pass","print","put","raise","raw","return","self","set",
-+                   "squeeze","super","true","try","url_escape","while","with","without","xhtml_escape","yield"]
++                   "squeeze","super","true","try","url_escape","while","with","without","xhtml_escape","yield"];
     keywords = new RegExp("^((" + keywords.join(")|(") + "))\\b");
 
     function tokenBase (stream, state) {
