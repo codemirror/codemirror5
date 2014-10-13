@@ -14,14 +14,12 @@
   "use strict";
 
   CodeMirror.defineMode("tornado:inner", function() {
-    var keywords = ["block", "for", "in", "true", "false",
-                    "none", "self", "super", "if", "end", "as", "not", "and",
-                    "else", "import", "with", "without", "context",
-                    "try", "except", "put", "escape", "xhtml_escape", "url_escape",
-                    "json_encode", "squeeze", "linkify", "datetime",
-                    "extends", "include", "load", "length", "comment",
-                    "pass", "while", "set", "import", "from",
-                    "autoescape", "raw", "module"];
+    var keywords = ["and","as","assert","autoescape","block","break","class","comment","context",
+                   "continue","datetime","def","del","elif","else","end","escape","except",
+                   "exec","extends","false","finally","for","from","global","if","import","in",
+                   "include","is","json_encode","lambda","length","linkify","load","module",
+                   "none","not","or","pass","print","put","raise","raw","return","self","set",
+                   "squeeze","super","true","try","url_escape","while","with","without","xhtml_escape","yield"]
     keywords = new RegExp("^((" + keywords.join(")|(") + "))\\b");
 
     function tokenBase (stream, state) {
