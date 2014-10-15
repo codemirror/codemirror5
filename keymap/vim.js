@@ -230,7 +230,7 @@
       function lookupKey(e) {
         var keyCode = e.keyCode;
         if (modifierCodes.indexOf(keyCode) != -1) { return; }
-        var hasModifier = e.ctrlKey || e.shiftKey || e.metaKey;
+        var hasModifier = e.ctrlKey || e.metaKey;
         var key = CodeMirror.keyNames[keyCode];
         key = specialKey[key] || key;
         var name = '';
