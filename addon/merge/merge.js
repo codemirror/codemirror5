@@ -68,7 +68,7 @@
 
   function lineNrOfNextDiff(diff,lineNr) {
     return findLineSatisfying(diff, 0, 0,
-      function(currentChunkNr, lineNrOfNextChunk,numberOfLinesCounted){
+      function(currentChunkNr, lineNrOfNextChunk){
         if   (lineNrOfNextChunk > lineNr) {
          if (currentChunkNr === diff.length-1) return;
          else return { line: lineNrOfNextChunk, ch: 0 };
