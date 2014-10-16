@@ -1757,11 +1757,20 @@ testVim('visual_block_crossing_short_line', function(cm, vim, helpers) {
   helpers.doKeys('3', 'k');
   selections = cm.getSelections().join();
   eq('4', selections);
-}, {value: '123456\n78\nabcdefg\nfoobar'});
+  helpers.doKeys('5', 'j', 'k');
+  selections = cm.getSelections().join("");
+  eq(10, selections.length);
+}, {value: '123456\n78\nabcdefg\nfoobar\n}\n'});
 testVim('visual_block_curPos_on_exit', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('<C-v>', '3' , 'l', '<Esc>');
   eqPos(makeCursor(0, 3), cm.getCursor());
+  helpers.doKeys('h', '<C-v>', '2' , 'j' ,'3' , 'l');
+  eq(cm.getSelections().join(), "3456,,cdef");
+  helpers.doKeys('4' , 'h');
+  eq(cm.getSelections().join(), "23,8,bc");
+  helpers.doKeys('2' , 'l');
+  eq(cm.getSelections().join(), "34,,cd");
 }, {value: '123456\n78\nabcdefg\nfoobar'});
 
 testVim('visual_marks', function(cm, vim, helpers) {
