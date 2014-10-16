@@ -2715,6 +2715,11 @@
     advances it past a token, and returns a style for that token. More
     advanced modes can also handle indentation for the language.</p>
 
+    <p>This section describes the low-level mode interface. Many modes
+    are written directly against this, since it offers a lot of
+    control, but for a quick mode definition, you might want to use
+    the <a href="../demo/simplemode.html">simple mode addon</a>.</p>
+
     <p id="defineMode">The mode script should
     call <code><strong>CodeMirror.defineMode</strong></code> to
     register itself with CodeMirror. This function takes two
