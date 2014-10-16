@@ -8,7 +8,7 @@
 <link rel=stylesheet href="../addon/merge/merge.css">
 <script src="../lib/codemirror.js"></script>
 <script src="../mode/xml/xml.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/diff_match_patch/20121119/diff_match_patch.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/diff_match_patch/20121119/diff_match_patch.js"></script>
 <script src="../addon/merge/merge.js"></script>
 <style>
     .CodeMirror { line-height: 1.2; }
@@ -46,8 +46,8 @@ or <span class=clicky onclick="initUI(3)">three-way</span>. The left
 (or center) pane is editable, and the differences with the other
 pane(s) are <span class=clicky onclick="toggleDifferences()">optionally</span> shown live as you edit it.</p>
 
-<p>The editor can also jump direclty to the first diff occurrence by toggling on
-<code>jumpToFirstDiff</code> in the options object.</p>
+<p>The editor also exposes a "next difference"/"previousrst difference" interface. In this demo you can use
+<code>Alt-Up</code> and <code>Alt-Down</code> to navigate the changes.in a panel.</p>
 
 <p>This addon depends on
 the <a href="https://code.google.com/p/google-diff-match-patch/">google-diff-match-patch</a>
@@ -106,5 +106,12 @@ function resize(mergeView) {
   }
   mergeView.wrap.style.height = height + "px";
 }
+
+function doc_keyUp(e) {
+    if (e.altKey && e.keyCode == 40) dv.jumpToDiffAfter();
+    if (e.altKey && e.keyCode == 38) dv.jumpToDiffBefore();
+}
+
+document.addEventListener('keyup', doc_keyUp, false);
 </script>
 </article>
