@@ -16,13 +16,22 @@ body {
 
 p { margin-top: 0; }
 
-h2, h3 {
+h2, h3, h1 {
   font-weight: normal;
   margin-bottom: .7em;
 }
+h1 { font-size: 140%; }
 h2 { font-size: 120%; }
 h3 { font-size: 110%; }
 article > h2:first-child, section:first-child > h2 { margin-top: 0; }
+
+#nav h1 {
+  margin-right: 12px;
+  margin-top: 0;
+  margin-bottom: 2px;
+  color: #E30808;
+  letter-spacing: .5px;
+}
 
 a, a:visited, a:link, .quasilink {
   color: #A21313;
@@ -114,7 +123,7 @@ article {
 
 #logo {
   border: 0;
-  margin-right: 7px;
+  margin-right: 12px;
   margin-bottom: 25px;
 }
 
