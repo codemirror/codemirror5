@@ -2669,121 +2669,51 @@
     // Distance between selectionEnd.ch and any(first considered here) selection.ch
     function selectBlock(cm, selectionEnd) {
       var selections = [], ranges = cm.listSelections();
-      var firstRange = ranges[0].anchor, lastRange = ranges[ranges.length-1].anchor;
-      var start, end, direction, selectionStart;
-      var curEnd = cm.getCursor('head');
-      var originalSelectionEnd = copyCursor(selectionEnd);
-      start = firstRange.line;
-      end = lastRange.line;
-      if (selectionEnd.line < curEnd.line) {
-        direction = 'up';
-      } else if (selectionEnd.line > curEnd.line) {
-        direction = 'down';
-      } else {
-        if (selectionEnd.ch != curEnd.ch) {
-          direction = selectionEnd.ch > curEnd.ch ? 'right' : 'left';
-        }
-        selectionStart = cm.getCursor('anchor');
+      var head = copyCursor(cm.clipPos(selectionEnd));
+      var isClipped = !cursorEqual(selectionEnd, head);
+      var curHead = cm.getCursor('head');
+      var primIndex = getIndex(ranges, curHead);
+      var wasClipped = cursorEqual(ranges[primIndex].head, ranges[primIndex].anchor);
+      var max = ranges.length - 1;
+      var index = max - primIndex > primIndex ? max : 0;
+      var base = ranges[index].anchor;
+
+      var firstLine = Math.min(base.line, head.line);
+      var lastLine = Math.max(base.line, head.line);
+      var baseCh = base.ch, headCh = head.ch;
+
+      var dir = ranges[index].head.ch - baseCh;
+      var newDir = headCh - baseCh;
+      if (dir > 0 && newDir <= 0) {
+        baseCh++;
+        if (!isClipped) { headCh--; }
+      } else if (dir < 0 && newDir >= 0) {
+        baseCh--;
+        if (!wasClipped) { headCh++; }
+      } else if (dir < 0 && newDir == -1) {
+        baseCh--;
+        headCh++;
       }
-      var primIndex = getIndex(ranges, curEnd);
-      // sets to true when selectionEnd already lies inside the existing selections
-      selectionEnd = cm.clipPos(selectionEnd);
-      var contains = getIndex(ranges, selectionEnd) < 0 ? false : true;
-      var isClipped = !cursorEqual(originalSelectionEnd, selectionEnd);
-      // This function helps to check selection crossing
-      // in case of short lines.
-      var processSelectionCrossing = function() {
-        if (isClipped) {
-          if (curEnd.ch >= selectionStart.ch) {
-            selectionStart.ch++;
-          }
-        } else if (curEnd.ch == lineLength(cm, curEnd.line)) {
-          if (cursorEqual(ranges[primIndex].anchor, ranges[primIndex].head) && ranges.length>1) {
-            if (direction == 'up') {
-              if (contains || primIndex>0) {
-              start = firstRange.line;
-              end = selectionEnd.line;
-              selectionStart = ranges[primIndex-1].anchor;
-            }
-          } else {
-              if (contains || primIndex == 0) {
-                end = lastRange.line;
-                start = selectionEnd.line;
-                selectionStart = ranges[primIndex+1].anchor;
-              }
-            }
-            if (selectionEnd.ch >= selectionStart.ch) {
-              selectionStart.ch--;
-            }
-          }
-        }
-      };
-      switch(direction) {
-        case 'up':
-          start = contains ? firstRange.line : selectionEnd.line;
-          end = contains ? selectionEnd.line : lastRange.line;
-          selectionStart = lastRange;
-          processSelectionCrossing();
-          break;
-        case 'down':
-          start = contains ? selectionEnd.line : firstRange.line;
-          end = contains ? lastRange.line : selectionEnd.line;
-          selectionStart = firstRange;
-          processSelectionCrossing();
-          break;
-        case 'left':
-          if ((selectionEnd.ch <= selectionStart.ch) && (curEnd.ch > selectionStart.ch)) {
-            selectionStart.ch++;
-            selectionEnd.ch--;
-          }
-          break;
-        case 'right':
-          if ((selectionStart.ch <= selectionEnd.ch) && (curEnd.ch < selectionStart.ch)) {
-            selectionStart.ch--;
-            selectionEnd.ch++;
-          }
-          break;
-        default:
-          start = selectionStart.line;
-          end = selectionEnd.line;
-      }
-      while (start <= end) {
-        var anchor = {line: start, ch: selectionStart.ch};
-        var head = {line: start, ch: selectionEnd.ch};
-        var range = {anchor: anchor, head: head};
+      for (var line = firstLine; line <= lastLine; line++) {
+        var range = {anchor: new Pos(line, baseCh), head: new Pos(line, headCh)};
         selections.push(range);
-        if (cursorEqual(head, selectionEnd)) {
-            primIndex = selections.indexOf(range);
-        }
-        start++;
       }
-      // Update selectionEnd and selectionStart
-      // after selection crossing
-      selectionEnd.ch = selections[0].head.ch;
-      selectionStart.ch = selections[0].anchor.ch;
-      if (cursorEqual(selectionEnd, selections[0].head)) {
-        selectionStart.line = selections[selections.length-1].anchor.line;
-      } else {
-        selectionStart.line = selections[0].anchor.line;
-      }
+      primIndex = head.line == lastLine ? selections.length - 1 : 0;
       cm.setSelections(selections, primIndex);
-      return selectionStart;
+      selectionEnd.ch = headCh;
+      base.ch = baseCh;
+      return base;
     }
     // getIndex returns the index of the cursor in the selections.
     function getIndex(ranges, cursor, end) {
-      var pos = -1;
       for (var i = 0; i < ranges.length; i++) {
-        var atAnchor = cursorEqual(ranges[i].anchor, cursor);
-        var atHead = cursorEqual(ranges[i].head, cursor);
-        if (end == 'head') {
-        pos = atHead ? i : pos;
-        } else if (end == 'anchor') {
-          pos = atAnchor ? i : pos;
-        } else {
-          pos = (atAnchor || atHead) ? i : pos;
+        var atAnchor = end != 'head' && cursorEqual(ranges[i].anchor, cursor);
+        var atHead = end != 'anchor' && cursorEqual(ranges[i].head, cursor);
+        if (atAnchor || atHead) {
+          return i;
         }
       }
-      return pos;
+      return -1;
     }
     function getSelectedAreaRange(cm, vim) {
       var lastSelection = vim.lastSelection;
