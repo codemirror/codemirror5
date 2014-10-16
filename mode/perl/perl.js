@@ -789,7 +789,7 @@ CodeMirror.defineMode("perl",function(){
                                 tail:null};},
                 token:function(stream,state){
                         return (state.tokenize||tokenPerl)(stream,state);},
-                electricChars:"{}"};});
+                };});
 
 CodeMirror.registerHelper("wordChars", "perl", /[\w$]/);
 
