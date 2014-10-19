@@ -48,12 +48,20 @@
   CodeMirror.defineMode("python", function(conf, parserConf) {
     var ERRORCLASS = "error";
 
-    var singleOperators = parserConf.singleOperators || new RegExp("^[\\+\\-\\*/%&|\\^~<>!]");
     var singleDelimiters = parserConf.singleDelimiters || new RegExp("^[\\(\\)\\[\\]\\{\\}@,:`=;\\.]");
     var doubleOperators = parserConf.doubleOperators || new RegExp("^((==)|(!=)|(<=)|(>=)|(<>)|(<<)|(>>)|(//)|(\\*\\*))");
     var doubleDelimiters = parserConf.doubleDelimiters || new RegExp("^((\\+=)|(\\-=)|(\\*=)|(%=)|(/=)|(&=)|(\\|=)|(\\^=))");
     var tripleDelimiters = parserConf.tripleDelimiters || new RegExp("^((//=)|(>>=)|(<<=)|(\\*\\*=))");
-    var identifiers = parserConf.identifiers|| new RegExp("^[_A-Za-z][_A-Za-z0-9]*");
+
+    if (parserConf.version && parseInt(parserConf.version, 10) == 3){
+        // since http://legacy.python.org/dev/peps/pep-0465/ @ is also an operator
+        var singleOperators = parserConf.singleOperators || new RegExp("^[\\+\\-\\*/%&|\\^~<>!@]");
+        var identifiers = parserConf.identifiers|| new RegExp("^[_A-Za-z\u00A1-\uFFFF][_A-Za-z0-9\u00A1-\uFFFF]*");
+    } else {
+        var singleOperators = parserConf.singleOperators || new RegExp("^[\\+\\-\\*/%&|\\^~<>!]");
+        var identifiers = parserConf.identifiers|| new RegExp("^[_A-Za-z][_A-Za-z0-9]*");
+    }
+
     var hangingIndent = parserConf.hangingIndent || conf.indentUnit;
 
     var myKeywords = commonKeywords, myBuiltins = commonBuiltins;
@@ -252,8 +260,13 @@
       }
 
       // Handle decorators
-      if (current == "@")
-        return stream.match(identifiers, false) ? "meta" : ERRORCLASS;
+      if (current == "@"){
+        if(parserConf.version && parseInt(parserConf.version, 10) == 3){
+            return stream.match(identifiers, false) ? "meta" : "operator";
+        } else {
+            return stream.match(identifiers, false) ? "meta" : ERRORCLASS;
+        }
+      }
 
       if ((style == "variable" || style == "builtin")
           && state.lastStyle == "meta")
