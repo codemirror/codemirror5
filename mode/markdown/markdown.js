@@ -75,6 +75,10 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   // Turn on task lists? ("- [ ] " and "- [x] ")
   if (modeCfg.taskLists === undefined) modeCfg.taskLists = false;
 
+  // Turn on strikethrough syntax
+  if (modeCfg.strikethrough === undefined)
+    modeCfg.strikethrough = false;
+
   var codeDepth = 0;
 
   var header   = 'header'
@@ -91,7 +95,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   ,   linktext = 'link'
   ,   linkhref = 'string'
   ,   em       = 'em'
-  ,   strong   = 'strong';
+  ,   strong   = 'strong'
+  ,   strikethrough = 'strikethrough';
 
   var hrRE = /^([*\-=_])(?:\s*\1){2,}\s*$/
   ,   ulRE = /^[*\-+]\s+/
@@ -99,7 +104,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   ,   taskListRE = /^\[(x| )\](?=\s)/ // Must follow ulRE or olRE
   ,   atxHeaderRE = /^#+/
   ,   setextHeaderRE = /^(?:\={1,}|-{1,})$/
-  ,   textRE = /^[^#!\[\]*_\\<>` "'(]+/;
+  ,   textRE = /^[^#!\[\]*_\\<>` "'(~]+/;
 
   function switchInline(stream, state, f) {
     state.f = state.inline = f;
@@ -121,6 +126,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     state.em = false;
     // Reset STRONG state
     state.strong = false;
+    // Reset strikethrough state
+    state.strikethrough = false;
     // Reset state.quote
     state.quote = 0;
     if (!htmlFound && state.f == htmlBlock) {
@@ -283,6 +290,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
     if (state.strong) { styles.push(strong); }
     if (state.em) { styles.push(em); }
+    if (state.strikethrough) { styles.push(strikethrough); }
 
     if (state.linkText) { styles.push(linktext); }
 
@@ -511,6 +519,30 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       }
     }
 
+    if (modeCfg.strikethrough) {
+      if (ch === '~') {
+        if (state.strikethrough === ch && stream.eat(ch)) {// Remove strikethrough
+          if (modeCfg.highlightFormatting) state.formatting = "strikethrough";
+          var t = getType(state);
+          state.strikethrough = false;
+          return t;
+        } else if (!state.strikethrough && stream.eat(ch) && stream.match(/^[^\s]/, false)) {// Add strikethrough
+          state.strikethrough = ch;
+          if (modeCfg.highlightFormatting) state.formatting = "strikethrough";
+          return getType(state);
+        }
+      }
+      else if (ch === ' ') {
+        if (stream.match(/^~~/, true)) { // Probably surrounded by space
+          if (stream.peek() === ' ') { // Surrounded by spaces, ignore
+            return getType(state);
+          } else { // Not surrounded by spaces, back up pointer
+            stream.backUp(1);
+          }
+        }
+      }
+    }
+
     if (ch === ' ') {
       if (stream.match(/ +$/, false)) {
         state.trailingSpace++;
@@ -659,7 +691,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         listDepth: 0,
         quote: 0,
         trailingSpace: 0,
-        trailingSpaceNewLine: false
+        trailingSpaceNewLine: false,
+        strikethrough: false
       };
     },
 
@@ -683,6 +716,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         linkTitle: s.linkTitle,
         em: s.em,
         strong: s.strong,
+        strkethrough: s.strikethrough,
         header: s.header,
         taskList: s.taskList,
         list: s.list,
