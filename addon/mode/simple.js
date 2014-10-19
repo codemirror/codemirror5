@@ -126,7 +126,7 @@
           } else if (rule.data.pop && state.stack && state.stack.length) {
             state.state = state.stack.pop();
           }
-            
+
           if (rule.data.mode)
             enterLocalMode(config, state, rule.data.mode, rule.token);
           if (rule.data.indent)

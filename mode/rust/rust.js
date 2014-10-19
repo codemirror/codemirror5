@@ -22,7 +22,7 @@ CodeMirror.defineMode("rust", function() {
     "as": "op", "true": "atom", "false": "atom", "assert": "op", "check": "op",
     "claim": "op", "native": "ignore", "unsafe": "ignore", "import": "else-style",
     "export": "else-style", "copy": "op", "log": "op", "log_err": "op",
-    "use": "op", "bind": "op", "self": "atom", "struct": "enum",
+    "use": "op", "bind": "op", "self": "atom", "struct": "enum"
   };
   var typeKeywords = function() {
     var keywords = {"fn": "fn", "block": "fn", "obj": "obj"};
