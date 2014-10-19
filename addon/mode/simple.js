@@ -40,6 +40,8 @@
                  indent: state.indent && state.indent.slice(0)};
         if (state.localState)
           s.localState = CodeMirror.copyState(state.local.mode, state.localState);
+        if (state.stack)
+          s.stack = state.stack.slice(0);
         for (var pers = state.persistentStates; pers; pers = pers.next)
           s.persistentStates = {mode: pers.mode,
                                 spec: pers.spec,
@@ -83,7 +85,7 @@
   }
 
   function Rule(data, states) {
-    if (data.next) ensureState(states, data.next);
+    if (data.next || data.push) ensureState(states, data.next || data.push);
     this.regex = toRegex(data.regex);
     this.token = asToken(data.token);
     this.data = data;
@@ -116,8 +118,15 @@
         var rule = curState[i];
         var matches = stream.match(rule.regex);
         if (matches) {
-          if (rule.data.next)
+          if (rule.data.next) {
             state.state = rule.data.next;
+          } else if (rule.data.push) {
+            (state.stack || (state.stack = [])).push(state.state);
+            state.state = rule.data.push;
+          } else if (rule.data.pop && state.stack && state.stack.length) {
+            state.state = state.stack.pop();
+          }
+            
           if (rule.data.mode)
             enterLocalMode(config, state, rule.data.mode, rule.token);
           if (rule.data.indent)
@@ -127,8 +136,9 @@
           if (matches.length > 2) {
             state.pending = [];
             for (var j = 2; j < matches.length; j++)
-              state.pending.push({text: matches[j], token: rule.token[j - 1]});
-            stream.backUp(matches[0].length - matches[1].length);
+              if (matches[j])
+                state.pending.push({text: matches[j], token: rule.token[j - 1]});
+            stream.backUp(matches[0].length - (matches[1] ? matches[1].length : 0));
             return rule.token[0];
           } else if (rule.token && rule.token.join) {
             return rule.token[0];
@@ -185,9 +195,9 @@
       scan: for (;;) {
         for (var i = 0; i < rules.length; i++) {
           var rule = rules[i], m = rule.regex.exec(textAfter);
-          if (m) {
+          if (m && m[0]) {
             if (rule.data.dedent && rule.data.dedentIfLineStart !== false) pos--;
-            if (rule.next) rules = states[rule.next];
+            if (rule.next || rule.push) rules = states[rule.next || rule.push];
             textAfter = textAfter.slice(m[0].length);
             continue scan;
           }
