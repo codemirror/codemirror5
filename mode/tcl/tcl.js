@@ -78,7 +78,7 @@ CodeMirror.defineMode("tcl", function() {
         return "comment";
       }
       else {
-        stream.eatWhile(/[\w\$_{}]/);
+        stream.eatWhile(/[\w\$_{}\xa1-\uffff]/);
         var word = stream.current().toLowerCase();
         if (keywords && keywords.propertyIsEnumerable(word))
           return "keyword";
