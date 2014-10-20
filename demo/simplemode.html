@@ -61,36 +61,45 @@ highlighted by the mode shown in it).</p>
 <p>Each state is an array of rules. A rule may have the following properties:</p>
 
 <dl>
-  <dt><code>regex</code></dt>
+  <dt><code><strong>regex</strong>: string | RegExp</code></dt>
   <dd>The regular expression that matches the token. May be a string
   or a regex object. When a regex, the <code>ignoreCase</code> flag
   will be taken into account when matching the token. This regex
   should only capture groups when the <code>token</code> property is
   an array.</dd>
-  <dt><code>token</code></dt>
+  <dt><code><strong>token</strong></code>: string | null</dt>
   <dd>An optional token style. Multiple styles can be specified by
   separating them with dots or spaces. When the <code>regex</code> for
   this rule captures groups, it must capture <em>all</em> of the
   string (since JS provides no way to find out where a group matched),
   and this property must hold an array of token styles that has one
   style for each matched group.</dd>
-  <dt><code>next</code></dt>
+  <dt><code><strong>next</strong>: string</code></dt>
   <dd>When a <code>next</code> property is present, the mode will
-  transfer to another state when the token is encountered.</dd>
-  <dt><code>mode</code></dt>
+  transfer to the state named by the property when the token is
+  encountered.</dd>
+  <dt><code><strong>push</strong>: string</code></dt>
+  <dd>Like <code>next</code>, but instead replacing the current state
+  by the new state, the current state is kept on a stack, and can be
+  returned to with the <code>pop</code> directive.</dd>
+  <dt><code><strong>pop</strong>: bool</code></dt>
+  <dd>When true, and there is another state on the state stack, will
+  cause the mode to pop that state off the stack and transition to
+  it.</dd>
+  <dt><code><strong>mode</strong>: {spec, end, persistent}</code></dt>
   <dd>Can be used to embed another mode inside a mode. When present,
   must hold an object with a <code>spec</code> property that describes
   the embedded mode, and an optional <code>end</code> end property
   that specifies the regexp that will end the extent of the mode. When
   a <code>persistent</code> property is set (and true), the nested
   mode's state will be preserved between occurrences of the mode.</dd>
-  <dt><code>indent</code></dt>
+  <dt><code><strong>indent</strong>: bool</code></dt>
   <dd>When true, this token changes the indentation to be one unit
   more than the current line's indentation.</dd>
-  <dt><code>dedent</code></dt>
+  <dt><code><strong>dedent</strong>: bool</code></dt>
   <dd>When true, this token will pop one scope off the indentation
   stack.</dd>
-  <dt><code>dedentIfLineStart</code></dt>
+  <dt><code><strong>dedentIfLineStart</strong>: bool</code></dt>
   <dd>If a token has its <code>dedent</code> property set, it will, by
   default, cause lines where it appears at the start to be dedented.
   Set this property to false to prevent that behavior.</dd>
@@ -104,7 +113,7 @@ which sets the comment style for a mode. The simple mode addon also
 recognizes a few such properties:</p>
 
 <dl>
-  <dt><code>dontIndentStates</code></dt>
+  <dt><code><strong>dontIndentStates</strong>: array&lt;string&gt;</code></dt>
   <dd>An array of states in which the mode's auto-indentation should
   not take effect. Usually used for multi-line comment and string
   states.</dd>
