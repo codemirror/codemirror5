@@ -298,6 +298,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     },
     modeProps: {fold: ["brace", "include"]}
   });
+
   def("text/x-java", {
     name: "clike",
     keywords: words("abstract assert boolean break byte case catch char class const continue default " +
@@ -315,6 +316,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     },
     modeProps: {fold: ["brace", "import"]}
   });
+
   def("text/x-csharp", {
     name: "clike",
     keywords: words("abstract as base break case catch checked class const continue" +
@@ -341,6 +343,19 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       }
     }
   });
+
+  function tokenTripleString(stream, state) {
+    var escaped = false;
+    while (!stream.eol()) {
+      if (!escaped && stream.match('"""')) {
+        state.tokenize = null;
+        break;
+      }
+      escaped = stream.next() != "\\" && !escaped;
+    }
+    return "string";
+  }
+
   def("text/x-scala", {
     name: "clike",
     keywords: words(
@@ -366,8 +381,6 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       "Compiler Double Exception Float Integer Long Math Number Object Package Pair Process " +
       "Runtime Runnable SecurityManager Short StackTraceElement StrictMath String " +
       "StringBuffer System Thread ThreadGroup ThreadLocal Throwable Triple Void"
-
-
     ),
     multiLineStrings: true,
     blockKeywords: words("catch class do else finally for forSome if match switch try while"),
@@ -376,9 +389,15 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       "@": function(stream) {
         stream.eatWhile(/[\w\$_]/);
         return "meta";
+      },
+      '"': function(stream, state) {
+        if (!stream.match('""')) return false;
+        state.tokenize = tokenTripleString;
+        return state.tokenize(stream, state);
       }
     }
   });
+
   def(["x-shader/x-vertex", "x-shader/x-fragment"], {
     name: "clike",
     keywords: words("float int bool void " +

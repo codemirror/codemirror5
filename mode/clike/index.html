@@ -171,6 +171,21 @@ public class Class<T, V> implements MyInterface {
 }
 </textarea></div>
 
+<h2>Scala example</h2>
+
+<div><textarea id="scala-code">
+object FilterTest extends App {
+  def filter(xs: List[Int], threshold: Int) = {
+    def process(ys: List[Int]): List[Int] =
+      if (ys.isEmpty) ys
+      else if (ys.head < threshold) ys.head :: process(ys.tail)
+      else process(ys.tail)
+    process(xs)
+  }
+  println(filter(List(1, 9, 2, 8, 3, 7, 4), 5))
+}
+</textarea></div>
+
     <script>
       var cEditor = CodeMirror.fromTextArea(document.getElementById("c-code"), {
         lineNumbers: true,
@@ -187,6 +202,11 @@ public class Class<T, V> implements MyInterface {
         matchBrackets: true,
         mode: "text/x-java"
       });
+      var scalaEditor = CodeMirror.fromTextArea(document.getElementById("scala-code"), {
+        lineNumbers: true,
+        matchBrackets: true,
+        mode: "text/x-scala"
+      });
       var mac = CodeMirror.keyMap.default == CodeMirror.keyMap.macDefault;
       CodeMirror.keyMap.default[(mac ? "Cmd" : "Ctrl") + "-Space"] = "autocomplete";
     </script>
@@ -198,7 +218,8 @@ public class Class<T, V> implements MyInterface {
     directives are recognized.</p>
 
     <p><strong>MIME types defined:</strong> <code>text/x-csrc</code>
-    (C code), <code>text/x-c++src</code> (C++
-    code), <code>text/x-java</code> (Java
-    code), <code>text/x-csharp</code> (C#).</p>
+    (C), <code>text/x-c++src</code> (C++), <code>text/x-java</code>
+    (Java), <code>text/x-csharp</code> (C#),
+    <code>text/x-scala</code> (Scala), <code>text/x-vertex</code>
+    and <code>x-shader/x-fragment</code> (shader programs).</p>
 </article>
