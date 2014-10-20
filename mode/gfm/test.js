@@ -193,10 +193,6 @@
      "[strikethrough ~~foo]",
      "[strikethrough foo~~]");
 
-  MT("strikethroughWrapped",
-     "[strikethrough ~~foo]",
-     "[strikethrough  foo~~]");
-
   MT("strikethroughParagraph",
      "[strikethrough ~~foo]",
      "",
