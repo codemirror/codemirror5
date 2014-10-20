@@ -520,24 +520,23 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     }
 
     if (modeCfg.strikethrough) {
-      if (ch === '~') {
-        if (state.strikethrough === ch && stream.eat(ch)) {// Remove strikethrough
+      if (ch === '~' && stream.eatWhile(ch)) {
+        if (state.strikethrough) {// Remove strikethrough
           if (modeCfg.highlightFormatting) state.formatting = "strikethrough";
           var t = getType(state);
           state.strikethrough = false;
           return t;
-        } else if (!state.strikethrough && stream.eat(ch) && stream.match(/^[^\s]/, false)) {// Add strikethrough
-          state.strikethrough = ch;
+        } else if (stream.match(/^[^\s]/, false)) {// Add strikethrough
+          state.strikethrough = true;
           if (modeCfg.highlightFormatting) state.formatting = "strikethrough";
           return getType(state);
         }
-      }
-      else if (ch === ' ') {
+      } else if (ch === ' ') {
         if (stream.match(/^~~/, true)) { // Probably surrounded by space
           if (stream.peek() === ' ') { // Surrounded by spaces, ignore
             return getType(state);
           } else { // Not surrounded by spaces, back up pointer
-            stream.backUp(1);
+            stream.backUp(2);
           }
         }
       }
@@ -716,7 +715,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         linkTitle: s.linkTitle,
         em: s.em,
         strong: s.strong,
-        strkethrough: s.strikethrough,
+        strikethrough: s.strikethrough,
         header: s.header,
         taskList: s.taskList,
         list: s.list,

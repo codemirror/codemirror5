@@ -25,6 +25,9 @@
   FT("formatting_strikethrough",
      "[strikethrough&formatting&formatting-strikethrough ~~][strikethrough foo][strikethrough&formatting&formatting-strikethrough ~~]");
 
+  FT("formatting_strikethrough",
+     "foo [strikethrough&formatting&formatting-strikethrough ~~][strikethrough bar][strikethrough&formatting&formatting-strikethrough ~~]");
+
   MT("emInWordAsterisk",
      "foo[em *bar*]hello");
 
@@ -172,6 +175,9 @@
      "~~ foo~~");
 
   MT("strikethroughUnclosedStrayTildes",
+    "[strikethrough ~~foo~~~]");
+
+  MT("strikethroughUnclosedStrayTildes",
      "[strikethrough ~~foo ~~]");
 
   MT("strikethroughUnclosedStrayTildes",
@@ -186,6 +192,10 @@
   MT("strikethroughWrapped",
      "[strikethrough ~~foo]",
      "[strikethrough foo~~]");
+
+  MT("strikethroughWrapped",
+     "[strikethrough ~~foo]",
+     "[strikethrough  foo~~]");
 
   MT("strikethroughParagraph",
      "[strikethrough ~~foo]",
