@@ -87,7 +87,7 @@
 /* Can style cursor different in overwrite (non-insert) mode */
 div.CodeMirror-overwrite div.CodeMirror-cursor {}
 
-.cm-tab { display: inline-block; }
+.cm-tab { display: inline-block; text-decoration: inherit; }
 
 .CodeMirror-ruler {
   border-left: 1px solid #ccc;
