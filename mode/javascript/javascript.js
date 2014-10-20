@@ -590,7 +590,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   }
   function maybeArrayComprehension(type) {
     if (type == "for") return pass(comprehension, expect("]"));
-    if (type == ",") return cont(commasep(expressionNoComma, "]"));
+    if (type == ",") return cont(commasep(maybeexpressionNoComma, "]"));
     return pass(commasep(expressionNoComma, "]"));
   }
   function comprehension(type) {
