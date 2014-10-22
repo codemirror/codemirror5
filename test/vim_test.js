@@ -1736,7 +1736,7 @@ testVim('visual_block', function(cm, vim, helpers) {
   // switch between visual modes
   cm.setCursor(1, 1);
   // blockwise to characterwise visual
-  helpers.doKeys('<C-v>', '<C-v>', 'j', 'l', 'v');
+  helpers.doKeys('<C-v>', 'j', 'l', 'v');
   selections = cm.getSelections();
   eq('7891\nabc', selections.join(''));
   // characterwise to blockwise
@@ -1785,6 +1785,7 @@ testVim('visual_marks', function(cm, vim, helpers) {
 testVim('visual_join', function(cm, vim, helpers) {
   helpers.doKeys('l', 'V', 'l', 'j', 'j', 'J');
   eq(' 1 2 3\n 4\n 5', cm.getValue());
+  is(!vim.visualMode);
 }, { value: ' 1\n 2\n 3\n 4\n 5' });
 testVim('visual_blank', function(cm, vim, helpers) {
   helpers.doKeys('v', 'k');
