@@ -705,8 +705,11 @@
           return true;
         }
 
-        if (vim.insertMode) { return handleKeyInsertMode(); }
-        else { return handleKeyNonInsertMode(); }
+        return cm.operation(function() {
+          cm.curOp.isVimOp = true;
+          if (vim.insertMode) { return handleKeyInsertMode(); }
+          else { return handleKeyNonInsertMode(); }
+        });
       },
       handleEx: function(cm, input) {
         exCommandDispatcher.processCommand(cm, input);
@@ -2099,7 +2102,6 @@
         //     equal to the repeat times the size of the previous visual
         //     operation.
         if (!vim.visualMode) {
-          cm.on('mousedown', exitVisualMode);
           vim.visualMode = true;
           vim.visualLine = !!actionArgs.linewise;
           vim.visualBlock = !!actionArgs.blockwise;
@@ -2889,7 +2891,6 @@
     }
 
     function exitVisualMode(cm) {
-      cm.off('mousedown', exitVisualMode);
       var vim = cm.state.vim;
       var selectionStart = cm.getCursor('anchor');
       var selectionEnd = cm.getCursor('head');
@@ -4724,9 +4725,7 @@
           // Cursor moved outside the context of an edit. Reset the change.
           lastChange.changes = [];
         }
-      } else if (cm.doc.history.lastSelOrigin == '*mouse') {
-        // Reset lastHPos if mouse click was done in normal mode.
-        vim.lastHPos = cm.doc.getCursor().ch;
+      } else {
         handleExternalSelection(cm, vim);
       }
       if (vim.visualMode) {
@@ -4749,16 +4748,22 @@
     function handleExternalSelection(cm, vim) {
       var anchor = cm.getCursor('anchor');
       var head = cm.getCursor('head');
-      // Enter visual mode when the mouse selects text.
-      if (!vim.visualMode && !vim.insertMode && cm.somethingSelected()) {
+      // Enter or exit visual mode to match mouse selection.
+      if (vim.visualMode && cursorEqual(head, anchor) && lineLength(cm, head.line) > head.ch) {
+        exitVisualMode(cm);
+      } else if (!cm.curOp.isVimOp && !vim.visualMode && !vim.insertMode && cm.somethingSelected()) {
         vim.visualMode = true;
         vim.visualLine = false;
         CodeMirror.signal(cm, "vim-mode-change", {mode: "visual"});
-        cm.on('mousedown', exitVisualMode);
       }
-      if (vim.visualMode) {
-        updateMark(cm, vim, '<', cursorMin(head, anchor));
-        updateMark(cm, vim, '>', cursorMax(head, anchor));
+      if (!cm.curOp.isVimOp) {
+        if (vim.visualMode) {
+          updateMark(cm, vim, '<', cursorMin(head, anchor));
+          updateMark(cm, vim, '>', cursorMax(head, anchor));
+        } else if (!vim.insertMode) {
+          // Reset lastHPos if selection was modified by something outside of vim mode e.g. by mouse.
+          vim.lastHPos = cm.getCursor().ch;
+        }
       }
     }
 
