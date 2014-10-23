@@ -16,7 +16,7 @@
                       "add", "copy", "entrypoint", "volume", "user",
                       "workdir", "onbuild"],
       instructionsRegex = instructions.join('|');
-  
+
   // Match all Dockerfile directives in a case-insensitive manner
   instructionsRegex = new RegExp(instructionsRegex, "i");
 
@@ -40,7 +40,7 @@
         regex: /[^#]+/,
         token: null,
         next: "start"
-    	}
+      }
     ]
   });
 
