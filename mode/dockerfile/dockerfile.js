@@ -13,15 +13,39 @@
   
   var directives = ["from", "maintainer", "run", "cmd", "expose", "env",
                     "add", "copy", "entrypoint", "volume", "user", "workdir",
-                    "onbuild"];
+                    "onbuild"],
+      directivesRegex = "(";
+  
+  for (var i=0; i<directives.length; i++) {
+    //directivesRegex += "(" + directives[i] + ")";
+    directivesRegex += directives[i];
+    
+    if (i < (directives.length - 1)) {
+      directivesRegex += "|";
+    } else {
+      directivesRegex += ")";
+    }
+  }
+  
+  directivesRegex = new RegExp(directivesRegex, "i");
 
   CodeMirror.defineSimpleMode("dockerfile", {
     start: [
       {
         regex: /#.*/,
         token: "comment"
+      },
+      {
+        regex: directivesRegex,
+        token: "variable-2",
+        next: "remainder"
       }
-    ]
+    ],
+    remainder: [{
+      regex: /.+/,
+      token: null,
+      next: "start"
+    }]
   });
 
   CodeMirror.defineMIME("text/x-dockerfile", "dockerfile");
