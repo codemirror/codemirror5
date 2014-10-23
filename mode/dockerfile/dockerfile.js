@@ -17,7 +17,6 @@
       directivesRegex = "(";
   
   for (var i=0; i<directives.length; i++) {
-    //directivesRegex += "(" + directives[i] + ")";
     directivesRegex += directives[i];
     
     if (i < (directives.length - 1)) {
