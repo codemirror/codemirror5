@@ -14,17 +14,7 @@
   var directives = ["from", "maintainer", "run", "cmd", "expose", "env",
                     "add", "copy", "entrypoint", "volume", "user", "workdir",
                     "onbuild"],
-      directivesRegex = "(";
-  
-  for (var i=0; i<directives.length; i++) {
-    directivesRegex += directives[i];
-    
-    if (i < (directives.length - 1)) {
-      directivesRegex += "|";
-    } else {
-      directivesRegex += ")";
-    }
-  }
+      directivesRegex = directives.join('|');
   
   directivesRegex = new RegExp(directivesRegex, "i");
 
