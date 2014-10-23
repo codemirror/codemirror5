@@ -12,13 +12,13 @@
   "use strict";
 
   // Collect all Dockerfile directives
-  var directives = ["from", "maintainer", "run", "cmd", "expose", "env",
-                    "add", "copy", "entrypoint", "volume", "user", "workdir",
-                    "onbuild"],
-      directivesRegex = directives.join('|');
+  var instructions = ["from", "maintainer", "run", "cmd", "expose", "env",
+                      "add", "copy", "entrypoint", "volume", "user",
+                      "workdir", "onbuild"],
+      instructionsRegex = instructions.join('|');
   
   // Match all Dockerfile directives in a case-insensitive manner
-  directivesRegex = new RegExp(directivesRegex, "i");
+  instructionsRegex = new RegExp(instructionsRegex, "i");
 
   CodeMirror.defineSimpleMode("dockerfile", {
     start: [
@@ -29,7 +29,7 @@
       },
       // Directive highlighting
       {
-        regex: directivesRegex,
+        regex: instructionsRegex,
         token: "variable-2",
         next: "remainder"
       }
