@@ -11,30 +11,37 @@
 })(function(CodeMirror) {
   "use strict";
   
+  // Collect all Dockerfile directives
   var directives = ["from", "maintainer", "run", "cmd", "expose", "env",
                     "add", "copy", "entrypoint", "volume", "user", "workdir",
                     "onbuild"],
       directivesRegex = directives.join('|');
   
+  // Match all Dockerfile directives in a case-insensitive manner
   directivesRegex = new RegExp(directivesRegex, "i");
 
   CodeMirror.defineSimpleMode("dockerfile", {
     start: [
+      // Block comment
       {
         regex: /#.*/,
         token: "comment"
       },
+      // Directive highlighting
       {
         regex: directivesRegex,
         token: "variable-2",
         next: "remainder"
       }
     ],
-    remainder: [{
-      regex: /.+/,
-      token: null,
-      next: "start"
-    }]
+    remainder: [
+      {
+        // Match everything except for the inline comment
+        regex: /[^#]+/,
+        token: null,
+        next: "start"
+    	}
+    ]
   });
 
   CodeMirror.defineMIME("text/x-dockerfile", "dockerfile");
