@@ -10,7 +10,7 @@
     mod(CodeMirror);
 })(function(CodeMirror) {
   "use strict";
-  
+
   // Collect all Dockerfile directives
   var directives = ["from", "maintainer", "run", "cmd", "expose", "env",
                     "add", "copy", "entrypoint", "volume", "user", "workdir",
