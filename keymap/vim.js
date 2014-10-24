@@ -226,51 +226,52 @@
   var specialKey = {Enter:'CR',Backspace:'BS',Delete:'Del'};
   var mac = /Mac/.test(navigator.platform);
   var Vim = function() {
+    function lookupKey(e) {
+      var keyCode = e.keyCode;
+      if (modifierCodes.indexOf(keyCode) != -1) { return; }
+      var hasModifier = e.ctrlKey || e.metaKey;
+      var key = CodeMirror.keyNames[keyCode];
+      key = specialKey[key] || key;
+      var name = '';
+      if (e.ctrlKey) { name += 'C-'; }
+      if (e.altKey) { name += 'A-'; }
+      if (mac && e.metaKey || (!hasModifier && e.shiftKey) && key.length < 2) {
+        // Shift key bindings can only specified for special characters.
+        return;
+      } else if (e.shiftKey && !/^[A-Za-z]$/.test(key)) {
+        name += 'S-';
+      }
+      if (key.length == 1) { key = key.toLowerCase(); }
+      name += key;
+      if (name.length > 1) { name = '<' + name + '>'; }
+      return name;
+    }
+    // Keys with modifiers are handled using keydown due to limitations of
+    // keypress event.
+    function handleKeyDown(cm, e) {
+      var name = lookupKey(e);
+      if (!name) { return; }
+
+      CodeMirror.signal(cm, 'vim-keypress', name);
+      if (CodeMirror.Vim.handleKey(cm, name, 'user')) {
+        CodeMirror.e_stop(e);
+      }
+    }
+    // Keys without modifiers are handled using keypress to work best with
+    // non-standard keyboard layouts.
+    function handleKeyPress(cm, e) {
+      var code = e.charCode || e.keyCode;
+      if (e.ctrlKey || e.metaKey || e.altKey ||
+          e.shiftKey && code < 32) { return; }
+      var name = String.fromCharCode(code);
+
+      CodeMirror.signal(cm, 'vim-keypress', name);
+      if (CodeMirror.Vim.handleKey(cm, name, 'user')) {
+        CodeMirror.e_stop(e);
+      }
+    }
+
     CodeMirror.defineOption('vimMode', false, function(cm, val) {
-      function lookupKey(e) {
-        var keyCode = e.keyCode;
-        if (modifierCodes.indexOf(keyCode) != -1) { return; }
-        var hasModifier = e.ctrlKey || e.metaKey;
-        var key = CodeMirror.keyNames[keyCode];
-        key = specialKey[key] || key;
-        var name = '';
-        if (e.ctrlKey) { name += 'C-'; }
-        if (e.altKey) { name += 'A-'; }
-        if (mac && e.metaKey || (!hasModifier && e.shiftKey) && key.length < 2) {
-          // Shift key bindings can only specified for special characters.
-          return;
-        } else if (e.shiftKey && !/^[A-Za-z]$/.test(key)) {
-          name += 'S-';
-        }
-        if (key.length == 1) { key = key.toLowerCase(); }
-        name += key;
-        if (name.length > 1) { name = '<' + name + '>'; }
-        return name;
-      }
-      // Keys with modifiers are handled using keydown due to limitations of
-      // keypress event.
-      function handleKeyDown(cm, e) {
-        var name = lookupKey(e);
-        if (!name) { return; }
-
-        CodeMirror.signal(cm, 'vim-keypress', name);
-        if (CodeMirror.Vim.handleKey(cm, name, 'user')) {
-          CodeMirror.e_stop(e);
-        }
-      }
-      // Keys without modifiers are handled using keypress to work best with
-      // non-standard keyboard layouts.
-      function handleKeyPress(cm, e) {
-        var code = e.charCode || e.keyCode;
-        if (e.ctrlKey || e.metaKey || e.altKey ||
-            e.shiftKey && code < 32) { return; }
-        var name = String.fromCharCode(code);
-
-        CodeMirror.signal(cm, 'vim-keypress', name);
-        if (CodeMirror.Vim.handleKey(cm, name, 'user')) {
-          CodeMirror.e_stop(e);
-        }
-      }
       if (val) {
         cm.setOption('keyMap', 'vim');
         cm.setOption('disableInput', true);
