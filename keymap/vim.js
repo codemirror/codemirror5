@@ -2271,11 +2271,12 @@
           return;
         }
         if (actionArgs.matchIndent) {
-          // length that considers tabs and cm.options.tabSize
+          var tabSize = cm.getOption("tabSize");
+          // length that considers tabs and tabSize
           var whitespaceLength = function(str) {
             var tabs = (str.split("\t").length - 1);
             var spaces = (str.split(" ").length - 1);
-            return tabs * cm.options.tabSize + spaces * 1;
+            return tabs * tabSize + spaces * 1;
           };
           var currentLine = cm.getLine(cm.getCursor().line);
           var indent = whitespaceLength(currentLine.match(/^\s*/)[0]);
@@ -2288,8 +2289,8 @@
             if (newIndent < 0) {
               return "";
             }
-            else if (cm.options.indentWithTabs) {
-              var quotient = Math.floor(newIndent / cm.options.tabSize);
+            else if (cm.getOption("indentWithTabs")) {
+              var quotient = Math.floor(newIndent / tabSize);
               return Array(quotient + 1).join('\t');
             }
             else {
@@ -2451,7 +2452,7 @@
           replaceWithStr = replaceWithStr.replace(/[^\n]/g, replaceWith);
           if (vim.visualBlock) {
             // Tabs are split in visua block before replacing
-            var spaces = new Array(cm.options.tabSize+1).join(' ');
+            var spaces = new Array(cm.getOption("tabSize")+1).join(' ');
             replaceWithStr = cm.getSelection();
             replaceWithStr = replaceWithStr.replace(/\t/g, spaces).replace(/[^\n]/g, replaceWith).split('\n');
             cm.replaceSelections(replaceWithStr);
