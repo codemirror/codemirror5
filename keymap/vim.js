@@ -156,7 +156,9 @@
     { keys: 'c', type: 'operator', operator: 'change' },
     { keys: '>', type: 'operator', operator: 'indent', operatorArgs: { indentRight: true }},
     { keys: '<', type: 'operator', operator: 'indent', operatorArgs: { indentRight: false }},
-    { keys: 'g~', type: 'operator', operator: 'swapcase' },
+    { keys: 'g~', type: 'operator', operator: 'changeCase' },
+    { keys: 'gu', type: 'operator', operator: 'changeCase', operatorArgs: {toLower: true}, isEdit: true },
+    { keys: 'gU', type: 'operator', operator: 'changeCase', operatorArgs: {toLower: false}, isEdit: true },
     { keys: 'n', type: 'motion', motion: 'findNext', motionArgs: { forward: true, toJumplist: true }},
     { keys: 'N', type: 'motion', motion: 'findNext', motionArgs: { forward: false, toJumplist: true }},
     // Operator-Motion dual commands
@@ -165,7 +167,7 @@
     { keys: 'D', type: 'operatorMotion', operator: 'delete', motion: 'moveToEol', motionArgs: { inclusive: true }, operatorMotionArgs: { visualLine: true }},
     { keys: 'Y', type: 'operatorMotion', operator: 'yank', motion: 'moveToEol', motionArgs: { inclusive: true }, operatorMotionArgs: { visualLine: true }},
     { keys: 'C', type: 'operatorMotion', operator: 'change', motion: 'moveToEol', motionArgs: { inclusive: true }, operatorMotionArgs: { visualLine: true }},
-    { keys: '~', type: 'operatorMotion', operator: 'swapcase', operatorArgs: { shouldMoveCursor: true }, motion: 'moveByCharacters', motionArgs: { forward: true }},
+    { keys: '~', type: 'operatorMotion', operator: 'changeCase', operatorArgs: { shouldMoveCursor: true }, motion: 'moveByCharacters', motionArgs: { forward: true }},
     { keys: '<C-w>', type: 'operatorMotion', operator: 'delete', motion: 'moveByWords', motionArgs: { forward: false, wordEnd: false }, context: 'insert' },
     // Actions
     { keys: '<C-i>', type: 'action', action: 'jumpListWalk', actionArgs: { forward: true }},
@@ -192,8 +194,8 @@
     // Handle Replace-mode as a special case of insert mode.
     { keys: 'R', type: 'action', action: 'enterInsertMode', isEdit: true, actionArgs: { replace: true }},
     { keys: 'u', type: 'action', action: 'undo', context: 'normal' },
-    { keys: 'u', type: 'action', action: 'changeCase', actionArgs: {toLower: true}, context: 'visual', isEdit: true },
-    { keys: 'U',type: 'action', action: 'changeCase', actionArgs: {toLower: false}, context: 'visual', isEdit: true },
+    { keys: 'u', type: 'operator', operator: 'changeCase', operatorArgs: {toLower: true}, context: 'visual', isEdit: true },
+    { keys: 'U', type: 'operator', operator: 'changeCase', operatorArgs: {toLower: false}, context: 'visual', isEdit: true },
     { keys: '<C-r>', type: 'action', action: 'redo' },
     { keys: 'm<character>', type: 'action', action: 'setMark' },
     { keys: '"<character>', type: 'action', action: 'setRegister' },
@@ -1915,17 +1917,24 @@
         cm.setCursor(curStart);
         cm.setCursor(motions.moveToFirstNonWhiteSpaceCharacter(cm));
       },
-      swapcase: function(cm, operatorArgs, _vim, _curStart, _curEnd, _curOriginal) {
+      changeCase: function(cm, operatorArgs, _vim, _curStart, _curEnd, _curOriginal) {
         var selections = cm.getSelections();
         var ranges = cm.listSelections();
         var swapped = [];
+        var toLower = operatorArgs.toLower;
         for (var j = 0; j < selections.length; j++) {
           var toSwap = selections[j];
           var text = '';
-          for (var i = 0; i < toSwap.length; i++) {
-            var character = toSwap.charAt(i);
-            text += isUpperCase(character) ? character.toLowerCase() :
-                character.toUpperCase();
+          if (toLower === true) {
+            text = toSwap.toLowerCase();
+          } else if (toLower === false) {
+            text = toSwap.toUpperCase();
+          } else {
+            for (var i = 0; i < toSwap.length; i++) {
+              var character = toSwap.charAt(i);
+              text += isUpperCase(character) ? character.toLowerCase() :
+                  character.toUpperCase();
+            }
           }
           swapped.push(text);
         }
@@ -2507,28 +2516,6 @@
           repeat = vim.lastEditInputState.repeatOverride || repeat;
         }
         repeatLastEdit(cm, vim, repeat, false /** repeatForInsert */);
-      },
-      changeCase: function(cm, actionArgs, vim) {
-        var selectionStart = getSelectedAreaRange(cm, vim)[0];
-        var text = cm.getSelection();
-        var lastSelectionCurEnd;
-        var blockSelection;
-        if (vim.lastSelection) {
-        // save the curEnd marker to avoid its removal due to cm.replaceRange
-          lastSelectionCurEnd = vim.lastSelection.curEndMark.find();
-          blockSelection = vim.lastSelection.visualBlock;
-        }
-        var toLower = actionArgs.toLower;
-        text = toLower ? text.toLowerCase() : text.toUpperCase();
-        cm.replaceSelections(vim.visualBlock || blockSelection ? text.split('\n') : [text]);
-        // restore the last selection curEnd marker
-        if (lastSelectionCurEnd) {
-          vim.lastSelection.curEndMark = cm.setBookmark(lastSelectionCurEnd);
-        }
-        cm.setCursor(selectionStart);
-        if (vim.visualMode) {
-          exitVisualMode(cm);
-        }
       },
       exitInsertMode: exitInsertMode
     };

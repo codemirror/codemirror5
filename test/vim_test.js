@@ -957,6 +957,32 @@ testVim('g~g~', function(cm, vim, helpers) {
   is(!register.linewise);
   eqPos({line: curStart.line, ch:0}, cm.getCursor());
 }, { value: ' word1\nword2\nword3\nword4\nword5\nword6' });
+testVim('gu_and_gU', function(cm, vim, helpers) {
+  var curStart = makeCursor(0, 7);
+  var value = cm.getValue();
+  cm.setCursor(curStart);
+  helpers.doKeys('2', 'g', 'U', 'w');
+  eq(cm.getValue(), 'wa wb xX WC wd');
+  eqPos(curStart, cm.getCursor());
+  helpers.doKeys('2', 'g', 'u', 'w');
+  eq(cm.getValue(), value);
+
+  helpers.doKeys('2', 'g', 'U', 'B');
+  eq(cm.getValue(), 'wa WB Xx wc wd');
+  eqPos(makeCursor(0, 3), cm.getCursor());
+
+  cm.setCursor(makeCursor(0, 4));
+  helpers.doKeys('g', 'u', 'i', 'w');
+  eq(cm.getValue(), 'wa wb Xx wc wd');
+  eqPos(makeCursor(0, 3), cm.getCursor());
+
+  // TODO: support gUgU guu
+  // eqPos(makeCursor(0, 0), cm.getCursor());
+
+  var register = helpers.getRegisterController().getRegister();
+  eq('', register.toString());
+  is(!register.linewise);
+}, { value: 'wa wb xx wc wd' });
 testVim('visual_block_~', function(cm, vim, helpers) {
   cm.setCursor(1, 1);
   helpers.doKeys('<C-v>', 'l', 'l', 'j', '~');
