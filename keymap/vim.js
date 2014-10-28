@@ -4490,7 +4490,6 @@
     }
 
     CodeMirror.keyMap.vim = {
-      nofallthrough: true,
       attach: attachVimMap,
       detach: detachVimMap
     };
@@ -4734,7 +4733,7 @@
         return true;
       }
       if (keyName.indexOf('Delete') != -1 || keyName.indexOf('Backspace') != -1) {
-        CodeMirror.lookupKey(keyName, ['vim-insert'], onKeyFound);
+        CodeMirror.lookupKey(keyName, 'vim-insert', onKeyFound);
       }
     }
 
@@ -4819,7 +4818,7 @@
         for (var j = 0; j < changes.length; j++) {
           var change = changes[j];
           if (change instanceof InsertModeKey) {
-            CodeMirror.lookupKey(change.keyName, ['vim-insert'], keyHandler);
+            CodeMirror.lookupKey(change.keyName, 'vim-insert', keyHandler);
           } else {
             var cur = cm.getCursor();
             cm.replaceRange(change, cur, cur);

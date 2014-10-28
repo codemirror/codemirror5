@@ -53,14 +53,11 @@ option to <code>"sublime"</code>.</p>
 
 <script>
   var value = "// The bindings defined specifically in the Sublime Text mode\nvar bindings = {\n";
-  var map = CodeMirror.keyMap.sublime, mapK = CodeMirror.keyMap["sublime-Ctrl-K"];
+  var map = CodeMirror.keyMap.sublime;
   for (var key in map) {
-    if (key != "Ctrl-K" && key != "fallthrough" && (!/find/.test(map[key]) || /findUnder/.test(map[key])))
-      value += "  \"" + key + "\": \"" + map[key] + "\",\n";
-  }
-  for (var key in mapK) {
-    if (key != "auto" && key != "nofallthrough")
-      value += "  \"Ctrl-K " + key + "\": \"" + mapK[key] + "\",\n";
+    var val = map[key];
+    if (key != "fallthrough" && val != "..." && (!/find/.test(val) || /findUnder/.test(val)))
+      value += "  \"" + key + "\": \"" + val + "\",\n";
   }
   value += "}\n\n// The implementation of joinLines\n";
   value += CodeMirror.commands.joinLines.toString().replace(/^function\s*\(/, "function joinLines(").replace(/\n  /g, "\n") + "\n";

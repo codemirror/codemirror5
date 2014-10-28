@@ -143,9 +143,9 @@ function testVim(name, run, opts, expectedFail) {
         for (var i = 0; i < arguments.length; i++) {
           var key = arguments[i];
           // Find key in keymap and handle.
-          var handled = CodeMirror.lookupKey(key, ['vim-insert'], executeHandler);
+          var handled = CodeMirror.lookupKey(key, 'vim-insert', executeHandler);
           // Record for insert mode.
-          if (handled === true && cm.state.vim.insertMode && arguments[i] != 'Esc') {
+          if (handled == "handled" && cm.state.vim.insertMode && arguments[i] != 'Esc') {
             var lastChange = CodeMirror.Vim.getVimGlobalState_().macroModeState.lastInsertModeChanges;
             if (lastChange) {
               lastChange.changes.push(new CodeMirror.Vim.InsertModeKey(key));
