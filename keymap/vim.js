@@ -273,26 +273,48 @@
       }
     }
 
-    CodeMirror.defineOption('vimMode', false, function(cm, val) {
-      if (val) {
-        cm.setOption('keyMap', 'vim');
-        cm.setOption('disableInput', true);
-        cm.setOption('showCursorWhenSelecting', false);
-        CodeMirror.signal(cm, "vim-mode-change", {mode: "normal"});
-        cm.on('cursorActivity', onCursorActivity);
-        maybeInitVimState(cm);
-        CodeMirror.on(cm.getInputField(), 'paste', getOnPasteFn(cm));
-        cm.on('keypress', handleKeyPress);
-        cm.on('keydown', handleKeyDown);
-      } else if (cm.state.vim) {
-        cm.setOption('keyMap', 'default');
-        cm.setOption('disableInput', false);
-        cm.off('cursorActivity', onCursorActivity);
-        CodeMirror.off(cm.getInputField(), 'paste', getOnPasteFn(cm));
-        cm.state.vim = null;
-        cm.off('keypress', handleKeyPress);
-        cm.off('keydown', handleKeyDown);
-      }
+    function enterVimMode(cm) {
+      cm.setOption('disableInput', true);
+      cm.setOption('showCursorWhenSelecting', false);
+      CodeMirror.signal(cm, "vim-mode-change", {mode: "normal"});
+      cm.on('cursorActivity', onCursorActivity);
+      maybeInitVimState(cm);
+      CodeMirror.on(cm.getInputField(), 'paste', getOnPasteFn(cm));
+      cm.on('keypress', handleKeyPress);
+      cm.on('keydown', handleKeyDown);
+      CodeMirror.addClass(cm.getWrapperElement(), "cm-fat-cursor");
+    }
+
+    function leaveVimMode(cm) {
+      cm.setOption('disableInput', false);
+      cm.off('cursorActivity', onCursorActivity);
+      CodeMirror.off(cm.getInputField(), 'paste', getOnPasteFn(cm));
+      cm.state.vim = null;
+      cm.off('keypress', handleKeyPress);
+      cm.off('keydown', handleKeyDown);
+    }
+
+    function detachVimMap(cm, next) {
+      if (this == CodeMirror.keyMap.vim)
+        CodeMirror.rmClass(cm.getWrapperElement(), "cm-fat-cursor");
+
+      if (!next || next.attach != attachVimMap)
+        leaveVimMode(cm, false);
+    }
+    function attachVimMap(cm, prev) {
+      if (this == CodeMirror.keyMap.vim)
+        CodeMirror.addClass(cm.getWrapperElement(), "cm-fat-cursor");
+
+      if (!prev || prev.attach != attachVimMap)
+        enterVimMode(cm);
+    }
+
+    // Deprecated, simply setting the keymap works again.
+    CodeMirror.defineOption('vimMode', false, function(cm, val, prev) {
+      if (val && cm.getOption("keyMap") != "vim")
+        cm.setOption("keyMap", "vim");
+      else if (!val && prev != CodeMirror.Init && /^vim/.test(cm.getOption("keyMap")))
+        cm.setOption("keyMap", "default");
     });
     function getOnPasteFn(cm) {
       var vim = cm.state.vim;
@@ -4468,9 +4490,10 @@
     }
 
     CodeMirror.keyMap.vim = {
-        'nofallthrough': true,
-        'style': 'fat-cursor'
-      };
+      nofallthrough: true,
+      attach: attachVimMap,
+      detach: detachVimMap
+    };
 
     function exitInsertMode(cm) {
       var vim = cm.state.vim;
@@ -4540,16 +4563,22 @@
             CodeMirror.commands.newlineAndIndent;
         fn(cm);
       },
-      fallthrough: ['default']
+      fallthrough: ['default'],
+      attach: attachVimMap,
+      detach: detachVimMap
     };
 
     CodeMirror.keyMap['await-second'] = {
-      fallthrough: ['vim-insert']
+      fallthrough: ['vim-insert'],
+      attach: attachVimMap,
+      detach: detachVimMap
     };
 
     CodeMirror.keyMap['vim-replace'] = {
       'Backspace': 'goCharLeft',
-      fallthrough: ['vim-insert']
+      fallthrough: ['vim-insert'],
+      attach: attachVimMap,
+      detach: detachVimMap
     };
 
     function executeMacroRegister(cm, vim, macroModeState, registerName) {
