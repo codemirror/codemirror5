@@ -702,25 +702,35 @@
     names defined here are <code>Enter</code>, <code>F5</code>,
     and <code>Q</code>. These can be prefixed
     with <code>Shift-</code>, <code>Cmd-</code>, <code>Ctrl-</code>,
-    and <code>Alt-</code> (in that order!) to specify a modifier. So
-    for example, <code>Shift-Ctrl-Space</code> would be a valid key
+    and <code>Alt-</code> to specify a modifier. So for
+    example, <code>Shift-Ctrl-Space</code> would be a valid key
     identifier.</p>
 
     <p>Common example: map the Tab key to insert spaces instead of a tab
     character.</p>
 
     <pre data-lang="javascript">
-{
+editor.setOption("extraKeys", {
   Tab: function(cm) {
     var spaces = Array(cm.getOption("indentUnit") + 1).join(" ");
     cm.replaceSelection(spaces);
   }
-}</pre>
+});</pre>
 
     <p>Alternatively, a character can be specified directly by
     surrounding it in single quotes, for example <code>'$'</code>
     or <code>'q'</code>. Due to limitations in the way browsers fire
     key events, these may not be prefixed with modifiers.</p>
+
+    <p id="normalizeKeyMap">Multi-stroke key bindings can be specified
+    by separating the key names by spaces in the property name, for
+    example <code>Ctrl-X Ctrl-V</code>. When a map contains
+    multi-stoke bindings or keys with modifiers that are not specified
+    in the default order (<code>Shift-Cmd-Ctrl-Alt</code>), you must
+    call <code>CodeMirror.normalizeKeyMap</code> on it before it can
+    be used. This function takes a keymap and modifies it to normalize
+    modifier order and properly recognize multi-stroke bindings. It
+    will return the keymap itself.</p>
 
     <p>The <code>CodeMirror.keyMap</code> object associates key maps
     with names. User code and key map definitions can assign extra
@@ -740,7 +750,8 @@
     behavior) should be given a turn.</p>
 
     <p>Keys mapped to command names that start with the
-    characters <code>"go"</code> (which should be used for
+    characters <code>"go"</code> or to functions that have a
+    truthy <code>motion</code> property (which should be used for
     cursor-movement actions) will be fired even when an
     extra <code>Shift</code> modifier is present (i.e. <code>"Up":
     "goLineUp"</code> matches both up and shift-up). This is used to
@@ -752,14 +763,15 @@
     be searched. It can hold either a single key map or an array of
     key maps.</p>
 
-    <p>When a key map contains a <code>nofallthrough</code> property
-    set to <code>true</code>, keys matched against that map will be
-    ignored if they don't match any of the bindings in the map (no
-    further child maps will be tried). When
-    the <code>disableInput</code> property is set
-    to <code>true</code>, the default effect of inserting a character
-    will be suppressed when the key map is active as the top-level
-    map.</p>
+    <p>When a key map needs to set something up when it becomes
+    active, or tear something down when deactivated, it can
+    contain <code>attach</code> and/or <code>detach</code> properties,
+    which should hold functions that take the editor instance and the
+    next or previous keymap. Note that this only works for the
+    <a href="#option_keyMap">top-level keymap</a>, not for fallthrough
+    maps or maps added
+    with <a href="#option_extraKeys"><code>extraKeys</code></a>
+    or <a href="#addKeyMap"><code>addKeyMap</code></a>.</p>
 </section>
 
 <section id=commands>
