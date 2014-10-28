@@ -52,12 +52,12 @@
 .CodeMirror div.CodeMirror-secondarycursor {
   border-left: 1px solid silver;
 }
-.CodeMirror.cm-keymap-fat-cursor div.CodeMirror-cursor {
+.CodeMirror.cm-fat-cursor div.CodeMirror-cursor {
   width: auto;
   border: 0;
   background: #7e7;
 }
-.CodeMirror.cm-keymap-fat-cursor div.CodeMirror-cursors {
+.CodeMirror.cm-fat-cursor div.CodeMirror-cursors {
   z-index: 1;
 }
 
