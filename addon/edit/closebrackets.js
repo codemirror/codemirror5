@@ -71,7 +71,7 @@
     };
     var closingBrackets = "";
     for (var i = 0; i < pairs.length; i += 2) (function(left, right) {
-      if (left != right) closingBrackets += right;
+      closingBrackets += right;
       map["'" + left + "'"] = function(cm) {
         if (cm.getOption("disableInput")) return CodeMirror.Pass;
         var ranges = cm.listSelections(), type, next;
