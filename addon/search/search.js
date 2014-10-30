@@ -82,6 +82,10 @@
         cm.removeOverlay(state.overlay, queryCaseInsensitive(state.query));
         state.overlay = searchOverlay(state.query, queryCaseInsensitive(state.query));
         cm.addOverlay(state.overlay);
+        if (cm.showMatchesOnScrollbar) {
+          if (state.annotate) { state.annotate.clear(); state.annotate = null; }
+          state.annotate = cm.showMatchesOnScrollbar(state.query, queryCaseInsensitive(state.query));
+        }
         state.posFrom = state.posTo = cm.getCursor();
         findNext(cm, rev);
       });
@@ -103,6 +107,7 @@
     if (!state.query) return;
     state.query = null;
     cm.removeOverlay(state.overlay);
+    if (state.annotate) { state.annotate.clear(); state.annotate = null; }
   });}
 
   var replaceQueryDialog =

@@ -6,11 +6,14 @@
 
 <link rel="stylesheet" href="../lib/codemirror.css">
 <link rel="stylesheet" href="../addon/dialog/dialog.css">
+<link rel="stylesheet" href="../addon/search/matchesonscrollbar.css">
 <script src="../lib/codemirror.js"></script>
 <script src="../mode/xml/xml.js"></script>
 <script src="../addon/dialog/dialog.js"></script>
 <script src="../addon/search/searchcursor.js"></script>
 <script src="../addon/search/search.js"></script>
+<script src="../addon/scroll/annotatescrollbar.js"></script>
+<script src="../addon/search/matchesonscrollbar.js"></script>
 <style type="text/css">
       .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}
       dt {font-family: monospace; color: #666;}
@@ -66,7 +69,10 @@
 </textarea></form>
 
     <script>
-var editor = CodeMirror.fromTextArea(document.getElementById("code"), {mode: "text/html", lineNumbers: true});
+var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+  mode: "text/html",
+  lineNumbers: true
+});
 </script>
 
     <p>Demonstration of primitive search/replace functionality. The

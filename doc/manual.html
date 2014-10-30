@@ -2165,6 +2165,28 @@ editor.setOption("extraKeys", {
       of <a href="#addon_dialog"><code>openDialog</code></a> when
       available to make prompting for search queries less ugly.</dd>
 
+      <dt id="addon_matchesonscrollbar"><a href="../addon/search/matchesonscrollbar.js"><code>search/matchesonscrollbar.js</code></a></dt>
+      <dd>Adds a <code>showMatchesOnScrollbar</code> method to editor
+      instances, which should be given a query (string or regular
+      expression), optionally a case-fold flag (only applicable for
+      strings), and optionally a class name (defaults
+      to <code>CodeMirror-search-match</code>) as arguments. When
+      called, matches of the given query will be displayed on the
+      editor's vertical scrollbar. The method returns an object with
+      a <code>clear</code> method that can be called to remove the
+      matches. Depends on
+      the <a href="#addon_annotatescrollbar"><code>annotatescrollbar</code></a>
+      addon, and
+      the <a href="../addon/search/matchesonscrollbar.css"><code>matchesonscrollbar.css</code></a>
+      file provides a default (transparent yellowish) definition of
+      the CSS class applied to the matches. Note that the matches are
+      only perfectly aligned if your scrollbar does not have buttons
+      at the top and bottom. You can use
+      the <a href="#addon_simplescrollbars"><code>simplescrollbar</code></a>
+      addon to make sure of this. If this addon is loaded,
+      the <a href="#addon_search"><code>search</code></a> addon will
+      automatically use it.</dd>
+
       <dt id="addon_matchbrackets"><a href="../addon/edit/matchbrackets.js"><code>edit/matchbrackets.js</code></a></dt>
       <dd>Defines an option <code>matchBrackets</code> which, when set
       to true, causes matching brackets to be highlighted whenever the
@@ -2674,6 +2696,17 @@ editor.setOption("extraKeys", {
       on <a href="../addon/scroll/simplescrollbars.css"><code>simplescrollbars.css</code></a>,
       which can be further overridden to style your own
       scrollbars.</dd>
+
+      <dt id="addon_annotatescrollbar"><a href="../addon/scroll/annotatescrollbar.js"><code>scroll/annotatescrollbar.js</code></a></dt>
+      <dd>Provides functionality for showing markers on the scrollbar
+      to call out certain parts of the document. Adds a
+      method <code>annotateScrollbar</code> to editor instances that
+      can be called, with a CSS class name as argument, to create a
+      set of annotations. The method returns an object
+      whose <code>update</code> method can be called with an array
+      of <code>{from: Pos, to: Pos}</code> objects marking the ranges
+      to be higlighed. To detach the annotations, call the
+      object's <code>clear</code> method.</dd>
 
       <dt id="addon_rulers"><a href="../addon/display/rulers.js"><code>display/rulers.js</code></a></dt>
       <dd>Adds a <code>rulers</code> option, which can be used to show
