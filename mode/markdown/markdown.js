@@ -15,16 +15,55 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
   var htmlFound = CodeMirror.modes.hasOwnProperty("xml");
   var htmlMode = CodeMirror.getMode(cmCfg, htmlFound ? {name: "xml", htmlMode: true} : "text/plain");
-  var aliases = {
+  var aliases = { // All-lowercase mode aliases, mostly taken from https://github.com/github/linguist/blob/master/lib/linguist/languages.yml
+    bash: "shell",
+    coffee: "coffeescript",
+    "coffee-script": "coffeescript",
     html: "htmlmixed",
+    ini: "properties",
+    jruby: "ruby",
     js: "javascript",
-    json: "application/json",
+    lisp: "commonlisp",
+    ls: "livescript",
+    macruby: "ruby",
+    node: "javascript",
+    rake: "ruby",
+    rb: "ruby",
+    rbx: "ruby",
+    reStructuredText: "rst",
+    rscript: "r",
+    rss: "xml",
+    sh: "shell",
+    xhtml: "htmlmixed",
+    wsdl: "xml",
+    xsd: "xml",
+    yml: "yaml",
+    zsh: "shell",
+
+    asp: "application/x-aspx",
+    aspx: "application/x-aspx",
     c: "text/x-csrc",
-    "c++": "text/x-c++src",
-    java: "text/x-java",
-    csharp: "text/x-csharp",
     "c#": "text/x-csharp",
-    scala: "text/x-scala"
+    "c++": "text/x-c++src",
+    cpp: "text/x-c++src",
+    csharp: "text/x-csharp",
+    cython: "text/x-cython",
+    "f#": "text/x-fsharp",
+    fsharp: "text/x-fsharp",
+    java: "text/x-java",
+    json: "application/json",
+    json5: "application/json",
+    jsonld: "application/ld+json",
+    jsp: "application/x-jsp",
+    latex: "text/x-latex",
+    less: "text/x-less",
+    ocaml: "text/x-ocaml",
+    scala: "text/x-scala",
+    scss: "text/x-scss",
+    systemverilog: "text/x-systemverilog",
+    tex: "text/x-latex",
+    ts: "application/typescript",
+    typescript: "application/typescript"
   };
 
   var getMode = (function () {
@@ -34,7 +73,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     for (var m in CodeMirror.modes)
       if (CodeMirror.modes.propertyIsEnumerable(m)) list.push(m);
     for (i = 0; i < list.length; i++) {
-      modes[list[i]] = list[i];
+      modes[list[i].toLowerCase()] = list[i];
     }
     var mimesList = [];
     for (var m in CodeMirror.mimeModes)
@@ -51,6 +90,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     }
 
     return function (lang) {
+      lang = lang.toLowerCase();
       return modes[lang] ? CodeMirror.getMode(cmCfg, modes[lang]) : null;
     };
   }());
