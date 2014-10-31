@@ -15,7 +15,7 @@
   var instructions = ["from", "maintainer", "run", "cmd", "expose", "env",
                       "add", "copy", "entrypoint", "volume", "user",
                       "workdir", "onbuild"],
-      instructionsRegex = "(" + instructions.join('|') + ")(\\s+)";
+      instructionsRegex = "(" + instructions.join('|') + ")($|\\s+)";
 
   // Match all Dockerfile directives in a case-insensitive manner
   instructionsRegex = new RegExp(instructionsRegex, "i");
@@ -38,8 +38,14 @@
     remainder: [
       {
         // Match everything except for the inline comment
-        regex: /[^#]+/,
+        regex: /[^#]+$/,
         token: null,
+        next: "start"
+      },
+      {
+        // Line comment without instruction arguments is an error
+        regex: /#.+$/,
+        token: "error",
         next: "start"
       }
     ]
