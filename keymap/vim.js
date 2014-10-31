@@ -1816,7 +1816,10 @@
         lastInsertModeChanges.inVisualBlock = visualBlock;
         var replacement = new Array(selections.length).join('1').split('1');
         // save the selectionEnd mark
-        var selectionEnd = vim.marks['>'] ? vim.marks['>'].find() : cm.getCursor('head');
+        var selectionEnd = vim.marks[">"] && vim.marks[">"].find();
+        if (!selectionEnd) {
+          selectionEnd = cm.getCursor("head");
+        }
         vimGlobalState.registerController.pushText(
             operatorArgs.registerName, 'change', text,
             operatorArgs.linewise);
