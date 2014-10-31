@@ -15,26 +15,15 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
   var htmlFound = CodeMirror.modes.hasOwnProperty("xml");
   var htmlMode = CodeMirror.getMode(cmCfg, htmlFound ? {name: "xml", htmlMode: true} : "text/plain");
-  var aliases = {
-    html: "htmlmixed",
-    js: "javascript",
-    json: "application/json",
-    c: "text/x-csrc",
-    "c++": "text/x-c++src",
-    java: "text/x-java",
-    csharp: "text/x-csharp",
-    "c#": "text/x-csharp",
-    scala: "text/x-scala"
-  };
 
   var getMode = (function () {
-    var i, modes = {}, mimes = {}, mime;
+    var i, modes = {}, mimes = {}, mime, aliases = {};
 
     var list = [];
     for (var m in CodeMirror.modes)
       if (CodeMirror.modes.propertyIsEnumerable(m)) list.push(m);
     for (i = 0; i < list.length; i++) {
-      modes[list[i]] = list[i];
+      modes[list[i].toLowerCase()] = list[i];
     }
     var mimesList = [];
     for (var m in CodeMirror.mimeModes)
@@ -45,12 +34,27 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       mimes[mime] = mimesList[i].mime;
     }
 
+    // Load aliases from meta.js
+    if (CodeMirror.modeInfo) {
+      var currentMode, aliasMode;
+      for (i = 0; i < CodeMirror.modeInfo.length; i++) {
+        currentMode = CodeMirror.modeInfo[i];
+        if (currentMode.alias) {
+          aliasMode = currentMode.mime || currentMode.mode;
+          for (var j = 0; j < currentMode.alias.length; j++) {
+            aliases[currentMode.alias[j].toLowerCase()] = aliasMode;
+          }
+        }
+      }
+    }
+
     for (var a in aliases) {
       if (aliases[a] in modes || aliases[a] in mimes)
         modes[a] = aliases[a];
     }
 
     return function (lang) {
+      lang = lang.toLowerCase();
       return modes[lang] ? CodeMirror.getMode(cmCfg, modes[lang]) : null;
     };
   }());
