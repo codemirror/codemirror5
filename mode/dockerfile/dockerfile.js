@@ -15,37 +15,73 @@
   var instructions = ["from", "maintainer", "run", "cmd", "expose", "env",
                       "add", "copy", "entrypoint", "volume", "user",
                       "workdir", "onbuild"],
-      instructionsRegex = "(" + instructions.join('|') + ")($|\\s+)";
-
-  // Match all Dockerfile directives in a case-insensitive manner
-  instructionsRegex = new RegExp(instructionsRegex, "i");
-  window.instructionsRegex = instructionsRegex;
+      instructionRegex = "(" + instructions.join('|') + ")",
+      instructionOnlyLine = new RegExp(instructionRegex + "\\s*$", "i"),
+      instructionWithArguments = new RegExp(instructionRegex + "(\\s+)", "i");
 
   CodeMirror.defineSimpleMode("dockerfile", {
     start: [
-      // Block comment
+      // Block comment: This is a line starting with a comment
       {
-        regex: /#.*/,
-        token: "comment"
+        regex: /#.*$/,
+        token: "comment",
+        next: "start"
       },
-      // Instruction highlighting
+      // Highlight an instruction without any arguments (for convenience)
       {
-        regex: instructionsRegex,
+        regex: instructionOnlyLine,
+        token: "variable-2",
+        next: "start"
+      },
+      // Highlight an instruction followed by arguments
+      {
+        regex: instructionWithArguments,
         token: ["variable-2", null],
-        next: "remainder"
+        next: "arguments"
+      },
+      // Fail-safe return to start
+      {
+        token: null,
+        next: "start"
       }
     ],
-    remainder: [
+    arguments: [
       {
-        // Match everything except for the inline comment
-        regex: /[^#]+$/,
-        token: null,
+        // Line comment without instruction arguments is an error
+        regex: /#.*$/,
+        token: "error",
         next: "start"
       },
       {
-        // Line comment without instruction arguments is an error
-        regex: /#.+$/,
-        token: "error",
+        regex: /[^#]+\\$/,
+        token: null,
+        next: "arguments"
+      },
+      {
+        // Match everything except for the inline comment
+        regex: /[^#]+/,
+        token: null,
+        next: "lineComment"
+      },
+      {
+        regex: /$/,
+        token: null,
+        next: "start"
+      },
+      // Fail safe return to start
+      {
+        token: null,
+        next: "start"
+      }
+    ],
+    lineComment: [
+      {
+        regex: /#.*$/,
+        token: "comment"
+      },
+      // Fail safe return to start
+      {
+        token: null,
         next: "start"
       }
     ]
