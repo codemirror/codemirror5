@@ -732,8 +732,14 @@
 
         return cm.operation(function() {
           cm.curOp.isVimOp = true;
-          if (vim.insertMode) { return handleKeyInsertMode(); }
-          else { return handleKeyNonInsertMode(); }
+          try {
+            if (vim.insertMode) { return handleKeyInsertMode(); }
+            else { return handleKeyNonInsertMode(); }
+          } catch (e) {
+            // clear VIM state in case it's in a bad state.
+            cm.state.vim = undefined;
+            throw e;
+          }
         });
       },
       handleEx: function(cm, input) {
