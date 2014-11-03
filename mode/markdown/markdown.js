@@ -3,9 +3,9 @@
 
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
-    mod(require("../../lib/codemirror", require("../xml/xml")));
+    mod(require("../../lib/codemirror", require("../xml/xml"), require("../meta.js")));
   else if (typeof define == "function" && define.amd) // AMD
-    define(["../../lib/codemirror", "../xml/xml"], mod);
+    define(["../../lib/codemirror", "../xml/xml", "../meta.js"], mod);
   else // Plain browser env
     mod(CodeMirror);
 })(function(CodeMirror) {
@@ -16,48 +16,14 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   var htmlFound = CodeMirror.modes.hasOwnProperty("xml");
   var htmlMode = CodeMirror.getMode(cmCfg, htmlFound ? {name: "xml", htmlMode: true} : "text/plain");
 
-  var getMode = (function () {
-    var i, modes = {}, mimes = {}, mime, aliases = {};
-
-    var list = [];
-    for (var m in CodeMirror.modes)
-      if (CodeMirror.modes.propertyIsEnumerable(m)) list.push(m);
-    for (i = 0; i < list.length; i++) {
-      modes[list[i].toLowerCase()] = list[i];
+  function getMode(name) {
+    if (CodeMirror.findModeByName) {
+      var found = CodeMirror.findModeByName(name);
+      if (found) name = found.mime || found.mimes[0];
     }
-    var mimesList = [];
-    for (var m in CodeMirror.mimeModes)
-      if (CodeMirror.mimeModes.propertyIsEnumerable(m))
-        mimesList.push({mime: m, mode: CodeMirror.mimeModes[m]});
-    for (i = 0; i < mimesList.length; i++) {
-      mime = mimesList[i].mime;
-      mimes[mime] = mimesList[i].mime;
-    }
-
-    // Load aliases from meta.js
-    if (CodeMirror.modeInfo) {
-      var currentMode, aliasMode;
-      for (i = 0; i < CodeMirror.modeInfo.length; i++) {
-        currentMode = CodeMirror.modeInfo[i];
-        if (currentMode.alias) {
-          aliasMode = currentMode.mime || currentMode.mode;
-          for (var j = 0; j < currentMode.alias.length; j++) {
-            aliases[currentMode.alias[j].toLowerCase()] = aliasMode;
-          }
-        }
-      }
-    }
-
-    for (var a in aliases) {
-      if (aliases[a] in modes || aliases[a] in mimes)
-        modes[a] = aliases[a];
-    }
-
-    return function (lang) {
-      lang = lang.toLowerCase();
-      return modes[lang] ? CodeMirror.getMode(cmCfg, modes[lang]) : null;
-    };
-  }());
+    var mode = CodeMirror.getMode(cmCfg, name);
+    return mode.name == "null" ? null : mode;
+  }
 
   // Should characters that affect highlighting be highlighted separate?
   // Does not include characters that will be output (such as `1.` and `-` for lists)
