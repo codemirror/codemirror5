@@ -208,7 +208,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       // try switching mode
       state.localMode = getMode(RegExp.$1);
       if (state.localMode) state.localState = state.localMode.startState();
-      switchBlock(stream, state, local);
+      state.f = state.block = local;
       if (modeCfg.highlightFormatting) state.formatting = "code-block";
       state.code = true;
       return getType(state);
