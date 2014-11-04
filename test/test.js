@@ -3,7 +3,7 @@ var Pos = CodeMirror.Pos;
 CodeMirror.defaults.rtlMoveVisually = true;
 
 function forEach(arr, f) {
-  for (var i = 0, e = arr.length; i < e; ++i) f(arr[i]);
+  for (var i = 0, e = arr.length; i < e; ++i) f(arr[i], i);
 }
 
 function addDoc(cm, width, height) {
@@ -1974,6 +1974,18 @@ testCM("alwaysMergeSelEventWithChangeOrigin", function(cm) {
   cm.undoSelection();
   eq(cm.getValue(), "Va");
 }, {value: "a"});
+
+testCM("getTokenAt", function(cm) {
+  var tokPlus = cm.getTokenAt(Pos(0, 2));
+  eq(tokPlus.type, "operator");
+  eq(tokPlus.string, "+");
+  var toks = cm.getLineTokens(0);
+  eq(toks.length, 3);
+  forEach([["number", "1"], ["operator", "+"], ["number", "2"]], function(expect, i) {
+    eq(toks[i].type, expect[0]);
+    eq(toks[i].string, expect[1]);
+  });
+}, {value: "1+2", mode: "javascript"});
 
 testCM("getTokenTypeAt", function(cm) {
   eq(cm.getTokenTypeAt(Pos(0, 0)), "number");

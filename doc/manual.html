@@ -1843,11 +1843,11 @@ editor.setOption("extraKeys", {
       </dd>
 
       <dt id="getLineTokens"><code><strong>cm.getLineTokens</strong>(line: integer, ?precise: boolean) → array&lt;{start, end, string, type, state}&gt;</code></dt>
-      <dd>This is a (much) cheaper version
-      of <a href="#getTokenAt"><code>getTokenAt</code></a> useful for
-      when you need to have all the tokens in a given line. Returns
-      an array of objects which have the same properties
-      <a href="#getTokenAt"><code>getTokenAt</code></a> has.</dd>
+      <dd>This is similar
+      to <a href="#getTokenAt"><code>getTokenAt</code></a>, but
+      collects all tokens for a given line into an array. It is much
+      cheaper than repeatedly calling <code>getTokenAt</code>, which
+      re-parses the part of the line before the token for every call.</dd>
 
       <dt id="getTokenTypeAt"><code><strong>cm.getTokenTypeAt</strong>(pos: {line, ch}) → string</code></dt>
       <dd>This is a (much) cheaper version
