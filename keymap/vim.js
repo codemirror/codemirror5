@@ -697,7 +697,7 @@
           } else {
             commandDispatcher.processCommand(cm, vim, command);
           }
-          return !keysAreChars;
+          return true;
         }
 
         function handleKeyNonInsertMode() {
