@@ -994,10 +994,12 @@
             break;
           case 'search':
             this.processSearch(cm, vim, command);
+            clearInputState(cm);
             break;
           case 'ex':
           case 'keyToEx':
             this.processEx(cm, vim, command);
+            clearInputState(cm);
             break;
           default:
             break;
