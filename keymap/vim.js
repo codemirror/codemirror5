@@ -557,9 +557,7 @@
           visualLine: false,
           visualBlock: false,
           lastSelection: null,
-          lastPastedText: null,
-          // Used by two-character ESC keymap routines. Should not be changed from false here.
-          awaitingEscapeSecondCharacter: false
+          lastPastedText: null
         };
       }
       return cm.state.vim;
@@ -3791,10 +3789,10 @@
       { name: 'registers', shortName: 'reg', excludeFromCommandHistory: true },
       { name: 'global', shortName: 'g' }
     ];
-    Vim.ExCommandDispatcher = function() {
+    var ExCommandDispatcher = function() {
       this.buildCommandMap_();
     };
-    Vim.ExCommandDispatcher.prototype = {
+    ExCommandDispatcher.prototype = {
       processCommand: function(cm, input, opt_params) {
         var vim = cm.state.vim;
         var commandHistoryRegister = vimGlobalState.registerController.getRegister(':');
@@ -4393,7 +4391,7 @@
       }
     };
 
-    var exCommandDispatcher = new Vim.ExCommandDispatcher();
+    var exCommandDispatcher = new ExCommandDispatcher();
 
     /**
     * @param {CodeMirror} cm CodeMirror instance we are in.
