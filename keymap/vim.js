@@ -2105,7 +2105,7 @@
             selectionStart = Pos(selectionStart.line, selectionEnd.ch);
             cm.setCursor(selectionStart);
             selectBlock(cm, selectionEnd);
-          } else if (selectionEnd.line < selectionStart.line) {
+          } else if (selectionEnd && selectionEnd.line < selectionStart.line) {
             selectionEnd = Pos(selectionStart.line, 0);
             cm.setCursor(selectionEnd);
           }

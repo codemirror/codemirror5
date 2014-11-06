@@ -1304,6 +1304,11 @@ testVim('A_visual_block', function(cm, vim, helpers) {
   replacement.pop();
   cm.replaceSelections(replacement);
   eq('testhello\nmehello\npleahellose', cm.getValue());
+  helpers.doKeys('<Esc>');
+  cm.setCursor(0, 0);
+  helpers.doKeys('.');
+  // TODO this doesn't work yet
+  // eq('teshellothello\nme hello hello\nplehelloahellose', cm.getValue());
 }, {value: 'test\nme\nplease'});
 testVim('I', function(cm, vim, helpers) {
   cm.setCursor(0, 4);
