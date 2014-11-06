@@ -4479,6 +4479,7 @@
             break;
         }
         if (done) { stop(close); }
+        return true;
       }
 
       // Actually do replace.
