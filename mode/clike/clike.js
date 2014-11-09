@@ -471,4 +471,24 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     modeProps: {fold: ["brace", "include"]}
   });
 
+  def("text/x-objectivec", {
+    name: "clike",
+    keywords: words("IBAction IBOutlet readwrite readonly nonatomic SEL" +
+                    "super self copy if else for in enum while typedef switch case return " +
+                    "const static retain"),
+    builtin: words("char bool BOOL double float int long short id void"),
+    atoms: words("YES NO NULL NILL ON OFF"),
+    hooks: {
+      "@": function(stream) {
+        stream.eatWhile(/[\w\$_]/);
+        return "keyword";
+      },
+      "#": function(stream) {
+        stream.eatWhile(/[\w\$_]/);
+        return "keyword";
+      }
+    },
+    modeProps: {fold: ["brace", "import"]}
+  });
+
 });
