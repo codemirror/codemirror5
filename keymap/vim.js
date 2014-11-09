@@ -1271,7 +1271,7 @@
         motionArgs.repeat = repeat;
         clearInputState(cm);
         if (motion) {
-          var motionResult = motions[motion](cm, motionArgs, vim);
+          var motionResult = motions[motion](cm, selectionEnd, motionArgs, vim);
           vim.lastMotion = motions[motion];
           if (!motionResult) {
             return;
@@ -1455,26 +1455,26 @@
      */
     // All of the functions below return Cursor objects.
     var motions = {
-      moveToTopLine: function(cm, motionArgs) {
+      moveToTopLine: function(cm, head, motionArgs) {
         var line = getUserVisibleLines(cm).top + motionArgs.repeat -1;
         return Pos(line, findFirstNonWhiteSpaceCharacter(cm.getLine(line)));
       },
-      moveToMiddleLine: function(cm) {
+      moveToMiddleLine: function(cm, head) {
         var range = getUserVisibleLines(cm);
         var line = Math.floor((range.top + range.bottom) * 0.5);
         return Pos(line, findFirstNonWhiteSpaceCharacter(cm.getLine(line)));
       },
-      moveToBottomLine: function(cm, motionArgs) {
+      moveToBottomLine: function(cm, head, motionArgs) {
         var line = getUserVisibleLines(cm).bottom - motionArgs.repeat +1;
         return Pos(line, findFirstNonWhiteSpaceCharacter(cm.getLine(line)));
       },
-      expandToLine: function(cm, motionArgs) {
+      expandToLine: function(cm, head, motionArgs) {
         // Expands forward to end of line, and then to next line if repeat is
         // >1. Does not handle backward motion!
-        var cur = cm.getCursor();
+        var cur = head;
         return Pos(cur.line + motionArgs.repeat - 1, Infinity);
       },
-      findNext: function(cm, motionArgs) {
+      findNext: function(cm, head, motionArgs) {
         var state = getSearchState(cm);
         var query = state.getQuery();
         if (!query) {
@@ -1486,7 +1486,7 @@
         highlightSearchMatches(cm, query);
         return findNext(cm, prev/** prev */, query, motionArgs.repeat);
       },
-      goToMark: function(cm, motionArgs, vim) {
+      goToMark: function(cm, head, motionArgs, vim) {
         var mark = vim.marks[motionArgs.selectedCharacter];
         if (mark) {
           var pos = mark.find();
@@ -1494,7 +1494,7 @@
         }
         return null;
       },
-      moveToOtherHighlightedEnd: function(cm, motionArgs, vim) {
+      moveToOtherHighlightedEnd: function(cm, head, motionArgs, vim) {
         var ranges = cm.listSelections();
         var curEnd = cm.getCursor('head');
         var curStart = ranges[0].anchor;
@@ -1508,8 +1508,8 @@
         cm.setCursor(curEnd);
         return ([curEnd, curStart]);
       },
-      jumpToMark: function(cm, motionArgs, vim) {
-        var best = cm.getCursor();
+      jumpToMark: function(cm, head, motionArgs, vim) {
+        var best = head;
         for (var i = 0; i < motionArgs.repeat; i++) {
           var cursor = best;
           for (var key in vim.marks) {
@@ -1546,14 +1546,14 @@
         }
         return best;
       },
-      moveByCharacters: function(cm, motionArgs) {
-        var cur = cm.getCursor();
+      moveByCharacters: function(cm, head, motionArgs) {
+        var cur = head;
         var repeat = motionArgs.repeat;
         var ch = motionArgs.forward ? cur.ch + repeat : cur.ch - repeat;
         return Pos(cur.line, ch);
       },
-      moveByLines: function(cm, motionArgs, vim) {
-        var cur = cm.getCursor();
+      moveByLines: function(cm, head, motionArgs, vim) {
+        var cur = head;
         var endCh = cur.ch;
         // Depending what our last motion was, we may want to do different
         // things. If our last motion was moving vertically, we want to
@@ -1588,8 +1588,8 @@
         vim.lastHSPos = cm.charCoords(Pos(line, endCh),'div').left;
         return Pos(line, endCh);
       },
-      moveByDisplayLines: function(cm, motionArgs, vim) {
-        var cur = cm.getCursor();
+      moveByDisplayLines: function(cm, head, motionArgs, vim) {
+        var cur = head;
         switch (vim.lastMotion) {
           case this.moveByDisplayLines:
           case this.moveByScroll:
@@ -1616,16 +1616,16 @@
         vim.lastHPos = res.ch;
         return res;
       },
-      moveByPage: function(cm, motionArgs) {
+      moveByPage: function(cm, head, motionArgs) {
         // CodeMirror only exposes functions that move the cursor page down, so
         // doing this bad hack to move the cursor and move it back. evalInput
         // will move the cursor to where it should be in the end.
-        var curStart = cm.getCursor();
+        var curStart = head;
         var repeat = motionArgs.repeat;
         return cm.findPosV(curStart, (motionArgs.forward ? repeat : -repeat), 'page');
       },
-      moveByParagraph: function(cm, motionArgs) {
-        var line = cm.getCursor().line;
+      moveByParagraph: function(cm, head, motionArgs) {
+        var line = head.line;
         var repeat = motionArgs.repeat;
         var inc = motionArgs.forward ? 1 : -1;
         for (var i = 0; i < repeat; i++) {
@@ -1640,16 +1640,16 @@
         }
         return Pos(line, 0);
       },
-      moveByScroll: function(cm, motionArgs, vim) {
+      moveByScroll: function(cm, head, motionArgs, vim) {
         var scrollbox = cm.getScrollInfo();
         var curEnd = null;
         var repeat = motionArgs.repeat;
         if (!repeat) {
           repeat = scrollbox.clientHeight / (2 * cm.defaultTextHeight());
         }
-        var orig = cm.charCoords(cm.getCursor(), 'local');
+        var orig = cm.charCoords(head, 'local');
         motionArgs.repeat = repeat;
-        var curEnd = motions.moveByDisplayLines(cm, motionArgs, vim);
+        var curEnd = motions.moveByDisplayLines(cm, head, motionArgs, vim);
         if (!curEnd) {
           return null;
         }
@@ -1657,11 +1657,11 @@
         cm.scrollTo(null, scrollbox.top + dest.top - orig.top);
         return curEnd;
       },
-      moveByWords: function(cm, motionArgs) {
-        return moveToWord(cm, motionArgs.repeat, !!motionArgs.forward,
+      moveByWords: function(cm, head, motionArgs) {
+        return moveToWord(cm, head, motionArgs.repeat, !!motionArgs.forward,
             !!motionArgs.wordEnd, !!motionArgs.bigWord);
       },
-      moveTillCharacter: function(cm, motionArgs) {
+      moveTillCharacter: function(cm, head, motionArgs) {
         var repeat = motionArgs.repeat;
         var curEnd = moveToCharacter(cm, repeat, motionArgs.forward,
             motionArgs.selectedCharacter);
@@ -1671,26 +1671,26 @@
         curEnd.ch += increment;
         return curEnd;
       },
-      moveToCharacter: function(cm, motionArgs) {
+      moveToCharacter: function(cm, head, motionArgs) {
         var repeat = motionArgs.repeat;
         recordLastCharacterSearch(0, motionArgs);
         return moveToCharacter(cm, repeat, motionArgs.forward,
-            motionArgs.selectedCharacter) || cm.getCursor();
+            motionArgs.selectedCharacter) || head;
       },
-      moveToSymbol: function(cm, motionArgs) {
+      moveToSymbol: function(cm, head, motionArgs) {
         var repeat = motionArgs.repeat;
         return findSymbol(cm, repeat, motionArgs.forward,
-            motionArgs.selectedCharacter) || cm.getCursor();
+            motionArgs.selectedCharacter) || head;
       },
-      moveToColumn: function(cm, motionArgs, vim) {
+      moveToColumn: function(cm, head, motionArgs, vim) {
         var repeat = motionArgs.repeat;
         // repeat is equivalent to which column we want to move to!
         vim.lastHPos = repeat - 1;
-        vim.lastHSPos = cm.charCoords(cm.getCursor(),'div').left;
+        vim.lastHSPos = cm.charCoords(head,'div').left;
         return moveToColumn(cm, repeat);
       },
-      moveToEol: function(cm, motionArgs, vim) {
-        var cur = cm.getCursor();
+      moveToEol: function(cm, head, motionArgs, vim) {
+        var cur = head;
         vim.lastHPos = Infinity;
         var retval= Pos(cur.line + motionArgs.repeat - 1, Infinity);
         var end=cm.clipPos(retval);
@@ -1698,15 +1698,15 @@
         vim.lastHSPos = cm.charCoords(end,'div').left;
         return retval;
       },
-      moveToFirstNonWhiteSpaceCharacter: function(cm) {
+      moveToFirstNonWhiteSpaceCharacter: function(cm, head) {
         // Go to the start of the line where the text begins, or the end for
         // whitespace-only lines
-        var cursor = cm.getCursor();
+        var cursor = head;
         return Pos(cursor.line,
                    findFirstNonWhiteSpaceCharacter(cm.getLine(cursor.line)));
       },
-      moveToMatchedSymbol: function(cm) {
-        var cursor = cm.getCursor();
+      moveToMatchedSymbol: function(cm, head) {
+        var cursor = head;
         var line = cursor.line;
         var ch = cursor.ch;
         var lineText = cm.getLine(line);
@@ -1727,11 +1727,11 @@
           return cursor;
         }
       },
-      moveToStartOfLine: function(cm) {
-        var cursor = cm.getCursor();
+      moveToStartOfLine: function(cm, head) {
+        var cursor = head;
         return Pos(cursor.line, 0);
       },
-      moveToLineOrEdgeOfDocument: function(cm, motionArgs) {
+      moveToLineOrEdgeOfDocument: function(cm, head, motionArgs) {
         var lineNum = motionArgs.forward ? cm.lastLine() : cm.firstLine();
         if (motionArgs.repeatIsExplicit) {
           lineNum = motionArgs.repeat - cm.getOption('firstLineNumber');
@@ -1739,7 +1739,7 @@
         return Pos(lineNum,
                    findFirstNonWhiteSpaceCharacter(cm.getLine(lineNum)));
       },
-      textObjectManipulation: function(cm, motionArgs) {
+      textObjectManipulation: function(cm, head, motionArgs) {
         // TODO: lots of possible exceptions that can be thrown here. Try da(
         //     outside of a () block.
 
@@ -1789,7 +1789,7 @@
         }
       },
 
-      repeatLastCharacterSearch: function(cm, motionArgs) {
+      repeatLastCharacterSearch: function(cm, head, motionArgs) {
         var lastSearch = vimGlobalState.lastChararacterSearch;
         var repeat = motionArgs.repeat;
         var forward = motionArgs.forward === lastSearch.forward;
@@ -1799,7 +1799,7 @@
         var curEnd = moveToCharacter(cm, repeat, forward, lastSearch.selectedCharacter);
         if (!curEnd) {
           cm.moveH(increment, 'char');
-          return cm.getCursor();
+          return head;
         }
         curEnd.ch += increment;
         return curEnd;
@@ -1922,7 +1922,7 @@
           }
         }
         if (operatorArgs.linewise) {
-          cm.setCursor(motions.moveToFirstNonWhiteSpaceCharacter(cm));
+          cm.setCursor(motions.moveToFirstNonWhiteSpaceCharacter(cm, curStart));
         } else {
           cm.setCursor(curStart);
         }
@@ -1944,8 +1944,7 @@
             cm.indentLine(i, operatorArgs.indentRight);
           }
         }
-        cm.setCursor(curStart);
-        cm.setCursor(motions.moveToFirstNonWhiteSpaceCharacter(cm));
+        cm.setCursor(motions.moveToFirstNonWhiteSpaceCharacter(cm, curStart));
       },
       changeCase: function(cm, operatorArgs, _vim, _curStart, _curEnd, _curOriginal) {
         var selections = cm.getSelections();
@@ -2091,13 +2090,13 @@
               selectionStart = Pos(selectionStart.line, 0);
               cm.setCursor(selectionStart);
             }
-            cm.setCursor(motions.moveToFirstNonWhiteSpaceCharacter(cm));
+            cm.setCursor(motions.moveToFirstNonWhiteSpaceCharacter(cm, curStart));
           } else if (vim.visualBlock) {
             selectionEnd = Pos(selectionEnd.line, selectionStart.ch);
             cm.setCursor(selectionStart);
             selectBlock(cm, selectionEnd);
           } else {
-            cm.setCursor(motions.moveToFirstNonWhiteSpaceCharacter(cm));
+            cm.setCursor(motions.moveToFirstNonWhiteSpaceCharacter(cm, curStart));
           }
         } else if (insertAt == 'endOfSelectedArea') {
           if (vim.visualBlock) {
@@ -3184,6 +3183,7 @@
 
     /**
      * @param {CodeMirror} cm CodeMirror object.
+     * @param {Pos} cur The position to start from.
      * @param {int} repeat Number of words to move past.
      * @param {boolean} forward True to search forward. False to search
      *     backward.
@@ -3193,8 +3193,7 @@
      *     False if only alphabet characters count as part of the word.
      * @return {Cursor} The position the cursor should move to.
      */
-    function moveToWord(cm, repeat, forward, wordEnd, bigWord) {
-      var cur = cm.getCursor();
+    function moveToWord(cm, cur, repeat, forward, wordEnd, bigWord) {
       var curStart = copyCursor(cur);
       var words = [];
       if (forward && !wordEnd || !forward && wordEnd) {
