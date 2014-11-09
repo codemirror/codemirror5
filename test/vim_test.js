@@ -1726,6 +1726,49 @@ testVim('visual', function(cm, vim, helpers) {
   helpers.doKeys('d');
   eq('15', cm.getValue());
 }, { value: '12345' });
+testVim('visual_yank', function(cm, vim, helpers) {
+  helpers.doKeys('v', '3', 'l', 'y');
+  helpers.assertCursorAt(0, 0);
+  helpers.doKeys('p');
+  eq('aa te test for yank', cm.getValue());
+}, { value: 'a test for yank' })
+testVim('visual_w', function(cm, vim, helpers) {
+  helpers.doKeys('v', 'w');
+  eq(cm.getSelection(), 'motion t');
+}, { value: 'motion test'});
+testVim('visual_initial_selection', function(cm, vim, helpers) {
+  cm.setCursor(0, 1);
+  helpers.doKeys('v');
+  cm.getSelection('n');
+}, { value: 'init'});
+testVim('visual_crossover_left', function(cm, vim, helpers) {
+  cm.setCursor(0, 2);
+  helpers.doKeys('v', 'l', 'h', 'h');
+  cm.getSelection('ro');
+}, { value: 'cross'});
+testVim('visual_crossover_left', function(cm, vim, helpers) {
+  cm.setCursor(0, 2);
+  helpers.doKeys('v', 'h', 'l', 'l');
+  cm.getSelection('os');
+}, { value: 'cross'});
+testVim('visual_crossover_up', function(cm, vim, helpers) {
+  cm.setCursor(3, 2);
+  helpers.doKeys('v', 'j', 'k', 'k');
+  eqPos(Pos(2, 2), cm.getCursor('head'));
+  eqPos(Pos(3, 3), cm.getCursor('anchor'));
+  helpers.doKeys('k');
+  eqPos(Pos(1, 2), cm.getCursor('head'));
+  eqPos(Pos(3, 3), cm.getCursor('anchor'));
+}, { value: 'cross\ncross\ncross\ncross\ncross\n'});
+testVim('visual_crossover_down', function(cm, vim, helpers) {
+  cm.setCursor(1, 2);
+  helpers.doKeys('v', 'k', 'j', 'j');
+  eqPos(Pos(2, 3), cm.getCursor('head'));
+  eqPos(Pos(1, 2), cm.getCursor('anchor'));
+  helpers.doKeys('j');
+  eqPos(Pos(3, 3), cm.getCursor('head'));
+  eqPos(Pos(1, 2), cm.getCursor('anchor'));
+}, { value: 'cross\ncross\ncross\ncross\ncross\n'});
 testVim('visual_exit', function(cm, vim, helpers) {
   helpers.doKeys('<C-v>', 'l', 'j', 'j', '<Esc>');
   eqPos(cm.getCursor('anchor'), cm.getCursor('head'));
@@ -1936,7 +1979,9 @@ testVim('changeCase_visual_block', function(cm, vim, helpers) {
 }, { value: 'abcdef\nghijkl\nmnopq\nfoo'});
 testVim('visual_paste', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
-  helpers.doKeys('v', 'l', 'l', 'y', 'j', 'v', 'l', 'p');
+  helpers.doKeys('v', 'l', 'l', 'y');
+  helpers.assertCursorAt(0, 0);
+  helpers.doKeys('3', 'l', 'j', 'v', 'l', 'p');
   helpers.assertCursorAt(1, 5);
   eq('this is a\nunithitest for visual paste', cm.getValue());
   cm.setCursor(0, 0);
