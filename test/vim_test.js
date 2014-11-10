@@ -927,14 +927,24 @@ testVim('c_visual_block', function(cm, vim, helpers) {
 testVim('c_visual_block_replay', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.doKeys('<C-v>', '2', 'j', 'l', 'c');
-  var replacement = new Array(cm.listSelections().length+1).join('fo ').split(' ');
-  replacement.pop();
+  var replacement = fillArray('fo', 3);
   cm.replaceSelections(replacement);
   eq('1fo4\n5fo8\nafodefg', cm.getValue());
   helpers.doKeys('<Esc>');
   cm.setCursor(0, 0);
   helpers.doKeys('.');
   eq('foo4\nfoo8\nfoodefg', cm.getValue());
+}, {value: '1234\n5678\nabcdefg'});
+
+testVim('d_visual_block', function(cm, vim, helpers) {
+  cm.setCursor(0, 1);
+  helpers.doKeys('<C-v>', '2', 'j', 'l', 'l', 'l', 'd');
+  eq('1\n5\nafg', cm.getValue());
+}, {value: '1234\n5678\nabcdefg'});
+testVim('D_visual_block', function(cm, vim, helpers) {
+  cm.setCursor(0, 1);
+  helpers.doKeys('<C-v>', '2', 'j', 'l', 'D');
+  eq('1\n5\na', cm.getValue());
 }, {value: '1234\n5678\nabcdefg'});
 
 // Swapcase commands edit in place and do not modify registers.

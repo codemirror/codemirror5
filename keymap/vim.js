@@ -1808,66 +1808,52 @@
         }
         vimGlobalState.registerController.pushText(
             operatorArgs.registerName, 'change', text,
-            operatorArgs.linewise);
+            operatorArgs.linewise, vim.visualBlock);
         actions.enterInsertMode(cm, {}, cm.state.vim);
         return finalHead;
       },
       // delete is a javascript keyword.
-      'delete': function(cm, operatorArgs, vim) {
-        var selections = cm.listSelections();
-        var start = selections[0], end = selections[selections.length-1];
-        var curStart = cursorIsBefore(start.anchor, start.head) ? start.anchor : start.head;
-        var curEnd = cursorIsBefore(end.anchor, end.head) ? end.head : end.anchor;
-        // Save the '>' mark before cm.replaceRange clears it.
-        var selectionEnd, selectionStart;
-        var blockwise = vim.visualBlock;
-        if (vim.visualMode) {
-          selectionEnd = vim.marks['>'].find();
-          selectionStart = vim.marks['<'].find();
-        } else if (vim.lastSelection) {
-          selectionEnd = vim.lastSelection.curStartMark.find();
-          selectionStart = vim.lastSelection.curEndMark.find();
-          blockwise = vim.lastSelection.visualBlock;
+      'delete': function(cm, operatorArgs, vim, anchor, head) {
+        var finalHead, text;
+        if (!vim.visualBlock) {
+          if (operatorArgs.linewise &&
+              head.line != cm.firstLine() &&
+              anchor.line == cm.lastLine() &&
+              anchor.line == head.line - 1) {
+            // Special case for dd on last line (and first line).
+            if (anchor.line == cm.firstLine()) {
+              anchor.ch = 0;
+            } else {
+              anchor = Pos(anchor.line - 1, lineLength(cm, anchor.line - 1))
+            }
+          }
+          text = cm.getRange(anchor, head);
+          cm.replaceRange('', anchor, head);
+          finalHead = anchor;
+          if (operatorArgs.linewise) {
+            finalHead = motions.moveToFirstNonWhiteSpaceCharacter(cm, anchor);
+          }
+        } else {
+          var ranges = cm.listSelections().slice();
+          if (operatorArgs.linewise) {
+            // 'D' in visual block extends the block till eol for all lines
+            for (var i = 0; i < ranges.length; i++) {
+              ranges[i] = {
+                anchor: ranges[i].anchor,
+                head: Pos(ranges[i].head.line, lineLength(cm, ranges[i].head.line))
+              }
+            }
+            cm.setSelections(ranges);
+          }
+          text = cm.getSelection();
+          var replacement = fillArray('', ranges.length);
+          cm.replaceSelections(replacement);
+          finalHead = ranges[0].anchor;
         }
-        var text = cm.getSelection();
         vimGlobalState.registerController.pushText(
             operatorArgs.registerName, 'delete', text,
-            operatorArgs.linewise, blockwise);
-        var replacement = new Array(selections.length).join('1').split('1');
-        // If the ending line is past the last line, inclusive, instead of
-        // including the trailing \n, include the \n before the starting line
-        if (operatorArgs.linewise &&
-            curEnd.line == cm.lastLine() && curStart.line == curEnd.line) {
-          if (curEnd.line == 0) {
-            curStart.ch = 0;
-          }
-          else {
-            var tmp = copyCursor(curEnd);
-            curStart.line--;
-            curStart.ch = lineLength(cm, curStart.line);
-            curEnd = tmp;
-          }
-          cm.replaceRange('', curStart, curEnd);
-        } else {
-          cm.replaceSelections(replacement);
-        }
-        // restore the saved bookmark
-        if (selectionEnd) {
-          var curStartMark = cm.setBookmark(selectionStart);
-          var curEndMark = cm.setBookmark(selectionEnd);
-          if (vim.visualMode) {
-            vim.marks['<'] = curStartMark;
-            vim.marks['>'] = curEndMark;
-          } else {
-            vim.lastSelection.curStartMark = curStartMark;
-            vim.lastSelection.curEndMark = curEndMark;
-          }
-        }
-        if (operatorArgs.linewise) {
-          return motions.moveToFirstNonWhiteSpaceCharacter(cm, curStart);
-        } else {
-          return curStart;
-        }
+            operatorArgs.linewise, vim.visualBlock);
+        return finalHead;
       },
       indent: function(cm, operatorArgs, vim, curStart, curEnd) {
         var startLine = curStart.line;
