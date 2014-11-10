@@ -898,24 +898,29 @@ testVim('cc_multiply_repeat', function(cm, vim, helpers) {
   is(register.linewise);
   eq('vim-insert', cm.getOption('keyMap'));
 });
-testVim('cc_append', function(cm, vim, helpers) {
+testVim('cc_should_not_append_to_document', function(cm, vim, helpers) {
   var expectedLineCount = cm.lineCount();
   cm.setCursor(cm.lastLine(), 0);
   helpers.doKeys('c', 'c');
   eq(expectedLineCount, cm.lineCount());
 });
+function fillArray(val, times) {
+  var arr = [];
+  for (var i = 0; i < times; i++) {
+    arr.push(val);
+  }
+  return arr;
+}
 testVim('c_visual_block', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.doKeys('<C-v>', '2', 'j', 'l', 'l', 'l', 'c');
-  var replacement = new Array(cm.listSelections().length+1).join('hello ').split(' ');
-  replacement.pop();
+  var replacement = fillArray('hello', 3);
   cm.replaceSelections(replacement);
   eq('1hello\n5hello\nahellofg', cm.getValue());
   helpers.doKeys('<Esc>');
   cm.setCursor(2, 3);
   helpers.doKeys('<C-v>', '2', 'k', 'h', 'C');
-  replacement = new Array(cm.listSelections().length+1).join('world ').split(' ');
-  replacement.pop();
+  replacement = fillArray('world', 3);
   cm.replaceSelections(replacement);
   eq('1hworld\n5hworld\nahworld', cm.getValue());
 }, {value: '1234\n5678\nabcdefg'});
