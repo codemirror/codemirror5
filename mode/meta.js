@@ -48,6 +48,7 @@
     {name: "ASP.NET", mime: "application/x-aspx", mode: "htmlembedded", ext: ["aspx"], alias: ["asp", "aspx"]},
     {name: "HTML", mime: "text/html", mode: "htmlmixed", ext: ["html", "htm"], alias: ["xhtml"]},
     {name: "HTTP", mime: "message/http", mode: "http"},
+    {name: "IDL", mime: "text/x-idl", mode: "idl", ext: ["pro"]},
     {name: "Jade", mime: "text/x-jade", mode: "jade", ext: ["jade"]},
     {name: "Java", mime: "text/x-java", mode: "clike", ext: ["java"]},
     {name: "Java Server Pages", mime: "application/x-jsp", mode: "htmlembedded", ext: ["jsp"], alias: ["jsp"]},
