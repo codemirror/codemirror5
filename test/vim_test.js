@@ -1793,20 +1793,23 @@ testVim('visual_line', function(cm, vim, helpers) {
   helpers.doKeys('l', 'V', 'l', 'j', 'j', 'd');
   eq(' 4\n 5', cm.getValue());
 }, { value: ' 1\n 2\n 3\n 4\n 5' });
-testVim('visual_block', function(cm, vim, helpers) {
+testVim('visual_block_different_line_lengths', function(cm, vim, helpers) {
   // test the block selection with lines of different length
   // i.e. extending the selection
   // till the end of the longest line.
   helpers.doKeys('<C-v>', 'l', 'j', 'j', '6', 'l', 'd');
   helpers.doKeys('d', 'd', 'd', 'd');
   eq('', cm.getValue());
+}, {value: '1234\n5678\nabcdefg'});
+testVim('visual_block_truncate_on_short_line', function(cm, vim, helpers) {
   // check for left side selection in case
   // of moving up to a shorter line.
-  cm.replaceRange('hello world\n{\nthis is\nsparta!', cm.getCursor());
+  cm.replaceRange('', cm.getCursor());
   cm.setCursor(3, 4);
   helpers.doKeys('<C-v>', 'l', 'k', 'k', 'd');
   eq('hello world\n{\ntis\nsa!', cm.getValue());
-  cm.replaceRange('12345\n67891\nabcde', {line: 0, ch: 0}, {line: cm.lastLine(), ch: 6});
+}, {value: 'hello world\n{\nthis is\nsparta!'});
+testVim('visual_block_corners', function(cm, vim, helpers) {
   cm.setCursor(1, 2);
   helpers.doKeys('<C-v>', '2', 'l', 'k');
   // circle around the anchor
@@ -1822,6 +1825,8 @@ testVim('visual_block', function(cm, vim, helpers) {
   helpers.doKeys('4', 'l');
   selections = cm.getSelections();
   eq('891cde', selections.join(''));
+}, {value: '12345\n67891\nabcde'});
+testVim('visual_block_mode_switch', function(cm, vim, helpers) {
   // switch between visual modes
   cm.setCursor(1, 1);
   // blockwise to characterwise visual
@@ -1836,7 +1841,7 @@ testVim('visual_block', function(cm, vim, helpers) {
   helpers.doKeys('V');
   selections = cm.getSelections();
   eq('67891\nabcde', selections.join(''));
-}, {value: '1234\n5678\nabcdefg'});
+}, {value: '12345\n67891\nabcde'});
 testVim('visual_block_crossing_short_line', function(cm, vim, helpers) {
   // visual block with long and short lines
   cm.setCursor(0, 3);

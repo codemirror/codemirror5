@@ -2083,15 +2083,20 @@
             head: head
           };
           logSel(vim.sel, 'enter');
-          CodeMirror.signal(cm, "vim-mode-change", {mode: "visual", subMode: vim.visualLine ? "linewise" : ""});
+          CodeMirror.signal(cm, "vim-mode-change", {mode: "visual", subMode: vim.visualLine ? "linewise" : vim.visualBlock ? "blockwise" : ""});
+          updateCmSelection(cm);
+          updateMark(cm, vim, '<', cursorMin(anchor, head));
+          updateMark(cm, vim, '>', cursorMax(anchor, head));
+        } else if (vim.visualLine ^ actionArgs.linewise ||
+            vim.visualBlock ^ actionArgs.blockwise) {
+          vim.visualLine = !!actionArgs.linewise;
+          vim.visualBlock = !!actionArgs.blockwise;
+          logSel(vim.sel, 'mode-change');
+          CodeMirror.signal(cm, "vim-mode-change", {mode: "visual", subMode: vim.visualLine ? "linewise" : vim.visualBlock ? "blockwise" : ""});
           updateCmSelection(cm);
         } else {
-          anchor = vim.sel.anchor;
-          head = vim.sel.head;
           exitVisualMode(cm);
         }
-        updateMark(cm, vim, '<', cursorMin(anchor, head));
-        updateMark(cm, vim, '>', cursorMax(anchor, head));
       },
       reselectLastSelection: function(cm, _actionArgs, vim) {
         var head = vim.marks['<'].find();
