@@ -667,7 +667,7 @@ testCM("selectionPos", function(cm) {
   addDoc(cm, 200, 100);
   cm.setSelection(Pos(1, 100), Pos(98, 100));
   var lineWidth = cm.charCoords(Pos(0, 200), "local").left;
-  var padding = cm.charCoords(Pos(0, 0, true), "local").left;
+  var padding = cm.charCoords(Pos(0, 0, "after"), "local").left;
   var lineHeight = (cm.charCoords(Pos(99)).top - cm.charCoords(Pos(0)).top) / 100;
   cm.scrollTo(0, 0);
   var selElt = byClassName(cm.getWrapperElement(), "CodeMirror-selected");
@@ -1095,7 +1095,7 @@ testCM("moveVstuck", function(cm) {
   }
   cm.setCursor(Pos(0, val.length - 1));
   cm.moveV(-1, "line");
-  eqPos(cm.getCursor(), Pos(0, 27, false));
+  eqPos(cm.getCursor(), Pos(0, 27));
 }, {lineWrapping: true}, ie_lt8 || opera_lt10);
 
 testCM("collapseOnMove", function(cm) {
@@ -1338,8 +1338,8 @@ testCM("bidiUpdate", function(cm) {
 // Verify that changing the direction of a line updates the display
 testCM("directionUpdate", function(cm) {
   cm.setDirection();
-  cm.setDirectionLine(0, "rtl");
-  cm.setDirectionLine(0, null);
+  cm.setLineDirection(0, "rtl");
+  cm.setLineDirection(0, null);
 
   var preElt = cm.display.view[0].node;
   is(preElt.style.direction != "rtl", "Improper direction of line.");
@@ -1347,7 +1347,7 @@ testCM("directionUpdate", function(cm) {
 
 testCM("movebyTextUnit", function(cm) {
   cm.setValue("בְּרֵאשִ\nééé́\n")
-  cm.setDirectionLine(0, "rtl");
+  cm.setLineDirection(0, "rtl");
   cm.execCommand("goLineEnd");
   for (var i = 0; i < 4; ++i) cm.execCommand("goCharRight");
   eqPos(cm.getCursor(), Pos(0, 0));

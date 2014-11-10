@@ -50,7 +50,7 @@
 }
 /* Shown when moving in bi-directional text */
 .CodeMirror div.CodeMirror-secondarycursor {
-  border-left: 1px solid silver;
+  border-left: 1px solid #c8c8c8;
 }
 .CodeMirror.cm-fat-cursor div.CodeMirror-cursor {
   width: auto;
