@@ -61,23 +61,12 @@
         // Match everything except for the inline comment
         regex: /[^#]+/,
         token: null,
-        next: "lineComment"
+        next: "start"
       },
       {
         regex: /$/,
         token: null,
         next: "start"
-      },
-      // Fail safe return to start
-      {
-        token: null,
-        next: "start"
-      }
-    ],
-    lineComment: [
-      {
-        regex: /#.*$/,
-        token: "comment"
       },
       // Fail safe return to start
       {

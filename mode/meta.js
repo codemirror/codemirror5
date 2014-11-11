@@ -28,6 +28,7 @@
     {name: "D", mime: "text/x-d", mode: "d", ext: ["d"]},
     {name: "diff", mime: "text/x-diff", mode: "diff", ext: ["diff", "patch"]},
     {name: "Django", mime: "text/x-django", mode: "django"},
+    {name: "Dockerfile", mime: "text/x-dockerfile", mode: "dockerfile"},
     {name: "DTD", mime: "application/xml-dtd", mode: "dtd", ext: ["dtd"]},
     {name: "Dylan", mime: "text/x-dylan", mode: "dylan", ext: ["dylan", "dyl", "intr"]},
     {name: "ECL", mime: "text/x-ecl", mode: "ecl", ext: ["ecl"]},
