@@ -576,6 +576,13 @@
       <dt id="event_scroll"><code><strong>"scroll"</strong> (instance: CodeMirror)</code></dt>
       <dd>Fires when the editor is scrolled.</dd>
 
+      <dt id="event_scrollCursorIntoView"><code><strong>"scrollCursorIntoView"</strong> (instance: CodeMirror, event: Event)</code></dt>
+      <dd>Fires when the editor tries to scroll its cursor into view.
+      Can be hooked into to take care of additional scrollable
+      containers around the editor. When the event object has
+      its <code>preventDefault</code> method called, CodeMirror will
+      not itself try to scroll the window.</dd>
+
       <dt id="event_update"><code><strong>"update"</strong> (instance: CodeMirror)</code></dt>
       <dd>Will be fired whenever CodeMirror updates its DOM display.</dd>
 
