@@ -23,8 +23,13 @@ CodeMirror.defineMode("yaml", function() {
       state.escaped = false;
       /* comments */
       if (ch == "#" && (stream.pos == 0 || /\s/.test(stream.string.charAt(stream.pos - 1)))) {
-        stream.skipToEnd(); return "comment";
+        stream.skipToEnd();
+        return "comment";
       }
+
+      if (stream.match(/^('([^']|\\.)*'?|"([^"]|\\.)*"?)/))
+        return "string";
+
       if (state.literal && stream.indentation() > state.keyCol) {
         stream.skipToEnd(); return "string";
       } else if (state.literal) { state.literal = false; }
