@@ -9,19 +9,13 @@
   else // Plain browser env
     mod(CodeMirror);
 })(function(CodeMirror) {
-"use strict";
+  "use strict";
 
-CodeMirror.defineMode('idl', function() {
   function wordRegexp(words) {
     return new RegExp('^((' + words.join(')|(') + '))\\b', 'i');
   };
 
-  var identifiers = new RegExp('^[_a-z\xa1-\uffff][_a-z0-9\xa1-\uffff]*', 'i');
-
-  var singleOperators = /[+\-*&=<>\/@#~$]/;
-  var boolOperators = new RegExp('(and|or|eq|lt|le|gt|ge|ne|not)', 'i');
-
-  var builtins = wordRegexp([
+  var builtinArray = [
     'a_correlate', 'abs', 'acos', 'adapt_hist_equal', 'alog',
     'alog2', 'alog10', 'amoeba', 'annotate', 'app_user_dir',
     'app_user_dir_query', 'arg_present', 'array_equal', 'array_indices',
@@ -227,18 +221,27 @@ CodeMirror.defineMode('idl', function() {
     'xregistered', 'xroi', 'xsq_test', 'xsurface', 'xvaredit',
     'xvolume', 'xvolume_rotate', 'xvolume_write_image',
     'xyouts', 'zlib_compress', 'zlib_uncompress', 'zoom', 'zoom_24'
-  ]);
+  ];
+  var builtins = wordRegexp(builtinArray);
 
-  var keywords = wordRegexp([
+  var keywordArray = [
     'begin', 'end', 'endcase', 'endfor',
     'endwhile', 'endif', 'endrep', 'endforeach',
     'break', 'case', 'continue', 'for',
     'foreach', 'goto', 'if', 'then', 'else',
     'repeat', 'until', 'switch', 'while',
     'do', 'pro', 'function'
-  ]);
+  ];
+  var keywords = wordRegexp(keywordArray);
 
-  function tokenBase(stream, _state) {
+  CodeMirror.registerHelper("hintWords", "idl", builtinArray.concat(keywordArray));
+
+  var identifiers = new RegExp('^[_a-z\xa1-\uffff][_a-z0-9\xa1-\uffff]*', 'i');
+
+  var singleOperators = /[+\-*&=<>\/@#~$]/;
+  var boolOperators = new RegExp('(and|or|eq|lt|le|gt|ge|ne|not)', 'i');
+
+  function tokenBase(stream) {
     // whitespaces
     if (stream.eatSpace()) return null;
 
@@ -250,12 +253,12 @@ CodeMirror.defineMode('idl', function() {
 
     // Handle Number Literals
     if (stream.match(/^[0-9\.+-]/, false)) {
-      if (stream.match(/^[+-]?0x[0-9a-fA-F]+/)) {
-        stream.tokenize = tokenBase;
-        return 'number'; }
-      if (stream.match(/^[+-]?\d*\.\d+([EeDd][+-]?\d+)?/)) {
-        return 'number'; }
-      if (stream.match(/^[+-]?\d+([EeDd][+-]?\d+)?/)) { return 'number'; }
+      if (stream.match(/^[+-]?0x[0-9a-fA-F]+/))
+        return 'number';
+      if (stream.match(/^[+-]?\d*\.\d+([EeDd][+-]?\d+)?/))
+        return 'number';
+      if (stream.match(/^[+-]?\d+([EeDd][+-]?\d+)?/))
+        return 'number';
     }
 
     // Handle Strings
@@ -275,24 +278,13 @@ CodeMirror.defineMode('idl', function() {
     return 'error';
   };
 
-
-  return {
-    startState: function() {
-      return {
-        tokenize: tokenBase
-      };
-    },
-
-    token: function(stream,  state) {
-      var style = state.tokenize(stream, state);
-      if (style === 'comment' || style === 'meta') {
-        return style;
+  CodeMirror.defineMode('idl', function() {
+    return {
+      token: function(stream) {
+        return tokenBase(stream);
       }
-      return style;
-    }
-  };
-});
+    };
+  });
 
-CodeMirror.defineMIME('text/x-idl', 'idl');
-
+  CodeMirror.defineMIME('text/x-idl', 'idl');
 });
