@@ -282,7 +282,6 @@
       CodeMirror.on(cm.getInputField(), 'paste', getOnPasteFn(cm));
       cm.on('keypress', handleKeyPress);
       cm.on('keydown', handleKeyDown);
-      CodeMirror.addClass(cm.getWrapperElement(), "cm-fat-cursor");
     }
 
     function leaveVimMode(cm) {
