@@ -18,6 +18,11 @@
     var quote = (options && options.quoteChar) || '"';
     if (!tags) return;
     var cur = cm.getCursor(), token = cm.getTokenAt(cur);
+    if (/^<\/?$/.test(token.string) && token.end == cur.ch) {
+      var nextToken = cm.getTokenAt(Pos(cur.line, cur.ch + 1));
+      if (nextToken.start == cur.ch && /\btag\b/.test(nextToken.type))
+        token = nextToken;
+    }
     var inner = CodeMirror.innerMode(cm.getMode(), token.state);
     if (inner.mode.name != "xml") return;
     var result = [], replaceToken = false, prefix;
