@@ -199,21 +199,27 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   }
 
   function local(stream, state) {
-    if (stream.sol() && stream.match(/^```/, true)) {
+    if (stream.sol() && stream.match("```", false)) {
       state.localMode = state.localState = null;
-      state.f = inlineNormal;
-      state.block = blockNormal;
-      if (modeCfg.highlightFormatting) state.formatting = "code-block";
-      state.code = true;
-      var returnType = getType(state);
-      state.code = false;
-      return returnType;
+      state.f = state.block = leavingLocal;
+      return null;
     } else if (state.localMode) {
       return state.localMode.token(stream, state.localState);
     } else {
       stream.skipToEnd();
       return code;
     }
+  }
+
+  function leavingLocal(stream, state) {
+    stream.match("```");
+    state.block = blockNormal;
+    state.f = inlineNormal;
+    if (modeCfg.highlightFormatting) state.formatting = "code-block";
+    state.code = true;
+    var returnType = getType(state);
+    state.code = false;
+    return returnType;
   }
 
   // Inline
@@ -736,9 +742,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         state.indentation = adjustedIndentation;
         if (indentation > 0) return null;
       }
-      var result = state.f(stream, state);
-      if (stream.start == stream.pos) return this.token(stream, state);
-      else return result;
+      return state.f(stream, state);
     },
 
     innerMode: function(state) {
