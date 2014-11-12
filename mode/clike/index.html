@@ -139,6 +139,26 @@ void Class::Method2(MyType<T, V>* value) {
 }
 </textarea></div>
 
+<h2>Objective-C example</h2>
+
+<div><textarea id="objectivec-code">
+/*
+This is a longer comment
+That spans two lines
+*/
+
+#import <Test/Test.h>
+@implementation YourAppDelegate
+
+// This is a one-line comment
+
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions{
+  char myString[] = "This is a C character array";
+  int test = 5;
+  return YES;
+}
+</textarea></div>
+
 <h2>Java example</h2>
 
 <div><textarea id="java-code">
@@ -202,6 +222,11 @@ object FilterTest extends App {
         matchBrackets: true,
         mode: "text/x-java"
       });
+      var objectivecEditor = CodeMirror.fromTextArea(document.getElementById("objectivec-code"), {
+        lineNumbers: true,
+        matchBrackets: true,
+        mode: "text/x-objectivec"
+      });
       var scalaEditor = CodeMirror.fromTextArea(document.getElementById("scala-code"), {
         lineNumbers: true,
         matchBrackets: true,
@@ -220,6 +245,7 @@ object FilterTest extends App {
     <p><strong>MIME types defined:</strong> <code>text/x-csrc</code>
     (C), <code>text/x-c++src</code> (C++), <code>text/x-java</code>
     (Java), <code>text/x-csharp</code> (C#),
+    <code>text/x-objectivec</code> (Objective-C),
     <code>text/x-scala</code> (Scala), <code>text/x-vertex</code>
     and <code>x-shader/x-fragment</code> (shader programs).</p>
 </article>
