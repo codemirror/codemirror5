@@ -210,6 +210,11 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
   *zoom:1;
   *display:inline;
 }
+.CodeMirror-gutter-wrapper {
+  position: absolute;
+  z-index: 4;
+  height: 100%;
+}
 .CodeMirror-gutter-elt {
   position: absolute;
   cursor: default;

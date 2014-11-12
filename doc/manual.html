@@ -1639,10 +1639,11 @@ editor.setOption("extraKeys", {
       to which element this class should be applied, can can be one
       of <code>"text"</code> (the text element, which lies in front of
       the selection), <code>"background"</code> (a background element
-      that will be behind the selection), or <code>"wrap"</code> (the
-      wrapper node that wraps all of the line's elements, including
-      gutter elements). <code>class</code> should be the name of the
-      class to apply.</dd>
+      that will be behind the selection), <code>"gutter"</code> (the
+      line's gutter space), or <code>"wrap"</code> (the wrapper node
+      that wraps all of the line's elements, including gutter
+      elements). <code>class</code> should be the name of the class to
+      apply.</dd>
 
       <dt id="removeLineClass"><code><strong>doc.removeLineClass</strong>(line: integer|LineHandle, where: string, class: string) → LineHandle</code></dt>
       <dd>Remove a CSS class from a line. <code>line</code> can be a
