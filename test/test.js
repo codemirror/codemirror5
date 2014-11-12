@@ -1351,8 +1351,7 @@ testCM("movebyTextUnit", function(cm) {
   cm.execCommand("goLineEnd");
   for (var i = 0; i < 4; ++i) cm.execCommand("goCharRight");
   eqPos(cm.getCursor(), Pos(0, 0));
-  cm.execCommand("goCharRight");
-  eqPos(cm.getCursor(), Pos(1, 0));
+  cm.setCursor(Pos(1, 0));
   cm.execCommand("goCharRight");
   cm.execCommand("goCharRight");
   eqPos(cm.getCursor(), Pos(1, 4));
