@@ -368,8 +368,12 @@
 
     this.options = options;
     var origLeft = options.origLeft, origRight = options.origRight == null ? options.orig : options.origRight;
-    if (origLeft && origRight && options.connect == "align")
-      throw new Error("connect: \"align\" is not supported for three-way merge views");
+    if (origLeft && origRight) {
+      if (options.connect == "align")
+        throw new Error("connect: \"align\" is not supported for three-way merge views");
+      if (options.collapseIdentical)
+        throw new Error("collapseIdentical option is not supported for three-way merge views");
+    }
 
     var hasLeft = origLeft != null, hasRight = origRight != null;
     var panes = 1 + (hasLeft ? 1 : 0) + (hasRight ? 1 : 0);
@@ -401,6 +405,9 @@
 
     if (left) left.init(leftPane, origLeft, options);
     if (right) right.init(rightPane, origRight, options);
+
+    if (options.collapseIdentical)
+      collapseIdenticalStretches(left || right, options.collapseIdentical);
 
     var onResize = function() {
       if (left) makeConnections(left);
@@ -547,6 +554,46 @@
       else if (fromLocal <= n) { beforeE = fromEdit; beforeO = fromOrig; }
     });
     return {edit: {before: beforeE, after: afterE}, orig: {before: beforeO, after: afterO}};
+  }
+
+  function collapseSingle(cm, from, to) {
+    cm.addLineClass(from, "wrap", "CodeMirror-merge-collapsed-line");
+    var widget = document.createElement("span");
+    widget.className = "CodeMirror-merge-collapsed-widget";
+    widget.title = "Identical text collapsed. Click to expand.";
+    var mark = cm.markText(Pos(from, 0), Pos(to - 1), {
+      inclusiveLeft: true,
+      inclusiveRight: true,
+      replacedWith: widget,
+      clearOnEnter: true
+    });
+    function clear() {
+      mark.clear();
+      cm.removeLineClass(from, "wrap", "CodeMirror-merge-collapsed-line");
+    }
+    widget.addEventListener("click", clear);
+    return {mark: mark, clear: clear};
+  }
+
+  function collapseStretch(dv, origStart, editStart, size) {
+    var mOrig = collapseSingle(dv.orig, origStart, origStart + size);
+    var mEdit = collapseSingle(dv.edit, editStart, editStart + size);
+    mOrig.mark.on("clear", function() { mEdit.clear(); });
+    mEdit.mark.on("clear", function() { mOrig.clear(); });
+  }
+
+  function collapseIdenticalStretches(dv, margin) {
+    if (typeof margin != "number") margin = 2;
+    var lastOrig = dv.orig.firstLine(), lastEdit = dv.edit.firstLine();
+    iterateChunks(dv.diff, function(topOrig, botOrig, _topEdit, botEdit) {
+      var identicalSize = topOrig - margin - lastOrig;
+      if (identicalSize > margin)
+        collapseStretch(dv, lastOrig, lastEdit, identicalSize);
+      lastOrig = botOrig + margin; lastEdit = botEdit + margin;
+    });
+    var bottomSize = dv.orig.lastLine() + 1 - lastOrig;
+    if (bottomSize > margin)
+      collapseStretch(dv, lastOrig, lastEdit, bottomSize);
   }
 
   // General utilities
