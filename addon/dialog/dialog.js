@@ -73,7 +73,7 @@
           CodeMirror.e_stop(e);
           close();
         }
-        if (e.keyCode == 13) callback(inp.value);
+        if (e.keyCode == 13) callback(inp.value, e);
       });
 
       if (options.closeOnBlur !== false) CodeMirror.on(inp, "blur", close);
