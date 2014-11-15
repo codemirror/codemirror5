@@ -970,7 +970,7 @@ testVim('g~g~', function(cm, vim, helpers) {
   var register = helpers.getRegisterController().getRegister();
   eq('', register.toString());
   is(!register.linewise);
-  eqPos({line: curStart.line, ch:0}, cm.getCursor());
+  eqPos(curStart, cm.getCursor());
 }, { value: ' word1\nword2\nword3\nword4\nword5\nword6' });
 testVim('gu_and_gU', function(cm, vim, helpers) {
   var curStart = makeCursor(0, 7);
@@ -1960,11 +1960,14 @@ testVim('o_visual', function(cm, vim, helpers) {
 testVim('o_visual_block', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.doKeys('<C-v>','3','j','l','l', 'o');
-  helpers.assertCursorAt(0, 1);
+  eqPos(Pos(3, 3), vim.sel.anchor);
+  eqPos(Pos(0, 1), vim.sel.head);
   helpers.doKeys('O');
-  helpers.assertCursorAt(0, 4);
+  eqPos(Pos(3, 1), vim.sel.anchor);
+  eqPos(Pos(0, 3), vim.sel.head);
   helpers.doKeys('o');
-  helpers.assertCursorAt(3, 1);
+  eqPos(Pos(0, 3), vim.sel.anchor);
+  eqPos(Pos(3, 1), vim.sel.head);
 }, { value: 'abcd\nefgh\nijkl\nmnop'});
 testVim('changeCase_visual', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
