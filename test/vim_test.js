@@ -1921,12 +1921,15 @@ testVim('reselect_visual_block', function(cm, vim, helpers) {
   helpers.doKeys('<C-v>', 'k', 'h', '<C-v>');
   cm.setCursor(2, 1);
   helpers.doKeys('v', 'l', 'g', 'v');
-  helpers.assertCursorAt(0, 1);
+  eqPos(Pos(1, 2), vim.sel.anchor);
+  eqPos(Pos(0, 1), vim.sel.head);
   // Ensure selection is done with visual block mode rather than one
   // continuous range.
   eq(cm.getSelections().join(''), '23oo')
   helpers.doKeys('g', 'v');
-  helpers.assertCursorAt(2, 3);
+  eqPos(Pos(2, 1), vim.sel.anchor);
+  eqPos(Pos(2, 2), vim.sel.head);
+  helpers.doKeys('<Esc>');
   // Ensure selection of deleted range
   cm.setCursor(1, 1);
   helpers.doKeys('v', '<C-v>', 'j', 'd', 'g', 'v');
