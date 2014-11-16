@@ -182,7 +182,8 @@
     { keys: 'A', type: 'action', action: 'enterInsertMode', isEdit: true, actionArgs: { insertAt: 'eol' }, context: 'normal' },
     { keys: 'A', type: 'action', action: 'enterInsertMode', isEdit: true, actionArgs: { insertAt: 'endOfSelectedArea' }, context: 'visual' },
     { keys: 'i', type: 'action', action: 'enterInsertMode', isEdit: true, actionArgs: { insertAt: 'inplace' }, context: 'normal' },
-    { keys: 'I', type: 'action', action: 'enterInsertMode', isEdit: true, actionArgs: { insertAt: 'firstNonBlank' }},
+    { keys: 'I', type: 'action', action: 'enterInsertMode', isEdit: true, actionArgs: { insertAt: 'firstNonBlank'}, context: 'normal' },
+    { keys: 'I', type: 'action', action: 'enterInsertMode', isEdit: true, actionArgs: { insertAt: 'startOfSelectedArea' }, context: 'visual' },
     { keys: 'o', type: 'action', action: 'newLineAndEnterInsertMode', isEdit: true, interlaceInsertRepeat: true, actionArgs: { after: true }, context: 'normal' },
     { keys: 'O', type: 'action', action: 'newLineAndEnterInsertMode', isEdit: true, interlaceInsertRepeat: true, actionArgs: { after: false }, context: 'normal' },
     { keys: 'v', type: 'action', action: 'toggleVisualMode' },
@@ -1327,35 +1328,42 @@
           }
         }
         if (operator) {
-          /*
           if (operatorArgs.lastSel) {
             // Replaying a visual mode operation
+            newAnchor = oldAnchor;
             var lastSel = operatorArgs.lastSel;
-            var lineOffset = lastSel.head.line - lastSel.anchor.line;
-            curEnd.line = curStart.line + lineOffset;
-            if (lineOffset == 0 && !lastSel.visualBlock) {
-              // If there was a line offset, the ch position is the same as the
-              // previous head. It is not offset from the current head.
-              curEnd.ch = lastSel.head.ch;
+            var lineOffset = Math.abs(lastSel.head.line - lastSel.anchor.line);
+            var chOffset = Math.abs(lastSel.head.ch - lastSel.anchor.ch);
+            if (lastSel.visualLine) {
+              // Linewise Visual mode: The same number of lines.
+              newHead = Pos(oldAnchor.line + lineOffset, oldAnchor.ch);
+            } else if (lastSel.visualBlock) {
+              // Blockwise Visual mode: The same number of lines and columns.
+              newHead = Pos(oldAnchor.line + lineOffset, oldAnchor.ch + chOffset);
+            } else if (lastSel.head.line == lastSel.anchor.line) {
+              // Normal Visual mode within one line: The same number of characters.
+              newHead = Pos(oldAnchor.line, oldAnchor.ch + chOffset);
             } else {
-              curEnd.ch = curStart.ch + lastSel.head.ch - lastSel.anchor.ch;
+              // Normal Visual mode with several lines: The same number of lines, in the
+              // last line the same number of characters as in the last line the last time.
+              newHead = Pos(oldAnchor.line + lineOffset, oldAnchor.ch);
             }
             vim.visualMode = true;
+            vim.visualLine = lastSel.visualLine;
             vim.visualBlock = lastSel.visualBlock;
-            var blockSelected = lastSel.visualBlock;
-            vim.sel = {
-              anchor: curStart,
-              head: curEnd
+            sel = vim.sel = {
+              anchor: newAnchor,
+              head: newHead
             }
             updateCmSelection(cm);
           } else if (vim.visualMode) {
             operatorArgs.lastSel = {
               anchor: copyCursor(sel.anchor),
               head: copyCursor(sel.head),
-              visualBlock: vim.visualBlock
+              visualBlock: vim.visualBlock,
+              visualLine: vim.visualLine
             };
           }
-          */
           var curStart, curEnd, linewise, mode;
           var cmSel;
           if (vim.visualMode) {
@@ -1802,7 +1810,7 @@
       change: function(cm, args, ranges) {
         var finalHead, text;
         var vim = cm.state.vim;
-        if (!vim.visualMode && !vim.visualBlock) {
+        if (!vim.visualMode) {
           var anchor = ranges[0].anchor,
               head = ranges[0].head;
           text = cm.getRange(anchor, head);
@@ -1827,12 +1835,12 @@
           text = cm.getSelection();
           var replacement = fillArray('', ranges.length);
           cm.replaceSelections(replacement);
+          finalHead = cursorMin(ranges[0].head, ranges[0].anchor);
         }
         vimGlobalState.registerController.pushText(
             args.registerName, 'change', text,
             args.linewise, ranges.length > 1);
-        actions.enterInsertMode(cm, {}, cm.state.vim);
-        return finalHead;
+        actions.enterInsertMode(cm, {head: finalHead}, cm.state.vim);
       },
       // delete is a javascript keyword.
       'delete': function(cm, args, ranges) {
@@ -1889,7 +1897,7 @@
             cm.indentLine(i, args.indentRight);
           }
         }
-        cm.setCursor(motions.moveToFirstNonWhiteSpaceCharacter(cm, ranges[0].anchor));
+        return motions.moveToFirstNonWhiteSpaceCharacter(cm, ranges[0].anchor);
       },
       changeCase: function(cm, args, ranges, oldAnchor, newHead) {
         var selections = cm.getSelections();
@@ -2023,41 +2031,40 @@
         vim.insertMode = true;
         vim.insertModeRepeat = actionArgs && actionArgs.repeat || 1;
         var insertAt = (actionArgs) ? actionArgs.insertAt : null;
-        if (vim.visualMode) {
-          var selections = getSelectedAreaRange(cm, vim);
-          var selectionStart = selections[0];
-          var selectionEnd = selections[1];
-        }
+        var sel = vim.sel;
+        var head = actionArgs.head || cm.getCursor('head');
+        var height = cm.listSelections().length;
         if (insertAt == 'eol') {
-          var cursor = cm.getCursor();
-          cursor = Pos(cursor.line, lineLength(cm, cursor.line));
-          cm.setCursor(cursor);
+          head = Pos(head.line, lineLength(cm, head.line));
         } else if (insertAt == 'charAfter') {
-          cm.setCursor(offsetCursor(cm.getCursor(), 0, 1));
+          head = offsetCursor(head, 0, 1);
         } else if (insertAt == 'firstNonBlank') {
-          if (vim.visualMode && !vim.visualBlock) {
-            if (selectionEnd.line < selectionStart.line) {
-              cm.setCursor(selectionEnd);
+          head = motions.moveToFirstNonWhiteSpaceCharacter(cm, head);
+        } else if (insertAt == 'startOfSelectedArea') {
+          if (!vim.visualBlock) {
+            if (sel.head.line < sel.anchor.line) {
+              head = sel.head;
             } else {
-              selectionStart = Pos(selectionStart.line, 0);
-              cm.setCursor(selectionStart);
+              head = Pos(sel.anchor.line, 0);
             }
-            cm.setCursor(motions.moveToFirstNonWhiteSpaceCharacter(cm, vim.sel.head));
-          } else if (vim.visualBlock) {
-            selectionEnd = Pos(selectionEnd.line, selectionStart.ch);
-            cm.setCursor(selectionStart);
-            selectBlock(cm, selectionEnd);
           } else {
-            cm.setCursor(motions.moveToFirstNonWhiteSpaceCharacter(cm, cm.getCursor()));
+            head = Pos(
+                Math.min(sel.head.line, sel.anchor.line),
+                Math.min(sel.head.ch, sel.anchor.ch));
+            height = Math.abs(sel.head.line - sel.anchor.line) + 1;
           }
         } else if (insertAt == 'endOfSelectedArea') {
-          if (vim.visualBlock) {
-            selectionStart = Pos(selectionStart.line, selectionEnd.ch);
-            cm.setCursor(selectionStart);
-            selectBlock(cm, selectionEnd);
-          } else if (selectionEnd && selectionEnd.line < selectionStart.line) {
-            selectionEnd = Pos(selectionStart.line, 0);
-            cm.setCursor(selectionEnd);
+          if (!vim.visualBlock) {
+            if (sel.head.line >= sel.anchor.line) {
+              head = offsetCursor(sel.head, 0, 1);
+            } else {
+              head = Pos(sel.anchor.line, 0);
+            }
+          } else {
+            head = Pos(
+                Math.min(sel.head.line, sel.anchor.line),
+                Math.max(sel.head.ch + 1, sel.anchor.ch));
+            height = Math.abs(sel.head.line - sel.anchor.line) + 1;
           }
         } else if (insertAt == 'inplace') {
           if (vim.visualMode){
@@ -2083,6 +2090,7 @@
         if (vim.visualMode) {
           exitVisualMode(cm);
         }
+        selectForInsert(cm, head, height);
       },
       toggleVisualMode: function(cm, actionArgs, vim) {
         var repeat = actionArgs.repeat;
@@ -2635,6 +2643,14 @@
       base.ch = baseCh;
       return base;
     }
+    function selectForInsert(cm, head, height) {
+      var sel = [];
+      for (var i = 0; i < height; i++) {
+        var lineHead = offsetCursor(head, i, 0);
+        sel.push({anchor: lineHead, head: lineHead});
+      }
+      cm.setSelections(sel, 0);
+    }
     // getIndex returns the index of the cursor in the selections.
     function getIndex(ranges, cursor, end) {
       for (var i = 0; i < ranges.length; i++) {
@@ -2809,11 +2825,7 @@
 
     function exitVisualMode(cm) {
       var vim = cm.state.vim;
-      var selectionStart = cm.getCursor('anchor');
-      var selectionEnd = cm.getCursor('head');
-      if (!cursorEqual(selectionStart, selectionEnd)) {
-        cm.setCursor(clipCursorToContent(cm, selectionEnd));
-      }
+      cm.setCursor(clipCursorToContent(cm, vim.sel.head));
       updateLastSelection(cm, vim);
       vim.visualMode = false;
       vim.visualLine = false;
