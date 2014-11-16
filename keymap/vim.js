@@ -2806,9 +2806,16 @@
       return cur;
     }
 
-    function exitVisualMode(cm) {
+    /**
+     * If moveHead is set to false, the CodeMirror selection will not be
+     * touched. The caller assumes the responsibility of putting the cursor
+    * in the right place.
+     */
+    function exitVisualMode(cm, moveHead) {
       var vim = cm.state.vim;
-      cm.setCursor(clipCursorToContent(cm, vim.sel.head));
+      if (moveHead !== false) {
+        cm.setCursor(clipCursorToContent(cm, vim.sel.head));
+      }
       updateLastSelection(cm, vim);
       vim.visualMode = false;
       vim.visualLine = false;
@@ -4639,7 +4646,7 @@
           // Cursor moved outside the context of an edit. Reset the change.
           lastChange.changes = [];
         }
-      } else {
+      } else if (!cm.curOp.isVimOp) {
         handleExternalSelection(cm, vim);
       }
       if (vim.visualMode) {
@@ -4668,23 +4675,30 @@
     function handleExternalSelection(cm, vim) {
       var anchor = cm.getCursor('anchor');
       var head = cm.getCursor('head');
-      return;
       // Enter or exit visual mode to match mouse selection.
       if (vim.visualMode && cursorEqual(head, anchor) && lineLength(cm, head.line) > head.ch) {
-        exitVisualMode(cm);
-      } else if (!cm.curOp.isVimOp && !vim.visualMode && !vim.insertMode && cm.somethingSelected()) {
+        exitVisualMode(cm, false);
+      } else if (!vim.visualMode && !vim.insertMode && cm.somethingSelected()) {
         vim.visualMode = true;
         vim.visualLine = false;
         CodeMirror.signal(cm, "vim-mode-change", {mode: "visual"});
       }
-      if (!cm.curOp.isVimOp) {
-        if (vim.visualMode) {
-          updateMark(cm, vim, '<', cursorMin(head, anchor));
-          updateMark(cm, vim, '>', cursorMax(head, anchor));
-        } else if (!vim.insertMode) {
-          // Reset lastHPos if selection was modified by something outside of vim mode e.g. by mouse.
-          vim.lastHPos = cm.getCursor().ch;
-        }
+      if (vim.visualMode) {
+        // Bind CodeMirror selection model to vim selection model.
+        // Mouse selections are considered visual characterwise.
+        var headOffset = !cursorIsBefore(head, anchor) ? -1 : 0;
+        var anchorOffset = cursorIsBefore(head, anchor) ? -1 : 0;
+        head = offsetCursor(head, 0, headOffset);
+        anchor = offsetCursor(anchor, 0, anchorOffset);
+        vim.sel = {
+          anchor: anchor,
+          head: head
+        };
+        updateMark(cm, vim, '<', cursorMin(head, anchor));
+        updateMark(cm, vim, '>', cursorMax(head, anchor));
+      } else if (!vim.insertMode) {
+        // Reset lastHPos if selection was modified by something outside of vim mode e.g. by mouse.
+        vim.lastHPos = cm.getCursor().ch;
       }
     }
 
