@@ -1810,6 +1810,7 @@
       change: function(cm, args, ranges) {
         var finalHead, text;
         var vim = cm.state.vim;
+        vimGlobalState.macroModeState.lastInsertModeChanges.inVisualBlock = vim.visualBlock;
         if (!vim.visualMode) {
           var anchor = ranges[0].anchor,
               head = ranges[0].head;
@@ -2477,7 +2478,17 @@
       return ret;
     }
     function offsetCursor(cur, offsetLine, offsetCh) {
+      if (typeof offsetLine === 'object') {
+        offsetCh = offsetLine.ch;
+        offsetLine = offsetLine.line;
+      }
       return Pos(cur.line + offsetLine, cur.ch + offsetCh);
+    }
+    function getOffset(anchor, head) {
+      return {
+        line: head.line - anchor.line,
+        ch: head.line - anchor.line
+      }
     }
     function commandMatches(keys, keyMap, context, inputState) {
       // Partial matches are not applied. They inform the key handler
@@ -2712,6 +2723,8 @@
       }
       vim.lastSelection = {'anchorMark': cm.setBookmark(anchor),
                            'headMark': cm.setBookmark(head),
+                           'anchor': copyCursor(anchor),
+                           'head': copyCursor(head),
                            'visualMode': vim.visualMode,
                            'visualLine': vim.visualLine,
                            'visualBlock': vim.visualBlock};
@@ -2739,10 +2752,15 @@
       }
       return [anchor, head];
     }
-    function updateCmSelection(cm) {
+    /**
+     * Updates the CodeMirror selection to match the provided vim selection.
+     * If no arguments are given, it uses the current vim selection state.
+     */
+    function updateCmSelection(cm, sel, mode) {
       var vim = cm.state.vim;
-      var sel = vim.sel;
-      var mode = vim.visualLine ? 'line' : vim.visualBlock ? 'block' : 'char';
+      sel = sel || vim.sel;
+      var mode = mode ||
+        vim.visualLine ? 'line' : vim.visualBlock ? 'block' : 'char';
       var cmSel = makeCmSelection(cm, sel, mode);
       cm.setSelections(cmSel.ranges, cmSel.primary);
       updateFakeCursor(cm);
@@ -4790,19 +4808,21 @@
         }
         return true;
       }
-      var curStart = cm.getCursor();
+      var head = cm.getCursor('head');
       var inVisualBlock = vimGlobalState.macroModeState.lastInsertModeChanges.inVisualBlock;
       if (inVisualBlock) {
         // Set up block selection again for repeating the changes.
         var vim = cm.state.vim;
-        var block = vim.lastSelection.visualBlock;
-        var curEnd = Pos(curStart.line + block.height-1, curStart.ch);
-        cm.setCursor(curStart);
-        selectBlock(cm, curEnd);
+        var lastSel = vim.lastSelection;
+        var offset = getOffset(lastSel.anchor, lastSel.head);
+        selectForInsert(cm, head, offset.line + 1);
         repeat = cm.listSelections().length;
-        cm.setCursor(curStart);
+        cm.setCursor(head);
       }
       for (var i = 0; i < repeat; i++) {
+        if (inVisualBlock) {
+          cm.setCursor(offsetCursor(head, i, 0));
+        }
         for (var j = 0; j < changes.length; j++) {
           var change = changes[j];
           if (change instanceof InsertModeKey) {
@@ -4812,10 +4832,9 @@
             cm.replaceRange(change, cur, cur);
           }
         }
-        if (inVisualBlock) {
-          curStart.line++;
-          cm.setCursor(curStart);
-        }
+      }
+      if (inVisualBlock) {
+        cm.setCursor(offsetCursor(head, 0, 1));
       }
     }
 
