@@ -1310,11 +1310,9 @@
             if (newAnchor) {
               newAnchor = clipCursorToContent(cm, newAnchor, true);
             }
-            logSel(sel.anchor, sel.head, 'pre');
             newAnchor = newAnchor || oldAnchor;
             sel.anchor = newAnchor;
             sel.head = newHead;
-            logSel(sel.anchor, sel.head, 'post');
             updateCmSelection(cm);
             updateMark(cm, vim, '<',
                 cursorIsBefore(newAnchor, newHead) ? newAnchor
@@ -1354,7 +1352,7 @@
             sel = vim.sel = {
               anchor: newAnchor,
               head: newHead
-            }
+            };
             updateCmSelection(cm);
           } else if (vim.visualMode) {
             operatorArgs.lastSel = {
@@ -1407,7 +1405,7 @@
               clipToLine(cm, curStart, curEnd);
             }
             mode = 'char';
-            var exclusive = !motionArgs.inclusive || linewise
+            var exclusive = !motionArgs.inclusive || linewise;
             cmSel = makeCmSelection(cm, {
               anchor: curStart,
               head: curEnd
@@ -1445,26 +1443,26 @@
      */
     // All of the functions below return Cursor objects.
     var motions = {
-      moveToTopLine: function(cm, head, motionArgs) {
+      moveToTopLine: function(cm, _head, motionArgs) {
         var line = getUserVisibleLines(cm).top + motionArgs.repeat -1;
         return Pos(line, findFirstNonWhiteSpaceCharacter(cm.getLine(line)));
       },
-      moveToMiddleLine: function(cm, head) {
+      moveToMiddleLine: function(cm) {
         var range = getUserVisibleLines(cm);
         var line = Math.floor((range.top + range.bottom) * 0.5);
         return Pos(line, findFirstNonWhiteSpaceCharacter(cm.getLine(line)));
       },
-      moveToBottomLine: function(cm, head, motionArgs) {
+      moveToBottomLine: function(cm, _head, motionArgs) {
         var line = getUserVisibleLines(cm).bottom - motionArgs.repeat +1;
         return Pos(line, findFirstNonWhiteSpaceCharacter(cm.getLine(line)));
       },
-      expandToLine: function(cm, head, motionArgs) {
+      expandToLine: function(_cm, head, motionArgs) {
         // Expands forward to end of line, and then to next line if repeat is
         // >1. Does not handle backward motion!
         var cur = head;
         return Pos(cur.line + motionArgs.repeat - 1, Infinity);
       },
-      findNext: function(cm, head, motionArgs) {
+      findNext: function(cm, _head, motionArgs) {
         var state = getSearchState(cm);
         var query = state.getQuery();
         if (!query) {
@@ -1476,7 +1474,7 @@
         highlightSearchMatches(cm, query);
         return findNext(cm, prev/** prev */, query, motionArgs.repeat);
       },
-      goToMark: function(cm, head, motionArgs, vim) {
+      goToMark: function(cm, _head, motionArgs, vim) {
         var mark = vim.marks[motionArgs.selectedCharacter];
         if (mark) {
           var pos = mark.find();
@@ -1484,13 +1482,13 @@
         }
         return null;
       },
-      moveToOtherHighlightedEnd: function(cm, head, motionArgs, vim) {
+      moveToOtherHighlightedEnd: function(cm, _head, motionArgs, vim) {
         if (vim.visualBlock && motionArgs.sameLine) {
           var sel = vim.sel;
           return [
             clipCursorToContent(cm, Pos(sel.anchor.line, sel.head.ch)),
             clipCursorToContent(cm, Pos(sel.head.line, sel.anchor.ch))
-          ]
+          ];
         } else {
           return ([vim.sel.head, vim.sel.anchor]);
         }
@@ -1533,7 +1531,7 @@
         }
         return best;
       },
-      moveByCharacters: function(cm, head, motionArgs) {
+      moveByCharacters: function(_cm, head, motionArgs) {
         var cur = head;
         var repeat = motionArgs.repeat;
         var ch = motionArgs.forward ? cur.ch + repeat : cur.ch - repeat;
@@ -1648,7 +1646,7 @@
         return moveToWord(cm, head, motionArgs.repeat, !!motionArgs.forward,
             !!motionArgs.wordEnd, !!motionArgs.bigWord);
       },
-      moveTillCharacter: function(cm, head, motionArgs) {
+      moveTillCharacter: function(cm, _head, motionArgs) {
         var repeat = motionArgs.repeat;
         var curEnd = moveToCharacter(cm, repeat, motionArgs.forward,
             motionArgs.selectedCharacter);
@@ -1714,11 +1712,10 @@
           return cursor;
         }
       },
-      moveToStartOfLine: function(cm, head) {
-        var cursor = head;
-        return Pos(cursor.line, 0);
+      moveToStartOfLine: function(_cm, head) {
+        return Pos(head.line, 0);
       },
-      moveToLineOrEdgeOfDocument: function(cm, head, motionArgs) {
+      moveToLineOrEdgeOfDocument: function(cm, _head, motionArgs) {
         var lineNum = motionArgs.forward ? cm.lastLine() : cm.firstLine();
         if (motionArgs.repeatIsExplicit) {
           lineNum = motionArgs.repeat - cm.getOption('firstLineNumber');
@@ -1769,7 +1766,6 @@
           return null;
         }
 
-        logSel(tmp.start, tmp.end);
         if (!cm.state.vim.visualMode) {
           return [tmp.start, tmp.end];
         } else {
@@ -1858,7 +1854,7 @@
             if (anchor.line == cm.firstLine()) {
               anchor.ch = 0;
             } else {
-              anchor = Pos(anchor.line - 1, lineLength(cm, anchor.line - 1))
+              anchor = Pos(anchor.line - 1, lineLength(cm, anchor.line - 1));
             }
           }
           text = cm.getRange(anchor, head);
@@ -2097,7 +2093,6 @@
         var repeat = actionArgs.repeat;
         var anchor = cm.getCursor();
         var head;
-        var selections = cm.listSelections();
         // TODO: The repeat should actually select number of characters/lines
         //     equal to the repeat times the size of the previous visual
         //     operation.
@@ -2113,7 +2108,6 @@
             anchor: anchor,
             head: head
           };
-          logSel(vim.sel, 'enter');
           CodeMirror.signal(cm, "vim-mode-change", {mode: "visual", subMode: vim.visualLine ? "linewise" : vim.visualBlock ? "blockwise" : ""});
           updateCmSelection(cm);
           updateMark(cm, vim, '<', cursorMin(anchor, head));
@@ -2123,7 +2117,6 @@
           // Toggling between modes
           vim.visualLine = !!actionArgs.linewise;
           vim.visualBlock = !!actionArgs.blockwise;
-          logSel(vim.sel, 'mode-change');
           CodeMirror.signal(cm, "vim-mode-change", {mode: "visual", subMode: vim.visualLine ? "linewise" : vim.visualBlock ? "blockwise" : ""});
           updateCmSelection(cm);
         } else {
@@ -2488,7 +2481,7 @@
       return {
         line: head.line - anchor.line,
         ch: head.line - anchor.line
-      }
+      };
     }
     function commandMatches(keys, keyMap, context, inputState) {
       // Partial matches are not applied. They inform the key handler
@@ -2767,7 +2760,7 @@
     }
     function makeCmSelection(cm, sel, mode, exclusive) {
       var head = copyCursor(sel.head);
-      var anchor = copyCursor(sel.anchor)
+      var anchor = copyCursor(sel.anchor);
       if (mode == 'char') {
         var headOffset = !exclusive && !cursorIsBefore(sel.head, sel.anchor) ? 1 : 0;
         var anchorOffset = cursorIsBefore(sel.head, sel.anchor) ? 1 : 0;
@@ -4680,16 +4673,6 @@
       }
       vim.fakeCursor = cm.markText(from, to, {className: 'cm-animate-fat-cursor'});
     }
-    function logSel(anchor, head, msg) {
-      if (anchor.anchor) {
-        var sel = anchor;
-        msg = head;
-        anchor = sel.anchor;
-        head = sel.head;
-      }
-      console.log(msg ? msg : '', anchor.line, anchor.ch, '=>', head.line, head.ch)
-    }
-
     function handleExternalSelection(cm, vim) {
       var anchor = cm.getCursor('anchor');
       var head = cm.getCursor('head');
