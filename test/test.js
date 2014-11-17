@@ -2044,3 +2044,32 @@ testCM("eventOrder", function(cm) {
   cm.replaceSelection("/");
   eq(seen.join(","), "change,change,activity,change");
 });
+
+test("core_rmClass", function() {
+  var node = document.createElement("div");
+  node.className = "foo-bar baz-quux yadda";
+  CodeMirror.rmClass(node, "quux");
+  eq(node.className, "foo-bar baz-quux yadda");
+  CodeMirror.rmClass(node, "baz-quux");
+  eq(node.className, "foo-bar yadda");
+  CodeMirror.rmClass(node, "yadda");
+  eq(node.className, "foo-bar");
+  CodeMirror.rmClass(node, "foo-bar");
+  eq(node.className, "");
+  node.className = " foo ";
+  CodeMirror.rmClass(node, "foo");
+  eq(node.className, "");
+});
+
+test("core_addClass", function() {
+  var node = document.createElement("div");
+  CodeMirror.addClass(node, "a");
+  eq(node.className, "a");
+  CodeMirror.addClass(node, "a");
+  eq(node.className, "a");
+  CodeMirror.addClass(node, "b");
+  eq(node.className, "a b");
+  CodeMirror.addClass(node, "a");
+  CodeMirror.addClass(node, "b");
+  eq(node.className, "a b");
+});
