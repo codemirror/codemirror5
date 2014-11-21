@@ -128,10 +128,7 @@ CodeMirror.defineMode("stex", function() {
 
         var ch = source.next();
         if (ch == "%") {
-            // special case: % at end of its own line; stay in same state
-            if (!source.eol()) {
-              setState(state, inCComment);
-            }
+            source.skipToEnd();
             return "comment";
         }
         else if (ch == '}' || ch == ']') {
@@ -161,12 +158,6 @@ CodeMirror.defineMode("stex", function() {
             }
             return plug.styleIdentifier();
         }
-    }
-
-    function inCComment(source, state) {
-        source.skipToEnd();
-        setState(state, normal);
-        return "comment";
     }
 
     function inMathMode(source, state, endModeSeq) {
@@ -207,11 +198,8 @@ CodeMirror.defineMode("stex", function() {
             return "bracket";
         }
 
-        // eat comments here, because inCComment returns us to normal state!
         if (ch == "%") {
-            if (!source.eol()) {
-                source.skipToEnd();
-            }
+            source.skipToEnd();
             return "comment";
         }
         return "error";
