@@ -240,6 +240,9 @@
       token: function(stream, state) {
         return state.f(stream, state);
       },
+      blankLine: function(state) {
+        state.f = normal;
+      },
       lineComment: "%"
     };
   });
