@@ -63,7 +63,12 @@
   function parseQuery(query) {
     var isRE = query.match(/^\/(.*)\/([a-z]*)$/);
     if (isRE) {
-      query = new RegExp(isRE[1], isRE[2].indexOf("i") == -1 ? "" : "i");
+      try {
+        query = new RegExp(isRE[1], isRE[2].indexOf("i") == -1 ? "" : "i");
+      } catch (ex) {
+        // Not a regular expression after all, do a string search
+        return query;
+      }
       if (query.test("")) query = /x^/;
     } else if (query == "") {
       query = /x^/;
