@@ -32,12 +32,15 @@ CodeMirror.defineMode("sparql", function(config) {
                              "minus", "in", "not", "service", "silent", "using", "insert", "delete", "union",
                              "true", "false", "with",
                              "data", "copy", "to", "move", "add", "create", "drop", "clear", "load"]);
-  var operatorChars = /[*+\-<>=&|]/;
+  var operatorChars = /[*+\-<>=&|\^\/!\?]/;
 
   function tokenBase(stream, state) {
     var ch = stream.next();
     curPunc = null;
     if (ch == "$" || ch == "?") {
+      if(ch == "?" && stream.match(/\s/, false)){
+        return "operator";
+      }
       stream.match(/^[\w\d]*/);
       return "variable-2";
     }
@@ -67,10 +70,6 @@ CodeMirror.defineMode("sparql", function(config) {
     }
     else if (ch == "@") {
       stream.eatWhile(/[a-z\d\-]/i);
-      return "meta";
-    }
-    else if (ch == "^") {
-      stream.eatWhile(/\^/);
       return "meta";
     }
     else {
