@@ -102,7 +102,7 @@
     {name: "Smarty", mime: "text/x-smarty", mode: "smarty", ext: ["tpl"]},
     {name: "SmartyMixed", mime: "text/x-smarty", mode: "smartymixed"},
     {name: "Solr", mime: "text/x-solr", mode: "solr"},
-    {name: "SPARQL", mime: "application/x-sparql-query", mode: "sparql", ext: ["sparql"]},
+    {name: "SPARQL", mime: "application/sparql-query", mode: "sparql", ext: ["rq", "sparql"], alias: ["sparul"]},
     {name: "SQL", mime: "text/x-sql", mode: "sql", ext: ["sql"]},
     {name: "MariaDB", mime: "text/x-mariadb", mode: "sql"},
     {name: "sTeX", mime: "text/x-stex", mode: "stex"},
