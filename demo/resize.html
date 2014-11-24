@@ -12,10 +12,6 @@
         border: 1px solid #eee;
         height: auto;
       }
-      .CodeMirror-scroll {
-        overflow-y: hidden;
-        overflow-x: auto;
-      }
     </style>
 <div id=nav>
   <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../doc/logo.png"></a>
@@ -37,13 +33,10 @@
   border: 1px solid #eee;
   height: auto;
 }
-.CodeMirror-scroll {
-  overflow-y: hidden;
-  overflow-x: auto;
-}
 </textarea></form>
 
-<p>By setting a few CSS properties, and giving
+<p>By setting an editor's <code>height</code> style
+to <code>auto</code> and giving
 the <a href="../doc/manual.html#option_viewportMargin"><code>viewportMargin</code></a>
 a value of <code>Infinity</code>, CodeMirror can be made to
 automatically resize to fit its content.</p>

@@ -998,16 +998,12 @@ editor.setOption("extraKeys", {
       <dd>The outer element of the editor. This should be used for the
       editor width, height, borders and positioning. Can also be used
       to set styles that should hold for everything inside the editor
-      (such as font and font size), or to set a background.</dd>
-
-      <dt id="class_CodeMirror_scroll"><code><strong>CodeMirror-scroll</strong></code></dt>
-      <dd>Whether the editor scrolls (<code>overflow: auto</code> +
-      fixed height). By default, it does. Setting
-      the <code>CodeMirror</code> class to have <code>height:
-      auto</code> and giving this class <code>overflow-x: auto;
-      overflow-y: hidden;</code> will cause the editor
-      to <a href="../demo/resize.html">resize to fit its
-      content</a>.</dd>
+      (such as font and font size), or to set a background. Setting
+      this class' <code>height</code> style to <code>auto</code> will
+      make the editor <a href="../demo/resize.html">resize to fit its
+      content</a> (it is recommended to also set
+      the <a href="#option_viewportMargin"><code>viewportMargin</code>
+      option</a> to <code>Infinity</code> when doing this.</dd>
 
       <dt id="class_CodeMirror_focused"><code><strong>CodeMirror-focused</strong></code></dt>
       <dd>Whenever the editor is focused, the top element gets this
