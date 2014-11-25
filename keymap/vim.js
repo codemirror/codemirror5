@@ -1610,20 +1610,8 @@
         return cm.findPosV(curStart, (motionArgs.forward ? repeat : -repeat), 'page');
       },
       moveByParagraph: function(cm, head, motionArgs) {
-        var line = head.line;
-        var repeat = motionArgs.repeat;
-        var inc = motionArgs.forward ? 1 : -1;
-        for (var i = 0; i < repeat; i++) {
-          if ((!motionArgs.forward && line === cm.firstLine() ) ||
-              (motionArgs.forward && line == cm.lastLine())) {
-            break;
-          }
-          line += inc;
-          while (line !== cm.firstLine() && line != cm.lastLine() && cm.getLine(line)) {
-            line += inc;
-          }
-        }
-        return Pos(line, 0);
+        var dir = motionArgs.forward ? 1 : -1;
+        return findParagraph(cm, head, motionArgs.repeat, dir);
       },
       moveByScroll: function(cm, head, motionArgs, vim) {
         var scrollbox = cm.getScrollInfo();
@@ -1761,6 +1749,8 @@
         } else if (character === 'w') {
           tmp = expandWordUnderCursor(cm, inclusive, true /** forward */,
                                                      false /** bigWord */);
+        } else if (character === 'p') {
+          tmp = findParagraph(cm, head, motionArgs.repeat, 0, inclusive);
         } else {
           // No text object defined for this, don't move.
           return null;
@@ -3266,6 +3256,54 @@
         }
       }
       return idx;
+    }
+
+    function findParagraph(cm, head, repeat, dir, inclusive) {
+      var line = head.line;
+      var min = cm.firstLine();
+      var max = cm.lastLine();
+      var start, end, i = line;
+      function isEmpty(i) { return !cm.getLine(i); }
+      function isBoundary(i, dir, any) {
+        if (any) { return isEmpty(i) != isEmpty(i + dir); }
+        return !isEmpty(i) && isEmpty(i + dir);
+      }
+      if (dir) {
+        while (min <= i && i <= max && repeat > 0) {
+          if (isBoundary(i, dir)) { repeat--; }
+          i += dir;
+        }
+        return new Pos(i, 0);
+      }
+
+      var vim = cm.state.vim;
+      if (vim.visualMode && isBoundary(line, 1, true)) {
+        var anchor = vim.sel.anchor;
+        if (isBoundary(anchor.line, -1, true)) {
+          if (!inclusive || anchor.line != line) {
+            line += 1;
+          }
+        }
+      }
+      var startState = isEmpty(line);
+      for (i = line; i <= max && repeat; i++) {
+        if (isBoundary(i, 1, true)) {
+          if (!inclusive || isEmpty(i) != startState) {
+            repeat--;
+          }
+        }
+      }
+      end = new Pos(i, 0);
+      // select boundary before paragraph for the last one
+      if (i > max && !startState) { startState = true; }
+      else { inclusive = false; }
+      for (i = line; i > min; i--) {
+        if (!inclusive || isEmpty(i) == startState || i == line) {
+          if (isBoundary(i, -1, true)) { break; }
+        }
+      }
+      start = new Pos(i, 0);
+      return { start: start, end: end };
     }
 
     // TODO: perhaps this finagling of start and end positions belonds
