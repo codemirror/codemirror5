@@ -12,6 +12,7 @@ CodeMirror.modeInfo = [
   {name: 'Common Lisp', mime: 'text/x-common-lisp', mode: 'commonlisp'},
   {name: 'CSS', mime: 'text/css', mode: 'css'},
   {name: 'D', mime: 'text/x-d', mode: 'd'},
+  {name: 'Dart', mime: 'text/x-dart', mode: 'dart'},
   {name: 'diff', mime: 'text/x-diff', mode: 'diff'},
   {name: 'DTD', mime: 'application/xml-dtd', mode: 'dtd'},
   {name: 'ECL', mime: 'text/x-ecl', mode: 'ecl'},
