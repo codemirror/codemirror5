@@ -57,7 +57,7 @@
         run.apply(null, editors);
         successful = true;
       } finally {
-        if ((debug && !successful) || verbose) {
+        if (!successful || verbose) {
           place.style.visibility = "visible";
         } else {
           for (var i = 0; i < editors.length; ++i)
@@ -316,6 +316,48 @@
     eq(a.findMarksAt(Pos(3, 1)).length, 0);
     eq(b.findMarksAt(Pos(3, 1)).length, 0);
     eq(c.findMarksAt(Pos(3, 1)).length, 0);
+    eq(mark.find(), null);
+    eq(cleared, 1);
+  });
+
+  testDoc("sharedMarkerCopy", "A='abcde'", function(a) {
+    var shared = a.markText(Pos(0, 1), Pos(0, 3), {shared: true});
+    var b = a.linkedDoc();
+    var found = b.findMarksAt(Pos(0, 2));
+    eq(found.length, 1);
+    eq(found[0], shared);
+    shared.clear();
+    eq(b.findMarksAt(Pos(0, 2)), 0);
+  });
+
+  testDoc("sharedMarkerDetach", "A='abcde' B<A C<B", function(a, b, c) {
+    var shared = a.markText(Pos(0, 1), Pos(0, 3), {shared: true});
+    a.unlinkDoc(b);
+    var inB = b.findMarksAt(Pos(0, 2));
+    eq(inB.length, 1);
+    is(inB[0] != shared);
+    var inC = c.findMarksAt(Pos(0, 2));
+    eq(inC.length, 1);
+    is(inC[0] != shared);
+    inC[0].clear();
+    is(shared.find());
+  });
+
+  testDoc("sharedBookmark", "A='ab\ncd\nef\ngh' B<A C<~A/1-2", function(a, b, c) {
+    var mark = b.setBookmark(Pos(1, 1), {shared: true});
+    var found = a.findMarksAt(Pos(1, 1));
+    eq(found.length, 1);
+    eq(found[0], mark);
+    eq(c.findMarksAt(Pos(1, 1)).length, 1);
+    eqPos(mark.find(), Pos(1, 1));
+    b.replaceRange("x\ny\n", Pos(0, 0));
+    eqPos(mark.find(), Pos(3, 1));
+    var cleared = 0;
+    CodeMirror.on(mark, "clear", function() {++cleared;});
+    b.operation(function() {mark.clear();});
+    eq(a.findMarks(Pos(0, 0), Pos(5)).length, 0);
+    eq(b.findMarks(Pos(0, 0), Pos(5)).length, 0);
+    eq(c.findMarks(Pos(0, 0), Pos(5)).length, 0);
     eq(mark.find(), null);
     eq(cleared, 1);
   });

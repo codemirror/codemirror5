@@ -25,12 +25,12 @@
       }
     </style>
 <div id=nav>
-  <a href="http://codemirror.net"><img id=logo src="../doc/logo.png"></a>
+  <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../doc/logo.png"></a>
 
   <ul>
     <li><a href="../index.html">Home</a>
     <li><a href="../doc/manual.html">Manual</a>
-    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
   </ul>
   <ul>
     <li><a class=active href="#">HTML5 preview</a>
@@ -68,8 +68,7 @@
       var delay;
       // Initialize CodeMirror editor with a nice html5 canvas demo.
       var editor = CodeMirror.fromTextArea(document.getElementById('code'), {
-        mode: 'text/html',
-        tabMode: 'indent'
+        mode: 'text/html'
       });
       editor.on("change", function() {
         clearTimeout(delay);

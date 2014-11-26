@@ -1,26 +1,44 @@
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
+
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
+"use strict";
+
 CodeMirror.registerHelper("fold", "indent", function(cm, start) {
-  var lastLine = cm.lastLine(),
-      tabSize = cm.getOption("tabSize"),
-      firstLine = cm.getLine(start.line),
-      myIndent = CodeMirror.countColumn(firstLine, null, tabSize);
-
-  function foldEnded(curColumn, prevColumn) {
-    return curColumn < myIndent ||
-      (curColumn == myIndent && prevColumn >= myIndent) ||
-      (curColumn > myIndent && i == lastLine);
-  }
-
-  for (var i = start.line + 1; i <= lastLine; i++) {
-    var curColumn = CodeMirror.countColumn(cm.getLine(i), null, tabSize);
-    var prevColumn = CodeMirror.countColumn(cm.getLine(i-1), null, tabSize);
-
-    if (foldEnded(curColumn, prevColumn)) {
-      var lastFoldLineNumber = curColumn > myIndent && i == lastLine ? i : i-1;
-      var lastFoldLine = cm.getLine(lastFoldLineNumber);
-      return {from: CodeMirror.Pos(start.line, firstLine.length),
-              to: CodeMirror.Pos(lastFoldLineNumber, lastFoldLine.length)};
+  var tabSize = cm.getOption("tabSize"), firstLine = cm.getLine(start.line);
+  if (!/\S/.test(firstLine)) return;
+  var getIndent = function(line) {
+    return CodeMirror.countColumn(line, null, tabSize);
+  };
+  var myIndent = getIndent(firstLine);
+  var lastLineInFold = null;
+  // Go through lines until we find a line that definitely doesn't belong in
+  // the block we're folding, or to the end.
+  for (var i = start.line + 1, end = cm.lastLine(); i <= end; ++i) {
+    var curLine = cm.getLine(i);
+    var curIndent = getIndent(curLine);
+    if (curIndent > myIndent) {
+      // Lines with a greater indent are considered part of the block.
+      lastLineInFold = i;
+    } else if (!/\S/.test(curLine)) {
+      // Empty lines might be breaks within the block we're trying to fold.
+    } else {
+      // A non-empty line at an indent equal to or less than ours marks the
+      // start of another block.
+      break;
     }
   }
+  if (lastLineInFold) return {
+    from: CodeMirror.Pos(start.line, firstLine.length),
+    to: CodeMirror.Pos(lastLineInFold, cm.getLine(lastLineInFold).length)
+  };
 });
 
-CodeMirror.indentRangeFinder = CodeMirror.fold.indent; // deprecated
+});

@@ -12,12 +12,12 @@
       .CodeMirror {border: 1px solid black;}
     </style>
 <div id=nav>
-  <a href="http://codemirror.net"><img id=logo src="../doc/logo.png"></a>
+  <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../doc/logo.png"></a>
 
   <ul>
     <li><a href="../index.html">Home</a>
     <li><a href="../doc/manual.html">Manual</a>
-    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
   </ul>
   <ul>
     <li><a class=active href="#">Mode-Changing</a>
@@ -41,14 +41,13 @@ either JavaScript or Scheme mode based on that.</p>
 <script>
   var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
     mode: "scheme",
-    lineNumbers: true,
-    tabMode: "indent"
-  });
-  editor.on("change", function() {
-    clearTimeout(pending);
-    setTimeout(update, 400);
+    lineNumbers: true
   });
   var pending;
+  editor.on("change", function() {
+    clearTimeout(pending);
+    pending = setTimeout(update, 400);
+  });
   function looksLikeScheme(code) {
     return !/^\s*\(\s*function\b/.test(code) && /^\s*[;\(]/.test(code);
   }

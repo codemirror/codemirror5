@@ -1,12 +1,28 @@
-(function () {
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
+
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"), require("../../mode/sql/sql"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror", "../../mode/sql/sql"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
   "use strict";
 
   var tables;
+  var defaultTable;
   var keywords;
+  var CONS = {
+    QUERY_DIV: ";",
+    ALIAS_KEYWORD: "AS"
+  };
+  var Pos = CodeMirror.Pos;
 
   function getKeywords(editor) {
     var mode = editor.doc.modeOption;
-    if(mode === "sql") mode = "text/x-sql";
+    if (mode === "sql") mode = "text/x-sql";
     return CodeMirror.resolveMode(mode).keywords;
   }
 
@@ -17,89 +33,162 @@
   }
 
   function addMatches(result, search, wordlist, formatter) {
-    for(var word in wordlist) {
-      if(!wordlist.hasOwnProperty(word)) continue;
-      if(Array.isArray(wordlist)) {
+    for (var word in wordlist) {
+      if (!wordlist.hasOwnProperty(word)) continue;
+      if (Array.isArray(wordlist)) {
         word = wordlist[word];
       }
-      if(match(search, word)) {
+      if (match(search, word)) {
         result.push(formatter(word));
       }
     }
   }
 
-  function columnCompletion(result, editor) {
+  function nameCompletion(result, editor) {
     var cur = editor.getCursor();
     var token = editor.getTokenAt(cur);
+    var useBacktick = (token.string.charAt(0) == "`");
     var string = token.string.substr(1);
-    var prevCur = CodeMirror.Pos(cur.line, token.start);
-    var table = editor.getTokenAt(prevCur).string;
-    var columns = tables[table];
-    if(!columns) {
-      table = findTableByAlias(table, editor);
+    var prevToken = editor.getTokenAt(Pos(cur.line, token.start));
+    if (token.string.charAt(0) == "." || prevToken.string == "."){
+      //Suggest colunm names
+      if (prevToken.string == ".") {
+        var prevToken = editor.getTokenAt(Pos(cur.line, token.start - 1));
+      }
+      var table = prevToken.string;
+      //Check if backtick is used in table name. If yes, use it for columns too.
+      var useBacktickTable = false;
+      if (table.match(/`/g)) {
+        useBacktickTable = true;
+        table = table.replace(/`/g, "");
+      }
+      //Check if table is available. If not, find table by Alias
+      if (!tables.hasOwnProperty(table))
+        table = findTableByAlias(table, editor);
+      var columns = tables[table];
+      if (!columns) return;
+
+      if (useBacktick) {
+        addMatches(result, string, columns, function(w) {return "`" + w + "`";});
+      }
+      else if(useBacktickTable) {
+        addMatches(result, string, columns, function(w) {return ".`" + w + "`";});
+      }
+      else {
+        addMatches(result, string, columns, function(w) {return "." + w;});
+      }
     }
-    columns = tables[table];
-    if(!columns) {
-      return;
+    else {
+      //Suggest table names or colums in defaultTable
+      while (token.start && string.charAt(0) == ".") {
+        token = editor.getTokenAt(Pos(cur.line, token.start - 1));
+        string = token.string + string;
+      }
+      if (useBacktick) {
+        addMatches(result, string, tables, function(w) {return "`" + w + "`";});
+        addMatches(result, string, defaultTable, function(w) {return "`" + w + "`";});
+      }
+      else {
+        addMatches(result, string, tables, function(w) {return w;});
+        addMatches(result, string, defaultTable, function(w) {return w;});
+      }
     }
-    addMatches(result, string, columns,
-        function(w) {return "." + w;});
   }
 
-  function eachWord(line, f) {
-    var words = line.text.split(" ");
-    for(var i = 0; i < words.length; i++) {
-      f(words[i]);
+  function eachWord(lineText, f) {
+    if (!lineText) return;
+    var excepted = /[,;]/g;
+    var words = lineText.split(" ");
+    for (var i = 0; i < words.length; i++) {
+      f(words[i]?words[i].replace(excepted, '') : '');
     }
   }
 
-  // Tries to find possible table name from alias.
+  function convertCurToNumber(cur) {
+    // max characters of a line is 999,999.
+    return cur.line + cur.ch / Math.pow(10, 6);
+  }
+
+  function convertNumberToCur(num) {
+    return Pos(Math.floor(num), +num.toString().split('.').pop());
+  }
+
   function findTableByAlias(alias, editor) {
+    var doc = editor.doc;
+    var fullQuery = doc.getValue();
     var aliasUpperCase = alias.toUpperCase();
     var previousWord = "";
     var table = "";
+    var separator = [];
+    var validRange = {
+      start: Pos(0, 0),
+      end: Pos(editor.lastLine(), editor.getLineHandle(editor.lastLine()).length)
+    };
 
-    editor.eachLine(function(line) {
-      eachWord(line, function(word) {
+    //add separator
+    var indexOfSeparator = fullQuery.indexOf(CONS.QUERY_DIV);
+    while(indexOfSeparator != -1) {
+      separator.push(doc.posFromIndex(indexOfSeparator));
+      indexOfSeparator = fullQuery.indexOf(CONS.QUERY_DIV, indexOfSeparator+1);
+    }
+    separator.unshift(Pos(0, 0));
+    separator.push(Pos(editor.lastLine(), editor.getLineHandle(editor.lastLine()).text.length));
+
+    //find valid range
+    var prevItem = 0;
+    var current = convertCurToNumber(editor.getCursor());
+    for (var i=0; i< separator.length; i++) {
+      var _v = convertCurToNumber(separator[i]);
+      if (current > prevItem && current <= _v) {
+        validRange = { start: convertNumberToCur(prevItem), end: convertNumberToCur(_v) };
+        break;
+      }
+      prevItem = _v;
+    }
+
+    var query = doc.getRange(validRange.start, validRange.end, false);
+
+    for (var i = 0; i < query.length; i++) {
+      var lineText = query[i];
+      eachWord(lineText, function(word) {
         var wordUpperCase = word.toUpperCase();
-        if(wordUpperCase === aliasUpperCase) {
-          if(tables.hasOwnProperty(previousWord)) {
+        if (wordUpperCase === aliasUpperCase && tables.hasOwnProperty(previousWord)) {
             table = previousWord;
-          }
         }
-        if(wordUpperCase !== "AS") {
+        if (wordUpperCase !== CONS.ALIAS_KEYWORD) {
           previousWord = word;
         }
       });
-    });
+      if (table) break;
+    }
     return table;
   }
 
-  function sqlHint(editor, options) {
+  CodeMirror.registerHelper("hint", "sql", function(editor, options) {
     tables = (options && options.tables) || {};
+    var defaultTableName = options && options.defaultTable;
+    defaultTable = (defaultTableName && tables[defaultTableName] || []);
     keywords = keywords || getKeywords(editor);
+
     var cur = editor.getCursor();
-    var token = editor.getTokenAt(cur);
-
     var result = [];
-
-    var search = token.string.trim();
-
-    addMatches(result, search, keywords,
-        function(w) {return w.toUpperCase();});
-
-    addMatches(result, search, tables,
-        function(w) {return w;});
-
-    if(search.lastIndexOf('.') === 0) {
-      columnCompletion(result, editor);
+    var token = editor.getTokenAt(cur), start, end, search;
+    if (token.string.match(/^[.`\w@]\w*$/)) {
+      search = token.string;
+      start = token.start;
+      end = token.end;
+    } else {
+      start = end = cur.ch;
+      search = "";
+    }
+    if (search.charAt(0) == "." || search.charAt(0) == "`") {
+      nameCompletion(result, editor);
+    } else {
+      addMatches(result, search, tables, function(w) {return w;});
+      addMatches(result, search, defaultTable, function(w) {return w;});
+      addMatches(result, search, keywords, function(w) {return w.toUpperCase();});
     }
 
-    return {
-      list: result,
-        from: CodeMirror.Pos(cur.line, token.start),
-        to: CodeMirror.Pos(cur.line, token.end)
-    };
-  }
-  CodeMirror.registerHelper("hint", "sql", sqlHint);
-})();
+    return {list: result, from: Pos(cur.line, start), to: Pos(cur.line, end)};
+  });
+});

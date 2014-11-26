@@ -11,12 +11,12 @@
       .CodeMirror {border: 1px solid #aaa; height: 400px}
     </style>
 <div id=nav>
-  <a href="http://codemirror.net"><img id=logo src="../doc/logo.png"></a>
+  <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../doc/logo.png"></a>
 
   <ul>
     <li><a href="../index.html">Home</a>
     <li><a href="../doc/manual.html">Manual</a>
-    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
   </ul>
   <ul>
     <li><a class=active href="#">B-Tree visualization</a>
@@ -58,7 +58,6 @@ function updateVisual() {
         var gray = Math.min(line.text.length * 3, 230), col = gray.toString(16);
         if (col.length == 1) col = "0" + col;
         lineElt.style.background = "#" + col + col + col;
-                          console.log(line.height, line);
         lineElt.style.width = Math.max(Math.round(line.height / 3), 1) + "px";
       }
     } else {

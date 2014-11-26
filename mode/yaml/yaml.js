@@ -1,3 +1,16 @@
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
+
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
+"use strict";
+
 CodeMirror.defineMode("yaml", function() {
 
   var cons = ['true', 'false', 'on', 'off', 'yes', 'no'];
@@ -10,8 +23,13 @@ CodeMirror.defineMode("yaml", function() {
       state.escaped = false;
       /* comments */
       if (ch == "#" && (stream.pos == 0 || /\s/.test(stream.string.charAt(stream.pos - 1)))) {
-        stream.skipToEnd(); return "comment";
+        stream.skipToEnd();
+        return "comment";
       }
+
+      if (stream.match(/^('([^']|\\.)*'?|"([^"]|\\.)*"?)/))
+        return "string";
+
       if (state.literal && stream.indentation() > state.keyCol) {
         stream.skipToEnd(); return "string";
       } else if (state.literal) { state.literal = false; }
@@ -67,7 +85,7 @@ CodeMirror.defineMode("yaml", function() {
       }
 
       /* pairs (associative arrays) -> key */
-      if (!state.pair && stream.match(/^\s*\S+(?=\s*:($|\s))/i)) {
+      if (!state.pair && stream.match(/^\s*(?:[,\[\]{}&*!|>'"%@`][^\s'":]|[^,\[\]{}#&*!|>'"%@`])[^#]*?(?=\s*:($|\s))/)) {
         state.pair = true;
         state.keyCol = stream.indentation();
         return "atom";
@@ -95,3 +113,5 @@ CodeMirror.defineMode("yaml", function() {
 });
 
 CodeMirror.defineMIME("text/x-yaml", "yaml");
+
+});

@@ -10,12 +10,12 @@
 <script src="sparql.js"></script>
 <style>.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
 <div id=nav>
-  <a href="http://codemirror.net"><img id=logo src="../../doc/logo.png"></a>
+  <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../../doc/logo.png"></a>
 
   <ul>
     <li><a href="../../index.html">Home</a>
     <li><a href="../../doc/manual.html">Manual</a>
-    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
   </ul>
   <ul>
     <li><a href="../index.html">Language modes</a>
@@ -29,26 +29,33 @@
 PREFIX a: &lt;http://www.w3.org/2000/10/annotation-ns#>
 PREFIX dc: &lt;http://purl.org/dc/elements/1.1/>
 PREFIX foaf: &lt;http://xmlns.com/foaf/0.1/>
+PREFIX rdfs: &lt;http://www.w3.org/2000/01/rdf-schema#>
 
 # Comment!
 
 SELECT ?given ?family
 WHERE {
-  ?annot a:annotates &lt;http://www.w3.org/TR/rdf-sparql-query/> .
-  ?annot dc:creator ?c .
-  OPTIONAL {?c foaf:given ?given ;
-               foaf:family ?family } .
+  {
+    ?annot a:annotates &lt;http://www.w3.org/TR/rdf-sparql-query/> .
+    ?annot dc:creator ?c .
+    OPTIONAL {?c foaf:givenName ?given ;
+                 foaf:familyName ?family }
+  } UNION {
+    ?c !foaf:knows/foaf:knows? ?thing.
+    ?thing rdfs
+  } MINUS {
+    ?thing rdfs:label "剛柔流"@jp
+  }
   FILTER isBlank(?c)
 }
 </textarea></form>
     <script>
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-        mode: "application/x-sparql-query",
-        tabMode: "indent",
+        mode: "application/sparql-query",
         matchBrackets: true
       });
     </script>
 
-    <p><strong>MIME types defined:</strong> <code>application/x-sparql-query</code>.</p>
+    <p><strong>MIME types defined:</strong> <code>application/sparql-query</code>.</p>
 
   </article>

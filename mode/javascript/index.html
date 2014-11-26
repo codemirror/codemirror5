@@ -12,12 +12,12 @@
 <script src="javascript.js"></script>
 <style type="text/css">.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
 <div id=nav>
-  <a href="http://codemirror.net"><img id=logo src="../../doc/logo.png"></a>
+  <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../../doc/logo.png"></a>
 
   <ul>
     <li><a href="../../index.html">Home</a>
     <li><a href="../../doc/manual.html">Manual</a>
-    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
   </ul>
   <ul>
     <li><a href="../index.html">Language modes</a>
@@ -89,19 +89,26 @@ StringStream.prototype = {
     </script>
 
     <p>
-      JavaScript mode supports a two configuration
-      options:
+      JavaScript mode supports several configuration options:
       <ul>
         <li><code>json</code> which will set the mode to expect JSON
         data rather than a JavaScript program.</li>
+        <li><code>jsonld</code> which will set the mode to expect
+        <a href="http://json-ld.org">JSON-LD</a> linked data rather
+        than a JavaScript program (<a href="json-ld.html">demo</a>).</li>
         <li><code>typescript</code> which will activate additional
         syntax highlighting and some other things for TypeScript code
         (<a href="typescript.html">demo</a>).</li>
         <li><code>statementIndent</code> which (given a number) will
         determine the amount of indentation to use for statements
         continued on a new line.</li>
+        <li><code>wordCharacters</code>, a regexp that indicates which
+        characters should be considered part of an identifier.
+        Defaults to <code>/[\w$]/</code>, which does not handle
+        non-ASCII identifiers. Can be set to something more elaborate
+        to improve Unicode support.</li>
       </ul>
     </p>
 
-    <p><strong>MIME types defined:</strong> <code>text/javascript</code>, <code>application/json</code>, <code>text/typescript</code>, <code>application/typescript</code>.</p>
+    <p><strong>MIME types defined:</strong> <code>text/javascript</code>, <code>application/json</code>, <code>application/ld+json</code>, <code>text/typescript</code>, <code>application/typescript</code>.</p>
   </article>

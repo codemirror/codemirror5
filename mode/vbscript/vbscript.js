@@ -1,3 +1,6 @@
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
+
 /*
 For extra ASP classic objects, initialize CodeMirror instance with this option:
     isASP: true
@@ -8,6 +11,17 @@ E.G.:
         isASP: true
       });
 */
+
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
+"use strict";
+
 CodeMirror.defineMode("vbscript", function(conf, parserConf) {
     var ERRORCLASS = 'error';
 
@@ -277,7 +291,7 @@ CodeMirror.defineMode("vbscript", function(conf, parserConf) {
             style = state.tokenize(stream, state);
 
             current = stream.current();
-            if (style.substr(0, 8) === 'variable' || style==='builtin' || style==='keyword'){//|| knownWords.indexOf(current.substring(1)) > -1) {
+            if (style && (style.substr(0, 8) === 'variable' || style==='builtin' || style==='keyword')){//|| knownWords.indexOf(current.substring(1)) > -1) {
                 if (style === 'builtin' || style === 'keyword') style='variable';
                 if (knownWords.indexOf(current.substr(1)) > -1) style='variable-2';
 
@@ -332,3 +346,5 @@ CodeMirror.defineMode("vbscript", function(conf, parserConf) {
 });
 
 CodeMirror.defineMIME("text/vbscript", "vbscript");
+
+});

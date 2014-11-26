@@ -19,9 +19,10 @@ var topAllowedGlobals = Object.create(null);
 ("Error RegExp Number String Array Function Object Math Date undefined " +
  "parseInt parseFloat Infinity NaN isNaN " +
  "window document navigator prompt alert confirm console " +
- "FileReader Worker postMessage importScripts " +
+ "screen FileReader Worker postMessage importScripts " +
  "setInterval clearInterval setTimeout clearTimeout " +
- "CodeMirror test")
+ "CodeMirror " +
+ "test exports require module define requirejs")
   .split(" ").forEach(function(n) { topAllowedGlobals[n] = true; });
 
 var fs = require("fs"), acorn = require("./acorn.js"), walk = require("./walk.js");
@@ -29,6 +30,8 @@ var fs = require("fs"), acorn = require("./acorn.js"), walk = require("./walk.js
 var scopePasser = walk.make({
   ScopeBody: function(node, prev, c) { c(node, node.scope); }
 });
+
+var cBlob = /^\/\/ CodeMirror, copyright \(c\) by Marijn Haverbeke and others\n\/\/ Distributed under an MIT license: http:\/\/codemirror.net\/LICENSE\n\n/;
 
 function checkFile(fileName) {
   var file = fs.readFileSync(fileName, "utf8"), notAllowed;
@@ -40,6 +43,9 @@ function checkFile(fileName) {
     var info = acorn.getLineInfo(file, notAllowed.index);
     fail(msg + " at line " + info.line + ", column " + info.column, {source: fileName});
   }
+
+  if (!cBlob.test(file))
+    fail("Missing license blob", {source: fileName});
   
   var globalsSeen = Object.create(null);
 
@@ -49,7 +55,7 @@ function checkFile(fileName) {
       ecmaVersion: 3,
       strictSemicolons: true,
       allowTrailingCommas: false,
-      forbidReserved: true,
+      forbidReserved: "everywhere",
       sourceFile: fileName
     });
   } catch (e) {
@@ -95,19 +101,40 @@ function checkFile(fileName) {
     },
     FunctionExpression: function(node) {
       if (node.id) fail("Named function expression", node.loc);
+    },
+    ForStatement: function(node) {
+      checkReusedIndex(node);
+    },
+    MemberExpression: function(node) {
+      if (node.object.type == "Identifier" && node.object.name == "console" && !node.computed)
+        fail("Found console." + node.property.name, node.loc);
+    },
+    DebuggerStatement: function(node) {
+      fail("Found debugger statement", node.loc);
     }
   }, scopePasser);
 
-  if (!globalsSeen.exports) {
-    var allowedGlobals = Object.create(topAllowedGlobals), m;
-    if (m = file.match(/\/\/ declare global:\s+(.*)/))
-      m[1].split(/,\s*/g).forEach(function(n) { allowedGlobals[n] = true; });
-    for (var glob in globalsSeen)
-      if (!(glob in allowedGlobals))
-        fail("Access to global variable " + glob + ". Add a '// declare global: " + glob +
-             "' comment or add this variable in test/lint/lint.js.", globalsSeen[glob]);
+  function checkReusedIndex(node) {
+    if (!node.init || node.init.type != "VariableDeclaration") return;
+    var name = node.init.declarations[0].id.name;
+    walk.recursive(node.body, null, {
+      Function: function() {},
+      VariableDeclaration: function(node, st, c) {
+        for (var i = 0; i < node.declarations.length; i++)
+          if (node.declarations[i].id.name == name)
+            fail("redefined loop variable", node.declarations[i].id.loc);
+        walk.base.VariableDeclaration(node, st, c);
+      }
+    });
   }
 
+  var allowedGlobals = Object.create(topAllowedGlobals), m;
+  if (m = file.match(/\/\/ declare global:\s+(.*)/))
+    m[1].split(/,\s*/g).forEach(function(n) { allowedGlobals[n] = true; });
+  for (var glob in globalsSeen)
+    if (!(glob in allowedGlobals))
+      fail("Access to global variable " + glob + ". Add a '// declare global: " + glob +
+           "' comment or add this variable in test/lint/lint.js.", globalsSeen[glob]);
 
   for (var i = 0; i < scopes.length; ++i) {
     var scope = scopes[i];
@@ -130,7 +157,7 @@ function checkDir(dir) {
   fs.readdirSync(dir).forEach(function(file) {
     var fname = dir + "/" + file;
     if (/\.js$/.test(file)) checkFile(fname);
-    else if (file != "dep" && fs.lstatSync(fname).isDirectory()) checkDir(fname);
+    else if (fs.lstatSync(fname).isDirectory()) checkDir(fname);
   });
 }
 

@@ -1,3 +1,6 @@
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
+
 /**
 * @file smartymixed.js
 * @brief Smarty Mixed Codemirror mode (Smarty + Mixed HTML)
@@ -5,12 +8,25 @@
 * @version 3.0
 * @date 05.07.2013
 */
-CodeMirror.defineMode("smartymixed", function(config) {
-  var settings, regs, helpers, parsers,
-  htmlMixedMode = CodeMirror.getMode(config, "htmlmixed"),
-  smartyMode = CodeMirror.getMode(config, "smarty"),
 
-  settings = {
+// Warning: Don't base other modes on this one. This here is a
+// terrible way to write a mixed mode.
+
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"), require("../htmlmixed/htmlmixed"), require("../smarty/smarty"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror", "../htmlmixed/htmlmixed", "../smarty/smarty"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
+"use strict";
+
+CodeMirror.defineMode("smartymixed", function(config) {
+  var htmlMixedMode = CodeMirror.getMode(config, "htmlmixed");
+  var smartyMode = CodeMirror.getMode(config, "smarty");
+
+  var settings = {
     rightDelimiter: '}',
     leftDelimiter: '{'
   };
@@ -22,15 +38,18 @@ CodeMirror.defineMode("smartymixed", function(config) {
     settings.rightDelimiter = config.rightDelimiter;
   }
 
-  regs = {
-    smartyComment: new RegExp("^" + settings.leftDelimiter + "\\*"),
-    literalOpen: new RegExp(settings.leftDelimiter + "literal" + settings.rightDelimiter),
-    literalClose: new RegExp(settings.leftDelimiter + "\/literal" + settings.rightDelimiter),
-    hasLeftDelimeter: new RegExp(".*" + settings.leftDelimiter),
-    htmlHasLeftDelimeter: new RegExp("[^<>]*" + settings.leftDelimiter)
+  function reEsc(str) { return str.replace(/[^\s\w]/g, "\\$&"); }
+
+  var reLeft = reEsc(settings.leftDelimiter), reRight = reEsc(settings.rightDelimiter);
+  var regs = {
+    smartyComment: new RegExp("^" + reRight + "\\*"),
+    literalOpen: new RegExp(reLeft + "literal" + reRight),
+    literalClose: new RegExp(reLeft + "\/literal" + reRight),
+    hasLeftDelimeter: new RegExp(".*" + reLeft),
+    htmlHasLeftDelimeter: new RegExp("[^<>]*" + reLeft)
   };
 
-  helpers = {
+  var helpers = {
     chain: function(stream, state, parser) {
       state.tokenize = parser;
       return parser(stream, state);
@@ -56,9 +75,13 @@ CodeMirror.defineMode("smartymixed", function(config) {
     }
   };
 
-  parsers = {
+  var parsers = {
     html: function(stream, state) {
-      if (!state.inLiteral && stream.match(regs.htmlHasLeftDelimeter, false) && state.htmlMixedState.htmlState.tagName === null) {
+      var htmlTagName = state.htmlMixedState.htmlState.context && state.htmlMixedState.htmlState.context.tagName
+        ? state.htmlMixedState.htmlState.context.tagName
+        : null;
+
+      if (!state.inLiteral && stream.match(regs.htmlHasLeftDelimeter, false) && htmlTagName === null) {
         state.tokenize = parsers.smarty;
         state.localMode = smartyMode;
         state.localState = smartyMode.startState(htmlMixedMode.indent(state.htmlMixedState, ""));
@@ -159,8 +182,6 @@ CodeMirror.defineMode("smartymixed", function(config) {
       return htmlMixedMode.indent(state.htmlMixedState, textAfter);
     },
 
-    electricChars: "/{}:",
-
     innerMode: function(state) {
       return {
         state: state.localState || state.htmlMixedState,
@@ -168,8 +189,9 @@ CodeMirror.defineMode("smartymixed", function(config) {
       };
     }
   };
-},
-"htmlmixed");
+}, "htmlmixed", "smarty");
 
 CodeMirror.defineMIME("text/x-smarty", "smartymixed");
 // vim: et ts=2 sts=2 sw=2
+
+});

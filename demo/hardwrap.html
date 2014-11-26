@@ -12,12 +12,12 @@
   .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}
 </style>
 <div id=nav>
-  <a href="http://codemirror.net"><img id=logo src="../doc/logo.png"></a>
+  <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../doc/logo.png"></a>
 
   <ul>
     <li><a href="../index.html">Home</a>
     <li><a href="../doc/manual.html">Manual</a>
-    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
   </ul>
   <ul>
     <li><a class=active href="#">Hard-wrapping</a>
@@ -55,13 +55,16 @@ are reflown as you are typing.</p>
 <script>
 var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
   mode: "markdown",
-  lineNumbers: true
+  lineNumbers: true,
+  extraKeys: {
+    "Ctrl-Q": function(cm) { cm.wrapParagraph(cm.getCursor(), options); }
+  }
 });
 var wait, options = {column: 60};
 editor.on("change", function(cm, change) {
   clearTimeout(wait);
   wait = setTimeout(function() {
-    cm.wrapParagraphsInRange(change.from, CodeMirror.changeEnd(change), options);
+    console.log(cm.wrapParagraphsInRange(change.from, CodeMirror.changeEnd(change), options));
   }, 200);
 });
 </script>

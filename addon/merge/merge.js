@@ -1,7 +1,17 @@
-(function() {
-  "use strict";
-  // declare global: diff_match_patch, DIFF_INSERT, DIFF_DELETE, DIFF_EQUAL
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
 
+// declare global: diff_match_patch, DIFF_INSERT, DIFF_DELETE, DIFF_EQUAL
+
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"), require("diff_match_patch"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror", "diff_match_patch"], mod);
+  else // Plain browser env
+    mod(CodeMirror, diff_match_patch);
+})(function(CodeMirror, diff_match_patch) {
+  "use strict";
   var Pos = CodeMirror.Pos;
   var svgNS = "http://www.w3.org/2000/svg";
 
@@ -27,9 +37,9 @@
     constructor: DiffView,
     init: function(pane, orig, options) {
       this.edit = this.mv.edit;
-      this.orig = CodeMirror(pane, copyObj({value: orig, readOnly: true}, copyObj(options)));
+      this.orig = CodeMirror(pane, copyObj({value: orig, readOnly: !this.mv.options.allowEditingOriginals}, copyObj(options)));
 
-      this.diff = getDiff(orig, options.value);
+      this.diff = getDiff(asString(orig), asString(options.value));
       this.diffOutOfDate = false;
 
       this.showDifferences = options.showDifferences !== false;
@@ -46,6 +56,14 @@
     }
   };
 
+  function ensureDiff(dv) {
+    if (dv.diffOutOfDate) {
+      dv.diff = getDiff(dv.orig.getValue(), dv.edit.getValue());
+      dv.diffOutOfDate = false;
+      CodeMirror.signal(dv.edit, "updateDiff", dv.diff);
+    }
+  }
+
   function registerUpdate(dv) {
     var edit = {from: 0, to: 0, marked: []};
     var orig = {from: 0, to: 0, marked: []};
@@ -53,16 +71,12 @@
     function update(mode) {
       if (mode == "full") {
         if (dv.svg) clear(dv.svg);
-        clear(dv.copyButtons);
+        if (dv.copyButtons) clear(dv.copyButtons);
         clearMarks(dv.edit, edit.marked, dv.classes);
         clearMarks(dv.orig, orig.marked, dv.classes);
         edit.from = edit.to = orig.from = orig.to = 0;
       }
-      if (dv.diffOutOfDate) {
-        dv.diff = getDiff(dv.orig.getValue(), dv.edit.getValue());
-        dv.diffOutOfDate = false;
-        CodeMirror.signal(dv.edit, "updateDiff", dv.diff);
-      }
+      ensureDiff(dv);
       if (dv.showDifferences) {
         updateMarks(dv.edit, dv.diff, edit, DIFF_INSERT, dv.classes);
         updateMarks(dv.orig, dv.diff, orig, DIFF_DELETE, dv.classes);
@@ -82,6 +96,10 @@
     }
     dv.edit.on("change", change);
     dv.orig.on("change", change);
+    dv.edit.on("markerAdded", set);
+    dv.edit.on("markerCleared", set);
+    dv.orig.on("markerAdded", set);
+    dv.orig.on("markerCleared", set);
     dv.edit.on("viewportChange", set);
     dv.orig.on("viewportChange", set);
     update();
@@ -154,7 +172,7 @@
       var mark = arr[i];
       if (mark instanceof CodeMirror.TextMarker) {
         mark.clear();
-      } else {
+      } else if (mark.parent) {
         editor.removeLineClass(mark, "background", classes.chunk);
         editor.removeLineClass(mark, "background", classes.start);
         editor.removeLineClass(mark, "background", classes.end);
@@ -239,7 +257,7 @@
       var w = dv.gap.offsetWidth;
       attrs(dv.svg, "width", w, "height", dv.gap.offsetHeight);
     }
-    clear(dv.copyButtons);
+    if (dv.copyButtons) clear(dv.copyButtons);
 
     var flip = dv.type == "left";
     var vpEdit = dv.edit.getViewport(), vpOrig = dv.orig.getViewport();
@@ -261,17 +279,30 @@
               "d", "M -1 " + topRpx + curveTop + " L " + (w + 2) + " " + botLpx + curveBot + " z",
               "class", dv.classes.connect);
       }
-      var copy = dv.copyButtons.appendChild(elt("div", dv.type == "left" ? "\u21dd" : "\u21dc",
-                                                "CodeMirror-merge-copy"));
-      copy.title = "Revert chunk";
-      copy.chunk = {topEdit: topEdit, botEdit: botEdit, topOrig: topOrig, botOrig: botOrig};
-      copy.style.top = top + "px";
+      if (dv.copyButtons) {
+        var copy = dv.copyButtons.appendChild(elt("div", dv.type == "left" ? "\u21dd" : "\u21dc",
+                                                  "CodeMirror-merge-copy"));
+        var editOriginals = dv.mv.options.allowEditingOriginals;
+        copy.title = editOriginals ? "Push to left" : "Revert chunk";
+        copy.chunk = {topEdit: topEdit, botEdit: botEdit, topOrig: topOrig, botOrig: botOrig};
+        copy.style.top = top + "px";
+
+        if (editOriginals) {
+          var topReverse = dv.orig.heightAtLine(topEdit, "local") - sTopEdit;
+          var copyReverse = dv.copyButtons.appendChild(elt("div", dv.type == "right" ? "\u21dd" : "\u21dc",
+                                                           "CodeMirror-merge-copy-reverse"));
+          copyReverse.title = "Push to right";
+          copyReverse.chunk = {topEdit: topOrig, botEdit: botOrig, topOrig: topEdit, botOrig: botEdit};
+          copyReverse.style.top = topReverse + "px";
+          dv.type == "right" ? copyReverse.style.left = "2px" : copyReverse.style.right = "2px";
+        }
+      }
     });
   }
 
-  function copyChunk(dv, chunk) {
+  function copyChunk(dv, to, from, chunk) {
     if (dv.diffOutOfDate) return;
-    dv.edit.replaceRange(dv.orig.getRange(Pos(chunk.topOrig, 0), Pos(chunk.botOrig, 0)),
+    to.replaceRange(from.getRange(Pos(chunk.topOrig, 0), Pos(chunk.botOrig, 0)),
                          Pos(chunk.topEdit, 0), Pos(chunk.botEdit, 0));
   }
 
@@ -280,6 +311,7 @@
   var MergeView = CodeMirror.MergeView = function(node, options) {
     if (!(this instanceof MergeView)) return new MergeView(node, options);
 
+    this.options = options;
     var origLeft = options.origLeft, origRight = options.origRight == null ? options.orig : options.origRight;
     var hasLeft = origLeft != null, hasRight = origRight != null;
     var panes = 1 + (hasLeft ? 1 : 0) + (hasRight ? 1 : 0);
@@ -305,6 +337,7 @@
     (hasRight ? rightPane : editPane).className += " CodeMirror-merge-pane-rightmost";
 
     wrap.push(elt("div", null, null, "height: 0; clear: both;"));
+
     var wrapElt = this.wrap = node.appendChild(elt("div", wrap, "CodeMirror-merge CodeMirror-merge-" + panes + "pane"));
     this.edit = CodeMirror(editPane, copyObj(options));
 
@@ -327,12 +360,20 @@
     lock.title = "Toggle locked scrolling";
     var lockWrap = elt("div", [lock], "CodeMirror-merge-scrolllock-wrap");
     CodeMirror.on(lock, "click", function() { setScrollLock(dv, !dv.lockScroll); });
-    dv.copyButtons = elt("div", null, "CodeMirror-merge-copybuttons-" + dv.type);
-    CodeMirror.on(dv.copyButtons, "click", function(e) {
-      var node = e.target || e.srcElement;
-      if (node.chunk) copyChunk(dv, node.chunk);
-    });
-    var gapElts = [dv.copyButtons, lockWrap];
+    var gapElts = [lockWrap];
+    if (dv.mv.options.revertButtons !== false) {
+      dv.copyButtons = elt("div", null, "CodeMirror-merge-copybuttons-" + dv.type);
+      CodeMirror.on(dv.copyButtons, "click", function(e) {
+        var node = e.target || e.srcElement;
+        if (!node.chunk) return;
+        if (node.className == "CodeMirror-merge-copy-reverse") {
+          copyChunk(dv, dv.orig, dv.edit, node.chunk);
+          return;
+        }
+        copyChunk(dv, dv.edit, dv.orig, node.chunk);
+      });
+      gapElts.unshift(dv.copyButtons);
+    }
     var svg = document.createElementNS && document.createElementNS(svgNS, "svg");
     if (svg && !svg.createSVGRect) svg = null;
     dv.svg = svg;
@@ -349,8 +390,19 @@
     setShowDifferences: function(val) {
       if (this.right) this.right.setShowDifferences(val);
       if (this.left) this.left.setShowDifferences(val);
+    },
+    rightChunks: function() {
+      return this.right && getChunks(this.right);
+    },
+    leftChunks: function() {
+      return this.left && getChunks(this.left);
     }
   };
+
+  function asString(obj) {
+    if (typeof obj == "string") return obj;
+    else return obj.getValue();
+  }
 
   // Operations on diffs
 
@@ -392,6 +444,16 @@
     }
     if (startEdit <= edit.line || startOrig <= orig.line)
       f(startOrig, orig.line + 1, startEdit, edit.line + 1);
+  }
+
+  function getChunks(dv) {
+    ensureDiff(dv);
+    var collect = [];
+    iterateChunks(dv.diff, function(topOrig, botOrig, topEdit, botEdit) {
+      collect.push({origFrom: topOrig, origTo: botOrig,
+                    editFrom: topEdit, editTo: botEdit});
+    });
+    return collect;
   }
 
   function endOfLineClean(diff, i) {
@@ -471,4 +533,4 @@
   function posMin(a, b) { return (a.line - b.line || a.ch - b.ch) < 0 ? a : b; }
   function posMax(a, b) { return (a.line - b.line || a.ch - b.ch) > 0 ? a : b; }
   function posEq(a, b) { return a.line == b.line && a.ch == b.ch; }
-})();
+});

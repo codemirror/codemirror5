@@ -1,4 +1,14 @@
-(function() {
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
+
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"), require("./foldcode"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror", "./foldcode"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
   "use strict";
 
   CodeMirror.defineOption("foldGutter", false, function(cm, val, old) {
@@ -48,7 +58,7 @@
   function marker(spec) {
     if (typeof spec == "string") {
       var elt = document.createElement("div");
-      elt.className = spec;
+      elt.className = spec + " CodeMirror-guttermarker-subtle";
       return elt;
     } else {
       return spec.cloneNode(true);
@@ -62,7 +72,7 @@
       if (isFolded(cm, cur)) {
         mark = marker(opts.indicatorFolded);
       } else {
-        var pos = Pos(cur, 0), func = opts.rangeFinder || cm.getHelper(pos, "fold");
+        var pos = Pos(cur, 0), func = opts.rangeFinder || CodeMirror.fold.auto;
         var range = func && func(cm, pos);
         if (range && range.from.line + 1 < range.to.line)
           mark = marker(opts.indicatorOpen);
@@ -88,14 +98,14 @@
   }
 
   function onChange(cm) {
-    var state = cm.state.foldGutter;
+    var state = cm.state.foldGutter, opts = cm.state.foldGutter.options;
     state.from = state.to = 0;
     clearTimeout(state.changeUpdate);
-    state.changeUpdate = setTimeout(function() { updateInViewport(cm); }, 600);
+    state.changeUpdate = setTimeout(function() { updateInViewport(cm); }, opts.foldOnChangeTimeSpan || 600);
   }
 
   function onViewportChange(cm) {
-    var state = cm.state.foldGutter;
+    var state = cm.state.foldGutter, opts = cm.state.foldGutter.options;
     clearTimeout(state.changeUpdate);
     state.changeUpdate = setTimeout(function() {
       var vp = cm.getViewport();
@@ -113,7 +123,7 @@
           }
         });
       }
-    }, 400);
+    }, opts.updateViewportTimeSpan || 400);
   }
 
   function onFold(cm, from) {
@@ -121,4 +131,4 @@
     if (line >= state.from && line < state.to)
       updateFoldInfo(cm, line, line + 1);
   }
-})();
+});

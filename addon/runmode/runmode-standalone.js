@@ -1,4 +1,5 @@
-/* Just enough of CodeMirror to run runMode under node.js */
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
 
 window.CodeMirror = {};
 
@@ -10,6 +11,7 @@ function splitLines(string){ return string.split(/\r?\n|\r/); };
 function StringStream(string) {
   this.pos = this.start = 0;
   this.string = string;
+  this.lineStart = 0;
 }
 StringStream.prototype = {
   eol: function() {return this.pos >= this.string.length;},
@@ -41,7 +43,7 @@ StringStream.prototype = {
     if (found > -1) {this.pos = found; return true;}
   },
   backUp: function(n) {this.pos -= n;},
-  column: function() {return this.start;},
+  column: function() {return this.start - this.lineStart;},
   indentation: function() {return 0;},
   match: function(pattern, consume, caseInsensitive) {
     if (typeof pattern == "string") {
@@ -58,7 +60,12 @@ StringStream.prototype = {
       return match;
     }
   },
-  current: function(){return this.string.slice(this.start, this.pos);}
+  current: function(){return this.string.slice(this.start, this.pos);},
+  hideFirstChars: function(n, inner) {
+    this.lineStart += n;
+    try { return inner(); }
+    finally { this.lineStart -= n; }
+  }
 };
 CodeMirror.StringStream = StringStream;
 
@@ -67,19 +74,32 @@ CodeMirror.startState = function (mode, a1, a2) {
 };
 
 var modes = CodeMirror.modes = {}, mimeModes = CodeMirror.mimeModes = {};
-CodeMirror.defineMode = function (name, mode) { modes[name] = mode; };
-CodeMirror.defineMIME = function (mime, spec) { mimeModes[mime] = spec; };
-CodeMirror.getMode = function (options, spec) {
-  if (typeof spec == "string" && mimeModes.hasOwnProperty(spec))
-    spec = mimeModes[spec];
-  if (typeof spec == "string")
-    var mname = spec, config = {};
-  else if (spec != null)
-    var mname = spec.name, config = spec;
-  var mfactory = modes[mname];
-  if (!mfactory) throw new Error("Unknown mode: " + spec);
-  return mfactory(options, config || {});
+CodeMirror.defineMode = function (name, mode) {
+  if (arguments.length > 2)
+    mode.dependencies = Array.prototype.slice.call(arguments, 2);
+  modes[name] = mode;
 };
+CodeMirror.defineMIME = function (mime, spec) { mimeModes[mime] = spec; };
+CodeMirror.resolveMode = function(spec) {
+  if (typeof spec == "string" && mimeModes.hasOwnProperty(spec)) {
+    spec = mimeModes[spec];
+  } else if (spec && typeof spec.name == "string" && mimeModes.hasOwnProperty(spec.name)) {
+    spec = mimeModes[spec.name];
+  }
+  if (typeof spec == "string") return {name: spec};
+  else return spec || {name: "null"};
+};
+CodeMirror.getMode = function (options, spec) {
+  spec = CodeMirror.resolveMode(spec);
+  var mfactory = modes[spec.name];
+  if (!mfactory) throw new Error("Unknown mode: " + spec);
+  return mfactory(options, spec);
+};
+CodeMirror.registerHelper = CodeMirror.registerGlobalHelper = Math.min;
+CodeMirror.defineMode("null", function() {
+  return {token: function(stream) {stream.skipToEnd();}};
+});
+CodeMirror.defineMIME("text/plain", "null");
 
 CodeMirror.runMode = function (string, modespec, callback, options) {
   var mode = CodeMirror.getMode({ indentUnit: 2 }, modespec);
@@ -122,10 +142,11 @@ CodeMirror.runMode = function (string, modespec, callback, options) {
     };
   }
 
-  var lines = splitLines(string), state = CodeMirror.startState(mode);
+  var lines = splitLines(string), state = (options && options.state) || CodeMirror.startState(mode);
   for (var i = 0, e = lines.length; i < e; ++i) {
     if (i) callback("\n");
     var stream = new CodeMirror.StringStream(lines[i]);
+    if (!stream.string && mode.blankLine) mode.blankLine(state);
     while (!stream.eol()) {
       var style = mode.token(stream, state);
       callback(stream.current(), style, i, stream.start, state);

@@ -14,14 +14,15 @@
 <script src="../css/css.js"></script>
 <script src="../htmlmixed/htmlmixed.js"></script>
 <script src="../clike/clike.js"></script>
+<script src="../meta.js"></script>
 <style type="text/css">.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
 <div id=nav>
-  <a href="http://codemirror.net"><img id=logo src="../../doc/logo.png"></a>
+  <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../../doc/logo.png"></a>
 
   <ul>
     <li><a href="../../index.html">Home</a>
     <li><a href="../../doc/manual.html">Manual</a>
-    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
   </ul>
   <ul>
     <li><a href="../index.html">Language modes</a>
@@ -40,6 +41,16 @@ Everything from markdown plus GFM features:
 ## URL autolinking
 
 Underscores_are_allowed_between_words.
+
+## Strikethrough text
+
+GFM adds syntax to strikethrough text, which is missing from standard Markdown.
+
+~~Mistaken text.~~
+~~**works with other fomatting**~~
+
+~~spans across
+lines~~
 
 ## Fenced code blocks (and syntax highlighting)
 

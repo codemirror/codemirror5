@@ -8,7 +8,7 @@
 
 var fs = require("fs");
 
-CodeMirror = require("../addon/runmode/runmode.node.js");
+var CodeMirror = require("../addon/runmode/runmode.node.js");
 require("../mode/meta.js");
 
 var sPos = process.argv.indexOf("-s");
@@ -26,21 +26,11 @@ CodeMirror.modeInfo.forEach(function(info) {
   }
 });
 
-function ensureMode(name) {
-  if (CodeMirror.modes[name] || name == "null") return;
-  try {
-    require("../mode/" + name + "/" + name + ".js");
-  } catch(e) {
-    console.error("Could not load mode " + name + ".");
-    process.exit(1);
-  }
-  var obj = CodeMirror.modes[name];
-  if (obj.dependencies) obj.dependencies.forEach(ensureMode);
-}
-ensureMode(modeName);
+if (!CodeMirror.modes[modeName])
+  require("../mode/" + modeName + "/" + modeName + ".js");
 
 function esc(str) {
-  return str.replace(/[<&]/, function(ch) { return ch == "&" ? "&amp;" : "&lt;"; });
+  return str.replace(/[<&]/g, function(ch) { return ch == "&" ? "&amp;" : "&lt;"; });
 }
 
 var code = fs.readFileSync("/dev/stdin", "utf8");

@@ -10,12 +10,12 @@
 <script src="tcl.js"></script>
 <script src="../../addon/scroll/scrollpastend.js"></script>
 <div id=nav>
-  <a href="http://codemirror.net"><img id=logo src="../../doc/logo.png"></a>
+  <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../../doc/logo.png"></a>
 
   <ul>
     <li><a href="../../index.html">Home</a>
     <li><a href="../../doc/manual.html">Manual</a>
-    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
   </ul>
   <ul>
     <li><a href="../index.html">Language modes</a>
@@ -77,13 +77,13 @@ namespace eval whois {
 proc whois::311 {from key text} {
   if {[regexp -- {^[^\s]+\s(.+?)\s(.+?)\s(.+?)\s\*\s\:(.+)$} $text wholematch nick ident host realname]} {
     putserv "PRIVMSG $whois::channel :${whois::logo} ${whois::tagf}Host:${whois::textf} \
-	$nick \(${ident}@${host}\) ${whois::tagf}Realname:${whois::textf} $realname"
+        $nick \(${ident}@${host}\) ${whois::tagf}Realname:${whois::textf} $realname"
   }
 }
 proc whois::multi {from key text} {
   if {[regexp {\:(.*)$} $text match $key]} {
     putserv "PRIVMSG $whois::channel :${whois::logo} ${whois::tagf}Note:${whois::textf} [subst $$key]"
-	return 1
+        return 1
   }
 }
 proc whois::312 {from key text} {
@@ -98,7 +98,7 @@ proc whois::319 {from key text} {
 proc whois::317 {from key text} {
   if {[regexp -- {.*\s(\d+)\s(\d+)\s\:} $text wholematch idle signon]} {
     putserv "PRIVMSG $whois::channel :${whois::logo} ${whois::tagf}Connected:${whois::textf} \
-	[ctime $signon] ${whois::tagf}Idle:${whois::textf} [duration $idle]"
+        [ctime $signon] ${whois::tagf}Idle:${whois::textf} [duration $idle]"
   }
 }
 proc whois::301 {from key text} {
@@ -108,7 +108,7 @@ proc whois::301 {from key text} {
 }
 proc whois::318 {from key text} {
   namespace eval whois {
-	variable channel ""
+        variable channel ""
   }
   variable whois::channel ""
 }
@@ -118,8 +118,8 @@ proc whois::307 {from key text} {
 proc whois::list {nick host hand chan text} {
   if {[lsearch -exact [channel info $chan] "+${whois::command}"] != -1} {
     namespace eval whois {
-	  variable channel ""
-	}
+          variable channel ""
+        }
     variable whois::channel $chan
     putserv "WHOIS $text"
   }
@@ -129,8 +129,7 @@ Ford_Lawnmower irc.GeekShed.net #Script-Help"
 </textarea></form>
     <script>
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-        tabMode: "indent",
-		theme: "night",
+        theme: "night",
         lineNumbers: true,
         indentUnit: 2,
         scrollPastEnd: true,

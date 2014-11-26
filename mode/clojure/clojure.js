@@ -1,11 +1,26 @@
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
+
 /**
  * Author: Hans Engel
  * Branched from CodeMirror's Scheme mode (by Koh Zi Han, based on implementation by Koh Zi Chun)
  */
-CodeMirror.defineMode("clojure", function () {
+
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
+"use strict";
+
+CodeMirror.defineMode("clojure", function (options) {
     var BUILTIN = "builtin", COMMENT = "comment", STRING = "string", CHARACTER = "string-2",
-        ATOM = "atom", NUMBER = "number", BRACKET = "bracket", KEYWORD = "keyword";
-    var INDENT_WORD_SKIP = 2;
+        ATOM = "atom", NUMBER = "number", BRACKET = "bracket", KEYWORD = "keyword", VAR = "variable";
+    var INDENT_WORD_SKIP = options.indentUnit || 2;
+    var NORMAL_INDENT_UNIT = options.indentUnit || 2;
 
     function makeKeywords(str) {
         var obj = {}, words = str.split(" ");
@@ -44,7 +59,7 @@ CodeMirror.defineMode("clojure", function () {
         sign: /[+-]/,
         exponent: /e/i,
         keyword_char: /[^\s\(\[\;\)\]]/,
-        symbol: /[\w*+!\-\._?:\/]/
+        symbol: /[\w*+!\-\._?:<>\/\xa1-\uffff]/
     };
 
     function stateStack(indent, type, prev) { // represents a state stack object
@@ -99,7 +114,7 @@ CodeMirror.defineMode("clojure", function () {
         var first = stream.next();
         // Read special literals: backspace, newline, space, return.
         // Just read all lowercase letters.
-        if (first.match(/[a-z]/) && stream.match(/[a-z]+/, true)) {
+        if (first && first.match(/[a-z]/) && stream.match(/[a-z]+/, true)) {
             return;
         }
         // Read unicode character: \u1000 \uA0a1
@@ -179,8 +194,8 @@ CodeMirror.defineMode("clojure", function () {
                             stream.eatSpace();
                             if (stream.eol() || stream.peek() == ";") {
                                 // nothing significant after
-                                // we restart indentation 1 space after
-                                pushStack(state, indentTemp + 1, ch);
+                                // we restart indentation the user defined spaces after
+                                pushStack(state, indentTemp + NORMAL_INDENT_UNIT, ch);
                             } else {
                                 pushStack(state, indentTemp + stream.current().length, ch); // else we match
                             }
@@ -205,7 +220,9 @@ CodeMirror.defineMode("clojure", function () {
                             returnType = BUILTIN;
                         } else if (atoms && atoms.propertyIsEnumerable(stream.current())) {
                             returnType = ATOM;
-                        } else returnType = null;
+                        } else {
+                          returnType = VAR;
+                        }
                     }
             }
 
@@ -222,3 +239,5 @@ CodeMirror.defineMode("clojure", function () {
 });
 
 CodeMirror.defineMIME("text/x-clojure", "clojure");
+
+});

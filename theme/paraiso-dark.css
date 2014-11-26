@@ -11,6 +11,8 @@
 .cm-s-paraiso-dark.CodeMirror {background: #2f1e2e; color: #b9b6b0;}
 .cm-s-paraiso-dark div.CodeMirror-selected {background: #41323f !important;}
 .cm-s-paraiso-dark .CodeMirror-gutters {background: #2f1e2e; border-right: 0px;}
+.cm-s-paraiso-dark .CodeMirror-guttermarker { color: #ef6155; }
+.cm-s-paraiso-dark .CodeMirror-guttermarker-subtle { color: #776e71; }
 .cm-s-paraiso-dark .CodeMirror-linenumber {color: #776e71;}
 .cm-s-paraiso-dark .CodeMirror-cursor {border-left: 1px solid #8d8687 !important;}
 

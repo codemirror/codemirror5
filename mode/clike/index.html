@@ -7,15 +7,17 @@
 <link rel="stylesheet" href="../../lib/codemirror.css">
 <script src="../../lib/codemirror.js"></script>
 <script src="../../addon/edit/matchbrackets.js"></script>
+<link rel="stylesheet" href="../../addon/hint/show-hint.css">
+<script src="../../addon/hint/show-hint.js"></script>
 <script src="clike.js"></script>
 <style>.CodeMirror {border: 2px inset #dee;}</style>
 <div id=nav>
-  <a href="http://codemirror.net"><img id=logo src="../../doc/logo.png"></a>
+  <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../../doc/logo.png"></a>
 
   <ul>
     <li><a href="../../index.html">Home</a>
     <li><a href="../../doc/manual.html">Manual</a>
-    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
   </ul>
   <ul>
     <li><a href="../index.html">Language modes</a>
@@ -105,6 +107,11 @@ enum Enum {
   VAL1, VAL2, VAL3
 };
 
+char32_t unicode_string = U"\U0010FFFF";
+string raw_string = R"delim(anything
+you
+want)delim";
+
 int Helper(const MyType& param) {
   return 0;
 }
@@ -129,6 +136,26 @@ void Class::Method2(MyType<T, V>* value) {
   std::out << 1 >> method();
   value->Method3(member_);
   member_ = value;
+}
+</textarea></div>
+
+<h2>Objective-C example</h2>
+
+<div><textarea id="objectivec-code">
+/*
+This is a longer comment
+That spans two lines
+*/
+
+#import <Test/Test.h>
+@implementation YourAppDelegate
+
+// This is a one-line comment
+
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions{
+  char myString[] = "This is a C character array";
+  int test = 5;
+  return YES;
 }
 </textarea></div>
 
@@ -164,13 +191,28 @@ public class Class<T, V> implements MyInterface {
 }
 </textarea></div>
 
+<h2>Scala example</h2>
+
+<div><textarea id="scala-code">
+object FilterTest extends App {
+  def filter(xs: List[Int], threshold: Int) = {
+    def process(ys: List[Int]): List[Int] =
+      if (ys.isEmpty) ys
+      else if (ys.head < threshold) ys.head :: process(ys.tail)
+      else process(ys.tail)
+    process(xs)
+  }
+  println(filter(List(1, 9, 2, 8, 3, 7, 4), 5))
+}
+</textarea></div>
+
     <script>
-      var editor = CodeMirror.fromTextArea(document.getElementById("c-code"), {
+      var cEditor = CodeMirror.fromTextArea(document.getElementById("c-code"), {
         lineNumbers: true,
         matchBrackets: true,
         mode: "text/x-csrc"
       });
-      var editor = CodeMirror.fromTextArea(document.getElementById("cpp-code"), {
+      var cppEditor = CodeMirror.fromTextArea(document.getElementById("cpp-code"), {
         lineNumbers: true,
         matchBrackets: true,
         mode: "text/x-c++src"
@@ -180,6 +222,18 @@ public class Class<T, V> implements MyInterface {
         matchBrackets: true,
         mode: "text/x-java"
       });
+      var objectivecEditor = CodeMirror.fromTextArea(document.getElementById("objectivec-code"), {
+        lineNumbers: true,
+        matchBrackets: true,
+        mode: "text/x-objectivec"
+      });
+      var scalaEditor = CodeMirror.fromTextArea(document.getElementById("scala-code"), {
+        lineNumbers: true,
+        matchBrackets: true,
+        mode: "text/x-scala"
+      });
+      var mac = CodeMirror.keyMap.default == CodeMirror.keyMap.macDefault;
+      CodeMirror.keyMap.default[(mac ? "Cmd" : "Ctrl") + "-Space"] = "autocomplete";
     </script>
 
     <p>Simple mode that tries to handle C-like languages as well as it
@@ -189,7 +243,9 @@ public class Class<T, V> implements MyInterface {
     directives are recognized.</p>
 
     <p><strong>MIME types defined:</strong> <code>text/x-csrc</code>
-    (C code), <code>text/x-c++src</code> (C++
-    code), <code>text/x-java</code> (Java
-    code), <code>text/x-csharp</code> (C#).</p>
+    (C), <code>text/x-c++src</code> (C++), <code>text/x-java</code>
+    (Java), <code>text/x-csharp</code> (C#),
+    <code>text/x-objectivec</code> (Objective-C),
+    <code>text/x-scala</code> (Scala), <code>text/x-vertex</code>
+    and <code>x-shader/x-fragment</code> (shader programs).</p>
 </article>

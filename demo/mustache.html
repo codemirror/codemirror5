@@ -13,12 +13,12 @@
       .cm-mustache {color: #0ca;}
 </style>
 <div id=nav>
-  <a href="http://codemirror.net"><img id=logo src="../doc/logo.png"></a>
+  <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../doc/logo.png"></a>
 
   <ul>
     <li><a href="../index.html">Home</a>
     <li><a href="../doc/manual.html">Manual</a>
-    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
   </ul>
   <ul>
     <li><a class=active href="#">Overlay Parser</a>
@@ -46,9 +46,10 @@ CodeMirror.defineMode("mustache", function(config, parserConfig) {
       var ch;
       if (stream.match("{{")) {
         while ((ch = stream.next()) != null)
-          if (ch == "}" && stream.next() == "}") break;
-        stream.eat("}");
-        return "mustache";
+          if (ch == "}" && stream.next() == "}") {
+            stream.eat("}");
+            return "mustache";
+          }
       }
       while (stream.next() != null && !stream.match("{{", false)) {}
       return null;

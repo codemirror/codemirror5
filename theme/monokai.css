@@ -3,6 +3,8 @@
 .cm-s-monokai.CodeMirror {background: #272822; color: #f8f8f2;}
 .cm-s-monokai div.CodeMirror-selected {background: #49483E !important;}
 .cm-s-monokai .CodeMirror-gutters {background: #272822; border-right: 0px;}
+.cm-s-monokai .CodeMirror-guttermarker { color: white; }
+.cm-s-monokai .CodeMirror-guttermarker-subtle { color: #d0d0d0; }
 .cm-s-monokai .CodeMirror-linenumber {color: #d0d0d0;}
 .cm-s-monokai .CodeMirror-cursor {border-left: 1px solid #f8f8f0 !important;}
 

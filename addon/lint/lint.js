@@ -1,7 +1,16 @@
-(function() {
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
+
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
   "use strict";
   var GUTTER_ID = "CodeMirror-lint-markers";
-  var SEVERITIES = /^(?:error|warning)$/;
 
   function showTooltip(e, content) {
     var tt = document.createElement("div");
@@ -100,7 +109,7 @@
 
   function annotationTooltip(ann) {
     var severity = ann.severity;
-    if (!SEVERITIES.test(severity)) severity = "error";
+    if (!severity) severity = "error";
     var tip = document.createElement("div");
     tip.className = "CodeMirror-lint-message-" + severity;
     tip.appendChild(document.createTextNode(ann.message));
@@ -109,10 +118,11 @@
 
   function startLinting(cm) {
     var state = cm.state.lint, options = state.options;
+    var passOptions = options.options || options; // Support deprecated passing of `options` property in options
     if (options.async)
-      options.getAnnotations(cm, updateLinting, options);
+      options.getAnnotations(cm.getValue(), updateLinting, passOptions, cm);
     else
-      updateLinting(cm, options.getAnnotations(cm.getValue(), options));
+      updateLinting(cm, options.getAnnotations(cm.getValue(), passOptions, cm));
   }
 
   function updateLinting(cm, annotationsNotSorted) {
@@ -131,7 +141,7 @@
       for (var i = 0; i < anns.length; ++i) {
         var ann = anns[i];
         var severity = ann.severity;
-        if (!SEVERITIES.test(severity)) severity = "error";
+        if (!severity) severity = "error";
         maxSeverity = getMaxSeverity(maxSeverity, severity);
 
         if (options.formatAnnotation) ann = options.formatAnnotation(ann);
@@ -161,24 +171,18 @@
     showTooltipFor(e, annotationTooltip(ann), target);
   }
 
-  // When the mouseover fires, the cursor might not actually be over
-  // the character itself yet. These pairs of x,y offsets are used to
-  // probe a few nearby points when no suitable marked range is found.
-  var nearby = [0, 0, 0, 5, 0, -5, 5, 0, -5, 0];
-
   function onMouseOver(cm, e) {
-    if (!/\bCodeMirror-lint-mark-/.test((e.target || e.srcElement).className)) return;
-    for (var i = 0; i < nearby.length; i += 2) {
-      var spans = cm.findMarksAt(cm.coordsChar({left: e.clientX + nearby[i],
-                                                top: e.clientY + nearby[i + 1]}));
-      for (var j = 0; j < spans.length; ++j) {
-        var span = spans[j], ann = span.__annotation;
-        if (ann) return popupSpanTooltip(ann, e);
-      }
+    var target = e.target || e.srcElement;
+    if (!/\bCodeMirror-lint-mark-/.test(target.className)) return;
+    var box = target.getBoundingClientRect(), x = (box.left + box.right) / 2, y = (box.top + box.bottom) / 2;
+    var spans = cm.findMarksAt(cm.coordsChar({left: x, top: y}, "client"));
+    for (var i = 0; i < spans.length; ++i) {
+      var ann = spans[i].__annotation;
+      if (ann) return popupSpanTooltip(ann, e);
     }
   }
 
-  function optionHandler(cm, val, old) {
+  CodeMirror.defineOption("lint", false, function(cm, val, old) {
     if (old && old != CodeMirror.Init) {
       clearMarks(cm);
       cm.off("change", onChange);
@@ -196,8 +200,5 @@
 
       startLinting(cm);
     }
-  }
-
-  CodeMirror.defineOption("lintWith", false, optionHandler); // deprecated
-  CodeMirror.defineOption("lint", false, optionHandler); // deprecated
-})();
+  });
+});

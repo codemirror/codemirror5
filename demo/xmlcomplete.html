@@ -14,12 +14,12 @@
       .CodeMirror { border: 1px solid #eee; }
     </style>
 <div id=nav>
-  <a href="http://codemirror.net"><img id=logo src="../doc/logo.png"></a>
+  <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../doc/logo.png"></a>
 
   <ul>
     <li><a href="../index.html">Home</a>
     <li><a href="../doc/manual.html">Manual</a>
-    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
   </ul>
   <ul>
     <li><a class=active href="#">XML Autocomplete</a>
@@ -52,6 +52,10 @@
 
       var tags = {
         "!top": ["top"],
+        "!attrs": {
+          id: null,
+          class: ["A", "B", "C"]
+        },
         top: {
           attrs: {
             lang: ["en", "de", "fr", "nl"],
@@ -78,7 +82,7 @@
         var cur = cm.getCursor();
         if (!pred || pred()) setTimeout(function() {
           if (!cm.state.completionActive)
-            CodeMirror.showHint(cm, CodeMirror.hint.xml, {schemaInfo: tags, completeSingle: false});
+            cm.showHint({completeSingle: false});
         }, 100);
         return CodeMirror.Pass;
       }
@@ -107,10 +111,9 @@
           "'/'": completeIfAfterLt,
           "' '": completeIfInTag,
           "'='": completeIfInTag,
-          "Ctrl-Space": function(cm) {
-            CodeMirror.showHint(cm, CodeMirror.hint.xml, {schemaInfo: tags});
-          }
-        }
+          "Ctrl-Space": "autocomplete"
+        },
+        hintOptions: {schemaInfo: tags}
       });
     </script>
   </article>

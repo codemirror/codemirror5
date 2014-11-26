@@ -11,12 +11,12 @@
 <script src="erlang.js"></script>
 <style type="text/css">.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
 <div id=nav>
-  <a href="http://codemirror.net"><img id=logo src="../../doc/logo.png"></a>
+  <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../../doc/logo.png"></a>
 
   <ul>
     <li><a href="../../index.html">Home</a>
     <li><a href="../../doc/manual.html">Manual</a>
-    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
   </ul>
   <ul>
     <li><a href="../index.html">Language modes</a>
@@ -51,11 +51,12 @@ expand_recs(M,Tup) when is_tuple(Tup) ->
   case tuple_size(Tup) of
     L when L < 1 -> Tup;
     L ->
-      try Fields = M:rec_info(element(1,Tup)),
-          L = length(Fields)+1,
-          lists:zip(Fields,expand_recs(M,tl(tuple_to_list(Tup))))
-      catch _:_ ->
-          list_to_tuple(expand_recs(M,tuple_to_list(Tup)))
+      try
+        Fields = M:rec_info(element(1,Tup)),
+        L = length(Fields)+1,
+        lists:zip(Fields,expand_recs(M,tl(tuple_to_list(Tup))))
+      catch
+        _:_ -> list_to_tuple(expand_recs(M,tuple_to_list(Tup)))
       end
   end;
 expand_recs(_,Term) ->

@@ -1,3 +1,16 @@
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
+
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
+"use strict";
+
 CodeMirror.defineMode("r", function(config) {
   function wordObj(str) {
     var words = str.split(" "), res = {};
@@ -36,7 +49,11 @@ CodeMirror.defineMode("r", function(config) {
       var word = stream.current();
       if (atoms.propertyIsEnumerable(word)) return "atom";
       if (keywords.propertyIsEnumerable(word)) {
-        if (blockkeywords.propertyIsEnumerable(word)) curPunc = "block";
+        // Block keywords start new blocks, except 'else if', which only starts
+        // one new block for the 'if', no block for the 'else'.
+        if (blockkeywords.propertyIsEnumerable(word) &&
+            !stream.match(/\s*if(\s+|$)/, false))
+          curPunc = "block";
         return "keyword";
       }
       if (builtins.propertyIsEnumerable(word)) return "builtin";
@@ -134,8 +151,12 @@ CodeMirror.defineMode("r", function(config) {
       if (ctx.type == "block") return ctx.indent + (firstChar == "{" ? 0 : config.indentUnit);
       else if (ctx.align) return ctx.column + (closing ? 0 : 1);
       else return ctx.indent + (closing ? 0 : config.indentUnit);
-    }
+    },
+
+    lineComment: "#"
   };
 });
 
 CodeMirror.defineMIME("text/x-rsrc", "r");
+
+});

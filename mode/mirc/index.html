@@ -10,12 +10,12 @@
 <script src="mirc.js"></script>
 <style>.CodeMirror {border: 1px solid black;}</style>
 <div id=nav>
-  <a href="http://codemirror.net"><img id=logo src="../../doc/logo.png"></a>
+  <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../../doc/logo.png"></a>
 
   <ul>
     <li><a href="../../index.html">Home</a>
     <li><a href="../../doc/manual.html">Manual</a>
-    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
   </ul>
   <ul>
     <li><a href="../index.html">Language modes</a>
@@ -147,10 +147,9 @@ Raw 315:*: {
 </textarea></form>
     <script>
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-        tabMode: "indent",
-		theme: "twilight",
+        theme: "twilight",
         lineNumbers: true,
-		matchBrackets: true,
+        matchBrackets: true,
         indentUnit: 4,
         mode: "text/mirc"
       });

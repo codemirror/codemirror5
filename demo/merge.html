@@ -8,11 +8,10 @@
 <link rel=stylesheet href="../addon/merge/merge.css">
 <script src="../lib/codemirror.js"></script>
 <script src="../mode/xml/xml.js"></script>
-<script src="../addon/merge/dep/diff_match_patch.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/diff_match_patch/20121119/diff_match_patch.js"></script>
 <script src="../addon/merge/merge.js"></script>
 <style>
     .CodeMirror { line-height: 1.2; }
-    body { max-width: 80em; }
     span.clicky {
       cursor: pointer;
       background: #d70;
@@ -22,12 +21,12 @@
     }
   </style>
 <div id=nav>
-  <a href="http://codemirror.net"><img id=logo src="../doc/logo.png"></a>
+  <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../doc/logo.png"></a>
 
   <ul>
     <li><a href="../index.html">Home</a>
     <li><a href="../doc/manual.html">Manual</a>
-    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
   </ul>
   <ul>
     <li><a class=active href="#">merge view</a>
@@ -78,5 +77,31 @@ window.onload = function() {
     .replace("white", "purple;\n      font: comic sans;\n      text-decoration: underline;\n      height: 15em");
   initUI(2);
 };
+
+function mergeViewHeight(mergeView) {
+  function editorHeight(editor) {
+    if (!editor) return 0;
+    return editor.getScrollInfo().height;
+  }
+  return Math.max(editorHeight(mergeView.leftOriginal()),
+                  editorHeight(mergeView.editor()),
+                  editorHeight(mergeView.rightOriginal()));
+}
+
+function resize(mergeView) {
+  var height = mergeViewHeight(mergeView);
+  for(;;) {
+    if (mergeView.leftOriginal())
+      mergeView.leftOriginal().setSize(null, height);
+    mergeView.editor().setSize(null, height);
+    if (mergeView.rightOriginal())
+      mergeView.rightOriginal().setSize(null, height);
+
+    var newHeight = mergeViewHeight(mergeView);
+    if (newHeight >= height) break;
+    else height = newHeight;
+  }
+  mergeView.wrap.style.height = height + "px";
+}
 </script>
 </article>

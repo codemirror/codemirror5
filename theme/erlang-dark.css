@@ -1,6 +1,8 @@
 .cm-s-erlang-dark.CodeMirror { background: #002240; color: white; }
 .cm-s-erlang-dark div.CodeMirror-selected { background: #b36539 !important; }
 .cm-s-erlang-dark .CodeMirror-gutters { background: #002240; border-right: 1px solid #aaa; }
+.cm-s-erlang-dark .CodeMirror-guttermarker { color: white; }
+.cm-s-erlang-dark .CodeMirror-guttermarker-subtle { color: #d0d0d0; }
 .cm-s-erlang-dark .CodeMirror-linenumber { color: #d0d0d0; }
 .cm-s-erlang-dark .CodeMirror-cursor { border-left: 1px solid white !important; }
 

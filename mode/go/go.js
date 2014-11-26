@@ -1,3 +1,16 @@
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
+
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
+"use strict";
+
 CodeMirror.defineMode("go", function(config) {
   var indentUnit = config.indentUnit;
 
@@ -58,7 +71,7 @@ CodeMirror.defineMode("go", function(config) {
       stream.eatWhile(isOperatorChar);
       return "operator";
     }
-    stream.eatWhile(/[\w\$_]/);
+    stream.eatWhile(/[\w\$_\xa1-\uffff]/);
     var cur = stream.current();
     if (keywords.propertyIsEnumerable(cur)) {
       if (cur == "case" || cur == "default") curPunc = "case";
@@ -158,7 +171,8 @@ CodeMirror.defineMode("go", function(config) {
       else return ctx.indented + (closing ? 0 : indentUnit);
     },
 
-    electricChars: "{}:",
+    electricChars: "{}):",
+    fold: "brace",
     blockCommentStart: "/*",
     blockCommentEnd: "*/",
     lineComment: "//"
@@ -166,3 +180,5 @@ CodeMirror.defineMode("go", function(config) {
 });
 
 CodeMirror.defineMIME("text/x-go", "go");
+
+});
