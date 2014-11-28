@@ -32,12 +32,12 @@ void main() {
 }
 
 // Define a class.
-class Die { 
+class Die {
   // Define a class variable.
   static Random shaker = new Random();
-  
+
   // Define instance variables.
-  int sides, value;      
+  int sides, value;
 
   // Define a method using shorthand syntax.
   String toString() => '$value';
@@ -53,7 +53,7 @@ class Die {
   }
 
   // Define an instance method.
-  int roll() {                         
+  int roll() {
     return value = shaker.nextInt(sides) + 1;
   }
 }
