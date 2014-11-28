@@ -318,6 +318,14 @@
       horizontally (false) or whether it stays fixed during horizontal
       scrolling (true, the default).</dd>
 
+      <dt id="option_scrollbarStyle"><code><strong>scrollbarStyle</strong>: string</code></dt>
+      <dd>Chooses a scrollbar implementation. The default
+      is <code>"native"</code>, showing native scrollbars. The core
+      library also provides the <code>"null"</code> style, which
+      completely hides the
+      scrollbars. <a href="addon_simplescrollbars">Addons</a> can
+      implement additional scrollbar models.</dd>
+
       <dt id="option_coverGutterNextToScrollbar"><code><strong>coverGutterNextToScrollbar</strong>: boolean</code></dt>
       <dd>When <a href="#option_fixedGutter"><code>fixedGutter</code></a>
       is on, and there is a horizontal scrollbar, by default the
