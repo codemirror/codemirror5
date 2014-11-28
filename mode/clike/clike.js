@@ -402,6 +402,27 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     }
   });
 
+  def("application/dart", {
+    name: "clike",
+    keywords: words(
+      "this super static final const abstract class extends external factory " +
+      "implements get native operator set typedef with enum throw rethrow " +
+      "assert break case continue default in return new deferred async await " +
+      "try catch finally do else for if switch while import library export " +
+      "part of show hide is"
+    ),
+    multiLineStrings: true,
+    blockKeywords: words("try catch finally do else for if switch while"),
+    builtin: words("void bool num int double dynamic var String"),
+    atoms: words("true false null"),
+    hooks: {
+      "@": function(stream) {
+        stream.eatWhile(/[\w\$_]/);
+        return "meta";
+      }
+    }
+  });
+
   def(["x-shader/x-vertex", "x-shader/x-fragment"], {
     name: "clike",
     keywords: words("float int bool void " +
