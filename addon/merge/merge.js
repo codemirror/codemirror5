@@ -53,8 +53,52 @@
         this.showDifferences = val;
         this.forceUpdate("full");
       }
+    },
+    jumpToDiffAfter: function() {
+      var currentLine = this.edit.doc.getCursor().line;
+      var p = lineNrOfNextDiff(this.diff,currentLine);
+      if (p) this.edit.doc.setCursor(p.line,p.ch);
+    },
+    jumpToDiffBefore: function() {
+      var currentLine = this.edit.doc.getCursor().line;
+      var p = lineNrOfPrevDiff(this.diff,currentLine);
+      if (p) this.edit.doc.setCursor(p.line,p.ch);
     }
   };
+
+  function lineNrOfNextDiff(diff,lineNr) {
+    return findLineSatisfying(diff, 0, 0,
+      function(currentChunkNr, lineNrOfNextChunk){
+        if   (lineNrOfNextChunk > lineNr) {
+         if (currentChunkNr === diff.length-1) return;
+         else return { line: lineNrOfNextChunk, ch: 0 };
+        }
+    });
+  }
+
+  function lineNrOfPrevDiff(diff,lineNr) {
+    return findLineSatisfying(diff, 0,0,
+      function(currentChunkNr, lineNrOfNextChunk, numberOfLinesCounted){
+        if  (lineNr <= lineNrOfNextChunk) {
+          if (currentChunkNr === 0) return;
+          else return { line: numberOfLinesCounted, ch: (diff[currentChunkNr-1][1].match(/\n(.*)$/) || []).length };
+        }
+    });
+  }
+
+  function findLineSatisfying(diff, currentChunkNr, numberOfLinesCounted, assert){
+
+    var currentChunk = diff[currentChunkNr];
+    if (currentChunk === undefined) { return; }
+    if (currentChunk[0] != 0) { return findLineSatisfying(diff, ++currentChunkNr, numberOfLinesCounted, assert); }
+
+    var numberOfNewLinesInThisChunk = (currentChunk[1].match(/\n/g) || []).length;
+    var lineNrOfNextChunk = numberOfLinesCounted + numberOfNewLinesInThisChunk;
+    var evaluation = assert(currentChunkNr, lineNrOfNextChunk, numberOfLinesCounted);
+
+    if (evaluation) return evaluation;
+    else return findLineSatisfying(diff, ++currentChunkNr,lineNrOfNextChunk, assert);
+  }
 
   function ensureDiff(dv) {
     if (dv.diffOutOfDate) {
@@ -396,6 +440,14 @@
     },
     leftChunks: function() {
       return this.left && getChunks(this.left);
+    },
+    jumpToDiffAfter: function() {
+      if (this.right) this.right.jumpToDiffAfter();
+      if (this.left)  this.left.jumpToDiffAfter();
+    },
+    jumpToDiffBefore: function() {
+      if (this.right) this.right.jumpToDiffBefore();
+      if (this.left)  this.left.jumpToDiffBefore();
     }
   };
 
