@@ -502,6 +502,70 @@ testVim('{', function(cm, vim, helpers) {
   helpers.doKeys('6', '{');
   helpers.assertCursorAt(0, 0);
 }, { value: 'a\n\nb\nc\n\nd' });
+testVim('paragraph motions', function(cm, vim, helpers) {
+  cm.setCursor(10, 0);
+  helpers.doKeys('{');
+  helpers.assertCursorAt(4, 0);
+  helpers.doKeys('{');
+  helpers.assertCursorAt(0, 0);
+  helpers.doKeys('2', '}');
+  helpers.assertCursorAt(7, 0);
+  helpers.doKeys('2', '}');
+  helpers.assertCursorAt(16, 0);
+
+  cm.setCursor(9, 0);
+  helpers.doKeys('}');
+  helpers.assertCursorAt(14, 0);
+
+  cm.setCursor(6, 0);
+  helpers.doKeys('}');
+  helpers.assertCursorAt(7, 0);
+
+  // ip inside empty space
+  cm.setCursor(10, 0);
+  helpers.doKeys('v', 'i', 'p');
+  eqPos(Pos(7, 0), cm.getCursor('anchor'));
+  eqPos(Pos(12, 0), cm.getCursor('head'));
+  helpers.doKeys('i', 'p');
+  eqPos(Pos(7, 0), cm.getCursor('anchor'));
+  eqPos(Pos(13, 1), cm.getCursor('head'));
+  helpers.doKeys('2', 'i', 'p');
+  eqPos(Pos(7, 0), cm.getCursor('anchor'));
+  eqPos(Pos(16, 1), cm.getCursor('head'));
+
+  // TODO: this should switch to visual mode
+  // cm.setCursor(14, 0);
+  // helpers.doKeys('<Esc>', 'v', 'i', 'p');
+  // helpers.assertCursorAt(14, 0);
+
+  cm.setCursor(14, 0);
+  helpers.doKeys('<Esc>', 'V', 'i', 'p');
+  eqPos(Pos(16, 1), cm.getCursor('head'));
+
+  // ap inside empty space
+  cm.setCursor(10, 0);
+  helpers.doKeys('<Esc>', 'v', 'a', 'p');
+  eqPos(Pos(7, 0), cm.getCursor('anchor'));
+  eqPos(Pos(13, 1), cm.getCursor('head'));
+  helpers.doKeys('a', 'p');
+  eqPos(Pos(7, 0), cm.getCursor('anchor'));
+  eqPos(Pos(16, 1), cm.getCursor('head'));
+
+  cm.setCursor(13, 0);
+  helpers.doKeys('v', 'a', 'p');
+  eqPos(Pos(13, 0), cm.getCursor('anchor'));
+  eqPos(Pos(14, 0), cm.getCursor('head'));
+
+  cm.setCursor(16, 0);
+  helpers.doKeys('v', 'a', 'p');
+  eqPos(Pos(14, 0), cm.getCursor('anchor'));
+  eqPos(Pos(16, 1), cm.getCursor('head'));
+
+  cm.setCursor(0, 0);
+  helpers.doKeys('v', 'a', 'p');
+  eqPos(Pos(0, 0), cm.getCursor('anchor'));
+  eqPos(Pos(4, 0), cm.getCursor('head'));
+}, { value: 'a\na\n\n\n\nb\nc\n\n\n\n\n\n\nd\n\ne\nf' });
 
 // Operator tests
 testVim('dl', function(cm, vim, helpers) {
