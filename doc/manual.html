@@ -2758,15 +2758,37 @@ editor.setOption("extraKeys", {
       constructor takes arguments similar to
       the <a href="#CodeMirror"><code>CodeMirror</code></a>
       constructor, first a node to append the interface to, and then
-      an options object. Two extra optional options are
-      recognized, <code>origLeft</code> and <code>origRight</code>,
-      which may be strings that provide original versions of the
-      document, which will be shown to the left and right of the
-      editor in non-editable CodeMirror instances. The merge interface
-      will highlight changes between the editable document and the
-      original(s), and, unless a <code>revertButtons</code> option
-      of <code>false</code> is given, show buttons that allow the user
-      to revert changes (<a href="../demo/merge.html">demo</a>).</dd>
+      an options object. Options are passed through to the editors
+      inside the view. These extra options are recognized:
+        <dl>
+          <dt><code><strong>origLeft</strong></code> and <code><strong>origRight</strong>: string</code></dt>
+          <dd>If given these provide original versions of the
+          document, which will be shown to the left and right of the
+          editor in non-editable CodeMirror instances. The merge
+          interface will highlight changes between the editable
+          document and the original(s). To create a 2-way (as opposed
+          to 3-way) merge view, provide only one of them.</dd>
+          <dt><code><strong>revertButtons</strong>: boolean</code></dt>
+          <dd>Determines whether buttons that allow the user to revert
+          changes are shown. Defaults to true.</dd>
+          <dt><code><strong>connect</strong>: string</code></dt>
+          <dd>Sets the style used to connect changed chunks of code.
+          By default, connectors are drawn. When this is set
+          to <code>"align"</code>, the smaller chunk is padded to
+          align with the bigger chunk instead.</dd>
+          <dt><code><strong>collapseIdentical</strong>: boolean|number</code></dt>
+          <dd>When true (default is false), stretches of unchanged
+          text will be collapsed. When a number is given, this
+          indicates the amount of lines to leave visible around such
+          stretches (which defaults to 2).</dd>
+          <dt><code><strong>allowEditingOriginals</strong>: boolean</code></dt>
+          <dd>Determines whether the original editor allows editing.
+          Defaults to false.</dd>
+          <dt><code><strong>showDifferences</strong>: boolean</code></dt>
+          <dd>When true (the default), changed pieces of text are
+          highlighted.</dd>
+        </dl>
+        <a href="../demo/merge.html">Demo here</a>.</dd>
 
       <dt id="addon_tern"><a href="../addon/tern/tern.js"><code>tern/tern.js</code></a></dt>
       <dd>Provides integration with
