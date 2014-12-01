@@ -239,6 +239,7 @@
       },
       blankLine: function(state) {
         state.f = normal;
+        state.cmdState.length = 0;
       },
       lineComment: "%"
     };
