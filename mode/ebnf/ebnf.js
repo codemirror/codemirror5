@@ -41,7 +41,7 @@ CodeMirror.defineMode("ebnf", function (config) {
       };
     },
     token: function (stream, state) {
-      if (stream)
+      if (!stream) return;
 
       //check for state changes
       if (state.stack.length === 0) {
