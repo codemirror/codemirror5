@@ -26,6 +26,7 @@
     {name: "CSS", mime: "text/css", mode: "css", ext: ["css"]},
     {name: "CQL", mime: "text/x-cassandra", mode: "sql", ext: ["cql"]},
     {name: "D", mime: "text/x-d", mode: "d", ext: ["d"]},
+    {name: "Dart", mimes: ["application/dart", "text/x-dart"], mode: "clike", ext: ["dart"]},
     {name: "diff", mime: "text/x-diff", mode: "diff", ext: ["diff", "patch"]},
     {name: "Django", mime: "text/x-django", mode: "django"},
     {name: "Dockerfile", mime: "text/x-dockerfile", mode: "dockerfile"},
