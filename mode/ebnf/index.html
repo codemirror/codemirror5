@@ -27,7 +27,7 @@
     </div>
 
     <article>
-      <h2>EBNF Mode</h2>
+      <h2>EBNF Mode (bracesMode setting = "javascript")</h2>
       <form><textarea id="code" name="code">
 /* description: Parses end executes mathematical expressions. */
 
@@ -46,7 +46,7 @@
 ")"                   return ')';
 "PI"                  return 'PI';
 "E"                   return 'E';
-<<EOF>>               return 'EOF';
+&lt;&lt;EOF&gt;&gt;               return 'EOF';
 
 /lex
 
@@ -91,7 +91,8 @@ e
       <script>
         var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
           mode: {name: "ebnf"},
-          lineNumbers: true
+          lineNumbers: true,
+          bracesMode: 'javascript'
         });
       </script>
       <h3>The EBNF Mode</h3>

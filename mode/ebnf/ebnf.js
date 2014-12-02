@@ -12,8 +12,7 @@
 "use strict";
 
 CodeMirror.defineMode("ebnf", function (config) {
-  var jsMode = CodeMirror.getMode(config, "javascript"),
-    commentType = {
+  var commentType = {
 	    slash: 0,
 	    parenthesis: 1
     },
@@ -22,7 +21,12 @@ CodeMirror.defineMode("ebnf", function (config) {
       _string: 1,
       characterClass: 2
     },
-    peek;
+    peek,
+    bracesMode = null;
+
+  if (config.bracesMode) {
+    bracesMode = CodeMirror.getMode(config, config.bracesMode);
+  }
 
   return {
     startState: function () {
@@ -104,11 +108,11 @@ CodeMirror.defineMode("ebnf", function (config) {
 
       peek = stream.peek();
 
-      if (state.braced || peek === '{') {
+      if (bracesMode !== null && (state.braced || peek === '{')) {
         if (state.localState === null) {
-          state.localState = jsMode.startState();
+          state.localState = bracesMode.startState();
         }
-        var token = jsMode.token(stream, state.localState),
+        var token = bracesMode.token(stream, state.localState),
           text = stream.current();
 
         if (!token) {
@@ -211,6 +215,6 @@ CodeMirror.defineMode("ebnf", function (config) {
       return null;
     }
   };
-}, "javascript");
+});
 
 });
