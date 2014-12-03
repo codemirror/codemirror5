@@ -30,12 +30,10 @@
 .cm-s-ambiance .CodeMirror-matchingbracket { color: #0f0; }
 .cm-s-ambiance .CodeMirror-nonmatchingbracket { color: #f22; }
 
-.cm-s-ambiance .CodeMirror-selected {
-  background: rgba(255, 255, 255, 0.15);
-}
-.cm-s-ambiance.CodeMirror-focused .CodeMirror-selected {
-  background: rgba(255, 255, 255, 0.10);
-}
+.cm-s-ambiance .CodeMirror-selected { background: rgba(255, 255, 255, 0.15); }
+.cm-s-ambiance.CodeMirror-focused .CodeMirror-selected { background: rgba(255, 255, 255, 0.10); }
+.cm-s-ambiance.CodeMirror ::selection { background: rgba(255, 255, 255, 0.10); }
+.cm-s-ambiance.CodeMirror ::-moz-selection { background: rgba(255, 255, 255, 0.10); }
 
 /* Editor styling */
 
