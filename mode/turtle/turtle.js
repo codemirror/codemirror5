@@ -152,6 +152,8 @@ CodeMirror.defineMode("turtle", function(config) {
       else
         return context.indent + (closing ? 0 : indentUnit);
     }
+    
+    lineComment: "#"
   };
 });
 
