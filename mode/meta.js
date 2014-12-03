@@ -32,6 +32,7 @@
     {name: "Dockerfile", mime: "text/x-dockerfile", mode: "dockerfile"},
     {name: "DTD", mime: "application/xml-dtd", mode: "dtd", ext: ["dtd"]},
     {name: "Dylan", mime: "text/x-dylan", mode: "dylan", ext: ["dylan", "dyl", "intr"]},
+    {name: "EBNF", mime: "text/x-ebnf", mode: "ebnf"},
     {name: "ECL", mime: "text/x-ecl", mode: "ecl", ext: ["ecl"]},
     {name: "Eiffel", mime: "text/x-eiffel", mode: "eiffel", ext: ["e"]},
     {name: "Embedded Javascript", mime: "application/x-ejs", mode: "htmlembedded", ext: ["ejs"]},

@@ -190,4 +190,6 @@
       }
     };
   });
+
+  CodeMirror.defineMIME("text/x-ebnf", "ebnf");
 });
