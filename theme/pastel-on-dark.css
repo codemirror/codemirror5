@@ -14,6 +14,9 @@
 	font-size: 14px;
 }
 .cm-s-pastel-on-dark div.CodeMirror-selected { background: rgba(221,240,255,0.2) !important; }
+.cm-s-pastel-on-dark.CodeMirror ::selection { background: rgba(221,240,255,0.2); }
+.cm-s-pastel-on-dark.CodeMirror ::-moz-selection { background: rgba(221,240,255,0.2); }
+
 .cm-s-pastel-on-dark .CodeMirror-gutters {
 	background: #34302f;
 	border-right: 0px;
