@@ -39,8 +39,9 @@
         token: ["variable-2", null],
         next: "arguments"
       },
-      // Fail-safe return to start
+      // Mark everything else as null
       {
+        regex: /.+/,
         token: null,
         next: "start"
       }
@@ -70,7 +71,7 @@
       },
       // Fail safe return to start
       {
-        token: null,
+        token: /.+/,
         next: "start"
       }
     ]
