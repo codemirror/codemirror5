@@ -1,0 +1,83 @@
+<!doctype html>
+
+<title>CodeMirror: wikiLingo mode</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../../doc/docs.css">
+
+<link rel="stylesheet" href="../../lib/codemirror.css">
+<link rel="stylesheet" href="../../theme/cobalt.css">
+<link rel="stylesheet" href="wikilingo.css">
+<script src="../../lib/codemirror.js"></script>
+<script src="wikilingo.js"></script>
+<style type="text/css">
+  .CodeMirror {
+    border-top: 1px solid black; border-bottom: 1px solid black;
+    height:400px;
+  }
+</style>
+<div id=nav>
+  <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../../doc/logo.png"></a>
+
+  <ul>
+    <li><a href="../../index.html">Home</a>
+    <li><a href="../../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="../index.html">Language modes</a>
+    <li><a class=active href="#">wikiLingo</a>
+  </ul>
+</div>
+
+<article>
+  <h2>wikiLingo mode</h2>
+  <div class="cm-s-default">
+  <textarea id="code" name="code">
+__Bold__
+::Center::
+-+Code+-
+~~Color:Text~~
+/*Comment*/
+@FLP(clipboard-data-here)
+FutureLink-Protocol
+@)
+!Header1
+!!Header2
+!!!Header3
+!!!!Header4
+!!!!!Header5
+!!!!!!Header6
+''Italic''
+-~Not Parsed~-
+*List (Unordered)
+#List (Ordered)
+-/Pre-Formatted Text/-
+--Strike--
+||Table|Table|Table
+Table|Table|Table||
+-=Title Bar=-
+===Underscore===
+%Variable%
+{PLUGIN(parameter1="value" parameter2='value' parameter3=`value` parameter4=value)} content {PLUGIN}
+{plugin parameter1="value" parameter2='value' parameter3=`value` parameter4=value}
+&lt;tag /&gt;
+
+ !Not a header
+ *Not a list
+ #Not a list
+</textarea>
+  </div>
+
+  <script>
+    var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+      theme: "cobalt",
+	  mode: "text/wikilingo"
+    });
+  </script>
+
+  <p><strong>MIME types defined:</strong> <code>application/wikilingo</code>.</p>
+
+  <h3>The wikiLingo Mode</h3>
+  <p> Created by <a href="https://github.com/robertleeplummerjr">Robert Plummer</a></p>
+
+</article>
