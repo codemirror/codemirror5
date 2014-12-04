@@ -2719,6 +2719,19 @@ editor.setOption("extraKeys", {
       custom style to a ruler. <a href="../demo/rulers.html">Demo
       here</a>.</dd>
 
+      <dt id="addon_panel"><a href="../addon/display/panel.js"><code>display/panel.js</code></a></dt>
+      <dd>Defines an <code>addPanel</code> method for CodeMirror
+      instances, which places a DOM node above or below an editor, and
+      shrinks the editor to make room for the node. The method takes
+      as first argument as DOM node, and as second an optional options
+      object. By default, the panel ends up above the editor. This can
+      be changed by passing a <code>position</code> option with the
+      value <code>"bottom"</code>. The object returned by this method
+      has a <code>clear</code> method that is used to remove the
+      panel, and a <code>changed</code> method that can be used to
+      notify the addon when the size of the panel's DOM node has
+      changed.</dd>
+
       <dt id="addon_hardwrap"><a href="../addon/wrap/hardwrap.js"><code>wrap/hardwrap.js</code></a></dt>
       <dd>Addon to perform hard line wrapping/breaking for paragraphs
       of text. Adds these methods to editor instances:
