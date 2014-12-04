@@ -1,0 +1,13 @@
+.cm {}
+  .cm-wl {}
+    .cm-wl-deleted {
+	  text-decoration: line-through;
+    }
+
+    .cm-wl-listitem:first-child { /*Added first child to fix duplicate padding when highlighting*/
+	  padding-left: 10px;
+    }
+
+    .cm-wl-underline {
+      text-decoration: underline;
+    }
