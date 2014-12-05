@@ -19,7 +19,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   var jsonldMode = parserConfig.jsonld;
   var jsonMode = parserConfig.json || jsonldMode;
   var isTS = parserConfig.typescript;
-  var wordRE = parserConfig.wordCharacters || /[\w$]/;
+  var wordRE = parserConfig.wordCharacters || /[\w$\xa1-\uffff]/;
 
   // Tokenizer
 
@@ -590,7 +590,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   }
   function maybeArrayComprehension(type) {
     if (type == "for") return pass(comprehension, expect("]"));
-    if (type == ",") return cont(commasep(expressionNoComma, "]"));
+    if (type == ",") return cont(commasep(maybeexpressionNoComma, "]"));
     return pass(commasep(expressionNoComma, "]"));
   }
   function comprehension(type) {
@@ -656,7 +656,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       else return lexical.indented + (closing ? 0 : indentUnit);
     },
 
-    electricChars: ":{}",
+    electricInput: /^\s*(?:case .*?:|default:|\{|\})$/,
     blockCommentStart: jsonMode ? null : "/*",
     blockCommentEnd: jsonMode ? null : "*/",
     lineComment: jsonMode ? null : "//",

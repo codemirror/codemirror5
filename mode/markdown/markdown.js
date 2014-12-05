@@ -3,9 +3,9 @@
 
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
-    mod(require("../../lib/codemirror", require("../xml/xml")));
+    mod(require("../../lib/codemirror", require("../xml/xml"), require("../meta")));
   else if (typeof define == "function" && define.amd) // AMD
-    define(["../../lib/codemirror", "../xml/xml"], mod);
+    define(["../../lib/codemirror", "../xml/xml", "../meta"], mod);
   else // Plain browser env
     mod(CodeMirror);
 })(function(CodeMirror) {
@@ -15,45 +15,15 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
   var htmlFound = CodeMirror.modes.hasOwnProperty("xml");
   var htmlMode = CodeMirror.getMode(cmCfg, htmlFound ? {name: "xml", htmlMode: true} : "text/plain");
-  var aliases = {
-    html: "htmlmixed",
-    js: "javascript",
-    json: "application/json",
-    c: "text/x-csrc",
-    "c++": "text/x-c++src",
-    java: "text/x-java",
-    csharp: "text/x-csharp",
-    "c#": "text/x-csharp",
-    scala: "text/x-scala"
-  };
 
-  var getMode = (function () {
-    var i, modes = {}, mimes = {}, mime;
-
-    var list = [];
-    for (var m in CodeMirror.modes)
-      if (CodeMirror.modes.propertyIsEnumerable(m)) list.push(m);
-    for (i = 0; i < list.length; i++) {
-      modes[list[i]] = list[i];
+  function getMode(name) {
+    if (CodeMirror.findModeByName) {
+      var found = CodeMirror.findModeByName(name);
+      if (found) name = found.mime || found.mimes[0];
     }
-    var mimesList = [];
-    for (var m in CodeMirror.mimeModes)
-      if (CodeMirror.mimeModes.propertyIsEnumerable(m))
-        mimesList.push({mime: m, mode: CodeMirror.mimeModes[m]});
-    for (i = 0; i < mimesList.length; i++) {
-      mime = mimesList[i].mime;
-      mimes[mime] = mimesList[i].mime;
-    }
-
-    for (var a in aliases) {
-      if (aliases[a] in modes || aliases[a] in mimes)
-        modes[a] = aliases[a];
-    }
-
-    return function (lang) {
-      return modes[lang] ? CodeMirror.getMode(cmCfg, modes[lang]) : null;
-    };
-  }());
+    var mode = CodeMirror.getMode(cmCfg, name);
+    return mode.name == "null" ? null : mode;
+  }
 
   // Should characters that affect highlighting be highlighted separate?
   // Does not include characters that will be output (such as `1.` and `-` for lists)
@@ -75,6 +45,10 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   // Turn on task lists? ("- [ ] " and "- [x] ")
   if (modeCfg.taskLists === undefined) modeCfg.taskLists = false;
 
+  // Turn on strikethrough syntax
+  if (modeCfg.strikethrough === undefined)
+    modeCfg.strikethrough = false;
+
   var codeDepth = 0;
 
   var header   = 'header'
@@ -91,7 +65,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   ,   linktext = 'link'
   ,   linkhref = 'string'
   ,   em       = 'em'
-  ,   strong   = 'strong';
+  ,   strong   = 'strong'
+  ,   strikethrough = 'strikethrough';
 
   var hrRE = /^([*\-=_])(?:\s*\1){2,}\s*$/
   ,   ulRE = /^[*\-+]\s+/
@@ -99,7 +74,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   ,   taskListRE = /^\[(x| )\](?=\s)/ // Must follow ulRE or olRE
   ,   atxHeaderRE = /^#+/
   ,   setextHeaderRE = /^(?:\={1,}|-{1,})$/
-  ,   textRE = /^[^#!\[\]*_\\<>` "'(]+/;
+  ,   textRE = /^[^#!\[\]*_\\<>` "'(~]+/;
 
   function switchInline(stream, state, f) {
     state.f = state.inline = f;
@@ -121,6 +96,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     state.em = false;
     // Reset STRONG state
     state.strong = false;
+    // Reset strikethrough state
+    state.strikethrough = false;
     // Reset state.quote
     state.quote = 0;
     if (!htmlFound && state.f == htmlBlock) {
@@ -197,11 +174,11 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       state.f = state.inline;
       if (modeCfg.highlightFormatting) state.formatting = ["list", "list-" + listType];
       return getType(state);
-    } else if (modeCfg.fencedCodeBlocks && stream.match(/^```([\w+#]*)/, true)) {
+    } else if (modeCfg.fencedCodeBlocks && stream.match(/^```[ \t]*([\w+#]*)/, true)) {
       // try switching mode
       state.localMode = getMode(RegExp.$1);
       if (state.localMode) state.localState = state.localMode.startState();
-      switchBlock(stream, state, local);
+      state.f = state.block = local;
       if (modeCfg.highlightFormatting) state.formatting = "code-block";
       state.code = true;
       return getType(state);
@@ -222,21 +199,27 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   }
 
   function local(stream, state) {
-    if (stream.sol() && stream.match(/^```/, true)) {
+    if (stream.sol() && stream.match("```", false)) {
       state.localMode = state.localState = null;
-      state.f = inlineNormal;
-      state.block = blockNormal;
-      if (modeCfg.highlightFormatting) state.formatting = "code-block";
-      state.code = true;
-      var returnType = getType(state);
-      state.code = false;
-      return returnType;
+      state.f = state.block = leavingLocal;
+      return null;
     } else if (state.localMode) {
       return state.localMode.token(stream, state.localState);
     } else {
       stream.skipToEnd();
       return code;
     }
+  }
+
+  function leavingLocal(stream, state) {
+    stream.match("```");
+    state.block = blockNormal;
+    state.f = inlineNormal;
+    if (modeCfg.highlightFormatting) state.formatting = "code-block";
+    state.code = true;
+    var returnType = getType(state);
+    state.code = false;
+    return returnType;
   }
 
   // Inline
@@ -283,6 +266,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
     if (state.strong) { styles.push(strong); }
     if (state.em) { styles.push(em); }
+    if (state.strikethrough) { styles.push(strikethrough); }
 
     if (state.linkText) { styles.push(linktext); }
 
@@ -511,6 +495,29 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       }
     }
 
+    if (modeCfg.strikethrough) {
+      if (ch === '~' && stream.eatWhile(ch)) {
+        if (state.strikethrough) {// Remove strikethrough
+          if (modeCfg.highlightFormatting) state.formatting = "strikethrough";
+          var t = getType(state);
+          state.strikethrough = false;
+          return t;
+        } else if (stream.match(/^[^\s]/, false)) {// Add strikethrough
+          state.strikethrough = true;
+          if (modeCfg.highlightFormatting) state.formatting = "strikethrough";
+          return getType(state);
+        }
+      } else if (ch === ' ') {
+        if (stream.match(/^~~/, true)) { // Probably surrounded by space
+          if (stream.peek() === ' ') { // Surrounded by spaces, ignore
+            return getType(state);
+          } else { // Not surrounded by spaces, back up pointer
+            stream.backUp(2);
+          }
+        }
+      }
+    }
+
     if (ch === ' ') {
       if (stream.match(/ +$/, false)) {
         state.trailingSpace++;
@@ -659,7 +666,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         listDepth: 0,
         quote: 0,
         trailingSpace: 0,
-        trailingSpaceNewLine: false
+        trailingSpaceNewLine: false,
+        strikethrough: false
       };
     },
 
@@ -683,6 +691,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         linkTitle: s.linkTitle,
         em: s.em,
         strong: s.strong,
+        strikethrough: s.strikethrough,
         header: s.header,
         taskList: s.taskList,
         list: s.list,
@@ -733,9 +742,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         state.indentation = adjustedIndentation;
         if (indentation > 0) return null;
       }
-      var result = state.f(stream, state);
-      if (stream.start == stream.pos) return this.token(stream, state);
-      else return result;
+      return state.f(stream, state);
     },
 
     innerMode: function(state) {

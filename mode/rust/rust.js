@@ -14,7 +14,7 @@
 CodeMirror.defineMode("rust", function() {
   var indentUnit = 4, altIndentUnit = 2;
   var valKeywords = {
-    "if": "if-style", "while": "if-style", "else": "else-style",
+    "if": "if-style", "while": "if-style", "loop": "else-style", "else": "else-style",
     "do": "else-style", "ret": "else-style", "fail": "else-style",
     "break": "atom", "cont": "atom", "const": "let", "resource": "fn",
     "let": "let", "fn": "fn", "for": "for", "alt": "alt", "iface": "iface",
@@ -22,7 +22,7 @@ CodeMirror.defineMode("rust", function() {
     "as": "op", "true": "atom", "false": "atom", "assert": "op", "check": "op",
     "claim": "op", "native": "ignore", "unsafe": "ignore", "import": "else-style",
     "export": "else-style", "copy": "op", "log": "op", "log_err": "op",
-    "use": "op", "bind": "op", "self": "atom"
+    "use": "op", "bind": "op", "self": "atom", "struct": "enum"
   };
   var typeKeywords = function() {
     var keywords = {"fn": "fn", "block": "fn", "obj": "obj"};

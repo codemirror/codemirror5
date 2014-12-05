@@ -20,7 +20,8 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       blockKeywords = parserConfig.blockKeywords || {},
       atoms = parserConfig.atoms || {},
       hooks = parserConfig.hooks || {},
-      multiLineStrings = parserConfig.multiLineStrings;
+      multiLineStrings = parserConfig.multiLineStrings,
+      indentStatements = parserConfig.indentStatements !== false;
   var isOperatorChar = /[+\-*&%=<>!?|\/]/;
 
   var curPunc;
@@ -57,7 +58,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       stream.eatWhile(isOperatorChar);
       return "operator";
     }
-    stream.eatWhile(/[\w\$_]/);
+    stream.eatWhile(/[\w\$_\xa1-\uffff]/);
     var cur = stream.current();
     if (keywords.propertyIsEnumerable(cur)) {
       if (blockKeywords.propertyIsEnumerable(cur)) curPunc = "newstatement";
@@ -151,7 +152,9 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
         while (ctx.type == "statement") ctx = popContext(state);
       }
       else if (curPunc == ctx.type) popContext(state);
-      else if (((ctx.type == "}" || ctx.type == "top") && curPunc != ';') || (ctx.type == "statement" && curPunc == "newstatement"))
+      else if (indentStatements &&
+               (((ctx.type == "}" || ctx.type == "top") && curPunc != ';') ||
+                (ctx.type == "statement" && curPunc == "newstatement")))
         pushContext(state, stream.column(), "statement");
       state.startOfLine = false;
       return style;
@@ -298,6 +301,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     },
     modeProps: {fold: ["brace", "include"]}
   });
+
   def("text/x-java", {
     name: "clike",
     keywords: words("abstract assert boolean break byte case catch char class const continue default " +
@@ -315,6 +319,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     },
     modeProps: {fold: ["brace", "import"]}
   });
+
   def("text/x-csharp", {
     name: "clike",
     keywords: words("abstract as base break case catch checked class const continue" +
@@ -341,6 +346,19 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       }
     }
   });
+
+  function tokenTripleString(stream, state) {
+    var escaped = false;
+    while (!stream.eol()) {
+      if (!escaped && stream.match('"""')) {
+        state.tokenize = null;
+        break;
+      }
+      escaped = stream.next() != "\\" && !escaped;
+    }
+    return "string";
+  }
+
   def("text/x-scala", {
     name: "clike",
     keywords: words(
@@ -366,19 +384,24 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       "Compiler Double Exception Float Integer Long Math Number Object Package Pair Process " +
       "Runtime Runnable SecurityManager Short StackTraceElement StrictMath String " +
       "StringBuffer System Thread ThreadGroup ThreadLocal Throwable Triple Void"
-
-
     ),
     multiLineStrings: true,
     blockKeywords: words("catch class do else finally for forSome if match switch try while"),
     atoms: words("true false null"),
+    indentStatements: false,
     hooks: {
       "@": function(stream) {
         stream.eatWhile(/[\w\$_]/);
         return "meta";
+      },
+      '"': function(stream, state) {
+        if (!stream.match('""')) return false;
+        state.tokenize = tokenTripleString;
+        return state.tokenize(stream, state);
       }
     }
   });
+
   def(["x-shader/x-vertex", "x-shader/x-fragment"], {
     name: "clike",
     keywords: words("float int bool void " +
@@ -446,6 +469,21 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     atoms: words("null"),
     hooks: {"#": cppHook},
     modeProps: {fold: ["brace", "include"]}
+  });
+
+  def("text/x-objectivec", {
+    name: "clike",
+    keywords: words(cKeywords + "inline restrict _Bool _Complex _Imaginery BOOL Class bycopy byref id IMP in " +
+                    "inout nil oneway out Protocol SEL self super atomic nonatomic retain copy readwrite readonly"),
+    atoms: words("YES NO NULL NILL ON OFF"),
+    hooks: {
+      "@": function(stream) {
+        stream.eatWhile(/[\w\$]/);
+        return "keyword";
+      },
+      "#": cppHook
+    },
+    modeProps: {fold: "brace"}
   });
 
 });

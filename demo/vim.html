@@ -16,7 +16,7 @@
       .CodeMirror {border-top: 1px solid #eee; border-bottom: 1px solid #eee;}
     </style>
 <div id=nav>
-  <a href="http://codemirror.net"><img id=logo src="../doc/logo.png"></a>
+  <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../doc/logo.png"></a>
 
   <ul>
     <li><a href="../index.html">Home</a>
@@ -80,7 +80,7 @@ implementation</p>
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true,
         mode: "text/x-csrc",
-        vimMode: true,
+        keyMap: "vim",
         matchBrackets: true,
         showCursorWhenSelecting: true
       });

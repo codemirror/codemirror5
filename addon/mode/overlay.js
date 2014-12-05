@@ -28,7 +28,7 @@ CodeMirror.overlayMode = function(base, overlay, combine) {
         overlay: CodeMirror.startState(overlay),
         basePos: 0, baseCur: null,
         overlayPos: 0, overlayCur: null,
-        lineSeen: null
+        streamSeen: null
       };
     },
     copyState: function(state) {
@@ -41,9 +41,9 @@ CodeMirror.overlayMode = function(base, overlay, combine) {
     },
 
     token: function(stream, state) {
-      if (stream.sol() || stream.string != state.lineSeen ||
+      if (stream != state.streamSeen ||
           Math.min(state.basePos, state.overlayPos) < stream.start) {
-        state.lineSeen = stream.string;
+        state.streamSeen = stream;
         state.basePos = state.overlayPos = stream.start;
       }
 

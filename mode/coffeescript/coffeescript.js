@@ -22,7 +22,7 @@ CodeMirror.defineMode("coffeescript", function(conf) {
     return new RegExp("^((" + words.join(")|(") + "))\\b");
   }
 
-  var operators = /^(?:->|=>|\+[+=]?|-[\-=]?|\*[\*=]?|\/[\/=]?|[=!]=|<[><]?=?|>>?=?|%=?|&=?|\|=?|\^=?|\~|!|\?)/;
+  var operators = /^(?:->|=>|\+[+=]?|-[\-=]?|\*[\*=]?|\/[\/=]?|[=!]=|<[><]?=?|>>?=?|%=?|&=?|\|=?|\^=?|\~|!|\?|(or|and|\|\||&&|\?)=)/;
   var delimiters = /^(?:[()\[\]{},:`=;]|\.\.?\.?)/;
   var identifiers = /^[_A-Za-z$][_A-Za-z$0-9]*/;
   var properties = /^(@|this\.)[_A-Za-z$][_A-Za-z$0-9]*/;
@@ -34,7 +34,7 @@ CodeMirror.defineMode("coffeescript", function(conf) {
                         "switch", "try", "catch", "finally", "class"];
   var commonKeywords = ["break", "by", "continue", "debugger", "delete",
                         "do", "in", "of", "new", "return", "then",
-                        "this", "throw", "when", "until", "extends"];
+                        "this", "@", "throw", "when", "until", "extends"];
 
   var keywords = wordRegexp(indentKeywords.concat(commonKeywords));
 

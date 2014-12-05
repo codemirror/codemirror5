@@ -367,8 +367,6 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
 
   keywords:
     A list of keywords you want to be highlighted.
-  functions:
-    A list of function names you want to be highlighted.
   builtin:
     A list of builtin types you want to be highlighted (if you want types to be of class "builtin" instead of "keyword").
   operatorChars:

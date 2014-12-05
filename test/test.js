@@ -3,7 +3,7 @@ var Pos = CodeMirror.Pos;
 CodeMirror.defaults.rtlMoveVisually = true;
 
 function forEach(arr, f) {
-  for (var i = 0, e = arr.length; i < e; ++i) f(arr[i]);
+  for (var i = 0, e = arr.length; i < e; ++i) f(arr[i], i);
 }
 
 function addDoc(cm, width, height) {
@@ -1975,6 +1975,18 @@ testCM("alwaysMergeSelEventWithChangeOrigin", function(cm) {
   eq(cm.getValue(), "Va");
 }, {value: "a"});
 
+testCM("getTokenAt", function(cm) {
+  var tokPlus = cm.getTokenAt(Pos(0, 2));
+  eq(tokPlus.type, "operator");
+  eq(tokPlus.string, "+");
+  var toks = cm.getLineTokens(0);
+  eq(toks.length, 3);
+  forEach([["number", "1"], ["operator", "+"], ["number", "2"]], function(expect, i) {
+    eq(toks[i].type, expect[0]);
+    eq(toks[i].string, expect[1]);
+  });
+}, {value: "1+2", mode: "javascript"});
+
 testCM("getTokenTypeAt", function(cm) {
   eq(cm.getTokenTypeAt(Pos(0, 0)), "number");
   eq(cm.getTokenTypeAt(Pos(0, 6)), "string");
@@ -2031,4 +2043,33 @@ testCM("eventOrder", function(cm) {
   });
   cm.replaceSelection("/");
   eq(seen.join(","), "change,change,activity,change");
+});
+
+test("core_rmClass", function() {
+  var node = document.createElement("div");
+  node.className = "foo-bar baz-quux yadda";
+  CodeMirror.rmClass(node, "quux");
+  eq(node.className, "foo-bar baz-quux yadda");
+  CodeMirror.rmClass(node, "baz-quux");
+  eq(node.className, "foo-bar yadda");
+  CodeMirror.rmClass(node, "yadda");
+  eq(node.className, "foo-bar");
+  CodeMirror.rmClass(node, "foo-bar");
+  eq(node.className, "");
+  node.className = " foo ";
+  CodeMirror.rmClass(node, "foo");
+  eq(node.className, "");
+});
+
+test("core_addClass", function() {
+  var node = document.createElement("div");
+  CodeMirror.addClass(node, "a");
+  eq(node.className, "a");
+  CodeMirror.addClass(node, "a");
+  eq(node.className, "a");
+  CodeMirror.addClass(node, "b");
+  eq(node.className, "a b");
+  CodeMirror.addClass(node, "a");
+  CodeMirror.addClass(node, "b");
+  eq(node.className, "a b");
 });

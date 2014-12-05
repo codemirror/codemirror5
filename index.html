@@ -21,7 +21,7 @@
 </style>
 
 <div id=nav>
-  <a href="http://codemirror.net"><img id=logo src="doc/logo.png"></a>
+  <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="doc/logo.png"></a>
 
   <ul>
     <li><a class=active data-default="true" href="#description">Home</a>
@@ -40,7 +40,7 @@
 <section id=description class=first>
   <p><strong>CodeMirror</strong> is a versatile text editor
   implemented in JavaScript for the browser. It is specialized for
-  editing code, and comes with a number of language modes and addons
+  editing code, and comes with a number of <a href="mode/index.html">language modes</a> and <a href="doc/manual.html#addons">addons</a>
   that implement more advanced editing functionality.</p>
 
   <p>A rich <a href="doc/manual.html#api">programming API</a> and a
@@ -57,7 +57,7 @@
 <script src="lib/codemirror.js"></script>
 <script>
   var editor = CodeMirror.fromTextArea(myTextarea, {
-    mode: "text/html"
+    lineNumbers: true
   });
 </script></textarea>
   <select id="demolist" onchange="document.location = this.options[this.selectedIndex].value;">
@@ -85,7 +85,7 @@
   </script>
   <div style="position: relative; margin: 1em 0;">
     <a class="bigbutton left" href="http://codemirror.net/codemirror.zip">DOWNLOAD LATEST RELEASE</a>
-    <div><strong>version 4.6</strong> (<a href="doc/releases.html">Release notes</a>)</div>
+    <div><strong>version 4.8</strong> (<a href="doc/releases.html">Release notes</a>)</div>
     <div>or use the <a href="doc/compress.html">minification helper</a></div>
     <div style="position: absolute; top: 0; right: 0; text-align: right">
       <span class="bigbutton right" onclick="document.getElementById('paypal').submit();">DONATE WITH PAYPAL</span>
@@ -165,7 +165,7 @@
   license that CodeMirror uses.</p>
 
   <p>Discussion around the project is done on
-  a <a href="http://groups.google.com/group/codemirror">mailing list</a>.
+  a <a href="http://discuss.codemirror.net">discussion forum</a>.
   There is also
   the <a href="http://groups.google.com/group/codemirror-announce">codemirror-announce</a>
   list, which is only used for major announcements (such as new

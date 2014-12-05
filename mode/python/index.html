@@ -10,7 +10,7 @@
 <script src="python.js"></script>
 <style type="text/css">.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
 <div id=nav>
-  <a href="http://codemirror.net"><img id=logo src="../../doc/logo.png"></a>
+  <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../../doc/logo.png"></a>
 
   <ul>
     <li><a href="../../index.html">Home</a>
@@ -65,13 +65,25 @@ __a__
 a.b
 a.b.c
 
+#Unicode identifiers on Python3
+# a = x\ddot
+a⃗ = ẍ
+# a = v\dot
+a⃗ = v̇
+
+#F\vec = m \cdot a\vec
+F⃗ = m•a⃗ 
+
 # Operators
 + - * / % & | ^ ~ < >
 == != <= >= <> << >> // **
 and or not in is
 
+#infix matrix multiplication operator (PEP 465)
+A @ B
+
 # Delimiters
-() [] {} , : ` = ; @ .  # Note that @ and . require the proper context.
+() [] {} , : ` = ; @ .  # Note that @ and . require the proper context on Python 2.
 += -= *= /= %= &= |= ^=
 //= >>= <<= **=
 
@@ -146,7 +158,7 @@ def pairwise_cython(double[:, ::1] X):
     <script>
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         mode: {name: "python",
-               version: 2,
+               version: 3,
                singleLineStringErrors: false},
         lineNumbers: true,
         indentUnit: 4,
@@ -171,12 +183,12 @@ def pairwise_cython(double[:, ::1] X):
     <h2>Advanced Configuration Options:</h2>
     <p>Usefull for superset of python syntax like Enthought enaml, IPython magics and  questionmark help</p>
     <ul>
-      <li>singleOperators - RegEx - Regular Expression for single operator matching,  default : <pre>^[\\+\\-\\*/%&amp;|\\^~&lt;&gt;!]</pre></li>
+      <li>singleOperators - RegEx - Regular Expression for single operator matching,  default : <pre>^[\\+\\-\\*/%&amp;|\\^~&lt;&gt;!]</pre> including <pre>@</pre> on Python 3</li>
       <li>singleDelimiters - RegEx - Regular Expression for single delimiter matching, default :  <pre>^[\\(\\)\\[\\]\\{\\}@,:`=;\\.]</pre></li>
       <li>doubleOperators - RegEx - Regular Expression for double operators matching, default : <pre>^((==)|(!=)|(&lt;=)|(&gt;=)|(&lt;&gt;)|(&lt;&lt;)|(&gt;&gt;)|(//)|(\\*\\*))</pre></li>
       <li>doubleDelimiters - RegEx - Regular Expressoin for double delimiters matching, default : <pre>^((\\+=)|(\\-=)|(\\*=)|(%=)|(/=)|(&amp;=)|(\\|=)|(\\^=))</pre></li>
       <li>tripleDelimiters - RegEx - Regular Expression for triple delimiters matching, default : <pre>^((//=)|(&gt;&gt;=)|(&lt;&lt;=)|(\\*\\*=))</pre></li>
-      <li>identifiers - RegEx - Regular Expression for identifier, default : <pre>^[_A-Za-z][_A-Za-z0-9]*</pre></li>
+      <li>identifiers - RegEx - Regular Expression for identifier, default : <pre>^[_A-Za-z][_A-Za-z0-9]*</pre> on Python 2 and <pre>^[_A-Za-z\u00A1-\uFFFF][_A-Za-z0-9\u00A1-\uFFFF]*</pre> on Python 3.</li>
       <li>extra_keywords - list of string - List of extra words ton consider as keywords</li>
       <li>extra_builtins - list of string - List of extra words ton consider as builtins</li>
     </ul>

@@ -22,6 +22,12 @@
      "[variable-2&formatting&formatting-list&formatting-list-ul - ][meta&formatting&formatting-task [ ]]][variable-2  foo]",
      "[variable-2&formatting&formatting-list&formatting-list-ul - ][property&formatting&formatting-task [x]]][variable-2  foo]");
 
+  FT("formatting_strikethrough",
+     "[strikethrough&formatting&formatting-strikethrough ~~][strikethrough foo][strikethrough&formatting&formatting-strikethrough ~~]");
+
+  FT("formatting_strikethrough",
+     "foo [strikethrough&formatting&formatting-strikethrough ~~][strikethrough bar][strikethrough&formatting&formatting-strikethrough ~~]");
+
   MT("emInWordAsterisk",
      "foo[em *bar*]hello");
 
@@ -161,4 +167,47 @@
      "Commit: [link be6a8cc1c1ecfe9489fb51e4869af15a13fc2cd2]",
      "Issue: [link #1]",
      "Link: [link http://www.example.com/]");
+
+  MT("strikethrough",
+     "[strikethrough ~~foo~~]");
+
+  MT("strikethroughWithStartingSpace",
+     "~~ foo~~");
+
+  MT("strikethroughUnclosedStrayTildes",
+    "[strikethrough ~~foo~~~]");
+
+  MT("strikethroughUnclosedStrayTildes",
+     "[strikethrough ~~foo ~~]");
+
+  MT("strikethroughUnclosedStrayTildes",
+    "[strikethrough ~~foo ~~ bar]");
+
+  MT("strikethroughUnclosedStrayTildes",
+    "[strikethrough ~~foo ~~ bar~~]hello");
+
+  MT("strikethroughOneLetter",
+     "[strikethrough ~~a~~]");
+
+  MT("strikethroughWrapped",
+     "[strikethrough ~~foo]",
+     "[strikethrough foo~~]");
+
+  MT("strikethroughParagraph",
+     "[strikethrough ~~foo]",
+     "",
+     "foo[strikethrough ~~bar]");
+
+  MT("strikethroughEm",
+     "[strikethrough ~~foo][em&strikethrough *bar*][strikethrough ~~]");
+
+  MT("strikethroughEm",
+     "[em *][em&strikethrough ~~foo~~][em *]");
+
+  MT("strikethroughStrong",
+     "[strikethrough ~~][strong&strikethrough **foo**][strikethrough ~~]");
+
+  MT("strikethroughStrong",
+     "[strong **][strong&strikethrough ~~foo~~][strong **]");
+
 })();
