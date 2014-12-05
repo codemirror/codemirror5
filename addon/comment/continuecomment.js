@@ -58,6 +58,13 @@
     cm.operation(function() {
       for (var i = ranges.length - 1; i >= 0; i--)
         cm.replaceRange(inserts[i], ranges[i].from(), ranges[i].to(), "+insert");
+      var cursor = cm.cursorCoords(null, 'local');
+      var scrollInfo = cm.getScrollInfo();
+      var  visHeight = scrollInfo.top + scrollInfo.clientHeight;
+      if (cursor.bottom > visHeight) {
+        var scrollPosH = scrollInfo.top + (cursor.bottom - visHeight);
+        cm.scrollTo(scrollInfo.left, scrollPosH);
+      }
     });
   }
 
