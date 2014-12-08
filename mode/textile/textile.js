@@ -58,16 +58,16 @@
   function handlePhraseModifier(stream, state, ch) {
     if (ch === "_") {
       if (stream.eat("_"))
-        return togglePhraseModifier(stream, state, "italic", /^.*__/);
+        return togglePhraseModifier(stream, state, "italic", /__/, 2);
       else
-        return togglePhraseModifier(stream, state, "em", /^.*_/);
+        return togglePhraseModifier(stream, state, "em", /_/, 1);
     }
 
     if (ch === "*") {
       if (stream.eat("*")) {
-        return togglePhraseModifier(stream, state, "bold", /^.*\*\*/);
+        return togglePhraseModifier(stream, state, "bold", /\*\*/, 2);
       }
-      return togglePhraseModifier(stream, state, "strong", /^.*\*/);
+      return togglePhraseModifier(stream, state, "strong", /\*/, 1);
     }
 
     if (ch === "[") {
@@ -85,44 +85,46 @@
       return tokenStylesWith(state, TOKEN_STYLES.html);
 
     if (ch === "?" && stream.eat("?"))
-      return togglePhraseModifier(stream, state, "cite", /^.*\?\?/);
+      return togglePhraseModifier(stream, state, "cite", /\?\?/, 2);
 
     if (ch === "=" && stream.eat("="))
-      return togglePhraseModifier(stream, state, "notextile", /^.*==/);
+      return togglePhraseModifier(stream, state, "notextile", /==/, 2);
 
     if (ch === "-")
-      return togglePhraseModifier(stream, state, "deletion", /^.*-/);
+      return togglePhraseModifier(stream, state, "deletion", /-/, 1);
 
     if (ch === "+")
-      return togglePhraseModifier(stream, state, "addition", /^.*\+/);
+      return togglePhraseModifier(stream, state, "addition", /\+/, 1);
 
     if (ch === "~")
-      return togglePhraseModifier(stream, state, "sub", /^.*~/);
+      return togglePhraseModifier(stream, state, "sub", /~/, 1);
 
     if (ch === "^")
-      return togglePhraseModifier(stream, state, "sup", /^.*\^/);
+      return togglePhraseModifier(stream, state, "sup", /\^/, 1);
 
     if (ch === "%")
-      return togglePhraseModifier(stream, state, "span", /^.*%/);
+      return togglePhraseModifier(stream, state, "span", /%/, 1);
 
     if (ch === "@")
-      return togglePhraseModifier(stream, state, "code", /^.*@/);
+      return togglePhraseModifier(stream, state, "code", /@/, 1);
 
     if (ch === "!") {
-      var type = togglePhraseModifier(stream, state, "image", /^.*(?:\([^\)]+\))?!/);
+      var type = togglePhraseModifier(stream, state, "image", /(?:\([^\)]+\))?!/, 1);
       stream.match(/^:\S+/); // optional Url portion
       return type;
     }
     return tokenStyles(state);
   }
 
-  function togglePhraseModifier(stream, state, phraseModifier, closeRE) {
-    if (state[phraseModifier]) { // remove phrase modifier
-      var type = tokenStyles(state);
-      state[phraseModifier] = false;
-      return type;
-    }
-    if (stream.match(closeRE, false)) { // add phrase modifier
+  function togglePhraseModifier(stream, state, phraseModifier, closeRE, openSize) {
+    if (state[phraseModifier]) {
+      if (stream.match(/^($|\W)/, false)) {
+        var type = tokenStyles(state);
+        state[phraseModifier] = false;
+        return type;
+      }
+    } else if ((stream.pos == openSize || /\W/.test(stream.string.charAt(stream.pos - 1 - openSize))) &&
+               stream.match(new RegExp("^.*" + closeRE.source + "(?=\\W|$)"), false)) {
       state[phraseModifier] = true;
       state.mode = Modes.attributes;
     }
