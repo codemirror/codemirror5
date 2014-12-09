@@ -155,6 +155,13 @@
     kill(cm, cm.getCursor(), findEnd(cm, by, dir), true);
   }
 
+  function killRegion(cm) {
+    if (cm.somethingSelected()) {
+      kill(cm, cm.getCursor("from"), cm.getCursor("to"));
+      return true;
+    }
+  }
+
   function addPrefix(cm, digit) {
     if (cm.state.emacsPrefix) {
       if (digit != "-") cm.state.emacsPrefix += digit;
@@ -283,9 +290,9 @@
     "Ctrl-F": move(byChar, 1), "Ctrl-B": move(byChar, -1),
     "Right": move(byChar, 1), "Left": move(byChar, -1),
     "Ctrl-D": function(cm) { killTo(cm, byChar, 1); },
-    "Delete": function(cm) { killTo(cm, byChar, 1); },
+    "Delete": function(cm) { killRegion(cm) || killTo(cm, byChar, 1); },
     "Ctrl-H": function(cm) { killTo(cm, byChar, -1); },
-    "Backspace": function(cm) { killTo(cm, byChar, -1); },
+    "Backspace": function(cm) { killRegion(cm) || killTo(cm, byChar, -1); },
 
     "Alt-F": move(byWord, 1), "Alt-B": move(byWord, -1),
     "Alt-D": function(cm) { killTo(cm, byWord, 1); },
