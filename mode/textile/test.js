@@ -411,4 +411,7 @@
 
   MT('phrase-non-word',
      '[negative -x-] aaa-bbb ccc-ddd [negative -eee-] fff [negative -ggg-]');
+
+  MT('phrase-lone-dash',
+     'foo - bar - baz');
 })();
