@@ -54,7 +54,8 @@ CodeMirror.defineMode("commonlisp", function (config) {
       if (name == ".") return null;
       type = "symbol";
       if (name == "nil" || name == "t") return "atom";
-      if (name.charAt(0) == ":" || assumeBody.test(name) || specialForm.test(name)) return "keyword";
+      if (name.charAt(0) == ":") return "keyword";
+      if (state.ctx.sibling===0 && (assumeBody.test(name) || specialForm.test(name))) return "keyword";
       if (name.charAt(0) == "&") return "variable-2";
       return "variable";
     }
@@ -100,8 +101,11 @@ CodeMirror.defineMode("commonlisp", function (config) {
           state.ctx.indentTo = stream.column();
         }
       }
-      if (type == "open") state.ctx = {prev: state.ctx, start: stream.column(), indentTo: null};
+
+      if (type == "open") state.ctx = {prev: state.ctx, start: stream.column(), sibling: 0, indentTo: null};
       else if (type == "close") state.ctx = state.ctx.prev || state.ctx;
+      else if (typeof state.ctx.sibling === "number") state.ctx.sibling++;
+
       return style;
     },
 
