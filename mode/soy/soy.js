@@ -11,10 +11,14 @@
 })(function(CodeMirror) {
   "use strict";
 
+  var indentingTags = ["template", "literal", "msg", "fallbackmsg", "let", "if", "elseif",
+                       "else", "switch", "case", "default", "foreach", "ifempty", "for",
+                       "call", "param", "log"];
+
   CodeMirror.defineMode("soy", function(config) {
     var textMode = CodeMirror.getMode(config, "text/plain");
     var modes = {
-      html: CodeMirror.getMode(config, "text/html"),
+      html: CodeMirror.getMode(config, {name: "text/html", multilineTagIndentFactor: 2, multilineTagIndentPastTag: false}),
       attributes: textMode,
       text: textMode,
       uri: textMode,
@@ -22,21 +26,22 @@
       js: CodeMirror.getMode(config, "text/javascript")
     };
 
-    var indentingTags = ["template", "literal", "msg", "fallbackmsg", "let", "if", "elseif",
-                         "else", "switch", "case", "default", "foreach", "ifempty", "for",
-                         "call", "param", "log"];
-
     function last(array) {
       return array[array.length - 1];
     }
 
-    function maybeBackUp(stream, state, backUpOn) {
-      var token = state.localMode.token(stream, state.localState);
-      var pos = stream.current().search(backUpOn);
-      if (pos > 0) {
-        stream.backUp(stream.current().length - pos);
+    function tokenUntil(stream, state, untilRegExp) {
+      var oldString = stream.string;
+      var match = untilRegExp.exec(oldString.substr(stream.pos));
+      if (match) {
+        // This uses an undocumented API.
+        stream.string = oldString.substr(0, stream.pos + match.index);
       }
-      return token;
+      var result = stream.hideFirstChars(state.indent, function() {
+        return state.localMode.token(stream, state.localState);
+      });
+      stream.string = oldString;
+      return result;
     }
 
     return {
@@ -45,6 +50,7 @@
           kind: [],
           kindTag: [],
           soyState: [],
+          indent: 0,
           localMode: modes.html,
           localState: CodeMirror.startState(modes.html)
         };
@@ -85,16 +91,16 @@
 
           case "tag":
             if (stream.match(/^\/?}/)) {
-              state.indent -= (/^\//.test(state.tag) || stream.current() == "/}" || indentingTags.indexOf(state.tag) == -1 ? 2 : 1) * config.indentUnit;
+              state.indent -= (/^\//.test(state.tag) ? 3 : (stream.current() == "/}" || indentingTags.indexOf(state.tag) == -1 ? 2 : 1)) * config.indentUnit;
               state.soyState.pop();
               return "keyword";
-            } else if (stream.match(/^(\w+)(?==)/i)) {
+            } else if (stream.match(/^(\w+)(?==)/)) {
               if (stream.current() == "kind" && (match = stream.match(/^="([^"]+)/, false))) {
                 var kind = match[1];
                 state.kind.push(kind);
                 state.kindTag.push(state.tag);
                 state.localMode = modes[kind] || modes.html;
-                state.localState = CodeMirror.startState(state.localMode, state.indent); // TODO: Base indent isn't supported by the HTML mode.
+                state.localState = CodeMirror.startState(state.localMode);
               }
               return "attribute";
             } else if (stream.match(/^"/)) {
@@ -105,12 +111,12 @@
             return null;
 
           case "literal":
-            if (stream.match(/^\{\/literal}/)) {
+            if (stream.match(/^(?=\{\/literal})/)) {
               state.indent -= config.indentUnit;
               state.soyState.pop();
-              return "keyword";
+              return this.token(stream, state);
             }
-            return maybeBackUp(stream, state, /\{/);
+            return tokenUntil(stream, state, /\{\/literal}/);
 
           case "string":
             if (stream.match(/^.*?"/)) {
@@ -124,48 +130,48 @@
         if (stream.match(/^\/\*/)) {
           state.soyState.push("comment");
           return "comment";
-        } else if (stream.match(stream.sol() ? /^\/\// : /^\s+\/\//)) {
+        } else if (stream.match(stream.sol() ? /^\/\/.*/ : /^\s+\/\/.*/)) {
           return "comment";
-        } else if (stream.match(/^\{\$\w*/i)) {
-          state.indent = stream.indentation() + 2 * config.indentUnit;
+        } else if (stream.match(/^\{\$\w*/)) {
+          state.indent += 2 * config.indentUnit;
           state.soyState.push("variable");
           return "variable-2";
-        } else if (stream.match(/^\{literal}/i)) {
-          state.indent = stream.indentation() + config.indentUnit;
+        } else if (stream.match(/^\{literal}/)) {
+          state.indent += config.indentUnit;
           state.soyState.push("literal");
           return "keyword";
-        } else if (match = stream.match(/^\{([\/@\\]?\w*)/i)) {
-          state.indent = stream.indentation() + 2 * config.indentUnit;
+        } else if (match = stream.match(/^\{([\/@\\]?\w*)/)) {
+          state.indent += 2 * config.indentUnit;
           state.tag = match[1];
           if (state.tag == "/" + last(state.kindTag)) {
             // We found the tag that opened the current kind="".
             state.kind.pop();
             state.kindTag.pop();
             state.localMode = modes[last(state.kind)] || modes.html;
-            state.localState = CodeMirror.startState(state.localMode, state.indent);
+            state.localState = CodeMirror.startState(state.localMode);
           }
           state.soyState.push("tag");
           return "keyword";
         }
 
-        return maybeBackUp(stream, state, /\{|\/\/|\/\*/);
+        return tokenUntil(stream, state, /\{|\s+\/\/|\/\*/);
       },
 
       indent: function(state, textAfter) {
-        if (/^\{(\/|(fallbackmsg|elseif|else|ifempty)\b)/.test(textAfter))
-          return state.indent - config.indentUnit;
-
-        // TODO: Defer to inner modes.
-        return state.indent;
+        var indent = state.indent;
+        if (last(state.soyState) == "literal" ? /^\{\/literal}/.test(textAfter) : /^\{(\/|(fallbackmsg|elseif|else|ifempty)\b)/.test(textAfter)) {
+          indent -= config.indentUnit;
+        }
+        indent += state.localMode.indent(state.localState, textAfter);
+        return indent;
       },
 
       innerMode: function(state) {
-        var ctx = last(state.soyState);
-        if (ctx == "comment" || ctx == "variable" || ctx == "tag") return null;
+        if (state.soyState.length && last(state.soyState) != "literal") return null;
         else return {state: state.localState, mode: state.localMode};
       },
 
-      electricInput: /^\s*(}|{\/)$/,
+      electricInput: /^\s*\{(\/|fallbackmsg|elseif|else|ifempty|\/literal\})$/,
       lineComment: "//",
       blockCommentStart: "/*",
       blockCommentEnd: "*/",
@@ -174,10 +180,8 @@
     };
   }, "htmlmixed");
 
-  CodeMirror.registerHelper(("hintWords", "soy", "delpackage namespace alias template param " +
-                             "literal print msg fallbackmsg let if elseif else switch case " +
-                             "default foreach ifempty for call param deltemplate delcall css " +
-                             "log debugger").split(" "));
+  CodeMirror.registerHelper("hintWords", "soy", indentingTags.concat(
+      ["delpackage", "namespace", "alias", "print", "css", "debugger"]));
 
   CodeMirror.defineMIME("text/x-soy", "soy");
 });
