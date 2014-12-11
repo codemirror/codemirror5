@@ -8,8 +8,9 @@
 <script src="../lib/codemirror.js"></script>
 <script src="../mode/xml/xml.js"></script>
 <style type="text/css">
-      .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}
-    </style>
+  .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}
+  fieldset {border: none}
+</style>
 <div id=nav>
   <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../doc/logo.png"></a>
 
@@ -25,7 +26,11 @@
 
 <article>
 <h2>Bi-directional Text Demo</h2>
-<form><textarea id="code" name="code"><!-- Piece of the CodeMirror manual, 'translated' into Arabic by Google Translate -->
+<p>First line starts (in logical order) with א 1 and ends with תת:</p>
+<form><textarea id="code" name="code">
+א 1 בב 22 גגג 4444 דדדד 55555 ההההה 666666 זזזזזז 7777777 חחחחחחח 88888888 טטטטטטטטט 999999999 יייייייייי כככככככככככ לללללללללללל מממממממממממממ ננננננננננננננ ססססססססססססססס עעעעעעעעעעעעעעעע צצצצצצצצצצצצצצצצצ קקקקקקקקקקקקקקקקקקק רררררררררררררררררררר ששששששששששששששששששששש תתתתתתתתתתתתתתתתתתתתתת
+
+<!-- Piece of the CodeMirror manual, 'translated' into Arabic by Google Translate -->
 <!-- قطعة من دليل CodeMirror، "ترجم" إلى العربية بواسطة جوجل ترجمة -->
 
 <dl>
@@ -37,7 +42,16 @@
   <dt id=option_theme><code>theme (string)</code></dt>
   <dd>موضوع لنمط المحرر مع. يجب عليك التأكد من الملف CSS تحديد المقابلة <code>.cm-s-[name]</code> يتم تحميل أنماط (انظر <a href="../theme/"><code>theme</code></a> الدليل في التوزيع). الافتراضي هو <code>"default"</code> ، والتي تم تضمينها في الألوان <code>codemirror.css</code>. فمن الممكن استخدام فئات متعددة في تطبيق السمات مرة واحدة على سبيل المثال <code>"foo bar"</code> سيتم تعيين كل من <code>cm-s-foo</code> و <code>cm-s-bar</code> الطبقات إلى المحرر.</dd>
 </dl>
-</textarea></form>
+</textarea>
+  <fieldset>
+    Editor default direction:
+    <input type="radio" id="ltr" name="direction"/><label for="ltr">LTR</label>
+    <input type="radio" id="rtl" name="direction"/><label for="rtl">RTL</label>
+  </fieldset>
+  <fieldset>
+    <input type="checkbox" id="rtlMoveVisually"/><label for="rtlMoveVisually">Use visual order for arrow key movement.</label>
+  </fieldset>
+</form>
 
     <script>
 var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
@@ -45,11 +59,29 @@ var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
   lineNumbers: true,
   lineWrapping: true,
   direction: "rtl",
-  rtlMoveVisually: true
+  extraKeys: {"Alt-L": "setSelDirectionLtr",
+              "Alt-R": "setSelDirectionRtl",
+              "Alt-E": "setSelDirectionDefault"}
 });
+
+var dirRadios = {ltr: document.getElementById("ltr"),
+                 rtl: document.getElementById("rtl")};
+dirRadios[editor.getOption("direction")].checked = true;
+dirRadios["rtl"].onchange = dirRadios["ltr"].onchange = function() {
+  console.log(dirRadios.ltr.checked, dirRadios.rtl.checked);
+  editor.setOption("direction", dirRadios["rtl"].checked ? "rtl" : "ltr");
+};
+
+var moveCheckbox = document.getElementById("rtlMoveVisually");
+moveCheckbox.checked = editor.getOption("rtlMoveVisually");
+moveCheckbox.onchange = function() {
+  editor.setOption("rtlMoveVisually", moveCheckbox.checked);
+};
 </script>
 
   <p>Demonstration of bi-directional text support. See
   the <a href="http://marijnhaverbeke.nl/blog/cursor-in-bidi-text.html">related
   blog post</a> for more background.</p>
+
+  <p>You can set base direction of individual line (or multiple selected lines) to LTR/RTL/editor default by pressing <kbd>Ctrl-Alt-Left/Right/Down</kbd> (Mac) or <kbd>Ctrl-Alt-,/./slash</kbd> (other platforms) respectively.  In this demo, <kbd>Alt-L/R/E</kbd> also work.</p>
 </article>
