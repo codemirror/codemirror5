@@ -30,13 +30,16 @@
       return array[array.length - 1];
     }
 
-    function maybeBackUp(stream, state, backUpOn) {
-      var token = state.localMode.token(stream, state.localState);
-      var pos = stream.current().search(backUpOn);
-      if (pos > 0) {
-        stream.backUp(stream.current().length - pos);
+    function tokenUntil(stream, state, untilRegExp) {
+      var oldString = stream.string;
+      var match = untilRegExp.exec(oldString.substr(stream.pos));
+      if (match) {
+        // This uses an undocumented API.
+        stream.string = oldString.substr(0, stream.pos + match.index);
       }
-      return token;
+      var result = state.localMode.token(stream, state.localState);
+      stream.string = oldString;
+      return result;
     }
 
     return {
@@ -112,7 +115,7 @@
               state.soyState.pop();
               return "keyword";
             }
-            return maybeBackUp(stream, state, /\{/);
+            return tokenUntil(stream, state, /\{\/literal}/);
 
           case "string":
             if (stream.match(/^.*?"/)) {
@@ -126,7 +129,7 @@
         if (stream.match(/^\/\*/)) {
           state.soyState.push("comment");
           return "comment";
-        } else if (stream.match(stream.sol() ? /^\/\// : /^\s+\/\//)) {
+        } else if (stream.match(stream.sol() ? /^\/\/.*/ : /^\s+\/\/.*/)) {
           return "comment";
         } else if (stream.match(/^\{\$\w*/)) {
           state.indent = stream.indentation() + 2 * config.indentUnit;
@@ -152,7 +155,7 @@
 
         state.forceIndent = false;
         state.indent = stream.indentation();
-        return maybeBackUp(stream, state, /\{|\/\/|\/\*/);
+        return tokenUntil(stream, state, /\{|\s+\/\/|\/\*/);
       },
 
       indent: function(state, textAfter) {
@@ -171,6 +174,7 @@
         else return {state: state.localState, mode: state.localMode};
       },
 
+      // TODO: This doesn't work for {/literal} because it uses innerMode.
       electricInput: /^\s*\{(\/|fallbackmsg|elseif|else|ifempty)$/,
       lineComment: "//",
       blockCommentStart: "/*",
