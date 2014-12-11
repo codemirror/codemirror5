@@ -11,7 +11,7 @@
 })(function(CodeMirror) {
   "use strict";
 
-  CodeMirror.defineMode("soy", function(config, parserConfig) {
+  CodeMirror.defineMode("soy", function(config) {
     var textMode = CodeMirror.getMode(config, "text/plain");
     var modes = {
       html: CodeMirror.getMode(config, "text/html"),
@@ -22,7 +22,9 @@
       js: CodeMirror.getMode(config, "text/javascript")
     };
 
-    var indentingTags = ["template", "literal", "msg", "fallbackmsg", "let", "if", "elseif", "else", "switch", "case", "default", "foreach", "ifempty", "for", "call", "param", "log"];
+    var indentingTags = ["template", "literal", "msg", "fallbackmsg", "let", "if", "elseif",
+                         "else", "switch", "case", "default", "foreach", "ifempty", "for",
+                         "call", "param", "log"];
 
     function last(array) {
       return array[array.length - 1];
@@ -117,7 +119,6 @@
               stream.skipToEnd();
             }
             return "string";
-
         }
 
         if (stream.match(/^\/\*/)) {
@@ -133,7 +134,7 @@
           state.indent = stream.indentation() + config.indentUnit;
           state.soyState.push("literal");
           return "keyword";
-        } else if (match = stream.match(/^\{([/@\\]?\w*)/i)) {
+        } else if (match = stream.match(/^\{([\/@\\]?\w*)/i)) {
           state.indent = stream.indentation() + 2 * config.indentUnit;
           state.tag = match[1];
           if (state.tag == "/" + last(state.kindTag)) {
@@ -151,16 +152,20 @@
       },
 
       indent: function(state, textAfter) {
-        if (/^\{(\/|fallbackmsg|elseif|else|ifempty)\b/.test(textAfter)) {
+        if (/^\{(\/|(fallbackmsg|elseif|else|ifempty)\b)/.test(textAfter))
           return state.indent - config.indentUnit;
-        }
+
         // TODO: Defer to inner modes.
         return state.indent;
       },
 
-      // We don't define innerMode because electricInput works only for inner modes and we need it to work for Soy.
+      innerMode: function(state) {
+        var ctx = last(state.soyState);
+        if (ctx == "comment" || ctx == "variable" || ctx == "tag") return null;
+        else return {state: state.localState, mode: state.localMode};
+      },
 
-      electricInput: /(}|<\/[\s\w:]+>)$/, // This covers Soy, JS, CSS and HTML.
+      electricInput: /^\s*(}|{\/)$/,
       lineComment: "//",
       blockCommentStart: "/*",
       blockCommentEnd: "*/",
@@ -169,7 +174,10 @@
     };
   }, "htmlmixed");
 
-  CodeMirror.registerHelper("hintWords", "soy", "delpackage namespace alias template param literal print msg fallbackmsg let if elseif else switch case default foreach ifempty for call param deltemplate delcall css log debugger".split(" "));
+  CodeMirror.registerHelper(("hintWords", "soy", "delpackage namespace alias template param " +
+                             "literal print msg fallbackmsg let if elseif else switch case " +
+                             "default foreach ifempty for call param deltemplate delcall css " +
+                             "log debugger").split(" "));
 
   CodeMirror.defineMIME("text/x-soy", "soy");
 });

@@ -105,6 +105,7 @@
     {name: "Smarty", mime: "text/x-smarty", mode: "smarty", ext: ["tpl"]},
     {name: "SmartyMixed", mime: "text/x-smarty", mode: "smartymixed"},
     {name: "Solr", mime: "text/x-solr", mode: "solr"},
+    {name: "Soy", mime: "text/x-soy", mode: "soy", ext: ["soy"], alias: ["closure template"]},
     {name: "SPARQL", mime: "application/sparql-query", mode: "sparql", ext: ["rq", "sparql"], alias: ["sparul"]},
     {name: "SQL", mime: "text/x-sql", mode: "sql", ext: ["sql"]},
     {name: "MariaDB", mime: "text/x-mariadb", mode: "sql"},
