@@ -2,12 +2,16 @@
 // Distributed under an MIT license: http://codemirror.net/LICENSE
 
 (function(mod) {
-  if (typeof exports == "object" && typeof module == "object") // CommonJS
-    mod(require("../../lib/codemirror"), require("../xml/xml"), require("../meta"));
-  else if (typeof define == "function" && define.amd) // AMD
+  if (typeof exports == "object" && typeof module == "object") { // CommonJS
+    var cm = require("../../lib/codemirror");
+    var xml = require("../xml/xml");
+    var meta = require("../meta");
+    mod(cm, xml, meta);
+  } else if (typeof define == "function" && define.amd) { // AMD
     define(["../../lib/codemirror", "../xml/xml", "../meta"], mod);
-  else // Plain browser env
+  } else { // Plain browser env
     mod(CodeMirror);
+  }
 })(function(CodeMirror) {
 "use strict";
 
