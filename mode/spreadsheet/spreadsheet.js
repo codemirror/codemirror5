@@ -78,12 +78,10 @@
             if (stream.match(/[\][a-z]+/)) {
               return "string-2";
             }
+
           case ".":
           case ",":
           case ";":
-            if (stream.match(".")) {
-              return "atom";
-            }
           case "*":
           case "-":
           case "+":
