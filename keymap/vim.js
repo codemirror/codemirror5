@@ -1734,7 +1734,7 @@
         return Pos(lineNum,
                    findFirstNonWhiteSpaceCharacter(cm.getLine(lineNum)));
       },
-      textObjectManipulation: function(cm, head, motionArgs) {
+      textObjectManipulation: function(cm, head, motionArgs, vim) {
         // TODO: lots of possible exceptions that can be thrown here. Try da(
         //     outside of a () block.
 
@@ -1774,6 +1774,14 @@
                                                      false /** bigWord */);
         } else if (character === 'p') {
           tmp = findParagraph(cm, head, motionArgs.repeat, 0, inclusive);
+          motionArgs.linewise = true;
+          if (vim.visualMode) {
+            if (!vim.visualLine) { vim.visualLine = true; }
+          } else {
+            var operatorArgs = vim.inputState.operatorArgs;
+            if (operatorArgs) { operatorArgs.linewise = true; }
+            tmp.end.line--;
+          }
         } else {
           // No text object defined for this, don't move.
           return null;
@@ -3300,7 +3308,7 @@
       }
 
       var vim = cm.state.vim;
-      if (vim.visualMode && isBoundary(line, 1, true)) {
+      if (vim.visualLine && isBoundary(line, 1, true)) {
         var anchor = vim.sel.anchor;
         if (isBoundary(anchor.line, -1, true)) {
           if (!inclusive || anchor.line != line) {

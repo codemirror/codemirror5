@@ -533,10 +533,10 @@ testVim('paragraph motions', function(cm, vim, helpers) {
   eqPos(Pos(7, 0), cm.getCursor('anchor'));
   eqPos(Pos(16, 1), cm.getCursor('head'));
 
-  // TODO: this should switch to visual mode
-  // cm.setCursor(14, 0);
-  // helpers.doKeys('<Esc>', 'v', 'i', 'p');
-  // helpers.assertCursorAt(14, 0);
+  // should switch to visualLine mode
+  cm.setCursor(14, 0);
+  helpers.doKeys('<Esc>', 'v', 'i', 'p');
+  helpers.assertCursorAt(14, 0);
 
   cm.setCursor(14, 0);
   helpers.doKeys('<Esc>', 'V', 'i', 'p');
@@ -565,6 +565,16 @@ testVim('paragraph motions', function(cm, vim, helpers) {
   helpers.doKeys('v', 'a', 'p');
   eqPos(Pos(0, 0), cm.getCursor('anchor'));
   eqPos(Pos(4, 0), cm.getCursor('head'));
+
+  cm.setCursor(0, 0);
+  helpers.doKeys('d', 'i', 'p');
+  var register = helpers.getRegisterController().getRegister();
+  eq('a\na\n', register.toString());
+  is(register.linewise);
+  helpers.doKeys('3', 'j', 'p');
+  helpers.doKeys('y', 'i', 'p');
+  is(register.linewise);
+  eq('b\na\na\nc\n', register.toString());
 }, { value: 'a\na\n\n\n\nb\nc\n\n\n\n\n\n\nd\n\ne\nf' });
 
 // Operator tests
