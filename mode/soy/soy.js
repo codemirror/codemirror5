@@ -11,6 +11,10 @@
 })(function(CodeMirror) {
   "use strict";
 
+  var indentingTags = ["template", "literal", "msg", "fallbackmsg", "let", "if", "elseif",
+                       "else", "switch", "case", "default", "foreach", "ifempty", "for",
+                       "call", "param", "log"];
+
   CodeMirror.defineMode("soy", function(config) {
     var textMode = CodeMirror.getMode(config, "text/plain");
     var modes = {
@@ -21,10 +25,6 @@
       css: CodeMirror.getMode(config, "text/css"),
       js: CodeMirror.getMode(config, "text/javascript")
     };
-
-    var indentingTags = ["template", "literal", "msg", "fallbackmsg", "let", "if", "elseif",
-                         "else", "switch", "case", "default", "foreach", "ifempty", "for",
-                         "call", "param", "log"];
 
     function last(array) {
       return array[array.length - 1];
@@ -57,6 +57,7 @@
           kindTag: state.kindTag.concat([]), // Opened tags with kind="" attributes.
           soyState: state.soyState.concat([]),
           indent: state.indent, // Indentation of the following line.
+          forceIndent: state.forceIndent, // Whether we want to enforce this indentation.
           localMode: state.localMode,
           localState: CodeMirror.copyState(state.localMode, state.localState)
         };
@@ -64,6 +65,7 @@
 
       token: function(stream, state) {
         var match;
+        state.forceIndent = true;
 
         switch (last(state.soyState)) {
           case "comment":
@@ -88,7 +90,7 @@
               state.indent -= (/^\//.test(state.tag) || stream.current() == "/}" || indentingTags.indexOf(state.tag) == -1 ? 2 : 1) * config.indentUnit;
               state.soyState.pop();
               return "keyword";
-            } else if (stream.match(/^(\w+)(?==)/i)) {
+            } else if (stream.match(/^(\w+)(?==)/)) {
               if (stream.current() == "kind" && (match = stream.match(/^="([^"]+)/, false))) {
                 var kind = match[1];
                 state.kind.push(kind);
@@ -126,15 +128,15 @@
           return "comment";
         } else if (stream.match(stream.sol() ? /^\/\// : /^\s+\/\//)) {
           return "comment";
-        } else if (stream.match(/^\{\$\w*/i)) {
+        } else if (stream.match(/^\{\$\w*/)) {
           state.indent = stream.indentation() + 2 * config.indentUnit;
           state.soyState.push("variable");
           return "variable-2";
-        } else if (stream.match(/^\{literal}/i)) {
+        } else if (stream.match(/^\{literal}/)) {
           state.indent = stream.indentation() + config.indentUnit;
           state.soyState.push("literal");
           return "keyword";
-        } else if (match = stream.match(/^\{([\/@\\]?\w*)/i)) {
+        } else if (match = stream.match(/^\{([\/@\\]?\w*)/)) {
           state.indent = stream.indentation() + 2 * config.indentUnit;
           state.tag = match[1];
           if (state.tag == "/" + last(state.kindTag)) {
@@ -148,6 +150,8 @@
           return "keyword";
         }
 
+        state.forceIndent = false;
+        state.indent = stream.indentation();
         return maybeBackUp(stream, state, /\{|\/\/|\/\*/);
       },
 
@@ -155,17 +159,19 @@
         if (/^\{(\/|(fallbackmsg|elseif|else|ifempty)\b)/.test(textAfter))
           return state.indent - config.indentUnit;
 
+        if (state.forceIndent) {
+          return state.indent;
+        }
         // TODO: Defer to inner modes.
-        return state.indent;
+        return CodeMirror.Pass;
       },
 
       innerMode: function(state) {
-        var ctx = last(state.soyState);
-        if (ctx == "comment" || ctx == "variable" || ctx == "tag") return null;
+        if (state.soyState.length && last(state.soyState) != "literal") return null;
         else return {state: state.localState, mode: state.localMode};
       },
 
-      electricInput: /^\s*(}|{\/)$/,
+      electricInput: /^\s*\{(\/|fallbackmsg|elseif|else|ifempty)$/,
       lineComment: "//",
       blockCommentStart: "/*",
       blockCommentEnd: "*/",
@@ -174,10 +180,8 @@
     };
   }, "htmlmixed");
 
-  CodeMirror.registerHelper(("hintWords", "soy", "delpackage namespace alias template param " +
-                             "literal print msg fallbackmsg let if elseif else switch case " +
-                             "default foreach ifempty for call param deltemplate delcall css " +
-                             "log debugger").split(" "));
+  CodeMirror.registerHelper("hintWords", "soy", indentingTags.concat(
+      ["delpackage", "namespace", "alias", "print", "css", "debugger"]));
 
   CodeMirror.defineMIME("text/x-soy", "soy");
 });
