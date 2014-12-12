@@ -12,11 +12,6 @@
   "use strict";
 
   CodeMirror.defineMode("spreadsheet", function () {
-    var stateType = {
-	  string: 'string',
-	  characterClass: 'characterClass'
-    };
-
     return {
       startState: function () {
         return {
@@ -33,78 +28,71 @@
           if ((stream.peek() == '"') || (stream.peek() == "'")) {
             state.stringType = stream.peek();
             stream.next(); // Skip quote
-            state.stack.unshift(stateType.string);
+            state.stack.unshift("string");
           }
         }
 
         //return state
         //stack has
         switch (state.stack[0]) {
-          case stateType.string:
-            while (state.stack[0] === stateType.string && !stream.eol()) {
-              if (stream.peek() === state.stringType) {
-                stream.next(); // Skip quote
-                state.stack.shift(); // Clear flag
-              } else if (stream.peek() === "\\") {
-                stream.next();
-                stream.next();
-              } else {
-                stream.match(/^.[^\\\"\']*/);
-              }
+        case "string":
+          while (state.stack[0] === "string" && !stream.eol()) {
+            if (stream.peek() === state.stringType) {
+              stream.next(); // Skip quote
+              state.stack.shift(); // Clear flag
+            } else if (stream.peek() === "\\") {
+              stream.next();
+              stream.next();
+            } else {
+              stream.match(/^.[^\\\"\']*/);
             }
-            return "string";
+          }
+          return "string";
 
-          case stateType.characterClass:
-            while (state.stack[0] === stateType.characterClass && !stream.eol()) {
-              if (!(stream.match(/^[^\]\\]+/) || stream.match(/^\\./))) {
-                state.stack.shift();
-              }
-            }
-            return "operator";
+        case "characterClass":
+          while (state.stack[0] === "characterClass" && !stream.eol()) {
+            if (!(stream.match(/^[^\]\\]+/) || stream.match(/^\\./)))
+              state.stack.shift();
+          }
+          return "operator";
         }
 
         var peek = stream.peek();
 
         //no stack
         switch (peek) {
-          case "[":
-            stream.next();
-            state.stack.unshift(stateType.characterClass);
-            return "bracket";
-          case ":":
-            stream.next();
-            return "operator";
-          case "\\":
-            if (stream.match(/[\][a-z]+/)) {
-              return "string-2";
-            }
-
-          case ".":
-          case ",":
-          case ";":
-          case "*":
-          case "-":
-          case "+":
-          case "^":
-          case "<":
-          case "/":
-          case "=":
-            stream.next();
-            return "atom";
-          case "$":
-            stream.next();
-            return "builtin";
+        case "[":
+          stream.next();
+          state.stack.unshift("characterClass");
+          return "bracket";
+        case ":":
+          stream.next();
+          return "operator";
+        case "\\":
+          if (stream.match(/\\[a-z]+/)) return "string-2";
+          else return null;
+        case ".":
+        case ",":
+        case ";":
+        case "*":
+        case "-":
+        case "+":
+        case "^":
+        case "<":
+        case "/":
+        case "=":
+          stream.next();
+          return "atom";
+        case "$":
+          stream.next();
+          return "builtin";
         }
 
-        if (stream.match(/[0-9]+/)) {
-          if (stream.match(/^[a-zA-Z_][a-zA-Z0-9_]*/)) {
-            return "error";
-          }
+        if (stream.match(/\d+/)) {
+          if (stream.match(/^\w+/)) return "error";
           return "number";
-        } else if (stream.match(/^[a-zA-Z_][a-zA-Z0-9_]*/)) {
-          if (stream.match(/(?=[\(.])/, false)) {
-            return "keyword";
-          }
+        } else if (stream.match(/^[a-zA-Z_]\w*/)) {
+          if (stream.match(/(?=[\(.])/, false)) return "keyword";
           return "variable-2";
         } else if (["[", "]", "(", ")", "{", "}"].indexOf(peek) != -1) {
           stream.next();
