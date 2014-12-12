@@ -110,10 +110,10 @@
             return null;
 
           case "literal":
-            if (stream.match(/^\{\/literal}/)) {
+            if (stream.match(/^(?=\{\/literal})/)) {
               state.indent -= config.indentUnit;
               state.soyState.pop();
-              return "keyword";
+              return this.token(stream, state);
             }
             return tokenUntil(stream, state, /\{\/literal}/);
 
@@ -159,7 +159,7 @@
       },
 
       indent: function(state, textAfter) {
-        if (/^\{(\/|(fallbackmsg|elseif|else|ifempty)\b)/.test(textAfter))
+        if (last(state.soyState) == "literal" ? /^\{\/literal}/.test(textAfter) : /^\{(\/|(fallbackmsg|elseif|else|ifempty)\b)/.test(textAfter))
           return state.indent - config.indentUnit;
 
         if (state.forceIndent) {
@@ -174,8 +174,7 @@
         else return {state: state.localState, mode: state.localMode};
       },
 
-      // TODO: This doesn't work for {/literal} because it uses innerMode.
-      electricInput: /^\s*\{(\/|fallbackmsg|elseif|else|ifempty)$/,
+      electricInput: /^\s*\{(\/|fallbackmsg|elseif|else|ifempty|\/literal\})$/,
       lineComment: "//",
       blockCommentStart: "/*",
       blockCommentEnd: "*/",
