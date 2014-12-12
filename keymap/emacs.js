@@ -132,8 +132,8 @@
     };
   }
 
-  function findEnd(cm, by, dir) {
-    var pos = cm.getCursor(), prefix = getPrefix(cm);
+  function findEnd(cm, pos, by, dir) {
+    var prefix = getPrefix(cm);
     if (prefix < 0) { dir = -dir; prefix = -prefix; }
     for (var i = 0; i < prefix; ++i) {
       var newPos = by(cm, pos, dir);
@@ -145,19 +145,29 @@
 
   function move(by, dir) {
     var f = function(cm) {
-      cm.extendSelection(findEnd(cm, by, dir));
+      cm.extendSelection(findEnd(cm, cm.getCursor(), by, dir));
     };
     f.motion = true;
     return f;
   }
 
   function killTo(cm, by, dir) {
-    kill(cm, cm.getCursor(), findEnd(cm, by, dir), true);
+    var selections = cm.listSelections(), cursor;
+    var i = selections.length;
+    while (i--) {
+      cursor = selections[i].head;
+      kill(cm, cursor, findEnd(cm, cursor, by, dir), true);
+    }
   }
 
   function killRegion(cm) {
     if (cm.somethingSelected()) {
-      kill(cm, cm.getCursor("from"), cm.getCursor("to"));
+      var selections = cm.listSelections(), selection;
+      var i = selections.length;
+      while (i--) {
+        selection = selections[i];
+        kill(cm, selection.anchor, selection.head);
+      }
       return true;
     }
   }
@@ -316,7 +326,8 @@
     "Ctrl-Alt-F": move(byExpr, 1), "Ctrl-Alt-B": move(byExpr, -1),
 
     "Shift-Ctrl-Alt-2": function(cm) {
-      cm.setSelection(findEnd(cm, byExpr, 1), cm.getCursor());
+      var cursor = cm.getCursor();
+      cm.setSelection(findEnd(cm, cursor, byExpr, 1), cursor);
     },
     "Ctrl-Alt-T": function(cm) {
       var leftStart = byExpr(cm, cm.getCursor(), -1), leftEnd = byExpr(cm, leftStart, 1);
