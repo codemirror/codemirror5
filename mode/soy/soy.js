@@ -18,7 +18,7 @@
   CodeMirror.defineMode("soy", function(config) {
     var textMode = CodeMirror.getMode(config, "text/plain");
     var modes = {
-      html: CodeMirror.getMode(config, "text/html"),
+      html: CodeMirror.getMode(config, {name: "text/html", multilineTagIndentFactor: 2, multilineTagIndentPastTag: false}),
       attributes: textMode,
       text: textMode,
       uri: textMode,
@@ -37,7 +37,9 @@
         // This uses an undocumented API.
         stream.string = oldString.substr(0, stream.pos + match.index);
       }
-      var result = state.localMode.token(stream, state.localState);
+      var result = stream.hideFirstChars(state.indent, function() {
+        return state.localMode.token(stream, state.localState);
+      });
       stream.string = oldString;
       return result;
     }
@@ -48,6 +50,7 @@
           kind: [],
           kindTag: [],
           soyState: [],
+          indent: 0,
           localMode: modes.html,
           localState: CodeMirror.startState(modes.html)
         };
@@ -60,7 +63,6 @@
           kindTag: state.kindTag.concat([]), // Opened tags with kind="" attributes.
           soyState: state.soyState.concat([]),
           indent: state.indent, // Indentation of the following line.
-          forceIndent: state.forceIndent, // Whether we want to enforce this indentation.
           localMode: state.localMode,
           localState: CodeMirror.copyState(state.localMode, state.localState)
         };
@@ -68,7 +70,6 @@
 
       token: function(stream, state) {
         var match;
-        state.forceIndent = true;
 
         switch (last(state.soyState)) {
           case "comment":
@@ -90,7 +91,7 @@
 
           case "tag":
             if (stream.match(/^\/?}/)) {
-              state.indent -= (/^\//.test(state.tag) || stream.current() == "/}" || indentingTags.indexOf(state.tag) == -1 ? 2 : 1) * config.indentUnit;
+              state.indent -= (/^\//.test(state.tag) ? 3 : (stream.current() == "/}" || indentingTags.indexOf(state.tag) == -1 ? 2 : 1)) * config.indentUnit;
               state.soyState.pop();
               return "keyword";
             } else if (stream.match(/^(\w+)(?==)/)) {
@@ -99,7 +100,7 @@
                 state.kind.push(kind);
                 state.kindTag.push(state.tag);
                 state.localMode = modes[kind] || modes.html;
-                state.localState = CodeMirror.startState(state.localMode, state.indent); // TODO: Base indent isn't supported by the HTML mode.
+                state.localState = CodeMirror.startState(state.localMode);
               }
               return "attribute";
             } else if (stream.match(/^"/)) {
@@ -132,41 +133,37 @@
         } else if (stream.match(stream.sol() ? /^\/\/.*/ : /^\s+\/\/.*/)) {
           return "comment";
         } else if (stream.match(/^\{\$\w*/)) {
-          state.indent = stream.indentation() + 2 * config.indentUnit;
+          state.indent += 2 * config.indentUnit;
           state.soyState.push("variable");
           return "variable-2";
         } else if (stream.match(/^\{literal}/)) {
-          state.indent = stream.indentation() + config.indentUnit;
+          state.indent += config.indentUnit;
           state.soyState.push("literal");
           return "keyword";
         } else if (match = stream.match(/^\{([\/@\\]?\w*)/)) {
-          state.indent = stream.indentation() + 2 * config.indentUnit;
+          state.indent += 2 * config.indentUnit;
           state.tag = match[1];
           if (state.tag == "/" + last(state.kindTag)) {
             // We found the tag that opened the current kind="".
             state.kind.pop();
             state.kindTag.pop();
             state.localMode = modes[last(state.kind)] || modes.html;
-            state.localState = CodeMirror.startState(state.localMode, state.indent);
+            state.localState = CodeMirror.startState(state.localMode);
           }
           state.soyState.push("tag");
           return "keyword";
         }
 
-        state.forceIndent = false;
-        state.indent = stream.indentation();
         return tokenUntil(stream, state, /\{|\s+\/\/|\/\*/);
       },
 
       indent: function(state, textAfter) {
-        if (last(state.soyState) == "literal" ? /^\{\/literal}/.test(textAfter) : /^\{(\/|(fallbackmsg|elseif|else|ifempty)\b)/.test(textAfter))
-          return state.indent - config.indentUnit;
-
-        if (state.forceIndent) {
-          return state.indent;
+        var indent = state.indent;
+        if (last(state.soyState) == "literal" ? /^\{\/literal}/.test(textAfter) : /^\{(\/|(fallbackmsg|elseif|else|ifempty)\b)/.test(textAfter)) {
+          indent -= config.indentUnit;
         }
-        // TODO: Defer to inner modes.
-        return CodeMirror.Pass;
+        indent += state.localMode.indent(state.localState, textAfter);
+        return indent;
       },
 
       innerMode: function(state) {
