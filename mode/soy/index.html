@@ -38,6 +38,13 @@
 {template .helloWorld}
   {@param name: string}
   Hello <b>{$name}</b>!
+  <div>
+    {if $score}
+      <em>{$score} points}</em>
+    {else}
+      no score
+    {/if}
+  </div>
 {/template}
 
 {template .alertHelloWorld kind="js"}

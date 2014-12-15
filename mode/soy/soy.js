@@ -11,8 +11,8 @@
 })(function(CodeMirror) {
   "use strict";
 
-  var indentingTags = ["template", "literal", "msg", "fallbackmsg", "let", "if", "elseif",
-                       "else", "switch", "case", "default", "foreach", "ifempty", "for",
+  var indentingTags = ["template", "literal", "msg", "fallbackmsg", "let", "if",
+                       "switch", "case", "default", "foreach", "ifempty", "for",
                        "call", "param", "log"];
 
   CodeMirror.defineMode("soy", function(config) {
@@ -158,10 +158,11 @@
       },
 
       indent: function(state, textAfter) {
-        var indent = state.indent;
-        if (last(state.soyState) == "literal" ? /^\{\/literal}/.test(textAfter) : /^\{(\/|(fallbackmsg|elseif|else|ifempty)\b)/.test(textAfter)) {
+        var indent = state.indent, top = last(state.soyState);
+        if (top == "comment" || top == "string") return CodeMirror.Pass;
+
+        if ((top == "literal" ? /^\{\/literal}/ : /^\{(\/|(fallbackmsg|elseif|else|ifempty)\b)/).test(textAfter))
           indent -= config.indentUnit;
-        }
         indent += state.localMode.indent(state.localState, textAfter);
         return indent;
       },
@@ -181,7 +182,7 @@
   }, "htmlmixed");
 
   CodeMirror.registerHelper("hintWords", "soy", indentingTags.concat(
-      ["delpackage", "namespace", "alias", "print", "css", "debugger"]));
+      ["else", "elseif", "delpackage", "namespace", "alias", "print", "css", "debugger"]));
 
   CodeMirror.defineMIME("text/x-soy", "soy");
 });
