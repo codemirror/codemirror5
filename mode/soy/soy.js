@@ -23,7 +23,7 @@
       text: textMode,
       uri: textMode,
       css: CodeMirror.getMode(config, "text/css"),
-      js: CodeMirror.getMode(config, "text/javascript")
+      js: CodeMirror.getMode(config, {name: "text/javascript", statementIndent: 2 * config.indentUnit})
     };
 
     function last(array) {
@@ -34,6 +34,7 @@
       var oldString = stream.string;
       var match = untilRegExp.exec(oldString.substr(stream.pos));
       if (match) {
+        // We don't use backUp because it backs up just the position, not the state.
         // This uses an undocumented API.
         stream.string = oldString.substr(0, stream.pos + match.index);
       }
@@ -91,7 +92,8 @@
 
           case "tag":
             if (stream.match(/^\/?}/)) {
-              state.indent -= (/^\//.test(state.tag) ? 3 : (stream.current() == "/}" || indentingTags.indexOf(state.tag) == -1 ? 2 : 1)) * config.indentUnit;
+              if (state.tag == "/template") state.indent = 0;
+              else state.indent -= (/^\//.test(state.tag) ? 3 : (stream.current() == "/}" || indentingTags.indexOf(state.tag) == -1 ? 2 : 1)) * config.indentUnit;
               state.soyState.pop();
               return "keyword";
             } else if (stream.match(/^(\w+)(?==)/)) {
@@ -130,7 +132,7 @@
         if (stream.match(/^\/\*/)) {
           state.soyState.push("comment");
           return "comment";
-        } else if (stream.match(stream.sol() ? /^\/\/.*/ : /^\s+\/\/.*/)) {
+        } else if (stream.match(stream.sol() ? /^\s*\/\/.*/ : /^\s+\/\/.*/)) {
           return "comment";
         } else if (stream.match(/^\{\$\w*/)) {
           state.indent += 2 * config.indentUnit;
@@ -158,12 +160,14 @@
       },
 
       indent: function(state, textAfter) {
+        if (/^\s*\{\/template\b/.test(textAfter)) return 0;
+
         var indent = state.indent, top = last(state.soyState);
-        if (top == "comment" || top == "string") return CodeMirror.Pass;
+        if (top == "comment") return CodeMirror.Pass;
 
         if ((top == "literal" ? /^\{\/literal}/ : /^\{(\/|(fallbackmsg|elseif|else|ifempty)\b)/).test(textAfter))
           indent -= config.indentUnit;
-        indent += state.localMode.indent(state.localState, textAfter);
+        if (indent) indent += state.localMode.indent(state.localState, textAfter);
         return indent;
       },
 
@@ -172,7 +176,7 @@
         else return {state: state.localState, mode: state.localMode};
       },
 
-      electricInput: /^\s*\{(\/|fallbackmsg|elseif|else|ifempty|\/literal\})$/,
+      electricInput: /^\s*\{(\/|\/template|fallbackmsg|elseif|else|ifempty|\/literal\})$/,
       lineComment: "//",
       blockCommentStart: "/*",
       blockCommentEnd: "*/",
