@@ -11,8 +11,8 @@
 })(function(CodeMirror) {
   "use strict";
 
-  var indentingTags = ["template", "literal", "msg", "fallbackmsg", "let", "if",
-                       "switch", "case", "default", "foreach", "ifempty", "for",
+  var indentingTags = ["template", "literal", "msg", "fallbackmsg", "let", "if", "elseif",
+                       "else", "switch", "case", "default", "foreach", "ifempty", "for",
                        "call", "param", "log"];
 
   CodeMirror.defineMode("soy", function(config) {
@@ -93,7 +93,7 @@
           case "tag":
             if (stream.match(/^\/?}/)) {
               if (state.tag == "/template") state.indent = 0;
-              else state.indent -= (/^\//.test(state.tag) ? 3 : (stream.current() == "/}" || indentingTags.indexOf(state.tag) == -1 ? 2 : 1)) * config.indentUnit;
+              else state.indent -= (stream.current() == "/}" || indentingTags.indexOf(state.tag) == -1 ? 2 : 1) * config.indentUnit;
               state.soyState.pop();
               return "keyword";
             } else if (stream.match(/^(\w+)(?==)/)) {
@@ -143,7 +143,8 @@
           state.soyState.push("literal");
           return "keyword";
         } else if (match = stream.match(/^\{([\/@\\]?\w*)/)) {
-          state.indent += 2 * config.indentUnit;
+          if (match[1] != "/switch")
+            state.indent += (/^(\/|(else|elseif|case|default)$)/.test(match[1]) && state.tag != "switch" ? 1 : 2) * config.indentUnit;
           state.tag = match[1];
           if (state.tag == "/" + last(state.kindTag)) {
             // We found the tag that opened the current kind="".
@@ -160,14 +161,19 @@
       },
 
       indent: function(state, textAfter) {
-        if (/^\s*\{\/template\b/.test(textAfter)) return 0;
-
         var indent = state.indent, top = last(state.soyState);
         if (top == "comment") return CodeMirror.Pass;
 
-        if ((top == "literal" ? /^\{\/literal}/ : /^\{(\/|(fallbackmsg|elseif|else|ifempty)\b)/).test(textAfter))
-          indent -= config.indentUnit;
-        if (indent) indent += state.localMode.indent(state.localState, textAfter);
+        if (top == "literal") {
+          if (/^\{\/literal}/.test(textAfter)) indent -= config.indentUnit;
+        } else {
+          if (/^\s*\{\/template\b/.test(textAfter)) return 0;
+          if (/^\{(\/|(fallbackmsg|elseif|else|ifempty)\b)/.test(textAfter)) indent -= config.indentUnit;
+          if (state.tag != "switch" && /^\{(case|default)\b/.test(textAfter)) indent -= config.indentUnit;
+          if (/^\{\/switch\b/.test(textAfter)) indent -= config.indentUnit;
+        }
+        if (indent && state.localMode.indent)
+          indent += state.localMode.indent(state.localState, textAfter);
         return indent;
       },
 
@@ -176,7 +182,7 @@
         else return {state: state.localState, mode: state.localMode};
       },
 
-      electricInput: /^\s*\{(\/|\/template|fallbackmsg|elseif|else|ifempty|\/literal\})$/,
+      electricInput: /^\s*\{(\/|\/template|\/switch|fallbackmsg|elseif|else|case|default|ifempty|\/literal\})$/,
       lineComment: "//",
       blockCommentStart: "/*",
       blockCommentEnd: "*/",
@@ -186,7 +192,7 @@
   }, "htmlmixed");
 
   CodeMirror.registerHelper("hintWords", "soy", indentingTags.concat(
-      ["else", "elseif", "delpackage", "namespace", "alias", "print", "css", "debugger"]));
+      ["delpackage", "namespace", "alias", "print", "css", "debugger"]));
 
   CodeMirror.defineMIME("text/x-soy", "soy");
 });
