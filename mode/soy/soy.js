@@ -13,7 +13,7 @@
 
   var indentingTags = ["template", "literal", "msg", "fallbackmsg", "let", "if", "elseif",
                        "else", "switch", "case", "default", "foreach", "ifempty", "for",
-                       "call", "param", "log"];
+                       "call", "param", "deltemplate", "delcall", "log"];
 
   CodeMirror.defineMode("soy", function(config) {
     var textMode = CodeMirror.getMode(config, "text/plain");
@@ -92,7 +92,7 @@
 
           case "tag":
             if (stream.match(/^\/?}/)) {
-              if (state.tag == "/template") state.indent = 0;
+              if (state.tag == "/template" || state.tag == "/deltemplate") state.indent = 0;
               else state.indent -= (stream.current() == "/}" || indentingTags.indexOf(state.tag) == -1 ? 2 : 1) * config.indentUnit;
               state.soyState.pop();
               return "keyword";
@@ -167,7 +167,7 @@
         if (top == "literal") {
           if (/^\{\/literal}/.test(textAfter)) indent -= config.indentUnit;
         } else {
-          if (/^\s*\{\/template\b/.test(textAfter)) return 0;
+          if (/^\s*\{\/(template|deltemplate)\b/.test(textAfter)) return 0;
           if (/^\{(\/|(fallbackmsg|elseif|else|ifempty)\b)/.test(textAfter)) indent -= config.indentUnit;
           if (state.tag != "switch" && /^\{(case|default)\b/.test(textAfter)) indent -= config.indentUnit;
           if (/^\{\/switch\b/.test(textAfter)) indent -= config.indentUnit;
@@ -182,7 +182,7 @@
         else return {state: state.localState, mode: state.localMode};
       },
 
-      electricInput: /^\s*\{(\/|\/template|\/switch|fallbackmsg|elseif|else|case|default|ifempty|\/literal\})$/,
+      electricInput: /^\s*\{(\/|\/template|\/deltemplate|\/switch|fallbackmsg|elseif|else|case|default|ifempty|\/literal\})$/,
       lineComment: "//",
       blockCommentStart: "/*",
       blockCommentEnd: "*/",
