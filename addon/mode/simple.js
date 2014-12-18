@@ -11,9 +11,9 @@
 })(function(CodeMirror) {
   "use strict";
 
-  CodeMirror.defineSimpleMode = function(name, states, props) {
+  CodeMirror.defineSimpleMode = function(name, states) {
     CodeMirror.defineMode(name, function(config) {
-      return CodeMirror.simpleMode(config, states, props);
+      return CodeMirror.simpleMode(config, states);
     });
   };
 
