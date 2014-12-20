@@ -1329,7 +1329,9 @@
             newHead = copyCursor(origHead);
           }
           if (vim.visualMode) {
-            newHead = clipCursorToContent(cm, newHead, vim.visualBlock);
+            if (!(vim.visualBlock && newHead.ch === Infinity)) {
+              newHead = clipCursorToContent(cm, newHead, vim.visualBlock);
+            }
             if (newAnchor) {
               newAnchor = clipCursorToContent(cm, newAnchor, true);
             }

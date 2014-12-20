@@ -1867,6 +1867,13 @@ testVim('visual_line', function(cm, vim, helpers) {
   helpers.doKeys('l', 'V', 'l', 'j', 'j', 'd');
   eq(' 4\n 5', cm.getValue());
 }, { value: ' 1\n 2\n 3\n 4\n 5' });
+testVim('visual_block_move_to_eol', function(cm, vim, helpers) {
+  // moveToEol should move all block cursors to end of line
+  cm.setCursor(0, 0);
+  helpers.doKeys('<C-v>', 'G', '$');
+  var selections = cm.getSelections().join();
+  eq("123,45,6", selections);
+}, {value: '123\n45\n6'});
 testVim('visual_block_different_line_lengths', function(cm, vim, helpers) {
   // test the block selection with lines of different length
   // i.e. extending the selection
