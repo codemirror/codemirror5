@@ -1,3 +1,5 @@
+CodeMirror.Vim.suppressErrorLogging = true;
+
 var code = '' +
 ' wOrd1 (#%\n' +
 ' word3] \n' +

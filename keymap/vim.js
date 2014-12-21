@@ -616,6 +616,8 @@
       // Testing hook.
       maybeInitVimState_: maybeInitVimState,
 
+      suppressErrorLogging: false,
+
       InsertModeKey: InsertModeKey,
       map: function(lhs, rhs, ctx) {
         // Add user defined key bindings.
@@ -762,7 +764,9 @@
                 // clear VIM state in case it's in a bad state.
                 cm.state.vim = undefined;
                 maybeInitVimState(cm);
-                console['log'](e);
+                if (!CodeMirror.Vim.suppressErrorLogging) {
+                  console['log'](e);
+                }
                 throw e;
               }
               return true;
