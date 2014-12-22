@@ -516,6 +516,17 @@ testCM("deleteSpanCollapsedInclusiveLeft", function(cm) {
   cm.replaceRange("", from, to);
 }, {value: "abc\nX\ndef"});
 
+testCM("markTextCSS", function(cm) {
+  function present() {
+    var spans = cm.display.lineDiv.getElementsByTagName("span");
+    for (var i = 0; i < spans.length; i++)
+      if (spans[i].style.color == "cyan" && span[i].textContent == "cdefg") return true;
+  }
+  var m = cm.markText(Pos(0, 2), Pos(0, 6), {css: "color: cyan"});
+  m.clear();
+  is(!present());
+}, {value: "abcdefgh"});
+
 testCM("bookmark", function(cm) {
   function p(v) { return v && Pos(v[0], v[1]); }
   forEach([{a: [1, 0], b: [1, 1], c: "", d: [1, 4]},
