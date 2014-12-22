@@ -90,7 +90,7 @@
     if (ch === "=" && stream.eat("="))
       return togglePhraseModifier(stream, state, "notextile", /==/, 2);
 
-    if (ch === "-")
+    if (ch === "-" && !stream.eat("-"))
       return togglePhraseModifier(stream, state, "deletion", /-/, 1);
 
     if (ch === "+")
