@@ -253,11 +253,11 @@ CodeMirror.defineMode("sass", function(config) {
       stream.next();
       stream.eatSpace();
       if(stream.peek() === null){
-        // if there is no more space after it 
+        // if there is no more space after it
         indent(state);
         return "atom";
       }
-      
+
       // all posible tokens after colon
       if(stream.match(/\$[\w-]+/)){
         // variables
@@ -293,12 +293,10 @@ CodeMirror.defineMode("sass", function(config) {
       // matches a property definition
       if(stream.peek() === ":" ){
         if(!stream.match(/:[ ]*[\d\w-\$\+#!\("']/,false)){
-          /* 
-            for cases where line ends after colon
-            eg
-            font:
-              | <-----cursor
-          */
+         //for cases where line ends after colon
+         // eg
+         // font:
+         //   | <-----cursor
           indent(state);
           return "property";
         }
@@ -309,20 +307,17 @@ CodeMirror.defineMode("sass", function(config) {
       else{
         stream.eatSpace();
         if(stream.peek() !== "," ){
-          /* 
-            for cases where line ends after comma
-            eg
-            head,
-            body,
-            | <-----cursor
-          */
+          //for cases where line ends after comma
+          //eg
+          //head,
+          //body,
+          //| <-----cursor
           indent(state);
         }
         return "atom";
-      }        
+      }
     }
 
-    
     // If we haven't returned by now, we move 1 character
     // and return an error
     stream.next();
