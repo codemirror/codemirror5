@@ -190,7 +190,7 @@ CodeMirror.defineMode("sass", function(config) {
       stream.next();
       stream.eatWhile(/[\w-]/);
       stream.eatSpace();
-      if (stream.peek()==":") {
+      if (stream.peek() === ":") {
         //stream.next();
         return "variable-2";
       } else {
@@ -252,7 +252,7 @@ CodeMirror.defineMode("sass", function(config) {
         return "keyword";
       stream.next();
       stream.eatSpace();
-      if(stream.peek()===null){
+      if(stream.peek() === null){
         // if there is no more space after it 
         indent(state);
         return "atom";
@@ -308,7 +308,7 @@ CodeMirror.defineMode("sass", function(config) {
       }
       else{
         stream.eatSpace();
-        if(stream.peek()!=="," ){
+        if(stream.peek() !== "," ){
           /* 
             for cases where line ends after comma
             eg
