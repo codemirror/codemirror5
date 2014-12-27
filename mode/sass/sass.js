@@ -22,7 +22,7 @@ CodeMirror.defineMode("sass", function(config) {
   var operators = ["\\(", "\\)", "=", ">", "<", "==", ">=", "<=", "\\+", "-", "\\!=", "/", "\\*", "%", "and", "or", "not"];
   var opRegexp = tokenRegexp(operators);
 
-  var pseudoElementsRegexp = /^::?[\w\-]+/;
+  var pseudoElementsRegexp = /^::[\w\-]+/;
 
   function urlTokens(stream, state) {
     var ch = stream.peek();
@@ -189,14 +189,15 @@ CodeMirror.defineMode("sass", function(config) {
     if (ch === "$") {
       stream.next();
       stream.eatWhile(/[\w-]/);
-
-      if (stream.peek() === ":") {
-        stream.next();
+      stream.eatSpace();
+      if (stream.peek()==":") {
+        //stream.next();
         return "variable-2";
       } else {
         return "variable-3";
       }
     }
+
 
     if (ch === "!") {
       stream.next();
@@ -245,22 +246,83 @@ CodeMirror.defineMode("sass", function(config) {
       return "string";
     }
 
-    // Pseudo element selectors
-    if (ch == ":" && stream.match(pseudoElementsRegexp))
-      return "keyword";
-
-    // atoms
-    if (stream.eatWhile(/[\w-&]/)) {
-      // matches a property definition
-      if (stream.peek() === ":" && !stream.match(pseudoElementsRegexp, false))
-        return "property";
-      else
+    // Pseudo element selectors and values after colon
+    if (ch === ":"){
+      if(stream.match(pseudoElementsRegexp))
+        return "keyword";
+      stream.next();
+      stream.eatSpace();
+      if(stream.peek()===null){
+        // if there is no more space after it 
+        indent(state);
         return "atom";
+      }
+      
+      // all posible tokens after colon
+      if(stream.match(/\$[\w-]+/)){
+        // variables
+        return "variable-3";
+      }
+      else if (stream.match(/^url/) && stream.peek() === "(") {
+        //urls
+        state.tokenizer = urlTokens;
+        return "atom";
+      }
+      else if (stream.match(/#[0-9a-fA-F]{6}|#[0-9a-fA-F]{3}/)){
+        //hexadecimal value
+        return "number";
+      }
+      else if(stream.match(/^-?[0-9\.]+/)){
+        return "number";
+      }
+      else if (stream.match(keywordsRegexp)){
+        return "keyword";
+      }
+      else if(stream.match(/[\w-,\s]+/)){
+        // other text
+        return "atom";
+      }
     }
 
     if (stream.match(opRegexp))
       return "operator";
 
+    // atoms
+    if (stream.eatWhile(/[\w-&]/)) {
+      stream.eatSpace();
+      // matches a property definition
+      if(stream.peek() === ":" ){
+        if(!stream.match(/:[ ]*[\d\w-\$\+#!\("']/,false)){
+          /* 
+            for cases where line ends after colon
+            eg
+            font:
+              | <-----cursor
+          */
+          indent(state);
+          return "property";
+        }
+        else if(!stream.match(pseudoElementsRegexp, false)){
+          return "property";
+        }
+      }
+      else{
+        stream.eatSpace();
+        if(stream.peek()!=="," ){
+          /* 
+            for cases where line ends after comma
+            eg
+            head,
+            body,
+            | <-----cursor
+          */
+          indent(state);
+        }
+        return "atom";
+      }        
+    }
+
+    
     // If we haven't returned by now, we move 1 character
     // and return an error
     stream.next();
@@ -274,9 +336,6 @@ CodeMirror.defineMode("sass", function(config) {
 
     if (current === "@return")
       dedent(state);
-
-    if (style === "atom")
-      indent(state);
 
     if (style !== null) {
       var startOfToken = stream.pos - current.length;
