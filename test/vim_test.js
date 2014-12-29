@@ -3112,7 +3112,7 @@ testVim('scrollMotion', function(cm, vim, helpers){
   eq(prevCursor.line, cm.getCursor().line);
   prevScrollInfo = cm.getScrollInfo();
   helpers.doKeys('<C-y>');
-  eq(prevCursor.line - 1, cm.getCursor().line);
+  eq(prevCursor.line - 1, cm.getCursor().line, "Y");
   is(prevScrollInfo.top > cm.getScrollInfo().top);
 }, { value: scrollMotionSandbox});
 
