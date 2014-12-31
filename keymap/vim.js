@@ -3469,6 +3469,12 @@
       },
       setReversed: function(reversed) {
         vimGlobalState.isReversed = reversed;
+      },
+      getScrollbarAnnotate: function() {
+        return this.annotate;
+      },
+      setScrollbarAnnotate: function(annotate) {
+        this.annotate = annotate;
       }
     };
     function getSearchState(cm) {
@@ -3747,14 +3753,21 @@
       };
     }
     function highlightSearchMatches(cm, query) {
-      var overlay = getSearchState(cm).getOverlay();
+      var searchState = getSearchState(cm);
+      var overlay = searchState.getOverlay();
       if (!overlay || query != overlay.query) {
         if (overlay) {
           cm.removeOverlay(overlay);
         }
         overlay = searchOverlay(query);
         cm.addOverlay(overlay);
-        getSearchState(cm).setOverlay(overlay);
+        if (cm.showMatchesOnScrollbar) {
+          if (searchState.getScrollbarAnnotate()) {
+            searchState.getScrollbarAnnotate().clear();
+          }
+          searchState.setScrollbarAnnotate(cm.showMatchesOnScrollbar(query));
+        }
+        searchState.setOverlay(overlay);
       }
     }
     function findNext(cm, prev, query, repeat) {
