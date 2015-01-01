@@ -19,10 +19,11 @@ CodeMirror.defineMode("sass", function(config) {
   var keywords = ["true", "false", "null", "auto"];
   var keywordsRegexp = new RegExp("^" + keywords.join("|"));
 
-  var operators = ["\\(", "\\)", "=", ">", "<", "==", ">=", "<=", "\\+", "-", "\\!=", "/", "\\*", "%", "and", "or", "not"];
+  var operators = ["\\(", "\\)", "=", ">", "<", "==", ">=", "<=", "\\+", "-",
+                   "\\!=", "/", "\\*", "%", "and", "or", "not", ";","\\{","\\}",":"];
   var opRegexp = tokenRegexp(operators);
 
-  var pseudoElementsRegexp = /^::[\w\-]+/;
+  var pseudoElementsRegexp = /^::?[a-zA-Z_][\w\-]*/;
 
   function urlTokens(stream, state) {
     var ch = stream.peek();
@@ -56,7 +57,7 @@ CodeMirror.defineMode("sass", function(config) {
         stream.next();
         state.tokenizer = tokenBase;
       } else {
-        stream.next();
+        stream.skipToEnd();
       }
 
       return "comment";
@@ -135,107 +136,6 @@ CodeMirror.defineMode("sass", function(config) {
       return "operator";
     }
 
-    if (ch === ".") {
-      stream.next();
-
-      // Match class selectors
-      if (stream.match(/^[\w-]+/)) {
-        indent(state);
-        return "atom";
-      } else if (stream.peek() === "#") {
-        indent(state);
-        return "atom";
-      } else {
-        return "operator";
-      }
-    }
-
-    if (ch === "#") {
-      stream.next();
-
-      // Hex numbers
-      if (stream.match(/[0-9a-fA-F]{6}|[0-9a-fA-F]{3}/))
-        return "number";
-
-      // ID selectors
-      if (stream.match(/^[\w-]+/)) {
-        indent(state);
-        return "atom";
-      }
-
-      if (stream.peek() === "#") {
-        indent(state);
-        return "atom";
-      }
-    }
-
-    // Numbers
-    if (stream.match(/^-?[0-9\.]+/))
-      return "number";
-
-    // Units
-    if (stream.match(/^(px|em|in)\b/))
-      return "unit";
-
-    if (stream.match(keywordsRegexp))
-      return "keyword";
-
-    if (stream.match(/^url/) && stream.peek() === "(") {
-      state.tokenizer = urlTokens;
-      return "atom";
-    }
-
-    // Variables
-    if (ch === "$") {
-      stream.next();
-      stream.eatWhile(/[\w-]/);
-      stream.eatSpace();
-      if (stream.peek() === ":")
-        return "variable-2";
-      else
-        return "variable-3";
-    }
-
-    if (ch === "!") {
-      stream.next();
-      return stream.match(/^[\w]+/) ? "keyword": "operator";
-    }
-
-    if (ch === "=") {
-      stream.next();
-
-      // Match shortcut mixin definition
-      if (stream.match(/^[\w-]+/)) {
-        indent(state);
-        return "meta";
-      } else {
-        return "operator";
-      }
-    }
-
-    if (ch === "+") {
-      stream.next();
-
-      // Match shortcut mixin definition
-      if (stream.match(/^[\w-]+/))
-        return "variable-3";
-      else
-        return "operator";
-    }
-
-    // Indent Directives
-    if (stream.match(/^@(else if|if|media|else|for|each|while|mixin|function)/)) {
-      indent(state);
-      return "meta";
-    }
-
-    // Other Directives
-    if (ch === "@") {
-      stream.next();
-      stream.eatWhile(/[\w-]/);
-      return "meta";
-    }
-
     // Strings
     if (ch === '"' || ch === "'") {
       stream.next();
@@ -243,70 +143,209 @@ CodeMirror.defineMode("sass", function(config) {
       return "string";
     }
 
-    // Pseudo element selectors and values after colon
-    if (ch === ":"){
-      if (stream.match(pseudoElementsRegexp))
+    if(!state.cursorHalf){// state.cursorHalf === 0
+    // first half i.e. before : for key-value pairs
+    // including selectors
+
+      if (ch === ".") {
+        stream.next();
+        if (stream.match(/^[\w-]+/)) {
+          indent(state);
+          return "atom";
+        } else if (stream.peek() === "#") {
+          indent(state);
+          return "atom";
+        }
+      }
+
+      if (ch === "#") {
+        stream.next();
+        // ID selectors
+        if (stream.match(/^[\w-]+/)) {
+          indent(state);
+          return "atom";
+        }
+        if (stream.peek() === "#") {
+          indent(state);
+          return "atom";
+        }
+      }
+
+      // Variables
+      if (ch === "$") {
+        stream.next();
+        stream.eatWhile(/[\w-]/);
+        return "variable-2";
+      }
+
+      // Numbers
+      if (stream.match(/^-?[0-9\.]+/))
+        return "number";
+
+      // Units
+      if (stream.match(/^(px|em|in)\b/))
+        return "unit";
+
+      if (stream.match(keywordsRegexp))
         return "keyword";
-      stream.next();
-      stream.eatSpace();
-      if (stream.peek() === null){
-        // if there is no more space after it
-        indent(state);
+
+      if (stream.match(/^url/) && stream.peek() === "(") {
+        state.tokenizer = urlTokens;
         return "atom";
       }
 
-      // all posible tokens after colon
-      if (stream.match(/\$[\w-]+/)){
-        // variables
-        return "variable-3";
-      } else if (stream.match(/^url/) && stream.peek() === "(") {
-        //urls
-        state.tokenizer = urlTokens;
-        return "atom";
-      } else if (stream.match(/#[0-9a-fA-F]{6}|#[0-9a-fA-F]{3}/)){
-        //hexadecimal value
+      if (ch === "=") {
+        // Match shortcut mixin definition
+        if (stream.match(/^=[\w-]+/)) {
+          indent(state);
+          return "meta";
+        }
+      }
+
+      if (ch === "+") {
+        // Match shortcut mixin definition
+        if (stream.match(/^\+[\w-]+/)){
+          return "variable-3";
+        }
+      }
+
+      if(ch === "@"){
+        if(stream.match(/@extend/)){
+          if(!stream.match(/\s*[\w]/))
+            dedent(state);
+        }
+      }
+
+
+      // Indent Directives
+      if (stream.match(/^@(else if|if|media|else|for|each|while|mixin|function)/)) {
+        indent(state);
+        return "meta";
+      }
+
+      // Other Directives
+      if (ch === "@") {
+        stream.next();
+        stream.eatWhile(/[\w-]/);
+        return "meta";
+      }
+
+      if (stream.eatWhile(/[\w-]/)){
+        if(stream.match(/ *: *[\w-\+\$#!\("']/,false)){
+          return "propery";
+        }
+        else if(stream.match(/ *:/,false)){
+          indent(state);
+          state.cursorHalf = 1;
+          return "atom";
+        }
+        else if(stream.match(/ *,/,false)){
+          return "atom";
+        }
+        else{
+          indent(state);
+          return "atom";
+        }
+      }
+
+      if(ch === ":"){
+        if (stream.match(pseudoElementsRegexp)){ // could be a pseudo-element
+          return "keyword";
+        }
+        stream.next();
+        state.cursorHalf=1;
+        return "operator";
+      }
+
+    } // cursorHalf===0 ends here
+    else{
+
+      if (ch === "#") {
+        stream.next();
+        // Hex numbers
+        if (stream.match(/[0-9a-fA-F]{6}|[0-9a-fA-F]{3}/)){
+          if(!stream.peek()){
+            state.cursorHalf = 0;
+          }
+          return "number";
+        }
+      }
+
+      // Numbers
+      if (stream.match(/^-?[0-9\.]+/)){
+        if(!stream.peek()){
+          state.cursorHalf = 0;
+        }
         return "number";
-      } else if (stream.match(/^-?[0-9\.]+/)){
-        return "number";
-      } else if (stream.match(keywordsRegexp)){
+      }
+
+      // Units
+      if (stream.match(/^(px|em|in)\b/)){
+        if(!stream.peek()){
+          state.cursorHalf = 0;
+        }
+        return "unit";
+      }
+
+      if (stream.match(keywordsRegexp)){
+        if(!stream.peek()){
+          state.cursorHalf = 0;
+        }
         return "keyword";
-      } else if (stream.match(/[\w-,\s]+/)){
-        // other text
+      }
+
+      if (stream.match(/^url/) && stream.peek() === "(") {
+        state.tokenizer = urlTokens;
+        if(!stream.peek()){
+          state.cursorHalf = 0;
+        }
         return "atom";
       }
-    }
+
+      // Variables
+      if (ch === "$") {
+        stream.next();
+        stream.eatWhile(/[\w-]/);
+        if(!stream.peek()){
+          state.cursorHalf = 0;
+        }
+        return "variable-3";
+      }
+
+      // bang character for !important, !default, etc.
+      if (ch === "!") {
+        stream.next();
+        if(!stream.peek()){
+          state.cursorHalf = 0;
+        }
+        return stream.match(/^[\w]+/) ? "keyword": "operator";
+      }
+
+      if (stream.match(opRegexp)){
+        if(!stream.peek()){
+          state.cursorHalf = 0;
+        }
+        return "operator";
+      }
+
+      // attributes
+      if (stream.eatWhile(/[\w-]/)) {
+        if(!stream.peek()){
+          state.cursorHalf = 0;
+        }
+        return "attribute";
+      }
+
+      //stream.eatSpace();
+      if(!stream.peek()){
+        state.cursorHalf = 0;
+        return null;
+      }
+
+    } // else ends here
 
     if (stream.match(opRegexp))
       return "operator";
-
-    // atoms
-    if (stream.eatWhile(/[\w-&]/)) {
-      stream.eatSpace();
-      // matches a property definition
-      if (stream.peek() === ":" ){
-        if (!stream.match(/:[ ]*[\d\w-\$\+#!\("']/,false)){
-         //for cases where line ends after colon
-         // eg
-         // font:
-         //   | <-----cursor
-          indent(state);
-          return "property";
-        } else if (!stream.match(pseudoElementsRegexp, false)){
-          return "property";
-        }
-      } else {
-        stream.eatSpace();
-        if (stream.peek() !== "," ){
-          //for cases where line ends after comma
-          //eg
-          //head,
-          //body,
-          //| <-----cursor
-          indent(state);
-        }
-        return "atom";
-      }
-    }
 
     // If we haven't returned by now, we move 1 character
     // and return an error
@@ -319,11 +358,13 @@ CodeMirror.defineMode("sass", function(config) {
     var style = state.tokenizer(stream, state);
     var current = stream.current();
 
-    if (current === "@return")
+    if (current === "@return" || current === "}"){
       dedent(state);
+    }
 
     if (style !== null) {
       var startOfToken = stream.pos - current.length;
+
       var withCurrentIndent = startOfToken + (config.indentUnit * state.indentCount);
 
       var newScopes = [];
@@ -348,6 +389,8 @@ CodeMirror.defineMode("sass", function(config) {
         tokenizer: tokenBase,
         scopes: [{offset: 0, type: "sass"}],
         indentCount: 0,
+        cursorHalf: 0,  // cursor half tells us if cursor lies after (1)
+                        // or before (0) colon (well... more or less)
         definedVars: [],
         definedMixins: []
       };
