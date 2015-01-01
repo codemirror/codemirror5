@@ -240,7 +240,6 @@ CodeMirror.defineMode("sass", function(config) {
           return "atom";
         }
         else if(stream.match(/ *,/,false)){
-          indent(state);
           return "atom";
         }
         else{
