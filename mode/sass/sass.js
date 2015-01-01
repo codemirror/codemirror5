@@ -143,9 +143,9 @@ CodeMirror.defineMode("sass", function(config) {
       return "string";
     }
 
-    if(!state.cursorHalf){ // state.cursorHalf === 0
-      // first half i.e. before : for key-value pairs 
-      // including selectors
+    if(!state.cursorHalf){// state.cursorHalf === 0
+    // first half i.e. before : for key-value pairs
+    // including selectors
 
       if (ch === ".") {
         stream.next();
@@ -312,7 +312,7 @@ CodeMirror.defineMode("sass", function(config) {
         return "variable-3";
       }
 
-      // bang character for !important, !default, etc. 
+      // bang character for !important, !default, etc.
       if (ch === "!") {
         stream.next();
         if(!stream.peek()){
@@ -389,7 +389,7 @@ CodeMirror.defineMode("sass", function(config) {
         tokenizer: tokenBase,
         scopes: [{offset: 0, type: "sass"}],
         indentCount: 0,
-        cursorHalf: 0,  // cursor half tells us if cursor lies after (1) 
+        cursorHalf: 0,  // cursor half tells us if cursor lies after (1)
                         // or before (0) colon (well... more or less)
         definedVars: [],
         definedMixins: []
