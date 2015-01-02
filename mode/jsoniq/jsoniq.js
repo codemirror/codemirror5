@@ -1,3 +1,6 @@
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
+
 (function(mod) {
     if (typeof exports == "object" && typeof module == "object") // CommonJS
         mod(require("../../lib/codemirror"));
@@ -7,11 +10,11 @@
         mod(CodeMirror);
 })(function(CodeMirror) {
     "use strict";
-
-    CodeMirror.defineMode("jsoniq", function (config, parserConfig) {
+    // declare global: JSON, INITIAL
+    CodeMirror.defineMode("jsoniq", function () {
 
 // line 2 "JSONiqTokenizer.ebnf"
-        var JSONiqTokenizer = function JSONiqTokenizer(string, parsingEventHandler)
+        var JSONiqTokenizer = function(string, parsingEventHandler)
         {
             init(string, parsingEventHandler);
             // line 9 "JSONiqTokenizer.js"
@@ -1480,7 +1483,7 @@
                 throw new self.ParseException(b, e, s, l, t);
             }
 
-            var lk, b0, e0;
+            var b0, e0;
             var l1, b1, e1;
             var eventHandler;
 
@@ -1570,7 +1573,7 @@
 
                 return (result & 511) - 1;
             }
-        }
+        };
 
         JSONiqTokenizer.getTokenSet = function(tokenSetId)
         {
@@ -4483,9 +4486,6 @@
                 var token = state.tokens.splice(0, 1)[0];
                 state.line = state.line.substring(token.value.length);
                 stream.match(token.value, true);
-                if(styles[token.type] === undefined) {
-                    console.log(token.type);
-                }
                 return styles[token.type];
             },
 
