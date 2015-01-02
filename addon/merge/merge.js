@@ -259,11 +259,13 @@
   function makeConnections(dv) {
     if (!dv.showDifferences) return;
 
-    var align = dv.mv.options.connect == "align";
+    var align = dv.mv.options.connect == "align", oldScrollEdit, oldScrollOrig;
     if (align) {
       if (!dv.orig.curOp) return dv.orig.operation(function() {
         makeConnections(dv);
       });
+      oldScrollEdit = dv.edit.getScrollInfo().top;
+      oldScrollOrig = dv.orig.getScrollInfo().top;
       for (var i = 0; i < dv.aligners.length; i++)
         dv.aligners[i].clear();
       dv.aligners.length = 0;
@@ -293,6 +295,8 @@
         dv.aligners.push(padBelow(dv.edit, 0, extraSpaceAbove.edit));
       if (extraSpaceAbove.orig)
         dv.aligners.push(padBelow(dv.orig, 0, extraSpaceAbove.orig));
+      dv.edit.scrollTo(null, oldScrollEdit);
+      dv.orig.scrollTo(null, oldScrollOrig);
     }
   }
 
