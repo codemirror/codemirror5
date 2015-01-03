@@ -27,14 +27,16 @@
       CodeMirror.e_preventDefault(e);
       var axis = self.orientation == "horizontal" ? "pageX" : "pageY";
       var start = e[axis], startpos = self.pos;
+      function done() {
+        CodeMirror.off(document, "mousemove", move);
+        CodeMirror.off(document, "mouseup", done);
+      }
       function move(e) {
-        if (e.which != 1) {
-          CodeMirror.off(document, "mousemove", move);
-          return;
-        }
+        if (e.which != 1) return done();
         self.moveTo(startpos + (e[axis] - start) * (self.total / self.size));
       }
       CodeMirror.on(document, "mousemove", move);
+      CodeMirror.on(document, "mouseup", done);
     });
 
     CodeMirror.on(this.node, "click", function(e) {
