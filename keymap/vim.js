@@ -4807,6 +4807,7 @@
       var macroModeState = vimGlobalState.macroModeState;
       var lastChange = macroModeState.lastInsertModeChanges;
       var keyName = CodeMirror.keyName(e);
+      if (!keyName) { return; }
       function onKeyFound() {
         lastChange.changes.push(new InsertModeKey(keyName));
         return true;
