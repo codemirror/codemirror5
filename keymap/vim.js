@@ -4811,6 +4811,7 @@
         lastChange.changes.push(new InsertModeKey(keyName));
         return true;
       }
+      if (typeof keyName.indexOf === 'undefined') { return; }
       if (keyName.indexOf('Delete') != -1 || keyName.indexOf('Backspace') != -1) {
         CodeMirror.lookupKey(keyName, 'vim-insert', onKeyFound);
       }
