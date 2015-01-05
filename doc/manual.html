@@ -1763,9 +1763,12 @@ editor.setOption("extraKeys", {
       If <code>mode</code> is <code>"local"</code>, they will be
       relative to the top-left corner of the editable document. If it
       is <code>"page"</code> or not given, they are relative to the
-      top-left corner of the page. <code>where</code> can be a boolean
-      indicating whether you want the start (<code>true</code>) or the
-      end (<code>false</code>) of the selection, or, if a <code>{line,
+      top-left corner of the page. If <code>mode</code>
+      is <code>"window"</code>, the coordinates are relative to the
+      top-left corner of the currently visible (scrolled)
+      window. <code>where</code> can be a boolean indicating whether
+      you want the start (<code>true</code>) or the end
+      (<code>false</code>) of the selection, or, if a <code>{line,
       ch}</code> object is given, it specifies the precise position at
       which you want to measure.</dd>
       <dt id="charCoords"><code><strong>cm.charCoords</strong>(pos: {line, ch}, ?mode: string) → {left, right, top, bottom}</code></dt>
