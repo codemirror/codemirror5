@@ -611,6 +611,14 @@ testCM("getAllMarks", function(cm) {
   eq(cm.getAllMarks().length, 2);
 });
 
+testCM("setValueClears", function(cm) {
+  cm.addLineClass(0, "wrap", "foo");
+  var mark = cm.markText(Pos(0, 0), Pos(1, 1), {inclusiveLeft: true, inclusiveRight: true});
+  cm.setValue("foo");
+  is(!cm.lineInfo(0).wrapClass);
+  is(!mark.find());
+}, {value: "a\nb"});
+
 testCM("bug577", function(cm) {
   cm.setValue("a\nb");
   cm.clearHistory();
