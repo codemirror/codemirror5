@@ -69,11 +69,16 @@
     var opts = cm.state.foldGutter.options, cur = from;
     cm.eachLine(from, to, function(line) {
       var mark = null;
+      var pos = Pos(cur), func = opts.rangeFinder || CodeMirror.fold.auto;
+      var range = func && func(cm, pos);
       if (isFolded(cm, cur)) {
-        mark = marker(opts.indicatorFolded);
+        if (range)
+          mark = marker(opts.indicatorFolded);
+        else
+          cm.findMarksAt(pos).filter(function (m) {return m.__isFold;})
+            .forEach(function (m) { m.clear(); });
       } else {
-        var pos = Pos(cur, 0), func = opts.rangeFinder || CodeMirror.fold.auto;
-        var range = func && func(cm, pos);
+
         if (range && range.from.line + 1 < range.to.line)
           mark = marker(opts.indicatorOpen);
       }
