@@ -2654,12 +2654,13 @@ editor.setOption("extraKeys", {
       properties <code>mimes</code>, which holds an array of MIME
       types for modes with multiple MIMEs associated,
       and <code>ext</code>, which holds an array of file extensions
-      associated with this mode. Three convenience
+      associated with this mode. Four convenience
       functions, <code>CodeMirror.findModeByMIME</code>,
-      and <code>CodeMirror.findModeByExtension</code>,
+      <code>CodeMirror.findModeByExtension</code>,
+      <code>CodeMirror.findModeByFileName</code>
       and <code>CodeMirror.findModeByName</code> are provided, which
-      return such an object given a MIME or extension string. Note
-      that, for historical reasons, this file resides in the
+      return such an object given a MIME, extension, file name or mode name
+      string. Note that, for historical reasons, this file resides in the
       top-level <code>mode</code> directory, not
       under <code>addon</code>. <a href="../demo/loadmode.html">Demo</a>.</dd>
 
