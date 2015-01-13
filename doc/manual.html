@@ -2232,8 +2232,12 @@ editor.setOption("extraKeys", {
       squiggly underline style for this class.</dd>
 
       <dt id="addon_closetag"><a href="../addon/edit/closetag.js"><code>edit/closetag.js</code></a></dt>
-      <dd>Provides utility functions for adding automatic tag closing
-      to XML modes. See
+      <dd>Defines an <code>autoCloseTags</code> option that will
+      auto-close XML tags when '<code>&gt;</code>' or '<code>/</code>'
+      is typed, and
+      a <code>closeTag</code> <a href="#commands">command</a> that
+      closes the nearest open tag. Depends on
+      the <code>fold/xml-fold.js</code> addon. See
       the <a href="../demo/closetag.html">demo</a>.</dd>
 
       <dt id="addon_continuelist"><a href="../addon/edit/continuelist.js"><code>edit/continuelist.js</code></a></dt>
