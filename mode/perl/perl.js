@@ -780,16 +780,21 @@ CodeMirror.defineMode("perl",function(){
                                 return "meta";}
                 return null;}
 
-        return{
-                startState:function(){
-                        return{
-                                tokenize:tokenPerl,
-                                chain:null,
-                                style:null,
-                                tail:null};},
-                token:function(stream,state){
-                        return (state.tokenize||tokenPerl)(stream,state);}
-                };});
+        return {
+            startState: function() {
+                return {
+                    tokenize: tokenPerl,
+                    chain: null,
+                    style: null,
+                    tail: null
+                };
+            },
+            token: function(stream, state) {
+                return (state.tokenize || tokenPerl)(stream, state);
+            },
+            lineComment: '#'
+        };
+});
 
 CodeMirror.registerHelper("wordChars", "perl", /[\w$]/);
 
