@@ -1449,7 +1449,7 @@
           var operatorMoveTo = operators[operator](
             cm, operatorArgs, cmSel.ranges, oldAnchor, newHead);
           if (vim.visualMode) {
-            exitVisualMode(cm);
+            exitVisualMode(cm, operatorMoveTo);
           }
           if (operatorMoveTo) {
             cm.setCursor(operatorMoveTo);
@@ -2207,7 +2207,7 @@
         }
         var curFinalPos = Pos(curStart.line, finalCh);
         if (vim.visualMode) {
-          exitVisualMode(cm);
+          exitVisualMode(cm, false);
         }
         cm.setCursor(curFinalPos);
       },
@@ -2372,7 +2372,7 @@
           }
         }
         if (vim.visualMode) {
-          exitVisualMode(cm);
+          exitVisualMode(cm, false);
         }
         cm.setCursor(curPosFinal);
       },
@@ -2430,7 +2430,7 @@
             curStart = cursorIsBefore(selections[0].anchor, selections[0].head) ?
                          selections[0].anchor : selections[0].head;
             cm.setCursor(curStart);
-            exitVisualMode(cm);
+            exitVisualMode(cm, false);
           } else {
             cm.setCursor(offsetCursor(curEnd, 0, -1));
           }
