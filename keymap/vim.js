@@ -2183,6 +2183,11 @@
         if (vim.visualMode) {
           curStart = cm.getCursor('anchor');
           curEnd = cm.getCursor('head');
+          if (cursorIsBefore(curEnd, curStart)) {
+            var tmp = curEnd;
+            curEnd = curStart;
+            curStart = tmp;
+          }
           curEnd.ch = lineLength(cm, curEnd.line) - 1;
         } else {
           // Repeat is the number of lines to join. Minimum 2 lines.
