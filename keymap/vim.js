@@ -1449,7 +1449,7 @@
           var operatorMoveTo = operators[operator](
             cm, operatorArgs, cmSel.ranges, oldAnchor, newHead);
           if (vim.visualMode) {
-            exitVisualMode(cm, operatorMoveTo);
+            exitVisualMode(cm, operatorMoveTo != null);
           }
           if (operatorMoveTo) {
             cm.setCursor(operatorMoveTo);
