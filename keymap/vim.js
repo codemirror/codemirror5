@@ -2206,10 +2206,10 @@
           cm.replaceRange(text, curStart, tmp);
         }
         var curFinalPos = Pos(curStart.line, finalCh);
-        cm.setCursor(curFinalPos);
         if (vim.visualMode) {
           exitVisualMode(cm);
         }
+        cm.setCursor(curFinalPos);
       },
       newLineAndEnterInsertMode: function(cm, actionArgs, vim) {
         vim.insertMode = true;
