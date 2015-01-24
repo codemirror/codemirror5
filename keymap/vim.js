@@ -1899,7 +1899,7 @@
         vimGlobalState.registerController.pushText(
             args.registerName, 'delete', text,
             args.linewise, vim.visualBlock);
-        return finalHead;
+        return clipCursorToContent(cm, finalHead);
       },
       indent: function(cm, args, ranges) {
         var vim = cm.state.vim;

@@ -597,7 +597,7 @@ testVim('dl_eol', function(cm, vim, helpers) {
   var register = helpers.getRegisterController().getRegister();
   eq(' ', register.toString());
   is(!register.linewise);
-  helpers.assertCursorAt(0, 6);
+  helpers.assertCursorAt(0, 5);
 }, { value: ' word1 ' });
 testVim('dl_repeat', function(cm, vim, helpers) {
   var curStart = makeCursor(0, 0);
@@ -688,7 +688,7 @@ testVim('dw_only_word', function(cm, vim, helpers) {
   var register = helpers.getRegisterController().getRegister();
   eq('word1 ', register.toString());
   is(!register.linewise);
-  helpers.assertCursorAt(0, 1);
+  helpers.assertCursorAt(0, 0);
 }, { value: ' word1 ' });
 testVim('dw_eol', function(cm, vim, helpers) {
   // Assert that dw does not delete the newline if last word to delete is at end
@@ -699,7 +699,7 @@ testVim('dw_eol', function(cm, vim, helpers) {
   var register = helpers.getRegisterController().getRegister();
   eq('word1', register.toString());
   is(!register.linewise);
-  helpers.assertCursorAt(0, 1);
+  helpers.assertCursorAt(0, 0);
 }, { value: ' word1\nword2' });
 testVim('dw_eol_with_multiple_newlines', function(cm, vim, helpers) {
   // Assert that dw does not delete the newline if last word to delete is at end
@@ -710,7 +710,7 @@ testVim('dw_eol_with_multiple_newlines', function(cm, vim, helpers) {
   var register = helpers.getRegisterController().getRegister();
   eq('word1', register.toString());
   is(!register.linewise);
-  helpers.assertCursorAt(0, 1);
+  helpers.assertCursorAt(0, 0);
 }, { value: ' word1\n\nword2' });
 testVim('dw_empty_line_followed_by_whitespace', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
@@ -756,7 +756,7 @@ testVim('dw_repeat', function(cm, vim, helpers) {
   var register = helpers.getRegisterController().getRegister();
   eq('word1\nword2', register.toString());
   is(!register.linewise);
-  helpers.assertCursorAt(0, 1);
+  helpers.assertCursorAt(0, 0);
 }, { value: ' word1\nword2' });
 testVim('de_word_start_and_empty_lines', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
@@ -1283,7 +1283,7 @@ testVim('D', function(cm, vim, helpers) {
   var register = helpers.getRegisterController().getRegister();
   eq('rd1', register.toString());
   is(!register.linewise);
-  helpers.assertCursorAt(0, 3);
+  helpers.assertCursorAt(0, 2);
 }, { value: ' word1\nword2\n word3' });
 testVim('C', function(cm, vim, helpers) {
   var curStart = makeCursor(0, 3);
