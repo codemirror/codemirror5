@@ -589,7 +589,11 @@
       cm.off("cursorActivity", clear);
       fadeOut(tip);
     }
-    setTimeout(clear, 1700);
+    function clearWithTimeout() {
+      cm.getWrapperElement().removeEventListener("mousemove", clearWithTimeout);
+      setTimeout(clear, 3000);
+    }
+    cm.getWrapperElement().addEventListener("mousemove", clearWithTimeout);
     cm.on("cursorActivity", clear);
   }
 
