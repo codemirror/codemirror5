@@ -63,7 +63,7 @@
 <section class=first id=overview>
     <h2 style="position: relative">
       User manual and reference guide
-      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 4.10.1</span>
+      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 4.12.1</span>
     </h2>
 
     <p>CodeMirror is a code-editor component that can be embedded in
@@ -2232,8 +2232,12 @@ editor.setOption("extraKeys", {
       squiggly underline style for this class.</dd>
 
       <dt id="addon_closetag"><a href="../addon/edit/closetag.js"><code>edit/closetag.js</code></a></dt>
-      <dd>Provides utility functions for adding automatic tag closing
-      to XML modes. See
+      <dd>Defines an <code>autoCloseTags</code> option that will
+      auto-close XML tags when '<code>&gt;</code>' or '<code>/</code>'
+      is typed, and
+      a <code>closeTag</code> <a href="#commands">command</a> that
+      closes the nearest open tag. Depends on
+      the <code>fold/xml-fold.js</code> addon. See
       the <a href="../demo/closetag.html">demo</a>.</dd>
 
       <dt id="addon_continuelist"><a href="../addon/edit/continuelist.js"><code>edit/continuelist.js</code></a></dt>
@@ -2608,6 +2612,7 @@ editor.setOption("extraKeys", {
       with pluggable warning sources
       (see <a href="../addon/lint/json-lint.js"><code>json-lint.js</code></a>,
       <a href="../addon/lint/javascript-lint.js"><code>javascript-lint.js</code></a>,
+      <a href="../addon/lint/coffeescript-lint.js"><code>coffeescript-lint.js</code></a>,
       and <a href="../addon/lint/css-lint.js"><code>css-lint.js</code></a>
       in the same directory). Defines a <code>lint</code> option that
       can be set to a warning source (for
@@ -2629,6 +2634,14 @@ editor.setOption("extraKeys", {
       gives the wrapper of the active line the class <code>CodeMirror-activeline</code>,
       and adds a background with the class <code>CodeMirror-activeline-background</code>.
       is enabled. See the <a href="../demo/activeline.html">demo</a>.</dd>
+
+      <dt id="addon_selection-pointer"><a href="../addon/selection/selection-pointer.js"><code>selection/selection-pointer.js</code></a></dt>
+      <dd>Defines a <code>selectionPointer</code> option which you can
+      use to control the mouse cursor appearance when hovering over
+      the selection. It can be set to a string,
+      like <code>"pointer"</code>, or to true, in which case
+      the <code>"default"</code> (arrow) cursor will be used. You can
+      see a demo <a href="../mode/htmlmixed/index.html">here</a>.</dd>
 
       <dt id="addon_loadmode"><a href="../addon/mode/loadmode.js"><code>mode/loadmode.js</code></a></dt>
       <dd>Defines a <code>CodeMirror.requireMode(modename,
@@ -2654,12 +2667,13 @@ editor.setOption("extraKeys", {
       properties <code>mimes</code>, which holds an array of MIME
       types for modes with multiple MIMEs associated,
       and <code>ext</code>, which holds an array of file extensions
-      associated with this mode. Three convenience
+      associated with this mode. Four convenience
       functions, <code>CodeMirror.findModeByMIME</code>,
-      and <code>CodeMirror.findModeByExtension</code>,
+      <code>CodeMirror.findModeByExtension</code>,
+      <code>CodeMirror.findModeByFileName</code>
       and <code>CodeMirror.findModeByName</code> are provided, which
-      return such an object given a MIME or extension string. Note
-      that, for historical reasons, this file resides in the
+      return such an object given a MIME, extension, file name or mode name
+      string. Note that, for historical reasons, this file resides in the
       top-level <code>mode</code> directory, not
       under <code>addon</code>. <a href="../demo/loadmode.html">Demo</a>.</dd>
 

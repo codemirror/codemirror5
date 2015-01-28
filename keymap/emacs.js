@@ -395,6 +395,7 @@
     "Ctrl-X U": repeated("undo"),
     "Ctrl-X K": "close",
     "Ctrl-X Delete": function(cm) { kill(cm, cm.getCursor(), bySentence(cm, cm.getCursor(), 1), true); },
+    "Ctrl-X H": "selectAll",
 
     "Ctrl-Q Tab": repeated("insertTab"),
     "Ctrl-U": addPrefixMap

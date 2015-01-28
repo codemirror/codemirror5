@@ -67,14 +67,16 @@
 
   function updateFoldInfo(cm, from, to) {
     var opts = cm.state.foldGutter.options, cur = from;
+    var minSize = cm.foldOption(opts, "minFoldSize");
+    var func = cm.foldOption(opts, "rangeFinder");
     cm.eachLine(from, to, function(line) {
       var mark = null;
       if (isFolded(cm, cur)) {
         mark = marker(opts.indicatorFolded);
       } else {
-        var pos = Pos(cur, 0), func = opts.rangeFinder || CodeMirror.fold.auto;
+        var pos = Pos(cur, 0);
         var range = func && func(cm, pos);
-        if (range && range.from.line + 1 < range.to.line)
+        if (range && range.to.line - range.from.line >= minSize)
           mark = marker(opts.indicatorOpen);
       }
       cm.setGutterMarker(line, opts.gutter, mark);

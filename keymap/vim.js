@@ -1449,7 +1449,7 @@
           var operatorMoveTo = operators[operator](
             cm, operatorArgs, cmSel.ranges, oldAnchor, newHead);
           if (vim.visualMode) {
-            exitVisualMode(cm);
+            exitVisualMode(cm, operatorMoveTo != null);
           }
           if (operatorMoveTo) {
             cm.setCursor(operatorMoveTo);
@@ -1899,7 +1899,7 @@
         vimGlobalState.registerController.pushText(
             args.registerName, 'delete', text,
             args.linewise, vim.visualBlock);
-        return finalHead;
+        return clipCursorToContent(cm, finalHead);
       },
       indent: function(cm, args, ranges) {
         var vim = cm.state.vim;
@@ -2183,6 +2183,11 @@
         if (vim.visualMode) {
           curStart = cm.getCursor('anchor');
           curEnd = cm.getCursor('head');
+          if (cursorIsBefore(curEnd, curStart)) {
+            var tmp = curEnd;
+            curEnd = curStart;
+            curStart = tmp;
+          }
           curEnd.ch = lineLength(cm, curEnd.line) - 1;
         } else {
           // Repeat is the number of lines to join. Minimum 2 lines.
@@ -2201,10 +2206,10 @@
           cm.replaceRange(text, curStart, tmp);
         }
         var curFinalPos = Pos(curStart.line, finalCh);
-        cm.setCursor(curFinalPos);
         if (vim.visualMode) {
-          exitVisualMode(cm);
+          exitVisualMode(cm, false);
         }
+        cm.setCursor(curFinalPos);
       },
       newLineAndEnterInsertMode: function(cm, actionArgs, vim) {
         vim.insertMode = true;
@@ -2367,7 +2372,7 @@
           }
         }
         if (vim.visualMode) {
-          exitVisualMode(cm);
+          exitVisualMode(cm, false);
         }
         cm.setCursor(curPosFinal);
       },
@@ -2425,7 +2430,7 @@
             curStart = cursorIsBefore(selections[0].anchor, selections[0].head) ?
                          selections[0].anchor : selections[0].head;
             cm.setCursor(curStart);
-            exitVisualMode(cm);
+            exitVisualMode(cm, false);
           } else {
             cm.setCursor(offsetCursor(curEnd, 0, -1));
           }

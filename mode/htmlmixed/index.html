@@ -6,6 +6,7 @@
 
 <link rel="stylesheet" href="../../lib/codemirror.css">
 <script src="../../lib/codemirror.js"></script>
+<script src="../../addon/selection/selection-pointer.js"></script>
 <script src="../xml/xml.js"></script>
 <script src="../javascript/javascript.js"></script>
 <script src="../css/css.js"></script>
@@ -62,7 +63,10 @@
                       {matches: /(text|application)\/(x-)?vb(a|script)/i,
                        mode: "vbscript"}]
       };
-      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {mode: mixedMode});
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        mode: mixedMode,
+        selectionPointer: true
+      });
     </script>
 
     <p>The HTML mixed mode depends on the XML, JavaScript, and CSS modes.</p>

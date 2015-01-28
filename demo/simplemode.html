@@ -74,6 +74,11 @@ highlighted by the mode shown in it).</p>
   string (since JS provides no way to find out where a group matched),
   and this property must hold an array of token styles that has one
   style for each matched group.</dd>
+  <dt><code><strong>sol</strong></code>: boolean</dt>
+  <dd>When true, this token will only match at the start of the line.
+  (The <code>^</code> regexp marker doesn't work as you'd expect in
+  this context because of limitations in JavaScript's RegExp
+  API.)</dd>
   <dt><code><strong>next</strong>: string</code></dt>
   <dd>When a <code>next</code> property is present, the mode will
   transfer to the state named by the property when the token is
