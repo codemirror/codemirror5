@@ -71,7 +71,7 @@ CodeMirror.defineMode("go", function(config) {
       stream.eatWhile(isOperatorChar);
       return "operator";
     }
-    stream.eatWhile(/[\w\$_]/);
+    stream.eatWhile(/[\w\$_\xa1-\uffff]/);
     var cur = stream.current();
     if (keywords.propertyIsEnumerable(cur)) {
       if (cur == "case" || cur == "default") curPunc = "case";

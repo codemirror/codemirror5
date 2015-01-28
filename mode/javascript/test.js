@@ -147,6 +147,13 @@
   MT("scary_regexp",
      "[string-2 /foo[[/]]bar/];");
 
+  MT("indent_strange_array",
+     "[keyword var] [variable x] [operator =] [[",
+     "  [number 1],,",
+     "  [number 2],",
+     "]];",
+     "[number 10];");
+
   var jsonld_mode = CodeMirror.getMode(
     {indentUnit: 2},
     {name: "javascript", jsonld: true}

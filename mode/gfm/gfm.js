@@ -109,7 +109,8 @@ CodeMirror.defineMode("gfm", function(config, modeConfig) {
   var markdownConfig = {
     underscoresBreakWords: false,
     taskLists: true,
-    fencedCodeBlocks: true
+    fencedCodeBlocks: true,
+    strikethrough: true
   };
   for (var attr in modeConfig) {
     markdownConfig[attr] = modeConfig[attr];

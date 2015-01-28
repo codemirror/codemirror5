@@ -52,12 +52,12 @@
 .CodeMirror div.CodeMirror-secondarycursor {
   border-left: 1px solid silver;
 }
-.CodeMirror.cm-keymap-fat-cursor div.CodeMirror-cursor {
+.CodeMirror.cm-fat-cursor div.CodeMirror-cursor {
   width: auto;
   border: 0;
   background: #7e7;
 }
-.CodeMirror.cm-keymap-fat-cursor div.CodeMirror-cursors {
+.CodeMirror.cm-fat-cursor div.CodeMirror-cursors {
   z-index: 1;
 }
 
@@ -87,7 +87,7 @@
 /* Can style cursor different in overwrite (non-insert) mode */
 div.CodeMirror-overwrite div.CodeMirror-cursor {}
 
-.cm-tab { display: inline-block; }
+.cm-tab { display: inline-block; text-decoration: inherit; }
 
 .CodeMirror-ruler {
   border-left: 1px solid #ccc;
@@ -125,6 +125,7 @@ div.CodeMirror-overwrite div.CodeMirror-cursor {}
 .cm-header, .cm-strong {font-weight: bold;}
 .cm-em {font-style: italic;}
 .cm-link {text-decoration: underline;}
+.cm-strikethrough {text-decoration: line-through;}
 
 .cm-s-default .cm-error {color: #f00;}
 .cm-invalidchar {color: #f00;}
@@ -208,6 +209,11 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
   /* Hack to make IE7 behave */
   *zoom:1;
   *display:inline;
+}
+.CodeMirror-gutter-wrapper {
+  position: absolute;
+  z-index: 4;
+  height: 100%;
 }
 .CodeMirror-gutter-elt {
   position: absolute;
@@ -304,6 +310,9 @@ div.CodeMirror-cursors {
     visibility: hidden;
   }
 }
+
+/* See issue #2901 */
+.cm-tab-wrap-hack:after { content: ''; }
 
 /* Help users use markselection to safely style text background */
 span.CodeMirror-selectedtext { background: none; }

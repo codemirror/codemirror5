@@ -12,6 +12,7 @@
   "use strict";
 
   var tables;
+  var defaultTable;
   var keywords;
   var CONS = {
     QUERY_DIV: ";",
@@ -78,16 +79,18 @@
       }
     }
     else {
-      //Suggest table names
+      //Suggest table names or colums in defaultTable
       while (token.start && string.charAt(0) == ".") {
         token = editor.getTokenAt(Pos(cur.line, token.start - 1));
         string = token.string + string;
       }
       if (useBacktick) {
         addMatches(result, string, tables, function(w) {return "`" + w + "`";});
+        addMatches(result, string, defaultTable, function(w) {return "`" + w + "`";});
       }
       else {
         addMatches(result, string, tables, function(w) {return w;});
+        addMatches(result, string, defaultTable, function(w) {return w;});
       }
     }
   }
@@ -163,7 +166,10 @@
 
   CodeMirror.registerHelper("hint", "sql", function(editor, options) {
     tables = (options && options.tables) || {};
+    var defaultTableName = options && options.defaultTable;
+    defaultTable = (defaultTableName && tables[defaultTableName] || []);
     keywords = keywords || getKeywords(editor);
+
     var cur = editor.getCursor();
     var result = [];
     var token = editor.getTokenAt(cur), start, end, search;
@@ -179,6 +185,7 @@
       nameCompletion(result, editor);
     } else {
       addMatches(result, search, tables, function(w) {return w;});
+      addMatches(result, search, defaultTable, function(w) {return w;});
       addMatches(result, search, keywords, function(w) {return w.toUpperCase();});
     }
 

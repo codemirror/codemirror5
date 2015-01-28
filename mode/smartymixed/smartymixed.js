@@ -77,7 +77,11 @@ CodeMirror.defineMode("smartymixed", function(config) {
 
   var parsers = {
     html: function(stream, state) {
-      if (!state.inLiteral && stream.match(regs.htmlHasLeftDelimeter, false) && state.htmlMixedState.htmlState.tagName === null) {
+      var htmlTagName = state.htmlMixedState.htmlState.context && state.htmlMixedState.htmlState.context.tagName
+        ? state.htmlMixedState.htmlState.context.tagName
+        : null;
+
+      if (!state.inLiteral && stream.match(regs.htmlHasLeftDelimeter, false) && htmlTagName === null) {
         state.tokenize = parsers.smarty;
         state.localMode = smartyMode;
         state.localState = smartyMode.startState(htmlMixedMode.indent(state.htmlMixedState, ""));

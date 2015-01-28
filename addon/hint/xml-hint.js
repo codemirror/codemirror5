@@ -18,10 +18,17 @@
     var quote = (options && options.quoteChar) || '"';
     if (!tags) return;
     var cur = cm.getCursor(), token = cm.getTokenAt(cur);
+    if (/^<\/?$/.test(token.string) && token.end == cur.ch) {
+      var nextToken = cm.getTokenAt(Pos(cur.line, cur.ch + 1));
+      if (nextToken.start == cur.ch && /\btag\b/.test(nextToken.type))
+        token = nextToken;
+    }
     var inner = CodeMirror.innerMode(cm.getMode(), token.state);
     if (inner.mode.name != "xml") return;
     var result = [], replaceToken = false, prefix;
-    var tag = /\btag\b/.test(token.type), tagName = tag && /^\w/.test(token.string), tagStart;
+    var tag = /\btag\b/.test(token.type) && !/>$/.test(token.string);
+    var tagName = tag && /^\w/.test(token.string), tagStart;
+
     if (tagName) {
       var before = cm.getLine(cur.line).slice(Math.max(0, token.start - 2), token.start);
       var tagType = /<\/$/.test(before) ? "close" : /<$/.test(before) ? "open" : null;
@@ -31,6 +38,7 @@
     } else if (tag && token.string == "</") {
       tagType = "close";
     }
+
     if (!tag && !inner.state.tagName || tagType) {
       if (tagName)
         prefix = token.string;

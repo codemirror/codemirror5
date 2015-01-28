@@ -109,7 +109,7 @@
   CodeMirror.defineExtension("uncomment", function(from, to, options) {
     if (!options) options = noOptions;
     var self = this, mode = self.getModeAt(from);
-    var end = Math.min(to.line, self.lastLine()), start = Math.min(from.line, end);
+    var end = Math.min(to.ch != 0 || to.line == from.line ? to.line : to.line - 1, self.lastLine()), start = Math.min(from.line, end);
 
     // Try finding line comments
     var lineString = options.lineComment || mode.lineComment, lines = [];

@@ -22,7 +22,7 @@ var topAllowedGlobals = Object.create(null);
  "screen FileReader Worker postMessage importScripts " +
  "setInterval clearInterval setTimeout clearTimeout " +
  "CodeMirror " +
- "test exports require module define")
+ "test exports require module define requirejs")
   .split(" ").forEach(function(n) { topAllowedGlobals[n] = true; });
 
 var fs = require("fs"), acorn = require("./acorn.js"), walk = require("./walk.js");
