@@ -63,7 +63,7 @@
 <section class=first id=overview>
     <h2 style="position: relative">
       User manual and reference guide
-      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 4.8.0</span>
+      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 4.12.0</span>
     </h2>
 
     <p>CodeMirror is a code-editor component that can be embedded in
@@ -317,6 +317,14 @@
       <dd>Determines whether the gutter scrolls along with the content
       horizontally (false) or whether it stays fixed during horizontal
       scrolling (true, the default).</dd>
+
+      <dt id="option_scrollbarStyle"><code><strong>scrollbarStyle</strong>: string</code></dt>
+      <dd>Chooses a scrollbar implementation. The default
+      is <code>"native"</code>, showing native scrollbars. The core
+      library also provides the <code>"null"</code> style, which
+      completely hides the
+      scrollbars. <a href="#addon_simplescrollbars">Addons</a> can
+      implement additional scrollbar models.</dd>
 
       <dt id="option_coverGutterNextToScrollbar"><code><strong>coverGutterNextToScrollbar</strong>: boolean</code></dt>
       <dd>When <a href="#option_fixedGutter"><code>fixedGutter</code></a>
@@ -998,16 +1006,12 @@ editor.setOption("extraKeys", {
       <dd>The outer element of the editor. This should be used for the
       editor width, height, borders and positioning. Can also be used
       to set styles that should hold for everything inside the editor
-      (such as font and font size), or to set a background.</dd>
-
-      <dt id="class_CodeMirror_scroll"><code><strong>CodeMirror-scroll</strong></code></dt>
-      <dd>Whether the editor scrolls (<code>overflow: auto</code> +
-      fixed height). By default, it does. Setting
-      the <code>CodeMirror</code> class to have <code>height:
-      auto</code> and giving this class <code>overflow-x: auto;
-      overflow-y: hidden;</code> will cause the editor
-      to <a href="../demo/resize.html">resize to fit its
-      content</a>.</dd>
+      (such as font and font size), or to set a background. Setting
+      this class' <code>height</code> style to <code>auto</code> will
+      make the editor <a href="../demo/resize.html">resize to fit its
+      content</a> (it is recommended to also set
+      the <a href="#option_viewportMargin"><code>viewportMargin</code>
+      option</a> to <code>Infinity</code> when doing this.</dd>
 
       <dt id="class_CodeMirror_focused"><code><strong>CodeMirror-focused</strong></code></dt>
       <dd>Whenever the editor is focused, the top element gets this
@@ -1561,6 +1565,8 @@ editor.setOption("extraKeys", {
         is part of the marker.</dd>
         <dt id="mark_endStyle"><code><strong>endStyle</strong>: string</code></dt><dd>Equivalent
         to <code>startStyle</code>, but for the rightmost span.</dd>
+        <dt id="mark_css"><code><strong>css</strong>: string</code></dt>
+        <dd>A string of CSS to be applied to the covered text. For example <code>"color: #fe3"</code>.</dd>
         <dt id="mark_title"><code><strong>title</strong>:
         string</code></dt><dd>When given, will give the nodes created
         for this span a HTML <code>title</code> attribute with the
@@ -1757,9 +1763,12 @@ editor.setOption("extraKeys", {
       If <code>mode</code> is <code>"local"</code>, they will be
       relative to the top-left corner of the editable document. If it
       is <code>"page"</code> or not given, they are relative to the
-      top-left corner of the page. <code>where</code> can be a boolean
-      indicating whether you want the start (<code>true</code>) or the
-      end (<code>false</code>) of the selection, or, if a <code>{line,
+      top-left corner of the page. If <code>mode</code>
+      is <code>"window"</code>, the coordinates are relative to the
+      top-left corner of the currently visible (scrolled)
+      window. <code>where</code> can be a boolean indicating whether
+      you want the start (<code>true</code>) or the end
+      (<code>false</code>) of the selection, or, if a <code>{line,
       ch}</code> object is given, it specifies the precise position at
       which you want to measure.</dd>
       <dt id="charCoords"><code><strong>cm.charCoords</strong>(pos: {line, ch}, ?mode: string) → {left, right, top, bottom}</code></dt>
@@ -2161,6 +2170,28 @@ editor.setOption("extraKeys", {
       of <a href="#addon_dialog"><code>openDialog</code></a> when
       available to make prompting for search queries less ugly.</dd>
 
+      <dt id="addon_matchesonscrollbar"><a href="../addon/search/matchesonscrollbar.js"><code>search/matchesonscrollbar.js</code></a></dt>
+      <dd>Adds a <code>showMatchesOnScrollbar</code> method to editor
+      instances, which should be given a query (string or regular
+      expression), optionally a case-fold flag (only applicable for
+      strings), and optionally a class name (defaults
+      to <code>CodeMirror-search-match</code>) as arguments. When
+      called, matches of the given query will be displayed on the
+      editor's vertical scrollbar. The method returns an object with
+      a <code>clear</code> method that can be called to remove the
+      matches. Depends on
+      the <a href="#addon_annotatescrollbar"><code>annotatescrollbar</code></a>
+      addon, and
+      the <a href="../addon/search/matchesonscrollbar.css"><code>matchesonscrollbar.css</code></a>
+      file provides a default (transparent yellowish) definition of
+      the CSS class applied to the matches. Note that the matches are
+      only perfectly aligned if your scrollbar does not have buttons
+      at the top and bottom. You can use
+      the <a href="#addon_simplescrollbars"><code>simplescrollbar</code></a>
+      addon to make sure of this. If this addon is loaded,
+      the <a href="#addon_search"><code>search</code></a> addon will
+      automatically use it.</dd>
+
       <dt id="addon_matchbrackets"><a href="../addon/edit/matchbrackets.js"><code>edit/matchbrackets.js</code></a></dt>
       <dd>Defines an option <code>matchBrackets</code> which, when set
       to true, causes matching brackets to be highlighted whenever the
@@ -2201,8 +2232,12 @@ editor.setOption("extraKeys", {
       squiggly underline style for this class.</dd>
 
       <dt id="addon_closetag"><a href="../addon/edit/closetag.js"><code>edit/closetag.js</code></a></dt>
-      <dd>Provides utility functions for adding automatic tag closing
-      to XML modes. See
+      <dd>Defines an <code>autoCloseTags</code> option that will
+      auto-close XML tags when '<code>&gt;</code>' or '<code>/</code>'
+      is typed, and
+      a <code>closeTag</code> <a href="#commands">command</a> that
+      closes the nearest open tag. Depends on
+      the <code>fold/xml-fold.js</code> addon. See
       the <a href="../demo/closetag.html">demo</a>.</dd>
 
       <dt id="addon_continuelist"><a href="../addon/edit/continuelist.js"><code>edit/continuelist.js</code></a></dt>
@@ -2540,10 +2575,6 @@ editor.setOption("extraKeys", {
       <dd>A hinting function for CSS, SCSS, or LESS code.
       Defines <code>CodeMirror.hint.css</code>.</dd>
 
-      <dt id="addon_python-hint"><a href="../addon/hint/python-hint.js"><code>hint/python-hint.js</code></a></dt>
-      <dd>A very simple hinting function for Python code.
-      Defines <code>CodeMirror.hint.python</code>.</dd>
-
       <dt id="addon_anyword-hint"><a href="../addon/hint/anyword-hint.js"><code>hint/anyword-hint.js</code></a></dt>
       <dd>A very simple hinting function
       (<code>CodeMirror.hint.anyword</code>) that simply looks for
@@ -2581,6 +2612,7 @@ editor.setOption("extraKeys", {
       with pluggable warning sources
       (see <a href="../addon/lint/json-lint.js"><code>json-lint.js</code></a>,
       <a href="../addon/lint/javascript-lint.js"><code>javascript-lint.js</code></a>,
+      <a href="../addon/lint/coffeescript-lint.js"><code>coffeescript-lint.js</code></a>,
       and <a href="../addon/lint/css-lint.js"><code>css-lint.js</code></a>
       in the same directory). Defines a <code>lint</code> option that
       can be set to a warning source (for
@@ -2602,6 +2634,14 @@ editor.setOption("extraKeys", {
       gives the wrapper of the active line the class <code>CodeMirror-activeline</code>,
       and adds a background with the class <code>CodeMirror-activeline-background</code>.
       is enabled. See the <a href="../demo/activeline.html">demo</a>.</dd>
+
+      <dt id="addon_selection-pointer"><a href="../addon/selection/selection-pointer.js"><code>selection/selection-pointer.js</code></a></dt>
+      <dd>Defines a <code>selectionPointer</code> option which you can
+      use to control the mouse cursor appearance when hovering over
+      the selection. It can be set to a string,
+      like <code>"pointer"</code>, or to true, in which case
+      the <code>"default"</code> (arrow) cursor will be used. You can
+      see a demo <a href="../mode/htmlmixed/index.html">here</a>.</dd>
 
       <dt id="addon_loadmode"><a href="../addon/mode/loadmode.js"><code>mode/loadmode.js</code></a></dt>
       <dd>Defines a <code>CodeMirror.requireMode(modename,
@@ -2627,12 +2667,13 @@ editor.setOption("extraKeys", {
       properties <code>mimes</code>, which holds an array of MIME
       types for modes with multiple MIMEs associated,
       and <code>ext</code>, which holds an array of file extensions
-      associated with this mode. Three convenience
+      associated with this mode. Four convenience
       functions, <code>CodeMirror.findModeByMIME</code>,
-      and <code>CodeMirror.findModeByExtension</code>,
+      <code>CodeMirror.findModeByExtension</code>,
+      <code>CodeMirror.findModeByFileName</code>
       and <code>CodeMirror.findModeByName</code> are provided, which
-      return such an object given a MIME or extension string. Note
-      that, for historical reasons, this file resides in the
+      return such an object given a MIME, extension, file name or mode name
+      string. Note that, for historical reasons, this file resides in the
       top-level <code>mode</code> directory, not
       under <code>addon</code>. <a href="../demo/loadmode.html">Demo</a>.</dd>
 
@@ -2660,6 +2701,28 @@ editor.setOption("extraKeys", {
       on <a href="../addon/display/fullscreen.css"><code>fullscreen.css</code></a>. <a href="../demo/fullscreen.html">Demo
       here</a>.</dd>
 
+      <dt id="addon_simplescrollbars"><a href="../addon/scroll/simplescrollbars.js"><code>scroll/simplescrollbars.js</code></a></dt>
+      <dd>Defines two additional scrollbar
+      models, <code>"simple"</code> and <code>"overlay"</code>
+      (see <a href="../demo/simplescrollbars.html">demo</a>) that can
+      be selected with
+      the <a href="#option_scrollbarStyle"><code>scrollbarStyle</code></a>
+      option. Depends
+      on <a href="../addon/scroll/simplescrollbars.css"><code>simplescrollbars.css</code></a>,
+      which can be further overridden to style your own
+      scrollbars.</dd>
+
+      <dt id="addon_annotatescrollbar"><a href="../addon/scroll/annotatescrollbar.js"><code>scroll/annotatescrollbar.js</code></a></dt>
+      <dd>Provides functionality for showing markers on the scrollbar
+      to call out certain parts of the document. Adds a
+      method <code>annotateScrollbar</code> to editor instances that
+      can be called, with a CSS class name as argument, to create a
+      set of annotations. The method returns an object
+      whose <code>update</code> method can be called with an array
+      of <code>{from: Pos, to: Pos}</code> objects marking the ranges
+      to be higlighed. To detach the annotations, call the
+      object's <code>clear</code> method.</dd>
+
       <dt id="addon_rulers"><a href="../addon/display/rulers.js"><code>display/rulers.js</code></a></dt>
       <dd>Adds a <code>rulers</code> option, which can be used to show
       one or more vertical rulers in the editor. The option, if
@@ -2670,6 +2733,19 @@ editor.setOption("extraKeys", {
       The <code>className</code> property can be used to assign a
       custom style to a ruler. <a href="../demo/rulers.html">Demo
       here</a>.</dd>
+
+      <dt id="addon_panel"><a href="../addon/display/panel.js"><code>display/panel.js</code></a></dt>
+      <dd>Defines an <code>addPanel</code> method for CodeMirror
+      instances, which places a DOM node above or below an editor, and
+      shrinks the editor to make room for the node. The method takes
+      as first argument as DOM node, and as second an optional options
+      object. By default, the panel ends up above the editor. This can
+      be changed by passing a <code>position</code> option with the
+      value <code>"bottom"</code>. The object returned by this method
+      has a <code>clear</code> method that is used to remove the
+      panel, and a <code>changed</code> method that can be used to
+      notify the addon when the size of the panel's DOM node has
+      changed.</dd>
 
       <dt id="addon_hardwrap"><a href="../addon/wrap/hardwrap.js"><code>wrap/hardwrap.js</code></a></dt>
       <dd>Addon to perform hard line wrapping/breaking for paragraphs
@@ -2710,15 +2786,37 @@ editor.setOption("extraKeys", {
       constructor takes arguments similar to
       the <a href="#CodeMirror"><code>CodeMirror</code></a>
       constructor, first a node to append the interface to, and then
-      an options object. Two extra optional options are
-      recognized, <code>origLeft</code> and <code>origRight</code>,
-      which may be strings that provide original versions of the
-      document, which will be shown to the left and right of the
-      editor in non-editable CodeMirror instances. The merge interface
-      will highlight changes between the editable document and the
-      original(s), and, unless a <code>revertButtons</code> option
-      of <code>false</code> is given, show buttons that allow the user
-      to revert changes (<a href="../demo/merge.html">demo</a>).</dd>
+      an options object. Options are passed through to the editors
+      inside the view. These extra options are recognized:
+        <dl>
+          <dt><code><strong>origLeft</strong></code> and <code><strong>origRight</strong>: string</code></dt>
+          <dd>If given these provide original versions of the
+          document, which will be shown to the left and right of the
+          editor in non-editable CodeMirror instances. The merge
+          interface will highlight changes between the editable
+          document and the original(s). To create a 2-way (as opposed
+          to 3-way) merge view, provide only one of them.</dd>
+          <dt><code><strong>revertButtons</strong>: boolean</code></dt>
+          <dd>Determines whether buttons that allow the user to revert
+          changes are shown. Defaults to true.</dd>
+          <dt><code><strong>connect</strong>: string</code></dt>
+          <dd>Sets the style used to connect changed chunks of code.
+          By default, connectors are drawn. When this is set
+          to <code>"align"</code>, the smaller chunk is padded to
+          align with the bigger chunk instead.</dd>
+          <dt><code><strong>collapseIdentical</strong>: boolean|number</code></dt>
+          <dd>When true (default is false), stretches of unchanged
+          text will be collapsed. When a number is given, this
+          indicates the amount of lines to leave visible around such
+          stretches (which defaults to 2).</dd>
+          <dt><code><strong>allowEditingOriginals</strong>: boolean</code></dt>
+          <dd>Determines whether the original editor allows editing.
+          Defaults to false.</dd>
+          <dt><code><strong>showDifferences</strong>: boolean</code></dt>
+          <dd>When true (the default), changed pieces of text are
+          highlighted.</dd>
+        </dl>
+        <a href="../demo/merge.html">Demo here</a>.</dd>
 
       <dt id="addon_tern"><a href="../addon/tern/tern.js"><code>tern/tern.js</code></a></dt>
       <dd>Provides integration with

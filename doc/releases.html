@@ -29,6 +29,61 @@
 
   <h2>Version 4.x</h2>
 
+  <p class="rel">22-01-2015: <a href="http://codemirror.net/codemirror-4.12.zip">Version 4.12</a>:</p>
+
+  <ul class="rel-note">
+    <li>The <a href="manual.html#addon_closetag"><code>closetag</code></a>
+    addon now defines a <code>"closeTag"</code> command.</li>
+    <li>Adds a <code>findModeByFileName</code> to the <a href="manual.html#addon_meta">mode metadata</a>
+    addon.</li>
+    <li><a href="../demo/simplemode.html">Simple mode</a> rules can
+    now contain a <code>sol</code> property to only match at the start
+    of a line.</li>
+    <li>New
+    addon: <a href="manual.html#addon_selection-pointer"><code>selection-pointer</code></a>
+    to style the mouse cursor over the selection.</li>
+    <li>Improvements to the <a href="../mode/sass/index.html">Sass mode</a>'s indentation.</li>
+    <li>The <a href="../demo/vim.html">Vim keymap</a>'s search functionality now
+    supports <a href="manual.html#addon_matchesonscrollbar">scrollbar
+    annotation</a>.</li>
+    <li>Full <a href="https://github.com/codemirror/CodeMirror/compare/4.11.0...4.12.0">list of patches</a>.</li>
+  </ul>
+
+  <p class="rel">9-01-2015: <a href="http://codemirror.net/codemirror-4.11.zip">Version 4.11</a>:</p>
+
+  <p class="rel-note">Unfortunately, 4.10 did not take care of the
+  Firefox scrolling issue entirely. This release adds two more patches
+  to address that.</p>
+
+  <p class="rel">29-12-2014: <a href="http://codemirror.net/codemirror-4.10.zip">Version 4.10</a>:</p>
+
+  <p class="rel-note">Emergency single-patch update to 4.9. Fixes
+  Firefox-specific problem where the cursor could end up behind the
+  horizontal scrollbar.</p>
+
+  <p class="rel">23-12-2014: <a href="http://codemirror.net/codemirror-4.9.zip">Version 4.9</a>:</p>
+
+  <ul class="rel-note">
+    <li>Overhauled scroll bar handling.
+    Add pluggable <a href="../demo/simplescrollbars.html">scrollbar
+    implementations</a>.</li>
+    <li>Tweaked behavior for
+    the <a href="manual.html#addon_show-hint">completion addons</a> to
+    not take text after cursor into account.</li>
+    <li>Two new optional features in
+    the <a href="manual.html#addon_merge">merge addon</a>: aligning
+    editors, and folding unchanged text.</li>
+    <li>New
+    modes: <a href="../mode/dart/index.html">Dart</a>, <a href="../mode/ebnf/index.html">EBNF</a>, <a href="../mode/spreadsheet/index.html">spreadsheet</a>,
+    and <a href="../mode/soy/index.html">Soy</a>.</li>
+    <li>New <a href="../demo/panel.html">addon</a> to show persistent panels below/above an editor.</li>
+    <li>New themes: <a href="../demo/theme.html?zenburn">zenburn</a>
+    and <a href="../demo/theme.html?tomorrow-night-bright">tomorrow night
+    bright</a>.</li>
+    <li>Allow ctrl-click to clear existing cursors.</li>
+    <li>Full <a href="https://github.com/codemirror/CodeMirror/compare/4.8.0...4.9.0">list of patches</a>.</li>
+  </ul>
+
   <p class="rel">22-11-2014: <a href="http://codemirror.net/codemirror-4.8.zip">Version 4.8</a>:</p>
 
   <ul class="rel-note">

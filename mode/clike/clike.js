@@ -408,7 +408,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
                     "vec2 vec3 vec4 ivec2 ivec3 ivec4 bvec2 bvec3 bvec4 " +
                     "mat2 mat3 mat4 " +
                     "sampler1D sampler2D sampler3D samplerCube " +
-                    "sampler1DShadow sampler2DShadow" +
+                    "sampler1DShadow sampler2DShadow " +
                     "const attribute uniform varying " +
                     "break continue discard return " +
                     "for while do if else struct " +
@@ -416,7 +416,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     blockKeywords: words("for while do if else struct"),
     builtin: words("radians degrees sin cos tan asin acos atan " +
                     "pow exp log exp2 sqrt inversesqrt " +
-                    "abs sign floor ceil fract mod min max clamp mix step smootstep " +
+                    "abs sign floor ceil fract mod min max clamp mix step smoothstep " +
                     "length distance dot cross normalize ftransform faceforward " +
                     "reflect refract matrixCompMult " +
                     "lessThan lessThanEqual greaterThan greaterThanEqual " +
@@ -433,12 +433,12 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
                 "gl_FragColor gl_SecondaryColor gl_Normal gl_Vertex " +
                 "gl_MultiTexCoord0 gl_MultiTexCoord1 gl_MultiTexCoord2 gl_MultiTexCoord3 " +
                 "gl_MultiTexCoord4 gl_MultiTexCoord5 gl_MultiTexCoord6 gl_MultiTexCoord7 " +
-                "gl_FogCoord " +
+                "gl_FogCoord gl_PointCoord " +
                 "gl_Position gl_PointSize gl_ClipVertex " +
                 "gl_FrontColor gl_BackColor gl_FrontSecondaryColor gl_BackSecondaryColor " +
                 "gl_TexCoord gl_FogFragCoord " +
                 "gl_FragCoord gl_FrontFacing " +
-                "gl_FragColor gl_FragData gl_FragDepth " +
+                "gl_FragData gl_FragDepth " +
                 "gl_ModelViewMatrix gl_ProjectionMatrix gl_ModelViewProjectionMatrix " +
                 "gl_TextureMatrix gl_NormalMatrix gl_ModelViewMatrixInverse " +
                 "gl_ProjectionMatrixInverse gl_ModelViewProjectionMatrixInverse " +

@@ -15,7 +15,7 @@
 })(function(CodeMirror) {
 "use strict";
 
-CodeMirror.defineMode("coffeescript", function(conf) {
+CodeMirror.defineMode("coffeescript", function(conf, parserConf) {
   var ERRORCLASS = "error";
 
   function wordRegexp(words) {
@@ -191,7 +191,7 @@ CodeMirror.defineMode("coffeescript", function(conf) {
         }
       }
       if (singleline) {
-        if (conf.mode.singleLineStringErrors) {
+        if (parserConf.singleLineStringErrors) {
           outclass = ERRORCLASS;
         } else {
           state.tokenize = tokenBase;

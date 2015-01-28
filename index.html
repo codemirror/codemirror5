@@ -75,6 +75,7 @@
     <option value="demo/tern.html">Tern integration</option>
     <option value="demo/merge.html">Merge/diff interface</option>
     <option value="demo/fullscreen.html">Full-screen editor</option>
+    <option value="demo/simplescrollbars.html">Custom scrollbars</option>
   </select></form>
   <script>
     var editor = CodeMirror.fromTextArea(document.getElementById("demotext"), {
@@ -85,15 +86,15 @@
   </script>
   <div style="position: relative; margin: 1em 0;">
     <a class="bigbutton left" href="http://codemirror.net/codemirror.zip">DOWNLOAD LATEST RELEASE</a>
-    <div><strong>version 4.8</strong> (<a href="doc/releases.html">Release notes</a>)</div>
+    <div><strong>version 4.12</strong> (<a href="doc/releases.html">Release notes</a>)</div>
     <div>or use the <a href="doc/compress.html">minification helper</a></div>
     <div style="position: absolute; top: 0; right: 0; text-align: right">
       <span class="bigbutton right" onclick="document.getElementById('paypal').submit();">DONATE WITH PAYPAL</span>
       <div style="position: relative">
         or <span onclick="document.getElementById('bankinfo').style.display = 'block';" class=quasilink>Bank</span>,
         <span onclick="document.getElementById('bcinfo').style.display = 'block';" class=quasilink>Bitcoin</span>,
-        <a href="https://www.gittip.com/marijnh">Gittip</a>,
-        <a href="https://flattr.com/profile/marijnh">Flattr</a><br>
+        <a href="http://www.patreon.com/marijn">Patreon</a><br>
+        <a href="https://gratipay.com/marijnh/">Gratipay</a><br>
         <div id=bankinfo class=bankinfo>
           <span class=bankinfo_close onclick="document.getElementById('bankinfo').style.display = '';">×</span>
           Bank: <i>Rabobank</i><br/>
@@ -182,7 +183,7 @@
 <section id=browsersupport>
   <h2>Browser support</h2>
   <p>The <em>desktop</em> versions of the following browsers,
-  in <em>standards mode</em> (HTML5 <code>&lt;!doctype html></code>
+  in <em>standards mode</em> (HTML5 <code>&lt;!doctype html></code>
   recommended) are supported:</p>
   <table style="margin-bottom: 1em">
     <tr><th>Firefox</th><td>version 4 and up</td></tr>
