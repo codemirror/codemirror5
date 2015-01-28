@@ -17,7 +17,9 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
       statementIndentUnit = parserConfig.statementIndentUnit || indentUnit,
       dontAlignCalls = parserConfig.dontAlignCalls,
       noIndentKeywords = parserConfig.noIndentKeywords || [],
-      multiLineStrings = parserConfig.multiLineStrings;
+      multiLineStrings = parserConfig.multiLineStrings,
+      vxModeIsOn      = parserConfig.vxModeIsOn || false, // vx- verilog extension
+      vxHooks      = parserConfig.vxHooks || {};
 
   function words(str) {
     var obj = {}, words = str.split(" ");
@@ -83,7 +85,6 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
     "case checker class clocking config function generate interface module package" +
     "primitive program property specify sequence table task"
   );
-
   // Opening/closing pairs
   var openClose = {};
   for (var keyword in blockKeywords) {
@@ -108,6 +109,16 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
 
   function tokenBase(stream, state) {
     var ch = stream.peek();
+    if (vxHooks[ch]) {
+      var rslt = {};
+      rslt = vxHooks[ch](stream, state, parserConfig);
+      if (rslt.style != false) {return rslt.style;}
+    }
+    if (vxHooks["tokBase1"]) {
+      var rslt = {};
+      rslt = vxHooks["tokBase1"](stream, state, parserConfig);
+      if (rslt.style != false) {return rslt.style;}
+    }
     if (/[,;:\.]/.test(ch)) {
       curPunc = stream.next();
       return null;
@@ -284,7 +295,9 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
         tokenize: null,
         context: new Context((basecolumn || 0) - indentUnit, 0, "top", false),
         indented: 0,
-        startOfLine: true
+        startOfLine: true,
+        vxCodeActive: vxModeIsOn,
+        vxIndentRq: null
       };
     },
 
@@ -295,6 +308,7 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
         state.indented = stream.indentation();
         state.startOfLine = true;
       }
+      if (vxHooks["tok1"]) {vxHooks["tok1"](stream, state, parserConfig);}
       if (stream.eatSpace()) return null;
       curPunc = null;
       curKeyword = null;
@@ -335,6 +349,10 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
 
     indent: function(state, textAfter) {
       if (state.tokenize != tokenBase && state.tokenize != null) return CodeMirror.Pass;
+      if (vxHooks["vxIndent1"]) {
+        var vxIndentVal = vxHooks["vxIndent1"](state);
+        if (state.vxCodeActive && vxIndentVal >= 0) {return vxIndentVal;};
+      }
       var ctx = state.context, firstChar = textAfter && textAfter.charAt(0);
       if (ctx.type == "statement" && firstChar == "}") ctx = ctx.prev;
       var closing = false;
@@ -354,11 +372,185 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
   };
 });
 
-CodeMirror.defineMIME("text/x-verilog", {
-  name: "verilog"
-});
-CodeMirror.defineMIME("text/x-systemverilog", {
-  name: "systemverilog"
+  CodeMirror.defineMIME("text/x-verilog", {
+    name: "verilog"
+  });
+
+  CodeMirror.defineMIME("text/x-systemverilog", {
+    name: "verilog"
+  });
+
+  CodeMirror.defineMIME("text/x-svx", {
+    name: "verilog",
+    vxModeIsOn: true,
+    vxHooks: {
+        "\\": function(stream, state, thisMode) {
+               var codeRegion = "", vxIndent = 0, style = false;
+               var curPunc  = stream.string;
+               if ((0 == stream.pos) && (/\\SV/.test(stream.string))) {
+                 curPunc = (/\\SVX_version/.test(stream.string))
+                   ? "\\SVX_version" : stream.string;
+                 stream.skipToEnd();
+                 if (curPunc=="\\SV" && state.vxCodeActive) {codeRegion = "2v";};
+                 if (/\\SVX/.test(curPunc) && !state.vxCodeActive) {codeRegion ="2vx";};
+                 if (curPunc=="\\SVX_version" && state.vxCodeActive) {codeRegion = "2vx";};
+                 style=(thisMode.svxkeywords.propertyIsEnumerable(curPunc))
+                   ? thisMode.svxkeywords[curPunc] : "builtin";
+                 thisMode.svxCurCtlFlowChar  = thisMode.svxPrevPrevCtlFlowChar
+                   = thisMode.svxPrevCtlFlowChar = "";
+                 if (codeRegion == "2vx") {
+                   thisMode.svxCurCtlFlowChar  = "\\";
+                   vxIndent=thisMode.vxHooks["svxGenIndent"](stream, state, thisMode);
+                 }
+                 if ("2v"  == codeRegion)  {state.vxCodeActive=false;}
+                 if ("2vx" == codeRegion)  {state.vxCodeActive=true;}
+                 state.vxIndentRq = vxIndent;
+               }
+               return {style:style, codeRegion:codeRegion,vxIndent:vxIndent};
+        },
+        "tokBase1": function(stream, state, thisMode) {
+               var codeRegion = "", vxIndent = 0, style = false;
+               var ch = stream.peek(), curPunc=stream.current();
+               var vxCurCtlFlowCharValueAtStart = thisMode.svxCurCtlFlowChar;
+               if (state.vxCodeActive==true) {
+                 switch (true) {
+                   case /[\[\]{}\(\);\:]/.test(ch):
+                     // bypass nesting and 1 char punc
+                     style = "meta";
+                     stream.next();
+                     break;
+                   case ch == "/":
+                     stream.next();
+                     if (stream.eat("/")) {
+                       stream.skipToEnd();
+                       style =  "comment";
+                       thisMode.svxCurCtlFlowChar  = "S";
+                     } else
+                       stream.backUp(1);
+                     break;
+                   case /@/.test(ch):
+                     // pipeline stage
+                     style = thisMode.svxchScopePrefixs[ch];
+                     thisMode.svxCurCtlFlowChar  = "@";
+                     stream.next();
+                     stream.eatWhile(/[\w\$_]/);
+                     break;
+                   case /\b[mM]4+?/.test(curPunc):
+                     // m4 pre proc
+                     style = thisMode.svxkeywords[curPunc];
+                     thisMode.svxCurCtlFlowChar  = "m4";
+                     /* if (style=="def") */ stream.skipTo("(");
+                     break;
+                   case ch == "!" && stream.pos==0:
+                     // v stmt in svx region
+                     // thisMode.svxCurCtlFlowChar  = "S"; // bozo want to indent next tok
+                     style = "comment";
+                     stream.next();
+                     break;
+                   case thisMode.svxisOperatorChar.test(ch):
+                     // operators
+                     stream.eatWhile(thisMode.svxisOperatorChar);
+                     style = "operator";
+                     break;
+                   case ch == "#":
+                     // phy hier
+                     thisMode.svxCurCtlFlowChar  = (thisMode.svxCurCtlFlowChar=="")
+                       ? ch : thisMode.svxCurCtlFlowChar;
+                     stream.next();
+                     stream.eatWhile(/[+-]\d/);
+                     style = "tag";
+                     break;
+                   case thisMode.svxkpScopePrefixs.propertyIsEnumerable(ch):
+                     // special SVX operators
+                     style = thisMode.svxkpScopePrefixs[ch];
+                     thisMode.svxCurCtlFlowChar  = (thisMode.svxCurCtlFlowChar=="")
+                       ? "S" : thisMode.svxCurCtlFlowChar;  // stmt
+                     stream.next();
+                     stream.match(/[a-zA-Z_0-9]+/);
+                     break;
+                   case thisMode.svxchScopePrefixs.propertyIsEnumerable(ch):
+                     // special SVX operators
+                     style = thisMode.svxchScopePrefixs[ch];
+                     thisMode.svxCurCtlFlowChar  = (thisMode.svxCurCtlFlowChar=="")
+                       ? ch : thisMode.svxCurCtlFlowChar;
+                     stream.next();
+                     stream.match(/[a-zA-Z_0-9]+/);
+                     break;
+                 }
+                 if (thisMode.svxCurCtlFlowChar != vxCurCtlFlowCharValueAtStart) { // flow change
+                   vxIndent=thisMode.vxHooks["svxGenIndent"](stream, state, thisMode);
+                   state.vxIndentRq = vxIndent;
+                 }
+               }
+               return {style:style, codeRegion:codeRegion,vxIndent:vxIndent};
+        },
+        "tok1": function(stream, state, thisMode) {
+               if (state.vxCodeActive==true && stream.sol() && thisMode.svxCurCtlFlowChar != "") {
+                 thisMode.svxPrevPrevCtlFlowChar = thisMode.svxPrevCtlFlowChar;
+                 thisMode.svxPrevCtlFlowChar = thisMode.svxCurCtlFlowChar;
+                 thisMode.svxCurCtlFlowChar  = "";
+               }
+        },
+        "svxGenIndent": function(stream, _state, thisMode) {
+               var rtnIndent = -1, indentUnitRq=0, curIndent=stream.indentation();
+               switch (thisMode.svxCurCtlFlowChar) {
+                   case "\\":
+                     curIndent = 0;
+                     break;
+                   case "|":
+                     if (thisMode.svxPrevPrevCtlFlowChar=="@") {
+                       indentUnitRq=-2; //-2 new pipe rq after cur pipe
+                       break;
+                     }
+                     if (thisMode.svxchScopePrefixs.propertyIsEnumerable(thisMode.svxPrevCtlFlowChar))
+                       indentUnitRq=1; // +1 new scope
+                     break;
+                   case "m4":
+                    if (thisMode.svxPrevPrevCtlFlowChar=="@") {
+                       indentUnitRq=-2; //-2 new inst rq after  pipe
+                       break;
+                     }
+                     if (thisMode.svxchScopePrefixs.propertyIsEnumerable(thisMode.svxPrevCtlFlowChar))
+                       indentUnitRq=1; // +1 new scope
+                     break;
+                   case "@":
+                     if (thisMode.svxPrevCtlFlowChar=="S") {
+                       indentUnitRq=-1; // new pipe stage after stmts
+                     }
+                     if (thisMode.svxPrevCtlFlowChar=="|") {
+                       indentUnitRq=1; // 1st pipe stage
+                     }
+                     break;
+                   case "S":
+                     if (thisMode.svxPrevCtlFlowChar=="@") {
+                       indentUnitRq=1; // flow in pipe stage
+                     }
+                     if (thisMode.svxchScopePrefixs.propertyIsEnumerable(thisMode.svxPrevCtlFlowChar))
+                       indentUnitRq=1; // +1 new scope
+                     break;
+               }
+               var statementIndentUnit = thisMode.svxindentUnit;
+               rtnIndent = curIndent + (indentUnitRq*statementIndentUnit);
+               return( (rtnIndent>=0) ?rtnIndent :curIndent );
+        },
+        "vxIndent1": function(state) {
+              return(state.vxIndentRq);
+        }
+    },
+    svxPrevPrevCtlFlowChar: "",
+    svxPrevCtlFlowChar: "",
+    svxCurCtlFlowChar:  "",
+    svxindentUnit: 2,
+    svxkeywords: {
+        "\\SVX":"keyword", "\\SV":"keyword", "m4":"def", "M4":"def", "\\SVX_version":"keyword"},
+    svxkpScopePrefixs: {
+        "**":"variable-2", "*":"variable-2", "$$":"variable", "$":"variable",
+        "^^":"attribute", "^":"attribute"},
+    svxchScopePrefixs: {
+        ">":"property", "->":"property", "-":"hr", "|":"link", "?$":"qualifier", "?*":"qualifier",
+        "@-":"variable-3", "@":"variable-3", "?":"qualifier"},
+    svxisOperatorChar:  /[\[\]=:]/
+  });
 });
 
-});
+

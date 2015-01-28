@@ -1,0 +1,26 @@
+
+.cm-s-svx-basic span.cm-keyword { color: DarkBlue;font-weight: bold; }
+.cm-s-svx-basic span.cm-atom { color:blue ; }
+.cm-s-svx-basic span.cm-number { color: #B35E4D; }
+.cm-s-svx-basic span.cm-def {color:black;font-weight: bold;}
+.cm-s-svx-basic span.cm-variable { color: purple}
+.cm-s-svx-basic span.cm-variable-2 { color: gray; }
+.cm-s-svx-basic span.cm-variable-3 { color: DarkGreen; font-style:italic; }
+.cm-s-svx-basic span.cm-property {color: #20a0c0;}
+.cm-s-svx-basic span.cm-operator {color: #92A75C;}
+.cm-s-svx-basic span.cm-comment { color: DarkRed }
+.cm-s-svx-basic span.cm-string { color: #BCD279; }
+.cm-s-svx-basic span.cm-string-2 {color: #f50;}
+.cm-s-svx-basic span.cm-meta { color: #738C73; }
+.cm-s-svx-basic span.cm-qualifier {color: #f04000}
+.cm-s-svx-basic span.cm-builtin { color: #ff9e59; }
+.cm-s-svx-basic span.cm-bracket { color: #EBEFE7; }
+.cm-s-svx-basic span.cm-tag { color: SeaGreen }
+.cm-s-svx-basic span.cm-attribute {color: #503890;}
+.cm-s-svx-basic span.cm-header {color: #a0a;}
+.cm-s-svx-basic span.cm-quote {color: #090;}
+.cm-s-svx-basic span.cm-hr {color: DarkSlateBlue; font-style:italic; }
+.cm-s-svx-basic span.cm-link {color: orange}
+.cm-s-svx-basic span.cm-error { color: #9d1e15; }
+
+
