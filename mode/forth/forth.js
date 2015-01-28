@@ -176,9 +176,5 @@
       }
     };
   });
-<<<<<<< HEAD
-  CodeMirror.defineMIME("text/forth", "forth");
-=======
   CodeMirror.defineMIME("text/x-forth", "forth");
->>>>>>> upstream/master
 });
