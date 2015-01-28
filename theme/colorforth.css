@@ -1,5 +1,5 @@
 .cm-s-colorforth.CodeMirror {
-    background: #0a001f;
+    background: #313131;
     color: #f8f8f8;
 }
 
@@ -25,13 +25,13 @@
 }
 
 .cm-s-colorforth span.cm-comment     { color: #ededed; }
-.cm-s-colorforth span.cm-def         { color: #c70000; }
+.cm-s-colorforth span.cm-def         { color: #ff0000; }
 .cm-s-colorforth span.cm-keyword     { color: #ffd900; }
 .cm-s-colorforth span.cm-builtin     { color: #006c3d; }
 .cm-s-colorforth span.cm-variable    { color: #07a800; }
 .cm-s-colorforth span.cm-string      { color: #007bff; }
 .cm-s-colorforth span.cm-number      { color: #25ccff; }
-.cm-s-colorforth span.cm-compilation { background: rgba(255, 255, 255, 0.14); }
+.cm-s-colorforth span.cm-compilation { background: rgba(0, 0, 0, 0.23); }
 .cm-s-colorforth span.cm-atom        { color: #606060; }
 
 
