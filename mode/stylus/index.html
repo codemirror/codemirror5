@@ -26,8 +26,7 @@
 
 <article>
 <h2>Stylus mode</h2>
-<form>
-    <textarea id="code" name="code">
+<form><textarea id="code" name="code">
 /* Stylus mode */
 #id
 .class
@@ -92,14 +91,14 @@ a:focus {
   outline: 5px auto -webkit-focus-ring-color;
   outline-offset: -2px;
 }
-  </textarea>
-  </form>
-    <script>
-      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-        extraKeys: {"Ctrl-Space": "autocomplete"},
-      });
-    </script>
+</textarea>
+</form>
+<script>
+  var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+    extraKeys: {"Ctrl-Space": "autocomplete"},
+  });
+</script>
 
-    <p><strong>MIME types defined:</strong> <code>text/x-styl</code>.</p>
+<p><strong>MIME types defined:</strong> <code>text/x-styl</code>.</p>
 
-  </article>
+</article>
