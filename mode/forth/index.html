@@ -20,18 +20,18 @@
 
   <ul>
     <li><a href="../../index.html">Home</a>
-      <li><a href="../../doc/manual.html">Manual</a>
-        <li><a href="https://github.com/codemirror/codemirror">Code</a>
-        </ul>
-        <ul>
-          <li><a href="../index.html">Language modes</a>
-            <li><a class=active href="#">Forth</a>
-            </ul>
-          </div>
+    <li><a href="../../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="../index.html">Language modes</a>
+    <li><a class=active href="#">Forth</a>
+  </ul>
+</div>
 
-          <article>
-            <h2>Forth mode</h2>
-            <form><textarea id="code" name="code">
+<article>
+  <h2>Forth mode</h2>
+    <form><textarea id="code" name="code">
 \ Insertion sort
 
 : cell-  1 cells - ;
@@ -51,23 +51,22 @@
 : sort ( array len -- )
   1 ?do
     dup i cells + insert
-  loop drop ;</textarea>
-  </form>
+  loop drop ;
+</textarea></form>
 
-            <script>
-              var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-                lineNumbers: true,
-                lineWrapping: true,
-                indentUnit: 2,
-                tabSize: 2,
-                autofocus: true,
-                theme: 'colorforth',
-                mode: "text/x-forth"
-              });
-            </script>
+<script>
+  var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+    lineNumbers: true,
+    lineWrapping: true,
+    indentUnit: 2,
+    tabSize: 2,
+    autofocus: true,
+    mode: "text/x-forth"
+  });
+</script>
 
-            <p>Simple mode that handle Forth-Syntax (<a href="http://en.wikipedia.org/wiki/Forth_%28programming_language%29">Forth on WikiPedia</a>).</p>
+<p>Simple mode that handle Forth-Syntax (<a href="http://en.wikipedia.org/wiki/Forth_%28programming_language%29">Forth on WikiPedia</a>).</p>
 
-            <p><strong>MIME types defined:</strong> <code>text/x-forth</code>
-              .</p>
-            </article>
+<p><strong>MIME types defined:</strong> <code>text/x-forth</code>.</p>
+
+</article>
