@@ -4,10 +4,17 @@
 <meta charset="utf-8"/>
 <link rel=stylesheet href="../../doc/docs.css">
 
+<link href='http://fonts.googleapis.com/css?family=Droid+Sans+Mono' rel='stylesheet' type='text/css'>
 <link rel="stylesheet" href="../../lib/codemirror.css">
+<link rel="stylesheet" href="../../theme/colorforth.css">
 <script src="../../lib/codemirror.js"></script>
 <script src="forth.js"></script>
-<style>.CodeMirror {border: 2px inset #dee;}</style>
+<style>
+.CodeMirror {
+    font-family: 'Droid Sans Mono', monospace;
+    font-size: 14px;
+}
+</style>
 <div id=nav>
   <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../../doc/logo.png"></a>
 
@@ -56,6 +63,7 @@
     indentUnit: 2,
     tabSize: 2,
     autofocus: true,
+    theme: 'colorforth',
     mode: "text/x-forth"
   });
 </script>
