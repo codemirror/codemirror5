@@ -595,6 +595,8 @@
       cm.state.ternTooltip = null;
       if (!tip.parentNode) return;
       cm.off("cursorActivity", clear);
+      cm.off('blur', clear);
+      cm.off('scroll', clear);
       fadeOut(tip);
     }
     var mouseOnTip = false, old = false;
@@ -607,6 +609,8 @@
     });
     setTimeout(maybeClear, 1700);
     cm.on("cursorActivity", clear);
+    cm.on('blur', clear);
+    cm.on('scroll', clear);
   }
 
   function makeTooltip(x, y, content) {
