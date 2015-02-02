@@ -516,6 +516,17 @@ testCM("deleteSpanCollapsedInclusiveLeft", function(cm) {
   cm.replaceRange("", from, to);
 }, {value: "abc\nX\ndef"});
 
+testCM("markTextCSS", function(cm) {
+  function present() {
+    var spans = cm.display.lineDiv.getElementsByTagName("span");
+    for (var i = 0; i < spans.length; i++)
+      if (spans[i].style.color == "cyan" && span[i].textContent == "cdefg") return true;
+  }
+  var m = cm.markText(Pos(0, 2), Pos(0, 6), {css: "color: cyan"});
+  m.clear();
+  is(!present());
+}, {value: "abcdefgh"});
+
 testCM("bookmark", function(cm) {
   function p(v) { return v && Pos(v[0], v[1]); }
   forEach([{a: [1, 0], b: [1, 1], c: "", d: [1, 4]},
@@ -599,6 +610,14 @@ testCM("getAllMarks", function(cm) {
   m3.clear();
   eq(cm.getAllMarks().length, 2);
 });
+
+testCM("setValueClears", function(cm) {
+  cm.addLineClass(0, "wrap", "foo");
+  var mark = cm.markText(Pos(0, 0), Pos(1, 1), {inclusiveLeft: true, inclusiveRight: true});
+  cm.setValue("foo");
+  is(!cm.lineInfo(0).wrapClass);
+  is(!mark.find());
+}, {value: "a\nb"});
 
 testCM("bug577", function(cm) {
   cm.setValue("a\nb");
@@ -1533,33 +1552,48 @@ testCM("jumpTheGap", function(cm) {
 }, {lineWrapping: true, value: "abc\ndef\nghi\njkl\n"});
 
 testCM("addLineClass", function(cm) {
-  function cls(line, text, bg, wrap) {
+  function cls(line, text, bg, wrap, gutter) {
     var i = cm.lineInfo(line);
     eq(i.textClass, text);
     eq(i.bgClass, bg);
     eq(i.wrapClass, wrap);
+    if (typeof i.handle.gutterClass !== 'undefined') {
+        eq(i.handle.gutterClass, gutter);
+    }
   }
   cm.addLineClass(0, "text", "foo");
   cm.addLineClass(0, "text", "bar");
   cm.addLineClass(1, "background", "baz");
   cm.addLineClass(1, "wrap", "foo");
-  cls(0, "foo bar", null, null);
-  cls(1, null, "baz", "foo");
+  cm.addLineClass(1, "gutter", "gutter-class");
+  cls(0, "foo bar", null, null, null);
+  cls(1, null, "baz", "foo", "gutter-class");
   var lines = cm.display.lineDiv;
   eq(byClassName(lines, "foo").length, 2);
   eq(byClassName(lines, "bar").length, 1);
   eq(byClassName(lines, "baz").length, 1);
+  eq(byClassName(lines, "gutter-class").length, 1);
   cm.removeLineClass(0, "text", "foo");
-  cls(0, "bar", null, null);
+  cls(0, "bar", null, null, null);
   cm.removeLineClass(0, "text", "foo");
-  cls(0, "bar", null, null);
+  cls(0, "bar", null, null, null);
   cm.removeLineClass(0, "text", "bar");
   cls(0, null, null, null);
+
   cm.addLineClass(1, "wrap", "quux");
-  cls(1, null, "baz", "foo quux");
+  cls(1, null, "baz", "foo quux", "gutter-class");
   cm.removeLineClass(1, "wrap");
-  cls(1, null, "baz", null);
-}, {value: "hohoho\n"});
+  cls(1, null, "baz", null, "gutter-class");
+  cm.removeLineClass(1, "gutter", "gutter-class");
+  eq(byClassName(lines, "gutter-class").length, 0);
+  cls(1, null, "baz", null, null);
+
+  cm.addLineClass(1, "gutter", "gutter-class");
+  cls(1, null, "baz", null, "gutter-class");
+  cm.removeLineClass(1, "gutter", "gutter-class");
+  cls(1, null, "baz", null, null);
+
+}, {value: "hohoho\n", lineNumbers: true});
 
 testCM("atomicMarker", function(cm) {
   addDoc(cm, 10, 10);

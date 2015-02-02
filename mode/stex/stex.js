@@ -130,8 +130,7 @@
       if (ch == "%") {
         source.skipToEnd();
         return "comment";
-      }
-      else if (ch == '}' || ch == ']') {
+      } else if (ch == '}' || ch == ']') {
         plug = peekCommand(state);
         if (plug) {
           plug.closeBracket(ch);
@@ -145,12 +144,10 @@
         plug = new plug();
         pushCommand(state, plug);
         return "bracket";
-      }
-      else if (/\d/.test(ch)) {
+      } else if (/\d/.test(ch)) {
         source.eatWhile(/[\w.%]/);
         return "atom";
-      }
-      else {
+      } else {
         source.eatWhile(/[\w\-_]/);
         plug = getMostPowerful(state);
         if (plug.name == 'begin') {
@@ -242,6 +239,7 @@
       },
       blankLine: function(state) {
         state.f = normal;
+        state.cmdState.length = 0;
       },
       lineComment: "%"
     };

@@ -63,11 +63,11 @@
   function parseQuery(query) {
     var isRE = query.match(/^\/(.*)\/([a-z]*)$/);
     if (isRE) {
-      query = new RegExp(isRE[1], isRE[2].indexOf("i") == -1 ? "" : "i");
-      if (query.test("")) query = /x^/;
-    } else if (query == "") {
-      query = /x^/;
+      try { query = new RegExp(isRE[1], isRE[2].indexOf("i") == -1 ? "" : "i"); }
+      catch(e) {} // Not a regular expression after all, do a string search
     }
+    if (typeof query == "string" ? query == "" : query.test(""))
+      query = /x^/;
     return query;
   }
   var queryDialog =
@@ -82,6 +82,10 @@
         cm.removeOverlay(state.overlay, queryCaseInsensitive(state.query));
         state.overlay = searchOverlay(state.query, queryCaseInsensitive(state.query));
         cm.addOverlay(state.overlay);
+        if (cm.showMatchesOnScrollbar) {
+          if (state.annotate) { state.annotate.clear(); state.annotate = null; }
+          state.annotate = cm.showMatchesOnScrollbar(state.query, queryCaseInsensitive(state.query));
+        }
         state.posFrom = state.posTo = cm.getCursor();
         findNext(cm, rev);
       });
@@ -103,6 +107,7 @@
     if (!state.query) return;
     state.query = null;
     cm.removeOverlay(state.overlay);
+    if (state.annotate) { state.annotate.clear(); state.annotate = null; }
   });}
 
   var replaceQueryDialog =

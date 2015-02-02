@@ -168,16 +168,16 @@
       '[variable-2 # bar]');
 
   MT('ulFormatting',
-      '[variable-2 * ][variable-2&em _foo_][variable-2 bar]',
+      '[variable-2 * ][variable-2&em _foo_][variable-2  bar]',
       '[variable-2 * ][variable-2&strong *][variable-2&em&strong _foo_]' +
         '[variable-2&strong *][variable-2  bar]',
-      '[variable-2 * ][variable-2&strong *foo*][variable-2 bar]');
+      '[variable-2 * ][variable-2&strong *foo*][variable-2  bar]');
 
   MT('olFormatting',
-      '[variable-2 # ][variable-2&em _foo_][variable-2 bar]',
+      '[variable-2 # ][variable-2&em _foo_][variable-2  bar]',
       '[variable-2 # ][variable-2&strong *][variable-2&em&strong _foo_]' +
         '[variable-2&strong *][variable-2  bar]',
-      '[variable-2 # ][variable-2&strong *foo*][variable-2 bar]');
+      '[variable-2 # ][variable-2&strong *foo*][variable-2  bar]');
 
   MT('ulNested',
       '[variable-2 * foo]',
@@ -403,4 +403,15 @@
       '[operator pre.. *No* formatting]',
       '',
       '[operator *No* formatting]');
+
+  /* Only toggling phrases between non-word chars. */
+
+  MT('phrase-in-word',
+     'foo_bar_baz');
+
+  MT('phrase-non-word',
+     '[negative -x-] aaa-bbb ccc-ddd [negative -eee-] fff [negative -ggg-]');
+
+  MT('phrase-lone-dash',
+     'foo - bar - baz');
 })();

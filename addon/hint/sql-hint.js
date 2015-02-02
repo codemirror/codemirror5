@@ -44,9 +44,7 @@
     }
   }
 
-  function nameCompletion(result, editor) {
-    var cur = editor.getCursor();
-    var token = editor.getTokenAt(cur);
+  function nameCompletion(cur, token, result, editor) {
     var useBacktick = (token.string.charAt(0) == "`");
     var string = token.string.substr(1);
     var prevToken = editor.getTokenAt(Pos(cur.line, token.start));
@@ -173,6 +171,11 @@
     var cur = editor.getCursor();
     var result = [];
     var token = editor.getTokenAt(cur), start, end, search;
+    if (token.end > cur.ch) {
+      token.end = cur.ch;
+      token.string = token.string.slice(0, cur.ch - token.start);
+    }
+
     if (token.string.match(/^[.`\w@]\w*$/)) {
       search = token.string;
       start = token.start;
@@ -182,7 +185,7 @@
       search = "";
     }
     if (search.charAt(0) == "." || search.charAt(0) == "`") {
-      nameCompletion(result, editor);
+      nameCompletion(cur, token, result, editor);
     } else {
       addMatches(result, search, tables, function(w) {return w;});
       addMatches(result, search, defaultTable, function(w) {return w;});

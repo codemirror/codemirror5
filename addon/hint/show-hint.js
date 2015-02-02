@@ -243,7 +243,7 @@
         }
       }
     }
-    var overlapX = box.left - winW;
+    var overlapX = box.right - winW;
     if (overlapX > 0) {
       if (box.right - box.left > winW) {
         hints.style.width = (winW - 5) + "px";

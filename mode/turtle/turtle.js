@@ -151,7 +151,9 @@ CodeMirror.defineMode("turtle", function(config) {
         return context.col + (closing ? 0 : 1);
       else
         return context.indent + (closing ? 0 : indentUnit);
-    }
+    },
+
+    lineComment: "#"
   };
 });
 

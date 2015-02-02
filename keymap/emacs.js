@@ -132,8 +132,8 @@
     };
   }
 
-  function findEnd(cm, by, dir) {
-    var pos = cm.getCursor(), prefix = getPrefix(cm);
+  function findEnd(cm, pos, by, dir) {
+    var prefix = getPrefix(cm);
     if (prefix < 0) { dir = -dir; prefix = -prefix; }
     for (var i = 0; i < prefix; ++i) {
       var newPos = by(cm, pos, dir);
@@ -145,14 +145,31 @@
 
   function move(by, dir) {
     var f = function(cm) {
-      cm.extendSelection(findEnd(cm, by, dir));
+      cm.extendSelection(findEnd(cm, cm.getCursor(), by, dir));
     };
     f.motion = true;
     return f;
   }
 
   function killTo(cm, by, dir) {
-    kill(cm, cm.getCursor(), findEnd(cm, by, dir), true);
+    var selections = cm.listSelections(), cursor;
+    var i = selections.length;
+    while (i--) {
+      cursor = selections[i].head;
+      kill(cm, cursor, findEnd(cm, cursor, by, dir), true);
+    }
+  }
+
+  function killRegion(cm) {
+    if (cm.somethingSelected()) {
+      var selections = cm.listSelections(), selection;
+      var i = selections.length;
+      while (i--) {
+        selection = selections[i];
+        kill(cm, selection.anchor, selection.head);
+      }
+      return true;
+    }
   }
 
   function addPrefix(cm, digit) {
@@ -283,9 +300,9 @@
     "Ctrl-F": move(byChar, 1), "Ctrl-B": move(byChar, -1),
     "Right": move(byChar, 1), "Left": move(byChar, -1),
     "Ctrl-D": function(cm) { killTo(cm, byChar, 1); },
-    "Delete": function(cm) { killTo(cm, byChar, 1); },
+    "Delete": function(cm) { killRegion(cm) || killTo(cm, byChar, 1); },
     "Ctrl-H": function(cm) { killTo(cm, byChar, -1); },
-    "Backspace": function(cm) { killTo(cm, byChar, -1); },
+    "Backspace": function(cm) { killRegion(cm) || killTo(cm, byChar, -1); },
 
     "Alt-F": move(byWord, 1), "Alt-B": move(byWord, -1),
     "Alt-D": function(cm) { killTo(cm, byWord, 1); },
@@ -309,7 +326,8 @@
     "Ctrl-Alt-F": move(byExpr, 1), "Ctrl-Alt-B": move(byExpr, -1),
 
     "Shift-Ctrl-Alt-2": function(cm) {
-      cm.setSelection(findEnd(cm, byExpr, 1), cm.getCursor());
+      var cursor = cm.getCursor();
+      cm.setSelection(findEnd(cm, cursor, byExpr, 1), cursor);
     },
     "Ctrl-Alt-T": function(cm) {
       var leftStart = byExpr(cm, cm.getCursor(), -1), leftEnd = byExpr(cm, leftStart, 1);
@@ -377,6 +395,7 @@
     "Ctrl-X U": repeated("undo"),
     "Ctrl-X K": "close",
     "Ctrl-X Delete": function(cm) { kill(cm, cm.getCursor(), bySentence(cm, cm.getCursor(), 1), true); },
+    "Ctrl-X H": "selectAll",
 
     "Ctrl-Q Tab": repeated("insertTab"),
     "Ctrl-U": addPrefixMap

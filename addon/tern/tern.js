@@ -106,7 +106,9 @@
       cm.showHint({hint: this.getHint});
     },
 
-    showType: function(cm, pos, c) { showType(this, cm, pos, c); },
+    showType: function(cm, pos, c) { showContextInfo(this, cm, pos, "type", c); },
+
+    showDocs: function(cm, pos, c) { showContextInfo(this, cm, pos, "documentation", c); },
 
     updateArgHints: function(cm) { updateArgHints(this, cm); },
 
@@ -239,8 +241,8 @@
 
   // Type queries
 
-  function showType(ts, cm, pos, c) {
-    ts.request(cm, "type", function(error, data) {
+  function showContextInfo(ts, cm, pos, queryName, c) {
+    ts.request(cm, queryName, function(error, data) {
       if (error) return showError(ts, cm, error);
       if (ts.options.typeTip) {
         var tip = ts.options.typeTip(data);

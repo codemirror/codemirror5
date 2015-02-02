@@ -77,11 +77,11 @@
     { keys: '<Up>', type: 'keyToKey', toKeys: 'k' },
     { keys: '<Down>', type: 'keyToKey', toKeys: 'j' },
     { keys: '<Space>', type: 'keyToKey', toKeys: 'l' },
-    { keys: '<BS>', type: 'keyToKey', toKeys: 'h' },
+    { keys: '<BS>', type: 'keyToKey', toKeys: 'h', context: 'normal'},
     { keys: '<C-Space>', type: 'keyToKey', toKeys: 'W' },
-    { keys: '<C-BS>', type: 'keyToKey', toKeys: 'B' },
+    { keys: '<C-BS>', type: 'keyToKey', toKeys: 'B', context: 'normal' },
     { keys: '<S-Space>', type: 'keyToKey', toKeys: 'w' },
-    { keys: '<S-BS>', type: 'keyToKey', toKeys: 'b' },
+    { keys: '<S-BS>', type: 'keyToKey', toKeys: 'b', context: 'normal' },
     { keys: '<C-n>', type: 'keyToKey', toKeys: 'j' },
     { keys: '<C-p>', type: 'keyToKey', toKeys: 'k' },
     { keys: '<C-[>', type: 'keyToKey', toKeys: '<Esc>' },
@@ -229,55 +229,7 @@
 
   var Pos = CodeMirror.Pos;
 
-  var modifierCodes = [16, 17, 18, 91];
-  var specialKey = {Enter:'CR',Backspace:'BS',Delete:'Del'};
-  var mac = /Mac/.test(navigator.platform);
   var Vim = function() {
-    function lookupKey(e) {
-      var keyCode = e.keyCode;
-      if (modifierCodes.indexOf(keyCode) != -1) { return; }
-      var hasModifier = e.ctrlKey || e.metaKey;
-      var key = CodeMirror.keyNames[keyCode];
-      key = specialKey[key] || key;
-      var name = '';
-      if (e.ctrlKey) { name += 'C-'; }
-      if (e.altKey) { name += 'A-'; }
-      if (mac && e.metaKey || (!hasModifier && e.shiftKey) && key.length < 2) {
-        // Shift key bindings can only specified for special characters.
-        return;
-      } else if (e.shiftKey && !/^[A-Za-z]$/.test(key)) {
-        name += 'S-';
-      }
-      if (key.length == 1) { key = key.toLowerCase(); }
-      name += key;
-      if (name.length > 1) { name = '<' + name + '>'; }
-      return name;
-    }
-    // Keys with modifiers are handled using keydown due to limitations of
-    // keypress event.
-    function handleKeyDown(cm, e) {
-      var name = lookupKey(e);
-      if (!name) { return; }
-
-      CodeMirror.signal(cm, 'vim-keypress', name);
-      if (CodeMirror.Vim.handleKey(cm, name, 'user')) {
-        CodeMirror.e_stop(e);
-      }
-    }
-    // Keys without modifiers are handled using keypress to work best with
-    // non-standard keyboard layouts.
-    function handleKeyPress(cm, e) {
-      var code = e.charCode || e.keyCode;
-      if (e.ctrlKey || e.metaKey || e.altKey ||
-          e.shiftKey && code < 32) { return; }
-      var name = String.fromCharCode(code);
-
-      CodeMirror.signal(cm, 'vim-keypress', name);
-      if (CodeMirror.Vim.handleKey(cm, name, 'user')) {
-        CodeMirror.e_stop(e);
-      }
-    }
-
     function enterVimMode(cm) {
       cm.setOption('disableInput', true);
       cm.setOption('showCursorWhenSelecting', false);
@@ -285,8 +237,6 @@
       cm.on('cursorActivity', onCursorActivity);
       maybeInitVimState(cm);
       CodeMirror.on(cm.getInputField(), 'paste', getOnPasteFn(cm));
-      cm.on('keypress', handleKeyPress);
-      cm.on('keydown', handleKeyDown);
     }
 
     function leaveVimMode(cm) {
@@ -294,8 +244,6 @@
       cm.off('cursorActivity', onCursorActivity);
       CodeMirror.off(cm.getInputField(), 'paste', getOnPasteFn(cm));
       cm.state.vim = null;
-      cm.off('keypress', handleKeyPress);
-      cm.off('keydown', handleKeyDown);
     }
 
     function detachVimMap(cm, next) {
@@ -320,6 +268,60 @@
       else if (!val && prev != CodeMirror.Init && /^vim/.test(cm.getOption("keyMap")))
         cm.setOption("keyMap", "default");
     });
+
+    function cmKey(key, cm) {
+      if (!cm) { return undefined; }
+      var vimKey = cmKeyToVimKey(key);
+      if (!vimKey) {
+        return false;
+      }
+      var cmd = CodeMirror.Vim.findKey(cm, vimKey);
+      if (typeof cmd == 'function') {
+        CodeMirror.signal(cm, 'vim-keypress', vimKey);
+      }
+      return cmd;
+    }
+
+    var modifiers = {'Shift': 'S', 'Ctrl': 'C', 'Alt': 'A', 'Cmd': 'D', 'Mod': 'A'};
+    var specialKeys = {Enter:'CR',Backspace:'BS',Delete:'Del'};
+    function cmKeyToVimKey(key) {
+      if (key.charAt(0) == '\'') {
+        // Keypress character binding of format "'a'"
+        return key.charAt(1);
+      }
+      var pieces = key.split('-');
+      if (/-$/.test(key)) {
+        // If the - key was typed, split will result in 2 extra empty strings
+        // in the array. Replace them with 1 '-'.
+        pieces.splice(-2, 2, '-');
+      }
+      var lastPiece = pieces[pieces.length - 1];
+      if (pieces.length == 1 && pieces[0].length == 1) {
+        // No-modifier bindings use literal character bindings above. Skip.
+        return false;
+      } else if (pieces.length == 2 && pieces[0] == 'Shift' && lastPiece.length == 1) {
+        // Ignore Shift+char bindings as they should be handled by literal character.
+        return false;
+      }
+      var hasCharacter = false;
+      for (var i = 0; i < pieces.length; i++) {
+        var piece = pieces[i];
+        if (piece in modifiers) { pieces[i] = modifiers[piece]; }
+        else { hasCharacter = true; }
+        if (piece in specialKeys) { pieces[i] = specialKeys[piece]; }
+      }
+      if (!hasCharacter) {
+        // Vim does not support modifier only keys.
+        return false;
+      }
+      // TODO: Current bindings expect the character to be lower case, but
+      // it looks like vim key notation uses upper case.
+      if (isUpperCase(lastPiece)) {
+        pieces[pieces.length - 1] = lastPiece.toLowerCase();
+      }
+      return '<' + pieces.join('-') + '>';
+    }
+
     function getOnPasteFn(cm) {
       var vim = cm.state.vim;
       if (!vim.onPasteFn) {
@@ -614,6 +616,8 @@
       // Testing hook.
       maybeInitVimState_: maybeInitVimState,
 
+      suppressErrorLogging: false,
+
       InsertModeKey: InsertModeKey,
       map: function(lhs, rhs, ctx) {
         // Add user defined key bindings.
@@ -629,9 +633,23 @@
         exCommands[name]=func;
         exCommandDispatcher.commandMap_[prefix]={name:name, shortName:prefix, type:'api'};
       },
-      // This is the outermost function called by CodeMirror, after keys have
-      // been mapped to their Vim equivalents.
-      handleKey: function(cm, key, origin) {
+      handleKey: function (cm, key, origin) {
+        var command = this.findKey(cm, key, origin);
+        if (typeof command === 'function') {
+          return command();
+        }
+      },
+      /**
+       * This is the outermost function called by CodeMirror, after keys have
+       * been mapped to their Vim equivalents.
+       *
+       * Finds a command based on the key (and cached keys if there is a
+       * multi-key sequence). Returns `undefined` if no key is matched, a noop
+       * function if a partial match is found (multi-key), and a function to
+       * execute the bound command if a a key is matched. The function always
+       * returns true.
+       */
+      findKey: function(cm, key, origin) {
         var vim = maybeInitVimState(cm);
         function handleMacroRecording() {
           var macroModeState = vimGlobalState.macroModeState;
@@ -697,13 +715,7 @@
             cm.replaceRange('', offsetCursor(here, 0, -(keys.length - 1)), here, '+input');
           }
           clearInputState(cm);
-          var command = match.command;
-          if (command.type == 'keyToKey') {
-            doKeyToKey(command.toKeys);
-          } else {
-            commandDispatcher.processCommand(cm, vim, command);
-          }
-          return true;
+          return match.command;
         }
 
         function handleKeyNonInsertMode() {
@@ -721,31 +733,46 @@
           else if (match.type == 'partial') { return true; }
 
           vim.inputState.keyBuffer = '';
-          var command = match.command;
           var keysMatcher = /^(\d*)(.*)$/.exec(keys);
           if (keysMatcher[1] && keysMatcher[1] != '0') {
             vim.inputState.pushRepeatDigit(keysMatcher[1]);
           }
-          if (command.type == 'keyToKey') {
-            doKeyToKey(command.toKeys);
-          } else {
-            commandDispatcher.processCommand(cm, vim, command);
-          }
-          return true;
+          return match.command;
         }
 
-        return cm.operation(function() {
-          cm.curOp.isVimOp = true;
-          try {
-            if (vim.insertMode) { return handleKeyInsertMode(); }
-            else { return handleKeyNonInsertMode(); }
-          } catch (e) {
-            // clear VIM state in case it's in a bad state.
-            cm.state.vim = undefined;
-            maybeInitVimState(cm);
-            throw e;
-          }
-        });
+        var command;
+        if (vim.insertMode) { command = handleKeyInsertMode(); }
+        else { command = handleKeyNonInsertMode(); }
+        if (command === false) {
+          return undefined;
+        } else if (command === true) {
+          // TODO: Look into using CodeMirror's multi-key handling.
+          // Return no-op since we are caching the key. Counts as handled, but
+          // don't want act on it just yet.
+          return function() {};
+        } else {
+          return function() {
+            return cm.operation(function() {
+              cm.curOp.isVimOp = true;
+              try {
+                if (command.type == 'keyToKey') {
+                  doKeyToKey(command.toKeys);
+                } else {
+                  commandDispatcher.processCommand(cm, vim, command);
+                }
+              } catch (e) {
+                // clear VIM state in case it's in a bad state.
+                cm.state.vim = undefined;
+                maybeInitVimState(cm);
+                if (!CodeMirror.Vim.suppressErrorLogging) {
+                  console['log'](e);
+                }
+                throw e;
+              }
+              return true;
+            });
+          };
+        }
       },
       handleEx: function(cm, input) {
         exCommandDispatcher.processCommand(cm, input);
@@ -1306,7 +1333,9 @@
             newHead = copyCursor(origHead);
           }
           if (vim.visualMode) {
-            newHead = clipCursorToContent(cm, newHead, vim.visualBlock);
+            if (!(vim.visualBlock && newHead.ch === Infinity)) {
+              newHead = clipCursorToContent(cm, newHead, vim.visualBlock);
+            }
             if (newAnchor) {
               newAnchor = clipCursorToContent(cm, newAnchor, true);
             }
@@ -1610,20 +1639,8 @@
         return cm.findPosV(curStart, (motionArgs.forward ? repeat : -repeat), 'page');
       },
       moveByParagraph: function(cm, head, motionArgs) {
-        var line = head.line;
-        var repeat = motionArgs.repeat;
-        var inc = motionArgs.forward ? 1 : -1;
-        for (var i = 0; i < repeat; i++) {
-          if ((!motionArgs.forward && line === cm.firstLine() ) ||
-              (motionArgs.forward && line == cm.lastLine())) {
-            break;
-          }
-          line += inc;
-          while (line !== cm.firstLine() && line != cm.lastLine() && cm.getLine(line)) {
-            line += inc;
-          }
-        }
-        return Pos(line, 0);
+        var dir = motionArgs.forward ? 1 : -1;
+        return findParagraph(cm, head, motionArgs.repeat, dir);
       },
       moveByScroll: function(cm, head, motionArgs, vim) {
         var scrollbox = cm.getScrollInfo();
@@ -1723,7 +1740,7 @@
         return Pos(lineNum,
                    findFirstNonWhiteSpaceCharacter(cm.getLine(lineNum)));
       },
-      textObjectManipulation: function(cm, head, motionArgs) {
+      textObjectManipulation: function(cm, head, motionArgs, vim) {
         // TODO: lots of possible exceptions that can be thrown here. Try da(
         //     outside of a () block.
 
@@ -1761,6 +1778,16 @@
         } else if (character === 'w') {
           tmp = expandWordUnderCursor(cm, inclusive, true /** forward */,
                                                      false /** bigWord */);
+        } else if (character === 'p') {
+          tmp = findParagraph(cm, head, motionArgs.repeat, 0, inclusive);
+          motionArgs.linewise = true;
+          if (vim.visualMode) {
+            if (!vim.visualLine) { vim.visualLine = true; }
+          } else {
+            var operatorArgs = vim.inputState.operatorArgs;
+            if (operatorArgs) { operatorArgs.linewise = true; }
+            tmp.end.line--;
+          }
         } else {
           // No text object defined for this, don't move.
           return null;
@@ -3268,6 +3295,54 @@
       return idx;
     }
 
+    function findParagraph(cm, head, repeat, dir, inclusive) {
+      var line = head.line;
+      var min = cm.firstLine();
+      var max = cm.lastLine();
+      var start, end, i = line;
+      function isEmpty(i) { return !cm.getLine(i); }
+      function isBoundary(i, dir, any) {
+        if (any) { return isEmpty(i) != isEmpty(i + dir); }
+        return !isEmpty(i) && isEmpty(i + dir);
+      }
+      if (dir) {
+        while (min <= i && i <= max && repeat > 0) {
+          if (isBoundary(i, dir)) { repeat--; }
+          i += dir;
+        }
+        return new Pos(i, 0);
+      }
+
+      var vim = cm.state.vim;
+      if (vim.visualLine && isBoundary(line, 1, true)) {
+        var anchor = vim.sel.anchor;
+        if (isBoundary(anchor.line, -1, true)) {
+          if (!inclusive || anchor.line != line) {
+            line += 1;
+          }
+        }
+      }
+      var startState = isEmpty(line);
+      for (i = line; i <= max && repeat; i++) {
+        if (isBoundary(i, 1, true)) {
+          if (!inclusive || isEmpty(i) != startState) {
+            repeat--;
+          }
+        }
+      }
+      end = new Pos(i, 0);
+      // select boundary before paragraph for the last one
+      if (i > max && !startState) { startState = true; }
+      else { inclusive = false; }
+      for (i = line; i > min; i--) {
+        if (!inclusive || isEmpty(i) == startState || i == line) {
+          if (isBoundary(i, -1, true)) { break; }
+        }
+      }
+      start = new Pos(i, 0);
+      return { start: start, end: end };
+    }
+
     // TODO: perhaps this finagling of start and end positions belonds
     // in codmirror/replaceRange?
     function selectCompanionObject(cm, head, symb, inclusive) {
@@ -3394,6 +3469,12 @@
       },
       setReversed: function(reversed) {
         vimGlobalState.isReversed = reversed;
+      },
+      getScrollbarAnnotate: function() {
+        return this.annotate;
+      },
+      setScrollbarAnnotate: function(annotate) {
+        this.annotate = annotate;
       }
     };
     function getSearchState(cm) {
@@ -3672,14 +3753,21 @@
       };
     }
     function highlightSearchMatches(cm, query) {
-      var overlay = getSearchState(cm).getOverlay();
+      var searchState = getSearchState(cm);
+      var overlay = searchState.getOverlay();
       if (!overlay || query != overlay.query) {
         if (overlay) {
           cm.removeOverlay(overlay);
         }
         overlay = searchOverlay(query);
         cm.addOverlay(overlay);
-        getSearchState(cm).setOverlay(overlay);
+        if (cm.showMatchesOnScrollbar) {
+          if (searchState.getScrollbarAnnotate()) {
+            searchState.getScrollbarAnnotate().clear();
+          }
+          searchState.setScrollbarAnnotate(cm.showMatchesOnScrollbar(query));
+        }
+        searchState.setOverlay(overlay);
       }
     }
     function findNext(cm, prev, query, repeat) {
@@ -3704,8 +3792,13 @@
       });
     }
     function clearSearchHighlight(cm) {
+      var state = getSearchState(cm);
       cm.removeOverlay(getSearchState(cm).getOverlay());
-      getSearchState(cm).setOverlay(null);
+      state.setOverlay(null);
+      if (state.getScrollbarAnnotate()) {
+        state.getScrollbarAnnotate().clear();
+        state.setScrollbarAnnotate(null);
+      }
     }
     /**
      * Check if pos is in the specified range, INCLUSIVE.
@@ -4476,7 +4569,8 @@
 
     CodeMirror.keyMap.vim = {
       attach: attachVimMap,
-      detach: detachVimMap
+      detach: detachVimMap,
+      call: cmKey
     };
 
     function exitInsertMode(cm) {
@@ -4549,20 +4643,16 @@
       },
       fallthrough: ['default'],
       attach: attachVimMap,
-      detach: detachVimMap
-    };
-
-    CodeMirror.keyMap['await-second'] = {
-      fallthrough: ['vim-insert'],
-      attach: attachVimMap,
-      detach: detachVimMap
+      detach: detachVimMap,
+      call: cmKey
     };
 
     CodeMirror.keyMap['vim-replace'] = {
       'Backspace': 'goCharLeft',
       fallthrough: ['vim-insert'],
       attach: attachVimMap,
-      detach: detachVimMap
+      detach: detachVimMap,
+      call: cmKey
     };
 
     function executeMacroRegister(cm, vim, macroModeState, registerName) {
@@ -4717,6 +4807,7 @@
       var macroModeState = vimGlobalState.macroModeState;
       var lastChange = macroModeState.lastInsertModeChanges;
       var keyName = CodeMirror.keyName(e);
+      if (!keyName) { return; }
       function onKeyFound() {
         lastChange.changes.push(new InsertModeKey(keyName));
         return true;
