@@ -66,7 +66,9 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
       return ret("qualifier", "qualifier");
     } else if (/[:;{}\[\]\(\)]/.test(ch)) {
       return ret(null, ch);
-    } else if (ch == "u" && stream.match("rl(")) {
+    } else if ((ch == "u" && stream.match(/rl(-prefix)?\(/)) ||
+               (ch == "d" && stream.match("omain(")) ||
+               (ch == "r" && stream.match("egexp("))) {
       stream.backUp(1);
       state.tokenize = tokenParenthesized;
       return ret("property", "word");
@@ -148,6 +150,8 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
       return pushContext(state, stream, "block");
     } else if (type == "}" && state.context.prev) {
       return popContext(state);
+    } else if (/@(-moz-)?document/.test(type)) {
+      return pushContext(state, stream, "document");
     } else if (type == "@media") {
       return pushContext(state, stream, "media");
     } else if (type == "@font-face") {
@@ -266,6 +270,27 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     return states.media(type, stream, state);
   };
 
+  states.document = function(type, stream, state) {
+    if (type == "(") return pushContext(state, stream, "document_parens");
+    if (type == "}") return popAndPass(type, stream, state);
+    if (type == "{") return popContext(state) && pushContext(state, stream, allowNested ? "block" : "top");
+
+    if (type == "word") {
+      var word = stream.current().toLowerCase();
+      if (documentTypes.hasOwnProperty(word))
+        override = "tag";
+      else
+        wordAsValue(stream);
+    }
+    return state.context.type;
+  };
+
+  states.document_parens = function(type, stream, state) {
+    if (type == ")") return popContext(state);
+    if (type == "{" || type == "}") return popAndPass(type, stream, state, 2);
+    return states.document(type, stream, state);
+  };
+
   states.font_face_before = function(type, stream, state) {
     if (type == "{")
       return pushContext(state, stream, "font_face");
@@ -368,6 +393,10 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "monochrome", "min-monochrome", "max-monochrome", "resolution",
     "min-resolution", "max-resolution", "scan", "grid"
   ], mediaFeatures = keySet(mediaFeatures_);
+
+  var documentTypes_ = [
+    "domain", "regexp", "url", "url-prefix"
+  ], documentTypes = keySet(documentTypes_);
 
   var propertyKeywords_ = [
     "align-content", "align-items", "align-self", "alignment-adjust",
