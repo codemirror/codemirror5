@@ -140,4 +140,9 @@
      "[tag h1][builtin #foo] {",
      "  [property color]: [variable var]([variable-2 --main-color]);",
      "}");
+
+  MT("supports",
+     "[def @supports] ([keyword not] (([property text-align-last]: [atom justify]) [keyword or] ([meta -moz-][property text-align-last]: [atom justify])) {",
+     "  [property text-align-last]: [atom justify];",
+     "}");
 })();
