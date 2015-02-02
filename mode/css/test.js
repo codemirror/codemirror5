@@ -132,4 +132,12 @@
      "    [variable fade]([atom #000], [number 20%]) [number 100%]",
      "  );",
      "}");
+
+  MT("css_variable",
+     ":[variable-3 root] {",
+     "  [variable-2 --main-color]: [atom #06c];",
+     "}",
+     "[tag h1][builtin #foo] {",
+     "  [property color]: [variable var]([variable-2 --main-color]);",
+     "}");
 })();
