@@ -71,7 +71,9 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
       return ret("qualifier", "qualifier");
     } else if (/[:;{}\[\]\(\)]/.test(ch)) {
       return ret(null, ch);
-    } else if (ch == "u" && stream.match("rl(")) {
+    } else if ((ch == "u" && stream.match(/rl(-prefix)?\(/)) ||
+               (ch == "d" && stream.match("omain(")) ||
+               (ch == "r" && stream.match("egexp("))) {
       stream.backUp(1);
       state.tokenize = tokenParenthesized;
       return ret("property", "word");
@@ -153,10 +155,8 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
       return pushContext(state, stream, "block");
     } else if (type == "}" && state.context.prev) {
       return popContext(state);
-    } else if (type == "@supports") {
-      return pushContext(state, stream, "supports");
-    } else if (type == "@media") {
-      return pushContext(state, stream, "media");
+    } else if (/@(media|supports|(-moz-)?document)/.test(type)) {
+      return pushContext(state, stream, "atBlock");
     } else if (type == "@font-face") {
       return "font_face_before";
     } else if (/^@(-(moz|ms|o|webkit)-)?keyframes$/.test(type)) {
@@ -248,40 +248,21 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     return pass(type, stream, state);
   };
 
-  states.media = function(type, stream, state) {
-    if (type == "(") return pushContext(state, stream, "media_parens");
+  states.atBlock = function(type, stream, state) {
+    if (type == "(") return pushContext(state, stream, "atBlock_parens");
     if (type == "}") return popAndPass(type, stream, state);
     if (type == "{") return popContext(state) && pushContext(state, stream, allowNested ? "block" : "top");
 
     if (type == "word") {
       var word = stream.current().toLowerCase();
-      if (word == "only" || word == "not" || word == "and")
+      if (word == "only" || word == "not" || word == "and" || word == "or")
         override = "keyword";
+      else if (documentTypes.hasOwnProperty(word))
+        override = "tag";
       else if (mediaTypes.hasOwnProperty(word))
         override = "attribute";
       else if (mediaFeatures.hasOwnProperty(word))
         override = "property";
-      else
-        override = "error";
-    }
-    return state.context.type;
-  };
-
-  states.media_parens = function(type, stream, state) {
-    if (type == ")") return popContext(state);
-    if (type == "{" || type == "}") return popAndPass(type, stream, state, 2);
-    return states.media(type, stream, state);
-  };
-
-  states.supports = function(type, stream, state) {
-    if (type == "(") return pushContext(state, stream, "supports_parens");
-    if (type == "}") return popAndPass(type, stream, state);
-    if (type == "{") return popContext(state) && pushContext(state, stream, allowNested ? "block" : "top");
-
-    if (type == "word") {
-      var word = stream.current().toLowerCase();
-      if (word == "not" || word == "and" || word == "or")
-        override = "keyword";
       else if (propertyKeywords.hasOwnProperty(word))
         override = "property";
       else if (nonStandardPropertyKeywords.hasOwnProperty(word))
@@ -294,10 +275,10 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     return state.context.type;
   };
 
-  states.supports_parens = function(type, stream, state) {
+  states.atBlock_parens = function(type, stream, state) {
     if (type == ")") return popContext(state);
     if (type == "{" || type == "}") return popAndPass(type, stream, state, 2);
-    return states.supports(type, stream, state);
+    return states.atBlock(type, stream, state);
   };
 
   states.font_face_before = function(type, stream, state) {
@@ -386,6 +367,10 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     }
     return keys;
   }
+
+  var documentTypes_ = [
+    "domain", "regexp", "url", "url-prefix"
+  ], documentTypes = keySet(documentTypes_);
 
   var mediaTypes_ = [
     "all", "aural", "braille", "handheld", "print", "projection", "screen",
