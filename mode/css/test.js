@@ -145,7 +145,7 @@
      "[def @supports] ([keyword not] (([property text-align-last]: [atom justify]) [keyword or] ([meta -moz-][property text-align-last]: [atom justify])) {",
      "  [property text-align-last]: [atom justify];",
      "}");
-     
+
    MT("document",
       "[def @document] [tag url]([string http://blah]),",
       "  [tag url-prefix]([string https://]),",
@@ -158,16 +158,16 @@
       "      [property font-family]: [variable Verdana], [atom sans-serif];",
       "    }",
       "  }");
-     
+
    MT("document_url",
       "[def @document] [tag url]([string http://blah]) { [qualifier .class] { } }");
-     
+
    MT("document_urlPrefix",
       "[def @document] [tag url-prefix]([string https://]) { [builtin #id] { } }");
-     
+
    MT("document_domain",
       "[def @document] [tag domain]([string blah.com]) { [tag foo] { } }");
-     
+
    MT("document_regexp",
       "[def @document] [tag regexp]([string \".*blah.+\"]) { [builtin #id] { } }");
 })();
