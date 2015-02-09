@@ -190,7 +190,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
 
     indent: function(state, textAfter) {
       var cx = state.context;
-      if (!cx) return 0;
+      if (!cx) return CodeMirror.Pass;
       var closing = textAfter.charAt(0) == cx.type;
       if (cx.align) return cx.col + (closing ? 0 : 1);
       else return cx.indent + (closing ? 0 : config.indentUnit);
