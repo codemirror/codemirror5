@@ -130,6 +130,13 @@
           data = self.options.responseFilter(doc, query, request, error, data);
         c(error, data);
       });
+    },
+	
+    destroy: function () {
+      if (this.worker) {
+        this.worker.terminate();
+        this.worker = null;
+      } 
     }
   };
 
@@ -651,7 +658,7 @@
   // Worker wrapper
 
   function WorkerServer(ts) {
-    var worker = new Worker(ts.options.workerScript);
+    var worker = ts.worker = new Worker(ts.options.workerScript);
     worker.postMessage({type: "init",
                         defs: ts.options.defs,
                         plugins: ts.options.plugins,
