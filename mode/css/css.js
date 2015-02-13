@@ -345,8 +345,8 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
       if (cx.type == "prop" && (ch == "}" || ch == ")")) cx = cx.prev;
       if (cx.prev &&
           (ch == "}" && (cx.type == "block" || cx.type == "top" || cx.type == "interpolation" || cx.type == "font_face") ||
-           ch == ")" && (cx.type == "parens" || cx.type == "media_parens") ||
-           ch == "{" && (cx.type == "at" || cx.type == "media"))) {
+           ch == ")" && (cx.type == "parens" || cx.type == "atBlock_parens") ||
+           ch == "{" && (cx.type == "at" || cx.type == "atBlock"))) {
         indent = cx.indent - indentUnit;
         cx = cx.prev;
       }
