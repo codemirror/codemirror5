@@ -17,7 +17,8 @@
 
   function SearchAnnotation(cm, query, caseFold, className) {
     this.cm = cm;
-    this.annotation = cm.annotateScrollbar(className || "CodeMirror-search-match");
+    this.annotation = cm.annotateScrollbar({className: className || "CodeMirror-search-match",
+                                            listenForChanges: false});
     this.query = query;
     this.caseFold = caseFold;
     this.gap = {from: cm.firstLine(), to: cm.lastLine() + 1};

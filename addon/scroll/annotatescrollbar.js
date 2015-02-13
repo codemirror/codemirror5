@@ -11,22 +11,28 @@
 })(function(CodeMirror) {
   "use strict";
 
-  CodeMirror.defineExtension("annotateScrollbar", function(className) {
-    return new Annotation(this, className);
+  CodeMirror.defineExtension("annotateScrollbar", function(options) {
+    if (typeof options == "string") options = {className: options};
+    return new Annotation(this, options);
   });
 
-  function Annotation(cm, className) {
+  function Annotation(cm, options) {
     this.cm = cm;
-    this.className = className;
+    this.options = options;
     this.annotations = [];
     this.div = cm.getWrapperElement().appendChild(document.createElement("div"));
     this.div.style.cssText = "position: absolute; right: 0; top: 0; z-index: 7; pointer-events: none";
     this.computeScale();
 
     var self = this;
-    cm.on("refresh", this.resizeHandler = function(){
-      if (self.computeScale()) self.redraw();
+    cm.on("refresh", this.resizeHandler = function() {
+      if (self.computeScale()) self.redraw(false);
     });
+    if (options.listenForChanges !== false)
+      cm.on("change", this.changeHandler = function() {
+        clearTimeout(self.changed);
+        self.changed = setTimeout(function() { self.redraw(); }, 250);
+      });
   }
 
   Annotation.prototype.computeScale = function() {
@@ -44,12 +50,12 @@
     this.redraw();
   };
 
-  Annotation.prototype.redraw = function() {
+  Annotation.prototype.redraw = function(compute) {
+    if (compute !== false) this.computeScale();
     var cm = this.cm, hScale = this.hScale;
-    if (!cm.display.barWidth) return;
 
     var frag = document.createDocumentFragment(), anns = this.annotations;
-    for (var i = 0, nextTop; i < anns.length; i++) {
+    if (cm.display.barWidth) for (var i = 0, nextTop; i < anns.length; i++) {
       var ann = anns[i];
       var top = nextTop || cm.charCoords(ann.from, "local").top * hScale;
       var bottom = cm.charCoords(ann.to, "local").bottom * hScale;
@@ -63,7 +69,7 @@
 
       var elt = frag.appendChild(document.createElement("div"));
       elt.style.cssText = "position: absolute; right: 0px; width: " + Math.max(cm.display.barWidth - 1, 2) + "px; top: " + top + "px; height: " + height + "px";
-      elt.className = this.className;
+      elt.className = this.options.className;
     }
     this.div.textContent = "";
     this.div.appendChild(frag);
@@ -71,6 +77,7 @@
 
   Annotation.prototype.clear = function() {
     this.cm.off("refresh", this.resizeHandler);
+    if (this.changeHandler) this.cm.off("change", this.changeHandler);
     this.div.parentNode.removeChild(this.div);
   };
 });
