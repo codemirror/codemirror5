@@ -20,9 +20,10 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
       mediaFeatures = parserConfig.mediaFeatures || {},
       propertyKeywords = parserConfig.propertyKeywords || {},
       nonStandardPropertyKeywords = parserConfig.nonStandardPropertyKeywords || {},
+      fontProperties = parserConfig.fontProperties || {},
+      counterDescriptors = parserConfig.counterDescriptors || {},
       colorKeywords = parserConfig.colorKeywords || {},
       valueKeywords = parserConfig.valueKeywords || {},
-      fontProperties = parserConfig.fontProperties || {},
       allowNested = parserConfig.allowNested;
 
   var type, override;
@@ -157,8 +158,9 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
       return popContext(state);
     } else if (/@(media|supports|(-moz-)?document)/.test(type)) {
       return pushContext(state, stream, "atBlock");
-    } else if (type == "@font-face") {
-      return "font_face_before";
+    } else if (/@(font-face|counter-style)/.test(type)) {
+      state.restrictedType = type;
+      return "restricted_atBlock_before";
     } else if (/^@(-(moz|ms|o|webkit)-)?keyframes$/.test(type)) {
       return "keyframes";
     } else if (type && type.charAt(0) == "@") {
@@ -281,22 +283,30 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     return states.atBlock(type, stream, state);
   };
 
-  states.font_face_before = function(type, stream, state) {
+  states.restricted_atBlock_before = function(type, stream, state) {
     if (type == "{")
-      return pushContext(state, stream, "font_face");
+      return pushContext(state, stream, "restricted_atBlock");
+    if (type == "word" && state.restrictedType == "@counter-style") {
+      override = "variable";
+      return "restricted_atBlock_before";
+    }
     return pass(type, stream, state);
   };
 
-  states.font_face = function(type, stream, state) {
-    if (type == "}") return popContext(state);
+  states.restricted_atBlock = function(type, stream, state) {
+    if (type == "}") {
+      delete state.restrictedType;
+      return popContext(state);
+    }
     if (type == "word") {
-      if (!fontProperties.hasOwnProperty(stream.current().toLowerCase()))
+      if ((state.restrictedType == "@font-face" && !fontProperties.hasOwnProperty(stream.current().toLowerCase())) ||
+          (state.restrictedType == "@counter-style" && !counterDescriptors.hasOwnProperty(stream.current().toLowerCase())))
         override = "error";
       else
         override = "property";
       return "maybeprop";
     }
-    return "font_face";
+    return "restricted_atBlock";
   };
 
   states.keyframes = function(type, stream, state) {
@@ -344,7 +354,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
       var indent = cx.indent;
       if (cx.type == "prop" && (ch == "}" || ch == ")")) cx = cx.prev;
       if (cx.prev &&
-          (ch == "}" && (cx.type == "block" || cx.type == "top" || cx.type == "interpolation" || cx.type == "font_face") ||
+          (ch == "}" && (cx.type == "block" || cx.type == "top" || cx.type == "interpolation" || cx.type == "restricted_atBlock") ||
            ch == ")" && (cx.type == "parens" || cx.type == "media_parens") ||
            ch == "{" && (cx.type == "at" || cx.type == "media"))) {
         indent = cx.indent - indentUnit;
@@ -488,6 +498,16 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "searchfield-results-decoration", "zoom"
   ], nonStandardPropertyKeywords = keySet(nonStandardPropertyKeywords_);
 
+  var fontProperties_ = [
+    "font-family", "src", "unicode-range", "font-variant", "font-feature-settings",
+    "font-stretch", "font-weight", "font-style"
+  ], fontProperties = keySet(fontProperties_);
+  
+  var counterDescriptors_ = [
+    "additive-symbols", "fallback", "negative", "pad", "prefix", "range",
+    "speak-as", "suffix", "symbols", "system"
+  ], counterDescriptors = keySet(counterDescriptors_);
+
   var colorKeywords_ = [
     "aliceblue", "antiquewhite", "aqua", "aquamarine", "azure", "beige",
     "bisque", "black", "blanchedalmond", "blue", "blueviolet", "brown",
@@ -602,11 +622,6 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "xx-large", "xx-small"
   ], valueKeywords = keySet(valueKeywords_);
 
-  var fontProperties_ = [
-    "font-family", "src", "unicode-range", "font-variant", "font-feature-settings",
-    "font-stretch", "font-weight", "font-style"
-  ], fontProperties = keySet(fontProperties_);
-
   var allWords = mediaTypes_.concat(mediaFeatures_).concat(propertyKeywords_)
     .concat(nonStandardPropertyKeywords_).concat(colorKeywords_).concat(valueKeywords_);
   CodeMirror.registerHelper("hintWords", "css", allWords);
@@ -638,9 +653,10 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     mediaFeatures: mediaFeatures,
     propertyKeywords: propertyKeywords,
     nonStandardPropertyKeywords: nonStandardPropertyKeywords,
+    fontProperties: fontProperties,
+    counterDescriptors: counterDescriptors,
     colorKeywords: colorKeywords,
     valueKeywords: valueKeywords,
-    fontProperties: fontProperties,
     tokenHooks: {
       "<": function(stream, state) {
         if (!stream.match("!--")) return false;
