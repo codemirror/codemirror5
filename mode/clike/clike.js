@@ -354,7 +354,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
         state.tokenize = null;
         break;
       }
-      escaped = stream.next() != "\\" && !escaped;
+      escaped = stream.next() == "\\" && !escaped;
     }
     return "string";
   }
