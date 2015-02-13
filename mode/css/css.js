@@ -16,6 +16,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
 
   var indentUnit = config.indentUnit,
       tokenHooks = parserConfig.tokenHooks,
+      documentTypes = parserConfig.documentTypes || {},
       mediaTypes = parserConfig.mediaTypes || {},
       mediaFeatures = parserConfig.mediaFeatures || {},
       propertyKeywords = parserConfig.propertyKeywords || {},
@@ -607,7 +608,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "font-stretch", "font-weight", "font-style"
   ], fontProperties = keySet(fontProperties_);
 
-  var allWords = mediaTypes_.concat(mediaFeatures_).concat(propertyKeywords_)
+  var allWords = documentTypes_.concat(mediaTypes_).concat(mediaFeatures_).concat(propertyKeywords_)
     .concat(nonStandardPropertyKeywords_).concat(colorKeywords_).concat(valueKeywords_);
   CodeMirror.registerHelper("hintWords", "css", allWords);
 
@@ -634,6 +635,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
   }
 
   CodeMirror.defineMIME("text/css", {
+    documentTypes: documentTypes,
     mediaTypes: mediaTypes,
     mediaFeatures: mediaFeatures,
     propertyKeywords: propertyKeywords,
