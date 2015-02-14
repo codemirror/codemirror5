@@ -28,6 +28,7 @@
     cm.on("refresh", this.resizeHandler = function() {
       if (self.computeScale()) self.redraw(false);
     });
+    cm.on("markerAdded", this.resizeHandler);
     if (options.listenForChanges !== false)
       cm.on("change", this.changeHandler = function() {
         clearTimeout(self.changed);
@@ -77,6 +78,7 @@
 
   Annotation.prototype.clear = function() {
     this.cm.off("refresh", this.resizeHandler);
+    this.cm.off("markerAdded", this.resizeHandler);
     if (this.changeHandler) this.cm.off("change", this.changeHandler);
     this.div.parentNode.removeChild(this.div);
   };
