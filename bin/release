@@ -41,6 +41,6 @@ rewrite("doc/compress.html", function(cmp) {
 });
 
 rewrite("index.html", function(index) {
-  return index.replace(/<strong>version \d+\.\d+<\/strong>/,
-                       "<strong>version " + simple + "</strong>");
+  return index.replace(/\.zip">\d+\.\d+<\/a>/,
+                       ".zip>" + simple + "</a>");
 });
