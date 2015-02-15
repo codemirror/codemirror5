@@ -66,6 +66,7 @@
         ann = anns[++i];
         bottom = cm.charCoords(ann.to, "local").bottom * hScale;
       }
+      if (bottom == top) continue;
       var height = Math.max(bottom - top, 3);
 
       var elt = frag.appendChild(document.createElement("div"));
