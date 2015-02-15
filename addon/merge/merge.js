@@ -355,6 +355,7 @@
 
   function padBelow(cm, line, size) {
     var elt = document.createElement("div");
+    elt.className = "CodeMirror-merge-spacer";
     elt.style.height = size + "px"; elt.style.minWidth = "1px";
     return cm.addLineWidget(line, elt, {height: size});
   }
