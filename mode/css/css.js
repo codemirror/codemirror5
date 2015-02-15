@@ -502,7 +502,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "font-family", "src", "unicode-range", "font-variant", "font-feature-settings",
     "font-stretch", "font-weight", "font-style"
   ], fontProperties = keySet(fontProperties_);
-  
+
   var counterDescriptors_ = [
     "additive-symbols", "fallback", "negative", "pad", "prefix", "range",
     "speak-as", "suffix", "symbols", "system"
@@ -554,8 +554,8 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "cross", "crosshair", "currentcolor", "cursive", "cyclic", "dashed", "decimal",
     "decimal-leading-zero", "default", "default-button", "destination-atop",
     "destination-in", "destination-out", "destination-over", "devanagari",
-    "disc", "discard", "disclosure-closed", "disclosure-open", "document", 
-    "dot-dash", "dot-dot-dash", 
+    "disc", "discard", "disclosure-closed", "disclosure-open", "document",
+    "dot-dash", "dot-dot-dash",
     "dotted", "double", "down", "e-resize", "ease", "ease-in", "ease-in-out", "ease-out",
     "element", "ellipse", "ellipsis", "embed", "end", "ethiopic", "ethiopic-abegede",
     "ethiopic-abegede-am-et", "ethiopic-abegede-gez", "ethiopic-abegede-ti-er",
@@ -574,7 +574,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "infobackground", "infotext", "inherit", "initial", "inline", "inline-axis",
     "inline-block", "inline-flex", "inline-table", "inset", "inside", "intrinsic", "invert",
     "italic", "japanese-formal", "japanese-informal", "justify", "kannada",
-    "katakana", "katakana-iroha", "keep-all", "khmer", 
+    "katakana", "katakana-iroha", "keep-all", "khmer",
     "korean-hangul-formal", "korean-hanja-formal", "korean-hanja-informal",
     "landscape", "lao", "large", "larger", "left", "level", "lighter",
     "line-through", "linear", "lines", "list-item", "listbox", "listitem",
@@ -604,7 +604,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "searchfield-cancel-button", "searchfield-decoration",
     "searchfield-results-button", "searchfield-results-decoration",
     "semi-condensed", "semi-expanded", "separate", "serif", "show", "sidama",
-    "simp-chinese-formal", "simp-chinese-informal", 
+    "simp-chinese-formal", "simp-chinese-informal",
     "single", "skip-white-space", "slide", "slider-horizontal",
     "slider-vertical", "sliderthumb-horizontal", "sliderthumb-vertical", "slow",
     "small", "small-caps", "small-caption", "smaller", "solid", "somali",
@@ -613,7 +613,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "sub", "subpixel-antialiased", "super", "sw-resize", "symbolic", "table",
     "table-caption", "table-cell", "table-column", "table-column-group",
     "table-footer-group", "table-header-group", "table-row", "table-row-group",
-    "tamil", 
+    "tamil",
     "telugu", "text", "text-bottom", "text-top", "textarea", "textfield", "thai",
     "thick", "thin", "threeddarkshadow", "threedface", "threedhighlight",
     "threedlightshadow", "threedshadow", "tibetan", "tigre", "tigrinya-er",
