@@ -126,7 +126,7 @@
   MT("parens",
      "[qualifier .foo] {",
      "  [property background-image]: [variable fade]([atom #000], [number 20%]);",
-     "  [property border-image]: [variable linear-gradient](",
+     "  [property border-image]: [atom linear-gradient](",
      "    [atom to] [atom bottom],",
      "    [variable fade]([atom #000], [number 20%]) [number 0%],",
      "    [variable fade]([atom #000], [number 20%]) [number 100%]",
@@ -138,7 +138,7 @@
      "  [variable-2 --main-color]: [atom #06c];",
      "}",
      "[tag h1][builtin #foo] {",
-     "  [property color]: [variable var]([variable-2 --main-color]);",
+     "  [property color]: [atom var]([variable-2 --main-color]);",
      "}");
 
   MT("supports",
@@ -191,5 +191,5 @@
       "[tag ol][qualifier .roman] { [property list-style]: [variable simple-roman]; }");
 
    MT("counter-style-symbols",
-      "[tag ol] { [property list-style]: [variable symbols]([atom cyclic] [string \"*\"] [string \"\\2020\"] [string \"\\2021\"] [string \"\\A7\"]); }");
+      "[tag ol] { [property list-style]: [atom symbols]([atom cyclic] [string \"*\"] [string \"\\2020\"] [string \"\\2021\"] [string \"\\A7\"]); }");
 })();
