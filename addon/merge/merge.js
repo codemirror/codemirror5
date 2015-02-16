@@ -31,8 +31,6 @@
          insert: "CodeMirror-merge-r-inserted",
          del: "CodeMirror-merge-r-deleted",
          connect: "CodeMirror-merge-r-connect"};
-    if (mv.options.connect == "align")
-      this.aligners = [];
   }
 
   DiffView.prototype = {
@@ -43,7 +41,7 @@
 
       this.diff = getDiff(asString(orig), asString(options.value));
       this.chunks = getChunks(this.diff);
-      this.diffOutOfDate = false;
+      this.diffOutOfDate = this.dealigned = false;
 
       this.showDifferences = options.showDifferences !== false;
       this.forceUpdate = registerUpdate(this);
@@ -68,11 +66,13 @@
     }
   }
 
+  var updating = false;
   function registerUpdate(dv) {
     var edit = {from: 0, to: 0, marked: []};
     var orig = {from: 0, to: 0, marked: []};
     var debounceChange;
     function update(mode) {
+      updating = true;
       if (mode == "full") {
         if (dv.svg) clear(dv.svg);
         if (dv.copyButtons) clear(dv.copyButtons);
@@ -86,17 +86,23 @@
         updateMarks(dv.orig, dv.diff, orig, DIFF_DELETE, dv.classes);
       }
       makeConnections(dv);
+
+      if (dv.mv.options.connect == "align")
+        alignChunks(dv);
+      updating = false;
     }
-    function set(slow) {
+    function set() {
+      if (updating) return;
+      dv.dealigned = true;
       clearTimeout(debounceChange);
-      debounceChange = setTimeout(update, slow == true ? 250 : 100);
+      debounceChange = setTimeout(update, 250);
     }
     function change() {
       if (!dv.diffOutOfDate) {
         dv.diffOutOfDate = true;
         edit.from = edit.to = orig.from = orig.to = 0;
       }
-      set(true);
+      set();
     }
     dv.edit.on("change", change);
     dv.orig.on("change", change);
@@ -261,19 +267,6 @@
   function makeConnections(dv) {
     if (!dv.showDifferences) return;
 
-    var align = dv.mv.options.connect == "align", oldScrollEdit, oldScrollOrig;
-    if (align) {
-      if (!dv.orig.curOp) return dv.orig.operation(function() {
-        makeConnections(dv);
-      });
-      oldScrollEdit = dv.edit.getScrollInfo().top;
-      oldScrollOrig = dv.orig.getScrollInfo().top;
-      for (var i = 0; i < dv.aligners.length; i++)
-        dv.aligners[i].clear();
-      dv.aligners.length = 0;
-      var extraSpaceAbove = {edit: 0, orig: 0};
-    }
-
     if (dv.svg) {
       clear(dv.svg);
       var w = dv.gap.offsetWidth;
@@ -288,19 +281,119 @@
       if (ch.editFrom <= vpEdit.to && ch.editTo >= vpEdit.from &&
           ch.origFrom <= vpOrig.to && ch.origTo >= vpOrig.from)
         drawConnectorsForChunk(dv, ch, sTopOrig, sTopEdit, w);
-      if (align && (ch.editFrom <= vpEdit.to || ch.origFrom <= vpOrig.to)) {
-        var above = (ch.editTo < vpEdit.from && ch.origTo < vpOrig.from);
-        alignChunks(dv, ch, above && extraSpaceAbove);
+    }
+  }
+
+  function getMatchingOrigLine(editLine, chunks) {
+    var editStart = 0, origStart = 0;
+    for (var i = 0; i < chunks.length; i++) {
+      var chunk = chunks[i];
+      if (chunk.editTo > editLine && chunk.editFrom <= editLine) return null;
+      if (chunk.editFrom > editLine) break;
+      editStart = chunk.editTo;
+      origStart = chunk.origTo;
+    }
+    return origStart + (editLine - editStart);
+  }
+
+  function findAlignedLines(dv, other) {
+    var linesToAlign = [];
+    for (var i = 0; i < dv.chunks.length; i++) {
+      var chunk = dv.chunks[i];
+      linesToAlign.push([chunk.origTo, chunk.editTo, other ? getMatchingOrigLine(chunk.editTo, other.chunks) : null]);
+    }
+    if (other) {
+      for (var i = 0; i < other.chunks.length; i++) {
+        var chunk = other.chunks[i];
+        for (var j = 0; j < linesToAlign.length; j++) {
+          var align = linesToAlign[j];
+          if (align[1] == chunk.editTo) {
+            j = -1;
+            break;
+          } else if (align[1] > chunk.editTo) {
+            break;
+          }
+        }
+        if (j > -1)
+          linesToAlign.splice(j - 1, 0, [getMatchingOrigLine(chunk.editTo, dv.chunks), chunk.editTo, chunk.origTo]);
       }
     }
-    if (align) {
-      if (extraSpaceAbove.edit)
-        dv.aligners.push(padBelow(dv.edit, 0, extraSpaceAbove.edit));
-      if (extraSpaceAbove.orig)
-        dv.aligners.push(padBelow(dv.orig, 0, extraSpaceAbove.orig));
-      dv.edit.scrollTo(null, oldScrollEdit);
-      dv.orig.scrollTo(null, oldScrollOrig);
+    return linesToAlign;
+  }
+
+  function alignChunks(dv, force) {
+    if (!dv.dealigned && !force) return;
+    if (!dv.orig.curOp) return dv.orig.operation(function() {
+      alignChunks(dv, force);
+    });
+
+    dv.dealigned = false;
+    var other = dv.mv.left == dv ? dv.mv.right : dv.mv.left;
+    if (other) {
+      ensureDiff(other);
+      other.dealigned = false;
     }
+    var linesToAlign = findAlignedLines(dv, other);
+
+    // Clear old aligners
+    var aligners = dv.mv.aligners;
+    for (var i = 0; i < aligners.length; i++)
+      aligners[i].clear();
+    aligners.length = 0;
+
+    var cm = [dv.orig, dv.edit], vp = [], scroll = [];
+    if (other) cm.push(other.orig);
+    for (var i = 0; i < cm.length; i++) {
+      vp.push(cm[i].getViewport());
+      scroll.push(cm[i].getScrollInfo().top);
+    }
+
+    var spaceAbove = [0, 0, 0];
+    for (var ln = 0; ln < linesToAlign.length; ln++) {
+      var lines = linesToAlign[ln];
+      var above = true, below = true;
+      for (var i = 0; i < cm.length; i++) if (lines[i] != null) {
+        if (lines[i] >= vp[i].from) above = false;
+        if (lines[i] <= vp[i].to) below = false;
+      }
+      alignLines(cm, lines, aligners, spaceAbove, above);
+      if (below) break;
+    }
+    if (dv.lockScroll)
+      scroll[0] = scroll[1] = Math.max(scroll[0], scroll[1]);
+    for (var i = 0; i < cm.length; i++) {
+      if (spaceAbove[i])
+        aligners.push(padAbove(cm[i], 0, spaceAbove[i]));
+      cm[i].scrollTo(null, scroll[i]);
+    }
+  }
+
+  function alignLines(cm, lines, aligners, spaceAbove, isAboveViewport) {
+    var maxOffset = 0, offset = [];
+    for (var i = 0; i < cm.length; i++) if (lines[i] != null) {
+      var off = cm[i].heightAtLine(lines[i], "local") + spaceAbove[i];
+      offset[i] = off;
+      maxOffset = Math.max(maxOffset, off);
+    }
+    for (var i = 0; i < cm.length; i++) if (lines[i] != null) {
+      var diff = maxOffset - offset[i];
+      if (diff > 1) {
+        if (isAboveViewport) spaceAbove[i] += diff;
+        else aligners.push(padAbove(cm[i], lines[i], diff));
+      }
+    }
+  }
+
+  function padAbove(cm, line, size) {
+    var above = true;
+    if (line > cm.lastLine()) {
+      line--;
+      above = false;
+    }
+    var elt = document.createElement("div");
+    elt.className = "CodeMirror-merge-spacer";
+    elt.style.height = size + "px"; elt.style.minWidth = "1px";
+    return cm.addLineWidget(line, elt, {height: size, above: above});
   }
 
   function drawConnectorsForChunk(dv, chunk, sTopOrig, sTopEdit, w) {
@@ -340,30 +433,6 @@
     }
   }
 
-  function alignChunks(dv, chunk, aboveViewport) {
-    var topOrigPx = dv.orig.heightAtLine(chunk.origFrom, "local");
-    var botOrigPx = dv.orig.heightAtLine(chunk.origTo, "local");
-    var topEditPx = dv.edit.heightAtLine(chunk.editFrom, "local");
-    var botEditPx = dv.edit.heightAtLine(chunk.editTo, "local");
-    var origH = botOrigPx - topOrigPx, editH = botEditPx - topEditPx;
-    var diff = editH - origH;
-    if (diff > 1) {
-      if (aboveViewport) aboveViewport.orig += diff;
-      else dv.aligners.push(padBelow(dv.orig, chunk.origTo - 1, diff));
-    } else if (diff < -1) {
-      if (aboveViewport) aboveViewport.edit -= diff;
-      else dv.aligners.push(padBelow(dv.edit, chunk.editTo - 1, -diff));
-    }
-    return 0;
-  }
-
-  function padBelow(cm, line, size) {
-    var elt = document.createElement("div");
-    elt.className = "CodeMirror-merge-spacer";
-    elt.style.height = size + "px"; elt.style.minWidth = "1px";
-    return cm.addLineWidget(line, elt, {height: size});
-  }
-
   function copyChunk(dv, to, from, chunk) {
     if (dv.diffOutOfDate) return;
     to.replaceRange(from.getRange(Pos(chunk.origFrom, 0), Pos(chunk.origTo, 0)),
@@ -377,12 +446,8 @@
 
     this.options = options;
     var origLeft = options.origLeft, origRight = options.origRight == null ? options.orig : options.origRight;
-    if (origLeft && origRight) {
-      if (options.connect == "align")
-        throw new Error("connect: \"align\" is not supported for three-way merge views");
-      if (options.collapseIdentical)
+    if (origLeft && origRight && options.collapseIdentical)
         throw new Error("collapseIdentical option is not supported for three-way merge views");
-    }
 
     var hasLeft = origLeft != null, hasRight = origRight != null;
     var panes = 1 + (hasLeft ? 1 : 0) + (hasRight ? 1 : 0);
@@ -417,6 +482,10 @@
 
     if (options.collapseIdentical)
       collapseIdenticalStretches(left || right, options.collapseIdentical);
+    if (options.connect == "align") {
+      this.aligners = [];
+      alignChunks(this.left || this.right, true);
+    }
 
     var onResize = function() {
       if (left) makeConnections(left);
