@@ -42,6 +42,7 @@
       this.orig = CodeMirror(pane, copyObj({value: orig, readOnly: !this.mv.options.allowEditingOriginals}, copyObj(options)));
 
       this.diff = getDiff(asString(orig), asString(options.value));
+      this.chunks = getChunks(this.diff);
       this.diffOutOfDate = false;
 
       this.showDifferences = options.showDifferences !== false;
@@ -61,6 +62,7 @@
   function ensureDiff(dv) {
     if (dv.diffOutOfDate) {
       dv.diff = getDiff(dv.orig.getValue(), dv.edit.getValue());
+      dv.chunks = getChunks(dv.diff);
       dv.diffOutOfDate = false;
       CodeMirror.signal(dv.edit, "updateDiff", dv.diff);
     }
@@ -134,7 +136,7 @@
     } else {
       var halfScreen = .5 * sInfo.clientHeight, midY = sInfo.top + halfScreen;
       var mid = editor.lineAtHeight(midY, "local");
-      var around = chunkBoundariesAround(dv.diff, mid, type == DIFF_INSERT);
+      var around = chunkBoundariesAround(dv.chunks, mid, type == DIFF_INSERT);
       var off = getOffsets(editor, type == DIFF_INSERT ? around.edit : around.orig);
       var offOther = getOffsets(other, type == DIFF_INSERT ? around.orig : around.edit);
       var ratio = (midY - off.top) / (off.bot - off.top);
@@ -281,15 +283,16 @@
 
     var vpEdit = dv.edit.getViewport(), vpOrig = dv.orig.getViewport();
     var sTopEdit = dv.edit.getScrollInfo().top, sTopOrig = dv.orig.getScrollInfo().top;
-    iterateChunks(dv.diff, function(topOrig, botOrig, topEdit, botEdit) {
-      if (topEdit <= vpEdit.to && botEdit >= vpEdit.from &&
-          topOrig <= vpOrig.to && botOrig >= vpOrig.from)
-        drawConnectorsForChunk(dv, topOrig, botOrig, topEdit, botEdit, sTopOrig, sTopEdit, w);
-      if (align && (topEdit <= vpEdit.to || topOrig <= vpOrig.to)) {
-        var above = (botEdit < vpEdit.from && botOrig < vpOrig.from);
-        alignChunks(dv, topOrig, botOrig, topEdit, botEdit, above && extraSpaceAbove);
+    for (var i = 0; i < dv.chunks.length; i++) {
+      var ch = dv.chunks[i];
+      if (ch.editFrom <= vpEdit.to && ch.editTo >= vpEdit.from &&
+          ch.origFrom <= vpOrig.to && ch.origTo >= vpOrig.from)
+        drawConnectorsForChunk(dv, ch, sTopOrig, sTopEdit, w);
+      if (align && (ch.editFrom <= vpEdit.to || ch.origFrom <= vpOrig.to)) {
+        var above = (ch.editTo < vpEdit.from && ch.origTo < vpOrig.from);
+        alignChunks(dv, ch, above && extraSpaceAbove);
       }
-    });
+    }
     if (align) {
       if (extraSpaceAbove.edit)
         dv.aligners.push(padBelow(dv.edit, 0, extraSpaceAbove.edit));
@@ -300,15 +303,15 @@
     }
   }
 
-  function drawConnectorsForChunk(dv, topOrig, botOrig, topEdit, botEdit, sTopOrig, sTopEdit, w) {
+  function drawConnectorsForChunk(dv, chunk, sTopOrig, sTopEdit, w) {
     var flip = dv.type == "left";
-    var top = dv.orig.heightAtLine(topOrig, "local") - sTopOrig;
+    var top = dv.orig.heightAtLine(chunk.origFrom, "local") - sTopOrig;
     if (dv.svg) {
       var topLpx = top;
-      var topRpx = dv.edit.heightAtLine(topEdit, "local") - sTopEdit;
+      var topRpx = dv.edit.heightAtLine(chunk.editFrom, "local") - sTopEdit;
       if (flip) { var tmp = topLpx; topLpx = topRpx; topRpx = tmp; }
-      var botLpx = dv.orig.heightAtLine(botOrig, "local") - sTopOrig;
-      var botRpx = dv.edit.heightAtLine(botEdit, "local") - sTopEdit;
+      var botLpx = dv.orig.heightAtLine(chunk.origTo, "local") - sTopOrig;
+      var botRpx = dv.edit.heightAtLine(chunk.editTo, "local") - sTopEdit;
       if (flip) { var tmp = botLpx; botLpx = botRpx; botRpx = tmp; }
       var curveTop = " C " + w/2 + " " + topRpx + " " + w/2 + " " + topLpx + " " + (w + 2) + " " + topLpx;
       var curveBot = " C " + w/2 + " " + botLpx + " " + w/2 + " " + botRpx + " -1 " + botRpx;
@@ -321,34 +324,35 @@
                                                 "CodeMirror-merge-copy"));
       var editOriginals = dv.mv.options.allowEditingOriginals;
       copy.title = editOriginals ? "Push to left" : "Revert chunk";
-      copy.chunk = {topEdit: topEdit, botEdit: botEdit, topOrig: topOrig, botOrig: botOrig};
+      copy.chunk = chunk;
       copy.style.top = top + "px";
 
       if (editOriginals) {
-        var topReverse = dv.orig.heightAtLine(topEdit, "local") - sTopEdit;
+        var topReverse = dv.orig.heightAtLine(chunk.editFrom, "local") - sTopEdit;
         var copyReverse = dv.copyButtons.appendChild(elt("div", dv.type == "right" ? "\u21dd" : "\u21dc",
                                                          "CodeMirror-merge-copy-reverse"));
         copyReverse.title = "Push to right";
-        copyReverse.chunk = {topEdit: topOrig, botEdit: botOrig, topOrig: topEdit, botOrig: botEdit};
+        copyReverse.chunk = {editFrom: chunk.origFrom, editTo: chunk.origTo,
+                             origFrom: chunk.editFrom, origTo: chunk.editTo};
         copyReverse.style.top = topReverse + "px";
         dv.type == "right" ? copyReverse.style.left = "2px" : copyReverse.style.right = "2px";
       }
     }
   }
 
-  function alignChunks(dv, topOrig, botOrig, topEdit, botEdit, aboveViewport) {
-    var topOrigPx = dv.orig.heightAtLine(topOrig, "local");
-    var botOrigPx = dv.orig.heightAtLine(botOrig, "local");
-    var topEditPx = dv.edit.heightAtLine(topEdit, "local");
-    var botEditPx = dv.edit.heightAtLine(botEdit, "local");
-    var origH = botOrigPx -topOrigPx, editH = botEditPx - topEditPx;
+  function alignChunks(dv, chunk, aboveViewport) {
+    var topOrigPx = dv.orig.heightAtLine(chunk.origFrom, "local");
+    var botOrigPx = dv.orig.heightAtLine(chunk.origTo, "local");
+    var topEditPx = dv.edit.heightAtLine(chunk.editFrom, "local");
+    var botEditPx = dv.edit.heightAtLine(chunk.editTo, "local");
+    var origH = botOrigPx - topOrigPx, editH = botEditPx - topEditPx;
     var diff = editH - origH;
     if (diff > 1) {
       if (aboveViewport) aboveViewport.orig += diff;
-      else dv.aligners.push(padBelow(dv.orig, botOrig - 1, diff));
+      else dv.aligners.push(padBelow(dv.orig, chunk.origTo - 1, diff));
     } else if (diff < -1) {
       if (aboveViewport) aboveViewport.edit -= diff;
-      else dv.aligners.push(padBelow(dv.edit, botEdit - 1, -diff));
+      else dv.aligners.push(padBelow(dv.edit, chunk.editTo - 1, -diff));
     }
     return 0;
   }
@@ -362,8 +366,8 @@
 
   function copyChunk(dv, to, from, chunk) {
     if (dv.diffOutOfDate) return;
-    to.replaceRange(from.getRange(Pos(chunk.topOrig, 0), Pos(chunk.botOrig, 0)),
-                         Pos(chunk.topEdit, 0), Pos(chunk.botEdit, 0));
+    to.replaceRange(from.getRange(Pos(chunk.origFrom, 0), Pos(chunk.origTo, 0)),
+                         Pos(chunk.editFrom, 0), Pos(chunk.editTo, 0));
   }
 
   // Merge view, containing 0, 1, or 2 diff views.
@@ -464,10 +468,10 @@
       if (this.left) this.left.setShowDifferences(val);
     },
     rightChunks: function() {
-      return this.right && getChunks(this.right);
+      if (this.right) { ensureDiff(this.right); return this.right.chunks; }
     },
     leftChunks: function() {
-      return this.left && getChunks(this.left);
+      if (this.left) { ensureDiff(this.left); return this.left.chunks; }
     }
   };
 
@@ -495,7 +499,8 @@
     return diff;
   }
 
-  function iterateChunks(diff, f) {
+  function getChunks(diff) {
+    var chunks = [];
     var startEdit = 0, startOrig = 0;
     var edit = Pos(0, 0), orig = Pos(0, 0);
     for (var i = 0; i < diff.length; ++i) {
@@ -507,7 +512,8 @@
         var endOff = endOfLineClean(diff, i) ? 1 : 0;
         var cleanToEdit = edit.line + endOff, cleanToOrig = orig.line + endOff;
         if (cleanToEdit > cleanFromEdit) {
-          if (i) f(startOrig, cleanFromOrig, startEdit, cleanFromEdit);
+          if (i) chunks.push({origFrom: startOrig, origTo: cleanFromOrig,
+                              editFrom: startEdit, editTo: cleanFromEdit});
           startEdit = cleanToEdit; startOrig = cleanToOrig;
         }
       } else {
@@ -515,17 +521,9 @@
       }
     }
     if (startEdit <= edit.line || startOrig <= orig.line)
-      f(startOrig, orig.line + 1, startEdit, edit.line + 1);
-  }
-
-  function getChunks(dv) {
-    ensureDiff(dv);
-    var collect = [];
-    iterateChunks(dv.diff, function(topOrig, botOrig, topEdit, botEdit) {
-      collect.push({origFrom: topOrig, origTo: botOrig,
-                    editFrom: topEdit, editTo: botEdit});
-    });
-    return collect;
+      chunks.push({origFrom: startOrig, origTo: orig.line + 1,
+                   editFrom: startEdit, editTo: edit.line + 1});
+    return chunks;
   }
 
   function endOfLineClean(diff, i) {
@@ -546,18 +544,19 @@
     return last.charCodeAt(last.length - 1) == 10;
   }
 
-  function chunkBoundariesAround(diff, n, nInEdit) {
+  function chunkBoundariesAround(chunks, n, nInEdit) {
     var beforeE, afterE, beforeO, afterO;
-    iterateChunks(diff, function(fromOrig, toOrig, fromEdit, toEdit) {
-      var fromLocal = nInEdit ? fromEdit : fromOrig;
-      var toLocal = nInEdit ? toEdit : toOrig;
+    for (var i = 0; i < chunks.length; i++) {
+      var chunk = chunks[i];
+      var fromLocal = nInEdit ? chunk.editFrom : chunk.origFrom;
+      var toLocal = nInEdit ? chunk.editTo : chunk.origTo;
       if (afterE == null) {
-        if (fromLocal > n) { afterE = fromEdit; afterO = fromOrig; }
-        else if (toLocal > n) { afterE = toEdit; afterO = toOrig; }
+        if (fromLocal > n) { afterE = chunk.editFrom; afterO = chunk.origFrom; }
+        else if (toLocal > n) { afterE = chunk.editTo; afterO = chunk.origTo; }
       }
-      if (toLocal <= n) { beforeE = toEdit; beforeO = toOrig; }
-      else if (fromLocal <= n) { beforeE = fromEdit; beforeO = fromOrig; }
-    });
+      if (toLocal <= n) { beforeE = chunk.editTo; beforeO = chunk.origTo; }
+      else if (fromLocal <= n) { beforeE = chunk.editFrom; beforeO = chunk.origFrom; }
+    }
     return {edit: {before: beforeE, after: afterE}, orig: {before: beforeO, after: afterO}};
   }
 
@@ -590,12 +589,13 @@
   function collapseIdenticalStretches(dv, margin) {
     if (typeof margin != "number") margin = 2;
     var lastOrig = dv.orig.firstLine(), lastEdit = dv.edit.firstLine();
-    iterateChunks(dv.diff, function(topOrig, botOrig, _topEdit, botEdit) {
-      var identicalSize = topOrig - margin - lastOrig;
+    for (var i = 0; i < dv.chunks.length; i++) {
+      var chunk = dv.chunks[i];
+      var identicalSize = chunk.origFrom - margin - lastOrig;
       if (identicalSize > margin)
         collapseStretch(dv, lastOrig, lastEdit, identicalSize);
-      lastOrig = botOrig + margin; lastEdit = botEdit + margin;
-    });
+      lastOrig = chunk.origTo + margin; lastEdit = chunk.editTo + margin;
+    }
     var bottomSize = dv.orig.lastLine() + 1 - lastOrig;
     if (bottomSize > margin)
       collapseStretch(dv, lastOrig, lastEdit, bottomSize);
