@@ -657,6 +657,7 @@
       marks.push(mark);
       mark.mark.on("clear", clear);
     }
+    return marks[0].mark;
   }
 
   function unclearNearChunks(dv, margin, off, clear) {
@@ -671,7 +672,7 @@
 
   function collapseIdenticalStretches(mv, margin) {
     if (typeof margin != "number") margin = 2;
-    var clear = [], edit = (mv.left || mv.right).edit, off = edit.firstLine();
+    var clear = [], edit = mv.editor(), off = edit.firstLine();
     for (var l = off, e = edit.lastLine(); l <= e; l++) clear.push(true);
     if (mv.left) unclearNearChunks(mv.left, margin, off, clear);
     if (mv.right) unclearNearChunks(mv.right, margin, off, clear);
@@ -684,7 +685,8 @@
           var editors = [{line: line, cm: edit}];
           if (mv.left) editors.push({line: getMatchingOrigLine(line, mv.left.chunks), cm: mv.left.orig});
           if (mv.right) editors.push({line: getMatchingOrigLine(line, mv.right.chunks), cm: mv.right.orig});
-          collapseStretch(size, editors);
+          var mark = collapseStretch(size, editors);
+          if (mv.options.onCollapse) mv.options.onCollapse(mv, line, size, mark);
         }
       }
     }
