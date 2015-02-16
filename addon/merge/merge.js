@@ -446,8 +446,6 @@
 
     this.options = options;
     var origLeft = options.origLeft, origRight = options.origRight == null ? options.orig : options.origRight;
-    if (origLeft && origRight && options.collapseIdentical)
-        throw new Error("collapseIdentical option is not supported for three-way merge views");
 
     var hasLeft = origLeft != null, hasRight = origRight != null;
     var panes = 1 + (hasLeft ? 1 : 0) + (hasRight ? 1 : 0);
@@ -481,7 +479,7 @@
     if (right) right.init(rightPane, origRight, options);
 
     if (options.collapseIdentical)
-      collapseIdenticalStretches(left || right, options.collapseIdentical);
+      collapseIdenticalStretches(this, options.collapseIdentical);
     if (options.connect == "align") {
       this.aligners = [];
       alignChunks(this.left || this.right, true);
@@ -648,26 +646,48 @@
     return {mark: mark, clear: clear};
   }
 
-  function collapseStretch(dv, origStart, editStart, size) {
-    var mOrig = collapseSingle(dv.orig, origStart, origStart + size);
-    var mEdit = collapseSingle(dv.edit, editStart, editStart + size);
-    mOrig.mark.on("clear", function() { mEdit.clear(); });
-    mEdit.mark.on("clear", function() { mOrig.clear(); });
+  function collapseStretch(size, editors) {
+    var marks = [];
+    function clear() {
+      for (var i = 0; i < marks.length; i++) marks[i].clear();
+    }
+    for (var i = 0; i < editors.length; i++) {
+      var editor = editors[i];
+      var mark = collapseSingle(editor.cm, editor.line, editor.line + size);
+      marks.push(mark);
+      mark.mark.on("clear", clear);
+    }
   }
 
-  function collapseIdenticalStretches(dv, margin) {
-    if (typeof margin != "number") margin = 2;
-    var lastOrig = dv.orig.firstLine(), lastEdit = dv.edit.firstLine();
+  function unclearNearChunks(dv, margin, off, clear) {
     for (var i = 0; i < dv.chunks.length; i++) {
       var chunk = dv.chunks[i];
-      var identicalSize = chunk.origFrom - margin - lastOrig;
-      if (identicalSize > margin)
-        collapseStretch(dv, lastOrig, lastEdit, identicalSize);
-      lastOrig = chunk.origTo + margin; lastEdit = chunk.editTo + margin;
+      for (var l = chunk.editFrom - margin; l < chunk.editTo + margin; l++) {
+        var pos = l + off;
+        if (pos >= 0 && pos < clear.length) clear[pos] = false;
+      }
     }
-    var bottomSize = dv.orig.lastLine() + 1 - lastOrig;
-    if (bottomSize > margin)
-      collapseStretch(dv, lastOrig, lastEdit, bottomSize);
+  }
+
+  function collapseIdenticalStretches(mv, margin) {
+    if (typeof margin != "number") margin = 2;
+    var clear = [], edit = (mv.left || mv.right).edit, off = edit.firstLine();
+    for (var l = off, e = edit.lastLine(); l <= e; l++) clear.push(true);
+    if (mv.left) unclearNearChunks(mv.left, margin, off, clear);
+    if (mv.right) unclearNearChunks(mv.right, margin, off, clear);
+
+    for (var i = 0; i < clear.length; i++) {
+      if (clear[i]) {
+        var line = i + off;
+        for (var size = 1; i < clear.length - 1 && clear[i + 1]; i++, size++) {}
+        if (size > margin) {
+          var editors = [{line: line, cm: edit}];
+          if (mv.left) editors.push({line: getMatchingOrigLine(line, mv.left.chunks), cm: mv.left.orig});
+          if (mv.right) editors.push({line: getMatchingOrigLine(line, mv.right.chunks), cm: mv.right.orig});
+          collapseStretch(size, editors);
+        }
+      }
+    }
   }
 
   // General utilities
