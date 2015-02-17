@@ -98,6 +98,7 @@
 
     hideDoc: function(id) {
       closeArgHints(this);
+      closeCompletionHints(this);
       var found = resolveDoc(this, id);
       if (found && found.changed) sendDoc(this, found);
     },
@@ -220,16 +221,17 @@
       }
 
       var obj = {from: from, to: to, list: completions};
-      var tooltip = null;
-      CodeMirror.on(obj, "close", function() { remove(tooltip); });
-      CodeMirror.on(obj, "update", function() { remove(tooltip); });
+
+      closeCompletionHints(ts);
+      CodeMirror.on(obj, "close", function() { closeCompletionHints(ts); });
+      CodeMirror.on(obj, "update", function() { closeCompletionHints(ts); });
       CodeMirror.on(obj, "select", function(cur, node) {
-        remove(tooltip);
+        closeCompletionHints(ts);
         var content = ts.options.completionTip ? ts.options.completionTip(cur.data) : cur.data.doc;
         if (content) {
-          tooltip = makeTooltip(node.parentNode.getBoundingClientRect().right + window.pageXOffset,
+          ts.completionHint = makeTooltip(node.parentNode.getBoundingClientRect().right + window.pageXOffset,
                                 node.getBoundingClientRect().top + window.pageYOffset, content);
-          tooltip.className += " " + cls + "hint-doc";
+          ts.completionHint.className += " " + cls + "hint-doc";
         }
       });
       c(obj);
@@ -647,6 +649,10 @@
 
   function closeArgHints(ts) {
     if (ts.activeArgHints) { remove(ts.activeArgHints); ts.activeArgHints = null; }
+  }
+
+  function closeCompletionHints(ts) {
+    if (ts.completionHint) { remove(ts.completionHint); ts.completionHint = null; }
   }
 
   function docValue(ts, doc) {
