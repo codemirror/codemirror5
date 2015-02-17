@@ -160,7 +160,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     } else if (/@(media|supports|(-moz-)?document)/.test(type)) {
       return pushContext(state, stream, "atBlock");
     } else if (/@(font-face|counter-style)/.test(type)) {
-      state.restrictedType = type;
+      state.stateArg = type;
       return "restricted_atBlock_before";
     } else if (/^@(-(moz|ms|o|webkit)-)?keyframes$/.test(type)) {
       return "keyframes";
@@ -287,7 +287,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
   states.restricted_atBlock_before = function(type, stream, state) {
     if (type == "{")
       return pushContext(state, stream, "restricted_atBlock");
-    if (type == "word" && state.restrictedType == "@counter-style") {
+    if (type == "word" && state.stateArg == "@counter-style") {
       override = "variable";
       return "restricted_atBlock_before";
     }
@@ -296,12 +296,12 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
 
   states.restricted_atBlock = function(type, stream, state) {
     if (type == "}") {
-      delete state.restrictedType;
+      state.stateArg = null;
       return popContext(state);
     }
     if (type == "word") {
-      if ((state.restrictedType == "@font-face" && !fontProperties.hasOwnProperty(stream.current().toLowerCase())) ||
-          (state.restrictedType == "@counter-style" && !counterDescriptors.hasOwnProperty(stream.current().toLowerCase())))
+      if ((state.stateArg == "@font-face" && !fontProperties.hasOwnProperty(stream.current().toLowerCase())) ||
+          (state.stateArg == "@counter-style" && !counterDescriptors.hasOwnProperty(stream.current().toLowerCase())))
         override = "error";
       else
         override = "property";
@@ -335,6 +335,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     startState: function(base) {
       return {tokenize: null,
               state: "top",
+              stateArg: null,
               context: new Context("top", base || 0, null)};
     },
 
