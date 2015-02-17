@@ -36,6 +36,9 @@
 <script src="../keymap/emacs.js"></script>
 <script src="../keymap/sublime.js"></script>
 <script src="../keymap/vim.js"></script>
+<!-- For testing sql-hint -->
+<script src="../mode/sql/sql.js"></script>
+<script src="../addon/hint/sql-hint.js"></script>
 
 <style type="text/css">
   .ok {color: #090;}
@@ -117,6 +120,7 @@
     <script src="sql-hint-test.js"></script>
     <script src="sublime_test.js"></script>
     <script src="vim_test.js"></script>
+    <script src="../addon/hint/sql-hint-test.js"></script>
     <script>
       window.onload = runHarness;
       CodeMirror.on(window, 'hashchange', runHarness);
