@@ -99,6 +99,7 @@
     hideDoc: function(id) {
       closeArgHints(this);
       closeCompletionHints(this);
+      this.completionTimeout && clearTimeout(this.completionTimeout);
       var found = resolveDoc(this, id);
       if (found && found.changed) sendDoc(this, found);
     },
@@ -223,16 +224,24 @@
       var obj = {from: from, to: to, list: completions};
 
       closeCompletionHints(ts);
+
+      var executeNewCompletion = function (cur, node) {
+        ts.completionTimeout && clearTimeout(ts.completionTimeout);
+        ts.completionTimeout = setTimeout(function () {
+          var content = ts.options.completionTip ? ts.options.completionTip(cur.data) : cur.data.doc;
+          if (content) {
+            ts.completionHint = makeTooltip(node.parentNode.getBoundingClientRect().right + window.pageXOffset,
+              node.getBoundingClientRect().top + window.pageYOffset, content);
+            ts.completionHint.className += " " + cls + "hint-doc";
+          }
+        }, 200);
+      };
+
       CodeMirror.on(obj, "close", function() { closeCompletionHints(ts); });
       CodeMirror.on(obj, "update", function() { closeCompletionHints(ts); });
       CodeMirror.on(obj, "select", function(cur, node) {
         closeCompletionHints(ts);
-        var content = ts.options.completionTip ? ts.options.completionTip(cur.data) : cur.data.doc;
-        if (content) {
-          ts.completionHint = makeTooltip(node.parentNode.getBoundingClientRect().right + window.pageXOffset,
-                                node.getBoundingClientRect().top + window.pageYOffset, content);
-          ts.completionHint.className += " " + cls + "hint-doc";
-        }
+        executeNewCompletion(cur, node);
       });
       c(obj);
     });
@@ -652,6 +661,7 @@
   }
 
   function closeCompletionHints(ts) {
+    ts.completionTimeout && clearTimeout(ts.completionTimeout);
     if (ts.completionHint) { remove(ts.completionHint); ts.completionHint = null; }
   }
 
