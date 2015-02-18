@@ -398,6 +398,10 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
         if (!stream.match('""')) return false;
         state.tokenize = tokenTripleString;
         return state.tokenize(stream, state);
+      },
+      "'": function(stream) {
+        stream.eatWhile(/[\w\$_\xa1-\uffff]/);
+        return "atom";
       }
     }
   });
