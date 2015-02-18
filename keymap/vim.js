@@ -776,7 +776,16 @@
       },
       handleEx: function(cm, input) {
         exCommandDispatcher.processCommand(cm, input);
-      }
+      },
+
+      defineMotion: defineMotion,
+      defineAction: defineAction,
+      defineOperator: defineOperator,
+      mapCommand: mapCommand,
+      _mapCommand: _mapCommand,
+
+      exitVisualMode: exitVisualMode,
+      exitInsertMode: exitInsertMode
     };
 
     // Represents the current input state.
@@ -1817,6 +1826,10 @@
       }
     };
 
+    function defineMotion(name, fn) {
+      motions[name] = fn;
+    }
+
     function fillArray(val, times) {
       var arr = [];
       for (var i = 0; i < times; i++) {
@@ -1966,6 +1979,10 @@
         return endPos;
       }
     };
+
+    function defineOperator(name, fn) {
+      operators[name] = fn;
+    }
 
     var actions = {
       jumpListWalk: function(cm, actionArgs, vim) {
@@ -2477,6 +2494,10 @@
       },
       exitInsertMode: exitInsertMode
     };
+
+    function defineAction(name, fn) {
+      actions[name] = fn;
+    }
 
     /*
      * Below are miscellaneous utility functions used by vim.js
@@ -4630,6 +4651,19 @@
       if (macroModeState.isRecording) {
         logInsertModeChange(macroModeState);
       }
+    }
+
+    function _mapCommand(command) {
+      defaultKeymap.push(command);
+    }
+
+    function mapCommand(keys, type, name, args, extra) {
+      var command = {keys: keys, type: type};
+      command[type] = name;
+      command[type + "Args"] = args;
+      for (var key in extra)
+        command[key] = extra[key];
+      _mapCommand(command);
     }
 
     // The timeout in milliseconds for the two-character ESC keymap should be
