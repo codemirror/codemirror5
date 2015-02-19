@@ -91,9 +91,13 @@
         alignChunks(dv);
       updating = false;
     }
-    function set() {
+    function setDealign() {
       if (updating) return;
       dv.dealigned = true;
+      set();
+    }
+    function set() {
+      if (updating) return;
       clearTimeout(debounceChange);
       debounceChange = setTimeout(update, 250);
     }
@@ -102,14 +106,14 @@
         dv.diffOutOfDate = true;
         edit.from = edit.to = orig.from = orig.to = 0;
       }
-      set();
+      setDealign();
     }
     dv.edit.on("change", change);
     dv.orig.on("change", change);
-    dv.edit.on("markerAdded", set);
-    dv.edit.on("markerCleared", set);
-    dv.orig.on("markerAdded", set);
-    dv.orig.on("markerCleared", set);
+    dv.edit.on("markerAdded", setDealign);
+    dv.edit.on("markerCleared", setDealign);
+    dv.orig.on("markerAdded", setDealign);
+    dv.orig.on("markerCleared", setDealign);
     dv.edit.on("viewportChange", set);
     dv.orig.on("viewportChange", set);
     update();
@@ -341,46 +345,29 @@
       aligners[i].clear();
     aligners.length = 0;
 
-    var cm = [dv.orig, dv.edit], vp = [], scroll = [];
+    var cm = [dv.orig, dv.edit], scroll = [];
     if (other) cm.push(other.orig);
-    for (var i = 0; i < cm.length; i++) {
-      vp.push(cm[i].getViewport());
+    for (var i = 0; i < cm.length; i++)
       scroll.push(cm[i].getScrollInfo().top);
-    }
 
-    var spaceAbove = [0, 0, 0];
-    for (var ln = 0; ln < linesToAlign.length; ln++) {
-      var lines = linesToAlign[ln];
-      var above = true, below = true;
-      for (var i = 0; i < cm.length; i++) if (lines[i] != null) {
-        if (lines[i] >= vp[i].from) above = false;
-        if (lines[i] <= vp[i].to) below = false;
-      }
-      alignLines(cm, lines, aligners, spaceAbove, above);
-      if (below) break;
-    }
-    if (dv.lockScroll)
-      scroll[0] = scroll[1] = Math.max(scroll[0], scroll[1]);
-    for (var i = 0; i < cm.length; i++) {
-      if (spaceAbove[i])
-        aligners.push(padAbove(cm[i], 0, spaceAbove[i]));
+    for (var ln = 0; ln < linesToAlign.length; ln++)
+      alignLines(cm, linesToAlign[ln], aligners);
+
+    for (var i = 0; i < cm.length; i++)
       cm[i].scrollTo(null, scroll[i]);
-    }
   }
 
-  function alignLines(cm, lines, aligners, spaceAbove, isAboveViewport) {
+  function alignLines(cm, lines, aligners) {
     var maxOffset = 0, offset = [];
     for (var i = 0; i < cm.length; i++) if (lines[i] != null) {
-      var off = cm[i].heightAtLine(lines[i], "local") + spaceAbove[i];
+      var off = cm[i].heightAtLine(lines[i], "local");
       offset[i] = off;
       maxOffset = Math.max(maxOffset, off);
     }
     for (var i = 0; i < cm.length; i++) if (lines[i] != null) {
       var diff = maxOffset - offset[i];
-      if (diff > 1) {
-        if (isAboveViewport) spaceAbove[i] += diff;
-        else aligners.push(padAbove(cm[i], lines[i], diff));
-      }
+      if (diff > 1)
+        aligners.push(padAbove(cm[i], lines[i], diff));
     }
   }
 
