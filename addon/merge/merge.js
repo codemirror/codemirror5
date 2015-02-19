@@ -70,9 +70,10 @@
   function registerUpdate(dv) {
     var edit = {from: 0, to: 0, marked: []};
     var orig = {from: 0, to: 0, marked: []};
-    var debounceChange;
+    var debounceChange, updatingFast = false;
     function update(mode) {
       updating = true;
+      updatingFast = false;
       if (mode == "full") {
         if (dv.svg) clear(dv.svg);
         if (dv.copyButtons) clear(dv.copyButtons);
@@ -91,22 +92,24 @@
         alignChunks(dv);
       updating = false;
     }
-    function setDealign() {
+    function setDealign(fast) {
       if (updating) return;
       dv.dealigned = true;
-      set();
+      set(fast);
     }
-    function set() {
-      if (updating) return;
+    function set(fast) {
+      if (updating || updatingFast) return;
       clearTimeout(debounceChange);
-      debounceChange = setTimeout(update, 250);
+      if (fast === true) updatingFast = true;
+      debounceChange = setTimeout(update, fast === true ? 20 : 250);
     }
-    function change() {
+    function change(_cm, change) {
       if (!dv.diffOutOfDate) {
         dv.diffOutOfDate = true;
         edit.from = edit.to = orig.from = orig.to = 0;
       }
-      setDealign();
+      // Update faster when a line was added/removed
+      setDealign(change.text.length - 1 != change.to.line - change.from.line);
     }
     dv.edit.on("change", change);
     dv.orig.on("change", change);
@@ -114,8 +117,8 @@
     dv.edit.on("markerCleared", setDealign);
     dv.orig.on("markerAdded", setDealign);
     dv.orig.on("markerCleared", setDealign);
-    dv.edit.on("viewportChange", set);
-    dv.orig.on("viewportChange", set);
+    dv.edit.on("viewportChange", function() { set(false); });
+    dv.orig.on("viewportChange", function() { set(false); });
     update();
     return update;
   }
@@ -437,6 +440,7 @@
     var hasLeft = origLeft != null, hasRight = origRight != null;
     var panes = 1 + (hasLeft ? 1 : 0) + (hasRight ? 1 : 0);
     var wrap = [], left = this.left = null, right = this.right = null;
+    var self = this;
 
     if (hasLeft) {
       left = this.left = new DiffView(this, "left");
@@ -465,8 +469,13 @@
     if (left) left.init(leftPane, origLeft, options);
     if (right) right.init(rightPane, origRight, options);
 
-    if (options.collapseIdentical)
-      collapseIdenticalStretches(this, options.collapseIdentical);
+    if (options.collapseIdentical) {
+      updating = true;
+      this.editor().operation(function() {
+        collapseIdenticalStretches(self, options.collapseIdentical);
+      });
+      updating = false;
+    }
     if (options.connect == "align") {
       this.aligners = [];
       alignChunks(this.left || this.right, true);
