@@ -20,19 +20,28 @@
     this.cm = cm;
     this.options = options;
     this.annotations = [];
+    this.doRedraw = this.doUpdate = null;
     this.div = cm.getWrapperElement().appendChild(document.createElement("div"));
     this.div.style.cssText = "position: absolute; right: 0; top: 0; z-index: 7; pointer-events: none";
     this.computeScale();
 
+    function scheduleRedraw(delay) {
+      clearTimeout(self.doRedraw);
+      self.doRedraw = setTimeout(function() { self.redraw(); }, delay);
+    }
+
     var self = this;
     cm.on("refresh", this.resizeHandler = function() {
-      if (self.computeScale()) self.redraw(false);
+      clearTimeout(self.doUpdate);
+      self.doUpdate = setTimeout(function() {
+        if (self.computeScale()) scheduleRedraw(20);
+      }, 100);
     });
     cm.on("markerAdded", this.resizeHandler);
+    cm.on("markerCleared", this.resizeHandler);
     if (options.listenForChanges !== false)
       cm.on("change", this.changeHandler = function() {
-        clearTimeout(self.changed);
-        self.changed = setTimeout(function() { self.redraw(); }, 250);
+        scheduleRedraw(250);
       });
   }
 
@@ -80,6 +89,7 @@
   Annotation.prototype.clear = function() {
     this.cm.off("refresh", this.resizeHandler);
     this.cm.off("markerAdded", this.resizeHandler);
+    this.cm.off("markerCleared", this.resizeHandler);
     if (this.changeHandler) this.cm.off("change", this.changeHandler);
     this.div.parentNode.removeChild(this.div);
   };
