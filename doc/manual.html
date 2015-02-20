@@ -63,7 +63,7 @@
 <section class=first id=overview>
     <h2 style="position: relative">
       User manual and reference guide
-      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 4.13.0</span>
+      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 5.0.0</span>
     </h2>
 
     <p>CodeMirror is a code-editor component that can be embedded in
@@ -332,6 +332,17 @@
       gutter will be visible to the left of this scrollbar. If this
       option is set to true, it will be covered by an element with
       class <code>CodeMirror-gutter-filler</code>.</dd>
+
+      <dt id="option_inputStyle"><code><strong>inputStyle</strong>: string</code></dt>
+      <dd>Selects the way CodeMirror handles input and focus. The core
+      library defines the <code>"textarea"</code>
+      and <code>"contenteditable"</code> input models. On mobile
+      browsers, the default is <code>"contenteditable"</code>. On
+      desktop browsers, the default is <code>"textarea"</code>.
+      Support for IME and screen readers is better in
+      the <code>"contenteditable"</code> model. The intention is to
+      make it the default on modern desktop browsers in the
+      future.</dd>
 
       <dt id="option_readOnly"><code><strong>readOnly</strong>: boolean|string</code></dt>
       <dd>This disables editing of the editor content by the user. If
