@@ -11,14 +11,18 @@
 })(function(CodeMirror) {
   "use strict";
 
-  CodeMirror.defineExtension("showMatchesOnScrollbar", function(query, caseFold, className) {
-    return new SearchAnnotation(this, query, caseFold, className);
+  CodeMirror.defineExtension("showMatchesOnScrollbar", function(query, caseFold, options) {
+    if (typeof options == "string") options = {className: options};
+    if (!options) options = {};
+    return new SearchAnnotation(this, query, caseFold, options);
   });
 
-  function SearchAnnotation(cm, query, caseFold, className) {
+  function SearchAnnotation(cm, query, caseFold, options) {
     this.cm = cm;
-    this.annotation = cm.annotateScrollbar({className: className || "CodeMirror-search-match",
-                                            listenForChanges: false});
+    var annotateOptions = {listenForChanges: false};
+    for (var prop in options) annotateOptions[prop] = options[prop];
+    if (!annotateOptions.className) annotateOptions.className = "CodeMirror-search-match";
+    this.annotation = cm.annotateScrollbar(annotateOptions);
     this.query = query;
     this.caseFold = caseFold;
     this.gap = {from: cm.firstLine(), to: cm.lastLine() + 1};

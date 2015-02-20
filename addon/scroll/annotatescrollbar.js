@@ -16,9 +16,12 @@
     return new Annotation(this, options);
   });
 
+  CodeMirror.defineOption("scrollButtonHeight", 0);
+
   function Annotation(cm, options) {
     this.cm = cm;
     this.options = options;
+    this.buttonHeight = options.scrollButtonHeight || cm.getOption("scrollButtonHeight");
     this.annotations = [];
     this.doRedraw = this.doUpdate = null;
     this.div = cm.getWrapperElement().appendChild(document.createElement("div"));
@@ -47,7 +50,7 @@
 
   Annotation.prototype.computeScale = function() {
     var cm = this.cm;
-    var hScale = (cm.getWrapperElement().clientHeight - cm.display.barHeight) /
+    var hScale = (cm.getWrapperElement().clientHeight - cm.display.barHeight - this.buttonHeight * 2) /
       cm.heightAtLine(cm.lastLine() + 1, "local");
     if (hScale != this.hScale) {
       this.hScale = hScale;
@@ -79,7 +82,8 @@
       var height = Math.max(bottom - top, 3);
 
       var elt = frag.appendChild(document.createElement("div"));
-      elt.style.cssText = "position: absolute; right: 0px; width: " + Math.max(cm.display.barWidth - 1, 2) + "px; top: " + top + "px; height: " + height + "px";
+      elt.style.cssText = "position: absolute; right: 0px; width: " + Math.max(cm.display.barWidth - 1, 2) + "px; top: "
+        + (top + this.buttonHeight) + "px; height: " + height + "px";
       elt.className = this.options.className;
     }
     this.div.textContent = "";
