@@ -26,9 +26,37 @@
     return CodeMirror.resolveMode(mode).keywords;
   }
 
+  function getText(item) {
+    if (typeof item == 'string') {
+      return item;
+    }
+    return item.text;
+  }
+
+  function getItem(list, item) {
+    if (Array.isArray(list)) {
+      for (var i = list.length - 1; i >= 0; i--) {
+        if (getText(list[i]) == item) {
+          return list[i];
+        }
+      }
+    }
+    return list[item];
+  }
+
+  function shallowClone(object) {
+    var result = {};
+    for (var key in object) {
+      if (object.hasOwnProperty(key)) {
+        result[key] = object[key];
+      }
+    }
+    return result;
+  }
+
   function match(string, word) {
     var len = string.length;
-    var sub = word.substr(0, len);
+    var sub = getText(word).substr(0, len);
     return string.toUpperCase() === sub.toUpperCase();
   }
 
@@ -53,9 +81,22 @@
   }
 
   function insertBackticks(name) {
-    var nameParts = name.split(".");
-    nameParts = nameParts.map(function(w) {return "`" + w + "`";});
-    return nameParts.join(".");
+    var nameParts = [];
+    if (typeof name == "string") {
+      nameParts = name.split(".");
+    }
+    else if (typeof name.text == "string") {
+      nameParts = name.text.split(".");
+    }
+    nameParts = nameParts.map(function(w) {return "`" + w + "`";}).join(".");
+    if (typeof name == "string") {
+      return nameParts;
+    }
+    if (typeof name.text == "string") {
+      name = shallowClone(name);
+      name.text = nameParts;
+    }
+    return name;
   }
 
   function nameCompletion(cur, token, result, editor) {
@@ -96,21 +137,32 @@
     });
 
     // Try to complete columns
-    var table = nameParts.slice(0, nameParts.length - 1).join(".");
-    string = nameParts[nameParts.length - 1];
+    string = nameParts.pop();
+    var table = nameParts.join(".");
 
     //Check if table is available. If not, find table by Alias
-    if (!tables.hasOwnProperty(table))
+    if (!getItem(tables, table)) {
       table = findTableByAlias(table, editor);
-
-    var columns = tables[table];
-    addMatches(result, string, columns, function(w) {
-      w = table + "." + w;
-      if (useBacktick) {
-        return insertBackticks(w);
-      }
-      return w;
-    });
+    }
+    var columns = getItem(tables, table);
+    if (columns && Array.isArray(tables) && columns.columns) {
+      columns = columns.columns;
+    }
+    if (columns) {
+      addMatches(result, string, columns, function(w) {
+        if (typeof w == "string") {
+          w = table + "." + w;
+        }
+        else {
+          w = shallowClone(w);
+          w.text = table + "." + w.text;
+        }
+        if (useBacktick) {
+          return insertBackticks(w);
+        }
+        return w;
+      });
+    }
 
     return start;
   }
@@ -172,8 +224,18 @@
       var lineText = query[i];
       eachWord(lineText, function(word) {
         var wordUpperCase = word.toUpperCase();
-        if (wordUpperCase === aliasUpperCase && tables.hasOwnProperty(previousWord)) {
+        if (wordUpperCase === aliasUpperCase) {
+          if (Array.isArray(tables)) {
+            for (var i = tables.length - 1; i >= 0; i--) {
+              if (getText(tables[i]) == previousWord) {
+                table = previousWord;
+                break;
+              }
+            }
+          }
+          else if (tables.hasOwnProperty(previousWord)) {
             table = previousWord;
+          }
         }
         if (wordUpperCase !== CONS.ALIAS_KEYWORD) {
           previousWord = word;
@@ -187,7 +249,7 @@
   CodeMirror.registerHelper("hint", "sql", function(editor, options) {
     tables = (options && options.tables) || {};
     var defaultTableName = options && options.defaultTable;
-    defaultTable = (defaultTableName && tables[defaultTableName] || []);
+    defaultTable = (defaultTableName && getItem(tables, defaultTableName)) || [];
     keywords = keywords || getKeywords(editor);
 
     var cur = editor.getCursor();
