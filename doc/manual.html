@@ -1976,8 +1976,11 @@ editor.setOption("extraKeys", {
       <dt id="focus"><code><strong>cm.focus</strong>()</code></dt>
       <dd>Give the editor focus.</dd>
 
-      <dt id="getInputField"><code><strong>cm.getInputField</strong>() → TextAreaElement</code></dt>
-      <dd>Returns the hidden textarea used to read input.</dd>
+      <dt id="getInputField"><code><strong>cm.getInputField</strong>() → Element</code></dt>
+      <dd>Returns the input field for the editor. Will be a textarea
+      or an editable div, depending on the value of
+      the <a href="#option_inputStyle"><code>inputStyle</code></a>
+      option.</dd>
       <dt id="getWrapperElement"><code><strong>cm.getWrapperElement</strong>() → Element</code></dt>
       <dd>Returns the DOM node that represents the editor, and
       controls its size. Remove this from your tree to delete an
