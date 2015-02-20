@@ -14,6 +14,13 @@
     "schema.countries": ["name", "population", "size"]
   };
 
+  var displayTextTables = [{
+    text: "mytable",
+    displayText: "mytable | The main table",
+    columns: [{text: "id", displayText: "id | Unique ID"},
+              {text: "name", displayText: "name | The name"}]
+  }];
+
   namespace = "sql-hint_";
 
   function test(name, spec) {
@@ -21,8 +28,8 @@
       cm.setValue(spec.value);
       cm.setCursor(spec.cursor);
       var completion = CodeMirror.hint.sql(cm, {tables: spec.tables});
-      if (!isEqList(completion.list, spec.list))
-        throw new Failure("Wrong completion results " + completion.list + " vs " + spec.list);
+      if (!deepCompare(completion.list, spec.list))
+        throw new Failure("Wrong completion results " + JSON.stringify(completion.list) + " vs " + JSON.stringify(spec.list));
       eqPos(completion.from, spec.from);
       eqPos(completion.to, spec.to);
     }, {
@@ -133,13 +140,31 @@
     to: Pos(0, 24)
   });
 
-  function isEqList(list1, list2) {
-    if (list1.length != list2.length)
+  test("displayText_table", {
+    value: "SELECT myt",
+    cursor: Pos(0, 10),
+    tables: displayTextTables,
+    list: displayTextTables,
+    from: Pos(0, 7),
+    to: Pos(0, 10)
+  });
+
+  test("displayText_column", {
+    value: "SELECT mytable.",
+    cursor: Pos(0, 15),
+    tables: displayTextTables,
+    list: [{text: "mytable.id", displayText: "id | Unique ID"},
+           {text: "mytable.name", displayText: "name | The name"}],
+    from: Pos(0, 7),
+    to: Pos(0, 15)
+  });
+
+  function deepCompare(a, b) {
+    if (!a || typeof a != "object")
+      return a === b;
+    if (!b || typeof b != "object")
       return false;
-    for (var i = list1.length; i--;) {
-      if (list1[i] !== list2[i])
-        return false;
-    }
+    for (var prop in a) if (!deepCompare(a[prop], b[prop])) return false;
     return true;
   }
 })();

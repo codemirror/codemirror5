@@ -27,30 +27,19 @@
   }
 
   function getText(item) {
-    if (typeof item == 'string') {
-      return item;
-    }
-    return item.text;
+    return typeof item == "string" ? item : item.text;
   }
 
   function getItem(list, item) {
-    if (Array.isArray(list)) {
-      for (var i = list.length - 1; i >= 0; i--) {
-        if (getText(list[i]) == item) {
-          return list[i];
-        }
-      }
-    }
-    return list[item];
+    if (!list.slice) return list[item];
+    for (var i = list.length - 1; i >= 0; i--) if (getText(list[i]) == item)
+      return list[i];
   }
 
   function shallowClone(object) {
     var result = {};
-    for (var key in object) {
-      if (object.hasOwnProperty(key)) {
-        result[key] = object[key];
-      }
-    }
+    for (var key in object) if (object.hasOwnProperty(key))
+      result[key] = object[key];
     return result;
   }
 
@@ -81,21 +70,13 @@
   }
 
   function insertBackticks(name) {
-    var nameParts = [];
-    if (typeof name == "string") {
-      nameParts = name.split(".");
-    }
-    else if (typeof name.text == "string") {
-      nameParts = name.text.split(".");
-    }
-    nameParts = nameParts.map(function(w) {return "`" + w + "`";}).join(".");
-    if (typeof name == "string") {
-      return nameParts;
-    }
-    if (typeof name.text == "string") {
-      name = shallowClone(name);
-      name.text = nameParts;
-    }
+    var nameParts = getText(name).split(".");
+    for (var i = 0; i < nameParts.length; i++)
+      nameParts[i] = "`" + nameParts[i] + "`";
+    var escaped = nameParts.join(".");
+    if (typeof name == "string") return escaped;
+    name = shallowClone(name);
+    name.text = escaped;
     return name;
   }
 
@@ -122,45 +103,35 @@
     // Try to complete table names
     var string = nameParts.join(".");
     addMatches(result, string, tables, function(w) {
-      if (useBacktick) {
-        return insertBackticks(w);
-      }
-      return w;
+      return useBacktick ? insertBackticks(w) : w;
     });
 
     // Try to complete columns from defaultTable
     addMatches(result, string, defaultTable, function(w) {
-      if (useBacktick) {
-        return insertBackticks(w);
-      }
-      return w;
+      return useBacktick ? insertBackticks(w) : w;
     });
 
     // Try to complete columns
     string = nameParts.pop();
     var table = nameParts.join(".");
 
-    //Check if table is available. If not, find table by Alias
-    if (!getItem(tables, table)) {
+    // Check if table is available. If not, find table by Alias
+    if (!getItem(tables, table))
       table = findTableByAlias(table, editor);
-    }
+
     var columns = getItem(tables, table);
-    if (columns && Array.isArray(tables) && columns.columns) {
+    if (columns && Array.isArray(tables) && columns.columns)
       columns = columns.columns;
-    }
+
     if (columns) {
       addMatches(result, string, columns, function(w) {
         if (typeof w == "string") {
           w = table + "." + w;
-        }
-        else {
+        } else {
           w = shallowClone(w);
           w.text = table + "." + w.text;
         }
-        if (useBacktick) {
-          return insertBackticks(w);
-        }
-        return w;
+        return useBacktick ? insertBackticks(w) : w;
       });
     }
 
@@ -224,22 +195,10 @@
       var lineText = query[i];
       eachWord(lineText, function(word) {
         var wordUpperCase = word.toUpperCase();
-        if (wordUpperCase === aliasUpperCase) {
-          if (Array.isArray(tables)) {
-            for (var i = tables.length - 1; i >= 0; i--) {
-              if (getText(tables[i]) == previousWord) {
-                table = previousWord;
-                break;
-              }
-            }
-          }
-          else if (tables.hasOwnProperty(previousWord)) {
-            table = previousWord;
-          }
-        }
-        if (wordUpperCase !== CONS.ALIAS_KEYWORD) {
+        if (wordUpperCase === aliasUpperCase && getItem(tables, previousWord))
+          table = previousWord;
+        if (wordUpperCase !== CONS.ALIAS_KEYWORD)
           previousWord = word;
-        }
       });
       if (table) break;
     }
