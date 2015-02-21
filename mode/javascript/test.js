@@ -61,6 +61,12 @@
      "    [keyword yield] [variable-2 i];",
      "}");
 
+  MT("quotedStringAddition",
+     "[keyword let] [variable f] [operator =] [variable a] [operator +] [string 'fatarrow'] [operator +] [variable c];");
+
+  MT("quotedFatArrow",
+     "[keyword let] [variable f] [operator =] [variable a] [operator +] [string '=>'] [operator +] [variable c];");
+
   MT("fatArrow",
      "[variable array].[property filter]([def a] [operator =>] [variable-2 a] [operator +] [number 1]);",
      "[variable a];", // No longer in scope
@@ -146,6 +152,13 @@
 
   MT("scary_regexp",
      "[string-2 /foo[[/]]bar/];");
+
+  MT("indent_strange_array",
+     "[keyword var] [variable x] [operator =] [[",
+     "  [number 1],,",
+     "  [number 2],",
+     "]];",
+     "[number 10];");
 
   var jsonld_mode = CodeMirror.getMode(
     {indentUnit: 2},

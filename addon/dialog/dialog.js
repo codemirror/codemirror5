@@ -56,7 +56,10 @@
 
     var inp = dialog.getElementsByTagName("input")[0], button;
     if (inp) {
-      if (options.value) inp.value = options.value;
+      if (options.value) {
+        inp.value = options.value;
+        inp.select();
+      }
 
       if (options.onInput)
         CodeMirror.on(inp, "input", function(e) { options.onInput(e, inp.value, close);});
@@ -70,7 +73,7 @@
           CodeMirror.e_stop(e);
           close();
         }
-        if (e.keyCode == 13) callback(inp.value);
+        if (e.keyCode == 13) callback(inp.value, e);
       });
 
       if (options.closeOnBlur !== false) CodeMirror.on(inp, "blur", close);

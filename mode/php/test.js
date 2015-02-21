@@ -145,4 +145,10 @@
      '[keyword echo] ' + m3[2] + ';',
      '[keyword echo] [string "end"];',
      '[meta ?>]');
+
+  MT("variable_interpolation_heredoc",
+     "[meta <?php]",
+     "[string <<<here]",
+     "[string doc ][variable-2 $]{[variable yay]}[string more]",
+     "[string here]; [comment // normal]");
 })();

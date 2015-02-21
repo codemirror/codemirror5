@@ -190,7 +190,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
 
     indent: function(state, textAfter) {
       var cx = state.context;
-      if (!cx) return 0;
+      if (!cx) return CodeMirror.Pass;
       var closing = textAfter.charAt(0) == cx.type;
       if (cx.align) return cx.col + (closing ? 0 : 1);
       else return cx.indent + (closing ? 0 : config.indentUnit);
@@ -367,8 +367,6 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
 
   keywords:
     A list of keywords you want to be highlighted.
-  functions:
-    A list of function names you want to be highlighted.
   builtin:
     A list of builtin types you want to be highlighted (if you want types to be of class "builtin" instead of "keyword").
   operatorChars:

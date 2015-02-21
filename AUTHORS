@@ -2,6 +2,7 @@ List of CodeMirror contributors. Updated before every release.
 
 4r2r
 Aaron Brooks
+Abdelouahab
 Abe Fettig
 Adam Ahmed
 Adam King
@@ -23,6 +24,7 @@ Alexander Solovyov
 Alexandre Bique
 alexey-k
 Alex Piggott
+Aliaksei Chapyzhenka
 Amsul
 amuntean
 Amy
@@ -31,15 +33,18 @@ anaran
 AndersMad
 Anders Nawroth
 Anderson Mesquita
+Andrea G
 Andreas Reischuck
 Andre von Houck
 Andrey Fedorov
+Andrey Klyuchnikov
 Andrey Lushnikov
 Andy Joslin
 Andy Kimball
 Andy Li
 angelozerr
 angelo.zerr@gmail.com
+Ankit
 Ankit Ahuja
 Ansel Santosa
 Anthony Grimes
@@ -61,6 +66,7 @@ Billy Moon
 binny
 B Krishna Chaitanya
 Blaine G
+blukat29
 boomyjee
 borawjm
 Brandon Frohs
@@ -76,6 +82,8 @@ Chris Coyier
 Chris Granger
 Chris Houseknecht
 Chris Morgan
+Christian Oyarzun
+Christian Petrov
 Christopher Brown
 ciaranj
 CodeAnimal
@@ -83,6 +91,8 @@ ComFreek
 Curtis Gagliardi
 dagsta
 daines
+Dale Jung
+Dan Bentley
 Dan Heberden
 Daniel, Dao Quang Minh
 Daniele Di Sarli
@@ -92,13 +102,18 @@ Daniel KJ
 Daniel Neel
 Daniel Parnell
 Danny Yoo
+darealshinji
 Darius Roberts
 Dave Myers
 David Mignot
 David Pathakjee
+David Vázquez
 deebugger
 Deep Thought
+Devon Carew
 dignifiedquire
+Dimage Sapelkin
+Dmitry Kiselyov
 domagoj412
 Dominator008
 Domizio Demichelis
@@ -127,19 +142,24 @@ flack
 ForbesLindesay
 Forbes Lindesay
 Ford_Lawnmower
+Forrest Oliphant
 Frank Wiegand
+Gabriel Gheorghian
 Gabriel Horner
 Gabriel Nahmias
 galambalazs
 Gautam Mehta
 gekkoe
+Gerard Braad
 Gergely Hegykozi
+Giovanni Calò
 Glenn Jorde
 Glenn Ruehle
 Golevka
 Gordon Smith
 Grant Skinner
 greengiant
+Gregory Koberger
 Guillaume Massé
 Guillaume Massé
 Gustavo Rodrigues
@@ -147,6 +167,7 @@ Hakan Tunc
 Hans Engel
 Hardest
 Hasan Karahan
+Herculano Campos
 Hiroyuki Makino
 hitsthings
 Hocdoc
@@ -163,6 +184,7 @@ Ivan Kurnosov
 Jacob Lee
 Jakob Miland
 Jakub Vrana
+Jakub Vrána
 James Campos
 James Thorne
 Jamie Hill
@@ -171,7 +193,9 @@ jankeromnes
 Jan Keromnes
 Jan Odvarko
 Jan T. Sott
+Jared Forsyth
 Jason
+Jason Barnabe
 Jason Grout
 Jason Johnston
 Jason San Jose
@@ -181,6 +205,7 @@ Jean Boussier
 jeffkenton
 Jeff Pickhardt
 jem (graphite)
+Jeremy Parmenter
 Jochen Berger
 Johan Ask
 John Connor
@@ -190,6 +215,7 @@ John Van Der Loo
 Jonathan Malmaud
 jongalloway
 Jon Malmaud
+Jon Sangster
 Joost-Wim Boekesteijn
 Joseph Pecoraro
 Joshua Newman
@@ -199,11 +225,13 @@ jsoojeon
 Juan Benavides Romero
 Jucovschi Constantin
 Juho Vuori
+Justin Hileman
 jwallers@gmail.com
 kaniga
 Ken Newman
 Ken Rockot
 Kevin Sawicki
+Kevin Ushey
 Klaus Silveira
 Koh Zi Han, Cliff
 komakino
@@ -211,16 +239,20 @@ Konstantin Lopuhin
 koops
 ks-ifware
 kubelsmieci
+KwanEsq
+Lanfei
 Lanny
 Laszlo Vidacs
 leaf corcoran
 Leonid Khachaturov
+Leon Sorokin
 Leonya Khachaturov
 Liam Newman
 LM
 lochel
 Lorenzo Stoakes
 Luciano Longo
+Luke Stagner
 lynschinzer
 Maksim Lin
 Maksym Taran
@@ -231,7 +263,9 @@ Marcel Gerber
 Marco Aurélio
 Marco Munizaga
 Marcus Bointon
+Marek Rudnicki
 Marijn Haverbeke
+Mário Gonçalves
 Mario Pietsch
 Mark Lentczner
 Marko Bonaci
@@ -243,6 +277,7 @@ Mateusz Paprocki
 Mathias Bynens
 mats cronqvist
 Matthew Beale
+Matthias Bussonnier
 Matthias BUSSONNIER
 Matt McDonald
 Matt Pass
@@ -251,6 +286,7 @@ mauricio
 Maximilian Hils
 Maxim Kraev
 Max Kirsch
+Max Xiantu
 mbarkhau
 Metatheos
 Micah Dubinko
@@ -258,6 +294,7 @@ Michael Lehenbauer
 Michael Zhou
 Mighty Guava
 Miguel Castillo
+mihailik
 Mike
 Mike Brevoort
 Mike Diaz
@@ -267,6 +304,7 @@ MinRK
 Miraculix87
 misfo
 mloginov
+Moritz Schwörer
 mps
 mtaran-google
 Narciso Jaramillo
@@ -274,21 +312,27 @@ Nathan Williams
 ndr
 nerbert
 nextrevision
+ngn
 nguillaumin
 Ng Zhi An
 Nicholas Bollweg
+Nicholas Bollweg (Nick)
 Nick Small
 Niels van Groningen
+nightwing
 Nikita Beloglazov
 Nikita Vasilyev
 Nikolay Kostov
 nilp0inter
+Nisarg Jhaveri
 nlwillia
+Norman Rzepka
 pablo
 Page
 Panupong Pasupat
 paris
 Patil Arpith
+Patrick Stoica
 Patrick Strawderman
 Paul Garvin
 Paul Ivanov
@@ -303,10 +347,14 @@ prasanthj
 Prasanth J
 Radek Piórkowski
 Rahul
+Randall Mason
+Randy Burden
 Randy Edmunds
 Rasmus Erik Voel Jensen
+Ray Ratchup
 Richard van der Meer
 Richard Z.H. Wang
+Robert Crossfield
 Roberto Abdelkader Martínez Pérez
 robertop23
 Robert Plummer
@@ -322,6 +370,7 @@ satchmorun
 sathyamoorthi
 SCLINIC\jdecker
 Scott Aikin
+Scott Goodhew
 Sebastian Zaha
 shaund
 shaun gilchrist
@@ -330,6 +379,7 @@ sheopory
 Shiv Deepak
 Shmuel Englard
 Shubham Jain
+silverwind
 snasa
 soliton4
 sonson
@@ -344,6 +394,7 @@ stoskov
 Taha Jahangir
 Takuji Shimokawa
 Tarmil
+tel
 tfjgeorge
 Thaddee Tyl
 TheHowl
@@ -369,13 +420,17 @@ Vincent Woo
 Volker Mische
 wenli
 Wesley Wiser
+Will Binns-Smith
 William Jamieson
 William Stein
+Willy
 Wojtek Ptak
 Xavier Mendez
+Yassin N. Hassan
 YNH Webdev
 Yunchi Luo
 Yuvi Panda
 Zachary Dremann
+Zhang Hao
 zziuni
 魏鹏刚

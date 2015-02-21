@@ -71,7 +71,7 @@ CodeMirror.defineMode("go", function(config) {
       stream.eatWhile(isOperatorChar);
       return "operator";
     }
-    stream.eatWhile(/[\w\$_]/);
+    stream.eatWhile(/[\w\$_\xa1-\uffff]/);
     var cur = stream.current();
     if (keywords.propertyIsEnumerable(cur)) {
       if (cur == "case" || cur == "default") curPunc = "case";
@@ -117,6 +117,7 @@ CodeMirror.defineMode("go", function(config) {
     return state.context = new Context(state.indented, col, type, null, state.context);
   }
   function popContext(state) {
+    if (!state.context.prev) return;
     var t = state.context.type;
     if (t == ")" || t == "]" || t == "}")
       state.indented = state.context.indented;

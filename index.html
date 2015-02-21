@@ -21,7 +21,7 @@
 </style>
 
 <div id=nav>
-  <a href="http://codemirror.net"><img id=logo src="doc/logo.png"></a>
+  <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="doc/logo.png"></a>
 
   <ul>
     <li><a class=active data-default="true" href="#description">Home</a>
@@ -40,7 +40,7 @@
 <section id=description class=first>
   <p><strong>CodeMirror</strong> is a versatile text editor
   implemented in JavaScript for the browser. It is specialized for
-  editing code, and comes with a number of language modes and addons
+  editing code, and comes with a number of <a href="mode/index.html">language modes</a> and <a href="doc/manual.html#addons">addons</a>
   that implement more advanced editing functionality.</p>
 
   <p>A rich <a href="doc/manual.html#api">programming API</a> and a
@@ -57,7 +57,7 @@
 <script src="lib/codemirror.js"></script>
 <script>
   var editor = CodeMirror.fromTextArea(myTextarea, {
-    mode: "text/html"
+    lineNumbers: true
   });
 </script></textarea>
   <select id="demolist" onchange="document.location = this.options[this.selectedIndex].value;">
@@ -75,6 +75,7 @@
     <option value="demo/tern.html">Tern integration</option>
     <option value="demo/merge.html">Merge/diff interface</option>
     <option value="demo/fullscreen.html">Full-screen editor</option>
+    <option value="demo/simplescrollbars.html">Custom scrollbars</option>
   </select></form>
   <script>
     var editor = CodeMirror.fromTextArea(document.getElementById("demotext"), {
@@ -83,46 +84,42 @@
       matchBrackets: true
     });
   </script>
-  <div style="position: relative; margin: 1em 0;">
-    <a class="bigbutton left" href="http://codemirror.net/codemirror.zip">DOWNLOAD LATEST RELEASE</a>
-    <div><strong>version 4.6</strong> (<a href="doc/releases.html">Release notes</a>)</div>
-    <div>or use the <a href="doc/compress.html">minification helper</a></div>
-    <div style="position: absolute; top: 0; right: 0; text-align: right">
-      <span class="bigbutton right" onclick="document.getElementById('paypal').submit();">DONATE WITH PAYPAL</span>
-      <div style="position: relative">
-        or <span onclick="document.getElementById('bankinfo').style.display = 'block';" class=quasilink>Bank</span>,
-        <span onclick="document.getElementById('bcinfo').style.display = 'block';" class=quasilink>Bitcoin</span>,
-        <a href="https://www.gittip.com/marijnh">Gittip</a>,
-        <a href="https://flattr.com/profile/marijnh">Flattr</a><br>
-        <div id=bankinfo class=bankinfo>
-          <span class=bankinfo_close onclick="document.getElementById('bankinfo').style.display = '';">×</span>
-          Bank: <i>Rabobank</i><br/>
-          Country: <i>Netherlands</i><br/>
-          SWIFT: <i>RABONL2U</i><br/>
-          Account: <i>147850770</i><br/>
-          Name: <i>Marijn Haverbeke</i><br/>
-          IBAN: <i>NL26 RABO 0147 8507 70</i>
-        </div>
-        <div id=bcinfo class=bankinfo>
-          <span class=bankinfo_close onclick="document.getElementById('bcinfo').style.display = '';">×</span>
-          Bitcoin address: 1HVnnU8E9yLPeFyNgNtUPB5deXBvUmZ6Nx
-        </div>
-        <form action="https://www.paypal.com/cgi-bin/webscr" method="post" id="paypal">
-          <input type="hidden" name="cmd" value="_s-xclick"/>
-          <input type="hidden" name="hosted_button_id" value="3FVHS5FGUY7CC"/>
-        </form>
+
+  <div class=actions>
+    <div class=actionspicture>
+      <img src="doc/yinyang.png" class=yinyang>
+      <div class="actionlink download">
+        <a href="http://codemirror.net/codemirror.zip">DOWNLOAD</a>
       </div>
-      <div>
-        Purchase <a href="http://codemirror.com">commercial support</a>
+      <div class="actionlink fund">
+        <a href="https://marijnhaverbeke.nl/fund/">FUND</a>
       </div>
     </div>
+    <div class=actionsleft>
+      Get the current version: <a href="http://codemirror.net/codemirror.zip">5.0</a>.<br>
+      You can see the <a href="https://github.com/codemirror/codemirror" title="Github repository">code</a> or<br>
+      read the <a href="doc/releases.html">release notes</a>.<br>
+      There is a <a href="doc/compress.html">minification helper</a>.
+    </div>
+    <div class=actionsright>
+      Software needs maintenance,<br>
+      maintainers need to subsist.<br>
+      Current funding status = <img src="https://marijnhaverbeke.nl/fund/status_s.png" title="Current maintainer happiness" style="vertical-align: middle; height: 16px; width: 16px"><br>
+      You can help <a href="https://marijnhaverbeke.nl/fund/" title="Set up a monthly contribution">per month</a> or
+      <a title="Donate with Paypal" href="javascript:document.getElementById('paypal').submit();">once</a>.
+      <form action="https://www.paypal.com/cgi-bin/webscr" method="post" id="paypal">
+        <input type="hidden" name="cmd" value="_s-xclick"/>
+        <input type="hidden" name="hosted_button_id" value="3FVHS5FGUY7CC"/>
+      </form>
+    </div>
   </div>
+  
 </section>
 
 <section id=features>
   <h2>Features</h2>
   <ul>
-    <li>Support for <a href="mode/index.html">over 60 languages</a> out of the box
+    <li>Support for <a href="mode/index.html">over 90 languages</a> out of the box
     <li>A powerful, <a href="mode/htmlmixed/index.html">composable</a> language mode <a href="doc/manual.html#modeapi">system</a>
     <li><a href="doc/manual.html#addon_show-hint">Autocompletion</a> (<a href="demo/xmlcomplete.html">XML</a>)
     <li><a href="doc/manual.html#addon_foldcode">Code folding</a>
@@ -165,7 +162,7 @@
   license that CodeMirror uses.</p>
 
   <p>Discussion around the project is done on
-  a <a href="http://groups.google.com/group/codemirror">mailing list</a>.
+  a <a href="http://discuss.codemirror.net">discussion forum</a>.
   There is also
   the <a href="http://groups.google.com/group/codemirror-announce">codemirror-announce</a>
   list, which is only used for major announcements (such as new
@@ -182,7 +179,7 @@
 <section id=browsersupport>
   <h2>Browser support</h2>
   <p>The <em>desktop</em> versions of the following browsers,
-  in <em>standards mode</em> (HTML5 <code>&lt;!doctype html></code>
+  in <em>standards mode</em> (HTML5 <code>&lt;!doctype html></code>
   recommended) are supported:</p>
   <table style="margin-bottom: 1em">
     <tr><th>Firefox</th><td>version 4 and up</td></tr>
@@ -191,9 +188,9 @@
     <tr><th style="padding-right: 1em;">Internet Explorer</th><td>version 8 and up</td></tr>
     <tr><th>Opera</th><td>version 9 and up</td></tr>
   </table>
-  <p>Modern mobile browsers tend to partly work. Bug reports and
-  patches for mobile support are welcome, but the maintainer does not
-  have the time or budget to actually work on it himself.</p>
+  <p>Support for modern mobile browsers is experimental. Recent
+  versions of the iOS browser and Chrome on Android should work
+  pretty well.</p>
 </section>
 
 </article>

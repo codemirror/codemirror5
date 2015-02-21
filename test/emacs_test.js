@@ -128,6 +128,9 @@
   sim("clearMark", "abcde", Pos(0, 2), "Ctrl-Space", "Ctrl-F", "Ctrl-F",
       "Ctrl-G", "Ctrl-W", txt("abcde"));
 
+  sim("delRegion", "abcde", "Ctrl-Space", "Ctrl-F", "Ctrl-F", "Delete", txt("cde"));
+  sim("backspaceRegion", "abcde", "Ctrl-Space", "Ctrl-F", "Ctrl-F", "Backspace", txt("cde"));
+
   testCM("save", function(cm) {
     var saved = false;
     CodeMirror.commands.save = function(cm) { saved = cm.getValue(); };

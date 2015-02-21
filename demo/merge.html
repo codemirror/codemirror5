@@ -8,10 +8,17 @@
 <link rel=stylesheet href="../addon/merge/merge.css">
 <script src="../lib/codemirror.js"></script>
 <script src="../mode/xml/xml.js"></script>
+<script src="../mode/css/css.js"></script>
+<script src="../mode/javascript/javascript.js"></script>
+<script src="../mode/htmlmixed/htmlmixed.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/diff_match_patch/20121119/diff_match_patch.js"></script>
 <script src="../addon/merge/merge.js"></script>
 <style>
     .CodeMirror { line-height: 1.2; }
+    @media screen and (min-width: 1300px) {
+      article { max-width: 1000px; }
+      #nav { border-right: 499px solid transparent; }
+    }
     span.clicky {
       cursor: pointer;
       background: #d70;
@@ -21,7 +28,7 @@
     }
   </style>
 <div id=nav>
-  <a href="http://codemirror.net"><img id=logo src="../doc/logo.png"></a>
+  <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../doc/logo.png"></a>
 
   <ul>
     <li><a href="../index.html">Home</a>
@@ -41,18 +48,24 @@
 
 <p>The <a href="../doc/manual.html#addon_merge"><code>merge</code></a>
 addon provides an interface for displaying and merging diffs,
-either <span class=clicky onclick="initUI(2)">two-way</span>
-or <span class=clicky onclick="initUI(3)">three-way</span>. The left
-(or center) pane is editable, and the differences with the other
-pane(s) are <span class=clicky onclick="toggleDifferences()">optionally</span> shown live as you edit it.</p>
+either <span class=clicky onclick="panes = 2; initUI()">two-way</span>
+or <span class=clicky onclick="panes = 3; initUI()">three-way</span>.
+The left (or center) pane is editable, and the differences with the
+other pane(s) are <span class=clicky
+onclick="toggleDifferences()">optionally</span> shown live as you edit
+it. In the two-way configuration, there are also options to pad changed
+sections to <span class=clicky onclick="connect = connect ? null :
+'align'; initUI()">align</span> them, and to <span class=clicky
+onclick="collapse = !collapse; initUI()">collapse</span> unchanged
+stretches of text.</p>
 
 <p>This addon depends on
 the <a href="https://code.google.com/p/google-diff-match-patch/">google-diff-match-patch</a>
 library to compute the diffs.</p>
 
 <script>
-var value, orig1, orig2, dv, hilight= true;
-function initUI(panes) {
+var value, orig1, orig2, dv, panes = 2, highlight = true, connect = null, collapse = false;
+function initUI() {
   if (value == null) return;
   var target = document.getElementById("view");
   target.innerHTML = "";
@@ -62,20 +75,22 @@ function initUI(panes) {
     orig: orig2,
     lineNumbers: true,
     mode: "text/html",
-    highlightDifferences: hilight
+    highlightDifferences: highlight,
+    connect: connect,
+    collapseIdentical: collapse
   });
 }
 
 function toggleDifferences() {
-  dv.setShowDifferences(hilight = !hilight);
+  dv.setShowDifferences(highlight = !highlight);
 }
 
 window.onload = function() {
   value = document.documentElement.innerHTML;
-  orig1 = value.replace(/\.\.\//g, "codemirror/").replace("yellow", "orange");
+  orig1 = "<!doctype html>\n\n" + value.replace(/\.\.\//g, "codemirror/").replace("yellow", "orange");
   orig2 = value.replace(/\u003cscript/g, "\u003cscript type=text/javascript ")
     .replace("white", "purple;\n      font: comic sans;\n      text-decoration: underline;\n      height: 15em");
-  initUI(2);
+  initUI();
 };
 
 function mergeViewHeight(mergeView) {

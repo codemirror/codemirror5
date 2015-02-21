@@ -4,10 +4,7 @@
   /* Set height, width, borders, and global font properties here */
   font-family: monospace;
   height: 300px;
-}
-.CodeMirror-scroll {
-  /* Set scrolling behaviour here */
-  overflow: auto;
+  color: black;
 }
 
 /* PADDING */
@@ -52,12 +49,12 @@
 .CodeMirror div.CodeMirror-secondarycursor {
   border-left: 1px solid silver;
 }
-.CodeMirror.cm-keymap-fat-cursor div.CodeMirror-cursor {
+.CodeMirror.cm-fat-cursor div.CodeMirror-cursor {
   width: auto;
   border: 0;
   background: #7e7;
 }
-.CodeMirror.cm-keymap-fat-cursor div.CodeMirror-cursors {
+.CodeMirror.cm-fat-cursor div.CodeMirror-cursors {
   z-index: 1;
 }
 
@@ -87,7 +84,7 @@
 /* Can style cursor different in overwrite (non-insert) mode */
 div.CodeMirror-overwrite div.CodeMirror-cursor {}
 
-.cm-tab { display: inline-block; }
+.cm-tab { display: inline-block; text-decoration: inherit; }
 
 .CodeMirror-ruler {
   border-left: 1px solid #ccc;
@@ -125,6 +122,7 @@ div.CodeMirror-overwrite div.CodeMirror-cursor {}
 .cm-header, .cm-strong {font-weight: bold;}
 .cm-em {font-style: italic;}
 .cm-link {text-decoration: underline;}
+.cm-strikethrough {text-decoration: line-through;}
 
 .cm-s-default .cm-error {color: #f00;}
 .cm-invalidchar {color: #f00;}
@@ -142,14 +140,13 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
    the editor. You probably shouldn't touch them. */
 
 .CodeMirror {
-  line-height: 1;
   position: relative;
   overflow: hidden;
   background: white;
-  color: black;
 }
 
 .CodeMirror-scroll {
+  overflow: scroll !important; /* Things will break if this is overridden */
   /* 30px is the magic margin used to hide the element's real scrollbars */
   /* See overflow: hidden in .CodeMirror */
   margin-bottom: -30px; margin-right: -30px;
@@ -194,7 +191,6 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
 
 .CodeMirror-gutters {
   position: absolute; left: 0; top: 0;
-  padding-bottom: 30px;
   z-index: 3;
 }
 .CodeMirror-gutter {
@@ -202,17 +198,26 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
   height: 100%;
   -moz-box-sizing: content-box;
   box-sizing: content-box;
-  padding-bottom: 30px;
-  margin-bottom: -32px;
   display: inline-block;
+  margin-bottom: -30px;
   /* Hack to make IE7 behave */
   *zoom:1;
   *display:inline;
+}
+.CodeMirror-gutter-wrapper {
+  position: absolute;
+  z-index: 4;
+  height: 100%;
 }
 .CodeMirror-gutter-elt {
   position: absolute;
   cursor: default;
   z-index: 4;
+}
+.CodeMirror-gutter-wrapper {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
 }
 
 .CodeMirror-lines {
@@ -234,6 +239,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
   z-index: 2;
   position: relative;
   overflow: visible;
+  -webkit-tap-highlight-color: transparent;
 }
 .CodeMirror-wrap pre {
   word-wrap: break-word;
@@ -255,8 +261,8 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
 
 .CodeMirror-widget {}
 
-.CodeMirror-wrap .CodeMirror-scroll {
-  overflow-x: hidden;
+.CodeMirror-code {
+  outline: none;
 }
 
 .CodeMirror-measure {
@@ -286,6 +292,8 @@ div.CodeMirror-cursors {
 .CodeMirror-selected { background: #d9d9d9; }
 .CodeMirror-focused .CodeMirror-selected { background: #d7d4f0; }
 .CodeMirror-crosshair { cursor: crosshair; }
+.CodeMirror ::selection { background: #d7d4f0; }
+.CodeMirror ::-moz-selection { background: #d7d4f0; }
 
 .cm-searching {
   background: #ffa;
@@ -304,6 +312,9 @@ div.CodeMirror-cursors {
     visibility: hidden;
   }
 }
+
+/* See issue #2901 */
+.cm-tab-wrap-hack:after { content: ''; }
 
 /* Help users use markselection to safely style text background */
 span.CodeMirror-selectedtext { background: none; }

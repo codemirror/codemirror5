@@ -1,6 +1,8 @@
 /node_modules
 /npm-debug.log
-test.html
+/test*.html
 .tern-*
 *~
 *.swp
+.idea
+*.iml

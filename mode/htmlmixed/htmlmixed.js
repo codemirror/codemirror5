@@ -69,7 +69,7 @@ CodeMirror.defineMode("htmlmixed", function(config, parserConfig) {
     if (stream.match(/^<\/\s*script\s*>/i, false)) {
       state.token = html;
       state.localState = state.localMode = null;
-      return html(stream, state);
+      return null;
     }
     return maybeBackup(stream, /<\/\s*script\s*>/,
                        state.localMode.token(stream, state.localState));
@@ -78,7 +78,7 @@ CodeMirror.defineMode("htmlmixed", function(config, parserConfig) {
     if (stream.match(/^<\/\s*style\s*>/i, false)) {
       state.token = html;
       state.localState = state.localMode = null;
-      return html(stream, state);
+      return null;
     }
     return maybeBackup(stream, /<\/\s*style\s*>/,
                        cssMode.token(stream, state.localState));

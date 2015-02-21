@@ -17,7 +17,8 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
       statementIndentUnit = parserConfig.statementIndentUnit || indentUnit,
       dontAlignCalls = parserConfig.dontAlignCalls,
       noIndentKeywords = parserConfig.noIndentKeywords || [],
-      multiLineStrings = parserConfig.multiLineStrings;
+      multiLineStrings = parserConfig.multiLineStrings,
+      hooks = parserConfig.hooks || {};
 
   function words(str) {
     var obj = {}, words = str.split(" ");
@@ -80,7 +81,7 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
   // Block openings which are closed by a matching keyword in the form of ("end" + keyword)
   // E.g. "task" => "endtask"
   var blockKeywords = words(
-    "case checker class clocking config function generate group interface module package" +
+    "case checker class clocking config function generate interface module package" +
     "primitive program property specify sequence table task"
   );
 
@@ -94,11 +95,7 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
   openClose["casez"] = "endcase";
   openClose["do"   ] = "while";
   openClose["fork" ] = "join;join_any;join_none";
-
-  // This is a bit of a hack but will work to not indent after import/epxort statements
-  // as long as the function/task name is on the same line
-  openClose["import"] = "function;task";
-  openClose["export"] = "function;task";
+  openClose["covergroup"] = "endgroup";
 
   for (var i in noIndentKeywords) {
     var keyword = noIndentKeywords[i];
@@ -107,10 +104,15 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
     }
   }
 
-  var statementKeywords = words("always always_comb always_ff always_latch assert assign assume else for foreach forever if initial repeat while");
+  // Keywords which open statements that are ended with a semi-colon
+  var statementKeywords = words("always always_comb always_ff always_latch assert assign assume else export for foreach forever if import initial repeat while");
 
   function tokenBase(stream, state) {
-    var ch = stream.peek();
+    var ch = stream.peek(), style;
+    if (hooks[ch] && (style = hooks[ch](stream, state)) != false) return style;
+    if (hooks.tokenBase && (style = hooks.tokenBase(stream, state)) != false)
+      return style;
+
     if (/[,;:\.]/.test(ch)) {
       curPunc = stream.next();
       return null;
@@ -283,12 +285,14 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
     electricInput: buildElectricInputRegEx(),
 
     startState: function(basecolumn) {
-      return {
+      var state = {
         tokenize: null,
         context: new Context((basecolumn || 0) - indentUnit, 0, "top", false),
         indented: 0,
         startOfLine: true
       };
+      if (hooks.startState) hooks.startState(state);
+      return state;
     },
 
     token: function(stream, state) {
@@ -298,6 +302,7 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
         state.indented = stream.indentation();
         state.startOfLine = true;
       }
+      if (hooks.token) hooks.token(stream, state);
       if (stream.eatSpace()) return null;
       curPunc = null;
       curKeyword = null;
@@ -307,21 +312,31 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
 
       if (curPunc == ctx.type) {
         popContext(state);
-      }
-      else if ((curPunc == ";" && ctx.type == "statement") ||
+      } else if ((curPunc == ";" && ctx.type == "statement") ||
                (ctx.type && isClosing(curKeyword, ctx.type))) {
         ctx = popContext(state);
         while (ctx && ctx.type == "statement") ctx = popContext(state);
-      }
-      else if (curPunc == "{") { pushContext(state, stream.column(), "}"); }
-      else if (curPunc == "[") { pushContext(state, stream.column(), "]"); }
-      else if (curPunc == "(") { pushContext(state, stream.column(), ")"); }
-      else if (ctx && ctx.type == "endcase" && curPunc == ":") { pushContext(state, stream.column(), "statement"); }
-      else if (curPunc == "newstatement") {
+      } else if (curPunc == "{") {
+        pushContext(state, stream.column(), "}");
+      } else if (curPunc == "[") {
+        pushContext(state, stream.column(), "]");
+      } else if (curPunc == "(") {
+        pushContext(state, stream.column(), ")");
+      } else if (ctx && ctx.type == "endcase" && curPunc == ":") {
+        pushContext(state, stream.column(), "statement");
+      } else if (curPunc == "newstatement") {
         pushContext(state, stream.column(), "statement");
       } else if (curPunc == "newblock") {
-        var close = openClose[curKeyword];
-        pushContext(state, stream.column(), close);
+        if (curKeyword == "function" && ctx && (ctx.type == "statement" || ctx.type == "endgroup")) {
+          // The 'function' keyword can appear in some other contexts where it actually does not
+          // indicate a function (import/export DPI and covergroup definitions).
+          // Do nothing in this case
+        } else if (curKeyword == "task" && ctx && ctx.type == "statement") {
+          // Same thing for task
+        } else {
+          var close = openClose[curKeyword];
+          pushContext(state, stream.column(), close);
+        }
       }
 
       state.startOfLine = false;
@@ -330,13 +345,16 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
 
     indent: function(state, textAfter) {
       if (state.tokenize != tokenBase && state.tokenize != null) return CodeMirror.Pass;
+      if (hooks.indent) {
+        var fromHook = hooks.indent(state);
+        if (fromHook >= 0) return fromHook;
+      }
       var ctx = state.context, firstChar = textAfter && textAfter.charAt(0);
       if (ctx.type == "statement" && firstChar == "}") ctx = ctx.prev;
       var closing = false;
       var possibleClosing = textAfter.match(closingBracketOrWord);
-      if (possibleClosing) {
+      if (possibleClosing)
         closing = isClosing(possibleClosing[0], ctx.type);
-      }
       if (ctx.type == "statement") return ctx.indented + (firstChar == "{" ? 0 : statementIndentUnit);
       else if (closingBracket.test(ctx.type) && ctx.align && !dontAlignCalls) return ctx.column + (closing ? 0 : 1);
       else if (ctx.type == ")" && !closing) return ctx.indented + statementIndentUnit;
@@ -349,11 +367,171 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
   };
 });
 
-CodeMirror.defineMIME("text/x-verilog", {
-  name: "verilog"
-});
-CodeMirror.defineMIME("text/x-systemverilog", {
-  name: "systemverilog"
-});
+  CodeMirror.defineMIME("text/x-verilog", {
+    name: "verilog"
+  });
 
+  CodeMirror.defineMIME("text/x-systemverilog", {
+    name: "verilog"
+  });
+
+  // SVXVerilog mode
+
+  var svxchScopePrefixes = {
+    ">": "property", "->": "property", "-": "hr", "|": "link", "?$": "qualifier", "?*": "qualifier",
+    "@-": "variable-3", "@": "variable-3", "?": "qualifier"
+  };
+
+  function svxGenIndent(stream, state) {
+    var svxindentUnit = 2;
+    var rtnIndent = -1, indentUnitRq = 0, curIndent = stream.indentation();
+    switch (state.svxCurCtlFlowChar) {
+    case "\\":
+      curIndent = 0;
+      break;
+    case "|":
+      if (state.svxPrevPrevCtlFlowChar == "@") {
+        indentUnitRq = -2; //-2 new pipe rq after cur pipe
+        break;
+      }
+      if (svxchScopePrefixes[state.svxPrevCtlFlowChar])
+        indentUnitRq = 1; // +1 new scope
+      break;
+    case "M":  // m4
+      if (state.svxPrevPrevCtlFlowChar == "@") {
+        indentUnitRq = -2; //-2 new inst rq after  pipe
+        break;
+      }
+      if (svxchScopePrefixes[state.svxPrevCtlFlowChar])
+        indentUnitRq = 1; // +1 new scope
+      break;
+    case "@":
+      if (state.svxPrevCtlFlowChar == "S")
+        indentUnitRq = -1; // new pipe stage after stmts
+      if (state.svxPrevCtlFlowChar == "|")
+        indentUnitRq = 1; // 1st pipe stage
+      break;
+    case "S":
+      if (state.svxPrevCtlFlowChar == "@")
+        indentUnitRq = 1; // flow in pipe stage
+      if (svxchScopePrefixes[state.svxPrevCtlFlowChar])
+        indentUnitRq = 1; // +1 new scope
+      break;
+    }
+    var statementIndentUnit = svxindentUnit;
+    rtnIndent = curIndent + (indentUnitRq*statementIndentUnit);
+    return rtnIndent >= 0 ? rtnIndent : curIndent;
+  }
+
+  CodeMirror.defineMIME("text/x-svx", {
+    name: "verilog",
+    hooks: {
+      "\\": function(stream, state) {
+        var vxIndent = 0, style = false;
+        var curPunc  = stream.string;
+        if ((stream.sol()) && (/\\SV/.test(stream.string))) {
+          curPunc = (/\\SVX_version/.test(stream.string))
+            ? "\\SVX_version" : stream.string;
+          stream.skipToEnd();
+          if (curPunc == "\\SV" && state.vxCodeActive) {state.vxCodeActive = false;};
+          if ((/\\SVX/.test(curPunc) && !state.vxCodeActive)
+            || (curPunc=="\\SVX_version" && state.vxCodeActive)) {state.vxCodeActive = true;};
+          style = "keyword";
+          state.svxCurCtlFlowChar  = state.svxPrevPrevCtlFlowChar
+            = state.svxPrevCtlFlowChar = "";
+          if (state.vxCodeActive == true) {
+            state.svxCurCtlFlowChar  = "\\";
+            vxIndent = svxGenIndent(stream, state);
+          }
+          state.vxIndentRq = vxIndent;
+        }
+        return style;
+      },
+      tokenBase: function(stream, state) {
+        var vxIndent = 0, style = false;
+        var svxisOperatorChar = /[\[\]=:]/;
+        var svxkpScopePrefixs = {
+          "**":"variable-2", "*":"variable-2", "$$":"variable", "$":"variable",
+          "^^":"attribute", "^":"attribute"};
+        var ch = stream.peek();
+        var vxCurCtlFlowCharValueAtStart = state.svxCurCtlFlowChar;
+        if (state.vxCodeActive == true) {
+          if (/[\[\]{}\(\);\:]/.test(ch)) {
+            // bypass nesting and 1 char punc
+            style = "meta";
+            stream.next();
+          } else if (ch == "/") {
+            stream.next();
+            if (stream.eat("/")) {
+              stream.skipToEnd();
+              style = "comment";
+              state.svxCurCtlFlowChar = "S";
+            } else {
+              stream.backUp(1);
+            }
+          } else if (ch == "@") {
+            // pipeline stage
+            style = svxchScopePrefixes[ch];
+            state.svxCurCtlFlowChar = "@";
+            stream.next();
+            stream.eatWhile(/[\w\$_]/);
+          } else if (stream.match(/\b[mM]4+/, true)) { // match: function(pattern, consume, caseInsensitive)
+            // m4 pre proc
+            stream.skipTo("(");
+            style = "def";
+            state.svxCurCtlFlowChar = "M";
+          } else if (ch == "!" && stream.sol()) {
+            // v stmt in svx region
+            // state.svxCurCtlFlowChar  = "S";
+            style = "comment";
+            stream.next();
+          } else if (svxisOperatorChar.test(ch)) {
+            // operators
+            stream.eatWhile(svxisOperatorChar);
+            style = "operator";
+          } else if (ch == "#") {
+            // phy hier
+            state.svxCurCtlFlowChar  = (state.svxCurCtlFlowChar == "")
+              ? ch : state.svxCurCtlFlowChar;
+            stream.next();
+            stream.eatWhile(/[+-]\d/);
+            style = "tag";
+          } else if (svxkpScopePrefixs.propertyIsEnumerable(ch)) {
+            // special SVX operators
+            style = svxkpScopePrefixs[ch];
+            state.svxCurCtlFlowChar = state.svxCurCtlFlowChar == "" ? "S" : state.svxCurCtlFlowChar;  // stmt
+            stream.next();
+            stream.match(/[a-zA-Z_0-9]+/);
+          } else if (style = svxchScopePrefixes[ch] || false) {
+            // special SVX operators
+            state.svxCurCtlFlowChar = state.svxCurCtlFlowChar == "" ? ch : state.svxCurCtlFlowChar;
+            stream.next();
+            stream.match(/[a-zA-Z_0-9]+/);
+          }
+          if (state.svxCurCtlFlowChar != vxCurCtlFlowCharValueAtStart) { // flow change
+            vxIndent = svxGenIndent(stream, state);
+            state.vxIndentRq = vxIndent;
+          }
+        }
+        return style;
+      },
+      token: function(stream, state) {
+        if (state.vxCodeActive == true && stream.sol() && state.svxCurCtlFlowChar != "") {
+          state.svxPrevPrevCtlFlowChar = state.svxPrevCtlFlowChar;
+          state.svxPrevCtlFlowChar = state.svxCurCtlFlowChar;
+          state.svxCurCtlFlowChar = "";
+        }
+      },
+      indent: function(state) {
+        return (state.vxCodeActive == true) ? state.vxIndentRq : -1;
+      },
+      startState: function(state) {
+        state.svxCurCtlFlowChar = "";
+        state.svxPrevCtlFlowChar = "";
+        state.svxPrevPrevCtlFlowChar = "";
+        state.vxCodeActive = true;
+        state.vxIndentRq = 0;
+      }
+    }
+  });
 });
