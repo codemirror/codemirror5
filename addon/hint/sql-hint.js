@@ -208,8 +208,16 @@
   CodeMirror.registerHelper("hint", "sql", function(editor, options) {
     tables = (options && options.tables) || {};
     var defaultTableName = options && options.defaultTable;
-    defaultTable = (defaultTableName && getItem(tables, defaultTableName)) || [];
+    defaultTable = defaultTableName && getItem(tables, defaultTableName);
     keywords = keywords || getKeywords(editor);
+
+    if (defaultTableName && !defaultTable)
+      defaultTable = findTableByAlias(defaultTableName, editor);
+
+    defaultTable = defaultTable || [];
+
+    if (Array.isArray(tables) && defaultTable.columns)
+      defaultTable = defaultTable.columns;
 
     var cur = editor.getCursor();
     var result = [];
