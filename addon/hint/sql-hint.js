@@ -52,12 +52,9 @@
   function addMatches(result, search, wordlist, formatter) {
     for (var word in wordlist) {
       if (!wordlist.hasOwnProperty(word)) continue;
-      if (Array.isArray(wordlist)) {
-        word = wordlist[word];
-      }
-      if (match(search, word)) {
-        result.push(formatter(word));
-      }
+      if (wordlist.slice) word = wordlist[word];
+
+      if (match(search, word)) result.push(formatter(word));
     }
   }
 
@@ -120,7 +117,7 @@
       table = findTableByAlias(table, editor);
 
     var columns = getItem(tables, table);
-    if (columns && Array.isArray(tables) && columns.columns)
+    if (columns && columns.columns)
       columns = columns.columns;
 
     if (columns) {
@@ -216,7 +213,7 @@
 
     defaultTable = defaultTable || [];
 
-    if (Array.isArray(tables) && defaultTable.columns)
+    if (defaultTable.columns)
       defaultTable = defaultTable.columns;
 
     var cur = editor.getCursor();
