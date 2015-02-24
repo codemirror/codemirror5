@@ -6,6 +6,7 @@
 
 <link rel="stylesheet" href="../../lib/codemirror.css">
 <script src="../../lib/codemirror.js"></script>
+<script src="../xml/xml.js"></script>
 <script src="smarty.js"></script>
 <style type="text/css">.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
 <div id=nav>
@@ -46,17 +47,24 @@
   {/function}
 {/if}</textarea></form>
 
-    <script>
-      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-        lineNumbers: true,
-        mode: "smarty"
-      });
-    </script>
+<p>Mode for Smarty version 2 or 3, which allows for custom delimiter tags.</p>
 
-    <br />
+<p>Several configuration parameters are supported:</p>
 
-	<h3>Smarty 2, custom delimiters</h3>
-    <form><textarea id="code2" name="code2">
+<ul>
+  <li><code>leftDelimiter</code> and <code>rightDelimiter</code>,
+  which should be strings that determine where the Smarty syntax
+  starts and ends.</li>
+  <li><code>version</code>, which should be 2 or 3.</li>
+  <li><code>baseMode</code>, which can be a mode spec
+  like <code>"text/html"</code> to set a different background mode.</li>
+</ul>
+
+<p><strong>MIME types defined:</strong> <code>text/x-smarty</code></p>
+
+<h3>Smarty 2, custom delimiters</h3>
+
+<form><textarea id="code2" name="code2">
 {--extends file="parent.tpl"--}
 {--include file="template.tpl"--}
 
@@ -78,27 +86,14 @@
   {--/function--}
 {--/if--}</textarea></form>
 
-    <script>
-      var editor = CodeMirror.fromTextArea(document.getElementById("code2"), {
-        lineNumbers: true,
-        mode: {
-          name: "smarty",
-          leftDelimiter: "{--",
-          rightDelimiter: "--}"
-        }
-      });
-    </script>
+<h3>Smarty 3</h3>
 
-	<br />
-
-	<h3>Smarty 3</h3>
-
-	<textarea id="code3" name="code3">
+<textarea id="code3" name="code3">
 Nested tags {$foo={counter one=1 two={inception}}+3} are now valid in Smarty 3.
 
 <script>
 function test() {
-	console.log("Smarty 3 permits single curly braces followed by whitespace to NOT slip into Smarty mode.");
+  console.log("Smarty 3 permits single curly braces followed by whitespace to NOT slip into Smarty mode.");
 }
 </script>
 
@@ -121,16 +116,23 @@ Smarty "dot" syntax (note: embedded {} are used to address ambiguities):
 
 {$object->method1($x)->method2($y)}</textarea>
 
-	<script>
-		var editor = CodeMirror.fromTextArea(document.getElementById("code3"), {
-			lineNumbers: true,
-			mode: "smarty",
-			smartyVersion: 3
-		});
-	</script>
+<script>
+var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+  lineNumbers: true,
+  mode: "smarty"
+});
+var editor = CodeMirror.fromTextArea(document.getElementById("code2"), {
+  lineNumbers: true,
+  mode: {
+    name: "smarty",
+    leftDelimiter: "{--",
+    rightDelimiter: "--}"
+  }
+});
+var editor = CodeMirror.fromTextArea(document.getElementById("code3"), {
+  lineNumbers: true,
+  mode: {name: "smarty", version: 3, baseMode: "text/html"}
+});
+</script>
 
-
-    <p>A plain text/Smarty version 2 or 3 mode, which allows for custom delimiter tags.</p>
-
-    <p><strong>MIME types defined:</strong> <code>text/x-smarty</code></p>
-  </article>
+</article>
