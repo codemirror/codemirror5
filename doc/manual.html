@@ -2634,8 +2634,14 @@ editor.setOption("extraKeys", {
       to <code>true</code>, in which
       case <a href="#getHelper"><code>getHelper</code></a> with
       type <code>"lint"</code> is used to determined a validator
-      function. Depends on <code>addon/lint/lint.css</code>. A demo
-      can be found <a href="../demo/lint.html">here</a>.</dd>
+      function. Such a function should, when given a document string
+      and an options object, return an array of <code>{message,
+      severity, from, to}</code> objects representing problems. When
+      the function has an <code>async</code> property with a truthy
+      value, it will be called with an additional second argument,
+      which is a callback to pass the array to. Depends
+      on <code>addon/lint/lint.css</code>. A demo can be
+      found <a href="../demo/lint.html">here</a>.</dd>
 
       <dt id="addon_mark-selection"><a href="../addon/selection/mark-selection.js"><code>selection/mark-selection.js</code></a></dt>
       <dd>Causes the selected text to be marked with the CSS class
