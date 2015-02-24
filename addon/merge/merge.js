@@ -37,7 +37,9 @@
     constructor: DiffView,
     init: function(pane, orig, options) {
       this.edit = this.mv.edit;
+      (this.edit.state.diffViews || (this.edit.state.diffViews = [])).push(this);
       this.orig = CodeMirror(pane, copyObj({value: orig, readOnly: !this.mv.options.allowEditingOriginals}, copyObj(options)));
+      this.orig.state.diffViews = [this];
 
       this.diff = getDiff(asString(orig), asString(options.value));
       this.chunks = getChunks(this.diff);
@@ -732,4 +734,42 @@
   function posMin(a, b) { return (a.line - b.line || a.ch - b.ch) < 0 ? a : b; }
   function posMax(a, b) { return (a.line - b.line || a.ch - b.ch) > 0 ? a : b; }
   function posEq(a, b) { return a.line == b.line && a.ch == b.ch; }
+
+  function findPrevDiff(chunks, start, isOrig) {
+    for (var i = chunks.length - 1; i >= 0; i--) {
+      var chunk = chunks[i];
+      var to = (isOrig ? chunk.origTo : chunk.editTo) - 1;
+      if (to < start) return to;
+    }
+  }
+
+  function findNextDiff(chunks, start, isOrig) {
+    for (var i = 0; i < chunks.length; i++) {
+      var chunk = chunks[i];
+      var from = (isOrig ? chunk.origFrom : chunk.editFrom);
+      if (from > start) return from;
+    }
+  }
+
+  function goNearbyDiff(cm, dir) {
+    var found = null, views = cm.state.diffViews, line = cm.getCursor().line;
+    if (views) for (var i = 0; i < views.length; i++) {
+      var dv = views[i], isOrig = cm == dv.orig;
+      ensureDiff(dv);
+      var pos = dir < 0 ? findPrevDiff(dv.chunks, line, isOrig) : findNextDiff(dv.chunks, line, isOrig);
+      if (pos != null && (found == null || (dir < 0 ? pos > found : pos < found)))
+        found = pos;
+    }
+    if (found != null)
+      cm.setCursor(found, 0);
+    else
+      return CodeMirror.Pass;
+  }
+
+  CodeMirror.commands.goNextDiff = function(cm) {
+    return goNearbyDiff(cm, 1);
+  };
+  CodeMirror.commands.goPrevDiff = function(cm) {
+    return goNearbyDiff(cm, -1);
+  };
 });
