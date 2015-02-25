@@ -118,12 +118,15 @@
   }
 
   function startLinting(cm) {
-    var state = cm.state.lint, options = state.options;
-    var passOptions = options.options || options; // Support deprecated passing of `options` property in options
-    if (options.async || options.getAnnotations.async)
-      options.getAnnotations(cm.getValue(), updateLinting, passOptions, cm);
-    else
-      updateLinting(cm, options.getAnnotations(cm.getValue(), passOptions, cm));
+    var options, state = cm.state.lint;
+    if (state) {
+      options = state.options;
+      var passOptions = options.options || options; // Support deprecated passing of `options` property in options
+      if (options.async || options.getAnnotations.async)
+        options.getAnnotations(cm.getValue(), updateLinting, passOptions, cm);
+      else
+        updateLinting(cm, options.getAnnotations(cm.getValue(), passOptions, cm));
+    }
   }
 
   function updateLinting(cm, annotationsNotSorted) {
@@ -163,8 +166,10 @@
 
   function onChange(cm) {
     var state = cm.state.lint;
-    clearTimeout(state.timeout);
-    state.timeout = setTimeout(function(){startLinting(cm);}, state.options.delay || 500);
+    if (state) {
+      clearTimeout(state.timeout);
+      state.timeout = setTimeout(function(){startLinting(cm);}, state.options.delay || 500);
+    }
   }
 
   function popupSpanTooltip(ann, e) {
