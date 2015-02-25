@@ -13,7 +13,7 @@
 .cm-s-mdn-like.CodeMirror ::-moz-selection { background: #cfc; }
 
 .cm-s-mdn-like .CodeMirror-gutters { background: #f8f8f8; border-left: 6px solid rgba(0,83,159,0.65); color: #333; }
-.cm-s-mdn-like .CodeMirror-linenumber { color: #aaa; margin-left: 3px; }
+.cm-s-mdn-like .CodeMirror-linenumber { color: #aaa; padding-left: 8px; }
 div.cm-s-mdn-like .CodeMirror-cursor { border-left: 2px solid #222; }
 
 .cm-s-mdn-like .cm-keyword {  color: #6262FF; }
