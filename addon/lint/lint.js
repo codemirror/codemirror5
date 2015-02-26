@@ -163,6 +163,7 @@
 
   function onChange(cm) {
     var state = cm.state.lint;
+    if (!state) return;
     clearTimeout(state.timeout);
     state.timeout = setTimeout(function(){startLinting(cm);}, state.options.delay || 500);
   }
@@ -188,6 +189,7 @@
       clearMarks(cm);
       cm.off("change", onChange);
       CodeMirror.off(cm.getWrapperElement(), "mouseover", cm.state.lint.onMouseOver);
+      clearTimeout(cm.state.lint.timeout);
       delete cm.state.lint;
     }
 
