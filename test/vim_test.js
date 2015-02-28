@@ -679,6 +679,16 @@ testVim('dw_word', function(cm, vim, helpers) {
   is(!register.linewise);
   eqPos(curStart, cm.getCursor());
 }, { value: ' word1 word2' });
+testVim('dw_unicode_word', function(cm, vim, helpers) {
+  helpers.doKeys('d', 'w');
+  eq(cm.getValue().length, 10);
+  helpers.doKeys('d', 'w');
+  eq(cm.getValue().length, 6);
+  helpers.doKeys('d', 'w');
+  eq(cm.getValue().length, 5);
+  helpers.doKeys('d', 'e');
+  eq(cm.getValue().length, 2);
+}, { value: '  \u0562\u0561\u0580\u0587\xbbe\xb5g  ' });
 testVim('dw_only_word', function(cm, vim, helpers) {
   // Test that if there is only 1 word left, dw deletes till the end of the
   // line.
