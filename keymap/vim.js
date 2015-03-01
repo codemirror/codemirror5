@@ -1039,12 +1039,10 @@
             break;
           case 'search':
             this.processSearch(cm, vim, command);
-            clearInputState(cm);
             break;
           case 'ex':
           case 'keyToEx':
             this.processEx(cm, vim, command);
-            clearInputState(cm);
             break;
           default:
             break;
@@ -1137,6 +1135,7 @@
             updateSearchQuery(cm, query, ignoreCase, smartCase);
           } catch (e) {
             showConfirm(cm, 'Invalid regex: ' + query);
+            clearInputState(cm);
             return;
           }
           commandDispatcher.processMotion(cm, vim, {
@@ -1186,6 +1185,7 @@
             clearSearchHighlight(cm);
             cm.scrollTo(originalScrollPos.left, originalScrollPos.top);
             CodeMirror.e_stop(e);
+            clearInputState(cm);
             close();
             cm.focus();
           }
@@ -1252,6 +1252,7 @@
             vimGlobalState.exCommandHistoryController.pushInput(input);
             vimGlobalState.exCommandHistoryController.reset();
             CodeMirror.e_stop(e);
+            clearInputState(cm);
             close();
             cm.focus();
           }
