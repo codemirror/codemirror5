@@ -2186,6 +2186,15 @@ testVim('S_visual', function(cm, vim, helpers) {
   eq('\ncc', cm.getValue());
 }, { value: 'aa\nbb\ncc'});
 
+testVim('d_/', function(cm, vim, helpers) {
+  cm.openDialog = helpers.fakeOpenDialog('match');
+  helpers.doKeys('2', 'd', '/');
+  helpers.assertCursorAt(0, 0);
+  eq('match \n next', cm.getValue());
+  cm.openDialog = helpers.fakeOpenDialog('2');
+  helpers.doKeys('d', ':');
+  // TODO eq(' next', cm.getValue());
+}, { value: 'text match match \n next' });
 testVim('/ and n/N', function(cm, vim, helpers) {
   cm.openDialog = helpers.fakeOpenDialog('match');
   helpers.doKeys('/');
