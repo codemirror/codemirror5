@@ -33,6 +33,7 @@
   min-width: 20px;
   text-align: right;
   color: #999;
+  white-space: nowrap;
 }
 
 .CodeMirror-guttermarker { color: black; }
