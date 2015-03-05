@@ -9,7 +9,7 @@
   else // Plain browser env
     mod(CodeMirror);
 })(function(CodeMirror) {
-  var DEFAULT_BRACKETS = "()[]{}''\"\"";
+  var DEFAULT_BRACKETS = "()[]{}''\"\"``";
   var DEFAULT_TRIPLES = "'\"";
   var DEFAULT_EXPLODE_ON_ENTER = "[]{}";
   var SPACE_CHAR_REGEX = /\s/;
