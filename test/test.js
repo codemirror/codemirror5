@@ -2082,6 +2082,13 @@ testCM("eventOrder", function(cm) {
   eq(seen.join(","), "change,change,activity,change");
 });
 
+testCM("splitSpaces_nonspecial", function(cm) {
+  eq(byClassName(cm.getWrapperElement(), "cm-invalidchar").length, 0);
+}, {
+  specialChars: /[\u00a0]/,
+  value: "spaces ->            <- between"
+});
+
 test("core_rmClass", function() {
   var node = document.createElement("div");
   node.className = "foo-bar baz-quux yadda";
