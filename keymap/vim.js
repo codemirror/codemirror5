@@ -4806,7 +4806,7 @@
       var anchor = cm.getCursor('anchor');
       var head = cm.getCursor('head');
       // Enter or exit visual mode to match mouse selection.
-      if (vim.visualMode && cursorEqual(head, anchor) && lineLength(cm, head.line) > head.ch) {
+      if (vim.visualMode && cursorEqual(head, anchor)) {
         exitVisualMode(cm, false);
       } else if (!vim.visualMode && !vim.insertMode && cm.somethingSelected()) {
         vim.visualMode = true;

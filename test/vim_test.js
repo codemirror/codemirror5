@@ -1909,6 +1909,13 @@ testVim('visual_block_corners', function(cm, vim, helpers) {
   selections = cm.getSelections();
   eq('891cde', selections.join(''));
 }, {value: '12345\n67891\nabcde'});
+testVim('visual_linewise_substitute', function(cm, vim, helpers) {
+  cm.setCursor(0, 3);
+  helpers.doKeys('V', 'j', 'j', 'j');
+  cm.openDialog = helpers.fakeOpenDialog('\'<,\'>s/123/foo/g');
+  helpers.doKeys(':');
+  eq('foo45\nfoo45\nfoo45\n\n', cm.getValue());
+}, {value: '12345\n12345\n12345\n\n'});
 testVim('visual_block_mode_switch', function(cm, vim, helpers) {
   // switch between visual modes
   cm.setCursor(1, 1);
