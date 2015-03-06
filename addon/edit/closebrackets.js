@@ -9,11 +9,11 @@
   else // Plain browser env
     mod(CodeMirror);
 })(function(CodeMirror) {
-  var DEFAULT_BRACKETS = "()[]{}''\"\"";
-  var BIND = DEFAULT_BRACKETS + "`";
-  var DEFAULT_TRIPLES = "'\"";
-  var DEFAULT_EXPLODE_ON_ENTER = "[]{}";
-  var SPACE_CHAR_REGEX = /\s/;
+  var defaults = {
+    pairs: "()[]{}''\"\"",
+    triples: "",
+    explode: "[]{}"
+  };
 
   var Pos = CodeMirror.Pos;
 
@@ -22,39 +22,44 @@
       cm.removeKeyMap(keyMap);
       cm.state.closeBrackets = null;
     }
-    if (!val) return;
-    var config = cm.state.closeBrackets = {
-      pairs: DEFAULT_BRACKETS,
-      triples: DEFAULT_TRIPLES,
-      explode: DEFAULT_EXPLODE_ON_ENTER
-    };
-    if (typeof val == "string") {
-      config.pairs = val;
-    } else if (typeof val == "object") {
-      if (val.pairs != null) config.pairs = val.pairs;
-      if (val.triples != null) config.triples = val.triples;
-      if (val.explode != null) config.explode = val.explode;
+    if (val) {
+      cm.state.closeBrackets = val;
+      cm.addKeyMap(keyMap);
     }
-    cm.addKeyMap(keyMap);
   });
 
+  function getOption(conf, name) {
+    if (name == "pairs" && typeof conf == "string") return conf;
+    if (typeof conf == "object" && conf[name] != null) return conf[name];
+    return defaults[name];
+  }
+
+  var bind = defaults.pairs + "`";
   var keyMap = {Backspace: handleBackspace, Enter: handleEnter};
-  for (var i = 0; i < BIND.length; i++)
-    keyMap["'" + BIND.charAt(i) + "'"] = handler(BIND.charAt(i));
+  for (var i = 0; i < bind.length; i++)
+    keyMap["'" + bind.charAt(i) + "'"] = handler(bind.charAt(i));
 
   function handler(ch) {
     return function(cm) { return handleChar(cm, ch); };
   }
 
-  function handleBackspace(cm) {
-    var data = cm.state.closeBrackets;
-    if (!data || cm.getOption("disableInput")) return CodeMirror.Pass;
+  function getConfig(cm) {
+    var deflt = cm.state.closeBrackets;
+    if (!deflt) return null;
+    var mode = cm.getModeAt(cm.getCursor());
+    return mode.closeBrackets || deflt;
+  }
 
+  function handleBackspace(cm) {
+    var conf = getConfig(cm);
+    if (!conf || cm.getOption("disableInput")) return CodeMirror.Pass;
+
+    var pairs = getOption(conf, "pairs");
     var ranges = cm.listSelections();
     for (var i = 0; i < ranges.length; i++) {
       if (!ranges[i].empty()) return CodeMirror.Pass;
       var around = charsAround(cm, ranges[i].head);
-      if (!around || data.pairs.indexOf(around) % 2 != 0) return CodeMirror.Pass;
+      if (!around || pairs.indexOf(around) % 2 != 0) return CodeMirror.Pass;
     }
     for (var i = ranges.length - 1; i >= 0; i--) {
       var cur = ranges[i].head;
@@ -63,14 +68,15 @@
   }
 
   function handleEnter(cm) {
-    var data = cm.state.closeBrackets;
-    if (!data || !data.explode || cm.getOption("disableInput")) return CodeMirror.Pass;
+    var conf = getConfig(cm);
+    var explode = conf && getOption(conf, "explode");
+    if (!explode || cm.getOption("disableInput")) return CodeMirror.Pass;
 
     var ranges = cm.listSelections();
     for (var i = 0; i < ranges.length; i++) {
       if (!ranges[i].empty()) return CodeMirror.Pass;
       var around = charsAround(cm, ranges[i].head);
-      if (!around || data.explode.indexOf(around) % 2 != 0) return CodeMirror.Pass;
+      if (!around || explode.indexOf(around) % 2 != 0) return CodeMirror.Pass;
     }
     cm.operation(function() {
       cm.replaceSelection("\n\n", null);
@@ -84,19 +90,16 @@
     });
   }
 
-  function isClosingBracket(ch, pairs) {
-    var pos = pairs.lastIndexOf(ch);
-    return pos > -1 && pos % 2 == 1;
-  }
-
   function handleChar(cm, ch) {
-    var data = cm.state.closeBrackets;
-    if (!data || cm.getOption("disableInput")) return CodeMirror.Pass;
+    var conf = getConfig(cm);
+    if (!conf || cm.getOption("disableInput")) return CodeMirror.Pass;
 
-    var pos = data.pairs.indexOf(ch);
+    var pairs = getOption(conf, "pairs");
+    var pos = pairs.indexOf(ch);
     if (pos == -1) return CodeMirror.Pass;
+    var triples = getOption(conf, "triples");
 
-    var identical = data.pairs.charAt(pos + 1) == ch;
+    var identical = pairs.charAt(pos + 1) == ch;
     var ranges = cm.listSelections();
     var opening = pos % 2 == 0;
 
@@ -107,11 +110,11 @@
       if (opening && !range.empty()) {
         curType = "surround";
       } else if ((identical || !opening) && next == ch) {
-        if (data.triples.indexOf(ch) >= 0 && cm.getRange(cur, Pos(cur.line, cur.ch + 3)) == ch + ch + ch)
+        if (triples.indexOf(ch) >= 0 && cm.getRange(cur, Pos(cur.line, cur.ch + 3)) == ch + ch + ch)
           curType = "skipThree";
         else
           curType = "skip";
-      } else if (identical && cur.ch > 1 && data.triples.indexOf(ch) >= 0 &&
+      } else if (identical && cur.ch > 1 && triples.indexOf(ch) >= 0 &&
                  cm.getRange(Pos(cur.line, cur.ch - 2), cur) == ch + ch &&
                  (cur.ch <= 2 || cm.getRange(Pos(cur.line, cur.ch - 3), Pos(cur.line, cur.ch - 2)) != ch)) {
         curType = "addFour";
@@ -119,8 +122,8 @@
         if (!CodeMirror.isWordChar(next) && enteringString(cm, cur, ch)) curType = "both";
         else return CodeMirror.Pass;
       } else if (opening && (cm.getLine(cur.line).length == cur.ch ||
-                             isClosingBracket(next, data.pairs) ||
-                             SPACE_CHAR_REGEX.test(next))) {
+                             isClosingBracket(next, pairs) ||
+                             /\s/.test(next))) {
         curType = "both";
       } else {
         return CodeMirror.Pass;
@@ -129,8 +132,8 @@
       else if (type != curType) return CodeMirror.Pass;
     }
 
-    var left = pos % 2 ? data.pairs.charAt(pos - 1) : ch;
-    var right = pos % 2 ? ch : data.pairs.charAt(pos + 1);
+    var left = pos % 2 ? pairs.charAt(pos - 1) : ch;
+    var right = pos % 2 ? ch : pairs.charAt(pos + 1);
     cm.operation(function() {
       if (type == "skip") {
         cm.execCommand("goCharRight");
@@ -150,6 +153,11 @@
         cm.execCommand("goCharRight");
       }
     });
+  }
+
+  function isClosingBracket(ch, pairs) {
+    var pos = pairs.lastIndexOf(ch);
+    return pos > -1 && pos % 2 == 1;
   }
 
   function charsAround(cm, pos) {

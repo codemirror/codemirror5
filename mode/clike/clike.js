@@ -403,7 +403,8 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
         stream.eatWhile(/[\w\$_\xa1-\uffff]/);
         return "atom";
       }
-    }
+    },
+    modeProps: {closeBrackets: {triples: '"'}}
   });
 
   def(["x-shader/x-vertex", "x-shader/x-fragment"], {

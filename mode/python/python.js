@@ -339,6 +339,7 @@
           return scope.offset;
       },
 
+      closeBrackets: {triples: "'\""},
       lineComment: "#",
       fold: "indent"
     };
