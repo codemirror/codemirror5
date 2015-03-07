@@ -3491,7 +3491,8 @@
     function dialog(cm, template, shortText, onClose, options) {
       if (cm.openDialog) {
         cm.openDialog(template, onClose, { bottom: true, value: options.value,
-            onKeyDown: options.onKeyDown, onKeyUp: options.onKeyUp });
+            onKeyDown: options.onKeyDown, onKeyUp: options.onKeyUp,
+            selectValueOnOpen: false});
       }
       else {
         onClose(prompt(shortText, ''));
