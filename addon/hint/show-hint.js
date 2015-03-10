@@ -88,6 +88,10 @@
     },
 
     showWidget: function(data) {
+      // If the widget already exists, then close it to prevent multiple layered widgets.
+      // This only happes if we're using async callbacks to show the widget
+      if ( this.widget ) this.widget.close();
+
       this.widget = new Widget(this, data);
       CodeMirror.signal(data, "shown");
 
