@@ -409,6 +409,22 @@
 
   map[cK + ctrl + "Backspace"] = "delLineLeft";
 
+  cmds[map["Backspace"] = "smartBackspace"] = function(cm) {
+    if (cm.somethingSelected()) {
+      return CodeMirror.Pass;
+    }
+
+    var tabSize = cm.getOption('tabSize');
+    var cursor = cm.getCursor();
+    var toStartOfLine = cm.getRange({line: cursor.line, ch: 0}, cursor);
+    var column = CodeMirror.countColumn(toStartOfLine, null, tabSize);
+
+    if (/^\s+$/.test(toStartOfLine) && column % tabSize == 0) {
+      return cm.indentSelection('subtract');
+    }
+    return CodeMirror.Pass;
+  };
+
   cmds[map[cK + ctrl + "K"] = "delLineRight"] = function(cm) {
     cm.operation(function() {
       var ranges = cm.listSelections();
