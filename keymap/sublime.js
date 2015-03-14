@@ -410,19 +410,16 @@
   map[cK + ctrl + "Backspace"] = "delLineLeft";
 
   cmds[map["Backspace"] = "smartBackspace"] = function(cm) {
-    if (cm.somethingSelected()) {
-      return CodeMirror.Pass;
-    }
+    if (cm.somethingSelected()) return CodeMirror.Pass;
 
-    var tabSize = cm.getOption('tabSize');
     var cursor = cm.getCursor();
     var toStartOfLine = cm.getRange({line: cursor.line, ch: 0}, cursor);
-    var column = CodeMirror.countColumn(toStartOfLine, null, tabSize);
+    var column = CodeMirror.countColumn(toStartOfLine, null, cm.getOption("tabSize"));
 
-    if (/^\s+$/.test(toStartOfLine) && column % tabSize == 0) {
-      return cm.indentSelection('subtract');
-    }
-    return CodeMirror.Pass;
+    if (!/\S/.test(toStartOfLine) && column % cm.getOption("indentUnit") == 0)
+      return cm.indentSelection("subtract");
+    else
+      return CodeMirror.Pass;
   };
 
   cmds[map[cK + ctrl + "K"] = "delLineRight"] = function(cm) {
