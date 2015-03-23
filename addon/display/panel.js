@@ -19,19 +19,19 @@
         wrapper = info.wrapper,
         cmWrapper = this.getWrapperElement()
     ;
-    if (options.position === "bottom") {
-      wrapper.appendChild(node);
-    } else if (options.position === "before-bottom") {
-      wrapper.insertBefore(node, cmWrapper.nextSibling);
-    } else if (options.position === "after-top") {
-      wrapper.insertBefore(node, cmWrapper);
-    } else if (options.after && options.after instanceof Panel && !options.after.cleared) {
+    if (options.after && options.after instanceof Panel && !options.after.cleared) {
       wrapper.insertBefore(node, options.before.node.nextSibling);
     } else if (options.before && options.before instanceof Panel && !options.before.cleared) {
       wrapper.insertBefore(node, options.before.node);
     } else if (options.replace && options.replace instanceof Panel && !options.replace.cleared) {
       wrapper.insertBefore(node, options.replace.node);
       options.replace.clear();
+    } else if (options.position === "bottom") {
+      wrapper.appendChild(node);
+    } else if (options.position === "before-bottom") {
+      wrapper.insertBefore(node, cmWrapper.nextSibling);
+    } else if (options.position === "after-top") {
+      wrapper.insertBefore(node, cmWrapper);
     } else {
       wrapper.insertBefore(node, wrapper.firstChild);
     }
