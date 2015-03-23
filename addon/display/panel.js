@@ -10,13 +10,31 @@
     mod(CodeMirror);
 })(function(CodeMirror) {
   CodeMirror.defineExtension("addPanel", function(node, options) {
-    if (!this.state.panels) initPanels(this);
+    options = options || {};
 
-    var info = this.state.panels;
-    if (options && options.position == "bottom")
-      info.wrapper.appendChild(node);
-    else
-      info.wrapper.insertBefore(node, info.wrapper.firstChild);
+    if (!this.state.panels) {
+      initPanels(this);
+    }
+    var info = this.state.panels,
+        wrapper = info.wrapper,
+        cmWrapper = this.getWrapperElement()
+    ;
+    if (options.position === "bottom") {
+      wrapper.appendChild(node);
+    } else if (options.position === "before-bottom") {
+      wrapper.insertBefore(node, cmWrapper.nextSibling);
+    } else if (options.position === "after-top") {
+      wrapper.insertBefore(node, cmWrapper);
+    } else if (options.after && options.after instanceof Panel && !options.after.cleared) {
+      wrapper.insertBefore(node, options.before.node.nextSibling);
+    } else if (options.before && options.before instanceof Panel && !options.before.cleared) {
+      wrapper.insertBefore(node, options.before.node);
+    } else if (options.replace && options.replace instanceof Panel && !options.replace.cleared) {
+      wrapper.insertBefore(node, options.replace.node);
+      options.replace.clear();
+    } else {
+      wrapper.insertBefore(node, wrapper.firstChild);
+    }
     var height = (options && options.height) || node.offsetHeight;
     this._setSize(null, info.heightLeft -= height);
     info.panels++;
