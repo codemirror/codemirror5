@@ -69,10 +69,10 @@
 
 <div id="demo">
 <p>
-  <a class="add-panel" onclick="addPanel('top', true)">top</a>
-  <a class="add-panel" onclick="addPanel('after-top', true)">after-top</a>
-  <a class="add-panel" onclick="addPanel('before-bottom', true)">before-bottom</a>
-  <a class="add-panel" onclick="addPanel('bottom', true)">bottom</a>
+  <a class="add-panel" onclick="addPanel('top')">top</a>
+  <a class="add-panel" onclick="addPanel('after-top')">after-top</a>
+  <a class="add-panel" onclick="addPanel('before-bottom')">before-bottom</a>
+  <a class="add-panel" onclick="addPanel('bottom')">bottom</a>
 </p>
 <p>
   You can also replace an existing panel:
@@ -83,58 +83,54 @@
 </form>
 
 <script>
-var textarea = document.getElementById("code"),
-    demo = document.getElementById("demo"),
-    numPanels = 0,
-    panels = {},
-    editor
-;
+var textarea = document.getElementById("code");
+var demo = document.getElementById("demo");
+var numPanels = 0;
+var panels = {};
+var editor;
+
 textarea.value = demo.innerHTML.trim();
 editor = CodeMirror.fromTextArea(textarea, {
   lineNumbers: true,
-  mode: 'htmlmixed'
+  mode: "htmlmixed"
 });
 
-function makePanel(where, removable) {
-  var node = document.createElement("div"),
-      id = ++numPanels,
-      widget, close, label
-  ;
-  node.id = 'panel-' + id;
-  node.className = "panel " + where + (removable ? ' removable' : '');
-  if (removable) {
-    close = node.appendChild(document.createElement("a"));
-    close.setAttribute('title', 'Remove me!');
-    close.setAttribute('class', 'remove-panel');
-    close.textContent = "✖";
-    CodeMirror.on(close, "click", function() {
-      panels[node.id].clear();
-    });
-  }
-  label = node.appendChild(document.createElement('span'));
+function makePanel(where) {
+  var node = document.createElement("div");
+  var id = ++numPanels;
+  var widget, close, label;
+
+  node.id = "panel-" + id;
+  node.className = "panel " + where;
+  close = node.appendChild(document.createElement("a"));
+  close.setAttribute("title", "Remove me!");
+  close.setAttribute("class", "remove-panel");
+  close.textContent = "✖";
+  CodeMirror.on(close, "click", function() {
+    panels[node.id].clear();
+  });
+  label = node.appendChild(document.createElement("span"));
   label.textContent = "I'm panel n°" + id;
   return node;
 }
-function addPanel (where, removable) {
-  var node = makePanel(where, removable);
+function addPanel(where) {
+  var node = makePanel(where);
   panels[node.id] = editor.addPanel(node, {position: where});
 }
 
-addPanel('top', false);
-addPanel('bottom', false);
+addPanel("top");
+addPanel("bottom");
 
-function replacePanel (form) {
-  var id = form.elements.panel_id.value,
-      panel = panels['panel-' + id],
-      node = makePanel('', true)
-  ;
-  panels[node.id] = editor.addPanel(node, {replace: panel, position: 'after-top'});
+function replacePanel(form) {
+  var id = form.elements.panel_id.value;
+  var panel = panels["panel-" + id];
+  var node = makePanel("");
 
+  panels[node.id] = editor.addPanel(node, {replace: panel, position: "after-top"});
   return false;
 }
 </script>
 
 </div>
-
 
 </article>
