@@ -137,7 +137,6 @@
           completion.close();
         } else {
           debounce = requestAnimationFrame(update);
-          if (completion.widget) completion.widget.close();
         }
       }
       this.cm.on("cursorActivity", activity);
