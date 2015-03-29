@@ -583,7 +583,6 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     return pass(importSpec, maybeFrom);
   }
   function importSpec(type, value) {
-    console.log("is", type, value)
     if (type == "{") return contCommasep(importSpec, "}");
     if (type == "variable") register(value);
     if (value == "*") cx.marked = "keyword";
