@@ -91,7 +91,7 @@
       this.widget = new Widget(this, data);
       CodeMirror.signal(data, "shown");
 
-      var debounce = 0, completion = this, finished;
+      var debounce = 0, completion = this, tick = 0;
       var closeOn = this.options.closeCharacters;
       var startPos = this.cm.getCursor(), startLen = this.cm.getLine(startPos.line).length;
 
@@ -101,24 +101,29 @@
       var cancelAnimationFrame = window.cancelAnimationFrame || clearTimeout;
 
       function done() {
-        if (finished) return;
-        finished = true;
+        if (tick == null) return;
+        tick = null;
         completion.close();
         completion.cm.off("cursorActivity", activity);
         if (data) CodeMirror.signal(data, "close");
       }
 
-      function update() {
-        if (finished) return;
+      function update(myTick) {
+        if (tick == null) return;
+        var myTick = ++tick;
         if (data) CodeMirror.signal(data, "update");
-        retrieveHints(completion.options.hint, completion.cm, completion.options, finishUpdate);
+        retrieveHints(completion.options.hint, completion.cm, completion.options,
+                      function(d) { finishUpdate(d, myTick); });
       }
-      function finishUpdate(data_) {
+      function finishUpdate(data_, myTick) {
+        if (tick != myTick) return;
         data = data_;
-        if (finished) return;
+        var picked = completion.widget && completion.widget.picked;
         if (completion.widget) completion.widget.close();
-        if (data && data.list.length)
-          completion.widget = new Widget(completion, data);
+        if (data && data.list.length) {
+          if (picked && data.list.length == 1) completion.pick(data, 0);
+          else completion.widget = new Widget(completion, data);
+        }
       }
 
       function clearDebounce() {
@@ -137,7 +142,7 @@
           completion.close();
         } else {
           debounce = requestAnimationFrame(update);
-          if (completion.widget) completion.widget.close();
+          if (completion.widget) completion.widget.disable();
         }
       }
       this.cm.on("cursorActivity", activity);
@@ -206,6 +211,7 @@
   function Widget(completion, data) {
     this.completion = completion;
     this.data = data;
+    this.picked = false;
     var widget = this, cm = completion.cm;
 
     var hints = this.hints = document.createElement("ul");
@@ -318,6 +324,13 @@
         cm.off("focus", this.onFocus);
       }
       cm.off("scroll", this.onScroll);
+    },
+
+    disable: function() {
+      this.completion.cm.removeKeyMap(this.keyMap);
+      var widget = this;
+      this.keyMap = {Enter: function() { widget.picked = true; }};
+      this.completion.cm.addKeyMap(this.keyMap);
     },
 
     pick: function() {
