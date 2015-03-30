@@ -110,15 +110,15 @@
 
       function update() {
         if (finished) return;
-        CodeMirror.signal(data, "update");
+        if (data) CodeMirror.signal(data, "update");
         retrieveHints(completion.options.hint, completion.cm, completion.options, finishUpdate);
       }
       function finishUpdate(data_) {
         data = data_;
         if (finished) return;
-        if (!data || !data.list.length) return done();
         if (completion.widget) completion.widget.close();
-        completion.widget = new Widget(completion, data);
+        if (data && data.list.length)
+          completion.widget = new Widget(completion, data);
       }
 
       function clearDebounce() {
