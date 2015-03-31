@@ -50,5 +50,5 @@
      "}");
 
 
-  MT("interpolation", ".@{[variable foo]} { [property font-weight]: [atom bold]; }")
+  MT("interpolation", ".@{[variable foo]} { [property font-weight]: [atom bold]; }");
 })();
