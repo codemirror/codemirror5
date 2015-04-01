@@ -416,7 +416,7 @@
     var toStartOfLine = cm.getRange({line: cursor.line, ch: 0}, cursor);
     var column = CodeMirror.countColumn(toStartOfLine, null, cm.getOption("tabSize"));
 
-    if (!/\S/.test(toStartOfLine) && column % cm.getOption("indentUnit") == 0)
+    if (toStartOfLine && !/\S/.test(toStartOfLine) && column % cm.getOption("indentUnit") == 0)
       return cm.indentSelection("subtract");
     else
       return CodeMirror.Pass;
