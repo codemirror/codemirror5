@@ -19,6 +19,7 @@
 
   function SearchAnnotation(cm, query, caseFold, options) {
     this.cm = cm;
+    this.options = options;
     var annotateOptions = {listenForChanges: false};
     for (var prop in options) annotateOptions[prop] = options[prop];
     if (!annotateOptions.className) annotateOptions.className = "CodeMirror-search-match";
@@ -46,11 +47,12 @@
       if (match.to.line >= this.gap.from) this.matches.splice(i--, 1);
     }
     var cursor = this.cm.getSearchCursor(this.query, CodeMirror.Pos(this.gap.from, 0), this.caseFold);
+    var maxMatches = this.options && this.options.maxMatches || MAX_MATCHES;
     while (cursor.findNext()) {
       var match = {from: cursor.from(), to: cursor.to()};
       if (match.from.line >= this.gap.to) break;
       this.matches.splice(i++, 0, match);
-      if (this.matches.length > MAX_MATCHES) break;
+      if (this.matches.length > maxMatches) break;
     }
     this.gap = null;
   };
