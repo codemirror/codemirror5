@@ -1,0 +1,9 @@
+.cm-s-mumps span.cm-comment { color: #164; }				/* Green        */
+.cm-s-mumps span.cm-variable {color: #000;}				/* Black        */
+.cm-s-mumps span.cm-variable-2 {color: #00c; font-weight: bold;}	/* Bold blue    */
+.cm-s-mumps span.cm-string {color: #930;}				/* Brown        */
+.cm-s-mumps span.cm-builtin {color: #909;}				/* Purple       */
+.cm-s-mumps span.cm-string-2 {color: #f50;}				/* Orange       */
+.cm-s-mumps span.cm-tag {color: #f00;}					/* Red          */
+.cm-s-mumps span.cm-operator {color: #068;}				/* Aqua dark    */
+.cm-s-mumps span.cm-error {color: #f00; font-weight: bold;}		/* Bold red     */
