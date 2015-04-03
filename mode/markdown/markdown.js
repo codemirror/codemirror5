@@ -116,18 +116,20 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
     var sol = stream.sol();
 
-    var prevLineIsList = (state.list !== false);
-    if (state.list !== false && state.indentationDiff >= 0) { // Continued list
-      if (state.indentationDiff < 4) { // Only adjust indentation if *not* a code block
-        state.indentation -= state.indentationDiff;
+    var prevLineIsList = state.list !== false;
+    if (prevLineIsList) {
+      if (state.indentationDiff >= 0) { // Continued list
+        if (state.indentationDiff < 4) { // Only adjust indentation if *not* a code block
+          state.indentation -= state.indentationDiff;
+        }
+        state.list = null;
+      } else if (state.indentation > 0) {
+        state.list = null;
+        state.listDepth = Math.floor(state.indentation / 4);
+      } else { // No longer a list
+        state.list = false;
+        state.listDepth = 0;
       }
-      state.list = null;
-    } else if (state.list !== false && state.indentation > 0) {
-      state.list = null;
-      state.listDepth = Math.floor(state.indentation / 4);
-    } else if (state.list !== false) { // No longer a list
-      state.list = false;
-      state.listDepth = 0;
     }
 
     var match = null;
