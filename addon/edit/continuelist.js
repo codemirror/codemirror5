@@ -22,7 +22,7 @@
       var pos = ranges[i].head, match;
       var eolState = cm.getStateAfter(pos.line);
       var inList = eolState.list !== false;
-      var inQuote = eolState.quote !== false;
+      var inQuote = eolState.quote !== 0;
 
       if (!ranges[i].empty() || (!inList && !inQuote) || !(match = cm.getLine(pos.line).match(listRE))) {
         cm.execCommand("newlineAndIndent");
