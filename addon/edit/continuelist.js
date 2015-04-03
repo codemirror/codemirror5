@@ -13,8 +13,7 @@
 
   var listRE = /^(\s*)(>[> ]*|[*+-]\s|(\d+)\.)(\s*)/,
       emptyListRE = /^(\s*)(>[> ]*|[*+-]|(\d+)\.)(\s*)$/,
-      unorderedListRE = /[*+-]\s/,
-      ruleRE = /^\s*((-\s*){3}|(\*\s*){3}(_\s*){3})$/;
+      unorderedListRE = /[*+-]\s/;
 
   CodeMirror.commands.newlineAndIndentContinueMarkdownList = function(cm) {
     if (cm.getOption("disableInput")) return CodeMirror.Pass;
@@ -23,10 +22,10 @@
       var pos = ranges[i].head;
       var eolState = cm.getStateAfter(pos.line);
       var inList = eolState.list !== false;
-      var inQuote = eolState.quote !== false;
+      var inQuote = eolState.quote !== 0;
 
       var line = cm.getLine(pos.line), match = listRE.exec(line);
-      if (!ranges[i].empty() || (!inList && !inQuote) || !match || ruleRE.test(line)) {
+      if (!ranges[i].empty() || (!inList && !inQuote) || !match) {
         cm.execCommand("newlineAndIndent");
         return;
       }
