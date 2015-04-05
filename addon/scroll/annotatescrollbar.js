@@ -68,15 +68,30 @@
     var cm = this.cm, hScale = this.hScale;
 
     var frag = document.createDocumentFragment(), anns = this.annotations;
+
+    var wrapping = cm.getOption("lineWrapping");
+    var singleLineH = wrapping && cm.defaultTextHeight() * 1.5;
+    var curLine = null, curLineObj = null;
+    function getY(pos, top) {
+      if (curLine != pos.line) {
+        curLine = pos.line;
+        curLineObj = cm.getLineHandle(curLine);
+      }
+      if (wrapping && curLineObj.height > singleLineH)
+        return cm.charCoords(pos, "local")[top ? "top" : "bottom"];
+      var topY = cm.heightAtLine(curLineObj, "local");
+      return topY + (top ? 0 : curLineObj.height);
+    }
+
     if (cm.display.barWidth) for (var i = 0, nextTop; i < anns.length; i++) {
       var ann = anns[i];
-      var top = nextTop || cm.charCoords(ann.from, "local").top * hScale;
-      var bottom = cm.charCoords(ann.to, "local").bottom * hScale;
+      var top = nextTop || getY(ann.from, true) * hScale;
+      var bottom = getY(ann.to, false) * hScale;
       while (i < anns.length - 1) {
-        nextTop = cm.charCoords(anns[i + 1].from, "local").top * hScale;
+        nextTop = getY(anns[i + 1].from, true) * hScale;
         if (nextTop > bottom + .9) break;
         ann = anns[++i];
-        bottom = cm.charCoords(ann.to, "local").bottom * hScale;
+        bottom = getY(ann.to, false) * hScale;
       }
       if (bottom == top) continue;
       var height = Math.max(bottom - top, 3);
