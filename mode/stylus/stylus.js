@@ -323,7 +323,12 @@
         return pushContext(state, stream, "block", 0);
       }
       if (type == "variable-name") {
-        return pushContext(state, stream, "variableName");
+        if ((stream.indentation() == 0 && startOfLine(stream)) || wordIsBlock(firstWordOfLine(stream))) {
+          return pushContext(state, stream, "variableName");
+        }
+        else {
+          return pushContext(state, stream, "variableName", 0);
+        }
       }
       if (type == "=") {
         if (!endOfLine(stream) && !wordIsBlock(firstWordOfLine(stream))) {
@@ -445,10 +450,10 @@
              wordIsTag(firstWordOfLine(stream)))) {
           return pushContext(state, stream, "block");
         }
-        if (stream.string.match(/^-?[a-z][\w-\.\[\]\'\"]*\s*=/) ||
+        if (stream.string.match(/^[\$-]?[a-z][\w-\.\[\]\'\"]*\s*=/) ||
             stream.string.match(/^\s*(\(|\)|[0-9])/) ||
             stream.string.match(/^\s+[a-z][\w-]*\(/i) ||
-            stream.string.match(/^\s+-?[a-z]/i)) {
+            stream.string.match(/^\s+[\$-]?[a-z]/i)) {
           return pushContext(state, stream, "block", 0);
         }
         if (endOfLine(stream)) return pushContext(state, stream, "block");
