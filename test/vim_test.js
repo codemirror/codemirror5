@@ -984,6 +984,17 @@ testVim('cc_multiply_repeat', function(cm, vim, helpers) {
   is(register.linewise);
   eq('vim-insert', cm.getOption('keyMap'));
 });
+testVim('ct', function(cm, vim, helpers) {
+  cm.setCursor(0, 9);
+  helpers.doKeys('c', 't', 'w');
+  eq('  word1  word3', cm.getValue());
+  helpers.doKeys('<Esc>', 'c', '|');
+  eq(' word3', cm.getValue());
+  helpers.assertCursorAt(0, 0);
+  helpers.doKeys('<Esc>', '2', 'u', 'w', 'h');
+  helpers.doKeys('c', '2', 'g', 'e');
+  eq('  wordword3', cm.getValue());
+}, { value: '  word1  word2  word3'});
 testVim('cc_should_not_append_to_document', function(cm, vim, helpers) {
   var expectedLineCount = cm.lineCount();
   cm.setCursor(cm.lastLine(), 0);
