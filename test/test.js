@@ -1004,6 +1004,14 @@ testCM("wrappingInlineWidget", function(cm) {
   eq(curR.bottom, cur1.bottom);
 }, {value: "1 2 3 xxx 4", lineWrapping: true});
 
+testCM("showEmptyWidgetSpan", function(cm) {
+  var marker = cm.markText(Pos(0, 2), Pos(0, 2), {
+    clearWhenEmpty: false,
+    replacedWith: document.createTextNode("X")
+  });
+  eq(cm.display.view[0].text.textContent, "abXc");
+}, {value: "abc"});
+
 testCM("changedInlineWidget", function(cm) {
   cm.setSize("10em");
   var w = document.createElement("span");
