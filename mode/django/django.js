@@ -44,6 +44,17 @@
         if (stream.match(keywords)) {
           return "keyword";
         }
+        if(state.instring) {
+          if(ch == state.instring) {
+            state.instring = false;
+          }
+          stream.next();
+          return "string";
+        } else if(ch == "'" || ch == '"') {
+          state.instring = ch;
+          stream.next();
+          return "string";
+        }
         return close == "#" ? "comment" : "string";
       };
     }
