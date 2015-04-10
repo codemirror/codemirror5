@@ -17,12 +17,13 @@
     var keywords = ["block", "endblock", "for", "endfor", "in", "true", "false",
                     "loop", "none", "self", "super", "if", "endif", "as", "not", "and",
                     "else", "import", "with", "endwith", "without", "context", "ifequal", "endifequal",
-                    "ifnotequal", "endifnotequal", "extends", "include", "load", "length", "comment",
+                    "ifnotequal", "endifnotequal", "extends", "include", "load", "comment",
                     "endcomment", "empty", "url", "static", "trans", "blocktrans", "now", "regroup",
                     "lorem", "ifchanged", "endifchanged", "firstof", "debug", "cycle", "csrf_token",
                     "autoescape", "endautoescape", "spaceless", "ssi", "templatetag",
                     "verbatim", "endverbatim", "widthratio"];
-    keywords = new RegExp("^((" + keywords.join(")|(") + "))\\b");
+
+    keywords = new RegExp("^\\b(" + keywords.join("|") + ")\\b");
 
     function tokenBase (stream, state) {
       stream.eatWhile(/[^\{]/);
@@ -58,7 +59,7 @@
           stream.next();
           return "string";
         }
-        return close == "#" ? "comment" : "string";
+        return null;
       };
     }
     return {
