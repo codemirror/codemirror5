@@ -126,6 +126,8 @@ div.CodeMirror-overwrite div.CodeMirror-cursor {}
 .cm-s-default .cm-error {color: #f00;}
 .cm-invalidchar {color: #f00;}
 
+.CodeMirror-composing { border-bottom: 2px solid; }
+
 /* Default styles for common addons */
 
 div.CodeMirror span.CodeMirror-matchingbracket {color: #0f0;}
