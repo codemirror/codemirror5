@@ -21,9 +21,23 @@
                     "endcomment", "empty", "url", "static", "trans", "blocktrans", "now", "regroup",
                     "lorem", "ifchanged", "endifchanged", "firstof", "debug", "cycle", "csrf_token",
                     "autoescape", "endautoescape", "spaceless", "ssi", "templatetag",
-                    "verbatim", "endverbatim", "widthratio"];
+                    "verbatim", "endverbatim", "widthratio"],
+        filters = ["add", "addslashes", "capfirst", "center", "cut", "date",
+                   "default", "default_if_none", "dictsort",
+                   "dictsortreversed", "divisibleby", "escape", "escapejs",
+                   "filesizeformat", "first", "floatformat", "force_escape",
+                   "get_digit", "iriencode", "join", "last", "length",
+                   "length_is", "linebreaks", "linebreaksbr", "linenumbers",
+                   "ljust", "lower", "make_list", "phone2numeric", "pluralize",
+                   "pprint", "random", "removetags", "rjust", "safe",
+                   "safeseq", "slice", "slugify", "stringformat", "striptags",
+                   "time", "timesince", "timeuntil", "title", "truncatechars",
+                   "truncatechars_html", "truncatewords", "truncatewords_html",
+                   "unordered_list", "upper", "urlencode", "urlize",
+                   "urlizetrunc", "wordcount", "wordwrap", "yesno"];
 
     keywords = new RegExp("^\\b(" + keywords.join("|") + ")\\b");
+    filters = new RegExp("^\\|(" + filters.join("|") + ")\\b");
 
     function tokenBase (stream, state) {
       stream.eatWhile(/[^\{]/);
@@ -47,6 +61,9 @@
         }
         if (stream.match(keywords)) {
           return "keyword";
+        }
+        if (stream.match(filters)) {
+          return "variable-2";
         }
         if(state.instring) {
           if(ch == state.instring) {
