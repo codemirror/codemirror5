@@ -39,6 +39,7 @@
       {{ page.title|capfirst }}
     </h1>
     <ul class="my-list">
+      {# traverse a list of items and produce links to their views. #}
       {% for item in items %}
       <li>
         <a href="{% url 'item_view' item.name|slugify %}">

@@ -51,6 +51,9 @@
       } else if (stream.match("{%")) {
         state.tokenize = inTag;
         return "tag";
+      } else if (stream.match("{#")) {
+        state.tokenize = inComment;
+        return "comment";
       }
 
       // Ignore completely any stream series that do not match the
@@ -277,6 +280,13 @@
       // If nothing was found, advance to the next character
       stream.next();
       return "null";
+    }
+
+    function inComment (stream, state) {
+      if (stream.match("#}")) {
+        state.tokenize = tokenBase;
+      }
+      return "comment";
     }
 
     return {
