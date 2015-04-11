@@ -295,7 +295,9 @@
       },
       token: function (stream, state) {
         return state.tokenize(stream, state);
-      }
+      },
+      blockCommentStart: "{% comment %}",
+      blockCommentEnd: "{% endcomment %}"
     };
   });
 
