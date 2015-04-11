@@ -39,12 +39,15 @@
     keywords = new RegExp("^\\b(" + keywords.join("|") + ")\\b");
     filters = new RegExp("^\\b(" + filters.join("|") + ")\\b");
 
+    // We have to return "null" instead of null, in order to avoid string
+    // styling as the default, when using Django templates inside HTML
+    // element attributes
     function tokenBase (stream, state) {
       if (stream.match("{{")) {
         state.tokenize = inVariable;
         return "tag";
       } else if (stream.match("{%")) {
-        state.tokenize = inTag("{%");
+        state.tokenize = inTag;
         return "tag";
       }
 
@@ -54,6 +57,17 @@
       return null;
     }
 
+    function inString (delimeter, previousTokenizer) {
+      return function (stream, state) {
+        if (stream.eat(delimeter)) {
+          state.tokenize = previousTokenizer;
+        } else {
+          var ch = stream.next();
+        }
+        return "string";
+      };
+    }
+
     // Apply Django template variable syntax highlighting
     function inVariable (stream, state) {
       // Attempt to match a dot that precedes a property
@@ -61,7 +75,7 @@
         state.waitDot = false;
 
         if (stream.peek() != ".") {
-          return null;
+          return "null";
         }
 
         // Dot folowed by a non-word character should be considered an error.
@@ -69,7 +83,7 @@
           return "error";
         } else if (stream.eat(".")) {
           state.waitProperty = true;
-          return null;
+          return "null";
         } else {
           throw Error ("Unexpected error while waiting for property.");
         }
@@ -80,7 +94,7 @@
         state.waitPipe = false;
 
         if (stream.peek() != "|") {
-          return null;
+          return "null";
         }
 
         // Pipe folowed by a non-word character should be considered an error.
@@ -88,7 +102,7 @@
           return "error";
         } else if (stream.eat("|")) {
           state.waitFilter = true;
-          return null;
+          return "null";
         } else {
           throw Error ("Unexpected error while waiting for filter.");
         }
@@ -115,7 +129,21 @@
       // Ignore all white spaces
       if (stream.eatSpace()) {
         state.waitProperty = false;
-        return null;
+        return "null";
+      }
+
+      // Identify numbers
+      if (stream.match(/\b\d+(\.\d+)?\b/)) {
+        return "number";
+      }
+
+      // Identify strings
+      if (stream.match("'")) {
+        state.tokenize = inString("'", state.tokenize);
+        return "string";
+      } else if (stream.match('"')) {
+        state.tokenize = inString('"', state.tokenize);
+        return "string";
       }
 
       // Attempt to find the variable
@@ -137,62 +165,113 @@
 
       // If nothing was found, advance to the next character
       stream.next();
-      return null;
+      return "null";
     }
 
-    function inTag (startTag) {
-      var closeChar = null;
+    function inTag (stream, state) {
+      // Attempt to match a dot that precedes a property
+      if (state.waitDot) {
+        state.waitDot = false;
 
-      if (startTag == "{{") {
-        closeChar = "}";
-      } else if (startTag == "{%") {
-        closeChar = "%";
-      } else {
-        throw Error("Invalid Django template start tag:", startTag);
+        if (stream.peek() != ".") {
+          return "null";
+        }
+
+        // Dot folowed by a non-word character should be considered an error.
+        if (stream.match(/\.\W+/)) {
+          return "error";
+        } else if (stream.eat(".")) {
+          state.waitProperty = true;
+          return "null";
+        } else {
+          throw Error ("Unexpected error while waiting for property.");
+        }
       }
 
-      return function (stream, state) {
-        var ch;
+      // Attempt to match a pipe that precedes a filter
+      if (state.waitPipe) {
+        state.waitPipe = false;
 
-        // Identify tag closing
-        if (stream.peek() == closeChar) {
-          state.tokenize = tokenBase;
-          ch = stream.next(); // Advance character in stream
-          ch = stream.next();
-          if (ch == '}') {
-            return "tag";
-          } else if (ch) {
-            return "error";
-          }
+        if (stream.peek() != "|") {
+          return "null";
         }
 
-        // Identify keyword
-        if (stream.match(keywords)) {
-          return "keyword";
+        // Pipe folowed by a non-word character should be considered an error.
+        if (stream.match(/\.\W+/)) {
+          return "error";
+        } else if (stream.eat("|")) {
+          state.waitFilter = true;
+          return "null";
+        } else {
+          throw Error ("Unexpected error while waiting for filter.");
         }
+      }
 
-        // Identify filter
+      // Highlight properties
+      if (state.waitProperty) {
+        state.waitProperty = false;
+        if (stream.match(/\b(\w+)\b/)) {
+          state.waitDot = true;  // A property can be followed by another property
+          state.waitPipe = true;  // A property can be followed by a filter
+          return "property";
+        }
+      }
+
+      // Highlight filters
+      if (state.waitFilter) {
+          state.waitFilter = false;
         if (stream.match(filters)) {
           return "variable-2";
         }
-        var ch = stream.next();
-        if(state.instring) {
-          if(ch == state.instring) {
-            state.instring = false;
-          }
-          stream.next();
-          return "string";
-        } else if(ch == "'" || ch == '"') {
-          state.instring = ch;
-          stream.next();
-          return "string";
-        }
+      }
 
-        // If there is nothing to consume, eat all whitespaces
-        stream.eatSpace();
-        return null;
-      };
+      // Ignore all white spaces
+      if (stream.eatSpace()) {
+        state.waitProperty = false;
+        return "null";
+      }
+
+      // Identify numbers
+      if (stream.match(/\b\d+(\.\d+)?\b/)) {
+        return "number";
+      }
+
+      // Identify strings
+      if (stream.match("'")) {
+        state.tokenize = inString("'", state.tokenize);
+        return "string";
+      } else if (stream.match('"')) {
+        state.tokenize = inString('"', state.tokenize);
+        return "string";
+      }
+
+      // Attempt to match a keyword
+      if (stream.match(keywords)) {
+        return "keyword";
+      }
+
+      // Attempt to match a variable
+      if (stream.match(/\b(\w+)\b/)) {
+        state.waitDot = true;
+        state.waitPipe = true;  // A property can be followed by a filter
+        return "variable";
+      }
+
+      // If found closing tag reset
+      if (stream.match("%}")) {
+        state.waitProperty = null;
+        state.waitFilter = null;
+        state.waitDot = null;
+        state.waitPipe = null;
+        state.tokenize = tokenBase;
+        return "tag";
+      }
+
+      // If nothing was found, advance to the next character
+      stream.next();
+      return "null";
     }
+
     return {
       startState: function () {
         return {tokenize: tokenBase};
