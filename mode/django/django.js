@@ -40,31 +40,56 @@
     filters = new RegExp("^\\|(" + filters.join("|") + ")\\b");
 
     function tokenBase (stream, state) {
-      stream.eatWhile(/[^\{]/);
-      var ch = stream.next();
-      if (ch == "{") {
-        if (ch = stream.eat(/\{|%|#/)) {
-          state.tokenize = inTag(ch);
-          return "tag";
-        }
+      if (stream.match("{{")) {
+        state.tokenize = inTag("{{");
+        return "tag";
+      } else if (stream.match("{%")) {
+        state.tokenize = inTag("{%");
+        return "tag";
       }
+
+      // Ignore completely any stream series that do not match the
+      // Django template opening tags.
+      while (stream.next() != null && !stream.match("{{", false) && !stream.match("{%", false)) {}
+      return null;
     }
-    function inTag (close) {
-      if (close == "{") {
-        close = "}";
+
+    function inTag (startTag) {
+      var closeChar = null;
+
+      if (startTag == "{{") {
+        closeChar = "}";
+      } else if (startTag == "{%") {
+        closeChar = "%";
+      } else {
+        throw Error("Invalid Django template start tag:", startTag);
       }
+
       return function (stream, state) {
-        var ch = stream.next();
-        if ((ch == close) && stream.eat("}")) {
+        var ch;
+
+        // Identify tag closing
+        if (stream.peek() == closeChar) {
           state.tokenize = tokenBase;
-          return "tag";
+          ch = stream.next(); // Advance character in stream
+          ch = stream.next();
+          if (ch == '}') {
+            return "tag";
+          } else if (ch) {
+            return "error";
+          }
         }
+
+        // Identify keyword
         if (stream.match(keywords)) {
           return "keyword";
         }
+
+        // Identify filter
         if (stream.match(filters)) {
           return "variable-2";
         }
+        var ch = stream.next();
         if(state.instring) {
           if(ch == state.instring) {
             state.instring = false;
@@ -76,6 +101,9 @@
           stream.next();
           return "string";
         }
+
+        // If there is nothing to consume, eat all whitespaces
+        stream.eatSpace();
         return null;
       };
     }
