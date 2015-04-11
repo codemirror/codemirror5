@@ -22,7 +22,6 @@ CodeMirror.defineMode('z80', function(config, parserConfig) {
     keywords2 = /^(call|j[pr]|ret[in]?|b_?(call|jump))\b/i;
   }
 
-  var keywords3;
   var variables1 = /^(af?|bc?|c|de?|e|hl?|l|i[xy]?|r|sp)\b/i;
   var variables2 = /^(n?[zc]|p[oe]?|m)\b/i;
   var errors = /^([hl][xy]|i[xy][hl]|slia|sll)\b/i;
