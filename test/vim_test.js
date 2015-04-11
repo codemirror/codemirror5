@@ -3682,6 +3682,35 @@ testVim('ex_set_string', function(cm, vim, helpers) {
   helpers.doEx('set testoption=c')
   eq('c', CodeMirror.Vim.getOption('testoption'));
 });
+testVim('ex_set_filetype', function(cm, vim, helpers) {
+  CodeMirror.defineMode('test_mode', function() {
+    return {token: function(stream) {
+      stream.match(/^\s+|^\S+/);
+    }};
+  });
+  CodeMirror.defineMode('test_mode_2', function() {
+    return {token: function(stream) {
+      stream.match(/^\s+|^\S+/);
+    }};
+  });
+  // Test mode is set.
+  helpers.doEx('set filetype=test_mode');
+  eq('test_mode', cm.getMode().name);
+  // Test 'ft' alias also sets mode.
+  helpers.doEx('set ft=test_mode_2');
+  eq('test_mode_2', cm.getMode().name);
+});
+testVim('ex_set_filetype_null', function(cm, vim, helpers) {
+  CodeMirror.defineMode('test_mode', function() {
+    return {token: function(stream) {
+      stream.match(/^\s+|^\S+/);
+    }};
+  });
+  cm.setOption('mode', 'test_mode');
+  // Test mode is set to null.
+  helpers.doEx('set filetype=');
+  eq('null', cm.getMode().name);
+});
 // TODO: Reset key maps after each test.
 testVim('ex_map_key2key', function(cm, vim, helpers) {
   helpers.doEx('map a x');

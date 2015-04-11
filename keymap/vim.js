@@ -4151,16 +4151,37 @@
           // Calling set with a boolean option sets it to true.
           value = true;
         }
-        if (!optionIsBoolean && !value || forceGet) {
-          var oldValue = getOption(optionName);
-          // If no value is provided, then we assume this is a get.
+        // 'ft' is an alias for 'filetype'.
+        if (optionName == 'ft') {
+          optionName = 'filetype';
+        }
+        // If no value is provided, then we assume this is a get.
+        if (!optionIsBoolean && value === undefined || forceGet) {
+          var oldValue;
+          if (optionName == 'filetype') {
+            // The 'filetype' option proxies to the CodeMirror 'mode' option.
+            oldValue = cm.getMode().name;
+            if (oldValue == 'null') {
+              oldValue = '';
+            }
+          } else {
+            oldValue = getOption(optionName);
+          }
           if (oldValue === true || oldValue === false) {
             showConfirm(cm, ' ' + (oldValue ? '' : 'no') + optionName);
           } else {
             showConfirm(cm, '  ' + optionName + '=' + oldValue);
           }
         } else {
-          setOption(optionName, value);
+          if (optionName == 'filetype') {
+            // The 'filetype' option proxies to the CodeMirror 'mode' option.
+            if (value == '') {
+              value = 'null';
+            }
+            cm.setOption('mode', value);
+          } else {
+            setOption(optionName, value);
+          }
         }
       },
       registers: function(cm,params) {
