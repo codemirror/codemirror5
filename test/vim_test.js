@@ -2723,6 +2723,44 @@ testVim('exCommand_history', function(cm, vim, helpers) {
   onKeyDown({keyCode: keyCodes.Up}, input, close);
   eq(input, 'sort');
 }, {value: ''});
+testVim('search_clear', function(cm, vim, helpers) {
+  var onKeyDown;
+  var input = '';
+  var keyCodes = {
+    Ctrl: 17,
+    u: 85
+  };
+  cm.openDialog = function(template, callback, options) {
+    onKeyDown = options.onKeyDown;
+  };
+  var close = function(newVal) {
+    if (typeof newVal == 'string') input = newVal;
+  }
+  helpers.doKeys('/');
+  input = 'foo';
+  onKeyDown({keyCode: keyCodes.Ctrl}, input, close);
+  onKeyDown({keyCode: keyCodes.u, ctrlKey: true}, input, close);
+  eq(input, '');
+});
+testVim('exCommand_clear', function(cm, vim, helpers) {
+  var onKeyDown;
+  var input = '';
+  var keyCodes = {
+    Ctrl: 17,
+    u: 85
+  };
+  cm.openDialog = function(template, callback, options) {
+    onKeyDown = options.onKeyDown;
+  };
+  var close = function(newVal) {
+    if (typeof newVal == 'string') input = newVal;
+  }
+  helpers.doKeys(':');
+  input = 'foo';
+  onKeyDown({keyCode: keyCodes.Ctrl}, input, close);
+  onKeyDown({keyCode: keyCodes.u, ctrlKey: true}, input, close);
+  eq(input, '');
+});
 testVim('.', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('2', 'd', 'w');

@@ -1178,7 +1178,8 @@
         }
         function onPromptKeyDown(e, query, close) {
           var keyName = CodeMirror.keyName(e);
-          if (keyName == 'Esc' || keyName == 'Ctrl-C' || keyName == 'Ctrl-[') {
+          if (keyName == 'Esc' || keyName == 'Ctrl-C' || keyName == 'Ctrl-[' ||
+              (keyName == 'Backspace' && query == '')) {
             vimGlobalState.searchHistoryController.pushInput(query);
             vimGlobalState.searchHistoryController.reset();
             updateSearchQuery(cm, originalQuery);
@@ -1188,6 +1189,10 @@
             clearInputState(cm);
             close();
             cm.focus();
+          } else if (keyName == 'Ctrl-U') {
+            // Ctrl-U clears input.
+            CodeMirror.e_stop(e);
+            close('');
           }
         }
         switch (command.searchArgs.querySrc) {
@@ -1248,7 +1253,8 @@
         }
         function onPromptKeyDown(e, input, close) {
           var keyName = CodeMirror.keyName(e), up;
-          if (keyName == 'Esc' || keyName == 'Ctrl-C' || keyName == 'Ctrl-[') {
+          if (keyName == 'Esc' || keyName == 'Ctrl-C' || keyName == 'Ctrl-[' ||
+              (keyName == 'Backspace' && input == '')) {
             vimGlobalState.exCommandHistoryController.pushInput(input);
             vimGlobalState.exCommandHistoryController.reset();
             CodeMirror.e_stop(e);
@@ -1260,6 +1266,10 @@
             up = keyName == 'Up' ? true : false;
             input = vimGlobalState.exCommandHistoryController.nextMatch(input, up) || '';
             close(input);
+          } else if (keyName == 'Ctrl-U') {
+            // Ctrl-U clears input.
+            CodeMirror.e_stop(e);
+            close('');
           } else {
             if ( keyName != 'Left' && keyName != 'Right' && keyName != 'Ctrl' && keyName != 'Alt' && keyName != 'Shift')
               vimGlobalState.exCommandHistoryController.reset();
