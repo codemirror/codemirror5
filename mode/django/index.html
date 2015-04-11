@@ -35,7 +35,7 @@
     </head>
     <body>
         <h1>
-            {{ page.title }}
+            {{ page.title|capfirst }}
         </h1>
         <ul class="my-list">
             {% for item in items %}
