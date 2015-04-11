@@ -26,7 +26,7 @@ CodeMirror.defineMode('z80', function(config, parserConfig) {
 		var variables1 = /^(af?|bc?|c|de?|e|hl?|l|i[xy]?|r|sp)\b/i;
 		var variables2 = /^(n?[zc]|p[oe]?|m)\b/i;
 		var errors = /^([hl][xy]|i[xy][hl]|slia|sll)\b/i;
-		var numbers = /^([\da-f]+h|[0-7]+o|[01]+b|\d+)\b/i;
+		var numbers = /^([\da-f]+h|[0-7]+o|[01]+b|\d+d?)\b/i;
 
         return {
             startState: function() {
@@ -66,16 +66,13 @@ CodeMirror.defineMode('z80', function(config, parserConfig) {
                         } else if (keywords2.test(w)) {
                             state.context = 2;
                             return 'keyword';
-                        /*} else if (keywords3.test(w)) {
-                            state.context = 3;
-                            return 'command'; */
                         } else if (state.context == 4 && numbers.test(w)) {
                             return 'number';
                         }
 
-                        if (errors.test(w)) //errors.test(w))
+                        if (errors.test(w))
                             return 'error';
-                    } else if (stream.match(numbers)) { //numbers.test(w)) {
+                    } else if (stream.match(numbers)) {
                         return 'number';
                     } else {
                         return null;
@@ -113,7 +110,6 @@ CodeMirror.defineMode('z80', function(config, parserConfig) {
             }
         };
     });
-});
 
 CodeMirror.defineMIME("text/x-z80", "z80");
 CodeMirror.defineMIME("text/x-ez80", { name: "z80", ez80: true });
