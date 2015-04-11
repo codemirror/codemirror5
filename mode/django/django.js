@@ -45,6 +45,7 @@
     // styling as the default, when using Django templates inside HTML
     // element attributes
     function tokenBase (stream, state) {
+      // Attempt to identify a variable, template or comment tag respectively
       if (stream.match("{{")) {
         state.tokenize = inVariable;
         return "tag";
@@ -62,6 +63,9 @@
       return null;
     }
 
+    // A string can be included in either single or double quotes (this is
+    // the delimeter). Mark everything as a string until the start delimeter
+    // occurs again.
     function inString (delimeter, previousTokenizer) {
       return function (stream, state) {
         if (stream.eat(delimeter)) {
@@ -256,7 +260,11 @@
       }
 
       // Attempt to match a keyword
-      if (stream.match(keywords)) {
+      var keywordMatch = stream.match(keywords);
+      if (keywordMatch) {
+        if (keywordMatch[0] == "comment") {
+          state.blockCommentTag = true;
+        }
         return "keyword";
       }
 
@@ -273,7 +281,14 @@
         state.waitFilter = null;
         state.waitDot = null;
         state.waitPipe = null;
-        state.tokenize = tokenBase;
+        // If the tag that closes is a block comment tag, we want to mark the
+        // following code as comment, until the tag closes.
+        if (state.blockCommentTag) {
+          state.blockCommentTag = false;  // Release the "lock"
+          state.tokenize = inBlockComment;
+        } else {
+          state.tokenize = tokenBase;
+        }
         return "tag";
       }
 
@@ -282,11 +297,24 @@
       return "null";
     }
 
+    // Mark everything as comment inside the tag and the tag itself.
     function inComment (stream, state) {
       if (stream.match("#}")) {
         state.tokenize = tokenBase;
       }
       return "comment";
+    }
+
+    // Mark everything as a comment until the `blockcomment` tag closes.
+    function inBlockComment (stream, state) {
+      if (stream.match(/\{%\s*endcomment\s*%\}/, false)) {
+        state.tokenize = inTag;
+        stream.match("{%");
+        return "tag";
+      } else {
+        stream.next();
+        return "comment";
+      }
     }
 
     return {
