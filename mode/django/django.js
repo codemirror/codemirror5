@@ -14,8 +14,8 @@
   "use strict";
 
   CodeMirror.defineMode("django:inner", function() {
-    var keywords = ["block", "endblock", "for", "endfor", "in", "true", "false",
-                    "loop", "none", "self", "super", "if", "endif", "as", "not", "and",
+    var keywords = ["block", "endblock", "for", "endfor", "true", "false",
+                    "loop", "none", "self", "super", "if", "endif", "as",
                     "else", "import", "with", "endwith", "without", "context", "ifequal", "endifequal",
                     "ifnotequal", "endifnotequal", "extends", "include", "load", "comment",
                     "endcomment", "empty", "url", "static", "trans", "blocktrans", "now", "regroup",
@@ -34,10 +34,12 @@
                    "time", "timesince", "timeuntil", "title", "truncatechars",
                    "truncatechars_html", "truncatewords", "truncatewords_html",
                    "unordered_list", "upper", "urlencode", "urlize",
-                   "urlizetrunc", "wordcount", "wordwrap", "yesno"];
+                   "urlizetrunc", "wordcount", "wordwrap", "yesno"],
+        operators = ["==", "!=", "<", ">", "<=", ">=", "in", "not", "or", "and"];
 
     keywords = new RegExp("^\\b(" + keywords.join("|") + ")\\b");
     filters = new RegExp("^\\b(" + filters.join("|") + ")\\b");
+    operators = new RegExp("^\\b(" + operators.join("|") + ")\\b");
 
     // We have to return "null" instead of null, in order to avoid string
     // styling as the default, when using Django templates inside HTML
@@ -243,6 +245,11 @@
       } else if (stream.match('"')) {
         state.tokenize = inString('"', state.tokenize);
         return "string";
+      }
+
+      // Attempt to match an operator
+      if (stream.match(operators)) {
+        return "operator";
       }
 
       // Attempt to match a keyword
