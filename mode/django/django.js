@@ -68,11 +68,22 @@
     // occurs again.
     function inString (delimeter, previousTokenizer) {
       return function (stream, state) {
-        if (stream.eat(delimeter)) {
+        if (!state.escapeNext && stream.eat(delimeter)) {
           state.tokenize = previousTokenizer;
         } else {
+          if (state.escapeNext) {
+            state.escapeNext = false;
+          }
+
           var ch = stream.next();
+
+          // Take into account the backslash for escaping characters, such as
+          // the string delimeter.
+          if (ch == "\\") {
+            state.escapeNext = true;
+          }
         }
+
         return "string";
       };
     }
