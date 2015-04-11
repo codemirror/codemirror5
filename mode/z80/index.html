@@ -32,9 +32,9 @@
 .org        progStart-2
 .db         $BB,$6D
     bcall(_ClrLCDFull)
-    ld  HL, 0
-    ld  (PenCol),   HL
-    ld  HL, Message
+    ld hl,0
+    ld (CurCol),hl
+    ld hl,Message
     bcall(_PutS) ; Displays the string
     bcall(_NewLine)
     ret
@@ -48,5 +48,5 @@ Message:
       });
     </script>
 
-    <p><strong>MIME type defined:</strong> <code>text/x-z80</code>.</p>
+    <p><strong>MIME types defined:</strong> <code>text/x-z80</code>, <code>text/x-ez80</code>.</p>
   </article>
