@@ -382,14 +382,19 @@
     }
 
     var options = {};
-    function defineOption(name, defaultValue, type) {
-      if (defaultValue === undefined) { throw Error('defaultValue is required'); }
+    function defineOption(name, defaultValue, type, callback) {
+      if (defaultValue === undefined && !callback) {
+        throw Error('defaultValue is required unless callback is provided');
+      }
       if (!type) { type = 'string'; }
       options[name] = {
         type: type,
-        defaultValue: defaultValue
+        defaultValue: defaultValue,
+        callback: callback
       };
-      setOption(name, defaultValue);
+      if (defaultValue) {
+        setOption(name, defaultValue);
+      }
     }
 
     function setOption(name, value) {
@@ -405,7 +410,11 @@
           value = true;
         }
       }
-      option.value = option.type == 'boolean' ? !!value : value;
+      if (option.callback) {
+        option.callback(value);
+      } else {
+        option.value = option.type == 'boolean' ? !!value : value;
+      }
     }
 
     function getOption(name) {
@@ -413,7 +422,11 @@
       if (!option) {
         throw Error('Unknown option: ' + name);
       }
-      return option.value;
+      if (option.callback) {
+        return option.callback();
+      } else {
+        return option.value;
+      }
     }
 
     var createCircularJumpList = function() {

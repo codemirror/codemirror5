@@ -3720,6 +3720,29 @@ testVim('ex_set_string', function(cm, vim, helpers) {
   helpers.doEx('set testoption=c')
   eq('c', CodeMirror.Vim.getOption('testoption'));
 });
+testVim('ex_set_callback', function(cm, vim, helpers) {
+  var storedVal = 'a';
+
+  function cb(val) {
+    if (val === undefined) {
+      return storedVal;
+    } else {
+      storedVal = val;
+    }
+  }
+
+  CodeMirror.Vim.defineOption('testcboption', undefined, 'string', cb);
+  // Test default value is set.
+  eq('a', CodeMirror.Vim.getOption('testcboption'));
+  try {
+    // Test fail to set 'notestcboption'
+    helpers.doEx('set notestcboption=b');
+    fail();
+  } catch (expected) {};
+  // Test setOption
+  helpers.doEx('set testcboption=c')
+  eq('c', CodeMirror.Vim.getOption('testcboption'));
+})
 // TODO: Reset key maps after each test.
 testVim('ex_map_key2key', function(cm, vim, helpers) {
   helpers.doEx('map a x');
