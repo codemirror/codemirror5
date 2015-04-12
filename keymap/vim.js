@@ -382,14 +382,19 @@
     }
 
     var options = {};
-    function defineOption(name, defaultValue, type) {
-      if (defaultValue === undefined) { throw Error('defaultValue is required'); }
+    function defineOption(name, defaultValue, type, callback) {
+      if (defaultValue === undefined && !callback) {
+        throw Error('defaultValue is required unless callback is provided');
+      }
       if (!type) { type = 'string'; }
       options[name] = {
         type: type,
-        defaultValue: defaultValue
+        defaultValue: defaultValue,
+        callback: callback
       };
-      setOption(name, defaultValue);
+      if (defaultValue) {
+        setOption(name, defaultValue);
+      }
     }
 
     function setOption(name, value) {
@@ -405,7 +410,11 @@
           value = true;
         }
       }
-      option.value = option.type == 'boolean' ? !!value : value;
+      if (option.callback) {
+        option.callback(value);
+      } else {
+        option.value = option.type == 'boolean' ? !!value : value;
+      }
     }
 
     function getOption(name) {
@@ -413,7 +422,11 @@
       if (!option) {
         throw Error('Unknown option: ' + name);
       }
-      return option.value;
+      if (option.callback) {
+        return option.callback();
+      } else {
+        return option.value;
+      }
     }
 
     var createCircularJumpList = function() {
@@ -1178,7 +1191,8 @@
         }
         function onPromptKeyDown(e, query, close) {
           var keyName = CodeMirror.keyName(e);
-          if (keyName == 'Esc' || keyName == 'Ctrl-C' || keyName == 'Ctrl-[') {
+          if (keyName == 'Esc' || keyName == 'Ctrl-C' || keyName == 'Ctrl-[' ||
+              (keyName == 'Backspace' && query == '')) {
             vimGlobalState.searchHistoryController.pushInput(query);
             vimGlobalState.searchHistoryController.reset();
             updateSearchQuery(cm, originalQuery);
@@ -1188,6 +1202,10 @@
             clearInputState(cm);
             close();
             cm.focus();
+          } else if (keyName == 'Ctrl-U') {
+            // Ctrl-U clears input.
+            CodeMirror.e_stop(e);
+            close('');
           }
         }
         switch (command.searchArgs.querySrc) {
@@ -1248,7 +1266,8 @@
         }
         function onPromptKeyDown(e, input, close) {
           var keyName = CodeMirror.keyName(e), up;
-          if (keyName == 'Esc' || keyName == 'Ctrl-C' || keyName == 'Ctrl-[') {
+          if (keyName == 'Esc' || keyName == 'Ctrl-C' || keyName == 'Ctrl-[' ||
+              (keyName == 'Backspace' && input == '')) {
             vimGlobalState.exCommandHistoryController.pushInput(input);
             vimGlobalState.exCommandHistoryController.reset();
             CodeMirror.e_stop(e);
@@ -1260,6 +1279,10 @@
             up = keyName == 'Up' ? true : false;
             input = vimGlobalState.exCommandHistoryController.nextMatch(input, up) || '';
             close(input);
+          } else if (keyName == 'Ctrl-U') {
+            // Ctrl-U clears input.
+            CodeMirror.e_stop(e);
+            close('');
           } else {
             if ( keyName != 'Left' && keyName != 'Right' && keyName != 'Ctrl' && keyName != 'Alt' && keyName != 'Shift')
               vimGlobalState.exCommandHistoryController.reset();

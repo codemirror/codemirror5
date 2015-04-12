@@ -2723,6 +2723,44 @@ testVim('exCommand_history', function(cm, vim, helpers) {
   onKeyDown({keyCode: keyCodes.Up}, input, close);
   eq(input, 'sort');
 }, {value: ''});
+testVim('search_clear', function(cm, vim, helpers) {
+  var onKeyDown;
+  var input = '';
+  var keyCodes = {
+    Ctrl: 17,
+    u: 85
+  };
+  cm.openDialog = function(template, callback, options) {
+    onKeyDown = options.onKeyDown;
+  };
+  var close = function(newVal) {
+    if (typeof newVal == 'string') input = newVal;
+  }
+  helpers.doKeys('/');
+  input = 'foo';
+  onKeyDown({keyCode: keyCodes.Ctrl}, input, close);
+  onKeyDown({keyCode: keyCodes.u, ctrlKey: true}, input, close);
+  eq(input, '');
+});
+testVim('exCommand_clear', function(cm, vim, helpers) {
+  var onKeyDown;
+  var input = '';
+  var keyCodes = {
+    Ctrl: 17,
+    u: 85
+  };
+  cm.openDialog = function(template, callback, options) {
+    onKeyDown = options.onKeyDown;
+  };
+  var close = function(newVal) {
+    if (typeof newVal == 'string') input = newVal;
+  }
+  helpers.doKeys(':');
+  input = 'foo';
+  onKeyDown({keyCode: keyCodes.Ctrl}, input, close);
+  onKeyDown({keyCode: keyCodes.u, ctrlKey: true}, input, close);
+  eq(input, '');
+});
 testVim('.', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('2', 'd', 'w');
@@ -3682,6 +3720,29 @@ testVim('ex_set_string', function(cm, vim, helpers) {
   helpers.doEx('set testoption=c')
   eq('c', CodeMirror.Vim.getOption('testoption'));
 });
+testVim('ex_set_callback', function(cm, vim, helpers) {
+  var storedVal = 'a';
+
+  function cb(val) {
+    if (val === undefined) {
+      return storedVal;
+    } else {
+      storedVal = val;
+    }
+  }
+
+  CodeMirror.Vim.defineOption('testcboption', undefined, 'string', cb);
+  // Test default value is set.
+  eq('a', CodeMirror.Vim.getOption('testcboption'));
+  try {
+    // Test fail to set 'notestcboption'
+    helpers.doEx('set notestcboption=b');
+    fail();
+  } catch (expected) {};
+  // Test setOption
+  helpers.doEx('set testcboption=c')
+  eq('c', CodeMirror.Vim.getOption('testcboption'));
+})
 testVim('ex_set_filetype', function(cm, vim, helpers) {
   CodeMirror.defineMode('test_mode', function() {
     return {token: function(stream) {
