@@ -11,7 +11,7 @@
 })(function(CodeMirror) {
   "use strict";
 
-  CodeMirror.defineSimpleMode("hbs", {
+  CodeMirror.defineSimpleMode("handlebars", {
     start: [
       { regex: /\{\{!--/, push: "dash_comment", token: "comment" },
       { regex: /\{\{!/,   push: "comment", token: "comment" },
@@ -49,5 +49,5 @@
     ]
   });
 
-  CodeMirror.defineMIME("text/x-handlebars-template", "hbs");
+  CodeMirror.defineMIME("text/x-handlebars-template", "handlebars");
 });

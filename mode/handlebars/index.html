@@ -7,6 +7,8 @@
 <link rel="stylesheet" href="../../lib/codemirror.css">
 <script src="../../lib/codemirror.js"></script>
 <script src="../../addon/mode/simple.js"></script>
+<script src="../../addon/mode/multiplex.js"></script>
+<script src="../xml/xml.js"></script>
 <script src="handlebars.js"></script>
 <style>.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
 <div id=nav>
@@ -59,10 +61,18 @@
 
 </textarea></form>
     <script>
+      CodeMirror.defineMode("htmlhandlebars", function(config) {
+        return CodeMirror.multiplexingMode(
+          CodeMirror.getMode(config, "text/html"),
+          {open: "{{", close: "}}",
+           mode: CodeMirror.getMode(config, "handlebars"),
+           parseDelimiters: true});
+      });
+
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true,
         matchBrackets: true,
-        mode: "text/x-handlebars-template"
+        mode: "htmlhandlebars"
       });
     </script>
     </script>

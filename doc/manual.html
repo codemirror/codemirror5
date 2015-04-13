@@ -2431,7 +2431,7 @@ editor.setOption("extraKeys", {
       between several modes.
       Defines <code>CodeMirror.multiplexingMode</code> which, when
       given as first argument a mode object, and as other arguments
-      any number of <code>{open, close, mode [, delimStyle, innerStyle]}</code>
+      any number of <code>{open, close, mode [, delimStyle, innerStyle, parseDelimiters]}</code>
       objects, will return a mode object that starts parsing using the
       mode passed as first argument, but will switch to another mode
       as soon as it encounters a string that occurs in one of
@@ -2443,8 +2443,11 @@ editor.setOption("extraKeys", {
       <ul><li>When <code>delimStyle</code> is specified, it will be the token
       style returned for the delimiter tokens.</li>
       <li>When <code>innerStyle</code> is specified, it will be the token
-      style added for each inner mode token.</li></ul>
-      The outer mode will not see the content between the delimiters.
+      style added for each inner mode token.</li>
+      <li>When <code>parseDelimiters</code> is true, the content of
+      the delimiters will also be passed to the inner mode.
+      (And <code>delimStyle</code> is ignored.)</li></ul> The outer
+      mode will not see the content between the delimiters.
       See <a href="../demo/multiplex.html">this demo</a> for an
       example.</dd>
 
