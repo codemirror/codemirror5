@@ -397,8 +397,10 @@
       }
     }
 
-    function setOption(name, value) {
+    function setOption(name, value, cm, cfg) {
       var option = options[name];
+      cfg = cfg || {}
+      var scope = cfg.scope;
       if (!option) {
         throw Error('Unknown option: ' + name);
       }
@@ -411,21 +413,41 @@
         }
       }
       if (option.callback) {
-        option.callback(value);
+        if (scope !== 'local') {
+          option.callback(value, undefined);
+        }
+        if (scope !== 'global' && cm) {
+          option.callback(value, cm);
+        }
       } else {
-        option.value = option.type == 'boolean' ? !!value : value;
+        if (scope !== 'local') {
+          option.value = option.type == 'boolean' ? !!value : value;
+        }
+        if (scope !== 'global' && cm) {
+          cm.state.vim.options[name] = {value: value};
+        }
       }
     }
 
-    function getOption(name) {
+    function getOption(name, cm, cfg) {
       var option = options[name];
+      cfg = cfg || {}
+      var scope = cfg.scope;
       if (!option) {
         throw Error('Unknown option: ' + name);
       }
       if (option.callback) {
-        return option.callback();
+        var local = cm && option.callback(undefined, cm);
+        if (scope !== 'global' && local !== undefined) {
+          return local;
+        }
+        if (scope !== 'local') {
+          return option.callback();
+        }
+        return;
       } else {
-        return option.value;
+        var local = (scope !== 'global') && (cm && cm.state.vim.options[name]);
+        return (local || (scope !== 'local') && option || {}).value;
       }
     }
 
@@ -581,8 +603,9 @@
           visualBlock: false,
           lastSelection: null,
           lastPastedText: null,
-          sel: {
-          }
+          sel: {},
+          // Buffer-local/window-local values of vim options.
+          options: {}
         };
       }
       return cm.state.vim;
@@ -640,6 +663,8 @@
         // Add user defined key bindings.
         exCommandDispatcher.map(lhs, rhs, ctx);
       },
+      // TODO: Expose setOption and getOption as instance methods. Need to decide how to namespace
+      // them, or somehow make them work with the existing CodeMirror setOption/getOption API.
       setOption: setOption,
       getOption: getOption,
       defineOption: defineOption,
@@ -3881,7 +3906,10 @@
       { name: 'write', shortName: 'w' },
       { name: 'undo', shortName: 'u' },
       { name: 'redo', shortName: 'red' },
-      { name: 'set', shortName: 'set' },
+      { name: 'set', shortName: 'se' },
+      { name: 'set', shortName: 'se' },
+      { name: 'setlocal', shortName: 'setl' },
+      { name: 'setglobal', shortName: 'setg' },
       { name: 'sort', shortName: 'sor' },
       { name: 'substitute', shortName: 's', possiblyAsync: true },
       { name: 'nohlsearch', shortName: 'noh' },
@@ -4146,6 +4174,9 @@
       },
       set: function(cm, params) {
         var setArgs = params.args;
+        // Options passed through to the setOption/getOption calls. May be passed in by the
+        // local/global versions of the set command
+        var setCfg = params.setCfg || {};
         if (!setArgs || setArgs.length < 1) {
           if (cm) {
             showConfirm(cm, 'Invalid mapping: ' + params.input);
@@ -4175,7 +4206,7 @@
           value = true;
         }
         if (!optionIsBoolean && !value || forceGet) {
-          var oldValue = getOption(optionName);
+          var oldValue = getOption(optionName, cm, setCfg);
           // If no value is provided, then we assume this is a get.
           if (oldValue === true || oldValue === false) {
             showConfirm(cm, ' ' + (oldValue ? '' : 'no') + optionName);
@@ -4183,10 +4214,20 @@
             showConfirm(cm, '  ' + optionName + '=' + oldValue);
           }
         } else {
-          setOption(optionName, value);
+          setOption(optionName, value, cm, setCfg);
         }
       },
-      registers: function(cm,params) {
+      setlocal: function (cm, params) {
+        // setCfg is passed through to setOption
+        params.setCfg = {scope: 'local'};
+        this.set(cm, params);
+      },
+      setglobal: function (cm, params) {
+        // setCfg is passed through to setOption
+        params.setCfg = {scope: 'global'};
+        this.set(cm, params);
+      },
+      registers: function(cm, params) {
         var regArgs = params.args;
         var registers = vimGlobalState.registerController.registers;
         var regInfo = '----------Registers----------<br><br>';
