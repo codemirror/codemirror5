@@ -1,0 +1,63 @@
+<!doctype html>
+
+<title>CodeMirror: JSP Mode</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../../doc/docs.css">
+
+<link rel="stylesheet" href="../../lib/codemirror.css">
+<script src="../../lib/codemirror.js"></script>
+<script src="../../addon/edit/matchbrackets.js"></script>
+<link rel="stylesheet" href="../../addon/hint/show-hint.css">
+<script src="../../addon/hint/show-hint.js"></script>
+<script src="jsp.js"></script>
+<script src="../xml/xml.js"></script>
+<script src="../clike/clike.js"></script>
+<style>.CodeMirror {border: 2px inset #dee;}</style>
+<div id=nav>
+  <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../../doc/logo.png"></a>
+
+  <ul>
+    <li><a href="../../index.html">Home</a>
+    <li><a href="../../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="../index.html">Language modes</a>
+    <li><a class=active href="#">JSP</a>
+  </ul>
+</div>
+
+<article>
+<h2>JSP Mode</h2>
+
+<div><textarea id="jsp-code">
+/* JSP Demo Code */
+&lt;%@ page contentType="text/html;charset=UTF-8" language="java" %&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;Sample JSP Mode&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;Print First Five Numbers&lt;/h1&gt;
+    &lt;% 
+    for (int i = 0; i &lt; 5; i++) {
+        %&gt;
+        &lt;p&gt;&lt;%=i%&gt;&lt;/p&gt;
+        &lt;%
+    }
+    %&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</textarea></div>
+
+    <script>
+      var jspEditor = CodeMirror.fromTextArea(document.getElementById("jsp-code"), {
+        lineNumbers: true,
+        matchBrackets: true,
+        mode: "text/x-jsp"
+      });
+
+      var mac = CodeMirror.keyMap.default == CodeMirror.keyMap.macDefault;
+      CodeMirror.keyMap.default[(mac ? "Cmd" : "Ctrl") + "-Space"] = "autocomplete";
+    </script>
+</article>
