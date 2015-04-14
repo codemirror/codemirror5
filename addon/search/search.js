@@ -53,7 +53,7 @@
     return cm.getSearchCursor(query, pos, queryCaseInsensitive(query));
   }
   function dialog(cm, text, shortText, deflt, f) {
-    if (cm.openDialog) cm.openDialog(text, f, {value: deflt});
+    if (cm.openDialog) cm.openDialog(text, f, {value: deflt, selectValueOnOpen: true});
     else f(prompt(shortText, deflt));
   }
   function confirmDialog(cm, text, shortText, fs) {
@@ -118,8 +118,8 @@
   var doReplaceConfirm = "Replace? <button>Yes</button> <button>No</button> <button>Stop</button>";
   function replace(cm, all) {
     if (cm.getOption("readOnly")) return;
-    var q = cm.getSelection() || state.lastQuery;
-    dialog(cm, replaceQueryDialog, "Replace:", q, function(query) {
+    var query = cm.getSelection() || getSearchState().lastQuery;
+    dialog(cm, replaceQueryDialog, "Replace:", query, function(query) {
       if (!query) return;
       query = parseQuery(query);
       dialog(cm, replacementQueryDialog, "Replace with:", "", function(text) {
