@@ -13,10 +13,10 @@
 
   CodeMirror.defineMode("ttcn-cfg", function(config, parserConfig) {
     var indentUnit = config.indentUnit,
-        statementIndentUnit = parserConfig.statementIndentUnit || indentUnit,
-        dontAlignCalls = parserConfig.dontAlignCalls,
+        // statementIndentUnit = parserConfig.statementIndentUnit || indentUnit,
+        // dontAlignCalls = parserConfig.dontAlignCalls,
         keywords = parserConfig.keywords || {},
-        sectionTitle = parserConfig.sectionTitle || {},
+        // sectionTitle = parserConfig.sectionTitle || {},
         fileNCtrlMaskOptions = parserConfig.fileNCtrlMaskOptions || {},
         externalCommands = parserConfig.externalCommands || {},
         multiLineStrings = parserConfig.multiLineStrings,
@@ -66,7 +66,7 @@
         var escaped = false, next, end = false;
         while ((next = stream.next()) != null) {
           if (next == quote && !escaped){
-            var afterNext = stream.peek()
+            var afterNext = stream.peek();
             //look if the character if the quote is like the B in '10100010'B
             if (afterNext){
               afterNext = afterNext.toLowerCase();
@@ -148,20 +148,20 @@
         return style;
       },
 
-      indent: function(state, textAfter) {
-        if (state.tokenize != tokenBase && state.tokenize != null)
-          return CodeMirror.Pass;
-        var ctx = state.context, firstChar = textAfter && textAfter.charAt(0);
-        if (ctx.type == "statement" && firstChar == "}") ctx = ctx.prev;
-        var closing = firstChar == ctx.type;
-        if (ctx.type == "statement")
-          return ctx.indented (firstChar == "{" ? 0 : statementIndentUnit);
-        else if (ctx.align && (!dontAlignCalls || ctx.type != ")"))
-          return ctx.column + (closing ? 0 : 1);
-        else if (ctx.type == ")" && !closing)
-          return ctx.indented + statementIndentUnit;
-        else return ctx.indented + (closing ? 0 : indentUnit);
-      },
+      // indent: function(state, textAfter) {
+      //   if (state.tokenize != tokenBase && state.tokenize != null)
+      //     return CodeMirror.Pass;
+      //   var ctx = state.context, firstChar = textAfter && textAfter.charAt(0);
+      //   if (ctx.type == "statement" && firstChar == "}") ctx = ctx.prev;
+      //   var closing = firstChar == ctx.type;
+      //   if (ctx.type == "statement")
+      //     return ctx.indented (firstChar == "{" ? 0 : statementIndentUnit);
+      //   else if (ctx.align && (!dontAlignCalls || ctx.type != ")"))
+      //     return ctx.column + (closing ? 0 : 1);
+      //   else if (ctx.type == ")" && !closing)
+      //     return ctx.indented + statementIndentUnit;
+      //   else return ctx.indented + (closing ? 0 : indentUnit);
+      // },
 
       electricChars: "{}",
       lineComment: "#",

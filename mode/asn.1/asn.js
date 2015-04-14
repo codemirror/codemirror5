@@ -71,7 +71,7 @@
         var escaped = false, next, end = false;
         while ((next = stream.next()) != null) {
           if (next == quote && !escaped){
-            var afterNext = stream.peek()
+            var afterNext = stream.peek();
             //look if the character if the quote is like the B in '10100010'B
             if (afterNext){
               afterNext = afterNext.toLowerCase();

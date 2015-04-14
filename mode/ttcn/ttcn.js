@@ -1,3 +1,6 @@
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
+
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
     mod(require("../lib/codemirror"));
@@ -35,7 +38,6 @@
 
     function tokenBase(stream, state) {
       var ch = stream.next();
-      console.log("Current char: ", ch)
 
       if (ch == '"' || ch == "'") {
         state.tokenize = tokenString(ch);
@@ -107,7 +109,7 @@
         var escaped = false, next, end = false;
         while ((next = stream.next()) != null) {
           if (next == quote && !escaped){
-            var afterQuote = stream.peek()
+            var afterQuote = stream.peek();
             //look if the character after the quote is like the B in '10100010'B
             if (afterQuote){
               afterQuote = afterQuote.toLowerCase();
