@@ -1312,8 +1312,8 @@
         var registerName = inputState.registerName;
         var sel = vim.sel;
         // TODO: Make sure cm and vim selections are identical outside visual mode.
-        var origHead = copyCursor(vim.visualMode ? sel.head: cm.getCursor('head'));
-        var origAnchor = copyCursor(vim.visualMode ? sel.anchor : cm.getCursor('anchor'));
+        var origHead = copyCursor(vim.visualMode ? clipCursorToContent(cm, sel.head): cm.getCursor('head'));
+        var origAnchor = copyCursor(vim.visualMode ? clipCursorToContent(cm, sel.anchor) : cm.getCursor('anchor'));
         var oldHead = copyCursor(origHead);
         var oldAnchor = copyCursor(origAnchor);
         var newHead, newAnchor;
@@ -4808,7 +4808,7 @@
     }
     function updateFakeCursor(cm) {
       var vim = cm.state.vim;
-      var from = copyCursor(vim.sel.head);
+      var from = clipCursorToContent(cm, copyCursor(vim.sel.head));
       var to = offsetCursor(from, 0, 1);
       if (vim.fakeCursor) {
         vim.fakeCursor.clear();
