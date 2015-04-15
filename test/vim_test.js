@@ -504,7 +504,7 @@ testVim('{', function(cm, vim, helpers) {
   helpers.doKeys('6', '{');
   helpers.assertCursorAt(0, 0);
 }, { value: 'a\n\nb\nc\n\nd' });
-testVim('paragraph motions', function(cm, vim, helpers) {
+testVim('paragraph_motions', function(cm, vim, helpers) {
   cm.setCursor(10, 0);
   helpers.doKeys('{');
   helpers.assertCursorAt(4, 0);
@@ -1895,7 +1895,11 @@ testVim('visual_block_move_to_eol', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('<C-v>', 'G', '$');
   var selections = cm.getSelections().join();
-  eq("123,45,6", selections);
+  eq('123,45,6', selections);
+  // Checks that with cursor at Infinity, finding words backwards still works.
+  helpers.doKeys('2', 'k', 'b');
+  selections = cm.getSelections().join();
+  eq('1', selections);
 }, {value: '123\n45\n6'});
 testVim('visual_block_different_line_lengths', function(cm, vim, helpers) {
   // test the block selection with lines of different length
@@ -3708,40 +3712,82 @@ testVim('set_string', function(cm, vim, helpers) {
   eq('c', CodeMirror.Vim.getOption('testoption'));
 });
 testVim('ex_set_string', function(cm, vim, helpers) {
-  CodeMirror.Vim.defineOption('testoption', 'a', 'string');
+  CodeMirror.Vim.defineOption('testopt', 'a', 'string');
   // Test default value is set.
-  eq('a', CodeMirror.Vim.getOption('testoption'));
+  eq('a', CodeMirror.Vim.getOption('testopt'));
   try {
-    // Test fail to set 'notestoption'
-    helpers.doEx('set notestoption=b');
+    // Test fail to set 'notestopt'
+    helpers.doEx('set notestopt=b');
     fail();
   } catch (expected) {};
   // Test setOption
-  helpers.doEx('set testoption=c')
-  eq('c', CodeMirror.Vim.getOption('testoption'));
+  helpers.doEx('set testopt=c')
+  eq('c', CodeMirror.Vim.getOption('testopt'));
+  helpers.doEx('set testopt=c')
+  eq('c', CodeMirror.Vim.getOption('testopt', cm)); //local || global
+  eq('c', CodeMirror.Vim.getOption('testopt', cm, {scope: 'local'})); // local
+  eq('c', CodeMirror.Vim.getOption('testopt', cm, {scope: 'global'})); // global
+  eq('c', CodeMirror.Vim.getOption('testopt')); // global
+  // Test setOption global
+  helpers.doEx('setg testopt=d')
+  eq('c', CodeMirror.Vim.getOption('testopt', cm));
+  eq('c', CodeMirror.Vim.getOption('testopt', cm, {scope: 'local'}));
+  eq('d', CodeMirror.Vim.getOption('testopt', cm, {scope: 'global'}));
+  eq('d', CodeMirror.Vim.getOption('testopt'));
+  // Test setOption local
+  helpers.doEx('setl testopt=e')
+  eq('e', CodeMirror.Vim.getOption('testopt', cm));
+  eq('e', CodeMirror.Vim.getOption('testopt', cm, {scope: 'local'}));
+  eq('d', CodeMirror.Vim.getOption('testopt', cm, {scope: 'global'}));
+  eq('d', CodeMirror.Vim.getOption('testopt'));
 });
 testVim('ex_set_callback', function(cm, vim, helpers) {
-  var storedVal = 'a';
+  var global;
 
-  function cb(val) {
+  function cb(val, cm, cfg) {
     if (val === undefined) {
-      return storedVal;
+      // Getter
+      if (cm) {
+        return cm._local;
+      } else {
+        return global;
+      }
     } else {
-      storedVal = val;
+      // Setter
+      if (cm) {
+        cm._local = val;
+      } else {
+        global = val;
+      }
     }
   }
 
-  CodeMirror.Vim.defineOption('testcboption', undefined, 'string', cb);
+  CodeMirror.Vim.defineOption('testopt', 'a', 'string', cb);
   // Test default value is set.
-  eq('a', CodeMirror.Vim.getOption('testcboption'));
+  eq('a', CodeMirror.Vim.getOption('testopt'));
   try {
-    // Test fail to set 'notestcboption'
-    helpers.doEx('set notestcboption=b');
+    // Test fail to set 'notestopt'
+    helpers.doEx('set notestopt=b');
     fail();
   } catch (expected) {};
-  // Test setOption
-  helpers.doEx('set testcboption=c')
-  eq('c', CodeMirror.Vim.getOption('testcboption'));
+  // Test setOption (Identical to the string tests, but via callback instead)
+  helpers.doEx('set testopt=c')
+  eq('c', CodeMirror.Vim.getOption('testopt', cm)); //local || global
+  eq('c', CodeMirror.Vim.getOption('testopt', cm, {scope: 'local'})); // local
+  eq('c', CodeMirror.Vim.getOption('testopt', cm, {scope: 'global'})); // global
+  eq('c', CodeMirror.Vim.getOption('testopt')); // global
+  // Test setOption global
+  helpers.doEx('setg testopt=d')
+  eq('c', CodeMirror.Vim.getOption('testopt', cm));
+  eq('c', CodeMirror.Vim.getOption('testopt', cm, {scope: 'local'}));
+  eq('d', CodeMirror.Vim.getOption('testopt', cm, {scope: 'global'}));
+  eq('d', CodeMirror.Vim.getOption('testopt'));
+  // Test setOption local
+  helpers.doEx('setl testopt=e')
+  eq('e', CodeMirror.Vim.getOption('testopt', cm));
+  eq('e', CodeMirror.Vim.getOption('testopt', cm, {scope: 'local'}));
+  eq('d', CodeMirror.Vim.getOption('testopt', cm, {scope: 'global'}));
+  eq('d', CodeMirror.Vim.getOption('testopt'));
 })
 testVim('ex_set_filetype', function(cm, vim, helpers) {
   CodeMirror.defineMode('test_mode', function() {

@@ -450,18 +450,6 @@
       10 000. You can set this to <code>Infinity</code> to turn off
       this behavior.</dd>
 
-      <dt id="option_crudeMeasuringFrom"><code><strong>crudeMeasuringFrom</strong>: number</code></dt>
-      <dd>When measuring the character positions in long lines, any
-      line longer than this number (default is 10 000),
-      when <a href="#option_lineWrapping">line wrapping</a>
-      is <strong>off</strong>, will simply be assumed to consist of
-      same-sized characters. This means that, on the one hand,
-      measuring will be inaccurate when characters of varying size,
-      right-to-left text, markers, or other irregular elements are
-      present. On the other hand, it means that having such a line
-      won't freeze the user interface because of the expensiveness of
-      the measurements.</dd>
-
       <dt id="option_viewportMargin"><code><strong>viewportMargin</strong>: integer</code></dt>
       <dd>Specifies the amount of lines that are rendered above and
       below the part of the document that's currently scrolled into
@@ -869,10 +857,10 @@ editor.setOption("extraKeys", {
       <dd>Redo the last change to the selection, or the last text change if
       no selection changes remain.</dd>
 
-      <dt class=command id=command_goDocStart><code><strong>goDocStart</strong></code><span class=keybinding>Ctrl-Up (PC), Cmd-Up (Mac), Cmd-Home (Mac)</span></dt>
+      <dt class=command id=command_goDocStart><code><strong>goDocStart</strong></code><span class=keybinding>Ctrl-Home (PC), Cmd-Up (Mac), Cmd-Home (Mac)</span></dt>
       <dd>Move the cursor to the start of the document.</dd>
 
-      <dt class=command id=command_goDocEnd><code><strong>goDocEnd</strong></code><span class=keybinding>Ctrl-Down (PC), Cmd-End (Mac), Cmd-Down (Mac)</span></dt>
+      <dt class=command id=command_goDocEnd><code><strong>goDocEnd</strong></code><span class=keybinding>Ctrl-End (PC), Cmd-End (Mac), Cmd-Down (Mac)</span></dt>
       <dd>Move the cursor to the end of the document.</dd>
 
       <dt class=command id=command_goLineStart><code><strong>goLineStart</strong></code><span class=keybinding>Alt-Left (PC), Ctrl-A (Mac)</span></dt>
@@ -2443,7 +2431,7 @@ editor.setOption("extraKeys", {
       between several modes.
       Defines <code>CodeMirror.multiplexingMode</code> which, when
       given as first argument a mode object, and as other arguments
-      any number of <code>{open, close, mode [, delimStyle, innerStyle]}</code>
+      any number of <code>{open, close, mode [, delimStyle, innerStyle, parseDelimiters]}</code>
       objects, will return a mode object that starts parsing using the
       mode passed as first argument, but will switch to another mode
       as soon as it encounters a string that occurs in one of
@@ -2455,8 +2443,11 @@ editor.setOption("extraKeys", {
       <ul><li>When <code>delimStyle</code> is specified, it will be the token
       style returned for the delimiter tokens.</li>
       <li>When <code>innerStyle</code> is specified, it will be the token
-      style added for each inner mode token.</li></ul>
-      The outer mode will not see the content between the delimiters.
+      style added for each inner mode token.</li>
+      <li>When <code>parseDelimiters</code> is true, the content of
+      the delimiters will also be passed to the inner mode.
+      (And <code>delimStyle</code> is ignored.)</li></ul> The outer
+      mode will not see the content between the delimiters.
       See <a href="../demo/multiplex.html">this demo</a> for an
       example.</dd>
 

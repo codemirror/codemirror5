@@ -185,7 +185,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     return obj;
   }
   var cKeywords = "auto if break int case long char register continue return default short do sizeof " +
-    "double static else struct entry switch extern typedef float union for unsigned " +
+    "double static else struct switch extern typedef float union for unsigned " +
     "goto while enum void const signed volatile";
 
   function cppHook(stream, state) {
