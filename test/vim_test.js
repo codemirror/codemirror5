@@ -1895,7 +1895,11 @@ testVim('visual_block_move_to_eol', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('<C-v>', 'G', '$');
   var selections = cm.getSelections().join();
-  eq("123,45,6", selections);
+  eq('123,45,6', selections);
+  // Checks that with cursor at Infinity, finding words backwards still works.
+  helpers.doKeys('2', 'k', 'b');
+  selections = cm.getSelections().join();
+  eq('1', selections);
 }, {value: '123\n45\n6'});
 testVim('visual_block_different_line_lengths', function(cm, vim, helpers) {
   // test the block selection with lines of different length
