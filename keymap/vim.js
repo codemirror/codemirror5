@@ -382,7 +382,8 @@
     }
 
     var options = {};
-    function defineOption(name, defaultValue, type, callback) {
+    var optionAliases = {};
+    function defineOption(name, defaultValue, type, aliases, callback) {
       if (defaultValue === undefined && !callback) {
         throw Error('defaultValue is required unless callback is provided');
       }
@@ -392,6 +393,11 @@
         defaultValue: defaultValue,
         callback: callback
       };
+      if (aliases !== undefined) {
+        for (var i = 0; i < aliases.length; i++) {
+          optionAliases[aliases[i]] = name;
+        }
+      }
       if (defaultValue) {
         setOption(name, defaultValue);
       }
@@ -399,7 +405,7 @@
 
     function setOption(name, value, cm, cfg) {
       var option = options[name];
-      cfg = cfg || {}
+      cfg = cfg || {};
       var scope = cfg.scope;
       if (!option) {
         throw Error('Unknown option: ' + name);
@@ -431,7 +437,7 @@
 
     function getOption(name, cm, cfg) {
       var option = options[name];
-      cfg = cfg || {}
+      cfg = cfg || {};
       var scope = cfg.scope;
       if (!option) {
         throw Error('Unknown option: ' + name);
@@ -450,6 +456,21 @@
         return (local || (scope !== 'local') && option || {}).value;
       }
     }
+
+    defineOption('filetype', undefined, 'string', ['ft'], function(name, cm) {
+      // Option is local. Do nothing for global.
+      if (cm === undefined) {
+        return;
+      }
+      // The 'filetype' option proxies to the CodeMirror 'mode' option.
+      if (name === undefined) {
+        var mode = cm.getMode().name;
+        return mode == 'null' ? '' : mode;
+      } else {
+        var mode = name == '' ? 'null' : name;
+        cm.setOption('mode', mode);
+      }
+    });
 
     var createCircularJumpList = function() {
       var size = 100;
@@ -4200,42 +4221,27 @@
           optionName = optionName.substring(2);
           value = false;
         }
+
+        // Interpret alias names as the aliased option.
+        if (optionAliases[optionName] !== undefined) {
+          optionName = optionAliases[optionName];
+        }
+
         var optionIsBoolean = options[optionName] && options[optionName].type == 'boolean';
         if (optionIsBoolean && value == undefined) {
           // Calling set with a boolean option sets it to true.
           value = true;
         }
-        // 'ft' is an alias for 'filetype'.
-        if (optionName == 'ft') {
-          optionName = 'filetype';
-        }
         // If no value is provided, then we assume this is a get.
         if (!optionIsBoolean && value === undefined || forceGet) {
-          var oldValue;
-          if (optionName == 'filetype') {
-            // The 'filetype' option proxies to the CodeMirror 'mode' option.
-            oldValue = cm.getMode().name;
-            if (oldValue == 'null') {
-              oldValue = '';
-            }
-          } else {
-            oldValue = getOption(optionName, cm, setCfg);
-          }
+          var oldValue = getOption(optionName, cm, setCfg);
           if (oldValue === true || oldValue === false) {
             showConfirm(cm, ' ' + (oldValue ? '' : 'no') + optionName);
           } else {
             showConfirm(cm, '  ' + optionName + '=' + oldValue);
           }
         } else {
-          if (optionName == 'filetype') {
-            // The 'filetype' option proxies to the CodeMirror 'mode' option.
-            if (value == '') {
-              value = 'null';
-            }
-            cm.setOption('mode', value);
-          } else {
-            setOption(optionName, value, cm, setCfg);
-          }
+          setOption(optionName, value, cm, setCfg);
         }
       },
       setlocal: function (cm, params) {
