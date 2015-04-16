@@ -382,7 +382,8 @@
     }
 
     var options = {};
-    function defineOption(name, defaultValue, type, callback) {
+    var optionAliases = {};
+    function defineOption(name, defaultValue, type, aliases, callback) {
       if (defaultValue === undefined && !callback) {
         throw Error('defaultValue is required unless callback is provided');
       }
@@ -392,6 +393,11 @@
         defaultValue: defaultValue,
         callback: callback
       };
+      if (aliases !== undefined) {
+        for (var i = 0; i < aliases.length; i++) {
+          optionAliases[aliases[i]] = name;
+        }
+      }
       if (defaultValue) {
         setOption(name, defaultValue);
       }
@@ -450,6 +456,21 @@
         return (local || (scope !== 'local') && option || {}).value;
       }
     }
+
+    defineOption('filetype', undefined, 'string', ['ft'], function(name, cm) {
+      // Option is local. Do nothing for global.
+      if (cm === undefined) {
+        return;
+      }
+      // The 'filetype' option proxies to the CodeMirror 'mode' option.
+      if (name === undefined) {
+        var mode = cm.getMode().name;
+        return mode == 'null' ? '' : mode;
+      } else {
+        var mode = name == '' ? 'null' : name;
+        cm.setOption('mode', mode);
+      }
+    });
 
     var createCircularJumpList = function() {
       var size = 100;
@@ -4200,14 +4221,20 @@
           optionName = optionName.substring(2);
           value = false;
         }
+
+        // Interpret alias names as the aliased option.
+        if (optionAliases[optionName] !== undefined) {
+          optionName = optionAliases[optionName];
+        }
+
         var optionIsBoolean = options[optionName] && options[optionName].type == 'boolean';
         if (optionIsBoolean && value == undefined) {
           // Calling set with a boolean option sets it to true.
           value = true;
         }
-        if (!optionIsBoolean && !value || forceGet) {
+        // If no value is provided, then we assume this is a get.
+        if (!optionIsBoolean && value === undefined || forceGet) {
           var oldValue = getOption(optionName, cm, setCfg);
-          // If no value is provided, then we assume this is a get.
           if (oldValue === true || oldValue === false) {
             showConfirm(cm, ' ' + (oldValue ? '' : 'no') + optionName);
           } else {
