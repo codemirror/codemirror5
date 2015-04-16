@@ -399,7 +399,7 @@
 
     function setOption(name, value, cm, cfg) {
       var option = options[name];
-      cfg = cfg || {}
+      cfg = cfg || {};
       var scope = cfg.scope;
       if (!option) {
         throw Error('Unknown option: ' + name);
@@ -431,7 +431,7 @@
 
     function getOption(name, cm, cfg) {
       var option = options[name];
-      cfg = cfg || {}
+      cfg = cfg || {};
       var scope = cfg.scope;
       if (!option) {
         throw Error('Unknown option: ' + name);
