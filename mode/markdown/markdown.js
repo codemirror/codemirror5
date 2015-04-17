@@ -72,7 +72,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   ,   ulRE = /^[*\-+]\s+/
   ,   olRE = /^[0-9]+\.\s+/
   ,   taskListRE = /^\[(x| )\](?=\s)/ // Must follow ulRE or olRE
-  ,   atxHeaderRE = /^#+/
+  ,   atxHeaderRE = /^#+ ?/
   ,   setextHeaderRE = /^(?:\={1,}|-{1,})$/
   ,   textRE = /^[^#!\[\]*_\\<>` "'(~]+/;
 
@@ -140,7 +140,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     } else if (stream.eatSpace()) {
       return null;
     } else if (match = stream.match(atxHeaderRE)) {
-      state.header = match[0].length <= 6 ? match[0].length : 6;
+      state.header = Math.min(6, match[0].indexOf(" ") !== -1 ? match[0].length - 1 : match[0].length);
       if (modeCfg.highlightFormatting) state.formatting = "header";
       state.f = state.inline;
       return getType(state);
