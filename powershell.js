@@ -1,3 +1,7 @@
+// Initially based on CodeMirror Python mode, copyright (c) by Marijn Haverbeke and others
+// PowerShell mode, copyright (c) Andrey Shchekin, VapidWorx and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
+
 (function(mod) {
   'use strict';
   if (typeof exports == 'object' && typeof module == 'object') // CommonJS
