@@ -3918,6 +3918,7 @@
     // pair of commands that have a shared prefix, at least one of their
     // shortNames must not match the prefix of the other command.
     var defaultExCommandMap = [
+      { name: 'colorscheme', shortName: 'colo' },
       { name: 'map' },
       { name: 'imap', shortName: 'im' },
       { name: 'nmap', shortName: 'nm' },
@@ -4161,6 +4162,13 @@
     };
 
     var exCommands = {
+      colorscheme: function(cm, params) {
+        if (!params.args || params.args.length < 1) {
+          showConfirm(cm, cm.getOption('theme'));
+          return;
+        }
+        cm.setOption('theme', params.args[0]);
+      },
       map: function(cm, params, ctx) {
         var mapArgs = params.args;
         if (!mapArgs || mapArgs.length < 2) {
