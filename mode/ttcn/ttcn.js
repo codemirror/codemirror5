@@ -3,9 +3,9 @@
 
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
-    mod(require("../lib/codemirror"));
+    mod(require("../../lib/codemirror"));
   else if (typeof define == "function" && define.amd) // AMD
-    define(["../lib/codemirror"], mod);
+    define(["../../lib/codemirror"], mod);
   else // Plain browser env
     mod(CodeMirror);
 })(function(CodeMirror) {
@@ -47,11 +47,11 @@
       }
       if (ch == "#"){
         stream.skipToEnd();
-        return "preprocessor";
+        return "atom preprocessor";
       }
       if (ch == "%"){
         stream.eatWhile(/\b/);
-        return "ttcn3Macros";
+        return "atom ttcn3Macros";
       }
       if (/\d/.test(ch)) {
         stream.eatWhile(/[\w\.]/);
@@ -83,21 +83,21 @@
       if (keywords.propertyIsEnumerable(cur)) return "keyword";
       if (builtin.propertyIsEnumerable(cur)) return "builtin";
 
-      if (timerOps.propertyIsEnumerable(cur)) return "timerOps";
-      if (configOps.propertyIsEnumerable(cur)) return "configOps";
-      if (verdictOps.propertyIsEnumerable(cur)) return "verdictOps";
-      if (portOps.propertyIsEnumerable(cur)) return "portOps";
-      if (sutOps.propertyIsEnumerable(cur)) return "sutOps";
-      if (functionOps.propertyIsEnumerable(cur)) return "functionOps";
+      if (timerOps.propertyIsEnumerable(cur)) return "def timerOps";
+      if (configOps.propertyIsEnumerable(cur)) return "def configOps";
+      if (verdictOps.propertyIsEnumerable(cur)) return "def verdictOps";
+      if (portOps.propertyIsEnumerable(cur)) return "def portOps";
+      if (sutOps.propertyIsEnumerable(cur)) return "def sutOps";
+      if (functionOps.propertyIsEnumerable(cur)) return "def functionOps";
 
-      if (verdictConsts.propertyIsEnumerable(cur)) return "verdictConsts";
-      if (booleanConsts.propertyIsEnumerable(cur)) return "booleanConsts";
-      if (otherConsts.propertyIsEnumerable(cur)) return "otherConsts";
+      if (verdictConsts.propertyIsEnumerable(cur)) return "string verdictConsts";
+      if (booleanConsts.propertyIsEnumerable(cur)) return "string booleanConsts";
+      if (otherConsts.propertyIsEnumerable(cur)) return "string otherConsts";
 
-      if (types.propertyIsEnumerable(cur)) return "types";
+      if (types.propertyIsEnumerable(cur)) return "builtin types";
       if (visibilityModifiers.propertyIsEnumerable(cur))
-        return "visibilityModifiers";
-      if (templateMatch.propertyIsEnumerable(cur)) return "templateMatch";
+        return "builtin visibilityModifiers";
+      if (templateMatch.propertyIsEnumerable(cur)) return "atom templateMatch";
 
       return "variable";
     }

@@ -45,15 +45,15 @@
       }
       if (ch == "["){
         stream.eatWhile(/[\w_\]]/);
-        return "sectionTitle";
+        return "number sectionTitle";
       }
 
       stream.eatWhile(/[\w\$_]/);
       var cur = stream.current();
       if (keywords.propertyIsEnumerable(cur)) return "keyword";
       if (fileNCtrlMaskOptions.propertyIsEnumerable(cur))
-        return "fileNCtrlMaskOptions";
-      if (externalCommands.propertyIsEnumerable(cur)) return "externalCommands";
+        return "negative fileNCtrlMaskOptions";
+      if (externalCommands.propertyIsEnumerable(cur)) return "negative externalCommands";
 
       return "variable";
     }

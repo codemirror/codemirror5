@@ -54,13 +54,14 @@
       stream.eatWhile(/[\w\-]/);
       var cur = stream.current();
       if (keywords.propertyIsEnumerable(cur)) return "keyword";
-      if (cmipVerbs.propertyIsEnumerable(cur)) return "cmipVerbs";
-      if (compareTypes.propertyIsEnumerable(cur)) return "compareTypes";
-      if (status.propertyIsEnumerable(cur)) return "status";
-      if (tags.propertyIsEnumerable(cur)) return "tags";
-      if (storage.propertyIsEnumerable(cur)) return "storage";
-      if (modifier.propertyIsEnumerable(cur)) return "modifier";
-      if (accessTypes.propertyIsEnumerable(cur)) return "accessTypes";
+      if (cmipVerbs.propertyIsEnumerable(cur)) return "variable cmipVerbs";
+      if (compareTypes.propertyIsEnumerable(cur)) return "atom compareTypes";
+      if (status.propertyIsEnumerable(cur)) return "comment status";
+      if (tags.propertyIsEnumerable(cur)) return "variable-3 tags";
+      if (storage.propertyIsEnumerable(cur)) return "builtin storage";
+      if (modifier.propertyIsEnumerable(cur)) return "string-2 modifier";
+      if (accessTypes.propertyIsEnumerable(cur)) return "atom accessTypes";
+
       return "variable";
     }
 
