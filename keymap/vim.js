@@ -382,7 +382,6 @@
     }
 
     var options = {};
-    var optionAliases = {};
     function defineOption(name, defaultValue, type, aliases, callback) {
       if (defaultValue === undefined && !callback) {
         throw Error('defaultValue is required unless callback is provided');
@@ -393,9 +392,9 @@
         defaultValue: defaultValue,
         callback: callback
       };
-      if (aliases !== undefined) {
+      if (aliases) {
         for (var i = 0; i < aliases.length; i++) {
-          optionAliases[aliases[i]] = name;
+          options[aliases[i]] = options[name];
         }
       }
       if (defaultValue) {
@@ -4220,11 +4219,6 @@
           // 'no'.
           optionName = optionName.substring(2);
           value = false;
-        }
-
-        // Interpret alias names as the aliased option.
-        if (optionAliases[optionName] !== undefined) {
-          optionName = optionAliases[optionName];
         }
 
         var optionIsBoolean = options[optionName] && options[optionName].type == 'boolean';
