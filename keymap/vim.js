@@ -3,42 +3,16 @@
 
 /**
  * Supported keybindings:
+ *   Too many to list. Refer to defaultKeyMap below.
  *
- *   Motion:
- *   h, j, k, l
- *   gj, gk
- *   e, E, w, W, b, B, ge, gE
- *   f<character>, F<character>, t<character>, T<character>
- *   $, ^, 0, -, +, _
- *   gg, G
- *   %
- *   '<character>, `<character>
- *
- *   Operator:
- *   d, y, c
- *   dd, yy, cc
- *   g~, g~g~
- *   >, <, >>, <<
- *
- *   Operator-Motion:
- *   x, X, D, Y, C, ~
- *
- *   Action:
- *   a, i, s, A, I, S, o, O
- *   zz, z., z<CR>, zt, zb, z-
- *   J
- *   u, Ctrl-r
- *   m<character>
- *   r<character>
- *
- *   Modes:
- *   ESC - leave insert mode, visual mode, and clear input state.
- *   Ctrl-[, Ctrl-c - same as ESC.
+ * Supported Ex commands:
+ *   Refer to defaultExCommandMap below.
  *
  * Registers: unnamed, -, a-z, A-Z, 0-9
  *   (Does not respect the special case for number registers when delete
  *    operator is made with these commands: %, (, ),  , /, ?, n, N, {, } )
  *   TODO: Implement the remaining registers.
+ *
  * Marks: a-z, A-Z, and 0-9
  *   TODO: Implement the remaining special marks. They have more complex
  *       behavior.
@@ -57,6 +31,7 @@
  *  6. Motion, operator, and action implementations
  *  7. Helper functions for the key handler, motions, operators, and actions
  *  8. Set up Vim to work as a keymap for CodeMirror.
+ *  9. Ex command implementations.
  */
 
 (function(mod) {
@@ -225,6 +200,34 @@
     { keys: 'g#', type: 'search', searchArgs: { forward: false, querySrc: 'wordUnderCursor', toJumplist: true }},
     // Ex command
     { keys: ':', type: 'ex' }
+  ];
+
+  /**
+   * Ex commands
+   * Care must be taken when adding to the default Ex command map. For any
+   * pair of commands that have a shared prefix, at least one of their
+   * shortNames must not match the prefix of the other command.
+   */
+  var defaultExCommandMap = [
+    { name: 'colorscheme', shortName: 'colo' },
+    { name: 'map' },
+    { name: 'imap', shortName: 'im' },
+    { name: 'nmap', shortName: 'nm' },
+    { name: 'vmap', shortName: 'vm' },
+    { name: 'unmap' },
+    { name: 'write', shortName: 'w' },
+    { name: 'undo', shortName: 'u' },
+    { name: 'redo', shortName: 'red' },
+    { name: 'set', shortName: 'se' },
+    { name: 'set', shortName: 'se' },
+    { name: 'setlocal', shortName: 'setl' },
+    { name: 'setglobal', shortName: 'setg' },
+    { name: 'sort', shortName: 'sor' },
+    { name: 'substitute', shortName: 's', possiblyAsync: true },
+    { name: 'nohlsearch', shortName: 'noh' },
+    { name: 'delmarks', shortName: 'delm' },
+    { name: 'registers', shortName: 'reg', excludeFromCommandHistory: true },
+    { name: 'global', shortName: 'g' }
   ];
 
   var Pos = CodeMirror.Pos;
@@ -3913,31 +3916,6 @@
       return {top: from.line, bottom: to.line};
     }
 
-    // Ex command handling
-    // Care must be taken when adding to the default Ex command map. For any
-    // pair of commands that have a shared prefix, at least one of their
-    // shortNames must not match the prefix of the other command.
-    var defaultExCommandMap = [
-      { name: 'colorscheme', shortName: 'colo' },
-      { name: 'map' },
-      { name: 'imap', shortName: 'im' },
-      { name: 'nmap', shortName: 'nm' },
-      { name: 'vmap', shortName: 'vm' },
-      { name: 'unmap' },
-      { name: 'write', shortName: 'w' },
-      { name: 'undo', shortName: 'u' },
-      { name: 'redo', shortName: 'red' },
-      { name: 'set', shortName: 'se' },
-      { name: 'set', shortName: 'se' },
-      { name: 'setlocal', shortName: 'setl' },
-      { name: 'setglobal', shortName: 'setg' },
-      { name: 'sort', shortName: 'sor' },
-      { name: 'substitute', shortName: 's', possiblyAsync: true },
-      { name: 'nohlsearch', shortName: 'noh' },
-      { name: 'delmarks', shortName: 'delm' },
-      { name: 'registers', shortName: 'reg', excludeFromCommandHistory: true },
-      { name: 'global', shortName: 'g' }
-    ];
     var ExCommandDispatcher = function() {
       this.buildCommandMap_();
     };
