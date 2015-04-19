@@ -55,6 +55,12 @@
     </li>
     <li><a href="#addons">Addons</a></li>
     <li><a href="#modeapi">Writing CodeMirror Modes</a></li>
+    <li><a href="#vimapi">Vim Mode API</a>
+      <ul>
+        <li><a href="#vimapi_configuration">Configuration</a></li>
+        <li><a href="#vimapi_extending">Extending VIM</a></li>
+      </ul>
+    </li>
   </ul>
 </div>
 
@@ -3154,6 +3160,129 @@ editor.setOption("extraKeys", {
     second an object that specifies the properties that should be
     added. This is mostly useful to add utilities that can later be
     looked up through <a href="#getMode"><code>getMode</code></a>.</p>
+</section>
+
+<section id="vimapi">
+    <h2>VIM Mode API</h2>
+
+    <p>CodeMirror has a robust VIM mode that attempts to faithfully
+    emulate VIM's most useful features. It can be enabled by
+    including <a href="../keymap/vim.js"><code>keymap/vim.js</code>
+    </a> and setting the <code>keymap</code> option to
+    <code>vim</code>.</p>
+
+    <h3 id="vimapi_configuration">Configuration</h3>
+
+    <p>VIM mode accepts configuration options for customizing
+    behavior at run time. These methods can be called at any time
+    and will affect all existing CodeMirror instances unless
+    specified otherwise. The methods are exposed on the
+    <code><strong>CodeMirror.Vim</strong></code> object.</p>
+
+    <dl>
+      <dt id="vimapi_setOption"><code><strong>setOption(name: string, value: any, ?cm: CodeMirror, ?cfg: object)</strong></code></dt>
+      <dd>Sets the value of a VIM option. <code>name</code> should
+      be the name of an option. If <code>cfg.scope</code> is not set
+      and <code>cm</code> is provided, then sets the global and
+      instance values of the option. Otherwise, sets either the
+      global or instance value of the option depending on whether
+      <code>cfg.scope</code> is <code>global</code> or
+      <code>local</code>.</dd>
+      <dt id="vimapi_getOption"><code><strong>getOption(name: string, ?cm: CodeMirror: ?cfg: object)</strong></code></dt>
+      <dd>Gets the current value of a VIM option. If
+      <code>cfg.scope</code> is not set and <code>cm</code> is
+      provided, then gets the instance value of the option, falling
+      back to the global value if not set. If <code>cfg.scope</code> is provided, then gets the <code>global</code> or
+      <code>local</code> value without checking the other.</dd>
+
+      <dt id="vimapi_map"><code><strong>map(lhs: string, rhs: string, ?context: string)</strong></code></dt>
+      <dd>Maps a key sequence to another key sequence. Implements
+      VIM's <code>:map</code> command. To map ; to : in VIM would be
+      <code><strong>:map ; :</strong></code>. That would translate to
+      <code><strong>CodeMirror.Vim.map(';', ':');</strong></code>.
+      The <code>context</code> can be <code>normal</code>,
+      <code>visual</code>, or <code>insert</code>, which correspond
+      to <code>:nmap</code>, <code>:vmap</code>, and
+      <code>:imap</code>
+      respectively.</dd>
+
+      <dt id="vimapi_mapCommand"><code><strong>mapCommand(keys: string, type: string, name: string, ?args: object, ?extra: object)</strong></code></dt>
+      <dd>Maps a key sequence to a <code>motion</code>,
+      <code>operator</code>, or <code>action</code> type command.
+      The args object is passed through to the command when it is
+      invoked by the provided key sequence.
+      <code>extras.context</code> can be <code>normal</code>,
+      <code>visual</code>, or <code>insert</code>, to map the key
+      sequence only in the corresponding mode.
+      <code>extras.isEdit</code> is applicable only to actions,
+      determining whether it is recorded for replay for the
+      <code>.</code> single-repeat command.
+    </dl>
+
+    <h3 id="vimapi_extending">Extending VIM</h3>
+
+    <p>CodeMirror's VIM mode implements a large subset of VIM's core
+    editing functionality. But since there's always more to be
+    desired, there is a set of APIs for extending VIM's
+    functionality. As with the configuration API, the methods are
+    exposed on <code><strong>CodeMirror.Vim</strong></code> and may
+    be called at any time.</p>
+
+    <dl>
+      <dt id="vimapi_defineOption"><code><strong>defineOption(name: string, default: any, type: string, ?aliases: array&lt;string&gt;, ?callback: function (?value: any, ?cm: CodeMirror) → ?any)</strong></code></dt>
+      <dd>Defines a VIM style option and makes it available to the
+      <code>:set</code> command. Type can be <code>boolean</code> or
+      <code>string</code>, used for validation and by
+      <code>:set</code> to determine which syntax to accept. If a
+      <code>callback</code> is passed in, VIM does not store the value of the
+      option itself, but instead uses the callback as a setter/getter. If the
+      first argument to the callback is <code>undefined</code>, then the
+      callback should return the value of the option. Otherwise, it should set
+      instead. Since VIM options have global and instance values, whether a
+      <code>CodeMirror</code> instance is passed in denotes whether the global
+      or local value should be used. Consequently, it's possible for the
+      callback to be called twice for a single <code>setOption</code> or
+      <code>getOption</code> call. Note that right now, VIM does not support
+      defining buffer-local options that do not have global values. If an
+      option should not have a global value, either always ignore the
+      <code>cm</code> parameter in the callback, or always pass in a
+      <code>cfg.scope</code> to <code>setOption</code> and
+      <code>getOption</code>.</dd>
+
+      <dt id="vimapi_defineMotion"><code><strong>defineMotion(name: string, fn: function(cm: CodeMirror, head: {line, ch}, ?motionArgs: object}) → {line, ch})</strong></code></dt>
+      <dd>Defines a motion command for VIM. The motion should return
+      the desired result position of the cursor. <code>head</code>
+      is the current position of the cursor. It can differ from
+      <code>cm.getCursor('head')</code> if VIM is in visual mode.
+      <code>motionArgs</code> is the object passed into
+      <strong><code>mapCommand()</code></strong>.</dd>
+
+      <dt id="vimapi_defineOperator"><strong><code>defineOperator(name: string, fn: function(cm: CodeMirror, ?operatorArgs: object, ranges: array&lt;{anchor, head}&gt;) → ?{line, ch})</code></strong></dt>
+      <dd>Defines an operator command, similar to <strong><code>
+      defineMotion</code></strong>. <code>ranges</code> is the range
+      of text the operator should operate on. If the cursor should
+      be set to a certain position after the operation finishes, it
+      can return a cursor object.</dd>
+
+      <dt id="vimapi_defineActon"><strong><code>defineAction(name: string, fn: function(cm: CodeMirror, ?actionArgs: object))</strong></code></dt>
+      <dd>Defines an action command, similar to
+      <strong><code>defineMotion</code></strong>. Action commands
+      can have arbitrary behavior, making them more flexible than
+      motions and operators, at the loss of orthogonality.</dd>
+
+      <dt id="vimapi_defineEx"><strong><code>defineEx(name: string, ?prefix: string, fn: function(cm: CodeMirror, ?params: object))</code></strong></dt>
+      <dd>Defines an Ex command, and maps it to <code>:name</code>.
+      If a prefix is provided, it, and any prefixed substring of the
+      <code>name</code> beginning with the <code>prefix</code> can
+      be used to invoke the command. <code>params.argString</code>
+      contains the part of the prompted string after the command
+      name. <code>params.args</code> is <code>params.argString</code>
+      split by whitespace. If the command was prefixed with a
+      <code><strong><a href="http://vimdoc.sourceforge.net/htmldoc/cmdline.html#cmdline-ranges">line range</a></strong></code>,
+      <code>params.line</code> and <code>params.lineEnd</code> will
+      be set.
+    </dl>
+
 </section>
 
 </article>
