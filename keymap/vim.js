@@ -463,7 +463,7 @@
       }
       // The 'filetype' option proxies to the CodeMirror 'mode' option.
       if (name === undefined) {
-        var mode = cm.getMode().name;
+        var mode = cm.getOption('mode');
         return mode == 'null' ? '' : mode;
       } else {
         var mode = name == '' ? 'null' : name;
