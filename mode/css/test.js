@@ -126,10 +126,70 @@
   MT("parens",
      "[qualifier .foo] {",
      "  [property background-image]: [variable fade]([atom #000], [number 20%]);",
-     "  [property border-image]: [variable linear-gradient](",
+     "  [property border-image]: [atom linear-gradient](",
      "    [atom to] [atom bottom],",
      "    [variable fade]([atom #000], [number 20%]) [number 0%],",
      "    [variable fade]([atom #000], [number 20%]) [number 100%]",
      "  );",
      "}");
+
+  MT("css_variable",
+     ":[variable-3 root] {",
+     "  [variable-2 --main-color]: [atom #06c];",
+     "}",
+     "[tag h1][builtin #foo] {",
+     "  [property color]: [atom var]([variable-2 --main-color]);",
+     "}");
+
+  MT("supports",
+     "[def @supports] ([keyword not] (([property text-align-last]: [atom justify]) [keyword or] ([meta -moz-][property text-align-last]: [atom justify])) {",
+     "  [property text-align-last]: [atom justify];",
+     "}");
+
+   MT("document",
+      "[def @document] [tag url]([string http://blah]),",
+      "  [tag url-prefix]([string https://]),",
+      "  [tag domain]([string blah.com]),",
+      "  [tag regexp]([string \".*blah.+\"]) {",
+      "    [builtin #id] {",
+      "      [property background-color]: [keyword white];",
+      "    }",
+      "    [tag foo] {",
+      "      [property font-family]: [variable Verdana], [atom sans-serif];",
+      "    }",
+      "  }");
+
+   MT("document_url",
+      "[def @document] [tag url]([string http://blah]) { [qualifier .class] { } }");
+
+   MT("document_urlPrefix",
+      "[def @document] [tag url-prefix]([string https://]) { [builtin #id] { } }");
+
+   MT("document_domain",
+      "[def @document] [tag domain]([string blah.com]) { [tag foo] { } }");
+
+   MT("document_regexp",
+      "[def @document] [tag regexp]([string \".*blah.+\"]) { [builtin #id] { } }");
+
+   MT("counter-style",
+      "[def @counter-style] [variable binary] {",
+      "  [property system]: [atom numeric];",
+      "  [property symbols]: [number 0] [number 1];",
+      "  [property suffix]: [string \".\"];",
+      "  [property range]: [atom infinite];",
+      "  [property speak-as]: [atom numeric];",
+      "}");
+
+   MT("counter-style-additive-symbols",
+      "[def @counter-style] [variable simple-roman] {",
+      "  [property system]: [atom additive];",
+      "  [property additive-symbols]: [number 10] [variable X], [number 5] [variable V], [number 1] [variable I];",
+      "  [property range]: [number 1] [number 49];",
+      "}");
+
+   MT("counter-style-use",
+      "[tag ol][qualifier .roman] { [property list-style]: [variable simple-roman]; }");
+
+   MT("counter-style-symbols",
+      "[tag ol] { [property list-style]: [atom symbols]([atom cyclic] [string \"*\"] [string \"\\2020\"] [string \"\\2021\"] [string \"\\A7\"]); }");
 })();

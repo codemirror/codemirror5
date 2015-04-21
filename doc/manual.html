@@ -63,7 +63,7 @@
 <section class=first id=overview>
     <h2 style="position: relative">
       User manual and reference guide
-      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 4.12.0</span>
+      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 5.2.0</span>
     </h2>
 
     <p>CodeMirror is a code-editor component that can be embedded in
@@ -256,7 +256,7 @@
       should be replaced by a
       special <a href="#option_specialCharPlaceholder">placeholder</a>.
       Mostly useful for non-printing special characters. The default
-      is <code>/[\u0000-\u0019\u00ad\u200b\u2028\u2029\ufeff]/</code>.</dd>
+      is <code>/[\u0000-\u0019\u00ad\u200b-\u200f\u2028\u2029\ufeff]/</code>.</dd>
       <dt id="option_specialCharPlaceholder"><code><strong>specialCharPlaceholder</strong>: function(char) → Element</code></dt>
       <dd>A function that, given a special character identified by
       the <a href="#option_specialChars"><code>specialChars</code></a>
@@ -333,6 +333,17 @@
       option is set to true, it will be covered by an element with
       class <code>CodeMirror-gutter-filler</code>.</dd>
 
+      <dt id="option_inputStyle"><code><strong>inputStyle</strong>: string</code></dt>
+      <dd>Selects the way CodeMirror handles input and focus. The core
+      library defines the <code>"textarea"</code>
+      and <code>"contenteditable"</code> input models. On mobile
+      browsers, the default is <code>"contenteditable"</code>. On
+      desktop browsers, the default is <code>"textarea"</code>.
+      Support for IME and screen readers is better in
+      the <code>"contenteditable"</code> model. The intention is to
+      make it the default on modern desktop browsers in the
+      future.</dd>
+
       <dt id="option_readOnly"><code><strong>readOnly</strong>: boolean|string</code></dt>
       <dd>This disables editing of the editor content by the user. If
       the special value <code>"nocursor"</code> is given (instead of
@@ -342,6 +353,11 @@
       <dt id="option_showCursorWhenSelecting"><code><strong>showCursorWhenSelecting</strong>: boolean</code></dt>
       <dd>Whether the cursor should be drawn when a selection is
       active. Defaults to false.</dd>
+
+      <dt id="option_lineWiseCopyCut"><code><strong>lineWiseCopyCut</strong>: boolean</code></dt>
+      <dd>When enabled, which is the default, doing copy or cut when
+      there is no selection will copy or cut the whole lines that have
+      cursors on them.</dd>
 
       <dt id="option_undoDepth"><code><strong>undoDepth</strong>: integer</code></dt>
       <dd>The maximum number of undo levels that the editor stores.
@@ -434,18 +450,6 @@
       10 000. You can set this to <code>Infinity</code> to turn off
       this behavior.</dd>
 
-      <dt id="option_crudeMeasuringFrom"><code><strong>crudeMeasuringFrom</strong>: number</code></dt>
-      <dd>When measuring the character positions in long lines, any
-      line longer than this number (default is 10 000),
-      when <a href="#option_lineWrapping">line wrapping</a>
-      is <strong>off</strong>, will simply be assumed to consist of
-      same-sized characters. This means that, on the one hand,
-      measuring will be inaccurate when characters of varying size,
-      right-to-left text, markers, or other irregular elements are
-      present. On the other hand, it means that having such a line
-      won't freeze the user interface because of the expensiveness of
-      the measurements.</dd>
-
       <dt id="option_viewportMargin"><code><strong>viewportMargin</strong>: integer</code></dt>
       <dd>Specifies the amount of lines that are rendered above and
       below the part of the document that's currently scrolled into
@@ -532,6 +536,11 @@
       <dt id="event_inputRead"><code><strong>"inputRead"</strong> (instance: CodeMirror, changeObj: object)</code></dt>
       <dd>Fired whenever new input is read from the hidden textarea
       (typed or pasted by the user).</dd>
+
+      <dt id="event_electricInput"><code><strong>"electrictInput"</strong> (instance: CodeMirror, line: integer)</code></dt>
+      <dd>Fired if text input matched the
+      mode's <a href="#option_electricChars">electric</a> patterns,
+      and this caused the line's indentation to change.</dd>
 
       <dt id="event_beforeSelectionChange"><code><strong>"beforeSelectionChange"</strong> (instance: CodeMirror, obj: {ranges, update})</code></dt>
       <dd>This event is fired before the selection is moved. Its
@@ -848,10 +857,10 @@ editor.setOption("extraKeys", {
       <dd>Redo the last change to the selection, or the last text change if
       no selection changes remain.</dd>
 
-      <dt class=command id=command_goDocStart><code><strong>goDocStart</strong></code><span class=keybinding>Ctrl-Up (PC), Cmd-Up (Mac), Cmd-Home (Mac)</span></dt>
+      <dt class=command id=command_goDocStart><code><strong>goDocStart</strong></code><span class=keybinding>Ctrl-Home (PC), Cmd-Up (Mac), Cmd-Home (Mac)</span></dt>
       <dd>Move the cursor to the start of the document.</dd>
 
-      <dt class=command id=command_goDocEnd><code><strong>goDocEnd</strong></code><span class=keybinding>Ctrl-Down (PC), Cmd-End (Mac), Cmd-Down (Mac)</span></dt>
+      <dt class=command id=command_goDocEnd><code><strong>goDocEnd</strong></code><span class=keybinding>Ctrl-End (PC), Cmd-End (Mac), Cmd-Down (Mac)</span></dt>
       <dd>Move the cursor to the end of the document.</dd>
 
       <dt class=command id=command_goLineStart><code><strong>goLineStart</strong></code><span class=keybinding>Alt-Left (PC), Ctrl-A (Mac)</span></dt>
@@ -1611,6 +1620,11 @@ editor.setOption("extraKeys", {
         <dt><code><strong>shared</strong>: boolean</code></dt><dd>See
         the corresponding <a href="#mark_shared">option</a>
         to <code>markText</code>.</dd>
+        <dt><code><strong>handleMouseEvents</strong>: boolean</code></dt>
+        <dd>As with <a href="#markText"><code>markText</code></a>,
+        this determines whether mouse events on the widget inserted
+        for this bookmark are handled by CodeMirror. The default is
+        false.</dd>
       </dl></dd>
 
       <dt id="findMarks"><code><strong>doc.findMarks</strong>(from: {line, ch}, to: {line, ch}) → array&lt;TextMarker&gt;</code></dt>
@@ -1680,7 +1694,7 @@ editor.setOption("extraKeys", {
       widget again, simply use DOM methods (move it somewhere else, or
       call <code>removeChild</code> on its parent).</dd>
 
-      <dt id="addLineWidget"><code><strong>cm.addLineWidget</strong>(line: integer|LineHandle, node: Element, ?options: object) → LineWidget</code></dt>
+      <dt id="addLineWidget"><code><strong>doc.addLineWidget</strong>(line: integer|LineHandle, node: Element, ?options: object) → LineWidget</code></dt>
       <dd>Adds a line widget, an element shown below a line, spanning
       the whole of the editor's width, and moving the lines below it
       downwards. <code>line</code> should be either an integer or a
@@ -1790,7 +1804,7 @@ editor.setOption("extraKeys", {
       height. <code>mode</code> can be one of the same strings
       that <a href="#coordsChar"><code>coordsChar</code></a>
       accepts.</dd>
-      <dt id="heightAtLine"><code><strong>cm.heightAtLine</strong>(line: number, ?mode: string) → number</code></dt>
+      <dt id="heightAtLine"><code><strong>cm.heightAtLine</strong>(line: integer|LineHandle, ?mode: string) → number</code></dt>
       <dd>Computes the height of the top of a line, in the coordinate
       system specified by <code>mode</code>
       (see <a href="#coordsChar"><code>coordsChar</code></a>), which
@@ -1835,7 +1849,7 @@ editor.setOption("extraKeys", {
       the mode specification, rather than the resolved, instantiated
       <a href="#defineMode">mode object</a>.</dd>
 
-      <dt id="getModeAt"><code><strong>doc.getModeAt</strong>(pos: {line, ch}) → object</code></dt>
+      <dt id="getModeAt"><code><strong>cm.getModeAt</strong>(pos: {line, ch}) → object</code></dt>
       <dd>Gets the inner mode at a given position. This will return
       the same as <a href="#getMode"><code>getMode</code></a> for
       simple modes, but will return an inner mode for nesting modes
@@ -1965,8 +1979,11 @@ editor.setOption("extraKeys", {
       <dt id="focus"><code><strong>cm.focus</strong>()</code></dt>
       <dd>Give the editor focus.</dd>
 
-      <dt id="getInputField"><code><strong>cm.getInputField</strong>() → TextAreaElement</code></dt>
-      <dd>Returns the hidden textarea used to read input.</dd>
+      <dt id="getInputField"><code><strong>cm.getInputField</strong>() → Element</code></dt>
+      <dd>Returns the input field for the editor. Will be a textarea
+      or an editable div, depending on the value of
+      the <a href="#option_inputStyle"><code>inputStyle</code></a>
+      option.</dd>
       <dt id="getWrapperElement"><code><strong>cm.getWrapperElement</strong>() → Element</code></dt>
       <dd>Returns the DOM node that represents the editor, and
       controls its size. Remove this from your tree to delete an
@@ -2156,7 +2173,7 @@ editor.setOption("extraKeys", {
           to <code>findNext</code> or <code>findPrevious</code> did
           not return false. They will return <code>{line, ch}</code>
           objects pointing at the start and end of the match.</dd>
-          <dt><code><strong>replace</strong>(text: string)</code></dt>
+          <dt><code><strong>replace</strong>(text: string, ?origin: string)</code></dt>
           <dd>Replaces the currently found match with the given text
           and adjusts the cursor position to reflect the
           replacement.</dd>
@@ -2414,7 +2431,7 @@ editor.setOption("extraKeys", {
       between several modes.
       Defines <code>CodeMirror.multiplexingMode</code> which, when
       given as first argument a mode object, and as other arguments
-      any number of <code>{open, close, mode [, delimStyle, innerStyle]}</code>
+      any number of <code>{open, close, mode [, delimStyle, innerStyle, parseDelimiters]}</code>
       objects, will return a mode object that starts parsing using the
       mode passed as first argument, but will switch to another mode
       as soon as it encounters a string that occurs in one of
@@ -2426,8 +2443,11 @@ editor.setOption("extraKeys", {
       <ul><li>When <code>delimStyle</code> is specified, it will be the token
       style returned for the delimiter tokens.</li>
       <li>When <code>innerStyle</code> is specified, it will be the token
-      style added for each inner mode token.</li></ul>
-      The outer mode will not see the content between the delimiters.
+      style added for each inner mode token.</li>
+      <li>When <code>parseDelimiters</code> is true, the content of
+      the delimiters will also be passed to the inner mode.
+      (And <code>delimStyle</code> is ignored.)</li></ul> The outer
+      mode will not see the content between the delimiters.
       See <a href="../demo/multiplex.html">this demo</a> for an
       example.</dd>
 
@@ -2620,8 +2640,14 @@ editor.setOption("extraKeys", {
       to <code>true</code>, in which
       case <a href="#getHelper"><code>getHelper</code></a> with
       type <code>"lint"</code> is used to determined a validator
-      function. Depends on <code>addon/lint/lint.css</code>. A demo
-      can be found <a href="../demo/lint.html">here</a>.</dd>
+      function. Such a function should, when given a document string,
+      an options object, and an editor instance, return an array of <code>{message,
+      severity, from, to}</code> objects representing problems. When
+      the function has an <code>async</code> property with a truthy
+      value, it will be called with an additional second argument,
+      which is a callback to pass the array to. Depends
+      on <code>addon/lint/lint.css</code>. A demo can be
+      found <a href="../demo/lint.html">here</a>.</dd>
 
       <dt id="addon_mark-selection"><a href="../addon/selection/mark-selection.js"><code>selection/mark-selection.js</code></a></dt>
       <dd>Causes the selected text to be marked with the CSS class
@@ -2739,13 +2765,40 @@ editor.setOption("extraKeys", {
       instances, which places a DOM node above or below an editor, and
       shrinks the editor to make room for the node. The method takes
       as first argument as DOM node, and as second an optional options
-      object. By default, the panel ends up above the editor. This can
-      be changed by passing a <code>position</code> option with the
-      value <code>"bottom"</code>. The object returned by this method
+      object. The <code>Panel</code> object returned by this method
       has a <code>clear</code> method that is used to remove the
       panel, and a <code>changed</code> method that can be used to
       notify the addon when the size of the panel's DOM node has
-      changed.</dd>
+      changed.<br/>
+      The method accepts the following options:
+      <dl>
+        <dt><code><strong>position</strong> : string</code></dt>
+        <dd>Controls the position of the newly added panel. The
+        following values are recognized:
+          <dl>
+            <dt><code><strong>top</strong> (default)</code></dt>
+            <dd>Adds the panel at the very top.</dd>
+            <dt><code><strong>after-top</strong></code></dt>
+            <dd>Adds the panel at the bottom of the top panels.</dd>
+            <dt><code><strong>bottom</strong></code></dt>
+            <dd>Adds the panel at the very bottom.</dd>
+            <dt><code><strong>before-bottom</strong></code></dt>
+            <dd>Adds the panel at the top of the bottom panels.</dd>
+          </dl>
+        </dd>
+        <dt><code><strong>before</strong> : Panel</code></dt>
+        <dd>The new panel will be added before the given panel.</dd>
+        <dt><code><strong>after</strong> : Panel</code></dt>
+        <dd>The new panel will be added after the given panel.</dd>
+        <dt><code><strong>replace</strong> : Panel</code></dt>
+        <dd>The new panel will replace the given panel.</dd>
+      </dl>
+      When using the <code>after</code>, <code>before</code> or <code>replace</code> options,
+      if the panel doesn't exists or has been removed,
+      the value of the <code>position</code> option will be used as a fallback.
+      <br>
+      A demo of the addon is available <a href="../demo/panel.html">here</a>.
+      </dd>
 
       <dt id="addon_hardwrap"><a href="../addon/wrap/hardwrap.js"><code>wrap/hardwrap.js</code></a></dt>
       <dd>Addon to perform hard line wrapping/breaking for paragraphs
@@ -2816,7 +2869,10 @@ editor.setOption("extraKeys", {
           <dd>When true (the default), changed pieces of text are
           highlighted.</dd>
         </dl>
-        <a href="../demo/merge.html">Demo here</a>.</dd>
+        The addon also defines commands <code>"goNextDiff"</code>
+        and <code>"goPrevDiff"</code> to quickly jump to the next
+        changed chunk. <a href="../demo/merge.html">Demo
+        here</a>.</dd>
 
       <dt id="addon_tern"><a href="../addon/tern/tern.js"><code>tern/tern.js</code></a></dt>
       <dd>Provides integration with

@@ -681,7 +681,7 @@ testCM("selectAllNoScroll", function(cm) {
 });
 
 testCM("selectionPos", function(cm) {
-  if (phantom) return;
+  if (phantom || cm.getOption("inputStyle") != "textarea") return;
   cm.setSize(100, 100);
   addDoc(cm, 200, 100);
   cm.setSelection(Pos(1, 100), Pos(98, 100));
@@ -811,6 +811,7 @@ testCM("collapsedRangeCoordsChar", function(cm) {
 }, {value: "123456\nabcdef\nghijkl\nmnopqr\n"});
 
 testCM("collapsedRangeBetweenLinesSelected", function(cm) {
+  if (cm.getOption("inputStyle") != "textarea") return;
   var widget = document.createElement("span");
   widget.textContent = "\u2194";
   cm.markText(Pos(0, 3), Pos(1, 0), {replacedWith: widget});
@@ -1003,6 +1004,14 @@ testCM("wrappingInlineWidget", function(cm) {
   eq(curR.bottom, cur1.bottom);
 }, {value: "1 2 3 xxx 4", lineWrapping: true});
 
+testCM("showEmptyWidgetSpan", function(cm) {
+  var marker = cm.markText(Pos(0, 2), Pos(0, 2), {
+    clearWhenEmpty: false,
+    replacedWith: document.createTextNode("X")
+  });
+  eq(cm.display.view[0].text.textContent, "abXc");
+}, {value: "abc"});
+
 testCM("changedInlineWidget", function(cm) {
   cm.setSize("10em");
   var w = document.createElement("span");
@@ -1091,6 +1100,7 @@ testCM("measureEndOfLine", function(cm) {
 }, {mode: "text/html", value: "<!-- foo barrr -->", lineWrapping: true}, ie_lt8 || opera_lt10);
 
 testCM("scrollVerticallyAndHorizontally", function(cm) {
+  if (cm.getOption("inputStyle") != "textarea") return;
   cm.setSize(100, 100);
   addDoc(cm, 40, 40);
   cm.setCursor(39);
@@ -1319,10 +1329,11 @@ testCM("verticalMovementCommandsWrapping", function(cm) {
     lineWrapping: true});
 
 testCM("rtlMovement", function(cm) {
+  if (cm.getOption("inputStyle") != "textarea") return;
   forEach(["خحج", "خحabcخحج", "abخحخحجcd", "abخde", "abخح2342خ1حج", "خ1ح2خح3حxج",
            "خحcd", "1خحcd", "abcdeح1ج", "خمرحبها مها!", "foobarر", "خ ة ق",
-           "<img src=\"/בדיקה3.jpg\">"], function(line) {
-    var inv = line.charAt(0) == "خ";
+           "<img src=\"/בדיקה3.jpg\">", "يتم السحب في 05 فبراير 2014"], function(line) {
+    var inv = line.charCodeAt(0) > 128;
     cm.setValue(line + "\n"); cm.execCommand(inv ? "goLineEnd" : "goLineStart");
     var cursors = byClassName(cm.getWrapperElement(), "CodeMirror-cursors")[0];
     var cursor = cursors.firstChild;
@@ -1388,7 +1399,7 @@ testCM("lineChangeEvents", function(cm) {
 });
 
 testCM("scrollEntirelyToRight", function(cm) {
-  if (phantom) return;
+  if (phantom || cm.getOption("inputStyle") != "textarea") return;
   addDoc(cm, 500, 2);
   cm.setCursor(Pos(0, 500));
   var wrap = cm.getWrapperElement(), cur = byClassName(wrap, "CodeMirror-cursor")[0];
@@ -2077,6 +2088,13 @@ testCM("eventOrder", function(cm) {
   });
   cm.replaceSelection("/");
   eq(seen.join(","), "change,change,activity,change");
+});
+
+testCM("splitSpaces_nonspecial", function(cm) {
+  eq(byClassName(cm.getWrapperElement(), "cm-invalidchar").length, 0);
+}, {
+  specialChars: /[\u00a0]/,
+  value: "spaces ->            <- between"
 });
 
 test("core_rmClass", function() {

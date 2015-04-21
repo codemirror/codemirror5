@@ -130,6 +130,13 @@
           data = self.options.responseFilter(doc, query, request, error, data);
         c(error, data);
       });
+    },
+
+    destroy: function () {
+      if (this.worker) {
+        this.worker.terminate();
+        this.worker = null;
+      }
     }
   };
 
@@ -252,7 +259,9 @@
           tip.appendChild(document.createTextNode(" — " + data.doc));
         if (data.url) {
           tip.appendChild(document.createTextNode(" "));
-          tip.appendChild(elt("a", null, "[docs]")).href = data.url;
+          var child = tip.appendChild(elt("a", null, "[docs]"));
+          child.href = data.url;
+          child.target = "_blank";
         }
       }
       tempTooltip(cm, tip);
@@ -434,7 +443,7 @@
   function atInterestingExpression(cm) {
     var pos = cm.getCursor("end"), tok = cm.getTokenAt(pos);
     if (tok.start < pos.ch && (tok.type == "comment" || tok.type == "string")) return false;
-    return /\w/.test(cm.getLine(pos.line).slice(Math.max(pos.ch - 1, 0), pos.ch + 1));
+    return /[\w)\]]/.test(cm.getLine(pos.line).slice(Math.max(pos.ch - 1, 0), pos.ch + 1));
   }
 
   // Variable renaming
@@ -582,15 +591,33 @@
   // Tooltips
 
   function tempTooltip(cm, content) {
+    if (cm.state.ternTooltip) remove(cm.state.ternTooltip);
     var where = cm.cursorCoords();
-    var tip = makeTooltip(where.right + 1, where.bottom, content);
+    var tip = cm.state.ternTooltip = makeTooltip(where.right + 1, where.bottom, content);
+    function maybeClear() {
+      old = true;
+      if (!mouseOnTip) clear();
+    }
     function clear() {
+      cm.state.ternTooltip = null;
       if (!tip.parentNode) return;
       cm.off("cursorActivity", clear);
+      cm.off('blur', clear);
+      cm.off('scroll', clear);
       fadeOut(tip);
     }
-    setTimeout(clear, 1700);
+    var mouseOnTip = false, old = false;
+    CodeMirror.on(tip, "mousemove", function() { mouseOnTip = true; });
+    CodeMirror.on(tip, "mouseout", function(e) {
+      if (!CodeMirror.contains(tip, e.relatedTarget || e.toElement)) {
+        if (old) clear();
+        else mouseOnTip = false;
+      }
+    });
+    setTimeout(maybeClear, 1700);
     cm.on("cursorActivity", clear);
+    cm.on('blur', clear);
+    cm.on('scroll', clear);
   }
 
   function makeTooltip(x, y, content) {
@@ -631,7 +658,7 @@
   // Worker wrapper
 
   function WorkerServer(ts) {
-    var worker = new Worker(ts.options.workerScript);
+    var worker = ts.worker = new Worker(ts.options.workerScript);
     worker.postMessage({type: "init",
                         defs: ts.options.defs,
                         plugins: ts.options.plugins,

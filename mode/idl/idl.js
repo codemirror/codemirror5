@@ -275,7 +275,7 @@
 
     // Handle non-detected items
     stream.next();
-    return 'error';
+    return null;
   };
 
   CodeMirror.defineMode('idl', function() {

@@ -30,29 +30,38 @@
 
     if (this.state.completionActive) this.state.completionActive.close();
     var completion = this.state.completionActive = new Completion(this, options);
-    var getHints = completion.options.hint;
-    if (!getHints) return;
+    if (!completion.options.hint) return;
 
     CodeMirror.signal(this, "startCompletion", this);
-    if (getHints.async)
-      getHints(this, function(hints) { completion.showHints(hints); }, completion.options);
-    else
-      return completion.showHints(getHints(this, completion.options));
+    completion.update();
   });
 
   function Completion(cm, options) {
     this.cm = cm;
     this.options = this.buildOptions(options);
-    this.widget = this.onClose = null;
+    this.widget = null;
+    this.debounce = 0;
+    this.tick = 0;
+    this.startPos = this.cm.getCursor();
+    this.startLen = this.cm.getLine(this.startPos.line).length;
+
+    var self = this;
+    cm.on("cursorActivity", this.activityFunc = function() { self.cursorActivity(); });
   }
+
+  var requestAnimationFrame = window.requestAnimationFrame || function(fn) {
+    return setTimeout(fn, 1000/60);
+  };
+  var cancelAnimationFrame = window.cancelAnimationFrame || clearTimeout;
 
   Completion.prototype = {
     close: function() {
       if (!this.active()) return;
       this.cm.state.completionActive = null;
+      this.tick = null;
+      this.cm.off("cursorActivity", this.activityFunc);
 
       if (this.widget) this.widget.close();
-      if (this.onClose) this.onClose();
       CodeMirror.signal(this.cm, "endCompletion", this.cm);
     },
 
@@ -78,65 +87,51 @@
         this.showWidget(data);
     },
 
+    cursorActivity: function() {
+      if (this.debounce) {
+        cancelAnimationFrame(this.debounce);
+        this.debounce = 0;
+      }
+
+      var pos = this.cm.getCursor(), line = this.cm.getLine(pos.line);
+      if (pos.line != this.startPos.line || line.length - pos.ch != this.startLen - this.startPos.ch ||
+          pos.ch < this.startPos.ch || this.cm.somethingSelected() ||
+          (pos.ch && this.options.closeCharacters.test(line.charAt(pos.ch - 1)))) {
+        this.close();
+      } else {
+        var self = this;
+        this.debounce = requestAnimationFrame(function() {self.update();});
+        if (this.widget) this.widget.disable();
+      }
+    },
+
+    update: function() {
+      if (this.tick == null) return;
+      if (this.data) CodeMirror.signal(this.data, "update");
+      if (!this.options.hint.async) {
+        this.finishUpdate(this.options.hint(this.cm, this.options), myTick);
+      } else {
+        var myTick = ++this.tick, self = this;
+        this.options.hint(this.cm, function(data) {
+          if (self.tick == myTick) self.finishUpdate(data);
+        }, this.options);
+      }
+    },
+
+    finishUpdate: function(data) {
+      this.data = data;
+      var picked = this.widget && this.widget.picked;
+      if (this.widget) this.widget.close();
+      if (data && data.list.length) {
+        if (picked && data.list.length == 1) this.pick(data, 0);
+        else this.widget = new Widget(this, data);
+      }
+    },
+
     showWidget: function(data) {
+      this.data = data;
       this.widget = new Widget(this, data);
       CodeMirror.signal(data, "shown");
-
-      var debounce = 0, completion = this, finished;
-      var closeOn = this.options.closeCharacters;
-      var startPos = this.cm.getCursor(), startLen = this.cm.getLine(startPos.line).length;
-
-      var requestAnimationFrame = window.requestAnimationFrame || function(fn) {
-        return setTimeout(fn, 1000/60);
-      };
-      var cancelAnimationFrame = window.cancelAnimationFrame || clearTimeout;
-
-      function done() {
-        if (finished) return;
-        finished = true;
-        completion.close();
-        completion.cm.off("cursorActivity", activity);
-        if (data) CodeMirror.signal(data, "close");
-      }
-
-      function update() {
-        if (finished) return;
-        CodeMirror.signal(data, "update");
-        var getHints = completion.options.hint;
-        if (getHints.async)
-          getHints(completion.cm, finishUpdate, completion.options);
-        else
-          finishUpdate(getHints(completion.cm, completion.options));
-      }
-      function finishUpdate(data_) {
-        data = data_;
-        if (finished) return;
-        if (!data || !data.list.length) return done();
-        if (completion.widget) completion.widget.close();
-        completion.widget = new Widget(completion, data);
-      }
-
-      function clearDebounce() {
-        if (debounce) {
-          cancelAnimationFrame(debounce);
-          debounce = 0;
-        }
-      }
-
-      function activity() {
-        clearDebounce();
-        var pos = completion.cm.getCursor(), line = completion.cm.getLine(pos.line);
-        if (pos.line != startPos.line || line.length - pos.ch != startLen - startPos.ch ||
-            pos.ch < startPos.ch || completion.cm.somethingSelected() ||
-            (pos.ch && closeOn.test(line.charAt(pos.ch - 1)))) {
-          completion.close();
-        } else {
-          debounce = requestAnimationFrame(update);
-          if (completion.widget) completion.widget.close();
-        }
-      }
-      this.cm.on("cursorActivity", activity);
-      this.onClose = done;
     },
 
     buildOptions: function(options) {
@@ -201,6 +196,7 @@
   function Widget(completion, data) {
     this.completion = completion;
     this.data = data;
+    this.picked = false;
     var widget = this, cm = completion.cm;
 
     var hints = this.hints = document.createElement("ul");
@@ -313,6 +309,13 @@
         cm.off("focus", this.onFocus);
       }
       cm.off("scroll", this.onScroll);
+    },
+
+    disable: function() {
+      this.completion.cm.removeKeyMap(this.keyMap);
+      var widget = this;
+      this.keyMap = {Enter: function() { widget.picked = true; }};
+      this.completion.cm.addKeyMap(this.keyMap);
     },
 
     pick: function() {

@@ -48,4 +48,7 @@
      "    }",
      "  }",
      "}");
+
+
+  MT("interpolation", ".@{[variable foo]} { [property font-weight]: [atom bold]; }");
 })();

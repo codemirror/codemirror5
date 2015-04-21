@@ -234,6 +234,7 @@ CodeMirror.defineMode("clojure", function (options) {
             return state.indentStack.indent;
         },
 
+        closeBrackets: {pairs: "()[]{}\"\""},
         lineComment: ";;"
     };
 });

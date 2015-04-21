@@ -51,7 +51,7 @@ CodeMirror.defineMode("properties", function() {
         state.position = "quote";
         return null;
       } else if (ch === "\\" && state.position === "quote") {
-        if (stream.next() !== "u") {    // u = Unicode sequence \u1234
+        if (stream.eol()) {  // end of line?
           // Multiline value
           state.nextMultiline = true;
         }

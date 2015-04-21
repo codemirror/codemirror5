@@ -85,7 +85,7 @@ CodeMirror.defineMode('mllike', function(_config, parserConfig) {
     }
     stream.eatWhile(/\w/);
     var cur = stream.current();
-    return words[cur] || 'variable';
+    return words.hasOwnProperty(cur) ? words[cur] : 'variable';
   }
 
   function tokenString(stream, state) {

@@ -239,6 +239,7 @@ CodeMirror.defineMode("scheme", function () {
             return state.indentStack.indent;
         },
 
+        closeBrackets: {pairs: "()[]{}\"\""},
         lineComment: ";;"
     };
 });
