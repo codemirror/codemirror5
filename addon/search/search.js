@@ -118,7 +118,7 @@
   var doReplaceConfirm = "Replace? <button>Yes</button> <button>No</button> <button>Stop</button>";
   function replace(cm, all) {
     if (cm.getOption("readOnly")) return;
-    var query = cm.getSelection() || getSearchState().lastQuery;
+    var query = cm.getSelection() || getSearchState(cm).lastQuery;
     dialog(cm, replaceQueryDialog, "Replace:", query, function(query) {
       if (!query) return;
       query = parseQuery(query);
