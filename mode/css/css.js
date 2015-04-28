@@ -336,9 +336,9 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
   return {
     startState: function(base) {
       return {tokenize: null,
-              state: "top",
+              state: config.inline ? "block" : "top",
               stateArg: null,
-              context: new Context("top", base || 0, null)};
+              context: new Context(config.inline ? "block" : "top", base || 0, null)};
     },
 
     token: function(stream, state) {
