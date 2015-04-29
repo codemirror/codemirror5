@@ -29,7 +29,7 @@
     return result;
   }
 
-  CodeMirror.registerHelper("lint", "javascript", validator);
+  CodeMirror.registerGlobalHelper("lint", "javascript", function(mode) { return mode === "javascript"; }, validator);
 
   function cleanup(error) {
     // All problems are warnings by default
