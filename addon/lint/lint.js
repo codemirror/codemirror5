@@ -66,7 +66,7 @@
   function parseOptions(cm, options) {
     if (options instanceof Function) return {getAnnotations: options};
     if (!options || options === true) options = {};
-    if (!options.getAnnotations) options.getAnnotations = cm.getHelper(CodeMirror.Pos(0, 0), "lint");
+    if (!options.getAnnotations) options.getAnnotations = cm.getHelpers(CodeMirror.Pos(0, 0), "lint");
     if (!options.getAnnotations) throw new Error("Required option 'getAnnotations' missing (lint addon)");
     return options;
   }
@@ -118,12 +118,19 @@
   }
 
   function startLinting(cm) {
-    var state = cm.state.lint, options = state.options;
+    var state = new LintState(cm, parseOptions(cm, null), cm.state.lint.hasLintGutter);
+    var options = state.options;
     var passOptions = options.options || options; // Support deprecated passing of `options` property in options
-    if (options.async || options.getAnnotations.async)
-      options.getAnnotations(cm.getValue(), updateLinting, passOptions, cm);
-    else
-      updateLinting(cm, options.getAnnotations(cm.getValue(), passOptions, cm));
+    if (options.async || options.getAnnotations.async) {
+      options.getAnnotations.forEach(function(annotator) {
+        annotator(cm.getValue(), updateLinting, passOptions, cm);
+      });
+    }
+    else {
+      options.getAnnotations.forEach(function(annotator) {
+        updateLinting(cm, annotator(cm.getValue(), passOptions, cm));
+      });
+    }
   }
 
   function updateLinting(cm, annotationsNotSorted) {

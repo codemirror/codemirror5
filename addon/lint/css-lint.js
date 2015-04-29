@@ -15,7 +15,7 @@
 })(function(CodeMirror) {
 "use strict";
 
-CodeMirror.registerHelper("lint", "css", function(text) {
+CodeMirror.registerGlobalHelper("lint", "css", function(mode) { return mode === "css"; }, function(text) {
   var found = [];
   if (!window.CSSLint) return found;
   var results = CSSLint.verify(text), messages = results.messages, message = null;

@@ -15,7 +15,7 @@
 })(function(CodeMirror) {
 "use strict";
 
-CodeMirror.registerHelper("lint", "json", function(text) {
+CodeMirror.registerGlobalHelper("lint", "json", function(mode) { return mode === "json"; }, function(text) {
   var found = [];
   jsonlint.parseError = function(str, hash) {
     var loc = hash.loc;
