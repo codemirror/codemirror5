@@ -66,8 +66,6 @@
   function parseOptions(cm, options) {
     if (options instanceof Function) return {getAnnotations: options};
     if (!options || options === true) options = {};
-    if (!options.getAnnotations) options.getAnnotations = cm.getHelper(CodeMirror.Pos(0, 0), "lint");
-    if (!options.getAnnotations) throw new Error("Required option 'getAnnotations' missing (lint addon)");
     return options;
   }
 
@@ -120,10 +118,12 @@
   function startLinting(cm) {
     var state = cm.state.lint, options = state.options;
     var passOptions = options.options || options; // Support deprecated passing of `options` property in options
-    if (options.async || options.getAnnotations.async)
-      options.getAnnotations(cm.getValue(), updateLinting, passOptions, cm);
+    var getAnnotations = options.getAnnotations || cm.getHelper(CodeMirror.Pos(0, 0), "lint");
+    if (!getAnnotations) return;
+    if (options.async || getAnnotations.async)
+      getAnnotations(cm.getValue(), updateLinting, passOptions, cm);
     else
-      updateLinting(cm, options.getAnnotations(cm.getValue(), passOptions, cm));
+      updateLinting(cm, getAnnotations(cm.getValue(), passOptions, cm));
   }
 
   function updateLinting(cm, annotationsNotSorted) {
