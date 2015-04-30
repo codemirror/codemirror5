@@ -63,7 +63,7 @@
     this.onMouseOver = function(e) { onMouseOver(cm, e); };
   }
 
-  function parseOptions(cm, options) {
+  function parseOptions(_cm, options) {
     if (options instanceof Function) return {getAnnotations: options};
     if (!options || options === true) options = {};
     return options;
