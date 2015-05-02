@@ -62,6 +62,7 @@
       this.cm.off("cursorActivity", this.activityFunc);
 
       if (this.widget) this.widget.close();
+      CodeMirror.signal(this.data, "close");
       CodeMirror.signal(this.cm, "endCompletion", this.cm);
     },
 
