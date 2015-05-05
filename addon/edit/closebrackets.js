@@ -147,6 +147,7 @@
         cm.replaceSelections(sels, "around");
       } else if (type == "both") {
         cm.replaceSelection(left + right, null);
+        cm.triggerElectric(left + right);
         cm.execCommand("goCharLeft");
       } else if (type == "addFour") {
         cm.replaceSelection(left + left + left + left, "before");
