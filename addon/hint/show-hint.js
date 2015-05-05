@@ -62,6 +62,7 @@
       this.cm.off("cursorActivity", this.activityFunc);
 
       if (this.widget) this.widget.close();
+      if (this.widget && this.data) CodeMirror.signal(this.data, "close");
       CodeMirror.signal(this.cm, "endCompletion", this.cm);
     },
 
@@ -115,8 +116,12 @@
       var picked = (this.widget && this.widget.picked) || (first && this.options.completeSingle);
       if (this.widget) this.widget.close();
       if (data && data.list.length) {
-        if (picked && data.list.length == 1) this.pick(data, 0);
-        else this.widget = new Widget(this, data);
+        if (picked && data.list.length == 1) {
+          this.pick(data, 0);
+        } else {
+          this.widget = new Widget(this, data);
+          CodeMirror.signal(data, "shown");
+        }
       }
     },
 
