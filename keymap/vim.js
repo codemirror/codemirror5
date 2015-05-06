@@ -692,7 +692,9 @@
       getOption: getOption,
       defineOption: defineOption,
       defineEx: function(name, prefix, func){
-        if (name.indexOf(prefix) !== 0) {
+        if (!prefix) {
+          prefix = name;
+        } else if (name.indexOf(prefix) !== 0) {
           throw new Error('(Vim.defineEx) "'+prefix+'" is not a prefix of "'+name+'", command not registered');
         }
         exCommands[name]=func;
