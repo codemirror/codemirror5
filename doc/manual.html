@@ -3274,10 +3274,12 @@ editor.setOption("extraKeys", {
       <dd>Defines an Ex command, and maps it to <code>:name</code>.
       If a prefix is provided, it, and any prefixed substring of the
       <code>name</code> beginning with the <code>prefix</code> can
-      be used to invoke the command. <code>params.argString</code>
-      contains the part of the prompted string after the command
-      name. <code>params.args</code> is <code>params.argString</code>
-      split by whitespace. If the command was prefixed with a
+      be used to invoke the command. If the <code>prefix</code> is
+      falsy, then <code>name</code> is used as the prefix. <code>
+      params.argString</code> contains the part of the prompted
+      string after the command name. <code>params.args</code> is
+      <code>params.argString</code> split by whitespace. If the
+      command was prefixed with a
       <code><strong><a href="http://vimdoc.sourceforge.net/htmldoc/cmdline.html#cmdline-ranges">line range</a></strong></code>,
       <code>params.line</code> and <code>params.lineEnd</code> will
       be set.
