@@ -112,9 +112,14 @@
     string = nameParts.pop();
     var table = nameParts.join(".");
 
+    var alias = false;
+    var aliasTable = table;
     // Check if table is available. If not, find table by Alias
-    if (!getItem(tables, table))
+    if (!getItem(tables, table)) {
+      var oldTable = table;
       table = findTableByAlias(table, editor);
+      if (table !== oldTable) alias = true;
+    }
 
     var columns = getItem(tables, table);
     if (columns && columns.columns)
@@ -123,7 +128,9 @@
     if (columns) {
       addMatches(result, string, columns, function(w) {
         if (typeof w == "string") {
-          w = table + "." + w;
+          var tableInsert = table;
+          if (alias == true) tableInsert = aliasTable;
+          w = tableInsert + "." + w;
         } else {
           w = shallowClone(w);
           w.text = table + "." + w.text;
