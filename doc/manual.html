@@ -2891,6 +2891,23 @@ editor.setOption("extraKeys", {
       implementation of the
       (multi-file) <a href="http://ternjs.net/doc/demo.html">demonstration
       on the Tern website</a>.</dd>
+
+      <dt id="addon_help"><a href="../addon/help/help.js"><code>help/help.js</code></a></dt>
+      <dd>Adds five CodeMirror commands which display editor help in additional editor buffers:
+      <dl>
+        <dt id="command_allhelp"><code><strong>"allHelp"</strong></code></dt>
+        <dd>Creates editor buffers for all the help types described below.
+        All information is provided as pretty-printed JSON with object keys
+        and array elements sorted alphabetically for quicker user lookup.</dd>
+        <dt id="command_commandshelp"><code><strong>"commandsHelp"</strong></code></dt>
+        <dd>Creates buffer *commands Help* displaying CodeMirror.commands.</dd>
+        <dt id="command_defaultshelp"><code><strong>"defaultsHelp"</strong></code></dt>
+        <dd>Creates buffer *defaults Help* displaying CodeMirror.defaults.</dd>
+        <dt id="command_keymaphelp"><code><strong>"keyMapHelp"</strong></code></dt>
+        <dd>Creates buffer *keyMap Help* displaying all active keymaps of the given CodeMirror instance. All fallthrough keymaps are displayed in order.</dd>
+        <dt id="command_optionshelp"><code><strong>"optionsHelp"</strong></code></dt>
+        <dd>Creates buffer *options Help* displaying all options of the given CodeMirror instance.</dd>
+      </dl> Don't miss the <a href="../demo/help.html">demo</a>, but be aware of help content possibly varying between CodeMirror versions.</dd>
     </dl>
 </section>
 
