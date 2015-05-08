@@ -76,13 +76,6 @@
   MT("tagTwoPropertiesURL",
      "[tag foo] { [property background]: [atom url]([string //example.com/foo.png]); [property padding]: [number 0]; }");
 
-  MT("commentSGML",
-     "[comment <!--comment-->]");
-
-  MT("commentSGML2",
-     "[comment <!--comment]",
-     "[comment -->] [tag div] {}");
-
   MT("indent_tagSelector",
      "[tag strong], [tag em] {",
      "  [property background]: [atom rgba](",
