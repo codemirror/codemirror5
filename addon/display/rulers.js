@@ -38,7 +38,7 @@
     for (var i = 0; i < val.length; i++) {
       var elt = document.createElement("div");
       elt.className = "CodeMirror-ruler";
-      var col, cls = null, conf = val[i];
+      var col, conf = val[i];
       if (typeof conf == "number") {
         col = conf;
       } else {
@@ -47,7 +47,6 @@
         if (conf.color) elt.style.borderColor = conf.color;
         if (conf.lineStyle) elt.style.borderLeftStyle = conf.lineStyle;
         if (conf.width) elt.style.borderLeftWidth = conf.width;
-        cls = val[i].className;
       }
       elt.style.left = (left + col * cw) + "px";
       elt.style.top = "-50px";

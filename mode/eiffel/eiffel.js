@@ -84,7 +84,6 @@ CodeMirror.defineMode("eiffel", function() {
     'or'
   ]);
   var operators = wordObj([":=", "and then","and", "or","<<",">>"]);
-  var curPunc;
 
   function chain(newtok, stream, state) {
     state.tokenize.push(newtok);
@@ -92,7 +91,6 @@ CodeMirror.defineMode("eiffel", function() {
   }
 
   function tokenBase(stream, state) {
-    curPunc = null;
     if (stream.eatSpace()) return null;
     var ch = stream.next();
     if (ch == '"'||ch == "'") {

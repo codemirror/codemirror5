@@ -30,12 +30,6 @@ CodeMirror.defineMode("pig", function(_config, parserConfig) {
     return f(stream, state);
   }
 
-  var type;
-  function ret(tp, style) {
-    type = tp;
-    return style;
-  }
-
   function tokenComment(stream, state) {
     var isEnd = false;
     var ch;
@@ -46,7 +40,7 @@ CodeMirror.defineMode("pig", function(_config, parserConfig) {
       }
       isEnd = (ch == "*");
     }
-    return ret("comment", "comment");
+    return "comment";
   }
 
   function tokenString(quote) {
@@ -60,9 +54,10 @@ CodeMirror.defineMode("pig", function(_config, parserConfig) {
       }
       if (end || !(escaped || multiLineStrings))
         state.tokenize = tokenBase;
-      return ret("string", "error");
+      return "error";
     };
   }
+
 
   function tokenBase(stream, state) {
     var ch = stream.next();
@@ -72,11 +67,11 @@ CodeMirror.defineMode("pig", function(_config, parserConfig) {
       return chain(stream, state, tokenString(ch));
     // is it one of the special chars
     else if(/[\[\]{}\(\),;\.]/.test(ch))
-      return ret(ch);
+      return null;
     // is it a number?
     else if(/\d/.test(ch)) {
       stream.eatWhile(/[\w\.]/);
-      return ret("number", "number");
+      return "number";
     }
     // multi line comment or operator
     else if (ch == "/") {
@@ -85,47 +80,42 @@ CodeMirror.defineMode("pig", function(_config, parserConfig) {
       }
       else {
         stream.eatWhile(isOperatorChar);
-        return ret("operator", "operator");
+        return "operator";
       }
     }
     // single line comment or operator
     else if (ch=="-") {
       if(stream.eat("-")){
         stream.skipToEnd();
-        return ret("comment", "comment");
+        return "comment";
       }
       else {
         stream.eatWhile(isOperatorChar);
-        return ret("operator", "operator");
+        return "operator";
       }
     }
     // is it an operator
     else if (isOperatorChar.test(ch)) {
       stream.eatWhile(isOperatorChar);
-      return ret("operator", "operator");
+      return "operator";
     }
     else {
       // get the while word
       stream.eatWhile(/[\w\$_]/);
       // is it one of the listed keywords?
       if (keywords && keywords.propertyIsEnumerable(stream.current().toUpperCase())) {
-        if (stream.eat(")") || stream.eat(".")) {
-          //keywords can be used as variables like flatten(group), group.$0 etc..
-        }
-        else {
-          return ("keyword", "keyword");
-        }
+        //keywords can be used as variables like flatten(group), group.$0 etc..
+        if (!stream.eat(")") && !stream.eat("."))
+          return "keyword";
       }
       // is it one of the builtin functions?
       if (builtins && builtins.propertyIsEnumerable(stream.current().toUpperCase()))
-      {
-        return ("keyword", "variable-2");
-      }
+        return "variable-2";
       // is it one of the listed types?
       if (types && types.propertyIsEnumerable(stream.current().toUpperCase()))
-        return ("keyword", "variable-3");
+        return "variable-3";
       // default is a 'variable'
-      return ret("variable", "pig-word");
+      return "variable";
     }
   }
 

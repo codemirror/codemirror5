@@ -4581,10 +4581,9 @@
         searchCursor.replace(newText);
       }
       function next() {
-        var found;
         // The below only loops to skip over multiple occurrences on the same
         // line when 'global' is not true.
-        while(found = searchCursor.findNext() &&
+        while(searchCursor.findNext() &&
               isInRange(searchCursor.from(), lineStart, lineEnd)) {
           if (!global && lastPos && searchCursor.from().line == lastPos.line) {
             continue;
