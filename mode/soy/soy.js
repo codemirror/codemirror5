@@ -96,7 +96,7 @@
               else state.indent -= (stream.current() == "/}" || indentingTags.indexOf(state.tag) == -1 ? 2 : 1) * config.indentUnit;
               state.soyState.pop();
               return "keyword";
-            } else if (stream.match(/^(\w+)(?==)/)) {
+            } else if (stream.match(/^([\w?]+)(?==)/)) {
               if (stream.current() == "kind" && (match = stream.match(/^="([^"]+)/, false))) {
                 var kind = match[1];
                 state.kind.push(kind);
@@ -134,7 +134,7 @@
           return "comment";
         } else if (stream.match(stream.sol() ? /^\s*\/\/.*/ : /^\s+\/\/.*/)) {
           return "comment";
-        } else if (stream.match(/^\{\$\w*/)) {
+        } else if (stream.match(/^\{\$[\w?]*/)) {
           state.indent += 2 * config.indentUnit;
           state.soyState.push("variable");
           return "variable-2";
@@ -142,7 +142,7 @@
           state.indent += config.indentUnit;
           state.soyState.push("literal");
           return "keyword";
-        } else if (match = stream.match(/^\{([\/@\\]?\w*)/)) {
+        } else if (match = stream.match(/^\{([\/@\\]?[\w?]*)/)) {
           if (match[1] != "/switch")
             state.indent += (/^(\/|(else|elseif|case|default)$)/.test(match[1]) && state.tag != "switch" ? 1 : 2) * config.indentUnit;
           state.tag = match[1];

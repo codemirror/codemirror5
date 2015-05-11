@@ -11,13 +11,19 @@
 })(function(CodeMirror) {
   "use strict";
 
-  CodeMirror.defineExtension("showMatchesOnScrollbar", function(query, caseFold, className) {
-    return new SearchAnnotation(this, query, caseFold, className);
+  CodeMirror.defineExtension("showMatchesOnScrollbar", function(query, caseFold, options) {
+    if (typeof options == "string") options = {className: options};
+    if (!options) options = {};
+    return new SearchAnnotation(this, query, caseFold, options);
   });
 
-  function SearchAnnotation(cm, query, caseFold, className) {
+  function SearchAnnotation(cm, query, caseFold, options) {
     this.cm = cm;
-    this.annotation = cm.annotateScrollbar(className || "CodeMirror-search-match");
+    this.options = options;
+    var annotateOptions = {listenForChanges: false};
+    for (var prop in options) annotateOptions[prop] = options[prop];
+    if (!annotateOptions.className) annotateOptions.className = "CodeMirror-search-match";
+    this.annotation = cm.annotateScrollbar(annotateOptions);
     this.query = query;
     this.caseFold = caseFold;
     this.gap = {from: cm.firstLine(), to: cm.lastLine() + 1};
@@ -41,11 +47,12 @@
       if (match.to.line >= this.gap.from) this.matches.splice(i--, 1);
     }
     var cursor = this.cm.getSearchCursor(this.query, CodeMirror.Pos(this.gap.from, 0), this.caseFold);
+    var maxMatches = this.options && this.options.maxMatches || MAX_MATCHES;
     while (cursor.findNext()) {
       var match = {from: cursor.from(), to: cursor.to()};
       if (match.from.line >= this.gap.to) break;
       this.matches.splice(i++, 0, match);
-      if (this.matches.length > MAX_MATCHES) break;
+      if (this.matches.length > maxMatches) break;
     }
     this.gap = null;
   };

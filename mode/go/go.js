@@ -117,6 +117,7 @@ CodeMirror.defineMode("go", function(config) {
     return state.context = new Context(state.indented, col, type, null, state.context);
   }
   function popContext(state) {
+    if (!state.context.prev) return;
     var t = state.context.type;
     if (t == ")" || t == "]" || t == "}")
       state.indented = state.context.indented;

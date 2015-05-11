@@ -5,6 +5,7 @@
 <link rel=stylesheet href="../../doc/docs.css">
 
 <link rel="stylesheet" href="../../lib/codemirror.css">
+<link rel="stylesheet" href="../../theme/mdn-like.css">
 <script src="../../lib/codemirror.js"></script>
 <script src="../../addon/mode/overlay.js"></script>
 <script src="../xml/xml.js"></script>
@@ -30,21 +31,29 @@
 <form><textarea id="code" name="code">
 <!doctype html>
 <html>
-    <head>
-        <title>My Django web application</title>
-    </head>
-    <body>
-        <h1>
-            {{ page.title }}
-        </h1>
-        <ul class="my-list">
-            {% for item in items %}
-                <li>{% item.name %}</li>
-            {% empty %}
-                <li>You have no items in your list.</li>
-            {% endfor %}
-        </ul>
-    </body>
+  <head>
+    <title>My Django web application</title>
+  </head>
+  <body>
+    <h1>
+      {{ page.title|capfirst }}
+    </h1>
+    <ul class="my-list">
+      {# traverse a list of items and produce links to their views. #}
+      {% for item in items %}
+      <li>
+        <a href="{% url 'item_view' item.name|slugify %}">
+          {{ item.name }}
+        </a>
+      </li>
+      {% empty %}
+      <li>You have no items in your list.</li>
+      {% endfor %}
+    </ul>
+    {% comment "this is a forgotten footer" %}
+    <footer></footer>
+    {% endcomment %}
+  </body>
 </html>
 </textarea></form>
 
@@ -52,8 +61,9 @@
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true,
         mode: "django",
-        indentUnit: 4,
-        indentWithTabs: true
+        indentUnit: 2,
+        indentWithTabs: true,
+        theme: "mdn-like"
       });
     </script>
 

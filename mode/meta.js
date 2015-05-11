@@ -13,12 +13,14 @@
 
   CodeMirror.modeInfo = [
     {name: "APL", mime: "text/apl", mode: "apl", ext: ["dyalog", "apl"]},
+    {name: "PGP", mimes: ["application/pgp", "application/pgp-keys", "application/pgp-signature"], mode: "asciiarmor", ext: ["pgp"]},
     {name: "Asterisk", mime: "text/x-asterisk", mode: "asterisk", file: /^extensions\.conf$/i},
     {name: "C", mime: "text/x-csrc", mode: "clike", ext: ["c", "h"]},
     {name: "C++", mime: "text/x-c++src", mode: "clike", ext: ["cpp", "c++", "cc", "cxx", "hpp", "h++", "hh", "hxx"], alias: ["cpp"]},
     {name: "Cobol", mime: "text/x-cobol", mode: "cobol", ext: ["cob", "cpy"]},
     {name: "C#", mime: "text/x-csharp", mode: "clike", ext: ["cs"], alias: ["csharp"]},
     {name: "Clojure", mime: "text/x-clojure", mode: "clojure", ext: ["clj"]},
+    {name: "CMake", mime: "text/x-cmake", mode: "cmake", ext: ["cmake", "cmake.in"], file: /^CMakeLists.txt$/},
     {name: "CoffeeScript", mime: "text/x-coffeescript", mode: "coffeescript", ext: ["coffee"], alias: ["coffee", "coffee-script"]},
     {name: "Common Lisp", mime: "text/x-common-lisp", mode: "commonlisp", ext: ["cl", "lisp", "el"], alias: ["lisp"]},
     {name: "Cypher", mime: "application/x-cypher-query", mode: "cypher", ext: ["cyp", "cypher"]},
@@ -38,6 +40,7 @@
     {name: "Embedded Javascript", mime: "application/x-ejs", mode: "htmlembedded", ext: ["ejs"]},
     {name: "Embedded Ruby", mime: "application/x-erb", mode: "htmlembedded", ext: ["erb"]},
     {name: "Erlang", mime: "text/x-erlang", mode: "erlang", ext: ["erl"]},
+    {name: "Forth", mime: "text/x-forth", mode: "forth", ext: ["forth", "fth", "4th"]},
     {name: "Fortran", mime: "text/x-fortran", mode: "fortran", ext: ["f", "for", "f77", "f90"]},
     {name: "F#", mime: "text/x-fsharp", mode: "mllike", ext: ["fs"], alias: ["fsharp"]},
     {name: "Gas", mime: "text/x-gas", mode: "gas", ext: ["s"]},
@@ -70,6 +73,7 @@
     {name: "mIRC", mime: "text/mirc", mode: "mirc"},
     {name: "MariaDB SQL", mime: "text/x-mariadb", mode: "sql"},
     {name: "Modelica", mime: "text/x-modelica", mode: "modelica", ext: ["mo"]},
+    {name: "MUMPS", mime: "text/x-mumps", mode: "mumps"},
     {name: "MS SQL", mime: "text/x-mssql", mode: "sql"},
     {name: "MySQL", mime: "text/x-mysql", mode: "sql"},
     {name: "Nginx", mime: "text/x-nginx-conf", mode: "nginx", file: /nginx.*\.conf$/i},
@@ -103,7 +107,6 @@
     {name: "Slim", mimes: ["text/x-slim", "application/x-slim"], mode: "slim", ext: ["slim"]},
     {name: "Smalltalk", mime: "text/x-stsrc", mode: "smalltalk", ext: ["st"]},
     {name: "Smarty", mime: "text/x-smarty", mode: "smarty", ext: ["tpl"]},
-    {name: "SmartyMixed", mime: "text/x-smarty", mode: "smartymixed"},
     {name: "Solr", mime: "text/x-solr", mode: "solr"},
     {name: "Soy", mime: "text/x-soy", mode: "soy", ext: ["soy"], alias: ["closure template"]},
     {name: "SPARQL", mime: "application/sparql-query", mode: "sparql", ext: ["rq", "sparql"], alias: ["sparul"]},
@@ -119,6 +122,7 @@
     {name: "Tiki wiki", mime: "text/tiki", mode: "tiki"},
     {name: "TOML", mime: "text/x-toml", mode: "toml", ext: ["toml"]},
     {name: "Tornado", mime: "text/x-tornado", mode: "tornado"},
+    {name: "troff", mime: "troff", mode: "troff", ext: ["1", "2", "3", "4", "5", "6", "7", "8", "9"]},
     {name: "Turtle", mime: "text/turtle", mode: "turtle", ext: ["ttl"]},
     {name: "TypeScript", mime: "application/typescript", mode: "javascript", ext: ["ts"], alias: ["ts"]},
     {name: "VB.NET", mime: "text/x-vb", mode: "vb", ext: ["vb"]},
@@ -127,7 +131,7 @@
     {name: "Verilog", mime: "text/x-verilog", mode: "verilog", ext: ["v"]},
     {name: "XML", mimes: ["application/xml", "text/xml"], mode: "xml", ext: ["xml", "xsl", "xsd"], alias: ["rss", "wsdl", "xsd"]},
     {name: "XQuery", mime: "application/xquery", mode: "xquery", ext: ["xy", "xquery"]},
-    {name: "YAML", mime: "text/x-yaml", mode: "yaml", ext: ["yaml"], alias: ["yml"]},
+    {name: "YAML", mime: "text/x-yaml", mode: "yaml", ext: ["yaml", "yml"], alias: ["yml"]},
     {name: "Z80", mime: "text/x-z80", mode: "z80", ext: ["z80"]}
   ];
   // Ensure all modes have a mime property for backwards compatibility

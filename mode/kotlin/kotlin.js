@@ -271,6 +271,7 @@ CodeMirror.defineMode("kotlin", function (config, parserConfig) {
       else return ctx.indented + (closing ? 0 : config.indentUnit);
     },
 
+    closeBrackets: {triples: "'\""},
     electricChars: "{}"
   };
 });
