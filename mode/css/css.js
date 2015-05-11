@@ -329,7 +329,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     if (type == "}") return popContext(state);
     if (type == "{" || type == ";") return popAndPass(type, stream, state);
     if (type == "word") override = "variable";
-    else if (type != "variable") override = "error";
+    else if (type != "variable" && type != "(" && type != ")") override = "error";
     return "interpolation";
   };
 
