@@ -370,7 +370,7 @@ CodeMirror.defineMode('mathematica', function(_config, _parserConfig) {
   var pFloat     = "(?:\\.\\d+|\\d+\\.\\d*|\\d+)";
   var pFloatBase = "(?:\\.\\w+|\\w+\\.\\w*|\\w+)";
   var pPrecision = "(?:`(?:`?"+pFloat+")?)";
-  
+
   // regular expressions
   var reBaseForm        = new RegExp('(?:'+pBase+'(?:\\^\\^'+pFloatBase+pPrecision+'?(?:\\*\\^[+-]?\\d+)?))');
   var reFloatForm       = new RegExp('(?:' + pFloat + pPrecision + '?(?:\\*\\^[+-]?\\d+)?)');
@@ -382,7 +382,7 @@ CodeMirror.defineMode('mathematica', function(_config, _parserConfig) {
 
     // get next character
     ch = stream.next();
-    
+
     // string
     if (ch === '"') {
       state.tokenize = tokenString;
@@ -397,10 +397,10 @@ CodeMirror.defineMode('mathematica', function(_config, _parserConfig) {
         return state.tokenize(stream, state);
       }
     }
-    
+
     // go back one character
     stream.backUp(1);
-    
+
     // look for numbers
     // Numbers in a baseform
     if (stream.match(reBaseForm, true, false)) {
@@ -412,7 +412,7 @@ CodeMirror.defineMode('mathematica', function(_config, _parserConfig) {
     if (stream.match(reFloatForm, true, false)) {
       return 'number';
     }
-    
+
     /* In[23] and Out[34] */
     if (stream.match(/(?:In|Out)\[[0-9]*\]/, true, false)) {
       return 'atom';
@@ -427,7 +427,7 @@ CodeMirror.defineMode('mathematica', function(_config, _parserConfig) {
     if (stream.match(/([a-zA-Z\$]+(?:`?[a-zA-Z0-9\$])*::[a-zA-Z\$][a-zA-Z0-9\$]*):?/, true, false)) {
       return 'string-2';
     }
-    
+
     // this makes a look-ahead match for something like variable:{_Integer}
     // the match is then forwarded to the mma-patterns tokenizer.
     if (stream.match(/([a-zA-Z\$][a-zA-Z0-9\$]*\s*:)(?:(?:[a-zA-Z\$][a-zA-Z0-9\$]*)|(?:[^:=>~@\^\&\*\)\[\]'\?,\|])).*/, true, false)) {
@@ -473,12 +473,12 @@ CodeMirror.defineMode('mathematica', function(_config, _parserConfig) {
     if (stream.match(/[a-zA-Z\$][a-zA-Z0-9\$`]*/, true, false)) {
       return 'builtin';
     }
-    
+
     // operators. Note that operators like @@ or /; are matched separately for each symbol.
     if (stream.match(/(?:\\|\+|\-|\*|\/|,|;|\.|:|@|~|=|>|<|&|\||_|`|'|\^|\?|!|%)/, true, false)) {
       return 'operator';
     }
-    
+
     // everything else is an error
     return 'error';
   }
