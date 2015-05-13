@@ -1,5 +1,6 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
 // Distributed under an MIT license: http://codemirror.net/LICENSE
+
 // Mathematica mode copyright (c) 2015 by Calin Barbat
 // Based on code by Patrick Scheibe (halirutan)
 // See: https://github.com/halirutan/Mathematica-Source-Highlighting/tree/master/src/lang-mma.js
@@ -14,7 +15,7 @@
 })(function(CodeMirror) {
 "use strict";
 
-CodeMirror.defineMode('mathematica', function(_config, parserConfig) {
+CodeMirror.defineMode('mathematica', function(_config, _parserConfig) {
   var keywords = 'AASTriangle|AbelianGroup|Abort|AbortKernels|AbortProtect|Above|Abs|Absolute|AbsoluteCorrelation|AbsoluteCorrelationFunction|AbsoluteCurrentValue|AbsoluteDashing|AbsoluteFileName|AbsoluteOptions|AbsolutePointSize|AbsoluteThickness|AbsoluteTime|AbsoluteTiming|AccountingForm|Accumulate|Accuracy|AccuracyGoal|'+
     'ActionDelay|ActionMenu|ActionMenuBox|ActionMenuBoxOptions|Activate|Active|ActiveItem|ActiveStyle|AcyclicGraphQ|AddOnHelpPath|AddPeriodical|AddTo|AddToClassPath|AdjacencyGraph|AdjacencyList|AdjacencyMatrix|AdjustmentBox|AdjustmentBoxOptions|AdjustTimeSeriesForecast|AdministrativeDivisionData|AffineStateSpaceModel|'+
     'AffineTransform|After|AircraftData|AirportData|AirPressureData|AirTemperatureData|AiryAi|AiryAiPrime|AiryAiZero|AiryBi|AiryBiPrime|AiryBiZero|AlgebraicIntegerQ|AlgebraicNumber|AlgebraicNumberDenominator|AlgebraicNumberNorm|AlgebraicNumberPolynomial|AlgebraicNumberTrace|AlgebraicRules|AlgebraicRulesData|'+
@@ -363,7 +364,7 @@ CodeMirror.defineMode('mathematica', function(_config, parserConfig) {
   ];
 
   var namedCharacters = "\\\\\\[" + namedCharactersArray.join("\\]|\\\\\\[") + "\\]";
-  
+
   // used pattern building blocks
   var pBase      = "(?:\\d+)";
   var pFloat     = "(?:\\.\\d+|\\d+\\.\\d*|\\d+)";
@@ -517,7 +518,7 @@ CodeMirror.defineMode('mathematica', function(_config, parserConfig) {
       return state.tokenize(stream, state);
     },
     blockCommentStart: "(*",
-    blockCommentEnd: "*)",
+    blockCommentEnd: "*)"
   };
 });
 
