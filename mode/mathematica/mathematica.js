@@ -18,6 +18,7 @@
 CodeMirror.defineMode('mathematica', function(_config, _parserConfig) {
 
   // used pattern building blocks
+  var Identifier = '[a-zA-Z\\$][a-zA-Z0-9\\$]*';
   var pBase      = "(?:\\d+)";
   var pFloat     = "(?:\\.\\d+|\\d+\\.\\d*|\\d+)";
   var pFloatBase = "(?:\\.\\w+|\\w+\\.\\w*|\\w+)";
@@ -26,6 +27,7 @@ CodeMirror.defineMode('mathematica', function(_config, _parserConfig) {
   // regular expressions
   var reBaseForm        = new RegExp('(?:'+pBase+'(?:\\^\\^'+pFloatBase+pPrecision+'?(?:\\*\\^[+-]?\\d+)?))');
   var reFloatForm       = new RegExp('(?:' + pFloat + pPrecision + '?(?:\\*\\^[+-]?\\d+)?)');
+  var reIdInContext     = new RegExp('(?:`?)(?:' + Identifier + ')(?:`(?:' + Identifier + '))*(?:`?)');
 
   function tokenBase(stream, state) {
     var ch;
@@ -114,7 +116,7 @@ CodeMirror.defineMode('mathematica', function(_config, _parserConfig) {
     }
 
     // Literals like variables, keywords, functions
-    if (stream.match(/[a-zA-Z\$`][a-zA-Z0-9\$`]*/, true, false)) {
+    if (stream.match(reIdInContext, true, false)) {
       return 'keyword';
     }
 
