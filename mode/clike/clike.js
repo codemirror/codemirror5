@@ -336,7 +336,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
 
   def("text/x-csharp", {
     name: "clike",
-    keywords: words("abstract as base break case catch checked class const continue" +
+    keywords: words("abstract as async await base break case catch checked class const continue" +
                     " default delegate do else enum event explicit extern finally fixed for" +
                     " foreach goto if implicit in interface internal is lock namespace new" +
                     " operator out override params private protected public readonly ref return sealed" +
@@ -344,8 +344,8 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
                     " unsafe using virtual void volatile while add alias ascending descending dynamic from get" +
                     " global group into join let orderby partial remove select set value var yield"),
     blockKeywords: words("catch class do else finally for foreach if struct switch try while"),
-    builtin: words("Boolean Byte Char DateTime DateTimeOffset Decimal Double" +
-                    " Guid Int16 Int32 Int64 Object SByte Single String TimeSpan UInt16 UInt32" +
+    builtin: words("Action Boolean Byte Char DateTime DateTimeOffset Decimal Double Func" +
+                    " Guid Int16 Int32 Int64 Object SByte Single String Task TimeSpan UInt16 UInt32" +
                     " UInt64 bool byte char decimal double short int long object"  +
                     " sbyte float string ushort uint ulong"),
     atoms: words("true false null"),
