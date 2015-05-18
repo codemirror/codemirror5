@@ -94,6 +94,7 @@
     helperType: "php",
     keywords: keywords(phpKeywords),
     blockKeywords: keywords("catch do else elseif for foreach if switch try while finally"),
+    defKeywords: keywords("class function interface namespace trait"),
     atoms: keywords(phpAtoms),
     builtin: keywords(phpBuiltin),
     multiLineStrings: true,
