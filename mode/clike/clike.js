@@ -16,6 +16,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       statementIndentUnit = parserConfig.statementIndentUnit || indentUnit,
       dontAlignCalls = parserConfig.dontAlignCalls,
       keywords = parserConfig.keywords || {},
+      types = parserConfig.types || {},
       builtin = parserConfig.builtin || {},
       blockKeywords = parserConfig.blockKeywords || {},
       atoms = parserConfig.atoms || {},
@@ -65,6 +66,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       if (blockKeywords.propertyIsEnumerable(cur)) curPunc = "newstatement";
       return "keyword";
     }
+    if (types.propertyIsEnumerable(cur)) return "variable-2";
     if (builtin.propertyIsEnumerable(cur)) {
       if (blockKeywords.propertyIsEnumerable(cur)) curPunc = "newstatement";
       return "builtin";
@@ -129,7 +131,8 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
         tokenize: null,
         context: new Context((basecolumn || 0) - indentUnit, 0, "top", false),
         indented: 0,
-        startOfLine: true
+        startOfLine: true,
+        prevToken: null
       };
     },
 
@@ -165,7 +168,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
         pushContext(state, stream.column(), type);
       }
       state.startOfLine = false;
-      return style;
+      return state.prevToken = style;
     },
 
     indent: function(state, textAfter) {
@@ -198,9 +201,10 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     for (var i = 0; i < words.length; ++i) obj[words[i]] = true;
     return obj;
   }
-  var cKeywords = "auto if break int case long char register continue return default short do sizeof " +
-    "double static else struct switch extern typedef float union for unsigned " +
-    "goto while enum void const signed volatile";
+  var cKeywords = "auto if break case register continue return default do sizeof " +
+    "static else struct switch extern typedef float union for unsigned " +
+    "goto while enum const volatile true false";
+  var cTypes = "int long char short double float unsigned signed void size_t ptrdiff_t";
 
   function cppHook(stream, state) {
     if (!state.startOfLine) return false;
@@ -218,6 +222,11 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       }
     }
     return "meta";
+  }
+
+  function pointerHook(stream, state) {
+    if (state.prevToken == "variable-2") return "variable-2";
+    return false;
   }
 
   function cpp11StringHook(stream, state) {
@@ -277,6 +286,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
         words.push(prop);
     }
     add(mode.keywords);
+    add(mode.types);
     add(mode.builtin);
     add(mode.atoms);
     if (words.length) {
@@ -291,9 +301,12 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
   def(["text/x-csrc", "text/x-c", "text/x-chdr"], {
     name: "clike",
     keywords: words(cKeywords),
+    types: words(cTypes + " bool _Complex _Bool float_t double_t intptr_t intmax_t " +
+                 "int8_t int16_t int32_t int64_t uintptr_t uintmax_t uint8_t uint16_t " +
+                 "uint32_t uint64_t"),
     blockKeywords: words("case do else for if switch while struct"),
     atoms: words("null"),
-    hooks: {"#": cppHook},
+    hooks: {"#": cppHook, "*": pointerHook},
     modeProps: {fold: ["brace", "include"]}
   });
 
@@ -304,10 +317,12 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
                     "this using const_cast inline public throw virtual delete mutable protected " +
                     "wchar_t alignas alignof constexpr decltype nullptr noexcept thread_local final " +
                     "static_assert override"),
+    types: words(cTypes + "bool wchar_t"),
     blockKeywords: words("catch class do else finally for if struct switch try while"),
     atoms: words("true false null"),
     hooks: {
       "#": cppHook,
+      "*": pointerHook,
       "u": cpp11StringHook,
       "U": cpp11StringHook,
       "L": cpp11StringHook,
@@ -318,11 +333,13 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
 
   def("text/x-java", {
     name: "clike",
-    keywords: words("abstract assert boolean break byte case catch char class const continue default " +
-                    "do double else enum extends final finally float for goto if implements import " +
-                    "instanceof int interface long native new package private protected public " +
-                    "return short static strictfp super switch synchronized this throw throws transient " +
-                    "try void volatile while"),
+    keywords: words("abstract assert break case catch class const continue default " +
+                    "do else enum extends final finally float for goto if implements import " +
+                    "instanceof interface native new package private protected public " +
+                    "return static strictfp super switch synchronized this throw throws transient " +
+                    "try volatile while"),
+    types: words("byte short int long float double boolean char void Boolean Byte Character Double Float " +
+                 "Integer Long Number Object Short String StringBuffer StringBuilder Void"),
     blockKeywords: words("catch class do else finally for if switch try while"),
     atoms: words("true false null"),
     hooks: {
@@ -343,11 +360,11 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
                     " sizeof stackalloc static struct switch this throw try typeof unchecked" +
                     " unsafe using virtual void volatile while add alias ascending descending dynamic from get" +
                     " global group into join let orderby partial remove select set value var yield"),
+    types: words("Action Boolean Byte Char DateTime DateTimeOffset Decimal Double Func" +
+                 " Guid Int16 Int32 Int64 Object SByte Single String Task TimeSpan UInt16 UInt32" +
+                 " UInt64 bool byte char decimal double short int long object"  +
+                 " sbyte float string ushort uint ulong"),
     blockKeywords: words("catch class do else finally for foreach if struct switch try while"),
-    builtin: words("Action Boolean Byte Char DateTime DateTimeOffset Decimal Double Func" +
-                    " Guid Int16 Int32 Int64 Object SByte Single String Task TimeSpan UInt16 UInt32" +
-                    " UInt64 bool byte char decimal double short int long object"  +
-                    " sbyte float string ushort uint ulong"),
     atoms: words("true false null"),
     hooks: {
       "@": function(stream, state) {
@@ -387,11 +404,14 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       "assert assume require print println printf readLine readBoolean readByte readShort " +
       "readChar readInt readLong readFloat readDouble " +
 
+      ":: #:: "
+    ),
+    types: words(
       "AnyVal App Application Array BufferedIterator BigDecimal BigInt Char Console Either " +
       "Enumeration Equiv Error Exception Fractional Function IndexedSeq Integral Iterable " +
       "Iterator List Map Numeric Nil NotNull Option Ordered Ordering PartialFunction PartialOrdering " +
       "Product Proxy Range Responder Seq Serializable Set Specializable Stream StringBuilder " +
-      "StringContext Symbol Throwable Traversable TraversableOnce Tuple Unit Vector :: #:: " +
+      "StringContext Symbol Throwable Traversable TraversableOnce Tuple Unit Vector " +
 
       /* package java.lang */
       "Boolean Byte Character CharSequence Class ClassLoader Cloneable Comparable " +
@@ -424,15 +444,15 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
 
   def(["x-shader/x-vertex", "x-shader/x-fragment"], {
     name: "clike",
-    keywords: words("float int bool void " +
-                    "vec2 vec3 vec4 ivec2 ivec3 ivec4 bvec2 bvec3 bvec4 " +
-                    "mat2 mat3 mat4 " +
-                    "sampler1D sampler2D sampler3D samplerCube " +
+    keywords: words("sampler1D sampler2D sampler3D samplerCube " +
                     "sampler1DShadow sampler2DShadow " +
                     "const attribute uniform varying " +
                     "break continue discard return " +
                     "for while do if else struct " +
                     "in out inout"),
+    types: words("float int bool void " +
+                 "vec2 vec3 vec4 ivec2 ivec3 ivec4 bvec2 bvec3 bvec4 " +
+                 "mat2 mat3 mat4"),
     blockKeywords: words("for while do if else struct"),
     builtin: words("radians degrees sin cos tan asin acos atan " +
                     "pow exp log exp2 sqrt inversesqrt " +
@@ -486,6 +506,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     keywords: words(cKeywords + "as atomic async call command component components configuration event generic " +
                     "implementation includes interface module new norace nx_struct nx_union post provides " +
                     "signal task uses abstract extends"),
+    types: words(cTypes),
     blockKeywords: words("case do else for if switch while struct"),
     atoms: words("null"),
     hooks: {"#": cppHook},
@@ -496,6 +517,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     name: "clike",
     keywords: words(cKeywords + "inline restrict _Bool _Complex _Imaginery BOOL Class bycopy byref id IMP in " +
                     "inout nil oneway out Protocol SEL self super atomic nonatomic retain copy readwrite readonly"),
+    types: words(cTypes),
     atoms: words("YES NO NULL NILL ON OFF"),
     hooks: {
       "@": function(stream) {
