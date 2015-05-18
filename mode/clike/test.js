@@ -6,8 +6,8 @@
   function MT(name) { test.mode(name, mode, Array.prototype.slice.call(arguments, 1)); }
 
   MT("indent",
-     "[variable-2 void] [variable foo]([variable-2 void*] [variable a], [variable-2 int] [variable b]) {",
-     "  [variable-2 int] [variable c] [operator =] [variable b] [operator +]",
+     "[variable-3 void] [def foo]([variable-3 void*] [variable a], [variable-3 int] [variable b]) {",
+     "  [variable-3 int] [variable c] [operator =] [variable b] [operator +]",
      "    [number 1];",
      "  [keyword return] [operator *][variable a];",
      "}");
@@ -19,4 +19,9 @@
      "  [keyword default]:",
      "    [variable printf]([string \"foo %c\"], [variable x]);",
      "}");
+
+  MT("def",
+     "[variable-3 void] [def foo]() {}",
+     "[keyword struct] [def bar]{}",
+     "[variable-3 int] [variable-3 *][def baz]() {}");
 })();

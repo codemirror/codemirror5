@@ -19,6 +19,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       types = parserConfig.types || {},
       builtin = parserConfig.builtin || {},
       blockKeywords = parserConfig.blockKeywords || {},
+      defKeywords = parserConfig.defKeywords || {},
       atoms = parserConfig.atoms || {},
       hooks = parserConfig.hooks || {},
       multiLineStrings = parserConfig.multiLineStrings,
@@ -26,7 +27,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       indentSwitch = parserConfig.indentSwitch !== false;
   var isOperatorChar = /[+\-*&%=<>!?|\/]/;
 
-  var curPunc;
+  var curPunc, isDefKeyword;
 
   function tokenBase(stream, state) {
     var ch = stream.next();
@@ -64,9 +65,10 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     var cur = stream.current();
     if (keywords.propertyIsEnumerable(cur)) {
       if (blockKeywords.propertyIsEnumerable(cur)) curPunc = "newstatement";
+      if (defKeywords.propertyIsEnumerable(cur)) isDefKeyword = true;
       return "keyword";
     }
-    if (types.propertyIsEnumerable(cur)) return "variable-2";
+    if (types.propertyIsEnumerable(cur)) return "variable-3";
     if (builtin.propertyIsEnumerable(cur)) {
       if (blockKeywords.propertyIsEnumerable(cur)) curPunc = "newstatement";
       return "builtin";
@@ -123,6 +125,11 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     return state.context = state.context.prev;
   }
 
+  function typeBefore(stream, state) {
+    if (state.prevToken == "variable" || state.prevToken == "variable-3") return true;
+    if (/\S[>*\]]\s*$|\*$/.test(stream.string.slice(0, stream.start))) return true;
+  }
+
   // Interface
 
   return {
@@ -144,7 +151,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
         state.startOfLine = true;
       }
       if (stream.eatSpace()) return null;
-      curPunc = null;
+      curPunc = isDefKeyword = null;
       var style = (state.tokenize || tokenBase)(stream, state);
       if (style == "comment" || style == "meta") return style;
       if (ctx.align == null) ctx.align = true;
@@ -167,8 +174,16 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
           type = "switchstatement"
         pushContext(state, stream.column(), type);
       }
+
+      if (style == "variable" &&
+          ((state.prevToken == "def" ||
+            (parserConfig.typeFirstDefinitions && typeBefore(stream, state) &&
+             stream.match(/^\s*\(/, false)))))
+        style = "def";
+
       state.startOfLine = false;
-      return state.prevToken = style;
+      state.prevToken = isDefKeyword ? "def" : style;
+      return style;
     },
 
     indent: function(state, textAfter) {
@@ -202,7 +217,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     return obj;
   }
   var cKeywords = "auto if break case register continue return default do sizeof " +
-    "static else struct switch extern typedef float union for unsigned " +
+    "static else struct switch extern typedef float union for " +
     "goto while enum const volatile true false";
   var cTypes = "int long char short double float unsigned signed void size_t ptrdiff_t";
 
@@ -224,8 +239,8 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     return "meta";
   }
 
-  function pointerHook(stream, state) {
-    if (state.prevToken == "variable-2") return "variable-2";
+  function pointerHook(_stream, state) {
+    if (state.prevToken == "variable-3") return "variable-3";
     return false;
   }
 
@@ -305,6 +320,8 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
                  "int8_t int16_t int32_t int64_t uintptr_t uintmax_t uint8_t uint16_t " +
                  "uint32_t uint64_t"),
     blockKeywords: words("case do else for if switch while struct"),
+    defKeywords: words("struct"),
+    typeFirstDefinitions: true,
     atoms: words("null"),
     hooks: {"#": cppHook, "*": pointerHook},
     modeProps: {fold: ["brace", "include"]}
@@ -319,6 +336,8 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
                     "static_assert override"),
     types: words(cTypes + "bool wchar_t"),
     blockKeywords: words("catch class do else finally for if struct switch try while"),
+    defKeywords: words("class namespace struct enum union"),
+    typeFirstDefinitions: true,
     atoms: words("true false null"),
     hooks: {
       "#": cppHook,
@@ -341,6 +360,8 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     types: words("byte short int long float double boolean char void Boolean Byte Character Double Float " +
                  "Integer Long Number Object Short String StringBuffer StringBuilder Void"),
     blockKeywords: words("catch class do else finally for if switch try while"),
+    defKeywords: words("class interface package enum"),
+    typeFirstDefinitions: true,
     atoms: words("true false null"),
     hooks: {
       "@": function(stream) {
@@ -365,6 +386,8 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
                  " UInt64 bool byte char decimal double short int long object"  +
                  " sbyte float string ushort uint ulong"),
     blockKeywords: words("catch class do else finally for foreach if struct switch try while"),
+    defKeywords: words("class interface namespace struct var"),
+    typeFirstDefinitions: true,
     atoms: words("true false null"),
     hooks: {
       "@": function(stream, state) {
@@ -397,7 +420,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       /* scala */
       "abstract case catch class def do else extends false final finally for forSome if " +
       "implicit import lazy match new null object override package private protected return " +
-      "sealed super this throw trait try trye type val var while with yield _ : = => <- <: " +
+      "sealed super this throw trait try type val var while with yield _ : = => <- <: " +
       "<% >: # @ " +
 
       /* package scala */
@@ -421,6 +444,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     ),
     multiLineStrings: true,
     blockKeywords: words("catch class do else finally for forSome if match switch try while"),
+    defKeywords: words("class def object package trait type val var"),
     atoms: words("true false null"),
     indentStatements: false,
     indentSwitch: false,
