@@ -200,11 +200,13 @@ function testVim(name, run, opts, expectedFail) {
     CodeMirror.Vim.resetVimGlobalState_();
     var successful = false;
     var savedOpenNotification = cm.openNotification;
+    var savedOpenDialog = cm.openDialog;
     try {
       run(cm, vim, helpers);
       successful = true;
     } finally {
       cm.openNotification = savedOpenNotification;
+      cm.openDialog = savedOpenDialog;
       if (!successful || verbose) {
         place.style.visibility = "visible";
       } else {
@@ -3556,6 +3558,10 @@ testSubstitute('ex_substitute_multibackslash_replacement', {
   value: 'one,two \n three,four',
   expectedValue: 'one\\\\\\\\two \n three\\\\\\\\four', // 2*8 backslashes.
   expr: '%s/,/\\\\\\\\\\\\\\\\/g'}); // 16 backslashes.
+testSubstitute('ex_substitute_newline_replacement', {
+  value: 'one,two \n three,four',
+  expectedValue: 'one\ntwo \n three\nfour',
+  expr: '%s/,/\\n/g'});
 testSubstitute('ex_substitute_braces_word', {
   value: 'ababab abb ab{2}',
   expectedValue: 'ab abb ab{2}',

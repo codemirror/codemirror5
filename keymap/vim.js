@@ -3640,13 +3640,17 @@
     // Translates the replace part of a search and replace from ex (vim) syntax into
     // javascript form.  Similar to translateRegex, but additionally fixes back references
     // (translates '\[0..9]' to '$[0..9]') and follows different rules for escaping '$'.
+    var charUnescapes = {'\\n': '\n', '\\r': '\r', '\\t': '\t'};
     function translateRegexReplace(str) {
       var escapeNextChar = false;
       var out = [];
       for (var i = -1; i < str.length; i++) {
         var c = str.charAt(i) || '';
         var n = str.charAt(i+1) || '';
-        if (escapeNextChar) {
+        if (charUnescapes[c + n]) {
+          out.push(charUnescapes[c+n]);
+          i++;
+        } else if (escapeNextChar) {
           // At any point in the loop, escapeNextChar is true if the previous
           // character was a '\' and was not escaped.
           out.push(c);
@@ -3674,6 +3678,7 @@
     }
 
     // Unescape \ and / in the replace part, for PCRE mode.
+    var unescapes = {'\\/': '/', '\\\\': '\\', '\\n': '\n', '\\r': '\r', '\\t': '\t'};
     function unescapeRegexReplace(str) {
       var stream = new CodeMirror.StringStream(str);
       var output = [];
@@ -3682,13 +3687,15 @@
         while (stream.peek() && stream.peek() != '\\') {
           output.push(stream.next());
         }
-        if (stream.match('\\/', true)) {
-          // \/ => /
-          output.push('/');
-        } else if (stream.match('\\\\', true)) {
-          // \\ => \
-          output.push('\\');
-        } else {
+        var matched = false;
+        for (var matcher in unescapes) {
+          if (stream.match(matcher, true)) {
+            matched = true;
+            output.push(unescapes[matcher]);
+            break;
+          }
+        }
+        if (!matched) {
           // Don't change anything
           output.push(stream.next());
         }
@@ -4463,6 +4470,9 @@
         var query = state.getQuery();
         var lineStart = (params.line !== undefined) ? params.line : cm.getCursor().line;
         var lineEnd = params.lineEnd || lineStart;
+        if (lineStart == cm.firstLine() && lineEnd == cm.lastLine()) {
+          lineEnd = Infinity;
+        }
         if (count) {
           lineStart = lineEnd;
           lineEnd = lineStart + count - 1;
