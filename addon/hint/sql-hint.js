@@ -127,13 +127,13 @@
 
     if (columns) {
       addMatches(result, string, columns, function(w) {
+        var tableInsert = table;
+        if (alias == true) tableInsert = aliasTable;
         if (typeof w == "string") {
-          var tableInsert = table;
-          if (alias == true) tableInsert = aliasTable;
           w = tableInsert + "." + w;
         } else {
           w = shallowClone(w);
-          w.text = table + "." + w.text;
+          w.text = tableInsert + "." + w.text;
         }
         return useBacktick ? insertBackticks(w) : w;
       });
