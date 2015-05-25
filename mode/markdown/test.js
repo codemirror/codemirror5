@@ -287,6 +287,11 @@
      "1. bar",
      "2. hello");
 
+  // List after hr
+  MT("listAfterHr",
+     "[hr ---]",
+     "[variable-2 - bar]");
+
   // List after header
   MT("listAfterHeader",
      "[header&header-1 # foo]",
