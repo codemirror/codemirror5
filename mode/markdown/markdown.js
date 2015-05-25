@@ -158,6 +158,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     } else if (stream.peek() === '[') {
       return switchInline(stream, state, footnoteLink);
     } else if (stream.match(hrRE, true)) {
+      state.hr = true;
       return hr;
     } else if ((!state.prevLineHasContent || prevLineIsList) && (stream.match(ulRE, false) || stream.match(olRE, false))) {
       var listType = null;
@@ -663,6 +664,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         em: false,
         strong: false,
         header: 0,
+        hr: false,
         taskList: false,
         list: false,
         listDepth: 0,
@@ -695,6 +697,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         strong: s.strong,
         strikethrough: s.strikethrough,
         header: s.header,
+        hr: s.hr,
         taskList: s.taskList,
         list: s.list,
         listDepth: s.listDepth,
@@ -711,10 +714,11 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       state.formatting = false;
 
       if (stream.sol()) {
-        var forceBlankLine = !!state.header;
+        var forceBlankLine = !!state.header || state.hr;
 
-        // Reset state.header
+        // Reset state.header and state.hr
         state.header = 0;
+        state.hr = false;
 
         if (stream.match(/^\s*$/, true) || forceBlankLine) {
           state.prevLineHasContent = false;
