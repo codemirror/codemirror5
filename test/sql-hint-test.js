@@ -168,6 +168,16 @@
     to: Pos(0, 9)
   });
 
+  test("alias_complete_with_displayText", {
+    value: "SELECT t. FROM mytable t",
+    cursor: Pos(0, 9),
+    tables: displayTextTables,
+    list: [{text: "t.id", displayText: "id | Unique ID"},
+           {text: "t.name", displayText: "name | The name"}],
+    from: Pos(0, 7),
+    to: Pos(0, 9)
+  })
+
   function deepCompare(a, b) {
     if (!a || typeof a != "object")
       return a === b;
