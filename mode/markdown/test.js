@@ -85,13 +85,6 @@
      "    [comment foo]",
      "bar");
 
-  // Code blocks using 4 spaces with internal indentation
-  MT("codeBlocksUsing4SpacesIndentation",
-     " foo",
-     "    [comment bar]",
-     "        [comment hello]",
-     "    [comment world]");
-
   // Code blocks should end even after extra indented lines
   MT("codeBlocksWithTrailingIndentedLine",
      "    [comment foo]",
@@ -103,6 +96,12 @@
   // Code blocks using 1 tab (regardless of CodeMirror.indentWithTabs value)
   MT("codeBlocksUsing1Tab",
      "\t[comment foo]");
+
+  // No code blocks directly after paragraph
+  // http://spec.commonmark.org/0.19/#example-65
+  MT("noCodeBlocksAfterParagraph",
+     "Foo",
+     "    Bar");
 
   // Inline code using backticks
   MT("inlineCodeUsingBackticks",
@@ -166,10 +165,13 @@
   MT("atxH6",
      "[header&header-6 ###### foo]");
 
-  // H6 - 7x '#' should still be H6, per Dingus
-  // http://daringfireball.net/projects/markdown/dingus
-  MT("atxH6NotH7",
-     "[header&header-6 ####### foo]");
+  // http://spec.commonmark.org/0.19/#example-24
+  MT("noAtxH7",
+     "####### foo");
+
+  // http://spec.commonmark.org/0.19/#example-25
+  MT("noAtxH1WithoutSpace",
+     "#5 bolt");
 
   // Inline styles should be parsed inside headers
   MT("atxH1inline",
@@ -201,6 +203,25 @@
   MT("setextH2",
      "foo",
      "[header&header-2 ---]");
+
+  // http://spec.commonmark.org/0.19/#example-45
+  MT("setextH2AllowSpaces",
+     "foo",
+     "   [header&header-2 ----      ]");
+
+  // http://spec.commonmark.org/0.19/#example-44
+  MT("noSetextAfterIndentedCodeBlock",
+     "     [comment foo]",
+     "[hr ---]");
+
+  // http://spec.commonmark.org/0.19/#example-51
+  MT("noSetextAfterQuote",
+     "[quote&quote-1 > foo]",
+     "[hr ---]");
+
+  MT("noSetextAfterList",
+     "[variable-2 - foo]",
+     "[hr ---]");
 
   // Single-line blockquote with trailing space
   MT("blockquoteSpace",
@@ -296,6 +317,11 @@
   MT("listAfterHeader",
      "[header&header-1 # foo]",
      "[variable-2 - bar]");
+
+  // hr after list
+  MT("hrAfterList",
+     "[variable-2 - foo]",
+     "[hr -----]");
 
   // Formatting in lists (*)
   MT("listAsteriskFormatting",
