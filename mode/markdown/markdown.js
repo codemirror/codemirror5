@@ -68,12 +68,12 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   ,   strong   = 'strong'
   ,   strikethrough = 'strikethrough';
 
-  var hrRE = /^([*\-=_])(?:\s*\1){2,}\s*$/
+  var hrRE = /^([*\-_])(?:\s*\1){2,}\s*$/
   ,   ulRE = /^[*\-+]\s+/
-  ,   olRE = /^[0-9]+\.\s+/
+  ,   olRE = /^[0-9]+([.)])\s+/
   ,   taskListRE = /^\[(x| )\](?=\s)/ // Must follow ulRE or olRE
-  ,   atxHeaderRE = /^#+ ?/
-  ,   setextHeaderRE = /^(?:\={1,}|-{1,})$/
+  ,   atxHeaderRE = /^(#+)(?: |$)/
+  ,   setextHeaderRE = /^ *(?:\={1,}|-{1,})\s*$/
   ,   textRE = /^[^#!\[\]*_\\<>` "'(~]+/;
 
   function switchInline(stream, state, f) {
@@ -100,6 +100,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     state.strikethrough = false;
     // Reset state.quote
     state.quote = 0;
+    // Reset state.indentedCode
+    state.indentedCode = false;
     if (!htmlFound && state.f == htmlBlock) {
       state.f = inlineNormal;
       state.block = blockNormal;
@@ -116,7 +118,11 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
     var sol = stream.sol();
 
-    var prevLineIsList = state.list !== false;
+    var prevLineIsList = state.list !== false,
+        prevLineIsIndentedCode = state.indentedCode;
+
+    state.indentedCode = false;
+
     if (prevLineIsList) {
       if (state.indentationDiff >= 0) { // Continued list
         if (state.indentationDiff < 4) { // Only adjust indentation if *not* a code block
@@ -134,17 +140,22 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
     var match = null;
     if (state.indentationDiff >= 4) {
-      state.indentation -= 4;
       stream.skipToEnd();
-      return code;
+      if (prevLineIsIndentedCode || !state.prevLineHasContent) {
+        state.indentation -= 4;
+        state.indentedCode = true;
+        return code;
+      } else {
+        return null;
+      }
     } else if (stream.eatSpace()) {
       return null;
-    } else if (match = stream.match(atxHeaderRE)) {
-      state.header = Math.min(6, match[0].indexOf(" ") !== -1 ? match[0].length - 1 : match[0].length);
+    } else if ((match = stream.match(atxHeaderRE)) && match[1].length <= 6) {
+      state.header = match[1].length;
       if (modeCfg.highlightFormatting) state.formatting = "header";
       state.f = state.inline;
       return getType(state);
-    } else if (state.prevLineHasContent && (match = stream.match(setextHeaderRE))) {
+    } else if (state.prevLineHasContent && !state.quote && !prevLineIsList && !prevLineIsIndentedCode && (match = stream.match(setextHeaderRE))) {
       state.header = match[0].charAt(0) == '=' ? 1 : 2;
       if (modeCfg.highlightFormatting) state.formatting = "header";
       state.f = state.inline;
@@ -702,6 +713,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         list: s.list,
         listDepth: s.listDepth,
         quote: s.quote,
+        indentedCode: s.indentedCode,
         trailingSpace: s.trailingSpace,
         trailingSpaceNewLine: s.trailingSpaceNewLine,
         md_inside: s.md_inside
