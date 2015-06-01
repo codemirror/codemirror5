@@ -203,7 +203,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
         (!closing && switchBlock && !/^(?:case|default)\b/.test(textAfter) ? indentUnit : 0);
     },
 
-    electricInput: indentSwitch ? /^\s*(?:case .*?:|default:|\{|\})$/ : /^\s*[{}]$/,
+    electricInput: indentSwitch ? /^\s*(?:case .*?:|default:|\{\}?|\})$/ : /^\s*[{}]$/,
     blockCommentStart: "/*",
     blockCommentEnd: "*/",
     lineComment: "//",
