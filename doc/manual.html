@@ -181,7 +181,20 @@
 });</pre>
 
     <p>It will automatically load the modes that the mixed HTML mode
-    depends on (XML, JavaScript, and CSS).</p>
+    depends on (XML, JavaScript, and CSS). Do <em>not</em> use
+    RequireJS' <code>paths</code> option to configure the path to
+    CodeMirror, since it will break loading submodules through
+    relative paths. Use
+    the <a href="http://requirejs.org/docs/api.html#packages"><code>packages</code></a>
+    configuration option instead, as in:</p>
+
+    <pre data-lang=javascript>require.config({
+  packages: [{
+    name: "codemirror",
+    location: "../path/to/codemirror",
+    main: "lib/codemirror"
+  }]
+});</pre>
 
 </section>
 
