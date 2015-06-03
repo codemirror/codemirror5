@@ -127,4 +127,6 @@
       }
     };
   });
+
+  CodeMirror.defineMIME("text/x-twig", "twig");
 });
