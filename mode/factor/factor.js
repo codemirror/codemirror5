@@ -35,8 +35,9 @@
         // <constructors>
         {regex: /<\S+>/, token: "builtin"},
         // "keywords", incl. ; t f . [ ] { } defining words
-        {regex: /;|t|f|if|\.|\[|\]|\{|\}/, token: "keyword"},
+        {regex: /;|t|f|if|\.|\[|\]|\{|\}|MAIN:/, token: "keyword"},
         // any id (?)
+        {regex: /\S+/, token: "variable"},
 
         {
           regex: /./,
@@ -62,7 +63,7 @@
       stack: [
         {regex: /\)/, token: "meta", next: "start"},
         {regex: /--/, token: "meta"},
-        {regex: /\S+/, token: "atom"},
+        {regex: /\S+/, token: "variable-3"},
         {
           regex: /./,
           token: null
