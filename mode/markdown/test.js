@@ -272,6 +272,13 @@
      "",
      "hello");
 
+  // Header with leading space after continued blockquote (#3287, negative indentation)
+  MT("headerAfterContinuedBlockquote",
+     "[quote&quote-1 > foo]",
+     "[quote&quote-1 bar]",
+     "",
+     " [header&header-1 # hello]");
+
   // Check list types
 
   MT("listAsterisk",
