@@ -39,7 +39,7 @@
           {regex: /(?:;|t|f|if|\.|\[|\]|\{|\}|MAIN:)(?=\s|$)/, token: "keyword"},
           // any id (?)
           {regex: /\S+/, token: "variable"},
-    
+
           {
             regex: /(?:\s*)|./,
             token: null
@@ -84,7 +84,7 @@
           startState: function() {
             return {state:"start", more:null, words:null};
           },
-    
+
         token: function(stream, state) {
           var stDef = mD[state.state];
           var stMore = state.more;
