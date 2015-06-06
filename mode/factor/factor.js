@@ -88,9 +88,9 @@
         token: function(stream, state) {
           var stDef = mD[state.state];
           var stMore = state.more;
-          console.log(stMore);
+          //console.log(stMore);
           if (stMore && stMore.length>0) { 
-            console.log(state.words[0] + " -" + state.more[0] + "- " + state.state);
+            //console.log(state.words[0] + " -" + state.more[0] + "- " + state.state);
             stream.match(state.words.shift());
             return state.more.shift(); 
           } else { 
@@ -106,11 +106,11 @@
               if (a.length > 1) {
                 state.more = tk;
                 state.words = a.slice(2);
-                console.log(a[1] + " @@ " + state.words + " -" + tk + "- " + state.state);
+                //console.log(a[1] + " @@ " + state.words + " -" + tk + "- " + state.state);
                 stream.match(a[1]);
                 return state.more.shift();
               }
-              console.log(a[0] + " -" + tk + "- " + state.state);
+              //console.log(a[0] + " -" + tk + "- " + state.state);
               stream.match(a[0]);
               return tk;
             }
