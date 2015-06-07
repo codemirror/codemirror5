@@ -4726,7 +4726,7 @@
     }
 
     function _mapCommand(command) {
-      defaultKeymap.push(command);
+      defaultKeymap.unshift(command);
     }
 
     function mapCommand(keys, type, name, args, extra) {
