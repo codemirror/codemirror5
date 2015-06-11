@@ -59,6 +59,7 @@
     this.options = options || {};
     var plugins = this.options.plugins || (this.options.plugins = {});
     if (!plugins.doc_comment) plugins.doc_comment = true;
+    this.docs = Object.create(null);
     if (this.options.useWorker) {
       this.server = new WorkerServer(this);
     } else {
@@ -69,7 +70,6 @@
         plugins: plugins
       });
     }
-    this.docs = Object.create(null);
     this.trackChange = function(doc, change) { trackChange(self, doc, change); };
 
     this.cachedArgHints = null;
