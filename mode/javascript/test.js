@@ -160,6 +160,11 @@
      "]];",
      "[number 10];");
 
+  MT("param_default",
+     "[keyword function] [variable foo]([def x] [operator =] [string-2 `foo${][number 10][string-2 }bar`]) {",
+     "  [keyword return] [variable-2 x];",
+     "}");
+
   var jsonld_mode = CodeMirror.getMode(
     {indentUnit: 2},
     {name: "javascript", jsonld: true}
