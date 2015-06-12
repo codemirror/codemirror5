@@ -1,6 +1,5 @@
 {
   "name": "codemirror",
-  "version":"5.3.1",
   "main": ["lib/codemirror.js", "lib/codemirror.css"],
   "ignore": [
     "**/.*",
