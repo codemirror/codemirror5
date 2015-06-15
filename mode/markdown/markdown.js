@@ -274,16 +274,15 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
     if (state.linkHref) {
       styles.push(linkhref, "url");
-      return styles.length ? styles.join(' ') : null;
+    } else { // Only apply inline styles to non-url text
+      if (state.strong) { styles.push(strong); }
+      if (state.em) { styles.push(em); }
+      if (state.strikethrough) { styles.push(strikethrough); }
+
+      if (state.linkText) { styles.push(linktext); }
+
+      if (state.code) { styles.push(code); }
     }
-
-    if (state.strong) { styles.push(strong); }
-    if (state.em) { styles.push(em); }
-    if (state.strikethrough) { styles.push(strikethrough); }
-
-    if (state.linkText) { styles.push(linktext); }
-
-    if (state.code) { styles.push(code); }
 
     if (state.header) { styles.push(header); styles.push(header + "-" + state.header); }
 
