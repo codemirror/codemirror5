@@ -8,6 +8,7 @@
 .cm-s-erlang-dark .CodeMirror-linenumber { color: #d0d0d0; }
 .cm-s-erlang-dark .CodeMirror-cursor { border-left: 1px solid white !important; }
 
+.cm-s-erlang-dark span.cm-quote      { color: #ccc; }
 .cm-s-erlang-dark span.cm-atom       { color: #f133f1; }
 .cm-s-erlang-dark span.cm-attribute  { color: #ff80e1; }
 .cm-s-erlang-dark span.cm-bracket    { color: #ff9d00; }
@@ -20,7 +21,6 @@
 .cm-s-erlang-dark span.cm-operator   { color: #d55; }
 .cm-s-erlang-dark span.cm-property   { color: #ccc; }
 .cm-s-erlang-dark span.cm-qualifier  { color: #ccc; }
-.cm-s-erlang-dark span.cm-quote      { color: #ccc; }
 .cm-s-erlang-dark span.cm-special    { color: #ffbbbb; }
 .cm-s-erlang-dark span.cm-string     { color: #3ad900; }
 .cm-s-erlang-dark span.cm-string-2   { color: #ccc; }
