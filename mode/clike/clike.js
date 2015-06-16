@@ -127,7 +127,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
 
   function typeBefore(stream, state) {
     if (state.prevToken == "variable" || state.prevToken == "variable-3") return true;
-    if (/\S[>*\]]\s*$|\*$/.test(stream.string.slice(0, stream.start))) return true;
+    if (/\S(?:[^- ]>|[*\]])\s*$|\*$/.test(stream.string.slice(0, stream.start))) return true;
   }
 
   // Interface
