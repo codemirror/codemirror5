@@ -3,10 +3,7 @@
 
 /* Just enough of CodeMirror to run runMode under node.js */
 
-// declare global: StringStream
-
 function splitLines(string){return string.split(/\r\n?|\n/);};
-
 
 // Counts the column offset in a string, taking tabs into account.
 // Used mostly to find indentation.
@@ -125,6 +122,13 @@ exports.resolveMode = function(spec) {
   else return spec || {name: "null"};
 };
 
+function copyObj(obj, target, overwrite) {
+  if (!target) target = {};
+  for (var prop in obj)
+    if (obj.hasOwnProperty(prop) && (overwrite !== false || !target.hasOwnProperty(prop)))
+      target[prop] = obj[prop];
+  return target;
+}
 
 // This can be used to attach properties to mode objects from
 // outside the actual mode definition.
