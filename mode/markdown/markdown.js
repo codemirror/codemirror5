@@ -161,7 +161,6 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       state.f = state.inline;
       return getType(state);
     } else if (stream.eat('>')) {
-      state.indentation++;
       state.quote = sol ? 1 : state.quote + 1;
       if (modeCfg.highlightFormatting) state.formatting = "quote";
       stream.eatSpace();
@@ -274,17 +273,16 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     }
 
     if (state.linkHref) {
-      styles.push(linkhref);
-      return styles.length ? styles.join(' ') : null;
+      styles.push(linkhref, "url");
+    } else { // Only apply inline styles to non-url text
+      if (state.strong) { styles.push(strong); }
+      if (state.em) { styles.push(em); }
+      if (state.strikethrough) { styles.push(strikethrough); }
+
+      if (state.linkText) { styles.push(linktext); }
+
+      if (state.code) { styles.push(code); }
     }
-
-    if (state.strong) { styles.push(strong); }
-    if (state.em) { styles.push(em); }
-    if (state.strikethrough) { styles.push(strikethrough); }
-
-    if (state.linkText) { styles.push(linktext); }
-
-    if (state.code) { styles.push(code); }
 
     if (state.header) { styles.push(header); styles.push(header + "-" + state.header); }
 
@@ -638,7 +636,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       stream.match(/^(?:\s+(?:"(?:[^"\\]|\\\\|\\.)+"|'(?:[^'\\]|\\\\|\\.)+'|\((?:[^)\\]|\\\\|\\.)+\)))?/, true);
     }
     state.f = state.inline = inlineNormal;
-    return linkhref;
+    return linkhref + " url";
   }
 
   var savedInlineRE = [];

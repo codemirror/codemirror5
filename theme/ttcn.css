@@ -1,4 +1,12 @@
-/* DEFAULT THEME */
+.cm-quote {color: #090;}
+.cm-negative {color: #d44;}
+.cm-positive {color: #292;}
+.cm-header, .cm-strong {font-weight: bold;}
+.cm-em {font-style: italic;}
+.cm-link {text-decoration: underline;}
+.cm-strikethrough {text-decoration: line-through;}
+.cm-header {color: #00f; font-weight: bold;}
+
 .cm-atom {color: #219;}
 .cm-attribute {color: #00c;}
 .cm-bracket {color: #997;}
@@ -6,7 +14,6 @@
 .cm-def {color: #00f;}
 .cm-em {font-style: italic;}
 .cm-error {color: #f00;}
-.cm-header {color: #00f; font-weight: bold;}
 .cm-hr {color: #999;}
 .cm-invalidchar {color: #f00;}
 .cm-keyword {font-weight:bold}
@@ -15,7 +22,6 @@
 .cm-negative {color: #d44;}
 .cm-positive {color: #292;}
 .cm-qualifier {color: #555;}
-.cm-quote {color: #090;}
 .cm-strikethrough {text-decoration: line-through;}
 .cm-string {color: #006400;}
 .cm-string-2 {color: #f50;}
@@ -24,13 +30,6 @@
 .cm-variable {color: #8B2252;}
 .cm-variable-2 {color: #05a;}
 .cm-variable-3 {color: #085;}
-
-.cm-negative {color: #d44;}
-.cm-positive {color: #292;}
-.cm-header, .cm-strong {font-weight: bold;}
-.cm-em {font-style: italic;}
-.cm-link {text-decoration: underline;}
-.cm-strikethrough {text-decoration: line-through;}
 
 .cm-s-default .cm-error {color: #f00;}
 .cm-invalidchar {color: #f00;}

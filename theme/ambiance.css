@@ -2,6 +2,9 @@
 
 /* Color scheme */
 
+.cm-s-ambiance .cm-header {color: blue;}
+.cm-s-ambiance .cm-quote { color: #24C2C7; }
+
 .cm-s-ambiance .cm-keyword { color: #cda869; }
 .cm-s-ambiance .cm-atom { color: #CF7EA9; }
 .cm-s-ambiance .cm-number { color: #78CF8A; }
@@ -20,8 +23,6 @@
 .cm-s-ambiance .cm-bracket { color: #24C2C7; }
 .cm-s-ambiance .cm-tag { color: #fee4ff }
 .cm-s-ambiance .cm-attribute {  color: #9B859D; }
-.cm-s-ambiance .cm-header {color: blue;}
-.cm-s-ambiance .cm-quote { color: #24C2C7; }
 .cm-s-ambiance .cm-hr { color: pink; }
 .cm-s-ambiance .cm-link { color: #F4C20B; }
 .cm-s-ambiance .cm-special { color: #FF9D00; }
