@@ -17,31 +17,31 @@
     return obj;
   }
 
-  // Helper for stringWithEscapes
-  function matchSequence(list, end) {
-    if (list.length == 0) return stringWithEscapes(end);
+  // Helper for phpString
+  function matchSequence(list, end, escapes) {
+    if (list.length == 0) return phpString(end);
     return function (stream, state) {
       var patterns = list[0];
       for (var i = 0; i < patterns.length; i++) if (stream.match(patterns[i][0])) {
         state.tokenize = matchSequence(list.slice(1), end);
         return patterns[i][1];
       }
-      state.tokenize = stringWithEscapes(end);
+      state.tokenize = phpString(end, escapes);
       return "string";
     };
   }
-  function stringWithEscapes(closing) {
-    return function(stream, state) { return stringWithEscapes_(stream, state, closing); };
+  function phpString(closing, escapes) {
+    return function(stream, state) { return phpString_(stream, state, closing, escapes); };
   }
-  function stringWithEscapes_(stream, state, closing) {
+  function phpString_(stream, state, closing, escapes) {
     // "Complex" syntax
-    if (stream.match("${", false) || stream.match("{$", false)) {
+    if (escapes !== false && stream.match("${", false) || stream.match("{$", false)) {
       state.tokenize = null;
       return "string";
     }
 
     // Simple syntax
-    if (stream.match(/^\$[a-zA-Z_][a-zA-Z0-9_]*/)) {
+    if (escapes !== false && stream.match(/^\$[a-zA-Z_][a-zA-Z0-9_]*/)) {
       // After the variable name there may appear array or object operator.
       if (stream.match("[", false)) {
         // Match array operator
@@ -51,14 +51,14 @@
            [/\$[a-zA-Z_][a-zA-Z0-9_]*/, "variable-2"],
            [/[\w\$]+/, "variable"]],
           [["]", null]]
-        ], closing);
+        ], closing, escapes);
       }
       if (stream.match(/\-\>\w/, false)) {
         // Match object operator
         state.tokenize = matchSequence([
           [["->", null]],
           [[/[\w]+/, "variable"]]
-        ], closing);
+        ], closing, escapes);
       }
       return "variable-2";
     }
@@ -66,8 +66,9 @@
     var escaped = false;
     // Normal string
     while (!stream.eol() &&
-           (escaped || (!stream.match("{$", false) &&
-                        !stream.match(/^(\$[a-zA-Z_][a-zA-Z0-9_]*|\$\{)/, false)))) {
+           (escaped || escapes === false ||
+            (!stream.match("{$", false) &&
+             !stream.match(/^(\$[a-zA-Z_][a-zA-Z0-9_]*|\$\{)/, false)))) {
       if (!escaped && stream.match(closing)) {
         state.tokenize = null;
         state.tokStack.pop(); state.tokStack.pop();
@@ -105,11 +106,13 @@
       },
       "<": function(stream, state) {
         if (stream.match(/<</)) {
+          var nowDoc = stream.eat("'");
           stream.eatWhile(/[\w\.]/);
-          var delim = stream.current().slice(3);
+          var delim = stream.current().slice(3 + (nowDoc ? 1 : 0));
+          if (nowDoc) stream.eat("'");
           if (delim) {
             (state.tokStack || (state.tokStack = [])).push(delim, 0);
-            state.tokenize = stringWithEscapes(delim);
+            state.tokenize = phpString(delim, nowDoc ? false : true);
             return "string";
           }
         }
@@ -128,7 +131,7 @@
       },
       '"': function(_stream, state) {
         (state.tokStack || (state.tokStack = [])).push('"', 0);
-        state.tokenize = stringWithEscapes('"');
+        state.tokenize = phpString('"');
         return "string";
       },
       "{": function(_stream, state) {
@@ -139,7 +142,7 @@
       "}": function(_stream, state) {
         if (state.tokStack && state.tokStack.length > 0 &&
             !--state.tokStack[state.tokStack.length - 1]) {
-          state.tokenize = stringWithEscapes(state.tokStack[state.tokStack.length - 2]);
+          state.tokenize = phpString(state.tokStack[state.tokStack.length - 2]);
         }
         return false;
       }
