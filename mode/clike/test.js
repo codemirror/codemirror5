@@ -24,4 +24,10 @@
      "[variable-3 void] [def foo]() {}",
      "[keyword struct] [def bar]{}",
      "[variable-3 int] [variable-3 *][def baz]() {}");
+
+  MT("double_block",
+     "[keyword for] (;;)",
+     "  [keyword for] (;;)",
+     "    [variable x][operator ++];",
+     "[keyword return];");
 })();

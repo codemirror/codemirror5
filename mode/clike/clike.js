@@ -113,12 +113,12 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     this.align = align;
     this.prev = prev;
   }
-  function isStatement(context) {
-    return context.type == "statement" || context.type == "switchstatement" || context.type == "namespace";
+  function isStatement(type) {
+    return type == "statement" || type == "switchstatement" || type == "namespace";
   }
   function pushContext(state, col, type) {
     var indent = state.indented;
-    if (state.context && isStatement(state.context))
+    if (state.context && isStatement(state.context.type) && !isStatement(type))
       indent = state.context.indented;
     return state.context = new Context(indent, col, type, null, state.context);
   }
@@ -168,19 +168,20 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       if (style == "comment" || style == "meta") return style;
       if (ctx.align == null) ctx.align = true;
 
-      if ((curPunc == ";" || curPunc == ":" || curPunc == ",") && isStatement(ctx)) popContext(state);
+      if ((curPunc == ";" || curPunc == ":" || curPunc == ","))
+        while (isStatement(state.context.type)) popContext(state);
       else if (curPunc == "{") pushContext(state, stream.column(), "}");
       else if (curPunc == "[") pushContext(state, stream.column(), "]");
       else if (curPunc == "(") pushContext(state, stream.column(), ")");
       else if (curPunc == "}") {
-        while (isStatement(ctx)) ctx = popContext(state);
+        while (isStatement(ctx.type)) ctx = popContext(state);
         if (ctx.type == "}") ctx = popContext(state);
-        while (isStatement(ctx)) ctx = popContext(state);
+        while (isStatement(ctx.type)) ctx = popContext(state);
       }
       else if (curPunc == ctx.type) popContext(state);
       else if (indentStatements &&
                (((ctx.type == "}" || ctx.type == "top") && curPunc != ";") ||
-                (isStatement(ctx) && curPunc == "newstatement"))) {
+                (isStatement(ctx.type) && curPunc == "newstatement"))) {
         var type = "statement";
         if (curPunc == "newstatement" && indentSwitch && stream.current() == "switch")
           type = "switchstatement";
@@ -210,10 +211,10 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     indent: function(state, textAfter) {
       if (state.tokenize != tokenBase && state.tokenize != null) return CodeMirror.Pass;
       var ctx = state.context, firstChar = textAfter && textAfter.charAt(0);
-      if (isStatement(ctx) && firstChar == "}") ctx = ctx.prev;
+      if (isStatement(ctx.type) && firstChar == "}") ctx = ctx.prev;
       var closing = firstChar == ctx.type;
       var switchBlock = ctx.prev && ctx.prev.type == "switchstatement";
-      if (isStatement(ctx))
+      if (isStatement(ctx.type))
         return ctx.indented + (firstChar == "{" ? 0 : statementIndentUnit);
       if (ctx.align && (!dontAlignCalls || ctx.type != ")"))
         return ctx.column + (closing ? 0 : 1);
