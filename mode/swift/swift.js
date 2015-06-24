@@ -8,7 +8,7 @@
 		mod(require("../../lib/codemirror"));
 	else if(typeof define=="function"&&define.amd)
 		define(["../../lib/codemirror"],mod);
-	else 
+	else
 		mod(CodeMirror)
 })
 (function(CodeMirror){
