@@ -273,6 +273,8 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
         override = "string-2";
       else if (valueKeywords.hasOwnProperty(word))
         override = "atom";
+      else if (colorKeywords.hasOwnProperty(word))
+        override = "keyword";
       else
         override = "error";
     }
