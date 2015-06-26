@@ -9,8 +9,8 @@
 */
 .cm-s-mdn-like.CodeMirror { color: #999; background-color: #fff; }
 .cm-s-mdn-like .CodeMirror-selected { background: #cfc !important; }
-.cm-s-mdn-like.CodeMirror ::selection { background: #cfc; }
-.cm-s-mdn-like.CodeMirror ::-moz-selection { background: #cfc; }
+.cm-s-mdn-like .CodeMirror-line::selection, .cm-s-mdn-like .CodeMirror-line > span::selection, .cm-s-mdn-like .CodeMirror-line > span > span::selection { background: #cfc; }
+.cm-s-mdn-like .CodeMirror-line::-moz-selection, .cm-s-mdn-like .CodeMirror-line > span::-moz-selection, .cm-s-mdn-like .CodeMirror-line > span > span::-moz-selection { background: #cfc; }
 
 .cm-s-mdn-like .CodeMirror-gutters { background: #f8f8f8; border-left: 6px solid rgba(0,83,159,0.65); color: #333; }
 .cm-s-mdn-like .CodeMirror-linenumber { color: #aaa; padding-left: 8px; }

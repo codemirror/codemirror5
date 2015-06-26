@@ -10,8 +10,8 @@
 
 .cm-s-paraiso-light.CodeMirror {background: #e7e9db; color: #41323f;}
 .cm-s-paraiso-light div.CodeMirror-selected {background: #b9b6b0 !important;}
-.cm-s-paraiso-light.CodeMirror ::selection { background: #b9b6b0; }
-.cm-s-paraiso-light.CodeMirror ::-moz-selection { background: #b9b6b0; }
+.cm-s-paraiso-light .CodeMirror-line::selection, .cm-s-paraiso-light .CodeMirror-line > span::selection, .cm-s-paraiso-light .CodeMirror-line > span > span::selection { background: #b9b6b0; }
+.cm-s-paraiso-light .CodeMirror-line::-moz-selection, .cm-s-paraiso-light .CodeMirror-line > span::-moz-selection, .cm-s-paraiso-light .CodeMirror-line > span > span::-moz-selection { background: #b9b6b0; }
 .cm-s-paraiso-light .CodeMirror-gutters {background: #e7e9db; border-right: 0px;}
 .cm-s-paraiso-light .CodeMirror-guttermarker { color: black; }
 .cm-s-paraiso-light .CodeMirror-guttermarker-subtle { color: #8d8687; }

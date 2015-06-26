@@ -33,8 +33,8 @@
 
 .cm-s-ambiance .CodeMirror-selected { background: rgba(255, 255, 255, 0.15); }
 .cm-s-ambiance.CodeMirror-focused .CodeMirror-selected { background: rgba(255, 255, 255, 0.10); }
-.cm-s-ambiance.CodeMirror ::selection { background: rgba(255, 255, 255, 0.10); }
-.cm-s-ambiance.CodeMirror ::-moz-selection { background: rgba(255, 255, 255, 0.10); }
+.cm-s-ambiance .CodeMirror-line::selection, .cm-s-ambiance .CodeMirror-line > span::selection, .cm-s-ambiance .CodeMirror-line > span > span::selection { background: rgba(255, 255, 255, 0.10); }
+.cm-s-ambiance .CodeMirror-line::-moz-selection, .cm-s-ambiance .CodeMirror-line > span::-moz-selection, .cm-s-ambiance .CodeMirror-line > span > span::-moz-selection { background: rgba(255, 255, 255, 0.10); }
 
 /* Editor styling */
 

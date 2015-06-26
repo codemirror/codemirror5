@@ -1,7 +1,7 @@
 .cm-s-cobalt.CodeMirror { background: #002240; color: white; }
 .cm-s-cobalt div.CodeMirror-selected { background: #b36539 !important; }
-.cm-s-cobalt.CodeMirror ::selection { background: rgba(179, 101, 57, .99); }
-.cm-s-cobalt.CodeMirror ::-moz-selection { background: rgba(179, 101, 57, .99); }
+.cm-s-cobalt .CodeMirror-line::selection, .cm-s-cobalt .CodeMirror-line > span::selection, .cm-s-cobalt .CodeMirror-line > span > span::selection { background: rgba(179, 101, 57, .99); }
+.cm-s-cobalt .CodeMirror-line::-moz-selection, .cm-s-cobalt .CodeMirror-line > span::-moz-selection, .cm-s-cobalt .CodeMirror-line > span > span::-moz-selection { background: rgba(179, 101, 57, .99); }
 .cm-s-cobalt .CodeMirror-gutters { background: #002240; border-right: 1px solid #aaa; }
 .cm-s-cobalt .CodeMirror-guttermarker { color: #ffee80; }
 .cm-s-cobalt .CodeMirror-guttermarker-subtle { color: #d0d0d0; }

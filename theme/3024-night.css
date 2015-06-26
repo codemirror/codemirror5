@@ -10,8 +10,8 @@
 
 .cm-s-3024-night.CodeMirror {background: #090300; color: #d6d5d4;}
 .cm-s-3024-night div.CodeMirror-selected {background: #3a3432 !important;}
-.cm-s-3024-night.CodeMirror ::selection { background: rgba(58, 52, 50, .99); }
-.cm-s-3024-night.CodeMirror ::-moz-selection { background: rgba(58, 52, 50, .99); }
+.cm-s-3024-night .CodeMirror-line::selection, .cm-s-3024-night .CodeMirror-line > span::selection, .cm-s-3024-night .CodeMirror-line > span > span::selection { background: rgba(58, 52, 50, .99); }
+.cm-s-3024-night .CodeMirror-line::-moz-selection, .cm-s-3024-night .CodeMirror-line > span::-moz-selection, .cm-s-3024-night .CodeMirror-line > span > span::-moz-selection { background: rgba(58, 52, 50, .99); }
 .cm-s-3024-night .CodeMirror-gutters {background: #090300; border-right: 0px;}
 .cm-s-3024-night .CodeMirror-guttermarker { color: #db2d20; }
 .cm-s-3024-night .CodeMirror-guttermarker-subtle { color: #5c5855; }
