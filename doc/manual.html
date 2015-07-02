@@ -2481,7 +2481,9 @@ editor.setOption("extraKeys", {
       is an array of strings or objects (the completions),
       and <code>from</code> and <code>to</code> give the start and end
       of the token that is being completed as <code>{line, ch}</code>
-      objects.</dd>
+      objects. An optional <code>selectedHint</code> property (an
+      integer) can be added to the completion object to control the
+      initially selected hint.</dd>
       <dd>If no hinting function is given, the addon will
       use <code>CodeMirror.hint.auto</code>, which
       calls <a href="#getHelpers"><code>getHelpers</code></a> with
