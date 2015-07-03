@@ -13,6 +13,7 @@
 <link rel="stylesheet" href="../theme/blackboard.css">
 <link rel="stylesheet" href="../theme/cobalt.css">
 <link rel="stylesheet" href="../theme/colorforth.css">
+<link rel="stylesheet" href="../theme/dracula.css">
 <link rel="stylesheet" href="../theme/eclipse.css">
 <link rel="stylesheet" href="../theme/elegant.css">
 <link rel="stylesheet" href="../theme/erlang-dark.css">
@@ -29,6 +30,7 @@
 <link rel="stylesheet" href="../theme/paraiso-light.css">
 <link rel="stylesheet" href="../theme/pastel-on-dark.css">
 <link rel="stylesheet" href="../theme/rubyblue.css">
+<link rel="stylesheet" href="../theme/seti.css">
 <link rel="stylesheet" href="../theme/solarized.css">
 <link rel="stylesheet" href="../theme/the-matrix.css">
 <link rel="stylesheet" href="../theme/tomorrow-night-bright.css">
@@ -38,9 +40,13 @@
 <link rel="stylesheet" href="../theme/vibrant-ink.css">
 <link rel="stylesheet" href="../theme/xq-dark.css">
 <link rel="stylesheet" href="../theme/xq-light.css">
+<link rel="stylesheet" href="../theme/yeti.css">
 <link rel="stylesheet" href="../theme/zenburn.css">
 <script src="../lib/codemirror.js"></script>
 <script src="../mode/javascript/javascript.js"></script>
+<script src="../mode/xml/xml.js"></script>
+<script src="../mode/htmlmixed/htmlmixed.js"></script>
+<script src="../mode/css/css.js"></script>
 <script src="../addon/selection/active-line.js"></script>
 <script src="../addon/edit/matchbrackets.js"></script>
 <style type="text/css">
@@ -75,7 +81,7 @@ function findSequence(goal) {
   return find(1, "1");
 }</textarea></form>
 
-<p>Select a theme: <select onchange="selectTheme()" id=select>
+<p>Select a theme: <select onchange="selectTheme()" id="select">
     <option selected>default</option>
     <option>3024-day</option>
     <option>3024-night</option>
@@ -85,6 +91,7 @@ function findSequence(goal) {
     <option>blackboard</option>
     <option>cobalt</option>
     <option>colorforth</option>
+    <option>dracula</option>
     <option>eclipse</option>
     <option>elegant</option>
     <option>erlang-dark</option>
@@ -101,6 +108,7 @@ function findSequence(goal) {
     <option>paraiso-light</option>
     <option>pastel-on-dark</option>
     <option>rubyblue</option>
+    <option>seti</option>
     <option>solarized dark</option>
     <option>solarized light</option>
     <option>the-matrix</option>
@@ -111,7 +119,15 @@ function findSequence(goal) {
     <option>vibrant-ink</option>
     <option>xq-dark</option>
     <option>xq-light</option>
+    <option>yeti</option>
     <option>zenburn</option>
+</select>
+</p>
+
+<p>Select a mode: <select onchange="selectMode()" id="select_mode">
+    <option selected value="javascript">javascript</option>
+    <option value="text/html">html</option>
+    <option value="text/css">css</option>
 </select>
 </p>
 
@@ -122,9 +138,14 @@ function findSequence(goal) {
     matchBrackets: true
   });
   var input = document.getElementById("select");
+  var input_mode = document.getElementById("select_mode");
   function selectTheme() {
     var theme = input.options[input.selectedIndex].innerHTML;
     editor.setOption("theme", theme);
+  }
+  function selectMode() {
+    var mode = input_mode.options[input_mode.selectedIndex].value;
+    editor.setOption("mode", mode);
   }
   var choice = document.location.search &&
                decodeURIComponent(document.location.search.slice(1));
