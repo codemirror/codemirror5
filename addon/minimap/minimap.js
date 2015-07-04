@@ -35,7 +35,7 @@
       }
       else{
         //remove it
-        root_elem.removeChild(elem.getElementsByClassName("CodeMirror-minimap")[0]);
+        root_elem.removeChild(root_elem.getElementsByClassName("CodeMirror-minimap")[0]);
         cm.off("update", refreshMinimap);
         cm.off("scroll", refreshMinimap);
       }
@@ -43,9 +43,8 @@
   });
 
   function refreshMinimap(cm, _from, _to){
-    var theme = ".cm-s-"+ cm.getOption("theme");
     var root_elem = cm.getWrapperElement();
-    var elem = cm.getWrapperElement().getElementsByClassName("CodeMirror-minimap");
+    var elem = root_elem.getElementsByClassName("CodeMirror-minimap");
     //first, clear
     if(elem.length !== 0){
       elem = elem[0];
@@ -63,7 +62,6 @@
         var total_height = scroll.clientHeight;
 
         var lines_cut_off_top = Math.ceil(scroll.top / line_height);
-        
         //height of minimap line is 8px
         var minimap_lines_max = Math.floor(total_height / 2);
 
