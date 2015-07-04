@@ -72,21 +72,26 @@
         var start_index = first_line_shown - first_line_render;
         var end_index = last_line_render - first_line_render;
 
+        if(end_index - start_index > minimap_lines_max){
+        	//overload
+        	end_index = start_index + minimap_lines_max;
+        }
+
         for(var i = start_index; i <= end_index; i++){
-      if(lines[i]){
-        var _temp = lines[i].cloneNode(true);
-        var new_line = document.createElement('pre');
-        new_line.innerHTML = _temp.innerHTML;
-        new_line.className = "CodeMirror-minimap-line";
-             elem.appendChild(new_line);
-             var spans = new_line.querySelectorAll("span>span");
-             for(var k = 0; k < spans.length; k++){
-               var color = getComputedStyle(spans[k]).color;
-               spans[k].style.backgroundColor = color;
+          if(lines[i]){
+            var _temp = lines[i].cloneNode(true);
+            var new_line = document.createElement('pre');
+            new_line.innerHTML = _temp.innerHTML;
+            new_line.className = "CodeMirror-minimap-line";
+            elem.appendChild(new_line);
+            var spans = new_line.querySelectorAll("span>span");
+            for(var k = 0; k < spans.length; k++){
+            	var color = getComputedStyle(spans[k]).color;
+                 spans[k].style.backgroundColor = color;
+               }
              }
            }
-         }
-      }
+        }
     }
   };
 
