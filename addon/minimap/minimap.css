@@ -1,0 +1,39 @@
+.CodeMirror-minimap{
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 200px;
+  height: 100%;
+  overflow: hidden;
+  z-index: 999;
+  margin-right: 16px;
+}
+.CodeMirror-minimap-line{
+  position: relative;
+  width: 100%;
+  display: flex;
+  overflow: hidden;
+  height: 2px;
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+.CodeMirror-minimap-line > div{
+  height: 100%;
+  position: relative;
+  display: inline-block;
+}
+
+.mini-block{
+  width: 2px;
+  background-color: white;
+}
+
+.mini-space{
+  width: 1px;
+  background-color: transparent;
+}
+
+.mini-tab{
+  width: 3px;
+  background-color: transparent;
+}
