@@ -48,59 +48,44 @@
     //first, clear
     if(elem.length !== 0){
       elem = elem[0];
+      elem.style.backgroundColor = getComputedStyle(root_elem)["background-color"];
       elem.innerHTML = "";
+      var text = cm.getValue();
 
-      if(root_elem.getElementsByClassName("CodeMirror-line").length === 0){
+      if(text.trim() === ""){
         //do nothing
       }
       else{
         //ok, there is some content
         //first, get the range of lines that are shown in the viewport
         var scroll = cm.getScrollInfo();
-        var lines = cm.getValue().split("\n");
-        var line_height = root_elem.getElementsByClassName("CodeMirror-line")[0].offsetHeight;
+        var lines = root_elem.getElementsByClassName("CodeMirror-line");
+        var line_height = lines[0].offsetHeight;
         var total_height = scroll.clientHeight;
-
-        var lines_cut_off_top = Math.ceil(scroll.top / line_height);
-        //height of minimap line is 8px
         var minimap_lines_max = Math.floor(total_height / 2);
 
-        var start_index = lines_cut_off_top;
-        var end_index = start_index + minimap_lines_max;
+        var view = cm.getViewport();
+        var first_line_shown = Math.round(scroll.top / line_height);
+        var first_line_render = view.from;
+        var last_line_render = view.to;
+
+        var start_index = first_line_shown - first_line_render;
+        var end_index = last_line_render - first_line_render;
+
         for(var i = start_index; i <= end_index; i++){
-          if(lines[i]){
-            var line_elem = document.createElement("div");
-            line_elem.className = "CodeMirror-minimap-line";
-            var html = "";
-
-            var textContent = lines[i];
-            for(var j = 0; j < textContent.length; j++){
-              var _ch = textContent[j] + "";
-              if(_ch === "\t"){
-                html += "<div class='mini-tab'></div>";
-              }
-              else if(_ch === " "){
-                html += "<div class='mini-space'></div>";
-              }
-              else{
-                var out = "span.cm-" + cm.getTokenAt({
-                  line: i,
-                  ch: j
-                }).type;
-                var out_elem = root_elem.querySelector(out);
-                var color = getComputedStyle(root_elem).color;
-                if(out_elem){
-                  color = getComputedStyle(out_elem).color;
-                }
-
-                html += "<div class='mini-block' style='background-color:"+color+"'></div>";
-              }
-            }
-
-            line_elem.innerHTML = html;
-            cm.getWrapperElement().getElementsByClassName("CodeMirror-minimap")[0].appendChild(line_elem);
-          }
-        }
+      if(lines[i]){
+        var _temp = lines[i].cloneNode(true);
+        var new_line = document.createElement('pre');
+        new_line.innerHTML = _temp.innerHTML;
+        new_line.className = "CodeMirror-minimap-line";
+             elem.appendChild(new_line);
+             var spans = new_line.querySelectorAll("span>span");
+             for(var k = 0; k < spans.length; k++){
+               var color = getComputedStyle(spans[k]).color;
+               spans[k].style.backgroundColor = color;
+             }
+           }
+         }
       }
     }
   };

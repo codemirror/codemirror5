@@ -9,15 +9,16 @@
   margin-right: 16px;
 }
 .CodeMirror-minimap-line{
-  position: relative;
-  width: 100%;
-  display: flex;
-  overflow: hidden;
-  height: 2px;
-  margin-top: 2px;
-  margin-bottom: 2px;
+  position: relative !important;
+  width: 100% !important;
+  display: flex !important;
+  overflow: hidden !important;
+  height: 2px !important;
+  margin-top: 2px !important;
+  margin-bottom: 2px !important;
+  font-size:2px !important;
 }
-.CodeMirror-minimap-line > div{
+.CodeMirror-minimap-line > div, .CodeMirror-minimap-line > span > span, {
   height: 100%;
   position: relative;
   display: inline-block;
