@@ -73,8 +73,7 @@
         var end_index = last_line_render - first_line_render;
 
         if(end_index - start_index > minimap_lines_max){
-        	//overload
-        	end_index = start_index + minimap_lines_max;
+          end_index = start_index + minimap_lines_max;
         }
 
         for(var i = start_index; i <= end_index; i++){
@@ -86,7 +85,7 @@
             elem.appendChild(new_line);
             var spans = new_line.querySelectorAll("span>span");
             for(var k = 0; k < spans.length; k++){
-            	var color = getComputedStyle(spans[k]).color;
+              var color = getComputedStyle(spans[k]).color;
                  spans[k].style.backgroundColor = color;
                }
              }
