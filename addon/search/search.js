@@ -78,14 +78,19 @@
     // Heuristic: if the query string is all lowercase, do a case insensitive search.
     return cm.getSearchCursor(query, pos, queryCaseInsensitive(query));
   }
-  function dialog(cm, text, shortText, deflt, f, onKeyDownHandler, onCloseHandler) {
+  function dialog(cm, text, shortText, deflt, f) {
     if (cm.openDialog) {
       var dialogOptions = {
         value: deflt,
-        selectValueOnOpen: true,
-        onKeyDown: onKeyDownHandler,
-        onClose: onCloseHandler
+        selectValueOnOpen: true
       };
+
+      if (cm.state.incrementalSearch) {
+        dialogOptions.closeOnEnter = false;
+        dialogOptions.onClose = function() {
+          CodeMirror.commands.clearSearch(cm);
+        }
+      }
 
       cm.openDialog(text, f, dialogOptions);
     }
@@ -111,12 +116,20 @@
     var state = getSearchState(cm);
     if (state.query) return findNext(cm, rev);
     var q = cm.getSelection() || state.lastQuery;
-    dialog(cm, queryDialog, "Search for:", q, function(queryStr) {
+    dialog(cm, queryDialog, "Search for:", q, function(queryStr, keyEvent) {
       cm.operation(function() {
         initQuery(cm, queryStr);
-        findNext(cm, rev);
+
+        if (cm.state.incrementalSearch) {
+          // In incremental search we need to prevent default behavior
+          // from pre-maturely closing the dialog box.
+          CodeMirror.e_stop(keyEvent);
+          findNext(cm, (keyEvent.shiftKey === true));
+        } else {
+          findNext(cm, rev);
+        }
       });
-    }, cm.state.searchOnKeyDown, cm.state.searchOnClose);
+    });
   }
   function findNext(cm, rev) {cm.operation(function() {
     var state = getSearchState(cm);
@@ -188,18 +201,8 @@
     });
   }
 
-  CodeMirror.defineOption("searchOnKeyDown", false, function(cm, val) {
-    cm.state.searchOnKeyDown =  null;
-    if (CodeMirror.isFunction(val)) {
-          cm.state.searchOnKeyDown =  val;
-    }
-  });
-
-  CodeMirror.defineOption("searchOnClose", false, function(cm, val) {
-    cm.state.searchOnClose =  null;
-    if (CodeMirror.isFunction(val)) {
-          cm.state.searchOnClose =  val;
-    }
+  CodeMirror.defineOption("incrementalSearch", false, function(cm, val) {
+    cm.state.incrementalSearch = (val === true);
   });
 
   CodeMirror.commands.find = function(cm) {clearSearch(cm); doSearch(cm);};
@@ -208,5 +211,4 @@
   CodeMirror.commands.clearSearch = clearSearch;
   CodeMirror.commands.replace = replace;
   CodeMirror.commands.replaceAll = function(cm) {replace(cm, true);};
-  CodeMirror.commands.initQuery = initQuery;
 });
