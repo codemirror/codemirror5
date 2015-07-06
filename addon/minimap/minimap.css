@@ -6,8 +6,9 @@
   height: 100%;
   overflow: hidden;
   z-index: 999;
-  margin-right: 16px;
+  border-left: solid thin gray;
 }
+
 .CodeMirror-minimap-line{
   position: relative !important;
   width: 100% !important;

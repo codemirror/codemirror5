@@ -26,6 +26,9 @@
         //add onchange
         cm.on("update", refreshMinimap);
         cm.on("scroll", refreshMinimap);
+        root_elem.querySelector(".CodeMirror-scroll").style.width = "calc(100% - 200px)";
+        //root_elem.querySelector(".CodeMirror-hscrollbar").style.width = "calc(100% - 200px)";
+        root_elem.querySelector(".CodeMirror-vscrollbar").style.right = "200px";
       }
       //otherwise, do nothing
     }
@@ -38,6 +41,10 @@
         root_elem.removeChild(root_elem.getElementsByClassName("CodeMirror-minimap")[0]);
         cm.off("update", refreshMinimap);
         cm.off("scroll", refreshMinimap);
+
+        root_elem.querySelector(".CodeMirror-scroll").style.width = "";
+        //root_elem.querySelector(".CodeMirror-hscrollbar").style.width = "";
+        root_elem.querySelector(".CodeMirror-vscrollbar").style.width = "";
       }
     }
   });
