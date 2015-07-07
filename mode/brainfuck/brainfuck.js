@@ -12,7 +12,6 @@
     mod(CodeMirror)
 })(function(CodeMirror) {
   "use strict"
-  function trim(str) { return /^\s*(.*?)\s*$/.exec(str)[1] }
   var reserve = "><+-.,[]".split("");
   /*
   comments can be either:
@@ -43,7 +42,6 @@
           state.commentLine = false;
         }
         var ch = stream.next().toString();
-        console.log(ch);
         if(reserve.indexOf(ch) !== -1){
           if(state.commentLine === true){
             if(stream.eol()){
