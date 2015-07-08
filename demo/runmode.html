@@ -37,7 +37,9 @@
     <script>
 function doHighlight() {
   CodeMirror.runMode(document.getElementById("code").value, "application/xml",
-                     document.getElementById("output"));
+                     document.getElementById("output"), {
+                      lineNumbers: true
+                     });
 }
 </script>
 
@@ -57,6 +59,8 @@ function doHighlight() {
       the tokens will be converted to <code>span</code> elements as in
       an editor, and inserted into the node
       (through <code>innerHTML</code>).</dd>
+      <dt><code>options (object)</code></dt>
+      <dd>Can have options such as `tabSize` and `lineNumbers`.</dd>
     </dl>
 
   </article>

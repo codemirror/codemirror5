@@ -18,8 +18,10 @@ CodeMirror.runMode = function(string, modespec, callback, options) {
 
   if (callback.nodeType == 1) {
     var tabSize = (options && options.tabSize) || CodeMirror.defaults.tabSize;
+    var line_numbers = (options && options.lineNumbers) || false;
     var node = callback, col = 0;
     node.innerHTML = "";
+    node.style["overflow-wrap"] = "break-word";
     callback = function(text, style) {
       if (text == "\n") {
         // Emitting LF or CRLF on IE8 or earlier results in an incorrect display.
@@ -56,9 +58,22 @@ CodeMirror.runMode = function(string, modespec, callback, options) {
     };
   }
 
+  var insert_linenumber = function(text){
+      var sp = node.appendChild(document.createElement("span"));
+      sp.className = "CodeMirror-linenumber";
+      sp.style["padding-left"] = "0";
+      sp.style["padding-right"] = "10px";
+      sp.appendChild(document.createTextNode(text));
+  }
+
   var lines = CodeMirror.splitLines(string), state = (options && options.state) || CodeMirror.startState(mode);
   for (var i = 0, e = lines.length; i < e; ++i) {
-    if (i) callback("\n");
+    if(i){
+      callback("\n");
+    }
+    if(line_numbers){
+      insert_linenumber((i + 1) + "");
+    }
     var stream = new CodeMirror.StringStream(lines[i]);
     if (!stream.string && mode.blankLine) mode.blankLine(state);
     while (!stream.eol()) {
