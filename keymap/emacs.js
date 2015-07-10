@@ -377,7 +377,7 @@
 
       getInput(cm, "Goto line", function(str) {
         var num;
-        if (str && !isNaN(num = Number(str)) && num == num|0 && num > 0)
+        if (str && !isNaN(num = Number(str)) && num == (num|0) && num > 0)
           cm.setCursor(num - 1);
       });
     },
