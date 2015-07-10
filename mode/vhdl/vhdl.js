@@ -128,7 +128,6 @@ CodeMirror.defineMode("vhdl", function(config, parserConfig) {
   }
 
   // Interface
-
   return {
     startState: function(basecolumn) {
       return {
@@ -180,7 +179,7 @@ CodeMirror.defineMode("vhdl", function(config, parserConfig) {
   };
 });
 
-function metaHook(stream, state) {
+function metaHook(stream) {
   stream.eatWhile(/[\w\$_]/);
   return "meta";
 }
