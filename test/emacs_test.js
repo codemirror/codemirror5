@@ -138,4 +138,10 @@
     cm.triggerOnKeyDown(fakeEvent("Ctrl-S"));
     is(saved, "hi");
   }, {value: "hi", keyMap: "emacs"});
+
+  testCM("gotoInvalidLineFloat", function(cm) {
+    cm.openDialog = function(_, cb) { cb("2.2"); };
+    cm.triggerOnKeyDown(fakeEvent("Alt-G"));
+    cm.triggerOnKeyDown(fakeEvent("G"));
+  }, {value: "1\n2\n3\n4", keyMap: "emacs"});
 })();
