@@ -390,7 +390,6 @@ testVim('%_skip_string', function(cm, vim, helpers) {
   helpers.doKeys(['%']);
   helpers.assertCursorAt(0,0);
 }, {value:'(")")'});
-(')')
 testVim('%_skip_comment', function(cm, vim, helpers) {
   cm.setCursor(0,0);
   helpers.doKeys(['%']);
@@ -3128,8 +3127,7 @@ testVim('zt==z<CR>', function(cm, vim, helpers){
 });
 
 var moveTillCharacterSandbox =
-  'The quick brown fox \n'
-  'jumped over the lazy dog.'
+  'The quick brown fox \n';
 testVim('moveTillCharacter', function(cm, vim, helpers){
   cm.setCursor(0, 0);
   // Search for the 'q'.
@@ -3176,9 +3174,6 @@ testVim('searchForPipe', function(cm, vim, helpers){
 
 
 var scrollMotionSandbox =
-  '\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n'
-  '\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n'
-  '\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n'
   '\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n';
 testVim('scrollMotion', function(cm, vim, helpers){
   var prevCursor, prevScrollInfo;
