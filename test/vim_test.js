@@ -3392,6 +3392,14 @@ testVim('ex_sort_decimal_mixed_reverse', function(cm, vim, helpers) {
   helpers.doEx('sort! d');
   eq('a3\nb2\nc1\nz\ny', cm.getValue());
 }, { value: 'a3\nz\nc1\ny\nb2'});
+testVim('ex_sort_patterns_not_supported', function(cm, vim, helpers) {
+  var notified = false;
+  cm.openNotification = helpers.fakeOpenNotification(function(text) {
+    notified = /patterns not supported/.test(text);
+  });
+  helpers.doEx('sort /abc/');
+  is(notified, 'No notification.');
+});
 // test for :global command
 testVim('ex_global', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
