@@ -220,16 +220,12 @@ CodeMirror.defineMode("erlang", function(cmCfg) {
         }else{
           return rval(state,stream,"function");
         }
-      }else if (is_member(w,operatorAtomWords)) {
-        return rval(state,stream,"operator");
       }else if (lookahead(stream) == ":") {
         if (w == "erlang") {
           return rval(state,stream,"builtin");
         } else {
           return rval(state,stream,"function");
         }
-      }else if (is_member(w,["true","false"])) {
-        return rval(state,stream,"boolean");
       }else if (is_member(w,["true","false"])) {
         return rval(state,stream,"boolean");
       }else{
