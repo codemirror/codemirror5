@@ -1,0 +1,9 @@
+/node_modules
+/demo
+/doc
+/test
+/index.html
+/mode/*/*test.js
+/mode/*/*.html
+/mode/index.html
+.*
