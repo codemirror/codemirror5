@@ -111,6 +111,7 @@
     },
 
     finishUpdate: function(data, first) {
+      if (data && this.data && CodeMirror.cmpPos(data.from, this.data.from)) data = null;
       this.data = data;
 
       var picked = (this.widget && this.widget.picked) || (first && this.options.completeSingle);
