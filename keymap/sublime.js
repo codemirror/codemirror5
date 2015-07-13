@@ -14,7 +14,7 @@
 })(function(CodeMirror) {
   "use strict";
 
-  var map = CodeMirror.keyMap.sublime = {fallthrough: "default"};
+  var map = CodeMirror.keyMap.sublime = {fallthrough: "default", name: "sublime"};
   var cmds = CodeMirror.commands;
   var Pos = CodeMirror.Pos;
   var mac = CodeMirror.keyMap["default"] == CodeMirror.keyMap.macDefault;
