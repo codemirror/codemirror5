@@ -102,4 +102,14 @@
     cm.replaceSelection("\n");
     is(cm.cursorCoords(null, "window").bottom < displayBottom(cm, false));
   }, {lineWrapping: true});
+
+  testCM("height_auto_with_gutter_expect_no_scroll_after_line_delete", function(cm) {
+    cm.setSize(null, "auto");
+    cm.setValue("x\n");
+    cm.execCommand("goDocEnd");
+    cm.execCommand("delCharBefore");
+    eq(cm.getScrollInfo().top, 0);
+    cm.scrollTo(null, 10);
+    is(cm.getScrollInfo().top < 5);
+  }, {lineNumbers: true});
 })();
