@@ -37,7 +37,6 @@ CodeMirror.defineMode("ruby", function(config) {
   }
 
   function tokenBase(stream, state) {
-    curPunc = null;
     if (stream.sol() && stream.match("=begin") && stream.eol()) {
       state.tokenize.push(readBlockComment);
       return "comment";
@@ -232,6 +231,7 @@ CodeMirror.defineMode("ruby", function(config) {
     },
 
     token: function(stream, state) {
+      curPunc = null;
       if (stream.sol()) state.indented = stream.indentation();
       var style = state.tokenize[state.tokenize.length-1](stream, state), kwtype;
       var thisTok = curPunc;
