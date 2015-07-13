@@ -1583,7 +1583,7 @@ testCM("addLineClass", function(cm) {
   eq(byClassName(lines, "foo").length, 2);
   eq(byClassName(lines, "bar").length, 1);
   eq(byClassName(lines, "baz").length, 1);
-  eq(byClassName(lines, "gutter-class").length, 1);
+  eq(byClassName(lines, "gutter-class").length, 2); // Gutter classes are reflected in 2 nodes
   cm.removeLineClass(0, "text", "foo");
   cls(0, "bar", null, null, null);
   cm.removeLineClass(0, "text", "foo");
