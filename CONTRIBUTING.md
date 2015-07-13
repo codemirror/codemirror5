@@ -61,7 +61,8 @@ should be asked on the
 - Make sure all tests pass. Visit `test/index.html` in your browser to
   run them.
 - Submit a pull request
-([how to create a pull request](https://help.github.com/articles/fork-a-repo))
+([how to create a pull request](https://help.github.com/articles/fork-a-repo)).
+  Don't put more than one feature/fix in a single pull request.
 
 By contributing code to CodeMirror you
 
