@@ -61,10 +61,7 @@
     }
   }
   function SearchState() {
-    this.posFrom = null;
-    this.posTo = null;
-    this.lastQuery = null;
-    this.query = null;
+    this.posFrom = this.posTo = this.lastQuery = this.query = null;
     this.overlay = null;
     this.queryStr = null;
   }
