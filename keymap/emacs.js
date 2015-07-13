@@ -398,7 +398,8 @@
     "Ctrl-X H": "selectAll",
 
     "Ctrl-Q Tab": repeated("insertTab"),
-    "Ctrl-U": addPrefixMap
+    "Ctrl-U": addPrefixMap,
+    "name": "emacs"
   });
 
   var prefixMap = {"Ctrl-G": clearPrefix};
