@@ -24,10 +24,15 @@ function words(str) {
   return obj;
 }
 
+function metaHook(stream) {
+  stream.eatWhile(/[\w\$_]/);
+  return "meta";
+}
+
 CodeMirror.defineMode("vhdl", function(config, parserConfig) {
   var indentUnit = config.indentUnit,
-      atoms = parserConfig.atoms || {},
-      hooks = parserConfig.hooks || {},
+      atoms = parserConfig.atoms || words("null"),
+      hooks = parserConfig.hooks || {"`": metaHook, "$": metaHook},
       multiLineStrings = parserConfig.multiLineStrings;
 
   var keywords = words("abs,access,after,alias,all,and,architecture,array,assert,attribute,begin,block," +
@@ -179,15 +184,6 @@ CodeMirror.defineMode("vhdl", function(config, parserConfig) {
   };
 });
 
-function metaHook(stream) {
-  stream.eatWhile(/[\w\$_]/);
-  return "meta";
-}
-
-CodeMirror.defineMIME("text/x-vhdl", {
-  name: "vhdl",
-  atoms: words("null"),
-  hooks: {"`": metaHook, "$": metaHook}
-});
+CodeMirror.defineMIME("text/x-vhdl", "vhdl");
 
 });
