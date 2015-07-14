@@ -447,11 +447,10 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     }
 
     if (ch === '<' && stream.match(/^\w/, false)) {
-      if (stream.string.indexOf(">") != -1) {
-        var atts = stream.string.substring(1,stream.string.indexOf(">"));
-        if (/markdown\s*=\s*('|"){0,1}1('|"){0,1}/.test(atts)) {
-          state.md_inside = true;
-        }
+      var end = stream.string.indexOf(">", stream.pos);
+      if (end != -1) {
+        var atts = stream.string.substring(stream.start, end);
+        if (/markdown\s*=\s*('|"){0,1}1('|"){0,1}/.test(atts)) state.md_inside = true;
       }
       stream.backUp(1);
       state.htmlState = CodeMirror.startState(htmlMode);
