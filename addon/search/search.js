@@ -57,10 +57,20 @@
     return cm.getSearchCursor(query, pos, queryCaseInsensitive(query));
   }
 
+  function persistentDialog(cm, text, deflt, f) {
+    cm.openDialog(text, f, {
+      value: deflt,
+      selectValueOnOpen: true,
+      closeOnEnter: false,
+      onClose: function() { clearSearch(cm); }
+    });
+  }
+
   function dialog(cm, text, shortText, deflt, f) {
     if (cm.openDialog) cm.openDialog(text, f, {value: deflt, selectValueOnOpen: true});
     else f(prompt(shortText, deflt));
   }
+
   function confirmDialog(cm, text, shortText, fs) {
     if (cm.openConfirm) cm.openConfirm(text, fs);
     else if (confirm(shortText)) fs[0]();
@@ -80,25 +90,38 @@
   var queryDialog =
     'Search: <input type="text" style="width: 10em" class="CodeMirror-search-field"/> <span style="color: #888" class="CodeMirror-search-hint">(Use /re/ syntax for regexp search)</span>';
 
-  function doSearch(cm, rev) {
+  function startSearch(cm, state, query) {
+    state.queryText = query;
+    state.query = parseQuery(query);
+    cm.removeOverlay(state.overlay, queryCaseInsensitive(state.query));
+    state.overlay = searchOverlay(state.query, queryCaseInsensitive(state.query));
+    cm.addOverlay(state.overlay);
+    if (cm.showMatchesOnScrollbar) {
+      if (state.annotate) { state.annotate.clear(); state.annotate = null; }
+      state.annotate = cm.showMatchesOnScrollbar(state.query, queryCaseInsensitive(state.query));
+    }
+  }
+
+  function doSearch(cm, rev, persistent) {
     var state = getSearchState(cm);
     if (state.query) return findNext(cm, rev);
     var q = cm.getSelection() || state.lastQuery;
-    dialog(cm, queryDialog, "Search for:", q, function(query) {
-      cm.operation(function() {
-        if (!query || state.query) return;
-        state.query = parseQuery(query);
-        cm.removeOverlay(state.overlay, queryCaseInsensitive(state.query));
-        state.overlay = searchOverlay(state.query, queryCaseInsensitive(state.query));
-        cm.addOverlay(state.overlay);
-        if (cm.showMatchesOnScrollbar) {
-          if (state.annotate) { state.annotate.clear(); state.annotate = null; }
-          state.annotate = cm.showMatchesOnScrollbar(state.query, queryCaseInsensitive(state.query));
-        }
-        state.posFrom = state.posTo = cm.getCursor();
-        findNext(cm, rev);
+    if (persistent && cm.openDialog) {
+      persistentDialog(cm, queryDialog, q, function(query, event) {
+        CodeMirror.e_stop(event);
+        if (!query) return;
+        if (query != state.queryText) startSearch(cm, state, query);
+        findNext(cm, event.shiftKey);
       });
-    });
+    } else {
+      dialog(cm, queryDialog, "Search for:", q, function(query) {
+        if (query && !state.query) cm.operation(function() {
+          startSearch(cm, state, query);
+          state.posFrom = state.posTo = cm.getCursor();
+          findNext(cm, rev);
+        });
+      });
+    }
   }
 
   function findNext(cm, rev) {cm.operation(function() {
@@ -170,6 +193,7 @@
   }
 
   CodeMirror.commands.find = function(cm) {clearSearch(cm); doSearch(cm);};
+  CodeMirror.commands.findPersistent = function(cm) {clearSearch(cm); doSearch(cm, false, true);};
   CodeMirror.commands.findNext = doSearch;
   CodeMirror.commands.findPrev = function(cm) {doSearch(cm, true);};
   CodeMirror.commands.clearSearch = clearSearch;
