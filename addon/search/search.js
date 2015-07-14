@@ -132,7 +132,7 @@
       if (!cursor.find(rev)) return;
     }
     cm.setSelection(cursor.from(), cursor.to());
-    cm.scrollIntoView({from: cursor.from(), to: cursor.to()});
+    cm.scrollIntoView({from: cursor.from(), to: cursor.to()}, 20);
     state.posFrom = cursor.from(); state.posTo = cursor.to();
   });}
 
@@ -140,7 +140,7 @@
     var state = getSearchState(cm);
     state.lastQuery = state.query;
     if (!state.query) return;
-    state.query = null;
+    state.query = state.queryText = null;
     cm.removeOverlay(state.overlay);
     if (state.annotate) { state.annotate.clear(); state.annotate = null; }
   });}
