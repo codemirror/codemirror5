@@ -38,9 +38,32 @@
     }};
   }
 
+  function initQuery(cm, queryStr) {
+    if (!queryStr) {
+      return;
+    }
+    var state = getSearchState(cm);
+
+    if (queryStr !== state.queryStr) {
+      state.queryStr = queryStr;
+      state.query = parseQuery(state.queryStr);
+      cm.removeOverlay(state.overlay, queryCaseInsensitive(state.query));
+      state.overlay = searchOverlay(state.query, queryCaseInsensitive(state.query));
+      cm.addOverlay(state.overlay);
+      if (cm.showMatchesOnScrollbar) {
+        if (state.annotate) {
+          state.annotate.clear();
+          state.annotate = null;
+        }
+        state.annotate = cm.showMatchesOnScrollbar(state.query, queryCaseInsensitive(state.query));
+      }
+      state.posFrom = state.posTo = cm.getCursor();
+    }
+  }
   function SearchState() {
     this.posFrom = this.posTo = this.lastQuery = this.query = null;
     this.overlay = null;
+    this.queryStr = null;
   }
   function getSearchState(cm) {
     return cm.state.search || (cm.state.search = new SearchState());
@@ -53,7 +76,21 @@
     return cm.getSearchCursor(query, pos, queryCaseInsensitive(query));
   }
   function dialog(cm, text, shortText, deflt, f) {
-    if (cm.openDialog) cm.openDialog(text, f, {value: deflt, selectValueOnOpen: true});
+    if (cm.openDialog) {
+      var dialogOptions = {
+        value: deflt,
+        selectValueOnOpen: true
+      };
+
+      if (cm.state.incrementalSearch) {
+        dialogOptions.closeOnEnter = false;
+        dialogOptions.onClose = function() {
+          CodeMirror.commands.clearSearch(cm);
+        }
+      }
+
+      cm.openDialog(text, f, dialogOptions);
+    }
     else f(prompt(shortText, deflt));
   }
   function confirmDialog(cm, text, shortText, fs) {
@@ -76,19 +113,18 @@
     var state = getSearchState(cm);
     if (state.query) return findNext(cm, rev);
     var q = cm.getSelection() || state.lastQuery;
-    dialog(cm, queryDialog, "Search for:", q, function(query) {
+    dialog(cm, queryDialog, "Search for:", q, function(queryStr, keyEvent) {
       cm.operation(function() {
-        if (!query || state.query) return;
-        state.query = parseQuery(query);
-        cm.removeOverlay(state.overlay, queryCaseInsensitive(state.query));
-        state.overlay = searchOverlay(state.query, queryCaseInsensitive(state.query));
-        cm.addOverlay(state.overlay);
-        if (cm.showMatchesOnScrollbar) {
-          if (state.annotate) { state.annotate.clear(); state.annotate = null; }
-          state.annotate = cm.showMatchesOnScrollbar(state.query, queryCaseInsensitive(state.query));
+        initQuery(cm, queryStr);
+
+        if (cm.state.incrementalSearch) {
+          // In incremental search we need to prevent default behavior
+          // from pre-maturely closing the dialog box.
+          CodeMirror.e_stop(keyEvent);
+          findNext(cm, (keyEvent.shiftKey === true));
+        } else {
+          findNext(cm, rev);
         }
-        state.posFrom = state.posTo = cm.getCursor();
-        findNext(cm, rev);
       });
     });
   }
@@ -100,14 +136,18 @@
       if (!cursor.find(rev)) return;
     }
     cm.setSelection(cursor.from(), cursor.to());
-    cm.scrollIntoView({from: cursor.from(), to: cursor.to()});
+    cm.scrollIntoView({from: cursor.from(), to: cursor.to()}, 20);
     state.posFrom = cursor.from(); state.posTo = cursor.to();
   });}
+  function clearQueryState(state) {
+    state.query = null;
+    state.queryStr = null;
+  }
   function clearSearch(cm) {cm.operation(function() {
     var state = getSearchState(cm);
     state.lastQuery = state.query;
     if (!state.query) return;
-    state.query = null;
+    clearQueryState(state);
     cm.removeOverlay(state.overlay);
     if (state.annotate) { state.annotate.clear(); state.annotate = null; }
   });}
@@ -157,6 +197,10 @@
       });
     });
   }
+
+  CodeMirror.defineOption("incrementalSearch", false, function(cm, val) {
+    cm.state.incrementalSearch = (val === true);
+  });
 
   CodeMirror.commands.find = function(cm) {clearSearch(cm); doSearch(cm);};
   CodeMirror.commands.findNext = doSearch;
