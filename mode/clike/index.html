@@ -206,6 +206,65 @@ object FilterTest extends App {
 }
 </textarea></div>
 
+<h2>Squirrel example</h2>
+
+<div><textarea id="squirrel-code">
+local table = {
+	a = "10"
+	subtable = {
+		array = [1,2,3]
+	},
+	[10 + 123] = "expression index"
+}
+
+local array=[ 1, 2, 3, { a = 10, b = "string" } ];
+
+foreach (i,val in array)
+{
+	::print("the type of val is"+typeof val);
+}
+
+/////////////////////////////////////////////
+
+class Entity
+{
+	constructor(etype,entityname)
+	{
+		name = entityname;
+		type = etype;
+	}
+
+	x = 0;
+	y = 0;
+	z = 0;
+	name = null;
+	type = null;
+}
+
+function Entity::MoveTo(newx,newy,newz)
+{
+	x = newx;
+	y = newy;
+	z = newz;
+}
+
+class Player extends Entity {
+	constructor(entityname)
+	{
+		base.constructor("Player",entityname)
+	}
+	function DoDomething()
+	{
+		::print("something");
+	}
+
+}
+
+local newplayer = Player("da playar");
+
+newplayer.MoveTo(100,200,300);
+</textarea></div>
+
     <script>
       var cEditor = CodeMirror.fromTextArea(document.getElementById("c-code"), {
         lineNumbers: true,
@@ -231,6 +290,11 @@ object FilterTest extends App {
         lineNumbers: true,
         matchBrackets: true,
         mode: "text/x-scala"
+      });
+      var squirrelEditor = CodeMirror.fromTextArea(document.getElementById("squirrel-code"), {
+        lineNumbers: true,
+        matchBrackets: true,
+        mode: "text/x-squirrel"
       });
       var mac = CodeMirror.keyMap.default == CodeMirror.keyMap.macDefault;
       CodeMirror.keyMap.default[(mac ? "Cmd" : "Ctrl") + "-Space"] = "autocomplete";
