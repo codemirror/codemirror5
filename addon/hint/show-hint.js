@@ -99,7 +99,6 @@
 
     update: function(first) {
       if (this.tick == null) return;
-      if (this.data) CodeMirror.signal(this.data, "update");
       if (!this.options.hint.async) {
         this.finishUpdate(this.options.hint(this.cm, this.options), first);
       } else {
@@ -111,6 +110,7 @@
     },
 
     finishUpdate: function(data, first) {
+      if (this.data) CodeMirror.signal(this.data, "update");
       if (data && this.data && CodeMirror.cmpPos(data.from, this.data.from)) data = null;
       this.data = data;
 
