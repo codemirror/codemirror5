@@ -26,7 +26,7 @@ CodeMirror.defineMode("rust", function() {
   };
   var typeKeywords = function() {
     var keywords = {"fn": "fn", "block": "fn", "obj": "obj"};
-		var atoms = "bool char f32 f64 i16 i32 i64 i8 isize str u16 u32 u64 u8 usize".split(" ");
+    var atoms = "bool char f32 f64 i16 i32 i64 i8 isize str u16 u32 u64 u8 usize".split(" ");
     for (var i = 0, e = atoms.length; i < e; ++i) keywords[atoms[i]] = "atom";
     return keywords;
   }();
