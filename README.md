@@ -3,10 +3,25 @@
 [![NPM version](https://img.shields.io/npm/v/codemirror.svg)](https://www.npmjs.org/package/codemirror)  
 [Funding status: ![maintainer happiness](https://marijnhaverbeke.nl/fund/status_s.png?again)](https://marijnhaverbeke.nl/fund/)
 
-CodeMirror is a JavaScript component that provides a code editor in
-the browser. When a mode is available for the language you are coding
-in, it will color your code, and optionally help with indentation.
+CodeMirror is a versatile text editor implemented in JavaScript for
+the browser. It is specialized for editing code, and comes with over
+100 language modes and various addons that implement more advanced
+editing functionality.
 
-The project page is http://codemirror.net  
-The manual is at http://codemirror.net/doc/manual.html  
-The contributing guidelines are in [CONTRIBUTING.md](https://github.com/codemirror/CodeMirror/blob/master/CONTRIBUTING.md)
+A rich programming API and a CSS theming system are available for
+customizing CodeMirror to fit your application, and extending it with
+new functionality.
+
+You can find more information (and the
+[manual](http://codemirror.net/doc/manual.html)) on the [project
+page](http://codemirror.net). For questions and discussion, use the
+[discussion forum](http://discuss.codemirror.net/).
+
+See
+[CONTRIBUTING.md](https://github.com/codemirror/CodeMirror/blob/master/CONTRIBUTING.md)
+for contributing guidelines.
+
+The CodeMirror community aims to be welcoming to everybody. We use the
+[Contributor Covenant
+(1.1)](http://contributor-covenant.org/version/1/1/0/) as our code of
+conduct.
