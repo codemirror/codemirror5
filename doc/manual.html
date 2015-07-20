@@ -236,6 +236,16 @@
       mode names to their constructors, and the second maps MIME types
       to mode specs.</dd>
 
+      <dt id="option_lineSeparator"><code><strong>lineSeparator</strong>: string|null</code></dt>
+      <dd>Explicitly set the line separator for the editor. By default
+      (value <code>null</code>), the document will be split on CRLFs
+      as well as lone CRs and LFs, and a single LF will be used as
+      line separator in all output (such
+      as <a href="#getValue"><code>getValue</code></a>). When a
+      specific string is given, lines will only be split on that
+      string, and output will, by default, use that same
+      separator.</dd>
+
       <dt id="option_theme"><code><strong>theme</strong>: string</code></dt>
       <dd>The theme to style the editor with. You must make sure the
       CSS file defining the corresponding <code>.cm-s-[name]</code>
