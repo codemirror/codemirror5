@@ -510,13 +510,17 @@
       an array of strings representing the text that replaced the
       changed range (split by line). <code>removed</code> is the text
       that used to be between <code>from</code> and <code>to</code>,
-      which is overwritten by this change.</dd>
+      which is overwritten by this change. This event is
+      fired <em>before</em> the end of
+      an <a href="#operation">operation</a>, before the DOM updates
+      happen.</dd>
 
       <dt id="event_changes"><code><strong>"changes"</strong> (instance: CodeMirror, changes: array&lt;object&gt;)</code></dt>
       <dd>Like the <a href="#event_change"><code>"change"</code></a>
       event, but batched per <a href="#operation">operation</a>,
       passing an array containing all the changes that happened in the
-      operation.</dd>
+      operation. This event is fired after the operation finished, and
+      display changes it makes will trigger a new operation.</dd>
 
       <dt id="event_beforeChange"><code><strong>"beforeChange"</strong> (instance: CodeMirror, changeObj: object)</code></dt>
       <dd>This event is fired before a change is applied, and its
