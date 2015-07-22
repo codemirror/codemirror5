@@ -16,7 +16,7 @@
 .cm-kw-2,
 .cm-prelude-ty { color: #4271AE; }
 .cm-number,
-.cm-string { color: #718C00; }
+.cm-string { color: #718C00 !important; }
 .cm-self,
 .cm-boolval,
 .cm-prelude-val,
@@ -84,6 +84,28 @@ for x in &array {
     print!("{} ", x);
 }
 
+fn divide(numerator: f64, denominator: f64) -> Option<f64> {
+    if denominator == 0.0 {
+        None
+    } else {
+        Some(numerator / denominator)
+    }
+}
+
+// The return value of the function is an option
+let result = divide(2.0, 3.0);
+
+// Pattern match to retrieve the value
+match result {
+    // The division was valid
+    Some(x) => println!("Result: {}", x),
+    // The division was invalid
+    None    => println!("Cannot divide by 0"),
+}
+
+
+let path: &'static str = env!("PATH");
+println!("the $PATH variable at the time of compiling was: {}", path);
 </textarea></div>
 
     <script>

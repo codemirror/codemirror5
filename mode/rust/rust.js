@@ -18,12 +18,16 @@
 			 token: "number"},
 			{regex: /\b(?:abstract|alignof|as|box|break|continue|const|crate|do|else|enum|extern|for|final|if|impl|in|let|loop|macro|match|mod|move|mut|offsetof|override|priv|proc|pub|pure|ref|return|self|sizeof|static|struct|super|trait|type|typeof|unsafe|unsized|use|virtual|where|while|yield)\b/,
 			 token: "kw"},
-			{regex:			/\b(?:Self|isize|usize|char|bool|u8|u16|u32|u64|f16|f32|f64|i8|i16|i32|i64|str)/,
+			{regex:			/\b(?:Self|isize|usize|char|bool|u8|u16|u32|u64|f16|f32|f64|i8|i16|i32|i64|str|Option)/,
 			 token: "atom"
+			},
+			{regex: /\b(?:true|false|Some|None|Ok|Err)/,
+			 token: "prelude-val"
 			},
 			{regex:/\b(fn)(\s+)([a-zA-Z_][a-zA-Z0-9_]*)/,
 			 token: ["kw", null ,"ident"]
 			},
+			{regex: /'[a-z$][\w$]*/, token: "lifetime"},
 			{regex: /[a-z$][\w$]*!/,token: "macro"},
 			{regex: /[a-z$][\w$]*/, token: "variable"},
 			{regex: /[\{\[\(]/, indent: true},
