@@ -9,27 +9,6 @@
 <script src="../../addon/mode/simple.js"></script>
 <script src="rust.js"></script>
 <style type="text/css">.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
-
-<style>
-
-.cm-kw { color: #8959A8 !important; }
-.cm-kw-2,
-.cm-prelude-ty { color: #4271AE; }
-.cm-number,
-.cm-string { color: #718C00 !important; }
-.cm-self,
-.cm-boolval,
-.cm-prelude-val,
-.cm-attribute,
-.cm-attribute .cm-ident { color: #C82829; }
-.cm-comment { color: #8E908C; }
-.cm-doccomment { color: #4D4D4C; }
-.cm-macro,
-.cm-macro-nonterminal { color: #3E999F; }
-.cm-lifetime { color: #B76514; }
-
-</style>
-
 <div id=nav>
   <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../../doc/logo.png"></a>
 
@@ -70,42 +49,6 @@ fn check_crate(x: int) {
       _ { "hi" }
     }
 }
-
-//
-let mut array: [i32; 3] = [0; 3];
-
-array[1] = 1;
-array[2] = 2;
-
-assert_eq!([1, 2], &array[1..]);
-
-// This loop prints: 0 1 2
-for x in &array {
-    print!("{} ", x);
-}
-
-fn divide(numerator: f64, denominator: f64) -> Option<f64> {
-    if denominator == 0.0 {
-        None
-    } else {
-        Some(numerator / denominator)
-    }
-}
-
-// The return value of the function is an option
-let result = divide(2.0, 3.0);
-
-// Pattern match to retrieve the value
-match result {
-    // The division was valid
-    Some(x) => println!("Result: {}", x),
-    // The division was invalid
-    None    => println!("Cannot divide by 0"),
-}
-
-
-let path: &'static str = env!("PATH");
-println!("the $PATH variable at the time of compiling was: {}", path);
 </textarea></div>
 
     <script>
@@ -113,12 +56,11 @@ println!("the $PATH variable at the time of compiling was: {}", path);
 		var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
 			lineNumbers: true,
 			lineWrapping: true,
-			indentUnit: 2,
+			indentUnit: 4,
 			tabSize: 2,
 			autofocus: true,
 			mode: "rust"
 		});
-
     </script>
 
     <p><strong>MIME types defined:</strong> <code>text/x-rustsrc</code>.</p>
