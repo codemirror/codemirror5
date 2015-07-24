@@ -616,7 +616,7 @@
         else mouseOnTip = false;
       }
     });
-    setTimeout(maybeClear, 1700);
+    setTimeout(maybeClear, cm.options.ternHintDelay ? cm.options.ternHintDelay : 1700);
     cm.on("cursorActivity", clear);
     cm.on('blur', clear);
     cm.on('scroll', clear);
