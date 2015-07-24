@@ -69,7 +69,10 @@
         token: null,
         next: "start"
       }
-    ]
+    ],
+      meta: {
+          lineComment: "#"
+      }
   });
 
   CodeMirror.defineMIME("text/x-dockerfile", "dockerfile");
