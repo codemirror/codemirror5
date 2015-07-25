@@ -266,7 +266,7 @@
           child.target = "_blank";
         }
       }
-      tempTooltip(cm, tip);
+      tempTooltip(cm, tip, ts);
       if (c) c();
     }, pos);
   }
@@ -592,7 +592,7 @@
 
   // Tooltips
 
-  function tempTooltip(cm, content) {
+  function tempTooltip(cm, content, ts) {
     if (cm.state.ternTooltip) remove(cm.state.ternTooltip);
     var where = cm.cursorCoords();
     var tip = cm.state.ternTooltip = makeTooltip(where.right + 1, where.bottom, content);
@@ -616,7 +616,7 @@
         else mouseOnTip = false;
       }
     });
-    setTimeout(maybeClear, cm.options.ternHintDelay ? cm.options.ternHintDelay : 1700);
+    setTimeout(maybeClear, ts.options.hintDelay ? ts.options.hintDelay : 1700);
     cm.on("cursorActivity", clear);
     cm.on('blur', clear);
     cm.on('scroll', clear);
@@ -644,7 +644,7 @@
     if (ts.options.showError)
       ts.options.showError(cm, msg);
     else
-      tempTooltip(cm, String(msg));
+      tempTooltip(cm, String(msg), ts);
   }
 
   function closeArgHints(ts) {
