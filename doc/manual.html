@@ -2689,10 +2689,10 @@ editor.setOption("extraKeys", {
       which is a callback to pass the array to. Depends
       on <code>addon/lint/lint.css</code>. A demo can be
       found <a href="../demo/lint.html">here</a>.</dd>
-      <dd>Linting on every change can be disabled using <code>disableLintOnChange</code>
-      option. One can then perform the lint operation using the <code>performLint</code>
-      method which is defined as an extension. This method takes an editor instance
-      as its parameter.</dd>
+      <dd>Linting on every change can be disabled by setting
+      the <code>lintOnChange</code> option to <code>false</code>. One
+      can then perform the lint operation explicitly using the
+      editor's <code>performLint</code> method.</dd>
 
       <dt id="addon_mark-selection"><a href="../addon/selection/mark-selection.js"><code>selection/mark-selection.js</code></a></dt>
       <dd>Causes the selected text to be marked with the CSS class
