@@ -164,8 +164,12 @@ li.last {
     lineNumbers: true,
     mode: "css",
     gutters: ["CodeMirror-lint-markers"],
-    lint: true
+    lint: {
+      disableLintOnChange: true
+    }
   });
+  // Performing the lint every 5 seconds on the css editor:
+  setInterval(function() {editor_css.performLint(editor_css);}, 5000);
 </script>
 
   </article>
