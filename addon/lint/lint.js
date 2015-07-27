@@ -187,7 +187,9 @@
   CodeMirror.defineOption("lint", false, function(cm, val, old) {
     if (old && old != CodeMirror.Init) {
       clearMarks(cm);
-      cm.off("change", onChange);
+      if (!state.options.disableLintOnChange) {
+        cm.off("change", onChange);
+      }
       CodeMirror.off(cm.getWrapperElement(), "mouseover", cm.state.lint.onMouseOver);
       clearTimeout(cm.state.lint.timeout);
       delete cm.state.lint;
@@ -197,11 +199,19 @@
       var gutters = cm.getOption("gutters"), hasLintGutter = false;
       for (var i = 0; i < gutters.length; ++i) if (gutters[i] == GUTTER_ID) hasLintGutter = true;
       var state = cm.state.lint = new LintState(cm, parseOptions(cm, val), hasLintGutter);
-      cm.on("change", onChange);
+      if (!state.options.disableLintOnChange) {
+        cm.on("change", onChange);
+      }
       if (state.options.tooltips != false)
         CodeMirror.on(cm.getWrapperElement(), "mouseover", state.onMouseOver);
 
       startLinting(cm);
     }
+  });
+
+  CodeMirror.defineExtension("performLint", function(cm) {
+    var state = cm.state.lint;
+    if (!state) return;
+    startLinting(cm);
   });
 });
