@@ -21,6 +21,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
       documentTypes = parserConfig.documentTypes || {},
       mediaTypes = parserConfig.mediaTypes || {},
       mediaFeatures = parserConfig.mediaFeatures || {},
+      mediaValueKeywords = parserConfig.mediaValueKeywords || {},
       propertyKeywords = parserConfig.propertyKeywords || {},
       nonStandardPropertyKeywords = parserConfig.nonStandardPropertyKeywords || {},
       fontProperties = parserConfig.fontProperties || {},
@@ -269,6 +270,8 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
         override = "attribute";
       else if (mediaFeatures.hasOwnProperty(word))
         override = "property";
+      else if (mediaValueKeywords.hasOwnProperty(word))
+        override = "keyword";
       else if (propertyKeywords.hasOwnProperty(word))
         override = "property";
       else if (nonStandardPropertyKeywords.hasOwnProperty(word))
@@ -403,8 +406,15 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "min-device-aspect-ratio", "max-device-aspect-ratio", "color", "min-color",
     "max-color", "color-index", "min-color-index", "max-color-index",
     "monochrome", "min-monochrome", "max-monochrome", "resolution",
-    "min-resolution", "max-resolution", "scan", "grid"
+    "min-resolution", "max-resolution", "scan", "grid", "orientation",
+    "device-pixel-ratio", "min-device-pixel-ratio", "max-device-pixel-ratio",
+    "pointer", "any-pointer", "hover", "any-hover"
   ], mediaFeatures = keySet(mediaFeatures_);
+
+  var mediaValueKeywords_ = [
+    "landscape", "portrait", "none", "coarse", "fine", "on-demand", "hover",
+    "interlace", "progressive"
+  ], mediaValueKeywords = keySet(mediaValueKeywords_);
 
   var propertyKeywords_ = [
     "align-content", "align-items", "align-self", "alignment-adjust",
@@ -641,8 +651,9 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "xx-large", "xx-small"
   ], valueKeywords = keySet(valueKeywords_);
 
-  var allWords = documentTypes_.concat(mediaTypes_).concat(mediaFeatures_).concat(propertyKeywords_)
-    .concat(nonStandardPropertyKeywords_).concat(colorKeywords_).concat(valueKeywords_);
+  var allWords = documentTypes_.concat(mediaTypes_).concat(mediaFeatures_).concat(mediaValueKeywords_)
+    .concat(propertyKeywords_).concat(nonStandardPropertyKeywords_).concat(colorKeywords_)
+    .concat(valueKeywords_);
   CodeMirror.registerHelper("hintWords", "css", allWords);
 
   function tokenCComment(stream, state) {
@@ -661,6 +672,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     documentTypes: documentTypes,
     mediaTypes: mediaTypes,
     mediaFeatures: mediaFeatures,
+    mediaValueKeywords: mediaValueKeywords,
     propertyKeywords: propertyKeywords,
     nonStandardPropertyKeywords: nonStandardPropertyKeywords,
     fontProperties: fontProperties,
@@ -680,6 +692,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
   CodeMirror.defineMIME("text/x-scss", {
     mediaTypes: mediaTypes,
     mediaFeatures: mediaFeatures,
+    mediaValueKeywords: mediaValueKeywords,
     propertyKeywords: propertyKeywords,
     nonStandardPropertyKeywords: nonStandardPropertyKeywords,
     colorKeywords: colorKeywords,
@@ -721,6 +734,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
   CodeMirror.defineMIME("text/x-less", {
     mediaTypes: mediaTypes,
     mediaFeatures: mediaFeatures,
+    mediaValueKeywords: mediaValueKeywords,
     propertyKeywords: propertyKeywords,
     nonStandardPropertyKeywords: nonStandardPropertyKeywords,
     colorKeywords: colorKeywords,
