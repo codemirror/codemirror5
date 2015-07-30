@@ -297,6 +297,10 @@ div.CodeMirror-cursors {
   position: relative;
   z-index: 3;
 }
+div.CodeMirror-dragcursors {
+  visibility: visible;
+}
+
 .CodeMirror-focused div.CodeMirror-cursors {
   visibility: visible;
 }
