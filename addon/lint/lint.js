@@ -161,7 +161,7 @@
     if (options.onUpdateLinting) options.onUpdateLinting(annotationsNotSorted, annotations, cm);
   }
 
-  function onLintEvent(cm) {
+  function onChange(cm) {
     var state = cm.state.lint;
     if (!state) return;
     clearTimeout(state.timeout);
