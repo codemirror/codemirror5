@@ -126,19 +126,16 @@
       if (stream.match(/^&{1}\s*$/)) {
         return ["variable-3", "reference"];
       }
-      // Variable
-      if (ch == "$" && stream.match(/^\$[\w-]+/i)) {
-        return ["variable-2", "variable-name"];
-      }
       // Word operator
       if (stream.match(wordOperatorKeywordsRegexp)) {
         return ["operator", "operator"];
       }
       // Word
-      if (stream.match(/^[-_]*[a-z0-9]+[\w-]*/i)) {
+      if (stream.match(/^\$?[-_]*[a-z0-9]+[\w-]*/i)) {
+        // Variable
         if (stream.match(/^(\.|\[)[\w-\'\"\]]+/i, false)) {
           if (!wordIsTag(stream.current())) {
-            stream.match(/[\w-]+/);
+            stream.match(/\./);
             return ["variable-2", "variable-name"];
           }
         }
@@ -323,7 +320,7 @@
         return pushContext(state, stream, "block", 0);
       }
       if (type == "variable-name") {
-        if ((stream.indentation() == 0 && startOfLine(stream)) || wordIsBlock(firstWordOfLine(stream))) {
+        if (stream.string.match(/^\s?\$[\w-\.\[\]\'\"]+$/) || wordIsBlock(firstWordOfLine(stream))) {
           return pushContext(state, stream, "variableName");
         }
         else {
@@ -429,6 +426,11 @@
           return pushContext(state, stream, "block");
         }
         if (word == "return") return pushContext(state, stream, "block", 0);
+
+        // Placeholder selector
+        if (override == "variable-2" && stream.string.match(/^\s?\$[\w-\.\[\]\'\"]+$/)) {
+          return pushContext(state, stream, "block");
+        }
       }
       return state.context.type;
     };
@@ -639,7 +641,6 @@
     states.variableName = function(type, stream, state) {
       if (type == "string" || type == "[" || type == "]" || stream.current().match(/^(\.|\$)/)) {
         if (stream.current().match(/^\.[\w-]+/i)) override = "variable-2";
-        if (endOfLine(stream)) return popContext(state);
         return "variableName";
       }
       return popAndPass(type, stream, state);
