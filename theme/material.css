@@ -41,11 +41,11 @@
 .cm-s-material span.cm-comment { color: #546E7A; }
 .cm-s-material span.cm-variable { color: #82B1FF; }
 .cm-s-material span.cm-tag { color: #80CBC4; }
-.cm-s-material span.cm-meta{ color: #80CBC4; }
+.cm-s-material span.cm-meta { color: #80CBC4; }
 .cm-s-material span.cm-attribute { color: #FFCB6B; }
 .cm-s-material span.cm-property { color: #80CBAE; }
 .cm-s-material span.cm-qualifier { color: #DECB6B; }
-.cm-s-material span.cm-variable-3{ color: #DECB6B; }
+.cm-s-material span.cm-variable-3 { color: #DECB6B; }
 .cm-s-material span.cm-tag { color: rgba(255, 83, 112, 1); }
 .cm-s-material .CodeMirror-matchingbracket {
   text-decoration: underline;
