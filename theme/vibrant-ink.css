@@ -1,7 +1,7 @@
 /* Taken from the popular Visual Studio Vibrant Ink Schema */
 
 .cm-s-vibrant-ink.CodeMirror { background: black; color: white; }
-.cm-s-vibrant-ink .CodeMirror-selected { background: #35493c !important; }
+.cm-s-vibrant-ink div.CodeMirror-selected { background: #35493c; }
 .cm-s-vibrant-ink .CodeMirror-line::selection, .cm-s-vibrant-ink .CodeMirror-line > span::selection, .cm-s-vibrant-ink .CodeMirror-line > span > span::selection { background: rgba(53, 73, 60, 0.99); }
 .cm-s-vibrant-ink .CodeMirror-line::-moz-selection, .cm-s-vibrant-ink .CodeMirror-line > span::-moz-selection, .cm-s-vibrant-ink .CodeMirror-line > span > span::-moz-selection { background: rgba(53, 73, 60, 0.99); }
 

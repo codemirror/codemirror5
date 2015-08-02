@@ -9,7 +9,7 @@
 */
 
 .cm-s-tomorrow-night-eighties.CodeMirror {background: #000000; color: #CCCCCC;}
-.cm-s-tomorrow-night-eighties div.CodeMirror-selected {background: #2D2D2D !important;}
+.cm-s-tomorrow-night-eighties div.CodeMirror-selected {background: #2D2D2D;}
 .cm-s-tomorrow-night-eighties .CodeMirror-line::selection, .cm-s-tomorrow-night-eighties .CodeMirror-line > span::selection, .cm-s-tomorrow-night-eighties .CodeMirror-line > span > span::selection { background: rgba(45, 45, 45, 0.99); }
 .cm-s-tomorrow-night-eighties .CodeMirror-line::-moz-selection, .cm-s-tomorrow-night-eighties .CodeMirror-line > span::-moz-selection, .cm-s-tomorrow-night-eighties .CodeMirror-line > span > span::-moz-selection { background: rgba(45, 45, 45, 0.99); }
 .cm-s-tomorrow-night-eighties .CodeMirror-gutters {background: #000000; border-right: 0px;}
