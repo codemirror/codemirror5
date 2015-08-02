@@ -1,5 +1,5 @@
 .cm-s-twilight.CodeMirror { background: #141414; color: #f7f7f7; } /**/
-.cm-s-twilight .CodeMirror-selected { background: #323232 !important; } /**/
+.cm-s-twilight div.CodeMirror-selected { background: #323232; } /**/
 .cm-s-twilight .CodeMirror-line::selection, .cm-s-twilight .CodeMirror-line > span::selection, .cm-s-twilight .CodeMirror-line > span > span::selection { background: rgba(50, 50, 50, 0.99); }
 .cm-s-twilight .CodeMirror-line::-moz-selection, .cm-s-twilight .CodeMirror-line > span::-moz-selection, .cm-s-twilight .CodeMirror-line > span > span::-moz-selection { background: rgba(50, 50, 50, 0.99); }
 

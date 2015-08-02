@@ -18,8 +18,8 @@
 }
 .cm-s-material .CodeMirror-guttermarker, .cm-s-material .CodeMirror-guttermarker-subtle, .cm-s-material .CodeMirror-linenumber { color: rgb(83,127,126); }
 .cm-s-material .CodeMirror-cursor { border-left: 1px solid #f8f8f0 !important; }
-.cm-s-material .CodeMirror-selected { background: rgba(255, 255, 255, 0.15); }
-.cm-s-material.CodeMirror-focused .CodeMirror-selected { background: rgba(255, 255, 255, 0.10); }
+.cm-s-material div.CodeMirror-selected { background: rgba(255, 255, 255, 0.15); }
+.cm-s-material.CodeMirror-focused div.CodeMirror-selected { background: rgba(255, 255, 255, 0.10); }
 .cm-s-material .CodeMirror-line::selection, .cm-s-material .CodeMirror-line > span::selection, .cm-s-material .CodeMirror-line > span > span::selection { background: rgba(255, 255, 255, 0.10); }
 .cm-s-material .CodeMirror-line::-moz-selection, .cm-s-material .CodeMirror-line > span::-moz-selection, .cm-s-material .CodeMirror-line > span > span::-moz-selection { background: rgba(255, 255, 255, 0.10); }
 

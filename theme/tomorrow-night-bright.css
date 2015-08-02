@@ -8,7 +8,7 @@
 */
 
 .cm-s-tomorrow-night-bright.CodeMirror {background: #000000; color: #eaeaea;}
-.cm-s-tomorrow-night-bright div.CodeMirror-selected {background: #424242 !important;}
+.cm-s-tomorrow-night-bright div.CodeMirror-selected {background: #424242;}
 .cm-s-tomorrow-night-bright .CodeMirror-gutters {background: #000000; border-right: 0px;}
 .cm-s-tomorrow-night-bright .CodeMirror-guttermarker { color: #e78c45; }
 .cm-s-tomorrow-night-bright .CodeMirror-guttermarker-subtle { color: #777; }
