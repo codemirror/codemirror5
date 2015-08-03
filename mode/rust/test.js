@@ -19,8 +19,20 @@
      '[number 12E+99_f64]');
 
   MT('string-literals-test',
-     "[string-2 'H']",
-     '[string "hello"]',
-     '[string r#"hello"#]');
+     '[string "foo"]',
+     '[string r"foo"]',
+     '[string "\\"foo\\""]',
+     '[string r#""foo""#]',
+     '[string "foo #\\"# bar"]',
+     '[string r##"foo #"# bar"##]',
+
+     '[string b"foo"]',
+     '[string br"foo"]',
+     '[string b"\\"foo\\""]',
+     '[string br#""foo""#]',
+     '[string br##"foo #" bar"##]',
+
+     "[string-2 'h']",
+     "[string-2 b'h']");
 
 })();
