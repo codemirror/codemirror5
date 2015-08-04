@@ -13,7 +13,7 @@
 .cm-s-tomorrow-night-bright .CodeMirror-guttermarker { color: #e78c45; }
 .cm-s-tomorrow-night-bright .CodeMirror-guttermarker-subtle { color: #777; }
 .cm-s-tomorrow-night-bright .CodeMirror-linenumber { color: #424242; }
-.cm-s-tomorrow-night-bright .CodeMirror-cursor { border-left: 1px solid #6A6A6A !important; }
+.cm-s-tomorrow-night-bright .CodeMirror-cursor { border-left: 1px solid #6A6A6A; }
 
 .cm-s-tomorrow-night-bright span.cm-comment { color: #d27b53; }
 .cm-s-tomorrow-night-bright span.cm-atom { color: #a16a94; }
@@ -31,5 +31,5 @@
 .cm-s-tomorrow-night-bright span.cm-link { color: #a16a94; }
 .cm-s-tomorrow-night-bright span.cm-error { background: #d54e53; color: #6A6A6A; }
 
-.cm-s-tomorrow-night-bright .CodeMirror-activeline-background { background: #2a2a2a !important; }
+.cm-s-tomorrow-night-bright .CodeMirror-activeline-background { background: #2a2a2a; }
 .cm-s-tomorrow-night-bright .CodeMirror-matchingbracket { text-decoration: underline; color: white !important; }

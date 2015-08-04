@@ -19,7 +19,7 @@
 .cm-s-3024-day .CodeMirror-guttermarker-subtle { color: #807d7c; }
 .cm-s-3024-day .CodeMirror-linenumber { color: #807d7c; }
 
-.cm-s-3024-day .CodeMirror-cursor { border-left: 1px solid #5c5855 !important; }
+.cm-s-3024-day .CodeMirror-cursor { border-left: 1px solid #5c5855; }
 
 .cm-s-3024-day span.cm-comment { color: #cdab53; }
 .cm-s-3024-day span.cm-atom { color: #a16a94; }
@@ -37,5 +37,5 @@
 .cm-s-3024-day span.cm-link { color: #a16a94; }
 .cm-s-3024-day span.cm-error { background: #db2d20; color: #5c5855; }
 
-.cm-s-3024-day .CodeMirror-activeline-background { background: #e8f2ff !important; }
+.cm-s-3024-day .CodeMirror-activeline-background { background: #e8f2ff; }
 .cm-s-3024-day .CodeMirror-matchingbracket { text-decoration: underline; color: #a16a94 !important; }

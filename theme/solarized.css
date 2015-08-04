@@ -149,9 +149,7 @@ http://ethanschoonover.com/solarized/img/solarized-palette.png
   color: #586e75;
 }
 
-.cm-s-solarized .CodeMirror-lines .CodeMirror-cursor {
-  border-left: 1px solid #819090;
-}
+.cm-s-solarized .CodeMirror-cursor { border-left: 1px solid #819090; }
 
 /*
 Active line. Negative margin compensates left padding of the text in the
