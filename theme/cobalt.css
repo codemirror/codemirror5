@@ -6,7 +6,7 @@
 .cm-s-cobalt .CodeMirror-guttermarker { color: #ffee80; }
 .cm-s-cobalt .CodeMirror-guttermarker-subtle { color: #d0d0d0; }
 .cm-s-cobalt .CodeMirror-linenumber { color: #d0d0d0; }
-.cm-s-cobalt .CodeMirror-cursor { border-left: 1px solid white !important; }
+.cm-s-cobalt .CodeMirror-cursor { border-left: 1px solid white; }
 
 .cm-s-cobalt span.cm-comment { color: #08f; }
 .cm-s-cobalt span.cm-atom { color: #845dc4; }
@@ -21,5 +21,5 @@
 .cm-s-cobalt span.cm-link { color: #845dc4; }
 .cm-s-cobalt span.cm-error { color: #9d1e15; }
 
-.cm-s-cobalt .CodeMirror-activeline-background { background: #002D57 !important; }
+.cm-s-cobalt .CodeMirror-activeline-background { background: #002D57; }
 .cm-s-cobalt .CodeMirror-matchingbracket { outline:1px solid grey;color:white !important; }

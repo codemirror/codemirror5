@@ -6,7 +6,7 @@
 .cm-s-the-matrix .CodeMirror-guttermarker { color: #0f0; }
 .cm-s-the-matrix .CodeMirror-guttermarker-subtle { color: white; }
 .cm-s-the-matrix .CodeMirror-linenumber { color: #FFFFFF; }
-.cm-s-the-matrix .CodeMirror-cursor { border-left: 1px solid #00FF00 !important; }
+.cm-s-the-matrix .CodeMirror-cursor { border-left: 1px solid #00FF00; }
 
 .cm-s-the-matrix span.cm-keyword { color: #008803; font-weight: bold; }
 .cm-s-the-matrix span.cm-atom { color: #3FF; }

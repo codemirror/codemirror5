@@ -18,7 +18,7 @@
   background-color: #0E1112;
   border: none;
 }
-.cm-s-seti .CodeMirror-cursor { border-left: solid thin #f8f8f0 !important; }
+.cm-s-seti .CodeMirror-cursor { border-left: solid thin #f8f8f0; }
 .cm-s-seti .CodeMirror-linenumber { color: #6D8A88; }
 .cm-s-seti.CodeMirror-focused div.CodeMirror-selected { background: rgba(255, 255, 255, 0.10); }
 .cm-s-seti .CodeMirror-line::selection, .cm-s-seti .CodeMirror-line > span::selection, .cm-s-seti .CodeMirror-line > span > span::selection { background: rgba(255, 255, 255, 0.10); }
@@ -40,5 +40,5 @@
 .cm-s-seti span.cm-property { color: #a074c4; }
 .cm-s-seti span.cm-variable-3 { color: #9fca56; }
 .cm-s-seti span.cm-builtin { color: #9fca56; }
-.cm-s-seti .CodeMirror-activeline-background { background: #101213 !important; }
+.cm-s-seti .CodeMirror-activeline-background { background: #101213; }
 .cm-s-seti .CodeMirror-matchingbracket { text-decoration: underline; color: white !important; }

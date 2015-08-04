@@ -35,7 +35,7 @@
 .cm-s-neo .CodeMirror-guttermarker { color: #1d75b3; }
 .cm-s-neo .CodeMirror-guttermarker-subtle { color: #e0e2e5; }
 
-.cm-s-neo div.CodeMirror-cursor {
+.cm-s-neo .CodeMirror-cursor {
   width: auto;
   border: 0;
   background: rgba(155,157,162,0.37);

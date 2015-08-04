@@ -62,9 +62,7 @@
 .cm-s-ambiance .CodeMirror-guttermarker { color: #aaa; }
 .cm-s-ambiance .CodeMirror-guttermarker-subtle { color: #111; }
 
-.cm-s-ambiance .CodeMirror-lines .CodeMirror-cursor {
-  border-left: 1px solid #7991E8;
-}
+.cm-s-ambiance .CodeMirror-cursor { border-left: 1px solid #7991E8; }
 
 .cm-s-ambiance .CodeMirror-activeline-background {
   background: none repeat scroll 0% 0% rgba(255, 255, 255, 0.031);
