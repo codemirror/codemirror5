@@ -24,7 +24,7 @@
 .cm-s-liquibyte .CodeMirror-guttermarker {  }
 .cm-s-liquibyte .CodeMirror-guttermarker-subtle {  }
 .cm-s-liquibyte .CodeMirror-linenumber { color: #606060; padding-left: 0; }
-.cm-s-liquibyte .CodeMirror-cursor { border-left: 1px solid #eee !important; }
+.cm-s-liquibyte .CodeMirror-cursor { border-left: 1px solid #eee; }
 
 .cm-s-liquibyte span.cm-comment     { color: #008000; }
 .cm-s-liquibyte span.cm-def         { color: #ffaf40; font-weight: bold; }
@@ -51,7 +51,7 @@
 
 .cm-s-liquibyte span.cm-compilation { background-color: rgba(255, 255, 255, 0.12); }
 
-.cm-s-liquibyte .CodeMirror-activeline-background { background-color: rgba(0, 255, 0, 0.15) !important; }
+.cm-s-liquibyte .CodeMirror-activeline-background { background-color: rgba(0, 255, 0, 0.15); }
 
 /* Default styles for common addons */
 div.CodeMirror span.CodeMirror-matchingbracket { color: #0f0; font-weight: bold; }

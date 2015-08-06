@@ -7,7 +7,7 @@
 .cm-s-twilight .CodeMirror-guttermarker { color: white; }
 .cm-s-twilight .CodeMirror-guttermarker-subtle { color: #aaa; }
 .cm-s-twilight .CodeMirror-linenumber { color: #aaa; }
-.cm-s-twilight .CodeMirror-cursor { border-left: 1px solid white !important; }
+.cm-s-twilight .CodeMirror-cursor { border-left: 1px solid white; }
 
 .cm-s-twilight .cm-keyword { color: #f9ee98; } /**/
 .cm-s-twilight .cm-atom { color: #FC0; }
@@ -28,5 +28,5 @@
 .cm-s-twilight .cm-link { color:#ad9361; font-style:italic; text-decoration:none; } /**/
 .cm-s-twilight .cm-error { border-bottom: 1px solid red; }
 
-.cm-s-twilight .CodeMirror-activeline-background { background: #27282E !important; }
+.cm-s-twilight .CodeMirror-activeline-background { background: #27282E; }
 .cm-s-twilight .CodeMirror-matchingbracket { outline:1px solid grey; color:white !important; }

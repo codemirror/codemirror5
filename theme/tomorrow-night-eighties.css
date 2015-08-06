@@ -16,7 +16,7 @@
 .cm-s-tomorrow-night-eighties .CodeMirror-guttermarker { color: #f2777a; }
 .cm-s-tomorrow-night-eighties .CodeMirror-guttermarker-subtle { color: #777; }
 .cm-s-tomorrow-night-eighties .CodeMirror-linenumber { color: #515151; }
-.cm-s-tomorrow-night-eighties .CodeMirror-cursor { border-left: 1px solid #6A6A6A !important; }
+.cm-s-tomorrow-night-eighties .CodeMirror-cursor { border-left: 1px solid #6A6A6A; }
 
 .cm-s-tomorrow-night-eighties span.cm-comment { color: #d27b53; }
 .cm-s-tomorrow-night-eighties span.cm-atom { color: #a16a94; }
@@ -34,5 +34,5 @@
 .cm-s-tomorrow-night-eighties span.cm-link { color: #a16a94; }
 .cm-s-tomorrow-night-eighties span.cm-error { background: #f2777a; color: #6A6A6A; }
 
-.cm-s-tomorrow-night-eighties .CodeMirror-activeline-background { background: #343600 !important; }
+.cm-s-tomorrow-night-eighties .CodeMirror-activeline-background { background: #343600; }
 .cm-s-tomorrow-night-eighties .CodeMirror-matchingbracket { text-decoration: underline; color: white !important; }

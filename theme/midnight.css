@@ -5,7 +5,7 @@
 .cm-s-midnight.CodeMirror-focused span.CodeMirror-matchhighlight { background: #314D67 !important; }
 
 /*<!--activeline-->*/
-.cm-s-midnight .CodeMirror-activeline-background { background: #253540 !important; }
+.cm-s-midnight .CodeMirror-activeline-background { background: #253540; }
 
 .cm-s-midnight.CodeMirror {
     background: #0F192A;
@@ -21,9 +21,7 @@
 .cm-s-midnight .CodeMirror-guttermarker { color: white; }
 .cm-s-midnight .CodeMirror-guttermarker-subtle { color: #d0d0d0; }
 .cm-s-midnight .CodeMirror-linenumber { color: #D0D0D0; }
-.cm-s-midnight .CodeMirror-cursor {
-    border-left: 1px solid #F8F8F0 !important;
-}
+.cm-s-midnight .CodeMirror-cursor { border-left: 1px solid #F8F8F0; }
 
 .cm-s-midnight span.cm-comment { color: #428BDD; }
 .cm-s-midnight span.cm-atom { color: #AE81FF; }
