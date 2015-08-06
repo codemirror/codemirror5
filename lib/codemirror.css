@@ -42,21 +42,20 @@
 /* CURSOR */
 
 .CodeMirror-cursor {
-  position: absolute;
+  border-left: 1px solid black;
   border-right: none;
   width: 0;
-  border-left: 1px solid black;
 }
 /* Shown when moving in bi-directional text */
 .CodeMirror div.CodeMirror-secondarycursor {
   border-left: 1px solid silver;
 }
-.CodeMirror.cm-fat-cursor .CodeMirror-cursor {
+.cm-fat-cursor .CodeMirror-cursor {
   width: auto;
   border: 0;
   background: #7e7;
 }
-.CodeMirror.cm-fat-cursor div.CodeMirror-cursors {
+.cm-fat-cursor div.CodeMirror-cursors {
   z-index: 1;
 }
 
@@ -83,6 +82,9 @@
   50% { background-color: transparent; }
   100% {}
 }
+
+/* Can style cursor different in overwrite (non-insert) mode */
+.CodeMirror-overwrite .CodeMirror-cursor {}
 
 .cm-tab { display: inline-block; text-decoration: inherit; }
 
@@ -284,6 +286,8 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
   overflow: hidden;
   visibility: hidden;
 }
+
+.CodeMirror-cursor { position: absolute; }
 .CodeMirror-measure pre { position: static; }
 
 div.CodeMirror-cursors {
