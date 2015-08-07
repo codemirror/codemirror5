@@ -472,7 +472,7 @@
         if (ref.file == name) {
           ranges.push({anchor: ref.start, head: ref.end});
           if (cmpPos(curPos, ref.start) >= 0 && cmpPos(curPos, ref.end) <= 0)
-            cur = i;
+            cur = ranges.length - 1;
         }
       }
       cm.setSelections(ranges, cur);
