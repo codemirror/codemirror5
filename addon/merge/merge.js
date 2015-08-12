@@ -9,8 +9,8 @@
   else if (typeof define == "function" && define.amd) // AMD
     define(["../../lib/codemirror", "diff_match_patch"], mod);
   else // Plain browser env
-    mod(CodeMirror, diff_match_patch);
-})(function(CodeMirror, diff_match_patch) {
+    mod(CodeMirror);
+})(function(CodeMirror) {
   "use strict";
   var Pos = CodeMirror.Pos;
   var svgNS = "http://www.w3.org/2000/svg";
