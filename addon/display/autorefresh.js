@@ -39,7 +39,7 @@
     CodeMirror.on(window, "keyup", state.hurry)
   }
 
-  function stopListening(cm, state) {
+  function stopListening(_cm, state) {
     clearTimeout(state.timeout)
     CodeMirror.off(window, "mouseup", state.hurry)
     CodeMirror.off(window, "keyup", state.hurry)
