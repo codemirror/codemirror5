@@ -11,7 +11,7 @@
 })(function(CodeMirror) {
   "use strict";
 
-  var WORD = /[\w$]+/, RANGE = 500;
+  var WORD = /[\w$]+/, RANGE = 500, LIST = [];
 
   CodeMirror.registerHelper("hint", "anyword", function(editor, options) {
     var word = options && options.word || WORD;
@@ -21,7 +21,7 @@
     while (start && word.test(curLine.charAt(start - 1))) --start;
     var curWord = start != end && curLine.slice(start, end);
 
-    var list = [], seen = {};
+    var list = options && options.list || LIST, seen = {};
     var re = new RegExp(word.source, "g");
     for (var dir = -1; dir <= 1; dir += 2) {
       var line = cur.line, endLine = Math.min(Math.max(line + dir * range, editor.firstLine()), editor.lastLine()) + dir;
