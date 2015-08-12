@@ -1865,7 +1865,8 @@ editor.setOption("extraKeys", {
       <dd>If your code does something to change the size of the editor
       element (window resizes are already listened for), or unhides
       it, you should probably follow up by calling this method to
-      ensure CodeMirror is still looking as intended.</dd>
+      ensure CodeMirror is still looking as intended. See also
+      the <a href="#addon_autorefresh">autorefresh addon</a>.</dd>
     </dl>
 
     <h3 id="api_mode">Mode, state, and token-related methods</h3>
@@ -2771,6 +2772,20 @@ editor.setOption("extraKeys", {
       taking up the whole browser window). Depends
       on <a href="../addon/display/fullscreen.css"><code>fullscreen.css</code></a>. <a href="../demo/fullscreen.html">Demo
       here</a>.</dd>
+
+      <dt id="addon_autorefresh"><a href="../addon/display/autorefresh.js"><code>display/autorefresh.js</code></a></dt>
+      <dd>This addon can be useful when initalizing an editor in a
+      hidden DOM node, in cases where it is difficult to
+      call <a href="#refresh"><code>refresh</code></a> when the editor
+      becomes visible. It defines an option <code>autoRefresh</code>
+      which you can set to true to ensure that, if the editor wasn't
+      visible on initialization, it will be refreshed the first time
+      it becomes visible. This is done by polling every 250
+      milliseconds (you can pass a value like <code>{delay:
+      500}</code> as the option value to configure this). Note that
+      this addon will only refresh the editor <em>once</em> when it
+      first becomes visible, and won't take care of further restyling
+      and resizing.</dd>
 
       <dt id="addon_simplescrollbars"><a href="../addon/scroll/simplescrollbars.js"><code>scroll/simplescrollbars.js</code></a></dt>
       <dd>Defines two additional scrollbar
