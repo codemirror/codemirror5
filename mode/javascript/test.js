@@ -34,16 +34,9 @@
      "  }",
      "}");
 
-  MT("module",
-     "[keyword module] [string 'foo'] {",
-     "  [keyword export] [keyword let] [def x] [operator =] [number 42];",
-     "  [keyword export] [keyword *] [keyword from] [string 'somewhere'];",
-     "}");
-
   MT("import",
      "[keyword function] [variable foo]() {",
      "  [keyword import] [def $] [keyword from] [string 'jquery'];",
-     "  [keyword module] [def crypto] [keyword from] [string 'crypto'];",
      "  [keyword import] { [def encrypt], [def decrypt] } [keyword from] [string 'crypto'];",
      "}");
 
