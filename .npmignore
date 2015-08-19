@@ -2,6 +2,7 @@
 /demo
 /doc
 /test
+/test*.html
 /index.html
 /mode/*/*test.js
 /mode/*/*.html
