@@ -76,11 +76,21 @@
     else if (confirm(shortText)) fs[0]();
   }
 
+  function parseString(string) {
+    return string.replace(/\\(.)/g, function(_, ch) {
+      if (ch == "n") return "\n"
+      if (ch == "r") return "\r"
+      return ch
+    })
+  }
+
   function parseQuery(query) {
     var isRE = query.match(/^\/(.*)\/([a-z]*)$/);
     if (isRE) {
       try { query = new RegExp(isRE[1], isRE[2].indexOf("i") == -1 ? "" : "i"); }
       catch(e) {} // Not a regular expression after all, do a string search
+    } else {
+      query = parseString(query)
     }
     if (typeof query == "string" ? query == "" : query.test(""))
       query = /x^/;
@@ -157,6 +167,7 @@
       if (!query) return;
       query = parseQuery(query);
       dialog(cm, replacementQueryDialog, "Replace with:", "", function(text) {
+        text = parseString(text)
         if (all) {
           cm.operation(function() {
             for (var cursor = getSearchCursor(cm, query); cursor.findNext();) {
