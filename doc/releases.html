@@ -30,6 +30,20 @@
 
   <h2>Version 5.x</h2>
 
+  <p class="rel">20-08-2015: <a href="http://codemirror.net/codemirror-5.6.zip">Version 5.6</a>:</p>
+
+  <ul class="rel-note">
+    <li>Fix bug where you could paste into a <code>readOnly</code> editor</li>
+    <li>Show a cursor at the drop location when dragging over the editor</li>
+    <li>The <a href="../mode/rust/index.html">Rust mode</a> was rewritten to handle modern Rust</li>
+    <li>The editor and theme CSS was cleaned up. Some selectors are now less specific than before</li>
+    <li>New theme: <a href="../demo/theme.html#abcdef">abcdef</a></li>
+    <li>Lines longer than <a href="manual.html#option_maxHighlightLength"><code>maxHighlightLength</code></a> are now less likely to mess up indentation</li>
+    <li>New addons: <a href="manual.html#addon_autorefresh"><code>autorefresh</code></a> for refreshing an editor the first time it becomes visible, and <code>html-lint</code> for using <a href="http://htmlhint.com/">HTMLHint</a></li>
+    <li>The <a href="manual.html#addon_search"><code>search</code></a> addon now recognizes <code>\r</code> and <code>\n</code> in pattern and replacement input</li>
+    <li>Full <a href="https://github.com/codemirror/CodeMirror/compare/5.5.0...5.6.0">list of patches</a></li>
+  </ul>
+
   <p class="rel">20-07-2015: <a href="http://codemirror.net/codemirror-5.5.zip">Version 5.5</a>:</p>
 
   <ul class="rel-note">
