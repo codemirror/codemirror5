@@ -27,7 +27,7 @@
 
   CodeMirror.defineMode("vue-template", function (config, parserConfig) {
     var mustacheOverlay = {
-      token: function (stream, state) {
+      token: function (stream) {
         var ch;
         if (stream.match("{{")) {
           while ((ch = stream.next()) !== null) {
@@ -44,7 +44,7 @@
     return CodeMirror.overlayMode(CodeMirror.getMode(config, parserConfig.backdrop || "text/html"), mustacheOverlay);
   });
 
-  CodeMirror.defineMode("vue", function (config, parserConfig) {
+  CodeMirror.defineMode("vue", function (config) {
     var htmlMode = CodeMirror.getMode(config, 'htmlmixed'),
       html = null,
       supported = {
@@ -91,16 +91,6 @@
           token: template
         }
       };
-
-
-    function isTag(stream, state, style, tag) {
-      var tagName = state.htmlState.tagName;
-      if (tagName) tagName = tagName.toLowerCase();
-      if (tagName === tag && /\btag\b/.test(style) && stream.current() === ">") {
-        return true;
-      }
-      return false;
-    }
 
     function getAttrValue(stream, attr) {
       var pos = stream.pos;
