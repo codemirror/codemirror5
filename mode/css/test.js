@@ -156,7 +156,7 @@
       "    [tag foo] {",
       "      [property font-family]: [variable Verdana], [atom sans-serif];",
       "    }",
-      "  }");
+      "}");
 
    MT("document_url",
       "[def @document] [tag url]([string http://blah]) { [qualifier .class] { } }");
