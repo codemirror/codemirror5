@@ -28,7 +28,9 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
       counterDescriptors = parserConfig.counterDescriptors || {},
       colorKeywords = parserConfig.colorKeywords || {},
       valueKeywords = parserConfig.valueKeywords || {},
-      allowNested = parserConfig.allowNested;
+      allowNested = parserConfig.allowNested,
+      supportsAtComponent = (typeof parserConfig.supportsAtComponent != "undefined" ?
+          parserConfig.supportsAtComponent : false);
 
   var type, override;
   function ret(style, tp) { type = tp; return style; }
@@ -127,6 +129,11 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     return type;
   }
 
+  function pushContextNoIndent(state, stream, type) {
+    state.context = new Context(type, stream.indentation(), state.context);
+    return type;
+  }
+
   function popContext(state) {
     state.context = state.context.prev;
     return state.context.type;
@@ -160,6 +167,8 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
       return pushContext(state, stream, "block");
     } else if (type == "}" && state.context.prev) {
       return popContext(state);
+    } else if (supportsAtComponent && /@component/.test(type)) {
+      return pushContext(state, stream, "atComponentBlock");
     } else if (/@(media|supports|(-moz-)?document)/.test(type)) {
       return pushContext(state, stream, "atBlock");
     } else if (/@(font-face|counter-style)/.test(type)) {
@@ -282,6 +291,18 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
         override = "keyword";
       else
         override = "error";
+    }
+    return state.context.type;
+  };
+
+  states.atComponentBlock = function(type, stream, state) {
+    if (type == "}") return popAndPass(type, stream, state);
+    if (type == "{") {
+      return popContext(state) && pushContextNoIndent(state, stream, allowNested ? "block" : "top");
+    }
+
+    if (type == "word") {
+      override = "error";
     }
     return state.context.type;
   };
@@ -767,6 +788,28 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     },
     name: "css",
     helperType: "less"
+  });
+
+  CodeMirror.defineMIME("text/x-gss", {
+    documentTypes: documentTypes,
+    mediaTypes: mediaTypes,
+    mediaFeatures: mediaFeatures,
+    propertyKeywords: propertyKeywords,
+    nonStandardPropertyKeywords: nonStandardPropertyKeywords,
+    fontProperties: fontProperties,
+    counterDescriptors: counterDescriptors,
+    colorKeywords: colorKeywords,
+    valueKeywords: valueKeywords,
+    supportsAtComponent: true,
+    tokenHooks: {
+      "/": function(stream, state) {
+        if (!stream.eat("*")) return false;
+        state.tokenize = tokenCComment;
+        return tokenCComment(stream, state);
+      }
+    },
+    name: "css",
+    helperType: "gss"
   });
 
 });
