@@ -29,8 +29,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
       colorKeywords = parserConfig.colorKeywords || {},
       valueKeywords = parserConfig.valueKeywords || {},
       allowNested = parserConfig.allowNested,
-      supportsAtComponent = (typeof parserConfig.supportsAtComponent != "undefined" ?
-          parserConfig.supportsAtComponent : false);
+      supportsAtComponent = parserConfig.supportsAtComponent === true;
 
   var type, override;
   function ret(style, tp) { type = tp; return style; }
@@ -124,13 +123,8 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     this.prev = prev;
   }
 
-  function pushContext(state, stream, type) {
-    state.context = new Context(type, stream.indentation() + indentUnit, state.context);
-    return type;
-  }
-
-  function pushContextNoIndent(state, stream, type) {
-    state.context = new Context(type, stream.indentation(), state.context);
+  function pushContext(state, stream, type, indent) {
+    state.context = new Context(type, stream.indentation() + (indent === false ? 0 : indentUnit), state.context);
     return type;
   }
 
@@ -296,14 +290,12 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
   };
 
   states.atComponentBlock = function(type, stream, state) {
-    if (type == "}") return popAndPass(type, stream, state);
-    if (type == "{") {
-      return popContext(state) && pushContextNoIndent(state, stream, allowNested ? "block" : "top");
-    }
-
-    if (type == "word") {
+    if (type == "}")
+      return popAndPass(type, stream, state);
+    if (type == "{")
+      return popContext(state) && pushContext(state, stream, allowNested ? "block" : "top", false);
+    if (type == "word")
       override = "error";
-    }
     return state.context.type;
   };
 
