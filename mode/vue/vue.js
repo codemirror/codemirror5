@@ -30,7 +30,7 @@
  CodeMirror.defineMode("vue-template", function(config, parserConfig) {
   "use strict";
   var mustacheOverlay = {
-    token: function (stream, state) {
+    token: function (stream) {
       var ch;
       if (stream.match("{{")) {
         while ((ch = stream.next()) != null)
@@ -88,7 +88,7 @@
             'text/x-styl': CodeMirror.getMode(config, 'stylus'),
             'stylus': CodeMirror.getMode(config, 'stylus')
           },
-          'default': CodeMirror.getMode(config, 'css'),
+          'default': CodeMirror.getMode(config, 'css')
         },
         template: {
           lang: {
