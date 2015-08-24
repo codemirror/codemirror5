@@ -25,98 +25,97 @@
     mod(CodeMirror);
   }
 })(function (CodeMirror) {
-
-
- CodeMirror.defineMode("vue-template", function(config, parserConfig) {
-  "use strict";
-  var mustacheOverlay = {
-    token: function (stream) {
-      var ch;
-      if (stream.match("{{")) {
-        while ((ch = stream.next()) != null)
-          if (ch == "}" && stream.next() == "}") {
-            stream.eat("}");
-            return "mustache";
-          }
-      }
-      while (stream.next() != null && !stream.match("{{", false)) {}
-      return null;
+  var supported = {
+    script: {
+      lang: {
+        javascript: 'javascript',
+        coffee: 'coffeescript',
+        coffeescript: 'coffeescript',
+        babel: 'javascript'
+      },
+      type: {
+        'text/javascript': 'javascript',
+        'coffeescript': 'coffeescript',
+        'text/coffeescript': 'coffeescript',
+        'text/x-coffeescript': 'coffeescript'
+      },
+      'default': 'javascript'
+    },
+    style:  {
+      lang: {
+        css: 'css',
+        stylus: 'stylus',
+        sass: 'sass'
+      },
+      type: {
+        'text/stylesheet': 'css',
+        'text/x-styl': 'stylus',
+        'stylus': 'stylus'
+      },
+      'default': 'css'
+    },
+    template: {
+      lang: {
+        vue: 'vue-template',
+        jade: 'jade'
+      },
+      type: {
+        'text/x-jade': 'jade'
+      },
+      'default': 'vue-template'
     }
   };
-  return CodeMirror.overlayMode(CodeMirror.getMode(config, parserConfig.backdrop || "text/html"), mustacheOverlay);
-});
+
+  CodeMirror.defineMode("vue-template", function(config, parserConfig) {
+    "use strict";
+    var mustacheOverlay = {
+      token: function (stream) {
+        var ch;
+        if (stream.match("{{")) {
+          while ((ch = stream.next()) != null)
+            if (ch == "}" && stream.next() == "}") {
+              stream.eat("}");
+              return "mustache";
+            }
+        }
+        while (stream.next() != null && !stream.match("{{", false)) {}
+        return null;
+      }
+    };
+    return CodeMirror.overlayMode(CodeMirror.getMode(config, parserConfig.backdrop || "text/html"), mustacheOverlay);
+  });
+
+  function maybeBackup(stream, pat, style) {
+    var cur = stream.current(), close = cur.search(pat);
+    if (close > -1) {
+      stream.backUp(cur.length - close);
+    } else if (cur.match(/<\/?$/)) {
+      stream.backUp(cur.length);
+      if (!stream.match(pat, false)) {
+        stream.match(cur);
+      }
+    }
+    return style;
+  }
+
+  function getAttrValue(stream, attr) {
+    var pos = stream.pos, match;
+    while (pos >= 0 && stream.string.charAt(pos) !== "<") {
+      pos -= 1;
+    }
+    if (pos < 0) {
+      return pos;
+    }
+    match = stream.string.slice(pos, stream.pos).match(new RegExp("\\s+" + attr + "\\s*=\\s*('|\")?([^'\"]+)('|\")?\\s*"));
+    if (match) {
+      return match[2];
+    }
+  }
 
   CodeMirror.defineMode("vue", function (config) {
-    function maybeBackup(stream, pat, style) {
-      var cur = stream.current(), close = cur.search(pat);
-      if (close > -1) {
-        stream.backUp(cur.length - close);
-      } else if (cur.match(/<\/?$/)) {
-        stream.backUp(cur.length);
-        if (!stream.match(pat, false)) {
-          stream.match(cur);
-        }
-      }
-      return style;
-    }
     var htmlMode = CodeMirror.getMode(config, 'htmlmixed'),
-      html = null,
-      supported = {
-        script: {
-          lang: {
-            javascript: CodeMirror.getMode(config, 'javascript'),
-            coffee: CodeMirror.getMode(config, 'coffeescript'),
-            coffeescript: CodeMirror.getMode(config, 'coffeescript'),
-            babel: CodeMirror.getMode(config, 'javascript')
-          },
-          type: {
-            'text/javascript': CodeMirror.getMode(config, 'javascript'),
-            'coffeescript': CodeMirror.getMode(config, 'coffeescript'),
-            'text/coffeescript': CodeMirror.getMode(config, 'coffeescript'),
-            'text/x-coffeescript': CodeMirror.getMode(config, 'coffeescript')
-          },
-          'default': CodeMirror.getMode(config, 'javascript')
-        },
-        style:  {
-          lang: {
-            css: CodeMirror.getMode(config, 'css'),
-            stylus: CodeMirror.getMode(config, 'stylus'),
-            sass: CodeMirror.getMode(config, 'sass')
-          },
-          type: {
-            'text/stylesheet': CodeMirror.getMode(config, 'css'),
-            'text/x-styl': CodeMirror.getMode(config, 'stylus'),
-            'stylus': CodeMirror.getMode(config, 'stylus')
-          },
-          'default': CodeMirror.getMode(config, 'css')
-        },
-        template: {
-          lang: {
-            vue: CodeMirror.getMode(config, 'vue-template'),
-            jade: CodeMirror.getMode(config, 'jade')
-          },
-          type: {
-            'text/x-jade': CodeMirror.getMode(config, 'jade')
-          },
-          'default': CodeMirror.getMode(config, 'vue-template')
-        }
-      };
-
-    function getAttrValue(stream, attr) {
-      var pos = stream.pos, match;
-      while (pos >= 0 && stream.string.charAt(pos) !== "<") {
-        pos -= 1;
-      }
-      if (pos < 0) {
-        return pos;
-      }
-      match = stream.string.slice(pos, stream.pos).match(new RegExp("\\s+" + attr + "\\s*=\\s*('|\")?([^'\"]+)('|\")?\\s*"));
-      if (match) {
-        return match[2];
-      }
-    }
-
-    html = function (stream, state) {
+      html =
+    function (stream, state) {
       var tagName = state.htmlState.htmlState.tagName,
         style = htmlMode.token(stream, state.htmlState),
         tag,
@@ -136,6 +135,7 @@
             mode = tag.default;
           }
           if (mode) {
+            mode = CodeMirror.getMode(config, mode);
             state.token = function (stream, state) {
               if (stream.match(new RegExp("^<\/\s*" + tagName + "\s*>", 'i'), false)) {
                 state.token = html;
