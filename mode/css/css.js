@@ -129,7 +129,8 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
   }
 
   function popContext(state) {
-    state.context = state.context.prev;
+    if (state.context.prev)
+      state.context = state.context.prev;
     return state.context.type;
   }
 
@@ -381,7 +382,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
           (ch == "}" && (cx.type == "block" || cx.type == "top" || cx.type == "interpolation" || cx.type == "restricted_atBlock") ||
            ch == ")" && (cx.type == "parens" || cx.type == "atBlock_parens") ||
            ch == "{" && (cx.type == "at" || cx.type == "atBlock"))) {
-        indent = cx.indent - indentUnit;
+        indent = Math.max(0, cx.indent - indentUnit);
         cx = cx.prev;
       }
       return indent;
