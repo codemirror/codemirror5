@@ -11,7 +11,8 @@
         require("../css/css"),
         require("../sass/sass"),
         require("../stylus/stylus"),
-        require("../jade/jade"));
+        require("../jade/jade"),
+        require("../handlebars/handlebars"));
   } else if (typeof define === "function" && define.amd) { // AMD
     define(["../../lib/codemirror",
             "../xml/xml",
@@ -20,174 +21,76 @@
             "../css/css",
             "../sass/sass",
             "../stylus/stylus",
-            "../jade/jade"], mod);
+            "../jade/jade",
+            "../handlebars/handlebars"], mod);
   } else { // Plain browser env
     mod(CodeMirror);
   }
 })(function (CodeMirror) {
-  var supported = {
+  var nestedModes = {
     script: {
-      lang: {
-        javascript: 'javascript',
-        coffee: 'coffeescript',
-        coffeescript: 'coffeescript',
-        babel: 'javascript'
-      },
-      type: {
-        'text/javascript': 'javascript',
-        'coffeescript': 'coffeescript',
-        'text/coffeescript': 'coffeescript',
-        'text/x-coffeescript': 'coffeescript'
-      },
-      'default': 'javascript'
+      attributes: {
+        lang: {
+          coffeescript: /coffee(script)?/
+        },
+        type: {
+          coffeescript: /^(?:text|application)\/(?:x-)?coffee(?:script)?$/
+        }
+      }
     },
     style:  {
-      lang: {
-        css: 'css',
-        stylus: 'stylus',
-        sass: 'sass'
-      },
-      type: {
-        'text/stylesheet': 'css',
-        'text/x-styl': 'stylus',
-        'stylus': 'stylus'
-      },
-      'default': 'css'
+      attributes: {
+        lang: {
+          stylus: /^stylus$/i,
+          sass: /^sass$/i
+        },
+        type: {
+          stylus: /^(text\/)?(x-)?styl(us)?$/i,
+          sass: /^text\/sass/i
+        }
+      }
     },
     template: {
-      lang: {
-        vue: 'vue-template',
-        jade: 'jade'
+      attributes: {
+        lang: {
+          vue: /^vue-template$/i,
+          jade: /^jade$/i,
+          handlebars: /^handlebars$/i
+        },
+        type: {
+          jade: /^(text\/)?(x-)?jade$/i,
+          handlebars: /^text\/x-handlebars-template$/i
+        }
       },
-      type: {
-        'text/x-jade': 'jade'
-      },
-      'default': 'vue-template'
+      defaultMode: 'vue-template'
     }
-  };
+  }, attrRegexpCache = {}, tagRegexpCache = {};
 
-  CodeMirror.defineMode("vue-template", function(config, parserConfig) {
+  CodeMirror.defineMode("vue-template", function (config, parserConfig) {
     "use strict";
     var mustacheOverlay = {
       token: function (stream) {
         var ch;
         if (stream.match("{{")) {
-          while ((ch = stream.next()) != null)
-            if (ch == "}" && stream.next() == "}") {
+          while ((ch = stream.next()) !== null) {
+            if (ch === "}" && stream.next() === "}") {
               stream.eat("}");
               return "mustache";
             }
+          }
         }
-        while (stream.next() != null && !stream.match("{{", false)) {}
+        while (stream.next() && !stream.match("{{", false)) {}
         return null;
       }
     };
     return CodeMirror.overlayMode(CodeMirror.getMode(config, parserConfig.backdrop || "text/html"), mustacheOverlay);
   });
 
-  function maybeBackup(stream, pat, style) {
-    var cur = stream.current(), close = cur.search(pat);
-    if (close > -1) {
-      stream.backUp(cur.length - close);
-    } else if (cur.match(/<\/?$/)) {
-      stream.backUp(cur.length);
-      if (!stream.match(pat, false)) {
-        stream.match(cur);
-      }
-    }
-    return style;
-  }
+  CodeMirror.defineMode("vue", function (config, parserConfig) {
+    return CodeMirror.getMode(config, {name: "htmlmixed",
+                                             modes: nestedModes
+                                              });
+  },"htmlmixed", "xml", "javascript", "coffeescript", "css", "sass", "stylus", "jade", "handlebars");
 
-  function getAttrValue(stream, attr) {
-    var pos = stream.pos, match;
-    while (pos >= 0 && stream.string.charAt(pos) !== "<") {
-      pos -= 1;
-    }
-    if (pos < 0) {
-      return pos;
-    }
-    match = stream.string.slice(pos, stream.pos).match(new RegExp("\\s+" + attr + "\\s*=\\s*('|\")?([^'\"]+)('|\")?\\s*"));
-    if (match) {
-      return match[2];
-    }
-  }
-
-  CodeMirror.defineMode("vue", function (config) {
-    var htmlMode = CodeMirror.getMode(config, 'htmlmixed'),
-      html =
-    function (stream, state) {
-      var tagName = state.htmlState.htmlState.tagName,
-        style = htmlMode.token(stream, state.htmlState),
-        tag,
-        lang,
-        type,
-        mode;
-      if (tagName) {
-        tagName = tagName.toLowerCase();
-      }
-      if (stream.current() === ">" && /\btag\b/.test(style)) {
-        if (tag = supported[tagName]) {
-          if (lang = getAttrValue(stream, 'lang')) {
-            mode = tag.lang[lang];
-          } else if (type = getAttrValue(stream, 'type')) {
-            mode = tag.type[type];
-          } else {
-            mode = tag.default;
-          }
-          if (mode) {
-            mode = CodeMirror.getMode(config, mode);
-            state.token = function (stream, state) {
-              if (stream.match(new RegExp("^<\/\s*" + tagName + "\s*>", 'i'), false)) {
-                state.token = html;
-                state.localState = state.localMode = null;
-                return null;
-              }
-              return maybeBackup(stream, new RegExp("<\/\s*" + tagName + "\s*>"),
-                                 state.localMode.token(stream, state.localState));
-            }
-            state.localMode = mode;
-            state.localState = mode.startState && mode.startState(htmlMode.indent(state.htmlState, ""));
-          }
-        }
-      }
-      return style;
-    };
-
-    return {
-      startState: function () {
-        var state = htmlMode.startState();
-        return {token: html, localMode: null, localState: null, htmlState: state};
-      },
-
-      copyState: function (state) {
-        var local;
-        if (state.localState) {
-          local = CodeMirror.copyState(state.localMode, state.localState);
-        }
-        return {token: state.token, localMode: state.localMode, localState: local,
-                htmlState: CodeMirror.copyState(htmlMode, state.htmlState)};
-      },
-
-      token: function (stream, state) {
-        return state.token(stream, state);
-      },
-
-      indent: function (state, textAfter) {
-        if (!state.localMode || /^\s*<\//.test(textAfter)) {
-          return htmlMode.indent(state.htmlState, textAfter);
-        } else if (state.localMode.indent) {
-          return state.localMode.indent(state.localState, textAfter);
-        } else {
-          return CodeMirror.Pass;
-        }
-      },
-
-      innerMode: function (state) {
-        return {state: state.localState || state.htmlState, mode: state.localMode || htmlMode};
-      }
-    };
-  }, "xml", "javascript", "coffeescript", "css", "sass", "stylus", "jade");
-
-  CodeMirror.defineMIME("text/x-vue", "vue");
-
+  CodeMirror.defineMIME("script/x-vue", "vue");
 });
