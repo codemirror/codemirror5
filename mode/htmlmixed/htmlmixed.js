@@ -150,7 +150,7 @@ var nestedModes = {
     html = function (stream, state) {
       var tagName = state.htmlState.tagName,
         style = htmlMode.token(stream, state.htmlState),
-        mode;
+        mode, tag;
       if (tagName) {
         tagName = tagName.toLowerCase();
       }
