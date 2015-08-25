@@ -98,7 +98,7 @@ var nestedModes = {
   }
 
   function getAttrValue(stream, attr) {
-    var pos = stream.pos, match, regexp;
+    var pos = stream.pos, match;
     while (pos >= 0 && stream.string.charAt(pos) !== "<") {
       pos -= 1;
     }
@@ -143,14 +143,13 @@ var nestedModes = {
     modes = deepmerge(deepmerge({}, nestedModes), parserConfig.modes || {});
     if (parserConfig.scriptTypes) {
       for (var i = 0; i < parserConfig.scriptTypes.length; ++i) {
-        var conf = scriptTypesConf[i];
+        var conf = parserConfig.scriptTypes[i];
         modes.script.attributes[conf.mode] = conf.matches;
       }
     }
     html = function (stream, state) {
       var tagName = state.htmlState.tagName,
         style = htmlMode.token(stream, state.htmlState),
-        tag,
         mode;
       if (tagName) {
         tagName = tagName.toLowerCase();

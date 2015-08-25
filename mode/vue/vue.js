@@ -64,7 +64,7 @@
       },
       defaultMode: 'vue-template'
     }
-  }, attrRegexpCache = {}, tagRegexpCache = {};
+  };
 
   CodeMirror.defineMode("vue-template", function (config, parserConfig) {
     "use strict";
@@ -86,10 +86,8 @@
     return CodeMirror.overlayMode(CodeMirror.getMode(config, parserConfig.backdrop || "text/html"), mustacheOverlay);
   });
 
-  CodeMirror.defineMode("vue", function (config, parserConfig) {
-    return CodeMirror.getMode(config, {name: "htmlmixed",
-                                             modes: nestedModes
-                                              });
+  CodeMirror.defineMode("vue", function (config) {
+    return CodeMirror.getMode(config, {name: "htmlmixed", modes: nestedModes});
   },"htmlmixed", "xml", "javascript", "coffeescript", "css", "sass", "stylus", "jade", "handlebars");
 
   CodeMirror.defineMIME("script/x-vue", "vue");
