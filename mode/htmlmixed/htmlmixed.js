@@ -154,7 +154,8 @@ var nestedModes = {
       if (tagName) {
         tagName = tagName.toLowerCase();
       }
-      if (stream.current() === ">" && (tag = modes[tagName]) &&  /\btag\b/.test(style) &&
+      tag = modes[tagName];
+      if (stream.current() === ">" && tag &&  /\btag\b/.test(style) &&
          (mode = getMode(modes, tagName, getAttrValue(stream, 'lang')))) {
         state.token = function (stream, state) {
           var regexp = getTagRegexp(tagName);
