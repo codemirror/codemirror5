@@ -40,3 +40,4 @@ ICEcoder default theme by Matt Pass, used in code editor available at https://ic
 .cm-s-icecoder .CodeMirror-gutters { background: #141612; min-width: 41px; border-right: 0; }
 .cm-s-icecoder .CodeMirror-linenumber { color: #555; cursor: default; }
 .cm-s-icecoder .CodeMirror-matchingbracket { border: 1px solid grey; color: black !important; }
+.cm-s-icecoder .CodeMirror-activeline-background { background: #000; }
