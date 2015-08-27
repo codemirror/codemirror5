@@ -120,7 +120,7 @@
      "}");
 
   MT("empty_url",
-     "[def @import] [tag url]() [tag screen];");
+     "[def @import] [atom url]() [attribute screen];");
 
   MT("parens",
      "[qualifier .foo] {",
