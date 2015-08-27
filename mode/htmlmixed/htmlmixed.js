@@ -9,72 +9,22 @@
   else // Plain browser env
     mod(CodeMirror);
 })(function(CodeMirror) {
-"use strict";
-var nestedModes = {
-    script: {
-      attributes: {
-        lang: {
-          javascript: /(javascript|babel)/i
-        },
-        type: {
-          javascript: /^(?:text|application)\/(?:x-)?(?:java|ecma)script$|^$/i
-        }
-      },
-      defaultMode: 'javascript'
-    },
-    style:  {
-      attributes: {
-        lang: {
-          css: /^css$/i
-        },
-        type: {
-          css: /^(text\/)?(x-)?stylesheet$/i
-        }
-      },
-      defaultMode: 'css'
-    }
-  }, attrRegexpCache = {}, tagRegexpCache = {};
+  "use strict";
 
-  function deepmerge(target, src) {
-    var array = Array.isArray(src);
-    var dst = array && [] || {};
-
-    if (array) {
-        target = target || [];
-        dst = dst.concat(target);
-        src.forEach(function(e, i) {
-            if (typeof dst[i] === 'undefined') {
-                dst[i] = e;
-            } else if (typeof e === 'object') {
-                dst[i] = deepmerge(target[i], e);
-            } else {
-                if (target.indexOf(e) === -1) {
-                    dst.push(e);
-                }
-            }
-        });
-    } else {
-        if (target && typeof target === 'object') {
-            Object.keys(target).forEach(function (key) {
-                dst[key] = target[key];
-            })
-        }
-        Object.keys(src).forEach(function (key) {
-            if (typeof src[key] !== 'object' || !src[key]) {
-                dst[key] = src[key];
-            }
-            else {
-                if (!target[key]) {
-                    dst[key] = src[key];
-                } else {
-                    dst[key] = deepmerge(target[key], src[key]);
-                }
-            }
-        });
-    }
-
-    return dst;
-  }
+  var defaultTags = {
+    script: [
+      ["lang", /(javascript|babel)/i, "javascript"],
+      ["type", /^(?:text|application)\/(?:x-)?(?:java|ecma)script$|^$/i, "javascript"],
+      ["type", /./, "text/plain"],
+      [null, null, "javascript"]
+    ],
+    style:  [
+      ["lang", /^css$/i, "css"],
+      ["type", /^(text\/)?(x-)?(stylesheet|css)$/i, "css"],
+      ["type", /./, "text/plain"],
+      [null, null, "css"]
+    ]
+  };
 
   function maybeBackup(stream, pat, style) {
     var cur = stream.current(), close = cur.search(pat);
@@ -82,93 +32,82 @@ var nestedModes = {
       stream.backUp(cur.length - close);
     } else if (cur.match(/<\/?$/)) {
       stream.backUp(cur.length);
-      if (!stream.match(pat, false)) {
-        stream.match(cur);
-      }
+      if (!stream.match(pat, false)) stream.match(cur);
     }
     return style;
   }
 
+  var attrRegexpCache = {};
   function getAttrRegexp(attr) {
-    var regexp;
-    if (regexp = attrRegexpCache[attr]) {
-      return regexp;
-    }
+    var regexp = attrRegexpCache[attr];
+    if (regexp) return regexp;
     return attrRegexpCache[attr] = new RegExp("\\s+" + attr + "\\s*=\\s*('|\")?([^'\"]+)('|\")?\\s*");
   }
 
   function getAttrValue(stream, attr) {
     var pos = stream.pos, match;
-    while (pos >= 0 && stream.string.charAt(pos) !== "<") {
-      pos -= 1;
-    }
-    if (pos < 0) {
-      return pos;
-    }
-    if (match = stream.string.slice(pos, stream.pos).match(getAttrRegexp(attr))) {
+    while (pos >= 0 && stream.string.charAt(pos) !== "<") pos--;
+    if (pos < 0) return pos;
+    if (match = stream.string.slice(pos, stream.pos).match(getAttrRegexp(attr)))
       return match[2];
+    return "";
+  }
+
+  function getTagRegexp(tagName, anchored) {
+    return new RegExp((anchored ? "^" : "") + "<\/\s*" + tagName + "\s*>", "i");
+  }
+
+  function addTags(from, to) {
+    for (var tag in from) {
+      var dest = to[tag] || (to[tag] = []);
+      var source = from[tag];
+      for (var i = source.length - 1; i >= 0; i--)
+        dest.unshift(source[i])
     }
   }
 
-  function getMode(modes, tagName, value) {
-    if (!value) {
-      return modes[tagName].defaultMode;
+  function findMatchingMode(tagInfo, stream) {
+    for (var i = 0; i < tagInfo.length; i++) {
+      var spec = tagInfo[i];
+      if (!spec[0] || spec[1].test(getAttrValue(stream, spec[0]))) return spec[2];
     }
-    var attr, mode;
-    modes = modes[tagName];
-    for (attr in modes.attributes){
-      for (mode in modes.attributes[attr]) {
-        if (modes.attributes[attr][mode].test(value)) {
-          return mode;
-        }
-      }
-    }
-    return modes.defaultMode;
-  }
-
-  function getTagRegexp(tagName) {
-    var regexp;
-    if (regexp = tagRegexpCache[tagName]) {
-      return regexp;
-    }
-    return tagRegexpCache[tagName] = new RegExp("^<\/\s*" + tagName + "\s*>", 'i');
   }
 
   CodeMirror.defineMode("htmlmixed", function (config, parserConfig) {
-    var htmlMode = CodeMirror.getMode(config, {name: "xml",
-                                             htmlMode: true,
-                                             multilineTagIndentFactor: parserConfig.multilineTagIndentFactor,
-                                             multilineTagIndentPastTag: parserConfig.multilineTagIndentPastTag}),
-        html, modes;
-    modes = deepmerge(deepmerge({}, nestedModes), parserConfig.modes || {});
-    if (parserConfig.scriptTypes) {
-      for (var i = 0; i < parserConfig.scriptTypes.length; ++i) {
-        var conf = parserConfig.scriptTypes[i];
-        modes.script.attributes[conf.mode] = conf.matches;
-      }
-    }
-    html = function (stream, state) {
-      var tagName = state.htmlState.tagName,
-        style = htmlMode.token(stream, state.htmlState),
-        mode, tag;
-      if (tagName) {
-        tagName = tagName.toLowerCase();
-      }
-      tag = modes[tagName];
-      if (stream.current() === ">" && tag &&  /\btag\b/.test(style) &&
-         (mode = getMode(modes, tagName, getAttrValue(stream, 'lang')))) {
+    var htmlMode = CodeMirror.getMode(config, {
+      name: "xml",
+      htmlMode: true,
+      multilineTagIndentFactor: parserConfig.multilineTagIndentFactor,
+      multilineTagIndentPastTag: parserConfig.multilineTagIndentPastTag
+    });
+
+    var tags = {};
+    var configTags = parserConfig && parserConfig.tags, configScript = parserConfig && parserConfig.scriptTypes;
+    addTags(defaultTags, tags);
+    if (configTags) addTags(configTags, tags);
+    if (configScript) for (var i = configScript.length - 1; i >= 0; i--)
+      tags.script.unshift(["type", configScript[i].matches, configScript[i].mode])
+
+    function html(stream, state) {
+      var tagName = state.htmlState.tagName;
+      var tagInfo = tagName && tags[tagName.toLowerCase()];
+
+      var style = htmlMode.token(stream, state.htmlState), modeSpec;
+
+      if (tagInfo && /\btag\b/.test(style) && stream.current() === ">" &&
+          (modeSpec = findMatchingMode(tagInfo, stream))) {
+        var mode = CodeMirror.getMode(config, modeSpec);
+        var endTagA = getTagRegexp(tagName, true), endTag = getTagRegexp(tagName, false);
         state.token = function (stream, state) {
-          var regexp = getTagRegexp(tagName);
-          if (stream.match(regexp, false)) {
+          if (stream.match(endTagA, false)) {
             state.token = html;
             state.localState = state.localMode = null;
             return null;
           }
-          return maybeBackup(stream, regexp, state.localMode.token(stream, state.localState));
-        }
-        mode = CodeMirror.getMode(config, mode);
+          return maybeBackup(stream, endTag, state.localMode.token(stream, state.localState));
+        };
         state.localMode = mode;
-        state.localState = mode.startState && mode.startState(htmlMode.indent(state.htmlState, ""));
+        state.localState = CodeMirror.startState(mode, htmlMode.indent(state.htmlState, ""));
       }
       return style;
     };
@@ -193,13 +132,12 @@ var nestedModes = {
       },
 
       indent: function (state, textAfter) {
-        if (!state.localMode || /^\s*<\//.test(textAfter)) {
+        if (!state.localMode || /^\s*<\//.test(textAfter))
           return htmlMode.indent(state.htmlState, textAfter);
-        } else if (state.localMode.indent) {
+        else if (state.localMode.indent)
           return state.localMode.indent(state.localState, textAfter);
-        } else {
+        else
           return CodeMirror.Pass;
-        }
       },
 
       innerMode: function (state) {
@@ -208,5 +146,5 @@ var nestedModes = {
     };
   }, "xml", "javascript", "css");
 
-CodeMirror.defineMIME("text/html", "htmlmixed");
+  CodeMirror.defineMIME("text/html", "htmlmixed");
 });

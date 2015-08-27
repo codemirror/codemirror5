@@ -5,6 +5,7 @@
   "use strict";
   if (typeof exports === "object" && typeof module === "object") {// CommonJS
     mod(require("../../lib/codemirror"),
+        require("../../addon/mode/overlay"),
         require("../xml/xml"),
         require("../javascript/javascript"),
         require("../coffeescript/coffeescript"),
@@ -15,6 +16,7 @@
         require("../handlebars/handlebars"));
   } else if (typeof define === "function" && define.amd) { // AMD
     define(["../../lib/codemirror",
+            "../../addon/mode/overlay",
             "../xml/xml",
             "../javascript/javascript",
             "../coffeescript/coffeescript",
@@ -27,58 +29,31 @@
     mod(CodeMirror);
   }
 })(function (CodeMirror) {
-  var nestedModes = {
-    script: {
-      attributes: {
-        lang: {
-          coffeescript: /coffee(script)?/
-        },
-        type: {
-          coffeescript: /^(?:text|application)\/(?:x-)?coffee(?:script)?$/
-        }
-      }
-    },
-    style:  {
-      attributes: {
-        lang: {
-          stylus: /^stylus$/i,
-          sass: /^sass$/i
-        },
-        type: {
-          stylus: /^(text\/)?(x-)?styl(us)?$/i,
-          sass: /^text\/sass/i
-        }
-      }
-    },
-    template: {
-      attributes: {
-        lang: {
-          vue: /^vue-template$/i,
-          jade: /^jade$/i,
-          handlebars: /^handlebars$/i
-        },
-        type: {
-          jade: /^(text\/)?(x-)?jade$/i,
-          handlebars: /^text\/x-handlebars-template$/i
-        }
-      },
-      defaultMode: 'vue-template'
-    }
+  var tagLanguages = {
+    script: [
+      ["lang", /coffee(script)?/, "coffeescript"],
+      ["type", /^(?:text|application)\/(?:x-)?coffee(?:script)?$/, "coffeescript"]
+    ],
+    style: [
+      ["lang", /^stylus$/i, "stylus"],
+      ["lang", /^sass$/i, "sass"],
+      ["type", /^(text\/)?(x-)?styl(us)?$/i, "stylus"],
+      ["type", /^text\/sass/i, "sass"]
+    ],
+    template: [
+      ["lang", /^vue-template$/i, "vue"],
+      ["lang", /^jade$/i, "jade"],
+      ["lang", /^handlebars$/i, "handlebars"],
+      ["type", /^(text\/)?(x-)?jade$/i, "jade"],
+      ["type", /^text\/x-handlebars-template$/i, "handlebars"],
+      [null, null, "vue-template"]
+    ]
   };
 
   CodeMirror.defineMode("vue-template", function (config, parserConfig) {
-    "use strict";
     var mustacheOverlay = {
       token: function (stream) {
-        var ch;
-        if (stream.match("{{")) {
-          while ((ch = stream.next()) !== null) {
-            if (ch === "}" && stream.next() === "}") {
-              stream.eat("}");
-              return "mustache";
-            }
-          }
-        }
+        if (stream.match(/^\{\{.*?\}\}/)) return "meta mustache";
         while (stream.next() && !stream.match("{{", false)) {}
         return null;
       }
@@ -87,8 +62,8 @@
   });
 
   CodeMirror.defineMode("vue", function (config) {
-    return CodeMirror.getMode(config, {name: "htmlmixed", modes: nestedModes});
-  },"htmlmixed", "xml", "javascript", "coffeescript", "css", "sass", "stylus", "jade", "handlebars");
+    return CodeMirror.getMode(config, {name: "htmlmixed", tags: tagLanguages});
+  }, "htmlmixed", "xml", "javascript", "coffeescript", "css", "sass", "stylus", "jade", "handlebars");
 
   CodeMirror.defineMIME("script/x-vue", "vue");
 });
