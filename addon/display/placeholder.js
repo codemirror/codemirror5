@@ -37,7 +37,7 @@
     var elt = cm.state.placeholder = document.createElement("pre");
     elt.style.cssText = "height: 0; overflow: visible";
     elt.className = "CodeMirror-placeholder";
-    elt.appendChild(document.createTextNode(cm.getOption("placeholder")));
+    elt.innerHTML = cm.getOption("placeholder");
     cm.display.lineSpace.insertBefore(elt, cm.display.lineSpace.firstChild);
   }
 
