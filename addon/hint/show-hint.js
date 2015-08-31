@@ -341,7 +341,7 @@
     if (helpers.length) {
       for (var i = 0; i < helpers.length; i++) {
         var cur = helpers[i](cm, options);
-        if (cur && cur.list.length) return cur;
+        if (cur && cur.list && cur.list.length) return cur;
       }
     } else if (words = cm.getHelper(cm.getCursor(), "hintWords")) {
       if (words) return CodeMirror.hint.fromList(cm, {words: words});
