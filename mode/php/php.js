@@ -160,6 +160,7 @@
       if (!isPHP) {
         if (stream.match(/^<\?\w*/)) {
           state.curMode = phpMode;
+          if (!state.php) state.php = CodeMirror.startState(phpMode, htmlMode.indent(state.html, ""))
           state.curState = state.php;
           return "meta";
         }
@@ -183,6 +184,7 @@
       } else if (isPHP && state.php.tokenize == null && stream.match("?>")) {
         state.curMode = htmlMode;
         state.curState = state.html;
+        if (!state.php.context.prev) state.php = null;
         return "meta";
       } else {
         return phpMode.token(stream, state.curState);
@@ -191,7 +193,8 @@
 
     return {
       startState: function() {
-        var html = CodeMirror.startState(htmlMode), php = CodeMirror.startState(phpMode);
+        var html = CodeMirror.startState(htmlMode)
+        var php = parserConfig.startOpen ? CodeMirror.startState(phpMode) : null
         return {html: html,
                 php: php,
                 curMode: parserConfig.startOpen ? phpMode : htmlMode,
@@ -201,7 +204,7 @@
 
       copyState: function(state) {
         var html = state.html, htmlNew = CodeMirror.copyState(htmlMode, html),
-            php = state.php, phpNew = CodeMirror.copyState(phpMode, php), cur;
+            php = state.php, phpNew = php && CodeMirror.copyState(phpMode, php), cur;
         if (state.curMode == htmlMode) cur = htmlNew;
         else cur = phpNew;
         return {html: htmlNew, php: phpNew, curMode: state.curMode, curState: cur,
