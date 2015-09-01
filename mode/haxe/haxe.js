@@ -48,7 +48,7 @@ CodeMirror.defineMode("haxe", function(config, parserConfig) {
         return false;
       escaped = !escaped && next == "\\";
     }
-    return escaped;
+    return true;
   }
 
   // Used as scratch variables to communicate multiple values without
