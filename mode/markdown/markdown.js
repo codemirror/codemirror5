@@ -702,6 +702,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         text: s.text,
         formatting: false,
         linkTitle: s.linkTitle,
+        code: s.code,
         em: s.em,
         strong: s.strong,
         strikethrough: s.strikethrough,
@@ -741,9 +742,6 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
         // Reset state.taskList
         state.taskList = false;
-
-        // Reset state.code
-        state.code = false;
 
         // Reset state.trailingSpace
         state.trailingSpace = 0;

@@ -110,7 +110,7 @@
   // Block code using single backtick (shouldn't work)
   MT("blockCodeSingleBacktick",
      "[comment `]",
-     "foo",
+     "[comment foo]",
      "[comment `]");
 
   // Unclosed backticks
@@ -768,7 +768,7 @@
 
   MT("fencedCodeBlocks",
      "[comment ```]",
-     "foo",
+     "[comment foo]",
      "[comment ```]");
 
   // Tests that require XML mode

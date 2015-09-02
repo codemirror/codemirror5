@@ -152,8 +152,8 @@
 
   MT("notALink",
      "[comment `foo]",
-     "[link http://www.example.com/]",
-     "[comment `foo]",
+     "[comment&link http://www.example.com/]",
+     "[comment `] foo",
      "",
      "[link http://www.example.com/]");
 
