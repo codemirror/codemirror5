@@ -204,7 +204,7 @@
         progress.style.width = (count * (progress.parentNode.clientWidth - 2) / totalTests) + "px";
         progressRan.nodeValue = count;
         if (type == "ok") {
-          message = "Test '" + name + "' succeeded";
+          message = "Test '" + name + "' passed";
           if (!verbose) customMessage = false;
         } else if (type == "skipped") {
           message = "Test '" + name + "' skipped";
