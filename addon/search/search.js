@@ -117,11 +117,19 @@
     if (state.query) return findNext(cm, rev);
     var q = cm.getSelection() || state.lastQuery;
     if (persistent && cm.openDialog) {
+      var hiding = null
       persistentDialog(cm, queryDialog, q, function(query, event) {
         CodeMirror.e_stop(event);
         if (!query) return;
         if (query != state.queryText) startSearch(cm, state, query);
-        findNext(cm, event.shiftKey);
+        if (hiding) hiding.style.opacity = 1
+        findNext(cm, event.shiftKey, function(_, to) {
+          var dialog
+          if (to.line < 3 && document.querySelector &&
+              (dialog = cm.display.wrapper.querySelector(".CodeMirror-dialog")) &&
+              dialog.getBoundingClientRect().bottom - 4 > cm.cursorCoords(to, "window").top)
+            (hiding = dialog).style.opacity = .4
+        })
       });
     } else {
       dialog(cm, queryDialog, "Search for:", q, function(query) {
@@ -134,7 +142,7 @@
     }
   }
 
-  function findNext(cm, rev) {cm.operation(function() {
+  function findNext(cm, rev, callback) {cm.operation(function() {
     var state = getSearchState(cm);
     var cursor = getSearchCursor(cm, state.query, rev ? state.posFrom : state.posTo);
     if (!cursor.find(rev)) {
@@ -144,6 +152,7 @@
     cm.setSelection(cursor.from(), cursor.to());
     cm.scrollIntoView({from: cursor.from(), to: cursor.to()}, 20);
     state.posFrom = cursor.from(); state.posTo = cursor.to();
+    if (callback) callback(cursor.from(), cursor.to())
   });}
 
   function clearSearch(cm) {cm.operation(function() {
