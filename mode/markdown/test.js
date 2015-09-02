@@ -498,14 +498,14 @@
     "",
     "    [variable-3 * bar]",
     "",
-    "       [variable-2 hello]"
+    "       [variable-3 hello]"
   );
   MT("listNested",
     "[variable-2 * foo]",
     "",
     "    [variable-3 * bar]",
     "",
-    "      [variable-3 * foo]"
+    "      [keyword * foo]"
   );
 
   // Code followed by text
