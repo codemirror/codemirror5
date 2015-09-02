@@ -212,6 +212,7 @@ CodeMirror.defineMode("haxe", function(config, parserConfig) {
     cx.state.localVars = cx.state.context.vars;
     cx.state.context = cx.state.context.prev;
   }
+  popcontext.lex = true;
   function pushlex(type, info) {
     var result = function() {
       var state = cx.state;
@@ -235,7 +236,7 @@ CodeMirror.defineMode("haxe", function(config, parserConfig) {
       if (type == wanted) return cont();
       else if (wanted == ";") return pass();
       else return cont(f);
-    };
+    }
     return f;
   }
 
@@ -348,8 +349,10 @@ CodeMirror.defineMode("haxe", function(config, parserConfig) {
   function forspec1(type, value) {
     if (type == "variable") {
       register(value);
+      return cont(forin, expression)
+    } else {
+      return pass()
     }
-    return cont(pushlex(")"), pushcontext, forin, expression, poplex, statement, popcontext);
   }
   function forin(_type, value) {
     if (value == "in") return cont();
@@ -378,7 +381,7 @@ CodeMirror.defineMode("haxe", function(config, parserConfig) {
 
   return {
     startState: function(basecolumn) {
-    var defaulttypes = ["Int", "Float", "String", "Void", "Std", "Bool", "Dynamic", "Array"];
+      var defaulttypes = ["Int", "Float", "String", "Void", "Std", "Bool", "Dynamic", "Array"];
       return {
         tokenize: haxeTokenBase,
         reAllowed: true,
@@ -386,7 +389,7 @@ CodeMirror.defineMode("haxe", function(config, parserConfig) {
         cc: [],
         lexical: new HaxeLexical((basecolumn || 0) - indentUnit, 0, "block", false),
         localVars: parserConfig.localVars,
-    importedtypes: defaulttypes,
+        importedtypes: defaulttypes,
         context: parserConfig.localVars && {vars: parserConfig.localVars},
         indented: 0
       };
