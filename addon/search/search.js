@@ -158,7 +158,18 @@
   var replaceQueryDialog =
     'Replace: <input type="text" style="width: 10em" class="CodeMirror-search-field"/> <span style="color: #888" class="CodeMirror-search-hint">(Use /re/ syntax for regexp search)</span>';
   var replacementQueryDialog = 'With: <input type="text" style="width: 10em" class="CodeMirror-search-field"/>';
-  var doReplaceConfirm = "Replace? <button>Yes</button> <button>No</button> <button>Stop</button>";
+  var doReplaceConfirm = "Replace? <button>Yes</button> <button>No</button> <button>All</button> <button>Stop</button>";
+
+  function replaceAll(cm, query, text) {
+    cm.operation(function() {
+      for (var cursor = getSearchCursor(cm, query); cursor.findNext();) {
+        if (typeof query != "string") {
+          var match = cm.getRange(cursor.from(), cursor.to()).match(query);
+          cursor.replace(text.replace(/\$(\d)/g, function(_, i) {return match[i];}));
+        } else cursor.replace(text);
+      }
+    });
+  }
 
   function replace(cm, all) {
     if (cm.getOption("readOnly")) return;
@@ -169,14 +180,7 @@
       dialog(cm, replacementQueryDialog, "Replace with:", "", function(text) {
         text = parseString(text)
         if (all) {
-          cm.operation(function() {
-            for (var cursor = getSearchCursor(cm, query); cursor.findNext();) {
-              if (typeof query != "string") {
-                var match = cm.getRange(cursor.from(), cursor.to()).match(query);
-                cursor.replace(text.replace(/\$(\d)/g, function(_, i) {return match[i];}));
-              } else cursor.replace(text);
-            }
-          });
+          replaceAll(cm, query, text)
         } else {
           clearSearch(cm);
           var cursor = getSearchCursor(cm, query, cm.getCursor());
@@ -190,7 +194,8 @@
             cm.setSelection(cursor.from(), cursor.to());
             cm.scrollIntoView({from: cursor.from(), to: cursor.to()});
             confirmDialog(cm, doReplaceConfirm, "Replace?",
-                          [function() {doReplace(match);}, advance]);
+                          [function() {doReplace(match);}, advance,
+                           function() {replaceAll(cm, query, text)}]);
           };
           var doReplace = function(match) {
             cursor.replace(typeof query == "string" ? text :
