@@ -178,7 +178,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         stream.match(olRE, true);
         listType = 'ol';
       }
-      state.indentation += 4;
+      state.indentation = stream.column() + stream.current().length;
       state.list = true;
       state.listDepth++;
       if (modeCfg.taskLists && stream.match(taskListRE, false)) {
