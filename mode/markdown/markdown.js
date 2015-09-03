@@ -39,7 +39,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   if (modeCfg.underscoresBreakWords === undefined)
     modeCfg.underscoresBreakWords = true;
 
-  // Turn on fenced code blocks? ("```" to start/end)
+  // Turn on fenced code blocks? ("```" to start/end). Set to "~~~" to use that style instead of ``` (default)
   if (modeCfg.fencedCodeBlocks === undefined) modeCfg.fencedCodeBlocks = false;
 
   // Turn on task lists? ("- [ ] " and "- [x] ")
@@ -74,7 +74,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   ,   taskListRE = /^\[(x| )\](?=\s)/ // Must follow ulRE or olRE
   ,   atxHeaderRE = modeCfg.allowAtxHeaderWithoutSpace ? /^(#+)/ : /^(#+)(?: |$)/
   ,   setextHeaderRE = /^ *(?:\={1,}|-{1,})\s*$/
-  ,   textRE = /^[^#!\[\]*_\\<>` "'(~]+/;
+  ,   textRE = /^[^#!\[\]*_\\<>` "'(~]+/
+  ,   fencedCodeRE = modeCfg.fencedCodeBlocks === '~~~' ? /~~~+/ : /```+/;
 
   function switchInline(stream, state, f) {
     state.f = state.inline = f;
@@ -187,7 +188,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       state.f = state.inline;
       if (modeCfg.highlightFormatting) state.formatting = ["list", "list-" + listType];
       return getType(state);
-    } else if (modeCfg.fencedCodeBlocks && stream.match(/^```[ \t]*([\w+#]*)/, true)) {
+    } else if (modeCfg.fencedCodeBlocks && stream.match(new RegExp('^' + fencedCodeRE.source + '[ \\t]*([\\w+#]*)'), true)) {
       // try switching mode
       state.localMode = getMode(RegExp.$1);
       if (state.localMode) state.localState = state.localMode.startState();
@@ -213,7 +214,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   }
 
   function local(stream, state) {
-    if (stream.sol() && stream.match("```", false)) {
+    if (stream.sol() && stream.match(fencedCodeRE, false)) {
       state.localMode = state.localState = null;
       state.f = state.block = leavingLocal;
       return null;
@@ -226,7 +227,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   }
 
   function leavingLocal(stream, state) {
-    stream.match("```");
+    stream.match(fencedCodeRE);
     state.block = blockNormal;
     state.f = inlineNormal;
     if (modeCfg.highlightFormatting) state.formatting = "code-block";

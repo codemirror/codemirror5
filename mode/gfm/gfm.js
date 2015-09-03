@@ -39,7 +39,7 @@ CodeMirror.defineMode("gfm", function(config, modeConfig) {
 
       // Hack to prevent formatting override inside code blocks (block and inline)
       if (state.codeBlock) {
-        if (stream.match(/^```/)) {
+        if (stream.match(/^```+/)) {
           state.codeBlock = false;
           return null;
         }
@@ -49,7 +49,7 @@ CodeMirror.defineMode("gfm", function(config, modeConfig) {
       if (stream.sol()) {
         state.code = false;
       }
-      if (stream.sol() && stream.match(/^```/)) {
+      if (stream.sol() && stream.match(/^```+/)) {
         stream.skipToEnd();
         state.codeBlock = true;
         return null;
