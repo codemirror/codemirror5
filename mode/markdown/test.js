@@ -183,7 +183,6 @@
      "[header&header-4 ####foo]");
 
   AtxNoSpaceTest("atxNoSpaceAllowed_H1Space",
-  AtxNoSpaceTest("atxNoSpaceAllowed_H1Space",
      "[header&header-1 # foo]");
 
   // Inline styles should be parsed inside headers
