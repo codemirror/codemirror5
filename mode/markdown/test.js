@@ -175,10 +175,14 @@
   MT("noAtxH1WithoutSpace",
      "#5 bolt");
 
-  // CommonMark doesn't allow spaces after # but most parsers do
+  // CommonMark requires a space after # but most parsers don't
   AtxNoSpaceTest("atxNoSpaceAllowed_H1NoSpace",
      "[header&header-1 #foo]");
 
+  AtxNoSpaceTest("atxNoSpaceAllowed_H4NoSpace",
+     "[header&header-4 ####foo]");
+
+  AtxNoSpaceTest("atxNoSpaceAllowed_H1Space",
   AtxNoSpaceTest("atxNoSpaceAllowed_H1Space",
      "[header&header-1 # foo]");
 
