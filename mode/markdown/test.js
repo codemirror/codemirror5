@@ -8,6 +8,8 @@
   function FT(name) { test.mode(name, modeHighlightFormatting, Array.prototype.slice.call(arguments, 1)); }
   var modeAtxNoSpace = CodeMirror.getMode({tabSize: 4}, {name: "markdown", allowAtxHeaderWithoutSpace: true});
   function AtxNoSpaceTest(name) { test.mode(name, modeAtxNoSpace, Array.prototype.slice.call(arguments, 1)); }
+  var modeFenced = CodeMirror.getMode({tabSize: 4}, {name: "markdown", fencedCodeBlocks: true});
+  function FencedTest(name) { test.mode(name, modeFenced, Array.prototype.slice.call(arguments, 1)); }
 
   FT("formatting_emAsterisk",
      "[em&formatting&formatting-em *][em foo][em&formatting&formatting-em *]");
@@ -778,10 +780,52 @@
   MT("taskList",
      "[variable-2 * [ ]] bar]");
 
-  MT("fencedCodeBlocks",
+  MT("noFencedCodeBlocks",
+     "~~~",
+     "foo",
+     "~~~");
+
+  FencedTest("fencedCodeBlocks",
      "[comment ```]",
      "[comment foo]",
-     "[comment ```]");
+     "[comment ```]",
+     "bar");
+
+  FencedTest("fencedCodeBlocksMultipleChars",
+     "[comment `````]",
+     "[comment foo]",
+     "[comment ```]",
+     "[comment foo]",
+     "[comment `````]",
+     "bar");
+
+  FencedTest("fencedCodeBlocksTildes",
+     "[comment ~~~]",
+     "[comment foo]",
+     "[comment ~~~]",
+     "bar");
+
+  FencedTest("fencedCodeBlocksTildesMultipleChars",
+     "[comment ~~~~~]",
+     "[comment ~~~]",
+     "[comment foo]",
+     "[comment ~~~~~]",
+     "bar");
+
+  FencedTest("fencedCodeBlocksMultipleChars",
+     "[comment `````]",
+     "[comment foo]",
+     "[comment ```]",
+     "[comment foo]",
+     "[comment `````]",
+     "bar");
+
+  FencedTest("fencedCodeBlocksMixed",
+     "[comment ~~~]",
+     "[comment ```]",
+     "[comment foo]",
+     "[comment ~~~]",
+     "bar");
 
   // Tests that require XML mode
 

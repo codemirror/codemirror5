@@ -51,6 +51,11 @@
      "[comment ```]",
      "bar");
 
+  MT("fencedCodeBlocksNoTildes",
+     "~~~",
+     "foo",
+     "~~~");
+
   MT("taskListAsterisk",
      "[variable-2 * []] foo]", // Invalid; must have space or x between []
      "[variable-2 * [ ]]bar]", // Invalid; must have space after ]
