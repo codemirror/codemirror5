@@ -72,7 +72,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   ,   ulRE = /^[*\-+]\s+/
   ,   olRE = /^[0-9]+([.)])\s+/
   ,   taskListRE = /^\[(x| )\](?=\s)/ // Must follow ulRE or olRE
-  ,   atxHeaderRE = /^(#+)(?: |$)/
+  ,   atxHeaderRE = modeCfg.allowAtxHeaderWithoutSpace ? /^(#+)/ : /^(#+)(?: |$)/
   ,   setextHeaderRE = /^ *(?:\={1,}|-{1,})\s*$/
   ,   textRE = /^[^#!\[\]*_\\<>` "'(~]+/;
 

@@ -6,6 +6,8 @@
   function MT(name) { test.mode(name, mode, Array.prototype.slice.call(arguments, 1)); }
   var modeHighlightFormatting = CodeMirror.getMode({tabSize: 4}, {name: "markdown", highlightFormatting: true});
   function FT(name) { test.mode(name, modeHighlightFormatting, Array.prototype.slice.call(arguments, 1)); }
+  var modeAtxNoSpace = CodeMirror.getMode({tabSize: 4}, {name: "markdown", allowAtxHeaderWithoutSpace: true});
+  function AtxNoSpaceTest(name) { test.mode(name, modeAtxNoSpace, Array.prototype.slice.call(arguments, 1)); }
 
   FT("formatting_emAsterisk",
      "[em&formatting&formatting-em *][em foo][em&formatting&formatting-em *]");
@@ -172,6 +174,16 @@
   // http://spec.commonmark.org/0.19/#example-25
   MT("noAtxH1WithoutSpace",
      "#5 bolt");
+
+  // CommonMark requires a space after # but most parsers don't
+  AtxNoSpaceTest("atxNoSpaceAllowed_H1NoSpace",
+     "[header&header-1 #foo]");
+
+  AtxNoSpaceTest("atxNoSpaceAllowed_H4NoSpace",
+     "[header&header-4 ####foo]");
+
+  AtxNoSpaceTest("atxNoSpaceAllowed_H1Space",
+     "[header&header-1 # foo]");
 
   // Inline styles should be parsed inside headers
   MT("atxH1inline",
