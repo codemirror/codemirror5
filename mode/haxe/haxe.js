@@ -268,7 +268,7 @@ CodeMirror.defineMode("haxe", function(config, parserConfig) {
     if (type == "keyword c") return cont(maybeexpression);
     if (type == "(") return cont(pushlex(")"), maybeexpression, expect(")"), poplex, maybeoperator);
     if (type == "operator") return cont(expression);
-    if (type == "[") return cont(pushlex("]"), commasep(expression, "]"), poplex, maybeoperator);
+    if (type == "[") return cont(pushlex("]"), commasep(maybeexpression, "]"), poplex, maybeoperator);
     if (type == "{") return cont(pushlex("}"), commasep(objprop, "}"), poplex, maybeoperator);
     return cont();
   }
