@@ -264,6 +264,7 @@ CodeMirror.defineMode("haxe", function(config, parserConfig) {
   }
   function expression(type) {
     if (atomicTypes.hasOwnProperty(type)) return cont(maybeoperator);
+    if (type == "type" ) return cont(maybeoperator);
     if (type == "function") return cont(functiondef);
     if (type == "keyword c") return cont(maybeexpression);
     if (type == "(") return cont(pushlex(")"), maybeexpression, expect(")"), poplex, maybeoperator);
