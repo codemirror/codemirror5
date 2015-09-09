@@ -49,6 +49,10 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   if (modeCfg.strikethrough === undefined)
     modeCfg.strikethrough = false;
 
+  // Allow "#foobar" headers without a space after "#"
+  if (modeCfg.allowAtxHeaderWithoutSpace === undefined)
+    modeCfg.allowAtxHeaderWithoutSpace = false;
+
   var codeDepth = 0;
 
   var header   = 'header'
