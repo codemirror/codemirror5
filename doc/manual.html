@@ -2678,23 +2678,24 @@ editor.setOption("extraKeys", {
       <a href="../addon/lint/coffeescript-lint.js"><code>coffeescript-lint.js</code></a>,
       and <a href="../addon/lint/css-lint.js"><code>css-lint.js</code></a>
       in the same directory). Defines a <code>lint</code> option that
-      can be set to a warning source (for
-      example <code>CodeMirror.lint.javascript</code>), or
-      to <code>true</code>, in which
-      case <a href="#getHelper"><code>getHelper</code></a> with
-      type <code>"lint"</code> is used to determined a validator
-      function. Such a function should, when given a document string,
-      an options object, and an editor instance, return an array of <code>{message,
-      severity, from, to}</code> objects representing problems. When
-      the function has an <code>async</code> property with a truthy
-      value, it will be called with an additional second argument,
-      which is a callback to pass the array to. Depends
-      on <code>addon/lint/lint.css</code>. A demo can be
+      can be set to an annotation source (for
+      example <code>CodeMirror.lint.javascript</code>), to an options
+      object (in which case the <code>getAnnotations</code> field is
+      used as annotation source), or simply to <code>true</code>. When
+      no annotation source is
+      specified, <a href="#getHelper"><code>getHelper</code></a> with
+      type <code>"lint"</code> is used to find an annotation function.
+      An annotation source function should, when given a document
+      string, an options object, and an editor instance, return an
+      array of <code>{message, severity, from, to}</code> objects
+      representing problems. When the function has
+      an <code>async</code> property with a truthy value, it will be
+      called with an additional second argument, which is a callback
+      to pass the array to. By default, the linter will run
+      (debounced) whenever the document is changed. You can pass
+      a <code>lintOnChange: false</code> option to disable that.
+      Depends on <code>addon/lint/lint.css</code>. A demo can be
       found <a href="../demo/lint.html">here</a>.</dd>
-      <dd>Linting on every change can be disabled by setting
-      the <code>lintOnChange</code> option to <code>false</code>. One
-      can then perform the lint operation explicitly using the
-      editor's <code>performLint</code> method.</dd>
 
       <dt id="addon_mark-selection"><a href="../addon/selection/mark-selection.js"><code>selection/mark-selection.js</code></a></dt>
       <dd>Causes the selected text to be marked with the CSS class
