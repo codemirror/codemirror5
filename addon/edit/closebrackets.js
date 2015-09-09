@@ -90,6 +90,16 @@
     });
   }
 
+  function contractSelection(sel){
+    if (sel.anchor.line<sel.head.line || (sel.anchor.line===sel.head.line&&sel.anchor.ch<sel.head.ch)){
+      sel.anchor.ch++;
+      sel.head.ch--;
+    }
+    if (sel.anchor.line>sel.head.line || (sel.anchor.line===sel.head.line&&sel.anchor.ch>sel.head.ch)){
+      sel.head.ch++;
+      sel.anchor.ch--;
+    }
+  }
   function handleChar(cm, ch) {
     var conf = getConfig(cm);
     if (!conf || cm.getOption("disableInput")) return CodeMirror.Pass;
@@ -145,6 +155,11 @@
         for (var i = 0; i < sels.length; i++)
           sels[i] = left + sels[i] + right;
         cm.replaceSelections(sels, "around");
+        var selections = cm.listSelections();
+        for (var i=0;i<selections.length;i++){
+          contractSelection(selections[i]);
+        }
+        cm.setSelections(selections);
       } else if (type == "both") {
         cm.replaceSelection(left + right, null);
         cm.triggerElectric(left + right);
