@@ -21,14 +21,17 @@ CodeMirror.defineMode("oz", function (conf) {
   var doubleOperators = /(<-)|(:=)|(=<)|(>=)|(<=)|(<:)|(>:)|(=:)|(\\=)|(\\=:)|(!!)|(==)|(::)/;
   var tripleOperators = /(:::)|(\.\.\.)|(=<:)|(>=:)/;
 
+  var middle = ["in", "then", "else", "of", "elseof", "elsecase", "elseif", "catch",
+    "finally", "with", "require", "prepare", "import", "export", "define", "do"];
+  var end = ["end"];
+
   var atoms = wordRegexp(["true", "false", "nil", "unit"]);
-  var openingKeywords = wordRegexp(["local", "proc", "fun", "case", "class", "if", "cond", "or", "dis",
-    "choice", "not", "thread", "try", "raise", "lock", "for", "suchthat", "meth", "functor"]);
-  var middleKeywords = wordRegexp(["in", "then", "else", "of", "elseof", "elsecase", "elseif", "catch",
-    "finally", "with", "require", "prepare", "import", "export", "define", "do"]);
   var commonKeywords = wordRegexp(["andthen", "at", "attr", "declare", "feat", "from", "lex",
     "mod", "mode", "orelse", "parser", "prod", "prop", "scanner", "self", "syn", "token"]);
-  var endKeywords = wordRegexp(["end"]);
+  var openingKeywords = wordRegexp(["local", "proc", "fun", "case", "class", "if", "cond", "or", "dis",
+    "choice", "not", "thread", "try", "raise", "lock", "for", "suchthat", "meth", "functor"]);
+  var middleKeywords = wordRegexp(middle);
+  var endKeywords = wordRegexp(end);
 
   // Tokenizers
   function tokenBase(stream, state) {
@@ -200,6 +203,13 @@ CodeMirror.defineMode("oz", function (conf) {
     };
   }
 
+  function buildElectricInputRegEx() {
+    // Reindentation should occur on [] or on a match of any of
+    // the block closing keywords, at the end of a line.
+    var allClosings = middle.concat(end);
+    return new RegExp("[\\[\\]]|(" + allClosings.join("|") + ")$");
+  }
+
   return {
 
     startState: function () {
@@ -230,7 +240,7 @@ CodeMirror.defineMode("oz", function (conf) {
       return state.currentIndent * conf.indentUnit;
     },
     fold: "indent",
-    electricChars: "eEdDtTnNiIoOfFhHyY[]",
+    electricInput: buildElectricInputRegEx(),
     lineComment: "%",
     blockCommentStart: "/*",
     blockCommentEnd: "*/"
