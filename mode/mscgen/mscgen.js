@@ -1,8 +1,13 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
 // Distributed under an MIT license: http://codemirror.net/LICENSE
 
-// mscgen, xù and msgenny modes
-// 
+// mode(s) for the sequence chart dsl's mscgen, xù and msgenny
+// For more information on mscgen, see the site of the original author:
+// http://www.mcternan.me.uk/mscgen
+//
+// This mode for mscgen and the two derivative languages were
+// originally made for use in the mscgen_js interpreter
+// (https://sverweij.github.io/mscgen_js)
 
 (function(mod) {
   if ( typeof exports == "object" && typeof module == "object")// CommonJS
@@ -14,7 +19,7 @@
 })(function(CodeMirror) {//
   "use strict";
 
-  CodeMirror.defineMode("mscgen", function(/*config, parserConfig*/) {
+  CodeMirror.defineMode("mscgen", function() {
     return {
       startState : produceStartStateFunction(),
       copyState : produceCopyStateFunction(),
@@ -35,7 +40,7 @@
   });
   CodeMirror.defineMIME("text/x-mscgen", "mscgen");
 
-  CodeMirror.defineMode("xu", function(/*config, parserConfig*/) {
+  CodeMirror.defineMode("xu", function() {
     return {
       startState : produceStartStateFunction(),
       copyState : produceCopyStateFunction(),
@@ -56,7 +61,7 @@
   });
   CodeMirror.defineMIME("text/x-xu", "xu");
 
-  CodeMirror.defineMode("msgenny", function(/*config, parserConfig*/) {
+  CodeMirror.defineMode("msgenny", function() {
     return {
       startState : produceStartStateFunction(),
       copyState : produceCopyStateFunction(),
