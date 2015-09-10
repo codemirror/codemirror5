@@ -17,7 +17,7 @@ CodeMirror.defineMode("gfm", function(config, modeConfig) {
   // Should GitHub spice be added (like linking #Num, SHA, etc.)
   if (modeConfig.gitHubSpice === undefined)
     modeConfig.gitHubSpice = true;
-
+  
   var codeDepth = 0;
   function blankLine(state) {
     state.code = false;
