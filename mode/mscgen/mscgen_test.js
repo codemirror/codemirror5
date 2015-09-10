@@ -20,7 +20,8 @@
   MT("strings",
     "[string \"// a string\"]",
     "[string \"a string running over]",
-    "[string two lines\"]"
+    "[string two lines\"]",
+    "[string \"with \\\"escaped quote\"]"
   );
 
   MT("xù/ msgenny keywords classify as 'base'",

@@ -16,13 +16,13 @@
     define(["../../lib/codemirror"], mod);
   else// Plain browser env
     mod(CodeMirror);
-})(function(CodeMirror) {//
+})(function(CodeMirror) {
   "use strict";
 
   CodeMirror.defineMode("mscgen", function() {
     return {
-      startState : produceStartStateFunction(),
-      copyState : produceCopyStateFunction(),
+      startState : startStateFn,
+      copyState : copyStateFn,
       token : produceTokenFunction({
         "keywords" : ["msc"],
         "options" : ["hscale", "width", "arcgradient", "wordwraparcs"],
@@ -42,8 +42,8 @@
 
   CodeMirror.defineMode("xu", function() {
     return {
-      startState : produceStartStateFunction(),
-      copyState : produceCopyStateFunction(),
+      startState : startStateFn,
+      copyState : copyStateFn,
       token : produceTokenFunction({
         "keywords" : ["msc"],
         "options" : ["hscale", "width", "arcgradient", "wordwraparcs", "watermark"],
@@ -63,8 +63,8 @@
 
   CodeMirror.defineMode("msgenny", function() {
     return {
-      startState : produceStartStateFunction(),
-      copyState : produceCopyStateFunction(),
+      startState : startStateFn,
+      copyState : copyStateFn,
       token : produceTokenFunction({
         "keywords" : null,
         "options" : ["hscale", "width", "arcgradient", "wordwraparcs", "watermark"],
@@ -83,105 +83,102 @@
   });
   CodeMirror.defineMIME("text/x-msgenny", "msgenny");
 
-  function wordRegexpBoundary(words) {
-    return new RegExp("\\b((" + words.join(")|(") + "))\\b", "i");
+  function wordRegexpBoundary(pWords) {
+    return new RegExp("\\b((" + pWords.join(")|(") + "))\\b", "i");
   }
 
-  function wordRegexp(words) {
-    return new RegExp("((" + words.join(")|(") + "))", "i");
+  function wordRegexp(pWords) {
+    return new RegExp("((" + pWords.join(")|(") + "))", "i");
   }
 
-  function produceStartStateFunction() {
-    return function() {
-      return {
-        inComment : false,
-        inString : false,
-        inAttributeList : false,
-        inScript : false
-      };
+  function startStateFn() {
+    return {
+      inComment : false,
+      inString : false,
+      inAttributeList : false,
+      inScript : false
     };
   }
 
-  function produceCopyStateFunction() {
-    return function(pState) {
-      return {
-        inComment : pState.inComment,
-        inString : pState.inString,
-        inAttributeList : pState.inAttributeList,
-        inScript : pState.inScript
-      };
+  function copyStateFn(pState) {
+    return {
+      inComment : pState.inComment,
+      inString : pState.inString,
+      inAttributeList : pState.inAttributeList,
+      inScript : pState.inScript
     };
   }
 
   function produceTokenFunction(pConfig) {
 
-    return function(stream, state) {
-      if (stream.match(wordRegexp(pConfig.brackets), true, true)) {
+    return function(pStream, pState) {
+      if (pStream.match(wordRegexp(pConfig.brackets), true, true)) {
         return "bracket";
       }
       /* comments */
-      if (!state.inComment) {
-        if (stream.match(/\/\*[^\*\/]*/, true, true)) {
-          state.inComment = true;
+      if (!pState.inComment) {
+        if (pStream.match(/\/\*[^\*\/]*/, true, true)) {
+          pState.inComment = true;
           return "comment";
         }
-        if (stream.match(wordRegexp(pConfig.singlecomment), true, true)) {
-          stream.skipToEnd();
+        if (pStream.match(wordRegexp(pConfig.singlecomment), true, true)) {
+          pStream.skipToEnd();
           return "comment";
         }
       }
-      if (state.inComment) {
-        if (stream.match(/[^\*\/]*\*\//, true, true)) {
-          state.inComment = false;
+      if (pState.inComment) {
+        if (pStream.match(/[^\*\/]*\*\//, true, true)) {
+          pState.inComment = false;
         } else {
-          stream.skipToEnd();
+          pStream.skipToEnd();
         }
         return "comment";
       }
       /* strings */
-      if (!state.inString && stream.match(/\"[^\"]*/, true, true)) {
-        state.inString = true;
+      if (!pState.inString && pStream.match(/\"(\\\"|[^\"])*/, true, true)) {
+        pState.inString = true;
         return "string";
       }
-      if (state.inString) {
-        if (stream.match(/[^\"]*\"/, true, true)) {
-          state.inString = false;
+      if (pState.inString) {
+        if (pStream.match(/[^\"]*\"/, true, true)) {
+          pState.inString = false;
         } else {
-          stream.skipToEnd();
+          pStream.skipToEnd();
         }
         return "string";
       }
-      if (!!pConfig.keywords && stream.match(wordRegexpBoundary(pConfig.keywords), true, true)) {
+      /* keywords & operators */
+      if (!!pConfig.keywords && pStream.match(wordRegexpBoundary(pConfig.keywords), true, true)) {
         return "keyword";
       }
-      if (stream.match(wordRegexpBoundary(pConfig.options), true, true)) {
+      if (pStream.match(wordRegexpBoundary(pConfig.options), true, true)) {
         return "keyword";
       }
-      if (stream.match(wordRegexpBoundary(pConfig.arcsWords), true, true)) {
+      if (pStream.match(wordRegexpBoundary(pConfig.arcsWords), true, true)) {
         return "keyword";
       }
-      if (stream.match(wordRegexp(pConfig.arcsOthers), true, true)) {
+      if (pStream.match(wordRegexp(pConfig.arcsOthers), true, true)) {
         return "keyword";
       }
-      if (!!pConfig.operators && stream.match(wordRegexp(pConfig.operators), true, true)) {
+      if (!!pConfig.operators && pStream.match(wordRegexp(pConfig.operators), true, true)) {
         return "operator";
       }
       /* attribute lists */
-      if (!pConfig.inAttributeList && !!pConfig.attributes && stream.match(/\[/, true, true)) {
+      if (!pConfig.inAttributeList && !!pConfig.attributes && pStream.match(/\[/, true, true)) {
         pConfig.inAttributeList = true;
         return "bracket";
       }
       if (pConfig.inAttributeList) {
-        if (pConfig.attributes !== null && stream.match(wordRegexpBoundary(pConfig.attributes), true, true)) {
+        if (pConfig.attributes !== null && pStream.match(wordRegexpBoundary(pConfig.attributes), true, true)) {
           return "attribute";
         }
-        if (stream.match(/]/, true, true)) {
+        if (pStream.match(/]/, true, true)) {
           pConfig.inAttributeList = false;
           return "bracket";
         }
       }
 
-      stream.next();
+      pStream.next();
       return "base";
     };
   }
