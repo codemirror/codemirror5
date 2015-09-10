@@ -1,0 +1,69 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>CodeMirror: mscgen mode</title>
+    <link rel="stylesheet" href="../../lib/codemirror.css">
+    <script src="../../lib/codemirror.js"></script>
+    <script src="mscgen.js"></script>
+    <style type="text/css">.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
+  </head>
+  <body>
+    <h1>CodeMirror: mscgen mode</h1>
+
+<div><textarea id="code">
+# Sample mscgen program
+# See http://www.mcternan.me.uk/mscgen or 
+# https://sverweij.github.io/mscgen_js for more samples
+
+msc {
+  # options
+  hscale="1.2";
+
+  # entities/ lifelines
+  a [label="Entity A"],
+  b [label="Entity B", linecolor="red", arclinecolor="red", textbgcolor="pink"],
+  c [label="Entity C"];
+
+  # arcs/ messages
+  a => c [label="doSomething(args)"];
+  b => c [label="doSomething(args)"];
+  c >> * [label="everyone asked me", arcskip="1"];
+  c =>> c [label="doing something"];
+  c -x * [label="report back", arcskip="1"];
+  |||;
+  --- [label="shows's over, however ..."];
+  b => a [label="did you see c doing something?"];
+  a -> b [label="nope"];
+  b :> a [label="shall we ask again?"];
+  a => b [label="naah"];
+  ...;
+}
+/*
+    This file is part of mscgen_js.
+
+    mscgen_js is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    mscgen_js is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with mscgen_js.  If not, see <http://www.gnu.org/licenses/>.
+*/
+</textarea></div>
+
+    <script>
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        lineNumbers: true,
+        mode: "mscgen",
+      });
+    </script>
+
+    <p><strong>MIME types defined:</strong> <code>text/x-mscgen</code></p>
+  </body>
+</html>
