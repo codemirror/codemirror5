@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>CodeMirror: mscgen mode</title>
+    <link rel="stylesheet" href="../../lib/codemirror.css">
+    <script src="../../lib/codemirror.js"></script>
+    <script src="mscgen.js"></script>
+    <style type="text/css">.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
+  </head>
+  <body>
+    <h1>CodeMirror: MscGen mode</h1>
+
+<div><textarea id="code">
+# Sample mscgen program
+# See http://www.mcternan.me.uk/mscgen or 
+# https://sverweij.github.io/mscgen_js for more samples
+
+msc {
+  # options
+  hscale="1.2";
+
+  # entities/ lifelines
+  a [label="Entity A"],
+  b [label="Entity B", linecolor="red", arclinecolor="red", textbgcolor="pink"],
+  c [label="Entity C"];
+
+  # arcs/ messages
+  a => c [label="doSomething(args)"];
+  b => c [label="doSomething(args)"];
+  c >> * [label="everyone asked me", arcskip="1"];
+  c =>> c [label="doing something"];
+  c -x * [label="report back", arcskip="1"];
+  |||;
+  --- [label="shows's over, however ..."];
+  b => a [label="did you see c doing something?"];
+  a -> b [label="nope"];
+  b :> a [label="shall we ask again?"];
+  a => b [label="naah"];
+  ...;
+}
+</textarea></div>
+
+    <script>
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        lineNumbers: true,
+        mode: "mscgen",
+      });
+    </script>
+
+    <p><strong>MIME types defined:</strong> <code>text/x-mscgen</code></p>
+  </body>
+</html>
