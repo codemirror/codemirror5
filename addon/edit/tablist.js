@@ -41,7 +41,7 @@
       cm.execCommand('indentLess');
       return;
     }
-        
+
     if(cm.options.indentWithTabs){
       cm.execCommand('insertTab');
     }
