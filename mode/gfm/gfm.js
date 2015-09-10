@@ -82,20 +82,22 @@ CodeMirror.defineMode("gfm", function(config, modeConfig) {
         state.ateSpace = true;
         return null;
       }
-      if (modeConfig.gitHubSpice && (stream.sol() || state.ateSpace)) {
+      if (stream.sol() || state.ateSpace) {
         state.ateSpace = false;
-        if(stream.match(/^(?:[a-zA-Z0-9\-_]+\/)?(?:[a-zA-Z0-9\-_]+@)?(?:[a-f0-9]{7,40}\b)/)) {
-          // User/Project@SHA
-          // User@SHA
-          // SHA
-          state.combineTokens = true;
-          return "link";
-        } else if (stream.match(/^(?:[a-zA-Z0-9\-_]+\/)?(?:[a-zA-Z0-9\-_]+)?#[0-9]+\b/)) {
-          // User/Project#Num
-          // User#Num
-          // #Num
-          state.combineTokens = true;
-          return "link";
+        if (modeConfig.gitHubSpice) {
+          if(stream.match(/^(?:[a-zA-Z0-9\-_]+\/)?(?:[a-zA-Z0-9\-_]+@)?(?:[a-f0-9]{7,40}\b)/)) {
+            // User/Project@SHA
+            // User@SHA
+            // SHA
+            state.combineTokens = true;
+            return "link";
+          } else if (stream.match(/^(?:[a-zA-Z0-9\-_]+\/)?(?:[a-zA-Z0-9\-_]+)?#[0-9]+\b/)) {
+            // User/Project#Num
+            // User#Num
+            // #Num
+            state.combineTokens = true;
+            return "link";
+          }
         }
       }
       if (stream.match(urlRE) &&
