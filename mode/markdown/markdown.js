@@ -39,8 +39,16 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   if (modeCfg.underscoresBreakWords === undefined)
     modeCfg.underscoresBreakWords = true;
 
-  // Turn on fenced code blocks? ("```" to start/end). Set to "~~~" to use that style instead of ``` (default)
-  if (modeCfg.fencedCodeBlocks === undefined) modeCfg.fencedCodeBlocks = false;
+  // Turn on fenced code blocks? ("```" or "~~~" to start/end).
+  // Set to true to enable either format, per CommonMark.
+  // To limit to one type of code block, provide the simple regex text.  Examples:
+  //   '```'
+  //   '```+'
+  //   '~~~~'
+  if (modeCfg.fencedCodeBlocks === undefined)
+    modeCfg.fencedCodeBlocks = false;
+  if (modeCfg.fencedCodeBlocks === true)
+    modeCfg.fencedCodeBlocks = '~~~+|```+';
 
   // Turn on task lists? ("- [ ] " and "- [x] ")
   if (modeCfg.taskLists === undefined) modeCfg.taskLists = false;
@@ -75,7 +83,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   ,   atxHeaderRE = modeCfg.allowAtxHeaderWithoutSpace ? /^(#+)/ : /^(#+)(?: |$)/
   ,   setextHeaderRE = /^ *(?:\={1,}|-{1,})\s*$/
   ,   textRE = /^[^#!\[\]*_\\<>` "'(~]+/
-  ,   fencedCodeRE = modeCfg.fencedCodeBlocks === '~~~' ? /~~~+/ : /```+/;
+  ,   fencedCodeRE = new RegExp('^(' + modeCfg.fencedCodeBlocks + ')[ \\t]*([\\w+#]*)');
 
   function switchInline(stream, state, f) {
     state.f = state.inline = f;
@@ -188,9 +196,10 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       state.f = state.inline;
       if (modeCfg.highlightFormatting) state.formatting = ["list", "list-" + listType];
       return getType(state);
-    } else if (modeCfg.fencedCodeBlocks && stream.match(new RegExp('^' + fencedCodeRE.source + '[ \\t]*([\\w+#]*)'), true)) {
+    } else if (modeCfg.fencedCodeBlocks && stream.match(fencedCodeRE, true)) {
+      state.fencedChars = RegExp.$1;
       // try switching mode
-      state.localMode = getMode(RegExp.$1);
+      state.localMode = getMode(RegExp.$2);
       if (state.localMode) state.localState = state.localMode.startState();
       state.f = state.block = local;
       if (modeCfg.highlightFormatting) state.formatting = "code-block";
@@ -214,7 +223,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   }
 
   function local(stream, state) {
-    if (stream.sol() && stream.match(fencedCodeRE, false)) {
+    if (stream.sol() && state.fencedChars && stream.match(state.fencedChars, false)) {
       state.localMode = state.localState = null;
       state.f = state.block = leavingLocal;
       return null;
@@ -227,9 +236,10 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   }
 
   function leavingLocal(stream, state) {
-    stream.match(fencedCodeRE);
+    stream.match(state.fencedChars);
     state.block = blockNormal;
     state.f = inlineNormal;
+    state.fencedChars = null;
     if (modeCfg.highlightFormatting) state.formatting = "code-block";
     state.code = true;
     var returnType = getType(state);
@@ -681,7 +691,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         quote: 0,
         trailingSpace: 0,
         trailingSpaceNewLine: false,
-        strikethrough: false
+        strikethrough: false,
+        fencedChars: null
       };
     },
 
@@ -716,7 +727,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         indentedCode: s.indentedCode,
         trailingSpace: s.trailingSpace,
         trailingSpaceNewLine: s.trailingSpaceNewLine,
-        md_inside: s.md_inside
+        md_inside: s.md_inside,
+        fencedChars: s.fencedChars
       };
     },
 

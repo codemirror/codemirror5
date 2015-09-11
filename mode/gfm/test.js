@@ -6,8 +6,6 @@
   function MT(name) { test.mode(name, mode, Array.prototype.slice.call(arguments, 1)); }
   var modeHighlightFormatting = CodeMirror.getMode({tabSize: 4}, {name: "gfm", highlightFormatting: true});
   function FT(name) { test.mode(name, modeHighlightFormatting, Array.prototype.slice.call(arguments, 1)); }
-  var modeFencedTildes = CodeMirror.getMode({tabSize: 4}, {name: "gfm", fencedCodeBlocks: "~~~"});
-  function TT(name) { test.mode(name, modeFencedTildes, Array.prototype.slice.call(arguments, 1)); }
 
   FT("codeBackticks",
      "[comment&formatting&formatting-code `][comment foo][comment&formatting&formatting-code `]");
@@ -53,26 +51,10 @@
      "[comment ```]",
      "bar");
 
-  MT("fencedCodeBlocksMultipleChars",
-     "[comment `````]",
-     "[comment foo]",
-     "",
-     "[comment `````]",
-     "bar");
-
-  TT("fencedCodeBlocksTildes",
-     "[comment ~~~]",
-     "[comment foo]",
-     "",
-     "[comment ~~~]",
-     "bar");
-
-  TT("fencedCodeBlocksTildesMultipleChars",
-     "[comment ~~~~]",
-     "[comment foo]",
-     "",
-     "[comment ~~~~]",
-     "bar");
+  MT("fencedCodeBlocksNoTildes",
+     "~~~",
+     "foo",
+     "~~~");
 
   MT("taskListAsterisk",
      "[variable-2 * []] foo]", // Invalid; must have space or x between []
