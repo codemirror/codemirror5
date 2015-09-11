@@ -121,7 +121,10 @@
     var getAnnotations = options.getAnnotations || cm.getHelper(CodeMirror.Pos(0, 0), "lint");
     if (!getAnnotations) return;
     if (options.async || getAnnotations.async)
-      getAnnotations(cm.getValue(), updateLinting, passOptions, cm);
+      getAnnotations(cm.getValue(), function(annotations, arg2) {
+        if (arg2 && annotations instanceof CodeMirror) annotations = arg2
+        updateLinting(cm, annotations)
+      }, passOptions, cm);
     else
       updateLinting(cm, getAnnotations(cm.getValue(), passOptions, cm));
   }
