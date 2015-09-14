@@ -26,7 +26,7 @@
 
   CodeMirror.defineExtension("showHint", function(options) {
     // We want a single cursor position.
-    if (this.listSelections().length > 1 || this.somethingSelected()) return;
+    if (this.listSelections().length > 1 || (this.somethingSelected() && !(options && options.somethingSelected == false ))) return;
 
     if (this.state.completionActive) this.state.completionActive.close();
     var completion = this.state.completionActive = new Completion(this, options);
