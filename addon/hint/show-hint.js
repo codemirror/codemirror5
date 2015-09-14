@@ -42,8 +42,9 @@
     this.widget = null;
     this.debounce = 0;
     this.tick = 0;
-    this.startPos = this.cm.getCursor();
+    this.startPos = this.cm.getCursor("start");
     this.startLen = this.cm.getLine(this.startPos.line).length;
+    if (options && options.somethingSelected == false ) this.startLen = this.startLen - this.cm.getSelection().length;
 
     var self = this;
     cm.on("cursorActivity", this.activityFunc = function() { self.cursorActivity(); });
