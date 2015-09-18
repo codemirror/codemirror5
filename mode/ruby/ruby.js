@@ -25,7 +25,7 @@ CodeMirror.defineMode("ruby", function(config) {
     "caller", "lambda", "proc", "public", "protected", "private", "require", "load",
     "require_relative", "extend", "autoload", "__END__", "__FILE__", "__LINE__", "__dir__"
   ]);
-  var indentWords = wordObj(["def", "class", "case", "for", "while", "module", "then",
+  var indentWords = wordObj(["def", "class", "case", "for", "while", "until", "module", "then",
                              "catch", "loop", "proc", "begin"]);
   var dedentWords = wordObj(["end", "until"]);
   var matching = {"[": "]", "{": "}", "(": ")"};
