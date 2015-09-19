@@ -30,4 +30,13 @@
      "  [keyword for] (;;)",
      "    [variable x][operator ++];",
      "[keyword return];");
+
+  var mode_cpp = CodeMirror.getMode({indentUnit: 2}, "text/x-c++src");
+  function MTCPP(name) { test.mode(name, mode_cpp, Array.prototype.slice.call(arguments, 1)); }
+
+  MTCPP("cpp14_literal",
+    "[number 10'000];",
+    "[number 0b10'000];",
+    "[number 0x10'000];",
+    "[string '100000'];");
 })();
