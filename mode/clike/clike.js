@@ -266,6 +266,11 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     return false;
   }
 
+  function cpp14Literal(stream) {
+    stream.eatWhile(/[\w\.']/);
+    return "number";
+  }
+
   function cpp11StringHook(stream, state) {
     stream.backUp(1);
     // Raw strings.
@@ -373,6 +378,16 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       "U": cpp11StringHook,
       "L": cpp11StringHook,
       "R": cpp11StringHook,
+      "0": cpp14Literal,
+      "1": cpp14Literal,
+      "2": cpp14Literal,
+      "3": cpp14Literal,
+      "4": cpp14Literal,
+      "5": cpp14Literal,
+      "6": cpp14Literal,
+      "7": cpp14Literal,
+      "8": cpp14Literal,
+      "9": cpp14Literal,
       token: function(stream, state, style) {
         if (style == "variable" && stream.peek() == "(" &&
             (state.prevToken == ";" || state.prevToken == null ||
