@@ -386,11 +386,10 @@ CodeMirror.defineMode("haxe", function(config, parserConfig) {
   }
 
   // Interface
-
   return {
     startState: function(basecolumn) {
       var defaulttypes = ["Int", "Float", "String", "Void", "Std", "Bool", "Dynamic", "Array"];
-      return {
+      var state = {
         tokenize: haxeTokenBase,
         reAllowed: true,
         kwAllowed: true,
@@ -403,6 +402,7 @@ CodeMirror.defineMode("haxe", function(config, parserConfig) {
       };
       if (parserConfig.globalVars && typeof parserConfig.globalVars == "object")
         state.globalVars = parserConfig.globalVars;
+      return state;
     },
 
     token: function(stream, state) {
