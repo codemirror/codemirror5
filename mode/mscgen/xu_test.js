@@ -2,8 +2,8 @@
 // Distributed under an MIT license: http://codemirror.net/LICENSE
 
 (function() {
-  var mode = CodeMirror.getMode({indentUnit: 2}, "xu");
-  function MT(name) { test.mode(name, mode, Array.prototype.slice.call(arguments, 1)); }
+  var mode = CodeMirror.getMode({indentUnit: 2}, "text/x-xu");
+  function MT(name) { test.mode(name, mode, Array.prototype.slice.call(arguments, 1), "xu"); }
 
   MT("empty chart",
      "[keyword msc][bracket {]",

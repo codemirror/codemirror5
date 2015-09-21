@@ -19,69 +19,54 @@
 })(function(CodeMirror) {
   "use strict";
 
-  CodeMirror.defineMode("mscgen", function() {
+  var languages = {
+    mscgen: {
+      "keywords" : ["msc"],
+      "options" : ["hscale", "width", "arcgradient", "wordwraparcs"],
+      "attributes" : ["label", "idurl", "id", "url", "linecolor", "linecolour", "textcolor", "textcolour", "textbgcolor", "textbgcolour", "arclinecolor", "arclinecolour", "arctextcolor", "arctextcolour", "arctextbgcolor", "arctextbgcolour", "arcskip"],
+      "brackets" : ["\\{", "\\}"], // [ and  ] are brackets too, but these get handled in with lists
+      "arcsWords" : ["note", "abox", "rbox", "box"],
+      "arcsOthers" : ["\\|\\|\\|", "\\.\\.\\.", "---", "--", "<->", "==", "<<=>>", "<=>", "\\.\\.", "<<>>", "::", "<:>", "->", "=>>", "=>", ">>", ":>", "<-", "<<=", "<=", "<<", "<:", "x-", "-x"],
+      "singlecomment" : ["//", "#"],
+      "operators" : ["="]
+    },
+    xu: {
+      "keywords" : ["msc"],
+      "options" : ["hscale", "width", "arcgradient", "wordwraparcs", "watermark"],
+      "attributes" : ["label", "idurl", "id", "url", "linecolor", "linecolour", "textcolor", "textcolour", "textbgcolor", "textbgcolour", "arclinecolor", "arclinecolour", "arctextcolor", "arctextcolour", "arctextbgcolor", "arctextbgcolour", "arcskip"],
+      "brackets" : ["\\{", "\\}"],  // [ and  ] are brackets too, but these get handled in with lists
+      "arcsWords" : ["note", "abox", "rbox", "box", "alt", "else", "opt", "break", "par", "seq", "strict", "neg", "critical", "ignore", "consider", "assert", "loop", "ref", "exc"],
+      "arcsOthers" : ["\\|\\|\\|", "\\.\\.\\.", "---", "--", "<->", "==", "<<=>>", "<=>", "\\.\\.", "<<>>", "::", "<:>", "->", "=>>", "=>", ">>", ":>", "<-", "<<=", "<=", "<<", "<:", "x-", "-x"],
+      "singlecomment" : ["//", "#"],
+      "operators" : ["="]
+    },
+    msgenny: {
+      "keywords" : null,
+      "options" : ["hscale", "width", "arcgradient", "wordwraparcs", "watermark"],
+      "attributes" : null,
+      "brackets" : ["\\{", "\\}"],
+      "arcsWords" : ["note", "abox", "rbox", "box", "alt", "else", "opt", "break", "par", "seq", "strict", "neg", "critical", "ignore", "consider", "assert", "loop", "ref", "exc"],
+      "arcsOthers" : ["\\|\\|\\|", "\\.\\.\\.", "---", "--", "<->", "==", "<<=>>", "<=>", "\\.\\.", "<<>>", "::", "<:>", "->", "=>>", "=>", ">>", ":>", "<-", "<<=", "<=", "<<", "<:", "x-", "-x"],
+      "singlecomment" : ["//", "#"],
+      "operators" : ["="]
+    }
+  }
+
+  CodeMirror.defineMode("mscgen", function(_, modeConfig) {
+    var language = languages[modeConfig && modeConfig.language || "mscgen"]
     return {
-      startState : startStateFn,
-      copyState : copyStateFn,
-      token : produceTokenFunction({
-        "keywords" : ["msc"],
-        "options" : ["hscale", "width", "arcgradient", "wordwraparcs"],
-        "attributes" : ["label", "idurl", "id", "url", "linecolor", "linecolour", "textcolor", "textcolour", "textbgcolor", "textbgcolour", "arclinecolor", "arclinecolour", "arctextcolor", "arctextcolour", "arctextbgcolor", "arctextbgcolour", "arcskip"],
-        "brackets" : ["\\{", "\\}"], // [ and  ] are brackets too, but these get handled in with lists
-        "arcsWords" : ["note", "abox", "rbox", "box"],
-        "arcsOthers" : ["\\|\\|\\|", "\\.\\.\\.", "---", "--", "<->", "==", "<<=>>", "<=>", "\\.\\.", "<<>>", "::", "<:>", "->", "=>>", "=>", ">>", ":>", "<-", "<<=", "<=", "<<", "<:", "x-", "-x"],
-        "singlecomment" : ["//", "#"],
-        "operators" : ["="]
-      }),
+      startState: startStateFn,
+      copyState: copyStateFn,
+      token: produceTokenFunction(language),
       lineComment : "#",
       blockCommentStart : "/*",
       blockCommentEnd : "*/"
     };
   });
+
   CodeMirror.defineMIME("text/x-mscgen", "mscgen");
-
-  CodeMirror.defineMode("xu", function() {
-    return {
-      startState : startStateFn,
-      copyState : copyStateFn,
-      token : produceTokenFunction({
-        "keywords" : ["msc"],
-        "options" : ["hscale", "width", "arcgradient", "wordwraparcs", "watermark"],
-        "attributes" : ["label", "idurl", "id", "url", "linecolor", "linecolour", "textcolor", "textcolour", "textbgcolor", "textbgcolour", "arclinecolor", "arclinecolour", "arctextcolor", "arctextcolour", "arctextbgcolor", "arctextbgcolour", "arcskip"],
-        "brackets" : ["\\{", "\\}"],  // [ and  ] are brackets too, but these get handled in with lists
-        "arcsWords" : ["note", "abox", "rbox", "box", "alt", "else", "opt", "break", "par", "seq", "strict", "neg", "critical", "ignore", "consider", "assert", "loop", "ref", "exc"],
-        "arcsOthers" : ["\\|\\|\\|", "\\.\\.\\.", "---", "--", "<->", "==", "<<=>>", "<=>", "\\.\\.", "<<>>", "::", "<:>", "->", "=>>", "=>", ">>", ":>", "<-", "<<=", "<=", "<<", "<:", "x-", "-x"],
-        "singlecomment" : ["//", "#"],
-        "operators" : ["="]
-      }),
-      lineComment : "#",
-      blockCommentStart : "/*",
-      blockCommentEnd : "*/"
-    };
-  });
-  CodeMirror.defineMIME("text/x-xu", "xu");
-
-  CodeMirror.defineMode("msgenny", function() {
-    return {
-      startState : startStateFn,
-      copyState : copyStateFn,
-      token : produceTokenFunction({
-        "keywords" : null,
-        "options" : ["hscale", "width", "arcgradient", "wordwraparcs", "watermark"],
-        "attributes" : null,
-        "brackets" : ["\\{", "\\}"],
-        "arcsWords" : ["note", "abox", "rbox", "box", "alt", "else", "opt", "break", "par", "seq", "strict", "neg", "critical", "ignore", "consider", "assert", "loop", "ref", "exc"],
-        "arcsOthers" : ["\\|\\|\\|", "\\.\\.\\.", "---", "--", "<->", "==", "<<=>>", "<=>", "\\.\\.", "<<>>", "::", "<:>", "->", "=>>", "=>", ">>", ":>", "<-", "<<=", "<=", "<<", "<:", "x-", "-x"],
-        "singlecomment" : ["//", "#"],
-        "operators" : ["="]
-      }),
-      lineComment : "#",
-      blockCommentStart : "/*",
-      blockCommentEnd : "*/"
-
-    };
-  });
-  CodeMirror.defineMIME("text/x-msgenny", "msgenny");
+  CodeMirror.defineMIME("text/x-xu", {name: "mscgen", language: "xu"});
+  CodeMirror.defineMIME("text/x-msgenny", {name: "mscgen", language: "msgenny"});
 
   function wordRegexpBoundary(pWords) {
     return new RegExp("\\b((" + pWords.join(")|(") + "))\\b", "i");
@@ -127,11 +112,10 @@
         }
       }
       if (pState.inComment) {
-        if (pStream.match(/[^\*\/]*\*\//, true, true)) {
+        if (pStream.match(/[^\*\/]*\*\//, true, true))
           pState.inComment = false;
-        } else {
+        else
           pStream.skipToEnd();
-        }
         return "comment";
       }
       /* strings */
@@ -140,29 +124,28 @@
         return "string";
       }
       if (pState.inString) {
-        if (pStream.match(/[^\"]*\"/, true, true)) {
+        if (pStream.match(/[^\"]*\"/, true, true))
           pState.inString = false;
-        } else {
+        else
           pStream.skipToEnd();
-        }
         return "string";
       }
       /* keywords & operators */
-      if (!!pConfig.keywords && pStream.match(wordRegexpBoundary(pConfig.keywords), true, true)) {
+      if (!!pConfig.keywords && pStream.match(wordRegexpBoundary(pConfig.keywords), true, true))
         return "keyword";
-      }
-      if (pStream.match(wordRegexpBoundary(pConfig.options), true, true)) {
+
+      if (pStream.match(wordRegexpBoundary(pConfig.options), true, true))
         return "keyword";
-      }
-      if (pStream.match(wordRegexpBoundary(pConfig.arcsWords), true, true)) {
+
+      if (pStream.match(wordRegexpBoundary(pConfig.arcsWords), true, true))
         return "keyword";
-      }
-      if (pStream.match(wordRegexp(pConfig.arcsOthers), true, true)) {
+
+      if (pStream.match(wordRegexp(pConfig.arcsOthers), true, true))
         return "keyword";
-      }
-      if (!!pConfig.operators && pStream.match(wordRegexp(pConfig.operators), true, true)) {
+
+      if (!!pConfig.operators && pStream.match(wordRegexp(pConfig.operators), true, true))
         return "operator";
-      }
+
       /* attribute lists */
       if (!pConfig.inAttributeList && !!pConfig.attributes && pStream.match(/\[/, true, true)) {
         pConfig.inAttributeList = true;
