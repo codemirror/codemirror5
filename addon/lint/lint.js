@@ -116,24 +116,29 @@
     return tip;
   }
 
+  function lintAsync(cm, getAnnotations, passOptions) {
+    var state = cm.state.lint
+    var id = ++state.waitingFor
+    function abort() {
+      id = -1
+      cm.off("change", abort)
+    }
+    cm.on("change", abort)
+    getAnnotations(cm.getValue(), function(annotations, arg2) {
+      cm.off("change", abort)
+      if (state.waitingFor != id) return
+      if (arg2 && annotations instanceof CodeMirror) annotations = arg2
+      updateLinting(cm, annotations)
+    }, passOptions, cm);
+  }
+
   function startLinting(cm) {
     var state = cm.state.lint, options = state.options;
     var passOptions = options.options || options; // Support deprecated passing of `options` property in options
     var getAnnotations = options.getAnnotations || cm.getHelper(CodeMirror.Pos(0, 0), "lint");
     if (!getAnnotations) return;
     if (options.async || getAnnotations.async) {
-      var id = ++state.waitingFor
-      function abort() {
-        id = -1
-        cm.off("change", abort)
-      }
-      cm.on("change", abort)
-      getAnnotations(cm.getValue(), function(annotations, arg2) {
-        cm.off("change", abort)
-        if (state.waitingFor != id) return
-        if (arg2 && annotations instanceof CodeMirror) annotations = arg2
-        updateLinting(cm, annotations)
-      }, passOptions, cm);
+      lintAsync(cm, getAnnotations, passOptions)
     } else {
       updateLinting(cm, getAnnotations(cm.getValue(), passOptions, cm));
     }
