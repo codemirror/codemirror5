@@ -66,7 +66,7 @@ CodeMirror.defineMode("haxe", function(config, parserConfig) {
       stream.eatWhile(/[\da-f]/i);
       return ret("number", "number");
     } else if (/\d/.test(ch) || ch == "-" && stream.eat(/\d/)) {
-      stream.match(/^\d*(?:\.\d*)?(?:[eE][+\-]?\d+)?/);
+      stream.match(/^\d*(?:\.\d*(?!\.))?(?:[eE][+\-]?\d+)?/);
       return ret("number", "number");
     } else if (state.reAllowed && (ch == "~" && stream.eat(/\//))) {
       toUnescaped(stream, "/");
