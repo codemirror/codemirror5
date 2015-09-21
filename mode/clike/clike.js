@@ -501,6 +501,34 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     modeProps: {closeBrackets: {triples: '"'}}
   });
 
+  def("text/x-kotlin", {
+    name: "clike",
+    keywords: words(
+      /*keywords*/
+      "package as typealias class interface this super val " +
+      "var fun for is in This throw return " +
+      "break continue object if else while do try when !in !is as?" +
+
+      /*soft keywords*/
+      "file import where by get set abstract enum open inner override private public internal " +
+      "protected catch finally out final vararg reified dynamic companion constructor init " +
+      "sealed field property receiver param sparam lateinit data inline noinline tailrec " +
+      "external annotation crossinline"
+    ),
+    types: words(
+      /* package java.lang */
+      "Boolean Byte Character CharSequence Class ClassLoader Cloneable Comparable " +
+      "Compiler Double Exception Float Integer Long Math Number Object Package Pair Process " +
+      "Runtime Runnable SecurityManager Short StackTraceElement StrictMath String " +
+      "StringBuffer System Thread ThreadGroup ThreadLocal Throwable Triple Void"
+    ),
+    multiLineStrings: true,
+    blockKeywords: words("catch class do else finally for if where try while enum"),
+    defKeywords: words("class val var object package interface fun"),
+    atoms: words("true false null this"),
+    modeProps: {closeBrackets: {triples: '"'}}
+  });
+
   def(["x-shader/x-vertex", "x-shader/x-fragment"], {
     name: "clike",
     keywords: words("sampler1D sampler2D sampler3D samplerCube " +
