@@ -86,6 +86,9 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     return f(stream, state);
   }
 
+  function lineIsEmpty(line) {
+    return !line || !/\S/.test(line.string)
+  }
 
   // Blocks
 
@@ -110,7 +113,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     state.trailingSpace = 0;
     state.trailingSpaceNewLine = false;
     // Mark this line as blank
-    state.thisLineHasContent = false;
+    state.prevLine = state.thisLine
+    state.thisLine = null
     return null;
   }
 
@@ -141,7 +145,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     var match = null;
     if (state.indentationDiff >= 4) {
       stream.skipToEnd();
-      if (prevLineIsIndentedCode || !state.prevLineHasContent) {
+      if (prevLineIsIndentedCode || lineIsEmpty(state.prevLine)) {
         state.indentation -= 4;
         state.indentedCode = true;
         return code;
@@ -155,7 +159,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       if (modeCfg.highlightFormatting) state.formatting = "header";
       state.f = state.inline;
       return getType(state);
-    } else if (state.prevLineHasContent && !state.quote && !prevLineIsList && !prevLineIsIndentedCode && (match = stream.match(setextHeaderRE))) {
+    } else if (!lineIsEmpty(state.prevLine) && !state.quote && !prevLineIsList &&
+               !prevLineIsIndentedCode && (match = stream.match(setextHeaderRE))) {
       state.header = match[0].charAt(0) == '=' ? 1 : 2;
       if (modeCfg.highlightFormatting) state.formatting = "header";
       state.f = state.inline;
@@ -170,7 +175,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     } else if (stream.match(hrRE, true)) {
       state.hr = true;
       return hr;
-    } else if ((!state.prevLineHasContent || prevLineIsList) && (stream.match(ulRE, false) || stream.match(olRE, false))) {
+    } else if ((lineIsEmpty(state.prevLine) || prevLineIsList) && (stream.match(ulRE, false) || stream.match(olRE, false))) {
       var listType = null;
       if (stream.match(ulRE, true)) {
         listType = 'ul';
@@ -656,8 +661,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       return {
         f: blockNormal,
 
-        prevLineHasContent: false,
-        thisLineHasContent: false,
+        prevLine: null,
+        thisLine: null,
 
         block: blockNormal,
         htmlState: null,
@@ -688,8 +693,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       return {
         f: s.f,
 
-        prevLineHasContent: s.prevLineHasContent,
-        thisLineHasContent: s.thisLineHasContent,
+        prevLine: s.prevLine,
+        thisLine: s.this,
 
         block: s.block,
         htmlState: s.htmlState && CodeMirror.copyState(htmlMode, s.htmlState),
@@ -724,21 +729,21 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       // Reset state.formatting
       state.formatting = false;
 
-      if (stream.sol()) {
-        var forceBlankLine = !!state.header || state.hr;
+      if (stream != state.thisLine) {
+        var forceBlankLine = state.header || state.hr;
 
         // Reset state.header and state.hr
         state.header = 0;
         state.hr = false;
 
         if (stream.match(/^\s*$/, true) || forceBlankLine) {
-          state.prevLineHasContent = false;
           blankLine(state);
-          return forceBlankLine ? this.token(stream, state) : null;
-        } else {
-          state.prevLineHasContent = state.thisLineHasContent;
-          state.thisLineHasContent = true;
+          if (!forceBlankLine) return null
+          state.prevLine = null
         }
+
+        state.prevLine = state.thisLine
+        state.thisLine = stream
 
         // Reset state.taskList
         state.taskList = false;
