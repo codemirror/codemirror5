@@ -39,16 +39,10 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   if (modeCfg.underscoresBreakWords === undefined)
     modeCfg.underscoresBreakWords = true;
 
-  // Turn on fenced code blocks? ("```" or "~~~" to start/end).
-  // Set to true to enable either format, per CommonMark.
-  // To limit to one type of code block, provide the simple regex text.  Examples:
-  //   '```'
-  //   '```+'
-  //   '~~~~'
-  if (modeCfg.fencedCodeBlocks === undefined)
-    modeCfg.fencedCodeBlocks = false;
-  if (modeCfg.fencedCodeBlocks === true)
-    modeCfg.fencedCodeBlocks = '~~~+|```+';
+  // Use `fencedCodeBlocks` to configure fenced code blocks. false to
+  // disable, string to specify a precise regexp that the fence should
+  // match, and true to allow three or more backticks or tildes (as
+  // per CommonMark).
 
   // Turn on task lists? ("- [ ] " and "- [x] ")
   if (modeCfg.taskLists === undefined) modeCfg.taskLists = false;
@@ -83,7 +77,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   ,   atxHeaderRE = modeCfg.allowAtxHeaderWithoutSpace ? /^(#+)/ : /^(#+)(?: |$)/
   ,   setextHeaderRE = /^ *(?:\={1,}|-{1,})\s*$/
   ,   textRE = /^[^#!\[\]*_\\<>` "'(~]+/
-  ,   fencedCodeRE = new RegExp('^(' + modeCfg.fencedCodeBlocks + ')[ \\t]*([\\w+#]*)');
+  ,   fencedCodeRE = new RegExp("^(" + (modeCfg.fencedCodeBlocks === true ? "~~~+|```+" : modeCfg.fencedCodeBlocks) +
+                                ")[ \\t]*([\\w+#]*)");
 
   function switchInline(stream, state, f) {
     state.f = state.inline = f;
@@ -201,10 +196,10 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       state.f = state.inline;
       if (modeCfg.highlightFormatting) state.formatting = ["list", "list-" + listType];
       return getType(state);
-    } else if (modeCfg.fencedCodeBlocks && stream.match(fencedCodeRE, true)) {
-      state.fencedChars = RegExp.$1;
+    } else if (modeCfg.fencedCodeBlocks && (match = stream.match(fencedCodeRE, true))) {
+      state.fencedChars = match[1]
       // try switching mode
-      state.localMode = getMode(RegExp.$2);
+      state.localMode = getMode(match[2]);
       if (state.localMode) state.localState = state.localMode.startState();
       state.f = state.block = local;
       if (modeCfg.highlightFormatting) state.formatting = "code-block";
