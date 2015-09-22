@@ -1,0 +1,65 @@
+<!doctype html>
+
+<title>CodeMirror: Oz mode</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../../doc/docs.css">
+
+<link rel="stylesheet" href="../../lib/codemirror.css">
+<script src="../../lib/codemirror.js"></script>
+<script src="mscgen.js"></script>
+<style>.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
+<div id=nav>
+  <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../../doc/logo.png"></a>
+  <ul>
+    <li><a href="../../index.html">Home</a>
+    <li><a href="../../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="../index.html">Language modes</a>
+    <li><a class=active href="#">MscGen</a>
+  </ul>
+</div>
+
+<article>
+<h2>MscGen mode</h2>
+
+<div><textarea id="code">
+# Sample mscgen program
+# See http://www.mcternan.me.uk/mscgen or 
+# https://sverweij.github.io/mscgen_js for more samples
+
+msc {
+  # options
+  hscale="1.2";
+
+  # entities/ lifelines
+  a [label="Entity A"],
+  b [label="Entity B", linecolor="red", arclinecolor="red", textbgcolor="pink"],
+  c [label="Entity C"];
+
+  # arcs/ messages
+  a => c [label="doSomething(args)"];
+  b => c [label="doSomething(args)"];
+  c >> * [label="everyone asked me", arcskip="1"];
+  c =>> c [label="doing something"];
+  c -x * [label="report back", arcskip="1"];
+  |||;
+  --- [label="shows's over, however ..."];
+  b => a [label="did you see c doing something?"];
+  a -> b [label="nope"];
+  b :> a [label="shall we ask again?"];
+  a => b [label="naah"];
+  ...;
+}
+</textarea></div>
+
+    <script>
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        lineNumbers: true,
+        mode: "mscgen",
+      });
+    </script>
+
+    <p><strong>MIME types defined:</strong> <code>text/x-mscgen</code></p>
+</article>

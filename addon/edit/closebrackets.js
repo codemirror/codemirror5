@@ -90,6 +90,12 @@
     });
   }
 
+  function contractSelection(sel) {
+    var inverted = CodeMirror.cmpPos(sel.anchor, sel.head) > 0;
+    return {anchor: new Pos(sel.anchor.line, sel.anchor.ch + (inverted ? -1 : 1)),
+            head: new Pos(sel.head.line, sel.head.ch + (inverted ? 1 : -1))};
+  }
+
   function handleChar(cm, ch) {
     var conf = getConfig(cm);
     if (!conf || cm.getOption("disableInput")) return CodeMirror.Pass;
@@ -145,6 +151,10 @@
         for (var i = 0; i < sels.length; i++)
           sels[i] = left + sels[i] + right;
         cm.replaceSelections(sels, "around");
+        sels = cm.listSelections().slice();
+        for (var i = 0; i < sels.length; i++)
+          sels[i] = contractSelection(sels[i]);
+        cm.setSelections(sels);
       } else if (type == "both") {
         cm.replaceSelection(left + right, null);
         cm.triggerElectric(left + right);

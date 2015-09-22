@@ -55,7 +55,9 @@
   cmds[map["Alt-Left"] = "goSubwordLeft"] = function(cm) { moveSubword(cm, -1); };
   cmds[map["Alt-Right"] = "goSubwordRight"] = function(cm) { moveSubword(cm, 1); };
 
-  cmds[map[ctrl + "Up"] = "scrollLineUp"] = function(cm) {
+  var scrollLineCombo = mac ? "Ctrl-Alt-" : "Ctrl-";
+
+  cmds[map[scrollLineCombo + "Up"] = "scrollLineUp"] = function(cm) {
     var info = cm.getScrollInfo();
     if (!cm.somethingSelected()) {
       var visibleBottomLine = cm.lineAtHeight(info.top + info.clientHeight, "local");
@@ -64,7 +66,7 @@
     }
     cm.scrollTo(null, info.top - cm.defaultTextHeight());
   };
-  cmds[map[ctrl + "Down"] = "scrollLineDown"] = function(cm) {
+  cmds[map[scrollLineCombo + "Down"] = "scrollLineDown"] = function(cm) {
     var info = cm.getScrollInfo();
     if (!cm.somethingSelected()) {
       var visibleTopLine = cm.lineAtHeight(info.top, "local")+1;
@@ -415,11 +417,19 @@
     var cursor = cm.getCursor();
     var toStartOfLine = cm.getRange({line: cursor.line, ch: 0}, cursor);
     var column = CodeMirror.countColumn(toStartOfLine, null, cm.getOption("tabSize"));
+    var indentUnit = cm.getOption("indentUnit");
 
-    if (toStartOfLine && !/\S/.test(toStartOfLine) && column % cm.getOption("indentUnit") == 0)
-      return cm.indentSelection("subtract");
-    else
+    if (toStartOfLine && !/\S/.test(toStartOfLine) && column % indentUnit == 0) {
+      var prevIndent = new Pos(cursor.line,
+        CodeMirror.findColumn(toStartOfLine, column - indentUnit, indentUnit));
+
+      // If no smart delete is happening (due to tab sizing) just do a regular delete
+      if (prevIndent.ch == cursor.ch) return CodeMirror.Pass;
+
+      return cm.replaceRange("", prevIndent, cursor, "+delete");
+    } else {
       return CodeMirror.Pass;
+    }
   };
 
   cmds[map[cK + ctrl + "K"] = "delLineRight"] = function(cm) {

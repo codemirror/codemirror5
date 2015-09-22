@@ -69,7 +69,7 @@
 <section class=first id=overview>
     <h2 style="position: relative">
       User manual and reference guide
-      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 5.3.1</span>
+      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 5.7.1</span>
     </h2>
 
     <p>CodeMirror is a code-editor component that can be embedded in
@@ -100,7 +100,7 @@
     easy way to combine scripts.) For example:</p>
 
     <pre data-lang="text/html">&lt;script src="lib/codemirror.js">&lt;/script>
-&lt;link rel="stylesheet" href="../lib/codemirror.css">
+&lt;link rel="stylesheet" href="lib/codemirror.css">
 &lt;script src="mode/javascript/javascript.js">&lt;/script></pre>
 
     <p>(Alternatively, use a module loader. <a href="#modloader">More
@@ -235,6 +235,16 @@
       and <code>CodeMirror.mimeModes</code> objects. The first maps
       mode names to their constructors, and the second maps MIME types
       to mode specs.</dd>
+
+      <dt id="option_lineSeparator"><code><strong>lineSeparator</strong>: string|null</code></dt>
+      <dd>Explicitly set the line separator for the editor. By default
+      (value <code>null</code>), the document will be split on CRLFs
+      as well as lone CRs and LFs, and a single LF will be used as
+      line separator in all output (such
+      as <a href="#getValue"><code>getValue</code></a>). When a
+      specific string is given, lines will only be split on that
+      string, and output will, by default, use that same
+      separator.</dd>
 
       <dt id="option_theme"><code><strong>theme</strong>: string</code></dt>
       <dd>The theme to style the editor with. You must make sure the
@@ -510,13 +520,17 @@
       an array of strings representing the text that replaced the
       changed range (split by line). <code>removed</code> is the text
       that used to be between <code>from</code> and <code>to</code>,
-      which is overwritten by this change.</dd>
+      which is overwritten by this change. This event is
+      fired <em>before</em> the end of
+      an <a href="#operation">operation</a>, before the DOM updates
+      happen.</dd>
 
       <dt id="event_changes"><code><strong>"changes"</strong> (instance: CodeMirror, changes: array&lt;object&gt;)</code></dt>
       <dd>Like the <a href="#event_change"><code>"change"</code></a>
       event, but batched per <a href="#operation">operation</a>,
       passing an array containing all the changes that happened in the
-      operation.</dd>
+      operation. This event is fired after the operation finished, and
+      display changes it makes will trigger a new operation.</dd>
 
       <dt id="event_beforeChange"><code><strong>"beforeChange"</strong> (instance: CodeMirror, changeObj: object)</code></dt>
       <dd>This event is fired before a change is applied, and its
@@ -1851,7 +1865,8 @@ editor.setOption("extraKeys", {
       <dd>If your code does something to change the size of the editor
       element (window resizes are already listened for), or unhides
       it, you should probably follow up by calling this method to
-      ensure CodeMirror is still looking as intended.</dd>
+      ensure CodeMirror is still looking as intended. See also
+      the <a href="#addon_autorefresh">autorefresh addon</a>.</dd>
     </dl>
 
     <h3 id="api_mode">Mode, state, and token-related methods</h3>
@@ -1982,6 +1997,12 @@ editor.setOption("extraKeys", {
       <dd>Switches between overwrite and normal insert mode (when not
       given an argument), or sets the overwrite mode to a specific
       state (when given an argument).</dd>
+
+      <dt id="lineSeparator"><code><strong>doc.lineSeparator</strong>()</code></dt>
+      <dd>Returns the preferred line separator string for this
+      document, as per the <a href="#option_lineSeparator">option</a>
+      by the same name. When that option is <code>null</code>, the
+      string <code>"\n"</code> is returned.</dd>
 
       <dt id="execCommand"><code><strong>cm.execCommand</strong>(name: string)</code></dt>
       <dd>Runs the <a href="#commands">command</a> with the given name on the editor.</dd>
@@ -2418,7 +2439,7 @@ editor.setOption("extraKeys", {
       running <a href="../addon/runmode/runmode-standalone.js">stand-alone</a>
       (without including all of CodeMirror) and
       for <a href="../addon/runmode/runmode.node.js">running under
-      node.js</a>.</dd>
+      node.js</a> (see <code>bin/source-highlight</code> for an example of using the latter).</dd>
 
       <dt id="addon_colorize"><a href="../addon/runmode/colorize.js"><code>runmode/colorize.js</code></a></dt>
       <dd>Provides a convenient way to syntax-highlight code snippets
@@ -2481,7 +2502,9 @@ editor.setOption("extraKeys", {
       is an array of strings or objects (the completions),
       and <code>from</code> and <code>to</code> give the start and end
       of the token that is being completed as <code>{line, ch}</code>
-      objects.</dd>
+      objects. An optional <code>selectedHint</code> property (an
+      integer) can be added to the completion object to control the
+      initially selected hint.</dd>
       <dd>If no hinting function is given, the addon will
       use <code>CodeMirror.hint.auto</code>, which
       calls <a href="#getHelpers"><code>getHelpers</code></a> with
@@ -2649,23 +2672,29 @@ editor.setOption("extraKeys", {
       <dt id="addon_lint"><a href="../addon/lint/lint.js"><code>lint/lint.js</code></a></dt>
       <dd>Defines an interface component for showing linting warnings,
       with pluggable warning sources
-      (see <a href="../addon/lint/json-lint.js"><code>json-lint.js</code></a>,
+      (see <a href="../addon/lint/html-lint.js"><code>html-lint.js</code></a>,
+      <a href="../addon/lint/json-lint.js"><code>json-lint.js</code></a>,
       <a href="../addon/lint/javascript-lint.js"><code>javascript-lint.js</code></a>,
       <a href="../addon/lint/coffeescript-lint.js"><code>coffeescript-lint.js</code></a>,
       and <a href="../addon/lint/css-lint.js"><code>css-lint.js</code></a>
       in the same directory). Defines a <code>lint</code> option that
-      can be set to a warning source (for
-      example <code>CodeMirror.lint.javascript</code>), or
-      to <code>true</code>, in which
-      case <a href="#getHelper"><code>getHelper</code></a> with
-      type <code>"lint"</code> is used to determined a validator
-      function. Such a function should, when given a document string,
-      an options object, and an editor instance, return an array of <code>{message,
-      severity, from, to}</code> objects representing problems. When
-      the function has an <code>async</code> property with a truthy
-      value, it will be called with an additional second argument,
-      which is a callback to pass the array to. Depends
-      on <code>addon/lint/lint.css</code>. A demo can be
+      can be set to an annotation source (for
+      example <code>CodeMirror.lint.javascript</code>), to an options
+      object (in which case the <code>getAnnotations</code> field is
+      used as annotation source), or simply to <code>true</code>. When
+      no annotation source is
+      specified, <a href="#getHelper"><code>getHelper</code></a> with
+      type <code>"lint"</code> is used to find an annotation function.
+      An annotation source function should, when given a document
+      string, an options object, and an editor instance, return an
+      array of <code>{message, severity, from, to}</code> objects
+      representing problems. When the function has
+      an <code>async</code> property with a truthy value, it will be
+      called with an additional second argument, which is a callback
+      to pass the array to. By default, the linter will run
+      (debounced) whenever the document is changed. You can pass
+      a <code>lintOnChange: false</code> option to disable that.
+      Depends on <code>addon/lint/lint.css</code>. A demo can be
       found <a href="../demo/lint.html">here</a>.</dd>
 
       <dt id="addon_mark-selection"><a href="../addon/selection/mark-selection.js"><code>selection/mark-selection.js</code></a></dt>
@@ -2734,9 +2763,10 @@ editor.setOption("extraKeys", {
 
       <dt id="addon_placeholder"><a href="../addon/display/placeholder.js"><code>display/placeholder.js</code></a></dt>
       <dd>Adds a <code>placeholder</code> option that can be used to
-      make text appear in the editor when it is empty and not focused.
-      Also gives the editor a <code>CodeMirror-empty</code> CSS class
-      whenever it doesn't contain any text.
+      make content appear in the editor when it is empty and not
+      focused. It can hold either a string or a DOM node. Also gives
+      the editor a <code>CodeMirror-empty</code> CSS class whenever it
+      doesn't contain any text.
       See <a href="../demo/placeholder.html">the demo</a>.</dd>
 
       <dt id="addon_fullscreen"><a href="../addon/display/fullscreen.js"><code>display/fullscreen.js</code></a></dt>
@@ -2745,6 +2775,20 @@ editor.setOption("extraKeys", {
       taking up the whole browser window). Depends
       on <a href="../addon/display/fullscreen.css"><code>fullscreen.css</code></a>. <a href="../demo/fullscreen.html">Demo
       here</a>.</dd>
+
+      <dt id="addon_autorefresh"><a href="../addon/display/autorefresh.js"><code>display/autorefresh.js</code></a></dt>
+      <dd>This addon can be useful when initalizing an editor in a
+      hidden DOM node, in cases where it is difficult to
+      call <a href="#refresh"><code>refresh</code></a> when the editor
+      becomes visible. It defines an option <code>autoRefresh</code>
+      which you can set to true to ensure that, if the editor wasn't
+      visible on initialization, it will be refreshed the first time
+      it becomes visible. This is done by polling every 250
+      milliseconds (you can pass a value like <code>{delay:
+      500}</code> as the option value to configure this). Note that
+      this addon will only refresh the editor <em>once</em> when it
+      first becomes visible, and won't take care of further restyling
+      and resizing.</dd>
 
       <dt id="addon_simplescrollbars"><a href="../addon/scroll/simplescrollbars.js"><code>scroll/simplescrollbars.js</code></a></dt>
       <dd>Defines two additional scrollbar

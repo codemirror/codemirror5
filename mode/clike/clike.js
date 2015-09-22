@@ -113,12 +113,12 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     this.align = align;
     this.prev = prev;
   }
-  function isStatement(context) {
-    return context.type == "statement" || context.type == "switchstatement" || context.type == "namespace";
+  function isStatement(type) {
+    return type == "statement" || type == "switchstatement" || type == "namespace";
   }
   function pushContext(state, col, type) {
     var indent = state.indented;
-    if (state.context && isStatement(state.context))
+    if (state.context && isStatement(state.context.type) && !isStatement(type))
       indent = state.context.indented;
     return state.context = new Context(indent, col, type, null, state.context);
   }
@@ -168,19 +168,20 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       if (style == "comment" || style == "meta") return style;
       if (ctx.align == null) ctx.align = true;
 
-      if ((curPunc == ";" || curPunc == ":" || curPunc == ",") && isStatement(ctx)) popContext(state);
+      if ((curPunc == ";" || curPunc == ":" || curPunc == ","))
+        while (isStatement(state.context.type)) popContext(state);
       else if (curPunc == "{") pushContext(state, stream.column(), "}");
       else if (curPunc == "[") pushContext(state, stream.column(), "]");
       else if (curPunc == "(") pushContext(state, stream.column(), ")");
       else if (curPunc == "}") {
-        while (isStatement(ctx)) ctx = popContext(state);
+        while (isStatement(ctx.type)) ctx = popContext(state);
         if (ctx.type == "}") ctx = popContext(state);
-        while (isStatement(ctx)) ctx = popContext(state);
+        while (isStatement(ctx.type)) ctx = popContext(state);
       }
       else if (curPunc == ctx.type) popContext(state);
       else if (indentStatements &&
                (((ctx.type == "}" || ctx.type == "top") && curPunc != ";") ||
-                (isStatement(ctx) && curPunc == "newstatement"))) {
+                (isStatement(ctx.type) && curPunc == "newstatement"))) {
         var type = "statement";
         if (curPunc == "newstatement" && indentSwitch && stream.current() == "switch")
           type = "switchstatement";
@@ -210,10 +211,10 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     indent: function(state, textAfter) {
       if (state.tokenize != tokenBase && state.tokenize != null) return CodeMirror.Pass;
       var ctx = state.context, firstChar = textAfter && textAfter.charAt(0);
-      if (isStatement(ctx) && firstChar == "}") ctx = ctx.prev;
+      if (isStatement(ctx.type) && firstChar == "}") ctx = ctx.prev;
       var closing = firstChar == ctx.type;
       var switchBlock = ctx.prev && ctx.prev.type == "switchstatement";
-      if (isStatement(ctx))
+      if (isStatement(ctx.type))
         return ctx.indented + (firstChar == "{" ? 0 : statementIndentUnit);
       if (ctx.align && (!dontAlignCalls || ctx.type != ")"))
         return ctx.column + (closing ? 0 : 1);
@@ -263,6 +264,11 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
   function pointerHook(_stream, state) {
     if (state.prevToken == "variable-3") return "variable-3";
     return false;
+  }
+
+  function cpp14Literal(stream) {
+    stream.eatWhile(/[\w\.']/);
+    return "number";
   }
 
   function cpp11StringHook(stream, state) {
@@ -372,6 +378,16 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       "U": cpp11StringHook,
       "L": cpp11StringHook,
       "R": cpp11StringHook,
+      "0": cpp14Literal,
+      "1": cpp14Literal,
+      "2": cpp14Literal,
+      "3": cpp14Literal,
+      "4": cpp14Literal,
+      "5": cpp14Literal,
+      "6": cpp14Literal,
+      "7": cpp14Literal,
+      "8": cpp14Literal,
+      "9": cpp14Literal,
       token: function(stream, state, style) {
         if (style == "variable" && stream.peek() == "(" &&
             (state.prevToken == ";" || state.prevToken == null ||
@@ -585,6 +601,19 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       "#": cppHook
     },
     modeProps: {fold: "brace"}
+  });
+
+  def("text/x-squirrel", {
+    name: "clike",
+    keywords: words("base break clone continue const default delete enum extends function in class" +
+                    " foreach local resume return this throw typeof yield constructor instanceof static"),
+    types: words(cTypes),
+    blockKeywords: words("case catch class else for foreach if switch try while"),
+    defKeywords: words("function local class"),
+    typeFirstDefinitions: true,
+    atoms: words("true false null"),
+    hooks: {"#": cppHook},
+    modeProps: {fold: ["brace", "include"]}
   });
 
 });

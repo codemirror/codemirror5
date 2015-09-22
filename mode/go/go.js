@@ -86,7 +86,7 @@ CodeMirror.defineMode("go", function(config) {
       var escaped = false, next, end = false;
       while ((next = stream.next()) != null) {
         if (next == quote && !escaped) {end = true; break;}
-        escaped = !escaped && next == "\\";
+        escaped = !escaped && quote != "`" && next == "\\";
       }
       if (end || !(escaped || quote == "`"))
         state.tokenize = tokenBase;

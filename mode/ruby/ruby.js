@@ -25,7 +25,7 @@ CodeMirror.defineMode("ruby", function(config) {
     "caller", "lambda", "proc", "public", "protected", "private", "require", "load",
     "require_relative", "extend", "autoload", "__END__", "__FILE__", "__LINE__", "__dir__"
   ]);
-  var indentWords = wordObj(["def", "class", "case", "for", "while", "module", "then",
+  var indentWords = wordObj(["def", "class", "case", "for", "while", "until", "module", "then",
                              "catch", "loop", "proc", "begin"]);
   var dedentWords = wordObj(["end", "until"]);
   var matching = {"[": "]", "{": "}", "(": ")"};
@@ -37,7 +37,6 @@ CodeMirror.defineMode("ruby", function(config) {
   }
 
   function tokenBase(stream, state) {
-    curPunc = null;
     if (stream.sol() && stream.match("=begin") && stream.eol()) {
       state.tokenize.push(readBlockComment);
       return "comment";
@@ -232,6 +231,7 @@ CodeMirror.defineMode("ruby", function(config) {
     },
 
     token: function(stream, state) {
+      curPunc = null;
       if (stream.sol()) state.indented = stream.indentation();
       var style = state.tokenize[state.tokenize.length-1](stream, state), kwtype;
       var thisTok = curPunc;

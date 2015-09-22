@@ -76,7 +76,7 @@ function runTests(callback) {
       }
     }
     if (!threw) {
-      if (expFail) callback("fail", test.name, message || "expected failure, but succeeded");
+      if (expFail) callback("fail", test.name, message || "expected failure, but passed");
       else callback("ok", test.name, message);
     }
     if (!quit) { // Run next test

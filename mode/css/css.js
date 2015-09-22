@@ -12,20 +12,24 @@
 "use strict";
 
 CodeMirror.defineMode("css", function(config, parserConfig) {
+  var provided = parserConfig;
   if (!parserConfig.propertyKeywords) parserConfig = CodeMirror.resolveMode("text/css");
+  parserConfig.inline = provided.inline;
 
   var indentUnit = config.indentUnit,
       tokenHooks = parserConfig.tokenHooks,
       documentTypes = parserConfig.documentTypes || {},
       mediaTypes = parserConfig.mediaTypes || {},
       mediaFeatures = parserConfig.mediaFeatures || {},
+      mediaValueKeywords = parserConfig.mediaValueKeywords || {},
       propertyKeywords = parserConfig.propertyKeywords || {},
       nonStandardPropertyKeywords = parserConfig.nonStandardPropertyKeywords || {},
       fontProperties = parserConfig.fontProperties || {},
       counterDescriptors = parserConfig.counterDescriptors || {},
       colorKeywords = parserConfig.colorKeywords || {},
       valueKeywords = parserConfig.valueKeywords || {},
-      allowNested = parserConfig.allowNested;
+      allowNested = parserConfig.allowNested,
+      supportsAtComponent = parserConfig.supportsAtComponent === true;
 
   var type, override;
   function ret(style, tp) { type = tp; return style; }
@@ -119,13 +123,14 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     this.prev = prev;
   }
 
-  function pushContext(state, stream, type) {
-    state.context = new Context(type, stream.indentation() + indentUnit, state.context);
+  function pushContext(state, stream, type, indent) {
+    state.context = new Context(type, stream.indentation() + (indent === false ? 0 : indentUnit), state.context);
     return type;
   }
 
   function popContext(state) {
-    state.context = state.context.prev;
+    if (state.context.prev)
+      state.context = state.context.prev;
     return state.context.type;
   }
 
@@ -157,9 +162,13 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
       return pushContext(state, stream, "block");
     } else if (type == "}" && state.context.prev) {
       return popContext(state);
-    } else if (/@(media|supports|(-moz-)?document)/.test(type)) {
+    } else if (supportsAtComponent && /@component/.test(type)) {
+      return pushContext(state, stream, "atComponentBlock");
+    } else if (/^@(-moz-)?document$/.test(type)) {
+      return pushContext(state, stream, "documentTypes");
+    } else if (/^@(media|supports|(-moz-)?document|import)$/.test(type)) {
       return pushContext(state, stream, "atBlock");
-    } else if (/@(font-face|counter-style)/.test(type)) {
+    } else if (/^@(font-face|counter-style)/.test(type)) {
       state.stateArg = type;
       return "restricted_atBlock_before";
     } else if (/^@(-(moz|ms|o|webkit)-)?keyframes$/.test(type)) {
@@ -252,30 +261,51 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     return pass(type, stream, state);
   };
 
+  states.documentTypes = function(type, stream, state) {
+    if (type == "word" && documentTypes.hasOwnProperty(stream.current())) {
+      override = "tag";
+      return state.context.type;
+    } else {
+      return states.atBlock(type, stream, state);
+    }
+  };
+
   states.atBlock = function(type, stream, state) {
     if (type == "(") return pushContext(state, stream, "atBlock_parens");
-    if (type == "}") return popAndPass(type, stream, state);
+    if (type == "}" || type == ";") return popAndPass(type, stream, state);
     if (type == "{") return popContext(state) && pushContext(state, stream, allowNested ? "block" : "top");
 
     if (type == "word") {
       var word = stream.current().toLowerCase();
       if (word == "only" || word == "not" || word == "and" || word == "or")
         override = "keyword";
-      else if (documentTypes.hasOwnProperty(word))
-        override = "tag";
       else if (mediaTypes.hasOwnProperty(word))
         override = "attribute";
       else if (mediaFeatures.hasOwnProperty(word))
         override = "property";
+      else if (mediaValueKeywords.hasOwnProperty(word))
+        override = "keyword";
       else if (propertyKeywords.hasOwnProperty(word))
         override = "property";
       else if (nonStandardPropertyKeywords.hasOwnProperty(word))
         override = "string-2";
       else if (valueKeywords.hasOwnProperty(word))
         override = "atom";
+      else if (colorKeywords.hasOwnProperty(word))
+        override = "keyword";
       else
         override = "error";
     }
+    return state.context.type;
+  };
+
+  states.atComponentBlock = function(type, stream, state) {
+    if (type == "}")
+      return popAndPass(type, stream, state);
+    if (type == "{")
+      return popContext(state) && pushContext(state, stream, allowNested ? "block" : "top", false);
+    if (type == "word")
+      override = "error";
     return state.context.type;
   };
 
@@ -336,9 +366,9 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
   return {
     startState: function(base) {
       return {tokenize: null,
-              state: "top",
+              state: parserConfig.inline ? "block" : "top",
               stateArg: null,
-              context: new Context("top", base || 0, null)};
+              context: new Context(parserConfig.inline ? "block" : "top", base || 0, null)};
     },
 
     token: function(stream, state) {
@@ -357,12 +387,18 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
       var cx = state.context, ch = textAfter && textAfter.charAt(0);
       var indent = cx.indent;
       if (cx.type == "prop" && (ch == "}" || ch == ")")) cx = cx.prev;
-      if (cx.prev &&
-          (ch == "}" && (cx.type == "block" || cx.type == "top" || cx.type == "interpolation" || cx.type == "restricted_atBlock") ||
-           ch == ")" && (cx.type == "parens" || cx.type == "atBlock_parens") ||
-           ch == "{" && (cx.type == "at" || cx.type == "atBlock"))) {
-        indent = cx.indent - indentUnit;
-        cx = cx.prev;
+      if (cx.prev) {
+        if (ch == "}" && (cx.type == "block" || cx.type == "top" ||
+                          cx.type == "interpolation" || cx.type == "restricted_atBlock")) {
+          // Resume indentation from parent context.
+          cx = cx.prev;
+          indent = cx.indent;
+        } else if (ch == ")" && (cx.type == "parens" || cx.type == "atBlock_parens") ||
+            ch == "{" && (cx.type == "at" || cx.type == "atBlock")) {
+          // Dedent relative to current context.
+          indent = Math.max(0, cx.indent - indentUnit);
+          cx = cx.prev;
+        }
       }
       return indent;
     },
@@ -399,8 +435,15 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "min-device-aspect-ratio", "max-device-aspect-ratio", "color", "min-color",
     "max-color", "color-index", "min-color-index", "max-color-index",
     "monochrome", "min-monochrome", "max-monochrome", "resolution",
-    "min-resolution", "max-resolution", "scan", "grid"
+    "min-resolution", "max-resolution", "scan", "grid", "orientation",
+    "device-pixel-ratio", "min-device-pixel-ratio", "max-device-pixel-ratio",
+    "pointer", "any-pointer", "hover", "any-hover"
   ], mediaFeatures = keySet(mediaFeatures_);
+
+  var mediaValueKeywords_ = [
+    "landscape", "portrait", "none", "coarse", "fine", "on-demand", "hover",
+    "interlace", "progressive"
+  ], mediaValueKeywords = keySet(mediaValueKeywords_);
 
   var propertyKeywords_ = [
     "align-content", "align-items", "align-self", "alignment-adjust",
@@ -553,7 +596,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "capitalize", "caps-lock-indicator", "caption", "captiontext", "caret",
     "cell", "center", "checkbox", "circle", "cjk-decimal", "cjk-earthly-branch",
     "cjk-heavenly-stem", "cjk-ideographic", "clear", "clip", "close-quote",
-    "col-resize", "collapse", "column", "compact", "condensed", "contain", "content",
+    "col-resize", "collapse", "column", "column-reverse", "compact", "condensed", "contain", "content",
     "content-box", "context-menu", "continuous", "copy", "counter", "counters", "cover", "crop",
     "cross", "crosshair", "currentcolor", "cursive", "cyclic", "dashed", "decimal",
     "decimal-leading-zero", "default", "default-button", "destination-atop",
@@ -569,7 +612,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "ethiopic-halehame-sid-et", "ethiopic-halehame-so-et",
     "ethiopic-halehame-ti-er", "ethiopic-halehame-ti-et", "ethiopic-halehame-tig",
     "ethiopic-numeric", "ew-resize", "expanded", "extends", "extra-condensed",
-    "extra-expanded", "fantasy", "fast", "fill", "fixed", "flat", "flex", "footnotes",
+    "extra-expanded", "fantasy", "fast", "fill", "fixed", "flat", "flex", "flex-end", "flex-start", "footnotes",
     "forwards", "from", "geometricPrecision", "georgian", "graytext", "groove",
     "gujarati", "gurmukhi", "hand", "hangul", "hangul-consonant", "hebrew",
     "help", "hidden", "hide", "higher", "highlight", "highlighttext",
@@ -606,7 +649,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "relative", "repeat", "repeating-linear-gradient",
     "repeating-radial-gradient", "repeat-x", "repeat-y", "reset", "reverse",
     "rgb", "rgba", "ridge", "right", "rotate", "rotate3d", "rotateX", "rotateY",
-    "rotateZ", "round", "row-resize", "rtl", "run-in", "running",
+    "rotateZ", "round", "row", "row-resize", "row-reverse", "rtl", "run-in", "running",
     "s-resize", "sans-serif", "scale", "scale3d", "scaleX", "scaleY", "scaleZ",
     "scroll", "scrollbar", "se-resize", "searchfield",
     "searchfield-cancel-button", "searchfield-decoration",
@@ -616,7 +659,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "skew", "skewX", "skewY", "skip-white-space", "slide", "slider-horizontal",
     "slider-vertical", "sliderthumb-horizontal", "sliderthumb-vertical", "slow",
     "small", "small-caps", "small-caption", "smaller", "solid", "somali",
-    "source-atop", "source-in", "source-out", "source-over", "space", "spell-out", "square",
+    "source-atop", "source-in", "source-out", "source-over", "space", "space-around", "space-between", "spell-out", "square",
     "square-button", "start", "static", "status-bar", "stretch", "stroke", "sub",
     "subpixel-antialiased", "super", "sw-resize", "symbolic", "symbols", "table",
     "table-caption", "table-cell", "table-column", "table-column-group",
@@ -633,12 +676,13 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "upper-latin", "upper-norwegian", "upper-roman", "uppercase", "urdu", "url",
     "var", "vertical", "vertical-text", "visible", "visibleFill", "visiblePainted",
     "visibleStroke", "visual", "w-resize", "wait", "wave", "wider",
-    "window", "windowframe", "windowtext", "words", "x-large", "x-small", "xor",
+    "window", "windowframe", "windowtext", "words", "wrap", "wrap-reverse", "x-large", "x-small", "xor",
     "xx-large", "xx-small"
   ], valueKeywords = keySet(valueKeywords_);
 
-  var allWords = documentTypes_.concat(mediaTypes_).concat(mediaFeatures_).concat(propertyKeywords_)
-    .concat(nonStandardPropertyKeywords_).concat(colorKeywords_).concat(valueKeywords_);
+  var allWords = documentTypes_.concat(mediaTypes_).concat(mediaFeatures_).concat(mediaValueKeywords_)
+    .concat(propertyKeywords_).concat(nonStandardPropertyKeywords_).concat(colorKeywords_)
+    .concat(valueKeywords_);
   CodeMirror.registerHelper("hintWords", "css", allWords);
 
   function tokenCComment(stream, state) {
@@ -657,6 +701,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     documentTypes: documentTypes,
     mediaTypes: mediaTypes,
     mediaFeatures: mediaFeatures,
+    mediaValueKeywords: mediaValueKeywords,
     propertyKeywords: propertyKeywords,
     nonStandardPropertyKeywords: nonStandardPropertyKeywords,
     fontProperties: fontProperties,
@@ -676,6 +721,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
   CodeMirror.defineMIME("text/x-scss", {
     mediaTypes: mediaTypes,
     mediaFeatures: mediaFeatures,
+    mediaValueKeywords: mediaValueKeywords,
     propertyKeywords: propertyKeywords,
     nonStandardPropertyKeywords: nonStandardPropertyKeywords,
     colorKeywords: colorKeywords,
@@ -717,6 +763,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
   CodeMirror.defineMIME("text/x-less", {
     mediaTypes: mediaTypes,
     mediaFeatures: mediaFeatures,
+    mediaValueKeywords: mediaValueKeywords,
     propertyKeywords: propertyKeywords,
     nonStandardPropertyKeywords: nonStandardPropertyKeywords,
     colorKeywords: colorKeywords,
@@ -749,6 +796,28 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     },
     name: "css",
     helperType: "less"
+  });
+
+  CodeMirror.defineMIME("text/x-gss", {
+    documentTypes: documentTypes,
+    mediaTypes: mediaTypes,
+    mediaFeatures: mediaFeatures,
+    propertyKeywords: propertyKeywords,
+    nonStandardPropertyKeywords: nonStandardPropertyKeywords,
+    fontProperties: fontProperties,
+    counterDescriptors: counterDescriptors,
+    colorKeywords: colorKeywords,
+    valueKeywords: valueKeywords,
+    supportsAtComponent: true,
+    tokenHooks: {
+      "/": function(stream, state) {
+        if (!stream.eat("*")) return false;
+        state.tokenize = tokenCComment;
+        return tokenCComment(stream, state);
+      }
+    },
+    name: "css",
+    helperType: "gss"
   });
 
 });

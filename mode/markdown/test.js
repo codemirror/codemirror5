@@ -6,6 +6,10 @@
   function MT(name) { test.mode(name, mode, Array.prototype.slice.call(arguments, 1)); }
   var modeHighlightFormatting = CodeMirror.getMode({tabSize: 4}, {name: "markdown", highlightFormatting: true});
   function FT(name) { test.mode(name, modeHighlightFormatting, Array.prototype.slice.call(arguments, 1)); }
+  var modeAtxNoSpace = CodeMirror.getMode({tabSize: 4}, {name: "markdown", allowAtxHeaderWithoutSpace: true});
+  function AtxNoSpaceTest(name) { test.mode(name, modeAtxNoSpace, Array.prototype.slice.call(arguments, 1)); }
+  var modeFenced = CodeMirror.getMode({tabSize: 4}, {name: "markdown", fencedCodeBlocks: true});
+  function FencedTest(name) { test.mode(name, modeFenced, Array.prototype.slice.call(arguments, 1)); }
 
   FT("formatting_emAsterisk",
      "[em&formatting&formatting-em *][em foo][em&formatting&formatting-em *]");
@@ -110,7 +114,7 @@
   // Block code using single backtick (shouldn't work)
   MT("blockCodeSingleBacktick",
      "[comment `]",
-     "foo",
+     "[comment foo]",
      "[comment `]");
 
   // Unclosed backticks
@@ -172,6 +176,16 @@
   // http://spec.commonmark.org/0.19/#example-25
   MT("noAtxH1WithoutSpace",
      "#5 bolt");
+
+  // CommonMark requires a space after # but most parsers don't
+  AtxNoSpaceTest("atxNoSpaceAllowed_H1NoSpace",
+     "[header&header-1 #foo]");
+
+  AtxNoSpaceTest("atxNoSpaceAllowed_H4NoSpace",
+     "[header&header-4 ####foo]");
+
+  AtxNoSpaceTest("atxNoSpaceAllowed_H1Space",
+     "[header&header-1 # foo]");
 
   // Inline styles should be parsed inside headers
   MT("atxH1inline",
@@ -498,14 +512,14 @@
     "",
     "    [variable-3 * bar]",
     "",
-    "       [variable-2 hello]"
+    "       [variable-3 hello]"
   );
   MT("listNested",
     "[variable-2 * foo]",
     "",
     "    [variable-3 * bar]",
     "",
-    "      [variable-3 * foo]"
+    "      [keyword * foo]"
   );
 
   // Code followed by text
@@ -766,10 +780,52 @@
   MT("taskList",
      "[variable-2 * [ ]] bar]");
 
-  MT("fencedCodeBlocks",
-     "[comment ```]",
+  MT("noFencedCodeBlocks",
+     "~~~",
      "foo",
-     "[comment ```]");
+     "~~~");
+
+  FencedTest("fencedCodeBlocks",
+     "[comment ```]",
+     "[comment foo]",
+     "[comment ```]",
+     "bar");
+
+  FencedTest("fencedCodeBlocksMultipleChars",
+     "[comment `````]",
+     "[comment foo]",
+     "[comment ```]",
+     "[comment foo]",
+     "[comment `````]",
+     "bar");
+
+  FencedTest("fencedCodeBlocksTildes",
+     "[comment ~~~]",
+     "[comment foo]",
+     "[comment ~~~]",
+     "bar");
+
+  FencedTest("fencedCodeBlocksTildesMultipleChars",
+     "[comment ~~~~~]",
+     "[comment ~~~]",
+     "[comment foo]",
+     "[comment ~~~~~]",
+     "bar");
+
+  FencedTest("fencedCodeBlocksMultipleChars",
+     "[comment `````]",
+     "[comment foo]",
+     "[comment ```]",
+     "[comment foo]",
+     "[comment `````]",
+     "bar");
+
+  FencedTest("fencedCodeBlocksMixed",
+     "[comment ~~~]",
+     "[comment ```]",
+     "[comment foo]",
+     "[comment ~~~]",
+     "bar");
 
   // Tests that require XML mode
 
