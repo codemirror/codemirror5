@@ -26,7 +26,7 @@
 
   CodeMirror.defineExtension("showHint", function(options) {
     // We want a single cursor position.
-    if (this.listSelections().length > 1 || this.somethingSelected()) return;
+    if (this.listSelections().length > 1 || (this.somethingSelected() && !(options && options.somethingSelected == false ))) return;
 
     if (this.state.completionActive) this.state.completionActive.close();
     var completion = this.state.completionActive = new Completion(this, options);
@@ -42,8 +42,9 @@
     this.widget = null;
     this.debounce = 0;
     this.tick = 0;
-    this.startPos = this.cm.getCursor();
+    this.startPos = this.cm.getCursor("start");
     this.startLen = this.cm.getLine(this.startPos.line).length;
+    if (options && options.somethingSelected == false ) this.startLen = this.startLen - this.cm.getSelection().length;
 
     var self = this;
     cm.on("cursorActivity", this.activityFunc = function() { self.cursorActivity(); });
