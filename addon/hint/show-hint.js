@@ -25,7 +25,7 @@
   };
 
   CodeMirror.defineExtension("showHint", function(options) {
-    options = parseOptions(this, options);
+    options = parseOptions(this, this.getCursor("start"), options);
     var selections = this.listSelections()
     if (selections.length > 1) return;
     // By default, don't allow completion when something is selected.
@@ -395,6 +395,8 @@
       return function(cm) { return CodeMirror.hint.fromList(cm, {words: words}) }
     } else if (CodeMirror.hint.anyword) {
       return function(cm, options) { return CodeMirror.hint.anyword(cm, options) }
+    } else {
+      return function() {}
     }
   }
 
