@@ -1,6 +1,9 @@
-// Initially based on CodeMirror Python mode, copyright (c) by Marijn Haverbeke and others
-// PowerShell mode, copyright (c) Andrey Shchekin, VapidWorx and others
-// Distributed under an MIT license: http://codemirror.net/LICENSE
+/**
+ * @license
+ * Initially based on CodeMirror Python mode, copyright (c) by Marijn Haverbeke and others
+ * PowerShell mode, copyright (c) Andrey Shchekin, VapidWorx and others
+ * Distributed under an MIT license: http://codemirror.net/LICENSE
+ */
 
 (function(mod) {
   'use strict';
@@ -31,7 +34,8 @@ CodeMirror.defineMode('powershell', function() {
         return new RegExp(prefix + '(' + patterns.join('|') + ')' + suffix, 'i');
     }
 
-    var notCharacterOrDash = '(?=[^A-Z\\d\\-_]|$)';
+    var notCharacterOrDash = '(?=[^A-Za-z\\d\\-_]|$)';
+    var varNames = /[\w\-:]/
     var keywords = buildRegexp([
         /begin|break|catch|continue|data|default|do|dynamicparam/,
         /else|elseif|end|exit|filter|finally|for|foreach|from|function|if|in/,
@@ -49,10 +53,10 @@ CodeMirror.defineMode('powershell', function() {
         /[ic]?replace/,
         /b?(and|or|xor)/
     ], { prefix: '-' });
-    var symbolOperators = /[+\-*\/%]=|\+\+|--|\.\.|[+\-*&^%:=<>!|\/]/;
+    var symbolOperators = /[+\-*\/%]=|\+\+|--|\.\.|[+\-*&^%:=!|\/]|<(?!#)|(?!#)>/;
     var operators = buildRegexp([wordOperators, symbolOperators], { suffix: '' });
 
-    var numbers = /^[+-]?(0x[\da-f]+|(\d+(\.\d+)?|\.\d*)(e[\+\-]?\d+)?)[ld]?([kmgtp]b)?/i;
+    var numbers = /^[+-]?((0x[\da-f]+)|((\d+\.\d+|\d\.|\.\d+|\d+)(e[\+\-]?\d+)?))[ld]?([kmgtp]b)?/i;
 
     var identifiers = /^[A-Za-z\_][A-Za-z\-\_\d]*\b/;
 
@@ -106,8 +110,8 @@ CodeMirror.defineMode('powershell', function() {
         /Save-Help/,
         /Select-(Object|String|Xml)/,
         /Send-MailMessage/,
-        new RegExp('Set-(Acl|Alias|AuthenticodeSignature|Content|Date|ExecutionPolicy|Item(Property)?|Location|PSBreakpoint|PSDebug'
-          + '|PSSessionConfiguration|Service|StrictMode|TraceSource|Variable|WmiInstance)'),
+        new RegExp('Set-(Acl|Alias|AuthenticodeSignature|Content|Date|ExecutionPolicy|Item(Property)?|Location|PSBreakpoint|PSDebug' +
+                   '|PSSessionConfiguration|Service|StrictMode|TraceSource|Variable|WmiInstance)'),
         /Show-(Command|ControlPanelItem|EventLog)/,
         /Sort-Object/,
         /Split-Path/,
@@ -132,7 +136,7 @@ CodeMirror.defineMode('powershell', function() {
         /group|gsn|gsnp|gsv|gu|gv|gwmi|h|history|icm|iex|ihy|ii|ipal|ipcsv|ipmo|ipsn|irm|ise|iwmi|iwr|kill|lp|ls|man|md/,
         /measure|mi|mount|move|mp|mv|nal|ndr|ni|nmo|npssc|nsn|nv|ogv|oh|popd|ps|pushd|pwd|r|rbp|rcjb|rcsn|rd|rdr|ren|ri/,
         /rjb|rm|rmdir|rmo|rni|rnp|rp|rsn|rsnp|rujb|rv|rvpa|rwmi|sajb|sal|saps|sasv|sbp|sc|select|set|shcm|si|sl|sleep|sls/,
-        /sort|sp|spjb|spps|spsv|start|sujb|sv|swmi|tee|trcm|type|where|wjb|write/,
+        /sort|sp|spjb|spps|spsv|start|sujb|sv|swmi|tee|trcm|type|where|wjb|write/
     ], { prefix: '', suffix: '' });
     var variableBuiltins = buildRegexp([
         /[$?^_]|Args|ConfirmPreference|ConsoleFileName|DebugPreference|Error|ErrorActionPreference|ErrorView|ExecutionContext/,
@@ -147,7 +151,7 @@ CodeMirror.defineMode('powershell', function() {
         /true|false|null/
     ], { prefix: '\\$', suffix: '' });
 
-    var builtins = buildRegexp([ symbolBuiltins, namedBuiltins, variableBuiltins ], { suffix: notCharacterOrDash });
+    var builtins = buildRegexp([symbolBuiltins, namedBuiltins, variableBuiltins], { suffix: notCharacterOrDash });
 
     var grammar = {
         keyword: keywords,
@@ -155,7 +159,7 @@ CodeMirror.defineMode('powershell', function() {
         operator: operators,
         builtin: builtins,
         punctuation: punctuation,
-        indetifier: identifiers
+        identifier: identifiers
     };
 
     // tokenizers
@@ -190,12 +194,13 @@ CodeMirror.defineMode('powershell', function() {
             }
         }
 
+        var ch = stream.next();
+
         // single-quote string
-        if (stream.match(/'([^']|'')+'/)) {
-            return 'string';
+        if (ch === "'") {
+            return tokenSingleQuoteString(stream, state);
         }
 
-        var ch = stream.next();
         if (ch === '$') {
             return tokenVariable(stream, state);
         }
@@ -221,18 +226,35 @@ CodeMirror.defineMode('powershell', function() {
                 state.tokenize = tokenMultiString;
                 state.startQuote = quoteMatch[0];
                 return tokenMultiString(stream, state);
+            } else if (stream.peek().match(/[({]/)) {
+                return 'punctuation';
+            } else if (stream.match(varNames)) {
+              // splatted variable
+              return tokenVariable(stream, state);
+            }
+        }
+        return 'error';
+    }
+
+    function tokenSingleQuoteString(stream, state) {
+        var ch;
+        while ((ch = stream.peek()) != null) {
+            stream.next();
+
+            if (ch === "'" && !stream.eat("'")) {
+                state.tokenize = tokenBase;
+                return 'string';
             }
         }
 
-        stream.next();
         return 'error';
     }
 
     function tokenDoubleQuoteString(stream, state) {
         var ch;
-        while((ch = stream.peek()) != null) {
+        while ((ch = stream.peek()) != null) {
             if (ch === '$') {
-                state.tokenize = tokenInterpolation;
+                state.tokenize = tokenStringInterpolation;
                 return 'string';
             }
 
@@ -251,7 +273,22 @@ CodeMirror.defineMode('powershell', function() {
         return 'error';
     }
 
-    function tokenInterpolation(stream, state) {
+    function tokenStringInterpolation(stream, state) {
+        return tokenInterpolation(stream, state, tokenDoubleQuoteString);
+    }
+
+    function tokenMultiStringReturn(stream, state) {
+        state.tokenize = tokenMultiString;
+        state.startQuote = '"'
+        return tokenMultiString(stream, state);
+    }
+
+    function tokenHereStringInterpolation(stream, state) {
+        var saved;
+        return tokenInterpolation(stream, state, tokenMultiStringReturn);
+    }
+
+    function tokenInterpolation(stream, state, parentTokenize) {
         if (stream.match('$(')) {
             var savedBracketNesting = state.bracketNesting;
             state.returnStack.push({
@@ -259,7 +296,7 @@ CodeMirror.defineMode('powershell', function() {
                 shouldReturnFrom: function(state) {
                     return state.bracketNesting === savedBracketNesting;
                 },
-                tokenize: tokenDoubleQuoteString
+                tokenize: parentTokenize
             });
             state.tokenize = tokenBase;
             state.bracketNesting += 1;
@@ -268,7 +305,7 @@ CodeMirror.defineMode('powershell', function() {
             stream.next();
             state.returnStack.push({
                 shouldReturnFrom: function() { return true; },
-                tokenize: tokenDoubleQuoteString
+                tokenize: parentTokenize
             });
             state.tokenize = tokenVariable;
             return state.tokenize(stream, state);
@@ -288,13 +325,17 @@ CodeMirror.defineMode('powershell', function() {
     }
 
     function tokenVariable(stream, state) {
+        var ch = stream.peek();
         if (stream.eat('{')) {
             state.tokenize = tokenVariableWithBraces;
             return tokenVariableWithBraces(stream, state);
-        } else {
-            stream.eatWhile(/[\w\\\-:]/);
+        } else if (ch != undefined && ch.match(varNames)) {
+            stream.eatWhile(varNames);
             state.tokenize = tokenBase;
             return 'variable-2';
+        } else {
+            state.tokenize = tokenBase;
+            return 'error';
         }
     }
 
@@ -313,6 +354,20 @@ CodeMirror.defineMode('powershell', function() {
         var quote = state.startQuote;
         if (stream.sol() && stream.match(new RegExp(quote + '@'))) {
             state.tokenize = tokenBase;
+        }
+        else if (quote === '"') {
+            while (!stream.eol()) {
+                var ch = stream.peek();
+                if (ch === '$') {
+                    state.tokenize = tokenHereStringInterpolation;
+                    return 'string';
+                }
+
+                stream.next();
+                if (ch === '`') {
+                    stream.next();
+                }
+            }
         }
         else {
             stream.skipToEnd();
@@ -336,7 +391,8 @@ CodeMirror.defineMode('powershell', function() {
 
         blockCommentStart: '<#',
         blockCommentEnd: '#>',
-        lineComment: '#'
+        lineComment: '#',
+        fold: 'brace'
     };
     return external;
 });
