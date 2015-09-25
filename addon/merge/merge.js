@@ -640,7 +640,7 @@
       mark.clear();
       cm.removeLineClass(from, "wrap", "CodeMirror-merge-collapsed-line");
     }
-    widget.addEventListener("click", clear);
+    CodeMirror.on(widget, "click", clear);
     return {mark: mark, clear: clear};
   }
 
