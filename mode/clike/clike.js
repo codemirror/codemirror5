@@ -25,8 +25,8 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       multiLineStrings = parserConfig.multiLineStrings,
       indentStatements = parserConfig.indentStatements !== false,
       indentSwitch = parserConfig.indentSwitch !== false,
-      namespaceSeparator = parserConfig.namespaceSeparator;
-  var isOperatorChar = /[+\-*&%=<>!?|\/]/;
+      namespaceSeparator = parserConfig.namespaceSeparator,
+      isOperatorChar = parserConfig.isOperatorChar || /[+\-*&%=<>!?|\/]/;
 
   var curPunc, isDefKeyword;
 
