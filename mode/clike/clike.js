@@ -67,17 +67,17 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       stream.eatWhile(/[\w\$_\xa1-\uffff]/);
 
     var cur = stream.current();
-    if (keywords.propertyIsEnumerable(cur)) {
-      if (blockKeywords.propertyIsEnumerable(cur)) curPunc = "newstatement";
-      if (defKeywords.propertyIsEnumerable(cur)) isDefKeyword = true;
+    if (contains(keywords, cur)) {
+      if (contains(blockKeywords, cur)) curPunc = "newstatement";
+      if (contains(defKeywords, cur)) isDefKeyword = true;
       return "keyword";
     }
-    if (types.propertyIsEnumerable(cur)) return "variable-3";
-    if (builtin.propertyIsEnumerable(cur)) {
-      if (blockKeywords.propertyIsEnumerable(cur)) curPunc = "newstatement";
+    if (contains(types, cur)) return "variable-3";
+    if (contains(builtin, cur)) {
+      if (contains(blockKeywords, cur)) curPunc = "newstatement";
       return "builtin";
     }
-    if (atoms.propertyIsEnumerable(cur)) return "atom";
+    if (contains(atoms, cur)) return "atom";
     return "variable";
   }
 
@@ -237,6 +237,13 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     var obj = {}, words = str.split(" ");
     for (var i = 0; i < words.length; ++i) obj[words[i]] = true;
     return obj;
+  }
+  function contains(words, word) {
+    if (typeof words === "function") {
+      return words(word);
+    } else {
+      return words.propertyIsEnumerable(word);
+    }
   }
   var cKeywords = "auto if break case register continue return default do sizeof " +
     "static else struct switch extern typedef float union for " +
