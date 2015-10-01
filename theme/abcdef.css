@@ -27,6 +27,6 @@
 .cm-s-abcdef span.cm-attribute { color: #DDFF00; }
 .cm-s-abcdef span.cm-error { color: #FF0000; }
 .cm-s-abcdef span.cm-header { color: aquamarine; font-weight: bold; }
-.cm-s-abcdef span.cm-link { color: blue; }
+.cm-s-abcdef span.cm-link { color: blueviolet; }
 
 .cm-s-abcdef .CodeMirror-activeline-background { background: #314151; }
