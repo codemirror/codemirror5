@@ -190,7 +190,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
         pushContext(state, stream.column(), type);
       }
 
-      if (style == "variable" &&
+      if ((style == "variable" || style == "variable-3") &&
           ((state.prevToken == "def" ||
             (parserConfig.typeFirstDefinitions && typeBefore(stream, state) &&
              isTopScope(state.context) && stream.match(/^\s*\(/, false)))))
