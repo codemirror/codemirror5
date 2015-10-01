@@ -25,8 +25,8 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       multiLineStrings = parserConfig.multiLineStrings,
       indentStatements = parserConfig.indentStatements !== false,
       indentSwitch = parserConfig.indentSwitch !== false,
-      namespaceSeparator = parserConfig.namespaceSeparator;
-  var isOperatorChar = /[+\-*&%=<>!?|\/]/;
+      namespaceSeparator = parserConfig.namespaceSeparator,
+      isOperatorChar = parserConfig.isOperatorChar || /[+\-*&%=<>!?|\/]/;
 
   var curPunc, isDefKeyword;
 
@@ -67,17 +67,17 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       stream.eatWhile(/[\w\$_\xa1-\uffff]/);
 
     var cur = stream.current();
-    if (keywords.propertyIsEnumerable(cur)) {
-      if (blockKeywords.propertyIsEnumerable(cur)) curPunc = "newstatement";
-      if (defKeywords.propertyIsEnumerable(cur)) isDefKeyword = true;
+    if (contains(keywords, cur)) {
+      if (contains(blockKeywords, cur)) curPunc = "newstatement";
+      if (contains(defKeywords, cur)) isDefKeyword = true;
       return "keyword";
     }
-    if (types.propertyIsEnumerable(cur)) return "variable-3";
-    if (builtin.propertyIsEnumerable(cur)) {
-      if (blockKeywords.propertyIsEnumerable(cur)) curPunc = "newstatement";
+    if (contains(types, cur)) return "variable-3";
+    if (contains(builtin, cur)) {
+      if (contains(blockKeywords, cur)) curPunc = "newstatement";
       return "builtin";
     }
-    if (atoms.propertyIsEnumerable(cur)) return "atom";
+    if (contains(atoms, cur)) return "atom";
     return "variable";
   }
 
@@ -190,7 +190,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
         pushContext(state, stream.column(), type);
       }
 
-      if (style == "variable" &&
+      if ((style == "variable" || style == "variable-3") &&
           ((state.prevToken == "def" ||
             (parserConfig.typeFirstDefinitions && typeBefore(stream, state) &&
              isTopScope(state.context) && stream.match(/^\s*\(/, false)))))
@@ -237,6 +237,13 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     var obj = {}, words = str.split(" ");
     for (var i = 0; i < words.length; ++i) obj[words[i]] = true;
     return obj;
+  }
+  function contains(words, word) {
+    if (typeof words === "function") {
+      return words(word);
+    } else {
+      return words.propertyIsEnumerable(word);
+    }
   }
   var cKeywords = "auto if break case register continue return default do sizeof " +
     "static else struct switch extern typedef float union for " +
@@ -642,6 +649,47 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     atoms: words("true false null"),
     hooks: {"#": cppHook},
     modeProps: {fold: ["brace", "include"]}
+  });
+
+  def("text/x-ceylon", {
+    name: "clike",
+    keywords: words("abstracts alias assembly assert assign break case catch class continue dynamic else" +
+                    " exists extends finally for function given if import in interface is let module new" +
+                    " nonempty object of out outer package return satisfies super switch then this throw" +
+                    " try value void while"),
+    types: function(word) {
+        // In Ceylon all identifiers that start with an uppercase are types
+        var first = word.charAt(0);
+        return (first === first.toUpperCase() && first !== first.toLowerCase());
+    },
+    blockKeywords: words("case catch class dynamic else finally for function if interface module new object switch try while"),
+    defKeywords: words("class dynamic function interface module object package value"),
+    builtin: words("abstract actual aliased annotation by default deprecated doc final formal late license" +
+                   " native optional sealed see serializable shared suppressWarnings tagged throws variable"),
+    isOperatorChar: /[+\-*&%=<>!?|^~:\/]/,
+    multiLineStrings: true,
+    typeFirstDefinitions: true,
+    atoms: words("true false null larger smaller equal empty finished"),
+    indentSwitch: false,
+    hooks: {
+      "@": function(stream) {
+        stream.eatWhile(/[\w\$_]/);
+        return "meta";
+      },
+      '"': function(stream, state) {
+        if (!stream.match('""')) return false;
+        state.tokenize = tokenTripleString;
+        return state.tokenize(stream, state);
+      },
+      "'": function(stream) {
+        stream.eatWhile(/[\w\$_\xa1-\uffff]/);
+        return "atom";
+      }
+    },
+    modeProps: {
+        fold: ["brace", "import"],
+        closeBrackets: {triples: '"'}
+    }
   });
 
 });
