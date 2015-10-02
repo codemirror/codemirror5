@@ -26,7 +26,8 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       indentStatements = parserConfig.indentStatements !== false,
       indentSwitch = parserConfig.indentSwitch !== false,
       namespaceSeparator = parserConfig.namespaceSeparator,
-      isOperatorChar = parserConfig.isOperatorChar || /[+\-*&%=<>!?|\/]/;
+      isOperatorChar = parserConfig.isOperatorChar || /[+\-*&%=<>!?|\/]/,
+      endStatement = parserConfig.endStatement || /^[;:,]$/;
 
   var curPunc, isDefKeyword;
 
@@ -168,8 +169,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       if (style == "comment" || style == "meta") return style;
       if (ctx.align == null) ctx.align = true;
 
-      if ((curPunc == ";" || curPunc == ":" || curPunc == ","))
-        while (isStatement(state.context.type)) popContext(state);
+      if (endStatement.test(curPunc)) while (isStatement(state.context.type)) popContext(state);
       else if (curPunc == "{") pushContext(state, stream.column(), "}");
       else if (curPunc == "[") pushContext(state, stream.column(), "]");
       else if (curPunc == "(") pushContext(state, stream.column(), ")");
@@ -420,6 +420,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     defKeywords: words("class interface package enum"),
     typeFirstDefinitions: true,
     atoms: words("true false null"),
+    endStatement: /^[;:]$/,
     hooks: {
       "@": function(stream) {
         stream.eatWhile(/[\w\$_]/);
