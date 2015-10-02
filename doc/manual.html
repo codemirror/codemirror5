@@ -421,6 +421,13 @@
       <dt id="option_dragDrop"><code><strong>dragDrop</strong>: boolean</code></dt>
       <dd>Controls whether drag-and-drop is enabled. On by default.</dd>
 
+      <dt id="option_allowDropFileTypes"><code><strong>allowDropFileTypes</strong>: array&lt;string&gt;</code></dt>
+      <dd>When set (default is <code>null</code>) only files whose
+      type is in the array can be dropped into the editor. The strings
+      should be MIME types, and will be checked against
+      the <a href="https://w3c.github.io/FileAPI/#dfn-type"><code>type</code></a>
+      of the <code>File</code> object as reported by the browser.</dd>
+
       <dt id="option_cursorBlinkRate"><code><strong>cursorBlinkRate</strong>: number</code></dt>
       <dd>Half-period in milliseconds used for cursor blinking. The default blink
       rate is 530ms. By setting this to zero, blinking can be disabled. A
