@@ -2488,7 +2488,9 @@ editor.setOption("extraKeys", {
       Pass <code>"\n"</code> for <code>open</code> or <code>close</code>
       if you want to switch on a blank line.
       <ul><li>When <code>delimStyle</code> is specified, it will be the token
-      style returned for the delimiter tokens.</li>
+      style returned for the delimiter tokens (as well as
+      <code>[delimStyle]-open</code> on the opening token and
+      <code>[delimStyle]-close</code> on the closing token).</li>
       <li>When <code>innerStyle</code> is specified, it will be the token
       style added for each inner mode token.</li>
       <li>When <code>parseDelimiters</code> is true, the content of
