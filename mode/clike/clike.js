@@ -678,7 +678,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       return "string";
     }
   }
-  
+
   def("text/x-ceylon", {
     name: "clike",
     keywords: words("abstracts alias assembly assert assign break case catch class continue dynamic else" +
@@ -721,7 +721,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
         stream.eatWhile(/[\w\$_\xa1-\uffff]/);
         return "atom";
       },
-      token: function(stream, state, style) {
+      token: function(_stream, state, style) {
           if ((style == "variable" || style == "variable-3") &&
               state.prevToken == ".") {
             return "variable-2";
