@@ -716,7 +716,13 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       "'": function(stream) {
         stream.eatWhile(/[\w\$_\xa1-\uffff]/);
         return "atom";
-      }
+      },
+      token: function(stream, state, style) {
+          if ((style == "variable" || style == "variable-3") &&
+              state.prevToken == ".") {
+            return "variable-2";
+          }
+        }
     },
     modeProps: {
         fold: ["brace", "import"],
