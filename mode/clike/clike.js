@@ -192,7 +192,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
         pushContext(state, stream.column(), type);
       }
 
-      if ((style == "variable" || style == "variable-3") &&
+      if (style == "variable" &&
           ((state.prevToken == "def" ||
             (parserConfig.typeFirstDefinitions && typeBefore(stream, state) &&
              isTopScope(state.context) && stream.match(/^\s*\(/, false)))))
@@ -654,6 +654,31 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     modeProps: {fold: ["brace", "include"]}
   });
 
+  // Ceylon Strings need to deal with interpolation
+  var stringTokenizer = null;
+  function tokenCeylonString(type) {
+    return function(stream, state) {
+      var escaped = false, next, end = false;
+      while (!stream.eol()) {
+        if (!escaped && stream.match('"') &&
+              (type == "single" || stream.match('""'))) {
+          end = true;
+          break;
+        }
+        if (!escaped && stream.match('``')) {
+          stringTokenizer = tokenCeylonString(type);
+          end = true;
+          break;
+        }
+        next = stream.next();
+        escaped = type == "single" && !escaped && next == "\\";
+      }
+      if (end)
+          state.tokenize = null;
+      return "string";
+    }
+  }
+
   def("text/x-ceylon", {
     name: "clike",
     keywords: words("abstracts alias assembly assert assign break case catch class continue dynamic else" +
@@ -676,20 +701,32 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     typeFirstDefinitions: true,
     atoms: words("true false null larger smaller equal empty finished"),
     indentSwitch: false,
+    styleDefs: false,
     hooks: {
       "@": function(stream) {
         stream.eatWhile(/[\w\$_]/);
         return "meta";
       },
       '"': function(stream, state) {
-        if (!stream.match('""')) return false;
-        state.tokenize = tokenTripleString;
-        return state.tokenize(stream, state);
-      },
+          state.tokenize = tokenCeylonString(stream.match('""') ? "triple" : "single");
+          return state.tokenize(stream, state);
+        },
+      '`': function(stream, state) {
+          if (!stringTokenizer || !stream.match('`')) return false;
+          state.tokenize = stringTokenizer;
+          stringTokenizer = null;
+          return state.tokenize(stream, state);
+        },
       "'": function(stream) {
         stream.eatWhile(/[\w\$_\xa1-\uffff]/);
         return "atom";
-      }
+      },
+      token: function(_stream, state, style) {
+          if ((style == "variable" || style == "variable-3") &&
+              state.prevToken == ".") {
+            return "variable-2";
+          }
+        }
     },
     modeProps: {
         fold: ["brace", "import"],
