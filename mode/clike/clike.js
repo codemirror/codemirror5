@@ -190,7 +190,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
         pushContext(state, stream.column(), type);
       }
 
-      if ((style == "variable" || style == "variable-3") &&
+      if (style == "variable" &&
           ((state.prevToken == "def" ||
             (parserConfig.typeFirstDefinitions && typeBefore(stream, state) &&
              isTopScope(state.context) && stream.match(/^\s*\(/, false)))))
@@ -672,6 +672,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     typeFirstDefinitions: true,
     atoms: words("true false null larger smaller equal empty finished"),
     indentSwitch: false,
+    styleDefs: false,
     hooks: {
       "@": function(stream) {
         stream.eatWhile(/[\w\$_]/);
