@@ -652,6 +652,31 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     modeProps: {fold: ["brace", "include"]}
   });
 
+  // Ceylon Strings need to deal with interpolation
+  var stringTokenizer = null;
+  function tokenCeylonString(type) {
+    return function(stream, state) {
+      var escaped = false, next, end = false;
+      while (!stream.eol()) {
+        if (!escaped && stream.match('"') &&
+              (type == "single" || stream.match('""'))) {
+          end = true;
+          break;
+        }
+        if (!escaped && stream.match('``')) {
+          stringTokenizer = tokenCeylonString(type);
+          end = true;
+          break;
+        }
+        next = stream.next();
+        escaped = type == "single" && !escaped && next == "\\";
+      }
+      if (end)
+          state.tokenize = null;
+      return "string";
+    }
+  }
+  
   def("text/x-ceylon", {
     name: "clike",
     keywords: words("abstracts alias assembly assert assign break case catch class continue dynamic else" +
@@ -679,10 +704,15 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
         return "meta";
       },
       '"': function(stream, state) {
-        if (!stream.match('""')) return false;
-        state.tokenize = tokenTripleString;
-        return state.tokenize(stream, state);
-      },
+          state.tokenize = tokenCeylonString(stream.match('""') ? "triple" : "single");
+          return state.tokenize(stream, state);
+        },
+      '`': function(stream, state) {
+          if (!stringTokenizer || !stream.match('`')) return false;
+          state.tokenize = stringTokenizer;
+          stringTokenizer = null;
+          return state.tokenize(stream, state);
+        },
       "'": function(stream) {
         stream.eatWhile(/[\w\$_\xa1-\uffff]/);
         return "atom";
