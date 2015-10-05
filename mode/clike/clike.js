@@ -26,6 +26,8 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       indentStatements = parserConfig.indentStatements !== false,
       indentSwitch = parserConfig.indentSwitch !== false,
       namespaceSeparator = parserConfig.namespaceSeparator,
+      isPunctuationChar = parserConfig.isPunctuationChar || /[\[\]{}\(\),;\:\.]/,
+      isNumberChar = parserConfig.isNumberChar || /\d/,
       isOperatorChar = parserConfig.isOperatorChar || /[+\-*&%=<>!?|\/]/,
       endStatement = parserConfig.endStatement || /^[;:,]$/;
 
@@ -41,11 +43,11 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       state.tokenize = tokenString(ch);
       return state.tokenize(stream, state);
     }
-    if (/[\[\]{}\(\),;\:\.]/.test(ch)) {
+    if (isPunctuationChar.test(ch)) {
       curPunc = ch;
       return null;
     }
-    if (/\d/.test(ch)) {
+    if (isNumberChar.test(ch)) {
       stream.eatWhile(/[\w\.]/);
       return "number";
     }
@@ -692,7 +694,9 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     defKeywords: words("class dynamic function interface module object package value"),
     builtin: words("abstract actual aliased annotation by default deprecated doc final formal late license" +
                    " native optional sealed see serializable shared suppressWarnings tagged throws variable"),
+    isPunctuationChar: /[\[\]{}\(\),;\:\.`]/,
     isOperatorChar: /[+\-*&%=<>!?|^~:\/]/,
+    isNumberChar: /[\d#$]/,
     multiLineStrings: true,
     typeFirstDefinitions: true,
     atoms: words("true false null larger smaller equal empty finished"),
