@@ -191,21 +191,20 @@ CodeMirror.defineMode("haxe", function(config, parserConfig) {
     pass.apply(null, arguments);
     return true;
   }
+  function inList(name, list) {
+    for (var v = list; v; v = v.next)
+      if (v.name == name) return true;
+    return false;
+  }
   function register(varname) {
-    function inList(list) {
-      for (var v = list; v; v = v.next)
-        if (v.name == varname) return true;
-      return false;
-    }
     var state = cx.state;
     if (state.context) {
       cx.marked = "def";
-      if (inList(state.localVars)) return;
+      if (inList(varname, state.localVars)) return;
       state.localVars = {name: varname, next: state.localVars};
-    } else {
-      if (inList(state.globalVars)) return;
-      if (parserConfig.globalVars)
-        state.globalVars = {name: varname, next: state.globalVars};
+    } else if (state.globalVars) {
+      if (inList(varname, state.globalVars)) return;
+      state.globalVars = {name: varname, next: state.globalVars};
     }
   }
 
