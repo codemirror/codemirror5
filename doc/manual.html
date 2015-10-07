@@ -421,6 +421,13 @@
       <dt id="option_dragDrop"><code><strong>dragDrop</strong>: boolean</code></dt>
       <dd>Controls whether drag-and-drop is enabled. On by default.</dd>
 
+      <dt id="option_allowDropFileTypes"><code><strong>allowDropFileTypes</strong>: array&lt;string&gt;</code></dt>
+      <dd>When set (default is <code>null</code>) only files whose
+      type is in the array can be dropped into the editor. The strings
+      should be MIME types, and will be checked against
+      the <a href="https://w3c.github.io/FileAPI/#dfn-type"><code>type</code></a>
+      of the <code>File</code> object as reported by the browser.</dd>
+
       <dt id="option_cursorBlinkRate"><code><strong>cursorBlinkRate</strong>: number</code></dt>
       <dd>Half-period in milliseconds used for cursor blinking. The default blink
       rate is 530ms. By setting this to zero, blinking can be disabled. A
@@ -2481,7 +2488,9 @@ editor.setOption("extraKeys", {
       Pass <code>"\n"</code> for <code>open</code> or <code>close</code>
       if you want to switch on a blank line.
       <ul><li>When <code>delimStyle</code> is specified, it will be the token
-      style returned for the delimiter tokens.</li>
+      style returned for the delimiter tokens (as well as
+      <code>[delimStyle]-open</code> on the opening token and
+      <code>[delimStyle]-close</code> on the closing token).</li>
       <li>When <code>innerStyle</code> is specified, it will be the token
       style added for each inner mode token.</li>
       <li>When <code>parseDelimiters</code> is true, the content of
