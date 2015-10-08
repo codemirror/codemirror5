@@ -670,6 +670,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
         lexical = lexical.prev;
       var type = lexical.type, closing = firstChar == type;
 
+      console.log(firstChar, type)
       if (type == "vardef") return lexical.indented + (state.lastType == "operator" || state.lastType == "," ? lexical.info + 1 : 0);
       else if (type == "form" && firstChar == "{") return lexical.indented;
       else if (type == "form") return lexical.indented + indentUnit;
