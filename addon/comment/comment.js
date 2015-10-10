@@ -21,22 +21,28 @@
   }
 
   CodeMirror.commands.toggleComment = function(cm) {
-    var minLine = Infinity, ranges = cm.listSelections(), mode = null;
+    cm.toggleComment();
+  };
+
+  CodeMirror.defineExtension("toggleComment", function(options) {
+    if (!options) options = noOptions;
+    var cm = this;
+    var minLine = Infinity, ranges = this.listSelections(), mode = null;
     for (var i = ranges.length - 1; i >= 0; i--) {
       var from = ranges[i].from(), to = ranges[i].to();
       if (from.line >= minLine) continue;
       if (to.line >= minLine) to = Pos(minLine, 0);
       minLine = from.line;
       if (mode == null) {
-        if (cm.uncomment(from, to)) mode = "un";
-        else { cm.lineComment(from, to); mode = "line"; }
+        if (cm.uncomment(from, to, options)) mode = "un";
+        else { cm.lineComment(from, to, options); mode = "line"; }
       } else if (mode == "un") {
-        cm.uncomment(from, to);
+        cm.uncomment(from, to, options);
       } else {
-        cm.lineComment(from, to);
+        cm.lineComment(from, to, options);
       }
     }
-  };
+  });
 
   CodeMirror.defineExtension("lineComment", function(from, to, options) {
     if (!options) options = noOptions;

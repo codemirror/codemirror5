@@ -2313,9 +2313,12 @@ editor.setOption("extraKeys", {
       demo</a>.</dd>
 
       <dt id="addon_comment"><a href="../addon/comment/comment.js"><code>comment/comment.js</code></a></dt>
-      <dd>Addon for commenting and uncommenting code. Adds three
+      <dd>Addon for commenting and uncommenting code. Adds four
       methods to CodeMirror instances:
       <dl>
+        <dt id="toggleComment"><code><strong>toggleComment</strong>(from: {line, ch}, to: {line, ch}, ?options: object)</code></dt>
+        <dd>Tries to uncomment the current selection, and if that
+        fails, line-comments it.</dd>
         <dt id="lineComment"><code><strong>lineComment</strong>(from: {line, ch}, to: {line, ch}, ?options: object)</code></dt>
         <dd>Set the lines in the given range to be line comments. Will
         fall back to <code>blockComment</code> when no line comment
@@ -2353,8 +2356,8 @@ editor.setOption("extraKeys", {
       </dl>
       The addon also defines
       a <code>toggleComment</code> <a href="#commands">command</a>,
-      which will try to uncomment the current selection, and if that
-      fails, line-comments it.</dd>
+      which is a shorthand command for calling
+      <code>toggleComment</code> with no options.</dd>
 
       <dt id="addon_foldcode"><a href="../addon/fold/foldcode.js"><code>fold/foldcode.js</code></a></dt>
       <dd>Helps with code folding. Adds a <code>foldCode</code> method
