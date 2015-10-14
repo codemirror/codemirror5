@@ -91,10 +91,11 @@
     function html(stream, state) {
       var tagName = state.htmlState.tagName;
       var tagInfo = tagName && tags[tagName.toLowerCase()];
+      var isTagInfoArray = Object.prototype.toString.call(tagInfo) === "[object Array]";
 
       var style = htmlMode.token(stream, state.htmlState), modeSpec;
 
-      if (tagInfo && /\btag\b/.test(style) && stream.current() === ">" &&
+      if (isTagInfoArray && /\btag\b/.test(style) && stream.current() === ">" &&
           (modeSpec = findMatchingMode(tagInfo, stream))) {
         var mode = CodeMirror.getMode(config, modeSpec);
         var endTagA = getTagRegexp(tagName, true), endTag = getTagRegexp(tagName, false);
