@@ -6,6 +6,7 @@
     "license": "MIT",
     "directories": {"lib": "./lib"},
     "scripts": {"test": "node ./test/run.js"},
+    "dependencies": {"diff-match-patch": "^1.0.0"},
     "devDependencies": {"node-static": "0.6.0",
                         "phantomjs": "1.9.2-5",
                         "blint": ">=0.1.1"},

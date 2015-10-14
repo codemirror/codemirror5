@@ -3,17 +3,21 @@
 
 // declare global: diff_match_patch, DIFF_INSERT, DIFF_DELETE, DIFF_EQUAL
 
-(function(mod) {
+(function(mod, root) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
-    mod(require("../../lib/codemirror"), require("diff_match_patch"));
+    mod(require("../../lib/codemirror"), require("diff-match-patch"), root);
   else if (typeof define == "function" && define.amd) // AMD
-    define(["../../lib/codemirror", "diff_match_patch"], mod);
+    define(["../../lib/codemirror", "diff_match_patch"], mod, root);
   else // Plain browser env
-    mod(CodeMirror);
-})(function(CodeMirror) {
+    mod(CodeMirror, diff_match_patch, root);
+})(function(CodeMirror, diff_match_patch, root) {
   "use strict";
   var Pos = CodeMirror.Pos;
   var svgNS = "http://www.w3.org/2000/svg";
+
+  var DIFF_INSERT = 'DIFF_INSERT' in diff_match_patch ? diff_match_patch.DIFF_INSERT : root.DIFF_INSERT;
+  var DIFF_DELETE = 'DIFF_DELETE' in diff_match_patch ? diff_match_patch.DIFF_DELETE : root.DIFF_DELETE;
+  var DIFF_EQUAL = 'DIFF_EQUAL' in diff_match_patch ? diff_match_patch.DIFF_EQUAL : root.DIFF_EQUAL;
 
   function DiffView(mv, type) {
     this.mv = mv;
@@ -772,4 +776,4 @@
   CodeMirror.commands.goPrevDiff = function(cm) {
     return goNearbyDiff(cm, -1);
   };
-});
+}, this);
