@@ -35,7 +35,7 @@
   }
 
   function sizeInterpolationStack(state) {
-    return (state.interpolationStack || (state.interpolationStack = [])).length;
+    return state.interpolationStack ? state.interpolationStack.length : 0;
   }
 
   CodeMirror.defineMIME("application/dart", {
