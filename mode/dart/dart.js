@@ -29,7 +29,6 @@
   CodeMirror.defineMIME("application/dart", {
     name: "clike",
     keywords: set(keywords),
-    multiLineStrings: true,
     blockKeywords: set(blockKeywords),
     builtin: set(builtins),
     atoms: set(atoms),
@@ -37,9 +36,53 @@
       "@": function(stream) {
         stream.eatWhile(/[\w\$_]/);
         return "meta";
+      },
+      // custom string handling to deal with triple-quoted multi-line strings
+      "'": function(stream, state) {
+        return tokenString("'", stream, state);
+      },
+      "\"": function(stream, state) {
+        return tokenString("\"", stream, state);
+      },
+      "r": function(stream, state) {
+        var peek = stream.peek();
+        if (peek == "'" || peek == "\"") {
+          return tokenString(stream.next(), stream, state);
+        }
+        return false;
       }
     }
   });
+
+  function tokenString(quote, stream, state) {
+    var prevTokenize = state.tokenize;
+    var tripleQuoted = false;
+    if (stream.eat(quote)) {
+      if (stream.eat(quote)) tripleQuoted = true;
+      else return "string"; //empty string
+    }
+    function tokenStringHelper(stream, state) {
+      var escaped = false;
+      var next;
+      while ((next = stream.next()) != null) {
+        if (next == quote && !escaped) {
+          if (!tripleQuoted) {
+            break;
+          }
+          if (stream.match(quote + quote)) {
+            state.tokenize = prevTokenize;
+            break;
+          }
+        }
+        escaped = !escaped && next == "\\";
+      }
+      return "string";
+    }
+    if (tripleQuoted) {
+      state.tokenize = tokenStringHelper;
+    }
+    return tokenStringHelper(stream, state);
+  }
 
   CodeMirror.registerHelper("hintWords", "application/dart", keywords.concat(atoms).concat(builtins));
 
