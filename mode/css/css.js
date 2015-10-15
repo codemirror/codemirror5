@@ -275,6 +275,8 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     if (type == "}" || type == ";") return popAndPass(type, stream, state);
     if (type == "{") return popContext(state) && pushContext(state, stream, allowNested ? "block" : "top");
 
+    if (type == "interpolation") return pushContext(state, stream, "interpolation");
+
     if (type == "word") {
       var word = stream.current().toLowerCase();
       if (word == "only" || word == "not" || word == "and" || word == "or")
