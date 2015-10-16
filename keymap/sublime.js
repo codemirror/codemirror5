@@ -240,7 +240,9 @@
     });
   };
 
-  map[ctrl + "/"] = "toggleComment";
+  map[ctrl + "/"] = function(cm) {
+    cm.toggleComment({ indent: true });
+  }
 
   cmds[map[ctrl + "J"] = "joinLines"] = function(cm) {
     var ranges = cm.listSelections(), joined = [];
