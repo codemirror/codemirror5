@@ -1,0 +1,59 @@
+<!doctype html>
+
+<title>CodeMirror: TypeScript mode</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../../doc/docs.css">
+
+<link rel="stylesheet" href="../../lib/codemirror.css">
+<script src="../../lib/codemirror.js"></script>
+<script src="javascript.js"></script>
+<style type="text/css">.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
+<div id=nav>
+  <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../../doc/logo.png"></a>
+
+  <ul>
+    <li><a href="../../index.html">Home</a>
+    <li><a href="../../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="../index.html">Language modes</a>
+    <li><a class=active href="#">JSX</a>
+  </ul>
+</div>
+
+<article>
+<h2>JSX mode</h2>
+
+
+<div><textarea id="code" name="code">
+var MyComponent = React.createClass({/*...*/});
+var myElement = <MyComponent someProperty={true} />;
+ReactDOM.render(myElement, document.getElementById('example'));
+var App = (
+  <Form onSubmit={this.submit}
+        style={{display: 'none'}} action="./">
+    <FormRow className={foo < bar ? "show" : "hide"}>
+      <FormLabel />
+      <FormInput />
+    </FormRow>
+  </Form>
+);
+var list = <List items={array.map((item) => <Item content={item} />)} />;
+if ( test <= 1 && test < 1 && test > TEST || 3 < test) {
+  var bitwise1 = 1 >> 2;
+  var bitwise2 = 1 << 2;
+  return <div style={{ width: 5 }} onClick={()=>{ throw Error() }}/>;
+}
+</textarea></div>
+
+    <script>
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        lineNumbers: true,
+        matchBrackets: true,
+        mode: "text/jsx"
+      });
+    </script>
+
+    <p>This is a specialization of the <a href="index.html">JavaScript mode</a>.</p>
+  </article>
