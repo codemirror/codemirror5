@@ -185,7 +185,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       return state.tokenize(stream, state);
     } else {
       stream.match(/^[^\s\u00a0=<>\"\']*[^\s\u00a0=<>\"\'\/]/);
-      return "variable-2";
+      return "word";
     }
   }
 
@@ -712,6 +712,13 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       var style = state.tokenize(stream, state);
       if (type == "comment") return style;
       state.lastType = type == "operator" && (content == "++" || content == "--") ? "incdec" : type;
+      if (isJSX && style == 'word') {
+        if (type == 'openTag' || type == 'closeTag') {
+          type = 'attribute';
+          return 'tag';
+        } else
+          return 'attribute';
+      }
       return parseJS(state, style, type, content, stream);
     },
 
