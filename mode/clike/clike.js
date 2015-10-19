@@ -214,6 +214,10 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       if (state.tokenize != tokenBase && state.tokenize != null) return CodeMirror.Pass;
       var ctx = state.context, firstChar = textAfter && textAfter.charAt(0);
       if (isStatement(ctx.type) && firstChar == "}") ctx = ctx.prev;
+      if (hooks.indent) {
+        var hook = hooks.indent(state, ctx, textAfter);
+        if (typeof hook == "number") return hook
+      }
       var closing = firstChar == ctx.type;
       var switchBlock = ctx.prev && ctx.prev.type == "switchstatement";
       if (isStatement(ctx.type))
@@ -636,7 +640,10 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
         stream.eatWhile(/[\w\$]/);
         return "keyword";
       },
-      "#": cppHook
+      "#": cppHook,
+      indent: function(_state, ctx, textAfter) {
+        if (ctx.type == "statement" && /^@\w/.test(textAfter)) return ctx.indented
+      }
     },
     modeProps: {fold: "brace"}
   });
