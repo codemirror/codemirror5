@@ -413,6 +413,14 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == ".") return cont(property, me);
     if (type == "[") return cont(pushlex("]"), maybeexpression, expect("]"), poplex, me);
   }
+  function memberExpressionContinuation(type, value) {
+    var me = memberExpressionContinuation;
+    if (type == "quasi") { return pass(quasi, me); }
+    if (type == ";") return;
+    if (type == "(") return contCommasep(expressionNoComma, ")", "call", me);
+    if (type == ".") return cont(property, me);
+    if (type == "[") return cont(pushlex("]"), maybeexpression, expect("]"), poplex, me);
+  }
   function quasi(type, value) {
     if (type != "quasi") return pass();
     if (value.slice(value.length - 2) != "${") return cont(quasi);
@@ -447,7 +455,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       if (type !== "variable") return pass();
       if (value !== "target") return pass();
       cx.marked = "keyword";
-      return cont();
+      return cont(memberExpressionContinuation);
     }
   }
   function objprop(type, value) {
