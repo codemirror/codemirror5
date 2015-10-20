@@ -1,0 +1,102 @@
+<!doctype html>
+
+<title>CodeMirror: Mustache mode</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../../doc/docs.css">
+
+<link rel="stylesheet" href="../../lib/codemirror.css">
+<script src="../../lib/codemirror.js"></script>
+<script src="../../addon/mode/overlay.js"></script>
+<script src="../markdown/markdown.js"></script>
+<script src="../htmlmixed/htmlmixed.js"></script>
+<script src="../xml/xml.js"></script>
+<script src="mustache.js"></script>
+<style>.CodeMirror {border: 2px inset #dee;}</style>
+<div id=nav>
+  <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../../doc/logo.png"></a>
+
+  <ul>
+    <li><a href="../../index.html">Home</a>
+    <li><a href="../../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="../index.html">Language modes</a>
+    <li><a class=active href="#">Mustache</a>
+  </ul>
+</div>
+
+<article>
+<h2>Mustache mode - HTML example</h2>
+
+<div><textarea id="html-code">
+<html>
+  <body>
+    <h1>Title: {{title}}</h1>
+
+    <ul>
+      {{#items}}
+      <li class="something {{cssClass}}">
+        Item description is like this: {{description}}
+        For more info: <a href="{{link}}">click here</a>.
+      </li>
+      {{/items}}
+    </ul>
+    {{^items}}
+    <p><em>No items!</em></p>
+    {{/items}}
+
+    <div>{{{firstHtmlStuff}}}</div>
+
+    <div>{{& secondHtmlStuff}}</div>
+  </body>
+</html>
+</textarea></div>
+
+<h2>Mustache example - Markdown example</h2>
+
+<div><textarea id="markdown-code">
+# Title: {{title}}
+
+Paragraph about stuff with _emphasised_ *words* and
+__strongly emphasised__ **words.** There's also `code`.
+
+> And blockquotes
+> of poetry and the like.
+
+    This code block
+    is monospaced.
+
+{{#items}}
+* Item description is like this: {{description}}
+  For more info: [click here]({{link}}).
+{{/items}}
+{{^items}}
+_No items!_
+{{/items}}
+
+Triple curly braces means no HTML escaping. {{{firstHtmlStuff}}}
+
+Also no HTML escaping here. {{& secondHtmlStuff}}
+</textarea></div>
+
+    <script>
+      var htmlEditor = CodeMirror.fromTextArea(document.getElementById("html-code"), {
+        lineNumbers: true,
+        matchBrackets: true,
+        mode: { name: "mustache", backdrop: "text/html" }
+      });
+      var markdownEditor = CodeMirror.fromTextArea(document.getElementById("markdown-code"), {
+        lineNumbers: true,
+        matchBrackets: true,
+        mode: { name: "mustache", backdrop: "markdown" }
+      });
+    </script>
+
+    <p>Since Mustache templates are entirely language-agnostic, they can be applied to any
+    language (even plain text). To use Mustache mode as an overlay, include the "backdrop"
+    language. View the source to see how Mustache can template HTML in the first example,
+    can template Markdown in the second example.</p>
+
+    <p><strong>MIME types defined:</strong> <code>text/x-mustache</code></p>
+</article>
