@@ -1,0 +1,148 @@
+<!doctype html>
+
+<title>CodeMirror: Handlebars mode</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../../doc/docs.css">
+
+<link rel="stylesheet" href="../../lib/codemirror.css">
+<script src="../../lib/codemirror.js"></script>
+<script src="../../addon/mode/simple.js"></script>
+<script src="../../addon/mode/overlay.js"></script>
+<script src="../htmlmixed/htmlmixed.js"></script>
+<script src="../markdown/markdown.js"></script>
+<script src="../xml/xml.js"></script>
+<script src="mustachelike.js"></script>
+<style>.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
+<div id=nav>
+  <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../../doc/logo.png"></a>
+
+  <ul>
+    <li><a href="../../index.html">Home</a>
+    <li><a href="../../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="../index.html">Language modes</a>
+    <li><a class=active href="#">HTML mixed</a>
+  </ul>
+</div>
+
+<article>
+
+<h2 id="mustache">Mustache mode</h2>
+
+<div><textarea id="html-code">
+<html>
+  <body>
+    <h1>Title: {{title}}</h1>
+
+    <ul>
+      {{#items}}
+      <li class="something {{cssClass}}">
+        Item description is like this: {{description}}
+        For more info: <a href="{{link}}">click here</a>.
+      </li>
+      {{/items}}
+    </ul>
+    {{^items}}
+    <p><em>No items!</em></p>
+    {{/items}}
+
+    <div>{{{firstHtmlStuff}}}</div>
+
+    <div>{{& secondHtmlStuff}}</div>
+  </body>
+</html>
+</textarea></div>
+
+    <p>Mustache over HTML syntax highlighting for CodeMirror.</p>
+
+<div><textarea id="markdown-code">
+# Title: {{title}}
+
+Paragraph about stuff with _emphasised_ *words* and
+__strongly emphasised__ **words.** There's also `code`.
+
+> And blockquotes
+> of poetry and the like.
+
+    This code block
+    is monospaced.
+
+{{#items}}
+* Item description is like this: {{description}}
+  For more info: [click here]({{link}}).
+{{/items}}
+{{^items}}
+_No items!_
+{{/items}}
+
+Triple curly braces means no HTML escaping. {{{firstHtmlStuff}}}
+
+Also no HTML escaping here. {{& secondHtmlStuff}}
+</textarea></div>
+
+    <script>
+      var htmlEditor = CodeMirror.fromTextArea(document.getElementById("html-code"), {
+        lineNumbers: true,
+        matchBrackets: true,
+        mode: { name: "mustache", backdrop: "text/html" }
+      });
+      var markdownEditor = CodeMirror.fromTextArea(document.getElementById("markdown-code"), {
+        lineNumbers: true,
+        matchBrackets: true,
+        mode: { name: "mustache", backdrop: "markdown" }
+      });
+    </script>
+
+    <p>Mustache over Markdown syntax highlighting for CodeMirror.</p>
+
+    <p><strong>MIME types defined:</strong> <code>text/x-mustache</code></p>
+
+<h2 id="handlebars">Handlebars</h2>
+<form><textarea id="code" name="code">
+{{> breadcrumbs}}
+
+{{!--
+  You can use the t function to get
+  content translated to the current locale, es:
+  {{t 'article_list'}}
+--}}
+
+<h1>{{t 'article_list'}}</h1>
+
+{{! one line comment }}
+
+{{#each articles}}
+  {{~title}}
+  <p>{{excerpt body size=120 ellipsis=true}}</p>
+
+  {{#with author}}
+    written by {{first_name}} {{last_name}}
+    from category: {{../category.title}}
+    {{#if @../last}}foobar!{{/if}}
+  {{/with~}}
+
+  {{#if promoted.latest}}Read this one! {{else}} This is ok! {{/if}}
+
+  {{#if @last}}<hr>{{/if}}
+{{/each}}
+
+{{#form new_comment}}
+  <input type="text" name="body">
+{{/form}}
+
+</textarea></form>
+    <script>
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        lineNumbers: true,
+        matchBrackets: true,
+        mode: { name: "handlebars", backdrop: "text/html" }
+      });
+    </script>
+    </script>
+
+    <p>Handlebars syntax highlighting for CodeMirror.</p>
+
+    <p><strong>MIME types defined:</strong> <code>text/x-handlebars-template</code></p>
+</article>
