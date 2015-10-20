@@ -158,6 +158,14 @@
      "  [keyword return] [variable-2 x];",
      "}");
 
+  MT("new_target",
+     "[keyword function] [def F]([def taget]) {",
+     "  [keyword if] ([variable target]) {",
+     "    [keyword return] [keyword new]",
+     "      .[keyword target];",
+     "  }",
+     "}");
+
   var jsonld_mode = CodeMirror.getMode(
     {indentUnit: 2},
     {name: "javascript", jsonld: true}
