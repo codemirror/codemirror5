@@ -52,13 +52,14 @@ CodeMirror.defineSimpleMode("nsis",{
     {regex: /\$\{(?:Config(?:Read|ReadS|Write|WriteS)|File(?:Join|ReadFromEnd|Recode)|Line(?:Find|Read|Sum)|Text(?:Compare|CompareS)|TrimNewLines)\}/, token: "variable-2", dedent: true},
 
     // WinVer.nsh
-    {regex: /\$\{(?:(?:At(?:Least|Most)|Is)(?:ServicePack|Win(?:7|8|10|95|98|200(?:0|3|8(?:R2)?)|ME|NT4|Vista|XP))|Is(?:NT|Server))\}/, token: "variable-2", dedent: true},
+    {regex: /\$\{(?:(?:At(?:Least|Most)|Is)(?:ServicePack|Win(?:7|8|10|95|98|200(?:0|3|8(?:R2)?)|ME|NT4|Vista|XP))|Is(?:NT|Server))\}/, token: "variable", dedent: true},
 
     // WordFunc.nsh
     {regex: /\$\{(?:StrFilterS?|Version(?:Compare|Convert)|Word(?:AddS?|Find(?:(?:2|3)X)?S?|InsertS?|ReplaceS?))\}/, token: "variable-2", dedent: true},
 
     // x64.nsh
-    {regex: /\$\{(?:(?:Disable|Enable)X64FSRedirection|RunningX64)\}/, token: "variable-2", dedent: true},
+    {regex: /\$\{(?:RunningX64)\}/, token: "variable", dedent: true},
+    {regex: /\$\{(?:Disable|Enable)X64FSRedirection\}/, token: "variable-2", dedent: true},
 
     // Line Comment
     {regex: /(#|;).*/, token: "comment"},
