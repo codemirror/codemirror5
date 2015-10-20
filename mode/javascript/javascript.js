@@ -358,7 +358,9 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == "import") return cont(pushlex("stat"), afterImport, poplex);
     return pass(pushlex("stat"), expression, expect(";"), poplex);
   }
-  function expression(type) {
+  function expression(type, value) {
+    // Currently, new.target is the only valid metaproperty
+    if (type === "keyword c" && value === "new") return cont(metaproperty);
     return expressionInner(type, false);
   }
   function expressionNoComma(type) {
@@ -412,6 +414,14 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == ".") return cont(property, me);
     if (type == "[") return cont(pushlex("]"), maybeexpression, expect("]"), poplex, me);
   }
+  function memberExpressionContinuation(type, value) {
+    var me = memberExpressionContinuation;
+    if (type == "quasi") { return pass(quasi, me); }
+    if (type == ";") return;
+    if (type == "(") return contCommasep(expressionNoComma, ")", "call", me);
+    if (type == ".") return cont(property, me);
+    if (type == "[") return cont(pushlex("]"), maybeexpression, expect("]"), poplex, me);
+  }
   function quasi(type, value) {
     if (type != "quasi") return pass();
     if (value.slice(value.length - 2) != "${") return cont(quasi);
@@ -450,6 +460,16 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   }
   function property(type) {
     if (type == "variable") {cx.marked = "property"; return cont();}
+  }
+  function metaproperty(type) {
+    if (type !== ".") return pass();
+    return cont(metapropertySuffix);
+    function metapropertySuffix(type, value) {
+      if (type !== "variable") return pass();
+      if (value !== "target") return pass();
+      cx.marked = "keyword";
+      return cont(memberExpressionContinuation);
+    }
   }
   function objprop(type, value) {
     if (type == "async") {
