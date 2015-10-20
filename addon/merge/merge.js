@@ -471,13 +471,10 @@
     if (left) left.init(leftPane, origLeft, options);
     if (right) right.init(rightPane, origRight, options);
 
-    if (options.collapseIdentical) {
-      updating = true;
+    if (options.collapseIdentical)
       this.editor().operation(function() {
         collapseIdenticalStretches(self, options.collapseIdentical);
       });
-      updating = false;
-    }
     if (options.connect == "align") {
       this.aligners = [];
       alignChunks(this.left || this.right, true);
