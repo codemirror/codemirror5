@@ -14,14 +14,14 @@
   "use strict";
 
   CodeMirror.defineMode("django:inner", function() {
-    var keywords = ["block", "endblock", "for", "endfor", "true", "false",
-                    "loop", "none", "self", "super", "if", "endif", "as",
-                    "else", "import", "with", "endwith", "without", "context", "ifequal", "endifequal",
-                    "ifnotequal", "endifnotequal", "extends", "include", "load", "comment",
-                    "endcomment", "empty", "url", "static", "trans", "blocktrans", "now", "regroup",
-                    "lorem", "ifchanged", "endifchanged", "firstof", "debug", "cycle", "csrf_token",
-                    "autoescape", "endautoescape", "spaceless", "ssi", "templatetag",
-                    "verbatim", "endverbatim", "widthratio"],
+    var keywords = ["block", "endblock", "for", "endfor", "true", "false", "filter", "endfilter",
+                    "loop", "none", "self", "super", "if", "elif", "endif", "as", "else", "import",
+                    "with", "endwith", "without", "context", "ifequal", "endifequal", "ifnotequal",
+                    "endifnotequal", "extends", "include", "load", "comment", "endcomment",
+                    "empty", "url", "static", "trans", "blocktrans", "endblocktrans", "now",
+                    "regroup", "lorem", "ifchanged", "endifchanged", "firstof", "debug", "cycle",
+                    "csrf_token", "autoescape", "endautoescape", "spaceless", "endspaceless",
+                    "ssi", "templatetag", "verbatim", "endverbatim", "widthratio"],
         filters = ["add", "addslashes", "capfirst", "center", "cut", "date",
                    "default", "default_if_none", "dictsort",
                    "dictsortreversed", "divisibleby", "escape", "escapejs",
