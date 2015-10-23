@@ -177,9 +177,9 @@
   });
 
   CodeMirror.defineExtension("selectMatches", function(query, caseFold) {
-    var ranges = [], next;
+    var ranges = [];
     var cur = this.getSearchCursor(query, this.getCursor("from"), caseFold);
-    while (next = cur.findNext()) {
+    while (cur.findNext()) {
       if (CodeMirror.cmpPos(cur.to(), this.getCursor("to")) > 0) break;
       ranges.push({anchor: cur.from(), head: cur.to()});
     }

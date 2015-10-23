@@ -264,8 +264,9 @@ CodeMirror.defineMode("vb", function(conf, parserConf) {
             if (trueText.match(closing) || trueText.match(doubleClosing) || trueText.match(middle)) return conf.indentUnit*(state.currentIndent-1);
             if(state.currentIndent < 0) return 0;
             return state.currentIndent * conf.indentUnit;
-        }
+        },
 
+        lineComment: "'"
     };
     return external;
 });

@@ -71,18 +71,20 @@
     <script>
 var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
   mode: "text/html",
-  lineNumbers: true
+  lineNumbers: true,
+  extraKeys: {"Alt-F": "findPersistent"}
 });
 </script>
 
     <p>Demonstration of primitive search/replace functionality. The
-    keybindings (which can be overridden by custom keymaps) are:</p>
+    keybindings (which can be configured with custom keymaps) are:</p>
     <dl>
       <dt>Ctrl-F / Cmd-F</dt><dd>Start searching</dd>
       <dt>Ctrl-G / Cmd-G</dt><dd>Find next</dd>
       <dt>Shift-Ctrl-G / Shift-Cmd-G</dt><dd>Find previous</dd>
       <dt>Shift-Ctrl-F / Cmd-Option-F</dt><dd>Replace</dd>
       <dt>Shift-Ctrl-R / Shift-Cmd-Option-F</dt><dd>Replace all</dd>
+      <dt>Alt-F</dt><dd>Persistent search (dialog doesn't autoclose, enter to find next, shift-enter to find previous)</dd>
     </dl>
     <p>Searching is enabled by
     including <a href="../addon/search/search.js">addon/search/search.js</a>

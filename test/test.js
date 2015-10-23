@@ -1583,7 +1583,7 @@ testCM("addLineClass", function(cm) {
   eq(byClassName(lines, "foo").length, 2);
   eq(byClassName(lines, "bar").length, 1);
   eq(byClassName(lines, "baz").length, 1);
-  eq(byClassName(lines, "gutter-class").length, 1);
+  eq(byClassName(lines, "gutter-class").length, 2); // Gutter classes are reflected in 2 nodes
   cm.removeLineClass(0, "text", "foo");
   cls(0, "bar", null, null, null);
   cm.removeLineClass(0, "text", "foo");
@@ -2125,3 +2125,18 @@ test("core_addClass", function() {
   CodeMirror.addClass(node, "b");
   eq(node.className, "a b");
 });
+
+testCM("lineSeparator", function(cm) {
+  eq(cm.lineCount(), 3);
+  eq(cm.getLine(1), "bar\r");
+  eq(cm.getLine(2), "baz\rquux");
+  cm.setOption("lineSeparator", "\r");
+  eq(cm.lineCount(), 5);
+  eq(cm.getLine(4), "quux");
+  eq(cm.getValue(), "foo\rbar\r\rbaz\rquux");
+  eq(cm.getValue("\n"), "foo\nbar\n\nbaz\nquux");
+  cm.setOption("lineSeparator", null);
+  cm.setValue("foo\nbar\r\nbaz\rquux");
+  eq(cm.lineCount(), 4);
+}, {value: "foo\nbar\r\nbaz\rquux",
+    lineSeparator: "\n"});

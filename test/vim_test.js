@@ -200,11 +200,13 @@ function testVim(name, run, opts, expectedFail) {
     CodeMirror.Vim.resetVimGlobalState_();
     var successful = false;
     var savedOpenNotification = cm.openNotification;
+    var savedOpenDialog = cm.openDialog;
     try {
       run(cm, vim, helpers);
       successful = true;
     } finally {
       cm.openNotification = savedOpenNotification;
+      cm.openDialog = savedOpenDialog;
       if (!successful || verbose) {
         place.style.visibility = "visible";
       } else {
@@ -388,7 +390,6 @@ testVim('%_skip_string', function(cm, vim, helpers) {
   helpers.doKeys(['%']);
   helpers.assertCursorAt(0,0);
 }, {value:'(")")'});
-(')')
 testVim('%_skip_comment', function(cm, vim, helpers) {
   cm.setCursor(0,0);
   helpers.doKeys(['%']);
@@ -2460,6 +2461,13 @@ testVim('macro_multislash_search', function(cm, vim, helpers) {
   helpers.doKeys('@', 'd');
   helpers.assertCursorAt(0, 15);
 }, { value: 'one line of text to rule them all.'});
+testVim('macro_last_ex_command_register', function (cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doEx('s/a/b');
+  helpers.doKeys('2', '@', ':');
+  eq('bbbaa', cm.getValue());
+  helpers.assertCursorAt(0, 2);
+}, { value: 'aaaaa'});
 testVim('macro_parens', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('q', 'z', 'i');
@@ -3119,8 +3127,7 @@ testVim('zt==z<CR>', function(cm, vim, helpers){
 });
 
 var moveTillCharacterSandbox =
-  'The quick brown fox \n'
-  'jumped over the lazy dog.'
+  'The quick brown fox \n';
 testVim('moveTillCharacter', function(cm, vim, helpers){
   cm.setCursor(0, 0);
   // Search for the 'q'.
@@ -3167,9 +3174,6 @@ testVim('searchForPipe', function(cm, vim, helpers){
 
 
 var scrollMotionSandbox =
-  '\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n'
-  '\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n'
-  '\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n'
   '\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n';
 testVim('scrollMotion', function(cm, vim, helpers){
   var prevCursor, prevScrollInfo;
@@ -3388,6 +3392,14 @@ testVim('ex_sort_decimal_mixed_reverse', function(cm, vim, helpers) {
   helpers.doEx('sort! d');
   eq('a3\nb2\nc1\nz\ny', cm.getValue());
 }, { value: 'a3\nz\nc1\ny\nb2'});
+testVim('ex_sort_patterns_not_supported', function(cm, vim, helpers) {
+  var notified = false;
+  cm.openNotification = helpers.fakeOpenNotification(function(text) {
+    notified = /patterns not supported/.test(text);
+  });
+  helpers.doEx('sort /abc/');
+  is(notified, 'No notification.');
+});
 // test for :global command
 testVim('ex_global', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
@@ -3549,6 +3561,10 @@ testSubstitute('ex_substitute_multibackslash_replacement', {
   value: 'one,two \n three,four',
   expectedValue: 'one\\\\\\\\two \n three\\\\\\\\four', // 2*8 backslashes.
   expr: '%s/,/\\\\\\\\\\\\\\\\/g'}); // 16 backslashes.
+testSubstitute('ex_substitute_newline_replacement', {
+  value: 'one,two \n three,four',
+  expectedValue: 'one\ntwo \n three\nfour',
+  expr: '%s/,/\\n/g'});
 testSubstitute('ex_substitute_braces_word', {
   value: 'ababab abb ab{2}',
   expectedValue: 'ab abb ab{2}',

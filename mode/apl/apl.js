@@ -102,7 +102,7 @@ CodeMirror.defineMode("apl", function() {
       };
     },
     token: function(stream, state) {
-      var ch, funcName, word;
+      var ch, funcName;
       if (stream.eatSpace()) {
         return null;
       }
@@ -163,7 +163,6 @@ CodeMirror.defineMode("apl", function() {
         return "function jot-dot";
       }
       stream.eatWhile(/[\w\$_]/);
-      word = stream.current();
       state.prev = true;
       return "keyword";
     }

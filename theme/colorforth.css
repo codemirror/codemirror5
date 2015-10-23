@@ -3,7 +3,7 @@
 .cm-s-colorforth .CodeMirror-guttermarker { color: #FFBD40; }
 .cm-s-colorforth .CodeMirror-guttermarker-subtle { color: #78846f; }
 .cm-s-colorforth .CodeMirror-linenumber { color: #bababa; }
-.cm-s-colorforth .CodeMirror-cursor { border-left: 1px solid white !important; }
+.cm-s-colorforth .CodeMirror-cursor { border-left: 1px solid white; }
 
 .cm-s-colorforth span.cm-comment     { color: #ededed; }
 .cm-s-colorforth span.cm-def         { color: #ff1c1c; font-weight:bold; }
@@ -26,8 +26,8 @@
 .cm-s-colorforth span.cm-attribute   { color: #FFF700; }
 .cm-s-colorforth span.cm-error       { color: #f00; }
 
-.cm-s-colorforth .CodeMirror-selected { background: #333d53 !important; }
+.cm-s-colorforth div.CodeMirror-selected { background: #333d53; }
 
 .cm-s-colorforth span.cm-compilation { background: rgba(255, 255, 255, 0.12); }
 
-.cm-s-colorforth .CodeMirror-activeline-background {background: #253540 !important;}
+.cm-s-colorforth .CodeMirror-activeline-background { background: #253540; }
