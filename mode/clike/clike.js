@@ -252,8 +252,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     }
   }
   var cKeywords = "auto if break case register continue return default do sizeof " +
-    "static else struct switch extern typedef float union for " +
-    "goto while enum const volatile";
+    "static else struct switch extern typedef union for goto while enum const volatile";
   var cTypes = "int long char short double float unsigned signed void size_t ptrdiff_t";
 
   function cppHook(stream, state) {
