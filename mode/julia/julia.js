@@ -283,7 +283,7 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
       if(textAfter=="end" || textAfter=="]" || textAfter=="}" || textAfter=="else" || textAfter=="elseif" || textAfter=="catch" || textAfter=="finally") {
         delta = -1;
       }
-      return (state.scopes.length + delta) * 4;
+      return (state.scopes.length + delta) * _conf.indentUnit;
     },
 
     lineComment: "#",
