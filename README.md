@@ -16,7 +16,7 @@ new functionality.
 You can find more information (and the
 [manual](http://codemirror.net/doc/manual.html)) on the [project
 page](http://codemirror.net). For questions and discussion, use the
-[discussion forum](http://discuss.codemirror.net/).
+[discussion forum](https://discuss.codemirror.net/).
 
 See
 [CONTRIBUTING.md](https://github.com/codemirror/CodeMirror/blob/master/CONTRIBUTING.md)
