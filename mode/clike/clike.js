@@ -220,6 +220,10 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       }
       var closing = firstChar == ctx.type;
       var switchBlock = ctx.prev && ctx.prev.type == "switchstatement";
+      if (parserConfig.allmanIndentation && /[{(]/.test(firstChar)) {
+        while (ctx.type != "top" && ctx.type != "}") ctx = ctx.prev
+        return ctx.indented
+      }
       if (isStatement(ctx.type))
         return ctx.indented + (firstChar == "{" ? 0 : statementIndentUnit);
       if (ctx.align && (!dontAlignCalls || ctx.type != ")"))
