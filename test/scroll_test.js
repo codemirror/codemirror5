@@ -19,14 +19,14 @@
   function barV(cm) { return byClassName(cm.getWrapperElement(), "CodeMirror-vscrollbar")[0]; }
 
   function displayBottom(cm, scrollbar) {
-    if (scrollbar)
+    if (scrollbar && cm.display.scroller.offsetHeight > cm.display.scroller.clientHeight)
       return barH(cm).getBoundingClientRect().top;
     else
       return cm.getWrapperElement().getBoundingClientRect().bottom - 1;
   }
 
   function displayRight(cm, scrollbar) {
-    if (scrollbar)
+    if (scrollbar && cm.display.scroller.offsetWidth > cm.display.scroller.clientWidth)
       return barV(cm).getBoundingClientRect().left;
     else
       return cm.getWrapperElement().getBoundingClientRect().right - 1;
