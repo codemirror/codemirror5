@@ -95,7 +95,7 @@
           state.tokenize = null;
           break;
         }
-        escaped = !escaped && next == "\\";
+        escaped = !raw && !escaped && next == "\\";
       }
       return "string";
     }
