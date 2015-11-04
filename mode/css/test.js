@@ -55,11 +55,17 @@
   MT("tagColorHex3",
      "[tag foo] { [property background]: [atom #fff]; }");
 
+  MT("tagColorHex4",
+     "[tag foo] { [property background]: [atom #ffff]; }");
+
   MT("tagColorHex6",
      "[tag foo] { [property background]: [atom #ffffff]; }");
 
-  MT("tagColorHex4",
-     "[tag foo] { [property background]: [atom&error #ffff]; }");
+  MT("tagColorHex8",
+     "[tag foo] { [property background]: [atom #ffffffff]; }");
+
+  MT("tagColorHex5Invalid",
+     "[tag foo] { [property background]: [atom&error #fffff]; }");
 
   MT("tagColorHexInvalid",
      "[tag foo] { [property background]: [atom&error #ffg]; }");
