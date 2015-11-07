@@ -51,7 +51,7 @@
   Annotation.prototype.computeScale = function() {
     var cm = this.cm;
     var hScale = (cm.getWrapperElement().clientHeight - cm.display.barHeight - this.buttonHeight * 2) /
-      cm.heightAtLine(cm.lastLine() + 1, "local");
+      cm.getScrollerElement().scrollHeight
     if (hScale != this.hScale) {
       this.hScale = hScale;
       return true;
