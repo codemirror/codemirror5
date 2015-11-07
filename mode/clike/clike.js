@@ -27,7 +27,8 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       indentSwitch = parserConfig.indentSwitch !== false,
       namespaceSeparator = parserConfig.namespaceSeparator,
       isPunctuationChar = parserConfig.isPunctuationChar || /[\[\]{}\(\),;\:\.]/,
-      isNumberChar = parserConfig.isNumberChar || /\d/,
+      numberStart = parserConfig.numberStart || /[\d\.]/,
+      number = parserConfig.number || /^(?:0x[a-f\d]+|0b[01]+|(?:\d+\.?\d*|\.\d+)(?:e[-+]?\d+)?)(u|ll?|l|f)?/i,
       isOperatorChar = parserConfig.isOperatorChar || /[+\-*&%=<>!?|\/]/,
       endStatement = parserConfig.endStatement || /^[;:,]$/;
 
@@ -47,9 +48,10 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       curPunc = ch;
       return null;
     }
-    if (isNumberChar.test(ch)) {
-      stream.eatWhile(/[\w\.]/);
-      return "number";
+    if (numberStart.test(ch)) {
+      stream.backUp(1)
+      if (stream.match(number)) return "number"
+      stream.next()
     }
     if (ch == "/") {
       if (stream.eat("*")) {
@@ -706,7 +708,8 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
                    " native optional sealed see serializable shared suppressWarnings tagged throws variable"),
     isPunctuationChar: /[\[\]{}\(\),;\:\.`]/,
     isOperatorChar: /[+\-*&%=<>!?|^~:\/]/,
-    isNumberChar: /[\d#$]/,
+    numberStart: /[\d#$]/,
+    number: /^(?:#[\da-fA-F_]+|\$[01_]+|[\d_]+[kMGTPmunpf]?|[\d_]+\.[\d_]+(?:[eE][-+]?\d+|[kMGTPmunpf]|)|)/i,
     multiLineStrings: true,
     typeFirstDefinitions: true,
     atoms: words("true false null larger smaller equal empty finished"),
