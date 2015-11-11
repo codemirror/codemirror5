@@ -295,6 +295,13 @@
       setTimeout(function(){cm.focus();}, 20);
     });
 
+    CodeMirror.on(hints, "mousemove", function(e) {
+      var t = getHintElement(hints, e.target || e.srcElement);
+      if (t && t.hintId != null) {
+        widget.changeActive(t.hintId);
+      }
+    });
+
     CodeMirror.signal(data, "select", completions[0], hints.firstChild);
     return true;
   }
