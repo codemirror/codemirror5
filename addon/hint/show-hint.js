@@ -295,11 +295,12 @@
       setTimeout(function(){cm.focus();}, 20);
     });
 
-    CodeMirror.on(hints, "mousemove", function(e) {
-      var elt = getHintElement(hints, e.target || e.srcElement);
-      if (elt && elt.hintId != null)
-        widget.changeActive(elt.hintId);
-    });
+    if (completion.options.completeOnSingleClick)
+      CodeMirror.on(hints, "mousemove", function(e) {
+        var elt = getHintElement(hints, e.target || e.srcElement);
+        if (elt && elt.hintId != null)
+          widget.changeActive(elt.hintId);
+      });
 
     CodeMirror.signal(data, "select", completions[0], hints.firstChild);
     return true;
@@ -436,7 +437,7 @@
     alignWithWord: true,
     closeCharacters: /[\s()\[\]{};:>,]/,
     closeOnUnfocus: true,
-    completeOnSingleClick: false,
+    completeOnSingleClick: true,
     container: null,
     customKeys: null,
     extraKeys: null
