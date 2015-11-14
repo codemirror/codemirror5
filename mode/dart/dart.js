@@ -46,7 +46,7 @@
     atoms: set(atoms),
     hooks: {
       "@": function(stream) {
-        stream.eatWhile(/[\w\$_]/);
+        stream.eatWhile(/[\w\$_\.]/);
         return "meta";
       },
 
