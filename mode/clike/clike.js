@@ -573,6 +573,8 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       "Runtime Runnable SecurityManager Short StackTraceElement StrictMath String " +
       "StringBuffer System Thread ThreadGroup ThreadLocal Throwable Triple Void"
     ),
+    intendSwitch: false,
+    indentStatements: false,
     multiLineStrings: true,
     blockKeywords: words("catch class do else finally for if where try while enum"),
     defKeywords: words("class val var object package interface fun"),
