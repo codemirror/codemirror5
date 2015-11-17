@@ -121,8 +121,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       } else if (stream.eat("/")) {
         stream.skipToEnd();
         return ret("comment", "comment");
-      } else if (state.lastType == "operator" || state.lastType == "keyword c" ||
-                 state.lastType == "sof" || /^[\[{}\(,;:]$/.test(state.lastType)) {
+      } else if (/^(?:operator|sof|keyword c|case|new|[\[{}\(,;:])$/.test(state.lastType)) {
         readRegexp(stream);
         stream.match(/^\b(([gimyu])(?![gimyu]*\2))+\b/);
         return ret("regexp", "string-2");
