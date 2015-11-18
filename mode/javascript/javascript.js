@@ -464,6 +464,8 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       return cont(afterprop);
     } else if (type == "[") {
       return cont(expression, expect("]"), afterprop);
+    } else if (type == "spread") {
+      return cont(expression);
     }
   }
   function getterSetter(type) {
