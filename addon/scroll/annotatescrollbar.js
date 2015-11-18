@@ -100,6 +100,9 @@
       elt.style.cssText = "position: absolute; right: 0px; width: " + Math.max(cm.display.barWidth - 1, 2) + "px; top: "
         + (top + this.buttonHeight) + "px; height: " + height + "px";
       elt.className = this.options.className;
+      if (ann.id) {
+        elt.setAttribute("annotation-id", ann.id);
+      }
     }
     this.div.textContent = "";
     this.div.appendChild(frag);

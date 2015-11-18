@@ -26,10 +26,10 @@
 
   MT("mixin",
      "[qualifier .mixin] ([variable dark]; [variable-2 @color]) {",
-     "  [property color]: [variable darken]([variable-2 @color], [number 10%]);",
+     "  [property color]: [atom darken]([variable-2 @color], [number 10%]);",
      "}",
      "[qualifier .mixin] ([variable light]; [variable-2 @color]) {",
-     "  [property color]: [variable lighten]([variable-2 @color], [number 10%]);",
+     "  [property color]: [atom lighten]([variable-2 @color], [number 10%]);",
      "}",
      "[qualifier .mixin] ([variable-2 @_]; [variable-2 @color]) {",
      "  [property display]: [atom block];",

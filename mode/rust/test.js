@@ -26,7 +26,6 @@
      '[string "\\"foo\\""]',
      '[string r#""foo""#]',
      '[string "foo #\\"# bar"]',
-     '[string r##"foo #"# bar"##]',
 
      '[string b"foo"]',
      '[string br"foo"]',

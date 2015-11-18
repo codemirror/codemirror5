@@ -20,7 +20,7 @@
       cm.off("viewportChange", onViewportChange);
       cm.off("fold", onFold);
       cm.off("unfold", onFold);
-      cm.off("swapDoc", updateInViewport);
+      cm.off("swapDoc", onChange);
     }
     if (val) {
       cm.state.foldGutter = new State(parseOptions(val));
@@ -30,7 +30,7 @@
       cm.on("viewportChange", onViewportChange);
       cm.on("fold", onFold);
       cm.on("unfold", onFold);
-      cm.on("swapDoc", updateInViewport);
+      cm.on("swapDoc", onChange);
     }
   });
 

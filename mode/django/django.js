@@ -35,11 +35,13 @@
                    "truncatechars_html", "truncatewords", "truncatewords_html",
                    "unordered_list", "upper", "urlencode", "urlize",
                    "urlizetrunc", "wordcount", "wordwrap", "yesno"],
-        operators = ["==", "!=", "<", ">", "<=", ">=", "in", "not", "or", "and"];
+        operators = ["==", "!=", "<", ">", "<=", ">="],
+        wordOperators = ["in", "not", "or", "and"];
 
     keywords = new RegExp("^\\b(" + keywords.join("|") + ")\\b");
     filters = new RegExp("^\\b(" + filters.join("|") + ")\\b");
     operators = new RegExp("^\\b(" + operators.join("|") + ")\\b");
+    wordOperators = new RegExp("^\\b(" + wordOperators.join("|") + ")\\b");
 
     // We have to return "null" instead of null, in order to avoid string
     // styling as the default, when using Django templates inside HTML
@@ -59,7 +61,7 @@
 
       // Ignore completely any stream series that do not match the
       // Django template opening tags.
-      while (stream.next() != null && !stream.match("{{", false) && !stream.match("{%", false)) {}
+      while (stream.next() != null && !stream.match(/\{[{%#]/, false)) {}
       return null;
     }
 
@@ -270,6 +272,11 @@
         return "operator";
       }
 
+      // Attempt to match a word operator
+      if (stream.match(wordOperators)) {
+        return "keyword";
+      }
+
       // Attempt to match a keyword
       var keywordMatch = stream.match(keywords);
       if (keywordMatch) {
@@ -310,9 +317,8 @@
 
     // Mark everything as comment inside the tag and the tag itself.
     function inComment (stream, state) {
-      if (stream.match("#}")) {
-        state.tokenize = tokenBase;
-      }
+      if (stream.match(/^.*?#\}/)) state.tokenize = tokenBase
+      else stream.skipToEnd()
       return "comment";
     }
 

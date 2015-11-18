@@ -169,15 +169,16 @@ CodeMirror.defineMode("dylan", function(_config) {
       } else if (stream.eat("/")) {
         stream.skipToEnd();
         return "comment";
-      } else {
-        stream.skipTo(" ");
-        return "operator";
       }
+      stream.backUp(1);
     }
     // Decimal
-    else if (/\d/.test(ch)) {
-      stream.match(/^\d*(?:\.\d*)?(?:e[+\-]?\d+)?/);
-      return "number";
+    else if (/[+\-\d\.]/.test(ch)) {
+      if (stream.match(/^[+-]?[0-9]*\.[0-9]*([esdx][+-]?[0-9]+)?/i) ||
+          stream.match(/^[+-]?[0-9]+([esdx][+-]?[0-9]+)/i) ||
+          stream.match(/^[+-]?\d+/)) {
+        return "number";
+      }
     }
     // Hash
     else if (ch == "#") {
@@ -186,7 +187,7 @@ CodeMirror.defineMode("dylan", function(_config) {
       ch = stream.peek();
       if (ch == '"') {
         stream.next();
-        return chain(stream, state, tokenString('"', "string-2"));
+        return chain(stream, state, tokenString('"', "string"));
       }
       // Binary number
       else if (ch == "b") {
@@ -206,11 +207,51 @@ CodeMirror.defineMode("dylan", function(_config) {
         stream.eatWhile(/[0-7]/);
         return "number";
       }
-      // Hash symbol
-      else {
-        stream.eatWhile(/[-a-zA-Z]/);
-        return "keyword";
+      // Token concatenation in macros
+      else if (ch == '#') {
+        stream.next();
+        return "punctuation";
       }
+      // Sequence literals
+      else if ((ch == '[') || (ch == '(')) {
+        stream.next();
+        return "bracket";
+      // Hash symbol
+      } else if (stream.match(/f|t|all-keys|include|key|next|rest/i)) {
+        return "atom";
+      } else {
+        stream.eatWhile(/[-a-zA-Z]/);
+        return "error";
+      }
+    } else if (ch == "~") {
+      stream.next();
+      ch = stream.peek();
+      if (ch == "=") {
+        stream.next();
+        ch = stream.peek();
+        if (ch == "=") {
+          stream.next();
+          return "operator";
+        }
+        return "operator";
+      }
+      return "operator";
+    } else if (ch == ":") {
+      stream.next();
+      ch = stream.peek();
+      if (ch == "=") {
+        stream.next();
+        return "operator";
+      } else if (ch == ":") {
+        stream.next();
+        return "punctuation";
+      }
+    } else if ("[](){}".indexOf(ch) != -1) {
+      stream.next();
+      return "bracket";
+    } else if (".,".indexOf(ch) != -1) {
+      stream.next();
+      return "punctuation";
     } else if (stream.match("end")) {
       return "keyword";
     }
@@ -222,6 +263,10 @@ CodeMirror.defineMode("dylan", function(_config) {
         })) || stream.match(pattern))
           return patternStyles[name];
       }
+    }
+    if (/[+\-*\/^=<>&|]/.test(ch)) {
+      stream.next();
+      return "operator";
     }
     if (stream.match("define")) {
       return "def";
@@ -240,29 +285,37 @@ CodeMirror.defineMode("dylan", function(_config) {
   }
 
   function tokenComment(stream, state) {
-    var maybeEnd = false,
-    ch;
+    var maybeEnd = false, maybeNested = false, nestedCount = 0, ch;
     while ((ch = stream.next())) {
       if (ch == "/" && maybeEnd) {
-        state.tokenize = tokenBase;
-        break;
+        if (nestedCount > 0) {
+          nestedCount--;
+        } else {
+          state.tokenize = tokenBase;
+          break;
+        }
+      } else if (ch == "*" && maybeNested) {
+        nestedCount++;
       }
       maybeEnd = (ch == "*");
+      maybeNested = (ch == "/");
     }
     return "comment";
   }
 
   function tokenString(quote, style) {
     return function(stream, state) {
-      var next, end = false;
+      var escaped = false, next, end = false;
       while ((next = stream.next()) != null) {
-        if (next == quote) {
+        if (next == quote && !escaped) {
           end = true;
           break;
         }
+        escaped = !escaped && next == "\\";
       }
-      if (end)
+      if (end || !escaped) {
         state.tokenize = tokenBase;
+      }
       return style;
     };
   }

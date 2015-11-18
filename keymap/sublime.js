@@ -105,9 +105,10 @@
     cm.setSelections(extended);
   };
 
-  map["Shift-" + ctrl + "K"] = "deleteLine";
+  map["Shift-Ctrl-K"] = "deleteLine";
 
   function insertLine(cm, above) {
+    if (cm.isReadOnly()) return CodeMirror.Pass
     cm.operation(function() {
       var len = cm.listSelections().length, newSelection = [], last = -1;
       for (var i = 0; i < len; i++) {
@@ -123,9 +124,9 @@
     });
   }
 
-  cmds[map[ctrl + "Enter"] = "insertLineAfter"] = function(cm) { insertLine(cm, false); };
+  cmds[map[ctrl + "Enter"] = "insertLineAfter"] = function(cm) { return insertLine(cm, false); };
 
-  cmds[map["Shift-" + ctrl + "Enter"] = "insertLineBefore"] = function(cm) { insertLine(cm, true); };
+  cmds[map["Shift-" + ctrl + "Enter"] = "insertLineBefore"] = function(cm) { return insertLine(cm, true); };
 
   function wordAt(cm, pos) {
     var start = pos.ch, end = start, line = cm.getLine(pos.line);
@@ -192,6 +193,7 @@
   var swapLineCombo = mac ? "Cmd-Ctrl-" : "Shift-Ctrl-";
 
   cmds[map[swapLineCombo + "Up"] = "swapLineUp"] = function(cm) {
+    if (cm.isReadOnly()) return CodeMirror.Pass
     var ranges = cm.listSelections(), linesToMove = [], at = cm.firstLine() - 1, newSels = [];
     for (var i = 0; i < ranges.length; i++) {
       var range = ranges[i], from = range.from().line - 1, to = range.to().line;
@@ -218,6 +220,7 @@
   };
 
   cmds[map[swapLineCombo + "Down"] = "swapLineDown"] = function(cm) {
+    if (cm.isReadOnly()) return CodeMirror.Pass
     var ranges = cm.listSelections(), linesToMove = [], at = cm.lastLine() + 1;
     for (var i = ranges.length - 1; i >= 0; i--) {
       var range = ranges[i], from = range.to().line + 1, to = range.from().line;
@@ -240,7 +243,7 @@
     });
   };
 
-  map[ctrl + "/"] = function(cm) {
+  cmds[map[ctrl + "/"] = "toggleCommentIndented"] = function(cm) {
     cm.toggleComment({ indent: true });
   }
 
@@ -289,6 +292,7 @@
   map[ctrl + "T"] = "transposeChars";
 
   function sortLines(cm, caseSensitive) {
+    if (cm.isReadOnly()) return CodeMirror.Pass
     var ranges = cm.listSelections(), toSort = [], selected;
     for (var i = 0; i < ranges.length; i++) {
       var range = ranges[i];

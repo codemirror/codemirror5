@@ -135,7 +135,11 @@ CodeMirror.defineMode("sparql", function(config) {
       else if (curPunc == "{") pushContext(state, "}", stream.column());
       else if (/[\]\}\)]/.test(curPunc)) {
         while (state.context && state.context.type == "pattern") popContext(state);
-        if (state.context && curPunc == state.context.type) popContext(state);
+        if (state.context && curPunc == state.context.type) {
+          popContext(state);
+          if (curPunc == "}" && state.context && state.context.type == "pattern")
+            popContext(state);
+        }
       }
       else if (curPunc == "." && state.context && state.context.type == "pattern") popContext(state);
       else if (/atom|string|variable/.test(style) && state.context) {
@@ -165,7 +169,9 @@ CodeMirror.defineMode("sparql", function(config) {
         return context.col + (closing ? 0 : 1);
       else
         return context.indent + (closing ? 0 : indentUnit);
-    }
+    },
+
+    lineComment: "#"
   };
 });
 

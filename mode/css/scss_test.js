@@ -95,7 +95,7 @@
 
   MT('indent_parentheses',
      "[tag foo] {",
-     "  [property color]: [variable darken]([variable-2 $blue],",
+     "  [property color]: [atom darken]([variable-2 $blue],",
      "    [number 9%]);",
      "}");
 
