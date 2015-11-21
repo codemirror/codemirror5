@@ -257,7 +257,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
   }
 
   // these keywords are used by all SQL dialects (however, a mode can still overwrite it)
-  var sqlKeywords = "alter and as asc between by count create delete desc distinct drop from group having in insert into is join like not on or order select set table union update values where ";
+  var sqlKeywords = "alter and as asc between by count create delete desc distinct drop from group having in insert into is join like not on or order select set table union update values where limit";
 
   // turn a space-separated list into an array
   function set(str) {
