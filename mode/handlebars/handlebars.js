@@ -21,8 +21,8 @@
       { regex: /\}\}/, pop: true, token: "tag" },
 
       // Double and single quotes
-      { regex: /"(?:[^\\]|\\.)*?"/, token: "string" },
-      { regex: /'(?:[^\\]|\\.)*?'/, token: "string" },
+      { regex: /"(?:[^\\"]|\\.)*"?/, token: "string" },
+      { regex: /'(?:[^\\']|\\.)*'?/, token: "string" },
 
       // Handlebars keywords
       { regex: />|[#\/]([A-Za-z_]\w*)/, token: "keyword" },
