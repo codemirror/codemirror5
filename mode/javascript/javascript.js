@@ -46,13 +46,21 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       var tsKeywords = {
         // object-like things
         "interface": kw("interface"),
+        "implements": kw("implements"),
         "constructor": kw("constructor"),
+        "namespace": kw("namespace"),
+        "module": kw("module"),
+        "enum": kw("enum"),
 
         // scope modifiers
         "public": kw("public"),
         "private": kw("private"),
         "protected": kw("protected"),
         "static": kw("static"),
+        "abstract": kw("abstract"),
+
+        // operators
+        "as": operator,
 
         // types
         "string": type, "number": type, "boolean": type, "any": type
