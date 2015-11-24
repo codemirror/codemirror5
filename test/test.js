@@ -1637,6 +1637,8 @@ testCM("atomicMarker", function(cm) {
   m = atom(1, 1, 3, 8);
   cm.setCursor(Pos(0, 0));
   cm.setCursor(Pos(2, 0));
+  eqPos(cm.getCursor(), Pos(1, 1));
+  cm.execCommand("goCharRight");
   eqPos(cm.getCursor(), Pos(3, 8));
   cm.execCommand("goCharLeft");
   eqPos(cm.getCursor(), Pos(1, 1));
@@ -1656,6 +1658,8 @@ testCM("atomicMarker", function(cm) {
 
 testCM("selectionBias", function(cm) {
   cm.markText(Pos(0, 1), Pos(0, 3), {atomic: true});
+  cm.setCursor(Pos(0, 2));
+  eqPos(cm.getCursor(), Pos(0, 1));
   cm.setCursor(Pos(0, 2));
   eqPos(cm.getCursor(), Pos(0, 3));
   cm.setCursor(Pos(0, 2));
