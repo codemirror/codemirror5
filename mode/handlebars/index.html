@@ -61,18 +61,10 @@
 
 </textarea></form>
     <script>
-      CodeMirror.defineMode("htmlhandlebars", function(config) {
-        return CodeMirror.multiplexingMode(
-          CodeMirror.getMode(config, "text/html"),
-          {open: "{{", close: "}}",
-           mode: CodeMirror.getMode(config, "handlebars"),
-           parseDelimiters: true});
-      });
-
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true,
         matchBrackets: true,
-        mode: "htmlhandlebars"
+        mode: {name: "handlebars", base: "text/html"}
       });
     </script>
     </script>
