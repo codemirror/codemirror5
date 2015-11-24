@@ -46,7 +46,6 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       var tsKeywords = {
         // object-like things
         "interface": kw("interface"),
-        "extends": kw("extends"),
         "constructor": kw("constructor"),
 
         // scope modifiers
