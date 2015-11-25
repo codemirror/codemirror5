@@ -101,7 +101,7 @@
         + (top + this.buttonHeight) + "px; height: " + height + "px";
       elt.className = this.options.className;
       if (ann.id) {
-        ann.setAttribute("annotation-id", ann.id);
+        elt.setAttribute("annotation-id", ann.id);
       }
     }
     this.div.textContent = "";
