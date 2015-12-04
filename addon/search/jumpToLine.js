@@ -33,7 +33,7 @@
       if (!posStr) return;
 
       var clnMatch = /^\s*([\+\-]?\d+)\s*\:\s*(\d+)\s*$/.exec(posStr);
-      var prcMatch = /^\s*([\+\-]?\d+(\.\d+))\%\s*/.exec(posStr);
+      var prcMatch = /^\s*([\+\-]?\d+(\.\d+)?)\%\s*/.exec(posStr);
       var lnMatch = /^\s*\:?\s*([\+\-]?\d+)\s*/.exec(posStr);
       if (clnMatch) {
         try {
@@ -48,7 +48,7 @@
       else if (prcMatch) {
         try {
           var prc = parseFloat(prcMatch[1]);
-          var line = cm.lineCount()*prc/100;
+          var line = Math.round(cm.lineCount()*prc/100);
           if ('+-'.indexOf(prcMatch[1].charAt(0))>=0)
             line = cur.line+line+1;
         }
