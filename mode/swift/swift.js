@@ -195,7 +195,10 @@
           if (stream.match(properties)) return "property"
           return "variable"
         }
-      }
+      },
+      lineComment: "//",
+      blockCommentStart: "/*",
+      blockCommentEnd: "*/"
     }
   })
 
