@@ -2234,6 +2234,13 @@ editor.setOption("extraKeys", {
       of <a href="#addon_dialog"><code>openDialog</code></a> when
       available to make prompting for search queries less ugly.</dd>
 
+      <dt id="addon_jumptoline"><a href="../addon/search/jumpToLine.js"><code>search/jumpToLine.js</code></a></dt>
+      <dd>Implements jumpToLine command and binding <code>Alt-G</code> to it.
+      Accepts <code>linenumber</code>, <code>+/-linenumber</code>, <code>line:char</code>,
+      <code>scroll%</code> and <code>:linenumber</code> formats.
+      This will make use of <a href="#addon_dialog"><code>openDialog</code></a>
+      when available to make prompting for line number neater.</dd>
+
       <dt id="addon_matchesonscrollbar"><a href="../addon/search/matchesonscrollbar.js"><code>search/matchesonscrollbar.js</code></a></dt>
       <dd>Adds a <code>showMatchesOnScrollbar</code> method to editor
       instances, which should be given a query (string or regular
