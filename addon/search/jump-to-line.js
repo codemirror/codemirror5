@@ -1,19 +1,13 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
 // Distributed under an MIT license: http://codemirror.net/LICENSE
 
-// Define search commands. Depends on dialog.js or another
-// implementation of the openDialog method.
-
-// Replace works a little oddly -- it will do the replace on the next
-// Ctrl-G (or whatever is bound to findNext) press. You prevent a
-// replace by making sure the match is no longer selected when hitting
-// Ctrl-G.
+// Defines jumpToLine command. Uses dialog.js if present.
 
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
-    mod(require("../../lib/codemirror"), require("./searchcursor"), require("../dialog/dialog"));
+    mod(require("../../lib/codemirror"), require("../dialog/dialog"));
   else if (typeof define == "function" && define.amd) // AMD
-    define(["../../lib/codemirror", "./searchcursor", "../dialog/dialog"], mod);
+    define(["../../lib/codemirror", "../dialog/dialog"], mod);
   else // Plain browser env
     mod(CodeMirror);
 })(function(CodeMirror) {
@@ -42,10 +36,9 @@
 
       var match;
       if (match = /^\s*([\+\-]?\d+)\s*\:\s*(\d+)\s*$/.exec(posStr)) {
-        cm.setCursor(Pos(interpretLine(cm, match[1]), Number(match[2])))
+        cm.setCursor(interpretLine(cm, match[1]), Number(match[2]))
       } else if (match = /^\s*([\+\-]?\d+(\.\d+)?)\%\s*/.exec(posStr)) {
-        var prc = parseFloat(match[1]);
-        var line = Math.round(cm.lineCount() * prc / 100);
+        var line = Math.round(cm.lineCount() * Number(match[1]) / 100);
         if (/^[-+]/.test(match[1])) line = cur.line + line + 1;
         cm.setCursor(line - 1, cur.ch);
       } else if (match = /^\s*\:?\s*([\+\-]?\d+)\s*/.exec(posStr)) {
