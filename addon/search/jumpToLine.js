@@ -34,13 +34,13 @@
 
       var clnMatch = /^\s*([\+\-]?\d+)\s*\:\s*(\d+)\s*$/.exec(posStr);
       var prcMatch = /^\s*([\+\-]?\d+(\.\d+))\%\s*/.exec(posStr);
-      var lnMatch = /^\s*\:?\s*(\d+)\s*/.exec(posStr);
+      var lnMatch = /^\s*\:?\s*([\+\-]?\d+)\s*/.exec(posStr);
       if (clnMatch) {
         try {
           var line = parseInt(clnMatch[1]);
           var ch = parseInt(clnMatch[2]);
           if ('+-'.indexOf(clnMatch[1].charAt(0))>=0)
-            line = cur.line+line;
+            line = cur.line+line+1;
         }
         catch (error) { return; }
         cm.setCursor(line-1, ch-1);
@@ -50,7 +50,7 @@
           var prc = parseFloat(prcMatch[1]);
           var line = cm.lineCount()*prc/100;
           if ('+-'.indexOf(prcMatch[1].charAt(0))>=0)
-            line = cur.line+line;
+            line = cur.line+line+1;
         }
         catch (error) { return; }
         cm.setCursor(line-1, cur.ch);
@@ -59,7 +59,7 @@
         try {
           var line = parseInt(lnMatch[1]);
           if ('+-'.indexOf(lnMatch[1].charAt(0))>=0)
-            line = cur.line+line;
+            line = cur.line+line+1;
         }
         catch (error) { return; }
         cm.setCursor(line-1, cur.ch);
