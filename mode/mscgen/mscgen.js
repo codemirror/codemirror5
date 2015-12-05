@@ -69,11 +69,11 @@
   CodeMirror.defineMIME("text/x-msgenny", {name: "mscgen", language: "msgenny"});
 
   function wordRegexpBoundary(pWords) {
-    return new RegExp("\\b((" + pWords.join(")|(") + "))\\b", "i");
+    return new RegExp("\\b(" + pWords.join("|") + ")\\b", "i");
   }
 
   function wordRegexp(pWords) {
-    return new RegExp("((" + pWords.join(")|(") + "))", "i");
+    return new RegExp("(" + pWords.join("|") + ")", "i");
   }
 
   function startStateFn() {
