@@ -2000,10 +2000,14 @@ editor.setOption("extraKeys", {
           indentation by the given amount of spaces.</dd>
         </dl></dd>
 
-      <dt id="toggleOverwrite"><code><strong>cm.toggleOverwrite</strong>(?value: bool)</code></dt>
+      <dt id="toggleOverwrite"><code><strong>cm.toggleOverwrite</strong>(?value: boolean)</code></dt>
       <dd>Switches between overwrite and normal insert mode (when not
       given an argument), or sets the overwrite mode to a specific
       state (when given an argument).</dd>
+
+      <dt id="isReadOnly"><code><strong>cm.isReadOnly</strong>() → boolean</code></dt>
+      <dd>Tells you whether the editor's content can be edited by the
+      user.</dd>
 
       <dt id="lineSeparator"><code><strong>doc.lineSeparator</strong>()</code></dt>
       <dd>Returns the preferred line separator string for this
