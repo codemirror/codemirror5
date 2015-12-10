@@ -2148,9 +2148,18 @@ testVim('S_normal', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.doKeys('j', 'S');
   helpers.doKeys('<Esc>');
-  helpers.assertCursorAt(1, 0);
-  eq('aa\n\ncc', cm.getValue());
-}, { value: 'aa\nbb\ncc'});
+  helpers.assertCursorAt(1, 1);
+  eq('aa{\n  \ncc', cm.getValue());
+  helpers.doKeys('j', 'S');
+  eq('aa{\n  \n  ', cm.getValue());
+  helpers.assertCursorAt(2, 2);
+  helpers.doKeys('<Esc>');
+  helpers.doKeys('d', 'd', 'd', 'd');
+  helpers.assertCursorAt(0, 0);
+  helpers.doKeys('S');
+  is(vim.insertMode);
+  eq('', cm.getValue());
+}, { value: 'aa{\nbb\ncc'});
 testVim('blockwise_paste', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('<C-v>', '3', 'j', 'l', 'y');
