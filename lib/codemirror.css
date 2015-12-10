@@ -36,6 +36,10 @@
   white-space: nowrap;
 }
 
+.CodeMirror-linenumber-data::before {
+  content: attr(data-codemirror-linenumber);
+}
+
 .CodeMirror-guttermarker { color: black; }
 .CodeMirror-guttermarker-subtle { color: #999; }
 
