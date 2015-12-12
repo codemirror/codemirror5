@@ -3119,6 +3119,25 @@ forEach(['zb','zz','zt','z-','z.','z<CR>'], function(e, idx){
     return new Array(500).join('\n');
   })()});
 });
+testVim('zb_to_bottom', function(cm, vim, helpers){
+  var lineNum = 250;
+  cm.setSize(600, 35*cm.defaultTextHeight());
+  cm.setCursor(lineNum, 0);
+  helpers.doKeys('z', 'b');
+  var scrollInfo = cm.getScrollInfo();
+  eq(scrollInfo.top + scrollInfo.clientHeight, cm.charCoords(Pos(lineNum, 0), 'local').bottom);
+}, { value: (function(){
+  return new Array(500).join('\n');
+})()});
+testVim('zt_to_top', function(cm, vim, helpers){
+  var lineNum = 250;
+  cm.setSize(600, 35*cm.defaultTextHeight());
+  cm.setCursor(lineNum, 0);
+  helpers.doKeys('z', 't');
+  eq(cm.getScrollInfo().top, cm.charCoords(Pos(lineNum, 0), 'local').top);
+}, { value: (function(){
+  return new Array(500).join('\n');
+})()});
 testVim('zb<zz', function(cm, vim, helpers){
   eq(zVals[0]<zVals[1], true);
 });
