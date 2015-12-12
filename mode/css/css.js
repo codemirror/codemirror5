@@ -12,9 +12,8 @@
 "use strict";
 
 CodeMirror.defineMode("css", function(config, parserConfig) {
-  var provided = parserConfig;
+  var inline = parserConfig.inline
   if (!parserConfig.propertyKeywords) parserConfig = CodeMirror.resolveMode("text/css");
-  parserConfig.inline = provided.inline;
 
   var indentUnit = config.indentUnit,
       tokenHooks = parserConfig.tokenHooks,
@@ -368,9 +367,9 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
   return {
     startState: function(base) {
       return {tokenize: null,
-              state: parserConfig.inline ? "block" : "top",
+              state: inline ? "block" : "top",
               stateArg: null,
-              context: new Context(parserConfig.inline ? "block" : "top", base || 0, null)};
+              context: new Context(inline ? "block" : "top", base || 0, null)};
     },
 
     token: function(stream, state) {
