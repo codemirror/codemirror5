@@ -35,11 +35,13 @@
                    "truncatechars_html", "truncatewords", "truncatewords_html",
                    "unordered_list", "upper", "urlencode", "urlize",
                    "urlizetrunc", "wordcount", "wordwrap", "yesno"],
-        operators = ["==", "!=", "<", ">", "<=", ">=", "in", "not", "or", "and"];
+        operators = ["==", "!=", "<", ">", "<=", ">="],
+        wordOperators = ["in", "not", "or", "and"];
 
     keywords = new RegExp("^\\b(" + keywords.join("|") + ")\\b");
     filters = new RegExp("^\\b(" + filters.join("|") + ")\\b");
     operators = new RegExp("^\\b(" + operators.join("|") + ")\\b");
+    wordOperators = new RegExp("^\\b(" + wordOperators.join("|") + ")\\b");
 
     // We have to return "null" instead of null, in order to avoid string
     // styling as the default, when using Django templates inside HTML
@@ -268,6 +270,11 @@
       // Attempt to match an operator
       if (stream.match(operators)) {
         return "operator";
+      }
+
+      // Attempt to match a word operator
+      if (stream.match(wordOperators)) {
+        return "keyword";
       }
 
       // Attempt to match a keyword
