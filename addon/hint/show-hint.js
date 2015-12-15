@@ -296,10 +296,10 @@
     });
 
     if (completion.options.completeOnSingleClick)
-      CodeMirror.on(hints, "mousemove", function(e) {
-        var elt = getHintElement(hints, e.target || e.srcElement);
-        if (elt && elt.hintId != null)
-          widget.changeActive(elt.hintId);
+      CodeMirror.on(hints, "mouseover", function(e) {
+        var target = e.target || e.srcElement
+        if (target.hintId != null && !target.contains(e.relatedTarget || e.fromElement))
+          widget.changeActive(target.hintId);
       });
 
     CodeMirror.signal(data, "select", completions[0], hints.firstChild);
