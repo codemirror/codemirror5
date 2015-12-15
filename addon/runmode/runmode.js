@@ -16,7 +16,7 @@ CodeMirror.runMode = function(string, modespec, callback, options) {
   var ie = /MSIE \d/.test(navigator.userAgent);
   var ie_lt9 = ie && (document.documentMode == null || document.documentMode < 9);
 
-  if (callback.nodeType == 1) {
+  if (callback.appendChild) {
     var tabSize = (options && options.tabSize) || CodeMirror.defaults.tabSize;
     var node = callback, col = 0;
     node.innerHTML = "";
