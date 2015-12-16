@@ -696,6 +696,15 @@
      "[link [[foo]]:] [string&url http://example.com/]",
      "(bar\" hello");
 
+  MT("labelEscape",
+     "[link [[foo \\]] ]]:] [string&url http://example.com/]");
+
+  MT("labelEscapeColon",
+     "[link [[foo \\]]: bar]]:] [string&url http://example.com/]");
+
+  MT("labelEscapeEnd",
+     "[[foo\\]]: http://example.com/");
+
   MT("linkWeb",
      "[link <http://example.com/>] foo");
 
