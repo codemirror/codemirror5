@@ -295,13 +295,6 @@
       setTimeout(function(){cm.focus();}, 20);
     });
 
-    if (completion.options.completeOnSingleClick)
-      CodeMirror.on(hints, "mouseover", function(e) {
-        var target = e.target || e.srcElement
-        if (target.hintId != null && !target.contains(e.relatedTarget || e.fromElement))
-          widget.changeActive(target.hintId);
-      });
-
     CodeMirror.signal(data, "select", completions[0], hints.firstChild);
     return true;
   }
