@@ -1,0 +1,107 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>CodeMirror: Powershell mode</title>
+    <link rel="stylesheet" href="../../lib/codemirror.css">
+    <script src="../../lib/codemirror.js"></script>
+    <script src="../../addon/edit/matchbrackets.js"></script>
+  <script src="../../addon/comment/comment.js"></script>
+    <script src="powershell.js"></script>
+    <link rel="stylesheet" href="../../doc/docs.css">
+    <style type="text/css">.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
+  </head>
+  <body>
+    <h1>CodeMirror: Powershell mode</h1>
+    
+    <div><textarea id="code" name="code">
+# Literals
+1234
+0.0e101
+.123
+0b01010011100
+0o01234567
+0x0987654321abcdef
+7
+2147483647
+3L
+79228162514264337593543950336L
+0x100000000L
+79228162514264337593543950336
+0xdeadbeef
+3.14j
+10.j
+10j
+.001j
+1e100j
+3.14e-10j
+
+
+# String Literals
+'For\''
+"God\""
+"""so loved
+the world"""
+''
+@" Multi
+line
+string "@
+
+# Identifiers
+$Variable = value
+${Variable with spaces in it} = value
+
+# Operators
++ - * / % & | ^ ~ < >
+== != <= >= <> << >> // **
+and or not in is
+
+# Delimiters
+() [] {} , : ` = ; @ .  # Note that @ and . require the proper context.
++= -= *= /= %= &= |= ^=
+//= >>= <<= **=
+
+# Keywords
+as assert break class continue def del elif else except
+finally for from global if import lambda pass raise
+return try while with yield
+
+# Types
+bool classmethod complex dict enumerate float frozenset int list object
+property reversed set slice staticmethod str super tuple type
+
+# Some Example code
+import os
+from package import ParentClass
+
+@nonsenseDecorator
+def doesNothing():
+    pass
+
+class ExampleClass(ParentClass):
+    @staticmethod
+    def example(inputStr):
+        a = list(inputStr)
+        a.reverse()
+        return ''.join(a)
+
+    def __init__(self, mixin = 'Hello'):
+        self.mixin = mixin
+
+</textarea></div>
+    <script>
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        mode: {name: "powershell",
+               version: 2,
+               singleLineStringErrors: false},
+        lineNumbers: true,
+        indentUnit: 4,
+        tabMode: "shift",
+        matchBrackets: true
+      });
+    </script>
+
+
+    <p><strong>MIME types defined:</strong> <code>text/x-powershell</code>.</p>
+  </body>
+</html>
