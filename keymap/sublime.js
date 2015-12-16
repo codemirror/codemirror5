@@ -243,7 +243,7 @@
     });
   };
 
-  map[ctrl + "/"] = function(cm) {
+  cmds[map[ctrl + "/"] = "toggleCommentIndented"] = function(cm) {
     cm.toggleComment({ indent: true });
   }
 
