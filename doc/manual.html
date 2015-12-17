@@ -1350,7 +1350,7 @@ editor.setOption("extraKeys", {
       <dd>An equivalent
       of <a href="#extendSelection"><code>extendSelection</code></a>
       that acts on all selections at once.</dd>
-      <dt id="extendSelectionsBy"><code><strong>doc.extendSelectionsBy</strong>(f: function(range: {anchor, head}) → {anchor, head}), ?options: object)</code></dt>
+      <dt id="extendSelectionsBy"><code><strong>doc.extendSelectionsBy</strong>(f: function(range: {anchor, head}) → {line, ch}), ?options: object)</code></dt>
       <dd>Applies the given function to all existing selections, and
       calls <a href="#extendSelections"><code>extendSelections</code></a>
       on the result.</dd>
