@@ -582,15 +582,17 @@
       mode's <a href="#option_electricChars">electric</a> patterns,
       and this caused the line's indentation to change.</dd>
 
-      <dt id="event_beforeSelectionChange"><code><strong>"beforeSelectionChange"</strong> (instance: CodeMirror, obj: {ranges, update})</code></dt>
+      <dt id="event_beforeSelectionChange"><code><strong>"beforeSelectionChange"</strong> (instance: CodeMirror, obj: {ranges, origin, update})</code></dt>
       <dd>This event is fired before the selection is moved. Its
       handler may inspect the set of selection ranges, present as an
       array of <code>{anchor, head}</code> objects in
       the <code>ranges</code> property of the <code>obj</code>
       argument, and optionally change them by calling
       the <code>update</code> method on this object, passing an array
-      of ranges in the same format. Handlers for this event have the
-      same restriction
+      of ranges in the same format. The object also contains
+      an <code>origin</code> property holding the origin string passed
+      to the selection-changing method, if any. Handlers for this
+      event have the same restriction
       as <a href="#event_beforeChange"><code>"beforeChange"</code></a>
       handlers — they should not do anything to directly update the
       state of the editor.</dd>
