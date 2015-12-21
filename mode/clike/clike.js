@@ -262,21 +262,20 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
   var cTypes = "int long char short double float unsigned signed void size_t ptrdiff_t";
 
   function cppHook(stream, state) {
-    if (!state.startOfLine) return false;
-    for (;;) {
-      if (stream.skipTo("\\")) {
-        stream.next();
-        if (stream.eol()) {
-          state.tokenize = cppHook;
-          break;
-        }
-      } else {
-        stream.skipToEnd();
-        state.tokenize = null;
-        break;
+    if (!state.startOfLine) return false
+    for (var ch, next = null; ch = stream.peek();) {
+      if (!ch) {
+        break
+      } else if (ch == "\\" && stream.match(/^.$/)) {
+        next = cppHook
+        break
+      } else if (ch == "/" && stream.match(/^\/[\/\*]/, false)) {
+        break
       }
+      stream.next()
     }
-    return "meta";
+    state.tokenize = next
+    return "meta"
   }
 
   function pointerHook(_stream, state) {
