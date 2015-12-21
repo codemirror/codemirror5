@@ -81,7 +81,7 @@
 
       // Variables and keywords
       var matched;
-      if (matched = stream.match(idents)) {
+      if (stream.match(idents)) {
         stream.eat(/[?!]/);
 
         matched = stream.current();
