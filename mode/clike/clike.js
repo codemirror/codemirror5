@@ -264,9 +264,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
   function cppHook(stream, state) {
     if (!state.startOfLine) return false
     for (var ch, next = null; ch = stream.peek();) {
-      if (!ch) {
-        break
-      } else if (ch == "\\" && stream.match(/^.$/)) {
+      if (ch == "\\" && stream.match(/^.$/)) {
         next = cppHook
         break
       } else if (ch == "/" && stream.match(/^\/[\/\*]/, false)) {
