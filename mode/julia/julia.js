@@ -69,12 +69,12 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
     }
 
     // Handle scope changes
-    var leaving_expr = state.leaving_expr;
+    var leavingExpr = state.leavingExpr;
     if (stream.sol()) {
-      leaving_expr = false;
+      leavingExpr = false;
     }
-    state.leaving_expr = false;
-    if (leaving_expr) {
+    state.leavingExpr = false;
+    if (leavingExpr) {
       if (stream.match(/^'+/)) {
         return 'operator';
       }
@@ -108,16 +108,16 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
 
     if (scope === '[' && ch === ']') {
       state.scopes.pop();
-      state.leaving_expr = true;
+      state.leavingExpr = true;
     }
 
     if (scope === '{' && ch === '}') {
       state.scopes.pop();
-      state.leaving_expr = true;
+      state.leavingExpr = true;
     }
 
     if (ch === ')') {
-      state.leaving_expr = true;
+      state.leavingExpr = true;
     }
 
     var match;
@@ -142,7 +142,6 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
       return 'operator';
     }
 
-
     // Handle Number Literals
     if (stream.match(/^[0-9\.]/, false)) {
       var imMatcher = RegExp(/^im\b/);
@@ -155,7 +154,7 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
       if (floatLiteral) {
           // Float literals may be "imaginary"
           stream.match(imMatcher);
-          state.leaving_expr = true;
+          state.leavingExpr = true;
           return 'number';
       }
       // Integers
@@ -175,7 +174,7 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
       if (intLiteral) {
           // Integer literals may be "long"
           stream.match(imMatcher);
-          state.leaving_expr = true;
+          state.leavingExpr = true;
           return 'number';
       }
     }
@@ -189,7 +188,7 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
     }
 
     // Handle symbols
-    if (!leaving_expr && stream.match(symbol)) {
+    if (!leavingExpr && stream.match(symbol)) {
       return 'builtin';
     }
 
@@ -225,8 +224,25 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
       return 'builtin';
     }
 
+    var isDefinition = state.isDefinition ||
+                       state.lastToken == 'function' ||
+                       state.lastToken == 'macro' ||
+                       state.lastToken == 'type' ||
+                       state.lastToken == 'immutable';
+
     if (stream.match(identifiers)) {
-      state.leaving_expr = true;
+      if (isDefinition) {
+        if (stream.peek() === '.') {
+          state.isDefinition = true;
+          return 'variable';
+        }
+        state.isDefinition = false;
+        return 'def';
+      }
+      if (stream.match(/^({[^}]*})*\(/, false)) {
+        return callOrDef(stream, state);
+      }
+      state.leavingExpr = true;
       return 'variable';
     }
 
@@ -235,11 +251,47 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
     return ERRORCLASS;
   }
 
+  function callOrDef(stream, state) {
+    var match = stream.match(/^(\(\s*)/);
+    if (match) {
+      if (state.firstParenPos < 0)
+        state.firstParenPos = state.scopes.length;
+      state.scopes.push('(');
+      state.charsAdvanced += match[1].length;
+    }
+    if (currentScope(state) == '(' && stream.match(/^\)/)) {
+      state.scopes.pop();
+      state.charsAdvanced += 1;
+      if (state.scopes.length <= state.firstParenPos) {
+        var isDefinition = stream.match(/^\s*?=(?!=)/, false);
+        stream.backUp(state.charsAdvanced);
+        state.firstParenPos = -1;
+        state.charsAdvanced = 0;
+        if (isDefinition)
+          return 'def';
+        return 'builtin';
+      }
+    }
+    // Unfortunately javascript does not support multiline strings, so we have
+    // to undo anything done upto here if a function call or definition splits
+    // over two or more lines.
+    if (stream.match(/^$/g, false)) {
+      stream.backUp(state.charsAdvanced);
+      while (state.scopes.length > state.firstParenPos + 1)
+        state.scopes.pop();
+      state.firstParenPos = -1;
+      state.charsAdvanced = 0;
+      return 'variable';
+    }
+    state.charsAdvanced += stream.match(/^([^()]*)/)[1].length;
+    return callOrDef(stream, state);
+  }
+
   function tokenStringFactory(delimiter) {
-    while ('rub'.indexOf(delimiter.charAt(0).toLowerCase()) >= 0) {
+    while ('bruv'.indexOf(delimiter.charAt(0).toLowerCase()) >= 0) {
       delimiter = delimiter.substr(1);
     }
-    var singleline = delimiter.length == 1;
+    var singleline = delimiter == "'";
     var OUTCLASS = 'string';
 
     function tokenString(stream, state) {
@@ -274,9 +326,14 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
     var style = state.tokenize(stream, state);
     var current = stream.current();
 
+    if (current && style) {
+      state.lastToken = current;
+    }
+
     // Handle '.' connected identifiers
     if (current === '.') {
-      style = stream.match(identifiers, false) ? null : ERRORCLASS;
+      style = stream.match(identifiers, false) ||
+              stream.match(macro, false) ? null : ERRORCLASS;
       if (style === null && state.lastStyle === 'meta') {
           // Apply 'meta' style to '.' connected identifiers when
           // appropriate.
@@ -284,7 +341,6 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
       }
       return style;
     }
-
     return style;
   }
 
@@ -293,7 +349,11 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
       return {
         tokenize: tokenBase,
         scopes: [],
-        leaving_expr: false
+        lastToken: null,
+        leavingExpr: false,
+        isDefinition: false,
+        charsAdvanced: 0,
+        firstParenPos: -1
       };
     },
 
@@ -305,7 +365,7 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
 
     indent: function(state, textAfter) {
       var delta = 0;
-      if (textAfter=="end" || textAfter=="]" || textAfter=="}" || textAfter=="else" || textAfter=="elseif" || textAfter=="catch" || textAfter=="finally") {
+      if (textAfter == "end" || textAfter == "]" || textAfter == "}" || textAfter == "else" || textAfter == "elseif" || textAfter == "catch" || textAfter == "finally") {
         delta = -1;
       }
       return (state.scopes.length + delta) * _conf.indentUnit;
