@@ -2,7 +2,7 @@
 // Distributed under an MIT license: http://codemirror.net/LICENSE
 
 // Yacas mode copyright (c) 2015 by Grzegorz Mazur
-// Based on mathematica mode by Calin Barbat
+// Loosely based on mathematica mode by Calin Barbat
 
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
@@ -16,9 +16,15 @@
 
 CodeMirror.defineMode('yacas', function(_config, _parserConfig) {
 
+  // patterns
+  var pFloatForm  = "(?:(?:\\.\\d+|\\d+\\.\\d*|\\d+)(?:[eE][+-]?\\d+)?)";
+  var pIdentifier = "(?:[a-zA-Z\\$'][a-zA-Z0-9\\$']*)";
+
   // regular expressions
-  var reFloatForm  = new RegExp("(?:(?:\\.\\d+|\\d+\\.\\d*|\\d+)(?:[eE][+-]?\\d+)?)");
-  var reIdentifier = new RegExp("(?:[a-zA-Z\\$'][a-zA-Z0-9\\$']*)");
+  var reFloatForm    = new RegExp(pFloatForm);
+  var reIdentifier   = new RegExp(pIdentifier);
+  var rePattern      = new RegExp(pIdentifier + "?_" + pIdentifier);
+  var reFunctionLike = new RegExp(pIdentifier + "\\s*\\(");
 
   function tokenBase(stream, state) {
     var ch;
@@ -57,27 +63,28 @@ CodeMirror.defineMode('yacas', function(_config, _parserConfig) {
       return 'number';
     }
 
-    // catch variables which are used together with Blank (_)
-    // Cannot start with a number, but can have numbers at any other position. Examples
-    // blub_IsInteger, _a1, b34_IsConstant
-    if (stream.match(/[a-zA-Z\$][a-zA-Z0-9\$]*_[a-zA-Z\$][a-zA-Z0-9\$]*/, true, false)) {
-      return 'variable-2';
-    }
-    if (stream.match(/_+[a-zA-Z\$][a-zA-Z0-9\$]*/, true, false)) {
+    // look for placeholders
+    if (stream.match(rePattern, true, false)) {
       return 'variable-2';
     }
 
-    // Match all braces separately
+    // match all braces separately
     if (stream.match(/(?:\[|\]|{|}|\(|\))/, true, false)) {
       return 'bracket';
     }
 
-    // Literals like variables, keywords, functions
-    if (stream.match(reIdentifier, true, false)) {
+    // literals looking like function calls
+    if (stream.match(reFunctionLike, true, false)) {
+      stream.backUp(1);
       return 'keyword';
     }
 
-    // operators. Note that operators like @@ or /; are matched separately for each symbol.
+    // all other identifiers
+    if (stream.match(reIdentifier, true, false)) {
+      return 'variable';
+    }
+
+    // operators; note that operators like @@ or /; are matched separately for each symbol.
     if (stream.match(/(?:\\|\+|\-|\*|\/|,|;|\.|:|@|~|=|>|<|&|\||_|`|'|\^|\?|!|%)/, true, false)) {
       return 'operator';
     }
