@@ -96,6 +96,9 @@ CodeMirror.defineMode("clojure", function (options) {
             if ( '.' == stream.peek() ) {
                 stream.eat('.');
                 stream.eatWhile(tests.digit);
+            } else if ('/' == stream.peek() ) {
+                stream.eat('/');
+                stream.eatWhile(tests.digit);
             }
 
             if ( stream.eat(tests.exponent) ) {
