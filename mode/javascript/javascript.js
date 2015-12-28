@@ -19,6 +19,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   var jsonldMode = parserConfig.jsonld;
   var jsonMode = parserConfig.json || jsonldMode;
   var isTS = parserConfig.typescript;
+  var isJsx = parserConfig.jsx;
   var wordRE = parserConfig.wordCharacters || /[\w$\xa1-\uffff]/;
 
   // Tokenizer
@@ -74,6 +75,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
 
   var isOperatorChar = /[+\-*&%=<>!?|~^]/;
   var isJsonldKeyword = /^@(context|id|value|language|type|container|list|set|reverse|index|base|vocab|graph)"/;
+  var jsxAttrRE = /^[^\s\u00a0=<>\"\']*[^\s\u00a0=<>\"\'\/]/;
 
   function readRegexp(stream) {
     var escaped = false, next, inSet = false;
@@ -142,14 +144,62 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       stream.skipToEnd();
       return ret("error", "error");
     } else if (isOperatorChar.test(ch)) {
-      stream.eatWhile(isOperatorChar);
-      return ret("operator", "operator", stream.current());
+      if (isJsx && ch == "<" && /^(?:operator|sof|keyword c|case|new|[\[{}\(,;:])$/.test(state.lastType)) {
+        state.tokenize = tokenJsx;
+        return ret("<");
+      } else {
+        stream.eatWhile(isOperatorChar);
+        return ret("operator", "operator", stream.current());
+      }
     } else if (wordRE.test(ch)) {
       stream.eatWhile(wordRE);
       var word = stream.current(), known = keywords.propertyIsEnumerable(word) && keywords[word];
       return (known && state.lastType != ".") ? ret(known.type, known.style, word) :
                      ret("variable", "variable", word);
     }
+  }
+
+  function tokenJsx(stream, state) {
+    var ch = stream.next();
+    if (ch == ">") {
+      return ret(">", "bracket");
+    } else if (ch == "/" && stream.eat(">")) {
+      return ret("/>", "bracket");
+    } else if (ch == "<" && stream.eat("/")) {
+      return ret("</", "bracket");
+    } else if (ch == "<") {
+      return ret("<", "bracket");
+    } else if (ch == "=") {
+      return ret("=", "operator");
+    } else if (ch == ".") {
+      return ret(".");
+    } else if (ch == "{") {
+      state.tokenize = tokenBase;
+      return ret("{");
+    } else if (ch == '"' || ch == "'") {
+      state.tokenize = tokenJsxString(ch);
+      return state.tokenize(stream, state);
+    } else {
+      if (state.lastType == "<" || state.lastType == "</" || state.lastType == ".") {
+        stream.eatWhile(wordRE);
+        return ret("tagname", state.lastType == "." ? "property" : "variable", stream.current());
+      } else {
+        stream.match(jsxAttrRE);
+        return ret("attrname", "attribute", stream.current());
+      }
+    }
+  }
+
+  function tokenJsxString(quote) {
+    return function(stream, state) {
+      var next;
+      while ((next = stream.next()) != null){
+        if (next == quote) {
+          state.tokenize = tokenJsx;
+          break;
+        }}
+      return ret("string", "string");
+    };
   }
 
   function tokenString(quote) {
@@ -378,6 +428,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     }
 
     var maybeop = noComma ? maybeoperatorNoComma : maybeoperatorComma;
+    if (isJsx && type == "<") return pass(jsxRootElement);
     if (atomicTypes.hasOwnProperty(type)) return cont(maybeop);
     if (type == "function") return cont(functiondef, maybeop);
     if (type == "keyword c") return cont(noComma ? maybeexpressionNoComma : maybeexpression);
@@ -416,6 +467,65 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == "(") return contCommasep(expressionNoComma, ")", "call", me);
     if (type == ".") return cont(property, me);
     if (type == "[") return cont(pushlex("]"), maybeexpression, expect("]"), poplex, me);
+  }
+  function jsxRootElement(type) {
+    if (type == "<") return cont(pushlex("jsx"), jsxElementName, jsxAttributes, jsxRootMaybeSelfClose, poplex);
+  }
+  function jsxElement(type) {
+    if (type == "<") return cont(pushlex("jsx"), jsxElementName, jsxAttributes, jsxMaybeSelfClose, poplex);
+  }
+  function jsxElementName(type) {
+    if (type == "tagname") return cont(jsxElementName);
+    if (type == ".") return cont(jsxElementName);
+    return pass();
+  }
+  function jsxAttributes(type) {
+    if (type == ">" || type == "/>") return pass();
+    if (type == "{") {
+      cx.state.tokenize = tokenBase;
+      return cont(pushlex("}"), expression, continueJsx, poplex, jsxAttributes);
+    }
+    if (type == "attrname") return cont(expect("="), jsxAttrValue, jsxAttributes);
+  }
+  function jsxAttrValue(type) {
+    if (type == "string") return cont(jsxAttrValue);
+    if (type == "<") return pass(jsxElement);
+    if (type == "{") {
+      cx.state.tokenize = tokenBase;
+      return cont(pushlex("}"), expression, continueJsx, poplex);
+    }
+    return pass();
+  }
+  function jsxRootMaybeSelfClose(type) {
+    if (type == "/>") return pass(jsxExit);
+    if (type == ">") return cont(jsxChildren, expect("</"), jsxElementName, jsxExit);
+  }
+  function jsxMaybeSelfClose(type) {
+    if (type == "/>") return cont();
+    if (type == ">") return cont(jsxChildren, expect("</"), jsxElementName, expect(">"));
+  }
+  function jsxExit(type) {
+    if (type == ">" || type == "/>") {
+      cx.state.tokenize = tokenBase;
+      return cont();
+    }
+  }
+  function jsxChildren(type) {
+    if (type == "</") return pass();
+    if (type == "<") return pass(jsxElement, jsxChildren);
+    if (type == "{") {
+      cx.state.tokenize = tokenBase;
+      return cont(pushlex("}"), expression, continueJsx, poplex, jsxChildren);
+    }
+    cx.marked = "";
+    return cont(jsxChildren);
+  }
+  function continueJsx(type) {
+    if (type == "}") {
+      cx.marked = "bracket";
+      cx.state.tokenize = tokenJsx;
+      return cont();
+    }
   }
   function quasi(type, value) {
     if (type != "quasi") return pass();
@@ -678,7 +788,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
 
     indent: function(state, textAfter) {
       if (state.tokenize == tokenComment) return CodeMirror.Pass;
-      if (state.tokenize != tokenBase) return 0;
+      if (state.tokenize != tokenBase && state.tokenize != tokenJsx) return 0;
       var firstChar = textAfter && textAfter.charAt(0), lexical = state.lexical;
       // Kludge to prevent 'maybelse' from blocking lexical scope pops
       if (!/^\s*else\b/.test(textAfter)) for (var i = state.cc.length - 1; i >= 0; --i) {
@@ -694,6 +804,12 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       if (type == "vardef") return lexical.indented + (state.lastType == "operator" || state.lastType == "," ? lexical.info + 1 : 0);
       else if (type == "form" && firstChar == "{") return lexical.indented;
       else if (type == "form") return lexical.indented + indentUnit;
+      else if (type == "jsx") {
+        var secondChar = textAfter && textAfter.charAt(1);
+        if (firstChar == "<" && secondChar == "/") return lexical.indented;
+        else if (firstChar == "/" && secondChar == ">") return lexical.indented;
+        else return lexical.indented + indentUnit;
+      }
       else if (type == "stat")
         return lexical.indented + (isContinuedStatement(state, textAfter) ? statementIndent || indentUnit : 0);
       else if (lexical.info == "switch" && !closing && parserConfig.doubleIndentSwitch != false)
