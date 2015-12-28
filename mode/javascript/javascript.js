@@ -162,15 +162,15 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   function tokenJsx(stream, state) {
     var ch = stream.next();
     if (ch == ">") {
-      return ret(">", "bracket");
+      return ret(">");
     } else if (ch == "/" && stream.eat(">")) {
-      return ret("/>", "bracket");
+      return ret("/>");
     } else if (ch == "<" && stream.eat("/")) {
-      return ret("</", "bracket");
+      return ret("</");
     } else if (ch == "<") {
-      return ret("<", "bracket");
+      return ret("<");
     } else if (ch == "=") {
-      return ret("=", "operator");
+      return ret("=");
     } else if (ch == ".") {
       return ret(".");
     } else if (ch == "{") {
@@ -522,7 +522,6 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   }
   function continueJsx(type) {
     if (type == "}") {
-      cx.marked = "bracket";
       cx.state.tokenize = tokenJsx;
       return cont();
     }
