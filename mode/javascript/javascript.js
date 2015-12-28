@@ -312,7 +312,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       if (combinator(type, content)) {
         while(cc.length && cc[cc.length - 1].lex)
           cc.pop()();
-        if (cx.marked) return cx.marked;
+        if (typeof cx.marked == "string") return cx.marked;
         if (type == "variable" && inScope(state, content)) return "variable-2";
         return style;
       }
