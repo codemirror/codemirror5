@@ -41,4 +41,8 @@
      "([bracket&tag <][tag foo][bracket&tag >] [comment /* hello]",
      "[comment     line 2]",
      "[comment     line 3 */] [bracket&tag </][tag foo][bracket&tag >][operator ++])")
+
+  MT("missing_attr",
+     "([bracket&tag <][tag foo] [attribute selected][bracket&tag />][operator ++])")
+     
 })()

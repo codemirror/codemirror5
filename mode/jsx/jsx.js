@@ -23,7 +23,7 @@
   }
 
   CodeMirror.defineMode("jsx", function(config) {
-    var xmlMode = CodeMirror.getMode(config, "xml")
+    var xmlMode = CodeMirror.getMode(config, {name: "xml", allowMissing: true})
     var jsMode = CodeMirror.getMode(config, "javascript")
 
     return {
