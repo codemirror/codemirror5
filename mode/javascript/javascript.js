@@ -659,7 +659,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
         lexical: new JSLexical((basecolumn || 0) - indentUnit, 0, "block", false),
         localVars: parserConfig.localVars,
         context: parserConfig.localVars && {vars: parserConfig.localVars},
-        indented: 0
+        indented: basecolumn || 0
       };
       if (parserConfig.globalVars && typeof parserConfig.globalVars == "object")
         state.globalVars = parserConfig.globalVars;

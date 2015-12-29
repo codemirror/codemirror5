@@ -44,8 +44,11 @@
             return "comment"
           } else if (stream.peek() == "{") {
             xmlMode.skipAttribute(cx.state)
+            var tagName = cx.state.tagName
+            cx.state.tagName = null
             state.context = new Context(CodeMirror.startState(jsMode, xmlMode.indent(cx.state, "")),
                                         jsMode, 1, state.context)
+            cx.state.tagName = tagName
             return jsMode.token(stream, state.context.state)
           } else if (stream.match("//")) {
             stream.skipToEnd()
@@ -87,7 +90,7 @@
       },
 
       innerMode: function(state) {
-        return state.context[state.context.length - 1]
+        return state.context
       }
     }
   }, "xml", "javascript")
