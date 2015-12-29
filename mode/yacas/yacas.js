@@ -65,7 +65,7 @@ CodeMirror.defineMode('yacas', function(_config, _parserConfig) {
 
     // look for placeholders
     if (stream.match(rePattern, true, false)) {
-      return 'variable-2';
+      return 'variable-3';
     }
 
     // match all braces separately
@@ -76,12 +76,12 @@ CodeMirror.defineMode('yacas', function(_config, _parserConfig) {
     // literals looking like function calls
     if (stream.match(reFunctionLike, true, false)) {
       stream.backUp(1);
-      return 'keyword';
+      return 'variable';
     }
 
     // all other identifiers
     if (stream.match(reIdentifier, true, false)) {
-      return 'variable';
+      return 'variable-2';
     }
 
     // operators; note that operators like @@ or /; are matched separately for each symbol.
