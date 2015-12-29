@@ -9,30 +9,35 @@
   else // Plain browser env
     mod(CodeMirror)
 })(function (CodeMirror) {
-  CodeMirror.defineMode("haskell-literate", function (config) {
-    var haskellMode = CodeMirror.getMode(config, "haskell")
+  "use strict"
+
+  CodeMirror.defineMode("haskell-literate", function (config, parserConfig) {
+    var baseMode = CodeMirror.getMode(config, (parserConfig && parserConfig.base) || "haskell")
+
     return {
       startState: function () {
         return {
-          haskellCode: false,
-          haskellState: CodeMirror.startState(haskellMode)
+          inCode: false,
+          baseState: CodeMirror.startState(baseMode)
         }
       },
       token: function (stream, state) {
-        if ((stream.sol() && stream.next() == '>') || state.haskellCode) {
-          state.haskellCode = true
-          return haskellMode.token(stream, state.haskellState)
+        if (stream.sol()) {
+          if (state.inCode = stream.eat(">"))
+            return "meta"
+        }
+        if (state.inCode) {
+          return baseMode.token(stream, state.baseState)
         } else {
           stream.skipToEnd()
           return "comment"
         }
       },
-      blankLine: function (state) {
-        state.haskellCode = false
-      },
       innerMode: function (state) {
-        return {state: state.haskellState, mode: haskellMode};
+        return state.inCode ? {state: state.baseState, mode: baseMode} : null
       }
     }
   })
+
+  CodeMirror.defineMIME("text/x-literate-haskell", "haskell-literate")
 })
