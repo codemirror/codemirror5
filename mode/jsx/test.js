@@ -44,5 +44,14 @@
 
   MT("missing_attr",
      "([bracket&tag <][tag foo] [attribute selected][bracket&tag />][operator ++])")
-     
+
+  MT("indent_js",
+     "([bracket&tag <][tag foo][bracket&tag >]",
+     "    [bracket&tag <][tag bar] [attribute baz]={[keyword function]() {",
+     "      [keyword return] [number 10]",
+     "    }}[bracket&tag />]",
+     "  [bracket&tag </][tag foo][bracket&tag >])")
+
+  MT("spread",
+     "([bracket&tag <][tag foo] [attribute bar]={[meta ...][variable baz] [operator /][number 2]}[bracket&tag />])")
 })()
