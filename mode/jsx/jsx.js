@@ -11,11 +11,15 @@
 })(function(CodeMirror) {
   "use strict"
 
+  function Context(state, mode, depth, prev) {
+    this.state = state; this.mode = mode; this.depth = depth; this.prev = prev
+  }
+
   function copyContext(context) {
-    return {state: CodeMirror.copyState(context.mode, context.state),
-            mode: context.mode,
-            depth: context.depth,
-            prev: context.prev && copyContext(context.prev)}
+    return new Context(CodeMirror.copyState(context.mode, context.state),
+                       context.mode,
+                       context.depth,
+                       context.prev && copyContext(context.prev))
   }
 
   CodeMirror.defineMode("jsx", function(config) {
@@ -24,7 +28,7 @@
 
     return {
       startState: function() {
-        return {context: {state: CodeMirror.startState(jsMode), mode: jsMode}}
+        return {context: new Context(CodeMirror.startState(jsMode), jsMode)}
       },
 
       copyState: function(state) {
@@ -34,27 +38,34 @@
       token: function(stream, state) {
         var cx = state.context
         if (cx.mode == xmlMode) {
-          if (stream.peek() == "{") {
+          if (cx.depth) { // Inside a JS /* */ comment
+            if (stream.match(/^.*?\*\//)) cx.depth = 0
+            else stream.skipToEnd()
+            return "comment"
+          } else if (stream.peek() == "{") {
             xmlMode.skipAttribute(cx.state)
-            state.context = {state: CodeMirror.startState(jsMode, xmlMode.indent(cx.state, "")),
-                             mode: jsMode,
-                             depth: 1,
-                             prev: state.context}
+            state.context = new Context(CodeMirror.startState(jsMode, xmlMode.indent(cx.state, "")),
+                                        jsMode, 1, state.context)
             return jsMode.token(stream, state.context.state)
+          } else if (stream.match("//")) {
+            stream.skipToEnd()
+            return "comment"
+          } else if (stream.match("/*")) {
+            cx.depth = 1
+            return this.token(stream, state)
           } else { // FIXME skip attribute
-            var style = xmlMode.token(stream, cx.state), cur, brace
+            var style = xmlMode.token(stream, cx.state), cur, stop
             if (/\btag\b/.test(style) && !cx.state.context && /^\/?>$/.test(stream.current()))
               state.context = state.context.prev
-            else if (!style && (brace = (cur = stream.current()).indexOf("{")) > -1)
-              stream.backUp(cur.length - brace)
+            else if (!style && (stop = (cur = stream.current()).search(/\{|\/[*\/]/)) > -1)
+              stream.backUp(cur.length - stop)
             return style
           }
         } else { // jsMode
           if (stream.peek() == "<" && jsMode.expressionAllowed(stream, cx.state)) {
             jsMode.skipExpression(cx.state)
-            state.context = {state: CodeMirror.startState(xmlMode, jsMode.indent(cx.state, "")),
-                             mode: xmlMode,
-                             prev: state.context}
+            state.context = new Context(CodeMirror.startState(xmlMode, jsMode.indent(cx.state, "")),
+                                        xmlMode, 0, state.context)
             return xmlMode.token(stream, state.context.state)
           } else {
             var style = jsMode.token(stream, cx.state)

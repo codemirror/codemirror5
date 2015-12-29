@@ -32,4 +32,13 @@
 
   MT("preserve_js_context",
      "[variable x] [operator =] [string-2 `quasi${][bracket&tag <][tag foo][bracket&tag />][string-2 }quoted`]")
+
+  MT("line_comment",
+     "([bracket&tag <][tag foo][bracket&tag >] [comment // hello]",
+     "  [bracket&tag </][tag foo][bracket&tag >][operator ++])")
+
+  MT("block_comment",
+     "([bracket&tag <][tag foo][bracket&tag >] [comment /* hello]",
+     "[comment     line 2]",
+     "[comment     line 3 */] [bracket&tag </][tag foo][bracket&tag >][operator ++])")
 })()
