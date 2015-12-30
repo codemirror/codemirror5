@@ -29,7 +29,7 @@
       query.lastIndex = stream.pos;
       var match = query.exec(stream.string);
       if (match && match.index == stream.pos) {
-        stream.pos += match[0].length;
+        stream.pos += match[0].length || 1;
         return "searching";
       } else if (match) {
         stream.pos = match.index;

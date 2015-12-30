@@ -13,189 +13,149 @@
 })(function(CodeMirror) {
   "use strict"
 
-  function trim(str) { return /^\s*(.*?)\s*$/.exec(str)[1] }
+  function wordSet(words) {
+    var set = {}
+    for (var i = 0; i < words.length; i++) set[words[i]] = true
+    return set
+  }
 
-  var separators = [" ","\\\+","\\\-","\\\(","\\\)","\\\*","/",":","\\\?","\\\<","\\\>"," ","\\\."]
-  var tokens = new RegExp(separators.join("|"),"g")
+  var keywords = wordSet(["var","let","class","deinit","enum","extension","func","import","init","protocol",
+                          "static","struct","subscript","typealias","as","dynamicType","is","new","super",
+                          "self","Self","Type","__COLUMN__","__FILE__","__FUNCTION__","__LINE__","break","case",
+                          "continue","default","do","else","fallthrough","if","in","for","return","switch",
+                          "where","while","associativity","didSet","get","infix","inout","left","mutating",
+                          "none","nonmutating","operator","override","postfix","precedence","prefix","right",
+                          "set","unowned","weak","willSet"])
+  var definingKeywords = wordSet(["var","let","class","enum","extension","func","import","protocol","struct",
+                                  "typealias","dynamicType","for"])
+  var atoms = wordSet(["Infinity","NaN","undefined","null","true","false","on","off","yes","no","nil","null",
+                       "this","super"])
+  var types = wordSet(["String","bool","int","string","double","Double","Int","Float","float","public",
+                       "private","extension"])
+  var operators = "+-/*%=|&<>#"
+  var punc = ";,.(){}[]"
+  var delimiters = /^(?:[()\[\]{},:`=;]|\.\.?\.?)/
+  var number = /^-?(?:(?:[\d_]+\.[_\d]*|\.[_\d]+|0o[0-7_\.]+|0b[01_\.]+)(?:e-?[\d_]+)?|0x[\d_a-f\.]+(?:p-?[\d_]+)?)/i
+  var identifier = /^[_A-Za-z$][_A-Za-z$0-9]*/
+  var property = /^[@\.][_A-Za-z$][_A-Za-z$0-9]*/
+  var regexp = /^\/(?!\s)(?:\/\/)?(?:\\.|[^\/])+\//
 
-  function getWord(string, pos) {
-    var index = -1, count = 1
-    var words = string.split(tokens)
-    for (var i = 0; i < words.length; i++) {
-      for(var j = 1; j <= words[i].length; j++) {
-        if (count==pos) index = i
-        count++
+  function tokenBase(stream, state, prev) {
+    if (stream.eatSpace()) return null
+
+    var ch = stream.peek()
+    if (ch == "/") {
+      if (stream.match("//")) {
+        stream.skipToEnd()
+        return "comment"
       }
-      count++
+      if (stream.match("/*")) {
+        state.tokenize.push(tokenComment)
+        return tokenComment(stream, state)
+      }
+      if (stream.match(regexp)) return "string-2"
     }
-    var ret = ["", ""]
-    if (pos == 0) {
-      ret[1] = words[0]
-      ret[0] = null
-    } else {
-      ret[1] = words[index]
-      ret[0] = words[index-1]
+    if (operators.indexOf(ch) > -1) {
+      stream.next()
+      return "operator"
     }
-    return ret
+    if (punc.indexOf(ch) > -1) {
+      stream.match(delimiters)
+      return "punctuation"
+    }
+    if (ch == '"' || ch == "'") {
+      stream.next()
+      var tokenize = tokenString(ch)
+      state.tokenize.push(tokenize)
+      return tokenize(stream, state)
+    }
+
+    if (stream.match(number)) return "number"
+    if (stream.match(property)) return "property"
+
+    if (stream.match(identifier)) {
+      var ident = stream.current()
+      if (keywords.hasOwnProperty(ident)) {
+        if (definingKeywords.hasOwnProperty(ident))
+          state.prev = "define"
+        return "keyword"
+      }
+      if (types.hasOwnProperty(ident)) return "variable-2"
+      if (atoms.hasOwnProperty(ident)) return "atom"
+      if (prev == "define") return "def"
+      return "variable"
+    }
+
+    stream.next()
+    return null
+  }
+
+  function tokenUntilClosingParen() {
+    var depth = 0
+    return function(stream, state, prev) {
+      var inner = tokenBase(stream, state, prev)
+      if (inner == "punctuation") {
+        if (stream.current() == "(") ++depth
+        else if (stream.current() == ")") {
+          if (depth == 0) {
+            stream.backUp(1)
+            state.tokenize.pop()
+            return state.tokenize[state.tokenize.length - 1](stream, state)
+          }
+          else --depth
+        }
+      }
+      return inner
+    }
+  }
+
+  function tokenString(quote) {
+    return function(stream, state) {
+      var ch, escaped = false
+      while (ch = stream.next()) {
+        if (escaped) {
+          if (ch == "(") {
+            state.tokenize.push(tokenUntilClosingParen())
+            return "string"
+          }
+          escaped = false
+        } else if (ch == quote) {
+          break
+        } else {
+          escaped = ch == "\\"
+        }
+      }
+      state.tokenize.pop()
+      return "string"
+    }
+  }
+
+  function tokenComment(stream, state) {
+    stream.match(/^(?:[^*]|\*(?!\/))*/)
+    if (stream.match("*/")) state.tokenize.pop()
+    return "comment"
   }
 
   CodeMirror.defineMode("swift", function() {
-    var keywords=["var","let","class","deinit","enum","extension","func","import","init","let","protocol","static","struct","subscript","typealias","var","as","dynamicType","is","new","super","self","Self","Type","__COLUMN__","__FILE__","__FUNCTION__","__LINE__","break","case","continue","default","do","else","fallthrough","if","in","for","return","switch","where","while","associativity","didSet","get","infix","inout","left","mutating","none","nonmutating","operator","override","postfix","precedence","prefix","right","set","unowned","unowned(safe)","unowned(unsafe)","weak","willSet"]
-    var commonConstants=["Infinity","NaN","undefined","null","true","false","on","off","yes","no","nil","null","this","super"]
-    var types=["String","bool","int","string","double","Double","Int","Float","float","public","private","extension"]
-    var numbers=["0","1","2","3","4","5","6","7","8","9"]
-    var operators=["+","-","/","*","%","=","|","&","<",">"]
-    var punc=[";",",",".","(",")","{","}","[","]"]
-    var delimiters=/^(?:[()\[\]{},:`=;]|\.\.?\.?)/
-    var identifiers=/^[_A-Za-z$][_A-Za-z$0-9]*/
-    var properties=/^(@|this\.)[_A-Za-z$][_A-Za-z$0-9]*/
-    var regexPrefixes=/^(\/{3}|\/)/
-
     return {
       startState: function() {
         return {
-          prev: false,
-          string: false,
-          escape: false,
-          inner: false,
-          comment: false,
-          num_left: 0,
-          num_right: 0,
-          doubleString: false,
-          singleString: false
+          prev: null,
+          tokenize: []
         }
       },
       token: function(stream, state) {
-        if (stream.eatSpace()) return null
-
-        var ch = stream.next()
-        if (state.string) {
-          if (state.escape) {
-            state.escape = false
-            return "string"
-          } else {
-            if ((ch == "\"" && (state.doubleString && !state.singleString) ||
-                 (ch == "'" && (!state.doubleString && state.singleString))) &&
-                !state.escape) {
-              state.string = false
-              state.doubleString = false
-              state.singleString = false
-              return "string"
-            } else if (ch == "\\" && stream.peek() == "(") {
-              state.inner = true
-              state.string = false
-              return "keyword"
-            } else if (ch == "\\" && stream.peek() != "(") {
-              state.escape = true
-              state.string = true
-              return "string"
-            } else {
-              return "string"
-            }
-          }
-        } else if (state.comment) {
-          if (ch == "*" && stream.peek() == "/") {
-            state.prev = "*"
-            return "comment"
-          } else if (ch == "/" && state.prev == "*") {
-            state.prev = false
-            state.comment = false
-            return "comment"
-          }
-          return "comment"
-        } else {
-          if (ch == "/") {
-            if (stream.peek() == "/") {
-              stream.skipToEnd()
-              return "comment"
-            }
-            if (stream.peek() == "*") {
-              state.comment = true
-              return "comment"
-            }
-          }
-          if (ch == "(" && state.inner) {
-            state.num_left++
-            return null
-          }
-          if (ch == ")" && state.inner) {
-            state.num_right++
-            if (state.num_left == state.num_right) {
-              state.inner=false
-              state.string=true
-            }
-            return null
-          }
-
-          var ret = getWord(stream.string, stream.pos)
-          var the_word = ret[1]
-          var prev_word = ret[0]
-
-          if (operators.indexOf(ch + "") > -1) return "operator"
-          if (punc.indexOf(ch) > -1) return "punctuation"
-
-          if (typeof the_word != "undefined") {
-            the_word = trim(the_word)
-            if (typeof prev_word != "undefined") prev_word = trim(prev_word)
-            if (the_word.charAt(0) == "#") return null
-
-            if (types.indexOf(the_word) > -1) return "def"
-            if (commonConstants.indexOf(the_word) > -1) return "atom"
-            if (numbers.indexOf(the_word) > -1) return "number"
-
-            if ((numbers.indexOf(the_word.charAt(0) + "") > -1 ||
-                 operators.indexOf(the_word.charAt(0) + "") > -1) &&
-                numbers.indexOf(ch) > -1) {
-              return "number"
-            }
-
-            if (keywords.indexOf(the_word) > -1 ||
-                keywords.indexOf(the_word.split(tokens)[0]) > -1)
-              return "keyword"
-            if (keywords.indexOf(prev_word) > -1) return "def"
-          }
-          if (ch == '"' && !state.doubleString) {
-            state.string = true
-            state.doubleString = true
-            return "string"
-          }
-          if (ch == "'" && !state.singleString) {
-            state.string = true
-            state.singleString = true
-            return "string"
-          }
-          if (ch == "(" && state.inner)
-            state.num_left++
-          if (ch == ")" && state.inner) {
-            state.num_right++
-            if (state.num_left == state.num_right) {
-              state.inner = false
-              state.string = true
-            }
-            return null
-          }
-          if (stream.match(/^-?[0-9\.]/, false)) {
-            if (stream.match(/^-?\d*\.\d+(e[\+\-]?\d+)?/i) ||
-                stream.match(/^-?\d+\.\d*/) ||
-                stream.match(/^-?\.\d+/)) {
-              if (stream.peek() == ".") stream.backUp(1)
-              return "number"
-            }
-            if (stream.match(/^-?0x[0-9a-f]+/i) ||
-                stream.match(/^-?[1-9]\d*(e[\+\-]?\d+)?/) ||
-                stream.match(/^-?0(?![\dx])/i))
-              return "number"
-          }
-          if (stream.match(regexPrefixes)) {
-            if (stream.current()!="/" || stream.match(/^.*\//,false)) return "string"
-            else stream.backUp(1)
-          }
-          if (stream.match(delimiters)) return "punctuation"
-          if (stream.match(identifiers)) return "variable"
-          if (stream.match(properties)) return "property"
-          return "variable"
-        }
-      }
+        var prev = state.prev
+        state.prev = null
+        var tokenize = state.tokenize[state.tokenize.length - 1] || tokenBase
+        var style = tokenize(stream, state, prev)
+        if (!style || style == "comment") state.prev = prev
+        else if (!state.prev) state.prev = style
+        return style
+      },
+      lineComment: "//",
+      blockCommentStart: "/*",
+      blockCommentEnd: "*/"
     }
   })
 

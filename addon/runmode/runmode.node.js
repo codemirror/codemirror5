@@ -176,3 +176,4 @@ exports.runMode = function(string, modespec, callback, options) {
 };
 
 require.cache[require.resolve("../../lib/codemirror")] = require.cache[require.resolve("./runmode.node")];
+require.cache[require.resolve("../../addon/runmode/runmode")] = require.cache[require.resolve("./runmode.node")];

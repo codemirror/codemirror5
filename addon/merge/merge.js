@@ -5,7 +5,7 @@
 
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
-    mod(require("../../lib/codemirror"), require("diff_match_patch"));
+    mod(require("../../lib/codemirror")); // Note non-packaged dependency diff_match_patch
   else if (typeof define == "function" && define.amd) // AMD
     define(["../../lib/codemirror", "diff_match_patch"], mod);
   else // Plain browser env
@@ -471,13 +471,10 @@
     if (left) left.init(leftPane, origLeft, options);
     if (right) right.init(rightPane, origRight, options);
 
-    if (options.collapseIdentical) {
-      updating = true;
+    if (options.collapseIdentical)
       this.editor().operation(function() {
         collapseIdenticalStretches(self, options.collapseIdentical);
       });
-      updating = false;
-    }
     if (options.connect == "align") {
       this.aligners = [];
       alignChunks(this.left || this.right, true);
@@ -640,7 +637,7 @@
       mark.clear();
       cm.removeLineClass(from, "wrap", "CodeMirror-merge-collapsed-line");
     }
-    widget.addEventListener("click", clear);
+    CodeMirror.on(widget, "click", clear);
     return {mark: mark, clear: clear};
   }
 

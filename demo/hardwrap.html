@@ -60,11 +60,14 @@ var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
     "Ctrl-Q": function(cm) { cm.wrapParagraph(cm.getCursor(), options); }
   }
 });
-var wait, options = {column: 60};
+var wait, options = {column: 60}, changing = false;
 editor.on("change", function(cm, change) {
+  if (changing) return;
   clearTimeout(wait);
   wait = setTimeout(function() {
-    console.log(cm.wrapParagraphsInRange(change.from, CodeMirror.changeEnd(change), options));
+    changing = true;
+    cm.wrapParagraphsInRange(change.from, CodeMirror.changeEnd(change), options);
+    changing = false;
   }, 200);
 });
 </script>
