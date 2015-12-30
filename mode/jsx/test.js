@@ -34,13 +34,22 @@
      "[variable x] [operator =] [string-2 `quasi${][bracket&tag <][tag foo][bracket&tag />][string-2 }quoted`]")
 
   MT("line_comment",
-     "([bracket&tag <][tag foo][bracket&tag >] [comment // hello]",
+     "([bracket&tag <][tag foo] [comment // hello]",
+     "   [bracket&tag ></][tag foo][bracket&tag >][operator ++])")
+
+  MT("line_comment_not_in_tag",
+     "([bracket&tag <][tag foo][bracket&tag >] // hello",
      "  [bracket&tag </][tag foo][bracket&tag >][operator ++])")
 
   MT("block_comment",
-     "([bracket&tag <][tag foo][bracket&tag >] [comment /* hello]",
-     "[comment     line 2]",
-     "[comment     line 3 */] [bracket&tag </][tag foo][bracket&tag >][operator ++])")
+     "([bracket&tag <][tag foo] [comment /* hello]",
+     "[comment    line 2]",
+     "[comment    line 3 */] [bracket&tag ></][tag foo][bracket&tag >][operator ++])")
+
+  MT("block_comment_not_in_tag",
+     "([bracket&tag <][tag foo][bracket&tag >]/* hello",
+     "    line 2",
+     "    line 3 */ [bracket&tag </][tag foo][bracket&tag >][operator ++])")
 
   MT("missing_attr",
      "([bracket&tag <][tag foo] [attribute selected][bracket&tag />][operator ++])")
