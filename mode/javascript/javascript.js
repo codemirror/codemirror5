@@ -537,6 +537,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     }
     if (type == "variable") cx.marked = "property";
     if (type == "spread") return cont(pattern);
+    if (type == "}") return pass();
     return cont(expect(":"), pattern, maybeAssign);
   }
   function maybeAssign(_type, value) {
