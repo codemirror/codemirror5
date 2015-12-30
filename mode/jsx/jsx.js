@@ -29,6 +29,84 @@
     var xmlMode = CodeMirror.getMode(config, {name: "xml", allowMissing: true, multilineTagIndentPastTag: false})
     var jsMode = CodeMirror.getMode(config, "javascript")
 
+    function flatXMLIndent(state) {
+      var tagName = state.tagName
+      state.tagName = null
+      var result = xmlMode.indent(state, "")
+      state.tagName = tagName
+      return result
+    }
+
+    function token(stream, state) {
+      if (state.context.mode == xmlMode)
+        return xmlToken(stream, state, state.context)
+      else
+        return jsToken(stream, state, state.context)
+    }
+
+    function xmlToken(stream, state, cx) {
+      if (cx.depth == 2) { // Inside a JS /* */ comment
+        if (stream.match(/^.*?\*\//)) cx.depth = 1
+        else stream.skipToEnd()
+        return "comment"
+      }
+
+      if (stream.peek() == "{") {
+        xmlMode.skipAttribute(cx.state)
+        state.context = new Context(CodeMirror.startState(jsMode, flatXMLIndent(cx.state)),
+                                    jsMode, 0, state.context)
+        return token(stream, state)
+      }
+
+      if (cx.depth == 1) { // Inside of tag
+        if (stream.peek() == "<") { // Tag inside of tag
+          xmlMode.skipAttribute(cx.state)
+          state.context = new Context(CodeMirror.startState(xmlMode, flatXMLIndent(cx.state)),
+                                      xmlMode, 0, state.context)
+          return token(stream, state)
+        } else if (stream.match("//")) {
+          stream.skipToEnd()
+          return "comment"
+        } else if (stream.match("/*")) {
+          cx.depth = 2
+          return token(stream, state)
+        }
+      }
+
+      var style = xmlMode.token(stream, cx.state), cur = stream.current(), stop
+      if (/\btag\b/.test(style)) {
+        if (/>$/.test(cur)) {
+          if (cx.state.context) cx.depth = 0
+          else state.context = state.context.prev
+        } else if (/^</.test(cur)) {
+          cx.depth = 1
+        }
+      } else if (!style && (stop = cur.indexOf("{")) > -1) {
+        stream.backUp(cur.length - stop)
+      }
+      return style
+    }
+
+    function jsToken(stream, state, cx) {
+      if (stream.peek() == "<" && jsMode.expressionAllowed(stream, cx.state)) {
+        jsMode.skipExpression(cx.state)
+        state.context = new Context(CodeMirror.startState(xmlMode, jsMode.indent(cx.state, "")),
+                                    xmlMode, 0, state.context)
+        return token(stream, state)
+      }
+
+      var style = jsMode.token(stream, cx.state)
+      if (!style && cx.depth != null) {
+        var cur = stream.current()
+        if (cur == "{") {
+          cx.depth++
+        } else if (cur == "}") {
+          if (--cx.depth == 0) state.context = state.context.prev
+        }
+      }
+      return style
+    }
+
     return {
       startState: function() {
         return {context: new Context(CodeMirror.startState(jsMode), jsMode)}
@@ -38,61 +116,7 @@
         return {context: copyContext(state.context)}
       },
 
-      token: function(stream, state) {
-        var cx = state.context
-        if (cx.mode == xmlMode) {
-          if (cx.depth == 2) { // Inside a JS /* */ comment
-            if (stream.match(/^.*?\*\//)) cx.depth = 1
-            else stream.skipToEnd()
-            return "comment"
-          } else if (stream.peek() == "{") {
-            xmlMode.skipAttribute(cx.state)
-            var tagName = cx.state.tagName
-            cx.state.tagName = null
-            state.context = new Context(CodeMirror.startState(jsMode, xmlMode.indent(cx.state, "")),
-                                        jsMode, 0, state.context)
-            cx.state.tagName = tagName
-            return this.token(stream, state)
-          } else if (cx.depth == 1 && stream.match("//")) {
-            stream.skipToEnd()
-            return "comment"
-          } else if (cx.depth == 1 && stream.match("/*")) {
-            cx.depth = 2
-            return this.token(stream, state)
-          } else { // FIXME skip attribute
-            var style = xmlMode.token(stream, cx.state), cur = stream.current(), stop
-            if (/\btag\b/.test(style)) {
-              if (/>$/.test(cur)) {
-                if (cx.state.context) cx.depth = 0
-                else state.context = state.context.prev
-              } else if (/^</.test(cur)) {
-                cx.depth = 1
-              }
-            } else if (!style && (stop = cur.indexOf("{")) > -1) {
-              stream.backUp(cur.length - stop)
-            }
-            return style
-          }
-        } else { // jsMode
-          if (stream.peek() == "<" && jsMode.expressionAllowed(stream, cx.state)) {
-            jsMode.skipExpression(cx.state)
-            state.context = new Context(CodeMirror.startState(xmlMode, jsMode.indent(cx.state, "")),
-                                        xmlMode, 0, state.context)
-            return this.token(stream, state)
-          } else {
-            var style = jsMode.token(stream, cx.state)
-            if (!style && cx.depth != null) {
-              var cur = stream.current()
-              if (cur == "{") {
-                cx.depth++
-              } else if (cur == "}") {
-                if (--cx.depth == 0) state.context = state.context.prev
-              }
-            }
-            return style
-          }
-        }
-      },
+      token: token,
 
       indent: function(state, textAfter, fullLine) {
         return state.context.mode.indent(state.context.state, textAfter, fullLine)

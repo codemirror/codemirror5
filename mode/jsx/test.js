@@ -63,4 +63,7 @@
 
   MT("spread",
      "([bracket&tag <][tag foo] [attribute bar]={[meta ...][variable baz] [operator /][number 2]}[bracket&tag />])")
+
+  MT("tag_attribute",
+     "([bracket&tag <][tag foo] [attribute bar]=[bracket&tag <][tag foo][bracket&tag />/>][operator ++])")
 })()
