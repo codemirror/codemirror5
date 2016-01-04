@@ -55,7 +55,7 @@
         xmlMode.skipAttribute(cx.state)
         state.context = new Context(CodeMirror.startState(jsMode, flatXMLIndent(cx.state)),
                                     jsMode, 0, state.context)
-        return token(stream, state)
+        return null
       }
 
       if (cx.depth == 1) { // Inside of tag
@@ -63,7 +63,7 @@
           xmlMode.skipAttribute(cx.state)
           state.context = new Context(CodeMirror.startState(xmlMode, flatXMLIndent(cx.state)),
                                       xmlMode, 0, state.context)
-          return token(stream, state)
+          return null
         } else if (stream.match("//")) {
           stream.skipToEnd()
           return "comment"
@@ -92,7 +92,7 @@
         jsMode.skipExpression(cx.state)
         state.context = new Context(CodeMirror.startState(xmlMode, jsMode.indent(cx.state, "")),
                                     xmlMode, 0, state.context)
-        return token(stream, state)
+        return null
       }
 
       var style = jsMode.token(stream, cx.state)
