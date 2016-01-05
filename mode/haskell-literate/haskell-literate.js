@@ -37,7 +37,7 @@
         return state.inCode ? {state: state.baseState, mode: baseMode} : null
       }
     }
-  })
+  }, "haskell")
 
   CodeMirror.defineMIME("text/x-literate-haskell", "haskell-literate")
 })

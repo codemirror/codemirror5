@@ -583,7 +583,7 @@ CodeMirror.defineMode('jade', function (config) {
     copyState: copyState,
     token: nextToken
   };
-});
+}, 'javascript', 'css', 'htmlmixed');
 
 CodeMirror.defineMIME('text/x-jade', 'jade');
 
