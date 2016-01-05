@@ -59,6 +59,7 @@
     this.options = options || {};
     var plugins = this.options.plugins || (this.options.plugins = {});
     if (!plugins.doc_comment) plugins.doc_comment = true;
+    this.docs = Object.create(null);
     if (this.options.useWorker) {
       this.server = new WorkerServer(this);
     } else {
@@ -69,7 +70,6 @@
         plugins: plugins
       });
     }
-    this.docs = Object.create(null);
     this.trackChange = function(doc, change) { trackChange(self, doc, change); };
 
     this.cachedArgHints = null;
@@ -124,6 +124,8 @@
       var self = this;
       var doc = findDoc(this, cm.getDoc());
       var request = buildRequest(this, doc, query, pos);
+      var extraOptions = request.query && this.options.queryOptions && this.options.queryOptions[request.query.type]
+      if (extraOptions) for (var prop in extraOptions) request.query[prop] = extraOptions[prop];
 
       this.server.request(request, function (error, data) {
         if (!error && self.options.responseFilter)
@@ -133,6 +135,7 @@
     },
 
     destroy: function () {
+      closeArgHints(this)
       if (this.worker) {
         this.worker.terminate();
         this.worker = null;
@@ -214,7 +217,7 @@
         var completion = data.completions[i], className = typeToIcon(completion.type);
         if (data.guess) className += " " + cls + "guess";
         completions.push({text: completion.name + after,
-                          displayText: completion.name,
+                          displayText: completion.displayName || completion.name,
                           className: className,
                           data: completion});
       }
@@ -264,7 +267,7 @@
           child.target = "_blank";
         }
       }
-      tempTooltip(cm, tip);
+      tempTooltip(cm, tip, ts);
       if (c) c();
     }, pos);
   }
@@ -442,8 +445,8 @@
 
   function atInterestingExpression(cm) {
     var pos = cm.getCursor("end"), tok = cm.getTokenAt(pos);
-    if (tok.start < pos.ch && (tok.type == "comment" || tok.type == "string")) return false;
-    return /\w/.test(cm.getLine(pos.line).slice(Math.max(pos.ch - 1, 0), pos.ch + 1));
+    if (tok.start < pos.ch && tok.type == "comment") return false;
+    return /[\w)\]]/.test(cm.getLine(pos.line).slice(Math.max(pos.ch - 1, 0), pos.ch + 1));
   }
 
   // Variable renaming
@@ -464,11 +467,12 @@
     ts.request(cm, {type: "refs"}, function(error, data) {
       if (error) return showError(ts, cm, error);
       var ranges = [], cur = 0;
+      var curPos = cm.getCursor();
       for (var i = 0; i < data.refs.length; i++) {
         var ref = data.refs[i];
         if (ref.file == name) {
           ranges.push({anchor: ref.start, head: ref.end});
-          if (cmpPos(cur, ref.start) >= 0 && cmpPos(cur, ref.end) <= 0)
+          if (cmpPos(curPos, ref.start) >= 0 && cmpPos(curPos, ref.end) <= 0)
             cur = ranges.length - 1;
         }
       }
@@ -590,7 +594,7 @@
 
   // Tooltips
 
-  function tempTooltip(cm, content) {
+  function tempTooltip(cm, content, ts) {
     if (cm.state.ternTooltip) remove(cm.state.ternTooltip);
     var where = cm.cursorCoords();
     var tip = cm.state.ternTooltip = makeTooltip(where.right + 1, where.bottom, content);
@@ -614,7 +618,7 @@
         else mouseOnTip = false;
       }
     });
-    setTimeout(maybeClear, 1700);
+    setTimeout(maybeClear, ts.options.hintDelay ? ts.options.hintDelay : 1700);
     cm.on("cursorActivity", clear);
     cm.on('blur', clear);
     cm.on('scroll', clear);
@@ -642,7 +646,7 @@
     if (ts.options.showError)
       ts.options.showError(cm, msg);
     else
-      tempTooltip(cm, String(msg));
+      tempTooltip(cm, String(msg), ts);
   }
 
   function closeArgHints(ts) {

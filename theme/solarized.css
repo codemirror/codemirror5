@@ -47,18 +47,20 @@ http://ethanschoonover.com/solarized/img/solarized-palette.png
   text-shadow: none;
 }
 
+.cm-s-solarized .cm-header { color: #586e75; }
+.cm-s-solarized .cm-quote { color: #93a1a1; }
 
-.cm-s-solarized .cm-keyword { color: #cb4b16 }
+.cm-s-solarized .cm-keyword { color: #cb4b16; }
 .cm-s-solarized .cm-atom { color: #d33682; }
 .cm-s-solarized .cm-number { color: #d33682; }
 .cm-s-solarized .cm-def { color: #2aa198; }
 
-.cm-s-solarized .cm-variable { color: #268bd2; }
+.cm-s-solarized .cm-variable { color: #839496; }
 .cm-s-solarized .cm-variable-2 { color: #b58900; }
 .cm-s-solarized .cm-variable-3 { color: #6c71c4; }
 
 .cm-s-solarized .cm-property { color: #2aa198; }
-.cm-s-solarized .cm-operator {color: #6c71c4;}
+.cm-s-solarized .cm-operator { color: #6c71c4; }
 
 .cm-s-solarized .cm-comment { color: #586e75; font-style:italic; }
 
@@ -71,10 +73,8 @@ http://ethanschoonover.com/solarized/img/solarized-palette.png
 .cm-s-solarized .cm-bracket { color: #cb4b16; }
 .cm-s-solarized .CodeMirror-matchingbracket { color: #859900; }
 .cm-s-solarized .CodeMirror-nonmatchingbracket { color: #dc322f; }
-.cm-s-solarized .cm-tag { color: #93a1a1 }
-.cm-s-solarized .cm-attribute {  color: #2aa198; }
-.cm-s-solarized .cm-header { color: #586e75; }
-.cm-s-solarized .cm-quote { color: #93a1a1; }
+.cm-s-solarized .cm-tag { color: #93a1a1; }
+.cm-s-solarized .cm-attribute { color: #2aa198; }
 .cm-s-solarized .cm-hr {
   color: transparent;
   border-top: 1px solid #586e75;
@@ -94,13 +94,13 @@ http://ethanschoonover.com/solarized/img/solarized-palette.png
   border-bottom: 1px dotted #dc322f;
 }
 
-.cm-s-solarized.cm-s-dark .CodeMirror-selected { background: #073642; }
+.cm-s-solarized.cm-s-dark div.CodeMirror-selected { background: #073642; }
 .cm-s-solarized.cm-s-dark.CodeMirror ::selection { background: rgba(7, 54, 66, 0.99); }
-.cm-s-solarized.cm-s-dark.CodeMirror ::-moz-selection { background: rgba(7, 54, 66, 0.99); }
+.cm-s-solarized.cm-s-dark .CodeMirror-line::-moz-selection, .cm-s-dark .CodeMirror-line > span::-moz-selection, .cm-s-dark .CodeMirror-line > span > span::-moz-selection { background: rgba(7, 54, 66, 0.99); }
 
-.cm-s-solarized.cm-s-light .CodeMirror-selected { background: #eee8d5; }
-.cm-s-solarized.cm-s-light.CodeMirror ::selection { background: #eee8d5; }
-.cm-s-solarized.cm-s-lightCodeMirror ::-moz-selection { background: #eee8d5; }
+.cm-s-solarized.cm-s-light div.CodeMirror-selected { background: #eee8d5; }
+.cm-s-solarized.cm-s-light .CodeMirror-line::selection, .cm-s-light .CodeMirror-line > span::selection, .cm-s-light .CodeMirror-line > span > span::selection { background: #eee8d5; }
+.cm-s-solarized.cm-s-light .CodeMirror-line::-moz-selection, .cm-s-ligh .CodeMirror-line > span::-moz-selection, .cm-s-ligh .CodeMirror-line > span > span::-moz-selection { background: #eee8d5; }
 
 /* Editor styling */
 
@@ -149,9 +149,7 @@ http://ethanschoonover.com/solarized/img/solarized-palette.png
   color: #586e75;
 }
 
-.cm-s-solarized .CodeMirror-lines .CodeMirror-cursor {
-  border-left: 1px solid #819090;
-}
+.cm-s-solarized .CodeMirror-cursor { border-left: 1px solid #819090; }
 
 /*
 Active line. Negative margin compensates left padding of the text in the

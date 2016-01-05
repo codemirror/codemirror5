@@ -148,10 +148,10 @@
     from: function() {if (this.atOccurrence) return this.pos.from;},
     to: function() {if (this.atOccurrence) return this.pos.to;},
 
-    replace: function(newText) {
+    replace: function(newText, origin) {
       if (!this.atOccurrence) return;
       var lines = CodeMirror.splitLines(newText);
-      this.doc.replaceRange(lines, this.pos.from, this.pos.to);
+      this.doc.replaceRange(lines, this.pos.from, this.pos.to, origin);
       this.pos.to = Pos(this.pos.from.line + lines.length - 1,
                         lines[lines.length - 1].length + (lines.length == 1 ? this.pos.from.ch : 0));
     }
@@ -177,9 +177,9 @@
   });
 
   CodeMirror.defineExtension("selectMatches", function(query, caseFold) {
-    var ranges = [], next;
+    var ranges = [];
     var cur = this.getSearchCursor(query, this.getCursor("from"), caseFold);
-    while (next = cur.findNext()) {
+    while (cur.findNext()) {
       if (CodeMirror.cmpPos(cur.to(), this.getCursor("to")) > 0) break;
       ranges.push({anchor: cur.from(), head: cur.to()});
     }

@@ -6,6 +6,8 @@
 
 <link rel="stylesheet" href="../lib/codemirror.css">
 <link rel="stylesheet" href="../addon/dialog/dialog.css">
+<link rel="stylesheet" href="../theme/midnight.css">
+<link rel="stylesheet" href="../theme/solarized.css">
 <script src="../lib/codemirror.js"></script>
 <script src="../addon/dialog/dialog.js"></script>
 <script src="../addon/search/searchcursor.js"></script>
@@ -47,17 +49,16 @@ int getchar(void)
 </textarea></form>
 <div style="font-size: 13px; width: 300px; height: 30px;">Key buffer: <span id="command-display"></span></div>
 
-<p>The vim keybindings are enabled by
-including <a href="../keymap/vim.js">keymap/vim.js</a> and setting
-the <code>vimMode</code> option to <code>true</code>. This will also
-automatically change the <code>keyMap</code> option to <code>"vim"</code>.</p>
+<p>The vim keybindings are enabled by including <code><a
+href="../keymap/vim.js">keymap/vim.js</a></code> and setting the
+<code>keyMap</code> option to <code>vim</code>.</p>
 
 <p><strong>Features</strong></p>
 
 <ul>
   <li>All common motions and operators, including text objects</li>
   <li>Operator motion orthogonality</li>
-  <li>Visual mode - characterwise, linewise, partial support for blockwise</li>
+  <li>Visual mode - characterwise, linewise, blockwise</li>
   <li>Full macro support (q, @)</li>
   <li>Incremental highlighted search (/, ?, #, *, g#, g*)</li>
   <li>Search/replace with confirm (:substitute, :%s)</li>
@@ -71,9 +72,13 @@ automatically change the <code>keyMap</code> option to <code>"vim"</code>.</p>
   <li>Cross-buffer yank/paste</li>
 </ul>
 
-<p>Note that while the vim mode tries to emulate the most useful features of
-vim as faithfully as possible, it does not strive to become a complete vim
-implementation</p>
+<p>For the full list of key mappings and Ex commands, refer to the
+<code>defaultKeymap</code> and <code>defaultExCommandMap</code> at the
+top of <code><a href="../keymap/vim.js">keymap/vim.js</a></code>.
+
+<p>Note that while the vim mode tries to emulate the most useful
+features of vim as faithfully as possible, it does not strive to
+become a complete vim implementation</p>
 
     <script>
       CodeMirror.commands.save = function(){ alert("Saving"); };

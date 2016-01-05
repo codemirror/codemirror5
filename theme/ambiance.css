@@ -2,6 +2,9 @@
 
 /* Color scheme */
 
+.cm-s-ambiance .cm-header { color: blue; }
+.cm-s-ambiance .cm-quote { color: #24C2C7; }
+
 .cm-s-ambiance .cm-keyword { color: #cda869; }
 .cm-s-ambiance .cm-atom { color: #CF7EA9; }
 .cm-s-ambiance .cm-number { color: #78CF8A; }
@@ -10,7 +13,7 @@
 .cm-s-ambiance .cm-variable-2 { color: #eed1b3; }
 .cm-s-ambiance .cm-variable-3 { color: #faded3; }
 .cm-s-ambiance .cm-property { color: #eed1b3; }
-.cm-s-ambiance .cm-operator {color: #fa8d6a;}
+.cm-s-ambiance .cm-operator { color: #fa8d6a; }
 .cm-s-ambiance .cm-comment { color: #555; font-style:italic; }
 .cm-s-ambiance .cm-string { color: #8f9d6a; }
 .cm-s-ambiance .cm-string-2 { color: #9d937c; }
@@ -18,10 +21,8 @@
 .cm-s-ambiance .cm-qualifier { color: yellow; }
 .cm-s-ambiance .cm-builtin { color: #9999cc; }
 .cm-s-ambiance .cm-bracket { color: #24C2C7; }
-.cm-s-ambiance .cm-tag { color: #fee4ff }
-.cm-s-ambiance .cm-attribute {  color: #9B859D; }
-.cm-s-ambiance .cm-header {color: blue;}
-.cm-s-ambiance .cm-quote { color: #24C2C7; }
+.cm-s-ambiance .cm-tag { color: #fee4ff; }
+.cm-s-ambiance .cm-attribute { color: #9B859D; }
 .cm-s-ambiance .cm-hr { color: pink; }
 .cm-s-ambiance .cm-link { color: #F4C20B; }
 .cm-s-ambiance .cm-special { color: #FF9D00; }
@@ -30,10 +31,10 @@
 .cm-s-ambiance .CodeMirror-matchingbracket { color: #0f0; }
 .cm-s-ambiance .CodeMirror-nonmatchingbracket { color: #f22; }
 
-.cm-s-ambiance .CodeMirror-selected { background: rgba(255, 255, 255, 0.15); }
-.cm-s-ambiance.CodeMirror-focused .CodeMirror-selected { background: rgba(255, 255, 255, 0.10); }
-.cm-s-ambiance.CodeMirror ::selection { background: rgba(255, 255, 255, 0.10); }
-.cm-s-ambiance.CodeMirror ::-moz-selection { background: rgba(255, 255, 255, 0.10); }
+.cm-s-ambiance div.CodeMirror-selected { background: rgba(255, 255, 255, 0.15); }
+.cm-s-ambiance.CodeMirror-focused div.CodeMirror-selected { background: rgba(255, 255, 255, 0.10); }
+.cm-s-ambiance .CodeMirror-line::selection, .cm-s-ambiance .CodeMirror-line > span::selection, .cm-s-ambiance .CodeMirror-line > span > span::selection { background: rgba(255, 255, 255, 0.10); }
+.cm-s-ambiance .CodeMirror-line::-moz-selection, .cm-s-ambiance .CodeMirror-line > span::-moz-selection, .cm-s-ambiance .CodeMirror-line > span > span::-moz-selection { background: rgba(255, 255, 255, 0.10); }
 
 /* Editor styling */
 
@@ -61,9 +62,7 @@
 .cm-s-ambiance .CodeMirror-guttermarker { color: #aaa; }
 .cm-s-ambiance .CodeMirror-guttermarker-subtle { color: #111; }
 
-.cm-s-ambiance .CodeMirror-lines .CodeMirror-cursor {
-  border-left: 1px solid #7991E8;
-}
+.cm-s-ambiance .CodeMirror-cursor { border-left: 1px solid #7991E8; }
 
 .cm-s-ambiance .CodeMirror-activeline-background {
   background: none repeat scroll 0% 0% rgba(255, 255, 255, 0.031);

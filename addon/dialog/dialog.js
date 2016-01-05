@@ -58,7 +58,9 @@
     if (inp) {
       if (options.value) {
         inp.value = options.value;
-        inp.select();
+        if (options.selectValueOnOpen !== false) {
+          inp.select();
+        }
       }
 
       if (options.onInput)

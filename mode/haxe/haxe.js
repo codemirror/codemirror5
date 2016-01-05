@@ -16,23 +16,21 @@ CodeMirror.defineMode("haxe", function(config, parserConfig) {
 
   // Tokenizer
 
-  var keywords = function(){
-    function kw(type) {return {type: type, style: "keyword"};}
-    var A = kw("keyword a"), B = kw("keyword b"), C = kw("keyword c");
-    var operator = kw("operator"), atom = {type: "atom", style: "atom"}, attribute = {type:"attribute", style: "attribute"};
+  function kw(type) {return {type: type, style: "keyword"};}
+  var A = kw("keyword a"), B = kw("keyword b"), C = kw("keyword c");
+  var operator = kw("operator"), atom = {type: "atom", style: "atom"}, attribute = {type:"attribute", style: "attribute"};
   var type = kw("typedef");
-    return {
-      "if": A, "while": A, "else": B, "do": B, "try": B,
-      "return": C, "break": C, "continue": C, "new": C, "throw": C,
-      "var": kw("var"), "inline":attribute, "static": attribute, "using":kw("import"),
+  var keywords = {
+    "if": A, "while": A, "else": B, "do": B, "try": B,
+    "return": C, "break": C, "continue": C, "new": C, "throw": C,
+    "var": kw("var"), "inline":attribute, "static": attribute, "using":kw("import"),
     "public": attribute, "private": attribute, "cast": kw("cast"), "import": kw("import"), "macro": kw("macro"),
-      "function": kw("function"), "catch": kw("catch"), "untyped": kw("untyped"), "callback": kw("cb"),
-      "for": kw("for"), "switch": kw("switch"), "case": kw("case"), "default": kw("default"),
-      "in": operator, "never": kw("property_access"), "trace":kw("trace"),
+    "function": kw("function"), "catch": kw("catch"), "untyped": kw("untyped"), "callback": kw("cb"),
+    "for": kw("for"), "switch": kw("switch"), "case": kw("case"), "default": kw("default"),
+    "in": operator, "never": kw("property_access"), "trace":kw("trace"),
     "class": type, "abstract":type, "enum":type, "interface":type, "typedef":type, "extends":type, "implements":type, "dynamic":type,
-      "true": atom, "false": atom, "null": atom
-    };
-  }();
+    "true": atom, "false": atom, "null": atom
+  };
 
   var isOperatorChar = /[+\-*&%=<>!?|]/;
 
@@ -41,14 +39,13 @@ CodeMirror.defineMode("haxe", function(config, parserConfig) {
     return f(stream, state);
   }
 
-  function nextUntilUnescaped(stream, end) {
+  function toUnescaped(stream, end) {
     var escaped = false, next;
     while ((next = stream.next()) != null) {
       if (next == end && !escaped)
-        return false;
+        return true;
       escaped = !escaped && next == "\\";
     }
-    return escaped;
   }
 
   // Used as scratch variables to communicate multiple values without
@@ -61,70 +58,58 @@ CodeMirror.defineMode("haxe", function(config, parserConfig) {
 
   function haxeTokenBase(stream, state) {
     var ch = stream.next();
-    if (ch == '"' || ch == "'")
+    if (ch == '"' || ch == "'") {
       return chain(stream, state, haxeTokenString(ch));
-    else if (/[\[\]{}\(\),;\:\.]/.test(ch))
+    } else if (/[\[\]{}\(\),;\:\.]/.test(ch)) {
       return ret(ch);
-    else if (ch == "0" && stream.eat(/x/i)) {
+    } else if (ch == "0" && stream.eat(/x/i)) {
       stream.eatWhile(/[\da-f]/i);
       return ret("number", "number");
-    }
-    else if (/\d/.test(ch) || ch == "-" && stream.eat(/\d/)) {
-      stream.match(/^\d*(?:\.\d*)?(?:[eE][+\-]?\d+)?/);
+    } else if (/\d/.test(ch) || ch == "-" && stream.eat(/\d/)) {
+      stream.match(/^\d*(?:\.\d*(?!\.))?(?:[eE][+\-]?\d+)?/);
       return ret("number", "number");
-    }
-    else if (state.reAllowed && (ch == "~" && stream.eat(/\//))) {
-      nextUntilUnescaped(stream, "/");
+    } else if (state.reAllowed && (ch == "~" && stream.eat(/\//))) {
+      toUnescaped(stream, "/");
       stream.eatWhile(/[gimsu]/);
       return ret("regexp", "string-2");
-    }
-    else if (ch == "/") {
+    } else if (ch == "/") {
       if (stream.eat("*")) {
         return chain(stream, state, haxeTokenComment);
-      }
-      else if (stream.eat("/")) {
+      } else if (stream.eat("/")) {
         stream.skipToEnd();
         return ret("comment", "comment");
-      }
-      else {
+      } else {
         stream.eatWhile(isOperatorChar);
         return ret("operator", null, stream.current());
       }
-    }
-    else if (ch == "#") {
+    } else if (ch == "#") {
         stream.skipToEnd();
         return ret("conditional", "meta");
-    }
-    else if (ch == "@") {
+    } else if (ch == "@") {
       stream.eat(/:/);
       stream.eatWhile(/[\w_]/);
       return ret ("metadata", "meta");
-    }
-    else if (isOperatorChar.test(ch)) {
+    } else if (isOperatorChar.test(ch)) {
       stream.eatWhile(isOperatorChar);
       return ret("operator", null, stream.current());
-    }
-    else {
-    var word;
-    if(/[A-Z]/.test(ch))
-    {
-      stream.eatWhile(/[\w_<>]/);
-      word = stream.current();
-      return ret("type", "variable-3", word);
-    }
-    else
-    {
+    } else {
+      var word;
+      if(/[A-Z]/.test(ch)) {
+        stream.eatWhile(/[\w_<>]/);
+        word = stream.current();
+        return ret("type", "variable-3", word);
+      } else {
         stream.eatWhile(/[\w_]/);
         var word = stream.current(), known = keywords.propertyIsEnumerable(word) && keywords[word];
         return (known && state.kwAllowed) ? ret(known.type, known.style, word) :
                        ret("variable", "variable", word);
-    }
+      }
     }
   }
 
   function haxeTokenString(quote) {
     return function(stream, state) {
-      if (!nextUntilUnescaped(stream, quote))
+      if (toUnescaped(stream, quote))
         state.tokenize = haxeTokenBase;
       return ret("string", "string");
     };
@@ -176,27 +161,25 @@ CodeMirror.defineMode("haxe", function(config, parserConfig) {
           cc.pop()();
         if (cx.marked) return cx.marked;
         if (type == "variable" && inScope(state, content)) return "variable-2";
-    if (type == "variable" && imported(state, content)) return "variable-3";
+        if (type == "variable" && imported(state, content)) return "variable-3";
         return style;
       }
     }
   }
 
-  function imported(state, typename)
-  {
-  if (/[a-z]/.test(typename.charAt(0)))
-    return false;
-  var len = state.importedtypes.length;
-  for (var i = 0; i<len; i++)
-    if(state.importedtypes[i]==typename) return true;
+  function imported(state, typename) {
+    if (/[a-z]/.test(typename.charAt(0)))
+      return false;
+    var len = state.importedtypes.length;
+    for (var i = 0; i<len; i++)
+      if(state.importedtypes[i]==typename) return true;
   }
 
-
   function registerimport(importname) {
-  var state = cx.state;
-  for (var t = state.importedtypes; t; t = t.next)
-    if(t.name == importname) return;
-  state.importedtypes = { name: importname, next: state.importedtypes };
+    var state = cx.state;
+    for (var t = state.importedtypes; t; t = t.next)
+      if(t.name == importname) return;
+    state.importedtypes = { name: importname, next: state.importedtypes };
   }
   // Combinator utils
 
@@ -208,13 +191,20 @@ CodeMirror.defineMode("haxe", function(config, parserConfig) {
     pass.apply(null, arguments);
     return true;
   }
+  function inList(name, list) {
+    for (var v = list; v; v = v.next)
+      if (v.name == name) return true;
+    return false;
+  }
   function register(varname) {
     var state = cx.state;
     if (state.context) {
       cx.marked = "def";
-      for (var v = state.localVars; v; v = v.next)
-        if (v.name == varname) return;
+      if (inList(varname, state.localVars)) return;
       state.localVars = {name: varname, next: state.localVars};
+    } else if (state.globalVars) {
+      if (inList(varname, state.globalVars)) return;
+      state.globalVars = {name: varname, next: state.globalVars};
     }
   }
 
@@ -229,6 +219,7 @@ CodeMirror.defineMode("haxe", function(config, parserConfig) {
     cx.state.localVars = cx.state.context.vars;
     cx.state.context = cx.state.context.prev;
   }
+  popcontext.lex = true;
   function pushlex(type, info) {
     var result = function() {
       var state = cx.state;
@@ -252,7 +243,7 @@ CodeMirror.defineMode("haxe", function(config, parserConfig) {
       if (type == wanted) return cont();
       else if (wanted == ";") return pass();
       else return cont(f);
-    };
+    }
     return f;
   }
 
@@ -266,25 +257,26 @@ CodeMirror.defineMode("haxe", function(config, parserConfig) {
     if (type == "attribute") return cont(maybeattribute);
     if (type == "function") return cont(functiondef);
     if (type == "for") return cont(pushlex("form"), expect("("), pushlex(")"), forspec1, expect(")"),
-                                      poplex, statement, poplex);
+                                   poplex, statement, poplex);
     if (type == "variable") return cont(pushlex("stat"), maybelabel);
     if (type == "switch") return cont(pushlex("form"), expression, pushlex("}", "switch"), expect("{"),
-                                         block, poplex, poplex);
+                                      block, poplex, poplex);
     if (type == "case") return cont(expression, expect(":"));
     if (type == "default") return cont(expect(":"));
     if (type == "catch") return cont(pushlex("form"), pushcontext, expect("("), funarg, expect(")"),
-                                        statement, poplex, popcontext);
+                                     statement, poplex, popcontext);
     if (type == "import") return cont(importdef, expect(";"));
     if (type == "typedef") return cont(typedef);
     return pass(pushlex("stat"), expression, expect(";"), poplex);
   }
   function expression(type) {
     if (atomicTypes.hasOwnProperty(type)) return cont(maybeoperator);
+    if (type == "type" ) return cont(maybeoperator);
     if (type == "function") return cont(functiondef);
     if (type == "keyword c") return cont(maybeexpression);
     if (type == "(") return cont(pushlex(")"), maybeexpression, expect(")"), poplex, maybeoperator);
     if (type == "operator") return cont(expression);
-    if (type == "[") return cont(pushlex("]"), commasep(expression, "]"), poplex, maybeoperator);
+    if (type == "[") return cont(pushlex("]"), commasep(maybeexpression, "]"), poplex, maybeoperator);
     if (type == "{") return cont(pushlex("}"), commasep(objprop, "}"), poplex, maybeoperator);
     return cont();
   }
@@ -318,14 +310,14 @@ CodeMirror.defineMode("haxe", function(config, parserConfig) {
   }
 
   function importdef (type, value) {
-  if(type == "variable" && /[A-Z]/.test(value.charAt(0))) { registerimport(value); return cont(); }
-  else if(type == "variable" || type == "property" || type == "." || value == "*") return cont(importdef);
+    if(type == "variable" && /[A-Z]/.test(value.charAt(0))) { registerimport(value); return cont(); }
+    else if(type == "variable" || type == "property" || type == "." || value == "*") return cont(importdef);
   }
 
   function typedef (type, value)
   {
-  if(type == "variable" && /[A-Z]/.test(value.charAt(0))) { registerimport(value); return cont(); }
-  else if (type == "type" && /[A-Z]/.test(value.charAt(0))) { return cont(); }
+    if(type == "variable" && /[A-Z]/.test(value.charAt(0))) { registerimport(value); return cont(); }
+    else if (type == "type" && /[A-Z]/.test(value.charAt(0))) { return cont(); }
   }
 
   function maybelabel(type) {
@@ -363,16 +355,19 @@ CodeMirror.defineMode("haxe", function(config, parserConfig) {
     if (type == ",") return cont(vardef1);
   }
   function forspec1(type, value) {
-  if (type == "variable") {
-    register(value);
-  }
-  return cont(pushlex(")"), pushcontext, forin, expression, poplex, statement, popcontext);
+    if (type == "variable") {
+      register(value);
+      return cont(forin, expression)
+    } else {
+      return pass()
+    }
   }
   function forin(_type, value) {
     if (value == "in") return cont();
   }
   function functiondef(type, value) {
-    if (type == "variable") {register(value); return cont(functiondef);}
+    //function names starting with upper-case letters are recognised as types, so cludging them together here.
+    if (type == "variable" || type == "type") {register(value); return cont(functiondef);}
     if (value == "new") return cont(functiondef);
     if (type == "(") return cont(pushlex(")"), pushcontext, commasep(funarg, ")"), poplex, typeuse, statement, popcontext);
   }
@@ -392,21 +387,23 @@ CodeMirror.defineMode("haxe", function(config, parserConfig) {
   }
 
   // Interface
-
   return {
     startState: function(basecolumn) {
-    var defaulttypes = ["Int", "Float", "String", "Void", "Std", "Bool", "Dynamic", "Array"];
-      return {
+      var defaulttypes = ["Int", "Float", "String", "Void", "Std", "Bool", "Dynamic", "Array"];
+      var state = {
         tokenize: haxeTokenBase,
         reAllowed: true,
         kwAllowed: true,
         cc: [],
         lexical: new HaxeLexical((basecolumn || 0) - indentUnit, 0, "block", false),
         localVars: parserConfig.localVars,
-    importedtypes: defaulttypes,
+        importedtypes: defaulttypes,
         context: parserConfig.localVars && {vars: parserConfig.localVars},
         indented: 0
       };
+      if (parserConfig.globalVars && typeof parserConfig.globalVars == "object")
+        state.globalVars = parserConfig.globalVars;
+      return state;
     },
 
     token: function(stream, state) {

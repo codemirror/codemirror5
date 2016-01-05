@@ -73,7 +73,7 @@
     "[tag foo]#{[variable-2 $hello]} { [property color]:[atom #000]; }");
 
   MT('interpolation_error',
-    "[tag foo]#{[error foo]} { [property color]:[atom #000]; }");
+    "[tag foo]#{[variable foo]} { [property color]:[atom #000]; }");
 
   MT("divide_operator",
     "[tag foo] { [property width]:[number 4] [operator /] [number 2] }");
@@ -95,7 +95,7 @@
 
   MT('indent_parentheses',
      "[tag foo] {",
-     "  [property color]: [variable darken]([variable-2 $blue],",
+     "  [property color]: [atom darken]([variable-2 $blue],",
      "    [number 9%]);",
      "}");
 

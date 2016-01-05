@@ -29,17 +29,18 @@
 <div><textarea id="code" name="code">
 #include    "ti83plus.inc"
 #define     progStart   $9D95
-.org        progStart-2
-.db         $BB,$6D
+    .org progStart-2
+    .db $BB,$6D
+
     bcall(_ClrLCDFull)
-    ld  HL, 0
-    ld  (PenCol),   HL
-    ld  HL, Message
+    ld hl,0
+    ld (CurCol),hl
+    ld hl,Message
     bcall(_PutS) ; Displays the string
     bcall(_NewLine)
     ret
 Message:
-.db         "Hello world!",0
+    .db "Hello world!",0
 </textarea></div>
 
     <script>
@@ -48,5 +49,5 @@ Message:
       });
     </script>
 
-    <p><strong>MIME type defined:</strong> <code>text/x-z80</code>.</p>
+    <p><strong>MIME types defined:</strong> <code>text/x-z80</code>, <code>text/x-ez80</code>.</p>
   </article>

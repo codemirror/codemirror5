@@ -29,13 +29,14 @@ CodeMirror.defineMode("vb", function(conf, parserConf) {
     var middleKeywords = ['else','elseif','case', 'catch'];
     var endKeywords = ['next','loop'];
 
-    var wordOperators = wordRegexp(['and', 'or', 'not', 'xor', 'in']);
-    var commonkeywords = ['as', 'dim', 'break',  'continue','optional', 'then',  'until',
+    var operatorKeywords = ['and', 'or', 'not', 'xor', 'in'];
+    var wordOperators = wordRegexp(operatorKeywords);
+    var commonKeywords = ['as', 'dim', 'break',  'continue','optional', 'then',  'until',
                           'goto', 'byval','byref','new','handles','property', 'return',
                           'const','private', 'protected', 'friend', 'public', 'shared', 'static', 'true','false'];
     var commontypes = ['integer','string','double','decimal','boolean','short','char', 'float','single'];
 
-    var keywords = wordRegexp(commonkeywords);
+    var keywords = wordRegexp(commonKeywords);
     var types = wordRegexp(commontypes);
     var stringPrefixes = '"';
 
@@ -47,8 +48,8 @@ CodeMirror.defineMode("vb", function(conf, parserConf) {
 
     var indentInfo = null;
 
-
-
+    CodeMirror.registerHelper("hintWords", "vb", openingKeywords.concat(middleKeywords).concat(endKeywords)
+                                .concat(operatorKeywords).concat(commonKeywords).concat(commontypes));
 
     function indent(_stream, state) {
       state.currentIndent++;
@@ -263,8 +264,9 @@ CodeMirror.defineMode("vb", function(conf, parserConf) {
             if (trueText.match(closing) || trueText.match(doubleClosing) || trueText.match(middle)) return conf.indentUnit*(state.currentIndent-1);
             if(state.currentIndent < 0) return 0;
             return state.currentIndent * conf.indentUnit;
-        }
+        },
 
+        lineComment: "'"
     };
     return external;
 });

@@ -6,7 +6,7 @@
   function MT(name) { test.mode(name, mode, Array.prototype.slice.call(arguments, 1)); }
 
   // Error, because "foobarhello" is neither a known type or property, but
-  // property was expected (after "and"), and it should be in parenthese.
+  // property was expected (after "and"), and it should be in parentheses.
   MT("atMediaUnknownType",
      "[def @media] [attribute screen] [keyword and] [error foobarhello] { }");
 
@@ -17,6 +17,12 @@
   // Make sure nesting works with media queries
   MT("atMediaMaxWidthNested",
      "[def @media] [attribute screen] [keyword and] ([property max-width]: [number 25px]) { [tag foo] { } }");
+
+  MT("atMediaFeatureValueKeyword",
+     "[def @media] ([property orientation]: [keyword landscape]) { }");
+
+  MT("atMediaUnknownFeatureValueKeyword",
+     "[def @media] ([property orientation]: [error upsidedown]) { }");
 
   MT("tagSelector",
      "[tag foo] { }");
@@ -49,11 +55,17 @@
   MT("tagColorHex3",
      "[tag foo] { [property background]: [atom #fff]; }");
 
+  MT("tagColorHex4",
+     "[tag foo] { [property background]: [atom #ffff]; }");
+
   MT("tagColorHex6",
      "[tag foo] { [property background]: [atom #ffffff]; }");
 
-  MT("tagColorHex4",
-     "[tag foo] { [property background]: [atom&error #ffff]; }");
+  MT("tagColorHex8",
+     "[tag foo] { [property background]: [atom #ffffffff]; }");
+
+  MT("tagColorHex5Invalid",
+     "[tag foo] { [property background]: [atom&error #fffff]; }");
 
   MT("tagColorHexInvalid",
      "[tag foo] { [property background]: [atom&error #ffg]; }");
@@ -75,13 +87,6 @@
 
   MT("tagTwoPropertiesURL",
      "[tag foo] { [property background]: [atom url]([string //example.com/foo.png]); [property padding]: [number 0]; }");
-
-  MT("commentSGML",
-     "[comment <!--comment-->]");
-
-  MT("commentSGML2",
-     "[comment <!--comment]",
-     "[comment -->] [tag div] {}");
 
   MT("indent_tagSelector",
      "[tag strong], [tag em] {",
@@ -121,7 +126,7 @@
      "}");
 
   MT("empty_url",
-     "[def @import] [tag url]() [tag screen];");
+     "[def @import] [atom url]() [attribute screen];");
 
   MT("parens",
      "[qualifier .foo] {",
@@ -157,7 +162,7 @@
       "    [tag foo] {",
       "      [property font-family]: [variable Verdana], [atom sans-serif];",
       "    }",
-      "  }");
+      "}");
 
    MT("document_url",
       "[def @document] [tag url]([string http://blah]) { [qualifier .class] { } }");

@@ -1004,6 +1004,14 @@ testCM("wrappingInlineWidget", function(cm) {
   eq(curR.bottom, cur1.bottom);
 }, {value: "1 2 3 xxx 4", lineWrapping: true});
 
+testCM("showEmptyWidgetSpan", function(cm) {
+  var marker = cm.markText(Pos(0, 2), Pos(0, 2), {
+    clearWhenEmpty: false,
+    replacedWith: document.createTextNode("X")
+  });
+  eq(cm.display.view[0].text.textContent, "abXc");
+}, {value: "abc"});
+
 testCM("changedInlineWidget", function(cm) {
   cm.setSize("10em");
   var w = document.createElement("span");
@@ -1324,8 +1332,8 @@ testCM("rtlMovement", function(cm) {
   if (cm.getOption("inputStyle") != "textarea") return;
   forEach(["خحج", "خحabcخحج", "abخحخحجcd", "abخde", "abخح2342خ1حج", "خ1ح2خح3حxج",
            "خحcd", "1خحcd", "abcdeح1ج", "خمرحبها مها!", "foobarر", "خ ة ق",
-           "<img src=\"/בדיקה3.jpg\">"], function(line) {
-    var inv = line.charAt(0) == "خ";
+           "<img src=\"/בדיקה3.jpg\">", "يتم السحب في 05 فبراير 2014"], function(line) {
+    var inv = line.charCodeAt(0) > 128;
     cm.setValue(line + "\n"); cm.execCommand(inv ? "goLineEnd" : "goLineStart");
     var cursors = byClassName(cm.getWrapperElement(), "CodeMirror-cursors")[0];
     var cursor = cursors.firstChild;
@@ -1575,7 +1583,7 @@ testCM("addLineClass", function(cm) {
   eq(byClassName(lines, "foo").length, 2);
   eq(byClassName(lines, "bar").length, 1);
   eq(byClassName(lines, "baz").length, 1);
-  eq(byClassName(lines, "gutter-class").length, 1);
+  eq(byClassName(lines, "gutter-class").length, 2); // Gutter classes are reflected in 2 nodes
   cm.removeLineClass(0, "text", "foo");
   cls(0, "bar", null, null, null);
   cm.removeLineClass(0, "text", "foo");
@@ -1648,6 +1656,8 @@ testCM("atomicMarker", function(cm) {
 
 testCM("selectionBias", function(cm) {
   cm.markText(Pos(0, 1), Pos(0, 3), {atomic: true});
+  cm.setCursor(Pos(0, 2));
+  eqPos(cm.getCursor(), Pos(0, 1));
   cm.setCursor(Pos(0, 2));
   eqPos(cm.getCursor(), Pos(0, 3));
   cm.setCursor(Pos(0, 2));
@@ -2082,6 +2092,13 @@ testCM("eventOrder", function(cm) {
   eq(seen.join(","), "change,change,activity,change");
 });
 
+testCM("splitSpaces_nonspecial", function(cm) {
+  eq(byClassName(cm.getWrapperElement(), "cm-invalidchar").length, 0);
+}, {
+  specialChars: /[\u00a0]/,
+  value: "spaces ->            <- between"
+});
+
 test("core_rmClass", function() {
   var node = document.createElement("div");
   node.className = "foo-bar baz-quux yadda";
@@ -2110,3 +2127,18 @@ test("core_addClass", function() {
   CodeMirror.addClass(node, "b");
   eq(node.className, "a b");
 });
+
+testCM("lineSeparator", function(cm) {
+  eq(cm.lineCount(), 3);
+  eq(cm.getLine(1), "bar\r");
+  eq(cm.getLine(2), "baz\rquux");
+  cm.setOption("lineSeparator", "\r");
+  eq(cm.lineCount(), 5);
+  eq(cm.getLine(4), "quux");
+  eq(cm.getValue(), "foo\rbar\r\rbaz\rquux");
+  eq(cm.getValue("\n"), "foo\nbar\n\nbaz\nquux");
+  cm.setOption("lineSeparator", null);
+  cm.setValue("foo\nbar\r\nbaz\rquux");
+  eq(cm.lineCount(), 4);
+}, {value: "foo\nbar\r\nbaz\rquux",
+    lineSeparator: "\n"});

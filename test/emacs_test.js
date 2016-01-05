@@ -19,7 +19,7 @@
     var code;
     for (var c in CodeMirror.keyNames)
       if (CodeMirror.keyNames[c] == key) { code = c; break; }
-    if (c == null) throw new Error("Unknown key: " + key);
+    if (code == null) throw new Error("Unknown key: " + key);
 
     return eventCache[keyName] = {
       type: "keydown", keyCode: code, ctrlKey: ctrl, shiftKey: shift, altKey: alt,
@@ -138,4 +138,10 @@
     cm.triggerOnKeyDown(fakeEvent("Ctrl-S"));
     is(saved, "hi");
   }, {value: "hi", keyMap: "emacs"});
+
+  testCM("gotoInvalidLineFloat", function(cm) {
+    cm.openDialog = function(_, cb) { cb("2.2"); };
+    cm.triggerOnKeyDown(fakeEvent("Alt-G"));
+    cm.triggerOnKeyDown(fakeEvent("G"));
+  }, {value: "1\n2\n3\n4", keyMap: "emacs"});
 })();

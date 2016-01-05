@@ -232,7 +232,7 @@ CodeMirror.defineMode("sass", function(config) {
 
       if (stream.eatWhile(/[\w-]/)){
         if(stream.match(/ *: *[\w-\+\$#!\("']/,false)){
-          return "propery";
+          return "property";
         }
         else if(stream.match(/ *:/,false)){
           indent(state);

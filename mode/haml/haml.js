@@ -85,8 +85,10 @@
           state.tokenize = rubyInQuote(")");
           return state.tokenize(stream, state);
         } else if (ch == "{") {
-          state.tokenize = rubyInQuote("}");
-          return state.tokenize(stream, state);
+          if (!stream.match(/^\{%.*/)) {
+            state.tokenize = rubyInQuote("}");
+            return state.tokenize(stream, state);
+          }
         }
       }
 

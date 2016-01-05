@@ -5,8 +5,8 @@
 .cm-s-neat span.cm-special { line-height: 1em; font-weight: bold; color: #0aa; }
 .cm-s-neat span.cm-variable { color: black; }
 .cm-s-neat span.cm-number, .cm-s-neat span.cm-atom { color: #3a3; }
-.cm-s-neat span.cm-meta {color: #555;}
+.cm-s-neat span.cm-meta { color: #555; }
 .cm-s-neat span.cm-link { color: #3a3; }
 
-.cm-s-neat .CodeMirror-activeline-background {background: #e8f2ff !important;}
-.cm-s-neat .CodeMirror-matchingbracket {outline:1px solid grey; color:black !important;}
+.cm-s-neat .CodeMirror-activeline-background { background: #e8f2ff; }
+.cm-s-neat .CodeMirror-matchingbracket { outline:1px solid grey; color:black !important; }
