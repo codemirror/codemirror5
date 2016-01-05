@@ -74,7 +74,7 @@ CodeMirror.defineMode('jade', function (config) {
     res.javaScriptArguments = this.javaScriptArguments;
     res.javaScriptArgumentsDepth = this.javaScriptArgumentsDepth;
     res.isInterpolating = this.isInterpolating;
-    res.interpolationNesting = this.intpolationNesting;
+    res.interpolationNesting = this.interpolationNesting;
 
     res.jsState = CodeMirror.copyState(jsMode, this.jsState);
 
@@ -167,7 +167,7 @@ CodeMirror.defineMode('jade', function (config) {
         if (state.interpolationNesting < 0) {
           stream.next();
           state.isInterpolating = false;
-          return 'puncutation';
+          return 'punctuation';
         }
       } else if (stream.peek() === '{') {
         state.interpolationNesting++;
