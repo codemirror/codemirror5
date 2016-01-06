@@ -57,8 +57,8 @@
   MT("indent_js",
      "([bracket&tag <][tag foo][bracket&tag >]",
      "    [bracket&tag <][tag bar] [attribute baz]={[keyword function]() {",
-     "      [keyword return] [number 10]",
-     "    }}[bracket&tag />]",
+     "        [keyword return] [number 10]",
+     "      }}[bracket&tag />]",
      "  [bracket&tag </][tag foo][bracket&tag >])")
 
   MT("spread",
