@@ -1,6 +1,6 @@
 <!doctype html>
 
-<title>CodeMirror: Markdown mode</title>
+<title>CodeMirror: Markdown mode with front matter</title>
 <meta charset="utf-8"/>
 <link rel=stylesheet href="../../doc/docs.css">
 
@@ -8,6 +8,7 @@
 <script src="../../lib/codemirror.js"></script>
 <script src="../../addon/edit/continuelist.js"></script>
 <script src="../xml/xml.js"></script>
+<script src="../yaml/yaml.js"></script>
 <script src="markdown.js"></script>
 <style type="text/css">
       .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}
@@ -25,13 +26,18 @@
   </ul>
   <ul>
     <li><a href="../index.html">Language modes</a>
-    <li><a class=active href="#">Markdown</a>
+    <li><a class=active href="#">Markdown with front matter</a>
   </ul>
 </div>
 
 <article>
-<h2>Markdown mode</h2>
+<h2>Markdown with front matter mode</h2>
 <form><textarea id="code" name="code">
+---
+front-matter-enabled: true
+title: Markdown with front matter mode for CodeMirror
+---
+
 Markdown: Basics
 ================
 
@@ -343,21 +349,13 @@ Output:
 
     <script>
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-        mode: 'markdown',
+        mode: {name: 'markdown', frontMatter: true},
         lineNumbers: true,
         theme: "default",
         extraKeys: {"Enter": "newlineAndIndentContinueMarkdownList"}
       });
     </script>
 
-    <p>You might want to use the <a href="../gfm/index.html">Github-Flavored Markdown mode</a> instead, which adds support for fenced code blocks and a few other things.</p>
-
-    <p>Optionally depends on the XML mode for properly highlighted inline XML blocks.</p>
-
-  	<p>Markdown mode can be configured to work with front matter data (<a href="frontmatter.html">Demo</a>)</p>
-    
-    <p><strong>MIME types defined:</strong> <code>text/x-markdown</code>.</p>
-
-    <p><strong>Parsing/Highlighting Tests:</strong> <a href="../../test/index.html#markdown_*">normal</a>,  <a href="../../test/index.html#verbose,markdown_*">verbose</a>.</p>
+    <p>This is a specialization of the <a href="index.html">Markdown mode</a>.</p>
 
   </article>
