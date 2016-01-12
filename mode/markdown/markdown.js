@@ -3,9 +3,9 @@
 
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
-    mod(require("../../lib/codemirror"), require("../xml/xml"), require("../meta"));
+    mod(require("../../lib/codemirror"), require("../xml/xml"), require("../yaml/yaml"), require("../meta"));
   else if (typeof define == "function" && define.amd) // AMD
-    define(["../../lib/codemirror", "../xml/xml", "../meta"], mod);
+    define(["../../lib/codemirror", "../xml/xml", "../yaml/yaml", "../meta"], mod);
   else // Plain browser env
     mod(CodeMirror);
 })(function(CodeMirror) {
@@ -15,6 +15,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
   var htmlFound = CodeMirror.modes.hasOwnProperty("xml");
   var htmlMode = CodeMirror.getMode(cmCfg, htmlFound ? {name: "xml", htmlMode: true} : "text/plain");
+  var yamlFound = CodeMirror.modes.hasOwnProperty("yaml");
+  var yamlMode = CodeMirror.getMode(cmCfg, yamlFound ? {name: "yaml"} : "text/plain");
 
   function getMode(name) {
     if (CodeMirror.findModeByName) {
@@ -230,6 +232,23 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       state.f = inlineNormal;
       state.block = blockNormal;
       state.htmlState = null;
+    }
+    return style;
+  }
+
+  function yamlBlock(stream, state) {
+    var switchToNormalBlock = false;
+    if (stream.sol() && stream.match(/^---$/, false)) {
+      if (state.waitForYamlEnd) {
+        switchToNormalBlock = true;
+      } else {
+        state.waitForYamlEnd = true;
+      }
+    }
+    var style = yamlMode.token(stream, state.yamlState);
+    if (switchToNormalBlock) {
+      state.block = blockNormal;
+      state.yamlState = null;
     }
     return style;
   }
@@ -703,7 +722,10 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         trailingSpace: 0,
         trailingSpaceNewLine: false,
         strikethrough: false,
-        fencedChars: null
+        fencedChars: null,
+        yamlState: null,
+        docStart: true,
+        waitForYamlEnd: false
       };
     },
 
@@ -716,6 +738,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
         block: s.block,
         htmlState: s.htmlState && CodeMirror.copyState(htmlMode, s.htmlState),
+        yamlState: s.yamlState && CodeMirror.copyState(yamlMode, s.yamlState),
         indentation: s.indentation,
 
         localMode: s.localMode,
@@ -739,11 +762,29 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         trailingSpace: s.trailingSpace,
         trailingSpaceNewLine: s.trailingSpaceNewLine,
         md_inside: s.md_inside,
-        fencedChars: s.fencedChars
+        fencedChars: s.fencedChars,
+        docStart: s.docStart,
+        waitForYamlEnd: s.waitForYamlEnd
       };
     },
 
     token: function(stream, state) {
+
+      // Enter YAML mode if front matter is enabled and is at the start of
+      // the document
+      if (state.docStart) {
+        if (modeCfg.frontMatter && stream.match(/^---$/, false)) {
+          state.yamlState = CodeMirror.startState(yamlMode);
+          state.block = yamlBlock;
+        }
+        state.docStart = false; // Reset the docStart in any case
+      }
+
+      if (state.block == yamlBlock) {
+        // We completely bypass Markdown tokenizing, since front matter appears
+        // only at the start of the doc.
+        return yamlBlock(stream, state);
+      }
 
       // Reset state.formatting
       state.formatting = false;
@@ -785,6 +826,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
     innerMode: function(state) {
       if (state.block == htmlBlock) return {state: state.htmlState, mode: htmlMode};
+      if (state.block == yamlBlock) return {state: state.yamlState, mode: yamlMode};
       if (state.localState) return {state: state.localState, mode: state.localMode};
       return {state: state, mode: mode};
     },
