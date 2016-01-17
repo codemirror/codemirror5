@@ -16,13 +16,14 @@
 // highlighted only if the selected text is a word. showToken, when enabled,
 // will cause the current token to be highlighted when nothing is selected.
 // delay is used to specify how much time to wait, in milliseconds, before
-// highlighting the matches.
+// highlighting the matches. If annotateScrollbar is enabled, the occurances
+// will be highlighted on the scrollbar via the matchesonscrollbar addon.
 
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
-    mod(require("../../lib/codemirror"));
+    mod(require("../../lib/codemirror"), require("./matchesonscrollbar"));
   else if (typeof define == "function" && define.amd) // AMD
-    define(["../../lib/codemirror"], mod);
+    define(["../../lib/codemirror", "./matchesonscrollbar"], mod);
   else // Plain browser env
     mod(CodeMirror);
 })(function(CodeMirror) {
@@ -40,18 +41,19 @@
       this.showToken = options.showToken;
       this.delay = options.delay;
       this.wordsOnly = options.wordsOnly;
+      this.annotateScrollbar = options.annotateScrollbar;
     }
     if (this.style == null) this.style = DEFAULT_TOKEN_STYLE;
     if (this.minChars == null) this.minChars = DEFAULT_MIN_CHARS;
     if (this.delay == null) this.delay = DEFAULT_DELAY;
     if (this.wordsOnly == null) this.wordsOnly = DEFAULT_WORDS_ONLY;
     this.overlay = this.timeout = null;
+    this.matchesonscroll = null;
   }
 
   CodeMirror.defineOption("highlightSelectionMatches", false, function(cm, val, old) {
     if (old && old != CodeMirror.Init) {
-      var over = cm.state.matchHighlighter.overlay;
-      if (over) cm.removeOverlay(over);
+      removeOverlay(cm);
       clearTimeout(cm.state.matchHighlighter.timeout);
       cm.state.matchHighlighter = null;
       cm.off("cursorActivity", cursorActivity);
@@ -69,20 +71,39 @@
     state.timeout = setTimeout(function() {highlightMatches(cm);}, state.delay);
   }
 
+  function addOverlay(cm, query, hasBoundary, style) {
+    var state = cm.state.matchHighlighter;
+    cm.addOverlay(state.overlay = makeOverlay(query, hasBoundary, style));
+    if (state.annotateScrollbar) {
+      var searchFor = hasBoundary ? new RegExp("\\b" + query + "\\b") : query;
+      state.matchesonscroll = cm.showMatchesOnScrollbar(searchFor, true,
+        {className: "CodeMirror-selection-highlight-scrollbar"});
+    }
+  }
+
+  function removeOverlay(cm) {
+    var state = cm.state.matchHighlighter;
+    if (state.overlay) {
+      cm.removeOverlay(state.overlay);
+      state.overlay = null;
+      if (state.annotateScrollbar) {
+        state.matchesonscroll.clear();
+        state.matchesonscroll = null;
+      }
+    }
+  }
+
   function highlightMatches(cm) {
     cm.operation(function() {
       var state = cm.state.matchHighlighter;
-      if (state.overlay) {
-        cm.removeOverlay(state.overlay);
-        state.overlay = null;
-      }
+      removeOverlay(cm);
       if (!cm.somethingSelected() && state.showToken) {
         var re = state.showToken === true ? /[\w$]/ : state.showToken;
         var cur = cm.getCursor(), line = cm.getLine(cur.line), start = cur.ch, end = start;
         while (start && re.test(line.charAt(start - 1))) --start;
         while (end < line.length && re.test(line.charAt(end))) ++end;
         if (start < end)
-          cm.addOverlay(state.overlay = makeOverlay(line.slice(start, end), re, state.style));
+          addOverlay(cm, line.slice(start, end), re, state.style);
         return;
       }
       var from = cm.getCursor("from"), to = cm.getCursor("to");
@@ -90,7 +111,7 @@
       if (state.wordsOnly && !isWord(cm, from, to)) return;
       var selection = cm.getRange(from, to).replace(/^\s+|\s+$/g, "");
       if (selection.length >= state.minChars)
-        cm.addOverlay(state.overlay = makeOverlay(selection, false, state.style));
+        addOverlay(cm, selection, false, state.style);
     });
   }
 

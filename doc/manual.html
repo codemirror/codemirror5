@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 
 <title>CodeMirror: User Manual</title>
 <meta charset="utf-8"/>
@@ -577,7 +577,7 @@
       <dd>Fired whenever new input is read from the hidden textarea
       (typed or pasted by the user).</dd>
 
-      <dt id="event_electricInput"><code><strong>"electrictInput"</strong> (instance: CodeMirror, line: integer)</code></dt>
+      <dt id="event_electricInput"><code><strong>"electricInput"</strong> (instance: CodeMirror, line: integer)</code></dt>
       <dd>Fired if text input matched the
       mode's <a href="#option_electricChars">electric</a> patterns,
       and this caused the line's indentation to change.</dd>
@@ -653,7 +653,8 @@
       should <em>not</em> try to change the state of the editor.</dd>
 
       <dt id="event_dom"><code><strong>"mousedown"</strong>,
-      <strong>"dblclick"</strong>, <strong>"contextmenu"</strong>, <strong>"keydown"</strong>, <strong>"keypress"</strong>,
+      <strong>"dblclick"</strong>, <strong>"touchstart"</strong>, <strong>"contextmenu"</strong>,
+      <strong>"keydown"</strong>, <strong>"keypress"</strong>,
       <strong>"keyup"</strong>, <strong>"cut"</strong>, <strong>"copy"</strong>, <strong>"paste"</strong>,
       <strong>"dragstart"</strong>, <strong>"dragenter"</strong>,
       <strong>"dragover"</strong>, <strong>"drop"</strong>
@@ -1272,7 +1273,7 @@ editor.setOption("extraKeys", {
 
       <dt id="getCursor"><code><strong>doc.getCursor</strong>(?start: string) → {line, ch}</code></dt>
       <dd>Retrieve one end of the <em>primary</em>
-      selection. <code>start</code> is a an optional string indicating
+      selection. <code>start</code> is an optional string indicating
       which end of the selection to return. It may
       be <code>"from"</code>, <code>"to"</code>, <code>"head"</code>
       (the side of the selection that moves when you press
@@ -1306,7 +1307,7 @@ editor.setOption("extraKeys", {
         <dd>Determines whether the selection head should be scrolled
         into view. Defaults to true.</dd>
         <dt id="selection_origin"><code><strong>origin</strong>: string</code></dt>
-        <dd>Detemines whether the selection history event may be
+        <dd>Determines whether the selection history event may be
         merged with the previous one. When an origin starts with the
         character <code>+</code>, and the last recorded selection had
         the same origin and was similar (close
@@ -1441,7 +1442,7 @@ editor.setOption("extraKeys", {
       <dt id="removeOverlay"><code><strong>cm.removeOverlay</strong>(mode: string|object)</code></dt>
       <dd>Pass this the exact value passed for the <code>mode</code>
       parameter to <a href="#addOverlay"><code>addOverlay</code></a>,
-      or a string that corresponds to the <code>name</code> propery of
+      or a string that corresponds to the <code>name</code> property of
       that value, to remove an overlay again.</dd>
 
       <dt id="on"><code><strong>cm.on</strong>(type: string, func: (...args))</code></dt>
@@ -1786,7 +1787,7 @@ editor.setOption("extraKeys", {
 
     <dl>
       <dt id="setSize"><code><strong>cm.setSize</strong>(width: number|string, height: number|string)</code></dt>
-      <dd>Programatically set the size of the editor (overriding the
+      <dd>Programmatically set the size of the editor (overriding the
       applicable <a href="#css-resize">CSS
       rules</a>). <code>width</code> and <code>height</code>
       can be either numbers (interpreted as pixels) or CSS units
@@ -2111,7 +2112,7 @@ editor.setOption("extraKeys", {
       through <a href="#setOption"><code>setOption</code></a>.</dd>
 
       <dt id="defineInitHook"><code><strong>CodeMirror.defineInitHook</strong>(func: function)</code></dt>
-      <dd>If your extention just needs to run some
+      <dd>If your extension just needs to run some
       code whenever a CodeMirror instance is initialized,
       use <code>CodeMirror.defineInitHook</code>. Give it a function as
       its only argument, and from then on, that function will be called
@@ -2297,7 +2298,7 @@ editor.setOption("extraKeys", {
       the <code>CodeMirror-matchingtag</code> class). Also
       defines
       a <a href="#commands">command</a> <code>toMatchingTag</code>,
-      which you can bind a key to in order to jump to the tag mathing
+      which you can bind a key to in order to jump to the tag matching
       the one under the cursor. Depends on
       the <code>addon/fold/xml-fold.js</code>
       addon. <a href="../demo/matchtags.html">Demo here.</a></dd>
@@ -2459,7 +2460,7 @@ editor.setOption("extraKeys", {
       <dd>Can be used to run a CodeMirror mode over text without
       actually opening an editor instance.
       See <a href="../demo/runmode.html">the demo</a> for an example.
-      There are alternate versions of the file avaible for
+      There are alternate versions of the file available for
       running <a href="../addon/runmode/runmode-standalone.js">stand-alone</a>
       (without including all of CodeMirror) and
       for <a href="../addon/runmode/runmode.node.js">running under
@@ -2596,9 +2597,9 @@ editor.setOption("extraKeys", {
         has <code>moveFocus(n)</code>, <code>setFocus(n)</code>, <code>pick()</code>,
         and <code>close()</code> methods (see the source for details),
         that can be used to change the focused element, pick the
-        current element or close the menu. Additionnaly <code>menuSize()</code>
+        current element or close the menu. Additionally <code>menuSize()</code>
         can give you access to the size of the current dropdown menu,
-        <code>length</code> give you the number of availlable completions, and
+        <code>length</code> give you the number of available completions, and
         <code>data</code> give you full access to the completion returned by the
         hinting function.</dd>
         <dt><code><strong>extraKeys</strong>: keymap</code></dt>
@@ -2806,7 +2807,7 @@ editor.setOption("extraKeys", {
       here</a>.</dd>
 
       <dt id="addon_autorefresh"><a href="../addon/display/autorefresh.js"><code>display/autorefresh.js</code></a></dt>
-      <dd>This addon can be useful when initalizing an editor in a
+      <dd>This addon can be useful when initializing an editor in a
       hidden DOM node, in cases where it is difficult to
       call <a href="#refresh"><code>refresh</code></a> when the editor
       becomes visible. It defines an option <code>autoRefresh</code>
@@ -2838,14 +2839,14 @@ editor.setOption("extraKeys", {
       set of annotations. The method returns an object
       whose <code>update</code> method can be called with an array
       of <code>{from: Pos, to: Pos}</code> objects marking the ranges
-      to be higlighed. To detach the annotations, call the
+      to be highlighted. To detach the annotations, call the
       object's <code>clear</code> method.</dd>
 
       <dt id="addon_rulers"><a href="../addon/display/rulers.js"><code>display/rulers.js</code></a></dt>
       <dd>Adds a <code>rulers</code> option, which can be used to show
       one or more vertical rulers in the editor. The option, if
       defined, should be given an array of <code>{column [, className,
-      color, lineStyle, width]}</code> objects or numbers (wich
+      color, lineStyle, width]}</code> objects or numbers (which
       indicate a column). The ruler will be displayed at the column
       indicated by the number or the <code>column</code> property.
       The <code>className</code> property can be used to assign a
@@ -2903,7 +2904,7 @@ editor.setOption("extraKeys", {
           <dt><code><strong>wrapRange</strong>(from: {line, ch}, to: {line, ch}, ?options: object)</code></dt>
           <dd>Wraps the given range as one big paragraph.</dd>
           <dt><code><strong>wrapParagraphsInRange</strong>(from: {line, ch}, to: {line, ch}, ?options: object)</code></dt>
-          <dd>Wrapps the paragraphs in (and overlapping with) the
+          <dd>Wraps the paragraphs in (and overlapping with) the
           given range individually.</dd>
         </dl>
         The following options are recognized:
@@ -3350,7 +3351,7 @@ editor.setOption("extraKeys", {
       be set to a certain position after the operation finishes, it
       can return a cursor object.</dd>
 
-      <dt id="vimapi_defineActon"><strong><code>defineAction(name: string, fn: function(cm: CodeMirror, ?actionArgs: object))</strong></code></dt>
+      <dt id="vimapi_defineActon"><strong><code>defineAction(name: string, fn: function(cm: CodeMirror, ?actionArgs: object))</code></strong></dt>
       <dd>Defines an action command, similar to
       <strong><code>defineMotion</code></strong>. Action commands
       can have arbitrary behavior, making them more flexible than
