@@ -59,7 +59,8 @@ CodeMirror.defineMode("clojure", function (options) {
         sign: /[+-]/,
         exponent: /e/i,
         keyword_char: /[^\s\(\[\;\)\]]/,
-        symbol: /[\w*+!\-\._?:<>\/\xa1-\uffff]/
+        symbol: /[\w*+!\-\._?:<>\/\xa1-\uffff]/,
+        block_indent: /^(?:def|with)[^\/]+$|\/(?:def|with)/
     };
 
     function stateStack(indent, type, prev) { // represents a state stack object
@@ -190,7 +191,7 @@ CodeMirror.defineMode("clojure", function (options) {
                         }
 
                         if (keyWord.length > 0 && (indentKeys.propertyIsEnumerable(keyWord) ||
-                                                   /^(?:def|with)/.test(keyWord))) { // indent-word
+                                                   tests.block_indent.test(keyWord))) { // indent-word
                             pushStack(state, indentTemp + INDENT_WORD_SKIP, ch);
                         } else { // non-indent word
                             // we continue eating the spaces
