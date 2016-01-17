@@ -142,7 +142,7 @@ CodeMirror.defineMode("clojure", function (options) {
             }
 
             // skip spaces
-            if (stream.eatSpace()) {
+            if (state.mode != "string" && stream.eatSpace()) {
                 return null;
             }
             var returnType = null;
