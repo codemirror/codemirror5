@@ -61,7 +61,7 @@
 
       // Ignore completely any stream series that do not match the
       // Django template opening tags.
-      while (stream.next() != null && !stream.match("{{", false) && !stream.match("{%", false)) {}
+      while (stream.next() != null && !stream.match(/\{[{%#]/, false)) {}
       return null;
     }
 
@@ -317,9 +317,8 @@
 
     // Mark everything as comment inside the tag and the tag itself.
     function inComment (stream, state) {
-      if (stream.match("#}")) {
-        state.tokenize = tokenBase;
-      }
+      if (stream.match(/^.*?#\}/)) state.tokenize = tokenBase
+      else stream.skipToEnd()
       return "comment";
     }
 
