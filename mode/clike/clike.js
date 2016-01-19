@@ -519,6 +519,16 @@
         stream.eatWhile(/[\w\$_]/);
         return "meta";
       },
+      "{": function(stream, state) {
+        // match a single full line with params of multi-line anonymous fn, e.g.:
+        // { a =>\n
+        // { (aa: Int, bb: Int) =>\n
+        var singleLineParams = /^(\w|[:.,() ])+=>$/;
+        if (!stream.match(singleLineParams, true)) // eat the line, if matches
+          return false;
+        pushContext(state, stream.column(), "}");
+        return null;
+      },
       '"': function(stream, state) {
         if (!stream.match('""')) return false;
         state.tokenize = tokenTripleString;
