@@ -11,7 +11,30 @@
 })(function(CodeMirror) {
 "use strict";
 
-CodeMirror.defineMode("clike", function(config, parserConfig) {
+  function Context(indented, column, type, align, prev) {
+    this.indented = indented;
+    this.column = column;
+    this.type = type;
+    this.align = align;
+    this.prev = prev;
+  }
+  function isStatement(type) {
+    return type == "statement" || type == "switchstatement" || type == "namespace";
+  }
+  function pushContext(state, col, type) {
+    var indent = state.indented;
+    if (state.context && isStatement(state.context.type) && !isStatement(type))
+      indent = state.context.indented;
+    return state.context = new Context(indent, col, type, null, state.context);
+  }
+  function popContext(state) {
+    var t = state.context.type;
+    if (t == ")" || t == "]" || t == "}")
+      state.indented = state.context.indented;
+    return state.context = state.context.prev;
+  }
+
+  CodeMirror.defineMode("clike", function(config, parserConfig) {
   var indentUnit = config.indentUnit,
       statementIndentUnit = parserConfig.statementIndentUnit || indentUnit,
       dontAlignCalls = parserConfig.dontAlignCalls,
@@ -109,29 +132,6 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       maybeEnd = (ch == "*");
     }
     return "comment";
-  }
-
-  function Context(indented, column, type, align, prev) {
-    this.indented = indented;
-    this.column = column;
-    this.type = type;
-    this.align = align;
-    this.prev = prev;
-  }
-  function isStatement(type) {
-    return type == "statement" || type == "switchstatement" || type == "namespace";
-  }
-  function pushContext(state, col, type) {
-    var indent = state.indented;
-    if (state.context && isStatement(state.context.type) && !isStatement(type))
-      indent = state.context.indented;
-    return state.context = new Context(indent, col, type, null, state.context);
-  }
-  function popContext(state) {
-    var t = state.context.type;
-    if (t == ")" || t == "]" || t == "}")
-      state.indented = state.context.indented;
-    return state.context = state.context.prev;
   }
 
   function typeBefore(stream, state) {
@@ -497,7 +497,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     ),
     types: words(
       "AnyVal App Application Array BufferedIterator BigDecimal BigInt Char Console Either " +
-      "Enumeration Equiv Error Exception Fractional Function IndexedSeq Integral Iterable " +
+      "Enumeration Equiv Error Exception Fractional Function IndexedSeq Int Integral Iterable " +
       "Iterator List Map Numeric Nil NotNull Option Ordered Ordering PartialFunction PartialOrdering " +
       "Product Proxy Range Responder Seq Serializable Set Specializable Stream StringBuilder " +
       "StringContext Symbol Throwable Traversable TraversableOnce Tuple Unit Vector " +
@@ -518,6 +518,16 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       "@": function(stream) {
         stream.eatWhile(/[\w\$_]/);
         return "meta";
+      },
+      "{": function(stream, state) {
+        // match a single full line with params of multi-line anonymous fn, e.g.:
+        // { a =>\n
+        // { (aa: Int, bb: Int) =>\n
+        var singleLineParams = /^(\w|[:.,() ])+=>$/;
+        if (!stream.match(singleLineParams, true)) // eat the line, if matches
+          return false;
+        pushContext(state, stream.column(), "}");
+        return null;
       },
       '"': function(stream, state) {
         if (!stream.match('""')) return false;
