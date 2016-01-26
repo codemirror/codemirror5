@@ -85,12 +85,12 @@
 
 /* Can style cursor different in overwrite (non-insert) mode */
 .CodeMirror-overwrite .CodeMirror-cursor {
-	width: auto;
-	background-color: black;
-	color: white;
-	border-left: 0;
-	line-height: normal;
-	white-space: pre;
+  width: auto;
+  background-color: black;
+  color: white;
+  border-left: 0;
+  line-height: normal;
+  white-space: pre;
 }
 
 .cm-tab { display: inline-block; text-decoration: inherit; }
