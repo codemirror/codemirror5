@@ -1,6 +1,5 @@
-/**
- * Created by bglebov on 26.01.2016.
- */
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
 
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
