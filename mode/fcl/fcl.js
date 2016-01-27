@@ -40,12 +40,10 @@ CodeMirror.defineMode("fcl", function(config) {
 
   var atoms = {
       "true": true, "false": true, "nan": true,
-      "real": true, "min": true, "max": true, "cog": true, "cogs": true,
+      "real": true, "min": true, "max": true, "cog": true, "cogs": true
   };
 
   var isOperatorChar = /[+\-*&^%:=<>!|\/]/;
-
-  var curPunc;
 
   function tokenBase(stream, state) {
     var ch = stream.next();
@@ -60,10 +58,7 @@ CodeMirror.defineMode("fcl", function(config) {
       }
       return "number";
     }
-    if (/[\[\]{},;\:\.]/.test(ch)) {
-      curPunc = ch;
-      return null;
-    }
+
     if (ch == "/" || ch == "(") {
       if (stream.eat("*")) {
         state.tokenize = tokenComment;
@@ -143,7 +138,7 @@ CodeMirror.defineMode("fcl", function(config) {
             state.startOfLine = true;
         }
         if (stream.eatSpace()) return null;
-        curPunc = null;
+
         var style = (state.tokenize || tokenBase)(stream, state);
         if (style == "comment") return style;
         if (ctx.align == null) ctx.align = true;
