@@ -63,6 +63,8 @@
     }
 
     var hangingIndent = parserConf.hangingIndent || conf.indentUnit;
+    var indentOnceForMultiBraceLine = parserConf.indentOnceForMultiBraceLine ||
+	conf.indentOnceForMultiBraceLine || false;
 
     var myKeywords = commonKeywords, myBuiltins = commonBuiltins;
     if(parserConf.extra_keywords != undefined){
@@ -230,7 +232,10 @@
         while (top(state).type != "py")
           state.scopes.pop();
       }
-      offset = top(state).offset + (type == "py" ? conf.indentUnit : hangingIndent);
+      var old_offset = indentOnceForMultiBraceLine ? stream.indentation() :
+                                                     top(state).offset;
+      var new_offset = type == "py" ? conf.indentUnit : hangingIndent;
+      offset = old_offset + new_offset;
       if (type != "py" && !stream.match(/^(\s|#.*)*$/, false))
         align = stream.column() + 1;
       state.scopes.push({offset: offset, type: type, align: align});
