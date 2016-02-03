@@ -85,9 +85,9 @@
 
     // tokenizers
     function tokenBase(stream, state) {
+      if (stream.sol()) state.indent = stream.indentation()
       // Handle scope changes
       if (stream.sol() && top(state).type == "py") {
-        state.indent = stream.indentation()
         var scopeOffset = top(state).offset;
         if (stream.eatSpace()) {
           var lineOffset = stream.indentation();
