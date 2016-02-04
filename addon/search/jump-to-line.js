@@ -29,12 +29,12 @@
 
   CodeMirror.commands.jumpToLine = function(cm) {
     var cur = cm.getCursor();
-    dialog(cm, jumpDialog, "Jump to line:", (cur.line + 1) + ":" + cur.ch, function(posStr) {
+    dialog(cm, jumpDialog, "Jump to line:", (cur.line + 1) + ":" + cur.ch + (cm.getOption("jumpCharBase")|0), function(posStr) {
       if (!posStr) return;
 
       var match;
       if (match = /^\s*([\+\-]?\d+)\s*\:\s*(\d+)\s*$/.exec(posStr)) {
-        cm.setCursor(interpretLine(cm, match[1]), Number(match[2]))
+        cm.setCursor(interpretLine(cm, match[1]), Number(match[2]) - (cm.getOption("jumpCharBase")|0))
       } else if (match = /^\s*([\+\-]?\d+(\.\d+)?)\%\s*/.exec(posStr)) {
         var line = Math.round(cm.lineCount() * Number(match[1]) / 100);
         if (/^[-+]/.test(match[1])) line = cur.line + line + 1;
