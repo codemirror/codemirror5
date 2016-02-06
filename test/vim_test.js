@@ -3950,7 +3950,13 @@ testVim('ex_imap', function(cm, vim, helpers) {
   is(vim.insertMode);
   helpers.doKeys('j', 'k');
   is(!vim.insertMode);
-})
+});
+testVim('ex_unmap_api', function(cm, vim, helpers) {
+  CodeMirror.Vim.map('<Alt-X>', 'gg', 'normal');
+  is(CodeMirror.Vim.handleKey(cm, "<Alt-X>", "normal"), "Alt-X key is mapped");
+  CodeMirror.Vim.unmap("<Alt-X>", "normal");
+  is(!CodeMirror.Vim.handleKey(cm, "<Alt-X>", "normal"), "Alt-X key is unmapped");
+});
 
 // Testing registration of functions as ex-commands and mapping to <Key>-keys
 testVim('ex_api_test', function(cm, vim, helpers) {
