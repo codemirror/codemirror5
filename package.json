@@ -1,11 +1,14 @@
 {
     "name": "codemirror",
-    "version":"5.10.1",
+    "version":"5.11.1",
     "main": "lib/codemirror.js",
     "description": "In-browser code editing made bearable",
     "license": "MIT",
     "directories": {"lib": "./lib"},
-    "scripts": {"test": "node ./test/run.js"},
+    "scripts": {
+      "test": "node ./test/run.js",
+      "lint": "bin/lint"
+    },
     "devDependencies": {"node-static": "0.6.0",
                         "phantomjs": "1.9.2-5",
                         "blint": ">=0.1.1"},
