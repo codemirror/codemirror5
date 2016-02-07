@@ -41,6 +41,9 @@
         var bullet = unorderedListRE.test(match[2]) || match[2].indexOf(">") >= 0
           ? match[2]
           : (parseInt(match[3], 10) + 1) + match[4];
+        
+        // make todo list default unchecked
+        after = after.replace('[x]', '[ ]');
 
         replacements[i] = "\n" + indent + bullet + after;
       }
