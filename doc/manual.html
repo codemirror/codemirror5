@@ -1540,7 +1540,7 @@ editor.setOption("extraKeys", {
       <dt id="clearHistory"><code><strong>doc.clearHistory</strong>()</code></dt>
       <dd>Clears the editor's undo history.</dd>
       <dt id="getHistory"><code><strong>doc.getHistory</strong>() → object</code></dt>
-      <dd>Get a (JSON-serializeable) representation of the undo history.</dd>
+      <dd>Get a (JSON-serializable) representation of the undo history.</dd>
       <dt id="setHistory"><code><strong>doc.setHistory</strong>(history: object)</code></dt>
       <dd>Replace the editor's undo history with the one provided,
       which must be a value as returned
@@ -2322,7 +2322,7 @@ editor.setOption("extraKeys", {
       <dt id="addon_continuelist"><a href="../addon/edit/continuelist.js"><code>edit/continuelist.js</code></a></dt>
       <dd>Markdown specific. Defines
       a <code>"newlineAndIndentContinueMarkdownList"</code> <a href="#commands">command</a>
-      command that can be bound to <code>enter</code> to automatically
+      that can be bound to <code>enter</code> to automatically
       insert the leading characters for continuing a list. See
       the <a href="../mode/markdown/index.html">Markdown mode
       demo</a>.</dd>
@@ -3068,7 +3068,7 @@ editor.setOption("extraKeys", {
 
       <dt><code><strong>peek</strong>() → string</code></dt>
       <dd>Returns the next character in the stream without advancing
-      it. Will return an <code>null</code> at the end of the
+      it. Will return a <code>null</code> at the end of the
       line.</dd>
       <dt><code><strong>next</strong>() → string</code></dt>
       <dd>Returns the next character in the stream and advances it.
