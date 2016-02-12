@@ -42,12 +42,16 @@
         lineNumbers: true
       });
     </script>
-    <p>The XML mode supports two configuration parameters:</p>
+    <p>The XML mode supports these configuration parameters:</p>
     <dl>
       <dt><code>htmlMode (boolean)</code></dt>
       <dd>This switches the mode to parse HTML instead of XML. This
       means attributes do not have to be quoted, and some elements
       (such as <code>br</code>) do not require a closing tag.</dd>
+      <dt><code>matchClosing (boolean)</code></dt>
+      <dd>Controls whether the mode checks that close tags match the
+      corresponding opening tag, and highlights mismatches as errors.
+      Defaults to true.</dd>
       <dt><code>alignCDATA (boolean)</code></dt>
       <dd>Setting this to true will force the opening tag of CDATA
       blocks to not be indented.</dd>

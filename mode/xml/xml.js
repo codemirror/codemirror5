@@ -237,7 +237,7 @@ CodeMirror.defineMode("xml", function(editorConf, config_) {
       if (state.context && state.context.tagName != tagName &&
           config.implicitlyClosed.hasOwnProperty(state.context.tagName))
         popContext(state);
-      if (state.context && state.context.tagName == tagName) {
+      if ((state.context && state.context.tagName == tagName) || config.matchClosing === false) {
         setStyle = "tag";
         return closeState;
       } else {
