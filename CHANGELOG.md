@@ -1,3 +1,45 @@
+## 5.12.0 (2015-02-19)
+
+### New features
+
+[Vim bindings](http://codemirror.net/demo/vim.html): Ctrl-Q is now an alias for Ctrl-V.
+
+[Vim bindings](http://codemirror.net/demo/vim.html): The Vim API now exposes an `unmap` method to unmap bindings.
+
+[active-line addon](http://codemirror.net/demo/activeline.html): This addon can now style the active line's gutter.
+
+[FCL mode](http://codemirror.net/mode/fcl/): Newly added.
+
+[SQL mode](http://codemirror.net/mode/sql/): Now has a Postgresql dialect.
+
+### Bugfixes
+
+Fix [issue](https://github.com/codemirror/CodeMirror/issues/3781) where trying to scroll to a horizontal position outside of the document's width could cause the gutter to be positioned incorrectly.
+
+Use absolute, rather than fixed positioning in the context-menu intercept hack, to work around a [problem](https://github.com/codemirror/CodeMirror/issues/3238) when the editor is inside a transformed parent container.
+
+Solve a [problem](https://github.com/codemirror/CodeMirror/issues/3821) where the horizontal scrollbar could hide text in Firefox.
+
+Fix a [bug](https://github.com/codemirror/CodeMirror/issues/3834) that caused phantom scroll space under the text in some situations.
+
+[Sublime Text bindings](http://codemirror.net/demo/sublime.html): Bind delete-line to Shift-Ctrl-K on OS X.
+
+[Markdown mode](http://codemirror.net/mode/markdown/): Fix [issue](https://github.com/codemirror/CodeMirror/issues/3787) where the mode would keep state related to fenced code blocks in an unsafe way, leading to occasional corrupted parses.
+
+[Markdown mode](http://codemirror.net/mode/markdown/): Ignore backslashes in code fragments.
+
+[Markdown mode](http://codemirror.net/mode/markdown/): Use whichever mode is registered as `text/html` to parse HTML.
+
+[Clike mode](http://codemirror.net/mode/clike/): Improve indentation of Scala `=>` functions.
+
+[Python mode](http://codemirror.net/mode/python/): Improve indentation of bracketed code.
+
+[HTMLMixed mode](http://codemirror.net/mode/htmlmixed/): Support multi-line opening tags for sub-languages (`<script>`, `<style>`, etc).
+
+[Spreadsheet mode](http://codemirror.net/mode/spreadsheet/): Fix bug where the mode did not advance the stream when finding a backslash.
+
+[XML mode](http://codemirror.net/mode/xml/): The mode now takes a `matchClosing` option to configure whether mismatched closing tags should be highlighted as errors.
+
 ## 5.11.0 (2016-01-20)
 
 * New modes: [JSX](http://codemirror.net/mode/jsx/index.html), [literate Haskell](http://codemirror.net/mode/haskell-literate/index.html)

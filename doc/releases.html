@@ -30,6 +30,29 @@
 
   <h2>Version 5.x</h2>
 
+  <p class="rel">19-02-2016: <a href="http://codemirror.net/codemirror-5.12.zip">Version 5.12</a>:</p>
+
+  <ul>
+    <li><a href="http://codemirror.net/demo/vim.html">Vim bindings</a>: Ctrl-Q is now an alias for Ctrl-V.</li>
+    <li><a href="http://codemirror.net/demo/vim.html">Vim bindings</a>: The Vim API now exposes an <code>unmap</code> method to unmap bindings.</li>
+    <li><a href="http://codemirror.net/demo/activeline.html">active-line addon</a>: This addon can now style the active line's gutter.</li>
+    <li><a href="http://codemirror.net/mode/fcl/">FCL mode</a>: Newly added.</li>
+    <li><a href="http://codemirror.net/mode/sql/">SQL mode</a>: Now has a Postgresql dialect.</li>
+    <li>Fix <a href="https://github.com/codemirror/CodeMirror/issues/3781">issue</a> where trying to scroll to a horizontal position outside of the document's width could cause the gutter to be positioned incorrectly.</li>
+    <li>Use absolute, rather than fixed positioning in the context-menu intercept hack, to work around a <a href="https://github.com/codemirror/CodeMirror/issues/3238">problem</a> when the editor is inside a transformed parent container.</li>
+    <li>Solve a <a href="https://github.com/codemirror/CodeMirror/issues/3821">problem</a> where the horizontal scrollbar could hide text in Firefox.</li>
+    <li>Fix a <a href="https://github.com/codemirror/CodeMirror/issues/3834">bug</a> that caused phantom scroll space under the text in some situations.</li>
+    <li><a href="http://codemirror.net/demo/sublime.html">Sublime Text bindings</a>: Bind delete-line to Shift-Ctrl-K on OS X.</li>
+    <li><a href="http://codemirror.net/mode/markdown/">Markdown mode</a>: Fix <a href="https://github.com/codemirror/CodeMirror/issues/3787">issue</a> where the mode would keep state related to fenced code blocks in an unsafe way, leading to occasional corrupted parses.</li>
+    <li><a href="http://codemirror.net/mode/markdown/">Markdown mode</a>: Ignore backslashes in code fragments.</li>
+    <li><a href="http://codemirror.net/mode/markdown/">Markdown mode</a>: Use whichever mode is registered as <code>text/html</code> to parse HTML.</li>
+    <li><a href="http://codemirror.net/mode/clike/">Clike mode</a>: Improve indentation of Scala <code>=&gt;</code> functions.</li>
+    <li><a href="http://codemirror.net/mode/python/">Python mode</a>: Improve indentation of bracketed code.</li>
+    <li><a href="http://codemirror.net/mode/htmlmixed/">HTMLMixed mode</a>: Support multi-line opening tags for sub-languages (<code>&lt;script&gt;</code>, <code>&lt;style&gt;</code>, etc).</li>
+    <li><a href="http://codemirror.net/mode/spreadsheet/">Spreadsheet mode</a>: Fix bug where the mode did not advance the stream when finding a backslash.</li>
+    <li><a href="http://codemirror.net/mode/xml/">XML mode</a>: The mode now takes a <code>matchClosing</code> option to configure whether mismatched closing tags should be highlighted as errors.</li>
+  </ul>
+
   <p class="rel">20-01-2016: <a href="http://codemirror.net/codemirror-5.11.zip">Version 5.11</a>:</p>
 
   <ul>
