@@ -62,4 +62,15 @@
      '[string "a"]',
      '[string "abc def"]',
      '[string "More escaped characters: \\\\\\\\ \\\\a \\\\b \\\\e \\\\f \\\\n \\\\r \\\\t \\\\0 ..."]');
+
+  MT('brackets',
+     '[bracket #[[]]]',
+     '[bracket #()]',
+     '[bracket #(][number 1][bracket )]',
+     '[bracket [[][number 1][punctuation ,] [number 3][bracket ]]]',
+     '[bracket ()]',
+     '[bracket {}]',
+     '[keyword if] [bracket (][variable foo][bracket )]',
+     '[bracket (][number 1][bracket )]',
+     '[bracket [[][number 1][bracket ]]]');
 })();

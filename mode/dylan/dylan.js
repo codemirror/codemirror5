@@ -207,6 +207,11 @@ CodeMirror.defineMode("dylan", function(_config) {
         stream.eatWhile(/[0-7]/);
         return "number";
       }
+      // Sequence literals
+      else if ((ch == '[') || (ch == '(')) {
+        stream.next();
+        return "bracket";
+      }
       // Hash symbol
       else {
         stream.eatWhile(/[-a-zA-Z]/);
@@ -235,6 +240,12 @@ CodeMirror.defineMode("dylan", function(_config) {
         stream.next();
         return "punctuation";
       }
+    } else if ("[](){}".indexOf(ch) != -1) {
+      stream.next();
+      return "bracket";
+    } else if (".,".indexOf(ch) != -1) {
+      stream.next();
+      return "punctuation";
     } else if (stream.match("end")) {
       return "keyword";
     }
