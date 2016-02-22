@@ -240,14 +240,20 @@ CodeMirror.defineMode("dylan", function(_config) {
   }
 
   function tokenComment(stream, state) {
-    var maybeEnd = false,
-    ch;
+    var maybeEnd = false, maybeNested = false, nestedCount = 0, ch;
     while ((ch = stream.next())) {
       if (ch == "/" && maybeEnd) {
-        state.tokenize = tokenBase;
-        break;
+        if (nestedCount > 0) {
+          nestedCount--;
+        } else {
+          state.tokenize = tokenBase;
+          break;
+        }
+      } else if (ch == "*" && maybeNested) {
+        nestedCount++;
       }
       maybeEnd = (ch == "*");
+      maybeNested = (ch == "/");
     }
     return "comment";
   }
