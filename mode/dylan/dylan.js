@@ -169,15 +169,16 @@ CodeMirror.defineMode("dylan", function(_config) {
       } else if (stream.eat("/")) {
         stream.skipToEnd();
         return "comment";
-      } else {
-        stream.skipTo(" ");
-        return "operator";
       }
+      stream.backUp(1);
     }
     // Decimal
-    else if (/\d/.test(ch)) {
-      stream.match(/^\d*(?:\.\d*)?(?:e[+\-]?\d+)?/);
-      return "number";
+    else if (/[+\-\d\.]/.test(ch)) {
+      if (stream.match(/^[+-]?[0-9]*\.[0-9]*([esdx][+-]?[0-9]+)?/i) ||
+          stream.match(/^[+-]?[0-9]+([esdx][+-]?[0-9]+)/i) ||
+          stream.match(/^[+-]?\d+/)) {
+        return "number";
+      }
     }
     // Hash
     else if (ch == "#") {
@@ -211,6 +212,29 @@ CodeMirror.defineMode("dylan", function(_config) {
         stream.eatWhile(/[-a-zA-Z]/);
         return "keyword";
       }
+    } else if (ch == "~") {
+      stream.next();
+      ch = stream.peek();
+      if (ch == "=") {
+        stream.next();
+        ch = stream.peek();
+        if (ch == "=") {
+          stream.next();
+          return "operator";
+        }
+        return "operator";
+      }
+      return "operator";
+    } else if (ch == ":") {
+      stream.next();
+      ch = stream.peek();
+      if (ch == "=") {
+        stream.next();
+        return "operator";
+      } else if (ch == ":") {
+        stream.next();
+        return "punctuation";
+      }
     } else if (stream.match("end")) {
       return "keyword";
     }
@@ -222,6 +246,10 @@ CodeMirror.defineMode("dylan", function(_config) {
         })) || stream.match(pattern))
           return patternStyles[name];
       }
+    }
+    if (/[+\-*\/^=<>&|]/.test(ch)) {
+      stream.next();
+      return "operator";
     }
     if (stream.match("define")) {
       return "def";
