@@ -54,4 +54,12 @@
      '[number +3.78d1]',
      '[number 3.78s-1]',
      '[number -3.32e+5]');
+
+  MT('characters_and_strings',
+     "[string 'a']",
+     "[string '\\\\'']",
+     '[string ""]',
+     '[string "a"]',
+     '[string "abc def"]',
+     '[string "More escaped characters: \\\\\\\\ \\\\a \\\\b \\\\e \\\\f \\\\n \\\\r \\\\t \\\\0 ..."]');
 })();

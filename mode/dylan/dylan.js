@@ -288,15 +288,17 @@ CodeMirror.defineMode("dylan", function(_config) {
 
   function tokenString(quote, style) {
     return function(stream, state) {
-      var next, end = false;
+      var escaped = false, next, end = false;
       while ((next = stream.next()) != null) {
-        if (next == quote) {
+        if (next == quote && !escaped) {
           end = true;
           break;
         }
+        escaped = !escaped && next == "\\";
       }
-      if (end)
+      if (end || !escaped) {
         state.tokenize = tokenBase;
+      }
       return style;
     };
   }
