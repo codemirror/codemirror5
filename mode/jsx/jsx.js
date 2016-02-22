@@ -144,4 +144,4 @@
   }, "xml", "javascript")
 
   CodeMirror.defineMIME("text/jsx", "jsx")
-})
+});
