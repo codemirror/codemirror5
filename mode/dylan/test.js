@@ -73,4 +73,16 @@
      '[keyword if] [bracket (][variable foo][bracket )]',
      '[bracket (][number 1][bracket )]',
      '[bracket [[][number 1][bracket ]]]');
+
+  MT('hash_words',
+     '[punctuation ##]',
+     '[atom #f]', '[atom #F]',
+     '[atom #t]', '[atom #T]',
+     '[atom #all-keys]',
+     '[atom #include]',
+     '[atom #key]',
+     '[atom #next]',
+     '[atom #rest]',
+     '[string #"foo"]',
+     '[error #invalid]');
 })();

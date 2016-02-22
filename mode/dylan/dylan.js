@@ -187,7 +187,7 @@ CodeMirror.defineMode("dylan", function(_config) {
       ch = stream.peek();
       if (ch == '"') {
         stream.next();
-        return chain(stream, state, tokenString('"', "string-2"));
+        return chain(stream, state, tokenString('"', "string"));
       }
       // Binary number
       else if (ch == "b") {
@@ -207,15 +207,21 @@ CodeMirror.defineMode("dylan", function(_config) {
         stream.eatWhile(/[0-7]/);
         return "number";
       }
+      // Token concatenation in macros
+      else if (ch == '#') {
+        stream.next();
+        return "punctuation";
+      }
       // Sequence literals
       else if ((ch == '[') || (ch == '(')) {
         stream.next();
         return "bracket";
-      }
       // Hash symbol
-      else {
+      } else if (stream.match(/f|t|all-keys|include|key|next|rest/i)) {
+        return "atom";
+      } else {
         stream.eatWhile(/[-a-zA-Z]/);
-        return "keyword";
+        return "error";
       }
     } else if (ch == "~") {
       stream.next();
