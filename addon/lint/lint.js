@@ -186,9 +186,14 @@
     state.timeout = setTimeout(function(){startLinting(cm);}, state.options.delay || 500);
   }
 
-  function popupSpanTooltip(ann, e) {
+  function popupTooltips(annotations, e) {
     var target = e.target || e.srcElement;
-    showTooltipFor(e, annotationTooltip(ann), target);
+    var tooltip = document.createDocumentFragment();
+    for (var i = 0; i < annotations.length; i++) {
+      var ann = annotations[i];
+      tooltip.appendChild(annotationTooltip(ann));
+    }
+    showTooltipFor(e, tooltip, target);
   }
 
   function onMouseOver(cm, e) {
@@ -196,10 +201,12 @@
     if (!/\bCodeMirror-lint-mark-/.test(target.className)) return;
     var box = target.getBoundingClientRect(), x = (box.left + box.right) / 2, y = (box.top + box.bottom) / 2;
     var spans = cm.findMarksAt(cm.coordsChar({left: x, top: y}, "client"));
+
+    var annotations = [];
     for (var i = 0; i < spans.length; ++i) {
-      var ann = spans[i].__annotation;
-      if (ann) return popupSpanTooltip(ann, e);
+      annotations.push(spans[i].__annotation);
     }
+    if (annotations.length) popupTooltips(annotations, e);
   }
 
   CodeMirror.defineOption("lint", false, function(cm, val, old) {
