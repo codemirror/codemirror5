@@ -20,6 +20,8 @@
   };
   var Pos = CodeMirror.Pos;
 
+  function isArray(val) { return Object.prototype.toString.call(val) == "[object Array]" }
+
   function getKeywords(editor) {
     var mode = editor.doc.modeOption;
     if (mode === "sql") mode = "text/x-sql";
@@ -30,16 +32,22 @@
     return typeof item == "string" ? item : item.text;
   }
 
+  function wrapTable(name, value) {
+    if (isArray(value)) value = {columns: value}
+    if (!value.text) value.text = name
+    return value
+  }
+
   function parseTables(input) {
     var result = {}
-    if (Object.prototype.toString.call(input) == "[object Array]") {
+    if (isArray(input)) {
       for (var i = input.length - 1; i >= 0; i--) {
         var item = input[i]
-        result[getText(item).toUpperCase()] = item
+        result[getText(item).toUpperCase()] = wrapTable(getText(item), item)
       }
     } else if (input) {
       for (var name in input)
-        result[name.toUpperCase()] = input[name]
+        result[name.toUpperCase()] = wrapTable(name, input[name])
     }
     return result
   }
@@ -62,11 +70,18 @@
   }
 
   function addMatches(result, search, wordlist, formatter) {
-    for (var word in wordlist) {
-      if (!wordlist.hasOwnProperty(word)) continue;
-      if (wordlist.slice) word = wordlist[word];
-
-      if (match(search, word)) result.push(formatter(word));
+    if (isArray(wordlist)) {
+      for (var i = 0; i < wordlist.length; i++)
+        if (match(search, wordlist[i])) result.push(formatter(wordlist[i]))
+    } else {
+      for (var word in wordlist) if (wordlist.hasOwnProperty(word)) {
+        var val = wordlist[word]
+        if (!val || val === true)
+          val = word
+        else
+          val = val.displayText ? {text: val.text, displayText: val.displayText} : val.text
+        if (match(search, val)) result.push(formatter(val))
+      }
     }
   }
 
