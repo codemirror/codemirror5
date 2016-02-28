@@ -30,10 +30,22 @@
     return typeof item == "string" ? item : item.text;
   }
 
-  function getItem(list, item) {
-    if (!list.slice) return list[item];
-    for (var i = list.length - 1; i >= 0; i--) if (getText(list[i]) == item)
-      return list[i];
+  function parseTables(input) {
+    var result = {}
+    if (Object.prototype.toString.call(input) == "[object Array]") {
+      for (var i = input.length - 1; i >= 0; i--) {
+        var item = input[i]
+        result[getText(item).toUpperCase()] = item
+      }
+    } else if (input) {
+      for (var name in input)
+        result[name.toUpperCase()] = input[name]
+    }
+    return result
+  }
+
+  function getTable(name) {
+    return tables[name.toUpperCase()]
   }
 
   function shallowClone(object) {
@@ -115,13 +127,13 @@
     var alias = false;
     var aliasTable = table;
     // Check if table is available. If not, find table by Alias
-    if (!getItem(tables, table)) {
+    if (!getTable(table)) {
       var oldTable = table;
       table = findTableByAlias(table, editor);
       if (table !== oldTable) alias = true;
     }
 
-    var columns = getItem(tables, table);
+    var columns = getTable(table);
     if (columns && columns.columns)
       columns = columns.columns;
 
@@ -184,7 +196,7 @@
     //find valid range
     var prevItem = 0;
     var current = convertCurToNumber(editor.getCursor());
-    for (var i=0; i< separator.length; i++) {
+    for (var i = 0; i < separator.length; i++) {
       var _v = convertCurToNumber(separator[i]);
       if (current > prevItem && current <= _v) {
         validRange = { start: convertNumberToCur(prevItem), end: convertNumberToCur(_v) };
@@ -199,7 +211,7 @@
       var lineText = query[i];
       eachWord(lineText, function(word) {
         var wordUpperCase = word.toUpperCase();
-        if (wordUpperCase === aliasUpperCase && getItem(tables, previousWord))
+        if (wordUpperCase === aliasUpperCase && getTable(previousWord))
           table = previousWord;
         if (wordUpperCase !== CONS.ALIAS_KEYWORD)
           previousWord = word;
@@ -210,10 +222,10 @@
   }
 
   CodeMirror.registerHelper("hint", "sql", function(editor, options) {
-    tables = (options && options.tables) || {};
+    tables = parseTables(options && options.tables)
     var defaultTableName = options && options.defaultTable;
     var disableKeywords = options && options.disableKeywords;
-    defaultTable = defaultTableName && getItem(tables, defaultTableName);
+    defaultTable = defaultTableName && getTable(defaultTableName);
     keywords = keywords || getKeywords(editor);
 
     if (defaultTableName && !defaultTable)
