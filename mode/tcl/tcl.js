@@ -51,11 +51,11 @@ CodeMirror.defineMode("tcl", function() {
       } else if (/\d/.test(ch)) {
         stream.eatWhile(/[\w\.]/);
         return "number";
-      } else if (ch == "#" && stream.eat("*")) {
-        return chain(stream, state, tokenComment);
-      } else if (ch == "#" && stream.match(/ *\[ *\[/)) {
-        return chain(stream, state, tokenUnparsed);
-      } else if (ch == "#" && stream.eat("#")) {
+      } else if (ch == "#") {
+        if (stream.eat("*"))
+          return chain(stream, state, tokenComment);
+        if (ch == "#" && stream.match(/ *\[ *\[/))
+          return chain(stream, state, tokenUnparsed);
         stream.skipToEnd();
         return "comment";
       } else if (ch == '"') {
