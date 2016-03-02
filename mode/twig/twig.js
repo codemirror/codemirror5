@@ -3,15 +3,17 @@
 
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
-    mod(require("../../lib/codemirror"));
+    mod(require("../../lib/codemirror"), require("../htmlmixed/htmlmixed"),
+        require("../../addon/mode/overlay"));
   else if (typeof define == "function" && define.amd) // AMD
-    define(["../../lib/codemirror"], mod);
+    define(["../../lib/codemirror", "../htmlmixed/htmlmixed",
+            "../../addon/mode/overlay"], mod);
   else // Plain browser env
     mod(CodeMirror);
 })(function(CodeMirror) {
   "use strict";
 
-  CodeMirror.defineMode("twig", function() {
+  CodeMirror.defineMode("twig:inner", function() {
     var keywords = ["and", "as", "autoescape", "endautoescape", "block", "do", "endblock", "else", "elseif", "extends", "for", "endfor", "embed", "endembed", "filter", "endfilter", "flush", "from", "if", "endif", "in", "is", "include", "import", "not", "or", "set", "spaceless", "endspaceless", "with", "endwith", "trans", "endtrans", "blocktrans", "endblocktrans", "macro", "endmacro", "use", "verbatim", "endverbatim"],
         operator = /^[+\-*&%=<>!?|~^]/,
         sign = /^[:\[\(\{]/,
@@ -128,5 +130,10 @@
     };
   });
 
+  CodeMirror.defineMode("twig", function(config) {
+    var htmlBase = CodeMirror.getMode(config, "text/html");
+    var twigInner = CodeMirror.getMode(config, "twig:inner");
+    return CodeMirror.overlayMode(htmlBase, twigInner);
+  });
   CodeMirror.defineMIME("text/x-twig", "twig");
 });
