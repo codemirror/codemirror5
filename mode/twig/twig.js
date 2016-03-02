@@ -133,7 +133,7 @@
     if (!parserConfig || !parserConfig.base) return twigInner;
     return CodeMirror.multiplexingMode(
       CodeMirror.getMode(config, parserConfig.base), {
-        open: "{", close: "}", mode: twigInner, parseDelimiters: true
+        open: /{[{#%]/, close: /[}#%]}/, mode: twigInner, parseDelimiters: true
       }
     );
   });
