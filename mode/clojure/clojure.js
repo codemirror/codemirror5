@@ -245,5 +245,6 @@ CodeMirror.defineMode("clojure", function (options) {
 
 CodeMirror.defineMIME("text/x-clojure", "clojure");
 CodeMirror.defineMIME("text/x-clojurescript", "clojure");
+CodeMirror.defineMIME("application/edn", "clojure");
 
 });
