@@ -100,7 +100,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       }
     }
     if (isOperatorChar.test(ch)) {
-      stream.eatWhile(isOperatorChar);
+      while (!stream.match(/^\/[\/*]/, false) && stream.eat(isOperatorChar)) {}
       return "operator";
     }
     stream.eatWhile(/[\w\$_\xa1-\uffff]/);
