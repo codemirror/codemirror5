@@ -3,15 +3,15 @@
 
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
-    mod(require("../../lib/codemirror"));
+    mod(require("../../lib/codemirror"),  require("../../addon/mode/multiplex"));
   else if (typeof define == "function" && define.amd) // AMD
-    define(["../../lib/codemirror"], mod);
+    define(["../../lib/codemirror", "../../addon/mode/multiplex"], mod);
   else // Plain browser env
     mod(CodeMirror);
 })(function(CodeMirror) {
   "use strict";
 
-  CodeMirror.defineMode("twig", function() {
+  CodeMirror.defineMode("twig:inner", function() {
     var keywords = ["and", "as", "autoescape", "endautoescape", "block", "do", "endblock", "else", "elseif", "extends", "for", "endfor", "embed", "endembed", "filter", "endfilter", "flush", "from", "if", "endif", "in", "is", "include", "import", "not", "or", "set", "spaceless", "endspaceless", "with", "endwith", "trans", "endtrans", "blocktrans", "endblocktrans", "macro", "endmacro", "use", "verbatim", "endverbatim"],
         operator = /^[+\-*&%=<>!?|~^]/,
         sign = /^[:\[\(\{]/,
@@ -128,5 +128,14 @@
     };
   });
 
+  CodeMirror.defineMode("twig", function(config, parserConfig) {
+    var twigInner = CodeMirror.getMode(config, "twig:inner");
+    if (!parserConfig || !parserConfig.base) return twigInner;
+    return CodeMirror.multiplexingMode(
+      CodeMirror.getMode(config, parserConfig.base), {
+        open: /\{[{#%]/, close: /[}#%]\}/, mode: twigInner, parseDelimiters: true
+      }
+    );
+  });
   CodeMirror.defineMIME("text/x-twig", "twig");
 });

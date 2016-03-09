@@ -13,8 +13,8 @@
 
 CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
-  var htmlFound = CodeMirror.modes.hasOwnProperty("xml");
-  var htmlMode = CodeMirror.getMode(cmCfg, htmlFound ? {name: "xml", htmlMode: true} : "text/plain");
+  var htmlMode = CodeMirror.getMode(cmCfg, "text/html");
+  var htmlModeMissing = htmlMode.name == "null"
 
   function getMode(name) {
     if (CodeMirror.findModeByName) {
@@ -119,7 +119,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     state.quote = 0;
     // Reset state.indentedCode
     state.indentedCode = false;
-    if (!htmlFound && state.f == htmlBlock) {
+    if (htmlModeMissing && state.f == htmlBlock) {
       state.f = inlineNormal;
       state.block = blockNormal;
     }
@@ -149,10 +149,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         state.list = null;
       } else if (state.indentation > 0) {
         state.list = null;
-        state.listDepth = Math.floor(state.indentation / 4);
       } else { // No longer a list
         state.list = false;
-        state.listDepth = 0;
       }
     }
 
@@ -199,7 +197,17 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       }
       state.indentation = stream.column() + stream.current().length;
       state.list = true;
-      state.listDepth++;
+
+      // While this list item's marker's indentation
+      // is less than the deepest list item's content's indentation,
+      // pop the deepest list item indentation off the stack.
+      while (state.listStack && stream.column() < state.listStack[state.listStack.length - 1]) {
+        state.listStack.pop();
+      }
+
+      // Add this list item's content's indentation to the stack
+      state.listStack.push(state.indentation);
+
       if (modeCfg.taskLists && stream.match(taskListRE, false)) {
         state.taskList = true;
       }
@@ -222,12 +230,15 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
   function htmlBlock(stream, state) {
     var style = htmlMode.token(stream, state.htmlState);
-    if ((htmlFound && state.htmlState.tagStart === null &&
-         (!state.htmlState.context && state.htmlState.tokenize.isInText)) ||
-        (state.md_inside && stream.current().indexOf(">") > -1)) {
-      state.f = inlineNormal;
-      state.block = blockNormal;
-      state.htmlState = null;
+    if (!htmlModeMissing) {
+      var inner = CodeMirror.innerMode(htmlMode, state.htmlState)
+      if ((inner.mode.name == "xml" && inner.state.tagStart === null &&
+           (!inner.state.context && inner.state.tokenize.isInText)) ||
+          (state.md_inside && stream.current().indexOf(">") > -1)) {
+        state.f = inlineNormal;
+        state.block = blockNormal;
+        state.htmlState = null;
+      }
     }
     return style;
   }
@@ -318,7 +329,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     }
 
     if (state.list !== false) {
-      var listMod = (state.listDepth - 1) % 3;
+      var listMod = (state.listStack.length - 1) % 3;
       if (!listMod) {
         styles.push(tokenTypes.list1);
       } else if (listMod === 1) {
@@ -694,7 +705,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         hr: false,
         taskList: false,
         list: false,
-        listDepth: 0,
+        listStack: [],
         quote: 0,
         trailingSpace: 0,
         trailingSpaceNewLine: false,
@@ -729,7 +740,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         hr: s.hr,
         taskList: s.taskList,
         list: s.list,
-        listDepth: s.listDepth,
+        listStack: s.listStack.slice(0),
         quote: s.quote,
         indentedCode: s.indentedCode,
         trailingSpace: s.trailingSpace,
@@ -769,11 +780,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
         state.f = state.block;
         var indentation = stream.match(/^\s*/, true)[0].replace(/\t/g, '    ').length;
-        var difference = Math.floor((indentation - state.indentation) / 4) * 4;
-        if (difference > 4) difference = 4;
-        var adjustedIndentation = state.indentation + difference;
-        state.indentationDiff = adjustedIndentation - state.indentation;
-        state.indentation = adjustedIndentation;
+        state.indentationDiff = Math.min(indentation - state.indentation, 4);
+        state.indentation = state.indentation + state.indentationDiff;
         if (indentation > 0) return null;
       }
       return state.f(stream, state);

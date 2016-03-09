@@ -452,6 +452,18 @@
      "",
      "hello");
 
+  MT("listCommonMarkIndentationCode",
+     "[variable-2 * Code blocks also affect]",
+     "  [variable-3 * The next level starts where the contents start.]",
+     "   [variable-3 *    Anything less than that will keep the item on the same level.]",
+     "       [variable-3 * Each list item can indent the first level further and further.]",
+     "  [variable-3 * For the most part, this makes sense while writing a list.]",
+     "    [keyword * This means two items with same indentation can be different levels.]",
+     "     [keyword *  Each level has an indent requirement that can change between items.]",
+     "       [keyword * A list item that meets this will be part of the next level.]",
+     "   [variable-3 * Otherwise, it will be part of the level where it does meet this.]",
+     " [variable-2 * World]");
+
   // Blockquote
   MT("blockquote",
      "[variable-2 * foo]",

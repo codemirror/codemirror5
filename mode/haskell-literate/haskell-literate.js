@@ -40,4 +40,4 @@
   }, "haskell")
 
   CodeMirror.defineMIME("text/x-literate-haskell", "haskell-literate")
-})
+});

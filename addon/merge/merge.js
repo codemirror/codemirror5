@@ -427,9 +427,9 @@
 
   function copyChunk(dv, to, from, chunk) {
     if (dv.diffOutOfDate) return;
-    var start = chunk.editTo > to.lastLine() ? Pos(chunk.editFrom - 1) : Pos(chunk.editFrom, 0)
-    to.replaceRange(from.getRange(Pos(chunk.origFrom, 0), Pos(chunk.origTo, 0)),
-                    start, Pos(chunk.editTo, 0));
+    var editStart = chunk.editTo > to.lastLine() ? Pos(chunk.editFrom - 1) : Pos(chunk.editFrom, 0)
+    var origStart = chunk.origTo > from.lastLine() ? Pos(chunk.origFrom - 1) : Pos(chunk.origFrom, 0)
+    to.replaceRange(from.getRange(origStart, Pos(chunk.origTo, 0)), editStart, Pos(chunk.editTo, 0))
   }
 
   // Merge view, containing 0, 1, or 2 diff views.
