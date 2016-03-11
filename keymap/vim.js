@@ -1698,9 +1698,10 @@
         var last = cm.lastLine();
         // Vim cancels linewise motions that start on an edge and move beyond
         // that edge. It does not cancel motions that do not start on an edge.
-        if ((line < first && cur.line == first) ||
-            (line > last && cur.line == last)) {
-          return;
+        if (line < first && cur.line == first){
+          return this.moveToStartOfLine(cm, head, motionArgs, vim);
+        }else if (line > last && cur.line == last){
+            return this.moveToEol(cm, head, motionArgs, vim);
         }
         if (motionArgs.toFirstChar){
           endCh=findFirstNonWhiteSpaceCharacter(cm.getLine(line));
