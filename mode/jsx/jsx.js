@@ -25,9 +25,9 @@
                        context.prev && copyContext(context.prev))
   }
 
-  CodeMirror.defineMode("jsx", function(config) {
+  CodeMirror.defineMode("jsx", function(config, modeConfig) {
     var xmlMode = CodeMirror.getMode(config, {name: "xml", allowMissing: true, multilineTagIndentPastTag: false})
-    var jsMode = CodeMirror.getMode(config, "javascript")
+    var jsMode = CodeMirror.getMode(config, modeConfig && modeConfig.base || "javascript")
 
     function flatXMLIndent(state) {
       var tagName = state.tagName
