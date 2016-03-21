@@ -77,6 +77,8 @@ $someObject.getValues("this is a string split
 
 $someObject("This plus $something in the middle").method(7567).property
 
+#set($something = "Parseable string with '$quotes'!")
+
 #macro( tablerows $color $somelist )
     #foreach( $something in $somelist )
         <tr><td bgcolor=$color>$something</td></tr>
