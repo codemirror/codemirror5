@@ -3725,6 +3725,14 @@ testVim('ex_noh_clearSearchHighlight', function(cm, vim, helpers) {
   helpers.doKeys('n');
   helpers.assertCursorAt(0, 11,'can\'t resume search after clearing highlighting');
 }, { value: 'match nope match \n nope Match' });
+testVim('ex_yank', function (cm, vim, helpers) {
+  var curStart = makeCursor(3, 0);
+  cm.setCursor(curStart);
+  helpers.doEx('y');
+  var register = helpers.getRegisterController().getRegister();
+  var line = cm.getLine(3);
+  eq(line + '\n', register.toString());
+});
 testVim('set_boolean', function(cm, vim, helpers) {
   CodeMirror.Vim.defineOption('testoption', true, 'boolean');
   // Test default value is set.
