@@ -5,6 +5,11 @@
   var mode = CodeMirror.getMode({indentUnit: 2}, "powershell");
   function MT(name) { test.mode(name, mode, Array.prototype.slice.call(arguments, 1)); }
 
+  MT('comment', '[number 1][comment # A]');
+  MT('comment_multiline', '[number 1][comment <#]',
+    '[comment ABC]',
+  '[comment #>][number 2]');  
+
   [
     '0', '1234',
     '12kb', '12mb', '12Gb', '12Tb', '12PB', '12L', '12D', '12lkb', '12dtb',
@@ -56,12 +61,12 @@
   MT('operator_long', "[operator -match]");
 
   [
-    '(', ')', '[', ']', '{', '}', ',', ':', '`', '=', ';', '.'
+    '(', ')', '[[', ']]', '{', '}', ',', '`', ';', '.'
   ].forEach(function(punctuation) {
-    MT("punctuation_" + punctuation, "[punctuation " + punctuation + "]");
+    MT("punctuation_" + punctuation.replace(/^[\[\]]/,''), "[punctuation " + punctuation + "]");
   });
 
   MT('keyword', "[keyword if]");
 
-  MT('call_builtin', "[keyword Get-ChildItems]");
+  MT('call_builtin', "[builtin Get-ChildItem]");
 })();
