@@ -3,15 +3,30 @@
   <head>
     <meta charset="utf-8">
     <title>CodeMirror: Powershell mode</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/4.3.0/codemirror.css">
-    <link rel="stylesheet" href="tests.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/4.3.0/codemirror.js"></script>
+    <link rel="stylesheet" href="../../doc/docs.css">
+    <link rel="stylesheet" href="../../lib/codemirror.css">
+    <script src="../../lib/codemirror.js"></script>
     <script src="powershell.js"></script>
+    <style>.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
   </head>
   <body>
-    <h1>CodeMirror: Powershell mode</h1>
+    <div id=nav>
+      <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../../doc/logo.png"></a>
 
-    <div><textarea id="code" name="code">
+      <ul>
+        <li><a href="../../index.html">Home</a>
+        <li><a href="../../doc/manual.html">Manual</a>
+        <li><a href="https://github.com/codemirror/codemirror">Code</a>
+      </ul>
+      <ul>
+        <li><a href="../index.html">Language modes</a>
+        <li><a class=active href="#">JavaScript</a>
+      </ul>
+    </div>
+    <article>
+      <h2>PowerShell mode</h2>
+
+      <div><textarea id="code" name="code">
 # Number Literals
 0 12345
 12kb 12mb 12gB 12Tb 12PB 12L 12D 12lkb 12dtb
@@ -173,16 +188,17 @@ Write-Host Write-Output Write-Progress Write-Verbose Write-Warning
 X:
 Y:
 Z:</textarea></div>
-    <script>
-      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-        mode: "powershell",
-        lineNumbers: true,
-        indentUnit: 4,
-        tabMode: "shift",
-        matchBrackets: true
-      });
-    </script>
+      <script>
+        var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+          mode: "powershell",
+          lineNumbers: true,
+          indentUnit: 4,
+          tabMode: "shift",
+          matchBrackets: true
+        });
+      </script>
 
-    <p><strong>MIME types defined:</strong> <code>text/x-powershell</code>.</p>
+      <p><strong>MIME types defined:</strong> <code>application/x-powershell</code>.</p>
+    </article>
   </body>
 </html>
