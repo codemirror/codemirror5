@@ -8,7 +8,7 @@
   MT('comment', '[number 1][comment # A]');
   MT('comment_multiline', '[number 1][comment <#]',
     '[comment ABC]',
-  '[comment #>][number 2]');  
+  '[comment #>][number 2]');
 
   [
     '0', '1234',
