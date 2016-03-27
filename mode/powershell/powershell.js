@@ -52,7 +52,7 @@ CodeMirror.defineMode('powershell', function() {
   var symbolOperators = /[+\-*\/%]=|\+\+|--|\.\.|[+\-*&^%:=!|\/]|<(?!#)|(?!#)>/;
   var operators = buildRegexp([wordOperators, symbolOperators], { suffix: '' });
 
-  var numbers = /^[+-]?((0x[\da-f]+)|((\d+\.\d+|\d\.|\.\d+|\d+)(e[\+\-]?\d+)?))[ld]?([kmgtp]b)?/i;
+  var numbers = /^((0x[\da-f]+)|((\d+\.\d+|\d\.|\.\d+|\d+)(e[\+\-]?\d+)?))[ld]?([kmgtp]b)?/i;
 
   var identifiers = /^[A-Za-z\_][A-Za-z\-\_\d]*\b/;
 
@@ -163,15 +163,15 @@ CodeMirror.defineMode('powershell', function() {
     // Handle Comments
     //var ch = stream.peek();
 
-    if (stream.eatSpace()) {
-      return null;
-    }
-
     var parent = state.returnStack[state.returnStack.length - 1];
     if (parent && parent.shouldReturnFrom(state)) {
       state.tokenize = parent.tokenize;
       state.returnStack.pop();
       return state.tokenize(stream, state);
+    }
+
+    if (stream.eatSpace()) {
+      return null;
     }
 
     if (stream.eat('(')) {
@@ -224,7 +224,7 @@ CodeMirror.defineMode('powershell', function() {
         return tokenMultiString(stream, state);
       } else if (stream.peek().match(/[({]/)) {
         return 'punctuation';
-      } else if (stream.match(varNames)) {
+      } else if (stream.peek().match(varNames)) {
         // splatted variable
         return tokenVariable(stream, state);
       }
@@ -289,7 +289,7 @@ CodeMirror.defineMode('powershell', function() {
       state.returnStack.push({
         /*jshint loopfunc:true */
         shouldReturnFrom: function(state) {
-            return state.bracketNesting === savedBracketNesting;
+          return state.bracketNesting === savedBracketNesting;
         },
         tokenize: parentTokenize
       });
