@@ -392,5 +392,5 @@ CodeMirror.defineMode('powershell', function() {
   return external;
 });
 
-CodeMirror.defineMIME('text/x-powershell', 'powershell');
+CodeMirror.defineMIME('application/x-powershell', 'powershell');
 });
