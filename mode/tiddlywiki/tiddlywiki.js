@@ -324,7 +324,7 @@ CodeMirror.defineMode("tiddlywiki", function () {
     word = stream.current();
     known = keywords.propertyIsEnumerable(word) && keywords[word];
 
-    return word;
+    return known ? known.style : null;
   }
 
   // Interface
