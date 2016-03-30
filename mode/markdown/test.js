@@ -683,7 +683,7 @@
   MT("labelTitleSingleQuotes",
      "[link [[foo]]:] [string&url http://example.com/  'bar']");
 
-  MT("labelTitleParenthese",
+  MT("labelTitleParentheses",
      "[link [[foo]]:] [string&url http://example.com/  (bar)]");
 
   MT("labelTitleInvalid",
@@ -700,7 +700,7 @@
      "[link [[foo]]:] [string&url http://example.com/]",
      "[string 'bar'] hello");
 
-  MT("labelTitleNextParenthese",
+  MT("labelTitleNextParentheses",
      "[link [[foo]]:] [string&url http://example.com/]",
      "[string (bar)] hello");
 
