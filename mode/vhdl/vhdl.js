@@ -36,7 +36,7 @@ CodeMirror.defineMode("vhdl", function(config, parserConfig) {
       multiLineStrings = parserConfig.multiLineStrings;
 
   var keywords = words("abs,access,after,alias,all,and,architecture,array,assert,attribute,begin,block," +
-      "body,buffer,bus,case,component,configuration,constant,disconnent,downto,else,elsif,end,end block,end case," +
+      "body,buffer,bus,case,component,configuration,constant,disconnect,downto,else,elsif,end,end block,end case," +
       "end component,end for,end generate,end if,end loop,end process,end record,end units,entity,exit,file,for," +
       "function,generate,generic,generic map,group,guarded,if,impure,in,inertial,inout,is,label,library,linkage," +
       "literal,loop,map,mod,nand,new,next,nor,null,of,on,open,or,others,out,package,package body,port,port map," +
