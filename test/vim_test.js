@@ -273,10 +273,10 @@ testJumplist('jumplist_repeat_<c-i>', ['*', '*', '*', '3', '<C-o>', '2', '<C-i>'
 testJumplist('jumplist_repeated_motion', ['3', '*', '<C-o>'], [2,3], [2,3]);
 testJumplist('jumplist_/', ['/', '<C-o>'], [2,3], [2,3], 'dialog');
 testJumplist('jumplist_?', ['?', '<C-o>'], [2,3], [2,3], 'dialog');
-testJumplist('jumplist_skip_delted_mark<c-o>',
+testJumplist('jumplist_skip_deleted_mark<c-o>',
              ['*', 'n', 'n', 'k', 'd', 'k', '<C-o>', '<C-o>', '<C-o>'],
              [0,2], [0,2]);
-testJumplist('jumplist_skip_delted_mark<c-i>',
+testJumplist('jumplist_skip_deleted_mark<c-i>',
              ['*', 'n', 'n', 'k', 'd', 'k', '<C-o>', '<C-i>', '<C-i>'],
              [1,0], [0,2]);
 
