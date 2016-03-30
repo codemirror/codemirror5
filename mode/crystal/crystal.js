@@ -209,7 +209,7 @@
 
       // Operators
       if (stream.match(operators)) {
-        stream.eat("="); // Operators can follow assigin symbol.
+        stream.eat("="); // Operators can follow assign symbol.
         return "operator";
       }
 
