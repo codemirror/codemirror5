@@ -3682,7 +3682,7 @@ function testSubstituteConfirm(name, command, initialValue, expectedValue, keys,
     } catch(e) {
       throw e
     } finally {
-      // Restore overriden functions.
+      // Restore overridden functions.
       CodeMirror.keyName = savedKeyName;
       cm.openDialog = savedOpenDialog;
     }
