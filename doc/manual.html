@@ -69,7 +69,7 @@
 <section class=first id=overview>
     <h2 style="position: relative">
       User manual and reference guide
-      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 5.12.1</span>
+      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 5.13.3</span>
     </h2>
 
     <p>CodeMirror is a code-editor component that can be embedded in
@@ -657,7 +657,8 @@
       <strong>"keydown"</strong>, <strong>"keypress"</strong>,
       <strong>"keyup"</strong>, <strong>"cut"</strong>, <strong>"copy"</strong>, <strong>"paste"</strong>,
       <strong>"dragstart"</strong>, <strong>"dragenter"</strong>,
-      <strong>"dragover"</strong>, <strong>"drop"</strong>
+      <strong>"dragover"</strong>, <strong>"dragleave"</strong>,
+      <strong>"drop"</strong>
       (instance: CodeMirror, event: Event)</code></dt>
       <dd>Fired when CodeMirror is handling a DOM event of this type.
       You can <code>preventDefault</code> the event, or give it a
@@ -2099,7 +2100,7 @@ editor.setOption("extraKeys", {
       created from then on.</dd>
 
       <dt id="defineDocExtension"><code><strong>CodeMirror.defineDocExtension</strong>(name: string, value: any)</code></dt>
-      <dd>Like <a href="#defineExtenstion"><code>defineExtension</code></a>,
+      <dd>Like <a href="#defineExtension"><code>defineExtension</code></a>,
       but the method will be added to the interface
       for <a href="#Doc"><code>Doc</code></a> objects instead.</dd>
 

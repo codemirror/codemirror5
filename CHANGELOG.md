@@ -1,4 +1,38 @@
-## 5.12.0 (2015-02-19)
+## 5.13.2 (2016-03-23)
+
+### Bugfixes
+
+Solves a problem where the gutter would sometimes not extend all the way to the end of the document.
+
+## 5.13.0 (2016-03-21)
+
+### New features
+
+New DOM event forwarded: [`"dragleave"`](http://codemirror.net/doc/manual.html#event_dom).
+
+[protobuf mode](http://codemirror.net/mode/protobuf/index.html): Newly added.
+
+### Bugfixes
+
+Fix problem where [`findMarks`](http://codemirror.net/doc/manual.html#findMarks) sometimes failed to find multi-line marks.
+
+Fix crash that showed up when atomic ranges and bidi text were combined.
+
+[show-hint addon](http://codemirror.net/demo/complete.html): Completion widgets no longer close when the line indented or dedented.
+
+[merge addon](http://codemirror.net/demo/merge.html): Fix bug when merging chunks at the end of the file.
+
+[placeholder addon](http://codemirror.net/doc/manual.html#addon_placeholder): No longer gets confused by [`swapDoc`](http://codemirror.net/doc/manual.html#swapDoc).
+
+[simplescrollbars addon](http://codemirror.net/doc/manual.html#addon_simplescrollbars): Fix invalid state when deleting at end of document.
+
+[clike mode](http://codemirror.net/mode/clike/index.html): No longer gets confused when a comment starts after an operator.
+
+[markdown mode](http://codemirror.net/mode/markdown/index.html): Now supports CommonMark-style flexible list indentation.
+
+[dylan mode](http://codemirror.net/mode/dylan/index.html): Several improvements and fixes.
+
+## 5.12.0 (2016-02-19)
 
 ### New features
 

@@ -25,7 +25,7 @@ CodeMirror.defineMode("sparql", function(config) {
                         "strbefore", "strafter", "year", "month", "day", "hours", "minutes", "seconds",
                         "timezone", "tz", "now", "uuid", "struuid", "md5", "sha1", "sha256", "sha384",
                         "sha512", "coalesce", "if", "strlang", "strdt", "isnumeric", "regex", "exists",
-                        "isblank", "isliteral", "a"]);
+                        "isblank", "isliteral", "a", "bind"]);
   var keywords = wordRegexp(["base", "prefix", "select", "distinct", "reduced", "construct", "describe",
                              "ask", "from", "named", "where", "order", "limit", "offset", "filter", "optional",
                              "graph", "by", "asc", "desc", "as", "having", "undef", "values", "group",

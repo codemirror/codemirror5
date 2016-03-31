@@ -16,7 +16,6 @@
     ! Info
     CoreVersion parameter is needed for TiddlyWiki only!
 ***/
-//{{{
 
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
@@ -32,51 +31,42 @@ CodeMirror.defineMode("tiddlywiki", function () {
   // Tokenizer
   var textwords = {};
 
-  var keywords = function () {
-    function kw(type) {
-      return { type: type, style: "macro"};
-    }
-    return {
-      "allTags": kw('allTags'), "closeAll": kw('closeAll'), "list": kw('list'),
-      "newJournal": kw('newJournal'), "newTiddler": kw('newTiddler'),
-      "permaview": kw('permaview'), "saveChanges": kw('saveChanges'),
-      "search": kw('search'), "slider": kw('slider'),   "tabs": kw('tabs'),
-      "tag": kw('tag'), "tagging": kw('tagging'),       "tags": kw('tags'),
-      "tiddler": kw('tiddler'), "timeline": kw('timeline'),
-      "today": kw('today'), "version": kw('version'),   "option": kw('option'),
-
-      "with": kw('with'),
-      "filter": kw('filter')
-    };
-  }();
+  var keywords = {
+    "allTags": true, "closeAll": true, "list": true,
+    "newJournal": true, "newTiddler": true,
+    "permaview": true, "saveChanges": true,
+    "search": true, "slider": true, "tabs": true,
+    "tag": true, "tagging": true, "tags": true,
+    "tiddler": true, "timeline": true,
+    "today": true, "version": true, "option": true,
+    "with": true, "filter": true
+  };
 
   var isSpaceName = /[\w_\-]/i,
-  reHR = /^\-\-\-\-+$/,                                 // <hr>
-  reWikiCommentStart = /^\/\*\*\*$/,            // /***
-  reWikiCommentStop = /^\*\*\*\/$/,             // ***/
-  reBlockQuote = /^<<<$/,
+      reHR = /^\-\-\-\-+$/,                                 // <hr>
+      reWikiCommentStart = /^\/\*\*\*$/,            // /***
+      reWikiCommentStop = /^\*\*\*\/$/,             // ***/
+      reBlockQuote = /^<<<$/,
 
-  reJsCodeStart = /^\/\/\{\{\{$/,                       // //{{{ js block start
-  reJsCodeStop = /^\/\/\}\}\}$/,                        // //}}} js stop
-  reXmlCodeStart = /^<!--\{\{\{-->$/,           // xml block start
-  reXmlCodeStop = /^<!--\}\}\}-->$/,            // xml stop
+      reJsCodeStart = /^\/\/\{\{\{$/,                       // //{{{ js block start
+      reJsCodeStop = /^\/\/\}\}\}$/,                        // //}}} js stop
+      reXmlCodeStart = /^<!--\{\{\{-->$/,           // xml block start
+      reXmlCodeStop = /^<!--\}\}\}-->$/,            // xml stop
 
-  reCodeBlockStart = /^\{\{\{$/,                        // {{{ TW text div block start
-  reCodeBlockStop = /^\}\}\}$/,                 // }}} TW text stop
+      reCodeBlockStart = /^\{\{\{$/,                        // {{{ TW text div block start
+      reCodeBlockStop = /^\}\}\}$/,                 // }}} TW text stop
 
-  reUntilCodeStop = /.*?\}\}\}/;
+      reUntilCodeStop = /.*?\}\}\}/;
 
   function chain(stream, state, f) {
     state.tokenize = f;
     return f(stream, state);
   }
 
-  function jsTokenBase(stream, state) {
-    var sol = stream.sol(), ch;
+  function tokenBase(stream, state) {
+    var sol = stream.sol(), ch = stream.peek();
 
     state.block = false;        // indicates the start of a code block.
-
-    ch = stream.peek();         // don't eat, to make matching simpler
 
     // check start of  blocks
     if (sol && /[<\/\*{}\-]/.test(ch)) {
@@ -84,21 +74,17 @@ CodeMirror.defineMode("tiddlywiki", function () {
         state.block = true;
         return chain(stream, state, twTokenCode);
       }
-      if (stream.match(reBlockQuote)) {
+      if (stream.match(reBlockQuote))
         return 'quote';
-      }
-      if (stream.match(reWikiCommentStart) || stream.match(reWikiCommentStop)) {
+      if (stream.match(reWikiCommentStart) || stream.match(reWikiCommentStop))
         return 'comment';
-      }
-      if (stream.match(reJsCodeStart) || stream.match(reJsCodeStop) || stream.match(reXmlCodeStart) || stream.match(reXmlCodeStop)) {
+      if (stream.match(reJsCodeStart) || stream.match(reJsCodeStop) || stream.match(reXmlCodeStart) || stream.match(reXmlCodeStop))
         return 'comment';
-      }
-      if (stream.match(reHR)) {
+      if (stream.match(reHR))
         return 'hr';
-      }
-    } // sol
-    ch = stream.next();
+    }
 
+    stream.next();
     if (sol && /[\/\*!#;:>|]/.test(ch)) {
       if (ch == "!") { // tw header
         stream.skipToEnd();
@@ -124,95 +110,77 @@ CodeMirror.defineMode("tiddlywiki", function () {
         stream.eatWhile(">");
         return "quote";
       }
-      if (ch == '|') {
+      if (ch == '|')
         return 'header';
-      }
     }
 
-    if (ch == '{' && stream.match(/\{\{/)) {
+    if (ch == '{' && stream.match(/\{\{/))
       return chain(stream, state, twTokenCode);
-    }
 
     // rudimentary html:// file:// link matching. TW knows much more ...
-    if (/[hf]/i.test(ch)) {
-      if (/[ti]/i.test(stream.peek()) && stream.match(/\b(ttps?|tp|ile):\/\/[\-A-Z0-9+&@#\/%?=~_|$!:,.;]*[A-Z0-9+&@#\/%=~_|$]/i)) {
-        return "link";
-      }
-    }
+    if (/[hf]/i.test(ch) &&
+        /[ti]/i.test(stream.peek()) &&
+        stream.match(/\b(ttps?|tp|ile):\/\/[\-A-Z0-9+&@#\/%?=~_|$!:,.;]*[A-Z0-9+&@#\/%=~_|$]/i))
+      return "link";
+
     // just a little string indicator, don't want to have the whole string covered
-    if (ch == '"') {
+    if (ch == '"')
       return 'string';
-    }
-    if (ch == '~') {    // _no_ CamelCase indicator should be bold
+
+    if (ch == '~')    // _no_ CamelCase indicator should be bold
       return 'brace';
-    }
-    if (/[\[\]]/.test(ch)) { // check for [[..]]
-      if (stream.peek() == ch) {
-        stream.next();
-        return 'brace';
-      }
-    }
+
+    if (/[\[\]]/.test(ch) && stream.match(ch)) // check for [[..]]
+      return 'brace';
+
     if (ch == "@") {    // check for space link. TODO fix @@...@@ highlighting
       stream.eatWhile(isSpaceName);
       return "link";
     }
+
     if (/\d/.test(ch)) {        // numbers
       stream.eatWhile(/\d/);
       return "number";
     }
+
     if (ch == "/") { // tw invisible comment
       if (stream.eat("%")) {
         return chain(stream, state, twTokenComment);
-      }
-      else if (stream.eat("/")) { //
+      } else if (stream.eat("/")) { //
         return chain(stream, state, twTokenEm);
       }
     }
-    if (ch == "_") { // tw underline
-      if (stream.eat("_")) {
+
+    if (ch == "_" && stream.eat("_")) // tw underline
         return chain(stream, state, twTokenUnderline);
-      }
-    }
+
     // strikethrough and mdash handling
-    if (ch == "-") {
-      if (stream.eat("-")) {
-        // if strikethrough looks ugly, change CSS.
-        if (stream.peek() != ' ')
-          return chain(stream, state, twTokenStrike);
-        // mdash
-        if (stream.peek() == ' ')
-          return 'brace';
-      }
+    if (ch == "-" && stream.eat("-")) {
+      // if strikethrough looks ugly, change CSS.
+      if (stream.peek() != ' ')
+        return chain(stream, state, twTokenStrike);
+      // mdash
+      if (stream.peek() == ' ')
+        return 'brace';
     }
-    if (ch == "'") { // tw bold
-      if (stream.eat("'")) {
-        return chain(stream, state, twTokenStrong);
-      }
-    }
-    if (ch == "<") { // tw macro
-      if (stream.eat("<")) {
-        return chain(stream, state, twTokenMacro);
-      }
-    }
-    else {
-      return null;
-    }
+
+    if (ch == "'" && stream.eat("'")) // tw bold
+      return chain(stream, state, twTokenStrong);
+
+    if (ch == "<" && stream.eat("<")) // tw macro
+      return chain(stream, state, twTokenMacro);
 
     // core macro handling
     stream.eatWhile(/[\w\$_]/);
-    var word = stream.current(),
-    known = textwords.propertyIsEnumerable(word) && textwords[word];
-
-    return known ? known.style : null;
-  } // jsTokenBase()
+    return textwords.propertyIsEnumerable(stream.current()) ? "keyword" : null
+  }
 
   // tw invisible comment
   function twTokenComment(stream, state) {
-    var maybeEnd = false,
-    ch;
+    var maybeEnd = false, ch;
     while (ch = stream.next()) {
       if (ch == "/" && maybeEnd) {
-        state.tokenize = jsTokenBase;
+        state.tokenize = tokenBase;
         break;
       }
       maybeEnd = (ch == "%");
@@ -226,7 +194,7 @@ CodeMirror.defineMode("tiddlywiki", function () {
     ch;
     while (ch = stream.next()) {
       if (ch == "'" && maybeEnd) {
-        state.tokenize = jsTokenBase;
+        state.tokenize = tokenBase;
         break;
       }
       maybeEnd = (ch == "'");
@@ -243,12 +211,12 @@ CodeMirror.defineMode("tiddlywiki", function () {
     }
 
     if (!sb && stream.match(reUntilCodeStop)) {
-      state.tokenize = jsTokenBase;
+      state.tokenize = tokenBase;
       return "comment";
     }
 
     if (sb && stream.sol() && stream.match(reCodeBlockStop)) {
-      state.tokenize = jsTokenBase;
+      state.tokenize = tokenBase;
       return "comment";
     }
 
@@ -262,7 +230,7 @@ CodeMirror.defineMode("tiddlywiki", function () {
     ch;
     while (ch = stream.next()) {
       if (ch == "/" && maybeEnd) {
-        state.tokenize = jsTokenBase;
+        state.tokenize = tokenBase;
         break;
       }
       maybeEnd = (ch == "/");
@@ -276,7 +244,7 @@ CodeMirror.defineMode("tiddlywiki", function () {
     ch;
     while (ch = stream.next()) {
       if (ch == "_" && maybeEnd) {
-        state.tokenize = jsTokenBase;
+        state.tokenize = tokenBase;
         break;
       }
       maybeEnd = (ch == "_");
@@ -291,7 +259,7 @@ CodeMirror.defineMode("tiddlywiki", function () {
 
     while (ch = stream.next()) {
       if (ch == "-" && maybeEnd) {
-        state.tokenize = jsTokenBase;
+        state.tokenize = tokenBase;
         break;
       }
       maybeEnd = (ch == "-");
@@ -301,58 +269,40 @@ CodeMirror.defineMode("tiddlywiki", function () {
 
   // macro
   function twTokenMacro(stream, state) {
-    var ch, word, known;
-
     if (stream.current() == '<<') {
       return 'macro';
     }
 
-    ch = stream.next();
+    var ch = stream.next();
     if (!ch) {
-      state.tokenize = jsTokenBase;
+      state.tokenize = tokenBase;
       return null;
     }
     if (ch == ">") {
       if (stream.peek() == '>') {
         stream.next();
-        state.tokenize = jsTokenBase;
+        state.tokenize = tokenBase;
         return "macro";
       }
     }
 
     stream.eatWhile(/[\w\$_]/);
-    word = stream.current();
-    known = keywords.propertyIsEnumerable(word) && keywords[word];
-
-    if (known) {
-      return known.style, word;
-    }
-    else {
-      return null, word;
-    }
+    return keywords.propertyIsEnumerable(stream.current()) ? "keyword" : null
   }
 
   // Interface
   return {
     startState: function () {
-      return {
-        tokenize: jsTokenBase,
-        indented: 0,
-        level: 0
-      };
+      return {tokenize: tokenBase};
     },
 
     token: function (stream, state) {
       if (stream.eatSpace()) return null;
       var style = state.tokenize(stream, state);
       return style;
-    },
-
-    electricChars: ""
+    }
   };
 });
 
 CodeMirror.defineMIME("text/x-tiddlywiki", "tiddlywiki");
 });
-
-//}}}

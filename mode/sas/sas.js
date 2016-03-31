@@ -1,11 +1,13 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
 // Distributed under an MIT license: http://codemirror.net/LICENSE
-// SAS mode. Ported to CodeMirror by Jared Dean
+
+
+// SAS mode copyright (c) 2016 Jared Dean, SAS Institute
+// Created by Jared Dean
 
 // TODO
 // indent and de-indent
 // identify macro variables
-// 
 
 //Definitions
 //  comment -- text withing * ; or /* */
@@ -32,7 +34,7 @@
 })(function (CodeMirror) {
     "use strict";
 
-    CodeMirror.defineMode("sas", function (config) {
+    CodeMirror.defineMode("sas", function () {
         var words = {};
         var isDoubleOperatorSym = {
             eq: 'operator',
@@ -98,14 +100,14 @@
             var ch = stream.next();
 
             // BLOCKCOMMENT
-            if (ch == '/' && stream.eat('*')) {
+            if (ch === '/' && stream.eat('*')) {
                 state.continueComment = true;
                 return "comment";
             }
             // in comment block
             else if (state.continueComment === true) {
                 //comment ends at the beginning of the line
-                if (ch === '*' && stream.peek() == '/') {
+                if (ch === '*' && stream.peek() === '/') {
                     stream.next();
                     state.continueComment = false;
                 }
@@ -170,9 +172,9 @@
             }
             //find numbers
             else if (/[\d\.]/.test(ch)) {
-                if (ch == ".") {
+                if (ch === ".") {
                     stream.match(/^[0-9]+([eE][\-+]?[0-9]+)?/);
-                } else if (ch == "0") {
+                } else if (ch === "0") {
                     stream.match(/^[xX][0-9a-fA-F]+/) || stream.match(/^0[0-7]+/);
                 } else {
                     stream.match(/^[0-9]*\.?[0-9]*([eE][\-+]?[0-9]+)?/);
@@ -214,7 +216,7 @@
             if (state.nextword) {
                 stream.match(/[\w]+/);
                 // match memname.libname
-                if (stream.peek() == '.') {
+                if (stream.peek() === '.') {
                     stream.skipTo(' ');
                 }
                 state.nextword = false;
@@ -222,14 +224,14 @@
 
             }
 
-            // Are we in a Datastep?
+            // Are we in a DATA Step?
             if (state.inDataStep) {
-                if (word.toLowerCase() == 'run;' || stream.match(/run\s;/)) {
+                if (word.toLowerCase() === 'run;' || stream.match(/run\s;/)) {
                     state.inDataStep = false;
                     return 'builtin';
                 }
                 // variable formats
-                if ((word) && stream.next() == '.') {
+                if ((word) && stream.next() === '.') {
                     //either a format or libname.memname
                     if (/\w/.test(stream.peek())) {
                         //libname.memname
@@ -240,7 +242,7 @@
                         return 'variable';
                     }
                 }
-                // do we have a datastep keyword
+                // do we have a DATA Step keyword
                 if (word && words.hasOwnProperty(word.toLowerCase()) && (words[word.toLowerCase()].state.indexOf("inDataStep") !== -1 || words[word.toLowerCase()].state.indexOf("ALL") !== -1)) {
                     //backup to the start of the word
                     if (stream.start < stream.pos) {
@@ -257,7 +259,7 @@
             }
             // Are we in an Proc statement?
             if (state.inProc) {
-                if (word.toLowerCase() == 'run;' || word.toLowerCase() == 'quit;') {
+                if (word.toLowerCase() === 'run;' || word.toLowerCase() === 'quit;') {
                     state.inProc = false;
                     return 'builtin';
                 }
@@ -271,8 +273,8 @@
             }
             // Are we in a Macro statement?
             if (state.inMacro) {
-                if (word.toLowerCase() == '%mend') {
-                    if (stream.peek() == ';') {
+                if (word.toLowerCase() === '%mend') {
+                    if (stream.peek() === ';') {
                         stream.next();
                     }
                     state.inMacro = false;
@@ -289,7 +291,7 @@
             if (word && words.hasOwnProperty(word.toLowerCase())) {
                 // Negates the initial next()
                 stream.backUp(1);
-                // Acutally move the stream
+                // Actually move the stream
                 stream.match(/[\w]+/);
                 if (word.toLowerCase() === 'data' && /=/.test(stream.peek()) === false) {
                     state.inDataStep = true;
@@ -320,13 +322,13 @@
                 }
 
                 // Returns their value as state in the prior define methods
-                if (state.inDataStep == true && words[word.toLowerCase()].state.indexOf("inDataStep") !== -1) {
+                if (state.inDataStep === true && words[word.toLowerCase()].state.indexOf("inDataStep") !== -1) {
                     return words[word.toLowerCase()].style;
                 }
-                else if (state.inProc == true && words[word.toLowerCase()].state.indexOf("inProc") !== -1) {
+                else if (state.inProc === true && words[word.toLowerCase()].state.indexOf("inProc") !== -1) {
                     return words[word.toLowerCase()].style;
                 }
-                else if (state.inMacro == true && words[word.toLowerCase()].state.indexOf("inMacro") !== -1) {
+                else if (state.inMacro === true && words[word.toLowerCase()].state.indexOf("inMacro") !== -1) {
                     return words[word.toLowerCase()].style;
                 }
                 else if (words[word.toLowerCase()].state.indexOf("ALL") !== -1) {
@@ -359,10 +361,10 @@
                 if (state.tokenize != null) {
                     return state.tokenize(stream, state);
                 }
-                // Strip the spaces, but regex will account for them eitherway
+                // Strip the spaces, but regex will account for them either way
                 if (stream.eatSpace()) return null;
                 var style = state.tokenize;
-                if (style == "comment") return style;
+                if (style === "comment") return style;
                 // Go through the main process
                 return tokenize(stream, state);
             },

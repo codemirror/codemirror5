@@ -66,11 +66,11 @@
     }
 
     // A string can be included in either single or double quotes (this is
-    // the delimeter). Mark everything as a string until the start delimeter
+    // the delimiter). Mark everything as a string until the start delimiter
     // occurs again.
-    function inString (delimeter, previousTokenizer) {
+    function inString (delimiter, previousTokenizer) {
       return function (stream, state) {
-        if (!state.escapeNext && stream.eat(delimeter)) {
+        if (!state.escapeNext && stream.eat(delimiter)) {
           state.tokenize = previousTokenizer;
         } else {
           if (state.escapeNext) {
@@ -80,7 +80,7 @@
           var ch = stream.next();
 
           // Take into account the backslash for escaping characters, such as
-          // the string delimeter.
+          // the string delimiter.
           if (ch == "\\") {
             state.escapeNext = true;
           }
@@ -100,7 +100,7 @@
           return "null";
         }
 
-        // Dot folowed by a non-word character should be considered an error.
+        // Dot followed by a non-word character should be considered an error.
         if (stream.match(/\.\W+/)) {
           return "error";
         } else if (stream.eat(".")) {
@@ -119,7 +119,7 @@
           return "null";
         }
 
-        // Pipe folowed by a non-word character should be considered an error.
+        // Pipe followed by a non-word character should be considered an error.
         if (stream.match(/\.\W+/)) {
           return "error";
         } else if (stream.eat("|")) {
@@ -199,7 +199,7 @@
           return "null";
         }
 
-        // Dot folowed by a non-word character should be considered an error.
+        // Dot followed by a non-word character should be considered an error.
         if (stream.match(/\.\W+/)) {
           return "error";
         } else if (stream.eat(".")) {
@@ -218,7 +218,7 @@
           return "null";
         }
 
-        // Pipe folowed by a non-word character should be considered an error.
+        // Pipe followed by a non-word character should be considered an error.
         if (stream.match(/\.\W+/)) {
           return "error";
         } else if (stream.eat("|")) {

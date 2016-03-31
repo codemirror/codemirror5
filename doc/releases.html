@@ -30,9 +30,32 @@
 
   <h2>Version 5.x</h2>
 
+  <p class="rel">21-03-2016: <a href="http://codemirror.net/codemirror-5.13.2.zip">Version 5.13.2</a>:</p>
+
+  <ul class="rel-note">
+    <li>Solves a problem where the gutter would sometimes not extend all the way to the end of the document.</li>
+  </ul>
+
+  <p class="rel">21-03-2016: <a href="http://codemirror.net/codemirror-5.13.zip">Version 5.13</a>:</p>
+
+  <ul class="rel-note">
+    <li>New DOM event forwarded: <a href="http://codemirror.net/doc/manual.html#event_dom"><code>&quot;dragleave&quot;</code></a>.</li>
+    <li><a href="http://codemirror.net/mode/protobuf/index.html">protobuf mode</a>: Newly added.</li>
+    <li>Fix problem where <a href="http://codemirror.net/doc/manual.html#findMarks"><code>findMarks</code></a> sometimes failed to find multi-line marks.</li>
+    <li>Fix crash that showed up when atomic ranges and bidi text were combined.</li>
+    <li><a href="http://codemirror.net/demo/complete.html">show-hint addon</a>: Completion widgets no longer close when the line indented or dedented.</li>
+    <li><a href="http://codemirror.net/demo/merge.html">merge addon</a>: Fix bug when merging chunks at the end of the file.</li>
+    <li><a href="http://codemirror.net/doc/manual.html#addon_placeholder">placeholder addon</a>: No longer gets confused by <a href="http://codemirror.net/doc/manual.html#swapDoc"><code>swapDoc</code></a>.</li>
+    <li><a href="http://codemirror.net/doc/manual.html#addon_simplescrollbars">simplescrollbars addon</a>: Fix invalid state when deleting at end of document.</li>
+    <li><a href="http://codemirror.net/mode/clike/index.html">clike mode</a>: No longer gets confused when a comment starts after an operator.</li>
+    <li><a href="http://codemirror.net/mode/markdown/index.html">markdown mode</a>: Now supports CommonMark-style flexible list indentation.</li>
+    <li><a href="http://codemirror.net/mode/dylan/index.html">dylan mode</a>: Several improvements and fixes.</li>
+    <li>Full <a href="https://github.com/codemirror/CodeMirror/compare/5.12.0...5.13.0">list of patches</a></li>
+  </ul>
+
   <p class="rel">19-02-2016: <a href="http://codemirror.net/codemirror-5.12.zip">Version 5.12</a>:</p>
 
-  <ul>
+  <ul class="rel-note">
     <li><a href="http://codemirror.net/demo/vim.html">Vim bindings</a>: Ctrl-Q is now an alias for Ctrl-V.</li>
     <li><a href="http://codemirror.net/demo/vim.html">Vim bindings</a>: The Vim API now exposes an <code>unmap</code> method to unmap bindings.</li>
     <li><a href="http://codemirror.net/demo/activeline.html">active-line addon</a>: This addon can now style the active line's gutter.</li>
@@ -55,7 +78,7 @@
 
   <p class="rel">20-01-2016: <a href="http://codemirror.net/codemirror-5.11.zip">Version 5.11</a>:</p>
 
-  <ul>
+  <ul class="rel-note">
     <li>New modes: <a href="../mode/jsx/index.html">JSX</a>, <a href="../mode/haskell-literate/index.html">literate Haskell</a></li>
     <li>The editor now forwards more <a href="manual.html#event_dom">DOM events</a>: <code>cut</code>, <code>copy</code>, <code>paste</code>, and <code>touchstart</code>. It will also forward <code>mousedown</code> for drag events</li>
     <li>Fixes a bug where bookmarks next to collapsed spans were not rendered</li>

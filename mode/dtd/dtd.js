@@ -114,17 +114,17 @@ CodeMirror.defineMode("dtd", function(config) {
 
       if( textAfter.match(/\]\s+|\]/) )n=n-1;
       else if(textAfter.substr(textAfter.length-1, textAfter.length) === ">"){
-        if(textAfter.substr(0,1) === "<")n;
-        else if( type == "doindent" && textAfter.length > 1 )n;
+        if(textAfter.substr(0,1) === "<") {}
+        else if( type == "doindent" && textAfter.length > 1 ) {}
         else if( type == "doindent")n--;
-        else if( type == ">" && textAfter.length > 1)n;
-        else if( type == "tag" && textAfter !== ">")n;
+        else if( type == ">" && textAfter.length > 1) {}
+        else if( type == "tag" && textAfter !== ">") {}
         else if( type == "tag" && state.stack[state.stack.length-1] == "rule")n--;
         else if( type == "tag")n++;
         else if( textAfter === ">" && state.stack[state.stack.length-1] == "rule" && type === ">")n--;
-        else if( textAfter === ">" && state.stack[state.stack.length-1] == "rule")n;
+        else if( textAfter === ">" && state.stack[state.stack.length-1] == "rule") {}
         else if( textAfter.substr(0,1) !== "<" && textAfter.substr(0,1) === ">" )n=n-1;
-        else if( textAfter === ">")n;
+        else if( textAfter === ">") {}
         else n=n-1;
         //over rule them all
         if(type == null || type == "]")n--;

@@ -126,7 +126,7 @@ CodeMirror.defineMode("puppet", function () {
     if (word && words.hasOwnProperty(word)) {
       // Negates the initial next()
       stream.backUp(1);
-      // Acutally move the stream
+      // rs move the stream
       stream.match(/[\w]+/);
       // We want to process these words differently
       // do to the importance they have in Puppet
