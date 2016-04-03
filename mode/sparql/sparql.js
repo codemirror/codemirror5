@@ -25,7 +25,7 @@ CodeMirror.defineMode("sparql", function(config) {
                         "strbefore", "strafter", "year", "month", "day", "hours", "minutes", "seconds",
                         "timezone", "tz", "now", "uuid", "struuid", "md5", "sha1", "sha256", "sha384",
                         "sha512", "coalesce", "if", "strlang", "strdt", "isnumeric", "regex", "exists",
-                        "isblank", "isliteral", "a"]);
+                        "isblank", "isliteral", "a", "bind"]);
   var keywords = wordRegexp(["base", "prefix", "select", "distinct", "reduced", "construct", "describe",
                              "ask", "from", "named", "where", "order", "limit", "offset", "filter", "optional",
                              "graph", "by", "asc", "desc", "as", "having", "undef", "values", "group",
@@ -135,7 +135,11 @@ CodeMirror.defineMode("sparql", function(config) {
       else if (curPunc == "{") pushContext(state, "}", stream.column());
       else if (/[\]\}\)]/.test(curPunc)) {
         while (state.context && state.context.type == "pattern") popContext(state);
-        if (state.context && curPunc == state.context.type) popContext(state);
+        if (state.context && curPunc == state.context.type) {
+          popContext(state);
+          if (curPunc == "}" && state.context && state.context.type == "pattern")
+            popContext(state);
+        }
       }
       else if (curPunc == "." && state.context && state.context.type == "pattern") popContext(state);
       else if (/atom|string|variable/.test(style) && state.context) {
@@ -165,7 +169,9 @@ CodeMirror.defineMode("sparql", function(config) {
         return context.col + (closing ? 0 : 1);
       else
         return context.indent + (closing ? 0 : indentUnit);
-    }
+    },
+
+    lineComment: "#"
   };
 });
 

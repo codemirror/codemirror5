@@ -15,7 +15,7 @@
     "implements get native operator set typedef with enum throw rethrow " +
     "assert break case continue default in return new deferred async await " +
     "try catch finally do else for if switch while import library export " +
-    "part of show hide is").split(" ");
+    "part of show hide is as").split(" ");
   var blockKeywords = "try catch finally do else for if switch while".split(" ");
   var atoms = "true false null".split(" ");
   var builtins = "void bool num int double dynamic var String".split(" ");
@@ -46,7 +46,7 @@
     atoms: set(atoms),
     hooks: {
       "@": function(stream) {
-        stream.eatWhile(/[\w\$_]/);
+        stream.eatWhile(/[\w\$_\.]/);
         return "meta";
       },
 
@@ -72,6 +72,12 @@
           return null;
         }
         return false;
+      },
+
+      "/": function(stream, state) {
+        if (!stream.eat("*")) return false
+        state.tokenize = tokenNestedComment(1)
+        return state.tokenize(stream, state)
       }
     }
   });
@@ -95,7 +101,7 @@
           state.tokenize = null;
           break;
         }
-        escaped = !escaped && next == "\\";
+        escaped = !raw && !escaped && next == "\\";
       }
       return "string";
     }
@@ -119,6 +125,27 @@
     stream.eatWhile(/[\w_]/);
     state.tokenize = popInterpolationStack(state);
     return "variable";
+  }
+
+  function tokenNestedComment(depth) {
+    return function (stream, state) {
+      var ch
+      while (ch = stream.next()) {
+        if (ch == "*" && stream.eat("/")) {
+          if (depth == 1) {
+            state.tokenize = null
+            break
+          } else {
+            state.tokenize = tokenNestedComment(depth - 1)
+            return state.tokenize(stream, state)
+          }
+        } else if (ch == "/" && stream.eat("*")) {
+          state.tokenize = tokenNestedComment(depth + 1)
+          return state.tokenize(stream, state)
+        }
+      }
+      return "comment"
+    }
   }
 
   CodeMirror.registerHelper("hintWords", "application/dart", keywords.concat(atoms).concat(builtins));

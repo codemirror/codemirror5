@@ -31,6 +31,15 @@
      "    [variable x][operator ++];",
      "[keyword return];");
 
+  MT("preprocessor",
+     "[meta #define FOO 3]",
+     "[variable-3 int] [variable foo];",
+     "[meta #define BAR\\]",
+     "[meta 4]",
+     "[variable-3 unsigned] [variable-3 int] [variable bar] [operator =] [number 8];",
+     "[meta #include <baz> ][comment // comment]")
+
+
   var mode_cpp = CodeMirror.getMode({indentUnit: 2}, "text/x-c++src");
   function MTCPP(name) { test.mode(name, mode_cpp, Array.prototype.slice.call(arguments, 1)); }
 

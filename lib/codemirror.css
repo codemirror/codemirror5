@@ -165,7 +165,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
 }
 
 /* The fake, visible scrollbars. Used to force redraw during scrolling
-   before actuall scrolling happens, thus preventing shaking and
+   before actual scrolling happens, thus preventing shaking and
    flickering artifacts. */
 .CodeMirror-vscrollbar, .CodeMirror-hscrollbar, .CodeMirror-scrollbar-filler, .CodeMirror-gutter-filler {
   position: absolute;
@@ -191,12 +191,14 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
 
 .CodeMirror-gutters {
   position: absolute; left: 0; top: 0;
+  min-height: 100%;
   z-index: 3;
 }
 .CodeMirror-gutter {
   white-space: normal;
   height: 100%;
   display: inline-block;
+  vertical-align: top;
   margin-bottom: -30px;
   /* Hack to make IE7 behave */
   *zoom:1;
@@ -244,6 +246,8 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
   position: relative;
   overflow: visible;
   -webkit-tap-highlight-color: transparent;
+  -webkit-font-variant-ligatures: none;
+  font-variant-ligatures: none;
 }
 .CodeMirror-wrap pre {
   word-wrap: break-word;

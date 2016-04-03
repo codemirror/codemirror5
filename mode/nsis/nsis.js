@@ -19,9 +19,9 @@ CodeMirror.defineSimpleMode("nsis",{
     {regex: /(?:[+-]?)(?:0x[\d,a-f]+)|(?:0o[0-7]+)|(?:0b[0,1]+)|(?:\d+.?\d*)/, token: "number"},
 
     // Strings
-    { regex: /"(?:[^\\]|\\.)*?"/, token: "string" },
-    { regex: /'(?:[^\\]|\\.)*?'/, token: "string" },
-    { regex: /`(?:[^\\]|\\.)*?`/, token: "string" },
+    { regex: /"(?:[^\\"]|\\.)*"?/, token: "string" },
+    { regex: /'(?:[^\\']|\\.)*'?/, token: "string" },
+    { regex: /`(?:[^\\`]|\\.)*`?/, token: "string" },
 
     // Compile Time Commands
     {regex: /(?:\!(include|addincludedir|addplugindir|appendfile|cd|delfile|echo|error|execute|packhdr|finalize|getdllversion|system|tempfile|warning|verbose|define|undef|insertmacro|makensis|searchparse|searchreplace))\b/, token: "keyword"},

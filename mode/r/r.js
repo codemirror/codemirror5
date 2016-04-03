@@ -11,6 +11,8 @@
 })(function(CodeMirror) {
 "use strict";
 
+CodeMirror.registerHelper("wordChars", "r", /[\w.]/);
+
 CodeMirror.defineMode("r", function(config) {
   function wordObj(str) {
     var words = str.split(" "), res = {};

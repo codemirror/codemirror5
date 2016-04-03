@@ -18,7 +18,7 @@
 // Script files are specified without .js ending. Prefixing them with
 // their full (local) path is optional. So you may say lib/codemirror
 // or mode/xml/xml to be more precise. In fact, even the .js suffix
-// may be speficied, if wanted.
+// may be specified, if wanted.
 
 "use strict";
 
@@ -68,7 +68,7 @@ walk("mode/");
 if (!local && !blob) help(false);
 
 if (files.length) {
-  console.log("Some speficied files were not found: " +
+  console.log("Some specified files were not found: " +
               files.map(function(a){return a.name;}).join(", "));
   process.exit(1);
 }

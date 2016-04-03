@@ -452,6 +452,18 @@
      "",
      "hello");
 
+  MT("listCommonMarkIndentationCode",
+     "[variable-2 * Code blocks also affect]",
+     "  [variable-3 * The next level starts where the contents start.]",
+     "   [variable-3 *    Anything less than that will keep the item on the same level.]",
+     "       [variable-3 * Each list item can indent the first level further and further.]",
+     "  [variable-3 * For the most part, this makes sense while writing a list.]",
+     "    [keyword * This means two items with same indentation can be different levels.]",
+     "     [keyword *  Each level has an indent requirement that can change between items.]",
+     "       [keyword * A list item that meets this will be part of the next level.]",
+     "   [variable-3 * Otherwise, it will be part of the level where it does meet this.]",
+     " [variable-2 * World]");
+
   // Blockquote
   MT("blockquote",
      "[variable-2 * foo]",
@@ -635,7 +647,7 @@
   MT("linkReferenceEmStrong",
      "[link [[][link&strong **][link&em&strong *foo**][link&em *][link ]]][string&url [[bar]]] hello");
 
-  // Reference-style links with optional space separator (per docuentation)
+  // Reference-style links with optional space separator (per documentation)
   // "You can optionally use a space to separate the sets of brackets"
   MT("linkReferenceSpace",
      "[link [[foo]]] [string&url [[bar]]] hello");
@@ -671,7 +683,7 @@
   MT("labelTitleSingleQuotes",
      "[link [[foo]]:] [string&url http://example.com/  'bar']");
 
-  MT("labelTitleParenthese",
+  MT("labelTitleParentheses",
      "[link [[foo]]:] [string&url http://example.com/  (bar)]");
 
   MT("labelTitleInvalid",
@@ -688,13 +700,22 @@
      "[link [[foo]]:] [string&url http://example.com/]",
      "[string 'bar'] hello");
 
-  MT("labelTitleNextParenthese",
+  MT("labelTitleNextParentheses",
      "[link [[foo]]:] [string&url http://example.com/]",
      "[string (bar)] hello");
 
   MT("labelTitleNextMixed",
      "[link [[foo]]:] [string&url http://example.com/]",
      "(bar\" hello");
+
+  MT("labelEscape",
+     "[link [[foo \\]] ]]:] [string&url http://example.com/]");
+
+  MT("labelEscapeColon",
+     "[link [[foo \\]]: bar]]:] [string&url http://example.com/]");
+
+  MT("labelEscapeEnd",
+     "[[foo\\]]: http://example.com/");
 
   MT("linkWeb",
      "[link <http://example.com/>] foo");
