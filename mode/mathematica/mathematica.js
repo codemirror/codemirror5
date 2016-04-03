@@ -126,6 +126,7 @@ CodeMirror.defineMode('mathematica', function(_config, _parserConfig) {
     }
 
     // everything else is an error
+    stream.next(); // advance the stream.
     return 'error';
   }
 
