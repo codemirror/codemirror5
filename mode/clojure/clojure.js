@@ -59,7 +59,8 @@ CodeMirror.defineMode("clojure", function (options) {
         sign: /[+-]/,
         exponent: /e/i,
         keyword_char: /[^\s\(\[\;\)\]]/,
-        symbol: /[\w*+!\-\._?:<>\/\xa1-\uffff]/
+        symbol: /[\w*+!\-\._?:<>\/\xa1-\uffff]/,
+        block_indent: /^(?:def|with)[^\/]+$|\/(?:def|with)/
     };
 
     function stateStack(indent, type, prev) { // represents a state stack object
@@ -95,6 +96,9 @@ CodeMirror.defineMode("clojure", function (options) {
 
             if ( '.' == stream.peek() ) {
                 stream.eat('.');
+                stream.eatWhile(tests.digit);
+            } else if ('/' == stream.peek() ) {
+                stream.eat('/');
                 stream.eatWhile(tests.digit);
             }
 
@@ -139,7 +143,7 @@ CodeMirror.defineMode("clojure", function (options) {
             }
 
             // skip spaces
-            if (stream.eatSpace()) {
+            if (state.mode != "string" && stream.eatSpace()) {
                 return null;
             }
             var returnType = null;
@@ -187,7 +191,7 @@ CodeMirror.defineMode("clojure", function (options) {
                         }
 
                         if (keyWord.length > 0 && (indentKeys.propertyIsEnumerable(keyWord) ||
-                                                   /^(?:def|with)/.test(keyWord))) { // indent-word
+                                                   tests.block_indent.test(keyWord))) { // indent-word
                             pushStack(state, indentTemp + INDENT_WORD_SKIP, ch);
                         } else { // non-indent word
                             // we continue eating the spaces
@@ -240,5 +244,7 @@ CodeMirror.defineMode("clojure", function (options) {
 });
 
 CodeMirror.defineMIME("text/x-clojure", "clojure");
+CodeMirror.defineMIME("text/x-clojurescript", "clojure");
+CodeMirror.defineMIME("application/edn", "clojure");
 
 });

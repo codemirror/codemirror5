@@ -32,10 +32,6 @@
 .cm-s-material .cm-atom { color: #F77669; }
 .cm-s-material .cm-number { color: #F77669; }
 .cm-s-material .cm-def { color: rgba(233, 237, 237, 1); }
-.cm-s-material .cm-error {
-  color: rgba(255, 255, 255, 1.0);
-  background-color: #EC5F67;
-}
 .cm-s-material .cm-string { color: #C3E88D; }
 .cm-s-material .cm-string-2 { color: #80CBC4; }
 .cm-s-material .cm-comment { color: #546E7A; }
@@ -47,6 +43,10 @@
 .cm-s-material .cm-qualifier { color: #DECB6B; }
 .cm-s-material .cm-variable-3 { color: #DECB6B; }
 .cm-s-material .cm-tag { color: rgba(255, 83, 112, 1); }
+.cm-s-material .cm-error {
+  color: rgba(255, 255, 255, 1.0);
+  background-color: #EC5F67;
+}
 .cm-s-material .CodeMirror-matchingbracket {
   text-decoration: underline;
   color: white !important;

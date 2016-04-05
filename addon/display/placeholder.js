@@ -14,10 +14,12 @@
     if (val && !prev) {
       cm.on("blur", onBlur);
       cm.on("change", onChange);
+      cm.on("swapDoc", onChange);
       onChange(cm);
     } else if (!val && prev) {
       cm.off("blur", onBlur);
       cm.off("change", onChange);
+      cm.off("swapDoc", onChange);
       clearPlaceholder(cm);
       var wrapper = cm.getWrapperElement();
       wrapper.className = wrapper.className.replace(" CodeMirror-empty", "");

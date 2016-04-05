@@ -135,6 +135,7 @@
     },
 
     destroy: function () {
+      closeArgHints(this)
       if (this.worker) {
         this.worker.terminate();
         this.worker = null;
@@ -178,7 +179,7 @@
     var data = findDoc(ts, doc);
 
     var argHints = ts.cachedArgHints;
-    if (argHints && argHints.doc == doc && cmpPos(argHints.start, change.to) <= 0)
+    if (argHints && argHints.doc == doc && cmpPos(argHints.start, change.to) >= 0)
       ts.cachedArgHints = null;
 
     var changed = data.changed;
@@ -305,7 +306,7 @@
     ts.request(cm, {type: "type", preferFunction: true, end: start}, function(error, data) {
       if (error || !data.type || !(/^fn\(/).test(data.type)) return;
       ts.cachedArgHints = {
-        start: pos,
+        start: start,
         type: parseFnType(data.type),
         name: data.exprName || data.name || "fn",
         guess: data.guess,

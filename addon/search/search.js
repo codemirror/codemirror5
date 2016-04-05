@@ -29,7 +29,7 @@
       query.lastIndex = stream.pos;
       var match = query.exec(stream.string);
       if (match && match.index == stream.pos) {
-        stream.pos += match[0].length;
+        stream.pos += match[0].length || 1;
         return "searching";
       } else if (match) {
         stream.pos = match.index;
@@ -121,7 +121,10 @@
       persistentDialog(cm, queryDialog, q, function(query, event) {
         CodeMirror.e_stop(event);
         if (!query) return;
-        if (query != state.queryText) startSearch(cm, state, query);
+        if (query != state.queryText) {
+          startSearch(cm, state, query);
+          state.posFrom = state.posTo = cm.getCursor();
+        }
         if (hiding) hiding.style.opacity = 1
         findNext(cm, event.shiftKey, function(_, to) {
           var dialog
@@ -193,7 +196,7 @@
           replaceAll(cm, query, text)
         } else {
           clearSearch(cm);
-          var cursor = getSearchCursor(cm, query, cm.getCursor());
+          var cursor = getSearchCursor(cm, query, cm.getCursor("from"));
           var advance = function() {
             var start = cursor.from(), match;
             if (!(match = cursor.findNext())) {

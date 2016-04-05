@@ -1,11 +1,14 @@
 {
     "name": "codemirror",
-    "version":"5.8.1",
+    "version":"5.13.3",
     "main": "lib/codemirror.js",
     "description": "In-browser code editing made bearable",
     "license": "MIT",
     "directories": {"lib": "./lib"},
-    "scripts": {"test": "node ./test/run.js"},
+    "scripts": {
+      "test": "node ./test/run.js",
+      "lint": "bin/lint"
+    },
     "devDependencies": {"node-static": "0.6.0",
                         "phantomjs": "1.9.2-5",
                         "blint": ">=0.1.1"},
@@ -16,5 +19,10 @@
                     "email": "marijnh@gmail.com",
                     "web": "http://marijnhaverbeke.nl"}],
     "repository": {"type": "git",
-                   "url": "https://github.com/codemirror/CodeMirror.git"}
+                   "url": "https://github.com/codemirror/CodeMirror.git"},
+    "jspm": {
+      "directories": {},
+      "dependencies": {},
+      "devDependencies": {}
+    }
 }

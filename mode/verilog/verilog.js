@@ -250,7 +250,7 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
     if (text == contextClosing) {
       return true;
     } else {
-      // contextClosing may be mulitple keywords separated by ;
+      // contextClosing may be multiple keywords separated by ;
       var closingKeywords = contextClosing.split(";");
       for (var i in closingKeywords) {
         if (text == closingKeywords[i]) {

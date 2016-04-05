@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 
 <title>CodeMirror: Tern Demo</title>
 <meta charset="utf-8"/>
@@ -13,16 +13,16 @@
 <script src="../addon/dialog/dialog.js"></script>
 <script src="../addon/hint/show-hint.js"></script>
 <script src="../addon/tern/tern.js"></script>
-<script src="http://ternjs.net/node_modules/acorn/dist/acorn.js"></script>
-<script src="http://ternjs.net/node_modules/acorn/dist/acorn_loose.js"></script>
-<script src="http://ternjs.net/node_modules/acorn/dist/walk.js"></script>
-<script src="http://ternjs.net/doc/demo/polyfill.js"></script>
-<script src="http://ternjs.net/lib/signal.js"></script>
-<script src="http://ternjs.net/lib/tern.js"></script>
-<script src="http://ternjs.net/lib/def.js"></script>
-<script src="http://ternjs.net/lib/comment.js"></script>
-<script src="http://ternjs.net/lib/infer.js"></script>
-<script src="http://ternjs.net/plugin/doc_comment.js"></script>
+<script src="//ternjs.net/node_modules/acorn/dist/acorn.js"></script>
+<script src="//ternjs.net/node_modules/acorn/dist/acorn_loose.js"></script>
+<script src="//ternjs.net/node_modules/acorn/dist/walk.js"></script>
+<script src="//ternjs.net/doc/demo/polyfill.js"></script>
+<script src="//ternjs.net/lib/signal.js"></script>
+<script src="//ternjs.net/lib/tern.js"></script>
+<script src="//ternjs.net/lib/def.js"></script>
+<script src="//ternjs.net/lib/comment.js"></script>
+<script src="//ternjs.net/lib/infer.js"></script>
+<script src="//ternjs.net/plugin/doc_comment.js"></script>
 <style>
       .CodeMirror {border: 1px solid #ddd;}
     </style>
@@ -76,7 +76,7 @@ baz.
 
 var randomStr = myMod.randomElt(myMod.strList);
 var randomInt = myMod.randomElt(myMod.intList);
-</textarea></p>
+</textarea></form>
 
 <p>Demonstrates integration of <a href="http://ternjs.net/">Tern</a>
 and CodeMirror. The following keys are bound:</p>
@@ -109,7 +109,7 @@ overview.</p>
   }
 
   var server;
-  getURL("http://ternjs.net/defs/ecma5.json", function(err, code) {
+  getURL("//ternjs.net/defs/ecma5.json", function(err, code) {
     if (err) throw new Error("Request for ecma5.json: " + err);
     server = new CodeMirror.TernServer({defs: [JSON.parse(code)]});
     editor.setOption("extraKeys", {
