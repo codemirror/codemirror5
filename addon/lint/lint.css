@@ -1,6 +1,6 @@
 /* The lint marker gutter */
 .CodeMirror-lint-markers {
-  width: 16px;
+  width: 12px; margin-left: 2px;
 }
 
 .CodeMirror-lint-tooltip {
@@ -43,7 +43,7 @@
 .CodeMirror-lint-marker-error, .CodeMirror-lint-marker-warning {
   background-position: center center;
   background-repeat: no-repeat;
-  cursor: pointer;
+  cursor: help;
   display: inline-block;
   height: 16px;
   width: 16px;
