@@ -122,14 +122,12 @@ function readToken(stream, state) {
   if (stream.match(strings)) return "string";
 
   // identifier
-  var pos = stream.pos;
   if (stream.match(identifiers)) {
     if (state.startDef) return "def";
     if (state.endDef && stream.match(/^\s*;/, false)) {
       state.endDef = false;
       return "def";
     }
-    stream.pos = pos;
   }
 
   if (stream.match(keywords)) return "keyword";
