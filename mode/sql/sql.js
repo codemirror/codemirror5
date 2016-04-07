@@ -376,7 +376,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     name: "sql",
     keywords: set("ancestor and asc by contains desc descendant distinct from group has in is limit offset on order select superset where"),
     atoms: set("false true"),
-    builtin: set("blob datetime first key string integer double boolean null"),
+    builtin: set("blob datetime first key __key__ string integer double boolean null"),
     operatorChars: /^[*+\-%<>!=]/
   });
 }());
