@@ -55,6 +55,8 @@
   cmds[map["Alt-Left"] = "goSubwordLeft"] = function(cm) { moveSubword(cm, -1); };
   cmds[map["Alt-Right"] = "goSubwordRight"] = function(cm) { moveSubword(cm, 1); };
 
+  if (mac) map["Cmd-Left"] = "goLineStartSmart";
+
   var scrollLineCombo = mac ? "Ctrl-Alt-" : "Ctrl-";
 
   cmds[map[scrollLineCombo + "Up"] = "scrollLineUp"] = function(cm) {
