@@ -51,6 +51,12 @@
      "[comment ```]",
      "bar");
 
+  MT("fencedCodeBlockModeSwitchingObjc",
+     "[comment ```objective-c]",
+     "[keyword @property] [variable NSString] [operator *] [variable foo];",
+     "[comment ```]",
+     "bar");
+
   MT("fencedCodeBlocksNoTildes",
      "~~~",
      "foo",
