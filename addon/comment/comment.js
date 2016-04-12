@@ -44,9 +44,17 @@
     }
   });
 
+  // Rough heuristic to try and detect lines that are part of multi-line string
+  function probablyInsideString(cm, pos, line) {
+    return /\bstring\b/.test(cm.getTokenTypeAt(Pos(pos.line, 0))) && !/^[\'\"`]/.test(line)
+  }
+
   CodeMirror.defineExtension("lineComment", function(from, to, options) {
     if (!options) options = noOptions;
     var self = this, mode = self.getModeAt(from);
+    var firstLine = self.getLine(from.line);
+    if (firstLine == null || probablyInsideString(self, from, firstLine)) return;
+
     var commentString = options.lineComment || mode.lineComment;
     if (!commentString) {
       if (options.blockCommentStart || mode.blockCommentStart) {
@@ -55,8 +63,7 @@
       }
       return;
     }
-    var firstLine = self.getLine(from.line);
-    if (firstLine == null) return;
+
     var end = Math.min(to.ch != 0 || to.line == from.line ? to.line + 1 : to.line, self.lastLine() + 1);
     var pad = options.padding == null ? " " : options.padding;
     var blankLines = options.commentBlankLines || from.line == to.line;
