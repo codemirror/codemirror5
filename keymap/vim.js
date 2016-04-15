@@ -26,7 +26,7 @@
  *  2. Variable declarations and short basic helpers
  *  3. Instance (External API) implementation
  *  4. Internal state tracking objects (input state, counter) implementation
- *     and instanstiation
+ *     and instantiation
  *  5. Key handler (the main command dispatcher) implementation
  *  6. Motion, operator, and action implementations
  *  7. Helper functions for the key handler, motions, operators, and actions
@@ -226,6 +226,7 @@
     { name: 'sort', shortName: 'sor' },
     { name: 'substitute', shortName: 's', possiblyAsync: true },
     { name: 'nohlsearch', shortName: 'noh' },
+    { name: 'yank', shortName: 'y' },
     { name: 'delmarks', shortName: 'delm' },
     { name: 'registers', shortName: 'reg', excludeFromCommandHistory: true },
     { name: 'global', shortName: 'g' }
@@ -641,7 +642,7 @@
         jumpList: createCircularJumpList(),
         macroModeState: new MacroModeState,
         // Recording latest f, t, F or T motion command.
-        lastChararacterSearch: {increment:0, forward:true, selectedCharacter:''},
+        lastCharacterSearch: {increment:0, forward:true, selectedCharacter:''},
         registerController: new RegisterController({}),
         // search history buffer
         searchHistoryController: new HistoryController({}),
@@ -1047,7 +1048,7 @@
     };
     function HistoryController() {
         this.historyBuffer = [];
-        this.iterator;
+        this.iterator = 0;
         this.initialPrefix = null;
     }
     HistoryController.prototype = {
@@ -1372,7 +1373,7 @@
         }
       },
       evalInput: function(cm, vim) {
-        // If the motion comand is set, execute both the operator and motion.
+        // If the motion command is set, execute both the operator and motion.
         // Otherwise return.
         var inputState = vim.inputState;
         var motion = inputState.motion;
@@ -1909,7 +1910,7 @@
       },
 
       repeatLastCharacterSearch: function(cm, head, motionArgs) {
-        var lastSearch = vimGlobalState.lastChararacterSearch;
+        var lastSearch = vimGlobalState.lastCharacterSearch;
         var repeat = motionArgs.repeat;
         var forward = motionArgs.forward === lastSearch.forward;
         var increment = (lastSearch.increment ? 1 : 0) * (forward ? -1 : 1);
@@ -3002,7 +3003,7 @@
       // Only clip if the selection ends with trailing newline + whitespace
       if (/\n\s*$/.test(selection)) {
         var lines = selection.split('\n');
-        // We know this is all whitepsace.
+        // We know this is all whitespace.
         lines.pop();
 
         // Cases:
@@ -3088,9 +3089,9 @@
     }
 
     function recordLastCharacterSearch(increment, args) {
-        vimGlobalState.lastChararacterSearch.increment = increment;
-        vimGlobalState.lastChararacterSearch.forward = args.forward;
-        vimGlobalState.lastChararacterSearch.selectedCharacter = args.selectedCharacter;
+        vimGlobalState.lastCharacterSearch.increment = increment;
+        vimGlobalState.lastCharacterSearch.forward = args.forward;
+        vimGlobalState.lastCharacterSearch.selectedCharacter = args.selectedCharacter;
     }
 
     var symbolToMode = {
@@ -3289,8 +3290,6 @@
         line = cm.getLine(lineNum);
         pos = (dir > 0) ? 0 : line.length;
       }
-      // Should never get here.
-      throw new Error('The impossible happened.');
     }
 
     /**
@@ -3452,7 +3451,7 @@
     }
 
     // TODO: perhaps this finagling of start and end positions belonds
-    // in codmirror/replaceRange?
+    // in codemirror/replaceRange?
     function selectCompanionObject(cm, head, symb, inclusive) {
       var cur = head, start, end;
 
@@ -4514,13 +4513,20 @@
         if (CodeMirror.commands.save) {
           // If a save command is defined, call it.
           CodeMirror.commands.save(cm);
-        } else {
-          // Saves to text area if no save command is defined.
+        } else if (cm.save) {
+          // Saves to text area if no save command is defined and cm.save() is available.
           cm.save();
         }
       },
       nohlsearch: function(cm) {
         clearSearchHighlight(cm);
+      },
+      yank: function (cm) {
+        var cur = copyCursor(cm.getCursor());
+        var line = cur.line;
+        var lineText = cm.getLine(line);
+        vimGlobalState.registerController.pushText(
+          '0', 'yank', lineText, true, true);
       },
       delmarks: function(cm, params) {
         if (!params.argString || !trim(params.argString)) {

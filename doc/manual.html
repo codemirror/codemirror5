@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 
 <title>CodeMirror: User Manual</title>
 <meta charset="utf-8"/>
@@ -69,7 +69,7 @@
 <section class=first id=overview>
     <h2 style="position: relative">
       User manual and reference guide
-      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 5.13.1</span>
+      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 5.13.5</span>
     </h2>
 
     <p>CodeMirror is a code-editor component that can be embedded in
@@ -1254,7 +1254,7 @@ editor.setOption("extraKeys", {
       separator to put between the lines in the output. When multiple
       selections are present, they are concatenated with instances
       of <code>lineSep</code> in between.</dd>
-      <dt id="getSelections"><code><strong>doc.getSelections</strong>(?lineSep: string) → string</code></dt>
+      <dt id="getSelections"><code><strong>doc.getSelections</strong>(?lineSep: string) → array&lt;string&gt;</code></dt>
       <dd>Returns an array containing a string for each selection,
       representing the content of the selections.</dd>
 
@@ -2064,26 +2064,29 @@ editor.setOption("extraKeys", {
       else (usually one) for dev snapshots.</dd>
 
       <dt id="fromTextArea"><code><strong>CodeMirror.fromTextArea</strong>(textArea: TextAreaElement, ?config: object)</code></dt>
-      <dd>
-        The method provides another way to initialize an editor. It
-        takes a textarea DOM node as first argument and an optional
-        configuration object as second. It will replace the textarea
-        with a CodeMirror instance, and wire up the form of that
-        textarea (if any) to make sure the editor contents are put
-        into the textarea when the form is submitted. The text in the
-        textarea will provide the content for the editor. A CodeMirror
-        instance created this way has three additional methods:
-        <dl>
-          <dt id="save"><code><strong>cm.save</strong>()</code></dt>
-          <dd>Copy the content of the editor into the textarea.</dd>
+      <dd>This method provides another way to initialize an editor. It
+      takes a textarea DOM node as first argument and an optional
+      configuration object as second. It will replace the textarea
+      with a CodeMirror instance, and wire up the form of that
+      textarea (if any) to make sure the editor contents are put into
+      the textarea when the form is submitted. The text in the
+      textarea will provide the content for the editor. A CodeMirror
+      instance created this way has three additional methods:
+      <dl>
+        <dt id="save"><code><strong>cm.save</strong>()</code></dt>
+        <dd>Copy the content of the editor into the textarea.</dd>
 
-          <dt id="toTextArea"><code><strong>cm.toTextArea</strong>()</code></dt>
-          <dd>Remove the editor, and restore the original textarea (with
-          the editor's current content).</dd>
+        <dt id="toTextArea"><code><strong>cm.toTextArea</strong>()</code></dt>
+        <dd>Remove the editor, and restore the original textarea (with
+        the editor's current content). If you dynamically create and
+        destroy editors made with `fromTextArea`, without destroying
+        the form they are part of, you should make sure to call
+        `toTextArea` to remove the editor, or its `"submit"` handler
+        on the form will cause a memory leak.</dd>
 
-          <dt id="getTextArea"><code><strong>cm.getTextArea</strong>() → TextAreaElement</code></dt>
-          <dd>Returns the textarea that the instance was based on.</dd>
-        </dl>
+        <dt id="getTextArea"><code><strong>cm.getTextArea</strong>() → TextAreaElement</code></dt>
+        <dd>Returns the textarea that the instance was based on.</dd>
+      </dl>
       </dd>
 
       <dt id="defaults"><code><strong>CodeMirror.defaults</strong>: object</code></dt>
@@ -2100,7 +2103,7 @@ editor.setOption("extraKeys", {
       created from then on.</dd>
 
       <dt id="defineDocExtension"><code><strong>CodeMirror.defineDocExtension</strong>(name: string, value: any)</code></dt>
-      <dd>Like <a href="#defineExtenstion"><code>defineExtension</code></a>,
+      <dd>Like <a href="#defineExtension"><code>defineExtension</code></a>,
       but the method will be added to the interface
       for <a href="#Doc"><code>Doc</code></a> objects instead.</dd>
 

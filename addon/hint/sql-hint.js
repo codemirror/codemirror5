@@ -105,7 +105,7 @@
   }
 
   function nameCompletion(cur, token, result, editor) {
-    // Try to complete table, colunm names and return start position of completion
+    // Try to complete table, column names and return start position of completion
     var useBacktick = false;
     var nameParts = [];
     var start = token.start;

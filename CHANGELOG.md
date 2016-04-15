@@ -1,3 +1,9 @@
+## 5.13.2 (2016-03-23)
+
+### Bugfixes
+
+Solves a problem where the gutter would sometimes not extend all the way to the end of the document.
+
 ## 5.13.0 (2016-03-21)
 
 ### New features

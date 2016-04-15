@@ -263,7 +263,7 @@
     ""
   );
 
-  MT("covergoup_with_function_indents_properly",
+  MT("covergroup_with_function_indents_properly",
     "[keyword covergroup] [variable cg] [keyword with] [keyword function] [variable sample][bracket (][keyword bit] [variable b][bracket )];",
     "    [variable c] : [keyword coverpoint] [variable c];",
     "[keyword endgroup]: [variable cg]",

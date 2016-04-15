@@ -273,10 +273,10 @@ testJumplist('jumplist_repeat_<c-i>', ['*', '*', '*', '3', '<C-o>', '2', '<C-i>'
 testJumplist('jumplist_repeated_motion', ['3', '*', '<C-o>'], [2,3], [2,3]);
 testJumplist('jumplist_/', ['/', '<C-o>'], [2,3], [2,3], 'dialog');
 testJumplist('jumplist_?', ['?', '<C-o>'], [2,3], [2,3], 'dialog');
-testJumplist('jumplist_skip_delted_mark<c-o>',
+testJumplist('jumplist_skip_deleted_mark<c-o>',
              ['*', 'n', 'n', 'k', 'd', 'k', '<C-o>', '<C-o>', '<C-o>'],
              [0,2], [0,2]);
-testJumplist('jumplist_skip_delted_mark<c-i>',
+testJumplist('jumplist_skip_deleted_mark<c-i>',
              ['*', 'n', 'n', 'k', 'd', 'k', '<C-o>', '<C-i>', '<C-i>'],
              [1,0], [0,2]);
 
@@ -482,7 +482,7 @@ testVim('gj_gk', function(cm, vim, helpers) {
   var topLeftCharCoords = cm.charCoords(makeCursor(0, 0));
   var endingCharCoords = cm.charCoords(endingPos);
   is(topLeftCharCoords.left == endingCharCoords.left, 'gj should end up on column 0');
-},{ lineNumbers: false, lineWrapping:true, value: 'Thislineisintentiallylongtotestmovementofgjandgkoverwrappedlines.' });
+},{ lineNumbers: false, lineWrapping:true, value: 'Thislineisintentionallylongtotestmovementofgjandgkoverwrappedlines.' });
 testVim('}', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('}');
@@ -3682,7 +3682,7 @@ function testSubstituteConfirm(name, command, initialValue, expectedValue, keys,
     } catch(e) {
       throw e
     } finally {
-      // Restore overriden functions.
+      // Restore overridden functions.
       CodeMirror.keyName = savedKeyName;
       cm.openDialog = savedOpenDialog;
     }
@@ -3725,6 +3725,14 @@ testVim('ex_noh_clearSearchHighlight', function(cm, vim, helpers) {
   helpers.doKeys('n');
   helpers.assertCursorAt(0, 11,'can\'t resume search after clearing highlighting');
 }, { value: 'match nope match \n nope Match' });
+testVim('ex_yank', function (cm, vim, helpers) {
+  var curStart = makeCursor(3, 0);
+  cm.setCursor(curStart);
+  helpers.doEx('y');
+  var register = helpers.getRegisterController().getRegister();
+  var line = cm.getLine(3);
+  eq(line + '\n', register.toString());
+});
 testVim('set_boolean', function(cm, vim, helpers) {
   CodeMirror.Vim.defineOption('testoption', true, 'boolean');
   // Test default value is set.
