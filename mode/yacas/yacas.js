@@ -111,11 +111,12 @@ CodeMirror.defineMode('yacas', function(_config, _parserConfig) {
   function tokenComment(stream, state) {
     var prev, next;
     while((next = stream.next()) != null) {
-      if (prev === '*' && next === '/')
+      if (prev === '*' && next === '/') {
+        state.tokenize = tokenBase;
         break;
+      }
       prev = next;
     }
-    state.tokenize = tokenBase;
     return 'comment';
   }
 
