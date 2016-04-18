@@ -2569,7 +2569,8 @@ editor.setOption("extraKeys", {
         <dd>Optional <code>to</code> position that will be used by <code>pick()</code> instead
         of the global one passed with the full list of completions.</dd>
       </dl>
-      The plugin understands the following options (the options object
+      
+      <dd> The plugin understands the following options (the options object
       will also be passed along to the hinting function, which may
       understand additional options):
       <dl>
@@ -2580,7 +2581,10 @@ editor.setOption("extraKeys", {
         arguments <code>(cm, callback, ?options)</code>, and the
         completion interface will only be popped up when the hinting
         function calls the callback, passing it the object holding the
-        completions. By default, hinting only works when there is no
+        completions.
+        The hinting function can also return a promise, and the completion
+        interface will only be popped when the promise resolves.
+        By default, hinting only works when there is no
         selection. You can give a hinting function
         a <code>supportsSelection</code> property with a truthy value
         to indicate that it supports selections.</dd>
