@@ -10,6 +10,7 @@
 <script src="../addon/hint/show-hint.js"></script>
 <script src="../addon/hint/javascript-hint.js"></script>
 <script src="../mode/javascript/javascript.js"></script>
+<script src="../mode/markdown/markdown.js"></script>
 
 <div id=nav>
   <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../doc/logo.png"></a>
@@ -69,11 +70,86 @@ on top of the <a href="../doc/manual.html#addon_show-hint"><code>show-hint</code
 and <a href="../doc/manual.html#addon_javascript-hint"><code>javascript-hint</code></a>
 addons.</p>
 
+
+<form><textarea id="synonyms" name="synonyms">
+Here, the completion use an asynchronous hinting functions to provide
+synonyms for each words. If your browser support `Promises`, the
+hinting function can also return one.
+</textarea></form>
+
+
+
+     <script>
+        var comp=[
+            ['Here', 'Hither'],
+            ['asynchronous', 'nonsynchronous'],
+            ['completion','achievement','conclusion','culmination','expirations'],
+            ['hinting', 'advive', 'broach', 'imply'],
+            ['function','action'],
+            ['provide', 'add', 'bring', 'give'],
+            ['synonyms', 'equivalents'],
+            ['words','token'],
+            ['each','every'],
+        ]
+        
+        var async_synonyms =  function(editor, callback ,option){
+                var cursor = editor.getCursor();
+                var token = editor.getTokenAt(cursor);
+                var start = {line:cursor.line, ch:token.start};
+                var end = {line:cursor.line, ch:token.end};
+                var res = [];
+                var name = token.string;
+                for(var i in comp){
+                    if(comp[i].indexOf(name) !== -1){
+                        res = comp[i];
+                        break;
+                    }
+                }
+                callback({list:res, from:start, to:end})
+            }
+        async_synonyms.async = true;
+        CodeMirror.registerGlobalHelper('hint', 'synonyms', function(mode){
+            if ( mode && mode.name === 'markdown')
+                return true;
+            return false;
+        }, async_synonyms)
+
+
+        if(typeof Promise !== undefined){
+            CodeMirror.registerGlobalHelper('hint', 'synonyms', function(mode){
+            if ( mode && mode.name === 'markdown')
+                return true;
+            return false;
+            }, function(editor, optio){
+                var cursor = editor.getCursor();
+                var token = editor.getTokenAt(cursor);
+                var start = {line:cursor.line, ch:token.start};
+                var end = {line:cursor.line, ch:token.end};
+                var res = ['No','completions','but','you', 'can','use', 'Promises'];
+                
+                return Promise.resolve({list:res, from:start, to:end})
+
+            })
+
+        }
+     </script>
+
+
     <script>
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true,
         extraKeys: {"Ctrl-Space": "autocomplete"},
         mode: {name: "javascript", globalVars: true}
       });
+
+      var editor2 = CodeMirror.fromTextArea(document.getElementById("synonyms"), {
+        extraKeys: {"Ctrl-Space": "autocomplete"},
+        lineNumbers: true,
+        lineWrapping: true,
+        mode: 'text/x-markdown'
+      });
+      editor2.setSize(null, '7em')
+
     </script>
+
   </article>
