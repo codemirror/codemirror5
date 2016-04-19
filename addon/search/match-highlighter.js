@@ -35,7 +35,8 @@
     delay: 100,
     wordsOnly: false,
     annotateScrollbar: false,
-    showToken: false
+    showToken: false,
+    trim: true
   }
 
   function State(options) {
@@ -104,7 +105,8 @@
       var from = cm.getCursor("from"), to = cm.getCursor("to");
       if (from.line != to.line) return;
       if (state.options.wordsOnly && !isWord(cm, from, to)) return;
-      var selection = cm.getRange(from, to).replace(/^\s+|\s+$/g, "");
+      var selection = cm.getRange(from, to)
+      if (state.options.trim) selection = selection.replace(/^\s+|\s+$/g, "")
       if (selection.length >= state.options.minChars)
         addOverlay(cm, selection, false, state.options.style);
     });
