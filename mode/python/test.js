@@ -25,4 +25,6 @@
   MT("matmulWithoutSpace:", "[variable a][operator @][variable b]");
   MT("matmulSpaceBefore:", "[variable a] [operator @][variable b]");
 
+  MT("fValidStringPrefix", "[string f'this is a {formatted} string']");
+  MT("uValidStringPrefix", "[string u'this is an unicode string']");
 })();
