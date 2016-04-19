@@ -74,7 +74,7 @@
     if (parserConf.version && parseInt(parserConf.version, 10) == 3) {
       myKeywords = myKeywords.concat(py3.keywords);
       myBuiltins = myBuiltins.concat(py3.builtins);
-      var stringPrefixes = new RegExp("^(([rb]|(br))?('{3}|\"{3}|['\"]))", "i");
+      var stringPrefixes = new RegExp("^(([rbuf]|(br))?('{3}|\"{3}|['\"]))", "i");
     } else {
       myKeywords = myKeywords.concat(py2.keywords);
       myBuiltins = myBuiltins.concat(py2.builtins);
