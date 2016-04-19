@@ -109,14 +109,12 @@
 
     update: function(first) {
       if (this.tick == null) return;
-      if (!this.options.hint.async) {
-        this.finishUpdate(this.options.hint(this.cm, this.options), first);
-      } else {
-        var myTick = ++this.tick, self = this;
-        this.options.hint(this.cm, function(data) {
-          if (self.tick == myTick) self.finishUpdate(data, first);
-        }, this.options);
-      }
+      var self = this;
+      var hint = asynchronifyHinter(this.options.hint)
+      var myTick = ++this.tick;
+      hint(this.cm, function(data) {
+        if (self.tick == myTick) self.finishUpdate(data, first);
+      }, this.options);
     },
 
     finishUpdate: function(data, first) {
@@ -362,40 +360,36 @@
     return result
   }
 
+  function asynchronifyHinter(helper){
+    // given a hinter function, return an async one.
+    if(helper.async) return helper
+    var _help = function(cm, callback, option){
+      var res = helper(cm, option)
+      if(res && res.then) return res.then(callback)
+      return callback(res)
+    }
+    _help.async = true;
+    _help.supportsSelection = helper.supportsSelection;
+    return _help;
+  }
+
   function resolveAutoHints(cm, pos) {
     var helpers = cm.getHelpers(pos, "hint"), words
     if (helpers.length) {
-      var async = false, resolved
-      for (var i = 0; i < helpers.length; i++) if (helpers[i].async) async = true
-      if (async) {
-        resolved = function(cm, callback, options) {
-          var app = applicableHelpers(cm, helpers)
-          function run(i, result) {
-            if (i == app.length) return callback(null)
-            var helper = app[i]
-            if (helper.async) {
-              helper(cm, function(result) {
-                if (result) callback(result)
-                else run(i + 1)
-              }, options)
-            } else {
-              var result = helper(cm, options)
-              if (result) callback(result)
-              else run(i + 1)
-            }
-          }
-          run(0)
+      var resolved = function(cm, callback, options) {
+        var app = applicableHelpers(cm, helpers);
+        function run(i) {
+          if (i == app.length) return callback(null)
+          var helper = app[i]
+          helper = asynchronifyHinter(helper);
+          helper(cm, function(result) {
+            if (result && result.list.length > 0) callback(result)
+            else run(i + 1)
+          }, options)
         }
-        resolved.async = true
-      } else {
-        resolved = function(cm, options) {
-          var app = applicableHelpers(cm, helpers)
-          for (var i = 0; i < app.length; i++) {
-            var cur = app[i](cm, options)
-            if (cur && cur.list.length) return cur
-          }
-        }
+        run(0)
       }
+      resolved.async = true
       resolved.supportsSelection = true
       return resolved
     } else if (words = cm.getHelper(cm.getCursor(), "hintWords")) {
