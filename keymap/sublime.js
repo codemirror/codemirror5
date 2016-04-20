@@ -124,6 +124,7 @@
       }
       cm.setSelections(newSelection);
     });
+    cm.execCommand("indentAuto");
   }
 
   cmds[map[ctrl + "Enter"] = "insertLineAfter"] = function(cm) { return insertLine(cm, false); };
