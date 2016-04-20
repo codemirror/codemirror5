@@ -1,3 +1,13 @@
+## 5.14.2 (2016-04-20)
+
+### Bugfixes
+
+Push a new package to NPM due to an [NPM bug](https://github.com/npm/npm/issues/5082) omitting the LICENSE file in 5.14.0.
+
+Set `dataTransfer.effectAllowed` in `dragstart` handler to help browsers use the right drag icon.
+
+Add the [mbox mode](http://codemirror.net/mode/mbox/index.html) to `mode/meta.js`.
+
 ## 5.14.0 (2016-04-20)
 
 ### Bugfixes
