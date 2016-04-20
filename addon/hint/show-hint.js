@@ -108,13 +108,11 @@
     },
 
     update: function(first) {
-      if (this.tick == null) return;
-      var self = this;
-      var hint = asynchronifyHinter(this.options.hint)
-      var myTick = ++this.tick;
-      hint(this.cm, function(data) {
-        if (self.tick == myTick) self.finishUpdate(data, first);
-      }, this.options);
+      if (this.tick == null) return
+      var self = this, myTick = ++this.tick
+      fetchHints(this.options.hint, this.cm, this.options, function(data) {
+        if (self.tick == myTick) self.finishUpdate(data, first)
+      })
     },
 
     finishUpdate: function(data, first) {
@@ -360,17 +358,14 @@
     return result
   }
 
-  function asynchronifyHinter(helper){
-    // given a hinter function, return an async one.
-    if(helper.async) return helper
-    var _help = function(cm, callback, option){
-      var res = helper(cm, option)
-      if(res && res.then) return res.then(callback)
-      return callback(res)
+  function fetchHints(hint, cm, options, callback) {
+    if (hint.async) {
+      hint(cm, callback, options)
+    } else {
+      var result = hint(cm, options)
+      if (result && result.then) result.then(callback)
+      else callback(result)
     }
-    _help.async = true;
-    _help.supportsSelection = helper.supportsSelection;
-    return _help;
   }
 
   function resolveAutoHints(cm, pos) {
@@ -380,12 +375,10 @@
         var app = applicableHelpers(cm, helpers);
         function run(i) {
           if (i == app.length) return callback(null)
-          var helper = app[i]
-          helper = asynchronifyHinter(helper);
-          helper(cm, function(result) {
+          fetchHints(app[i], cm, options, function(result) {
             if (result && result.list.length > 0) callback(result)
             else run(i + 1)
-          }, options)
+          })
         }
         run(0)
       }
