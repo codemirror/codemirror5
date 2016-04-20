@@ -40,6 +40,6 @@ rewrite("doc/compress.html", function(cmp) {
 });
 
 rewrite("index.html", function(index) {
-  return index.replace(/\.zip">\d+\.\d+<\/a>/,
-                       ".zip\">" + simple + "</a>");
+  return index.replace(/\.zip">\d+\.\d+\.\d+<\/a>/,
+                       ".zip\">" + number + "</a>");
 });
