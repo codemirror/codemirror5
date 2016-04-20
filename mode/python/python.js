@@ -249,15 +249,21 @@
     }
 
     function tokenLexer(stream, state) {
+      if (stream.sol()){
+        state.whiteSpaceAtBeginningOfLine = true;
+      }
       var style = state.tokenize(stream, state);
       var current = stream.current();
 
       // Handle decorators
-      if (current == "@") {
+      if (state.whiteSpaceAtBeginningOfLine && current == "@"){
         if (parserConf.version && parseInt(parserConf.version, 10) == 3)
           return stream.match(identifiers, false) ? "meta" : "operator";
         else
           return stream.match(identifiers, false) ? "meta" : ERRORCLASS;
+      }
+      if(!current.match(/^ +$/, false)){
+        state.whiteSpaceAtBeginningOfLine = false;
       }
 
       if ((style == "variable" || style == "builtin")
