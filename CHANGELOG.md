@@ -1,3 +1,33 @@
+## 5.14.0 (2016-04-20)
+
+### Bugfixes
+
+[`posFromIndex`](http://codemirror.net/doc/manual.html#posFromIndex) and [`indexFromPos`](http://codemirror.net/doc/manual.html#indexFromPos) now take [`lineSeparator`](http://codemirror.net/doc/manual.html#option_lineSeparator) into account.
+
+[vim bindings](http://codemirror.net/demo/vim.html): Only call `.save()` when it is actually available.
+
+[commend addon](http://codemirror.net/doc/manual.html#addon_comment): Be careful not to mangle multi-line strings.
+
+[Python mode](http://codemirror.net/mode/python/index.html): Improve distinguishing of decorators from `@` operators.
+
+[`findMarks`](http://codemirror.net/doc/manual.html#findMarks): No longer return marks that touch but don't overlap given range.
+
+### New features
+
+[vim bindings](http://codemirror.net/demo/vim.html): Add yank command.
+
+[match-highlighter addon](http://codemirror.net/doc/manual.html#addon_match-highlighter): Add `trim` option to disable ignoring of whitespace.
+
+[PowerShell mode](http://codemirror.net/mode/powershell/index.html): Added.
+
+[Yacas mode](http://codemirror.net/mode/yacas/index.html): Added.
+
+[Web IDL mode](http://codemirror.net/mode/webidl/index.html): Added.
+
+[SAS mode](http://codemirror.net/mode/sas/index.html): Added.
+
+[mbox mode](http://codemirror.net/mode/mbox/index.html): Added.
+
 ## 5.13.2 (2016-03-23)
 
 ### Bugfixes

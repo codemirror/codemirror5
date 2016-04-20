@@ -1,6 +1,6 @@
 {
     "name": "codemirror",
-    "version":"5.13.5",
+    "version":"5.14.0",
     "main": "lib/codemirror.js",
     "description": "In-browser code editing made bearable",
     "license": "MIT",
