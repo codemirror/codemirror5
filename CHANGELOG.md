@@ -6,7 +6,7 @@
 
 [vim bindings](http://codemirror.net/demo/vim.html): Only call `.save()` when it is actually available.
 
-[commend addon](http://codemirror.net/doc/manual.html#addon_comment): Be careful not to mangle multi-line strings.
+[comment addon](http://codemirror.net/doc/manual.html#addon_comment): Be careful not to mangle multi-line strings.
 
 [Python mode](http://codemirror.net/mode/python/index.html): Improve distinguishing of decorators from `@` operators.
 
@@ -522,9 +522,9 @@ Integrate some bugfixes, enhancements to the vim keymap, and new modes ([D](http
 
 *   New mode: [Common Lisp](http://codemirror.net/mode/commonlisp/index.html).
 *   Fix right-click select-all on most browsers.
-*   Change the way highlighting happens:  
-      Saves memory and CPU cycles.  
-      `compareStates` is no longer needed.  
+*   Change the way highlighting happens:
+      Saves memory and CPU cycles.
+      `compareStates` is no longer needed.
       `onHighlightComplete` no longer works.
 *   Integrate mode (Markdown, XQuery, CSS, sTex) tests in central testsuite.
 *   Add a [`CodeMirror.version`](http://codemirror.net/doc/manual.html#version) property.
