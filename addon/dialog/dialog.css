@@ -6,6 +6,7 @@
   padding: .1em .8em;
   overflow: hidden;
   color: inherit;
+  white-space: nowrap;
 }
 
 .CodeMirror-dialog-top {
