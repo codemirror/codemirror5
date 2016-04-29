@@ -48,14 +48,14 @@ CodeMirror.defineMode("clojure", function (options) {
         "aset-float aset-int aset-long aset-short assert assoc assoc! assoc-in associative? atom await await-for await1 " +
         "bases bean bigdec bigint biginteger binding bit-and bit-and-not bit-clear bit-flip bit-not bit-or bit-set " +
         "bit-shift-left bit-shift-right bit-test bit-xor boolean boolean-array booleans bound-fn bound-fn* bound? butlast " +
-        "byte byte-array bytes case cast char char-array char-escape-string char-name-string char? chars chunk chunk-append " +
+        "byte byte-array bytes case cat cast char char-array char-escape-string char-name-string char? chars chunk chunk-append " +
         "chunk-buffer chunk-cons chunk-first chunk-next chunk-rest chunked-seq? class class? clear-agent-errors " +
-        "clojure-version coll? comment commute comp comparator compare compare-and-set! compile complement concat cond condp " +
+        "clojure-version coll? comment commute comp comparator compare compare-and-set! compile complement completing concat cond condp " +
         "conj conj! cons constantly construct-proxy contains? count counted? create-ns create-struct cycle dec dec' decimal? " +
-        "declare default-data-readers definline definterface defmacro defmethod defmulti defn defn- defonce defprotocol " +
+        "declare dedupe default-data-readers definline definterface defmacro defmethod defmulti defn defn- defonce defprotocol " +
         "defrecord defstruct deftype delay delay? deliver denominator deref derive descendants destructure disj disj! dissoc " +
         "dissoc! distinct distinct? doall dorun doseq dosync dotimes doto double double-array doubles drop drop-last " +
-        "drop-while empty empty? ensure enumeration-seq error-handler error-mode eval even? every-pred every? ex-data ex-info " +
+        "drop-while eduction empty empty? ensure enumeration-seq error-handler error-mode eval even? every-pred every? ex-data ex-info " +
         "extend extend-protocol extend-type extenders extends? false? ffirst file-seq filter filterv find find-keyword " +
         "find-ns find-protocol-impl find-protocol-method find-var first flatten float float-array float? floats flush fn fn? " +
         "fnext fnil for force format frequencies future future-call future-cancel future-cancelled? future-done? future? " +
@@ -71,7 +71,7 @@ CodeMirror.defineMode("clojure", function (options) {
         "partition-by pcalls peek persistent! pmap pop pop! pop-thread-bindings pos? pr pr-str prefer-method prefers " +
         "primitives-classnames print print-ctor print-dup print-method print-simple print-str printf println println-str " +
         "prn prn-str promise proxy proxy-call-with-super proxy-mappings proxy-name proxy-super push-thread-bindings pvalues " +
-        "quot rand rand-int rand-nth range ratio? rational? rationalize re-find re-groups re-matcher re-matches re-pattern " +
+        "quot rand rand-int rand-nth random-sample range ratio? rational? rationalize re-find re-groups re-matcher re-matches re-pattern " +
         "re-seq read read-line read-string realized? reduce reduce-kv reductions ref ref-history-count ref-max-history " +
         "ref-min-history ref-set refer refer-clojure reify release-pending-sends rem remove remove-all-methods " +
         "remove-method remove-ns remove-watch repeat repeatedly replace replicate require reset! reset-meta! resolve rest " +
@@ -79,13 +79,13 @@ CodeMirror.defineMode("clojure", function (options) {
         "seque sequence sequential? set set-error-handler! set-error-mode! set-validator! set? short short-array shorts " +
         "shuffle shutdown-agents slurp some some-fn sort sort-by sorted-map sorted-map-by sorted-set sorted-set-by sorted? " +
         "special-symbol? spit split-at split-with str string? struct struct-map subs subseq subvec supers swap! symbol " +
-        "symbol? sync take take-last take-nth take-while test the-ns thread-bound? time to-array to-array-2d trampoline " +
+        "symbol? sync take take-last take-nth take-while test the-ns thread-bound? time to-array to-array-2d trampoline transduce " +
         "transient tree-seq true? type unchecked-add unchecked-add-int unchecked-byte unchecked-char unchecked-dec " +
         "unchecked-dec-int unchecked-divide-int unchecked-double unchecked-float unchecked-inc unchecked-inc-int " +
         "unchecked-int unchecked-long unchecked-multiply unchecked-multiply-int unchecked-negate unchecked-negate-int "+
         "unchecked-remainder-int unchecked-short unchecked-subtract unchecked-subtract-int underive unquote " +
-        "unquote-splicing update-in update-proxy use val vals var-get var-set var? vary-meta vec vector vector-of " +
-        "vector? when when-first when-let when-not while with-bindings with-bindings* with-in-str with-loading-context " +
+        "unquote-splicing update update-in update-proxy use val vals var-get var-set var? vary-meta vec vector vector-of " +
+        "vector? volatile! volatile? vreset! vswap! when when-first when-let when-not while with-bindings with-bindings* with-in-str with-loading-context " +
         "with-local-vars with-meta with-open with-out-str with-precision with-redefs with-redefs-fn xml-seq zero? zipmap " +
         "*default-data-reader-fn* as-> cond-> cond->> reduced reduced? send-via set-agent-send-executor! " +
         "set-agent-send-off-executor! some-> some->>");
