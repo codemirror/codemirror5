@@ -138,9 +138,23 @@
     return {from: Pos(pos.line, start), to: Pos(pos.line, end), word: line.slice(start, end)};
   }
 
+  var cK = ctrl + "K ";
+  var canSkip = false;
+
   cmds[map[ctrl + "D"] = "selectNextOccurrence"] = function(cm) {
+    findNextSelection(cm);
+    canSkip = true;
+  };
+
+  cmds[map[cK + ctrl + "D"] = "skipOccurrence"] = function(cm) {
+    if(canSkip) findNextSelection(cm, true);
+    canSkip = false;
+  }
+
+  function findNextSelection(cm, skip) {
     var from = cm.getCursor("from"), to = cm.getCursor("to");
     var fullWord = cm.state.sublimeFindFullWord == cm.doc.sel;
+    if(skip) cm.undoSelection();
     if (CodeMirror.cmpPos(from, to) == 0) {
       var word = wordAt(cm, from);
       if (!word.word) return;
@@ -396,8 +410,6 @@
   };
 
   map["Alt-Q"] = "wrapLines";
-
-  var cK = ctrl + "K ";
 
   function modifyWordOrSelection(cm, mod) {
     cm.operation(function() {
