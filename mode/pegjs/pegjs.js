@@ -81,7 +81,7 @@ CodeMirror.defineMode("pegjs", function (config) {
         return "comment";
       } else if (state.braced || stream.peek() === '{') {
         if (state.localState === null) {
-          state.localState = jsMode.startState();
+          state.localState = CodeMirror.startState(jsMode);
         }
         var token = jsMode.token(stream, state.localState);
         var text = stream.current();
