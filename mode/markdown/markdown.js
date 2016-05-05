@@ -608,7 +608,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     return function(stream, state) {
       var ch = stream.next();
 
-      if (ch === endChar) {
+      if (ch === endChar && stream.match(/^([.,\s;:]|[^\]\)]*$)/, false)) {
         state.f = state.inline = inlineNormal;
         if (modeCfg.highlightFormatting) state.formatting = "link-string";
         var returnState = getType(state);
