@@ -32,9 +32,10 @@ function popContext(state) {
   return state.context = state.context.prev;
 }
 
-function typeBefore(stream, state) {
+function typeBefore(stream, state, pos) {
   if (state.prevToken == "variable" || state.prevToken == "variable-3") return true;
-  if (/\S(?:[^- ]>|[*\]])\s*$|\*$/.test(stream.string.slice(0, stream.start))) return true;
+  if (/\S(?:[^- ]>|[*\]])\s*$|\*$/.test(stream.string.slice(0, pos))) return true;
+  if (state.typeAtEndOfLine && stream.column() == stream.indentation()) return true;
 }
 
 function isTopScope(context) {
@@ -145,6 +146,11 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     return "comment";
   }
 
+  function maybeEOL(stream, state) {
+    if (parserConfig.typeFirstDefinitions && stream.eol() && isTopScope(state.context))
+      state.typeAtEndOfLine = typeBefore(stream, state, stream.pos)
+  }
+
   // Interface
 
   return {
@@ -165,7 +171,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
         state.indented = stream.indentation();
         state.startOfLine = true;
       }
-      if (stream.eatSpace()) return null;
+      if (stream.eatSpace()) { maybeEOL(stream, state); return null; }
       curPunc = isDefKeyword = null;
       var style = (state.tokenize || tokenBase)(stream, state);
       if (style == "comment" || style == "meta") return style;
@@ -189,7 +195,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
 
       if (style == "variable" &&
           ((state.prevToken == "def" ||
-            (parserConfig.typeFirstDefinitions && typeBefore(stream, state) &&
+            (parserConfig.typeFirstDefinitions && typeBefore(stream, state, stream.start) &&
              isTopScope(state.context) && stream.match(/^\s*\(/, false)))))
         style = "def";
 
@@ -202,11 +208,12 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
 
       state.startOfLine = false;
       state.prevToken = isDefKeyword ? "def" : style || curPunc;
+      maybeEOL(stream, state);
       return style;
     },
 
     indent: function(state, textAfter) {
-      if (state.tokenize != tokenBase && state.tokenize != null) return CodeMirror.Pass;
+      if (state.tokenize != tokenBase && state.tokenize != null || state.typeAtEndOfLine) return CodeMirror.Pass;
       var ctx = state.context, firstChar = textAfter && textAfter.charAt(0);
       if (ctx.type == "statement" && firstChar == "}") ctx = ctx.prev;
       if (parserConfig.dontIndentStatements)
