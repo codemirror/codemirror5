@@ -782,6 +782,9 @@
   MT("emStrongMixed",
      "[em *foo][em&strong __bar_hello** world]");
 
+  MT("linkWithNestedParens",
+     "[link [[foo]]][string&url (bar(baz))]")
+
   // These characters should be escaped:
   // \   backslash
   // `   backtick
