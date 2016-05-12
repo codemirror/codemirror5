@@ -157,7 +157,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     startState: function(basecolumn) {
       return {
         tokenize: null,
-        context: new Context((basecolumn || 0) - indentUnit, 0, "top", false),
+        context: new Context((basecolumn || 0) - indentUnit, 0, "top", null, false),
         indented: 0,
         startOfLine: true,
         prevToken: null
@@ -535,7 +535,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       "=": function(stream, state) {
         var cx = state.context
         if (cx.type == "}" && cx.align && stream.eat(">")) {
-          state.context = new Context(cx.indented, cx.column, cx.type, null, cx.prev)
+          state.context = new Context(cx.indented, cx.column, cx.type, cx.info, null, cx.prev)
           return "operator"
         } else {
           return false
