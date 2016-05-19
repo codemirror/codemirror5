@@ -420,27 +420,6 @@
 
   map[cK + ctrl + "Backspace"] = "delLineLeft";
 
-  cmds[map["Backspace"] = "smartBackspace"] = function(cm) {
-    if (cm.somethingSelected()) return CodeMirror.Pass;
-
-    var cursor = cm.getCursor();
-    var toStartOfLine = cm.getRange({line: cursor.line, ch: 0}, cursor);
-    var column = CodeMirror.countColumn(toStartOfLine, null, cm.getOption("tabSize"));
-    var indentUnit = cm.getOption("indentUnit");
-
-    if (toStartOfLine && !/\S/.test(toStartOfLine) && column % indentUnit == 0) {
-      var prevIndent = new Pos(cursor.line,
-        CodeMirror.findColumn(toStartOfLine, column - indentUnit, indentUnit));
-
-      // If no smart delete is happening (due to tab sizing) just do a regular delete
-      if (prevIndent.ch == cursor.ch) return CodeMirror.Pass;
-
-      return cm.replaceRange("", prevIndent, cursor, "+delete");
-    } else {
-      return CodeMirror.Pass;
-    }
-  };
-
   cmds[map[cK + ctrl + "K"] = "delLineRight"] = function(cm) {
     cm.operation(function() {
       var ranges = cm.listSelections();
