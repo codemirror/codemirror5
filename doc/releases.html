@@ -30,6 +30,21 @@
 
   <h2>Version 5.x</h2>
 
+  <p class="rel">20-05-2016: <a href="http://codemirror.net/codemirror-5.15.0.zip">Version 5.15.0</a>:</p>
+
+  <ul class="rel-note">
+    <li>Fix bug that caused the selection to reset when focusing the editor in contentEditable input mode.</li>
+    <li>Fix issue where not all ASCII control characters were being replaced by placeholders.</li>
+    <li>Remove the assumption that all modes have a <code>startState</code> method from several wrapping modes.</li>
+    <li>Fix issue where the editor would complain about overlapping collapsed ranges when there weren't any.</li>
+    <li>Optimize document tree building when loading or pasting huge chunks of content.</li>
+    <li>Explicitly bind Ctrl-O on OS X to make that binding (“open line”) act as expected.</li>
+    <li>Pasting <a href="http://codemirror.net/doc/manual.html#option_lineWiseCopyCut">linewise-copied</a> content when there is no selection now inserts the lines above the current line.</li>
+    <li><a href="http://codemirror.net/mode/markdown/">markdown mode</a>: Fix several issues in matching link targets.</li>
+    <li><a href="http://codemirror.net/mode/clike/">clike mode</a>: Improve indentation of C++ template declarations.</li>
+    <li><a href="http://codemirror.net/mode/javascript/">javascript mode</a>: Support <code>async</code>/<code>await</code> and improve support for TypeScript type syntax.</li>
+  </ul>
+
   <p class="rel">20-04-2016: <a href="http://codemirror.net/codemirror-5.14.0.zip">Version 5.14.0</a>:</p>
 
   <ul class="rel-note">

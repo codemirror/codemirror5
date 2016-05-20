@@ -1,3 +1,29 @@
+## 5.15.0 (2016-05-20)
+
+### Bugfixes
+
+Fix bug that caused the selection to reset when focusing the editor in contentEditable input mode.
+
+Fix issue where not all ASCII control characters were being replaced by placeholders.
+
+Remove the assumption that all modes have a `startState` method from several wrapping modes.
+
+Fix issue where the editor would complain about overlapping collapsed ranges when there weren't any.
+
+Optimize document tree building when loading or pasting huge chunks of content.
+
+[markdown mode](http://codemirror.net/mode/markdown/): Fix several issues in matching link targets.
+
+[clike mode](http://codemirror.net/mode/clike/): Improve indentation of C++ template declarations.
+
+### New features
+
+Explicitly bind Ctrl-O on OS X to make that binding (“open line”) act as expected.
+
+Pasting [linewise-copied](http://codemirror.net/doc/manual.html#option_lineWiseCopyCut) content when there is no selection now inserts the lines above the current line.
+
+[javascript mode](http://codemirror.net/mode/javascript/): Support `async`/`await` and improve support for TypeScript type syntax.
+
 ## 5.14.2 (2016-04-20)
 
 ### Bugfixes
