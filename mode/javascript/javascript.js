@@ -264,7 +264,6 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
 
     while(true) {
       var combinator = cc.length ? cc.pop() : jsonMode ? expression : statement;
-      if (!combinator.call) console.log(combinator)
       if (combinator(type, content)) {
         while(cc.length && cc[cc.length - 1].lex)
           cc.pop()();
