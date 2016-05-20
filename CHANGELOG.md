@@ -1,3 +1,9 @@
+## 5.15.2 (2016-05-20)
+
+### Bugfixes
+
+Fix a critical document corruption bug that occurs when a document is gradually grown.
+
 ## 5.15.0 (2016-05-20)
 
 ### Bugfixes
