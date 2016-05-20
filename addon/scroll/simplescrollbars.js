@@ -59,10 +59,10 @@
     CodeMirror.on(this.node, "DOMMouseScroll", onWheel);
   }
 
-  Bar.prototype.setPos = function(pos) {
+  Bar.prototype.setPos = function(pos, force) {
     if (pos < 0) pos = 0;
     if (pos > this.total - this.screen) pos = this.total - this.screen;
-    if (pos == this.pos) return false;
+    if (!force && pos == this.pos) return false;
     this.pos = pos;
     this.inner.style[this.orientation == "horizontal" ? "left" : "top"] =
       (pos * (this.size / this.total)) + "px";
@@ -76,9 +76,12 @@
   var minButtonSize = 10;
 
   Bar.prototype.update = function(scrollSize, clientSize, barSize) {
-    this.screen = clientSize;
-    this.total = scrollSize;
-    this.size = barSize;
+    var sizeChanged = this.screen != clientSize || this.total != scrollSize || this.size != barSize
+    if (sizeChanged) {
+      this.screen = clientSize;
+      this.total = scrollSize;
+      this.size = barSize;
+    }
 
     var buttonSize = this.screen * (this.size / this.total);
     if (buttonSize < minButtonSize) {
@@ -87,7 +90,7 @@
     }
     this.inner.style[this.orientation == "horizontal" ? "width" : "height"] =
       buttonSize + "px";
-    this.setPos(this.pos);
+    this.setPos(this.pos, sizeChanged);
   };
 
   function SimpleScrollbars(cls, place, scroll) {
