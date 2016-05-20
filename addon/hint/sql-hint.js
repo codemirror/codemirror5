@@ -241,7 +241,7 @@
     var defaultTableName = options && options.defaultTable;
     var disableKeywords = options && options.disableKeywords;
     defaultTable = defaultTableName && getTable(defaultTableName);
-    keywords = keywords || getKeywords(editor);
+    keywords = getKeywords(editor);
 
     if (defaultTableName && !defaultTable)
       defaultTable = findTableByAlias(defaultTableName, editor);
