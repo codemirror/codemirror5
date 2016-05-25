@@ -1,5 +1,6 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
 // Distributed under an MIT license: http://codemirror.net/LICENSE
+
 /**
  * @name         CodeMirror WordPress Post Editor Mode
  * @description  Combines htmlmixed with the WordPress' shortcode syntax for use in the WordPress post text editor
