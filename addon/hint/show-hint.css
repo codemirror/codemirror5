@@ -16,6 +16,7 @@
   background: white;
   font-size: 90%;
   font-family: monospace;
+  max-width: 19em;
 
   max-height: 20em;
   overflow-y: auto;
@@ -25,7 +26,6 @@
   margin: 0;
   padding: 0 4px;
   border-radius: 2px;
-  max-width: 19em;
   white-space: pre;
   color: black;
   cursor: pointer;
