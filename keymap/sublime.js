@@ -500,7 +500,8 @@
     cm.scrollTo(null, (pos.top + pos.bottom) / 2 - cm.getScrollInfo().clientHeight / 2);
   };
 
-  cmds[map["Shift-Alt-Up"] = "selectLinesUpward"] = function(cm) {
+  var selectLinesCombo = mac ? "Ctrl-Shift-" : "Ctrl-Alt-";
+  cmds[map[selectLinesCombo + "Up"] = "selectLinesUpward"] = function(cm) {
     cm.operation(function() {
       var ranges = cm.listSelections();
       for (var i = 0; i < ranges.length; i++) {
@@ -510,7 +511,7 @@
       }
     });
   };
-  cmds[map["Shift-Alt-Down"] = "selectLinesDownward"] = function(cm) {
+  cmds[map[selectLinesCombo + "Down"] = "selectLinesDownward"] = function(cm) {
     cm.operation(function() {
       var ranges = cm.listSelections();
       for (var i = 0; i < ranges.length; i++) {
