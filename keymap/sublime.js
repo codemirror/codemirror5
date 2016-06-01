@@ -43,6 +43,15 @@
     return Pos(start.line, pos);
   }
 
+  function moveWord(cm, dir) {
+    cm.extendSelectionsBy(function(range) {
+      if (cm.display.shift || cm.doc.extend || range.empty())
+        return cm.findPosH(range.head, dir, "word");
+      else
+        return dir < 0 ? range.from() : range.to();
+    });
+  }
+
   function moveSubword(cm, dir) {
     cm.extendSelectionsBy(function(range) {
       if (cm.display.shift || cm.doc.extend || range.empty())
@@ -52,8 +61,10 @@
     });
   }
 
-  cmds[map["Alt-Left"] = "goSubwordLeft"] = function(cm) { moveSubword(cm, -1); };
-  cmds[map["Alt-Right"] = "goSubwordRight"] = function(cm) { moveSubword(cm, 1); };
+  cmds[map["Ctrl-Left"] = "goSubwordLeft"] = function(cm) { moveSubword(cm, -1); };
+  cmds[map["Ctrl-Right"] = "goSubwordRight"] = function(cm) { moveSubword(cm, 1); };
+  cmds[map["Alt-Left"] = "goWordLeft"] = function(cm) { moveWord(cm, -1); };
+  cmds[map["Alt-Right"] = "goWordRight"] = function(cm) { moveWord(cm, 1); };
 
   if (mac) map["Cmd-Left"] = "goLineStartSmart";
 
