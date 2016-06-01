@@ -121,10 +121,11 @@
             return tokenUntil(stream, state, /\{\/literal}/);
 
           case "string":
-            if (stream.match(/^.*?"/)) {
-              state.soyState.pop();
-            } else {
+            var match = stream.match(/^.*?("|\\[\s\S])/);
+            if (!match) {
               stream.skipToEnd();
+            } else if (match[1] == "\"") {
+              state.soyState.pop();
             }
             return "string";
         }
