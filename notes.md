@@ -49,10 +49,35 @@ Including simple functionalities (**How does it work with VO??**)
 
 
 ### Changing the font size
-**TODO**
-&#x1F534;
+**IN PROGRESS**
+&#x1F535;
 
-Going to try and add buttons to achieve this
+A select menu is added to include options for font sizes ranging from 6px to 72px. It has an onchange event listener which calls the following function:
+
+    <select id="fontSize">
+        <option value="6px">6px</option>
+        <option value="7px">7px</option>
+        <option value="8px">8px</option>
+        <!-- etc -->
+    </select>
+
+    var cmWrapperElement = myCodeMirror.getWrapperElement();
+
+    function setFontSize() {
+        var fontSize = document.getElementById('fontSize').value;
+        cmWrapperElement.style['font-size'] = value;
+    }
+
+This then renders an inline style attribute to the parent element:
+
+    <div class="CodeMirror" style="font-size: //fontSize;">
+        <!-- etc -->
+    </div>
+
+Theoretically, any CSS attribute could be set in this fashion by the user; furthermore, any custom styles could easily be stashed in the browser's localStorage or written to a CSS file and saved in server-side user account preferences.
+
+Todo's on this:
+  * detect browser's default font size and set that menu option as selected
 
 ### Getting the line position
 **TODO**
