@@ -49,8 +49,8 @@ Including simple functionalities (**How does it work with VO??**)
 
 
 ### Changing the font size
-**IN PROGRESS**
-&#x1F535;
+**DONE**
+&#x2705;
 
 A select menu is added to include options for font sizes ranging from 6px to 72px. It has an onchange event listener which calls the following function:
 
@@ -75,9 +75,6 @@ This then renders an inline style attribute to the parent element:
     </div>
 
 Theoretically, any CSS attribute could be set in this fashion by the user; furthermore, any custom styles could easily be stashed in the browser's localStorage or written to a CSS file and saved in server-side user account preferences.
-
-Todo's on this:
-  * detect browser's default font size and set that menu option as selected
 
 ### Getting the line position
 **TODO**
