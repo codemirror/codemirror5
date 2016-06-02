@@ -6,10 +6,14 @@ var myCodeMirror = CodeMirror(document.body, {
   lineNumbers: true,
   theme: "3024-day",
   autoCloseBrackets: true,
-  // inputStyle: "contenteditable",
-  keyMap: "vim"
+  inputStyle: "contenteditable"
+  // keyMap: "vim"
 
 });
+
+// lwt's save this as a globally accessible variable in case we need it for more custom style functions
+var cmWrapperElement = myCodeMirror.getWrapperElement();
+
 // debugger;
 
 codeArea =document.getElementsByClassName('CodeMirror')[0];
@@ -19,7 +23,7 @@ codeArea.addEventListener("keyup", function() {
 })
 window.onload = function(){
   document.getElementById('noOfLines').innerHTML = 'no of lines - ' + myCodeMirror.lineCount();
-
+  fontSizeMenu = document.getElementById('fontSize');
 }
 
 /******* ADDED EDITOR FUNCTIONALITES *********/
@@ -41,4 +45,9 @@ function toggleTheme() {
     myCodeMirror.setOption('theme','3024-day');
     isLightTheme = 1;
   }
+}
+
+function setFontSize() {
+  var fontSize = document.getElementById('fontSize').value;
+  cmWrapperElement.style['font-size'] = fontSize;
 }
