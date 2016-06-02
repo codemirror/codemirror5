@@ -6,8 +6,8 @@ var myCodeMirror = CodeMirror(document.body, {
   lineNumbers: true,
   theme: "3024-day",
   autoCloseBrackets: true,
-  // inputStyle: "contenteditable",
-  keyMap: "vim"
+  inputStyle: "contenteditable",
+  // keyMap: "vim"
 
 });
 // debugger;
@@ -19,7 +19,8 @@ codeArea.addEventListener("keyup", function() {
 })
 window.onload = function(){
   document.getElementById('noOfLines').innerHTML = 'no of lines - ' + myCodeMirror.lineCount();
-
+  //add content editable to the parent class - 'CodeMirror-lines'
+  document.getElementsByClassName('CodeMirror-lines')[0].contentEditable = true;
 }
 
 /******* ADDED EDITOR FUNCTIONALITES *********/
