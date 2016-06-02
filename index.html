@@ -13,8 +13,32 @@
   </head>
 
   <body>
-    <script src="app.js"></script>
+    <script src="app.js"></script>  
     <button id="toggleTheme" onClick="toggleTheme()">Toggle Theme </button>
+    <select id="fontSize" onChange="setFontSize()">
+      <option value="6px">6px</option>
+      <option value="7px">7px</option>
+      <option value="8px">8px</option>
+      <option value="9px">9px</option>
+      <option value="10px">10px</option>
+      <option value="11px">11px</option>
+      <option value="12px">12px</option>
+      <option value="14px">14px</option>
+      <option value="16px">16px</option>
+      <option value="18px">18px</option>
+      <option value="21px">21px</option>
+      <option value="24px">24px</option>
+      <option value="28px">28px</option>
+      <option value="32px">32px</option>
+      <option value="36px">36px</option>
+      <option value="40px">40px</option>
+      <option value="48px">48px</option>
+      <option value="56px">56px</option>
+      <option value="60px">60px</option>
+      <option value="68px">68px</option>
+      <option value="72px">72px</option>
+    </select>
+    <label for="fontSize">Set Font Size</label>
     <div id="noOfLines" aria-live="assertive" > no Of lines - 10 </div>
   </body>
 </html>
