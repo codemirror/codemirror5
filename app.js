@@ -23,7 +23,12 @@ codeArea.addEventListener("keyup", function() {
 })
 window.onload = function(){
   document.getElementById('noOfLines').innerHTML = 'no of lines - ' + myCodeMirror.lineCount();
+
   fontSizeMenu = document.getElementById('fontSize');
+
+  //add content editable to the parent class - 'CodeMirror-lines'
+  // document.getElementsByClassName('CodeMirror-lines')[0].contentEditable = true;
+
 }
 
 /******* ADDED EDITOR FUNCTIONALITES *********/

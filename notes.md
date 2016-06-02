@@ -8,7 +8,12 @@ Details in
 https://docs.google.com/spreadsheets/d/1VWlJQrEKwQFvZjXJrPiOWz59Sanv9eK58RRvbo1e83A/edit#gid=0
 
 Can be set using inputStyle: "contenteditable"
+
 **NOTE** Typing is not read out in this mode
+
+**FIX** Add contenteditable="true" to the parent class containing the code - class='CodeMirror-lines' - app.js
+
+    document.getElementsByClassName('CodeMirror-lines')[0].contentEditable = true;
 
 
 ### Including vi
