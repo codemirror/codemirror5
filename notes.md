@@ -15,6 +15,10 @@ Can be set using inputStyle: "contenteditable"
 
     document.getElementsByClassName('CodeMirror-lines')[0].contentEditable = true;
 
+**NOTE** This causes the code not to compile completely , reverted the change for now.
+
+**TO DO** Test contenteditable against various browsers. (check for standard list in W3C)
+
 
 ### Including vi
 **DONE**
@@ -49,10 +53,32 @@ Including simple functionalities (**How does it work with VO??**)
 
 
 ### Changing the font size
-**TODO**
-&#x1F534;
+**DONE**
+&#x2705;
 
-Going to try and add buttons to achieve this
+A select menu is added to include options for font sizes ranging from 6px to 72px. It has an onchange event listener which calls the following function:
+
+    <select id="fontSize">
+        <option value="6px">6px</option>
+        <option value="7px">7px</option>
+        <option value="8px">8px</option>
+        <!-- etc -->
+    </select>
+
+    var cmWrapperElement = myCodeMirror.getWrapperElement();
+
+    function setFontSize() {
+        var fontSize = document.getElementById('fontSize').value;
+        cmWrapperElement.style['font-size'] = value;
+    }
+
+This then renders an inline style attribute to the parent element:
+
+    <div class="CodeMirror" style="font-size: //fontSize;">
+        <!-- etc -->
+    </div>
+
+Theoretically, any CSS attribute could be set in this fashion by the user; furthermore, any custom styles could easily be stashed in the browser's localStorage or written to a CSS file and saved in server-side user account preferences.
 
 ### Getting the line position
 **TODO**
