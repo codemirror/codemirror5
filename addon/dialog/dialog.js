@@ -65,6 +65,8 @@
         }
       }
 
+      if (options.onOpen)
+        options.onOpen(inp.value, close);
       if (options.onInput)
         CodeMirror.on(inp, "input", function(e) { options.onInput(e, inp.value, close);});
       if (options.onKeyUp)
