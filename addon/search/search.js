@@ -113,7 +113,7 @@
     }
   }
 
-  function doSearch(cm, rev, persistent) {
+  function doSearch(cm, rev, persistent, immediate) {
     var state = getSearchState(cm);
     if (state.query) return findNext(cm, rev);
     var q = cm.getSelection() || state.lastQuery;
@@ -146,6 +146,10 @@
           searchNext(query, event);
         }
       });
+      if (immediate) {
+        startSearch(cm, state, q);
+        findNext(cm, rev);
+      }
     } else {
       dialog(cm, queryDialog, "Search for:", q, function(query) {
         if (query && !state.query) cm.operation(function() {
@@ -235,6 +239,8 @@
 
   CodeMirror.commands.find = function(cm) {clearSearch(cm); doSearch(cm);};
   CodeMirror.commands.findPersistent = function(cm) {clearSearch(cm); doSearch(cm, false, true);};
+  CodeMirror.commands.findPersistentNext = function(cm) {doSearch(cm, false, true, true);};
+  CodeMirror.commands.findPersistentPrev = function(cm) {doSearch(cm, true, true, true);};
   CodeMirror.commands.findNext = doSearch;
   CodeMirror.commands.findPrev = function(cm) {doSearch(cm, true);};
   CodeMirror.commands.clearSearch = clearSearch;
