@@ -2,43 +2,65 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>codemirror</title>
+    <title>CodeMirror</title>
     <script src="lib/codemirror.js"></script>
     <link rel="stylesheet" href="lib/codemirror.css">
     <link rel="stylesheet" href="theme/3024-day.css">
     <link rel="stylesheet" href="theme/3024-night.css">
+    <link rel="stylesheet" href="theme/midnight.css">
+    <link rel="stylesheet" href="theme/eclipse.css">
+    <link rel="stylesheet" href="theme/cobalt.css">
+    <link rel="stylesheet" href="theme/monokai.css">
+    <link rel="stylesheet" href="style.css">
     <script src="mode/javascript/javascript.js"></script>
     <script src="keymap/vim.js"></script>
     <script src="addon/edit/closebrackets.js"></script>
   </head>
 
   <body style='font-size: 14px;'>
-    <script src="app.js"></script>  
-    <button id="toggleTheme" onClick="toggleTheme()">Toggle Theme </button>
-    <select id="fontSize" onChange="setFontSize()">
-      <option value="6px">6px</option>
-      <option value="7px">7px</option>
-      <option value="8px">8px</option>
-      <option value="9px">9px</option>
-      <option value="10px">10px</option>
-      <option value="11px">11px</option>
-      <option value="12px">12px</option>
-      <option value="14px" selected>14px</option>
-      <option value="16px">16px</option>
-      <option value="18px">18px</option>
-      <option value="21px">21px</option>
-      <option value="24px">24px</option>
-      <option value="28px">28px</option>
-      <option value="32px">32px</option>
-      <option value="36px">36px</option>
-      <option value="40px">40px</option>
-      <option value="48px">48px</option>
-      <option value="56px">56px</option>
-      <option value="60px">60px</option>
-      <option value="68px">68px</option>
-      <option value="72px">72px</option>
-    </select>
-    <label for="fontSize">Set Font Size</label>
-    <div id="noOfLines" aria-live="assertive" > no Of lines - 10 </div>
+    <h1>
+      Code Mirror Test
+    </h1>
+    <script src="app.js"></script>
+    <!-- To select between themes  -->
+
+    <div class="ideThemeSelect">
+      <label for="ideTheme">Select Theme</label>
+      <select id="ideTheme" onChange="setIDETheme()">
+        <option value="midnight">midnight</option>
+        <option value="eclipse">eclipse</option>
+        <option value="cobalt" selected>cobalt</option>
+        <option value="monokai">monokai</option>
+      </select>
+    </div>
+
+    <div class="fontSelect">
+      <label for="fontSize">Set Font Size</label>
+      <select id="fontSize" onChange="setFontSize()">
+        <option value="6px">6px</option>
+        <option value="7px">7px</option>
+        <option value="8px">8px</option>
+        <option value="9px">9px</option>
+        <option value="10px">10px</option>
+        <option value="11px">11px</option>
+        <option value="12px">12px</option>
+        <option value="14px" selected>14px</option>
+        <option value="16px">16px</option>
+        <option value="18px">18px</option>
+        <option value="21px">21px</option>
+        <option value="24px">24px</option>
+        <option value="28px">28px</option>
+        <option value="32px">32px</option>
+        <option value="36px">36px</option>
+        <option value="40px">40px</option>
+        <option value="48px">48px</option>
+        <option value="56px">56px</option>
+        <option value="60px">60px</option>
+        <option value="68px">68px</option>
+        <option value="72px">72px</option>
+      </select>
+    </div>
+    
+    <!-- <div id="noOfLines" aria-live="assertive" > no Of lines - 10 </div> -->
   </body>
 </html>

@@ -7,8 +7,6 @@ var myCodeMirror = CodeMirror(document.body, {
   theme: "3024-day",
   autoCloseBrackets: true,
   inputStyle: "contenteditable"
-  // keyMap: "vim"
-
 });
 
 // let's save this as a globally accessible variable in case we need it for more custom style functions
@@ -22,7 +20,8 @@ codeArea.addEventListener("keyup", function() {
   eval(myCodeMirror.doc.getValue());
 })
 window.onload = function(){
-  document.getElementById('noOfLines').innerHTML = 'no of lines - ' + myCodeMirror.lineCount();
+  
+  setIDETheme();
 
   //add content editable to the parent class - 'CodeMirror-lines'
   // document.getElementsByClassName('CodeMirror-lines')[0].contentEditable = true;
@@ -53,4 +52,9 @@ function toggleTheme() {
 function setFontSize() {
   var fontSize = document.getElementById('fontSize').value;
   cmWrapperElement.style['font-size'] = fontSize;
+}
+
+function setIDETheme() {
+  var selTheme = document.getElementById('ideTheme').value;
+  myCodeMirror.setOption('theme',selTheme);
 }

@@ -15,6 +15,10 @@ Can be set using inputStyle: "contenteditable"
 
     document.getElementsByClassName('CodeMirror-lines')[0].contentEditable = true;
 
+**NOTE** This causes the code not to compile completely , reverted the change for now.
+
+**TO DO** Test contenteditable against various browsers. (check for standard list in W3C)
+
 
 ### Including vi
 **DONE**
