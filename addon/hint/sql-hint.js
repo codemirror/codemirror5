@@ -18,7 +18,7 @@
     QUERY_DIV: ";",
     ALIAS_KEYWORD: "AS"
   };
-  var Pos = CodeMirror.Pos;
+  var Pos = CodeMirror.Pos, cmpPos = CodeMirror.cmpPos;
 
   function isArray(val) { return Object.prototype.toString.call(val) == "[object Array]" }
 
@@ -178,15 +178,6 @@
     }
   }
 
-  function convertCurToNumber(cur) {
-    // max characters of a line is 999,999.
-    return cur.line + cur.ch / Math.pow(10, 6);
-  }
-
-  function convertNumberToCur(num) {
-    return Pos(Math.floor(num), +num.toFixed(6).toString().split('.').pop());
-  }
-
   function findTableByAlias(alias, editor) {
     var doc = editor.doc;
     var fullQuery = doc.getValue();
@@ -209,15 +200,14 @@
     separator.push(Pos(editor.lastLine(), editor.getLineHandle(editor.lastLine()).text.length));
 
     //find valid range
-    var prevItem = 0;
-    var current = convertCurToNumber(editor.getCursor());
+    var prevItem = null;
+    var current = editor.getCursor()
     for (var i = 0; i < separator.length; i++) {
-      var _v = convertCurToNumber(separator[i]);
-      if (current > prevItem && current <= _v) {
-        validRange = { start: convertNumberToCur(prevItem), end: convertNumberToCur(_v) };
+      if ((prevItem == null || cmpPos(current, prevItem) > 0) && cmpPos(current, separator[i]) <= 0) {
+        validRange = {start: prevItem, end: separator[i]};
         break;
       }
-      prevItem = _v;
+      prevItem = separator[i];
     }
 
     var query = doc.getRange(validRange.start, validRange.end, false);
