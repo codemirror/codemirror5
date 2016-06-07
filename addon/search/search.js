@@ -62,7 +62,21 @@
       value: deflt,
       selectValueOnOpen: true,
       closeOnEnter: false,
-      onClose: function() { clearSearch(cm); }
+      onClose: function() { clearSearch(cm); },
+      onKeyDown: function(ev, query) {
+        var cmd = CodeMirror.keyMap['default'][CodeMirror.keyName(ev)];
+        if (cmd) {
+          var nextSearchCmds = ['findNext', 'findPrev'];
+          var searchCmds = ['find', 'findPersistent'];
+          if (nextSearchCmds.indexOf(cmd) !== -1) {
+            startSearch(cm, getSearchState(cm), query);
+            CodeMirror.commands[cmd](cm);
+            CodeMirror.e_stop(ev);
+          } else if (searchCmds.indexOf(cmd) !== -1) {
+            f(query, ev);
+          }
+        }
+      }
     });
   }
 
