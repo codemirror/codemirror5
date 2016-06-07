@@ -57,13 +57,12 @@
     return cm.getSearchCursor(query, pos, queryCaseInsensitive(query));
   }
 
-  function persistentDialog(cm, text, deflt, onEnter, onOpen) {
-    cm.openDialog(text, onEnter, {
+  function persistentDialog(cm, text, deflt, f) {
+    cm.openDialog(text, f, {
       value: deflt,
       selectValueOnOpen: true,
       closeOnEnter: false,
       onClose: function() { clearSearch(cm); },
-      onOpen: onOpen,
       onKeyDown: function(ev, val) {
         var keyCommand = CodeMirror.keyMap['default'][CodeMirror.keyName(ev)];
         var overriddenCommands = ['find', 'findPersistent', 'findPersistentNext', 'findPersistentPrev', 'findNext', 'findPrev'];
@@ -130,8 +129,7 @@
     var q = cm.getSelection() || state.lastQuery;
     if (persistent && cm.openDialog) {
       var hiding = null
-
-      var onEnter = function(query, event) {
+      persistentDialog(cm, queryDialog, q, function(query, event) {
         CodeMirror.e_stop(event);
         if (!query) return;
         if (query != state.queryText) {
@@ -146,17 +144,11 @@
               dialog.getBoundingClientRect().bottom - 4 > cm.cursorCoords(to, "window").top)
             (hiding = dialog).style.opacity = .4
         })
-      }
-
-      var onOpen = null;
+      });
       if (immediate) {
-        onOpen = function(q) {
-          startSearch(cm, getSearchState(cm), q);
-          findNext(cm, rev);
-        }
+        startSearch(cm, state, q);
+        findNext(cm, rev);
       }
-
-      persistentDialog(cm, queryDialog, q, onEnter, onOpen);
     } else {
       dialog(cm, queryDialog, "Search for:", q, function(query) {
         if (query && !state.query) cm.operation(function() {
