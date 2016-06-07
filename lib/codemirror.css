@@ -297,7 +297,10 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
   visibility: hidden;
 }
 
-.CodeMirror-cursor { position: absolute; }
+.CodeMirror-cursor {
+  position: absolute;
+  pointer-events: none;
+}
 .CodeMirror-measure pre { position: static; }
 
 div.CodeMirror-cursors {
