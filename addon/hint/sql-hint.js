@@ -184,7 +184,7 @@
   }
 
   function convertNumberToCur(num) {
-    return Pos(Math.floor(num), +num.toString().split('.').pop());
+    return Pos(Math.floor(num), +num.toFixed(6).toString().split('.').pop());
   }
 
   function findTableByAlias(alias, editor) {
