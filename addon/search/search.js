@@ -68,10 +68,7 @@
         var overriddenCommands = ['find', 'findPersistent', 'findNext', 'findPrev'];
 
         if (keyCommand && overriddenCommands.indexOf(keyCommand) !== -1) {
-          startSearch(cm, getSearchState(cm), val);
-          doSearch(cm, ev.shiftKey, true);
-          CodeMirror.e_stop(ev);
-          return false;
+          f(val, ev);
         }
       }
     });
