@@ -1,3 +1,23 @@
+## 5.16.0 (2016-06-20)
+
+### Bugfixes
+
+Fix glitches when dragging content caused by the drop indicator receiving mouse events.
+
+Make Control-drag work on Firefox.
+
+Make clicking or selection-dragging at the end of a wrapped line select the right position.
+
+[show-hint addon](http://codemirror.net/doc/manual.html#addon_show-hint): Prevent widget scrollbar from hiding part of the hint text.
+
+[rulers addon](http://codemirror.net/doc/manual.html#addon_rulers): Prevent rulers from forcing a horizontal editor scrollbar.
+
+### New features
+
+[search addon](http://codemirror.net/doc/manual.html#addon_search): Automatically bind search-related keys in persistent dialog.
+
+[sublime keymap](http://codemirror.net/demo/sublime.html): Add a multi-cursor aware smart backspace binding.
+
 ## 5.15.2 (2016-05-20)
 
 ### Bugfixes
