@@ -386,7 +386,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     var maybeop = noComma ? maybeoperatorNoComma : maybeoperatorComma;
     if (atomicTypes.hasOwnProperty(type)) return cont(maybeop);
     if (type == "function") return cont(functiondef, maybeop);
-    if (type == "keyword c") return cont(noComma ? maybeexpressionNoComma : maybeexpression);
+    if (type == "keyword c" || type == "async") return cont(noComma ? maybeexpressionNoComma : maybeexpression);
     if (type == "(") return cont(pushlex(")"), maybeexpression, comprehension, expect(")"), poplex, maybeop);
     if (type == "operator" || type == "spread") return cont(noComma ? expressionNoComma : expression);
     if (type == "[") return cont(pushlex("]"), arrayLiteral, poplex, maybeop);
@@ -463,6 +463,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == "variable") {cx.marked = "property"; return cont();}
   }
   function objprop(type, value) {
+    if (type == "async") return cont(objprop);
     if (type == "variable" || cx.style == "keyword") {
       cx.marked = "property";
       if (value == "get" || value == "set") return cont(getterSetter);
