@@ -22,6 +22,8 @@
       "list3" : "override-list3",
       "hr" : "override-hr",
       "image" : "override-image",
+      "imageAltText": "override-image-alt-text",
+      "imageMarker": "override-image-marker",
       "linkInline" : "override-link-inline",
       "linkEmail" : "override-link-email",
       "linkText" : "override-link-text",
@@ -88,6 +90,9 @@
 
   FT("formatting_escape",
      "[formatting-escape \\*]");
+
+  FT("formatting_image",
+     "[formatting&formatting-image&image&image-marker !][formatting&formatting-image&image&image-alt-text&link [[][image&image-alt-text&link alt text][formatting&formatting-image&image&image-alt-text&link ]]][formatting&formatting-link-string&string&url (][url&string http://link.to/image.jpg][formatting&formatting-link-string&string&url )]");
 
   MT("plainText",
      "foo");
@@ -589,6 +594,20 @@
   MT("hrDashLong",
      "[hr ---------------------------------------]");
 
+  //Images
+  MT("Images",
+     "[image&image-marker !][image&image-alt-text&link [[alt text]]][string&url (http://link.to/image.jpg)]")
+
+  //Images with highlight alt text
+  MT("imageEm",
+     "[image&image-marker !][image&image-alt-text&link [[][image-alt-text&em&image&link *alt text*][image&image-alt-text&link ]]][string&url (http://link.to/image.jpg)]");
+
+  MT("imageStrong",
+     "[image&image-marker !][image&image-alt-text&link [[][image-alt-text&strong&image&link **alt text**][image&image-alt-text&link ]]][string&url (http://link.to/image.jpg)]");
+
+  MT("imageEmStrong",
+     "[image&image-marker !][image&image-alt-text&link [[][image-alt-text&image&strong&link **][image&image-alt-text&em&strong&link *alt text**][image&image-alt-text&em&link *][image&image-alt-text&link ]]][string&url (http://link.to/image.jpg)]");
+
   // Inline link with title
   MT("linkTitle",
      "[link [[foo]]][string&url (http://example.com/ \"bar\")] hello");
@@ -599,7 +618,7 @@
 
   // Inline link with image
   MT("linkImage",
-     "[link [[][tag ![[foo]]][string&url (http://example.com/)][link ]]][string&url (http://example.com/)] bar");
+     "[link [[][link&image&image-marker !][link&image&image-alt-text&link [[alt text]]][string&url (http://link.to/image.jpg)][link ]]][string&url (http://example.com/)] bar");
 
   // Inline link with Em
   MT("linkEm",
@@ -615,15 +634,15 @@
 
   // Image with title
   MT("imageTitle",
-     "[tag ![[foo]]][string&url (http://example.com/ \"bar\")] hello");
+     "[image&image-marker !][image&image-alt-text&link [[alt text]]][string&url (http://example.com/ \"bar\")] hello");
 
   // Image without title
   MT("imageNoTitle",
-     "[tag ![[foo]]][string&url (http://example.com/)] bar");
+     "[image&image-marker !][image&image-alt-text&link [[alt text]]][string&url (http://example.com/)] bar");
 
   // Image with asterisks
   MT("imageAsterisks",
-     "[tag ![[*foo*]]][string&url (http://example.com/)] bar");
+     "[image&image-marker !][image&image-alt-text&link [[ ][image&image-alt-text&em&link *alt text*][image&image-alt-text&link ]]][string&url (http://link.to/image.jpg)] bar");
 
   // Not a link. Should be normal text due to square brackets being used
   // regularly in text, especially in quoted material, and no space is allowed
@@ -878,7 +897,7 @@
     "[override-hr * * *]");
 
   TokenTypeOverrideTest("overrideImage",
-    "[override-image ![[foo]]][override-link-href&url (http://example.com/)]")
+    "[override-image&override-image-marker !][override-image&override-image-alt-text&link [[alt text]]][override-link-href&url (http://link.to/image.jpg)]");
 
   TokenTypeOverrideTest("overrideLinkText",
     "[override-link-text [[foo]]][override-link-href&url (http://example.com)]");
