@@ -444,7 +444,6 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     }
 
     if (ch === '[' && state.imageMarker) {
-      console.debug('imageAltText')
       state.imageMarker = false;
       state.imageAltText = true
       if (modeCfg.highlightFormatting) state.formatting = "image";
@@ -452,10 +451,10 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     }
 
     if (ch === ']' && state.imageAltText) {
-      console.debug('End alt text')
       if (modeCfg.highlightFormatting) state.formatting = "image";
       var type = getType(state);
       state.imageAltText = false;
+      state.image = false;
       state.inline = state.f = linkHref;
       return type;
     }
