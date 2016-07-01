@@ -316,7 +316,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       if (state.linkText) { styles.push(tokenTypes.linkText); }
       if (state.code) { styles.push(tokenTypes.code); }
       if (state.image) { styles.push(tokenTypes.image); }
-      if (state.imageAltText) { styles.push(tokenTypes.imageAltText); }
+      if (state.imageAltText) { styles.push(tokenTypes.imageAltText, "link"); }
       if (state.imageMarker) { styles.push(tokenTypes.imageMarker); }
     }
 
