@@ -52,8 +52,10 @@
     });
   }
 
-  cmds[map["Alt-Left"] = "goSubwordLeft"] = function(cm) { moveSubword(cm, -1); };
-  cmds[map["Alt-Right"] = "goSubwordRight"] = function(cm) { moveSubword(cm, 1); };
+  var goSubwordCombo = mac ? "Ctrl-" : "Alt-";
+
+  cmds[map[goSubwordCombo + "Left"] = "goSubwordLeft"] = function(cm) { moveSubword(cm, -1); };
+  cmds[map[goSubwordCombo + "Right"] = "goSubwordRight"] = function(cm) { moveSubword(cm, 1); };
 
   if (mac) map["Cmd-Left"] = "goLineStartSmart";
 
