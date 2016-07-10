@@ -24,18 +24,13 @@ CodeMirror.defineMode("gfm", function(config, modeConfig) {
       return {
         code: false,
         codeBlock: false,
-        ateSpace: false
-      };
-    },
-    copyState: function(s) {
-      return {
-        code: s.code,
-        codeBlock: s.codeBlock,
-        ateSpace: s.ateSpace
+        ateSpace: false,
+        freezeBaseState: false
       };
     },
     token: function(stream, state) {
       state.combineTokens = null;
+      state.freezeBaseState = false;
 
       // Hack to prevent formatting override inside code blocks (block and inline)
       if (state.codeBlock) {
@@ -104,6 +99,8 @@ CodeMirror.defineMode("gfm", function(config, modeConfig) {
         // And then (issue #1160) simplified to make it not crash the Chrome Regexp engine
         // And then limited url schemes to the CommonMark list, so foo:bar isn't matched as a URL
         state.combineTokens = true;
+        // #4079: Freeze base state until after URL to avoid parsing formatting within link
+        state.freezeBaseState = true;
         return "link";
       }
       stream.next();
