@@ -495,7 +495,10 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       if (type == ",") {
         var lex = cx.state.lexical;
         if (lex.info == "call") lex.pos = (lex.pos || 0) + 1;
-        return cont(what, proceed);
+        return cont(function(type, value) {
+          if (type == end || value == end) return pass()
+          return pass(what)
+        }, proceed);
       }
       if (type == end || value == end) return cont();
       return cont(expect(end));

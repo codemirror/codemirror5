@@ -44,6 +44,9 @@
      "  [keyword import] { [def encrypt], [def decrypt] } [keyword from] [string 'crypto'];",
      "}");
 
+  MT("import_trailing_comma",
+     "[keyword import] {[def foo], [def bar],} [keyword from] [string 'baz']")
+
   MT("const",
      "[keyword function] [def f]() {",
      "  [keyword const] [[ [def a], [def b] ]] [operator =] [[ [number 1], [number 2] ]];",
