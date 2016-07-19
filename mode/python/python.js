@@ -233,7 +233,7 @@
 
     function dedent(stream, state) {
       var indented = stream.indentation();
-      while (top(state).offset > indented) {
+      while (state.scopes.length > 1 && top(state).offset > indented) {
         if (top(state).type != "py") return true;
         state.scopes.pop();
       }
