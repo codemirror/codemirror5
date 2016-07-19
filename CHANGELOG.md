@@ -1,3 +1,23 @@
+## 5.17.0 (2016-07-19)
+
+### Bugfixes
+
+Fix problem with wrapped trailing whitespace displaying incorrectly.
+
+Prevent IME dialog from overlapping typed content in Chrome.
+
+Improve measuring of characters near a line wrap.
+
+[javascript mode](http://codemirror.net/mode/javascript): Improve support for `async`, allow trailing commas in `import` lists.
+
+[vim bindings](http://codemirror.net/demo/vim.html): Fix backspace in replace mode.
+
+[sublime bindings](http://codemirror.net/demo/sublime.html): Fix some key bindings on OS X to match Sublime Text.
+
+### New features
+
+[markdown mode](http://codemirror.net/mode/markdown): Add more classes to image links in highlight-formatting mode.
+
 ## 5.16.0 (2016-06-20)
 
 ### Bugfixes
