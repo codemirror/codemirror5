@@ -641,7 +641,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   }
   function arrayLiteral(type) {
     if (type == "]") return cont();
-    return pass(expressionNoComma, commasep(expressionNoComma, "]"));
+    return pass(commasep(expressionNoComma, "]"));
   }
 
   function isContinuedStatement(state, textAfter) {
