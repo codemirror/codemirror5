@@ -158,6 +158,17 @@ testCM("indent", function(cm) {
   eq(cm.getLine(1), "\t\t  blah();");
 }, {value: "if (x) {\nblah();\n}", indentUnit: 3, indentWithTabs: true, tabSize: 8});
 
+testCM("indentWithTabStops", function(cm) {
+  cm.indentLine(1);
+  eq(cm.getLine(1), "   blah();");
+  cm.setOption("indentUnit", 4);
+  cm.indentLine(1);
+  eq(cm.getLine(1), "\tblah();");
+  cm.setOption("indentUnit", 8);
+  cm.indentLine(1);
+  eq(cm.getLine(1), "\t\t  blah();");
+}, {value: "if (x) {\nblah();\n}", indentUnit: 3, indentWithTabs: true, tabStops: [4,6], tabSize: 8});
+
 testCM("indentByNumber", function(cm) {
   cm.indentLine(0, 2);
   eq(cm.getLine(0), "  foo");
