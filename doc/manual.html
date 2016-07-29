@@ -69,7 +69,7 @@
 <section class=first id=overview>
     <h2 style="position: relative">
       User manual and reference guide
-      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 5.13.5</span>
+      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 5.17.1</span>
     </h2>
 
     <p>CodeMirror is a code-editor component that can be embedded in
@@ -285,7 +285,7 @@
       should be replaced by a
       special <a href="#option_specialCharPlaceholder">placeholder</a>.
       Mostly useful for non-printing special characters. The default
-      is <code>/[\u0000-\u0019\u00ad\u200b-\u200f\u2028\u2029\ufeff]/</code>.</dd>
+      is <code>/[\u0000-\u001f\u007f\u00ad\u200b-\u200f\u2028\u2029\ufeff]/</code>.</dd>
       <dt id="option_specialCharPlaceholder"><code><strong>specialCharPlaceholder</strong>: function(char) → Element</code></dt>
       <dd>A function that, given a special character identified by
       the <a href="#option_specialChars"><code>specialChars</code></a>
@@ -2568,8 +2568,9 @@ editor.setOption("extraKeys", {
         <dt><code><strong>to</strong>: {line, ch}</code></dt>
         <dd>Optional <code>to</code> position that will be used by <code>pick()</code> instead
         of the global one passed with the full list of completions.</dd>
-      </dl>
-      The plugin understands the following options (the options object
+      </dl></dd>
+      
+      <dd>The plugin understands the following options (the options object
       will also be passed along to the hinting function, which may
       understand additional options):
       <dl>
@@ -2580,7 +2581,10 @@ editor.setOption("extraKeys", {
         arguments <code>(cm, callback, ?options)</code>, and the
         completion interface will only be popped up when the hinting
         function calls the callback, passing it the object holding the
-        completions. By default, hinting only works when there is no
+        completions.
+        The hinting function can also return a promise, and the completion
+        interface will only be popped when the promise resolves.
+        By default, hinting only works when there is no
         selection. You can give a hinting function
         a <code>supportsSelection</code> property with a truthy value
         to indicate that it supports selections.</dd>
@@ -2696,7 +2700,8 @@ editor.setOption("extraKeys", {
       (default 2), <code>style</code>, for the style to be used to
       highlight the matches (default <code>"matchhighlight"</code>,
       which will correspond to CSS
-      class <code>cm-matchhighlight</code>),
+      class <code>cm-matchhighlight</code>), <code>trim</code>, which
+      controls whether whitespace is trimmed from the selection,
       and <code>showToken</code> which can be set to <code>true</code>
       or to a regexp matching the characters that make up a word. When
       enabled, it causes the current word to be highlighted when

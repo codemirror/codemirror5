@@ -1,0 +1,94 @@
+/*
+
+	Name:       Panda Syntax
+	Author:     Siamak Mokhtari (http://github.com/siamak/)
+
+	CodeMirror template by Siamak Mokhtari (https://github.com/siamak/atom-panda-syntax)
+
+*/
+.cm-s-panda-syntax {
+	/*font-family: 'Operator Mono', 'Source Sans Pro', Helvetica, Arial, sans-serif;*/
+	font-family: 'Operator Mono', 'Source Sans Pro', Menlo, Monaco, Consolas, Courier New, monospace;
+	background: #292A2B;
+	color: #E6E6E6;
+}
+.cm-s-panda-syntax .CodeMirror-activeline-background {
+	background: #404954;
+}
+
+.cm-s-panda-syntax .cm-comment {
+	font-style: italic;
+	color: #676B79;
+}
+.cm-s-panda-syntax .cm-string,
+.cm-s-panda-syntax .cm-string-2 {
+	color: #19F9D8;
+}
+.cm-s-panda-syntax .cm-number {
+	color: #FFB86C;
+}
+.cm-s-panda-syntax .cm-atom {
+	color: #FFB86C;
+}
+
+.cm-s-panda-syntax .cm-keyword {
+	color: #FF75B5;
+}
+.cm-s-panda-syntax .cm-keyword-2 {
+	color: #FF75B5;
+}
+.cm-s-panda-syntax .cm-keyword-3 {
+	color: #B084EB;
+}
+
+.cm-s-panda-syntax .cm-variable {
+	color: #FF9AC1;
+}
+.cm-s-panda-syntax .cm-variable-2 {
+	color: #e6e6e6;
+}
+.cm-s-panda-syntax .cm-variable-3 {
+	color: #82B1FF;
+}
+
+.cm-s-panda-syntax .cm-def {
+	/*font-style: italic;*/
+	color: #e6e6e6;
+}
+.cm-s-panda-syntax .cm-def-2 {
+	font-style: italic;
+	color: #ffcc95;
+}
+
+
+.cm-s-panda-syntax .cm-property {
+	color: #6FC1FF;
+}
+
+.cm-s-panda-syntax .cm-matchingbracket,
+.CodeMirror .CodeMirror-matchingbracket {
+	color: #E6E6E6 !important;
+	border-bottom: 1px dotted #19f9d8;
+	padding-bottom: 2px;
+}
+
+.cm-s-panda-syntax .CodeMirror-gutters {
+	background: #292A2B;
+	color: #757575;
+	border: none;
+}
+.cm-s-panda-syntax .CodeMirror-guttermarker, .cm-s-panda-syntax .CodeMirror-guttermarker-subtle, .cm-s-panda-syntax .CodeMirror-linenumber {
+	color: #757575;
+}
+.cm-s-panda-syntax .CodeMirror-linenumber {
+	padding-right: 10px;
+}
+.cm-s-panda-syntax .CodeMirror-cursor {
+	border-left: 1px solid #757575;
+}
+/*.cm-s-panda-syntax div.CodeMirror-selected { background: rgba(255, 255, 255, 0.5); }*/
+.cm-s-panda-syntax.CodeMirror-focused div.CodeMirror-selected { background: rgba(255, 255, 255, 0.25); }
+.cm-s-panda-syntax .CodeMirror-line::selection, .cm-s-panda-syntax .CodeMirror-line > span::selection, .cm-s-panda-syntax .CodeMirror-line > span > span::selection { background: rgba(255, 255, 255, 0.10); }
+.cm-s-panda-syntax .CodeMirror-line::-moz-selection, .cm-s-panda-syntax .CodeMirror-line > span::-moz-selection, .cm-s-panda-syntax .CodeMirror-line > span > span::-moz-selection { background: rgba(255, 255, 255, 0.10); }
+
+.cm-s-panda-syntax .CodeMirror-activeline-background { background: rgba(99, 123, 156, 0.125); }

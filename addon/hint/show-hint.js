@@ -108,15 +108,11 @@
     },
 
     update: function(first) {
-      if (this.tick == null) return;
-      if (!this.options.hint.async) {
-        this.finishUpdate(this.options.hint(this.cm, this.options), first);
-      } else {
-        var myTick = ++this.tick, self = this;
-        this.options.hint(this.cm, function(data) {
-          if (self.tick == myTick) self.finishUpdate(data, first);
-        }, this.options);
-      }
+      if (this.tick == null) return
+      var self = this, myTick = ++this.tick
+      fetchHints(this.options.hint, this.cm, this.options, function(data) {
+        if (self.tick == myTick) self.finishUpdate(data, first)
+      })
     },
 
     finishUpdate: function(data, first) {
@@ -233,6 +229,9 @@
     var winH = window.innerHeight || Math.max(document.body.offsetHeight, document.documentElement.offsetHeight);
     (completion.options.container || document.body).appendChild(hints);
     var box = hints.getBoundingClientRect(), overlapY = box.bottom - winH;
+    var scrolls = hints.scrollHeight > hints.clientHeight + 1
+    var startScroll = cm.getScrollInfo();
+
     if (overlapY > 0) {
       var height = box.bottom - box.top, curTop = pos.top - (pos.bottom - box.top);
       if (curTop - height > 0) { // Fits above cursor
@@ -257,6 +256,8 @@
       }
       hints.style.left = (left = pos.left - overlapX) + "px";
     }
+    if (scrolls) for (var node = hints.firstChild; node; node = node.nextSibling)
+      node.style.paddingRight = cm.display.nativeBarWidth + "px"
 
     cm.addKeyMap(this.keyMap = buildKeyMap(completion, {
       moveFocus: function(n, avoidWrap) { widget.changeActive(widget.selectedHint + n, avoidWrap); },
@@ -274,7 +275,6 @@
       cm.on("focus", this.onFocus = function() { clearTimeout(closingOnBlur); });
     }
 
-    var startScroll = cm.getScrollInfo();
     cm.on("scroll", this.onScroll = function() {
       var curScroll = cm.getScrollInfo(), editor = cm.getWrapperElement().getBoundingClientRect();
       var newTop = top + startScroll.top - curScroll.top;
@@ -362,40 +362,31 @@
     return result
   }
 
+  function fetchHints(hint, cm, options, callback) {
+    if (hint.async) {
+      hint(cm, callback, options)
+    } else {
+      var result = hint(cm, options)
+      if (result && result.then) result.then(callback)
+      else callback(result)
+    }
+  }
+
   function resolveAutoHints(cm, pos) {
     var helpers = cm.getHelpers(pos, "hint"), words
     if (helpers.length) {
-      var async = false, resolved
-      for (var i = 0; i < helpers.length; i++) if (helpers[i].async) async = true
-      if (async) {
-        resolved = function(cm, callback, options) {
-          var app = applicableHelpers(cm, helpers)
-          function run(i, result) {
-            if (i == app.length) return callback(null)
-            var helper = app[i]
-            if (helper.async) {
-              helper(cm, function(result) {
-                if (result) callback(result)
-                else run(i + 1)
-              }, options)
-            } else {
-              var result = helper(cm, options)
-              if (result) callback(result)
-              else run(i + 1)
-            }
-          }
-          run(0)
+      var resolved = function(cm, callback, options) {
+        var app = applicableHelpers(cm, helpers);
+        function run(i) {
+          if (i == app.length) return callback(null)
+          fetchHints(app[i], cm, options, function(result) {
+            if (result && result.list.length > 0) callback(result)
+            else run(i + 1)
+          })
         }
-        resolved.async = true
-      } else {
-        resolved = function(cm, options) {
-          var app = applicableHelpers(cm, helpers)
-          for (var i = 0; i < app.length; i++) {
-            var cur = app[i](cm, options)
-            if (cur && cur.list.length) return cur
-          }
-        }
+        run(0)
       }
+      resolved.async = true
       resolved.supportsSelection = true
       return resolved
     } else if (words = cm.getHelper(cm.getCursor(), "hintWords")) {

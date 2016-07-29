@@ -204,7 +204,8 @@
 
     var annotations = [];
     for (var i = 0; i < spans.length; ++i) {
-      annotations.push(spans[i].__annotation);
+      var ann = spans[i].__annotation;
+      if (ann) annotations.push(ann);
     }
     if (annotations.length) popupTooltips(annotations, e);
   }

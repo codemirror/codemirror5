@@ -36,7 +36,7 @@ CodeMirror.defineMode('jade', function (config) {
     this.isInterpolating = false;
     this.interpolationNesting = 0;
 
-    this.jsState = jsMode.startState();
+    this.jsState = CodeMirror.startState(jsMode);
 
     this.restOfLine = '';
 
@@ -386,7 +386,7 @@ CodeMirror.defineMode('jade', function (config) {
       if (state.inAttributeName && stream.match(/^[^=,\)!]+/)) {
         if (stream.peek() === '=' || stream.peek() === '!') {
           state.inAttributeName = false;
-          state.jsState = jsMode.startState();
+          state.jsState = CodeMirror.startState(jsMode);
           if (state.lastTag === 'script' && stream.current().trim().toLowerCase() === 'type') {
             state.attributeIsType = true;
           } else {
@@ -492,7 +492,7 @@ CodeMirror.defineMode('jade', function (config) {
     if (stream.indentation() > state.indentOf || (state.innerModeForLine && !stream.sol()) || force) {
       if (state.innerMode) {
         if (!state.innerState) {
-          state.innerState = state.innerMode.startState ? state.innerMode.startState(stream.indentation()) : {};
+          state.innerState = state.innerMode.startState ? CodeMirror.startState(state.innerMode, stream.indentation()) : {};
         }
         return stream.hideFirstChars(state.indentOf + 2, function () {
           return state.innerMode.token(stream, state.innerState) || true;

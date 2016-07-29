@@ -4,7 +4,7 @@ http://ethanschoonover.com/solarized
 */
 
 /*
-Solarized color pallet
+Solarized color palette
 http://ethanschoonover.com/solarized/img/solarized-palette.png
 */
 
@@ -34,7 +34,7 @@ http://ethanschoonover.com/solarized/img/solarized-palette.png
 }
 .cm-s-solarized.cm-s-dark {
   color: #839496;
-  background-color:  #002b36;
+  background-color: #002b36;
   text-shadow: #002b36 0 1px;
 }
 .cm-s-solarized.cm-s-light {
@@ -113,32 +113,34 @@ http://ethanschoonover.com/solarized/img/solarized-palette.png
   box-shadow: inset 7px 0 12px -6px #000;
 }
 
-/* Gutter border and some shadow from it  */
+/* Remove gutter border */
 .cm-s-solarized .CodeMirror-gutters {
-  border-right: 1px solid;
+  border-right: 0;
 }
 
 /* Gutter colors and line number styling based of color scheme (dark / light) */
 
 /* Dark */
 .cm-s-solarized.cm-s-dark .CodeMirror-gutters {
-  background-color:  #002b36;
-  border-color: #00232c;
+  background-color: #073642;
 }
 
 .cm-s-solarized.cm-s-dark .CodeMirror-linenumber {
+  color: #586e75;
   text-shadow: #021014 0 -1px;
 }
 
 /* Light */
 .cm-s-solarized.cm-s-light .CodeMirror-gutters {
-  background-color: #fdf6e3;
-  border-color: #eee8d5;
+  background-color: #eee8d5;
+}
+
+.cm-s-solarized.cm-s-light .CodeMirror-linenumber {
+  color: #839496;
 }
 
 /* Common */
 .cm-s-solarized .CodeMirror-linenumber {
-  color: #586e75;
   padding: 0 5px;
 }
 .cm-s-solarized .CodeMirror-guttermarker-subtle { color: #586e75; }
@@ -149,15 +151,19 @@ http://ethanschoonover.com/solarized/img/solarized-palette.png
   color: #586e75;
 }
 
+/* Cursor */
 .cm-s-solarized .CodeMirror-cursor { border-left: 1px solid #819090; }
 
-/*
-Active line. Negative margin compensates left padding of the text in the
-view-port
-*/
+/* Fat cursor */
+.cm-s-solarized.cm-s-light.cm-fat-cursor .CodeMirror-cursor { background: #fdf6e3; }
+.cm-s-solarized.cm-s-light .cm-animate-fat-cursor { background-color: #fdf6e3; }
+.cm-s-solarized.cm-s-dark.cm-fat-cursor .CodeMirror-cursor { background: #586e75; }
+.cm-s-solarized.cm-s-dark .cm-animate-fat-cursor { background-color: #586e75; }
+
+/* Active line */
 .cm-s-solarized.cm-s-dark .CodeMirror-activeline-background {
-  background: rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.06);
 }
 .cm-s-solarized.cm-s-light .CodeMirror-activeline-background {
-  background: rgba(0, 0, 0, 0.10);
+  background: rgba(0, 0, 0, 0.06);
 }

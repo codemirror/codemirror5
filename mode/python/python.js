@@ -32,13 +32,6 @@
                         "sorted", "staticmethod", "str", "sum", "super", "tuple",
                         "type", "vars", "zip", "__import__", "NotImplemented",
                         "Ellipsis", "__debug__"];
-  var py2 = {builtins: ["apply", "basestring", "buffer", "cmp", "coerce", "execfile",
-                        "file", "intern", "long", "raw_input", "reduce", "reload",
-                        "unichr", "unicode", "xrange", "False", "True", "None"],
-             keywords: ["exec", "print"]};
-  var py3 = {builtins: ["ascii", "bytes", "exec", "print"],
-             keywords: ["nonlocal", "False", "True", "None", "async", "await"]};
-
   CodeMirror.registerHelper("hintWords", "python", commonKeywords.concat(commonBuiltins));
 
   function top(state) {
@@ -53,15 +46,6 @@
     var doubleDelimiters = parserConf.doubleDelimiters || /^(\+=|\-=|\*=|%=|\/=|&=|\|=|\^=)/;
     var tripleDelimiters = parserConf.tripleDelimiters || /^(\/\/=|>>=|<<=|\*\*=)/;
 
-    if (parserConf.version && parseInt(parserConf.version, 10) == 3) {
-        // since http://legacy.python.org/dev/peps/pep-0465/ @ is also an operator
-        var singleOperators = parserConf.singleOperators || /^[\+\-\*\/%&|\^~<>!@]/;
-        var identifiers = parserConf.identifiers|| /^[_A-Za-z\u00A1-\uFFFF][_A-Za-z0-9\u00A1-\uFFFF]*/;
-    } else {
-        var singleOperators = parserConf.singleOperators || /^[\+\-\*\/%&|\^~<>!]/;
-        var identifiers = parserConf.identifiers|| /^[_A-Za-z][_A-Za-z0-9]*/;
-    }
-
     var hangingIndent = parserConf.hangingIndent || conf.indentUnit;
 
     var myKeywords = commonKeywords, myBuiltins = commonBuiltins;
@@ -71,13 +55,21 @@
     if (parserConf.extra_builtins != undefined)
       myBuiltins = myBuiltins.concat(parserConf.extra_builtins);
 
-    if (parserConf.version && parseInt(parserConf.version, 10) == 3) {
-      myKeywords = myKeywords.concat(py3.keywords);
-      myBuiltins = myBuiltins.concat(py3.builtins);
-      var stringPrefixes = new RegExp("^(([rb]|(br))?('{3}|\"{3}|['\"]))", "i");
+    var py3 = parserConf.version && parseInt(parserConf.version, 10) == 3
+    if (py3) {
+      // since http://legacy.python.org/dev/peps/pep-0465/ @ is also an operator
+      var singleOperators = parserConf.singleOperators || /^[\+\-\*\/%&|\^~<>!@]/;
+      var identifiers = parserConf.identifiers|| /^[_A-Za-z\u00A1-\uFFFF][_A-Za-z0-9\u00A1-\uFFFF]*/;
+      myKeywords = myKeywords.concat(["nonlocal", "False", "True", "None", "async", "await"]);
+      myBuiltins = myBuiltins.concat(["ascii", "bytes", "exec", "print"]);
+      var stringPrefixes = new RegExp("^(([rbuf]|(br))?('{3}|\"{3}|['\"]))", "i");
     } else {
-      myKeywords = myKeywords.concat(py2.keywords);
-      myBuiltins = myBuiltins.concat(py2.builtins);
+      var singleOperators = parserConf.singleOperators || /^[\+\-\*\/%&|\^~<>!]/;
+      var identifiers = parserConf.identifiers|| /^[_A-Za-z][_A-Za-z0-9]*/;
+      myKeywords = myKeywords.concat(["exec", "print"]);
+      myBuiltins = myBuiltins.concat(["apply", "basestring", "buffer", "cmp", "coerce", "execfile",
+                                      "file", "intern", "long", "raw_input", "reduce", "reload",
+                                      "unichr", "unicode", "xrange", "False", "True", "None"]);
       var stringPrefixes = new RegExp("^(([rub]|(ur)|(br))?('{3}|\"{3}|['\"]))", "i");
     }
     var keywords = wordRegexp(myKeywords);
@@ -241,7 +233,7 @@
 
     function dedent(stream, state) {
       var indented = stream.indentation();
-      while (top(state).offset > indented) {
+      while (state.scopes.length > 1 && top(state).offset > indented) {
         if (top(state).type != "py") return true;
         state.scopes.pop();
       }
@@ -249,16 +241,16 @@
     }
 
     function tokenLexer(stream, state) {
+      if (stream.sol()) state.beginningOfLine = true;
+
       var style = state.tokenize(stream, state);
       var current = stream.current();
 
       // Handle decorators
-      if (current == "@") {
-        if (parserConf.version && parseInt(parserConf.version, 10) == 3)
-          return stream.match(identifiers, false) ? "meta" : "operator";
-        else
-          return stream.match(identifiers, false) ? "meta" : ERRORCLASS;
-      }
+      if (state.beginningOfLine && current == "@")
+        return stream.match(identifiers, false) ? "meta" : py3 ? "operator" : ERRORCLASS;
+
+      if (/\S/.test(current)) state.beginningOfLine = false;
 
       if ((style == "variable" || style == "builtin")
           && state.lastToken == "meta")

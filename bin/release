@@ -32,14 +32,12 @@ if (bumpOnly) process.exit(0);
 
 child.exec("bash bin/authors.sh", function(){});
 
-var simple = number.slice(0, number.lastIndexOf("."));
-
 rewrite("doc/compress.html", function(cmp) {
   return cmp.replace(/<option value="http:\/\/codemirror.net\/">HEAD<\/option>/,
-                     "<option value=\"http://codemirror.net/\">HEAD</option>\n        <option value=\"http://marijnhaverbeke.nl/git/codemirror?a=blob_plain;hb=" + number + ";f=\">" + simple + "</option>");
+                     "<option value=\"http://codemirror.net/\">HEAD</option>\n        <option value=\"http://marijnhaverbeke.nl/git/codemirror?a=blob_plain;hb=" + number + ";f=\">" + number + "</option>");
 });
 
 rewrite("index.html", function(index) {
-  return index.replace(/\.zip">\d+\.\d+<\/a>/,
-                       ".zip\">" + simple + "</a>");
+  return index.replace(/\.zip">\d+\.\d+\.\d+<\/a>/,
+                       ".zip\">" + number + "</a>");
 });

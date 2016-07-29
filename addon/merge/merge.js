@@ -284,7 +284,9 @@
     if (dv.copyButtons) clear(dv.copyButtons);
 
     var vpEdit = dv.edit.getViewport(), vpOrig = dv.orig.getViewport();
-    var sTopEdit = dv.edit.getScrollInfo().top, sTopOrig = dv.orig.getScrollInfo().top;
+    var outerTop = dv.mv.wrap.getBoundingClientRect().top
+    var sTopEdit = outerTop - dv.edit.getScrollerElement().getBoundingClientRect().top + dv.edit.getScrollInfo().top
+    var sTopOrig = outerTop - dv.orig.getScrollerElement().getBoundingClientRect().top + dv.orig.getScrollInfo().top;
     for (var i = 0; i < dv.chunks.length; i++) {
       var ch = dv.chunks[i];
       if (ch.editFrom <= vpEdit.to && ch.editTo >= vpEdit.from &&

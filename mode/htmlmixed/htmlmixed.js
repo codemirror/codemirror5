@@ -115,7 +115,7 @@
 
     return {
       startState: function () {
-        var state = htmlMode.startState();
+        var state = CodeMirror.startState(htmlMode);
         return {token: html, inTag: null, localMode: null, localState: null, htmlState: state};
       },
 

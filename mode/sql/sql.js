@@ -366,9 +366,9 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     // http://www.postgresql.org/docs/9.5/static/datatype.html
     builtin: set("bigint int8 bigserial serial8 bit varying varbit boolean bool box bytea character char varchar cidr circle date double precision float8 inet integer int int4 interval json jsonb line lseg macaddr money numeric decimal path pg_lsn point polygon real float4 smallint int2 smallserial serial2 serial serial4 text time without zone with timetz timestamp timestamptz tsquery tsvector txid_snapshot uuid xml"),
     atoms: set("false true null unknown"),
-    operatorChars: /^[*+\-%<>!=&|^]/,
+    operatorChars: /^[*+\-%<>!=&|^\/#@?~]/,
     dateSQL: set("date time timestamp"),
-    support: set("ODBCdotTable decimallessFloat zerolessFloat binaryNumber hexNumber nCharCast charsetCast commentHash commentSpaceRequired")
+    support: set("ODBCdotTable decimallessFloat zerolessFloat binaryNumber hexNumber nCharCast charsetCast")
   });
 
   // Google's SQL-like query language, GQL

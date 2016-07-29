@@ -57,12 +57,13 @@
     return cm.getSearchCursor(query, pos, queryCaseInsensitive(query));
   }
 
-  function persistentDialog(cm, text, deflt, f) {
-    cm.openDialog(text, f, {
+  function persistentDialog(cm, text, deflt, onEnter, onKeyDown) {
+    cm.openDialog(text, onEnter, {
       value: deflt,
       selectValueOnOpen: true,
       closeOnEnter: false,
-      onClose: function() { clearSearch(cm); }
+      onClose: function() { clearSearch(cm); },
+      onKeyDown: onKeyDown
     });
   }
 
@@ -112,13 +113,13 @@
     }
   }
 
-  function doSearch(cm, rev, persistent) {
+  function doSearch(cm, rev, persistent, immediate) {
     var state = getSearchState(cm);
     if (state.query) return findNext(cm, rev);
     var q = cm.getSelection() || state.lastQuery;
     if (persistent && cm.openDialog) {
       var hiding = null
-      persistentDialog(cm, queryDialog, q, function(query, event) {
+      var searchNext = function(query, event) {
         CodeMirror.e_stop(event);
         if (!query) return;
         if (query != state.queryText) {
@@ -133,7 +134,22 @@
               dialog.getBoundingClientRect().bottom - 4 > cm.cursorCoords(to, "window").top)
             (hiding = dialog).style.opacity = .4
         })
+      };
+      persistentDialog(cm, queryDialog, q, searchNext, function(event, query) {
+        var cmd = CodeMirror.keyMap[cm.getOption("keyMap")][CodeMirror.keyName(event)];
+        if (cmd == "findNext" || cmd == "findPrev") {
+          CodeMirror.e_stop(event);
+          startSearch(cm, getSearchState(cm), query);
+          cm.execCommand(cmd);
+        } else if (cmd == "find" || cmd == "findPersistent") {
+          CodeMirror.e_stop(event);
+          searchNext(query, event);
+        }
       });
+      if (immediate) {
+        startSearch(cm, state, q);
+        findNext(cm, rev);
+      }
     } else {
       dialog(cm, queryDialog, "Search for:", q, function(query) {
         if (query && !state.query) cm.operation(function() {
@@ -223,6 +239,8 @@
 
   CodeMirror.commands.find = function(cm) {clearSearch(cm); doSearch(cm);};
   CodeMirror.commands.findPersistent = function(cm) {clearSearch(cm); doSearch(cm, false, true);};
+  CodeMirror.commands.findPersistentNext = function(cm) {doSearch(cm, false, true, true);};
+  CodeMirror.commands.findPersistentPrev = function(cm) {doSearch(cm, true, true, true);};
   CodeMirror.commands.findNext = doSearch;
   CodeMirror.commands.findPrev = function(cm) {doSearch(cm, true);};
   CodeMirror.commands.clearSearch = clearSearch;

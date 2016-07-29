@@ -16,6 +16,19 @@
 
 CodeMirror.defineMode('yacas', function(_config, _parserConfig) {
 
+  function words(str) {
+    var obj = {}, words = str.split(" ");
+    for (var i = 0; i < words.length; ++i) obj[words[i]] = true;
+    return obj;
+  }
+
+  var bodiedOps = words("Assert BackQuote D Defun Deriv For ForEach FromFile " +
+                        "FromString Function Integrate InverseTaylor Limit " +
+                        "LocalSymbols Macro MacroRule MacroRulePattern " +
+                        "NIntegrate Rule RulePattern Subst TD TExplicitSum " +
+                        "TSum Taylor Taylor1 Taylor2 Taylor3 ToFile " +
+                        "ToStdout ToString TraceRule Until While");
+
   // patterns
   var pFloatForm  = "(?:(?:\\.\\d+|\\d+\\.\\d*|\\d+)(?:[eE][+-]?\\d+)?)";
   var pIdentifier = "(?:[a-zA-Z\\$'][a-zA-Z0-9\\$']*)";
@@ -52,6 +65,33 @@ CodeMirror.defineMode('yacas', function(_config, _parserConfig) {
 
     // go back one character
     stream.backUp(1);
+
+    // update scope info
+    var m = stream.match(/^(\w+)\s*\(/, false);
+    if (m !== null && bodiedOps.hasOwnProperty(m[1]))
+      state.scopes.push('bodied');
+
+    var scope = currentScope(state);
+
+    if (scope === 'bodied' && ch === '[')
+      state.scopes.pop();
+
+    if (ch === '[' || ch === '{' || ch === '(')
+      state.scopes.push(ch);
+
+    scope = currentScope(state);
+
+    if (scope === '[' && ch === ']' ||
+        scope === '{' && ch === '}' ||
+        scope === '(' && ch === ')')
+      state.scopes.pop();
+
+    if (ch === ';') {
+      while (scope === 'bodied') {
+        state.scopes.pop();
+        scope = currentScope(state);
+      }
+    }
 
     // look for ordered rules
     if (stream.match(/\d+ *#/, true, false)) {
@@ -111,20 +151,46 @@ CodeMirror.defineMode('yacas', function(_config, _parserConfig) {
   function tokenComment(stream, state) {
     var prev, next;
     while((next = stream.next()) != null) {
-      if (prev === '*' && next === '/')
+      if (prev === '*' && next === '/') {
+        state.tokenize = tokenBase;
         break;
+      }
       prev = next;
     }
-    state.tokenize = tokenBase;
     return 'comment';
   }
 
+  function currentScope(state) {
+    var scope = null;
+    if (state.scopes.length > 0)
+      scope = state.scopes[state.scopes.length - 1];
+    return scope;
+  }
+
   return {
-    startState: function() {return {tokenize: tokenBase, commentLevel: 0};},
+    startState: function() {
+      return {
+        tokenize: tokenBase,
+        scopes: []
+      };
+    },
     token: function(stream, state) {
       if (stream.eatSpace()) return null;
       return state.tokenize(stream, state);
     },
+    indent: function(state, textAfter) {
+      if (state.tokenize !== tokenBase && state.tokenize !== null)
+        return CodeMirror.Pass;
+
+      var delta = 0;
+      if (textAfter === ']' || textAfter === '];' ||
+          textAfter === '}' || textAfter === '};' ||
+          textAfter === ');')
+        delta = -1;
+
+      return (state.scopes.length + delta) * _config.indentUnit;
+    },
+    electricChars: "{}[]();",
     blockCommentStart: "/*",
     blockCommentEnd: "*/",
     lineComment: "//"

@@ -50,7 +50,7 @@
   }
 
   function isFolded(cm, line) {
-    var marks = cm.findMarksAt(Pos(line));
+    var marks = cm.findMarks(Pos(line, 0), Pos(line + 1, 0));
     for (var i = 0; i < marks.length; ++i)
       if (marks[i].__isFold && marks[i].find().from.line == line) return marks[i];
   }

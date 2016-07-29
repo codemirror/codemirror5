@@ -44,6 +44,9 @@
      "  [keyword import] { [def encrypt], [def decrypt] } [keyword from] [string 'crypto'];",
      "}");
 
+  MT("import_trailing_comma",
+     "[keyword import] {[def foo], [def bar],} [keyword from] [string 'baz']")
+
   MT("const",
      "[keyword function] [def f]() {",
      "  [keyword const] [[ [def a], [def b] ]] [operator =] [[ [number 1], [number 2] ]];",
@@ -73,12 +76,6 @@
   MT("spread",
      "[keyword function] [def f]([def a], [meta ...][def b]) {",
      "  [variable something]([variable-2 a], [meta ...][variable-2 b]);",
-     "}");
-
-  MT("comprehension",
-     "[keyword function] [def f]() {",
-     "  [[([variable x] [operator +] [number 1]) [keyword for] ([keyword var] [def x] [keyword in] [variable y]) [keyword if] [variable pred]([variable-2 x]) ]];",
-     "  ([variable u] [keyword for] ([keyword var] [def u] [keyword of] [variable generateValues]()) [keyword if] ([variable-2 u].[property color] [operator ===] [string 'blue']));",
      "}");
 
   MT("quasi",

@@ -52,8 +52,10 @@
     });
   }
 
-  cmds[map["Alt-Left"] = "goSubwordLeft"] = function(cm) { moveSubword(cm, -1); };
-  cmds[map["Alt-Right"] = "goSubwordRight"] = function(cm) { moveSubword(cm, 1); };
+  var goSubwordCombo = mac ? "Ctrl-" : "Alt-";
+
+  cmds[map[goSubwordCombo + "Left"] = "goSubwordLeft"] = function(cm) { moveSubword(cm, -1); };
+  cmds[map[goSubwordCombo + "Right"] = "goSubwordRight"] = function(cm) { moveSubword(cm, 1); };
 
   if (mac) map["Cmd-Left"] = "goLineStartSmart";
 
@@ -124,6 +126,7 @@
       }
       cm.setSelections(newSelection);
     });
+    cm.execCommand("indentAuto");
   }
 
   cmds[map[ctrl + "Enter"] = "insertLineAfter"] = function(cm) { return insertLine(cm, false); };
@@ -422,22 +425,29 @@
   cmds[map["Backspace"] = "smartBackspace"] = function(cm) {
     if (cm.somethingSelected()) return CodeMirror.Pass;
 
-    var cursor = cm.getCursor();
-    var toStartOfLine = cm.getRange({line: cursor.line, ch: 0}, cursor);
-    var column = CodeMirror.countColumn(toStartOfLine, null, cm.getOption("tabSize"));
-    var indentUnit = cm.getOption("indentUnit");
+    cm.operation(function() {
+      var cursors = cm.listSelections();
+      var indentUnit = cm.getOption("indentUnit");
 
-    if (toStartOfLine && !/\S/.test(toStartOfLine) && column % indentUnit == 0) {
-      var prevIndent = new Pos(cursor.line,
-        CodeMirror.findColumn(toStartOfLine, column - indentUnit, indentUnit));
+      for (var i = cursors.length - 1; i >= 0; i--) {
+        var cursor = cursors[i].head;
+        var toStartOfLine = cm.getRange({line: cursor.line, ch: 0}, cursor);
+        var column = CodeMirror.countColumn(toStartOfLine, null, cm.getOption("tabSize"));
 
-      // If no smart delete is happening (due to tab sizing) just do a regular delete
-      if (prevIndent.ch == cursor.ch) return CodeMirror.Pass;
+        // Delete by one character by default
+        var deletePos = cm.findPosH(cursor, -1, "char", false);
 
-      return cm.replaceRange("", prevIndent, cursor, "+delete");
-    } else {
-      return CodeMirror.Pass;
-    }
+        if (toStartOfLine && !/\S/.test(toStartOfLine) && column % indentUnit == 0) {
+          var prevIndent = new Pos(cursor.line,
+            CodeMirror.findColumn(toStartOfLine, column - indentUnit, indentUnit));
+
+          // Smart delete only if we found a valid prevIndent location
+          if (prevIndent.ch != cursor.ch) deletePos = prevIndent;
+        }
+
+        cm.replaceRange("", deletePos, cursor, "+delete");
+      }
+    });
   };
 
   cmds[map[cK + ctrl + "K"] = "delLineRight"] = function(cm) {
@@ -492,7 +502,8 @@
     cm.scrollTo(null, (pos.top + pos.bottom) / 2 - cm.getScrollInfo().clientHeight / 2);
   };
 
-  cmds[map["Shift-Alt-Up"] = "selectLinesUpward"] = function(cm) {
+  var selectLinesCombo = mac ? "Ctrl-Shift-" : "Ctrl-Alt-";
+  cmds[map[selectLinesCombo + "Up"] = "selectLinesUpward"] = function(cm) {
     cm.operation(function() {
       var ranges = cm.listSelections();
       for (var i = 0; i < ranges.length; i++) {
@@ -502,7 +513,7 @@
       }
     });
   };
-  cmds[map["Shift-Alt-Down"] = "selectLinesDownward"] = function(cm) {
+  cmds[map[selectLinesCombo + "Down"] = "selectLinesDownward"] = function(cm) {
     cm.operation(function() {
       var ranges = cm.listSelections();
       for (var i = 0; i < ranges.length; i++) {
