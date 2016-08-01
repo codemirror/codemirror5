@@ -509,6 +509,21 @@ testCM("markClearBetween", function(cm) {
   eq(cm.findMarksAt(Pos(1, 1)).length, 0);
 });
 
+testCM("findMarks", function(cm) {
+  var m0 = cm.setBookmark(Pos(0, 0));
+  var found0 = cm.findMarks(Pos(0, 0), Pos(0, 1));
+  eq(found0.length, 1);
+  eq(found0[0], m0);
+  var m1 = cm.setBookmark(Pos(1, 3));
+  var found1 = cm.findMarks(Pos(1, 0), Pos(2, 0));
+  eq(found1.length, 1);
+  eq(found1[0], m1);
+  var m2 = cm.setBookmark(Pos(3, 5));
+  var found2 = cm.findMarks(Pos(3, 4), Pos(3, 5));
+  eq(found2.length, 1);
+  eq(found2[0], m2);
+}, {value: "line 0\nline 1\nline 2\nline 3"});
+
 testCM("findMarksMiddle", function(cm) {
   var mark = cm.markText(Pos(1, 1), Pos(3, 1));
   var found = cm.findMarks(Pos(2, 1), Pos(2, 2));
@@ -1486,7 +1501,7 @@ testCM("lineWidgetChanged", function(cm) {
     // Good:
     // | ------------- display width ------------- |
     // | ------- widget-width when measured ------ |
-    // | | -- under-half -- | | -- under-half -- | | 
+    // | | -- under-half -- | | -- under-half -- | |
     // | | --- over-half --- |                     |
     // | | --- over-half --- |                     |
     // Height: measured as 3 lines, same as it will be when actually displayed
@@ -1503,7 +1518,7 @@ testCM("lineWidgetChanged", function(cm) {
     // Bad (too wide):
     // | ------------- display width ------------- |
     // | -------- widget-width when measured ------- | < -- uh oh
-    // | | -- under-half -- | | -- under-half -- |   | 
+    // | | -- under-half -- | | -- under-half -- |   |
     // | | --- over-half --- | | --- over-half --- | | < -- when measured, combined on one line
     // Height: measured as 2 lines, less than expected. Will be displayed as 3 lines!
 
