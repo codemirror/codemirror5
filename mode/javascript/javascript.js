@@ -527,7 +527,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == "variable") {cx.marked = "variable-3"; return cont(afterType);}
     if (type == "{") return cont(commasep(typeprop, "}"))
   }
-  function typeprop(type, value) {
+  function typeprop(type) {
     if (type == "variable" || cx.style == "keyword") {
       cx.marked = "property"
       return cont(typeprop)
