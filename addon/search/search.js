@@ -146,7 +146,7 @@
           searchNext(query, event);
         }
       });
-      if (immediate) {
+      if (immediate && q) {
         startSearch(cm, state, q);
         findNext(cm, rev);
       }
