@@ -136,7 +136,9 @@
         })
       };
       persistentDialog(cm, queryDialog, q, searchNext, function(event, query) {
-        var cmd = CodeMirror.keyMap[cm.getOption("keyMap")][CodeMirror.keyName(event)];
+        var keyName = CodeMirror.keyName(event)
+        var cmd = CodeMirror.keyMap[cm.getOption("keyMap")][keyName]
+        if (!cmd) cmd = cm.getOption('extraKeys')[keyName]
         if (cmd == "findNext" || cmd == "findPrev") {
           CodeMirror.e_stop(event);
           startSearch(cm, getSearchState(cm), query);
