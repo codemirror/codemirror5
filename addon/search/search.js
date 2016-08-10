@@ -139,7 +139,8 @@
         var keyName = CodeMirror.keyName(event)
         var cmd = CodeMirror.keyMap[cm.getOption("keyMap")][keyName]
         if (!cmd) cmd = cm.getOption('extraKeys')[keyName]
-        if (cmd == "findNext" || cmd == "findPrev") {
+        if (cmd == "findNext" || cmd == "findPrev" ||
+          cmd == "findPersistentNext" || cmd == "findPersistentPrev") {
           CodeMirror.e_stop(event);
           startSearch(cm, getSearchState(cm), query);
           cm.execCommand(cmd);
