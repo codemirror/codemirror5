@@ -1435,11 +1435,21 @@ editor.setOption("extraKeys", {
       spec</a> or a mode object (an object with
       a <a href="#token"><code>token</code></a> method).
       The <code>options</code> parameter is optional. If given, it
-      should be an object. Currently, only the <code>opaque</code>
-      option is recognized. This defaults to off, but can be given to
-      allow the overlay styling, when not <code>null</code>, to
-      override the styling of the base mode entirely, instead of the
-      two being applied together.</dd>
+      should be an object, optionally containing the following options:
+        <dl>
+          <dt><code><strong>opaque</strong>: bool</code></dt>
+          <dd>Defaults to off, but can be given to allow the overlay
+          styling, when not <code>null</code>, to override the styling of
+          the base mode entirely, instead of the two being applied
+          together.</dd>
+          <dt><code><strong>priority</strong>: number</code></dt>
+          <dd>Determines the ordering in which the overlays are
+          applied. Those with high priority are applied after those
+          with lower priority, and able to override the opaqueness of
+          the ones that come before. Defaults to 0.</dd>
+        </dl>
+      </dd>
+
       <dt id="removeOverlay"><code><strong>cm.removeOverlay</strong>(mode: string|object)</code></dt>
       <dd>Pass this the exact value passed for the <code>mode</code>
       parameter to <a href="#addOverlay"><code>addOverlay</code></a>,
