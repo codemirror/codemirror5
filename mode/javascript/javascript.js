@@ -463,8 +463,10 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == "variable") {cx.marked = "property"; return cont();}
   }
   function objprop(type, value) {
-    if (type == "async") return cont(objprop);
-    if (type == "variable" || cx.style == "keyword") {
+    if (type == "async") {
+      cx.marked = "property";
+      return cont(objprop);
+    } else if (type == "variable" || cx.style == "keyword") {
       cx.marked = "property";
       if (value == "get" || value == "set") return cont(getterSetter);
       return cont(afterprop);
@@ -479,6 +481,8 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       return cont(expression, expect("]"), afterprop);
     } else if (type == "spread") {
       return cont(expression);
+    } else if (type == ":") {
+      return pass(afterprop)
     }
   }
   function getterSetter(type) {
