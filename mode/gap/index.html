@@ -1,0 +1,146 @@
+<!doctype html>
+
+<title>CodeMirror: GAP mode</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../../doc/docs.css">
+
+<link rel=stylesheet href=../../lib/codemirror.css>
+<link rel=stylesheet href=../../theme/dracula.css>
+<link rel="stylesheet" href="../../addon/lint/lint.css">
+<script src="https://rawgit.com/mcmartins/gap-lint/master/gap-lint.js"></script>
+<script src=../../lib/codemirror.js></script>
+<script src="../../addon/mode/simple.js"></script>
+<script src=gap.js></script>
+<script src="../../addon/lint/lint.js"></script>
+<script src="../../addon/lint/gap-lint.js"></script>
+<style type=text/css>
+  .CodeMirror {
+    border: 1px solid #999;
+    background: #ffc
+  }
+
+  .cm-s-dracula span.cm-builtin {
+    color: #16fa05;
+  }
+
+  .cm-s-dracula span.cm-variable-2 {
+    color: #140dfa;
+  }
+</style>
+<div id=nav>
+  <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../../doc/logo.png"></a>
+
+  <ul>
+    <li><a href="../../index.html">Home</a>
+    <li><a href="../../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="../index.html">Language modes</a>
+    <li><a class=active href="#">Gap</a>
+  </ul>
+</div>
+
+<article>
+  <h2>Gap mode</h2>
+  <form><textarea id="code" name="code">
+# Literals
+1234
+.123
+1.7
+7
+2147483647
+
+(1,2,3)(4,5,6)
+
+"String literals"
+
+"""
+Multiline
+string
+literals
+"""
+
+# Identifiers
+a
+foo
+aLongIdentifier ;= n
+hello
+Hello
+HELLO
+x100
+100x
+_100
+some_people_prefer_underscores_to_separate_words
+WePreferMixedCaseToSeparateWords
+abc@def
+G\(2\,5\)asd
+9123really\w\ eir\_\(identifier := 5;
+Group\(2\,5\)
+
+# Functions
+Sum(List([1..100], x -> x^2));
+
+2 * 2;
+
+2 * 2 + 9 = Fibonacci(7) and Fibonacci(13) in Primes;
+
+100
+
+InstallGlobalFunction(MyGlobalFunction,
+function(a,b,c)
+  local e,f,g;
+
+  return a;
+end);
+
+f := function(a,b,c)
+  local x, y, z, g;
+
+  g := Group((1,2,3), (4,5,6));
+
+  if IsBound(c[2]) then
+    while c[2] > 0 do
+      c[3] := 4 - 2;
+    od;
+  fi;
+
+  if IsGroup(g) then
+    Error("This is a group!\n");
+  fi;
+
+  x := z{ [1,2,3] };
+  z := x{ [1..3] };
+
+  if a = true then
+    return x + z;
+  elif b = 5 then
+    return b + 2;
+  else
+    return a + b + c;
+  fi;
+end;
+
+g := function(x,y)
+  atomic readwrite x do
+  x[5] := 2;
+  od;
+end;
+</textarea></form>
+
+  <script>
+    CodeMirror.fromTextArea(document.getElementById('code'), {
+      mode: 'text/x-gap',
+      lineNumbers: true,
+      matchBrackets: true,
+      indentUnit: 2,
+      tabSize: 2,
+      autofocus: true,
+      gutters: ["CodeMirror-lint-markers"],
+      lint: true,
+      theme: 'dracula'
+    });
+  </script>
+
+  <p><strong>MIME type:</strong> <code>text/x-gap</code></p>
+</article>
