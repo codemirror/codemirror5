@@ -97,56 +97,25 @@
   var coffeescriptKeywords = ("and break catch class continue delete do else extends false finally for " +
                   "if in instanceof isnt new no not null of off on or return switch then throw true try typeof until void while with yes").split(" ");
 
+  function forAllProps(obj, callback) {
+    if (!Object.getOwnPropertyNames || !Object.getPrototypeOf) {
+      for (var name in obj) callback(name)
+    } else {
+      for (var o = obj; o; o = Object.getPrototypeOf(o))
+        Object.getOwnPropertyNames(o).forEach(callback)
+    }
+  }
+
   function getCompletions(token, context, keywords, options) {
     var found = [], start = token.string, global = options && options.globalScope || window;
     function maybeAdd(str) {
       if (str.lastIndexOf(start, 0) == 0 && !arrayContains(found, str)) found.push(str);
     }
     function gatherCompletions(obj) {
-      function gatherCompletionsOfTypeObj(obj) {
-
-        /**
-         * Helper to get all properties of an object, including non-enumerable ones
-         * as completon candidates.
-         *
-         * In Chrome 51, most top-level classes, e.g., Event, Promise, etc., are not enumerable,
-         * therefore only available for javascript hint via this new code path.
-         * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/getOwnPropertyNames
-         */
-        function getAllPropertyNames(obj) {
-          // Consider a generator-=like variation getAllPropertyNamesForEach(obj, fn),
-          // which takens additional callback fn (analous to Array.forEach)
-          // It has the advantage of avoiding names array build-up.
-
-          var names = [];
-          // Traverse up prototype chain to get all properties (not just direct one)
-          // of obj.
-          for(var o = obj; o; o = Object.getPrototypeOf(o)) {
-            // concat() in place, plus more environment supports it
-            // Conceptually it is names.push(e[0], e[1], e[2], ...)
-            names.push.apply(names, Object.getOwnPropertyNames(o));
-          }
-          return names;
-        } // function getAllPropertyNames(..)
-
-        // a helper method to determine if the function is supported in the
-        // environment (really old browsers will not support it)
-        function getAllPropertyNamesIsSupported() {
-          return ((Object.getOwnPropertyNames && Object.getPrototypeOf) ? true : false);
-        }; // function getAllPropertyNamesIsSupported()
-
-        if (getAllPropertyNamesIsSupported()) {
-          getAllPropertyNames(obj).forEach(maybeAdd);
-        } else {
-          // Old code path where non-enumerable properties will not be listed
-          for (var name in obj) maybeAdd(name);
-        }
-      } // function gatherCompletionsOfTypeObj(..)
-
       if (typeof obj == "string") forEach(stringProps, maybeAdd);
       else if (obj instanceof Array) forEach(arrayProps, maybeAdd);
       else if (obj instanceof Function) forEach(funcProps, maybeAdd);
-      gatherCompletionsOfTypeObj(obj);
+      forAllProps(obj, maybeAdd)
     }
 
     if (context && context.length) {
