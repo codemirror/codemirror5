@@ -55,7 +55,7 @@
     if (parserConf.extra_builtins != undefined)
       myBuiltins = myBuiltins.concat(parserConf.extra_builtins);
 
-    var py3 = parserConf.version && parseInt(parserConf.version, 10) == 3
+    var py3 = parserConf.version && Number(parserConf.version) < 3
     if (py3) {
       // since http://legacy.python.org/dev/peps/pep-0465/ @ is also an operator
       var singleOperators = parserConf.singleOperators || /^[\+\-\*\/%&|\^~<>!@]/;
