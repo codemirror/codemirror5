@@ -2188,23 +2188,23 @@ editor.setOption("extraKeys", {
       which, if called, will close the dialog immediately.
       <strong><code>openDialog</code></strong> takes the following options:
         <dl>
-          <dt><code><strong>closeOnEnter</strong></code>:</dt>
+          <dt><code><strong>closeOnEnter</strong>: bool</code></dt>
           <dd>If true, the dialog will be closed when the user presses
           enter in the input. Defaults to <code>true</code>.</dd>
-          <dt><code><strong>onKeyDown</strong></code>:</dt>
-          <dd>An event handler of the signature <code>(event, value, closeFunction)</code>
-          that will be called whenever <code>keydown</code> fires in the
+          <dt><code><strong>closeOnBlur</strong>: bool</code></dt>
+          <dd>Determines whether the dialog is closed when it loses focus. Defaults to <code>true</code>.</dd>
+          <dt><code><strong>onKeyDown</strong>: fn(event: KeyboardEvent, value: string, close: fn()) → bool</code></dt>
+          <dd>An event handler that will be called whenever <code>keydown</code> fires in the
           dialog's input. If your callback returns <code>true</code>,
           the dialog will not do any further processing of the event.</dd>
-          <dt><code><strong>onKeyUp</strong></code>:</dt>
+          <dt><code><strong>onKeyUp</strong>: fn(event: KeyboardEvent, value: string, close: fn()) → bool</code></dt>
           <dd>Same as <code>onKeyDown</code> but for the
           <code>keyup</code> event.</dd>
-          <dt><code><strong>onInput</strong></code>:</dt>
+          <dt><code><strong>onInput</strong>: fn(event: InputEvent, value: string, close: fn()) → bool</code></dt>
           <dd>Same as <code>onKeyDown</code> but for the
           <code>input</code> event.</dd>
-          <dt><code><strong>onClose</strong></code>:</dt>
-          <dd>A callback of the signature <code>(dialogInstance)</code>
-          that will be called after the dialog has been closed and
+          <dt><code><strong>onClose</strong>: fn(instance)</code>:</dt>
+          <dd>A callback that will be called after the dialog has been closed and
           removed from the DOM. No return value.</dd>
         </dl>
 
