@@ -137,11 +137,13 @@
           stream.next();
           return 'comment';
         }
-      } else if (ch === '"' || ch === "'") {
-        state.continueString = state.continueString == ch ? null : ch
+      } else if ((ch === '"' || ch === "'") && !state.continueString) {
+        state.continueString = ch
         return "string"
-      } else if (state.continueString !== null) {
-        if (stream.skipTo(state.continueString)) {
+      } else if (state.continueString) {
+        if (state.continueString == ch) {
+          state.continueString = null;
+        } else if (stream.skipTo(state.continueString)) {
           // quote found on this line
           stream.next();
           state.continueString = null;
