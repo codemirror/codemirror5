@@ -137,10 +137,9 @@
           stream.next();
           return 'comment';
         }
-      } else if (!state.continueString && (ch === '"' || ch === "'")) {
-        // Have we found a string?
-        state.continueString = ch; //save the matching quote in the state
-        return "string";
+      } else if (ch === '"' || ch === "'") {
+        state.continueString = state.continueString == ch ? null : ch
+        return "string"
       } else if (state.continueString !== null) {
         if (stream.skipTo(state.continueString)) {
           // quote found on this line
