@@ -167,6 +167,17 @@
      "  }",
      "}");
 
+  var ts_mode = CodeMirror.getMode({indentUnit: 2}, "application/typescript")
+  function TS(name) {
+    test.mode(name, ts_mode, Array.prototype.slice.call(arguments, 1))
+  }
+
+  TS("extend_type",
+     "[keyword class] [def Foo] [keyword extends] [variable-3 Some][operator <][variable-3 Type][operator >] {}")
+
+  TS("arrow_type",
+     "[keyword let] [def x]: ([variable arg]: [variable-3 Type]) [operator =>] [variable-3 ReturnType]")
+
   var jsonld_mode = CodeMirror.getMode(
     {indentUnit: 2},
     {name: "javascript", jsonld: true}

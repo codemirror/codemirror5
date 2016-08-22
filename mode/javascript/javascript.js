@@ -528,7 +528,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   function typeexpr(type) {
     if (type == "variable") {cx.marked = "variable-3"; return cont(afterType);}
     if (type == "{") return cont(commasep(typeprop, "}"))
-    if (type == "(") return cont(commasep(typeprop, ")"), maybeReturnType)
+    if (type == "(") return cont(commasep(typearg, ")"), maybeReturnType)
   }
   function maybeReturnType(type) {
     if (type == "=>") return cont(typeexpr)
@@ -540,6 +540,10 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     } else if (type == ":") {
       return cont(typeexpr)
     }
+  }
+  function typearg(type) {
+    if (type == "variable") return cont(typearg)
+    else if (type == ":") return cont(typeexpr)
   }
   function afterType(type, value) {
     if (value == "<") return cont(commasep(typeexpr, ">"), afterType)
