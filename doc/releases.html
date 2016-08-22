@@ -30,6 +30,21 @@
 
   <h2>Version 5.x</h2>
 
+  <p class="rel">22-08-2016: <a href="http://codemirror.net/codemirror-5.18.0.zip">Version 5.18.0</a>:</p>
+
+  <ul class=rel-note>
+    <li>Make sure <a href="http://codemirror.net/doc/manual.html#addLineClass">gutter backgrounds</a> stick to the rest of the gutter during horizontal scrolling.</li>
+    <li>The contenteditable <a href="http://codemirror.net/doc/manual.html#option_inputStyle"><code>inputStyle</code></a> now properly supports pasting on pre-Edge IE versions.</li>
+    <li><a href="http://codemirror.net/mode/javascript">javascript mode</a>: Fix some small parsing bugs and improve TypeScript support.</li>
+    <li><a href="http://codemirror.net/doc/manual.html#addon_matchbrackets">matchbrackets addon</a>: Fix bug where active highlighting was left in editor when the addon was disabled.</li>
+    <li><a href="http://codemirror.net/doc/manual.html#addon_match-highlighter">match-highlighter addon</a>: Only start highlighting things when the editor gains focus.</li>
+    <li><a href="http://codemirror.net/doc/manual.html#addon_javascript-hint">javascript-hint addon</a>: Also complete non-enumerable properties.</li>
+    <li>The <a href="http://codemirror.net/doc/manual.html#addOverlay"><code>addOverlay</code></a> method now supports a <code>priority</code> option to control the order in which overlays are applied.</li>
+    <li>MIME types that end in <code>+json</code> now default to the JSON mode when the MIME itself is not defined.</li>
+    <li>The mode formerly known as Jade was renamed to <a href="http://codemirror.net/mode/pug">Pug</a>.</li>
+    <li>The <a href="http://codemirror.net/mode/python">Python mode</a> now defaults to Python 3 (rather than 2) syntax.</li>
+  </ul>
+
   <p class="rel">19-07-2016: <a href="http://codemirror.net/codemirror-5.17.0.zip">Version 5.17.0</a>:</p>
 
   <ul class="rel-note">

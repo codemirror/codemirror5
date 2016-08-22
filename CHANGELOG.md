@@ -1,3 +1,31 @@
+## 5.18.0 (2016-08-22)
+
+### Bugfixes
+
+Make sure [gutter backgrounds](http://codemirror.net/doc/manual.html#addLineClass) stick to the rest of the gutter during horizontal scrolling.
+
+The contenteditable [`inputStyle`](http://codemirror.net/doc/manual.html#option_inputStyle) now properly supports pasting on pre-Edge IE versions.
+
+[javascript mode](http://codemirror.net/mode/javascript): Fix some small parsing bugs and improve TypeScript support.
+
+[matchbrackets addon](http://codemirror.net/doc/manual.html#addon_matchbrackets): Fix bug where active highlighting was left in editor when the addon was disabled.
+
+[match-highlighter addon](http://codemirror.net/doc/manual.html#addon_match-highlighter): Only start highlighting things when the editor gains focus.
+
+[javascript-hint addon](http://codemirror.net/doc/manual.html#addon_javascript-hint): Also complete non-enumerable properties.
+
+### New features
+
+The [`addOverlay`](http://codemirror.net/doc/manual.html#addOverlay) method now supports a `priority` option to control the order in which overlays are applied.
+
+MIME types that end in `+json` now default to the JSON mode when the MIME itself is not defined.
+
+### Breaking changes
+
+The mode formerly known as Jade was renamed to [Pug](http://codemirror.net/mode/pug).
+
+The [Python mode](http://codemirror.net/mode/python) now defaults to Python 3 (rather than 2) syntax.
+
 ## 5.17.0 (2016-07-19)
 
 ### Bugfixes
