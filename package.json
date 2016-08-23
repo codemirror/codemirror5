@@ -8,13 +8,18 @@
     "lib": "./lib"
   },
   "scripts": {
+    "build": "rollup --banner \"`cat src/banner.js`\" --format umd -n CodeMirror src/codemirror.js -o lib/codemirror.js",
+    "watch": "rollup -w --banner \"`cat src/banner.js`\" --format umd -n CodeMirror src/codemirror.js -o lib/codemirror.js",
+    "prepublish": "npm run-script build",
     "test": "node ./test/run.js",
     "lint": "bin/lint"
   },
   "devDependencies": {
+    "blint": ">=0.1.1",
     "node-static": "0.6.0",
     "phantomjs-prebuilt": "^2.1.12",
-    "blint": ">=0.1.1"
+    "rollup": "^0.34.10",
+    "rollup-watch": "^2.5.0"
   },
   "bugs": "http://github.com/codemirror/CodeMirror/issues",
   "keywords": [
