@@ -1,3 +1,9 @@
+## 5.18.2 (2016-08-23)
+
+### Bugfixes
+
+[vue mode](http://codemirror.net/mode/vue): Fix outdated references to renamed Pug mode dependency.
+
 ## 5.18.0 (2016-08-22)
 
 ### Bugfixes
