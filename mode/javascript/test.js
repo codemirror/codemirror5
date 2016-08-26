@@ -173,10 +173,27 @@
   }
 
   TS("extend_type",
-     "[keyword class] [def Foo] [keyword extends] [variable-3 Some][operator <][variable-3 Type][operator >] {}")
+     "[keyword class] [def Foo] [keyword extends] [variable-3 Some][operator <][variable-3 Type][operator >] {}");
 
   TS("arrow_type",
-     "[keyword let] [def x]: ([variable arg]: [variable-3 Type]) [operator =>] [variable-3 ReturnType]")
+     "[keyword let] [def x]: ([variable arg]: [variable-3 Type]) [operator =>] [variable-3 ReturnType]");
+  
+  TS("class_element_modifier_public_static",
+     "[keyword class] [def C] {",
+     "  [keyword public] [keyword static] [property method](): [variable-3 number] {",
+     "    [keyword return] [number 100];",
+     "  }",
+     "}");
+
+  TS("class_element_modifier_private",
+     "[keyword class] [def C] {",
+     "  [keyword private] [property count]: [variable-3 number];",
+     "}");
+
+  TS("class_element_modifier_protected_abstract",
+     "[keyword class] [def C] {",
+     "  [keyword protected] [keyword abstract] [property mustImplement]([def config]: [variable-3 string]): [variable-3 void];",
+     "}");
 
   var jsonld_mode = CodeMirror.getMode(
     {indentUnit: 2},
