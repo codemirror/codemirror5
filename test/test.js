@@ -1088,6 +1088,7 @@ testCM("wrappingAndResizing", function(cm) {
 }, null, ie_lt8);
 
 testCM("measureEndOfLine", function(cm) {
+  if (phantom) return;
   cm.setSize(null, "auto");
   var inner = byClassName(cm.getWrapperElement(), "CodeMirror-lines")[0].firstChild;
   var lh = inner.offsetHeight;
