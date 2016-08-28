@@ -617,6 +617,12 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   }
   function classBody(type, value) {
     if (type == "variable" || cx.style == "keyword") {
+      if (isTS) {
+        // Technically any of these modifiers could be standalone property names, but this is rare.
+        if (value == "public" || value == "private" || value == "protected" || value == "abstract") {
+          return cont(classBody);
+        }
+      }
       if (value == "static") {
         cx.marked = "keyword";
         return cont(classBody);
