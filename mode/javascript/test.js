@@ -31,7 +31,7 @@
 
   MT("class",
      "[keyword class] [def Point] [keyword extends] [variable SuperThing] {",
-     "  [property get] [property prop]() { [keyword return] [number 24]; }",
+     "  [keyword get] [property prop]() { [keyword return] [number 24]; }",
      "  [property constructor]([def x], [def y]) {",
      "    [keyword super]([string 'something']);",
      "    [keyword this].[property x] [operator =] [variable-2 x];",
@@ -177,6 +177,12 @@
 
   TS("arrow_type",
      "[keyword let] [def x]: ([variable arg]: [variable-3 Type]) [operator =>] [variable-3 ReturnType]")
+
+  TS("typescript_class",
+     "[keyword class] [def Foo] {",
+     "  [keyword public] [keyword static] [property main]() {}",
+     "  [keyword private] [property _foo]: [variable-3 string];",
+     "}")
 
   var jsonld_mode = CodeMirror.getMode(
     {indentUnit: 2},
