@@ -69,7 +69,7 @@
 <section class=first id=overview>
     <h2 style="position: relative">
       User manual and reference guide
-      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 5.17.1</span>
+      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 5.18.3</span>
     </h2>
 
     <p>CodeMirror is a code-editor component that can be embedded in
@@ -1435,11 +1435,21 @@ editor.setOption("extraKeys", {
       spec</a> or a mode object (an object with
       a <a href="#token"><code>token</code></a> method).
       The <code>options</code> parameter is optional. If given, it
-      should be an object. Currently, only the <code>opaque</code>
-      option is recognized. This defaults to off, but can be given to
-      allow the overlay styling, when not <code>null</code>, to
-      override the styling of the base mode entirely, instead of the
-      two being applied together.</dd>
+      should be an object, optionally containing the following options:
+        <dl>
+          <dt><code><strong>opaque</strong>: bool</code></dt>
+          <dd>Defaults to off, but can be given to allow the overlay
+          styling, when not <code>null</code>, to override the styling of
+          the base mode entirely, instead of the two being applied
+          together.</dd>
+          <dt><code><strong>priority</strong>: number</code></dt>
+          <dd>Determines the ordering in which the overlays are
+          applied. Those with high priority are applied after those
+          with lower priority, and able to override the opaqueness of
+          the ones that come before. Defaults to 0.</dd>
+        </dl>
+      </dd>
+
       <dt id="removeOverlay"><code><strong>cm.removeOverlay</strong>(mode: string|object)</code></dt>
       <dd>Pass this the exact value passed for the <code>mode</code>
       parameter to <a href="#addOverlay"><code>addOverlay</code></a>,
@@ -1674,7 +1684,7 @@ editor.setOption("extraKeys", {
 
       <dt id="findMarks"><code><strong>doc.findMarks</strong>(from: {line, ch}, to: {line, ch}) → array&lt;TextMarker&gt;</code></dt>
       <dd>Returns an array of all the bookmarks and marked ranges
-      found between the given positions.</dd>
+      found between the given positions (non-inclusive).</dd>
       <dt id="findMarksAt"><code><strong>doc.findMarksAt</strong>(pos: {line, ch}) → array&lt;TextMarker&gt;</code></dt>
       <dd>Returns an array of all the bookmarks and marked ranges
       present at the given position.</dd>
@@ -2178,23 +2188,23 @@ editor.setOption("extraKeys", {
       which, if called, will close the dialog immediately.
       <strong><code>openDialog</code></strong> takes the following options:
         <dl>
-          <dt><code><strong>closeOnEnter</strong></code>:</dt>
+          <dt><code><strong>closeOnEnter</strong>: bool</code></dt>
           <dd>If true, the dialog will be closed when the user presses
           enter in the input. Defaults to <code>true</code>.</dd>
-          <dt><code><strong>onKeyDown</strong></code>:</dt>
-          <dd>An event handler of the signature <code>(event, value, closeFunction)</code>
-          that will be called whenever <code>keydown</code> fires in the
+          <dt><code><strong>closeOnBlur</strong>: bool</code></dt>
+          <dd>Determines whether the dialog is closed when it loses focus. Defaults to <code>true</code>.</dd>
+          <dt><code><strong>onKeyDown</strong>: fn(event: KeyboardEvent, value: string, close: fn()) → bool</code></dt>
+          <dd>An event handler that will be called whenever <code>keydown</code> fires in the
           dialog's input. If your callback returns <code>true</code>,
           the dialog will not do any further processing of the event.</dd>
-          <dt><code><strong>onKeyUp</strong></code>:</dt>
+          <dt><code><strong>onKeyUp</strong>: fn(event: KeyboardEvent, value: string, close: fn()) → bool</code></dt>
           <dd>Same as <code>onKeyDown</code> but for the
           <code>keyup</code> event.</dd>
-          <dt><code><strong>onInput</strong></code>:</dt>
+          <dt><code><strong>onInput</strong>: fn(event: InputEvent, value: string, close: fn()) → bool</code></dt>
           <dd>Same as <code>onKeyDown</code> but for the
           <code>input</code> event.</dd>
-          <dt><code><strong>onClose</strong></code>:</dt>
-          <dd>A callback of the signature <code>(dialogInstance)</code>
-          that will be called after the dialog has been closed and
+          <dt><code><strong>onClose</strong>: fn(instance)</code>:</dt>
+          <dd>A callback that will be called after the dialog has been closed and
           removed from the DOM. No return value.</dd>
         </dl>
 

@@ -1,8 +1,6 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
 // Distributed under an MIT license: http://codemirror.net/LICENSE
 
-// TODO actually recognize syntax of TypeScript constructs
-
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
     mod(require("../../lib/codemirror"));
@@ -463,8 +461,10 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == "variable") {cx.marked = "property"; return cont();}
   }
   function objprop(type, value) {
-    if (type == "async") return cont(objprop);
-    if (type == "variable" || cx.style == "keyword") {
+    if (type == "async") {
+      cx.marked = "property";
+      return cont(objprop);
+    } else if (type == "variable" || cx.style == "keyword") {
       cx.marked = "property";
       if (value == "get" || value == "set") return cont(getterSetter);
       return cont(afterprop);
@@ -479,6 +479,8 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       return cont(expression, expect("]"), afterprop);
     } else if (type == "spread") {
       return cont(expression);
+    } else if (type == ":") {
+      return pass(afterprop)
     }
   }
   function getterSetter(type) {
@@ -525,6 +527,23 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   }
   function typeexpr(type) {
     if (type == "variable") {cx.marked = "variable-3"; return cont(afterType);}
+    if (type == "{") return cont(commasep(typeprop, "}"))
+    if (type == "(") return cont(commasep(typearg, ")"), maybeReturnType)
+  }
+  function maybeReturnType(type) {
+    if (type == "=>") return cont(typeexpr)
+  }
+  function typeprop(type) {
+    if (type == "variable" || cx.style == "keyword") {
+      cx.marked = "property"
+      return cont(typeprop)
+    } else if (type == ":") {
+      return cont(typeexpr)
+    }
+  }
+  function typearg(type) {
+    if (type == "variable") return cont(typearg)
+    else if (type == ":") return cont(typeexpr)
   }
   function afterType(type, value) {
     if (value == "<") return cont(commasep(typeexpr, ">"), afterType)
@@ -593,18 +612,19 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == "variable") {register(value); return cont(classNameAfter);}
   }
   function classNameAfter(type, value) {
-    if (value == "extends") return cont(expression, classNameAfter);
+    if (value == "extends") return cont(isTS ? typeexpr : expression, classNameAfter);
     if (type == "{") return cont(pushlex("}"), classBody, poplex);
   }
   function classBody(type, value) {
     if (type == "variable" || cx.style == "keyword") {
-      if (value == "static") {
+      if ((value == "static" || value == "get" || value == "set" ||
+           (isTS && (value == "public" || value == "private" || value == "protected"))) &&
+          cx.stream.match(/^\s+[\w$\xa1-\uffff]/, false)) {
         cx.marked = "keyword";
         return cont(classBody);
       }
       cx.marked = "property";
-      if (value == "get" || value == "set") return cont(classGetterSetter, functiondef, classBody);
-      return cont(functiondef, classBody);
+      return cont(isTS ? classfield : functiondef, classBody);
     }
     if (value == "*") {
       cx.marked = "keyword";
@@ -613,10 +633,9 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == ";") return cont(classBody);
     if (type == "}") return cont();
   }
-  function classGetterSetter(type) {
-    if (type != "variable") return pass();
-    cx.marked = "property";
-    return cont();
+  function classfield(type) {
+    if (type == ":") return cont(typeexpr)
+    return pass(functiondef)
   }
   function afterExport(_type, value) {
     if (value == "*") { cx.marked = "keyword"; return cont(maybeFrom, expect(";")); }
