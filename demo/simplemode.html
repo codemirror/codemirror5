@@ -132,7 +132,9 @@ CodeMirror.defineSimpleMode("simplemode", {
   // The start state contains the rules that are intially used
   start: [
     // The regex matches the token, the token property contains the type
-    {regex: /"(?:[^\\]|\\.)*?"/, token: "string"},
+    {regex: /"/, token: "string", next: "string"},
+    // A next property will cause the mode to move to a different state
+    {regex: /\/\*/, token: "comment", next: "comment"},
     // You can match multiple tokens at once. Note that the captured
     // groups must span the whole string in this case
     {regex: /(function)(\s+)([a-z$][\w$]*)/,
@@ -146,8 +148,6 @@ CodeMirror.defineSimpleMode("simplemode", {
      token: "number"},
     {regex: /\/\/.*/, token: "comment"},
     {regex: /\/(?:[^\\]|\\.)*?\//, token: "variable-3"},
-    // A next property will cause the mode to move to a different state
-    {regex: /\/\*/, token: "comment", next: "comment"},
     {regex: /[-+\/*=<>!]+/, token: "operator"},
     // indent and dedent properties guide autoindentation
     {regex: /[\{\[\(]/, indent: true},
@@ -157,6 +157,11 @@ CodeMirror.defineSimpleMode("simplemode", {
     // causes all code between << and >> to be highlighted with the XML
     // mode.
     {regex: /<</, token: "meta", mode: {spec: "xml", end: />>/}}
+  ],
+  // The double-quoted string state
+  string: [
+    {regex: /(?:[^\\]|\\.)*?"/, token: "string", next: "start"},
+    {regex: /.*/, token: "string"}
   ],
   // The multi-line comment state.
   comment: [
