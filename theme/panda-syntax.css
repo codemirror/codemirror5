@@ -65,8 +65,7 @@
 	color: #6FC1FF;
 }
 
-.cm-s-panda-syntax .cm-matchingbracket,
-.CodeMirror .CodeMirror-matchingbracket {
+.cm-s-panda-syntax .CodeMirror-matchingbracket {
 	color: #E6E6E6 !important;
 	border-bottom: 1px dotted #19f9d8;
 	padding-bottom: 2px;
