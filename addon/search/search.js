@@ -1,8 +1,7 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
 // Distributed under an MIT license: http://codemirror.net/LICENSE
 
-// Define search commands. Depends on dialog.js or another
-// implementation of the openDialog method.
+// Defines search commands. Uses dialog.js if present.
 
 // Replace works a little oddly -- it will do the replace on the next
 // Ctrl-G (or whatever is bound to findNext) press. You prevent a
@@ -98,8 +97,10 @@
     return query;
   }
 
-  var queryDialog =
-    'Search: <input type="text" style="width: 10em" class="CodeMirror-search-field"/> <span style="color: #888" class="CodeMirror-search-hint">(Use /re/ syntax for regexp search)</span>';
+  CodeMirror.addUiStrings({
+    search: 'Search:',
+    searchHint: '(Use /re/ syntax for regexp search)'
+  });
 
   function startSearch(cm, state, query) {
     state.queryText = query;
@@ -114,6 +115,8 @@
   }
 
   function doSearch(cm, rev, persistent, immediate) {
+    var queryDialog = CodeMirror.uiStrings.search + ' <input type="text" class="CodeMirror-search-field"/> ' +
+      '<span class="CodeMirror-search-hint">' + CodeMirror.uiStrings.searchHint + '</span>';
     var state = getSearchState(cm);
     if (state.query) return findNext(cm, rev);
     var q = cm.getSelection() || state.lastQuery;
@@ -154,7 +157,7 @@
         findNext(cm, rev);
       }
     } else {
-      dialog(cm, queryDialog, "Search for:", q, function(query) {
+      dialog(cm, queryDialog, CodeMirror.uiStrings.search, q, function(query) {
         if (query && !state.query) cm.operation(function() {
           startSearch(cm, state, query);
           state.posFrom = state.posTo = cm.getCursor();
@@ -186,10 +189,16 @@
     if (state.annotate) { state.annotate.clear(); state.annotate = null; }
   });}
 
-  var replaceQueryDialog =
-    ' <input type="text" style="width: 10em" class="CodeMirror-search-field"/> <span style="color: #888" class="CodeMirror-search-hint">(Use /re/ syntax for regexp search)</span>';
-  var replacementQueryDialog = 'With: <input type="text" style="width: 10em" class="CodeMirror-search-field"/>';
-  var doReplaceConfirm = "Replace? <button>Yes</button> <button>No</button> <button>All</button> <button>Stop</button>";
+  CodeMirror.addUiStrings({
+    replace: 'Replace:',
+    replaceAll: 'Replace all:',
+    replaceWith: 'With:',
+    replaceConfirm: 'Replace?',
+    replaceConfirmYes: 'Yes',
+    replaceConfirmNo: 'No',
+    replaceConfirmAll: 'All',
+    replaceConfirmStop: 'Stop'
+  });
 
   function replaceAll(cm, query, text) {
     cm.operation(function() {
@@ -205,11 +214,14 @@
   function replace(cm, all) {
     if (cm.getOption("readOnly")) return;
     var query = cm.getSelection() || getSearchState(cm).lastQuery;
-    var dialogText = all ? "Replace all:" : "Replace:"
-    dialog(cm, dialogText + replaceQueryDialog, dialogText, query, function(query) {
+    var dialogText = CodeMirror.uiStrings[all ? 'replaceAll' : 'replace'];
+    var replaceQueryDialog = dialogText + ' <input type="text" class="CodeMirror-search-field"/> ' +
+      '<span class="CodeMirror-search-hint">' + CodeMirror.uiStrings.searchHint + '</span>';
+    dialog(cm, replaceQueryDialog, dialogText, query, function(query) {
       if (!query) return;
       query = parseQuery(query);
-      dialog(cm, replacementQueryDialog, "Replace with:", "", function(text) {
+      var replacementQueryDialog = CodeMirror.uiStrings.replaceWith + ' <input type="text" class="CodeMirror-search-field"/>';
+      dialog(cm, replacementQueryDialog, CodeMirror.uiStrings.replaceWith, "", function(text) {
         text = parseString(text)
         if (all) {
           replaceAll(cm, query, text)
@@ -225,7 +237,12 @@
             }
             cm.setSelection(cursor.from(), cursor.to());
             cm.scrollIntoView({from: cursor.from(), to: cursor.to()});
-            confirmDialog(cm, doReplaceConfirm, "Replace?",
+            var replaceConfirmButtons = [ 'Yes', 'No', 'All', 'Stop' ];
+            var doReplaceConfirm = CodeMirror.uiStrings.replaceConfirm;
+            for (var button in replaceConfirmButtons) {
+              doReplaceConfirm += ' <button>' + CodeMirror.uiStrings['replaceConfirm' + replaceConfirmButtons[button]] + '</button>';
+            }
+            confirmDialog(cm, doReplaceConfirm, CodeMirror.uiStrings.replaceConfirm,
                           [function() {doReplace(match);}, advance,
                            function() {replaceAll(cm, query, text)}]);
           };

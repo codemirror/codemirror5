@@ -2163,6 +2163,13 @@ editor.setOption("extraKeys", {
       various <a href="#event_change">event handlers</a>). The
       returned position will be the end of the changed
       range, <em>after</em> the change is applied.</dd>
+
+      <dt id="addUiStrings"><code><strong>CodeMirror.addUiStrings</strong>(strings: object, overwrite: bool)</code></dt>
+      <dd>Allows customizing and localizing strings of the user interface.
+      Used by the <a href="#addon_search">search</a> and
+      <a href="#addon_jump-to-line">jump-to-line</a> addons.
+      Unless <code>overwrite</code> is set to <code>true</code>,
+      existing strings are not changed.</dd>
     </dl>
 </section>
 

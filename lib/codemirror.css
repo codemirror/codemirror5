@@ -327,6 +327,13 @@ div.CodeMirror-dragcursors {
   background: rgba(255, 255, 0, .4);
 }
 
+.CodeMirror-dialog .CodeMirror-search-field {
+  width: 10em;
+}
+.CodeMirror-search-hint {
+  color: #888;
+}
+
 /* IE7 hack to prevent it from returning funny offsetTops on the spans */
 .CodeMirror span { *vertical-align: text-bottom; }
 
