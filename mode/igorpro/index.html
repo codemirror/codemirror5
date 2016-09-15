@@ -1,0 +1,64 @@
+<!doctype html>
+
+<title>CodeMirror: Igor Pro mode</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../../doc/docs.css">
+
+<link rel="stylesheet" href="../../lib/codemirror.css">
+<link rel="stylesheet" href="../../theme/igorpro.css">
+<script src="../../lib/codemirror.js"></script>
+<script src="igorpro.js"></script>
+<style type="text/css">.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
+<div id=nav>
+  <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../../doc/logo.png"></a>
+
+  <ul>
+    <li><a href="../../index.html">Home</a>
+    <li><a href="../../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="../index.html">Language modes</a>
+    <li><a class=active href="#">Igor Pro</a>
+  </ul>
+</div>
+
+<article>
+<h2>Igor Pro mode with "igorpro" theme</h2>
+
+<div><textarea id="code" name="code">
+#pragma rtGlobals=3
+
+Function/WAVE TEST_BEGIN(name)
+	string name
+
+	// we have to remember the state of debugging
+	variable reEnableDebugOutput=EnabledDebug()
+
+	if(reEnableDebugOutput)
+		EnableDebugOutput()
+	endif
+
+	Duplicate/R A, B
+	Wave A = $"my wave"
+	DFREF dfr = GetFolder()
+
+	printf "Start of test \"%s\"\r", name
+
+	string str = num2str(123)
+End
+</textarea></div>
+    <script>
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        mode: {name: "igorpro",
+               version: 1,
+               singleLineStringErrors: false},
+               theme: "igorpro default",
+               lineNumbers: true,
+               indentWithTabs: true,
+               matchBrackets: true
+      });
+    </script>
+
+    <p><strong>MIME types defined:</strong> <code>text/x-igorpro</code>.</p>
+</article>
