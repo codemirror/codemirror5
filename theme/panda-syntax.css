@@ -70,7 +70,7 @@
     color: #ffb86c;
 }
 
-div.CodeMirror span.CodeMirror-matchingbracket {
+.cm-s-panda-syntax .CodeMirror-matchingbracket {
     border-bottom: 1px dotted #19F9D8;
     padding-bottom: 2px;
     color: #e6e6e6;
