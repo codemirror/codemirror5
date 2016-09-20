@@ -102,4 +102,13 @@ namespace = "comment_";
     cm.execCommand("selectAll")
     cm.execCommand("toggleComment")
   }, "// foo\n// bar\nbaz", "// // foo\n// // bar\n// baz")
+
+  test("uncommentWithTrailingBlockEnd", "xml", function(cm) {
+    cm.execCommand("toggleComment")
+  }, "<!-- foo --> -->", "foo -->")
+
+  test("dontCommentInComment", "xml", function(cm) {
+    cm.setCursor(1, 0)
+    cm.execCommand("toggleComment")
+  }, "<!-- foo\nbar -->", "<!-- foo\nbar -->")
 })();
