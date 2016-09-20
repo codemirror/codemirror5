@@ -30,6 +30,18 @@
 
   <h2>Version 5.x</h2>
 
+  <p class="rel">20-09-2016: <a href="http://codemirror.net/codemirror-5.19.0.zip">Version 5.19.0</a>:</p>
+
+  <ul class=rel-note>
+    <li><a href="http://codemirror.net/mode/erlang">erlang mode</a>: Fix mode crash when trying to read an empty context.</li>
+    <li><a href="http://codemirror.net/doc/manual.html#addon_comment">comment addon</a>: Fix broken behavior when toggling comments inside a comment.</li>
+    <li>xml-fold addon: Fix a null-dereference bug.</li>
+    <li>Page up and page down now do something even in single-line documents.</li>
+    <li>Fix an issue where the cursor position could be off in really long (~8000 character) tokens.</li>
+    <li><a href="http://codemirror.net/mode/javascript">javascript mode</a>: Better indentation when semicolons are missing. Better support for TypeScript classes, optional parameters, and the <code>type</code> keyword.</li>
+    <li>The <a href="http://codemirror.net/doc/manual.html#event_blur"><code>blur</code></a> and <a href="http://codemirror.net/doc/manual.html#event_focus"><code>focus</code></a> events now pass the DOM event to their handlers.</li>
+  </ul>
+
   <p class="rel">23-08-2016: <a href="http://codemirror.net/codemirror-5.18.2.zip">Version 5.18.2</a>:</p>
 
   <ul class=rel-note>

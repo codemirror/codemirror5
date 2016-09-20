@@ -1,3 +1,23 @@
+## 5.19.0 (2016-09-20)
+
+### Bugfixes
+
+[erlang mode](http://codemirror.net/mode/erlang): Fix mode crash when trying to read an empty context.
+
+[comment addon](http://codemirror.net/doc/manual.html#addon_comment): Fix broken behavior when toggling comments inside a comment.
+
+xml-fold addon: Fix a null-dereference bug.
+
+Page up and page down now do something even in single-line documents.
+
+Fix an issue where the cursor position could be off in really long (~8000 character) tokens.
+
+### New features
+
+[javascript mode](http://codemirror.net/mode/javascript): Better indentation when semicolons are missing. Better support for TypeScript classes, optional parameters, and the `type` keyword.
+
+The [`blur`](http://codemirror.net/doc/manual.html#event_blur) and [`focus`](http://codemirror.net/doc/manual.html#event_focus) events now pass the DOM event to their handlers.
+
 ## 5.18.2 (2016-08-23)
 
 ### Bugfixes
