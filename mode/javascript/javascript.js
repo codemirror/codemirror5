@@ -344,19 +344,19 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
 
   function statement(type, value) {
     if (type == "var") return cont(pushlex("vardef", value.length), vardef, expect(";"), poplex);
-    if (type == "keyword a") return cont(pushlex("form"), expression, statement, poplex);
+    if (type == "keyword a") return cont(pushlex("form"), parenExpr, statement, poplex);
     if (type == "keyword b") return cont(pushlex("form"), statement, poplex);
     if (type == "{") return cont(pushlex("}"), block, poplex);
     if (type == ";") return cont();
     if (type == "if") {
       if (cx.state.lexical.info == "else" && cx.state.cc[cx.state.cc.length - 1] == poplex)
         cx.state.cc.pop()();
-      return cont(pushlex("form"), expression, statement, poplex, maybeelse);
+      return cont(pushlex("form"), parenExpr, statement, poplex, maybeelse);
     }
     if (type == "function") return cont(functiondef);
     if (type == "for") return cont(pushlex("form"), forspec, statement, poplex);
     if (type == "variable") return cont(pushlex("stat"), maybelabel);
-    if (type == "switch") return cont(pushlex("form"), expression, pushlex("}", "switch"), expect("{"),
+    if (type == "switch") return cont(pushlex("form"), parenExpr, pushlex("}", "switch"), expect("{"),
                                       block, poplex, poplex);
     if (type == "case") return cont(expression, expect(":"));
     if (type == "default") return cont(expect(":"));
@@ -375,6 +375,10 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   }
   function expressionNoComma(type) {
     return expressionInner(type, true);
+  }
+  function parenExpr(type) {
+    if (type != "(") return pass()
+    return cont(pushlex(")"), expression, expect(")"), poplex)
   }
   function expressionInner(type, noComma) {
     if (cx.state.fatArrowAt == cx.stream.start) {
@@ -709,14 +713,18 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     indent: function(state, textAfter) {
       if (state.tokenize == tokenComment) return CodeMirror.Pass;
       if (state.tokenize != tokenBase) return 0;
-      var firstChar = textAfter && textAfter.charAt(0), lexical = state.lexical;
+      var firstChar = textAfter && textAfter.charAt(0), lexical = state.lexical, top
       // Kludge to prevent 'maybelse' from blocking lexical scope pops
       if (!/^\s*else\b/.test(textAfter)) for (var i = state.cc.length - 1; i >= 0; --i) {
         var c = state.cc[i];
         if (c == poplex) lexical = lexical.prev;
         else if (c != maybeelse) break;
       }
-      if (lexical.type == "stat" && firstChar == "}") lexical = lexical.prev;
+      while ((lexical.type == "stat" || lexical.type == "form") &&
+             (firstChar == "}" || ((top = state.cc[state.cc.length - 1]) &&
+                                   (top == maybeoperatorComma || top == maybeoperatorNoComma) &&
+                                   !/^[,\.=+\-*:?[\(]/.test(textAfter))))
+        lexical = lexical.prev;
       if (statementIndent && lexical.type == ")" && lexical.prev.type == "stat")
         lexical = lexical.prev;
       var type = lexical.type, closing = firstChar == type;

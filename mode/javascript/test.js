@@ -140,6 +140,19 @@
      "    [number 1];",
      "[number 2];");
 
+  MT("indent_semicolonless_if",
+     "[keyword function] [def foo]() {",
+     "  [keyword if] ([variable x])",
+     "    [variable foo]()",
+     "}")
+
+  MT("indent_semicolonless_if_with_statement",
+     "[keyword function] [def foo]() {",
+     "  [keyword if] ([variable x])",
+     "    [variable foo]()",
+     "  [variable bar]()",
+     "}")
+
   MT("multilinestring",
      "[keyword var] [def x] [operator =] [string 'foo\\]",
      "[string bar'];");
