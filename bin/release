@@ -21,7 +21,7 @@ rewrite("lib/codemirror.js", function(lib) {
                      "CodeMirror.version = \"" + number + "\"");
 });
 function rewriteJSON(pack) {
-  return pack.replace(/"version":"\d+\.\d+\.\d+"/, "\"version\":\"" + number + "\"");
+  return pack.replace(/"version":\s*"\d+\.\d+\.\d+"/, "\"version\": \"" + number + "\"");
 }
 rewrite("package.json", rewriteJSON);
 rewrite("doc/manual.html", function(manual) {
