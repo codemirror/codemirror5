@@ -521,8 +521,11 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == "}") return cont();
     return pass(statement, block);
   }
-  function maybetype(type) {
-    if (isTS && type == ":") return cont(typeexpr);
+  function maybetype(type, value) {
+    if (isTS) {
+      if (type == ":") return cont(typeexpr);
+      if (value == "?") return cont(maybetype);
+    }
   }
   function maybedefault(_, value) {
     if (value == "=") return cont(expressionNoComma);
