@@ -53,7 +53,20 @@
         <li><a href="#api_static">Static properties</a></li>
       </ul>
     </li>
-    <li><a href="#addons">Addons</a></li>
+    <li><a href="#addons">Addons</a>
+      <ul>
+        <li><a href="#addons_search">Search</a></li>
+        <li><a href="#addons_edit">Editing</a></li>
+        <li><a href="#addons_comment">Comments</a></li>
+        <li><a href="#addons_fold">Folding</a></li>
+        <li><a href="#addons_mode">Mode tools</a></li>
+        <li><a href="#addons_hint">Hints</a></li>
+        <li><a href="#addons_selection">Selection</a></li>
+        <li><a href="#addons_display">Display</a></li>
+        <li><a href="#addons_scroll">Scrolling</a></li>
+        <li><a href="#addons_misc">Miscellaneous</a></li>
+      </ul>
+    </li>
     <li><a href="#modeapi">Writing CodeMirror Modes</a></li>
     <li><a href="#vimapi">Vim Mode API</a>
       <ul>
@@ -2163,6 +2176,13 @@ editor.setOption("extraKeys", {
       various <a href="#event_change">event handlers</a>). The
       returned position will be the end of the changed
       range, <em>after</em> the change is applied.</dd>
+
+      <dt id="addUiStrings"><code><strong>CodeMirror.addUiStrings</strong>(strings: object, overwrite: bool)</code></dt>
+      <dd>Allows customizing and localizing strings of the user interface.
+      Used by the <a href="#addon_search">search</a> and
+      <a href="#addon_jump-to-line">jump-to-line</a> addons.
+      Unless <code>overwrite</code> is set to <code>true</code>,
+      existing strings are not changed.</dd>
     </dl>
 </section>
 
@@ -2173,50 +2193,12 @@ editor.setOption("extraKeys", {
     number of reusable components that implement extra editor
     functionality (on top of extension functions
     like <a href="#defineOption"><code>defineOption</code></a>, <a href="#defineExtension"><code>defineExtension</code></a>,
-    and <a href="#registerHelper"><code>registerHelper</code></a>). In
-    brief, they are:</p>
+    and <a href="#registerHelper"><code>registerHelper</code></a>).
+    They are briefly documented below.</p>
+
+    <h3 id="addons_search">Search</h3>
 
     <dl>
-      <dt id="addon_dialog"><a href="../addon/dialog/dialog.js"><code>dialog/dialog.js</code></a></dt>
-      <dd>Provides a very simple way to query users for text input.
-      Adds the <strong><code>openDialog(template, callback, options) →
-      closeFunction</code></strong> method to CodeMirror instances,
-      which can be called with an HTML fragment or a detached DOM
-      node that provides the prompt (should include an <code>input</code>
-      or <code>button</code> tag), and a callback function that is called
-      when the user presses enter. It returns a function <code>closeFunction</code>
-      which, if called, will close the dialog immediately.
-      <strong><code>openDialog</code></strong> takes the following options:
-        <dl>
-          <dt><code><strong>closeOnEnter</strong>: bool</code></dt>
-          <dd>If true, the dialog will be closed when the user presses
-          enter in the input. Defaults to <code>true</code>.</dd>
-          <dt><code><strong>closeOnBlur</strong>: bool</code></dt>
-          <dd>Determines whether the dialog is closed when it loses focus. Defaults to <code>true</code>.</dd>
-          <dt><code><strong>onKeyDown</strong>: fn(event: KeyboardEvent, value: string, close: fn()) → bool</code></dt>
-          <dd>An event handler that will be called whenever <code>keydown</code> fires in the
-          dialog's input. If your callback returns <code>true</code>,
-          the dialog will not do any further processing of the event.</dd>
-          <dt><code><strong>onKeyUp</strong>: fn(event: KeyboardEvent, value: string, close: fn()) → bool</code></dt>
-          <dd>Same as <code>onKeyDown</code> but for the
-          <code>keyup</code> event.</dd>
-          <dt><code><strong>onInput</strong>: fn(event: InputEvent, value: string, close: fn()) → bool</code></dt>
-          <dd>Same as <code>onKeyDown</code> but for the
-          <code>input</code> event.</dd>
-          <dt><code><strong>onClose</strong>: fn(instance)</code>:</dt>
-          <dd>A callback that will be called after the dialog has been closed and
-          removed from the DOM. No return value.</dd>
-        </dl>
-
-      <p>Also adds an <strong><code>openNotification(template, options) →
-      closeFunction</code></strong> function that simply shows an HTML
-      fragment as a notification at the top of the editor. It takes a
-      single option: <code>duration</code>, the amount of time after
-      which the notification will be automatically closed. If <code>
-      duration</code> is zero, the dialog will not be closed automatically.</p>
-
-      <p>Depends on <code>addon/dialog/dialog.css</code>.</p></dd>
-
       <dt id="addon_searchcursor"><a href="../addon/search/searchcursor.js"><code>search/searchcursor.js</code></a></dt>
       <dd>Adds the <code>getSearchCursor(query, start, caseFold) →
       cursor</code> method to CodeMirror instances, which can be used
@@ -2285,6 +2267,27 @@ editor.setOption("extraKeys", {
       the <a href="#addon_search"><code>search</code></a> addon will
       automatically use it.</dd>
 
+      <dt id="addon_match-highlighter"><a href="../addon/search/match-highlighter.js"><code>search/match-highlighter.js</code></a></dt>
+      <dd>Adds a <code>highlightSelectionMatches</code> option that
+      can be enabled to highlight all instances of a currently
+      selected word. Can be set either to true or to an object
+      containing the following options: <code>minChars</code>, for the
+      minimum amount of selected characters that triggers a highlight
+      (default 2), <code>style</code>, for the style to be used to
+      highlight the matches (default <code>"matchhighlight"</code>,
+      which will correspond to CSS
+      class <code>cm-matchhighlight</code>), <code>trim</code>, which
+      controls whether whitespace is trimmed from the selection,
+      and <code>showToken</code> which can be set to <code>true</code>
+      or to a regexp matching the characters that make up a word. When
+      enabled, it causes the current word to be highlighted when
+      nothing is selected (defaults to off).
+      Demo <a href="../demo/matchhighlighter.html">here</a>.</dd>
+    </dl>
+
+    <h3 id="addons_edit">Editing</h3>
+
+    <dl>
       <dt id="addon_matchbrackets"><a href="../addon/edit/matchbrackets.js"><code>edit/matchbrackets.js</code></a></dt>
       <dd>Defines an option <code>matchBrackets</code> which, when set
       to true, causes matching brackets to be highlighted whenever the
@@ -2340,7 +2343,11 @@ editor.setOption("extraKeys", {
       insert the leading characters for continuing a list. See
       the <a href="../mode/markdown/index.html">Markdown mode
       demo</a>.</dd>
+    </dl>
 
+    <h3 id="addons_comment">Comments</h3>
+
+    <dl>
       <dt id="addon_comment"><a href="../addon/comment/comment.js"><code>comment/comment.js</code></a></dt>
       <dd>Addon for commenting and uncommenting code. Adds four
       methods to CodeMirror instances:
@@ -2388,6 +2395,20 @@ editor.setOption("extraKeys", {
       which is a shorthand command for calling
       <code>toggleComment</code> with no options.</dd>
 
+      <dt id="addon_continuecomment"><a href="../addon/comment/continuecomment.js"><code>comment/continuecomment.js</code></a></dt>
+      <dd>Adds a <code>continueComments</code> option, which sets whether the
+      editor will make the next line continue a comment when you press Enter
+      inside a comment block. Can be set to a boolean to enable/disable this
+      functionality. Set to a string, it will continue comments using a custom
+      shortcut. Set to an object, it will use the <code>key</code> property for
+      a custom shortcut and the boolean <code>continueLineComment</code>
+      property to determine whether single-line comments should be continued
+      (defaulting to <code>true</code>).</dd>
+    </dl>
+
+    <h3 id="addons_fold">Folding</h3>
+
+    <dl>
       <dt id="addon_foldcode"><a href="../addon/fold/foldcode.js"><code>fold/foldcode.js</code></a></dt>
       <dd>Helps with code folding. Adds a <code>foldCode</code> method
       to editor instances, which will try to do a code fold starting
@@ -2469,7 +2490,11 @@ editor.setOption("extraKeys", {
       The <code>foldOptions</code> editor option can be set to an
       object to provide an editor-wide default configuration.
       Demo <a href="../demo/folding.html">here</a>.</dd>
+    </dl>
 
+    <h3 id="addons_mode">Mode tools</h3>
+
+    <dl>
       <dt id="addon_runmode"><a href="../addon/runmode/runmode.js"><code>runmode/runmode.js</code></a></dt>
       <dd>Can be used to run a CodeMirror mode over text without
       actually opening an editor instance.
@@ -2532,6 +2557,44 @@ editor.setOption("extraKeys", {
       See <a href="../demo/multiplex.html">this demo</a> for an
       example.</dd>
 
+      <dt id="addon_loadmode"><a href="../addon/mode/loadmode.js"><code>mode/loadmode.js</code></a></dt>
+      <dd>Defines a <code>CodeMirror.requireMode(modename,
+      callback)</code> function that will try to load a given mode and
+      call the callback when it succeeded. You'll have to
+      set <code>CodeMirror.modeURL</code> to a string that mode paths
+      can be constructed from, for
+      example <code>"mode/%N/%N.js"</code>—the <code>%N</code>'s will
+      be replaced with the mode name. Also
+      defines <code>CodeMirror.autoLoadMode(instance, mode)</code>,
+      which will ensure the given mode is loaded and cause the given
+      editor instance to refresh its mode when the loading
+      succeeded. See the <a href="../demo/loadmode.html">demo</a>.</dd>
+
+      <dt id="addon_meta"><a href="../mode/meta.js"><code>mode/meta.js</code></a></dt>
+      <dd>Provides meta-information about all the modes in the
+      distribution in a single file.
+      Defines <code>CodeMirror.modeInfo</code>, an array of objects
+      with <code>{name, mime, mode}</code> properties,
+      where <code>name</code> is the human-readable
+      name, <code>mime</code> the MIME type, and <code>mode</code> the
+      name of the mode file that defines this MIME. There are optional
+      properties <code>mimes</code>, which holds an array of MIME
+      types for modes with multiple MIMEs associated,
+      and <code>ext</code>, which holds an array of file extensions
+      associated with this mode. Four convenience
+      functions, <code>CodeMirror.findModeByMIME</code>,
+      <code>CodeMirror.findModeByExtension</code>,
+      <code>CodeMirror.findModeByFileName</code>
+      and <code>CodeMirror.findModeByName</code> are provided, which
+      return such an object given a MIME, extension, file name or mode name
+      string. Note that, for historical reasons, this file resides in the
+      top-level <code>mode</code> directory, not
+      under <code>addon</code>. <a href="../demo/loadmode.html">Demo</a>.</dd>
+    </dl>
+
+    <h3 id="addons_hint">Hints</h3>
+
+    <dl>
       <dt id="addon_show-hint"><a href="../addon/hint/show-hint.js"><code>hint/show-hint.js</code></a></dt>
       <dd>Provides a framework for showing autocompletion hints.
       Defines <code>editor.showHint</code>, which takes an optional
@@ -2701,23 +2764,6 @@ editor.setOption("extraKeys", {
       and <code>defaultTable</code>, a string corresponding to a
       table name in <code>tables</code> for autocompletion.</dd>
 
-      <dt id="addon_match-highlighter"><a href="../addon/search/match-highlighter.js"><code>search/match-highlighter.js</code></a></dt>
-      <dd>Adds a <code>highlightSelectionMatches</code> option that
-      can be enabled to highlight all instances of a currently
-      selected word. Can be set either to true or to an object
-      containing the following options: <code>minChars</code>, for the
-      minimum amount of selected characters that triggers a highlight
-      (default 2), <code>style</code>, for the style to be used to
-      highlight the matches (default <code>"matchhighlight"</code>,
-      which will correspond to CSS
-      class <code>cm-matchhighlight</code>), <code>trim</code>, which
-      controls whether whitespace is trimmed from the selection,
-      and <code>showToken</code> which can be set to <code>true</code>
-      or to a regexp matching the characters that make up a word. When
-      enabled, it causes the current word to be highlighted when
-      nothing is selected (defaults to off).
-      Demo <a href="../demo/matchhighlighter.html">here</a>.</dd>
-
       <dt id="addon_lint"><a href="../addon/lint/lint.js"><code>lint/lint.js</code></a></dt>
       <dd>Defines an interface component for showing linting warnings,
       with pluggable warning sources
@@ -2745,7 +2791,11 @@ editor.setOption("extraKeys", {
       a <code>lintOnChange: false</code> option to disable that.
       Depends on <code>addon/lint/lint.css</code>. A demo can be
       found <a href="../demo/lint.html">here</a>.</dd>
+    </dl>
 
+    <h3 id="addons_selection">Selection</h3>
+
+    <dl>
       <dt id="addon_mark-selection"><a href="../addon/selection/mark-selection.js"><code>selection/mark-selection.js</code></a></dt>
       <dd>Causes the selected text to be marked with the CSS class
       <code>CodeMirror-selectedtext</code> when the <code>styleSelectedText</code> option
@@ -2767,51 +2817,11 @@ editor.setOption("extraKeys", {
       like <code>"pointer"</code>, or to true, in which case
       the <code>"default"</code> (arrow) cursor will be used. You can
       see a demo <a href="../mode/htmlmixed/index.html">here</a>.</dd>
+    </dl>
 
-      <dt id="addon_loadmode"><a href="../addon/mode/loadmode.js"><code>mode/loadmode.js</code></a></dt>
-      <dd>Defines a <code>CodeMirror.requireMode(modename,
-      callback)</code> function that will try to load a given mode and
-      call the callback when it succeeded. You'll have to
-      set <code>CodeMirror.modeURL</code> to a string that mode paths
-      can be constructed from, for
-      example <code>"mode/%N/%N.js"</code>—the <code>%N</code>'s will
-      be replaced with the mode name. Also
-      defines <code>CodeMirror.autoLoadMode(instance, mode)</code>,
-      which will ensure the given mode is loaded and cause the given
-      editor instance to refresh its mode when the loading
-      succeeded. See the <a href="../demo/loadmode.html">demo</a>.</dd>
+    <h3 id="addons_display">Display</h3>
 
-      <dt id="addon_meta"><a href="../mode/meta.js"><code>mode/meta.js</code></a></dt>
-      <dd>Provides meta-information about all the modes in the
-      distribution in a single file.
-      Defines <code>CodeMirror.modeInfo</code>, an array of objects
-      with <code>{name, mime, mode}</code> properties,
-      where <code>name</code> is the human-readable
-      name, <code>mime</code> the MIME type, and <code>mode</code> the
-      name of the mode file that defines this MIME. There are optional
-      properties <code>mimes</code>, which holds an array of MIME
-      types for modes with multiple MIMEs associated,
-      and <code>ext</code>, which holds an array of file extensions
-      associated with this mode. Four convenience
-      functions, <code>CodeMirror.findModeByMIME</code>,
-      <code>CodeMirror.findModeByExtension</code>,
-      <code>CodeMirror.findModeByFileName</code>
-      and <code>CodeMirror.findModeByName</code> are provided, which
-      return such an object given a MIME, extension, file name or mode name
-      string. Note that, for historical reasons, this file resides in the
-      top-level <code>mode</code> directory, not
-      under <code>addon</code>. <a href="../demo/loadmode.html">Demo</a>.</dd>
-
-      <dt id="addon_continuecomment"><a href="../addon/comment/continuecomment.js"><code>comment/continuecomment.js</code></a></dt>
-      <dd>Adds a <code>continueComments</code> option, which sets whether the
-      editor will make the next line continue a comment when you press Enter
-      inside a comment block. Can be set to a boolean to enable/disable this
-      functionality. Set to a string, it will continue comments using a custom
-      shortcut. Set to an object, it will use the <code>key</code> property for
-      a custom shortcut and the boolean <code>continueLineComment</code>
-      property to determine whether single-line comments should be continued
-      (defaulting to <code>true</code>).</dd>
-
+    <dl>
       <dt id="addon_placeholder"><a href="../addon/display/placeholder.js"><code>display/placeholder.js</code></a></dt>
       <dd>Adds a <code>placeholder</code> option that can be used to
       make content appear in the editor when it is empty and not
@@ -2840,28 +2850,6 @@ editor.setOption("extraKeys", {
       this addon will only refresh the editor <em>once</em> when it
       first becomes visible, and won't take care of further restyling
       and resizing.</dd>
-
-      <dt id="addon_simplescrollbars"><a href="../addon/scroll/simplescrollbars.js"><code>scroll/simplescrollbars.js</code></a></dt>
-      <dd>Defines two additional scrollbar
-      models, <code>"simple"</code> and <code>"overlay"</code>
-      (see <a href="../demo/simplescrollbars.html">demo</a>) that can
-      be selected with
-      the <a href="#option_scrollbarStyle"><code>scrollbarStyle</code></a>
-      option. Depends
-      on <a href="../addon/scroll/simplescrollbars.css"><code>simplescrollbars.css</code></a>,
-      which can be further overridden to style your own
-      scrollbars.</dd>
-
-      <dt id="addon_annotatescrollbar"><a href="../addon/scroll/annotatescrollbar.js"><code>scroll/annotatescrollbar.js</code></a></dt>
-      <dd>Provides functionality for showing markers on the scrollbar
-      to call out certain parts of the document. Adds a
-      method <code>annotateScrollbar</code> to editor instances that
-      can be called, with a CSS class name as argument, to create a
-      set of annotations. The method returns an object
-      whose <code>update</code> method can be called with an array
-      of <code>{from: Pos, to: Pos}</code> objects marking the ranges
-      to be highlighted. To detach the annotations, call the
-      object's <code>clear</code> method.</dd>
 
       <dt id="addon_rulers"><a href="../addon/display/rulers.js"><code>display/rulers.js</code></a></dt>
       <dd>Adds a <code>rulers</code> option, which can be used to show
@@ -2913,6 +2901,76 @@ editor.setOption("extraKeys", {
       <br>
       A demo of the addon is available <a href="../demo/panel.html">here</a>.
       </dd>
+    </dl>
+
+    <h3 id="addons_scroll">Scrolling</h3>
+
+    <dl>
+      <dt id="addon_simplescrollbars"><a href="../addon/scroll/simplescrollbars.js"><code>scroll/simplescrollbars.js</code></a></dt>
+      <dd>Defines two additional scrollbar
+      models, <code>"simple"</code> and <code>"overlay"</code>
+      (see <a href="../demo/simplescrollbars.html">demo</a>) that can
+      be selected with
+      the <a href="#option_scrollbarStyle"><code>scrollbarStyle</code></a>
+      option. Depends
+      on <a href="../addon/scroll/simplescrollbars.css"><code>simplescrollbars.css</code></a>,
+      which can be further overridden to style your own
+      scrollbars.</dd>
+
+      <dt id="addon_annotatescrollbar"><a href="../addon/scroll/annotatescrollbar.js"><code>scroll/annotatescrollbar.js</code></a></dt>
+      <dd>Provides functionality for showing markers on the scrollbar
+      to call out certain parts of the document. Adds a
+      method <code>annotateScrollbar</code> to editor instances that
+      can be called, with a CSS class name as argument, to create a
+      set of annotations. The method returns an object
+      whose <code>update</code> method can be called with an array
+      of <code>{from: Pos, to: Pos}</code> objects marking the ranges
+      to be highlighted. To detach the annotations, call the
+      object's <code>clear</code> method.</dd>
+    </dl>
+
+    <h3 id="addons_misc">Miscellaneous</h3>
+
+    <dl>
+      <dt id="addon_dialog"><a href="../addon/dialog/dialog.js"><code>dialog/dialog.js</code></a></dt>
+      <dd>Provides a very simple way to query users for text input.
+      Adds the <strong><code>openDialog(template, callback, options) →
+      closeFunction</code></strong> method to CodeMirror instances,
+      which can be called with an HTML fragment or a detached DOM
+      node that provides the prompt (should include an <code>input</code>
+      or <code>button</code> tag), and a callback function that is called
+      when the user presses enter. It returns a function <code>closeFunction</code>
+      which, if called, will close the dialog immediately.
+      <strong><code>openDialog</code></strong> takes the following options:
+        <dl>
+          <dt><code><strong>closeOnEnter</strong>: bool</code></dt>
+          <dd>If true, the dialog will be closed when the user presses
+          enter in the input. Defaults to <code>true</code>.</dd>
+          <dt><code><strong>closeOnBlur</strong>: bool</code></dt>
+          <dd>Determines whether the dialog is closed when it loses focus. Defaults to <code>true</code>.</dd>
+          <dt><code><strong>onKeyDown</strong>: fn(event: KeyboardEvent, value: string, close: fn()) → bool</code></dt>
+          <dd>An event handler that will be called whenever <code>keydown</code> fires in the
+          dialog's input. If your callback returns <code>true</code>,
+          the dialog will not do any further processing of the event.</dd>
+          <dt><code><strong>onKeyUp</strong>: fn(event: KeyboardEvent, value: string, close: fn()) → bool</code></dt>
+          <dd>Same as <code>onKeyDown</code> but for the
+          <code>keyup</code> event.</dd>
+          <dt><code><strong>onInput</strong>: fn(event: InputEvent, value: string, close: fn()) → bool</code></dt>
+          <dd>Same as <code>onKeyDown</code> but for the
+          <code>input</code> event.</dd>
+          <dt><code><strong>onClose</strong>: fn(instance)</code>:</dt>
+          <dd>A callback that will be called after the dialog has been closed and
+          removed from the DOM. No return value.</dd>
+        </dl>
+
+      <p>Also adds an <strong><code>openNotification(template, options) →
+      closeFunction</code></strong> function that simply shows an HTML
+      fragment as a notification at the top of the editor. It takes a
+      single option: <code>duration</code>, the amount of time after
+      which the notification will be automatically closed. If <code>
+      duration</code> is zero, the dialog will not be closed automatically.</p>
+
+      <p>Depends on <code>addon/dialog/dialog.css</code>.</p></dd>
 
       <dt id="addon_hardwrap"><a href="../addon/wrap/hardwrap.js"><code>wrap/hardwrap.js</code></a></dt>
       <dd>Addon to perform hard line wrapping/breaking for paragraphs

@@ -69,13 +69,16 @@
 </dl>
 </textarea></form>
 
-    <script>
-var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-  mode: "text/html",
-  lineNumbers: true,
-  extraKeys: {"Alt-F": "findPersistent"}
-});
-</script>
+    <p>Dialog style: <select onchange="selectStyle()" id="styleInput">
+        <option value="default">Browser (default)</option>
+        <option value="dialog" selected>Editor (dialog.js)</option>
+      </select>
+    — Locale: <select onchange="selectLocale()" id="localeInput">
+        <option value="english" selected>English (default)</option>
+        <option value="french">French</option>
+        <option value="funky">Funky</option>
+      </select>
+    </p>
 
     <p>Demonstration of primitive search/replace functionality. The
     keybindings (which can be configured with custom keymaps) are:</p>
@@ -96,4 +99,59 @@ var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
     <p>For good-looking input dialogs, you also want to include
     <a href="../addon/dialog/dialog.js">addon/dialog/dialog.js</a>
     and <a href="../addon/dialog/dialog.css">addon/dialog/dialog.css</a>.</p>
+
+<script>
+  var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+    mode: "text/html",
+    lineNumbers: true,
+    extraKeys: {"Alt-F": "findPersistent"}
+  });
+  var dialogs = { 'default': [null, null], dialog: [editor.openDialog, editor.openConfirm] };
+  var styleInput = document.getElementById('styleInput');
+  function selectStyle() {
+    var selectedDialogs = dialogs[styleInput.options[styleInput.selectedIndex].value];
+    editor.openDialog = selectedDialogs[0];
+    editor.openConfirm = selectedDialogs[1];
+  }
+  selectStyle();
+  var uiStrings = {
+    english: {},
+    french: {
+      jumpToLine: 'Aller à :',
+      jumpToLineHint: '(ligne, ligne:colonne ou pos%)',
+      search: 'Rechercher :',
+      searchHint: '(slashs pour expression rationnelle)',
+      replace: 'Remplacer le texte :',
+      replaceAll: 'Remplacer tous les :',
+      replaceWith: 'Remplacer par :',
+      replaceConfirm: 'Remplacer ?',
+      replaceConfirmYes: 'Oui',
+      replaceConfirmNo: 'Non',
+      replaceConfirmAll: 'Tout',
+      replaceConfirmStop: 'Stop'
+    },
+    funky: {
+      jumpToLine: 'Step here:',
+      jumpToLineHint: '(either line, line:char or scroll%)',
+      search: 'Find this:',
+      searchHint: '(backslash escaping works; also /re/ for regexp)',
+      replace: 'Replace this:',
+      replaceAll: 'Replace all like this:',
+      replaceWith: 'Use this placeholder:',
+      replaceConfirm: 'OK for this?',
+      replaceConfirmYes: 'Oh yeah',
+      replaceConfirmNo: 'Please, no!',
+      replaceConfirmAll: 'Don’t ask',
+      replaceConfirmStop: 'Drop it'
+    }
+  };
+  for (var string in CodeMirror.uiStrings) {
+    uiStrings.english[string] = CodeMirror.uiStrings[string];
+  }
+  var localeInput = document.getElementById('localeInput');
+  function selectLocale() {
+    CodeMirror.addUiStrings(uiStrings[localeInput.options[localeInput.selectedIndex].value], true);
+  }
+  selectLocale();
+</script>
   </article>
