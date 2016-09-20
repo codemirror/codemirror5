@@ -61,7 +61,6 @@
 
   test.mode = function(name, mode, tokens, modeName) {
     var data = parseTokens(tokens);
-    if (name == "extend_type") console.log("set", (modeName || mode.name) + "_" + name)
     return test((modeName || mode.name) + "_" + name, function() {
       return compare(data.plain, data.tokens, mode);
     });
