@@ -11,7 +11,6 @@ var blint = require("blint");
 ["src"].forEach(function(dir) {
   blint.checkDir(dir, {
     browser: true,
-    blob: "// CodeMirror, copyright (c) by Marijn Haverbeke and others\n// Distributed under an MIT license: http:\/\/codemirror.net\/LICENSE\n\n",
     ecmaVersion: 6
   });
 });
