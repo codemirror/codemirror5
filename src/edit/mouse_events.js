@@ -5,7 +5,7 @@ import { clipPos, cmp, maxPos, minPos, Pos } from "../line/pos";
 import { getLine, lineAtHeight } from "../line/utils_line";
 import { posFromMouse } from "../measurement/position_measurement";
 import { eventInWidget } from "../measurement/widgets";
-import { normalizeSelection, Range } from "../model/selection";
+import { normalizeSelection, Range, Selection } from "../model/selection";
 import { extendRange, extendSelection, replaceOneSelection, setSelection } from "../model/selection_updates";
 import { captureRightClick, chromeOS, ie, ie_version, mac, webkit } from "../util/browser";
 import { activeElt } from "../util/dom";
