@@ -1,5 +1,5 @@
-import { mac } from "./browser";
-import { indexOf } from "./misc";
+import { mac } from "./browser"
+import { indexOf } from "./misc"
 
 // EVENT HANDLING
 
@@ -8,15 +8,15 @@ import { indexOf } from "./misc";
 
 export var on = function(emitter, type, f) {
   if (emitter.addEventListener)
-    emitter.addEventListener(type, f, false);
+    emitter.addEventListener(type, f, false)
   else if (emitter.attachEvent)
-    emitter.attachEvent("on" + type, f);
+    emitter.attachEvent("on" + type, f)
   else {
-    var map = emitter._handlers || (emitter._handlers = {});
-    var arr = map[type] || (map[type] = []);
-    arr.push(f);
+    var map = emitter._handlers || (emitter._handlers = {})
+    var arr = map[type] || (map[type] = [])
+    arr.push(f)
   }
-};
+}
 
 var noHandlers = []
 export function getHandlers(emitter, type, copy) {
@@ -27,21 +27,21 @@ export function getHandlers(emitter, type, copy) {
 
 export function off(emitter, type, f) {
   if (emitter.removeEventListener)
-    emitter.removeEventListener(type, f, false);
+    emitter.removeEventListener(type, f, false)
   else if (emitter.detachEvent)
-    emitter.detachEvent("on" + type, f);
+    emitter.detachEvent("on" + type, f)
   else {
     var handlers = getHandlers(emitter, type, false)
     for (var i = 0; i < handlers.length; ++i)
-      if (handlers[i] == f) { handlers.splice(i, 1); break; }
+      if (handlers[i] == f) { handlers.splice(i, 1); break }
   }
 }
 
 export function signal(emitter, type /*, values...*/) {
   var handlers = getHandlers(emitter, type, true)
-  if (!handlers.length) return;
-  var args = Array.prototype.slice.call(arguments, 2);
-  for (var i = 0; i < handlers.length; ++i) handlers[i].apply(null, args);
+  if (!handlers.length) return
+  var args = Array.prototype.slice.call(arguments, 2)
+  for (var i = 0; i < handlers.length; ++i) handlers[i].apply(null, args)
 }
 
 // The DOM events that CodeMirror handles can be overridden by
@@ -49,17 +49,17 @@ export function signal(emitter, type /*, values...*/) {
 // and preventDefault-ing the event in that handler.
 export function signalDOMEvent(cm, e, override) {
   if (typeof e == "string")
-    e = {type: e, preventDefault: function() { this.defaultPrevented = true; }};
-  signal(cm, override || e.type, cm, e);
-  return e_defaultPrevented(e) || e.codemirrorIgnore;
+    e = {type: e, preventDefault: function() { this.defaultPrevented = true }}
+  signal(cm, override || e.type, cm, e)
+  return e_defaultPrevented(e) || e.codemirrorIgnore
 }
 
 export function signalCursorActivity(cm) {
-  var arr = cm._handlers && cm._handlers.cursorActivity;
-  if (!arr) return;
-  var set = cm.curOp.cursorActivityHandlers || (cm.curOp.cursorActivityHandlers = []);
+  var arr = cm._handlers && cm._handlers.cursorActivity
+  if (!arr) return
+  var set = cm.curOp.cursorActivityHandlers || (cm.curOp.cursorActivityHandlers = [])
   for (var i = 0; i < arr.length; ++i) if (indexOf(set, arr[i]) == -1)
-    set.push(arr[i]);
+    set.push(arr[i])
 }
 
 export function hasHandler(emitter, type) {
@@ -69,34 +69,34 @@ export function hasHandler(emitter, type) {
 // Add on and off methods to a constructor's prototype, to make
 // registering events on such objects more convenient.
 export function eventMixin(ctor) {
-  ctor.prototype.on = function(type, f) {on(this, type, f);};
-  ctor.prototype.off = function(type, f) {off(this, type, f);};
+  ctor.prototype.on = function(type, f) {on(this, type, f)}
+  ctor.prototype.off = function(type, f) {off(this, type, f)}
 }
 
 // Due to the fact that we still support jurassic IE versions, some
 // compatibility wrappers are needed.
 
 export function e_preventDefault(e) {
-  if (e.preventDefault) e.preventDefault();
-  else e.returnValue = false;
+  if (e.preventDefault) e.preventDefault()
+  else e.returnValue = false
 }
 export function e_stopPropagation(e) {
-  if (e.stopPropagation) e.stopPropagation();
-  else e.cancelBubble = true;
+  if (e.stopPropagation) e.stopPropagation()
+  else e.cancelBubble = true
 }
 export function e_defaultPrevented(e) {
-  return e.defaultPrevented != null ? e.defaultPrevented : e.returnValue == false;
+  return e.defaultPrevented != null ? e.defaultPrevented : e.returnValue == false
 }
-export function e_stop(e) {e_preventDefault(e); e_stopPropagation(e);}
+export function e_stop(e) {e_preventDefault(e); e_stopPropagation(e)}
 
-export function e_target(e) {return e.target || e.srcElement;}
+export function e_target(e) {return e.target || e.srcElement}
 export function e_button(e) {
-  var b = e.which;
+  var b = e.which
   if (b == null) {
-    if (e.button & 1) b = 1;
-    else if (e.button & 2) b = 3;
-    else if (e.button & 4) b = 2;
+    if (e.button & 1) b = 1
+    else if (e.button & 2) b = 3
+    else if (e.button & 4) b = 2
   }
-  if (mac && e.ctrlKey && b == 1) b = 3;
-  return b;
+  if (mac && e.ctrlKey && b == 1) b = 3
+  return b
 }

@@ -7,11 +7,11 @@ export var keyNames = {
   173: "-", 186: ";", 187: "=", 188: ",", 189: "-", 190: ".", 191: "/", 192: "`", 219: "[", 220: "\\",
   221: "]", 222: "'", 63232: "Up", 63233: "Down", 63234: "Left", 63235: "Right", 63272: "Delete",
   63273: "Home", 63275: "End", 63276: "PageUp", 63277: "PageDown", 63302: "Insert"
-};
+}
 
 // Number keys
-for (var i = 0; i < 10; i++) keyNames[i + 48] = keyNames[i + 96] = String(i);
+for (var i = 0; i < 10; i++) keyNames[i + 48] = keyNames[i + 96] = String(i)
 // Alphabetic keys
-for (var i = 65; i <= 90; i++) keyNames[i] = String.fromCharCode(i);
+for (var i = 65; i <= 90; i++) keyNames[i] = String.fromCharCode(i)
 // Function keys
-for (var i = 1; i <= 12; i++) keyNames[i + 111] = keyNames[i + 63235] = "F" + i;
+for (var i = 1; i <= 12; i++) keyNames[i + 111] = keyNames[i + 63235] = "F" + i

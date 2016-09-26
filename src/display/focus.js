@@ -1,49 +1,49 @@
-import { restartBlink } from "./selection";
-import { webkit } from "../util/browser";
-import { addClass, rmClass } from "../util/dom";
-import { signal } from "../util/event";
+import { restartBlink } from "./selection"
+import { webkit } from "../util/browser"
+import { addClass, rmClass } from "../util/dom"
+import { signal } from "../util/event"
 
 export function ensureFocus(cm) {
-  if (!cm.state.focused) { cm.display.input.focus(); onFocus(cm); }
+  if (!cm.state.focused) { cm.display.input.focus(); onFocus(cm) }
 }
 
 export function delayBlurEvent(cm) {
-  cm.state.delayingBlurEvent = true;
+  cm.state.delayingBlurEvent = true
   setTimeout(function() {
     if (cm.state.delayingBlurEvent) {
-      cm.state.delayingBlurEvent = false;
-      onBlur(cm);
+      cm.state.delayingBlurEvent = false
+      onBlur(cm)
     }
-  }, 100);
+  }, 100)
 }
 
 export function onFocus(cm, e) {
-  if (cm.state.delayingBlurEvent) cm.state.delayingBlurEvent = false;
+  if (cm.state.delayingBlurEvent) cm.state.delayingBlurEvent = false
 
-  if (cm.options.readOnly == "nocursor") return;
+  if (cm.options.readOnly == "nocursor") return
   if (!cm.state.focused) {
-    signal(cm, "focus", cm, e);
-    cm.state.focused = true;
-    addClass(cm.display.wrapper, "CodeMirror-focused");
+    signal(cm, "focus", cm, e)
+    cm.state.focused = true
+    addClass(cm.display.wrapper, "CodeMirror-focused")
     // This test prevents this from firing when a context
     // menu is closed (since the input reset would kill the
     // select-all detection hack)
     if (!cm.curOp && cm.display.selForContextMenu != cm.doc.sel) {
-      cm.display.input.reset();
-      if (webkit) setTimeout(function() { cm.display.input.reset(true); }, 20); // Issue #1730
+      cm.display.input.reset()
+      if (webkit) setTimeout(function() { cm.display.input.reset(true) }, 20) // Issue #1730
     }
-    cm.display.input.receivedFocus();
+    cm.display.input.receivedFocus()
   }
-  restartBlink(cm);
+  restartBlink(cm)
 }
 export function onBlur(cm, e) {
-  if (cm.state.delayingBlurEvent) return;
+  if (cm.state.delayingBlurEvent) return
 
   if (cm.state.focused) {
-    signal(cm, "blur", cm, e);
-    cm.state.focused = false;
-    rmClass(cm.display.wrapper, "CodeMirror-focused");
+    signal(cm, "blur", cm, e)
+    cm.state.focused = false
+    rmClass(cm.display.wrapper, "CodeMirror-focused")
   }
-  clearInterval(cm.display.blinker);
-  setTimeout(function() {if (!cm.state.focused) cm.display.shift = false;}, 150);
+  clearInterval(cm.display.blinker)
+  setTimeout(function() {if (!cm.state.focused) cm.display.shift = false}, 150)
 }
