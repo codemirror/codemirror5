@@ -1,9 +1,9 @@
-import { countColumn } from "../util/misc";
-import { copyState, innerMode, startState } from "../modes";
-import StringStream from "../util/StringStream";
+import { countColumn } from "../util/misc"
+import { copyState, innerMode, startState } from "../modes"
+import StringStream from "../util/StringStream"
 
-import { getLine, lineNo } from "./utils_line";
-import { clipPos } from "./pos";
+import { getLine, lineNo } from "./utils_line"
+import { clipPos } from "./pos"
 
 // Compute a style array (an array starting with a mode generation
 // -- for invalidation -- followed by pairs of end positions and
@@ -12,98 +12,98 @@ import { clipPos } from "./pos";
 export function highlightLine(cm, line, state, forceToEnd) {
   // A styles array always starts with a number identifying the
   // mode/overlays that it is based on (for easy invalidation).
-  var st = [cm.state.modeGen], lineClasses = {};
+  var st = [cm.state.modeGen], lineClasses = {}
   // Compute the base array of styles
   runMode(cm, line.text, cm.doc.mode, state, function(end, style) {
-    st.push(end, style);
-  }, lineClasses, forceToEnd);
+    st.push(end, style)
+  }, lineClasses, forceToEnd)
 
   // Run overlays, adjust style array.
   for (var o = 0; o < cm.state.overlays.length; ++o) {
-    var overlay = cm.state.overlays[o], i = 1, at = 0;
+    var overlay = cm.state.overlays[o], i = 1, at = 0
     runMode(cm, line.text, overlay.mode, true, function(end, style) {
-      var start = i;
+      var start = i
       // Ensure there's a token end at the current position, and that i points at it
       while (at < end) {
-        var i_end = st[i];
+        var i_end = st[i]
         if (i_end > end)
-          st.splice(i, 1, end, st[i+1], i_end);
-        i += 2;
-        at = Math.min(end, i_end);
+          st.splice(i, 1, end, st[i+1], i_end)
+        i += 2
+        at = Math.min(end, i_end)
       }
-      if (!style) return;
+      if (!style) return
       if (overlay.opaque) {
-        st.splice(start, i - start, end, "cm-overlay " + style);
-        i = start + 2;
+        st.splice(start, i - start, end, "cm-overlay " + style)
+        i = start + 2
       } else {
         for (; start < i; start += 2) {
-          var cur = st[start+1];
-          st[start+1] = (cur ? cur + " " : "") + "cm-overlay " + style;
+          var cur = st[start+1]
+          st[start+1] = (cur ? cur + " " : "") + "cm-overlay " + style
         }
       }
-    }, lineClasses);
+    }, lineClasses)
   }
 
-  return {styles: st, classes: lineClasses.bgClass || lineClasses.textClass ? lineClasses : null};
+  return {styles: st, classes: lineClasses.bgClass || lineClasses.textClass ? lineClasses : null}
 }
 
 export function getLineStyles(cm, line, updateFrontier) {
   if (!line.styles || line.styles[0] != cm.state.modeGen) {
-    var state = getStateBefore(cm, lineNo(line));
-    var result = highlightLine(cm, line, line.text.length > cm.options.maxHighlightLength ? copyState(cm.doc.mode, state) : state);
-    line.stateAfter = state;
-    line.styles = result.styles;
-    if (result.classes) line.styleClasses = result.classes;
-    else if (line.styleClasses) line.styleClasses = null;
-    if (updateFrontier === cm.doc.frontier) cm.doc.frontier++;
+    var state = getStateBefore(cm, lineNo(line))
+    var result = highlightLine(cm, line, line.text.length > cm.options.maxHighlightLength ? copyState(cm.doc.mode, state) : state)
+    line.stateAfter = state
+    line.styles = result.styles
+    if (result.classes) line.styleClasses = result.classes
+    else if (line.styleClasses) line.styleClasses = null
+    if (updateFrontier === cm.doc.frontier) cm.doc.frontier++
   }
-  return line.styles;
+  return line.styles
 }
 
 export function getStateBefore(cm, n, precise) {
-  var doc = cm.doc, display = cm.display;
-  if (!doc.mode.startState) return true;
-  var pos = findStartLine(cm, n, precise), state = pos > doc.first && getLine(doc, pos-1).stateAfter;
-  if (!state) state = startState(doc.mode);
-  else state = copyState(doc.mode, state);
+  var doc = cm.doc, display = cm.display
+  if (!doc.mode.startState) return true
+  var pos = findStartLine(cm, n, precise), state = pos > doc.first && getLine(doc, pos-1).stateAfter
+  if (!state) state = startState(doc.mode)
+  else state = copyState(doc.mode, state)
   doc.iter(pos, n, function(line) {
-    processLine(cm, line.text, state);
-    var save = pos == n - 1 || pos % 5 == 0 || pos >= display.viewFrom && pos < display.viewTo;
-    line.stateAfter = save ? copyState(doc.mode, state) : null;
-    ++pos;
-  });
-  if (precise) doc.frontier = pos;
-  return state;
+    processLine(cm, line.text, state)
+    var save = pos == n - 1 || pos % 5 == 0 || pos >= display.viewFrom && pos < display.viewTo
+    line.stateAfter = save ? copyState(doc.mode, state) : null
+    ++pos
+  })
+  if (precise) doc.frontier = pos
+  return state
 }
 
 // Lightweight form of highlight -- proceed over this line and
 // update state, but don't save a style array. Used for lines that
 // aren't currently visible.
 export function processLine(cm, text, state, startAt) {
-  var mode = cm.doc.mode;
-  var stream = new StringStream(text, cm.options.tabSize);
-  stream.start = stream.pos = startAt || 0;
-  if (text == "") callBlankLine(mode, state);
+  var mode = cm.doc.mode
+  var stream = new StringStream(text, cm.options.tabSize)
+  stream.start = stream.pos = startAt || 0
+  if (text == "") callBlankLine(mode, state)
   while (!stream.eol()) {
-    readToken(mode, stream, state);
-    stream.start = stream.pos;
+    readToken(mode, stream, state)
+    stream.start = stream.pos
   }
 }
 
 function callBlankLine(mode, state) {
-  if (mode.blankLine) return mode.blankLine(state);
-  if (!mode.innerMode) return;
-  var inner = innerMode(mode, state);
-  if (inner.mode.blankLine) return inner.mode.blankLine(inner.state);
+  if (mode.blankLine) return mode.blankLine(state)
+  if (!mode.innerMode) return
+  var inner = innerMode(mode, state)
+  if (inner.mode.blankLine) return inner.mode.blankLine(inner.state)
 }
 
 export function readToken(mode, stream, state, inner) {
   for (var i = 0; i < 10; i++) {
-    if (inner) inner[0] = innerMode(mode, state).mode;
-    var style = mode.token(stream, state);
-    if (stream.pos > stream.start) return style;
+    if (inner) inner[0] = innerMode(mode, state).mode
+    var style = mode.token(stream, state)
+    if (stream.pos > stream.start) return style
   }
-  throw new Error("Mode " + mode.name + " failed to advance stream.");
+  throw new Error("Mode " + mode.name + " failed to advance stream.")
 }
 
 // Utility for getTokenAt and getLineTokens
@@ -112,73 +112,73 @@ export function takeToken(cm, pos, precise, asArray) {
     return {start: stream.start, end: stream.pos,
             string: stream.current(),
             type: style || null,
-            state: copy ? copyState(doc.mode, state) : state};
+            state: copy ? copyState(doc.mode, state) : state}
   }
 
-  var doc = cm.doc, mode = doc.mode, style;
-  pos = clipPos(doc, pos);
-  var line = getLine(doc, pos.line), state = getStateBefore(cm, pos.line, precise);
-  var stream = new StringStream(line.text, cm.options.tabSize), tokens;
-  if (asArray) tokens = [];
+  var doc = cm.doc, mode = doc.mode, style
+  pos = clipPos(doc, pos)
+  var line = getLine(doc, pos.line), state = getStateBefore(cm, pos.line, precise)
+  var stream = new StringStream(line.text, cm.options.tabSize), tokens
+  if (asArray) tokens = []
   while ((asArray || stream.pos < pos.ch) && !stream.eol()) {
-    stream.start = stream.pos;
-    style = readToken(mode, stream, state);
-    if (asArray) tokens.push(getObj(true));
+    stream.start = stream.pos
+    style = readToken(mode, stream, state)
+    if (asArray) tokens.push(getObj(true))
   }
-  return asArray ? tokens : getObj();
+  return asArray ? tokens : getObj()
 }
 
 function extractLineClasses(type, output) {
   if (type) for (;;) {
-    var lineClass = type.match(/(?:^|\s+)line-(background-)?(\S+)/);
-    if (!lineClass) break;
-    type = type.slice(0, lineClass.index) + type.slice(lineClass.index + lineClass[0].length);
-    var prop = lineClass[1] ? "bgClass" : "textClass";
+    var lineClass = type.match(/(?:^|\s+)line-(background-)?(\S+)/)
+    if (!lineClass) break
+    type = type.slice(0, lineClass.index) + type.slice(lineClass.index + lineClass[0].length)
+    var prop = lineClass[1] ? "bgClass" : "textClass"
     if (output[prop] == null)
-      output[prop] = lineClass[2];
+      output[prop] = lineClass[2]
     else if (!(new RegExp("(?:^|\s)" + lineClass[2] + "(?:$|\s)")).test(output[prop]))
-      output[prop] += " " + lineClass[2];
+      output[prop] += " " + lineClass[2]
   }
-  return type;
+  return type
 }
 
 // Run the given mode's parser over a line, calling f for each token.
 function runMode(cm, text, mode, state, f, lineClasses, forceToEnd) {
-  var flattenSpans = mode.flattenSpans;
-  if (flattenSpans == null) flattenSpans = cm.options.flattenSpans;
-  var curStart = 0, curStyle = null;
-  var stream = new StringStream(text, cm.options.tabSize), style;
-  var inner = cm.options.addModeClass && [null];
-  if (text == "") extractLineClasses(callBlankLine(mode, state), lineClasses);
+  var flattenSpans = mode.flattenSpans
+  if (flattenSpans == null) flattenSpans = cm.options.flattenSpans
+  var curStart = 0, curStyle = null
+  var stream = new StringStream(text, cm.options.tabSize), style
+  var inner = cm.options.addModeClass && [null]
+  if (text == "") extractLineClasses(callBlankLine(mode, state), lineClasses)
   while (!stream.eol()) {
     if (stream.pos > cm.options.maxHighlightLength) {
-      flattenSpans = false;
-      if (forceToEnd) processLine(cm, text, state, stream.pos);
-      stream.pos = text.length;
-      style = null;
+      flattenSpans = false
+      if (forceToEnd) processLine(cm, text, state, stream.pos)
+      stream.pos = text.length
+      style = null
     } else {
-      style = extractLineClasses(readToken(mode, stream, state, inner), lineClasses);
+      style = extractLineClasses(readToken(mode, stream, state, inner), lineClasses)
     }
     if (inner) {
-      var mName = inner[0].name;
-      if (mName) style = "m-" + (style ? mName + " " + style : mName);
+      var mName = inner[0].name
+      if (mName) style = "m-" + (style ? mName + " " + style : mName)
     }
     if (!flattenSpans || curStyle != style) {
       while (curStart < stream.start) {
-        curStart = Math.min(stream.start, curStart + 5000);
-        f(curStart, curStyle);
+        curStart = Math.min(stream.start, curStart + 5000)
+        f(curStart, curStyle)
       }
-      curStyle = style;
+      curStyle = style
     }
-    stream.start = stream.pos;
+    stream.start = stream.pos
   }
   while (curStart < stream.pos) {
     // Webkit seems to refuse to render text nodes longer than 57444
     // characters, and returns inaccurate measurements in nodes
     // starting around 5000 chars.
-    var pos = Math.min(stream.pos, curStart + 5000);
-    f(pos, curStyle);
-    curStart = pos;
+    var pos = Math.min(stream.pos, curStart + 5000)
+    f(pos, curStyle)
+    curStart = pos
   }
 }
 
@@ -188,17 +188,17 @@ function runMode(cm, text, mode, state, f, lineClasses, forceToEnd) {
 // smallest indentation, which tends to need the least context to
 // parse correctly.
 function findStartLine(cm, n, precise) {
-  var minindent, minline, doc = cm.doc;
-  var lim = precise ? -1 : n - (cm.doc.mode.innerMode ? 1000 : 100);
+  var minindent, minline, doc = cm.doc
+  var lim = precise ? -1 : n - (cm.doc.mode.innerMode ? 1000 : 100)
   for (var search = n; search > lim; --search) {
-    if (search <= doc.first) return doc.first;
-    var line = getLine(doc, search - 1);
-    if (line.stateAfter && (!precise || search <= doc.frontier)) return search;
-    var indented = countColumn(line.text, null, cm.options.tabSize);
+    if (search <= doc.first) return doc.first
+    var line = getLine(doc, search - 1)
+    if (line.stateAfter && (!precise || search <= doc.frontier)) return search
+    var indented = countColumn(line.text, null, cm.options.tabSize)
     if (minline == null || minindent > indented) {
-      minline = search - 1;
-      minindent = indented;
+      minline = search - 1
+      minindent = indented
     }
   }
-  return minline;
+  return minline
 }
