@@ -172,7 +172,7 @@ function insertLineWidgetsFor(cm, line, lineView, dims, allowAbove) {
 
 function positionLineWidget(widget, node, lineView, dims) {
   if (widget.noHScroll) {
-    (lineView.alignable || (lineView.alignable = [])).push(node)
+    ;(lineView.alignable || (lineView.alignable = [])).push(node)
     var width = dims.wrapperWidth
     node.style.left = dims.fixedPos + "px"
     if (!widget.coverGutter) {

@@ -96,7 +96,7 @@ export function buildLineContent(cm, lineView) {
       lineView.measure.map = builder.map
       lineView.measure.cache = {}
     } else {
-      (lineView.measure.maps || (lineView.measure.maps = [])).push(builder.map)
+      ;(lineView.measure.maps || (lineView.measure.maps = [])).push(builder.map)
       ;(lineView.measure.caches || (lineView.measure.caches = [])).push({})
     }
   }
