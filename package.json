@@ -8,8 +8,8 @@
     "lib": "./lib"
   },
   "scripts": {
-    "build": "rollup --banner \"`cat src/banner.js`\" --format umd -n CodeMirror src/codemirror.js -o lib/codemirror.js",
-    "watch": "rollup -w --banner \"`cat src/banner.js`\" --format umd -n CodeMirror src/codemirror.js -o lib/codemirror.js",
+    "build": "rollup -c",
+    "watch": "rollup -w -c",
     "prepublish": "npm run-script build",
     "test": "node ./test/run.js",
     "lint": "bin/lint"
