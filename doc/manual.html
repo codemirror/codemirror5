@@ -634,6 +634,11 @@
       <dt id="event_scroll"><code><strong>"scroll"</strong> (instance: CodeMirror)</code></dt>
       <dd>Fires when the editor is scrolled.</dd>
 
+      <dt id="event_resize"><code><strong>"resize"</strong> (instance: CodeMirror)</code></dt>
+      <dd>Fires when the editor is <a href="#refresh">refreshed</a>
+      or <a href="#setSize">resized</a>. Mostly useful to invalidate
+      cached values that depend on the editor or character size.</dd>
+
       <dt id="event_scrollCursorIntoView"><code><strong>"scrollCursorIntoView"</strong> (instance: CodeMirror, event: Event)</code></dt>
       <dd>Fires when the editor tries to scroll its cursor into view.
       Can be hooked into to take care of additional scrollable
