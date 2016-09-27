@@ -13,25 +13,25 @@ import { indentLine } from "./indent"
 // This will be set to a {lineWise: bool, text: [string]} object, so
 // that, when pasting, we know what kind of selections the copied
 // text was made out of.
-export var lastCopied = null
+export let lastCopied = null
 
 export function setLastCopied(newLastCopied) {
   lastCopied = newLastCopied
 }
 
 export function applyTextInput(cm, inserted, deleted, sel, origin) {
-  var doc = cm.doc
+  let doc = cm.doc
   cm.display.shift = false
   if (!sel) sel = doc.sel
 
-  var paste = cm.state.pasteIncoming || origin == "paste"
-  var textLines = doc.splitLines(inserted), multiPaste = null
+  let paste = cm.state.pasteIncoming || origin == "paste"
+  let textLines = doc.splitLines(inserted), multiPaste = null
   // When pasing N lines into N selections, insert one line per selection
   if (paste && sel.ranges.length > 1) {
     if (lastCopied && lastCopied.text.join("\n") == inserted) {
       if (sel.ranges.length % lastCopied.text.length == 0) {
         multiPaste = []
-        for (var i = 0; i < lastCopied.text.length; i++)
+        for (let i = 0; i < lastCopied.text.length; i++)
           multiPaste.push(doc.splitLines(lastCopied.text[i]))
       }
     } else if (textLines.length == sel.ranges.length) {
@@ -39,10 +39,11 @@ export function applyTextInput(cm, inserted, deleted, sel, origin) {
     }
   }
 
+  let updateInput
   // Normal behavior is to insert the new text into every selection
-  for (var i = sel.ranges.length - 1; i >= 0; i--) {
-    var range = sel.ranges[i]
-    var from = range.from(), to = range.to()
+  for (let i = sel.ranges.length - 1; i >= 0; i--) {
+    let range = sel.ranges[i]
+    let from = range.from(), to = range.to()
     if (range.empty()) {
       if (deleted && deleted > 0) // Handle deletion
         from = Pos(from.line, from.ch - deleted)
@@ -51,8 +52,8 @@ export function applyTextInput(cm, inserted, deleted, sel, origin) {
       else if (lastCopied && lastCopied.lineWise && lastCopied.text.join("\n") == inserted)
         from = to = Pos(from.line, 0)
     }
-    var updateInput = cm.curOp.updateInput
-    var changeEvent = {from: from, to: to, text: multiPaste ? multiPaste[i % multiPaste.length] : textLines,
+    updateInput = cm.curOp.updateInput
+    let changeEvent = {from: from, to: to, text: multiPaste ? multiPaste[i % multiPaste.length] : textLines,
                        origin: origin || (paste ? "paste" : cm.state.cutIncoming ? "cut" : "+input")}
     makeChange(cm.doc, changeEvent)
     signalLater(cm, "inputRead", cm, changeEvent)
@@ -67,7 +68,7 @@ export function applyTextInput(cm, inserted, deleted, sel, origin) {
 }
 
 export function handlePaste(e, cm) {
-  var pasted = e.clipboardData && e.clipboardData.getData("Text")
+  let pasted = e.clipboardData && e.clipboardData.getData("Text")
   if (pasted) {
     e.preventDefault()
     if (!cm.isReadOnly() && !cm.options.disableInput)
@@ -79,15 +80,15 @@ export function handlePaste(e, cm) {
 export function triggerElectric(cm, inserted) {
   // When an 'electric' character is inserted, immediately trigger a reindent
   if (!cm.options.electricChars || !cm.options.smartIndent) return
-  var sel = cm.doc.sel
+  let sel = cm.doc.sel
 
-  for (var i = sel.ranges.length - 1; i >= 0; i--) {
-    var range = sel.ranges[i]
+  for (let i = sel.ranges.length - 1; i >= 0; i--) {
+    let range = sel.ranges[i]
     if (range.head.ch > 100 || (i && sel.ranges[i - 1].head.line == range.head.line)) continue
-    var mode = cm.getModeAt(range.head)
-    var indented = false
+    let mode = cm.getModeAt(range.head)
+    let indented = false
     if (mode.electricChars) {
-      for (var j = 0; j < mode.electricChars.length; j++)
+      for (let j = 0; j < mode.electricChars.length; j++)
         if (inserted.indexOf(mode.electricChars.charAt(j)) > -1) {
           indented = indentLine(cm, range.head.line, "smart")
           break
@@ -101,10 +102,10 @@ export function triggerElectric(cm, inserted) {
 }
 
 export function copyableRanges(cm) {
-  var text = [], ranges = []
-  for (var i = 0; i < cm.doc.sel.ranges.length; i++) {
-    var line = cm.doc.sel.ranges[i].head.line
-    var lineRange = {anchor: Pos(line, 0), head: Pos(line + 1, 0)}
+  let text = [], ranges = []
+  for (let i = 0; i < cm.doc.sel.ranges.length; i++) {
+    let line = cm.doc.sel.ranges[i].head.line
+    let lineRange = {anchor: Pos(line, 0), head: Pos(line + 1, 0)}
     ranges.push(lineRange)
     text.push(cm.getRange(lineRange.anchor, lineRange.head))
   }
@@ -118,8 +119,8 @@ export function disableBrowserMagic(field, spellcheck) {
 }
 
 export function hiddenTextarea() {
-  var te = elt("textarea", null, null, "position: absolute; bottom: -1em; padding: 0; width: 1px; height: 1em; outline: none")
-  var div = elt("div", [te], null, "overflow: hidden; position: relative; width: 3px; height: 0px;")
+  let te = elt("textarea", null, null, "position: absolute; bottom: -1em; padding: 0; width: 1px; height: 1em; outline: none")
+  let div = elt("div", [te], null, "overflow: hidden; position: relative; width: 3px; height: 0px;")
   // The textarea is kept positioned near the cursor to prevent the
   // fact that it'll be scrolled into view on input from scrolling
   // our fake cursor out of view. On webkit, when wrap=off, paste is

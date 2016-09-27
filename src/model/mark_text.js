@@ -27,7 +27,10 @@ import { reCheckSelection } from "./selection_updates"
 // marker continues beyond the start/end of the line. Markers have
 // links back to the lines they currently touch.
 
-var nextMarkerId = 0
+// Collapsed markers have unique ids, in order to be able to order
+// them, which is needed for uniquely determining an outer marker
+// when they overlap (they may nest, but not partially overlap).
+let nextMarkerId = 0
 
 export function TextMarker(doc, type) {
   this.lines = []
@@ -40,16 +43,16 @@ eventMixin(TextMarker)
 // Clear the marker.
 TextMarker.prototype.clear = function() {
   if (this.explicitlyCleared) return
-  var cm = this.doc.cm, withOp = cm && !cm.curOp
+  let cm = this.doc.cm, withOp = cm && !cm.curOp
   if (withOp) startOperation(cm)
   if (hasHandler(this, "clear")) {
-    var found = this.find()
+    let found = this.find()
     if (found) signalLater(this, "clear", found.from, found.to)
   }
-  var min = null, max = null
-  for (var i = 0; i < this.lines.length; ++i) {
-    var line = this.lines[i]
-    var span = getMarkedSpanFor(line.markedSpans, this)
+  let min = null, max = null
+  for (let i = 0; i < this.lines.length; ++i) {
+    let line = this.lines[i]
+    let span = getMarkedSpanFor(line.markedSpans, this)
     if (cm && !this.collapsed) regLineChange(cm, lineNo(line), "text")
     else if (cm) {
       if (span.to != null) max = lineNo(line)
@@ -59,8 +62,8 @@ TextMarker.prototype.clear = function() {
     if (span.from == null && this.collapsed && !lineIsHidden(this.doc, line) && cm)
       updateLineHeight(line, textHeight(cm.display))
   }
-  if (cm && this.collapsed && !cm.options.lineWrapping) for (var i = 0; i < this.lines.length; ++i) {
-    var visual = visualLine(this.lines[i]), len = lineLength(visual)
+  if (cm && this.collapsed && !cm.options.lineWrapping) for (let i = 0; i < this.lines.length; ++i) {
+    let visual = visualLine(this.lines[i]), len = lineLength(visual)
     if (len > cm.display.maxLineLength) {
       cm.display.maxLine = visual
       cm.display.maxLineLength = len
@@ -87,10 +90,10 @@ TextMarker.prototype.clear = function() {
 // number (used to prevent looking up the same line twice).
 TextMarker.prototype.find = function(side, lineObj) {
   if (side == null && this.type == "bookmark") side = 1
-  var from, to
-  for (var i = 0; i < this.lines.length; ++i) {
-    var line = this.lines[i]
-    var span = getMarkedSpanFor(line.markedSpans, this)
+  let from, to
+  for (let i = 0; i < this.lines.length; ++i) {
+    let line = this.lines[i]
+    let span = getMarkedSpanFor(line.markedSpans, this)
     if (span.from != null) {
       from = Pos(lineObj ? line : lineNo(line), span.from)
       if (side == -1) return from
@@ -106,20 +109,20 @@ TextMarker.prototype.find = function(side, lineObj) {
 // Signals that the marker's widget changed, and surrounding layout
 // should be recomputed.
 TextMarker.prototype.changed = function() {
-  var pos = this.find(-1, true), widget = this, cm = this.doc.cm
+  let pos = this.find(-1, true), widget = this, cm = this.doc.cm
   if (!pos || !cm) return
   runInOp(cm, function() {
-    var line = pos.line, lineN = lineNo(pos.line)
-    var view = findViewForLine(cm, lineN)
+    let line = pos.line, lineN = lineNo(pos.line)
+    let view = findViewForLine(cm, lineN)
     if (view) {
       clearLineMeasurementCacheFor(view)
       cm.curOp.selectionChanged = cm.curOp.forceUpdate = true
     }
     cm.curOp.updateMaxLine = true
     if (!lineIsHidden(widget.doc, line) && widget.height != null) {
-      var oldHeight = widget.height
+      let oldHeight = widget.height
       widget.height = null
-      var dHeight = widgetHeight(widget) - oldHeight
+      let dHeight = widgetHeight(widget) - oldHeight
       if (dHeight)
         updateLineHeight(line, line.height + dHeight)
     }
@@ -128,7 +131,7 @@ TextMarker.prototype.changed = function() {
 
 TextMarker.prototype.attachLine = function(line) {
   if (!this.lines.length && this.doc.cm) {
-    var op = this.doc.cm.curOp
+    let op = this.doc.cm.curOp
     if (!op.maybeHiddenMarkers || indexOf(op.maybeHiddenMarkers, this) == -1)
       (op.maybeUnhiddenMarkers || (op.maybeUnhiddenMarkers = [])).push(this)
   }
@@ -137,15 +140,10 @@ TextMarker.prototype.attachLine = function(line) {
 TextMarker.prototype.detachLine = function(line) {
   this.lines.splice(indexOf(this.lines, line), 1)
   if (!this.lines.length && this.doc.cm) {
-    var op = this.doc.cm.curOp
+    let op = this.doc.cm.curOp
     ;(op.maybeHiddenMarkers || (op.maybeHiddenMarkers = [])).push(this)
   }
 }
-
-// Collapsed markers have unique ids, in order to be able to order
-// them, which is needed for uniquely determining an outer marker
-// when they overlap (they may nest, but not partially overlap).
-var nextMarkerId = 0
 
 // Create a marker, wire it up to the right lines, and
 export function markText(doc, from, to, options, type) {
@@ -156,7 +154,7 @@ export function markText(doc, from, to, options, type) {
   // Ensure we are in an operation.
   if (doc.cm && !doc.cm.curOp) return operation(doc.cm, markText)(doc, from, to, options, type)
 
-  var marker = new TextMarker(doc, type), diff = cmp(from, to)
+  let marker = new TextMarker(doc, type), diff = cmp(from, to)
   if (options) copyObj(options, marker, false)
   // Don't connect empty markers unless clearWhenEmpty is false
   if (diff > 0 || diff == 0 && marker.clearWhenEmpty !== false)
@@ -178,7 +176,7 @@ export function markText(doc, from, to, options, type) {
   if (marker.addToHistory)
     addChangeToHistory(doc, {from: from, to: to, origin: "markText"}, doc.sel, NaN)
 
-  var curLine = from.line, cm = doc.cm, updateMaxLine
+  let curLine = from.line, cm = doc.cm, updateMaxLine
   doc.iter(curLine, to.line + 1, function(line) {
     if (cm && marker.collapsed && !cm.options.lineWrapping && visualLine(line) == cm.display.maxLine)
       updateMaxLine = true
@@ -210,7 +208,7 @@ export function markText(doc, from, to, options, type) {
     if (marker.collapsed)
       regChange(cm, from.line, to.line + 1)
     else if (marker.className || marker.title || marker.startStyle || marker.endStyle || marker.css)
-      for (var i = from.line; i <= to.line; i++) regLineChange(cm, i, "text")
+      for (let i = from.line; i <= to.line; i++) regLineChange(cm, i, "text")
     if (marker.atomic) reCheckSelection(cm.doc)
     signalLater(cm, "markerAdded", cm, marker)
   }
@@ -225,7 +223,7 @@ export function markText(doc, from, to, options, type) {
 export function SharedTextMarker(markers, primary) {
   this.markers = markers
   this.primary = primary
-  for (var i = 0; i < markers.length; ++i)
+  for (let i = 0; i < markers.length; ++i)
     markers[i].parent = this
 }
 eventMixin(SharedTextMarker)
@@ -233,7 +231,7 @@ eventMixin(SharedTextMarker)
 SharedTextMarker.prototype.clear = function() {
   if (this.explicitlyCleared) return
   this.explicitlyCleared = true
-  for (var i = 0; i < this.markers.length; ++i)
+  for (let i = 0; i < this.markers.length; ++i)
     this.markers[i].clear()
   signalLater(this, "clear")
 }
@@ -244,12 +242,12 @@ SharedTextMarker.prototype.find = function(side, lineObj) {
 function markTextShared(doc, from, to, options, type) {
   options = copyObj(options)
   options.shared = false
-  var markers = [markText(doc, from, to, options, type)], primary = markers[0]
-  var widget = options.widgetNode
+  let markers = [markText(doc, from, to, options, type)], primary = markers[0]
+  let widget = options.widgetNode
   linkedDocs(doc, function(doc) {
     if (widget) options.widgetNode = widget.cloneNode(true)
     markers.push(markText(doc, clipPos(doc, from), clipPos(doc, to), options, type))
-    for (var i = 0; i < doc.linked.length; ++i)
+    for (let i = 0; i < doc.linked.length; ++i)
       if (doc.linked[i].isParent) return
     primary = lst(markers)
   })
@@ -262,11 +260,11 @@ export function findSharedMarkers(doc) {
 }
 
 export function copySharedMarkers(doc, markers) {
-  for (var i = 0; i < markers.length; i++) {
-    var marker = markers[i], pos = marker.find()
-    var mFrom = doc.clipPos(pos.from), mTo = doc.clipPos(pos.to)
+  for (let i = 0; i < markers.length; i++) {
+    let marker = markers[i], pos = marker.find()
+    let mFrom = doc.clipPos(pos.from), mTo = doc.clipPos(pos.to)
     if (cmp(mFrom, mTo)) {
-      var subMark = markText(doc, mFrom, mTo, marker.primary, marker.primary.type)
+      let subMark = markText(doc, mFrom, mTo, marker.primary, marker.primary.type)
       marker.markers.push(subMark)
       subMark.parent = marker
     }
@@ -274,11 +272,11 @@ export function copySharedMarkers(doc, markers) {
 }
 
 export function detachSharedMarkers(markers) {
-  for (var i = 0; i < markers.length; i++) {
-    var marker = markers[i], linked = [marker.primary.doc]
+  for (let i = 0; i < markers.length; i++) {
+    let marker = markers[i], linked = [marker.primary.doc]
     linkedDocs(marker.primary.doc, function(d) { linked.push(d) })
-    for (var j = 0; j < marker.markers.length; j++) {
-      var subMarker = marker.markers[j]
+    for (let j = 0; j < marker.markers.length; j++) {
+      let subMarker = marker.markers[j]
       if (indexOf(linked, subMarker.doc) == -1) {
         subMarker.parent = null
         marker.markers.splice(j--, 1)

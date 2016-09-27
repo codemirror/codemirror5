@@ -34,12 +34,12 @@ export function CodeMirror(place, options) {
   copyObj(defaults, options, false)
   setGuttersForLineNumbers(options)
 
-  var doc = options.value
+  let doc = options.value
   if (typeof doc == "string") doc = new Doc(doc, options.mode, null, options.lineSeparator)
   this.doc = doc
 
-  var input = new CodeMirror.inputStyles[options.inputStyle](this)
-  var display = this.display = new Display(place, doc, input)
+  let input = new CodeMirror.inputStyles[options.inputStyle](this)
+  let display = this.display = new Display(place, doc, input)
   display.wrapper.CodeMirror = this
   updateGutters(this)
   themeChanged(this)
@@ -64,7 +64,7 @@ export function CodeMirror(place, options) {
     specialChars: null
   }
 
-  var cm = this
+  let cm = this
 
   // Override magic textarea content restore that IE sometimes does
   // on our hidden textarea on reload
@@ -82,11 +82,11 @@ export function CodeMirror(place, options) {
   else
     onBlur(this)
 
-  for (var opt in optionHandlers) if (optionHandlers.hasOwnProperty(opt))
+  for (let opt in optionHandlers) if (optionHandlers.hasOwnProperty(opt))
     optionHandlers[opt](this, options[opt], Init)
   maybeUpdateLineNumberWidth(this)
   if (options.finishInit) options.finishInit(this)
-  for (var i = 0; i < initHooks.length; ++i) initHooks[i](this)
+  for (let i = 0; i < initHooks.length; ++i) initHooks[i](this)
   endOperation(this)
   // Suppress optimizelegibility in Webkit, since it breaks text
   // measuring on line wrapping boundaries.
@@ -104,16 +104,16 @@ export default CodeMirror
 
 // Attach the necessary event handlers when initializing the editor
 function registerEventHandlers(cm) {
-  var d = cm.display
+  let d = cm.display
   on(d.scroller, "mousedown", operation(cm, onMouseDown))
   // Older IE's will not fire a second mousedown for a double click
   if (ie && ie_version < 11)
     on(d.scroller, "dblclick", operation(cm, function(e) {
       if (signalDOMEvent(cm, e)) return
-      var pos = posFromMouse(cm, e)
+      let pos = posFromMouse(cm, e)
       if (!pos || clickInGutter(cm, e) || eventInWidget(cm.display, e)) return
       e_preventDefault(e)
-      var word = cm.findWordAt(pos)
+      let word = cm.findWordAt(pos)
       extendSelection(cm.doc, word.anchor, word.head)
     }))
   else
@@ -124,7 +124,7 @@ function registerEventHandlers(cm) {
   if (!captureRightClick) on(d.scroller, "contextmenu", function(e) {onContextMenu(cm, e)})
 
   // Used to suppress mouse event handling when a touch happens
-  var touchFinished, prevTouch = {end: 0}
+  let touchFinished, prevTouch = {end: 0}
   function finishTouch() {
     if (d.activeTouch) {
       touchFinished = setTimeout(function() {d.activeTouch = null}, 1000)
@@ -134,18 +134,18 @@ function registerEventHandlers(cm) {
   }
   function isMouseLikeTouchEvent(e) {
     if (e.touches.length != 1) return false
-    var touch = e.touches[0]
+    let touch = e.touches[0]
     return touch.radiusX <= 1 && touch.radiusY <= 1
   }
   function farAway(touch, other) {
     if (other.left == null) return true
-    var dx = other.left - touch.left, dy = other.top - touch.top
+    let dx = other.left - touch.left, dy = other.top - touch.top
     return dx * dx + dy * dy > 20 * 20
   }
   on(d.scroller, "touchstart", function(e) {
     if (!signalDOMEvent(cm, e) && !isMouseLikeTouchEvent(e)) {
       clearTimeout(touchFinished)
-      var now = +new Date
+      let now = +new Date
       d.activeTouch = {start: now, moved: false,
                        prev: now - prevTouch.end <= 300 ? prevTouch : null}
       if (e.touches.length == 1) {
@@ -158,10 +158,10 @@ function registerEventHandlers(cm) {
     if (d.activeTouch) d.activeTouch.moved = true
   })
   on(d.scroller, "touchend", function(e) {
-    var touch = d.activeTouch
+    let touch = d.activeTouch
     if (touch && !eventInWidget(d, e) && touch.left != null &&
         !touch.moved && new Date - touch.start < 300) {
-      var pos = cm.coordsChar(d.activeTouch, "page"), range
+      let pos = cm.coordsChar(d.activeTouch, "page"), range
       if (!touch.prev || farAway(touch, touch.prev)) // Single tap
         range = new Range(pos, pos)
       else if (!touch.prev.prev || farAway(touch, touch.prev.prev)) // Double tap
@@ -201,7 +201,7 @@ function registerEventHandlers(cm) {
     leave: function(e) {if (!signalDOMEvent(cm, e)) { clearDragCursor(cm) }}
   }
 
-  var inp = d.input.getField()
+  let inp = d.input.getField()
   on(inp, "keyup", function(e) { onKeyUp.call(cm, e) })
   on(inp, "keydown", operation(cm, onKeyDown))
   on(inp, "keypress", operation(cm, onKeyPress))
@@ -209,5 +209,5 @@ function registerEventHandlers(cm) {
   on(inp, "blur", function (e) { onBlur(cm, e) })
 }
 
-var initHooks = []
+let initHooks = []
 CodeMirror.defineInitHook = function(f) {initHooks.push(f)}

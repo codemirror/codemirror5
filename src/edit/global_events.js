@@ -7,14 +7,14 @@ import { on } from "../util/event"
 
 function forEachCodeMirror(f) {
   if (!document.body.getElementsByClassName) return
-  var byClass = document.body.getElementsByClassName("CodeMirror")
-  for (var i = 0; i < byClass.length; i++) {
-    var cm = byClass[i].CodeMirror
+  let byClass = document.body.getElementsByClassName("CodeMirror")
+  for (let i = 0; i < byClass.length; i++) {
+    let cm = byClass[i].CodeMirror
     if (cm) f(cm)
   }
 }
 
-var globalsRegistered = false
+let globalsRegistered = false
 export function ensureGlobalHandlers() {
   if (globalsRegistered) return
   registerGlobalHandlers()
@@ -22,7 +22,7 @@ export function ensureGlobalHandlers() {
 }
 function registerGlobalHandlers() {
   // When the window resizes, we need to refresh active editors.
-  var resizeTimer
+  let resizeTimer
   on(window, "resize", function() {
     if (resizeTimer == null) resizeTimer = setTimeout(function() {
       resizeTimer = null
@@ -36,7 +36,7 @@ function registerGlobalHandlers() {
 }
 // Called when the window resizes
 function onResize(cm) {
-  var d = cm.display
+  let d = cm.display
   if (d.lastWrapHeight == d.wrapper.clientHeight && d.lastWrapWidth == d.wrapper.clientWidth)
     return
   // Might be a text scaling operation, clear size caches.

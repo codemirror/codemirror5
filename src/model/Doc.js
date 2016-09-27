@@ -19,8 +19,8 @@ import { copySharedMarkers, detachSharedMarkers, findSharedMarkers, markText } f
 import { normalizeSelection, Range, simpleSelection } from "./selection"
 import { extendSelection, extendSelections, setSelection, setSelectionReplaceHistory, setSimpleSelection } from "./selection_updates"
 
-var nextDocId = 0
-var Doc = function(text, mode, firstLine, lineSep) {
+let nextDocId = 0
+let Doc = function(text, mode, firstLine, lineSep) {
   if (!(this instanceof Doc)) return new Doc(text, mode, firstLine, lineSep)
   if (firstLine == null) firstLine = 0
 
@@ -30,7 +30,7 @@ var Doc = function(text, mode, firstLine, lineSep) {
   this.cantEdit = false
   this.cleanGeneration = 1
   this.frontier = firstLine
-  var start = Pos(firstLine, 0)
+  let start = Pos(firstLine, 0)
   this.sel = simpleSelection(start)
   this.history = new History(null)
   this.id = ++nextDocId
@@ -56,8 +56,8 @@ Doc.prototype = createObj(BranchChunk.prototype, {
 
   // Non-public interface for adding and removing lines.
   insert: function(at, lines) {
-    var height = 0
-    for (var i = 0; i < lines.length; ++i) height += lines[i].height
+    let height = 0
+    for (let i = 0; i < lines.length; ++i) height += lines[i].height
     this.insertInner(at - this.first, lines, height)
   },
   remove: function(at, n) { this.removeInner(at - this.first, n) },
@@ -66,12 +66,12 @@ Doc.prototype = createObj(BranchChunk.prototype, {
   // are also available from CodeMirror (editor) instances.
 
   getValue: function(lineSep) {
-    var lines = getLines(this, this.first, this.first + this.size)
+    let lines = getLines(this, this.first, this.first + this.size)
     if (lineSep === false) return lines
     return lines.join(lineSep || this.lineSeparator())
   },
   setValue: docMethodOp(function(code) {
-    var top = Pos(this.first, 0), last = this.first + this.size - 1
+    let top = Pos(this.first, 0), last = this.first + this.size - 1
     makeChange(this, {from: top, to: Pos(last, getLine(this, last).text.length),
                       text: this.splitLines(code), origin: "setValue", full: true}, true)
     setSelection(this, simpleSelection(top))
@@ -82,12 +82,12 @@ Doc.prototype = createObj(BranchChunk.prototype, {
     replaceRange(this, code, from, to, origin)
   },
   getRange: function(from, to, lineSep) {
-    var lines = getBetween(this, clipPos(this, from), clipPos(this, to))
+    let lines = getBetween(this, clipPos(this, from), clipPos(this, to))
     if (lineSep === false) return lines
     return lines.join(lineSep || this.lineSeparator())
   },
 
-  getLine: function(line) {var l = this.getLineHandle(line); return l && l.text},
+  getLine: function(line) {let l = this.getLineHandle(line); return l && l.text},
 
   getLineHandle: function(line) {if (isLine(this, line)) return getLine(this, line)},
   getLineNumber: function(line) {return lineNo(line)},
@@ -104,7 +104,7 @@ Doc.prototype = createObj(BranchChunk.prototype, {
   clipPos: function(pos) {return clipPos(this, pos)},
 
   getCursor: function(start) {
-    var range = this.sel.primary(), pos
+    let range = this.sel.primary(), pos
     if (start == null || start == "head") pos = range.head
     else if (start == "anchor") pos = range.anchor
     else if (start == "end" || start == "to" || start === false) pos = range.to()
@@ -127,55 +127,56 @@ Doc.prototype = createObj(BranchChunk.prototype, {
     extendSelections(this, clipPosArray(this, heads), options)
   }),
   extendSelectionsBy: docMethodOp(function(f, options) {
-    var heads = map(this.sel.ranges, f)
+    let heads = map(this.sel.ranges, f)
     extendSelections(this, clipPosArray(this, heads), options)
   }),
   setSelections: docMethodOp(function(ranges, primary, options) {
     if (!ranges.length) return
-    for (var i = 0, out = []; i < ranges.length; i++)
+    let out = []
+    for (let i = 0; i < ranges.length; i++)
       out[i] = new Range(clipPos(this, ranges[i].anchor),
                          clipPos(this, ranges[i].head))
     if (primary == null) primary = Math.min(ranges.length - 1, this.sel.primIndex)
     setSelection(this, normalizeSelection(out, primary), options)
   }),
   addSelection: docMethodOp(function(anchor, head, options) {
-    var ranges = this.sel.ranges.slice(0)
+    let ranges = this.sel.ranges.slice(0)
     ranges.push(new Range(clipPos(this, anchor), clipPos(this, head || anchor)))
     setSelection(this, normalizeSelection(ranges, ranges.length - 1), options)
   }),
 
   getSelection: function(lineSep) {
-    var ranges = this.sel.ranges, lines
-    for (var i = 0; i < ranges.length; i++) {
-      var sel = getBetween(this, ranges[i].from(), ranges[i].to())
+    let ranges = this.sel.ranges, lines
+    for (let i = 0; i < ranges.length; i++) {
+      let sel = getBetween(this, ranges[i].from(), ranges[i].to())
       lines = lines ? lines.concat(sel) : sel
     }
     if (lineSep === false) return lines
     else return lines.join(lineSep || this.lineSeparator())
   },
   getSelections: function(lineSep) {
-    var parts = [], ranges = this.sel.ranges
-    for (var i = 0; i < ranges.length; i++) {
-      var sel = getBetween(this, ranges[i].from(), ranges[i].to())
+    let parts = [], ranges = this.sel.ranges
+    for (let i = 0; i < ranges.length; i++) {
+      let sel = getBetween(this, ranges[i].from(), ranges[i].to())
       if (lineSep !== false) sel = sel.join(lineSep || this.lineSeparator())
       parts[i] = sel
     }
     return parts
   },
   replaceSelection: function(code, collapse, origin) {
-    var dup = []
-    for (var i = 0; i < this.sel.ranges.length; i++)
+    let dup = []
+    for (let i = 0; i < this.sel.ranges.length; i++)
       dup[i] = code
     this.replaceSelections(dup, collapse, origin || "+input")
   },
   replaceSelections: docMethodOp(function(code, collapse, origin) {
-    var changes = [], sel = this.sel
-    for (var i = 0; i < sel.ranges.length; i++) {
-      var range = sel.ranges[i]
+    let changes = [], sel = this.sel
+    for (let i = 0; i < sel.ranges.length; i++) {
+      let range = sel.ranges[i]
       changes[i] = {from: range.from(), to: range.to(), text: this.splitLines(code[i]), origin: origin}
     }
-    var newSel = collapse && collapse != "end" && computeReplacedSel(this, changes, collapse)
-    for (var i = changes.length - 1; i >= 0; i--)
+    let newSel = collapse && collapse != "end" && computeReplacedSel(this, changes, collapse)
+    for (let i = changes.length - 1; i >= 0; i--)
       makeChange(this, changes[i])
     if (newSel) setSelectionReplaceHistory(this, newSel)
     else if (this.cm) ensureCursorVisible(this.cm)
@@ -189,9 +190,9 @@ Doc.prototype = createObj(BranchChunk.prototype, {
   getExtending: function() {return this.extend},
 
   historySize: function() {
-    var hist = this.history, done = 0, undone = 0
-    for (var i = 0; i < hist.done.length; i++) if (!hist.done[i].ranges) ++done
-    for (var i = 0; i < hist.undone.length; i++) if (!hist.undone[i].ranges) ++undone
+    let hist = this.history, done = 0, undone = 0
+    for (let i = 0; i < hist.done.length; i++) if (!hist.done[i].ranges) ++done
+    for (let i = 0; i < hist.undone.length; i++) if (!hist.undone[i].ranges) ++undone
     return {undo: done, redo: undone}
   },
   clearHistory: function() {this.history = new History(this.history.maxGeneration)},
@@ -213,14 +214,14 @@ Doc.prototype = createObj(BranchChunk.prototype, {
             undone: copyHistoryArray(this.history.undone)}
   },
   setHistory: function(histData) {
-    var hist = this.history = new History(this.history.maxGeneration)
+    let hist = this.history = new History(this.history.maxGeneration)
     hist.done = copyHistoryArray(histData.done.slice(0), null, true)
     hist.undone = copyHistoryArray(histData.undone.slice(0), null, true)
   },
 
   addLineClass: docMethodOp(function(handle, where, cls) {
     return changeLine(this, handle, where == "gutter" ? "gutter" : "class", function(line) {
-      var prop = where == "text" ? "textClass"
+      let prop = where == "text" ? "textClass"
                : where == "background" ? "bgClass"
                : where == "gutter" ? "gutterClass" : "wrapClass"
       if (!line[prop]) line[prop] = cls
@@ -231,16 +232,16 @@ Doc.prototype = createObj(BranchChunk.prototype, {
   }),
   removeLineClass: docMethodOp(function(handle, where, cls) {
     return changeLine(this, handle, where == "gutter" ? "gutter" : "class", function(line) {
-      var prop = where == "text" ? "textClass"
+      let prop = where == "text" ? "textClass"
                : where == "background" ? "bgClass"
                : where == "gutter" ? "gutterClass" : "wrapClass"
-      var cur = line[prop]
+      let cur = line[prop]
       if (!cur) return false
       else if (cls == null) line[prop] = null
       else {
-        var found = cur.match(classTest(cls))
+        let found = cur.match(classTest(cls))
         if (!found) return false
-        var end = found.index + found[0].length
+        let end = found.index + found[0].length
         line[prop] = cur.slice(0, found.index) + (!found.index || end == cur.length ? "" : " ") + cur.slice(end) || null
       }
       return true
@@ -256,7 +257,7 @@ Doc.prototype = createObj(BranchChunk.prototype, {
     return markText(this, clipPos(this, from), clipPos(this, to), options, options && options.type || "range")
   },
   setBookmark: function(pos, options) {
-    var realOpts = {replacedWith: options && (options.nodeType == null ? options.widget : options),
+    let realOpts = {replacedWith: options && (options.nodeType == null ? options.widget : options),
                     insertLeft: options && options.insertLeft,
                     clearWhenEmpty: false, shared: options && options.shared,
                     handleMouseEvents: options && options.handleMouseEvents}
@@ -265,9 +266,9 @@ Doc.prototype = createObj(BranchChunk.prototype, {
   },
   findMarksAt: function(pos) {
     pos = clipPos(this, pos)
-    var markers = [], spans = getLine(this, pos.line).markedSpans
-    if (spans) for (var i = 0; i < spans.length; ++i) {
-      var span = spans[i]
+    let markers = [], spans = getLine(this, pos.line).markedSpans
+    if (spans) for (let i = 0; i < spans.length; ++i) {
+      let span = spans[i]
       if ((span.from == null || span.from <= pos.ch) &&
           (span.to == null || span.to >= pos.ch))
         markers.push(span.marker.parent || span.marker)
@@ -276,11 +277,11 @@ Doc.prototype = createObj(BranchChunk.prototype, {
   },
   findMarks: function(from, to, filter) {
     from = clipPos(this, from); to = clipPos(this, to)
-    var found = [], lineNo = from.line
+    let found = [], lineNo = from.line
     this.iter(from.line, to.line + 1, function(line) {
-      var spans = line.markedSpans
-      if (spans) for (var i = 0; i < spans.length; i++) {
-        var span = spans[i]
+      let spans = line.markedSpans
+      if (spans) for (let i = 0; i < spans.length; i++) {
+        let span = spans[i]
         if (!(span.to != null && lineNo == from.line && from.ch >= span.to ||
               span.from == null && lineNo != from.line ||
               span.from != null && lineNo == to.line && span.from >= to.ch) &&
@@ -292,19 +293,19 @@ Doc.prototype = createObj(BranchChunk.prototype, {
     return found
   },
   getAllMarks: function() {
-    var markers = []
+    let markers = []
     this.iter(function(line) {
-      var sps = line.markedSpans
-      if (sps) for (var i = 0; i < sps.length; ++i)
+      let sps = line.markedSpans
+      if (sps) for (let i = 0; i < sps.length; ++i)
         if (sps[i].from != null) markers.push(sps[i].marker)
     })
     return markers
   },
 
   posFromIndex: function(off) {
-    var ch, lineNo = this.first, sepSize = this.lineSeparator().length
+    let ch, lineNo = this.first, sepSize = this.lineSeparator().length
     this.iter(function(line) {
-      var sz = line.text.length + sepSize
+      let sz = line.text.length + sepSize
       if (sz > off) { ch = off; return true }
       off -= sz
       ++lineNo
@@ -313,9 +314,9 @@ Doc.prototype = createObj(BranchChunk.prototype, {
   },
   indexFromPos: function (coords) {
     coords = clipPos(this, coords)
-    var index = coords.ch
+    let index = coords.ch
     if (coords.line < this.first || coords.ch < 0) return 0
-    var sepSize = this.lineSeparator().length
+    let sepSize = this.lineSeparator().length
     this.iter(this.first, coords.line, function (line) {
       index += line.text.length + sepSize
     })
@@ -323,7 +324,7 @@ Doc.prototype = createObj(BranchChunk.prototype, {
   },
 
   copy: function(copyHistory) {
-    var doc = new Doc(getLines(this, this.first, this.first + this.size),
+    let doc = new Doc(getLines(this, this.first, this.first + this.size),
                       this.modeOption, this.first, this.lineSep)
     doc.scrollTop = this.scrollTop; doc.scrollLeft = this.scrollLeft
     doc.sel = this.sel
@@ -337,10 +338,10 @@ Doc.prototype = createObj(BranchChunk.prototype, {
 
   linkedDoc: function(options) {
     if (!options) options = {}
-    var from = this.first, to = this.first + this.size
+    let from = this.first, to = this.first + this.size
     if (options.from != null && options.from > from) from = options.from
     if (options.to != null && options.to < to) to = options.to
-    var copy = new Doc(getLines(this, from, to), options.mode || this.modeOption, from, this.lineSep)
+    let copy = new Doc(getLines(this, from, to), options.mode || this.modeOption, from, this.lineSep)
     if (options.sharedHist) copy.history = this.history
     ;(this.linked || (this.linked = [])).push({doc: copy, sharedHist: options.sharedHist})
     copy.linked = [{doc: this, isParent: true, sharedHist: options.sharedHist}]
@@ -349,8 +350,8 @@ Doc.prototype = createObj(BranchChunk.prototype, {
   },
   unlinkDoc: function(other) {
     if (other instanceof CodeMirror) other = other.doc
-    if (this.linked) for (var i = 0; i < this.linked.length; ++i) {
-      var link = this.linked[i]
+    if (this.linked) for (let i = 0; i < this.linked.length; ++i) {
+      let link = this.linked[i]
       if (link.doc != other) continue
       this.linked.splice(i, 1)
       other.unlinkDoc(this)
@@ -359,7 +360,7 @@ Doc.prototype = createObj(BranchChunk.prototype, {
     }
     // If the histories were shared, split them again
     if (other.history == this.history) {
-      var splitIds = [other.id]
+      let splitIds = [other.id]
       linkedDocs(other, function(doc) {splitIds.push(doc.id)}, true)
       other.history = new History(null)
       other.history.done = copyHistoryArray(this.history.done, splitIds)

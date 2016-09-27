@@ -7,7 +7,7 @@ import { scrollerGap } from "../util/misc"
 // display-related state.
 
 export function Display(place, doc, input) {
-  var d = this
+  let d = this
   this.input = input
 
   // Covers bottom-right square when both scrollbars are present.

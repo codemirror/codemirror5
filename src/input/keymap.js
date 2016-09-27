@@ -3,7 +3,7 @@ import { map } from "../util/misc"
 
 import { keyNames } from "./keynames"
 
-export var keyMap = {}
+export let keyMap = {}
 
 keyMap.basic = {
   "Left": "goCharLeft", "Right": "goCharRight", "Up": "goLineUp", "Down": "goLineDown",
@@ -49,10 +49,11 @@ keyMap["default"] = mac ? keyMap.macDefault : keyMap.pcDefault
 // KEYMAP DISPATCH
 
 function normalizeKeyName(name) {
-  var parts = name.split(/-(?!$)/), name = parts[parts.length - 1]
-  var alt, ctrl, shift, cmd
-  for (var i = 0; i < parts.length - 1; i++) {
-    var mod = parts[i]
+  let parts = name.split(/-(?!$)/)
+  name = parts[parts.length - 1]
+  let alt, ctrl, shift, cmd
+  for (let i = 0; i < parts.length - 1; i++) {
+    let mod = parts[i]
     if (/^(cmd|meta|m)$/i.test(mod)) cmd = true
     else if (/^a(lt)?$/i.test(mod)) alt = true
     else if (/^(c|ctrl|control)$/i.test(mod)) ctrl = true
@@ -72,15 +73,15 @@ function normalizeKeyName(name) {
 // new normalized keymap, and then updates the old object to reflect
 // this.
 export function normalizeKeyMap(keymap) {
-  var copy = {}
-  for (var keyname in keymap) if (keymap.hasOwnProperty(keyname)) {
-    var value = keymap[keyname]
+  let copy = {}
+  for (let keyname in keymap) if (keymap.hasOwnProperty(keyname)) {
+    let value = keymap[keyname]
     if (/^(name|fallthrough|(de|at)tach)$/.test(keyname)) continue
     if (value == "...") { delete keymap[keyname]; continue }
 
-    var keys = map(keyname.split(" "), normalizeKeyName)
-    for (var i = 0; i < keys.length; i++) {
-      var val, name
+    let keys = map(keyname.split(" "), normalizeKeyName)
+    for (let i = 0; i < keys.length; i++) {
+      let val, name
       if (i == keys.length - 1) {
         name = keys.join(" ")
         val = value
@@ -88,19 +89,19 @@ export function normalizeKeyMap(keymap) {
         name = keys.slice(0, i + 1).join(" ")
         val = "..."
       }
-      var prev = copy[name]
+      let prev = copy[name]
       if (!prev) copy[name] = val
       else if (prev != val) throw new Error("Inconsistent bindings for " + name)
     }
     delete keymap[keyname]
   }
-  for (var prop in copy) keymap[prop] = copy[prop]
+  for (let prop in copy) keymap[prop] = copy[prop]
   return keymap
 }
 
 export function lookupKey(key, map, handle, context) {
   map = getKeyMap(map)
-  var found = map.call ? map.call(key, context) : map[key]
+  let found = map.call ? map.call(key, context) : map[key]
   if (found === false) return "nothing"
   if (found === "...") return "multi"
   if (found != null && handle(found)) return "handled"
@@ -108,8 +109,8 @@ export function lookupKey(key, map, handle, context) {
   if (map.fallthrough) {
     if (Object.prototype.toString.call(map.fallthrough) != "[object Array]")
       return lookupKey(key, map.fallthrough, handle, context)
-    for (var i = 0; i < map.fallthrough.length; i++) {
-      var result = lookupKey(key, map.fallthrough[i], handle, context)
+    for (let i = 0; i < map.fallthrough.length; i++) {
+      let result = lookupKey(key, map.fallthrough[i], handle, context)
       if (result) return result
     }
   }
@@ -118,14 +119,14 @@ export function lookupKey(key, map, handle, context) {
 // Modifier key presses don't count as 'real' key presses for the
 // purpose of keymap fallthrough.
 export function isModifierKey(value) {
-  var name = typeof value == "string" ? value : keyNames[value.keyCode]
+  let name = typeof value == "string" ? value : keyNames[value.keyCode]
   return name == "Ctrl" || name == "Alt" || name == "Shift" || name == "Mod"
 }
 
 // Look up the name of a key as indicated by an event object.
 export function keyName(event, noShift) {
   if (presto && event.keyCode == 34 && event["char"]) return false
-  var base = keyNames[event.keyCode], name = base
+  let base = keyNames[event.keyCode], name = base
   if (name == null || event.altGraphKey) return false
   if (event.altKey && base != "Alt") name = "Alt-" + name
   if ((flipCtrlCmd ? event.metaKey : event.ctrlKey) && base != "Ctrl") name = "Ctrl-" + name

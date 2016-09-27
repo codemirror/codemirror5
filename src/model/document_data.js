@@ -25,14 +25,15 @@ export function updateDoc(doc, change, markedSpans, estimateHeight) {
     signalLater(line, "change", line, change)
   }
   function linesFor(start, end) {
-    for (var i = start, result = []; i < end; ++i)
+    let result = []
+    for (let i = start; i < end; ++i)
       result.push(new Line(text[i], spansFor(i), estimateHeight))
     return result
   }
 
-  var from = change.from, to = change.to, text = change.text
-  var firstLine = getLine(doc, from.line), lastLine = getLine(doc, to.line)
-  var lastText = lst(text), lastSpans = spansFor(text.length - 1), nlines = to.line - from.line
+  let from = change.from, to = change.to, text = change.text
+  let firstLine = getLine(doc, from.line), lastLine = getLine(doc, to.line)
+  let lastText = lst(text), lastSpans = spansFor(text.length - 1), nlines = to.line - from.line
 
   // Adjust the line structure
   if (change.full) {
@@ -41,7 +42,7 @@ export function updateDoc(doc, change, markedSpans, estimateHeight) {
   } else if (isWholeLineUpdate(doc, change)) {
     // This is a whole-line replace. Treated specially to make
     // sure line objects move the way they are supposed to.
-    var added = linesFor(0, text.length - 1)
+    let added = linesFor(0, text.length - 1)
     update(lastLine, lastLine.text, lastSpans)
     if (nlines) doc.remove(from.line, nlines)
     if (added.length) doc.insert(from.line, added)
@@ -49,7 +50,7 @@ export function updateDoc(doc, change, markedSpans, estimateHeight) {
     if (text.length == 1) {
       update(firstLine, firstLine.text.slice(0, from.ch) + lastText + firstLine.text.slice(to.ch), lastSpans)
     } else {
-      var added = linesFor(1, text.length - 1)
+      let added = linesFor(1, text.length - 1)
       added.push(new Line(lastText + firstLine.text.slice(to.ch), lastSpans, estimateHeight))
       update(firstLine, firstLine.text.slice(0, from.ch) + text[0], spansFor(0))
       doc.insert(from.line + 1, added)
@@ -60,7 +61,7 @@ export function updateDoc(doc, change, markedSpans, estimateHeight) {
   } else {
     update(firstLine, firstLine.text.slice(0, from.ch) + text[0], spansFor(0))
     update(lastLine, lastText + lastLine.text.slice(to.ch), lastSpans)
-    var added = linesFor(1, text.length - 1)
+    let added = linesFor(1, text.length - 1)
     if (nlines > 1) doc.remove(from.line + 1, nlines - 1)
     doc.insert(from.line + 1, added)
   }
@@ -71,10 +72,10 @@ export function updateDoc(doc, change, markedSpans, estimateHeight) {
 // Call f for all linked documents.
 export function linkedDocs(doc, f, sharedHistOnly) {
   function propagate(doc, skip, sharedHist) {
-    if (doc.linked) for (var i = 0; i < doc.linked.length; ++i) {
-      var rel = doc.linked[i]
+    if (doc.linked) for (let i = 0; i < doc.linked.length; ++i) {
+      let rel = doc.linked[i]
       if (rel.doc == skip) continue
-      var shared = sharedHist && rel.sharedHist
+      let shared = sharedHist && rel.sharedHist
       if (sharedHistOnly && !shared) continue
       f(rel.doc, shared)
       propagate(rel.doc, doc, shared)

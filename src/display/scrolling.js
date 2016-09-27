@@ -13,11 +13,11 @@ import { setScrollLeft, setScrollTop } from "./scroll_events"
 export function maybeScrollWindow(cm, coords) {
   if (signalDOMEvent(cm, "scrollCursorIntoView")) return
 
-  var display = cm.display, box = display.sizer.getBoundingClientRect(), doScroll = null
+  let display = cm.display, box = display.sizer.getBoundingClientRect(), doScroll = null
   if (coords.top + box.top < 0) doScroll = true
   else if (coords.bottom + box.top > (window.innerHeight || document.documentElement.clientHeight)) doScroll = false
   if (doScroll != null && !phantom) {
-    var scrollNode = elt("div", "\u200b", null, "position: absolute; top: " +
+    let scrollNode = elt("div", "\u200b", null, "position: absolute; top: " +
                          (coords.top - display.viewOffset - paddingTop(cm.display)) + "px; height: " +
                          (coords.bottom - coords.top + scrollGap(cm) + display.barHeight) + "px; left: " +
                          coords.left + "px; width: 2px;")
@@ -32,14 +32,16 @@ export function maybeScrollWindow(cm, coords) {
 // measured, the position of something may 'drift' during drawing).
 export function scrollPosIntoView(cm, pos, end, margin) {
   if (margin == null) margin = 0
-  for (var limit = 0; limit < 5; limit++) {
-    var changed = false, coords = cursorCoords(cm, pos)
-    var endCoords = !end || end == pos ? coords : cursorCoords(cm, end)
-    var scrollPos = calculateScrollPos(cm, Math.min(coords.left, endCoords.left),
+  let coords
+  for (let limit = 0; limit < 5; limit++) {
+    let changed = false
+    coords = cursorCoords(cm, pos)
+    let endCoords = !end || end == pos ? coords : cursorCoords(cm, end)
+    let scrollPos = calculateScrollPos(cm, Math.min(coords.left, endCoords.left),
                                        Math.min(coords.top, endCoords.top) - margin,
                                        Math.max(coords.left, endCoords.left),
                                        Math.max(coords.bottom, endCoords.bottom) + margin)
-    var startTop = cm.doc.scrollTop, startLeft = cm.doc.scrollLeft
+    let startTop = cm.doc.scrollTop, startLeft = cm.doc.scrollLeft
     if (scrollPos.scrollTop != null) {
       setScrollTop(cm, scrollPos.scrollTop)
       if (Math.abs(cm.doc.scrollTop - startTop) > 1) changed = true
@@ -55,7 +57,7 @@ export function scrollPosIntoView(cm, pos, end, margin) {
 
 // Scroll a given set of coordinates into view (immediately).
 export function scrollIntoView(cm, x1, y1, x2, y2) {
-  var scrollPos = calculateScrollPos(cm, x1, y1, x2, y2)
+  let scrollPos = calculateScrollPos(cm, x1, y1, x2, y2)
   if (scrollPos.scrollTop != null) setScrollTop(cm, scrollPos.scrollTop)
   if (scrollPos.scrollLeft != null) setScrollLeft(cm, scrollPos.scrollLeft)
 }
@@ -65,23 +67,23 @@ export function scrollIntoView(cm, x1, y1, x2, y2) {
 // scrollLeft properties. When these are undefined, the
 // vertical/horizontal position does not need to be adjusted.
 export function calculateScrollPos(cm, x1, y1, x2, y2) {
-  var display = cm.display, snapMargin = textHeight(cm.display)
+  let display = cm.display, snapMargin = textHeight(cm.display)
   if (y1 < 0) y1 = 0
-  var screentop = cm.curOp && cm.curOp.scrollTop != null ? cm.curOp.scrollTop : display.scroller.scrollTop
-  var screen = displayHeight(cm), result = {}
+  let screentop = cm.curOp && cm.curOp.scrollTop != null ? cm.curOp.scrollTop : display.scroller.scrollTop
+  let screen = displayHeight(cm), result = {}
   if (y2 - y1 > screen) y2 = y1 + screen
-  var docBottom = cm.doc.height + paddingVert(display)
-  var atTop = y1 < snapMargin, atBottom = y2 > docBottom - snapMargin
+  let docBottom = cm.doc.height + paddingVert(display)
+  let atTop = y1 < snapMargin, atBottom = y2 > docBottom - snapMargin
   if (y1 < screentop) {
     result.scrollTop = atTop ? 0 : y1
   } else if (y2 > screentop + screen) {
-    var newTop = Math.min(y1, (atBottom ? docBottom : y2) - screen)
+    let newTop = Math.min(y1, (atBottom ? docBottom : y2) - screen)
     if (newTop != screentop) result.scrollTop = newTop
   }
 
-  var screenleft = cm.curOp && cm.curOp.scrollLeft != null ? cm.curOp.scrollLeft : display.scroller.scrollLeft
-  var screenw = displayWidth(cm) - (cm.options.fixedGutter ? display.gutters.offsetWidth : 0)
-  var tooWide = x2 - x1 > screenw
+  let screenleft = cm.curOp && cm.curOp.scrollLeft != null ? cm.curOp.scrollLeft : display.scroller.scrollLeft
+  let screenw = displayWidth(cm) - (cm.options.fixedGutter ? display.gutters.offsetWidth : 0)
+  let tooWide = x2 - x1 > screenw
   if (tooWide) x2 = x1 + screenw
   if (x1 < 10)
     result.scrollLeft = 0
@@ -106,7 +108,7 @@ export function addToScrollPos(cm, left, top) {
 // shown.
 export function ensureCursorVisible(cm) {
   resolveScrollToPos(cm)
-  var cur = cm.getCursor(), from = cur, to = cur
+  let cur = cm.getCursor(), from = cur, to = cur
   if (!cm.options.lineWrapping) {
     from = cur.ch ? Pos(cur.line, cur.ch - 1) : cur
     to = Pos(cur.line, cur.ch + 1)
@@ -119,11 +121,11 @@ export function ensureCursorVisible(cm) {
 // 'simulates' scrolling that position into view in a cheap way, so
 // that the effect of intermediate scroll commands is not ignored.
 export function resolveScrollToPos(cm) {
-  var range = cm.curOp.scrollToPos
+  let range = cm.curOp.scrollToPos
   if (range) {
     cm.curOp.scrollToPos = null
-    var from = estimateCoords(cm, range.from), to = estimateCoords(cm, range.to)
-    var sPos = calculateScrollPos(cm, Math.min(from.left, to.left),
+    let from = estimateCoords(cm, range.from), to = estimateCoords(cm, range.to)
+    let sPos = calculateScrollPos(cm, Math.min(from.left, to.left),
                                   Math.min(from.top, to.top) - range.margin,
                                   Math.max(from.right, to.right),
                                   Math.max(from.bottom, to.bottom) + range.margin)

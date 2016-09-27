@@ -10,15 +10,15 @@ export function updateSelection(cm) {
 }
 
 export function prepareSelection(cm, primary) {
-  var doc = cm.doc, result = {}
-  var curFragment = result.cursors = document.createDocumentFragment()
-  var selFragment = result.selection = document.createDocumentFragment()
+  let doc = cm.doc, result = {}
+  let curFragment = result.cursors = document.createDocumentFragment()
+  let selFragment = result.selection = document.createDocumentFragment()
 
-  for (var i = 0; i < doc.sel.ranges.length; i++) {
+  for (let i = 0; i < doc.sel.ranges.length; i++) {
     if (primary === false && i == doc.sel.primIndex) continue
-    var range = doc.sel.ranges[i]
+    let range = doc.sel.ranges[i]
     if (range.from().line >= cm.display.viewTo || range.to().line < cm.display.viewFrom) continue
-    var collapsed = range.empty()
+    let collapsed = range.empty()
     if (collapsed || cm.options.showCursorWhenSelecting)
       drawSelectionCursor(cm, range.head, curFragment)
     if (!collapsed)
@@ -29,16 +29,16 @@ export function prepareSelection(cm, primary) {
 
 // Draws a cursor for the given range
 export function drawSelectionCursor(cm, head, output) {
-  var pos = cursorCoords(cm, head, "div", null, null, !cm.options.singleCursorHeightPerLine)
+  let pos = cursorCoords(cm, head, "div", null, null, !cm.options.singleCursorHeightPerLine)
 
-  var cursor = output.appendChild(elt("div", "\u00a0", "CodeMirror-cursor"))
+  let cursor = output.appendChild(elt("div", "\u00a0", "CodeMirror-cursor"))
   cursor.style.left = pos.left + "px"
   cursor.style.top = pos.top + "px"
   cursor.style.height = Math.max(0, pos.bottom - pos.top) * cm.options.cursorHeight + "px"
 
   if (pos.other) {
     // Secondary cursor, shown when on a 'jump' in bi-directional text
-    var otherCursor = output.appendChild(elt("div", "\u00a0", "CodeMirror-cursor CodeMirror-secondarycursor"))
+    let otherCursor = output.appendChild(elt("div", "\u00a0", "CodeMirror-cursor CodeMirror-secondarycursor"))
     otherCursor.style.display = ""
     otherCursor.style.left = pos.other.left + "px"
     otherCursor.style.top = pos.other.top + "px"
@@ -48,10 +48,10 @@ export function drawSelectionCursor(cm, head, output) {
 
 // Draws the given range as a highlighted selection
 function drawSelectionRange(cm, range, output) {
-  var display = cm.display, doc = cm.doc
-  var fragment = document.createDocumentFragment()
-  var padding = paddingH(cm.display), leftSide = padding.left
-  var rightSide = Math.max(display.sizerWidth, displayWidth(cm) - display.sizer.offsetLeft) - padding.right
+  let display = cm.display, doc = cm.doc
+  let fragment = document.createDocumentFragment()
+  let padding = paddingH(cm.display), leftSide = padding.left
+  let rightSide = Math.max(display.sizerWidth, displayWidth(cm) - display.sizer.offsetLeft) - padding.right
 
   function add(left, top, width, bottom) {
     if (top < 0) top = 0
@@ -63,21 +63,21 @@ function drawSelectionRange(cm, range, output) {
   }
 
   function drawForLine(line, fromArg, toArg) {
-    var lineObj = getLine(doc, line)
-    var lineLen = lineObj.text.length
-    var start, end
+    let lineObj = getLine(doc, line)
+    let lineLen = lineObj.text.length
+    let start, end
     function coords(ch, bias) {
       return charCoords(cm, Pos(line, ch), "div", lineObj, bias)
     }
 
     iterateBidiSections(getOrder(lineObj), fromArg || 0, toArg == null ? lineLen : toArg, function(from, to, dir) {
-      var leftPos = coords(from, "left"), rightPos, left, right
+      let leftPos = coords(from, "left"), rightPos, left, right
       if (from == to) {
         rightPos = leftPos
         left = right = leftPos.left
       } else {
         rightPos = coords(to - 1, "right")
-        if (dir == "rtl") { var tmp = leftPos; leftPos = rightPos; rightPos = tmp }
+        if (dir == "rtl") { let tmp = leftPos; leftPos = rightPos; rightPos = tmp }
         left = leftPos.left
         right = rightPos.right
       }
@@ -98,14 +98,14 @@ function drawSelectionRange(cm, range, output) {
     return {start: start, end: end}
   }
 
-  var sFrom = range.from(), sTo = range.to()
+  let sFrom = range.from(), sTo = range.to()
   if (sFrom.line == sTo.line) {
     drawForLine(sFrom.line, sFrom.ch, sTo.ch)
   } else {
-    var fromLine = getLine(doc, sFrom.line), toLine = getLine(doc, sTo.line)
-    var singleVLine = visualLine(fromLine) == visualLine(toLine)
-    var leftEnd = drawForLine(sFrom.line, sFrom.ch, singleVLine ? fromLine.text.length + 1 : null).end
-    var rightStart = drawForLine(sTo.line, singleVLine ? 0 : null, sTo.ch).start
+    let fromLine = getLine(doc, sFrom.line), toLine = getLine(doc, sTo.line)
+    let singleVLine = visualLine(fromLine) == visualLine(toLine)
+    let leftEnd = drawForLine(sFrom.line, sFrom.ch, singleVLine ? fromLine.text.length + 1 : null).end
+    let rightStart = drawForLine(sTo.line, singleVLine ? 0 : null, sTo.ch).start
     if (singleVLine) {
       if (leftEnd.top < rightStart.top - 2) {
         add(leftEnd.right, leftEnd.top, null, leftEnd.bottom)
@@ -124,9 +124,9 @@ function drawSelectionRange(cm, range, output) {
 // Cursor-blinking
 export function restartBlink(cm) {
   if (!cm.state.focused) return
-  var display = cm.display
+  let display = cm.display
   clearInterval(display.blinker)
-  var on = true
+  let on = true
   display.cursorDiv.style.visibility = ""
   if (cm.options.cursorBlinkRate > 0)
     display.blinker = setInterval(function() {

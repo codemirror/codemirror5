@@ -18,9 +18,9 @@ import { normalizeSelection, Range, Selection, simpleSelection } from "./selecti
 // Used for cursor motion and such.
 export function extendRange(doc, range, head, other) {
   if (doc.cm && doc.cm.display.shift || doc.extend) {
-    var anchor = range.anchor
+    let anchor = range.anchor
     if (other) {
-      var posBefore = cmp(head, anchor) < 0
+      let posBefore = cmp(head, anchor) < 0
       if (posBefore != (cmp(other, anchor) < 0)) {
         anchor = head
         head = other
@@ -42,15 +42,16 @@ export function extendSelection(doc, head, other, options) {
 // Extend all selections (pos is an array of selections with length
 // equal the number of selections)
 export function extendSelections(doc, heads, options) {
-  for (var out = [], i = 0; i < doc.sel.ranges.length; i++)
+  let out = []
+  for (let i = 0; i < doc.sel.ranges.length; i++)
     out[i] = extendRange(doc, doc.sel.ranges[i], heads[i], null)
-  var newSel = normalizeSelection(out, doc.sel.primIndex)
+  let newSel = normalizeSelection(out, doc.sel.primIndex)
   setSelection(doc, newSel, options)
 }
 
 // Updates a single range in the selection.
 export function replaceOneSelection(doc, i, range, options) {
-  var ranges = doc.sel.ranges.slice(0)
+  let ranges = doc.sel.ranges.slice(0)
   ranges[i] = range
   setSelection(doc, normalizeSelection(ranges, doc.sel.primIndex), options)
 }
@@ -63,11 +64,11 @@ export function setSimpleSelection(doc, anchor, head, options) {
 // Give beforeSelectionChange handlers a change to influence a
 // selection update.
 function filterSelectionChange(doc, sel, options) {
-  var obj = {
+  let obj = {
     ranges: sel.ranges,
     update: function(ranges) {
       this.ranges = []
-      for (var i = 0; i < ranges.length; i++)
+      for (let i = 0; i < ranges.length; i++)
         this.ranges[i] = new Range(clipPos(doc, ranges[i].anchor),
                                    clipPos(doc, ranges[i].head))
     },
@@ -80,7 +81,7 @@ function filterSelectionChange(doc, sel, options) {
 }
 
 export function setSelectionReplaceHistory(doc, sel, options) {
-  var done = doc.history.done, last = lst(done)
+  let done = doc.history.done, last = lst(done)
   if (last && last.ranges) {
     done[done.length - 1] = sel
     setSelectionNoUndo(doc, sel, options)
@@ -99,7 +100,7 @@ export function setSelectionNoUndo(doc, sel, options) {
   if (hasHandler(doc, "beforeSelectionChange") || doc.cm && hasHandler(doc.cm, "beforeSelectionChange"))
     sel = filterSelectionChange(doc, sel, options)
 
-  var bias = options && options.bias ||
+  let bias = options && options.bias ||
     (cmp(sel.primary().head, doc.sel.primary().head) < 0 ? -1 : 1)
   setSelectionInner(doc, skipAtomicInSelection(doc, sel, bias, true))
 
@@ -128,12 +129,12 @@ export function reCheckSelection(doc) {
 // Return a selection that does not partially select any atomic
 // ranges.
 function skipAtomicInSelection(doc, sel, bias, mayClear) {
-  var out
-  for (var i = 0; i < sel.ranges.length; i++) {
-    var range = sel.ranges[i]
-    var old = sel.ranges.length == doc.sel.ranges.length && doc.sel.ranges[i]
-    var newAnchor = skipAtomic(doc, range.anchor, old && old.anchor, bias, mayClear)
-    var newHead = skipAtomic(doc, range.head, old && old.head, bias, mayClear)
+  let out
+  for (let i = 0; i < sel.ranges.length; i++) {
+    let range = sel.ranges[i]
+    let old = sel.ranges.length == doc.sel.ranges.length && doc.sel.ranges[i]
+    let newAnchor = skipAtomic(doc, range.anchor, old && old.anchor, bias, mayClear)
+    let newHead = skipAtomic(doc, range.head, old && old.head, bias, mayClear)
     if (out || newAnchor != range.anchor || newHead != range.head) {
       if (!out) out = sel.ranges.slice(0, i)
       out[i] = new Range(newAnchor, newHead)
@@ -143,9 +144,9 @@ function skipAtomicInSelection(doc, sel, bias, mayClear) {
 }
 
 function skipAtomicInner(doc, pos, oldPos, dir, mayClear) {
-  var line = getLine(doc, pos.line)
-  if (line.markedSpans) for (var i = 0; i < line.markedSpans.length; ++i) {
-    var sp = line.markedSpans[i], m = sp.marker
+  let line = getLine(doc, pos.line)
+  if (line.markedSpans) for (let i = 0; i < line.markedSpans.length; ++i) {
+    let sp = line.markedSpans[i], m = sp.marker
     if ((sp.from == null || (m.inclusiveLeft ? sp.from <= pos.ch : sp.from < pos.ch)) &&
         (sp.to == null || (m.inclusiveRight ? sp.to >= pos.ch : sp.to > pos.ch))) {
       if (mayClear) {
@@ -158,14 +159,14 @@ function skipAtomicInner(doc, pos, oldPos, dir, mayClear) {
       if (!m.atomic) continue
 
       if (oldPos) {
-        var near = m.find(dir < 0 ? 1 : -1), diff
+        let near = m.find(dir < 0 ? 1 : -1), diff
         if (dir < 0 ? m.inclusiveRight : m.inclusiveLeft)
           near = movePos(doc, near, -dir, near && near.line == pos.line ? line : null)
         if (near && near.line == pos.line && (diff = cmp(near, oldPos)) && (dir < 0 ? diff < 0 : diff > 0))
           return skipAtomicInner(doc, near, pos, dir, mayClear)
       }
 
-      var far = m.find(dir < 0 ? -1 : 1)
+      let far = m.find(dir < 0 ? -1 : 1)
       if (dir < 0 ? m.inclusiveLeft : m.inclusiveRight)
         far = movePos(doc, far, dir, far.line == pos.line ? line : null)
       return far ? skipAtomicInner(doc, far, pos, dir, mayClear) : null
@@ -176,8 +177,8 @@ function skipAtomicInner(doc, pos, oldPos, dir, mayClear) {
 
 // Ensure a given position is not inside an atomic range.
 export function skipAtomic(doc, pos, oldPos, bias, mayClear) {
-  var dir = bias || 1
-  var found = skipAtomicInner(doc, pos, oldPos, dir, mayClear) ||
+  let dir = bias || 1
+  let found = skipAtomicInner(doc, pos, oldPos, dir, mayClear) ||
       (!mayClear && skipAtomicInner(doc, pos, oldPos, dir, true)) ||
       skipAtomicInner(doc, pos, oldPos, -dir, mayClear) ||
       (!mayClear && skipAtomicInner(doc, pos, oldPos, -dir, true))

@@ -19,7 +19,7 @@ import { bind, countColumn, findColumn, sel_mouse } from "../util/misc"
 // middle-click-paste. Or it might be a click on something we should
 // not interfere with, such as a scrollbar or widget.
 export function onMouseDown(e) {
-  var cm = this, display = cm.display
+  let cm = this, display = cm.display
   if (signalDOMEvent(cm, e) || display.activeTouch && display.input.supportsTouch()) return
   display.shift = e.shiftKey
 
@@ -33,7 +33,7 @@ export function onMouseDown(e) {
     return
   }
   if (clickInGutter(cm, e)) return
-  var start = posFromMouse(cm, e)
+  let start = posFromMouse(cm, e)
   window.focus()
 
   switch (e_button(e)) {
@@ -59,12 +59,12 @@ export function onMouseDown(e) {
   }
 }
 
-var lastClick, lastDoubleClick
+let lastClick, lastDoubleClick
 function leftButtonDown(cm, e, start) {
   if (ie) setTimeout(bind(ensureFocus, cm), 0)
   else cm.curOp.focus = activeElt()
 
-  var now = +new Date, type
+  let now = +new Date, type
   if (lastDoubleClick && lastDoubleClick.time > now - 400 && cmp(lastDoubleClick.pos, start) == 0) {
     type = "triple"
   } else if (lastClick && lastClick.time > now - 400 && cmp(lastClick.pos, start) == 0) {
@@ -75,7 +75,7 @@ function leftButtonDown(cm, e, start) {
     lastClick = {time: now, pos: start}
   }
 
-  var sel = cm.doc.sel, modifier = mac ? e.metaKey : e.ctrlKey, contained
+  let sel = cm.doc.sel, modifier = mac ? e.metaKey : e.ctrlKey, contained
   if (cm.options.dragDrop && dragAndDrop && !cm.isReadOnly() &&
       type == "single" && (contained = sel.contains(start)) > -1 &&
       (cmp((contained = sel.ranges[contained]).from(), start) < 0 || start.xRel > 0) &&
@@ -88,8 +88,8 @@ function leftButtonDown(cm, e, start) {
 // Start a text drag. When it ends, see if any dragging actually
 // happen, and treat as a click if it didn't.
 function leftButtonStartDrag(cm, e, start, modifier) {
-  var display = cm.display, startTime = +new Date
-  var dragEnd = operation(cm, function(e2) {
+  let display = cm.display, startTime = +new Date
+  let dragEnd = operation(cm, function(e2) {
     if (webkit) display.scroller.draggable = false
     cm.state.draggingText = false
     off(document, "mouseup", dragEnd)
@@ -117,10 +117,10 @@ function leftButtonStartDrag(cm, e, start, modifier) {
 
 // Normal selection, as opposed to text dragging.
 function leftButtonSelect(cm, e, start, type, addNew) {
-  var display = cm.display, doc = cm.doc
+  let display = cm.display, doc = cm.doc
   e_preventDefault(e)
 
-  var ourRange, ourIndex, startSel = doc.sel, ranges = startSel.ranges
+  let ourRange, ourIndex, startSel = doc.sel, ranges = startSel.ranges
   if (addNew && !e.shiftKey) {
     ourIndex = doc.sel.contains(start)
     if (ourIndex > -1)
@@ -138,13 +138,13 @@ function leftButtonSelect(cm, e, start, type, addNew) {
     start = posFromMouse(cm, e, true, true)
     ourIndex = -1
   } else if (type == "double") {
-    var word = cm.findWordAt(start)
+    let word = cm.findWordAt(start)
     if (cm.display.shift || doc.extend)
       ourRange = extendRange(doc, ourRange, word.anchor, word.head)
     else
       ourRange = word
   } else if (type == "triple") {
-    var line = new Range(Pos(start.line, 0), clipPos(doc, Pos(start.line + 1, 0)))
+    let line = new Range(Pos(start.line, 0), clipPos(doc, Pos(start.line + 1, 0)))
     if (cm.display.shift || doc.extend)
       ourRange = extendRange(doc, ourRange, line.anchor, line.head)
     else
@@ -169,19 +169,19 @@ function leftButtonSelect(cm, e, start, type, addNew) {
     replaceOneSelection(doc, ourIndex, ourRange, sel_mouse)
   }
 
-  var lastPos = start
+  let lastPos = start
   function extendTo(pos) {
     if (cmp(lastPos, pos) == 0) return
     lastPos = pos
 
     if (type == "rect") {
-      var ranges = [], tabSize = cm.options.tabSize
-      var startCol = countColumn(getLine(doc, start.line).text, start.ch, tabSize)
-      var posCol = countColumn(getLine(doc, pos.line).text, pos.ch, tabSize)
-      var left = Math.min(startCol, posCol), right = Math.max(startCol, posCol)
-      for (var line = Math.min(start.line, pos.line), end = Math.min(cm.lastLine(), Math.max(start.line, pos.line));
+      let ranges = [], tabSize = cm.options.tabSize
+      let startCol = countColumn(getLine(doc, start.line).text, start.ch, tabSize)
+      let posCol = countColumn(getLine(doc, pos.line).text, pos.ch, tabSize)
+      let left = Math.min(startCol, posCol), right = Math.max(startCol, posCol)
+      for (let line = Math.min(start.line, pos.line), end = Math.min(cm.lastLine(), Math.max(start.line, pos.line));
            line <= end; line++) {
-        var text = getLine(doc, line).text, leftPos = findColumn(text, left, tabSize)
+        let text = getLine(doc, line).text, leftPos = findColumn(text, left, tabSize)
         if (left == right)
           ranges.push(new Range(Pos(line, leftPos), Pos(line, leftPos)))
         else if (text.length > leftPos)
@@ -192,13 +192,14 @@ function leftButtonSelect(cm, e, start, type, addNew) {
                    {origin: "*mouse", scroll: false})
       cm.scrollIntoView(pos)
     } else {
-      var oldRange = ourRange
-      var anchor = oldRange.anchor, head = pos
+      let oldRange = ourRange
+      let anchor = oldRange.anchor, head = pos
       if (type != "single") {
+        let range
         if (type == "double")
-          var range = cm.findWordAt(pos)
+          range = cm.findWordAt(pos)
         else
-          var range = new Range(Pos(pos.line, 0), clipPos(doc, Pos(pos.line + 1, 0)))
+          range = new Range(Pos(pos.line, 0), clipPos(doc, Pos(pos.line + 1, 0)))
         if (cmp(range.anchor, anchor) > 0) {
           head = range.head
           anchor = minPos(oldRange.from(), range.anchor)
@@ -207,31 +208,31 @@ function leftButtonSelect(cm, e, start, type, addNew) {
           anchor = maxPos(oldRange.to(), range.head)
         }
       }
-      var ranges = startSel.ranges.slice(0)
+      let ranges = startSel.ranges.slice(0)
       ranges[ourIndex] = new Range(clipPos(doc, anchor), head)
       setSelection(doc, normalizeSelection(ranges, ourIndex), sel_mouse)
     }
   }
 
-  var editorSize = display.wrapper.getBoundingClientRect()
+  let editorSize = display.wrapper.getBoundingClientRect()
   // Used to ensure timeout re-tries don't fire when another extend
   // happened in the meantime (clearTimeout isn't reliable -- at
   // least on Chrome, the timeouts still happen even when cleared,
   // if the clear happens after their scheduled firing time).
-  var counter = 0
+  let counter = 0
 
   function extend(e) {
-    var curCount = ++counter
-    var cur = posFromMouse(cm, e, true, type == "rect")
+    let curCount = ++counter
+    let cur = posFromMouse(cm, e, true, type == "rect")
     if (!cur) return
     if (cmp(cur, lastPos) != 0) {
       cm.curOp.focus = activeElt()
       extendTo(cur)
-      var visible = visibleLines(display, doc)
+      let visible = visibleLines(display, doc)
       if (cur.line >= visible.to || cur.line < visible.from)
         setTimeout(operation(cm, function(){if (counter == curCount) extend(e)}), 150)
     } else {
-      var outside = e.clientY < editorSize.top ? -20 : e.clientY > editorSize.bottom ? 20 : 0
+      let outside = e.clientY < editorSize.top ? -20 : e.clientY > editorSize.bottom ? 20 : 0
       if (outside) setTimeout(operation(cm, function() {
         if (counter != curCount) return
         display.scroller.scrollTop += outside
@@ -250,11 +251,11 @@ function leftButtonSelect(cm, e, start, type, addNew) {
     doc.history.lastSelOrigin = null
   }
 
-  var move = operation(cm, function(e) {
+  let move = operation(cm, function(e) {
     if (!e_button(e)) done(e)
     else extend(e)
   })
-  var up = operation(cm, done)
+  let up = operation(cm, done)
   cm.state.selectingText = up
   on(document, "mousemove", move)
   on(document, "mouseup", up)
@@ -264,22 +265,23 @@ function leftButtonSelect(cm, e, start, type, addNew) {
 // Determines whether an event happened in the gutter, and fires the
 // handlers for the corresponding event.
 function gutterEvent(cm, e, type, prevent) {
-  try { var mX = e.clientX, mY = e.clientY }
+  let mX, mY
+  try { mX = e.clientX; mY = e.clientY }
   catch(e) { return false }
   if (mX >= Math.floor(cm.display.gutters.getBoundingClientRect().right)) return false
   if (prevent) e_preventDefault(e)
 
-  var display = cm.display
-  var lineBox = display.lineDiv.getBoundingClientRect()
+  let display = cm.display
+  let lineBox = display.lineDiv.getBoundingClientRect()
 
   if (mY > lineBox.bottom || !hasHandler(cm, type)) return e_defaultPrevented(e)
   mY -= lineBox.top - display.viewOffset
 
-  for (var i = 0; i < cm.options.gutters.length; ++i) {
-    var g = display.gutters.childNodes[i]
+  for (let i = 0; i < cm.options.gutters.length; ++i) {
+    let g = display.gutters.childNodes[i]
     if (g && g.getBoundingClientRect().right >= mX) {
-      var line = lineAtHeight(cm.doc, mY)
-      var gutter = cm.options.gutters[i]
+      let line = lineAtHeight(cm.doc, mY)
+      let gutter = cm.options.gutters[i]
       signal(cm, type, cm, line, gutter, e)
       return e_defaultPrevented(e)
     }

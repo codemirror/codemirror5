@@ -18,7 +18,8 @@ import { signalLater } from "../util/operation_group"
 export function LeafChunk(lines) {
   this.lines = lines
   this.parent = null
-  for (var i = 0, height = 0; i < lines.length; ++i) {
+  let height = 0
+  for (let i = 0; i < lines.length; ++i) {
     lines[i].parent = this
     height += lines[i].height
   }
@@ -29,8 +30,8 @@ LeafChunk.prototype = {
   chunkSize: function() { return this.lines.length },
   // Remove the n lines at offset 'at'.
   removeInner: function(at, n) {
-    for (var i = at, e = at + n; i < e; ++i) {
-      var line = this.lines[i]
+    for (let i = at, e = at + n; i < e; ++i) {
+      let line = this.lines[i]
       this.height -= line.height
       cleanUpLine(line)
       signalLater(line, "delete")
@@ -46,20 +47,20 @@ LeafChunk.prototype = {
   insertInner: function(at, lines, height) {
     this.height += height
     this.lines = this.lines.slice(0, at).concat(lines).concat(this.lines.slice(at))
-    for (var i = 0; i < lines.length; ++i) lines[i].parent = this
+    for (let i = 0; i < lines.length; ++i) lines[i].parent = this
   },
   // Used to iterate over a part of the tree.
   iterN: function(at, n, op) {
-    for (var e = at + n; at < e; ++at)
+    for (let e = at + n; at < e; ++at)
       if (op(this.lines[at])) return true
   }
 }
 
 export function BranchChunk(children) {
   this.children = children
-  var size = 0, height = 0
-  for (var i = 0; i < children.length; ++i) {
-    var ch = children[i]
+  let size = 0, height = 0
+  for (let i = 0; i < children.length; ++i) {
+    let ch = children[i]
     size += ch.chunkSize(); height += ch.height
     ch.parent = this
   }
@@ -72,10 +73,10 @@ BranchChunk.prototype = {
   chunkSize: function() { return this.size },
   removeInner: function(at, n) {
     this.size -= n
-    for (var i = 0; i < this.children.length; ++i) {
-      var child = this.children[i], sz = child.chunkSize()
+    for (let i = 0; i < this.children.length; ++i) {
+      let child = this.children[i], sz = child.chunkSize()
       if (at < sz) {
-        var rm = Math.min(n, sz - at), oldHeight = child.height
+        let rm = Math.min(n, sz - at), oldHeight = child.height
         child.removeInner(at, rm)
         this.height -= oldHeight - child.height
         if (sz == rm) { this.children.splice(i--, 1); child.parent = null }
@@ -87,28 +88,28 @@ BranchChunk.prototype = {
     // single leaf node.
     if (this.size - n < 25 &&
         (this.children.length > 1 || !(this.children[0] instanceof LeafChunk))) {
-      var lines = []
+      let lines = []
       this.collapse(lines)
       this.children = [new LeafChunk(lines)]
       this.children[0].parent = this
     }
   },
   collapse: function(lines) {
-    for (var i = 0; i < this.children.length; ++i) this.children[i].collapse(lines)
+    for (let i = 0; i < this.children.length; ++i) this.children[i].collapse(lines)
   },
   insertInner: function(at, lines, height) {
     this.size += lines.length
     this.height += height
-    for (var i = 0; i < this.children.length; ++i) {
-      var child = this.children[i], sz = child.chunkSize()
+    for (let i = 0; i < this.children.length; ++i) {
+      let child = this.children[i], sz = child.chunkSize()
       if (at <= sz) {
         child.insertInner(at, lines, height)
         if (child.lines && child.lines.length > 50) {
           // To avoid memory thrashing when child.lines is huge (e.g. first view of a large file), it's never spliced.
           // Instead, small slices are taken. They're taken in order because sequential memory accesses are fastest.
-          var remaining = child.lines.length % 25 + 25
-          for (var pos = remaining; pos < child.lines.length;) {
-            var leaf = new LeafChunk(child.lines.slice(pos, pos += 25))
+          let remaining = child.lines.length % 25 + 25
+          for (let pos = remaining; pos < child.lines.length;) {
+            let leaf = new LeafChunk(child.lines.slice(pos, pos += 25))
             child.height -= leaf.height
             this.children.splice(++i, 0, leaf)
             leaf.parent = this
@@ -124,19 +125,19 @@ BranchChunk.prototype = {
   // When a node has grown, check whether it should be split.
   maybeSpill: function() {
     if (this.children.length <= 10) return
-    var me = this
+    let me = this
     do {
-      var spilled = me.children.splice(me.children.length - 5, 5)
-      var sibling = new BranchChunk(spilled)
+      let spilled = me.children.splice(me.children.length - 5, 5)
+      let sibling = new BranchChunk(spilled)
       if (!me.parent) { // Become the parent node
-        var copy = new BranchChunk(me.children)
+        let copy = new BranchChunk(me.children)
         copy.parent = me
         me.children = [copy, sibling]
         me = copy
      } else {
         me.size -= sibling.size
         me.height -= sibling.height
-        var myIndex = indexOf(me.parent.children, me)
+        let myIndex = indexOf(me.parent.children, me)
         me.parent.children.splice(myIndex + 1, 0, sibling)
       }
       sibling.parent = me.parent
@@ -144,10 +145,10 @@ BranchChunk.prototype = {
     me.parent.maybeSpill()
   },
   iterN: function(at, n, op) {
-    for (var i = 0; i < this.children.length; ++i) {
-      var child = this.children[i], sz = child.chunkSize()
+    for (let i = 0; i < this.children.length; ++i) {
+      let child = this.children[i], sz = child.chunkSize()
       if (at < sz) {
-        var used = Math.min(n, sz - at)
+        let used = Math.min(n, sz - at)
         if (child.iterN(at, used, op)) return true
         if ((n -= used) == 0) break
         at = 0

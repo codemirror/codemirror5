@@ -20,7 +20,7 @@ import { updateHeightsInViewport } from "./update_lines"
 // error-prone). Instead, display updates are batched and then all
 // combined and executed at once.
 
-var nextOpId = 0
+let nextOpId = 0
 // Start a new operation.
 export function startOperation(cm) {
   cm.curOp = {
@@ -45,9 +45,9 @@ export function startOperation(cm) {
 
 // Finish an operation, updating the display and signalling delayed events
 export function endOperation(cm) {
-  var op = cm.curOp
+  let op = cm.curOp
   finishOperation(op, function(group) {
-    for (var i = 0; i < group.ops.length; i++)
+    for (let i = 0; i < group.ops.length; i++)
       group.ops[i].cm.curOp = null
     endOperations(group)
   })
@@ -56,21 +56,21 @@ export function endOperation(cm) {
 // The DOM updates done when an operation finishes are batched so
 // that the minimum number of relayouts are required.
 function endOperations(group) {
-  var ops = group.ops
-  for (var i = 0; i < ops.length; i++) // Read DOM
+  let ops = group.ops
+  for (let i = 0; i < ops.length; i++) // Read DOM
     endOperation_R1(ops[i])
-  for (var i = 0; i < ops.length; i++) // Write DOM (maybe)
+  for (let i = 0; i < ops.length; i++) // Write DOM (maybe)
     endOperation_W1(ops[i])
-  for (var i = 0; i < ops.length; i++) // Read DOM
+  for (let i = 0; i < ops.length; i++) // Read DOM
     endOperation_R2(ops[i])
-  for (var i = 0; i < ops.length; i++) // Write DOM (maybe)
+  for (let i = 0; i < ops.length; i++) // Write DOM (maybe)
     endOperation_W2(ops[i])
-  for (var i = 0; i < ops.length; i++) // Read DOM
+  for (let i = 0; i < ops.length; i++) // Read DOM
     endOperation_finish(ops[i])
 }
 
 function endOperation_R1(op) {
-  var cm = op.cm, display = cm.display
+  let cm = op.cm, display = cm.display
   maybeClipScrollbars(cm)
   if (op.updateMaxLine) findMaxLine(cm)
 
@@ -87,7 +87,7 @@ function endOperation_W1(op) {
 }
 
 function endOperation_R2(op) {
-  var cm = op.cm, display = cm.display
+  let cm = op.cm, display = cm.display
   if (op.updatedDisplay) updateHeightsInViewport(cm)
 
   op.barMeasure = measureForScrollbars(cm)
@@ -108,7 +108,7 @@ function endOperation_R2(op) {
 }
 
 function endOperation_W2(op) {
-  var cm = op.cm
+  let cm = op.cm
 
   if (op.adjustWidthTo != null) {
     cm.display.sizer.style.minWidth = op.adjustWidthTo + "px"
@@ -117,7 +117,7 @@ function endOperation_W2(op) {
     cm.display.maxLineChanged = false
   }
 
-  var takeFocus = op.focus && op.focus == activeElt() && (!document.hasFocus || document.hasFocus())
+  let takeFocus = op.focus && op.focus == activeElt() && (!document.hasFocus || document.hasFocus())
   if (op.preparedSelection)
     cm.display.input.showSelection(op.preparedSelection, takeFocus)
   if (op.updatedDisplay || op.startHeight != cm.doc.height)
@@ -133,7 +133,7 @@ function endOperation_W2(op) {
 }
 
 function endOperation_finish(op) {
-  var cm = op.cm, display = cm.display, doc = cm.doc
+  let cm = op.cm, display = cm.display, doc = cm.doc
 
   if (op.updatedDisplay) postUpdateDisplay(cm, op.update)
 
@@ -155,17 +155,17 @@ function endOperation_finish(op) {
   }
   // If we need to scroll a specific position into view, do so.
   if (op.scrollToPos) {
-    var coords = scrollPosIntoView(cm, clipPos(doc, op.scrollToPos.from),
+    let coords = scrollPosIntoView(cm, clipPos(doc, op.scrollToPos.from),
                                    clipPos(doc, op.scrollToPos.to), op.scrollToPos.margin)
     if (op.scrollToPos.isCursor && cm.state.focused) maybeScrollWindow(cm, coords)
   }
 
   // Fire events for markers that are hidden/unidden by editing or
   // undoing
-  var hidden = op.maybeHiddenMarkers, unhidden = op.maybeUnhiddenMarkers
-  if (hidden) for (var i = 0; i < hidden.length; ++i)
+  let hidden = op.maybeHiddenMarkers, unhidden = op.maybeUnhiddenMarkers
+  if (hidden) for (let i = 0; i < hidden.length; ++i)
     if (!hidden[i].lines.length) signal(hidden[i], "hide")
-  if (unhidden) for (var i = 0; i < unhidden.length; ++i)
+  if (unhidden) for (let i = 0; i < unhidden.length; ++i)
     if (unhidden[i].lines.length) signal(unhidden[i], "unhide")
 
   if (display.wrapper.offsetHeight)
@@ -206,7 +206,7 @@ export function methodOp(f) {
 }
 export function docMethodOp(f) {
   return function() {
-    var cm = this.cm
+    let cm = this.cm
     if (!cm || cm.curOp) return f.apply(this, arguments)
     startOperation(cm)
     try { return f.apply(this, arguments) }

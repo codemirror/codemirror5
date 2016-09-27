@@ -13,15 +13,16 @@ export function MarkedSpan(marker, from, to) {
 
 // Search an array of spans for a span matching the given marker.
 export function getMarkedSpanFor(spans, marker) {
-  if (spans) for (var i = 0; i < spans.length; ++i) {
-    var span = spans[i]
+  if (spans) for (let i = 0; i < spans.length; ++i) {
+    let span = spans[i]
     if (span.marker == marker) return span
   }
 }
 // Remove a span from an array, returning undefined if no spans are
 // left (we don't store arrays for lines without spans).
 export function removeMarkedSpan(spans, span) {
-  for (var r, i = 0; i < spans.length; ++i)
+  let r
+  for (let i = 0; i < spans.length; ++i)
     if (spans[i] != span) (r || (r = [])).push(spans[i])
   return r
 }
@@ -36,22 +37,24 @@ export function addMarkedSpan(line, span) {
 // character position, returning an array of remaining chunks (or
 // undefined if nothing remains).
 function markedSpansBefore(old, startCh, isInsert) {
-  if (old) for (var i = 0, nw; i < old.length; ++i) {
-    var span = old[i], marker = span.marker
-    var startsBefore = span.from == null || (marker.inclusiveLeft ? span.from <= startCh : span.from < startCh)
+  let nw
+  if (old) for (let i = 0; i < old.length; ++i) {
+    let span = old[i], marker = span.marker
+    let startsBefore = span.from == null || (marker.inclusiveLeft ? span.from <= startCh : span.from < startCh)
     if (startsBefore || span.from == startCh && marker.type == "bookmark" && (!isInsert || !span.marker.insertLeft)) {
-      var endsAfter = span.to == null || (marker.inclusiveRight ? span.to >= startCh : span.to > startCh)
+      let endsAfter = span.to == null || (marker.inclusiveRight ? span.to >= startCh : span.to > startCh)
       ;(nw || (nw = [])).push(new MarkedSpan(marker, span.from, endsAfter ? null : span.to))
     }
   }
   return nw
 }
 function markedSpansAfter(old, endCh, isInsert) {
-  if (old) for (var i = 0, nw; i < old.length; ++i) {
-    var span = old[i], marker = span.marker
-    var endsAfter = span.to == null || (marker.inclusiveRight ? span.to >= endCh : span.to > endCh)
+  let nw
+  if (old) for (let i = 0; i < old.length; ++i) {
+    let span = old[i], marker = span.marker
+    let endsAfter = span.to == null || (marker.inclusiveRight ? span.to >= endCh : span.to > endCh)
     if (endsAfter || span.from == endCh && marker.type == "bookmark" && (!isInsert || span.marker.insertLeft)) {
-      var startsBefore = span.from == null || (marker.inclusiveLeft ? span.from <= endCh : span.from < endCh)
+      let startsBefore = span.from == null || (marker.inclusiveLeft ? span.from <= endCh : span.from < endCh)
       ;(nw || (nw = [])).push(new MarkedSpan(marker, startsBefore ? null : span.from - endCh,
                                             span.to == null ? null : span.to - endCh))
     }
@@ -67,23 +70,23 @@ function markedSpansAfter(old, endCh, isInsert) {
 // arrays with one element for each line in (after) the change.
 export function stretchSpansOverChange(doc, change) {
   if (change.full) return null
-  var oldFirst = isLine(doc, change.from.line) && getLine(doc, change.from.line).markedSpans
-  var oldLast = isLine(doc, change.to.line) && getLine(doc, change.to.line).markedSpans
+  let oldFirst = isLine(doc, change.from.line) && getLine(doc, change.from.line).markedSpans
+  let oldLast = isLine(doc, change.to.line) && getLine(doc, change.to.line).markedSpans
   if (!oldFirst && !oldLast) return null
 
-  var startCh = change.from.ch, endCh = change.to.ch, isInsert = cmp(change.from, change.to) == 0
+  let startCh = change.from.ch, endCh = change.to.ch, isInsert = cmp(change.from, change.to) == 0
   // Get the spans that 'stick out' on both sides
-  var first = markedSpansBefore(oldFirst, startCh, isInsert)
-  var last = markedSpansAfter(oldLast, endCh, isInsert)
+  let first = markedSpansBefore(oldFirst, startCh, isInsert)
+  let last = markedSpansAfter(oldLast, endCh, isInsert)
 
   // Next, merge those two ends
-  var sameLine = change.text.length == 1, offset = lst(change.text).length + (sameLine ? startCh : 0)
+  let sameLine = change.text.length == 1, offset = lst(change.text).length + (sameLine ? startCh : 0)
   if (first) {
     // Fix up .to properties of first
-    for (var i = 0; i < first.length; ++i) {
-      var span = first[i]
+    for (let i = 0; i < first.length; ++i) {
+      let span = first[i]
       if (span.to == null) {
-        var found = getMarkedSpanFor(last, span.marker)
+        let found = getMarkedSpanFor(last, span.marker)
         if (!found) span.to = startCh
         else if (sameLine) span.to = found.to == null ? null : found.to + offset
       }
@@ -91,11 +94,11 @@ export function stretchSpansOverChange(doc, change) {
   }
   if (last) {
     // Fix up .from in last (or move them into first in case of sameLine)
-    for (var i = 0; i < last.length; ++i) {
-      var span = last[i]
+    for (let i = 0; i < last.length; ++i) {
+      let span = last[i]
       if (span.to != null) span.to += offset
       if (span.from == null) {
-        var found = getMarkedSpanFor(first, span.marker)
+        let found = getMarkedSpanFor(first, span.marker)
         if (!found) {
           span.from = offset
           if (sameLine) (first || (first = [])).push(span)
@@ -110,15 +113,15 @@ export function stretchSpansOverChange(doc, change) {
   if (first) first = clearEmptySpans(first)
   if (last && last != first) last = clearEmptySpans(last)
 
-  var newMarkers = [first]
+  let newMarkers = [first]
   if (!sameLine) {
     // Fill gap with whole-line-spans
-    var gap = change.text.length - 2, gapMarkers
+    let gap = change.text.length - 2, gapMarkers
     if (gap > 0 && first)
-      for (var i = 0; i < first.length; ++i)
+      for (let i = 0; i < first.length; ++i)
         if (first[i].to == null)
           (gapMarkers || (gapMarkers = [])).push(new MarkedSpan(first[i].marker, null, null))
-    for (var i = 0; i < gap; ++i)
+    for (let i = 0; i < gap; ++i)
       newMarkers.push(gapMarkers)
     newMarkers.push(last)
   }
@@ -128,8 +131,8 @@ export function stretchSpansOverChange(doc, change) {
 // Remove spans that are empty and don't have a clearWhenEmpty
 // option of false.
 function clearEmptySpans(spans) {
-  for (var i = 0; i < spans.length; ++i) {
-    var span = spans[i]
+  for (let i = 0; i < spans.length; ++i) {
+    let span = spans[i]
     if (span.from != null && span.from == span.to && span.marker.clearWhenEmpty !== false)
       spans.splice(i--, 1)
   }
@@ -139,22 +142,22 @@ function clearEmptySpans(spans) {
 
 // Used to 'clip' out readOnly ranges when making a change.
 export function removeReadOnlyRanges(doc, from, to) {
-  var markers = null
+  let markers = null
   doc.iter(from.line, to.line + 1, function(line) {
-    if (line.markedSpans) for (var i = 0; i < line.markedSpans.length; ++i) {
-      var mark = line.markedSpans[i].marker
+    if (line.markedSpans) for (let i = 0; i < line.markedSpans.length; ++i) {
+      let mark = line.markedSpans[i].marker
       if (mark.readOnly && (!markers || indexOf(markers, mark) == -1))
         (markers || (markers = [])).push(mark)
     }
   })
   if (!markers) return null
-  var parts = [{from: from, to: to}]
-  for (var i = 0; i < markers.length; ++i) {
-    var mk = markers[i], m = mk.find(0)
-    for (var j = 0; j < parts.length; ++j) {
-      var p = parts[j]
+  let parts = [{from: from, to: to}]
+  for (let i = 0; i < markers.length; ++i) {
+    let mk = markers[i], m = mk.find(0)
+    for (let j = 0; j < parts.length; ++j) {
+      let p = parts[j]
       if (cmp(p.to, m.from) < 0 || cmp(p.from, m.to) > 0) continue
-      var newParts = [j, 1], dfrom = cmp(p.from, m.from), dto = cmp(p.to, m.to)
+      let newParts = [j, 1], dfrom = cmp(p.from, m.from), dto = cmp(p.to, m.to)
       if (dfrom < 0 || !mk.inclusiveLeft && !dfrom)
         newParts.push({from: p.from, to: m.from})
       if (dto > 0 || !mk.inclusiveRight && !dto)
@@ -168,15 +171,15 @@ export function removeReadOnlyRanges(doc, from, to) {
 
 // Connect or disconnect spans from a line.
 export function detachMarkedSpans(line) {
-  var spans = line.markedSpans
+  let spans = line.markedSpans
   if (!spans) return
-  for (var i = 0; i < spans.length; ++i)
+  for (let i = 0; i < spans.length; ++i)
     spans[i].marker.detachLine(line)
   line.markedSpans = null
 }
 export function attachMarkedSpans(line, spans) {
   if (!spans) return
-  for (var i = 0; i < spans.length; ++i)
+  for (let i = 0; i < spans.length; ++i)
     spans[i].marker.attachLine(line)
   line.markedSpans = spans
 }
@@ -190,12 +193,12 @@ function extraRight(marker) { return marker.inclusiveRight ? 1 : 0 }
 // spans is larger (and thus includes the other). Falls back to
 // comparing ids when the spans cover exactly the same range.
 export function compareCollapsedMarkers(a, b) {
-  var lenDiff = a.lines.length - b.lines.length
+  let lenDiff = a.lines.length - b.lines.length
   if (lenDiff != 0) return lenDiff
-  var aPos = a.find(), bPos = b.find()
-  var fromCmp = cmp(aPos.from, bPos.from) || extraLeft(a) - extraLeft(b)
+  let aPos = a.find(), bPos = b.find()
+  let fromCmp = cmp(aPos.from, bPos.from) || extraLeft(a) - extraLeft(b)
   if (fromCmp) return -fromCmp
-  var toCmp = cmp(aPos.to, bPos.to) || extraRight(a) - extraRight(b)
+  let toCmp = cmp(aPos.to, bPos.to) || extraRight(a) - extraRight(b)
   if (toCmp) return toCmp
   return b.id - a.id
 }
@@ -203,8 +206,8 @@ export function compareCollapsedMarkers(a, b) {
 // Find out whether a line ends or starts in a collapsed span. If
 // so, return the marker for that span.
 function collapsedSpanAtSide(line, start) {
-  var sps = sawCollapsedSpans && line.markedSpans, found
-  if (sps) for (var sp, i = 0; i < sps.length; ++i) {
+  let sps = sawCollapsedSpans && line.markedSpans, found
+  if (sps) for (let sp, i = 0; i < sps.length; ++i) {
     sp = sps[i]
     if (sp.marker.collapsed && (start ? sp.from : sp.to) == null &&
         (!found || compareCollapsedMarkers(found, sp.marker) < 0))
@@ -219,14 +222,14 @@ export function collapsedSpanAtEnd(line) { return collapsedSpanAtSide(line, fals
 // overlaps (covers the start or end, but not both) of a new span.
 // Such overlap is not allowed.
 export function conflictingCollapsedRange(doc, lineNo, from, to, marker) {
-  var line = getLine(doc, lineNo)
-  var sps = sawCollapsedSpans && line.markedSpans
-  if (sps) for (var i = 0; i < sps.length; ++i) {
-    var sp = sps[i]
+  let line = getLine(doc, lineNo)
+  let sps = sawCollapsedSpans && line.markedSpans
+  if (sps) for (let i = 0; i < sps.length; ++i) {
+    let sp = sps[i]
     if (!sp.marker.collapsed) continue
-    var found = sp.marker.find(0)
-    var fromCmp = cmp(found.from, from) || extraLeft(sp.marker) - extraLeft(marker)
-    var toCmp = cmp(found.to, to) || extraRight(sp.marker) - extraRight(marker)
+    let found = sp.marker.find(0)
+    let fromCmp = cmp(found.from, from) || extraLeft(sp.marker) - extraLeft(marker)
+    let toCmp = cmp(found.to, to) || extraRight(sp.marker) - extraRight(marker)
     if (fromCmp >= 0 && toCmp <= 0 || fromCmp <= 0 && toCmp >= 0) continue
     if (fromCmp <= 0 && (sp.marker.inclusiveRight && marker.inclusiveLeft ? cmp(found.to, from) >= 0 : cmp(found.to, from) > 0) ||
         fromCmp >= 0 && (sp.marker.inclusiveRight && marker.inclusiveLeft ? cmp(found.from, to) <= 0 : cmp(found.from, to) < 0))
@@ -239,7 +242,7 @@ export function conflictingCollapsedRange(doc, lineNo, from, to, marker) {
 // visual line. This finds the start of the visual line that the
 // given line is part of (usually that is the line itself).
 export function visualLine(line) {
-  var merged
+  let merged
   while (merged = collapsedSpanAtStart(line))
     line = merged.find(-1, true).line
   return line
@@ -248,7 +251,7 @@ export function visualLine(line) {
 // Returns an array of logical lines that continue the visual line
 // started by the argument, or undefined if there are no such lines.
 export function visualLineContinued(line) {
-  var merged, lines
+  let merged, lines
   while (merged = collapsedSpanAtEnd(line)) {
     line = merged.find(1, true).line
     ;(lines || (lines = [])).push(line)
@@ -259,7 +262,7 @@ export function visualLineContinued(line) {
 // Get the line number of the start of the visual line that the
 // given line number is part of.
 export function visualLineNo(doc, lineN) {
-  var line = getLine(doc, lineN), vis = visualLine(line)
+  let line = getLine(doc, lineN), vis = visualLine(line)
   if (line == vis) return lineN
   return lineNo(vis)
 }
@@ -268,7 +271,7 @@ export function visualLineNo(doc, lineN) {
 // the given line.
 export function visualLineEndNo(doc, lineN) {
   if (lineN > doc.lastLine()) return lineN
-  var line = getLine(doc, lineN), merged
+  let line = getLine(doc, lineN), merged
   if (!lineIsHidden(doc, line)) return lineN
   while (merged = collapsedSpanAtEnd(line))
     line = merged.find(1, true).line
@@ -279,8 +282,8 @@ export function visualLineEndNo(doc, lineN) {
 // are part of a visual line that starts with another line, or when
 // they are entirely covered by collapsed, non-widget span.
 export function lineIsHidden(doc, line) {
-  var sps = sawCollapsedSpans && line.markedSpans
-  if (sps) for (var sp, i = 0; i < sps.length; ++i) {
+  let sps = sawCollapsedSpans && line.markedSpans
+  if (sps) for (let sp, i = 0; i < sps.length; ++i) {
     sp = sps[i]
     if (!sp.marker.collapsed) continue
     if (sp.from == null) return true
@@ -291,12 +294,12 @@ export function lineIsHidden(doc, line) {
 }
 function lineIsHiddenInner(doc, line, span) {
   if (span.to == null) {
-    var end = span.marker.find(1, true)
+    let end = span.marker.find(1, true)
     return lineIsHiddenInner(doc, end.line, getMarkedSpanFor(end.line.markedSpans, span.marker))
   }
   if (span.marker.inclusiveRight && span.to == line.text.length)
     return true
-  for (var sp, i = 0; i < line.markedSpans.length; ++i) {
+  for (let sp, i = 0; i < line.markedSpans.length; ++i) {
     sp = line.markedSpans[i]
     if (sp.marker.collapsed && !sp.marker.widgetNode && sp.from == span.to &&
         (sp.to == null || sp.to != span.from) &&
@@ -309,15 +312,15 @@ function lineIsHiddenInner(doc, line, span) {
 export function heightAtLine(lineObj) {
   lineObj = visualLine(lineObj)
 
-  var h = 0, chunk = lineObj.parent
-  for (var i = 0; i < chunk.lines.length; ++i) {
-    var line = chunk.lines[i]
+  let h = 0, chunk = lineObj.parent
+  for (let i = 0; i < chunk.lines.length; ++i) {
+    let line = chunk.lines[i]
     if (line == lineObj) break
     else h += line.height
   }
-  for (var p = chunk.parent; p; chunk = p, p = chunk.parent) {
-    for (var i = 0; i < p.children.length; ++i) {
-      var cur = p.children[i]
+  for (let p = chunk.parent; p; chunk = p, p = chunk.parent) {
+    for (let i = 0; i < p.children.length; ++i) {
+      let cur = p.children[i]
       if (cur == chunk) break
       else h += cur.height
     }
@@ -330,15 +333,15 @@ export function heightAtLine(lineObj) {
 // other lines onto it.
 export function lineLength(line) {
   if (line.height == 0) return 0
-  var len = line.text.length, merged, cur = line
+  let len = line.text.length, merged, cur = line
   while (merged = collapsedSpanAtStart(cur)) {
-    var found = merged.find(0, true)
+    let found = merged.find(0, true)
     cur = found.from.line
     len += found.from.ch - found.to.ch
   }
   cur = line
   while (merged = collapsedSpanAtEnd(cur)) {
-    var found = merged.find(0, true)
+    let found = merged.find(0, true)
     len -= cur.text.length - found.from.ch
     cur = found.to.line
     len += cur.text.length - found.to.ch
@@ -348,12 +351,12 @@ export function lineLength(line) {
 
 // Find the longest line in the document.
 export function findMaxLine(cm) {
-  var d = cm.display, doc = cm.doc
+  let d = cm.display, doc = cm.doc
   d.maxLine = getLine(doc, doc.first)
   d.maxLineLength = lineLength(d.maxLine)
   d.maxLineChanged = true
   doc.iter(function(line) {
-    var len = lineLength(line)
+    let len = lineLength(line)
     if (len > d.maxLineLength) {
       d.maxLineLength = len
       d.maxLine = line

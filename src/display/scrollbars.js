@@ -12,8 +12,8 @@ import { setScrollLeft, setScrollTop } from "./scroll_events"
 // Prepare DOM reads needed to update the scrollbars. Done in one
 // shot to minimize update/measure roundtrips.
 export function measureForScrollbars(cm) {
-  var d = cm.display, gutterW = d.gutters.offsetWidth
-  var docH = Math.round(cm.doc.height + paddingVert(cm.display))
+  let d = cm.display, gutterW = d.gutters.offsetWidth
+  let docH = Math.round(cm.doc.height + paddingVert(cm.display))
   return {
     clientHeight: d.scroller.clientHeight,
     viewHeight: d.wrapper.clientHeight,
@@ -29,8 +29,8 @@ export function measureForScrollbars(cm) {
 
 function NativeScrollbars(place, scroll, cm) {
   this.cm = cm
-  var vert = this.vert = elt("div", [elt("div", null, null, "min-width: 1px")], "CodeMirror-vscrollbar")
-  var horiz = this.horiz = elt("div", [elt("div", null, null, "height: 100%; min-height: 1px")], "CodeMirror-hscrollbar")
+  let vert = this.vert = elt("div", [elt("div", null, null, "min-width: 1px")], "CodeMirror-vscrollbar")
+  let horiz = this.horiz = elt("div", [elt("div", null, null, "height: 100%; min-height: 1px")], "CodeMirror-hscrollbar")
   place(vert); place(horiz)
 
   on(vert, "scroll", function() {
@@ -47,14 +47,14 @@ function NativeScrollbars(place, scroll, cm) {
 
 NativeScrollbars.prototype = copyObj({
   update: function(measure) {
-    var needsH = measure.scrollWidth > measure.clientWidth + 1
-    var needsV = measure.scrollHeight > measure.clientHeight + 1
-    var sWidth = measure.nativeBarWidth
+    let needsH = measure.scrollWidth > measure.clientWidth + 1
+    let needsV = measure.scrollHeight > measure.clientHeight + 1
+    let sWidth = measure.nativeBarWidth
 
     if (needsV) {
       this.vert.style.display = "block"
       this.vert.style.bottom = needsH ? sWidth + "px" : "0"
-      var totalHeight = measure.viewHeight - (needsH ? sWidth : 0)
+      let totalHeight = measure.viewHeight - (needsH ? sWidth : 0)
       // A bug in IE8 can cause this value to be negative, so guard it.
       this.vert.firstChild.style.height =
         Math.max(0, measure.scrollHeight - measure.clientHeight + totalHeight) + "px"
@@ -67,7 +67,7 @@ NativeScrollbars.prototype = copyObj({
       this.horiz.style.display = "block"
       this.horiz.style.right = needsV ? sWidth + "px" : "0"
       this.horiz.style.left = measure.barLeft + "px"
-      var totalWidth = measure.viewWidth - measure.barLeft - (needsV ? sWidth : 0)
+      let totalWidth = measure.viewWidth - measure.barLeft - (needsV ? sWidth : 0)
       this.horiz.firstChild.style.width =
         (measure.scrollWidth - measure.clientWidth + totalWidth) + "px"
     } else {
@@ -91,7 +91,7 @@ NativeScrollbars.prototype = copyObj({
     if (this.disableVert) this.enableZeroWidthBar(this.vert, this.disableVert)
   },
   zeroWidthHack: function() {
-    var w = mac && !mac_geMountainLion ? "12px" : "18px"
+    let w = mac && !mac_geMountainLion ? "12px" : "18px"
     this.horiz.style.height = this.vert.style.width = w
     this.horiz.style.pointerEvents = this.vert.style.pointerEvents = "none"
     this.disableHoriz = new Delayed
@@ -106,15 +106,15 @@ NativeScrollbars.prototype = copyObj({
       // itself (when the bar is still visible) or its filler child
       // (when the bar is hidden). If it is still visible, we keep
       // it enabled, if it's hidden, we disable pointer events.
-      var box = bar.getBoundingClientRect()
-      var elt = document.elementFromPoint(box.left + 1, box.bottom - 1)
+      let box = bar.getBoundingClientRect()
+      let elt = document.elementFromPoint(box.left + 1, box.bottom - 1)
       if (elt != bar) bar.style.pointerEvents = "none"
       else delay.set(1000, maybeDisable)
     }
     delay.set(1000, maybeDisable)
   },
   clear: function() {
-    var parent = this.horiz.parentNode
+    let parent = this.horiz.parentNode
     parent.removeChild(this.horiz)
     parent.removeChild(this.vert)
   }
@@ -131,9 +131,9 @@ NullScrollbars.prototype = copyObj({
 
 export function updateScrollbars(cm, measure) {
   if (!measure) measure = measureForScrollbars(cm)
-  var startWidth = cm.display.barWidth, startHeight = cm.display.barHeight
+  let startWidth = cm.display.barWidth, startHeight = cm.display.barHeight
   updateScrollbarsInner(cm, measure)
-  for (var i = 0; i < 4 && startWidth != cm.display.barWidth || startHeight != cm.display.barHeight; i++) {
+  for (let i = 0; i < 4 && startWidth != cm.display.barWidth || startHeight != cm.display.barHeight; i++) {
     if (startWidth != cm.display.barWidth && cm.options.lineWrapping)
       updateHeightsInViewport(cm)
     updateScrollbarsInner(cm, measureForScrollbars(cm))
@@ -144,8 +144,8 @@ export function updateScrollbars(cm, measure) {
 // Re-synchronize the fake scrollbars with the actual size of the
 // content.
 function updateScrollbarsInner(cm, measure) {
-  var d = cm.display
-  var sizes = d.scrollbars.update(measure)
+  let d = cm.display
+  let sizes = d.scrollbars.update(measure)
 
   d.sizer.style.paddingRight = (d.barWidth = sizes.right) + "px"
   d.sizer.style.paddingBottom = (d.barHeight = sizes.bottom) + "px"
@@ -163,7 +163,7 @@ function updateScrollbarsInner(cm, measure) {
   } else d.gutterFiller.style.display = ""
 }
 
-export var scrollbarModel = {"native": NativeScrollbars, "null": NullScrollbars}
+export let scrollbarModel = {"native": NativeScrollbars, "null": NullScrollbars}
 
 export function initScrollbars(cm) {
   if (cm.display.scrollbars) {

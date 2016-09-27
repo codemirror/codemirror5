@@ -15,7 +15,7 @@ export function regChange(cm, from, to, lendiff) {
   if (to == null) to = cm.doc.first + cm.doc.size
   if (!lendiff) lendiff = 0
 
-  var display = cm.display
+  let display = cm.display
   if (lendiff && to < display.viewTo &&
       (display.updateLineNumbers == null || display.updateLineNumbers > from))
     display.updateLineNumbers = from
@@ -35,7 +35,7 @@ export function regChange(cm, from, to, lendiff) {
   } else if (from <= display.viewFrom && to >= display.viewTo) { // Full overlap
     resetView(cm)
   } else if (from <= display.viewFrom) { // Top overlap
-    var cut = viewCuttingPoint(cm, to, to + lendiff, 1)
+    let cut = viewCuttingPoint(cm, to, to + lendiff, 1)
     if (cut) {
       display.view = display.view.slice(cut.index)
       display.viewFrom = cut.lineN
@@ -44,7 +44,7 @@ export function regChange(cm, from, to, lendiff) {
       resetView(cm)
     }
   } else if (to >= display.viewTo) { // Bottom overlap
-    var cut = viewCuttingPoint(cm, from, from, -1)
+    let cut = viewCuttingPoint(cm, from, from, -1)
     if (cut) {
       display.view = display.view.slice(0, cut.index)
       display.viewTo = cut.lineN
@@ -52,8 +52,8 @@ export function regChange(cm, from, to, lendiff) {
       resetView(cm)
     }
   } else { // Gap in the middle
-    var cutTop = viewCuttingPoint(cm, from, from, -1)
-    var cutBot = viewCuttingPoint(cm, to, to + lendiff, 1)
+    let cutTop = viewCuttingPoint(cm, from, from, -1)
+    let cutBot = viewCuttingPoint(cm, to, to + lendiff, 1)
     if (cutTop && cutBot) {
       display.view = display.view.slice(0, cutTop.index)
         .concat(buildViewArray(cm, cutTop.lineN, cutBot.lineN))
@@ -64,7 +64,7 @@ export function regChange(cm, from, to, lendiff) {
     }
   }
 
-  var ext = display.externalMeasured
+  let ext = display.externalMeasured
   if (ext) {
     if (to < ext.lineN)
       ext.lineN += lendiff
@@ -77,14 +77,14 @@ export function regChange(cm, from, to, lendiff) {
 // "gutter", "class", "widget"
 export function regLineChange(cm, line, type) {
   cm.curOp.viewChanged = true
-  var display = cm.display, ext = cm.display.externalMeasured
+  let display = cm.display, ext = cm.display.externalMeasured
   if (ext && line >= ext.lineN && line < ext.lineN + ext.size)
     display.externalMeasured = null
 
   if (line < display.viewFrom || line >= display.viewTo) return
-  var lineView = display.view[findViewIndex(cm, line)]
+  let lineView = display.view[findViewIndex(cm, line)]
   if (lineView.node == null) return
-  var arr = lineView.changes || (lineView.changes = [])
+  let arr = lineView.changes || (lineView.changes = [])
   if (indexOf(arr, type) == -1) arr.push(type)
 }
 
@@ -96,10 +96,11 @@ export function resetView(cm) {
 }
 
 function viewCuttingPoint(cm, oldN, newN, dir) {
-  var index = findViewIndex(cm, oldN), diff, view = cm.display.view
+  let index = findViewIndex(cm, oldN), diff, view = cm.display.view
   if (!sawCollapsedSpans || newN == cm.doc.first + cm.doc.size)
     return {index: index, lineN: newN}
-  for (var i = 0, n = cm.display.viewFrom; i < index; i++)
+  let n = cm.display.viewFrom
+  for (let i = 0; i < index; i++)
     n += view[i].size
   if (n != oldN) {
     if (dir > 0) {
@@ -122,7 +123,7 @@ function viewCuttingPoint(cm, oldN, newN, dir) {
 // Force the view to cover a given range, adding empty view element
 // or clipping off existing ones as needed.
 export function adjustView(cm, from, to) {
-  var display = cm.display, view = display.view
+  let display = cm.display, view = display.view
   if (view.length == 0 || from >= display.viewTo || to <= display.viewFrom) {
     display.view = buildViewArray(cm, from, to)
     display.viewFrom = from
@@ -143,9 +144,9 @@ export function adjustView(cm, from, to) {
 // Count the number of lines in the view whose DOM representation is
 // out of date (or nonexistent).
 export function countDirtyView(cm) {
-  var view = cm.display.view, dirty = 0
-  for (var i = 0; i < view.length; i++) {
-    var lineView = view[i]
+  let view = cm.display.view, dirty = 0
+  for (let i = 0; i < view.length; i++) {
+    let lineView = view[i]
     if (!lineView.hidden && (!lineView.node || lineView.changes)) ++dirty
   }
   return dirty

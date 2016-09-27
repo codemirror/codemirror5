@@ -6,21 +6,21 @@ import { indexOf } from "./misc"
 // Lightweight event framework. on/off also work on DOM nodes,
 // registering native DOM handlers.
 
-export var on = function(emitter, type, f) {
+export let on = function(emitter, type, f) {
   if (emitter.addEventListener)
     emitter.addEventListener(type, f, false)
   else if (emitter.attachEvent)
     emitter.attachEvent("on" + type, f)
   else {
-    var map = emitter._handlers || (emitter._handlers = {})
-    var arr = map[type] || (map[type] = [])
+    let map = emitter._handlers || (emitter._handlers = {})
+    let arr = map[type] || (map[type] = [])
     arr.push(f)
   }
 }
 
-var noHandlers = []
+let noHandlers = []
 export function getHandlers(emitter, type, copy) {
-  var arr = emitter._handlers && emitter._handlers[type]
+  let arr = emitter._handlers && emitter._handlers[type]
   if (copy) return arr && arr.length > 0 ? arr.slice() : noHandlers
   else return arr || noHandlers
 }
@@ -31,17 +31,17 @@ export function off(emitter, type, f) {
   else if (emitter.detachEvent)
     emitter.detachEvent("on" + type, f)
   else {
-    var handlers = getHandlers(emitter, type, false)
-    for (var i = 0; i < handlers.length; ++i)
+    let handlers = getHandlers(emitter, type, false)
+    for (let i = 0; i < handlers.length; ++i)
       if (handlers[i] == f) { handlers.splice(i, 1); break }
   }
 }
 
 export function signal(emitter, type /*, values...*/) {
-  var handlers = getHandlers(emitter, type, true)
+  let handlers = getHandlers(emitter, type, true)
   if (!handlers.length) return
-  var args = Array.prototype.slice.call(arguments, 2)
-  for (var i = 0; i < handlers.length; ++i) handlers[i].apply(null, args)
+  let args = Array.prototype.slice.call(arguments, 2)
+  for (let i = 0; i < handlers.length; ++i) handlers[i].apply(null, args)
 }
 
 // The DOM events that CodeMirror handles can be overridden by
@@ -55,10 +55,10 @@ export function signalDOMEvent(cm, e, override) {
 }
 
 export function signalCursorActivity(cm) {
-  var arr = cm._handlers && cm._handlers.cursorActivity
+  let arr = cm._handlers && cm._handlers.cursorActivity
   if (!arr) return
-  var set = cm.curOp.cursorActivityHandlers || (cm.curOp.cursorActivityHandlers = [])
-  for (var i = 0; i < arr.length; ++i) if (indexOf(set, arr[i]) == -1)
+  let set = cm.curOp.cursorActivityHandlers || (cm.curOp.cursorActivityHandlers = [])
+  for (let i = 0; i < arr.length; ++i) if (indexOf(set, arr[i]) == -1)
     set.push(arr[i])
 }
 
@@ -91,7 +91,7 @@ export function e_stop(e) {e_preventDefault(e); e_stopPropagation(e)}
 
 export function e_target(e) {return e.target || e.srcElement}
 export function e_button(e) {
-  var b = e.which
+  let b = e.which
   if (b == null) {
     if (e.button & 1) b = 1
     else if (e.button & 2) b = 3

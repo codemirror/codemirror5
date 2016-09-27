@@ -26,7 +26,7 @@ export function History(startGen) {
 // Create a history change event from an updateDoc-style change
 // object.
 export function historyChangeFromChange(doc, change) {
-  var histChange = {from: copyPos(change.from), to: changeEnd(change), text: getBetween(doc, change.from, change.to)}
+  let histChange = {from: copyPos(change.from), to: changeEnd(change), text: getBetween(doc, change.from, change.to)}
   attachLocalSpans(doc, histChange, change.from.line, change.to.line + 1)
   linkedDocs(doc, function(doc) {attachLocalSpans(doc, histChange, change.from.line, change.to.line + 1)}, true)
   return histChange
@@ -36,7 +36,7 @@ export function historyChangeFromChange(doc, change) {
 // a change event.
 function clearSelectionEvents(array) {
   while (array.length) {
-    var last = lst(array)
+    let last = lst(array)
     if (last.ranges) array.pop()
     else break
   }
@@ -60,9 +60,10 @@ function lastChangeEvent(hist, force) {
 // a single operation, or are close together with an origin that
 // allows merging (starting with "+") into a single event.
 export function addChangeToHistory(doc, change, selAfter, opId) {
-  var hist = doc.history
+  let hist = doc.history
   hist.undone.length = 0
-  var time = +new Date, cur
+  let time = +new Date, cur
+  let last
 
   if ((hist.lastOp == opId ||
        hist.lastOrigin == change.origin && change.origin &&
@@ -70,7 +71,7 @@ export function addChangeToHistory(doc, change, selAfter, opId) {
         change.origin.charAt(0) == "*")) &&
       (cur = lastChangeEvent(hist, hist.lastOp == opId))) {
     // Merge this change into the last event
-    var last = lst(cur.changes)
+    last = lst(cur.changes)
     if (cmp(change.from, change.to) == 0 && cmp(change.from, last.to) == 0) {
       // Optimized case for simple insertion -- don't want to add
       // new changesets for every character typed
@@ -81,7 +82,7 @@ export function addChangeToHistory(doc, change, selAfter, opId) {
     }
   } else {
     // Can not be merged, start a new event.
-    var before = lst(hist.done)
+    let before = lst(hist.done)
     if (!before || !before.ranges)
       pushSelectionToHistory(doc.sel, hist.done)
     cur = {changes: [historyChangeFromChange(doc, change)],
@@ -102,7 +103,7 @@ export function addChangeToHistory(doc, change, selAfter, opId) {
 }
 
 function selectionEventCanBeMerged(doc, origin, prev, sel) {
-  var ch = origin.charAt(0)
+  let ch = origin.charAt(0)
   return ch == "*" ||
     ch == "+" &&
     prev.ranges.length == sel.ranges.length &&
@@ -115,7 +116,7 @@ function selectionEventCanBeMerged(doc, origin, prev, sel) {
 // selection into the 'done' array when it was significantly
 // different (in number of selected ranges, emptiness, or time).
 export function addSelectionToHistory(doc, sel, opId, options) {
-  var hist = doc.history, origin = options && options.origin
+  let hist = doc.history, origin = options && options.origin
 
   // A new event is started when the previous origin does not match
   // the current, or the origins don't allow matching. Origins
@@ -137,14 +138,14 @@ export function addSelectionToHistory(doc, sel, opId, options) {
 }
 
 export function pushSelectionToHistory(sel, dest) {
-  var top = lst(dest)
+  let top = lst(dest)
   if (!(top && top.ranges && top.equals(sel)))
     dest.push(sel)
 }
 
 // Used to store marked span information in the history.
 function attachLocalSpans(doc, change, from, to) {
-  var existing = change["spans_" + doc.id], n = 0
+  let existing = change["spans_" + doc.id], n = 0
   doc.iter(Math.max(doc.first, from), Math.min(doc.first + doc.size, to), function(line) {
     if (line.markedSpans)
       (existing || (existing = change["spans_" + doc.id] = {}))[n] = line.markedSpans
@@ -156,7 +157,8 @@ function attachLocalSpans(doc, change, from, to) {
 // that have been explicitly cleared should not be restored.
 function removeClearedSpans(spans) {
   if (!spans) return null
-  for (var i = 0, out; i < spans.length; ++i) {
+  let out
+  for (let i = 0; i < spans.length; ++i) {
     if (spans[i].marker.explicitlyCleared) { if (!out) out = spans.slice(0, i) }
     else if (out) out.push(spans[i])
   }
@@ -165,9 +167,10 @@ function removeClearedSpans(spans) {
 
 // Retrieve and filter the old marked spans stored in a change event.
 function getOldSpans(doc, change) {
-  var found = change["spans_" + doc.id]
+  let found = change["spans_" + doc.id]
   if (!found) return null
-  for (var i = 0, nw = []; i < change.text.length; ++i)
+  let nw = []
+  for (let i = 0; i < change.text.length; ++i)
     nw.push(removeClearedSpans(found[i]))
   return nw
 }
@@ -177,17 +180,17 @@ function getOldSpans(doc, change) {
 // existed in the history (so that deleting around a span and then
 // undoing brings back the span).
 export function mergeOldSpans(doc, change) {
-  var old = getOldSpans(doc, change)
-  var stretched = stretchSpansOverChange(doc, change)
+  let old = getOldSpans(doc, change)
+  let stretched = stretchSpansOverChange(doc, change)
   if (!old) return stretched
   if (!stretched) return old
 
-  for (var i = 0; i < old.length; ++i) {
-    var oldCur = old[i], stretchCur = stretched[i]
+  for (let i = 0; i < old.length; ++i) {
+    let oldCur = old[i], stretchCur = stretched[i]
     if (oldCur && stretchCur) {
-      spans: for (var j = 0; j < stretchCur.length; ++j) {
-        var span = stretchCur[j]
-        for (var k = 0; k < oldCur.length; ++k)
+      spans: for (let j = 0; j < stretchCur.length; ++j) {
+        let span = stretchCur[j]
+        for (let k = 0; k < oldCur.length; ++k)
           if (oldCur[k].marker == span.marker) continue spans
         oldCur.push(span)
       }
@@ -201,18 +204,19 @@ export function mergeOldSpans(doc, change) {
 // Used both to provide a JSON-safe object in .getHistory, and, when
 // detaching a document, to split the history in two
 export function copyHistoryArray(events, newGroup, instantiateSel) {
-  for (var i = 0, copy = []; i < events.length; ++i) {
-    var event = events[i]
+  let copy = []
+  for (let i = 0; i < events.length; ++i) {
+    let event = events[i]
     if (event.ranges) {
       copy.push(instantiateSel ? Selection.prototype.deepCopy.call(event) : event)
       continue
     }
-    var changes = event.changes, newChanges = []
+    let changes = event.changes, newChanges = []
     copy.push({changes: newChanges})
-    for (var j = 0; j < changes.length; ++j) {
-      var change = changes[j], m
+    for (let j = 0; j < changes.length; ++j) {
+      let change = changes[j], m
       newChanges.push({from: change.from, to: change.to, text: change.text})
-      if (newGroup) for (var prop in change) if (m = prop.match(/^spans_(\d+)$/)) {
+      if (newGroup) for (let prop in change) if (m = prop.match(/^spans_(\d+)$/)) {
         if (indexOf(newGroup, Number(m[1])) > -1) {
           lst(newChanges)[prop] = change[prop]
           delete change[prop]
