@@ -3,10 +3,10 @@ import { e_target } from "../util/event"
 
 export function widgetHeight(widget) {
   if (widget.height != null) return widget.height
-  var cm = widget.doc.cm
+  let cm = widget.doc.cm
   if (!cm) return 0
   if (!contains(document.body, widget.node)) {
-    var parentStyle = "position: relative;"
+    let parentStyle = "position: relative;"
     if (widget.coverGutter)
       parentStyle += "margin-left: -" + cm.display.gutters.offsetWidth + "px;"
     if (widget.noHScroll)
@@ -18,7 +18,7 @@ export function widgetHeight(widget) {
 
 // Return true when the given mouse event happened in a widget
 export function eventInWidget(display, e) {
-  for (var n = e_target(e); n != display.wrapper; n = n.parentNode) {
+  for (let n = e_target(e); n != display.wrapper; n = n.parentNode) {
     if (!n || (n.nodeType == 1 && n.getAttribute("cm-ignore-events") == "true") ||
         (n.parentNode == display.sizer && n != display.mover))
       return true

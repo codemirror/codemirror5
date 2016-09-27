@@ -1,6 +1,6 @@
 import { getHandlers } from "./event"
 
-var operationGroup = null
+let operationGroup = null
 
 export function pushOperation(op) {
   if (operationGroup) {
@@ -16,12 +16,12 @@ export function pushOperation(op) {
 function fireCallbacksForOps(group) {
   // Calls delayed callbacks and cursorActivity handlers until no
   // new ones appear
-  var callbacks = group.delayedCallbacks, i = 0
+  let callbacks = group.delayedCallbacks, i = 0
   do {
     for (; i < callbacks.length; i++)
       callbacks[i].call(null)
-    for (var j = 0; j < group.ops.length; j++) {
-      var op = group.ops[j]
+    for (let j = 0; j < group.ops.length; j++) {
+      let op = group.ops[j]
       if (op.cursorActivityHandlers)
         while (op.cursorActivityCalled < op.cursorActivityHandlers.length)
           op.cursorActivityHandlers[op.cursorActivityCalled++].call(null, op.cm)
@@ -30,7 +30,7 @@ function fireCallbacksForOps(group) {
 }
 
 export function finishOperation(op, endCb) {
-  var group = op.ownsGroup
+  let group = op.ownsGroup
   if (!group) return
 
   try { fireCallbacksForOps(group) }
@@ -40,7 +40,7 @@ export function finishOperation(op, endCb) {
   }
 }
 
-var orphanDelayedCallbacks = null
+let orphanDelayedCallbacks = null
 
 // Often, we want to signal events at a point where we are in the
 // middle of some work, but don't want the handler to start calling
@@ -50,9 +50,9 @@ var orphanDelayedCallbacks = null
 // them to be executed when the last operation ends, or, if no
 // operation is active, when a timeout fires.
 export function signalLater(emitter, type /*, values...*/) {
-  var arr = getHandlers(emitter, type, false)
+  let arr = getHandlers(emitter, type, false)
   if (!arr.length) return
-  var args = Array.prototype.slice.call(arguments, 2), list
+  let args = Array.prototype.slice.call(arguments, 2), list
   if (operationGroup) {
     list = operationGroup.delayedCallbacks
   } else if (orphanDelayedCallbacks) {
@@ -62,12 +62,12 @@ export function signalLater(emitter, type /*, values...*/) {
     setTimeout(fireOrphanDelayed, 0)
   }
   function bnd(f) {return function(){f.apply(null, args)}}
-  for (var i = 0; i < arr.length; ++i)
+  for (let i = 0; i < arr.length; ++i)
     list.push(bnd(arr[i]))
 }
 
 function fireOrphanDelayed() {
-  var delayed = orphanDelayedCallbacks
+  let delayed = orphanDelayedCallbacks
   orphanDelayedCallbacks = null
-  for (var i = 0; i < delayed.length; ++i) delayed[i]()
+  for (let i = 0; i < delayed.length; ++i) delayed[i]()
 }

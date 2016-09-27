@@ -17,15 +17,15 @@ function adjustForChange(pos, change) {
   if (cmp(pos, change.from) < 0) return pos
   if (cmp(pos, change.to) <= 0) return changeEnd(change)
 
-  var line = pos.line + change.text.length - (change.to.line - change.from.line) - 1, ch = pos.ch
+  let line = pos.line + change.text.length - (change.to.line - change.from.line) - 1, ch = pos.ch
   if (pos.line == change.to.line) ch += changeEnd(change).ch - change.to.ch
   return Pos(line, ch)
 }
 
 export function computeSelAfterChange(doc, change) {
-  var out = []
-  for (var i = 0; i < doc.sel.ranges.length; i++) {
-    var range = doc.sel.ranges[i]
+  let out = []
+  for (let i = 0; i < doc.sel.ranges.length; i++) {
+    let range = doc.sel.ranges[i]
     out.push(new Range(adjustForChange(range.anchor, change),
                        adjustForChange(range.head, change)))
   }
@@ -42,16 +42,16 @@ function offsetPos(pos, old, nw) {
 // Used by replaceSelections to allow moving the selection to the
 // start or around the replaced test. Hint may be "start" or "around".
 export function computeReplacedSel(doc, changes, hint) {
-  var out = []
-  var oldPrev = Pos(doc.first, 0), newPrev = oldPrev
-  for (var i = 0; i < changes.length; i++) {
-    var change = changes[i]
-    var from = offsetPos(change.from, oldPrev, newPrev)
-    var to = offsetPos(changeEnd(change), oldPrev, newPrev)
+  let out = []
+  let oldPrev = Pos(doc.first, 0), newPrev = oldPrev
+  for (let i = 0; i < changes.length; i++) {
+    let change = changes[i]
+    let from = offsetPos(change.from, oldPrev, newPrev)
+    let to = offsetPos(changeEnd(change), oldPrev, newPrev)
     oldPrev = change.to
     newPrev = to
     if (hint == "around") {
-      var range = doc.sel.ranges[i], inv = cmp(range.head, range.anchor) < 0
+      let range = doc.sel.ranges[i], inv = cmp(range.head, range.anchor) < 0
       out[i] = new Range(inv ? to : from, inv ? from : to)
     } else {
       out[i] = new Range(from, from)

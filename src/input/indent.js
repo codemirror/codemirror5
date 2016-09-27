@@ -12,7 +12,7 @@ import { countColumn, Pass, spaceStr } from "../util/misc"
 // lines are not indented, and places where the mode returns Pass
 // are left alone.
 export function indentLine(cm, n, how, aggressive) {
-  var doc = cm.doc, state
+  let doc = cm.doc, state
   if (how == null) how = "add"
   if (how == "smart") {
     // Fall back to "prev" when the mode doesn't have an indentation
@@ -21,10 +21,10 @@ export function indentLine(cm, n, how, aggressive) {
     else state = getStateBefore(cm, n)
   }
 
-  var tabSize = cm.options.tabSize
-  var line = getLine(doc, n), curSpace = countColumn(line.text, null, tabSize)
+  let tabSize = cm.options.tabSize
+  let line = getLine(doc, n), curSpace = countColumn(line.text, null, tabSize)
   if (line.stateAfter) line.stateAfter = null
-  var curSpaceString = line.text.match(/^\s*/)[0], indentation
+  let curSpaceString = line.text.match(/^\s*/)[0], indentation
   if (!aggressive && !/\S/.test(line.text)) {
     indentation = 0
     how = "not"
@@ -47,9 +47,9 @@ export function indentLine(cm, n, how, aggressive) {
   }
   indentation = Math.max(0, indentation)
 
-  var indentString = "", pos = 0
+  let indentString = "", pos = 0
   if (cm.options.indentWithTabs)
-    for (var i = Math.floor(indentation / tabSize); i; --i) {pos += tabSize; indentString += "\t"}
+    for (let i = Math.floor(indentation / tabSize); i; --i) {pos += tabSize; indentString += "\t"}
   if (pos < indentation) indentString += spaceStr(indentation - pos)
 
   if (indentString != curSpaceString) {
@@ -59,10 +59,10 @@ export function indentLine(cm, n, how, aggressive) {
   } else {
     // Ensure that, if the cursor was in the whitespace at the start
     // of the line, it is moved to the end of that space.
-    for (var i = 0; i < doc.sel.ranges.length; i++) {
-      var range = doc.sel.ranges[i]
+    for (let i = 0; i < doc.sel.ranges.length; i++) {
+      let range = doc.sel.ranges[i]
       if (range.head.line == n && range.head.ch < curSpaceString.length) {
-        var pos = Pos(n, curSpaceString.length)
+        let pos = Pos(n, curSpaceString.length)
         replaceOneSelection(doc, i, new Range(pos, pos))
         break
       }

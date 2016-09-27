@@ -18,7 +18,7 @@ import { adjustView, countDirtyView, resetView } from "./view_tracking"
 // DISPLAY DRAWING
 
 export function DisplayUpdate(cm, viewport, force) {
-  var display = cm.display
+  let display = cm.display
 
   this.viewport = viewport
   // Store some values that we'll need later (but don't want to force a relayout for)
@@ -37,12 +37,12 @@ DisplayUpdate.prototype.signal = function(emitter, type) {
     this.events.push(arguments)
 }
 DisplayUpdate.prototype.finish = function() {
-  for (var i = 0; i < this.events.length; i++)
+  for (let i = 0; i < this.events.length; i++)
     signal.apply(null, this.events[i])
 }
 
 export function maybeClipScrollbars(cm) {
-  var display = cm.display
+  let display = cm.display
   if (!display.scrollbarsClipped && display.scroller.offsetWidth) {
     display.nativeBarWidth = display.scroller.offsetWidth - display.scroller.clientWidth
     display.heightForcer.style.height = scrollGap(cm) + "px"
@@ -56,7 +56,7 @@ export function maybeClipScrollbars(cm) {
 // (returning false) when there is nothing to be done and forced is
 // false.
 export function updateDisplayIfNeeded(cm, update) {
-  var display = cm.display, doc = cm.doc
+  let display = cm.display, doc = cm.doc
 
   if (update.editorIsHidden) {
     resetView(cm)
@@ -76,9 +76,9 @@ export function updateDisplayIfNeeded(cm, update) {
   }
 
   // Compute a suitable new viewport (from & to)
-  var end = doc.first + doc.size
-  var from = Math.max(update.visible.from - cm.options.viewportMargin, doc.first)
-  var to = Math.min(end, update.visible.to + cm.options.viewportMargin)
+  let end = doc.first + doc.size
+  let from = Math.max(update.visible.from - cm.options.viewportMargin, doc.first)
+  let to = Math.min(end, update.visible.to + cm.options.viewportMargin)
   if (display.viewFrom < from && from - display.viewFrom < 20) from = Math.max(doc.first, display.viewFrom)
   if (display.viewTo > to && display.viewTo - to < 20) to = Math.min(end, display.viewTo)
   if (sawCollapsedSpans) {
@@ -86,7 +86,7 @@ export function updateDisplayIfNeeded(cm, update) {
     to = visualLineEndNo(cm.doc, to)
   }
 
-  var different = from != display.viewFrom || to != display.viewTo ||
+  let different = from != display.viewFrom || to != display.viewTo ||
     display.lastWrapHeight != update.wrapperHeight || display.lastWrapWidth != update.wrapperWidth
   adjustView(cm, from, to)
 
@@ -94,14 +94,14 @@ export function updateDisplayIfNeeded(cm, update) {
   // Position the mover div to align with the current scroll position
   cm.display.mover.style.top = display.viewOffset + "px"
 
-  var toUpdate = countDirtyView(cm)
+  let toUpdate = countDirtyView(cm)
   if (!different && toUpdate == 0 && !update.force && display.renderedView == display.view &&
       (display.updateLineNumbers == null || display.updateLineNumbers >= display.viewTo))
     return false
 
   // For big changes, we hide the enclosing element during the
   // update, since that speeds up the operations on most browsers.
-  var focused = activeElt()
+  let focused = activeElt()
   if (toUpdate > 4) display.lineDiv.style.display = "none"
   patchDisplay(cm, display.updateLineNumbers, update.dims)
   if (toUpdate > 4) display.lineDiv.style.display = ""
@@ -128,9 +128,9 @@ export function updateDisplayIfNeeded(cm, update) {
 }
 
 export function postUpdateDisplay(cm, update) {
-  var viewport = update.viewport
+  let viewport = update.viewport
 
-  for (var first = true;; first = false) {
+  for (let first = true;; first = false) {
     if (!first || !cm.options.lineWrapping || update.oldDisplayWidth == displayWidth(cm)) {
       // Clip forced viewport to actual scrollable area.
       if (viewport && viewport.top != null)
@@ -143,7 +143,7 @@ export function postUpdateDisplay(cm, update) {
     }
     if (!updateDisplayIfNeeded(cm, update)) break
     updateHeightsInViewport(cm)
-    var barMeasure = measureForScrollbars(cm)
+    let barMeasure = measureForScrollbars(cm)
     updateSelection(cm)
     updateScrollbars(cm, barMeasure)
     setDocumentHeight(cm, barMeasure)
@@ -157,11 +157,11 @@ export function postUpdateDisplay(cm, update) {
 }
 
 export function updateDisplaySimple(cm, viewport) {
-  var update = new DisplayUpdate(cm, viewport)
+  let update = new DisplayUpdate(cm, viewport)
   if (updateDisplayIfNeeded(cm, update)) {
     updateHeightsInViewport(cm)
     postUpdateDisplay(cm, update)
-    var barMeasure = measureForScrollbars(cm)
+    let barMeasure = measureForScrollbars(cm)
     updateSelection(cm)
     updateScrollbars(cm, barMeasure)
     setDocumentHeight(cm, barMeasure)
@@ -174,11 +174,11 @@ export function updateDisplaySimple(cm, viewport) {
 // that are not there yet, and updating the ones that are out of
 // date.
 function patchDisplay(cm, updateNumbersFrom, dims) {
-  var display = cm.display, lineNumbers = cm.options.lineNumbers
-  var container = display.lineDiv, cur = container.firstChild
+  let display = cm.display, lineNumbers = cm.options.lineNumbers
+  let container = display.lineDiv, cur = container.firstChild
 
   function rm(node) {
-    var next = node.nextSibling
+    let next = node.nextSibling
     // Works around a throw-scroll bug in OS X Webkit
     if (webkit && mac && cm.display.currentWheelTarget == node)
       node.style.display = "none"
@@ -187,18 +187,18 @@ function patchDisplay(cm, updateNumbersFrom, dims) {
     return next
   }
 
-  var view = display.view, lineN = display.viewFrom
+  let view = display.view, lineN = display.viewFrom
   // Loop over the elements in the view, syncing cur (the DOM nodes
   // in display.lineDiv) with the view as we go.
-  for (var i = 0; i < view.length; i++) {
-    var lineView = view[i]
+  for (let i = 0; i < view.length; i++) {
+    let lineView = view[i]
     if (lineView.hidden) {
     } else if (!lineView.node || lineView.node.parentNode != container) { // Not drawn yet
-      var node = buildLineElement(cm, lineView, lineN, dims)
+      let node = buildLineElement(cm, lineView, lineN, dims)
       container.insertBefore(node, cur)
     } else { // Already drawn
       while (cur != lineView.node) cur = rm(cur)
-      var updateNumber = lineNumbers && updateNumbersFrom != null &&
+      let updateNumber = lineNumbers && updateNumbersFrom != null &&
         updateNumbersFrom <= lineN && lineView.lineNumber
       if (lineView.changes) {
         if (indexOf(lineView.changes, "gutter") > -1) updateNumber = false
@@ -216,7 +216,7 @@ function patchDisplay(cm, updateNumbersFrom, dims) {
 }
 
 export function updateGutterSpace(cm) {
-  var width = cm.display.gutters.offsetWidth
+  let width = cm.display.gutters.offsetWidth
   cm.display.sizer.style.marginLeft = width + "px"
 }
 

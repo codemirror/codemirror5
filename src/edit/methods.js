@@ -32,16 +32,16 @@ import { regChange, regLineChange } from "../display/view_tracking"
 // convenience.
 
 export default function(CodeMirror) {
-  var optionHandlers = CodeMirror.optionHandlers
+  let optionHandlers = CodeMirror.optionHandlers
 
-  var helpers = CodeMirror.helpers = {}
+  let helpers = CodeMirror.helpers = {}
 
   CodeMirror.prototype = {
     constructor: CodeMirror,
     focus: function(){window.focus(); this.display.input.focus()},
 
     setOption: function(option, value) {
-      var options = this.options, old = options[option]
+      let options = this.options, old = options[option]
       if (options[option] == value && option != "mode") return
       options[option] = value
       if (optionHandlers.hasOwnProperty(option))
@@ -55,8 +55,8 @@ export default function(CodeMirror) {
       this.state.keyMaps[bottom ? "push" : "unshift"](getKeyMap(map))
     },
     removeKeyMap: function(map) {
-      var maps = this.state.keyMaps
-      for (var i = 0; i < maps.length; ++i)
+      let maps = this.state.keyMaps
+      for (let i = 0; i < maps.length; ++i)
         if (maps[i] == map || maps[i].name == map) {
           maps.splice(i, 1)
           return true
@@ -64,7 +64,7 @@ export default function(CodeMirror) {
     },
 
     addOverlay: methodOp(function(spec, options) {
-      var mode = spec.token ? spec : CodeMirror.getMode(this.options, spec)
+      let mode = spec.token ? spec : CodeMirror.getMode(this.options, spec)
       if (mode.startState) throw new Error("Overlays may not be stateful.")
       insertSorted(this.state.overlays,
                    {mode: mode, modeSpec: spec, opaque: options && options.opaque,
@@ -74,9 +74,9 @@ export default function(CodeMirror) {
       regChange(this)
     }),
     removeOverlay: methodOp(function(spec) {
-      var overlays = this.state.overlays
-      for (var i = 0; i < overlays.length; ++i) {
-        var cur = overlays[i].modeSpec
+      let overlays = this.state.overlays
+      for (let i = 0; i < overlays.length; ++i) {
+        let cur = overlays[i].modeSpec
         if (cur == spec || typeof spec == "string" && cur.name == spec) {
           overlays.splice(i, 1)
           this.state.modeGen++
@@ -94,16 +94,16 @@ export default function(CodeMirror) {
       if (isLine(this.doc, n)) indentLine(this, n, dir, aggressive)
     }),
     indentSelection: methodOp(function(how) {
-      var ranges = this.doc.sel.ranges, end = -1
-      for (var i = 0; i < ranges.length; i++) {
-        var range = ranges[i]
+      let ranges = this.doc.sel.ranges, end = -1
+      for (let i = 0; i < ranges.length; i++) {
+        let range = ranges[i]
         if (!range.empty()) {
-          var from = range.from(), to = range.to()
-          var start = Math.max(end, from.line)
+          let from = range.from(), to = range.to()
+          let start = Math.max(end, from.line)
           end = Math.min(this.lastLine(), to.line - (to.ch ? 0 : 1)) + 1
-          for (var j = start; j < end; ++j)
+          for (let j = start; j < end; ++j)
             indentLine(this, j, how)
-          var newRanges = this.doc.sel.ranges
+          let newRanges = this.doc.sel.ranges
           if (from.ch == 0 && ranges.length == newRanges.length && newRanges[i].from().ch > 0)
             replaceOneSelection(this.doc, i, new Range(from, newRanges[i].to()), sel_dontScroll)
         } else if (range.head.line > end) {
@@ -126,22 +126,22 @@ export default function(CodeMirror) {
 
     getTokenTypeAt: function(pos) {
       pos = clipPos(this.doc, pos)
-      var styles = getLineStyles(this, getLine(this.doc, pos.line))
-      var before = 0, after = (styles.length - 1) / 2, ch = pos.ch
-      var type
+      let styles = getLineStyles(this, getLine(this.doc, pos.line))
+      let before = 0, after = (styles.length - 1) / 2, ch = pos.ch
+      let type
       if (ch == 0) type = styles[2]
       else for (;;) {
-        var mid = (before + after) >> 1
+        let mid = (before + after) >> 1
         if ((mid ? styles[mid * 2 - 1] : 0) >= ch) after = mid
         else if (styles[mid * 2 + 1] < ch) before = mid + 1
         else { type = styles[mid * 2 + 2]; break }
       }
-      var cut = type ? type.indexOf("cm-overlay ") : -1
+      let cut = type ? type.indexOf("cm-overlay ") : -1
       return cut < 0 ? type : cut == 0 ? null : type.slice(0, cut - 1)
     },
 
     getModeAt: function(pos) {
-      var mode = this.doc.mode
+      let mode = this.doc.mode
       if (!mode.innerMode) return mode
       return CodeMirror.innerMode(mode, this.getTokenAt(pos).state).mode
     },
@@ -151,14 +151,14 @@ export default function(CodeMirror) {
     },
 
     getHelpers: function(pos, type) {
-      var found = []
+      let found = []
       if (!helpers.hasOwnProperty(type)) return found
-      var help = helpers[type], mode = this.getModeAt(pos)
+      let help = helpers[type], mode = this.getModeAt(pos)
       if (typeof mode[type] == "string") {
         if (help[mode[type]]) found.push(help[mode[type]])
       } else if (mode[type]) {
-        for (var i = 0; i < mode[type].length; i++) {
-          var val = help[mode[type][i]]
+        for (let i = 0; i < mode[type].length; i++) {
+          let val = help[mode[type][i]]
           if (val) found.push(val)
         }
       } else if (mode.helperType && help[mode.helperType]) {
@@ -166,8 +166,8 @@ export default function(CodeMirror) {
       } else if (help[mode.name]) {
         found.push(help[mode.name])
       }
-      for (var i = 0; i < help._global.length; i++) {
-        var cur = help._global[i]
+      for (let i = 0; i < help._global.length; i++) {
+        let cur = help._global[i]
         if (cur.pred(mode, this) && indexOf(found, cur.val) == -1)
           found.push(cur.val)
       }
@@ -175,13 +175,13 @@ export default function(CodeMirror) {
     },
 
     getStateAfter: function(line, precise) {
-      var doc = this.doc
+      let doc = this.doc
       line = clipLine(doc, line == null ? doc.first + doc.size - 1: line)
       return getStateBefore(this, line + 1, precise)
     },
 
     cursorCoords: function(start, mode) {
-      var pos, range = this.doc.sel.primary()
+      let pos, range = this.doc.sel.primary()
       if (start == null) pos = range.head
       else if (typeof start == "object") pos = clipPos(this.doc, start)
       else pos = start ? range.from() : range.to()
@@ -202,9 +202,9 @@ export default function(CodeMirror) {
       return lineAtHeight(this.doc, height + this.display.viewOffset)
     },
     heightAtLine: function(line, mode) {
-      var end = false, lineObj
+      let end = false, lineObj
       if (typeof line == "number") {
-        var last = this.doc.first + this.doc.size - 1
+        let last = this.doc.first + this.doc.size - 1
         if (line < this.doc.first) line = this.doc.first
         else if (line > last) { line = last; end = true }
         lineObj = getLine(this.doc, line)
@@ -220,7 +220,7 @@ export default function(CodeMirror) {
 
     setGutterMarker: methodOp(function(line, gutterID, value) {
       return changeLine(this.doc, line, "gutter", function(line) {
-        var markers = line.gutterMarkers || (line.gutterMarkers = {})
+        let markers = line.gutterMarkers || (line.gutterMarkers = {})
         markers[gutterID] = value
         if (!value && isEmpty(markers)) line.gutterMarkers = null
         return true
@@ -228,7 +228,7 @@ export default function(CodeMirror) {
     }),
 
     clearGutter: methodOp(function(gutterID) {
-      var cm = this, doc = cm.doc, i = doc.first
+      let cm = this, doc = cm.doc, i = doc.first
       doc.iter(function(line) {
         if (line.gutterMarkers && line.gutterMarkers[gutterID]) {
           line.gutterMarkers[gutterID] = null
@@ -240,13 +240,14 @@ export default function(CodeMirror) {
     }),
 
     lineInfo: function(line) {
+      let n
       if (typeof line == "number") {
         if (!isLine(this.doc, line)) return null
-        var n = line
+        n = line
         line = getLine(this.doc, line)
         if (!line) return null
       } else {
-        var n = lineNo(line)
+        n = lineNo(line)
         if (n == null) return null
       }
       return {line: n, handle: line, text: line.text, gutterMarkers: line.gutterMarkers,
@@ -257,9 +258,9 @@ export default function(CodeMirror) {
     getViewport: function() { return {from: this.display.viewFrom, to: this.display.viewTo}},
 
     addWidget: function(pos, node, scroll, vert, horiz) {
-      var display = this.display
+      let display = this.display
       pos = cursorCoords(this, clipPos(this.doc, pos))
-      var top = pos.bottom, left = pos.left
+      let top = pos.bottom, left = pos.left
       node.style.position = "absolute"
       node.setAttribute("cm-ignore-events", "true")
       this.display.input.setUneditable(node)
@@ -267,7 +268,7 @@ export default function(CodeMirror) {
       if (vert == "over") {
         top = pos.top
       } else if (vert == "above" || vert == "near") {
-        var vspace = Math.max(display.wrapper.clientHeight, this.doc.height),
+        let vspace = Math.max(display.wrapper.clientHeight, this.doc.height),
         hspace = Math.max(display.sizer.clientWidth, display.lineSpace.clientWidth)
         // Default to positioning above (if specified and possible); otherwise default to positioning below
         if ((vert == 'above' || pos.bottom + node.offsetHeight > vspace) && pos.top > node.offsetHeight)
@@ -303,9 +304,10 @@ export default function(CodeMirror) {
     triggerElectric: methodOp(function(text) { triggerElectric(this, text) }),
 
     findPosH: function(from, amount, unit, visually) {
-      var dir = 1
+      let dir = 1
       if (amount < 0) { dir = -1; amount = -amount }
-      for (var i = 0, cur = clipPos(this.doc, from); i < amount; ++i) {
+      let cur = clipPos(this.doc, from)
+      for (let i = 0; i < amount; ++i) {
         cur = findPosH(this.doc, cur, dir, unit, visually)
         if (cur.hitSide) break
       }
@@ -313,7 +315,7 @@ export default function(CodeMirror) {
     },
 
     moveH: methodOp(function(dir, unit) {
-      var cm = this
+      let cm = this
       cm.extendSelectionsBy(function(range) {
         if (cm.display.shift || cm.doc.extend || range.empty())
           return findPosH(cm.doc, range.head, dir, unit, cm.options.rtlMoveVisually)
@@ -323,21 +325,22 @@ export default function(CodeMirror) {
     }),
 
     deleteH: methodOp(function(dir, unit) {
-      var sel = this.doc.sel, doc = this.doc
+      let sel = this.doc.sel, doc = this.doc
       if (sel.somethingSelected())
         doc.replaceSelection("", null, "+delete")
       else
         deleteNearSelection(this, function(range) {
-          var other = findPosH(doc, range.head, dir, unit, false)
+          let other = findPosH(doc, range.head, dir, unit, false)
           return dir < 0 ? {from: other, to: range.head} : {from: range.head, to: other}
         })
     }),
 
     findPosV: function(from, amount, unit, goalColumn) {
-      var dir = 1, x = goalColumn
+      let dir = 1, x = goalColumn
       if (amount < 0) { dir = -1; amount = -amount }
-      for (var i = 0, cur = clipPos(this.doc, from); i < amount; ++i) {
-        var coords = cursorCoords(this, cur, "div")
+      let cur = clipPos(this.doc, from)
+      for (let i = 0; i < amount; ++i) {
+        let coords = cursorCoords(this, cur, "div")
         if (x == null) x = coords.left
         else coords.left = x
         cur = findPosV(this, coords, dir, unit)
@@ -347,32 +350,32 @@ export default function(CodeMirror) {
     },
 
     moveV: methodOp(function(dir, unit) {
-      var cm = this, doc = this.doc, goals = []
-      var collapse = !cm.display.shift && !doc.extend && doc.sel.somethingSelected()
+      let cm = this, doc = this.doc, goals = []
+      let collapse = !cm.display.shift && !doc.extend && doc.sel.somethingSelected()
       doc.extendSelectionsBy(function(range) {
         if (collapse)
           return dir < 0 ? range.from() : range.to()
-        var headPos = cursorCoords(cm, range.head, "div")
+        let headPos = cursorCoords(cm, range.head, "div")
         if (range.goalColumn != null) headPos.left = range.goalColumn
         goals.push(headPos.left)
-        var pos = findPosV(cm, headPos, dir, unit)
+        let pos = findPosV(cm, headPos, dir, unit)
         if (unit == "page" && range == doc.sel.primary())
           addToScrollPos(cm, null, charCoords(cm, pos, "div").top - headPos.top)
         return pos
       }, sel_move)
-      if (goals.length) for (var i = 0; i < doc.sel.ranges.length; i++)
+      if (goals.length) for (let i = 0; i < doc.sel.ranges.length; i++)
         doc.sel.ranges[i].goalColumn = goals[i]
     }),
 
     // Find the word at the given position (as returned by coordsChar).
     findWordAt: function(pos) {
-      var doc = this.doc, line = getLine(doc, pos.line).text
-      var start = pos.ch, end = pos.ch
+      let doc = this.doc, line = getLine(doc, pos.line).text
+      let start = pos.ch, end = pos.ch
       if (line) {
-        var helper = this.getHelper(pos, "wordChars")
+        let helper = this.getHelper(pos, "wordChars")
         if ((pos.xRel < 0 || end == line.length) && start) --start; else ++end
-        var startChar = line.charAt(start)
-        var check = isWordChar(startChar, helper)
+        let startChar = line.charAt(start)
+        let check = isWordChar(startChar, helper)
           ? function(ch) { return isWordChar(ch, helper) }
           : /\s/.test(startChar) ? function(ch) {return /\s/.test(ch)}
           : function(ch) {return !/\s/.test(ch) && !isWordChar(ch)}
@@ -400,7 +403,7 @@ export default function(CodeMirror) {
       if (y != null) this.curOp.scrollTop = y
     }),
     getScrollInfo: function() {
-      var scroller = this.display.scroller
+      let scroller = this.display.scroller
       return {left: scroller.scrollLeft, top: scroller.scrollTop,
               height: scroller.scrollHeight - scrollGap(this) - this.display.barHeight,
               width: scroller.scrollWidth - scrollGap(this) - this.display.barWidth,
@@ -423,7 +426,7 @@ export default function(CodeMirror) {
         resolveScrollToPos(this)
         this.curOp.scrollToPos = range
       } else {
-        var sPos = calculateScrollPos(this, Math.min(range.from.left, range.to.left),
+        let sPos = calculateScrollPos(this, Math.min(range.from.left, range.to.left),
                                       Math.min(range.from.top, range.to.top) - range.margin,
                                       Math.max(range.from.right, range.to.right),
                                       Math.max(range.from.bottom, range.to.bottom) + range.margin)
@@ -432,16 +435,16 @@ export default function(CodeMirror) {
     }),
 
     setSize: methodOp(function(width, height) {
-      var cm = this
+      let cm = this
       function interpret(val) {
         return typeof val == "number" || /^\d+$/.test(String(val)) ? val + "px" : val
       }
       if (width != null) cm.display.wrapper.style.width = interpret(width)
       if (height != null) cm.display.wrapper.style.height = interpret(height)
       if (cm.options.lineWrapping) clearLineMeasurementCache(this)
-      var lineNo = cm.display.viewFrom
+      let lineNo = cm.display.viewFrom
       cm.doc.iter(lineNo, cm.display.viewTo, function(line) {
-        if (line.widgets) for (var i = 0; i < line.widgets.length; i++)
+        if (line.widgets) for (let i = 0; i < line.widgets.length; i++)
           if (line.widgets[i].noHScroll) { regLineChange(cm, lineNo, "widget"); break }
         ++lineNo
       })
@@ -452,7 +455,7 @@ export default function(CodeMirror) {
     operation: function(f){return runInOp(this, f)},
 
     refresh: methodOp(function() {
-      var oldHeight = this.display.cachedTextHeight
+      let oldHeight = this.display.cachedTextHeight
       regChange(this)
       this.curOp.forceUpdate = true
       clearCaches(this)
@@ -464,7 +467,7 @@ export default function(CodeMirror) {
     }),
 
     swapDoc: methodOp(function(doc) {
-      var old = this.doc
+      let old = this.doc
       old.cm = null
       attachDoc(this, doc)
       clearCaches(this)
@@ -502,16 +505,16 @@ export default function(CodeMirror) {
 // position. The resulting position will have a hitSide=true
 // property if it reached the end of the document.
 function findPosH(doc, pos, dir, unit, visually) {
-  var line = pos.line, ch = pos.ch, origDir = dir
-  var lineObj = getLine(doc, line)
+  let line = pos.line, ch = pos.ch, origDir = dir
+  let lineObj = getLine(doc, line)
   function findNextLine() {
-    var l = line + dir
+    let l = line + dir
     if (l < doc.first || l >= doc.first + doc.size) return false
     line = l
     return lineObj = getLine(doc, l)
   }
   function moveOnce(boundToLine) {
-    var next = (visually ? moveVisually : moveLogically)(lineObj, ch, dir, true)
+    let next = (visually ? moveVisually : moveLogically)(lineObj, ch, dir, true)
     if (next == null) {
       if (!boundToLine && findNextLine()) {
         if (visually) ch = (dir < 0 ? lineRight : lineLeft)(lineObj)
@@ -526,12 +529,12 @@ function findPosH(doc, pos, dir, unit, visually) {
   } else if (unit == "column") {
     moveOnce(true)
   } else if (unit == "word" || unit == "group") {
-    var sawType = null, group = unit == "group"
-    var helper = doc.cm && doc.cm.getHelper(pos, "wordChars")
-    for (var first = true;; first = false) {
+    let sawType = null, group = unit == "group"
+    let helper = doc.cm && doc.cm.getHelper(pos, "wordChars")
+    for (let first = true;; first = false) {
       if (dir < 0 && !moveOnce(!first)) break
-      var cur = lineObj.text.charAt(ch) || "\n"
-      var type = isWordChar(cur, helper) ? "w"
+      let cur = lineObj.text.charAt(ch) || "\n"
+      let type = isWordChar(cur, helper) ? "w"
         : group && cur == "\n" ? "n"
         : !group || /\s/.test(cur) ? null
         : "p"
@@ -545,7 +548,7 @@ function findPosH(doc, pos, dir, unit, visually) {
       if (dir > 0 && !moveOnce(!first)) break
     }
   }
-  var result = skipAtomic(doc, Pos(line, ch), pos, origDir, true)
+  let result = skipAtomic(doc, Pos(line, ch), pos, origDir, true)
   if (!cmp(pos, result)) result.hitSide = true
   return result
 }
@@ -554,17 +557,18 @@ function findPosH(doc, pos, dir, unit, visually) {
 // "page" or "line". The resulting position will have a hitSide=true
 // property if it reached the end of the document.
 function findPosV(cm, pos, dir, unit) {
-  var doc = cm.doc, x = pos.left, y
+  let doc = cm.doc, x = pos.left, y
   if (unit == "page") {
-    var pageSize = Math.min(cm.display.wrapper.clientHeight, window.innerHeight || document.documentElement.clientHeight)
-    var moveAmount = Math.max(pageSize - .5 * textHeight(cm.display), 3)
+    let pageSize = Math.min(cm.display.wrapper.clientHeight, window.innerHeight || document.documentElement.clientHeight)
+    let moveAmount = Math.max(pageSize - .5 * textHeight(cm.display), 3)
     y = (dir > 0 ? pos.bottom : pos.top) + dir * moveAmount
 
   } else if (unit == "line") {
     y = dir > 0 ? pos.bottom + 3 : pos.top - 3
   }
+  let target
   for (;;) {
-    var target = coordsChar(cm, x, y)
+    target = coordsChar(cm, x, y)
     if (!target.outside) break
     if (dir < 0 ? y <= 0 : y >= doc.height) { target.hitSide = true; break }
     y += dir * 5

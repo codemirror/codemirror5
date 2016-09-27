@@ -14,34 +14,34 @@ import { indexOf } from "../util/misc"
 
 // Kludge to work around strange IE behavior where it'll sometimes
 // re-fire a series of drag-related events right after the drop (#1551)
-var lastDrop = 0
+let lastDrop = 0
 
 export function onDrop(e) {
-  var cm = this
+  let cm = this
   clearDragCursor(cm)
   if (signalDOMEvent(cm, e) || eventInWidget(cm.display, e))
     return
   e_preventDefault(e)
   if (ie) lastDrop = +new Date
-  var pos = posFromMouse(cm, e, true), files = e.dataTransfer.files
+  let pos = posFromMouse(cm, e, true), files = e.dataTransfer.files
   if (!pos || cm.isReadOnly()) return
   // Might be a file drop, in which case we simply extract the text
   // and insert it.
   if (files && files.length && window.FileReader && window.File) {
-    var n = files.length, text = Array(n), read = 0
-    var loadFile = function(file, i) {
+    let n = files.length, text = Array(n), read = 0
+    let loadFile = function(file, i) {
       if (cm.options.allowDropFileTypes &&
           indexOf(cm.options.allowDropFileTypes, file.type) == -1)
         return
 
-      var reader = new FileReader
+      let reader = new FileReader
       reader.onload = operation(cm, function() {
-        var content = reader.result
+        let content = reader.result
         if (/[\x00-\x08\x0e-\x1f]{2}/.test(content)) content = ""
         text[i] = content
         if (++read == n) {
           pos = clipPos(cm.doc, pos)
-          var change = {from: pos, to: pos,
+          let change = {from: pos, to: pos,
                         text: cm.doc.splitLines(text.join(cm.doc.lineSeparator())),
                         origin: "paste"}
           makeChange(cm.doc, change)
@@ -50,7 +50,7 @@ export function onDrop(e) {
       })
       reader.readAsText(file)
     }
-    for (var i = 0; i < n; ++i) loadFile(files[i], i)
+    for (let i = 0; i < n; ++i) loadFile(files[i], i)
   } else { // Normal drop
     // Don't do a replace if the drop happened inside of the selected text.
     if (cm.state.draggingText && cm.doc.sel.contains(pos) > -1) {
@@ -60,12 +60,13 @@ export function onDrop(e) {
       return
     }
     try {
-      var text = e.dataTransfer.getData("Text")
+      let text = e.dataTransfer.getData("Text")
       if (text) {
+        let selected
         if (cm.state.draggingText && !cm.state.draggingText.copy)
-          var selected = cm.listSelections()
+          selected = cm.listSelections()
         setSelectionNoUndo(cm.doc, simpleSelection(pos, pos))
-        if (selected) for (var i = 0; i < selected.length; ++i)
+        if (selected) for (let i = 0; i < selected.length; ++i)
           replaceRange(cm.doc, "", selected[i].anchor, selected[i].head, "drag")
         cm.replaceSelection(text, "around", "paste")
         cm.display.input.focus()
@@ -85,7 +86,7 @@ export function onDragStart(cm, e) {
   // Use dummy image instead of default browsers image.
   // Recent Safari (~6.0.2) have a tendency to segfault when this happens, so we don't do it there.
   if (e.dataTransfer.setDragImage && !safari) {
-    var img = elt("img", null, null, "position: fixed; left: 0; top: 0;")
+    let img = elt("img", null, null, "position: fixed; left: 0; top: 0;")
     img.src = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
     if (presto) {
       img.width = img.height = 1
@@ -99,9 +100,9 @@ export function onDragStart(cm, e) {
 }
 
 export function onDragOver(cm, e) {
-  var pos = posFromMouse(cm, e)
+  let pos = posFromMouse(cm, e)
   if (!pos) return
-  var frag = document.createDocumentFragment()
+  let frag = document.createDocumentFragment()
   drawSelectionCursor(cm, pos, frag)
   if (!cm.display.dragCursor) {
     cm.display.dragCursor = elt("div", null, "CodeMirror-cursors CodeMirror-dragcursors")

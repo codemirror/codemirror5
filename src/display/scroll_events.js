@@ -38,7 +38,7 @@ export function setScrollLeft(cm, val, isScroller) {
 // is that it gives us a chance to update the display before the
 // actual scrolling happens, reducing flickering.
 
-var wheelSamples = 0, wheelPixelsPerUnit = null
+let wheelSamples = 0, wheelPixelsPerUnit = null
 // Fill in a browser-detected starting value on browsers where we
 // know one. These don't have to be accurate -- the result of them
 // being wrong would just be a slight flicker on the first wheel
@@ -48,27 +48,27 @@ else if (gecko) wheelPixelsPerUnit = 15
 else if (chrome) wheelPixelsPerUnit = -.7
 else if (safari) wheelPixelsPerUnit = -1/3
 
-var wheelEventDelta = function(e) {
-  var dx = e.wheelDeltaX, dy = e.wheelDeltaY
+let wheelEventDelta = function(e) {
+  let dx = e.wheelDeltaX, dy = e.wheelDeltaY
   if (dx == null && e.detail && e.axis == e.HORIZONTAL_AXIS) dx = e.detail
   if (dy == null && e.detail && e.axis == e.VERTICAL_AXIS) dy = e.detail
   else if (dy == null) dy = e.wheelDelta
   return {x: dx, y: dy}
 }
 export function wheelEventPixels(e) {
-  var delta = wheelEventDelta(e)
+  let delta = wheelEventDelta(e)
   delta.x *= wheelPixelsPerUnit
   delta.y *= wheelPixelsPerUnit
   return delta
 }
 
 export function onScrollWheel(cm, e) {
-  var delta = wheelEventDelta(e), dx = delta.x, dy = delta.y
+  let delta = wheelEventDelta(e), dx = delta.x, dy = delta.y
 
-  var display = cm.display, scroll = display.scroller
+  let display = cm.display, scroll = display.scroller
   // Quit if there's nothing to scroll here
-  var canScrollX = scroll.scrollWidth > scroll.clientWidth
-  var canScrollY = scroll.scrollHeight > scroll.clientHeight
+  let canScrollX = scroll.scrollWidth > scroll.clientWidth
+  let canScrollY = scroll.scrollHeight > scroll.clientHeight
   if (!(dx && canScrollX || dy && canScrollY)) return
 
   // Webkit browsers on OS X abort momentum scrolls when the target
@@ -76,8 +76,8 @@ export function onScrollWheel(cm, e) {
   // This hack (see related code in patchDisplay) makes sure the
   // element is kept around.
   if (dy && mac && webkit) {
-    outer: for (var cur = e.target, view = display.view; cur != scroll; cur = cur.parentNode) {
-      for (var i = 0; i < view.length; i++) {
+    outer: for (let cur = e.target, view = display.view; cur != scroll; cur = cur.parentNode) {
+      for (let i = 0; i < view.length; i++) {
         if (view[i].node == cur) {
           cm.display.currentWheelTarget = cur
           break outer
@@ -109,8 +109,8 @@ export function onScrollWheel(cm, e) {
   // 'Project' the visible viewport to cover the area that is being
   // scrolled into view (if we know enough to estimate it).
   if (dy && wheelPixelsPerUnit != null) {
-    var pixels = dy * wheelPixelsPerUnit
-    var top = cm.doc.scrollTop, bot = top + display.wrapper.clientHeight
+    let pixels = dy * wheelPixelsPerUnit
+    let top = cm.doc.scrollTop, bot = top + display.wrapper.clientHeight
     if (pixels < 0) top = Math.max(0, top + pixels - 50)
     else bot = Math.min(cm.doc.height, bot + pixels + 50)
     updateDisplaySimple(cm, {top: top, bottom: bot})
@@ -122,9 +122,9 @@ export function onScrollWheel(cm, e) {
       display.wheelDX = dx; display.wheelDY = dy
       setTimeout(function() {
         if (display.wheelStartX == null) return
-        var movedX = scroll.scrollLeft - display.wheelStartX
-        var movedY = scroll.scrollTop - display.wheelStartY
-        var sample = (movedY && display.wheelDY && movedY / display.wheelDY) ||
+        let movedX = scroll.scrollLeft - display.wheelStartX
+        let movedY = scroll.scrollTop - display.wheelStartY
+        let sample = (movedY && display.wheelDY && movedY / display.wheelDY) ||
           (movedX && display.wheelDX && movedX / display.wheelDX)
         display.wheelStartX = display.wheelStartY = null
         if (!sample) return

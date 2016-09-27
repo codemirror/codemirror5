@@ -13,19 +13,22 @@ export function fromTextArea(textarea, options) {
   // Set autofocus to true if this textarea is focused, or if it has
   // autofocus and no other element is focused.
   if (options.autofocus == null) {
-    var hasFocus = activeElt()
+    let hasFocus = activeElt()
     options.autofocus = hasFocus == textarea ||
       textarea.getAttribute("autofocus") != null && hasFocus == document.body
   }
 
   function save() {textarea.value = cm.getValue()}
+
+  let realSubmit
   if (textarea.form) {
     on(textarea.form, "submit", save)
     // Deplorable hack to make the submit method do the right thing.
     if (!options.leaveSubmitMethodAlone) {
-      var form = textarea.form, realSubmit = form.submit
+      let form = textarea.form
+      realSubmit = form.submit
       try {
-        var wrappedSubmit = form.submit = function() {
+        let wrappedSubmit = form.submit = function() {
           save()
           form.submit = realSubmit
           form.submit()
@@ -52,7 +55,7 @@ export function fromTextArea(textarea, options) {
   }
 
   textarea.style.display = "none"
-  var cm = CodeMirror(function(node) {
+  let cm = CodeMirror(function(node) {
     textarea.parentNode.insertBefore(node, textarea.nextSibling)
   }, options)
   return cm

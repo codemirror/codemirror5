@@ -4,9 +4,10 @@ import { indexOf } from "../util/misc"
 export function getLine(doc, n) {
   n -= doc.first
   if (n < 0 || n >= doc.size) throw new Error("There is no line " + (n + doc.first) + " in the document.")
-  for (var chunk = doc; !chunk.lines;) {
-    for (var i = 0;; ++i) {
-      var child = chunk.children[i], sz = child.chunkSize()
+  let chunk = doc
+  while (!chunk.lines) {
+    for (let i = 0;; ++i) {
+      let child = chunk.children[i], sz = child.chunkSize()
       if (n < sz) { chunk = child; break }
       n -= sz
     }
@@ -17,9 +18,9 @@ export function getLine(doc, n) {
 // Get the part of a document between two positions, as an array of
 // strings.
 export function getBetween(doc, start, end) {
-  var out = [], n = start.line
+  let out = [], n = start.line
   doc.iter(start.line, end.line + 1, function(line) {
-    var text = line.text
+    let text = line.text
     if (n == end.line) text = text.slice(0, end.ch)
     if (n == start.line) text = text.slice(start.ch)
     out.push(text)
@@ -29,7 +30,7 @@ export function getBetween(doc, start, end) {
 }
 // Get the lines between from and to, as array of strings.
 export function getLines(doc, from, to) {
-  var out = []
+  let out = []
   doc.iter(from, to, function(line) { out.push(line.text) })
   return out
 }
@@ -37,17 +38,17 @@ export function getLines(doc, from, to) {
 // Update the height of a line, propagating the height change
 // upwards to parent nodes.
 export function updateLineHeight(line, height) {
-  var diff = height - line.height
-  if (diff) for (var n = line; n; n = n.parent) n.height += diff
+  let diff = height - line.height
+  if (diff) for (let n = line; n; n = n.parent) n.height += diff
 }
 
 // Given a line object, find its line number by walking up through
 // its parent links.
 export function lineNo(line) {
   if (line.parent == null) return null
-  var cur = line.parent, no = indexOf(cur.lines, line)
-  for (var chunk = cur.parent; chunk; cur = chunk, chunk = chunk.parent) {
-    for (var i = 0;; ++i) {
+  let cur = line.parent, no = indexOf(cur.lines, line)
+  for (let chunk = cur.parent; chunk; cur = chunk, chunk = chunk.parent) {
+    for (let i = 0;; ++i) {
       if (chunk.children[i] == cur) break
       no += chunk.children[i].chunkSize()
     }
@@ -58,18 +59,19 @@ export function lineNo(line) {
 // Find the line at the given vertical position, using the height
 // information in the document tree.
 export function lineAtHeight(chunk, h) {
-  var n = chunk.first
+  let n = chunk.first
   outer: do {
-    for (var i = 0; i < chunk.children.length; ++i) {
-      var child = chunk.children[i], ch = child.height
+    for (let i = 0; i < chunk.children.length; ++i) {
+      let child = chunk.children[i], ch = child.height
       if (h < ch) { chunk = child; continue outer }
       h -= ch
       n += child.chunkSize()
     }
     return n
   } while (!chunk.lines)
-  for (var i = 0; i < chunk.lines.length; ++i) {
-    var line = chunk.lines[i], lh = line.height
+  let i = 0
+  for (; i < chunk.lines.length; ++i) {
+    let line = chunk.lines[i], lh = line.height
     if (h < lh) break
     h -= lh
   }

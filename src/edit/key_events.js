@@ -19,7 +19,7 @@ function doHandleBinding(cm, bound, dropShift) {
   // Ensure previous input has been read, so that the handler sees a
   // consistent view of the document
   cm.display.input.ensurePolled()
-  var prevShift = cm.display.shift, done = false
+  let prevShift = cm.display.shift, done = false
   try {
     if (cm.isReadOnly()) cm.state.suppressEdits = true
     if (dropShift) cm.display.shift = false
@@ -32,17 +32,17 @@ function doHandleBinding(cm, bound, dropShift) {
 }
 
 function lookupKeyForEditor(cm, name, handle) {
-  for (var i = 0; i < cm.state.keyMaps.length; i++) {
-    var result = lookupKey(name, cm.state.keyMaps[i], handle, cm)
+  for (let i = 0; i < cm.state.keyMaps.length; i++) {
+    let result = lookupKey(name, cm.state.keyMaps[i], handle, cm)
     if (result) return result
   }
   return (cm.options.extraKeys && lookupKey(name, cm.options.extraKeys, handle, cm))
     || lookupKey(name, cm.options.keyMap, handle, cm)
 }
 
-var stopSeq = new Delayed
+let stopSeq = new Delayed
 function dispatchKey(cm, name, e, handle) {
-  var seq = cm.state.keySeq
+  let seq = cm.state.keySeq
   if (seq) {
     if (isModifierKey(name)) return "handled"
     stopSeq.set(50, function() {
@@ -53,7 +53,7 @@ function dispatchKey(cm, name, e, handle) {
     })
     name = seq + " " + name
   }
-  var result = lookupKeyForEditor(cm, name, handle)
+  let result = lookupKeyForEditor(cm, name, handle)
 
   if (result == "multi")
     cm.state.keySeq = name
@@ -74,7 +74,7 @@ function dispatchKey(cm, name, e, handle) {
 
 // Handle a key from the keydown event.
 function handleKeyBinding(cm, e) {
-  var name = keyName(e, true)
+  let name = keyName(e, true)
   if (!name) return false
 
   if (e.shiftKey && !cm.state.keySeq) {
@@ -97,16 +97,16 @@ function handleCharBinding(cm, e, ch) {
                      function(b) { return doHandleBinding(cm, b, true) })
 }
 
-var lastStoppedKey = null
+let lastStoppedKey = null
 export function onKeyDown(e) {
-  var cm = this
+  let cm = this
   cm.curOp.focus = activeElt()
   if (signalDOMEvent(cm, e)) return
   // IE does strange things with escape.
   if (ie && ie_version < 11 && e.keyCode == 27) e.returnValue = false
-  var code = e.keyCode
+  let code = e.keyCode
   cm.display.shift = code == 16 || e.shiftKey
-  var handled = handleKeyBinding(cm, e)
+  let handled = handleKeyBinding(cm, e)
   if (presto) {
     lastStoppedKey = handled ? code : null
     // Opera has no cut event... we try to at least catch the key combo
@@ -120,7 +120,7 @@ export function onKeyDown(e) {
 }
 
 function showCrossHair(cm) {
-  var lineDiv = cm.display.lineDiv
+  let lineDiv = cm.display.lineDiv
   addClass(lineDiv, "CodeMirror-crosshair")
 
   function up(e) {
@@ -140,12 +140,12 @@ export function onKeyUp(e) {
 }
 
 export function onKeyPress(e) {
-  var cm = this
+  let cm = this
   if (eventInWidget(cm.display, e) || signalDOMEvent(cm, e) || e.ctrlKey && !e.altKey || mac && e.metaKey) return
-  var keyCode = e.keyCode, charCode = e.charCode
+  let keyCode = e.keyCode, charCode = e.charCode
   if (presto && keyCode == lastStoppedKey) {lastStoppedKey = null; e_preventDefault(e); return}
   if ((presto && (!e.which || e.which < 10)) && handleKeyBinding(cm, e)) return
-  var ch = String.fromCharCode(charCode == null ? keyCode : charCode)
+  let ch = String.fromCharCode(charCode == null ? keyCode : charCode)
   // Some browsers fire keypress events for backspace
   if (ch == "\x08") return
   if (handleCharBinding(cm, e, ch)) return

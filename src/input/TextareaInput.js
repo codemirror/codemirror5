@@ -34,13 +34,13 @@ export default function TextareaInput(cm) {
 
 TextareaInput.prototype = copyObj({
   init: function(display) {
-    var input = this, cm = this.cm
+    let input = this, cm = this.cm
 
     // Wraps and hides input textarea
-    var div = this.wrapper = hiddenTextarea()
+    let div = this.wrapper = hiddenTextarea()
     // The semihidden textarea that is focused when the editor is
     // focused, and receives input.
-    var te = this.textarea = div.firstChild
+    let te = this.textarea = div.firstChild
     display.wrapper.insertBefore(div, display.wrapper.firstChild)
 
     // Needed to hide big blue blinking cursor on Mobile Safari (doesn't seem to work in iOS 8 anymore)
@@ -71,7 +71,7 @@ TextareaInput.prototype = copyObj({
       } else if (!cm.options.lineWiseCopyCut) {
         return
       } else {
-        var ranges = copyableRanges(cm)
+        let ranges = copyableRanges(cm)
         setLastCopied({lineWise: true, text: ranges.text})
         if (e.type == "cut") {
           cm.setSelections(ranges.ranges, null, sel_dontScroll)
@@ -98,7 +98,7 @@ TextareaInput.prototype = copyObj({
     })
 
     on(te, "compositionstart", function() {
-      var start = cm.getCursor("from")
+      let start = cm.getCursor("from")
       if (input.composing) input.composing.range.clear()
       input.composing = {
         start: start,
@@ -116,13 +116,13 @@ TextareaInput.prototype = copyObj({
 
   prepareSelection: function() {
     // Redraw the selection and/or cursor
-    var cm = this.cm, display = cm.display, doc = cm.doc
-    var result = prepareSelection(cm)
+    let cm = this.cm, display = cm.display, doc = cm.doc
+    let result = prepareSelection(cm)
 
     // Move the hidden textarea near the cursor to prevent scrolling artifacts
     if (cm.options.moveInputWithCursor) {
-      var headPos = cursorCoords(cm, doc.sel.primary().head, "div")
-      var wrapOff = display.wrapper.getBoundingClientRect(), lineOff = display.lineDiv.getBoundingClientRect()
+      let headPos = cursorCoords(cm, doc.sel.primary().head, "div")
+      let wrapOff = display.wrapper.getBoundingClientRect(), lineOff = display.lineDiv.getBoundingClientRect()
       result.teTop = Math.max(0, Math.min(display.wrapper.clientHeight - 10,
                                           headPos.top + lineOff.top - wrapOff.top))
       result.teLeft = Math.max(0, Math.min(display.wrapper.clientWidth - 10,
@@ -133,7 +133,7 @@ TextareaInput.prototype = copyObj({
   },
 
   showSelection: function(drawn) {
-    var cm = this.cm, display = cm.display
+    let cm = this.cm, display = cm.display
     removeChildrenAndAdd(display.cursorDiv, drawn.cursors)
     removeChildrenAndAdd(display.selectionDiv, drawn.selection)
     if (drawn.teTop != null) {
@@ -146,13 +146,13 @@ TextareaInput.prototype = copyObj({
   // when not typing and nothing is selected)
   reset: function(typing) {
     if (this.contextMenuPending) return
-    var minimal, selected, cm = this.cm, doc = cm.doc
+    let minimal, selected, cm = this.cm, doc = cm.doc
     if (cm.somethingSelected()) {
       this.prevInput = ""
-      var range = doc.sel.primary()
+      let range = doc.sel.primary()
       minimal = hasCopyEvent &&
         (range.to().line - range.from().line > 100 || (selected = cm.getSelection()).length > 1000)
-      var content = minimal ? "-" : selected || cm.getSelection()
+      let content = minimal ? "-" : selected || cm.getSelection()
       this.textarea.value = content
       if (cm.state.focused) selectInput(this.textarea)
       if (ie && ie_version >= 9) this.hasSelection = content
@@ -185,7 +185,7 @@ TextareaInput.prototype = copyObj({
   // Poll for input changes, using the normal rate of polling. This
   // runs as long as the editor is focused.
   slowPoll: function() {
-    var input = this
+    let input = this
     if (input.pollingFast) return
     input.polling.set(this.cm.options.pollInterval, function() {
       input.poll()
@@ -197,10 +197,10 @@ TextareaInput.prototype = copyObj({
   // something in the input textarea, we poll faster, to ensure that
   // the change appears on the screen quickly.
   fastPoll: function() {
-    var missed = false, input = this
+    let missed = false, input = this
     input.pollingFast = true
     function p() {
-      var changed = input.poll()
+      let changed = input.poll()
       if (!changed && !missed) {missed = true; input.polling.set(60, p)}
       else {input.pollingFast = false; input.slowPoll()}
     }
@@ -214,7 +214,7 @@ TextareaInput.prototype = copyObj({
   // seen text (can be empty), which is stored in prevInput (we must
   // not reset the textarea when typing, because that breaks IME).
   poll: function() {
-    var cm = this.cm, input = this.textarea, prevInput = this.prevInput
+    let cm = this.cm, input = this.textarea, prevInput = this.prevInput
     // Since this is called a *lot*, try to bail out as cheaply as
     // possible when it is clear that nothing happened. hasSelection
     // will be the case when there is a lot of text in the textarea,
@@ -224,7 +224,7 @@ TextareaInput.prototype = copyObj({
         cm.isReadOnly() || cm.options.disableInput || cm.state.keySeq)
       return false
 
-    var text = input.value
+    let text = input.value
     // If nothing changed, bail.
     if (text == prevInput && !cm.somethingSelected()) return false
     // Work around nonsensical selection resetting in IE9/10, and
@@ -237,15 +237,15 @@ TextareaInput.prototype = copyObj({
     }
 
     if (cm.doc.sel == cm.display.selForContextMenu) {
-      var first = text.charCodeAt(0)
+      let first = text.charCodeAt(0)
       if (first == 0x200b && !prevInput) prevInput = "\u200b"
       if (first == 0x21da) { this.reset(); return this.cm.execCommand("undo") }
     }
     // Find the part of the input that is actually new
-    var same = 0, l = Math.min(prevInput.length, text.length)
+    let same = 0, l = Math.min(prevInput.length, text.length)
     while (same < l && prevInput.charCodeAt(same) == text.charCodeAt(same)) ++same
 
-    var self = this
+    let self = this
     runInOp(cm, function() {
       applyTextInput(cm, text.slice(same), prevInput.length - same,
                      null, self.composing ? "*compose" : null)
@@ -273,24 +273,25 @@ TextareaInput.prototype = copyObj({
   },
 
   onContextMenu: function(e) {
-    var input = this, cm = input.cm, display = cm.display, te = input.textarea
-    var pos = posFromMouse(cm, e), scrollPos = display.scroller.scrollTop
+    let input = this, cm = input.cm, display = cm.display, te = input.textarea
+    let pos = posFromMouse(cm, e), scrollPos = display.scroller.scrollTop
     if (!pos || presto) return // Opera is difficult.
 
     // Reset the current text selection only if the click is done outside of the selection
     // and 'resetSelectionOnContextMenu' option is true.
-    var reset = cm.options.resetSelectionOnContextMenu
+    let reset = cm.options.resetSelectionOnContextMenu
     if (reset && cm.doc.sel.contains(pos) == -1)
       operation(cm, setSelection)(cm.doc, simpleSelection(pos), sel_dontScroll)
 
-    var oldCSS = te.style.cssText, oldWrapperCSS = input.wrapper.style.cssText
+    let oldCSS = te.style.cssText, oldWrapperCSS = input.wrapper.style.cssText
     input.wrapper.style.cssText = "position: absolute"
-    var wrapperBox = input.wrapper.getBoundingClientRect()
+    let wrapperBox = input.wrapper.getBoundingClientRect()
     te.style.cssText = "position: absolute; width: 30px; height: 30px; top: " + (e.clientY - wrapperBox.top - 5) +
       "px; left: " + (e.clientX - wrapperBox.left - 5) + "px; z-index: 1000; background: " +
       (ie ? "rgba(255, 255, 255, .05)" : "transparent") +
       "; outline: none; border-width: 0; outline: none; overflow: hidden; opacity: .05; filter: alpha(opacity=5);"
-    if (webkit) var oldScrollY = window.scrollY // Work around Chrome issue (#2712)
+    let oldScrollY
+    if (webkit) oldScrollY = window.scrollY // Work around Chrome issue (#2712)
     display.input.focus()
     if (webkit) window.scrollTo(null, oldScrollY)
     display.input.reset()
@@ -305,8 +306,8 @@ TextareaInput.prototype = copyObj({
     // it got selected.
     function prepareSelectAllHack() {
       if (te.selectionStart != null) {
-        var selected = cm.somethingSelected()
-        var extval = "\u200b" + (selected ? te.value : "")
+        let selected = cm.somethingSelected()
+        let extval = "\u200b" + (selected ? te.value : "")
         te.value = "\u21da" // Used to catch context-menu undo
         te.value = extval
         input.prevInput = selected ? "" : "\u200b"
@@ -325,7 +326,7 @@ TextareaInput.prototype = copyObj({
       // Try to detect the user choosing select-all
       if (te.selectionStart != null) {
         if (!ie || (ie && ie_version < 9)) prepareSelectAllHack()
-        var i = 0, poll = function() {
+        let i = 0, poll = function() {
           if (display.selForContextMenu == cm.doc.sel && te.selectionStart == 0 &&
               te.selectionEnd > 0 && input.prevInput == "\u200b")
             operation(cm, selectAll)(cm)
@@ -339,7 +340,7 @@ TextareaInput.prototype = copyObj({
     if (ie && ie_version >= 9) prepareSelectAllHack()
     if (captureRightClick) {
       e_stop(e)
-      var mouseup = function() {
+      let mouseup = function() {
         off(window, "mouseup", mouseup)
         setTimeout(rehide, 20)
       }

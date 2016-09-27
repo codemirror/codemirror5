@@ -5,7 +5,7 @@ import { countColumn } from "./misc"
 // Fed to the mode parsers, provides helper functions to make
 // parsers more succinct.
 
-var StringStream = function(string, tabSize) {
+let StringStream = function(string, tabSize) {
   this.pos = this.start = 0
   this.string = string
   this.tabSize = tabSize || 8
@@ -22,24 +22,25 @@ StringStream.prototype = {
       return this.string.charAt(this.pos++)
   },
   eat: function(match) {
-    var ch = this.string.charAt(this.pos)
-    if (typeof match == "string") var ok = ch == match
-    else var ok = ch && (match.test ? match.test(ch) : match(ch))
+    let ch = this.string.charAt(this.pos)
+    let ok
+    if (typeof match == "string") ok = ch == match
+    else ok = ch && (match.test ? match.test(ch) : match(ch))
     if (ok) {++this.pos; return ch}
   },
   eatWhile: function(match) {
-    var start = this.pos
+    let start = this.pos
     while (this.eat(match)){}
     return this.pos > start
   },
   eatSpace: function() {
-    var start = this.pos
+    let start = this.pos
     while (/[\s\u00a0]/.test(this.string.charAt(this.pos))) ++this.pos
     return this.pos > start
   },
   skipToEnd: function() {this.pos = this.string.length},
   skipTo: function(ch) {
-    var found = this.string.indexOf(ch, this.pos)
+    let found = this.string.indexOf(ch, this.pos)
     if (found > -1) {this.pos = found; return true}
   },
   backUp: function(n) {this.pos -= n},
@@ -56,14 +57,14 @@ StringStream.prototype = {
   },
   match: function(pattern, consume, caseInsensitive) {
     if (typeof pattern == "string") {
-      var cased = function(str) {return caseInsensitive ? str.toLowerCase() : str}
-      var substr = this.string.substr(this.pos, pattern.length)
+      let cased = function(str) {return caseInsensitive ? str.toLowerCase() : str}
+      let substr = this.string.substr(this.pos, pattern.length)
       if (cased(substr) == cased(pattern)) {
         if (consume !== false) this.pos += pattern.length
         return true
       }
     } else {
-      var match = this.string.slice(this.pos).match(pattern)
+      let match = this.string.slice(this.pos).match(pattern)
       if (match && match.index > 0) return null
       if (match && consume !== false) this.pos += match[0].length
       return match

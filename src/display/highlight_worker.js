@@ -13,24 +13,24 @@ export function startWorker(cm, time) {
 }
 
 function highlightWorker(cm) {
-  var doc = cm.doc
+  let doc = cm.doc
   if (doc.frontier < doc.first) doc.frontier = doc.first
   if (doc.frontier >= cm.display.viewTo) return
-  var end = +new Date + cm.options.workTime
-  var state = copyState(doc.mode, getStateBefore(cm, doc.frontier))
-  var changedLines = []
+  let end = +new Date + cm.options.workTime
+  let state = copyState(doc.mode, getStateBefore(cm, doc.frontier))
+  let changedLines = []
 
   doc.iter(doc.frontier, Math.min(doc.first + doc.size, cm.display.viewTo + 500), function(line) {
     if (doc.frontier >= cm.display.viewFrom) { // Visible
-      var oldStyles = line.styles, tooLong = line.text.length > cm.options.maxHighlightLength
-      var highlighted = highlightLine(cm, line, tooLong ? copyState(doc.mode, state) : state, true)
+      let oldStyles = line.styles, tooLong = line.text.length > cm.options.maxHighlightLength
+      let highlighted = highlightLine(cm, line, tooLong ? copyState(doc.mode, state) : state, true)
       line.styles = highlighted.styles
-      var oldCls = line.styleClasses, newCls = highlighted.classes
+      let oldCls = line.styleClasses, newCls = highlighted.classes
       if (newCls) line.styleClasses = newCls
       else if (oldCls) line.styleClasses = null
-      var ischange = !oldStyles || oldStyles.length != line.styles.length ||
+      let ischange = !oldStyles || oldStyles.length != line.styles.length ||
         oldCls != newCls && (!oldCls || !newCls || oldCls.bgClass != newCls.bgClass || oldCls.textClass != newCls.textClass)
-      for (var i = 0; !ischange && i < oldStyles.length; ++i) ischange = oldStyles[i] != line.styles[i]
+      for (let i = 0; !ischange && i < oldStyles.length; ++i) ischange = oldStyles[i] != line.styles[i]
       if (ischange) changedLines.push(doc.frontier)
       line.stateAfter = tooLong ? state : copyState(doc.mode, state)
     } else {
@@ -45,7 +45,7 @@ function highlightWorker(cm) {
     }
   })
   if (changedLines.length) runInOp(cm, function() {
-    for (var i = 0; i < changedLines.length; i++)
+    for (let i = 0; i < changedLines.length; i++)
       regLineChange(cm, changedLines[i], "text")
   })
 }

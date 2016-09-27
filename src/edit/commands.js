@@ -11,7 +11,7 @@ import { getOrder, lineLeft, lineRight } from "../util/bidi"
 
 // Commands are parameter-less actions that can be performed on an
 // editor, mostly used for keybindings.
-export var commands = {
+export let commands = {
   selectAll: selectAll,
   singleSelection: function(cm) {
     cm.setSelection(cm.getCursor("anchor"), cm.getCursor("head"), sel_dontScroll)
@@ -19,7 +19,7 @@ export var commands = {
   killLine: function(cm) {
     deleteNearSelection(cm, function(range) {
       if (range.empty()) {
-        var len = getLine(cm.doc, range.head.line).text.length
+        let len = getLine(cm.doc, range.head.line).text.length
         if (range.head.ch == len && range.head.line < cm.lastLine())
           return {from: range.head, to: Pos(range.head.line + 1, 0)}
         else
@@ -42,15 +42,15 @@ export var commands = {
   },
   delWrappedLineLeft: function(cm) {
     deleteNearSelection(cm, function(range) {
-      var top = cm.charCoords(range.head, "div").top + 5
-      var leftPos = cm.coordsChar({left: 0, top: top}, "div")
+      let top = cm.charCoords(range.head, "div").top + 5
+      let leftPos = cm.coordsChar({left: 0, top: top}, "div")
       return {from: leftPos, to: range.from()}
     })
   },
   delWrappedLineRight: function(cm) {
     deleteNearSelection(cm, function(range) {
-      var top = cm.charCoords(range.head, "div").top + 5
-      var rightPos = cm.coordsChar({left: cm.display.lineDiv.offsetWidth + 100, top: top}, "div")
+      let top = cm.charCoords(range.head, "div").top + 5
+      let rightPos = cm.coordsChar({left: cm.display.lineDiv.offsetWidth + 100, top: top}, "div")
       return {from: range.from(), to: rightPos }
     })
   },
@@ -75,20 +75,20 @@ export var commands = {
   },
   goLineRight: function(cm) {
     cm.extendSelectionsBy(function(range) {
-      var top = cm.charCoords(range.head, "div").top + 5
+      let top = cm.charCoords(range.head, "div").top + 5
       return cm.coordsChar({left: cm.display.lineDiv.offsetWidth + 100, top: top}, "div")
     }, sel_move)
   },
   goLineLeft: function(cm) {
     cm.extendSelectionsBy(function(range) {
-      var top = cm.charCoords(range.head, "div").top + 5
+      let top = cm.charCoords(range.head, "div").top + 5
       return cm.coordsChar({left: 0, top: top}, "div")
     }, sel_move)
   },
   goLineLeftSmart: function(cm) {
     cm.extendSelectionsBy(function(range) {
-      var top = cm.charCoords(range.head, "div").top + 5
-      var pos = cm.coordsChar({left: 0, top: top}, "div")
+      let top = cm.charCoords(range.head, "div").top + 5
+      let pos = cm.coordsChar({left: 0, top: top}, "div")
       if (pos.ch < cm.getLine(pos.line).search(/\S/)) return lineStartSmart(cm, range.head)
       return pos
     }, sel_move)
@@ -116,10 +116,10 @@ export var commands = {
   indentLess: function(cm) {cm.indentSelection("subtract")},
   insertTab: function(cm) {cm.replaceSelection("\t")},
   insertSoftTab: function(cm) {
-    var spaces = [], ranges = cm.listSelections(), tabSize = cm.options.tabSize
-    for (var i = 0; i < ranges.length; i++) {
-      var pos = ranges[i].from()
-      var col = countColumn(cm.getLine(pos.line), pos.ch, tabSize)
+    let spaces = [], ranges = cm.listSelections(), tabSize = cm.options.tabSize
+    for (let i = 0; i < ranges.length; i++) {
+      let pos = ranges[i].from()
+      let col = countColumn(cm.getLine(pos.line), pos.ch, tabSize)
       spaces.push(spaceStr(tabSize - col % tabSize))
     }
     cm.replaceSelections(spaces)
@@ -130,9 +130,9 @@ export var commands = {
   },
   transposeChars: function(cm) {
     runInOp(cm, function() {
-      var ranges = cm.listSelections(), newSel = []
-      for (var i = 0; i < ranges.length; i++) {
-        var cur = ranges[i].head, line = getLine(cm.doc, cur.line).text
+      let ranges = cm.listSelections(), newSel = []
+      for (let i = 0; i < ranges.length; i++) {
+        let cur = ranges[i].head, line = getLine(cm.doc, cur.line).text
         if (line) {
           if (cur.ch == line.length) cur = new Pos(cur.line, cur.ch - 1)
           if (cur.ch > 0) {
@@ -140,7 +140,7 @@ export var commands = {
             cm.replaceRange(line.charAt(cur.ch - 1) + line.charAt(cur.ch - 2),
                             Pos(cur.line, cur.ch - 2), cur, "+transpose")
           } else if (cur.line > cm.doc.first) {
-            var prev = getLine(cm.doc, cur.line - 1).text
+            let prev = getLine(cm.doc, cur.line - 1).text
             if (prev)
               cm.replaceRange(line.charAt(0) + cm.doc.lineSeparator() +
                               prev.charAt(prev.length - 1),
@@ -154,11 +154,11 @@ export var commands = {
   },
   newlineAndIndent: function(cm) {
     runInOp(cm, function() {
-      var sels = cm.listSelections()
-      for (var i = sels.length - 1; i >= 0; i--)
+      let sels = cm.listSelections()
+      for (let i = sels.length - 1; i >= 0; i--)
         cm.replaceRange(cm.doc.lineSeparator(), sels[i].anchor, sels[i].head, "+input")
       sels = cm.listSelections()
-      for (var i = 0; i < sels.length; i++)
+      for (let i = 0; i < sels.length; i++)
         cm.indentLine(sels[i].from().line, null, true)
       ensureCursorVisible(cm)
     })
@@ -169,30 +169,30 @@ export var commands = {
 
 
 function lineStart(cm, lineN) {
-  var line = getLine(cm.doc, lineN)
-  var visual = visualLine(line)
+  let line = getLine(cm.doc, lineN)
+  let visual = visualLine(line)
   if (visual != line) lineN = lineNo(visual)
-  var order = getOrder(visual)
-  var ch = !order ? 0 : order[0].level % 2 ? lineRight(visual) : lineLeft(visual)
+  let order = getOrder(visual)
+  let ch = !order ? 0 : order[0].level % 2 ? lineRight(visual) : lineLeft(visual)
   return Pos(lineN, ch)
 }
 function lineEnd(cm, lineN) {
-  var merged, line = getLine(cm.doc, lineN)
+  let merged, line = getLine(cm.doc, lineN)
   while (merged = collapsedSpanAtEnd(line)) {
     line = merged.find(1, true).line
     lineN = null
   }
-  var order = getOrder(line)
-  var ch = !order ? line.text.length : order[0].level % 2 ? lineLeft(line) : lineRight(line)
+  let order = getOrder(line)
+  let ch = !order ? line.text.length : order[0].level % 2 ? lineLeft(line) : lineRight(line)
   return Pos(lineN == null ? lineNo(line) : lineN, ch)
 }
 function lineStartSmart(cm, pos) {
-  var start = lineStart(cm, pos.line)
-  var line = getLine(cm.doc, start.line)
-  var order = getOrder(line)
+  let start = lineStart(cm, pos.line)
+  let line = getLine(cm.doc, start.line)
+  let order = getOrder(line)
   if (!order || order[0].level == 0) {
-    var firstNonWS = Math.max(0, line.text.search(/\S/))
-    var inWS = pos.line == start.line && pos.ch <= firstNonWS && pos.ch
+    let firstNonWS = Math.max(0, line.text.search(/\S/))
+    let inWS = pos.line == start.line && pos.ch <= firstNonWS && pos.ch
     return Pos(start.line, inWS ? 0 : firstNonWS)
   }
   return start

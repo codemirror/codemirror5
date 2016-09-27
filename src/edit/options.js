@@ -17,13 +17,13 @@ import { off, on } from "../util/event"
 
 import { themeChanged } from "./utils"
 
-export var Init = {toString: function(){return "CodeMirror.Init"}}
+export let Init = {toString: function(){return "CodeMirror.Init"}}
 
-export var defaults = {}
-export var optionHandlers = {}
+export let defaults = {}
+export let optionHandlers = {}
 
 export function defineOptions(CodeMirror) {
-  var optionHandlers = CodeMirror.optionHandlers
+  let optionHandlers = CodeMirror.optionHandlers
 
   function option(name, deflt, handle, notOnInit) {
     CodeMirror.defaults[name] = deflt
@@ -57,17 +57,17 @@ export function defineOptions(CodeMirror) {
   option("lineSeparator", null, function(cm, val) {
     cm.doc.lineSep = val
     if (!val) return
-    var newBreaks = [], lineNo = cm.doc.first
+    let newBreaks = [], lineNo = cm.doc.first
     cm.doc.iter(function(line) {
-      for (var pos = 0;;) {
-        var found = line.text.indexOf(val, pos)
+      for (let pos = 0;;) {
+        let found = line.text.indexOf(val, pos)
         if (found == -1) break
         pos = found + val.length
         newBreaks.push(Pos(lineNo, found))
       }
       lineNo++
     })
-    for (var i = newBreaks.length - 1; i >= 0; i--)
+    for (let i = newBreaks.length - 1; i >= 0; i--)
       replaceRange(cm.doc, val, newBreaks[i], Pos(newBreaks[i].line, newBreaks[i].ch + val.length))
   })
   option("specialChars", /[\u0000-\u001f\u007f\u00ad\u200b-\u200f\u2028\u2029\ufeff]/g, function(cm, val, old) {
@@ -90,8 +90,8 @@ export function defineOptions(CodeMirror) {
     guttersChanged(cm)
   }, true)
   option("keyMap", "default", function(cm, val, old) {
-    var next = getKeyMap(val)
-    var prev = old != Init && getKeyMap(old)
+    let next = getKeyMap(val)
+    let prev = old != Init && getKeyMap(old)
     if (prev && prev.detach) prev.detach(cm, next)
     if (next.attach) next.attach(cm, prev || null)
   })
@@ -168,10 +168,10 @@ function guttersChanged(cm) {
 }
 
 function dragDropChanged(cm, value, old) {
-  var wasOn = old && old != Init
+  let wasOn = old && old != Init
   if (!value != !wasOn) {
-    var funcs = cm.display.dragFunctions
-    var toggle = value ? on : off
+    let funcs = cm.display.dragFunctions
+    let toggle = value ? on : off
     toggle(cm.display.scroller, "dragstart", funcs.start)
     toggle(cm.display.scroller, "dragenter", funcs.enter)
     toggle(cm.display.scroller, "dragover", funcs.over)

@@ -8,8 +8,8 @@ import { signalLater } from "../util/operation_group"
 // lineView.changes. This updates the relevant part of the line's
 // DOM structure.
 export function updateLineForChanges(cm, lineView, lineN, dims) {
-  for (var j = 0; j < lineView.changes.length; j++) {
-    var type = lineView.changes[j]
+  for (let j = 0; j < lineView.changes.length; j++) {
+    let type = lineView.changes[j]
     if (type == "text") updateLineText(cm, lineView)
     else if (type == "gutter") updateLineGutter(cm, lineView, lineN, dims)
     else if (type == "class") updateLineClasses(lineView)
@@ -32,13 +32,13 @@ function ensureLineWrapped(lineView) {
 }
 
 function updateLineBackground(lineView) {
-  var cls = lineView.bgClass ? lineView.bgClass + " " + (lineView.line.bgClass || "") : lineView.line.bgClass
+  let cls = lineView.bgClass ? lineView.bgClass + " " + (lineView.line.bgClass || "") : lineView.line.bgClass
   if (cls) cls += " CodeMirror-linebackground"
   if (lineView.background) {
     if (cls) lineView.background.className = cls
     else { lineView.background.parentNode.removeChild(lineView.background); lineView.background = null }
   } else if (cls) {
-    var wrap = ensureLineWrapped(lineView)
+    let wrap = ensureLineWrapped(lineView)
     lineView.background = wrap.insertBefore(elt("div", null, cls), wrap.firstChild)
   }
 }
@@ -46,7 +46,7 @@ function updateLineBackground(lineView) {
 // Wrapper around buildLineContent which will reuse the structure
 // in display.externalMeasured when possible.
 function getLineContent(cm, lineView) {
-  var ext = cm.display.externalMeasured
+  let ext = cm.display.externalMeasured
   if (ext && ext.line == lineView.line) {
     cm.display.externalMeasured = null
     lineView.measure = ext.measure
@@ -59,8 +59,8 @@ function getLineContent(cm, lineView) {
 // classes because the mode may output tokens that influence these
 // classes.
 function updateLineText(cm, lineView) {
-  var cls = lineView.text.className
-  var built = getLineContent(cm, lineView)
+  let cls = lineView.text.className
+  let built = getLineContent(cm, lineView)
   if (lineView.text == lineView.node) lineView.node = built.pre
   lineView.text.parentNode.replaceChild(built.pre, lineView.text)
   lineView.text = built.pre
@@ -79,7 +79,7 @@ function updateLineClasses(lineView) {
     ensureLineWrapped(lineView).className = lineView.line.wrapClass
   else if (lineView.node != lineView.text)
     lineView.node.className = ""
-  var textClass = lineView.textClass ? lineView.textClass + " " + (lineView.line.textClass || "") : lineView.line.textClass
+  let textClass = lineView.textClass ? lineView.textClass + " " + (lineView.line.textClass || "") : lineView.line.textClass
   lineView.text.className = textClass || ""
 }
 
@@ -93,16 +93,16 @@ function updateLineGutter(cm, lineView, lineN, dims) {
     lineView.gutterBackground = null
   }
   if (lineView.line.gutterClass) {
-    var wrap = ensureLineWrapped(lineView)
+    let wrap = ensureLineWrapped(lineView)
     lineView.gutterBackground = elt("div", null, "CodeMirror-gutter-background " + lineView.line.gutterClass,
                                     "left: " + (cm.options.fixedGutter ? dims.fixedPos : -dims.gutterTotalWidth) +
                                     "px; width: " + dims.gutterTotalWidth + "px")
     wrap.insertBefore(lineView.gutterBackground, lineView.text)
   }
-  var markers = lineView.line.gutterMarkers
+  let markers = lineView.line.gutterMarkers
   if (cm.options.lineNumbers || markers) {
-    var wrap = ensureLineWrapped(lineView)
-    var gutterWrap = lineView.gutter = elt("div", null, "CodeMirror-gutter-wrapper", "left: " +
+    let wrap = ensureLineWrapped(lineView)
+    let gutterWrap = lineView.gutter = elt("div", null, "CodeMirror-gutter-wrapper", "left: " +
                                            (cm.options.fixedGutter ? dims.fixedPos : -dims.gutterTotalWidth) + "px")
     cm.display.input.setUneditable(gutterWrap)
     wrap.insertBefore(gutterWrap, lineView.text)
@@ -114,8 +114,8 @@ function updateLineGutter(cm, lineView, lineN, dims) {
             "CodeMirror-linenumber CodeMirror-gutter-elt",
             "left: " + dims.gutterLeft["CodeMirror-linenumbers"] + "px; width: "
             + cm.display.lineNumInnerWidth + "px"))
-    if (markers) for (var k = 0; k < cm.options.gutters.length; ++k) {
-      var id = cm.options.gutters[k], found = markers.hasOwnProperty(id) && markers[id]
+    if (markers) for (let k = 0; k < cm.options.gutters.length; ++k) {
+      let id = cm.options.gutters[k], found = markers.hasOwnProperty(id) && markers[id]
       if (found)
         gutterWrap.appendChild(elt("div", [found], "CodeMirror-gutter-elt", "left: " +
                                    dims.gutterLeft[id] + "px; width: " + dims.gutterWidth[id] + "px"))
@@ -125,8 +125,8 @@ function updateLineGutter(cm, lineView, lineN, dims) {
 
 function updateLineWidgets(cm, lineView, dims) {
   if (lineView.alignable) lineView.alignable = null
-  for (var node = lineView.node.firstChild, next; node; node = next) {
-    var next = node.nextSibling
+  for (let node = lineView.node.firstChild, next; node; node = next) {
+    next = node.nextSibling
     if (node.className == "CodeMirror-linewidget")
       lineView.node.removeChild(node)
   }
@@ -135,7 +135,7 @@ function updateLineWidgets(cm, lineView, dims) {
 
 // Build a line's DOM representation from scratch
 export function buildLineElement(cm, lineView, lineN, dims) {
-  var built = getLineContent(cm, lineView)
+  let built = getLineContent(cm, lineView)
   lineView.text = lineView.node = built.pre
   if (built.bgClass) lineView.bgClass = built.bgClass
   if (built.textClass) lineView.textClass = built.textClass
@@ -150,15 +150,15 @@ export function buildLineElement(cm, lineView, lineN, dims) {
 // collapsed spans). The widgets for all of them need to be drawn.
 function insertLineWidgets(cm, lineView, dims) {
   insertLineWidgetsFor(cm, lineView.line, lineView, dims, true)
-  if (lineView.rest) for (var i = 0; i < lineView.rest.length; i++)
+  if (lineView.rest) for (let i = 0; i < lineView.rest.length; i++)
     insertLineWidgetsFor(cm, lineView.rest[i], lineView, dims, false)
 }
 
 function insertLineWidgetsFor(cm, line, lineView, dims, allowAbove) {
   if (!line.widgets) return
-  var wrap = ensureLineWrapped(lineView)
-  for (var i = 0, ws = line.widgets; i < ws.length; ++i) {
-    var widget = ws[i], node = elt("div", [widget.node], "CodeMirror-linewidget")
+  let wrap = ensureLineWrapped(lineView)
+  for (let i = 0, ws = line.widgets; i < ws.length; ++i) {
+    let widget = ws[i], node = elt("div", [widget.node], "CodeMirror-linewidget")
     if (!widget.handleMouseEvents) node.setAttribute("cm-ignore-events", "true")
     positionLineWidget(widget, node, lineView, dims)
     cm.display.input.setUneditable(node)
@@ -173,7 +173,7 @@ function insertLineWidgetsFor(cm, line, lineView, dims, allowAbove) {
 function positionLineWidget(widget, node, lineView, dims) {
   if (widget.noHScroll) {
     ;(lineView.alignable || (lineView.alignable = [])).push(node)
-    var width = dims.wrapperWidth
+    let width = dims.wrapperWidth
     node.style.left = dims.fixedPos + "px"
     if (!widget.coverGutter) {
       width -= dims.gutterTotalWidth
