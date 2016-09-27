@@ -1,3 +1,5 @@
+import buble from 'rollup-plugin-buble';
+
 export default {
   banner: `// CodeMirror, copyright (c) by Marijn Haverbeke and others
 // Distributed under an MIT license: http://codemirror.net/LICENSE
@@ -11,5 +13,6 @@ export default {
   entry: "src/codemirror.js",
   format: "umd",
   dest: "lib/codemirror.js",
-  moduleName: "CodeMirror"
+  moduleName: "CodeMirror",
+  plugins: [ buble() ]
 };
