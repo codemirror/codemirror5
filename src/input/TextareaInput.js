@@ -284,10 +284,10 @@ TextareaInput.prototype = copyObj({
     let oldCSS = te.style.cssText, oldWrapperCSS = input.wrapper.style.cssText
     input.wrapper.style.cssText = "position: absolute"
     let wrapperBox = input.wrapper.getBoundingClientRect()
-    te.style.cssText = "position: absolute; width: 30px; height: 30px; top: " + (e.clientY - wrapperBox.top - 5) +
-      "px; left: " + (e.clientX - wrapperBox.left - 5) + "px; z-index: 1000; background: " +
-      (ie ? "rgba(255, 255, 255, .05)" : "transparent") +
-      "; outline: none; border-width: 0; outline: none; overflow: hidden; opacity: .05; filter: alpha(opacity=5);"
+    te.style.cssText = `position: absolute; width: 30px; height: 30px;
+      top: ${e.clientY - wrapperBox.top - 5}px; left: ${e.clientX - wrapperBox.left - 5}px;
+      z-index: 1000; background: ${ie ? "rgba(255, 255, 255, .05)" : "transparent"};
+      outline: none; border-width: 0; outline: none; overflow: hidden; opacity: .05; filter: alpha(opacity=5);`
     let oldScrollY
     if (webkit) oldScrollY = window.scrollY // Work around Chrome issue (#2712)
     display.input.focus()

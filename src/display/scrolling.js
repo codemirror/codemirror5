@@ -17,10 +17,10 @@ export function maybeScrollWindow(cm, coords) {
   if (coords.top + box.top < 0) doScroll = true
   else if (coords.bottom + box.top > (window.innerHeight || document.documentElement.clientHeight)) doScroll = false
   if (doScroll != null && !phantom) {
-    let scrollNode = elt("div", "\u200b", null, "position: absolute; top: " +
-                         (coords.top - display.viewOffset - paddingTop(cm.display)) + "px; height: " +
-                         (coords.bottom - coords.top + scrollGap(cm) + display.barHeight) + "px; left: " +
-                         coords.left + "px; width: 2px;")
+    let scrollNode = elt("div", "\u200b", null, `position: absolute;
+                         top: ${coords.top - display.viewOffset - paddingTop(cm.display)}px;
+                         height: ${coords.bottom - coords.top + scrollGap(cm) + display.barHeight}px;
+                         left: ${coords.left}px; width: 2px;`)
     cm.display.lineSpace.appendChild(scrollNode)
     scrollNode.scrollIntoView(doScroll)
     cm.display.lineSpace.removeChild(scrollNode)

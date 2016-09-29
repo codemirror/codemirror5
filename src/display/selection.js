@@ -57,9 +57,9 @@ function drawSelectionRange(cm, range, output) {
     if (top < 0) top = 0
     top = Math.round(top)
     bottom = Math.round(bottom)
-    fragment.appendChild(elt("div", null, "CodeMirror-selected", "position: absolute; left: " + left +
-                             "px; top: " + top + "px; width: " + (width == null ? rightSide - left : width) +
-                             "px; height: " + (bottom - top) + "px"))
+    fragment.appendChild(elt("div", null, "CodeMirror-selected", `position: absolute; left: ${left}px;
+                             top: ${top}px; width: ${width == null ? rightSide - left : width}px;
+                             height: ${bottom - top}px`))
   }
 
   function drawForLine(line, fromArg, toArg) {
