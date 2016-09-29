@@ -20,8 +20,8 @@
   }
 
   var keywords = wordSet(["_","var","let","class","enum","extension","import","protocol","struct","func","typealias","associatedtype",
-                          "open","public","internal","fileprivate","private","deinit","init","override","self","subscript","super",
-                          "convenience","dynamic","final","indirect","lazy","required","static","unowned","weak","as","is",
+                          "open","public","internal","fileprivate","private","deinit","init","new","override","self","subscript","super",
+                          "convenience","dynamic","final","indirect","lazy","required","static","unowned","unowned(safe)","unowned(unsafe)","weak","as","is",
                           "break","case","continue","default","else","fallthrough","for","guard","if","in","repeat","switch","where","while",
                           "defer","return","inout","mutating","nonmutating","catch","do","rethrows","throw","throws","try","didSet","get","set","willSet",
                           "assignment","associativity","infix","left","none","operator","postfix","precedence","precedencegroup","prefix","right",
