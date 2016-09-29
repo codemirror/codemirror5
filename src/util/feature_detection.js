@@ -38,7 +38,7 @@ export function hasBadBidiRects(measure) {
 
 // See if "".split is the broken IE version, if so, provide an
 // alternative way to split lines.
-export let splitLinesAuto = "\n\nb".split(/\n/).length != 3 ? function(string) {
+export let splitLinesAuto = "\n\nb".split(/\n/).length != 3 ? string => {
   let pos = 0, result = [], l = string.length
   while (pos <= l) {
     let nl = string.indexOf("\n", pos)
@@ -54,12 +54,12 @@ export let splitLinesAuto = "\n\nb".split(/\n/).length != 3 ? function(string) {
     }
   }
   return result
-} : function(string){return string.split(/\r\n?|\n/)}
+} : string => string.split(/\r\n?|\n/)
 
-export let hasSelection = window.getSelection ? function(te) {
+export let hasSelection = window.getSelection ? te => {
   try { return te.selectionStart != te.selectionEnd }
   catch(e) { return false }
-} : function(te) {
+} : te => {
   let range
   try {range = te.ownerDocument.selection.createRange()}
   catch(e) {}
@@ -67,7 +67,7 @@ export let hasSelection = window.getSelection ? function(te) {
   return range.compareEndPoints("StartToEnd", range) != 0
 }
 
-export let hasCopyEvent = (function() {
+export let hasCopyEvent = (() => {
   let e = elt("div")
   if ("oncopy" in e) return true
   e.setAttribute("oncopy", "return;")

@@ -11,7 +11,7 @@ export function loadMode(cm) {
 }
 
 export function resetModeState(cm) {
-  cm.doc.iter(function(line) {
+  cm.doc.iter(line => {
     if (line.stateAfter) line.stateAfter = null
     if (line.styles) line.styles = null
   })

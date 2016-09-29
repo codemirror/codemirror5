@@ -220,7 +220,7 @@ Doc.prototype = createObj(BranchChunk.prototype, {
   },
 
   addLineClass: docMethodOp(function(handle, where, cls) {
-    return changeLine(this, handle, where == "gutter" ? "gutter" : "class", function(line) {
+    return changeLine(this, handle, where == "gutter" ? "gutter" : "class", line => {
       let prop = where == "text" ? "textClass"
                : where == "background" ? "bgClass"
                : where == "gutter" ? "gutterClass" : "wrapClass"
@@ -231,7 +231,7 @@ Doc.prototype = createObj(BranchChunk.prototype, {
     })
   }),
   removeLineClass: docMethodOp(function(handle, where, cls) {
-    return changeLine(this, handle, where == "gutter" ? "gutter" : "class", function(line) {
+    return changeLine(this, handle, where == "gutter" ? "gutter" : "class", line => {
       let prop = where == "text" ? "textClass"
                : where == "background" ? "bgClass"
                : where == "gutter" ? "gutterClass" : "wrapClass"
@@ -278,7 +278,7 @@ Doc.prototype = createObj(BranchChunk.prototype, {
   findMarks: function(from, to, filter) {
     from = clipPos(this, from); to = clipPos(this, to)
     let found = [], lineNo = from.line
-    this.iter(from.line, to.line + 1, function(line) {
+    this.iter(from.line, to.line + 1, line => {
       let spans = line.markedSpans
       if (spans) for (let i = 0; i < spans.length; i++) {
         let span = spans[i]
@@ -294,7 +294,7 @@ Doc.prototype = createObj(BranchChunk.prototype, {
   },
   getAllMarks: function() {
     let markers = []
-    this.iter(function(line) {
+    this.iter(line => {
       let sps = line.markedSpans
       if (sps) for (let i = 0; i < sps.length; ++i)
         if (sps[i].from != null) markers.push(sps[i].marker)
@@ -304,7 +304,7 @@ Doc.prototype = createObj(BranchChunk.prototype, {
 
   posFromIndex: function(off) {
     let ch, lineNo = this.first, sepSize = this.lineSeparator().length
-    this.iter(function(line) {
+    this.iter(line => {
       let sz = line.text.length + sepSize
       if (sz > off) { ch = off; return true }
       off -= sz
@@ -317,7 +317,7 @@ Doc.prototype = createObj(BranchChunk.prototype, {
     let index = coords.ch
     if (coords.line < this.first || coords.ch < 0) return 0
     let sepSize = this.lineSeparator().length
-    this.iter(this.first, coords.line, function (line) {
+    this.iter(this.first, coords.line, line => { // iter aborts when callback returns a truthy value
       index += line.text.length + sepSize
     })
     return index
@@ -361,7 +361,7 @@ Doc.prototype = createObj(BranchChunk.prototype, {
     // If the histories were shared, split them again
     if (other.history == this.history) {
       let splitIds = [other.id]
-      linkedDocs(other, function(doc) {splitIds.push(doc.id)}, true)
+      linkedDocs(other, doc => splitIds.push(doc.id), true)
       other.history = new History(null)
       other.history.done = copyHistoryArray(this.history.done, splitIds)
       other.history.undone = copyHistoryArray(this.history.undone, splitIds)

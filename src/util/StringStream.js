@@ -57,7 +57,7 @@ StringStream.prototype = {
   },
   match: function(pattern, consume, caseInsensitive) {
     if (typeof pattern == "string") {
-      let cased = function(str) {return caseInsensitive ? str.toLowerCase() : str}
+      let cased = str => caseInsensitive ? str.toLowerCase() : str
       let substr = this.string.substr(this.pos, pattern.length)
       if (cased(substr) == cased(pattern)) {
         if (consume !== false) this.pos += pattern.length

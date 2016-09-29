@@ -202,7 +202,7 @@ function splitSpaces(text, trailingBefore) {
 // Work around nonsense dimensions being reported for stretches of
 // right-to-left text.
 function buildTokenBadBidi(inner, order) {
-  return function(builder, text, style, startStyle, endStyle, title, css) {
+  return (builder, text, style, startStyle, endStyle, title, css) => {
     style = style ? style + " cm-force-border" : "cm-force-border"
     let start = builder.pos, end = start + text.length
     for (;;) {

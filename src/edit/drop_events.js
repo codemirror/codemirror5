@@ -29,13 +29,13 @@ export function onDrop(e) {
   // and insert it.
   if (files && files.length && window.FileReader && window.File) {
     let n = files.length, text = Array(n), read = 0
-    let loadFile = function(file, i) {
+    let loadFile = (file, i) => {
       if (cm.options.allowDropFileTypes &&
           indexOf(cm.options.allowDropFileTypes, file.type) == -1)
         return
 
       let reader = new FileReader
-      reader.onload = operation(cm, function() {
+      reader.onload = operation(cm, () => {
         let content = reader.result
         if (/[\x00-\x08\x0e-\x1f]{2}/.test(content)) content = ""
         text[i] = content
@@ -56,7 +56,7 @@ export function onDrop(e) {
     if (cm.state.draggingText && cm.doc.sel.contains(pos) > -1) {
       cm.state.draggingText(e)
       // Ensure the editor is re-focused
-      setTimeout(function() {cm.display.input.focus()}, 20)
+      setTimeout(() => cm.display.input.focus(), 20)
       return
     }
     try {

@@ -14,14 +14,13 @@ export function highlightLine(cm, line, state, forceToEnd) {
   // mode/overlays that it is based on (for easy invalidation).
   let st = [cm.state.modeGen], lineClasses = {}
   // Compute the base array of styles
-  runMode(cm, line.text, cm.doc.mode, state, function(end, style) {
-    st.push(end, style)
-  }, lineClasses, forceToEnd)
+  runMode(cm, line.text, cm.doc.mode, state, (end, style) => st.push(end, style),
+    lineClasses, forceToEnd)
 
   // Run overlays, adjust style array.
   for (let o = 0; o < cm.state.overlays.length; ++o) {
     let overlay = cm.state.overlays[o], i = 1, at = 0
-    runMode(cm, line.text, overlay.mode, true, function(end, style) {
+    runMode(cm, line.text, overlay.mode, true, (end, style) => {
       let start = i
       // Ensure there's a token end at the current position, and that i points at it
       while (at < end) {
@@ -66,7 +65,7 @@ export function getStateBefore(cm, n, precise) {
   let pos = findStartLine(cm, n, precise), state = pos > doc.first && getLine(doc, pos-1).stateAfter
   if (!state) state = startState(doc.mode)
   else state = copyState(doc.mode, state)
-  doc.iter(pos, n, function(line) {
+  doc.iter(pos, n, line => {
     processLine(cm, line.text, state)
     let save = pos == n - 1 || pos % 5 == 0 || pos >= display.viewFrom && pos < display.viewTo
     line.stateAfter = save ? copyState(doc.mode, state) : null
@@ -108,12 +107,12 @@ export function readToken(mode, stream, state, inner) {
 
 // Utility for getTokenAt and getLineTokens
 export function takeToken(cm, pos, precise, asArray) {
-  function getObj(copy) {
-    return {start: stream.start, end: stream.pos,
-            string: stream.current(),
-            type: style || null,
-            state: copy ? copyState(doc.mode, state) : state}
-  }
+  let getObj = copy => ({
+    start: stream.start, end: stream.pos,
+    string: stream.current(),
+    type: style || null,
+    state: copy ? copyState(doc.mode, state) : state
+  })
 
   let doc = cm.doc, mode = doc.mode, style
   pos = clipPos(doc, pos)

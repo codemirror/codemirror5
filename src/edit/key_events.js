@@ -45,7 +45,7 @@ function dispatchKey(cm, name, e, handle) {
   let seq = cm.state.keySeq
   if (seq) {
     if (isModifierKey(name)) return "handled"
-    stopSeq.set(50, function() {
+    stopSeq.set(50, () => {
       if (cm.state.keySeq == seq) {
         cm.state.keySeq = null
         cm.display.input.reset()
@@ -81,20 +81,19 @@ function handleKeyBinding(cm, e) {
     // First try to resolve full name (including 'Shift-'). Failing
     // that, see if there is a cursor-motion command (starting with
     // 'go') bound to the keyname without 'Shift-'.
-    return dispatchKey(cm, "Shift-" + name, e, function(b) {return doHandleBinding(cm, b, true)})
-        || dispatchKey(cm, name, e, function(b) {
+    return dispatchKey(cm, "Shift-" + name, e, b => doHandleBinding(cm, b, true))
+        || dispatchKey(cm, name, e, b => {
              if (typeof b == "string" ? /^go[A-Z]/.test(b) : b.motion)
                return doHandleBinding(cm, b)
            })
   } else {
-    return dispatchKey(cm, name, e, function(b) { return doHandleBinding(cm, b) })
+    return dispatchKey(cm, name, e, b => doHandleBinding(cm, b))
   }
 }
 
 // Handle a key from the keypress event
 function handleCharBinding(cm, e, ch) {
-  return dispatchKey(cm, "'" + ch + "'", e,
-                     function(b) { return doHandleBinding(cm, b, true) })
+  return dispatchKey(cm, "'" + ch + "'", e, b => doHandleBinding(cm, b, true))
 }
 
 let lastStoppedKey = null

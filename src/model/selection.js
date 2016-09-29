@@ -61,7 +61,7 @@ Range.prototype = {
 // it).
 export function normalizeSelection(ranges, primIndex) {
   let prim = ranges[primIndex]
-  ranges.sort(function(a, b) { return cmp(a.from(), b.from()) })
+  ranges.sort((a, b) => cmp(a.from(), b.from()))
   primIndex = indexOf(ranges, prim)
   for (let i = 1; i < ranges.length; i++) {
     let cur = ranges[i], prev = ranges[i - 1]
