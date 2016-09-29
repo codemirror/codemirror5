@@ -3,7 +3,7 @@ import { on } from "../util/event"
 import { scrollGap, paddingVert } from "../measurement/position_measurement"
 import { ie, ie_version, mac, mac_geMountainLion } from "../util/browser"
 import { updateHeightsInViewport } from "./update_lines"
-import { copyObj, Delayed } from "../util/misc"
+import { Delayed } from "../util/misc"
 
 import { setScrollLeft, setScrollTop } from "./scroll_events"
 
@@ -27,26 +27,26 @@ export function measureForScrollbars(cm) {
   }
 }
 
-function NativeScrollbars(place, scroll, cm) {
-  this.cm = cm
-  let vert = this.vert = elt("div", [elt("div", null, null, "min-width: 1px")], "CodeMirror-vscrollbar")
-  let horiz = this.horiz = elt("div", [elt("div", null, null, "height: 100%; min-height: 1px")], "CodeMirror-hscrollbar")
-  place(vert); place(horiz)
+class NativeScrollbars {
+  constructor(place, scroll, cm) {
+    this.cm = cm
+    let vert = this.vert = elt("div", [elt("div", null, null, "min-width: 1px")], "CodeMirror-vscrollbar")
+    let horiz = this.horiz = elt("div", [elt("div", null, null, "height: 100%; min-height: 1px")], "CodeMirror-hscrollbar")
+    place(vert); place(horiz)
 
-  on(vert, "scroll", () => {
-    if (vert.clientHeight) scroll(vert.scrollTop, "vertical")
-  })
-  on(horiz, "scroll", () => {
-    if (horiz.clientWidth) scroll(horiz.scrollLeft, "horizontal")
-  })
+    on(vert, "scroll", () => {
+      if (vert.clientHeight) scroll(vert.scrollTop, "vertical")
+    })
+    on(horiz, "scroll", () => {
+      if (horiz.clientWidth) scroll(horiz.scrollLeft, "horizontal")
+    })
 
-  this.checkedZeroWidth = false
-  // Need to set a minimum width to see the scrollbar on IE7 (but must not set it on IE8).
-  if (ie && ie_version < 8) this.horiz.style.minHeight = this.vert.style.minWidth = "18px"
-}
+    this.checkedZeroWidth = false
+    // Need to set a minimum width to see the scrollbar on IE7 (but must not set it on IE8).
+    if (ie && ie_version < 8) this.horiz.style.minHeight = this.vert.style.minWidth = "18px"
+  }
 
-NativeScrollbars.prototype = copyObj({
-  update: function(measure) {
+  update(measure) {
     let needsH = measure.scrollWidth > measure.clientWidth + 1
     let needsV = measure.scrollHeight > measure.clientHeight + 1
     let sWidth = measure.nativeBarWidth
@@ -81,23 +81,27 @@ NativeScrollbars.prototype = copyObj({
     }
 
     return {right: needsV ? sWidth : 0, bottom: needsH ? sWidth : 0}
-  },
-  setScrollLeft: function(pos) {
+  }
+
+  setScrollLeft(pos) {
     if (this.horiz.scrollLeft != pos) this.horiz.scrollLeft = pos
     if (this.disableHoriz) this.enableZeroWidthBar(this.horiz, this.disableHoriz)
-  },
-  setScrollTop: function(pos) {
+  }
+
+  setScrollTop(pos) {
     if (this.vert.scrollTop != pos) this.vert.scrollTop = pos
     if (this.disableVert) this.enableZeroWidthBar(this.vert, this.disableVert)
-  },
-  zeroWidthHack: function() {
+  }
+
+  zeroWidthHack() {
     let w = mac && !mac_geMountainLion ? "12px" : "18px"
     this.horiz.style.height = this.vert.style.width = w
     this.horiz.style.pointerEvents = this.vert.style.pointerEvents = "none"
     this.disableHoriz = new Delayed
     this.disableVert = new Delayed
-  },
-  enableZeroWidthBar: function(bar, delay) {
+  }
+
+  enableZeroWidthBar(bar, delay) {
     bar.style.pointerEvents = "auto"
     function maybeDisable() {
       // To find out whether the scrollbar is still visible, we
@@ -112,22 +116,21 @@ NativeScrollbars.prototype = copyObj({
       else delay.set(1000, maybeDisable)
     }
     delay.set(1000, maybeDisable)
-  },
-  clear: function() {
+  }
+
+  clear() {
     let parent = this.horiz.parentNode
     parent.removeChild(this.horiz)
     parent.removeChild(this.vert)
   }
-}, NativeScrollbars.prototype)
+}
 
-function NullScrollbars() {}
-
-NullScrollbars.prototype = copyObj({
-  update: function() { return {bottom: 0, right: 0} },
-  setScrollLeft: function() {},
-  setScrollTop: function() {},
-  clear: function() {}
-}, NullScrollbars.prototype)
+class NullScrollbars {
+  update() { return {bottom: 0, right: 0} }
+  setScrollLeft() {}
+  setScrollTop() {}
+  clear() {}
+}
 
 export function updateScrollbars(cm, measure) {
   if (!measure) measure = measureForScrollbars(cm)

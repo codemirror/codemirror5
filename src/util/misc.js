@@ -87,7 +87,7 @@ export function insertSorted(array, value, score) {
   array.splice(pos, 0, value)
 }
 
-export function nothing() {}
+function nothing() {}
 
 export function createObj(base, props) {
   let inst

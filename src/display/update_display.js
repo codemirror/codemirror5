@@ -17,28 +17,30 @@ import { adjustView, countDirtyView, resetView } from "./view_tracking"
 
 // DISPLAY DRAWING
 
-export function DisplayUpdate(cm, viewport, force) {
-  let display = cm.display
+export class DisplayUpdate {
+  constructor(cm, viewport, force) {
+    let display = cm.display
 
-  this.viewport = viewport
-  // Store some values that we'll need later (but don't want to force a relayout for)
-  this.visible = visibleLines(display, cm.doc, viewport)
-  this.editorIsHidden = !display.wrapper.offsetWidth
-  this.wrapperHeight = display.wrapper.clientHeight
-  this.wrapperWidth = display.wrapper.clientWidth
-  this.oldDisplayWidth = displayWidth(cm)
-  this.force = force
-  this.dims = getDimensions(cm)
-  this.events = []
-}
+    this.viewport = viewport
+    // Store some values that we'll need later (but don't want to force a relayout for)
+    this.visible = visibleLines(display, cm.doc, viewport)
+    this.editorIsHidden = !display.wrapper.offsetWidth
+    this.wrapperHeight = display.wrapper.clientHeight
+    this.wrapperWidth = display.wrapper.clientWidth
+    this.oldDisplayWidth = displayWidth(cm)
+    this.force = force
+    this.dims = getDimensions(cm)
+    this.events = []
+  }
 
-DisplayUpdate.prototype.signal = function(emitter, type) {
-  if (hasHandler(emitter, type))
-    this.events.push(arguments)
-}
-DisplayUpdate.prototype.finish = function() {
-  for (let i = 0; i < this.events.length; i++)
-    signal.apply(null, this.events[i])
+  signal(emitter, type) {
+    if (hasHandler(emitter, type))
+      this.events.push(arguments)
+  }
+  finish() {
+    for (let i = 0; i < this.events.length; i++)
+      signal.apply(null, this.events[i])
+  }
 }
 
 export function maybeClipScrollbars(cm) {
