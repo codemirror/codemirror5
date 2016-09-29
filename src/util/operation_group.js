@@ -61,9 +61,8 @@ export function signalLater(emitter, type /*, values...*/) {
     list = orphanDelayedCallbacks = []
     setTimeout(fireOrphanDelayed, 0)
   }
-  function bnd(f) {return function(){f.apply(null, args)}}
   for (let i = 0; i < arr.length; ++i)
-    list.push(bnd(arr[i]))
+    list.push(() => arr[i].apply(null, args))
 }
 
 function fireOrphanDelayed() {

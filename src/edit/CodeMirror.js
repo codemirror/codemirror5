@@ -68,7 +68,7 @@ export function CodeMirror(place, options) {
 
   // Override magic textarea content restore that IE sometimes does
   // on our hidden textarea on reload
-  if (ie && ie_version < 11) setTimeout(function() { cm.display.input.reset(true) }, 20)
+  if (ie && ie_version < 11) setTimeout(() => cm.display.input.reset(true), 20)
 
   registerEventHandlers(this)
   ensureGlobalHandlers()
@@ -108,7 +108,7 @@ function registerEventHandlers(cm) {
   on(d.scroller, "mousedown", operation(cm, onMouseDown))
   // Older IE's will not fire a second mousedown for a double click
   if (ie && ie_version < 11)
-    on(d.scroller, "dblclick", operation(cm, function(e) {
+    on(d.scroller, "dblclick", operation(cm, e => {
       if (signalDOMEvent(cm, e)) return
       let pos = posFromMouse(cm, e)
       if (!pos || clickInGutter(cm, e) || eventInWidget(cm.display, e)) return
@@ -117,17 +117,17 @@ function registerEventHandlers(cm) {
       extendSelection(cm.doc, word.anchor, word.head)
     }))
   else
-    on(d.scroller, "dblclick", function(e) { signalDOMEvent(cm, e) || e_preventDefault(e) })
+    on(d.scroller, "dblclick", e => signalDOMEvent(cm, e) || e_preventDefault(e))
   // Some browsers fire contextmenu *after* opening the menu, at
   // which point we can't mess with it anymore. Context menu is
   // handled in onMouseDown for these browsers.
-  if (!captureRightClick) on(d.scroller, "contextmenu", function(e) {onContextMenu(cm, e)})
+  if (!captureRightClick) on(d.scroller, "contextmenu", e => onContextMenu(cm, e))
 
   // Used to suppress mouse event handling when a touch happens
   let touchFinished, prevTouch = {end: 0}
   function finishTouch() {
     if (d.activeTouch) {
-      touchFinished = setTimeout(function() {d.activeTouch = null}, 1000)
+      touchFinished = setTimeout(() => d.activeTouch = null, 1000)
       prevTouch = d.activeTouch
       prevTouch.end = +new Date
     }
@@ -142,7 +142,7 @@ function registerEventHandlers(cm) {
     let dx = other.left - touch.left, dy = other.top - touch.top
     return dx * dx + dy * dy > 20 * 20
   }
-  on(d.scroller, "touchstart", function(e) {
+  on(d.scroller, "touchstart", e => {
     if (!signalDOMEvent(cm, e) && !isMouseLikeTouchEvent(e)) {
       clearTimeout(touchFinished)
       let now = +new Date
@@ -154,10 +154,10 @@ function registerEventHandlers(cm) {
       }
     }
   })
-  on(d.scroller, "touchmove", function() {
+  on(d.scroller, "touchmove", () => {
     if (d.activeTouch) d.activeTouch.moved = true
   })
-  on(d.scroller, "touchend", function(e) {
+  on(d.scroller, "touchend", e => {
     let touch = d.activeTouch
     if (touch && !eventInWidget(d, e) && touch.left != null &&
         !touch.moved && new Date - touch.start < 300) {
@@ -178,7 +178,7 @@ function registerEventHandlers(cm) {
 
   // Sync scrolling between fake scrollbars and real scrollable
   // area, ensure viewport is updated when scrolling.
-  on(d.scroller, "scroll", function() {
+  on(d.scroller, "scroll", () => {
     if (d.scroller.clientHeight) {
       setScrollTop(cm, d.scroller.scrollTop)
       setScrollLeft(cm, d.scroller.scrollLeft, true)
@@ -187,27 +187,27 @@ function registerEventHandlers(cm) {
   })
 
   // Listen to wheel events in order to try and update the viewport on time.
-  on(d.scroller, "mousewheel", function(e){onScrollWheel(cm, e)})
-  on(d.scroller, "DOMMouseScroll", function(e){onScrollWheel(cm, e)})
+  on(d.scroller, "mousewheel", e => onScrollWheel(cm, e))
+  on(d.scroller, "DOMMouseScroll", e => onScrollWheel(cm, e))
 
   // Prevent wrapper from ever scrolling
-  on(d.wrapper, "scroll", function() { d.wrapper.scrollTop = d.wrapper.scrollLeft = 0 })
+  on(d.wrapper, "scroll", () => d.wrapper.scrollTop = d.wrapper.scrollLeft = 0)
 
   d.dragFunctions = {
-    enter: function(e) {if (!signalDOMEvent(cm, e)) e_stop(e)},
-    over: function(e) {if (!signalDOMEvent(cm, e)) { onDragOver(cm, e); e_stop(e) }},
-    start: function(e){onDragStart(cm, e)},
+    enter: e => {if (!signalDOMEvent(cm, e)) e_stop(e)},
+    over: e => {if (!signalDOMEvent(cm, e)) { onDragOver(cm, e); e_stop(e) }},
+    start: e => onDragStart(cm, e),
     drop: operation(cm, onDrop),
-    leave: function(e) {if (!signalDOMEvent(cm, e)) { clearDragCursor(cm) }}
+    leave: e => {if (!signalDOMEvent(cm, e)) { clearDragCursor(cm) }}
   }
 
   let inp = d.input.getField()
-  on(inp, "keyup", function(e) { onKeyUp.call(cm, e) })
+  on(inp, "keyup", e => onKeyUp.call(cm, e))
   on(inp, "keydown", operation(cm, onKeyDown))
   on(inp, "keypress", operation(cm, onKeyPress))
-  on(inp, "focus", function(e) { onFocus(cm, e) })
-  on(inp, "blur", function (e) { onBlur(cm, e) })
+  on(inp, "focus", e => onFocus(cm, e))
+  on(inp, "blur", e => onBlur(cm, e))
 }
 
 let initHooks = []
-CodeMirror.defineInitHook = function(f) {initHooks.push(f)}
+CodeMirror.defineInitHook = f => initHooks.push(f)

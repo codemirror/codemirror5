@@ -29,15 +29,15 @@ ContentEditableInput.prototype = copyObj({
     let div = input.div = display.lineDiv
     disableBrowserMagic(div, cm.options.spellcheck)
 
-    on(div, "paste", function(e) {
+    on(div, "paste", e => {
       if (signalDOMEvent(cm, e) || handlePaste(e, cm)) return
       // IE doesn't fire input events, so we schedule a read for the pasted content in this way
-      if (ie_version <= 11) setTimeout(operation(cm, function() {
+      if (ie_version <= 11) setTimeout(operation(cm, () => {
         if (!input.pollContent()) regChange(cm)
       }), 20)
     })
 
-    on(div, "compositionstart", function(e) {
+    on(div, "compositionstart", e => {
       let data = e.data
       input.composing = {sel: cm.doc.sel, data: data, startData: data}
       if (!data) return
@@ -48,10 +48,8 @@ ContentEditableInput.prototype = copyObj({
         input.composing.sel = simpleSelection(Pos(prim.head.line, found),
                                               Pos(prim.head.line, found + data.length))
     })
-    on(div, "compositionupdate", function(e) {
-      input.composing.data = e.data
-    })
-    on(div, "compositionend", function(e) {
+    on(div, "compositionupdate", e => input.composing.data = e.data)
+    on(div, "compositionend", e => {
       let ours = input.composing
       if (!ours) return
       if (e.data != ours.startData && !/\u200b/.test(e.data))
@@ -59,7 +57,7 @@ ContentEditableInput.prototype = copyObj({
       // Need a small delay to prevent other code (input event,
       // selection polling) from doing damage when fired right after
       // compositionend.
-      setTimeout(function() {
+      setTimeout(() => {
         if (!ours.handled)
           input.applyComposition(ours)
         if (input.composing == ours)
@@ -67,14 +65,12 @@ ContentEditableInput.prototype = copyObj({
       }, 50)
     })
 
-    on(div, "touchstart", function() {
-      input.forceCompositionEnd()
-    })
+    on(div, "touchstart", () => input.forceCompositionEnd())
 
-    on(div, "input", function() {
+    on(div, "input", () => {
       if (input.composing) return
       if (cm.isReadOnly() || !input.pollContent())
-        runInOp(input.cm, function() {regChange(cm)})
+        runInOp(input.cm, () => regChange(cm))
     })
 
     function onCopyCut(e) {
@@ -88,7 +84,7 @@ ContentEditableInput.prototype = copyObj({
         let ranges = copyableRanges(cm)
         setLastCopied({lineWise: true, text: ranges.text})
         if (e.type == "cut") {
-          cm.operation(function() {
+          cm.operation(() => {
             cm.setSelections(ranges.ranges, 0, sel_dontScroll)
             cm.replaceSelection("", null, "cut")
           })
@@ -110,7 +106,7 @@ ContentEditableInput.prototype = copyObj({
       te.value = lastCopied.text.join("\n")
       let hadFocus = document.activeElement
       selectInput(te)
-      setTimeout(function() {
+      setTimeout(() => {
         cm.display.lineSpace.removeChild(kludge)
         hadFocus.focus()
         if (hadFocus == div) input.showPrimarySelection()
@@ -175,10 +171,10 @@ ContentEditableInput.prototype = copyObj({
   startGracePeriod: function() {
     let input = this
     clearTimeout(this.gracePeriod)
-    this.gracePeriod = setTimeout(function() {
+    this.gracePeriod = setTimeout(() => {
       input.gracePeriod = false
       if (input.selectionChanged())
-        input.cm.operation(function() { input.cm.curOp.selectionChanged = true })
+        input.cm.operation(() => input.cm.curOp.selectionChanged = true)
     }, 20)
   },
 
@@ -213,7 +209,7 @@ ContentEditableInput.prototype = copyObj({
     if (this.selectionInEditor())
       this.pollSelection()
     else
-      runInOp(this.cm, function() { input.cm.curOp.selectionChanged = true })
+      runInOp(this.cm, () => input.cm.curOp.selectionChanged = true)
 
     function poll() {
       if (input.cm.state.focused) {
@@ -236,7 +232,7 @@ ContentEditableInput.prototype = copyObj({
       this.rememberSelection()
       let anchor = domToPos(cm, sel.anchorNode, sel.anchorOffset)
       let head = domToPos(cm, sel.focusNode, sel.focusOffset)
-      if (anchor && head) runInOp(cm, function() {
+      if (anchor && head) runInOp(cm, () => {
         setSelection(cm.doc, simpleSelection(anchor, head), sel_dontScroll)
         if (anchor.bad || head.bad) cm.curOp.selectionChanged = true
       })
@@ -356,7 +352,7 @@ function badPos(pos, bad) { if (bad) pos.bad = true; return pos }
 
 function domTextBetween(cm, from, to, fromLine, toLine) {
   let text = "", closing = false, lineSep = cm.doc.lineSeparator()
-  function recognizeMarker(id) { return function(marker) { return marker.id == id } }
+  function recognizeMarker(id) { return marker => marker.id == id }
   function walk(node) {
     if (node.nodeType == 1) {
       let cmText = node.getAttribute("cm-text")

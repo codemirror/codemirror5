@@ -28,7 +28,7 @@ export function History(startGen) {
 export function historyChangeFromChange(doc, change) {
   let histChange = {from: copyPos(change.from), to: changeEnd(change), text: getBetween(doc, change.from, change.to)}
   attachLocalSpans(doc, histChange, change.from.line, change.to.line + 1)
-  linkedDocs(doc, function(doc) {attachLocalSpans(doc, histChange, change.from.line, change.to.line + 1)}, true)
+  linkedDocs(doc, doc => attachLocalSpans(doc, histChange, change.from.line, change.to.line + 1), true)
   return histChange
 }
 
@@ -146,7 +146,7 @@ export function pushSelectionToHistory(sel, dest) {
 // Used to store marked span information in the history.
 function attachLocalSpans(doc, change, from, to) {
   let existing = change["spans_" + doc.id], n = 0
-  doc.iter(Math.max(doc.first, from), Math.min(doc.first + doc.size, to), function(line) {
+  doc.iter(Math.max(doc.first, from), Math.min(doc.first + doc.size, to), line => {
     if (line.markedSpans)
       (existing || (existing = change["spans_" + doc.id] = {}))[n] = line.markedSpans
     ++n

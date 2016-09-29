@@ -13,109 +13,87 @@ import { getOrder, lineLeft, lineRight } from "../util/bidi"
 // editor, mostly used for keybindings.
 export let commands = {
   selectAll: selectAll,
-  singleSelection: function(cm) {
-    cm.setSelection(cm.getCursor("anchor"), cm.getCursor("head"), sel_dontScroll)
-  },
-  killLine: function(cm) {
-    deleteNearSelection(cm, function(range) {
-      if (range.empty()) {
-        let len = getLine(cm.doc, range.head.line).text.length
-        if (range.head.ch == len && range.head.line < cm.lastLine())
-          return {from: range.head, to: Pos(range.head.line + 1, 0)}
-        else
-          return {from: range.head, to: Pos(range.head.line, len)}
-      } else {
-        return {from: range.from(), to: range.to()}
-      }
-    })
-  },
-  deleteLine: function(cm) {
-    deleteNearSelection(cm, function(range) {
-      return {from: Pos(range.from().line, 0),
-              to: clipPos(cm.doc, Pos(range.to().line + 1, 0))}
-    })
-  },
-  delLineLeft: function(cm) {
-    deleteNearSelection(cm, function(range) {
-      return {from: Pos(range.from().line, 0), to: range.from()}
-    })
-  },
-  delWrappedLineLeft: function(cm) {
-    deleteNearSelection(cm, function(range) {
-      let top = cm.charCoords(range.head, "div").top + 5
-      let leftPos = cm.coordsChar({left: 0, top: top}, "div")
-      return {from: leftPos, to: range.from()}
-    })
-  },
-  delWrappedLineRight: function(cm) {
-    deleteNearSelection(cm, function(range) {
-      let top = cm.charCoords(range.head, "div").top + 5
-      let rightPos = cm.coordsChar({left: cm.display.lineDiv.offsetWidth + 100, top: top}, "div")
-      return {from: range.from(), to: rightPos }
-    })
-  },
-  undo: function(cm) {cm.undo()},
-  redo: function(cm) {cm.redo()},
-  undoSelection: function(cm) {cm.undoSelection()},
-  redoSelection: function(cm) {cm.redoSelection()},
-  goDocStart: function(cm) {cm.extendSelection(Pos(cm.firstLine(), 0))},
-  goDocEnd: function(cm) {cm.extendSelection(Pos(cm.lastLine()))},
-  goLineStart: function(cm) {
-    cm.extendSelectionsBy(function(range) { return lineStart(cm, range.head.line) },
-                          {origin: "+move", bias: 1})
-  },
-  goLineStartSmart: function(cm) {
-    cm.extendSelectionsBy(function(range) {
-      return lineStartSmart(cm, range.head)
-    }, {origin: "+move", bias: 1})
-  },
-  goLineEnd: function(cm) {
-    cm.extendSelectionsBy(function(range) { return lineEnd(cm, range.head.line) },
-                          {origin: "+move", bias: -1})
-  },
-  goLineRight: function(cm) {
-    cm.extendSelectionsBy(function(range) {
-      let top = cm.charCoords(range.head, "div").top + 5
-      return cm.coordsChar({left: cm.display.lineDiv.offsetWidth + 100, top: top}, "div")
-    }, sel_move)
-  },
-  goLineLeft: function(cm) {
-    cm.extendSelectionsBy(function(range) {
-      let top = cm.charCoords(range.head, "div").top + 5
-      return cm.coordsChar({left: 0, top: top}, "div")
-    }, sel_move)
-  },
-  goLineLeftSmart: function(cm) {
-    cm.extendSelectionsBy(function(range) {
-      let top = cm.charCoords(range.head, "div").top + 5
-      let pos = cm.coordsChar({left: 0, top: top}, "div")
-      if (pos.ch < cm.getLine(pos.line).search(/\S/)) return lineStartSmart(cm, range.head)
-      return pos
-    }, sel_move)
-  },
-  goLineUp: function(cm) {cm.moveV(-1, "line")},
-  goLineDown: function(cm) {cm.moveV(1, "line")},
-  goPageUp: function(cm) {cm.moveV(-1, "page")},
-  goPageDown: function(cm) {cm.moveV(1, "page")},
-  goCharLeft: function(cm) {cm.moveH(-1, "char")},
-  goCharRight: function(cm) {cm.moveH(1, "char")},
-  goColumnLeft: function(cm) {cm.moveH(-1, "column")},
-  goColumnRight: function(cm) {cm.moveH(1, "column")},
-  goWordLeft: function(cm) {cm.moveH(-1, "word")},
-  goGroupRight: function(cm) {cm.moveH(1, "group")},
-  goGroupLeft: function(cm) {cm.moveH(-1, "group")},
-  goWordRight: function(cm) {cm.moveH(1, "word")},
-  delCharBefore: function(cm) {cm.deleteH(-1, "char")},
-  delCharAfter: function(cm) {cm.deleteH(1, "char")},
-  delWordBefore: function(cm) {cm.deleteH(-1, "word")},
-  delWordAfter: function(cm) {cm.deleteH(1, "word")},
-  delGroupBefore: function(cm) {cm.deleteH(-1, "group")},
-  delGroupAfter: function(cm) {cm.deleteH(1, "group")},
-  indentAuto: function(cm) {cm.indentSelection("smart")},
-  indentMore: function(cm) {cm.indentSelection("add")},
-  indentLess: function(cm) {cm.indentSelection("subtract")},
-  insertTab: function(cm) {cm.replaceSelection("\t")},
-  insertSoftTab: function(cm) {
+  singleSelection: cm => cm.setSelection(cm.getCursor("anchor"), cm.getCursor("head"), sel_dontScroll),
+  killLine: cm => deleteNearSelection(cm, range => {
+    if (range.empty()) {
+      let len = getLine(cm.doc, range.head.line).text.length
+      if (range.head.ch == len && range.head.line < cm.lastLine())
+        return {from: range.head, to: Pos(range.head.line + 1, 0)}
+      else
+        return {from: range.head, to: Pos(range.head.line, len)}
+    } else {
+      return {from: range.from(), to: range.to()}
+    }
+  }),
+  deleteLine: cm => deleteNearSelection(cm, range => ({
+    from: Pos(range.from().line, 0),
+    to: clipPos(cm.doc, Pos(range.to().line + 1, 0))
+  })),
+  delLineLeft: cm => deleteNearSelection(cm, range => ({
+    from: Pos(range.from().line, 0), to: range.from()
+  })),
+  delWrappedLineLeft: cm => deleteNearSelection(cm, range => {
+    let top = cm.charCoords(range.head, "div").top + 5
+    let leftPos = cm.coordsChar({left: 0, top: top}, "div")
+    return {from: leftPos, to: range.from()}
+  }),
+  delWrappedLineRight: cm => deleteNearSelection(cm, range => {
+    let top = cm.charCoords(range.head, "div").top + 5
+    let rightPos = cm.coordsChar({left: cm.display.lineDiv.offsetWidth + 100, top: top}, "div")
+    return {from: range.from(), to: rightPos }
+  }),
+  undo: cm => cm.undo(),
+  redo: cm => cm.redo(),
+  undoSelection: cm => cm.undoSelection(),
+  redoSelection: cm => cm.redoSelection(),
+  goDocStart: cm => cm.extendSelection(Pos(cm.firstLine(), 0)),
+  goDocEnd: cm => cm.extendSelection(Pos(cm.lastLine())),
+  goLineStart: cm => cm.extendSelectionsBy(range => lineStart(cm, range.head.line),
+    {origin: "+move", bias: 1}
+  ),
+  goLineStartSmart: cm => cm.extendSelectionsBy(range => lineStartSmart(cm, range.head),
+    {origin: "+move", bias: 1}
+  ),
+  goLineEnd: cm => cm.extendSelectionsBy(range => lineEnd(cm, range.head.line),
+    {origin: "+move", bias: -1}
+  ),
+  goLineRight: cm => cm.extendSelectionsBy(range => {
+    let top = cm.charCoords(range.head, "div").top + 5
+    return cm.coordsChar({left: cm.display.lineDiv.offsetWidth + 100, top: top}, "div")
+  }, sel_move),
+  goLineLeft: cm => cm.extendSelectionsBy(range => {
+    let top = cm.charCoords(range.head, "div").top + 5
+    return cm.coordsChar({left: 0, top: top}, "div")
+  }, sel_move),
+  goLineLeftSmart: cm => cm.extendSelectionsBy(range => {
+    let top = cm.charCoords(range.head, "div").top + 5
+    let pos = cm.coordsChar({left: 0, top: top}, "div")
+    if (pos.ch < cm.getLine(pos.line).search(/\S/)) return lineStartSmart(cm, range.head)
+    return pos
+  }, sel_move),
+  goLineUp: cm => cm.moveV(-1, "line"),
+  goLineDown: cm => cm.moveV(1, "line"),
+  goPageUp: cm => cm.moveV(-1, "page"),
+  goPageDown: cm => cm.moveV(1, "page"),
+  goCharLeft: cm => cm.moveH(-1, "char"),
+  goCharRight: cm => cm.moveH(1, "char"),
+  goColumnLeft: cm => cm.moveH(-1, "column"),
+  goColumnRight: cm => cm.moveH(1, "column"),
+  goWordLeft: cm => cm.moveH(-1, "word"),
+  goGroupRight: cm => cm.moveH(1, "group"),
+  goGroupLeft: cm => cm.moveH(-1, "group"),
+  goWordRight: cm => cm.moveH(1, "word"),
+  delCharBefore: cm => cm.deleteH(-1, "char"),
+  delCharAfter: cm => cm.deleteH(1, "char"),
+  delWordBefore: cm => cm.deleteH(-1, "word"),
+  delWordAfter: cm => cm.deleteH(1, "word"),
+  delGroupBefore: cm => cm.deleteH(-1, "group"),
+  delGroupAfter: cm => cm.deleteH(1, "group"),
+  indentAuto: cm => cm.indentSelection("smart"),
+  indentMore: cm => cm.indentSelection("add"),
+  indentLess: cm => cm.indentSelection("subtract"),
+  insertTab: cm => cm.replaceSelection("\t"),
+  insertSoftTab: cm => {
     let spaces = [], ranges = cm.listSelections(), tabSize = cm.options.tabSize
     for (let i = 0; i < ranges.length; i++) {
       let pos = ranges[i].from()
@@ -124,47 +102,43 @@ export let commands = {
     }
     cm.replaceSelections(spaces)
   },
-  defaultTab: function(cm) {
+  defaultTab: cm => {
     if (cm.somethingSelected()) cm.indentSelection("add")
     else cm.execCommand("insertTab")
   },
-  transposeChars: function(cm) {
-    runInOp(cm, function() {
-      let ranges = cm.listSelections(), newSel = []
-      for (let i = 0; i < ranges.length; i++) {
-        let cur = ranges[i].head, line = getLine(cm.doc, cur.line).text
-        if (line) {
-          if (cur.ch == line.length) cur = new Pos(cur.line, cur.ch - 1)
-          if (cur.ch > 0) {
-            cur = new Pos(cur.line, cur.ch + 1)
-            cm.replaceRange(line.charAt(cur.ch - 1) + line.charAt(cur.ch - 2),
-                            Pos(cur.line, cur.ch - 2), cur, "+transpose")
-          } else if (cur.line > cm.doc.first) {
-            let prev = getLine(cm.doc, cur.line - 1).text
-            if (prev)
-              cm.replaceRange(line.charAt(0) + cm.doc.lineSeparator() +
-                              prev.charAt(prev.length - 1),
-                              Pos(cur.line - 1, prev.length - 1), Pos(cur.line, 1), "+transpose")
-          }
+  transposeChars: cm => runInOp(cm, () => {
+    let ranges = cm.listSelections(), newSel = []
+    for (let i = 0; i < ranges.length; i++) {
+      let cur = ranges[i].head, line = getLine(cm.doc, cur.line).text
+      if (line) {
+        if (cur.ch == line.length) cur = new Pos(cur.line, cur.ch - 1)
+        if (cur.ch > 0) {
+          cur = new Pos(cur.line, cur.ch + 1)
+          cm.replaceRange(line.charAt(cur.ch - 1) + line.charAt(cur.ch - 2),
+                          Pos(cur.line, cur.ch - 2), cur, "+transpose")
+        } else if (cur.line > cm.doc.first) {
+          let prev = getLine(cm.doc, cur.line - 1).text
+          if (prev)
+            cm.replaceRange(line.charAt(0) + cm.doc.lineSeparator() +
+                            prev.charAt(prev.length - 1),
+                            Pos(cur.line - 1, prev.length - 1), Pos(cur.line, 1), "+transpose")
         }
-        newSel.push(new Range(cur, cur))
       }
-      cm.setSelections(newSel)
-    })
-  },
-  newlineAndIndent: function(cm) {
-    runInOp(cm, function() {
-      let sels = cm.listSelections()
-      for (let i = sels.length - 1; i >= 0; i--)
-        cm.replaceRange(cm.doc.lineSeparator(), sels[i].anchor, sels[i].head, "+input")
-      sels = cm.listSelections()
-      for (let i = 0; i < sels.length; i++)
-        cm.indentLine(sels[i].from().line, null, true)
-      ensureCursorVisible(cm)
-    })
-  },
-  openLine: function(cm) {cm.replaceSelection("\n", "start")},
-  toggleOverwrite: function(cm) {cm.toggleOverwrite()}
+      newSel.push(new Range(cur, cur))
+    }
+    cm.setSelections(newSel)
+  }),
+  newlineAndIndent: cm => runInOp(cm, () => {
+    let sels = cm.listSelections()
+    for (let i = sels.length - 1; i >= 0; i--)
+      cm.replaceRange(cm.doc.lineSeparator(), sels[i].anchor, sels[i].head, "+input")
+    sels = cm.listSelections()
+    for (let i = 0; i < sels.length; i++)
+      cm.indentLine(sels[i].from().line, null, true)
+    ensureCursorVisible(cm)
+  }),
+  openLine: cm => cm.replaceSelection("\n", "start"),
+  toggleOverwrite: cm => cm.toggleOverwrite()
 }
 
 

@@ -35,7 +35,7 @@ export function applyTextInput(cm, inserted, deleted, sel, origin) {
           multiPaste.push(doc.splitLines(lastCopied.text[i]))
       }
     } else if (textLines.length == sel.ranges.length) {
-      multiPaste = map(textLines, function(l) { return [l] })
+      multiPaste = map(textLines, l => [l])
     }
   }
 
@@ -72,7 +72,7 @@ export function handlePaste(e, cm) {
   if (pasted) {
     e.preventDefault()
     if (!cm.isReadOnly() && !cm.options.disableInput)
-      runInOp(cm, function() { applyTextInput(cm, pasted, 0, null, "paste") })
+      runInOp(cm, () => applyTextInput(cm, pasted, 0, null, "paste"))
     return true
   }
 }

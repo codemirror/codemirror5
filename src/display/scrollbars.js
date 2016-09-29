@@ -33,10 +33,10 @@ function NativeScrollbars(place, scroll, cm) {
   let horiz = this.horiz = elt("div", [elt("div", null, null, "height: 100%; min-height: 1px")], "CodeMirror-hscrollbar")
   place(vert); place(horiz)
 
-  on(vert, "scroll", function() {
+  on(vert, "scroll", () => {
     if (vert.clientHeight) scroll(vert.scrollTop, "vertical")
   })
-  on(horiz, "scroll", function() {
+  on(horiz, "scroll", () => {
     if (horiz.clientWidth) scroll(horiz.scrollLeft, "horizontal")
   })
 
@@ -172,14 +172,14 @@ export function initScrollbars(cm) {
       rmClass(cm.display.wrapper, cm.display.scrollbars.addClass)
   }
 
-  cm.display.scrollbars = new scrollbarModel[cm.options.scrollbarStyle](function(node) {
+  cm.display.scrollbars = new scrollbarModel[cm.options.scrollbarStyle](node => {
     cm.display.wrapper.insertBefore(node, cm.display.scrollbarFiller)
     // Prevent clicks in the scrollbars from killing focus
-    on(node, "mousedown", function() {
-      if (cm.state.focused) setTimeout(function() { cm.display.input.focus() }, 0)
+    on(node, "mousedown", () => {
+      if (cm.state.focused) setTimeout(() => cm.display.input.focus(), 0)
     })
     node.setAttribute("cm-not-content", "true")
-  }, function(pos, axis) {
+  }, (pos, axis) => {
     if (axis == "horizontal") setScrollLeft(cm, pos)
     else setScrollTop(cm, pos)
   }, cm)

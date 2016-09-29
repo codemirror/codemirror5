@@ -28,7 +28,7 @@ export function fromTextArea(textarea, options) {
       let form = textarea.form
       realSubmit = form.submit
       try {
-        let wrappedSubmit = form.submit = function() {
+        let wrappedSubmit = form.submit = () => {
           save()
           form.submit = realSubmit
           form.submit()
@@ -38,10 +38,10 @@ export function fromTextArea(textarea, options) {
     }
   }
 
-  options.finishInit = function(cm) {
+  options.finishInit = cm => {
     cm.save = save
-    cm.getTextArea = function() { return textarea }
-    cm.toTextArea = function() {
+    cm.getTextArea = () => textarea
+    cm.toTextArea = () => {
       cm.toTextArea = isNaN // Prevent this from being ran twice
       save()
       textarea.parentNode.removeChild(cm.getWrapperElement())
@@ -55,8 +55,7 @@ export function fromTextArea(textarea, options) {
   }
 
   textarea.style.display = "none"
-  let cm = CodeMirror(function(node) {
-    textarea.parentNode.insertBefore(node, textarea.nextSibling)
-  }, options)
+  let cm = CodeMirror(node => textarea.parentNode.insertBefore(node, textarea.nextSibling),
+    options)
   return cm
 }
