@@ -28,7 +28,7 @@ export function onMouseDown(e) {
       // Briefly turn off draggability, to allow widgets to do
       // normal dragging things.
       display.scroller.draggable = false
-      setTimeout(function(){display.scroller.draggable = true}, 100)
+      setTimeout(() => display.scroller.draggable = true, 100)
     }
     return
   }
@@ -49,7 +49,7 @@ export function onMouseDown(e) {
   case 2:
     if (webkit) cm.state.lastMiddleDown = +new Date
     if (start) extendSelection(cm.doc, start)
-    setTimeout(function() {display.input.focus()}, 20)
+    setTimeout(() => display.input.focus(), 20)
     e_preventDefault(e)
     break
   case 3:
@@ -89,7 +89,7 @@ function leftButtonDown(cm, e, start) {
 // happen, and treat as a click if it didn't.
 function leftButtonStartDrag(cm, e, start, modifier) {
   let display = cm.display, startTime = +new Date
-  let dragEnd = operation(cm, function(e2) {
+  let dragEnd = operation(cm, e2 => {
     if (webkit) display.scroller.draggable = false
     cm.state.draggingText = false
     off(document, "mouseup", dragEnd)
@@ -100,7 +100,7 @@ function leftButtonStartDrag(cm, e, start, modifier) {
         extendSelection(cm.doc, start)
       // Work around unexplainable focus problem in IE9 (#2127) and Chrome (#3081)
       if (webkit || ie && ie_version == 9)
-        setTimeout(function() {document.body.focus(); display.input.focus()}, 20)
+        setTimeout(() => {document.body.focus(); display.input.focus()}, 20)
       else
         display.input.focus()
     }
@@ -230,10 +230,10 @@ function leftButtonSelect(cm, e, start, type, addNew) {
       extendTo(cur)
       let visible = visibleLines(display, doc)
       if (cur.line >= visible.to || cur.line < visible.from)
-        setTimeout(operation(cm, function(){if (counter == curCount) extend(e)}), 150)
+        setTimeout(operation(cm, () => {if (counter == curCount) extend(e)}), 150)
     } else {
       let outside = e.clientY < editorSize.top ? -20 : e.clientY > editorSize.bottom ? 20 : 0
-      if (outside) setTimeout(operation(cm, function() {
+      if (outside) setTimeout(operation(cm, () => {
         if (counter != curCount) return
         display.scroller.scrollTop += outside
         extend(e)
@@ -251,7 +251,7 @@ function leftButtonSelect(cm, e, start, type, addNew) {
     doc.history.lastSelOrigin = null
   }
 
-  let move = operation(cm, function(e) {
+  let move = operation(cm, e => {
     if (!e_button(e)) done(e)
     else extend(e)
   })

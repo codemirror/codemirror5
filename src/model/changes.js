@@ -26,13 +26,13 @@ function filterChange(doc, change, update) {
     to: change.to,
     text: change.text,
     origin: change.origin,
-    cancel: function() { this.canceled = true }
+    cancel: () => obj.canceled = true
   }
-  if (update) obj.update = function(from, to, text, origin) {
-    if (from) this.from = clipPos(doc, from)
-    if (to) this.to = clipPos(doc, to)
-    if (text) this.text = text
-    if (origin !== undefined) this.origin = origin
+  if (update) obj.update = (from, to, text, origin) => {
+    if (from) obj.from = clipPos(doc, from)
+    if (to) obj.to = clipPos(doc, to)
+    if (text) obj.text = text
+    if (origin !== undefined) obj.origin = origin
   }
   signal(doc, "beforeChange", doc, obj)
   if (doc.cm) signal(doc.cm, "beforeChange", doc.cm, obj)
@@ -73,7 +73,7 @@ function makeChangeInner(doc, change) {
   makeChangeSingleDoc(doc, change, selAfter, stretchSpansOverChange(doc, change))
   let rebased = []
 
-  linkedDocs(doc, function(doc, sharedHist) {
+  linkedDocs(doc, (doc, sharedHist) => {
     if (!sharedHist && indexOf(rebased, doc.history) == -1) {
       rebaseHist(doc.history, change)
       rebased.push(doc.history)
@@ -138,7 +138,7 @@ export function makeChangeFromHistory(doc, type, allowSelectionOnly) {
     let rebased = []
 
     // Propagate to the linked documents
-    linkedDocs(doc, function(doc, sharedHist) {
+    linkedDocs(doc, (doc, sharedHist) => {
       if (!sharedHist && indexOf(rebased, doc.history) == -1) {
         rebaseHist(doc.history, change)
         rebased.push(doc.history)
@@ -153,10 +153,10 @@ export function makeChangeFromHistory(doc, type, allowSelectionOnly) {
 function shiftDoc(doc, distance) {
   if (distance == 0) return
   doc.first += distance
-  doc.sel = new Selection(map(doc.sel.ranges, function(range) {
-    return new Range(Pos(range.anchor.line + distance, range.anchor.ch),
-                     Pos(range.head.line + distance, range.head.ch))
-  }), doc.sel.primIndex)
+  doc.sel = new Selection(map(doc.sel.ranges, range => new Range(
+    Pos(range.anchor.line + distance, range.anchor.ch),
+    Pos(range.head.line + distance, range.head.ch)
+  )), doc.sel.primIndex)
   if (doc.cm) {
     regChange(doc.cm, doc.first, doc.first - distance, distance)
     for (let d = doc.cm.display, l = d.viewFrom; l < d.viewTo; l++)
@@ -205,7 +205,7 @@ function makeChangeSingleDocInEditor(cm, change, spans) {
   let recomputeMaxLength = false, checkWidthStart = from.line
   if (!cm.options.lineWrapping) {
     checkWidthStart = lineNo(visualLine(getLine(doc, from.line)))
-    doc.iter(checkWidthStart, to.line + 1, function(line) {
+    doc.iter(checkWidthStart, to.line + 1, line => {
       if (line == display.maxLine) {
         recomputeMaxLength = true
         return true
@@ -219,7 +219,7 @@ function makeChangeSingleDocInEditor(cm, change, spans) {
   updateDoc(doc, change, spans, estimateHeight(cm))
 
   if (!cm.options.lineWrapping) {
-    doc.iter(checkWidthStart, from.line + change.text.length, function(line) {
+    doc.iter(checkWidthStart, from.line + change.text.length, line => {
       let len = lineLength(line)
       if (len > display.maxLineLength) {
         display.maxLine = line

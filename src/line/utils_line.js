@@ -19,7 +19,7 @@ export function getLine(doc, n) {
 // strings.
 export function getBetween(doc, start, end) {
   let out = [], n = start.line
-  doc.iter(start.line, end.line + 1, function(line) {
+  doc.iter(start.line, end.line + 1, line => {
     let text = line.text
     if (n == end.line) text = text.slice(0, end.ch)
     if (n == start.line) text = text.slice(start.ch)
@@ -31,7 +31,7 @@ export function getBetween(doc, start, end) {
 // Get the lines between from and to, as array of strings.
 export function getLines(doc, from, to) {
   let out = []
-  doc.iter(from, to, function(line) { out.push(line.text) })
+  doc.iter(from, to, line => { out.push(line.text) }) // iter aborts when callback returns truthy value
   return out
 }
 

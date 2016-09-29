@@ -46,12 +46,12 @@ TextareaInput.prototype = copyObj({
     // Needed to hide big blue blinking cursor on Mobile Safari (doesn't seem to work in iOS 8 anymore)
     if (ios) te.style.width = "0px"
 
-    on(te, "input", function() {
+    on(te, "input", () => {
       if (ie && ie_version >= 9 && input.hasSelection) input.hasSelection = null
       input.poll()
     })
 
-    on(te, "paste", function(e) {
+    on(te, "paste", e => {
       if (signalDOMEvent(cm, e) || handlePaste(e, cm)) return
 
       cm.state.pasteIncoming = true
@@ -86,18 +86,18 @@ TextareaInput.prototype = copyObj({
     on(te, "cut", prepareCopyCut)
     on(te, "copy", prepareCopyCut)
 
-    on(display.scroller, "paste", function(e) {
+    on(display.scroller, "paste", e => {
       if (eventInWidget(display, e) || signalDOMEvent(cm, e)) return
       cm.state.pasteIncoming = true
       input.focus()
     })
 
     // Prevent normal selection in the editor (we handle our own)
-    on(display.lineSpace, "selectstart", function(e) {
+    on(display.lineSpace, "selectstart", e => {
       if (!eventInWidget(display, e)) e_preventDefault(e)
     })
 
-    on(te, "compositionstart", function() {
+    on(te, "compositionstart", () => {
       let start = cm.getCursor("from")
       if (input.composing) input.composing.range.clear()
       input.composing = {
@@ -105,7 +105,7 @@ TextareaInput.prototype = copyObj({
         range: cm.markText(start, cm.getCursor("to"), {className: "CodeMirror-composing"})
       }
     })
-    on(te, "compositionend", function() {
+    on(te, "compositionend", () => {
       if (input.composing) {
         input.poll()
         input.composing.range.clear()
@@ -187,7 +187,7 @@ TextareaInput.prototype = copyObj({
   slowPoll: function() {
     let input = this
     if (input.pollingFast) return
-    input.polling.set(this.cm.options.pollInterval, function() {
+    input.polling.set(this.cm.options.pollInterval, () => {
       input.poll()
       if (input.cm.state.focused) input.slowPoll()
     })
@@ -246,7 +246,7 @@ TextareaInput.prototype = copyObj({
     while (same < l && prevInput.charCodeAt(same) == text.charCodeAt(same)) ++same
 
     let self = this
-    runInOp(cm, function() {
+    runInOp(cm, () => {
       applyTextInput(cm, text.slice(same), prevInput.length - same,
                      null, self.composing ? "*compose" : null)
 
@@ -326,7 +326,7 @@ TextareaInput.prototype = copyObj({
       // Try to detect the user choosing select-all
       if (te.selectionStart != null) {
         if (!ie || (ie && ie_version < 9)) prepareSelectAllHack()
-        let i = 0, poll = function() {
+        let i = 0, poll = () => {
           if (display.selForContextMenu == cm.doc.sel && te.selectionStart == 0 &&
               te.selectionEnd > 0 && input.prevInput == "\u200b")
             operation(cm, selectAll)(cm)
@@ -340,7 +340,7 @@ TextareaInput.prototype = copyObj({
     if (ie && ie_version >= 9) prepareSelectAllHack()
     if (captureRightClick) {
       e_stop(e)
-      let mouseup = function() {
+      let mouseup = () => {
         off(window, "mouseup", mouseup)
         setTimeout(rehide, 20)
       }

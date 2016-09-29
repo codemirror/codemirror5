@@ -48,7 +48,7 @@ else if (gecko) wheelPixelsPerUnit = 15
 else if (chrome) wheelPixelsPerUnit = -.7
 else if (safari) wheelPixelsPerUnit = -1/3
 
-let wheelEventDelta = function(e) {
+function wheelEventDelta(e) {
   let dx = e.wheelDeltaX, dy = e.wheelDeltaY
   if (dx == null && e.detail && e.axis == e.HORIZONTAL_AXIS) dx = e.detail
   if (dy == null && e.detail && e.axis == e.VERTICAL_AXIS) dy = e.detail
@@ -120,7 +120,7 @@ export function onScrollWheel(cm, e) {
     if (display.wheelStartX == null) {
       display.wheelStartX = scroll.scrollLeft; display.wheelStartY = scroll.scrollTop
       display.wheelDX = dx; display.wheelDY = dy
-      setTimeout(function() {
+      setTimeout(() => {
         if (display.wheelStartX == null) return
         let movedX = scroll.scrollLeft - display.wheelStartX
         let movedY = scroll.scrollTop - display.wheelStartY

@@ -46,17 +46,15 @@ CodeMirror.defineMode = function(name/*, mode, …*/) {
 CodeMirror.defineMIME = defineMIME
 
 // Minimal default mode.
-CodeMirror.defineMode("null", function() {
-  return {token: function(stream) {stream.skipToEnd()}}
-})
+CodeMirror.defineMode("null", () => ({token: stream => stream.skipToEnd()}))
 CodeMirror.defineMIME("text/plain", "null")
 
 // EXTENSIONS
 
-CodeMirror.defineExtension = function(name, func) {
+CodeMirror.defineExtension = (name, func) => {
   CodeMirror.prototype[name] = func
 }
-CodeMirror.defineDocExtension = function(name, func) {
+CodeMirror.defineDocExtension = (name, func) => {
   Doc.prototype[name] = func
 }
 

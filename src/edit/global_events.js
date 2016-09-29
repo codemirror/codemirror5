@@ -23,16 +23,14 @@ export function ensureGlobalHandlers() {
 function registerGlobalHandlers() {
   // When the window resizes, we need to refresh active editors.
   let resizeTimer
-  on(window, "resize", function() {
-    if (resizeTimer == null) resizeTimer = setTimeout(function() {
+  on(window, "resize", () => {
+    if (resizeTimer == null) resizeTimer = setTimeout(() => {
       resizeTimer = null
       forEachCodeMirror(onResize)
     }, 100)
   })
   // When the window loses focus, we want to show the editor as blurred
-  on(window, "blur", function() {
-    forEachCodeMirror(onBlur)
-  })
+  on(window, "blur", () => forEachCodeMirror(onBlur))
 }
 // Called when the window resizes
 function onResize(cm) {

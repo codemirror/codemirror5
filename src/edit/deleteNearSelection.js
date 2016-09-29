@@ -22,7 +22,7 @@ export function deleteNearSelection(cm, compute) {
     kill.push(toKill)
   }
   // Next, remove those actual ranges.
-  runInOp(cm, function() {
+  runInOp(cm, () => {
     for (let i = kill.length - 1; i >= 0; i--)
       replaceRange(cm.doc, "", kill[i].from, kill[i].to, "+delete")
     ensureCursorVisible(cm)

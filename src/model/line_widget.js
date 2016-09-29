@@ -29,7 +29,7 @@ LineWidget.prototype.clear = function() {
   if (!ws.length) line.widgets = null
   let height = widgetHeight(this)
   updateLineHeight(line, Math.max(0, line.height - height))
-  if (cm) runInOp(cm, function() {
+  if (cm) runInOp(cm, () => {
     adjustScrollWhenAboveVisible(cm, line, -height)
     regLineChange(cm, no, "widget")
   })
@@ -40,7 +40,7 @@ LineWidget.prototype.changed = function() {
   let diff = widgetHeight(this) - oldH
   if (!diff) return
   updateLineHeight(line, line.height + diff)
-  if (cm) runInOp(cm, function() {
+  if (cm) runInOp(cm, () => {
     cm.curOp.forceUpdate = true
     adjustScrollWhenAboveVisible(cm, line, diff)
   })
@@ -50,7 +50,7 @@ export function addLineWidget(doc, handle, node, options) {
   let widget = new LineWidget(doc, node, options)
   let cm = doc.cm
   if (cm && widget.noHScroll) cm.display.alignWidgets = true
-  changeLine(doc, handle, "widget", function(line) {
+  changeLine(doc, handle, "widget", line => {
     let widgets = line.widgets || (line.widgets = [])
     if (widget.insertAt == null) widgets.push(widget)
     else widgets.splice(Math.min(widgets.length - 1, Math.max(0, widget.insertAt)), 0, widget)

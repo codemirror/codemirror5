@@ -525,7 +525,7 @@ export function compensateForHScroll(display) {
 export function estimateHeight(cm) {
   let th = textHeight(cm.display), wrapping = cm.options.lineWrapping
   let perLine = wrapping && Math.max(5, cm.display.scroller.clientWidth / charWidth(cm.display) - 3)
-  return function(line) {
+  return line => {
     if (lineIsHidden(cm.doc, line)) return 0
 
     let widgetsHeight = 0
@@ -542,7 +542,7 @@ export function estimateHeight(cm) {
 
 export function estimateLineHeights(cm) {
   let doc = cm.doc, est = estimateHeight(cm)
-  doc.iter(function(line) {
+  doc.iter(line => {
     let estHeight = est(line)
     if (estHeight != line.height) updateLineHeight(line, estHeight)
   })

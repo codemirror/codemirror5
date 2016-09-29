@@ -143,7 +143,7 @@ function clearEmptySpans(spans) {
 // Used to 'clip' out readOnly ranges when making a change.
 export function removeReadOnlyRanges(doc, from, to) {
   let markers = null
-  doc.iter(from.line, to.line + 1, function(line) {
+  doc.iter(from.line, to.line + 1, line => {
     if (line.markedSpans) for (let i = 0; i < line.markedSpans.length; ++i) {
       let mark = line.markedSpans[i].marker
       if (mark.readOnly && (!markers || indexOf(markers, mark) == -1))
@@ -355,7 +355,7 @@ export function findMaxLine(cm) {
   d.maxLine = getLine(doc, doc.first)
   d.maxLineLength = lineLength(d.maxLine)
   d.maxLineChanged = true
-  doc.iter(function(line) {
+  doc.iter(line => {
     let len = lineLength(line)
     if (len > d.maxLineLength) {
       d.maxLineLength = len

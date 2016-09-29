@@ -111,7 +111,7 @@ TextMarker.prototype.find = function(side, lineObj) {
 TextMarker.prototype.changed = function() {
   let pos = this.find(-1, true), widget = this, cm = this.doc.cm
   if (!pos || !cm) return
-  runInOp(cm, function() {
+  runInOp(cm, () => {
     let line = pos.line, lineN = lineNo(pos.line)
     let view = findViewForLine(cm, lineN)
     if (view) {
@@ -177,7 +177,7 @@ export function markText(doc, from, to, options, type) {
     addChangeToHistory(doc, {from: from, to: to, origin: "markText"}, doc.sel, NaN)
 
   let curLine = from.line, cm = doc.cm, updateMaxLine
-  doc.iter(curLine, to.line + 1, function(line) {
+  doc.iter(curLine, to.line + 1, line => {
     if (cm && marker.collapsed && !cm.options.lineWrapping && visualLine(line) == cm.display.maxLine)
       updateMaxLine = true
     if (marker.collapsed && curLine != from.line) updateLineHeight(line, 0)
@@ -187,11 +187,11 @@ export function markText(doc, from, to, options, type) {
     ++curLine
   })
   // lineIsHidden depends on the presence of the spans, so needs a second pass
-  if (marker.collapsed) doc.iter(from.line, to.line + 1, function(line) {
+  if (marker.collapsed) doc.iter(from.line, to.line + 1, line => {
     if (lineIsHidden(doc, line)) updateLineHeight(line, 0)
   })
 
-  if (marker.clearOnEnter) on(marker, "beforeCursorEnter", function() { marker.clear() })
+  if (marker.clearOnEnter) on(marker, "beforeCursorEnter", () => marker.clear())
 
   if (marker.readOnly) {
     seeReadOnlySpans()
@@ -244,7 +244,7 @@ function markTextShared(doc, from, to, options, type) {
   options.shared = false
   let markers = [markText(doc, from, to, options, type)], primary = markers[0]
   let widget = options.widgetNode
-  linkedDocs(doc, function(doc) {
+  linkedDocs(doc, doc => {
     if (widget) options.widgetNode = widget.cloneNode(true)
     markers.push(markText(doc, clipPos(doc, from), clipPos(doc, to), options, type))
     for (let i = 0; i < doc.linked.length; ++i)
@@ -255,8 +255,7 @@ function markTextShared(doc, from, to, options, type) {
 }
 
 export function findSharedMarkers(doc) {
-  return doc.findMarks(Pos(doc.first, 0), doc.clipPos(Pos(doc.lastLine())),
-                       function(m) { return m.parent })
+  return doc.findMarks(Pos(doc.first, 0), doc.clipPos(Pos(doc.lastLine())), m => m.parent)
 }
 
 export function copySharedMarkers(doc, markers) {
@@ -274,7 +273,7 @@ export function copySharedMarkers(doc, markers) {
 export function detachSharedMarkers(markers) {
   for (let i = 0; i < markers.length; i++) {
     let marker = markers[i], linked = [marker.primary.doc]
-    linkedDocs(marker.primary.doc, function(d) { linked.push(d) })
+    linkedDocs(marker.primary.doc, d => linked.push(d))
     for (let j = 0; j < marker.markers.length; j++) {
       let subMarker = marker.markers[j]
       if (indexOf(linked, subMarker.doc) == -1) {

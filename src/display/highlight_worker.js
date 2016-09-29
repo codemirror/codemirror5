@@ -20,7 +20,7 @@ function highlightWorker(cm) {
   let state = copyState(doc.mode, getStateBefore(cm, doc.frontier))
   let changedLines = []
 
-  doc.iter(doc.frontier, Math.min(doc.first + doc.size, cm.display.viewTo + 500), function(line) {
+  doc.iter(doc.frontier, Math.min(doc.first + doc.size, cm.display.viewTo + 500), line => {
     if (doc.frontier >= cm.display.viewFrom) { // Visible
       let oldStyles = line.styles, tooLong = line.text.length > cm.options.maxHighlightLength
       let highlighted = highlightLine(cm, line, tooLong ? copyState(doc.mode, state) : state, true)
@@ -44,7 +44,7 @@ function highlightWorker(cm) {
       return true
     }
   })
-  if (changedLines.length) runInOp(cm, function() {
+  if (changedLines.length) runInOp(cm, () => {
     for (let i = 0; i < changedLines.length; i++)
       regLineChange(cm, changedLines[i], "text")
   })

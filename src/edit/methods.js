@@ -69,7 +69,7 @@ export default function(CodeMirror) {
       insertSorted(this.state.overlays,
                    {mode: mode, modeSpec: spec, opaque: options && options.opaque,
                     priority: (options && options.priority) || 0},
-                   function(overlay) { return overlay.priority })
+                   overlay => overlay.priority)
       this.state.modeGen++
       regChange(this)
     }),
@@ -219,7 +219,7 @@ export default function(CodeMirror) {
     defaultCharWidth: function() { return charWidth(this.display) },
 
     setGutterMarker: methodOp(function(line, gutterID, value) {
-      return changeLine(this.doc, line, "gutter", function(line) {
+      return changeLine(this.doc, line, "gutter", line => {
         let markers = line.gutterMarkers || (line.gutterMarkers = {})
         markers[gutterID] = value
         if (!value && isEmpty(markers)) line.gutterMarkers = null
@@ -229,7 +229,7 @@ export default function(CodeMirror) {
 
     clearGutter: methodOp(function(gutterID) {
       let cm = this, doc = cm.doc, i = doc.first
-      doc.iter(function(line) {
+      doc.iter(line => {
         if (line.gutterMarkers && line.gutterMarkers[gutterID]) {
           line.gutterMarkers[gutterID] = null
           regLineChange(cm, i, "gutter")
@@ -316,7 +316,7 @@ export default function(CodeMirror) {
 
     moveH: methodOp(function(dir, unit) {
       let cm = this
-      cm.extendSelectionsBy(function(range) {
+      cm.extendSelectionsBy(range => {
         if (cm.display.shift || cm.doc.extend || range.empty())
           return findPosH(cm.doc, range.head, dir, unit, cm.options.rtlMoveVisually)
         else
@@ -329,7 +329,7 @@ export default function(CodeMirror) {
       if (sel.somethingSelected())
         doc.replaceSelection("", null, "+delete")
       else
-        deleteNearSelection(this, function(range) {
+        deleteNearSelection(this, range => {
           let other = findPosH(doc, range.head, dir, unit, false)
           return dir < 0 ? {from: other, to: range.head} : {from: range.head, to: other}
         })
@@ -352,7 +352,7 @@ export default function(CodeMirror) {
     moveV: methodOp(function(dir, unit) {
       let cm = this, doc = this.doc, goals = []
       let collapse = !cm.display.shift && !doc.extend && doc.sel.somethingSelected()
-      doc.extendSelectionsBy(function(range) {
+      doc.extendSelectionsBy(range => {
         if (collapse)
           return dir < 0 ? range.from() : range.to()
         let headPos = cursorCoords(cm, range.head, "div")
@@ -376,9 +376,9 @@ export default function(CodeMirror) {
         if ((pos.xRel < 0 || end == line.length) && start) --start; else ++end
         let startChar = line.charAt(start)
         let check = isWordChar(startChar, helper)
-          ? function(ch) { return isWordChar(ch, helper) }
-          : /\s/.test(startChar) ? function(ch) {return /\s/.test(ch)}
-          : function(ch) {return !/\s/.test(ch) && !isWordChar(ch)}
+          ? ch => isWordChar(ch, helper)
+          : /\s/.test(startChar) ? ch => /\s/.test(ch)
+          : ch => (!/\s/.test(ch) && !isWordChar(ch))
         while (start > 0 && check(line.charAt(start - 1))) --start
         while (end < line.length && check(line.charAt(end))) ++end
       }
@@ -436,14 +436,12 @@ export default function(CodeMirror) {
 
     setSize: methodOp(function(width, height) {
       let cm = this
-      function interpret(val) {
-        return typeof val == "number" || /^\d+$/.test(String(val)) ? val + "px" : val
-      }
+      let interpret = val => typeof val == "number" || /^\d+$/.test(String(val)) ? val + "px" : val
       if (width != null) cm.display.wrapper.style.width = interpret(width)
       if (height != null) cm.display.wrapper.style.height = interpret(height)
       if (cm.options.lineWrapping) clearLineMeasurementCache(this)
       let lineNo = cm.display.viewFrom
-      cm.doc.iter(lineNo, cm.display.viewTo, function(line) {
+      cm.doc.iter(lineNo, cm.display.viewTo, line => {
         if (line.widgets) for (let i = 0; i < line.widgets.length; i++)
           if (line.widgets[i].noHScroll) { regLineChange(cm, lineNo, "widget"); break }
         ++lineNo

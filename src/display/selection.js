@@ -70,7 +70,7 @@ function drawSelectionRange(cm, range, output) {
       return charCoords(cm, Pos(line, ch), "div", lineObj, bias)
     }
 
-    iterateBidiSections(getOrder(lineObj), fromArg || 0, toArg == null ? lineLen : toArg, function(from, to, dir) {
+    iterateBidiSections(getOrder(lineObj), fromArg || 0, toArg == null ? lineLen : toArg, (from, to, dir) => {
       let leftPos = coords(from, "left"), rightPos, left, right
       if (from == to) {
         rightPos = leftPos
@@ -129,9 +129,8 @@ export function restartBlink(cm) {
   let on = true
   display.cursorDiv.style.visibility = ""
   if (cm.options.cursorBlinkRate > 0)
-    display.blinker = setInterval(function() {
-      display.cursorDiv.style.visibility = (on = !on) ? "" : "hidden"
-    }, cm.options.cursorBlinkRate)
+    display.blinker = setInterval(() => display.cursorDiv.style.visibility = (on = !on) ? "" : "hidden",
+      cm.options.cursorBlinkRate)
   else if (cm.options.cursorBlinkRate < 0)
     display.cursorDiv.style.visibility = "hidden"
 }
