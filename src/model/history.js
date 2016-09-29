@@ -216,7 +216,7 @@ export function copyHistoryArray(events, newGroup, instantiateSel) {
     for (let j = 0; j < changes.length; ++j) {
       let change = changes[j], m
       newChanges.push({from: change.from, to: change.to, text: change.text})
-      if (newGroup) for (let prop in change) if (m = prop.match(/^spans_(\d+)$/)) {
+      if (newGroup) for (var prop in change) if (m = prop.match(/^spans_(\d+)$/)) {
         if (indexOf(newGroup, Number(m[1])) > -1) {
           lst(newChanges)[prop] = change[prop]
           delete change[prop]
