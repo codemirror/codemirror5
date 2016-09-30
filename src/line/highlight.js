@@ -32,12 +32,12 @@ export function highlightLine(cm, line, state, forceToEnd) {
       }
       if (!style) return
       if (overlay.opaque) {
-        st.splice(start, i - start, end, "cm-overlay " + style)
+        st.splice(start, i - start, end, "overlay " + style)
         i = start + 2
       } else {
         for (; start < i; start += 2) {
           let cur = st[start+1]
-          st[start+1] = (cur ? cur + " " : "") + "cm-overlay " + style
+          st[start+1] = (cur ? cur + " " : "") + "overlay " + style
         }
       }
     }, lineClasses)
