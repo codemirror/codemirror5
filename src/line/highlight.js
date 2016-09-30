@@ -37,7 +37,7 @@ export function highlightLine(cm, line, state, forceToEnd) {
       } else {
         for (; start < i; start += 2) {
           let cur = st[start+1]
-          st[start+1] = (cur ? cur + " " : "") + "cm-overlay " + style
+          st[start+1] = (cur ? cur + " " : "") + "overlay " + style
         }
       }
     }, lineClasses)
