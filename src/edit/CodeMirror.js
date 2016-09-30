@@ -64,11 +64,9 @@ export function CodeMirror(place, options) {
     specialChars: null
   }
 
-  let cm = this
-
   // Override magic textarea content restore that IE sometimes does
   // on our hidden textarea on reload
-  if (ie && ie_version < 11) setTimeout(() => cm.display.input.reset(true), 20)
+  if (ie && ie_version < 11) setTimeout(() => this.display.input.reset(true), 20)
 
   registerEventHandlers(this)
   ensureGlobalHandlers()
@@ -77,7 +75,7 @@ export function CodeMirror(place, options) {
   this.curOp.forceUpdate = true
   attachDoc(this, doc)
 
-  if ((options.autofocus && !mobile) || cm.hasFocus())
+  if ((options.autofocus && !mobile) || this.hasFocus())
     setTimeout(bind(onFocus, this), 20)
   else
     onBlur(this)

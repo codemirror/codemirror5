@@ -169,12 +169,11 @@ ContentEditableInput.prototype = copyObj({
   },
 
   startGracePeriod: function() {
-    let input = this
     clearTimeout(this.gracePeriod)
     this.gracePeriod = setTimeout(() => {
-      input.gracePeriod = false
-      if (input.selectionChanged())
-        input.cm.operation(() => input.cm.curOp.selectionChanged = true)
+      this.gracePeriod = false
+      if (this.selectionChanged())
+        this.cm.operation(() => this.cm.curOp.selectionChanged = true)
     }, 20)
   },
 

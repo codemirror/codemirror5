@@ -47,7 +47,7 @@ TextareaInput.prototype = copyObj({
     if (ios) te.style.width = "0px"
 
     on(te, "input", () => {
-      if (ie && ie_version >= 9 && input.hasSelection) input.hasSelection = null
+      if (ie && ie_version >= 9 && this.hasSelection) this.hasSelection = null
       input.poll()
     })
 
@@ -185,11 +185,10 @@ TextareaInput.prototype = copyObj({
   // Poll for input changes, using the normal rate of polling. This
   // runs as long as the editor is focused.
   slowPoll: function() {
-    let input = this
-    if (input.pollingFast) return
-    input.polling.set(this.cm.options.pollInterval, () => {
-      input.poll()
-      if (input.cm.state.focused) input.slowPoll()
+    if (this.pollingFast) return
+    this.polling.set(this.cm.options.pollInterval, () => {
+      this.poll()
+      if (this.cm.state.focused) this.slowPoll()
     })
   },
 
@@ -245,18 +244,17 @@ TextareaInput.prototype = copyObj({
     let same = 0, l = Math.min(prevInput.length, text.length)
     while (same < l && prevInput.charCodeAt(same) == text.charCodeAt(same)) ++same
 
-    let self = this
     runInOp(cm, () => {
       applyTextInput(cm, text.slice(same), prevInput.length - same,
-                     null, self.composing ? "*compose" : null)
+                     null, this.composing ? "*compose" : null)
 
       // Don't leave long text in the textarea, since it makes further polling slow
-      if (text.length > 1000 || text.indexOf("\n") > -1) input.value = self.prevInput = ""
-      else self.prevInput = text
+      if (text.length > 1000 || text.indexOf("\n") > -1) input.value = this.prevInput = ""
+      else this.prevInput = text
 
-      if (self.composing) {
-        self.composing.range.clear()
-        self.composing.range = cm.markText(self.composing.start, cm.getCursor("to"),
+      if (this.composing) {
+        this.composing.range.clear()
+        this.composing.range = cm.markText(this.composing.start, cm.getCursor("to"),
                                            {className: "CodeMirror-composing"})
       }
     })

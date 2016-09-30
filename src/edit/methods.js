@@ -228,11 +228,11 @@ export default function(CodeMirror) {
     }),
 
     clearGutter: methodOp(function(gutterID) {
-      let cm = this, doc = cm.doc, i = doc.first
+      let doc = this.doc, i = doc.first
       doc.iter(line => {
         if (line.gutterMarkers && line.gutterMarkers[gutterID]) {
           line.gutterMarkers[gutterID] = null
-          regLineChange(cm, i, "gutter")
+          regLineChange(this, i, "gutter")
           if (isEmpty(line.gutterMarkers)) line.gutterMarkers = null
         }
         ++i
@@ -315,10 +315,9 @@ export default function(CodeMirror) {
     },
 
     moveH: methodOp(function(dir, unit) {
-      let cm = this
-      cm.extendSelectionsBy(range => {
-        if (cm.display.shift || cm.doc.extend || range.empty())
-          return findPosH(cm.doc, range.head, dir, unit, cm.options.rtlMoveVisually)
+      this.extendSelectionsBy(range => {
+        if (this.display.shift || this.doc.extend || range.empty())
+          return findPosH(this.doc, range.head, dir, unit, this.options.rtlMoveVisually)
         else
           return dir < 0 ? range.from() : range.to()
       }, sel_move)
@@ -350,17 +349,17 @@ export default function(CodeMirror) {
     },
 
     moveV: methodOp(function(dir, unit) {
-      let cm = this, doc = this.doc, goals = []
-      let collapse = !cm.display.shift && !doc.extend && doc.sel.somethingSelected()
+      let doc = this.doc, goals = []
+      let collapse = !this.display.shift && !doc.extend && doc.sel.somethingSelected()
       doc.extendSelectionsBy(range => {
         if (collapse)
           return dir < 0 ? range.from() : range.to()
-        let headPos = cursorCoords(cm, range.head, "div")
+        let headPos = cursorCoords(this, range.head, "div")
         if (range.goalColumn != null) headPos.left = range.goalColumn
         goals.push(headPos.left)
-        let pos = findPosV(cm, headPos, dir, unit)
+        let pos = findPosV(this, headPos, dir, unit)
         if (unit == "page" && range == doc.sel.primary())
-          addToScrollPos(cm, null, charCoords(cm, pos, "div").top - headPos.top)
+          addToScrollPos(this, null, charCoords(this, pos, "div").top - headPos.top)
         return pos
       }, sel_move)
       if (goals.length) for (let i = 0; i < doc.sel.ranges.length; i++)
@@ -435,19 +434,18 @@ export default function(CodeMirror) {
     }),
 
     setSize: methodOp(function(width, height) {
-      let cm = this
       let interpret = val => typeof val == "number" || /^\d+$/.test(String(val)) ? val + "px" : val
-      if (width != null) cm.display.wrapper.style.width = interpret(width)
-      if (height != null) cm.display.wrapper.style.height = interpret(height)
-      if (cm.options.lineWrapping) clearLineMeasurementCache(this)
-      let lineNo = cm.display.viewFrom
-      cm.doc.iter(lineNo, cm.display.viewTo, line => {
+      if (width != null) this.display.wrapper.style.width = interpret(width)
+      if (height != null) this.display.wrapper.style.height = interpret(height)
+      if (this.options.lineWrapping) clearLineMeasurementCache(this)
+      let lineNo = this.display.viewFrom
+      this.doc.iter(lineNo, this.display.viewTo, line => {
         if (line.widgets) for (let i = 0; i < line.widgets.length; i++)
-          if (line.widgets[i].noHScroll) { regLineChange(cm, lineNo, "widget"); break }
+          if (line.widgets[i].noHScroll) { regLineChange(this, lineNo, "widget"); break }
         ++lineNo
       })
-      cm.curOp.forceUpdate = true
-      signal(cm, "refresh", this)
+      this.curOp.forceUpdate = true
+      signal(this, "refresh", this)
     }),
 
     operation: function(f){return runInOp(this, f)},
