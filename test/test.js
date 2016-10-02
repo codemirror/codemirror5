@@ -1105,6 +1105,10 @@ testCM("measureEndOfLine", function(cm) {
   is(endPos.left > w - 20, "not at right");
   endPos = cm.charCoords(Pos(0, 18));
   eqPos(cm.coordsChar({left: endPos.left, top: endPos.top + 5}), Pos(0, 18));
+
+  var wrapPos = cm.cursorCoords(Pos(0, 9, "before"));
+  is(wrapPos.top < endPos.top, "wrapPos is actually in first line");
+  eqPos(cm.coordsChar({left: wrapPos.left + 10, top: wrapPos.top}), Pos(0, 9, "before"));
 }, {mode: "text/html", value: "<!-- foo barrr -->", lineWrapping: true}, ie_lt8 || opera_lt10);
 
 testCM("measureWrappedEndOfLine", function(cm) {
@@ -1121,9 +1125,9 @@ testCM("measureWrappedEndOfLine", function(cm) {
   }
   var endPos = cm.charCoords(Pos(0, 12)); // Next-to-last since last would wrap (#1862)
   endPos.left += w; // Add width of editor just to be sure that we are behind last character
-  eqPos(cm.coordsChar(endPos), Pos(0, 13));
+  eqPos(cm.coordsChar(endPos), Pos(0, 13, "before"));
   endPos.left += w * 100;
-  eqPos(cm.coordsChar(endPos), Pos(0, 13));
+  eqPos(cm.coordsChar(endPos), Pos(0, 13, "before"));
 }, {mode: "text/html", value: "0123456789abcde0123456789", lineWrapping: true}, ie_lt8 || opera_lt10);
 
 testCM("scrollVerticallyAndHorizontally", function(cm) {
@@ -1149,7 +1153,8 @@ testCM("moveVstuck", function(cm) {
   }
   cm.setCursor(Pos(0, val.length - 1));
   cm.moveV(-1, "line");
-  eqPos(cm.getCursor(), Pos(0, 26));
+  eqPos(cm.getCursor(), Pos(0, 26, "before"));
+  is(cm.cursorCoords(null, "local").top < h0, "cursor is in first visual line");
 }, {lineWrapping: true}, ie_lt8 || opera_lt10);
 
 testCM("collapseOnMove", function(cm) {
