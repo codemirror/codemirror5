@@ -85,7 +85,7 @@
           var lineOffset = stream.indentation();
           if (lineOffset > scopeOffset)
             pushPyScope(state);
-          else if (lineOffset < scopeOffset && dedent(stream, state))
+          else if (lineOffset < scopeOffset && dedent(stream, state) && stream.peek() != "#")
             state.errorToken = true;
           return null;
         } else {
