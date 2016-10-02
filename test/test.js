@@ -1107,6 +1107,23 @@ testCM("measureEndOfLine", function(cm) {
   eqPos(cm.coordsChar({left: endPos.left, top: endPos.top + 5}), Pos(0, 18));
 }, {mode: "text/html", value: "<!-- foo barrr -->", lineWrapping: true}, ie_lt8 || opera_lt10);
 
+testCM("measureWrappedEndOfLine", function(cm) {
+  if (phantom) return;
+  cm.setSize(null, "auto");
+  var inner = byClassName(cm.getWrapperElement(), "CodeMirror-lines")[0].firstChild;
+  var lh = inner.offsetHeight;
+  for (var step = 10, w = cm.charCoords(Pos(0, 7), "div").right;; w += step) {
+    cm.setSize(w);
+    if (inner.offsetHeight < 2.5 * lh) {
+      if (step == 10) { w -= 10; step = 1; }
+      else break;
+    }
+  }
+  var endPos = cm.charCoords(Pos(0, 12)); // Next-to-last since last would wrap (#1862)
+  endPos.left += w; // Add width of editor just to be sure that we are behind last character
+  eqPos(cm.coordsChar(endPos), Pos(0, 13));
+}, {mode: "text/html", value: "0123456789abcde0123456789", lineWrapping: true}, ie_lt8 || opera_lt10);
+
 testCM("scrollVerticallyAndHorizontally", function(cm) {
   if (cm.getOption("inputStyle") != "textarea") return;
   cm.setSize(100, 100);
