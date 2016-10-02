@@ -106,9 +106,17 @@ export let commands = {
     if (cm.somethingSelected()) cm.indentSelection("add")
     else cm.execCommand("insertTab")
   },
+  // Swap the two chars left and right of each selection's head.
+  // Move cursor behind the two swapped characters afterwards.
+  //
+  // Doesn't consider line feeds a character.
+  // Doesn't scan more than one line above to find a character.
+  // Doesn't do anything on an empty line.
+  // Doesn't do anything with non-empty selections.
   transposeChars: cm => runInOp(cm, () => {
     let ranges = cm.listSelections(), newSel = []
     for (let i = 0; i < ranges.length; i++) {
+      if (!ranges[i].empty()) continue
       let cur = ranges[i].head, line = getLine(cm.doc, cur.line).text
       if (line) {
         if (cur.ch == line.length) cur = new Pos(cur.line, cur.ch - 1)
@@ -118,10 +126,12 @@ export let commands = {
                           Pos(cur.line, cur.ch - 2), cur, "+transpose")
         } else if (cur.line > cm.doc.first) {
           let prev = getLine(cm.doc, cur.line - 1).text
-          if (prev)
+          if (prev) {
+            cur = new Pos(cur.line, 1)
             cm.replaceRange(line.charAt(0) + cm.doc.lineSeparator() +
                             prev.charAt(prev.length - 1),
-                            Pos(cur.line - 1, prev.length - 1), Pos(cur.line, 1), "+transpose")
+                            Pos(cur.line - 1, prev.length - 1), cur, "+transpose")
+          }
         }
       }
       newSel.push(new Range(cur, cur))
