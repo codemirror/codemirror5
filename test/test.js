@@ -1122,6 +1122,8 @@ testCM("measureWrappedEndOfLine", function(cm) {
   var endPos = cm.charCoords(Pos(0, 12)); // Next-to-last since last would wrap (#1862)
   endPos.left += w; // Add width of editor just to be sure that we are behind last character
   eqPos(cm.coordsChar(endPos), Pos(0, 13));
+  endPos.left += w * 100;
+  eqPos(cm.coordsChar(endPos), Pos(0, 13));
 }, {mode: "text/html", value: "0123456789abcde0123456789", lineWrapping: true}, ie_lt8 || opera_lt10);
 
 testCM("scrollVerticallyAndHorizontally", function(cm) {
