@@ -1104,7 +1104,7 @@ testCM("measureEndOfLine", function(cm) {
   is(endPos.top > lh * .8, "not at top");
   is(endPos.left > w - 20, "not at right");
   endPos = cm.charCoords(Pos(0, 18));
-  eqPos(cm.coordsChar({left: endPos.left, top: endPos.top + 5}), Pos(0, 18));
+  eqCursorPos(cm.coordsChar({left: endPos.left, top: endPos.top + 5}), Pos(0, 18, "before"));
 
   var wrapPos = cm.cursorCoords(Pos(0, 9, "before"));
   is(wrapPos.top < endPos.top, "wrapPos is actually in first line");
@@ -1153,7 +1153,7 @@ testCM("moveVstuck", function(cm) {
   }
   cm.setCursor(Pos(0, val.length - 1));
   cm.moveV(-1, "line");
-  eqPos(cm.getCursor(), Pos(0, 26, "before"));
+  eqPos(cm.getCursor(), Pos(0, 27, "before"));
   is(cm.cursorCoords(null, "local").top < h0, "cursor is in first visual line");
 }, {lineWrapping: true}, ie_lt8 || opera_lt10);
 

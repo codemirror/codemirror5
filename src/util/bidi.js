@@ -53,34 +53,6 @@ function moveInLine(line, pos, dir) {
   return pos
 }
 
-// This is needed in order to move 'visually' through bi-directional
-// text -- i.e., pressing left should make the cursor go left, even
-// when in RTL text. The tricky part is the 'jumps', where RTL and
-// LTR text touch each other. This often requires the cursor offset
-// to move more than one unit, in order to visually move one unit.
-export function moveVisually(line, start, dir, byUnit) {
-  let bidi = getOrder(line)
-  if (!bidi) return moveLogically(line, start, dir, byUnit)
-  let pos = getBidiPartAt(bidi, start), part = bidi[pos]
-  let target = moveInLine(line, start, part.level % 2 ? -dir : dir, byUnit)
-
-  for (;;) {
-    if (target > part.from && target < part.to) return target
-    if (target == part.from || target == part.to) {
-      if (getBidiPartAt(bidi, target) == pos) return target
-      part = bidi[pos += dir]
-      return (dir > 0) == part.level % 2 ? part.to : part.from
-    } else {
-      part = bidi[pos += dir]
-      if (!part) return null
-      if ((dir > 0) == part.level % 2)
-        target = moveInLine(line, part.to, -1, byUnit)
-      else
-        target = moveInLine(line, part.from, 1, byUnit)
-    }
-  }
-}
-
 export function moveLogically(line, start, dir) {
   let target = moveInLine(line, start.ch, dir)
   return target < 0 || target > line.text.length ? null : target
