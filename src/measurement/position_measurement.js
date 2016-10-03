@@ -1,13 +1,14 @@
+import { moveVisually } from "../input/movement"
 import { buildLineContent, LineView } from "../line/line_data"
 import { clipPos, Pos } from "../line/pos"
 import { collapsedSpanAtEnd, heightAtLine, lineIsHidden, visualLine } from "../line/spans"
 import { getLine, lineAtHeight, lineNo, updateLineHeight } from "../line/utils_line"
-import { bidiOther, getBidiPartAt, getOrder, lineLeft, lineRight, moveVisually } from "../util/bidi"
+import { bidiOther, getBidiPartAt, getOrder } from "../util/bidi"
 import { ie, ie_version } from "../util/browser"
 import { elt, removeChildren, range, removeChildrenAndAdd } from "../util/dom"
 import { e_target } from "../util/event"
 import { hasBadZoomedRects } from "../util/feature_detection"
-import { countColumn, isExtendingChar, scrollerGap } from "../util/misc"
+import { countColumn, findFirst, isExtendingChar, scrollerGap } from "../util/misc"
 import { updateLineForChanges } from "../display/update_line"
 
 import { widgetHeight } from "./widgets"
@@ -429,59 +430,46 @@ export function coordsChar(cm, x, y) {
 }
 
 function coordsCharInner(cm, lineObj, lineNo, x, y) {
-  let innerOff = y - heightAtLine(lineObj)
-  let wrongLine = false, adjust = 2 * cm.display.wrapper.clientWidth
+  y -= heightAtLine(lineObj)
+  let begin = 0, end = lineObj.text.length - 1
   let preparedMeasure = prepareMeasureForLine(cm, lineObj)
-
-  function getX(ch) {
-    let sp = cursorCoords(cm, Pos(lineNo, ch), "line", lineObj, preparedMeasure)
-    wrongLine = true
-    if (innerOff > sp.bottom) return sp.left - adjust
-    else if (innerOff < sp.top) return sp.left + adjust
-    else wrongLine = false
-    return sp.left
+  if (cm.options.lineWrapping) {
+    let measure = ch => intoCoordSystem(cm, lineObj, measureCharPrepared(cm, preparedMeasure, ch), "line")
+    begin = findFirst(ch => measure(ch).bottom < y, end, begin - 1) + 1
+    end = findFirst(ch => measure(ch).top > y, begin, end + 1) - 1
   }
-
-  let bidi = getOrder(lineObj), dist = lineObj.text.length
-  let from = lineLeft(lineObj), to = lineRight(lineObj)
-  let fromX = getX(from), fromOutside = wrongLine, toX = getX(to), toOutside = wrongLine
-
-  if (x > toX) return PosWithInfo(lineNo, to, null, toOutside, 1)
-  // Do a binary search between these bounds.
-  for (;;) {
-    if (bidi ? to == from || to == moveVisually(lineObj, from, 1) : to - from <= 1) {
-      let ch = x < fromX || x - fromX <= toX - x ? from : to
-      let outside = ch == from ? fromOutside : toOutside
-      let xDiff = x - (ch == from ? fromX : toX)
-      // This is a kludge to handle the case where the coordinates
-      // are after a line-wrapped line. We should replace it with a
-      // more general handling of cursor positions around line
-      // breaks. (Issue #4078)
-      if (toOutside && !bidi && !/\s/.test(lineObj.text.charAt(ch)) && xDiff > 0 &&
-          ch < lineObj.text.length && preparedMeasure.view.measure.heights.length > 1) {
-        let charSize = measureCharPrepared(cm, preparedMeasure, ch, "right")
-        if (innerOff <= charSize.bottom && innerOff >= charSize.top && Math.abs(x - charSize.right) < xDiff) {
-          outside = false
-          ch++
-          xDiff = x - charSize.right
-        }
-      let sticky = null
-      if (toX > cm.display.wrapper.clientWidth) {
-        sticky = "before"
+  let pos
+  let order = getOrder(lineObj)
+  if (order) {
+    if (end == lineObj.text.length - 1) ++end
+    pos = new Pos(lineNo, begin)
+    let beginLeft = cursorCoords(cm, pos, "line", lineObj, preparedMeasure).left
+    let dir = beginLeft < x ? 1 : -1
+    let prevDiff, diff = beginLeft - x
+    do {
+      prevDiff = diff
+      let prevPos = pos
+      pos = moveVisually(cm, lineObj, pos, dir)
+      if (pos == null || pos.ch < begin || end < pos.ch) {
+        pos = prevPos
+        break
       }
-      while (isExtendingChar(lineObj.text.charAt(ch))) ++ch
-      let pos = PosWithInfo(lineNo, ch, sticky, outside, xDiff < -1 ? -1 : xDiff > 1 ? 1 : 0)
-      return pos
-    }
-    let step = Math.ceil(dist / 2), middle = from + step
-    if (bidi) {
-      middle = from
-      for (let i = 0; i < step; ++i) middle = moveVisually(lineObj, middle, 1)
-    }
-    let middleX = getX(middle)
-    if (middleX > x) {to = middle; toX = middleX; if (toOutside = wrongLine) toX += 1000; dist = step}
-    else {from = middle; fromX = middleX; fromOutside = wrongLine; dist -= step}
+      diff = cursorCoords(cm, pos, "line", lineObj, preparedMeasure).left - x
+    } while ((dir < 0) != (diff < 0))
+    // moveVisually has the nice side effect of skipping extending chars and setting sticky
+    if (Math.abs(diff) > Math.abs(prevDiff)) pos = moveVisually(cm, lineObj, pos, -dir)
+  } else {
+    let ch = findFirst(ch => {
+      let box = measureCharPrepared(cm, preparedMeasure, ch)
+      return x - box.right < box.left - x
+    }, begin, end + 1)
+    while (isExtendingChar(lineObj.text.charAt(ch))) ++ch
+    pos = new Pos(lineNo, ch, (ch == end + 1) ? "before" : "after")
   }
+  let coords = cursorCoords(cm, pos, "line", lineObj, preparedMeasure)
+  if (y < coords.top || coords.bottom < y) pos.outside = true
+  pos.xRel = x < coords.left ? -1 : (x > coords.right ? 1 : 0)
+  return pos
 }
 
 let measureText

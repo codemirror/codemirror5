@@ -336,7 +336,7 @@ export default function(CodeMirror) {
       let start = pos.ch, end = pos.ch
       if (line) {
         let helper = this.getHelper(pos, "wordChars")
-        if ((pos.xRel < 0 || end == line.length) && start) --start; else ++end
+        if ((pos.sticky == "before" || end == line.length) && start) --start; else ++end
         let startChar = line.charAt(start)
         let check = isWordChar(startChar, helper)
           ? ch => isWordChar(ch, helper)

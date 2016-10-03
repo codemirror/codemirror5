@@ -56,8 +56,8 @@
 
   sim("motionVSimple", "a\nb\nc\n", "Ctrl-N", "Ctrl-N", "Ctrl-P", at(1, 0, "after"));
   sim("motionVMulti", "a\nb\nc\nd\ne\n",
-      "Ctrl-2", "Ctrl-N", at(2, 0), "Ctrl-F", "Ctrl--", "Ctrl-N", at(1, 1),
-      "Ctrl--", "Ctrl-3", "Ctrl-P", at(4, 1));
+      "Ctrl-2", "Ctrl-N", at(2, 0, "after"), "Ctrl-F", "Ctrl--", "Ctrl-N", at(1, 1, "before"),
+      "Ctrl--", "Ctrl-3", "Ctrl-P", at(4, 1, "before"));
 
   sim("killYank", "abc\ndef\nghi",
       "Ctrl-F", "Ctrl-Space", "Ctrl-N", "Ctrl-N", "Ctrl-W", "Ctrl-E", "Ctrl-Y",
