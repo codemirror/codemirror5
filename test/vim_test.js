@@ -1,3 +1,4 @@
+var Pos = CodeMirror.Pos;
 CodeMirror.Vim.suppressErrorLogging = true;
 
 var code = '' +
@@ -39,63 +40,63 @@ var bracesLine = lines[3];
 var seekBraceLine = lines[4];
 
 var word1 = {
-  start: { line: wordLine.line, ch: 1 },
-  end: { line: wordLine.line, ch: 5 }
+  start: new Pos(wordLine.line, 1),
+  end: new Pos(wordLine.line, 5)
 };
 var word2 = {
-  start: { line: wordLine.line, ch: word1.end.ch + 2 },
-  end: { line: wordLine.line, ch: word1.end.ch + 4 }
+  start: new Pos(wordLine.line, word1.end.ch + 2),
+  end: new Pos(wordLine.line, word1.end.ch + 4)
 };
 var word3 = {
-  start: { line: bigWordLine.line, ch: 1 },
-  end: { line: bigWordLine.line, ch: 5 }
+  start: new Pos(bigWordLine.line, 1),
+  end: new Pos(bigWordLine.line, 5)
 };
 var bigWord1 = word1;
 var bigWord2 = word2;
 var bigWord3 = {
-  start: { line: bigWordLine.line, ch: 1 },
-  end: { line: bigWordLine.line, ch: 7 }
+  start: new Pos(bigWordLine.line, 1),
+  end: new Pos(bigWordLine.line, 7)
 };
 var bigWord4 = {
-  start: { line: bigWordLine.line, ch: bigWord1.end.ch + 3 },
-  end: { line: bigWordLine.line, ch: bigWord1.end.ch + 7 }
+  start: new Pos(bigWordLine.line, bigWord1.end.ch + 3),
+  end: new Pos(bigWordLine.line, bigWord1.end.ch + 7)
 };
 
-var oChars = [ { line: charLine.line, ch: 1 },
-    { line: charLine.line, ch: 3 },
-    { line: charLine.line, ch: 7 } ];
-var pChars = [ { line: charLine.line, ch: 2 },
-    { line: charLine.line, ch: 4 },
-    { line: charLine.line, ch: 6 },
-    { line: charLine.line, ch: 8 } ];
-var numChars = [ { line: charLine.line, ch: 10 },
-    { line: charLine.line, ch: 12 },
-    { line: charLine.line, ch: 14 },
-    { line: charLine.line, ch: 16 },
-    { line: charLine.line, ch: 18 }];
+var oChars = [ new Pos(charLine.line, 1),
+    new Pos(charLine.line, 3),
+    new Pos(charLine.line, 7) ];
+var pChars = [ new Pos(charLine.line, 2),
+    new Pos(charLine.line, 4),
+    new Pos(charLine.line, 6),
+    new Pos(charLine.line, 8) ];
+var numChars = [ new Pos(charLine.line, 10),
+    new Pos(charLine.line, 12),
+    new Pos(charLine.line, 14),
+    new Pos(charLine.line, 16),
+    new Pos(charLine.line, 18)];
 var parens1 = {
-  start: { line: bracesLine.line, ch: 1 },
-  end: { line: bracesLine.line, ch: 3 }
+  start: new Pos(bracesLine.line, 1),
+  end: new Pos(bracesLine.line, 3)
 };
 var squares1 = {
-  start: { line: bracesLine.line, ch: 5 },
-  end: { line: bracesLine.line, ch: 7 }
+  start: new Pos(bracesLine.line, 5),
+  end: new Pos(bracesLine.line, 7)
 };
 var curlys1 = {
-  start: { line: bracesLine.line, ch: 9 },
-  end: { line: bracesLine.line, ch: 11 }
+  start: new Pos(bracesLine.line, 9),
+  end: new Pos(bracesLine.line, 11)
 };
 var seekOutside = {
-  start: { line: seekBraceLine.line, ch: 1 },
-  end: { line: seekBraceLine.line, ch: 16 }
+  start: new Pos(seekBraceLine.line, 1),
+  end: new Pos(seekBraceLine.line, 16)
 };
 var seekInside = {
-  start: { line: seekBraceLine.line, ch: 14 },
-  end: { line: seekBraceLine.line, ch: 11 }
+  start: new Pos(seekBraceLine.line, 14),
+  end: new Pos(seekBraceLine.line, 11)
 };
 
 function copyCursor(cur) {
-  return { ch: cur.ch, line: cur.line };
+  return new Pos(cur.line, cur.ch);
 }
 
 function forEach(arr, func) {
@@ -292,7 +293,7 @@ testJumplist('jumplist_skip_deleted_mark<c-i>',
 function testMotion(name, keys, endPos, startPos) {
   testVim(name, function(cm, vim, helpers) {
     if (!startPos) {
-      startPos = { line: 0, ch: 0 };
+      startPos = new Pos(0, 0);
     }
     cm.setCursor(startPos);
     helpers.doKeys(keys);
@@ -301,11 +302,11 @@ function testMotion(name, keys, endPos, startPos) {
 };
 
 function makeCursor(line, ch) {
-  return { line: line, ch: ch };
+  return new Pos(line, ch);
 };
 
 function offsetCursor(cur, offsetLine, offsetCh) {
-  return { line: cur.line + offsetLine, ch: cur.ch + offsetCh };
+  return new Pos(cur.line + offsetLine, cur.ch + offsetCh);
 };
 
 // Motion tests
@@ -408,20 +409,20 @@ testVim('Changing lines after Eol operation', function(cm, vim, helpers) {
   helpers.doKeys(['$']);
   helpers.doKeys(['j']);
   // After moving to Eol and then down, we should be at Eol of line 2
-  helpers.assertCursorAt({ line: 1, ch: lines[1].length - 1 });
+  helpers.assertCursorAt(new Pos(1, lines[1].length - 1));
   helpers.doKeys(['j']);
   // After moving down, we should be at Eol of line 3
-  helpers.assertCursorAt({ line: 2, ch: lines[2].length - 1 });
+  helpers.assertCursorAt(new Pos(2, lines[2].length - 1));
   helpers.doKeys(['h']);
   helpers.doKeys(['j']);
   // After moving back one space and then down, since line 4 is shorter than line 2, we should
   // be at Eol of line 2 - 1
-  helpers.assertCursorAt({ line: 3, ch: lines[3].length - 1 });
+  helpers.assertCursorAt(new Pos(3, lines[3].length - 1));
   helpers.doKeys(['j']);
   helpers.doKeys(['j']);
   // After moving down again, since line 3 has enough characters, we should be back to the
   // same place we were at on line 1
-  helpers.assertCursorAt({ line: 5, ch: lines[2].length - 2 });
+  helpers.assertCursorAt(new Pos(5, lines[2].length - 2));
 });
 //making sure gj and gk recover from clipping
 testVim('gj_gk_clipping', function(cm,vim,helpers){
@@ -470,7 +471,7 @@ testVim('gj_gk', function(cm, vim, helpers) {
   // Test moving down preserves column position.
   helpers.doKeys('g', 'j');
   var pos1 = cm.getCursor();
-  var expectedPos2 = { line: 0, ch: (pos1.ch - 4) * 2 + 4};
+  var expectedPos2 = new Pos(0, (pos1.ch - 4) * 2 + 4);
   helpers.doKeys('g', 'j');
   helpers.assertCursorAt(expectedPos2);
 
@@ -865,8 +866,8 @@ testVim('d_reverse', function(cm, vim, helpers) {
 }, { value: ' word1\nword2 ' });
 testVim('dd', function(cm, vim, helpers) {
   cm.setCursor(0, 3);
-  var expectedBuffer = cm.getRange({ line: 0, ch: 0 },
-    { line: 1, ch: 0 });
+  var expectedBuffer = cm.getRange(new Pos(0, 0),
+    new Pos(1, 0));
   var expectedLineCount = cm.lineCount() - 1;
   helpers.doKeys('d', 'd');
   eq(expectedLineCount, cm.lineCount());
@@ -877,8 +878,8 @@ testVim('dd', function(cm, vim, helpers) {
 });
 testVim('dd_prefix_repeat', function(cm, vim, helpers) {
   cm.setCursor(0, 3);
-  var expectedBuffer = cm.getRange({ line: 0, ch: 0 },
-    { line: 2, ch: 0 });
+  var expectedBuffer = cm.getRange(new Pos(0, 0),
+    new Pos(2, 0));
   var expectedLineCount = cm.lineCount() - 2;
   helpers.doKeys('2', 'd', 'd');
   eq(expectedLineCount, cm.lineCount());
@@ -889,8 +890,8 @@ testVim('dd_prefix_repeat', function(cm, vim, helpers) {
 });
 testVim('dd_motion_repeat', function(cm, vim, helpers) {
   cm.setCursor(0, 3);
-  var expectedBuffer = cm.getRange({ line: 0, ch: 0 },
-    { line: 2, ch: 0 });
+  var expectedBuffer = cm.getRange(new Pos(0, 0),
+    new Pos(2, 0));
   var expectedLineCount = cm.lineCount() - 2;
   helpers.doKeys('d', '2', 'd');
   eq(expectedLineCount, cm.lineCount());
@@ -901,8 +902,8 @@ testVim('dd_motion_repeat', function(cm, vim, helpers) {
 });
 testVim('dd_multiply_repeat', function(cm, vim, helpers) {
   cm.setCursor(0, 3);
-  var expectedBuffer = cm.getRange({ line: 0, ch: 0 },
-    { line: 6, ch: 0 });
+  var expectedBuffer = cm.getRange(new Pos(0, 0),
+    new Pos(6, 0));
   var expectedLineCount = cm.lineCount() - 6;
   helpers.doKeys('2', 'd', '3', 'd');
   eq(expectedLineCount, cm.lineCount());
@@ -944,8 +945,8 @@ testVim('yw_repeat', function(cm, vim, helpers) {
 testVim('yy_multiply_repeat', function(cm, vim, helpers) {
   var curStart = makeCursor(0, 3);
   cm.setCursor(curStart);
-  var expectedBuffer = cm.getRange({ line: 0, ch: 0 },
-    { line: 6, ch: 0 });
+  var expectedBuffer = cm.getRange(new Pos(0, 0),
+    new Pos(6, 0));
   var expectedLineCount = cm.lineCount();
   helpers.doKeys('2', 'y', '3', 'y');
   eq(expectedLineCount, cm.lineCount());
@@ -978,8 +979,8 @@ testVim('cw_repeat', function(cm, vim, helpers) {
 }, { value: ' word1\nword2' });
 testVim('cc_multiply_repeat', function(cm, vim, helpers) {
   cm.setCursor(0, 3);
-  var expectedBuffer = cm.getRange({ line: 0, ch: 0 },
-    { line: 6, ch: 0 });
+  var expectedBuffer = cm.getRange(new Pos(0, 0),
+    new Pos(6, 0));
   var expectedLineCount = cm.lineCount() - 5;
   helpers.doKeys('2', 'c', '3', 'c');
   eq(expectedLineCount, cm.lineCount());
@@ -1260,7 +1261,7 @@ testEdit('di[_on_(_should_not_delete', 'foo (bAr) baz', /\(/, 'di[', 'foo (bAr) 
 testEdit('di[_on_)_should_not_delete', 'foo (bAr) baz', /\)/, 'di[', 'foo (bAr) baz');
 testEdit('da[_on_(_should_not_delete', 'foo (bAr) baz', /\(/, 'da[', 'foo (bAr) baz');
 testEdit('da[_on_)_should_not_delete', 'foo (bAr) baz', /\)/, 'da[', 'foo (bAr) baz');
-testMotion('di(_outside_should_stay', ['d', 'i', '('], { line: 0, ch: 0}, { line: 0, ch: 0});
+testMotion('di(_outside_should_stay', ['d', 'i', '('], new Pos(0, 0), new Pos(0, 0));
 
 //  Open and close on different lines, equally indented
 testEdit('di{_middle_spc', 'a{\n\tbar\n}b', /r/, 'di{', 'a{}b');
