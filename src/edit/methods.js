@@ -9,7 +9,7 @@ import { triggerElectric } from "../input/input"
 import { onKeyDown, onKeyPress, onKeyUp } from "./key_events"
 import { getKeyMap } from "../input/keymap"
 import { methodOp, operation, runInOp } from "../display/operations"
-import { clipLine, clipPos, cmp, Pos } from "../line/pos"
+import { clipLine, clipPos, equalCursorPos, Pos } from "../line/pos"
 import { charCoords, charWidth, clearCaches, clearLineMeasurementCache, coordsChar, cursorCoords, displayHeight, displayWidth, estimateLineHeights, fromCoordSystem, intoCoordSystem, scrollGap, textHeight } from "../measurement/position_measurement"
 import { Range } from "../model/selection"
 import { replaceOneSelection, skipAtomic } from "../model/selection_updates"
@@ -507,8 +507,8 @@ function findPosH(doc, pos, dir, unit, visually) {
       if (dir > 0 && !moveOnce(!first)) break
     }
   }
-  let result = skipAtomic(doc, Pos(line, ch), pos, origDir, true)
-  if (!cmp(pos, result)) result.hitSide = true
+  let result = skipAtomic(doc, Pos(line, ch, (!doc.cm || doc.cm.options.lineWrapping) ? (dir == -1 ? "after" : "before") : null), pos, origDir, true)
+  if (equalCursorPos(pos, result)) result.hitSide = true
   return result
 }
 
