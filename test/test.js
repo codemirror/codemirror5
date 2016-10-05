@@ -2205,3 +2205,10 @@ testCM("lineSeparator", function(cm) {
   eq(cm.lineCount(), 4);
 }, {value: "foo\nbar\r\nbaz\rquux",
     lineSeparator: "\n"});
+
+testCM("delete_wrapped", function(cm) {
+  makeItWrapAfter(cm, Pos(0, 2));
+  cm.doc.setCursor(Pos(0, 3, "after"));
+  cm.deleteH(-1, "char");
+  eq(cm.getLine(0), "1245");
+}, {value: "12345", lineWrapping: true})

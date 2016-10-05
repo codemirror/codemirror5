@@ -1,4 +1,4 @@
-import { cmp, copyPos, maxPos, minPos } from "../line/pos"
+import { cmp, copyPos, equalCursorPos, maxPos, minPos } from "../line/pos"
 import { indexOf } from "../util/misc"
 
 // Selection objects are immutable. A new one is created every time
@@ -18,7 +18,7 @@ Selection.prototype = {
     if (other.primIndex != this.primIndex || other.ranges.length != this.ranges.length) return false
     for (let i = 0; i < this.ranges.length; i++) {
       let here = this.ranges[i], there = other.ranges[i]
-      if (cmp(here.anchor, there.anchor) != 0 || cmp(here.head, there.head) != 0) return false
+      if (!equalCursorPos(here.anchor, there.anchor) || !equalCursorPos(here.head, there.head)) return false
     }
     return true
   },
