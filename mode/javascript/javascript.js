@@ -209,6 +209,11 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     var arrow = stream.string.indexOf("=>", stream.start);
     if (arrow < 0) return;
 
+    if (isTS) { // Try to skip TypeScript return type declarations after the arguments
+      var m = /:\s*(?:\w+(?:<[^>]*>|\[\])?|\{[^}]*\})\s*$/.exec(stream.string.slice(stream.start, arrow))
+      if (m) arrow = m.index
+    }
+
     var depth = 0, sawSomething = false;
     for (var pos = arrow - 1; pos >= 0; --pos) {
       var ch = stream.string.charAt(pos);
