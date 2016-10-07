@@ -272,10 +272,29 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
         while(cc.length && cc[cc.length - 1].lex)
           cc.pop()();
         if (cx.marked) return cx.marked;
-        if (type == "variable" && inScope(state, content)) return "variable-2";
+        if (type == "variable") {
+          var isFn = isTokenFunc(stream);
+
+          if (inScope(state, content))
+            return isFn ? "function-2" : "variable-2";
+
+          return isFn ? "function" : style;
+        }
         return style;
       }
     }
+  }
+
+  function isTokenFunc(stream) {
+    var isFn = false;
+    var ch = stream.peek();
+
+    if (ch == "(")
+      isFn = true;
+    else if (ch == ".")
+      isFn = stream.match(/\.apply\(|\.call\(/, false);
+
+    return isFn;
   }
 
   // Combinator utils
@@ -469,7 +488,10 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     return pass(maybeoperatorComma, expect(";"), poplex);
   }
   function property(type) {
-    if (type == "variable") {cx.marked = "property"; return cont();}
+    if (type == "variable") {
+      cx.marked = isTokenFunc(cx.stream) ? "function-2" : "property";
+      return cont();
+    }
   }
   function objprop(type, value) {
     if (type == "async") {
