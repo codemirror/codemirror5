@@ -498,9 +498,14 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       cx.marked = "property";
       return cont(objprop);
     } else if (type == "variable" || cx.style == "keyword") {
-      cx.marked = "property";
-      if (value == "get" || value == "set") return cont(getterSetter);
-      return cont(afterprop);
+      if (value == "get" || value == "set") {
+        cx.marked = "property";
+        return cont(getterSetter);
+      }
+      else {
+        cx.marked = isTokenFunc(cx.stream) ? "function-2" : "property";
+        return cont(afterprop);
+      }
     } else if (type == "number" || type == "string") {
       cx.marked = jsonldMode ? "property" : (cx.style + " property");
       return cont(afterprop);
@@ -654,9 +659,19 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
            (isTS && (value == "public" || value == "private" || value == "protected" || value == "readonly" || value == "abstract"))) &&
           cx.stream.match(/^\s+[\w$\xa1-\uffff]/, false)) {
         cx.marked = "keyword";
+
+        if (value == "get" || value == "set")
+          cx.isGetterSetter = true;
+
         return cont(classBody);
       }
-      cx.marked = "property";
+      if (cx.isGetterSetter) {
+        cx.marked = "property";
+        cx.isGetterSetter = false;
+      }
+      else
+        cx.marked = isTokenFunc(cx.stream) ? "function-2" : "property";
+
       return cont(isTS ? classfield : functiondef, classBody);
     }
     if (value == "*") {
