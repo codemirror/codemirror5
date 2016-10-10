@@ -21,7 +21,7 @@ rewrite("lib/codemirror.js", function(lib) {
                      "CodeMirror.version = \"" + number + "\"");
 });
 function rewriteJSON(pack) {
-  return pack.replace(/"version":"\d+\.\d+\.\d+"/, "\"version\":\"" + number + "\"");
+  return pack.replace(/"version":\s*"\d+\.\d+\.\d+"/, "\"version\": \"" + number + "\"");
 }
 rewrite("package.json", rewriteJSON);
 rewrite("doc/manual.html", function(manual) {
@@ -31,11 +31,6 @@ rewrite("doc/manual.html", function(manual) {
 if (bumpOnly) process.exit(0);
 
 child.exec("bash bin/authors.sh", function(){});
-
-rewrite("doc/compress.html", function(cmp) {
-  return cmp.replace(/<option value="http:\/\/codemirror.net\/">HEAD<\/option>/,
-                     "<option value=\"http://codemirror.net/\">HEAD</option>\n        <option value=\"http://marijnhaverbeke.nl/git/codemirror?a=blob_plain;hb=" + number + ";f=\">" + number + "</option>");
-});
 
 rewrite("index.html", function(index) {
   return index.replace(/\.zip">\d+\.\d+\.\d+<\/a>/,

@@ -19,24 +19,21 @@
     return set
   }
 
-  var keywords = wordSet(["var","let","class","deinit","enum","extension","func","import","init","protocol",
-                          "static","struct","subscript","typealias","as","dynamicType","is","new","super",
-                          "self","Self","Type","__COLUMN__","__FILE__","__FUNCTION__","__LINE__","break","case",
-                          "continue","default","do","else","fallthrough","if","in","for","return","switch",
-                          "where","while","associativity","didSet","get","infix","inout","left","mutating",
-                          "none","nonmutating","operator","override","postfix","precedence","prefix","right",
-                          "set","unowned","weak","willSet"])
-  var definingKeywords = wordSet(["var","let","class","enum","extension","func","import","protocol","struct",
-                                  "typealias","dynamicType","for"])
-  var atoms = wordSet(["Infinity","NaN","undefined","null","true","false","on","off","yes","no","nil","null",
-                       "this","super"])
-  var types = wordSet(["String","bool","int","string","double","Double","Int","Float","float","public",
-                       "private","extension"])
-  var operators = "+-/*%=|&<>#"
+  var keywords = wordSet(["_","var","let","class","enum","extension","import","protocol","struct","func","typealias","associatedtype",
+                          "open","public","internal","fileprivate","private","deinit","init","new","override","self","subscript","super",
+                          "convenience","dynamic","final","indirect","lazy","required","static","unowned","unowned(safe)","unowned(unsafe)","weak","as","is",
+                          "break","case","continue","default","else","fallthrough","for","guard","if","in","repeat","switch","where","while",
+                          "defer","return","inout","mutating","nonmutating","catch","do","rethrows","throw","throws","try","didSet","get","set","willSet",
+                          "assignment","associativity","infix","left","none","operator","postfix","precedence","precedencegroup","prefix","right",
+                          "Any","AnyObject","Type","dynamicType","Self","Protocol","__COLUMN__","__FILE__","__FUNCTION__","__LINE__"])
+  var definingKeywords = wordSet(["var","let","class","enum","extension","import","protocol","struct","func","typealias","associatedtype"])
+  var atoms = wordSet(["true","false","nil","self","super","_"])
+  var types = wordSet(["Array","Bool","Dictionary","Double","Float","Int","Never","Optional","String","Void"])
+  var operators = "+-/*%=|&<>"
   var punc = ";,.(){}[]"
   var number = /^-?(?:(?:[\d_]+\.[_\d]*|\.[_\d]+|0o[0-7_\.]+|0b[01_\.]+)(?:e-?[\d_]+)?|0x[\d_a-f\.]+(?:p-?[\d_]+)?)/i
   var identifier = /^[_A-Za-z$][_A-Za-z$0-9]*/
-  var property = /^[@\.][_A-Za-z$][_A-Za-z$0-9]*/
+  var property = /^[@\#\.][_A-Za-z$][_A-Za-z$0-9]*/
   var regexp = /^\/(?!\s)(?:\/\/)?(?:\\.|[^\/])+\//
 
   function tokenBase(stream, state, prev) {

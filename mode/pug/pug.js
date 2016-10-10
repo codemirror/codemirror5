@@ -11,7 +11,7 @@
 })(function(CodeMirror) {
 "use strict";
 
-CodeMirror.defineMode('jade', function (config) {
+CodeMirror.defineMode("pug", function (config) {
   // token types
   var KEYWORD = 'keyword';
   var DOCTYPE = 'meta';
@@ -585,6 +585,7 @@ CodeMirror.defineMode('jade', function (config) {
   };
 }, 'javascript', 'css', 'htmlmixed');
 
-CodeMirror.defineMIME('text/x-jade', 'jade');
+CodeMirror.defineMIME('text/x-pug', 'pug');
+CodeMirror.defineMIME('text/x-jade', 'pug');
 
 });

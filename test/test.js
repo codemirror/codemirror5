@@ -1088,6 +1088,7 @@ testCM("wrappingAndResizing", function(cm) {
 }, null, ie_lt8);
 
 testCM("measureEndOfLine", function(cm) {
+  if (phantom) return;
   cm.setSize(null, "auto");
   var inner = byClassName(cm.getWrapperElement(), "CodeMirror-lines")[0].firstChild;
   var lh = inner.offsetHeight;
@@ -1105,6 +1106,23 @@ testCM("measureEndOfLine", function(cm) {
   endPos = cm.charCoords(Pos(0, 18));
   eqPos(cm.coordsChar({left: endPos.left, top: endPos.top + 5}), Pos(0, 18));
 }, {mode: "text/html", value: "<!-- foo barrr -->", lineWrapping: true}, ie_lt8 || opera_lt10);
+
+testCM("measureWrappedEndOfLine", function(cm) {
+  if (phantom) return;
+  cm.setSize(null, "auto");
+  var inner = byClassName(cm.getWrapperElement(), "CodeMirror-lines")[0].firstChild;
+  var lh = inner.offsetHeight;
+  for (var step = 10, w = cm.charCoords(Pos(0, 7), "div").right;; w += step) {
+    cm.setSize(w);
+    if (inner.offsetHeight < 2.5 * lh) {
+      if (step == 10) { w -= 10; step = 1; }
+      else break;
+    }
+  }
+  var endPos = cm.charCoords(Pos(0, 12)); // Next-to-last since last would wrap (#1862)
+  endPos.left += w; // Add width of editor just to be sure that we are behind last character
+  eqPos(cm.coordsChar(endPos), Pos(0, 13));
+}, {mode: "text/html", value: "0123456789abcde0123456789", lineWrapping: true}, ie_lt8 || opera_lt10);
 
 testCM("scrollVerticallyAndHorizontally", function(cm) {
   if (cm.getOption("inputStyle") != "textarea") return;
@@ -1335,6 +1353,37 @@ testCM("verticalMovementCommandsWrapping", function(cm) {
 }, {value: "a very long line that wraps around somehow so that we can test cursor movement\nshortone\nk",
     lineWrapping: true});
 
+testCM("verticalMovementCommandsSingleLine", function(cm) {
+  cm.display.wrapper.style.height = "auto";
+  cm.refresh();
+  cm.execCommand("goLineUp");
+  eqPos(cm.getCursor(), Pos(0, 0));
+  cm.execCommand("goLineDown");
+  eqPos(cm.getCursor(), Pos(0, 11));
+  cm.setCursor(Pos(0, 5));
+  cm.execCommand("goLineDown");
+  eqPos(cm.getCursor(), Pos(0, 11));
+  cm.execCommand("goLineDown");
+  eqPos(cm.getCursor(), Pos(0, 11));
+  cm.execCommand("goLineUp");
+  eqPos(cm.getCursor(), Pos(0, 0));
+  cm.execCommand("goLineUp");
+  eqPos(cm.getCursor(), Pos(0, 0));
+  cm.execCommand("goPageDown");
+  eqPos(cm.getCursor(), Pos(0, 11));
+  cm.execCommand("goPageDown"); cm.execCommand("goLineDown");
+  eqPos(cm.getCursor(), Pos(0, 11));
+  cm.execCommand("goPageUp");
+  eqPos(cm.getCursor(), Pos(0, 0));
+  cm.setCursor(Pos(0, 5));
+  cm.execCommand("goPageUp");
+  eqPos(cm.getCursor(), Pos(0, 0));
+  cm.setCursor(Pos(0, 5));
+  cm.execCommand("goPageDown");
+  eqPos(cm.getCursor(), Pos(0, 11));
+}, {value: "single line"});
+
+
 testCM("rtlMovement", function(cm) {
   if (cm.getOption("inputStyle") != "textarea") return;
   forEach(["خحج", "خحabcخحج", "abخحخحجcd", "abخde", "abخح2342خ1حج", "خ1ح2خح3حxج",
@@ -1486,7 +1535,7 @@ testCM("lineWidgetChanged", function(cm) {
     // Good:
     // | ------------- display width ------------- |
     // | ------- widget-width when measured ------ |
-    // | | -- under-half -- | | -- under-half -- | | 
+    // | | -- under-half -- | | -- under-half -- | |
     // | | --- over-half --- |                     |
     // | | --- over-half --- |                     |
     // Height: measured as 3 lines, same as it will be when actually displayed
@@ -1503,7 +1552,7 @@ testCM("lineWidgetChanged", function(cm) {
     // Bad (too wide):
     // | ------------- display width ------------- |
     // | -------- widget-width when measured ------- | < -- uh oh
-    // | | -- under-half -- | | -- under-half -- |   | 
+    // | | -- under-half -- | | -- under-half -- |   |
     // | | --- over-half --- | | --- over-half --- | | < -- when measured, combined on one line
     // Height: measured as 2 lines, less than expected. Will be displayed as 3 lines!
 

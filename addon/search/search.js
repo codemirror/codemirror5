@@ -136,8 +136,11 @@
         })
       };
       persistentDialog(cm, queryDialog, q, searchNext, function(event, query) {
-        var cmd = CodeMirror.keyMap[cm.getOption("keyMap")][CodeMirror.keyName(event)];
-        if (cmd == "findNext" || cmd == "findPrev") {
+        var keyName = CodeMirror.keyName(event)
+        var cmd = CodeMirror.keyMap[cm.getOption("keyMap")][keyName]
+        if (!cmd) cmd = cm.getOption('extraKeys')[keyName]
+        if (cmd == "findNext" || cmd == "findPrev" ||
+          cmd == "findPersistentNext" || cmd == "findPersistentPrev") {
           CodeMirror.e_stop(event);
           startSearch(cm, getSearchState(cm), query);
           cm.execCommand(cmd);
@@ -146,7 +149,7 @@
           searchNext(query, event);
         }
       });
-      if (immediate) {
+      if (immediate && q) {
         startSearch(cm, state, q);
         findNext(cm, rev);
       }

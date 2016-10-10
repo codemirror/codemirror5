@@ -11,9 +11,11 @@
 <script src="../mode/css/css.js"></script>
 <script src="//ajax.aspnetcdn.com/ajax/jshint/r07/jshint.js"></script>
 <script src="https://rawgithub.com/zaach/jsonlint/79b553fb65c192add9066da64043458981b3972b/lib/jsonlint.js"></script>
+<script src="http://csslint.net/js/csslint.js"></script>
 <script src="../addon/lint/lint.js"></script>
 <script src="../addon/lint/javascript-lint.js"></script>
 <script src="../addon/lint/json-lint.js"></script>
+<script src="../addon/lint/css-lint.js"></script>
 <style type="text/css">
       .CodeMirror {border: 1px solid black;}
     </style>
@@ -83,6 +85,66 @@ function updateHints() {
 ]
 </textarea></p>
 
+    <p><textarea id="code-css">@charset "UTF-8";
+
+@import url("booya.css") print, screen;
+@import "whatup.css" screen;
+@import "wicked.css";
+
+/*Error*/
+@charset "UTF-8";
+
+
+@namespace "http://www.w3.org/1999/xhtml";
+@namespace svg "http://www.w3.org/2000/svg";
+
+/*Warning: empty ruleset */
+.foo {
+}
+
+h1 {
+    font-weight: bold;
+}
+
+/*Warning: qualified heading */
+.foo h1 {
+    font-weight: bold;
+}
+
+/*Warning: adjoining classes */
+.foo.bar {
+    zoom: 1;
+}
+
+li.inline {
+    width: 100%;  /*Warning: 100% can be problematic*/
+}
+
+li.last {
+  display: inline;
+  padding-left: 3px !important;
+  padding-right: 3px;
+  border-right: 0px;
+}
+
+@media print {
+    li.inline {
+      color: black;
+    }
+}
+
+@page {
+  margin: 10%;
+  counter-increment: page;
+
+  @top-center {
+    font-family: sans-serif;
+    font-weight: bold;
+    font-size: 2em;
+    content: counter(page);
+  }
+}
+</textarea></p>
 <script>
   var editor = CodeMirror.fromTextArea(document.getElementById("code-js"), {
     lineNumbers: true,
@@ -98,6 +160,12 @@ function updateHints() {
     lint: true
   });
   
+  var editor_css = CodeMirror.fromTextArea(document.getElementById("code-css"), {
+    lineNumbers: true,
+    mode: "css",
+    gutters: ["CodeMirror-lint-markers"],
+    lint: true
+  });
 </script>
 
   </article>

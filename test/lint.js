@@ -8,4 +8,12 @@ var blint = require("blint");
   });
 });
 
+["src"].forEach(function(dir) {
+  blint.checkDir(dir, {
+    browser: true,
+    ecmaVersion: 6,
+    semicolons: false
+  });
+});
+
 module.exports = {ok: blint.success()};

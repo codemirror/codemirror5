@@ -11,7 +11,6 @@
 	background: #2c2827;
 	color: #8F938F;
 	line-height: 1.5;
-	font-size: 14px;
 }
 .cm-s-pastel-on-dark div.CodeMirror-selected { background: rgba(221,240,255,0.2); }
 .cm-s-pastel-on-dark .CodeMirror-line::selection, .cm-s-pastel-on-dark .CodeMirror-line > span::selection, .cm-s-pastel-on-dark .CodeMirror-line > span > span::selection { background: rgba(221,240,255,0.2); }

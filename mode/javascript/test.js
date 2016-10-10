@@ -31,7 +31,7 @@
 
   MT("class",
      "[keyword class] [def Point] [keyword extends] [variable SuperThing] {",
-     "  [property get] [property prop]() { [keyword return] [number 24]; }",
+     "  [keyword get] [property prop]() { [keyword return] [number 24]; }",
      "  [property constructor]([def x], [def y]) {",
      "    [keyword super]([string 'something']);",
      "    [keyword this].[property x] [operator =] [variable-2 x];",
@@ -140,6 +140,19 @@
      "    [number 1];",
      "[number 2];");
 
+  MT("indent_semicolonless_if",
+     "[keyword function] [def foo]() {",
+     "  [keyword if] ([variable x])",
+     "    [variable foo]()",
+     "}")
+
+  MT("indent_semicolonless_if_with_statement",
+     "[keyword function] [def foo]() {",
+     "  [keyword if] ([variable x])",
+     "    [variable foo]()",
+     "  [variable bar]()",
+     "}")
+
   MT("multilinestring",
      "[keyword var] [def x] [operator =] [string 'foo\\]",
      "[string bar'];");
@@ -166,6 +179,23 @@
      "      .[keyword target];",
      "  }",
      "}");
+
+  var ts_mode = CodeMirror.getMode({indentUnit: 2}, "application/typescript")
+  function TS(name) {
+    test.mode(name, ts_mode, Array.prototype.slice.call(arguments, 1))
+  }
+
+  TS("extend_type",
+     "[keyword class] [def Foo] [keyword extends] [variable-3 Some][operator <][variable-3 Type][operator >] {}")
+
+  TS("arrow_type",
+     "[keyword let] [def x]: ([variable arg]: [variable-3 Type]) [operator =>] [variable-3 ReturnType]")
+
+  TS("typescript_class",
+     "[keyword class] [def Foo] {",
+     "  [keyword public] [keyword static] [property main]() {}",
+     "  [keyword private] [property _foo]: [variable-3 string];",
+     "}")
 
   var jsonld_mode = CodeMirror.getMode(
     {indentUnit: 2},
