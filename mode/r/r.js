@@ -62,13 +62,13 @@ CodeMirror.defineMode("r", function(config) {
       return "variable";
     } else if (ch == "%") {
       if (stream.skipTo("%")) stream.next();
-      return "variable-2";
+      return "operator variable-2";
     } else if (ch == "<" && stream.eat("-")) {
-      return "arrow";
+      return "operator arrow";
     } else if (ch == "=" && state.ctx.argList) {
       return "arg-is";
     } else if (opChars.test(ch)) {
-      if (ch == "$") return "dollar";
+      if (ch == "$") return "operator dollar";
       stream.eatWhile(opChars);
       return "operator";
     } else if (/[\(\){}\[\];]/.test(ch)) {
