@@ -570,7 +570,7 @@
 
   map["Shift-" + ctrl + "["] = "fold";
   map["Shift-" + ctrl + "]"] = "unfold";
-  map[cK + ctrl + "0"] = map[cK + ctrl + "j"] = "unfoldAll";
+  map[cK + ctrl + "0"] = map[cK + ctrl + "J"] = "unfoldAll";
 
   map[ctrl + "I"] = "findIncremental";
   map["Shift-" + ctrl + "I"] = "findIncrementalReverse";
