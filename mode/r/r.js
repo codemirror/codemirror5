@@ -66,7 +66,11 @@ CodeMirror.defineMode("r", function(config) {
     } else if (ch == "%") {
       if (stream.skipTo("%")) stream.next();
       return "operator variable-2";
-    } else if (ch == "<" && stream.eat("-")) {
+    } else if (
+        (ch == "<" && stream.eat("-")) ||
+        (ch == "<" && stream.match("<-")) ||
+        (ch == "-" && stream.match(/>>?/))
+      ) {
       return "operator arrow";
     } else if (ch == "=" && state.ctx.argList) {
       return "arg-is";
