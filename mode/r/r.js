@@ -44,6 +44,9 @@ CodeMirror.defineMode("r", function(config) {
     } else if (ch == "'" || ch == '"') {
       state.tokenize = tokenString(ch);
       return "string";
+    } else if (ch == "`") {
+      stream.match(/[^`]+`/);
+      return "variable-3";
     } else if (ch == "." && stream.match(/.[.\d]+/)) {
       return "keyword";
     } else if (/[\w\.]/.test(ch) && ch != "_") {
