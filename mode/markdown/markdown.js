@@ -809,6 +809,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
     getType: getType,
 
+    closeBrackets: "()[]{}''\"\"``",
     fold: "markdown"
   };
   return mode;
