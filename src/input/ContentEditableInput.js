@@ -157,7 +157,10 @@ ContentEditableInput.prototype = copyObj({
     if (rng) {
       if (!gecko && this.cm.state.focused) {
         sel.collapse(start.node, start.offset)
-        if (!rng.collapsed) sel.addRange(rng)
+        if (!rng.collapsed) {
+          sel.removeAllRanges()
+          sel.addRange(rng)
+        }
       } else {
         sel.removeAllRanges()
         sel.addRange(rng)
