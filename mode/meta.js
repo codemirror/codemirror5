@@ -131,6 +131,7 @@
     {name: "Spreadsheet", mime: "text/x-spreadsheet", mode: "spreadsheet", alias: ["excel", "formula"]},
     {name: "SQL", mime: "text/x-sql", mode: "sql", ext: ["sql"]},
     {name: "Squirrel", mime: "text/x-squirrel", mode: "clike", ext: ["nut"]},
+    {name: "Stylus", mime: "text/x-styl", mode: "stylus", ext: ["styl"]},
     {name: "Swift", mime: "text/x-swift", mode: "swift", ext: ["swift"]},
     {name: "sTeX", mime: "text/x-stex", mode: "stex"},
     {name: "LaTeX", mime: "text/x-latex", mode: "stex", ext: ["text", "ltx"], alias: ["tex"]},
