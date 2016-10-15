@@ -294,7 +294,7 @@
     });
   };
 
-  map[ctrl + "T"] = "transposeChars";
+  if (!mac) map[ctrl + "T"] = "transposeChars";
 
   function sortLines(cm, caseSensitive) {
     if (cm.isReadOnly()) return CodeMirror.Pass
