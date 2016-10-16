@@ -12,7 +12,7 @@
   "use strict";
 
   var listRE = /^(\s*)(>[> ]*|- \[[x ]\]\s|[*+-]\s|(\d+)([.)]))(\s*)/,
-      emptyListRE = /^(\s*)(>[> ]*|- \[[x ]\]|[*+-]|(\d+)([.)]))(\s*)$/,
+      emptyListRE = /^(\s*)(>[> ]*|- \[[x ]\]|[*+-]|(\d+)[.)])(\s*)$/,
       unorderedListRE = /[*+-]\s/;
 
   CodeMirror.commands.newlineAndIndentContinueMarkdownList = function(cm) {
