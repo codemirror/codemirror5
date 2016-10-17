@@ -8,8 +8,8 @@ import { elt, removeChildren, range, removeChildrenAndAdd } from "../util/dom"
 import { e_target } from "../util/event"
 import { hasBadZoomedRects } from "../util/feature_detection"
 import { countColumn, isExtendingChar, scrollerGap } from "../util/misc"
+import { updateLineForChanges } from "../display/update_line"
 
-import { updateLineForChanges } from "./update_line"
 import { widgetHeight } from "./widgets"
 
 // POSITION MEASUREMENT
