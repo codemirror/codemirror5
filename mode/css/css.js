@@ -414,7 +414,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
   function keySet(array) {
     var keys = {};
     for (var i = 0; i < array.length; ++i) {
-      keys[array[i]] = true;
+      keys[array[i].toLowerCase()] = true;
     }
     return keys;
   }
@@ -672,7 +672,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "threedlightshadow", "threedshadow", "tibetan", "tigre", "tigrinya-er",
     "tigrinya-er-abegede", "tigrinya-et", "tigrinya-et-abegede", "to", "top",
     "trad-chinese-formal", "trad-chinese-informal",
-    "translate", "translate3d", "translatex", "translatey", "translatez",
+    "translate", "translate3d", "translateX", "translateY", "translateZ",
     "transparent", "ultra-condensed", "ultra-expanded", "underline", "up",
     "upper-alpha", "upper-armenian", "upper-greek", "upper-hexadecimal",
     "upper-latin", "upper-norwegian", "upper-roman", "uppercase", "urdu", "url",
