@@ -672,7 +672,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "threedlightshadow", "threedshadow", "tibetan", "tigre", "tigrinya-er",
     "tigrinya-er-abegede", "tigrinya-et", "tigrinya-et-abegede", "to", "top",
     "trad-chinese-formal", "trad-chinese-informal",
-    "translate", "translate3d", "translateX", "translateY", "translateZ",
+    "translate", "translate3d", "translatex", "translatey", "translatez",
     "transparent", "ultra-condensed", "ultra-expanded", "underline", "up",
     "upper-alpha", "upper-armenian", "upper-greek", "upper-hexadecimal",
     "upper-latin", "upper-norwegian", "upper-roman", "uppercase", "urdu", "url",
