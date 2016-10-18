@@ -115,7 +115,7 @@
       var next = cm.getRange(cur, Pos(cur.line, cur.ch + 1));
       if (opening && !range.empty()) {
         curType = "surround";
-      } else if ((identical || !opening) && next == ch) {
+      } else if (((identical && cm.getTokenAt(cur).type === "string") || !opening) && next == ch) {
         if (triples.indexOf(ch) >= 0 && cm.getRange(cur, Pos(cur.line, cur.ch + 3)) == ch + ch + ch)
           curType = "skipThree";
         else
