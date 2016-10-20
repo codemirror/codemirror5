@@ -40,6 +40,7 @@
       (this.edit.state.diffViews || (this.edit.state.diffViews = [])).push(this);
       this.orig = CodeMirror(pane, copyObj({value: orig, readOnly: !this.mv.options.allowEditingOriginals}, copyObj(options)));
       this.orig.state.diffViews = [this];
+      this.classes.location = options.mergeMarkerLocation || "background";
 
       this.diff = getDiff(asString(orig), asString(options.value));
       this.chunks = getChunks(this.diff);
@@ -192,14 +193,20 @@
   // Updating the marks for editor content
 
   function clearMarks(editor, arr, classes) {
+    function removeLineClass(l, klass) {
+      var classList = Array.isArray(classes.location) ? classes.location : [classes.location]
+      for (var c = 0; c < classList.length; ++c) {
+        editor.removeLineClass(l, classList[c], klass)
+      }
+    }
     for (var i = 0; i < arr.length; ++i) {
       var mark = arr[i];
       if (mark instanceof CodeMirror.TextMarker) {
         mark.clear();
       } else if (mark.parent) {
-        editor.removeLineClass(mark, "background", classes.chunk);
-        editor.removeLineClass(mark, "background", classes.start);
-        editor.removeLineClass(mark, "background", classes.end);
+        removeLineClass(mark, classes.chunk);
+        removeLineClass(mark, classes.start);
+        removeLineClass(mark, classes.end);
       }
     }
     arr.length = 0;
@@ -231,19 +238,29 @@
     var top = Pos(from, 0), bot = editor.clipPos(Pos(to - 1));
     var cls = type == DIFF_DELETE ? classes.del : classes.insert;
     function markChunk(start, end) {
+      function addLineClass(l, klass) {
+        var classList = Array.isArray(classes.location) ? classes.location : [classes.location]
+        var ret = null
+        for (var c = 0; c < classList.length; ++c) {
+          ret = editor.addLineClass(l, classList[c], klass)
+        }
+
+        return ret
+      }
+
       var bfrom = Math.max(from, start), bto = Math.min(to, end);
       for (var i = bfrom; i < bto; ++i) {
-        var line = editor.addLineClass(i, "background", classes.chunk);
-        if (i == start) editor.addLineClass(line, "background", classes.start);
-        if (i == end - 1) editor.addLineClass(line, "background", classes.end);
+        var line = addLineClass(i, classes.chunk);
+        if (i == start) addLineClass(line, classes.start);
+        if (i == end - 1) addLineClass(line, classes.end);
         marks.push(line);
       }
       // When the chunk is empty, make sure a horizontal line shows up
       if (start == end && bfrom == end && bto == end) {
         if (bfrom)
-          marks.push(editor.addLineClass(bfrom - 1, "background", classes.end));
+          marks.push(addLineClass(bfrom - 1, classes.end));
         else
-          marks.push(editor.addLineClass(bfrom, "background", classes.start));
+          marks.push(addLineClass(bfrom, classes.start));
       }
     }
 

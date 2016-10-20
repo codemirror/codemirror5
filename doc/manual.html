@@ -2583,7 +2583,7 @@ editor.setOption("extraKeys", {
         <dd>Optional <code>to</code> position that will be used by <code>pick()</code> instead
         of the global one passed with the full list of completions.</dd>
       </dl></dd>
-      
+
       <dd>The plugin understands the following options (the options object
       will also be passed along to the hinting function, which may
       understand additional options):
@@ -2986,6 +2986,10 @@ editor.setOption("extraKeys", {
           <dt><code><strong>showDifferences</strong>: boolean</code></dt>
           <dd>When true (the default), changed pieces of text are
           highlighted.</dd>
+          <dt><code><strong>mergeMarkerLocations</strong>: string|Array</code></dt>
+          <dd>By default the merge highlights are added using addLineClass with "background".
+          Override this to customize it to be any valid `where` parameter or an Array of valid `where`
+          parameters.</dd>
         </dl>
         The addon also defines commands <code>"goNextDiff"</code>
         and <code>"goPrevDiff"</code> to quickly jump to the next
