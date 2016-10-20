@@ -226,7 +226,7 @@
       var state = cm.state.lint = new LintState(cm, parseOptions(cm, val), hasLintGutter);
       if (state.options.lintOnChange !== false)
         cm.on("change", onChange);
-      if (state.options.tooltips != false)
+      if (state.options.tooltips != false && state.options.tooltips != "gutter")
         CodeMirror.on(cm.getWrapperElement(), "mouseover", state.onMouseOver);
 
       startLinting(cm);
