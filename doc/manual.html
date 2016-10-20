@@ -2986,9 +2986,11 @@ editor.setOption("extraKeys", {
           <dt><code><strong>showDifferences</strong>: boolean</code></dt>
           <dd>When true (the default), changed pieces of text are
           highlighted.</dd>
-          <dt><code><strong>mergeMarkerLocations</strong>: string|Array</code></dt>
-          <dd>By default the merge highlights are added using addLineClass with "background".
-          Override this to customize it to be any valid `where` parameter or an Array of valid `where`
+          <dt><code><strong>chunkClassLocation</strong>: string|Array</code></dt>
+          <dd>By default the chunk highlights are added
+          using <a href="#addLineClass"><code>addLineClass</code></a>
+          with "background". Override this to customize it to be any
+          valid `where` parameter or an Array of valid `where`
           parameters.</dd>
         </dl>
         The addon also defines commands <code>"goNextDiff"</code>
