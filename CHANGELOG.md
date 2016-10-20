@@ -1,3 +1,27 @@
+## 5.20.0 (2016-10-20)
+
+### Bug fixes
+
+Make `newlineAndIndent` command work with multiple cursors on the same line.
+
+Make sure keypress events for backspace are ignored.
+
+Tokens styled with overlays no longer get a nonsense `cm-cm-overlay` class.
+
+Line endings for pasted content are now normalized to the editor's [preferred ending](http://codemirror.net/doc/manual.html#option_lineSeparator).
+
+[javascript mode](http://codemirror.net/mode/javascript): Improve support for class expressions. Support TypeScript optional class properties, the `abstract` keyword, and return type declarations for arrow functions.
+
+[css mode](http://codemirror.net/mode/css): Fix highlighting of mixed-case keywords.
+
+[closebrackets addon](http://codemirror.net/doc/manual.html#addon_closebrackets): Improve behavior when typing a quote before a string.
+
+### New features
+
+The core is now maintained as a number of small files, using ES6 syntax and modules, under the `src/` directory. A git checkout no longer contains a working `codemirror.js` until you `npm build` (but when installing from NPM, it is included).
+
+The [`refresh`](http://codemirror.net/doc/manual.html#event_refresh) event is now documented and stable.
+
 ## 5.19.0 (2016-09-20)
 
 ### Bugfixes
