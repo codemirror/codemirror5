@@ -1,3 +1,9 @@
+## 5.20.2 (2016-10-21)
+
+### Bug fixes
+
+Fix `CodeMirror.version` returning the wrong version number.
+
 ## 5.20.0 (2016-10-20)
 
 ### Bug fixes
