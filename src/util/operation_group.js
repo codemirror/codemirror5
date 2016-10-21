@@ -31,7 +31,7 @@ function fireCallbacksForOps(group) {
 
 export function finishOperation(op, endCb) {
   let group = op.ownsGroup
-  if (!group) return
+  if (!group) return function() { return true }
 
   try { fireCallbacksForOps(group) }
   finally {
