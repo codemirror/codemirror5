@@ -2000,6 +2000,22 @@ editor.setOption("extraKeys", {
       lot faster. The return value from this method will be the return
       value of your function.</dd>
 
+      <dt id="coordinatedOperation"><code><strong>cm.coordinatedOperation</strong>(func: () → any)  → () → boolean</code><dt>
+      <dd>This is a variant of <a href="#operation"><code>operation</code></a>
+      which allows for the coordinated update of the DOM accross multiple
+      CodeMirror instances. This can be a significant speed up when many
+      instances are involved. It is intended to used as follows:
+        <ol>
+          <li>Call <code>coordinatedOperation</code> on each CodeMirror
+            instance and collect the function it returns into a list.</li>
+          <li>Execute each function in the list one at a time.</li>
+          <li>Execute each function in the list again.</li>
+          <li>Repeatedly execute each function in the list until all of
+            them return <code>true</code> to indicate that they are have
+            completed.</li>
+        </ol> 
+      </dd>  
+
       <dt id="indentLine"><code><strong>cm.indentLine</strong>(line: integer, ?dir: string|integer)</code></dt>
       <dd>Adjust the indentation of the given line. The second
       argument (which defaults to <code>"smart"</code>) may be one of:

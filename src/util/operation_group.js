@@ -36,7 +36,7 @@ export function finishOperation(op, endCb) {
   try { fireCallbacksForOps(group) }
   finally {
     operationGroup = null
-    endCb(group)
+    return endCb(group)
   }
 }
 
