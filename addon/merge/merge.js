@@ -116,8 +116,14 @@
       // Update faster when a line was added/removed
       setDealign(change.text.length - 1 != change.to.line - change.from.line);
     }
+    function swapDoc() {
+      dv.diffOutOfDate = true;
+      update("full");
+    }
     dv.edit.on("change", change);
     dv.orig.on("change", change);
+    dv.edit.on("swapDoc", swapDoc);
+    dv.orig.on("swapDoc", swapDoc);
     dv.edit.on("markerAdded", setDealign);
     dv.edit.on("markerCleared", setDealign);
     dv.orig.on("markerAdded", setDealign);
@@ -464,18 +470,18 @@
 
     if (hasLeft) {
       left = this.left = new DiffView(this, "left");
-      var leftPane = elt("div", null, "CodeMirror-merge-pane");
+      var leftPane = elt("div", null, "CodeMirror-merge-pane CodeMirror-merge-left");
       wrap.push(leftPane);
       wrap.push(buildGap(left));
     }
 
-    var editPane = elt("div", null, "CodeMirror-merge-pane");
+    var editPane = elt("div", null, "CodeMirror-merge-pane CodeMirror-merge-editor");
     wrap.push(editPane);
 
     if (hasRight) {
       right = this.right = new DiffView(this, "right");
       wrap.push(buildGap(right));
-      var rightPane = elt("div", null, "CodeMirror-merge-pane");
+      var rightPane = elt("div", null, "CodeMirror-merge-pane CodeMirror-merge-right");
       wrap.push(rightPane);
     }
 
