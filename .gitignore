@@ -7,3 +7,4 @@
 .idea
 *.iml
 /lib/codemirror.js
+yarn.lock
