@@ -205,7 +205,7 @@
     for (var i = 0; i < locs.length; i++) {
       editor.removeLineClass(line, locs[i], classes.chunk);
       editor.removeLineClass(line, locs[i], classes.start);
-      editor.removeLineClass(line, locs[i], classes.chunk);
+      editor.removeLineClass(line, locs[i], classes.end);
     }
   }
 
