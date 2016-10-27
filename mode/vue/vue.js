@@ -66,4 +66,5 @@
   }, "htmlmixed", "xml", "javascript", "coffeescript", "css", "sass", "stylus", "pug", "handlebars");
 
   CodeMirror.defineMIME("script/x-vue", "vue");
+  CodeMirror.defineMIME("text/x-vue", "vue");
 });
