@@ -23,6 +23,11 @@
     "[keyword alt]","[keyword loop]","[keyword opt]","[keyword ref]","[keyword else]","[keyword break]","[keyword par]","[keyword seq]","[keyword assert]"
   );
 
+  MT("xù/ msgenny constants classify as 'variable'",
+    "[variable auto]",
+    "[variable true]", "[variable false]", "[variable on]", "[variable off]"
+  );
+
   MT("mscgen options classify as keyword",
     "[keyword hscale]", "[keyword width]", "[keyword arcgradient]", "[keyword wordwraparcs]"
   );
@@ -56,7 +61,7 @@
 
   MT("a typical program",
     "[comment # typical msgenny program]",
-    "[keyword wordwraparcs][operator =][string \"true\"][base , ][keyword hscale][operator =][string \"0.8\"][base , ][keyword arcgradient][operator =][base 30;]",
+    "[keyword wordwraparcs][operator =][variable true][base , ][keyword hscale][operator =][string \"0.8\"][base , ][keyword arcgradient][operator =][base 30;]",
     "[base   a : ][string \"Entity A\"][base ,]",
     "[base   b : Entity B,]",
     "[base   c : Entity C;]",
