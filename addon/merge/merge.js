@@ -545,7 +545,7 @@
   }
 
   MergeView.prototype = {
-    constuctor: MergeView,
+    constructor: MergeView,
     editor: function() { return this.edit; },
     rightOriginal: function() { return this.right && this.right.orig; },
     leftOriginal: function() { return this.left && this.left.orig; },
