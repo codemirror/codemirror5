@@ -438,7 +438,8 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
   var tlvTrackStatements = false;
   var tlvIdentMatch = /^([~!@#\$%\^&\*-\+=\?\/\\\|'"<>]+)([\d\w_]*)/;  // Matches an identifiere.
   // Note that ':' is excluded, because of it's use in [:].
-  var tlvLinePrefixMatch = /^[! ]  /;
+  var tlvFirstLevelIndentMatch = /^[! ]  /;
+  var tlvLineIndentationMatch = /^[! ] */;
   var tlvCommentMatch = /^\/[\/\*]/;
 
 
@@ -472,6 +473,7 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
       //   - Statement delimitation (enabled by tlvTrackStatements)
       token: function(stream, state) {
         var style = undefined;
+        var match;  // Return value of pattern matches.
 
         // Set highlighting mode based on code region (TLV or SV).
         if (stream.sol() && ! state.tlvInBlockComment) {
@@ -485,11 +487,10 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
               state.tlvCodeActive = true;
             }
           }
-          // Process TLV line prefix -- correct indentation.
-          if (state.tlvCodeActive && (state.indented == 0) && stream.match(tlvLinePrefixMatch)) {
-            stream.match(/ */);
-            state.indented = stream.pos;
-            stream.pos = 0;
+          // Correct indentation in the face of a line prefix char.
+          if (state.tlvCodeActive && stream.pos == 0 &&
+              (state.indented == 0) && (match = stream.match(tlvLineIndentationMatch, false)) {
+            state.indented = match[0].length;
           }
 
           // Compute indentation state:
@@ -505,7 +506,6 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
             if (chPos < stream.string.length) {
               var bodyString = stream.string.slice(chPos);
               var ch = bodyString[0];
-              var match;
               if (tlvScopePrefixChars[ch] && ((match = bodyString.match(tlvIdentMatch)) &&
                   tlvIdentifierStyle[match[1]])) {
                 // this line begins scope (except non-region keyword identifiers, which are statements themselves)
@@ -554,7 +554,7 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
             // Region line.
             style += " " + tlvScopeStyle(state, 0, "scope-ident")
           } else if (((stream.pos / tlvIndentUnit) < state.tlvIndentationStyle.length) &&
-                     (match = stream.match(stream.sol() ? tlvLinePrefixMatch : /^   /))) {
+                     (match = stream.match(stream.sol() ? tlvFirstLevelIndentMatch : /^   /))) {
             // Indentation
             style = // make this style distinct from the previous one to prevent
                     // codemirror from combining spans
