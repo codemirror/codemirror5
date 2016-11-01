@@ -343,11 +343,12 @@
             j = -1;
             break;
           } else if (align[1] > chunk.editTo) {
+            j--
             break;
           }
         }
         if (j > -1)
-          linesToAlign.splice(j - 1, 0, [getMatchingOrigLine(chunk.editTo, dv.chunks), chunk.editTo, chunk.origTo]);
+          linesToAlign.splice(j, 0, [getMatchingOrigLine(chunk.editTo, dv.chunks), chunk.editTo, chunk.origTo]);
       }
     }
     return linesToAlign;
