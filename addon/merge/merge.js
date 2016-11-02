@@ -49,6 +49,8 @@
       this.diffOutOfDate = this.dealigned = false;
 
       this.showDifferences = options.showDifferences !== false;
+    },
+    registerEvents: function() {
       this.forceUpdate = registerUpdate(this);
       setScrollLock(this, true, false);
       registerScroll(this);
@@ -91,10 +93,11 @@
         updateMarks(dv.edit, dv.diff, edit, DIFF_INSERT, dv.classes);
         updateMarks(dv.orig, dv.diff, orig, DIFF_DELETE, dv.classes);
       }
-      makeConnections(dv);
 
       if (dv.mv.options.connect == "align")
         alignChunks(dv);
+      makeConnections(dv);
+
       updating = false;
     }
     function setDealign(fast) {
@@ -489,7 +492,6 @@
 
     if (left) left.init(leftPane, origLeft, options);
     if (right) right.init(rightPane, origRight, options);
-
     if (options.collapseIdentical)
       this.editor().operation(function() {
         collapseIdenticalStretches(self, options.collapseIdentical);
@@ -498,6 +500,9 @@
       this.aligners = [];
       alignChunks(this.left || this.right, true);
     }
+    if (left) left.registerEvents()
+    if (right) right.registerEvents()
+
 
     var onResize = function() {
       if (left) makeConnections(left);
