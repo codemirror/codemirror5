@@ -1863,13 +1863,16 @@ editor.setOption("extraKeys", {
       height. <code>mode</code> can be one of the same strings
       that <a href="#coordsChar"><code>coordsChar</code></a>
       accepts.</dd>
-      <dt id="heightAtLine"><code><strong>cm.heightAtLine</strong>(line: integer|LineHandle, ?mode: string) → number</code></dt>
+      <dt id="heightAtLine"><code><strong>cm.heightAtLine</strong>(line: integer|LineHandle, ?mode: string, ?includeWidgets: bool) → number</code></dt>
       <dd>Computes the height of the top of a line, in the coordinate
       system specified by <code>mode</code>
       (see <a href="#coordsChar"><code>coordsChar</code></a>), which
       defaults to <code>"page"</code>. When a line below the bottom of
       the document is specified, the returned value is the bottom of
-      the last line in the document.</dd>
+      the last line in the document. By default, the position of the
+      actual text is returned. If `includeWidgets` is true and the
+      line has line widgets, the position above the first line widget
+      is returned.</dd>
       <dt id="defaultTextHeight"><code><strong>cm.defaultTextHeight</strong>() → number</code></dt>
       <dd>Returns the line height of the default font for the editor.</dd>
       <dt id="defaultCharWidth"><code><strong>cm.defaultCharWidth</strong>() → number</code></dt>

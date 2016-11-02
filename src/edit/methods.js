@@ -201,7 +201,7 @@ export default function(CodeMirror) {
       height = fromCoordSystem(this, {top: height, left: 0}, mode || "page").top
       return lineAtHeight(this.doc, height + this.display.viewOffset)
     },
-    heightAtLine: function(line, mode) {
+    heightAtLine: function(line, mode, includeWidgets) {
       let end = false, lineObj
       if (typeof line == "number") {
         let last = this.doc.first + this.doc.size - 1
@@ -211,7 +211,7 @@ export default function(CodeMirror) {
       } else {
         lineObj = line
       }
-      return intoCoordSystem(this, lineObj, {top: 0, left: 0}, mode || "page").top +
+      return intoCoordSystem(this, lineObj, {top: 0, left: 0}, mode || "page", includeWidgets).top +
         (end ? this.doc.height - heightAtLine(lineObj) : 0)
     },
 

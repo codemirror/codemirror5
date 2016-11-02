@@ -287,8 +287,8 @@ function pageScrollY() { return window.pageYOffset || (document.documentElement 
 // coordinates into another coordinate system. Context may be one of
 // "line", "div" (display.lineDiv), "local"./null (editor), "window",
 // or "page".
-export function intoCoordSystem(cm, lineObj, rect, context) {
-  if (lineObj.widgets) for (let i = 0; i < lineObj.widgets.length; ++i) if (lineObj.widgets[i].above) {
+export function intoCoordSystem(cm, lineObj, rect, context, includeWidgets) {
+  if (!includeWidgets && lineObj.widgets) for (let i = 0; i < lineObj.widgets.length; ++i) if (lineObj.widgets[i].above) {
     let size = widgetHeight(lineObj.widgets[i])
     rect.top += size; rect.bottom += size
   }

@@ -408,13 +408,13 @@
 
   function drawConnectorsForChunk(dv, chunk, sTopOrig, sTopEdit, w) {
     var flip = dv.type == "left";
-    var top = dv.orig.heightAtLine(chunk.origFrom, "local") - sTopOrig;
+    var top = dv.orig.heightAtLine(chunk.origFrom, "local", true) - sTopOrig;
     if (dv.svg) {
       var topLpx = top;
-      var topRpx = dv.edit.heightAtLine(chunk.editFrom, "local") - sTopEdit;
+      var topRpx = dv.edit.heightAtLine(chunk.editFrom, "local", true) - sTopEdit;
       if (flip) { var tmp = topLpx; topLpx = topRpx; topRpx = tmp; }
-      var botLpx = dv.orig.heightAtLine(chunk.origTo, "local") - sTopOrig;
-      var botRpx = dv.edit.heightAtLine(chunk.editTo, "local") - sTopEdit;
+      var botLpx = dv.orig.heightAtLine(chunk.origTo, "local", true) - sTopOrig;
+      var botRpx = dv.edit.heightAtLine(chunk.editTo, "local", true) - sTopEdit;
       if (flip) { var tmp = botLpx; botLpx = botRpx; botRpx = tmp; }
       var curveTop = " C " + w/2 + " " + topRpx + " " + w/2 + " " + topLpx + " " + (w + 2) + " " + topLpx;
       var curveBot = " C " + w/2 + " " + botLpx + " " + w/2 + " " + botRpx + " -1 " + botRpx;
