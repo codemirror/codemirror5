@@ -335,20 +335,14 @@
       linesToAlign.push([chunk.origTo, chunk.editTo, other ? getMatchingOrigLine(chunk.editTo, other.chunks) : null]);
     }
     if (other) {
-      for (var i = 0; i < other.chunks.length; i++) {
+      chunkLoop: for (var i = 0; i < other.chunks.length; i++) {
         var chunk = other.chunks[i];
         for (var j = 0; j < linesToAlign.length; j++) {
-          var align = linesToAlign[j];
-          if (align[1] == chunk.editTo) {
-            j = -2;
-            break;
-          } else if (align[1] > chunk.editTo) {
-            j--
-            break;
-          }
+          var diff = linesToAlign[j][1] - chunk.editTo;
+          if (diff == 0) continue chunkLoop
+          if (diff > 0) break;
         }
-        if (j > -2)
-          linesToAlign.splice(j, 0, [getMatchingOrigLine(chunk.editTo, dv.chunks), chunk.editTo, chunk.origTo]);
+        linesToAlign.splice(j, 0, [getMatchingOrigLine(chunk.editTo, dv.chunks), chunk.editTo, chunk.origTo]);
       }
     }
     return linesToAlign;
