@@ -494,7 +494,7 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
           }
 
           // Compute indentation state:
-          //   o Required indentation on next line
+          //   o Auto indentation on next line
           //   o Indentation scope styles
           var indented = state.indented;
           var depth = indented / tlvIndentUnit;
@@ -508,9 +508,12 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
               var ch = bodyString[0];
               if (tlvScopePrefixChars[ch] && ((match = bodyString.match(tlvIdentMatch)) &&
                   tlvIdentifierStyle[match[1]])) {
-                // this line begins scope (except non-region keyword identifiers, which are statements themselves)
+                // This line begins scope.
+                // Next line gets indented one level.
+                indented += tlvIndentUnit;
+                // Style the next level of indentation (except non-region keyword identifiers,
+                //   which are statements themselves)
                 if (!(ch == "\\" && chPos > 0)) {
-                  indented += tlvIndentUnit;
                   state.tlvIndentationStyle[depth] = tlvScopePrefixChars[ch];
                   if (tlvTrackStatements) {state.statementComment = false;}
                   depth++;
@@ -524,6 +527,8 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
               }
             }
           }
+          // Set next level of indentation.
+          state.tlvNextIndent = indented;
         }
 
         if (state.tlvCodeActive) {
@@ -651,9 +656,14 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
         return style;
       },
 
+      indent: function(state) {
+        return (state.tlvCodeActive == true) ? state.tlvNextIndent : -1;
+      },
+
       startState: function(state) {
         state.tlvIndentationStyle = [];  // Styles to use for each level of indentation.
         state.tlvCodeActive = true;  // True when we're in a TLV region (and at beginning of file).
+        state.tlvNextIndent = -1;    // The number of spaces to autoindent the next line if tlvCodeActive.
         state.tlvInBlockComment = false;  // True inside /**/ comment.
         if (tlvTrackStatements) {
           state.statementComment = false;  // True inside a statement's header comment.
