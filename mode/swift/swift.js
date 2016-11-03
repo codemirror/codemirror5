@@ -36,7 +36,6 @@
   var identifier = /^(`?)[_A-Za-z$][_A-Za-z$0-9]*\1/
   var property = /^[\.][_A-Za-z$][_A-Za-z$0-9]*/
   var instruction = /^[@#][_A-Za-z$][_A-Za-z$0-9]*/
-  var regexp = /^\/(?!\s)(?:\/\/)?(?:\\.|[^\/])+\//
 
   function tokenBase(stream, state, prev) {
     if (stream.sol()) state.indented = stream.indentation()
@@ -52,7 +51,6 @@
         state.tokenize.push(tokenComment)
         return tokenComment(stream, state)
       }
-      if (stream.match(regexp)) return "string-2"
     }
     if (stream.match(instruction)) return "builtin"
     if (operators.indexOf(ch) > -1) {
