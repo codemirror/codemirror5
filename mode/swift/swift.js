@@ -26,14 +26,16 @@
                           "defer","return","inout","mutating","nonmutating","catch","do","rethrows","throw","throws","try","didSet","get","set","willSet",
                           "assignment","associativity","infix","left","none","operator","postfix","precedence","precedencegroup","prefix","right",
                           "Any","AnyObject","Type","dynamicType","Self","Protocol","__COLUMN__","__FILE__","__FUNCTION__","__LINE__"])
-  var definingKeywords = wordSet(["var","let","class","enum","extension","import","protocol","struct","func","typealias","associatedtype"])
+  var definingKeywords = wordSet(["var","let","class","enum","extension","import","protocol","struct","func","typealias","associatedtype","for"])
   var atoms = wordSet(["true","false","nil","self","super","_"])
-  var types = wordSet(["Array","Bool","Dictionary","Double","Float","Int","Never","Optional","String","Void"])
-  var operators = "+-/*%=|&<>"
+  var types = wordSet(["Array","Bool","Character","Dictionary","Double","Float","Int","Int8","Int16","Int32","Int64","Never","Optional","String","UInt8",
+                       "UInt16","UInt32","UInt64","Void"])
+  var operators = "+-/*%=|&<>~^"
   var punc = ";,.(){}[]"
-  var number = /^-?(?:(?:[\d_]+\.[_\d]*|\.[_\d]+|0o[0-7_\.]+|0b[01_\.]+)(?:e-?[\d_]+)?|0x[\d_a-f\.]+(?:p-?[\d_]+)?)/i
-  var identifier = /^[_A-Za-z$][_A-Za-z$0-9]*/
-  var property = /^[@\#\.][_A-Za-z$][_A-Za-z$0-9]*/
+  var number = /^-?(?:(?:[\d_]+\.[_\d]*|\.[_\d]+|0o[0-7_\.]+|0b[01_\.]+|[\d_]+)(?:e-?[\d_]+)?|0x[\d_a-f\.]+(?:p-?[\d_]+)?)/i
+  var identifier = /^(`?)[_A-Za-z$][_A-Za-z$0-9]*\1/
+  var property = /^[\.][_A-Za-z$][_A-Za-z$0-9]*/
+  var instruction = /^[@#][_A-Za-z$][_A-Za-z$0-9]*/
   var regexp = /^\/(?!\s)(?:\/\/)?(?:\\.|[^\/])+\//
 
   function tokenBase(stream, state, prev) {
@@ -52,10 +54,13 @@
       }
       if (stream.match(regexp)) return "string-2"
     }
+    if (stream.match(instruction)) return "builtin"
     if (operators.indexOf(ch) > -1) {
       stream.next()
       return "operator"
     }
+    if (stream.match(number)) return "number"
+    if (stream.match(property)) return "property"
     if (punc.indexOf(ch) > -1) {
       stream.next()
       stream.match("..")
@@ -67,9 +72,6 @@
       state.tokenize.push(tokenize)
       return tokenize(stream, state)
     }
-
-    if (stream.match(number)) return "number"
-    if (stream.match(property)) return "property"
 
     if (stream.match(identifier)) {
       var ident = stream.current()
@@ -191,7 +193,9 @@
 
       lineComment: "//",
       blockCommentStart: "/*",
-      blockCommentEnd: "*/"
+      blockCommentEnd: "*/",
+      fold: "brace",
+      closeBrackets: "()[]{}''\"\"``"
     }
   })
 
