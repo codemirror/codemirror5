@@ -35,7 +35,7 @@
   var number = /^-?(?:(?:[\d_]+\.[_\d]*|\.[_\d]+|0o[0-7_\.]+|0b[01_\.]+|[\d_]+)(?:e-?[\d_]+)?|0x[\d_a-f\.]+(?:p-?[\d_]+)?)/i
   var identifier = /^(`?)[_A-Za-z$][_A-Za-z$0-9]*\1/
   var property = /^[\.][_A-Za-z$][_A-Za-z$0-9]*/
-  var instruction = /^[@#][_A-Za-z$][_A-Za-z$0-9]*/
+  var instruction = /^[@\#][_A-Za-z$][_A-Za-z$0-9]*/
 
   function tokenBase(stream, state, prev) {
     if (stream.sol()) state.indented = stream.indentation()
