@@ -32,7 +32,7 @@
                        "UInt16","UInt32","UInt64","Void"])
   var operators = "+-/*%=|&<>~^"
   var punc = ";,.(){}[]"
-  var number = /^-?(?:(?:[\d_]+\.[_\d]*|\.[_\d]+|0o[0-7_\.]+|0b[01_\.]+|[\d_]+)(?:e-?[\d_]+)?|0x[\d_a-f\.]+(?:p-?[\d_]+)?)/i
+  var number = /^\-?(?:0x[\d_a-f\.]+(?:p-?[\d_]+)?|(?:[\d_]+\.[_\d]*|\.[_\d]+|0o[0-7_\.]+|0b[01_\.]+|[\d_]+)(?:e-?[\d_]+)?)/i
   var identifier = /^(`?)[_A-Za-z$][_A-Za-z$0-9]*\1/
   var property = /^[\.][_A-Za-z$][_A-Za-z$0-9]*/
   var instruction = /^[@\#][_A-Za-z$][_A-Za-z$0-9]*/
@@ -53,11 +53,11 @@
       }
     }
     if (stream.match(instruction)) return "builtin"
+    if (stream.match(number)) return "number"
     if (operators.indexOf(ch) > -1) {
       stream.next()
       return "operator"
     }
-    if (stream.match(number)) return "number"
     if (stream.match(property)) return "property"
     if (punc.indexOf(ch) > -1) {
       stream.next()
