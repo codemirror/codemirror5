@@ -32,7 +32,7 @@
                        "UInt16","UInt32","UInt64","Void"])
   var operators = "+-/*%=|&<>~^?"
   var punc = ";,.(){}[]"
-  var number = /^\-?(?:0x[\d_a-f\.]+(?:p-?[\d_]+)?|(?:(?:[\d_]+)?\.[_\d]+|0o[0-7_\.]+|0b[01_\.]+|[\d_]+)(?:e-?[\d_]+)?)/i
+  var number = /^\-?(?:0x[\d_a-f\.]+(?:p-?[\d_]+)?|(?:(?:[\d_]+)?\.[_\d]+|0o[0-7_\.]+|0b[01_\.]+|[\d]+)(?:e-?[\d_]+)?)/i
   var identifier = /^(`?)[_A-Za-z$][_A-Za-z$0-9]*\1/
   var property = /^[\.][_A-Za-z$][_A-Za-z$0-9]*/
   var instruction = /^[@\#][_A-Za-z$][_A-Za-z$0-9]*/
@@ -73,13 +73,13 @@
 
     if (stream.match(identifier)) {
       var ident = stream.current()
+      if (types.hasOwnProperty(ident)) return "variable-2"
+      if (atoms.hasOwnProperty(ident)) return "atom"
       if (keywords.hasOwnProperty(ident)) {
         if (definingKeywords.hasOwnProperty(ident))
           state.prev = "define"
         return "keyword"
       }
-      if (types.hasOwnProperty(ident)) return "variable-2"
-      if (atoms.hasOwnProperty(ident)) return "atom"
       if (prev == "define") return "def"
       return "variable"
     }
