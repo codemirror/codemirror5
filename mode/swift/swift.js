@@ -30,7 +30,7 @@
   var atoms = wordSet(["true","false","nil","self","super","_"])
   var types = wordSet(["Array","Bool","Character","Dictionary","Double","Float","Int","Int8","Int16","Int32","Int64","Never","Optional","Set","String",
                        "UInt8","UInt16","UInt32","UInt64","Void"])
-  var operators = "+-/*%=|&<>~^?"
+  var operators = "+-/*%=|&<>~^?:"
   var punc = ";,.(){}[]"
   var number = /^\-?(?:0x[\d_a-f\.]+(?:p-?[\d_]+)?|(?:(?:[\d_]+)?\.[_\d]+|0o[0-7_\.]+|0b[01_\.]+|[\d]+)(?:e-?[\d_]+)?)/i
   var identifier = /^(`?)[_A-Za-z$][_A-Za-z$0-9]*\1/
