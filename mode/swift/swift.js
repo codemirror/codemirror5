@@ -28,8 +28,8 @@
                           "Any","AnyObject","Type","dynamicType","Self","Protocol","__COLUMN__","__FILE__","__FUNCTION__","__LINE__"])
   var definingKeywords = wordSet(["var","let","class","enum","extension","import","protocol","struct","func","typealias","associatedtype","for"])
   var atoms = wordSet(["true","false","nil","self","super","_"])
-  var types = wordSet(["Array","Bool","Character","Dictionary","Double","Float","Int","Int8","Int16","Int32","Int64","Never","Optional","String","UInt8",
-                       "UInt16","UInt32","UInt64","Void"])
+  var types = wordSet(["Array","Bool","Character","Dictionary","Double","Float","Int","Int8","Int16","Int32","Int64","Never","Optional","Set","String",
+                       "UInt8","UInt16","UInt32","UInt64","Void"])
   var operators = "+-/*%=|&<>~^?"
   var punc = ";,.(){}[]"
   var number = /^\-?(?:0x[\d_a-f\.]+(?:p-?[\d_]+)?|(?:(?:[\d_]+)?\.[_\d]+|0o[0-7_\.]+|0b[01_\.]+|[\d]+)(?:e-?[\d_]+)?)/i
