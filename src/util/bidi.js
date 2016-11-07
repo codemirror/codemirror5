@@ -25,33 +25,24 @@ export function lineRight(line) {
   return bidiRight(lst(order))
 }
 
-function compareBidiLevel(order, a, b) {
-  let linedir = order[0].level
-  if (a == linedir) return true
-  if (b == linedir) return false
-  return a < b
-}
 
 export let bidiOther = null
-export function getBidiPartAt(order, pos) {
+export function getBidiPartAt(order, ch, sticky) {
   let found
   bidiOther = null
   for (let i = 0; i < order.length; ++i) {
     let cur = order[i]
-    if (cur.from < pos && cur.to > pos) return i
-    if ((cur.from == pos || cur.to == pos)) {
-      if (found == null) {
-        found = i
-      } else if (compareBidiLevel(order, cur.level, order[found].level)) {
-        if (cur.from != cur.to) bidiOther = found
-        return i
-      } else {
-        if (cur.from != cur.to) bidiOther = i
-        return found
-      }
+    if (cur.from < ch && cur.to > ch) return i
+    if (cur.to == ch) {
+      if (cur.from != cur.to && sticky == "before") found = i
+      else bidiOther = i
+    }
+    if (cur.from == ch) {
+      if (cur.from != cur.to && sticky != "before") found = i
+      else bidiOther = i
     }
   }
-  return found
+  return found != null ? found : bidiOther
 }
 
 function moveInLine(line, pos, dir, byUnit) {
