@@ -2,7 +2,7 @@ import { buildLineContent, LineView } from "../line/line_data"
 import { clipPos, Pos } from "../line/pos"
 import { collapsedSpanAtEnd, heightAtLine, lineIsHidden, visualLine } from "../line/spans"
 import { getLine, lineAtHeight, lineNo, updateLineHeight } from "../line/utils_line"
-import { bidiLeft, bidiRight, bidiOther, getBidiPartAt, getOrder, lineLeft, lineRight, moveVisually } from "../util/bidi"
+import { bidiOther, getBidiPartAt, getOrder, lineLeft, lineRight, moveVisually } from "../util/bidi"
 import { ie, ie_version } from "../util/browser"
 import { elt, removeChildren, range, removeChildrenAndAdd } from "../util/dom"
 import { e_target } from "../util/event"
@@ -334,6 +334,19 @@ export function charCoords(cm, pos, context, lineObj, bias) {
 // Returns a box for a given cursor position, which may have an
 // 'other' property containing the position of the secondary cursor
 // on a bidi boundary.
+// A cursor Pos(line, char, "before") is on the same visual line as `char - 1`
+// and after `char - 1` in writing order of `char - 1`
+// A cursor Pos(line, char, "after") is on the same visual line as `char`
+// and before `char` in writing order of `char`
+// Examples (upper-case letters are RTL, lower-case are LTR):
+//     Pos(0, 1, ...)
+//     before   after
+// ab     a|b     a|b
+// aB     a|B     aB|
+// Ab     |Ab     A|b
+// AB     B|A     B|A
+// Every position after the last character on a line is considered to stick
+// to the last character on the line.
 export function cursorCoords(cm, pos, context, lineObj, preparedMeasure, varHeight) {
   lineObj = lineObj || getLine(cm.doc, pos.line)
   if (!preparedMeasure) preparedMeasure = prepareMeasureForLine(cm, lineObj)
@@ -342,25 +355,24 @@ export function cursorCoords(cm, pos, context, lineObj, preparedMeasure, varHeig
     if (right) m.left = m.right; else m.right = m.left
     return intoCoordSystem(cm, lineObj, m, context)
   }
-  function getBidi(ch, partPos) {
-    let part = order[partPos], right = part.level % 2
-    if (ch == bidiLeft(part) && partPos && part.level < order[partPos - 1].level) {
-      part = order[--partPos]
-      ch = bidiRight(part) - (part.level % 2 ? 0 : 1)
-      right = true
-    } else if (ch == bidiRight(part) && partPos < order.length - 1 && part.level < order[partPos + 1].level) {
-      part = order[++partPos]
-      ch = bidiLeft(part) - part.level % 2
-      right = false
-    }
-    if (right && ch == part.to && ch > part.from) return get(ch - 1)
-    return get(ch, right)
+  let order = getOrder(lineObj), ch = pos.ch, sticky = pos.sticky
+  if (ch >= lineObj.text.length) {
+    ch = lineObj.text.length
+    sticky = "before"
+  } else if (ch <= 0) {
+    ch = 0
+    sticky = "after"
   }
-  let order = getOrder(lineObj), ch = pos.ch
-  if (!order) return get(pos.sticky == "before" ? ch - 1 : ch, pos.sticky == "before")
-  let partPos = getBidiPartAt(order, ch)
-  let val = getBidi(ch, partPos)
-  if (bidiOther != null) val.other = getBidi(ch, bidiOther)
+  if (!order) return get(sticky == "before" ? ch - 1 : ch, sticky == "before")
+
+  function getBidi(ch, partPos, invert) {
+    let part = order[partPos], right = (part.level % 2) != 0
+    return get(invert ? ch - 1 : ch, right != invert)
+  }
+  let partPos = getBidiPartAt(order, ch, sticky)
+  let other = bidiOther
+  let val = getBidi(ch, partPos, sticky == "before")
+  if (other != null) val.other = getBidi(ch, other, sticky != "before")
   return val
 }
 
