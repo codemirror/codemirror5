@@ -32,13 +32,14 @@
                        "UInt8","UInt16","UInt32","UInt64","Void"])
   var operators = "+-/*%=|&<>~^?!"
   var punc = ":;,.(){}[]"
-  var number = /^\-?(?:0x[\d_a-f\.]+(?:p-?[\d_]+)?|(?:(?:[\d_]+)?\.[_\d]+|0o[0-7_\.]+|0b[01_\.]+|[\d]+)(?:e-?[\d_]+)?)/i
+  var binary = /^\-?0b[01][01_]*/
+  var octal = /^\-?0o[0-7][0-7_]*/
+  var hexadecimal = /^\-?0x[\dA-Fa-f][\dA-Fa-f_]*(?:(?:\.[\dA-Fa-f][\dA-Fa-f_]*)?[Pp]\-?\d[\d_]*)?/
+  var decimal = /^\-?\d[\d_]*(?:\.\d[\d_]*)?(?:[Ee]\-?\d[\d_]*)?/
   var identifier = /^\$\d+|(`?)[_A-Za-z][_A-Za-z$0-9]*\1/
   var property = /^\.(?:\$\d+|(`?)[_A-Za-z][_A-Za-z$0-9]*\1)/
   var instruction = /^\#[A-Za-z]+/
   var attribute = /^@(?:\$\d+|(`?)[_A-Za-z][_A-Za-z$0-9]*\1)/
-
-  var propertyPrefixes = wordSet(["variable","variable-2","atom","property"])
 
   function tokenBase(stream, state, prev) {
     if (stream.sol()) state.indented = stream.indentation()
@@ -57,12 +58,11 @@
     }
     if (stream.match(instruction)) return "builtin"
     if (stream.match(attribute)) return "attribute"
-
-    var propertyMatch = stream.match(property)
-    if (propertyMatch && propertyPrefixes.hasOwnProperty(prev)) return "property"
-    if (stream.match(number)) return "number"
-    if (propertyMatch) return "property"
-
+    if (stream.match(binary)) return "number"
+    if (stream.match(octal)) return "number"
+    if (stream.match(hexadecimal)) return "number"
+    if (stream.match(decimal)) return "number"
+    if (stream.match(property)) return "property"
     if (operators.indexOf(ch) > -1) {
       stream.next()
       return "operator"
