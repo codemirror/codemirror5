@@ -38,6 +38,8 @@
   var instruction = /^\#[A-Za-z]+/
   var attribute = /^@(?:\$\d+|(`?)[_A-Za-z][_A-Za-z$0-9]*\1)/
 
+  var propertyPrefixes = wordSet(["variable","variable-2","atom","property"])
+
   function tokenBase(stream, state, prev) {
     if (stream.sol()) state.indented = stream.indentation()
     if (stream.eatSpace()) return null
@@ -55,12 +57,16 @@
     }
     if (stream.match(instruction)) return "builtin"
     if (stream.match(attribute)) return "attribute"
+
+    var propertyMatch = stream.match(property)
+    if (propertyMatch && propertyPrefixes.hasOwnProperty(prev)) return "property"
     if (stream.match(number)) return "number"
+    if (propertyMatch) return "property"
+
     if (operators.indexOf(ch) > -1) {
       stream.next()
       return "operator"
     }
-    if (stream.match(property)) return "property"
     if (punc.indexOf(ch) > -1) {
       stream.next()
       stream.match("..")
