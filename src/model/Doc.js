@@ -6,7 +6,7 @@ import { visualLine } from "../line/spans"
 import { getBetween, getLine, getLines, isLine, lineNo } from "../line/utils_line"
 import { classTest } from "../util/dom"
 import { splitLinesAuto } from "../util/feature_detection"
-import { createObj, map, sel_dontScroll } from "../util/misc"
+import { createObj, map, isEmpty, sel_dontScroll } from "../util/misc"
 import { ensureCursorVisible } from "../display/scrolling"
 
 import { changeLine, makeChange, makeChangeFromHistory, replaceRange } from "./changes"
@@ -232,9 +232,11 @@ Doc.prototype = createObj(BranchChunk.prototype, {
     let i = this.first
     this.iter(line => {
       if (line.gutterMarkers && line.gutterMarkers[gutterID]) {
-        line.gutterMarkers[gutterID] = null
-        regLineChange(this, i, "gutter")
-        if (isEmpty(line.gutterMarkers)) line.gutterMarkers = null
+        changeLine(this, line, "gutter", l => {
+          line.gutterMarkers[gutterID] = null
+          if (isEmpty(line.gutterMarkers)) line.gutterMarkers = null
+          return true
+        })
       }
       ++i
     })
