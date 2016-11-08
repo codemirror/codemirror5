@@ -232,7 +232,7 @@ Doc.prototype = createObj(BranchChunk.prototype, {
     let i = this.first
     this.iter(line => {
       if (line.gutterMarkers && line.gutterMarkers[gutterID]) {
-        changeLine(this, line, "gutter", l => {
+        changeLine(this, line, "gutter", () => {
           line.gutterMarkers[gutterID] = null
           if (isEmpty(line.gutterMarkers)) line.gutterMarkers = null
           return true

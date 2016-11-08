@@ -19,7 +19,7 @@ import { updateGutterSpace } from "../display/update_display"
 import { lineLeft, lineRight, moveLogically, moveVisually } from "../util/bidi"
 import { indexOf, insertSorted, isWordChar, sel_dontScroll, sel_move } from "../util/misc"
 import { signalLater } from "../util/operation_group"
-import { getLine, isLine, lineAtHeight, lineNo } from "../line/utils_line"
+import { getLine, isLine, lineAtHeight } from "../line/utils_line"
 import { regChange, regLineChange } from "../display/view_tracking"
 
 // The publicly visible API. Note that methodOp(f) means
