@@ -219,6 +219,43 @@ Doc.prototype = createObj(BranchChunk.prototype, {
     hist.undone = copyHistoryArray(histData.undone.slice(0), null, true)
   },
 
+  setGutterMarker: docMethodOp(function(line, gutterID, value) {
+    return changeLine(this, line, "gutter", line => {
+      let markers = line.gutterMarkers || (line.gutterMarkers = {})
+      markers[gutterID] = value
+      if (!value && isEmpty(markers)) line.gutterMarkers = null
+      return true
+    })
+  }),
+
+  clearGutter: docMethodOp(function(gutterID) {
+    let i = this.first
+    this.iter(line => {
+      if (line.gutterMarkers && line.gutterMarkers[gutterID]) {
+        line.gutterMarkers[gutterID] = null
+        regLineChange(this, i, "gutter")
+        if (isEmpty(line.gutterMarkers)) line.gutterMarkers = null
+      }
+      ++i
+    })
+  }),
+
+  lineInfo: function(line) {
+    let n
+    if (typeof line == "number") {
+      if (!isLine(this, line)) return null
+      n = line
+      line = getLine(this, line)
+      if (!line) return null
+    } else {
+      n = lineNo(line)
+      if (n == null) return null
+    }
+    return {line: n, handle: line, text: line.text, gutterMarkers: line.gutterMarkers,
+            textClass: line.textClass, bgClass: line.bgClass, wrapClass: line.wrapClass,
+            widgets: line.widgets}
+  },
+
   addLineClass: docMethodOp(function(handle, where, cls) {
     return changeLine(this, handle, where == "gutter" ? "gutter" : "class", line => {
       let prop = where == "text" ? "textClass"

@@ -218,43 +218,6 @@ export default function(CodeMirror) {
     defaultTextHeight: function() { return textHeight(this.display) },
     defaultCharWidth: function() { return charWidth(this.display) },
 
-    setGutterMarker: methodOp(function(line, gutterID, value) {
-      return changeLine(this.doc, line, "gutter", line => {
-        let markers = line.gutterMarkers || (line.gutterMarkers = {})
-        markers[gutterID] = value
-        if (!value && isEmpty(markers)) line.gutterMarkers = null
-        return true
-      })
-    }),
-
-    clearGutter: methodOp(function(gutterID) {
-      let doc = this.doc, i = doc.first
-      doc.iter(line => {
-        if (line.gutterMarkers && line.gutterMarkers[gutterID]) {
-          line.gutterMarkers[gutterID] = null
-          regLineChange(this, i, "gutter")
-          if (isEmpty(line.gutterMarkers)) line.gutterMarkers = null
-        }
-        ++i
-      })
-    }),
-
-    lineInfo: function(line) {
-      let n
-      if (typeof line == "number") {
-        if (!isLine(this.doc, line)) return null
-        n = line
-        line = getLine(this.doc, line)
-        if (!line) return null
-      } else {
-        n = lineNo(line)
-        if (n == null) return null
-      }
-      return {line: n, handle: line, text: line.text, gutterMarkers: line.gutterMarkers,
-              textClass: line.textClass, bgClass: line.bgClass, wrapClass: line.wrapClass,
-              widgets: line.widgets}
-    },
-
     getViewport: function() { return {from: this.display.viewFrom, to: this.display.viewTo}},
 
     addWidget: function(pos, node, scroll, vert, horiz) {

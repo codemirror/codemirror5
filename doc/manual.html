@@ -1699,7 +1699,7 @@ editor.setOption("extraKeys", {
     <h3 id="api_decoration">Widget, gutter, and decoration methods</h3>
 
     <dl>
-      <dt id="setGutterMarker"><code><strong>cm.setGutterMarker</strong>(line: integer|LineHandle, gutterID: string, value: Element) → LineHandle</code></dt>
+      <dt id="setGutterMarker"><code><strong>doc.setGutterMarker</strong>(line: integer|LineHandle, gutterID: string, value: Element) → LineHandle</code></dt>
       <dd>Sets the gutter marker for the given gutter (identified by
       its CSS class, see
       the <a href="#option_gutters"><code>gutters</code></a> option)
@@ -1708,7 +1708,7 @@ editor.setOption("extraKeys", {
       will be shown in the specified gutter next to the specified
       line.</dd>
 
-      <dt id="clearGutter"><code><strong>cm.clearGutter</strong>(gutterID: string)</code></dt>
+      <dt id="clearGutter"><code><strong>doc.clearGutter</strong>(gutterID: string)</code></dt>
       <dd>Remove all gutter markers in
       the <a href="#option_gutters">gutter</a> with the given ID.</dd>
 
@@ -1733,7 +1733,7 @@ editor.setOption("extraKeys", {
       can be left off to remove all classes for the specified node, or
       be a string to remove only a specific class.</dd>
 
-      <dt id="lineInfo"><code><strong>cm.lineInfo</strong>(line: integer|LineHandle) → object</code></dt>
+      <dt id="lineInfo"><code><strong>doc.lineInfo</strong>(line: integer|LineHandle) → object</code></dt>
       <dd>Returns the line number, text content, and marker status of
       the given line, which can be either a number or a line handle.
       The returned object has the structure <code>{line, handle, text,
