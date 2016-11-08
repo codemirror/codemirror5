@@ -30,12 +30,13 @@
   var atoms = wordSet(["true","false","nil","self","super","_"])
   var types = wordSet(["Array","Bool","Character","Dictionary","Double","Float","Int","Int8","Int16","Int32","Int64","Never","Optional","Set","String",
                        "UInt8","UInt16","UInt32","UInt64","Void"])
-  var operators = "+-/*%=|&<>~^?:"
-  var punc = ";,.(){}[]"
+  var operators = "+-/*%=|&<>~^?!"
+  var punc = ":;,.(){}[]"
   var number = /^\-?(?:0x[\d_a-f\.]+(?:p-?[\d_]+)?|(?:(?:[\d_]+)?\.[_\d]+|0o[0-7_\.]+|0b[01_\.]+|[\d]+)(?:e-?[\d_]+)?)/i
-  var identifier = /^(`?)[_A-Za-z$][_A-Za-z$0-9]*\1/
-  var property = /^[\.][_A-Za-z$][_A-Za-z$0-9]*/
-  var instruction = /^[@\#][_A-Za-z$][_A-Za-z$0-9]*/
+  var identifier = /^\$\d+|(`?)[_A-Za-z][_A-Za-z$0-9]*\1/
+  var property = /^\.(?:\$\d+|(`?)[_A-Za-z][_A-Za-z$0-9]*\1)/
+  var instruction = /^\#[A-Za-z]+/
+  var attribute = /^@(?:\$\d+|(`?)[_A-Za-z][_A-Za-z$0-9]*\1)/
 
   function tokenBase(stream, state, prev) {
     if (stream.sol()) state.indented = stream.indentation()
@@ -53,6 +54,7 @@
       }
     }
     if (stream.match(instruction)) return "builtin"
+    if (stream.match(attribute)) return "attribute"
     if (stream.match(number)) return "number"
     if (operators.indexOf(ch) > -1) {
       stream.next()
