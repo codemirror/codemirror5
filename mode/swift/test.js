@@ -14,8 +14,8 @@
      "[keyword var] [def e] [operator =] [number 0o7324]",
      "[keyword var] [def f] [operator =] [number 0b10010]",
      "[keyword var] [def g] [operator =] [number -0x35ade]",
-     "[keyword var] [def h] [operator =] [number 0xaea.ep-13]".
-     "[keyword var] [def i] [operator =] [number 0x13ep6");
+     "[keyword var] [def h] [operator =] [number 0xaea.ep-13]",
+     "[keyword var] [def i] [operator =] [number 0x13ep6]");
 
   // Variable/class/etc definition.
   MT("definition",
@@ -122,20 +122,20 @@
 
   // Instructions or other things that start with #.
   MT("instructions",
-     "[keyword if] [instruction #available][punctuation (][variable iOS] [number 9][punctuation ,] [operator *][punctuation )] [punctuation {}",
-     "[variable print][punctuation (][instruction #file][punctuation ,] [instruction #function][punctuation )]",
-     "[variable print][punctuation (][instruction #line][punctuation ,] [instruction #column][punctuation )]",
-     "[instruction #if] [atom true]",
-     "  [keyword import] [variable A]",
-     "[instruction #elseif] [atom false]",
-     "  [keyword import] [variable B]",
-     "[instruction #endif]",
-     "[instruction #sourceLocation][punctuation (][variable file][punctuation :] [string \"file.swift\"][punctuation ,] [variable line][punctuation :] [number 2][punctuation )]");
+     "[keyword if] [builtin #available][punctuation (][variable iOS] [number 9][punctuation ,] [operator *][punctuation )] [punctuation {}]",
+     "[variable print][punctuation (][builtin #file][punctuation ,] [builtin #function][punctuation )]",
+     "[variable print][punctuation (][builtin #line][punctuation ,] [builtin #column][punctuation )]",
+     "[builtin #if] [atom true]",
+     "[keyword import] [def A]",
+     "[builtin #elseif] [atom false]",
+     "[keyword import] [def B]",
+     "[builtin #endif]",
+     "[builtin #sourceLocation][punctuation (][variable file][punctuation :] [string \"file.swift\"][punctuation ,] [variable line][punctuation :] [number 2][punctuation )]");
 
   // Attributes; things that start with @.
   MT("attributes",
-     "[instruction @objc][punctuation (][variable objcFoo][punctuation :)]",
-     "[instruction @available][punctuation (][variable iOS][punctuation )]");
+     "[attribute @objc][punctuation (][variable objcFoo][punctuation :)]",
+     "[attribute @available][punctuation (][variable iOS][punctuation )]");
 
   // Property/number edge case.
   MT("property_number",

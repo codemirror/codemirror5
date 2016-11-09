@@ -40,7 +40,7 @@
   var property = /^\.(?:\$\d+|(`?)[_A-Za-z][_A-Za-z$0-9]*\1)/
   var instruction = /^\#[A-Za-z]+/
   var attribute = /^@(?:\$\d+|(`?)[_A-Za-z][_A-Za-z$0-9]*\1)/
-  var regexp = /^\/(?!\s)(?:\/\/)?(?:\\.|[^\/])+\//
+  //var regexp = /^\/(?!\s)(?:\/\/)?(?:\\.|[^\/])+\//
 
   function tokenBase(stream, state, prev) {
     if (stream.sol()) state.indented = stream.indentation()
