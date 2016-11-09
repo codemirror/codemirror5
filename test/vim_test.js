@@ -3393,6 +3393,21 @@ testVim('[m, ]m, [M, ]M', function(cm, vim, helpers) {
   helpers.assertCursorAt(7,3);
 }, { value: squareBracketMotionSandbox});
 
+testVim('i_indent_right', function(cm, vim, helpers) {
+  cm.setCursor(0, 3);
+  var expectedValue = '   word1\nword2\nword3 ';
+  helpers.doKeys('i', '<C-t>');
+  eq(expectedValue, cm.getValue());
+  helpers.assertCursorAt(0, 5);
+}, { value: ' word1\nword2\nword3 ', indentUnit: 2 });
+testVim('i_indent_left', function(cm, vim, helpers) {
+  cm.setCursor(0, 3);
+  var expectedValue = ' word1\nword2\nword3 ';
+  helpers.doKeys('i', '<C-d>');
+  eq(expectedValue, cm.getValue());
+  helpers.assertCursorAt(0, 1);
+}, { value: '   word1\nword2\nword3 ', indentUnit: 2 });
+
 // Ex mode tests
 testVim('ex_go_to_line', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
