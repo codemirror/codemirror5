@@ -142,6 +142,7 @@ function registerEventHandlers(cm) {
   }
   on(d.scroller, "touchstart", e => {
     if (!signalDOMEvent(cm, e) && !isMouseLikeTouchEvent(e)) {
+      d.input.ensurePolled()
       clearTimeout(touchFinished)
       let now = +new Date
       d.activeTouch = {start: now, moved: false,

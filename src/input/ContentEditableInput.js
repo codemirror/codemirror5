@@ -20,7 +20,9 @@ export default function ContentEditableInput(cm) {
   this.cm = cm
   this.lastAnchorNode = this.lastAnchorOffset = this.lastFocusNode = this.lastFocusOffset = null
   this.polling = new Delayed()
+  this.composing = null
   this.gracePeriod = false
+  this.readDOMTimeout = null
 }
 
 ContentEditableInput.prototype = copyObj({
@@ -37,44 +39,23 @@ ContentEditableInput.prototype = copyObj({
       }), 20)
     })
 
-    function startComposing(data) {
-      input.composing = {sel: cm.doc.sel, data: data, startData: data}
-      if (!data) return
-      let prim = cm.doc.sel.primary()
-      let line = cm.getLine(prim.head.line)
-      let found = line.indexOf(data, Math.max(0, prim.head.ch - data.length))
-      if (found > -1 && found <= prim.head.ch)
-        input.composing.sel = simpleSelection(Pos(prim.head.line, found),
-                                              Pos(prim.head.line, found + data.length))
-    }
-
-    on(div, "compositionstart", e => startComposing(e.data))
+    on(div, "compositionstart", e => {
+      this.composing = {data: e.data}
+    })
     on(div, "compositionupdate", e => {
-      if (input.composing) input.composing.data = e.data
-      else startComposing(e.data)
+      if (!this.composing) this.composing = {data: e.data}
     })
     on(div, "compositionend", e => {
-      let ours = input.composing
-      if (!ours) return
-      if (e.data != ours.startData && !/\u200b/.test(e.data))
-        ours.data = e.data
-      // Need a small delay to prevent other code (input event,
-      // selection polling) from doing damage when fired right after
-      // compositionend.
-      setTimeout(() => {
-        if (!ours.handled)
-          input.applyComposition(ours)
-        if (input.composing == ours)
-          input.composing = null
-      }, 50)
+      if (this.composing) {
+        if (e.data != this.composing.data) this.readFromDOMSoon()
+        this.composing = null
+      }
     })
 
     on(div, "touchstart", () => input.forceCompositionEnd())
 
     on(div, "input", () => {
-      if (input.composing) return
-      if (cm.isReadOnly() || !input.pollContent())
-        runInOp(input.cm, () => regChange(cm))
+      if (!this.composing) this.readFromDOMSoon()
     })
 
     function onCopyCut(e) {
@@ -237,7 +218,7 @@ ContentEditableInput.prototype = copyObj({
   },
 
   pollSelection: function() {
-    if (!this.composing && !this.gracePeriod && this.selectionChanged()) {
+    if (!this.composing && this.readDOMTimeout == null && !this.gracePeriod && this.selectionChanged()) {
       let sel = window.getSelection(), cm = this.cm
       this.rememberSelection()
       let anchor = domToPos(cm, sel.anchorNode, sel.anchorOffset)
@@ -250,6 +231,11 @@ ContentEditableInput.prototype = copyObj({
   },
 
   pollContent: function() {
+    if (this.readDOMTimeout != null) {
+      clearTimeout(this.readDOMTimeout)
+      this.readDOMTimeout = null
+    }
+
     let cm = this.cm, display = cm.display, sel = cm.doc.sel.primary()
     let from = sel.from(), to = sel.to()
     if (from.line < display.viewFrom || to.line > display.viewTo - 1) return false
@@ -309,17 +295,20 @@ ContentEditableInput.prototype = copyObj({
     this.forceCompositionEnd()
   },
   forceCompositionEnd: function() {
-    if (!this.composing || this.composing.handled) return
-    this.applyComposition(this.composing)
-    this.composing.handled = true
+    if (!this.composing) return
+    this.composing = null
+    if (!this.pollContent()) regChange(this.cm)
     this.div.blur()
     this.div.focus()
   },
-  applyComposition: function(composing) {
-    if (this.cm.isReadOnly())
-      operation(this.cm, regChange)(this.cm)
-    else if (composing.data && composing.data != composing.startData)
-      operation(this.cm, applyTextInput)(this.cm, composing.data, 0, composing.sel)
+  readFromDOMSoon: function() {
+    if (this.readDOMTimeout != null) return
+    this.readDOMTimeout = setTimeout(() => {
+      this.readDOMTimeout = null
+      if (this.composing) return
+      if (this.cm.isReadOnly() || !this.pollContent())
+        runInOp(this.cm, () => regChange(this.cm))
+    }, 80)
   },
 
   setUneditable: function(node) {
