@@ -238,6 +238,10 @@ ContentEditableInput.prototype = copyObj({
 
     let cm = this.cm, display = cm.display, sel = cm.doc.sel.primary()
     let from = sel.from(), to = sel.to()
+    if (from.ch == 0 && from.line > cm.firstLine())
+      from = Pos(from.line - 1, getLine(cm.doc, from.line - 1).length)
+    if (to.ch == getLine(cm.doc, to.line).text.length && to.line < cm.lastLine())
+      to = Pos(to.line + 1, 0)
     if (from.line < display.viewFrom || to.line > display.viewTo - 1) return false
 
     let fromIndex, fromLine, fromNode
@@ -258,6 +262,7 @@ ContentEditableInput.prototype = copyObj({
       toNode = display.view[toIndex + 1].node.previousSibling
     }
 
+    if (!fromNode) return false
     let newText = cm.doc.splitLines(domTextBetween(cm, fromNode, toNode, fromLine, toLine))
     let oldText = getBetween(cm.doc, Pos(fromLine, 0), Pos(toLine, getLine(cm.doc, toLine).text.length))
     while (newText.length > 1 && oldText.length > 1) {
