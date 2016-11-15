@@ -199,7 +199,11 @@ ContentEditableInput.prototype = copyObj({
   },
 
   focus: function() {
-    if (this.cm.options.readOnly != "nocursor") this.div.focus()
+    if (this.cm.options.readOnly != "nocursor") {
+      if (!this.selectionInEditor())
+        this.showSelection(this.prepareSelection(), true)
+      this.div.focus()
+    }
   },
   blur: function() { this.div.blur() },
   getField: function() { return this.div },
