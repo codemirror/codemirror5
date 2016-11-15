@@ -37,8 +37,7 @@ ContentEditableInput.prototype = copyObj({
       }), 20)
     })
 
-    on(div, "compositionstart", e => {
-      let data = e.data
+    function startComposing(data) {
       input.composing = {sel: cm.doc.sel, data: data, startData: data}
       if (!data) return
       let prim = cm.doc.sel.primary()
@@ -47,8 +46,13 @@ ContentEditableInput.prototype = copyObj({
       if (found > -1 && found <= prim.head.ch)
         input.composing.sel = simpleSelection(Pos(prim.head.line, found),
                                               Pos(prim.head.line, found + data.length))
+    }
+
+    on(div, "compositionstart", e => startComposing(e.data))
+    on(div, "compositionupdate", e => {
+      if (input.composing) input.composing.data = e.data
+      else startComposing(e.data)
     })
-    on(div, "compositionupdate", e => input.composing.data = e.data)
     on(div, "compositionend", e => {
       let ours = input.composing
       if (!ours) return
