@@ -1,4 +1,4 @@
-import { ie, ie_version, ios } from "./browser"
+import { ie, ios } from "./browser"
 
 export function classTest(cls) { return new RegExp("(^|\\s)" + cls + "(?:$|\\s)\\s*") }
 
@@ -58,17 +58,19 @@ export function contains(parent, child) {
   } while (child = child.parentNode)
 }
 
-export let activeElt = function() {
-  let activeElement = document.activeElement
+export function activeElt() {
+  // IE and Edge may throw an "Unspecified Error" when accessing document.activeElement.
+  // IE < 10 will throw when accessed while the page is loading or in an iframe.
+  // IE > 9 and Edge will throw when accessed in an iframe if document.body is unavailable.
+  let activeElement
+  try {
+    activeElement = document.activeElement
+  } catch(e) {
+    activeElement = document.body || null
+  }
   while (activeElement && activeElement.root && activeElement.root.activeElement)
     activeElement = activeElement.root.activeElement
   return activeElement
-}
-// Older versions of IE throws unspecified error when touching
-// document.activeElement in some cases (during loading, in iframe)
-if (ie && ie_version < 11) activeElt = function() {
-  try { return document.activeElement }
-  catch(e) { return document.body }
 }
 
 export function addClass(node, cls) {
