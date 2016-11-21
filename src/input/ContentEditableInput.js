@@ -282,8 +282,8 @@ ContentEditableInput.prototype = copyObj({
            newBot.charCodeAt(newBot.length - cutEnd - 1) == oldBot.charCodeAt(oldBot.length - cutEnd - 1))
       ++cutEnd
 
-    newText[newText.length - 1] = newBot.slice(0, newBot.length - cutEnd)
-    newText[0] = newText[0].slice(cutFront)
+    newText[newText.length - 1] = newBot.slice(0, newBot.length - cutEnd).replace(/^\u200b+/, "")
+    newText[0] = newText[0].slice(cutFront).replace(/\u200b+$/, "")
 
     let chFrom = Pos(fromLine, cutFront)
     let chTo = Pos(toLine, oldText.length ? lst(oldText).length - cutEnd : 0)
@@ -361,8 +361,8 @@ function domTextBetween(cm, from, to, fromLine, toLine) {
     if (node.nodeType == 1) {
       let cmText = node.getAttribute("cm-text")
       if (cmText != null) {
-        if (cmText == "") cmText = node.textContent.replace(/\u200b/g, "")
-        text += cmText
+        if (cmText == "") text += node.textContent.replace(/\u200b/g, "")
+        else text += cmText
         return
       }
       let markerID = node.getAttribute("cm-marker"), range
