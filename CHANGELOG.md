@@ -1,3 +1,33 @@
+## 5.21.0 (2016-11-21)
+
+### Bug fixes
+
+Tapping/clicking the editor in [contentEditable mode](http://codemirror.net/doc/manual.html#option_inputStyle) on Chrome now puts the cursor at the tapped position.
+
+Fix various crashes and misbehaviors when reading composition events in [contentEditable mode](http://codemirror.net/doc/manual.html#option_inputStyle).
+
+Catches and ignores an IE 'Unspecified Error' when creating an editor in an iframe before there is a `<body>`.
+
+[merge addon](http://codemirror.net/doc/manual.html#addon_merge): Fix several issues in the chunk-aligning feature.
+
+[verilog mode](http://codemirror.net/mode/verilog): Rewritten to address various issues.
+
+[julia mode](http://codemirror.net/mode/julia): Recognize Julia 0.5 syntax.
+
+[swift mode](http://codemirror.net/mode/swift): Various fixes and adjustments to current syntax.
+
+[markdown mode](http://codemirror.net/mode/markdown): Allow lists without a blank line above them.
+
+### New features
+
+The [`setGutterMarker`](http://codemirror.net/doc/manual.html#setGutterMarker), [`clearGutter`](http://codemirror.net/doc/manual.html#clearGutter), and [`lineInfo`](http://codemirror.net/doc/manual.html#lineInfo) methods are now available on `Doc` objects.
+
+The [`heightAtLine`](http://codemirror.net/doc/manual.html#heightAtLine) method now takes an extra argument to allow finding the height at the top of the line's line widgets.
+
+[ruby mode](http://codemirror.net/mode/ruby): `else` and `elsif` are now immediately indented.
+
+[vim bindings](http://codemirror.net/demo/vim.html): Bind Ctrl-T and Ctrl-D to in- and dedent in insert mode.
+
 ## 5.20.2 (2016-10-21)
 
 ### Bug fixes
