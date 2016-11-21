@@ -357,11 +357,10 @@
      "[variable-2 1. foo]",
      "[variable-2 2. bar]");
 
-  // Lists require a preceding blank line (per Dingus)
-  MT("listBogus",
+  MT("listFromParagraph",
      "foo",
-     "1. bar",
-     "2. hello");
+     "[variable-2 1. bar]",
+     "[variable-2 2. hello]");
 
   // List after hr
   MT("listAfterHr",
