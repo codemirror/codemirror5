@@ -76,14 +76,14 @@ CodeMirror.overlayMode = function(base, overlay, combine) {
     innerMode: function(state) { return {state: state.base, mode: base}; },
 
     blankLine: function(state) {
-      var baseToken, overlayToken
+      var baseToken, overlayToken;
       if (base.blankLine) baseToken = base.blankLine(state.base);
       if (overlay.blankLine) overlayToken = overlay.blankLine(state.overlay);
 
       if (combine) {
         return baseToken + " " + overlayToken;
       } else {
-        return overlayToken == null ? baseToken : overlayToken
+        return overlayToken == null ? baseToken : overlayToken;
       }
     }
   };
