@@ -82,7 +82,7 @@ CodeMirror.overlayMode = function(base, overlay, combine) {
 
       return overlayToken == null ?
         baseToken :
-        (combine ? baseToken + " " + overlayToken : overlayToken);
+        (combine && baseToken != null ? baseToken + " " + overlayToken : overlayToken);
     }
   };
 };
