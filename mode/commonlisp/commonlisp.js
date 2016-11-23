@@ -48,6 +48,7 @@ CodeMirror.defineMode("commonlisp", function (config) {
       else if (/\d/.test(ch) && stream.match(/^\d*#/)) return null;
       else if (ch == "|") return (state.tokenize = inComment)(stream, state);
       else if (ch == ":") { readSym(stream); return "meta"; }
+      else if (ch == "\\") { stream.next(); readSym(stream); return "string-2" }
       else return "error";
     } else {
       var name = readSym(stream);
