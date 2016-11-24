@@ -8,3 +8,5 @@
 /mode/*/*.html
 /mode/index.html
 .*
+bin
+rollup.config.js
