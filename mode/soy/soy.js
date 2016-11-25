@@ -231,7 +231,7 @@
         } else if (match = stream.match(/^\{([\/@\\]?[\w?]*)/)) {
           if (match[1] != "/switch")
             state.indent += (/^(\/|(else|elseif|ifempty|case|default)$)/.test(match[1]) && state.tag != "switch" ? 1 : 2) * config.indentUnit;
-            state.tag = match[1];
+          state.tag = match[1];
           if (state.tag == "/" + last(state.kindTag)) {
             // We found the tag that opened the current kind="".
             state.kind.pop();
