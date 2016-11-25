@@ -45,12 +45,40 @@
       return result;
     }
 
+    function contains(list, element) {
+      while (list) {
+        if (list.element === element) return true;
+        list = list.next;
+      }
+      return false;
+    }
+
+    function prepend(list, element) {
+      return {
+        element: element,
+        next: list
+      };
+    }
+
+    function pop(list) {
+      return list && list.next;
+    }
+
+    // Reference a variable `name` in `list`.
+    // Let `loose` be truthy to ignore missing identifiers.
+    function ref(list, name, loose) {
+      return contains(list, name) ? "variable-2" : (loose ? "variable" : "variable-2 error");
+    }
+
     return {
       startState: function() {
         return {
           kind: [],
           kindTag: [],
           soyState: [],
+          templates: null,
+          variables: null,
+          scopes: null,
           indent: 0,
           localMode: modes.html,
           localState: CodeMirror.startState(modes.html)
@@ -63,6 +91,9 @@
           kind: state.kind.concat([]), // Values of kind="" attributes.
           kindTag: state.kindTag.concat([]), // Opened tags with kind="" attributes.
           soyState: state.soyState.concat([]),
+          templates: state.templates,
+          variables: state.variables,
+          scopes: state.scopes,
           indent: state.indent, // Indentation of the following line.
           localMode: state.localMode,
           localState: CodeMirror.copyState(state.localMode, state.localState)
@@ -81,19 +112,71 @@
             }
             return "comment";
 
-          case "variable":
-            if (stream.match(/^}/)) {
-              state.indent -= 2 * config.indentUnit;
+          case "templ-def":
+            if (match = stream.match(/^\.?([\w]+(?!\.[\w]+)*)/)) {
+              state.templates = prepend(state.templates, match[1]);
+              state.scopes = prepend(state.scopes, state.variables);
               state.soyState.pop();
-              return "variable-2";
+              return "def";
+            }
+            stream.next();
+            return null;
+
+          case "templ-ref":
+            if (match = stream.match(/^\.?([\w]+)/)) {
+              state.soyState.pop();
+              // If the first character is '.', try to match against a local template name.
+              if (match[0][0] == '.') {
+                return ref(state.templates, match[1], true);
+              }
+              // Otherwise
+              return "variable";
+            }
+            stream.next();
+            return null;
+
+          case "param-def":
+            if (match = stream.match(/^([\w]+)(?=:)/)) {
+              state.variables = prepend(state.variables, match[1]);
+              state.soyState.pop();
+              state.soyState.push("param-type");
+              return "def";
+            }
+            stream.next();
+            return null;
+
+          case "param-type":
+            if (stream.peek() == "}") {
+              state.soyState.pop();
+              return null;
+            }
+            if (stream.eatWhile(/^[\w]+/)) {
+              return "variable-3";
+            }
+            stream.next();
+            return null;
+
+          case "var-def":
+            if (match = stream.match(/^\$([\w]+)/)) {
+              state.variables = prepend(state.variables, match[1]);
+              state.soyState.pop();
+              return "def";
             }
             stream.next();
             return null;
 
           case "tag":
             if (stream.match(/^\/?}/)) {
-              if (state.tag == "/template" || state.tag == "/deltemplate") state.indent = 0;
-              else state.indent -= (stream.current() == "/}" || indentingTags.indexOf(state.tag) == -1 ? 2 : 1) * config.indentUnit;
+              if (state.tag == "/template" || state.tag == "/deltemplate") {
+                state.variables = state.scopes = pop(state.scopes);
+                state.indent = 0;
+              } else {
+                if (state.tag == "/for" || state.tag == "/foreach") {
+                  state.variables = state.scopes = pop(state.scopes);
+                }
+                state.indent -= config.indentUnit *
+                    (stream.current() == "/}" || indentingTags.indexOf(state.tag) == -1 ? 2 : 1);
+              }
               state.soyState.pop();
               return "keyword";
             } else if (stream.match(/^([\w?]+)(?==)/)) {
@@ -108,6 +191,12 @@
             } else if (stream.match(/^"/)) {
               state.soyState.push("string");
               return "string";
+            }
+            if (match = stream.match(/^\$([\w]+)/)) {
+              return ref(state.variables, match[1]);
+            }
+            if (stream.match(/(?:as|and|or|not|in)/)) {
+              return "keyword";
             }
             stream.next();
             return null;
@@ -135,17 +224,13 @@
           return "comment";
         } else if (stream.match(stream.sol() ? /^\s*\/\/.*/ : /^\s+\/\/.*/)) {
           return "comment";
-        } else if (stream.match(/^\{\$[\w?]*/)) {
-          state.indent += 2 * config.indentUnit;
-          state.soyState.push("variable");
-          return "variable-2";
         } else if (stream.match(/^\{literal}/)) {
           state.indent += config.indentUnit;
           state.soyState.push("literal");
           return "keyword";
         } else if (match = stream.match(/^\{([\/@\\]?[\w?]*)/)) {
           if (match[1] != "/switch")
-            state.indent += (/^(\/|(else|elseif|case|default)$)/.test(match[1]) && state.tag != "switch" ? 1 : 2) * config.indentUnit;
+            state.indent += (/^(\/|(else|elseif|ifempty|case|default)$)/.test(match[1]) && state.tag != "switch" ? 1 : 2) * config.indentUnit;
           state.tag = match[1];
           if (state.tag == "/" + last(state.kindTag)) {
             // We found the tag that opened the current kind="".
@@ -155,6 +240,22 @@
             state.localState = CodeMirror.startState(state.localMode);
           }
           state.soyState.push("tag");
+          if (state.tag == "template" || state.tag == "deltemplate") {
+            state.soyState.push("templ-def");
+          }
+          if (state.tag == "call" || state.tag == "delcall") {
+            state.soyState.push("templ-ref");
+          }
+          if (state.tag == "let") {
+            state.soyState.push("var-def");
+          }
+          if (state.tag == "for" || state.tag == "foreach") {
+            state.scopes = prepend(state.scopes, state.variables);
+            state.soyState.push("var-def");
+          }
+          if (state.tag.match(/^@param\??/)) {
+            state.soyState.push("param-def");
+          }
           return "keyword";
         }
 
