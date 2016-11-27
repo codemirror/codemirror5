@@ -8,7 +8,7 @@
     "lib": "./lib"
   },
   "scripts": {
-    "build": "rollup -c",
+    "build": "rollup -c && ./release.sh",
     "watch": "rollup -w -c",
     "prepublish": "npm run-script build",
     "test": "node ./test/run.js",
