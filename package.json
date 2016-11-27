@@ -8,11 +8,13 @@
     "lib": "./lib"
   },
   "scripts": {
-    "build": "rollup -c && ./release.sh",
+    "build": "rollup -c",
     "watch": "rollup -w -c",
     "prepublish": "npm run-script build",
     "test": "node ./test/run.js",
-    "lint": "bin/lint"
+    "lint": "bin/lint",
+    "install": "npm install",
+    "postinstall": "./release.sh"
   },
   "devDependencies": {
     "blint": "^0.5.1",
