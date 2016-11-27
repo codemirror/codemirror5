@@ -86,6 +86,12 @@
 /* Can style cursor different in overwrite (non-insert) mode */
 .CodeMirror-overwrite .CodeMirror-cursor {}
 
+.CodeMirror-other-cursor {
+    width: 0px;
+    position: absolute;
+    border-right: none;
+}
+
 .cm-tab { display: inline-block; text-decoration: inherit; }
 
 .CodeMirror-rulers {
@@ -313,6 +319,11 @@ div.CodeMirror-dragcursors {
   visibility: visible;
 }
 
+div.CodeMirror-other-cursors {
+  position:relative;
+  z-index:3;
+}
+
 .CodeMirror-selected { background: #d9d9d9; }
 .CodeMirror-focused .CodeMirror-selected { background: #d7d4f0; }
 .CodeMirror-crosshair { cursor: crosshair; }
@@ -330,6 +341,9 @@ div.CodeMirror-dragcursors {
 @media print {
   /* Hide the cursor when printing */
   .CodeMirror div.CodeMirror-cursors {
+    visibility: hidden;
+  }
+  .CodeMirror div.CodeMirror-other-cursors {
     visibility: hidden;
   }
 }
