@@ -58,6 +58,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   var tokenTypes = {
     header: "header",
     code: "comment",
+    math: "math",
     quote: "quote",
     list1: "variable-2",
     list2: "variable-3",
@@ -87,9 +88,10 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   ,   taskListRE = /^\[(x| )\](?=\s)/ // Must follow listRE
   ,   atxHeaderRE = modeCfg.allowAtxHeaderWithoutSpace ? /^(#+)/ : /^(#+)(?: |$)/
   ,   setextHeaderRE = /^ *(?:\={1,}|-{1,})\s*$/
-  ,   textRE = /^[^#!\[\]*_\\<>` "'(~]+/
+  ,   textRE = /^[^#!\[\]*_\\<>\$` "'(~]+/
   ,   fencedCodeRE = new RegExp("^(" + (modeCfg.fencedCodeBlocks === true ? "~~~+|```+" : modeCfg.fencedCodeBlocks) +
-                                ")[ \\t]*([\\w+#\-]*)");
+                                ")[ \\t]*([\\w+#\-]*)")
+  ,   fencedMathRE = new RegExp("^(\$\$)[ \\t]*([\\w+#\-]*)");
 
   function switchInline(stream, state, f) {
     state.f = state.inline = f;
@@ -218,6 +220,15 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       if (modeCfg.highlightFormatting) state.formatting = "code-block";
       state.code = -1
       return getType(state);
+    } else if (match = stream.match(fencedCodeRE, true)) {
+      state.fencedChars = match[1]
+      // try switching mode
+      state.localMode = getMode(match[2]);
+      if (state.localMode) state.localState = CodeMirror.startState(state.localMode);
+      state.f = state.block = local;
+      state.formatting = "math";
+      state.math = -1
+      return getType(state);
     }
 
     return switchInline(stream, state, state.inline);
@@ -247,6 +258,9 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       return state.localMode.token(stream, state.localState);
     } else {
       stream.skipToEnd();
+      if (state.math === -1) {
+        return tokenTypes.math;
+      }
       return tokenTypes.code;
     }
   }
@@ -256,6 +270,13 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     state.block = blockNormal;
     state.f = inlineNormal;
     state.fencedChars = null;
+    if (state.math === -1) {
+      state.formatting = "math";
+      state.math = 1
+      var returnType = getType(state);
+      state.math = 0
+      return returnType;
+    }
     if (modeCfg.highlightFormatting) state.formatting = "code-block";
     state.code = 1
     var returnType = getType(state);
@@ -308,6 +329,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       if (state.strikethrough) { styles.push(tokenTypes.strikethrough); }
       if (state.linkText) { styles.push(tokenTypes.linkText); }
       if (state.code) { styles.push(tokenTypes.code); }
+      if (state.math) { styles.push(tokenTypes.math); }
       if (state.image) { styles.push(tokenTypes.image); }
       if (state.imageAltText) { styles.push(tokenTypes.imageAltText, "link"); }
       if (state.imageMarker) { styles.push(tokenTypes.imageMarker); }
@@ -417,6 +439,27 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         return getType(state)
       }
     } else if (state.code) {
+      return getType(state);
+    }
+
+    // display math correctly
+    if (ch === '$') {
+      var previousFormatting = state.formatting;
+      state.formatting = "math";
+      stream.eatWhile('$');
+      var count = stream.current().length
+      if (state.math == 0) {
+        state.math = count
+        return getType(state)
+      } else if (count == state.math) { // Must be exact
+        var t = getType(state)
+        state.math = 0
+        return t
+      } else {
+        state.formatting = previousFormatting
+        return getType(state)
+      }
+    } else if (state.math) {
       return getType(state);
     }
 
@@ -704,6 +747,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         linkHref: false,
         linkTitle: false,
         code: 0,
+        math: 0,
         em: false,
         strong: false,
         header: 0,
@@ -738,6 +782,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         formatting: false,
         linkTitle: s.linkTitle,
         code: s.code,
+        math: s.math,
         em: s.em,
         strong: s.strong,
         strikethrough: s.strikethrough,
