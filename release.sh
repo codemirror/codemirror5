@@ -1,4 +1,3 @@
-npm install
 uglifyjs --compress --mangle --output codemirror.min.js \
 lib/codemirror.js \
 addon/mode/overlay.js \
