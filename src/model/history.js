@@ -60,6 +60,7 @@ function lastChangeEvent(hist, force) {
 // a single operation, or are close together with an origin that
 // allows merging (starting with "+") into a single event.
 export function addChangeToHistory(doc, change, selAfter, opId) {
+  if(change.origin == "ignoreHistory") return;
   let hist = doc.history
   hist.undone.length = 0
   let time = +new Date, cur
