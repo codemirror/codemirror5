@@ -1,0 +1,16 @@
+This is from https://github.com/wikimedia/mediawiki-extensions-CodeMirror
+
+1. However, note I fixed a bug in their code:
+
+@@ -684,7 +684,7 @@ CodeMirror.defineMode( 'mediawiki', function( config/*, parserConfig */ ) {
+                                        var tagname = stream.match( /[^>\/\s\u00a0\.\*\,\[\]\{\}\$\^\+\?\|\/\\'`~<=!@#%&\(\)-]+/ );
+                                        if ( tagname ) {
+                                                tagname = tagname[0].toLowerCase();
+-                                               if ( tagname in config.mwextTags ) { // Parser function
++                                               if ( config.mwextTags && tagname in config.mwextTags ) { // Parser function
+                                                        if ( isCloseTag === true ) {
+                                                                // @todo message
+                                                                return 'error';
+
+
+2. Note the comment about "evil BS" in the css file.

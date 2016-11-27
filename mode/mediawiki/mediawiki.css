@@ -1,0 +1,110 @@
+/* WTF: What kind of evil BS is this?! -- commented out.
+
+.CodeMirror {
+	border: 1px solid #CCC;
+	font-size: medium;
+	line-height: 1.5em;
+}
+
+.CodeMirrorIE {
+	font-size: small;
+}
+*/
+
+.cm-mw-pagename { text-decoration: underline; }
+
+.cm-mw-matching {background-color: gold;}
+
+.cm-mw-skipformatting {	background-color: #adf; }
+.cm-mw-list {color: #08f; font-weight: bold; background-color: #eee;}
+.cm-mw-signature,
+.cm-mw-hr { color: #08f; font-weight: bold; background-color: #eee; }
+.cm-mw-indenting {color: #08f; font-weight: bold; background-color: #ddd;}
+.cm-mw-mnemonic {color: #090;}
+.cm-mw-comment {color: #aaa; font-weight: normal;}
+.cm-mw-apostrophes {color: #08f;}
+
+pre.cm-mw-section-1 {font-weight: bold;}
+pre.cm-mw-section-2 {font-weight: bold;}
+pre.cm-mw-section-3 {font-weight: bold;}
+pre.cm-mw-section-4 {font-weight: bold;}
+pre.cm-mw-section-5 {font-weight: bold;}
+pre.cm-mw-section-6 {font-weight: bold;}
+.cm-mw-section-header {color: #08f; font-weight: normal;}
+
+.cm-mw-template {color: #a11; font-weight: normal;}
+.cm-mw-template-name {color: #a11; font-weight: bold;}
+.cm-mw-template-name-mnemonic {font-weight: normal;}
+.cm-mw-template-argument-name {color: #a11; font-weight: bold;}
+.cm-mw-template-delimiter {color: #a11; font-weight: bold;}
+.cm-mw-template-bracket {color: #a11; font-weight: bold;}
+
+.cm-mw-templatevariable {color: #f50;  font-weight: normal;}
+.cm-mw-templatevariable-name {color: #f50; font-weight: bold;}
+.cm-mw-templatevariable-bracket {color: #f50;  font-weight: normal;}
+.cm-mw-templatevariable-delimiter {color: #f50; font-weight: bold;}
+
+.cm-mw-parserfunction {font-weight: normal;}
+.cm-mw-parserfunction-name {color: #70a; font-weight: bold;}
+.cm-mw-parserfunction-bracket {color: #70a; font-weight: bold;}
+.cm-mw-parserfunction-delimiter {color: #70a; font-weight: bold;}
+
+pre.cm-mw-exttag {background-image: url(img/ext2.png);}
+.cm-mw-exttag {background-image: url(img/ext4.png);}
+.cm-mw-exttag-name {color: #70a; font-weight: bold;}
+.cm-mw-exttag-bracket {color: #70a; font-weight: normal;}
+.cm-mw-exttag-attribute {color: #70a; font-weight: normal;}
+
+.cm-mw-htmltag-name {color: #170; font-weight: bold;}
+.cm-mw-htmltag-bracket {color: #170; font-weight: normal;}
+.cm-mw-htmltag-attribute {color: #170; font-weight: normal;}
+
+pre.cm-mw-tag-pre, .cm-mw-tag-pre {background-image: url(img/black4.png);}
+pre.cm-mw-tag-nowiki, .cm-mw-tag-nowiki {background-image: url(img/black4.png);}
+
+.cm-mw-link-pagename {color: #219; font-weight: normal;}
+.cm-mw-link-tosection {color: #08f; font-weight: normal;}
+.cm-mw-link-bracket {color: #219; font-weight: normal;}
+.cm-mw-link-text {}
+.cm-mw-link-delimiter {color: #219; font-weight: normal;}
+
+.cm-mw-extlink {color: #219; font-weight: normal;}
+.cm-mw-extlink-protocol {color: #219; font-weight: bold;}
+.cm-mw-extlink-text {}
+.cm-mw-extlink-bracket {color: #219; font-weight: bold;}
+
+.cm-mw-table-bracket {color: #e0e; font-weight: bold;}
+.cm-mw-table-delimiter {color: #e0e; font-weight: bold;}
+.cm-mw-table-definition {color: #e0e; font-weight: normal;}
+
+.cm-mw-template-ground {}
+.cm-mw-template2-ground {background-image: url(img/template4.png);}
+.cm-mw-template3-ground {background-image: url(img/template8.png);}
+.cm-mw-template-ext-ground {background-image: url(img/ext4.png);}
+.cm-mw-template-ext2-ground {background-image: url(img/ext4.png),url(img/ext4.png);}
+.cm-mw-template-ext3-ground {background-image: url(img/ext4.png),url(img/ext4.png),url(img/ext4.png);}
+.cm-mw-template-link-ground {background-image: url(img/link4.png);}
+.cm-mw-template-ext-link-ground {background-image: url(img/ext4.png),url(img/link4.png);}
+.cm-mw-template-ext2-link-ground {background-image: url(img/ext4.png),url(img/ext4.png),url(img/link4.png);}
+.cm-mw-template-ext3-link-ground {background-image: url(img/ext4.png),url(img/ext4.png),url(img/ext4.png),url(img/link4.png);}
+.cm-mw-template2-ext-ground {background-image: url(img/template4.png),url(img/ext4.png);}
+.cm-mw-template2-ext2-ground {background-image: url(img/template4.png),url(img/ext4.png),url(img/ext4.png);}
+.cm-mw-template2-ext3-ground {background-image: url(img/template4.png),url(img/ext4.png),url(img/ext4.png),url(img/ext4.png);}
+.cm-mw-template2-link-ground {background-image: url(img/template4.png),url(img/link4.png);}
+.cm-mw-template2-ext-link-ground {background-image: url(img/template4.png),url(img/ext4.png),url(img/link4.png);}
+.cm-mw-template2-ext2-link-ground {background-image: url(img/template4.png),url(img/ext4.png),url(img/ext4.png),url(img/link4.png);}
+.cm-mw-template2-ext3-link-ground {background-image: url(img/template4.png),url(img/ext4.png),url(img/ext4.png),url(img/ext4.png),url(img/link4.png);}
+.cm-mw-template3-ext-ground {background-image: url(img/template8.png),url(img/ext4.png);}
+.cm-mw-template3-ext2-ground {background-image: url(img/template8.png),url(img/ext4.png),url(img/ext4.png);}
+.cm-mw-template3-ext3-ground {background-image: url(img/template8.png),url(img/ext4.png),url(img/ext4.png),url(img/ext4.png);}
+.cm-mw-template3-link-ground {background-image: url(img/template8.png),url(img/link4.png);}
+.cm-mw-template3-ext-link-ground {background-image: url(img/template8.png),url(img/ext4.png),url(img/link4.png);}
+.cm-mw-template3-ext2-link-ground {background-image: url(img/template8.png),url(img/ext4.png),url(img/ext4.png),url(img/link4.png);}
+.cm-mw-template3-ext3-link-ground {background-image: url(img/template8.png),url(img/ext4.png),url(img/ext4.png),url(img/ext4.png),url(img/link4.png);}
+.cm-mw-ext-ground {background-image: url(img/ext4.png)}
+.cm-mw-ext2-ground {background-image: url(img/ext4.png),url(img/ext4.png);}
+.cm-mw-ext3-ground {background-image: url(img/ext4.png),url(img/ext4.png),url(img/ext4.png);}
+.cm-mw-ext-link-ground {background-image: url(img/link4.png);}
+.cm-mw-ext2-link-ground {background-image: url(img/ext4.png),url(img/link4.png);}
+.cm-mw-ext3-link-ground {background-image: url(img/ext4.png),url(img/ext4.png),url(img/link4.png);}
+.cm-mw-link-ground {background-image: url(img/link4.png);}
