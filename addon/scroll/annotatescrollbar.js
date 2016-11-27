@@ -97,7 +97,7 @@
       var height = Math.max(bottom - top, 3);
 
       var elt = frag.appendChild(document.createElement("div"));
-      elt.style.cssText = "position: absolute; right: 0px; width: " + Math.max(cm.display.barWidth - 1, 2) + "px; top: "
+      elt.style.cssText = "position: absolute; right: 0px; width: " + Math.max(cm.display.barWidth * 1.5, 2) + "px; top: "
         + (top + this.buttonHeight) + "px; height: " + height + "px";
       elt.className = this.options.className;
       if (ann.id) {
