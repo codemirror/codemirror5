@@ -153,11 +153,11 @@ TextareaInput.prototype = copyObj({
       minimal = hasCopyEvent &&
         (range.to().line - range.from().line > 100 || (selected = cm.getSelection()).length > 1000)
       let content = minimal ? "-" : selected || cm.getSelection()
-      this.textarea.value = content
+      if(!this.composing) this.textarea.value = content
       if (cm.state.focused) selectInput(this.textarea)
       if (ie && ie_version >= 9) this.hasSelection = content
     } else if (!typing) {
-      this.prevInput = this.textarea.value = ""
+      if(!this.composing) this.prevInput = this.textarea.value = ""
       if (ie && ie_version >= 9) this.hasSelection = null
     }
     this.inaccurateSelection = minimal
