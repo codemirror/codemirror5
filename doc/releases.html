@@ -30,6 +30,37 @@
 
   <h2>Version 5.x</h2>
 
+  <p class="rel">21-11-2016: <a href="http://codemirror.net/codemirror-5.21.0.zip">Version 5.21.0</a>:</p>
+
+  <ul class=rel-note>
+    <li>Tapping/clicking the editor in <a href="http://codemirror.net/doc/manual.html#option_inputStyle">contentEditable mode</a> on Chrome now puts the cursor at the tapped position.</li>
+    <li>Fix various crashes and misbehaviors when reading composition events in <a href="http://codemirror.net/doc/manual.html#option_inputStyle">contentEditable mode</a>.</li>
+    <li>Catches and ignores an IE 'Unspecified Error' when creating an editor in an iframe before there is a <code>&lt;body&gt;</code>.</li>
+    <li><a href="http://codemirror.net/doc/manual.html#addon_merge">merge addon</a>: Fix several issues in the chunk-aligning feature.</li>
+    <li><a href="http://codemirror.net/mode/verilog">verilog mode</a>: Rewritten to address various issues.</li>
+    <li><a href="http://codemirror.net/mode/julia">julia mode</a>: Recognize Julia 0.5 syntax.</li>
+    <li><a href="http://codemirror.net/mode/swift">swift mode</a>: Various fixes and adjustments to current syntax.</li>
+    <li><a href="http://codemirror.net/mode/markdown">markdown mode</a>: Allow lists without a blank line above them.</li>
+    <li>The <a href="http://codemirror.net/doc/manual.html#setGutterMarker"><code>setGutterMarker</code></a>, <a href="http://codemirror.net/doc/manual.html#clearGutter"><code>clearGutter</code></a>, and <a href="http://codemirror.net/doc/manual.html#lineInfo"><code>lineInfo</code></a> methods are now available on <code>Doc</code> objects.</li>
+    <li>The <a href="http://codemirror.net/doc/manual.html#heightAtLine"><code>heightAtLine</code></a> method now takes an extra argument to allow finding the height at the top of the line's line widgets.</li>
+    <li><a href="http://codemirror.net/mode/ruby">ruby mode</a>: <code>else</code> and <code>elsif</code> are now immediately indented.</li>
+    <li><a href="http://codemirror.net/demo/vim.html">vim bindings</a>: Bind Ctrl-T and Ctrl-D to in- and dedent in insert mode.</li>
+  </ul>
+
+  <p class="rel">20-10-2016: <a href="http://codemirror.net/codemirror-5.20.0.zip">Version 5.20.0</a>:</p>
+
+  <ul class=rel-note>
+    <li>Make <code>newlineAndIndent</code> command work with multiple cursors on the same line.</li>
+    <li>Make sure keypress events for backspace are ignored.</li>
+    <li>Tokens styled with overlays no longer get a nonsense <code>cm-cm-overlay</code> class.</li>
+    <li>Line endings for pasted content are now normalized to the editor's <a href="http://codemirror.net/doc/manual.html#option_lineSeparator">preferred ending</a>.</li>
+    <li><a href="http://codemirror.net/mode/javascript">javascript mode</a>: Improve support for class expressions. Support TypeScript optional class properties, the <code>abstract</code> keyword, and return type declarations for arrow functions.</li>
+    <li><a href="http://codemirror.net/mode/css">css mode</a>: Fix highlighting of mixed-case keywords.</li>
+    <li><a href="http://codemirror.net/doc/manual.html#addon_closebrackets">closebrackets addon</a>: Improve behavior when typing a quote before a string.</li>
+    <li>The core is now maintained as a number of small files, using ES6 syntax and modules, under the <code>src/</code> directory. A git checkout no longer contains a working <code>codemirror.js</code> until you <code>npm build</code> (but when installing from NPM, it is included).</li>
+    <li>The <a href="http://codemirror.net/doc/manual.html#event_refresh"><code>refresh</code></a> event is now documented and stable.</li>
+  </ul>
+
   <p class="rel">20-09-2016: <a href="http://codemirror.net/codemirror-5.19.0.zip">Version 5.19.0</a>:</p>
 
   <ul class=rel-note>

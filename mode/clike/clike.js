@@ -21,7 +21,7 @@ function Context(indented, column, type, info, align, prev) {
 }
 function pushContext(state, col, type, info) {
   var indent = state.indented;
-  if (state.context && state.context.type != "statement" && type != "statement")
+  if (state.context && state.context.type == "statement" && type != "statement")
     indent = state.context.indented;
   return state.context = new Context(indent, col, type, info, null, state.context);
 }
@@ -64,8 +64,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       isPunctuationChar = parserConfig.isPunctuationChar || /[\[\]{}\(\),;\:\.]/,
       numberStart = parserConfig.numberStart || /[\d\.]/,
       number = parserConfig.number || /^(?:0x[a-f\d]+|0b[01]+|(?:\d+\.?\d*|\.\d+)(?:e[-+]?\d+)?)(u|ll?|l|f)?/i,
-      isOperatorChar = parserConfig.isOperatorChar || /[+\-*&%=<>!?|\/]/,
-      endStatement = parserConfig.endStatement || /^[;:,]$/;
+      isOperatorChar = parserConfig.isOperatorChar || /[+\-*&%=<>!?|\/]/;
 
   var curPunc, isDefKeyword;
 
@@ -177,7 +176,8 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       if (style == "comment" || style == "meta") return style;
       if (ctx.align == null) ctx.align = true;
 
-      if (endStatement.test(curPunc)) while (state.context.type == "statement") popContext(state);
+      if (curPunc == ";" || curPunc == ":" || (curPunc == "," && stream.match(/^\s*(?:\/\/.*)?$/, false)))
+        while (state.context.type == "statement") popContext(state);
       else if (curPunc == "{") pushContext(state, stream.column(), "}");
       else if (curPunc == "[") pushContext(state, stream.column(), "]");
       else if (curPunc == "(") pushContext(state, stream.column(), ")");
@@ -432,7 +432,6 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     defKeywords: words("class interface package enum"),
     typeFirstDefinitions: true,
     atoms: words("true false null"),
-    endStatement: /^[;:]$/,
     number: /^(?:0x[a-f\d_]+|0b[01_]+|(?:[\d_]+\.?\d*|\.\d+)(?:e[-+]?[\d_]+)?)(u|ll?|l|f)?/i,
     hooks: {
       "@": function(stream) {

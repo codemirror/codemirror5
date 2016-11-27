@@ -75,11 +75,11 @@
     padding-bottom: 2px;
     color: #e6e6e6;
 }
-.CodeMirror-gutters {
+.cm-s-panda-syntax .CodeMirror-gutters {
     background: #292a2b;
     border-right-color: rgba(255, 255, 255, 0.1);
 }
-.CodeMirror-linenumber {
+.cm-s-panda-syntax .CodeMirror-linenumber {
     color: #e6e6e6;
     opacity: 0.6;
 }

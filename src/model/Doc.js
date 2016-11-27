@@ -6,7 +6,7 @@ import { visualLine } from "../line/spans"
 import { getBetween, getLine, getLines, isLine, lineNo } from "../line/utils_line"
 import { classTest } from "../util/dom"
 import { splitLinesAuto } from "../util/feature_detection"
-import { createObj, map, sel_dontScroll } from "../util/misc"
+import { createObj, map, isEmpty, sel_dontScroll } from "../util/misc"
 import { ensureCursorVisible } from "../display/scrolling"
 
 import { changeLine, makeChange, makeChangeFromHistory, replaceRange } from "./changes"
@@ -217,6 +217,45 @@ Doc.prototype = createObj(BranchChunk.prototype, {
     let hist = this.history = new History(this.history.maxGeneration)
     hist.done = copyHistoryArray(histData.done.slice(0), null, true)
     hist.undone = copyHistoryArray(histData.undone.slice(0), null, true)
+  },
+
+  setGutterMarker: docMethodOp(function(line, gutterID, value) {
+    return changeLine(this, line, "gutter", line => {
+      let markers = line.gutterMarkers || (line.gutterMarkers = {})
+      markers[gutterID] = value
+      if (!value && isEmpty(markers)) line.gutterMarkers = null
+      return true
+    })
+  }),
+
+  clearGutter: docMethodOp(function(gutterID) {
+    let i = this.first
+    this.iter(line => {
+      if (line.gutterMarkers && line.gutterMarkers[gutterID]) {
+        changeLine(this, line, "gutter", () => {
+          line.gutterMarkers[gutterID] = null
+          if (isEmpty(line.gutterMarkers)) line.gutterMarkers = null
+          return true
+        })
+      }
+      ++i
+    })
+  }),
+
+  lineInfo: function(line) {
+    let n
+    if (typeof line == "number") {
+      if (!isLine(this, line)) return null
+      n = line
+      line = getLine(this, line)
+      if (!line) return null
+    } else {
+      n = lineNo(line)
+      if (n == null) return null
+    }
+    return {line: n, handle: line, text: line.text, gutterMarkers: line.gutterMarkers,
+            textClass: line.textClass, bgClass: line.bgClass, wrapClass: line.wrapClass,
+            widgets: line.widgets}
   },
 
   addLineClass: docMethodOp(function(handle, where, cls) {

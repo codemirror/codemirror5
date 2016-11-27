@@ -26,3 +26,9 @@ The CodeMirror community aims to be welcoming to everybody. We use the
 [Contributor Covenant
 (1.1)](http://contributor-covenant.org/version/1/1/0/) as our code of
 conduct.
+
+### Quickstart
+
+To build the project, make sure you have Node.js installed (at least version 6)
+and then `npm install`. To run, just open `index.html` in your
+browser (you don't need to run a webserver). Run the tests with `npm test`.

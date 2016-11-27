@@ -20,7 +20,9 @@ export default function ContentEditableInput(cm) {
   this.cm = cm
   this.lastAnchorNode = this.lastAnchorOffset = this.lastFocusNode = this.lastFocusOffset = null
   this.polling = new Delayed()
+  this.composing = null
   this.gracePeriod = false
+  this.readDOMTimeout = null
 }
 
 ContentEditableInput.prototype = copyObj({
@@ -38,39 +40,22 @@ ContentEditableInput.prototype = copyObj({
     })
 
     on(div, "compositionstart", e => {
-      let data = e.data
-      input.composing = {sel: cm.doc.sel, data: data, startData: data}
-      if (!data) return
-      let prim = cm.doc.sel.primary()
-      let line = cm.getLine(prim.head.line)
-      let found = line.indexOf(data, Math.max(0, prim.head.ch - data.length))
-      if (found > -1 && found <= prim.head.ch)
-        input.composing.sel = simpleSelection(Pos(prim.head.line, found),
-                                              Pos(prim.head.line, found + data.length))
+      this.composing = {data: e.data}
     })
-    on(div, "compositionupdate", e => input.composing.data = e.data)
+    on(div, "compositionupdate", e => {
+      if (!this.composing) this.composing = {data: e.data}
+    })
     on(div, "compositionend", e => {
-      let ours = input.composing
-      if (!ours) return
-      if (e.data != ours.startData && !/\u200b/.test(e.data))
-        ours.data = e.data
-      // Need a small delay to prevent other code (input event,
-      // selection polling) from doing damage when fired right after
-      // compositionend.
-      setTimeout(() => {
-        if (!ours.handled)
-          input.applyComposition(ours)
-        if (input.composing == ours)
-          input.composing = null
-      }, 50)
+      if (this.composing) {
+        if (e.data != this.composing.data) this.readFromDOMSoon()
+        this.composing = null
+      }
     })
 
     on(div, "touchstart", () => input.forceCompositionEnd())
 
     on(div, "input", () => {
-      if (input.composing) return
-      if (cm.isReadOnly() || !input.pollContent())
-        runInOp(input.cm, () => regChange(cm))
+      if (!this.composing) this.readFromDOMSoon()
     })
 
     function onCopyCut(e) {
@@ -157,7 +142,10 @@ ContentEditableInput.prototype = copyObj({
     if (rng) {
       if (!gecko && this.cm.state.focused) {
         sel.collapse(start.node, start.offset)
-        if (!rng.collapsed) sel.addRange(rng)
+        if (!rng.collapsed) {
+          sel.removeAllRanges()
+          sel.addRange(rng)
+        }
       } else {
         sel.removeAllRanges()
         sel.addRange(rng)
@@ -196,7 +184,11 @@ ContentEditableInput.prototype = copyObj({
   },
 
   focus: function() {
-    if (this.cm.options.readOnly != "nocursor") this.div.focus()
+    if (this.cm.options.readOnly != "nocursor") {
+      if (!this.selectionInEditor())
+        this.showSelection(this.prepareSelection(), true)
+      this.div.focus()
+    }
   },
   blur: function() { this.div.blur() },
   getField: function() { return this.div },
@@ -226,7 +218,7 @@ ContentEditableInput.prototype = copyObj({
   },
 
   pollSelection: function() {
-    if (!this.composing && !this.gracePeriod && this.selectionChanged()) {
+    if (!this.composing && this.readDOMTimeout == null && !this.gracePeriod && this.selectionChanged()) {
       let sel = window.getSelection(), cm = this.cm
       this.rememberSelection()
       let anchor = domToPos(cm, sel.anchorNode, sel.anchorOffset)
@@ -239,8 +231,17 @@ ContentEditableInput.prototype = copyObj({
   },
 
   pollContent: function() {
+    if (this.readDOMTimeout != null) {
+      clearTimeout(this.readDOMTimeout)
+      this.readDOMTimeout = null
+    }
+
     let cm = this.cm, display = cm.display, sel = cm.doc.sel.primary()
     let from = sel.from(), to = sel.to()
+    if (from.ch == 0 && from.line > cm.firstLine())
+      from = Pos(from.line - 1, getLine(cm.doc, from.line - 1).length)
+    if (to.ch == getLine(cm.doc, to.line).text.length && to.line < cm.lastLine())
+      to = Pos(to.line + 1, 0)
     if (from.line < display.viewFrom || to.line > display.viewTo - 1) return false
 
     let fromIndex, fromLine, fromNode
@@ -261,6 +262,7 @@ ContentEditableInput.prototype = copyObj({
       toNode = display.view[toIndex + 1].node.previousSibling
     }
 
+    if (!fromNode) return false
     let newText = cm.doc.splitLines(domTextBetween(cm, fromNode, toNode, fromLine, toLine))
     let oldText = getBetween(cm.doc, Pos(fromLine, 0), Pos(toLine, getLine(cm.doc, toLine).text.length))
     while (newText.length > 1 && oldText.length > 1) {
@@ -280,8 +282,8 @@ ContentEditableInput.prototype = copyObj({
            newBot.charCodeAt(newBot.length - cutEnd - 1) == oldBot.charCodeAt(oldBot.length - cutEnd - 1))
       ++cutEnd
 
-    newText[newText.length - 1] = newBot.slice(0, newBot.length - cutEnd)
-    newText[0] = newText[0].slice(cutFront)
+    newText[newText.length - 1] = newBot.slice(0, newBot.length - cutEnd).replace(/^\u200b+/, "")
+    newText[0] = newText[0].slice(cutFront).replace(/\u200b+$/, "")
 
     let chFrom = Pos(fromLine, cutFront)
     let chTo = Pos(toLine, oldText.length ? lst(oldText).length - cutEnd : 0)
@@ -298,17 +300,20 @@ ContentEditableInput.prototype = copyObj({
     this.forceCompositionEnd()
   },
   forceCompositionEnd: function() {
-    if (!this.composing || this.composing.handled) return
-    this.applyComposition(this.composing)
-    this.composing.handled = true
+    if (!this.composing) return
+    this.composing = null
+    if (!this.pollContent()) regChange(this.cm)
     this.div.blur()
     this.div.focus()
   },
-  applyComposition: function(composing) {
-    if (this.cm.isReadOnly())
-      operation(this.cm, regChange)(this.cm)
-    else if (composing.data && composing.data != composing.startData)
-      operation(this.cm, applyTextInput)(this.cm, composing.data, 0, composing.sel)
+  readFromDOMSoon: function() {
+    if (this.readDOMTimeout != null) return
+    this.readDOMTimeout = setTimeout(() => {
+      this.readDOMTimeout = null
+      if (this.composing) return
+      if (this.cm.isReadOnly() || !this.pollContent())
+        runInOp(this.cm, () => regChange(this.cm))
+    }, 80)
   },
 
   setUneditable: function(node) {
@@ -356,8 +361,8 @@ function domTextBetween(cm, from, to, fromLine, toLine) {
     if (node.nodeType == 1) {
       let cmText = node.getAttribute("cm-text")
       if (cmText != null) {
-        if (cmText == "") cmText = node.textContent.replace(/\u200b/g, "")
-        text += cmText
+        if (cmText == "") text += node.textContent.replace(/\u200b/g, "")
+        else text += cmText
         return
       }
       let markerID = node.getAttribute("cm-marker"), range

@@ -7,6 +7,7 @@ import { ios, webkit } from "../util/browser"
 import { elt } from "../util/dom"
 import { lst, map } from "../util/misc"
 import { signalLater } from "../util/operation_group"
+import { splitLinesAuto } from "../util/feature_detection"
 
 import { indentLine } from "./indent"
 
@@ -25,7 +26,7 @@ export function applyTextInput(cm, inserted, deleted, sel, origin) {
   if (!sel) sel = doc.sel
 
   let paste = cm.state.pasteIncoming || origin == "paste"
-  let textLines = doc.splitLines(inserted), multiPaste = null
+  let textLines = splitLinesAuto(inserted), multiPaste = null
   // When pasing N lines into N selections, insert one line per selection
   if (paste && sel.ranges.length > 1) {
     if (lastCopied && lastCopied.text.join("\n") == inserted) {

@@ -395,6 +395,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     var maybeop = noComma ? maybeoperatorNoComma : maybeoperatorComma;
     if (atomicTypes.hasOwnProperty(type)) return cont(maybeop);
     if (type == "function") return cont(functiondef, maybeop);
+    if (type == "class") return cont(pushlex("form"), classExpression, poplex);
     if (type == "keyword c" || type == "async") return cont(noComma ? maybeexpressionNoComma : maybeexpression);
     if (type == "(") return cont(pushlex(")"), maybeexpression, expect(")"), poplex, maybeop);
     if (type == "operator" || type == "spread") return cont(noComma ? expressionNoComma : expression);
@@ -618,6 +619,11 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   function funarg(type) {
     if (type == "spread") return cont(funarg);
     return pass(pattern, maybetype, maybeAssign);
+  }
+  function classExpression(type, value) {
+    // Class expressions may have an optional name.
+    if (type == "variable") return className(type, value);
+    return classNameAfter(type, value);
   }
   function className(type, value) {
     if (type == "variable") {register(value); return cont(classNameAfter);}

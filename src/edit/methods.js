@@ -1,5 +1,4 @@
 import { deleteNearSelection } from "./deleteNearSelection"
-import { changeLine } from "../model/changes"
 import { commands } from "./commands"
 import { attachDoc } from "../model/document_data"
 import { activeElt, addClass, rmClass } from "../util/dom"
@@ -18,9 +17,9 @@ import { addToScrollPos, calculateScrollPos, ensureCursorVisible, resolveScrollT
 import { heightAtLine } from "../line/spans"
 import { updateGutterSpace } from "../display/update_display"
 import { lineLeft, lineRight, moveLogically, moveVisually } from "../util/bidi"
-import { indexOf, insertSorted, isEmpty, isWordChar, sel_dontScroll, sel_move } from "../util/misc"
+import { indexOf, insertSorted, isWordChar, sel_dontScroll, sel_move } from "../util/misc"
 import { signalLater } from "../util/operation_group"
-import { getLine, isLine, lineAtHeight, lineNo } from "../line/utils_line"
+import { getLine, isLine, lineAtHeight } from "../line/utils_line"
 import { regChange, regLineChange } from "../display/view_tracking"
 
 // The publicly visible API. Note that methodOp(f) means
@@ -201,7 +200,7 @@ export default function(CodeMirror) {
       height = fromCoordSystem(this, {top: height, left: 0}, mode || "page").top
       return lineAtHeight(this.doc, height + this.display.viewOffset)
     },
-    heightAtLine: function(line, mode) {
+    heightAtLine: function(line, mode, includeWidgets) {
       let end = false, lineObj
       if (typeof line == "number") {
         let last = this.doc.first + this.doc.size - 1
@@ -211,49 +210,12 @@ export default function(CodeMirror) {
       } else {
         lineObj = line
       }
-      return intoCoordSystem(this, lineObj, {top: 0, left: 0}, mode || "page").top +
+      return intoCoordSystem(this, lineObj, {top: 0, left: 0}, mode || "page", includeWidgets).top +
         (end ? this.doc.height - heightAtLine(lineObj) : 0)
     },
 
     defaultTextHeight: function() { return textHeight(this.display) },
     defaultCharWidth: function() { return charWidth(this.display) },
-
-    setGutterMarker: methodOp(function(line, gutterID, value) {
-      return changeLine(this.doc, line, "gutter", line => {
-        let markers = line.gutterMarkers || (line.gutterMarkers = {})
-        markers[gutterID] = value
-        if (!value && isEmpty(markers)) line.gutterMarkers = null
-        return true
-      })
-    }),
-
-    clearGutter: methodOp(function(gutterID) {
-      let doc = this.doc, i = doc.first
-      doc.iter(line => {
-        if (line.gutterMarkers && line.gutterMarkers[gutterID]) {
-          line.gutterMarkers[gutterID] = null
-          regLineChange(this, i, "gutter")
-          if (isEmpty(line.gutterMarkers)) line.gutterMarkers = null
-        }
-        ++i
-      })
-    }),
-
-    lineInfo: function(line) {
-      let n
-      if (typeof line == "number") {
-        if (!isLine(this.doc, line)) return null
-        n = line
-        line = getLine(this.doc, line)
-        if (!line) return null
-      } else {
-        n = lineNo(line)
-        if (n == null) return null
-      }
-      return {line: n, handle: line, text: line.text, gutterMarkers: line.gutterMarkers,
-              textClass: line.textClass, bgClass: line.bgClass, wrapClass: line.wrapClass,
-              widgets: line.widgets}
-    },
 
     getViewport: function() { return {from: this.display.viewFrom, to: this.display.viewTo}},
 

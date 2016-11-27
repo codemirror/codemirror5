@@ -21,6 +21,7 @@ import { bind, countColumn, findColumn, sel_mouse } from "../util/misc"
 export function onMouseDown(e) {
   let cm = this, display = cm.display
   if (signalDOMEvent(cm, e) || display.activeTouch && display.input.supportsTouch()) return
+  display.input.ensurePolled()
   display.shift = e.shiftKey
 
   if (eventInWidget(display, e)) {

@@ -16,7 +16,7 @@ function rewrite(file, f) {
   fs.writeFileSync(file, f(fs.readFileSync(file, "utf8")), "utf8");
 }
 
-rewrite("lib/codemirror.js", function(lib) {
+rewrite("src/edit/main.js", function(lib) {
   return lib.replace(/CodeMirror\.version = "\d+\.\d+\.\d+"/,
                      "CodeMirror.version = \"" + number + "\"");
 });

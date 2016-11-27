@@ -38,6 +38,16 @@
      "  }",
      "}");
 
+  MT("anonymous_class_expression",
+     "[keyword const] [def Adder] [operator =] [keyword class] [keyword extends] [variable Arithmetic] {",
+     "  [property add]([def a], [def b]) {}",
+     "};");
+
+  MT("named_class_expression",
+     "[keyword const] [def Subber] [operator =] [keyword class] [def Subtract] {",
+     "  [property sub]([def a], [def b]) {}",
+     "};");
+
   MT("import",
      "[keyword function] [def foo]() {",
      "  [keyword import] [def $] [keyword from] [string 'jquery'];",

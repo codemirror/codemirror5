@@ -83,9 +83,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   }
 
   var hrRE = /^([*\-_])(?:\s*\1){2,}\s*$/
-  ,   ulRE = /^[*\-+]\s+/
-  ,   olRE = /^[0-9]+([.)])\s+/
-  ,   taskListRE = /^\[(x| )\](?=\s)/ // Must follow ulRE or olRE
+  ,   listRE = /^(?:[*\-+]|^[0-9]+([.)]))\s+/
+  ,   taskListRE = /^\[(x| )\](?=\s)/ // Must follow listRE
   ,   atxHeaderRE = modeCfg.allowAtxHeaderWithoutSpace ? /^(#+)/ : /^(#+)(?: |$)/
   ,   setextHeaderRE = /^ *(?:\={1,}|-{1,})\s*$/
   ,   textRE = /^[^#!\[\]*_\\<>` "'(~]+/
@@ -189,14 +188,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     } else if (stream.match(hrRE, true)) {
       state.hr = true;
       return tokenTypes.hr;
-    } else if ((lineIsEmpty(state.prevLine) || prevLineIsList) && (stream.match(ulRE, false) || stream.match(olRE, false))) {
-      var listType = null;
-      if (stream.match(ulRE, true)) {
-        listType = 'ul';
-      } else {
-        stream.match(olRE, true);
-        listType = 'ol';
-      }
+    } else if (match = stream.match(listRE)) {
+      var listType = match[1] ? "ol" : "ul";
       state.indentation = stream.column() + stream.current().length;
       state.list = true;
 
@@ -809,6 +802,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
     getType: getType,
 
+    closeBrackets: "()[]{}''\"\"``",
     fold: "markdown"
   };
   return mode;
