@@ -1,0 +1,214 @@
+/**
+ * Atom One Solarized Theme
+ *
+ * Copyright (c) 2016 jackycute
+ * 
+ * Licensed under MIT
+ */
+/* Editor */
+.solarized .panel,
+.solarized #main-toolbar {
+  background: #1d222a;
+}
+.solarized #working-set-list-container,
+.solarized #editor-holder .pane-header {
+  background: #15181e;
+}
+.solarized .working-set-header,
+.solarized #project-files-header .btn-alt-quiet {
+  background: rgba(204, 217, 255, 0.05);
+}
+.solarized .working-set-header > span {
+  background: transparent;
+}
+.solarized .sidebar-selection,
+.solarized .filetree-selection,
+.solarized .sidebar-selection-extension,
+.solarized .filetree-selection-extension {
+  background: #282c34;
+}
+.solarized #status-bar,
+.solarized #status-indicators {
+  background: #15181e;
+  border-top-color: #1d222a;
+}
+.solarized a,
+.solarized .open-files-container li.selected a {
+  color: #528bff;
+}
+/* Code Styling */
+.cm-s-one-solarized.CodeMirror,
+.cm-s-one-solarized .CodeMirror-scroll {
+/*  background-color: #282c34;*/
+  background-color: #fdf6e3;
+  color: #657b83;
+}
+.cm-s-one-solarized .CodeMirror-activeline-background {
+  background: transparent;
+}
+.cm-s-one-solarized.CodeMirror-focused .CodeMirror-activeline-background {
+  background: #eee8d5;
+}
+.show-line-padding .cm-s-one-solarized.CodeMirror-focused .CodeMirror-activeline-background {
+  box-shadow: inset 15px 0 0 0 #000;
+}
+.cm-s-one-solarized.CodeMirror-focused .CodeMirror-activeline .CodeMirror-gutter-elt {
+  background: transparent;
+  color: #5c6370;
+}
+.cm-s-one-solarized.CodeMirror-focused .CodeMirror-activeline .inline-widget .CodeMirror-gutter-elt {
+  color: red;
+}
+.cm-s-one-solarized .cm-string-2,
+.cm-s-one-solarized .cm-hr {
+  color: #2aa198;
+}
+.cm-s-one-solarized .cm-number,
+.cm-s-one-solarized .cm-attribute,
+.cm-s-one-solarized .cm-qualifier,
+.cm-s-one-solarized .cm-plus,
+.cm-s-one-solarized .cm-atom {
+  color: #b58900;
+}
+.cm-s-one-solarized .cm-def {
+  color: #c678dd;
+}
+.cm-s-one-solarized .cm-property,
+.cm-s-one-solarized .cm-variable,
+.cm-s-one-solarized .cm-variable-2,
+.cm-s-one-solarized .cm-variable-3,
+.cm-s-one-solarized .cm-operator,
+/*.cm-meta,*/
+.cm-s-one-solarized .cm-bracket {
+  color: #b58900;
+}
+/*borrow from tomorrow-night-eighties*/
+.cm-s-one-solarized .cm-variable {
+  color: #839496;
+}
+.cm-s-one-solarized .cm-variable-2 {
+  color: #cb4b16;
+}
+
+.cm-s-one-solarized .cm-comment {
+  color: #93a1a1;
+  font-style: italic;
+}
+.cm-s-one-solarized .cm-error,
+.cm-s-one-solarized .cm-minus {
+  color: #be5046;
+}
+.cm-s-one-solarized .cm-header {
+  color: #268bd2;
+}
+.cm-s-one-solarized .cm-link {
+  color: #2aa198;
+  text-decoration: none;
+}
+.cm-s-one-solarized .cm-rangeinfo {
+  color: #c678dd;
+}
+.cm-s-one-solarized .cm-keyword,
+.cm-s-one-solarized .cm-builtin,
+.cm-s-one-solarized .cm-tag {
+  color: #268bd2;
+}
+.cm-s-one-solarized .cm-string {
+/*  color: #98c379;*/
+  color: #cb4b16;
+}
+/* Extra CSS */
+.cm-s-one-solarized .CodeMirror-searching {
+  color: #fff !important;
+  border: 1px solid #1e3f47;
+  margin: 0 -1px;
+  background-color: rgba(147, 161, 161, 0.09);
+  box-shadow: 0px 0px 6px rgba(66, 133, 244, 0.4);
+}
+.cm-s-one-solarized .CodeMirror-searching.searching-current-match {
+  color: #fff;
+  background-color: #1e3f47;
+  box-shadow: 0px 0px 6px rgba(66, 133, 244, 0.8);
+}
+.cm-s-one-solarized .CodeMirror-cursor {
+  border-left: 2px solid #1e3f47 !important;
+}
+.cm-fat-cursor .CodeMirror-cursor {
+  border-left: 2px solid #667b83 !important;
+  background: #667b83;
+}
+.cm-s-one-solarized .CodeMirror-gutters {
+/*  background-color: #282c34;*/
+  background-color: #eee8d5;
+  border-right: 1px solid rgba(147, 161, 161, 0.05);
+}
+.cm-s-one-solarized .CodeMirror-linenumber {
+  color: #6f838c;
+}
+.cm-s-one-solarized.CodeMirror .CodeMirror-selected {
+  background: rgba(147, 161, 161, 0.05);
+}
+.cm-s-one-solarized.CodeMirror-focused .CodeMirror-selected {
+  background: rgba(147, 161, 161, 0.09);
+}
+.cm-s-one-solarized .CodeMirror-matchingbracket,
+.cm-s-one-solarized .CodeMirror-matchingtag {
+  /* Ensure visibility against gray inline editor background */
+  background-color: rgba(147, 161, 161, 0.09);
+  color: #657b83 !important;
+  border-bottom: 1px solid #1e3f47;
+}
+.cm-s-one-solarized .CodeMirror-overwrite .CodeMirror-cursor {
+  border-left: none !important;
+  border-bottom: 1px solid #fff;
+  width: 0.5em;
+}
+.cm-s-one-solarized.CodeMirror .CodeMirror {
+  background: transparent;
+}
+.cm-s-one-solarized.CodeMirror .CodeMirror .CodeMirror-gutters {
+  background: transparent;
+  border-right: none;
+}
+.cm-s-one-solarized.CodeMirror .CodeMirror .CodeMirror-activeline-background {
+  background: transparent;
+}
+.cm-s-one-solarized.CodeMirror .CodeMirror .CodeMirror-activeline .CodeMirror-gutter-elt {
+  background: transparent;
+  color: #5c6370;
+}
+.cm-s-one-solarized.CodeMirror .CodeMirror-focused .CodeMirror-activeline-background {
+  background: #000;
+}
+.cm-s-one-solarized.CodeMirror .CodeMirror-focused .CodeMirror-activeline .CodeMirror-gutter-elt {
+  background: rgba(147, 161, 161, 0.05);
+  color: #fff;
+}
+.cm-s-one-solarized .CodeMirror-foldgutter-open:after {
+  color: #393e46;
+}
+.cm-s-one-solarized .CodeMirror-foldgutter-folded:after {
+  color: #5c6370;
+}
+.cm-s-one-solarized .CodeMirror.over-gutter .CodeMirror-foldgutter-open:after,
+.cm-s-one-solarized.CodeMirror-focused .CodeMirror-activeline .CodeMirror-foldgutter-open:after {
+  color: #5c6370;
+}
+.cm-s-one-solarized .CodeMirror-foldmarker {
+  border-color: #393e46;
+  color: #abb2bf;
+  background: rgba(147, 161, 161, 0.05);
+}
+/* Non-editor styling */
+.image-view,
+.not-editor {
+  background-color: #282c34;
+}
+.view-pane .image-view {
+  color: #abb2bf;
+}
+
+.cm-s-one-solarized .CodeMirror-overlayscroll-horizontal div,
+.cm-s-one-solarized .CodeMirror-overlayscroll-vertical div {
+  border: 2px solid #fdf6e3;
+}

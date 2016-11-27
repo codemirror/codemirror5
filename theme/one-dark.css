@@ -1,0 +1,216 @@
+/**
+ * Atom One Dark Theme
+ *
+ * Copyright (c) 2015 Hikio - twitter.com/hik_io
+ *
+ * 06/26/2015
+ * 
+ * Licensed under MIT
+ * GitHub https://github.com/hikio/brackets-one-dark
+ */
+/*
+Modified by jackycute 2015
+borrow some color from tomorrow-night-eighties
+*/
+/* Editor */
+.dark .panel,
+.dark #main-toolbar {
+  background: #1d222a;
+}
+.dark #working-set-list-container,
+.dark #editor-holder .pane-header {
+  background: #15181e;
+}
+.dark .working-set-header,
+.dark #project-files-header .btn-alt-quiet {
+  background: rgba(204, 217, 255, 0.05);
+}
+.dark .working-set-header > span {
+  background: transparent;
+}
+.dark .sidebar-selection,
+.dark .filetree-selection,
+.dark .sidebar-selection-extension,
+.dark .filetree-selection-extension {
+  background: #282c34;
+}
+.dark #status-bar,
+.dark #status-indicators {
+  background: #15181e;
+  border-top-color: #1d222a;
+}
+.dark a,
+.dark .open-files-container li.selected a {
+  color: #528bff;
+}
+/* Code Styling */
+.cm-s-one-dark.CodeMirror,
+.cm-s-one-dark .CodeMirror-scroll {
+/*  background-color: #282c34;*/
+  background-color: #1e2126;
+  color: #abb2bf;
+}
+.cm-s-one-dark .CodeMirror-activeline-background {
+  background: transparent;
+}
+.cm-s-one-dark.CodeMirror-focused .CodeMirror-activeline-background {
+  background: rgba(204, 217, 255, 0.05);
+}
+.show-line-padding .cm-s-one-dark.CodeMirror-focused .CodeMirror-activeline-background {
+  box-shadow: inset 15px 0 0 0 #000;
+}
+.cm-s-one-dark.CodeMirror-focused .CodeMirror-activeline .CodeMirror-gutter-elt {
+  background: transparent;
+  color: #5c6370;
+}
+.cm-s-one-dark.CodeMirror-focused .CodeMirror-activeline .inline-widget .CodeMirror-gutter-elt {
+  color: red;
+}
+.cm-s-one-dark .cm-string-2,
+.cm-s-one-dark .cm-hr {
+  color: #56b6c2;
+}
+.cm-s-one-dark .cm-number,
+.cm-s-one-dark .cm-attribute,
+.cm-s-one-dark .cm-qualifier,
+.cm-s-one-dark .cm-plus,
+.cm-s-one-dark .cm-atom {
+  color: #eda35e;
+}
+.cm-s-one-dark .cm-def {
+  color: #c678dd;
+}
+.cm-s-one-dark .cm-property,
+.cm-s-one-dark .cm-variable,
+.cm-s-one-dark .cm-variable-2,
+.cm-s-one-dark .cm-variable-3,
+.cm-s-one-dark .cm-operator,
+/*.cm-meta,*/
+.cm-s-one-dark .cm-bracket {
+  color: #f76e79;
+}
+/*borrow from tomorrow-night-eighties*/
+.cm-s-one-dark .cm-variable {
+  color: #99cc99;
+}
+.cm-s-one-dark .cm-variable-2 {
+  color: #6699cc;
+}
+
+.cm-s-one-dark .cm-comment {
+  color: #5c6370;
+  font-style: italic;
+}
+.cm-s-one-dark .cm-error,
+.cm-s-one-dark .cm-minus {
+  color: #be5046;
+}
+.cm-s-one-dark .cm-header {
+  color: #eda35e;
+}
+.cm-s-one-dark .cm-link {
+  color: #98c379;
+  text-decoration: none;
+}
+.cm-s-one-dark .cm-rangeinfo {
+  color: #c678dd;
+}
+.cm-s-one-dark .cm-keyword,
+.cm-s-one-dark .cm-builtin,
+.cm-s-one-dark .cm-tag {
+  color: #98c379;
+}
+.cm-s-one-dark .cm-string {
+/*  color: #98c379;*/
+  color: #6699cc;
+}
+/* Extra CSS */
+.cm-s-one-dark .CodeMirror-searching {
+  color: #fff !important;
+  border: 1px solid #528bff;
+  margin: 0 -1px;
+  background-color: rgba(204, 217, 255, 0.09);
+  box-shadow: 0px 0px 6px rgba(66, 133, 244, 0.4);
+}
+.cm-s-one-dark .CodeMirror-searching.searching-current-match {
+  color: #fff;
+  background-color: #528bff;
+  box-shadow: 0px 0px 6px rgba(66, 133, 244, 0.8);
+}
+.cm-s-one-dark .CodeMirror-cursor {
+  border-left: 2px solid #528bff !important;
+}
+.cm-fat-cursor .CodeMirror-cursor {
+  border-left: 2px solid #3C5B9E !important;
+  background: #3C5B9E;
+}
+.cm-s-one-dark .CodeMirror-gutters {
+/*  background-color: #282c34;*/
+  background-color: #1e2126;
+  border-right: 1px solid rgba(204, 217, 255, 0.05);
+}
+.cm-s-one-dark .CodeMirror-linenumber {
+  color: #393e46;
+}
+.cm-s-one-dark.CodeMirror .CodeMirror-selected {
+  background: rgba(204, 217, 255, 0.05);
+}
+.cm-s-one-dark.CodeMirror-focused .CodeMirror-selected {
+  background: rgba(204, 217, 255, 0.09);
+}
+.cm-s-one-dark .CodeMirror-matchingbracket,
+.cm-s-one-dark .CodeMirror-matchingtag {
+  /* Ensure visibility against gray inline editor background */
+  background-color: rgba(204, 217, 255, 0.09);
+  color: #abb2bf !important;
+  border-bottom: 1px solid #528bff;
+}
+.cm-s-one-dark .CodeMirror-overwrite .CodeMirror-cursor {
+  border-left: none !important;
+  border-bottom: 1px solid #fff;
+  width: 0.5em;
+}
+.cm-s-one-dark.CodeMirror .CodeMirror {
+  background: transparent;
+}
+.cm-s-one-dark.CodeMirror .CodeMirror .CodeMirror-gutters {
+  background: transparent;
+  border-right: none;
+}
+.cm-s-one-dark.CodeMirror .CodeMirror .CodeMirror-activeline-background {
+  background: transparent;
+}
+.cm-s-one-dark.CodeMirror .CodeMirror .CodeMirror-activeline .CodeMirror-gutter-elt {
+  background: transparent;
+  color: #5c6370;
+}
+.cm-s-one-dark.CodeMirror .CodeMirror-focused .CodeMirror-activeline-background {
+  background: #000;
+}
+.cm-s-one-dark.CodeMirror .CodeMirror-focused .CodeMirror-activeline .CodeMirror-gutter-elt {
+  background: rgba(204, 217, 255, 0.05);
+  color: #fff;
+}
+.cm-s-one-dark .CodeMirror-foldgutter-open:after {
+  color: #393e46;
+}
+.cm-s-one-dark .CodeMirror-foldgutter-folded:after {
+  color: #5c6370;
+}
+.cm-s-one-dark .CodeMirror.over-gutter .CodeMirror-foldgutter-open:after,
+.cm-s-one-dark.CodeMirror-focused .CodeMirror-activeline .CodeMirror-foldgutter-open:after {
+  color: #5c6370;
+}
+.cm-s-one-dark .CodeMirror-foldmarker {
+  border-color: #393e46;
+  color: #abb2bf;
+  background: rgba(204, 217, 255, 0.05);
+}
+/* Non-editor styling */
+.image-view,
+.not-editor {
+  background-color: #282c34;
+}
+.view-pane .image-view {
+  color: #abb2bf;
+}
