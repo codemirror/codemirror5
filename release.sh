@@ -33,6 +33,8 @@ mode/xml/xml.js \
 mode/markdown/markdown_math.js \
 mode/gfm/gfm.js \
 mode/javascript/javascript.js \
+mode/typescript/typescript.js \
+mode/jsx/jsx.js \
 mode/css/css.js \
 mode/htmlmixed/htmlmixed.js \
 mode/htmlembedded/htmlembedded.js \
