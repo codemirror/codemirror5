@@ -71,8 +71,8 @@ var CodeMirror;
     for (var i = 0; i < tokenIndex; i++) {
       var token = lineTokens[i];
       if (token.string == '(') {
-        if (parenDepth == 0 &&
-           (prevTokenType == 'variable' || prevTokenType == 'variable-2')) {
+        if (parenDepth == 0 && (prevTokenType == 'variable' ||
+            prevTokenType == 'variable-2' || prevTokenType == 'property')) {
           functionCall = true;
         }
         parenDepth += 1;
