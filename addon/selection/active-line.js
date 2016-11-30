@@ -3,9 +3,14 @@
 
 // Because sometimes you need to style the cursor's line.
 //
-// Adds an option 'styleActiveLine' which, when enabled, gives the
-// active line's wrapping <div> the CSS class "CodeMirror-activeline",
-// and gives its background <div> the class "CodeMirror-activeline-background".
+// Adds two options:
+// 'styleActiveLine': when enabled, gives the active line's wrapping
+// <div> the CSS class "CodeMirror-activeline", and gives its background
+// <div> the class "CodeMirror-activeline-background".
+//
+// 'styleActiveSelected': When enabled and 'styleActiveLine' is
+// enabled, keeps the active line's styling active even when text is
+// selected within the line. Has no effect if 'styleActiveLine' is not enabled
 
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
@@ -33,6 +38,15 @@
     }
   });
 
+  CodeMirror.defineOption("styleActiveSelected", false, function(cm, val, old) {
+    var prev = old && old != CodeMirror.Init;
+    if (val && !prev) {
+      cm.state.maintainHighlight = true;
+    } else if (!val && prev) {
+      delete cm.state.maintainHighlight;
+    }
+  });
+
   function clearActiveLines(cm) {
     for (var i = 0; i < cm.state.activeLines.length; i++) {
       cm.removeLineClass(cm.state.activeLines[i], "wrap", WRAP_CLASS);
@@ -52,7 +66,11 @@
     var active = [];
     for (var i = 0; i < ranges.length; i++) {
       var range = ranges[i];
-      if (!range.empty()) continue;
+      if (cm.state.maintainHighlight) {
+        if (range.anchor.line != range.head.line) continue;
+      } else {
+        if (!range.empty()) continue;
+      }
       var line = cm.getLineHandleVisualStart(range.head.line);
       if (active[active.length - 1] != line) active.push(line);
     }
