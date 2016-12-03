@@ -168,7 +168,7 @@
   function selectBetweenBrackets(cm) {
     var ranges = cm.listSelections(), newRanges = []
     for (var i = 0; i < ranges.length; i++) {
-      let range = ranges[i], pos = range.head, opening = cm.scanForBracket(pos, -1);
+      var range = ranges[i], pos = range.head, opening = cm.scanForBracket(pos, -1);
       if (!opening) return false;
       for (;;) {
         var closing = cm.scanForBracket(pos, 1);
