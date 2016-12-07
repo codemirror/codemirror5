@@ -271,6 +271,8 @@
     clearMark(cm);
   }
 
+  CodeMirror.emacs = {kill: kill, killRegion: killRegion, repeated: repeated};
+
   // Actual keymap
 
   var keyMap = CodeMirror.keyMap.emacs = CodeMirror.normalizeKeyMap({
