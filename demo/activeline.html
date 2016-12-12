@@ -65,14 +65,26 @@
 </rss></textarea></form>
 
     <script>
+var styleActiveSelected = false;
 var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
   mode: "application/xml",
-  styleActiveLine: true,
+  styleActiveLine: {
+    styleActiveSelected: styleActiveSelected
+  },
   lineNumbers: true,
   lineWrapping: true
 });
+
+function toggleSelProp() {
+  styleActiveSelected = !styleActiveSelected;
+  editor.setOption('styleActiveLine', {styleActiveSelected: styleActiveSelected});
+  var label = styleActiveSelected ? 'Disable styleActiveSelected option' : 'Enable styleActiveSelected option';
+  document.getElementById('toggleButton').innerText = label;
+}
 </script>
 
     <p>Styling the current cursor line.</p>
+
+    <button onclick="toggleSelProp()" id="toggleButton">Enable styleActiveSelected option</button>
 
   </article>

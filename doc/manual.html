@@ -2760,12 +2760,26 @@ editor.setOption("extraKeys", {
       like in <a href="../demo/markselection.html">this demo</a>.</dd>
 
       <dt id="addon_active-line"><a href="../addon/selection/active-line.js"><code>selection/active-line.js</code></a></dt>
-      <dd>Defines a <code>styleActiveLine</code> option that, when enabled,
-      gives the wrapper of the active line the class <code>CodeMirror-activeline</code>,
-      adds a background with the class <code>CodeMirror-activeline-background</code>,
-      and adds the class <code>CodeMirror-activeline-gutter</code> to the
-      line's gutter space is enabled. See the
-      <a href="../demo/activeline.html">demo</a>.</dd>
+      <dd>Controls highlighting of the active line.
+        <dd>Defines an option
+        <code>styleActiveLine</code> which, when enabled, gives the wrapper of
+        the active line the class <code>CodeMirror-activeline</code>, adds a
+        background with the class <code>CodeMirror-activeline-background</code>,
+        and adds the class <code>CodeMirror-activeline-gutter</code> to the
+        line's gutter space.
+        </dd>
+        <dd>
+        In addition, defines an option <code>styleActiveSelected</code>,
+        that controls highlighting behavior when selected.
+        <code>styleActiveSelected</code> is an optional parameter of
+        <code>styleActiveLine</code>. If <code>true</code>,
+        the active line will remain highlighted when text within the line is
+        selected. If <code>false</code> or unspecified, the active line will
+        become unhighlighted as soon as text is selected. Has no effect if
+        <code>styleActiveLine</code> is not enabled.
+        </dd>
+        <dd>See the <a href="../demo/activeline.html">demo</a>.</dd>
+      </dd>
 
       <dt id="addon_selection-pointer"><a href="../addon/selection/selection-pointer.js"><code>selection/selection-pointer.js</code></a></dt>
       <dd>Defines a <code>selectionPointer</code> option which you can

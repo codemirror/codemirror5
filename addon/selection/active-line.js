@@ -3,9 +3,13 @@
 
 // Because sometimes you need to style the cursor's line.
 //
-// Adds an option 'styleActiveLine' which, when enabled, gives the
-// active line's wrapping <div> the CSS class "CodeMirror-activeline",
-// and gives its background <div> the class "CodeMirror-activeline-background".
+// 'styleActiveLine': when enabled, gives the active line's wrapping
+// <div> the CSS class "CodeMirror-activeline", and gives its background
+// <div> the class "CodeMirror-activeline-background".
+//
+// 'styleActiveSelected': An optional parameter of 'styleActiveLine'.
+// When enabled, keeps the active line's styling active even when text is
+// selected within the line. Has no effect if 'styleActiveLine' is not enabled.
 
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
@@ -52,7 +56,11 @@
     var active = [];
     for (var i = 0; i < ranges.length; i++) {
       var range = ranges[i];
-      if (!range.empty()) continue;
+      if (cm.getOption('styleActiveLine').styleActiveSelected == true) {
+        if (range.anchor.line != range.head.line) continue;
+      } else {
+        if (!range.empty()) continue;
+      }
       var line = cm.getLineHandleVisualStart(range.head.line);
       if (active[active.length - 1] != line) active.push(line);
     }
