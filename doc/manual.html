@@ -2769,8 +2769,10 @@ editor.setOption("extraKeys", {
         line's gutter space.
         </dd>
         <dd>
-        In addition, defines an option <code>styleActiveSelected</code>
-        that controls highlighting behavior when selected. If <code>true</code>,
+        In addition, defines an option <code>styleActiveSelected</code>,
+        that controls highlighting behavior when selected.
+        <code>styleActiveSelected</code> is an optional parameter of
+        <code>styleActiveLine</code>. If <code>true</code>,
         the active line will remain highlighted when text within the line is
         selected. If <code>false</code> or unspecified, the active line will
         become unhighlighted as soon as text is selected. Has no effect if
