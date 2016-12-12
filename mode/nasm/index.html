@@ -26,41 +26,41 @@
     <h2>NASM mode</h2>
     <form>
         <textarea id="code" name="code">
-            ;
-            ; file cmp.asm / Linux 32 bits
-            ; nasm -f elf32 cmp.asm / gcc -m32 -o cmp cmp.o
-            ; Author: João Vanzuita - https://github.com/converge
-            ;
+;
+; file cmp.asm / Linux 32 bits
+; nasm -f elf32 cmp.asm / gcc -m32 -o cmp cmp.o
+; Author: João Vanzuita - https://github.com/converge
+;
 
-            segment .data
+segment .data
 
-            msg db 'registers eax and ebx has the same value', 0xa
-            len equ $ - msg
+msg db 'registers eax and ebx has the same value', 0xa
+len equ $ - msg
 
-            ;
-            ; start
-            ;
-            segment .text
-            global main
+;
+; start
+;
+segment .text
+    global main
 
-            main:
-            mov eax, 0x1
-            mov ebx, 0x1
-            cmp eax, ebx
-            jne skip
-            call tell_me
-            skip:
-            mov eax, 1
-            mov ebx, 0
-            int 0x80
+main:
+    mov eax, 0x1
+    mov ebx, 0x1
+    cmp eax, ebx
+    jne skip
+    call tell_me
+    skip:
+    mov eax, 1
+    mov ebx, 0
+    int 0x80
 
-            tell_me:
-            mov edx, len
-            mov ecx, msg
-            mov eax, 4
-            mov ebx, 1
-            int 0x80
-            ret    
+tell_me:
+    mov edx, len
+    mov ecx, msg
+    mov eax, 4
+    mov ebx, 1
+    int 0x80
+    ret   
         </textarea>
     </form>
 
