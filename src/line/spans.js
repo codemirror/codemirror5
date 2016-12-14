@@ -248,6 +248,13 @@ export function visualLine(line) {
   return line
 }
 
+export function visualLineEnd(line) {
+  let merged
+  while (merged = collapsedSpanAtEnd(line))
+    line = merged.find(1, true).line
+  return line
+}
+
 // Returns an array of logical lines that continue the visual line
 // started by the argument, or undefined if there are no such lines.
 export function visualLineContinued(line) {

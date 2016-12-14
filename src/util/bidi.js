@@ -18,13 +18,16 @@ export function iterateBidiSections(order, from, to, f) {
 export function bidiLeft(part) { return part.level % 2 ? part.to : part.from }
 export function bidiRight(part) { return part.level % 2 ? part.from : part.to }
 
-export function lineLeft(line) { let order = getOrder(line); return order ? bidiLeft(order[0]) : 0 }
-export function lineRight(line) {
+function lineAt(line, dir) {
   let order = getOrder(line)
-  if (!order) return line.text.length
-  return bidiRight(lst(order))
+  if (!order) return dir == -1 ? line.text.length : 0
+  let pos = dir == -1 ? order.length - 1 : 0
+  while (order[pos].from == order[pos].to) pos += dir
+  return (dir == -1 ? bidiRight : bidiLeft)(order[pos])
 }
 
+export function lineLeft(line) { return lineAt(line, 1) }
+export function lineRight(line) { return lineAt(line, -1) }
 
 export let bidiOther = null
 export function getBidiPartAt(order, ch, sticky) {
@@ -81,8 +84,7 @@ export function moveVisually(line, start, dir, byUnit) {
 }
 
 export function moveLogically(line, start, dir, byUnit) {
-  let target = start + dir
-  if (byUnit) while (target > 0 && isExtendingChar(line.text.charAt(target))) target += dir
+  let target = moveInLine(line, start, dir, byUnit)
   return target < 0 || target > line.text.length ? null : target
 }
 
