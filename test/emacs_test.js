@@ -39,13 +39,13 @@
     }, {keyMap: "emacs", value: start, mode: "javascript"});
   }
 
-  function at(line, ch) { return function(cm) { eqPos(cm.getCursor(), Pos(line, ch)); }; }
+  function at(line, ch, sticky) { return function(cm) { eqCursorPos(cm.getCursor(), Pos(line, ch, sticky)); }; }
   function txt(str) { return function(cm) { eq(cm.getValue(), str); }; }
 
-  sim("motionHSimple", "abc", "Ctrl-F", "Ctrl-F", "Ctrl-B", at(0, 1));
+  sim("motionHSimple", "abc", "Ctrl-F", "Ctrl-F", "Ctrl-B", at(0, 1, "after"));
   sim("motionHMulti", "abcde",
-      "Ctrl-4", "Ctrl-F", at(0, 4), "Ctrl--", "Ctrl-2", "Ctrl-F", at(0, 2),
-      "Ctrl-5", "Ctrl-B", at(0, 0));
+      "Ctrl-4", "Ctrl-F", at(0, 4, "before"), "Ctrl--", "Ctrl-2", "Ctrl-F", at(0, 2, "after"),
+      "Ctrl-5", "Ctrl-B", at(0, 0, "after"));
 
   sim("motionHWord", "abc. def ghi",
       "Alt-F", at(0, 3, "before"), "Alt-F", at(0, 8, "before"),
