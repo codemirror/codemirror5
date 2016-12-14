@@ -62,7 +62,7 @@ export function signalLater(emitter, type /*, values...*/) {
     setTimeout(fireOrphanDelayed, 0)
   }
   for (let i = 0; i < arr.length; ++i) {
-    const fn = arr[i];
+    const fn = arr[i]
     list.push(() => fn.apply(null, args))
   }
 }
