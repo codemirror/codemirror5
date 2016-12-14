@@ -24,8 +24,8 @@
   function at(line, ch, msg) {
     return function(cm) {
       eq(cm.listSelections().length, 1);
-      eqPos(cm.getCursor("head"), Pos(line, ch), msg);
-      eqPos(cm.getCursor("anchor"), Pos(line, ch), msg);
+      eqCursorPos(cm.getCursor("head"), Pos(line, ch), msg);
+      eqCursorPos(cm.getCursor("anchor"), Pos(line, ch), msg);
     };
   }
 
@@ -54,8 +54,8 @@
       if (sels.length != ranges.length)
         throw new Failure("Expected " + ranges.length + " selections, but found " + sels.length);
       for (var i = 0; i < sels.length; i++) {
-        eqPos(sels[i].anchor, ranges[i].anchor, "anchor " + i);
-        eqPos(sels[i].head, ranges[i].head, "head " + i);
+        eqCharPos(sels[i].anchor, ranges[i].anchor, "anchor " + i);
+        eqCharPos(sels[i].head, ranges[i].head, "head " + i);
       }
     };
   }
