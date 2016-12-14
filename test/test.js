@@ -2206,6 +2206,145 @@ testCM("lineSeparator", function(cm) {
 }, {value: "foo\nbar\r\nbaz\rquux",
     lineSeparator: "\n"});
 
+var extendingChars = /[\u0300-\u036f\u0483-\u0489\u0591-\u05bd\u05bf\u05c1\u05c2\u05c4\u05c5\u05c7\u0610-\u061a\u064b-\u065e\u0670\u06d6-\u06dc\u06de-\u06e4\u06e7\u06e8\u06ea-\u06ed\u0711\u0730-\u074a\u07a6-\u07b0\u07eb-\u07f3\u0816-\u0819\u081b-\u0823\u0825-\u0827\u0829-\u082d\u0900-\u0902\u093c\u0941-\u0948\u094d\u0951-\u0955\u0962\u0963\u0981\u09bc\u09be\u09c1-\u09c4\u09cd\u09d7\u09e2\u09e3\u0a01\u0a02\u0a3c\u0a41\u0a42\u0a47\u0a48\u0a4b-\u0a4d\u0a51\u0a70\u0a71\u0a75\u0a81\u0a82\u0abc\u0ac1-\u0ac5\u0ac7\u0ac8\u0acd\u0ae2\u0ae3\u0b01\u0b3c\u0b3e\u0b3f\u0b41-\u0b44\u0b4d\u0b56\u0b57\u0b62\u0b63\u0b82\u0bbe\u0bc0\u0bcd\u0bd7\u0c3e-\u0c40\u0c46-\u0c48\u0c4a-\u0c4d\u0c55\u0c56\u0c62\u0c63\u0cbc\u0cbf\u0cc2\u0cc6\u0ccc\u0ccd\u0cd5\u0cd6\u0ce2\u0ce3\u0d3e\u0d41-\u0d44\u0d4d\u0d57\u0d62\u0d63\u0dca\u0dcf\u0dd2-\u0dd4\u0dd6\u0ddf\u0e31\u0e34-\u0e3a\u0e47-\u0e4e\u0eb1\u0eb4-\u0eb9\u0ebb\u0ebc\u0ec8-\u0ecd\u0f18\u0f19\u0f35\u0f37\u0f39\u0f71-\u0f7e\u0f80-\u0f84\u0f86\u0f87\u0f90-\u0f97\u0f99-\u0fbc\u0fc6\u102d-\u1030\u1032-\u1037\u1039\u103a\u103d\u103e\u1058\u1059\u105e-\u1060\u1071-\u1074\u1082\u1085\u1086\u108d\u109d\u135f\u1712-\u1714\u1732-\u1734\u1752\u1753\u1772\u1773\u17b7-\u17bd\u17c6\u17c9-\u17d3\u17dd\u180b-\u180d\u18a9\u1920-\u1922\u1927\u1928\u1932\u1939-\u193b\u1a17\u1a18\u1a56\u1a58-\u1a5e\u1a60\u1a62\u1a65-\u1a6c\u1a73-\u1a7c\u1a7f\u1b00-\u1b03\u1b34\u1b36-\u1b3a\u1b3c\u1b42\u1b6b-\u1b73\u1b80\u1b81\u1ba2-\u1ba5\u1ba8\u1ba9\u1c2c-\u1c33\u1c36\u1c37\u1cd0-\u1cd2\u1cd4-\u1ce0\u1ce2-\u1ce8\u1ced\u1dc0-\u1de6\u1dfd-\u1dff\u200c\u200d\u20d0-\u20f0\u2cef-\u2cf1\u2de0-\u2dff\u302a-\u302f\u3099\u309a\ua66f-\ua672\ua67c\ua67d\ua6f0\ua6f1\ua802\ua806\ua80b\ua825\ua826\ua8c4\ua8e0-\ua8f1\ua926-\ua92d\ua947-\ua951\ua980-\ua982\ua9b3\ua9b6-\ua9b9\ua9bc\uaa29-\uaa2e\uaa31\uaa32\uaa35\uaa36\uaa43\uaa4c\uaab0\uaab2-\uaab4\uaab7\uaab8\uaabe\uaabf\uaac1\uabe5\uabe8\uabed\udc00-\udfff\ufb1e\ufe00-\ufe0f\ufe20-\ufe26\uff9e\uff9f]/
+var getChar = function (noExtending) { var res; do {res = String.fromCharCode(Math.floor(Math.random()*0x8ac)); } while ([0x90].indexOf(res.charCodeAt(0)) != -1 || (noExtending && extendingChars.test(res))); return res }
+var getString = function (n) { var res = getChar(true); while (--n > 0) res += getChar(); return res }
+
+function makeItWrapAfter(cm, pos) {
+  var firstLineTop = cm.cursorCoords(Pos(0, 0)).top;
+  for(var w = 0, posTop; posTop != firstLineTop; ++w) {
+    cm.setSize(w);
+    posTop = cm.charCoords(pos).top;
+  }
+}
+
+function testMoveBidi(str) {
+  testCM("move_bidi_" + str, function(cm) {
+console.log("TESTING", encodeURIComponent(str))
+    cm.getScrollerElement().style.fontFamily = "monospace";
+    makeItWrapAfter(cm, Pos(0, 5));
+
+    var steps = str.length - str.split("").filter(extendingChars.test.bind(extendingChars)).length;
+    var lineBreaks = Object.create(null);
+    lineBreaks[6 - str.substr(0, 5).split("").filter(extendingChars.test.bind(extendingChars)).length] = 'w';
+    if (str.indexOf("\n") != -1) {
+      lineBreaks[steps - 2] = 'n';
+    }
+console.log("TESTING", str.length, steps, lineBreaks)
+
+    // Make sure we are at the visual beginning of the first line
+    var pos = Pos(0, 0), lastPos;
+    cm.doc.setCursor(pos);
+    do {
+      lastPos = pos;
+      cm.execCommand("goCharLeft");
+      pos = cm.doc.getCursor();
+    } while (pos != lastPos && pos.ch != 0)
+
+    var prevCoords = cm.cursorCoords(), coords;
+    for(var i = 0; i < steps; ++i) {
+      cm.execCommand("goCharRight");
+      coords = cm.cursorCoords();
+      if ((i >= 10 && i <= 12) && !lineBreaks[i] && coords.left < prevCoords.left && coords.top > prevCoords.top) {
+console.log("MOVED WRAPPED AT>", i)
+        // The first line wraps twice
+        lineBreaks[i] = 'w';
+      }
+      if (!lineBreaks[i]) {
+        is(coords.left > prevCoords.left, "In step " + i + ", cursor didn't move right");
+        eq(coords.top, prevCoords.top, "In step " + i + ", cursor moved out of line");
+console.log("MOVED", i, "right")
+      } else {
+        is(coords.left < prevCoords.left, i);
+        is(coords.top > prevCoords.top, i);
+console.log("MOVED", i, "down")
+      }
+      prevCoords = coords;
+    }
+
+    cm.execCommand("goCharRight");
+    coords = cm.cursorCoords();
+    eq(coords.left, prevCoords.left, "Moving " + steps + " steps right didn't reach the end");
+    eq(coords.top, prevCoords.top, "Moving " + steps + " steps right didn't reach the end");
+
+    for(i = steps - 1; i >= 0; --i) {
+      cm.execCommand("goCharLeft");
+      coords = cm.cursorCoords();
+      if (!(lineBreaks[i] == 'n' || lineBreaks[i + 1] == 'w')) {
+        is(coords.left < prevCoords.left, "In step " + i + ", cursor didn't move left");
+        eq(coords.top, prevCoords.top, "In step " + i + ", cursor is not at the same line anymore");
+console.log("MOVED", i, "left")
+      } else {
+        is(coords.left > prevCoords.left, i);
+        is(coords.top < prevCoords.top, i);
+console.log("MOVED", i, "up")
+      }
+      prevCoords = coords;
+    }
+
+    cm.execCommand("goCharLeft");
+    coords = cm.cursorCoords();
+    eq(coords.left, prevCoords.left, "Moving " + steps + " steps left didn't reach the beginning");
+    eq(coords.top, prevCoords.top, "Moving " + steps + " steps left didn't reach the beginning");
+  }, {value: str, lineWrapping: true})
+};
+
+testMoveBidi("Say ا ب جabj\nS"); // https://bugs.webkit.org/show_bug.cgi?id=165753
+testMoveBidi("Όȝǝڪȉۥ״ۺ׆ɀҩۏ\nҳ");
+testMoveBidi("ό׊۷٢ԜһОצЉيčǟ\nѩ");
+testMoveBidi("ۑÚҳҕڬġڹհяųKV\nr");
+testMoveBidi("ŌӰтقȤ؁ƥ؅٣ĎȺ١\nϚ");
+testMoveBidi("ٻоҤѕѽΩ־؉ïίքǳ\nٵ");
+//testMoveBidi("Count ١ ٢ ٣ ٤");
+testMoveBidi("Sayyy ا ا ب ج");
+testMoveBidi("؅؁ĆՕƿɁǞϮؠȩóć\nď");
+testMoveBidi("źڻғúہ4ם1Ƞc1a\nԁ");
+testMoveBidi("ҒȨҟփƞ٦ԓȦڰғâƥ\nڤ");
+testMoveBidi("քմѧǮßپüŢҍҞўڳ\nӧ");
+testMoveBidi("RŨďңŪzϢŎƏԖڇڦ\nӈ");
+testMoveBidi("ϖسՉȏŧΔԛǆĎӟیڡ\nέ");
+testMoveBidi("۹ؼL۵ĺȧКԙػא7״\nم");
+//testMoveBidi("ӣאƦϰ؊ȓېÛوը٬ز\nϪ");
+//testMoveBidi("ҾճٳџIՖӻ٥׭֐؜ڏ\nێ");
+//testMoveBidi("ҬÓФ؜ڂį٦Ͽɓڐͳٵ\nՈ");
+//testMoveBidi("aѴNĳȻهˇ҃ڱӧǻֵ\na");
+//testMoveBidi(" a٧ا٢ ب جa\nS");
+/*
+for (var i = 0; i < 5; ++i) {
+  testMoveBidi(getString(12) + "\n" + getString(1));
+}
+*/
+
+function testCoordsWrappedBidi(str) {
+  testCM("coords_wrapped_bidi_" + str, function(cm) {
+    cm.getScrollerElement().style.fontFamily = "monospace";
+    makeItWrapAfter(cm, Pos(0, 5));
+
+    // Make sure we are at the visual beginning of the first line
+    var pos = Pos(0, 0), lastPos;
+    cm.doc.setCursor(pos);
+    do {
+      lastPos = pos;
+      cm.execCommand("goCharLeft");
+      pos = cm.doc.getCursor();
+    } while (pos != lastPos)
+
+    var top = cm.charCoords(Pos(0, 0)).top, lastTop;
+    for (var i = 1; i < str.length; ++i) {
+      lastTop = top;
+      top = cm.charCoords(Pos(0, i)).top;
+      is(top >= lastTop);
+    }
+  }, {value: str, lineWrapping: true})
+};
+
+testCoordsWrappedBidi("Count ١ ٢ ٣ ٤");
+/*
+for (var i = 0; i < 5; ++i) {
+  testCoordsWrappedBidi(getString(50));
+}
+*/
+
 testCM("delete_wrapped", function(cm) {
   makeItWrapAfter(cm, Pos(0, 2));
   cm.doc.setCursor(Pos(0, 3, "after"));

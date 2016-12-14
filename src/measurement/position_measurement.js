@@ -88,6 +88,11 @@ export function measureChar(cm, line, ch, bias) {
   return measureCharPrepared(cm, prepareMeasureForLine(cm, line), ch, bias)
 }
 
+export function prepareMeasureCharTop(cm, line) {
+  let preparedMeasure = prepareMeasureForLine(cm, line)
+  return ch => measureCharPrepared(cm, preparedMeasure, ch).top
+}
+
 // Find a line view that corresponds to the given line number.
 export function findViewForLine(cm, lineN) {
   if (lineN >= cm.display.viewFrom && lineN < cm.display.viewTo)

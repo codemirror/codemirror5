@@ -8,6 +8,7 @@ import { indentLine } from "../input/indent"
 import { triggerElectric } from "../input/input"
 import { onKeyDown, onKeyPress, onKeyUp } from "./key_events"
 import { getKeyMap } from "../input/keymap"
+import { endOfLine, moveVisually } from "../input/movement"
 import { methodOp, operation, runInOp } from "../display/operations"
 import { clipLine, clipPos, equalCursorPos, Pos } from "../line/pos"
 import { charCoords, charWidth, clearCaches, clearLineMeasurementCache, coordsChar, cursorCoords, displayHeight, displayWidth, estimateLineHeights, fromCoordSystem, intoCoordSystem, scrollGap, textHeight } from "../measurement/position_measurement"
@@ -16,7 +17,7 @@ import { replaceOneSelection, skipAtomic } from "../model/selection_updates"
 import { addToScrollPos, calculateScrollPos, ensureCursorVisible, resolveScrollToPos, scrollIntoView } from "../display/scrolling"
 import { heightAtLine } from "../line/spans"
 import { updateGutterSpace } from "../display/update_display"
-import { lineLeft, lineRight, moveLogically, moveVisually } from "../util/bidi"
+import { moveLogically } from "../util/bidi"
 import { indexOf, insertSorted, isWordChar, sel_dontScroll, sel_move } from "../util/misc"
 import { signalLater } from "../util/operation_group"
 import { getLine, isLine, lineAtHeight } from "../line/utils_line"
@@ -464,7 +465,7 @@ export default function(CodeMirror) {
 // position. The resulting position will have a hitSide=true
 // property if it reached the end of the document.
 function findPosH(doc, pos, dir, unit, visually) {
-  let line = pos.line, ch = pos.ch, origDir = dir
+  let {line, ch, sticky} = pos, origDir = dir
   let lineObj = getLine(doc, line)
   function findNextLine() {
     let l = line + dir
@@ -473,11 +474,15 @@ function findPosH(doc, pos, dir, unit, visually) {
     return lineObj = getLine(doc, l)
   }
   function moveOnce(boundToLine) {
-    let next = (visually ? moveVisually : moveLogically)(lineObj, ch, dir, true)
+    let myMoveVisually = (line, start, dir, byUnit) => {
+      let res = moveVisually(doc.cm, line, start, dir, byUnit, sticky)
+      if (res.ch) sticky = res.sticky
+      return res.ch
+    }
+    let next = (visually ? myMoveVisually : moveLogically)(lineObj, ch, dir, true)
     if (next == null) {
       if (!boundToLine && findNextLine()) {
-        if (visually) ch = (dir < 0 ? lineRight : lineLeft)(lineObj)
-        else ch = dir < 0 ? lineObj.text.length : 0
+        ;({ch, sticky} = endOfLine(visually, doc.cm, lineObj, dir))
       } else return false
     } else ch = next
     return true
@@ -507,7 +512,7 @@ function findPosH(doc, pos, dir, unit, visually) {
       if (dir > 0 && !moveOnce(!first)) break
     }
   }
-  let result = skipAtomic(doc, Pos(line, ch, (!doc.cm || doc.cm.options.lineWrapping) ? (dir == -1 ? "after" : "before") : null), pos, origDir, true)
+  let result = skipAtomic(doc, Pos(line, ch, sticky), pos, origDir, true)
   if (equalCursorPos(pos, result)) result.hitSide = true
   return result
 }
