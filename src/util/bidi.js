@@ -22,7 +22,6 @@ function lineAt(line, dir) {
   let order = getOrder(line)
   if (!order) return dir == -1 ? line.text.length : 0
   let pos = dir == -1 ? order.length - 1 : 0
-  while (order[pos].from == order[pos].to) pos += dir
   return (dir == -1 ? bidiRight : bidiLeft)(order[pos])
 }
 
@@ -251,10 +250,6 @@ export let bidiOrdering = (function() {
       lst(order).to -= m[0].length
       order.push(new BidiSpan(0, len - m[0].length, len))
     }
-    if (order[0].level == 2)
-      order.unshift(new BidiSpan(1, order[0].to, order[0].to))
-    if (order[0].level != lst(order).level)
-      order.push(new BidiSpan(order[0].level, len, len))
 
     return order
   }
