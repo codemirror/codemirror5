@@ -45,7 +45,6 @@ export function CodeMirror(place, options) {
   themeChanged(this)
   if (options.lineWrapping)
     this.display.wrapper.className += " CodeMirror-wrap"
-  if (options.autofocus && !mobile) display.input.focus()
   initScrollbars(this)
 
   this.state = {
@@ -63,6 +62,8 @@ export function CodeMirror(place, options) {
     keySeq: null,  // Unfinished key sequence
     specialChars: null
   }
+
+  if (options.autofocus && !mobile) display.input.focus()
 
   // Override magic textarea content restore that IE sometimes does
   // on our hidden textarea on reload
