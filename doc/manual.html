@@ -639,6 +639,9 @@
       or <a href="#setSize">resized</a>. Mostly useful to invalidate
       cached values that depend on the editor or character size.</dd>
 
+      <dt id="event_optionChange"><code><strong>"optionChange"</strong> (instance: CodeMirror, option: string)</code></dt>
+      <dd>Dispatched every time an option is changed with <a href="#setOption"><code>setOption</code></a>.</dd>
+
       <dt id="event_scrollCursorIntoView"><code><strong>"scrollCursorIntoView"</strong> (instance: CodeMirror, event: Event)</code></dt>
       <dd>Fires when the editor tries to scroll its cursor into view.
       Can be hooked into to take care of additional scrollable

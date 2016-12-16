@@ -45,6 +45,7 @@ export default function(CodeMirror) {
       options[option] = value
       if (optionHandlers.hasOwnProperty(option))
         operation(this, optionHandlers[option])(this, value, old)
+      signal(this, "optionChange", this, option)
     },
 
     getOption: function(option) {return this.options[option]},

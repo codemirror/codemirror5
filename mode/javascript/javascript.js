@@ -539,7 +539,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   }
   function typeexpr(type) {
     if (type == "variable") {cx.marked = "variable-3"; return cont(afterType);}
-    if (type == "string" || type == "number") return cont(afterType);
+    if (type == "string" || type == "number" || type == "atom") return cont(afterType);
     if (type == "{") return cont(commasep(typeprop, "}"))
     if (type == "(") return cont(commasep(typearg, ")"), maybeReturnType)
   }
@@ -560,7 +560,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   }
   function afterType(type, value) {
     if (value == "<") return cont(commasep(typeexpr, ">"), afterType)
-    if (value == "|") return cont(typeexpr)
+    if (value == "|" || type == ".") return cont(typeexpr)
     if (type == "[") return cont(expect("]"), afterType)
   }
   function vardef() {

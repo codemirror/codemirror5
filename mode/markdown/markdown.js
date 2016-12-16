@@ -436,7 +436,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       return getType(state);
     }
 
-    if (ch === '[' && state.imageMarker) {
+    if (ch === '[' && state.imageMarker && stream.match(/[^\]]*\](\(.*?\)| ?\[.*?\])/, false)) {
       state.imageMarker = false;
       state.imageAltText = true
       if (modeCfg.highlightFormatting) state.formatting = "image";

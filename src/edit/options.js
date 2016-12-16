@@ -158,7 +158,7 @@ export function defineOptions(CodeMirror) {
 function guttersChanged(cm) {
   updateGutters(cm)
   regChange(cm)
-  setTimeout(() => alignHorizontally(cm), 20)
+  alignHorizontally(cm)
 }
 
 function dragDropChanged(cm, value, old) {
