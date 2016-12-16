@@ -104,6 +104,11 @@ export function onKeyDown(e) {
   // IE does strange things with escape.
   if (ie && ie_version < 11 && e.keyCode == 27) e.returnValue = false
   let code = e.keyCode
+  // if Enter key, force read the DOM if a reading is required
+  // before creating the new line
+  if(code == 13 && cm.display.input.readDOMTimeout){
+    cm.display.input.readFromDOM()
+  }
   cm.display.shift = code == 16 || e.shiftKey
   let handled = handleKeyBinding(cm, e)
   if (presto) {
