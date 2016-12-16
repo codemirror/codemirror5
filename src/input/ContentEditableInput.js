@@ -309,11 +309,19 @@ ContentEditableInput.prototype = copyObj({
   readFromDOMSoon: function() {
     if (this.readDOMTimeout != null) return
     this.readDOMTimeout = setTimeout(() => {
-      this.readDOMTimeout = null
-      if (this.composing) return
-      if (this.cm.isReadOnly() || !this.pollContent())
-        runInOp(this.cm, () => regChange(this.cm))
+      this.readFromDOM()
     }, 80)
+  },
+
+  readFromDOM : function(){
+      if (this.readDOMTimeout != null){
+          clearTimeout(this.readDOMTimeout)
+          this.readDOMTimeout = null
+      }
+      if (this.composing) return
+      if (this.cm.isReadOnly() || !this.pollContent()){
+          runInOp(this.cm, () => regChange(this.cm))
+      }
   },
 
   setUneditable: function(node) {
