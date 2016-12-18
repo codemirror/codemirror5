@@ -207,6 +207,18 @@
      "  [keyword private] [property _foo]: [variable-3 string];",
      "}")
 
+  TS("typescript_literal_types",
+     "[keyword import] [keyword *] [keyword as] [def Sequelize] [keyword from] [string 'sequelize'];",
+     "[keyword interface] [def MyAttributes] {",
+     "  [property truthy]: [string 'true'] [operator |] [number 1] [operator |] [atom true];",
+     "  [property falsy]: [string 'false'] [operator |] [number 0] [operator |] [atom false];",
+     "}",
+     "[keyword interface] [def MyInstance] [keyword extends] [variable-3 Sequelize].[variable-3 Instance] [operator <] [variable-3 MyAttributes] [operator >] {",
+     "  [property rawAttributes]: [variable-3 MyAttributes];",
+     "  [property truthy]: [string 'true'] [operator |] [number 1] [operator |] [atom true];",
+     "  [property falsy]: [string 'false'] [operator |] [number 0] [operator |] [atom false];",
+     "}")
+
   var jsonld_mode = CodeMirror.getMode(
     {indentUnit: 2},
     {name: "javascript", jsonld: true}
