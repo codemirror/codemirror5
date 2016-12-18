@@ -219,6 +219,18 @@
      "  [property falsy]: [string 'false'] [operator |] [number 0] [operator |] [atom false];",
      "}")
 
+  TS("typescript_extend_operators",
+     "[keyword export] [keyword interface] [def UserModel] [keyword extends]",
+     "  [variable-3 Sequelize].[variable-3 Model] [operator <] [variable-3 UserInstance], [variable-3 UserAttributes] [operator >] {",
+     "    [property findById]: (",
+     "    [variable userId]: [variable-3 number]",
+     "    ) [operator =>] [variable-3 Promise] [operator <] [variable-3 Array] [operator <] { [property id], [property name] } [operator >][operator >];",
+     "    [property updateById]: (",
+     "    [variable userId]: [variable-3 number],",
+     "    [variable isActive]: [variable-3 boolean]",
+     "    ) [operator =>] [variable-3 Promise] [operator <] [variable-3 AccountHolderNotificationPreferenceInstance] [operator >];",
+     "  }")
+
   var jsonld_mode = CodeMirror.getMode(
     {indentUnit: 2},
     {name: "javascript", jsonld: true}
