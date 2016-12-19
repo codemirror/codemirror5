@@ -40,15 +40,15 @@ export default class ContentEditableInput {
     })
 
     on(div, "compositionstart", e => {
-      this.composing = {data: e.data}
+      this.composing = {data: e.data, done: false}
     })
     on(div, "compositionupdate", e => {
-      if (!this.composing) this.composing = {data: e.data}
+      if (!this.composing) this.composing = {data: e.data, done: false}
     })
     on(div, "compositionend", e => {
       if (this.composing) {
         if (e.data != this.composing.data) this.readFromDOMSoon()
-        this.composing = null
+        this.composing.done = true
       }
     })
 
@@ -301,6 +301,7 @@ export default class ContentEditableInput {
   }
   forceCompositionEnd() {
     if (!this.composing) return
+    clearTimeout(this.readDOMTimeout)
     this.composing = null
     if (!this.pollContent()) regChange(this.cm)
     this.div.blur()
@@ -310,7 +311,10 @@ export default class ContentEditableInput {
     if (this.readDOMTimeout != null) return
     this.readDOMTimeout = setTimeout(() => {
       this.readDOMTimeout = null
-      if (this.composing) return
+      if (this.composing) {
+        if (this.composing.done) this.composing = null
+        else return
+      }
       if (this.cm.isReadOnly() || !this.pollContent())
         runInOp(this.cm, () => regChange(this.cm))
     }, 80)
