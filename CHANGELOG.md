@@ -1,3 +1,21 @@
+## 5.22.0 (2016-12-20)
+
+### Bug fixes
+
+[sublime bindings](http://codemirror.net/demo/sublime.html): Make `selectBetweenBrackets` work with multiple cursors.
+
+[javascript mode](http://codemirror.net/mode/javascript/): Fix issues with parsing complex TypeScript types, imports, and exports.
+
+A contentEditable editor instance with autofocus enabled no longer crashes during initializing.
+
+### New features
+
+[emacs bindings](http://codemirror.net/demo/emacs.html): Export `CodeMirror.emacs` to allow other addons to hook into Emacs-style functionality.
+
+[active-line addon](http://codemirror.net/doc/manual.html#addon_active-line): Add `nonEmpty` option.
+
+New event: [`optionChange`](http://codemirror.net/doc/manual.html#event_optionChange).
+
 ## 5.21.0 (2016-11-21)
 
 ### Bug fixes
