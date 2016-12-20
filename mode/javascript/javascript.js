@@ -658,20 +658,28 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == ":") return cont(typeexpr, maybeAssign)
     return pass(functiondef)
   }
-  function afterExport(_type, value) {
+  function afterExport(type, value) {
     if (value == "*") { cx.marked = "keyword"; return cont(maybeFrom, expect(";")); }
     if (value == "default") { cx.marked = "keyword"; return cont(expression, expect(";")); }
+    if (type == "{") return cont(commasep(exportField, "}"), maybeFrom, expect(";"));
     return pass(statement);
+  }
+  function exportField(type, value) {
+    if (value == "as") { cx.marked = "keyword"; return cont(expect("variable")); }
+    if (type == "variable") return pass(expressionNoComma, exportField);
   }
   function afterImport(type) {
     if (type == "string") return cont();
-    return pass(importSpec, maybeFrom);
+    return pass(importSpec, maybeMoreImports, maybeFrom);
   }
   function importSpec(type, value) {
     if (type == "{") return contCommasep(importSpec, "}");
     if (type == "variable") register(value);
     if (value == "*") cx.marked = "keyword";
     return cont(maybeAs);
+  }
+  function maybeMoreImports(type) {
+    if (type == ",") return cont(importSpec, maybeMoreImports)
   }
   function maybeAs(_type, value) {
     if (value == "as") { cx.marked = "keyword"; return cont(importSpec); }
