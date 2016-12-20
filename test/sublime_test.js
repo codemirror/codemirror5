@@ -249,11 +249,11 @@
          "undo",
          setSel(0, 0, 2, 0,
                 3, 0, 5, 0),
-         "sortLines", val("a\nb\nc\nA\nB\nC"),
-         hasSel(0, 0, 2, 1,
-                3, 0, 5, 1),
+         "sortLines", val("b\nc\na\nB\nC\nA"),
+         hasSel(0, 0, 2, 0,
+                3, 0, 5, 0),
          "undo",
-         setSel(1, 0, 4, 0), "sortLinesInsensitive", val("c\na\nB\nb\nC\nA"));
+         setSel(1, 0, 5, 0), "sortLinesInsensitive", val("c\na\nB\nb\nC\nA"));
 
   stTest("bookmarks", "abc\ndef\nghi\njkl",
          Pos(0, 1), "toggleBookmark",
