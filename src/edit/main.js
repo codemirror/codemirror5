@@ -66,4 +66,4 @@ import { addLegacyProps } from "./legacy"
 
 addLegacyProps(CodeMirror)
 
-CodeMirror.version = "5.22.0"
+CodeMirror.version = "5.22.1"
