@@ -1234,11 +1234,11 @@ testCM("wordMovementCommands", function(cm) {
   cm.execCommand("goWordRight"); cm.execCommand("goWordRight");
   eqPos(cm.getCursor(), Pos(0, 7));
   cm.execCommand("goWordLeft");
-  eqPos(cm.getCursor(), Pos(0, 5));
+  eqCursorPos(cm.getCursor(), Pos(0, 5, "after"));
   cm.execCommand("goWordRight"); cm.execCommand("goWordRight");
   eqPos(cm.getCursor(), Pos(0, 12));
   cm.execCommand("goWordLeft");
-  eqPos(cm.getCursor(), Pos(0, 9));
+  eqCursorPos(cm.getCursor(), Pos(0, 9, "after"));
   cm.execCommand("goWordRight"); cm.execCommand("goWordRight"); cm.execCommand("goWordRight");
   eqPos(cm.getCursor(), Pos(0, 24));
   cm.execCommand("goWordRight"); cm.execCommand("goWordRight");
@@ -1259,14 +1259,14 @@ testCM("groupMovementCommands", function(cm) {
   cm.execCommand("goGroupRight");
   eqPos(cm.getCursor(), Pos(0, 10));
   cm.execCommand("goGroupLeft");
-  eqPos(cm.getCursor(), Pos(0, 7));
+  eqCursorPos(cm.getCursor(), Pos(0, 7, "after"));
   cm.execCommand("goGroupRight"); cm.execCommand("goGroupRight"); cm.execCommand("goGroupRight");
   eqPos(cm.getCursor(), Pos(0, 15));
   cm.setCursor(Pos(0, 17));
   cm.execCommand("goGroupLeft");
-  eqPos(cm.getCursor(), Pos(0, 16));
+  eqCursorPos(cm.getCursor(), Pos(0, 16, "after"));
   cm.execCommand("goGroupLeft");
-  eqPos(cm.getCursor(), Pos(0, 14));
+  eqCursorPos(cm.getCursor(), Pos(0, 14, "after"));
   cm.execCommand("goGroupRight"); cm.execCommand("goGroupRight");
   eqPos(cm.getCursor(), Pos(0, 20));
   cm.execCommand("goGroupRight");
@@ -1278,9 +1278,9 @@ testCM("groupMovementCommands", function(cm) {
   cm.execCommand("goGroupLeft"); cm.execCommand("goGroupLeft");
   eqPos(cm.getCursor(), Pos(1, 0));
   cm.execCommand("goGroupLeft");
-  eqPos(cm.getCursor(), Pos(0, 20));
+  eqCursorPos(cm.getCursor(), Pos(0, 20, "after"));
   cm.execCommand("goGroupLeft");
-  eqPos(cm.getCursor(), Pos(0, 16));
+  eqCursorPos(cm.getCursor(), Pos(0, 16, "after"));
 }, {value: "booo ba---quux. ffff\n  abc d"});
 
 testCM("groupsAndWhitespace", function(cm) {
@@ -1843,20 +1843,20 @@ testCM("addKeyMap", function(cm) {
 }, {value: "abc"});
 
 testCM("findPosH", function(cm) {
-  forEach([{from: Pos(0, 0), to: Pos(0, 1), by: 1},
+  forEach([{from: Pos(0, 0), to: Pos(0, 1, "before"), by: 1},
            {from: Pos(0, 0), to: Pos(0, 0), by: -1, hitSide: true},
-           {from: Pos(0, 0), to: Pos(0, 4), by: 1, unit: "word"},
-           {from: Pos(0, 0), to: Pos(0, 8), by: 2, unit: "word"},
-           {from: Pos(0, 0), to: Pos(2, 0), by: 20, unit: "word", hitSide: true},
-           {from: Pos(0, 7), to: Pos(0, 5), by: -1, unit: "word"},
-           {from: Pos(0, 4), to: Pos(0, 8), by: 1, unit: "word"},
-           {from: Pos(1, 0), to: Pos(1, 18), by: 3, unit: "word"},
-           {from: Pos(1, 22), to: Pos(1, 5), by: -3, unit: "word"},
-           {from: Pos(1, 15), to: Pos(1, 10), by: -5},
-           {from: Pos(1, 15), to: Pos(1, 10), by: -5, unit: "column"},
-           {from: Pos(1, 15), to: Pos(1, 0), by: -50, unit: "column", hitSide: true},
-           {from: Pos(1, 15), to: Pos(1, 24), by: 50, unit: "column", hitSide: true},
-           {from: Pos(1, 15), to: Pos(2, 0), by: 50, hitSide: true}], function(t) {
+           {from: Pos(0, 0), to: Pos(0, 4, "before"), by: 1, unit: "word"},
+           {from: Pos(0, 0), to: Pos(0, 8, "before"), by: 2, unit: "word"},
+           {from: Pos(0, 0), to: Pos(2, 0, "before"), by: 20, unit: "word", hitSide: true},
+           {from: Pos(0, 7), to: Pos(0, 5, "after"), by: -1, unit: "word"},
+           {from: Pos(0, 4), to: Pos(0, 8, "before"), by: 1, unit: "word"},
+           {from: Pos(1, 0), to: Pos(1, 18, "before"), by: 3, unit: "word"},
+           {from: Pos(1, 22), to: Pos(1, 5, "after"), by: -3, unit: "word"},
+           {from: Pos(1, 15), to: Pos(1, 10, "after"), by: -5},
+           {from: Pos(1, 15), to: Pos(1, 10, "after"), by: -5, unit: "column"},
+           {from: Pos(1, 15), to: Pos(1, 0, "after"), by: -50, unit: "column", hitSide: true},
+           {from: Pos(1, 15), to: Pos(1, 24, "before"), by: 50, unit: "column", hitSide: true},
+           {from: Pos(1, 15), to: Pos(2, 0, "before"), by: 50, hitSide: true}], function(t) {
     var r = cm.findPosH(t.from, t.by, t.unit || "char");
     eqPos(r, t.to);
     eq(!!r.hitSide, !!t.hitSide);
