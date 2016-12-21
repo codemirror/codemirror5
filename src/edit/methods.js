@@ -465,26 +465,27 @@ export default function(CodeMirror) {
 // position. The resulting position will have a hitSide=true
 // property if it reached the end of the document.
 function findPosH(doc, pos, dir, unit, visually) {
-  let {line, ch, sticky} = pos, origDir = dir
-  let lineObj = getLine(doc, line)
+  let oldPos = pos
+  let origDir = dir
+  let lineObj = getLine(doc, pos.line)
   function findNextLine() {
-    let l = line + dir
+    let l = pos.line + dir
     if (l < doc.first || l >= doc.first + doc.size) return false
-    line = l
+    pos = new Pos(l, pos.ch, pos.sticky)
     return lineObj = getLine(doc, l)
   }
   function moveOnce(boundToLine) {
-    let myMoveVisually = (line, start, dir, byUnit) => {
-      let res = moveVisually(doc.cm, line, start, dir, byUnit, sticky)
-      if (res.ch) sticky = res.sticky
-      return res.ch
+    let myMoveVisually = (line, start, dir) => moveVisually(doc.cm, line, start, dir)
+    let myMoveLogically = (line, start, dir) => {
+      let ch = moveLogically(line, start, dir)
+      return ch == null ?  null : new Pos(pos.line, ch, dir < 0 ? "after" : "before")
     }
-    let next = (visually ? myMoveVisually : moveLogically)(lineObj, ch, dir, true)
+    let next = (visually ? myMoveVisually : myMoveLogically)(lineObj, pos, dir)
     if (next == null) {
       if (!boundToLine && findNextLine()) {
-        ;({ch, sticky} = endOfLine(visually, doc.cm, lineObj, dir))
+        pos = endOfLine(visually, doc.cm, lineObj, pos.line, dir)
       } else return false
-    } else ch = next
+    } else pos = next
     return true
   }
 
@@ -497,14 +498,14 @@ function findPosH(doc, pos, dir, unit, visually) {
     let helper = doc.cm && doc.cm.getHelper(pos, "wordChars")
     for (let first = true;; first = false) {
       if (dir < 0 && !moveOnce(!first)) break
-      let cur = lineObj.text.charAt(ch) || "\n"
+      let cur = lineObj.text.charAt(pos.ch) || "\n"
       let type = isWordChar(cur, helper) ? "w"
         : group && cur == "\n" ? "n"
         : !group || /\s/.test(cur) ? null
         : "p"
       if (group && !first && !type) type = "s"
       if (sawType && sawType != type) {
-        if (dir < 0) {dir = 1; moveOnce()}
+        if (dir < 0) {dir = 1; moveOnce(); pos.sticky = "after"}
         break
       }
 
@@ -512,8 +513,8 @@ function findPosH(doc, pos, dir, unit, visually) {
       if (dir > 0 && !moveOnce(!first)) break
     }
   }
-  let result = skipAtomic(doc, Pos(line, ch, sticky), pos, origDir, true)
-  if (equalCursorPos(pos, result)) result.hitSide = true
+  let result = skipAtomic(doc, pos, oldPos, origDir, true)
+  if (equalCursorPos(oldPos, result)) result.hitSide = true
   return result
 }
 

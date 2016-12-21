@@ -1,14 +1,16 @@
+import { Pos } from "../line/pos"
 import { prepareMeasureCharTop } from "../measurement/position_measurement"
 import { bidiLeft, bidiRight, getBidiPartAt, getOrder, lineLeft, lineRight, moveLogically } from "../util/bidi"
 import { findFirst } from "../util/misc"
 
-export function endOfLine(visually, cm, lineObj, dir) {
-  let ch, sticky = "before"
+export function endOfLine(visually, cm, lineObj, lineNo, dir) {
+  let ch
   if (visually) {
     let order = getOrder(lineObj)
     if (order) {
       let i = dir < 0 ? order.length - 1 : 0
       let part = order[i]
+      let sticky = (dir < 0) != (part.level == 1) ? "before" : "after"
       // With a wrapped rtl chunk (possibly spanning multiple bidi parts),
       // it could be that the last bidi part is not on the last visual line,
       // since visual lines contain content order-consecutive chunks.
@@ -20,17 +22,17 @@ export function endOfLine(visually, cm, lineObj, dir) {
         ch = lineObj.text.length - 1
         let targetTop = getTop(ch)
         ch = findFirst(ch => getTop(ch) == targetTop, part.from, ch)
-        if (part.level == 1) sticky = "after"
-        else ch = moveLogically(lineObj, ch, 1, true)
-        return {ch, sticky}
+        if (part.level != 1) ch = moveLogically(lineObj, new Pos(lineNo, ch, sticky), 1, true)
+        return new Pos(lineNo, ch, sticky)
       }
       ch = (dir < 0 ? bidiRight : bidiLeft)(part)
-      return {ch, sticky}
+      return new Pos(lineNo, ch, sticky)
     }
   }
+  let sticky = dir < 0 ? "before" : "after"
   if (visually) ch = (dir < 0 ? lineRight : lineLeft)(lineObj)
   else ch = dir < 0 ? lineObj.text.length : 0
-  return {ch, sticky}
+  return new Pos(lineNo, ch, sticky)
 }
 
 function getVisualLineAround(cm, line, target) {
@@ -43,33 +45,34 @@ function getVisualLineAround(cm, line, target) {
   ]
 }
 
-export function moveVisually(cm, line, start, dir, byUnit, startSticky) {
-  let mv = (ch, dir) => moveLogically(line, ch, dir, byUnit)
+export function moveVisually(cm, line, start, dir) {
+  let mkPos = (ch, sticky) => ch == null ? null : new Pos(start.line, ch, sticky)
+  let mv = (pos, dir) => moveLogically(line, pos instanceof Pos ? pos : new Pos(start.line, pos), dir)
   let bidi = getOrder(line)
-  if (!bidi) return {ch: mv(start, dir), sticky: dir < 0 ? "after" : "before"}
-  if (start >= line.text.length) {
-    start = line.text.length
-    startSticky = "before"
-  } else if (start <= 0) {
-    start = 0
-    startSticky = "after"
+  if (!bidi) return mkPos(mv(start, dir), dir < 0 ? "after" : "before")
+  if (start.ch >= line.text.length) {
+    start.ch = line.text.length
+    start.sticky = "before"
+  } else if (start.ch <= 0) {
+    start.ch = 0
+    start.sticky = "after"
   }
-  let partPos = getBidiPartAt(bidi, start, startSticky), part = bidi[partPos]
-  if (part.level % 2 == 0 && (dir > 0 ? part.to > start : part.from < start)) {
+  let partPos = getBidiPartAt(bidi, start.ch, start.sticky), part = bidi[partPos]
+  if (part.level % 2 == 0 && (dir > 0 ? part.to > start.ch : part.from < start.ch)) {
     // Case 1: We move within an ltr part. Even with wrapped lines,
     // nothing interesting happens.
-    return {ch: mv(start, dir), sticky: dir < 0 ? "after" : "before"}
+    return mkPos(mv(start, dir), dir < 0 ? "after" : "before")
   }
 
   let getVisualLine = ch => getVisualLineAround(cm, line, ch)
-  let visualLine = getVisualLine(startSticky == "before" ? mv(start, -1) : start)
+  let visualLine = getVisualLine(start.sticky == "before" ? mv(start, -1) : start.ch)
 
   if (part.level % 2 == 1) {
     let ch = mv(start, -dir)
     if (ch != null && (dir > 0 ? ch >= part.from && ch >= visualLine[0] : ch <= part.to && ch <= mv(visualLine[1], 1))) {
       // Case 2: We move within an rtl part on the same visual line
       let sticky = dir < 0 ? "before" : "after"
-      return {ch, sticky}
+      return new Pos(start.line, ch, sticky)
     }
   }
 
@@ -78,8 +81,8 @@ export function moveVisually(cm, line, start, dir, byUnit, startSticky) {
 
   let searchInVisualLine = (partPos, dir, visualLine) => {
     let getRes = (ch, moveInStorageOrder) => moveInStorageOrder
-      ? {ch: mv(ch, 1), sticky: "before"}
-      : {ch, sticky: "after"}
+      ? new Pos(start.line, mv(ch, 1), "before")
+      : new Pos(start.line, ch, "after")
 
     for (partPos += dir; partPos >= 0 && partPos < bidi.length; partPos += dir) {
       let part = bidi[partPos]
@@ -103,5 +106,5 @@ export function moveVisually(cm, line, start, dir, byUnit, startSticky) {
   }
 
   // Case 4: Nowhere to move
-  return {ch: null, sticky: null}
+  return null
 }

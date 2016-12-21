@@ -48,13 +48,13 @@
       "Ctrl-5", "Ctrl-B", at(0, 0));
 
   sim("motionHWord", "abc. def ghi",
-      "Alt-F", at(0, 3), "Alt-F", at(0, 8),
-      "Ctrl-B", "Alt-B", at(0, 5), "Alt-B", at(0, 0));
+      "Alt-F", at(0, 3, "before"), "Alt-F", at(0, 8, "before"),
+      "Ctrl-B", "Alt-B", at(0, 5, "after"), "Alt-B", at(0, 0, "after"));
   sim("motionHWordMulti", "abc. def ghi ",
-      "Ctrl-3", "Alt-F", at(0, 12), "Ctrl-2", "Alt-B", at(0, 5),
-      "Ctrl--", "Alt-B", at(0, 8));
+      "Ctrl-3", "Alt-F", at(0, 12, "before"), "Ctrl-2", "Alt-B", at(0, 5, "after"),
+      "Ctrl--", "Alt-B", at(0, 8, "before"));
 
-  sim("motionVSimple", "a\nb\nc\n", "Ctrl-N", "Ctrl-N", "Ctrl-P", at(1, 0));
+  sim("motionVSimple", "a\nb\nc\n", "Ctrl-N", "Ctrl-N", "Ctrl-P", at(1, 0, "after"));
   sim("motionVMulti", "a\nb\nc\nd\ne\n",
       "Ctrl-2", "Ctrl-N", at(2, 0), "Ctrl-F", "Ctrl--", "Ctrl-N", at(1, 1),
       "Ctrl--", "Ctrl-3", "Ctrl-P", at(4, 1));

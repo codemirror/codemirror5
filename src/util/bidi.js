@@ -47,8 +47,7 @@ export function getBidiPartAt(order, ch, sticky) {
   return found != null ? found : bidiOther
 }
 
-function moveInLine(line, pos, dir, byUnit) {
-  if (!byUnit) return pos + dir
+function moveInLine(line, pos, dir) {
   do pos += dir
   while (pos > 0 && isExtendingChar(line.text.charAt(pos)))
   return pos
@@ -82,8 +81,8 @@ export function moveVisually(line, start, dir, byUnit) {
   }
 }
 
-export function moveLogically(line, start, dir, byUnit) {
-  let target = moveInLine(line, start, dir, byUnit)
+export function moveLogically(line, start, dir) {
+  let target = moveInLine(line, start.ch, dir)
   return target < 0 || target > line.text.length ? null : target
 }
 
