@@ -3,17 +3,31 @@
 
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
-    mod(require("../../lib/codemirror"));
+    mod(require("../../lib/codemirror"), require("../css/css"));
   else if (typeof define == "function" && define.amd) // AMD
-    define(["../../lib/codemirror"], mod);
+    define(["../../lib/codemirror", "../css/css"], mod);
   else // Plain browser env
     mod(CodeMirror);
 })(function(CodeMirror) {
 "use strict";
 
 CodeMirror.defineMode("sass", function(config) {
+  var cssMode = CodeMirror.mimeModes["text/css"];
+  var propertyKeywords = cssMode.propertyKeywords || {},
+      colorKeywords = cssMode.colorKeywords || {},
+      valueKeywords = cssMode.valueKeywords || {};
+
   function tokenRegexp(words) {
     return new RegExp("^" + words.join("|"));
+  }
+
+  function propWithVendorPrefix(keyset, string) {
+    if (string.indexOf('-') !== 0) {
+      return false;
+    }
+
+    var unvendored = string.substring(string.indexOf("-", 1) + 1);
+    return keyset.hasOwnProperty(unvendored);
   }
 
   var keywords = ["true", "false", "null", "auto"];
@@ -24,6 +38,8 @@ CodeMirror.defineMode("sass", function(config) {
   var opRegexp = tokenRegexp(operators);
 
   var pseudoElementsRegexp = /^::?[a-zA-Z_][\w\-]*/;
+
+  var word;
 
   function urlTokens(stream, state) {
     var ch = stream.peek();
@@ -151,10 +167,10 @@ CodeMirror.defineMode("sass", function(config) {
         stream.next();
         if (stream.match(/^[\w-]+/)) {
           indent(state);
-          return "atom";
+          return "qualifier";
         } else if (stream.peek() === "#") {
           indent(state);
-          return "atom";
+          return "tag";
         }
       }
 
@@ -163,11 +179,11 @@ CodeMirror.defineMode("sass", function(config) {
         // ID selectors
         if (stream.match(/^[\w-]+/)) {
           indent(state);
-          return "atom";
+          return "builtin";
         }
         if (stream.peek() === "#") {
           indent(state);
-          return "atom";
+          return "tag";
         }
       }
 
@@ -220,31 +236,42 @@ CodeMirror.defineMode("sass", function(config) {
       // Indent Directives
       if (stream.match(/^@(else if|if|media|else|for|each|while|mixin|function)/)) {
         indent(state);
-        return "meta";
+        return "def";
       }
 
       // Other Directives
       if (ch === "@") {
         stream.next();
         stream.eatWhile(/[\w-]/);
-        return "meta";
+        return "def";
       }
 
       if (stream.eatWhile(/[\w-]/)){
         if(stream.match(/ *: *[\w-\+\$#!\("']/,false)){
-          return "property";
+          word = stream.current().toLowerCase();
+          var prop = state.prevProp + "-" + word;
+          if (propertyKeywords.hasOwnProperty(prop)) {
+            return "property";
+          } else if (propertyKeywords.hasOwnProperty(word)) {
+            state.prevProp = word;
+            return "property";
+          } else if (propWithVendorPrefix(propertyKeywords, word)) {
+            return "property";
+          }
+          return "tag";
         }
         else if(stream.match(/ *:/,false)){
           indent(state);
           state.cursorHalf = 1;
-          return "atom";
+          state.prevProp = stream.current().toLowerCase();
+          return "property";
         }
         else if(stream.match(/ *,/,false)){
-          return "atom";
+          return "tag";
         }
         else{
           indent(state);
-          return "atom";
+          return "tag";
         }
       }
 
@@ -309,20 +336,18 @@ CodeMirror.defineMode("sass", function(config) {
         if(!stream.peek()){
           state.cursorHalf = 0;
         }
-        return "variable-3";
+        return "variable-2";
       }
 
       // bang character for !important, !default, etc.
       if (ch === "!") {
         stream.next();
-        if(!stream.peek()){
-          state.cursorHalf = 0;
-        }
+        state.cursorHalf = 0;
         return stream.match(/^[\w]+/) ? "keyword": "operator";
       }
 
       if (stream.match(opRegexp)){
-        if(!stream.peek()){
+        if(!stream.peek() || stream.match(/\s+$/, false)){
           state.cursorHalf = 0;
         }
         return "operator";
@@ -333,7 +358,17 @@ CodeMirror.defineMode("sass", function(config) {
         if(!stream.peek()){
           state.cursorHalf = 0;
         }
-        return "attribute";
+        word = stream.current().toLowerCase();
+        if (valueKeywords.hasOwnProperty(word)) {
+          return "atom";
+        } else if (colorKeywords.hasOwnProperty(word)) {
+          return "keyword";
+        } else if (propertyKeywords.hasOwnProperty(word)) {
+          state.prevProp = stream.current().toLowerCase();
+          return "property";
+        } else {
+          return "tag";
+        }
       }
 
       //stream.eatSpace();
