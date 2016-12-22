@@ -163,6 +163,7 @@ export function markText(doc, from, to, options, type) {
     // Showing up as a widget implies collapsed (widget replaces text)
     marker.collapsed = true
     marker.widgetNode = elt("span", [marker.replacedWith], "CodeMirror-widget")
+    marker.widgetNode.setAttribute("role", "presentation") // hide from accessibility tree
     if (!options.handleMouseEvents) marker.widgetNode.setAttribute("cm-ignore-events", "true")
     if (options.insertLeft) marker.widgetNode.insertLeft = true
   }
