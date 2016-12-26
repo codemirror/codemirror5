@@ -229,7 +229,6 @@ Doc.prototype = createObj(BranchChunk.prototype, {
   }),
 
   clearGutter: docMethodOp(function(gutterID) {
-    let i = this.first
     this.iter(line => {
       if (line.gutterMarkers && line.gutterMarkers[gutterID]) {
         changeLine(this, line, "gutter", () => {
@@ -238,7 +237,6 @@ Doc.prototype = createObj(BranchChunk.prototype, {
           return true
         })
       }
-      ++i
     })
   }),
 
