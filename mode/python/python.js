@@ -70,7 +70,7 @@
       myBuiltins = myBuiltins.concat(["apply", "basestring", "buffer", "cmp", "coerce", "execfile",
                                       "file", "intern", "long", "raw_input", "reduce", "reload",
                                       "unichr", "unicode", "xrange", "False", "True", "None"]);
-      var stringPrefixes = new RegExp("^(([rub]|(ur)|(br))?('{3}|\"{3}|['\"]))", "i");
+      var stringPrefixes = new RegExp("^(([rubf]|(ur)|(br))?('{3}|\"{3}|['\"]))", "i");
     }
     var keywords = wordRegexp(myKeywords);
     var builtins = wordRegexp(myBuiltins);
