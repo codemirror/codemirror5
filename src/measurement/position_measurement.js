@@ -8,7 +8,7 @@ import { ie, ie_version } from "../util/browser"
 import { elt, removeChildren, range, removeChildrenAndAdd } from "../util/dom"
 import { e_target } from "../util/event"
 import { hasBadZoomedRects } from "../util/feature_detection"
-import { countColumn, findFirst, isExtendingChar, scrollerGap } from "../util/misc"
+import { countColumn, findFirst, isExtendingChar, scrollerGap, skipExtendingChars } from "../util/misc"
 import { updateLineForChanges } from "../display/update_line"
 
 import { widgetHeight } from "./widgets"
@@ -471,7 +471,7 @@ function coordsCharInner(cm, lineObj, lineNo, x, y) {
       else if (box.right < x) return false
       else return (x - box.left < box.right - x)
     }, begin, end)
-    while (isExtendingChar(lineObj.text.charAt(ch))) ++ch
+    ch = skipExtendingChars(lineObj.text, ch, 1)
     pos = new Pos(lineNo, ch, ch == end ? "before" : "after")
   }
   let coords = cursorCoords(cm, pos, "line", lineObj, preparedMeasure)

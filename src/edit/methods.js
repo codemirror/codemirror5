@@ -8,7 +8,7 @@ import { indentLine } from "../input/indent"
 import { triggerElectric } from "../input/input"
 import { onKeyDown, onKeyPress, onKeyUp } from "./key_events"
 import { getKeyMap } from "../input/keymap"
-import { endOfLine, moveVisually } from "../input/movement"
+import { endOfLine, moveLogically, moveVisually } from "../input/movement"
 import { methodOp, operation, runInOp } from "../display/operations"
 import { clipLine, clipPos, equalCursorPos, Pos } from "../line/pos"
 import { charCoords, charWidth, clearCaches, clearLineMeasurementCache, coordsChar, cursorCoords, displayHeight, displayWidth, estimateLineHeights, fromCoordSystem, intoCoordSystem, scrollGap, textHeight } from "../measurement/position_measurement"
@@ -17,7 +17,6 @@ import { replaceOneSelection, skipAtomic } from "../model/selection_updates"
 import { addToScrollPos, calculateScrollPos, ensureCursorVisible, resolveScrollToPos, scrollIntoView } from "../display/scrolling"
 import { heightAtLine } from "../line/spans"
 import { updateGutterSpace } from "../display/update_display"
-import { moveLogically } from "../util/bidi"
 import { indexOf, insertSorted, isWordChar, sel_dontScroll, sel_move } from "../util/misc"
 import { signalLater } from "../util/operation_group"
 import { getLine, isLine, lineAtHeight } from "../line/utils_line"
@@ -479,8 +478,7 @@ function findPosH(doc, pos, dir, unit, visually) {
     if (visually) {
       next = moveVisually(doc.cm, lineObj, pos, dir)
     } else {
-      let ch = moveLogically(lineObj, pos, dir)
-      next = ch == null ? null : new Pos(pos.line, ch, dir < 0 ? "after" : "before")
+      next = moveLogically(lineObj, pos, dir)
     }
     if (next == null) {
       if (!boundToLine && findNextLine())

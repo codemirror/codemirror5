@@ -1,4 +1,4 @@
-import { isExtendingChar, lst } from "./misc"
+import { lst } from "./misc"
 
 // BIDI HELPERS
 
@@ -14,19 +14,6 @@ export function iterateBidiSections(order, from, to, f) {
   }
   if (!found) f(from, to, "ltr")
 }
-
-export function bidiLeft(part) { return part.level % 2 ? part.to : part.from }
-export function bidiRight(part) { return part.level % 2 ? part.from : part.to }
-
-function lineAt(line, dir) {
-  let order = getOrder(line)
-  if (!order) return dir == -1 ? line.text.length : 0
-  let pos = dir == -1 ? order.length - 1 : 0
-  return (dir == -1 ? bidiRight : bidiLeft)(order[pos])
-}
-
-export function lineLeft(line) { return lineAt(line, 1) }
-export function lineRight(line) { return lineAt(line, -1) }
 
 export let bidiOther = null
 export function getBidiPartAt(order, ch, sticky) {
@@ -45,17 +32,6 @@ export function getBidiPartAt(order, ch, sticky) {
     }
   }
   return found != null ? found : bidiOther
-}
-
-function moveInLine(line, pos, dir) {
-  do pos += dir
-  while (pos > 0 && isExtendingChar(line.text.charAt(pos)))
-  return pos
-}
-
-export function moveLogically(line, start, dir) {
-  let target = moveInLine(line, start.ch, dir)
-  return target < 0 || target > line.text.length ? null : target
 }
 
 // Bidirectional ordering algorithm
@@ -81,7 +57,7 @@ export function moveLogically(line, start, dir) {
 // Returns null if characters are ordered as they appear
 // (left-to-right), or an array of sections ({from, to, level}
 // objects) in the order in which they occur visually.
-export let bidiOrdering = (function() {
+let bidiOrdering = (function() {
   // Character types for codepoints 0 to 0xff
   let lowTypes = "bbbbbbbbbtstwsbbbbbbbbbbbbbbssstwNN%%%NNNNNN,N,N1111111111NNNNNNNLLLLLLLLLLLLLLLLLLLLLLLLLLNNNNNNLLLLLLLLLLLLLLLLLLLLLLLLLLNNNNbbbbbbsbbbbbbbbbbbbbbbbbbbbbbbbbb,N%%%%NNNNLNNNNN%%11NLNNN1LNNNNNLLLLLLLLLLLLLLLLLLLLLLLNLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLN"
   // Character types for codepoints 0x600 to 0x6f9
