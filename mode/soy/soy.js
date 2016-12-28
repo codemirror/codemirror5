@@ -60,14 +60,17 @@
       };
     }
 
-    function pop(list) {
-      return list && list.next;
-    }
-
     // Reference a variable `name` in `list`.
     // Let `loose` be truthy to ignore missing identifiers.
     function ref(list, name, loose) {
       return contains(list, name) ? "variable-2" : (loose ? "variable" : "variable-2 error");
+    }
+
+    function popscope(state) {
+      if (state.scopes) {
+        state.variables = state.scopes.element;
+        state.scopes = state.scopes.next;
+      }
     }
 
     return {
@@ -168,11 +171,11 @@
           case "tag":
             if (stream.match(/^\/?}/)) {
               if (state.tag == "/template" || state.tag == "/deltemplate") {
-                state.variables = state.scopes = pop(state.scopes);
+                popscope(state);
                 state.indent = 0;
               } else {
                 if (state.tag == "/for" || state.tag == "/foreach") {
-                  state.variables = state.scopes = pop(state.scopes);
+                  popscope(state);
                 }
                 state.indent -= config.indentUnit *
                     (stream.current() == "/}" || indentingTags.indexOf(state.tag) == -1 ? 2 : 1);
