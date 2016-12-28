@@ -210,7 +210,7 @@ CodeMirror.defineMode("groovy", function(config) {
     },
 
     indent: function(state, textAfter) {
-      if (!state.tokenize[state.tokenize.length-1].isBase) return 0;
+      if (!state.tokenize[state.tokenize.length-1].isBase) return CodeMirror.Pass;
       var firstChar = textAfter && textAfter.charAt(0), ctx = state.context;
       if (ctx.type == "statement" && !expectExpression(state.lastToken, true)) ctx = ctx.prev;
       var closing = firstChar == ctx.type;
