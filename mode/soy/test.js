@@ -60,10 +60,12 @@
      '');
 
   MT('foreach-scope-test',
+     '[keyword {@param] [def bar]: [variable-3 string][keyword }]',
      '[keyword {foreach] [def $foo] [keyword in] [variable-2&error $foos][keyword }]',
      '  [keyword {][variable-2 $foo][keyword }]',
      '[keyword {/foreach}]',
-     '[keyword {][variable-2&error $foo][keyword }]');
+     '[keyword {][variable-2&error $foo][keyword }]',
+     '[keyword {][variable-2 $bar][keyword }]');
 
   MT('foreach-ifempty-indent-test',
      '[keyword {foreach] [def $foo] [keyword in] [variable-2&error $foos][keyword }]',
