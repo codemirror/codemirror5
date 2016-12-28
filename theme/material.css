@@ -7,7 +7,7 @@
 
 */
 
-.cm-s-material {
+.cm-s-material.CodeMirror {
   background-color: #263238;
   color: rgba(233, 237, 237, 1);
 }
