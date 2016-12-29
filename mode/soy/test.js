@@ -5,6 +5,12 @@
   var mode = CodeMirror.getMode({indentUnit: 2}, "soy");
   function MT(name) {test.mode(name, mode, Array.prototype.slice.call(arguments, 1));}
 
+  // Test of small keywords and words containing them.
+  MT('keywords-test',
+     '[keyword {] [keyword as] worrying [keyword and] notorious [keyword as]',
+     '    the Fandor-alias assassin, [keyword or]',
+     '    Corcand cannot fit [keyword in] [keyword }]');
+
   MT('let-test',
      '[keyword {template] [def .name][keyword }]',
      '  [keyword {let] [def $name]: [string "world"][keyword /}]',

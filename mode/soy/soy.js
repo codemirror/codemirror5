@@ -198,8 +198,8 @@
             if (match = stream.match(/^\$([\w]+)/)) {
               return ref(state.variables, match[1]);
             }
-            if (stream.match(/\b(?:as|and|or|not|in)\b/)) {
-              return "keyword";
+            if (match = stream.match(/^\w+/)) {
+              return /^(?:as|and|or|not|in)$/.test(match[0]) ? "keyword" : null;
             }
             stream.next();
             return null;
