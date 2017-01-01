@@ -2314,7 +2314,13 @@ editor.setOption("extraKeys", {
       it. <code>explode</code> should be a similar string that gives
       the pairs of characters that, when enter is pressed between
       them, should have the second character also moved to its own
-      line. <a href="../demo/closebrackets.html">Demo here</a>.</dd>
+      line. By default, if the active mode has
+      a <code>closeBrackets</code> property, that overrides the
+      configuration given in the option. But you can add
+      an <code>override</code> property with a truthy value to
+      override mode-specific
+      configuration. <a href="../demo/closebrackets.html">Demo
+      here</a>.</dd>
 
       <dt id="addon_matchtags"><a href="../addon/edit/matchtags.js"><code>edit/matchtags.js</code></a></dt>
       <dd>Defines an option <code>matchTags</code> that, when enabled,

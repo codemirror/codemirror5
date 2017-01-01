@@ -45,7 +45,7 @@
 
   function getConfig(cm) {
     var deflt = cm.state.closeBrackets;
-    if (!deflt) return null;
+    if (!deflt || deflt.override) return deflt;
     var mode = cm.getModeAt(cm.getCursor());
     return mode.closeBrackets || deflt;
   }
