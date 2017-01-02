@@ -190,6 +190,36 @@
      "  }",
      "}");
 
+  MT("async",
+     "[keyword async] [keyword function] [def foo]([def args]) { [keyword return] [atom true]; }");
+
+  MT("async_assignment",
+     "[keyword const] [def foo] [operator =] [keyword async] [keyword function] ([def args]) { [keyword return] [atom true]; };");
+
+  MT("async_object",
+     "[keyword let] [def obj] [operator =] { [property async]: [atom false] };");
+
+  // async be highlighet as keyword and foo as def, but it requires potentially expensive look-ahead. See #4173
+  MT("async_object_function",
+     "[keyword let] [def obj] [operator =] { [property async] [property foo]([def args]) { [keyword return] [atom true]; } };");
+
+  MT("async_object_properties",
+     "[keyword let] [def obj] [operator =] {",
+     "  [property prop1]: [keyword async] [keyword function] ([def args]) { [keyword return] [atom true]; },",
+     "  [property prop2]: [keyword async] [keyword function] ([def args]) { [keyword return] [atom true]; },",
+     "  [property prop3]: [keyword async] [keyword function] [def prop3]([def args]) { [keyword return] [atom true]; },",
+     "};");
+
+  MT("async_arrow",
+     "[keyword const] [def foo] [operator =] [keyword async] ([def args]) [operator =>] { [keyword return] [atom true]; };");
+
+  MT("async_jquery",
+     "[variable $].[property ajax]({",
+     "  [property url]: [variable url],",
+     "  [property async]: [atom true],",
+     "  [property method]: [string 'GET']",
+     "});");
+
   var ts_mode = CodeMirror.getMode({indentUnit: 2}, "application/typescript")
   function TS(name) {
     test.mode(name, ts_mode, Array.prototype.slice.call(arguments, 1))
