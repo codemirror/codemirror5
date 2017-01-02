@@ -17,9 +17,13 @@ CodeMirror.defineMode("pascal", function() {
     for (var i = 0; i < words.length; ++i) obj[words[i]] = true;
     return obj;
   }
-  var keywords = words("and array begin case const div do downto else end file for forward integer " +
-                       "boolean char function goto if in label mod nil not of or packed procedure " +
-                       "program record repeat set string then to type until var while with");
+  var keywords = words("absolute and array asm begin boolean break case char const constructor " +
+                       "continue destructor div do downto else end file for forward integer " +
+                       "function goto if implementation in inherited inline interface label mod " +
+                       "nil not object of on operator or packed procedure program record " +
+                       "reintroduce repeat self set shl shr string then to type unit until uses " +
+                       "var while with xor");
+
   var atoms = {"null": true};
 
   var isOperatorChar = /[+\-*&%=<>!?|\/]/;
@@ -56,7 +60,7 @@ CodeMirror.defineMode("pascal", function() {
       return "operator";
     }
     stream.eatWhile(/[\w\$_]/);
-    var cur = stream.current();
+    var cur = stream.current().toLowerCase();
     if (keywords.propertyIsEnumerable(cur)) return "keyword";
     if (atoms.propertyIsEnumerable(cur)) return "atom";
     return "variable";
