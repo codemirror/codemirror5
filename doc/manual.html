@@ -2910,7 +2910,7 @@ editor.setOption("extraKeys", {
       changed.<br/>
       The method accepts the following options:
       <dl>
-        <dt><code><strong>position</strong> : string</code></dt>
+        <dt><code><strong>position</strong>: string</code></dt>
         <dd>Controls the position of the newly added panel. The
         following values are recognized:
           <dl>
@@ -2924,12 +2924,15 @@ editor.setOption("extraKeys", {
             <dd>Adds the panel at the top of the bottom panels.</dd>
           </dl>
         </dd>
-        <dt><code><strong>before</strong> : Panel</code></dt>
+        <dt><code><strong>before</strong>: Panel</code></dt>
         <dd>The new panel will be added before the given panel.</dd>
-        <dt><code><strong>after</strong> : Panel</code></dt>
+        <dt><code><strong>after</strong>: Panel</code></dt>
         <dd>The new panel will be added after the given panel.</dd>
-        <dt><code><strong>replace</strong> : Panel</code></dt>
+        <dt><code><strong>replace</strong>: Panel</code></dt>
         <dd>The new panel will replace the given panel.</dd>
+        <dt><code><strong>stable</strong>: bool</code></dt>
+        <dd>Whether to scroll the editor to keep the text's vertical
+        position stable, when adding a panel above it. Defaults to false.</dd>
       </dl>
       When using the <code>after</code>, <code>before</code> or <code>replace</code> options,
       if the panel doesn't exists or has been removed,
