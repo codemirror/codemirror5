@@ -1,3 +1,9 @@
+## 5.22.2 (2017-01-12)
+
+### Bug fixes
+
+Include rollup.config.js in NPM package, so that it can be used to build from source.
+
 ## 5.22.0 (2016-12-20)
 
 ### Bug fixes
