@@ -431,10 +431,10 @@
       var editOriginals = dv.mv.options.allowEditingOriginals;
       copy.title = editOriginals ? "Push to left" : "Revert chunk";
       copy.chunk = chunk;
-      copy.style.top = top + "px";
+      copy.style.top = (chunk.origTo < chunk.origFrom ? top : dv.edit.heightAtLine(chunk.editFrom, "local") - sTopEdit) + "px";
 
       if (editOriginals) {
-        var topReverse = dv.orig.heightAtLine(chunk.editFrom, "local") - sTopEdit;
+        var topReverse = dv.edit.heightAtLine(chunk.editFrom, "local") - sTopEdit;
         var copyReverse = dv.copyButtons.appendChild(elt("div", dv.type == "right" ? "\u21dd" : "\u21dc",
                                                          "CodeMirror-merge-copy-reverse"));
         copyReverse.title = "Push to right";
