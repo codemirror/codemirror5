@@ -431,7 +431,7 @@
       var editOriginals = dv.mv.options.allowEditingOriginals;
       copy.title = editOriginals ? "Push to left" : "Revert chunk";
       copy.chunk = chunk;
-      copy.style.top = (chunk.origTo < chunk.origFrom ? top : dv.edit.heightAtLine(chunk.editFrom, "local") - sTopEdit) + "px";
+      copy.style.top = (chunk.origTo > chunk.origFrom ? top : dv.edit.heightAtLine(chunk.editFrom, "local") - sTopEdit) + "px";
 
       if (editOriginals) {
         var topReverse = dv.edit.heightAtLine(chunk.editFrom, "local") - sTopEdit;
