@@ -261,6 +261,12 @@
      "    ) [operator =>] [variable-3 Promise] [operator <] [variable-3 AccountHolderNotificationPreferenceInstance] [operator >];",
      "  }")
 
+  TS("typescript_interface_with_const",
+     "[keyword const] [def hello]: {",
+     "  [property prop1][operator ?]: [variable-3 string];",
+     "  [property prop2][operator ?]: [variable-3 string];",
+     "} [operator =] {};")
+
   var jsonld_mode = CodeMirror.getMode(
     {indentUnit: 2},
     {name: "javascript", jsonld: true}
