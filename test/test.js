@@ -2216,13 +2216,11 @@ function makeItWrapAfter(cm, pos) {
     cm.setSize(w);
     posTop = cm.charCoords(pos).top;
   }
-  // Firefox > 50 compresses a space when two spaces from different bidi spans meet
-  cm.setSize(w + 10);
 }
 
 function testMoveBidi(str) {
   testCM("move_bidi_" + str, function(cm) {
-    if (cm.getOption("inputStyle") != "textarea" || webkit || !cm.getOption("rtlMoveVisually")) return;
+    if (cm.getOption("inputStyle") != "textarea" || !cm.getOption("rtlMoveVisually")) return;
     cm.getScrollerElement().style.fontFamily = "monospace";
     makeItWrapAfter(cm, Pos(0, 5));
 
@@ -2285,26 +2283,37 @@ function testMoveBidi(str) {
   }, {value: str, lineWrapping: true})
 };
 
+// We don't correctly implement L1 UBA
+// See https://bugzilla.mozilla.org/show_bug.cgi?id=1331501
+// and https://bugs.chromium.org/p/chromium/issues/detail?id=673405
+/*
 testMoveBidi("Say ا ب جabj\nS");
-testMoveBidi("Όȝǝڪȉۥ״ۺ׆ɀҩۏ\nҳ");
+testMoveBidi("Sayyy ا ا ب ج");
+*/
+
+if (!phantom) {
+  testMoveBidi("Όȝǝڪȉۥ״ۺ׆ɀҩۏ\nҳ");
+  testMoveBidi("ŌӰтقȤ؁ƥ؅٣ĎȺ١\nϚ");
+  testMoveBidi("ٻоҤѕѽΩ־؉ïίքǳ\nٵ");
+  testMoveBidi("؅؁ĆՕƿɁǞϮؠȩóć\nď");
+  testMoveBidi("RŨďңŪzϢŎƏԖڇڦ\nӈ");
+}
+
 testMoveBidi("ό׊۷٢ԜһОצЉيčǟ\nѩ");
 testMoveBidi("ۑÚҳҕڬġڹհяųKV\nr");
-testMoveBidi("ŌӰтقȤ؁ƥ؅٣ĎȺ١\nϚ");
-testMoveBidi("ٻоҤѕѽΩ־؉ïίքǳ\nٵ");
-//testMoveBidi("Count ١ ٢ ٣ ٤");
-testMoveBidi("Sayyy ا ا ب ج");
-testMoveBidi("؅؁ĆՕƿɁǞϮؠȩóć\nď");
 testMoveBidi("źڻғúہ4ם1Ƞc1a\nԁ");
 testMoveBidi("ҒȨҟփƞ٦ԓȦڰғâƥ\nڤ");
 testMoveBidi("քմѧǮßپüŢҍҞўڳ\nӧ");
-testMoveBidi("RŨďңŪzϢŎƏԖڇڦ\nӈ");
 testMoveBidi("ϖسՉȏŧΔԛǆĎӟیڡ\nέ");
 testMoveBidi("۹ؼL۵ĺȧКԙػא7״\nم");
+
+//testMoveBidi("Count ١ ٢ ٣ ٤");
 //testMoveBidi("ӣאƦϰ؊ȓېÛوը٬ز\nϪ");
 //testMoveBidi("ҾճٳџIՖӻ٥׭֐؜ڏ\nێ");
 //testMoveBidi("ҬÓФ؜ڂį٦Ͽɓڐͳٵ\nՈ");
 //testMoveBidi("aѴNĳȻهˇ҃ڱӧǻֵ\na");
 //testMoveBidi(" a٧ا٢ ب جa\nS");
+
 /*
 for (var i = 0; i < 5; ++i) {
   testMoveBidi(getString(12) + "\n" + getString(1));
