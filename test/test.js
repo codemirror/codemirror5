@@ -2216,6 +2216,8 @@ function makeItWrapAfter(cm, pos) {
     cm.setSize(w);
     posTop = cm.charCoords(pos).top;
   }
+  // Firefox > 50 compresses a space when two spaces from different bidi spans meet
+  cm.setSize(w + 10);
 }
 
 function testMoveBidi(str) {
