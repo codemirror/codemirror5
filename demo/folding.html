@@ -13,10 +13,12 @@
   <script src="../addon/fold/brace-fold.js"></script>
   <script src="../addon/fold/xml-fold.js"></script>
   <script src="../addon/fold/markdown-fold.js"></script>
+  <script src="../addon/fold/stex-fold.js"></script>
   <script src="../addon/fold/comment-fold.js"></script>
   <script src="../mode/javascript/javascript.js"></script>
   <script src="../mode/xml/xml.js"></script>
   <script src="../mode/markdown/markdown.js"></script>
+  <script src="../mode/stex/stex.js"></script>
   <style type="text/css">
     .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}
   </style>
@@ -43,8 +45,10 @@
     <textarea id="code" name="code"></textarea></div>
     <div style="max-width: 50em; margin-bottom: 1em">HTML:<br>
     <textarea id="code-html" name="code-html"></textarea></div>
-    <div style="max-width: 50em">Markdown:<br>
+    <div style="max-width: 50em; margin-bottom: 1em">Markdown:<br>
     <textarea id="code-markdown" name="code"></textarea></div>
+    <div style="max-width: 50em">sTeX:<br>
+    <textarea id="code-stex" name="code"></textarea></div>
   </form>
   <script id="script">
 /*
@@ -59,6 +63,8 @@ window.onload = function() {
   te_html.value = document.documentElement.innerHTML;
   var te_markdown = document.getElementById("code-markdown");
   te_markdown.value = "# Foo\n## Bar\n\nblah blah\n\n## Baz\n\nblah blah\n\n# Quux\n\nblah blah\n"
+  var te_stex = document.getElementById("code-stex");
+  te_stex.value = "\\documentclass{article}\n\\begin{document}\n\\chapter{First Chapter}\n\\section{First Section}\n\\subsection{Hello}\n\\begin{theorem}\n  All theorems are true.\n\\end{theorem}\n\\subsection{World}\n\\[\n  really big formula\n\\]\n\\chapter{Final Chapter}\n\\section{Final Section}\n\\end{document}"
 
   window.editor = CodeMirror.fromTextArea(te, {
     mode: "javascript",
@@ -83,6 +89,15 @@ window.onload = function() {
 
   window.editor_markdown = CodeMirror.fromTextArea(te_markdown, {
     mode: "markdown",
+    lineNumbers: true,
+    lineWrapping: true,
+    extraKeys: {"Ctrl-Q": function(cm){ cm.foldCode(cm.getCursor()); }},
+    foldGutter: true,
+    gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"]
+  });
+
+  window.editor_stex = CodeMirror.fromTextArea(te_stex, {
+    mode: "stex",
     lineNumbers: true,
     lineWrapping: true,
     extraKeys: {"Ctrl-Q": function(cm){ cm.foldCode(cm.getCursor()); }},
