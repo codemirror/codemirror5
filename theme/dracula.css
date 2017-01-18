@@ -24,8 +24,7 @@
 .cm-s-dracula span.cm-number { color: #bd93f9; }
 .cm-s-dracula span.cm-variable { color: #50fa7b; }
 .cm-s-dracula span.cm-variable-2 { color: white; }
-.cm-s-dracula span.cm-def { color: #ffb86c; }
-.cm-s-dracula span.cm-keyword { color: #ff79c6; }
+.cm-s-dracula span.cm-def { color: #50fa7b; }
 .cm-s-dracula span.cm-operator { color: #ff79c6; }
 .cm-s-dracula span.cm-keyword { color: #ff79c6; }
 .cm-s-dracula span.cm-atom { color: #bd93f9; }
@@ -35,7 +34,7 @@
 .cm-s-dracula span.cm-qualifier { color: #50fa7b; }
 .cm-s-dracula span.cm-property { color: #66d9ef; }
 .cm-s-dracula span.cm-builtin { color: #50fa7b; }
-.cm-s-dracula span.cm-variable-3 { color: #50fa7b; }
+.cm-s-dracula span.cm-variable-3 { color: #ffb86c; }
 
 .cm-s-dracula .CodeMirror-activeline-background { background: rgba(255,255,255,0.1); }
 .cm-s-dracula .CodeMirror-matchingbracket { text-decoration: underline; color: white !important; }
