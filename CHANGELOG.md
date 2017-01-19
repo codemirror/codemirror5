@@ -1,3 +1,19 @@
+## 5.23.0 (2017-01-19)
+
+### Bug fixes
+
+Presentation-related elements DOM elements are now marked as such to help screen readers.
+
+[markdown mode](http://codemirror.net/mode/markdown/): Be more picky about what HTML tags look like to avoid false positives.
+
+### New features
+
+`findModeByMIME` now understands `+json` and `+xml` MIME suffixes.
+
+[closebrackets addon](http://codemirror.net/doc/manual.html#addon_closebrackets): Add support for an `override` option to ignore language-specific defaults.
+
+[panel addon](http://codemirror.net/doc/manual.html#addon_panel): Add a `stable` option that auto-scrolls the content to keep it in the same place when inserting/removing a panel.
+
 ## 5.22.2 (2017-01-12)
 
 ### Bug fixes
