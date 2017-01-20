@@ -108,8 +108,8 @@ CodeMirror.defineMode('shell', function() {
     if (state.tokens.length > 1) stream.eat('$');
     var ch = stream.next(), hungry = /\w/;
     if (ch === '{') hungry = /[^}]/;
-    if (ch === '(') {
-      state.tokens[0] = tokenString(')');
+    if (/['"(]/.test(ch)) {
+      state.tokens[0] = tokenString(ch == "(" ? ")" : ch);
       return tokenize(stream, state);
     }
     if (!/\d/.test(ch)) {
