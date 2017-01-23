@@ -732,6 +732,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     valueKeywords: valueKeywords,
     fontProperties: fontProperties,
     allowNested: true,
+    lineComment: "//",
     tokenHooks: {
       "/": function(stream, state) {
         if (stream.eat("/")) {
@@ -774,6 +775,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     valueKeywords: valueKeywords,
     fontProperties: fontProperties,
     allowNested: true,
+    lineComment: "//",
     tokenHooks: {
       "/": function(stream, state) {
         if (stream.eat("/")) {
