@@ -425,16 +425,19 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
                     "do else enum extends final finally float for goto if implements import " +
                     "instanceof interface native new package private protected public " +
                     "return static strictfp super switch synchronized this throw throws transient " +
-                    "try volatile while"),
+                    "try volatile while @interface"),
     types: words("byte short int long float double boolean char void Boolean Byte Character Double Float " +
                  "Integer Long Number Object Short String StringBuffer StringBuilder Void"),
     blockKeywords: words("catch class do else finally for if switch try while"),
-    defKeywords: words("class interface package enum"),
+    defKeywords: words("class interface package enum @interface"),
     typeFirstDefinitions: true,
     atoms: words("true false null"),
     number: /^(?:0x[a-f\d_]+|0b[01_]+|(?:[\d_]+\.?\d*|\.\d+)(?:e[-+]?[\d_]+)?)(u|ll?|l|f)?/i,
     hooks: {
       "@": function(stream) {
+        // Don't match the @interface keyword.
+        if (stream.match('interface', false)) return false;
+
         stream.eatWhile(/[\w\$_]/);
         return "meta";
       }
