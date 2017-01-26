@@ -2297,15 +2297,15 @@ if (!phantom) {
   testMoveBidi("ٻоҤѕѽΩ־؉ïίքǳ\nٵ");
   testMoveBidi("؅؁ĆՕƿɁǞϮؠȩóć\nď");
   testMoveBidi("RŨďңŪzϢŎƏԖڇڦ\nӈ");
+  testMoveBidi("ό׊۷٢ԜһОצЉيčǟ\nѩ");
+  testMoveBidi("ۑÚҳҕڬġڹհяųKV\nr");
+  testMoveBidi("źڻғúہ4ם1Ƞc1a\nԁ");
+  testMoveBidi("ҒȨҟփƞ٦ԓȦڰғâƥ\nڤ");
+  testMoveBidi("ϖسՉȏŧΔԛǆĎӟیڡ\nέ");
+  testMoveBidi("۹ؼL۵ĺȧКԙػא7״\nم");
 }
 
-testMoveBidi("ό׊۷٢ԜһОצЉيčǟ\nѩ");
-testMoveBidi("ۑÚҳҕڬġڹհяųKV\nr");
-testMoveBidi("źڻғúہ4ם1Ƞc1a\nԁ");
-testMoveBidi("ҒȨҟփƞ٦ԓȦڰғâƥ\nڤ");
 testMoveBidi("քմѧǮßپüŢҍҞўڳ\nӧ");
-testMoveBidi("ϖسՉȏŧΔԛǆĎӟیڡ\nέ");
-testMoveBidi("۹ؼL۵ĺȧКԙػא7״\nم");
 
 //testMoveBidi("Count ١ ٢ ٣ ٤");
 //testMoveBidi("ӣאƦϰ؊ȓېÛوը٬ز\nϪ");
