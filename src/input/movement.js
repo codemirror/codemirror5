@@ -17,15 +17,13 @@ export function endOfLine(visually, cm, lineObj, lineNo, dir) {
       // Thus, in rtl, we are looking for the first (content-order) character
       // in the rtl chunk that is on the last line (that is, the same line
       // as the last (content-order) character).
-      if (dir < 0 && part.level > 0) {
+      if (part.level > 0) {
         let getTop = prepareMeasureCharTop(cm, lineObj)
-        ch = lineObj.text.length - 1
+        ch = dir < 0 ? lineObj.text.length - 1 : 0
         let targetTop = getTop(ch)
-        ch = findFirst(ch => getTop(ch) == targetTop, part.from, ch)
-        if (part.level != 1) ch = moveLogically(lineObj, new Pos(lineNo, ch, sticky), 1, true)
-        return new Pos(lineNo, ch, sticky)
-      }
-      ch = (dir < 0 ? bidiRight : bidiLeft)(part)
+        ch = findFirst(ch => getTop(ch) == targetTop, (dir < 0) == (part.level == 1) ? part.from : part.to - 1, ch)
+        if (sticky == "before") ch = moveLogically(lineObj, new Pos(lineNo, ch, sticky), 1, true)
+      } else ch = (dir < 0 ? bidiRight : bidiLeft)(part)
       return new Pos(lineNo, ch, sticky)
     }
   }
