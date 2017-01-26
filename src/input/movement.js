@@ -82,7 +82,7 @@ export function moveVisually(cm, line, start, dir) {
       ? new Pos(start.line, mv(ch, 1), "before")
       : new Pos(start.line, ch, "after")
 
-    for (partPos += dir; partPos >= 0 && partPos < bidi.length; partPos += dir) {
+    for (; partPos >= 0 && partPos < bidi.length; partPos += dir) {
       let part = bidi[partPos]
       let moveInStorageOrder = (dir > 0) == (part.level != 1)
       let ch = moveInStorageOrder ? visualLine[0] : visualLine[1]
@@ -93,13 +93,13 @@ export function moveVisually(cm, line, start, dir) {
   }
 
   // Case 3a: Look for other bidi parts on the same visual line
-  let res = searchInVisualLine(partPos, dir, visualLine)
+  let res = searchInVisualLine(partPos + dir, dir, visualLine)
   if (res) return res
 
   // Case 3b: Look for other bidi parts on the next visual line
   let nextCh = mv(visualLine[dir > 0 ? 1 : 0], dir)
   if (nextCh != null && !(dir > 0 && nextCh == line.text.length)) {
-    res = searchInVisualLine(dir > 0 ? 0 : bidi.length, dir, getVisualLine(nextCh))
+    res = searchInVisualLine(dir > 0 ? 0 : bidi.length - 1, dir, getVisualLine(nextCh))
     if (res) return res
   }
 
