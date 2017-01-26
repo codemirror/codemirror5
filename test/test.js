@@ -2232,13 +2232,7 @@ function testMoveBidi(str) {
     }
 
     // Make sure we are at the visual beginning of the first line
-    var pos = Pos(0, 0), lastPos;
-    cm.doc.setCursor(pos);
-    do {
-      lastPos = pos;
-      cm.execCommand("goCharLeft");
-      pos = cm.doc.getCursor();
-    } while (pos != lastPos && pos.ch != 0)
+    cm.execCommand("goLineStart");
 
     var prevCoords = cm.cursorCoords(), coords;
     for(var i = 0; i < steps; ++i) {
@@ -2283,37 +2277,61 @@ function testMoveBidi(str) {
   }, {value: str, lineWrapping: true})
 };
 
+function testMoveEndBidi(str) {
+  testCM("move_end_bidi_" + str, function(cm) {
+    cm.getScrollerElement().style.fontFamily = "monospace";
+    makeItWrapAfter(cm, Pos(0, 5));
+
+    cm.execCommand("goLineStart");
+    var pos = cm.doc.getCursor();
+    cm.execCommand("goCharLeft");
+    eqCursorPos(pos, cm.doc.getCursor());
+
+    cm.execCommand("goLineEnd");
+    pos = cm.doc.getCursor();
+    cm.execCommand("goColumnRight");
+    eqCursorPos(pos, cm.doc.getCursor());
+  }, {value: str, lineWrapping: true})
+};
+
+var bidiTests = [];
+
 // We don't correctly implement L1 UBA
 // See https://bugzilla.mozilla.org/show_bug.cgi?id=1331501
 // and https://bugs.chromium.org/p/chromium/issues/detail?id=673405
 /*
-testMoveBidi("Say ا ب جabj\nS");
-testMoveBidi("Sayyy ا ا ب ج");
+bidiTests.push("Say ا ب جabj\nS");
+bidiTests.push("Sayyy ا ا ب ج");
 */
 
 if (!phantom) {
-  testMoveBidi("Όȝǝڪȉۥ״ۺ׆ɀҩۏ\nҳ");
-  testMoveBidi("ŌӰтقȤ؁ƥ؅٣ĎȺ١\nϚ");
-  testMoveBidi("ٻоҤѕѽΩ־؉ïίքǳ\nٵ");
-  testMoveBidi("؅؁ĆՕƿɁǞϮؠȩóć\nď");
-  testMoveBidi("RŨďңŪzϢŎƏԖڇڦ\nӈ");
-  testMoveBidi("ό׊۷٢ԜһОצЉيčǟ\nѩ");
-  testMoveBidi("ۑÚҳҕڬġڹհяųKV\nr");
-  testMoveBidi("źڻғúہ4ם1Ƞc1a\nԁ");
-  testMoveBidi("ҒȨҟփƞ٦ԓȦڰғâƥ\nڤ");
-  testMoveBidi("ϖسՉȏŧΔԛǆĎӟیڡ\nέ");
-  testMoveBidi("۹ؼL۵ĺȧКԙػא7״\nم");
+  bidiTests.push("Όȝǝڪȉۥ״ۺ׆ɀҩۏ\nҳ");
+  bidiTests.push("ŌӰтقȤ؁ƥ؅٣ĎȺ١\nϚ");
+  bidiTests.push("ٻоҤѕѽΩ־؉ïίքǳ\nٵ");
+  bidiTests.push("؅؁ĆՕƿɁǞϮؠȩóć\nď");
+  bidiTests.push("RŨďңŪzϢŎƏԖڇڦ\nӈ");
+  bidiTests.push("ό׊۷٢ԜһОצЉيčǟ\nѩ");
+  bidiTests.push("ۑÚҳҕڬġڹհяųKV\nr");
+  bidiTests.push("źڻғúہ4ם1Ƞc1a\nԁ");
+  bidiTests.push("ҒȨҟփƞ٦ԓȦڰғâƥ\nڤ");
+  bidiTests.push("ϖسՉȏŧΔԛǆĎӟیڡ\nέ");
+  bidiTests.push("۹ؼL۵ĺȧКԙػא7״\nم");
 }
 
-testMoveBidi("քմѧǮßپüŢҍҞўڳ\nӧ");
-testMoveBidi("ن (ي)\u2009أقواس"); // thin space to throw off Firefox 51's broken white-space compressing behavior
+bidiTests.push("քմѧǮßپüŢҍҞўڳ\nӧ");
+bidiTests.push("ن (ي)\u2009أقواس"); // thin space to throw off Firefox 51's broken white-space compressing behavior
 
-//testMoveBidi("Count ١ ٢ ٣ ٤");
-//testMoveBidi("ӣאƦϰ؊ȓېÛوը٬ز\nϪ");
-//testMoveBidi("ҾճٳџIՖӻ٥׭֐؜ڏ\nێ");
-//testMoveBidi("ҬÓФ؜ڂį٦Ͽɓڐͳٵ\nՈ");
-//testMoveBidi("aѴNĳȻهˇ҃ڱӧǻֵ\na");
-//testMoveBidi(" a٧ا٢ ب جa\nS");
+//bidiTests.push("Count ١ ٢ ٣ ٤");
+//bidiTests.push("ӣאƦϰ؊ȓېÛوը٬ز\nϪ");
+//bidiTests.push("ҾճٳџIՖӻ٥׭֐؜ڏ\nێ");
+//bidiTests.push("ҬÓФ؜ڂį٦Ͽɓڐͳٵ\nՈ");
+//bidiTests.push("aѴNĳȻهˇ҃ڱӧǻֵ\na");
+//bidiTests.push(" a٧ا٢ ب جa\nS");
+
+for (var i = 0; i < bidiTests.length; ++i) {
+  testMoveBidi(bidiTests[i]);
+  testMoveEndBidi(bidiTests[i]);
+}
 
 /*
 for (var i = 0; i < 5; ++i) {
