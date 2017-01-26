@@ -2316,10 +2316,10 @@ if (!phantom) {
   bidiTests.push("ҒȨҟփƞ٦ԓȦڰғâƥ\nڤ");
   bidiTests.push("ϖسՉȏŧΔԛǆĎӟیڡ\nέ");
   bidiTests.push("۹ؼL۵ĺȧКԙػא7״\nم");
+  bidiTests.push("ن (ي)\u2009أقواس"); // thin space to throw off Firefox 51's broken white-space compressing behavior
 }
 
 bidiTests.push("քմѧǮßپüŢҍҞўڳ\nӧ");
-bidiTests.push("ن (ي)\u2009أقواس"); // thin space to throw off Firefox 51's broken white-space compressing behavior
 
 //bidiTests.push("Count ١ ٢ ٣ ٤");
 //bidiTests.push("ӣאƦϰ؊ȓېÛوը٬ز\nϪ");
