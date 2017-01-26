@@ -2306,6 +2306,7 @@ if (!phantom) {
 }
 
 testMoveBidi("քմѧǮßپüŢҍҞўڳ\nӧ");
+testMoveBidi("ن (ي)\u2009أقواس"); // thin space to throw off Firefox 51's broken white-space compressing behavior
 
 //testMoveBidi("Count ١ ٢ ٣ ٤");
 //testMoveBidi("ӣאƦϰ؊ȓېÛوը٬ز\nϪ");
