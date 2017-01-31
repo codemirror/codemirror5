@@ -433,14 +433,14 @@ function coordsCharInner(cm, lineObj, lineNo, x, y) {
   y -= heightAtLine(lineObj)
   let begin = 0, end = lineObj.text.length - 1
   let preparedMeasure = prepareMeasureForLine(cm, lineObj)
-  if (cm.options.lineWrapping) {
-    let measure = ch => intoCoordSystem(cm, lineObj, measureCharPrepared(cm, preparedMeasure, ch), "line")
-    begin = findFirst(ch => measure(ch).bottom < y, end, begin - 1) + 1
-    end = findFirst(ch => measure(ch).top > y, begin, end + 1) - 1
-  }
   let pos
   let order = getOrder(lineObj)
   if (order) {
+    if (cm.options.lineWrapping) {
+      let measure = ch => intoCoordSystem(cm, lineObj, measureCharPrepared(cm, preparedMeasure, ch), "line")
+      begin = findFirst(ch => measure(ch).bottom < y, end, begin - 1) + 1
+      end = findFirst(ch => measure(ch).top > y, begin, end + 1) - 1
+    }
     if (end == lineObj.text.length - 1) ++end
     pos = new Pos(lineNo, begin)
     let beginLeft = cursorCoords(cm, pos, "line", lineObj, preparedMeasure).left
@@ -461,7 +461,15 @@ function coordsCharInner(cm, lineObj, lineNo, x, y) {
   } else {
     let ch = findFirst(ch => {
       let box = measureCharPrepared(cm, preparedMeasure, ch)
-      return x - box.right < box.left - x
+      if (box.top > y) {
+        // For the cursor stickiness
+        end = Math.min(ch - 1, end)
+        return true
+      }
+      else if (box.bottom < y) return false
+      else if (box.left > x) return true
+      else if (box.right < x) return false
+      else return (x - box.left < box.right - x)
     }, begin, end + 1)
     while (isExtendingChar(lineObj.text.charAt(ch))) ++ch
     pos = new Pos(lineNo, ch, (ch == end + 1) ? "before" : "after")
