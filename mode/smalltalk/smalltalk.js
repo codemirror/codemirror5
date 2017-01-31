@@ -10,7 +10,7 @@
 		mod(CodeMirror);
 })(function(CodeMirror) {
 "use strict";
-		
+
 CodeMirror.defineMode('smalltalk', function(config) {
 
 	var specialChars = /[+\-\/\\*~<>=@%|&?!.,:;^]/;
