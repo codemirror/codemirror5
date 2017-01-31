@@ -28,7 +28,7 @@ CodeMirror.defineMode("go", function(config) {
 
   var atoms = {
     "true":true, "false":true, "iota":true, "nil":true, "append":true,
-    "cap":true, "close":true, "complex":true, "copy":true, "imag":true,
+    "cap":true, "close":true, "complex":true, "copy":true, "delete":true, "imag":true,
     "len":true, "make":true, "new":true, "panic":true, "print":true,
     "println":true, "real":true, "recover":true
   };
