@@ -460,7 +460,7 @@ function coordsCharInner(cm, lineObj, lineNo, x, y) {
     if (Math.abs(diff) > Math.abs(prevDiff)) pos = moveVisually(cm, lineObj, pos, -dir)
   } else {
     let ch = findFirst(ch => {
-      let box = measureCharPrepared(cm, preparedMeasure, ch)
+      let box = intoCoordSystem(cm, lineObj, measureCharPrepared(cm, preparedMeasure, ch), "line")
       if (box.top > y) {
         // For the cursor stickiness
         end = Math.min(ch - 1, end)
