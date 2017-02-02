@@ -89,11 +89,6 @@ export function measureChar(cm, line, ch, bias) {
   return measureCharPrepared(cm, prepareMeasureForLine(cm, line), ch, bias)
 }
 
-export function prepareMeasureCharTop(cm, line) {
-  let preparedMeasure = prepareMeasureForLine(cm, line)
-  return ch => measureCharPrepared(cm, preparedMeasure, ch).top
-}
-
 // Find a line view that corresponds to the given line number.
 export function findViewForLine(cm, lineN) {
   if (lineN >= cm.display.viewFrom && lineN < cm.display.viewTo)
@@ -108,7 +103,7 @@ export function findViewForLine(cm, lineN) {
 // character. Functions like coordsChar, that need to do a lot of
 // measurements in a row, can thus ensure that the set-up work is
 // only done once.
-function prepareMeasureForLine(cm, line) {
+export function prepareMeasureForLine(cm, line) {
   let lineN = lineNo(line)
   let view = findViewForLine(cm, lineN)
   if (view && !view.text) {
@@ -130,7 +125,7 @@ function prepareMeasureForLine(cm, line) {
 
 // Given a prepared measurement object, measures the position of an
 // actual character (or fetches it from the cache).
-function measureCharPrepared(cm, prepared, ch, bias, varHeight) {
+export function measureCharPrepared(cm, prepared, ch, bias, varHeight) {
   if (prepared.before) ch = -1
   let key = ch + (bias || ""), found
   if (prepared.cache.hasOwnProperty(key)) {

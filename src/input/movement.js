@@ -1,5 +1,5 @@
 import { Pos } from "../line/pos"
-import { prepareMeasureCharTop } from "../measurement/position_measurement"
+import { prepareMeasureForLine, measureCharPrepared } from "../measurement/position_measurement"
 import { bidiLeft, bidiRight, getBidiPartAt, getOrder, lineLeft, lineRight, moveLogically } from "../util/bidi"
 import { findFirst } from "../util/misc"
 
@@ -18,10 +18,10 @@ export function endOfLine(visually, cm, lineObj, lineNo, dir) {
       // in the rtl chunk that is on the last line (that is, the same line
       // as the last (content-order) character).
       if (part.level > 0) {
-        let getTop = prepareMeasureCharTop(cm, lineObj)
+        let prep = prepareMeasureForLine(cm, lineObj)
         ch = dir < 0 ? lineObj.text.length - 1 : 0
-        let targetTop = getTop(ch)
-        ch = findFirst(ch => getTop(ch) == targetTop, (dir < 0) == (part.level == 1) ? part.from : part.to - 1, ch)
+        let targetTop = measureCharPrepared(cm, prep, ch).top
+        ch = findFirst(ch => measureCharPrepared(cm, prep, ch).top == targetTop, (dir < 0) == (part.level == 1) ? part.from : part.to - 1, ch)
         if (sticky == "before") ch = moveLogically(lineObj, new Pos(lineNo, ch, sticky), 1, true)
       } else ch = (dir < 0 ? bidiRight : bidiLeft)(part)
       return new Pos(lineNo, ch, sticky)
@@ -35,11 +35,11 @@ export function endOfLine(visually, cm, lineObj, lineNo, dir) {
 
 function getVisualLineAround(cm, line, target) {
   if (!cm.options.lineWrapping) return [0, line.text.length - 1]
-  let measureTop = prepareMeasureCharTop(cm, line)
-  let targetTop = measureTop(target)
+  let prep = prepareMeasureForLine(cm, line)
+  let targetTop = measureCharPrepared(cm, prep, target).top
   return [
-    findFirst(ch => targetTop == measureTop(ch), 0, target),
-    findFirst(ch => targetTop == measureTop(ch), line.text.length - 1, target)
+    findFirst(ch => targetTop == measureCharPrepared(cm, prep, ch).top, 0, target),
+    findFirst(ch => targetTop == measureCharPrepared(cm, prep, ch).top, line.text.length - 1, target)
   ]
 }
 
