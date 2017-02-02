@@ -3141,11 +3141,11 @@ editor.setOption("extraKeys", {
       white-space.</dd>
       <dt><code><strong>skipToEnd</strong>()</code></dt>
       <dd>Moves the position to the end of the line.</dd>
-      <dt><code><strong>skipTo</strong>(ch: string) → boolean</code></dt>
-      <dd>Skips to the next occurrence of the given character, if
+      <dt><code><strong>skipTo</strong>(str: string) → boolean</code></dt>
+      <dd>Skips to the start of the next occurrence of the given string, if
       found on the current line (doesn't advance the stream if the
-      character does not occur on the line). Returns true if the
-      character was found.</dd>
+      string does not occur on the line). Returns true if the
+      string was found.</dd>
       <dt><code><strong>match</strong>(pattern: string, ?consume: boolean, ?caseFold: boolean) → boolean</code></dt>
       <dt><code><strong>match</strong>(pattern: regexp, ?consume: boolean) → array&lt;string&gt;</code></dt>
       <dd>Act like a
