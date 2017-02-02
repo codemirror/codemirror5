@@ -8,15 +8,16 @@ import { indentLine } from "../input/indent"
 import { triggerElectric } from "../input/input"
 import { onKeyDown, onKeyPress, onKeyUp } from "./key_events"
 import { getKeyMap } from "../input/keymap"
+import { endOfLine, moveVisually } from "../input/movement"
 import { methodOp, operation, runInOp } from "../display/operations"
-import { clipLine, clipPos, cmp, Pos } from "../line/pos"
+import { clipLine, clipPos, equalCursorPos, Pos } from "../line/pos"
 import { charCoords, charWidth, clearCaches, clearLineMeasurementCache, coordsChar, cursorCoords, displayHeight, displayWidth, estimateLineHeights, fromCoordSystem, intoCoordSystem, scrollGap, textHeight } from "../measurement/position_measurement"
 import { Range } from "../model/selection"
 import { replaceOneSelection, skipAtomic } from "../model/selection_updates"
 import { addToScrollPos, calculateScrollPos, ensureCursorVisible, resolveScrollToPos, scrollIntoView } from "../display/scrolling"
 import { heightAtLine } from "../line/spans"
 import { updateGutterSpace } from "../display/update_display"
-import { lineLeft, lineRight, moveLogically, moveVisually } from "../util/bidi"
+import { moveLogically } from "../util/bidi"
 import { indexOf, insertSorted, isWordChar, sel_dontScroll, sel_move } from "../util/misc"
 import { signalLater } from "../util/operation_group"
 import { getLine, isLine, lineAtHeight } from "../line/utils_line"
@@ -335,7 +336,7 @@ export default function(CodeMirror) {
       let start = pos.ch, end = pos.ch
       if (line) {
         let helper = this.getHelper(pos, "wordChars")
-        if ((pos.xRel < 0 || end == line.length) && start) --start; else ++end
+        if ((pos.sticky == "before" || end == line.length) && start) --start; else ++end
         let startChar = line.charAt(start)
         let check = isWordChar(startChar, helper)
           ? ch => isWordChar(ch, helper)
@@ -464,22 +465,27 @@ export default function(CodeMirror) {
 // position. The resulting position will have a hitSide=true
 // property if it reached the end of the document.
 function findPosH(doc, pos, dir, unit, visually) {
-  let line = pos.line, ch = pos.ch, origDir = dir
-  let lineObj = getLine(doc, line)
+  let oldPos = pos
+  let origDir = dir
+  let lineObj = getLine(doc, pos.line)
   function findNextLine() {
-    let l = line + dir
+    let l = pos.line + dir
     if (l < doc.first || l >= doc.first + doc.size) return false
-    line = l
+    pos = new Pos(l, pos.ch, pos.sticky)
     return lineObj = getLine(doc, l)
   }
   function moveOnce(boundToLine) {
-    let next = (visually ? moveVisually : moveLogically)(lineObj, ch, dir, true)
+    let myMoveVisually = (line, start, dir) => moveVisually(doc.cm, line, start, dir)
+    let myMoveLogically = (line, start, dir) => {
+      let ch = moveLogically(line, start, dir)
+      return ch == null ?  null : new Pos(pos.line, ch, dir < 0 ? "after" : "before")
+    }
+    let next = (visually ? myMoveVisually : myMoveLogically)(lineObj, pos, dir)
     if (next == null) {
       if (!boundToLine && findNextLine()) {
-        if (visually) ch = (dir < 0 ? lineRight : lineLeft)(lineObj)
-        else ch = dir < 0 ? lineObj.text.length : 0
+        pos = endOfLine(visually, doc.cm, lineObj, pos.line, dir)
       } else return false
-    } else ch = next
+    } else pos = next
     return true
   }
 
@@ -492,14 +498,14 @@ function findPosH(doc, pos, dir, unit, visually) {
     let helper = doc.cm && doc.cm.getHelper(pos, "wordChars")
     for (let first = true;; first = false) {
       if (dir < 0 && !moveOnce(!first)) break
-      let cur = lineObj.text.charAt(ch) || "\n"
+      let cur = lineObj.text.charAt(pos.ch) || "\n"
       let type = isWordChar(cur, helper) ? "w"
         : group && cur == "\n" ? "n"
         : !group || /\s/.test(cur) ? null
         : "p"
       if (group && !first && !type) type = "s"
       if (sawType && sawType != type) {
-        if (dir < 0) {dir = 1; moveOnce()}
+        if (dir < 0) {dir = 1; moveOnce(); pos.sticky = "after"}
         break
       }
 
@@ -507,8 +513,8 @@ function findPosH(doc, pos, dir, unit, visually) {
       if (dir > 0 && !moveOnce(!first)) break
     }
   }
-  let result = skipAtomic(doc, Pos(line, ch), pos, origDir, true)
-  if (!cmp(pos, result)) result.hitSide = true
+  let result = skipAtomic(doc, pos, oldPos, origDir, true)
+  if (equalCursorPos(oldPos, result)) result.hitSide = true
   return result
 }
 

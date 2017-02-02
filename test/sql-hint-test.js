@@ -30,8 +30,8 @@
       var completion = CodeMirror.hint.sql(cm, {tables: spec.tables});
       if (!deepCompare(completion.list, spec.list))
         throw new Failure("Wrong completion results " + JSON.stringify(completion.list) + " vs " + JSON.stringify(spec.list));
-      eqPos(completion.from, spec.from);
-      eqPos(completion.to, spec.to);
+      eqCharPos(completion.from, spec.from);
+      eqCharPos(completion.to, spec.to);
     }, {
       value: spec.value,
       mode: "text/x-mysql"
