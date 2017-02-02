@@ -6,14 +6,15 @@ import { indexOf } from "../util/misc"
 // (and non-touching) ranges, sorted, and an integer that indicates
 // which one is the primary selection (the one that's scrolled into
 // view, that getCursor returns, etc).
-export function Selection(ranges, primIndex) {
-  this.ranges = ranges
-  this.primIndex = primIndex
-}
+export class Selection {
+  constructor(ranges, primIndex) {
+    this.ranges = ranges
+    this.primIndex = primIndex
+  }
 
-Selection.prototype = {
-  primary: function() { return this.ranges[this.primIndex] },
-  equals: function(other) {
+  primary() { return this.ranges[this.primIndex] }
+
+  equals(other) {
     if (other == this) return true
     if (other.primIndex != this.primIndex || other.ranges.length != this.ranges.length) return false
     for (let i = 0; i < this.ranges.length; i++) {
@@ -21,19 +22,22 @@ Selection.prototype = {
       if (!equalCursorPos(here.anchor, there.anchor) || !equalCursorPos(here.head, there.head)) return false
     }
     return true
-  },
-  deepCopy: function() {
+  }
+
+  deepCopy() {
     let out = []
     for (let i = 0; i < this.ranges.length; i++)
       out[i] = new Range(copyPos(this.ranges[i].anchor), copyPos(this.ranges[i].head))
     return new Selection(out, this.primIndex)
-  },
-  somethingSelected: function() {
+  }
+
+  somethingSelected() {
     for (let i = 0; i < this.ranges.length; i++)
       if (!this.ranges[i].empty()) return true
     return false
-  },
-  contains: function(pos, end) {
+  }
+
+  contains(pos, end) {
     if (!end) end = pos
     for (let i = 0; i < this.ranges.length; i++) {
       let range = this.ranges[i]
@@ -44,16 +48,14 @@ Selection.prototype = {
   }
 }
 
-export function Range(anchor, head) {
-  this.anchor = anchor; this.head = head
-}
-
-Range.prototype = {
-  from: function() { return minPos(this.anchor, this.head) },
-  to: function() { return maxPos(this.anchor, this.head) },
-  empty: function() {
-    return this.head.line == this.anchor.line && this.head.ch == this.anchor.ch
+export class Range {
+  constructor(anchor, head) {
+    this.anchor = anchor; this.head = head
   }
+
+  from() { return minPos(this.anchor, this.head) }
+  to() { return maxPos(this.anchor, this.head) }
+  empty() { return this.head.line == this.anchor.line && this.head.ch == this.anchor.ch }
 }
 
 // Take an unsorted, potentially overlapping set of ranges, and
