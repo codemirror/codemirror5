@@ -475,17 +475,21 @@ function findPosH(doc, pos, dir, unit, visually) {
     return lineObj = getLine(doc, l)
   }
   function moveOnce(boundToLine) {
-    let myMoveVisually = (line, start, dir) => moveVisually(doc.cm, line, start, dir)
-    let myMoveLogically = (line, start, dir) => {
-      let ch = moveLogically(line, start, dir)
-      return ch == null ?  null : new Pos(pos.line, ch, dir < 0 ? "after" : "before")
+    let next
+    if (visually) {
+      next = moveVisually(doc.cm, lineObj, pos, dir)
+    } else {
+      let ch = moveLogically(lineObj, pos, dir)
+      next = ch == null ?  null : new Pos(pos.line, ch, dir < 0 ? "after" : "before")
     }
-    let next = (visually ? myMoveVisually : myMoveLogically)(lineObj, pos, dir)
     if (next == null) {
-      if (!boundToLine && findNextLine()) {
+      if (!boundToLine && findNextLine())
         pos = endOfLine(visually, doc.cm, lineObj, pos.line, dir)
-      } else return false
-    } else pos = next
+      else
+        return false
+    } else {
+      pos = next
+    }
     return true
   }
 
