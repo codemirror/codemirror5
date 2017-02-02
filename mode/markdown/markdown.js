@@ -239,10 +239,11 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   }
 
   function local(stream, state) {
-    if (state.fencedChars && stream.match(state.fencedChars, false)) {
+    if (state.fencedChars && stream.skipTo(state.fencedChars)) {
+      stream.match(state.fencedChars)
       state.localMode = state.localState = null;
       state.f = state.block = leavingLocal;
-      return null;
+      return "comment";
     } else if (state.localMode) {
       return state.localMode.token(stream, state.localState);
     } else {
