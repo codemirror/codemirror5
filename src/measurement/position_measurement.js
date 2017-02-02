@@ -426,15 +426,15 @@ export function coordsChar(cm, x, y) {
 
 function wrappedLineExtent(cm, lineObj, preparedMeasure, y) {
   let measure = ch => intoCoordSystem(cm, lineObj, measureCharPrepared(cm, preparedMeasure, ch), "line")
-  let end = lineObj.text.length - 1
-  let begin = findFirst(ch => measure(ch).bottom < y, end, 0) + 1
-  end = findFirst(ch => measure(ch).top > y, begin, end + 1) - 1
+  let end = lineObj.text.length
+  let begin = findFirst(ch => measure(ch).bottom < y, end - 1, 0) + 1
+  end = findFirst(ch => measure(ch).top > y, begin, end)
   return {begin, end}
 }
 
 function coordsCharInner(cm, lineObj, lineNo, x, y) {
   y -= heightAtLine(lineObj)
-  let begin = 0, end = lineObj.text.length - 1
+  let begin = 0, end = lineObj.text.length
   let preparedMeasure = prepareMeasureForLine(cm, lineObj)
   let pos
   let order = getOrder(lineObj)
@@ -442,7 +442,6 @@ function coordsCharInner(cm, lineObj, lineNo, x, y) {
     if (cm.options.lineWrapping) {
       ;({begin, end} = wrappedLineExtent(cm, lineObj, preparedMeasure, y))
     }
-    if (end == lineObj.text.length - 1) ++end
     pos = new Pos(lineNo, begin)
     let beginLeft = cursorCoords(cm, pos, "line", lineObj, preparedMeasure).left
     let dir = beginLeft < x ? 1 : -1
@@ -451,7 +450,7 @@ function coordsCharInner(cm, lineObj, lineNo, x, y) {
       prevDiff = diff
       let prevPos = pos
       pos = moveVisually(cm, lineObj, pos, dir)
-      if (pos == null || pos.ch < begin || end < pos.ch) {
+      if (pos == null || pos.ch < begin || end <= pos.ch) {
         pos = prevPos
         break
       }
@@ -464,16 +463,16 @@ function coordsCharInner(cm, lineObj, lineNo, x, y) {
       let box = intoCoordSystem(cm, lineObj, measureCharPrepared(cm, preparedMeasure, ch), "line")
       if (box.top > y) {
         // For the cursor stickiness
-        end = Math.min(ch - 1, end)
+        end = Math.min(ch, end)
         return true
       }
       else if (box.bottom < y) return false
       else if (box.left > x) return true
       else if (box.right < x) return false
       else return (x - box.left < box.right - x)
-    }, begin, end + 1)
+    }, begin, end)
     while (isExtendingChar(lineObj.text.charAt(ch))) ++ch
-    pos = new Pos(lineNo, ch, (ch == end + 1) ? "before" : "after")
+    pos = new Pos(lineNo, ch, ch == end ? "before" : "after")
   }
   let coords = cursorCoords(cm, pos, "line", lineObj, preparedMeasure)
   if (y < coords.top || coords.bottom < y) pos.outside = true
