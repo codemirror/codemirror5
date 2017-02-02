@@ -30,7 +30,7 @@
         return;
       }
       if (emptyListRE.test(line)) {
-        cm.replaceRange("", {
+        if (!/>\s*$/.test(line)) cm.replaceRange("", {
           line: pos.line, ch: 0
         }, {
           line: pos.line, ch: pos.ch + 1
