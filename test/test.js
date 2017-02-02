@@ -1017,7 +1017,8 @@ testCM("showEmptyWidgetSpan", function(cm) {
     clearWhenEmpty: false,
     replacedWith: document.createTextNode("X")
   });
-  eq(cm.display.view[0].text.textContent, "abXc");
+  var text = cm.display.view[0].text;
+  eq(text.textContent || text.innerText, "abXc");
 }, {value: "abc"});
 
 testCM("changedInlineWidget", function(cm) {
@@ -1963,8 +1964,8 @@ testCM("lineStyleFromMode", function(cm) {
   is(!/parens.*parens/.test(parenElts[0].className));
   eq(parenElts[0].parentElement.nodeName, "DIV");
 
-  eq(byClassName(cm.getWrapperElement(), "bg").length, 1);
-  eq(byClassName(cm.getWrapperElement(), "line").length, 1);
+  is(byClassName(cm.getWrapperElement(), "bg").length > 0);
+  is(byClassName(cm.getWrapperElement(), "line").length > 0);
   var spanElts = byClassName(cm.getWrapperElement(), "cm-span");
   eq(spanElts.length, 2);
   is(/^\s*cm-span\s*$/.test(spanElts[0].className));
@@ -2218,15 +2219,21 @@ function makeItWrapAfter(cm, pos) {
   }
 }
 
+function countIf(arr, f) {
+  var result = 0
+  for (var i = 0; i < arr.length; i++) if (f[arr[i]]) result++
+  return result
+}
+
 function testMoveBidi(str) {
   testCM("move_bidi_" + str, function(cm) {
     if (cm.getOption("inputStyle") != "textarea" || !cm.getOption("rtlMoveVisually")) return;
     cm.getScrollerElement().style.fontFamily = "monospace";
     makeItWrapAfter(cm, Pos(0, 5));
 
-    var steps = str.length - str.split("").filter(extendingChars.test.bind(extendingChars)).length;
-    var lineBreaks = Object.create(null);
-    lineBreaks[6 - str.substr(0, 5).split("").filter(extendingChars.test.bind(extendingChars)).length] = 'w';
+    var steps = str.length - countIf(str.split(""), function(ch) { return extendingChars.test(ch) });
+    var lineBreaks = {}
+    lineBreaks[6 - countIf(str.substr(0, 5).split(""), function(ch) { return extendingChars.test(ch) })] = 'w';
     if (str.indexOf("\n") != -1) {
       lineBreaks[steps - 2] = 'n';
     }
