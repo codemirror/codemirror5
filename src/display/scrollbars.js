@@ -69,7 +69,7 @@ class NativeScrollbars {
       this.horiz.style.left = measure.barLeft + "px"
       let totalWidth = measure.viewWidth - measure.barLeft - (needsV ? sWidth : 0)
       this.horiz.firstChild.style.width =
-        (measure.scrollWidth - measure.clientWidth + totalWidth) + "px"
+        Math.max(0, measure.scrollWidth - measure.clientWidth + totalWidth) + "px"
     } else {
       this.horiz.style.display = ""
       this.horiz.firstChild.style.width = "0"
