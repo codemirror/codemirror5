@@ -13,13 +13,16 @@ import { getLine, lineNo, updateLineHeight } from "./utils_line"
 
 // Line objects. These hold state related to a line, including
 // highlighting info (the styles array).
-export function Line(text, markedSpans, estimateHeight) {
-  this.text = text
-  attachMarkedSpans(this, markedSpans)
-  this.height = estimateHeight ? estimateHeight(this) : 1
+export class Line {
+  constructor(text, markedSpans, estimateHeight) {
+    this.text = text
+    attachMarkedSpans(this, markedSpans)
+    this.height = estimateHeight ? estimateHeight(this) : 1
+  }
+
+  lineNo() { return lineNo(this) }
 }
 eventMixin(Line)
-Line.prototype.lineNo = function() { return lineNo(this) }
 
 // Change the content (text, markers) of a line. Automatically
 // invalidates cached information and tries to re-estimate the

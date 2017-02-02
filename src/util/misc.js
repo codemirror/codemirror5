@@ -28,10 +28,12 @@ export function countColumn(string, end, tabSize, startIndex, startValue) {
   }
 }
 
-export function Delayed() {this.id = null}
-Delayed.prototype.set = function(ms, f) {
-  clearTimeout(this.id)
-  this.id = setTimeout(f, ms)
+export class Delayed {
+  constructor() {this.id = null}
+  set(ms, f) {
+    clearTimeout(this.id)
+    this.id = setTimeout(f, ms)
+  }
 }
 
 export function indexOf(array, elt) {
