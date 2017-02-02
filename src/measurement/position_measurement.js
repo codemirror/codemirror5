@@ -424,6 +424,14 @@ export function coordsChar(cm, x, y) {
   }
 }
 
+function wrappedLineExtent(cm, lineObj, preparedMeasure, y) {
+  let measure = ch => intoCoordSystem(cm, lineObj, measureCharPrepared(cm, preparedMeasure, ch), "line")
+  let end = lineObj.text.length - 1
+  let begin = findFirst(ch => measure(ch).bottom < y, end, 0) + 1
+  end = findFirst(ch => measure(ch).top > y, begin, end + 1) - 1
+  return {begin, end}
+}
+
 function coordsCharInner(cm, lineObj, lineNo, x, y) {
   y -= heightAtLine(lineObj)
   let begin = 0, end = lineObj.text.length - 1
@@ -432,9 +440,7 @@ function coordsCharInner(cm, lineObj, lineNo, x, y) {
   let order = getOrder(lineObj)
   if (order) {
     if (cm.options.lineWrapping) {
-      let measure = ch => intoCoordSystem(cm, lineObj, measureCharPrepared(cm, preparedMeasure, ch), "line")
-      begin = findFirst(ch => measure(ch).bottom < y, end, begin - 1) + 1
-      end = findFirst(ch => measure(ch).top > y, begin, end + 1) - 1
+      ;({begin, end} = wrappedLineExtent(cm, lineObj, preparedMeasure, y))
     }
     if (end == lineObj.text.length - 1) ++end
     pos = new Pos(lineNo, begin)
