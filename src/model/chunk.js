@@ -15,21 +15,22 @@ import { signalLater } from "../util/operation_group"
 //
 // See also http://marijnhaverbeke.nl/blog/codemirror-line-tree.html
 
-export function LeafChunk(lines) {
-  this.lines = lines
-  this.parent = null
-  let height = 0
-  for (let i = 0; i < lines.length; ++i) {
-    lines[i].parent = this
-    height += lines[i].height
+export class LeafChunk {
+  constructor(lines) {
+    this.lines = lines
+    this.parent = null
+    let height = 0
+    for (let i = 0; i < lines.length; ++i) {
+      lines[i].parent = this
+      height += lines[i].height
+    }
+    this.height = height
   }
-  this.height = height
-}
 
-LeafChunk.prototype = {
-  chunkSize: function() { return this.lines.length },
+  chunkSize() { return this.lines.length }
+
   // Remove the n lines at offset 'at'.
-  removeInner: function(at, n) {
+  removeInner(at, n) {
     for (let i = at, e = at + n; i < e; ++i) {
       let line = this.lines[i]
       this.height -= line.height
@@ -37,41 +38,45 @@ LeafChunk.prototype = {
       signalLater(line, "delete")
     }
     this.lines.splice(at, n)
-  },
+  }
+
   // Helper used to collapse a small branch into a single leaf.
-  collapse: function(lines) {
+  collapse(lines) {
     lines.push.apply(lines, this.lines)
-  },
+  }
+
   // Insert the given array of lines at offset 'at', count them as
   // having the given height.
-  insertInner: function(at, lines, height) {
+  insertInner(at, lines, height) {
     this.height += height
     this.lines = this.lines.slice(0, at).concat(lines).concat(this.lines.slice(at))
     for (let i = 0; i < lines.length; ++i) lines[i].parent = this
-  },
+  }
+
   // Used to iterate over a part of the tree.
-  iterN: function(at, n, op) {
+  iterN(at, n, op) {
     for (let e = at + n; at < e; ++at)
       if (op(this.lines[at])) return true
   }
 }
 
-export function BranchChunk(children) {
-  this.children = children
-  let size = 0, height = 0
-  for (let i = 0; i < children.length; ++i) {
-    let ch = children[i]
-    size += ch.chunkSize(); height += ch.height
-    ch.parent = this
+export class BranchChunk {
+  constructor(children) {
+    this.children = children
+    let size = 0, height = 0
+    for (let i = 0; i < children.length; ++i) {
+      let ch = children[i]
+      size += ch.chunkSize(); height += ch.height
+      ch.parent = this
+    }
+    this.size = size
+    this.height = height
+    this.parent = null
   }
-  this.size = size
-  this.height = height
-  this.parent = null
-}
 
-BranchChunk.prototype = {
-  chunkSize: function() { return this.size },
-  removeInner: function(at, n) {
+  chunkSize() { return this.size }
+
+  removeInner(at, n) {
     this.size -= n
     for (let i = 0; i < this.children.length; ++i) {
       let child = this.children[i], sz = child.chunkSize()
@@ -93,11 +98,13 @@ BranchChunk.prototype = {
       this.children = [new LeafChunk(lines)]
       this.children[0].parent = this
     }
-  },
-  collapse: function(lines) {
+  }
+
+  collapse(lines) {
     for (let i = 0; i < this.children.length; ++i) this.children[i].collapse(lines)
-  },
-  insertInner: function(at, lines, height) {
+  }
+
+  insertInner(at, lines, height) {
     this.size += lines.length
     this.height += height
     for (let i = 0; i < this.children.length; ++i) {
@@ -121,9 +128,10 @@ BranchChunk.prototype = {
       }
       at -= sz
     }
-  },
+  }
+
   // When a node has grown, check whether it should be split.
-  maybeSpill: function() {
+  maybeSpill() {
     if (this.children.length <= 10) return
     let me = this
     do {
@@ -143,8 +151,9 @@ BranchChunk.prototype = {
       sibling.parent = me.parent
     } while (me.children.length > 10)
     me.parent.maybeSpill()
-  },
-  iterN: function(at, n, op) {
+  }
+
+  iterN(at, n, op) {
     for (let i = 0; i < this.children.length; ++i) {
       let child = this.children[i], sz = child.chunkSize()
       if (at < sz) {
