@@ -11,6 +11,10 @@
 })(function(CodeMirror) {
 "use strict";
 
+function forEach(arr, f) {
+  for (let i = 0; i < arr.length; i++) f(arr[i], i)
+}
+
 CodeMirror.defineMode("dylan", function(_config) {
   // Words
   var words = {
@@ -136,13 +140,13 @@ CodeMirror.defineMode("dylan", function(_config) {
   var wordLookup = {};
   var styleLookup = {};
 
-  [
+  forEach([
     "keyword",
     "definition",
     "simpleDefinition",
     "signalingCalls"
-  ].forEach(function(type) {
-    words[type].forEach(function(word) {
+  ], function(type) {
+    forEach(words[type], function(word) {
       wordLookup[word] = type;
       styleLookup[word] = styles[type];
     });
