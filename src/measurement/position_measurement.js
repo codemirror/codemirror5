@@ -427,7 +427,7 @@ export function coordsChar(cm, x, y) {
 function wrappedLineExtent(cm, lineObj, preparedMeasure, y) {
   let measure = ch => intoCoordSystem(cm, lineObj, measureCharPrepared(cm, preparedMeasure, ch), "line")
   let end = lineObj.text.length
-  let begin = findFirst(ch => measure(ch).bottom < y, end - 1, 0) + 1
+  let begin = findFirst(ch => measure(ch).bottom <= y, end - 1, 0) + 1
   end = findFirst(ch => measure(ch).top > y, begin, end)
   return {begin, end}
 }
@@ -466,7 +466,7 @@ function coordsCharInner(cm, lineObj, lineNo, x, y) {
         end = Math.min(ch, end)
         return true
       }
-      else if (box.bottom < y) return false
+      else if (box.bottom <= y) return false
       else if (box.left > x) return true
       else if (box.right < x) return false
       else return (x - box.left < box.right - x)
