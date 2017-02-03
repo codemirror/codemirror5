@@ -427,7 +427,7 @@ export function coordsChar(cm, x, y) {
 function wrappedLineExtent(cm, lineObj, preparedMeasure, y) {
   let measure = ch => intoCoordSystem(cm, lineObj, measureCharPrepared(cm, preparedMeasure, ch), "line")
   let end = lineObj.text.length
-  let begin = findFirst(ch => measure(ch).bottom <= y, end - 1, 0) + 1
+  let begin = findFirst(ch => measure(ch - 1).bottom <= y, end, 0)
   end = findFirst(ch => measure(ch).top > y, begin, end)
   return {begin, end}
 }
@@ -450,7 +450,7 @@ function coordsCharInner(cm, lineObj, lineNo, x, y) {
       prevDiff = diff
       let prevPos = pos
       pos = moveVisually(cm, lineObj, pos, dir)
-      if (pos == null || pos.ch < begin || end <= pos.ch) {
+      if (pos == null || pos.ch < begin || end <= (pos.sticky == "before" ? pos.ch - 1 : pos.ch)) {
         pos = prevPos
         break
       }
