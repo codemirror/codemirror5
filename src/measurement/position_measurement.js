@@ -432,6 +432,11 @@ function wrappedLineExtent(cm, lineObj, preparedMeasure, y) {
   return {begin, end}
 }
 
+export function wrappedLineExtentChar(cm, lineObj, preparedMeasure, target) {
+  let targetTop = intoCoordSystem(cm, lineObj, measureCharPrepared(cm, preparedMeasure, target), "line").top
+  return wrappedLineExtent(cm, lineObj, preparedMeasure, targetTop)
+}
+
 function coordsCharInner(cm, lineObj, lineNo, x, y) {
   y -= heightAtLine(lineObj)
   let begin = 0, end = lineObj.text.length

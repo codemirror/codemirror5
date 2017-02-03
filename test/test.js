@@ -1124,13 +1124,18 @@ testCM("measureWrappedEndOfLine", function(cm) {
       else break;
     }
   }
-  for (var i = 0; i < 2; ++i) {
+  for (var i = 0; i < 3; ++i) {
     var endPos = cm.charCoords(Pos(0, 12)); // Next-to-last since last would wrap (#1862)
     endPos.left += w; // Add width of editor just to be sure that we are behind last character
     eqCursorPos(cm.coordsChar(endPos), Pos(0, 13, "before"));
     endPos.left += w * 100;
     eqCursorPos(cm.coordsChar(endPos), Pos(0, 13, "before"));
     cm.setValue("0123456789abcابجابجابجابج");
+    if (i == 1) {
+      var node = document.createElement("div");
+      node.innerHTML = "hi"; node.style.height = "30px";
+      cm.addLineWidget(0, node, {above: true});
+    }
   }
 }, {mode: "text/html", value: "0123456789abcde0123456789", lineWrapping: true}, ie_lt8 || opera_lt10);
 
