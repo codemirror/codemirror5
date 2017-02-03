@@ -1124,12 +1124,40 @@ testCM("measureWrappedEndOfLine", function(cm) {
       else break;
     }
   }
-  var endPos = cm.charCoords(Pos(0, 12)); // Next-to-last since last would wrap (#1862)
-  endPos.left += w; // Add width of editor just to be sure that we are behind last character
-  eqCursorPos(cm.coordsChar(endPos), Pos(0, 13, "before"));
-  endPos.left += w * 100;
-  eqCursorPos(cm.coordsChar(endPos), Pos(0, 13, "before"));
+  for (var i = 0; i < 2; ++i) {
+    var endPos = cm.charCoords(Pos(0, 12)); // Next-to-last since last would wrap (#1862)
+    endPos.left += w; // Add width of editor just to be sure that we are behind last character
+    eqCursorPos(cm.coordsChar(endPos), Pos(0, 13, "before"));
+    endPos.left += w * 100;
+    eqCursorPos(cm.coordsChar(endPos), Pos(0, 13, "before"));
+    cm.setValue("0123456789abcابجابجابجابج");
+  }
 }, {mode: "text/html", value: "0123456789abcde0123456789", lineWrapping: true}, ie_lt8 || opera_lt10);
+
+testCM("measureWrappedBeginOfLine", function(cm) {
+  if (phantom) return;
+  cm.setSize(null, "auto");
+  var inner = byClassName(cm.getWrapperElement(), "CodeMirror-lines")[0].firstChild;
+  var lh = inner.offsetHeight;
+  for (var step = 10, w = cm.charCoords(Pos(0, 7), "div").right;; w += step) {
+    cm.setSize(w);
+    if (inner.offsetHeight < 2.5 * lh) {
+      if (step == 10) { w -= 10; step = 1; }
+      else break;
+    }
+  }
+  var beginOfSecondLine = Pos(0, 13, "after");
+  for (var i = 0; i < 2; ++i) {
+    var beginPos = cm.charCoords(Pos(0, 0));
+    beginPos.left -= w;
+    eqCursorPos(cm.coordsChar(beginPos), Pos(0, 0, "after"));
+    beginPos = cm.cursorCoords(beginOfSecondLine);
+    beginPos.left = 0;
+    eqCursorPos(cm.coordsChar(beginPos), beginOfSecondLine);
+    cm.setValue("0123456789abcابجابجابجابج");
+    beginOfSecondLine = Pos(0, 25, "before");
+  }
+}, {mode: "text/html", value: "0123456789abcde0123456789", lineWrapping: true});
 
 testCM("scrollVerticallyAndHorizontally", function(cm) {
   if (cm.getOption("inputStyle") != "textarea") return;
