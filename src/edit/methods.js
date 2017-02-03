@@ -480,7 +480,7 @@ function findPosH(doc, pos, dir, unit, visually) {
       next = moveVisually(doc.cm, lineObj, pos, dir)
     } else {
       let ch = moveLogically(lineObj, pos, dir)
-      next = ch == null ?  null : new Pos(pos.line, ch, dir < 0 ? "after" : "before")
+      next = ch == null ? null : new Pos(pos.line, ch, dir < 0 ? "after" : "before")
     }
     if (next == null) {
       if (!boundToLine && findNextLine())

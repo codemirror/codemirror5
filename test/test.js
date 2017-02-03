@@ -34,7 +34,6 @@ var opera = /Opera\/\./.test(navigator.userAgent);
 var opera_version = opera && navigator.userAgent.match(/Version\/(\d+\.\d+)/);
 if (opera_version) opera_version = Number(opera_version);
 var opera_lt10 = opera && (!opera_version || opera_version < 10);
-var webkit = /WebKit\//.test(navigator.userAgent);
 
 namespace = "core_";
 
