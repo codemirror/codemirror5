@@ -3477,24 +3477,44 @@ testVim('ex_sort_hex', function(cm, vim, helpers) {
 }, { value: '6\nd3\n s5\n&0xB\n.9'});
 testVim('ex_sort_octal', function(cm, vim, helpers) {
   helpers.doEx('sort o');
-  eq('.8\n.9\nd3\n s5\n6', cm.getValue());
+  eq('.9\n.8\nd3\n s5\n6', cm.getValue());
 }, { value: '6\nd3\n s5\n.9\n.8'});
 testVim('ex_sort_decimal_mixed', function(cm, vim, helpers) {
   helpers.doEx('sort d');
-  eq('y\nz\nc1\nb2\na3', cm.getValue());
+  eq('z\ny\nc1\nb2\na3', cm.getValue());
 }, { value: 'a3\nz\nc1\ny\nb2'});
 testVim('ex_sort_decimal_mixed_reverse', function(cm, vim, helpers) {
   helpers.doEx('sort! d');
   eq('a3\nb2\nc1\nz\ny', cm.getValue());
 }, { value: 'a3\nz\nc1\ny\nb2'});
-testVim('ex_sort_patterns_not_supported', function(cm, vim, helpers) {
-  var notified = false;
-  cm.openNotification = helpers.fakeOpenNotification(function(text) {
-    notified = /patterns not supported/.test(text);
-  });
-  helpers.doEx('sort /abc/');
-  is(notified, 'No notification.');
-});
+testVim('ex_sort_pattern_alpha', function(cm, vim, helpers) {
+  helpers.doEx('sort /[a-z]/');
+  eq('a3\nb2\nc1\ny\nz', cm.getValue());
+}, { value: 'z\ny\nc1\nb2\na3'});
+testVim('ex_sort_pattern_alpha_reverse', function(cm, vim, helpers) {
+  helpers.doEx('sort! /[a-z]/');
+  eq('z\ny\nc1\nb2\na3', cm.getValue());
+}, { value: 'z\ny\nc1\nb2\na3'});
+testVim('ex_sort_pattern_alpha_ignoreCase', function(cm, vim, helpers) {
+  helpers.doEx('sort i/[a-z]/');
+  eq('a3\nb2\nC1\nY\nz', cm.getValue());
+}, { value: 'z\nY\nC1\nb2\na3'});
+testVim('ex_sort_pattern_alpha_longer', function(cm, vim, helpers) {
+  helpers.doEx('sort /[a-z]+/');
+  eq('a\naa\nab\nade\nadele\nadelle\nadriana\nalex\nalexandra\nb\nc\ny\nz', cm.getValue());
+}, { value: 'z\nab\naa\nade\nadelle\nalexandra\nalex\nadriana\nadele\ny\nc\nb\na'});
+testVim('ex_sort_pattern_alpha_only', function(cm, vim, helpers) {
+  helpers.doEx('sort /^[a-z]$/');
+  eq('z1\ny2\na3\nb\nc', cm.getValue());
+}, { value: 'z1\ny2\na3\nc\nb'});
+testVim('ex_sort_pattern_alpha_only_reverse', function(cm, vim, helpers) {
+  helpers.doEx('sort! /^[a-z]$/');
+  eq('c\nb\nz1\ny2\na3', cm.getValue());
+}, { value: 'z1\ny2\na3\nc\nb'});
+testVim('ex_sort_pattern_alpha_num', function(cm, vim, helpers) {
+  helpers.doEx('sort /[a-z][0-9]/');
+  eq('c\nb\na3\ny2\nz1', cm.getValue());
+}, { value: 'z1\ny2\na3\nc\nb'});
 // test for :global command
 testVim('ex_global', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
