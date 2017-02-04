@@ -1283,7 +1283,8 @@
             clearInputState(cm);
             close();
             cm.focus();
-          } else if (keyName == 'Up' || keyName == 'Down') {
+          }
+          if (keyName == 'Up' || keyName == 'Down') {
             CodeMirror.e_stop(e);  
           } else if (keyName == 'Ctrl-U') {
             // Ctrl-U clears input.
