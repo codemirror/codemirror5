@@ -15,6 +15,7 @@
     script: [
       ["lang", /(javascript|babel)/i, "javascript"],
       ["type", /^(?:text|application)\/(?:x-)?(?:java|ecma)script$|^$/i, "javascript"],
+      ["type", /^text\/babel$/i, "javascript"],
       ["type", /./, "text/plain"],
       [null, null, "javascript"]
     ],
