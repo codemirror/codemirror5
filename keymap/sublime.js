@@ -152,17 +152,24 @@
       var text = cm.getRange(from, to);
       var query = fullWord ? new RegExp("\\b" + text + "\\b") : text;
       var cur = cm.getSearchCursor(query, to);
-      if (cur.findNext()) {
-        cm.addSelection(cur.from(), cur.to());
-      } else {
+      var found = cur.findNext();
+      if (!found) {
         cur = cm.getSearchCursor(query, Pos(cm.firstLine(), 0));
-        if (cur.findNext())
-          cm.addSelection(cur.from(), cur.to());
+        found = cur.findNext();
       }
+      if (!found || isSelectedRange(cm.listSelections(), cur.from(), cur.to()))
+        return CodeMirror.Pass
+      cm.addSelection(cur.from(), cur.to());
     }
     if (fullWord)
       cm.state.sublimeFindFullWord = cm.doc.sel;
   };
+
+  function isSelectedRange(ranges, from, to) {
+    for (var i = 0; i < ranges.length; i++)
+      if (ranges[i].from() == from && ranges[i].to() == to) return true
+    return false
+  }
 
   var mirror = "(){}[]";
   function selectBetweenBrackets(cm) {
