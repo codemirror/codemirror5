@@ -15,6 +15,7 @@ CodeMirror.defineMode('smalltalk', function(config) {
 
   var specialChars = /[+\-\/\\*~<>=@%|&?!.,:;^]/;
   var keywords = /true|false|nil|self|super|thisContext/;
+  var variables = /Smalltalk/;
 
   var Context = function(tokenizer, parent) {
     this.next = tokenizer;
@@ -91,6 +92,7 @@ CodeMirror.defineMode('smalltalk', function(config) {
     } else if (/[\w_]/.test(aChar)) {
       stream.eatWhile(/[\w\d_]/);
       token.name = state.expectVariable ? (keywords.test(stream.current()) ? 'keyword' : 'variable') : null;
+      token.name = state.expectVariable ? (variables.test(stream.current()) ? 'variable-2' : 'variable') : null;
 
     } else {
       token.eos = state.expectVariable;
@@ -120,6 +122,17 @@ CodeMirror.defineMode('smalltalk', function(config) {
 
     if (aChar === '|') {
       token.context = context.parent;
+      var str = stream.string;
+      var arr = str.split('|');
+      arr.length == 3 ? str = arr[1] : str = arr[2];
+      if(!str){ str = '' };
+      var arr2 = str.split(' ');
+      for(var i=0;i<arr2.length;i++){
+        var aVar = arr2[i].replace(/\s/g, '');
+        if(aVar.length != 0){
+          if(!variables.test(aVar)){ variables = new RegExp(variables.source + (new RegExp('|^'+aVar+'$').source))};
+        }
+      }
       token.eos = true;
 
     } else {
