@@ -92,7 +92,7 @@ CodeMirror.defineMode('smalltalk', function(config) {
     } else if (/[\w_]/.test(aChar)) {
       stream.eatWhile(/[\w\d_]/);
       token.name = state.expectVariable ? (keywords.test(stream.current()) ? 'keyword' : 'variable') : null;
-	  token.name = state.expectVariable ? (variables.test(stream.current()) ? 'variable-2' : 'variable') : null;
+      token.name = state.expectVariable ? (variables.test(stream.current()) ? 'variable-2' : 'variable') : null;
 
     } else {
       token.eos = state.expectVariable;
