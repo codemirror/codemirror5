@@ -77,7 +77,8 @@
         curLine = pos.line;
         curLineObj = cm.getLineHandle(curLine);
       }
-      if (wrapping && curLineObj.height > singleLineH)
+      if ((curLineObj.widgets && curLineObj.widgets.length) ||
+          (wrapping && curLineObj.height > singleLineH))
         return cm.charCoords(pos, "local")[top ? "top" : "bottom"];
       var topY = cm.heightAtLine(curLineObj, "local");
       return topY + (top ? 0 : curLineObj.height);
