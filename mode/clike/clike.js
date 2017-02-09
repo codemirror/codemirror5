@@ -493,14 +493,11 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       /* scala */
       "abstract case catch class def do else extends final finally for forSome if " +
       "implicit import lazy match new null object override package private protected return " +
-      "sealed super this throw trait try type val var while with yield _ : = => <- <: " +
-      "<% >: # @ " +
+      "sealed super this throw trait try type val var while with yield _ " +
 
       /* package scala */
       "assert assume require print println printf readLine readBoolean readByte readShort " +
-      "readChar readInt readLong readFloat readDouble " +
-
-      ":: #:: "
+      "readChar readInt readLong readFloat readDouble"
     ),
     types: words(
       "AnyVal App Application Array BufferedIterator BigDecimal BigInt Char Console Either " +
@@ -521,6 +518,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     atoms: words("true false null"),
     indentStatements: false,
     indentSwitch: false,
+    isOperatorChar: /[+\-*&%=<>!?|\/#:@]/,
     hooks: {
       "@": function(stream) {
         stream.eatWhile(/[\w\$_]/);
