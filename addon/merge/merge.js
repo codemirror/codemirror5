@@ -47,6 +47,7 @@
       this.diff = getDiff(asString(orig), asString(options.value));
       this.chunks = getChunks(this.diff);
       this.diffOutOfDate = this.dealigned = false;
+      this.needsScrollSync = null
 
       this.showDifferences = options.showDifferences !== false;
     },
@@ -97,6 +98,7 @@
       if (dv.mv.options.connect == "align")
         alignChunks(dv);
       makeConnections(dv);
+      if (dv.needsScrollSync != null) syncScroll(dv, dv.needsScrollSync)
 
       updating = false;
     }
@@ -148,7 +150,11 @@
 
   function syncScroll(dv, toOrig) {
     // Change handler will do a refresh after a timeout when diff is out of date
-    if (dv.diffOutOfDate) return false;
+    if (dv.diffOutOfDate) {
+      if (dv.lockScroll && dv.needsScrollSync == null) dv.needsScrollSync = toOrig
+      return false
+    }
+    dv.needsScrollSync = null
     if (!dv.lockScroll) return true;
     var editor, other, now = +new Date;
     if (toOrig) { editor = dv.edit; other = dv.orig; }
