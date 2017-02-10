@@ -84,7 +84,7 @@
       return topY + (top ? 0 : curLineObj.height);
     }
 
-    var lastLine = cm.lineCount() - 1;
+    var lastLine = cm.lastLine()
     if (cm.display.barWidth) for (var i = 0, nextTop; i < anns.length; i++) {
       var ann = anns[i];
       if (ann.to.line > lastLine) continue;
