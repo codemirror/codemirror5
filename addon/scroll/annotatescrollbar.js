@@ -84,11 +84,14 @@
       return topY + (top ? 0 : curLineObj.height);
     }
 
+    var lastLine = cm.lineCount() - 1;
     if (cm.display.barWidth) for (var i = 0, nextTop; i < anns.length; i++) {
       var ann = anns[i];
+      if (ann.to.line > lastLine) continue;
       var top = nextTop || getY(ann.from, true) * hScale;
       var bottom = getY(ann.to, false) * hScale;
       while (i < anns.length - 1) {
+        if (anns[i + 1].to.line > lastLine) break;
         nextTop = getY(anns[i + 1].from, true) * hScale;
         if (nextTop > bottom + .9) break;
         ann = anns[++i];
