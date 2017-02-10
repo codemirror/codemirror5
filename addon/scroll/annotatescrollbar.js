@@ -72,9 +72,11 @@
     var wrapping = cm.getOption("lineWrapping");
     var singleLineH = wrapping && cm.defaultTextHeight() * 1.5;
     var curLine = null, curLineObj = null;
+    var lastLine = cm.lineCount() - 1;
     function getY(pos, top) {
-      if (curLine != pos.line) {
-        curLine = pos.line;
+      var line = Math.min(lastLine, pos.line);
+      if (curLine != line) {
+        curLine = line;
         curLineObj = cm.getLineHandle(curLine);
       }
       if ((curLineObj.widgets && curLineObj.widgets.length) ||
