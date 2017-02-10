@@ -139,19 +139,19 @@
 
   function registerScroll(dv) {
     dv.edit.on("scroll", function() {
-      syncScroll(dv, DIFF_INSERT) && makeConnections(dv);
+      syncScroll(dv, true) && makeConnections(dv);
     });
     dv.orig.on("scroll", function() {
-      syncScroll(dv, DIFF_DELETE) && makeConnections(dv);
+      syncScroll(dv, false) && makeConnections(dv);
     });
   }
 
-  function syncScroll(dv, type) {
+  function syncScroll(dv, toOrig) {
     // Change handler will do a refresh after a timeout when diff is out of date
     if (dv.diffOutOfDate) return false;
     if (!dv.lockScroll) return true;
     var editor, other, now = +new Date;
-    if (type == DIFF_INSERT) { editor = dv.edit; other = dv.orig; }
+    if (toOrig) { editor = dv.edit; other = dv.orig; }
     else { editor = dv.orig; other = dv.edit; }
     // Don't take action if the position of this editor was recently set
     // (to prevent feedback loops)
@@ -163,9 +163,9 @@
     } else {
       var halfScreen = .5 * sInfo.clientHeight, midY = sInfo.top + halfScreen;
       var mid = editor.lineAtHeight(midY, "local");
-      var around = chunkBoundariesAround(dv.chunks, mid, type == DIFF_INSERT);
-      var off = getOffsets(editor, type == DIFF_INSERT ? around.edit : around.orig);
-      var offOther = getOffsets(other, type == DIFF_INSERT ? around.orig : around.edit);
+      var around = chunkBoundariesAround(dv.chunks, mid, toOrig);
+      var off = getOffsets(editor, toOrig ? around.edit : around.orig);
+      var offOther = getOffsets(other, toOrig ? around.orig : around.edit);
       var ratio = (midY - off.top) / (off.bot - off.top);
       var targetPos = (offOther.top - halfScreen) + ratio * (offOther.bot - offOther.top);
 
