@@ -133,7 +133,7 @@ CodeMirror.defineMode("xml", function(editorConf, config_) {
       state.stringStartCol = stream.column();
       return state.tokenize(stream, state);
     } else {
-      stream.match(/^[^\s\u00a0=<>\"\']*[^\s\u00a0=<>\"\'\/]/);
+      stream.match(/^[^\s\u00a0=<>\"\'\-]*[^\s\u00a0=<>\"\'\/\-]/);
       return "word";
     }
   }
