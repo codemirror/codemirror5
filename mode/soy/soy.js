@@ -282,9 +282,10 @@
         return indent;
       },
 
+      // innerMode should returns modes.js since soy use js style comments.
       innerMode: function(state) {
         if (state.soyState.length && last(state.soyState) != "literal") return null;
-        else return {state: state.localState, mode: state.localMode};
+        else return {state: CodeMirror.startState(modes.js), mode: modes.js};
       },
 
       electricInput: /^\s*\{(\/|\/template|\/deltemplate|\/switch|fallbackmsg|elseif|else|case|default|ifempty|\/literal\})$/,

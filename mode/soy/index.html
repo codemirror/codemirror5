@@ -11,6 +11,8 @@
 <script src="../xml/xml.js"></script>
 <script src="../javascript/javascript.js"></script>
 <script src="../css/css.js"></script>
+<script src="../../addon/comment/comment.js"></script>
+<script src="../../keymap/sublime.js"></script>
 <script src="soy.js"></script>
 <style type="text/css">.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
 <div id=nav>
@@ -57,6 +59,7 @@
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true,
         matchBrackets: true,
+        keyMap: "sublime",
         mode: "text/x-soy",
         indentUnit: 2,
         indentWithTabs: false
