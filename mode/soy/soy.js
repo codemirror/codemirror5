@@ -292,6 +292,7 @@
       blockCommentStart: "/*",
       blockCommentEnd: "*/",
       blockCommentContinue: " * ",
+      useInnerComments: false,
       fold: "indent"
     };
   }, "htmlmixed");
