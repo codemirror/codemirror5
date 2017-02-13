@@ -3,13 +3,22 @@
 
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
-    mod(require("../../lib/codemirror"), require("../htmlmixed/htmlmixed"), require("../clike/clike"));
+    mod(require("../../lib/codemirror"), require("../htmlmixed/htmlmixed"), require("../clike/clike"), require("../meta"));
   else if (typeof define == "function" && define.amd) // AMD
-    define(["../../lib/codemirror", "../htmlmixed/htmlmixed", "../clike/clike"], mod);
+    define(["../../lib/codemirror", "../htmlmixed/htmlmixed", "../clike/clike", "../meta"], mod);
   else // Plain browser env
     mod(CodeMirror);
 })(function(CodeMirror) {
   "use strict";
+
+  function getMode(name) {
+    if (CodeMirror.findModeByName) {
+      var found = CodeMirror.findModeByName(name);
+      if (found) name = found.mime || found.mimes[0];
+    }
+    var mode = CodeMirror.getMode({}, name);
+    return mode.name == "null" ? null : mode;
+  }
 
   function keywords(str) {
     var obj = {}, words = str.split(" ");
@@ -90,6 +99,23 @@
   CodeMirror.registerHelper("hintWords", "php", [phpKeywords, phpAtoms, phpBuiltin].join(" ").split(" "));
   CodeMirror.registerHelper("wordChars", "php", /[\w$]/);
 
+  function isLeavingLocal(stream, state) {
+    if (state.heredoc.delim && stream.match(state.heredoc.delim)) {
+      state.heredoc = {};
+      state.curState = null;
+      state.tokenize = null;
+      return true;
+    }
+    return false;
+  }
+
+  function local(stream, state) {
+    if (isLeavingLocal(stream, state)) {
+      return "string";
+    }
+    return state.heredoc.curMode.token(stream, state.curState);
+  }
+
   var phpConfig = {
     name: "clike",
     helperType: "php",
@@ -111,6 +137,18 @@
           stream.eatWhile(/[\w\.]/);
           var delim = stream.current().slice(before[0].length + (quoted ? 2 : 1));
           if (quoted) stream.eat(quoted);
+
+          var mode;
+          if (!quoted && delim && delim === delim.toUpperCase() && (mode = getMode(delim))) {
+            state.heredoc = {
+              delim: delim,
+              quoted: quoted,
+              curMode: mode
+            };
+            state.curState = CodeMirror.startState(state.heredoc.curMode);
+            state.tokenize = local;
+            return "string";
+          }
           if (delim) {
             (state.tokStack || (state.tokStack = [])).push(delim, 0);
             state.tokenize = phpString(delim, quoted != "'");
@@ -208,7 +246,7 @@
         if (state.curMode == htmlMode) cur = htmlNew;
         else cur = phpNew;
         return {html: htmlNew, php: phpNew, curMode: state.curMode, curState: cur,
-                pending: state.pending};
+                pending: state.pending, heredoc: state.heredoc};
       },
 
       token: dispatch,

@@ -12,6 +12,7 @@
 <script src="../javascript/javascript.js"></script>
 <script src="../css/css.js"></script>
 <script src="../clike/clike.js"></script>
+<script src="../meta.js"></script>
 <script src="php.js"></script>
 <style type="text/css">.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
 <div id=nav>
@@ -32,6 +33,10 @@
 <h2>PHP mode</h2>
 <form><textarea id="code" name="code">
 <?php
+$foo = <<<HTML
+    <p class="paragraph">A text</p>
+HTML;
+
 $a = array('a' => 1, 'b' => 2, 3 => 'c');
 
 echo "$a[a] ${a[3] /* } comment */} {$a[b]} \$a[a]";

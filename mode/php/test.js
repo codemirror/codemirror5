@@ -151,4 +151,28 @@
      "[string <<<here]",
      "[string doc ][variable-2 $]{[variable yay]}[string more]",
      "[string here]; [comment // normal]");
+
+  MT("heredoc_syntax_javascript",
+     "[meta <?php]",
+     "[string <<<JAVASCRIPT]",
+     "[keyword function] [def log]() { [variable console].[property log]([string 'foo']); }",
+     "[string JAVASCRIPT]; [comment // normal]");
+
+  MT("heredoc_syntax_html",
+     "[meta <?php]",
+     "[string <<<HTML]",
+     "[tag&bracket <][tag p] [attribute class]=[string \"paragraph\"][tag&bracket >]A text[tag&bracket </][tag p][tag&bracket >]",
+     "[string HTML]; [comment // normal]");
+
+  MT("heredoc_syntax_sql",
+     "[meta <?php]",
+     "[string <<<SQL]",
+     "[keyword select] * [keyword from] codemirror;",
+     "[string SQL]; [comment // normal]");
+
+  MT("newdoc",
+     "[meta <?php]",
+     "[string <<<'DOC']",
+     "[string doc ${yay} more]",
+     "[string DOC]; [comment // normal]");
 })();
