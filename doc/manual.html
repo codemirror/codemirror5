@@ -2993,6 +2993,9 @@ editor.setOption("extraKeys", {
           <dt><code><strong>revertButtons</strong>: boolean</code></dt>
           <dd>Determines whether buttons that allow the user to revert
           changes are shown. Defaults to true.</dd>
+          <dt><code><strong>revertChunk</strong>: fn(mv: MergeView, from: CodeMirror, fromStart: Pos, fromEnd: Pos, to: CodeMirror, toStart: Pos, toEnd: Pos)</code></dt>
+          <dd>Can be used to define custom behavior when the user
+          reverts a changed chunk.</dd>
           <dt><code><strong>connect</strong>: string</code></dt>
           <dd>Sets the style used to connect changed chunks of code.
           By default, connectors are drawn. When this is set
