@@ -245,7 +245,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       state.f = state.block = leavingLocal;
       return getType(state)
     } else if (state.fencedChars && stream.skipTo(state.fencedChars)) {
-      return "commment"
+      return "comment"
     } else if (state.localMode) {
       return state.localMode.token(stream, state.localState);
     } else {
