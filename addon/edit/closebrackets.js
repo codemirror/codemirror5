@@ -185,7 +185,7 @@
   function enteringString(cm, pos, ch) {
     var line = cm.getLine(pos.line);
     var token = cm.getTokenAt(pos);
-    if (/\bstring2?\b/.test(token.type)) return false;
+    if (/\bstring2?\b/.test(token.type) || stringStartsAfter(cm, pos)) return false;
     var stream = new CodeMirror.StringStream(line.slice(0, pos.ch) + ch + line.slice(pos.ch), 4);
     stream.pos = stream.start = token.start;
     for (;;) {
