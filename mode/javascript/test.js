@@ -48,6 +48,12 @@
      "  [property sub]([def a], [def b]) {}",
      "};");
 
+  MT("class_async_method",
+     "[keyword class] [def Foo] {",
+     "  [property sayName1]() {}",
+     "  [keyword async] [property sayName2]() {}",
+     "}");
+
   MT("import",
      "[keyword function] [def foo]() {",
      "  [keyword import] [def $] [keyword from] [string 'jquery'];",
