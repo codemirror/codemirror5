@@ -188,8 +188,6 @@
       }
     }
 
-    if (window.dv && other == window.dv.editor()) console.log("scroll fed back right to left", targetPos)
-    else console.log("propagate left to right", targetPos)
     other.scrollTo(sInfo.left, targetPos);
     other.state.scrollSetAt = now;
     other.state.scrollSetBy = dv;
@@ -388,10 +386,8 @@
     for (var ln = 0; ln < linesToAlign.length; ln++)
       alignLines(cm, linesToAlign[ln], aligners);
 
-    for (var i = 0; i < cm.length; i++) {
-      if (i == 0) console.log("scroll to in align", scroll[i])
+    for (var i = 0; i < cm.length; i++)
       cm[i].scrollTo(null, scroll[i]);
-    }
   }
 
   function alignLines(cm, lines, aligners) {
