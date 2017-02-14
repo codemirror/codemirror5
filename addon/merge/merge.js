@@ -277,7 +277,7 @@
       }
     }
 
-    var chunkStart = 0;
+    var chunkStart = 0, pending = false;
     for (var i = 0; i < diff.length; ++i) {
       var part = diff[i], tp = part[0], str = part[1];
       if (tp == DIFF_EQUAL) {
@@ -285,10 +285,11 @@
         moveOver(pos, str);
         var cleanTo = pos.line + (endOfLineClean(diff, i) ? 1 : 0);
         if (cleanTo > cleanFrom) {
-          if (i) markChunk(chunkStart, cleanFrom);
+          if (pending) { markChunk(chunkStart, cleanFrom); pending = false }
           chunkStart = cleanTo;
         }
       } else {
+        pending = true
         if (tp == type) {
           var end = moveOver(pos, str, true);
           var a = posMax(top, pos), b = posMin(bot, end);
@@ -298,7 +299,7 @@
         }
       }
     }
-    if (chunkStart <= pos.line) markChunk(chunkStart, pos.line + 1);
+    if (pending) markChunk(chunkStart, pos.line + 1);
   }
 
   // Updating the gap between editor and original
