@@ -129,10 +129,11 @@
     dv.orig.on("change", change);
     dv.edit.on("swapDoc", swapDoc);
     dv.orig.on("swapDoc", swapDoc);
-    dv.edit.on("markerAdded", setDealign);
-    dv.edit.on("markerCleared", setDealign);
-    dv.orig.on("markerAdded", setDealign);
-    dv.orig.on("markerCleared", setDealign);
+    var events = ["markerAdded", "markerCleared", "lineWidgetAdded", "lineWidgetCleared"]
+    for (var i = 0; i < events.length; i++) {
+      dv.edit.on(events[i], setDealign);
+      dv.orig.on(events[i], setDealign);
+    }
     dv.edit.on("viewportChange", function() { set(false); });
     dv.orig.on("viewportChange", function() { set(false); });
     update();
