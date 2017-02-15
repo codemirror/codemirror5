@@ -6,6 +6,7 @@ import { lineNo, updateLineHeight } from "../line/utils_line"
 import { widgetHeight } from "../measurement/widgets"
 import { changeLine } from "./changes"
 import { eventMixin } from "../util/event"
+import { signalLater } from "../util/operation_group"
 
 // Line widgets are block elements displayed above or below a line.
 
@@ -24,10 +25,13 @@ export class LineWidget {
     if (!ws.length) line.widgets = null
     let height = widgetHeight(this)
     updateLineHeight(line, Math.max(0, line.height - height))
-    if (cm) runInOp(cm, () => {
-      adjustScrollWhenAboveVisible(cm, line, -height)
-      regLineChange(cm, no, "widget")
-    })
+    if (cm) {
+      runInOp(cm, () => {
+        adjustScrollWhenAboveVisible(cm, line, -height)
+        regLineChange(cm, no, "widget")
+      })
+      signalLater(cm, "lineWidgetCleared", cm, this)
+    }
   }
 
   changed() {
@@ -66,5 +70,6 @@ export function addLineWidget(doc, handle, node, options) {
     }
     return true
   })
+  signalLater(cm, "lineWidgetAdded", cm, widget)
   return widget
 }
