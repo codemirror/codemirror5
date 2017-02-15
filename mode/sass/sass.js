@@ -15,19 +15,11 @@ CodeMirror.defineMode("sass", function(config) {
   var cssMode = CodeMirror.mimeModes["text/css"];
   var propertyKeywords = cssMode.propertyKeywords || {},
       colorKeywords = cssMode.colorKeywords || {},
-      valueKeywords = cssMode.valueKeywords || {};
+      valueKeywords = cssMode.valueKeywords || {},
+      fontProperties = cssMode.fontProperties || {};
 
   function tokenRegexp(words) {
     return new RegExp("^" + words.join("|"));
-  }
-
-  function propWithVendorPrefix(keyset, string) {
-    if (string.indexOf('-') !== 0) {
-      return false;
-    }
-
-    var unvendored = string.substring(string.indexOf("-", 1) + 1);
-    return keyset.hasOwnProperty(unvendored);
   }
 
   var keywords = ["true", "false", "null", "auto"];
@@ -40,6 +32,10 @@ CodeMirror.defineMode("sass", function(config) {
   var pseudoElementsRegexp = /^::?[a-zA-Z_][\w\-]*/;
 
   var word;
+
+  function isEndLine(stream) {
+    return !stream.peek() || stream.match(/\s+$/, false);
+  }
 
   function urlTokens(stream, state) {
     var ch = stream.peek();
@@ -92,6 +88,9 @@ CodeMirror.defineMode("sass", function(config) {
 
       if (endingString) {
         if (nextChar !== quote && greedy) { stream.next(); }
+        if (isEndLine(stream)) {
+          state.cursorHalf = 0;
+        }
         state.tokenizer = tokenBase;
         return "string";
       } else if (nextChar === "#" && peekChar === "{") {
@@ -162,6 +161,12 @@ CodeMirror.defineMode("sass", function(config) {
     if(!state.cursorHalf){// state.cursorHalf === 0
     // first half i.e. before : for key-value pairs
     // including selectors
+
+      if (ch === "-") {
+        if (stream.match(/^-\w+-/)) {
+          return "meta";
+        }
+      }
 
       if (ch === ".") {
         stream.next();
@@ -255,7 +260,7 @@ CodeMirror.defineMode("sass", function(config) {
           } else if (propertyKeywords.hasOwnProperty(word)) {
             state.prevProp = word;
             return "property";
-          } else if (propWithVendorPrefix(propertyKeywords, word)) {
+          } else if (fontProperties.hasOwnProperty(word)) {
             return "property";
           }
           return "tag";
@@ -277,7 +282,7 @@ CodeMirror.defineMode("sass", function(config) {
 
       if(ch === ":"){
         if (stream.match(pseudoElementsRegexp)){ // could be a pseudo-element
-          return "keyword";
+          return "variable-3";
         }
         stream.next();
         state.cursorHalf=1;
@@ -291,7 +296,7 @@ CodeMirror.defineMode("sass", function(config) {
         stream.next();
         // Hex numbers
         if (stream.match(/[0-9a-fA-F]{6}|[0-9a-fA-F]{3}/)){
-          if(!stream.peek()){
+          if (isEndLine(stream)) {
             state.cursorHalf = 0;
           }
           return "number";
@@ -300,7 +305,7 @@ CodeMirror.defineMode("sass", function(config) {
 
       // Numbers
       if (stream.match(/^-?[0-9\.]+/)){
-        if(!stream.peek()){
+        if (isEndLine(stream)) {
           state.cursorHalf = 0;
         }
         return "number";
@@ -308,14 +313,14 @@ CodeMirror.defineMode("sass", function(config) {
 
       // Units
       if (stream.match(/^(px|em|in)\b/)){
-        if(!stream.peek()){
+        if (isEndLine(stream)) {
           state.cursorHalf = 0;
         }
         return "unit";
       }
 
       if (stream.match(keywordsRegexp)){
-        if(!stream.peek()){
+        if (isEndLine(stream)) {
           state.cursorHalf = 0;
         }
         return "keyword";
@@ -323,7 +328,7 @@ CodeMirror.defineMode("sass", function(config) {
 
       if (stream.match(/^url/) && stream.peek() === "(") {
         state.tokenizer = urlTokens;
-        if(!stream.peek()){
+        if (isEndLine(stream)) {
           state.cursorHalf = 0;
         }
         return "atom";
@@ -333,7 +338,7 @@ CodeMirror.defineMode("sass", function(config) {
       if (ch === "$") {
         stream.next();
         stream.eatWhile(/[\w-]/);
-        if(!stream.peek()){
+        if (isEndLine(stream)) {
           state.cursorHalf = 0;
         }
         return "variable-2";
@@ -347,7 +352,7 @@ CodeMirror.defineMode("sass", function(config) {
       }
 
       if (stream.match(opRegexp)){
-        if(!stream.peek() || stream.match(/\s+$/, false)){
+        if (isEndLine(stream)) {
           state.cursorHalf = 0;
         }
         return "operator";
@@ -355,7 +360,7 @@ CodeMirror.defineMode("sass", function(config) {
 
       // attributes
       if (stream.eatWhile(/[\w-]/)) {
-        if(!stream.peek()){
+        if (isEndLine(stream)) {
           state.cursorHalf = 0;
         }
         word = stream.current().toLowerCase();
@@ -372,7 +377,7 @@ CodeMirror.defineMode("sass", function(config) {
       }
 
       //stream.eatSpace();
-      if(!stream.peek()){
+      if (isEndLine(stream)) {
         state.cursorHalf = 0;
         return null;
       }

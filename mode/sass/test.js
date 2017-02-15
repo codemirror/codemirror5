@@ -66,27 +66,23 @@
      "  [property font-size][operator :] [number 2.5][unit em]")
 
   MT("selector",
-     // SCSS uses variable-3
+     // SCSS doesn't highlight the :
      // "[tag h1]:[variable-3 before],",
      // "[tag h2]:[variable-3 before]",
-     "[tag h1][keyword :before],",
-     "[tag h2][keyword :before]",
+     "[tag h1][variable-3 :before],",
+     "[tag h2][variable-3 :before]",
      "  [property content][operator :] [string \"::\"]")
 
   MT("definition_mixin_equal",
      "[variable-2 $defined-bs-type][operator :] [atom border-box] [keyword !default]",
      "[meta =bs][operator (][variable-2 $bs-type][operator :] [variable-2 $defined-bs-type][operator )]",
-     // The vendor prefix is highlighted as "meta" in CSS mode
-     // "  [meta -webkit-][property box-sizing][operator :] [variable-2 $bs-type]",
-     "  [property -webkit-box-sizing][operator :] [variable-2 $bs-type]",
+     "  [meta -webkit-][property box-sizing][operator :] [variable-2 $bs-type]",
      "  [property box-sizing][operator :] [variable-2 $bs-type]")
 
   MT("definition_mixin_with_space",
      "[variable-2 $defined-bs-type][operator :] [atom border-box] [keyword !default]",
      "[def @mixin] [tag bs][operator (][variable-2 $bs-type][operator :] [variable-2 $defined-bs-type][operator )] ",
-     // The vendor prefix is highlighted as "meta" in CSS mode
-     // "  [meta -moz-][property box-sizing][operator :] [variable-2 $bs-type]",
-     "  [property -moz-box-sizing][operator :] [variable-2 $bs-type]",
+     "  [meta -moz-][property box-sizing][operator :] [variable-2 $bs-type]",
      "  [property box-sizing][operator :] [variable-2 $bs-type]")
 
   MT("numbers_start_dot_include_plus",
@@ -100,4 +96,27 @@
   MT("include",
      "[qualifier .bar]",
      "  [def @include] [tag border-radius][operator (][number 8][unit px][operator )]")
+
+  MT("reference_parent",
+     "[qualifier .col]",
+     "  [property clear][operator :] [atom both]",
+     // SCSS doesn't highlight the :
+     // "  &:[variable-3 after]",
+     "  &[variable-3 :after]",
+     "    [property content][operator :] [string '']",
+     "    [property clear][operator :] [atom both]")
+
+  MT("reference_parent_with_spaces",
+     "[tag section]",
+     "  [property border-left][operator :]  [number 20][unit px] [atom transparent] [atom solid] ",
+     "  &[qualifier .section3]",
+     "    [qualifier .title]",
+     "      [property color][operator :] [keyword white] ",
+     "    [qualifier .vermas]",
+     "      [property display][operator :] [atom none]")
+
+  MT("font_face",
+     "[def @font-face]",
+     "  [property font-family][operator :] [string 'icomoon']",
+     "  [property src][operator :] [atom url][operator (][string fonts/icomoon.ttf][operator )]")
 })();
