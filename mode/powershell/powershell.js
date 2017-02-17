@@ -222,6 +222,8 @@ CodeMirror.defineMode('powershell', function() {
         state.tokenize = tokenMultiString;
         state.startQuote = quoteMatch[0];
         return tokenMultiString(stream, state);
+      } else if (stream.eol()) {
+        return 'error';
       } else if (stream.peek().match(/[({]/)) {
         return 'punctuation';
       } else if (stream.peek().match(varNames)) {
