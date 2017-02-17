@@ -163,7 +163,7 @@ export function removeReadOnlyRanges(doc, from, to) {
       if (dto > 0 || !mk.inclusiveRight && !dto)
         newParts.push({from: m.to, to: p.to})
       parts.splice.apply(parts, newParts)
-      j += newParts.length - 1
+      j += newParts.length - 3
     }
   }
   return parts
