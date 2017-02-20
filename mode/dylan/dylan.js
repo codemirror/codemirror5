@@ -277,7 +277,7 @@ CodeMirror.defineMode("dylan", function(_config) {
     } else {
       stream.eatWhile(/[\w\-]/);
       // Keyword
-      if (wordLookup[stream.current()]) {
+      if (wordLookup.hasOwnProperty(stream.current())) {
         return styleLookup[stream.current()];
       } else if (stream.current().match(symbol)) {
         return "variable";
