@@ -326,10 +326,14 @@ export default class TextareaInput {
         if (!ie || (ie && ie_version < 9)) prepareSelectAllHack()
         let i = 0, poll = () => {
           if (display.selForContextMenu == cm.doc.sel && te.selectionStart == 0 &&
-              te.selectionEnd > 0 && input.prevInput == "\u200b")
+              te.selectionEnd > 0 && input.prevInput == "\u200b") {
             operation(cm, selectAll)(cm)
-          else if (i++ < 10) display.detectingSelectAll = setTimeout(poll, 500)
-          else display.input.reset()
+          } else if (i++ < 10) {
+            display.detectingSelectAll = setTimeout(poll, 500)
+          } else {
+            display.selForContextMenu = null
+            display.input.reset()
+          }
         }
         display.detectingSelectAll = setTimeout(poll, 200)
       }
