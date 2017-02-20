@@ -14,6 +14,10 @@
 function forEach(arr, f) {
   for (var i = 0; i < arr.length; i++) f(arr[i], i)
 }
+function some(arr, f) {
+  for (var i = 0; i < arr.length; i++) if (f(arr[i], i)) return true
+  return false
+}
 
 CodeMirror.defineMode("dylan", function(_config) {
   // Words
@@ -262,7 +266,7 @@ CodeMirror.defineMode("dylan", function(_config) {
     for (var name in patterns) {
       if (patterns.hasOwnProperty(name)) {
         var pattern = patterns[name];
-        if ((pattern instanceof Array && pattern.some(function(p) {
+        if ((pattern instanceof Array && some(pattern, function(p) {
           return stream.match(p);
         })) || stream.match(pattern))
           return patternStyles[name];
