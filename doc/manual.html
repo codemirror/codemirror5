@@ -1138,7 +1138,11 @@ editor.setOption("extraKeys", {
     shouldn't worry too much about sanitizing your coordinates. If you
     give <code>ch</code> a value of <code>null</code>, or don't
     specify it, it will be replaced with the length of the specified
-    line.</p>
+    line. Such positions may also have a <code>sticky</code> property
+    holding <code>"before"</code> or <code>"after"</code>, whether the
+    position is associated with the character before or after it. This
+    influences, for example, where the cursor is drawn on a
+    line-break or bidi-direction boundary.</p>
 
     <p>Methods prefixed with <code>doc.</code> can, unless otherwise
     specified, be called both on <code>CodeMirror</code> (editor)
@@ -2162,9 +2166,12 @@ editor.setOption("extraKeys", {
       whenever the given <code>predicate</code> returns true when
       called with the local mode and editor.</dd>
 
-      <dt id="Pos"><code><strong>CodeMirror.Pos</strong>(line: integer, ?ch: integer)</code></dt>
-      <dd>A constructor for the <code>{line, ch}</code> objects that
-      are used to represent positions in editor documents.</dd>
+      <dt id="Pos"><code><strong>CodeMirror.Pos</strong>(line: integer, ?ch: integer, ?sticky: string)</code></dt>
+      <dd>A constructor for the objects that are used to represent
+      positions in editor documents. <code>sticky</code> defaults to
+      null, but can be set to <code>"before"</code>
+      or <code>"after"</code> to make the position explicitly
+      associate with the character before or after it.</dd>
 
       <dt id="changeEnd"><code><strong>CodeMirror.changeEnd</strong>(change: object) → {line, ch}</code></dt>
       <dd>Utility function that computes an end position from a change
