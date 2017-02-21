@@ -30,7 +30,7 @@ export class LineWidget {
         adjustScrollWhenAboveVisible(cm, line, -height)
         regLineChange(cm, no, "widget")
       })
-      signalLater(cm, "lineWidgetCleared", cm, this)
+      signalLater(cm, "lineWidgetCleared", cm, this, no)
     }
   }
 
@@ -70,6 +70,6 @@ export function addLineWidget(doc, handle, node, options) {
     }
     return true
   })
-  signalLater(cm, "lineWidgetAdded", cm, widget)
+  signalLater(cm, "lineWidgetAdded", cm, widget, typeof handle == "number" ? handle : lineNo(handle))
   return widget
 }
