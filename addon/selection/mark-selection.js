@@ -34,11 +34,12 @@
   });
 
   function onCursorActivity(cm) {
-    cm.operation(function() { update(cm); });
+    if (cm.state.markedSelection)
+      cm.operation(function() { update(cm); });
   }
 
   function onChange(cm) {
-    if (cm.state.markedSelection.length)
+    if (cm.state.markedSelection && cm.state.markedSelection.length)
       cm.operation(function() { clear(cm); });
   }
 
