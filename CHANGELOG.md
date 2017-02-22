@@ -1,3 +1,11 @@
+## 5.24.2 (2017-02-22)
+
+### Bug fixes
+
+[javascript mode](http://codemirror.net/mode/javascript/): Support computed class method names.
+
+[merge addon](http://codemirror.net/doc/manual.html#addon_merge): Improve aligning of unchanged code in the presence of marks and line widgets.
+
 ## 5.24.0 (2017-02-20)
 
 ### Bug fixes
