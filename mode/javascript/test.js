@@ -285,7 +285,7 @@
 
   TS("typescript_index_signature",
      "[keyword interface] [def A] {",
-     "  [[[property prop]: [variable-3 string]]]: [variable-3 any];",
+     "  [[ [variable prop]: [variable-3 string] ]]: [variable-3 any];",
      "  [property prop1]: [variable-3 any];",
      "}");
 
