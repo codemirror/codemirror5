@@ -283,6 +283,12 @@
      "  [property createdAt]: [variable-3 Date];",
      "}");
 
+  TS("typescript_index_signature",
+     "[keyword interface] [def A] {",
+     "  [[[property prop]: [variable-3 string]]]: [variable-3 any];",
+     "  [property prop1]: [variable-3 any];",
+     "}");
+
   var jsonld_mode = CodeMirror.getMode(
     {indentUnit: 2},
     {name: "javascript", jsonld: true}
