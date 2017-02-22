@@ -40,10 +40,13 @@ export class LineWidget {
     let diff = widgetHeight(this) - oldH
     if (!diff) return
     updateLineHeight(line, line.height + diff)
-    if (cm) runInOp(cm, () => {
-      cm.curOp.forceUpdate = true
-      adjustScrollWhenAboveVisible(cm, line, diff)
-    })
+    if (cm) {
+      runInOp(cm, () => {
+        cm.curOp.forceUpdate = true
+        adjustScrollWhenAboveVisible(cm, line, diff)
+        signalLater(cm, "lineWidgetChanged", cm, this, lineNo(line))
+      })
+    }
   }
 }
 eventMixin(LineWidget)

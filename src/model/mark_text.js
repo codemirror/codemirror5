@@ -126,6 +126,7 @@ export class TextMarker {
         if (dHeight)
           updateLineHeight(line, line.height + dHeight)
       }
+      signalLater(cm, "markerChanged", cm, this)
     })
   }
 
