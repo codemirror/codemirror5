@@ -352,11 +352,11 @@
     var result = []
     for (var i = 0;; i++) {
       var chunk = chunks[i]
-      var chunkStart = !chunk ? cm.lastLine() + 1 : isOrig ? chunk.origFrom : chunk.editFrom
+      var chunkStart = !chunk ? 1e9 : isOrig ? chunk.origFrom : chunk.editFrom
       for (; trackI < tracker.alignable.length; trackI += 2) {
         var n = tracker.alignable[trackI] + 1
         if (n <= start) continue
-        if (n < chunkStart) result.push(n)
+        if (n <= chunkStart) result.push(n)
         else break
       }
       if (!chunk) break
