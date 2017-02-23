@@ -289,6 +289,12 @@
      "  [property prop1]: [variable-3 any];",
      "}");
 
+  TS("generic_class",
+     "[keyword class] [def Foo][operator <][variable-3 T][operator >] {",
+     "  [property bar]() {}",
+     "  [property foo](): [variable-3 Foo] {}",
+     "}")
+
   var jsonld_mode = CodeMirror.getMode(
     {indentUnit: 2},
     {name: "javascript", jsonld: true}
