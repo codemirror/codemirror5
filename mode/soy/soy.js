@@ -31,6 +31,12 @@
     }
 
     function tokenUntil(stream, state, untilRegExp) {
+      if (stream.sol()) {
+        for (var indent = 0; indent < state.indent; indent++) {
+          if (!stream.eat(/\s/)) break;
+        }
+        if (indent) return null;
+      }
       var oldString = stream.string;
       var match = untilRegExp.exec(oldString.substr(stream.pos));
       if (match) {
@@ -39,7 +45,8 @@
         stream.string = oldString.substr(0, stream.pos + match.index);
       }
       var result = stream.hideFirstChars(state.indent, function() {
-        return state.localMode.token(stream, state.localState);
+        var localState = last(state.localStates);
+        return localState.mode.token(stream, localState.state);
       });
       stream.string = oldString;
       return result;
@@ -83,8 +90,10 @@
           variables: null,
           scopes: null,
           indent: 0,
-          localMode: modes.html,
-          localState: CodeMirror.startState(modes.html)
+          localStates: [{
+            mode: modes.html,
+            state: CodeMirror.startState(modes.html)
+          }]
         };
       },
 
@@ -98,8 +107,12 @@
           variables: state.variables,
           scopes: state.scopes,
           indent: state.indent, // Indentation of the following line.
-          localMode: state.localMode,
-          localState: CodeMirror.copyState(state.localMode, state.localState)
+          localStates: state.localStates.map(function(localState) {
+            return {
+              mode: localState.mode,
+              state: CodeMirror.copyState(localState.mode, localState.state)
+            };
+          })
         };
       },
 
@@ -187,8 +200,13 @@
                 var kind = match[1];
                 state.kind.push(kind);
                 state.kindTag.push(state.tag);
-                state.localMode = modes[kind] || modes.html;
-                state.localState = CodeMirror.startState(state.localMode);
+                var mode = modes[kind] || modes.html;
+                var localState = last(state.localStates);
+                state.indent += localState.mode.indent(localState.state, "");
+                state.localStates.push({
+                  mode: mode,
+                  state: CodeMirror.startState(mode)
+                });
               }
               return "attribute";
             } else if (stream.match(/^"/)) {
@@ -233,14 +251,15 @@
           return "keyword";
         } else if (match = stream.match(/^\{([\/@\\]?[\w?]*)/)) {
           if (match[1] != "/switch")
-            state.indent += (/^(\/|(else|elseif|ifempty|case|default)$)/.test(match[1]) && state.tag != "switch" ? 1 : 2) * config.indentUnit;
+            state.indent += (/^(\/|(else|elseif|ifempty|case|fallbackmsg|default)$)/.test(match[1]) && state.tag != "switch" ? 1 : 2) * config.indentUnit;
           state.tag = match[1];
           if (state.tag == "/" + last(state.kindTag)) {
             // We found the tag that opened the current kind="".
             state.kind.pop();
             state.kindTag.pop();
-            state.localMode = modes[last(state.kind)] || modes.html;
-            state.localState = CodeMirror.startState(state.localMode);
+            state.localStates.pop();
+            var localState = last(state.localStates);
+            state.indent -= localState.mode.indent(localState.state, "");
           }
           state.soyState.push("tag");
           if (state.tag == "template" || state.tag == "deltemplate") {
@@ -277,14 +296,16 @@
           if (state.tag != "switch" && /^\{(case|default)\b/.test(textAfter)) indent -= config.indentUnit;
           if (/^\{\/switch\b/.test(textAfter)) indent -= config.indentUnit;
         }
-        if (indent && state.localMode.indent)
-          indent += state.localMode.indent(state.localState, textAfter);
+        var localState = last(state.localStates);
+        if (indent && localState.mode.indent) {
+          indent += localState.mode.indent(localState.state, textAfter);
+        }
         return indent;
       },
 
       innerMode: function(state) {
         if (state.soyState.length && last(state.soyState) != "literal") return null;
-        else return {state: state.localState, mode: state.localMode};
+        else return last(state.localStates);
       },
 
       electricInput: /^\s*\{(\/|\/template|\/deltemplate|\/switch|fallbackmsg|elseif|else|case|default|ifempty|\/literal\})$/,
