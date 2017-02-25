@@ -325,6 +325,7 @@ export default class ContentEditableInput {
   }
 
   onKeyPress(e) {
+    if (e.charCode == 0) return
     e.preventDefault()
     if (!this.cm.isReadOnly())
       operation(this.cm, applyTextInput)(this.cm, String.fromCharCode(e.charCode == null ? e.keyCode : e.charCode), 0)

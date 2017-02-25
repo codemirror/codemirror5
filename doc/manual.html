@@ -69,7 +69,7 @@
 <section class=first id=overview>
     <h2 style="position: relative">
       User manual and reference guide
-      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 5.23.0</span>
+      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 5.24.3</span>
     </h2>
 
     <p>CodeMirror is a code-editor component that can be embedded in
@@ -284,7 +284,7 @@
       should be replaced by a
       special <a href="#option_specialCharPlaceholder">placeholder</a>.
       Mostly useful for non-printing special characters. The default
-      is <code>/[\u0000-\u001f\u007f\u00ad\u200b-\u200f\u2028\u2029\ufeff]/</code>.</dd>
+      is <code>/[\u0000-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff]/</code>.</dd>
       <dt id="option_specialCharPlaceholder"><code><strong>specialCharPlaceholder</strong>: function(char) → Element</code></dt>
       <dd>A function that, given a special character identified by
       the <a href="#option_specialChars"><code>specialChars</code></a>
@@ -1138,7 +1138,11 @@ editor.setOption("extraKeys", {
     shouldn't worry too much about sanitizing your coordinates. If you
     give <code>ch</code> a value of <code>null</code>, or don't
     specify it, it will be replaced with the length of the specified
-    line.</p>
+    line. Such positions may also have a <code>sticky</code> property
+    holding <code>"before"</code> or <code>"after"</code>, whether the
+    position is associated with the character before or after it. This
+    influences, for example, where the cursor is drawn on a
+    line-break or bidi-direction boundary.</p>
 
     <p>Methods prefixed with <code>doc.</code> can, unless otherwise
     specified, be called both on <code>CodeMirror</code> (editor)
@@ -2162,9 +2166,12 @@ editor.setOption("extraKeys", {
       whenever the given <code>predicate</code> returns true when
       called with the local mode and editor.</dd>
 
-      <dt id="Pos"><code><strong>CodeMirror.Pos</strong>(line: integer, ?ch: integer)</code></dt>
-      <dd>A constructor for the <code>{line, ch}</code> objects that
-      are used to represent positions in editor documents.</dd>
+      <dt id="Pos"><code><strong>CodeMirror.Pos</strong>(line: integer, ?ch: integer, ?sticky: string)</code></dt>
+      <dd>A constructor for the objects that are used to represent
+      positions in editor documents. <code>sticky</code> defaults to
+      null, but can be set to <code>"before"</code>
+      or <code>"after"</code> to make the position explicitly
+      associate with the character before or after it.</dd>
 
       <dt id="changeEnd"><code><strong>CodeMirror.changeEnd</strong>(change: object) → {line, ch}</code></dt>
       <dd>Utility function that computes an end position from a change

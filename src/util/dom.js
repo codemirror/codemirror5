@@ -68,8 +68,8 @@ export function activeElt() {
   } catch(e) {
     activeElement = document.body || null
   }
-  while (activeElement && activeElement.root && activeElement.root.activeElement)
-    activeElement = activeElement.root.activeElement
+  while (activeElement && activeElement.shadowRoot && activeElement.shadowRoot.activeElement)
+    activeElement = activeElement.shadowRoot.activeElement
   return activeElement
 }
 

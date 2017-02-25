@@ -30,7 +30,7 @@ export class LineWidget {
         adjustScrollWhenAboveVisible(cm, line, -height)
         regLineChange(cm, no, "widget")
       })
-      signalLater(cm, "lineWidgetCleared", cm, this)
+      signalLater(cm, "lineWidgetCleared", cm, this, no)
     }
   }
 
@@ -40,10 +40,13 @@ export class LineWidget {
     let diff = widgetHeight(this) - oldH
     if (!diff) return
     updateLineHeight(line, line.height + diff)
-    if (cm) runInOp(cm, () => {
-      cm.curOp.forceUpdate = true
-      adjustScrollWhenAboveVisible(cm, line, diff)
-    })
+    if (cm) {
+      runInOp(cm, () => {
+        cm.curOp.forceUpdate = true
+        adjustScrollWhenAboveVisible(cm, line, diff)
+        signalLater(cm, "lineWidgetChanged", cm, this, lineNo(line))
+      })
+    }
   }
 }
 eventMixin(LineWidget)
@@ -70,6 +73,6 @@ export function addLineWidget(doc, handle, node, options) {
     }
     return true
   })
-  signalLater(cm, "lineWidgetAdded", cm, widget)
+  signalLater(cm, "lineWidgetAdded", cm, widget, typeof handle == "number" ? handle : lineNo(handle))
   return widget
 }

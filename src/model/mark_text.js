@@ -78,7 +78,7 @@ export class TextMarker {
       this.doc.cantEdit = false
       if (cm) reCheckSelection(cm.doc)
     }
-    if (cm) signalLater(cm, "markerCleared", cm, this)
+    if (cm) signalLater(cm, "markerCleared", cm, this, min, max)
     if (withOp) endOperation(cm)
     if (this.parent) this.parent.clear()
   }
@@ -126,6 +126,7 @@ export class TextMarker {
         if (dHeight)
           updateLineHeight(line, line.height + dHeight)
       }
+      signalLater(cm, "markerChanged", cm, this)
     })
   }
 
