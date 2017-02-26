@@ -467,7 +467,7 @@
     var elt = document.createElement("div");
     elt.className = "CodeMirror-merge-spacer";
     elt.style.height = size + "px"; elt.style.minWidth = "1px";
-    return cm.addLineWidget(line, elt, {height: size, above: above, mergeSpacer: true});
+    return cm.addLineWidget(line, elt, {height: size, above: above, mergeSpacer: true, handleMouseEvents: true});
   }
 
   function drawConnectorsForChunk(dv, chunk, sTopOrig, sTopEdit, w) {
