@@ -28,5 +28,5 @@
 .cm-s-blackboard .cm-link { color: #8DA6CE; }
 .cm-s-blackboard .cm-error { background: #9D1E15; color: #F8F8F8; }
 
-.cm-s-blackboard .CodeMirror-activeline-background { background: #3C3636; }
+.cm-s-blackboard .CodeMirror-activeline .CodeMirror-line { background: #3C3636; }
 .cm-s-blackboard .CodeMirror-matchingbracket { outline:1px solid grey;color:white !important; }

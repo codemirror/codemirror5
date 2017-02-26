@@ -161,9 +161,9 @@ http://ethanschoonover.com/solarized/img/solarized-palette.png
 .cm-s-solarized.cm-s-dark .cm-animate-fat-cursor { background-color: #586e75; }
 
 /* Active line */
-.cm-s-solarized.cm-s-dark .CodeMirror-activeline-background {
+.cm-s-solarized.cm-s-dark .CodeMirror-activeline .CodeMirror-line {
   background: rgba(255, 255, 255, 0.06);
 }
-.cm-s-solarized.cm-s-light .CodeMirror-activeline-background {
+.cm-s-solarized.cm-s-light .CodeMirror-activeline .CodeMirror-line {
   background: rgba(0, 0, 0, 0.06);
 }

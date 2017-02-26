@@ -31,7 +31,6 @@
 .cm-s-zenburn span.cm-operator { color: #f0efd0; }
 .cm-s-zenburn span.CodeMirror-matchingbracket { box-sizing: border-box; background: transparent; border-bottom: 1px solid; }
 .cm-s-zenburn span.CodeMirror-nonmatchingbracket { border-bottom: 1px solid; background: none; }
-.cm-s-zenburn .CodeMirror-activeline { background: #000000; }
-.cm-s-zenburn .CodeMirror-activeline-background { background: #000000; }
+.cm-s-zenburn .CodeMirror-activeline .CodeMirror-line { background: #000000; }
 .cm-s-zenburn div.CodeMirror-selected { background: #545454; }
 .cm-s-zenburn .CodeMirror-focused div.CodeMirror-selected { background: #4f4f4f; }

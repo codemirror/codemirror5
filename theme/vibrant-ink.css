@@ -30,5 +30,5 @@
 .cm-s-vibrant-ink .cm-link { color: blue; }
 .cm-s-vibrant-ink .cm-error { border-bottom: 1px solid red; }
 
-.cm-s-vibrant-ink .CodeMirror-activeline-background { background: #27282E; }
+.cm-s-vibrant-ink .CodeMirror-activeline .CodeMirror-line { background: #27282E; }
 .cm-s-vibrant-ink .CodeMirror-matchingbracket { outline:1px solid grey; color:white !important; }

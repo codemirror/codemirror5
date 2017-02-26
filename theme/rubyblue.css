@@ -22,4 +22,4 @@
 .cm-s-rubyblue span.cm-builtin, .cm-s-rubyblue span.cm-special { color: #FF9D00; }
 .cm-s-rubyblue span.cm-error { color: #AF2018; }
 
-.cm-s-rubyblue .CodeMirror-activeline-background { background: #173047; }
+.cm-s-rubyblue .CodeMirror-activeline .CodeMirror-line { background: #173047; }

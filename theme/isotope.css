@@ -31,4 +31,4 @@
 .cm-s-isotope span.cm-link {color: #cc00ff;}
 
 .cm-s-isotope .CodeMirror-matchingbracket { text-decoration: underline; color: white !important;}
-.cm-s-isotope .CodeMirror-activeline-background { background: #202020; }
+.cm-s-isotope .CodeMirror-activeline .CodeMirror-line { background: #202020; }

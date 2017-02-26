@@ -49,5 +49,5 @@ THE SOFTWARE.
 .cm-s-xq-dark span.cm-attribute { color: #FFF700; }
 .cm-s-xq-dark span.cm-error { color: #f00; }
 
-.cm-s-xq-dark .CodeMirror-activeline-background { background: #27282E; }
+.cm-s-xq-dark .CodeMirror-activeline .CodeMirror-line { background: #27282E; }
 .cm-s-xq-dark .CodeMirror-matchingbracket { outline:1px solid grey; color:white !important; }

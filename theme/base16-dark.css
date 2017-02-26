@@ -34,5 +34,5 @@
 .cm-s-base16-dark span.cm-link { color: #aa759f; }
 .cm-s-base16-dark span.cm-error { background: #ac4142; color: #b0b0b0; }
 
-.cm-s-base16-dark .CodeMirror-activeline-background { background: #202020; }
+.cm-s-base16-dark .CodeMirror-activeline .CodeMirror-line { background: #202020; }
 .cm-s-base16-dark .CodeMirror-matchingbracket { text-decoration: underline; color: white !important; }

@@ -23,5 +23,5 @@
 .cm-s-night span.cm-link { color: #845dc4; }
 .cm-s-night span.cm-error { color: #9d1e15; }
 
-.cm-s-night .CodeMirror-activeline-background { background: #1C005A; }
+.cm-s-night .CodeMirror-activeline .CodeMirror-line { background: #1C005A; }
 .cm-s-night .CodeMirror-matchingbracket { outline:1px solid grey; color:white !important; }

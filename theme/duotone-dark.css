@@ -12,7 +12,7 @@ CodeMirror template by Jan T. Sott (https://github.com/idleberg), adapted by Bra
 
 /* begin cursor */
 .cm-s-duotone-dark .CodeMirror-cursor { border-left: 1px solid #ffad5c; /* border-left: 1px solid #ffad5c80; */ border-right: .5em solid #ffad5c; /* border-right: .5em solid #ffad5c80; */ opacity: .5; }
-.cm-s-duotone-dark .CodeMirror-activeline-background { background: #363342; /* background: #36334280;  */ opacity: .5;}
+.cm-s-duotone-dark .CodeMirror-activeline .CodeMirror-line { background: #363342; /* background: #36334280;  */ opacity: .5;}
 .cm-s-duotone-dark .cm-fat-cursor .CodeMirror-cursor { background: #ffad5c; /* background: #ffad5c80; */ opacity: .5;}
 /* end cursor */
 

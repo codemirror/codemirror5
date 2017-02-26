@@ -34,5 +34,5 @@
 .cm-s-paraiso-light span.cm-link { color: #815ba4; }
 .cm-s-paraiso-light span.cm-error { background: #ef6155; color: #776e71; }
 
-.cm-s-paraiso-light .CodeMirror-activeline-background { background: #CFD1C4; }
+.cm-s-paraiso-light .CodeMirror-activeline .CodeMirror-line { background: #CFD1C4; }
 .cm-s-paraiso-light .CodeMirror-matchingbracket { text-decoration: underline; color: white !important; }

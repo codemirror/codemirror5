@@ -10,7 +10,7 @@
 	font-family: 'Operator Mono', 'Source Sans Pro', Menlo, Monaco, Consolas, Courier New, monospace;
 }
 .cm-s-panda-syntax .CodeMirror-cursor { border-color: #ff2c6d; }
-.cm-s-panda-syntax .CodeMirror-activeline-background {
+.cm-s-panda-syntax .CodeMirror-activeline .CodeMirror-line {
 	background: rgba(99, 123, 156, 0.1);
 }
 .cm-s-panda-syntax .CodeMirror-selected {

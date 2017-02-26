@@ -30,5 +30,5 @@
 .cm-s-erlang-dark span.cm-variable-3 { color: #ccc; }
 .cm-s-erlang-dark span.cm-error      { color: #9d1e15; }
 
-.cm-s-erlang-dark .CodeMirror-activeline-background { background: #013461; }
+.cm-s-erlang-dark .CodeMirror-activeline .CodeMirror-line { background: #013461; }
 .cm-s-erlang-dark .CodeMirror-matchingbracket { outline:1px solid grey; color:white !important; }

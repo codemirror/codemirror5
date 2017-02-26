@@ -35,5 +35,5 @@
 .cm-s-3024-night span.cm-link { color: #a16a94; }
 .cm-s-3024-night span.cm-error { background: #db2d20; color: #807d7c; }
 
-.cm-s-3024-night .CodeMirror-activeline-background { background: #2F2F2F; }
+.cm-s-3024-night .CodeMirror-activeline .CodeMirror-line { background: #2F2F2F; }
 .cm-s-3024-night .CodeMirror-matchingbracket { text-decoration: underline; color: white !important; }

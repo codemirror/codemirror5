@@ -8,5 +8,5 @@
 .cm-s-neat span.cm-meta { color: #555; }
 .cm-s-neat span.cm-link { color: #3a3; }
 
-.cm-s-neat .CodeMirror-activeline-background { background: #e8f2ff; }
+.cm-s-neat .CodeMirror-activeline .CodeMirror-line { background: #e8f2ff; }
 .cm-s-neat .CodeMirror-matchingbracket { outline:1px solid grey; color:black !important; }
