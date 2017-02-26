@@ -49,8 +49,7 @@
       if (Object.prototype.toString.call(classLocation) != "[object Array]") classLocation = [classLocation]
       this.classes.classLocation = classLocation
 
-      var ignoreWS = this.mv.options.ignoreWS || false;
-      this.diff = getDiff(asString(orig), asString(options.value), ignoreWS);
+      this.diff = getDiff(asString(orig), asString(options.value), this.mv.options.ignoreWhitespace);
       this.chunks = getChunks(this.diff);
       this.diffOutOfDate = this.dealigned = false;
       this.needsScrollSync = null
@@ -73,8 +72,7 @@
 
   function ensureDiff(dv) {
     if (dv.diffOutOfDate) {
-      var ignoreWS = dv.mv.options.ignoreWS || false;
-      dv.diff = getDiff(dv.orig.getValue(), dv.edit.getValue(), ignoreWS);
+      dv.diff = getDiff(dv.orig.getValue(), dv.edit.getValue(), dv.mv.options.ignoreWhitespace);
       dv.chunks = getChunks(dv.diff);
       dv.diffOutOfDate = false;
       CodeMirror.signal(dv.edit, "updateDiff", dv.diff);
@@ -638,18 +636,12 @@
   // Operations on diffs
 
   var dmp = new diff_match_patch();
-  function getDiff(a, b, ignoreWS) {
+  function getDiff(a, b, ignoreWhitespace) {
     var diff = dmp.diff_main(a, b);
-    var diffStr;
     // The library sometimes leaves in empty parts, which confuse the algorithm
     for (var i = 0; i < diff.length; ++i) {
       var part = diff[i];
-      if (ignoreWS) {
-        diffStr = part[1].replace(/[ \t]+/g, '');
-      } else {
-        diffStr = part[1]
-      }
-      if (!diffStr) {
+      if (ignoreWhitespace ? !/[^ \t]/.test(part[1]) : !part[1]) {
         diff.splice(i--, 1);
       } else if (i && diff[i - 1][0] == part[0]) {
         diff.splice(i--, 1);
