@@ -658,7 +658,7 @@
     for (var i = 0; i < diff.length; ++i) {
       var part = diff[i], tp = part[0];
       if (tp == DIFF_EQUAL) {
-        var startOff = startOfLineClean(diff, i) ? 0 : 1;
+        var startOff = !startOfLineClean(diff, i) || edit.line < startEdit || orig.line < startOrig ? 1 : 0;
         var cleanFromEdit = edit.line + startOff, cleanFromOrig = orig.line + startOff;
         moveOver(edit, part[1], null, orig);
         var endOff = endOfLineClean(diff, i) ? 1 : 0;
