@@ -2763,9 +2763,11 @@ editor.setOption("extraKeys", {
       representing problems. When the function has
       an <code>async</code> property with a truthy value, it will be
       called with an additional second argument, which is a callback
-      to pass the array to. By default, the linter will run
-      (debounced) whenever the document is changed. You can pass
-      a <code>lintOnChange: false</code> option to disable that.
+      to pass the array to.
+      The linting function can also return a promise, in that case the linter
+      will only be executed when the promise resolves.
+      By default, the linter will run (debounced) whenever the document is changed.
+      You can pass a <code>lintOnChange: false</code> option to disable that.
       Depends on <code>addon/lint/lint.css</code>. A demo can be
       found <a href="../demo/lint.html">here</a>.</dd>
 
