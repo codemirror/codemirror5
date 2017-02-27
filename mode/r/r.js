@@ -108,10 +108,12 @@ CodeMirror.defineMode("r", function(config) {
     };
   }
 
+  var ALIGN_YES = 1, ALIGN_NO = 2
+
   function push(state, type, stream) {
     state.ctx = {type: type,
                  indent: state.indent,
-                 align: null,
+                 flags: 0,
                  column: stream.column(),
                  prev: state.ctx};
   }
@@ -125,19 +127,19 @@ CodeMirror.defineMode("r", function(config) {
       return {tokenize: tokenBase,
               ctx: {type: "top",
                     indent: -config.indentUnit,
-                    align: false},
+                    flags: ALIGN_NO},
               indent: 0,
               afterIdent: false};
     },
 
     token: function(stream, state) {
       if (stream.sol()) {
-        if (state.ctx.align == null) state.ctx.align = false;
+        if ((state.ctx.flags & 3) == 0) state.ctx.flags |= ALIGN_NO
         state.indent = stream.indentation();
       }
       if (stream.eatSpace()) return null;
       var style = state.tokenize(stream, state);
-      if (style != "comment" && state.ctx.align == null) state.ctx.align = true;
+      if (style != "comment" && (state.ctx.flags & ALIGN_NO) == 0) state.ctx.flags |= ALIGN_YES
 
       var ctype = state.ctx.type;
       if ((curPunc == ";" || curPunc == "{" || curPunc == "}") && ctype == "block") pop(state);
@@ -158,7 +160,7 @@ CodeMirror.defineMode("r", function(config) {
       var firstChar = textAfter && textAfter.charAt(0), ctx = state.ctx,
           closing = firstChar == ctx.type;
       if (ctx.type == "block") return ctx.indent + (firstChar == "{" ? 0 : config.indentUnit);
-      else if (ctx.align) return ctx.column + (closing ? 0 : 1);
+      else if (ctx.flags & ALIGN_YES) return ctx.column + (closing ? 0 : 1);
       else return ctx.indent + (closing ? 0 : config.indentUnit);
     },
 
