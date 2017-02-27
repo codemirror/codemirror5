@@ -108,7 +108,7 @@ CodeMirror.defineMode("r", function(config) {
     };
   }
 
-  var ALIGN_YES = 1, ALIGN_NO = 2
+  var ALIGN_YES = 1, ALIGN_NO = 2, BRACELESS = 4
 
   function push(state, type, stream) {
     state.ctx = {type: type,
@@ -116,6 +116,14 @@ CodeMirror.defineMode("r", function(config) {
                  flags: 0,
                  column: stream.column(),
                  prev: state.ctx};
+  }
+  function setFlag(state, flag) {
+    var ctx = state.ctx
+    state.ctx = {type: ctx.type,
+                 indent: ctx.indent,
+                 flags: ctx.flags | flag,
+                 column: ctx.column,
+                 prev: ctx.prev}
   }
   function pop(state) {
     state.indent = state.ctx.indent;
@@ -135,14 +143,14 @@ CodeMirror.defineMode("r", function(config) {
     token: function(stream, state) {
       if (stream.sol()) {
         if ((state.ctx.flags & 3) == 0) state.ctx.flags |= ALIGN_NO
+        if (state.ctx.flags & BRACELESS) pop(state)
         state.indent = stream.indentation();
       }
       if (stream.eatSpace()) return null;
       var style = state.tokenize(stream, state);
-      if (style != "comment" && (state.ctx.flags & ALIGN_NO) == 0) state.ctx.flags |= ALIGN_YES
+      if (style != "comment" && (state.ctx.flags & ALIGN_NO) == 0) setFlag(state, ALIGN_YES)
 
-      var ctype = state.ctx.type;
-      if ((curPunc == ";" || curPunc == "{" || curPunc == "}") && ctype == "block") pop(state);
+      if ((curPunc == ";" || curPunc == "{" || curPunc == "}") && state.ctx.type == "block") pop(state);
       if (curPunc == "{") push(state, "}", stream);
       else if (curPunc == "(") {
         push(state, ")", stream);
@@ -150,7 +158,8 @@ CodeMirror.defineMode("r", function(config) {
       }
       else if (curPunc == "[") push(state, "]", stream);
       else if (curPunc == "block") push(state, "block", stream);
-      else if (curPunc == ctype) pop(state);
+      else if (curPunc == state.ctx.type) pop(state);
+      else if (state.ctx.type == "block" && style != "comment") setFlag(state, BRACELESS)
       state.afterIdent = style == "variable" || style == "keyword";
       return style;
     },
@@ -159,6 +168,7 @@ CodeMirror.defineMode("r", function(config) {
       if (state.tokenize != tokenBase) return 0;
       var firstChar = textAfter && textAfter.charAt(0), ctx = state.ctx,
           closing = firstChar == ctx.type;
+      if (ctx.flags & BRACELESS) ctx = ctx.prev
       if (ctx.type == "block") return ctx.indent + (firstChar == "{" ? 0 : config.indentUnit);
       else if (ctx.flags & ALIGN_YES) return ctx.column + (closing ? 0 : 1);
       else return ctx.indent + (closing ? 0 : config.indentUnit);
