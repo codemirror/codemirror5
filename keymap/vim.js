@@ -1627,9 +1627,8 @@
         return findNext(cm, prev/** prev */, query, motionArgs.repeat);
       },
       goToMark: function(cm, _head, motionArgs, vim) {
-        var mark = vim.marks[motionArgs.selectedCharacter];
-        if (mark) {
-          var pos = mark.find();
+        var pos = getMarkPos(cm, vim, motionArgs.selectedCharacter);
+        if (pos) {
           return motionArgs.linewise ? { line: pos.line, ch: findFirstNonWhiteSpaceCharacter(cm.getLine(pos.line)) } : pos;
         }
         return null;
@@ -3973,6 +3972,17 @@
       return {top: from.line, bottom: to.line};
     }
 
+    function getMarkPos(cm, vim, markName) {
+      if (markName == '\'') {
+        var history = cm.doc.history.done;
+        var event = history[history.length - 2];
+        return event && event.ranges && event.ranges[0].head;
+      }
+
+      var mark = vim.marks[markName];
+      return mark && mark.find();
+    }
+
     var ExCommandDispatcher = function() {
       this.buildCommandMap_();
     };
@@ -4081,11 +4091,10 @@
           case '$':
             return cm.lastLine();
           case '\'':
-            var mark = cm.state.vim.marks[inputStream.next()];
-            if (mark && mark.find()) {
-              return mark.find().line;
-            }
-            throw new Error('Mark not set');
+            var markName = inputStream.next();
+            var markPos = getMarkPos(cm, cm.state.vim, markName);
+            if (!markPos) throw new Error('Mark not set');
+            return markPos.line;
           default:
             inputStream.backUp(1);
             return undefined;
