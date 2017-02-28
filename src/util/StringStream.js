@@ -15,7 +15,7 @@ class StringStream {
   }
 
   eol() {return this.pos >= this.string.length}
-  sol() {return this.pos == this.lineStart}
+  sol() {return this.pos == 0}
   peek() {return this.string.charAt(this.pos) || undefined}
   next() {
     if (this.pos < this.string.length)
