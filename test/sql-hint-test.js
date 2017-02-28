@@ -34,7 +34,7 @@
       eqCharPos(completion.to, spec.to);
     }, {
       value: spec.value,
-      mode: "text/x-mysql"
+      mode: spec.mode || "text/x-mysql"
     });
   }
 
@@ -90,6 +90,16 @@
     to: Pos(0, 18)
   });
 
+  test("doublequoted", {
+    value: "SELECT \"users\".\"na",
+    cursor: Pos(0, 18),
+    tables: simpleTables,
+    list: ["\"users\".\"name\""],
+    from: Pos(0, 7),
+    to: Pos(0, 18),
+    mode: "text/x-sqlite"
+  });
+
   test("quotedcolumn", {
     value: "SELECT users.`na",
     cursor: Pos(0, 16),
@@ -97,6 +107,16 @@
     list: ["`users`.`name`"],
     from: Pos(0, 7),
     to: Pos(0, 16)
+  });
+
+  test("doublequotedcolumn", {
+    value: "SELECT users.\"na",
+    cursor: Pos(0, 16),
+    tables: simpleTables,
+    list: ["\"users\".\"name\""],
+    from: Pos(0, 7),
+    to: Pos(0, 16),
+    mode: "text/x-sqlite"
   });
 
   test("schema", {
@@ -116,6 +136,16 @@
     list: ["`schema`.`users`", "`schema`.`countries`"],
     from: Pos(0, 7),
     to: Pos(0, 11)
+  });
+
+  test("schemadoublequoted", {
+    value: "SELECT \"sch",
+    cursor: Pos(0, 11),
+    tables: schemaTables,
+    list: ["\"schema\".\"users\"", "\"schema\".\"countries\""],
+    from: Pos(0, 7),
+    to: Pos(0, 11),
+    mode: "text/x-sqlite"
   });
 
   test("schemacolumn", {
@@ -138,6 +168,18 @@
            "`schema`.`users`.`birthDate`"],
     from: Pos(0, 7),
     to: Pos(0, 24)
+  });
+
+  test("schemacolumndoublequoted", {
+    value: "SELECT \"schema\".\"users\".",
+    cursor: Pos(0, 24),
+    tables: schemaTables,
+    list: ["\"schema\".\"users\".\"name\"",
+           "\"schema\".\"users\".\"score\"",
+           "\"schema\".\"users\".\"birthDate\""],
+    from: Pos(0, 7),
+    to: Pos(0, 24),
+    mode: "text/x-sqlite"
   });
 
   test("displayText_table", {
