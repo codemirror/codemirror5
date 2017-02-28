@@ -56,10 +56,10 @@
 
       this.showDifferences = options.showDifferences !== false;
     },
-    registerEvents: function() {
+    registerEvents: function(otherDv) {
       this.forceUpdate = registerUpdate(this);
       setScrollLock(this, true, false);
-      registerScroll(this);
+      registerScroll(this, otherDv);
     },
     setShowDifferences: function(val) {
       val = val !== false;
@@ -144,12 +144,13 @@
     return update;
   }
 
-  function registerScroll(dv) {
+  function registerScroll(dv, otherDv) {
     dv.edit.on("scroll", function() {
       syncScroll(dv, true) && makeConnections(dv);
     });
     dv.orig.on("scroll", function() {
       syncScroll(dv, false) && makeConnections(dv);
+      if (otherDv) syncScroll(otherDv, true) && makeConnections(otherDv);
     });
   }
 
@@ -567,8 +568,8 @@
       this.aligners = [];
       alignChunks(this.left || this.right, true);
     }
-    if (left) left.registerEvents()
-    if (right) right.registerEvents()
+    if (left) left.registerEvents(right)
+    if (right) right.registerEvents(left)
 
 
     var onResize = function() {
