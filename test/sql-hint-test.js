@@ -115,7 +115,7 @@
     tables: simpleTables,
     list: ["\"users\".\"name\""],
     from: Pos(0, 7),
-    to: Pos(0, 16)
+    to: Pos(0, 16),
     mode: "text/x-sqlite"
   });
 
@@ -144,7 +144,7 @@
     tables: schemaTables,
     list: ["\"schema\".\"users\"", "\"schema\".\"countries\""],
     from: Pos(0, 7),
-    to: Pos(0, 11)
+    to: Pos(0, 11),
     mode: "text/x-sqlite"
   });
 
@@ -178,7 +178,8 @@
            "\"schema\".\"users\".\"score\"",
            "\"schema\".\"users\".\"birthDate\""],
     from: Pos(0, 7),
-    to: Pos(0, 24)
+    to: Pos(0, 24),
+    mode: "text/x-sqlite"
   });
 
   test("displayText_table", {
