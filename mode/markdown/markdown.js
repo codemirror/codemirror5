@@ -120,7 +120,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     state.quote = 0;
     // Reset state.indentedCode
     state.indentedCode = false;
-    if (htmlModeMissing && state.f == htmlBlock) {
+    if (state.f == htmlBlock) {
       state.f = inlineNormal;
       state.block = blockNormal;
     }

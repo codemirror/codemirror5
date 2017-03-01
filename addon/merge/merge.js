@@ -49,17 +49,17 @@
       if (Object.prototype.toString.call(classLocation) != "[object Array]") classLocation = [classLocation]
       this.classes.classLocation = classLocation
 
-      this.diff = getDiff(asString(orig), asString(options.value));
+      this.diff = getDiff(asString(orig), asString(options.value), this.mv.options.ignoreWhitespace);
       this.chunks = getChunks(this.diff);
       this.diffOutOfDate = this.dealigned = false;
       this.needsScrollSync = null
 
       this.showDifferences = options.showDifferences !== false;
     },
-    registerEvents: function() {
+    registerEvents: function(otherDv) {
       this.forceUpdate = registerUpdate(this);
       setScrollLock(this, true, false);
-      registerScroll(this);
+      registerScroll(this, otherDv);
     },
     setShowDifferences: function(val) {
       val = val !== false;
@@ -72,7 +72,7 @@
 
   function ensureDiff(dv) {
     if (dv.diffOutOfDate) {
-      dv.diff = getDiff(dv.orig.getValue(), dv.edit.getValue());
+      dv.diff = getDiff(dv.orig.getValue(), dv.edit.getValue(), dv.mv.options.ignoreWhitespace);
       dv.chunks = getChunks(dv.diff);
       dv.diffOutOfDate = false;
       CodeMirror.signal(dv.edit, "updateDiff", dv.diff);
@@ -144,12 +144,13 @@
     return update;
   }
 
-  function registerScroll(dv) {
+  function registerScroll(dv, otherDv) {
     dv.edit.on("scroll", function() {
       syncScroll(dv, true) && makeConnections(dv);
     });
     dv.orig.on("scroll", function() {
       syncScroll(dv, false) && makeConnections(dv);
+      if (otherDv) syncScroll(otherDv, true) && makeConnections(otherDv);
     });
   }
 
@@ -467,7 +468,7 @@
     var elt = document.createElement("div");
     elt.className = "CodeMirror-merge-spacer";
     elt.style.height = size + "px"; elt.style.minWidth = "1px";
-    return cm.addLineWidget(line, elt, {height: size, above: above, mergeSpacer: true});
+    return cm.addLineWidget(line, elt, {height: size, above: above, mergeSpacer: true, handleMouseEvents: true});
   }
 
   function drawConnectorsForChunk(dv, chunk, sTopOrig, sTopEdit, w) {
@@ -567,8 +568,8 @@
       this.aligners = [];
       alignChunks(this.left || this.right, true);
     }
-    if (left) left.registerEvents()
-    if (right) right.registerEvents()
+    if (left) left.registerEvents(right)
+    if (right) right.registerEvents(left)
 
 
     var onResize = function() {
@@ -636,12 +637,12 @@
   // Operations on diffs
 
   var dmp = new diff_match_patch();
-  function getDiff(a, b) {
+  function getDiff(a, b, ignoreWhitespace) {
     var diff = dmp.diff_main(a, b);
     // The library sometimes leaves in empty parts, which confuse the algorithm
     for (var i = 0; i < diff.length; ++i) {
       var part = diff[i];
-      if (!part[1]) {
+      if (ignoreWhitespace ? !/[^ \t]/.test(part[1]) : !part[1]) {
         diff.splice(i--, 1);
       } else if (i && diff[i - 1][0] == part[0]) {
         diff.splice(i--, 1);
@@ -658,7 +659,7 @@
     for (var i = 0; i < diff.length; ++i) {
       var part = diff[i], tp = part[0];
       if (tp == DIFF_EQUAL) {
-        var startOff = startOfLineClean(diff, i) ? 0 : 1;
+        var startOff = !startOfLineClean(diff, i) || edit.line < startEdit || orig.line < startOrig ? 1 : 0;
         var cleanFromEdit = edit.line + startOff, cleanFromOrig = orig.line + startOff;
         moveOver(edit, part[1], null, orig);
         var endOff = endOfLineClean(diff, i) ? 1 : 0;
