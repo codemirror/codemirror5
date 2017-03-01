@@ -32,10 +32,7 @@
   function getIdentifierQuote(editor) {
     var mode = editor.doc.modeOption;
     if (mode === "sql") mode = "text/x-sql";
-    if(CodeMirror.resolveMode(mode).identifierQuote)
-      return CodeMirror.resolveMode(mode).identifierQuote;
-    else
-      return "`";
+    return CodeMirror.resolveMode(mode).identifierQuote || "`";
   }
 
   function getText(item) {
