@@ -64,7 +64,7 @@ the <a href="https://code.google.com/p/google-diff-match-patch/">google-diff-mat
 library to compute the diffs.</p>
 
 <script>
-var value, orig1, orig2, dv, panes = 2, highlight = true, connect = null, collapse = false;
+var value, orig1, orig2, dv, panes = 2, highlight = true, connect = "align", collapse = false;
 function initUI() {
   if (value == null) return;
   var target = document.getElementById("view");
@@ -91,6 +91,7 @@ window.onload = function() {
   orig2 = value.replace(/\u003cscript/g, "\u003cscript type=text/javascript ")
     .replace("white", "purple;\n      font: comic sans;\n      text-decoration: underline;\n      height: 15em");
   initUI();
+  let d = document.createElement("div"); d.style.cssText = "width: 50px; margin: 7px; height: 14px"; dv.editor().addLineWidget(57, d)
 };
 
 function mergeViewHeight(mergeView) {

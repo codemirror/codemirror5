@@ -828,6 +828,7 @@
   function TrackAlignable(cm) {
     this.cm = cm
     this.alignable = []
+    this.height = cm.doc.height
     var self = this
     cm.on("markerAdded", function(_, marker) {
       if (!marker.collapsed) return
@@ -857,11 +858,15 @@
       self.check(end, F_MARKER, self.hasMarker)
       if (nBefore || nAfter) self.check(change.from.line, F_MARKER, self.hasMarker)
     })
+    cm.on("viewportChange", function() {
+      if (self.cm.doc.height != self.height) self.signal()
+    })
   }
 
   TrackAlignable.prototype = {
     signal: function() {
       CodeMirror.signal(this, "realign")
+      this.height = this.cm.doc.height
     },
 
     set: function(n, flags) {
