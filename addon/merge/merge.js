@@ -128,6 +128,7 @@
     }
     function swapDoc() {
       dv.diffOutOfDate = true;
+      dv.dealigned = true;
       update("full");
     }
     dv.edit.on("change", change);
