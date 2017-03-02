@@ -21,7 +21,12 @@
               {text: "name", displayText: "name | The name"}]
   }];
 
-  namespace = "sql-hint_";
+  var quoteNameTables = {
+    "backtick`table": ["backtick`col"],
+    "doublequote\"table": ["doublequote\"col"]
+  };
+
+ namespace = "sql-hint_";
 
   function test(name, spec) {
     testCM(name, function(cm) {
@@ -219,6 +224,44 @@
     from: Pos(0, 7),
     to: Pos(0, 9)
   })
+
+  test("backticktable", {
+    value: "SELECT `backtick",
+    cursor: Pos(0, 16),
+    tables: quoteNameTables,
+    list: ["`backtick``table`"],
+    from: Pos(0, 7),
+    to: Pos(0, 16)
+  });
+
+  test("backtickcolumn", {
+    value: "SELECT `backtick``table`.`back",
+    cursor: Pos(0, 29),
+    tables: quoteNameTables,
+    list: ["`backtick``table`.`backtick``col`"],
+    from: Pos(0, 7),
+    to: Pos(0, 29)
+  });
+
+  test("doublequotetable", {
+    value: "SELECT \"doublequ",
+    cursor: Pos(0, 16),
+    tables: quoteNameTables,
+    list: ["\"doublequote\"\"table\""],
+    from: Pos(0, 7),
+    to: Pos(0, 16),
+    mode: "text/x-sqlite"
+  });
+
+  test("doublequotecolumn", {
+    value: "SELECT \"doublequote\"\"table\".\"doubl",
+    cursor: Pos(0, 33),
+    tables: quoteNameTables,
+    list: ["\"doublequote\"\"table\".\"doublequote\"\"col\""],
+    from: Pos(0, 7),
+    to: Pos(0, 33),
+    mode: "text/x-sqlite"
+  });
 
   function deepCompare(a, b) {
     if (a === b) return true
