@@ -81,7 +81,7 @@ export function buildLineContent(cm, lineView) {
     builder.addToken = buildToken
     // Optionally wire in some hacks into the token-rendering
     // algorithm, to deal with browser quirks.
-    if (hasBadBidiRects(cm.display.measure) && (order = getOrder(line)))
+    if (hasBadBidiRects(cm.display.measure) && (order = getOrder(line, cm.doc.direction)))
       builder.addToken = buildTokenBadBidi(builder.addToken, order)
     builder.map = []
     let allowFrontierUpdate = lineView != cm.display.externalMeasured && lineNo(line)

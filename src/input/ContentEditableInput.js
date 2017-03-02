@@ -347,7 +347,7 @@ function posToDOM(cm, pos) {
   let line = getLine(cm.doc, pos.line)
   let info = mapFromLineView(view, line, pos.line)
 
-  let order = getOrder(line), side = "left"
+  let order = getOrder(line, cm.doc.direction), side = "left"
   if (order) {
     let partPos = getBidiPartAt(order, pos.ch)
     side = partPos % 2 ? "right" : "left"

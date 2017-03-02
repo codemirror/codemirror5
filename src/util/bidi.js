@@ -74,16 +74,16 @@ let bidiOrdering = (function() {
 
   let bidiRE = /[\u0590-\u05f4\u0600-\u06ff\u0700-\u08ac]/
   let isNeutral = /[stwN]/, isStrong = /[LRr]/, countsAsLeft = /[Lb1n]/, countsAsNum = /[1n]/
-  // Browsers seem to always treat the boundaries of block elements as being L.
-  let outerType = "L"
 
   function BidiSpan(level, from, to) {
     this.level = level
     this.from = from; this.to = to
   }
 
-  return function(str) {
-    if (!bidiRE.test(str)) return false
+  return function(str, direction) {
+    let outerType = direction == "ltr" ? "L" : "R"
+
+    if (str.length == 0 || direction == "ltr" && !bidiRE.test(str)) return false
     let len = str.length, types = []
     for (let i = 0; i < len; ++i)
       types.push(charType(str.charCodeAt(i)))
@@ -157,7 +157,7 @@ let bidiOrdering = (function() {
         for (end = i + 1; end < len && isNeutral.test(types[end]); ++end) {}
         let before = (i ? types[i-1] : outerType) == "L"
         let after = (end < len ? types[end] : outerType) == "L"
-        let replace = before || after ? "L" : "R"
+        let replace = before == after ? (before ? "L" : "R") : outerType
         for (let j = i; j < end; ++j) types[j] = replace
         i = end - 1
       }
@@ -198,15 +198,15 @@ let bidiOrdering = (function() {
       order.push(new BidiSpan(0, len - m[0].length, len))
     }
 
-    return order
+    return direction == "rtl" ? order.reverse() : order
   }
 })()
 
 // Get the bidi ordering for the given line (and cache it). Returns
 // false for lines that are fully left-to-right, and an array of
 // BidiSpan objects otherwise.
-export function getOrder(line) {
+export function getOrder(line, direction) {
   let order = line.order
-  if (order == null) order = line.order = bidiOrdering(line.text)
+  if (order == null) order = line.order = bidiOrdering(line.text, direction)
   return order
 }

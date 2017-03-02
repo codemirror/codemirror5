@@ -15,7 +15,7 @@ export function moveLogically(line, start, dir) {
 
 export function endOfLine(visually, cm, lineObj, lineNo, dir) {
   if (visually) {
-    let order = getOrder(lineObj)
+    let order = getOrder(lineObj, cm.doc.direction)
     if (order) {
       let part = dir < 0 ? lst(order) : order[0]
       let moveInStorageOrder = (dir < 0) == (part.level == 1)
@@ -41,7 +41,7 @@ export function endOfLine(visually, cm, lineObj, lineNo, dir) {
 }
 
 export function moveVisually(cm, line, start, dir) {
-  let bidi = getOrder(line)
+  let bidi = getOrder(line, cm.doc.direction)
   if (!bidi) return moveLogically(line, start, dir)
   if (start.ch >= line.text.length) {
     start.ch = line.text.length
@@ -51,8 +51,8 @@ export function moveVisually(cm, line, start, dir) {
     start.sticky = "after"
   }
   let partPos = getBidiPartAt(bidi, start.ch, start.sticky), part = bidi[partPos]
-  if (part.level % 2 == 0 && (dir > 0 ? part.to > start.ch : part.from < start.ch)) {
-    // Case 1: We move within an ltr part. Even with wrapped lines,
+  if (cm.doc.direction == "ltr" && part.level % 2 == 0 && (dir > 0 ? part.to > start.ch : part.from < start.ch)) {
+    // Case 1: We move within an ltr part in an ltr editor. Even with wrapped lines,
     // nothing interesting happens.
     return moveLogically(line, start, dir)
   }
@@ -66,11 +66,12 @@ export function moveVisually(cm, line, start, dir) {
   }
   let wrappedLineExtent = getWrappedLineExtent(start.sticky == "before" ? mv(start, -1) : start.ch)
 
-  if (part.level % 2 == 1) {
-    let ch = mv(start, -dir)
-    if (ch != null && (dir > 0 ? ch >= part.from && ch >= wrappedLineExtent.begin : ch <= part.to && ch <= wrappedLineExtent.end)) {
-      // Case 2: We move within an rtl part on the same visual line
-      let sticky = dir < 0 ? "before" : "after"
+  if (cm.doc.direction == "rtl" || part.level == 1) {
+    let moveInStorageOrder = (part.level == 1) == (dir < 0)
+    let ch = mv(start, moveInStorageOrder ? 1 : -1)
+    if (ch != null && (!moveInStorageOrder ? ch >= part.from && ch >= wrappedLineExtent.begin : ch <= part.to && ch <= wrappedLineExtent.end)) {
+      // Case 2: We move within an rtl part or in an rtl editor on the same visual line
+      let sticky = moveInStorageOrder ? "before" : "after"
       return new Pos(start.line, ch, sticky)
     }
   }
