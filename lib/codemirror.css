@@ -272,6 +272,8 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
 
 .CodeMirror-widget {}
 
+.CodeMirror-rtl pre { direction: rtl; }
+
 .CodeMirror-code {
   outline: none;
 }

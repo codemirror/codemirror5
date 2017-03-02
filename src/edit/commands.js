@@ -168,7 +168,7 @@ function lineEnd(cm, lineN) {
 function lineStartSmart(cm, pos) {
   let start = lineStart(cm, pos.line)
   let line = getLine(cm.doc, start.line)
-  let order = getOrder(line)
+  let order = getOrder(line, cm.doc.direction)
   if (!order || order[0].level == 0) {
     let firstNonWS = Math.max(0, line.text.search(/\S/))
     let inWS = pos.line == start.line && pos.ch <= firstNonWS && pos.ch

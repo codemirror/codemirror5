@@ -70,7 +70,7 @@ function drawSelectionRange(cm, range, output) {
       return charCoords(cm, Pos(line, ch), "div", lineObj, bias)
     }
 
-    iterateBidiSections(getOrder(lineObj), fromArg || 0, toArg == null ? lineLen : toArg, (from, to, dir) => {
+    iterateBidiSections(getOrder(lineObj, doc.direction), fromArg || 0, toArg == null ? lineLen : toArg, (from, to, dir) => {
       let leftPos = coords(from, "left"), rightPos, left, right
       if (from == to) {
         rightPos = leftPos

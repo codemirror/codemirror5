@@ -12,7 +12,7 @@ import { ensureCursorVisible } from "../display/scrolling"
 import { changeLine, makeChange, makeChangeFromHistory, replaceRange } from "./changes"
 import { computeReplacedSel } from "./change_measurement"
 import { BranchChunk, LeafChunk } from "./chunk"
-import { linkedDocs, updateDoc } from "./document_data"
+import { directionChanged, linkedDocs, updateDoc } from "./document_data"
 import { copyHistoryArray, History } from "./history"
 import { addLineWidget } from "./line_widget"
 import { copySharedMarkers, detachSharedMarkers, findSharedMarkers, markText } from "./mark_text"
@@ -20,8 +20,8 @@ import { normalizeSelection, Range, simpleSelection } from "./selection"
 import { extendSelection, extendSelections, setSelection, setSelectionReplaceHistory, setSimpleSelection } from "./selection_updates"
 
 let nextDocId = 0
-let Doc = function(text, mode, firstLine, lineSep) {
-  if (!(this instanceof Doc)) return new Doc(text, mode, firstLine, lineSep)
+let Doc = function(text, mode, firstLine, lineSep, direction) {
+  if (!(this instanceof Doc)) return new Doc(text, mode, firstLine, lineSep, direction)
   if (firstLine == null) firstLine = 0
 
   BranchChunk.call(this, [new LeafChunk([new Line("", null)])])
@@ -36,6 +36,7 @@ let Doc = function(text, mode, firstLine, lineSep) {
   this.id = ++nextDocId
   this.modeOption = mode
   this.lineSep = lineSep
+  this.direction = (direction == "rtl") ? "rtl" : "ltr"
   this.extend = false
 
   if (typeof text == "string") text = this.splitLines(text)
@@ -362,7 +363,7 @@ Doc.prototype = createObj(BranchChunk.prototype, {
 
   copy: function(copyHistory) {
     let doc = new Doc(getLines(this, this.first, this.first + this.size),
-                      this.modeOption, this.first, this.lineSep)
+                      this.modeOption, this.first, this.lineSep, this.direction)
     doc.scrollTop = this.scrollTop; doc.scrollLeft = this.scrollLeft
     doc.sel = this.sel
     doc.extend = false
@@ -378,7 +379,7 @@ Doc.prototype = createObj(BranchChunk.prototype, {
     let from = this.first, to = this.first + this.size
     if (options.from != null && options.from > from) from = options.from
     if (options.to != null && options.to < to) to = options.to
-    let copy = new Doc(getLines(this, from, to), options.mode || this.modeOption, from, this.lineSep)
+    let copy = new Doc(getLines(this, from, to), options.mode || this.modeOption, from, this.lineSep, this.direction)
     if (options.sharedHist) copy.history = this.history
     ;(this.linked || (this.linked = [])).push({doc: copy, sharedHist: options.sharedHist})
     copy.linked = [{doc: this, isParent: true, sharedHist: options.sharedHist}]
@@ -413,7 +414,15 @@ Doc.prototype = createObj(BranchChunk.prototype, {
     if (this.lineSep) return str.split(this.lineSep)
     return splitLinesAuto(str)
   },
-  lineSeparator: function() { return this.lineSep || "\n" }
+  lineSeparator: function() { return this.lineSep || "\n" },
+
+  setDirection: docMethodOp(function (dir) {
+    if (dir != "rtl") dir = "ltr"
+    if (dir == this.direction) return
+    this.direction = dir
+    this.iter(line => line.order = null)
+    if (this.cm) directionChanged(this.cm)
+  })
 })
 
 // Public alias.

@@ -356,7 +356,7 @@ export function cursorCoords(cm, pos, context, lineObj, preparedMeasure, varHeig
     if (right) m.left = m.right; else m.right = m.left
     return intoCoordSystem(cm, lineObj, m, context)
   }
-  let order = getOrder(lineObj), ch = pos.ch, sticky = pos.sticky
+  let order = getOrder(lineObj, cm.doc.direction), ch = pos.ch, sticky = pos.sticky
   if (ch >= lineObj.text.length) {
     ch = lineObj.text.length
     sticky = "before"
@@ -442,7 +442,7 @@ function coordsCharInner(cm, lineObj, lineNo, x, y) {
   let begin = 0, end = lineObj.text.length
   let preparedMeasure = prepareMeasureForLine(cm, lineObj)
   let pos
-  let order = getOrder(lineObj)
+  let order = getOrder(lineObj, cm.doc.direction)
   if (order) {
     if (cm.options.lineWrapping) {
       ;({begin, end} = wrappedLineExtent(cm, lineObj, preparedMeasure, y))
