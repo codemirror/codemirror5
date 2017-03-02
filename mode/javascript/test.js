@@ -231,10 +231,10 @@
     test.mode(name, ts_mode, Array.prototype.slice.call(arguments, 1))
   }
 
-  TS("extend_type",
+  TS("typescript_extend_type",
      "[keyword class] [def Foo] [keyword extends] [variable-3 Some][operator <][variable-3 Type][operator >] {}")
 
-  TS("arrow_type",
+  TS("typescript_arrow_type",
      "[keyword let] [def x]: ([variable arg]: [variable-3 Type]) [operator =>] [variable-3 ReturnType]")
 
   TS("typescript_class",
@@ -289,10 +289,28 @@
      "  [property prop1]: [variable-3 any];",
      "}");
 
-  TS("generic_class",
+  TS("typescript_generic_class",
      "[keyword class] [def Foo][operator <][variable-3 T][operator >] {",
      "  [property bar]() {}",
      "  [property foo](): [variable-3 Foo] {}",
+     "}")
+
+  TS("typescript_type_when_keyword",
+     "[keyword export] [keyword type] [variable-3 AB] [operator =] [variable-3 A] [operator |] [variable-3 B];",
+     "[keyword type] [variable-3 Flags] [operator =] {",
+     "  [property p1]: [variable-3 string];",
+     "  [property p2]: [variable-3 boolean];",
+     "};")
+
+  TS("typescript_type_when_not_keyword",
+     "[keyword class] [def HasType] {",
+     "  [property type]: [variable-3 string];",
+     "  [property constructor]([def type]: [variable-3 string]) {",
+     "    [keyword this].[property type] [operator =] [variable-2 type];",
+     "  }",
+     "  [property setType]({ [def type] }: { [property type]: [variable-3 string]; }) {",
+     "    [keyword this].[property type] [operator =] [variable-2 type];",
+     "  }",
      "}")
 
   var jsonld_mode = CodeMirror.getMode(
