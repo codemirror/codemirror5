@@ -21,9 +21,10 @@
               {text: "name", displayText: "name | The name"}]
   }];
 
-  var quoteNameTables = {
+  var problemTables = {
     "backtick`table": ["backtick`col"],
-    "doublequote\"table": ["doublequote\"col"]
+    "doublequote\"table": ["doublequote\"col"],
+    "space table": ["space column"]
   };
 
  namespace = "sql-hint_";
@@ -228,16 +229,25 @@
   test("backticktable", {
     value: "SELECT `backtick",
     cursor: Pos(0, 16),
-    tables: quoteNameTables,
+    tables: problemTables,
     list: ["`backtick``table`"],
     from: Pos(0, 7),
     to: Pos(0, 16)
   });
 
+  test("backticktable2", {
+    value: "SELECT `backtick``ta",
+    cursor: Pos(0, 20),
+    tables: problemTables,
+    list: ["`backtick``table`"],
+    from: Pos(0, 7),
+    to: Pos(0, 20)
+  });
+
   test("backtickcolumn", {
     value: "SELECT `backtick``table`.`back",
     cursor: Pos(0, 29),
-    tables: quoteNameTables,
+    tables: problemTables,
     list: ["`backtick``table`.`backtick``col`"],
     from: Pos(0, 7),
     to: Pos(0, 29)
@@ -246,7 +256,7 @@
   test("doublequotetable", {
     value: "SELECT \"doublequ",
     cursor: Pos(0, 16),
-    tables: quoteNameTables,
+    tables: problemTables,
     list: ["\"doublequote\"\"table\""],
     from: Pos(0, 7),
     to: Pos(0, 16),
@@ -256,12 +266,22 @@
   test("doublequotecolumn", {
     value: "SELECT \"doublequote\"\"table\".\"doubl",
     cursor: Pos(0, 33),
-    tables: quoteNameTables,
+    tables: problemTables,
     list: ["\"doublequote\"\"table\".\"doublequote\"\"col\""],
     from: Pos(0, 7),
     to: Pos(0, 33),
     mode: "text/x-sqlite"
   });
+
+  test("spacetable", {
+    value: "SELECT `space ta",
+    cursor: Pos(0, 16),
+    tables: problemTables,
+    list: ["`space table`"],
+    from: Pos(0, 7),
+    to: Pos(0, 16)
+  });
+
 
   function deepCompare(a, b) {
     if (a === b) return true
