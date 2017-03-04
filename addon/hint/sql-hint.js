@@ -97,13 +97,21 @@
     if (name.charAt(0) == ".") {
       name = name.substr(1);
     }
-    return name.replace(new RegExp(identifierQuote,"g"), "");
+    // replace doublicated identifierQuotes with single identifierQuotes
+    // and remove single identifierQuotes
+    var nameParts = name.split(identifierQuote+identifierQuote);
+    for (var i = 0; i < nameParts.length; i++)
+      nameParts[i] = nameParts[i].replace(new RegExp(identifierQuote,"g"), "");
+    return nameParts.join(identifierQuote);
   }
 
   function insertIdentifierQuotes(name) {
     var nameParts = getText(name).split(".");
     for (var i = 0; i < nameParts.length; i++)
-      nameParts[i] = identifierQuote + nameParts[i] + identifierQuote;
+      nameParts[i] = identifierQuote +
+        // doublicate identifierQuotes
+        nameParts[i].replace(new RegExp(identifierQuote,"g"), identifierQuote+identifierQuote) +
+        identifierQuote;
     var escaped = nameParts.join(".");
     if (typeof name == "string") return escaped;
     name = shallowClone(name);
