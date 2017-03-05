@@ -40,8 +40,7 @@
       }
       var result = stream.hideIndentation(state.indent, function() {
         var localState = last(state.localStates);
-        var res = localState.mode.token(stream, localState.state);
-        return res;
+        return localState.mode.token(stream, localState.state);
       });
       stream.string = oldString;
       return result;
