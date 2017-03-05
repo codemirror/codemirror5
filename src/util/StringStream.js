@@ -74,7 +74,7 @@ class StringStream {
   current(){return this.string.slice(this.start, this.pos)}
   hideFirstChars(n, inner) {
     this.lineStart += n
-    try { return this.hideIndentation(n, inner); }
+    try { return this.hideIndentation(n, inner) }
     finally { this.lineStart -= n }
   }
   hideIndentation(n, inner) {
