@@ -96,6 +96,7 @@ function updateLineGutter(cm, lineView, lineN, dims) {
     let wrap = ensureLineWrapped(lineView)
     lineView.gutterBackground = elt("div", null, "CodeMirror-gutter-background " + lineView.line.gutterClass,
                                     `left: ${cm.options.fixedGutter ? dims.fixedPos : -dims.gutterTotalWidth}px; width: ${dims.gutterTotalWidth}px`)
+    cm.display.input.setUneditable(gutterWrap)
     wrap.insertBefore(lineView.gutterBackground, lineView.text)
   }
   let markers = lineView.line.gutterMarkers
