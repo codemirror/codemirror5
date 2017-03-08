@@ -256,7 +256,7 @@
             state.scopes = prepend(state.scopes, state.variables);
             state.soyState.push("var-def");
           }
-          if (state.tag.match(/^@param\??/)) {
+          if (state.tag.match(/^@(?:param\??|inject)/)) {
             state.soyState.push("param-def");
           }
           return "keyword";
