@@ -34,9 +34,7 @@ export default class ContentEditableInput {
     on(div, "paste", e => {
       if (signalDOMEvent(cm, e) || handlePaste(e, cm)) return
       // IE doesn't fire input events, so we schedule a read for the pasted content in this way
-      if (ie_version <= 11) setTimeout(operation(cm, () => {
-        if (!input.pollContent()) regChange(cm)
-      }), 20)
+      if (ie_version <= 11) setTimeout(operation(cm, () => this.updateFromDOM()), 20)
     })
 
     on(div, "compositionstart", e => {
@@ -303,7 +301,7 @@ export default class ContentEditableInput {
     if (!this.composing) return
     clearTimeout(this.readDOMTimeout)
     this.composing = null
-    if (!this.pollContent()) regChange(this.cm)
+    this.updateFromDOM()
     this.div.blur()
     this.div.focus()
   }
@@ -315,9 +313,13 @@ export default class ContentEditableInput {
         if (this.composing.done) this.composing = null
         else return
       }
-      if (this.cm.isReadOnly() || !this.pollContent())
-        runInOp(this.cm, () => regChange(this.cm))
+      this.updateFromDOM()
     }, 80)
+  }
+
+  updateFromDOM() {
+    if (this.cm.isReadOnly() || !this.pollContent())
+      runInOp(this.cm, () => regChange(this.cm))
   }
 
   setUneditable(node) {
