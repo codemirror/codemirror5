@@ -60,6 +60,27 @@
     eq(cm.getValue(), "one\ntwothree\nfour\n")
   }, {inputStyle: "contenteditable", value: "one\ntwo\nfoo\nbar\nthree\nfour\n"})
 
+  testCM("ambiguous_diff_middle", function(cm) {
+    cm.setSelection(Pos(0, 2))
+    findTextNode(cm, "baah").nodeValue = "baaah"
+    cm.display.input.updateFromDOM()
+    eqCharPos(cm.getCursor(), Pos(0, 3))
+  }, {inputStyle: "contenteditable", value: "baah"})
+
+  testCM("ambiguous_diff_start", function(cm) {
+    cm.setSelection(Pos(0, 1))
+    findTextNode(cm, "baah").nodeValue = "baaah"
+    cm.display.input.updateFromDOM()
+    eqCharPos(cm.getCursor(), Pos(0, 2))
+  }, {inputStyle: "contenteditable", value: "baah"})
+
+  testCM("ambiguous_diff_end", function(cm) {
+    cm.setSelection(Pos(0, 3))
+    findTextNode(cm, "baah").nodeValue = "baaah"
+    cm.display.input.updateFromDOM()
+    eqCharPos(cm.getCursor(), Pos(0, 4))
+  }, {inputStyle: "contenteditable", value: "baah"})
+
   testCM("force_redraw", function(cm) {
     findTextNode(cm, "foo").parentNode.appendChild(document.createElement("hr")).className = "inserted"
     cm.display.input.updateFromDOM()

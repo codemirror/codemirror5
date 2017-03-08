@@ -279,6 +279,14 @@ export default class ContentEditableInput {
     while (cutEnd < maxCutEnd &&
            newBot.charCodeAt(newBot.length - cutEnd - 1) == oldBot.charCodeAt(oldBot.length - cutEnd - 1))
       ++cutEnd
+    // Try to move start of change to start of selection if ambiguous
+    if (newText.length == 1 && oldText.length == 1 && fromLine == from.line) {
+      while (cutFront && cutFront > from.ch &&
+             newBot.charCodeAt(newBot.length - cutEnd - 1) == oldBot.charCodeAt(oldBot.length - cutEnd - 1)) {
+        cutFront--
+        cutEnd++
+      }
+    }
 
     newText[newText.length - 1] = newBot.slice(0, newBot.length - cutEnd).replace(/^\u200b+/, "")
     newText[0] = newText[0].slice(cutFront).replace(/\u200b+$/, "")
