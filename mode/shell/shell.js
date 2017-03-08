@@ -96,7 +96,7 @@ CodeMirror.defineMode('shell', function() {
           state.tokens.unshift(tokenDollar);
           break;
         }
-        if (next === "(" && quote === "(") {
+        if (!escaped && next === "(" && quote === "(") {
           state.tokens.unshift(tokenString(quote, style))
           return tokenize(stream, state)
         }
