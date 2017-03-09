@@ -241,9 +241,13 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   function local(stream, state) {
     if (state.fencedChars && stream.match(state.fencedChars)) {
       if (modeCfg.highlightFormatting) state.formatting = "code-block";
+      var returnType = getType(state)
       state.localMode = state.localState = null;
-      state.f = state.block = leavingLocal;
-      return getType(state)
+      state.block = blockNormal;
+      state.f = inlineNormal;
+      state.fencedChars = null;
+      state.code = 0
+      return returnType;
     } else if (state.fencedChars && stream.skipTo(state.fencedChars)) {
       return "comment"
     } else if (state.localMode) {
@@ -252,18 +256,6 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       stream.skipToEnd();
       return tokenTypes.code;
     }
-  }
-
-  function leavingLocal(stream, state) {
-    stream.match(state.fencedChars);
-    state.block = blockNormal;
-    state.f = inlineNormal;
-    state.fencedChars = null;
-    if (modeCfg.highlightFormatting) state.formatting = "code-block";
-    state.code = 1
-    var returnType = getType(state);
-    state.code = 0
-    return returnType;
   }
 
   // Inline
