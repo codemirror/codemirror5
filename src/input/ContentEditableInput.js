@@ -375,34 +375,40 @@ function badPos(pos, bad) { if (bad) pos.bad = true; return pos }
 function domTextBetween(cm, from, to, fromLine, toLine) {
   let text = "", closing = false, lineSep = cm.doc.lineSeparator()
   function recognizeMarker(id) { return marker => marker.id == id }
+  function close() {
+    if (closing) {
+      text += lineSep
+      closing = false
+    }
+  }
+  function addText(str) {
+    if (str) {
+      close()
+      text += str
+    }
+  }
   function walk(node) {
     if (node.nodeType == 1) {
       let cmText = node.getAttribute("cm-text")
       if (cmText != null) {
-        if (cmText == "") text += node.textContent.replace(/\u200b/g, "")
-        else text += cmText
+        addText(cmText || node.textContent.replace(/\u200b/g, ""))
         return
       }
       let markerID = node.getAttribute("cm-marker"), range
       if (markerID) {
         let found = cm.findMarks(Pos(fromLine, 0), Pos(toLine + 1, 0), recognizeMarker(+markerID))
         if (found.length && (range = found[0].find()))
-          text += getBetween(cm.doc, range.from, range.to).join(lineSep)
+          addText(getBetween(cm.doc, range.from, range.to).join(lineSep))
         return
       }
       if (node.getAttribute("contenteditable") == "false") return
+      let isBlock = /^(pre|div|p)$/i.test(node.nodeName)
+      if (isBlock) close()
       for (let i = 0; i < node.childNodes.length; i++)
         walk(node.childNodes[i])
-      if (/^(pre|div|p)$/i.test(node.nodeName))
-        closing = true
+      if (isBlock) closing = true
     } else if (node.nodeType == 3) {
-      let val = node.nodeValue
-      if (!val) return
-      if (closing) {
-        text += lineSep
-        closing = false
-      }
-      text += val
+      addText(node.nodeValue)
     }
   }
   for (;;) {

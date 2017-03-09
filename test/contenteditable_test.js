@@ -86,4 +86,25 @@
     cm.display.input.updateFromDOM()
     eq(byClassName(cm.getInputField(), "inserted").length, 0)
   }, {inputStyle: "contenteditable", value: "foo"})
+
+  testCM("type_on_empty_line", function(cm) {
+    cm.setSelection(Pos(1, 0))
+    findTextNode(cm, "\u200b").nodeValue += "hello"
+    cm.display.input.updateFromDOM()
+    eq(cm.getValue(), "foo\nhello\nbar")
+  }, {inputStyle: "contenteditable", value: "foo\n\nbar"})
+
+  testCM("type_after_empty_line", function(cm) {
+    cm.setSelection(Pos(2, 0))
+    findTextNode(cm, "bar").nodeValue = "hellobar"
+    cm.display.input.updateFromDOM()
+    eq(cm.getValue(), "foo\n\nhellobar")
+  }, {inputStyle: "contenteditable", value: "foo\n\nbar"})
+
+  testCM("type_before_empty_line", function(cm) {
+    cm.setSelection(Pos(0, 3))
+    findTextNode(cm, "foo").nodeValue = "foohello"
+    cm.display.input.updateFromDOM()
+    eq(cm.getValue(), "foohello\n\nbar")
+  }, {inputStyle: "contenteditable", value: "foo\n\nbar"})
 })();
