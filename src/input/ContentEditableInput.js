@@ -122,7 +122,10 @@ export default class ContentEditableInput {
 
     let start = posToDOM(this.cm, prim.from())
     let end = posToDOM(this.cm, prim.to())
-    if (!start && !end) return
+    if (!start && !end) {
+      sel.removeAllRanges()
+      return
+    }
 
     let view = this.cm.display.view
     let old = sel.rangeCount && sel.getRangeAt(0)
