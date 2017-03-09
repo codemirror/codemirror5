@@ -252,7 +252,7 @@ export default function(CodeMirror) {
         node.style.left = left + "px"
       }
       if (scroll)
-        scrollIntoView(this, left, top, left + node.offsetWidth, top + node.offsetHeight)
+        scrollIntoView(this, {left, top, right: left + node.offsetWidth, bottom: top + node.offsetHeight})
     },
 
     triggerOnKeyDown: methodOp(onKeyDown),
@@ -388,10 +388,12 @@ export default function(CodeMirror) {
         resolveScrollToPos(this)
         this.curOp.scrollToPos = range
       } else {
-        let sPos = calculateScrollPos(this, Math.min(range.from.left, range.to.left),
-                                      Math.min(range.from.top, range.to.top) - range.margin,
-                                      Math.max(range.from.right, range.to.right),
-                                      Math.max(range.from.bottom, range.to.bottom) + range.margin)
+        let sPos = calculateScrollPos(this, {
+          left: Math.min(range.from.left, range.to.left),
+          top: Math.min(range.from.top, range.to.top) - range.margin,
+          right: Math.max(range.from.right, range.to.right),
+          bottom: Math.max(range.from.bottom, range.to.bottom) + range.margin
+        })
         this.scrollTo(sPos.scrollLeft, sPos.scrollTop)
       }
     }),
