@@ -13,6 +13,7 @@ import { gecko, ie_version } from "../util/browser"
 import { contains, range, removeChildrenAndAdd, selectInput } from "../util/dom"
 import { on, signalDOMEvent } from "../util/event"
 import { Delayed, lst, sel_dontScroll } from "../util/misc"
+import { chrome, android } from "../util/browser"
 
 // CONTENTEDITABLE INPUT STYLE
 
@@ -219,16 +220,28 @@ export default class ContentEditableInput {
   }
 
   pollSelection() {
-    if (!this.composing && this.readDOMTimeout == null && !this.gracePeriod && this.selectionChanged()) {
-      let sel = window.getSelection(), cm = this.cm
-      this.rememberSelection()
-      let anchor = domToPos(cm, sel.anchorNode, sel.anchorOffset)
-      let head = domToPos(cm, sel.focusNode, sel.focusOffset)
-      if (anchor && head) runInOp(cm, () => {
-        setSelection(cm.doc, simpleSelection(anchor, head), sel_dontScroll)
-        if (anchor.bad || head.bad) cm.curOp.selectionChanged = true
-      })
+    if (this.readDOMTimeout != null || this.gracePeriod || !this.selectionChanged()) return
+    let sel = window.getSelection(), cm = this.cm
+    // On Android Chrome (version 56, at least), backspacing into an
+    // uneditable block element will put the cursor in that element,
+    // and then, because it's not editable, hide the virtual keyboard.
+    // Because Android doesn't allow us to actually detect backspace
+    // presses in a sane way, this code checks for when that happens
+    // and simulates a backspace press in this case.
+    if (android && chrome && this.cm.options.gutters.length && isInGutter(sel.anchorNode)) {
+      this.cm.triggerOnKeyDown({type: "keydown", keyCode: 8, preventDefault: Math.abs})
+      this.blur()
+      this.focus()
+      return
     }
+    if (this.composing) return
+    this.rememberSelection()
+    let anchor = domToPos(cm, sel.anchorNode, sel.anchorOffset)
+    let head = domToPos(cm, sel.focusNode, sel.focusOffset)
+    if (anchor && head) runInOp(cm, () => {
+      setSelection(cm.doc, simpleSelection(anchor, head), sel_dontScroll)
+      if (anchor.bad || head.bad) cm.curOp.selectionChanged = true
+    })
   }
 
   pollContent() {
@@ -368,6 +381,12 @@ function posToDOM(cm, pos) {
   let result = nodeAndOffsetInLineMap(info.map, pos.ch, side)
   result.offset = result.collapse == "right" ? result.end : result.start
   return result
+}
+
+function isInGutter(node) {
+  for (let scan = node; scan; scan = scan.parentNode)
+    if (/CodeMirror-gutter-wrapper/.test(scan.className)) return true
+  return false
 }
 
 function badPos(pos, bad) { if (bad) pos.bad = true; return pos }
