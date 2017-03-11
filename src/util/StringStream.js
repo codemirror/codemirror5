@@ -12,7 +12,6 @@ class StringStream {
     this.tabSize = tabSize || 8
     this.lastColumnPos = this.lastColumnValue = 0
     this.lineStart = 0
-    this.indentationStart = 0
   }
 
   eol() {return this.pos >= this.string.length}
@@ -50,11 +49,11 @@ class StringStream {
       this.lastColumnValue = countColumn(this.string, this.start, this.tabSize, this.lastColumnPos, this.lastColumnValue)
       this.lastColumnPos = this.start
     }
-    return this.lastColumnValue - (this.indentationStart ? countColumn(this.string, this.indentationStart, this.tabSize) : 0)
+    return this.lastColumnValue - (this.lineStart ? countColumn(this.string, this.lineStart, this.tabSize) : 0)
   }
   indentation() {
     return countColumn(this.string, null, this.tabSize) -
-      (this.indentationStart ? countColumn(this.string, this.indentationStart, this.tabSize) : 0)
+      (this.lineStart ? countColumn(this.string, this.lineStart, this.tabSize) : 0)
   }
   match(pattern, consume, caseInsensitive) {
     if (typeof pattern == "string") {
@@ -74,13 +73,8 @@ class StringStream {
   current(){return this.string.slice(this.start, this.pos)}
   hideFirstChars(n, inner) {
     this.lineStart += n
-    try { return this.hideIndentation(n, inner) }
-    finally { this.lineStart -= n }
-  }
-  hideIndentation(n, inner) {
-    this.indentationStart += n
     try { return inner() }
-    finally { this.indentationStart -= n }
+    finally { this.lineStart -= n }
   }
 }
 

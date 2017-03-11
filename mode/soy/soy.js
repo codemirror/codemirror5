@@ -38,7 +38,12 @@
         // This uses an undocumented API.
         stream.string = oldString.substr(0, stream.pos + match.index);
       }
-      var result = stream.hideIndentation(state.indent, function() {
+      if (stream.sol()) {
+        for (var i = 0; i < state.indent; i++) {
+          if (!stream.eat(/\s/)) break;
+        }
+      }
+      var result = stream.hideFirstChars(state.indent, function() {
         var localState = last(state.localStates);
         return localState.mode.token(stream, localState.state);
       });
