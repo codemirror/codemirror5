@@ -662,6 +662,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   function classfield(type, value) {
     if (value == "?") return cont(classfield)
     if (type == ":") return cont(typeexpr, maybeAssign)
+    if (value == "=") return cont(expressionNoComma)
     return pass(functiondef)
   }
   function afterExport(type, value) {
