@@ -46,7 +46,7 @@
 
   // Rough heuristic to try and detect lines that are part of multi-line string
   function probablyInsideString(cm, pos, line) {
-    return /\bstring\b/.test(cm.getTokenTypeAt(Pos(pos.line, 0))) && !/^[\'\"`]/.test(line)
+    return /\bstring\b/.test(cm.getTokenTypeAt(Pos(pos.line, 0))) && !/^[\'\"\`]/.test(line)
   }
 
   function getMode(cm, pos) {
@@ -176,9 +176,11 @@
       endLine = self.getLine(--end);
       close = endLine.indexOf(endString);
     }
+    var insideStart = Pos(start, open + 1), insideEnd = Pos(end, close + 1)
     if (close == -1 ||
-        !/comment/.test(self.getTokenTypeAt(Pos(start, open + 1))) ||
-        !/comment/.test(self.getTokenTypeAt(Pos(end, close + 1))))
+        !/comment/.test(self.getTokenTypeAt(insideStart)) ||
+        !/comment/.test(self.getTokenTypeAt(insideEnd)) ||
+        self.getRange(insideStart, insideEnd, "\n").indexOf(endString) > -1)
       return false;
 
     // Avoid killing block comments completely outside the selection.
