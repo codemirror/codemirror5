@@ -1,4 +1,4 @@
-import { elt } from "../util/dom"
+import { eltP } from "../util/dom"
 import { eventMixin, hasHandler, on } from "../util/event"
 import { endOperation, operation, runInOp, startOperation } from "../display/operations"
 import { clipPos, cmp, Pos } from "../line/pos"
@@ -166,8 +166,7 @@ export function markText(doc, from, to, options, type) {
   if (marker.replacedWith) {
     // Showing up as a widget implies collapsed (widget replaces text)
     marker.collapsed = true
-    marker.widgetNode = elt("span", [marker.replacedWith], "CodeMirror-widget")
-    marker.widgetNode.setAttribute("role", "presentation") // hide from accessibility tree
+    marker.widgetNode = eltP("span", [marker.replacedWith], "CodeMirror-widget")
     if (!options.handleMouseEvents) marker.widgetNode.setAttribute("cm-ignore-events", "true")
     if (options.insertLeft) marker.widgetNode.insertLeft = true
   }

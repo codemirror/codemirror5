@@ -1,6 +1,6 @@
 import { getOrder } from "../util/bidi"
 import { ie, ie_version, webkit } from "../util/browser"
-import { elt, joinClasses } from "../util/dom"
+import { elt, eltP, joinClasses } from "../util/dom"
 import { eventMixin, signal } from "../util/event"
 import { hasBadBidiRects, zeroWidthElement } from "../util/feature_detection"
 import { lst, spaceStr } from "../util/misc"
@@ -64,14 +64,11 @@ export function buildLineContent(cm, lineView) {
   // The padding-right forces the element to have a 'border', which
   // is needed on Webkit to be able to get line-level bounding
   // rectangles for it (in measureChar).
-  let content = elt("span", null, null, webkit ? "padding-right: .1px" : null)
-  let builder = {pre: elt("pre", [content], "CodeMirror-line"), content: content,
+  let content = eltP("span", null, null, webkit ? "padding-right: .1px" : null)
+  let builder = {pre: eltP("pre", [content], "CodeMirror-line"), content: content,
                  col: 0, pos: 0, cm: cm,
                  trailingSpace: false,
                  splitSpaces: (ie || webkit) && cm.getOption("lineWrapping")}
-  // hide from accessibility tree
-  content.setAttribute("role", "presentation")
-  builder.pre.setAttribute("role", "presentation")
   lineView.measure = {}
 
   // Iterate over the logical lines that make up this visual line.
