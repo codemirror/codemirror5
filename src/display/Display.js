@@ -19,6 +19,7 @@ export function Display(place, doc, input) {
   d.gutterFiller.setAttribute("cm-not-content", "true")
   // Will contain the actual code, positioned to cover the viewport.
   d.lineDiv = elt("div", null, "CodeMirror-code")
+  d.lineDiv.setAttribute("role", "presentation")
   // Elements are added to these to represent selection and cursors.
   d.selectionDiv = elt("div", null, null, "position: relative; z-index: 1")
   d.cursorDiv = elt("div", null, "CodeMirror-cursors")
@@ -29,8 +30,11 @@ export function Display(place, doc, input) {
   // Wraps everything that needs to exist inside the vertically-padded coordinate system
   d.lineSpace = elt("div", [d.measure, d.lineMeasure, d.selectionDiv, d.cursorDiv, d.lineDiv],
                     null, "position: relative; outline: none")
+  d.lineSpace.setAttribute("role", "presentation")
+  let lines = elt("div", [d.lineSpace], "CodeMirror-lines")
+  lines.setAttribute("role", "presentation")
   // Moved around its parent to cover visible view.
-  d.mover = elt("div", [elt("div", [d.lineSpace], "CodeMirror-lines")], null, "position: relative")
+  d.mover = elt("div", [lines], null, "position: relative")
   // Set to the height of the document, allowing scrolling.
   d.sizer = elt("div", [d.mover], "CodeMirror-sizer")
   d.sizerWidth = null
