@@ -1,4 +1,4 @@
-import { elt, eltP } from "../util/dom"
+import { eltP } from "../util/dom"
 import { eventMixin, hasHandler, on } from "../util/event"
 import { endOperation, operation, runInOp, startOperation } from "../display/operations"
 import { clipPos, cmp, Pos } from "../line/pos"

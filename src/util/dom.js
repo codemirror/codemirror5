@@ -31,8 +31,8 @@ export function elt(tag, content, className, style) {
 }
 // wrapper for elt, which removes the elt from the accessibility tree
 export function eltP(tag, content, className, style) {
-  let e = elt(tag, content, className, style);
-  e.setAttribute("role", "presentation");
+  let e = elt(tag, content, className, style)
+  e.setAttribute("role", "presentation")
   return e
 }
 
