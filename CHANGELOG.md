@@ -1,3 +1,43 @@
+## 5.25.0 (2017-02-22)
+
+### Bug fixes
+
+In contentEditable-mode, properly locate changes that repeat a character when inserted with IME.
+
+Fix handling of selections bigger than the viewport in contentEditable mode.
+
+Improve handling of changes that insert or delete lines in contentEditable mode.
+
+Count Unicode control characters 0x80 to 0x9F as special (non-printing) chars.
+
+Fix handling of shadow DOM roots when finding the active element.
+
+Add `role=presentation` to more DOM elements to improve screen reader support.
+
+[merge addon](http://codemirror.net/doc/manual.html#addon_merge): Make aligning of unchanged chunks more robust.
+
+[comment addon](http://codemirror.net/doc/manual.html#addon_comment): Fix comment-toggling on a block of text that starts and ends in a (differnet) block comment.
+
+[javascript mode](http://codemirror.net/mode/javascript/): Improve support for TypeScript syntax.
+
+[r mode](http://codemirror.net/mode/r/): Fix indentation after semicolon-less statements.
+
+[shell mode](http://codemirror.net/mode/shell/): Properly handle escaped parentheses in parenthesized expressions.
+
+[markdown mode](http://codemirror.net/mode/markdown/): Fix a few bugs around leaving fenced code blocks.
+
+[soy mode](http://codemirror.net/mode/soy/): Improve indentation.
+
+### New features
+
+[lint addon](http://codemirror.net/doc/manual.html#addon_lint): Support asynchronous linters that return promises.
+
+[continuelist addon](http://codemirror.net/doc/manual.html#addon_continuelist): Support continuing task lists.
+
+[vim bindings](http://codemirror.net/mode/demo/vim.html): Make Y behave like yy.
+
+[sql mode](http://codemirror.net/mode/sql/): Support sqlite dialect.
+
 ## 5.24.2 (2017-02-22)
 
 ### Bug fixes

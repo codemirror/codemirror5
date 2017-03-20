@@ -30,6 +30,28 @@
 
   <h2>Version 5.x</h2>
 
+  <p class="rel">20-03-2017: <a href="http://codemirror.net/codemirror-5.25.0.zip">Version 5.25.0</a>:</p>
+
+  <ul class=rel-note>
+    <li>In contentEditable-mode, properly locate changes that repeat a character when inserted with IME.</li>
+    <li>Fix handling of selections bigger than the viewport in contentEditable mode.</li>
+    <li>Improve handling of changes that insert or delete lines in contentEditable mode.</li>
+    <li>Count Unicode control characters 0x80 to 0x9F as special (non-printing) chars.</li>
+    <li>Fix handling of shadow DOM roots when finding the active element.</li>
+    <li>Add <code>role=presentation</code> to more DOM elements to improve screen reader support.</li>
+    <li><a href="http://codemirror.net/doc/manual.html#addon_merge">merge addon</a>: Make aligning of unchanged chunks more robust.</li>
+    <li><a href="http://codemirror.net/doc/manual.html#addon_comment">comment addon</a>: Fix comment-toggling on a block of text that starts and ends in a (differnet) block comment.</li>
+    <li><a href="http://codemirror.net/mode/javascript/">javascript mode</a>: Improve support for TypeScript syntax.</li>
+    <li><a href="http://codemirror.net/mode/r/">r mode</a>: Fix indentation after semicolon-less statements.</li>
+    <li><a href="http://codemirror.net/mode/shell/">shell mode</a>: Properly handle escaped parentheses in parenthesized expressions.</li>
+    <li><a href="http://codemirror.net/mode/markdown/">markdown mode</a>: Fix a few bugs around leaving fenced code blocks.</li>
+    <li><a href="http://codemirror.net/mode/soy/">soy mode</a>: Improve indentation.</li>
+    <li><a href="http://codemirror.net/doc/manual.html#addon_lint">lint addon</a>: Support asynchronous linters that return promises.</li>
+    <li><a href="http://codemirror.net/doc/manual.html#addon_continuelist">continuelist addon</a>: Support continuing task lists.</li>
+    <li><a href="http://codemirror.net/mode/demo/vim.html">vim bindings</a>: Make Y behave like yy.</li>
+    <li><a href="http://codemirror.net/mode/sql/">sql mode</a>: Support sqlite dialect.</li>
+  </ul>
+
   <p class="rel">22-02-2017: <a href="http://codemirror.net/codemirror-5.24.2.zip">Version 5.24.2</a>:</p>
 
   <ul class=rel-note>
