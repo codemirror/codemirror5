@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+  <head>
+    <title>CodeMirror: Indent folding</title>
+    <link rel="stylesheet" href="../lib/codemirror.css">
+    <script src="../lib/codemirror.js"></script>
+    <script src="../lib/util/foldcode.js"></script>
+    <script src="../lib/util/indent.js"></script>
+   <style>.CodeMirror {border-top: 1px solid #ddd; border-bottom: 1px solid #ddd;}</style>
+  </head>
+  <body>
+    <h1>CodeMirror: Indent folding</h1>
+    <form><textarea id="code" name="code">Some text
+	indented
+Not Indented
+	Indented Once
+		Indented Twice
+	Back In
+		And out again
+
+Another place
+  xx
+	sadfdsak
+</textarea></form>
+    <script>
+      foldFunc =  CodeMirror.newFoldFunction(CodeMirror.indentRangeFinder);
+      window.editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+	gutter: true,
+	onGutterClick: function(cm, line, event) {
+        window.editor.setCursor(line, 0);
+        return window.foldFunc(cm, line, event);
+      }
+});
+    </script>
+
+   
+
+  </body>
+</html>
