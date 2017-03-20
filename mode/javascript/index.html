@@ -45,14 +45,14 @@ StringStream.prototype = {
       return this.string.charAt(this.pos++);
   },
   eat: function(match) {
-    var ch = this.string.charAt(this.pos);
-    if (typeof match == "string") var ok = ch == match;
-    else var ok = ch &amp;&amp; match.test ? match.test(ch) : match(ch);
+    var ch = this.string.charAt(this.pos),ok;
+    if (typeof match == "string") ok = ch == match;
+    else ok = ch &amp;&amp; match.test ? match.test(ch) : match(ch);
     if (ok) {this.pos++; return ch;}
   },
   eatWhile: function(match) {
     var start = this.pos;
-    while (this.eat(match));
+    while (this.eat(match)){}
     if (this.pos > start) return this.string.slice(start, this.pos);
   },
   backUp: function(n) {this.pos -= n;},
