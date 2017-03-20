@@ -5,6 +5,13 @@
   <meta charset="utf-8"/>
   <link rel=stylesheet href="../doc/docs.css">
 
+  <style>
+    .some-css {
+      color: red;
+      line-height: 2;
+    }
+  </style>
+
   <link rel="stylesheet" href="../lib/codemirror.css">
   <link rel="stylesheet" href="../addon/fold/foldgutter.css" />
   <script src="../lib/codemirror.js"></script>
@@ -17,6 +24,8 @@
   <script src="../addon/fold/comment-fold.js"></script>
   <script src="../mode/javascript/javascript.js"></script>
   <script src="../mode/xml/xml.js"></script>
+  <script src="../mode/css/css.js"></script>
+  <script src="../mode/htmlmixed/htmlmixed.js"></script>
   <script src="../mode/python/python.js"></script>
   <script src="../mode/markdown/markdown.js"></script>
   <style type="text/css">
@@ -100,7 +109,7 @@ window.onload = function() {
     gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"]
   });
   editor_html.foldCode(CodeMirror.Pos(0, 0));
-  editor_html.foldCode(CodeMirror.Pos(21, 0));
+  editor_html.foldCode(CodeMirror.Pos(34, 0));
 
   window.editor_python = CodeMirror.fromTextArea(te_python, {
     mode: "python",
