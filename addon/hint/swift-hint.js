@@ -506,7 +506,7 @@ var CodeMirror;
                        'set','unowned','weak','willSet','Infinity','NaN','undefined','null','true','false',
                        'on','off','yes','no','nil','null','this','super','public','private','extension',
                        'associatedtype','internal','defer','guard','repeat','catch','throw','throws',
-                       'rethrows','convenience','lazy','higherThan','lowerThan'];
+                       'rethrows','convenience','lazy','higherThan','lowerThan','try'];
   // A list of Swift types.
   var swiftTypes = ['String','Double','Int','Float','Int8','UInt8','Int16','UInt16','Int32','UInt32',
                     'Int64','UInt64','Character','Array','Set','Dictionary'];
