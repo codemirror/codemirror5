@@ -16,4 +16,22 @@
 
   MT("singleQuotedString",
       "[string 'a'][variable b]");
+
+  MT("single attribute (with content)",
+      "[node {][atom a:][string 'a'][node }]");
+
+  MT("multiple attribute, singleQuotedString (with content)",
+      "[node {][atom a:][string 'a'][node ,][atom b:][string 'b'][node }]");
+
+  MT("multiple attribute, doubleQuotedString (with content)",
+      "[node {][atom a:][string \"a\"][node ,][atom b:][string \"b\"][node }]");
+
+  MT("single attribute (without content)",
+      "[node {][atom a:][string 'a'][node }]");
+
+  MT("multiple attribute, singleQuotedString (without content)",
+      "[node {][atom a:][string ''][node ,][atom b:][string ''][node }]");
+
+  MT("multiple attribute, doubleQuotedString (without content)",
+      "[node {][atom a:][string \"\"][node ,][atom b:][string \"\"][node }]");
  })();

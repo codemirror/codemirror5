@@ -50,7 +50,7 @@ let orphanDelayedCallbacks = null
 // them to be executed when the last operation ends, or, if no
 // operation is active, when a timeout fires.
 export function signalLater(emitter, type /*, values...*/) {
-  let arr = getHandlers(emitter, type, false)
+  let arr = getHandlers(emitter, type)
   if (!arr.length) return
   let args = Array.prototype.slice.call(arguments, 2), list
   if (operationGroup) {

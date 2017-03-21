@@ -6,39 +6,40 @@ import { indexOf } from "./misc"
 // Lightweight event framework. on/off also work on DOM nodes,
 // registering native DOM handlers.
 
+const noHandlers = []
+
 export let on = function(emitter, type, f) {
-  if (emitter.addEventListener)
+  if (emitter.addEventListener) {
     emitter.addEventListener(type, f, false)
-  else if (emitter.attachEvent)
+  } else if (emitter.attachEvent) {
     emitter.attachEvent("on" + type, f)
-  else {
+  } else {
     let map = emitter._handlers || (emitter._handlers = {})
-    let arr = map[type] || (map[type] = [])
-    arr.push(f)
+    map[type] = (map[type] || noHandlers).concat(f)
   }
 }
 
-let noHandlers = []
-export function getHandlers(emitter, type, copy) {
-  let arr = emitter._handlers && emitter._handlers[type]
-  if (copy) return arr && arr.length > 0 ? arr.slice() : noHandlers
-  else return arr || noHandlers
+export function getHandlers(emitter, type) {
+  return emitter._handlers && emitter._handlers[type] || noHandlers
 }
 
 export function off(emitter, type, f) {
-  if (emitter.removeEventListener)
+  if (emitter.removeEventListener) {
     emitter.removeEventListener(type, f, false)
-  else if (emitter.detachEvent)
+  } else if (emitter.detachEvent) {
     emitter.detachEvent("on" + type, f)
-  else {
-    let handlers = getHandlers(emitter, type, false)
-    for (let i = 0; i < handlers.length; ++i)
-      if (handlers[i] == f) { handlers.splice(i, 1); break }
+  } else {
+    let map = emitter._handlers, arr = map && map[type]
+    if (arr) {
+      let index = indexOf(arr, f)
+      if (index > -1)
+        map[type] = arr.slice(0, index).concat(arr.slice(index + 1))
+    }
   }
 }
 
 export function signal(emitter, type /*, values...*/) {
-  let handlers = getHandlers(emitter, type, true)
+  let handlers = getHandlers(emitter, type)
   if (!handlers.length) return
   let args = Array.prototype.slice.call(arguments, 2)
   for (let i = 0; i < handlers.length; ++i) handlers[i].apply(null, args)

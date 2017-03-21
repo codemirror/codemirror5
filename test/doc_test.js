@@ -163,13 +163,13 @@
   testDoc("undoKeepRanges", "A='abcdefg' B<A", function(a, b) {
     var m = a.markText(Pos(0, 1), Pos(0, 3), {className: "foo"});
     b.replaceRange("x", Pos(0, 0));
-    eqPos(m.find().from, Pos(0, 2));
+    eqCharPos(m.find().from, Pos(0, 2));
     b.replaceRange("yzzy", Pos(0, 1), Pos(0));
     eq(m.find(), null);
     b.undo();
-    eqPos(m.find().from, Pos(0, 2));
+    eqCharPos(m.find().from, Pos(0, 2));
     b.undo();
-    eqPos(m.find().from, Pos(0, 1));
+    eqCharPos(m.find().from, Pos(0, 1));
   });
 
   testDoc("longChain", "A='uv' B<A C<B D<C", function(a, b, c, d) {
@@ -271,12 +271,12 @@
     eq(b.getValue(), "2\n3");
     eq(b.firstLine(), 1);
     b.setCursor(Pos(4));
-    eqPos(b.getCursor(), Pos(2, 1));
+    eqCharPos(b.getCursor(), Pos(2, 1));
     a.replaceRange("-1\n0\n", Pos(0, 0));
     eq(b.firstLine(), 3);
-    eqPos(b.getCursor(), Pos(4, 1));
+    eqCharPos(b.getCursor(), Pos(4, 1));
     a.undo();
-    eqPos(b.getCursor(), Pos(2, 1));
+    eqCharPos(b.getCursor(), Pos(2, 1));
     b.replaceRange("oyoy\n", Pos(2, 0));
     eq(a.getValue(), "1\n2\noyoy\n3\n4\n5");
     b.undo();
@@ -305,11 +305,11 @@
     eq(found.length, 1);
     eq(found[0], mark);
     eq(c.findMarksAt(Pos(1, 1)).length, 1);
-    eqPos(mark.find().from, Pos(0, 1));
-    eqPos(mark.find().to, Pos(3, 1));
+    eqCharPos(mark.find().from, Pos(0, 1));
+    eqCharPos(mark.find().to, Pos(3, 1));
     b.replaceRange("x\ny\n", Pos(0, 0));
-    eqPos(mark.find().from, Pos(2, 1));
-    eqPos(mark.find().to, Pos(5, 1));
+    eqCharPos(mark.find().from, Pos(2, 1));
+    eqCharPos(mark.find().to, Pos(5, 1));
     var cleared = 0;
     CodeMirror.on(mark, "clear", function() {++cleared;});
     b.operation(function(){mark.clear();});
@@ -349,9 +349,9 @@
     eq(found.length, 1);
     eq(found[0], mark);
     eq(c.findMarksAt(Pos(1, 1)).length, 1);
-    eqPos(mark.find(), Pos(1, 1));
+    eqCharPos(mark.find(), Pos(1, 1));
     b.replaceRange("x\ny\n", Pos(0, 0));
-    eqPos(mark.find(), Pos(3, 1));
+    eqCharPos(mark.find(), Pos(3, 1));
     var cleared = 0;
     CodeMirror.on(mark, "clear", function() {++cleared;});
     b.operation(function() {mark.clear();});

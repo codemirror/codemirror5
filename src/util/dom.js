@@ -1,4 +1,4 @@
-import { ie, ie_version, ios } from "./browser"
+import { ie, ios } from "./browser"
 
 export function classTest(cls) { return new RegExp("(^|\\s)" + cls + "(?:$|\\s)\\s*") }
 
@@ -27,6 +27,12 @@ export function elt(tag, content, className, style) {
   if (style) e.style.cssText = style
   if (typeof content == "string") e.appendChild(document.createTextNode(content))
   else if (content) for (let i = 0; i < content.length; ++i) e.appendChild(content[i])
+  return e
+}
+// wrapper for elt, which removes the elt from the accessibility tree
+export function eltP(tag, content, className, style) {
+  let e = elt(tag, content, className, style)
+  e.setAttribute("role", "presentation")
   return e
 }
 
@@ -58,17 +64,19 @@ export function contains(parent, child) {
   } while (child = child.parentNode)
 }
 
-export let activeElt = function() {
-  let activeElement = document.activeElement
-  while (activeElement && activeElement.root && activeElement.root.activeElement)
-    activeElement = activeElement.root.activeElement
+export function activeElt() {
+  // IE and Edge may throw an "Unspecified Error" when accessing document.activeElement.
+  // IE < 10 will throw when accessed while the page is loading or in an iframe.
+  // IE > 9 and Edge will throw when accessed in an iframe if document.body is unavailable.
+  let activeElement
+  try {
+    activeElement = document.activeElement
+  } catch(e) {
+    activeElement = document.body || null
+  }
+  while (activeElement && activeElement.shadowRoot && activeElement.shadowRoot.activeElement)
+    activeElement = activeElement.shadowRoot.activeElement
   return activeElement
-}
-// Older versions of IE throws unspecified error when touching
-// document.activeElement in some cases (during loading, in iframe)
-if (ie && ie_version < 11) activeElt = function() {
-  try { return document.activeElement }
-  catch(e) { return document.body }
 }
 
 export function addClass(node, cls) {

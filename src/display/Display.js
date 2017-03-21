@@ -1,5 +1,5 @@
 import { gecko, ie, ie_version, mobile, webkit } from "../util/browser"
-import { elt } from "../util/dom"
+import { elt, eltP } from "../util/dom"
 import { scrollerGap } from "../util/misc"
 
 // The display handles the DOM integration, both for input reading
@@ -18,7 +18,7 @@ export function Display(place, doc, input) {
   d.gutterFiller = elt("div", null, "CodeMirror-gutter-filler")
   d.gutterFiller.setAttribute("cm-not-content", "true")
   // Will contain the actual code, positioned to cover the viewport.
-  d.lineDiv = elt("div", null, "CodeMirror-code")
+  d.lineDiv = eltP("div", null, "CodeMirror-code")
   // Elements are added to these to represent selection and cursors.
   d.selectionDiv = elt("div", null, null, "position: relative; z-index: 1")
   d.cursorDiv = elt("div", null, "CodeMirror-cursors")
@@ -27,10 +27,11 @@ export function Display(place, doc, input) {
   // When lines outside of the viewport are measured, they are drawn in this.
   d.lineMeasure = elt("div", null, "CodeMirror-measure")
   // Wraps everything that needs to exist inside the vertically-padded coordinate system
-  d.lineSpace = elt("div", [d.measure, d.lineMeasure, d.selectionDiv, d.cursorDiv, d.lineDiv],
+  d.lineSpace = eltP("div", [d.measure, d.lineMeasure, d.selectionDiv, d.cursorDiv, d.lineDiv],
                     null, "position: relative; outline: none")
+  let lines = eltP("div", [d.lineSpace], "CodeMirror-lines")
   // Moved around its parent to cover visible view.
-  d.mover = elt("div", [elt("div", [d.lineSpace], "CodeMirror-lines")], null, "position: relative")
+  d.mover = elt("div", [lines], null, "position: relative")
   // Set to the height of the document, allowing scrolling.
   d.sizer = elt("div", [d.mover], "CodeMirror-sizer")
   d.sizerWidth = null

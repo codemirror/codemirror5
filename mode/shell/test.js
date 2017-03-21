@@ -55,4 +55,7 @@
      "[builtin ls] [attribute -l] [attribute --human-readable]");
   MT("operator",
      "[def var][operator =]value");
+
+  MT("doubleParens",
+     "foo [quote $((bar))]")
 })();

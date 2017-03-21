@@ -109,7 +109,7 @@
     {name: "Python", mime: "text/x-python", mode: "python", ext: ["BUILD", "bzl", "py", "pyw"], file: /^(BUCK|BUILD)$/},
     {name: "Puppet", mime: "text/x-puppet", mode: "puppet", ext: ["pp"]},
     {name: "Q", mime: "text/x-q", mode: "q", ext: ["q"]},
-    {name: "R", mime: "text/x-rsrc", mode: "r", ext: ["r"], alias: ["rscript"]},
+    {name: "R", mime: "text/x-rsrc", mode: "r", ext: ["r", "R"], alias: ["rscript"]},
     {name: "reStructuredText", mime: "text/x-rst", mode: "rst", ext: ["rst"], alias: ["rst"]},
     {name: "RPM Changes", mime: "text/x-rpm-changes", mode: "rpm"},
     {name: "RPM Spec", mime: "text/x-rpm-spec", mode: "rpm", ext: ["spec"]},
@@ -130,6 +130,7 @@
     {name: "SPARQL", mime: "application/sparql-query", mode: "sparql", ext: ["rq", "sparql"], alias: ["sparul"]},
     {name: "Spreadsheet", mime: "text/x-spreadsheet", mode: "spreadsheet", alias: ["excel", "formula"]},
     {name: "SQL", mime: "text/x-sql", mode: "sql", ext: ["sql"]},
+    {name: "SQLite", mime: "text/x-sqlite", mode: "sql"},
     {name: "Squirrel", mime: "text/x-squirrel", mode: "clike", ext: ["nut"]},
     {name: "Stylus", mime: "text/x-styl", mode: "stylus", ext: ["styl"]},
     {name: "Swift", mime: "text/x-swift", mode: "swift", ext: ["swift"]},
@@ -147,6 +148,7 @@
     {name: "TTCN_CFG", mime: "text/x-ttcn-cfg", mode: "ttcn-cfg", ext: ["cfg"]},
     {name: "Turtle", mime: "text/turtle", mode: "turtle", ext: ["ttl"]},
     {name: "TypeScript", mime: "application/typescript", mode: "javascript", ext: ["ts"], alias: ["ts"]},
+    {name: "TypeScript-JSX", mime: "text/typescript-jsx", mode: "jsx", ext: ["tsx"], alias: ["tsx"]},
     {name: "Twig", mime: "text/x-twig", mode: "twig"},
     {name: "Web IDL", mime: "text/x-webidl", mode: "webidl", ext: ["webidl"]},
     {name: "VB.NET", mime: "text/x-vb", mode: "vb", ext: ["vb"]},
@@ -155,7 +157,7 @@
     {name: "Verilog", mime: "text/x-verilog", mode: "verilog", ext: ["v"]},
     {name: "VHDL", mime: "text/x-vhdl", mode: "vhdl", ext: ["vhd", "vhdl"]},
     {name: "Vue.js Component", mimes: ["script/x-vue", "text/x-vue"], mode: "vue", ext: ["vue"]},
-    {name: "XML", mimes: ["application/xml", "text/xml"], mode: "xml", ext: ["xml", "xsl", "xsd"], alias: ["rss", "wsdl", "xsd"]},
+    {name: "XML", mimes: ["application/xml", "text/xml"], mode: "xml", ext: ["xml", "xsl", "xsd", "svg"], alias: ["rss", "wsdl", "xsd"]},
     {name: "XQuery", mime: "application/xquery", mode: "xquery", ext: ["xy", "xquery"]},
     {name: "Yacas", mime: "text/x-yacas", mode: "yacas", ext: ["ys"]},
     {name: "YAML", mimes: ["text/x-yaml", "text/yaml"], mode: "yaml", ext: ["yaml", "yml"], alias: ["yml"]},
@@ -178,6 +180,8 @@
       if (info.mimes) for (var j = 0; j < info.mimes.length; j++)
         if (info.mimes[j] == mime) return info;
     }
+    if (/\+xml$/.test(mime)) return CodeMirror.findModeByMIME("application/xml")
+    if (/\+json$/.test(mime)) return CodeMirror.findModeByMIME("application/json")
   };
 
   CodeMirror.findModeByExtension = function(ext) {

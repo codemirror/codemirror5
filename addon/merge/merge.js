@@ -37,23 +37,29 @@
     constructor: DiffView,
     init: function(pane, orig, options) {
       this.edit = this.mv.edit;
-      (this.edit.state.diffViews || (this.edit.state.diffViews = [])).push(this);
+      ;(this.edit.state.diffViews || (this.edit.state.diffViews = [])).push(this);
       this.orig = CodeMirror(pane, copyObj({value: orig, readOnly: !this.mv.options.allowEditingOriginals}, copyObj(options)));
+      if (this.mv.options.connect == "align") {
+        if (!this.edit.state.trackAlignable) this.edit.state.trackAlignable = new TrackAlignable(this.edit)
+        this.orig.state.trackAlignable = new TrackAlignable(this.orig)
+      }
+
       this.orig.state.diffViews = [this];
       var classLocation = options.chunkClassLocation || "background";
       if (Object.prototype.toString.call(classLocation) != "[object Array]") classLocation = [classLocation]
       this.classes.classLocation = classLocation
 
-      this.diff = getDiff(asString(orig), asString(options.value));
+      this.diff = getDiff(asString(orig), asString(options.value), this.mv.options.ignoreWhitespace);
       this.chunks = getChunks(this.diff);
       this.diffOutOfDate = this.dealigned = false;
+      this.needsScrollSync = null
 
       this.showDifferences = options.showDifferences !== false;
     },
-    registerEvents: function() {
+    registerEvents: function(otherDv) {
       this.forceUpdate = registerUpdate(this);
       setScrollLock(this, true, false);
-      registerScroll(this);
+      registerScroll(this, otherDv);
     },
     setShowDifferences: function(val) {
       val = val !== false;
@@ -66,7 +72,7 @@
 
   function ensureDiff(dv) {
     if (dv.diffOutOfDate) {
-      dv.diff = getDiff(dv.orig.getValue(), dv.edit.getValue());
+      dv.diff = getDiff(dv.orig.getValue(), dv.edit.getValue(), dv.mv.options.ignoreWhitespace);
       dv.chunks = getChunks(dv.diff);
       dv.diffOutOfDate = false;
       CodeMirror.signal(dv.edit, "updateDiff", dv.diff);
@@ -97,6 +103,7 @@
       if (dv.mv.options.connect == "align")
         alignChunks(dv);
       makeConnections(dv);
+      if (dv.needsScrollSync != null) syncScroll(dv, dv.needsScrollSync)
 
       updating = false;
     }
@@ -121,41 +128,47 @@
     }
     function swapDoc() {
       dv.diffOutOfDate = true;
+      dv.dealigned = true;
       update("full");
     }
     dv.edit.on("change", change);
     dv.orig.on("change", change);
     dv.edit.on("swapDoc", swapDoc);
     dv.orig.on("swapDoc", swapDoc);
-    dv.edit.on("markerAdded", setDealign);
-    dv.edit.on("markerCleared", setDealign);
-    dv.orig.on("markerAdded", setDealign);
-    dv.orig.on("markerCleared", setDealign);
+    if (dv.mv.options.connect == "align") {
+      CodeMirror.on(dv.edit.state.trackAlignable, "realign", setDealign)
+      CodeMirror.on(dv.orig.state.trackAlignable, "realign", setDealign)
+    }
     dv.edit.on("viewportChange", function() { set(false); });
     dv.orig.on("viewportChange", function() { set(false); });
     update();
     return update;
   }
 
-  function registerScroll(dv) {
+  function registerScroll(dv, otherDv) {
     dv.edit.on("scroll", function() {
-      syncScroll(dv, DIFF_INSERT) && makeConnections(dv);
+      syncScroll(dv, true) && makeConnections(dv);
     });
     dv.orig.on("scroll", function() {
-      syncScroll(dv, DIFF_DELETE) && makeConnections(dv);
+      syncScroll(dv, false) && makeConnections(dv);
+      if (otherDv) syncScroll(otherDv, true) && makeConnections(otherDv);
     });
   }
 
-  function syncScroll(dv, type) {
+  function syncScroll(dv, toOrig) {
     // Change handler will do a refresh after a timeout when diff is out of date
-    if (dv.diffOutOfDate) return false;
+    if (dv.diffOutOfDate) {
+      if (dv.lockScroll && dv.needsScrollSync == null) dv.needsScrollSync = toOrig
+      return false
+    }
+    dv.needsScrollSync = null
     if (!dv.lockScroll) return true;
     var editor, other, now = +new Date;
-    if (type == DIFF_INSERT) { editor = dv.edit; other = dv.orig; }
+    if (toOrig) { editor = dv.edit; other = dv.orig; }
     else { editor = dv.orig; other = dv.edit; }
     // Don't take action if the position of this editor was recently set
     // (to prevent feedback loops)
-    if (editor.state.scrollSetBy == dv && (editor.state.scrollSetAt || 0) + 50 > now) return false;
+    if (editor.state.scrollSetBy == dv && (editor.state.scrollSetAt || 0) + 250 > now) return false;
 
     var sInfo = editor.getScrollInfo();
     if (dv.mv.options.connect == "align") {
@@ -163,9 +176,9 @@
     } else {
       var halfScreen = .5 * sInfo.clientHeight, midY = sInfo.top + halfScreen;
       var mid = editor.lineAtHeight(midY, "local");
-      var around = chunkBoundariesAround(dv.chunks, mid, type == DIFF_INSERT);
-      var off = getOffsets(editor, type == DIFF_INSERT ? around.edit : around.orig);
-      var offOther = getOffsets(other, type == DIFF_INSERT ? around.orig : around.edit);
+      var around = chunkBoundariesAround(dv.chunks, mid, toOrig);
+      var off = getOffsets(editor, toOrig ? around.edit : around.orig);
+      var offOther = getOffsets(other, toOrig ? around.orig : around.edit);
       var ratio = (midY - off.top) / (off.bot - off.top);
       var targetPos = (offOther.top - halfScreen) + ratio * (offOther.bot - offOther.top);
 
@@ -271,7 +284,7 @@
       }
     }
 
-    var chunkStart = 0;
+    var chunkStart = 0, pending = false;
     for (var i = 0; i < diff.length; ++i) {
       var part = diff[i], tp = part[0], str = part[1];
       if (tp == DIFF_EQUAL) {
@@ -279,10 +292,11 @@
         moveOver(pos, str);
         var cleanTo = pos.line + (endOfLineClean(diff, i) ? 1 : 0);
         if (cleanTo > cleanFrom) {
-          if (i) markChunk(chunkStart, cleanFrom);
+          if (pending) { markChunk(chunkStart, cleanFrom); pending = false }
           chunkStart = cleanTo;
         }
       } else {
+        pending = true
         if (tp == type) {
           var end = moveOver(pos, str, true);
           var a = posMax(top, pos), b = posMin(bot, end);
@@ -292,7 +306,7 @@
         }
       }
     }
-    if (chunkStart <= pos.line) markChunk(chunkStart, pos.line + 1);
+    if (pending) markChunk(chunkStart, pos.line + 1);
   }
 
   // Updating the gap between editor and original
@@ -331,24 +345,81 @@
     return origStart + (editLine - editStart);
   }
 
-  function findAlignedLines(dv, other) {
-    var linesToAlign = [];
-    for (var i = 0; i < dv.chunks.length; i++) {
-      var chunk = dv.chunks[i];
-      linesToAlign.push([chunk.origTo, chunk.editTo, other ? getMatchingOrigLine(chunk.editTo, other.chunks) : null]);
+  // Combines information about chunks and widgets/markers to return
+  // an array of lines, in a single editor, that probably need to be
+  // aligned with their counterparts in the editor next to it.
+  function alignableFor(cm, chunks, isOrig) {
+    var tracker = cm.state.trackAlignable
+    var start = cm.firstLine(), trackI = 0
+    var result = []
+    for (var i = 0;; i++) {
+      var chunk = chunks[i]
+      var chunkStart = !chunk ? 1e9 : isOrig ? chunk.origFrom : chunk.editFrom
+      for (; trackI < tracker.alignable.length; trackI += 2) {
+        var n = tracker.alignable[trackI] + 1
+        if (n <= start) continue
+        if (n <= chunkStart) result.push(n)
+        else break
+      }
+      if (!chunk) break
+      result.push(start = isOrig ? chunk.origTo : chunk.editTo)
     }
-    if (other) {
-      chunkLoop: for (var i = 0; i < other.chunks.length; i++) {
-        var chunk = other.chunks[i];
-        for (var j = 0; j < linesToAlign.length; j++) {
-          var diff = linesToAlign[j][1] - chunk.editTo;
-          if (diff == 0) continue chunkLoop
-          if (diff > 0) break;
+    return result
+  }
+
+  // Given information about alignable lines in two editors, fill in
+  // the result (an array of three-element arrays) to reflect the
+  // lines that need to be aligned with each other.
+  function mergeAlignable(result, origAlignable, chunks, setIndex) {
+    var rI = 0, origI = 0, chunkI = 0, diff = 0
+    outer: for (;; rI++) {
+      var nextR = result[rI], nextO = origAlignable[origI]
+      if (!nextR && nextO == null) break
+
+      var rLine = nextR ? nextR[0] : 1e9, oLine = nextO == null ? 1e9 : nextO
+      while (chunkI < chunks.length) {
+        var chunk = chunks[chunkI]
+        if (chunk.origFrom <= oLine && chunk.origTo > oLine) {
+          origI++
+          rI--
+          continue outer;
         }
-        linesToAlign.splice(j, 0, [getMatchingOrigLine(chunk.editTo, dv.chunks), chunk.editTo, chunk.origTo]);
+        if (chunk.editTo > rLine) {
+          if (chunk.editFrom <= rLine) continue outer;
+          break
+        }
+        diff += (chunk.origTo - chunk.origFrom) - (chunk.editTo - chunk.editFrom)
+        chunkI++
+      }
+      if (rLine == oLine - diff) {
+        nextR[setIndex] = oLine
+        origI++
+      } else if (rLine < oLine - diff) {
+        nextR[setIndex] = rLine + diff
+      } else {
+        var record = [oLine - diff, null, null]
+        record[setIndex] = oLine
+        result.splice(rI, 0, record)
+        origI++
       }
     }
-    return linesToAlign;
+  }
+
+  function findAlignedLines(dv, other) {
+    var alignable = alignableFor(dv.edit, dv.chunks, false), result = []
+    if (other) for (var i = 0, j = 0; i < other.chunks.length; i++) {
+      var n = other.chunks[i].editTo
+      while (j < alignable.length && alignable[j] < n) j++
+      if (j == alignable.length || alignable[j] != n) alignable.splice(j++, 0, n)
+    }
+    for (var i = 0; i < alignable.length; i++)
+      result.push([alignable[i], null, null])
+
+    mergeAlignable(result, alignableFor(dv.orig, dv.chunks, true), dv.chunks, 1)
+    if (other)
+      mergeAlignable(result, alignableFor(other.orig, other.chunks, true), other.chunks, 2)
+
+    return result
   }
 
   function alignChunks(dv, force) {
@@ -371,7 +442,7 @@
       aligners[i].clear();
     aligners.length = 0;
 
-    var cm = [dv.orig, dv.edit], scroll = [];
+    var cm = [dv.edit, dv.orig], scroll = [];
     if (other) cm.push(other.orig);
     for (var i = 0; i < cm.length; i++)
       scroll.push(cm[i].getScrollInfo().top);
@@ -406,7 +477,7 @@
     var elt = document.createElement("div");
     elt.className = "CodeMirror-merge-spacer";
     elt.style.height = size + "px"; elt.style.minWidth = "1px";
-    return cm.addLineWidget(line, elt, {height: size, above: above});
+    return cm.addLineWidget(line, elt, {height: size, above: above, mergeSpacer: true, handleMouseEvents: true});
   }
 
   function drawConnectorsForChunk(dv, chunk, sTopOrig, sTopEdit, w) {
@@ -431,10 +502,10 @@
       var editOriginals = dv.mv.options.allowEditingOriginals;
       copy.title = editOriginals ? "Push to left" : "Revert chunk";
       copy.chunk = chunk;
-      copy.style.top = top + "px";
+      copy.style.top = (chunk.origTo > chunk.origFrom ? top : dv.edit.heightAtLine(chunk.editFrom, "local") - sTopEdit) + "px";
 
       if (editOriginals) {
-        var topReverse = dv.orig.heightAtLine(chunk.editFrom, "local") - sTopEdit;
+        var topReverse = dv.edit.heightAtLine(chunk.editFrom, "local") - sTopEdit;
         var copyReverse = dv.copyButtons.appendChild(elt("div", dv.type == "right" ? "\u21dd" : "\u21dc",
                                                          "CodeMirror-merge-copy-reverse"));
         copyReverse.title = "Push to right";
@@ -448,9 +519,15 @@
 
   function copyChunk(dv, to, from, chunk) {
     if (dv.diffOutOfDate) return;
-    var editStart = chunk.editTo > to.lastLine() ? Pos(chunk.editFrom - 1) : Pos(chunk.editFrom, 0)
     var origStart = chunk.origTo > from.lastLine() ? Pos(chunk.origFrom - 1) : Pos(chunk.origFrom, 0)
-    to.replaceRange(from.getRange(origStart, Pos(chunk.origTo, 0)), editStart, Pos(chunk.editTo, 0))
+    var origEnd = Pos(chunk.origTo, 0)
+    var editStart = chunk.editTo > to.lastLine() ? Pos(chunk.editFrom - 1) : Pos(chunk.editFrom, 0)
+    var editEnd = Pos(chunk.editTo, 0)
+    var handler = dv.mv.options.revertChunk
+    if (handler)
+      handler(dv.mv, from, origStart, origEnd, to, editStart, editEnd)
+    else
+      to.replaceRange(from.getRange(origStart, origEnd), editStart, editEnd)
   }
 
   // Merge view, containing 0, 1, or 2 diff views.
@@ -500,8 +577,8 @@
       this.aligners = [];
       alignChunks(this.left || this.right, true);
     }
-    if (left) left.registerEvents()
-    if (right) right.registerEvents()
+    if (left) left.registerEvents(right)
+    if (right) right.registerEvents(left)
 
 
     var onResize = function() {
@@ -569,13 +646,12 @@
   // Operations on diffs
 
   var dmp = new diff_match_patch();
-  function getDiff(a, b) {
+  function getDiff(a, b, ignoreWhitespace) {
     var diff = dmp.diff_main(a, b);
-    dmp.diff_cleanupSemantic(diff);
     // The library sometimes leaves in empty parts, which confuse the algorithm
     for (var i = 0; i < diff.length; ++i) {
       var part = diff[i];
-      if (!part[1]) {
+      if (ignoreWhitespace ? !/[^ \t]/.test(part[1]) : !part[1]) {
         diff.splice(i--, 1);
       } else if (i && diff[i - 1][0] == part[0]) {
         diff.splice(i--, 1);
@@ -592,7 +668,7 @@
     for (var i = 0; i < diff.length; ++i) {
       var part = diff[i], tp = part[0];
       if (tp == DIFF_EQUAL) {
-        var startOff = startOfLineClean(diff, i) ? 0 : 1;
+        var startOff = !startOfLineClean(diff, i) || edit.line < startEdit || orig.line < startOrig ? 1 : 0;
         var cleanFromEdit = edit.line + startOff, cleanFromOrig = orig.line + startOff;
         moveOver(edit, part[1], null, orig);
         var endOff = endOfLineClean(diff, i) ? 1 : 0;
@@ -615,10 +691,10 @@
   function endOfLineClean(diff, i) {
     if (i == diff.length - 1) return true;
     var next = diff[i + 1][1];
-    if (next.length == 1 || next.charCodeAt(0) != 10) return false;
+    if ((next.length == 1 && i < diff.length - 2) || next.charCodeAt(0) != 10) return false;
     if (i == diff.length - 2) return true;
     next = diff[i + 2][1];
-    return next.length > 1 && next.charCodeAt(0) == 10;
+    return (next.length > 1 || i == diff.length - 3) && next.charCodeAt(0) == 10;
   }
 
   function startOfLineClean(diff, i) {
@@ -750,6 +826,131 @@
     out.ch = (at ? 0 : out.ch) + (str.length - at);
     if (other) other.ch = (at ? 0 : other.ch) + (str.length - at);
     return out;
+  }
+
+  // Tracks collapsed markers and line widgets, in order to be able to
+  // accurately align the content of two editors.
+
+  var F_WIDGET = 1, F_WIDGET_BELOW = 2, F_MARKER = 4
+
+  function TrackAlignable(cm) {
+    this.cm = cm
+    this.alignable = []
+    this.height = cm.doc.height
+    var self = this
+    cm.on("markerAdded", function(_, marker) {
+      if (!marker.collapsed) return
+      var found = marker.find(1)
+      if (found != null) self.set(found.line, F_MARKER)
+    })
+    cm.on("markerCleared", function(_, marker, _min, max) {
+      if (max != null && marker.collapsed)
+        self.check(max, F_MARKER, self.hasMarker)
+    })
+    cm.on("markerChanged", this.signal.bind(this))
+    cm.on("lineWidgetAdded", function(_, widget, lineNo) {
+      if (widget.mergeSpacer) return
+      if (widget.above) self.set(lineNo - 1, F_WIDGET_BELOW)
+      else self.set(lineNo, F_WIDGET)
+    })
+    cm.on("lineWidgetCleared", function(_, widget, lineNo) {
+      if (widget.mergeSpacer) return
+      if (widget.above) self.check(lineNo - 1, F_WIDGET_BELOW, self.hasWidgetBelow)
+      else self.check(lineNo, F_WIDGET, self.hasWidget)
+    })
+    cm.on("lineWidgetChanged", this.signal.bind(this))
+    cm.on("change", function(_, change) {
+      var start = change.from.line, nBefore = change.to.line - change.from.line
+      var nAfter = change.text.length - 1, end = start + nAfter
+      if (nBefore || nAfter) self.map(start, nBefore, nAfter)
+      self.check(end, F_MARKER, self.hasMarker)
+      if (nBefore || nAfter) self.check(change.from.line, F_MARKER, self.hasMarker)
+    })
+    cm.on("viewportChange", function() {
+      if (self.cm.doc.height != self.height) self.signal()
+    })
+  }
+
+  TrackAlignable.prototype = {
+    signal: function() {
+      CodeMirror.signal(this, "realign")
+      this.height = this.cm.doc.height
+    },
+
+    set: function(n, flags) {
+      var pos = -1
+      for (; pos < this.alignable.length; pos += 2) {
+        var diff = this.alignable[pos] - n
+        if (diff == 0) {
+          if ((this.alignable[pos + 1] & flags) == flags) return
+          this.alignable[pos + 1] |= flags
+          this.signal()
+          return
+        }
+        if (diff > 0) break
+      }
+      this.signal()
+      this.alignable.splice(pos, 0, n, flags)
+    },
+
+    find: function(n) {
+      for (var i = 0; i < this.alignable.length; i += 2)
+        if (this.alignable[i] == n) return i
+      return -1
+    },
+
+    check: function(n, flag, pred) {
+      var found = this.find(n)
+      if (found == -1 || !(this.alignable[found + 1] & flag)) return
+      if (!pred.call(this, n)) {
+        this.signal()
+        var flags = this.alignable[found + 1] & ~flag
+        if (flags) this.alignable[found + 1] = flags
+        else this.alignable.splice(found, 2)
+      }
+    },
+
+    hasMarker: function(n) {
+      var handle = this.cm.getLineHandle(n)
+      if (handle.markedSpans) for (var i = 0; i < handle.markedSpans.length; i++)
+        if (handle.markedSpans[i].mark.collapsed && handle.markedSpans[i].to != null)
+          return true
+      return false
+    },
+
+    hasWidget: function(n) {
+      var handle = this.cm.getLineHandle(n)
+      if (handle.widgets) for (var i = 0; i < handle.widgets.length; i++)
+        if (!handle.widgets[i].above && !handle.widgets[i].mergeSpacer) return true
+      return false
+    },
+
+    hasWidgetBelow: function(n) {
+      if (n == this.cm.lastLine()) return false
+      var handle = this.cm.getLineHandle(n + 1)
+      if (handle.widgets) for (var i = 0; i < handle.widgets.length; i++)
+        if (handle.widgets[i].above && !handle.widgets[i].mergeSpacer) return true
+      return false
+    },
+
+    map: function(from, nBefore, nAfter) {
+      var diff = nAfter - nBefore, to = from + nBefore, widgetFrom = -1, widgetTo = -1
+      for (var i = 0; i < this.alignable.length; i += 2) {
+        var n = this.alignable[i]
+        if (n == from && (this.alignable[i + 1] & F_WIDGET_BELOW)) widgetFrom = i
+        if (n == to && (this.alignable[i + 1] & F_WIDGET_BELOW)) widgetTo = i
+        if (n <= from) continue
+        else if (n < to) this.alignable.splice(i--, 2)
+        else this.alignable[i] += diff
+      }
+      if (widgetFrom > -1) {
+        var flags = this.alignable[widgetFrom + 1]
+        if (flags == F_WIDGET_BELOW) this.alignable.splice(widgetFrom, 2)
+        else this.alignable[widgetFrom + 1] = flags & ~F_WIDGET_BELOW
+      }
+      if (widgetTo > -1 && nAfter)
+        this.set(from + nAfter, F_WIDGET_BELOW)
+    }
   }
 
   function posMin(a, b) { return (a.line - b.line || a.ch - b.ch) < 0 ? a : b; }

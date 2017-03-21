@@ -1,9 +1,11 @@
 import { loadMode } from "../display/mode_state"
+import { runInOp } from "../display/operations"
 import { regChange } from "../display/view_tracking"
 import { Line, updateLine } from "../line/line_data"
 import { findMaxLine } from "../line/spans"
 import { getLine } from "../line/utils_line"
 import { estimateLineHeights } from "../measurement/position_measurement"
+import { addClass, rmClass } from "../util/dom"
 import { lst } from "../util/misc"
 import { signalLater } from "../util/operation_group"
 
@@ -91,8 +93,19 @@ export function attachDoc(cm, doc) {
   doc.cm = cm
   estimateLineHeights(cm)
   loadMode(cm)
+  setDirectionClass(cm)
   if (!cm.options.lineWrapping) findMaxLine(cm)
   cm.options.mode = doc.modeOption
   regChange(cm)
 }
 
+function setDirectionClass(cm) {
+  ;(cm.doc.direction == "rtl" ? addClass : rmClass)(cm.display.lineDiv, "CodeMirror-rtl")
+}
+
+export function directionChanged(cm) {
+  runInOp(cm, () => {
+    setDirectionClass(cm)
+    regChange(cm)
+  })
+}

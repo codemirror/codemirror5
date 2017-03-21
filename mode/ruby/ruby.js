@@ -46,22 +46,10 @@ CodeMirror.defineMode("ruby", function(config) {
     if (ch == "`" || ch == "'" || ch == '"') {
       return chain(readQuoted(ch, "string", ch == '"' || ch == "`"), stream, state);
     } else if (ch == "/") {
-      var currentIndex = stream.current().length;
-      if (stream.skipTo("/")) {
-        var search_till = stream.current().length;
-        stream.backUp(stream.current().length - currentIndex);
-        var balance = 0;  // balance brackets
-        while (stream.current().length < search_till) {
-          var chchr = stream.next();
-          if (chchr == "(") balance += 1;
-          else if (chchr == ")") balance -= 1;
-          if (balance < 0) break;
-        }
-        stream.backUp(stream.current().length - currentIndex);
-        if (balance == 0)
-          return chain(readQuoted(ch, "string-2", true), stream, state);
-      }
-      return "operator";
+      if (regexpAhead(stream))
+        return chain(readQuoted(ch, "string-2", true), stream, state);
+      else
+        return "operator";
     } else if (ch == "%") {
       var style = "string", embed = true;
       if (stream.eat("s")) style = "atom";
@@ -146,6 +134,28 @@ CodeMirror.defineMode("ruby", function(config) {
     } else {
       return null;
     }
+  }
+
+  function regexpAhead(stream) {
+    var start = stream.pos, depth = 0, next, found = false, escaped = false
+    while ((next = stream.next()) != null) {
+      if (!escaped) {
+        if ("[{(".indexOf(next) > -1) {
+          depth++
+        } else if ("]})".indexOf(next) > -1) {
+          depth--
+          if (depth < 0) break
+        } else if (next == "/" && depth == 0) {
+          found = true
+          break
+        }
+        escaped = next == "\\"
+      } else {
+        escaped = false
+      }
+    }
+    stream.backUp(stream.pos - start)
+    return found
   }
 
   function tokenBaseUntilBrace(depth) {

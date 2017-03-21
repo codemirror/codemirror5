@@ -1,4 +1,4 @@
-import { elt } from "../util/dom"
+import { eltP } from "../util/dom"
 import { eventMixin, hasHandler, on } from "../util/event"
 import { endOperation, operation, runInOp, startOperation } from "../display/operations"
 import { clipPos, cmp, Pos } from "../line/pos"
@@ -32,118 +32,122 @@ import { reCheckSelection } from "./selection_updates"
 // when they overlap (they may nest, but not partially overlap).
 let nextMarkerId = 0
 
-export function TextMarker(doc, type) {
-  this.lines = []
-  this.type = type
-  this.doc = doc
-  this.id = ++nextMarkerId
+export class TextMarker {
+  constructor(doc, type) {
+    this.lines = []
+    this.type = type
+    this.doc = doc
+    this.id = ++nextMarkerId
+  }
+
+  // Clear the marker.
+  clear() {
+    if (this.explicitlyCleared) return
+    let cm = this.doc.cm, withOp = cm && !cm.curOp
+    if (withOp) startOperation(cm)
+    if (hasHandler(this, "clear")) {
+      let found = this.find()
+      if (found) signalLater(this, "clear", found.from, found.to)
+    }
+    let min = null, max = null
+    for (let i = 0; i < this.lines.length; ++i) {
+      let line = this.lines[i]
+      let span = getMarkedSpanFor(line.markedSpans, this)
+      if (cm && !this.collapsed) regLineChange(cm, lineNo(line), "text")
+      else if (cm) {
+        if (span.to != null) max = lineNo(line)
+        if (span.from != null) min = lineNo(line)
+      }
+      line.markedSpans = removeMarkedSpan(line.markedSpans, span)
+      if (span.from == null && this.collapsed && !lineIsHidden(this.doc, line) && cm)
+        updateLineHeight(line, textHeight(cm.display))
+    }
+    if (cm && this.collapsed && !cm.options.lineWrapping) for (let i = 0; i < this.lines.length; ++i) {
+      let visual = visualLine(this.lines[i]), len = lineLength(visual)
+      if (len > cm.display.maxLineLength) {
+        cm.display.maxLine = visual
+        cm.display.maxLineLength = len
+        cm.display.maxLineChanged = true
+      }
+    }
+
+    if (min != null && cm && this.collapsed) regChange(cm, min, max + 1)
+    this.lines.length = 0
+    this.explicitlyCleared = true
+    if (this.atomic && this.doc.cantEdit) {
+      this.doc.cantEdit = false
+      if (cm) reCheckSelection(cm.doc)
+    }
+    if (cm) signalLater(cm, "markerCleared", cm, this, min, max)
+    if (withOp) endOperation(cm)
+    if (this.parent) this.parent.clear()
+  }
+
+  // Find the position of the marker in the document. Returns a {from,
+  // to} object by default. Side can be passed to get a specific side
+  // -- 0 (both), -1 (left), or 1 (right). When lineObj is true, the
+  // Pos objects returned contain a line object, rather than a line
+  // number (used to prevent looking up the same line twice).
+  find(side, lineObj) {
+    if (side == null && this.type == "bookmark") side = 1
+    let from, to
+    for (let i = 0; i < this.lines.length; ++i) {
+      let line = this.lines[i]
+      let span = getMarkedSpanFor(line.markedSpans, this)
+      if (span.from != null) {
+        from = Pos(lineObj ? line : lineNo(line), span.from)
+        if (side == -1) return from
+      }
+      if (span.to != null) {
+        to = Pos(lineObj ? line : lineNo(line), span.to)
+        if (side == 1) return to
+      }
+    }
+    return from && {from: from, to: to}
+  }
+
+  // Signals that the marker's widget changed, and surrounding layout
+  // should be recomputed.
+  changed() {
+    let pos = this.find(-1, true), widget = this, cm = this.doc.cm
+    if (!pos || !cm) return
+    runInOp(cm, () => {
+      let line = pos.line, lineN = lineNo(pos.line)
+      let view = findViewForLine(cm, lineN)
+      if (view) {
+        clearLineMeasurementCacheFor(view)
+        cm.curOp.selectionChanged = cm.curOp.forceUpdate = true
+      }
+      cm.curOp.updateMaxLine = true
+      if (!lineIsHidden(widget.doc, line) && widget.height != null) {
+        let oldHeight = widget.height
+        widget.height = null
+        let dHeight = widgetHeight(widget) - oldHeight
+        if (dHeight)
+          updateLineHeight(line, line.height + dHeight)
+      }
+      signalLater(cm, "markerChanged", cm, this)
+    })
+  }
+
+  attachLine(line) {
+    if (!this.lines.length && this.doc.cm) {
+      let op = this.doc.cm.curOp
+      if (!op.maybeHiddenMarkers || indexOf(op.maybeHiddenMarkers, this) == -1)
+        (op.maybeUnhiddenMarkers || (op.maybeUnhiddenMarkers = [])).push(this)
+    }
+    this.lines.push(line)
+  }
+
+  detachLine(line) {
+    this.lines.splice(indexOf(this.lines, line), 1)
+    if (!this.lines.length && this.doc.cm) {
+      let op = this.doc.cm.curOp
+      ;(op.maybeHiddenMarkers || (op.maybeHiddenMarkers = [])).push(this)
+    }
+  }
 }
 eventMixin(TextMarker)
-
-// Clear the marker.
-TextMarker.prototype.clear = function() {
-  if (this.explicitlyCleared) return
-  let cm = this.doc.cm, withOp = cm && !cm.curOp
-  if (withOp) startOperation(cm)
-  if (hasHandler(this, "clear")) {
-    let found = this.find()
-    if (found) signalLater(this, "clear", found.from, found.to)
-  }
-  let min = null, max = null
-  for (let i = 0; i < this.lines.length; ++i) {
-    let line = this.lines[i]
-    let span = getMarkedSpanFor(line.markedSpans, this)
-    if (cm && !this.collapsed) regLineChange(cm, lineNo(line), "text")
-    else if (cm) {
-      if (span.to != null) max = lineNo(line)
-      if (span.from != null) min = lineNo(line)
-    }
-    line.markedSpans = removeMarkedSpan(line.markedSpans, span)
-    if (span.from == null && this.collapsed && !lineIsHidden(this.doc, line) && cm)
-      updateLineHeight(line, textHeight(cm.display))
-  }
-  if (cm && this.collapsed && !cm.options.lineWrapping) for (let i = 0; i < this.lines.length; ++i) {
-    let visual = visualLine(this.lines[i]), len = lineLength(visual)
-    if (len > cm.display.maxLineLength) {
-      cm.display.maxLine = visual
-      cm.display.maxLineLength = len
-      cm.display.maxLineChanged = true
-    }
-  }
-
-  if (min != null && cm && this.collapsed) regChange(cm, min, max + 1)
-  this.lines.length = 0
-  this.explicitlyCleared = true
-  if (this.atomic && this.doc.cantEdit) {
-    this.doc.cantEdit = false
-    if (cm) reCheckSelection(cm.doc)
-  }
-  if (cm) signalLater(cm, "markerCleared", cm, this)
-  if (withOp) endOperation(cm)
-  if (this.parent) this.parent.clear()
-}
-
-// Find the position of the marker in the document. Returns a {from,
-// to} object by default. Side can be passed to get a specific side
-// -- 0 (both), -1 (left), or 1 (right). When lineObj is true, the
-// Pos objects returned contain a line object, rather than a line
-// number (used to prevent looking up the same line twice).
-TextMarker.prototype.find = function(side, lineObj) {
-  if (side == null && this.type == "bookmark") side = 1
-  let from, to
-  for (let i = 0; i < this.lines.length; ++i) {
-    let line = this.lines[i]
-    let span = getMarkedSpanFor(line.markedSpans, this)
-    if (span.from != null) {
-      from = Pos(lineObj ? line : lineNo(line), span.from)
-      if (side == -1) return from
-    }
-    if (span.to != null) {
-      to = Pos(lineObj ? line : lineNo(line), span.to)
-      if (side == 1) return to
-    }
-  }
-  return from && {from: from, to: to}
-}
-
-// Signals that the marker's widget changed, and surrounding layout
-// should be recomputed.
-TextMarker.prototype.changed = function() {
-  let pos = this.find(-1, true), widget = this, cm = this.doc.cm
-  if (!pos || !cm) return
-  runInOp(cm, () => {
-    let line = pos.line, lineN = lineNo(pos.line)
-    let view = findViewForLine(cm, lineN)
-    if (view) {
-      clearLineMeasurementCacheFor(view)
-      cm.curOp.selectionChanged = cm.curOp.forceUpdate = true
-    }
-    cm.curOp.updateMaxLine = true
-    if (!lineIsHidden(widget.doc, line) && widget.height != null) {
-      let oldHeight = widget.height
-      widget.height = null
-      let dHeight = widgetHeight(widget) - oldHeight
-      if (dHeight)
-        updateLineHeight(line, line.height + dHeight)
-    }
-  })
-}
-
-TextMarker.prototype.attachLine = function(line) {
-  if (!this.lines.length && this.doc.cm) {
-    let op = this.doc.cm.curOp
-    if (!op.maybeHiddenMarkers || indexOf(op.maybeHiddenMarkers, this) == -1)
-      (op.maybeUnhiddenMarkers || (op.maybeUnhiddenMarkers = [])).push(this)
-  }
-  this.lines.push(line)
-}
-TextMarker.prototype.detachLine = function(line) {
-  this.lines.splice(indexOf(this.lines, line), 1)
-  if (!this.lines.length && this.doc.cm) {
-    let op = this.doc.cm.curOp
-    ;(op.maybeHiddenMarkers || (op.maybeHiddenMarkers = [])).push(this)
-  }
-}
 
 // Create a marker, wire it up to the right lines, and
 export function markText(doc, from, to, options, type) {
@@ -162,7 +166,7 @@ export function markText(doc, from, to, options, type) {
   if (marker.replacedWith) {
     // Showing up as a widget implies collapsed (widget replaces text)
     marker.collapsed = true
-    marker.widgetNode = elt("span", [marker.replacedWith], "CodeMirror-widget")
+    marker.widgetNode = eltP("span", [marker.replacedWith], "CodeMirror-widget")
     if (!options.handleMouseEvents) marker.widgetNode.setAttribute("cm-ignore-events", "true")
     if (options.insertLeft) marker.widgetNode.insertLeft = true
   }
@@ -220,24 +224,27 @@ export function markText(doc, from, to, options, type) {
 // A shared marker spans multiple linked documents. It is
 // implemented as a meta-marker-object controlling multiple normal
 // markers.
-export function SharedTextMarker(markers, primary) {
-  this.markers = markers
-  this.primary = primary
-  for (let i = 0; i < markers.length; ++i)
-    markers[i].parent = this
+export class SharedTextMarker {
+  constructor(markers, primary) {
+    this.markers = markers
+    this.primary = primary
+    for (let i = 0; i < markers.length; ++i)
+      markers[i].parent = this
+  }
+
+  clear() {
+    if (this.explicitlyCleared) return
+    this.explicitlyCleared = true
+    for (let i = 0; i < this.markers.length; ++i)
+      this.markers[i].clear()
+    signalLater(this, "clear")
+  }
+
+  find(side, lineObj) {
+    return this.primary.find(side, lineObj)
+  }
 }
 eventMixin(SharedTextMarker)
-
-SharedTextMarker.prototype.clear = function() {
-  if (this.explicitlyCleared) return
-  this.explicitlyCleared = true
-  for (let i = 0; i < this.markers.length; ++i)
-    this.markers[i].clear()
-  signalLater(this, "clear")
-}
-SharedTextMarker.prototype.find = function(side, lineObj) {
-  return this.primary.find(side, lineObj)
-}
 
 function markTextShared(doc, from, to, options, type) {
   options = copyObj(options)

@@ -14,15 +14,15 @@
     for (var i = 3; i < arguments.length; i += 4) {
       var found = cursor.findNext();
       is(found, "not enough results (forward)");
-      eqPos(Pos(arguments[i], arguments[i + 1]), cursor.from(), "from, forward, " + (i - 3) / 4);
-      eqPos(Pos(arguments[i + 2], arguments[i + 3]), cursor.to(), "to, forward, " + (i - 3) / 4);
+      eqCharPos(Pos(arguments[i], arguments[i + 1]), cursor.from(), "from, forward, " + (i - 3) / 4);
+      eqCharPos(Pos(arguments[i + 2], arguments[i + 3]), cursor.to(), "to, forward, " + (i - 3) / 4);
     }
     is(!cursor.findNext(), "too many matches (forward)");
     for (var i = arguments.length - 4; i >= 3; i -= 4) {
       var found = cursor.findPrevious();
       is(found, "not enough results (backwards)");
-      eqPos(Pos(arguments[i], arguments[i + 1]), cursor.from(), "from, backwards, " + (i - 3) / 4);
-      eqPos(Pos(arguments[i + 2], arguments[i + 3]), cursor.to(), "to, backwards, " + (i - 3) / 4);
+      eqCharPos(Pos(arguments[i], arguments[i + 1]), cursor.from(), "from, backwards, " + (i - 3) / 4);
+      eqCharPos(Pos(arguments[i + 2], arguments[i + 3]), cursor.to(), "to, backwards, " + (i - 3) / 4);
     }
     is(!cursor.findPrevious(), "too many matches (backwards)");
   }

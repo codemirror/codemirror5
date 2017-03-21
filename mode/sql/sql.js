@@ -32,13 +32,13 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
       if (result !== false) return result;
     }
 
-    if (support.hexNumber == true &&
+    if (support.hexNumber &&
       ((ch == "0" && stream.match(/^[xX][0-9a-fA-F]+/))
       || (ch == "x" || ch == "X") && stream.match(/^'[0-9a-fA-F]+'/))) {
       // hex
       // ref: http://dev.mysql.com/doc/refman/5.5/en/hexadecimal-literals.html
       return "number";
-    } else if (support.binaryNumber == true &&
+    } else if (support.binaryNumber &&
       (((ch == "b" || ch == "B") && stream.match(/^'[01]+'/))
       || (ch == "0" && stream.match(/^b[01]+/)))) {
       // bitstring
@@ -48,7 +48,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
       // numbers
       // ref: http://dev.mysql.com/doc/refman/5.5/en/number-literals.html
           stream.match(/^[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?/);
-      support.decimallessFloat == true && stream.eat('.');
+      support.decimallessFloat && stream.eat('.');
       return "number";
     } else if (ch == "?" && (stream.eatSpace() || stream.eol() || stream.eat(";"))) {
       // placeholders
@@ -58,8 +58,8 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
       // ref: http://dev.mysql.com/doc/refman/5.5/en/string-literals.html
       state.tokenize = tokenLiteral(ch);
       return state.tokenize(stream, state);
-    } else if ((((support.nCharCast == true && (ch == "n" || ch == "N"))
-        || (support.charsetCast == true && ch == "_" && stream.match(/[a-z][a-z0-9]*/i)))
+    } else if ((((support.nCharCast && (ch == "n" || ch == "N"))
+        || (support.charsetCast && ch == "_" && stream.match(/[a-z][a-z0-9]*/i)))
         && (stream.peek() == "'" || stream.peek() == '"'))) {
       // charset casting: _utf8'str', N'str', n'str'
       // ref: http://dev.mysql.com/doc/refman/5.5/en/string-literals.html
@@ -84,12 +84,12 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
       return state.tokenize(stream, state);
     } else if (ch == ".") {
       // .1 for 0.1
-      if (support.zerolessFloat == true && stream.match(/^(?:\d+(?:e[+-]?\d+)?)/i)) {
+      if (support.zerolessFloat && stream.match(/^(?:\d+(?:e[+-]?\d+)?)/i)) {
         return "number";
       }
       // .table_name (ODBC)
       // // ref: http://dev.mysql.com/doc/refman/5.6/en/identifier-qualifiers.html
-      if (support.ODBCdotTable == true && stream.match(/^[a-zA-Z_]+/)) {
+      if (support.ODBCdotTable && stream.match(/^[a-zA-Z_]+/)) {
         return "variable-2";
       }
     } else if (operatorChars.test(ch)) {
@@ -217,6 +217,19 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     return stream.eatWhile(/\w/) ? "variable-2" : null;
   }
 
+  // "identifier"
+  function hookIdentifierDoublequote(stream) {
+    // Standard SQL /SQLite identifiers
+    // ref: http://web.archive.org/web/20160813185132/http://savage.net.au/SQL/sql-99.bnf.html#delimited%20identifier
+    // ref: http://sqlite.org/lang_keywords.html
+    var ch;
+    while ((ch = stream.next()) != null) {
+      if (ch == "\"" && !stream.eat("\"")) return "variable-2";
+    }
+    stream.backUp(stream.current().length - 1);
+    return stream.eatWhile(/\w/) ? "variable-2" : null;
+  }
+
   // variable token
   function hookVar(stream) {
     // variables
@@ -319,6 +332,36 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
       "@":   hookVar,
       "`":   hookIdentifier,
       "\\":  hookClient
+    }
+  });
+
+  // provided by the phpLiteAdmin project - phpliteadmin.org
+  CodeMirror.defineMIME("text/x-sqlite", {
+    name: "sql",
+    // commands of the official SQLite client, ref: https://www.sqlite.org/cli.html#dotcmd
+    client: set("auth backup bail binary changes check clone databases dbinfo dump echo eqp exit explain fullschema headers help import imposter indexes iotrace limit lint load log mode nullvalue once open output print prompt quit read restore save scanstats schema separator session shell show stats system tables testcase timeout timer trace vfsinfo vfslist vfsname width"),
+    // ref: http://sqlite.org/lang_keywords.html
+    keywords: set(sqlKeywords + "abort action add after all analyze attach autoincrement before begin cascade case cast check collate column commit conflict constraint cross current_date current_time current_timestamp database default deferrable deferred detach each else end escape except exclusive exists explain fail for foreign full glob if ignore immediate index indexed initially inner instead intersect isnull key left limit match natural no notnull null of offset outer plan pragma primary query raise recursive references regexp reindex release rename replace restrict right rollback row savepoint temp temporary then to transaction trigger unique using vacuum view virtual when with without"),
+    // SQLite is weakly typed, ref: http://sqlite.org/datatype3.html. This is just a list of some common types.
+    builtin: set("bool boolean bit blob decimal double float long longblob longtext medium mediumblob mediumint mediumtext time timestamp tinyblob tinyint tinytext text clob bigint int int2 int8 integer float double char varchar date datetime year unsigned signed numeric real"),
+    // ref: http://sqlite.org/syntax/literal-value.html
+    atoms: set("null current_date current_time current_timestamp"),
+    // ref: http://sqlite.org/lang_expr.html#binaryops
+    operatorChars: /^[*+\-%<>!=&|/~]/,
+    // SQLite is weakly typed, ref: http://sqlite.org/datatype3.html. This is just a list of some common types.
+    dateSQL: set("date time timestamp datetime"),
+    support: set("decimallessFloat zerolessFloat"),
+    identifierQuote: "\"",  //ref: http://sqlite.org/lang_keywords.html
+    hooks: {
+      // bind-parameters ref:http://sqlite.org/lang_expr.html#varparam
+      "@":   hookVar,
+      ":":   hookVar,
+      "?":   hookVar,
+      "$":   hookVar,
+      // The preferred way to escape Identifiers is using double quotes, ref: http://sqlite.org/lang_keywords.html
+      "\"":   hookIdentifierDoublequote,
+      // there is also support for backtics, ref: http://sqlite.org/lang_keywords.html
+      "`":   hookIdentifier
     }
   });
 

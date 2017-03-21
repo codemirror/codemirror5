@@ -8,8 +8,9 @@
 <script src="../lib/codemirror.js"></script>
 <script src="../mode/xml/xml.js"></script>
 <style type="text/css">
-      .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}
-    </style>
+  .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}
+  fieldset {border: none}
+</style>
 <div id=nav>
   <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../doc/logo.png"></a>
 
@@ -25,8 +26,8 @@
 
 <article>
 <h2>Bi-directional Text Demo</h2>
-<form><textarea id="code" name="code"><!-- Piece of the CodeMirror manual, 'translated' into Arabic by
-     Google Translate -->
+<form><textarea id="code" name="code"><!-- Piece of the CodeMirror manual, 'translated' into Arabic by Google Translate -->
+<!-- قطعة من دليل CodeMirror، "ترجم" إلى العربية بواسطة جوجل ترجمة -->
 
 <dl>
   <dt id=option_value><code>value (string or Doc)</code></dt>
@@ -53,22 +54,41 @@
   سيتم تعيين كل من <code>cm-s-foo</code> و <code>cm-s-bar</code>
   الطبقات إلى المحرر.</dd>
 </dl>
-</textarea></form>
+</textarea>
+  <fieldset>
+    Editor default direction:
+    <input type="radio" id="ltr" name="direction"/><label for="ltr">LTR</label>
+    <input type="radio" id="rtl" name="direction"/><label for="rtl">RTL</label>
+  </fieldset>
+  <fieldset>
+    <input type="checkbox" id="rtlMoveVisually"/><label for="rtlMoveVisually">Use visual order for arrow key movement.</label>
+  </fieldset>
+</form>
 
     <script>
 var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
   mode: "text/html",
-  lineNumbers: true
+  lineNumbers: true,
+  lineWrapping: true,
+  direction: "rtl"
 });
+
+var dirRadios = {ltr: document.getElementById("ltr"),
+                 rtl: document.getElementById("rtl")};
+dirRadios[editor.getOption("direction")].checked = true;
+dirRadios["rtl"].onchange = dirRadios["ltr"].onchange = function() {
+  editor.setOption("direction", dirRadios["rtl"].checked ? "rtl" : "ltr");
+};
+
+var moveCheckbox = document.getElementById("rtlMoveVisually");
+moveCheckbox.checked = editor.getOption("rtlMoveVisually");
+moveCheckbox.onchange = function() {
+  editor.setOption("rtlMoveVisually", moveCheckbox.checked);
+};
 </script>
 
   <p>Demonstration of bi-directional text support. See
   the <a href="http://marijnhaverbeke.nl/blog/cursor-in-bidi-text.html">related
   blog post</a> for more background.</p>
-
-  <p><strong>Note:</strong> There is
-  a <a href="https://github.com/codemirror/CodeMirror/issues/1757">known
-  bug</a> with cursor motion and mouse clicks in bi-directional lines
-  that are line wrapped.</p>
 
 </article>

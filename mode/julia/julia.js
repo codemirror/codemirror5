@@ -338,23 +338,20 @@ CodeMirror.defineMode("julia", function(config, parserConf) {
   }
 
   function tokenStringFactory(delimiter) {
-    delimiter = (delimiter === '`' || delimiter === '"""')  ? delimiter : '"'
+    delimiter = (delimiter === '`' || delimiter === '"""') ? delimiter : '"';
     function tokenString(stream, state) {
-      while (!stream.eol()) {
-        stream.eatWhile(/[^\\"]/);
-        if (stream.eat('\\')) {
-            stream.next();
-        } else if (stream.match(delimiter)) {
-            state.tokenize = tokenBase;
-            state.leavingExpr = true;
-            return "string";
-        } else {
-            stream.eat('"');
-        }
+      if (stream.eat('\\')) {
+        stream.next();
+      } else if (stream.match(delimiter)) {
+        state.tokenize = tokenBase;
+        state.leavingExpr = true;
+        return "string";
+      } else {
+        stream.eat(/[`"]/);
       }
+      stream.eatWhile(/[^\\`"]/);
       return "string";
     }
-    tokenString.isString = true;
     return tokenString;
   }
 
@@ -391,7 +388,7 @@ CodeMirror.defineMode("julia", function(config, parserConf) {
     indent: function(state, textAfter) {
       var delta = 0;
       if ( textAfter === ']' || textAfter === ')' || textAfter === "end" ||
-           textAfter === "else" || textAfter === "catch" ||
+           textAfter === "else" || textAfter === "catch" || textAfter === "elseif" ||
            textAfter === "finally" ) {
         delta = -1;
       }

@@ -12,7 +12,7 @@ export function updateLineForChanges(cm, lineView, lineN, dims) {
     let type = lineView.changes[j]
     if (type == "text") updateLineText(cm, lineView)
     else if (type == "gutter") updateLineGutter(cm, lineView, lineN, dims)
-    else if (type == "class") updateLineClasses(lineView)
+    else if (type == "class") updateLineClasses(cm, lineView)
     else if (type == "widget") updateLineWidgets(cm, lineView, dims)
   }
   lineView.changes = null
@@ -31,7 +31,7 @@ function ensureLineWrapped(lineView) {
   return lineView.node
 }
 
-function updateLineBackground(lineView) {
+function updateLineBackground(cm, lineView) {
   let cls = lineView.bgClass ? lineView.bgClass + " " + (lineView.line.bgClass || "") : lineView.line.bgClass
   if (cls) cls += " CodeMirror-linebackground"
   if (lineView.background) {
@@ -40,6 +40,7 @@ function updateLineBackground(lineView) {
   } else if (cls) {
     let wrap = ensureLineWrapped(lineView)
     lineView.background = wrap.insertBefore(elt("div", null, cls), wrap.firstChild)
+    cm.display.input.setUneditable(lineView.background)
   }
 }
 
@@ -67,14 +68,14 @@ function updateLineText(cm, lineView) {
   if (built.bgClass != lineView.bgClass || built.textClass != lineView.textClass) {
     lineView.bgClass = built.bgClass
     lineView.textClass = built.textClass
-    updateLineClasses(lineView)
+    updateLineClasses(cm, lineView)
   } else if (cls) {
     lineView.text.className = cls
   }
 }
 
-function updateLineClasses(lineView) {
-  updateLineBackground(lineView)
+function updateLineClasses(cm, lineView) {
+  updateLineBackground(cm, lineView)
   if (lineView.line.wrapClass)
     ensureLineWrapped(lineView).className = lineView.line.wrapClass
   else if (lineView.node != lineView.text)
@@ -96,6 +97,7 @@ function updateLineGutter(cm, lineView, lineN, dims) {
     let wrap = ensureLineWrapped(lineView)
     lineView.gutterBackground = elt("div", null, "CodeMirror-gutter-background " + lineView.line.gutterClass,
                                     `left: ${cm.options.fixedGutter ? dims.fixedPos : -dims.gutterTotalWidth}px; width: ${dims.gutterTotalWidth}px`)
+    cm.display.input.setUneditable(lineView.gutterBackground)
     wrap.insertBefore(lineView.gutterBackground, lineView.text)
   }
   let markers = lineView.line.gutterMarkers
@@ -137,7 +139,7 @@ export function buildLineElement(cm, lineView, lineN, dims) {
   if (built.bgClass) lineView.bgClass = built.bgClass
   if (built.textClass) lineView.textClass = built.textClass
 
-  updateLineClasses(lineView)
+  updateLineClasses(cm, lineView)
   updateLineGutter(cm, lineView, lineN, dims)
   insertLineWidgets(cm, lineView, dims)
   return lineView.node
