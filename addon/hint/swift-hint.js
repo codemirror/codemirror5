@@ -1,8 +1,6 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
 // Distributed under an MIT license: http://codemirror.net/LICENSE
 
-var CodeMirror;
-
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
     mod(require("../../lib/codemirror"))
@@ -168,7 +166,7 @@ var CodeMirror;
     return checkTokenPattern(tokenPattern, lineTokens, tokenIndex);
   }
 
-  // This function checks to see if a token is currently inside 
+  // This function checks to see if a token is currently inside
   // variable-defining parens, that aren't part of a function call.
   function isInDefParens(lineTokens, tokenIndex) {
     var functionCall = false;
@@ -358,7 +356,7 @@ var CodeMirror;
 
   // This function determines if a token should be considered a property or a
   // type declaration, for purposes of changing the list of keywords to return.
-  // It also determines the type of object this is a property of (string or 
+  // It also determines the type of object this is a property of (string or
   // variable, mainly).
   function checkSpecialToken(cm, cur, token, options) {
     // If we're not in context-aware mode, don't bother with this.
@@ -367,7 +365,7 @@ var CodeMirror;
     }
 
     var lineTokens = cm.getLineTokens(cur.line);
-    
+
     // Find the index in lineTokens of the current operative token.
     var tokenIndex = -1;
     for (var i = 0; i < lineTokens.length; i++) {
@@ -521,7 +519,7 @@ var CodeMirror;
   //   adjusted based on the contents of the given line. Defaults to false.
   // extractVariables - a boolean indicating whether or not the hint system should
   //   scan the text to get user-defined variables for its list. Default is false.
-  // extractRange - an integer. if the text extends beyond this many lines, 
+  // extractRange - an integer. if the text extends beyond this many lines,
   //   stop scanning it for variables and use whatever was last found.
   //   Default is 2000.
   function swiftHint(cm, options) {
