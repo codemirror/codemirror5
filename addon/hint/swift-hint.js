@@ -4,11 +4,11 @@
 var CodeMirror;
 
 (function(mod) {
-  if (typeof exports == "object" && typeof module == "object")
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
     mod(require("../../lib/codemirror"))
-  else if (typeof define == "function" && define.amd)
+  else if (typeof define == "function" && define.amd) // AMD
     define(["../../lib/codemirror"], mod)
-  else
+  else // Plain browser env
     mod(CodeMirror)
 })(function(CodeMirror) {
   'use strict';
@@ -47,18 +47,125 @@ var CodeMirror;
   };
   CMSet.prototype.constructor = CMSet;
 
-  // This function scans a line to determine if a given token is a
-  // user-defined type.
-  function isDeclaredType(lineTokens, tokenIndex) {
-    for (var prevTokenIndex = tokenIndex - 1; prevTokenIndex >= 0; prevTokenIndex--) {
-      var prevToken = lineTokens[prevTokenIndex];
-      if (typeDefKeywords.indexOf(prevToken.string) >= 0) {
-        return true;
-      } else if (prevToken.type != null) {
+  // Check one token against a possible match.
+  function tokenPatternObjectMatches(token, tokenPatternToMatch) {
+    if (tokenPatternToMatch.types) {
+      var validType = false;
+      for (var i = 0; i < tokenPatternToMatch.types.length; i++) {
+        if (token.type == tokenPatternToMatch.types[i]) {
+          validType = true;
+        }
+      }
+
+      if (!validType) {
         return false;
       }
     }
-    return false;
+
+    if (tokenPatternToMatch.strings) {
+      var validString = false;
+      for (var i = 0; i < tokenPatternToMatch.strings.length; i++) {
+        if (token.string == tokenPatternToMatch.strings[i]) {
+          validString = true;
+        }
+      }
+
+      if (!validString) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  // Check to see if the current token string obeys a given token pattern.
+  // The token pattern objects have the following structure:
+  //
+  // types: an array of strings to indicate it should have a given type.
+  // strings: an array of strings to indicate the string should be a certain value.
+  // repeatingGroup: an array of pattern objects to represent a repeating group.
+  //   (This should not be used in combination with types, strings or repeats.)
+  // optional: a boolean to indicate if this item is optional or not.
+  // repeats: a boolean to indicate this item could occur more than one time.
+  //
+  // It will return the number of tokens matched if the pattern succeeds, allowing
+  // this function to recursively handle repeating groups. A value of 0 indicates
+  // failure.
+  function checkTokenPatternHelper(tokenPattern, lineTokens, tokenIndex, debug) {
+    var tokensProcessed = 0;
+    var lineTokenIndex = tokenIndex;
+
+    for (var i = tokenPattern.length - 1; i >= 0; i--) {
+      // If we've run out of line tokens, fail out.
+      if (lineTokenIndex < 0) {
+        return 0;
+      }
+
+      var tokenPatternObject = tokenPattern[i];
+      var currentToken = lineTokens[lineTokenIndex];
+
+      // Is this a repeating group? If so, process it as a normal group.
+      if (tokenPatternObject.repeatingGroup) {
+        var groupTokens = 0;
+        while (true) {
+          var tokensFoundInGroup = checkTokenPatternHelper(tokenPatternObject.repeatingGroup,
+            lineTokens, lineTokenIndex - groupTokens, debug);
+          if (tokensFoundInGroup == 0) {
+            break;
+          } else {
+            groupTokens += tokensFoundInGroup;
+          }
+        }
+
+        // If there were zero tokens matched, then we failed to match the repeating group.
+        // If the repeating group isn't optional, that's a failure.
+        if (groupTokens == 0) {
+          if (!tokenPatternObject.optional) {
+            return 0;
+          }
+        } else {
+          // If we succeeded in matching, change the lineTokenIndex to reflect this.
+          lineTokenIndex -= groupTokens;
+          tokensProcessed += groupTokens;
+        }
+      } else if (!tokenPatternObjectMatches(currentToken, tokenPatternObject)) {
+        // If we failed to match a non-optional token, return false.
+        if (!tokenPatternObject.optional) {
+          return 0;
+        }
+      } else {
+        // If we match, move on to looking at the next token.
+        lineTokenIndex--;
+        tokensProcessed++;
+
+        // If the current token is a repeating token, then try to match as
+        // many as possible.
+        if (tokenPatternObject.repeats) {
+          while (tokenPatternObjectMatches(lineTokens[lineTokenIndex], tokenPatternObject)) {
+            lineTokenIndex--;
+            tokensProcessed++;
+          }
+        }
+      }
+    }
+
+    return tokensProcessed;
+  }
+
+  // The entry point for checking token patterns.
+  function checkTokenPattern(tokenPattern, lineTokens, tokenIndex, debug) {
+    return checkTokenPatternHelper(tokenPattern, lineTokens, tokenIndex, debug) > 0;
+  }
+
+  // This function scans a line to determine if a given token is a
+  // user-defined type.
+  function isDeclaredType(lineTokens, tokenIndex) {
+    var tokenPattern = [
+      {strings: typeDefKeywords},
+      {types: [null]},
+      {types: ['def']}
+    ];
+    return checkTokenPattern(tokenPattern, lineTokens, tokenIndex);
   }
 
   // This function checks to see if a token is currently inside 
@@ -141,21 +248,27 @@ var CodeMirror;
   // This function determines if a variable we are creating or about to create
   // should be considered a property.
   function checkIfProperty(lineTokens, tokenIndex) {
-    var token = lineTokens[tokenIndex];
     // If our token is at the start of the line, stop right away.
-    if (tokenIndex > 0) {
-      var prevToken = lineTokens[tokenIndex - 1];
-      if (token.string == '.') {
-        // If this is a . and the previous token is a string, variable, or
-        // variable-2, it's a property.
-        if (prevToken.type == 'string' || prevToken.type == 'variable' ||
-            prevToken.type == 'variable-2') {
-          return { isProperty: true, propertyOf: prevToken.type };
-        }
-      } else if (token.type == 'property') {
-        // Well now it's definitely a property.
-        return { isProperty: true, propertyOf: prevToken.type };
-      }
+    if (tokenIndex <= 0) {
+      return { isProperty: false, propertyOf: null };
+    }
+
+    var token = lineTokens[tokenIndex];
+    var prevToken = lineTokens[tokenIndex - 1];
+
+    // First check and see if it has a property type.
+    if (token.type == 'property') {
+      return { isProperty: true, propertyOf: prevToken.type };
+    }
+
+    // If this is a . and the previous token is a string, variable, or
+    // variable-2, it's a property.
+    var tokenPattern = [
+      {types: ['string', 'variable', 'variable-2']},
+      {strings: ['.']}
+    ];
+    if (checkTokenPattern(tokenPattern, lineTokens, tokenIndex)) {
+      return { isProperty: true, propertyOf: prevToken.type };
     }
 
     return { isProperty: false, propertyOf: null };
@@ -163,123 +276,96 @@ var CodeMirror;
 
   // This function determines if a variable we are creating or about to create
   // should be considered a type declaration following a : or otherwise.
-  function checkIfStandardTypeDec(lineTokens, tokenIndex) {
+  function checkIfTypeDec(lineTokens, tokenIndex) {
     // If our token is at the start of the line, stop right away.
     if (tokenIndex <= 0) {
       return false;
     }
 
-    var token = lineTokens[tokenIndex];
-
-    if (token.string == 'as') {
+    // Declaration via "as", "as?" or "as!".
+    var tokenPattern = [
+      {strings: ['as']},
+      {strings: ['!', '?'], optional: true},
+      {types: [null]},
+      {strings: ['['], optional: true, repeats: true},
+      {types: ['variable', 'variable-2'], optional: true}
+    ];
+    if (checkTokenPattern(tokenPattern, lineTokens, tokenIndex)) {
       return true;
     }
 
-    // Seek out the closest previous non-null token.
-    var prevToken = null;
-    var prevTokenIndex = tokenIndex - 1;
-    while (prevTokenIndex >= 0) {
-      prevToken = lineTokens[prevTokenIndex];
-      if (prevToken.type != null) {
-        break;
-      }
-      prevTokenIndex = prevTokenIndex - 1;
-    }
-    // If we shot past the end of the line and found nothing.
-    if (prevTokenIndex < 0) {
-      return false;
+    // Declaration with colon.
+    tokenPattern = [
+      {types: ['def']},
+      {strings: [':']},
+      {types: [null], optional: true},
+      {strings: ['['], optional: true, repeats: true},
+      {types: ['variable', 'variable-2'], optional: true}
+    ];
+    if (checkTokenPattern(tokenPattern, lineTokens, tokenIndex)) {
+      return true;
     }
 
-    if (token.string == ':') {
-      if (prevToken.type == 'def') {
-        return true;
-      } else if (isInDefParens(lineTokens, tokenIndex) && prevToken.type == 'variable') {
+    // Declaration with colon inside a tuple.
+    tokenPattern = [
+      {types: ['variable']},
+      {strings: [':']},
+      {types: [null], optional: true},
+      {strings: ['['], optional: true, repeats: true},
+      {types: ['variable', 'variable-2'], optional: true}
+    ];
+    if (checkTokenPattern(tokenPattern, lineTokens, tokenIndex)) {
+      if (isInDefParens(lineTokens, tokenIndex)) {
         return true;
       }
-    } else if (token.string == '[') {
-      return checkIfStandardTypeDec(lineTokens, prevTokenIndex);
-    } else if (token.string == '>') {
-      if (prevToken.string == '-') {
-        return true;
-      }
-    } else if (!token.type || token.type == 'variable' || token.type == 'variable-2') {
-      if (prevToken.string == 'as') {
-        return true;
-      } else if (prevToken.string == ':' || prevToken.string == '>' || prevToken.string == '[') {
-        return checkIfStandardTypeDec(lineTokens, prevTokenIndex);
-      }
+    }
+
+    // Return type declaration.
+    tokenPattern = [
+      {strings: ['-']},
+      {strings: ['>']},
+      {types: [null], optional: true},
+      {strings: ['['], optional: true, repeats: true},
+      {types: ['variable', 'variable-2'], optional: true}
+    ];
+    if (checkTokenPattern(tokenPattern, lineTokens, tokenIndex)) {
+      return true;
+    }
+
+    // Declaration inside a collection.
+    tokenPattern = [
+      {strings: swiftCollections},
+      {strings: ['<']},
+      {types: [null], optional: true},
+      {repeatingGroup: [
+        {strings: ['['], optional: true, repeats: true},
+        {types: ['variable', 'variable-2']},
+        {strings: [']'], optional: true, repeats: true},
+        {strings: [',']},
+        {types: [null], optional: true}
+        ],
+        optional: true
+      },
+      {strings: ['['], optional: true, repeats: true},
+      {types: ['variable', 'variable-2'], optional: true}
+    ];
+    if (checkTokenPattern(tokenPattern, lineTokens, tokenIndex, true)) {
+      return true;
     }
 
     return false;
-  }
-
-  // This function determines if a variable we are creating or about to create
-  // should be considered a type declaration as part of a collection type.
-  function checkIfCollectionTypeDec(lineTokens, tokenIndex) {
-    // If our token is at the start of the line, stop right away.
-    if (tokenIndex <= 0) {
-      return false;
-    }
-
-    var token = lineTokens[tokenIndex];
-
-    // Seek out the closest previous non-null token. Ignore
-    // variables, variable-2's and commas if we're not on < yet.
-    var prevToken = null;
-    var prevTokenIndex = tokenIndex - 1;
-    while (prevTokenIndex >= 0) {
-      prevToken = lineTokens[prevTokenIndex];
-      if (token.string != '<') {
-        if ((prevToken.type && prevToken.type != 'variable' &&
-             prevToken.type != 'variable-2' && prevToken.string != ',')) {
-          break;
-        }
-      } else {
-        if (prevToken.type) {
-          break;
-        }
-      }
-      prevTokenIndex = prevTokenIndex - 1;
-    }
-    // If we shot past the end of the line and found nothing.
-    if (prevTokenIndex < 0) {
-      return false;
-    }
-
-    if (token.string == '[') {
-      return checkIfCollectionTypeDec(lineTokens, prevTokenIndex);
-    } else if (token.string == '<') {
-      if (swiftCollections.indexOf(prevToken.string) >= 0) {
-        return true;
-      }
-    } else if (!token.type || token.type == 'variable' ||
-               token.type == 'variable-2' || token.string == ',') {
-      if (prevToken.string == '<' || prevToken.string == '[') {
-        return checkIfCollectionTypeDec(lineTokens, prevTokenIndex);
-      }
-    }
-
-    return false;
-  }
-
-  // See if the current token is a type declaration.
-  function checkIfTypeDec(lineTokens, tokenIndex) {
-    // Check and see if this type is being declared as part of a collection type.
-    var isDec = checkIfCollectionTypeDec(lineTokens, tokenIndex);
-
-    // Do the normal type declaration checks, if the last one failed.
-    if (!isDec) {
-      isDec = checkIfStandardTypeDec(lineTokens, tokenIndex);
-    }
-
-    return isDec;
   }
 
   // This function determines if a token should be considered a property or a
   // type declaration, for purposes of changing the list of keywords to return.
   // It also determines the type of object this is a property of (string or 
   // variable, mainly).
-  function checkSpecialToken(cm, cur, token) {
+  function checkSpecialToken(cm, cur, token, options) {
+    // If we're not in context-aware mode, don't bother with this.
+    if (!options.contextAware) {
+      return null;
+    }
+
     var lineTokens = cm.getLineTokens(cur.line);
     
     // Find the index in lineTokens of the current operative token.
@@ -312,16 +398,14 @@ var CodeMirror;
   // appropriate candidate list.
   function getCandidateList(cm, cur, token, tprop, tdec, options) {
     // Analyze our options.
-    var contextAware = true;
+    var contextAware = false;
     var getUserVars = false;
     var userVarRange = 2000;
     if (options) {
       if (options.keywords) {
         swiftAdditionalKeywords = options.keywords;
       }
-      if (options.contextAware != null && options.contextAware != undefined) {
-        contextAware = options.contextAware;
-      }
+      contextAware = options.contextAware;
       getUserVars = options.extractVariables;
       if (options.extractRange) {
         userVarRange = options.extractRange;
@@ -434,7 +518,7 @@ var CodeMirror;
   // keywords - an array of strings, indicating what keywords a user would like
   //   added to the hints.
   // contextAware - a boolean indicating whether the list of words should be
-  //   adjusted based on the contents of the given line. Defaults to true.
+  //   adjusted based on the contents of the given line. Defaults to false.
   // extractVariables - a boolean indicating whether or not the hint system should
   //   scan the text to get user-defined variables for its list. Default is false.
   // extractRange - an integer. if the text extends beyond this many lines, 
@@ -444,8 +528,6 @@ var CodeMirror;
     var cur = cm.getCursor();
     var token = cm.getTokenAt(cur);
 
-    token.state = CodeMirror.innerMode(cm.getMode(), token.state).state;
-
     // Rule out some options quickly.
     if (token.type == 'string' || token.type == 'comment' ||
         token.type == 'number') {
@@ -454,10 +536,13 @@ var CodeMirror;
               to: Pos(cur.line, token.end)};
     }
 
-    var specialTokens = checkSpecialToken(cm, cur, token);
+    // Determine if our current token is a property or a type declaration, but only
+    // if we are running in context-aware mode.
+    var specialTokens = checkSpecialToken(cm, cur, token, options);
     var tprop = specialTokens ? specialTokens.isProperty : { isProperty: false, propertyOf: null };
     var tdec = specialTokens ? specialTokens.isDeclaration : false;
 
+    // Using that information, we will whittle down our candidate list.
     var candidateList = getCandidateList(cm, cur, token, tprop, tdec, options);
 
     // If we're on a punctuation mark and this is a property, or if we're doing a
@@ -526,7 +611,8 @@ var CodeMirror;
   var genericProps = ['count','indices','prefix','suffix','dynamicType','Type','min','max','enumerated',
                       'removeLast','contains','sort','union','intersection','subtract','symmetricDifference',
                       'isSubset','isSuperset','isStrictSubset','isStrictSuperset','isDisjoint','updateValue',
-                      'removeValue','keys','values','map','reduce','readLine','size','alignment','stride'];
+                      'removeValue','keys','values','map','reduce','readLine','size','alignment','stride',
+                      'localizedDescription'];
   // A list of builtins.
   var swiftBuiltins = ['file','line','column','function','colorLiteral','fileLiteral','imageLiteral',
                        'selector','keyPath','if','elseif','else','endif','sourceLocation','available'];
