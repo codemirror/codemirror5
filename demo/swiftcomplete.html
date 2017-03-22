@@ -49,6 +49,7 @@
           lineNumbers: true,
           extraKeys: {"Ctrl-Space": function(cm) {
             cm.showHint({
+              contextAware: true,
               extractVariables: true,
               extractLineLimit: 100
             })

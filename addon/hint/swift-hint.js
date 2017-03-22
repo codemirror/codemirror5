@@ -398,15 +398,15 @@
     // Analyze our options.
     var contextAware = false;
     var getUserVars = false;
-    var userVarRange = 2000;
+    var extractLineLimit = 2000;
     if (options) {
       if (options.keywords) {
         swiftAdditionalKeywords = options.keywords;
       }
       contextAware = options.contextAware;
       getUserVars = options.extractVariables;
-      if (options.extractRange) {
-        userVarRange = options.extractRange;
+      if (options.extractLineLimit) {
+        extractLineLimit = options.extractLineLimit;
       }
     }
 
@@ -452,7 +452,7 @@
     // functions to the autocomplete hints. (Unless this is a string property.)
     if (getUserVars && tprop.propertyOf != 'string') {
       var userVars = STORED_VARIABLES;
-      if (cm.lineCount() < userVarRange) {
+      if (cm.lineCount() < extractLineLimit) {
         userVars = getLocalVariables(cm, cur, token);
       }
 
@@ -519,7 +519,7 @@
   //   adjusted based on the contents of the given line. Defaults to false.
   // extractVariables - a boolean indicating whether or not the hint system should
   //   scan the text to get user-defined variables for its list. Default is false.
-  // extractRange - an integer. if the text extends beyond this many lines,
+  // extractLineLimit - an integer. if the text extends beyond this many lines,
   //   stop scanning it for variables and use whatever was last found.
   //   Default is 2000.
   function swiftHint(cm, options) {
