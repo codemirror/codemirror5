@@ -8,8 +8,8 @@
     "lib": "./lib"
   },
   "scripts": {
-    "build": "rollup -c",
-    "watch": "rollup -w -c",
+    "build": "./node_modules/.bin/rollup -c",
+    "watch": "./node_modules/.bin/rollup -w -c",
     "prepublish": "npm run-script build",
     "test": "node ./test/run.js",
     "lint": "bin/lint",
