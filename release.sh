@@ -1,5 +1,12 @@
 #!/bin/bash
-./node_modules/.bin/uglifyjs --compress --mangle --output codemirror.min.js \
+
+uglify=$(which uglifyjs)
+
+if [ -z "$uglify" ]; then
+    uglify=./node_modules/.bin/uglifyjs
+fi
+
+$uglify --compress --mangle --output codemirror.min.js \
 lib/codemirror.js \
 addon/mode/overlay.js \
 addon/mode/simple.js \
