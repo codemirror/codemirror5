@@ -66,4 +66,20 @@
 
   MT("tag_attribute",
      "([bracket&tag <][tag foo] [attribute bar]=[bracket&tag <][tag foo][bracket&tag />/>][operator ++])")
+
+  var ts_mode = CodeMirror.getMode({indentUnit: 2}, "text/typescript-jsx")
+  function TS(name) { test.mode(name, ts_mode, Array.prototype.slice.call(arguments, 1)) }
+
+  TS("tsx_react_integration",
+     "[keyword interface] [def Props] {",
+     "  [property foo]: [variable-3 string];",
+     "}",
+     "[keyword class] [def MyComponent] [keyword extends] [variable-3 React].[variable-3 Component] [operator <] [variable-3 Props], [variable-3 any] [operator >] {",
+     "  [property render]() {",
+     "    [keyword return] [bracket&tag <][tag span][bracket&tag >]{[keyword this].[property props].[property foo]}[bracket&tag </][tag span][bracket&tag >]",
+     "  }",
+     "}",
+     "[bracket&tag <][tag MyComponent] [attribute foo]=[string \"bar\"] [bracket&tag />]; [comment //ok]",
+     "[bracket&tag <][tag MyComponent] [attribute foo]={[number 0]} [bracket&tag />]; [comment //error]")
+
 })()

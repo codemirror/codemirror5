@@ -126,7 +126,11 @@ CodeMirror.defineMode("octave", function() {
         state.tokenize = tokenTranspose;
       }
       return style;
-    }
+    },
+
+    lineComment: '%',
+
+    fold: 'indent'
   };
 });
 

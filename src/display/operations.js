@@ -155,9 +155,9 @@ function endOperation_finish(op) {
   }
   // If we need to scroll a specific position into view, do so.
   if (op.scrollToPos) {
-    let coords = scrollPosIntoView(cm, clipPos(doc, op.scrollToPos.from),
-                                   clipPos(doc, op.scrollToPos.to), op.scrollToPos.margin)
-    if (op.scrollToPos.isCursor && cm.state.focused) maybeScrollWindow(cm, coords)
+    let rect = scrollPosIntoView(cm, clipPos(doc, op.scrollToPos.from),
+                                 clipPos(doc, op.scrollToPos.to), op.scrollToPos.margin)
+    maybeScrollWindow(cm, rect)
   }
 
   // Fire events for markers that are hidden/unidden by editing or

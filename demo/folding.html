@@ -5,6 +5,13 @@
   <meta charset="utf-8"/>
   <link rel=stylesheet href="../doc/docs.css">
 
+  <style>
+    .some-css {
+      color: red;
+      line-height: 2;
+    }
+  </style>
+
   <link rel="stylesheet" href="../lib/codemirror.css">
   <link rel="stylesheet" href="../addon/fold/foldgutter.css" />
   <script src="../lib/codemirror.js"></script>
@@ -12,10 +19,14 @@
   <script src="../addon/fold/foldgutter.js"></script>
   <script src="../addon/fold/brace-fold.js"></script>
   <script src="../addon/fold/xml-fold.js"></script>
+  <script src="../addon/fold/indent-fold.js"></script>
   <script src="../addon/fold/markdown-fold.js"></script>
   <script src="../addon/fold/comment-fold.js"></script>
   <script src="../mode/javascript/javascript.js"></script>
   <script src="../mode/xml/xml.js"></script>
+  <script src="../mode/css/css.js"></script>
+  <script src="../mode/htmlmixed/htmlmixed.js"></script>
+  <script src="../mode/python/python.js"></script>
   <script src="../mode/markdown/markdown.js"></script>
   <style type="text/css">
     .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}
@@ -43,6 +54,24 @@
     <textarea id="code" name="code"></textarea></div>
     <div style="max-width: 50em; margin-bottom: 1em">HTML:<br>
     <textarea id="code-html" name="code-html"></textarea></div>
+    <div style="max-width: 50em">Python:<br>
+    <textarea id="code-python" name="code">
+def foo():
+  do_some_stuff()
+  here
+  return None
+
+class Bar:
+  __init__(self):
+    if True:
+      print("True")
+    else:
+      print("False")
+
+  this_code_makes_no_sense():
+    pass
+
+# A comment</textarea></div>
     <div style="max-width: 50em">Markdown:<br>
     <textarea id="code-markdown" name="code"></textarea></div>
   </form>
@@ -57,6 +86,7 @@ window.onload = function() {
   sc.innerHTML = "";
   var te_html = document.getElementById("code-html");
   te_html.value = document.documentElement.innerHTML;
+  var te_python = document.getElementById("code-python");
   var te_markdown = document.getElementById("code-markdown");
   te_markdown.value = "# Foo\n## Bar\n\nblah blah\n\n## Baz\n\nblah blah\n\n# Quux\n\nblah blah\n"
 
@@ -79,7 +109,15 @@ window.onload = function() {
     gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"]
   });
   editor_html.foldCode(CodeMirror.Pos(0, 0));
-  editor_html.foldCode(CodeMirror.Pos(21, 0));
+  editor_html.foldCode(CodeMirror.Pos(34, 0));
+
+  window.editor_python = CodeMirror.fromTextArea(te_python, {
+    mode: "python",
+    lineNumbers: true,
+    extraKeys: {"Ctrl-Q": function(cm){ cm.foldCode(cm.getCursor()); }},
+    foldGutter: true,
+    gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"]
+  });
 
   window.editor_markdown = CodeMirror.fromTextArea(te_markdown, {
     mode: "markdown",

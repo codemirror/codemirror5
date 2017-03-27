@@ -48,6 +48,12 @@
      "  [property sub]([def a], [def b]) {}",
      "};");
 
+  MT("class_async_method",
+     "[keyword class] [def Foo] {",
+     "  [property sayName1]() {}",
+     "  [keyword async] [property sayName2]() {}",
+     "}");
+
   MT("import",
      "[keyword function] [def foo]() {",
      "  [keyword import] [def $] [keyword from] [string 'jquery'];",
@@ -190,6 +196,36 @@
      "  }",
      "}");
 
+  MT("async",
+     "[keyword async] [keyword function] [def foo]([def args]) { [keyword return] [atom true]; }");
+
+  MT("async_assignment",
+     "[keyword const] [def foo] [operator =] [keyword async] [keyword function] ([def args]) { [keyword return] [atom true]; };");
+
+  MT("async_object",
+     "[keyword let] [def obj] [operator =] { [property async]: [atom false] };");
+
+  // async be highlighet as keyword and foo as def, but it requires potentially expensive look-ahead. See #4173
+  MT("async_object_function",
+     "[keyword let] [def obj] [operator =] { [property async] [property foo]([def args]) { [keyword return] [atom true]; } };");
+
+  MT("async_object_properties",
+     "[keyword let] [def obj] [operator =] {",
+     "  [property prop1]: [keyword async] [keyword function] ([def args]) { [keyword return] [atom true]; },",
+     "  [property prop2]: [keyword async] [keyword function] ([def args]) { [keyword return] [atom true]; },",
+     "  [property prop3]: [keyword async] [keyword function] [def prop3]([def args]) { [keyword return] [atom true]; },",
+     "};");
+
+  MT("async_arrow",
+     "[keyword const] [def foo] [operator =] [keyword async] ([def args]) [operator =>] { [keyword return] [atom true]; };");
+
+  MT("async_jquery",
+     "[variable $].[property ajax]({",
+     "  [property url]: [variable url],",
+     "  [property async]: [atom true],",
+     "  [property method]: [string 'GET']",
+     "});");
+
   var ts_mode = CodeMirror.getMode({indentUnit: 2}, "application/typescript")
   function TS(name) {
     test.mode(name, ts_mode, Array.prototype.slice.call(arguments, 1))
@@ -205,6 +241,58 @@
      "[keyword class] [def Foo] {",
      "  [keyword public] [keyword static] [property main]() {}",
      "  [keyword private] [property _foo]: [variable-3 string];",
+     "}")
+
+  TS("typescript_literal_types",
+     "[keyword import] [keyword *] [keyword as] [def Sequelize] [keyword from] [string 'sequelize'];",
+     "[keyword interface] [def MyAttributes] {",
+     "  [property truthy]: [string 'true'] [operator |] [number 1] [operator |] [atom true];",
+     "  [property falsy]: [string 'false'] [operator |] [number 0] [operator |] [atom false];",
+     "}",
+     "[keyword interface] [def MyInstance] [keyword extends] [variable-3 Sequelize].[variable-3 Instance] [operator <] [variable-3 MyAttributes] [operator >] {",
+     "  [property rawAttributes]: [variable-3 MyAttributes];",
+     "  [property truthy]: [string 'true'] [operator |] [number 1] [operator |] [atom true];",
+     "  [property falsy]: [string 'false'] [operator |] [number 0] [operator |] [atom false];",
+     "}")
+
+  TS("typescript_extend_operators",
+     "[keyword export] [keyword interface] [def UserModel] [keyword extends]",
+     "  [variable-3 Sequelize].[variable-3 Model] [operator <] [variable-3 UserInstance], [variable-3 UserAttributes] [operator >] {",
+     "    [property findById]: (",
+     "    [variable userId]: [variable-3 number]",
+     "    ) [operator =>] [variable-3 Promise] [operator <] [variable-3 Array] [operator <] { [property id], [property name] } [operator >>];",
+     "    [property updateById]: (",
+     "    [variable userId]: [variable-3 number],",
+     "    [variable isActive]: [variable-3 boolean]",
+     "    ) [operator =>] [variable-3 Promise] [operator <] [variable-3 AccountHolderNotificationPreferenceInstance] [operator >];",
+     "  }")
+
+  TS("typescript_interface_with_const",
+     "[keyword const] [def hello]: {",
+     "  [property prop1][operator ?]: [variable-3 string];",
+     "  [property prop2][operator ?]: [variable-3 string];",
+     "} [operator =] {};")
+
+  TS("typescript_double_extend",
+     "[keyword export] [keyword interface] [def UserAttributes] {",
+     "  [property id][operator ?]: [variable-3 number];",
+     "  [property createdAt][operator ?]: [variable-3 Date];",
+     "}",
+     "[keyword export] [keyword interface] [def UserInstance] [keyword extends] [variable-3 Sequelize].[variable-3 Instance][operator <][variable-3 UserAttributes][operator >], [variable-3 UserAttributes] {",
+     "  [property id]: [variable-3 number];",
+     "  [property createdAt]: [variable-3 Date];",
+     "}");
+
+  TS("typescript_index_signature",
+     "[keyword interface] [def A] {",
+     "  [[ [variable prop]: [variable-3 string] ]]: [variable-3 any];",
+     "  [property prop1]: [variable-3 any];",
+     "}");
+
+  TS("generic_class",
+     "[keyword class] [def Foo][operator <][variable-3 T][operator >] {",
+     "  [property bar]() {}",
+     "  [property foo](): [variable-3 Foo] {}",
      "}")
 
   var jsonld_mode = CodeMirror.getMode(

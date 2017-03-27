@@ -120,7 +120,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     state.quote = 0;
     // Reset state.indentedCode
     state.indentedCode = false;
-    if (htmlModeMissing && state.f == htmlBlock) {
+    if (state.f == htmlBlock) {
       state.f = inlineNormal;
       state.block = blockNormal;
     }
@@ -239,28 +239,23 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   }
 
   function local(stream, state) {
-    if (state.fencedChars && stream.match(state.fencedChars, false)) {
+    if (state.fencedChars && stream.match(state.fencedChars)) {
+      if (modeCfg.highlightFormatting) state.formatting = "code-block";
+      var returnType = getType(state)
       state.localMode = state.localState = null;
-      state.f = state.block = leavingLocal;
-      return null;
+      state.block = blockNormal;
+      state.f = inlineNormal;
+      state.fencedChars = null;
+      state.code = 0
+      return returnType;
+    } else if (state.fencedChars && stream.skipTo(state.fencedChars)) {
+      return "comment"
     } else if (state.localMode) {
       return state.localMode.token(stream, state.localState);
     } else {
       stream.skipToEnd();
       return tokenTypes.code;
     }
-  }
-
-  function leavingLocal(stream, state) {
-    stream.match(state.fencedChars);
-    state.block = blockNormal;
-    state.f = inlineNormal;
-    state.fencedChars = null;
-    if (modeCfg.highlightFormatting) state.formatting = "code-block";
-    state.code = 1
-    var returnType = getType(state);
-    state.code = 0
-    return returnType;
   }
 
   // Inline
@@ -436,7 +431,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       return getType(state);
     }
 
-    if (ch === '[' && state.imageMarker) {
+    if (ch === '[' && state.imageMarker && stream.match(/[^\]]*\](\(.*?\)| ?\[.*?\])/, false)) {
       state.imageMarker = false;
       state.imageAltText = true
       if (modeCfg.highlightFormatting) state.formatting = "image";
@@ -490,7 +485,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       return type + tokenTypes.linkEmail;
     }
 
-    if (ch === '<' && stream.match(/^(!--|\w)/, false)) {
+    if (ch === '<' && stream.match(/^(!--|[a-z]+(?:\s+[a-z_:.\-]+(?:\s*=\s*[^ >]+)?)*\s*>)/i, false)) {
       var end = stream.string.indexOf(">", stream.pos);
       if (end != -1) {
         var atts = stream.string.substring(stream.start, end);

@@ -1,13 +1,14 @@
 import { deleteNearSelection } from "./deleteNearSelection"
 import { runInOp } from "../display/operations"
 import { ensureCursorVisible } from "../display/scrolling"
+import { endOfLine } from "../input/movement"
 import { clipPos, Pos } from "../line/pos"
-import { collapsedSpanAtEnd, visualLine } from "../line/spans"
+import { visualLine, visualLineEnd } from "../line/spans"
 import { getLine, lineNo } from "../line/utils_line"
 import { Range } from "../model/selection"
 import { selectAll } from "../model/selection_updates"
 import { countColumn, sel_dontScroll, sel_move, spaceStr } from "../util/misc"
-import { getOrder, lineLeft, lineRight } from "../util/bidi"
+import { getOrder } from "../util/bidi"
 
 // Commands are parameter-less actions that can be performed on an
 // editor, mostly used for keybindings.
@@ -156,28 +157,22 @@ function lineStart(cm, lineN) {
   let line = getLine(cm.doc, lineN)
   let visual = visualLine(line)
   if (visual != line) lineN = lineNo(visual)
-  let order = getOrder(visual)
-  let ch = !order ? 0 : order[0].level % 2 ? lineRight(visual) : lineLeft(visual)
-  return Pos(lineN, ch)
+  return endOfLine(true, cm, visual, lineN, 1)
 }
 function lineEnd(cm, lineN) {
-  let merged, line = getLine(cm.doc, lineN)
-  while (merged = collapsedSpanAtEnd(line)) {
-    line = merged.find(1, true).line
-    lineN = null
-  }
-  let order = getOrder(line)
-  let ch = !order ? line.text.length : order[0].level % 2 ? lineLeft(line) : lineRight(line)
-  return Pos(lineN == null ? lineNo(line) : lineN, ch)
+  let line = getLine(cm.doc, lineN)
+  let visual = visualLineEnd(line)
+  if (visual != line) lineN = lineNo(visual)
+  return endOfLine(true, cm, line, lineN, -1)
 }
 function lineStartSmart(cm, pos) {
   let start = lineStart(cm, pos.line)
   let line = getLine(cm.doc, start.line)
-  let order = getOrder(line)
+  let order = getOrder(line, cm.doc.direction)
   if (!order || order[0].level == 0) {
     let firstNonWS = Math.max(0, line.text.search(/\S/))
     let inWS = pos.line == start.line && pos.ch <= firstNonWS && pos.ch
-    return Pos(start.line, inWS ? 0 : firstNonWS)
+    return Pos(start.line, inWS ? 0 : firstNonWS, start.sticky)
   }
   return start
 }

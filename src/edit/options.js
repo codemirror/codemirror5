@@ -68,7 +68,7 @@ export function defineOptions(CodeMirror) {
     for (let i = newBreaks.length - 1; i >= 0; i--)
       replaceRange(cm.doc, val, newBreaks[i], Pos(newBreaks[i].line, newBreaks[i].ch + val.length))
   })
-  option("specialChars", /[\u0000-\u001f\u007f\u00ad\u200b-\u200f\u2028\u2029\ufeff]/g, (cm, val, old) => {
+  option("specialChars", /[\u0000-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff]/g, (cm, val, old) => {
     cm.state.specialChars = new RegExp(val.source + (val.test("\t") ? "" : "|\t"), "g")
     if (old != Init) cm.refresh()
   })
@@ -153,12 +153,13 @@ export function defineOptions(CodeMirror) {
 
   option("tabindex", null, (cm, val) => cm.display.input.getField().tabIndex = val || "")
   option("autofocus", null)
+  option("direction", "ltr", (cm, val) => cm.doc.setDirection(val), true)
 }
 
 function guttersChanged(cm) {
   updateGutters(cm)
   regChange(cm)
-  setTimeout(() => alignHorizontally(cm), 20)
+  alignHorizontally(cm)
 }
 
 function dragDropChanged(cm, value, old) {

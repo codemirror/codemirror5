@@ -1,13 +1,14 @@
+import { moveVisually } from "../input/movement"
 import { buildLineContent, LineView } from "../line/line_data"
 import { clipPos, Pos } from "../line/pos"
 import { collapsedSpanAtEnd, heightAtLine, lineIsHidden, visualLine } from "../line/spans"
 import { getLine, lineAtHeight, lineNo, updateLineHeight } from "../line/utils_line"
-import { bidiLeft, bidiRight, bidiOther, getBidiPartAt, getOrder, lineLeft, lineRight, moveVisually } from "../util/bidi"
+import { bidiOther, getBidiPartAt, getOrder } from "../util/bidi"
 import { ie, ie_version } from "../util/browser"
 import { elt, removeChildren, range, removeChildrenAndAdd } from "../util/dom"
 import { e_target } from "../util/event"
 import { hasBadZoomedRects } from "../util/feature_detection"
-import { countColumn, isExtendingChar, scrollerGap } from "../util/misc"
+import { countColumn, findFirst, isExtendingChar, scrollerGap, skipExtendingChars } from "../util/misc"
 import { updateLineForChanges } from "../display/update_line"
 
 import { widgetHeight } from "./widgets"
@@ -102,7 +103,7 @@ export function findViewForLine(cm, lineN) {
 // character. Functions like coordsChar, that need to do a lot of
 // measurements in a row, can thus ensure that the set-up work is
 // only done once.
-function prepareMeasureForLine(cm, line) {
+export function prepareMeasureForLine(cm, line) {
   let lineN = lineNo(line)
   let view = findViewForLine(cm, lineN)
   if (view && !view.text) {
@@ -124,7 +125,7 @@ function prepareMeasureForLine(cm, line) {
 
 // Given a prepared measurement object, measures the position of an
 // actual character (or fetches it from the cache).
-function measureCharPrepared(cm, prepared, ch, bias, varHeight) {
+export function measureCharPrepared(cm, prepared, ch, bias, varHeight) {
   if (prepared.before) ch = -1
   let key = ch + (bias || ""), found
   if (prepared.cache.hasOwnProperty(key)) {
@@ -334,6 +335,19 @@ export function charCoords(cm, pos, context, lineObj, bias) {
 // Returns a box for a given cursor position, which may have an
 // 'other' property containing the position of the secondary cursor
 // on a bidi boundary.
+// A cursor Pos(line, char, "before") is on the same visual line as `char - 1`
+// and after `char - 1` in writing order of `char - 1`
+// A cursor Pos(line, char, "after") is on the same visual line as `char`
+// and before `char` in writing order of `char`
+// Examples (upper-case letters are RTL, lower-case are LTR):
+//     Pos(0, 1, ...)
+//     before   after
+// ab     a|b     a|b
+// aB     a|B     aB|
+// Ab     |Ab     A|b
+// AB     B|A     B|A
+// Every position after the last character on a line is considered to stick
+// to the last character on the line.
 export function cursorCoords(cm, pos, context, lineObj, preparedMeasure, varHeight) {
   lineObj = lineObj || getLine(cm.doc, pos.line)
   if (!preparedMeasure) preparedMeasure = prepareMeasureForLine(cm, lineObj)
@@ -342,25 +356,24 @@ export function cursorCoords(cm, pos, context, lineObj, preparedMeasure, varHeig
     if (right) m.left = m.right; else m.right = m.left
     return intoCoordSystem(cm, lineObj, m, context)
   }
-  function getBidi(ch, partPos) {
-    let part = order[partPos], right = part.level % 2
-    if (ch == bidiLeft(part) && partPos && part.level < order[partPos - 1].level) {
-      part = order[--partPos]
-      ch = bidiRight(part) - (part.level % 2 ? 0 : 1)
-      right = true
-    } else if (ch == bidiRight(part) && partPos < order.length - 1 && part.level < order[partPos + 1].level) {
-      part = order[++partPos]
-      ch = bidiLeft(part) - part.level % 2
-      right = false
-    }
-    if (right && ch == part.to && ch > part.from) return get(ch - 1)
-    return get(ch, right)
+  let order = getOrder(lineObj, cm.doc.direction), ch = pos.ch, sticky = pos.sticky
+  if (ch >= lineObj.text.length) {
+    ch = lineObj.text.length
+    sticky = "before"
+  } else if (ch <= 0) {
+    ch = 0
+    sticky = "after"
   }
-  let order = getOrder(lineObj), ch = pos.ch
-  if (!order) return get(ch)
-  let partPos = getBidiPartAt(order, ch)
-  let val = getBidi(ch, partPos)
-  if (bidiOther != null) val.other = getBidi(ch, bidiOther)
+  if (!order) return get(sticky == "before" ? ch - 1 : ch, sticky == "before")
+
+  function getBidi(ch, partPos, invert) {
+    let part = order[partPos], right = (part.level % 2) != 0
+    return get(invert ? ch - 1 : ch, right != invert)
+  }
+  let partPos = getBidiPartAt(order, ch, sticky)
+  let other = bidiOther
+  let val = getBidi(ch, partPos, sticky == "before")
+  if (other != null) val.other = getBidi(ch, other, sticky != "before")
   return val
 }
 
@@ -381,8 +394,8 @@ export function estimateCoords(cm, pos) {
 // the right of the character position, for example). When outside
 // is true, that means the coordinates lie outside the line's
 // vertical range.
-function PosWithInfo(line, ch, outside, xRel) {
-  let pos = Pos(line, ch)
+function PosWithInfo(line, ch, sticky, outside, xRel) {
+  let pos = Pos(line, ch, sticky)
   pos.xRel = xRel
   if (outside) pos.outside = true
   return pos
@@ -393,10 +406,10 @@ function PosWithInfo(line, ch, outside, xRel) {
 export function coordsChar(cm, x, y) {
   let doc = cm.doc
   y += cm.display.viewOffset
-  if (y < 0) return PosWithInfo(doc.first, 0, true, -1)
+  if (y < 0) return PosWithInfo(doc.first, 0, null, true, -1)
   let lineN = lineAtHeight(doc, y), last = doc.first + doc.size - 1
   if (lineN > last)
-    return PosWithInfo(doc.first + doc.size - 1, getLine(doc, last).text.length, true, 1)
+    return PosWithInfo(doc.first + doc.size - 1, getLine(doc, last).text.length, null, true, 1)
   if (x < 0) x = 0
 
   let lineObj = getLine(doc, lineN)
@@ -411,57 +424,67 @@ export function coordsChar(cm, x, y) {
   }
 }
 
+function wrappedLineExtent(cm, lineObj, preparedMeasure, y) {
+  let measure = ch => intoCoordSystem(cm, lineObj, measureCharPrepared(cm, preparedMeasure, ch), "line")
+  let end = lineObj.text.length
+  let begin = findFirst(ch => measure(ch - 1).bottom <= y, end, 0)
+  end = findFirst(ch => measure(ch).top > y, begin, end)
+  return {begin, end}
+}
+
+export function wrappedLineExtentChar(cm, lineObj, preparedMeasure, target) {
+  let targetTop = intoCoordSystem(cm, lineObj, measureCharPrepared(cm, preparedMeasure, target), "line").top
+  return wrappedLineExtent(cm, lineObj, preparedMeasure, targetTop)
+}
+
 function coordsCharInner(cm, lineObj, lineNo, x, y) {
-  let innerOff = y - heightAtLine(lineObj)
-  let wrongLine = false, adjust = 2 * cm.display.wrapper.clientWidth
+  y -= heightAtLine(lineObj)
+  let begin = 0, end = lineObj.text.length
   let preparedMeasure = prepareMeasureForLine(cm, lineObj)
-
-  function getX(ch) {
-    let sp = cursorCoords(cm, Pos(lineNo, ch), "line", lineObj, preparedMeasure)
-    wrongLine = true
-    if (innerOff > sp.bottom) return sp.left - adjust
-    else if (innerOff < sp.top) return sp.left + adjust
-    else wrongLine = false
-    return sp.left
-  }
-
-  let bidi = getOrder(lineObj), dist = lineObj.text.length
-  let from = lineLeft(lineObj), to = lineRight(lineObj)
-  let fromX = getX(from), fromOutside = wrongLine, toX = getX(to), toOutside = wrongLine
-
-  if (x > toX) return PosWithInfo(lineNo, to, toOutside, 1)
-  // Do a binary search between these bounds.
-  for (;;) {
-    if (bidi ? to == from || to == moveVisually(lineObj, from, 1) : to - from <= 1) {
-      let ch = x < fromX || x - fromX <= toX - x ? from : to
-      let outside = ch == from ? fromOutside : toOutside
-      let xDiff = x - (ch == from ? fromX : toX)
-      // This is a kludge to handle the case where the coordinates
-      // are after a line-wrapped line. We should replace it with a
-      // more general handling of cursor positions around line
-      // breaks. (Issue #4078)
-      if (toOutside && !bidi && !/\s/.test(lineObj.text.charAt(ch)) && xDiff > 0 &&
-          ch < lineObj.text.length && preparedMeasure.view.measure.heights.length > 1) {
-        let charSize = measureCharPrepared(cm, preparedMeasure, ch, "right")
-        if (innerOff <= charSize.bottom && innerOff >= charSize.top && Math.abs(x - charSize.right) < xDiff) {
-          outside = false
-          ch++
-          xDiff = x - charSize.right
-        }
+  let pos
+  let order = getOrder(lineObj, cm.doc.direction)
+  if (order) {
+    if (cm.options.lineWrapping) {
+      ;({begin, end} = wrappedLineExtent(cm, lineObj, preparedMeasure, y))
+    }
+    pos = new Pos(lineNo, begin)
+    let beginLeft = cursorCoords(cm, pos, "line", lineObj, preparedMeasure).left
+    let dir = beginLeft < x ? 1 : -1
+    let prevDiff, diff = beginLeft - x, prevPos
+    do {
+      prevDiff = diff
+      prevPos = pos
+      pos = moveVisually(cm, lineObj, pos, dir)
+      if (pos == null || pos.ch < begin || end <= (pos.sticky == "before" ? pos.ch - 1 : pos.ch)) {
+        pos = prevPos
+        break
       }
-      while (isExtendingChar(lineObj.text.charAt(ch))) ++ch
-      let pos = PosWithInfo(lineNo, ch, outside, xDiff < -1 ? -1 : xDiff > 1 ? 1 : 0)
-      return pos
+      diff = cursorCoords(cm, pos, "line", lineObj, preparedMeasure).left - x
+    } while ((dir < 0) != (diff < 0) && (Math.abs(diff) <= Math.abs(prevDiff)))
+    if (Math.abs(diff) > Math.abs(prevDiff)) {
+      if ((diff < 0) == (prevDiff < 0)) throw new Error("Broke out of infinite loop in coordsCharInner")
+      pos = prevPos
     }
-    let step = Math.ceil(dist / 2), middle = from + step
-    if (bidi) {
-      middle = from
-      for (let i = 0; i < step; ++i) middle = moveVisually(lineObj, middle, 1)
-    }
-    let middleX = getX(middle)
-    if (middleX > x) {to = middle; toX = middleX; if (toOutside = wrongLine) toX += 1000; dist = step}
-    else {from = middle; fromX = middleX; fromOutside = wrongLine; dist -= step}
+  } else {
+    let ch = findFirst(ch => {
+      let box = intoCoordSystem(cm, lineObj, measureCharPrepared(cm, preparedMeasure, ch), "line")
+      if (box.top > y) {
+        // For the cursor stickiness
+        end = Math.min(ch, end)
+        return true
+      }
+      else if (box.bottom <= y) return false
+      else if (box.left > x) return true
+      else if (box.right < x) return false
+      else return (x - box.left < box.right - x)
+    }, begin, end)
+    ch = skipExtendingChars(lineObj.text, ch, 1)
+    pos = new Pos(lineNo, ch, ch == end ? "before" : "after")
   }
+  let coords = cursorCoords(cm, pos, "line", lineObj, preparedMeasure)
+  if (y < coords.top || coords.bottom < y) pos.outside = true
+  pos.xRel = x < coords.left ? -1 : (x > coords.right ? 1 : 0)
+  return pos
 }
 
 let measureText

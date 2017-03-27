@@ -6,19 +6,21 @@ let platform = navigator.platform
 export let gecko = /gecko\/\d/i.test(userAgent)
 let ie_upto10 = /MSIE \d/.test(userAgent)
 let ie_11up = /Trident\/(?:[7-9]|\d{2,})\..*rv:(\d+)/.exec(userAgent)
-export let ie = ie_upto10 || ie_11up
-export let ie_version = ie && (ie_upto10 ? document.documentMode || 6 : ie_11up[1])
-export let webkit = /WebKit\//.test(userAgent)
+let edge = /Edge\/(\d+)/.exec(userAgent)
+export let ie = ie_upto10 || ie_11up || edge
+export let ie_version = ie && (ie_upto10 ? document.documentMode || 6 : +(edge || ie_11up)[1])
+export let webkit = !edge && /WebKit\//.test(userAgent)
 let qtwebkit = webkit && /Qt\/\d+\.\d+/.test(userAgent)
-export let chrome = /Chrome\//.test(userAgent)
+export let chrome = !edge && /Chrome\//.test(userAgent)
 export let presto = /Opera\//.test(userAgent)
 export let safari = /Apple Computer/.test(navigator.vendor)
 export let mac_geMountainLion = /Mac OS X 1\d\D([8-9]|\d\d)\D/.test(userAgent)
 export let phantom = /PhantomJS/.test(userAgent)
 
-export let ios = /AppleWebKit/.test(userAgent) && /Mobile\/\w+/.test(userAgent)
+export let ios = !edge && /AppleWebKit/.test(userAgent) && /Mobile\/\w+/.test(userAgent)
+export let android = /Android/.test(userAgent)
 // This is woefully incomplete. Suggestions for alternative methods welcome.
-export let mobile = ios || /Android|webOS|BlackBerry|Opera Mini|Opera Mobi|IEMobile/i.test(userAgent)
+export let mobile = ios || android || /webOS|BlackBerry|Opera Mini|Opera Mobi|IEMobile/i.test(userAgent)
 export let mac = ios || /Mac/.test(platform)
 export let chromeOS = /\bCrOS\b/.test(userAgent)
 export let windows = /win/i.test(platform)

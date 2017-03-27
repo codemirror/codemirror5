@@ -35,7 +35,7 @@ export function CodeMirror(place, options) {
   setGuttersForLineNumbers(options)
 
   let doc = options.value
-  if (typeof doc == "string") doc = new Doc(doc, options.mode, null, options.lineSeparator)
+  if (typeof doc == "string") doc = new Doc(doc, options.mode, null, options.lineSeparator, options.direction)
   this.doc = doc
 
   let input = new CodeMirror.inputStyles[options.inputStyle](this)
@@ -45,7 +45,6 @@ export function CodeMirror(place, options) {
   themeChanged(this)
   if (options.lineWrapping)
     this.display.wrapper.className += " CodeMirror-wrap"
-  if (options.autofocus && !mobile) display.input.focus()
   initScrollbars(this)
 
   this.state = {
@@ -63,6 +62,8 @@ export function CodeMirror(place, options) {
     keySeq: null,  // Unfinished key sequence
     specialChars: null
   }
+
+  if (options.autofocus && !mobile) display.input.focus()
 
   // Override magic textarea content restore that IE sometimes does
   // on our hidden textarea on reload

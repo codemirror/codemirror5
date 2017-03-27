@@ -8,15 +8,15 @@ import { indentLine } from "../input/indent"
 import { triggerElectric } from "../input/input"
 import { onKeyDown, onKeyPress, onKeyUp } from "./key_events"
 import { getKeyMap } from "../input/keymap"
+import { endOfLine, moveLogically, moveVisually } from "../input/movement"
 import { methodOp, operation, runInOp } from "../display/operations"
-import { clipLine, clipPos, cmp, Pos } from "../line/pos"
+import { clipLine, clipPos, equalCursorPos, Pos } from "../line/pos"
 import { charCoords, charWidth, clearCaches, clearLineMeasurementCache, coordsChar, cursorCoords, displayHeight, displayWidth, estimateLineHeights, fromCoordSystem, intoCoordSystem, scrollGap, textHeight } from "../measurement/position_measurement"
 import { Range } from "../model/selection"
 import { replaceOneSelection, skipAtomic } from "../model/selection_updates"
 import { addToScrollPos, calculateScrollPos, ensureCursorVisible, resolveScrollToPos, scrollIntoView } from "../display/scrolling"
 import { heightAtLine } from "../line/spans"
 import { updateGutterSpace } from "../display/update_display"
-import { lineLeft, lineRight, moveLogically, moveVisually } from "../util/bidi"
 import { indexOf, insertSorted, isWordChar, sel_dontScroll, sel_move } from "../util/misc"
 import { signalLater } from "../util/operation_group"
 import { getLine, isLine, lineAtHeight } from "../line/utils_line"
@@ -45,6 +45,7 @@ export default function(CodeMirror) {
       options[option] = value
       if (optionHandlers.hasOwnProperty(option))
         operation(this, optionHandlers[option])(this, value, old)
+      signal(this, "optionChange", this, option)
     },
 
     getOption: function(option) {return this.options[option]},
@@ -210,7 +211,7 @@ export default function(CodeMirror) {
       } else {
         lineObj = line
       }
-      return intoCoordSystem(this, lineObj, {top: 0, left: 0}, mode || "page", includeWidgets).top +
+      return intoCoordSystem(this, lineObj, {top: 0, left: 0}, mode || "page", includeWidgets || end).top +
         (end ? this.doc.height - heightAtLine(lineObj) : 0)
     },
 
@@ -251,7 +252,7 @@ export default function(CodeMirror) {
         node.style.left = left + "px"
       }
       if (scroll)
-        scrollIntoView(this, left, top, left + node.offsetWidth, top + node.offsetHeight)
+        scrollIntoView(this, {left, top, right: left + node.offsetWidth, bottom: top + node.offsetHeight})
     },
 
     triggerOnKeyDown: methodOp(onKeyDown),
@@ -334,7 +335,7 @@ export default function(CodeMirror) {
       let start = pos.ch, end = pos.ch
       if (line) {
         let helper = this.getHelper(pos, "wordChars")
-        if ((pos.xRel < 0 || end == line.length) && start) --start; else ++end
+        if ((pos.sticky == "before" || end == line.length) && start) --start; else ++end
         let startChar = line.charAt(start)
         let check = isWordChar(startChar, helper)
           ? ch => isWordChar(ch, helper)
@@ -387,10 +388,12 @@ export default function(CodeMirror) {
         resolveScrollToPos(this)
         this.curOp.scrollToPos = range
       } else {
-        let sPos = calculateScrollPos(this, Math.min(range.from.left, range.to.left),
-                                      Math.min(range.from.top, range.to.top) - range.margin,
-                                      Math.max(range.from.right, range.to.right),
-                                      Math.max(range.from.bottom, range.to.bottom) + range.margin)
+        let sPos = calculateScrollPos(this, {
+          left: Math.min(range.from.left, range.to.left),
+          top: Math.min(range.from.top, range.to.top) - range.margin,
+          right: Math.max(range.from.right, range.to.right),
+          bottom: Math.max(range.from.bottom, range.to.bottom) + range.margin
+        })
         this.scrollTo(sPos.scrollLeft, sPos.scrollTop)
       }
     }),
@@ -463,22 +466,30 @@ export default function(CodeMirror) {
 // position. The resulting position will have a hitSide=true
 // property if it reached the end of the document.
 function findPosH(doc, pos, dir, unit, visually) {
-  let line = pos.line, ch = pos.ch, origDir = dir
-  let lineObj = getLine(doc, line)
+  let oldPos = pos
+  let origDir = dir
+  let lineObj = getLine(doc, pos.line)
   function findNextLine() {
-    let l = line + dir
+    let l = pos.line + dir
     if (l < doc.first || l >= doc.first + doc.size) return false
-    line = l
+    pos = new Pos(l, pos.ch, pos.sticky)
     return lineObj = getLine(doc, l)
   }
   function moveOnce(boundToLine) {
-    let next = (visually ? moveVisually : moveLogically)(lineObj, ch, dir, true)
+    let next
+    if (visually) {
+      next = moveVisually(doc.cm, lineObj, pos, dir)
+    } else {
+      next = moveLogically(lineObj, pos, dir)
+    }
     if (next == null) {
-      if (!boundToLine && findNextLine()) {
-        if (visually) ch = (dir < 0 ? lineRight : lineLeft)(lineObj)
-        else ch = dir < 0 ? lineObj.text.length : 0
-      } else return false
-    } else ch = next
+      if (!boundToLine && findNextLine())
+        pos = endOfLine(visually, doc.cm, lineObj, pos.line, dir)
+      else
+        return false
+    } else {
+      pos = next
+    }
     return true
   }
 
@@ -491,14 +502,14 @@ function findPosH(doc, pos, dir, unit, visually) {
     let helper = doc.cm && doc.cm.getHelper(pos, "wordChars")
     for (let first = true;; first = false) {
       if (dir < 0 && !moveOnce(!first)) break
-      let cur = lineObj.text.charAt(ch) || "\n"
+      let cur = lineObj.text.charAt(pos.ch) || "\n"
       let type = isWordChar(cur, helper) ? "w"
         : group && cur == "\n" ? "n"
         : !group || /\s/.test(cur) ? null
         : "p"
       if (group && !first && !type) type = "s"
       if (sawType && sawType != type) {
-        if (dir < 0) {dir = 1; moveOnce()}
+        if (dir < 0) {dir = 1; moveOnce(); pos.sticky = "after"}
         break
       }
 
@@ -506,8 +517,8 @@ function findPosH(doc, pos, dir, unit, visually) {
       if (dir > 0 && !moveOnce(!first)) break
     }
   }
-  let result = skipAtomic(doc, Pos(line, ch), pos, origDir, true)
-  if (!cmp(pos, result)) result.hitSide = true
+  let result = skipAtomic(doc, pos, oldPos, origDir, true)
+  if (equalCursorPos(oldPos, result)) result.hitSide = true
   return result
 }
 

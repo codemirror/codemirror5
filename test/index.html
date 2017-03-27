@@ -31,8 +31,10 @@
 <script src="../mode/python/python.js"></script>
 <script src="../mode/powershell/powershell.js"></script>
 <script src="../mode/ruby/ruby.js"></script>
+<script src="../mode/sass/sass.js"></script>
 <script src="../mode/shell/shell.js"></script>
 <script src="../mode/slim/slim.js"></script>
+<script src="../mode/soy/soy.js"></script>
 <script src="../mode/sql/sql.js"></script>
 <script src="../mode/stex/stex.js"></script>
 <script src="../mode/swift/swift.js"></script>
@@ -101,6 +103,7 @@
     <script src="test.js"></script>
     <script src="doc_test.js"></script>
     <script src="multi_test.js"></script>
+    <script src="contenteditable_test.js"></script>
     <script src="scroll_test.js"></script>
     <script src="comment_test.js"></script>
     <script src="search_test.js"></script>
@@ -120,8 +123,10 @@
     <script src="../mode/php/test.js"></script>
     <script src="../mode/powershell/test.js"></script>
     <script src="../mode/ruby/test.js"></script>
+    <script src="../mode/sass/test.js"></script>
     <script src="../mode/shell/test.js"></script>
     <script src="../mode/slim/test.js"></script>
+    <script src="../mode/soy/test.js"></script>
     <script src="../mode/stex/test.js"></script>
     <script src="../mode/swift/test.js"></script>
     <script src="../mode/textile/test.js"></script>
@@ -218,7 +223,7 @@
       function displayTest(type, name, customMessage) {
         var message = "???";
         if (type != "done" && type != "skipped") ++count;
-        progress.style.width = (count * (progress.parentNode.clientWidth - 2) / totalTests) + "px";
+        progress.style.width = (count * (progress.parentNode.clientWidth - 2) / (totalTests || 1)) + "px";
         progressRan.nodeValue = count;
         if (type == "ok") {
           message = "Test '" + name + "' passed";

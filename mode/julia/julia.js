@@ -388,7 +388,7 @@ CodeMirror.defineMode("julia", function(config, parserConf) {
     indent: function(state, textAfter) {
       var delta = 0;
       if ( textAfter === ']' || textAfter === ')' || textAfter === "end" ||
-           textAfter === "else" || textAfter === "catch" ||
+           textAfter === "else" || textAfter === "catch" || textAfter === "elseif" ||
            textAfter === "finally" ) {
         delta = -1;
       }

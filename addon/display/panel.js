@@ -38,6 +38,9 @@
     var height = (options && options.height) || node.offsetHeight;
     this._setSize(null, info.heightLeft -= height);
     info.panels++;
+    if (options.stable && isAtTop(this, node))
+      this.scrollTo(null, this.getScrollInfo().top + height)
+
     return new Panel(this, node, options, height);
   });
 
@@ -54,6 +57,8 @@
     this.cleared = true;
     var info = this.cm.state.panels;
     this.cm._setSize(null, info.heightLeft += this.height);
+    if (this.options.stable && isAtTop(this.cm, this.node))
+      this.cm.scrollTo(null, this.cm.getScrollInfo().top - this.height)
     info.wrapper.removeChild(this.node);
     if (--info.panels == 0) removePanels(this.cm);
   };
@@ -108,5 +113,11 @@
     wrap.style.height = info.setHeight;
     cm.setSize = cm._setSize;
     cm.setSize();
+  }
+
+  function isAtTop(cm, dom) {
+    for (var sibling = dom.nextSibling; sibling; sibling = sibling.nextSibling)
+      if (sibling == cm.getWrapperElement()) return true
+    return false
   }
 });

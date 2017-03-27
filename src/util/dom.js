@@ -29,6 +29,12 @@ export function elt(tag, content, className, style) {
   else if (content) for (let i = 0; i < content.length; ++i) e.appendChild(content[i])
   return e
 }
+// wrapper for elt, which removes the elt from the accessibility tree
+export function eltP(tag, content, className, style) {
+  let e = elt(tag, content, className, style)
+  e.setAttribute("role", "presentation")
+  return e
+}
 
 export let range
 if (document.createRange) range = function(node, start, end, endNode) {
@@ -68,8 +74,8 @@ export function activeElt() {
   } catch(e) {
     activeElement = document.body || null
   }
-  while (activeElement && activeElement.root && activeElement.root.activeElement)
-    activeElement = activeElement.root.activeElement
+  while (activeElement && activeElement.shadowRoot && activeElement.shadowRoot.activeElement)
+    activeElement = activeElement.shadowRoot.activeElement
   return activeElement
 }
 
