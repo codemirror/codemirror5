@@ -65,8 +65,8 @@ class NativeScrollbars {
 
     if (needsH) {
       this.horiz.style.display = "block"
-      this.horiz.style.right = needsV ? sWidth + "px" : "0"
-      this.horiz.style.left = measure.barLeft + "px"
+      this.horiz.style[this.cm.doc.direction == "ltr" ? "right" : "left"] = needsV ? sWidth + "px" : "0"
+      this.horiz.style[this.cm.doc.direction == "ltr" ? "left" : "right"] = measure.barLeft + "px"
       let totalWidth = measure.viewWidth - measure.barLeft - (needsV ? sWidth : 0)
       this.horiz.firstChild.style.width =
         Math.max(0, measure.scrollWidth - measure.clientWidth + totalWidth) + "px"
@@ -150,7 +150,8 @@ function updateScrollbarsInner(cm, measure) {
   let d = cm.display
   let sizes = d.scrollbars.update(measure)
 
-  d.sizer.style.paddingRight = (d.barWidth = sizes.right) + "px"
+  d.sizer.style[cm.doc.direction == "ltr" ? "paddingRight" : "paddingLeft"] = (d.barWidth = sizes.right) + "px"
+  d.sizer.style[cm.doc.direction == "ltr" ? "paddingLeft" : "paddingRight"] = 0
   d.sizer.style.paddingBottom = (d.barHeight = sizes.bottom) + "px"
   d.heightForcer.style.borderBottom = sizes.bottom + "px solid transparent"
 

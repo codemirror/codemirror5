@@ -9,21 +9,52 @@ import { updateGutterSpace } from "./update_display"
 export function alignHorizontally(cm) {
   let display = cm.display, view = display.view
   if (!display.alignWidgets && (!display.gutters.firstChild || !cm.options.fixedGutter)) return
-  let comp = compensateForHScroll(display) - display.scroller.scrollLeft + cm.doc.scrollLeft
-  let gutterW = display.gutters.offsetWidth, left = comp + "px"
+  let isLtr = cm.doc.direction == "ltr"
+  let scroll = display.scroller.scrollLeft - cm.doc.scrollLeft
+  let comp = compensateForHScroll(display, isLtr) + (isLtr ? -scroll : scroll)
+  let offset = comp + "px"
+  let side = isLtr ? "left" : "right"
+  let otherSide = isLtr ? "right" : "left"
   for (let i = 0; i < view.length; i++) if (!view[i].hidden) {
     if (cm.options.fixedGutter) {
-      if (view[i].gutter)
-        view[i].gutter.style.left = left
-      if (view[i].gutterBackground)
-        view[i].gutterBackground.style.left = left
+      if (view[i].gutter) {
+        view[i].gutter.style[side] = offset
+        view[i].gutter.style[otherSide] = null
+      }
+      if (view[i].gutterBackground) {
+        view[i].gutterBackground.style[side] = offset
+        view[i].gutterBackground.style[otherSide] = null
+      }
     }
     let align = view[i].alignable
-    if (align) for (let j = 0; j < align.length; j++)
-      align[j].style.left = left
+    if (align) for (let j = 0; j < align.length; j++) {
+      align[j].style[side] = offset
+      align[j].style[otherSide] = null
+    }
   }
-  if (cm.options.fixedGutter)
-    display.gutters.style.left = (comp + gutterW) + "px"
+  setGutterOffset(cm)
+}
+
+function setGutterOffset(cm, fixed = cm.options.fixedGutter, alsoIfNotFixed = false) {
+  let isLtr = cm.doc.direction == "ltr"
+  let side = isLtr ? "left" : "right"
+  let display = cm.display
+  if (!fixed) {
+    if (alsoIfNotFixed) {
+      display.gutters.style[side] = "0"
+      display.gutters.style[isLtr ? "right" : "left"] = null
+    }
+    return
+  }
+  let scroll = display.scroller.scrollLeft - cm.doc.scrollLeft
+  let comp = compensateForHScroll(display, isLtr) + (isLtr ? -scroll : scroll)
+  let gutterW = display.gutters.offsetWidth
+  display.gutters.style[side] = (comp + gutterW) + "px"
+  display.gutters.style[isLtr ? "right" : "left"] = null
+}
+
+export function updateFixedGutter(cm, val) {
+  setGutterOffset(cm, val, true)
 }
 
 // Used to ensure that the line number gutter is still the right

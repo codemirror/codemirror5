@@ -100,7 +100,7 @@ export function attachDoc(cm, doc) {
 }
 
 function setDirectionClass(cm) {
-  ;(cm.doc.direction == "rtl" ? addClass : rmClass)(cm.display.lineDiv, "CodeMirror-rtl")
+  ;(cm.doc.direction == "rtl" ? addClass : rmClass)(cm.display.wrapper, "CodeMirror-rtl")
 }
 
 export function directionChanged(cm) {

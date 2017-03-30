@@ -1,15 +1,16 @@
 import { onBlur } from "../display/focus"
 import { setGuttersForLineNumbers, updateGutters } from "../display/gutters"
-import { alignHorizontally } from "../display/line_numbers"
+import { alignHorizontally, updateFixedGutter } from "../display/line_numbers"
 import { loadMode, resetModeState } from "../display/mode_state"
 import { initScrollbars, updateScrollbars } from "../display/scrollbars"
+import { setScrollLeft } from "../display/scroll_events"
 import { updateSelection } from "../display/selection"
 import { regChange } from "../display/view_tracking"
 import { getKeyMap } from "../input/keymap"
 import { defaultSpecialCharPlaceholder } from "../line/line_data"
 import { Pos } from "../line/pos"
 import { findMaxLine } from "../line/spans"
-import { clearCaches, compensateForHScroll, estimateLineHeights } from "../measurement/position_measurement"
+import { clearCaches, estimateLineHeights } from "../measurement/position_measurement"
 import { replaceRange } from "../model/changes"
 import { mobile, windows } from "../util/browser"
 import { addClass, rmClass } from "../util/dom"
@@ -99,7 +100,7 @@ export function defineOptions(CodeMirror) {
     guttersChanged(cm)
   }, true)
   option("fixedGutter", true, (cm, val) => {
-    cm.display.gutters.style.left = val ? compensateForHScroll(cm.display) + "px" : "0"
+    updateFixedGutter(cm, val)
     cm.refresh()
   }, true)
   option("coverGutterNextToScrollbar", false, cm => updateScrollbars(cm), true)
@@ -153,7 +154,13 @@ export function defineOptions(CodeMirror) {
 
   option("tabindex", null, (cm, val) => cm.display.input.getField().tabIndex = val || "")
   option("autofocus", null)
-  option("direction", "ltr", (cm, val) => cm.doc.setDirection(val), true)
+  option("direction", "ltr", (cm, val) => {
+    cm.doc.setDirection(val)
+    cm.display.scroller.scrollLeft = 0 // Chromium needs this
+    alignHorizontally(cm)
+    setScrollLeft(cm, 0)
+    guttersChanged(cm)
+  }, true)
 }
 
 function guttersChanged(cm) {

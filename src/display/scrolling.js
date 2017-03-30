@@ -86,10 +86,11 @@ export function calculateScrollPos(cm, rect) {
   let screenw = displayWidth(cm) - (cm.options.fixedGutter ? display.gutters.offsetWidth : 0)
   let tooWide = rect.right - rect.left > screenw
   if (tooWide) rect.right = rect.left + screenw
-  if (rect.left < 10)
+  let rtl = cm.doc.direction == "rtl"
+  if (Math.abs(rect.left) < 10 || (rtl ? rect.left > 0 : rect.left < 0))
     result.scrollLeft = 0
   else if (rect.left < screenleft)
-    result.scrollLeft = Math.max(0, rect.left - (tooWide ? 0 : 10))
+    result.scrollLeft = Math[rtl ? "min" : "max"](0, rect.left - (tooWide ? 0 : 10))
   else if (rect.right > screenw + screenleft - 3)
     result.scrollLeft = rect.right + (tooWide ? 0 : 10) - screenw
   return result

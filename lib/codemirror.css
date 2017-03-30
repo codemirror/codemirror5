@@ -27,6 +27,10 @@
   background-color: #f7f7f7;
   white-space: nowrap;
 }
+.CodeMirror-rtl .CodeMirror-gutters {
+  border-right: none;
+  border-left: 1px solid #ddd;
+}
 .CodeMirror-linenumbers {}
 .CodeMirror-linenumber {
   padding: 0 3px 0 5px;
@@ -165,9 +169,21 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
   outline: none; /* Prevent dragging from highlighting the element */
   position: relative;
 }
+
+.CodeMirror-rtl .CodeMirror-scroll {
+  /* 30px is the magic margin used to hide the element's real scrollbars */
+  /* See overflow: hidden in .CodeMirror */
+  margin-left: -30px;
+  margin-right: 0;
+}
+
 .CodeMirror-sizer {
   position: relative;
   border-right: 30px solid transparent;
+}
+.CodeMirror-rtl .CodeMirror-sizer {
+  border-right: 0;
+  border-left: 30px solid transparent;
 }
 
 /* The fake, visible scrollbars. Used to force redraw during scrolling
@@ -183,6 +199,9 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
   overflow-x: hidden;
   overflow-y: scroll;
 }
+.CodeMirror-rtl .CodeMirror-vscrollbar {
+  left: 0; right: initial;
+}
 .CodeMirror-hscrollbar {
   bottom: 0; left: 0;
   overflow-y: hidden;
@@ -191,8 +210,14 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
 .CodeMirror-scrollbar-filler {
   right: 0; bottom: 0;
 }
+.CodeMirror-rtl .CodeMirror-scrollbar-filler {
+  right: initial; left: 0;
+}
 .CodeMirror-gutter-filler {
   left: 0; bottom: 0;
+}
+.CodeMirror-rtl .CodeMirror-gutter-filler {
+  left: initial; right: 0;
 }
 
 .CodeMirror-gutters {
@@ -200,6 +225,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
   min-height: 100%;
   z-index: 3;
 }
+.CodeMirror-rtl .CodeMirror-gutters { left: initial }
 .CodeMirror-gutter {
   white-space: normal;
   height: 100%;
@@ -269,7 +295,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
 
 .CodeMirror-widget {}
 
-.CodeMirror-rtl pre { direction: rtl; }
+.CodeMirror-rtl { direction: rtl; }
 
 .CodeMirror-code {
   outline: none;

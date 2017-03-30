@@ -49,7 +49,8 @@ export function maybeClipScrollbars(cm) {
     display.nativeBarWidth = display.scroller.offsetWidth - display.scroller.clientWidth
     display.heightForcer.style.height = scrollGap(cm) + "px"
     display.sizer.style.marginBottom = -display.nativeBarWidth + "px"
-    display.sizer.style.borderRightWidth = scrollGap(cm) + "px"
+    display.sizer.style[cm.doc.direction == "ltr" ? "borderLeftWidth" : "borderRightWidth"] = null
+    display.sizer.style[cm.doc.direction == "ltr" ? "borderRightWidth" : "borderLeftWidth"] = scrollGap(cm) + "px"
     display.scrollbarsClipped = true
   }
 }
@@ -219,7 +220,8 @@ function patchDisplay(cm, updateNumbersFrom, dims) {
 
 export function updateGutterSpace(cm) {
   let width = cm.display.gutters.offsetWidth
-  cm.display.sizer.style.marginLeft = width + "px"
+  cm.display.sizer.style[cm.doc.direction == "ltr" ? "marginRight" : "marginLeft"] = null
+  cm.display.sizer.style[cm.doc.direction == "ltr" ? "marginLeft" : "marginRight"] = width + "px"
 }
 
 export function setDocumentHeight(cm, measure) {

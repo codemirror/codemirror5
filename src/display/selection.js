@@ -92,7 +92,7 @@ function drawSelectionRange(cm, range, output) {
         start = leftPos
       if (!end || rightPos.bottom > end.bottom || rightPos.bottom == end.bottom && rightPos.right > end.right)
         end = rightPos
-      if (left < leftSide + 1) left = leftSide
+      if (left < leftSide + 1 && cm.doc.direction != "rtl") left = leftSide
       add(left, rightPos.top, right - left, rightPos.bottom)
     })
     return {start: start, end: end}
