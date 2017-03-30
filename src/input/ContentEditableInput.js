@@ -113,36 +113,41 @@ export default class ContentEditableInput {
   }
 
   showPrimarySelection() {
-    let sel = window.getSelection(), prim = this.cm.doc.sel.primary()
-    let curAnchor = domToPos(this.cm, sel.anchorNode, sel.anchorOffset)
-    let curFocus = domToPos(this.cm, sel.focusNode, sel.focusOffset)
-    if (curAnchor && !curAnchor.bad && curFocus && !curFocus.bad &&
-        cmp(minPos(curAnchor, curFocus), prim.from()) == 0 &&
-        cmp(maxPos(curAnchor, curFocus), prim.to()) == 0)
-      return
+    let sel = window.getSelection(), cm = this.cm, prim = cm.doc.sel.primary()
+    let from = prim.from(), to = prim.to()
 
-    let start = posToDOM(this.cm, prim.from())
-    let end = posToDOM(this.cm, prim.to())
-    if (!start && !end) {
+    if (cm.display.viewTo == cm.display.viewFrom || from.line >= cm.display.viewTo || to.line < cm.display.viewFrom) {
       sel.removeAllRanges()
       return
     }
 
-    let view = this.cm.display.view
-    let old = sel.rangeCount && sel.getRangeAt(0)
-    if (!start) {
-      start = {node: view[0].measure.map[2], offset: 0}
-    } else if (!end) { // FIXME dangerously hacky
+    let curAnchor = domToPos(cm, sel.anchorNode, sel.anchorOffset)
+    let curFocus = domToPos(cm, sel.focusNode, sel.focusOffset)
+    if (curAnchor && !curAnchor.bad && curFocus && !curFocus.bad &&
+        cmp(minPos(curAnchor, curFocus), from) == 0 &&
+        cmp(maxPos(curAnchor, curFocus), to) == 0)
+      return
+
+    let view = cm.display.view
+    let start = (from.line >= cm.display.viewFrom && posToDOM(cm, from)) ||
+        {node: view[0].measure.map[2], offset: 0}
+    let end = to.line < cm.display.viewTo && posToDOM(cm, to)
+    if (!end) {
       let measure = view[view.length - 1].measure
       let map = measure.maps ? measure.maps[measure.maps.length - 1] : measure.map
       end = {node: map[map.length - 1], offset: map[map.length - 2] - map[map.length - 3]}
     }
 
-    let rng
+    if (!start || !end) {
+      sel.removeAllRanges()
+      return
+    }
+
+    let old = sel.rangeCount && sel.getRangeAt(0), rng
     try { rng = range(start.node, start.offset, end.offset, end.node) }
     catch(e) {} // Our model of the DOM might be outdated, in which case the range we try to set can be impossible
     if (rng) {
-      if (!gecko && this.cm.state.focused) {
+      if (!gecko && cm.state.focused) {
         sel.collapse(start.node, start.offset)
         if (!rng.collapsed) {
           sel.removeAllRanges()
