@@ -75,7 +75,8 @@ Doc.prototype = createObj(BranchChunk.prototype, {
     let top = Pos(this.first, 0), last = this.first + this.size - 1
     makeChange(this, {from: top, to: Pos(last, getLine(this, last).text.length),
                       text: this.splitLines(code), origin: "setValue", full: true}, true)
-    setSelection(this, simpleSelection(top))
+    if (this.cm) this.cm.scrollTo(0, 0)
+    setSelection(this, simpleSelection(top), sel_dontScroll)
   }),
   replaceRange: function(code, from, to, origin) {
     from = clipPos(this, from)
