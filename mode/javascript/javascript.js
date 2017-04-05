@@ -620,6 +620,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (value == "*") {cx.marked = "keyword"; return cont(functiondef);}
     if (type == "variable") {register(value); return cont(functiondef);}
     if (type == "(") return cont(pushcontext, pushlex(")"), commasep(funarg, ")"), poplex, maybetype, statement, popcontext);
+    if (isTS && value == "<") return cont(pushlex(">"), commasep(typeexpr, ">"), poplex, functiondef)
   }
   function funarg(type) {
     if (type == "spread") return cont(funarg);
