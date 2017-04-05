@@ -63,17 +63,24 @@
       selectValueOnOpen: true,
       closeOnEnter: false,
       onClose: function() { clearSearch(cm); },
-      onKeyDown: onKeyDown
+      onKeyDown: onKeyDown,
+      closeOnBlur: cm.getOption("searchSettings") ? cm.getOption("searchSettings").closeOnBlur : true
     });
   }
 
   function dialog(cm, text, shortText, deflt, f) {
-    if (cm.openDialog) cm.openDialog(text, f, {value: deflt, selectValueOnOpen: true});
+    if (cm.openDialog) cm.openDialog(text, f, {
+      value: deflt, 
+      selectValueOnOpen: true,
+      closeOnBlur: cm.getOption("searchSettings") ? cm.getOption("searchSettings").closeOnBlur : true
+    });
     else f(prompt(shortText, deflt));
   }
 
   function confirmDialog(cm, text, shortText, fs) {
-    if (cm.openConfirm) cm.openConfirm(text, fs);
+    if (cm.openConfirm) cm.openConfirm(text, fs, {
+      closeOnBlur: cm.getOption("searchSettings") ? cm.getOption("searchSettings").closeOnBlur : true
+    });
     else if (confirm(shortText)) fs[0]();
   }
 
