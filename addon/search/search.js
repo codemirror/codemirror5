@@ -70,7 +70,7 @@
 
   function dialog(cm, text, shortText, deflt, f) {
     if (cm.openDialog) cm.openDialog(text, f, {
-      value: deflt, 
+      value: deflt,
       selectValueOnOpen: true,
       closeOnBlur: cm.getOption("searchSettings") ? cm.getOption("searchSettings").closeOnBlur : true
     });

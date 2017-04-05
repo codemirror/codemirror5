@@ -123,13 +123,11 @@
         CodeMirror.on(b, "focus", function() { ++blurring; });
       }
       CodeMirror.on(b, "keydown", function(e) {
-        if (options && options.onKeyDown && options.onKeyDown(e, inp.value, close)) { return; }
         if (e.keyCode == 27) {
           b.blur();
           CodeMirror.e_stop(e);
           close();
         }
-        if (e.keyCode == 13) callback(inp.value, e);
       });
     }
   });
