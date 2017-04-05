@@ -115,11 +115,22 @@
           if (callback) callback(me);
         });
       })(callbacks[i]);
-      CodeMirror.on(b, "blur", function() {
-        --blurring;
-        setTimeout(function() { if (blurring <= 0) close(); }, 200);
+      if (options.closeOnBlur !== false) {
+        CodeMirror.on(b, "blur", function() {
+          --blurring;
+          setTimeout(function() { if (blurring <= 0) close(); }, 200);
+        });
+        CodeMirror.on(b, "focus", function() { ++blurring; });
+      }
+      CodeMirror.on(b, "keydown", function(e) {
+        if (options && options.onKeyDown && options.onKeyDown(e, inp.value, close)) { return; }
+        if (e.keyCode == 27) {
+          b.blur();
+          CodeMirror.e_stop(e);
+          close();
+        }
+        if (e.keyCode == 13) callback(inp.value, e);
       });
-      CodeMirror.on(b, "focus", function() { ++blurring; });
     }
   });
 
