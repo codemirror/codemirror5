@@ -4,7 +4,7 @@ import { clipPos, Pos } from "../line/pos"
 import { collapsedSpanAtEnd, heightAtLine, lineIsHidden, visualLine } from "../line/spans"
 import { getLine, lineAtHeight, lineNo, updateLineHeight } from "../line/utils_line"
 import { bidiOther, getBidiPartAt, getOrder } from "../util/bidi"
-import { ie, ie_version } from "../util/browser"
+import { chrome, android, ie, ie_version } from "../util/browser"
 import { elt, removeChildren, range, removeChildrenAndAdd } from "../util/dom"
 import { e_target } from "../util/event"
 import { hasBadZoomedRects } from "../util/feature_detection"
@@ -281,8 +281,17 @@ export function clearCaches(cm) {
   cm.display.lineNumChars = null
 }
 
-function pageScrollX() { return window.pageXOffset || (document.documentElement || document.body).scrollLeft }
-function pageScrollY() { return window.pageYOffset || (document.documentElement || document.body).scrollTop }
+function pageScrollX() {
+  // Work around https://bugs.chromium.org/p/chromium/issues/detail?id=489206
+  // which causes page_Offset and bounding client rects to use
+  // different reference viewports and invalidate our calculations.
+  if (chrome && android) return -(document.body.getBoundingClientRect().left - parseInt(getComputedStyle(document.body).marginLeft))
+  return window.pageXOffset || (document.documentElement || document.body).scrollLeft
+}
+function pageScrollY() {
+  if (chrome && android) return -(document.body.getBoundingClientRect().top - parseInt(getComputedStyle(document.body).marginTop))
+  return window.pageYOffset || (document.documentElement || document.body).scrollTop
+}
 
 // Converts a {top, bottom, left, right} box from line-local
 // coordinates into another coordinate system. Context may be one of
