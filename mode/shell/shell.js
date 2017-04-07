@@ -82,7 +82,7 @@ CodeMirror.defineMode('shell', function() {
   }
 
   function tokenString(quote, style) {
-    var close = quote == "(" ? ")" : quote
+    var close = quote == "(" ? ")" : quote == "{" ? "}" : quote
     return function(stream, state) {
       var next, end = false, escaped = false;
       while ((next = stream.next()) != null) {
@@ -96,7 +96,7 @@ CodeMirror.defineMode('shell', function() {
           state.tokens.unshift(tokenDollar);
           break;
         }
-        if (!escaped && next === "(" && quote === "(") {
+        if (!escaped && next === quote && quote !== close) {
           state.tokens.unshift(tokenString(quote, style))
           return tokenize(stream, state)
         }
@@ -109,16 +109,12 @@ CodeMirror.defineMode('shell', function() {
 
   var tokenDollar = function(stream, state) {
     if (state.tokens.length > 1) stream.eat('$');
-    var ch = stream.next(), hungry = /\w/;
-    if (ch === '{') hungry = /[^}]/;
-    if (/['"(]/.test(ch)) {
-      state.tokens[0] = tokenString(ch, ch == "(" ? "quote" : "string");
+    var ch = stream.next()
+    if (/['"({]/.test(ch)) {
+      state.tokens[0] = tokenString(ch, ch == "(" ? "quote" : ch == "{" ? "def" : "string");
       return tokenize(stream, state);
     }
-    if (!/\d/.test(ch)) {
-      stream.eatWhile(hungry);
-      stream.eat('}');
-    }
+    if (!/\d/.test(ch)) stream.eatWhile(/\w/);
     state.tokens.shift();
     return 'def';
   };
