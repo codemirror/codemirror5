@@ -92,4 +92,13 @@
      '  [tag&bracket </][tag div][tag&bracket >]',
      '[keyword {/template}]',
      '');
+
+  MT('allow-missing-colon-in-@param',
+     '[keyword {template] [def .foo][keyword }]',
+     '  [keyword {@param] [def showThing] [variable-3 bool][keyword }]',
+     '  [keyword {if] [variable-2 $showThing][keyword }]',
+     '    Yo!',
+     '  [keyword {/if}]',
+     '[keyword {/template}]',
+     '');
 })();
