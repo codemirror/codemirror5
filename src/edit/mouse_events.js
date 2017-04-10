@@ -89,15 +89,16 @@ function leftButtonDown(cm, e, start) {
 // Start a text drag. When it ends, see if any dragging actually
 // happen, and treat as a click if it didn't.
 function leftButtonStartDrag(cm, e, start, modifier) {
-  let display = cm.display, startTime = +new Date
-  let dragEnd = operation(cm, e2 => {
+  let display = cm.display, moved = false
+  let dragEnd = operation(cm, e => {
     if (webkit) display.scroller.draggable = false
     cm.state.draggingText = false
     off(document, "mouseup", dragEnd)
+    off(document, "mousemove", mouseMove)
     off(display.scroller, "drop", dragEnd)
-    if (Math.abs(e.clientX - e2.clientX) + Math.abs(e.clientY - e2.clientY) < 10) {
-      e_preventDefault(e2)
-      if (!modifier && +new Date - 200 < startTime)
+    if (!moved) {
+      e_preventDefault(e)
+      if (!modifier)
         extendSelection(cm.doc, start)
       // Work around unexplainable focus problem in IE9 (#2127) and Chrome (#3081)
       if (webkit || ie && ie_version == 9)
@@ -106,6 +107,9 @@ function leftButtonStartDrag(cm, e, start, modifier) {
         display.input.focus()
     }
   })
+  let mouseMove = function(e2) {
+    moved = moved || Math.abs(e.clientX - e2.clientX) + Math.abs(e.clientY - e2.clientY) >= 10
+  }
   // Let the drag handler handle this.
   if (webkit) display.scroller.draggable = true
   cm.state.draggingText = dragEnd
@@ -113,6 +117,7 @@ function leftButtonStartDrag(cm, e, start, modifier) {
   // IE's approach to draggable
   if (display.scroller.dragDrop) display.scroller.dragDrop()
   on(document, "mouseup", dragEnd)
+  on(document, "mousemove", mouseMove)
   on(display.scroller, "drop", dragEnd)
 }
 
