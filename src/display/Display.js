@@ -22,12 +22,13 @@ export function Display(place, doc, input) {
   // Elements are added to these to represent selection and cursors.
   d.selectionDiv = elt("div", null, null, "position: relative; z-index: 1")
   d.cursorDiv = elt("div", null, "CodeMirror-cursors")
+  d.otherCursorsDiv = elt("div", null, "CodeMirror-other-cursors")
   // A visibility: hidden element used to find the size of things.
   d.measure = elt("div", null, "CodeMirror-measure")
   // When lines outside of the viewport are measured, they are drawn in this.
   d.lineMeasure = elt("div", null, "CodeMirror-measure")
   // Wraps everything that needs to exist inside the vertically-padded coordinate system
-  d.lineSpace = eltP("div", [d.measure, d.lineMeasure, d.selectionDiv, d.cursorDiv, d.lineDiv],
+  d.lineSpace = eltP("div", [d.measure, d.lineMeasure, d.selectionDiv, d.cursorDiv, d.otherCursorsDiv, d.lineDiv],
                     null, "position: relative; outline: none")
   let lines = eltP("div", [d.lineSpace], "CodeMirror-lines")
   // Moved around its parent to cover visible view.
