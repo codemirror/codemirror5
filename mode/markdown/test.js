@@ -381,28 +381,28 @@
   MT("listAsteriskFormatting",
      "[variable-2 * ][variable-2&em *foo*][variable-2  bar]",
      "[variable-2 * ][variable-2&strong **foo**][variable-2  bar]",
-     "[variable-2 * ][variable-2&strong **][variable-2&em&strong *foo**][variable-2&em *][variable-2  bar]",
+     "[variable-2 * ][variable-2&em&strong ***foo***][variable-2  bar]",
      "[variable-2 * ][variable-2&comment `foo`][variable-2  bar]");
 
   // Formatting in lists (+)
   MT("listPlusFormatting",
      "[variable-2 + ][variable-2&em *foo*][variable-2  bar]",
      "[variable-2 + ][variable-2&strong **foo**][variable-2  bar]",
-     "[variable-2 + ][variable-2&strong **][variable-2&em&strong *foo**][variable-2&em *][variable-2  bar]",
+     "[variable-2 + ][variable-2&em&strong ***foo***][variable-2  bar]",
      "[variable-2 + ][variable-2&comment `foo`][variable-2  bar]");
 
   // Formatting in lists (-)
   MT("listDashFormatting",
      "[variable-2 - ][variable-2&em *foo*][variable-2  bar]",
      "[variable-2 - ][variable-2&strong **foo**][variable-2  bar]",
-     "[variable-2 - ][variable-2&strong **][variable-2&em&strong *foo**][variable-2&em *][variable-2  bar]",
+     "[variable-2 - ][variable-2&em&strong ***foo***][variable-2  bar]",
      "[variable-2 - ][variable-2&comment `foo`][variable-2  bar]");
 
   // Formatting in lists (1.)
   MT("listNumberFormatting",
      "[variable-2 1. ][variable-2&em *foo*][variable-2  bar]",
      "[variable-2 2. ][variable-2&strong **foo**][variable-2  bar]",
-     "[variable-2 3. ][variable-2&strong **][variable-2&em&strong *foo**][variable-2&em *][variable-2  bar]",
+     "[variable-2 3. ][variable-2&em&strong ***foo***][variable-2  bar]",
      "[variable-2 4. ][variable-2&comment `foo`][variable-2  bar]");
 
   // Paragraph lists
@@ -605,7 +605,7 @@
      "[image&image-marker !][image&image-alt-text&link [[][image-alt-text&strong&image&link **alt text**][image&image-alt-text&link ]]][string&url (http://link.to/image.jpg)]");
 
   MT("imageEmStrong",
-     "[image&image-marker !][image&image-alt-text&link [[][image-alt-text&image&strong&link **][image&image-alt-text&em&strong&link *alt text**][image&image-alt-text&em&link *][image&image-alt-text&link ]]][string&url (http://link.to/image.jpg)]");
+     "[image&image-marker !][image&image-alt-text&link [[][image&image-alt-text&em&strong&link ***alt text***][image&image-alt-text&link ]]][string&url (http://link.to/image.jpg)]");
 
   // Inline link with title
   MT("linkTitle",
@@ -629,7 +629,7 @@
 
   // Inline link with EmStrong
   MT("linkEmStrong",
-     "[link [[][link&strong **][link&em&strong *foo**][link&em *][link ]]][string&url (http://example.com/)] bar");
+     "[link [[][link&em&strong ***foo***][link ]]][string&url (http://example.com/)] bar");
 
   // Image with title
   MT("imageTitle",
@@ -663,7 +663,7 @@
 
   // Reference-style links with EmStrong
   MT("linkReferenceEmStrong",
-     "[link [[][link&strong **][link&em&strong *foo**][link&em *][link ]]][string&url [[bar]]] hello");
+     "[link [[][link&em&strong ***foo***][link ]]][string&url [[bar]]] hello");
 
   // Reference-style links with optional space separator (per documentation)
   // "You can optionally use a space to separate the sets of brackets"
@@ -757,7 +757,7 @@
      "foo[em *bar*]hello");
 
   MT("emInWordUnderscore",
-     "foo[em _bar_]hello");
+     "foo_bar_hello");
 
   // Per documentation: "...surround an * or _ with spaces, it’ll be
   // treated as a literal asterisk or underscore."
@@ -766,11 +766,11 @@
      "foo [em _bar _ hello_] world");
 
   MT("emEscapedBySpaceOut",
-     "foo _ bar[em _hello_]world");
+     "foo _ bar [em _hello_] world");
 
   MT("emEscapedByNewline",
      "foo",
-     "_ bar[em _hello_]world");
+     "_ bar [em _hello_] world");
 
   // Unclosed emphasis characters
   // Instead of simply marking as EM / STRONG, it would be nice to have an
@@ -791,14 +791,14 @@
      "[em *foo][em&strong **bar*][strong hello**] world");
 
   MT("emStrongUnderscore",
-     "[em _foo][em&strong __bar_][strong hello__] world");
+     "[em _foo ][em&strong __bar_][strong  hello__] world");
 
   // "...same character must be used to open and close an emphasis span.""
   MT("emStrongMixed",
      "[em _foo][em&strong **bar*hello__ world]");
 
   MT("emStrongMixed",
-     "[em *foo][em&strong __bar_hello** world]");
+     "[em *foo ][em&strong __bar_hello** world]");
 
   MT("linkWithNestedParens",
      "[link [[foo]]][string&url (bar(baz))]")
