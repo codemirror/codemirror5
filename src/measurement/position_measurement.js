@@ -457,23 +457,20 @@ function coordsCharInner(cm, lineObj, lineNo, x, y) {
       ;({begin, end} = wrappedLineExtent(cm, lineObj, preparedMeasure, y))
     }
     pos = new Pos(lineNo, begin)
-    let beginLeft = cursorCoords(cm, pos, "line", lineObj, preparedMeasure).left
-    let dir = beginLeft < x ? 1 : -1
-    let prevDiff, diff = beginLeft - x, prevPos
-    do {
-      prevDiff = diff
+    let lastX = cursorCoords(cm, pos, "line", lineObj, preparedMeasure).left
+    let prevPos
+    let step = end
+    outer: do {
+      step = Math.ceil(step / 2)
       prevPos = pos
-      pos = moveVisually(cm, lineObj, pos, dir)
-      if (pos == null || pos.ch < begin || end <= (pos.sticky == "before" ? pos.ch - 1 : pos.ch)) {
-        pos = prevPos
-        break
+      for (let i = 0; i < step; ++i) {
+        let newPos = moveVisually(cm, lineObj, pos, lastX < x ? 1 : -1)
+        if (newPos == null || newPos.ch < begin || end <= (newPos.sticky == "before" ? newPos.ch - 1 : newPos.ch))
+          break outer
+        pos = newPos
       }
-      diff = cursorCoords(cm, pos, "line", lineObj, preparedMeasure).left - x
-    } while ((dir < 0) != (diff < 0) && (Math.abs(diff) <= Math.abs(prevDiff)))
-    if (Math.abs(diff) > Math.abs(prevDiff)) {
-      if ((diff < 0) == (prevDiff < 0)) throw new Error("Broke out of infinite loop in coordsCharInner")
-      pos = prevPos
-    }
+      lastX = cursorCoords(cm, pos, "line", lineObj, preparedMeasure).left
+    } while (pos.ch !== prevPos.ch && pos.ch !== moveVisually(cm, lineObj, prevPos, 1).ch)
   } else {
     let ch = findFirst(ch => {
       let box = intoCoordSystem(cm, lineObj, measureCharPrepared(cm, preparedMeasure, ch), "line")
