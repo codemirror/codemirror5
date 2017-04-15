@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <title>CodeMirror: CSS mode</title>
+    <link rel="stylesheet" href="../lib/codemirror.css"/>
+    <script src="../lib/codemirror.js"></script>
+    <script src="../mode/css/css.js"></script>
+    <script src="../addon/display/palette.js"></script>
+    <style>
+        .CodeMirror {background: #f8f8f8;}
+        .cm-palette {
+          text-decoration: underline;
+        }
+        .CodeMirror .cm-palette-hint {
+          display: inline-block;
+          box-sizing: border-box;
+          margin: 0 2px;
+          border-radius: 50%;
+          vertical-align: middle;
+          width: 10px;
+          height: 10px;
+          box-shadow: 0 0 2px;
+        }
+    </style>
+    <link rel="stylesheet" href="../doc/docs.css">
+  </head>
+  <body>
+    <h1>CodeMirror: Palette Demo</h1>
+    <form><textarea id="code" name="code">
+.box {
+  color: #000;
+  border: 1px #ccc solid;
+}
+
+code {
+  font-family: courier, monospace;
+  font-size: 80%;
+  color: #418A8A;
+}
+</textarea></form>
+    <script>
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        lineNumbers: true,
+        paletteHints: true
+      });
+    </script>
+
+
+    <p>Demonstration of color hints.</p>
+  </body>
+</html>
