@@ -33,6 +33,7 @@
 
   function doMatchTags(cm) {
     cm.state.failedTagMatch = false;
+    if (cm.getSelection() !== "") return;
     cm.operation(function() {
       clear(cm);
       if (cm.somethingSelected()) return;
