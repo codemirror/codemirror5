@@ -459,7 +459,7 @@ function coordsCharInner(cm, lineObj, lineNo, x, y) {
     pos = new Pos(lineNo, begin)
     let lastX = cursorCoords(cm, pos, "line", lineObj, preparedMeasure).left
     let prevPos
-    let step = end
+    let step = Math.abs(begin - end)
     outer: do {
       step = Math.ceil(step / 2)
       prevPos = pos
@@ -470,7 +470,10 @@ function coordsCharInner(cm, lineObj, lineNo, x, y) {
         pos = newPos
       }
       lastX = cursorCoords(cm, pos, "line", lineObj, preparedMeasure).left
-    } while (pos.ch !== prevPos.ch && pos.ch !== moveVisually(cm, lineObj, prevPos, 1).ch)
+      let adjPos = moveVisually(cm, lineObj, prevPos, 1);
+      if (adjPos && adjPos.ch == pos.ch)
+        break;
+    } while (pos.ch != prevPos.ch)
   } else {
     let ch = findFirst(ch => {
       let box = intoCoordSystem(cm, lineObj, measureCharPrepared(cm, preparedMeasure, ch), "line")
