@@ -18,6 +18,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
       atoms          = parserConfig.atoms || {"false": true, "true": true, "null": true},
       builtin        = parserConfig.builtin || {},
       keywords       = parserConfig.keywords || {},
+      functions      = parserConfig.functions || {},
       operatorChars  = parserConfig.operatorChars || /^[*+\-%<>!=&|~^]/,
       support        = parserConfig.support || {},
       hooks          = parserConfig.hooks || {},
@@ -111,6 +112,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
       if (atoms.hasOwnProperty(word)) return "atom";
       if (builtin.hasOwnProperty(word)) return "builtin";
       if (keywords.hasOwnProperty(word)) return "keyword";
+      if (functions.hasOwnProperty(word)) return "function";
       if (client.hasOwnProperty(word)) return "string-2";
       return null;
     }
