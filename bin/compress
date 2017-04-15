@@ -50,11 +50,12 @@ function walk(dir) {
     if (/^[_\.]/.test(fname)) return;
     var file = dir + fname;
     if (fs.statSync(file).isDirectory()) return walk(file + "/");
-    if (files.some(function(spec, i) {
+    var some_files_matched = files.some(function(spec, i) {
       var match = spec.re.test(file);
       if (match) files.splice(i, 1);
       return match;
-    })) {
+    });
+    if (some_files_matched) {
       if (local) args.push(file);
       else blob += fs.readFileSync(file, "utf8");
     }
@@ -72,7 +73,7 @@ if (files.length) {
               files.map(function(a){return a.name;}).join(", "));
   process.exit(1);
 }
-  
+
 if (local) {
   require("child_process").spawn(local, args.concat(extraArgs), {stdio: ["ignore", process.stdout, process.stderr]});
 } else {
