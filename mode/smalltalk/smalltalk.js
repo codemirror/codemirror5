@@ -48,7 +48,7 @@ CodeMirror.defineMode('smalltalk', function(config) {
     } else if (aChar === '\'') {
       token = nextString(stream, new Context(nextString, context));
 
-    } else if (aChar === '#') {
+    } else if (aChar === '#' && !/[{(]/.test(stream.peek())) {
       if (stream.peek() === '\'') {
         stream.next();
         token = nextSymbol(stream, new Context(nextSymbol, context));
