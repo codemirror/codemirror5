@@ -465,14 +465,12 @@ function coordsCharInner(cm, lineObj, lineNo, x, y) {
       prevPos = pos
       for (let i = 0; i < step; ++i) {
         let newPos = moveVisually(cm, lineObj, pos, lastX < x ? 1 : -1)
-        if (newPos == null || newPos.ch < begin || end <= (newPos.sticky == "before" ? newPos.ch - 1 : newPos.ch))
-          break outer
+        if (newPos == null || newPos.ch < begin || end <= (newPos.sticky == "before" ? newPos.ch - 1 : newPos.ch)) break outer
         pos = newPos
       }
       lastX = cursorCoords(cm, pos, "line", lineObj, preparedMeasure).left
-      let adjPos = moveVisually(cm, lineObj, prevPos, 1);
-      if (adjPos && adjPos.ch == pos.ch)
-        break;
+      let adjPos = moveVisually(cm, lineObj, prevPos, 1)
+      if (adjPos && adjPos.ch == pos.ch) break
     } while (pos.ch != prevPos.ch)
   } else {
     let ch = findFirst(ch => {
