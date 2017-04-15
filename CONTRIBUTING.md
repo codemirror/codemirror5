@@ -39,6 +39,8 @@ should be asked on the
   exact steps a maintainer has to take to make the problem occur. We can not
   fix something that we can not observe.
 
+- Does the [test suite](http://codemirror.net/test/) provide you with any error messages? If so then it could be related with your bug.
+
 - If the problem can not be reproduced in any of the demos included in the
   CodeMirror distribution, please provide an HTML document that demonstrates
   the problem. The best way to do this is to go to
