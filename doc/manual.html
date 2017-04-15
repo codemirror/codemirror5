@@ -2311,6 +2311,19 @@ editor.setOption("extraKeys", {
       used to run the bracket-finding algorithm that this uses
       internally.</dd>
 
+      <dt id="addon_matchbrackets"><a href="../addon/edit/movelines.js"><code>edit/movelines.js</code></a></dt>
+      <dd>Defines an option <code>moveLines</code> which, when set to
+      true, adds two keymappings for Alt-Up to move lines up and 
+      Alt-Down to move lines down. It also adds four methods:
+      <code>moveLines</code> that moves a block of lines by an offset,
+      <code>moveSelectedLines</code> that moves the line that has
+      the cursor or a block of selected lines by an offset,
+      <code>moveSelectedLinesUp</code> and
+      <code>moveSelectedLinesDown</code> that move the line that has
+      the cursor or a block of selected lines one line up and down
+      respectively.
+      <a href="../demo/movelines.html">Demo</a>.</dd>
+
       <dt id="addon_closebrackets"><a href="../addon/edit/closebrackets.js"><code>edit/closebrackets.js</code></a></dt>
       <dd>Defines an option <code>autoCloseBrackets</code> that will
       auto-close brackets and quotes when typed. By default, it'll
