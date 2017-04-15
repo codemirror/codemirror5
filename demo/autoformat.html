@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>CodeMirror: Auto-Formatting</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <link rel="stylesheet" href="../doc/docs.css">
+        <script src="../lib/codemirror.js"></script>
+        <link rel="stylesheet" href="../lib/codemirror.css">
+        <script src="../mode/css/css.js"></script>
+        <script src="../mode/xml/xml.js"></script>
+        <script src="../mode/htmlmixed/htmlmixed.js"></script>
+        <script src="../mode/javascript/javascript.js"></script>
+        <script src="../mode/clike/clike.js"></script>
+        <script src="../mode/php/php.js"></script>
+
+        <script src="../addon/edit/auto-format.js"></script>
+        <style type="text/css">
+            .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}
+            .CodeMirror-activeline-background {background: #e8f2ff !important;}
+        </style>
+    </head>
+    <body>
+        <h1>CodeMirror: Auto-Formatting</h1>
+        <p>
+            <button onclick="javascript:editor.format(editor, 'prettyPrint');">Pretty Print</button>
+            <button onclick="javascript:editor.format(editor, 'toUpper');">Selection To UPPERCASE</button>
+            <button onclick="javascript:editor.format(editor, 'toLower');">Selection To lowercase</button>
+            <button onclick="javascript:editor.format(editor, 'commUncomm');">Comment / Uncomment Selection</button>
+        </p>
+        <textarea id="code">for(var i=0;i<10;i++){if(i==1){alert("Value is 1!");}else{alert("Value is not 1");}}</textarea>
+        <ul>
+            <li>
+                Auto Closing elements will be automatically closed. Support for:
+                <ul>
+                    <li>Braces</li>
+                    <li>Parentheses</li>
+                    <li>Square Brackets</li>
+                    <li>Quotes</li>
+                    <li>Apostrophes</li>
+                </ul>
+            </li>
+            <li>
+                If the cursor is before to an auto closing character, and the character is typed, it will type over the character.
+            </li>
+            <li>
+                If the cursor is between two auto closing characters and the two are empty; pressing backspace will delete both characters.
+            </li>
+            <li>Ctrl+Shift+Down: Duplicates the line downwards</li>
+            <li>Ctrl+D: Deletes the current line</li>
+            <li>Ctrl+Up: Moves the current line up</li>
+            <li>Ctrl+Down: Moves the current line down</li>
+        </ul>
+        <script>
+                var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+                    autofocus: true,
+                    lineNumbers: true,
+                    autoEnabled: true,
+                    matchBrackets: true,
+                    indentWithTabs: true,
+                    tabSize: 4,
+                    indentUnit: 4,
+                    electricChars: true,
+                    tabMode: "shift",
+                    onCursorActivity: function() {
+                        editor.setLineClass(hlLine, null, null);
+                        hlLine = editor.setLineClass(editor.getCursor().line, null, "activeline");
+                    },
+                    onChange: function() {
+                        editorReady();
+                        search = function(cm) {
+                            cm.autoSearch(cm)
+                        }
+                    },
+                    extraKeys: {
+                        "'('": function(cm) {
+                            cm.autoFormat(cm, '(');
+                        },
+                        "')'": function(cm) {
+                            cm.autoFormat(cm, ')');
+                        },
+                        "'\''": function(cm) {
+                            cm.autoFormat(cm, '\'');
+                        },
+                        "'\"'": function(cm) {
+                            cm.autoFormat(cm, '\"');
+                        },
+                        "'{'": function(cm) {
+                            cm.autoFormat(cm, '{');
+                        },
+                        "'['": function(cm) {
+                            cm.autoFormat(cm, '[');
+                        },
+                        "']'": function(cm) {
+                            cm.autoFormat(cm, ']');
+                        },
+                        "Enter": function(cm) {
+                            cm.autoFormat(cm, '13');
+                        },
+                        "Backspace": function(cm) {
+                            cm.autoFormat(cm, '12');
+                        },
+                        "Ctrl-D": function(cm) {
+                            cm.autoFormat(cm, 'CtrlD');
+                        },
+                        "Ctrl-Up": function(cm) {
+                            cm.autoFormat(cm, 'CtrlUp');
+                        },
+                        "Ctrl-Down": function(cm) {
+                            cm.autoFormat(cm, 'CtrlDown');
+                        },
+                        "Shift-Ctrl-Down": function(cm) {
+                            cm.autoFormat(cm, 'CtrlShiftDown');
+                        }
+                    }
+                });
+        </script>
+    </body>
+</html>
