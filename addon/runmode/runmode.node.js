@@ -161,7 +161,7 @@ exports.getMode = function(options, spec) {
 exports.registerHelper = exports.registerGlobalHelper = Math.min;
 
 exports.runMode = function(string, modespec, callback, options) {
-  var mode = exports.getMode({indentUnit: 2}, modespec);
+  var mode = exports.getMode({indentUnit: 2, mode: {}}, modespec);
   var lines = splitLines(string), state = (options && options.state) || exports.startState(mode);
   for (var i = 0, e = lines.length; i < e; ++i) {
     if (i) callback("\n");
