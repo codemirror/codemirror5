@@ -21,7 +21,7 @@ CodeMirror.defineMode("groovy", function(config) {
     "abstract as assert boolean break byte case catch char class const continue def default " +
     "do double else enum extends final finally float for goto if implements import in " +
     "instanceof int interface long native new package private protected public return " +
-    "short static strictfp super switch synchronized threadsafe throw throws transient " +
+    "short static strictfp super switch synchronized threadsafe throw throws trait transient " +
     "try void volatile while");
   var blockKeywords = words("catch class do else finally for if switch try while enum interface def");
   var standaloneKeywords = words("return break continue");
@@ -32,6 +32,11 @@ CodeMirror.defineMode("groovy", function(config) {
     var ch = stream.next();
     if (ch == '"' || ch == "'") {
       return startString(ch, stream, state);
+    }
+    if (ch == "$") {
+        if (stream.eat("/")) {
+            return startString(ch, stream, state);
+        }
     }
     if (/[\[\]{}\(\),;\:\.]/.test(ch)) {
       curPunc = ch;
@@ -80,18 +85,27 @@ CodeMirror.defineMode("groovy", function(config) {
 
   function startString(quote, stream, state) {
     var tripleQuoted = false;
-    if (quote != "/" && stream.eat(quote)) {
+    var dollarSlashy = false;
+    if (quote == "$") {
+        dollarSlashy = true;
+        tripleQuoted = true;
+    }
+    if (stream.eat(quote)) {
       if (stream.eat(quote)) tripleQuoted = true;
       else return "string";
     }
     function t(stream, state) {
       var escaped = false, next, end = !tripleQuoted;
       while ((next = stream.next()) != null) {
+        if (dollarSlashy && next == "/" && stream.eat("$")) {
+          end = true;
+          break;
+        }
         if (next == quote && !escaped) {
           if (!tripleQuoted) { break; }
           if (stream.match(quote + quote)) { end = true; break; }
         }
-        if (quote == '"' && next == "$" && !escaped && stream.eat("{")) {
+        if ((quote == '"' || quote == '$' || quote == '/') && next == "$" && !escaped && stream.eat("{")) {
           state.tokenize.push(tokenBaseUntilBrace());
           return "string";
         }
