@@ -64,7 +64,8 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       isPunctuationChar = parserConfig.isPunctuationChar || /[\[\]{}\(\),;\:\.]/,
       numberStart = parserConfig.numberStart || /[\d\.]/,
       number = parserConfig.number || /^(?:0x[a-f\d]+|0b[01]+|(?:\d+\.?\d*|\.\d+)(?:e[-+]?\d+)?)(u|ll?|l|f)?/i,
-      isOperatorChar = parserConfig.isOperatorChar || /[+\-*&%=<>!?|\/]/;
+      isOperatorChar = parserConfig.isOperatorChar || /[+\-*&%=<>!?|\/]/,
+      isIdentifierChar = parserConfig.isIdentifierChar || /[\w\$_\xa1-\uffff]/;
 
   var curPunc, isDefKeyword;
 
@@ -101,9 +102,9 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       while (!stream.match(/^\/[\/*]/, false) && stream.eat(isOperatorChar)) {}
       return "operator";
     }
-    stream.eatWhile(/[\w\$_\xa1-\uffff]/);
+    stream.eatWhile(isIdentifierChar);
     if (namespaceSeparator) while (stream.match(namespaceSeparator))
-      stream.eatWhile(/[\w\$_~\xa1-\uffff]/);
+      stream.eatWhile(isIdentifierChar);
 
     var cur = stream.current();
     if (contains(keywords, cur)) {
@@ -390,6 +391,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     typeFirstDefinitions: true,
     atoms: words("true false null"),
     dontIndentStatements: /^template$/,
+    isIdentifierChar: /[\w\$_~\xa1-\uffff]/,
     hooks: {
       "#": cppHook,
       "*": pointerHook,
