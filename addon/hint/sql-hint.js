@@ -264,6 +264,11 @@
       token.end = cur.ch;
       token.string = token.string.slice(0, cur.ch - token.start);
     }
+	// Checking for schema or table before current token 
+	var prevToken = editor.getTokenAt({ line: cur.line, ch: token.start });
+	if (prevToken.string == ".") {
+	  token.string = prevToken.string + token.string;
+	}
 
     if (token.string.match(/^[.`"\w@]\w*$/)) {
       search = token.string;
