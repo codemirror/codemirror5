@@ -103,7 +103,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     }
     stream.eatWhile(/[\w\$_\xa1-\uffff]/);
     if (namespaceSeparator) while (stream.match(namespaceSeparator))
-      stream.eatWhile(/[\w\$_\xa1-\uffff]/);
+      stream.eatWhile(/[\w\$_~\xa1-\uffff]/);
 
     var cur = stream.current();
     if (contains(keywords, cur)) {
@@ -314,7 +314,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
   }
 
   function cppLooksLikeConstructor(word) {
-    var lastTwo = /(\w+)::(\w+)$/.exec(word);
+    var lastTwo = /(\w+)::~?(\w+)$/.exec(word);
     return lastTwo && lastTwo[1] == lastTwo[2];
   }
 
