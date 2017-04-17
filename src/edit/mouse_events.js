@@ -122,6 +122,8 @@ function leftButtonStartDrag(cm, e, start, modifier) {
   on(document, "mousemove", mouseMove)
   on(display.scroller, "dragstart", dragStart)
   on(display.scroller, "drop", dragEnd)
+
+  setTimeout(() => display.input.focus(), 20)
 }
 
 // Normal selection, as opposed to text dragging.
