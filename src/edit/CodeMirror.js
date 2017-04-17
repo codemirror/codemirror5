@@ -22,6 +22,7 @@ import { onKeyDown, onKeyPress, onKeyUp } from "./key_events"
 import { clickInGutter, onContextMenu, onMouseDown } from "./mouse_events"
 import { themeChanged } from "./utils"
 import { defaults, optionHandlers, Init } from "./options"
+import { addClass, rmClass } from "../util/dom"
 
 // A CodeMirror instance represents an editor. This is the object
 // that user code is usually dealing with.
@@ -189,6 +190,8 @@ function registerEventHandlers(cm) {
   // Listen to wheel events in order to try and update the viewport on time.
   on(d.scroller, "mousewheel", e => onScrollWheel(cm, e))
   on(d.scroller, "DOMMouseScroll", e => onScrollWheel(cm, e))
+  on(d.scroller, "focus", e => addClass(cm.display.wrapper, "CodeMirror-focused"))
+  on(d.scroller, "blur", e => rmClass(cm.display.wrapper, "CodeMirror-focused"))
 
   // Prevent wrapper from ever scrolling
   on(d.wrapper, "scroll", () => d.wrapper.scrollTop = d.wrapper.scrollLeft = 0)
