@@ -95,6 +95,7 @@ function leftButtonStartDrag(cm, e, start, modifier) {
     cm.state.draggingText = false
     off(document, "mouseup", dragEnd)
     off(document, "mousemove", mouseMove)
+    off(display.scroller, "dragstart", dragStart)
     off(display.scroller, "drop", dragEnd)
     if (!moved) {
       e_preventDefault(e)
@@ -110,6 +111,7 @@ function leftButtonStartDrag(cm, e, start, modifier) {
   let mouseMove = function(e2) {
     moved = moved || Math.abs(e.clientX - e2.clientX) + Math.abs(e.clientY - e2.clientY) >= 10
   }
+  let dragStart = () => moved = true
   // Let the drag handler handle this.
   if (webkit) display.scroller.draggable = true
   cm.state.draggingText = dragEnd
@@ -118,6 +120,7 @@ function leftButtonStartDrag(cm, e, start, modifier) {
   if (display.scroller.dragDrop) display.scroller.dragDrop()
   on(document, "mouseup", dragEnd)
   on(document, "mousemove", mouseMove)
+  on(display.scroller, "dragstart", dragStart)
   on(display.scroller, "drop", dragEnd)
 }
 
