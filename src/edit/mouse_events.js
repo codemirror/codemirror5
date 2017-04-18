@@ -123,6 +123,7 @@ function leftButtonStartDrag(cm, e, start, modifier) {
   on(display.scroller, "dragstart", dragStart)
   on(display.scroller, "drop", dragEnd)
 
+  delayBlurEvent(cm)
   setTimeout(() => display.input.focus(), 20)
 }
 
