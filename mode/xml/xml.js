@@ -283,7 +283,10 @@ CodeMirror.defineMode("xml", function(editorConf, config_) {
     return attrState;
   }
   function attrEqState(type, stream, state) {
-    if (type == "equals") return attrValueState;
+    if (type == "equals") {
+      setStyle = "equals";
+      return attrValueState;
+    }
     if (!config.allowMissing) setStyle = "error";
     return attrState(type, stream, state);
   }
