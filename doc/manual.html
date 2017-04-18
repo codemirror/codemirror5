@@ -2603,9 +2603,11 @@ editor.setOption("extraKeys", {
         of the global one passed with the full list of completions.</dd>
       </dl></dd>
 
-      <dd>The plugin understands the following options (the options object
+      <dd>Pass options to the show-hint addon by setting a 'hintOptions'
+      property on the CodeMirror options object (the 'hintOptions' object
       will also be passed along to the hinting function, which may
-      understand additional options):
+      understand additional options.) 
+      The plugin understands the following options:
       <dl>
         <dt><code><strong>hint</strong>: function</code></dt>
         <dd>A hinting function, as specified above. It is possible to
