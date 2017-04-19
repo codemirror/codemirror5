@@ -64,8 +64,8 @@
         return style.replace(/\./g, ' ');
       },
       indent: function(state){
-        var indentation = state.lastToken.indent;
-        if (state.lastToken.content.match(indenter)) {
+        if (state.lastToken && state.lastToken.content.match(indenter)) {
+          var indentation = state.lastToken.indent;
           indentation += 2;
         }
         return indentation;
