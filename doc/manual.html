@@ -2603,9 +2603,12 @@ editor.setOption("extraKeys", {
         of the global one passed with the full list of completions.</dd>
       </dl></dd>
 
-      <dd>The plugin understands the following options (the options object
-      will also be passed along to the hinting function, which may
-      understand additional options):
+      <dd>The plugin understands the following options, which may be
+      either passed directly in the argument to <code>showHint</code>,
+      or provided by setting an <code>hintOptions</code> editor
+      option to an object (the former takes precedence). The options
+      object will also be passed along to the hinting function, which
+      may understand additional options.
       <dl>
         <dt><code><strong>hint</strong>: function</code></dt>
         <dd>A hinting function, as specified above. It is possible to
