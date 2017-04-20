@@ -30,6 +30,19 @@
 
   <h2>Version 5.x</h2>
 
+  <p class="rel">20-04-2017: <a href="http://codemirror.net/codemirror-5.25.2.zip">Version 5.25.2</a>:</p>
+
+  <ul class="rel-note">
+    <li>Better handling of selections that cover the whole viewport in contentEditable-mode.</li>
+    <li>No longer accidentally scroll the editor into view when calling <code>setValue</code>.</li>
+    <li>Work around Chrome Android bug when converting screen coordinates to editor positions.</li>
+    <li>Make sure long-clicking a selection sets a cursor and doesn't show the editor losing focus.</li>
+    <li>Fix issue where pointer events were incorrectly disabled on Chrome's overlay scrollbars.</li>
+    <li><a href="http://codemirror.net/mode/javascript/">javascript mode</a>: Recognize annotations and TypeScript-style type parameters.</li>
+    <li><a href="http://codemirror.net/mode/shell/">shell mode</a>: Handle nested braces.</li>
+    <li><a href="http://codemirror.net/mode/markdown/">markdown mode</a>: Make parsing of strong/em delimiters CommonMark-compliant.</li>
+  </ul>
+
   <p class="rel">20-03-2017: <a href="http://codemirror.net/codemirror-5.25.0.zip">Version 5.25.0</a>:</p>
 
   <ul class=rel-note>
