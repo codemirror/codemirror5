@@ -456,31 +456,16 @@ function coordsCharInner(cm, lineObj, lineNo, x, y) {
   function convertToCh(visualCh) {
     if (!order)
       return visualCh
-    return inner(visualCh);
-    for (var i = 0; i < lineObj.text.length; i++) {
-      console.log(i, inner(i ), inner2(i));
-    }
-    debugger;
-    function inner(visualCh) {
-      var current = 0;
-      for (let i = 0; i < order.length; i++) {
-        let partLength = order[i].to - order[i].from;
-        if (current + partLength >= visualCh) {
-          if (order[i].level % 2)
-            return order[i].to - visualCh + current;
-          return order[i].from - current + visualCh;
-        }
-        current += partLength;
+    let ch = 0;
+    for (let i = 0; i < order.length; i++) {
+      let length = order[i].to - order[i].from;
+      if (ch + length >= visualCh) {
+        if (order[i].level % 2) return order[i].to - visualCh + ch;
+        return order[i].from - ch + visualCh;
       }
-      return visualCh
+      ch += length;
     }
-    function inner2(visualCh) {
-      var pos = Pos(lineNo, order[0].level % 2 ? order[0].from : order[0].to, order[0].level % 2 ? "before" : "after");
-      for (var i = 0; i < visualCh; i++)
-        pos = moveVisually(cm, lineObj, pos, 1);
-      return pos.ch;
-    }
-    return pos.ch;
+    return visualCh
   }
   if (cm.options.lineWrapping)
     ({ begin, end } = wrappedLineExtent(cm, lineObj, preparedMeasure, y, convertToCh))
