@@ -85,12 +85,12 @@ class NativeScrollbars {
 
   setScrollLeft(pos) {
     if (this.horiz.scrollLeft != pos) this.horiz.scrollLeft = pos
-    if (this.disableHoriz) this.enableZeroWidthBar(this.horiz, this.disableHoriz)
+    if (this.disableHoriz) this.enableZeroWidthBar(this.horiz, this.disableHoriz, "horiz")
   }
 
   setScrollTop(pos) {
     if (this.vert.scrollTop != pos) this.vert.scrollTop = pos
-    if (this.disableVert) this.enableZeroWidthBar(this.vert, this.disableVert)
+    if (this.disableVert) this.enableZeroWidthBar(this.vert, this.disableVert, "vert")
   }
 
   zeroWidthHack() {
@@ -101,17 +101,18 @@ class NativeScrollbars {
     this.disableVert = new Delayed
   }
 
-  enableZeroWidthBar(bar, delay) {
+  enableZeroWidthBar(bar, delay, type) {
     bar.style.pointerEvents = "auto"
     function maybeDisable() {
       // To find out whether the scrollbar is still visible, we
       // check whether the element under the pixel in the bottom
-      // left corner of the scrollbar box is the scrollbar box
+      // right corner of the scrollbar box is the scrollbar box
       // itself (when the bar is still visible) or its filler child
       // (when the bar is hidden). If it is still visible, we keep
       // it enabled, if it's hidden, we disable pointer events.
       let box = bar.getBoundingClientRect()
-      let elt = document.elementFromPoint(box.left + 1, box.bottom - 1)
+      let elt = type == "vert" ? document.elementFromPoint(box.right - 1, (box.top + box.bottom) / 2)
+          : document.elementFromPoint((box.right + box.left) / 2, box.bottom - 1)
       if (elt != bar) bar.style.pointerEvents = "none"
       else delay.set(1000, maybeDisable)
     }
