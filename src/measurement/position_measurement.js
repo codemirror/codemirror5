@@ -1,4 +1,3 @@
-import { moveVisually } from "../input/movement"
 import { buildLineContent, LineView } from "../line/line_data"
 import { clipPos, Pos } from "../line/pos"
 import { collapsedSpanAtEnd, heightAtLine, lineIsHidden, visualLine } from "../line/spans"
@@ -456,14 +455,14 @@ function coordsCharInner(cm, lineObj, lineNo, x, y) {
   function convertToCh(visualCh) {
     if (!order)
       return visualCh
-    let ch = 0;
+    let ch = 0
     for (let i = 0; i < order.length; i++) {
-      let length = order[i].to - order[i].from;
+      let length = order[i].to - order[i].from
       if (ch + length >= visualCh) {
-        if (order[i].level % 2) return order[i].to - visualCh + ch;
-        return order[i].from - ch + visualCh;
+        if (order[i].level % 2) return order[i].to - visualCh + ch
+        return order[i].from - ch + visualCh
       }
-      ch += length;
+      ch += length
     }
     return visualCh
   }
