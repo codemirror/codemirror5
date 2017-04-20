@@ -357,9 +357,9 @@ CodeMirror.defineMode("haxe", function(config, parserConfig) {
   function forspec1(type, value) {
     if (type == "variable") {
       register(value);
-      return cont(forin, expression)
+      return cont(forin, expression);
     } else {
-      return pass()
+      return pass();
     }
   }
   function forin(_type, value) {
