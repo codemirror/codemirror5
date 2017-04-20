@@ -433,8 +433,8 @@ export function coordsChar(cm, x, y) {
   }
 }
 
-function wrappedLineExtent(cm, lineObj, preparedMeasure, y) {
-  let measure = ch => intoCoordSystem(cm, lineObj, measureCharPrepared(cm, preparedMeasure, ch), "line")
+function wrappedLineExtent(cm, lineObj, preparedMeasure, y, conversion = ch => ch) {
+  let measure = ch => intoCoordSystem(cm, lineObj, measureCharPrepared(cm, preparedMeasure, conversion(ch)), "line")
   let end = lineObj.text.length
   let begin = findFirst(ch => measure(ch - 1).bottom <= y, end, 0)
   end = findFirst(ch => measure(ch).top > y, begin, end)
@@ -452,42 +452,53 @@ function coordsCharInner(cm, lineObj, lineNo, x, y) {
   let preparedMeasure = prepareMeasureForLine(cm, lineObj)
   let pos
   let order = getOrder(lineObj, cm.doc.direction)
-  if (order) {
-    if (cm.options.lineWrapping) {
-      ;({begin, end} = wrappedLineExtent(cm, lineObj, preparedMeasure, y))
+
+  function convertToCh(visualCh) {
+    if (!order)
+      return visualCh
+    return inner(visualCh);
+    for (var i = 0; i < lineObj.text.length; i++) {
+      console.log(i, inner(i ), inner2(i));
     }
-    pos = new Pos(lineNo, begin)
-    let lastX = cursorCoords(cm, pos, "line", lineObj, preparedMeasure).left
-    let prevPos
-    let step = Math.abs(begin - end)
-    outer: do {
-      step = Math.ceil(step / 2)
-      prevPos = pos
-      for (let i = 0; i < step; ++i) {
-        let newPos = moveVisually(cm, lineObj, pos, lastX < x ? 1 : -1)
-        if (newPos == null || newPos.ch < begin || end <= (newPos.sticky == "before" ? newPos.ch - 1 : newPos.ch)) break outer
-        pos = newPos
+    debugger;
+    function inner(visualCh) {
+      var current = 0;
+      for (let i = 0; i < order.length; i++) {
+        let partLength = order[i].to - order[i].from;
+        if (current + partLength >= visualCh) {
+          if (order[i].level % 2)
+            return order[i].to - visualCh + current;
+          return order[i].from - current + visualCh;
+        }
+        current += partLength;
       }
-      lastX = cursorCoords(cm, pos, "line", lineObj, preparedMeasure).left
-      let adjPos = moveVisually(cm, lineObj, prevPos, 1)
-      if (adjPos && adjPos.ch == pos.ch) break
-    } while (pos.ch != prevPos.ch)
-  } else {
-    let ch = findFirst(ch => {
-      let box = intoCoordSystem(cm, lineObj, measureCharPrepared(cm, preparedMeasure, ch), "line")
-      if (box.top > y) {
-        // For the cursor stickiness
-        end = Math.min(ch, end)
-        return true
-      }
-      else if (box.bottom <= y) return false
-      else if (box.left > x) return true
-      else if (box.right < x) return false
-      else return (x - box.left < box.right - x)
-    }, begin, end)
-    ch = skipExtendingChars(lineObj.text, ch, 1)
-    pos = new Pos(lineNo, ch, ch == end ? "before" : "after")
+      return visualCh
+    }
+    function inner2(visualCh) {
+      var pos = Pos(lineNo, order[0].level % 2 ? order[0].from : order[0].to, order[0].level % 2 ? "before" : "after");
+      for (var i = 0; i < visualCh; i++)
+        pos = moveVisually(cm, lineObj, pos, 1);
+      return pos.ch;
+    }
+    return pos.ch;
   }
+  if (cm.options.lineWrapping)
+    ({ begin, end } = wrappedLineExtent(cm, lineObj, preparedMeasure, y, convertToCh))
+  let ch = convertToCh(findFirst(visualCh => {
+    let ch = convertToCh(visualCh)
+    let box = intoCoordSystem(cm, lineObj, measureCharPrepared(cm, preparedMeasure, ch), "line")
+    if (box.top > y) {
+      // For the cursor stickiness
+      end = Math.min(ch, end)
+      return true
+    }
+    else if (box.bottom <= y) return false
+    else if (box.left > x) return true
+    else if (box.right < x) return false
+    else return (x - box.left < box.right - x)
+  }, begin, end))
+  ch = skipExtendingChars(lineObj.text, ch, 1)
+  pos = new Pos(lineNo, ch, ch == end ? "before" : "after")
   let coords = cursorCoords(cm, pos, "line", lineObj, preparedMeasure)
   if (y < coords.top || coords.bottom < y) pos.outside = true
   pos.xRel = x < coords.left ? -1 : (x > coords.right ? 1 : 0)
