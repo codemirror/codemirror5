@@ -1,4 +1,24 @@
-## 5.25.0 (2017-02-22)
+## 5.25.2 (2017-04-20)
+
+### Bug fixes
+
+Better handling of selections that cover the whole viewport in contentEditable-mode.
+
+No longer accidentally scroll the editor into view when calling `setValue`.
+
+Work around Chrome Android bug when converting screen coordinates to editor positions.
+
+Make sure long-clicking a selection sets a cursor and doesn't show the editor losing focus.
+
+Fix issue where pointer events were incorrectly disabled on Chrome's overlay scrollbars.
+
+[javascript mode](http://codemirror.net/mode/javascript/): Recognize annotations and TypeScript-style type parameters.
+
+[shell mode](http://codemirror.net/mode/shell/): Handle nested braces.
+
+[markdown mode](http://codemirror.net/mode/markdown/): Make parsing of strong/em delimiters CommonMark-compliant.
+
+## 5.25.0 (2017-03-20)
 
 ### Bug fixes
 
