@@ -579,6 +579,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == "{") return contCommasep(proppattern, "}");
   }
   function proppattern(type, value) {
+    if (type == "type") type = "variable"
     if (type == "variable" && !cx.stream.match(/^\s*:/, false)) {
       register(value);
       return cont(maybeAssign);
