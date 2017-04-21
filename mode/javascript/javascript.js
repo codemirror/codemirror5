@@ -625,6 +625,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   }
   function funarg(type) {
     if (type == "spread") return cont(funarg);
+    if (type == "type") cx.marked = "def";
     return pass(pattern, maybetype, maybeAssign);
   }
   function classExpression(type, value) {
