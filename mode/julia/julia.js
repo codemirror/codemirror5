@@ -288,7 +288,7 @@ CodeMirror.defineMode("julia", function(config, parserConf) {
       state.nestedLevels--;
     }
     if (state.nestedLevels > 0) {
-      stream.match(/.*?(?={|})/);
+      stream.match(/.*?(?={|})/) || stream.next();
     } else if (state.nestedLevels == 0) {
       state.tokenize = tokenBase;
     }
