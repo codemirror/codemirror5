@@ -603,7 +603,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
   var linkRE = {
     ")": /^(?:[^\\\(\)]|\\.|\((?:[^\\\(\)]|\\.)*\))*?(?=\))/,
-    "]": /^(?:[^\\\[\]]|\\.|\[(?:[^\\\[\\]]|\\.)*\])*?(?=\])/
+    "]": /^(?:[^\\\[\]]|\\.|\[(?:[^\\\[\]]|\\.)*\])*?(?=\])/
   }
 
   function getLinkHrefInside(endChar) {
