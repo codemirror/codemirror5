@@ -104,10 +104,10 @@
           if (stMore && stMore.length>0) {
             //console.log(state.words[0] + " -" + state.more[0] + "- " + state.state);
             stream.match(state.words.shift());
-            return state.more.shift(); 
-          } else { 
+            return state.more.shift();
+          } else {
             state.words = null;
-            state.more = null; 
+            state.more = null;
           }
           for (var idx in stDef) {
             var rule = stDef[idx], rx = new RegExp("^" + rule.regex.source), tk = rule.token, nx = rule.next || state.state;
