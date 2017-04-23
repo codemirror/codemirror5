@@ -96,7 +96,7 @@
           startState: function() {
             return {state:"start", more:null, words:null};
           },
-    
+
         token: function(stream, state) {
           var stDef = mD[state.state];
           var stMore = state.more;
