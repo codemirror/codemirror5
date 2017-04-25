@@ -18,8 +18,8 @@ export function setScrollTop(cm, val) {
 }
 // Sync scroller and scrollbar, ensure the gutter elements are
 // aligned.
-export function setScrollLeft(cm, val, isScroller) {
-  if (isScroller ? val == cm.doc.scrollLeft : Math.abs(cm.doc.scrollLeft - val) < 2) return
+export function setScrollLeft(cm, val, isScroller, forceScroll) {
+  if ((isScroller ? val == cm.doc.scrollLeft : Math.abs(cm.doc.scrollLeft - val) < 2) && !forceScroll) return
   val = Math.min(val, cm.display.scroller.scrollWidth - cm.display.scroller.clientWidth)
   cm.doc.scrollLeft = val
   alignHorizontally(cm)

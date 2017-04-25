@@ -6,7 +6,6 @@ import { activeElt } from "../util/dom"
 import { finishOperation, pushOperation } from "../util/operation_group"
 
 import { ensureFocus } from "./focus"
-import { alignHorizontally } from "./line_numbers"
 import { measureForScrollbars, updateScrollbars } from "./scrollbars"
 import { setScrollLeft } from "./scroll_events"
 import { restartBlink } from "./selection"
@@ -147,12 +146,7 @@ function endOperation_finish(op) {
     display.scrollbars.setScrollTop(doc.scrollTop)
     display.scroller.scrollTop = doc.scrollTop
   }
-  if (op.scrollLeft != null && (display.scroller.scrollLeft != op.scrollLeft || op.forceScroll)) {
-    doc.scrollLeft = Math.max(0, Math.min(display.scroller.scrollWidth - display.scroller.clientWidth, op.scrollLeft))
-    display.scrollbars.setScrollLeft(doc.scrollLeft)
-    display.scroller.scrollLeft = doc.scrollLeft
-    alignHorizontally(cm)
-  }
+  if (op.scrollLeft != null) setScrollLeft(cm, op.scrollLeft, true, true)
   // If we need to scroll a specific position into view, do so.
   if (op.scrollToPos) {
     let rect = scrollPosIntoView(cm, clipPos(doc, op.scrollToPos.from),
