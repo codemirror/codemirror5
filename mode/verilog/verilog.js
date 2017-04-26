@@ -602,7 +602,7 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
             var prefix = match[1];
             var mnemonic = match[2];
             if (// is identifier prefix
-                (prefix in tlvIdentifierStyle) &&
+                tlvIdentifierStyle.hasOwnProperty(prefix) &&
                 // has mnemonic or we're at the end of the line (maybe it hasn't been typed yet)
                 (mnemonic.length > 0 || stream.eol())) {
               style = tlvIdentifierStyle[prefix];
