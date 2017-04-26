@@ -319,6 +319,11 @@
      "  }",
      "}")
 
+  TS("typescript_function_generics",
+     "[keyword function] [def a]() {}",
+     "[keyword function] [def b][operator <][variable-3 IA] [keyword extends] [variable-3 object], [variable-3 IB] [keyword extends] [variable-3 object][operator >]() {}",
+     "[keyword function] [def c]() {}")
+
   var jsonld_mode = CodeMirror.getMode(
     {indentUnit: 2},
     {name: "javascript", jsonld: true}
