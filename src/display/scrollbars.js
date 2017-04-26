@@ -5,7 +5,7 @@ import { ie, ie_version, mac, mac_geMountainLion } from "../util/browser"
 import { updateHeightsInViewport } from "./update_lines"
 import { Delayed } from "../util/misc"
 
-import { setScrollLeft, setScrollTop } from "./scroll_events"
+import { setScrollLeft, updateScrollTop } from "./scroll_events"
 
 // SCROLLBARS
 
@@ -185,7 +185,7 @@ export function initScrollbars(cm) {
     node.setAttribute("cm-not-content", "true")
   }, (pos, axis) => {
     if (axis == "horizontal") setScrollLeft(cm, pos)
-    else setScrollTop(cm, pos)
+    else updateScrollTop(cm, pos)
   }, cm)
   if (cm.display.scrollbars.addClass)
     addClass(cm.display.wrapper, cm.display.scrollbars.addClass)

@@ -7,7 +7,7 @@ import { finishOperation, pushOperation } from "../util/operation_group"
 
 import { ensureFocus } from "./focus"
 import { measureForScrollbars, updateScrollbars } from "./scrollbars"
-import { setScrollLeft } from "./scroll_events"
+import { setScrollLeft, setScrollTop } from "./scroll_events"
 import { restartBlink } from "./selection"
 import { maybeScrollWindow, scrollPosIntoView } from "./scrolling"
 import { DisplayUpdate, maybeClipScrollbars, postUpdateDisplay, setDocumentHeight, updateDisplayIfNeeded } from "./update_display"
@@ -141,11 +141,8 @@ function endOperation_finish(op) {
     display.wheelStartX = display.wheelStartY = null
 
   // Propagate the scroll position to the actual DOM scroller
-  if (op.scrollTop != null && (display.scroller.scrollTop != op.scrollTop || op.forceScroll)) {
-    doc.scrollTop = Math.max(0, Math.min(display.scroller.scrollHeight - display.scroller.clientHeight, op.scrollTop))
-    display.scrollbars.setScrollTop(doc.scrollTop)
-    display.scroller.scrollTop = doc.scrollTop
-  }
+  if (op.scrollTop != null) setScrollTop(cm, op.scrollTop, true)
+
   if (op.scrollLeft != null) setScrollLeft(cm, op.scrollLeft, true, true)
   // If we need to scroll a specific position into view, do so.
   if (op.scrollToPos) {

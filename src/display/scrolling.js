@@ -4,7 +4,7 @@ import { phantom } from "../util/browser"
 import { elt } from "../util/dom"
 import { signalDOMEvent } from "../util/event"
 
-import { setScrollLeft, setScrollTop } from "./scroll_events"
+import { setScrollLeft, updateScrollTop } from "./scroll_events"
 
 // SCROLLING THINGS INTO VIEW
 
@@ -44,7 +44,7 @@ export function scrollPosIntoView(cm, pos, end, margin) {
     let scrollPos = calculateScrollPos(cm, rect)
     let startTop = cm.doc.scrollTop, startLeft = cm.doc.scrollLeft
     if (scrollPos.scrollTop != null) {
-      setScrollTop(cm, scrollPos.scrollTop)
+      updateScrollTop(cm, scrollPos.scrollTop)
       if (Math.abs(cm.doc.scrollTop - startTop) > 1) changed = true
     }
     if (scrollPos.scrollLeft != null) {
@@ -59,7 +59,7 @@ export function scrollPosIntoView(cm, pos, end, margin) {
 // Scroll a given set of coordinates into view (immediately).
 export function scrollIntoView(cm, rect) {
   let scrollPos = calculateScrollPos(cm, rect)
-  if (scrollPos.scrollTop != null) setScrollTop(cm, scrollPos.scrollTop)
+  if (scrollPos.scrollTop != null) updateScrollTop(cm, scrollPos.scrollTop)
   if (scrollPos.scrollLeft != null) setScrollLeft(cm, scrollPos.scrollLeft)
 }
 

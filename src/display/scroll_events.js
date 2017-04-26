@@ -7,15 +7,21 @@ import { updateDisplaySimple} from "./update_display"
 
 // Sync the scrollable area and scrollbars, ensure the viewport
 // covers the visible area.
-export function setScrollTop(cm, val) {
+export function updateScrollTop(cm, val) {
   if (Math.abs(cm.doc.scrollTop - val) < 2) return
-  cm.doc.scrollTop = val
   if (!gecko) updateDisplaySimple(cm, {top: val})
-  if (cm.display.scroller.scrollTop != val) cm.display.scroller.scrollTop = val
-  cm.display.scrollbars.setScrollTop(val)
+  setScrollTop(cm, val)
   if (gecko) updateDisplaySimple(cm)
   startWorker(cm, 100)
 }
+export function setScrollTop(cm, val, forceScroll) {
+  val = Math.min(cm.display.scroller.scrollHeight - cm.display.scroller.clientHeight, val)
+  if (cm.display.scroller.scrollTop == val && !forceScroll) return
+  cm.doc.scrollTop = val
+  cm.display.scrollbars.setScrollTop(val)
+  cm.display.scroller.scrollTop = val
+}
+
 // Sync scroller and scrollbar, ensure the gutter elements are
 // aligned.
 export function setScrollLeft(cm, val, isScroller, forceScroll) {
@@ -94,7 +100,7 @@ export function onScrollWheel(cm, e) {
   // better than glitching out.
   if (dx && !gecko && !presto && wheelPixelsPerUnit != null) {
     if (dy && canScrollY)
-      setScrollTop(cm, Math.max(0, Math.min(scroll.scrollTop + dy * wheelPixelsPerUnit, scroll.scrollHeight - scroll.clientHeight)))
+      updateScrollTop(cm, Math.max(0, scroll.scrollTop + dy * wheelPixelsPerUnit))
     setScrollLeft(cm, Math.max(0, Math.min(scroll.scrollLeft + dx * wheelPixelsPerUnit, scroll.scrollWidth - scroll.clientWidth)))
     // Only prevent default scrolling if vertical scrolling is
     // actually possible. Otherwise, it causes vertical scroll
