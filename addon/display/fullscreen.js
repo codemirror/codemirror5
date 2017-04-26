@@ -26,11 +26,47 @@
     wrap.style.height = "auto";
     wrap.className += " CodeMirror-fullscreen";
     document.documentElement.style.overflow = "hidden";
+
+    if (
+          document.fullscreenEnabled ||
+          document.webkitFullscreenEnabled ||
+          document.mozFullScreenEnabled ||
+          document.msFullscreenEnabled
+          ) {
+
+          if (wrap.requestFullscreen) {
+              this.requestFullscreen();
+          } else if (wrap.webkitRequestFullscreen) {
+              wrap.webkitRequestFullscreen();
+          } else if (wrap.mozRequestFullScreen) {
+              wrap.mozRequestFullScreen();
+          } else if (wrap.msRequestFullscreen) {
+              wrap.msRequestFullscreen();
+          }
+    }
+
     cm.refresh();
   }
 
   function setNormal(cm) {
     var wrap = cm.getWrapperElement();
+
+    if (
+          document.fullscreenEnabled ||
+          document.webkitFullscreenEnabled ||
+          document.mozFullScreenEnabled ||
+          document.msFullscreenEnabled
+          ) {
+          if (document.exitFullscreen) {
+              document.exitFullscreen();
+          } else if (document.webkitExitFullscreen) {
+              document.webkitExitFullscreen();
+          } else if (document.mozCancelFullScreen) {
+              document.mozCancelFullScreen();
+          } else if (document.msExitFullscreen) {
+              document.msExitFullscreen();
+          }
+    }
     wrap.className = wrap.className.replace(/\s*CodeMirror-fullscreen\b/, "");
     document.documentElement.style.overflow = "";
     var info = cm.state.fullScreenRestore;
