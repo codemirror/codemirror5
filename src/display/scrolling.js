@@ -69,7 +69,7 @@ export function scrollIntoView(cm, rect) {
 // rectangle into view. Returns an object with scrollTop and
 // scrollLeft properties. When these are undefined, the
 // vertical/horizontal position does not need to be adjusted.
-export function calculateScrollPos(cm, rect) {
+function calculateScrollPos(cm, rect) {
   let display = cm.display, snapMargin = textHeight(cm.display)
   if (rect.top < 0) rect.top = 0
   let screentop = cm.curOp && cm.curOp.scrollTop != null ? cm.curOp.scrollTop : display.scroller.scrollTop
@@ -128,15 +128,20 @@ export function resolveScrollToPos(cm) {
   if (range) {
     cm.curOp.scrollToPos = null
     let from = estimateCoords(cm, range.from), to = estimateCoords(cm, range.to)
-    let sPos = calculateScrollPos(cm, {
-      left: Math.min(from.left, to.left),
-      top: Math.min(from.top, to.top) - range.margin,
-      right: Math.max(from.right, to.right),
-      bottom: Math.max(from.bottom, to.bottom) + range.margin
-    })
-    cm.scrollTo(sPos.scrollLeft, sPos.scrollTop)
+    scrollToCoordsRange(cm, from, to, range.margin)
   }
 }
+
+export function scrollToCoordsRange(cm, from, to, margin) {
+  let sPos = calculateScrollPos(cm, {
+    left: Math.min(from.left, to.left),
+    top: Math.min(from.top, to.top) - margin,
+    right: Math.max(from.right, to.right),
+    bottom: Math.max(from.bottom, to.bottom) + margin
+  })
+  cm.scrollTo(sPos.scrollLeft, sPos.scrollTop)
+}
+
 // Sync the scrollable area and scrollbars, ensure the viewport
 // covers the visible area.
 export function updateScrollTop(cm, val) {

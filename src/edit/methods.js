@@ -14,7 +14,7 @@ import { clipLine, clipPos, equalCursorPos, Pos } from "../line/pos"
 import { charCoords, charWidth, clearCaches, clearLineMeasurementCache, coordsChar, cursorCoords, displayHeight, displayWidth, estimateLineHeights, fromCoordSystem, intoCoordSystem, scrollGap, textHeight } from "../measurement/position_measurement"
 import { Range } from "../model/selection"
 import { replaceOneSelection, skipAtomic } from "../model/selection_updates"
-import { addToScrollPos, calculateScrollPos, ensureCursorVisible, resolveScrollToPos, scrollIntoView } from "../display/scrolling"
+import { addToScrollPos, ensureCursorVisible, resolveScrollToPos, scrollIntoView, scrollToCoordsRange } from "../display/scrolling"
 import { heightAtLine } from "../line/spans"
 import { updateGutterSpace } from "../display/update_display"
 import { indexOf, insertSorted, isWordChar, sel_dontScroll, sel_move } from "../util/misc"
@@ -388,13 +388,7 @@ export default function(CodeMirror) {
         resolveScrollToPos(this)
         this.curOp.scrollToPos = range
       } else {
-        let sPos = calculateScrollPos(this, {
-          left: Math.min(range.from.left, range.to.left),
-          top: Math.min(range.from.top, range.to.top) - range.margin,
-          right: Math.max(range.from.right, range.to.right),
-          bottom: Math.max(range.from.bottom, range.to.bottom) + range.margin
-        })
-        this.scrollTo(sPos.scrollLeft, sPos.scrollTop)
+        scrollToCoordsRange(this, range.from, range.to, range.margin)
       }
     }),
 
