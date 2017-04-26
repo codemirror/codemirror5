@@ -7,7 +7,7 @@ import { getBetween, getLine, getLines, isLine, lineNo } from "../line/utils_lin
 import { classTest } from "../util/dom"
 import { splitLinesAuto } from "../util/feature_detection"
 import { createObj, map, isEmpty, sel_dontScroll } from "../util/misc"
-import { ensureCursorVisible } from "../display/scrolling"
+import { ensureCursorVisible, scrollToCoords } from "../display/scrolling"
 
 import { changeLine, makeChange, makeChangeFromHistory, replaceRange } from "./changes"
 import { computeReplacedSel } from "./change_measurement"
@@ -75,7 +75,7 @@ Doc.prototype = createObj(BranchChunk.prototype, {
     let top = Pos(this.first, 0), last = this.first + this.size - 1
     makeChange(this, {from: top, to: Pos(last, getLine(this, last).text.length),
                       text: this.splitLines(code), origin: "setValue", full: true}, true)
-    if (this.cm) this.cm.scrollTo(0, 0)
+    if (this.cm) scrollToCoords(this.cm, 0, 0)
     setSelection(this, simpleSelection(top), sel_dontScroll)
   }),
   replaceRange: function(code, from, to, origin) {

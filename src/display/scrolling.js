@@ -148,7 +148,7 @@ export function scrollToCoordsRange(cm, from, to, margin) {
     right: Math.max(from.right, to.right),
     bottom: Math.max(from.bottom, to.bottom) + margin
   })
-  cm.scrollTo(sPos.scrollLeft, sPos.scrollTop)
+  scrollToCoords(cm, sPos.scrollLeft, sPos.scrollTop)
 }
 
 // Sync the scrollable area and scrollbars, ensure the viewport

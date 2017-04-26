@@ -409,7 +409,7 @@ export default function(CodeMirror) {
       regChange(this)
       this.curOp.forceUpdate = true
       clearCaches(this)
-      this.scrollTo(this.doc.scrollLeft, this.doc.scrollTop)
+      scrollToCoords(this, this.doc.scrollLeft, this.doc.scrollTop)
       updateGutterSpace(this)
       if (oldHeight == null || Math.abs(oldHeight - textHeight(this.display)) > .5)
         estimateLineHeights(this)
@@ -422,7 +422,7 @@ export default function(CodeMirror) {
       attachDoc(this, doc)
       clearCaches(this)
       this.display.input.reset()
-      this.scrollTo(doc.scrollLeft, doc.scrollTop)
+      scrollToCoords(this, doc.scrollLeft, doc.scrollTop)
       this.curOp.forceScroll = true
       signalLater(this, "swapDoc", this, old)
       return old
