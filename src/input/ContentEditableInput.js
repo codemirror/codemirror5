@@ -9,11 +9,10 @@ import { replaceRange } from "../model/changes"
 import { simpleSelection } from "../model/selection"
 import { setSelection } from "../model/selection_updates"
 import { getBidiPartAt, getOrder } from "../util/bidi"
-import { gecko, ie_version } from "../util/browser"
+import { android, chrome, gecko, ie_version } from "../util/browser"
 import { contains, range, removeChildrenAndAdd, selectInput } from "../util/dom"
 import { on, signalDOMEvent } from "../util/event"
 import { Delayed, lst, sel_dontScroll } from "../util/misc"
-import { chrome, android } from "../util/browser"
 
 // CONTENTEDITABLE INPUT STYLE
 
