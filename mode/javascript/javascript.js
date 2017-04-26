@@ -571,6 +571,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (value == "<") return cont(pushlex(">"), commasep(typeexpr, ">"), poplex, afterType)
     if (value == "|" || type == ".") return cont(typeexpr)
     if (type == "[") return cont(expect("]"), afterType)
+    if (value == "extends") return cont(typeexpr)
   }
   function vardef() {
     return pass(pattern, maybetype, maybeAssign, vardefCont);
