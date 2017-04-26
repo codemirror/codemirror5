@@ -14,7 +14,7 @@ import { clipLine, clipPos, equalCursorPos, Pos } from "../line/pos"
 import { charCoords, charWidth, clearCaches, clearLineMeasurementCache, coordsChar, cursorCoords, displayHeight, displayWidth, estimateLineHeights, fromCoordSystem, intoCoordSystem, scrollGap, textHeight } from "../measurement/position_measurement"
 import { Range } from "../model/selection"
 import { replaceOneSelection, skipAtomic } from "../model/selection_updates"
-import { addToScrollPos, ensureCursorVisible, resolveScrollToPos, scrollIntoView, scrollToCoordsRange } from "../display/scrolling"
+import { addToScrollTop, ensureCursorVisible, resolveScrollToPos, scrollIntoView, scrollToCoordsRange } from "../display/scrolling"
 import { heightAtLine } from "../line/spans"
 import { updateGutterSpace } from "../display/update_display"
 import { indexOf, insertSorted, isWordChar, sel_dontScroll, sel_move } from "../util/misc"
@@ -322,7 +322,7 @@ export default function(CodeMirror) {
         goals.push(headPos.left)
         let pos = findPosV(this, headPos, dir, unit)
         if (unit == "page" && range == doc.sel.primary())
-          addToScrollPos(this, null, charCoords(this, pos, "div").top - headPos.top)
+          addToScrollTop(this, charCoords(this, pos, "div").top - headPos.top)
         return pos
       }, sel_move)
       if (goals.length) for (let i = 0; i < doc.sel.ranges.length; i++)

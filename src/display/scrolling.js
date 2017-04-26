@@ -99,12 +99,10 @@ function calculateScrollPos(cm, rect) {
 
 // Store a relative adjustment to the scroll position in the current
 // operation (to be applied when the operation finishes).
-export function addToScrollPos(cm, left, top) {
-  if (left != null || top != null) resolveScrollToPos(cm)
-  if (left != null)
-    cm.curOp.scrollLeft = (cm.curOp.scrollLeft == null ? cm.doc.scrollLeft : cm.curOp.scrollLeft) + left
-  if (top != null)
-    cm.curOp.scrollTop = (cm.curOp.scrollTop == null ? cm.doc.scrollTop : cm.curOp.scrollTop) + top
+export function addToScrollTop(cm, top) {
+  if (top == null) return
+  resolveScrollToPos(cm)
+  cm.curOp.scrollTop = (cm.curOp.scrollTop == null ? cm.doc.scrollTop : cm.curOp.scrollTop) + top
 }
 
 // Make sure that at the end of the operation the current cursor is

@@ -1,5 +1,5 @@
 import { runInOp } from "../display/operations"
-import { addToScrollPos } from "../display/scrolling"
+import { addToScrollTop } from "../display/scrolling"
 import { regLineChange } from "../display/view_tracking"
 import { heightAtLine, lineIsHidden } from "../line/spans"
 import { lineNo, updateLineHeight } from "../line/utils_line"
@@ -53,7 +53,7 @@ eventMixin(LineWidget)
 
 function adjustScrollWhenAboveVisible(cm, line, diff) {
   if (heightAtLine(line) < ((cm.curOp && cm.curOp.scrollTop) || cm.doc.scrollTop))
-    addToScrollPos(cm, null, diff)
+    addToScrollTop(cm, diff)
 }
 
 export function addLineWidget(doc, handle, node, options) {
@@ -68,7 +68,7 @@ export function addLineWidget(doc, handle, node, options) {
     if (cm && !lineIsHidden(doc, line)) {
       let aboveVisible = heightAtLine(line) < doc.scrollTop
       updateLineHeight(line, line.height + widgetHeight(widget))
-      if (aboveVisible) addToScrollPos(cm, null, widget.height)
+      if (aboveVisible) addToScrollTop(cm, widget.height)
       cm.curOp.forceUpdate = true
     }
     return true
