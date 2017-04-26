@@ -226,6 +226,12 @@
      "  [property method]: [string 'GET']",
      "});");
 
+  MT("indent_switch",
+     "[keyword switch] ([variable x]) {",
+     "  [keyword default]:",
+     "    [keyword return] [number 2]",
+     "}")
+
   var ts_mode = CodeMirror.getMode({indentUnit: 2}, "application/typescript")
   function TS(name) {
     test.mode(name, ts_mode, Array.prototype.slice.call(arguments, 1))
