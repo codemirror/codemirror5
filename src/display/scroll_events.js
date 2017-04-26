@@ -25,8 +25,8 @@ export function setScrollTop(cm, val, forceScroll) {
 // Sync scroller and scrollbar, ensure the gutter elements are
 // aligned.
 export function setScrollLeft(cm, val, isScroller, forceScroll) {
-  if ((isScroller ? val == cm.doc.scrollLeft : Math.abs(cm.doc.scrollLeft - val) < 2) && !forceScroll) return
   val = Math.min(val, cm.display.scroller.scrollWidth - cm.display.scroller.clientWidth)
+  if ((isScroller ? val == cm.doc.scrollLeft : Math.abs(cm.doc.scrollLeft - val) < 2) && !forceScroll) return
   cm.doc.scrollLeft = val
   alignHorizontally(cm)
   if (cm.display.scroller.scrollLeft != val) cm.display.scroller.scrollLeft = val
@@ -101,7 +101,7 @@ export function onScrollWheel(cm, e) {
   if (dx && !gecko && !presto && wheelPixelsPerUnit != null) {
     if (dy && canScrollY)
       updateScrollTop(cm, Math.max(0, scroll.scrollTop + dy * wheelPixelsPerUnit))
-    setScrollLeft(cm, Math.max(0, Math.min(scroll.scrollLeft + dx * wheelPixelsPerUnit, scroll.scrollWidth - scroll.clientWidth)))
+    setScrollLeft(cm, Math.max(0, scroll.scrollLeft + dx * wheelPixelsPerUnit))
     // Only prevent default scrolling if vertical scrolling is
     // actually possible. Otherwise, it causes vertical scroll
     // jitter on OSX trackpads when deltaX is small and deltaY
