@@ -410,6 +410,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == "{") return contCommasep(objprop, "}", null, maybeop);
     if (type == "quasi") return pass(quasi, maybeop);
     if (type == "new") return cont(maybeTarget(noComma));
+    if (type == "type") cx.marked = "variable-2";
     return cont();
   }
   function maybeexpression(type) {
@@ -583,6 +584,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == "{") return contCommasep(proppattern, "}");
   }
   function proppattern(type, value) {
+    if (type == "type") type = "variable"
     if (type == "variable" && !cx.stream.match(/^\s*:/, false)) {
       register(value);
       return cont(maybeAssign);
@@ -630,6 +632,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   }
   function funarg(type) {
     if (type == "spread") return cont(funarg);
+    if (type == "type") cx.marked = "def";
     return pass(pattern, maybetype, maybeAssign);
   }
   function classExpression(type, value) {
