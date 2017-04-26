@@ -14,7 +14,7 @@ import { clipLine, clipPos, equalCursorPos, Pos } from "../line/pos"
 import { charCoords, charWidth, clearCaches, clearLineMeasurementCache, coordsChar, cursorCoords, displayHeight, displayWidth, estimateLineHeights, fromCoordSystem, intoCoordSystem, scrollGap, textHeight } from "../measurement/position_measurement"
 import { Range } from "../model/selection"
 import { replaceOneSelection, skipAtomic } from "../model/selection_updates"
-import { addToScrollTop, ensureCursorVisible, resolveScrollToPos, scrollIntoView, scrollToCoordsRange } from "../display/scrolling"
+import { addToScrollTop, ensureCursorVisible, scrollIntoView, scrollToCoords, scrollToCoordsRange, scrollToRange } from "../display/scrolling"
 import { heightAtLine } from "../line/spans"
 import { updateGutterSpace } from "../display/update_display"
 import { indexOf, insertSorted, isWordChar, sel_dontScroll, sel_move } from "../util/misc"
@@ -359,11 +359,7 @@ export default function(CodeMirror) {
     hasFocus: function() { return this.display.input.getField() == activeElt() },
     isReadOnly: function() { return !!(this.options.readOnly || this.doc.cantEdit) },
 
-    scrollTo: methodOp(function(x, y) {
-      if (x != null || y != null) resolveScrollToPos(this)
-      if (x != null) this.curOp.scrollLeft = x
-      if (y != null) this.curOp.scrollTop = y
-    }),
+    scrollTo: methodOp(function (x, y) { scrollToCoords(this, x, y) }),
     getScrollInfo: function() {
       let scroller = this.display.scroller
       return {left: scroller.scrollLeft, top: scroller.scrollTop,
@@ -385,8 +381,7 @@ export default function(CodeMirror) {
       range.margin = margin || 0
 
       if (range.from.line != null) {
-        resolveScrollToPos(this)
-        this.curOp.scrollToPos = range
+        scrollToRange(this, range)
       } else {
         scrollToCoordsRange(this, range.from, range.to, range.margin)
       }

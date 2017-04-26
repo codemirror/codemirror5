@@ -117,11 +117,22 @@ export function ensureCursorVisible(cm) {
   cm.curOp.scrollToPos = {from: from, to: to, margin: cm.options.cursorScrollMargin}
 }
 
+export function scrollToCoords(cm, x, y) {
+  if (x != null || y != null) resolveScrollToPos(cm)
+  if (x != null) cm.curOp.scrollLeft = x
+  if (y != null) cm.curOp.scrollTop = y
+}
+
+export function scrollToRange(cm, range) {
+  resolveScrollToPos(cm)
+  cm.curOp.scrollToPos = range
+}
+
 // When an operation has its scrollToPos property set, and another
 // scroll action is applied before the end of the operation, this
 // 'simulates' scrolling that position into view in a cheap way, so
 // that the effect of intermediate scroll commands is not ignored.
-export function resolveScrollToPos(cm) {
+function resolveScrollToPos(cm) {
   let range = cm.curOp.scrollToPos
   if (range) {
     cm.curOp.scrollToPos = null
