@@ -72,8 +72,22 @@ function dispatchKey(cm, name, e, handle) {
   return !!result
 }
 
+function isMobileSafari(){
+  var userAgent = window.navigator.userAgent ;
+    return  (-1 !== userAgent.indexOf("iPhone") || -1 !== userAgent.indexOf("iPad")) ;
+} ;
+
 // Handle a key from the keydown event.
 function handleKeyBinding(cm, e) {
+
+  // Backspace key handlling for mobile safari.
+  if (e.keyCode === 8 && isMobileSafari()) {
+    if(cm.display.input.prevInput && 0 < cm.display.input.prevInput.length){
+      // If there are prevInput, Backspace key in ime. and skip under code.
+      return  false;
+    }
+  }
+
   let name = keyName(e, true)
   if (!name) return false
 
