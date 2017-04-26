@@ -7,9 +7,8 @@ import { finishOperation, pushOperation } from "../util/operation_group"
 
 import { ensureFocus } from "./focus"
 import { measureForScrollbars, updateScrollbars } from "./scrollbars"
-import { setScrollLeft, setScrollTop } from "./scroll_events"
 import { restartBlink } from "./selection"
-import { maybeScrollWindow, scrollPosIntoView } from "./scrolling"
+import { maybeScrollWindow, scrollPosIntoView, setScrollLeft, setScrollTop } from "./scrolling"
 import { DisplayUpdate, maybeClipScrollbars, postUpdateDisplay, setDocumentHeight, updateDisplayIfNeeded } from "./update_display"
 import { updateHeightsInViewport } from "./update_lines"
 

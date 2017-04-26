@@ -5,7 +5,7 @@ import { ie, ie_version, mac, mac_geMountainLion } from "../util/browser"
 import { updateHeightsInViewport } from "./update_lines"
 import { Delayed } from "../util/misc"
 
-import { setScrollLeft, updateScrollTop } from "./scroll_events"
+import { setScrollLeft, updateScrollTop } from "./scrolling"
 
 // SCROLLBARS
 

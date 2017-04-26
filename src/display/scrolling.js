@@ -1,10 +1,12 @@
 import { Pos } from "../line/pos"
 import { cursorCoords, displayHeight, displayWidth, estimateCoords, paddingTop, paddingVert, scrollGap, textHeight } from "../measurement/position_measurement"
-import { phantom } from "../util/browser"
+import { gecko, phantom } from "../util/browser"
 import { elt } from "../util/dom"
 import { signalDOMEvent } from "../util/event"
 
-import { setScrollLeft, updateScrollTop } from "./scroll_events"
+import { startWorker } from "./highlight_worker"
+import { alignHorizontally } from "./line_numbers"
+import { updateDisplaySimple } from "./update_display"
 
 // SCROLLING THINGS INTO VIEW
 
@@ -134,4 +136,31 @@ export function resolveScrollToPos(cm) {
     })
     cm.scrollTo(sPos.scrollLeft, sPos.scrollTop)
   }
+}
+// Sync the scrollable area and scrollbars, ensure the viewport
+// covers the visible area.
+export function updateScrollTop(cm, val) {
+  if (Math.abs(cm.doc.scrollTop - val) < 2) return
+  if (!gecko) updateDisplaySimple(cm, {top: val})
+  setScrollTop(cm, val)
+  if (gecko) updateDisplaySimple(cm)
+  startWorker(cm, 100)
+}
+export function setScrollTop(cm, val, forceScroll) {
+  val = Math.min(cm.display.scroller.scrollHeight - cm.display.scroller.clientHeight, val)
+  if (cm.display.scroller.scrollTop == val && !forceScroll) return
+  cm.doc.scrollTop = val
+  cm.display.scrollbars.setScrollTop(val)
+  cm.display.scroller.scrollTop = val
+}
+
+// Sync scroller and scrollbar, ensure the gutter elements are
+// aligned.
+export function setScrollLeft(cm, val, isScroller, forceScroll) {
+  val = Math.min(val, cm.display.scroller.scrollWidth - cm.display.scroller.clientWidth)
+  if ((isScroller ? val == cm.doc.scrollLeft : Math.abs(cm.doc.scrollLeft - val) < 2) && !forceScroll) return
+  cm.doc.scrollLeft = val
+  alignHorizontally(cm)
+  if (cm.display.scroller.scrollLeft != val) cm.display.scroller.scrollLeft = val
+  cm.display.scrollbars.setScrollLeft(val)
 }
