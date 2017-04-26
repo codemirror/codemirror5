@@ -61,23 +61,23 @@
       }
     ],
     string: [
-        {regex: /(?:[^\\]|\\.)*?"/, token: "string", next: "start"},
-        {regex: /.*/, token: "string"}
+      {regex: /(?:[^\\]|\\.)*?"/, token: "string", next: "start"},
+      {regex: /.*/, token: "string"}
     ],
     string2: [
-        {regex: /^;/, token: "keyword", next: "start"},
-        {regex: /.*/, token: "string"}
+      {regex: /^;/, token: "keyword", next: "start"},
+      {regex: /.*/, token: "string"}
     ],
     string3: [
-        {regex: /(?:[^\\]|\\.)*?"""/, token: "string", next: "start"},
-        {regex: /.*/, token: "string"}
+      {regex: /(?:[^\\]|\\.)*?"""/, token: "string", next: "start"},
+      {regex: /.*/, token: "string"}
     ],
     stack: [
       {regex: /\)/, token: "keyword", next: "start"},
       {regex: /--/, token: "meta"},
       {regex: /\S+/, token: "comment"},
       {
-        regex: /(?:\s*)|./,
+        regex: /./,
         token: null
       }
     ],
