@@ -28,7 +28,7 @@
       {regex: /(?:0x[\d,a-f]+)|(?:0o[0-7]+)|(?:0b[0,1]+)|(?:\-?\d+.?\d*)(?=\s)/, token: "number"},
       //{regex: /[+-]?/} //fractional
       // definition: defining word, defined word, etc
-      {regex: /((?:GENERIC)|\:?\:)(\s+)(\S+)(\s+)(\()/, token: ["keyword", null, "def", null, "keyword"], next: "stack"},
+      {regex: /((?:GENERIC)|\:?\:)(\s+)(\S+)(\s+)(\()/, token: ["keyword", null, "def", null, "bracket"], next: "stack"},
       // method definition: defining word, type, defined word, etc
       {regex: /(M\:)(\s+)(\S+)(\s+)(\S+)/, token: ["keyword", null, "def", null, "tag"]},
       // vocabulary using --> state
@@ -73,9 +73,9 @@
       {regex: /.*/, token: "string"}
     ],
     stack: [
-      {regex: /\)/, token: "keyword", next: "start"},
-      {regex: /--/, token: "meta"},
-      {regex: /\S+/, token: "comment"},
+      {regex: /\)/, token: "bracket", next: "start"},
+      {regex: /--/, token: "bracket"},
+      {regex: /\S+/, token: "meta"},
       {
         regex: /./,
         token: null
