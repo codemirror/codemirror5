@@ -185,12 +185,9 @@
   }
 
   function eachWord(lineText, f) {
-    if (!lineText) return;
-    var excepted = /[,;]/g;
-    var words = lineText.split(" ");
-    for (var i = 0; i < words.length; i++) {
-      f(words[i]?words[i].replace(excepted, '') : '');
-    }
+    var words = lineText.split(/\s+/)
+    for (var i = 0; i < words.length; i++)
+      if (words[i]) f(words[i].replace(/[,;]/g, ''))
   }
 
   function findTableByAlias(alias, editor) {
