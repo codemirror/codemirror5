@@ -156,16 +156,17 @@ export function scrollToCoordsRange(cm, from, to, margin) {
 export function updateScrollTop(cm, val) {
   if (Math.abs(cm.doc.scrollTop - val) < 2) return
   if (!gecko) updateDisplaySimple(cm, {top: val})
-  setScrollTop(cm, val)
+  setScrollTop(cm, val, true)
   if (gecko) updateDisplaySimple(cm)
   startWorker(cm, 100)
 }
+
 export function setScrollTop(cm, val, forceScroll) {
   val = Math.min(cm.display.scroller.scrollHeight - cm.display.scroller.clientHeight, val)
   if (cm.display.scroller.scrollTop == val && !forceScroll) return
   cm.doc.scrollTop = val
   cm.display.scrollbars.setScrollTop(val)
-  cm.display.scroller.scrollTop = val
+  if (cm.display.scroller.scrollTop != val) cm.display.scroller.scrollTop = val
 }
 
 // Sync scroller and scrollbar, ensure the gutter elements are

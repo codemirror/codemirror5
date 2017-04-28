@@ -140,7 +140,7 @@ function endOperation_finish(op) {
     display.wheelStartX = display.wheelStartY = null
 
   // Propagate the scroll position to the actual DOM scroller
-  if (op.scrollTop != null) setScrollTop(cm, op.scrollTop, true)
+  if (op.scrollTop != null) setScrollTop(cm, op.scrollTop, op.forceScroll)
 
   if (op.scrollLeft != null) setScrollLeft(cm, op.scrollLeft, true, true)
   // If we need to scroll a specific position into view, do so.
