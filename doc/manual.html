@@ -1859,7 +1859,7 @@ editor.setOption("extraKeys", {
       position that the cursor would have when it would sit at that
       position.</dd>
       <dt id="coordsChar"><code><strong>cm.coordsChar</strong>(object: {left, top}, ?mode: string) → {line, ch}</code></dt>
-      <dd>Given an <code>{left, top}</code> object, returns
+      <dd>Given an <code>{left, top}</code> object (e.g. coordinates of a mouse event) returns
       the <code>{line, ch}</code> position that corresponds to it. The
       optional <code>mode</code> parameter determines relative to what
       the coordinates are interpreted. It may
