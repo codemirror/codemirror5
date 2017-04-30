@@ -18,7 +18,7 @@ function lineIndent(cm, lineNo) {
     return -1
   return CodeMirror.countColumn(text, null, cm.getOption("tabSize"))
 }
-               !
+
 CodeMirror.registerHelper("fold", "indent", function(cm, start) {
   var myIndent = lineIndent(cm, start.line)
   if (myIndent < 0) return
