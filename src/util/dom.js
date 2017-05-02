@@ -79,8 +79,8 @@ export class SavedBrowserSelection {
 
   restore(selection) {
     selection.removeAllRanges()
-    for (const range of this.ranges) {
-      selection.addRange(range.restore())
+    for (let i = 0; i < this.ranges.length; ++i) {
+      selection.addRange(this.ranges[i].restore())
     }
   }
 }
