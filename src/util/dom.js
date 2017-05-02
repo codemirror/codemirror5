@@ -53,6 +53,38 @@ else range = function(node, start, end) {
   return r
 }
 
+class SavedBrowserRange {
+  constructor(range) {
+    this.startContainer = range.startContainer
+    this.startOffset = range.startOffset
+    this.endContainer = range.endContainer
+    this.endOffset = range.endOffset
+  }
+
+  restore() {
+    const range = document.createRange()
+    range.setStart(this.startContainer, this.startOffset)
+    range.setEnd(this.endContainer, this.endOffset)
+    return range
+  }
+}
+
+export class SavedBrowserSelection {
+  constructor(selection) {
+    this.ranges = []
+    for (let i = 0; i < selection.rangeCount; ++i) {
+      this.ranges.push(new SavedBrowserRange(selection.getRangeAt(i)))
+    }
+  }
+
+  restore(selection) {
+    selection.removeAllRanges()
+    for (const range of this.ranges) {
+      selection.addRange(range.restore())
+    }
+  }
+}
+
 export function contains(parent, child) {
   if (child.nodeType == 3) // Android browser always returns false when child is a textnode
     child = child.parentNode
