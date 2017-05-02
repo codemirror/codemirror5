@@ -1,0 +1,55 @@
+<!doctype html>
+
+<title>CodeMirror: YARA mode</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../../doc/docs.css">
+
+<link rel="stylesheet" href="../../lib/codemirror.css">
+<script src="../../lib/codemirror.js"></script>
+<script src="./yara.js"></script>
+<style>
+	.CodeMirror { border: 2px inset #dee; }
+    </style>
+<div id=nav>
+  <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../../doc/logo.png"></a>
+
+  <ul>
+    <li><a href="../../index.html">Home</a>
+    <li><a href="../../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="../index.html">Language modes</a>
+    <li><a class=active href="#">YARA</a>
+  </ul>
+</div>
+
+<article>
+<h2>YARA mode</h2>
+<form><textarea id="code" name="code">
+rule silent_banker : banker
+{
+    meta:
+        description = "This is just an example"
+        thread_level = 3
+        in_the_wild = true
+
+    strings:
+        $a = {6A 40 68 00 30 00 00 6A 14 8D 91}
+        $b = {8D 4D B0 2B C1 83 C0 27 99 6A 4E 59 F7 F9}
+        $c = "UVODFRYSIHLNWPEJXQZAKCBGMT"
+
+    condition:
+        $a or $b or $c
+}
+</textarea></form>
+
+<script>
+  var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+    lineNumbers: true,
+    mode: "text/yara"
+  });
+</script>
+
+<p><strong>MIME types defined:</strong> <code>text/yara</code> (YARA code)</p>
+</article>
