@@ -39,7 +39,7 @@ class Context {
   }
 
   save(copy) {
-    let state = copy ? copyState(this.doc.mode, this.state) : this.state
+    let state = copy !== false ? copyState(this.doc.mode, this.state) : this.state
     return this.maxLookAhead > 0 ? new SavedContext(state, this.maxLookAhead) : state
   }
 }
@@ -95,11 +95,12 @@ export function getLineStyles(cm, line, updateFrontier) {
     let resetState = line.text.length > cm.options.maxHighlightLength && copyState(cm.doc.mode, context.state)
     let result = highlightLine(cm, line, context)
     if (resetState) context.state = resetState
-    line.stateAfter = context.save()
+    line.stateAfter = context.save(!resetState)
     line.styles = result.styles
     if (result.classes) line.styleClasses = result.classes
     else if (line.styleClasses) line.styleClasses = null
-    if (updateFrontier === cm.doc.frontier) cm.doc.frontier++
+    if (updateFrontier === cm.doc.highlightFrontier)
+      cm.doc.modeFrontier = Math.max(cm.doc.modeFrontier, ++cm.doc.highlightFrontier)
   }
   return line.styles
 }
@@ -117,7 +118,7 @@ export function getContextBefore(cm, n, precise) {
     line.stateAfter = pos == n - 1 || pos % 5 == 0 || pos >= display.viewFrom && pos < display.viewTo ? context.save() : null
     context.nextLine()
   })
-  if (precise) doc.frontier = context.line
+  if (precise) doc.modeFrontier = context.line
   return context
 }
 
@@ -240,7 +241,7 @@ function findStartLine(cm, n, precise) {
   for (let search = n; search > lim; --search) {
     if (search <= doc.first) return doc.first
     let line = getLine(doc, search - 1), after = line.stateAfter
-    if (after && (!precise || search + (after instanceof SavedContext ? after.lookAhead : 0) <= doc.frontier))
+    if (after && (!precise || search + (after instanceof SavedContext ? after.lookAhead : 0) <= doc.modeFrontier))
       return search
     let indented = countColumn(line.text, null, cm.options.tabSize)
     if (minline == null || minindent > indented) {
@@ -249,4 +250,21 @@ function findStartLine(cm, n, precise) {
     }
   }
   return minline
+}
+
+export function retreatFrontier(doc, n) {
+  doc.modeFrontier = Math.min(doc.modeFrontier, n)
+  if (doc.highlightFrontier < n - 10) return
+  let start = doc.first
+  for (let line = n - 1; line > start; line--) {
+    let saved = getLine(doc, line).stateAfter
+    // change is on 3
+    // state on line 1 looked ahead 2 -- so saw 3
+    // test 1 + 2 < 3 should cover this
+    if (saved && (!(saved instanceof SavedContext) || line + saved.lookAhead < n)) {
+      start = line + 1
+      break
+    }
+  }
+  doc.highlightFrontier = Math.min(doc.highlightFrontier, start)
 }
