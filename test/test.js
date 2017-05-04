@@ -667,10 +667,10 @@ testCM("scrollSnap", function(cm) {
 
 testCM("scrollIntoView", function(cm) {
   if (phantom) return;
-  var outer = cm.getWrapperElement().getBoundingClientRect();
   function test(line, ch, msg) {
     var pos = Pos(line, ch);
     cm.scrollIntoView(pos);
+    var outer = cm.getWrapperElement().getBoundingClientRect();
     var box = cm.charCoords(pos, "window");
     is(box.left >= outer.left, msg + " (left)");
     is(box.right <= outer.right, msg + " (right)");
