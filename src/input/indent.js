@@ -1,4 +1,4 @@
-import { getStateBefore } from "../line/highlight"
+import { getContextBefore } from "../line/highlight"
 import { Pos } from "../line/pos"
 import { getLine } from "../line/utils_line"
 import { replaceRange } from "../model/changes"
@@ -18,7 +18,7 @@ export function indentLine(cm, n, how, aggressive) {
     // Fall back to "prev" when the mode doesn't have an indentation
     // method.
     if (!doc.mode.indent) how = "prev"
-    else state = getStateBefore(cm, n)
+    else state = getContextBefore(cm, n).state
   }
 
   let tabSize = cm.options.tabSize

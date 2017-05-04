@@ -91,7 +91,8 @@ StringStream.prototype = {
     this.lineStart += n;
     try { return inner(); }
     finally { this.lineStart -= n; }
-  }
+  },
+  lookAhead: function() { return null }
 };
 exports.StringStream = StringStream;
 
