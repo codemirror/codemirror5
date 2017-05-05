@@ -145,7 +145,7 @@ export default class TextareaInput {
   // Reset the input to correspond to the selection (or to be empty,
   // when not typing and nothing is selected)
   reset(typing) {
-    if (this.contextMenuPending) return
+    if (this.contextMenuPending || this.composing) return
     let minimal, selected, cm = this.cm, doc = cm.doc
     if (cm.somethingSelected()) {
       this.prevInput = ""
