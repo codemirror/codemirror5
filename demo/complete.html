@@ -83,7 +83,7 @@ var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
   mode: {name: "javascript", globalVars: true}
 });
 
-if (typeof Promise !== undefined) {
+if (typeof Promise !== "undefined") {
   var comp = [
     ["here", "hither"],
     ["asynchronous", "nonsynchronous"],
