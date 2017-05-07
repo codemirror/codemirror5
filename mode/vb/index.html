@@ -39,8 +39,8 @@ function test(golden, text) {
 		//console.log(String(token) + " " + String(style) + " " + String(lineNo) + " " + String(pos));
     var result = [String(token), String(style)];
     if (golden[i][0] != result[0] || golden[i][1] != result[1]){
-      return "Error, expected: " + String(golden[i]) + ", got: " + String(result);
       ok = false;
+      return "Error, expected: " + String(golden[i]) + ", got: " + String(result);
     }
     i++;
   }
