@@ -46,7 +46,7 @@ function test(golden, text) {
   }
   CodeMirror.runMode(text, "text/x-vb",callback); 
 
-  if (ok) return "Tests OK";
+  return (ok) ? "Tests OK" : "Tests Failed";
 }
 function testTypes() {
   var golden = [['Integer','keyword'],[' ','null'],['Float','keyword']]
