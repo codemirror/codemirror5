@@ -3,7 +3,7 @@ import { heightAtLine, visualLineEndNo, visualLineNo } from "../line/spans"
 import { getLine, lineNumberFor } from "../line/utils_line"
 import { displayHeight, displayWidth, getDimensions, paddingVert, scrollGap } from "../measurement/position_measurement"
 import { mac, webkit } from "../util/browser"
-import { activeElt, removeChildren } from "../util/dom"
+import { activeElt, removeChildren, SavedBrowserSelection } from "../util/dom"
 import { hasHandler, signal } from "../util/event"
 import { indexOf } from "../util/misc"
 
@@ -104,13 +104,18 @@ export function updateDisplayIfNeeded(cm, update) {
   // For big changes, we hide the enclosing element during the
   // update, since that speeds up the operations on most browsers.
   let focused = activeElt()
+  let selection = new SavedBrowserSelection(window.getSelection())
   if (toUpdate > 4) display.lineDiv.style.display = "none"
   patchDisplay(cm, display.updateLineNumbers, update.dims)
   if (toUpdate > 4) display.lineDiv.style.display = ""
   display.renderedView = display.view
   // There might have been a widget with a focused element that got
-  // hidden or updated, if so re-focus it.
-  if (focused && activeElt() != focused && focused.offsetHeight) focused.focus()
+  // hidden or updated, if so re-focus it, and re-apply any selections
+  // it had.
+  if (focused && activeElt() != focused && focused.offsetHeight) {
+    focused.focus()
+    selection.restore()
+  }
 
   // Prevent selection and cursors from interfering with the scroll
   // width and height.
