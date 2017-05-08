@@ -39,14 +39,14 @@ function test(golden, text) {
 		//console.log(String(token) + " " + String(style) + " " + String(lineNo) + " " + String(pos));
     var result = [String(token), String(style)];
     if (golden[i][0] != result[0] || golden[i][1] != result[1]){
-      return "Error, expected: " + String(golden[i]) + ", got: " + String(result);
       ok = false;
+      return "Error, expected: " + String(golden[i]) + ", got: " + String(result);
     }
     i++;
   }
   CodeMirror.runMode(text, "text/x-vb",callback); 
 
-  if (ok) return "Tests OK";
+  return (ok) ? "Tests OK" : "Tests Failed";
 }
 function testTypes() {
   var golden = [['Integer','keyword'],[' ','null'],['Float','keyword']]
