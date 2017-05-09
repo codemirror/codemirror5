@@ -1139,6 +1139,8 @@
           default:
             break;
         }
+        // This is to prevent undo operations from merging.
+        cm.changeGeneration(true);
       },
       processMotion: function(cm, vim, command) {
         vim.inputState.motion = command.motion;
