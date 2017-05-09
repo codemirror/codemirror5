@@ -631,6 +631,11 @@
   MT("linkEmStrong",
      "[link [[][link&em&strong ***foo***][link ]]][string&url (http://example.com/)] bar");
 
+  MT("multilineLink",
+     "[link [[foo]",
+     "[link bar]]][string&url (https://foo#_a)]",
+     "should not be italics")
+
   // Image with title
   MT("imageTitle",
      "[image&image-marker !][image&image-alt-text&link [[alt text]]][string&url (http://example.com/ \"bar\")] hello");
@@ -647,7 +652,7 @@
   // regularly in text, especially in quoted material, and no space is allowed
   // between square brackets and parentheses (per Dingus).
   MT("notALink",
-     "[[foo]] (bar)");
+     "[link [[foo]]] (bar)");
 
   // Reference-style links
   MT("linkReference",
@@ -672,7 +677,7 @@
 
   // Should only allow a single space ("...use *a* space...")
   MT("linkReferenceDoubleSpace",
-     "[[foo]]  [[bar]] hello");
+     "[link [[foo]]]  [link [[bar]]] hello");
 
   // Reference-style links with implicit link name
   MT("linkImplicit",
@@ -733,7 +738,7 @@
      "[link [[foo \\]]: bar]]:] [string&url http://example.com/]");
 
   MT("labelEscapeEnd",
-     "[[foo\\]]: http://example.com/");
+     "\\[[foo\\]]: http://example.com/");
 
   MT("linkWeb",
      "[link <http://example.com/>] foo");
@@ -919,7 +924,7 @@
   // Tests to make sure GFM-specific things aren't getting through
 
   MT("taskList",
-     "[variable-2 * [ ]] bar]");
+     "[variable-2 * ][link&variable-2 [[ ]]][variable-2 bar]");
 
   MT("noFencedCodeBlocks",
      "~~~",
