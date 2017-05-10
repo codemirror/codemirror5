@@ -376,7 +376,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     hooks: {"#": cppHook, "*": pointerHook},
     modeProps: {fold: ["brace", "include"]}
   });
-  
+
   def(["text/x-handelC"], {
 	  // https://en.wikipedia.org/wiki/Handel-C
     name: "clike",
@@ -390,7 +390,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     hooks: {"#": cppHook, "*": pointerHook},
     modeProps: {fold: ["brace", "include"]}
   });
-  
+
   def(["text/x-c++src", "text/x-c++hdr"], {
     name: "clike",
     keywords: words(cKeywords + " asm dynamic_cast namespace reinterpret_cast try explicit new " +
