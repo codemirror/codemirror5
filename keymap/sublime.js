@@ -562,7 +562,7 @@
   cmds['upperCamelCaseAtCursor'] = function(cm) {
     modifyWordOrSelection(cm, function(str) {
       return splitStringToRedoCase(str)
-        .map(function(word, index) {
+        .map(function(word) {
           // If it not the first word only upper case the first char and
           // lowercase the rest.
           return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
