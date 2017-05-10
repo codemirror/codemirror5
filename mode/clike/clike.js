@@ -376,7 +376,21 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     hooks: {"#": cppHook, "*": pointerHook},
     modeProps: {fold: ["brace", "include"]}
   });
-
+  
+  def(["text/x-handelC"], {
+	  // https://en.wikipedia.org/wiki/Handel-C
+    name: "clike",
+    keywords: words(cKeywords + "assert chan chanin chanout clock const default delay else expr external external_divide family for goto ifselect in inline interface internal internal_divid " +
+                   "intwidth width with let macro mpram par seq part prialt proc ram wom releasesema reset rom select sema set seq shared signal try trysema undefined "),
+    types: words(cTypes),
+    blockKeywords: words("case do else for if switch while struct"),
+    defKeywords: words("struct"),
+    typeFirstDefinitions: true,
+    atoms: words("null true false"),
+    hooks: {"#": cppHook, "*": pointerHook},
+    modeProps: {fold: ["brace", "include"]}
+  });
+  
   def(["text/x-c++src", "text/x-c++hdr"], {
     name: "clike",
     keywords: words(cKeywords + " asm dynamic_cast namespace reinterpret_cast try explicit new " +
