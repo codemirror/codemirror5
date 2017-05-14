@@ -29,16 +29,17 @@ CodeMirror.defineMode("octave", function() {
     'cosh', 'exp', 'log', 'prod', 'sum', 'log10', 'max', 'min', 'sign', 'sin', 'sinh',
     'sqrt', 'tan', 'reshape', 'break', 'zeros', 'default', 'margin', 'round', 'ones',
     'rand', 'syn', 'ceil', 'floor', 'size', 'clear', 'zeros', 'eye', 'mean', 'std', 'cov',
-    'det', 'eig', 'inv', 'norm', 'rank', 'trace', 'expm', 'logm', 'sqrtm', 'linspace', 'plot',
-    'title', 'xlabel', 'ylabel', 'legend', 'text', 'grid', 'meshgrid', 'mesh', 'num2str',
-    'fft', 'ifft', 'arrayfun', 'cellfun', 'input', 'fliplr', 'flipud', 'ismember'
+    'det', 'eig', 'inv', 'norm', 'rank', 'trace', 'expm', 'logm', 'sqrtm', 'linspace',
+    'plot', 'plot3', 'plotmatrix', 'plotyy', 'title', 'xlabel', 'ylabel', 'legend',
+    'text', 'grid', 'meshgrid', 'mesh', 'num2str', 'fft', 'ifft', 'arrayfun', 'cellfun',
+    'input', 'fliplr', 'flipud', 'ismember', 'inline', 'eval'
   ]);
 
   var keywords = wordRegexp([
     'return', 'case', 'switch', 'else', 'elseif', 'end', 'endif', 'endfunction',
     'if', 'otherwise', 'do', 'for', 'while', 'try', 'catch', 'classdef', 'properties', 'events',
     'methods', 'global', 'persistent', 'endfor', 'endwhile', 'printf', 'sprintf', 'disp', 'until',
-    'continue', 'pkg'
+    'continue', 'pkg', 'hold'
   ]);
 
 
