@@ -3426,6 +3426,35 @@ testVim('ex_go_to_line', function(cm, vim, helpers) {
   helpers.doEx('4');
   helpers.assertCursorAt(3, 0);
 }, { value: 'a\nb\nc\nd\ne\n'});
+testVim('ex_go_to_mark', function(cm, vim, helpers) {
+  cm.setCursor(3, 0);
+  helpers.doKeys('m', 'a');
+  cm.setCursor(0, 0);
+  helpers.doEx('\'a');
+  helpers.assertCursorAt(3, 0);
+}, { value: 'a\nb\nc\nd\ne\n'});
+testVim('ex_go_to_line_offset', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doEx('+3');
+  helpers.assertCursorAt(3, 0);
+  helpers.doEx('-1');
+  helpers.assertCursorAt(2, 0);
+  helpers.doEx('.2');
+  helpers.assertCursorAt(4, 0);
+  helpers.doEx('.-3');
+  helpers.assertCursorAt(1, 0);
+}, { value: 'a\nb\nc\nd\ne\n'});
+testVim('ex_go_to_mark_offset', function(cm, vim, helpers) {
+  cm.setCursor(2, 0);
+  helpers.doKeys('m', 'a');
+  cm.setCursor(0, 0);
+  helpers.doEx('\'a1');
+  helpers.assertCursorAt(3, 0);
+  helpers.doEx('\'a-1');
+  helpers.assertCursorAt(1, 0);
+  helpers.doEx('\'a+2');
+  helpers.assertCursorAt(4, 0);
+}, { value: 'a\nb\nc\nd\ne\n'});
 testVim('ex_write', function(cm, vim, helpers) {
   var tmp = CodeMirror.commands.save;
   var written;
@@ -3577,6 +3606,50 @@ testVim('ex_substitute_input_range', function(cm, vim, helpers) {
   helpers.doEx('1,3s/\\d/0/g');
   eq('0\n0\n0\n4', cm.getValue());
 }, { value: '1\n2\n3\n4' });
+testVim('ex_substitute_range_current_to_input', function(cm, vim, helpers) {
+  cm.setCursor(1, 0);
+  helpers.doEx('.,3s/\\d/0/g');
+  eq('1\n0\n0\n4', cm.getValue());
+}, { value: '1\n2\n3\n4' });
+testVim('ex_substitute_range_input_to_current', function(cm, vim, helpers) {
+  cm.setCursor(3, 0);
+  helpers.doEx('2,.s/\\d/0/g');
+  eq('1\n0\n0\n0\n5', cm.getValue());
+}, { value: '1\n2\n3\n4\n5' });
+testVim('ex_substitute_range_offset', function(cm, vim, helpers) {
+  cm.setCursor(2, 0);
+  helpers.doEx('-1,+1s/\\d/0/g');
+  eq('1\n0\n0\n0\n5', cm.getValue());
+}, { value: '1\n2\n3\n4\n5' });
+testVim('ex_substitute_range_implicit_offset', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doEx('.1,.3s/\\d/0/g');
+  eq('1\n0\n0\n0\n5', cm.getValue());
+}, { value: '1\n2\n3\n4\n5' });
+testVim('ex_substitute_to_eof', function(cm, vim, helpers) {
+  cm.setCursor(2, 0);
+  helpers.doEx('.,$s/\\d/0/g');
+  eq('1\n2\n0\n0\n0', cm.getValue());
+}, { value: '1\n2\n3\n4\n5' });
+testVim('ex_substitute_to_relative_eof', function(cm, vim, helpers) {
+  cm.setCursor(4, 0);
+  helpers.doEx('2,$-2s/\\d/0/g');
+  eq('1\n0\n0\n4\n5', cm.getValue());
+}, { value: '1\n2\n3\n4\n5' });
+testVim('ex_substitute_range_mark', function(cm, vim, helpers) {
+  cm.setCursor(2, 0);
+  helpers.doKeys('ma');
+  cm.setCursor(0, 0);
+  helpers.doEx('.,\'as/\\d/0/g');
+  eq('0\n0\n0\n4\n5', cm.getValue());
+}, { value: '1\n2\n3\n4\n5' });
+testVim('ex_substitute_range_mark_offset', function(cm, vim, helpers) {
+  cm.setCursor(2, 0);
+  helpers.doKeys('ma');
+  cm.setCursor(0, 0);
+  helpers.doEx('\'a-1,\'a+1s/\\d/0/g');
+  eq('1\n0\n0\n0\n5', cm.getValue());
+}, { value: '1\n2\n3\n4\n5' });
 testVim('ex_substitute_visual_range', function(cm, vim, helpers) {
   cm.setCursor(1, 0);
   // Set last visual mode selection marks '< and '> at lines 2 and 4
