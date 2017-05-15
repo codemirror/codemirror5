@@ -101,4 +101,8 @@
      '  [keyword {/if}]',
      '[keyword {/template}]',
      '');
+
+  MT('single-quote-strings',
+     '[keyword {][string "foo"] [string \'bar\'][keyword }]',
+     '');
 })();
