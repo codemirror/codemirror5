@@ -15,6 +15,7 @@
 
   CodeMirror.defineMode("stylus", function(config) {
     var indentUnit = config.indentUnit,
+        indentUnitString = '',
         tagKeywords = keySet(tagKeywords_),
         tagVariablesRegexp = /^(a|b|i|s|col|em)$/i,
         propertyKeywords = keySet(propertyKeywords_),
@@ -37,6 +38,8 @@
         style,
         type,
         override;
+
+    while (indentUnitString.length < indentUnit) indentUnitString += ' ';
 
     /**
      * Tokenizers
@@ -672,7 +675,7 @@
             ch = textAfter && textAfter.charAt(0),
             indent = cx.indent,
             lineFirstWord = firstWordOfLine(textAfter),
-            lineIndent = line.length - line.replace(/^\s*/, "").length,
+            lineIndent = line.match(/^\s*/)[0].replace(/\t/g, indentUnitString).length,
             prevLineFirstWord = state.context.prev ? state.context.prev.line.firstWord : "",
             prevLineIndent = state.context.prev ? state.context.prev.line.indent : lineIndent;
 
