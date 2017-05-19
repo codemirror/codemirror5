@@ -324,6 +324,14 @@
      "[keyword function] [def b][operator <][variable-3 IA] [keyword extends] [variable-3 object], [variable-3 IB] [keyword extends] [variable-3 object][operator >]() {}",
      "[keyword function] [def c]() {}")
 
+  TS("typescript_complex_return_type",
+     "[keyword function] [def A]() {",
+     "  [keyword return] [keyword this].[property property];",
+     "}",
+     "[keyword function] [def B](): [variable-3 Promise][operator <]{ [[ [variable key]: [variable-3 string] ]]: [variable-3 any] } [operator |] [atom null][operator >] {",
+     "  [keyword return] [keyword this].[property property];",
+     "}")
+
   var jsonld_mode = CodeMirror.getMode(
     {indentUnit: 2},
     {name: "javascript", jsonld: true}
