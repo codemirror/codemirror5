@@ -59,6 +59,8 @@
 
   if (mac) map["Cmd-Left"] = "goLineStartSmart";
 
+  if (mac) map["Cmd-Left"] = "goLineStartSmart";
+
   var scrollLineCombo = mac ? "Ctrl-Alt-" : "Ctrl-";
 
   cmds[map[scrollLineCombo + "Up"] = "scrollLineUp"] = function(cm) {
