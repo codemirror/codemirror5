@@ -123,7 +123,7 @@ function setSelectionInner(doc, sel) {
 // Verify that the selection does not partially select any atomic
 // marked ranges.
 export function reCheckSelection(doc) {
-  setSelectionInner(doc, skipAtomicInSelection(doc, doc.sel, null, false), sel_dontScroll)
+  setSelectionInner(doc, skipAtomicInSelection(doc, doc.sel, null, false))
 }
 
 // Return a selection that does not partially select any atomic

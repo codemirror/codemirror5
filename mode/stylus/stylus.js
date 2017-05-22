@@ -316,7 +316,7 @@
           return pushContext(state, stream, "block", 0);
         }
       }
-      if (typeIsBlock(type, stream, state)) {
+      if (typeIsBlock(type, stream)) {
         return pushContext(state, stream, "block");
       }
       if (type == "}" && endOfLine(stream)) {
@@ -516,7 +516,7 @@
      */
     states.atBlock = function(type, stream, state) {
       if (type == "(") return pushContext(state, stream, "atBlock_parens");
-      if (typeIsBlock(type, stream, state)) {
+      if (typeIsBlock(type, stream)) {
         return pushContext(state, stream, "block");
       }
       if (typeIsInterpolation(type, stream)) {
