@@ -1,3 +1,25 @@
+## 5.26.0 (2017-05-22)
+
+### Bug fixes
+
+In textarea-mode, don't reset the input field during composition.
+
+More careful restoration of selections in widgets, during editor redraw.
+
+[javascript mode](http://codemirror.net/mode/javascript/): More TypeScript parsing fixes.
+
+[julia mode](http://codemirror.net/mode/julia/): Fix issue where the mode gets stuck.
+
+[markdown mode](http://codemirror.net/mode/markdown/): Understand cross-line links, parse all bracketed things as links.
+
+[soy mode](http://codemirror.net/mode/soy/): Support single-quoted strings.
+
+[go mode](http://codemirror.net/mode/go/): Don't try to indent inside strings or comments.
+
+### New features
+
+[vim bindings](http://codemirror.net/mode/demo/vim.html): Parse line offsets in line or range specs.
+
 ## 5.25.2 (2017-04-20)
 
 ### Bug fixes
