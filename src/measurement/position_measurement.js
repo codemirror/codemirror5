@@ -1,4 +1,3 @@
-import { moveVisually } from "../input/movement"
 import { buildLineContent, LineView } from "../line/line_data"
 import { clipPos, Pos } from "../line/pos"
 import { collapsedSpanAtEnd, heightAtLine, lineIsHidden, visualLine } from "../line/spans"
@@ -433,8 +432,8 @@ export function coordsChar(cm, x, y) {
   }
 }
 
-function wrappedLineExtent(cm, lineObj, preparedMeasure, y) {
-  let measure = ch => intoCoordSystem(cm, lineObj, measureCharPrepared(cm, preparedMeasure, ch), "line")
+function wrappedLineExtent(cm, lineObj, preparedMeasure, y, conversion = ch => ch) {
+  let measure = ch => intoCoordSystem(cm, lineObj, measureCharPrepared(cm, preparedMeasure, conversion(ch)), "line")
   let end = lineObj.text.length
   let begin = findFirst(ch => measure(ch - 1).bottom <= y, end, 0)
   end = findFirst(ch => measure(ch).top > y, begin, end)
@@ -452,44 +451,38 @@ function coordsCharInner(cm, lineObj, lineNo, x, y) {
   let preparedMeasure = prepareMeasureForLine(cm, lineObj)
   let pos
   let order = getOrder(lineObj, cm.doc.direction)
-  if (order) {
-    if (cm.options.lineWrapping) {
-      ;({begin, end} = wrappedLineExtent(cm, lineObj, preparedMeasure, y))
-    }
-    pos = new Pos(lineNo, begin)
-    let beginLeft = cursorCoords(cm, pos, "line", lineObj, preparedMeasure).left
-    let dir = beginLeft < x ? 1 : -1
-    let prevDiff, diff = beginLeft - x, prevPos
-    do {
-      prevDiff = diff
-      prevPos = pos
-      pos = moveVisually(cm, lineObj, pos, dir)
-      if (pos == null || pos.ch < begin || end <= (pos.sticky == "before" ? pos.ch - 1 : pos.ch)) {
-        pos = prevPos
-        break
+
+  function convertToCh(visualCh) {
+    if (!order)
+      return visualCh
+    let ch = 0
+    for (let i = 0; i < order.length; i++) {
+      let length = order[i].to - order[i].from
+      if (ch + length >= visualCh) {
+        if (order[i].level % 2) return order[i].to - visualCh + ch
+        return order[i].from - ch + visualCh
       }
-      diff = cursorCoords(cm, pos, "line", lineObj, preparedMeasure).left - x
-    } while ((dir < 0) != (diff < 0) && (Math.abs(diff) <= Math.abs(prevDiff)))
-    if (Math.abs(diff) > Math.abs(prevDiff)) {
-      if ((diff < 0) == (prevDiff < 0)) throw new Error("Broke out of infinite loop in coordsCharInner")
-      pos = prevPos
+      ch += length
     }
-  } else {
-    let ch = findFirst(ch => {
-      let box = intoCoordSystem(cm, lineObj, measureCharPrepared(cm, preparedMeasure, ch), "line")
-      if (box.top > y) {
-        // For the cursor stickiness
-        end = Math.min(ch, end)
-        return true
-      }
-      else if (box.bottom <= y) return false
-      else if (box.left > x) return true
-      else if (box.right < x) return false
-      else return (x - box.left < box.right - x)
-    }, begin, end)
-    ch = skipExtendingChars(lineObj.text, ch, 1)
-    pos = new Pos(lineNo, ch, ch == end ? "before" : "after")
+    return visualCh
   }
+  if (cm.options.lineWrapping)
+    ({ begin, end } = wrappedLineExtent(cm, lineObj, preparedMeasure, y, convertToCh))
+  let ch = convertToCh(findFirst(visualCh => {
+    let ch = convertToCh(visualCh)
+    let box = intoCoordSystem(cm, lineObj, measureCharPrepared(cm, preparedMeasure, ch), "line")
+    if (box.top > y) {
+      // For the cursor stickiness
+      end = Math.min(ch, end)
+      return true
+    }
+    else if (box.bottom <= y) return false
+    else if (box.left > x) return true
+    else if (box.right < x) return false
+    else return (x - box.left < box.right - x)
+  }, begin, end))
+  ch = skipExtendingChars(lineObj.text, ch, 1)
+  pos = new Pos(lineNo, ch, ch == end ? "before" : "after")
   let coords = cursorCoords(cm, pos, "line", lineObj, preparedMeasure)
   if (y < coords.top || coords.bottom < y) pos.outside = true
   pos.xRel = x < coords.left ? -1 : (x > coords.right ? 1 : 0)

@@ -254,6 +254,21 @@ testCM("coordsCharBidi", function(cm) {
   }
 }, {lineNumbers: true});
 
+testCM("coordsCharBidiLineWrapping", function(cm) {
+  addDoc(cm, 35 * 70, 1);
+  // Put an rtl character into each line to trigger the bidi code path in coordsChar
+  cm.setValue(cm.getValue().replace(/\bx/g, 'و'))
+  for (var i = 0; i < 2; ++i) {
+    var sys = i ? "local" : "page";
+    for (var ch = 2; ch <= 35 * 70; ch += 5) {
+      cm.setCursor(0, ch);
+      var coords = cm.charCoords(Pos(0, ch), sys);
+      var pos = cm.coordsChar({left: coords.left + 1, top: coords.top + 1}, sys);
+      eqCharPos(pos, Pos(0, ch));
+    }
+  }
+}, { lineNumbers: true, lineWrapping: true });
+
 testCM("posFromIndex", function(cm) {
   cm.setValue(
     "This function should\n" +
