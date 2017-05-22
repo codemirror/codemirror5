@@ -32,7 +32,7 @@ export function endOfLine(visually, cm, lineObj, lineNo, dir) {
         ch = dir < 0 ? lineObj.text.length - 1 : 0
         let targetTop = measureCharPrepared(cm, prep, ch).top
         ch = findFirst(ch => measureCharPrepared(cm, prep, ch).top == targetTop, (dir < 0) == (part.level == 1) ? part.from : part.to - 1, ch)
-        if (sticky == "before") ch = moveCharLogically(lineObj, ch, 1, true)
+        if (sticky == "before") ch = moveCharLogically(lineObj, ch, 1)
       } else ch = dir < 0 ? part.to : part.from
       return new Pos(lineNo, ch, sticky)
     }

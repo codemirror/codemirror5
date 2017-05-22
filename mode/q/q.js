@@ -25,7 +25,7 @@ CodeMirror.defineMode("q",function(config){
         return(state.tokenize=tokenLineComment)(stream,state);
       else if(c=="\\"){
         if(stream.eol()||/\s/.test(stream.peek()))
-          return stream.skipToEnd(),/^\\\s*$/.test(stream.current())?(state.tokenize=tokenCommentToEOF)(stream, state):state.tokenize=tokenBase,"comment";
+          return stream.skipToEnd(),/^\\\s*$/.test(stream.current())?(state.tokenize=tokenCommentToEOF)(stream):state.tokenize=tokenBase,"comment";
         else
           return state.tokenize=tokenBase,"builtin";
       }

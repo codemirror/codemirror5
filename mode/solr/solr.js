@@ -19,7 +19,7 @@ CodeMirror.defineMode("solr", function() {
   var isOperatorString = /^(OR|AND|NOT|TO)$/i;
 
   function isNumber(word) {
-    return parseFloat(word, 10).toString() === word;
+    return parseFloat(word).toString() === word;
   }
 
   function tokenString(quote) {
