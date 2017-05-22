@@ -155,7 +155,7 @@ CodeMirror.defineMode("go", function(config) {
       else if (curPunc == "[") pushContext(state, stream.column(), "]");
       else if (curPunc == "(") pushContext(state, stream.column(), ")");
       else if (curPunc == "case") ctx.type = "case";
-      else if (curPunc == "}" && ctx.type == "}") ctx = popContext(state);
+      else if (curPunc == "}" && ctx.type == "}") popContext(state);
       else if (curPunc == ctx.type) popContext(state);
       state.startOfLine = false;
       return style;

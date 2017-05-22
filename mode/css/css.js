@@ -401,7 +401,6 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
             ch == "{" && (cx.type == "at" || cx.type == "atBlock")) {
           // Dedent relative to current context.
           indent = Math.max(0, cx.indent - indentUnit);
-          cx = cx.prev;
         }
       }
       return indent;
