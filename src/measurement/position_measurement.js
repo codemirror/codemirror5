@@ -456,20 +456,30 @@ function coordsCharInner(cm, lineObj, lineNo, x, y) {
     if (cm.options.lineWrapping) {
       ;({begin, end} = wrappedLineExtent(cm, lineObj, preparedMeasure, y))
     }
-    pos = new Pos(lineNo, begin)
+    pos = new Pos(lineNo, Math.floor(begin + (end - begin) / 2))
     let beginLeft = cursorCoords(cm, pos, "line", lineObj, preparedMeasure).left
     let dir = beginLeft < x ? 1 : -1
     let prevDiff, diff = beginLeft - x, prevPos
-    do {
+    let steps = Math.ceil((end - begin) / 4)
+    outer: do {
       prevDiff = diff
       prevPos = pos
-      pos = moveVisually(cm, lineObj, pos, dir)
-      if (pos == null || pos.ch < begin || end <= (pos.sticky == "before" ? pos.ch - 1 : pos.ch)) {
-        pos = prevPos
-        break
+      let i = 0
+      for (; i < steps; ++i) {
+        let prevPos = pos
+        pos = moveVisually(cm, lineObj, pos, dir)
+        if (pos == null || pos.ch < begin || end <= (pos.sticky == "before" ? pos.ch - 1 : pos.ch)) {
+          pos = prevPos
+          break outer
+        }
       }
       diff = cursorCoords(cm, pos, "line", lineObj, preparedMeasure).left - x
-    } while ((dir < 0) != (diff < 0) && (Math.abs(diff) <= Math.abs(prevDiff)))
+      if (steps > 1) {
+        let diff_change_per_step = Math.abs(diff - prevDiff) / steps
+        steps = Math.min(steps, Math.ceil(Math.abs(diff) / diff_change_per_step))
+        dir = diff < 0 ? 1 : -1
+      }
+    } while (steps > 1 || ((dir < 0) != (diff < 0) && (Math.abs(diff) <= Math.abs(prevDiff))))
     if (Math.abs(diff) > Math.abs(prevDiff)) {
       if ((diff < 0) == (prevDiff < 0)) throw new Error("Broke out of infinite loop in coordsCharInner")
       pos = prevPos
