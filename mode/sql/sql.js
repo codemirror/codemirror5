@@ -170,7 +170,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
         if (state.context && state.context.align == null)
           state.context.align = false;
       }
-      if (stream.eatSpace()) return null;
+      if (state.tokenize == tokenBase && stream.eatSpace()) return null;
 
       var style = state.tokenize(stream, state);
       if (style == "comment") return style;
