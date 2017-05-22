@@ -684,7 +684,6 @@
              ch == ")" && (cx.type == "parens" || cx.type == "atBlock_parens") ||
              ch == "{" && (cx.type == "at"))) {
           indent = cx.indent - indentUnit;
-          cx = cx.prev;
         } else if (!(/(\})/.test(ch))) {
           if (/@|\$|\d/.test(ch) ||
               /^\{/.test(textAfter) ||

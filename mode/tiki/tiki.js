@@ -144,7 +144,7 @@ CodeMirror.defineMode('tiki', function(config) {
       type = "equals";
 
       if (peek == ">") {
-        ch = stream.next();
+        stream.next();
         peek = stream.peek();
       }
 

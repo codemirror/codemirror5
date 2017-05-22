@@ -107,7 +107,7 @@
         }
         return "variable";
       } else if (stream.eat("{")) {
-        if (ch = stream.eat("#")) {
+        if (stream.eat("#")) {
           state.incomment = true;
           if(!stream.skipTo("#}")) {
             stream.skipToEnd();
