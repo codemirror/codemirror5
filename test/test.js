@@ -1892,6 +1892,49 @@ testCM("addKeyMap", function(cm) {
   eqCursorPos(cm.getCursor(), Pos(0, 3, "before"));
 }, {value: "abc"});
 
+function mouseDown(cm, button, pos, mods) {
+  let coords = cm.charCoords(pos, "window")
+  let event = {type: "mousedown",
+               preventDefault: Math.min,
+               which: button,
+               target: cm.display.lineDiv,
+               clientX: coords.left, clientY: coords.top}
+  if (mods) for (let prop in mods) event[prop] = mods[prop]
+  cm.triggerOnMouseDown(event)
+}
+
+testCM("mouseBinding", function(cm) {
+  var fired = []
+  cm.addKeyMap({
+    "Shift-LeftClick": function(_cm, pos) {
+      eqCharPos(pos, Pos(1, 2))
+      fired.push("a")
+    },
+    "Shift-LeftDoubleClick": function() { fired.push("b") },
+    "Shift-LeftTripleClick": function() { fired.push("c") }
+  })
+
+  function send(button, mods) { mouseDown(cm, button, Pos(1, 2), mods) }
+  send(1, {shiftKey: true})
+  send(1, {shiftKey: true})
+  send(1, {shiftKey: true})
+  send(1, {})
+  send(2, {ctrlKey: true})
+  send(2, {ctrlKey: true})
+  eq(fired.join(" "), "a b c")
+}, {value: "foo\nbar\nbaz"})
+
+testCM("configureMouse", function(cm) {
+  cm.setOption("configureMouse", function() { return {unit: "word"} })
+  mouseDown(cm, 1, Pos(0, 5))
+  eqCharPos(cm.getCursor("from"), Pos(0, 4))
+  eqCharPos(cm.getCursor("to"), Pos(0, 7))
+  cm.setOption("configureMouse", function() { return {extend: true} })
+  mouseDown(cm, 1, Pos(0, 0))
+  eqCharPos(cm.getCursor("from"), Pos(0, 0))
+  eqCharPos(cm.getCursor("to"), Pos(0, 4))
+}, {value: "foo bar baz"})
+
 testCM("findPosH", function(cm) {
   forEach([{from: Pos(0, 0), to: Pos(0, 1, "before"), by: 1},
            {from: Pos(0, 0), to: Pos(0, 0), by: -1, hitSide: true},

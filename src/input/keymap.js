@@ -123,16 +123,21 @@ export function isModifierKey(value) {
   return name == "Ctrl" || name == "Alt" || name == "Shift" || name == "Mod"
 }
 
-// Look up the name of a key as indicated by an event object.
-export function keyName(event, noShift) {
-  if (presto && event.keyCode == 34 && event["char"]) return false
-  let base = keyNames[event.keyCode], name = base
-  if (name == null || event.altGraphKey) return false
+export function addModifierNames(name, event, noShift) {
+  let base = name
   if (event.altKey && base != "Alt") name = "Alt-" + name
   if ((flipCtrlCmd ? event.metaKey : event.ctrlKey) && base != "Ctrl") name = "Ctrl-" + name
   if ((flipCtrlCmd ? event.ctrlKey : event.metaKey) && base != "Cmd") name = "Cmd-" + name
   if (!noShift && event.shiftKey && base != "Shift") name = "Shift-" + name
   return name
+}
+
+// Look up the name of a key as indicated by an event object.
+export function keyName(event, noShift) {
+  if (presto && event.keyCode == 34 && event["char"]) return false
+  let name = keyNames[event.keyCode]
+  if (name == null || event.altGraphKey) return false
+  return addModifierNames(name, event, noShift)
 }
 
 export function getKeyMap(val) {

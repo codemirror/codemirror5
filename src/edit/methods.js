@@ -7,6 +7,7 @@ import { getLineStyles, getStateBefore, takeToken } from "../line/highlight"
 import { indentLine } from "../input/indent"
 import { triggerElectric } from "../input/input"
 import { onKeyDown, onKeyPress, onKeyUp } from "./key_events"
+import { onMouseDown } from "./mouse_events"
 import { getKeyMap } from "../input/keymap"
 import { endOfLine, moveLogically, moveVisually } from "../input/movement"
 import { methodOp, operation, runInOp } from "../display/operations"
@@ -258,6 +259,7 @@ export default function(CodeMirror) {
     triggerOnKeyDown: methodOp(onKeyDown),
     triggerOnKeyPress: methodOp(onKeyPress),
     triggerOnKeyUp: onKeyUp,
+    triggerOnMouseDown: methodOp(onMouseDown),
 
     execCommand: function(cmd) {
       if (commands.hasOwnProperty(cmd))

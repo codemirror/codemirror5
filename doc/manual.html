@@ -314,6 +314,26 @@
       by <a href="#option_keyMap"><code>keyMap</code></a>. Should be
       either null, or a valid <a href="#keymaps">key map</a> value.</dd>
 
+      <dt id="option_configureMouse"><code><strong>configureMouse</strong>: fn(cm: CodeMirror, repeat: "single" | "double" | "triple", event: Event) → Object</code></dt>
+      <dd>Allows you to configure the behavior of mouse selection and
+      dragging. The function is called when the left mouse button is
+      pressed. The returned object may have the following properties:
+        <dl>
+          <dt><code><strong>unit</strong>: "char" | "word" | "line" | "rectangle" | fn(CodeMirror, Pos) → {from: Pos, to: Pos}</code></dt>
+          <dd>The unit by which to select. May be one of the built-in
+          units, or a function that takes a position and returns a
+          range around that, for a custom unit.</dd>
+          <dt><code><strong>extend</strong>: bool</code></dt>
+          <dd>Whether to extend the existing selection range or start a new one.</dd>
+          <dt><code><strong>addNew</strong>: bool</code></dt>
+          <dd>When enabled, this adds a new range to the existing selection, rather than replacing it.</dd>
+          <dt><code><strong>moveOnDrag</strong>: bool</code></dt>
+          <dd>When the mouse even drags content around inside the
+          editor, this controls whether it is copied (false) or moved
+          (true).</dt>
+        </dl>
+      </dd>
+
       <dt id="option_lineWrapping"><code><strong>lineWrapping</strong>: boolean</code></dt>
       <dd>Whether CodeMirror should scroll or wrap for long lines.
       Defaults to <code>false</code> (scroll).</dd>
@@ -764,9 +784,10 @@
 <section id=keymaps>
     <h2>Key Maps</h2>
 
-    <p>Key maps are ways to associate keys with functionality. A key map
-    is an object mapping strings that identify the keys to functions
-    that implement their functionality.</p>
+    <p>Key maps are ways to associate keys and mouse buttons with
+    functionality. A key map is an object mapping strings that
+    identify the buttons to functions that implement their
+    functionality.</p>
 
     <p>The CodeMirror distributions comes
     with <a href="../demo/emacs.html">Emacs</a>, <a href="../demo/vim.html">Vim</a>,
@@ -797,6 +818,13 @@ editor.setOption("extraKeys", {
     surrounding it in single quotes, for example <code>'$'</code>
     or <code>'q'</code>. Due to limitations in the way browsers fire
     key events, these may not be prefixed with modifiers.</p>
+
+    <p>To bind mouse buttons, use the names `LeftClick`,
+    `MiddleClick`, and `RightClick`. These can also be prefixed with
+    modifiers, and in addition, the word `Double` or `Triple` can be
+    put before `Click` (as in `LeftDoubleClick`) to bind a double- or
+    triple-click. The function for such a binding is passed the
+    position that was clicked as second argument.</p>
 
     <p id="normalizeKeyMap">Multi-stroke key bindings can be specified
     by separating the key names by spaces in the property name, for

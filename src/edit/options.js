@@ -92,6 +92,7 @@ export function defineOptions(CodeMirror) {
     if (next.attach) next.attach(cm, prev || null)
   })
   option("extraKeys", null)
+  option("configureMouse", null)
 
   option("lineWrapping", false, wrappingChanged, true)
   option("gutters", [], cm => {

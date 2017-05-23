@@ -40,8 +40,11 @@ function lookupKeyForEditor(cm, name, handle) {
     || lookupKey(name, cm.options.keyMap, handle, cm)
 }
 
+// Note that, despite the name, this function is also used to check
+// for bound mouse clicks.
+
 let stopSeq = new Delayed
-function dispatchKey(cm, name, e, handle) {
+export function dispatchKey(cm, name, e, handle) {
   let seq = cm.state.keySeq
   if (seq) {
     if (isModifierKey(name)) return "handled"
