@@ -31,10 +31,10 @@
     run(doc, "cde", false, 0, 2, 0, 5, 1, 2, 1, 5);
   });
 
-  test("multiline", "hallo", "goodbye", function(doc) {
-    run(doc, "llo\ngoo", false, 0, 2, 1, 3);
-    run(doc, "blah\nhall", false);
-    run(doc, "bye\neye", false);
+  test("multiline", "hallo", "a", "b", "goodbye", function(doc) {
+    run(doc, "llo\na\nb\ngoo", false, 0, 2, 3, 3);
+    run(doc, "blah\na\nb\nhall", false);
+    run(doc, "bye\nx\neye", false);
   });
 
   test("regexp", "abcde", "abcde", function(doc) {
