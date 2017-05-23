@@ -179,6 +179,7 @@ export function postUpdateDisplay(cm, update) {
     updateSelection(cm)
     updateScrollbars(cm, barMeasure)
     setDocumentHeight(cm, barMeasure)
+    update.force = false
   }
 
   update.signal(cm, "update", cm)
