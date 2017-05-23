@@ -80,7 +80,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     } else if (ch == "/" && stream.eat("*")) {
       // multi-line comments
       // ref: https://kb.askmonty.org/en/comment-syntax/
-      state.tokenize = tokenComment;
+      state.tokenize = tokenComment(1);
       return state.tokenize(stream, state);
     } else if (ch == ".") {
       // .1 for 0.1
@@ -130,20 +130,15 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
       return "string";
     };
   }
-  function tokenComment(stream, state) {
-    while (true) {
-      if (stream.skipTo("*")) {
-        stream.next();
-        if (stream.eat("/")) {
-          state.tokenize = tokenBase;
-          break;
-        }
-      } else {
-        stream.skipToEnd();
-        break;
-      }
+  function tokenComment(depth) {
+    return function(stream, state) {
+      var m = stream.match(/^.*?(\/\*|\*\/)/)
+      if (!m) stream.skipToEnd()
+      else if (m[1] == "/*") state.tokenize = tokenComment(depth + 1)
+      else if (depth > 1) state.tokenize = tokenComment(depth - 1)
+      else state.tokenize = tokenBase
+      return "comment"
     }
-    return "comment";
   }
 
   function pushContext(stream, state, type) {
