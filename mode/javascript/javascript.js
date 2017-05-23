@@ -61,9 +61,6 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
         "protected": kw("modifier"),
         "abstract": kw("modifier"),
 
-        // operators
-        "as": operator,
-
         // types
         "string": type, "number": type, "boolean": type, "any": type
       };
@@ -439,6 +436,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == "(") return contCommasep(expressionNoComma, ")", "call", me);
     if (type == ".") return cont(property, me);
     if (type == "[") return cont(pushlex("]"), maybeexpression, expect("]"), poplex, me);
+    if (isTS && value == "as") { cx.marked = "keyword"; return cont(typeexpr, me) }
   }
   function quasi(type, value) {
     if (type != "quasi") return pass();
