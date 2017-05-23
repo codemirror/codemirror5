@@ -447,7 +447,7 @@ CodeMirror.defineMode("sass", function(config) {
       return state.scopes[0].offset;
     }
   };
-});
+}, "css");
 
 CodeMirror.defineMIME("text/x-sass", "sass");
 
