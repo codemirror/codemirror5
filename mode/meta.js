@@ -14,7 +14,7 @@
   CodeMirror.modeInfo = [
     {name: "APL", mime: "text/apl", mode: "apl", ext: ["dyalog", "apl"]},
     {name: "PGP", mimes: ["application/pgp", "application/pgp-keys", "application/pgp-signature"], mode: "asciiarmor", ext: ["pgp"]},
-    {name: "ASN.1", mime: "text/x-ttcn-asn", mode: "asn.1", ext: ["asn", "asn1"]},
+    {name: "ASN.1", mime: "text/x-ttcn-asn", mode: "asn1", ext: ["asn", "asn1"]},
     {name: "Asterisk", mime: "text/x-asterisk", mode: "asterisk", file: /^extensions\.conf$/i},
     {name: "Brainfuck", mime: "text/x-brainfuck", mode: "brainfuck", ext: ["b", "bf"]},
     {name: "C", mime: "text/x-csrc", mode: "clike", ext: ["c", "h"]},
@@ -145,7 +145,7 @@
     {name: "Tornado", mime: "text/x-tornado", mode: "tornado"},
     {name: "troff", mime: "text/troff", mode: "troff", ext: ["1", "2", "3", "4", "5", "6", "7", "8", "9"]},
     {name: "TTCN", mime: "text/x-ttcn", mode: "ttcn", ext: ["ttcn", "ttcn3", "ttcnpp"]},
-    {name: "TTCN_CFG", mime: "text/x-ttcn-cfg", mode: "ttcn-cfg", ext: ["cfg"]},
+    {name: "TTCN_CFG", mime: "text/x-ttcn-cfg", mode: "ttcncfg", ext: ["cfg"]},
     {name: "Turtle", mime: "text/turtle", mode: "turtle", ext: ["ttl"]},
     {name: "TypeScript", mime: "application/typescript", mode: "javascript", ext: ["ts"], alias: ["ts"]},
     {name: "TypeScript-JSX", mime: "text/typescript-jsx", mode: "jsx", ext: ["tsx"], alias: ["tsx"]},
