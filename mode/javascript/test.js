@@ -332,6 +332,9 @@
      "  [keyword return] [keyword this].[property property];",
      "}")
 
+  TS("typescript_complex_type_casting",
+     "[keyword const] [def giftpay] [operator =] [variable config].[property get]([string 'giftpay']) [keyword as] { [[ [variable platformUuid]: [variable-3 string] ]]: { [property version]: [variable-3 number]; [property apiCode]: [variable-3 string]; } };")
+
   var jsonld_mode = CodeMirror.getMode(
     {indentUnit: 2},
     {name: "javascript", jsonld: true}
