@@ -353,7 +353,8 @@ export default class TextareaInput {
   }
 
   readOnlyChanged(val) {
-    if (!val) this.reset()
+    if (val == "nocursor") this.textarea.disabled = true
+    else if (!val) this.reset()
   }
 
   setUneditable() {}
