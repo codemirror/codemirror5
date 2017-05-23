@@ -1893,13 +1893,13 @@ testCM("addKeyMap", function(cm) {
 }, {value: "abc"});
 
 function mouseDown(cm, button, pos, mods) {
-  let coords = cm.charCoords(pos, "window")
-  let event = {type: "mousedown",
+  var coords = cm.charCoords(pos, "window")
+  var event = {type: "mousedown",
                preventDefault: Math.min,
                which: button,
                target: cm.display.lineDiv,
                clientX: coords.left, clientY: coords.top}
-  if (mods) for (let prop in mods) event[prop] = mods[prop]
+  if (mods) for (var prop in mods) event[prop] = mods[prop]
   cm.triggerOnMouseDown(event)
 }
 
