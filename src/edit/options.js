@@ -125,9 +125,6 @@ export function defineOptions(CodeMirror) {
     if (val == "nocursor") {
       onBlur(cm)
       cm.display.input.blur()
-      cm.display.disabled = true
-    } else {
-      cm.display.disabled = false
     }
     cm.display.input.readOnlyChanged(val)
   })
