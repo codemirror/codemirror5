@@ -12,8 +12,19 @@
   "use strict"
   var Pos = CodeMirror.Pos
 
+  function regexpFlags(regexp) {
+    var flags = regexp.flags
+    return flags != null ? flags : (regexp.ignoreCase ? "i" : "")
+      + (regexp.global ? "g" : "")
+      + (regexp.multiline ? "m" : "")
+  }
+
   function ensureGlobal(regexp) {
-    return regexp.global ? regexp : new RegExp(regexp.source, regexp.ignoreCase ? "ig" : "g")
+    return regexp.global ? regexp : new RegExp(regexp.source, regexpFlags(regexp) + "g")
+  }
+
+  function maybeMultiline(regexp) {
+    return /\\s|\\n|\n|\\W|\\D|\[\^/.test(regexp.source)
   }
 
   function searchRegexpForward(doc, regexp, start) {
@@ -28,24 +39,79 @@
     }
   }
 
+  function searchRegexpForwardMultiline(doc, regexp, start) {
+    if (!maybeMultiline(regexp)) return searchRegexpForward(doc, regexp, start)
+
+    regexp = ensureGlobal(regexp)
+    var string, chunk = 1
+    for (var line = start.line, last = doc.lastLine(); line <= last;) {
+      // This grows the search buffer in exponentially-sized chunks
+      // between matches, so that nearby matches are fast and don't
+      // require concatenating the whole document (in case we're
+      // searching for something that has tons of matches), but at the
+      // same time, the amount of retries is limited.
+      for (var i = 0; i < chunk; i++) {
+        var curLine = doc.getLine(line++)
+        string = string == null ? curLine : string + "\n" + curLine
+      }
+      chunk = chunk * 2
+      regexp.lastIndex = start.ch
+      var match = regexp.exec(string)
+      if (match && match[0].length) {
+        var before = string.slice(0, match.index).split("\n"), inside = match[0].split("\n")
+        var startLine = start.line + before.length - 1, startCh = before[before.length - 1].length
+        return {from: Pos(startLine, startCh),
+                to: Pos(startLine + inside.length - 1,
+                        inside.length == 1 ? startCh + inside[0].length : inside[inside.length - 1].length),
+                match: match}
+      }
+    }
+  }
+
+  function lastMatchIn(string, regexp) {
+    var cutOff = 0, match
+    for (;;) {
+      regexp.lastIndex = cutOff
+      var newMatch = regexp.exec(string)
+      if (!newMatch) return match
+      match = newMatch
+      cutOff = match.index + (match[0].length || 1)
+      if (cutOff == string.length) return match
+    }
+  }
+
   function searchRegexpBackward(doc, regexp, start) {
     regexp = ensureGlobal(regexp)
     for (var line = start.line, ch = start.ch, first = doc.firstLine(); line >= first; line--, ch = -1) {
-      var string = doc.getLine(line), cutOff = 0, match
+      var string = doc.getLine(line)
       if (ch > -1) string = string.slice(0, ch)
-      for (;;) {
-        regexp.lastIndex = cutOff
-        var newMatch = regexp.exec(string)
-        if (!newMatch) break
-        match = newMatch
-        cutOff = match.index + (match[0].length || 1)
-        if (cutOff == line.length) break
-      }
-
+      var match = lastMatchIn(string, regexp)
       if (match && match[0].length)
         return {from: Pos(line, match.index),
                 to: Pos(line, match.index + match[0].length),
                 match: match}
+    }
+  }
+
+  function searchRegexpBackwardMultiline(doc, regexp, start) {
+    regexp = ensureGlobal(regexp)
+    var string, chunk = 1
+    for (var line = start.line, first = doc.firstLine(); line >= first;) {
+      for (var i = 0; i < chunk; i++) {
+        var curLine = doc.getLine(line--)
+        string = string == null ? curLine.slice(0, start.ch) : curLine + "\n" + string
+      }
+      chunk *= 2
+
+      var match = lastMatchIn(string, regexp)
+      if (match && match[0].length) {
+        var before = string.slice(0, match.index).split("\n"), inside = match[0].split("\n")
+        var startLine = line + before.length, startCh = before[before.length - 1].length
+        return {from: Pos(startLine, startCh),
+                to: Pos(startLine + inside.length - 1,
+                        inside.length == 1 ? startCh + inside[0].length : inside[inside.length - 1].length),
+                match: match}
+      }
     }
   }
 
@@ -119,11 +185,19 @@
     }
   }
 
-  function SearchCursor(doc, query, pos, caseFold) {
+  function SearchCursor(doc, query, pos, options) {
     this.atOccurrence = false
     this.doc = doc
     pos = pos ? doc.clipPos(pos) : Pos(0, 0)
     this.pos = {from: pos, to: pos}
+
+    var caseFold
+    if (typeof options == "object") {
+      caseFold = options.caseFold
+    } else { // Backwards compat for when caseFold was the 4th argument
+      caseFold = options
+      options = null
+    }
 
     if (typeof query == "string") {
       if (caseFold == null) caseFold = false
@@ -132,9 +206,14 @@
       }
     } else {
       query = ensureGlobal(query)
-      this.matches = function(reverse, pos) {
-        return (reverse ? searchRegexpBackward : searchRegexpForward)(doc, query, pos)
-      }
+      if (!options || options.multiline !== false)
+        this.matches = function(reverse, pos) {
+          return (reverse ? searchRegexpBackwardMultiline : searchRegexpForwardMultiline)(doc, query, pos)
+        }
+      else
+        this.matches = function(reverse, pos) {
+          return (reverse ? searchRegexpBackward : searchRegexpForward)(doc, query, pos)
+        }
     }
   }
 

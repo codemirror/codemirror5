@@ -2263,16 +2263,18 @@ editor.setOption("extraKeys", {
       <p>Depends on <code>addon/dialog/dialog.css</code>.</p></dd>
 
       <dt id="addon_searchcursor"><a href="../addon/search/searchcursor.js"><code>search/searchcursor.js</code></a></dt>
-      <dd>Adds the <code>getSearchCursor(query, start, caseFold) →
+      <dd>Adds the <code>getSearchCursor(query, start, options) →
       cursor</code> method to CodeMirror instances, which can be used
       to implement search/replace functionality. <code>query</code>
-      can be a regular expression or a string (only strings will match
-      across lines—if they contain newlines). <code>start</code>
+      can be a regular expression or a string. <code>start</code>
       provides the starting position of the search. It can be
       a <code>{line, ch}</code> object, or can be left off to default
-      to the start of the document. <code>caseFold</code> is only
-      relevant when matching a string. It will cause the search to be
-      case-insensitive. A search cursor has the following methods:
+      to the start of the document. <code>options</code> is an
+      optional object, which can contain the property `caseFold:
+      false` to disable case folding when mathing a string, or the
+      property `multiline: disable` to disable multi-line matching for
+      regular expressions (which may help performance). A search
+      cursor has the following methods:
         <dl>
           <dt><code><strong>findNext</strong>() → boolean</code></dt>
           <dt><code><strong>findPrevious</strong>() → boolean</code></dt>
