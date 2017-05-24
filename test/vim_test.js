@@ -2369,11 +2369,7 @@ testVim('?_greedy_0_or_more', function(cm, vim, helpers) {
   helpers.doKeys('?');
   helpers.assertCursorAt(1, 1);
   helpers.doKeys('n');
-  helpers.assertCursorAt(1, 0);
-  helpers.doKeys('n');
   helpers.assertCursorAt(0, 5);
-  helpers.doKeys('n');
-  helpers.assertCursorAt(0, 4);
   helpers.doKeys('n');
   helpers.assertCursorAt(0, 3);
   helpers.doKeys('n');

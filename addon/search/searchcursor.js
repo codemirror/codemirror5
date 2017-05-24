@@ -32,7 +32,7 @@
     for (var line = start.line, ch = start.ch, last = doc.lastLine(); line <= last; line++, ch = 0) {
       regexp.lastIndex = ch
       var string = doc.getLine(line), match = regexp.exec(string)
-      if (match && match[0].length)
+      if (match)
         return {from: Pos(line, match.index),
                 to: Pos(line, match.index + match[0].length),
                 match: match}
@@ -57,7 +57,7 @@
       chunk = chunk * 2
       regexp.lastIndex = start.ch
       var match = regexp.exec(string)
-      if (match && match[0].length) {
+      if (match) {
         var before = string.slice(0, match.index).split("\n"), inside = match[0].split("\n")
         var startLine = start.line + before.length - 1, startCh = before[before.length - 1].length
         return {from: Pos(startLine, startCh),
@@ -86,7 +86,7 @@
       var string = doc.getLine(line)
       if (ch > -1) string = string.slice(0, ch)
       var match = lastMatchIn(string, regexp)
-      if (match && match[0].length)
+      if (match)
         return {from: Pos(line, match.index),
                 to: Pos(line, match.index + match[0].length),
                 match: match}
@@ -104,7 +104,7 @@
       chunk *= 2
 
       var match = lastMatchIn(string, regexp)
-      if (match && match[0].length) {
+      if (match) {
         var before = string.slice(0, match.index).split("\n"), inside = match[0].split("\n")
         var startLine = line + before.length, startCh = before[before.length - 1].length
         return {from: Pos(startLine, startCh),
@@ -223,6 +223,21 @@
 
     find: function(reverse) {
       var result = this.matches(reverse, this.doc.clipPos(reverse ? this.pos.from : this.pos.to))
+
+      // Implements weird auto-growing behavior on null-matches for
+      // backwards-compatiblity with the vim code (unfortunately)
+      while (result && CodeMirror.cmpPos(result.from, result.to) == 0) {
+        if (reverse) {
+          if (result.from.ch) result.from = Pos(result.from.line, result.from.ch - 1)
+          else if (result.from.line == this.doc.firstLine()) result = null
+          else result = this.matches(reverse, this.doc.clipPos(Pos(result.from.line - 1)))
+        } else {
+          if (result.to.ch < this.doc.getLine(result.to.line).length) result.to = Pos(result.to.line, result.to.ch + 1)
+          else if (result.to.line == this.doc.lastLine()) result = null
+          else result = this.matches(reverse, Pos(result.to.line + 1, 0))
+        }
+      }
+
       if (result) {
         this.pos = result
         this.atOccurrence = true
