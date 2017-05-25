@@ -15,7 +15,7 @@
 .cm-s-cobalt span.cm-string { color: #3ad900; }
 .cm-s-cobalt span.cm-meta { color: #ff9d00; }
 .cm-s-cobalt span.cm-variable-2, .cm-s-cobalt span.cm-tag { color: #9effff; }
-.cm-s-cobalt span.cm-variable-3, .cm-s-cobalt span.cm-def { color: white; }
+.cm-s-cobalt span.cm-variable-3, .cm-s-cobalt span.cm-def, .cm-s-cobalt .cm-type { color: white; }
 .cm-s-cobalt span.cm-bracket { color: #d8d8d8; }
 .cm-s-cobalt span.cm-builtin, .cm-s-cobalt span.cm-special { color: #ff9e59; }
 .cm-s-cobalt span.cm-link { color: #845dc4; }

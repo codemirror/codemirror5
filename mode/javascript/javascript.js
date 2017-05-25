@@ -46,7 +46,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
 
     // Extend the 'normal' keywords with the TypeScript language extensions
     if (isTS) {
-      var type = {type: "variable", style: "variable-3"};
+      var type = {type: "variable", style: "type"};
       var tsKeywords = {
         // object-like things
         "interface": kw("class"),
@@ -543,7 +543,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     }
   }
   function typeexpr(type) {
-    if (type == "variable") {cx.marked = "variable-3"; return cont(afterType);}
+    if (type == "variable") {cx.marked = "type"; return cont(afterType);}
     if (type == "string" || type == "number" || type == "atom") return cont(afterType);
     if (type == "{") return cont(pushlex("}"), commasep(typeprop, "}", ",;"), poplex, afterType)
     if (type == "(") return cont(commasep(typearg, ")"), maybeReturnType)

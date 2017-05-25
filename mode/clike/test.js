@@ -6,8 +6,8 @@
   function MT(name) { test.mode(name, mode, Array.prototype.slice.call(arguments, 1)); }
 
   MT("indent",
-     "[variable-3 void] [def foo]([variable-3 void*] [variable a], [variable-3 int] [variable b]) {",
-     "  [variable-3 int] [variable c] [operator =] [variable b] [operator +]",
+     "[type void] [def foo]([type void*] [variable a], [type int] [variable b]) {",
+     "  [type int] [variable c] [operator =] [variable b] [operator +]",
      "    [number 1];",
      "  [keyword return] [operator *][variable a];",
      "}");
@@ -21,9 +21,9 @@
      "}");
 
   MT("def",
-     "[variable-3 void] [def foo]() {}",
+     "[type void] [def foo]() {}",
      "[keyword struct] [def bar]{}",
-     "[variable-3 int] [variable-3 *][def baz]() {}");
+     "[type int] [type *][def baz]() {}");
 
   MT("def_new_line",
      "::[variable std]::[variable SomeTerribleType][operator <][variable T][operator >]",
@@ -37,10 +37,10 @@
 
   MT("preprocessor",
      "[meta #define FOO 3]",
-     "[variable-3 int] [variable foo];",
+     "[type int] [variable foo];",
      "[meta #define BAR\\]",
      "[meta 4]",
-     "[variable-3 unsigned] [variable-3 int] [variable bar] [operator =] [number 8];",
+     "[type unsigned] [type int] [variable bar] [operator =] [number 8];",
      "[meta #include <baz> ][comment // comment]")
 
 

@@ -39,6 +39,6 @@
 .cm-s-yeti span.cm-qualifier { color: #96c0d8; }
 .cm-s-yeti span.cm-property { color: #a074c4; }
 .cm-s-yeti span.cm-builtin { color: #a074c4; }
-.cm-s-yeti span.cm-variable-3 { color: #96c0d8; }
+.cm-s-yeti span.cm-variable-3, .cm-s-yeti span.cm-type { color: #96c0d8; }
 .cm-s-yeti .CodeMirror-activeline-background { background: #E7E4E0; }
 .cm-s-yeti .CodeMirror-matchingbracket { text-decoration: underline; }

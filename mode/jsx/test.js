@@ -72,9 +72,9 @@
 
   TS("tsx_react_integration",
      "[keyword interface] [def Props] {",
-     "  [property foo]: [variable-3 string];",
+     "  [property foo]: [type string];",
      "}",
-     "[keyword class] [def MyComponent] [keyword extends] [variable-3 React].[variable-3 Component] [operator <] [variable-3 Props], [variable-3 any] [operator >] {",
+     "[keyword class] [def MyComponent] [keyword extends] [type React].[type Component] [operator <] [type Props], [type any] [operator >] {",
      "  [property render]() {",
      "    [keyword return] [bracket&tag <][tag span][bracket&tag >]{[keyword this].[property props].[property foo]}[bracket&tag </][tag span][bracket&tag >]",
      "  }",

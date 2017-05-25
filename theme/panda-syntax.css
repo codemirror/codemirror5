@@ -52,7 +52,7 @@
 .cm-s-panda-syntax .cm-variable-2 {
 	color: #ff9ac1;
 }
-.cm-s-panda-syntax .cm-variable-3 {
+.cm-s-panda-syntax .cm-variable-3, .cm-s-panda-syntax .cm-type {
 	color: #ff9ac1;
 }
 

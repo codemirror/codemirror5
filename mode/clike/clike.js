@@ -33,7 +33,7 @@ function popContext(state) {
 }
 
 function typeBefore(stream, state, pos) {
-  if (state.prevToken == "variable" || state.prevToken == "variable-3") return true;
+  if (state.prevToken == "variable" || state.prevToken == "type") return true;
   if (/\S(?:[^- ]>|[*\]])\s*$|\*$/.test(stream.string.slice(0, pos))) return true;
   if (state.typeAtEndOfLine && stream.column() == stream.indentation()) return true;
 }
@@ -112,7 +112,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       if (contains(defKeywords, cur)) isDefKeyword = true;
       return "keyword";
     }
-    if (contains(types, cur)) return "variable-3";
+    if (contains(types, cur)) return "type";
     if (contains(builtin, cur)) {
       if (contains(blockKeywords, cur)) curPunc = "newstatement";
       return "builtin";
@@ -281,7 +281,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
   }
 
   function pointerHook(_stream, state) {
-    if (state.prevToken == "variable-3") return "variable-3";
+    if (state.prevToken == "type") return "type";
     return false;
   }
 
@@ -774,7 +774,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
         return "atom";
       },
       token: function(_stream, state, style) {
-          if ((style == "variable" || style == "variable-3") &&
+          if ((style == "variable" || style == "type") &&
               state.prevToken == ".") {
             return "variable-2";
           }

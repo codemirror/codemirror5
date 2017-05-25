@@ -238,15 +238,15 @@
   }
 
   TS("typescript_extend_type",
-     "[keyword class] [def Foo] [keyword extends] [variable-3 Some][operator <][variable-3 Type][operator >] {}")
+     "[keyword class] [def Foo] [keyword extends] [type Some][operator <][type Type][operator >] {}")
 
   TS("typescript_arrow_type",
-     "[keyword let] [def x]: ([variable arg]: [variable-3 Type]) [operator =>] [variable-3 ReturnType]")
+     "[keyword let] [def x]: ([variable arg]: [type Type]) [operator =>] [type ReturnType]")
 
   TS("typescript_class",
      "[keyword class] [def Foo] {",
      "  [keyword public] [keyword static] [property main]() {}",
-     "  [keyword private] [property _foo]: [variable-3 string];",
+     "  [keyword private] [property _foo]: [type string];",
      "}")
 
   TS("typescript_literal_types",
@@ -255,85 +255,85 @@
      "  [property truthy]: [string 'true'] [operator |] [number 1] [operator |] [atom true];",
      "  [property falsy]: [string 'false'] [operator |] [number 0] [operator |] [atom false];",
      "}",
-     "[keyword interface] [def MyInstance] [keyword extends] [variable-3 Sequelize].[variable-3 Instance] [operator <] [variable-3 MyAttributes] [operator >] {",
-     "  [property rawAttributes]: [variable-3 MyAttributes];",
+     "[keyword interface] [def MyInstance] [keyword extends] [type Sequelize].[type Instance] [operator <] [type MyAttributes] [operator >] {",
+     "  [property rawAttributes]: [type MyAttributes];",
      "  [property truthy]: [string 'true'] [operator |] [number 1] [operator |] [atom true];",
      "  [property falsy]: [string 'false'] [operator |] [number 0] [operator |] [atom false];",
      "}")
 
   TS("typescript_extend_operators",
      "[keyword export] [keyword interface] [def UserModel] [keyword extends]",
-     "  [variable-3 Sequelize].[variable-3 Model] [operator <] [variable-3 UserInstance], [variable-3 UserAttributes] [operator >] {",
+     "  [type Sequelize].[type Model] [operator <] [type UserInstance], [type UserAttributes] [operator >] {",
      "    [property findById]: (",
-     "    [variable userId]: [variable-3 number]",
-     "    ) [operator =>] [variable-3 Promise] [operator <] [variable-3 Array] [operator <] { [property id], [property name] } [operator >>];",
+     "    [variable userId]: [type number]",
+     "    ) [operator =>] [type Promise] [operator <] [type Array] [operator <] { [property id], [property name] } [operator >>];",
      "    [property updateById]: (",
-     "    [variable userId]: [variable-3 number],",
-     "    [variable isActive]: [variable-3 boolean]",
-     "    ) [operator =>] [variable-3 Promise] [operator <] [variable-3 AccountHolderNotificationPreferenceInstance] [operator >];",
+     "    [variable userId]: [type number],",
+     "    [variable isActive]: [type boolean]",
+     "    ) [operator =>] [type Promise] [operator <] [type AccountHolderNotificationPreferenceInstance] [operator >];",
      "  }")
 
   TS("typescript_interface_with_const",
      "[keyword const] [def hello]: {",
-     "  [property prop1][operator ?]: [variable-3 string];",
-     "  [property prop2][operator ?]: [variable-3 string];",
+     "  [property prop1][operator ?]: [type string];",
+     "  [property prop2][operator ?]: [type string];",
      "} [operator =] {};")
 
   TS("typescript_double_extend",
      "[keyword export] [keyword interface] [def UserAttributes] {",
-     "  [property id][operator ?]: [variable-3 number];",
-     "  [property createdAt][operator ?]: [variable-3 Date];",
+     "  [property id][operator ?]: [type number];",
+     "  [property createdAt][operator ?]: [type Date];",
      "}",
-     "[keyword export] [keyword interface] [def UserInstance] [keyword extends] [variable-3 Sequelize].[variable-3 Instance][operator <][variable-3 UserAttributes][operator >], [variable-3 UserAttributes] {",
-     "  [property id]: [variable-3 number];",
-     "  [property createdAt]: [variable-3 Date];",
+     "[keyword export] [keyword interface] [def UserInstance] [keyword extends] [type Sequelize].[type Instance][operator <][type UserAttributes][operator >], [type UserAttributes] {",
+     "  [property id]: [type number];",
+     "  [property createdAt]: [type Date];",
      "}");
 
   TS("typescript_index_signature",
      "[keyword interface] [def A] {",
-     "  [[ [variable prop]: [variable-3 string] ]]: [variable-3 any];",
-     "  [property prop1]: [variable-3 any];",
+     "  [[ [variable prop]: [type string] ]]: [type any];",
+     "  [property prop1]: [type any];",
      "}");
 
   TS("typescript_generic_class",
-     "[keyword class] [def Foo][operator <][variable-3 T][operator >] {",
+     "[keyword class] [def Foo][operator <][type T][operator >] {",
      "  [property bar]() {}",
-     "  [property foo](): [variable-3 Foo] {}",
+     "  [property foo](): [type Foo] {}",
      "}")
 
   TS("typescript_type_when_keyword",
-     "[keyword export] [keyword type] [variable-3 AB] [operator =] [variable-3 A] [operator |] [variable-3 B];",
-     "[keyword type] [variable-3 Flags] [operator =] {",
-     "  [property p1]: [variable-3 string];",
-     "  [property p2]: [variable-3 boolean];",
+     "[keyword export] [keyword type] [type AB] [operator =] [type A] [operator |] [type B];",
+     "[keyword type] [type Flags] [operator =] {",
+     "  [property p1]: [type string];",
+     "  [property p2]: [type boolean];",
      "};")
 
   TS("typescript_type_when_not_keyword",
      "[keyword class] [def HasType] {",
-     "  [property type]: [variable-3 string];",
-     "  [property constructor]([def type]: [variable-3 string]) {",
+     "  [property type]: [type string];",
+     "  [property constructor]([def type]: [type string]) {",
      "    [keyword this].[property type] [operator =] [variable-2 type];",
      "  }",
-     "  [property setType]({ [def type] }: { [property type]: [variable-3 string]; }) {",
+     "  [property setType]({ [def type] }: { [property type]: [type string]; }) {",
      "    [keyword this].[property type] [operator =] [variable-2 type];",
      "  }",
      "}")
 
   TS("typescript_function_generics",
      "[keyword function] [def a]() {}",
-     "[keyword function] [def b][operator <][variable-3 IA] [keyword extends] [variable-3 object], [variable-3 IB] [keyword extends] [variable-3 object][operator >]() {}",
+     "[keyword function] [def b][operator <][type IA] [keyword extends] [type object], [type IB] [keyword extends] [type object][operator >]() {}",
      "[keyword function] [def c]() {}")
 
   TS("typescript_complex_return_type",
      "[keyword function] [def A]() {",
      "  [keyword return] [keyword this].[property property];",
      "}",
-     "[keyword function] [def B](): [variable-3 Promise][operator <]{ [[ [variable key]: [variable-3 string] ]]: [variable-3 any] } [operator |] [atom null][operator >] {",
+     "[keyword function] [def B](): [type Promise][operator <]{ [[ [variable key]: [type string] ]]: [type any] } [operator |] [atom null][operator >] {",
      "  [keyword return] [keyword this].[property property];",
      "}")
 
   TS("typescript_complex_type_casting",
-     "[keyword const] [def giftpay] [operator =] [variable config].[property get]([string 'giftpay']) [keyword as] { [[ [variable platformUuid]: [variable-3 string] ]]: { [property version]: [variable-3 number]; [property apiCode]: [variable-3 string]; } };")
+     "[keyword const] [def giftpay] [operator =] [variable config].[property get]([string 'giftpay']) [keyword as] { [[ [variable platformUuid]: [type string] ]]: { [property version]: [type number]; [property apiCode]: [type string]; } };")
 
   var jsonld_mode = CodeMirror.getMode(
     {indentUnit: 2},
