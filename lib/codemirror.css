@@ -5,6 +5,7 @@
   font-family: monospace;
   height: 300px;
   color: black;
+  transform: translate3d(0, 0, 0);
 }
 
 /* PADDING */
