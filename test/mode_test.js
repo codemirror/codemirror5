@@ -68,7 +68,6 @@
 
   function esc(str) {
     return str.replace('&', '&amp;').replace('<', '&lt;').replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-;
   }
 
   function compare(text, expected, mode) {
