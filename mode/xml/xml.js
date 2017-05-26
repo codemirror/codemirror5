@@ -103,7 +103,11 @@ CodeMirror.defineMode("xml", function(editorConf, config_) {
           ok = stream.eatWhile(/[\d]/) && stream.eat(";");
         }
       } else {
-        ok = stream.eatWhile(/[\w\.\-:]/) && stream.eat(";");
+        if(stream.eatWhile(/[\w\.\-:]/) && stream.eat(";")){
+          ok = true;
+        }else{
+        	return "word";
+        }
       }
       return ok ? "atom" : "error";
     } else {
