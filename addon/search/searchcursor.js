@@ -1,7 +1,7 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
 // Distributed under an MIT license: http://codemirror.net/LICENSE
 
-;(function(mod) {
+(function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
     mod(require("../../lib/codemirror"))
   else if (typeof define == "function" && define.amd) // AMD
@@ -278,4 +278,4 @@
     if (ranges.length)
       this.setSelections(ranges, 0)
   })
-})
+});
