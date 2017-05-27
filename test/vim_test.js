@@ -1607,6 +1607,13 @@ testVim('r', function(cm, vim, helpers) {
   cm.setCursor(0, 4);
   helpers.doKeys('v', 'j', 'h', 'r', '<Space>');
   eq('wuuu  \n    her', cm.getValue(),'Replacing selection by space-characters failed');
+  cm.setValue("ox");
+  helpers.doKeys('r', '<C-c>');
+  eq('ox', cm.getValue());
+  helpers.doKeys('r', '<Del>');
+  eq('ox', cm.getValue());
+  helpers.doKeys('r', '<CR>');
+  eq('\nx', cm.getValue());
 }, { value: 'wordet\nanother' });
 testVim('r_visual_block', function(cm, vim, helpers) {
   cm.setCursor(2, 3);
