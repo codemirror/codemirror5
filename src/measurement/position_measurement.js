@@ -230,7 +230,7 @@ function measureCharInner(cm, prepared, ch, bias) {
       rect = nullRect
   }
 
-  let rtop = rect.top - prepared.rect.top, rbot = rect.bottom - prepared.rect.top
+  let rtop = rect.top - prepared.rect.top, rbot = rect.bottom - prepared.rect.bottom
   let mid = (rtop + rbot) / 2
   let heights = prepared.view.measure.heights
   let i = 0
