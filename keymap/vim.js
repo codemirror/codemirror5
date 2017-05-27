@@ -1110,7 +1110,9 @@
           }
         }
         if (bestMatch.keys.slice(-11) == '<character>') {
-          inputState.selectedCharacter = lastChar(keys);
+          var character = lastChar(keys);
+          if (!character) return {type: 'none'};
+          inputState.selectedCharacter = character;
         }
         return {type: 'full', command: bestMatch};
       },
@@ -2704,7 +2706,7 @@
       }
     }
     function lastChar(keys) {
-      var match = /^.*(<[\w\-]+>)$/.exec(keys);
+      var match = /^.*(<[^>]+>)$/.exec(keys);
       var selectedCharacter = match ? match[1] : keys.slice(-1);
       if (selectedCharacter.length > 1){
         switch(selectedCharacter){
@@ -2715,6 +2717,7 @@
             selectedCharacter=' ';
             break;
           default:
+            selectedCharacter='';
             break;
         }
       }
