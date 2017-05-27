@@ -2954,6 +2954,20 @@ testVim('._visual_>', function(cm, vim, helpers) {
   eq('  1\n  2\n  3\n  4', cm.getValue());
   helpers.assertCursorAt(2, 2);
 }, { value: '1\n2\n3\n4'});
+testVim('._replace_repeat', function(cm, vim, helpers) {
+  helpers.doKeys('R');
+  cm.replaceRange('123', cm.getCursor(), offsetCursor(cm.getCursor(), 0, 3));
+  cm.setCursor(0, 3);
+  helpers.doKeys('<Esc>');
+  helpers.doKeys('2', '.');
+  eq('12123123\nabcdefg', cm.getValue());
+  helpers.assertCursorAt(0, 7);
+  cm.setCursor(1, 0);
+  helpers.doKeys('.');
+  eq('12123123\n123123g', cm.getValue());
+  helpers.doKeys('l', '"', '.', 'p');
+  eq('12123123\n123123g123', cm.getValue());
+}, { value: 'abcdef\nabcdefg'});
 testVim('f;', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('f', 'x');

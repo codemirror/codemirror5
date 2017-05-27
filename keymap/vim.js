@@ -4921,7 +4921,7 @@
      * Listens for changes made in insert mode.
      * Should only be active in insert mode.
      */
-    function onChange(_cm, changeObj) {
+    function onChange(cm, changeObj) {
       var macroModeState = vimGlobalState.macroModeState;
       var lastChange = macroModeState.lastInsertModeChanges;
       if (!macroModeState.isPlaying) {
@@ -4934,7 +4934,11 @@
               lastChange.changes = [];
               lastChange.maybeReset = false;
             }
-            lastChange.changes.push(text);
+            if (cm.state.overwrite && !/\n/.test(text)) {
+                lastChange.changes.push([text]);
+            } else {
+                lastChange.changes.push(text);
+            }
           }
           // Change objects may be chained with next.
           changeObj = changeObj.next;
@@ -5116,9 +5120,13 @@
           var change = changes[j];
           if (change instanceof InsertModeKey) {
             CodeMirror.lookupKey(change.keyName, 'vim-insert', keyHandler);
-          } else {
+          } else if (typeof change == "string") {
             var cur = cm.getCursor();
             cm.replaceRange(change, cur, cur);
+          } else {
+            var start = cm.getCursor();
+            var end = offsetCursor(start, 0, change[0].length);
+            cm.replaceRange(change[0], start, end);
           }
         }
       }
