@@ -22,6 +22,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   var jsonldMode = parserConfig.jsonld;
   var jsonMode = parserConfig.json || jsonldMode;
   var isTS = parserConfig.typescript;
+  var isJSX = parserConfig.jsx;
   var wordRE = parserConfig.wordCharacters || /[\w$\xa1-\uffff]/;
 
   // Tokenizer
@@ -97,6 +98,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   }
   function tokenBase(stream, state) {
     var ch = stream.next();
+    if (isJSX) var jsx_brackets = state.jsxTag.brackets[state.jsxTag.depth];
     if (ch == '"' || ch == "'") {
       state.tokenize = tokenString(ch);
       return state.tokenize(stream, state);
@@ -104,6 +106,13 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       return ret("number", "number");
     } else if (ch == "." && stream.match("..")) {
       return ret("spread", "meta");
+    } else if (isJSX && ch == '{' && jsx_brackets > 0) {
+      jsx_brackets += 1;
+      return ret(ch);
+    } else if (isJSX && ch == '}' && jsx_brackets > 0) {
+      jsx_brackets -= 1;
+      if (jsx_brackets == 0) state.tokenize = inTag;
+      return ret(ch);
     } else if (/[\[\]{}\(\),;\:\.]/.test(ch)) {
       return ret(ch);
     } else if (ch == "=" && stream.eat(">")) {
@@ -141,6 +150,10 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     } else if (ch == "#") {
       stream.skipToEnd();
       return ret("error", "error");
+    } else if (isJSX && ch == '<' && stream.peek() != '<' && stream.peek() != '=' && !/\s/.test(stream.peek())) {
+      state.jsxTag.depth += 1;
+      state.tokenize = inTag;
+      return ret(stream.eat("/") ? "closeTag" : "openTag", "tag bracket");
     } else if (isOperatorChar.test(ch)) {
       if (ch != ">" || !state.lexical || state.lexical.type != ">")
         stream.eatWhile(isOperatorChar);
@@ -151,6 +164,48 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       return (known && state.lastType != ".") ? ret(known.type, known.style, word) :
                      ret("variable", "variable", word);
     }
+  }
+
+  // for JSX mode
+  function inTag(stream, state) {
+    var ch = stream.next();
+    if (ch == ">" || (ch == "/" && stream.eat(">"))) {
+      state.jsxTag.depth -= 1;
+      state.tokenize = tokenBase;
+      return ret(ch == ">" ? "endTag" : "selfcloseTag", "tag bracket");
+    } else if (ch == "=") {
+      type = "equals";
+      return null;
+    } else if (ch == "<") {
+      state.tokenize = tokenBase;
+      var next = state.tokenize(stream, state);
+      return next ? next + " tag error" : "tag error";
+    } else if (ch == "{") {
+      state.jsxTag.brackets[state.jsxTag.depth] = 1; // counter for brackets
+      state.tokenize = tokenBase;
+      return null;
+    } else if (ch == "}") {
+      return null;
+    } else if (/[\'\"]/.test(ch)) {
+      state.tokenize = inAttribute(ch);
+      return state.tokenize(stream, state);
+    } else {
+      stream.match(/^[^\s\u00a0=<>\"\']*[^\s\u00a0=<>\"\'\/]/);
+      return "word";
+    }
+  }
+
+  // for JSX mode
+  function inAttribute(quote) {
+    return function(stream, state) {
+      var escaped = false, next;
+      while ((next = stream.next()) != null) {
+        if (next == quote && !escaped) break;
+        escaped = !escaped && next == "\\";
+      }
+      if (!escaped) state.tokenize = inTag;
+      return ret("string", "string");
+    };
   }
 
   function tokenString(quote) {
@@ -729,6 +784,11 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       };
       if (parserConfig.globalVars && typeof parserConfig.globalVars == "object")
         state.globalVars = parserConfig.globalVars;
+      if (isJSX)
+        state.jsxTag = {
+          depth: 0,
+          brackets: []
+        }
       return state;
     },
 
@@ -743,6 +803,13 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       var style = state.tokenize(stream, state);
       if (type == "comment") return style;
       state.lastType = type == "operator" && (content == "++" || content == "--") ? "incdec" : type;
+      if (isJSX && style == 'word') {
+        if (type == 'openTag' || type == 'closeTag') {
+          type = 'attribute';
+          return 'tag';
+        } else
+          return 'attribute';
+      }
       return parseJS(state, style, type, content, stream);
     },
 
@@ -807,5 +874,7 @@ CodeMirror.defineMIME("application/x-json", {name: "javascript", json: true});
 CodeMirror.defineMIME("application/ld+json", {name: "javascript", jsonld: true});
 CodeMirror.defineMIME("text/typescript", { name: "javascript", typescript: true });
 CodeMirror.defineMIME("application/typescript", { name: "javascript", typescript: true });
+CodeMirror.defineMIME("text/jsx", { name: "javascript", jsx: true });
+CodeMirror.defineMIME("application/jsx", { name: "javascript", jsx: true });
 
 });
