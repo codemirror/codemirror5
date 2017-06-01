@@ -131,7 +131,6 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   }
 
   function blockNormal(stream, state) {
-
     var sol = stream.sol();
 
     var prevLineIsList = state.list !== false,
@@ -153,15 +152,11 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     }
 
     var match = null;
-    if (state.indentationDiff >= 4) {
+    if (state.indentationDiff >= 4 && (prevLineIsIndentedCode || lineIsEmpty(state.prevLine))) {
       stream.skipToEnd();
-      if (prevLineIsIndentedCode || lineIsEmpty(state.prevLine)) {
-        state.indentation -= 4;
-        state.indentedCode = true;
-        return tokenTypes.code;
-      } else {
-        return null;
-      }
+      state.indentation -= 4;
+      state.indentedCode = true;
+      return tokenTypes.code;
     } else if (stream.eatSpace()) {
       return null;
     } else if ((match = stream.match(atxHeaderRE)) && match[1].length <= 6) {
