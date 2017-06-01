@@ -226,6 +226,10 @@
      "  [property method]: [string 'GET']",
      "});");
 
+  MT("async_variable",
+     "[keyword const] [def async] [operator =] {[property a]: [number 1]};",
+     "[keyword const] [def foo] [operator =] [string-2 `bar ${][variable async].[property a][string-2 }`];")
+
   MT("indent_switch",
      "[keyword switch] ([variable x]) {",
      "  [keyword default]:",
