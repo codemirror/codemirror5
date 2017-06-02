@@ -1,0 +1,87 @@
+<!doctype html>
+
+<title>CodeMirror: OCL mode</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../../doc/docs.css">
+
+<link rel="stylesheet" href="../../lib/codemirror.css">
+<script src="../../lib/codemirror.js"></script>
+<script src="../../addon/mode/simple.js"></script>
+<script src="ocl.js"></script>
+<style type="text/css">.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
+<div id=nav>
+  <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../../doc/logo.png"></a>
+
+  <ul>
+    <li><a href="../../index.html">Home</a>
+    <li><a href="../../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="../index.html">Language modes</a>
+    <li><a class=active href="#">OCL</a>
+  </ul>
+</div>
+
+<article>
+<h2>OCL mode</h2>
+
+    <div><textarea id="code-ocl" name="code-ocl">
+-- OCL constraints definitions
+package bank
+
+context BankAccount
+	inv: balance >= 0
+
+context BankAccount::getBalance(): Integer
+	post: result = balance
+
+context BankAccount::debit(amount: Integer): Integer
+	pre: amount > 0 and balance - amount >= 0
+	post: balance = balance@pre - amount
+
+endpackage
+    </textarea></div>
+    <script>
+      var editor = CodeMirror.fromTextArea(document.getElementById("code-ocl"), {
+        mode: {name: "ocl"},
+        lineNumbers: true,
+        indentUnit: 4,
+        matchBrackets: true
+      });
+    </script>
+
+    <div><textarea id="code-use" name="code-use">
+-- USE OCL flavour
+
+model bank
+
+class BankAccount
+	attributes
+		balance: Int
+	operations
+		getBalance(): Integer
+		debit(amount: Integer)
+end
+
+constraints
+
+context BankAccount
+	inv: balance >= 0
+
+context BankAccount::getBalance(): Integer
+	post: result = balance
+
+context BankAccount::debit(amount: Integer): Integer
+	pre: amount > 0 and balance - amount >= 0
+	post: balance = balance@pre - amount
+    </textarea></div>
+    <script>
+      var editor = CodeMirror.fromTextArea(document.getElementById("code-use"), {
+        mode: {name: "ocl"},
+        lineNumbers: true,
+        indentUnit: 4,
+        matchBrackets: true
+      });
+    </script>
+</article>
