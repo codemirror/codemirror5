@@ -69,9 +69,8 @@ export function normalizeSelection(ranges, primIndex) {
     let cur = ranges[i], prev = ranges[i - 1]
     if (cmp(prev.to(), cur.from()) >= 0) {
       let from = minPos(prev.from(), cur.from()), to = maxPos(prev.to(), cur.to())
-      let inv = prev.empty() ? cur.from() == cur.head : prev.from() == prev.head
       if (i <= primIndex) --primIndex
-      ranges.splice(--i, 2, new Range(inv ? to : from, inv ? from : to))
+      ranges.splice(--i, 2, new Range(from, to))
     }
   }
   return new Selection(ranges, primIndex)
