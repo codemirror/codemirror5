@@ -29,6 +29,7 @@
 //   queries.
 // * responseFilter: A function(doc, query, request, error, data) that
 //   will be applied to the Tern responses before treating them
+// * caseInsensitive: boolean to send case insensitive querys to tern
 //
 //
 // It is possible to run the Tern server in a web worker by specifying
@@ -205,7 +206,7 @@
   // Completion
 
   function hint(ts, cm, c) {
-    ts.request(cm, {type: "completions", types: true, docs: true, urls: true}, function(error, data) {
+    ts.request(cm, {type: "completions", types: true, docs: true, urls: true, caseInsensitive: ts.options.caseInsensitive}, function(error, data) {
       if (error) return showError(ts, cm, error);
       var completions = [], after = "";
       var from = data.start, to = data.end;
