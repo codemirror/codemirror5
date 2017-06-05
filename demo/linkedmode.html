@@ -1,0 +1,80 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>CodeMirror: Linked Mode Demo</title>
+    <link rel="stylesheet" href="../lib/codemirror.css">
+    <script src="../lib/codemirror.js"></script>
+    <script src="../mode/xml/xml.js"></script>
+    <link rel="stylesheet" href="../addon/edit/linkedmode.css">
+    <script src="../addon/edit/linkedmode.js"></script>
+    <link rel="stylesheet" href="../doc/docs.css">
+
+    <style type="text/css">
+      .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black; height: 100px; margin-bottom: 10px;}
+      dt {font-family: monospace; color: #666;}
+    </style>
+  </head>
+  <body>
+    <h1>CodeMirror: Linked Mode Demo</h1>
+
+    <form><textarea id="html">
+<span id="" class="my-class-name">text</span>
+<span>
+  text
+</span>
+</textarea>
+<textarea id="css">
+.my-class-name {
+  color: black;
+}
+</textarea></form>
+
+    <script>
+      var html = CodeMirror.fromTextArea(document.getElementById("html"), {mode: "text/html", lineNumbers: true}),
+        css = CodeMirror.fromTextArea(document.getElementById("css"), {mode: "text/css", lineNumbers: true}),
+        htmldoc = html.getDoc(),
+        groups = [
+          /* span */
+          new CodeMirror.LinkedPositionGroup([
+            {from: {line: 0, ch: 1},  to: {line: 0, ch: 5}},
+            {from: {line: 0, ch: 40}, to: {line: 0, ch: 44}},
+            {from: {line: 1, ch: 1},  to: {line: 1, ch: 5}},
+            {from: {line: 3, ch: 2},  to: {line: 3, ch: 6}}
+          ], {doc: htmldoc}),
+          /* text */
+          new CodeMirror.LinkedPositionGroup([
+            {from: {line: 0, ch: 34}, to: {line: 0, ch: 38}},
+            {from: {line: 2, ch: 2},  to: {line: 2, ch: 6}}
+          ], {doc: htmldoc}),
+          /* id */
+          new CodeMirror.LinkedPositionGroup([
+            {from: {line: 0, ch: 10}}
+          ], {doc: htmldoc}),
+          /* my-class-name */
+          new CodeMirror.LinkedPositionGroup([
+            new CodeMirror.LinkedPosition(htmldoc, {line: 0, ch: 19}, {line: 0, ch: 32}),
+            new CodeMirror.LinkedPosition(css.getDoc(), {line: 0, ch: 1}, {line: 0, ch: 14})
+          ])
+        ];
+      var model = new CodeMirror.LinkedModeModel(groups);
+
+      model.on("stop", function (results) {
+        console.log("stop: ", results);
+      });
+      model.on("error", function (err) {
+        console.error(err);
+      });
+
+      model.setExit(new CodeMirror.LinkedPosition(htmldoc, {line: 3, ch: 18}));
+
+      html.enterLinkedMode(model);
+      
+      html.focus();
+    </script>
+
+    <p>Press TAB to cycle between positions, ENTER to exit linked mode at the
+    end of the method call, ESC to exit linked mode at the current cursor
+    position.</p>
+  </body>
+</html>
