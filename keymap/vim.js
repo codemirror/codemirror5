@@ -584,8 +584,8 @@
           register.clear();
           this.latestRegister = registerName;
           if (cm.openDialog) {
-            this.onRecordingDone = cm.openDialog(
-                '(recording)['+registerName+']', null, {bottom:true});
+            cm.openDialog('(recording)['+registerName+']', null, {bottom:true});
+            this.onRecordingDone = cm.openDialog('', null, {bottom:true});
           }
           this.isRecording = true;
         }
