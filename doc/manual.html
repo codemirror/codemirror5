@@ -2757,6 +2757,23 @@ editor.setOption("extraKeys", {
       and <code>defaultTable</code>, a string corresponding to a
       table name in <code>tables</code> for autocompletion.</dd>
 
+      <dt id="addon_swift-hint"><a href="../addon/hint/swift-hint.js"><code>hint/swift-hint.js</code></a></dt>
+      <dd>A context-aware Swift hinter. Defines
+      <code>CodeMirror.hint.swift</code>, a function that is capable
+      of returning different word suggestions based on the current
+      code context, as well as scraping for user-defined variables
+      in the code that can be added to the hint list. This function
+      takes four optional arguments: <code>keywords</code>, an array
+      of additional keywords to be added to the suggestions;
+      <code>contextAware</code>, a boolean that toggles whether or not
+      the suggestion list is pruned based on current context;
+      <code>extractVariables</code>, a boolean that toggles whether or
+      not the hinter scrapes the editor contents for new user-defined
+      variables; and <code>extractLineLimit</code>, an integer indicating
+      that if the editor has more than this many lines, the hinter
+      should stop scraping for more variables and use whatever was
+      last found. <a href="../demo/swiftcomplete.html">Demo here.</a></dd>
+
       <dt id="addon_match-highlighter"><a href="../addon/search/match-highlighter.js"><code>search/match-highlighter.js</code></a></dt>
       <dd>Adds a <code>highlightSelectionMatches</code> option that
       can be enabled to highlight all instances of a currently
