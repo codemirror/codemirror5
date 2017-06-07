@@ -276,10 +276,29 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
         while(cc.length && cc[cc.length - 1].lex)
           cc.pop()();
         if (cx.marked) return cx.marked;
-        if (type == "variable" && inScope(state, content)) return "variable-2";
+        if (type == "variable") {
+          var isFn = isTokenFunc(stream);
+
+          if (inScope(state, content))
+            return isFn ? "function-2" : "variable-2";
+
+          return isFn ? "function" : style;
+        }
         return style;
       }
     }
+  }
+
+  function isTokenFunc(stream) {
+    var isFn = false;
+    var ch = stream.peek();
+
+    if (ch == "(")
+      isFn = true;
+    else if (ch == ".")
+      isFn = stream.match(/\.apply\(|\.call\(/, false);
+
+    return isFn;
   }
 
   // Combinator utils
@@ -482,16 +501,24 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     return pass(maybeoperatorComma, expect(";"), poplex);
   }
   function property(type) {
-    if (type == "variable") {cx.marked = "property"; return cont();}
+    if (type == "variable") {
+      cx.marked = isTokenFunc(cx.stream) ? "function-2" : "property";
+      return cont();
+    }
   }
   function objprop(type, value) {
     if (type == "async") {
       cx.marked = "property";
       return cont(objprop);
     } else if (type == "variable" || cx.style == "keyword") {
-      cx.marked = "property";
-      if (value == "get" || value == "set") return cont(getterSetter);
-      return cont(afterprop);
+      if (value == "get" || value == "set") {
+        cx.marked = "property";
+        return cont(getterSetter);
+      }
+      else {
+        cx.marked = isTokenFunc(cx.stream) ? "function-2" : "property";
+        return cont(afterprop);
+      }
     } else if (type == "number" || type == "string") {
       cx.marked = jsonldMode ? "property" : (cx.style + " property");
       return cont(afterprop);
@@ -660,9 +687,19 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
            (isTS && (value == "public" || value == "private" || value == "protected" || value == "readonly" || value == "abstract"))) &&
           cx.stream.match(/^\s+[\w$\xa1-\uffff]/, false)) {
         cx.marked = "keyword";
+
+        if (value == "get" || value == "set")
+          cx.isGetterSetter = true;
+
         return cont(classBody);
       }
-      cx.marked = "property";
+      if (cx.isGetterSetter) {
+        cx.marked = "property";
+        cx.isGetterSetter = false;
+      }
+      else
+        cx.marked = isTokenFunc(cx.stream) ? "function-2" : "property";
+
       return cont(isTS ? classfield : functiondef, classBody);
     }
     if (type == "[")
