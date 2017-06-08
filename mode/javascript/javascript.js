@@ -502,7 +502,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     } else if (type == "[") {
       return cont(expression, expect("]"), afterprop);
     } else if (type == "spread") {
-      return cont(expression);
+      return cont(expression, afterprop);
     } else if (type == ":") {
       return pass(afterprop)
     }
