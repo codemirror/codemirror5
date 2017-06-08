@@ -1,0 +1,92 @@
+<!doctype html>
+
+<title>CodeMirror: HTML mixed mode</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../../doc/docs.css">
+
+<link rel="stylesheet" href="../../lib/codemirror.css">
+<link rel="stylesheet" href="../../theme/material.css">
+<script src="../../lib/codemirror.js"></script>
+<script src="../xml/xml.js"></script>
+<script src="../javascript/javascript.js"></script>
+<script src="../css/css.js"></script>
+<script src="../htmlmixed/htmlmixed.js"></script>
+<script src="shortcode.js"></script>
+<script src="wordpresspost.js"></script>
+<style>.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
+<div id=nav>
+  <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../../doc/logo.png"></a>
+
+  <ul>
+    <li><a href="../../index.html">Home</a>
+    <li><a href="../../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="../index.html">Language modes</a>
+    <li><a class=active href="#">WordPress Post</a>
+  </ul>
+</div>
+
+<article>
+<h2>WordPress Post Editor mode</h2>
+<form><textarea id="code" name="code">
+  <div>
+    [shortcode attribute="value" standaloneAttribute bool=true int=42 ]
+      [oneliner noquotes=stringvaluewithnospaces]
+      [self-closing-syntax html='<label class="name">Label</label>' /]
+      shortcode content
+      <a href="#">nested html</a>
+      [[escapedshortcode]]
+      [ [brackets that-dont-count]]
+    [/shortcode]
+  </div>
+
+  <!--more WordPress More Tag Text --><!--noteaser-->
+  <!--HTML comment--><!--[shortcode]-->
+
+  ERRORS!
+  [/noMatchlessEndTags]
+  [shortcode no_square_brackets_in_attribute_values='text[shortcode]']
+  [no/special|characters\in*shortcode^names or.attribute`names=error]
+
+  <?php
+  // shorcode in a meta block
+  [shortcode]
+  ?>
+
+  <style>
+    /* square brackets in css block */
+    element[attribute="value"]{ color:red; }
+  </style>
+
+  <script>
+      // square brackets in javascript block
+      array = ['valueone', 'valuetwo'];
+  </script>
+
+</textarea></form>
+    <script>
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        mode: 'wordpresspost',
+        theme: 'material',
+        lineNumbers: true
+      });
+    </script>
+    <br/>
+
+    <p>
+      The WordPress Post mode depends on the XML, JavaScript, CSS,
+      HTMLmixed, and Shortcode modes. The Shortcode mode is included
+      in the wordpresspost directory.
+    </p>
+
+    <p>
+      For use in the WordPress admin tinyMCE post/page editor. Highlights
+      the <a href="https://codex.wordpress.org/Shortcode_API">
+      WordPress Shorcode Syntax</a> as if were XML. Also looks for special
+      <a href="https://en.support.wordpress.com/more-tag/">WordPress
+      &lt;--more--&gt; tags</a> and colors them accordingly.
+    </p>
+
+  </article>
