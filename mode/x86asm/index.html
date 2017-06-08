@@ -1,0 +1,71 @@
+<!doctype html>
+
+<title>CodeMirror: x86 assembly mode</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../../doc/docs.css">
+
+<link rel="stylesheet" href="../../lib/codemirror.css">
+<script src="../../lib/codemirror.js"></script>
+<script src="x86asm.js"></script>
+<style type="text/css">.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
+<div id=nav>
+  <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../../doc/logo.png"></a>
+
+  <ul>
+    <li><a href="../../index.html">Home</a>
+    <li><a href="../../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="../index.html">Language modes</a>
+    <li><a class=active href="#">x86 assembly</a>
+  </ul>
+</div>
+
+<article>
+<h2>x86 assembly mode</h2>
+
+
+<div><textarea id="code" name="code">
+Disassembly of section .init:
+
+080dbb68 <_init>:
+ 80dbb68:	55                   	push   %ebp
+ 80dbb69:	89 e5                	mov    %esp,%ebp
+ 80dbb6b:	53                   	push   %ebx
+ 80dbb6c:	83 ec 04             	sub    $0x4,%esp
+ 80dbb6f:	e8 00 00 00 00       	call   80dbb74 <_init+0xc>
+ 80dbb74:	5b                   	pop    %ebx
+ 80dbb75:	81 c3 b8 a8 13 00    	add    $0x13a8b8,%ebx
+ 80dbb7b:	8b 93 88 fd ff ff    	mov    -0x278(%ebx),%edx
+ 80dbb81:	85 d2                	test   %edx,%edx
+ 80dbb83:	74 05                	je     80dbb8a <_init+0x22>
+ 80dbb85:	e8 96 08 00 00       	call   80dc420 <__gmon_start__@plt>
+ 80dbb8a:	58                   	pop    %eax
+ 80dbb8b:	5b                   	pop    %ebx
+ 80dbb8c:	c9                   	leave  
+ 80dbb8d:	c3                   	ret    
+
+Disassembly of section .plt:
+
+080dbb90 <std::string::size() const@plt-0x10>:
+ 80dbb90:	ff 35 30 64 21 08    	pushl  0x8216430
+ 80dbb96:	ff 25 34 64 21 08    	jmp    *0x8216434
+ 80dbb9c:	00 00                	add    %al,(%eax)
+	...
+
+080dbba0 <std::string::size() const@plt>:
+ 80dbba0:	ff 25 38 64 21 08    	jmp    *0x8216438
+ 80dbba6:	68 00 00 00 00       	push   $0x0
+ 80dbbab:	e9 e0 ff ff ff       	jmp    80dbb90 <_init+0x28>
+
+</textarea></div>
+
+    <script>
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        lineNumbers: true
+      });
+    </script>
+
+    <p><strong>MIME type defined:</strong> <code>text/x-x86asm</code>.</p>
+  </article>
