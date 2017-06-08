@@ -480,6 +480,112 @@
     modifyWordOrSelection(cm, function(str) { return str.toLowerCase(); });
   };
 
+  // Breaks up a given string into a list of "words" regardless of its original
+  // case.
+  //
+  // This function isn't very clever, but it does the right thing for all
+  // of the following standard cases:
+  //
+  // * snake_case
+  // * SCREAMING_SNAKE_CASE
+  // * lowerCamelCase
+  // * UpperCamelCase
+  // * Space seperated words
+  // * dot.case
+  // * dash-case
+  //
+  // Outside of these cases, your milageage will vary, however this function
+  // should perform a reasonably sensible split.
+  //
+  // Some examples:
+  //
+  // this_is_an_example -> [this, is, an, example]
+  //
+  // camelCaseIsSupported -> [camel, Case, Is, Supported]
+  //
+  // alsoSupportsAcronymsLikeABCNicely
+  //    -> [also, Supports, Acronyms, Like, ABC, Nicely]
+  //
+  // supports-mixed.delimiters for  better_or    worse
+  //    -> [supports, mixed, delimiters, for, better, or, worse]
+  //
+  // repeated--delimiters--are--ignored -> [repeated, delimiters, are, ignored]
+  function splitStringToRedoCase(str) {
+    return str
+      // This part splits up camelCased portions of the string,
+      // seperating them with whitespace.
+      .replace(/([a-z])([A-Z])/g, '$1 $2')
+      .replace(/([A-Z])([a-z])/g, ' $1$2')
+      // Trim out any leading or trailing whitespace
+      // The replaces above sometimes produce some.
+      .trim()
+      // Split up the string on a number of delimiters
+      // (e.g. whitespace, dashes, dots, and underscores)
+      .split(/[\s-_\.]+/);
+  }
+
+  function toLowerCaseFxn(word) {
+    return word.toLowerCase();
+  }
+
+  function toUpperCaseFxn(word) {
+    return word.toUpperCase();
+  }
+
+  // These commands are designed to imitate the popular
+  // Case Conversion sublime plugin.
+  cmds['snakeCaseAtCursor'] = function(cm) {
+    modifyWordOrSelection(cm, function(str) {
+      return splitStringToRedoCase(str).map(toLowerCaseFxn).join('_');
+    });
+  };
+  cmds['screamingSnakeCaseAtCursor'] = function(cm) {
+    modifyWordOrSelection(cm, function(str) {
+      return splitStringToRedoCase(str).map(toUpperCaseFxn).join('_');
+    });
+  };
+  cmds['lowerCamelCaseAtCursor'] = function(cm) {
+    modifyWordOrSelection(cm, function(str) {
+      return splitStringToRedoCase(str)
+        .map(function(word, index) {
+          // The first word is entirely lower case
+          if (index == 0) {
+            return word.toLowerCase();
+          }
+          // The rest of the words start with one upper case letter, followed
+          // by lower case letters.
+          return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+        })
+        .join('');
+    });
+  };
+  cmds['upperCamelCaseAtCursor'] = function(cm) {
+    modifyWordOrSelection(cm, function(str) {
+      return splitStringToRedoCase(str)
+        .map(function(word) {
+          // If it not the first word only upper case the first char and
+          // lowercase the rest.
+          return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+        })
+        .join('');
+    });
+  };
+  cmds['dotCaseAtCursor'] = function(cm) {
+    modifyWordOrSelection(cm, function(str) {
+      return splitStringToRedoCase(str).map(toLowerCaseFxn).join('.');
+    });
+  };
+  cmds['dashCaseAtCursor'] = function(cm) {
+    modifyWordOrSelection(cm, function(str) {
+      return splitStringToRedoCase(str).map(toLowerCaseFxn).join('-');
+    });
+  };
+  cmds['seperateWordsAtCursor'] = function(cm) {
+    modifyWordOrSelection(cm, function(str) {
+      return splitStringToRedoCase(str).join(' ');
+    });
+  };
+
   cmds[map[cK + ctrl + "Space"] = "setSublimeMark"] = function(cm) {
     if (cm.state.sublimeMark) cm.state.sublimeMark.clear();
     cm.state.sublimeMark = cm.setBookmark(cm.getCursor());
