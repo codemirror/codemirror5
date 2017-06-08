@@ -1,0 +1,51 @@
+<!doctype html>
+
+<title>CodeMirror: Pep/8 mode</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../../doc/docs.css">
+
+<link rel="stylesheet" href="../../lib/codemirror.css">
+<script src="../../lib/codemirror.js"></script>
+<script src="../../addon/mode/simple.js"></script>
+<script src="pep8.js"></script>
+<style type="text/css">.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
+<div id=nav>
+  <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../../doc/logo.png"></a>
+
+  <ul>
+    <li><a href="../../index.html">Home</a>
+    <li><a href="../../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="../index.html">Language modes</a>
+    <li><a class=active href="#">OCL</a>
+  </ul>
+</div>
+
+<article>
+<h2>Pep/8 mode</h2>
+
+    <div><textarea id="code" name="code">
+; Pep/8 mode
+
+DECI n,d
+LDA n,d
+ADDA n,i
+STA n,d
+DECO n,d
+STOP
+
+n: .BLOCK 2
+
+.END
+    </textarea></div>
+    <script>
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        mode: {name: "pep8"},
+        lineNumbers: true,
+        indentUnit: 4,
+        matchBrackets: true
+      });
+    </script>
+</article>
