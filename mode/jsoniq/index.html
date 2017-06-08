@@ -1,0 +1,295 @@
+<!doctype html>
+
+<title>CodeMirror: JSONiq mode</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../../doc/docs.css">
+
+<link rel="stylesheet" href="../../lib/codemirror.css">
+<link rel="stylesheet" href="../../theme/xq-dark.css">
+<script src="../../lib/codemirror.js"></script>
+<script src="jsoniq.js"></script>
+<style type="text/css">
+    .CodeMirror {
+        border-top: 1px solid black; border-bottom: 1px solid black;
+        height:400px;
+    }
+</style>
+<div id=nav>
+    <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../../doc/logo.png"></a>
+
+    <ul>
+        <li><a href="../../index.html">Home</a>
+        <li><a href="../../doc/manual.html">Manual</a>
+        <li><a href="https://github.com/codemirror/codemirror">Code</a>
+    </ul>
+    <ul>
+        <li><a href="../index.html">Language modes</a>
+        <li><a class=active href="#">JSONiq</a>
+    </ul>
+</div>
+
+<article>
+    <h2>JSONiq mode</h2>
+
+
+    <div class="cm-s-default">
+	<textarea id="code" name="code">
+import module namespace config = &quot;http://apps.28.io/config&quot;;
+import module namespace api = &quot;http://apps.28.io/api&quot;;
+import module namespace session = &quot;http://apps.28.io/session&quot;;
+import module namespace backend = &quot;http://apps.28.io/test&quot;;
+
+import module namespace entities = &quot;http://28.io/modules/xbrl/entities&quot;;
+import module namespace components = &quot;http://28.io/modules/xbrl/components&quot;;
+
+import module namespace sec-filings = &quot;http://28.io/modules/xbrl/profiles/sec/filings&quot;;
+import module namespace sec-networks = &quot;http://28.io/modules/xbrl/profiles/sec/networks&quot;;
+import module namespace companies = &quot;http://28.io/modules/xbrl/profiles/sec/companies&quot;;
+import module namespace fiscal-core = &quot;http://28.io/modules/xbrl/profiles/sec/fiscal/core&quot;;
+
+import module namespace response = &quot;http://www.28msec.com/modules/http-response&quot;;
+
+import module namespace csv = &quot;http://zorba.io/modules/json-csv&quot;;
+
+declare function local:to-csv($res as object*) as string*
+{
+    csv:serialize(
+        for $a in $res
+        for $c in $a.Components[]
+        return {
+            AcessionNumber : $a.AccessionNumber,
+            NetworkIdentifier : $c.NetworkIdentifier,
+            FactTable: $c.FactTable,
+            SpreadSheet: $c.SpreadSheet,
+            EntityRegistrantName : $a.EntityRegistrantName,
+            CIK : $a.CIK,
+            FiscalYear : $a.FiscalYear,
+            FiscalPeriod : $a.FiscalPeriod,
+            AcceptanceDateTime : $a.AcceptanceDatetime,
+            FormType : $a.FormType,
+            NetworkLabel : $c.NetworkLabel,
+            Category : $c.Category,
+            SubCategory : $c.SubCategory,
+            Table : flatten($c.Table),
+            Disclosure : $c.Disclosure,
+            ReportElements : $c.ReportElements,
+            Tables : $c.Tables,
+            Axis : $c.Axis,
+            Members : $c.Members,
+            LineItems : $c.LineItems,
+            Concepts : $c.Concepts,
+            Abstracts : $c.Abstracts
+        },
+    { serialize-null-as : &quot;&quot; })
+};
+
+declare function local:to-csv-generic($res as object*) as string*
+{
+    csv:serialize(
+        for $a in $res
+        return {
+            Archive: $a.Archive,
+            Role: $a.Role,
+            FactTable: $a.FactTable,
+            SpreadSheet: $a.SpreadSheet,
+            NumRules: $a.NumRules,
+            NumNetworks: $a.NumNetworks,
+            NumHypercubes: size($a.Hypercubes)
+        },
+    { serialize-null-as : &quot;&quot; })
+};
+
+(: Query parameters :)
+declare  %rest:case-insensitive                 variable $token              as string? external;
+declare  %rest:env                              variable $request-uri        as string  external;
+declare  %rest:case-insensitive                 variable $format             as string? external;
+declare  %rest:case-insensitive %rest:distinct  variable $cik                as string* external;
+declare  %rest:case-insensitive %rest:distinct  variable $tag                as string* external;
+declare  %rest:case-insensitive %rest:distinct  variable $ticker             as string* external;
+declare  %rest:case-insensitive %rest:distinct  variable $sic                as string* external;
+declare  %rest:case-insensitive %rest:distinct  variable $fiscalYear         as string* external := &quot;LATEST&quot;;
+declare  %rest:case-insensitive %rest:distinct  variable $fiscalPeriod       as string* external := &quot;FY&quot;;
+declare  %rest:case-insensitive %rest:distinct  variable $aid                as string* external;
+declare  %rest:case-insensitive %rest:distinct  variable $networkIdentifier  as string* external;
+declare  %rest:case-insensitive %rest:distinct  variable $role               as string* external;
+declare  %rest:case-insensitive %rest:distinct  variable $cid                as string* external;
+declare  %rest:case-insensitive %rest:distinct  variable $reportElement      as string* external;
+declare  %rest:case-insensitive %rest:distinct  variable $concept            as string* external;
+declare  %rest:case-insensitive %rest:distinct  variable $disclosure         as string* external;
+declare  %rest:case-insensitive %rest:distinct  variable $label              as string* external;
+declare  %rest:case-insensitive                 variable $profile-name       as string  external := $config:profile-name;
+
+session:audit-call($token);
+
+(: Post-processing :)
+let $format as string? := api:preprocess-format($format, $request-uri)
+let $fiscalYear as integer* := api:preprocess-fiscal-years($fiscalYear)
+let $fiscalPeriod as string* := api:preprocess-fiscal-periods($fiscalPeriod)
+let $tag as string* := api:preprocess-tags($tag)
+let $reportElement := ($reportElement, $concept)
+let $networkIdentifier := distinct-values(($networkIdentifier, $role))
+
+(: Object resolution :)
+let $entities :=
+    companies:companies(
+        $cik,
+        $tag,
+        $ticker,
+        $sic)
+let $archives as object* := fiscal-core:filings(
+    $entities,
+    $fiscalPeriod,
+    $fiscalYear,
+    $aid)
+let $entities as object*  := entities:entities($archives.Entity)
+let $components as object* :=
+    switch($profile-name)
+    case &quot;sec&quot; return sec-networks:components(
+        $archives,
+        $cid,
+        $reportElement,
+        $disclosure,
+        $networkIdentifier,
+        $label)
+    default return
+        switch(true)
+        case (exists($networkIdentifier) and exists($aid))
+        return components:components-for-archives-and-roles($aid, $networkIdentifier)
+        case exists($aid)
+        return components:components-for-archives($aid)
+        default
+        return if($profile-name eq &quot;sec&quot;) then {
+          response:status-code(400);
+          session:error(&quot;Archive ID missing.&quot;, $format)
+        } else components:components()
+let $res as object* :=
+    switch($profile-name)
+    case &quot;sec&quot; return
+        for $r in $components
+        let $disclosure := sec-networks:disclosures($r)
+        where $disclosure ne &quot;DefaultComponent&quot;
+        order by $r.Label
+        group by $archive := $r.Archive
+        let $archive := $archives[$$._id eq $archive]
+        let $e := $entities[$$._id eq $archive.Entity]
+        return
+            {
+               AccessionNumber : $archive._id,
+               EntityRegistrantName : $e.Profiles.SEC.CompanyName,
+               CIK : $e._id,
+               FiscalYear :$archive.Profiles.SEC.Fiscal.DocumentFiscalYearFocus,
+               FiscalPeriod :$archive.Profiles.SEC.Fiscal.DocumentFiscalPeriodFocus,
+               AcceptanceDatetime : sec-filings:acceptance-dateTimes($archive),
+               FormType : $archive.Profiles.SEC.FormType,
+               Components : [
+                    for $component in sec-networks:summaries($r)
+                    return copy $c := $component
+                    modify insert json {
+                        FactTable: backend:url(&quot;facttable-for-component&quot;, {
+                            aid: $archive._id,
+                            format: $format,
+                            role: $component.NetworkIdentifier,
+                            profile-name: $profile-name
+                            }, true),
+                        SpreadSheet: &quot;http://rendering.secxbrl.info/#?url=&quot; || encode-for-uri(
+                            backend:url(&quot;spreadsheet-for-component&quot;, {
+                            aid: $archive._id,
+                            format: $format,
+                            role: $component.NetworkIdentifier,
+                            profile-name: $profile-name
+                            }, true)
+                        )
+                    } into $c
+                    return $c
+               ]
+           }
+    default return
+        for $r in $components
+        return {
+            Archive: $r.Archive,
+            Role: $r.Role,
+            NumRules: size($r.Rules),
+            NumNetworks: size($r.Networks),
+            Hypercubes: [ keys($r.Hypercubes) ],
+            FactTable: backend:url(&quot;facttable-for-component&quot;, {
+                            aid: $r.Archive,
+                            format: $format,
+                            role: $r.Role,
+                            profile-name: $profile-name
+                            }, true),
+            SpreadSheet: &quot;http://rendering.secxbrl.info/#?url=&quot; || encode-for-uri(
+                        backend:url(&quot;spreadsheet-for-component&quot;, {
+                            aid: $r.Archive,
+                            format: $format,
+                            role: $r.Role,
+                            profile-name: $profile-name
+                        }, true))
+        }
+let $result := switch($profile-name) case &quot;sec&quot; return { Archives: [ $res ] } default return { Components : [ $res ] }
+let $comment :=
+ {
+    NumComponents : count($components),
+    TotalNumComponents: session:num-components(),
+    TotalNumArchives: session:num-archives()
+}
+let $serializers := {
+    to-xml : switch($profile-name)
+        case &quot;sec&quot;
+        return function($res as object) as node() {
+        &lt;Archives&gt;{
+                  for $r in flatten($res.Archives)
+                  return
+                      &lt;Archive id=&quot;{$r.AccessionNumber}&quot;&gt;
+                         &lt;EntityRegistrantName&gt;{$r.EntityRegistrantName}&lt;/EntityRegistrantName&gt;
+                         &lt;CIK&gt;{$r.CIK}&lt;/CIK&gt;
+                         &lt;FiscalYear&gt;{$r.FiscalYear}&lt;/FiscalYear&gt;
+                         &lt;FiscalPeriod&gt;{$r.FiscalPeriod}&lt;/FiscalPeriod&gt;
+                         &lt;AcceptanceDatetime&gt;{$r.AcceptanceDatetime}&lt;/AcceptanceDatetime&gt;
+                         &lt;FormType&gt;{$r.FormType}&lt;/FormType&gt;
+                         &lt;Components&gt;{
+                             sec-networks:summaries-to-xml(flatten($r.Components))
+                         }&lt;/Components&gt;
+                     &lt;/Archive&gt;
+             }&lt;/Archives&gt;
+        }
+        default return function($res as object) as node() {
+        &lt;Components&gt;{
+                  for $r in $res.Components[]
+                  return
+                    &lt;Component&gt;
+                         &lt;Archive&gt;{$r.Archive}&lt;/Archive&gt;
+                         &lt;Role&gt;{$r.Role}&lt;/Role&gt;
+                         &lt;NumRules&gt;{$r.NumRules}&lt;/NumRules&gt;
+                         &lt;NumNetworks&gt;{$r.NumNetworks}&lt;/NumNetworks&gt;
+                         &lt;Hypercubes&gt;{$r.Hypercubes[] ! &lt;Hypercube&gt;{$$}&lt;/Hypercube&gt;}&lt;/Hypercubes&gt;
+                    &lt;/Component&gt;
+             }&lt;/Components&gt;
+    },
+    to-csv : function($res as object) as string {
+        switch($profile-name)
+        case &quot;sec&quot; return string-join(local:to-csv($res.Archives[]), &quot;&quot;)
+        default return string-join(local:to-csv-generic($res.Components[]), &quot;&quot;)
+    }
+}
+
+let $results := api:serialize($result, $comment, $serializers, $format, &quot;components&quot;)
+return api:check-and-return-results($token, $results, $format)
+  </textarea>
+    </div>
+
+    <script>
+        var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+            lineNumbers: true,
+            matchBrackets: true,
+            theme: "xq-dark"
+        });
+    </script>
+
+    <p><strong>MIME types defined:</strong> <code>application/jsoniq</code>.</p>
+
+    <p>Development of the CodeMirror JSONiq mode was sponsored by
+        <a href="http://www.28msec.com">28msec</a> and developed by
+        <a href="https://twitter.com/wcandillon">William Candillon</a>.
+    </p>
+
+</article>
