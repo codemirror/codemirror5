@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="../../lib/codemirror.css">
 <script src="../../lib/codemirror.js"></script>
 <script src="../../addon/edit/continuelist.js"></script>
+<script src="../../addon/edit/indentlist.js"></script>
 <script src="../xml/xml.js"></script>
 <script src="markdown.js"></script>
 <style type="text/css">
@@ -346,7 +347,9 @@ Output:
         mode: 'markdown',
         lineNumbers: true,
         theme: "default",
-        extraKeys: {"Enter": "newlineAndIndentContinueMarkdownList"}
+        extraKeys: {"Enter": "newlineAndIndentContinueMarkdownList",
+                    "Tab": "autoIndentMarkdownList",
+                    "Shift-Tab": "autoUnindentMarkdownList"}
       });
     </script>
 
