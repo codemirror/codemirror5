@@ -1,0 +1,27 @@
+/* CodeMirror, copyright (c) by Marijn Haverbeke and others
+ * Distributed under an MIT license: http://codemirror.net/LICENSE
+ *
+ * Author: Thomas Braun <thomas.braun@byte-physics.de>
+ */
+
+/* Color scheme using the official colors of the Igor Pro IDE.
+ * To be used as an addon, e.g. `theme : "igorpro default"`
+ */
+
+/* Igor Keywords */
+.cm-s-igorpro .cm-def { color: #0000FF; }
+
+/* Igor Comments */
+.cm-s-igorpro .cm-comment { color: #FF0000; }
+
+/* Igor #[pragma|include|etc.] */
+.cm-s-igorpro .cm-meta { color: #CC00A3; }
+
+/* Igor Strings */
+.cm-s-igorpro .cm-string { color: #009C00; }
+
+/* Igor Operations */
+.cm-s-igorpro .cm-variable-3 { color: #007575; }
+
+/* Igor Built-in Functions */
+.cm-s-igorpro .cm-builtin { color: #C34E00; }
