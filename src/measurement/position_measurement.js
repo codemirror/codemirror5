@@ -479,7 +479,7 @@ function coordsCharInner(cm, lineObj, lineNo, x, y) {
         steps = Math.min(steps, Math.ceil(Math.abs(diff) / diff_change_per_step))
         dir = diff < 0 ? 1 : -1
       }
-    } while (steps > 1 || ((dir < 0) != (diff < 0) && (Math.abs(diff) <= Math.abs(prevDiff))))
+    } while (diff != 0 && (steps > 1 || ((dir < 0) != (diff < 0) && (Math.abs(diff) <= Math.abs(prevDiff)))))
     if (Math.abs(diff) > Math.abs(prevDiff)) {
       if ((diff < 0) == (prevDiff < 0)) throw new Error("Broke out of infinite loop in coordsCharInner")
       pos = prevPos
