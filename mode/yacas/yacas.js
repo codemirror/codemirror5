@@ -125,7 +125,7 @@ CodeMirror.defineMode('yacas', function(_config, _parserConfig) {
     }
 
     // operators; note that operators like @@ or /; are matched separately for each symbol.
-    if (stream.match(/(?:\\|\+|\-|\*|\/|,|;|\.|:|@|~|=|>|<|&|\||_|`|'|\^|\?|!|%)/, true, false)) {
+    if (stream.match(/(?:\\|\+|\-|\*|\/|,|;|\.|:|@|~|=|>|<|&|\||_|`|'|\^|\?|!|%|#)/, true, false)) {
       return 'operator';
     }
 
