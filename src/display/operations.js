@@ -6,11 +6,9 @@ import { activeElt } from "../util/dom"
 import { finishOperation, pushOperation } from "../util/operation_group"
 
 import { ensureFocus } from "./focus"
-import { alignHorizontally } from "./line_numbers"
 import { measureForScrollbars, updateScrollbars } from "./scrollbars"
-import { setScrollLeft } from "./scroll_events"
 import { restartBlink } from "./selection"
-import { maybeScrollWindow, scrollPosIntoView } from "./scrolling"
+import { maybeScrollWindow, scrollPosIntoView, setScrollLeft, setScrollTop } from "./scrolling"
 import { DisplayUpdate, maybeClipScrollbars, postUpdateDisplay, setDocumentHeight, updateDisplayIfNeeded } from "./update_display"
 import { updateHeightsInViewport } from "./update_lines"
 
@@ -142,17 +140,9 @@ function endOperation_finish(op) {
     display.wheelStartX = display.wheelStartY = null
 
   // Propagate the scroll position to the actual DOM scroller
-  if (op.scrollTop != null && (display.scroller.scrollTop != op.scrollTop || op.forceScroll)) {
-    doc.scrollTop = Math.max(0, Math.min(display.scroller.scrollHeight - display.scroller.clientHeight, op.scrollTop))
-    display.scrollbars.setScrollTop(doc.scrollTop)
-    display.scroller.scrollTop = doc.scrollTop
-  }
-  if (op.scrollLeft != null && (display.scroller.scrollLeft != op.scrollLeft || op.forceScroll)) {
-    doc.scrollLeft = Math.max(0, Math.min(display.scroller.scrollWidth - display.scroller.clientWidth, op.scrollLeft))
-    display.scrollbars.setScrollLeft(doc.scrollLeft)
-    display.scroller.scrollLeft = doc.scrollLeft
-    alignHorizontally(cm)
-  }
+  if (op.scrollTop != null) setScrollTop(cm, op.scrollTop, op.forceScroll)
+
+  if (op.scrollLeft != null) setScrollLeft(cm, op.scrollLeft, true, true)
   // If we need to scroll a specific position into view, do so.
   if (op.scrollToPos) {
     let rect = scrollPosIntoView(cm, clipPos(doc, op.scrollToPos.from),

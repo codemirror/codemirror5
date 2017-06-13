@@ -141,6 +141,7 @@
       lintAsync(cm, getAnnotations, passOptions)
     } else {
       var annotations = getAnnotations(cm.getValue(), passOptions, cm);
+      if (!annotations) return;
       if (annotations.then) annotations.then(function(issues) {
         updateLinting(cm, issues);
       });

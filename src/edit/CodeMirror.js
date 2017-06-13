@@ -4,7 +4,8 @@ import { setGuttersForLineNumbers, updateGutters } from "../display/gutters"
 import { maybeUpdateLineNumberWidth } from "../display/line_numbers"
 import { endOperation, operation, startOperation } from "../display/operations"
 import { initScrollbars } from "../display/scrollbars"
-import { onScrollWheel, setScrollLeft, setScrollTop } from "../display/scroll_events"
+import { onScrollWheel } from "../display/scroll_events"
+import { setScrollLeft, updateScrollTop } from "../display/scrolling"
 import { clipPos, Pos } from "../line/pos"
 import { posFromMouse } from "../measurement/position_measurement"
 import { eventInWidget } from "../measurement/widgets"
@@ -180,7 +181,7 @@ function registerEventHandlers(cm) {
   // area, ensure viewport is updated when scrolling.
   on(d.scroller, "scroll", () => {
     if (d.scroller.clientHeight) {
-      setScrollTop(cm, d.scroller.scrollTop)
+      updateScrollTop(cm, d.scroller.scrollTop)
       setScrollLeft(cm, d.scroller.scrollLeft, true)
       signal(cm, "scroll", cm)
     }

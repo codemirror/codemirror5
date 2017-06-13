@@ -202,7 +202,6 @@ CodeMirror.defineMode("vb", function(conf, parserConf) {
         // Handle '.' connected identifiers
         if (current === '.') {
             style = state.tokenize(stream, state);
-            current = stream.current();
             if (style === 'variable') {
                 return 'variable';
             } else {

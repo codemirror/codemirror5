@@ -130,7 +130,7 @@ CodeMirror.defineMode("mirc", function() {
       }
     }
     else if (ch == "%") {
-      stream.eatWhile(/[^,^\s^\(^\)]/);
+      stream.eatWhile(/[^,\s()]/);
       state.beforeParams = true;
       return "string";
     }

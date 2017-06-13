@@ -69,7 +69,7 @@
 <section class=first id=overview>
     <h2 style="position: relative">
       User manual and reference guide
-      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 5.25.1</span>
+      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 5.26.1</span>
     </h2>
 
     <p>CodeMirror is a code-editor component that can be embedded in
@@ -313,6 +313,26 @@
       alongside the ones defined
       by <a href="#option_keyMap"><code>keyMap</code></a>. Should be
       either null, or a valid <a href="#keymaps">key map</a> value.</dd>
+
+      <dt id="option_configureMouse"><code><strong>configureMouse</strong>: fn(cm: CodeMirror, repeat: "single" | "double" | "triple", event: Event) → Object</code></dt>
+      <dd>Allows you to configure the behavior of mouse selection and
+      dragging. The function is called when the left mouse button is
+      pressed. The returned object may have the following properties:
+        <dl>
+          <dt><code><strong>unit</strong>: "char" | "word" | "line" | "rectangle" | fn(CodeMirror, Pos) → {from: Pos, to: Pos}</code></dt>
+          <dd>The unit by which to select. May be one of the built-in
+          units, or a function that takes a position and returns a
+          range around that, for a custom unit.</dd>
+          <dt><code><strong>extend</strong>: bool</code></dt>
+          <dd>Whether to extend the existing selection range or start a new one.</dd>
+          <dt><code><strong>addNew</strong>: bool</code></dt>
+          <dd>When enabled, this adds a new range to the existing selection, rather than replacing it.</dd>
+          <dt><code><strong>moveOnDrag</strong>: bool</code></dt>
+          <dd>When the mouse even drags content around inside the
+          editor, this controls whether it is copied (false) or moved
+          (true).</dt>
+        </dl>
+      </dd>
 
       <dt id="option_lineWrapping"><code><strong>lineWrapping</strong>: boolean</code></dt>
       <dd>Whether CodeMirror should scroll or wrap for long lines.
@@ -764,9 +784,10 @@
 <section id=keymaps>
     <h2>Key Maps</h2>
 
-    <p>Key maps are ways to associate keys with functionality. A key map
-    is an object mapping strings that identify the keys to functions
-    that implement their functionality.</p>
+    <p>Key maps are ways to associate keys and mouse buttons with
+    functionality. A key map is an object mapping strings that
+    identify the buttons to functions that implement their
+    functionality.</p>
 
     <p>The CodeMirror distributions comes
     with <a href="../demo/emacs.html">Emacs</a>, <a href="../demo/vim.html">Vim</a>,
@@ -797,6 +818,13 @@ editor.setOption("extraKeys", {
     surrounding it in single quotes, for example <code>'$'</code>
     or <code>'q'</code>. Due to limitations in the way browsers fire
     key events, these may not be prefixed with modifiers.</p>
+
+    <p>To bind mouse buttons, use the names `LeftClick`,
+    `MiddleClick`, and `RightClick`. These can also be prefixed with
+    modifiers, and in addition, the word `Double` or `Triple` can be
+    put before `Click` (as in `LeftDoubleClick`) to bind a double- or
+    triple-click. The function for such a binding is passed the
+    position that was clicked as second argument.</p>
 
     <p id="normalizeKeyMap">Multi-stroke key bindings can be specified
     by separating the key names by spaces in the property name, for
@@ -1859,7 +1887,7 @@ editor.setOption("extraKeys", {
       position that the cursor would have when it would sit at that
       position.</dd>
       <dt id="coordsChar"><code><strong>cm.coordsChar</strong>(object: {left, top}, ?mode: string) → {line, ch}</code></dt>
-      <dd>Given an <code>{left, top}</code> object, returns
+      <dd>Given an <code>{left, top}</code> object (e.g. coordinates of a mouse event) returns
       the <code>{line, ch}</code> position that corresponds to it. The
       optional <code>mode</code> parameter determines relative to what
       the coordinates are interpreted. It may
@@ -2235,16 +2263,18 @@ editor.setOption("extraKeys", {
       <p>Depends on <code>addon/dialog/dialog.css</code>.</p></dd>
 
       <dt id="addon_searchcursor"><a href="../addon/search/searchcursor.js"><code>search/searchcursor.js</code></a></dt>
-      <dd>Adds the <code>getSearchCursor(query, start, caseFold) →
+      <dd>Adds the <code>getSearchCursor(query, start, options) →
       cursor</code> method to CodeMirror instances, which can be used
       to implement search/replace functionality. <code>query</code>
-      can be a regular expression or a string (only strings will match
-      across lines—if they contain newlines). <code>start</code>
+      can be a regular expression or a string. <code>start</code>
       provides the starting position of the search. It can be
       a <code>{line, ch}</code> object, or can be left off to default
-      to the start of the document. <code>caseFold</code> is only
-      relevant when matching a string. It will cause the search to be
-      case-insensitive. A search cursor has the following methods:
+      to the start of the document. <code>options</code> is an
+      optional object, which can contain the property `caseFold:
+      false` to disable case folding when mathing a string, or the
+      property `multiline: disable` to disable multi-line matching for
+      regular expressions (which may help performance). A search
+      cursor has the following methods:
         <dl>
           <dt><code><strong>findNext</strong>() → boolean</code></dt>
           <dt><code><strong>findPrevious</strong>() → boolean</code></dt>
@@ -2603,9 +2633,12 @@ editor.setOption("extraKeys", {
         of the global one passed with the full list of completions.</dd>
       </dl></dd>
 
-      <dd>The plugin understands the following options (the options object
-      will also be passed along to the hinting function, which may
-      understand additional options):
+      <dd>The plugin understands the following options, which may be
+      either passed directly in the argument to <code>showHint</code>,
+      or provided by setting an <code>hintOptions</code> editor
+      option to an object (the former takes precedence). The options
+      object will also be passed along to the hinting function, which
+      may understand additional options.
       <dl>
         <dt><code><strong>hint</strong>: function</code></dt>
         <dd>A hinting function, as specified above. It is possible to

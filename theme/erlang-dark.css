@@ -27,7 +27,7 @@
 .cm-s-erlang-dark span.cm-tag        { color: #9effff; }
 .cm-s-erlang-dark span.cm-variable   { color: #50fe50; }
 .cm-s-erlang-dark span.cm-variable-2 { color: #e0e; }
-.cm-s-erlang-dark span.cm-variable-3 { color: #ccc; }
+.cm-s-erlang-dark span.cm-variable-3, .cm-s-erlang-dark span.cm-type { color: #ccc; }
 .cm-s-erlang-dark span.cm-error      { color: #9d1e15; }
 
 .cm-s-erlang-dark .CodeMirror-activeline-background { background: #013461; }

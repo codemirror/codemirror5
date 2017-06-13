@@ -11,7 +11,7 @@
 
 
 //Definitions
-//  comment -- text withing * ; or /* */
+//  comment -- text within * ; or /* */
 //  keyword -- SAS language variable
 //  variable -- macro variables starts with '&' or variable formats
 //  variable-2 -- DATA Step, proc, or macro names
@@ -116,28 +116,15 @@
         return "comment";
       }
 
+      if (ch == "*" && stream.column() == stream.indentation()) {
+        stream.skipToEnd()
+        return "comment"
+      }
+
       // DoubleOperator match
       var doubleOperator = ch + stream.peek();
 
-      // Match all line comments.
-      var myString = stream.string;
-      var myRegexp = /(?:^\s*|[;]\s*)(\*.*?);/ig;
-      var match = myRegexp.exec(myString);
-      if (match !== null) {
-        if (match.index === 0 && (stream.column() !== (match.index + match[0].length - 1))) {
-          stream.backUp(stream.column());
-          stream.skipTo(';');
-          stream.next();
-          return 'comment';
-        } else if (match.index + 1 < stream.column() && stream.column() < match.index + match[0].length - 1) {
-          // the ';' triggers the match so move one past it to start
-          // the comment block that is why match.index+1
-          stream.backUp(stream.column() - match.index - 1);
-          stream.skipTo(';');
-          stream.next();
-          return 'comment';
-        }
-      } else if ((ch === '"' || ch === "'") && !state.continueString) {
+      if ((ch === '"' || ch === "'") && !state.continueString) {
         state.continueString = ch
         return "string"
       } else if (state.continueString) {

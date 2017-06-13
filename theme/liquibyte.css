@@ -36,7 +36,7 @@
 .cm-s-liquibyte span.cm-atom        { color: #bf3030; font-weight: bold; }
 
 .cm-s-liquibyte span.cm-variable-2  { color: #007f7f; font-weight: bold; }
-.cm-s-liquibyte span.cm-variable-3  { color: #c080ff; font-weight: bold; }
+.cm-s-liquibyte span.cm-variable-3, .cm-s-liquibyte span.cm-type { color: #c080ff; font-weight: bold; }
 .cm-s-liquibyte span.cm-property    { color: #999; font-weight: bold; }
 .cm-s-liquibyte span.cm-operator    { color: #fff; }
 
@@ -59,10 +59,10 @@
 .CodeMirror-matchingtag { background-color: rgba(150, 255, 0, .3); }
 /* Scrollbars */
 /* Simple */
-.cm-s-liquibyte div.CodeMirror-simplescroll-horizontal div:hover, div.CodeMirror-simplescroll-vertical div:hover {
+.cm-s-liquibyte div.CodeMirror-simplescroll-horizontal div:hover, .cm-s-liquibyte div.CodeMirror-simplescroll-vertical div:hover {
 	background-color: rgba(80, 80, 80, .7);
 }
-.cm-s-liquibyte div.CodeMirror-simplescroll-horizontal div, div.CodeMirror-simplescroll-vertical div {
+.cm-s-liquibyte div.CodeMirror-simplescroll-horizontal div, .cm-s-liquibyte div.CodeMirror-simplescroll-vertical div {
 	background-color: rgba(80, 80, 80, .3);
 	border: 1px solid #404040;
 	border-radius: 5px;

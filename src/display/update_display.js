@@ -3,7 +3,7 @@ import { heightAtLine, visualLineEndNo, visualLineNo } from "../line/spans"
 import { getLine, lineNumberFor } from "../line/utils_line"
 import { displayHeight, displayWidth, getDimensions, paddingVert, scrollGap } from "../measurement/position_measurement"
 import { mac, webkit } from "../util/browser"
-import { activeElt, removeChildren } from "../util/dom"
+import { activeElt, removeChildren, contains } from "../util/dom"
 import { hasHandler, signal } from "../util/event"
 import { indexOf } from "../util/misc"
 
@@ -51,6 +51,36 @@ export function maybeClipScrollbars(cm) {
     display.sizer.style.marginBottom = -display.nativeBarWidth + "px"
     display.sizer.style.borderRightWidth = scrollGap(cm) + "px"
     display.scrollbarsClipped = true
+  }
+}
+
+function selectionSnapshot(cm) {
+  if (cm.hasFocus()) return null
+  let active = activeElt()
+  if (!active || !contains(cm.display.lineDiv, active)) return null
+  let result = {activeElt: active}
+  if (window.getSelection) {
+    let sel = window.getSelection()
+    if (sel.anchorNode && sel.extend && contains(cm.display.lineDiv, sel.anchorNode)) {
+      result.anchorNode = sel.anchorNode
+      result.anchorOffset = sel.anchorOffset
+      result.focusNode = sel.focusNode
+      result.focusOffset = sel.focusOffset
+    }
+  }
+  return result
+}
+
+function restoreSelection(snapshot) {
+  if (!snapshot || !snapshot.activeElt || snapshot.activeElt == activeElt()) return
+  snapshot.activeElt.focus()
+  if (snapshot.anchorNode && contains(document.body, snapshot.anchorNode) && contains(document.body, snapshot.focusNode)) {
+    let sel = window.getSelection(), range = document.createRange()
+    range.setEnd(snapshot.anchorNode, snapshot.anchorOffset)
+    range.collapse(false)
+    sel.removeAllRanges()
+    sel.addRange(range)
+    sel.extend(snapshot.focusNode, snapshot.focusOffset)
   }
 }
 
@@ -103,14 +133,14 @@ export function updateDisplayIfNeeded(cm, update) {
 
   // For big changes, we hide the enclosing element during the
   // update, since that speeds up the operations on most browsers.
-  let focused = activeElt()
+  let selSnapshot = selectionSnapshot(cm)
   if (toUpdate > 4) display.lineDiv.style.display = "none"
   patchDisplay(cm, display.updateLineNumbers, update.dims)
   if (toUpdate > 4) display.lineDiv.style.display = ""
   display.renderedView = display.view
   // There might have been a widget with a focused element that got
   // hidden or updated, if so re-focus it.
-  if (focused && activeElt() != focused && focused.offsetHeight) focused.focus()
+  restoreSelection(selSnapshot)
 
   // Prevent selection and cursors from interfering with the scroll
   // width and height.
@@ -149,6 +179,7 @@ export function postUpdateDisplay(cm, update) {
     updateSelection(cm)
     updateScrollbars(cm, barMeasure)
     setDocumentHeight(cm, barMeasure)
+    update.force = false
   }
 
   update.signal(cm, "update", cm)

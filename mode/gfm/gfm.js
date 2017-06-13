@@ -113,7 +113,6 @@ CodeMirror.defineMode("gfm", function(config, modeConfig) {
   };
 
   var markdownConfig = {
-    underscoresBreakWords: false,
     taskLists: true,
     fencedCodeBlocks: '```',
     strikethrough: true

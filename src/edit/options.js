@@ -92,6 +92,7 @@ export function defineOptions(CodeMirror) {
     if (next.attach) next.attach(cm, prev || null)
   })
   option("extraKeys", null)
+  option("configureMouse", null)
 
   option("lineWrapping", false, wrappingChanged, true)
   option("gutters", [], cm => {
@@ -124,9 +125,6 @@ export function defineOptions(CodeMirror) {
     if (val == "nocursor") {
       onBlur(cm)
       cm.display.input.blur()
-      cm.display.disabled = true
-    } else {
-      cm.display.disabled = false
     }
     cm.display.input.readOnlyChanged(val)
   })

@@ -7,6 +7,7 @@ import { getLineStyles, getStateBefore, takeToken } from "../line/highlight"
 import { indentLine } from "../input/indent"
 import { triggerElectric } from "../input/input"
 import { onKeyDown, onKeyPress, onKeyUp } from "./key_events"
+import { onMouseDown } from "./mouse_events"
 import { getKeyMap } from "../input/keymap"
 import { endOfLine, moveLogically, moveVisually } from "../input/movement"
 import { methodOp, operation, runInOp } from "../display/operations"
@@ -14,7 +15,7 @@ import { clipLine, clipPos, equalCursorPos, Pos } from "../line/pos"
 import { charCoords, charWidth, clearCaches, clearLineMeasurementCache, coordsChar, cursorCoords, displayHeight, displayWidth, estimateLineHeights, fromCoordSystem, intoCoordSystem, scrollGap, textHeight } from "../measurement/position_measurement"
 import { Range } from "../model/selection"
 import { replaceOneSelection, skipAtomic } from "../model/selection_updates"
-import { addToScrollPos, calculateScrollPos, ensureCursorVisible, resolveScrollToPos, scrollIntoView } from "../display/scrolling"
+import { addToScrollTop, ensureCursorVisible, scrollIntoView, scrollToCoords, scrollToCoordsRange, scrollToRange } from "../display/scrolling"
 import { heightAtLine } from "../line/spans"
 import { updateGutterSpace } from "../display/update_display"
 import { indexOf, insertSorted, isWordChar, sel_dontScroll, sel_move } from "../util/misc"
@@ -258,6 +259,7 @@ export default function(CodeMirror) {
     triggerOnKeyDown: methodOp(onKeyDown),
     triggerOnKeyPress: methodOp(onKeyPress),
     triggerOnKeyUp: onKeyUp,
+    triggerOnMouseDown: methodOp(onMouseDown),
 
     execCommand: function(cmd) {
       if (commands.hasOwnProperty(cmd))
@@ -322,7 +324,7 @@ export default function(CodeMirror) {
         goals.push(headPos.left)
         let pos = findPosV(this, headPos, dir, unit)
         if (unit == "page" && range == doc.sel.primary())
-          addToScrollPos(this, null, charCoords(this, pos, "div").top - headPos.top)
+          addToScrollTop(this, charCoords(this, pos, "div").top - headPos.top)
         return pos
       }, sel_move)
       if (goals.length) for (let i = 0; i < doc.sel.ranges.length; i++)
@@ -359,11 +361,7 @@ export default function(CodeMirror) {
     hasFocus: function() { return this.display.input.getField() == activeElt() },
     isReadOnly: function() { return !!(this.options.readOnly || this.doc.cantEdit) },
 
-    scrollTo: methodOp(function(x, y) {
-      if (x != null || y != null) resolveScrollToPos(this)
-      if (x != null) this.curOp.scrollLeft = x
-      if (y != null) this.curOp.scrollTop = y
-    }),
+    scrollTo: methodOp(function (x, y) { scrollToCoords(this, x, y) }),
     getScrollInfo: function() {
       let scroller = this.display.scroller
       return {left: scroller.scrollLeft, top: scroller.scrollTop,
@@ -385,16 +383,9 @@ export default function(CodeMirror) {
       range.margin = margin || 0
 
       if (range.from.line != null) {
-        resolveScrollToPos(this)
-        this.curOp.scrollToPos = range
+        scrollToRange(this, range)
       } else {
-        let sPos = calculateScrollPos(this, {
-          left: Math.min(range.from.left, range.to.left),
-          top: Math.min(range.from.top, range.to.top) - range.margin,
-          right: Math.max(range.from.right, range.to.right),
-          bottom: Math.max(range.from.bottom, range.to.bottom) + range.margin
-        })
-        this.scrollTo(sPos.scrollLeft, sPos.scrollTop)
+        scrollToCoordsRange(this, range.from, range.to, range.margin)
       }
     }),
 
@@ -420,7 +411,7 @@ export default function(CodeMirror) {
       regChange(this)
       this.curOp.forceUpdate = true
       clearCaches(this)
-      this.scrollTo(this.doc.scrollLeft, this.doc.scrollTop)
+      scrollToCoords(this, this.doc.scrollLeft, this.doc.scrollTop)
       updateGutterSpace(this)
       if (oldHeight == null || Math.abs(oldHeight - textHeight(this.display)) > .5)
         estimateLineHeights(this)
@@ -433,7 +424,7 @@ export default function(CodeMirror) {
       attachDoc(this, doc)
       clearCaches(this)
       this.display.input.reset()
-      this.scrollTo(doc.scrollLeft, doc.scrollTop)
+      scrollToCoords(this, doc.scrollLeft, doc.scrollTop)
       this.curOp.forceScroll = true
       signalLater(this, "swapDoc", this, old)
       return old

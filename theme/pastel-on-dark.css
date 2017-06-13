@@ -34,7 +34,7 @@
 .cm-s-pastel-on-dark span.cm-string { color: #66A968; }
 .cm-s-pastel-on-dark span.cm-variable { color: #AEB2F8; }
 .cm-s-pastel-on-dark span.cm-variable-2 { color: #BEBF55; }
-.cm-s-pastel-on-dark span.cm-variable-3 { color: #DE8E30; }
+.cm-s-pastel-on-dark span.cm-variable-3, .cm-s-pastel-on-dark span.cm-type { color: #DE8E30; }
 .cm-s-pastel-on-dark span.cm-def { color: #757aD8; }
 .cm-s-pastel-on-dark span.cm-bracket { color: #f8f8f2; }
 .cm-s-pastel-on-dark span.cm-tag { color: #C1C144; }

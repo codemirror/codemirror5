@@ -15,6 +15,7 @@
 
   CodeMirror.defineMode("stylus", function(config) {
     var indentUnit = config.indentUnit,
+        indentUnitString = '',
         tagKeywords = keySet(tagKeywords_),
         tagVariablesRegexp = /^(a|b|i|s|col|em)$/i,
         propertyKeywords = keySet(propertyKeywords_),
@@ -37,6 +38,8 @@
         style,
         type,
         override;
+
+    while (indentUnitString.length < indentUnit) indentUnitString += ' ';
 
     /**
      * Tokenizers
@@ -313,7 +316,7 @@
           return pushContext(state, stream, "block", 0);
         }
       }
-      if (typeIsBlock(type, stream, state)) {
+      if (typeIsBlock(type, stream)) {
         return pushContext(state, stream, "block");
       }
       if (type == "}" && endOfLine(stream)) {
@@ -513,7 +516,7 @@
      */
     states.atBlock = function(type, stream, state) {
       if (type == "(") return pushContext(state, stream, "atBlock_parens");
-      if (typeIsBlock(type, stream, state)) {
+      if (typeIsBlock(type, stream)) {
         return pushContext(state, stream, "block");
       }
       if (typeIsInterpolation(type, stream)) {
@@ -672,7 +675,7 @@
             ch = textAfter && textAfter.charAt(0),
             indent = cx.indent,
             lineFirstWord = firstWordOfLine(textAfter),
-            lineIndent = line.length - line.replace(/^\s*/, "").length,
+            lineIndent = line.match(/^\s*/)[0].replace(/\t/g, indentUnitString).length,
             prevLineFirstWord = state.context.prev ? state.context.prev.line.firstWord : "",
             prevLineIndent = state.context.prev ? state.context.prev.line.indent : lineIndent;
 
@@ -681,7 +684,6 @@
              ch == ")" && (cx.type == "parens" || cx.type == "atBlock_parens") ||
              ch == "{" && (cx.type == "at"))) {
           indent = cx.indent - indentUnit;
-          cx = cx.prev;
         } else if (!(/(\})/.test(ch))) {
           if (/@|\$|\d/.test(ch) ||
               /^\{/.test(textAfter) ||

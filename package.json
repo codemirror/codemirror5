@@ -1,6 +1,6 @@
 {
   "name": "codemirror",
-  "version": "5.25.1",
+  "version": "5.26.1",
   "main": "lib/codemirror.js",
   "description": "Full-featured in-browser code editor",
   "license": "MIT",
@@ -15,8 +15,8 @@
     "lint": "bin/lint",
     "install": "npm run-script build && ./release.sh"
   },
-  "dependencies": {
-    "blint": "^0.5.1",
+  "devDependencies": {
+    "blint": "^1",
     "node-static": "0.6.0",
     "phantomjs-prebuilt": "^2.1.12",
     "rollup": "^0.41.0",

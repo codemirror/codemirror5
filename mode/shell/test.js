@@ -58,4 +58,7 @@
 
   MT("doubleParens",
      "foo [quote $((bar))]")
+
+  MT("nested braces",
+     "[builtin echo] [def ${A[${B}]]}]")
 })();

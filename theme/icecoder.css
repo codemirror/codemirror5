@@ -11,7 +11,7 @@ ICEcoder default theme by Matt Pass, used in code editor available at https://ic
 
 .cm-s-icecoder span.cm-variable { color: #6cb5d9; }                /* blue */
 .cm-s-icecoder span.cm-variable-2 { color: #cc1e5c; }              /* pink */
-.cm-s-icecoder span.cm-variable-3 { color: #f9602c; }              /* orange */
+.cm-s-icecoder span.cm-variable-3, .cm-s-icecoder span.cm-type { color: #f9602c; } /* orange */
 
 .cm-s-icecoder span.cm-property { color: #eee; }                   /* off-white 1 */
 .cm-s-icecoder span.cm-operator { color: #9179bb; }                /* purple */
