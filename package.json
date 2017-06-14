@@ -15,7 +15,7 @@
     "lint": "bin/lint",
     "install": "npm run-script build && ./release.sh"
   },
-  "devDependencies": {
+  "dependencies": {
     "blint": "^1",
     "node-static": "0.6.0",
     "phantomjs-prebuilt": "^2.1.12",
