@@ -18,7 +18,25 @@
 
   function findMatchingBracket(cm, where, strict, config) {
     var line = cm.getLineHandle(where.line), pos = where.ch - 1;
-    var match = (pos >= 0 && matching[line.text.charAt(pos)]) || matching[line.text.charAt(++pos)];
+    var match;
+    var afterCursor;
+    if (!config || config.afterCursor === undefined) {
+      var paddedClassName = ' ' + cm.getWrapperElement().className + ' ';
+      afterCursor = (paddedClassName.indexOf(' cm-fat-cursor ') > -1);
+    } else {
+      afterCursor = config.afterCursor;
+    }
+
+    // A cursor is defined as between two characters, but in in vim command mode
+    // (i.e. not insert mode), the cursor is visually represented as a
+    // highlighted box on top of the 2nd character. Otherwise, we allow matches
+    // from before or after the cursor.
+    if (afterCursor) {
+      match = matching[line.text.charAt(++pos)];
+    } else {
+      match = (pos >= 0 && matching[line.text.charAt(pos)]) ||
+              matching[line.text.charAt(++pos)];
+    }
     if (!match) return null;
     var dir = match.charAt(1) == ">" ? 1 : -1;
     if (strict && (dir > 0) != (pos == where.ch)) return null;
