@@ -17,8 +17,8 @@
   var matching = {"(": ")>", ")": "(<", "[": "]>", "]": "[<", "{": "}>", "}": "{<"};
 
   function findMatchingBracket(cm, where, strict, config) {
-    var line = cm.getLineHandle(where.line), pos = where.ch - 1;
-    var match = (pos >= 0 && matching[line.text.charAt(pos)]) || matching[line.text.charAt(++pos)];
+    var line = cm.getLineHandle(where.line), pos = where.ch;
+    var match = (pos >= 0 && matching[line.text.charAt(pos)]);
     if (!match) return null;
     var dir = match.charAt(1) == ">" ? 1 : -1;
     if (strict && (dir > 0) != (pos == where.ch)) return null;
