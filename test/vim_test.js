@@ -3770,4 +3770,9 @@ testVim('beforeSelectionChange', function(cm, vim, helpers) {
   eqPos(cm.getCursor('head'), cm.getCursor('anchor'));
 }, { value: 'abc' });
 
+testVim('paren_match', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('%');
+  helpers.assertCursorAt(0, 11);
+}, { value: '(function())' });
 
