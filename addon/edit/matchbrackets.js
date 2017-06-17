@@ -16,12 +16,31 @@
 
   var matching = {"(": ")>", ")": "(<", "[": "]>", "]": "[<", "{": "}>", "}": "{<"};
 
-  function findMatchingBracket(cm, where, strict, config) {
-    var line = cm.getLineHandle(where.line), pos = where.ch - 1;
-    var match = (pos >= 0 && matching[line.text.charAt(pos)]) || matching[line.text.charAt(++pos)];
+  function findMatchingBracket(cm, where, scanStrict, config) {
+    var line = cm.getLineHandle(where.line);
+    var pos = where.ch - 1;
+    var match;
+    var afterCursor;
+    if (!config || config.afterCursor === undefined) {
+      var paddedClassName = ' ' + cm.getWrapperElement().className + ' ';
+      afterCursor = (paddedClassName.indexOf(' cm-fat-cursor ') > -1);
+    } else {
+      afterCursor = config.afterCursor;
+    }
+
+    // A cursor is defined as between two characters, but in in vim command mode
+    // (i.e. not insert mode), the cursor is visually represented as a
+    // highlighted box on top of the 2nd character. Otherwise, we allow matches
+    // from before or after the cursor.
+    if (afterCursor) {
+      match = matching[line.text.charAt(++pos)];
+    } else {
+      match = (pos >= 0 && matching[line.text.charAt(pos)]) ||
+              matching[line.text.charAt(++pos)];
+    }
     if (!match) return null;
     var dir = match.charAt(1) == ">" ? 1 : -1;
-    if (strict && (dir > 0) != (pos == where.ch)) return null;
+    if (scanStrict && (dir > 0) != (pos == where.ch)) return null;
     var style = cm.getTokenTypeAt(Pos(where.line, pos + 1));
 
     var found = scanForBracket(cm, Pos(where.line, pos + (dir > 0 ? 1 : 0)), dir, style || null, config);
@@ -113,8 +132,8 @@
   });
 
   CodeMirror.defineExtension("matchBrackets", function() {matchBrackets(this, true);});
-  CodeMirror.defineExtension("findMatchingBracket", function(pos, strict, config){
-    return findMatchingBracket(this, pos, strict, config);
+  CodeMirror.defineExtension("findMatchingBracket", function(pos, scanStrict, config){
+    return findMatchingBracket(this, pos, scanStrict, config);
   });
   CodeMirror.defineExtension("scanForBracket", function(pos, dir, style, config){
     return scanForBracket(this, pos, dir, style, config);

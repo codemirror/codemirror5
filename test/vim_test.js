@@ -4204,4 +4204,3 @@ testVim('beforeSelectionChange', function(cm, vim, helpers) {
   eqCursorPos(cm.getCursor('head'), cm.getCursor('anchor'));
 }, { value: 'abc' });
 
-
