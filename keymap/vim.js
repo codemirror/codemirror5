@@ -1835,16 +1835,16 @@
         var ch = cursor.ch;
         var lineText = cm.getLine(line);
         var symbol;
-        do {
-          symbol = lineText.charAt(ch++);
+        for (; ch < lineText.length; ch++) {
+          symbol = lineText.charAt(ch);
           if (symbol && isMatchableSymbol(symbol)) {
-            var style = cm.getTokenTypeAt(Pos(line, ch));
+            var style = cm.getTokenTypeAt(Pos(line, ch + 1));
             if (style !== "string" && style !== "comment") {
               break;
             }
           }
-        } while (symbol);
-        if (symbol) {
+        }
+        if (ch < lineText.length) {
           var matched = cm.findMatchingBracket(Pos(line, ch));
           return matched.to;
         } else {
