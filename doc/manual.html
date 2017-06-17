@@ -407,6 +407,13 @@
       there is no selection will copy or cut the whole lines that have
       cursors on them.</dd>
 
+      <dt id="option_pasteLinesPerSelection"><code><strong>pasteLinesPerSelection</strong>: boolean</code></dt>
+      <dd>When pasting something from an external source (not from the
+      editor itself), if the number of lines matches the number of
+      selection, CodeMirror will by default insert one line per
+      selection. You can set this to <code>false</code> to disable
+      that behavior.</dd>
+
       <dt id="option_undoDepth"><code><strong>undoDepth</strong>: integer</code></dt>
       <dd>The maximum number of undo levels that the editor stores.
       Note that this includes selection change events. Defaults to

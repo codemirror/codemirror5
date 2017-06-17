@@ -35,7 +35,7 @@ export function applyTextInput(cm, inserted, deleted, sel, origin) {
         for (let i = 0; i < lastCopied.text.length; i++)
           multiPaste.push(doc.splitLines(lastCopied.text[i]))
       }
-    } else if (textLines.length == sel.ranges.length) {
+    } else if (textLines.length == sel.ranges.length && cm.options.pasteLinesPerSelection) {
       multiPaste = map(textLines, l => [l])
     }
   }
