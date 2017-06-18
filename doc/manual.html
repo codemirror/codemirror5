@@ -2339,14 +2339,17 @@ editor.setOption("extraKeys", {
       the <a href="#addon_search"><code>search</code></a> addon will
       automatically use it.</dd>
 
-      <dt id="addon_matchbrackets"><a href="../addon/edit/matchbrackets.js"><code>edit/matchbrackets.js</code></a></dt>
+     <dt id="addon_matchbrackets"><a href="../addon/edit/matchbrackets.js"><code>edit/matchbrackets.js</code></a></dt>
       <dd>Defines an option <code>matchBrackets</code> which, when set
       to true, causes matching brackets to be highlighted whenever the
-      cursor is next to them. It also adds a
+      cursor is next to them. It also adds a 
       method <code>matchBrackets</code> that forces this to happen
       once, and a method <code>findMatchingBracket</code> that can be
-      used to run the bracket-finding algorithm that this uses
-      internally.</dd>
+      used to run the bracket-finding algorithm that this uses 
+      internally. By default, it will find the match to a matchable character
+      either before or after the cursor (preferring the one before),
+      but takes a boolean and config object to control some of the specifics
+      of the matching behavior.</dd>
 
       <dt id="addon_closebrackets"><a href="../addon/edit/closebrackets.js"><code>edit/closebrackets.js</code></a></dt>
       <dd>Defines an option <code>autoCloseBrackets</code> that will
