@@ -482,7 +482,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       if (modeCfg.highlightFormatting) state.formatting = "link";
       var type = getType(state);
       state.linkText = false;
-      state.inline = state.f = linkHref;
+      state.inline = state.f = stream.match(/\(.*?\)| ?\[.*?\]/, false) ? linkHref : inlineNormal
       return type;
     }
 
