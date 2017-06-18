@@ -212,7 +212,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       if (modeCfg.highlightFormatting) state.formatting = "code-block";
       state.code = -1
       return getType(state);
-    } else if (match = stream.match(fencedCodeRE, true)) {
+    } else if (match = stream.match(fencedMathRE, true)) {
       state.fencedChars = match[1]
       // try switching mode
       state.localMode = getMode(match[2]);
