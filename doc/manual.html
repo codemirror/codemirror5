@@ -2345,8 +2345,11 @@ editor.setOption("extraKeys", {
       cursor is next to them. It also adds a
       method <code>matchBrackets</code> that forces this to happen
       once, and a method <code>findMatchingBracket</code> that can be
-      used to run the bracket-finding algorithm that this uses
-      internally.</dd>
+      used to run the bracket-finding algorithm that this uses 
+      internally. By default, it will find the match to a matchable character
+      either before or after the cursor (preferring the one before),
+      but takes a boolean and config object to control some of the specifics
+      of the matching behavior.</dd>
 
       <dt id="addon_closebrackets"><a href="../addon/edit/closebrackets.js"><code>edit/closebrackets.js</code></a></dt>
       <dd>Defines an option <code>autoCloseBrackets</code> that will
