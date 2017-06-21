@@ -3718,6 +3718,7 @@ function testSubstitute(name, options) {
     helpers.doEx(options.expr);
     eq(options.expectedValue, cm.getValue());
   }, options);
+/*
   // If no noPcreExpr is defined, assume that it's the same as the expr.
   var noPcreExpr = options.noPcreExpr ? options.noPcreExpr : options.expr;
   testVim(name + '_nopcre', function(cm, vim, helpers) {
@@ -3726,6 +3727,7 @@ function testSubstitute(name, options) {
     helpers.doEx(noPcreExpr);
     eq(options.expectedValue, cm.getValue());
   }, options);
+*/
 }
 testSubstitute('ex_substitute_capture', {
   value: 'a11 a12 a13',
@@ -3789,6 +3791,14 @@ testSubstitute('ex_substitute_multibackslash_replacement', {
   value: 'one,two \n three,four',
   expectedValue: 'one\\\\\\\\two \n three\\\\\\\\four', // 2*8 backslashes.
   expr: '%s/,/\\\\\\\\\\\\\\\\/g'}); // 16 backslashes.
+testSubstitute('ex_substitute_dollar_match', {
+  value: 'one,two \n three,four',
+  expectedValue: 'one,two ,\n three,four',
+  expr: '%s/$/,/g'});
+testSubstitute('ex_substitute_newline_match', {
+  value: 'one,two \n three,four',
+  expectedValue: 'one,two , three,four',
+  expr: '%s/\\n/,/g'});
 testSubstitute('ex_substitute_newline_replacement', {
   value: 'one,two \n three,four',
   expectedValue: 'one\ntwo \n three\nfour',
