@@ -3789,6 +3789,14 @@ testSubstitute('ex_substitute_multibackslash_replacement', {
   value: 'one,two \n three,four',
   expectedValue: 'one\\\\\\\\two \n three\\\\\\\\four', // 2*8 backslashes.
   expr: '%s/,/\\\\\\\\\\\\\\\\/g'}); // 16 backslashes.
+testSubstitute('ex_substitute_dollar_match', {
+  value: 'one,two \n three,four',
+  expectedValue: 'one,two ,\n three,four',
+  expr: '%s/$/,/g'});
+testSubstitute('ex_substitute_newline_match', {
+  value: 'one,two \n three,four',
+  expectedValue: 'one,two , three,four',
+  expr: '%s/\\n/,/g'});
 testSubstitute('ex_substitute_newline_replacement', {
   value: 'one,two \n three,four',
   expectedValue: 'one\ntwo \n three\nfour',
