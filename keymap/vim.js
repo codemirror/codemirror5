@@ -4511,7 +4511,7 @@
           replacePart = tokens[1];
           if (regexPart && regexPart[regexPart.length - 1] === '$') {
             regexPart = regexPart.slice(0, regexPart.length - 1) + '\\n';
-            replacePart = replacePart + '\n';
+            replacePart = replacePart ? replacePart + '\n' : '\n';
           }
           if (replacePart !== undefined) {
             if (getOption('pcre')) {
