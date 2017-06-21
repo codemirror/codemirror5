@@ -97,7 +97,7 @@
 
   function byExpr(cm, pos, dir) {
     var wrap;
-    if (cm.findMatchingBracket && (wrap = cm.findMatchingBracket(pos, true))
+    if (cm.findMatchingBracket && (wrap = cm.findMatchingBracket(pos, {strict: true}))
         && wrap.match && (wrap.forward ? 1 : -1) == dir)
       return dir > 0 ? Pos(wrap.to.line, wrap.to.ch + 1) : wrap.to;
 
