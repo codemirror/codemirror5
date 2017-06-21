@@ -94,7 +94,7 @@ StringStream.prototype = {
     finally { this.lineStart -= n; }
   },
   lookAhead: function(n) {
-    let line = this.context.line + n
+    var line = this.context.line + n
     return line >= this.context.lines.length ? null : this.context.lines[line]
   }
 };
