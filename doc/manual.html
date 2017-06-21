@@ -2341,15 +2341,25 @@ editor.setOption("extraKeys", {
 
       <dt id="addon_matchbrackets"><a href="../addon/edit/matchbrackets.js"><code>edit/matchbrackets.js</code></a></dt>
       <dd>Defines an option <code>matchBrackets</code> which, when set
-      to true, causes matching brackets to be highlighted whenever the
-      cursor is next to them. It also adds a
+      to true or an options object, causes matching brackets to be
+      highlighted whenever the cursor is next to them. It also adds a
       method <code>matchBrackets</code> that forces this to happen
       once, and a method <code>findMatchingBracket</code> that can be
-      used to run the bracket-finding algorithm that this uses 
-      internally. By default, it will find the match to a matchable character
-      either before or after the cursor (preferring the one before),
-      but takes a boolean and config object to control some of the specifics
-      of the matching behavior.</dd>
+      used to run the bracket-finding algorithm that this uses
+      internally. It takes a start position and an optional config
+      object. By default, it will find the match to a matchable
+      character either before or after the cursor (preferring the one
+      before), but you can control its behavior with these options:
+        <dl>
+          <dt><strong><code>afterCursor</code></strong></dt>
+          <dd>Only use the character after the start position, never the one before it.</dd>
+          <dt><strong><code>strict</code></strong></dt>
+          <dd>Causes only matches where both brackets are at the same side of the start position to be considered.</dd>
+          <dt><strong><code>maxScanLines</code></strong></dt>
+          <dd>Stop after scanning this amount of lines without a successful match. Defaults to 1000.</dd>
+          <dt><strong><code>maxScanLineLength</code></strong></dt>
+          <dd>Ignore lines longer than this. Defaults to 10000.</dd>
+        </dl></dd>
 
       <dt id="addon_closebrackets"><a href="../addon/edit/closebrackets.js"><code>edit/closebrackets.js</code></a></dt>
       <dd>Defines an option <code>autoCloseBrackets</code> that will
