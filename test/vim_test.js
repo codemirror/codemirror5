@@ -3718,7 +3718,6 @@ function testSubstitute(name, options) {
     helpers.doEx(options.expr);
     eq(options.expectedValue, cm.getValue());
   }, options);
-/*
   // If no noPcreExpr is defined, assume that it's the same as the expr.
   var noPcreExpr = options.noPcreExpr ? options.noPcreExpr : options.expr;
   testVim(name + '_nopcre', function(cm, vim, helpers) {
@@ -3727,7 +3726,6 @@ function testSubstitute(name, options) {
     helpers.doEx(noPcreExpr);
     eq(options.expectedValue, cm.getValue());
   }, options);
-*/
 }
 testSubstitute('ex_substitute_capture', {
   value: 'a11 a12 a13',
