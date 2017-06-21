@@ -930,7 +930,10 @@ editor.setOption("extraKeys", {
       <dd>Delete the part of the line from the cursor to the right side of the visual line the cursor is on.</dd>
 
       <dt class=command id=command_undo><code><strong>undo</strong></code><span class=keybinding>Ctrl-Z (PC), Cmd-Z (Mac)</span></dt>
-      <dd>Undo the last change.</dd>
+      <dd>Undo the last change. Note that, because browsers still
+      don't make it possible for scripts to react to or customize the
+      context menu, selecting undo (or redo) from the context menu in
+      a CodeMirror instance does not work.</dd>
 
       <dt class=command id=command_redo><code><strong>redo</strong></code><span class=keybinding>Ctrl-Y (PC), Shift-Cmd-Z (Mac), Cmd-Y (Mac)</span></dt>
       <dd>Redo the last undone change.</dd>
