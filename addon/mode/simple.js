@@ -135,7 +135,7 @@
           if (rule.data.dedent)
             state.indent.pop();
           var token = rule.token
-          if (token.apply) token = token(matches)
+          if (token && token.apply) token = token(matches)
           if (matches.length > 2) {
             state.pending = [];
             for (var j = 2; j < matches.length; j++)
