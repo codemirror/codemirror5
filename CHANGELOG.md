@@ -1,3 +1,9 @@
+## 5.27.2 (2017-06-22)
+
+### Bug fixes
+
+Fix crash in the [simple mode](http://codemirror.net/demo/simplemode.html) addon.
+
 ## 5.27.0 (2017-06-22)
 
 ### Bug fixes
