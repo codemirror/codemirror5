@@ -30,6 +30,26 @@
 
   <h2>Version 5.x</h2>
 
+  <p class="rel">22-06-2017: <a href="http://codemirror.net/codemirror-5.27.0.zip">Version 5.27.0</a>:</p>
+
+  <ul>
+    <li>Fix infinite loop in forced display update.</li>
+    <li>Properly disable the hidden textarea when <code>readOnly</code> is <code>&quot;nocursor&quot;</code>.</li>
+    <li>Calling the <code>Doc</code> constructor without <code>new</code> works again.</li>
+    <li><a href="http://codemirror.net/mode/sql/">sql mode</a>: Handle nested comments.</li>
+    <li><a href="http://codemirror.net/mode/javascript/">javascript mode</a>: Improve support for TypeScript syntax.</li>
+    <li><a href="http://codemirror.net/mode/markdown/">markdown mode</a>: Fix bug where markup was ignored on indented paragraph lines.</li>
+    <li><a href="http://codemirror.net/mode/demo/vim.html">vim bindings</a>: Referencing invalid registers no longer causes an uncaught exception.</li>
+    <li><a href="http://codemirror.net/mode/rust/">rust mode</a>: Add the correct MIME type.</li>
+    <li><a href="http://codemirror.net/doc/manual.html#addon_matchbrackets">matchbrackets addon</a>: Document options.</li>
+    <li>Mouse button clicks can now be bound in keymaps by using names like <code>&quot;LeftClick&quot;</code> or <code>&quot;Ctrl-Alt-MiddleTripleClick&quot;</code>. When bound to a function, that function will be passed the position of the click as second argument.</li>
+    <li>The behavior of mouse selection and dragging can now be customized with the <a href="http://codemirror.net/doc/manual.html#option_configureMouse"><code>configureMouse</code></a> option.</li>
+    <li>Modes can now look ahead across line boundaries with the <a href="http://codemirror.net/doc/manual.html#StringStream"><code>StringStream</code></a><code>.lookahead</code> method.</li>
+    <li>Introduces a <code>&quot;type&quot;</code> token type, makes modes that recognize types output it, and add styling for it to the themes.</li>
+    <li>New <a href="http://codemirror.net/doc/manual.html#option_pasteLinesPerSelection"><code>pasteLinesPerSelection</code></a> option to control the behavior of pasting multiple lines into multiple selections.</li>
+    <li><a href="http://codemirror.net/doc/manual.html#addon_searchcursor">searchcursor addon</a>: Support multi-line regular expression matches, and normalize strings when matching.</li>
+  </ul>
+
   <p class="rel">22-05-2017: <a href="http://codemirror.net/codemirror-5.26.0.zip">Version 5.26.0</a>:</p>
 
   <ul class="rel-note">

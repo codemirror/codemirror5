@@ -1,6 +1,6 @@
 {
   "name": "codemirror",
-  "version": "5.26.1",
+  "version": "5.27.0",
   "main": "lib/codemirror.js",
   "style": "lib/codemirror.css",
   "description": "Full-featured in-browser code editor",
