@@ -2,15 +2,16 @@
 // Distributed under an MIT license: http://codemirror.net/LICENSE
 
 (function() {
-  var mode = CodeMirror.getMode({tabSize: 4}, "markdown");
+  var config = {tabSize: 4, indentUnit: 2}
+  var mode = CodeMirror.getMode(config, "markdown");
   function MT(name) { test.mode(name, mode, Array.prototype.slice.call(arguments, 1)); }
-  var modeHighlightFormatting = CodeMirror.getMode({tabSize: 4}, {name: "markdown", highlightFormatting: true});
+  var modeHighlightFormatting = CodeMirror.getMode(config, {name: "markdown", highlightFormatting: true});
   function FT(name) { test.mode(name, modeHighlightFormatting, Array.prototype.slice.call(arguments, 1)); }
-  var modeAtxNoSpace = CodeMirror.getMode({tabSize: 4}, {name: "markdown", allowAtxHeaderWithoutSpace: true});
+  var modeAtxNoSpace = CodeMirror.getMode(config, {name: "markdown", allowAtxHeaderWithoutSpace: true});
   function AtxNoSpaceTest(name) { test.mode(name, modeAtxNoSpace, Array.prototype.slice.call(arguments, 1)); }
-  var modeFenced = CodeMirror.getMode({tabSize: 4}, {name: "markdown", fencedCodeBlocks: true});
+  var modeFenced = CodeMirror.getMode(config, {name: "markdown", fencedCodeBlocks: true});
   function FencedTest(name) { test.mode(name, modeFenced, Array.prototype.slice.call(arguments, 1)); }
-  var modeOverrideClasses = CodeMirror.getMode({tabsize: 4}, {
+  var modeOverrideClasses = CodeMirror.getMode(config, {
     name: "markdown",
     strikethrough: true,
     tokenTypeOverrides: {
@@ -33,7 +34,7 @@
       "strikethrough" : "override-strikethrough"
   }});
   function TokenTypeOverrideTest(name) { test.mode(name, modeOverrideClasses, Array.prototype.slice.call(arguments, 1)); }
-  var modeFormattingOverride = CodeMirror.getMode({tabsize: 4}, {
+  var modeFormattingOverride = CodeMirror.getMode(config, {
     name: "markdown",
     highlightFormatting: true,
     tokenTypeOverrides: {
@@ -977,8 +978,8 @@
 
   MT("xmlMode",
      "[tag&bracket <][tag div][tag&bracket >]",
-     "*foo*",
-     "[tag&bracket <][tag http://github.com][tag&bracket />]",
+     "  *foo*",
+     "  [tag&bracket <][tag http://github.com][tag&bracket />]",
      "[tag&bracket </][tag div][tag&bracket >]",
      "[link <http://github.com/>]");
 

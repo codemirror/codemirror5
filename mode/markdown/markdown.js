@@ -762,10 +762,12 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         state.trailingSpaceNewLine = false;
 
         state.f = state.block;
-        var indentation = stream.match(/^\s*/, true)[0].replace(/\t/g, '    ').length;
-        state.indentationDiff = Math.min(indentation - state.indentation, 4);
-        state.indentation = state.indentation + state.indentationDiff;
-        if (indentation > 0) return null;
+        if (state.f != htmlBlock) {
+          var indentation = stream.match(/^\s*/, true)[0].replace(/\t/g, '    ').length;
+          state.indentationDiff = Math.min(indentation - state.indentation, 4);
+          state.indentation = state.indentation + state.indentationDiff;
+          if (indentation > 0) return null;
+        }
       }
       return state.f(stream, state);
     },
@@ -774,6 +776,12 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       if (state.block == htmlBlock) return {state: state.htmlState, mode: htmlMode};
       if (state.localState) return {state: state.localState, mode: state.localMode};
       return {state: state, mode: mode};
+    },
+
+    indent: function(state, textAfter, line) {
+      if (state.block == htmlBlock) return htmlMode.indent(state.htmlState, textAfter, line)
+      if (state.localState) return state.localMode.indent(state.localState, textAfter, line)
+      return CodeMirror.Pass
     },
 
     blankLine: blankLine,
