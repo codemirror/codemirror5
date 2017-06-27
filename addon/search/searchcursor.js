@@ -126,10 +126,10 @@
 
   // Maps a position in a case-folded line back to a position in the original line
   // (compensating for codepoints increasing in number during folding)
-  function adjustPos(orig, folded, pos) {
+  function adjustPos(orig, folded, pos, foldFunc) {
     if (orig.length == folded.length) return pos
     for (var pos1 = Math.min(pos, orig.length);;) {
-      var len1 = doFold(orig.slice(0, pos1)).length
+      var len1 = foldFunc(orig.slice(0, pos1)).length
       if (len1 < pos) ++pos1
       else if (len1 > pos) --pos1
       else return pos1
@@ -148,9 +148,9 @@
       if (lines.length == 1) {
         var found = string.indexOf(lines[0])
         if (found == -1) continue search
-        var start = adjustPos(orig, string, found) + ch
-        return {from: Pos(line, adjustPos(orig, string, found) + ch),
-                to: Pos(line, adjustPos(orig, string, found + lines[0].length) + ch)}
+        var start = adjustPos(orig, string, found, fold) + ch
+        return {from: Pos(line, adjustPos(orig, string, found, fold) + ch),
+                to: Pos(line, adjustPos(orig, string, found + lines[0].length, fold) + ch)}
       } else {
         var cutFrom = string.length - lines[0].length
         if (string.slice(cutFrom) != lines[0]) continue search
@@ -158,8 +158,8 @@
           if (fold(doc.getLine(line + i)) != lines[i]) continue search
         var end = doc.getLine(line + lines.length - 1), endString = fold(end), lastLine = lines[lines.length - 1]
         if (end.slice(0, lastLine.length) != lastLine) continue search
-        return {from: Pos(line, adjustPos(orig, string, cutFrom) + ch),
-                to: Pos(line + lines.length - 1, adjustPos(end, endString, lastLine.length))}
+        return {from: Pos(line, adjustPos(orig, string, cutFrom, fold) + ch),
+                to: Pos(line + lines.length - 1, adjustPos(end, endString, lastLine.length, fold))}
       }
     }
   }
@@ -176,8 +176,8 @@
       if (lines.length == 1) {
         var found = string.lastIndexOf(lines[0])
         if (found == -1) continue search
-        return {from: Pos(line, adjustPos(orig, string, found)),
-                to: Pos(line, adjustPos(orig, string, found + lines[0].length))}
+        return {from: Pos(line, adjustPos(orig, string, found, fold)),
+                to: Pos(line, adjustPos(orig, string, found + lines[0].length, fold))}
       } else {
         var lastLine = lines[lines.length - 1]
         if (string.slice(0, lastLine.length) != lastLine) continue search
@@ -185,8 +185,8 @@
           if (fold(doc.getLine(start + i)) != lines[i]) continue search
         var top = doc.getLine(line + 1 - lines.length), topString = fold(top)
         if (topString.slice(topString.length - lines[0].length) != lines[0]) continue search
-        return {from: Pos(line + 1 - lines.length, adjustPos(top, topString, top.length - lines[0].length)),
-                to: Pos(line, adjustPos(orig, string, lastLine.length))}
+        return {from: Pos(line + 1 - lines.length, adjustPos(top, topString, top.length - lines[0].length, fold)),
+                to: Pos(line, adjustPos(orig, string, lastLine.length, fold))}
       }
     }
   }
