@@ -129,7 +129,7 @@
   function adjustPos(orig, folded, pos) {
     if (orig.length == folded.length) return pos
     for (var pos1 = Math.min(pos, orig.length);;) {
-      var len1 = orig.slice(0, pos1).toLowerCase().length
+      var len1 = doFold(orig.slice(0, pos1)).length
       if (len1 < pos) ++pos1
       else if (len1 > pos) --pos1
       else return pos1
