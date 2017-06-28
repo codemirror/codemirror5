@@ -21,7 +21,7 @@ export function updateHeightsInViewport(cm) {
     }
     let diff = cur.line.height - height
     if (height < 2) height = textHeight(display)
-    if (diff > .001 || diff < -.001) {
+    if (diff > .005 || diff < -.005) {
       updateLineHeight(cur.line, height)
       updateWidgetHeight(cur.line)
       if (cur.rest) for (let j = 0; j < cur.rest.length; j++)
