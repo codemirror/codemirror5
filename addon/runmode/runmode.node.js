@@ -7,7 +7,7 @@ function splitLines(string){return string.split(/\r\n?|\n/);};
 
 // Counts the column offset in a string, taking tabs into account.
 // Used mostly to find indentation.
-var countColumn = function(string, end, tabSize, startIndex, startValue) {
+var countColumn = exports.countColumn = function(string, end, tabSize, startIndex, startValue) {
   if (end == null) {
     end = string.search(/[^\s\u00a0]/);
     if (end == -1) end = string.length;
