@@ -11,7 +11,7 @@
   "scripts": {
     "build": "rollup -c",
     "watch": "rollup -w -c",
-    "prepublish": "npm run-script build",
+    "prepare": "npm run-script build",
     "test": "node ./test/run.js",
     "lint": "bin/lint"
   },
