@@ -29,7 +29,12 @@
 
   CodeMirror.registerHelper("lint", "html", function(text, options) {
     var found = [];
-    if (!window.HTMLHint) return found;
+    if (!window.HTMLHint) {
+      if (window.console) {
+          window.console.error("Error: window.HTMLHint not defined, CodeMirror HTML linting cannot run.");
+      }
+      return found;
+    }
     var messages = HTMLHint.verify(text, options && options.rules || defaultRules);
     for (var i = 0; i < messages.length; i++) {
       var message = messages[i];
