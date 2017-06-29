@@ -1,3 +1,11 @@
+## 5.27.4 (2017-06-29)
+
+### Bug fixes
+
+Fix crash when using mode lookahead.
+
+[markdown mode](http://codemirror.net/mode/markdown/): Don't block inner mode's indentation support.
+
 ## 5.27.2 (2017-06-22)
 
 ### Bug fixes
