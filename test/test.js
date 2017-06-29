@@ -2218,6 +2218,21 @@ testCM("getTokenTypeAt", function(cm) {
   eq(cm.getTokenTypeAt(Pos(0, 6)), "string");
 }, {value: "1 + 'foo'", mode: "javascript"});
 
+testCM("addOverlay", function(cm) {
+  cm.addOverlay({
+    token: function(stream) {
+      var base = stream.baseToken()
+      if (!/comment/.test(base.type) && stream.match(/\d+/)) return "x"
+      stream.next()
+    }
+  })
+  var x = byClassName(cm.getWrapperElement(), "cm-x")
+  is(x.length, 1)
+  is(x[0].textContent, "233")
+  cm.replaceRange("", Pos(0, 4), Pos(0, 6))
+  is(byClassName(cm.getWrapperElement(), "cm-x").length, 2)
+}, {value: "foo /* 100 */\nbar + 233;\nbaz", mode: "javascript"})
+
 testCM("resizeLineWidget", function(cm) {
   addDoc(cm, 200, 3);
   var widget = document.createElement("pre");

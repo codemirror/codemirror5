@@ -3261,6 +3261,12 @@ editor.setOption("extraKeys", {
       one, in order to scan ahead across line boundaries. Note that
       you want to do this carefully, since looking far ahead will make
       mode state caching much less effective.</dd>
+
+      <dt><code><strong>baseToken</strong>() → ?{type: ?string, size: number}</code></dt>
+      <dd>Modes added
+      through <a href="#addOverlay"><code>addOverlay</code></a>
+      (and <em>only</em> such modes) can use this method to inspect
+      the current token produced by the underlying mode.</dd>
     </dl>
 
     <p id="blankLine">By default, blank lines are simply skipped when
