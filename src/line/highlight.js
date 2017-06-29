@@ -33,7 +33,7 @@ class Context {
 
   static fromSaved(doc, saved, line) {
     if (saved instanceof SavedContext)
-      return new Context(doc, copyState(doc.mode, saved.saved), line, saved.lookAhead)
+      return new Context(doc, copyState(doc.mode, saved.state), line, saved.lookAhead)
     else
       return new Context(doc, copyState(doc.mode, saved), line)
   }
