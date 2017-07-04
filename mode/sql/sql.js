@@ -47,7 +47,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     } else if (ch.charCodeAt(0) > 47 && ch.charCodeAt(0) < 58) {
       // numbers
       // ref: http://dev.mysql.com/doc/refman/5.5/en/number-literals.html
-          stream.match(/^[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?/);
+      stream.match(/^[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?/);
       support.decimallessFloat && stream.eat('.');
       return "number";
     } else if (ch == "?" && (stream.eatSpace() || stream.eol() || stream.eat(";"))) {
@@ -89,7 +89,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
       }
       // .table_name (ODBC)
       // // ref: http://dev.mysql.com/doc/refman/5.6/en/identifier-qualifiers.html
-      if (support.ODBCdotTable && stream.match(/^[a-zA-Z_]+/)) {
+      if (support.ODBCdotTable && stream.match(/^[\w\d_]+/)) {
         return "variable-2";
       }
     } else if (operatorChars.test(ch)) {
