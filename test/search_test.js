@@ -74,4 +74,10 @@
     run(doc, "</b>", true, 0, 8, 0, 12, 1, 8, 1, 12);
     run(doc, "İİ", true, 0, 3, 0, 5, 0, 6, 0, 8);
   });
+
+  test("normalize", function() {
+    var doc = new CodeMirror.Doc("yılbaşı\n수 있을까")
+    run(doc, "s", false, 0, 5, 0, 6)
+    run(doc, "이", false, 1, 2, 1, 3)
+  })
 })();
