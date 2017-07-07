@@ -130,7 +130,7 @@
     if (orig.length == folded.length) return pos
     for (var min = 0, max = pos + Math.max(0, orig.length - folded.length);;) {
       if (min == max) return min
-      let mid = (min + max) >> 1
+      var mid = (min + max) >> 1
       var len = foldFunc(orig.slice(0, mid)).length
       if (len == pos) return mid
       else if (len > pos) max = mid - 1
