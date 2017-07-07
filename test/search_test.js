@@ -76,6 +76,7 @@
   });
 
   test("normalize", function() {
+    if (!String.prototype.normalize) return
     var doc = new CodeMirror.Doc("yılbaşı\n수 있을까")
     run(doc, "s", false, 0, 5, 0, 6)
     run(doc, "이", false, 1, 2, 1, 3)
