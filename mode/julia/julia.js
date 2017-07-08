@@ -233,7 +233,8 @@ CodeMirror.defineMode("julia", function(config, parserConf) {
         return "def";
       }
       if (stream.match(/^({[^}]*})*\(/, false)) {
-        return callOrDef(stream, state);
+        state.tokenize = tokenCallOrDef;
+        return state.tokenize(stream, state);
       }
       state.leavingExpr = true;
       return "variable";
@@ -244,7 +245,7 @@ CodeMirror.defineMode("julia", function(config, parserConf) {
     return "error";
   }
 
-  function callOrDef(stream, state) {
+  function tokenCallOrDef(stream, state) {
     var match = stream.match(/^(\(\s*)/);
     if (match) {
       if (state.firstParenPos < 0)
@@ -260,6 +261,7 @@ CodeMirror.defineMode("julia", function(config, parserConf) {
         stream.backUp(state.charsAdvanced);
         state.firstParenPos = -1;
         state.charsAdvanced = 0;
+        state.tokenize = tokenBase;
         if (isDefinition)
           return "def";
         return "builtin";
@@ -274,10 +276,11 @@ CodeMirror.defineMode("julia", function(config, parserConf) {
         state.scopes.pop();
       state.firstParenPos = -1;
       state.charsAdvanced = 0;
+      state.tokenize = tokenBase;
       return "builtin";
     }
     state.charsAdvanced += stream.match(/^([^()]*)/)[1].length;
-    return callOrDef(stream, state);
+    return state.tokenize(stream, state);
   }
 
   function tokenAnnotation(stream, state) {
