@@ -133,7 +133,7 @@
       var mid = (min + max) >> 1
       var len = foldFunc(orig.slice(0, mid)).length
       if (len == pos) return mid
-      else if (len > pos) max = mid - 1
+      else if (len > pos) max = mid
       else min = mid + 1
     }
   }

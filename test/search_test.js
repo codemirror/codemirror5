@@ -77,8 +77,9 @@
 
   test("normalize", function() {
     if (!String.prototype.normalize) return
-    var doc = new CodeMirror.Doc("yılbaşı\n수 있을까")
+    var doc = new CodeMirror.Doc("yılbaşı\n수 있을까\nLe taux d'humidité à London")
     run(doc, "s", false, 0, 5, 0, 6)
     run(doc, "이", false, 1, 2, 1, 3)
+    run(doc, "a", false, 0, 4, 0, 5, 2, 4, 2, 5, 2, 19, 2, 20)
   })
 })();
