@@ -1,6 +1,6 @@
 import { operation, runInOp } from "../display/operations"
 import { prepareSelection } from "../display/selection"
-import { applyTextInput, copyableRanges, handlePaste, hiddenTextarea, lastCopied, setLastCopied } from "./input"
+import { applyTextInput, copyableRanges, handlePaste, hiddenTextarea, setLastCopied } from "./input"
 import { cursorCoords, posFromMouse } from "../measurement/position_measurement"
 import { eventInWidget } from "../measurement/widgets"
 import { simpleSelection } from "../model/selection"
@@ -8,7 +8,7 @@ import { selectAll, setSelection } from "../model/selection_updates"
 import { captureRightClick, ie, ie_version, ios, mac, mobile, presto, webkit } from "../util/browser"
 import { activeElt, removeChildrenAndAdd, selectInput } from "../util/dom"
 import { e_preventDefault, e_stop, off, on, signalDOMEvent } from "../util/event"
-import { hasCopyEvent, hasSelection } from "../util/feature_detection"
+import { hasSelection } from "../util/feature_detection"
 import { Delayed, sel_dontScroll } from "../util/misc"
 
 // TEXTAREA INPUT STYLE
@@ -25,9 +25,6 @@ export default class TextareaInput {
     this.pollingFast = false
     // Self-resetting timeout for the poller
     this.polling = new Delayed()
-    // Tracks when input.reset has punted to just putting a short
-    // string into the textarea instead of the full selection.
-    this.inaccurateSelection = false
     // Used to work around IE issue with selection being forgotten when focus moves away from textarea
     this.hasSelection = false
     this.composing = null
@@ -62,12 +59,6 @@ export default class TextareaInput {
       if (signalDOMEvent(cm, e)) return
       if (cm.somethingSelected()) {
         setLastCopied({lineWise: false, text: cm.getSelections()})
-        if (input.inaccurateSelection) {
-          input.prevInput = ""
-          input.inaccurateSelection = false
-          te.value = lastCopied.text.join("\n")
-          selectInput(te)
-        }
       } else if (!cm.options.lineWiseCopyCut) {
         return
       } else {
@@ -146,13 +137,10 @@ export default class TextareaInput {
   // when not typing and nothing is selected)
   reset(typing) {
     if (this.contextMenuPending || this.composing) return
-    let minimal, selected, cm = this.cm, doc = cm.doc
+    let cm = this.cm
     if (cm.somethingSelected()) {
       this.prevInput = ""
-      let range = doc.sel.primary()
-      minimal = hasCopyEvent &&
-        (range.to().line - range.from().line > 100 || (selected = cm.getSelection()).length > 1000)
-      let content = minimal ? "-" : selected || cm.getSelection()
+      let content = cm.getSelection()
       this.textarea.value = content
       if (cm.state.focused) selectInput(this.textarea)
       if (ie && ie_version >= 9) this.hasSelection = content
@@ -160,7 +148,6 @@ export default class TextareaInput {
       this.prevInput = this.textarea.value = ""
       if (ie && ie_version >= 9) this.hasSelection = null
     }
-    this.inaccurateSelection = minimal
   }
 
   getField() { return this.textarea }
