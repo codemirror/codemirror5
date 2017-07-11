@@ -1,6 +1,6 @@
 <!doctype html>
 
-<title>CodeMirror: NTriples mode</title>
+<title>CodeMirror: N-Triples mode</title>
 <meta charset="utf-8"/>
 <link rel=stylesheet href="../../doc/docs.css">
 
@@ -22,12 +22,12 @@
   </ul>
   <ul>
     <li><a href="../index.html">Language modes</a>
-    <li><a class=active href="#">NTriples</a>
+    <li><a class=active href="#">N-Triples</a>
   </ul>
 </div>
 
 <article>
-<h2>NTriples mode</h2>
+  <h2><a href="https://www.w3.org/TR/n-triples/">N-Triples</a> mode</h2>
 <form>
 <textarea id="ntriples" name="ntriples">    
 <http://Sub1>     <http://pred1>     <http://obj> .
@@ -41,5 +41,5 @@ _:bnode5          <http://pred5>     "literal 3"^^<http://type> .
     <script>
       var editor = CodeMirror.fromTextArea(document.getElementById("ntriples"), {});
     </script>
-    <p><strong>MIME types defined:</strong> <code>text/n-triples</code>.</p>
+    <p><strong>MIME types defined:</strong> <code>application/n-triples</code>.</p>
   </article>
