@@ -164,7 +164,7 @@
     if (fullWord)
       cm.state.sublimeFindFullWord = cm.doc.sel;
   };
-  
+
   function addCursorToSelection(cm, dir) {
     var ranges = cm.listSelections(), newRanges = [];
     for (var i = 0; i < ranges.length; i++) {
@@ -177,7 +177,7 @@
     }
     cm.setSelections(newRanges);
   }
-  
+
   var addCursorToLineCombo = mac ? "Shift-Cmd" : 'Alt-Ctrl';
   cmds[map[addCursorToLineCombo + "Up"] = "addCursorToPrevLine"] = function(cm) { addCursorToSelection(cm, -1); };
   cmds[map[addCursorToLineCombo + "Down"] = "addCursorToNextLine"] = function(cm) { addCursorToSelection(cm, 1); };
