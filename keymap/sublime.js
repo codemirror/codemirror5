@@ -165,6 +165,23 @@
       cm.state.sublimeFindFullWord = cm.doc.sel;
   };
 
+  function addCursorToSelection(cm, dir) {
+    var ranges = cm.listSelections(), newRanges = [];
+    for (var i = 0; i < ranges.length; i++) {
+      var range = ranges[i];
+      var newAnchor = cm.findPosV(range.anchor, dir, "line");
+      var newHead = cm.findPosV(range.head, dir, "line");
+      var newRange = {anchor: newAnchor, head: newHead};
+      newRanges.push(range);
+      newRanges.push(newRange);
+    }
+    cm.setSelections(newRanges);
+  }
+
+  var addCursorToLineCombo = mac ? "Shift-Cmd" : 'Alt-Ctrl';
+  cmds[map[addCursorToLineCombo + "Up"] = "addCursorToPrevLine"] = function(cm) { addCursorToSelection(cm, -1); };
+  cmds[map[addCursorToLineCombo + "Down"] = "addCursorToNextLine"] = function(cm) { addCursorToSelection(cm, 1); };
+
   function isSelectedRange(ranges, from, to) {
     for (var i = 0; i < ranges.length; i++)
       if (ranges[i].from() == from && ranges[i].to() == to) return true
