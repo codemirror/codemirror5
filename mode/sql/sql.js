@@ -47,8 +47,8 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     } else if (ch.charCodeAt(0) > 47 && ch.charCodeAt(0) < 58) {
       // numbers
       // ref: http://dev.mysql.com/doc/refman/5.5/en/number-literals.html
-      stream.match(/^[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?/);
-      support.decimallessFloat && stream.eat('.');
+      stream.match(/^[0-9]*(\.[0-9]+)?([eE][-+]?[0-9]+)?/);
+      support.decimallessFloat && stream.match(/^\.(?!\.)/);
       return "number";
     } else if (ch == "?" && (stream.eatSpace() || stream.eol() || stream.eat(";"))) {
       // placeholders
@@ -84,14 +84,14 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
       return state.tokenize(stream, state);
     } else if (ch == ".") {
       // .1 for 0.1
-      if (support.zerolessFloat && stream.match(/^(?:\d+(?:e[+-]?\d+)?)/i)) {
+      if (support.zerolessFloat && stream.match(/^(?:\d+(?:e[+-]?\d+)?)/i))
         return "number";
-      }
+      if (stream.match(/^\.+/))
+        return null
       // .table_name (ODBC)
       // // ref: http://dev.mysql.com/doc/refman/5.6/en/identifier-qualifiers.html
-      if (support.ODBCdotTable && stream.match(/^[\w\d_]+/)) {
+      if (support.ODBCdotTable && stream.match(/^[\w\d_]+/))
         return "variable-2";
-      }
     } else if (operatorChars.test(ch)) {
       // operators
       stream.eatWhile(operatorChars);
