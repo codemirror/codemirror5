@@ -469,6 +469,53 @@
      "   [variable-3 * Otherwise, it will be part of the level where it does meet this.]",
      " [variable-2 * World]");
 
+  // should handle nested and un-nested lists
+  MT("listCommonMark_MixedIndents",
+     "[variable-2 * list1]",
+     "    [variable-2 list1]",
+     "  [variable-2&header&header-1 # heading still part of list1]",
+     "  [variable-2 text after heading still part of list1]",
+     "",
+     "      [comment indented codeblock]",
+     "  [variable-2 list1 after code block]",
+     "  [variable-3 * list2]",
+     // amount of spaces on empty lines between lists doesn't matter
+     "              ",
+     // extra empty lines irrelevant
+     "",
+     "",
+     "    [variable-3 indented text part of list2]",
+     "    [keyword * list3]",
+     "",
+     "    [variable-3 text at level of list2]",
+     "",
+     "  [variable-2 de-indented text part of list1 again]",
+     "",
+     "  [variable-2&comment ```]",
+     "  [variable-2&comment code]",
+     "  [variable-2&comment ```]",
+     "",
+     "  [variable-2 text after fenced code]");
+
+  // should correctly parse numbered list content indentation
+  MT("listCommonMark_NumeberedListIndent",
+     "[variable-2 1000. list with base indent of 6]",
+     "",
+     "      [variable-2 text must be indented 6 spaces at minimum]",
+     "",
+     "         [variable-2 9-spaces indented text still part of list]",
+     "",
+     "          [comment indented codeblock starts at 10 spaces]",
+     "",
+     "     [comment text indented by 5 spaces no longer belong to list]");
+
+  // should consider tab as 4 spaces
+  MT("listCommonMark_TabIndented",
+     "[variable-2 * list]",
+     "\t[variable-3 * list2]",
+     "",
+     "\t\t[variable-3 part of list2]");
+
   // Blockquote
   MT("blockquote",
      "[variable-2 * foo]",
