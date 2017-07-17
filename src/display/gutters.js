@@ -26,7 +26,7 @@ export function updateGutters(cm) {
 export function setGuttersForLineNumbers(options) {
   let found = indexOf(options.gutters, "CodeMirror-linenumbers")
   if (found == -1 && options.lineNumbers) {
-    options.gutters.unshift(["CodeMirror-linenumbers"])
+    options.gutters.unshift("CodeMirror-linenumbers")
   } else if (found > -1 && !options.lineNumbers) {
     options.gutters = options.gutters.slice(0)
     options.gutters.splice(found, 1)
