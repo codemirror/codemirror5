@@ -14,6 +14,7 @@
   var modeOverrideClasses = CodeMirror.getMode(config, {
     name: "markdown",
     strikethrough: true,
+    emoji: true,
     tokenTypeOverrides: {
       "header" : "override-header",
       "code" : "override-code",
@@ -31,7 +32,8 @@
       "linkHref" : "override-link-href",
       "em" : "override-em",
       "strong" : "override-strong",
-      "strikethrough" : "override-strikethrough"
+      "strikethrough" : "override-strikethrough",
+      "emoji" : "override-emoji"
   }});
   function TokenTypeOverrideTest(name) { test.mode(name, modeOverrideClasses, Array.prototype.slice.call(arguments, 1)); }
   var modeFormattingOverride = CodeMirror.getMode(config, {
@@ -965,6 +967,9 @@
 
   TokenTypeOverrideTest("overrideStrikethrough",
     "[override-strikethrough ~~foo~~]");
+
+  TokenTypeOverrideTest("overrideEmoji",
+    "[override-emoji :foo:]");
 
   FormatTokenTypeOverrideTest("overrideFormatting",
     "[override-formatting-escape \\*]");
