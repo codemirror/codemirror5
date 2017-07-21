@@ -73,7 +73,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     em: "em",
     strong: "strong",
     strikethrough: "strikethrough",
-    emoji: "emoji"
+    emoji: "builtin"
   };
 
   for (var tokenType in tokenTypes) {
