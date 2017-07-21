@@ -1,3 +1,25 @@
+## 5.28.0 (2017-07-21)
+
+### Bug fixes
+
+Fix copying of, or replacing editor content with, a single dash character when copying a big selection in some corner cases.
+
+Make [`"goLineLeft"`](http://codemirror.net/doc/manual.html#command_goLineLeft)/`"goLineRight"` behave better on wrapped lines.
+
+[sql mode](http://codemirror.net/mode/sql/): Fix tokenizing of multi-dot operator and allow digits in subfield names.
+
+[searchcursor addon](http://codemirror.net/doc/manual.html#addon_searchcursor): Fix infinite loop on some composed character inputs.
+
+[markdown mode](http://codemirror.net/mode/markdown/): Make list parsing more CommonMark-compliant.
+
+[gfm mode](http://codemirror.net/mode/gfm/): Highlight colon syntax for emoji.
+
+### New features
+
+Expose [`startOperation`](http://codemirror.net/doc/manual.html#startOperation) and `endOperation` for explicit operation management.
+
+[sublime bindings](http://codemirror.net/demo/sublime.html): Add extend-selection (Ctrl-Alt- or Cmd-Shift-Up/Down).
+
 ## 5.27.4 (2017-06-29)
 
 ### Bug fixes

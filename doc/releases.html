@@ -30,22 +30,33 @@
 
   <h2>Version 5.x</h2>
 
+  <p class="rel">21-07-2017: <a href="http://codemirror.net/codemirror-5.28.0.zip">Version 5.28.0</a>:</p>
+
+  <ul class="rel-note">
+    <li>Fix copying of, or replacing editor content with, a single dash character when copying a big selection in some corner cases.</li>
+    <li>Make <a href="http://codemirror.net/doc/manual.html#command_goLineLeft"><code>&quot;goLineLeft&quot;</code></a>/<code>&quot;goLineRight&quot;</code> behave better on wrapped lines.</li>
+    <li><a href="http://codemirror.net/mode/sql/">sql mode</a>: Fix tokenizing of multi-dot operator and allow digits in subfield names.</li>
+    <li><a href="http://codemirror.net/doc/manual.html#addon_searchcursor">searchcursor addon</a>: Fix infinite loop on some composed character inputs.</li>
+    <li><a href="http://codemirror.net/mode/markdown/">markdown mode</a>: Make list parsing more CommonMark-compliant.</li>
+    <li><a href="http://codemirror.net/mode/gfm/">gfm mode</a>: Highlight colon syntax for emoji.</li>
+  </ul>
+
   <p class="rel">29-06-2017: <a href="http://codemirror.net/codemirror-5.27.4.zip">Version 5.27.4</a>:</p>
 
-  <ul>
+  <ul class="rel-note">
     <li>Fix crash when using mode lookahead.</li>
     <li><a href="http://codemirror.net/mode/markdown/">markdown mode</a>: Don't block inner mode's indentation support.</li>
   </ul>
 
   <p class="rel">22-06-2017: <a href="http://codemirror.net/codemirror-5.27.2.zip">Version 5.27.2</a>:</p>
 
-  <ul>
+  <ul class="rel-note">
     <li>Fix crash in the <a href="http://codemirror.net/demo/simplemode.html">simple mode</a> addon.</li>
   </ul>
 
   <p class="rel">22-06-2017: <a href="http://codemirror.net/codemirror-5.27.0.zip">Version 5.27.0</a>:</p>
 
-  <ul>
+  <ul class="rel-note">
     <li>Fix infinite loop in forced display update.</li>
     <li>Properly disable the hidden textarea when <code>readOnly</code> is <code>&quot;nocursor&quot;</code>.</li>
     <li>Calling the <code>Doc</code> constructor without <code>new</code> works again.</li>
