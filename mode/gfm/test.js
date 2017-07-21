@@ -30,7 +30,7 @@
      "foo [strikethrough&formatting&formatting-strikethrough ~~][strikethrough bar][strikethrough&formatting&formatting-strikethrough ~~]");
 
   FT("formatting_emoji",
-     "foo [emoji&formatting&formatting-emoji :smile:] foo");
+     "foo [builtin&formatting&formatting-emoji :smile:] foo");
 
   MT("emInWordAsterisk",
      "foo[em *bar*]hello");
@@ -235,7 +235,7 @@
      "[strong **][strong&strikethrough ~~foo~~][strong **]");
 
   MT("emoji",
-     "text [emoji :blush:] text [emoji :v:] text [emoji :+1:] text",
-     ":text text: [emoji :smiley_cat:]");
+     "text [builtin :blush:] text [builtin :v:] text [builtin :+1:] text",
+     ":text text: [builtin :smiley_cat:]");
 
 })();
