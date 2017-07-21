@@ -15,7 +15,10 @@
 <script src="../htmlmixed/htmlmixed.js"></script>
 <script src="../clike/clike.js"></script>
 <script src="../meta.js"></script>
-<style type="text/css">.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
+<style type="text/css">
+  .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}
+  .cm-s-default .cm-emoji {color: #009688;}
+</style>
 <div id=nav>
   <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../../doc/logo.png"></a>
 
@@ -73,6 +76,7 @@ for (var i = 0; i &lt; items.length; i++) {
 * \#Num: #1
 * User/#Num: mojombo#1
 * User/Project#Num: mojombo/god#1
+* emoji: :smile: (note: you must add the CSS rule yourself. Set `emoji: false` in mode options to disable)
 
 See http://github.github.com/github-flavored-markdown/.
 
