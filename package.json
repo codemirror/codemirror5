@@ -13,7 +13,7 @@
     "prepare": "npm run-script build",
     "test": "node ./test/run.js",
     "lint": "bin/lint",
-    "install": "npm run-script build && ./release.sh"
+    "install": "npm run-script build && node release"
   },
   "dependencies": {
     "blint": "^1",
