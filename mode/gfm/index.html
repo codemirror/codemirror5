@@ -70,21 +70,32 @@ for (var i = 0; i &lt; items.length; i++) {
 
 ## A bit of GitHub spice
 
+See http://github.github.com/github-flavored-markdown/.
+
+(Set `gitHubSpice: false` in mode options to disable):
+
 * SHA: be6a8cc1c1ecfe9489fb51e4869af15a13fc2cd2
 * User@SHA ref: mojombo@be6a8cc1c1ecfe9489fb51e4869af15a13fc2cd2
 * User/Project@SHA: mojombo/god@be6a8cc1c1ecfe9489fb51e4869af15a13fc2cd2
 * \#Num: #1
 * User/#Num: mojombo#1
 * User/Project#Num: mojombo/god#1
-* emoji: :smile: (note: you must add the CSS rule yourself. Set `emoji: false` in mode options to disable)
 
-See http://github.github.com/github-flavored-markdown/.
+(Set `emoji: false` in mode options to disable):
+
+* emoji: :smile:
+
 
 </textarea></form>
 
     <script>
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-        mode: 'gfm',
+        mode: {
+          name: "gfm",
+          tokenTypeOverrides: {
+            emoji: "emoji"
+          }
+        },
         lineNumbers: true,
         theme: "default"
       });
