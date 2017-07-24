@@ -334,7 +334,11 @@
     tip.appendChild(document.createTextNode(tp.rettype ? ") ->\u00a0" : ")"));
     if (tp.rettype) tip.appendChild(elt("span", cls + "type", tp.rettype));
     var place = cm.cursorCoords(null, "page");
-    ts.activeArgHints = makeTooltip(place.right + 1, place.bottom, tip);
+    var tooltip = ts.activeArgHints = makeTooltip(place.right + 1, place.bottom, tip)
+    setTimeout(function() {
+      tooltip.clear = onEditorActivity(cm, function() {
+        if (ts.activeArgHints == tooltip) closeArgHints(ts) })
+    }, 20)
   }
 
   function parseFnType(text) {
@@ -604,11 +608,8 @@
     }
     function clear() {
       cm.state.ternTooltip = null;
-      if (!tip.parentNode) return;
-      cm.off("cursorActivity", clear);
-      cm.off('blur', clear);
-      cm.off('scroll', clear);
-      fadeOut(tip);
+      if (tip.parentNode) fadeOut(tip)
+      clearActivity()
     }
     var mouseOnTip = false, old = false;
     CodeMirror.on(tip, "mousemove", function() { mouseOnTip = true; });
@@ -619,9 +620,20 @@
       }
     });
     setTimeout(maybeClear, ts.options.hintDelay ? ts.options.hintDelay : 1700);
-    cm.on("cursorActivity", clear);
-    cm.on('blur', clear);
-    cm.on('scroll', clear);
+    var clearActivity = onEditorActivity(cm, clear)
+  }
+
+  function onEditorActivity(cm, f) {
+    cm.on("cursorActivity", f)
+    cm.on("blur", f)
+    cm.on("scroll", f)
+    cm.on("setDoc", f)
+    return function() {
+      cm.off("cursorActivity", f)
+      cm.off("blur", f)
+      cm.off("scroll", f)
+      cm.off("setDoc", f)
+    }
   }
 
   function makeTooltip(x, y, content) {
@@ -650,7 +662,11 @@
   }
 
   function closeArgHints(ts) {
-    if (ts.activeArgHints) { remove(ts.activeArgHints); ts.activeArgHints = null; }
+    if (ts.activeArgHints) {
+      if (ts.activeArgHints.clear) ts.activeArgHints.clear()
+      remove(ts.activeArgHints)
+      ts.activeArgHints = null
+    }
   }
 
   function docValue(ts, doc) {

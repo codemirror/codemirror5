@@ -5,7 +5,7 @@
 .cm-s-eclipse span.cm-def { color: #00f; }
 .cm-s-eclipse span.cm-variable { color: black; }
 .cm-s-eclipse span.cm-variable-2 { color: #0000C0; }
-.cm-s-eclipse span.cm-variable-3 { color: #0000C0; }
+.cm-s-eclipse span.cm-variable-3, .cm-s-eclipse span.cm-type { color: #0000C0; }
 .cm-s-eclipse span.cm-property { color: black; }
 .cm-s-eclipse span.cm-operator { color: black; }
 .cm-s-eclipse span.cm-comment { color: #3F7F5F; }

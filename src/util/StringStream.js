@@ -6,12 +6,13 @@ import { countColumn } from "./misc"
 // parsers more succinct.
 
 class StringStream {
-  constructor(string, tabSize) {
+  constructor(string, tabSize, lineOracle) {
     this.pos = this.start = 0
     this.string = string
     this.tabSize = tabSize || 8
     this.lastColumnPos = this.lastColumnValue = 0
     this.lineStart = 0
+    this.lineOracle = lineOracle
   }
 
   eol() {return this.pos >= this.string.length}
@@ -75,6 +76,10 @@ class StringStream {
     this.lineStart += n
     try { return inner() }
     finally { this.lineStart -= n }
+  }
+  lookAhead(n) {
+    let oracle = this.lineOracle
+    return oracle && oracle.lookAhead(n)
   }
 }
 

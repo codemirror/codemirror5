@@ -23,24 +23,27 @@ CodeMirror.defineMode("julia", function(config, parserConf) {
   var uChar = "([^\\u0027\\u005C\\uD800-\\uDFFF]|[\\uD800-\\uDFFF][\\uDC00-\\uDFFF])";
 
   var operators = parserConf.operators || wordRegexp([
-      "\\.?[\\\\%*+\\-<>!=\\/^]=?", "\\.?[|&\\u00F7\\u2260\\u2264\\u2265]",
-      "\\u00D7", "\\u2208", "\\u2209", "\\u220B", "\\u220C", "\\u2229",
-      "\\u222A", "\\u2286", "\\u2288", "\\u228A", "\\u22c5", "\\?", "~", ":",
-      "\\$", "\\.[<>]", "<<=?", ">>>?=?", "\\.[<>=]=", "->?", "\\/\\/", "=>",
-      "<:", "\\bin\\b(?!\\()"], "");
+      "[<>]:", "[<>=]=", "<<=?", ">>>?=?", "=>", "->", "\\/\\/",
+      "[\\\\%*+\\-<>!=\\/^|&\\u00F7\\u22BB]=?", "\\?", "\\$", "~", ":",
+      "\\u00D7", "\\u2208", "\\u2209", "\\u220B", "\\u220C", "\\u2218",
+      "\\u221A", "\\u221B", "\\u2229", "\\u222A", "\\u2260", "\\u2264",
+      "\\u2265", "\\u2286", "\\u2288", "\\u228A", "\\u22C5",
+      "\\b(in|isa)\\b(?!\.?\\()"], "");
   var delimiters = parserConf.delimiters || /^[;,()[\]{}]/;
-  var identifiers = parserConf.identifiers || /^[_A-Za-z\u00A1-\uFFFF][\w\u00A1-\uFFFF]*!*/;
+  var identifiers = parserConf.identifiers ||
+      /^[_A-Za-z\u00A1-\u2217\u2219-\uFFFF][\w\u00A1-\u2217\u2219-\uFFFF]*!*/;
 
   var chars = wordRegexp([octChar, hexChar, sChar, uChar], "'");
-  var openers = wordRegexp(["begin", "function", "type", "immutable", "let",
-      "macro", "for", "while", "quote", "if", "else", "elseif", "try",
+  var openers = wordRegexp(["begin", "function", "type", "struct", "immutable",
+      "let", "macro", "for", "while", "quote", "if", "else", "elseif", "try",
       "finally", "catch", "do"]);
   var closers = wordRegexp(["end", "else", "elseif", "catch", "finally"]);
   var keywords = wordRegexp(["if", "else", "elseif", "while", "for", "begin",
       "let", "end", "do", "try", "catch", "finally", "return", "break",
       "continue", "global", "local", "const", "export", "import", "importall",
-      "using", "function", "macro", "module", "baremodule", "type",
-      "immutable", "quote", "typealias", "abstract", "bitstype"]);
+      "using", "function", "where", "macro", "module", "baremodule", "struct",
+      "type", "mutable", "immutable", "quote", "typealias", "abstract",
+      "primitive", "bitstype"]);
   var builtins = wordRegexp(["true", "false", "nothing", "NaN", "Inf"]);
 
   var macro = /^@[_A-Za-z][\w]*/;
@@ -90,7 +93,9 @@ CodeMirror.defineMode("julia", function(config, parserConf) {
       }
     }
 
-    if (stream.match(/^\.{2,3}/)) {
+    if (stream.match(/\.{4,}/)) {
+      return "error";
+    } else if (stream.match(/\.{1,3}/)) {
       return "operator";
     }
 
@@ -128,15 +133,6 @@ CodeMirror.defineMode("julia", function(config, parserConf) {
       state.leavingExpr = true;
     }
 
-    var match;
-    if (match = stream.match(openers, false)) {
-      state.scopes.push(match[0]);
-    }
-
-    if (stream.match(closers, false)) {
-      state.scopes.pop();
-    }
-
     if (inArray(state)) {
       if (state.lastToken == "end" && stream.match(/^:/)) {
         return "operator";
@@ -146,6 +142,15 @@ CodeMirror.defineMode("julia", function(config, parserConf) {
       }
     }
 
+    var match;
+    if (match = stream.match(openers, false)) {
+      state.scopes.push(match[0]);
+    }
+
+    if (stream.match(closers, false)) {
+      state.scopes.pop();
+    }
+
     // Handle type annotations
     if (stream.match(/^::(?![:\$])/)) {
       state.tokenize = tokenAnnotation;
@@ -153,14 +158,15 @@ CodeMirror.defineMode("julia", function(config, parserConf) {
     }
 
     // Handle symbols
-    if (!leavingExpr && stream.match(symbol) || stream.match(/:\./)) {
+    if (!leavingExpr && stream.match(symbol) ||
+        stream.match(/:([<>]:|<<=?|>>>?=?|->|\/\/|\.{2,3}|[\.\\%*+\-<>!\/^|&]=?|[~\?\$])/)) {
       return "builtin";
     }
 
     // Handle parametric types
-    if (stream.match(/^{[^}]*}(?=\()/)) {
-      return "builtin";
-    }
+    //if (stream.match(/^{[^}]*}(?=\()/)) {
+    //  return "builtin";
+    //}
 
     // Handle operators and Delimiters
     if (stream.match(operators)) {
@@ -168,7 +174,7 @@ CodeMirror.defineMode("julia", function(config, parserConf) {
     }
 
     // Handle Number Literals
-    if (stream.match(/^[0-9\.]/, false)) {
+    if (stream.match(/^\.?\d/, false)) {
       var imMatcher = RegExp(/^im\b/);
       var numberLiteral = false;
       // Floats
@@ -221,7 +227,7 @@ CodeMirror.defineMode("julia", function(config, parserConf) {
 
     var isDefinition = state.isDefinition || state.lastToken == "function" ||
                        state.lastToken == "macro" || state.lastToken == "type" ||
-                       state.lastToken == "immutable";
+                       state.lastToken == "struct" || state.lastToken == "immutable";
 
     if (stream.match(identifiers)) {
       if (isDefinition) {
@@ -233,7 +239,8 @@ CodeMirror.defineMode("julia", function(config, parserConf) {
         return "def";
       }
       if (stream.match(/^({[^}]*})*\(/, false)) {
-        return callOrDef(stream, state);
+        state.tokenize = tokenCallOrDef;
+        return state.tokenize(stream, state);
       }
       state.leavingExpr = true;
       return "variable";
@@ -244,7 +251,7 @@ CodeMirror.defineMode("julia", function(config, parserConf) {
     return "error";
   }
 
-  function callOrDef(stream, state) {
+  function tokenCallOrDef(stream, state) {
     var match = stream.match(/^(\(\s*)/);
     if (match) {
       if (state.firstParenPos < 0)
@@ -256,10 +263,11 @@ CodeMirror.defineMode("julia", function(config, parserConf) {
       state.scopes.pop();
       state.charsAdvanced += 1;
       if (state.scopes.length <= state.firstParenPos) {
-        var isDefinition = stream.match(/^\s*?=(?!=)/, false);
+        var isDefinition = stream.match(/^(\s*where\s+[^\s=]+)*\s*?=(?!=)/, false);
         stream.backUp(state.charsAdvanced);
         state.firstParenPos = -1;
         state.charsAdvanced = 0;
+        state.tokenize = tokenBase;
         if (isDefinition)
           return "def";
         return "builtin";
@@ -274,10 +282,11 @@ CodeMirror.defineMode("julia", function(config, parserConf) {
         state.scopes.pop();
       state.firstParenPos = -1;
       state.charsAdvanced = 0;
+      state.tokenize = tokenBase;
       return "builtin";
     }
     state.charsAdvanced += stream.match(/^([^()]*)/)[1].length;
-    return callOrDef(stream, state);
+    return state.tokenize(stream, state);
   }
 
   function tokenAnnotation(stream, state) {
@@ -381,11 +390,6 @@ CodeMirror.defineMode("julia", function(config, parserConf) {
         state.lastToken = current;
       }
 
-      // Handle '.' connected identifiers
-      if (current === '.') {
-        style = stream.match(identifiers, false) || stream.match(macro, false) ||
-                stream.match(/\(/, false) ? "operator" : "error";
-      }
       return style;
     },
 

@@ -29,7 +29,7 @@
 .cm-s-ttcn .cm-tag { color: #170; }
 .cm-s-ttcn .cm-variable { color: #8B2252; }
 .cm-s-ttcn .cm-variable-2 { color: #05a; }
-.cm-s-ttcn .cm-variable-3 { color: #085; }
+.cm-s-ttcn .cm-variable-3, .cm-s-ttcn .cm-type { color: #085; }
 
 .cm-s-ttcn .cm-invalidchar { color: #f00; }
 

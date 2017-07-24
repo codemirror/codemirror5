@@ -12,6 +12,43 @@ import { activeElt } from "../util/dom"
 import { e_button, e_defaultPrevented, e_preventDefault, e_target, hasHandler, off, on, signal, signalDOMEvent } from "../util/event"
 import { dragAndDrop } from "../util/feature_detection"
 import { bind, countColumn, findColumn, sel_mouse } from "../util/misc"
+import { addModifierNames } from "../input/keymap"
+import { Pass } from "../util/misc"
+
+import { dispatchKey } from "./key_events"
+import { commands } from "./commands"
+
+const DOUBLECLICK_DELAY = 400
+
+class PastClick {
+  constructor(time, pos, button) {
+    this.time = time
+    this.pos = pos
+    this.button = button
+  }
+
+  compare(time, pos, button) {
+    return this.time + DOUBLECLICK_DELAY > time &&
+      cmp(pos, this.pos) == 0 && button == this.button
+  }
+}
+
+let lastClick, lastDoubleClick
+function clickRepeat(pos, button) {
+  let now = +new Date
+  if (lastDoubleClick && lastDoubleClick.compare(now, pos, button)) {
+    lastClick = lastDoubleClick = null
+    return "triple"
+  } else if (lastClick && lastClick.compare(now, pos, button)) {
+    lastDoubleClick = new PastClick(now, pos, button)
+    lastClick = null
+    return "double"
+  } else {
+    lastClick = new PastClick(now, pos, button)
+    lastDoubleClick = null
+    return "single"
+  }
+}
 
 // A mouse down can be a single click, double click, triple click,
 // start of selection drag, start of text drag, new cursor
@@ -34,61 +71,79 @@ export function onMouseDown(e) {
     return
   }
   if (clickInGutter(cm, e)) return
-  let start = posFromMouse(cm, e)
+  let pos = posFromMouse(cm, e), button = e_button(e), repeat = pos ? clickRepeat(pos, button) : "single"
   window.focus()
 
-  switch (e_button(e)) {
-  case 1:
-    // #3261: make sure, that we're not starting a second selection
-    if (cm.state.selectingText)
-      cm.state.selectingText(e)
-    else if (start)
-      leftButtonDown(cm, e, start)
-    else if (e_target(e) == display.scroller)
-      e_preventDefault(e)
-    break
-  case 2:
-    if (webkit) cm.state.lastMiddleDown = +new Date
-    if (start) extendSelection(cm.doc, start)
+  // #3261: make sure, that we're not starting a second selection
+  if (button == 1 && cm.state.selectingText)
+    cm.state.selectingText(e)
+
+  if (pos && handleMappedButton(cm, button, pos, repeat, e)) return
+
+  if (button == 1) {
+    if (pos) leftButtonDown(cm, pos, repeat, e)
+    else if (e_target(e) == display.scroller) e_preventDefault(e)
+  } else if (button == 2) {
+    if (pos) extendSelection(cm.doc, pos)
     setTimeout(() => display.input.focus(), 20)
-    e_preventDefault(e)
-    break
-  case 3:
+  } else if (button == 3) {
     if (captureRightClick) onContextMenu(cm, e)
     else delayBlurEvent(cm)
-    break
   }
 }
 
-let lastClick, lastDoubleClick
-function leftButtonDown(cm, e, start) {
+function handleMappedButton(cm, button, pos, repeat, event) {
+  let name = "Click"
+  if (repeat == "double") name = "Double" + name
+  else if (repeat == "triple") name = "Triple" + name
+  name = (button == 1 ? "Left" : button == 2 ? "Middle" : "Right") + name
+
+  return dispatchKey(cm,  addModifierNames(name, event), event, bound => {
+    if (typeof bound == "string") bound = commands[bound]
+    if (!bound) return false
+    let done = false
+    try {
+      if (cm.isReadOnly()) cm.state.suppressEdits = true
+      done = bound(cm, pos) != Pass
+    } finally {
+      cm.state.suppressEdits = false
+    }
+    return done
+  })
+}
+
+function configureMouse(cm, repeat, event) {
+  let option = cm.getOption("configureMouse")
+  let value = option ? option(cm, repeat, event) : {}
+  if (value.unit == null) {
+    let rect = chromeOS ? event.shiftKey && event.metaKey : event.altKey
+    value.unit = rect ? "rectangle" : repeat == "single" ? "char" : repeat == "double" ? "word" : "line"
+  }
+  if (value.extend == null || cm.doc.extend) value.extend = cm.doc.extend || event.shiftKey
+  if (value.addNew == null) value.addNew = mac ? event.metaKey : event.ctrlKey
+  if (value.moveOnDrag == null) value.moveOnDrag = !(mac ? event.altKey : event.ctrlKey)
+  return value
+}
+
+function leftButtonDown(cm, pos, repeat, event) {
   if (ie) setTimeout(bind(ensureFocus, cm), 0)
   else cm.curOp.focus = activeElt()
 
-  let now = +new Date, type
-  if (lastDoubleClick && lastDoubleClick.time > now - 400 && cmp(lastDoubleClick.pos, start) == 0) {
-    type = "triple"
-  } else if (lastClick && lastClick.time > now - 400 && cmp(lastClick.pos, start) == 0) {
-    type = "double"
-    lastDoubleClick = {time: now, pos: start}
-  } else {
-    type = "single"
-    lastClick = {time: now, pos: start}
-  }
+  let behavior = configureMouse(cm, repeat, event)
 
-  let sel = cm.doc.sel, modifier = mac ? e.metaKey : e.ctrlKey, contained
+  let sel = cm.doc.sel, contained
   if (cm.options.dragDrop && dragAndDrop && !cm.isReadOnly() &&
-      type == "single" && (contained = sel.contains(start)) > -1 &&
-      (cmp((contained = sel.ranges[contained]).from(), start) < 0 || start.xRel > 0) &&
-      (cmp(contained.to(), start) > 0 || start.xRel < 0))
-    leftButtonStartDrag(cm, e, start, modifier)
+      repeat == "single" && (contained = sel.contains(pos)) > -1 &&
+      (cmp((contained = sel.ranges[contained]).from(), pos) < 0 || pos.xRel > 0) &&
+      (cmp(contained.to(), pos) > 0 || pos.xRel < 0))
+    leftButtonStartDrag(cm, event, pos, behavior)
   else
-    leftButtonSelect(cm, e, start, type, modifier)
+    leftButtonSelect(cm, event, pos, behavior)
 }
 
 // Start a text drag. When it ends, see if any dragging actually
 // happen, and treat as a click if it didn't.
-function leftButtonStartDrag(cm, e, start, modifier) {
+function leftButtonStartDrag(cm, event, pos, behavior) {
   let display = cm.display, moved = false
   let dragEnd = operation(cm, e => {
     if (webkit) display.scroller.draggable = false
@@ -99,8 +154,8 @@ function leftButtonStartDrag(cm, e, start, modifier) {
     off(display.scroller, "drop", dragEnd)
     if (!moved) {
       e_preventDefault(e)
-      if (!modifier)
-        extendSelection(cm.doc, start)
+      if (!behavior.addNew)
+        extendSelection(cm.doc, pos, null, null, behavior.extend)
       // Work around unexplainable focus problem in IE9 (#2127) and Chrome (#3081)
       if (webkit || ie && ie_version == 9)
         setTimeout(() => {document.body.focus(); display.input.focus()}, 20)
@@ -109,13 +164,13 @@ function leftButtonStartDrag(cm, e, start, modifier) {
     }
   })
   let mouseMove = function(e2) {
-    moved = moved || Math.abs(e.clientX - e2.clientX) + Math.abs(e.clientY - e2.clientY) >= 10
+    moved = moved || Math.abs(event.clientX - e2.clientX) + Math.abs(event.clientY - e2.clientY) >= 10
   }
   let dragStart = () => moved = true
   // Let the drag handler handle this.
   if (webkit) display.scroller.draggable = true
   cm.state.draggingText = dragEnd
-  dragEnd.copy = mac ? e.altKey : e.ctrlKey
+  dragEnd.copy = !behavior.moveOnDrag
   // IE's approach to draggable
   if (display.scroller.dragDrop) display.scroller.dragDrop()
   on(document, "mouseup", dragEnd)
@@ -127,13 +182,21 @@ function leftButtonStartDrag(cm, e, start, modifier) {
   setTimeout(() => display.input.focus(), 20)
 }
 
+function rangeForUnit(cm, pos, unit) {
+  if (unit == "char") return new Range(pos, pos)
+  if (unit == "word") return cm.findWordAt(pos)
+  if (unit == "line") return new Range(Pos(pos.line, 0), clipPos(cm.doc, Pos(pos.line + 1, 0)))
+  let result = unit(cm, pos)
+  return new Range(result.from, result.to)
+}
+
 // Normal selection, as opposed to text dragging.
-function leftButtonSelect(cm, e, start, type, addNew) {
+function leftButtonSelect(cm, event, start, behavior) {
   let display = cm.display, doc = cm.doc
-  e_preventDefault(e)
+  e_preventDefault(event)
 
   let ourRange, ourIndex, startSel = doc.sel, ranges = startSel.ranges
-  if (addNew && !e.shiftKey) {
+  if (behavior.addNew && !behavior.extend) {
     ourIndex = doc.sel.contains(start)
     if (ourIndex > -1)
       ourRange = ranges[ourIndex]
@@ -144,28 +207,19 @@ function leftButtonSelect(cm, e, start, type, addNew) {
     ourIndex = doc.sel.primIndex
   }
 
-  if (chromeOS ? e.shiftKey && e.metaKey : e.altKey) {
-    type = "rect"
-    if (!addNew) ourRange = new Range(start, start)
-    start = posFromMouse(cm, e, true, true)
+  if (behavior.unit == "rectangle") {
+    if (!behavior.addNew) ourRange = new Range(start, start)
+    start = posFromMouse(cm, event, true, true)
     ourIndex = -1
-  } else if (type == "double") {
-    let word = cm.findWordAt(start)
-    if (cm.display.shift || doc.extend)
-      ourRange = extendRange(doc, ourRange, word.anchor, word.head)
-    else
-      ourRange = word
-  } else if (type == "triple") {
-    let line = new Range(Pos(start.line, 0), clipPos(doc, Pos(start.line + 1, 0)))
-    if (cm.display.shift || doc.extend)
-      ourRange = extendRange(doc, ourRange, line.anchor, line.head)
-    else
-      ourRange = line
   } else {
-    ourRange = extendRange(doc, ourRange, start)
+    let range = rangeForUnit(cm, start, behavior.unit)
+    if (behavior.extend)
+      ourRange = extendRange(ourRange, range.anchor, range.head, behavior.extend)
+    else
+      ourRange = range
   }
 
-  if (!addNew) {
+  if (!behavior.addNew) {
     ourIndex = 0
     setSelection(doc, new Selection([ourRange], 0), sel_mouse)
     startSel = doc.sel
@@ -173,7 +227,7 @@ function leftButtonSelect(cm, e, start, type, addNew) {
     ourIndex = ranges.length
     setSelection(doc, normalizeSelection(ranges.concat([ourRange]), ourIndex),
                  {scroll: false, origin: "*mouse"})
-  } else if (ranges.length > 1 && ranges[ourIndex].empty() && type == "single" && !e.shiftKey) {
+  } else if (ranges.length > 1 && ranges[ourIndex].empty() && behavior.unit == "char" && !behavior.extend) {
     setSelection(doc, normalizeSelection(ranges.slice(0, ourIndex).concat(ranges.slice(ourIndex + 1)), 0),
                  {scroll: false, origin: "*mouse"})
     startSel = doc.sel
@@ -186,7 +240,7 @@ function leftButtonSelect(cm, e, start, type, addNew) {
     if (cmp(lastPos, pos) == 0) return
     lastPos = pos
 
-    if (type == "rect") {
+    if (behavior.unit == "rectangle") {
       let ranges = [], tabSize = cm.options.tabSize
       let startCol = countColumn(getLine(doc, start.line).text, start.ch, tabSize)
       let posCol = countColumn(getLine(doc, pos.line).text, pos.ch, tabSize)
@@ -205,20 +259,14 @@ function leftButtonSelect(cm, e, start, type, addNew) {
       cm.scrollIntoView(pos)
     } else {
       let oldRange = ourRange
-      let anchor = oldRange.anchor, head = pos
-      if (type != "single") {
-        let range
-        if (type == "double")
-          range = cm.findWordAt(pos)
-        else
-          range = new Range(Pos(pos.line, 0), clipPos(doc, Pos(pos.line + 1, 0)))
-        if (cmp(range.anchor, anchor) > 0) {
-          head = range.head
-          anchor = minPos(oldRange.from(), range.anchor)
-        } else {
-          head = range.anchor
-          anchor = maxPos(oldRange.to(), range.head)
-        }
+      let range = rangeForUnit(cm, pos, behavior.unit)
+      let anchor = oldRange.anchor, head
+      if (cmp(range.anchor, anchor) > 0) {
+        head = range.head
+        anchor = minPos(oldRange.from(), range.anchor)
+      } else {
+        head = range.anchor
+        anchor = maxPos(oldRange.to(), range.head)
       }
       let ranges = startSel.ranges.slice(0)
       ranges[ourIndex] = new Range(clipPos(doc, anchor), head)
@@ -235,7 +283,7 @@ function leftButtonSelect(cm, e, start, type, addNew) {
 
   function extend(e) {
     let curCount = ++counter
-    let cur = posFromMouse(cm, e, true, type == "rect")
+    let cur = posFromMouse(cm, e, true, behavior.unit == "rectangle")
     if (!cur) return
     if (cmp(cur, lastPos) != 0) {
       cm.curOp.focus = activeElt()

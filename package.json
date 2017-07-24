@@ -1,7 +1,8 @@
 {
   "name": "codemirror",
-  "version": "5.26.1",
+  "version": "5.28.1",
   "main": "lib/codemirror.js",
+  "style": "lib/codemirror.css",
   "description": "Full-featured in-browser code editor",
   "license": "MIT",
   "directories": {
@@ -10,12 +11,12 @@
   "scripts": {
     "build": "rollup -c",
     "watch": "rollup -w -c",
-    "prepublish": "npm run-script build",
+    "prepare": "npm run-script build",
     "test": "node ./test/run.js",
     "lint": "bin/lint"
   },
   "devDependencies": {
-    "blint": "^0.5.1",
+    "blint": "^1",
     "node-static": "0.6.0",
     "phantomjs-prebuilt": "^2.1.12",
     "rollup": "^0.41.0",

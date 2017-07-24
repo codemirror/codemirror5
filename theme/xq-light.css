@@ -26,7 +26,7 @@ THE SOFTWARE.
 .cm-s-xq-light span.cm-def { text-decoration:underline; }
 .cm-s-xq-light span.cm-variable { color: black; }
 .cm-s-xq-light span.cm-variable-2 { color:black; }
-.cm-s-xq-light span.cm-variable-3 { color: black; }
+.cm-s-xq-light span.cm-variable-3, .cm-s-xq-light span.cm-type { color: black; }
 .cm-s-xq-light span.cm-property {}
 .cm-s-xq-light span.cm-operator {}
 .cm-s-xq-light span.cm-comment { color: #0080FF; font-style: italic; }

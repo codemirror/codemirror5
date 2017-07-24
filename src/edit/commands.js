@@ -59,15 +59,15 @@ export let commands = {
     {origin: "+move", bias: -1}
   ),
   goLineRight: cm => cm.extendSelectionsBy(range => {
-    let top = cm.charCoords(range.head, "div").top + 5
+    let top = cm.cursorCoords(range.head, "div").top + 5
     return cm.coordsChar({left: cm.display.lineDiv.offsetWidth + 100, top: top}, "div")
   }, sel_move),
   goLineLeft: cm => cm.extendSelectionsBy(range => {
-    let top = cm.charCoords(range.head, "div").top + 5
+    let top = cm.cursorCoords(range.head, "div").top + 5
     return cm.coordsChar({left: 0, top: top}, "div")
   }, sel_move),
   goLineLeftSmart: cm => cm.extendSelectionsBy(range => {
-    let top = cm.charCoords(range.head, "div").top + 5
+    let top = cm.cursorCoords(range.head, "div").top + 5
     let pos = cm.coordsChar({left: 0, top: top}, "div")
     if (pos.ch < cm.getLine(pos.line).search(/\S/)) return lineStartSmart(cm, range.head)
     return pos

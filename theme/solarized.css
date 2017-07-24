@@ -57,7 +57,7 @@ http://ethanschoonover.com/solarized/img/solarized-palette.png
 
 .cm-s-solarized .cm-variable { color: #839496; }
 .cm-s-solarized .cm-variable-2 { color: #b58900; }
-.cm-s-solarized .cm-variable-3 { color: #6c71c4; }
+.cm-s-solarized .cm-variable-3, .cm-s-solarized .cm-type { color: #6c71c4; }
 
 .cm-s-solarized .cm-property { color: #2aa198; }
 .cm-s-solarized .cm-operator { color: #6c71c4; }

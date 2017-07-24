@@ -5,22 +5,64 @@ import StringStream from "../util/StringStream"
 import { getLine, lineNo } from "./utils_line"
 import { clipPos } from "./pos"
 
+class SavedContext {
+  constructor(state, lookAhead) {
+    this.state = state
+    this.lookAhead = lookAhead
+  }
+}
+
+class Context {
+  constructor(doc, state, line, lookAhead) {
+    this.state = state
+    this.doc = doc
+    this.line = line
+    this.maxLookAhead = lookAhead || 0
+  }
+
+  lookAhead(n) {
+    let line = this.doc.getLine(this.line + n)
+    if (line != null && n > this.maxLookAhead) this.maxLookAhead = n
+    return line
+  }
+
+  nextLine() {
+    this.line++
+    if (this.maxLookAhead > 0) this.maxLookAhead--
+  }
+
+  static fromSaved(doc, saved, line) {
+    if (saved instanceof SavedContext)
+      return new Context(doc, copyState(doc.mode, saved.state), line, saved.lookAhead)
+    else
+      return new Context(doc, copyState(doc.mode, saved), line)
+  }
+
+  save(copy) {
+    let state = copy !== false ? copyState(this.doc.mode, this.state) : this.state
+    return this.maxLookAhead > 0 ? new SavedContext(state, this.maxLookAhead) : state
+  }
+}
+
+
 // Compute a style array (an array starting with a mode generation
 // -- for invalidation -- followed by pairs of end positions and
 // style strings), which is used to highlight the tokens on the
 // line.
-export function highlightLine(cm, line, state, forceToEnd) {
+export function highlightLine(cm, line, context, forceToEnd) {
   // A styles array always starts with a number identifying the
   // mode/overlays that it is based on (for easy invalidation).
   let st = [cm.state.modeGen], lineClasses = {}
   // Compute the base array of styles
-  runMode(cm, line.text, cm.doc.mode, state, (end, style) => st.push(end, style),
-    lineClasses, forceToEnd)
+  runMode(cm, line.text, cm.doc.mode, context, (end, style) => st.push(end, style),
+          lineClasses, forceToEnd)
+  let state = context.state
 
   // Run overlays, adjust style array.
   for (let o = 0; o < cm.state.overlays.length; ++o) {
     let overlay = cm.state.overlays[o], i = 1, at = 0
-    runMode(cm, line.text, overlay.mode, true, (end, style) => {
+    context.state = true
+    runMode(cm, line.text, overlay.mode, context, (end, style) => {
       let start = i
       // Ensure there's a token end at the current position, and that i points at it
       while (at < end) {
@@ -42,49 +84,54 @@ export function highlightLine(cm, line, state, forceToEnd) {
       }
     }, lineClasses)
   }
+  context.state = state
 
   return {styles: st, classes: lineClasses.bgClass || lineClasses.textClass ? lineClasses : null}
 }
 
 export function getLineStyles(cm, line, updateFrontier) {
   if (!line.styles || line.styles[0] != cm.state.modeGen) {
-    let state = getStateBefore(cm, lineNo(line))
-    let result = highlightLine(cm, line, line.text.length > cm.options.maxHighlightLength ? copyState(cm.doc.mode, state) : state)
-    line.stateAfter = state
+    let context = getContextBefore(cm, lineNo(line))
+    let resetState = line.text.length > cm.options.maxHighlightLength && copyState(cm.doc.mode, context.state)
+    let result = highlightLine(cm, line, context)
+    if (resetState) context.state = resetState
+    line.stateAfter = context.save(!resetState)
     line.styles = result.styles
     if (result.classes) line.styleClasses = result.classes
     else if (line.styleClasses) line.styleClasses = null
-    if (updateFrontier === cm.doc.frontier) cm.doc.frontier++
+    if (updateFrontier === cm.doc.highlightFrontier)
+      cm.doc.modeFrontier = Math.max(cm.doc.modeFrontier, ++cm.doc.highlightFrontier)
   }
   return line.styles
 }
 
-export function getStateBefore(cm, n, precise) {
+export function getContextBefore(cm, n, precise) {
   let doc = cm.doc, display = cm.display
-  if (!doc.mode.startState) return true
-  let pos = findStartLine(cm, n, precise), state = pos > doc.first && getLine(doc, pos-1).stateAfter
-  if (!state) state = startState(doc.mode)
-  else state = copyState(doc.mode, state)
-  doc.iter(pos, n, line => {
-    processLine(cm, line.text, state)
-    let save = pos == n - 1 || pos % 5 == 0 || pos >= display.viewFrom && pos < display.viewTo
-    line.stateAfter = save ? copyState(doc.mode, state) : null
-    ++pos
+  if (!doc.mode.startState) return new Context(doc, true, n)
+  let start = findStartLine(cm, n, precise)
+  let saved = start > doc.first && getLine(doc, start - 1).stateAfter
+  let context = saved ? Context.fromSaved(doc, saved, start) : new Context(doc, startState(doc.mode), start)
+
+  doc.iter(start, n, line => {
+    processLine(cm, line.text, context)
+    let pos = context.line
+    line.stateAfter = pos == n - 1 || pos % 5 == 0 || pos >= display.viewFrom && pos < display.viewTo ? context.save() : null
+    context.nextLine()
   })
-  if (precise) doc.frontier = pos
-  return state
+  if (precise) doc.modeFrontier = context.line
+  return context
 }
 
 // Lightweight form of highlight -- proceed over this line and
 // update state, but don't save a style array. Used for lines that
 // aren't currently visible.
-export function processLine(cm, text, state, startAt) {
+export function processLine(cm, text, context, startAt) {
   let mode = cm.doc.mode
-  let stream = new StringStream(text, cm.options.tabSize)
+  let stream = new StringStream(text, cm.options.tabSize, context)
   stream.start = stream.pos = startAt || 0
-  if (text == "") callBlankLine(mode, state)
+  if (text == "") callBlankLine(mode, context.state)
   while (!stream.eol()) {
-    readToken(mode, stream, state)
+    readToken(mode, stream, context.state)
     stream.start = stream.pos
   }
 }
@@ -105,26 +152,28 @@ export function readToken(mode, stream, state, inner) {
   throw new Error("Mode " + mode.name + " failed to advance stream.")
 }
 
+class Token {
+  constructor(stream, type, state) {
+    this.start = stream.start; this.end = stream.pos
+    this.string = stream.current()
+    this.type = type || null
+    this.state = state
+  }
+}
+
 // Utility for getTokenAt and getLineTokens
 export function takeToken(cm, pos, precise, asArray) {
-  let getObj = copy => ({
-    start: stream.start, end: stream.pos,
-    string: stream.current(),
-    type: style || null,
-    state: copy ? copyState(doc.mode, state) : state
-  })
-
   let doc = cm.doc, mode = doc.mode, style
   pos = clipPos(doc, pos)
-  let line = getLine(doc, pos.line), state = getStateBefore(cm, pos.line, precise)
-  let stream = new StringStream(line.text, cm.options.tabSize), tokens
+  let line = getLine(doc, pos.line), context = getContextBefore(cm, pos.line, precise)
+  let stream = new StringStream(line.text, cm.options.tabSize, context), tokens
   if (asArray) tokens = []
   while ((asArray || stream.pos < pos.ch) && !stream.eol()) {
     stream.start = stream.pos
-    style = readToken(mode, stream, state)
-    if (asArray) tokens.push(getObj(true))
+    style = readToken(mode, stream, context.state)
+    if (asArray) tokens.push(new Token(stream, style, copyState(doc.mode, context.state)))
   }
-  return asArray ? tokens : getObj()
+  return asArray ? tokens : new Token(stream, style, context.state)
 }
 
 function extractLineClasses(type, output) {
@@ -142,21 +191,21 @@ function extractLineClasses(type, output) {
 }
 
 // Run the given mode's parser over a line, calling f for each token.
-function runMode(cm, text, mode, state, f, lineClasses, forceToEnd) {
+function runMode(cm, text, mode, context, f, lineClasses, forceToEnd) {
   let flattenSpans = mode.flattenSpans
   if (flattenSpans == null) flattenSpans = cm.options.flattenSpans
   let curStart = 0, curStyle = null
-  let stream = new StringStream(text, cm.options.tabSize), style
+  let stream = new StringStream(text, cm.options.tabSize, context), style
   let inner = cm.options.addModeClass && [null]
-  if (text == "") extractLineClasses(callBlankLine(mode, state), lineClasses)
+  if (text == "") extractLineClasses(callBlankLine(mode, context.state), lineClasses)
   while (!stream.eol()) {
     if (stream.pos > cm.options.maxHighlightLength) {
       flattenSpans = false
-      if (forceToEnd) processLine(cm, text, state, stream.pos)
+      if (forceToEnd) processLine(cm, text, context, stream.pos)
       stream.pos = text.length
       style = null
     } else {
-      style = extractLineClasses(readToken(mode, stream, state, inner), lineClasses)
+      style = extractLineClasses(readToken(mode, stream, context.state, inner), lineClasses)
     }
     if (inner) {
       let mName = inner[0].name
@@ -191,8 +240,9 @@ function findStartLine(cm, n, precise) {
   let lim = precise ? -1 : n - (cm.doc.mode.innerMode ? 1000 : 100)
   for (let search = n; search > lim; --search) {
     if (search <= doc.first) return doc.first
-    let line = getLine(doc, search - 1)
-    if (line.stateAfter && (!precise || search <= doc.frontier)) return search
+    let line = getLine(doc, search - 1), after = line.stateAfter
+    if (after && (!precise || search + (after instanceof SavedContext ? after.lookAhead : 0) <= doc.modeFrontier))
+      return search
     let indented = countColumn(line.text, null, cm.options.tabSize)
     if (minline == null || minindent > indented) {
       minline = search - 1
@@ -200,4 +250,21 @@ function findStartLine(cm, n, precise) {
     }
   }
   return minline
+}
+
+export function retreatFrontier(doc, n) {
+  doc.modeFrontier = Math.min(doc.modeFrontier, n)
+  if (doc.highlightFrontier < n - 10) return
+  let start = doc.first
+  for (let line = n - 1; line > start; line--) {
+    let saved = getLine(doc, line).stateAfter
+    // change is on 3
+    // state on line 1 looked ahead 2 -- so saw 3
+    // test 1 + 2 < 3 should cover this
+    if (saved && (!(saved instanceof SavedContext) || line + saved.lookAhead < n)) {
+      start = line + 1
+      break
+    }
+  }
+  doc.highlightFrontier = Math.min(doc.highlightFrontier, start)
 }

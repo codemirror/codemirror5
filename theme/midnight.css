@@ -12,8 +12,6 @@
     color: #D1EDFF;
 }
 
-.cm-s-midnight.CodeMirror { border-top: 1px solid black; border-bottom: 1px solid black; }
-
 .cm-s-midnight div.CodeMirror-selected { background: #314D67; }
 .cm-s-midnight .CodeMirror-line::selection, .cm-s-midnight .CodeMirror-line > span::selection, .cm-s-midnight .CodeMirror-line > span > span::selection { background: rgba(49, 77, 103, .99); }
 .cm-s-midnight .CodeMirror-line::-moz-selection, .cm-s-midnight .CodeMirror-line > span::-moz-selection, .cm-s-midnight .CodeMirror-line > span > span::-moz-selection { background: rgba(49, 77, 103, .99); }

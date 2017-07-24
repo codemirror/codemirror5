@@ -14,7 +14,7 @@
 .cm-s-the-matrix span.cm-def { color: #99C; }
 .cm-s-the-matrix span.cm-variable { color: #F6C; }
 .cm-s-the-matrix span.cm-variable-2 { color: #C6F; }
-.cm-s-the-matrix span.cm-variable-3 { color: #96F; }
+.cm-s-the-matrix span.cm-variable-3, .cm-s-the-matrix span.cm-type { color: #96F; }
 .cm-s-the-matrix span.cm-property { color: #62FFA0; }
 .cm-s-the-matrix span.cm-operator { color: #999; }
 .cm-s-the-matrix span.cm-comment { color: #CCCCCC; }

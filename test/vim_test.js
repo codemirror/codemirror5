@@ -955,6 +955,10 @@ testVim('yy_multiply_repeat', function(cm, vim, helpers) {
   is(register.linewise);
   eqCursorPos(curStart, cm.getCursor());
 });
+testVim('2dd_blank_P', function(cm, vim, helpers) {
+  helpers.doKeys('2', 'd', 'd', 'P');
+  eq('\na\n\n', cm.getValue());
+}, { value: '\na\n\n' });
 // Change commands behave like d commands except that it also enters insert
 // mode. In addition, when the change is linewise, an additional newline is
 // inserted so that insert mode starts on that line.
@@ -1607,6 +1611,13 @@ testVim('r', function(cm, vim, helpers) {
   cm.setCursor(0, 4);
   helpers.doKeys('v', 'j', 'h', 'r', '<Space>');
   eq('wuuu  \n    her', cm.getValue(),'Replacing selection by space-characters failed');
+  cm.setValue("ox");
+  helpers.doKeys('r', '<C-c>');
+  eq('ox', cm.getValue());
+  helpers.doKeys('r', '<Del>');
+  eq('ox', cm.getValue());
+  helpers.doKeys('r', '<CR>');
+  eq('\nx', cm.getValue());
 }, { value: 'wordet\nanother' });
 testVim('r_visual_block', function(cm, vim, helpers) {
   cm.setCursor(2, 3);
@@ -2369,11 +2380,7 @@ testVim('?_greedy_0_or_more', function(cm, vim, helpers) {
   helpers.doKeys('?');
   helpers.assertCursorAt(1, 1);
   helpers.doKeys('n');
-  helpers.assertCursorAt(1, 0);
-  helpers.doKeys('n');
   helpers.assertCursorAt(0, 5);
-  helpers.doKeys('n');
-  helpers.assertCursorAt(0, 4);
   helpers.doKeys('n');
   helpers.assertCursorAt(0, 3);
   helpers.doKeys('n');
@@ -2579,6 +2586,14 @@ testVim('macro_search_2f', function(cm, vim, helpers) {
   helpers.doKeys('@', 'a');
   helpers.assertCursorAt(0,9);
 }, { value: 'The quick brown fox jumped over the lazy dog.'});
+testVim('macro_yank_tick', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  // Start recording a macro into the \' register.
+  helpers.doKeys('q', '\'');
+  helpers.doKeys('y', '<Right>', '<Right>', '<Right>', '<Right>', 'p');
+  helpers.assertCursorAt(0,4);
+  eq('the tex parrot', cm.getValue());
+}, { value: 'the ex parrot'});
 testVim('yank_register', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('"', 'a', 'y', 'y');
@@ -2958,6 +2973,20 @@ testVim('._visual_>', function(cm, vim, helpers) {
   eq('  1\n  2\n  3\n  4', cm.getValue());
   helpers.assertCursorAt(2, 2);
 }, { value: '1\n2\n3\n4'});
+testVim('._replace_repeat', function(cm, vim, helpers) {
+  helpers.doKeys('R');
+  cm.replaceRange('123', cm.getCursor(), offsetCursor(cm.getCursor(), 0, 3));
+  cm.setCursor(0, 3);
+  helpers.doKeys('<Esc>');
+  helpers.doKeys('2', '.');
+  eq('12123123\nabcdefg', cm.getValue());
+  helpers.assertCursorAt(0, 7);
+  cm.setCursor(1, 0);
+  helpers.doKeys('.');
+  eq('12123123\n123123g', cm.getValue());
+  helpers.doKeys('l', '"', '.', 'p');
+  eq('12123123\n123123g123', cm.getValue());
+}, { value: 'abcdef\nabcdefg'});
 testVim('f;', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('f', 'x');
@@ -3760,6 +3789,14 @@ testSubstitute('ex_substitute_multibackslash_replacement', {
   value: 'one,two \n three,four',
   expectedValue: 'one\\\\\\\\two \n three\\\\\\\\four', // 2*8 backslashes.
   expr: '%s/,/\\\\\\\\\\\\\\\\/g'}); // 16 backslashes.
+testSubstitute('ex_substitute_dollar_match', {
+  value: 'one,two \n three,four',
+  expectedValue: 'one,two ,\n three,four',
+  expr: '%s/$/,/g'});
+testSubstitute('ex_substitute_newline_match', {
+  value: 'one,two \n three,four',
+  expectedValue: 'one,two , three,four',
+  expr: '%s/\\n/,/g'});
 testSubstitute('ex_substitute_newline_replacement', {
   value: 'one,two \n three,four',
   expectedValue: 'one\ntwo \n three\nfour',

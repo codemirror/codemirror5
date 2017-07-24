@@ -34,7 +34,7 @@
 .cm-s-dracula span.cm-qualifier { color: #50fa7b; }
 .cm-s-dracula span.cm-property { color: #66d9ef; }
 .cm-s-dracula span.cm-builtin { color: #50fa7b; }
-.cm-s-dracula span.cm-variable-3 { color: #ffb86c; }
+.cm-s-dracula span.cm-variable-3, .cm-s-dracula span.cm-type { color: #ffb86c; }
 
 .cm-s-dracula .CodeMirror-activeline-background { background: rgba(255,255,255,0.1); }
 .cm-s-dracula .CodeMirror-matchingbracket { text-decoration: underline; color: white !important; }

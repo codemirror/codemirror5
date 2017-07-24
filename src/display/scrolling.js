@@ -35,6 +35,13 @@ export function maybeScrollWindow(cm, rect) {
 export function scrollPosIntoView(cm, pos, end, margin) {
   if (margin == null) margin = 0
   let rect
+  if (!cm.options.lineWrapping && pos == end) {
+    // Set pos and end to the cursor positions around the character pos sticks to
+    // If pos.sticky == "before", that is around pos.ch - 1, otherwise around pos.ch
+    // If pos == Pos(_, 0, "before"), pos and end are unchanged
+    pos = pos.ch ? Pos(pos.line, pos.sticky == "before" ? pos.ch - 1 : pos.ch, "after") : pos
+    end = pos.sticky == "before" ? Pos(pos.line, pos.ch + 1, "before") : pos
+  }
   for (let limit = 0; limit < 5; limit++) {
     let changed = false
     let coords = cursorCoords(cm, pos)
@@ -109,12 +116,8 @@ export function addToScrollTop(cm, top) {
 // shown.
 export function ensureCursorVisible(cm) {
   resolveScrollToPos(cm)
-  let cur = cm.getCursor(), from = cur, to = cur
-  if (!cm.options.lineWrapping) {
-    from = cur.ch ? Pos(cur.line, cur.ch - 1) : cur
-    to = Pos(cur.line, cur.ch + 1)
-  }
-  cm.curOp.scrollToPos = {from: from, to: to, margin: cm.options.cursorScrollMargin}
+  let cur = cm.getCursor()
+  cm.curOp.scrollToPos = {from: cur, to: cur, margin: cm.options.cursorScrollMargin}
 }
 
 export function scrollToCoords(cm, x, y) {

@@ -2,17 +2,19 @@
 // Distributed under an MIT license: http://codemirror.net/LICENSE
 
 (function() {
-  var mode = CodeMirror.getMode({tabSize: 4}, "markdown");
+  var config = {tabSize: 4, indentUnit: 2}
+  var mode = CodeMirror.getMode(config, "markdown");
   function MT(name) { test.mode(name, mode, Array.prototype.slice.call(arguments, 1)); }
-  var modeHighlightFormatting = CodeMirror.getMode({tabSize: 4}, {name: "markdown", highlightFormatting: true});
+  var modeHighlightFormatting = CodeMirror.getMode(config, {name: "markdown", highlightFormatting: true});
   function FT(name) { test.mode(name, modeHighlightFormatting, Array.prototype.slice.call(arguments, 1)); }
-  var modeAtxNoSpace = CodeMirror.getMode({tabSize: 4}, {name: "markdown", allowAtxHeaderWithoutSpace: true});
+  var modeAtxNoSpace = CodeMirror.getMode(config, {name: "markdown", allowAtxHeaderWithoutSpace: true});
   function AtxNoSpaceTest(name) { test.mode(name, modeAtxNoSpace, Array.prototype.slice.call(arguments, 1)); }
-  var modeFenced = CodeMirror.getMode({tabSize: 4}, {name: "markdown", fencedCodeBlocks: true});
+  var modeFenced = CodeMirror.getMode(config, {name: "markdown", fencedCodeBlocks: true});
   function FencedTest(name) { test.mode(name, modeFenced, Array.prototype.slice.call(arguments, 1)); }
-  var modeOverrideClasses = CodeMirror.getMode({tabsize: 4}, {
+  var modeOverrideClasses = CodeMirror.getMode(config, {
     name: "markdown",
     strikethrough: true,
+    emoji: true,
     tokenTypeOverrides: {
       "header" : "override-header",
       "code" : "override-code",
@@ -30,10 +32,11 @@
       "linkHref" : "override-link-href",
       "em" : "override-em",
       "strong" : "override-strong",
-      "strikethrough" : "override-strikethrough"
+      "strikethrough" : "override-strikethrough",
+      "emoji" : "override-emoji"
   }});
   function TokenTypeOverrideTest(name) { test.mode(name, modeOverrideClasses, Array.prototype.slice.call(arguments, 1)); }
-  var modeFormattingOverride = CodeMirror.getMode({tabsize: 4}, {
+  var modeFormattingOverride = CodeMirror.getMode(config, {
     name: "markdown",
     highlightFormatting: true,
     tokenTypeOverrides: {
@@ -467,6 +470,53 @@
      "       [keyword * A list item that meets this will be part of the next level.]",
      "   [variable-3 * Otherwise, it will be part of the level where it does meet this.]",
      " [variable-2 * World]");
+
+  // should handle nested and un-nested lists
+  MT("listCommonMark_MixedIndents",
+     "[variable-2 * list1]",
+     "    [variable-2 list1]",
+     "  [variable-2&header&header-1 # heading still part of list1]",
+     "  [variable-2 text after heading still part of list1]",
+     "",
+     "      [comment indented codeblock]",
+     "  [variable-2 list1 after code block]",
+     "  [variable-3 * list2]",
+     // amount of spaces on empty lines between lists doesn't matter
+     "              ",
+     // extra empty lines irrelevant
+     "",
+     "",
+     "    [variable-3 indented text part of list2]",
+     "    [keyword * list3]",
+     "",
+     "    [variable-3 text at level of list2]",
+     "",
+     "  [variable-2 de-indented text part of list1 again]",
+     "",
+     "  [variable-2&comment ```]",
+     "  [variable-2&comment code]",
+     "  [variable-2&comment ```]",
+     "",
+     "  [variable-2 text after fenced code]");
+
+  // should correctly parse numbered list content indentation
+  MT("listCommonMark_NumeberedListIndent",
+     "[variable-2 1000. list with base indent of 6]",
+     "",
+     "      [variable-2 text must be indented 6 spaces at minimum]",
+     "",
+     "         [variable-2 9-spaces indented text still part of list]",
+     "",
+     "          [comment indented codeblock starts at 10 spaces]",
+     "",
+     "     [comment text indented by 5 spaces no longer belong to list]");
+
+  // should consider tab as 4 spaces
+  MT("listCommonMark_TabIndented",
+     "[variable-2 * list]",
+     "\t[variable-3 * list2]",
+     "",
+     "\t\t[variable-3 part of list2]");
 
   // Blockquote
   MT("blockquote",
@@ -918,6 +968,9 @@
   TokenTypeOverrideTest("overrideStrikethrough",
     "[override-strikethrough ~~foo~~]");
 
+  TokenTypeOverrideTest("overrideEmoji",
+    "[override-emoji :foo:]");
+
   FormatTokenTypeOverrideTest("overrideFormatting",
     "[override-formatting-escape \\*]");
 
@@ -977,8 +1030,8 @@
 
   MT("xmlMode",
      "[tag&bracket <][tag div][tag&bracket >]",
-     "*foo*",
-     "[tag&bracket <][tag http://github.com][tag&bracket />]",
+     "  *foo*",
+     "  [tag&bracket <][tag http://github.com][tag&bracket />]",
      "[tag&bracket </][tag div][tag&bracket >]",
      "[link <http://github.com/>]");
 

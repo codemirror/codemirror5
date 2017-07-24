@@ -1,3 +1,75 @@
+## 5.28.0 (2017-07-21)
+
+### Bug fixes
+
+Fix copying of, or replacing editor content with, a single dash character when copying a big selection in some corner cases.
+
+Make [`"goLineLeft"`](http://codemirror.net/doc/manual.html#command_goLineLeft)/`"goLineRight"` behave better on wrapped lines.
+
+[sql mode](http://codemirror.net/mode/sql/): Fix tokenizing of multi-dot operator and allow digits in subfield names.
+
+[searchcursor addon](http://codemirror.net/doc/manual.html#addon_searchcursor): Fix infinite loop on some composed character inputs.
+
+[markdown mode](http://codemirror.net/mode/markdown/): Make list parsing more CommonMark-compliant.
+
+[gfm mode](http://codemirror.net/mode/gfm/): Highlight colon syntax for emoji.
+
+### New features
+
+Expose [`startOperation`](http://codemirror.net/doc/manual.html#startOperation) and `endOperation` for explicit operation management.
+
+[sublime bindings](http://codemirror.net/demo/sublime.html): Add extend-selection (Ctrl-Alt- or Cmd-Shift-Up/Down).
+
+## 5.27.4 (2017-06-29)
+
+### Bug fixes
+
+Fix crash when using mode lookahead.
+
+[markdown mode](http://codemirror.net/mode/markdown/): Don't block inner mode's indentation support.
+
+## 5.27.2 (2017-06-22)
+
+### Bug fixes
+
+Fix crash in the [simple mode](http://codemirror.net/demo/simplemode.html) addon.
+
+## 5.27.0 (2017-06-22)
+
+### Bug fixes
+
+Fix infinite loop in forced display update.
+
+Properly disable the hidden textarea when `readOnly` is `"nocursor"`.
+
+Calling the `Doc` constructor without `new` works again.
+
+[sql mode](http://codemirror.net/mode/sql/): Handle nested comments.
+
+[javascript mode](http://codemirror.net/mode/javascript/): Improve support for TypeScript syntax.
+
+[markdown mode](http://codemirror.net/mode/markdown/): Fix bug where markup was ignored on indented paragraph lines.
+
+[vim bindings](http://codemirror.net/mode/demo/vim.html): Referencing invalid registers no longer causes an uncaught exception.
+
+[rust mode](http://codemirror.net/mode/rust/): Add the correct MIME type.
+
+[matchbrackets addon](http://codemirror.net/doc/manual.html#addon_matchbrackets): Document options.
+
+### New features
+
+Mouse button clicks can now be bound in keymaps by using names like `"LeftClick"` or `"Ctrl-Alt-MiddleTripleClick"`. When bound to a function, that function will be passed the position of the click as second argument.
+
+The behavior of mouse selection and dragging can now be customized with the [`configureMouse`](http://codemirror.net/doc/manual.html#option_configureMouse) option.
+
+Modes can now look ahead across line boundaries with the [`StringStream`](http://codemirror.net/doc/manual.html#StringStream)`.lookahead` method.
+
+Introduces a `"type"` token type, makes modes that recognize types output it, and add styling for it to the themes.
+
+New [`pasteLinesPerSelection`](http://codemirror.net/doc/manual.html#option_pasteLinesPerSelection) option to control the behavior of pasting multiple lines into multiple selections.
+
+[searchcursor addon](http://codemirror.net/doc/manual.html#addon_searchcursor): Support multi-line regular expression matches, and normalize strings when matching.
+
 ## 5.26.0 (2017-05-22)
 
 ### Bug fixes

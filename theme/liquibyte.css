@@ -36,7 +36,7 @@
 .cm-s-liquibyte span.cm-atom        { color: #bf3030; font-weight: bold; }
 
 .cm-s-liquibyte span.cm-variable-2  { color: #007f7f; font-weight: bold; }
-.cm-s-liquibyte span.cm-variable-3  { color: #c080ff; font-weight: bold; }
+.cm-s-liquibyte span.cm-variable-3, .cm-s-liquibyte span.cm-type { color: #c080ff; font-weight: bold; }
 .cm-s-liquibyte span.cm-property    { color: #999; font-weight: bold; }
 .cm-s-liquibyte span.cm-operator    { color: #fff; }
 

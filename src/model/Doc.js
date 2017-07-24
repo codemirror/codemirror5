@@ -29,7 +29,7 @@ let Doc = function(text, mode, firstLine, lineSep, direction) {
   this.scrollTop = this.scrollLeft = 0
   this.cantEdit = false
   this.cleanGeneration = 1
-  this.frontier = firstLine
+  this.modeFrontier = this.highlightFrontier = firstLine
   let start = Pos(firstLine, 0)
   this.sel = simpleSelection(start)
   this.history = new History(null)

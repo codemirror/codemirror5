@@ -14,7 +14,7 @@
 .cm-s-abcdef span.cm-def { color: #fffabc; }
 .cm-s-abcdef span.cm-variable { color: #abcdef; }
 .cm-s-abcdef span.cm-variable-2 { color: #cacbcc; }
-.cm-s-abcdef span.cm-variable-3 { color: #def; }
+.cm-s-abcdef span.cm-variable-3, .cm-s-abcdef span.cm-type { color: #def; }
 .cm-s-abcdef span.cm-property { color: #fedcba; }
 .cm-s-abcdef span.cm-operator { color: #ff0; }
 .cm-s-abcdef span.cm-comment { color: #7a7b7c; font-style: italic;}

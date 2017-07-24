@@ -2,9 +2,10 @@
 // Distributed under an MIT license: http://codemirror.net/LICENSE
 
 (function() {
-  var mode = CodeMirror.getMode({tabSize: 4}, "gfm");
+  var config = {tabSize: 4, indentUnit: 2}
+  var mode = CodeMirror.getMode(config, "gfm");
   function MT(name) { test.mode(name, mode, Array.prototype.slice.call(arguments, 1)); }
-  var modeHighlightFormatting = CodeMirror.getMode({tabSize: 4}, {name: "gfm", highlightFormatting: true});
+  var modeHighlightFormatting = CodeMirror.getMode(config, {name: "gfm", highlightFormatting: true});
   function FT(name) { test.mode(name, modeHighlightFormatting, Array.prototype.slice.call(arguments, 1)); }
 
   FT("codeBackticks",
@@ -27,6 +28,9 @@
 
   FT("formatting_strikethrough",
      "foo [strikethrough&formatting&formatting-strikethrough ~~][strikethrough bar][strikethrough&formatting&formatting-strikethrough ~~]");
+
+  FT("formatting_emoji",
+     "foo [builtin&formatting&formatting-emoji :smile:] foo");
 
   MT("emInWordAsterisk",
      "foo[em *bar*]hello");
@@ -229,5 +233,9 @@
 
   MT("strikethroughStrong",
      "[strong **][strong&strikethrough ~~foo~~][strong **]");
+
+  MT("emoji",
+     "text [builtin :blush:] text [builtin :v:] text [builtin :+1:] text",
+     ":text text: [builtin :smiley_cat:]");
 
 })();
