@@ -32,6 +32,7 @@
   </ul>
   <ul>
     <li><a href="#usage">Basic Usage</a></li>
+    <li><a href="#compress">Minify / Compress</a></li>
     <li><a href="#config">Configuration</a></li>
     <li><a href="#events">Events</a></li>
     <li><a href="#keymaps">Key maps</a></li>
@@ -195,6 +196,40 @@
   }]
 });</pre>
 
+</section>
+
+<section id=compress>
+    <h2>Minify / Compress</h2>
+
+    <p>When deploying the code into production, you will likely want
+    to compress the code so it has a smaller footprint and loads
+    faster in the browser.  Compressed files are not distributed with
+    the code, but there are many options available to minify
+    JavaScript code.</p>
+
+    <p>The simplest approach, which does not rely on a local build
+    environment, is to use a web based compression tool.  An example
+    of a web based JavaScript compression tool which could be used to
+    produced minified code for deployment is
+    <a href="https://jscompress.com/" target="_blank">jscompress.com</a>.</p>
+
+    <p>Here is an example using jscompress.com and a codemirror
+    release to produce a single compressed JavaScript file from
+    multiple source files.</p>
+
+    <p>First, <a href="http://codemirror.net/codemirror.zip">download the latest release</a>
+    to your computer.  The core library, at
+    <code>lib/codemirror.js</code>, will need to be included.  Beyond
+    that, you will likely want at lease one <code>mode</code> and any
+    additional <code>addon</code> scripts that you plan to use in your
+    deployment.</p>
+
+    <p>In your browser, go to <a href="https://jscompress.com/" target="_blank">jscompress.com</a>
+    and click on the <em>Upload Javascript Files</em> tab.  Drag and
+    drop all the files you would like to be compressed into the
+    specified box, then click Compress.  Save the Output to a new
+    file, <code>codemirror.min.js</code> for example, and add it to
+    the source of your project.</p>
 </section>
 
 <section id=config>
