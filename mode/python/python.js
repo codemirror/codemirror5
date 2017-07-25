@@ -41,10 +41,11 @@
   CodeMirror.defineMode("python", function(conf, parserConf) {
     var ERRORCLASS = "error";
 
-    var singleDelimiters = parserConf.singleDelimiters || /^[\(\)\[\]\{\}@,:`=;\.]/;
-    var doubleOperators = parserConf.doubleOperators || /^([!<>]==|<>|<<|>>|\/\/|\*\*)/;
-    var doubleDelimiters = parserConf.doubleDelimiters || /^(\+=|\-=|\*=|%=|\/=|&=|\|=|\^=)/;
-    var tripleDelimiters = parserConf.tripleDelimiters || /^(\/\/=|>>=|<<=|\*\*=)/;
+    var delimiters = parserConf.delimiters || parserConf.singleDelimiters || /^[\(\)\[\]\{\}@,:`=;\.]/;
+    //               (Backwards-compatiblity with old, cumbersome config system)
+    var operators = [parserConf.singleOperators, parserConf.doubleOperators, parserConf.doubleDelimiters, parserConf.tripleDelimiters,
+                     parserConf.operators || /^([-+*/%\/&|^]=?|[<>=]+|\/\/=?|\*\*=?|!=|[~!@])/]
+    for (var i = 0; i < operators.length; i++) if (!operators[i]) operators.splice(i--, 1)
 
     var hangingIndent = parserConf.hangingIndent || conf.indentUnit;
 
@@ -58,13 +59,11 @@
     var py3 = !(parserConf.version && Number(parserConf.version) < 3)
     if (py3) {
       // since http://legacy.python.org/dev/peps/pep-0465/ @ is also an operator
-      var singleOperators = parserConf.singleOperators || /^[\+\-\*\/%&|\^~<>!@]/;
       var identifiers = parserConf.identifiers|| /^[_A-Za-z\u00A1-\uFFFF][_A-Za-z0-9\u00A1-\uFFFF]*/;
       myKeywords = myKeywords.concat(["nonlocal", "False", "True", "None", "async", "await"]);
       myBuiltins = myBuiltins.concat(["ascii", "bytes", "exec", "print"]);
       var stringPrefixes = new RegExp("^(([rbuf]|(br))?('{3}|\"{3}|['\"]))", "i");
     } else {
-      var singleOperators = parserConf.singleOperators || /^[\+\-\*\/%&|\^~<>!]/;
       var identifiers = parserConf.identifiers|| /^[_A-Za-z][_A-Za-z0-9]*/;
       myKeywords = myKeywords.concat(["exec", "print"]);
       myBuiltins = myBuiltins.concat(["apply", "basestring", "buffer", "cmp", "coerce", "execfile",
@@ -151,15 +150,10 @@
         return state.tokenize(stream, state);
       }
 
-      // Handle operators and Delimiters
-      if (stream.match(tripleDelimiters) || stream.match(doubleDelimiters))
-        return "punctuation";
+      for (var i = 0; i < operators.length; i++)
+        if (stream.match(operators[i])) return "operator"
 
-      if (stream.match(doubleOperators) || stream.match(singleOperators))
-        return "operator";
-
-      if (stream.match(singleDelimiters))
-        return "punctuation";
+      if (stream.match(delimiters)) return "punctuation";
 
       if (state.lastToken == "." && stream.match(identifiers))
         return "property";
