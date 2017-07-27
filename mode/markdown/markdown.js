@@ -196,7 +196,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     } else if (stream.match(hrRE, true)) {
       state.hr = true;
       return tokenTypes.hr;
-    } else if (match = stream.match(listRE)) {
+    } else if (!state.quote && (match = stream.match(listRE))) {
       var listType = match[1] ? "ol" : "ul";
 
       state.indentation = lineIndentation + stream.current().length;
@@ -211,7 +211,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       state.f = state.inline;
       if (modeCfg.highlightFormatting) state.formatting = ["list", "list-" + listType];
       return getType(state);
-    } else if (modeCfg.fencedCodeBlocks && (match = stream.match(fencedCodeRE, true))) {
+    } else if (modeCfg.fencedCodeBlocks && !state.quote && (match = stream.match(fencedCodeRE, true))) {
       state.fencedChars = match[1]
       // try switching mode
       state.localMode = getMode(match[2]);
@@ -400,7 +400,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       if (modeCfg.highlightFormatting) state.formatting = "code";
       stream.eatWhile('`');
       var count = stream.current().length
-      if (state.code == 0) {
+      if (state.code == 0 && (!state.quote || count == 1)) {
         state.code = count
         return getType(state)
       } else if (count == state.code) { // Must be exact

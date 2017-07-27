@@ -323,6 +323,20 @@
      "",
      "hello");
 
+  // disallow lists inside blockquote for now because it causes problems outside blockquote
+  // TODO: fix to be CommonMark-compliant
+  MT("listNestedInBlockquote",
+     "[quote&quote-1 > - foo]");
+
+  // disallow fenced blocks inside blockquote because it causes problems outside blockquote
+  // TODO: fix to be CommonMark-compliant
+  MT("fencedBlockNestedInBlockquote",
+     "[quote&quote-1 > ```]",
+     "[quote&quote-1 > code]",
+     "[quote&quote-1 > ```]",
+     // ensure we still allow inline code
+     "[quote&quote-1 > ][quote&quote-1&comment `code`]");
+
   // Header with leading space after continued blockquote (#3287, negative indentation)
   MT("headerAfterContinuedBlockquote",
      "[quote&quote-1 > foo]",
