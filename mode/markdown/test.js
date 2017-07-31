@@ -1135,6 +1135,16 @@
      "    [comment code]",
      "    [comment ```]");
 
+  FencedTest("autoTerminateFencedCodeWhenLeavingList",
+     "[variable-2 - list1]",
+     "  [variable-3 - list2]",
+     "    [variable-3&comment ```]",
+     "    [comment code]",
+     "  [variable-3 - list2]",
+     "  [variable-2&comment ```]",
+     "  [comment code]",
+     "[quote&quote-1 > foo]");
+
   // Tests that require XML mode
 
   MT("xmlMode",
