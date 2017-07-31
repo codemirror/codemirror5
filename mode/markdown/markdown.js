@@ -138,7 +138,6 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   }
 
   function blockNormal(stream, state) {
-    var sol = stream.sol();
     var firstTokenOnLine = stream.column() === state.indentation;
     var prevLineLineIsEmpty = lineIsEmpty(state.prevLine);
     var prevLineIsIndentedCode = state.indentedCode;
@@ -189,8 +188,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       if (modeCfg.highlightFormatting) state.formatting = "header";
       state.f = state.inline;
       return getType(state);
-    } else if (stream.eat('>')) {
-      state.quote = sol ? 1 : state.quote + 1;
+    } else if (state.indentation <= maxNonCodeIndentation && stream.eat('>')) {
+      state.quote = firstTokenOnLine ? 1 : state.quote + 1;
       if (modeCfg.highlightFormatting) state.formatting = "quote";
       stream.eatSpace();
       return getType(state);
