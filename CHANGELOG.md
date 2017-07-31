@@ -50,7 +50,7 @@ Calling the `Doc` constructor without `new` works again.
 
 [markdown mode](http://codemirror.net/mode/markdown/): Fix bug where markup was ignored on indented paragraph lines.
 
-[vim bindings](http://codemirror.net/mode/demo/vim.html): Referencing invalid registers no longer causes an uncaught exception.
+[vim bindings](http://codemirror.net/demo/vim.html): Referencing invalid registers no longer causes an uncaught exception.
 
 [rust mode](http://codemirror.net/mode/rust/): Add the correct MIME type.
 
@@ -90,7 +90,7 @@ More careful restoration of selections in widgets, during editor redraw.
 
 ### New features
 
-[vim bindings](http://codemirror.net/mode/demo/vim.html): Parse line offsets in line or range specs.
+[vim bindings](http://codemirror.net/demo/vim.html): Parse line offsets in line or range specs.
 
 ## 5.25.2 (2017-04-20)
 
@@ -148,7 +148,7 @@ Add `role=presentation` to more DOM elements to improve screen reader support.
 
 [continuelist addon](http://codemirror.net/doc/manual.html#addon_continuelist): Support continuing task lists.
 
-[vim bindings](http://codemirror.net/mode/demo/vim.html): Make Y behave like yy.
+[vim bindings](http://codemirror.net/demo/vim.html): Make Y behave like yy.
 
 [sql mode](http://codemirror.net/mode/sql/): Support sqlite dialect.
 
@@ -194,7 +194,7 @@ Fix bug in handling of read-only marked text.
 
 Positions now support a `sticky` property which determines whether they should be associated with the character before (value `"before"`) or after (value `"after"`) them.
 
-[vim bindings](http://codemirror.net/mode/demo/vim.html): Make it possible to remove built-in bindings through the API.
+[vim bindings](http://codemirror.net/demo/vim.html): Make it possible to remove built-in bindings through the API.
 
 [comment addon](http://codemirror.net/doc/manual.html#addon_comment): Support a per-mode <code>useInnerComments</code> option to optionally suppress descending to the inner modes to get comment strings.
 
