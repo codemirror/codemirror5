@@ -139,6 +139,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
   function blockNormal(stream, state) {
     var sol = stream.sol();
+    var firstTokenOnLine = stream.column() === state.indentation;
     var prevLineLineIsEmpty = lineIsEmpty(state.prevLine);
     var prevLineIsIndentedCode = state.indentedCode;
     var prevLineIsHr = state.hr;
@@ -182,7 +183,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       return tokenTypes.code;
     } else if (stream.eatSpace()) {
       return null;
-    } else if ((match = stream.match(atxHeaderRE)) && match[1].length <= 6) {
+    } else if (firstTokenOnLine && state.indentation <= maxNonCodeIndentation && (match = stream.match(atxHeaderRE)) && match[1].length <= 6) {
+      state.quote = 0;
       state.header = match[1].length;
       if (modeCfg.highlightFormatting) state.formatting = "header";
       state.f = state.inline;
@@ -192,11 +194,12 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       if (modeCfg.highlightFormatting) state.formatting = "quote";
       stream.eatSpace();
       return getType(state);
-    } else if (!isHr && !state.quote && (match = stream.match(listRE))) {
+    } else if (!isHr && firstTokenOnLine && state.indentation <= maxNonCodeIndentation && (match = stream.match(listRE))) {
       var listType = match[1] ? "ol" : "ul";
 
       state.indentation = lineIndentation + stream.current().length;
       state.list = true;
+      state.quote = 0;
 
       // Add this list item's content's indentation to the stack
       state.listStack.push(state.indentation);
@@ -207,7 +210,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       state.f = state.inline;
       if (modeCfg.highlightFormatting) state.formatting = ["list", "list-" + listType];
       return getType(state);
-    } else if (modeCfg.fencedCodeBlocks && !state.quote && (match = stream.match(fencedCodeRE, true))) {
+    } else if (modeCfg.fencedCodeBlocks && firstTokenOnLine && state.indentation <= maxNonCodeIndentation && (match = stream.match(fencedCodeRE, true))) {
+      state.quote = 0;
       state.fencedChars = match[1]
       // try switching mode
       state.localMode = getMode(match[2]);
