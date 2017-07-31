@@ -335,11 +335,21 @@
      "foo",
      "[quote&quote-1 > bar]");
 
-  // Nested blockquote
-  MT("blockquoteSpace",
+  MT("blockquoteNested",
      "[quote&quote-1 > foo]",
      "[quote&quote-1 >][quote&quote-2 > foo]",
      "[quote&quote-1 >][quote&quote-2 >][quote&quote-3 > foo]");
+
+  // ensure quote-level is inferred correctly even if indented
+  MT("blockquoteNestedIndented",
+     " [quote&quote-1 > foo]",
+     " [quote&quote-1 >][quote&quote-2 > foo]",
+     " [quote&quote-1 >][quote&quote-2 >][quote&quote-3 > foo]");
+
+  // ensure quote-level is inferred correctly even if indented
+  MT("blockquoteIndentedTooMuch",
+     "foo",
+     "    > bar");
 
   // Single-line blockquote followed by normal paragraph
   MT("blockquoteThenParagraph",
