@@ -270,14 +270,17 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   }
 
   function local(stream, state) {
-    if (state.fencedChars && stream.match(state.fencedChars)) {
+    var hasExitedList = state.indentation < state.listStack[state.listStack.length - 1];
+    if (state.fencedChars && (hasExitedList || stream.match(state.fencedChars))) {
       if (modeCfg.highlightFormatting) state.formatting = "code-block";
-      var returnType = getType(state)
+      var returnType;
+      if (!hasExitedList) returnType = getType(state)
       state.localMode = state.localState = null;
       state.block = blockNormal;
       state.f = inlineNormal;
       state.fencedChars = null;
       state.code = 0
+      if (hasExitedList) return switchBlock(stream, state, state.block);
       return returnType;
     } else if (state.fencedChars && stream.skipTo(state.fencedChars)) {
       return "comment"
