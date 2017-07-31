@@ -228,6 +228,19 @@
   MT("atxH1inline",
      "[header&header-1 # foo ][header&header-1&em *bar*]");
 
+  MT("atxIndentedTooMuch",
+     "[header&header-1 # foo]",
+     "    # bar");
+
+  // disable atx inside blockquote until we implement proper blockquote inner mode
+  // TODO: fix to be CommonMark-compliant
+  MT("atxNestedInsideBlockquote",
+     "[quote&quote-1 > # foo]");
+
+  MT("atxAfterBlockquote",
+     "[quote&quote-1 > foo]",
+     "[header&header-1 # bar]");
+
   // Setext headers - H1, H2
   // Per documentation, "Any number of underlining =’s or -’s will work."
   // http://daringfireball.net/projects/markdown/syntax#header
@@ -587,6 +600,19 @@
      "\t[variable-3 * list2]",
      "",
      "\t\t[variable-3 part of list2]");
+
+  MT("listAfterBlockquote",
+     "[quote&quote-1 > foo]",
+     "[variable-2 - bar]");
+
+  // shouldn't create sublist if it's indented more than allowed
+  MT("nestedListIndentedTooMuch",
+     "[variable-2 - foo]",
+     "          [variable-2 - bar]");
+
+  MT("listIndentedTooMuchAfterParagraph",
+     "foo",
+     "    - bar");
 
   // Blockquote
   MT("blockquote",
@@ -1095,6 +1121,19 @@
      "[comment foo]",
      "[comment ~~~]",
      "bar");
+
+  FencedTest("fencedCodeBlocksAfterBlockquote",
+     "[quote&quote-1 > foo]",
+     "[comment ```]",
+     "[comment bar]",
+     "[comment ```]");
+
+  // fencedCode indented too much should act as simple indentedCode
+  //  (hence has no highlight formatting)
+  FT("tooMuchIndentedFencedCode",
+     "    [comment ```]",
+     "    [comment code]",
+     "    [comment ```]");
 
   // Tests that require XML mode
 
