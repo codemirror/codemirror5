@@ -364,6 +364,40 @@ for (var i = 0; i < items.length; i++) {
     <p>Optionally depends on other modes for properly highlighted code blocks,
       and XML mode for properly highlighted inline XML blocks.</p>
 
+    <p>Markdown mode supports these options:</p>
+    <ul>
+      <li>
+        <d1>
+          <dt><code>highlightFormatting: boolean</code></dt>
+          <dd>Whether to separately highlight markdown meta characterts (<code>*[]()</code>etc.) (default: <code>false</code>).</dd>
+        </d1>
+      </li>
+      <li>
+        <d1>
+          <dt><code>maxBlockquoteDepth: boolean</code></dt>
+          <dd>Maximum allowed blockquote nesting (default: <code>0</code> - infinite nesting).</dd>
+        </d1>
+      </li>
+      <li>
+        <d1>
+          <dt><code>xml: boolean</code></dt>
+          <dd>Whether to highlight inline XML (default: <code>true</code>).</dd>
+        </d1>
+      </li>
+      <li>
+        <d1>
+          <dt><code>fencedCodeBlockHighlighting: boolean</code></dt>
+          <dd>Whether to syntax-highlight fenced code blocks, if given mode is included (default: <code>true</code>).</dd>
+        </d1>
+      </li>
+      <li>
+        <d1>
+          <dt><code>tokenTypeOverrides: Object</code></dt>
+          <dd>When you want ot override default token type names (e.g. <code>{code: "code"}</code>).</dd>
+        </d1>
+      </li>
+    </ul>
+
     <p><strong>MIME types defined:</strong> <code>text/x-markdown</code>.</p>
 
     <p><strong>Parsing/Highlighting Tests:</strong> <a href="../../test/index.html#markdown_*">normal</a>,  <a href="../../test/index.html#verbose,markdown_*">verbose</a>.</p>
