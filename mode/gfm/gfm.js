@@ -114,7 +114,6 @@ CodeMirror.defineMode("gfm", function(config, modeConfig) {
 
   var markdownConfig = {
     taskLists: true,
-    fencedCodeBlocks: '```',
     strikethrough: true,
     emoji: true
   };

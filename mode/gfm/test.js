@@ -14,11 +14,6 @@
   FT("doubleBackticks",
      "[comment&formatting&formatting-code ``][comment foo ` bar][comment&formatting&formatting-code ``]");
 
-  FT("codeBlock",
-     "[comment&formatting&formatting-code-block ```css]",
-     "[tag foo]",
-     "[comment&formatting&formatting-code-block ```]");
-
   FT("taskList",
      "[variable-2&formatting&formatting-list&formatting-list-ul - ][meta&formatting&formatting-task [ ]]][variable-2  foo]",
      "[variable-2&formatting&formatting-list&formatting-list-ul - ][property&formatting&formatting-task [x]]][variable-2  foo]");
@@ -40,31 +35,6 @@
 
   MT("emStrongUnderscore",
      "[em&strong ___foo___] bar");
-
-  MT("fencedCodeBlocks",
-     "[comment ```]",
-     "[comment foo]",
-     "",
-     "[comment ```]",
-     "bar");
-
-  MT("fencedCodeBlockModeSwitching",
-     "[comment ```javascript]",
-     "[variable foo]",
-     "",
-     "[comment ```]",
-     "bar");
-
-  MT("fencedCodeBlockModeSwitchingObjc",
-     "[comment ```objective-c]",
-     "[keyword @property] [variable NSString] [operator *] [variable foo];",
-     "[comment ```]",
-     "bar");
-
-  MT("fencedCodeBlocksNoTildes",
-     "~~~",
-     "foo",
-     "~~~");
 
   MT("taskListAsterisk",
      "[variable-2 * ][link&variable-2 [[]]][variable-2 foo]", // Invalid; must have space or x between []
@@ -167,11 +137,6 @@
      "foo asfd:asdf bar");
 
   MT("notALink",
-     "[comment ```css]",
-     "[tag foo] {[property color]:[keyword black];}",
-     "[comment ```][link http://www.example.com/]");
-
-  MT("notALink",
      "[comment ``foo `bar` http://www.example.com/``] hello");
 
   MT("notALink",
@@ -180,17 +145,6 @@
      "[comment `] foo",
      "",
      "[link http://www.example.com/]");
-
-  MT("headerCodeBlockGithub",
-     "[header&header-1 # heading]",
-     "",
-     "[comment ```]",
-     "[comment code]",
-     "[comment ```]",
-     "",
-     "Commit: [link be6a8cc1c1ecfe9489fb51e4869af15a13fc2cd2]",
-     "Issue: [link #1]",
-     "Link: [link http://www.example.com/]");
 
   MT("strikethrough",
      "[strikethrough ~~foo~~]");

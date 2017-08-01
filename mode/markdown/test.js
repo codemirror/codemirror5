@@ -9,8 +9,6 @@
   function FT(name) { test.mode(name, modeHighlightFormatting, Array.prototype.slice.call(arguments, 1)); }
   var modeAtxNoSpace = CodeMirror.getMode(config, {name: "markdown", allowAtxHeaderWithoutSpace: true});
   function AtxNoSpaceTest(name) { test.mode(name, modeAtxNoSpace, Array.prototype.slice.call(arguments, 1)); }
-  var modeFenced = CodeMirror.getMode(config, {name: "markdown", fencedCodeBlocks: true});
-  function FencedTest(name) { test.mode(name, modeFenced, Array.prototype.slice.call(arguments, 1)); }
   var modeOverrideClasses = CodeMirror.getMode(config, {
     name: "markdown",
     strikethrough: true,
@@ -96,6 +94,11 @@
 
   FT("formatting_image",
      "[formatting&formatting-image&image&image-marker !][formatting&formatting-image&image&image-alt-text&link [[][image&image-alt-text&link alt text][formatting&formatting-image&image&image-alt-text&link ]]][formatting&formatting-link-string&string&url (][url&string http://link.to/image.jpg][formatting&formatting-link-string&string&url )]");
+
+  FT("codeBlock",
+     "[comment&formatting&formatting-code-block ```css]",
+     "[tag foo]",
+     "[comment&formatting&formatting-code-block ```]");
 
   MT("plainText",
      "foo");
@@ -587,7 +590,7 @@
      "  [variable-2 de-indented text part of list1 again]",
      "",
      "  [variable-2&comment ```]",
-     "  [variable-2&comment code]",
+     "  [comment code]",
      "  [variable-2&comment ```]",
      "",
      "  [variable-2 text after fenced code]");
@@ -1085,18 +1088,28 @@
   MT("taskList",
      "[variable-2 * ][link&variable-2 [[ ]]][variable-2 bar]");
 
-  MT("noFencedCodeBlocks",
-     "~~~",
-     "foo",
-     "~~~");
-
-  FencedTest("fencedCodeBlocks",
+  MT("fencedCodeBlocks",
      "[comment ```]",
      "[comment foo]",
+     "",
+     "[comment bar]",
+     "[comment ```]",
+     "baz");
+
+  MT("fencedCodeBlockModeSwitching",
+     "[comment ```javascript]",
+     "[variable foo]",
+     "",
      "[comment ```]",
      "bar");
 
-  FencedTest("fencedCodeBlocksMultipleChars",
+  MT("fencedCodeBlockModeSwitchingObjc",
+     "[comment ```objective-c]",
+     "[keyword @property] [variable NSString] [operator *] [variable foo];",
+     "[comment ```]",
+     "bar");
+
+  MT("fencedCodeBlocksMultipleChars",
      "[comment `````]",
      "[comment foo]",
      "[comment ```]",
@@ -1104,20 +1117,20 @@
      "[comment `````]",
      "bar");
 
-  FencedTest("fencedCodeBlocksTildes",
+  MT("fencedCodeBlocksTildes",
      "[comment ~~~]",
      "[comment foo]",
      "[comment ~~~]",
      "bar");
 
-  FencedTest("fencedCodeBlocksTildesMultipleChars",
+  MT("fencedCodeBlocksTildesMultipleChars",
      "[comment ~~~~~]",
      "[comment ~~~]",
      "[comment foo]",
      "[comment ~~~~~]",
      "bar");
 
-  FencedTest("fencedCodeBlocksMultipleChars",
+  MT("fencedCodeBlocksMultipleChars",
      "[comment `````]",
      "[comment foo]",
      "[comment ```]",
@@ -1125,14 +1138,14 @@
      "[comment `````]",
      "bar");
 
-  FencedTest("fencedCodeBlocksMixed",
+  MT("fencedCodeBlocksMixed",
      "[comment ~~~]",
      "[comment ```]",
      "[comment foo]",
      "[comment ~~~]",
      "bar");
 
-  FencedTest("fencedCodeBlocksAfterBlockquote",
+  MT("fencedCodeBlocksAfterBlockquote",
      "[quote&quote-1 > foo]",
      "[comment ```]",
      "[comment bar]",
@@ -1145,7 +1158,7 @@
      "    [comment code]",
      "    [comment ```]");
 
-  FencedTest("autoTerminateFencedCodeWhenLeavingList",
+  MT("autoTerminateFencedCodeWhenLeavingList",
      "[variable-2 - list1]",
      "  [variable-3 - list2]",
      "    [variable-3&comment ```]",
