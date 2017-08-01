@@ -45,6 +45,12 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   if (modeCfg.emoji === undefined)
     modeCfg.emoji = false;
 
+  if (modeCfg.fencedCodeBlockHighlighting === undefined)
+    modeCfg.fencedCodeBlockHighlighting = true;
+
+  if (modeCfg.xml === undefined)
+    modeCfg.xml = true;
+
   // Allow token types to be overridden by user-provided token types.
   if (modeCfg.tokenTypeOverrides === undefined)
     modeCfg.tokenTypeOverrides = {};
@@ -207,7 +213,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       state.quote = 0;
       state.fencedChars = match[1]
       // try switching mode
-      state.localMode = getMode(match[2]);
+      state.localMode = modeCfg.fencedCodeBlockHighlighting && getMode(match[2]);
       if (state.localMode) state.localState = CodeMirror.startState(state.localMode);
       state.f = state.block = local;
       if (modeCfg.highlightFormatting) state.formatting = "code-block";
@@ -510,7 +516,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       return type + tokenTypes.linkEmail;
     }
 
-    if (ch === '<' && stream.match(/^(!--|[a-z]+(?:\s+[a-z_:.\-]+(?:\s*=\s*[^ >]+)?)*\s*>)/i, false)) {
+    if (modeCfg.xml && ch === '<' && stream.match(/^(!--|[a-z]+(?:\s+[a-z_:.\-]+(?:\s*=\s*[^ >]+)?)*\s*>)/i, false)) {
       var end = stream.string.indexOf(">", stream.pos);
       if (end != -1) {
         var atts = stream.string.substring(stream.start, end);
@@ -521,7 +527,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       return switchBlock(stream, state, htmlBlock);
     }
 
-    if (ch === '<' && stream.match(/^\/\w*?>/)) {
+    if (modeCfg.xml && ch === '<' && stream.match(/^\/\w*?>/)) {
       state.md_inside = false;
       return "tag";
     } else if (ch === "*" || ch === "_") {

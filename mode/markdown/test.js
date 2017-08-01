@@ -7,6 +7,10 @@
   function MT(name) { test.mode(name, mode, Array.prototype.slice.call(arguments, 1)); }
   var modeHighlightFormatting = CodeMirror.getMode(config, {name: "markdown", highlightFormatting: true});
   function FT(name) { test.mode(name, modeHighlightFormatting, Array.prototype.slice.call(arguments, 1)); }
+  var modeMT_noXml = CodeMirror.getMode(config, {name: "markdown", xml: false});
+  function MT_noXml(name) { test.mode(name, modeMT_noXml, Array.prototype.slice.call(arguments, 1)); }
+  var modeMT_noFencedHighlight = CodeMirror.getMode(config, {name: "markdown", fencedCodeBlockHighlighting: false});
+  function MT_noFencedHighlight(name) { test.mode(name, modeMT_noFencedHighlight, Array.prototype.slice.call(arguments, 1)); }
   var modeAtxNoSpace = CodeMirror.getMode(config, {name: "markdown", allowAtxHeaderWithoutSpace: true});
   function AtxNoSpaceTest(name) { test.mode(name, modeAtxNoSpace, Array.prototype.slice.call(arguments, 1)); }
   var modeOverrideClasses = CodeMirror.getMode(config, {
@@ -1103,6 +1107,11 @@
      "[comment ```]",
      "bar");
 
+  MT_noFencedHighlight("fencedCodeBlock_noHighlight",
+     "[comment ```javascript]",
+     "[comment foo]",
+     "[comment ```]");
+
   MT("fencedCodeBlockModeSwitchingObjc",
      "[comment ```objective-c]",
      "[keyword @property] [variable NSString] [operator *] [variable foo];",
@@ -1185,5 +1194,8 @@
      "[link <http://github.com/>]",
      "[tag&bracket <][tag div][tag&bracket >]",
      "[tag&bracket </][tag div][tag&bracket >]");
+
+  MT_noXml("xmlHighlightDisabled",
+     "<div>foo</div>");
 
 })();
