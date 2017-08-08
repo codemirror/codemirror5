@@ -102,7 +102,7 @@ CodeMirror.defineMode('shell', function() {
         }
         escaped = !escaped && next === '\\';
       }
-      if (end || !escaped) state.tokens.shift();
+      if (end) state.tokens.shift();
       return style;
     };
   };
