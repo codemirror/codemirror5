@@ -29,6 +29,8 @@
 //   queries.
 // * responseFilter: A function(doc, query, request, error, data) that
 //   will be applied to the Tern responses before treating them
+// * includeOrigins: A boolean that indicate weather or not the
+//   Tern responses should include the origin files in its responses
 //
 //
 // It is possible to run the Tern server in a web worker by specifying
@@ -205,7 +207,7 @@
   // Completion
 
   function hint(ts, cm, c) {
-    ts.request(cm, {type: "completions", types: true, docs: true, urls: true}, function(error, data) {
+    ts.request(cm, {type: "completions", types: true, docs: true, urls: true, origins: ts.options.includeOrigins}, function(error, data) {
       if (error) return showError(ts, cm, error);
       var completions = [], after = "";
       var from = data.start, to = data.end;
