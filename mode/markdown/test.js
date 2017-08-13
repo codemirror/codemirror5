@@ -327,11 +327,41 @@
 
   MT("noSetextAfterList",
      "[variable-2 - foo]",
-     "[hr ---]",
-     "",
+     "[hr ---]");
+
+  MT("noSetextAfterList_listContinuation",
      "[variable-2 - foo]",
      "bar",
      "[hr ---]");
+
+  MT("setextAfterList_afterIndentedCode",
+     "[variable-2 - foo]",
+     "",
+     "      [comment bar]",
+     "[header&header-2 baz]",
+     "[header&header-2 ---]");
+
+  MT("setextAfterList_afterFencedCodeBlocks",
+     "[variable-2 - foo]",
+     "",
+     "      [comment ```]",
+     "      [comment bar]",
+     "      [comment ```]",
+     "[header&header-2 baz]",
+     "[header&header-2 ---]");
+
+  MT("setextAfterList_afterHeader",
+     "[variable-2 - foo]",
+     "  [variable-2&header&header-1 # bar]",
+     "[header&header-2 baz]",
+     "[header&header-2 ---]");
+
+  MT("setextAfterList_afterHr",
+     "[variable-2 - foo]",
+     "",
+     "  [hr ---]",
+     "[header&header-2 bar]",
+     "[header&header-2 ---]");
 
   MT("setext_nestedInlineMarkup",
      "[header&header-1 foo ][em&header&header-1 *bar*]",
@@ -347,6 +377,12 @@
      "foo",
      "[header&header-1 bar]",
      "[header&header-1 =]");
+
+  // ensure we don't regard space after dash as a list
+  MT("setext_emptyList",
+     "[header&header-2 foo]",
+     "[header&header-2 - ]",
+     "foo");
 
   // Single-line blockquote with trailing space
   MT("blockquoteSpace",
