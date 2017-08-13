@@ -151,6 +151,21 @@
      "Foo",
      "    Bar");
 
+  MT("codeBlocksAfterATX",
+     "[header&header-1 # foo]",
+     "    [comment code]");
+
+  MT("codeBlocksAfterSetext",
+     "[header&header-2 foo]",
+     "[header&header-2 ---]",
+     "    [comment code]");
+
+  MT("codeBlocksAfterFencedCode",
+     "[comment ```]",
+     "[comment foo]",
+     "[comment ```]",
+     "    [comment code]");
+
   // Inline code using backticks
   MT("inlineCodeUsingBackticks",
      "foo [comment `bar`]");
@@ -191,6 +206,10 @@
   // Closed with several different groups of backticks
   MT("closedBackticks",
      "[comment ``foo ``` bar` hello``] world");
+
+  // info string cannot contain backtick, thus should result in inline code
+  MT("closingFencedMarksOnSameLine",
+     "[comment ``` code ```] foo");
 
   // atx headers
   // http://daringfireball.net/projects/markdown/syntax#header
@@ -237,7 +256,7 @@
 
   MT("atxIndentedTooMuch",
      "[header&header-1 # foo]",
-     "    # bar");
+     "    [comment # bar]");
 
   // disable atx inside blockquote until we implement proper blockquote inner mode
   // TODO: fix to be CommonMark-compliant
@@ -1099,6 +1118,39 @@
      "[comment bar]",
      "[comment ```]",
      "baz");
+
+  MT("fencedCodeBlocks_invalidClosingFence_trailingText",
+     "[comment ```]",
+     "[comment foo]",
+     "[comment ``` must not have trailing text]",
+     "[comment baz]");
+
+  MT("fencedCodeBlocks_invalidClosingFence_trailingTabs",
+     "[comment ```]",
+     "[comment foo]",
+     "[comment ```\t]",
+     "[comment baz]");
+
+  MT("fencedCodeBlocks_validClosingFence",
+     "[comment ```]",
+     "[comment foo]",
+     // may have trailing spaces
+     "[comment ```     ]",
+     "baz");
+
+  MT("fencedCodeBlocksInList_closingFenceIndented",
+     "[variable-2 - list]",
+     "    [variable-2&comment ```]",
+     "    [comment foo]",
+     "     [variable-2&comment ```]",
+     "    [variable-2 baz]");
+
+  MT("fencedCodeBlocksInList_closingFenceIndentedTooMuch",
+     "[variable-2 - list]",
+     "    [variable-2&comment ```]",
+     "    [comment foo]",
+     "      [comment ```]",
+     "    [comment baz]");
 
   MT("fencedCodeBlockModeSwitching",
      "[comment ```javascript]",
