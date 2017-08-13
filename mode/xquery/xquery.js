@@ -29,12 +29,7 @@ CodeMirror.defineMode("xquery", function() {
 
     // kwObj is what is return from this function at the end
     var kwObj = {
-      'if': A, 'switch': A, 'while': A, 'for': A,
-      'else': B, 'then': B, 'try': B, 'finally': B, 'catch': B,
-      'element': C, 'attribute': C, 'let': C, 'implements': C, 'import': C, 'module': C, 'namespace': C,
-      'return': C, 'super': C, 'this': C, 'throws': C, 'where': C, 'private': C,
-      ',': punctuation,
-      'null': atom, 'fn:false()': atom, 'fn:true()': atom
+      ',': punctuation
     };
 
     // a list of 'basic' keywords. For each add a property to kwObj with the value of
