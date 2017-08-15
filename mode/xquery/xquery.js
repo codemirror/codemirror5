@@ -19,10 +19,7 @@ CodeMirror.defineMode("xquery", function() {
   var keywords = function(){
     // convenience functions used to build keywords object
     function kw(type) {return {type: type, style: "keyword"};}
-    var A = kw("keyword a")
-      , B = kw("keyword b")
-      , C = kw("keyword c")
-      , operator = kw("operator")
+    var operator = kw("operator")
       , atom = {type: "atom", style: "atom"}
       , punctuation = {type: "punctuation", style: null}
       , qualifier = {type: "axis_specifier", style: "qualifier"};
