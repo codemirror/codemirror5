@@ -11,11 +11,6 @@
 })(function(CodeMirror) {
 "use strict";
 
-function expressionAllowed(stream, state, backUp) {
-  return /^(?:operator|sof|keyword c|case|new|export|default|[\[{}\(,;:]|=>)$/.test(state.lastType) ||
-    (state.lastType == "quasi" && /\{\s*$/.test(stream.string.slice(0, stream.pos - (backUp || 0))))
-}
-
 CodeMirror.defineMode("javascript", function(config, parserConfig) {
   var indentUnit = config.indentUnit;
   var statementIndent = parserConfig.statementIndent;
@@ -733,6 +728,12 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       /[,.]/.test(textAfter.charAt(0));
   }
 
+  function expressionAllowed(stream, state, backUp) {
+    return state.tokenize == tokenBase &&
+      /^(?:operator|sof|keyword c|case|new|export|default|[\[{}\(,;:]|=>)$/.test(state.lastType) ||
+      (state.lastType == "quasi" && /\{\s*$/.test(stream.string.slice(0, stream.pos - (backUp || 0))))
+  }
+
   // Interface
 
   return {
@@ -807,6 +808,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     jsonMode: jsonMode,
 
     expressionAllowed: expressionAllowed,
+
     skipExpression: function(state) {
       var top = state.cc[state.cc.length - 1]
       if (top == expression || top == expressionNoComma) state.cc.pop()
