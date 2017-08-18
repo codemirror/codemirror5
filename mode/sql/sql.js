@@ -430,7 +430,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     dateSQL: set("date time timestamp"),
     support: set("ODBCdotTable decimallessFloat zerolessFloat binaryNumber hexNumber nCharCast charsetCast")
   });
-  
+
   // Spark SQL
   CodeMirror.defineMIME("text/x-sparksql", {
     name: "sql",
