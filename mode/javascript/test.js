@@ -346,6 +346,12 @@
   TS("typescript_new_typeargs",
      "[keyword let] [def x] [operator =] [keyword new] [variable Map][operator <][type string], [type Date][operator >]([string-2 `foo${][variable bar][string-2 }`])")
 
+  TS("modifiers",
+     "[keyword class] [def Foo] {",
+     "  [keyword public] [keyword abstract] [property bar]() {}",
+     "  [property constructor]([keyword readonly] [keyword private] [def x]) {}",
+     "}")
+
   var jsonld_mode = CodeMirror.getMode(
     {indentUnit: 2},
     {name: "javascript", jsonld: true}
