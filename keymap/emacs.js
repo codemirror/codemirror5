@@ -369,7 +369,7 @@
     "Ctrl-/": repeated("undo"), "Shift-Ctrl--": repeated("undo"),
     "Ctrl-Z": repeated("undo"), "Cmd-Z": repeated("undo"),
     "Shift-Alt-,": "goDocStart", "Shift-Alt-.": "goDocEnd",
-    "Ctrl-S": "findNext", "Ctrl-R": "findPrev", "Ctrl-G": quit, "Shift-Alt-5": "replace",
+    "Ctrl-S": "findPersistentNext", "Ctrl-R": "findPersistentPrev", "Ctrl-G": quit, "Shift-Alt-5": "replace",
     "Alt-/": "autocomplete",
     "Enter": "newlineAndIndent",
     "Ctrl-J": repeated(function(cm) { cm.replaceSelection("\n", "end"); }),
