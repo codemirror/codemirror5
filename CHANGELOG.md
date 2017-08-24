@@ -1,3 +1,25 @@
+## 5.29.0 (2017-08-24)
+
+### Bug fixes
+
+Fix crash in contentEditable input style when editing near a bookmark.
+
+Make sure change origins are preserved when splitting changes on [read-only marks](http://codemirror.net/doc/manual.html#mark_readOnly).
+
+[javascript mode](http://codemirror.net/mode/javascript/): More support for TypeScript syntax.
+
+[d mode](http://codemirror.net/mode/d/): Support nested comments.
+
+[python mode](http://codemirror.net/mode/python/): Improve tokenizing of operators.
+
+[markdown mode](http://codemirror.net/mode/markdown/): Further improve CommonMark conformance.
+
+[css mode](http://codemirror.net/mode/css/): Don't run comment tokens through the mode's state machine.
+
+[shell mode](http://codemirror.net/mode/shell/): Allow strings to span lines.
+
+[search addon](http://codemirror.net/demo/search/): Fix crash in persistent search when `extraKeys` is null.
+
 ## 5.28.0 (2017-07-21)
 
 ### Bug fixes
