@@ -644,9 +644,11 @@
   }
 
   // Operations on diffs
-  
+  var dmp = undefined;
   function getDiff(a, b, ignoreWhitespace) {
-    var dmp = new diff_match_patch();
+    if(!dmp) {
+       dmp = new diff_match_patch();
+    }
     var diff = dmp.diff_main(a, b);
     // The library sometimes leaves in empty parts, which confuse the algorithm
     for (var i = 0; i < diff.length; ++i) {
