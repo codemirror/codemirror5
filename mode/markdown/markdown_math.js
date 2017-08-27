@@ -94,7 +94,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   ,   linkDefRE = /^\s*\[[^\]]+?\]:\s*\S+(\s*\S*\s*)?$/ // naive link-definition
   ,   punctuation = /[!\"#$%&\'()*+,\-\.\/:;<=>?@\[\\\]^_`{|}~—]/
   ,   expandedTab = "    " // CommonMark specifies tab as 4 spaces
-  ,   fencedMathRE = new RegExp("^(\$\$)[ \\t]*([\\w+#\-]*)");
+  ,   fencedMathRE = /^(\$\$)[ \t]*([\w+#-]*)[^\n`]*$/
 
   function switchInline(stream, state, f) {
     state.f = state.inline = f;
@@ -228,10 +228,10 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       if (modeCfg.highlightFormatting) state.formatting = "code-block";
       state.code = -1
       return getType(state);
-    } else if (match = stream.match(fencedMathRE, true)) {
-      state.fencedChars = match[1]
+    } else if (firstTokenOnLine && state.indentation <= maxNonCodeIndentation && (match = stream.match(fencedMathRE, true))) {
+      state.fencedEndRE = new RegExp(match[1].replace(/\$/g, '\\$') + "+ *$");
       // try switching mode
-      state.localMode = getMode(match[2]);
+      state.localMode = modeCfg.fencedCodeBlockHighlighting && getMode(match[2]);
       if (state.localMode) state.localState = CodeMirror.startState(state.localMode);
       state.f = state.block = local;
       state.formatting = "math";
