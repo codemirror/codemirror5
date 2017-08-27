@@ -6,8 +6,8 @@ import { on } from "../util/event"
 // garbage collected.
 
 function forEachCodeMirror(f) {
-  if (!document.body.getElementsByClassName) return
-  let byClass = document.body.getElementsByClassName("CodeMirror")
+  if (!document.getElementsByClassName) return
+  let byClass = document.getElementsByClassName("CodeMirror")
   for (let i = 0; i < byClass.length; i++) {
     let cm = byClass[i].CodeMirror
     if (cm) f(cm)

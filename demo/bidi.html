@@ -61,6 +61,11 @@
     <input type="radio" id="rtl" name="direction"/><label for="rtl">RTL</label>
   </fieldset>
   <fieldset>
+    HTML document direction:
+    <input type="radio" id="htmlltr" name="htmldirection"/><label for="htmlltr">LTR</label>
+    <input type="radio" id="htmlrtl" name="htmldirection"/><label for="htmlrtl">RTL</label>
+  </fieldset>
+  <fieldset>
     <input type="checkbox" id="rtlMoveVisually"/><label for="rtlMoveVisually">Use visual order for arrow key movement.</label>
   </fieldset>
 </form>
@@ -78,6 +83,13 @@ var dirRadios = {ltr: document.getElementById("ltr"),
 dirRadios[editor.getOption("direction")].checked = true;
 dirRadios["rtl"].onchange = dirRadios["ltr"].onchange = function() {
   editor.setOption("direction", dirRadios["rtl"].checked ? "rtl" : "ltr");
+};
+
+var HtmlDirRadios = {ltr: document.getElementById("htmlltr"),
+                 rtl: document.getElementById("htmlrtl")};
+HtmlDirRadios["ltr"].checked = true;
+HtmlDirRadios["rtl"].onchange = HtmlDirRadios["ltr"].onchange = function() {
+  document.dir = (HtmlDirRadios["rtl"].checked ? "rtl" : "ltr");
 };
 
 var moveCheckbox = document.getElementById("rtlMoveVisually");

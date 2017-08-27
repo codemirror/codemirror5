@@ -24,6 +24,11 @@
   MT("matmulWithSpace:", "[variable a] [operator @] [variable b]");
   MT("matmulWithoutSpace:", "[variable a][operator @][variable b]");
   MT("matmulSpaceBefore:", "[variable a] [operator @][variable b]");
+  var before_equal_sign = ["+", "-", "*", "/", "=", "!", ">", "<"];
+  for (var i = 0; i < before_equal_sign.length; ++i) {
+    var c = before_equal_sign[i]
+    MT("before_equal_sign_" + c, "[variable a] [operator " + c + "=] [variable b]");
+  }
 
   MT("fValidStringPrefix", "[string f'this is a {formatted} string']");
   MT("uValidStringPrefix", "[string u'this is an unicode string']");

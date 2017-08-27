@@ -3,9 +3,9 @@
 
 /**********************************************************
 * This script provides syntax highlighting support for
-* the Ntriples format.
-* Ntriples format specification:
-*     http://www.w3.org/TR/rdf-testcases/#ntriples
+* the N-Triples format.
+* N-Triples format specification:
+*     https://www.w3.org/TR/n-triples/
 ***********************************************************/
 
 /*
@@ -181,6 +181,15 @@ CodeMirror.defineMode("ntriples", function() {
   };
 });
 
+// define the registered Media Type for n-triples:
+// https://www.w3.org/TR/n-triples/#n-triples-mediatype
+CodeMirror.defineMIME("application/n-triples", "ntriples");
+
+// N-Quads is based on the N-Triples format (so same highlighting works)
+// https://www.w3.org/TR/n-quads/
+CodeMirror.defineMIME("application/n-quads", "ntriples");
+
+// previously used, though technically incorrect media type for n-triples
 CodeMirror.defineMIME("text/n-triples", "ntriples");
 
 });
