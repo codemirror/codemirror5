@@ -15,7 +15,7 @@
 })(function(CodeMirror) {
 "use strict";
 
-CodeMirror.registerHelper("lint", "css", function(text) {
+CodeMirror.registerHelper("lint", "css", function(text, options) {
   var found = [];
   if (!window.CSSLint) {
     if (window.console) {
@@ -23,7 +23,7 @@ CodeMirror.registerHelper("lint", "css", function(text) {
     }
     return found;
   }
-  var results = CSSLint.verify(text), messages = results.messages, message = null;
+  var results = CSSLint.verify(text, options), messages = results.messages, message = null;
   for ( var i = 0; i < messages.length; i++) {
     message = messages[i];
     var startLine = message.line -1, endLine = message.line -1, startCol = message.col -1, endCol = message.col;
