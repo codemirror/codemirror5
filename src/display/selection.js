@@ -46,6 +46,8 @@ export function drawSelectionCursor(cm, head, output) {
   }
 }
 
+function cmpCoords(a, b) { return a.top - b.top || a.left - b.left }
+
 // Draws the given range as a highlighted selection
 function drawSelectionRange(cm, range, output) {
   let display = cm.display, doc = cm.doc
@@ -71,29 +73,37 @@ function drawSelectionRange(cm, range, output) {
     }
 
     iterateBidiSections(getOrder(lineObj, doc.direction), fromArg || 0, toArg == null ? lineLen : toArg, (from, to, dir) => {
-      let leftPos = coords(from, "left"), rightPos, left, right
-      if (from == to) {
-        rightPos = leftPos
-        left = right = leftPos.left
-      } else {
-        rightPos = coords(to - 1, "right")
-        if (dir == "rtl") { let tmp = leftPos; leftPos = rightPos; rightPos = tmp }
-        left = leftPos.left
-        right = rightPos.right
+      let fromPos, toPos
+      if (dir == "ltr") {
+        fromPos = coords(from, "left")
+        toPos = coords(to - 1, "right")
+        let fromLeft = fromArg == null && from == 0 ? leftSide : fromPos.left
+        let toRight = toArg == null && to == lineLen ? rightSide : toPos.right
+        if (toPos.top - fromPos.top <= 3) { // Single line
+          add(fromLeft, toPos.top, toRight - fromLeft, toPos.bottom)
+        } else { // Multiple lines
+          add(fromLeft, fromPos.top, null, fromPos.bottom)
+          if (fromPos.bottom < toPos.top) add(leftSide, fromPos.bottom, null, toPos.top)
+          add(leftSide, toPos.top, toPos.right, toPos.bottom)
+        }
+      } else { // RTL
+        fromPos = coords(from, "right")
+        toPos = coords(to - 1, "left")
+        let fromRight = fromArg == null && from == 0 ? rightSide : fromPos.right
+        let toLeft = toArg == null && to == lineLen ? leftSide : toPos.left
+        if (toPos.top - fromPos.top <= 3) { // Single line
+          add(toLeft, toPos.top, fromRight - toLeft, toPos.bottom)
+        } else { // Multiple lines
+          add(leftSide, fromPos.top, fromRight - leftSide, fromPos.bottom)
+          if (fromPos.bottom < toPos.top) add(leftSide, fromPos.bottom, null, toPos.top)
+          add(toLeft, toPos.top, null, toPos.bottom)
+        }
       }
-      if (fromArg == null && from == 0) left = leftSide
-      if (rightPos.top - leftPos.top > 3) { // Different lines, draw top part
-        add(left, leftPos.top, null, leftPos.bottom)
-        left = leftSide
-        if (leftPos.bottom < rightPos.top) add(left, leftPos.bottom, null, rightPos.top)
-      }
-      if (toArg == null && to == lineLen) right = rightSide
-      if (!start || leftPos.top < start.top || leftPos.top == start.top && leftPos.left < start.left)
-        start = leftPos
-      if (!end || rightPos.bottom > end.bottom || rightPos.bottom == end.bottom && rightPos.right > end.right)
-        end = rightPos
-      if (left < leftSide + 1) left = leftSide
-      add(left, rightPos.top, right - left, rightPos.bottom)
+
+      if (!start || cmpCoords(fromPos, start) < 0) start = fromPos
+      if (cmpCoords(toPos, start) < 0) start = toPos
+      if (!end || cmpCoords(fromPos, end) < 0) end = fromPos
+      if (cmpCoords(toPos, end) < 0) end = toPos
     })
     return {start: start, end: end}
   }
