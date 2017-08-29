@@ -674,7 +674,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       cx.marked = "keyword";
       return cont(classBody);
     }
-    if (type == "variable") {
+    if (type == "variable" || cx.style == "keyword") {
       cx.marked = "property";
       return cont(isTS ? classfield : functiondef, classBody);
     }
