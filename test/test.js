@@ -2471,7 +2471,6 @@ for (var i = 0; i < 5; ++i) {
 testCM("bidi_wrapped_selection", function(cm) {
   cm.setSelection(Pos(0, 10), Pos(0, 190))
   is(byClassName(cm.getWrapperElement(), "CodeMirror-selected").length >= 3)
-  is(false)
 }, {value: new Array(10).join(" فتي تم تضمينها فتي تم"), lineWrapping: true})
 
 testCM("delete_wrapped", function(cm) {
