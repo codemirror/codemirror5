@@ -1,6 +1,7 @@
 import { clipPos } from "../line/pos"
 import { findMaxLine } from "../line/spans"
 import { displayWidth, measureChar, scrollGap } from "../measurement/position_measurement"
+import { gecko } from "../util/browser"
 import { signal } from "../util/event"
 import { activeElt } from "../util/dom"
 import { finishOperation, pushOperation } from "../util/operation_group"
@@ -98,7 +99,7 @@ function endOperation_R2(op) {
     cm.display.sizerWidth = op.adjustWidthTo
     op.barMeasure.scrollWidth =
       Math.max(display.scroller.clientWidth, display.sizer.offsetLeft + op.adjustWidthTo + scrollGap(cm) + cm.display.barWidth)
-    op.maxScrollLeft = Math.max(0, display.sizer.offsetLeft + op.adjustWidthTo - displayWidth(cm))
+    op.maxScrollLeft = Math[gecko && cm.doc.direction == "rtl" ? "min" : "max"](0, display.sizer.offsetLeft + op.adjustWidthTo - displayWidth(cm))
   }
 
   if (op.updatedDisplay || op.selectionChanged)

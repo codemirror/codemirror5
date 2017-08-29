@@ -419,7 +419,7 @@ export function coordsChar(cm, x, y) {
   let lineN = lineAtHeight(doc, y), last = doc.first + doc.size - 1
   if (lineN > last)
     return PosWithInfo(doc.first + doc.size - 1, getLine(doc, last).text.length, null, true, 1)
-  if (x < 0) x = 0
+  if (x < 0 && cm.doc.direction != "rtl") x = 0
 
   let lineObj = getLine(doc, lineN)
   for (;;) {
@@ -547,7 +547,7 @@ export function getDimensions(cm) {
     left[cm.options.gutters[i]] = n.offsetLeft + n.clientLeft + gutterLeft
     width[cm.options.gutters[i]] = n.clientWidth
   }
-  return {fixedPos: compensateForHScroll(d),
+  return {fixedPos: compensateForHScroll(d, cm.doc.direction == "ltr"),
           gutterTotalWidth: d.gutters.offsetWidth,
           gutterLeft: left,
           gutterWidth: width,
@@ -557,8 +557,10 @@ export function getDimensions(cm) {
 // Computes display.scroller.scrollLeft + display.gutters.offsetWidth,
 // but using getBoundingClientRect to get a sub-pixel-accurate
 // result.
-export function compensateForHScroll(display) {
-  return display.scroller.getBoundingClientRect().left - display.sizer.getBoundingClientRect().left
+export function compensateForHScroll(display, isLtr) {
+  let side = isLtr ? "left" : "right"
+  let diff = display.scroller.getBoundingClientRect()[side] - display.sizer.getBoundingClientRect()[side]
+  return isLtr ? diff : -diff
 }
 
 // Returns a function that estimates the height of a line, to use as

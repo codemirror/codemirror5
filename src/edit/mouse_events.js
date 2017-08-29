@@ -326,9 +326,10 @@ function leftButtonSelect(cm, event, start, behavior) {
 // handlers for the corresponding event.
 function gutterEvent(cm, e, type, prevent) {
   let mX, mY
+  let check = cm.doc.direction == "ltr" ? dom => mX >= Math.floor(dom.getBoundingClientRect().right) : dom => mX <= Math.floor(dom.getBoundingClientRect().left)
   try { mX = e.clientX; mY = e.clientY }
   catch(e) { return false }
-  if (mX >= Math.floor(cm.display.gutters.getBoundingClientRect().right)) return false
+  if (check(cm.display.gutters)) return false
   if (prevent) e_preventDefault(e)
 
   let display = cm.display
@@ -339,7 +340,7 @@ function gutterEvent(cm, e, type, prevent) {
 
   for (let i = 0; i < cm.options.gutters.length; ++i) {
     let g = display.gutters.childNodes[i]
-    if (g && g.getBoundingClientRect().right >= mX) {
+    if (g && check(g)) {
       let line = lineAtHeight(cm.doc, mY)
       let gutter = cm.options.gutters[i]
       signal(cm, type, cm, line, gutter, e)
