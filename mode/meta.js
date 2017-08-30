@@ -133,6 +133,7 @@
     {name: "SQL", mime: "text/x-sql", mode: "sql", ext: ["sql"]},
     {name: "SQLite", mime: "text/x-sqlite", mode: "sql"},
     {name: "Squirrel", mime: "text/x-squirrel", mode: "clike", ext: ["nut"]},
+    {name: "Stan", mime: "text/x-stan", mode: "stan", ext: ["stan"]},
     {name: "Stylus", mime: "text/x-styl", mode: "stylus", ext: ["styl"]},
     {name: "Swift", mime: "text/x-swift", mode: "swift", ext: ["swift"]},
     {name: "sTeX", mime: "text/x-stex", mode: "stex"},
