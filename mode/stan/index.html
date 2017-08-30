@@ -1,0 +1,76 @@
+<!doctype html>
+
+<title>CodeMirror: Stan mode</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../../doc/docs.css">
+
+<link rel="stylesheet" href="../../lib/codemirror.css">
+<script src="../../lib/codemirror.js"></script>
+<script src="../../addon/edit/matchbrackets.js"></script>
+<script src="../../addon/edit/closebrackets.js"></script>
+<link rel="stylesheet" href="../../addon/hint/show-hint.css">
+<script src="../addon/hint/anyword-hint.js"></script>
+<script src="../../addon/hint/show-hint.js"></script>
+<script src="stan.js"></script>
+<style>.CodeMirror {border: 2px inset #dee;}</style>
+<div id=nav>
+  <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../../doc/logo.png"></a>
+
+  <ul>
+    <li><a href="../../index.html">Home</a>
+    <li><a href="../../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="../index.html">Language modes</a>
+    <li><a class=active href="#">Stan</a>
+  </ul>
+</div>
+
+<article>
+  <h2>Stan mode</h2>
+
+  <div>
+    <textarea id="stan-code">
+/* Stan demo code  - 8 schools example*/
+
+data {
+    int<lower=0> J; // number of schools
+    real y[J]; // estimated treatment effects
+    real<lower=0> sigma[J]; // s.e. of effect estimates
+}
+parameters {
+    real mu;
+    real<lower=0> tau;
+    real eta[J];
+}
+transformed parameters {
+    real theta[J];
+    for (j in 1:J)
+    theta[j] = mu + tau * eta[j];
+}
+model {
+    eta ~ normal(0, 1);
+    y ~ normal(theta, sigma);
+}
+    </textarea></div>
+
+
+
+  <script>
+    var cEditor = CodeMirror.fromTextArea(document.getElementById("stan-code"), {
+      lineNumbers: true,
+      matchBrackets: true,
+      autoCloseBrackets: true,
+      mode: "text/x-stan",
+      hint: "anyword",
+      indentUnit: 4,
+      extraKeys: {"Ctrl-Space": "autocomplete"}
+    });
+
+  </script>
+
+
+  <p><strong>MIME types defined:</strong> <code>text/x-stan</code>
+    Stan </p>
+</article>
