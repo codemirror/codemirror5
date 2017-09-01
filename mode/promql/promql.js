@@ -17,18 +17,18 @@ CodeMirror.defineMode("promql", function(config) {
   var keywords = {
     "sum":true, "min":true, "max":true, "avg":true, "stddev":true,
     "stdvar":true, "count":true, "count_values":true, "bottomk":true, "topk":true,
-    "quantile":true,  
- 
-    "abs":true, "absent":true, "ceil":true, "changes":true, 
-    "clamp_max":true, "clamp_min":true, "count_scalar":true, 
-    "day_of_month":true, "day_of_week":true, "days_in_month":true, 
-    "delta":true, "deriv":true, "drop_common_labels":true, 
-    "exp":true, "floor":true, "histogram_quantile":true, 
-    "holt_winters":true, "hour":true, "idelta":true, 
+    "quantile":true,
+
+    "abs":true, "absent":true, "ceil":true, "changes":true,
+    "clamp_max":true, "clamp_min":true, "count_scalar":true,
+    "day_of_month":true, "day_of_week":true, "days_in_month":true,
+    "delta":true, "deriv":true, "drop_common_labels":true,
+    "exp":true, "floor":true, "histogram_quantile":true,
+    "holt_winters":true, "hour":true, "idelta":true,
     "increase":true, "irate":true, "label_replace":true,
-    "ln":true, "log2":true, "log10":true, "minute":true, 
-    "month":true, "predict_linear":true, "rate":true, "resets":true, 
-    "round":true, "scalar":true, "sort":true, "sort_desc":true, 
+    "ln":true, "log2":true, "log10":true, "minute":true,
+    "month":true, "predict_linear":true, "rate":true, "resets":true,
+    "round":true, "scalar":true, "sort":true, "sort_desc":true,
     "sqrt":true, "time":true, "vector":true, "year":true
      //<aggregation>_over_time => true
   };
@@ -58,7 +58,7 @@ CodeMirror.defineMode("promql", function(config) {
         stream.match(/^[0-9]*\.?[0-9]*([eE][\-+]?[0-9]+)?([s|m|h|d|w|y])?/);
       }
       return "number";
-    } 
+    }
 
     if (/[\[\]{}\(\),;\:\.]/.test(ch)) {
       curPunc = ch;
@@ -80,7 +80,7 @@ CodeMirror.defineMode("promql", function(config) {
     }
     stream.eatWhile(/[\w\$_\xa1-\uffff]/);
     var cur = stream.current();
-    if (keywords.propertyIsEnumerable(cur)) {      
+    if (keywords.propertyIsEnumerable(cur)) {
       return "keyword";
     }
     if (atoms.propertyIsEnumerable(cur)) return "atom";
@@ -171,7 +171,7 @@ CodeMirror.defineMode("promql", function(config) {
       if (ctx.align) return ctx.column + (closing ? 0 : 1);
       else return ctx.indented + (closing ? 0 : indentUnit);
     },
- 
+
 
     closeBrackets: {pairs: "()[]{}\"\"''"},
     fold: "brace",
