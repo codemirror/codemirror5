@@ -352,6 +352,9 @@
      "  [property constructor]([keyword readonly] [keyword private] [def x]) {}",
      "}")
 
+  TS("arrow prop",
+     "({[property a]: [def p] [operator =>] [variable-2 p]})")
+
   var jsonld_mode = CodeMirror.getMode(
     {indentUnit: 2},
     {name: "javascript", jsonld: true}
