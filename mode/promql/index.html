@@ -1,0 +1,81 @@
+<!doctype html>
+
+<title>CodeMirror: PromQL mode</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../../doc/docs.css">
+
+<link rel="stylesheet" href="../../lib/codemirror.css">
+<link rel="stylesheet" href="../../theme/elegant.css">
+
+<script src="../../lib/codemirror.js"></script>
+<script src="../../addon/edit/matchbrackets.js"></script>
+<script src="../../addon/hint/show-hint.js"></script>
+<link rel="stylesheet" href="../../addon/hint/show-hint.css">
+<script src="../../addon/hint/anyword-hint.js"></script>
+<script src="promql.js"></script>
+<style>.CodeMirror {border:1px solid #999; background:#f8f8f8}</style>
+<div id=nav>
+  <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../../doc/logo.png"></a>
+
+  <ul>
+    <li><a href="../../index.html">Home</a>
+    <li><a href="../../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="../index.html">Language modes</a>
+    <li><a class=active href="#">PromQL</a>
+  </ul>
+</div>
+
+<article>
+<h2>PromQL mode</h2>
+<form><textarea id="code" name="code">
+// Examples from manual
+// Copyright © prometheus.io
+
+http_requests_total{job=~"server$"}
+
+//
+
+sum(
+  instance_memory_limit_bytes - instance_memory_usage_bytes
+) by (app, proc) / 1024 / 1024
+
+// 
+
+instance_path:request_failures:rate5m =
+  rate(request_failures_total{job="myjob"}[5m])
+
+instance_path:request_failures_per_requests:ratio_rate5m =
+    instance_path:request_failures:rate5m{job="myjob"}
+  /
+    instance_path:requests:rate5m{job="myjob"}
+
+// Aggregate up numerator and denominator, then divide to get path-level ratio.
+path:request_failures_per_requests:ratio_rate5m =
+    sum without (instance)(instance_path:request_failures:rate5m{job="myjob"})
+  /
+    sum without (instance)(instance_path:requests:rate5m{job="myjob"})
+
+// No labels left from instrumentation or distinguishing instances,
+// so we use 'job' as the level.
+job:request_failures_per_requests:ratio_rate5m =
+    sum without (instance, path)(instance_path:request_failures:rate5m{job="myjob"})
+  /
+    sum without (instance, path)(instance_path:requests:rate5m{job="myjob"})
+</textarea></form>
+
+    <script>
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        theme: "elegant",
+        matchBrackets: true,
+        indentUnit: 4,
+        tabSize: 4,
+        indentWithTabs: true,
+        mode: "text/x-promql"
+      });
+    </script>
+
+    <p><strong>MIME type:</strong> <code>text/x-promql</code> for <a href="https://prometheus.io">Prometheus</a> </p> 
+  </article>
