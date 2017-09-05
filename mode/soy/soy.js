@@ -87,7 +87,7 @@
           kindTag: [],
           soyState: [],
           templates: null,
-          variables: null,
+          variables: prepend(null, 'ij'),
           scopes: null,
           indent: 0,
           quoteKind: null,
