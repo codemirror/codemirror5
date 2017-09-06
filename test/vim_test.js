@@ -1675,6 +1675,16 @@ testVim('mark\'', function(cm, vim, helpers) {
   helpers.doKeys('\'', '\'');
   helpers.assertCursorAt(2, 3);
 });
+testVim('mark.', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('O', 'testing', '<Esc>');
+  cm.setCursor(3, 3);
+  helpers.doKeys('\'', '.');
+  helpers.assertCursorAt(0, 0);
+  cm.setCursor(4, 4);
+  helpers.doKeys('`', '.');
+  helpers.assertCursorAt(0, 6);
+});
 testVim('jumpToMark_next', function(cm, vim, helpers) {
   cm.setCursor(2, 2);
   helpers.doKeys('m', 't');
