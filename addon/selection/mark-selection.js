@@ -86,7 +86,7 @@
     if (!array.length) return coverRange(cm, from, to);
 
     var coverStart = array[0].find(), coverEnd = array[array.length - 1].find();
-    if (!coverStart || !coverEnd || to.line - from.line < CHUNK_SIZE ||
+    if (!coverStart || !coverEnd || to.line - from.line <= CHUNK_SIZE ||
         cmp(from, coverEnd.to) >= 0 || cmp(to, coverStart.from) <= 0)
       return reset(cm);
 
