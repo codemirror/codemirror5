@@ -53,7 +53,7 @@ export function fromTextArea(textarea, options) {
       }
     }
   }
-  
+
   let labelNewTextarea = cm => {
     let cmTextarea = cm.display.input.textarea
     if (textarea.id) cmTextarea.setAttribute('aria-label', textarea.id)
