@@ -54,8 +54,14 @@ export function fromTextArea(textarea, options) {
     }
   }
 
+  let labelNewTextarea = cm => {
+    let cmTextarea = cm.display.input.textarea
+    if (textarea.id) cmTextarea.setAttribute('aria-label', textarea.id)
+  }
+
   textarea.style.display = "none"
   let cm = CodeMirror(node => textarea.parentNode.insertBefore(node, textarea.nextSibling),
     options)
+  labelNewTextarea(cm)
   return cm
 }
