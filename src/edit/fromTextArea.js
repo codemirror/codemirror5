@@ -57,6 +57,5 @@ export function fromTextArea(textarea, options) {
   textarea.style.display = "none"
   let cm = CodeMirror(node => textarea.parentNode.insertBefore(node, textarea.nextSibling),
     options)
-  if (textarea.id) cm.getInputField().setAttribute("aria-label", textarea.id)
   return cm
 }
