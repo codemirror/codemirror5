@@ -403,7 +403,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     }
 
     if (state.taskList) {
-      var taskOpen = stream.match(taskListRE, true)[1] !== "x";
+      var taskOpen = stream.match(taskListRE, true)[1] !== " ";
       if (taskOpen) state.taskOpen = true;
       else state.taskClosed = true;
       if (modeCfg.highlightFormatting) state.formatting = "task";
