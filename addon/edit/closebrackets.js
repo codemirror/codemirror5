@@ -18,6 +18,8 @@
   var Pos = CodeMirror.Pos;
 
   CodeMirror.defineOption("autoCloseBrackets", false, function(cm, val, old) {
+    var keyMap = getKeyMap();
+
     if (old && old != CodeMirror.Init) {
       cm.removeKeyMap(keyMap);
       cm.state.closeBrackets = null;
@@ -28,16 +30,26 @@
     }
   });
 
+  CodeMirror.defineExtension("addBracketsKeyMap", function(extraPairs) {
+    this.addKeyMap(getKeyMap(extraPairs));
+  });
+
+  function getKeyMap(extraPairs) {
+    var bind = (extraPairs || "") + defaults.pairs + "`";
+    var keyMap = { Backspace: handleBackspace, Enter: handleEnter };
+
+    for (var i = 0; i < bind.length; i++)
+      if (!keyMap["'" + bind.charAt(i) + "'"]) // Don't re-add pairs that already exist
+        keyMap["'" + bind.charAt(i) + "'"] = handler(bind.charAt(i));
+
+    return keyMap;
+  }
+
   function getOption(conf, name) {
     if (name == "pairs" && typeof conf == "string") return conf;
     if (typeof conf == "object" && conf[name] != null) return conf[name];
     return defaults[name];
   }
-
-  var bind = defaults.pairs + "`";
-  var keyMap = {Backspace: handleBackspace, Enter: handleEnter};
-  for (var i = 0; i < bind.length; i++)
-    keyMap["'" + bind.charAt(i) + "'"] = handler(bind.charAt(i));
 
   function handler(ch) {
     return function(cm) { return handleChar(cm, ch); };
