@@ -23,6 +23,7 @@
       cm.state.closeBrackets = null;
     }
     if (val) {
+      ensureBound(getOption(val, "pairs"))
       cm.state.closeBrackets = val;
       cm.addKeyMap(keyMap);
     }
@@ -34,10 +35,14 @@
     return defaults[name];
   }
 
-  var bind = defaults.pairs + "`";
   var keyMap = {Backspace: handleBackspace, Enter: handleEnter};
-  for (var i = 0; i < bind.length; i++)
-    keyMap["'" + bind.charAt(i) + "'"] = handler(bind.charAt(i));
+  function ensureBound(chars) {
+    for (var i = 0; i < chars.length; i++) {
+      var ch = chars.charAt(i), key = "'" + ch + "'"
+      if (!keyMap[key]) keyMap[key] = handler(ch)
+    }
+  }
+  ensureBound(defaults.pairs + "`")
 
   function handler(ch) {
     return function(cm) { return handleChar(cm, ch); };
