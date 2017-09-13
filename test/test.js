@@ -254,6 +254,11 @@ testCM("coordsCharBidi", function(cm) {
   }
 }, {lineNumbers: true});
 
+testCM("badBidiOptimization", function(cm) {
+  let coords = cm.charCoords(Pos(0, 34))
+  eqCharPos(cm.coordsChar({left: coords.right, top: coords.top + 2}), Pos(0, 34))
+}, {value: "----------<p class=\"title\">هل يمكنك اختيار مستوى قسط التأمين الذي ترغب بدفعه؟</p>"})
+
 testCM("posFromIndex", function(cm) {
   cm.setValue(
     "This function should\n" +

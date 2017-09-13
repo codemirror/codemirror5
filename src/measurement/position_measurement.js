@@ -464,8 +464,10 @@ function coordsCharInner(cm, lineObj, lineNo, x, y) {
     outer: do {
       prevDiff = diff
       prevPos = pos
-      let i = 0
-      for (; i < steps; ++i) {
+      // Make these steps don't take us outside of the current bidi part
+      let bidiPart = order[getBidiPartAt(order, pos.ch, dir < 0 ? "before" : "after")]
+      let maxSteps = Math.max(1, Math.min(steps, (dir < 0) != (bidiPart.level % 2 > 0) ? pos.ch - bidiPart.from : bidiPart.to - pos.ch))
+      for (let i = 0; i < maxSteps; ++i) {
         let prevPos = pos
         pos = moveVisually(cm, lineObj, pos, dir)
         if (pos == null || pos.ch < begin || end <= (pos.sticky == "before" ? pos.ch - 1 : pos.ch)) {
@@ -475,8 +477,8 @@ function coordsCharInner(cm, lineObj, lineNo, x, y) {
       }
       diff = cursorCoords(cm, pos, "line", lineObj, preparedMeasure).left - x
       if (steps > 1) {
-        let diff_change_per_step = Math.abs(diff - prevDiff) / steps
-        steps = Math.min(steps, Math.ceil(Math.abs(diff) / diff_change_per_step))
+        let diffChangePerStep = Math.abs(diff - prevDiff) / steps
+        steps = Math.min(steps, Math.ceil(Math.abs(diff) / diffChangePerStep))
         dir = diff < 0 ? 1 : -1
       }
     } while (diff != 0 && (steps > 1 || ((dir < 0) != (diff < 0) && (Math.abs(diff) <= Math.abs(prevDiff)))))
