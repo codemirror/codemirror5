@@ -117,6 +117,7 @@
     var state = getSearchState(cm);
     if (state.query) return findNext(cm, rev);
     var q = cm.getSelection() || state.lastQuery;
+    if (q instanceof RegExp && q.source == "x^") q = null
     if (persistent && cm.openDialog) {
       var hiding = null
       var searchNext = function(query, event) {
