@@ -1161,6 +1161,10 @@ testCM("measureWrappedEndOfLine", function(cm) {
   }
 }, {mode: "text/html", value: "0123456789abcde0123456789", lineWrapping: true}, ie_lt8 || opera_lt10);
 
+testCM("measureEndOfLineBidi", function(cm) {
+  eqCursorPos(cm.coordsChar({left: 5000, top: cm.charCoords(Pos(0, 0)).top}), Pos(0, 8, "after"))
+}, {value: "إإإإuuuuإإإإ"})
+
 testCM("measureWrappedBeginOfLine", function(cm) {
   if (phantom) return;
   cm.setSize(null, "auto");
