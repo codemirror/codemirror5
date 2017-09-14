@@ -26,9 +26,8 @@
 
 <article>
 <h2>Bi-directional Text Demo</h2>
-<form style="width: 70em"><textarea id="code" name="code"><!-- Piece of the CodeMirror manual, 'translated' into Arabic by Google Translate -->
+<form><textarea id="code" name="code"><!-- Piece of the CodeMirror manual, 'translated' into Arabic by Google Translate -->
 <!-- قطعة من دليل CodeMirror، "ترجم" إلى العربية بواسطة جوجل ترجمة -->
-          <p class="title">هل يمكنك اختيار مستوى قسط التأمين الذي ترغب بدفعه؟</p>
 
 <dl>
   <dt id=option_value><code>value (string or Doc)</code></dt>
@@ -75,8 +74,8 @@
 var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
   mode: "text/html",
   lineNumbers: true,
-  lineWrapping: false,
-  direction: "ltr"
+  lineWrapping: true,
+  direction: "rtl"
 });
 
 var dirRadios = {ltr: document.getElementById("ltr"),
@@ -98,9 +97,6 @@ moveCheckbox.checked = editor.getOption("rtlMoveVisually");
 moveCheckbox.onchange = function() {
   editor.setOption("rtlMoveVisually", moveCheckbox.checked);
 };
-editor.on("cursorActivity", () => console.log(editor.getCursor("anchor"), editor.getCursor("head")))
-console.log(editor.coordsChar({left: 914, top: 122}, "window"))
-
 </script>
 
   <p>Demonstration of bi-directional text support. See
