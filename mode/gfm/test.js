@@ -61,24 +61,6 @@
      "[variable-2 3. ][meta [ ]]][variable-2  world]", // Valid; tests reference style links
      "    [variable-3 1. ][property [x]]][variable-3  foo]"); // Valid; can be nested
 
-  MT("SHA",
-     "foo [link be6a8cc1c1ecfe9489fb51e4869af15a13fc2cd2] bar");
-
-  MT("SHAEmphasis",
-     "[em *foo ][em&link be6a8cc1c1ecfe9489fb51e4869af15a13fc2cd2][em *]");
-
-  MT("shortSHA",
-     "foo [link be6a8cc] bar");
-
-  MT("tooShortSHA",
-     "foo be6a8c bar");
-
-  MT("longSHA",
-     "foo be6a8cc1c1ecfe9489fb51e4869af15a13fc2cd22 bar");
-
-  MT("badSHA",
-     "foo be6a8cc1c1ecfe9489fb51e4869af15a13fc2cg2 bar");
-
   MT("userSHA",
      "foo [link bar@be6a8cc1c1ecfe9489fb51e4869af15a13fc2cd2] hello");
 
