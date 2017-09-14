@@ -1161,6 +1161,16 @@ testCM("measureWrappedEndOfLine", function(cm) {
   }
 }, {mode: "text/html", value: "0123456789abcde0123456789", lineWrapping: true}, ie_lt8 || opera_lt10);
 
+testCM("measureEndOfLineBidi", function(cm) {
+  eqCursorPos(cm.coordsChar({left: 5000, top: cm.charCoords(Pos(0, 0)).top}), Pos(0, 8, "after"))
+}, {value: "إإإإuuuuإإإإ"})
+
+testCM("measureWrappedBidiLevel2", function(cm) {
+  cm.setSize(cm.charCoords(Pos(0, 6), "editor").right + 60)
+  var c9 = cm.charCoords(Pos(0, 9))
+  eqCharPos(cm.coordsChar({left: c9.right - 1, top: c9.top + 1}), Pos(0, 9))
+}, {value: "foobar إإ إإ إإ إإ 555 بببببب", lineWrapping: true})
+
 testCM("measureWrappedBeginOfLine", function(cm) {
   if (phantom) return;
   cm.setSize(null, "auto");
