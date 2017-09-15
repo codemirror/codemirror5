@@ -563,7 +563,7 @@ function coordsBidiPartWrapped(cm, lineObj, _lineNo, preparedMeasure, order, x, 
     let p = order[i]
     if (p.from >= end || p.to <= begin) continue
     let ltr = p.level != 1
-    let endX = measureCharPrepared(cm, preparedMeasure, ltr ? p.to - 1 : p.from).right
+    let endX = measureCharPrepared(cm, preparedMeasure, ltr ? Math.min(end, p.to) - 1 : Math.max(begin, p.from)).right
     // Weigh against spans ending before this, so that they are only
     // picked if nothing ends after
     let dist = endX < x ? x - endX + 1e9 : endX - x
