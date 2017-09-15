@@ -442,6 +442,7 @@ function wrappedLineExtent(cm, lineObj, preparedMeasure, y) {
 }
 
 export function wrappedLineExtentChar(cm, lineObj, preparedMeasure, target) {
+  if (!preparedMeasure) preparedMeasure = prepareMeasureForLine(cm, lineObj)
   let targetTop = intoCoordSystem(cm, lineObj, measureCharPrepared(cm, preparedMeasure, target), "line").top
   return wrappedLineExtent(cm, lineObj, preparedMeasure, targetTop)
 }

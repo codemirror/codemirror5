@@ -2473,10 +2473,20 @@ for (var i = 0; i < 5; ++i) {
 }
 */
 
-testCM("bidi_wrapped_selection", function(cm) {
+testCM("rtl_wrapped_selection", function(cm) {
   cm.setSelection(Pos(0, 10), Pos(0, 190))
   is(byClassName(cm.getWrapperElement(), "CodeMirror-selected").length >= 3)
 }, {value: new Array(10).join(" فتي تم تضمينها فتي تم"), lineWrapping: true})
+
+testCM("bidi_wrapped_selection", function(cm) {
+  cm.setSize(cm.charCoords(Pos(0, 10), "editor").left)
+  cm.setSelection(Pos(0, 37), Pos(0, 80))
+  var blocks = byClassName(cm.getWrapperElement(), "CodeMirror-selected")
+  eq(blocks.length, 2)
+  let boxTop = blocks[0].getBoundingClientRect(), boxBot = blocks[1].getBoundingClientRect()
+  is(boxTop.left > cm.charCoords(Pos(0, 1)).right)
+  is(boxBot.right < cm.charCoords(Pos(0, cm.getLine(0).length - 2)).left)
+}, {value: "<p>مفتي11 تم تضمينهفتي تم تضمينها فتي تفتي تم تضمينها فتي تفتي تم تضمينها فتي تفتي تم تضمينها فتي تا فت10ي ت</p>", lineWrapping: true})
 
 testCM("delete_wrapped", function(cm) {
   makeItWrapAfter(cm, Pos(0, 2));

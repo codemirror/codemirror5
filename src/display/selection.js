@@ -1,7 +1,7 @@
 import { Pos } from "../line/pos"
 import { visualLine } from "../line/spans"
 import { getLine } from "../line/utils_line"
-import { charCoords, cursorCoords, displayWidth, paddingH } from "../measurement/position_measurement"
+import { charCoords, cursorCoords, displayWidth, paddingH, wrappedLineExtentChar } from "../measurement/position_measurement"
 import { getOrder, iterateBidiSections } from "../util/bidi"
 import { elt } from "../util/dom"
 
@@ -72,7 +72,8 @@ function drawSelectionRange(cm, range, output) {
       return charCoords(cm, Pos(line, ch), "div", lineObj, bias)
     }
 
-    iterateBidiSections(getOrder(lineObj, doc.direction), fromArg || 0, toArg == null ? lineLen : toArg, (from, to, dir) => {
+    let order = getOrder(lineObj, doc.direction)
+    iterateBidiSections(order, fromArg || 0, toArg == null ? lineLen : toArg, (from, to, dir, i) => {
       let fromPos, toPos
       if (dir == "ltr") {
         fromPos = coords(from, "left")
@@ -94,9 +95,21 @@ function drawSelectionRange(cm, range, output) {
         if (toPos.top - fromPos.top <= 3) { // Single line
           add(toLeft, toPos.top, fromRight - toLeft, toPos.bottom)
         } else { // Multiple lines
-          add(leftSide, fromPos.top, fromRight - leftSide, fromPos.bottom)
+          let topLeft = leftSide
+          if (i) {
+            let topEnd = wrappedLineExtentChar(cm, lineObj, null, from).end
+            // The coordinates returned for an RTL wrapped space tend to
+            // be complete bogus, so try to skip that here.
+            topLeft = coords(topEnd - (/\s/.test(lineObj.text.charAt(topEnd - 1)) ? 2 : 1), "left").left
+          }
+          add(topLeft, fromPos.top, fromRight - topLeft, fromPos.bottom)
           if (fromPos.bottom < toPos.top) add(leftSide, fromPos.bottom, null, toPos.top)
-          add(toLeft, toPos.top, null, toPos.bottom)
+          let botWidth = null
+          if (i < order.length  - 1 || true) {
+            let botStart = wrappedLineExtentChar(cm, lineObj, null, to).begin
+            botWidth = coords(botStart, "right").right - toLeft
+          }
+          add(toLeft, toPos.top, botWidth, toPos.bottom)
         }
       }
 
