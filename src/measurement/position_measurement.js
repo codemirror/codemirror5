@@ -382,7 +382,7 @@ export function cursorCoords(cm, pos, context, lineObj, preparedMeasure, varHeig
   if (!order) return get(sticky == "before" ? ch - 1 : ch, sticky == "before")
 
   function getBidi(ch, partPos, invert) {
-    let part = order[partPos], right = (part.level % 2) != 0
+    let part = order[partPos], right = part.level == 1
     return get(invert ? ch - 1 : ch, right != invert)
   }
   let partPos = getBidiPartAt(order, ch, sticky)
@@ -440,10 +440,10 @@ export function coordsChar(cm, x, y) {
 }
 
 function wrappedLineExtent(cm, lineObj, preparedMeasure, y) {
-  let measure = ch => intoCoordSystem(cm, lineObj, measureCharPrepared(cm, preparedMeasure, ch), "line")
+  y -= widgetTopHeight(lineObj)
   let end = lineObj.text.length
-  let begin = findFirst(ch => measure(ch - 1).bottom <= y, end, 0)
-  end = findFirst(ch => measure(ch).top > y, begin, end)
+  let begin = findFirst(ch => measureCharPrepared(cm, preparedMeasure, ch - 1).bottom <= y, end, 0)
+  end = findFirst(ch => measureCharPrepared(cm, preparedMeasure, ch).top > y, begin, end)
   return {begin, end}
 }
 
@@ -471,44 +471,15 @@ function coordsCharInner(cm, lineObj, lineNo, x, y) {
   // If the line isn't plain left-to-right text, first figure out
   // which bidi section the coordinates fall into.
   if (order) {
-    // Bidi parts are sorted left-to-right. Find the first part whose
-    // end is after the given coordinates.
-    let index = findFirst(i => {
-      let part = order[i], ltr = part.level % 2 == 0
-      return boxIsAfter(cursorCoords(cm, Pos(lineNo, ltr ? part.to : part.from, ltr ? "before" : "after"),
-                                     "line", lineObj, preparedMeasure), x, y, true)
-    }, 0, order.length - 1)
-    let part = order[index]
-    ltr = part.level % 2 == 0
-    // If this isn't the first part, the part's start is also after
-    // the coordinates, and the coordinates aren't on the same line as
-    // that start, move one part back.
-    if (index > 0) {
-      let start = cursorCoords(cm, Pos(lineNo, ltr ? part.from : part.to, ltr ? "after" : "before"),
-                               "line", lineObj, preparedMeasure)
-      if (boxIsAfter(start, x, y, true) && start.top > y) {
-        part = order[--index]
-        ltr = part.level % 2 == 0
-      }
-    }
-    if (ltr) {
-      begin = part.from
-      end = part.to
-    } else {
-      let wrap = cm.options.lineWrapping
-      // Because wrapped RTL text isn't visually ordered monotonically
-      // when using a top-to-bottom left-to-right, we select only one
-      // wrapped line and search it from end-to-start.
-      // (It may be cleaner to use a top-to-bottom right-to-left
-      // comparison instead, in that case, but I didn't try yet.)
-      let extent = wrap ? wrappedLineExtent(cm, lineObj, preparedMeasure, y) : null
-      // The awkward -1 offsets are needed because findFirst (called
-      // on these below) will treat its first bound as inclusive,
-      // second as exclusive, but we want to actually address the
-      // characters in the part's range
-      begin = (wrap ? Math.min(part.to, extent.end) : part.to) - 1
-      end = (wrap ? Math.max(part.from, extent.begin) : part.from) - 1
-    }
+    let part = (cm.options.lineWrapping ? coordsBidiPartWrapped : coordsBidiPart)
+                 (cm, lineObj, lineNo, preparedMeasure, order, x, y)
+    ltr = part.level != 1
+    // The awkward -1 offsets are needed because findFirst (called
+    // on these below) will treat its first bound as inclusive,
+    // second as exclusive, but we want to actually address the
+    // characters in the part's range
+    begin = ltr ? part.from : part.to - 1
+    end = ltr ? part.to : part.from - 1
   }
 
   // A binary search to find the first character whose bounding box
@@ -552,6 +523,60 @@ function coordsCharInner(cm, lineObj, lineNo, x, y) {
 
   ch = skipExtendingChars(lineObj.text, ch, 1)
   return PosWithInfo(lineNo, ch, sticky, outside, x - baseX)
+}
+
+function coordsBidiPart(cm, lineObj, lineNo, preparedMeasure, order, x, y) {
+  // Bidi parts are sorted left-to-right, and in a non-line-wrapping
+  // situation, we can take this ordering to correspond to the visual
+  // ordering. This finds the first part whose end is after the given
+  // coordinates.
+  let index = findFirst(i => {
+    let part = order[i], ltr = part.level != 1
+    return boxIsAfter(cursorCoords(cm, Pos(lineNo, ltr ? part.to : part.from, ltr ? "before" : "after"),
+                                   "line", lineObj, preparedMeasure), x, y, true)
+  }, 0, order.length - 1)
+  let part = order[index]
+  // If this isn't the first part, the part's start is also after
+  // the coordinates, and the coordinates aren't on the same line as
+  // that start, move one part back.
+  if (index > 0) {
+    let ltr = part.level != 1
+    let start = cursorCoords(cm, Pos(lineNo, ltr ? part.from : part.to, ltr ? "after" : "before"),
+                             "line", lineObj, preparedMeasure)
+    if (boxIsAfter(start, x, y, true) && start.top > y)
+      part = order[index - 1]
+  }
+  return part
+}
+
+function coordsBidiPartWrapped(cm, lineObj, _lineNo, preparedMeasure, order, x, y) {
+  // In a wrapped line, rtl text on wrapping boundaries can do things
+  // that don't correspond to the ordering in our `order` array at
+  // all, so a binary search doesn't work, and we want to return a
+  // part that only spans one line so that the binary search in
+  // coordsCharInner is safe. As such, we first find the extent of the
+  // wrapped line, and then do a flat search in which we discard any
+  // spans that aren't on the line.
+  let {begin, end} = wrappedLineExtent(cm, lineObj, preparedMeasure, y)
+  let part = null, closestDist = null
+  for (let i = 0; i < order.length; i++) {
+    let p = order[i]
+    if (p.from >= end || p.to <= begin) continue
+    let ltr = p.level != 1
+    let endX = measureCharPrepared(cm, preparedMeasure, ltr ? p.to - 1 : p.from).right
+    // Weigh against spans ending before this, so that they are only
+    // picked if nothing ends after
+    let dist = endX < x ? x - endX + 1e9 : endX - x
+    if (!part || closestDist > dist) {
+      part = p
+      closestDist = dist
+    }
+  }
+  if (!part) part = order[order.length - 1]
+  // Clip the part to the wrapped line.
+  if (part.from < begin) part = {from: begin, to: part.to, level: part.level}
+  if (part.to > end) part = {from: part.from, to: end, level: part.level}
+  return part
 }
 
 let measureText
