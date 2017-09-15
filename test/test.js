@@ -2483,7 +2483,7 @@ testCM("bidi_wrapped_selection", function(cm) {
   cm.setSelection(Pos(0, 37), Pos(0, 80))
   var blocks = byClassName(cm.getWrapperElement(), "CodeMirror-selected")
   eq(blocks.length, 2)
-  let boxTop = blocks[0].getBoundingClientRect(), boxBot = blocks[1].getBoundingClientRect()
+  var boxTop = blocks[0].getBoundingClientRect(), boxBot = blocks[1].getBoundingClientRect()
   is(boxTop.left > cm.charCoords(Pos(0, 1)).right)
   is(boxBot.right < cm.charCoords(Pos(0, cm.getLine(0).length - 2)).left)
 }, {value: "<p>مفتي11 تم تضمينهفتي تم تضمينها فتي تفتي تم تضمينها فتي تفتي تم تضمينها فتي تفتي تم تضمينها فتي تا فت10ي ت</p>", lineWrapping: true})
