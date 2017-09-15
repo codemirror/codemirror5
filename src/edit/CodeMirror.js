@@ -143,6 +143,8 @@ function registerEventHandlers(cm) {
     return dx * dx + dy * dy > 20 * 20
   }
   on(d.scroller, "touchstart", e => {
+    if (clickInGutter(cm, e)) return
+
     if (!signalDOMEvent(cm, e) && !isMouseLikeTouchEvent(e)) {
       d.input.ensurePolled()
       clearTimeout(touchFinished)

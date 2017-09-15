@@ -326,8 +326,13 @@ function leftButtonSelect(cm, event, start, behavior) {
 // handlers for the corresponding event.
 function gutterEvent(cm, e, type, prevent) {
   let mX, mY
-  try { mX = e.clientX; mY = e.clientY }
-  catch(e) { return false }
+  if (e.type == "touchstart"){
+      try { mX = e.touches[0].clientX; mY = e.touches[0].clientY }
+      catch(e) { return false }
+  } else {
+      try { mX = e.clientX; mY = e.clientY }
+      catch(e) { return false }
+  }
   if (mX >= Math.floor(cm.display.gutters.getBoundingClientRect().right)) return false
   if (prevent) e_preventDefault(e)
 
