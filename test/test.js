@@ -2479,6 +2479,7 @@ testCM("rtl_wrapped_selection", function(cm) {
 }, {value: new Array(10).join(" فتي تم تضمينها فتي تم"), lineWrapping: true})
 
 testCM("bidi_wrapped_selection", function(cm) {
+  if (phantom) return
   cm.setSize(cm.charCoords(Pos(0, 10), "editor").left)
   cm.setSelection(Pos(0, 37), Pos(0, 80))
   var blocks = byClassName(cm.getWrapperElement(), "CodeMirror-selected")
