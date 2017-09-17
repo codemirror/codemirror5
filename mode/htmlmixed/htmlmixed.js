@@ -76,6 +76,7 @@
       multilineTagIndentFactor: parserConfig.multilineTagIndentFactor,
       multilineTagIndentPastTag: parserConfig.multilineTagIndentPastTag
     });
+    
     var highlightCodeInStyleAttr = typeof config.inlineCssMode !== 'undefined' ? config.inlineCssMode : false;
     var tags = {};
     var configTags = parserConfig && parserConfig.tags, configScript = parserConfig && parserConfig.scriptTypes;
@@ -92,21 +93,18 @@
           tags.hasOwnProperty(tagName)) {
         state.inTag = tagName + " ";
         state.isDefault = true;
-      }
-      else if(highlightCodeInStyleAttr && tag && !/[<>\s\/]/.test(stream.current())) {
+      } else if (highlightCodeInStyleAttr && tag && !/[<>\s\/]/.test(stream.current())) {
         state.inTag = true;
         state.isDefault = false;
-      }
-      else if(highlightCodeInStyleAttr && !state.isDefault && state.inTag && tag && />$/.test(stream.current())) {
+      } else if (highlightCodeInStyleAttr && !state.isDefault && state.inTag && tag && />$/.test(stream.current())) {
         state.isDefault = null;
         state.inTag = null;
-      }
-      else if(highlightCodeInStyleAttr && !state.isDefault && state.inTag) {
+      } else if (highlightCodeInStyleAttr && !state.isDefault && state.inTag) {
         var isStyleAttribute = stream.match(/style=/, true);
 
-        if(isStyleAttribute) {
+        if (isStyleAttribute) {
           var startingQuote = stream.match(/["']/, true);
-          if(startingQuote) {
+          if (startingQuote) {
             var quoteStack = new Array();
             quoteStack.push(startingQuote[0]);
             var mode = CodeMirror.getMode(config, {
@@ -115,11 +113,11 @@
             });
             state.token = function (stream, state) {
               var quote = stream.match(/["']/, false);
-              if(quote) {
-                if((quote[0] == '"' && quoteStack[quoteStack.length - 1] == '"') || (quote[0] == "'" && quoteStack[quoteStack.length - 1] == "'"))
+              if (quote) {
+                if ((quote[0] == '"' && quoteStack[quoteStack.length - 1] == '"') || (quote[0] == "'" && quoteStack[quoteStack.length - 1] == "'"))
                   quoteStack.pop();
 
-                if(quoteStack.length == 0) {
+                if (quoteStack.length == 0) {
                   stream.next();
                   state.token = html;
                   state.localState = state.localMode = null;
@@ -132,8 +130,7 @@
             state.localState = CodeMirror.startState(mode, htmlMode.indent(state.htmlState, ""));
           }
         }
-      }
-      else if (state.isDefault && state.inTag && tag && />$/.test(stream.current())) {
+      } else if (state.isDefault && state.inTag && tag && />$/.test(stream.current())) {
           var inTag = /^([\S]+) (.*)/.exec(state.inTag);
           state.inTag = null;
           state.isDefault = null;
