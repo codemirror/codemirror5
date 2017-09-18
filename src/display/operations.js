@@ -102,7 +102,7 @@ function endOperation_R2(op) {
   }
 
   if (op.updatedDisplay || op.selectionChanged)
-    op.preparedSelection = display.input.prepareSelection(op.focus)
+    op.preparedSelection = display.input.prepareSelection()
 }
 
 function endOperation_W2(op) {
