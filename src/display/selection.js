@@ -74,10 +74,9 @@ function drawSelectionRange(cm, range, output) {
 
     let order = getOrder(lineObj, doc.direction)
     iterateBidiSections(order, fromArg || 0, toArg == null ? lineLen : toArg, (from, to, dir, i) => {
-      let fromPos, toPos
+      let fromPos = coords(from, dir == "ltr" ? "left" : "right")
+      let toPos = coords(to - 1, dir == "ltr" ? "right" : "left")
       if (dir == "ltr") {
-        fromPos = coords(from, "left")
-        toPos = coords(to - 1, "right")
         let fromLeft = fromArg == null && from == 0 ? leftSide : fromPos.left
         let toRight = toArg == null && to == lineLen ? rightSide : toPos.right
         if (toPos.top - fromPos.top <= 3) { // Single line
@@ -87,9 +86,7 @@ function drawSelectionRange(cm, range, output) {
           if (fromPos.bottom < toPos.top) add(leftSide, fromPos.bottom, null, toPos.top)
           add(leftSide, toPos.top, toPos.right, toPos.bottom)
         }
-      } else { // RTL
-        fromPos = coords(from, "right")
-        toPos = coords(to - 1, "left")
+      } else if (from < to) { // RTL
         let fromRight = fromArg == null && from == 0 ? rightSide : fromPos.right
         let toLeft = toArg == null && to == lineLen ? leftSide : toPos.left
         if (toPos.top - fromPos.top <= 3) { // Single line
