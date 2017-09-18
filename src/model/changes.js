@@ -260,7 +260,7 @@ function makeChangeSingleDocInEditor(cm, change, spans) {
 
 export function replaceRange(doc, code, from, to, origin) {
   if (!to) to = from
-  if (cmp(to, from) < 0) { [from, to] = [to, from] }
+  if (cmp(to, from) < 0) [from, to] = [to, from]
   if (typeof code == "string") code = doc.splitLines(code)
   makeChange(doc, {from, to, text: code, origin})
 }
