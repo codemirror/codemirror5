@@ -9,13 +9,13 @@ export function updateSelection(cm) {
   cm.display.input.showSelection(cm.display.input.prepareSelection())
 }
 
-export function prepareSelection(cm, primary) {
+export function prepareSelection(cm, primary = true) {
   let doc = cm.doc, result = {}
   let curFragment = result.cursors = document.createDocumentFragment()
   let selFragment = result.selection = document.createDocumentFragment()
 
   for (let i = 0; i < doc.sel.ranges.length; i++) {
-    if (primary === false && i == doc.sel.primIndex) continue
+    if (!primary && i == doc.sel.primIndex) continue
     let range = doc.sel.ranges[i]
     if (range.from().line >= cm.display.viewTo || range.to().line < cm.display.viewFrom) continue
     let collapsed = range.empty()
