@@ -8,6 +8,7 @@ import { eventInWidget } from "../measurement/widgets"
 import { normalizeSelection, Range, Selection } from "../model/selection"
 import { extendRange, extendSelection, replaceOneSelection, setSelection } from "../model/selection_updates"
 import { captureRightClick, chromeOS, ie, ie_version, mac, webkit } from "../util/browser"
+import { getOrder, getBidiPartAt } from "../util/bidi"
 import { activeElt } from "../util/dom"
 import { e_button, e_defaultPrevented, e_preventDefault, e_target, hasHandler, off, on, signal, signalDOMEvent } from "../util/event"
 import { dragAndDrop } from "../util/feature_detection"
@@ -269,7 +270,7 @@ function leftButtonSelect(cm, event, start, behavior) {
         anchor = maxPos(oldRange.to(), range.head)
       }
       let ranges = startSel.ranges.slice(0)
-      ranges[ourIndex] = new Range(clipPos(doc, anchor), head)
+      ranges[ourIndex] = bidiSimplify(cm, new Range(clipPos(doc, anchor), head))
       setSelection(doc, normalizeSelection(ranges, ourIndex), sel_mouse)
     }
   }
@@ -319,6 +320,32 @@ function leftButtonSelect(cm, event, start, behavior) {
   cm.state.selectingText = up
   on(document, "mousemove", move)
   on(document, "mouseup", up)
+}
+
+// Used when mouse-selecting to adjust the anchor to the proper side
+// of a bidi jump depending on the visual position of the head.
+function bidiSimplify(cm, range) {
+  let {anchor, head} = range, anchorLine = getLine(cm.doc, anchor.line)
+  if (cmp(anchor, head) == 0 && anchor.sticky == head.sticky) return range
+  let order = getOrder(anchorLine)
+  if (!order) return range
+  let index = getBidiPartAt(order, anchor.ch, anchor.sticky), part = order[index]
+  if (part.from != anchor.ch && part.to != anchor.ch) return range
+  let boundary = index + ((part.from == anchor.ch) == (part.level != 1) ? 0 : 1)
+  if (boundary == 0 || boundary == order.length) return range
+
+  // Compute the relative visual position of the head compared to the
+  // anchor (<0 is to the left, >0 to the right)
+  let dir = head.line - anchor.line
+  if (dir == 0) {
+    let headIndex = getBidiPartAt(order, head.ch, head.sticky)
+    dir = headIndex - index || (head.ch - anchor.ch) * (part.level == 1 ? -1 : 1)
+  }
+
+  let biasTo = boundary + (dir < 0 ? -1 : 0)
+  if (biasTo == index) return range
+  let targetPart = order[biasTo], from = (dir > 0) == (targetPart.level != 1)
+  return new Range(new Pos(anchor.line, from ? targetPart.from : targetPart.to, from ? "after" : "before"), head)
 }
 
 
