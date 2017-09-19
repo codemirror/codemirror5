@@ -336,16 +336,22 @@ function bidiSimplify(cm, range) {
 
   // Compute the relative visual position of the head compared to the
   // anchor (<0 is to the left, >0 to the right)
-  let dir = head.line - anchor.line
-  if (dir == 0) {
+  let leftSide
+  if (head.line != anchor.line) {
+    leftSide = (head.line - anchor.line) * (cm.doc.direction == "ltr" ? 1 : -1) > 0
+  } else {
     let headIndex = getBidiPartAt(order, head.ch, head.sticky)
-    dir = headIndex - index || (head.ch - anchor.ch) * (part.level == 1 ? -1 : 1)
+    let dir = headIndex - index || (head.ch - anchor.ch) * (part.level == 1 ? -1 : 1)
+    if (headIndex == boundary - 1 || headIndex == boundary)
+      leftSide = dir < 0
+    else
+      leftSide = dir > 0
   }
 
-  let biasTo = boundary + (dir < 0 ? -1 : 0)
-  if (biasTo == index) return range
-  let targetPart = order[biasTo], from = (dir > 0) == (targetPart.level != 1)
-  return new Range(new Pos(anchor.line, from ? targetPart.from : targetPart.to, from ? "after" : "before"), head)
+  let usePart = order[boundary + (leftSide ? -1 : 0)]
+  let from = leftSide == (usePart.level == 1)
+  let ch = from ? usePart.from : usePart.to, sticky = from ? "after" : "before"
+  return anchor.ch == ch && anchor.sticky == sticky ? range : new Range(new Pos(anchor.line, ch, sticky), head)
 }
 
 
