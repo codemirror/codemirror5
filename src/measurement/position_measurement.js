@@ -519,7 +519,7 @@ function coordsCharInner(cm, lineObj, lineNo, x, y) {
     // base X position
     let coords = cursorCoords(cm, Pos(lineNo, ch, sticky), "line", lineObj, preparedMeasure)
     baseX = coords.left
-    outside = y < coords.top || y > coords.bottom
+    outside = y < coords.top || y >= coords.bottom
   }
 
   ch = skipExtendingChars(lineObj.text, ch, 1)
