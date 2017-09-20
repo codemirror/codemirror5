@@ -2507,6 +2507,13 @@ testCM("delete_wrapped", function(cm) {
   eq(cm.getLine(0), "1245");
 }, {value: "12345", lineWrapping: true})
 
+testCM("issue_4878", function(cm) {
+  cm.setCursor(Pos(1, 12, "after"));
+  cm.moveH(-1, "char");
+  eqCursorPos(cm.getCursor(), Pos(0, 113, "before"));
+}, {value: "  في تطبيق السمات مرة واحدة https://github.com/codemirror/CodeMirror/issues/4878#issuecomment-330550964على سبيل المثال <code>\"foo bar\"</code>\n" +
+"  سيتم تعيين", direction: "rtl", lineWrapping: true});
+
 CodeMirror.defineMode("lookahead_mode", function() {
   // Colors text as atom if the line two lines down has an x in it
   return {
