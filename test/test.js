@@ -2508,6 +2508,7 @@ testCM("delete_wrapped", function(cm) {
 }, {value: "12345", lineWrapping: true})
 
 testCM("issue_4878", function(cm) {
+  if (phantom) return
   cm.setCursor(Pos(1, 12, "after"));
   cm.moveH(-1, "char");
   eqCursorPos(cm.getCursor(), Pos(0, 113, "before"));
