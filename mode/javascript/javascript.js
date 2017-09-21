@@ -558,7 +558,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     }
   }
   function typeexpr(type, value) {
-    if (type == "variable") {
+    if (type == "variable" || value == "void") {
       if (value == "keyof") {
         cx.marked = "keyword"
         return cont(typeexpr)
