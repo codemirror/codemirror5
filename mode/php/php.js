@@ -152,9 +152,9 @@
 
   CodeMirror.defineMode("php", function(config, parserConfig) {
     var htmlMode = CodeMirror.getMode(config, {
-			name: "htmlmixed",
-			tags: parserConfig && parserConfig.tags ? parserConfig.tags : {}
-		});
+      name: "htmlmixed",
+      tags: parserConfig && parserConfig.tags ? parserConfig.tags : {}
+    });
     var phpMode = CodeMirror.getMode(config, phpConfig);
 
     function dispatch(stream, state) {
