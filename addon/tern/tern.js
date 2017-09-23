@@ -571,7 +571,7 @@
     return {type: "part",
             name: data.name,
             offsetLines: from.line,
-            text: doc.getRange(from, Pos(endLine, 0))};
+            text: doc.getRange(from, Pos(endLine, end.line == endLine ? null : 0))};
   }
 
   // Generic utilities

@@ -134,12 +134,17 @@ export function skipExtendingChars(str, pos, dir) {
 }
 
 // Returns the value from the range [`from`; `to`] that satisfies
-// `pred` and is closest to `from`. Assumes that at least `to` satisfies `pred`.
+// `pred` and is closest to `from`. Assumes that at least `to`
+// satisfies `pred`. Supports `from` being greater than `to`.
 export function findFirst(pred, from, to) {
+  // At any point we are certain `to` satisfies `pred`, don't know
+  // whether `from` does.
+  let dir = from > to ? -1 : 1
   for (;;) {
-    if (Math.abs(from - to) <= 1) return pred(from) ? from : to
-    let mid = Math.floor((from + to) / 2)
+    if (from == to) return from
+    let midF = (from + to) / 2, mid = dir < 0 ? Math.ceil(midF) : Math.floor(midF)
+    if (mid == from) return pred(mid) ? from : to
     if (pred(mid)) to = mid
-    else from = mid
+    else from = mid + dir
   }
 }

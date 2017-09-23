@@ -260,9 +260,9 @@ function makeChangeSingleDocInEditor(cm, change, spans) {
 
 export function replaceRange(doc, code, from, to, origin) {
   if (!to) to = from
-  if (cmp(to, from) < 0) { let tmp = to; to = from; from = tmp }
+  if (cmp(to, from) < 0) [from, to] = [to, from]
   if (typeof code == "string") code = doc.splitLines(code)
-  makeChange(doc, {from: from, to: to, text: code, origin: origin})
+  makeChange(doc, {from, to, text: code, origin})
 }
 
 // Rebasing/resetting history to deal with externally-sourced changes

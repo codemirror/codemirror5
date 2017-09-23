@@ -3,12 +3,12 @@ import { lst } from "./misc"
 // BIDI HELPERS
 
 export function iterateBidiSections(order, from, to, f) {
-  if (!order) return f(from, to, "ltr")
+  if (!order) return f(from, to, "ltr", 0)
   let found = false
   for (let i = 0; i < order.length; ++i) {
     let part = order[i]
     if (part.from < to && part.to > from || from == to && part.to == from) {
-      f(Math.max(part.from, from), Math.min(part.to, to), part.level == 1 ? "rtl" : "ltr")
+      f(Math.max(part.from, from), Math.min(part.to, to), part.level == 1 ? "rtl" : "ltr", i)
       found = true
     }
   }

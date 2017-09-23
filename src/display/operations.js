@@ -102,7 +102,7 @@ function endOperation_R2(op) {
   }
 
   if (op.updatedDisplay || op.selectionChanged)
-    op.preparedSelection = display.input.prepareSelection(op.focus)
+    op.preparedSelection = display.input.prepareSelection()
 }
 
 function endOperation_W2(op) {
@@ -115,7 +115,7 @@ function endOperation_W2(op) {
     cm.display.maxLineChanged = false
   }
 
-  let takeFocus = op.focus && op.focus == activeElt() && (!document.hasFocus || document.hasFocus())
+  let takeFocus = op.focus && op.focus == activeElt()
   if (op.preparedSelection)
     cm.display.input.showSelection(op.preparedSelection, takeFocus)
   if (op.updatedDisplay || op.startHeight != cm.doc.height)

@@ -1386,6 +1386,19 @@ testVim('<C-x>/<C-a> search forward', function(cm, vim, helpers) {
     helpers.assertCursorAt(0, 11);
   });
 }, {value: '__jmp1 jmp2 jmp'});
+testVim('insert_ctrl_w', function(cm, vim, helpers) {
+  var curStart = makeCursor(0, 10);
+  cm.setCursor(curStart);
+  helpers.doKeys('a');
+  helpers.doKeys('<C-w>');
+  eq('word1/', cm.getValue());
+  var register = helpers.getRegisterController().getRegister();
+  eq('word2', register.toString());
+  is(!register.linewise);
+  var curEnd = makeCursor(0, 6);
+  eqCursorPos(curEnd, cm.getCursor());
+  eq('vim-insert', cm.getOption('keyMap'));
+}, { value: 'word1/word2' });
 testVim('a', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.doKeys('a');
