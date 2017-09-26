@@ -68,6 +68,7 @@
   });
 
   CodeMirror.defineMIME("application/pgp", "asciiarmor");
+  CodeMirror.defineMIME("application/pgp-encrypted", "asciiarmor");
   CodeMirror.defineMIME("application/pgp-keys", "asciiarmor");
   CodeMirror.defineMIME("application/pgp-signature", "asciiarmor");
 });

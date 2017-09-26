@@ -19,25 +19,28 @@
     return set
   }
 
-  var keywords = wordSet(["var","let","class","deinit","enum","extension","func","import","init","protocol",
-                          "static","struct","subscript","typealias","as","dynamicType","is","new","super",
-                          "self","Self","Type","__COLUMN__","__FILE__","__FUNCTION__","__LINE__","break","case",
-                          "continue","default","do","else","fallthrough","if","in","for","return","switch",
-                          "where","while","associativity","didSet","get","infix","inout","left","mutating",
-                          "none","nonmutating","operator","override","postfix","precedence","prefix","right",
-                          "set","unowned","weak","willSet"])
-  var definingKeywords = wordSet(["var","let","class","enum","extension","func","import","protocol","struct",
-                                  "typealias","dynamicType","for"])
-  var atoms = wordSet(["Infinity","NaN","undefined","null","true","false","on","off","yes","no","nil","null",
-                       "this","super"])
-  var types = wordSet(["String","bool","int","string","double","Double","Int","Float","float","public",
-                       "private","extension"])
-  var operators = "+-/*%=|&<>#"
-  var punc = ";,.(){}[]"
-  var number = /^-?(?:(?:[\d_]+\.[_\d]*|\.[_\d]+|0o[0-7_\.]+|0b[01_\.]+)(?:e-?[\d_]+)?|0x[\d_a-f\.]+(?:p-?[\d_]+)?)/i
-  var identifier = /^[_A-Za-z$][_A-Za-z$0-9]*/
-  var property = /^[@\.][_A-Za-z$][_A-Za-z$0-9]*/
-  var regexp = /^\/(?!\s)(?:\/\/)?(?:\\.|[^\/])+\//
+  var keywords = wordSet(["_","var","let","class","enum","extension","import","protocol","struct","func","typealias","associatedtype",
+                          "open","public","internal","fileprivate","private","deinit","init","new","override","self","subscript","super",
+                          "convenience","dynamic","final","indirect","lazy","required","static","unowned","unowned(safe)","unowned(unsafe)","weak","as","is",
+                          "break","case","continue","default","else","fallthrough","for","guard","if","in","repeat","switch","where","while",
+                          "defer","return","inout","mutating","nonmutating","catch","do","rethrows","throw","throws","try","didSet","get","set","willSet",
+                          "assignment","associativity","infix","left","none","operator","postfix","precedence","precedencegroup","prefix","right",
+                          "Any","AnyObject","Type","dynamicType","Self","Protocol","__COLUMN__","__FILE__","__FUNCTION__","__LINE__"])
+  var definingKeywords = wordSet(["var","let","class","enum","extension","import","protocol","struct","func","typealias","associatedtype","for"])
+  var atoms = wordSet(["true","false","nil","self","super","_"])
+  var types = wordSet(["Array","Bool","Character","Dictionary","Double","Float","Int","Int8","Int16","Int32","Int64","Never","Optional","Set","String",
+                       "UInt8","UInt16","UInt32","UInt64","Void"])
+  var operators = "+-/*%=|&<>~^?!"
+  var punc = ":;,.(){}[]"
+  var binary = /^\-?0b[01][01_]*/
+  var octal = /^\-?0o[0-7][0-7_]*/
+  var hexadecimal = /^\-?0x[\dA-Fa-f][\dA-Fa-f_]*(?:(?:\.[\dA-Fa-f][\dA-Fa-f_]*)?[Pp]\-?\d[\d_]*)?/
+  var decimal = /^\-?\d[\d_]*(?:\.\d[\d_]*)?(?:[Ee]\-?\d[\d_]*)?/
+  var identifier = /^\$\d+|(`?)[_A-Za-z][_A-Za-z$0-9]*\1/
+  var property = /^\.(?:\$\d+|(`?)[_A-Za-z][_A-Za-z$0-9]*\1)/
+  var instruction = /^\#[A-Za-z]+/
+  var attribute = /^@(?:\$\d+|(`?)[_A-Za-z][_A-Za-z$0-9]*\1)/
+  //var regexp = /^\/(?!\s)(?:\/\/)?(?:\\.|[^\/])+\//
 
   function tokenBase(stream, state, prev) {
     if (stream.sol()) state.indented = stream.indentation()
@@ -53,8 +56,14 @@
         state.tokenize.push(tokenComment)
         return tokenComment(stream, state)
       }
-      if (stream.match(regexp)) return "string-2"
     }
+    if (stream.match(instruction)) return "builtin"
+    if (stream.match(attribute)) return "attribute"
+    if (stream.match(binary)) return "number"
+    if (stream.match(octal)) return "number"
+    if (stream.match(hexadecimal)) return "number"
+    if (stream.match(decimal)) return "number"
+    if (stream.match(property)) return "property"
     if (operators.indexOf(ch) > -1) {
       stream.next()
       return "operator"
@@ -71,18 +80,15 @@
       return tokenize(stream, state)
     }
 
-    if (stream.match(number)) return "number"
-    if (stream.match(property)) return "property"
-
     if (stream.match(identifier)) {
       var ident = stream.current()
+      if (types.hasOwnProperty(ident)) return "variable-2"
+      if (atoms.hasOwnProperty(ident)) return "atom"
       if (keywords.hasOwnProperty(ident)) {
         if (definingKeywords.hasOwnProperty(ident))
           state.prev = "define"
         return "keyword"
       }
-      if (types.hasOwnProperty(ident)) return "variable-2"
-      if (atoms.hasOwnProperty(ident)) return "atom"
       if (prev == "define") return "def"
       return "variable"
     }
@@ -194,7 +200,9 @@
 
       lineComment: "//",
       blockCommentStart: "/*",
-      blockCommentEnd: "*/"
+      blockCommentEnd: "*/",
+      fold: "brace",
+      closeBrackets: "()[]{}''\"\"``"
     }
   })
 

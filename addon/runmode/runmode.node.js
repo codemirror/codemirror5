@@ -7,7 +7,7 @@ function splitLines(string){return string.split(/\r\n?|\n/);};
 
 // Counts the column offset in a string, taking tabs into account.
 // Used mostly to find indentation.
-var countColumn = function(string, end, tabSize, startIndex, startValue) {
+var countColumn = exports.countColumn = function(string, end, tabSize, startIndex, startValue) {
   if (end == null) {
     end = string.search(/[^\s\u00a0]/);
     if (end == -1) end = string.length;
@@ -22,12 +22,13 @@ var countColumn = function(string, end, tabSize, startIndex, startValue) {
   }
 };
 
-function StringStream(string, tabSize) {
+function StringStream(string, tabSize, context) {
   this.pos = this.start = 0;
   this.string = string;
   this.tabSize = tabSize || 8;
   this.lastColumnPos = this.lastColumnValue = 0;
   this.lineStart = 0;
+  this.context = context
 };
 
 StringStream.prototype = {
@@ -91,6 +92,10 @@ StringStream.prototype = {
     this.lineStart += n;
     try { return inner(); }
     finally { this.lineStart -= n; }
+  },
+  lookAhead: function(n) {
+    var line = this.context.line + n
+    return line >= this.context.lines.length ? null : this.context.lines[line]
   }
 };
 exports.StringStream = StringStream;
@@ -163,9 +168,10 @@ exports.registerHelper = exports.registerGlobalHelper = Math.min;
 exports.runMode = function(string, modespec, callback, options) {
   var mode = exports.getMode({indentUnit: 2}, modespec);
   var lines = splitLines(string), state = (options && options.state) || exports.startState(mode);
-  for (var i = 0, e = lines.length; i < e; ++i) {
+  var context = {lines: lines, line: 0}
+  for (var i = 0, e = lines.length; i < e; ++i, ++context.line) {
     if (i) callback("\n");
-    var stream = new exports.StringStream(lines[i]);
+    var stream = new exports.StringStream(lines[i], 4, context);
     if (!stream.string && mode.blankLine) mode.blankLine(state);
     while (!stream.eol()) {
       var style = mode.token(stream, state);

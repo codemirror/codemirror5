@@ -30,7 +30,9 @@
   }
 
   function findBreakPoint(text, column, wrapOn, killTrailingSpace) {
-    for (var at = column; at > 0; --at)
+    var at = column
+    while (at < text.length && text.charAt(at) == " ") at++
+    for (; at > 0; --at)
       if (wrapOn.test(text.slice(at - 1, at + 1))) break;
     for (var first = true;; first = false) {
       var endOfText = at;

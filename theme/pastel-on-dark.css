@@ -11,7 +11,6 @@
 	background: #2c2827;
 	color: #8F938F;
 	line-height: 1.5;
-	font-size: 14px;
 }
 .cm-s-pastel-on-dark div.CodeMirror-selected { background: rgba(221,240,255,0.2); }
 .cm-s-pastel-on-dark .CodeMirror-line::selection, .cm-s-pastel-on-dark .CodeMirror-line > span::selection, .cm-s-pastel-on-dark .CodeMirror-line > span > span::selection { background: rgba(221,240,255,0.2); }
@@ -35,7 +34,7 @@
 .cm-s-pastel-on-dark span.cm-string { color: #66A968; }
 .cm-s-pastel-on-dark span.cm-variable { color: #AEB2F8; }
 .cm-s-pastel-on-dark span.cm-variable-2 { color: #BEBF55; }
-.cm-s-pastel-on-dark span.cm-variable-3 { color: #DE8E30; }
+.cm-s-pastel-on-dark span.cm-variable-3, .cm-s-pastel-on-dark span.cm-type { color: #DE8E30; }
 .cm-s-pastel-on-dark span.cm-def { color: #757aD8; }
 .cm-s-pastel-on-dark span.cm-bracket { color: #f8f8f2; }
 .cm-s-pastel-on-dark span.cm-tag { color: #C1C144; }

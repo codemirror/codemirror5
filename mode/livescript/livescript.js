@@ -50,7 +50,7 @@
       startState: function(){
         return {
           next: 'start',
-          lastToken: null
+          lastToken: {style: null, indent: 0, content: ""}
         };
       },
       token: function(stream, state){

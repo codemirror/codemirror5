@@ -17,14 +17,11 @@ if (sPos == -1 || sPos == process.argv.length - 1) {
    process.exit(1);
 }
 var lang = process.argv[sPos + 1].toLowerCase(), modeName = lang;
-CodeMirror.modeInfo.forEach(function(info) {
-  if (info.mime == lang) {
-    modeName = info.mode;
-  } else if (info.name.toLowerCase() == lang) {
-    modeName = info.mode;
-    lang = info.mime;
-  }
-});
+var found = CodeMirror.findModeByMIME(lang) || CodeMirror.findModeByName(lang)
+if (found) {
+  modeName = found.mode
+  lang = found.mime
+}
 
 if (!CodeMirror.modes[modeName])
   require("../mode/" + modeName + "/" + modeName + ".js");

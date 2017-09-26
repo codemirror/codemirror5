@@ -55,4 +55,10 @@
      "[builtin ls] [attribute -l] [attribute --human-readable]");
   MT("operator",
      "[def var][operator =]value");
+
+  MT("doubleParens",
+     "foo [quote $((bar))]")
+
+  MT("nested braces",
+     "[builtin echo] [def ${A[${B}]]}]")
 })();

@@ -4,9 +4,9 @@
 (function(mod) {
   'use strict';
   if (typeof exports == 'object' && typeof module == 'object') // CommonJS
-    mod(require('codemirror'));
+    mod(require('../../lib/codemirror'));
   else if (typeof define == 'function' && define.amd) // AMD
-    define(['codemirror'], mod);
+    define(['../../lib/codemirror'], mod);
   else // Plain browser env
     mod(window.CodeMirror);
 })(function(CodeMirror) {
@@ -222,6 +222,8 @@ CodeMirror.defineMode('powershell', function() {
         state.tokenize = tokenMultiString;
         state.startQuote = quoteMatch[0];
         return tokenMultiString(stream, state);
+      } else if (stream.eol()) {
+        return 'error';
       } else if (stream.peek().match(/[({]/)) {
         return 'punctuation';
       } else if (stream.peek().match(varNames)) {

@@ -14,7 +14,7 @@
 .cm-s-twilight .cm-number { color:  #ca7841; } /**/
 .cm-s-twilight .cm-def { color: #8DA6CE; }
 .cm-s-twilight span.cm-variable-2, .cm-s-twilight span.cm-tag { color: #607392; } /**/
-.cm-s-twilight span.cm-variable-3, .cm-s-twilight span.cm-def { color: #607392; } /**/
+.cm-s-twilight span.cm-variable-3, .cm-s-twilight span.cm-def, .cm-s-twilight span.cm-type { color: #607392; } /**/
 .cm-s-twilight .cm-operator { color: #cda869; } /**/
 .cm-s-twilight .cm-comment { color:#777; font-style:italic; font-weight:normal; } /**/
 .cm-s-twilight .cm-string { color:#8f9d6a; font-style:italic; } /**/

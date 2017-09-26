@@ -11,7 +11,7 @@
 .cm-s-ambiance .cm-def { color: #aac6e3; }
 .cm-s-ambiance .cm-variable { color: #ffb795; }
 .cm-s-ambiance .cm-variable-2 { color: #eed1b3; }
-.cm-s-ambiance .cm-variable-3 { color: #faded3; }
+.cm-s-ambiance .cm-variable-3, .cm-s-ambiance .cm-type { color: #faded3; }
 .cm-s-ambiance .cm-property { color: #eed1b3; }
 .cm-s-ambiance .cm-operator { color: #fa8d6a; }
 .cm-s-ambiance .cm-comment { color: #555; font-style:italic; }

@@ -32,13 +32,6 @@
                         "sorted", "staticmethod", "str", "sum", "super", "tuple",
                         "type", "vars", "zip", "__import__", "NotImplemented",
                         "Ellipsis", "__debug__"];
-  var py2 = {builtins: ["apply", "basestring", "buffer", "cmp", "coerce", "execfile",
-                        "file", "intern", "long", "raw_input", "reduce", "reload",
-                        "unichr", "unicode", "xrange", "False", "True", "None"],
-             keywords: ["exec", "print"]};
-  var py3 = {builtins: ["ascii", "bytes", "exec", "print"],
-             keywords: ["nonlocal", "False", "True", "None", "async", "await"]};
-
   CodeMirror.registerHelper("hintWords", "python", commonKeywords.concat(commonBuiltins));
 
   function top(state) {
@@ -48,19 +41,11 @@
   CodeMirror.defineMode("python", function(conf, parserConf) {
     var ERRORCLASS = "error";
 
-    var singleDelimiters = parserConf.singleDelimiters || /^[\(\)\[\]\{\}@,:`=;\.]/;
-    var doubleOperators = parserConf.doubleOperators || /^([!<>]==|<>|<<|>>|\/\/|\*\*)/;
-    var doubleDelimiters = parserConf.doubleDelimiters || /^(\+=|\-=|\*=|%=|\/=|&=|\|=|\^=)/;
-    var tripleDelimiters = parserConf.tripleDelimiters || /^(\/\/=|>>=|<<=|\*\*=)/;
-
-    if (parserConf.version && parseInt(parserConf.version, 10) == 3) {
-        // since http://legacy.python.org/dev/peps/pep-0465/ @ is also an operator
-        var singleOperators = parserConf.singleOperators || /^[\+\-\*\/%&|\^~<>!@]/;
-        var identifiers = parserConf.identifiers|| /^[_A-Za-z\u00A1-\uFFFF][_A-Za-z0-9\u00A1-\uFFFF]*/;
-    } else {
-        var singleOperators = parserConf.singleOperators || /^[\+\-\*\/%&|\^~<>!]/;
-        var identifiers = parserConf.identifiers|| /^[_A-Za-z][_A-Za-z0-9]*/;
-    }
+    var delimiters = parserConf.delimiters || parserConf.singleDelimiters || /^[\(\)\[\]\{\}@,:`=;\.]/;
+    //               (Backwards-compatiblity with old, cumbersome config system)
+    var operators = [parserConf.singleOperators, parserConf.doubleOperators, parserConf.doubleDelimiters, parserConf.tripleDelimiters,
+                     parserConf.operators || /^([-+*/%\/&|^]=?|[<>=]+|\/\/=?|\*\*=?|!=|[~!@])/]
+    for (var i = 0; i < operators.length; i++) if (!operators[i]) operators.splice(i--, 1)
 
     var hangingIndent = parserConf.hangingIndent || conf.indentUnit;
 
@@ -71,14 +56,20 @@
     if (parserConf.extra_builtins != undefined)
       myBuiltins = myBuiltins.concat(parserConf.extra_builtins);
 
-    if (parserConf.version && parseInt(parserConf.version, 10) == 3) {
-      myKeywords = myKeywords.concat(py3.keywords);
-      myBuiltins = myBuiltins.concat(py3.builtins);
-      var stringPrefixes = new RegExp("^(([rb]|(br))?('{3}|\"{3}|['\"]))", "i");
+    var py3 = !(parserConf.version && Number(parserConf.version) < 3)
+    if (py3) {
+      // since http://legacy.python.org/dev/peps/pep-0465/ @ is also an operator
+      var identifiers = parserConf.identifiers|| /^[_A-Za-z\u00A1-\uFFFF][_A-Za-z0-9\u00A1-\uFFFF]*/;
+      myKeywords = myKeywords.concat(["nonlocal", "False", "True", "None", "async", "await"]);
+      myBuiltins = myBuiltins.concat(["ascii", "bytes", "exec", "print"]);
+      var stringPrefixes = new RegExp("^(([rbuf]|(br))?('{3}|\"{3}|['\"]))", "i");
     } else {
-      myKeywords = myKeywords.concat(py2.keywords);
-      myBuiltins = myBuiltins.concat(py2.builtins);
-      var stringPrefixes = new RegExp("^(([rub]|(ur)|(br))?('{3}|\"{3}|['\"]))", "i");
+      var identifiers = parserConf.identifiers|| /^[_A-Za-z][_A-Za-z0-9]*/;
+      myKeywords = myKeywords.concat(["exec", "print"]);
+      myBuiltins = myBuiltins.concat(["apply", "basestring", "buffer", "cmp", "coerce", "execfile",
+                                      "file", "intern", "long", "raw_input", "reduce", "reload",
+                                      "unichr", "unicode", "xrange", "False", "True", "None"]);
+      var stringPrefixes = new RegExp("^(([rubf]|(ur)|(br))?('{3}|\"{3}|['\"]))", "i");
     }
     var keywords = wordRegexp(myKeywords);
     var builtins = wordRegexp(myBuiltins);
@@ -93,7 +84,7 @@
           var lineOffset = stream.indentation();
           if (lineOffset > scopeOffset)
             pushPyScope(state);
-          else if (lineOffset < scopeOffset && dedent(stream, state))
+          else if (lineOffset < scopeOffset && dedent(stream, state) && stream.peek() != "#")
             state.errorToken = true;
           return null;
         } else {
@@ -121,8 +112,8 @@
       if (stream.match(/^[0-9\.]/, false)) {
         var floatLiteral = false;
         // Floats
-        if (stream.match(/^\d*\.\d+(e[\+\-]?\d+)?/i)) { floatLiteral = true; }
-        if (stream.match(/^\d+\.\d*/)) { floatLiteral = true; }
+        if (stream.match(/^[\d_]*\.\d+(e[\+\-]?\d+)?/i)) { floatLiteral = true; }
+        if (stream.match(/^[\d_]+\.\d*/)) { floatLiteral = true; }
         if (stream.match(/^\.\d+/)) { floatLiteral = true; }
         if (floatLiteral) {
           // Float literals may be "imaginary"
@@ -132,13 +123,13 @@
         // Integers
         var intLiteral = false;
         // Hex
-        if (stream.match(/^0x[0-9a-f]+/i)) intLiteral = true;
+        if (stream.match(/^0x[0-9a-f_]+/i)) intLiteral = true;
         // Binary
-        if (stream.match(/^0b[01]+/i)) intLiteral = true;
+        if (stream.match(/^0b[01_]+/i)) intLiteral = true;
         // Octal
-        if (stream.match(/^0o[0-7]+/i)) intLiteral = true;
+        if (stream.match(/^0o[0-7_]+/i)) intLiteral = true;
         // Decimal
-        if (stream.match(/^[1-9]\d*(e[\+\-]?\d+)?/)) {
+        if (stream.match(/^[1-9][\d_]*(e[\+\-]?[\d_]+)?/)) {
           // Decimal literals may be "imaginary"
           stream.eat(/J/i);
           // TODO - Can you have imaginary longs?
@@ -159,15 +150,10 @@
         return state.tokenize(stream, state);
       }
 
-      // Handle operators and Delimiters
-      if (stream.match(tripleDelimiters) || stream.match(doubleDelimiters))
-        return "punctuation";
+      for (var i = 0; i < operators.length; i++)
+        if (stream.match(operators[i])) return "operator"
 
-      if (stream.match(doubleOperators) || stream.match(singleOperators))
-        return "operator";
-
-      if (stream.match(singleDelimiters))
-        return "punctuation";
+      if (stream.match(delimiters)) return "punctuation";
 
       if (state.lastToken == "." && stream.match(identifiers))
         return "property";
@@ -193,7 +179,7 @@
     }
 
     function tokenStringFactory(delimiter) {
-      while ("rub".indexOf(delimiter.charAt(0).toLowerCase()) >= 0)
+      while ("rubf".indexOf(delimiter.charAt(0).toLowerCase()) >= 0)
         delimiter = delimiter.substr(1);
 
       var singleline = delimiter.length == 1;
@@ -241,7 +227,7 @@
 
     function dedent(stream, state) {
       var indented = stream.indentation();
-      while (top(state).offset > indented) {
+      while (state.scopes.length > 1 && top(state).offset > indented) {
         if (top(state).type != "py") return true;
         state.scopes.pop();
       }
@@ -249,16 +235,16 @@
     }
 
     function tokenLexer(stream, state) {
+      if (stream.sol()) state.beginningOfLine = true;
+
       var style = state.tokenize(stream, state);
       var current = stream.current();
 
       // Handle decorators
-      if (current == "@") {
-        if (parserConf.version && parseInt(parserConf.version, 10) == 3)
-          return stream.match(identifiers, false) ? "meta" : "operator";
-        else
-          return stream.match(identifiers, false) ? "meta" : ERRORCLASS;
-      }
+      if (state.beginningOfLine && current == "@")
+        return stream.match(identifiers, false) ? "meta" : py3 ? "operator" : ERRORCLASS;
+
+      if (/\S/.test(current)) state.beginningOfLine = false;
 
       if ((style == "variable" || style == "builtin")
           && state.lastToken == "meta")
@@ -340,8 +326,8 @@
 
   CodeMirror.defineMIME("text/x-cython", {
     name: "python",
-    extra_keywords: words("by cdef cimport cpdef ctypedef enum except"+
-                          "extern gil include nogil property public"+
+    extra_keywords: words("by cdef cimport cpdef ctypedef enum except "+
+                          "extern gil include nogil property public "+
                           "readonly struct union DEF IF ELIF ELSE")
   });
 

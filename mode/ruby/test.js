@@ -11,4 +11,6 @@
   MT("divide_equal_operator_no_spacing",
      "[variable foo][operator /=][number 42]");
 
+  MT("complex_regexp",
+     "[keyword if] [variable cr] [operator =~] [string-2 /(?: \\( #{][tag RE_NOT][string-2 }\\( | #{][tag RE_NOT_PAR_OR][string-2 }* #{][tag RE_OPA_OR][string-2 } )/][variable x]")
 })();

@@ -11,6 +11,14 @@
 })(function(CodeMirror) {
 "use strict";
 
+function forEach(arr, f) {
+  for (var i = 0; i < arr.length; i++) f(arr[i], i)
+}
+function some(arr, f) {
+  for (var i = 0; i < arr.length; i++) if (f(arr[i], i)) return true
+  return false
+}
+
 CodeMirror.defineMode("dylan", function(_config) {
   // Words
   var words = {
@@ -136,13 +144,13 @@ CodeMirror.defineMode("dylan", function(_config) {
   var wordLookup = {};
   var styleLookup = {};
 
-  [
+  forEach([
     "keyword",
     "definition",
     "simpleDefinition",
     "signalingCalls"
-  ].forEach(function(type) {
-    words[type].forEach(function(word) {
+  ], function(type) {
+    forEach(words[type], function(word) {
       wordLookup[word] = type;
       styleLookup[word] = styles[type];
     });
@@ -258,7 +266,7 @@ CodeMirror.defineMode("dylan", function(_config) {
     for (var name in patterns) {
       if (patterns.hasOwnProperty(name)) {
         var pattern = patterns[name];
-        if ((pattern instanceof Array && pattern.some(function(p) {
+        if ((pattern instanceof Array && some(pattern, function(p) {
           return stream.match(p);
         })) || stream.match(pattern))
           return patternStyles[name];
@@ -273,7 +281,7 @@ CodeMirror.defineMode("dylan", function(_config) {
     } else {
       stream.eatWhile(/[\w\-]/);
       // Keyword
-      if (wordLookup[stream.current()]) {
+      if (wordLookup.hasOwnProperty(stream.current())) {
         return styleLookup[stream.current()];
       } else if (stream.current().match(symbol)) {
         return "variable";

@@ -65,14 +65,24 @@
 </rss></textarea></form>
 
     <script>
+var nonEmpty = false;
 var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
   mode: "application/xml",
   styleActiveLine: true,
   lineNumbers: true,
   lineWrapping: true
 });
+
+function toggleSelProp() {
+  nonEmpty = !nonEmpty;
+  editor.setOption("styleActiveLine", {nonEmpty: nonEmpty});
+  var label = nonEmpty ? 'Disable nonEmpty option' : 'Enable nonEmpty option';
+  document.getElementById('toggleButton').innerText = label;
+}
 </script>
 
     <p>Styling the current cursor line.</p>
+
+    <button onclick="toggleSelProp()" id="toggleButton">Enable <code>nonEmpty</code> option</button>
 
   </article>

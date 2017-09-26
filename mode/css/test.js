@@ -197,4 +197,10 @@
 
    MT("counter-style-symbols",
       "[tag ol] { [property list-style]: [atom symbols]([atom cyclic] [string \"*\"] [string \"\\2020\"] [string \"\\2021\"] [string \"\\A7\"]); }");
+
+  MT("comment-does-not-disrupt",
+     "[def @font-face] [comment /* foo */] {",
+     "  [property src]: [atom url]([string x]);",
+     "  [property font-family]: [variable One];",
+     "}")
 })();

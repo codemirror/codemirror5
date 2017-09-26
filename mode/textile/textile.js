@@ -203,7 +203,7 @@
     single: {
       bc: "bc",
       bq: "bq",
-      definitionList: /- [^(?::=)]+:=+/,
+      definitionList: /- .*?:=+/,
       definitionListEnd: /.*=:\s*$/,
       div: "div",
       drawTable: /\|.*\|/,

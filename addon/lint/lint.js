@@ -112,7 +112,11 @@
     if (!severity) severity = "error";
     var tip = document.createElement("div");
     tip.className = "CodeMirror-lint-message-" + severity;
-    tip.appendChild(document.createTextNode(ann.message));
+    if (typeof ann.messageHTML != 'undefined') {
+        tip.innerHTML = ann.messageHTML;
+    } else {
+        tip.appendChild(document.createTextNode(ann.message));
+    }
     return tip;
   }
 
@@ -134,13 +138,22 @@
 
   function startLinting(cm) {
     var state = cm.state.lint, options = state.options;
-    var passOptions = options.options || options; // Support deprecated passing of `options` property in options
+    /*
+     * Passing rules in `options` property prevents JSHint (and other linters) from complaining
+     * about unrecognized rules like `onUpdateLinting`, `delay`, `lintOnChange`, etc.
+     */
+    var passOptions = options.options || options;
     var getAnnotations = options.getAnnotations || cm.getHelper(CodeMirror.Pos(0, 0), "lint");
     if (!getAnnotations) return;
     if (options.async || getAnnotations.async) {
       lintAsync(cm, getAnnotations, passOptions)
     } else {
-      updateLinting(cm, getAnnotations(cm.getValue(), passOptions, cm));
+      var annotations = getAnnotations(cm.getValue(), passOptions, cm);
+      if (!annotations) return;
+      if (annotations.then) annotations.then(function(issues) {
+        updateLinting(cm, issues);
+      });
+      else updateLinting(cm, annotations);
     }
   }
 
@@ -204,7 +217,8 @@
 
     var annotations = [];
     for (var i = 0; i < spans.length; ++i) {
-      annotations.push(spans[i].__annotation);
+      var ann = spans[i].__annotation;
+      if (ann) annotations.push(ann);
     }
     if (annotations.length) popupTooltips(annotations, e);
   }
@@ -225,7 +239,7 @@
       var state = cm.state.lint = new LintState(cm, parseOptions(cm, val), hasLintGutter);
       if (state.options.lintOnChange !== false)
         cm.on("change", onChange);
-      if (state.options.tooltips != false)
+      if (state.options.tooltips != false && state.options.tooltips != "gutter")
         CodeMirror.on(cm.getWrapperElement(), "mouseover", state.onMouseOver);
 
       startLinting(cm);
