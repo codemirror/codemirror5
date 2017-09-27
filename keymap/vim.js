@@ -4798,7 +4798,8 @@
       // so as to update the ". register as expected in real vim.
       var text = [];
       if (!isPlaying) {
-        var selLength = lastChange.inVisualBlock ? vim.lastSelection.visualBlock.height : 1;
+        var selLength = lastChange.inVisualBlock && vim.lastSelection ?
+            vim.lastSelection.visualBlock.height : 1;
         var changes = lastChange.changes;
         var text = [];
         var i = 0;
