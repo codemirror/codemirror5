@@ -52,6 +52,7 @@ mode/ruby/ruby.js \
 mode/python/python.js \
 mode/shell/shell.js \
 mode/php/php.js \
+mode/sas/sas.js \
 mode/sql/sql.js \
 mode/haskell/haskell.js \
 mode/coffeescript/coffeescript.js \
