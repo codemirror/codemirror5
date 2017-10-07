@@ -3245,6 +3245,7 @@
       return cur;
     }
 
+    /** @suppress {checkTypes} */
     /**
      * Returns the boundaries of the next word. If the cursor in the middle of
      * the word, then returns the boundaries of the current word, starting at
