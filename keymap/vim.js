@@ -3245,7 +3245,7 @@
       return cur;
     }
 
-    /**
+    /*
      * Returns the boundaries of the next word. If the cursor in the middle of
      * the word, then returns the boundaries of the current word, starting at
      * the cursor. If the cursor is at the start/end of a word, and we are going
