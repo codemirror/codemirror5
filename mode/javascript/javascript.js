@@ -516,6 +516,9 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       return cont(expression, expect("]"), afterprop);
     } else if (type == "spread") {
       return cont(expression, afterprop);
+    } else if (value == "*") {
+      cx.marked = "keyword";
+      return cont(objprop);
     } else if (type == ":") {
       return pass(afterprop)
     }
