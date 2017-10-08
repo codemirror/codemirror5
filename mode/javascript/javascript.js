@@ -128,7 +128,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
         stream.match(/^\b(([gimyu])(?![gimyu]*\2))+\b/);
         return ret("regexp", "string-2");
       } else {
-        stream.eatWhile(isOperatorChar);
+        stream.eat("=");
         return ret("operator", "operator", stream.current());
       }
     } else if (ch == "`") {
@@ -138,8 +138,13 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       stream.skipToEnd();
       return ret("error", "error");
     } else if (isOperatorChar.test(ch)) {
-      if (ch != ">" || !state.lexical || state.lexical.type != ">")
-        stream.eatWhile(isOperatorChar);
+      if (ch != ">" || !state.lexical || state.lexical.type != ">") {
+        if (stream.eat("=")) {
+          if (ch == "!" || ch == "=") stream.eat("=")
+        } else if (ch == "<" || ch == ">" || ch == "*") {
+          stream.eatWhile(ch);
+        }
+      }
       return ret("operator", "operator", stream.current());
     } else if (wordRE.test(ch)) {
       stream.eatWhile(wordRE);
