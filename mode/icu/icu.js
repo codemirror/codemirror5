@@ -39,10 +39,7 @@ CodeMirror.defineMode("icu", function(config) {
     },
     token: function (stream, state) {
       var current = state.stack[state.stack.length - 1];
-      if (!current) {
-        stream.next();
-        return null;
-      }
+
       if (current.type === "text") {
         if (stream.eat("#")) {
           var isInsidePlural = state.stack.find(function (frame) {
@@ -63,15 +60,12 @@ CodeMirror.defineMode("icu", function(config) {
           });
           return "bracket";
         }
-        if (stream.eat("}")) {
-          if (state.stack.length > 1) {
-            state.stack.pop();
-            return "bracket";
-          }
+        if (stream.eatWhile(/[^{#]/)) {
+          return "string";
         }
-        stream.eatWhile(/[^{}#]/);
-        return "string";
-      } else if (current.type === "argument") {
+      }
+
+      if (current.type === "argument") {
         if (stream.eatSpace()) {
           return null;
         }
@@ -81,9 +75,6 @@ CodeMirror.defineMode("icu", function(config) {
         if (current.inFn && stream.match(/(selectordinal|plural|select|number|date|time)\b/)) {
           current.formatType = stream.current();
           return "keyword";
-        }
-        if (current.inFn && stream.eatWhile(/[a-zA-Z0-9_]/)) {
-          return null;
         }
         if (current.inFormat && stream.match(/offset\b/)) {
           return "keyword";
@@ -117,11 +108,12 @@ CodeMirror.defineMode("icu", function(config) {
           }
           return null;
         }
-        if (stream.eat("}")) {
-          if (state.stack.length > 1) {
-            state.stack.pop();
-            return "bracket";
-          }
+      }
+
+      if (stream.eat("}")) {
+        if (state.stack.length > 1) {
+          state.stack.pop();
+          return "bracket";
         }
       }
 
