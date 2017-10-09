@@ -142,7 +142,8 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
         if (stream.eat("=")) {
           if (ch == "!" || ch == "=") stream.eat("=")
         } else if (/[<>*+\-]/.test(ch)) {
-          stream.eatWhile(ch);
+          stream.eat(ch)
+          if (ch == ">") stream.eat(ch)
         }
       }
       return ret("operator", "operator", stream.current());
