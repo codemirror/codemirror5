@@ -60,7 +60,13 @@ CodeMirror.defineMode("icu", function(config) {
           });
           return "bracket";
         }
-        if (stream.eatWhile(/[^{#]/)) {
+        if (stream.eat("}")) {
+          if (state.stack.length > 1) {
+            state.stack.pop();
+            return "bracket";
+          }
+        }
+        if (stream.eatWhile(/[^{}#]/)) {
           return "string";
         }
       }
@@ -108,14 +114,14 @@ CodeMirror.defineMode("icu", function(config) {
           }
           return null;
         }
-      }
-
-      if (stream.eat("}")) {
-        if (state.stack.length > 1) {
-          state.stack.pop();
-          return "bracket";
+        if (stream.eat("}")) {
+          if (state.stack.length > 1) {
+            state.stack.pop();
+            return "bracket";
+          }
         }
       }
+
 
       stream.next();
       return null;
