@@ -122,14 +122,16 @@ CodeMirror.defineMode("icu", function(config) {
         }
       }
 
-
       stream.next();
       return null;
     },
-    indent: function (state) {
+    indent: function (state, textAfter) {
       var current = state.stack[state.stack.length - 1];
       if (!current || current.type === "text") {
         return 0;
+      }
+      if (textAfter[0] === '}') {
+        return current.indentation - config.indentUnit;
       }
       return current.indentation;
     }
