@@ -1,0 +1,59 @@
+<!doctype html>
+
+<title>CodeMirror: ICU messageformat mode</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../../doc/docs.css">
+
+<link rel="stylesheet" href="../../lib/codemirror.css">
+<script src="../../lib/codemirror.js"></script>
+<script src="icu.js"></script>
+<style>.CodeMirror {background: #f8f8f8;}</style>
+<div id=nav>
+  <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../../doc/logo.png"></a>
+
+  <ul>
+    <li><a href="../../index.html">Home</a>
+    <li><a href="../../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="../index.html">Language modes</a>
+    <li><a class=active href="#">ICU</a>
+  </ul>
+</div>
+
+<article>
+<h2>ICU mode</h2>
+<form><textarea id="code" name="code">
+Hello there  mr. {name}, how are you?
+
+{ gender, select,
+  female {{
+    count, plural,
+       =0 {Ela não tem nenhum Pokémon}
+      one {Ela tem só um Pokémon}
+    other {Ela tem # Pokémon}
+  }}
+  other {{
+    count, plural,
+       =0 {Ele não tem nenhum Pokémon}
+      one {Ele tem só um Pokémon}
+    other {Ele tem # Pokémon}
+  }}
+}
+
+Trainers: { count, number }
+
+Caught on { catchDate, date, short }
+
+{ trainers, plural, offset:1
+   =0 {The gym is empty}
+   =1 {You are alone here}
+  one {You and # trainer}
+other {You and # trainers} }
+</textarea></form>
+    <script>
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {});
+    </script>
+
+  </article>
