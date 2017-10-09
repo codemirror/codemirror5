@@ -756,7 +756,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
 
   function expressionAllowed(stream, state, backUp) {
     return state.tokenize == tokenBase &&
-      /^(?:operator|sof|keyword [bc]|case|new|export|default|spread|[\[{}\(,;:]|=>)$/.test(state.lastType) ||
+      /^(?:operator|sof|keyword [bcd]|case|new|export|default|spread|[\[{}\(,;:]|=>)$/.test(state.lastType) ||
       (state.lastType == "quasi" && /\{\s*$/.test(stream.string.slice(0, stream.pos - (backUp || 0))))
   }
 
