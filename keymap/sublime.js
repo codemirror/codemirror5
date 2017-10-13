@@ -457,7 +457,7 @@
     });
   };
 
-  cmds.smartBackspace = function(cm) {
+  cmds.delLineRight = function(cm) {
     cm.operation(function() {
       var ranges = cm.listSelections();
       for (var i = ranges.length - 1; i >= 0; i--)
