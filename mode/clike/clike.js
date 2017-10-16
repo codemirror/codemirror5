@@ -244,6 +244,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     electricInput: indentSwitch ? /^\s*(?:case .*?:|default:|\{\}?|\})$/ : /^\s*[{}]$/,
     blockCommentStart: "/*",
     blockCommentEnd: "*/",
+    blockCommentContinue: " * ",
     lineComment: "//",
     fold: "brace"
   };

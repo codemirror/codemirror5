@@ -9,11 +9,6 @@
   else // Plain browser env
     mod(CodeMirror);
 })(function(CodeMirror) {
-  var modes = ["clike", "css", "javascript"];
-
-  for (var i = 0; i < modes.length; ++i)
-    CodeMirror.extendMode(modes[i], {blockCommentContinue: " * "});
-
   function continueComment(cm) {
     if (cm.getOption("disableInput")) return CodeMirror.Pass;
     var ranges = cm.listSelections(), mode, inserts = [];

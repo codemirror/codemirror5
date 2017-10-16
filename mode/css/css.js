@@ -410,6 +410,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     electricChars: "}",
     blockCommentStart: "/*",
     blockCommentEnd: "*/",
+    blockCommentContinue: " * ",
     lineComment: lineComment,
     fold: "brace"
   };

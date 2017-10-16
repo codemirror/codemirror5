@@ -821,6 +821,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     electricInput: /^\s*(?:case .*?:|default:|\{|\})$/,
     blockCommentStart: jsonMode ? null : "/*",
     blockCommentEnd: jsonMode ? null : "*/",
+    blockCommentContinue: jsonMode ? null : "   ",
     lineComment: jsonMode ? null : "//",
     fold: "brace",
     closeBrackets: "()[]{}''\"\"``",
