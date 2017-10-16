@@ -84,7 +84,8 @@
       if (!around || explode.indexOf(around) % 2 != 0) return CodeMirror.Pass;
     }
     cm.operation(function() {
-      cm.replaceSelection(`${cm.lineSeparator().repeat(2)}`, null);
+      var linesep = cm.lineSeparator() || '\n';
+      cm.replaceSelection(linesep.repeat(2), null);
       cm.execCommand("goCharLeft");
       ranges = cm.listSelections();
       for (var i = 0; i < ranges.length; i++) {
