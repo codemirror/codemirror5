@@ -255,18 +255,65 @@
     }
 
     function detachVimMap(cm, next) {
-      if (this == CodeMirror.keyMap.vim)
+      if (this == CodeMirror.keyMap.vim) {
         CodeMirror.rmClass(cm.getWrapperElement(), "cm-fat-cursor");
+        if (cm.getOption("inputStyle") == "contenteditable" && document.body.style.caretColor != null) {
+          disableFatCursorMark(cm);
+          cm.getInputField().style.caretColor = "";
+        }
+      }
 
       if (!next || next.attach != attachVimMap)
         leaveVimMode(cm);
     }
     function attachVimMap(cm, prev) {
-      if (this == CodeMirror.keyMap.vim)
+      if (this == CodeMirror.keyMap.vim) {
         CodeMirror.addClass(cm.getWrapperElement(), "cm-fat-cursor");
+        if (cm.getOption("inputStyle") == "contenteditable" && document.body.style.caretColor != null) {
+          enableFatCursorMark(cm);
+          cm.getInputField().style.caretColor = "transparent";
+        }
+      }
 
       if (!prev || prev.attach != attachVimMap)
         enterVimMode(cm);
+    }
+
+    function fatCursorMarks(cm) {
+      var ranges = cm.listSelections(), result = []
+      for (var i = 0; i < ranges.length; i++) {
+        var range = ranges[i]
+        if (range.empty()) {
+          if (range.anchor.ch < cm.getLine(range.anchor.line).length) {
+            result.push(cm.markText(range.anchor, Pos(range.anchor.line, range.anchor.ch + 1),
+                                    {className: "cm-fat-cursor-mark"}))
+          } else {
+            var widget = document.createElement("span")
+            widget.textContent = "\u00a0"
+            widget.className = "cm-fat-cursor-mark"
+            result.push(cm.setBookmark(range.anchor, {widget: widget}))
+          }
+        }
+      }
+      return result
+    }
+
+    function updateFatCursorMark(cm) {
+      var marks = cm.state.fatCursorMarks
+      if (marks) for (var i = 0; i < marks.length; i++) marks[i].clear()
+      cm.state.fatCursorMarks = fatCursorMarks(cm)
+    }
+
+    function enableFatCursorMark(cm) {
+      cm.state.fatCursorMarks = fatCursorMarks(cm)
+      cm.on("cursorActivity", updateFatCursorMark)
+    }
+
+    function disableFatCursorMark(cm) {
+      var marks = cm.state.fatCursorMarks
+      if (marks) for (var i = 0; i < marks.length; i++) marks[i].clear()
+      cm.state.fatCursorMarks = null
+      cm.off("cursorActivity", updateFatCursorMark)
     }
 
     // Deprecated, simply setting the keymap works again.
