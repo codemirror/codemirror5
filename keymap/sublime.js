@@ -633,7 +633,7 @@
     "Cmd-H": "replace",
     "F3": "findNext",
     "Shift-F3": "findPrev",
-    "fallthrough": "pcDefault"
+    "fallthrough": "macDefault"
   };
   CodeMirror.normalizeKeyMap(keyMap.macSublime);
 
