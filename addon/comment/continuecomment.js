@@ -22,10 +22,10 @@
       var insert = null;
       if (mode.blockCommentStart && mode.blockCommentContinue) {
         var line = cm.getLine(pos.line).slice(0, pos.ch)
-        var end = line.indexOf(mode.blockCommentEnd), found
+        var end = line.lastIndexOf(mode.blockCommentEnd), found
         if (end != -1 && end == pos.ch - mode.blockCommentEnd.length) {
           // Comment ended, don't continue it
-        } else if ((found = line.indexOf(mode.blockCommentStart)) > -1) {
+        } else if ((found = line.lastIndexOf(mode.blockCommentStart)) > -1 && found > end) {
           insert = line.slice(0, found)
           if (/\S/.test(insert)) {
             insert = ""
