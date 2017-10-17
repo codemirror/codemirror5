@@ -78,8 +78,8 @@ window.onload = function() {
     autofocus: true,
     extraKeys: {"Ctrl-Space": "autocomplete"},
     hintOptions: {tables: {
-      users: {name: null, score: null, birthDate: null},
-      countries: {name: null, population: null, size: null}
+      users: ["name", "score", "birthDate"],
+      countries: ["name", "population", "size"]
     }}
   });
 };
