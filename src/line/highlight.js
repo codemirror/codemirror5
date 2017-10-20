@@ -30,7 +30,7 @@ class Context {
 
   baseToken(n) {
     if (!this.baseTokens) return null
-    while (this.baseTokens[this.baseTokenPos] < n)
+    while (this.baseTokens[this.baseTokenPos] <= n)
       this.baseTokenPos += 2
     let type = this.baseTokens[this.baseTokenPos + 1]
     return {type: type && type.replace(/( |^)overlay .*/, ""),
