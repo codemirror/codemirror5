@@ -30,6 +30,17 @@
 
   <h2>Version 5.x</h2>
 
+  <p class="rel">20-10-2017: <a href="http://codemirror.net/codemirror-5.31.0.zip">Version 5.31.0</a>:</p>
+
+  <ul class="rel-note">
+    <li>Modes added with <a href="http://codemirror.net/doc/manual.html#addOverlay"><code>addOverlay</code></a> now have access to a <a href="http://codemirror.net/doc/manual.html#baseToken"><code>baseToken</code></a> method on their input stream, giving access to the tokens of the underlying mode.</li>
+    <li>Further improve selection drawing and cursor motion in right-to-left documents.</li>
+    <li><a href="http://codemirror.net/demo/vim.html">vim bindings</a>: Fix ctrl-w behavior, support quote-dot and backtick-dot marks, make the wide cursor visible in contentEditable <a href="http://codemirror.net/doc/manual.html#option_contentEditable">input mode</a>.</li>
+    <li><a href="http://codemirror.net/doc/manual.html#addon_continuecomment">continuecomment addon</a>: Fix bug when pressing enter after a single-line block comment.</li>
+    <li><a href="http://codemirror.net/mode/markdown/">markdown mode</a>: Fix issue with leaving indented fenced code blocks.</li>
+    <li><a href="http://codemirror.net/mode/javascript/">javascript mode</a>: Fix bad parsing of operators without spaces between them. Fix some corner cases around semicolon insertion and regexps.</li>
+  </ul>
+
   <p class="rel">20-09-2017: <a href="http://codemirror.net/codemirror-5.30.0.zip">Version 5.30.0</a>:</p>
 
   <ul class="rel-note">
