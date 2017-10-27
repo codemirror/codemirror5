@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 
 <title>CodeMirror: Tern Demo</title>
 <meta charset="utf-8"/>
@@ -109,8 +109,8 @@ overview.</p>
   }
 
   var server;
-  getURL("//ternjs.net/defs/ecma5.json", function(err, code) {
-    if (err) throw new Error("Request for ecma5.json: " + err);
+  getURL("//ternjs.net/defs/ecmascript.json", function(err, code) {
+    if (err) throw new Error("Request for ecmascript.json: " + err);
     server = new CodeMirror.TernServer({defs: [JSON.parse(code)]});
     editor.setOption("extraKeys", {
       "Ctrl-Space": function(cm) { server.complete(cm); },

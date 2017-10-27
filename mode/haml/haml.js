@@ -98,8 +98,8 @@
     return {
       // default to html mode
       startState: function() {
-        var htmlState = htmlMode.startState();
-        var rubyState = rubyMode.startState();
+        var htmlState = CodeMirror.startState(htmlMode);
+        var rubyState = CodeMirror.startState(rubyMode);
         return {
           htmlState: htmlState,
           rubyState: rubyState,

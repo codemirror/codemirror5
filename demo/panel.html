@@ -115,7 +115,7 @@ function makePanel(where) {
 }
 function addPanel(where) {
   var node = makePanel(where);
-  panels[node.id] = editor.addPanel(node, {position: where});
+  panels[node.id] = editor.addPanel(node, {position: where, stable: true});
 }
 
 addPanel("top");
@@ -126,7 +126,7 @@ function replacePanel(form) {
   var panel = panels["panel-" + id];
   var node = makePanel("");
 
-  panels[node.id] = editor.addPanel(node, {replace: panel, position: "after-top"});
+  panels[node.id] = editor.addPanel(node, {replace: panel, position: "after-top", stable: true});
   return false;
 }
 </script>

@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="mode_test.css">
 <script src="../doc/activebookmark.js"></script>
 <script src="../lib/codemirror.js"></script>
+<script src="../mode/meta.js"></script>
 <script src="../addon/mode/overlay.js"></script>
 <script src="../addon/mode/multiplex.js"></script>
 <script src="../addon/search/searchcursor.js"></script>
@@ -19,6 +20,8 @@
 <script src="../mode/css/css.js"></script>
 <script src="../mode/clike/clike.js"></script>
 <!-- clike must be after css or vim and sublime tests will fail -->
+<script src="../mode/cypher/cypher.js"></script>
+<script src="../mode/d/d.js"></script>
 <script src="../mode/gfm/gfm.js"></script>
 <script src="../mode/haml/haml.js"></script>
 <script src="../mode/htmlmixed/htmlmixed.js"></script>
@@ -26,12 +29,16 @@
 <script src="../mode/jsx/jsx.js"></script>
 <script src="../mode/markdown/markdown.js"></script>
 <script src="../mode/php/php.js"></script>
+<script src="../mode/python/python.js"></script>
 <script src="../mode/powershell/powershell.js"></script>
 <script src="../mode/ruby/ruby.js"></script>
+<script src="../mode/sass/sass.js"></script>
 <script src="../mode/shell/shell.js"></script>
 <script src="../mode/slim/slim.js"></script>
+<script src="../mode/soy/soy.js"></script>
 <script src="../mode/sql/sql.js"></script>
 <script src="../mode/stex/stex.js"></script>
+<script src="../mode/swift/swift.js"></script>
 <script src="../mode/textile/textile.js"></script>
 <script src="../mode/verilog/verilog.js"></script>
 <script src="../mode/xml/xml.js"></script>
@@ -97,6 +104,7 @@
     <script src="test.js"></script>
     <script src="doc_test.js"></script>
     <script src="multi_test.js"></script>
+    <script src="contenteditable_test.js"></script>
     <script src="scroll_test.js"></script>
     <script src="comment_test.js"></script>
     <script src="search_test.js"></script>
@@ -107,6 +115,8 @@
     <script src="../mode/css/gss_test.js"></script>
     <script src="../mode/css/scss_test.js"></script>
     <script src="../mode/css/less_test.js"></script>
+    <script src="../mode/cypher/test.js"></script>
+    <script src="../mode/d/test.js"></script>
     <script src="../mode/gfm/test.js"></script>
     <script src="../mode/haml/test.js"></script>
     <script src="../mode/javascript/test.js"></script>
@@ -115,13 +125,17 @@
     <script src="../mode/php/test.js"></script>
     <script src="../mode/powershell/test.js"></script>
     <script src="../mode/ruby/test.js"></script>
+    <script src="../mode/sass/test.js"></script>
     <script src="../mode/shell/test.js"></script>
     <script src="../mode/slim/test.js"></script>
+    <script src="../mode/soy/test.js"></script>
     <script src="../mode/stex/test.js"></script>
+    <script src="../mode/swift/test.js"></script>
     <script src="../mode/textile/test.js"></script>
     <script src="../mode/verilog/test.js"></script>
     <script src="../mode/xml/test.js"></script>
     <script src="../mode/xquery/test.js"></script>
+    <script src="../mode/python/test.js"></script>
     <script src="../mode/rust/test.js"></script>
     <script src="../mode/mscgen/mscgen_test.js"></script>
     <script src="../mode/mscgen/xu_test.js"></script>
@@ -211,7 +225,7 @@
       function displayTest(type, name, customMessage) {
         var message = "???";
         if (type != "done" && type != "skipped") ++count;
-        progress.style.width = (count * (progress.parentNode.clientWidth - 2) / totalTests) + "px";
+        progress.style.width = (count * (progress.parentNode.clientWidth - 2) / (totalTests || 1)) + "px";
         progressRan.nodeValue = count;
         if (type == "ok") {
           message = "Test '" + name + "' passed";

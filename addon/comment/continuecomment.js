@@ -18,30 +18,28 @@
     if (cm.getOption("disableInput")) return CodeMirror.Pass;
     var ranges = cm.listSelections(), mode, inserts = [];
     for (var i = 0; i < ranges.length; i++) {
-      var pos = ranges[i].head, token = cm.getTokenAt(pos);
-      if (token.type != "comment") return CodeMirror.Pass;
-      var modeHere = CodeMirror.innerMode(cm.getMode(), token.state).mode;
+      var pos = ranges[i].head
+      if (!/\bcomment\b/.test(cm.getTokenTypeAt(pos))) return CodeMirror.Pass;
+      var modeHere = cm.getModeAt(pos)
       if (!mode) mode = modeHere;
       else if (mode != modeHere) return CodeMirror.Pass;
 
       var insert = null;
       if (mode.blockCommentStart && mode.blockCommentContinue) {
-        var end = token.string.indexOf(mode.blockCommentEnd);
-        var full = cm.getRange(CodeMirror.Pos(pos.line, 0), CodeMirror.Pos(pos.line, token.end)), found;
-        if (end != -1 && end == token.string.length - mode.blockCommentEnd.length && pos.ch >= end) {
+        var line = cm.getLine(pos.line).slice(0, pos.ch)
+        var end = line.indexOf(mode.blockCommentEnd), found
+        if (end != -1 && end == pos.ch - mode.blockCommentEnd.length) {
           // Comment ended, don't continue it
-        } else if (token.string.indexOf(mode.blockCommentStart) == 0) {
-          insert = full.slice(0, token.start);
-          if (!/^\s*$/.test(insert)) {
-            insert = "";
-            for (var j = 0; j < token.start; ++j) insert += " ";
+        } else if ((found = line.indexOf(mode.blockCommentStart)) > -1) {
+          insert = line.slice(0, found)
+          if (/\S/.test(insert)) {
+            insert = ""
+            for (var j = 0; j < found; ++j) insert += " "
           }
-        } else if ((found = full.indexOf(mode.blockCommentContinue)) != -1 &&
-                   found + mode.blockCommentContinue.length > token.start &&
-                   /^\s*$/.test(full.slice(0, found))) {
-          insert = full.slice(0, found);
+        } else if ((found = line.indexOf(mode.blockCommentContinue)) > -1 && !/\S/.test(line.slice(0, found))) {
+          insert = line.slice(0, found)
         }
-        if (insert != null) insert += mode.blockCommentContinue;
+        if (insert != null) insert += mode.blockCommentContinue
       }
       if (insert == null && mode.lineComment && continueLineCommentEnabled(cm)) {
         var line = cm.getLine(pos.line), found = line.indexOf(mode.lineComment);

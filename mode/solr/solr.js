@@ -14,12 +14,12 @@
 CodeMirror.defineMode("solr", function() {
   "use strict";
 
-  var isStringChar = /[^\s\|\!\+\-\*\?\~\^\&\:\(\)\[\]\{\}\^\"\\]/;
+  var isStringChar = /[^\s\|\!\+\-\*\?\~\^\&\:\(\)\[\]\{\}\"\\]/;
   var isOperatorChar = /[\|\!\+\-\*\?\~\^\&]/;
   var isOperatorString = /^(OR|AND|NOT|TO)$/i;
 
   function isNumber(word) {
-    return parseFloat(word, 10).toString() === word;
+    return parseFloat(word).toString() === word;
   }
 
   function tokenString(quote) {

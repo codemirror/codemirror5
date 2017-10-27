@@ -38,7 +38,7 @@
 .cm-s-seti span.cm-attribute { color: #9fca56; }
 .cm-s-seti span.cm-qualifier { color: #9fca56; }
 .cm-s-seti span.cm-property { color: #a074c4; }
-.cm-s-seti span.cm-variable-3 { color: #9fca56; }
+.cm-s-seti span.cm-variable-3, .cm-s-seti span.cm-type { color: #9fca56; }
 .cm-s-seti span.cm-builtin { color: #9fca56; }
 .cm-s-seti .CodeMirror-activeline-background { background: #101213; }
 .cm-s-seti .CodeMirror-matchingbracket { text-decoration: underline; color: white !important; }

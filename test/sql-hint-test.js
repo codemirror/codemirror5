@@ -30,11 +30,11 @@
       var completion = CodeMirror.hint.sql(cm, {tables: spec.tables});
       if (!deepCompare(completion.list, spec.list))
         throw new Failure("Wrong completion results " + JSON.stringify(completion.list) + " vs " + JSON.stringify(spec.list));
-      eqPos(completion.from, spec.from);
-      eqPos(completion.to, spec.to);
+      eqCharPos(completion.from, spec.from);
+      eqCharPos(completion.to, spec.to);
     }, {
       value: spec.value,
-      mode: "text/x-mysql"
+      mode: spec.mode || "text/x-mysql"
     });
   }
 
@@ -90,6 +90,16 @@
     to: Pos(0, 18)
   });
 
+  test("doublequoted", {
+    value: "SELECT \"users\".\"na",
+    cursor: Pos(0, 18),
+    tables: simpleTables,
+    list: ["\"users\".\"name\""],
+    from: Pos(0, 7),
+    to: Pos(0, 18),
+    mode: "text/x-sqlite"
+  });
+
   test("quotedcolumn", {
     value: "SELECT users.`na",
     cursor: Pos(0, 16),
@@ -97,6 +107,16 @@
     list: ["`users`.`name`"],
     from: Pos(0, 7),
     to: Pos(0, 16)
+  });
+
+  test("doublequotedcolumn", {
+    value: "SELECT users.\"na",
+    cursor: Pos(0, 16),
+    tables: simpleTables,
+    list: ["\"users\".\"name\""],
+    from: Pos(0, 7),
+    to: Pos(0, 16),
+    mode: "text/x-sqlite"
   });
 
   test("schema", {
@@ -116,6 +136,16 @@
     list: ["`schema`.`users`", "`schema`.`countries`"],
     from: Pos(0, 7),
     to: Pos(0, 11)
+  });
+
+  test("schemadoublequoted", {
+    value: "SELECT \"sch",
+    cursor: Pos(0, 11),
+    tables: schemaTables,
+    list: ["\"schema\".\"users\"", "\"schema\".\"countries\""],
+    from: Pos(0, 7),
+    to: Pos(0, 11),
+    mode: "text/x-sqlite"
   });
 
   test("schemacolumn", {
@@ -140,11 +170,23 @@
     to: Pos(0, 24)
   });
 
+  test("schemacolumndoublequoted", {
+    value: "SELECT \"schema\".\"users\".",
+    cursor: Pos(0, 24),
+    tables: schemaTables,
+    list: ["\"schema\".\"users\".\"name\"",
+           "\"schema\".\"users\".\"score\"",
+           "\"schema\".\"users\".\"birthDate\""],
+    from: Pos(0, 7),
+    to: Pos(0, 24),
+    mode: "text/x-sqlite"
+  });
+
   test("displayText_table", {
     value: "SELECT myt",
     cursor: Pos(0, 10),
     tables: displayTextTables,
-    list: displayTextTables,
+    list: [{text: "mytable", displayText: "mytable | The main table",}],
     from: Pos(0, 7),
     to: Pos(0, 10)
   });
@@ -179,11 +221,18 @@
   })
 
   function deepCompare(a, b) {
-    if (!a || typeof a != "object")
-      return a === b;
-    if (!b || typeof b != "object")
-      return false;
-    for (var prop in a) if (!deepCompare(a[prop], b[prop])) return false;
-    return true;
+    if (a === b) return true
+    if (!(a && typeof a == "object") ||
+        !(b && typeof b == "object")) return false
+    var array = Array.isArray(a)
+    if (Array.isArray(b) != array) return false
+    if (array) {
+      if (a.length != b.length) return false
+      for (var i = 0; i < a.length; i++) if (!deepCompare(a[i], b[i])) return false
+    } else {
+      for (var p in a) if (!(p in b) || !deepCompare(a[p], b[p])) return false
+      for (var p in b) if (!(p in a)) return false
+    }
+    return true
   }
 })();

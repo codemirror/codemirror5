@@ -27,7 +27,7 @@ Ported to CodeMirror by Peter Kroon
 .cm-s-lesser-dark span.cm-def { color: white; }
 .cm-s-lesser-dark span.cm-variable { color:#D9BF8C; }
 .cm-s-lesser-dark span.cm-variable-2 { color: #669199; }
-.cm-s-lesser-dark span.cm-variable-3 { color: white; }
+.cm-s-lesser-dark span.cm-variable-3, .cm-s-lesser-dark span.cm-type { color: white; }
 .cm-s-lesser-dark span.cm-property { color: #92A75C; }
 .cm-s-lesser-dark span.cm-operator { color: #92A75C; }
 .cm-s-lesser-dark span.cm-comment { color: #666; }

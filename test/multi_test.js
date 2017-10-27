@@ -9,8 +9,8 @@
     for (var i = 0, p = 1; i < given; i++, p += 4) {
       var anchor = Pos(arguments[p], arguments[p + 1]);
       var head = Pos(arguments[p + 2], arguments[p + 3]);
-      eqPos(sels[i].anchor, anchor, "anchor of selection " + i);
-      eqPos(sels[i].head, head, "head of selection " + i);
+      eqCharPos(sels[i].anchor, anchor, "anchor of selection " + i);
+      eqCharPos(sels[i].head, head, "head of selection " + i);
     }
   }
   function hasCursors(cm) {
@@ -19,9 +19,9 @@
     if (sels.length != given)
       throw new Failure("expected " + given + " selections, found " + sels.length);
     for (var i = 0, p = 1; i < given; i++, p += 2) {
-      eqPos(sels[i].anchor, sels[i].head, "something selected for " + i);
+      eqCursorPos(sels[i].anchor, sels[i].head, "something selected for " + i);
       var head = Pos(arguments[p], arguments[p + 1]);
-      eqPos(sels[i].head, head, "selection " + i);
+      eqCharPos(sels[i].head, head, "selection " + i);
     }
   }
 
@@ -47,10 +47,10 @@
     cm.setSelections([{anchor: Pos(0, 1), head: Pos(0, 2)},
                       {anchor: Pos(1, 1), head: Pos(1, 2)},
                       {anchor: Pos(2, 1), head: Pos(2, 2)}], 1);
-    eqPos(cm.getCursor("head"), Pos(1, 2));
-    eqPos(cm.getCursor("anchor"), Pos(1, 1));
-    eqPos(cm.getCursor("from"), Pos(1, 1));
-    eqPos(cm.getCursor("to"), Pos(1, 2));
+    eqCharPos(cm.getCursor("head"), Pos(1, 2));
+    eqCharPos(cm.getCursor("anchor"), Pos(1, 1));
+    eqCharPos(cm.getCursor("from"), Pos(1, 1));
+    eqCharPos(cm.getCursor("to"), Pos(1, 2));
     cm.setCursor(Pos(1, 1));
     hasCursors(cm, 1, 1);
   }, {value: "abcde\nabcde\nabcde\n"});
@@ -274,7 +274,7 @@
     eq(cm.getSelection(), "1");
     cm.execCommand("undoSelection");
     eq(cm.getSelection(), "");
-    eqPos(cm.getCursor(), Pos(0, 0));
+    eqCharPos(cm.getCursor(), Pos(0, 0));
     cm.execCommand("redoSelection");
     eq(cm.getSelection(), "1");
     cm.execCommand("redoSelection");
