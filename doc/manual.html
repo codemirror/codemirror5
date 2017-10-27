@@ -69,7 +69,7 @@
 <section class=first id=overview>
     <h2 style="position: relative">
       User manual and reference guide
-      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 5.30.0</span>
+      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 5.31.0</span>
     </h2>
 
     <p>CodeMirror is a code-editor component that can be embedded in
@@ -3261,6 +3261,12 @@ editor.setOption("extraKeys", {
       one, in order to scan ahead across line boundaries. Note that
       you want to do this carefully, since looking far ahead will make
       mode state caching much less effective.</dd>
+
+      <dt id="baseToken"><code><strong>baseToken</strong>() → ?{type: ?string, size: number}</code></dt>
+      <dd>Modes added
+      through <a href="#addOverlay"><code>addOverlay</code></a>
+      (and <em>only</em> such modes) can use this method to inspect
+      the current token produced by the underlying mode.</dd>
     </dl>
 
     <p id="blankLine">By default, blank lines are simply skipped when

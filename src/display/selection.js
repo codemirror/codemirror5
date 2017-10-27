@@ -54,6 +54,7 @@ function drawSelectionRange(cm, range, output) {
   let fragment = document.createDocumentFragment()
   let padding = paddingH(cm.display), leftSide = padding.left
   let rightSide = Math.max(display.sizerWidth, displayWidth(cm) - display.sizer.offsetLeft) - padding.right
+  let docLTR = doc.direction == "ltr"
 
   function add(left, top, width, bottom) {
     if (top < 0) top = 0
@@ -72,42 +73,43 @@ function drawSelectionRange(cm, range, output) {
       return charCoords(cm, Pos(line, ch), "div", lineObj, bias)
     }
 
+    function wrapX(pos, dir, side) {
+      let extent = wrappedLineExtentChar(cm, lineObj, null, pos)
+      let prop = (dir == "ltr") == (side == "after") ? "left" : "right"
+      let ch = side == "after" ? extent.begin : extent.end - (/\s/.test(lineObj.text.charAt(extent.end - 1)) ? 2 : 1)
+      return coords(ch, prop)[prop]
+    }
+
     let order = getOrder(lineObj, doc.direction)
     iterateBidiSections(order, fromArg || 0, toArg == null ? lineLen : toArg, (from, to, dir, i) => {
-      let fromPos = coords(from, dir == "ltr" ? "left" : "right")
-      let toPos = coords(to - 1, dir == "ltr" ? "right" : "left")
-      if (dir == "ltr") {
-        let fromLeft = fromArg == null && from == 0 ? leftSide : fromPos.left
-        let toRight = toArg == null && to == lineLen ? rightSide : toPos.right
-        if (toPos.top - fromPos.top <= 3) { // Single line
-          add(fromLeft, toPos.top, toRight - fromLeft, toPos.bottom)
-        } else { // Multiple lines
-          add(fromLeft, fromPos.top, null, fromPos.bottom)
-          if (fromPos.bottom < toPos.top) add(leftSide, fromPos.bottom, null, toPos.top)
-          add(leftSide, toPos.top, toPos.right, toPos.bottom)
+      let ltr = dir == "ltr"
+      let fromPos = coords(from, ltr ? "left" : "right")
+      let toPos = coords(to - 1, ltr ? "right" : "left")
+
+      let openStart = fromArg == null && from == 0, openEnd = toArg == null && to == lineLen
+      let first = i == 0, last = !order || i == order.length - 1
+      if (toPos.top - fromPos.top <= 3) { // Single line
+        let openLeft = (docLTR ? openStart : openEnd) && first
+        let openRight = (docLTR ? openEnd : openStart) && last
+        let left = openLeft ? leftSide : (ltr ? fromPos : toPos).left
+        let right = openRight ? rightSide : (ltr ? toPos : fromPos).right
+        add(left, fromPos.top, right - left, fromPos.bottom)
+      } else { // Multiple lines
+        let topLeft, topRight, botLeft, botRight
+        if (ltr) {
+          topLeft = docLTR && openStart && first ? leftSide : fromPos.left
+          topRight = docLTR ? rightSide : wrapX(from, dir, "before")
+          botLeft = docLTR ? leftSide : wrapX(to, dir, "after")
+          botRight = docLTR && openEnd && last ? rightSide : toPos.right
+        } else {
+          topLeft = !docLTR ? leftSide : wrapX(from, dir, "before")
+          topRight = !docLTR && openStart && first ? rightSide : fromPos.right
+          botLeft = !docLTR && openEnd && last ? leftSide : toPos.left
+          botRight = !docLTR ? rightSide : wrapX(to, dir, "after")
         }
-      } else if (from < to) { // RTL
-        let fromRight = fromArg == null && from == 0 ? rightSide : fromPos.right
-        let toLeft = toArg == null && to == lineLen ? leftSide : toPos.left
-        if (toPos.top - fromPos.top <= 3) { // Single line
-          add(toLeft, toPos.top, fromRight - toLeft, toPos.bottom)
-        } else { // Multiple lines
-          let topLeft = leftSide
-          if (i) {
-            let topEnd = wrappedLineExtentChar(cm, lineObj, null, from).end
-            // The coordinates returned for an RTL wrapped space tend to
-            // be complete bogus, so try to skip that here.
-            topLeft = coords(topEnd - (/\s/.test(lineObj.text.charAt(topEnd - 1)) ? 2 : 1), "left").left
-          }
-          add(topLeft, fromPos.top, fromRight - topLeft, fromPos.bottom)
-          if (fromPos.bottom < toPos.top) add(leftSide, fromPos.bottom, null, toPos.top)
-          let botWidth = null
-          if (i < order.length  - 1 || true) {
-            let botStart = wrappedLineExtentChar(cm, lineObj, null, to).begin
-            botWidth = coords(botStart, "right").right - toLeft
-          }
-          add(toLeft, toPos.top, botWidth, toPos.bottom)
-        }
+        add(topLeft, fromPos.top, topRight - topLeft, fromPos.bottom)
+        if (fromPos.bottom < toPos.top) add(leftSide, fromPos.bottom, null, toPos.top)
+        add(botLeft, toPos.top, botRight - botLeft, toPos.bottom)
       }
 
       if (!start || cmpCoords(fromPos, start) < 0) start = fromPos
