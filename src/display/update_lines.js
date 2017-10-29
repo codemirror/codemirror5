@@ -34,7 +34,7 @@ export function updateHeightsInViewport(cm) {
 // given line.
 function updateWidgetHeight(line) {
   if (line.widgets) for (let i = 0; i < line.widgets.length; ++i) {
-    let w = line.widgets[i], parent = w.node.parentNode;
+    let w = line.widgets[i], parent = w.node.parentNode
     if (parent) w.height = parent.offsetHeight
   }
 }
