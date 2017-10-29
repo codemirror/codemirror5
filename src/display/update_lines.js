@@ -33,8 +33,10 @@ export function updateHeightsInViewport(cm) {
 // Read and store the height of line widgets associated with the
 // given line.
 function updateWidgetHeight(line) {
-  if (line.widgets) for (let i = 0; i < line.widgets.length; ++i)
-    line.widgets[i].height = line.widgets[i].node.parentNode.offsetHeight
+  if (line.widgets) for (let i = 0; i < line.widgets.length; ++i) {
+    let w = line.widgets[i], parent = w.node.parentNode;
+    if (parent) w.height = parent.offsetHeight
+  }
 }
 
 // Compute the lines that are visible in a given viewport (defaults
