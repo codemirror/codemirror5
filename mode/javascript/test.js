@@ -245,6 +245,10 @@
      "[string-2 `${][variable async][operator ++][string-2 }//`];",
      "[string-2 `${]{} [operator /] [string-2 /\\//}`];")
 
+  MT("return_eol",
+     "[keyword return]",
+     "{} [string-2 /5/]")
+
   var ts_mode = CodeMirror.getMode({indentUnit: 2}, "application/typescript")
   function TS(name) {
     test.mode(name, ts_mode, Array.prototype.slice.call(arguments, 1))

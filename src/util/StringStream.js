@@ -81,6 +81,10 @@ class StringStream {
     let oracle = this.lineOracle
     return oracle && oracle.lookAhead(n)
   }
+  baseToken() {
+    let oracle = this.lineOracle
+    return oracle && oracle.baseToken(this.pos)
+  }
 }
 
 export default StringStream

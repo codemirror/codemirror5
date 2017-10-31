@@ -559,6 +559,7 @@ function coordsBidiPartWrapped(cm, lineObj, _lineNo, preparedMeasure, order, x, 
   // wrapped line, and then do a flat search in which we discard any
   // spans that aren't on the line.
   let {begin, end} = wrappedLineExtent(cm, lineObj, preparedMeasure, y)
+  if (/\s/.test(lineObj.text.charAt(end - 1))) end--
   let part = null, closestDist = null
   for (let i = 0; i < order.length; i++) {
     let p = order[i]
