@@ -44,18 +44,26 @@ function lookupKeyForEditor(cm, name, handle) {
 // for bound mouse clicks.
 
 let stopSeq = new Delayed
+
 export function dispatchKey(cm, name, e, handle) {
   let seq = cm.state.keySeq
   if (seq) {
     if (isModifierKey(name)) return "handled"
-    stopSeq.set(50, () => {
-      if (cm.state.keySeq == seq) {
-        cm.state.keySeq = null
-        cm.display.input.reset()
-      }
-    })
-    name = seq + " " + name
+    if (/\'$/.test(name))
+      cm.state.keySeq = null
+    else
+      stopSeq.set(50, () => {
+        if (cm.state.keySeq == seq) {
+          cm.state.keySeq = null
+          cm.display.input.reset()
+        }
+      })
+    if (dispatchKeyInner(cm, seq + " " + name, e, handle)) return true
   }
+  return dispatchKeyInner(cm, name, e, handle)
+}
+
+function dispatchKeyInner(cm, name, e, handle) {
   let result = lookupKeyForEditor(cm, name, handle)
 
   if (result == "multi")
@@ -68,10 +76,6 @@ export function dispatchKey(cm, name, e, handle) {
     restartBlink(cm)
   }
 
-  if (seq && !result && /\'$/.test(name)) {
-    e_preventDefault(e)
-    return true
-  }
   return !!result
 }
 
