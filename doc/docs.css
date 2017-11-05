@@ -269,3 +269,7 @@ strong {
 .field {
   border: 1px solid #A21313;
 }
+
+.demo-link {
+  border-bottom: 1px solid #A21313;
+}

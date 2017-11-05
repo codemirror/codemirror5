@@ -285,7 +285,7 @@
       special <a href="#option_specialCharPlaceholder">placeholder</a>.
       Mostly useful for non-printing special characters. The default
       is <code>/[\u0000-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff]/</code>.</dd>
-      <dt id="option_specialCharPlaceholder"><code><strong>specialCharPlaceholder</strong>: function(char) → Element</code></dt>
+      <dt id="option_specialCharPlaceholder"><code><strong>specialCharPlaceholder</strong>: function(char) → Element</code></dt>
       <dd>A function that, given a special character identified by
       the <a href="#option_specialChars"><code>specialChars</code></a>
       option, produces a DOM node that is used to represent the
@@ -797,8 +797,8 @@
     functionality.</p>
 
     <p>The CodeMirror distributions comes
-    with <a href="../demo/emacs.html">Emacs</a>, <a href="../demo/vim.html">Vim</a>,
-    and <a href="../demo/sublime.html">Sublime Text</a>-style keymaps.</p>
+    with <a href="../demo/emacs.html" class="demo-link">Emacs</a>, <a href="../demo/vim.html" class="demo-link">Vim</a>,
+    and <a href="../demo/sublime.html" class="demo-link">Sublime Text</a>-style keymaps.</p>
 
     <p>Keys are identified either by name or by character.
     The <code>CodeMirror.keyNames</code> object defines names for
@@ -1107,7 +1107,7 @@ editor.setOption("extraKeys", {
       to set styles that should hold for everything inside the editor
       (such as font and font size), or to set a background. Setting
       this class' <code>height</code> style to <code>auto</code> will
-      make the editor <a href="../demo/resize.html">resize to fit its
+      make the editor <a href="../demo/resize.html" class="demo-link">resize to fit its
       content</a> (it is recommended to also set
       the <a href="#option_viewportMargin"><code>viewportMargin</code>
       option</a> to <code>Infinity</code> when doing this.</dd>
@@ -1224,7 +1224,7 @@ editor.setOption("extraKeys", {
       should be <code>{line, ch}</code> objects. An optional third
       argument can be given to indicate the line separator string to
       use (defaults to <code>"\n"</code>).</dd>
-      <dt id="replaceRange"><code><strong>doc.replaceRange</strong>(replacement: string, from: {line, ch}, to: {line, ch}, ?origin: string)</code></dt>
+      <dt id="replaceRange"><code><strong>doc.replaceRange</strong>(replacement: string, from: {line, ch}, to: {line, ch}, ?origin: string)</code></dt>
       <dd>Replace the part of the document between <code>from</code>
       and <code>to</code> with the given string. <code>from</code>
       and <code>to</code> must be <code>{line, ch}</code>
@@ -1404,7 +1404,7 @@ editor.setOption("extraKeys", {
       <dd>An equivalent
       of <a href="#extendSelection"><code>extendSelection</code></a>
       that acts on all selections at once.</dd>
-      <dt id="extendSelectionsBy"><code><strong>doc.extendSelectionsBy</strong>(f: function(range: {anchor, head}) → {line, ch}), ?options: object)</code></dt>
+      <dt id="extendSelectionsBy"><code><strong>doc.extendSelectionsBy</strong>(f: function(range: {anchor, head}) → {line, ch}), ?options: object)</code></dt>
       <dd>Applies the given function to all existing selections, and
       calls <a href="#extendSelections"><code>extendSelections</code></a>
       on the result.</dd>
@@ -1419,7 +1419,7 @@ editor.setOption("extraKeys", {
       <dt id="hasFocus"><code><strong>cm.hasFocus</strong>() → boolean</code></dt>
       <dd>Tells you whether the editor currently has focus.</dd>
 
-      <dt id="findPosH"><code><strong>cm.findPosH</strong>(start: {line, ch}, amount: integer, unit: string, visually: boolean) → {line, ch, ?hitSide: boolean}</code></dt>
+      <dt id="findPosH"><code><strong>cm.findPosH</strong>(start: {line, ch}, amount: integer, unit: string, visually: boolean) → {line, ch, ?hitSide: boolean}</code></dt>
       <dd>Used to find the target position for horizontal cursor
       motion. <code>start</code> is a <code>{line, ch}</code>
       object, <code>amount</code> an integer (may be negative),
@@ -1478,7 +1478,7 @@ editor.setOption("extraKeys", {
       <dt id="addOverlay"><code><strong>cm.addOverlay</strong>(mode: string|object, ?options: object)</code></dt>
       <dd>Enable a highlighting overlay. This is a stateless mini-mode
       that can be used to add extra highlighting. For example,
-      the <a href="../demo/search.html">search addon</a> uses it to
+      the <a href="../demo/search.html" class="demo-link">search addon</a> uses it to
       highlight the term that's currently being
       searched. <code>mode</code> can be a <a href="#option_mode">mode
       spec</a> or a mode object (an object with
@@ -2196,7 +2196,7 @@ editor.setOption("extraKeys", {
       (with the instance as argument) whenever a new CodeMirror instance
       is initialized.</dd>
 
-      <dt id="registerHelper"><code><strong>CodeMirror.registerHelper</strong>(type: string, name: string, value: helper)</code></dt>
+      <dt id="registerHelper"><code><strong>CodeMirror.registerHelper</strong>(type: string, name: string, value: helper)</code></dt>
       <dd>Registers a helper value with the given <code>name</code> in
       the given namespace (<code>type</code>). This is used to define
       functionality that may be looked up by mode. Will create (if it
@@ -2207,7 +2207,7 @@ editor.setOption("extraKeys", {
       myFoo)</code>, the value <code>CodeMirror.hint.foo</code> will
       point to <code>myFoo</code>.</dd>
 
-      <dt id="registerGlobalHelper"><code><strong>CodeMirror.registerGlobalHelper</strong>(type: string, name: string, predicate: fn(mode, CodeMirror), value: helper)</code></dt>
+      <dt id="registerGlobalHelper"><code><strong>CodeMirror.registerGlobalHelper</strong>(type: string, name: string, predicate: fn(mode, CodeMirror), value: helper)</code></dt>
       <dd>Acts
       like <a href="#registerHelper"><code>registerHelper</code></a>,
       but also registers this helper as 'global', meaning that it will
@@ -2313,7 +2313,7 @@ editor.setOption("extraKeys", {
           to <code>findNext</code> or <code>findPrevious</code> did
           not return false. They will return <code>{line, ch}</code>
           objects pointing at the start and end of the match.</dd>
-          <dt><code><strong>replace</strong>(text: string, ?origin: string)</code></dt>
+          <dt><code><strong>replace</strong>(text: string, ?origin: string)</code></dt>
           <dd>Replaces the currently found match with the given text
           and adjusts the cursor position to reflect the
           replacement.</dd>
@@ -2393,7 +2393,7 @@ editor.setOption("extraKeys", {
       configuration given in the option. But you can add
       an <code>override</code> property with a truthy value to
       override mode-specific
-      configuration. <a href="../demo/closebrackets.html">Demo
+      configuration. <a href="../demo/closebrackets.html" class="demo-link">Demo
       here</a>.</dd>
 
       <dt id="addon_matchtags"><a href="../addon/edit/matchtags.js"><code>edit/matchtags.js</code></a></dt>
@@ -2405,13 +2405,13 @@ editor.setOption("extraKeys", {
       which you can bind a key to in order to jump to the tag matching
       the one under the cursor. Depends on
       the <code>addon/fold/xml-fold.js</code>
-      addon. <a href="../demo/matchtags.html">Demo here.</a></dd>
+      addon. <a href="../demo/matchtags.html" class="demo-link">Demo here.</a></dd>
 
       <dt id="addon_trailingspace"><a href="../addon/edit/trailingspace.js"><code>edit/trailingspace.js</code></a></dt>
       <dd>Adds an option <code>showTrailingSpace</code> which, when
       enabled, adds the CSS class <code>cm-trailingspace</code> to
       stretches of whitespace at the end of lines.
-      The <a href="../demo/trailingspace.html">demo</a> has a nice
+      The <a href="../demo/trailingspace.html" class="demo-link">demo</a> has a nice
       squiggly underline style for this class.</dd>
 
       <dt id="addon_closetag"><a href="../addon/edit/closetag.js"><code>edit/closetag.js</code></a></dt>
@@ -2421,7 +2421,7 @@ editor.setOption("extraKeys", {
       a <code>closeTag</code> <a href="#commands">command</a> that
       closes the nearest open tag. Depends on
       the <code>fold/xml-fold.js</code> addon. See
-      the <a href="../demo/closetag.html">demo</a>.</dd>
+      the <a href="../demo/closetag.html" class="demo-link">demo</a>.</dd>
 
       <dt id="addon_continuelist"><a href="../addon/edit/continuelist.js"><code>edit/continuelist.js</code></a></dt>
       <dd>Markdown specific. Defines
@@ -2516,7 +2516,7 @@ editor.setOption("extraKeys", {
         accepted. Defaults to 0, which also allows single-line
         folds.</dd>
       </dl>
-      See <a href="../demo/folding.html">the demo</a> for an
+      See <a href="../demo/folding.html" class="demo-link">the demo</a> for an
       example.</dd>
 
       <dt id="addon_foldgutter"><a href="../addon/fold/foldgutter.js"><code>fold/foldgutter.js</code></a></dt>
@@ -2558,12 +2558,12 @@ editor.setOption("extraKeys", {
       </dl>
       The <code>foldOptions</code> editor option can be set to an
       object to provide an editor-wide default configuration.
-      Demo <a href="../demo/folding.html">here</a>.</dd>
+      Demo <a href="../demo/folding.html" class="demo-link">here</a>.</dd>
 
       <dt id="addon_runmode"><a href="../addon/runmode/runmode.js"><code>runmode/runmode.js</code></a></dt>
       <dd>Can be used to run a CodeMirror mode over text without
       actually opening an editor instance.
-      See <a href="../demo/runmode.html">the demo</a> for an example.
+      See <a href="../demo/runmode.html" class="demo-link">the demo</a> for an example.
       There are alternate versions of the file available for
       running <a href="../addon/runmode/runmode-standalone.js">stand-alone</a>
       (without including all of CodeMirror) and
@@ -2592,7 +2592,7 @@ editor.setOption("extraKeys", {
       the base mode, and can color specific pieces of text without
       interfering with the base mode.
       Defines <code>CodeMirror.overlayMode</code>, which is used to
-      create such a mode. See <a href="../demo/mustache.html">this
+      create such a mode. See <a href="../demo/mustache.html" class="demo-link">this
       demo</a> for a detailed example.</dd>
 
       <dt id="addon_multiplex"><a href="../addon/mode/multiplex.js"><code>mode/multiplex.js</code></a></dt>
@@ -2619,7 +2619,7 @@ editor.setOption("extraKeys", {
       the delimiters will also be passed to the inner mode.
       (And <code>delimStyle</code> is ignored.)</li></ul> The outer
       mode will not see the content between the delimiters.
-      See <a href="../demo/multiplex.html">this demo</a> for an
+      See <a href="../demo/multiplex.html" class="demo-link">this demo</a> for an
       example.</dd>
 
       <dt id="addon_show-hint"><a href="../addon/hint/show-hint.js"><code>hint/show-hint.js</code></a></dt>
@@ -2735,7 +2735,7 @@ editor.setOption("extraKeys", {
       </dl>
       This addon depends on styles
       from <code>addon/hint/show-hint.css</code>. Check
-      out <a href="../demo/complete.html">the demo</a> for an
+      out <a href="../demo/complete.html" class="demo-link">the demo</a> for an
       example.</dd>
 
       <dt id="addon_javascript-hint"><a href="../addon/hint/javascript-hint.js"><code>hint/javascript-hint.js</code></a></dt>
@@ -2760,7 +2760,7 @@ editor.setOption("extraKeys", {
       and <code>attrs</code> (an object mapping attribute names
       to <code>null</code> for free-form attributes, and an array of
       valid values for restricted
-      attributes). <a href="../demo/xmlcomplete.html">Demo
+      attributes). <a href="../demo/xmlcomplete.html" class="demo-link">Demo
       here.</a></dd>
 
       <dt id="addon_html-hint"><a href="../addon/hint/html-hint.js"><code>hint/html-hint.js</code></a></dt>
@@ -2772,7 +2772,7 @@ editor.setOption("extraKeys", {
       a <code>CodeMirror.hint.html</code> hinting function that
       automatically calls <code>CodeMirror.hint.xml</code> with this
       schema data. See
-      the <a href="../demo/html5complete.html">demo</a>.</dd>
+      the <a href="../demo/html5complete.html" class="demo-link">demo</a>.</dd>
 
       <dt id="addon_css-hint"><a href="../addon/hint/css-hint.js"><code>hint/css-hint.js</code></a></dt>
       <dd>A hinting function for CSS, SCSS, or LESS code.
@@ -2809,7 +2809,7 @@ editor.setOption("extraKeys", {
       or to a regexp matching the characters that make up a word. When
       enabled, it causes the current word to be highlighted when
       nothing is selected (defaults to off).
-      Demo <a href="../demo/matchhighlighter.html">here</a>.</dd>
+      Demo <a href="../demo/matchhighlighter.html" class="demo-link">here</a>.</dd>
 
       <dt id="addon_lint"><a href="../addon/lint/lint.js"><code>lint/lint.js</code></a></dt>
       <dd>Defines an interface component for showing linting warnings,
@@ -2839,13 +2839,13 @@ editor.setOption("extraKeys", {
       By default, the linter will run (debounced) whenever the document is changed.
       You can pass a <code>lintOnChange: false</code> option to disable that.
       Depends on <code>addon/lint/lint.css</code>. A demo can be
-      found <a href="../demo/lint.html">here</a>.</dd>
+      found <a href="../demo/lint.html" class="demo-link">here</a>.</dd>
 
       <dt id="addon_mark-selection"><a href="../addon/selection/mark-selection.js"><code>selection/mark-selection.js</code></a></dt>
       <dd>Causes the selected text to be marked with the CSS class
       <code>CodeMirror-selectedtext</code> when the <code>styleSelectedText</code> option
       is enabled. Useful to change the colour of the selection (in addition to the background),
-      like in <a href="../demo/markselection.html">this demo</a>.</dd>
+      like in <a href="../demo/markselection.html" class="demo-link">this demo</a>.</dd>
 
       <dt id="addon_active-line"><a href="../addon/selection/active-line.js"><code>selection/active-line.js</code></a></dt>
       <dd>Defines a <code>styleActiveLine</code> option that, when
@@ -2861,7 +2861,7 @@ editor.setOption("extraKeys", {
           selections, are styled. Defaults to false (only cursor
           selections).</dd>
         </dl>
-      See the <a href="../demo/activeline.html">demo</a>.</dd>
+      See the <a href="../demo/activeline.html" class="demo-link">demo</a>.</dd>
 
       <dt id="addon_selection-pointer"><a href="../addon/selection/selection-pointer.js"><code>selection/selection-pointer.js</code></a></dt>
       <dd>Defines a <code>selectionPointer</code> option which you can
@@ -2882,7 +2882,7 @@ editor.setOption("extraKeys", {
       defines <code>CodeMirror.autoLoadMode(instance, mode)</code>,
       which will ensure the given mode is loaded and cause the given
       editor instance to refresh its mode when the loading
-      succeeded. See the <a href="../demo/loadmode.html">demo</a>.</dd>
+      succeeded. See the <a href="../demo/loadmode.html" class="demo-link">demo</a>.</dd>
 
       <dt id="addon_meta"><a href="../mode/meta.js"><code>mode/meta.js</code></a></dt>
       <dd>Provides meta-information about all the modes in the
@@ -2903,7 +2903,7 @@ editor.setOption("extraKeys", {
       return such an object given a MIME, extension, file name or mode name
       string. Note that, for historical reasons, this file resides in the
       top-level <code>mode</code> directory, not
-      under <code>addon</code>. <a href="../demo/loadmode.html">Demo</a>.</dd>
+      under <code>addon</code>. <a href="../demo/loadmode.html" class="demo-link">Demo</a>.</dd>
 
       <dt id="addon_continuecomment"><a href="../addon/comment/continuecomment.js"><code>comment/continuecomment.js</code></a></dt>
       <dd>Adds a <code>continueComments</code> option, which sets whether the
@@ -2921,13 +2921,13 @@ editor.setOption("extraKeys", {
       focused. It can hold either a string or a DOM node. Also gives
       the editor a <code>CodeMirror-empty</code> CSS class whenever it
       doesn't contain any text.
-      See <a href="../demo/placeholder.html">the demo</a>.</dd>
+      See <a href="../demo/placeholder.html" class="demo-link">the demo</a>.</dd>
 
       <dt id="addon_fullscreen"><a href="../addon/display/fullscreen.js"><code>display/fullscreen.js</code></a></dt>
       <dd>Defines an option <code>fullScreen</code> that, when set
       to <code>true</code>, will make the editor full-screen (as in,
       taking up the whole browser window). Depends
-      on <a href="../addon/display/fullscreen.css"><code>fullscreen.css</code></a>. <a href="../demo/fullscreen.html">Demo
+      on <a href="../addon/display/fullscreen.css"><code>fullscreen.css</code></a>. <a href="../demo/fullscreen.html" class="demo-link">Demo
       here</a>.</dd>
 
       <dt id="addon_autorefresh"><a href="../addon/display/autorefresh.js"><code>display/autorefresh.js</code></a></dt>
@@ -2947,7 +2947,7 @@ editor.setOption("extraKeys", {
       <dt id="addon_simplescrollbars"><a href="../addon/scroll/simplescrollbars.js"><code>scroll/simplescrollbars.js</code></a></dt>
       <dd>Defines two additional scrollbar
       models, <code>"simple"</code> and <code>"overlay"</code>
-      (see <a href="../demo/simplescrollbars.html">demo</a>) that can
+      (see <a href="../demo/simplescrollbars.html" class="demo-link">demo</a>) that can
       be selected with
       the <a href="#option_scrollbarStyle"><code>scrollbarStyle</code></a>
       option. Depends
@@ -2974,7 +2974,7 @@ editor.setOption("extraKeys", {
       indicate a column). The ruler will be displayed at the column
       indicated by the number or the <code>column</code> property.
       The <code>className</code> property can be used to assign a
-      custom style to a ruler. <a href="../demo/rulers.html">Demo
+      custom style to a ruler. <a href="../demo/rulers.html" class="demo-link">Demo
       here</a>.</dd>
 
       <dt id="addon_panel"><a href="../addon/display/panel.js"><code>display/panel.js</code></a></dt>
@@ -3017,7 +3017,7 @@ editor.setOption("extraKeys", {
       if the panel doesn't exists or has been removed,
       the value of the <code>position</code> option will be used as a fallback.
       <br>
-      A demo of the addon is available <a href="../demo/panel.html">here</a>.
+      A demo of the addon is available <a href="../demo/panel.html" class="demo-link">here</a>.
       </dd>
 
       <dt id="addon_hardwrap"><a href="../addon/wrap/hardwrap.js"><code>wrap/hardwrap.js</code></a></dt>
@@ -3050,7 +3050,7 @@ editor.setOption("extraKeys", {
           <dd>Whether trailing space caused by wrapping should be
           preserved, or deleted. Defaults to true.</dd>
         </dl>
-        A demo of the addon is available <a href="../demo/hardwrap.html">here</a>.
+        A demo of the addon is available <a href="../demo/hardwrap.html" class="demo-link">here</a>.
       </dd>
 
       <dt id="addon_merge"><a href="../addon/merge/merge.js"><code>merge/merge.js</code></a></dt>
@@ -3100,14 +3100,14 @@ editor.setOption("extraKeys", {
         </dl>
         The addon also defines commands <code>"goNextDiff"</code>
         and <code>"goPrevDiff"</code> to quickly jump to the next
-        changed chunk. <a href="../demo/merge.html">Demo
+        changed chunk. <a href="../demo/merge.html" class="demo-link">Demo
         here</a>.</dd>
 
       <dt id="addon_tern"><a href="../addon/tern/tern.js"><code>tern/tern.js</code></a></dt>
       <dd>Provides integration with
       the <a href="http://ternjs.net">Tern</a> JavaScript analysis
       engine, for completion, definition finding, and minor
-      refactoring help. See the <a href="../demo/tern.html">demo</a>
+      refactoring help. See the <a href="../demo/tern.html" class="demo-link">demo</a>
       for a very simple integration. For more involved scenarios, see
       the comments at the top of
       the <a href="../addon/tern/tern.js">addon</a> and the
@@ -3129,7 +3129,7 @@ editor.setOption("extraKeys", {
     <p>This section describes the low-level mode interface. Many modes
     are written directly against this, since it offers a lot of
     control, but for a quick mode definition, you might want to use
-    the <a href="../demo/simplemode.html">simple mode addon</a>.</p>
+    the <a href="../demo/simplemode.html" class="demo-link">simple mode addon</a>.</p>
 
     <p id="defineMode">The mode script should
     call <code><strong>CodeMirror.defineMode</strong></code> to
