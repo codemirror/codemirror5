@@ -21,8 +21,8 @@ h2, h3, h1 {
   margin-bottom: .7em;
 }
 h1 { font-size: 140%; }
-h2 { font-size: 120%; }
-h3 { font-size: 110%; }
+h2 {font-size: 30px;/* font-weight: bold; */text-align: center;}
+h3 {font-size: 110%;font-weight: bold;}
 article > h2:first-child, section:first-child > h2 { margin-top: 0; }
 
 #nav h1 {
@@ -258,7 +258,7 @@ pre {
 }
 
 code {
-  padding: 0 2px;
+  padding: 4px 3px;
 }
 
 strong {
@@ -268,4 +268,8 @@ strong {
 
 .field {
   border: 1px solid #A21313;
+}
+
+.demo-link {
+  border-bottom: 1px solid #A21313;
 }
