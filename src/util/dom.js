@@ -1,4 +1,4 @@
-import { ie, ios } from "./browser"
+import { ie, ios } from "./browser.js"
 
 export function classTest(cls) { return new RegExp("(^|\\s)" + cls + "(?:$|\\s)\\s*") }
 

@@ -1,4 +1,4 @@
-import { lst } from "./misc"
+import { lst } from "./misc.js"
 
 // BIDI HELPERS
 

@@ -1,7 +1,7 @@
-import { Pos } from "../line/pos"
-import { prepareMeasureForLine, measureCharPrepared, wrappedLineExtentChar } from "../measurement/position_measurement"
-import { getBidiPartAt, getOrder } from "../util/bidi"
-import { findFirst, lst, skipExtendingChars } from "../util/misc"
+import { Pos } from "../line/pos.js"
+import { prepareMeasureForLine, measureCharPrepared, wrappedLineExtentChar } from "../measurement/position_measurement.js"
+import { getBidiPartAt, getOrder } from "../util/bidi.js"
+import { findFirst, lst, skipExtendingChars } from "../util/misc.js"
 
 function moveCharLogically(line, ch, dir) {
   let target = skipExtendingChars(line.text, ch + dir, dir)

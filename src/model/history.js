@@ -1,12 +1,12 @@
-import { cmp, copyPos } from "../line/pos"
-import { stretchSpansOverChange } from "../line/spans"
-import { getBetween } from "../line/utils_line"
-import { signal } from "../util/event"
-import { indexOf, lst } from "../util/misc"
+import { cmp, copyPos } from "../line/pos.js"
+import { stretchSpansOverChange } from "../line/spans.js"
+import { getBetween } from "../line/utils_line.js"
+import { signal } from "../util/event.js"
+import { indexOf, lst } from "../util/misc.js"
 
-import { changeEnd } from "./change_measurement"
-import { linkedDocs } from "./document_data"
-import { Selection } from "./selection"
+import { changeEnd } from "./change_measurement.js"
+import { linkedDocs } from "./document_data.js"
+import { Selection } from "./selection.js"
 
 export function History(startGen) {
   // Arrays of change events and selections. Doing something adds an
