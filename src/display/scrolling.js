@@ -1,12 +1,12 @@
-import { Pos } from "../line/pos"
-import { cursorCoords, displayHeight, displayWidth, estimateCoords, paddingTop, paddingVert, scrollGap, textHeight } from "../measurement/position_measurement"
-import { gecko, phantom } from "../util/browser"
-import { elt } from "../util/dom"
-import { signalDOMEvent } from "../util/event"
+import { Pos } from "../line/pos.js"
+import { cursorCoords, displayHeight, displayWidth, estimateCoords, paddingTop, paddingVert, scrollGap, textHeight } from "../measurement/position_measurement.js"
+import { gecko, phantom } from "../util/browser.js"
+import { elt } from "../util/dom.js"
+import { signalDOMEvent } from "../util/event.js"
 
-import { startWorker } from "./highlight_worker"
-import { alignHorizontally } from "./line_numbers"
-import { updateDisplaySimple } from "./update_display"
+import { startWorker } from "./highlight_worker.js"
+import { alignHorizontally } from "./line_numbers.js"
+import { updateDisplaySimple } from "./update_display.js"
 
 // SCROLLING THINGS INTO VIEW
 

@@ -1,13 +1,13 @@
-import { getOrder } from "../util/bidi"
-import { ie, ie_version, webkit } from "../util/browser"
-import { elt, eltP, joinClasses } from "../util/dom"
-import { eventMixin, signal } from "../util/event"
-import { hasBadBidiRects, zeroWidthElement } from "../util/feature_detection"
-import { lst, spaceStr } from "../util/misc"
+import { getOrder } from "../util/bidi.js"
+import { ie, ie_version, webkit } from "../util/browser.js"
+import { elt, eltP, joinClasses } from "../util/dom.js"
+import { eventMixin, signal } from "../util/event.js"
+import { hasBadBidiRects, zeroWidthElement } from "../util/feature_detection.js"
+import { lst, spaceStr } from "../util/misc.js"
 
-import { getLineStyles } from "./highlight"
-import { attachMarkedSpans, compareCollapsedMarkers, detachMarkedSpans, lineIsHidden, visualLineContinued } from "./spans"
-import { getLine, lineNo, updateLineHeight } from "./utils_line"
+import { getLineStyles } from "./highlight.js"
+import { attachMarkedSpans, compareCollapsedMarkers, detachMarkedSpans, lineIsHidden, visualLineContinued } from "./spans.js"
+import { getLine, lineNo, updateLineHeight } from "./utils_line.js"
 
 // LINE DATA STRUCTURE
 

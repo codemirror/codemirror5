@@ -1,4 +1,4 @@
-import { getLine } from "./utils_line"
+import { getLine } from "./utils_line.js"
 
 // A Pos instance represents a position within the text.
 export function Pos(line, ch, sticky = null) {

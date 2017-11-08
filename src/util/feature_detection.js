@@ -1,5 +1,5 @@
-import { elt, range, removeChildren, removeChildrenAndAdd } from "./dom"
-import { ie, ie_version } from "./browser"
+import { elt, range, removeChildren, removeChildrenAndAdd } from "./dom.js"
+import { ie, ie_version } from "./browser.js"
 
 // Detect drag-and-drop
 export let dragAndDrop = function() {

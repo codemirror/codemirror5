@@ -1,14 +1,14 @@
-import { signalLater } from "../util/operation_group"
-import { restartBlink } from "../display/selection"
-import { isModifierKey, keyName, lookupKey } from "../input/keymap"
-import { eventInWidget } from "../measurement/widgets"
-import { ie, ie_version, mac, presto } from "../util/browser"
-import { activeElt, addClass, rmClass } from "../util/dom"
-import { e_preventDefault, off, on, signalDOMEvent } from "../util/event"
-import { hasCopyEvent } from "../util/feature_detection"
-import { Delayed, Pass } from "../util/misc"
+import { signalLater } from "../util/operation_group.js"
+import { restartBlink } from "../display/selection.js"
+import { isModifierKey, keyName, lookupKey } from "../input/keymap.js"
+import { eventInWidget } from "../measurement/widgets.js"
+import { ie, ie_version, mac, presto } from "../util/browser.js"
+import { activeElt, addClass, rmClass } from "../util/dom.js"
+import { e_preventDefault, off, on, signalDOMEvent } from "../util/event.js"
+import { hasCopyEvent } from "../util/feature_detection.js"
+import { Delayed, Pass } from "../util/misc.js"
 
-import { commands } from "./commands"
+import { commands } from "./commands.js"
 
 // Run a handler that was bound to a key.
 function doHandleBinding(cm, bound, dropShift) {

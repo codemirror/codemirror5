@@ -1,9 +1,9 @@
-import { Pos } from "../line/pos"
-import { visualLine } from "../line/spans"
-import { getLine } from "../line/utils_line"
-import { charCoords, cursorCoords, displayWidth, paddingH, wrappedLineExtentChar } from "../measurement/position_measurement"
-import { getOrder, iterateBidiSections } from "../util/bidi"
-import { elt } from "../util/dom"
+import { Pos } from "../line/pos.js"
+import { visualLine } from "../line/spans.js"
+import { getLine } from "../line/utils_line.js"
+import { charCoords, cursorCoords, displayWidth, paddingH, wrappedLineExtentChar } from "../measurement/position_measurement.js"
+import { getOrder, iterateBidiSections } from "../util/bidi.js"
+import { elt } from "../util/dom.js"
 
 export function updateSelection(cm) {
   cm.display.input.showSelection(cm.display.input.prepareSelection())

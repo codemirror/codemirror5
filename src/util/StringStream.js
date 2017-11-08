@@ -1,4 +1,4 @@
-import { countColumn } from "./misc"
+import { countColumn } from "./misc.js"
 
 // STRING STREAM
 

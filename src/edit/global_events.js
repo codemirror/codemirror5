@@ -1,5 +1,5 @@
-import { onBlur } from "../display/focus"
-import { on } from "../util/event"
+import { onBlur } from "../display/focus.js"
+import { on } from "../util/event.js"
 
 // These must be handled carefully, because naively registering a
 // handler for each editor will cause the editors to never be

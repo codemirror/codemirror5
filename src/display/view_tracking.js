@@ -1,8 +1,8 @@
-import { buildViewArray } from "../line/line_data"
-import { sawCollapsedSpans } from "../line/saw_special_spans"
-import { visualLineEndNo, visualLineNo } from "../line/spans"
-import { findViewIndex } from "../measurement/position_measurement"
-import { indexOf } from "../util/misc"
+import { buildViewArray } from "../line/line_data.js"
+import { sawCollapsedSpans } from "../line/saw_special_spans.js"
+import { visualLineEndNo, visualLineNo } from "../line/spans.js"
+import { findViewIndex } from "../measurement/position_measurement.js"
+import { indexOf } from "../util/misc.js"
 
 // Updates the display.view data structure for a given change to the
 // document. From and to are in pre-change coordinates. Lendiff is

@@ -1,5 +1,5 @@
-import { cmp, copyPos, equalCursorPos, maxPos, minPos } from "../line/pos"
-import { indexOf } from "../util/misc"
+import { cmp, copyPos, equalCursorPos, maxPos, minPos } from "../line/pos.js"
+import { indexOf } from "../util/misc.js"
 
 // Selection objects are immutable. A new one is created every time
 // the selection changes. A selection is one or more non-overlapping

@@ -1,7 +1,7 @@
-import { flipCtrlCmd, mac, presto } from "../util/browser"
-import { map } from "../util/misc"
+import { flipCtrlCmd, mac, presto } from "../util/browser.js"
+import { map } from "../util/misc.js"
 
-import { keyNames } from "./keynames"
+import { keyNames } from "./keynames.js"
 
 export let keyMap = {}
 
