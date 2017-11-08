@@ -230,6 +230,9 @@
      "[keyword const] [def async] [operator =] {[property a]: [number 1]};",
      "[keyword const] [def foo] [operator =] [string-2 `bar ${][variable async].[property a][string-2 }`];")
 
+  MT("async_comment",
+     "[keyword async] [comment /**/] [keyword function] [def foo]([def args]) { [keyword return] [atom true]; }");
+
   MT("indent_switch",
      "[keyword switch] ([variable x]) {",
      "  [keyword default]:",
