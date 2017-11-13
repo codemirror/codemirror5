@@ -131,6 +131,8 @@
   sim("delRegion", "abcde", "Ctrl-Space", "Ctrl-F", "Ctrl-F", "Delete", txt("cde"));
   sim("backspaceRegion", "abcde", "Ctrl-Space", "Ctrl-F", "Ctrl-F", "Backspace", txt("cde"));
 
+  sim("backspaceDoesntAddToRing", "foobar", "Ctrl-F", "Ctrl-F", "Ctrl-F", "Ctrl-K", "Backspace", "Backspace", "Ctrl-Y", txt("fbar"));
+
   testCM("save", function(cm) {
     var saved = false;
     CodeMirror.commands.save = function(cm) { saved = cm.getValue(); };
