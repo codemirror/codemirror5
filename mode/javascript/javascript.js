@@ -438,6 +438,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == "=>") return cont(pushcontext, noComma ? arrowBodyNoComma : arrowBody, popcontext);
     if (type == "operator") {
       if (/\+\+|--/.test(value) || isTS && value == "!") return cont(me);
+      if (isTS && value == "<") return cont(pushlex(">"), commasep(typeexpr, ">"), poplex, maybeoperatorNoComma);
       if (value == "?") return cont(expression, expect(":"), expr);
       return cont(expr);
     }
