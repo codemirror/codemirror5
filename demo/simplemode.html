@@ -65,15 +65,14 @@ highlighted by the mode shown in it).</p>
   <dd>The regular expression that matches the token. May be a string
   or a regex object. When a regex, the <code>ignoreCase</code> flag
   will be taken into account when matching the token. This regex
-  should only capture groups when the <code>token</code> property is
-  an array.</dd>
-  <dt><code><strong>token</strong></code>: string | null</dt>
+  has to capture groups when the <code>token</code> property is
+  an array. If it captures groups, it must capture <em>all</em> of the string
+  (since JS provides no way to find out where a group matched).</dd>
+  <dt><code><strong>token</strong></code>: string | array&lt;string&gt; | null</dt>
   <dd>An optional token style. Multiple styles can be specified by
-  separating them with dots or spaces. When the <code>regex</code> for
-  this rule captures groups, it must capture <em>all</em> of the
-  string (since JS provides no way to find out where a group matched),
-  and this property must hold an array of token styles that has one
-  style for each matched group.</dd>
+  separating them with dots or spaces. When this property holds an array of token styles,
+  the <code>regex</code> for this rule must capture a group for each array item.
+  </dd>
   <dt><code><strong>sol</strong></code>: boolean</dt>
   <dd>When true, this token will only match at the start of the line.
   (The <code>^</code> regexp marker doesn't work as you'd expect in

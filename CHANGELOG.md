@@ -1,3 +1,45 @@
+## 5.31.0 (2017-10-20)
+
+### Bug fixes
+
+Further improve selection drawing and cursor motion in right-to-left documents.
+
+[vim bindings](http://codemirror.net/demo/vim.html): Fix ctrl-w behavior, support quote-dot and backtick-dot marks, make the wide cursor visible in contentEditable [input mode](http://codemirror.net/doc/manual.html#option_contentEditable).
+
+[continuecomment addon](http://codemirror.net/doc/manual.html#addon_continuecomment): Fix bug when pressing enter after a single-line block comment.
+
+[markdown mode](http://codemirror.net/mode/markdown/): Fix issue with leaving indented fenced code blocks.
+
+[javascript mode](http://codemirror.net/mode/javascript/): Fix bad parsing of operators without spaces between them. Fix some corner cases around semicolon insertion and regexps.
+
+### New features
+
+Modes added with [`addOverlay`](http://codemirror.net/doc/manual.html#addOverlay) now have access to a [`baseToken`](http://codemirror.net/doc/manual.html#baseToken) method on their input stream, giving access to the tokens of the underlying mode.
+
+## 5.30.0 (2017-09-20)
+
+### Bug fixes
+
+Fixed a number of issues with drawing right-to-left selections and mouse selection in bidirectional text.
+
+[search addon](http://codemirror.net/demo/search/): Fix crash when restarting search after doing empty search.
+
+[mark-selection addon](http://cm/doc/manual.html#addon_mark-selection): Fix off-by-one bug.
+
+[tern addon](http://codemirror.net/demo/tern.html): Fix bad request made when editing at the bottom of a large document.
+
+[javascript mode](http://codemirror.net/mode/javascript/): Improve parsing in a number of corner cases.
+
+[markdown mode](http://codemirror.net/mode/markdown/): Fix crash when a sub-mode doesn't support indentation, allow uppercase X in task lists.
+
+[gfm mode](http://codemirror.net/mode/gfm/): Don't highlight SHA1 'hashes' without numbers to avoid false positives.
+
+[soy mode](http://codemirror.net/mode/soy/): Support injected data and `@param` in comments.
+
+### New features
+
+[simple mode addon](http://codemirror.net/demo/simplemode.html): Allow groups in regexps when `token` isn't an array.
+
 ## 5.29.0 (2017-08-24)
 
 ### Bug fixes
@@ -54,7 +96,7 @@ Fix crash when using mode lookahead.
 
 ### Bug fixes
 
-Fix crash in the [simple mode](http://codemirror.net/demo/simplemode.html) addon.
+Fix crash in the [simple mode](http://codemirror.net/demo/simplemode.html)< addon.
 
 ## 5.27.0 (2017-06-22)
 

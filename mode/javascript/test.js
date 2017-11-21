@@ -236,6 +236,19 @@
      "    [keyword return] [number 2]",
      "}")
 
+  MT("regexp_corner_case",
+     "[operator +]{} [operator /] [atom undefined];",
+     "[[[meta ...][string-2 /\\//] ]];",
+     "[keyword void] [string-2 /\\//];",
+     "[keyword do] [string-2 /\\//]; [keyword while] ([number 0]);",
+     "[keyword if] ([number 0]) {} [keyword else] [string-2 /\\//];",
+     "[string-2 `${][variable async][operator ++][string-2 }//`];",
+     "[string-2 `${]{} [operator /] [string-2 /\\//}`];")
+
+  MT("return_eol",
+     "[keyword return]",
+     "{} [string-2 /5/]")
+
   var ts_mode = CodeMirror.getMode({indentUnit: 2}, "application/typescript")
   function TS(name) {
     test.mode(name, ts_mode, Array.prototype.slice.call(arguments, 1))
@@ -351,6 +364,9 @@
      "  [keyword public] [keyword abstract] [property bar]() {}",
      "  [property constructor]([keyword readonly] [keyword private] [def x]) {}",
      "}")
+
+  TS("arrow prop",
+     "({[property a]: [def p] [operator =>] [variable-2 p]})")
 
   var jsonld_mode = CodeMirror.getMode(
     {indentUnit: 2},

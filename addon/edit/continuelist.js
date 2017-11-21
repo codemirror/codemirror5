@@ -25,7 +25,8 @@
       var inQuote = eolState.quote !== 0;
 
       var line = cm.getLine(pos.line), match = listRE.exec(line);
-      if (!ranges[i].empty() || (!inList && !inQuote) || !match) {
+      var cursorBeforeBullet = /^\s*$/.test(line.slice(0, pos.ch));
+      if (!ranges[i].empty() || (!inList && !inQuote) || !match || cursorBeforeBullet) {
         cm.execCommand("newlineAndIndent");
         return;
       }

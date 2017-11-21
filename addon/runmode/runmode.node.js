@@ -163,6 +163,18 @@ exports.getMode = function(options, spec) {
 
   return modeObj;
 };
+
+exports.innerMode = function(mode, state) {
+  var info;
+  while (mode.innerMode) {
+    info = mode.innerMode(state);
+    if (!info || info.mode == mode) break;
+    state = info.state;
+    mode = info.mode;
+  }
+  return info || {mode: mode, state: state};
+}
+
 exports.registerHelper = exports.registerGlobalHelper = Math.min;
 
 exports.runMode = function(string, modespec, callback, options) {
