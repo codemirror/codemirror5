@@ -2474,3 +2474,22 @@ testCM("delete_wrapped", function(cm) {
   cm.deleteH(-1, "char");
   eq(cm.getLine(0), "1245");
 }, {value: "12345", lineWrapping: true})
+
+CodeMirror.defineMode("lookahead_mode", function() {
+  // Colors text as atom if the line two lines down has an x in it
+  return {
+    token: function(stream) {
+      stream.skipToEnd()
+      return /x/.test(stream.lookAhead(2)) ? "atom" : null
+    }
+  }
+})
+
+testCM("mode_lookahead", function(cm) {
+  eq(cm.getTokenAt(Pos(0, 1)).type, "atom")
+  eq(cm.getTokenAt(Pos(1, 1)).type, "atom")
+  eq(cm.getTokenAt(Pos(2, 1)).type, null)
+  cm.replaceRange("\n", Pos(2, 0))
+  eq(cm.getTokenAt(Pos(0, 1)).type, null)
+  eq(cm.getTokenAt(Pos(1, 1)).type, "atom")
+}, {value: "foo\na\nx\nx\n", mode: "lookahead_mode"})

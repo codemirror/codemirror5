@@ -69,7 +69,7 @@
 <section class=first id=overview>
     <h2 style="position: relative">
       User manual and reference guide
-      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 5.26.1</span>
+      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 5.29.1</span>
     </h2>
 
     <p>CodeMirror is a code-editor component that can be embedded in
@@ -406,6 +406,13 @@
       <dd>When enabled, which is the default, doing copy or cut when
       there is no selection will copy or cut the whole lines that have
       cursors on them.</dd>
+
+      <dt id="option_pasteLinesPerSelection"><code><strong>pasteLinesPerSelection</strong>: boolean</code></dt>
+      <dd>When pasting something from an external source (not from the
+      editor itself), if the number of lines matches the number of
+      selection, CodeMirror will by default insert one line per
+      selection. You can set this to <code>false</code> to disable
+      that behavior.</dd>
 
       <dt id="option_undoDepth"><code><strong>undoDepth</strong>: integer</code></dt>
       <dd>The maximum number of undo levels that the editor stores.
@@ -923,7 +930,10 @@ editor.setOption("extraKeys", {
       <dd>Delete the part of the line from the cursor to the right side of the visual line the cursor is on.</dd>
 
       <dt class=command id=command_undo><code><strong>undo</strong></code><span class=keybinding>Ctrl-Z (PC), Cmd-Z (Mac)</span></dt>
-      <dd>Undo the last change.</dd>
+      <dd>Undo the last change. Note that, because browsers still
+      don't make it possible for scripts to react to or customize the
+      context menu, selecting undo (or redo) from the context menu in
+      a CodeMirror instance does not work.</dd>
 
       <dt class=command id=command_redo><code><strong>redo</strong></code><span class=keybinding>Ctrl-Y (PC), Shift-Cmd-Z (Mac), Cmd-Y (Mac)</span></dt>
       <dd>Redo the last undone change.</dd>
@@ -2038,6 +2048,17 @@ editor.setOption("extraKeys", {
       lot faster. The return value from this method will be the return
       value of your function.</dd>
 
+      <dt id="startOperation"><code><strong>cm.startOperation</strong>()</code></dt>
+      <dt id="endOperation"><code><strong>cm.endOperation</strong>()</code></dt>
+      <dd>In normal circumstances, use the above <code>operation</code>
+      method. But if you want to buffer operations happening asynchronously,
+      or that can't all be wrapped in a callback function, you can
+      call <code>startOperation</code> to tell CodeMirror to start
+      buffering changes, and <code>endOperation</code> to actually
+      render all the updates. <em>Be careful:</em> if you use this
+      API and forget to call <code>endOperation</code>, the editor will
+      just never update.</dd>
+
       <dt id="indentLine"><code><strong>cm.indentLine</strong>(line: integer, ?dir: string|integer)</code></dt>
       <dd>Adjust the indentation of the given line. The second
       argument (which defaults to <code>"smart"</code>) may be one of:
@@ -2208,6 +2229,9 @@ editor.setOption("extraKeys", {
       various <a href="#event_change">event handlers</a>). The
       returned position will be the end of the changed
       range, <em>after</em> the change is applied.</dd>
+
+      <dt id="countColumn"><code><strong>CodeMirror.countColumn</strong>(line: string, index: number, tabSize: number) → number</code></dt>
+      <dd>Find the column position at a given string index using a given tabsize.</dd>
     </dl>
 </section>
 
@@ -2334,12 +2358,25 @@ editor.setOption("extraKeys", {
 
       <dt id="addon_matchbrackets"><a href="../addon/edit/matchbrackets.js"><code>edit/matchbrackets.js</code></a></dt>
       <dd>Defines an option <code>matchBrackets</code> which, when set
-      to true, causes matching brackets to be highlighted whenever the
-      cursor is next to them. It also adds a
+      to true or an options object, causes matching brackets to be
+      highlighted whenever the cursor is next to them. It also adds a
       method <code>matchBrackets</code> that forces this to happen
       once, and a method <code>findMatchingBracket</code> that can be
       used to run the bracket-finding algorithm that this uses
-      internally.</dd>
+      internally. It takes a start position and an optional config
+      object. By default, it will find the match to a matchable
+      character either before or after the cursor (preferring the one
+      before), but you can control its behavior with these options:
+        <dl>
+          <dt><strong><code>afterCursor</code></strong></dt>
+          <dd>Only use the character after the start position, never the one before it.</dd>
+          <dt><strong><code>strict</code></strong></dt>
+          <dd>Causes only matches where both brackets are at the same side of the start position to be considered.</dd>
+          <dt><strong><code>maxScanLines</code></strong></dt>
+          <dd>Stop after scanning this amount of lines without a successful match. Defaults to 1000.</dd>
+          <dt><strong><code>maxScanLineLength</code></strong></dt>
+          <dd>Ignore lines longer than this. Defaults to 10000.</dd>
+        </dl></dd>
 
       <dt id="addon_closebrackets"><a href="../addon/edit/closebrackets.js"><code>edit/closebrackets.js</code></a></dt>
       <dd>Defines an option <code>autoCloseBrackets</code> that will
@@ -3218,6 +3255,12 @@ editor.setOption("extraKeys", {
       <dt><code><strong>current</strong>() → string</code></dt>
       <dd>Get the string between the start of the current token and
       the current stream position.</dd>
+
+      <dt><code><strong>lookAhead</strong>(n: number) → ?string</code></dt>
+      <dd>Get the line <code>n</code> (&gt;0) lines after the current
+      one, in order to scan ahead across line boundaries. Note that
+      you want to do this carefully, since looking far ahead will make
+      mode state caching much less effective.</dd>
     </dl>
 
     <p id="blankLine">By default, blank lines are simply skipped when

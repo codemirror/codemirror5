@@ -68,4 +68,5 @@ CodeMirror.defineSimpleMode("rust",{
 
 
 CodeMirror.defineMIME("text/x-rustsrc", "rust");
+CodeMirror.defineMIME("text/rust", "rust");
 });

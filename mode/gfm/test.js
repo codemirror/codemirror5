@@ -2,9 +2,10 @@
 // Distributed under an MIT license: http://codemirror.net/LICENSE
 
 (function() {
-  var mode = CodeMirror.getMode({tabSize: 4}, "gfm");
+  var config = {tabSize: 4, indentUnit: 2}
+  var mode = CodeMirror.getMode(config, "gfm");
   function MT(name) { test.mode(name, mode, Array.prototype.slice.call(arguments, 1)); }
-  var modeHighlightFormatting = CodeMirror.getMode({tabSize: 4}, {name: "gfm", highlightFormatting: true});
+  var modeHighlightFormatting = CodeMirror.getMode(config, {name: "gfm", highlightFormatting: true});
   function FT(name) { test.mode(name, modeHighlightFormatting, Array.prototype.slice.call(arguments, 1)); }
 
   FT("codeBackticks",
@@ -12,11 +13,6 @@
 
   FT("doubleBackticks",
      "[comment&formatting&formatting-code ``][comment foo ` bar][comment&formatting&formatting-code ``]");
-
-  FT("codeBlock",
-     "[comment&formatting&formatting-code-block ```css]",
-     "[tag foo]",
-     "[comment&formatting&formatting-code-block ```]");
 
   FT("taskList",
      "[variable-2&formatting&formatting-list&formatting-list-ul - ][meta&formatting&formatting-task [ ]]][variable-2  foo]",
@@ -28,6 +24,9 @@
   FT("formatting_strikethrough",
      "foo [strikethrough&formatting&formatting-strikethrough ~~][strikethrough bar][strikethrough&formatting&formatting-strikethrough ~~]");
 
+  FT("formatting_emoji",
+     "foo [builtin&formatting&formatting-emoji :smile:] foo");
+
   MT("emInWordAsterisk",
      "foo[em *bar*]hello");
 
@@ -36,31 +35,6 @@
 
   MT("emStrongUnderscore",
      "[em&strong ___foo___] bar");
-
-  MT("fencedCodeBlocks",
-     "[comment ```]",
-     "[comment foo]",
-     "",
-     "[comment ```]",
-     "bar");
-
-  MT("fencedCodeBlockModeSwitching",
-     "[comment ```javascript]",
-     "[variable foo]",
-     "",
-     "[comment ```]",
-     "bar");
-
-  MT("fencedCodeBlockModeSwitchingObjc",
-     "[comment ```objective-c]",
-     "[keyword @property] [variable NSString] [operator *] [variable foo];",
-     "[comment ```]",
-     "bar");
-
-  MT("fencedCodeBlocksNoTildes",
-     "~~~",
-     "foo",
-     "~~~");
 
   MT("taskListAsterisk",
      "[variable-2 * ][link&variable-2 [[]]][variable-2 foo]", // Invalid; must have space or x between []
@@ -163,11 +137,6 @@
      "foo asfd:asdf bar");
 
   MT("notALink",
-     "[comment ```css]",
-     "[tag foo] {[property color]:[keyword black];}",
-     "[comment ```][link http://www.example.com/]");
-
-  MT("notALink",
      "[comment ``foo `bar` http://www.example.com/``] hello");
 
   MT("notALink",
@@ -176,17 +145,6 @@
      "[comment `] foo",
      "",
      "[link http://www.example.com/]");
-
-  MT("headerCodeBlockGithub",
-     "[header&header-1 # heading]",
-     "",
-     "[comment ```]",
-     "[comment code]",
-     "[comment ```]",
-     "",
-     "Commit: [link be6a8cc1c1ecfe9489fb51e4869af15a13fc2cd2]",
-     "Issue: [link #1]",
-     "Link: [link http://www.example.com/]");
 
   MT("strikethrough",
      "[strikethrough ~~foo~~]");
@@ -229,5 +187,9 @@
 
   MT("strikethroughStrong",
      "[strong **][strong&strikethrough ~~foo~~][strong **]");
+
+  MT("emoji",
+     "text [builtin :blush:] text [builtin :v:] text [builtin :+1:] text",
+     ":text text: [builtin :smiley_cat:]");
 
 })();

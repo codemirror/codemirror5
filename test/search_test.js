@@ -70,9 +70,16 @@
   })
 
   test("expandingCaseFold", function() {
-    if (phantom) return; // A Phantom bug makes this hang
     var doc = new CodeMirror.Doc("<b>İİ İİ</b>\n<b>uu uu</b>")
     run(doc, "</b>", true, 0, 8, 0, 12, 1, 8, 1, 12);
     run(doc, "İİ", true, 0, 3, 0, 5, 0, 6, 0, 8);
   });
+
+  test("normalize", function() {
+    if (!String.prototype.normalize) return
+    var doc = new CodeMirror.Doc("yılbaşı\n수 있을까\nLe taux d'humidité à London")
+    run(doc, "s", false, 0, 5, 0, 6)
+    run(doc, "이", false, 1, 2, 1, 3)
+    run(doc, "a", false, 0, 4, 0, 5, 2, 4, 2, 5, 2, 19, 2, 20)
+  })
 })();

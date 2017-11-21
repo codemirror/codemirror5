@@ -17,6 +17,12 @@
 
 CodeMirror.registerHelper("lint", "coffeescript", function(text) {
   var found = [];
+  if (!window.coffeelint) {
+    if (window.console) {
+      window.console.error("Error: window.coffeelint not defined, CodeMirror CoffeeScript linting cannot run.");
+    }
+    return found;
+  }
   var parseError = function(err) {
     var loc = err.lineNumber;
     found.push({from: CodeMirror.Pos(loc-1, 0),

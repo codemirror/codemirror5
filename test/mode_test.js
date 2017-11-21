@@ -128,7 +128,9 @@
           (st.indentFailures || (st.indentFailures = [])).push(
             "Indentation of line " + (i + 1) + " is " + indent + " (expected " + ws.length + ")");
       }
-      var stream = new CodeMirror.StringStream(line);
+      var stream = new CodeMirror.StringStream(line, 4, {
+        lookAhead: function(n) { return lines[i + n] }
+      });
       if (line == "" && mode.blankLine) mode.blankLine(state);
       /* Start copied code from CodeMirror.highlight */
       while (!stream.eol()) {

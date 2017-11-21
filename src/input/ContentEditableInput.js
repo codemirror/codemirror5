@@ -420,7 +420,7 @@ function domTextBetween(cm, from, to, fromLine, toLine) {
       let markerID = node.getAttribute("cm-marker"), range
       if (markerID) {
         let found = cm.findMarks(Pos(fromLine, 0), Pos(toLine + 1, 0), recognizeMarker(+markerID))
-        if (found.length && (range = found[0].find()))
+        if (found.length && (range = found[0].find(0)))
           addText(getBetween(cm.doc, range.from, range.to).join(lineSep))
         return
       }

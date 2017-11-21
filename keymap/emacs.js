@@ -97,7 +97,7 @@
 
   function byExpr(cm, pos, dir) {
     var wrap;
-    if (cm.findMatchingBracket && (wrap = cm.findMatchingBracket(pos, true))
+    if (cm.findMatchingBracket && (wrap = cm.findMatchingBracket(pos, {strict: true}))
         && wrap.match && (wrap.forward ? 1 : -1) == dir)
       return dir > 0 ? Pos(wrap.to.line, wrap.to.ch + 1) : wrap.to;
 
@@ -369,7 +369,7 @@
     "Ctrl-/": repeated("undo"), "Shift-Ctrl--": repeated("undo"),
     "Ctrl-Z": repeated("undo"), "Cmd-Z": repeated("undo"),
     "Shift-Alt-,": "goDocStart", "Shift-Alt-.": "goDocEnd",
-    "Ctrl-S": "findNext", "Ctrl-R": "findPrev", "Ctrl-G": quit, "Shift-Alt-5": "replace",
+    "Ctrl-S": "findPersistentNext", "Ctrl-R": "findPersistentPrev", "Ctrl-G": quit, "Shift-Alt-5": "replace",
     "Alt-/": "autocomplete",
     "Enter": "newlineAndIndent",
     "Ctrl-J": repeated(function(cm) { cm.replaceSelection("\n", "end"); }),

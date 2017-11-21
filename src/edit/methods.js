@@ -3,14 +3,14 @@ import { commands } from "./commands"
 import { attachDoc } from "../model/document_data"
 import { activeElt, addClass, rmClass } from "../util/dom"
 import { eventMixin, signal } from "../util/event"
-import { getLineStyles, getStateBefore, takeToken } from "../line/highlight"
+import { getLineStyles, getContextBefore, takeToken } from "../line/highlight"
 import { indentLine } from "../input/indent"
 import { triggerElectric } from "../input/input"
 import { onKeyDown, onKeyPress, onKeyUp } from "./key_events"
 import { onMouseDown } from "./mouse_events"
 import { getKeyMap } from "../input/keymap"
 import { endOfLine, moveLogically, moveVisually } from "../input/movement"
-import { methodOp, operation, runInOp } from "../display/operations"
+import { endOperation, methodOp, operation, runInOp, startOperation } from "../display/operations"
 import { clipLine, clipPos, equalCursorPos, Pos } from "../line/pos"
 import { charCoords, charWidth, clearCaches, clearLineMeasurementCache, coordsChar, cursorCoords, displayHeight, displayWidth, estimateLineHeights, fromCoordSystem, intoCoordSystem, scrollGap, textHeight } from "../measurement/position_measurement"
 import { Range } from "../model/selection"
@@ -178,7 +178,7 @@ export default function(CodeMirror) {
     getStateAfter: function(line, precise) {
       let doc = this.doc
       line = clipLine(doc, line == null ? doc.first + doc.size - 1: line)
-      return getStateBefore(this, line + 1, precise)
+      return getContextBefore(this, line + 1, precise).state
     },
 
     cursorCoords: function(start, mode) {
@@ -405,6 +405,8 @@ export default function(CodeMirror) {
     }),
 
     operation: function(f){return runInOp(this, f)},
+    startOperation: function(){return startOperation(this)},
+    endOperation: function(){return endOperation(this)},
 
     refresh: methodOp(function() {
       let oldHeight = this.display.cachedTextHeight

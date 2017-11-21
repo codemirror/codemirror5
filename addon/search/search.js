@@ -137,8 +137,7 @@
       };
       persistentDialog(cm, queryDialog, q, searchNext, function(event, query) {
         var keyName = CodeMirror.keyName(event)
-        var cmd = CodeMirror.keyMap[cm.getOption("keyMap")][keyName]
-        if (!cmd) cmd = cm.getOption('extraKeys')[keyName]
+        var extra = cm.getOption('extraKeys'), cmd = (extra && extra[keyName]) || CodeMirror.keyMap[cm.getOption("keyMap")][keyName]
         if (cmd == "findNext" || cmd == "findPrev" ||
           cmd == "findPersistentNext" || cmd == "findPersistentPrev") {
           CodeMirror.e_stop(event);

@@ -955,6 +955,10 @@ testVim('yy_multiply_repeat', function(cm, vim, helpers) {
   is(register.linewise);
   eqCursorPos(curStart, cm.getCursor());
 });
+testVim('2dd_blank_P', function(cm, vim, helpers) {
+  helpers.doKeys('2', 'd', 'd', 'P');
+  eq('\na\n\n', cm.getValue());
+}, { value: '\na\n\n' });
 // Change commands behave like d commands except that it also enters insert
 // mode. In addition, when the change is linewise, an additional newline is
 // inserted so that insert mode starts on that line.
@@ -2582,6 +2586,14 @@ testVim('macro_search_2f', function(cm, vim, helpers) {
   helpers.doKeys('@', 'a');
   helpers.assertCursorAt(0,9);
 }, { value: 'The quick brown fox jumped over the lazy dog.'});
+testVim('macro_yank_tick', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  // Start recording a macro into the \' register.
+  helpers.doKeys('q', '\'');
+  helpers.doKeys('y', '<Right>', '<Right>', '<Right>', '<Right>', 'p');
+  helpers.assertCursorAt(0,4);
+  eq('the tex parrot', cm.getValue());
+}, { value: 'the ex parrot'});
 testVim('yank_register', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('"', 'a', 'y', 'y');
@@ -3777,6 +3789,14 @@ testSubstitute('ex_substitute_multibackslash_replacement', {
   value: 'one,two \n three,four',
   expectedValue: 'one\\\\\\\\two \n three\\\\\\\\four', // 2*8 backslashes.
   expr: '%s/,/\\\\\\\\\\\\\\\\/g'}); // 16 backslashes.
+testSubstitute('ex_substitute_dollar_match', {
+  value: 'one,two \n three,four',
+  expectedValue: 'one,two ,\n three,four',
+  expr: '%s/$/,/g'});
+testSubstitute('ex_substitute_newline_match', {
+  value: 'one,two \n three,four',
+  expectedValue: 'one,two , three,four',
+  expr: '%s/\\n/,/g'});
 testSubstitute('ex_substitute_newline_replacement', {
   value: 'one,two \n three,four',
   expectedValue: 'one\ntwo \n three\nfour',
