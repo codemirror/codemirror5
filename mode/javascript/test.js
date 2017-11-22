@@ -375,6 +375,14 @@
      "[keyword this].[property a][operator <][type Type][operator >]([variable foo]);",
      "[keyword this].[property a][operator <][variable Type][operator >][variable foo];")
 
+  TS("type guard",
+     "[keyword class] [def Appler] {",
+     "  [keyword static] [property assertApple]([def fruit]: [type Fruit]): [variable-2 fruit] [keyword is] [type Apple] {",
+     "    [keyword if] ([operator !]([variable-2 fruit] [keyword instanceof] [variable Apple]))",
+     "      [keyword throw] [keyword new] [variable Error]();",
+     "  }",
+     "}")
+
   var jsonld_mode = CodeMirror.getMode(
     {indentUnit: 2},
     {name: "javascript", jsonld: true}
