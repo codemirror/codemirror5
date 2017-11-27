@@ -614,7 +614,8 @@
     var mouseOnTip = false, old = false;
     CodeMirror.on(tip, "mousemove", function() { mouseOnTip = true; });
     CodeMirror.on(tip, "mouseout", function(e) {
-      if (!CodeMirror.contains(tip, e.relatedTarget || e.toElement)) {
+      let related = e.relatedTarget || e.toElement
+      if (!related || !CodeMirror.contains(tip, related)) {
         if (old) clear();
         else mouseOnTip = false;
       }
