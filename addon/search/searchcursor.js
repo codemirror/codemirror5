@@ -114,11 +114,43 @@
       }
     }
   }
+  
+  //Normalization for Arabic
+  var normalizeArabicChars = function (s) {
+    function filter(c) {
+      // ALEF Chars
+      if ((c =='\u0625') || (c =='\u0623') || (c =='\u0622') || (c =='\u0675') ||
+          (c =='\u0673')|| (c =='\u0672') || (c =='\u0671') || (c =='\u0670') ||
+          (c =='\u0674') )
+        return '\u0627'
+      // TAAA MARBOTA Chars
+      else if ((c =='\u06c3') || (c =='\u06c2') || (c =='\u06c0') || (c =='\u06c1') ||
+            (c =='\u0647') )
+        return '\u0629'
+      // YAAA Chars
+      else if ((c =='\u0649') || (c =='\u064a') || (c =='\u0678') || (c =='\u064a') )
+        return '\u0620'
+      else if (c =='\u0626')
+        return '\u0620\u0621'
+      else
+        return c
+    }
+    var normalized = "", i, l
+    for (i = 0, l = s.length; i < l; i = i + 1) {
+      normalized = normalized + filter(s.charAt(i))
+    }
+    return normalized
+  }
+
+  function isArabic(str) {
+    var pattern = /[\u0600-\u06FF\u0750-\u077F]/;
+    return pattern.test(str);
+  }
 
   var doFold, noFold
   if (String.prototype.normalize) {
-    doFold = function(str) { return str.normalize("NFD").toLowerCase() }
-    noFold = function(str) { return str.normalize("NFD") }
+    doFold = function(str) { return isArabic(str)? normalizeArabicChars(str) : str.normalize("NFD").toLowerCase() }
+    noFold = function(str) { return isArabic(str)? normalizeArabicChars(str) : str.normalize("NFD") }
   } else {
     doFold = function(str) { return str.toLowerCase() }
     noFold = function(str) { return str }
