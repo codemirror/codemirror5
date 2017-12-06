@@ -81,8 +81,10 @@ CodeMirror.defineMode('mllike', function(_config, parserConfig) {
       return 'comment';
     }
     if (/\d/.test(ch)) {
-      if (ch === '0' && stream.eat('b')) {
+      if (ch === '0' && stream.eat(/[bB]/)) {
         stream.eatWhile(/[01]/);
+      } if (ch === '0' && stream.eat(/[xX]/)) {
+        stream.eatWhile(/[0-9a-dA-D]/)
       } else {
         stream.eatWhile(/[\d]/);
         if (stream.eat('.')) {
