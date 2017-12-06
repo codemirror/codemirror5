@@ -142,7 +142,9 @@ CodeMirror.defineMIME('text/x-ocaml', {
     'print_endline': 'builtin',
     'true': 'atom',
     'false': 'atom',
-    'raise': 'keyword'
+    'raise': 'keyword',
+    'module': 'keyword',
+    'sig': 'keyword'
   }
 });
 
