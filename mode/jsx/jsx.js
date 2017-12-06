@@ -26,7 +26,7 @@
   }
 
   CodeMirror.defineMode("jsx", function(config, modeConfig) {
-    var xmlMode = CodeMirror.getMode(config, {name: "xml", allowMissing: true, multilineTagIndentPastTag: false})
+    var xmlMode = CodeMirror.getMode(config, {name: "xml", allowMissing: true, multilineTagIndentPastTag: false, allowMissingTagName: true})
     var jsMode = CodeMirror.getMode(config, modeConfig && modeConfig.base || "javascript")
 
     function flatXMLIndent(state) {
