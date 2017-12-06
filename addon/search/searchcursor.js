@@ -150,18 +150,26 @@
     return normalized
   }
 
-  function isArabic(str) {
+  function hasArabic(str) {
     var pattern = /[\u0600-\u06FF\u0750-\u077F]/;
     return pattern.test(str);
   }
 
   var doFold, noFold
-  if (String.prototype.normalize) {
-    doFold = function(str) { return isArabic(str)? normalizeArabicChars(str) : str.normalize("NFD").toLowerCase() }
-    noFold = function(str) { return isArabic(str)? normalizeArabicChars(str) : str.normalize("NFD") }
-  } else {
-    doFold = function(str) { return str.toLowerCase() }
-    noFold = function(str) { return str }
+  doFold = function(str){
+    str = str.toLowerCase()
+    if (String.prototype.normalize)
+      str = str.normalize("NFD")
+    if (hasArabic(str))
+      return normalizeArabicChars(str)
+    return str
+  }
+  noFold = function(str){
+    if (String.prototype.normalize)
+      str = str.normalize("NFD")
+    if (hasArabic(str))
+      return normalizeArabicChars(str)
+    return str
   }
 
   // Maps a position in a case-folded line back to a position in the original line
