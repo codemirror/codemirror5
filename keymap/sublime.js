@@ -514,27 +514,6 @@
     cm.scrollTo(null, (pos.top + pos.bottom) / 2 - cm.getScrollInfo().clientHeight / 2);
   };
 
-  cmds.selectLinesUpward = function(cm) {
-    cm.operation(function() {
-      var ranges = cm.listSelections();
-      for (var i = 0; i < ranges.length; i++) {
-        var range = ranges[i];
-        if (range.head.line > cm.firstLine())
-          cm.addSelection(Pos(range.head.line - 1, range.head.ch));
-      }
-    });
-  };
-  cmds.selectLinesDownward = function(cm) {
-    cm.operation(function() {
-      var ranges = cm.listSelections();
-      for (var i = 0; i < ranges.length; i++) {
-        var range = ranges[i];
-        if (range.head.line < cm.lastLine())
-          cm.addSelection(Pos(range.head.line + 1, range.head.ch));
-      }
-    });
-  };
-
   function getTarget(cm) {
     var from = cm.getCursor("from"), to = cm.getCursor("to");
     if (CodeMirror.cmpPos(from, to) == 0) {
@@ -596,8 +575,6 @@
     "Cmd-Enter": "insertLineAfter",
     "Shift-Cmd-Enter": "insertLineBefore",
     "Cmd-D": "selectNextOccurrence",
-    "Shift-Cmd-Up": "addCursorToPrevLine",
-    "Shift-Cmd-Down": "addCursorToNextLine",
     "Shift-Cmd-Space": "selectScope",
     "Shift-Cmd-M": "selectBetweenBrackets",
     "Cmd-M": "goToBracket",
@@ -627,8 +604,8 @@
     "Cmd-K Cmd-Backspace": "delLineLeft",
     "Cmd-K Cmd-0": "unfoldAll",
     "Cmd-K Cmd-J": "unfoldAll",
-    "Ctrl-Shift-Up": "selectLinesUpward",
-    "Ctrl-Shift-Down": "selectLinesDownward",
+    "Ctrl-Shift-Up": "addCursorToPrevLine",
+    "Ctrl-Shift-Down": "addCursorToNextLine",
     "Cmd-F3": "findUnder",
     "Shift-Cmd-F3": "findUnderPrevious",
     "Alt-F3": "findAllUnder",
@@ -658,8 +635,6 @@
     "Ctrl-Enter": "insertLineAfter",
     "Shift-Ctrl-Enter": "insertLineBefore",
     "Ctrl-D": "selectNextOccurrence",
-    "Alt-CtrlUp": "addCursorToPrevLine",
-    "Alt-CtrlDown": "addCursorToNextLine",
     "Shift-Ctrl-Space": "selectScope",
     "Shift-Ctrl-M": "selectBetweenBrackets",
     "Ctrl-M": "goToBracket",
@@ -689,8 +664,8 @@
     "Ctrl-K Ctrl-Backspace": "delLineLeft",
     "Ctrl-K Ctrl-0": "unfoldAll",
     "Ctrl-K Ctrl-J": "unfoldAll",
-    "Ctrl-Alt-Up": "selectLinesUpward",
-    "Ctrl-Alt-Down": "selectLinesDownward",
+    "Ctrl-Alt-Up": "addCursorToPrevLine",
+    "Ctrl-Alt-Down": "addCursorToNextLine",
     "Ctrl-F3": "findUnder",
     "Shift-Ctrl-F3": "findUnderPrevious",
     "Alt-F3": "findAllUnder",
