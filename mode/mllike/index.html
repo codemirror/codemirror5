@@ -11,6 +11,7 @@
 <style type=text/css>
   .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}
 </style>
+<link rel="stylesheet" href="http://farhadg.github.io/code-mirror-themes/themes/bespin.css"/>
 <div id=nav>
   <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../../doc/logo.png"></a>
 
@@ -143,6 +144,14 @@ let x = {|
 let b = 0b00110
 let h = 0x123abcd
 let e = 1e-10
+let i = 1.
+let x = 30_000
+let o = 0o1234
+
+[1; 2; 3] (* lists *)
+
+1 @ 2
+1. +. 2.
 </textarea>
 
 <h2>F# mode</h2>
@@ -176,7 +185,8 @@ type Color =
   var ocamlEditor = CodeMirror.fromTextArea(document.getElementById('ocamlCode'), {
     mode: 'text/x-ocaml',
     lineNumbers: true,
-    matchBrackets: true
+    matchBrackets: true,
+    theme: 'bespin'
   });
 
   var fsharpEditor = CodeMirror.fromTextArea(document.getElementById('fsharpCode'), {

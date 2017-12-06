@@ -84,9 +84,11 @@ CodeMirror.defineMode('mllike', function(_config, parserConfig) {
       if (ch === '0' && stream.eat(/[bB]/)) {
         stream.eatWhile(/[01]/);
       } if (ch === '0' && stream.eat(/[xX]/)) {
-        stream.eatWhile(/[0-9a-dA-D]/)
+        stream.eatWhile(/[0-9a-fA-F]/)
+      } if (ch === '0' && stream.eat(/[oO]/)) {
+        stream.eatWhile(/[0-7]/);
       } else {
-        stream.eatWhile(/[\d]/);
+        stream.eatWhile(/[\d_]/);
         if (stream.eat('.')) {
           stream.eatWhile(/[\d]/);
         }
@@ -96,7 +98,7 @@ CodeMirror.defineMode('mllike', function(_config, parserConfig) {
       }
       return 'number';
     }
-    if ( /[+\-*&%=<>!?|]/.test(ch)) {
+    if ( /[+\-*&%=<>!?|@]/.test(ch)) {
       return 'operator';
     }
     if (/[\w\xa1-\uffff]/.test(ch)) {
