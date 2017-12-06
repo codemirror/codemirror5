@@ -138,7 +138,7 @@
         case 'ٸ' :
           return 'ي'
         case 'ئ':
-          return 'ي ء'
+          return 'يء'
         default :
           return c
       }
