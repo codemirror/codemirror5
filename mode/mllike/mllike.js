@@ -90,6 +90,9 @@ CodeMirror.defineMode('mllike', function(_config, parserConfig) {
         if (stream.eat('.')) {
           stream.eatWhile(/[\d]/);
         }
+        if (stream.eat(/[eE]/)) {
+          stream.eatWhile(/[\d\-+]/);
+        }
       }
       return 'number';
     }
