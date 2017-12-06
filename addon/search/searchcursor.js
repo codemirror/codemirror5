@@ -114,26 +114,34 @@
       }
     }
   }
-  
+
   //Normalization for Arabic
   var normalizeArabicChars = function (s) {
     function filter(c) {
-      // ALEF Chars
-      if ((c =='\u0625') || (c =='\u0623') || (c =='\u0622') || (c =='\u0675') ||
-          (c =='\u0673')|| (c =='\u0672') || (c =='\u0671') || (c =='\u0670') ||
-          (c =='\u0674') )
-        return '\u0627'
-      // TAAA MARBOTA Chars
-      else if ((c =='\u06c3') || (c =='\u06c2') || (c =='\u06c0') || (c =='\u06c1') ||
-            (c =='\u0647') )
-        return '\u0629'
-      // YAAA Chars
-      else if ((c =='\u0649') || (c =='\u064a') || (c =='\u0678') || (c =='\u064a') )
-        return '\u0620'
-      else if (c =='\u0626')
-        return '\u0620\u0621'
-      else
-        return c
+      switch (c) {
+        // ALEF Chars
+        case 'إ' :
+        case 'أ' :
+        case 'آ' :
+        case 'ٵ' :
+        case 'ٳ' :
+        case 'ٲ' :
+        case 'ٱ' :
+          return 'ا'
+        // TAAA MARBOTA Chars
+        case 'ۃ' :
+        case 'ہ' :
+          return 'ة'
+        // YAAA Chars
+        case 'ى' :
+        case 'ي' :
+        case 'ٸ' :
+          return 'ي'
+        case 'ئ':
+          return 'ي ء'
+        default :
+          return c
+      }
     }
     var normalized = "", i, l
     for (i = 0, l = s.length; i < l; i = i + 1) {
