@@ -54,12 +54,12 @@ CodeMirror.defineMode('mllike', function(_config, parserConfig) {
       state.tokenize = tokenString;
       return state.tokenize(stream, state);
     }
-    if (ch === '{' && stream.eat('|')) {
-      if (stream.eatWhile(/[^(|})]/)) {
-        stream.eat('|');
-        stream.eat('}');
+    if (ch === '{') {
+      if (stream.eat('|')) {
+        state.longString = true;
+        state.tokenize = tokenLongString;
+        return state.tokenize(stream, state);
       }
-      return 'string';
     }
     if (ch === '(') {
       if (stream.eat('*')) {
@@ -126,8 +126,20 @@ CodeMirror.defineMode('mllike', function(_config, parserConfig) {
     return 'comment';
   }
 
+  function tokenLongString(stream, state) {
+    var prev, next;
+    while (state.longString && (next = stream.next()) != null) {
+      if (prev === '|' && next === '}') state.longString = false;
+      prev = next;
+    }
+    if (!state.longString) {
+      state.tokenize = tokenBase;
+    }
+    return 'string';
+  }
+
   return {
-    startState: function() {return {tokenize: tokenBase, commentLevel: 0};},
+    startState: function() {return {tokenize: tokenBase, commentLevel: 0, longString: false};},
     token: function(stream, state) {
       if (stream.eatSpace()) return null;
       return state.tokenize(stream, state);
