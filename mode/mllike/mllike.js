@@ -54,6 +54,13 @@ CodeMirror.defineMode('mllike', function(_config, parserConfig) {
       state.tokenize = tokenString;
       return state.tokenize(stream, state);
     }
+    if (ch === '{' && stream.eat('|')) {
+      if (stream.eatWhile(/[^(|})]/)) {
+        stream.eat('|');
+        stream.eat('}');
+      }
+      return 'string';
+    }
     if (ch === '(') {
       if (stream.eat('*')) {
         state.commentLevel++;
