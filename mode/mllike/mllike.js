@@ -81,9 +81,13 @@ CodeMirror.defineMode('mllike', function(_config, parserConfig) {
       return 'comment';
     }
     if (/\d/.test(ch)) {
-      stream.eatWhile(/[\d]/);
-      if (stream.eat('.')) {
+      if (ch === '0' && stream.eat('b')) {
+        stream.eatWhile(/[01]/);
+      } else {
         stream.eatWhile(/[\d]/);
+        if (stream.eat('.')) {
+          stream.eatWhile(/[\d]/);
+        }
       }
       return 'number';
     }
