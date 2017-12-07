@@ -152,7 +152,9 @@
          Pos(0, 8), "selectScope", hasSel(0, 8, 2, 0),
          Pos(1, 2), "selectScope", hasSel(0, 8, 2, 0),
          Pos(1, 6), "selectScope", hasSel(1, 6, 1, 10),
-         Pos(1, 9), "selectScope", hasSel(1, 6, 1, 10));
+         Pos(1, 9), "selectScope", hasSel(1, 6, 1, 10),
+         "selectScope", hasSel(0, 8, 2, 0),
+         "selectScope", hasSel(0, 0, 2, 1));
 
   stTest("goToBracket", "foo(a) {\n  bar[1, 2];\n}",
          Pos(0, 0), "goToBracket", at(0, 0),
