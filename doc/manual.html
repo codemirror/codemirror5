@@ -1523,10 +1523,11 @@ editor.setOption("extraKeys", {
     represents the editor content, plus a selection, an undo history,
     and a <a href="#option_mode">mode</a>. A document can only be
     associated with a single editor at a time. You can create new
-    documents by calling the <code>CodeMirror.Doc(text: string, mode: Object,
-    firstLineNumber: ?number, lineSeparator: ?string)</code> constructor. The last two arguments are
-    optional and can be used to set a mode for the document and make
-    it start at a line number other than 0, respectively.</p>
+    documents by calling the <code>CodeMirror.Doc(text: string, mode:
+    Object, firstLineNumber: ?number, lineSeparator: ?string)</code>
+    constructor. The last three arguments are optional and can be used
+    to set a mode for the document, make it start at a line number
+    other than 0, and set a specific line separator respectively.</p>
 
     <dl>
       <dt id="getDoc"><code><strong>cm.getDoc</strong>() → Doc</code></dt>
