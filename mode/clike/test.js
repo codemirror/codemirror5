@@ -56,4 +56,14 @@
   MTCPP("ctor_dtor",
      "[def Foo::Foo]() {}",
      "[def Foo::~Foo]() {}");
+
+  var mode_scala = CodeMirror.getMode({indentUnit: 2}, "text/x-scala");
+  function MTSCALA(name) { test.mode("scala_" + name, mode_scala, Array.prototype.slice.call(arguments, 1)); }
+  MTSCALA("nested_comments",
+     "[comment /*]",
+     "[comment But wait /* this is a nested comment */ for real]",
+     "[comment /**** let * me * show * you ****/]",
+     "[comment ///// let / me / show / you /////]",
+     "[comment */]");
+
 })();
