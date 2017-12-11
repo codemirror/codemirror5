@@ -127,9 +127,11 @@
     }
     cm.replaceSelections(replacements);
     ranges = cm.listSelections();
-    for (var i = 0; i < ranges.length; i++)
-      if (i == ranges.length - 1 || ranges[i].head.line < ranges[i + 1].head.line)
-        cm.indentLine(ranges[i].head.line);
+    if (cm.getOption("autoCloseTagSlashIndent") == "true") {
+        for (var i = 0; i < ranges.length; i++)
+            if (i == ranges.length - 1 || ranges[i].head.line < ranges[i + 1].head.line)
+                cm.indentLine(ranges[i].head.line);
+     }
   }
 
   function autoCloseSlash(cm) {
