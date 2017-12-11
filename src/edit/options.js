@@ -52,6 +52,7 @@ export function defineOptions(CodeMirror) {
     clearCaches(cm)
     regChange(cm)
   }, true)
+
   option("lineSeparator", null, (cm, val) => {
     cm.doc.lineSep = val
     if (!val) return
