@@ -219,12 +219,12 @@
                                                    2, 4, 2, 6,
                                                    2, 7, 2, 7));
 
-  stTest("selectLinesUpward", "123\n345\n789\n012",
+  stTest("addCursorToPrevLine", "123\n345\n789\n012",
          setSel(0, 1, 0, 1,
                 1, 1, 1, 3,
                 2, 0, 2, 0,
                 3, 0, 3, 0),
-         "selectLinesUpward",
+         "addCursorToPrevLine",
          hasSel(0, 1, 0, 1,
                 0, 3, 0, 3,
                 1, 0, 1, 0,
@@ -232,12 +232,12 @@
                 2, 0, 2, 0,
                 3, 0, 3, 0));
 
-  stTest("selectLinesDownward", "123\n345\n789\n012",
+  stTest("addCursorToNextLine", "123\n345\n789\n012",
          setSel(0, 1, 0, 1,
                 1, 1, 1, 3,
                 2, 0, 2, 0,
                 3, 0, 3, 0),
-         "selectLinesDownward",
+         "addCursorToNextLine",
          hasSel(0, 1, 0, 1,
                 1, 1, 1, 3,
                 2, 0, 2, 0,
