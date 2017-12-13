@@ -97,6 +97,8 @@
   function autoCloseCurrent(cm, typingSlash) {
     var ranges = cm.listSelections(), replacements = [];
     var head = typingSlash ? "/" : "</";
+    var opt = cm.getOption("autoCloseTags");
+    var dontIndentOnSlash = (typeof opt == "object" && opt.dontIndentOnSlash);
     for (var i = 0; i < ranges.length; i++) {
       if (!ranges[i].empty()) return CodeMirror.Pass;
       var pos = ranges[i].head, tok = cm.getTokenAt(pos);
@@ -127,7 +129,7 @@
     }
     cm.replaceSelections(replacements);
     ranges = cm.listSelections();
-    if (cm.getOption("autoCloseTagSlashIndent") == "true") {
+    if (!dontIndentOnSlash) {
         for (var i = 0; i < ranges.length; i++)
             if (i == ranges.length - 1 || ranges[i].head.line < ranges[i + 1].head.line)
                 cm.indentLine(ranges[i].head.line);
