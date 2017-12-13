@@ -219,31 +219,6 @@
                                                    2, 4, 2, 6,
                                                    2, 7, 2, 7));
 
-  stTest("addCursorToPrevLine", "123\n345\n789\n012",
-         setSel(0, 1, 0, 1,
-                1, 1, 1, 3,
-                2, 0, 2, 0,
-                3, 0, 3, 0),
-         "addCursorToPrevLine",
-         hasSel(0, 1, 0, 1,
-                0, 3, 0, 3,
-                1, 0, 1, 0,
-                1, 1, 1, 3,
-                2, 0, 2, 0,
-                3, 0, 3, 0));
-
-  stTest("addCursorToNextLine", "123\n345\n789\n012",
-         setSel(0, 1, 0, 1,
-                1, 1, 1, 3,
-                2, 0, 2, 0,
-                3, 0, 3, 0),
-         "addCursorToNextLine",
-         hasSel(0, 1, 0, 1,
-                1, 1, 1, 3,
-                2, 0, 2, 0,
-                2, 3, 2, 3,
-                3, 0, 3, 0));
-
   stTest("sortLines", "c\nb\na\nC\nB\nA",
          "sortLines", val("A\nB\nC\na\nb\nc"),
          "undo",
