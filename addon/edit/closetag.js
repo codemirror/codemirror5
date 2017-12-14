@@ -90,8 +90,8 @@
       sel[i] = {head: info.newPos, anchor: info.newPos};
       cm.setSelections(sel);
       if (!dontIndentOnAutoClose && info.indent) {
-		cm.indentLine(info.newPos.line, null, true);
-		cm.indentLine(info.newPos.line + 1, null, true);
+        cm.indentLine(info.newPos.line, null, true);
+        cm.indentLine(info.newPos.line + 1, null, true);
       }
     }
   }
