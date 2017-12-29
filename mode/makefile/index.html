@@ -1,0 +1,70 @@
+<!doctype html>
+
+<title>CodeMirror: Makefile mode</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../../doc/docs.css">
+
+<link rel=stylesheet href=../../lib/codemirror.css>
+<script src=../../lib/codemirror.js></script>
+<script src="../../addon/edit/matchbrackets.js"></script>
+<script src=makefile.js></script>
+<style type=text/css>
+  .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}
+</style>
+<div id=nav>
+  <a href="http://codemirror.net"><img id=logo src="../../doc/logo.png"></a>
+
+  <ul>
+    <li><a href="../../index.html">Home</a>
+    <li><a href="../../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/marijnh/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="../index.html">Language modes</a>
+    <li><a class=active href="#">Makefile</a>
+  </ul>
+</div>
+
+<article>
+  <h2>Makefile mode</h2>
+
+
+  <textarea id=code>
+#!/usr/bin/make -f
+
+include debian/confflags
+vpath %.c $(CURDIR)
+
+DEB_HOST_GNU_CPU = $(shell dpkg-architecture -qDEB_HOST_GNU_CPU)
+
+%:
+	dh ${@} --parallel
+
+.PHONY: ../source/main/main.cpp
+
+# a comment
+../source/main/main.cpp:
+	@echo "make custom"
+ifeq ($(DEB_HOST_GNU_CPU), amd64)
+	$(MAKE) -f debian/custom64.mk
+else
+	$(MAKE) -f debian/custom.mk
+endif
+
+if install
+override_dh_install:
+	@echo $$install
+	dh_install --list-missing #another comment
+endif
+</textarea>
+
+  <script>
+    var editor = CodeMirror.fromTextArea(document.getElementById('code'), {
+      mode: 'makefile',
+      lineNumbers: true,
+      matchBrackets: true
+    });
+  </script>
+
+  <p><strong>MIME types defined:</strong> <code>text/x-makefile</code>.</p>
+</article>
