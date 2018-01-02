@@ -166,6 +166,10 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         }
         if (state.list !== false) {
           state.indentationDiff = lineIndentation - state.listStack[state.listStack.length - 1]
+          state.em = false;
+          state.strong = false;
+          state.code = false;
+          state.strikethrough = false;
         }
       }
     }
