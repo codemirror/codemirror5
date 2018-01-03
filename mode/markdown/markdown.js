@@ -151,6 +151,12 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     if (state.indentationDiff === null) {
       state.indentationDiff = state.indentation;
       if (prevLineIsList) {
+        // Reset inline styles which shouldn't propagate aross list items
+        state.em = false;
+        state.strong = false;
+        state.code = false;
+        state.strikethrough = false;
+
         state.list = null;
         // While this list item's marker's indentation is less than the deepest
         //  list item's content's indentation,pop the deepest list item
@@ -166,10 +172,6 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         }
         if (state.list !== false) {
           state.indentationDiff = lineIndentation - state.listStack[state.listStack.length - 1]
-          state.em = false;
-          state.strong = false;
-          state.code = false;
-          state.strikethrough = false;
         }
       }
     }
@@ -859,8 +861,6 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   };
   return mode;
 }, "xml");
-
-CodeMirror.defineMIME("text/markdown", "markdown");
 
 CodeMirror.defineMIME("text/x-markdown", "markdown");
 
