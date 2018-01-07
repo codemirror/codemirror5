@@ -1,3 +1,25 @@
+## 5.33.0 (2017-12-21)
+
+### Bug fixes
+
+[lint addon](http://codemirror.net/doc/manual.html#addon_lint): Make updates more efficient.
+
+[css mode](http://codemirror.net/mode/css/): The mode is now properly case-insensitive.
+
+[continuelist addon](http://codemirror.net/doc/manual.html#addon_continuelist): Fix broken handling of unordered lists introduced in previous release.
+
+[swift](http://codemirror.net/mode/swift) and [scala](http://codemirror.net/mode/clike/) modes: Support nested block comments.
+
+[mllike mode](http://codemirror.net/mode/mllike/index.html): Improve OCaml support.
+
+[sublime bindings](http://codemirror.net/demo/sublime.html): Use the proper key bindings for `addCursorToNextLine` and `addCursorToPrevLine`.
+
+### New features
+
+[jsx mode](http://codemirror.net/mode/jsx/index.html): Support JSX fragments.
+
+[closetag addon](http://codemirror.net/demo/closetag.html): Add an option to disable auto-indenting.
+
 ## 5.32.0 (2017-11-22)
 
 ### Bug fixes
