@@ -785,6 +785,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         formatting: false,
         linkText: s.linkText,
         linkTitle: s.linkTitle,
+        linkHref: s.linkHref,
         code: s.code,
         em: s.em,
         strong: s.strong,
