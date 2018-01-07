@@ -174,7 +174,14 @@ CodeMirror.defineMIME('text/x-ocaml', {
     'false': 'atom',
     'raise': 'keyword',
     'module': 'keyword',
-    'sig': 'keyword'
+    'sig': 'keyword',
+    'exception': 'keyword',
+    'int': 'builtin',
+    'float': 'builtin',
+    'char': 'builtin',
+    'string': 'builtin',
+    'bool': 'builtin',
+    'unit': 'builtin'
   }
 });
 
