@@ -273,8 +273,8 @@
     if (search.charAt(0) == "." || search.charAt(0) == identifierQuote) {
       start = nameCompletion(cur, token, result, editor);
     } else {
-      addMatches(result, search, tables, function(w) {return w;});
       addMatches(result, search, defaultTable, function(w) {return w;});
+      addMatches(result, search, tables, function(w) {return w;});
       if (!disableKeywords)
         addMatches(result, search, keywords, function(w) {return w.toUpperCase();});
     }
