@@ -93,7 +93,7 @@ CodeMirror.defineMode('mllike', function(_config, parserConfig) {
       }
       return 'number';
     }
-    if ( /[+\-*&%=<>!?|@]/.test(ch)) {
+    if ( /[+\-*&%=<>!?|@]?\./.test(ch)) {
       return 'operator';
     }
     if (/[\w\xa1-\uffff]/.test(ch)) {
@@ -188,8 +188,6 @@ CodeMirror.defineMIME('text/x-ocaml', {
     // builtins
     'raise': 'builtin',
     'failwith': 'builtin',
-    'Some': 'builtin',
-    'None': 'builtin',
     'true': 'builtin',
     'false': 'builtin',
 
@@ -217,10 +215,6 @@ CodeMirror.defineMIME('text/x-ocaml', {
     'char': 'atom',
     'string': 'atom',
     'unit': 'atom',
-
-    // extended types
-    'list': 'atom',
-    'option': 'atom'
   }
 });
 
@@ -313,9 +307,7 @@ CodeMirror.defineMIME('text/x-fsharp', {
     'false': 'builtin',
 
     'raise': 'builtin',
-    'failwith': 'builtin',
-    'Some': 'builtin',
-    'None': 'builtin'
+    'failwith': 'builtin'
   },
   slashComments: true
 });
