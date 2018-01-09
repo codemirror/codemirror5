@@ -128,6 +128,7 @@
     {name: "Smalltalk", mime: "text/x-stsrc", mode: "smalltalk", ext: ["st"]},
     {name: "Smarty", mime: "text/x-smarty", mode: "smarty", ext: ["tpl"]},
     {name: "Solr", mime: "text/x-solr", mode: "solr"},
+    {name: "SML", mime: "text/x-sml", mode: "mllike", ext: ["sml", "sig", "fun", "smackspec"]},
     {name: "Soy", mime: "text/x-soy", mode: "soy", ext: ["soy"], alias: ["closure template"]},
     {name: "SPARQL", mime: "application/sparql-query", mode: "sparql", ext: ["rq", "sparql"], alias: ["sparul"]},
     {name: "Spreadsheet", mime: "text/x-spreadsheet", mode: "spreadsheet", alias: ["excel", "formula"]},
