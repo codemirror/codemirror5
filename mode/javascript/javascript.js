@@ -681,7 +681,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   function classNameAfter(type, value) {
     if (value == "<") return cont(pushlex(">"), commasep(typeparam, ">"), poplex, classNameAfter)
     if (value == "extends" || value == "implements" || (isTS && type == ",")) {
-      cx.marked = "keyword";
+      if (value == "implements") cx.marked = "keyword";
       return cont(isTS ? typeexpr : expression, classNameAfter);
     }
     if (type == "{") return cont(pushlex("}"), classBody, poplex);
