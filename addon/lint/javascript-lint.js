@@ -68,11 +68,12 @@
     for (i = 0; i < replacements.length; i++) {
       fix = replacements[i];
       find = fix[0];
-      replace = fix[1];
       found = description.indexOf(find) !== -1;
 
       if (found) {
+        replace = fix[1];
         error.description = replace;
+        break;
       }
     }
   }
