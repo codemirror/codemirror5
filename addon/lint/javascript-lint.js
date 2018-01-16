@@ -14,12 +14,20 @@
 
   var bogus = [ "Dangerous comment" ];
 
-  var warnings = [ [ "Expected '{'",
+  var replacements = [ [ "Expected '{'",
                      "Statement body should be inside '{ }' braces." ] ];
 
-  var errors = [ "Missing semicolon", "Extra comma", "Missing property name",
-                 "Unmatched ", " and instead saw", " is not defined",
-                 "Unclosed string", "Stopping, unable to continue" ];
+  var forcedErrorCodes = [
+    "W033", // Missing semicolon.
+    "W070", // Extra comma. (it breaks older versions of IE)
+    "W112", // Unclosed string.
+    "W117", // '{a}' is not defined.
+    "W023", // Expected an identifier in an assignment and instead saw a function invocation.
+    "W024", // Expected an identifier and instead saw '{a}' (a reserved word).
+    "W030", // Expected an assignment or function call and instead saw an expression.
+    "W084", // Expected a conditional expression and instead saw an assignment.
+    "W095" // Expected a string and instead saw {a}.
+  ];
 
   function validator(text, options) {
     if (!window.JSHINT) {
@@ -37,29 +45,35 @@
   CodeMirror.registerHelper("lint", "javascript", validator);
 
   function cleanup(error) {
-    // All problems are warnings by default
-    fixWith(error, warnings, "warning", true);
-    fixWith(error, errors, "error");
+    fixWith(error, forcedErrorCodes, replacements);
 
     return isBogus(error) ? null : error;
   }
 
-  function fixWith(error, fixes, severity, force) {
-    var description, fix, find, replace, found;
+  function fixWith(error, forcedErrorCodes, replacements) {
+    var errorCode, description, i, fix, find, replace, found;
 
+    errorCode = error.code;
     description = error.description;
 
-    for ( var i = 0; i < fixes.length; i++) {
-      fix = fixes[i];
-      find = (typeof fix === "string" ? fix : fix[0]);
-      replace = (typeof fix === "string" ? null : fix[1]);
+    if (error.severity !== "error") {
+      for (i = 0; i < forcedErrorCodes.length; i++) {
+        if (errorCode === forcedErrorCodes[i]) {
+          error.severity = "error";
+          break;
+        }
+      }
+    }
+
+    for (i = 0; i < replacements.length; i++) {
+      fix = replacements[i];
+      find = fix[0];
       found = description.indexOf(find) !== -1;
 
-      if (force || found) {
-        error.severity = severity;
-      }
-      if (found && replace) {
+      if (found) {
+        replace = fix[1];
         error.description = replace;
+        break;
       }
     }
   }
@@ -128,6 +142,7 @@
         error.description = error.reason;// + "(jshint)";
         error.start = error.character;
         error.end = end;
+        error.severity = error.code.startsWith('W') ? "warning" : "error";
         error = cleanup(error);
 
         if (error)
