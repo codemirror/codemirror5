@@ -51,13 +51,13 @@
   }
 
   function fixWith(error, forcedErrorCodes, replacements) {
-    var errorCode, description, fix, find, replace, found;
+    var errorCode, description, i, fix, find, replace, found;
 
     errorCode = error.code;
     description = error.description;
 
     if (error.severity !== "error") {
-      for (var i = 0; i < forcedErrorCodes.length; i++) {
+      for (i = 0; i < forcedErrorCodes.length; i++) {
         if (errorCode === forcedErrorCodes[i]) {
           error.severity = "error";
           break;
