@@ -12,21 +12,6 @@
   "use strict";
   // declare global: JSHINT
 
-  var replacements = [ [ "Expected '{'",
-                     "Statement body should be inside '{ }' braces." ] ];
-
-  var forcedErrorCodes = [
-    "W033", // Missing semicolon.
-    "W070", // Extra comma. (it breaks older versions of IE)
-    "W112", // Unclosed string.
-    "W117", // '{a}' is not defined.
-    "W023", // Expected an identifier in an assignment and instead saw a function invocation.
-    "W024", // Expected an identifier and instead saw '{a}' (a reserved word).
-    "W030", // Expected an assignment or function call and instead saw an expression.
-    "W084", // Expected a conditional expression and instead saw an assignment.
-    "W095" // Expected a string and instead saw {a}.
-  ];
-
   function validator(text, options) {
     if (!window.JSHINT) {
       if (window.console) {
@@ -41,38 +26,6 @@
   }
 
   CodeMirror.registerHelper("lint", "javascript", validator);
-
-  function cleanup(error) {
-    fixWith(error, forcedErrorCodes, replacements);
-  }
-
-  function fixWith(error, forcedErrorCodes, replacements) {
-    var errorCode, description, i, fix, find, replace, found;
-
-    errorCode = error.code;
-    description = error.description;
-
-    if (error.severity !== "error") {
-      for (i = 0; i < forcedErrorCodes.length; i++) {
-        if (errorCode === forcedErrorCodes[i]) {
-          error.severity = "error";
-          break;
-        }
-      }
-    }
-
-    for (i = 0; i < replacements.length; i++) {
-      fix = replacements[i];
-      find = fix[0];
-      found = description.indexOf(find) !== -1;
-
-      if (found) {
-        replace = fix[1];
-        error.description = replace;
-        break;
-      }
-    }
-  }
 
   function parseErrors(errors, output) {
     for ( var i = 0; i < errors.length; i++) {
@@ -129,7 +82,6 @@
         error.start = error.character;
         error.end = end;
         error.severity = error.code.startsWith('W') ? "warning" : "error";
-        cleanup(error);
 
         if (error)
           output.push({message: error.description,
