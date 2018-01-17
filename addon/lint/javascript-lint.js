@@ -19,6 +19,8 @@
       }
       return [];
     }
+    if (!options.indent) // JSHint error.character actually is a column index, this fixes underlining on lines using tabs for indentation
+      options.indent = 1; // JSHint default value is 4
     JSHINT(text, options, options.globals);
     var errors = JSHINT.data().errors, result = [];
     if (errors) parseErrors(errors, result);
@@ -31,63 +33,30 @@
     for ( var i = 0; i < errors.length; i++) {
       var error = errors[i];
       if (error) {
-        var linetabpositions, index;
-
-        linetabpositions = [];
-
-        // This next block is to fix a problem in jshint. Jshint
-        // replaces
-        // all tabs with spaces then performs some checks. The error
-        // positions (character/space) are then reported incorrectly,
-        // not taking the replacement step into account. Here we look
-        // at the evidence line and try to adjust the character position
-        // to the correct value.
-        if (error.evidence) {
-          // Tab positions are computed once per line and cached
-          var tabpositions = linetabpositions[error.line];
-          if (!tabpositions) {
-            var evidence = error.evidence;
-            tabpositions = [];
-            // ugggh phantomjs does not like this
-            // forEachChar(evidence, function(item, index) {
-            Array.prototype.forEach.call(evidence, function(item,
-                                                            index) {
-              if (item === '\t') {
-                // First col is 1 (not 0) to match error
-                // positions
-                tabpositions.push(index + 1);
-              }
-            });
-            linetabpositions[error.line] = tabpositions;
+        if (error.line <= 0) {
+          if (window.console) {
+            window.console.warn("Cannot display JSHint error (invalid line " + error.line + ")", error);
           }
-          if (tabpositions.length > 0) {
-            var pos = error.character;
-            tabpositions.forEach(function(tabposition) {
-              if (pos > tabposition) pos -= 1;
-            });
-            error.character = pos;
-          }
+          continue;
         }
 
         var start = error.character - 1, end = start + 1;
         if (error.evidence) {
-          index = error.evidence.substring(start).search(/.\b/);
+          var index = error.evidence.substring(start).search(/.\b/);
           if (index > -1) {
             end += index;
           }
         }
 
         // Convert to format expected by validation service
-        error.description = error.reason;// + "(jshint)";
-        error.start = error.character;
-        error.end = end;
-        error.severity = error.code.startsWith('W') ? "warning" : "error";
+        var hint = {
+          message: error.reason,
+          severity: error.code.startsWith('W') ? "warning" : "error",
+          from: CodeMirror.Pos(error.line - 1, start),
+          to: CodeMirror.Pos(error.line - 1, end)
+        };
 
-        if (error)
-          output.push({message: error.description,
-                       severity: error.severity,
-                       from: CodeMirror.Pos(error.line - 1, start),
-                       to: CodeMirror.Pos(error.line - 1, end)});
+        output.push(hint);
       }
     }
   }
