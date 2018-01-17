@@ -61,4 +61,7 @@
 
   MT("nested braces",
      "[builtin echo] [def ${A[${B}]]}]")
+
+  MT("strings in parens",
+     "[def FOO][operator =]([quote $(<][string \"][def $MYDIR][string \"][quote /myfile grep ][string 'hello$'][quote )])")
 })();
