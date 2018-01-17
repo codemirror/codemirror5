@@ -12,8 +12,6 @@
   "use strict";
   // declare global: JSHINT
 
-  var bogus = [ "Dangerous comment" ];
-
   var warnings = [ [ "Expected '{'",
                      "Statement body should be inside '{ }' braces." ] ];
 
@@ -40,8 +38,6 @@
     // All problems are warnings by default
     fixWith(error, warnings, "warning", true);
     fixWith(error, errors, "error");
-
-    return isBogus(error) ? null : error;
   }
 
   function fixWith(error, fixes, severity, force) {
@@ -62,16 +58,6 @@
         error.description = replace;
       }
     }
-  }
-
-  function isBogus(error) {
-    var description = error.description;
-    for ( var i = 0; i < bogus.length; i++) {
-      if (description.indexOf(bogus[i]) !== -1) {
-        return true;
-      }
-    }
-    return false;
   }
 
   function parseErrors(errors, output) {
@@ -128,7 +114,7 @@
         error.description = error.reason;// + "(jshint)";
         error.start = error.character;
         error.end = end;
-        error = cleanup(error);
+        cleanup(error);
 
         if (error)
           output.push({message: error.description,
