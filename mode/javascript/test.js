@@ -383,6 +383,16 @@
      "  }",
      "}")
 
+  TS("type as variable",
+     "[variable type] [operator =] [variable x] [keyword as] [type Bar];");
+
+  TS("enum body",
+     "[keyword export] [keyword const] [keyword enum] [def CodeInspectionResultType] {",
+     "  [def ERROR] [operator =] [string 'problem_type_error'],",
+     "  [def WARNING] [operator =] [string 'problem_type_warning'],",
+     "  [def META],",
+     "}")
+
   var jsonld_mode = CodeMirror.getMode(
     {indentUnit: 2},
     {name: "javascript", jsonld: true}
