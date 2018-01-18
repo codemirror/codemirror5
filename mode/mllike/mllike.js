@@ -93,7 +93,7 @@ CodeMirror.defineMode('mllike', function(_config, parserConfig) {
       }
       return 'number';
     }
-    if ( /[+\-*&%=<>!?|@]?\./.test(ch)) {
+    if ( /[+\-*&%=<>!?|@\.~:]/.test(ch)) {
       return 'operator';
     }
     if (/[\w\xa1-\uffff]/.test(ch)) {
@@ -168,6 +168,7 @@ CodeMirror.defineMIME('text/x-ocaml', {
     'done': 'keyword',
     'downto': 'keyword',
     'external': 'keyword',
+    'function': 'keyword',
     'initializer': 'keyword',
     'lazy': 'keyword',
     'match': 'keyword',
@@ -208,13 +209,15 @@ CodeMirror.defineMIME('text/x-ocaml', {
     'print_string': 'builtin',
     'print_endline': 'builtin',
 
-    // Types
-    'int': 'atom',
-    'float': 'atom',
-    'bool': 'atom',
-    'char': 'atom',
-    'string': 'atom',
-    'unit': 'atom',
+     'int': 'type',
+     'float': 'type',
+     'bool': 'type',
+     'char': 'type',
+     'string': 'type',
+     'unit': 'type',
+
+     // Modules
+     'List': 'builtin'
   }
 });
 
