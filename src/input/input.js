@@ -27,7 +27,7 @@ export function applyTextInput(cm, inserted, deleted, sel, origin) {
 
   let paste = cm.state.pasteIncoming || origin == "paste"
   let textLines = splitLinesAuto(inserted), multiPaste = null
-  // When pasing N lines into N selections, insert one line per selection
+  // When pasting N lines into N selections, insert one line per selection
   if (paste && sel.ranges.length > 1) {
     if (lastCopied && lastCopied.text.join("\n") == inserted) {
       if (sel.ranges.length % lastCopied.text.length == 0) {
