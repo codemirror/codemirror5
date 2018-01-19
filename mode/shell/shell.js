@@ -89,7 +89,7 @@ CodeMirror.defineMode('shell', function() {
         if (next === close && !escaped) {
           state.tokens.shift();
           break;
-        } else if (next === '$' && !escaped && quote !== "'") {
+        } else if (next === '$' && !escaped && quote !== "'" && stream.peek() != close) {
           escaped = true;
           stream.backUp(1);
           state.tokens.unshift(tokenDollar);
