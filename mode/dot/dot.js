@@ -12,6 +12,8 @@
     "use strict";
 
     CodeMirror.defineMode("dot", function (config) {
+	var ops = /--|->|=|;/;
+	var brackets = /[\[\]{}]/
 	return {
 	    startState: function () {
 		return {indent_level: 0};
@@ -20,7 +22,14 @@
 	    token: function (stream, state) {
 		stream.eatSpace();
 		console.log(state);
-		if (state.looking_for == "graphname" && stream.match(/[^\W]+/, false)) {
+
+		if (state.looking_for == "property" && stream.match("=")) {
+		    return "variable-3";
+		} else if (state.looking_for == "property") {
+		    stream.match(/\w+/);
+		    state.looking_for = null;
+		    return "string-2"
+		} else if (state.looking_for == "graphname" && stream.match(/[^\W]+/, false)) {
 		    state.looking_for = null;
 		    stream.match(/[^\W]+/);
 		    return "variable-2";
@@ -29,8 +38,16 @@
 		    return "bracket";
 		} else if (stream.match(/}\W*$/)) {
 		    state.indent_level -= 1;
-		    return "bracket"
-		} else if (stream.match(/--/) || stream.match(/->/)) {
+		    return "bracket";
+		} else if (stream.match(brackets)) {
+		    return "bracket";
+		} else if (stream.match(/".*"/)) {
+		    return "string";
+		} else if (stream.match(/\w+=[\"\w]+/, false)) {
+		    state.looking_for = "property";
+		    stream.match(/[^=]+/);
+		    return "attribute"
+		} else if (stream.match(ops)) {
 		    return "variable-3"
 		} else if (stream.match(/(di)?graph\W+/)) {
 		    state.looking_for = "graphname";
@@ -42,7 +59,7 @@
 		    return "variable";
 		} else {
 		    stream.skipToEnd();
-		    return "string";
+		    return "variable";
 		}
 	    },
 
