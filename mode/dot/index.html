@@ -1,0 +1,73 @@
+<!doctype html>
+
+<title>CodeMirror: Dot mode</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../../doc/docs.css">
+
+<link rel="stylesheet" href="../../lib/codemirror.css">
+<script src="../../lib/codemirror.js"></script>
+<script src="dot.js"></script>
+<style>.CodeMirror {background: #f8f8f8;}</style>
+<div id=nav>
+  <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../../doc/logo.png"></a>
+
+  <ul>
+    <li><a href="../../index.html">Home</a>
+    <li><a href="../../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="../index.html">Language modes</a>
+    <li><a class=active href="#">Dot</a>
+  </ul>
+</div>
+
+<article>
+<h2>Dot mode</h2>
+<form><textarea id="code" name="code"> // The graph name and the semicolons are optional
+graph graphname {
+  a -- b -- c;
+  b -- d;
+}
+
+digraph graphname {
+  a -> b -> c;
+  b -> d;
+}
+
+graph graphname {
+  // This attribute applies to the graph itself
+  size="1,1";
+  // The label attribute can be used to change the label of a node
+  a [label="Foo"];
+  // Here, the node shape is changed.
+  b [shape=box];
+  // These edges both have different line properties
+  a -- b -- c [color=blue];
+  b -- d [style=dotted];
+  // [style=invis] hides a node.
+}
+
+// This is a single line comment.
+/* This is a
+   multiple line
+   comment. */
+# Lines like this are also ignored.
+
+graph ethane {
+  C_0 -- H_0 [type=s];
+  C_0 -- H_1 [type=s];
+  C_0 -- H_2 [type=s];
+  C_0 -- C_1 [type=s];
+  C_1 -- H_3 [type=s];
+  C_1 -- H_4 [type=s];
+  C_1 -- H_5 [type=s];
+}
+</textarea></form>
+    <script>
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {lineNumbers: true});
+    </script>
+
+    <p><strong>MIME types defined:</strong> <code>text/x-dot</code>.</p>
+
+  </article>
