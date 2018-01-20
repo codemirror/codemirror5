@@ -24,13 +24,22 @@
 
 <article>
 <h2>Dot mode</h2>
-<form><textarea id="code" name="code"> // The graph name and the semicolons are optional
+<form><textarea id="code" name="code">// This is a single line comment.
+/* This is a
+   multiple line
+    comment. */
+# Lines like this are also ignored.
+
+// The graph name and the semicolons are optional
 graph graphname {
   a -- b -- c;
   b -- d;
 }
 
-digraph graphname {
+/* This is a single line comment with multiline comment syntax */
+
+// Directed graphs are a thing
+digraph {
   a -> b -> c;
   b -> d;
 }
@@ -47,12 +56,6 @@ graph graphname {
   b -- d [style=dotted];
   // [style=invis] hides a node.
 }
-
-// This is a single line comment.
-/* This is a
-   multiple line
-   comment. */
-# Lines like this are also ignored.
 
 graph ethane {
   C_0 -- H_0 [type=s];

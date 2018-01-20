@@ -21,18 +21,29 @@
 
 	    token: function (stream, state) {
 		stream.eatSpace();
-		console.log(state);
-
-		if (state.looking_for == "property" && stream.match("=")) {
+		if (state.looking_for == "multiline-comment" && stream.match(/.*\*\//)) {
+		    state.looking_for = null;
+		    return "comment";
+		} else if (state.looking_for == "multiline-comment"){
+		    stream.skipToEnd();
+		    return "comment";
+		} else if (state.looking_for == "property" && stream.match("=")) {
 		    return "variable-3";
 		} else if (state.looking_for == "property") {
 		    stream.match(/\w+/);
 		    state.looking_for = null;
 		    return "string-2"
-		} else if (state.looking_for == "graphname" && stream.match(/[^\W]+/, false)) {
+		} else if (state.looking_for == "graphname") {
+		    console.log("LOOKING FOR GRAPHNAME", state, stream)
 		    state.looking_for = null;
-		    stream.match(/[^\W]+/);
-		    return "variable-2";
+		    if (stream.match(/{\W*$/)) {
+			state.indent_level += 1;
+			return "bracket"
+		    } else if (stream.match("{")) {
+			return "bracket"
+		    } else if (stream.match(/[^\W]+/)) {
+			return "variable-2"
+		    }
 		} else if (stream.match(/{\W*$/)) {
 		    state.indent_level += 1;
 		    return "bracket";
@@ -49,12 +60,17 @@
 		    return "attribute"
 		} else if (stream.match(ops)) {
 		    return "variable-3"
-		} else if (stream.match(/(di)?graph\W+/)) {
+		} else if (stream.match(/(di)?graph[^{\w]+/)) {
 		    state.looking_for = "graphname";
 		    return "keyword"
 		} else if (stream.match("//") || stream.match("#")) {
 		    stream.skipToEnd();
 		    return "comment"
+		} else if (stream.match(/\/\*.*\*\//)) {
+		    return "comment"
+		} else if (stream.match("/*")) {
+		    state.looking_for = "multiline-comment";
+		    return "comment";
 		} else if (stream.match(/\w+/)) {
 		    return "variable";
 		} else {
@@ -64,8 +80,7 @@
 	    },
 
 	    indent: function (state, _textAfter) {
-	    	var i = state.ctx.indent_level;
-		return typeof i == "number" ? i : 1;
+		return state.indent_level * 2;
 	    },
 
 	    closeBrackets: {pairs: "[]{}\"\""},
