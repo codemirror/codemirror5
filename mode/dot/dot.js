@@ -21,18 +21,21 @@
 
 	    token: function (stream, state) {
 		stream.eatSpace();
-		if (state.looking_for == "multiline-comment" && stream.match(/.*\*\//)) {
-		    state.looking_for = null;
+		if (state.looking_for == "multiline-comment") {
+		    if (stream.match(/.*\*\//)) {
+			state.looking_for = null;
+		    } else {
+			stream.skipToEnd();
+		    }
 		    return "comment";
-		} else if (state.looking_for == "multiline-comment"){
-		    stream.skipToEnd();
-		    return "comment";
-		} else if (state.looking_for == "property" && stream.match("=")) {
-		    return "variable-3";
 		} else if (state.looking_for == "property") {
-		    stream.match(/\w+/);
-		    state.looking_for = null;
-		    return "string-2"
+		    if (stream.match("=")) {
+			return "variable-3";
+		    } else {
+			stream.match(/\w+/);
+			state.looking_for = null;
+			return "string-2"
+		    }
 		} else if (state.looking_for == "graphname") {
 		    console.log("LOOKING FOR GRAPHNAME", state, stream)
 		    state.looking_for = null;
@@ -63,7 +66,7 @@
 		} else if (stream.match(/(di)?graph[^{\w]+/)) {
 		    state.looking_for = "graphname";
 		    return "keyword"
-		} else if (stream.match("//") || stream.match("#")) {
+		} else if (stream.match(/\/\/|#/)) {
 		    stream.skipToEnd();
 		    return "comment"
 		} else if (stream.match(/\/\*.*\*\//)) {
