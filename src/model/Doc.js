@@ -25,6 +25,28 @@ let Doc = function(text, mode, firstLine, lineSep, direction) {
   if (firstLine == null) firstLine = 0
 
   BranchChunk.call(this, [new LeafChunk([new Line("", null)])])
+
+  let history = new History(null)
+
+  if (text instanceof Doc) {
+    const options = mode || {}
+    const other = text
+
+    let from = other.first, to = other.first + other.size
+    if (options.from != null && options.from > from) from = options.from
+    if (options.to != null && options.to < to) to = options.to
+    ;(other.linked || (other.linked = [])).push({doc: this, sharedHist: options.sharedHist})
+    this.linked = [{doc: other, isParent: true, sharedHist: options.sharedHist}]
+    copySharedMarkers(this, findSharedMarkers(other))
+
+    if(options.sharedHist) history = other.history
+    firstLine = from
+    lineSep = other.lineSep
+    mode = options.mode || other.modeOption
+    direction = other.direction
+    text = getLines(other, from, to)
+  }
+
   this.first = firstLine
   this.scrollTop = this.scrollLeft = 0
   this.cantEdit = false
@@ -32,7 +54,7 @@ let Doc = function(text, mode, firstLine, lineSep, direction) {
   this.modeFrontier = this.highlightFrontier = firstLine
   let start = Pos(firstLine, 0)
   this.sel = simpleSelection(start)
-  this.history = new History(null)
+  this.history = history
   this.id = ++nextDocId
   this.modeOption = mode
   this.lineSep = lineSep
