@@ -80,12 +80,18 @@
       return this.cm.state.completionActive == this;
     },
 
-    pick: function(data, i) {
+    pick: function (data, i) {
       var completion = data.list[i];
-      if (completion.hint) completion.hint(this.cm, data, completion);
-      else this.cm.replaceRange(getText(completion), completion.from || data.from,
-                                completion.to || data.to, "complete");
-      CodeMirror.signal(data, "pick", completion);
+      if (typeof completion === 'string') {
+        completion = {
+          name: completion,
+          value: completion,
+        };
+      }
+      if (completion.name.hint) completion.name.hint(this.cm, data, completion.name);
+      else this.cm.replaceRange(getText(completion.value), completion.value.from || data.from,
+        completion.value.to || data.to, "complete");
+      CodeMirror.signal(data, "pick", completion.name);
       this.close();
     },
 
@@ -205,12 +211,19 @@
 
     var completions = data.list;
     for (var i = 0; i < completions.length; ++i) {
-      var elt = hints.appendChild(document.createElement("li")), cur = completions[i];
+      var elt = hints.appendChild(document.createElement("li"))
+      var cur = completions[i];
+      if (typeof cur === 'string') {
+        cur = {
+          name: cur,
+          value: cur,
+        };
+      }
       var className = HINT_ELEMENT_CLASS + (i != this.selectedHint ? "" : " " + ACTIVE_HINT_ELEMENT_CLASS);
-      if (cur.className != null) className = cur.className + " " + className;
+      if (cur.name.className != null) className = cur.name.className + " " + className;
       elt.className = className;
-      if (cur.render) cur.render(elt, data, cur);
-      else elt.appendChild(document.createTextNode(cur.displayText || getText(cur)));
+      if (cur.name.render) cur.name.render(elt, data, cur.name);
+      else elt.appendChild(document.createTextNode(cur.name.displayText || getText(cur.name)));
       elt.hintId = i;
     }
 
