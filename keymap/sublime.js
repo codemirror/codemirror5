@@ -156,11 +156,23 @@
     var ranges = cm.listSelections(), newRanges = [];
     for (var i = 0; i < ranges.length; i++) {
       var range = ranges[i];
-      var newAnchor = cm.findPosV(range.anchor, dir, "line");
-      var newHead = cm.findPosV(range.head, dir, "line");
-      var newRange = {anchor: newAnchor, head: newHead};
+      var newAnchor;
+      var newHead;
+      var amount = 1;
+      do {
+        newAnchor = cm.findPosV(range.anchor, dir * amount, "line");
+        newHead = cm.findPosV(range.head, dir * amount, "line");
+        if (newAnchor.hitSide || newHead.hitSide) {
+          break;
+        }
+        amount++;
+      } while (newAnchor.xRel > 3 || newHead.xRel > 3);
+
       newRanges.push(range);
-      newRanges.push(newRange);
+      if (!newAnchor.hitSide && !newHead.hitSide) {
+        var newRange = {anchor: newAnchor, head: newHead};
+        newRanges.push(newRange);
+      }
     }
     cm.setSelections(newRanges);
   }
