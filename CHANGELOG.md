@@ -1,3 +1,25 @@
+## 5.34.0 (2010-01-29)
+
+### Bug fixes
+
+[markdown mode](http://codemirror.net/mode/markdown/): Fix a problem where inline styles would persist across list items.
+
+[sublime bindings](http://codemirror.net/demo/sublime.html): Fix the `toggleBookmark` command.
+
+[closebrackets addon](http://codemirror.net/doc/manual.html#addon_closebrackets): Improve behavior when closing triple quotes.
+
+[xml-fold addon](http://codemirror.net/demo/folding.html): Fix folding of line-broken XML tags.
+
+[shell mode](http://codemirror.net/mode/shell/): Better handling of nested quoting.
+
+[javascript-lint addon](http://codemirror.net/demo/lint.html): Clean up and simplify.
+
+[matchbrackets addon](http://codemirror.net/doc/manual.html#addon_matchbrackets): Fix support for multiple editors at the same time.
+
+### New features
+
+New themes: [oceanic-next](http://codemirror.net/demo/theme.html#oceanic-next) and [shadowfox](http://codemirror.net/demo/theme.html#shadowfox).
+
 ## 5.33.0 (2017-12-21)
 
 ### Bug fixes
