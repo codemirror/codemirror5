@@ -85,7 +85,8 @@ function makeChangeInner(doc, change) {
 
 // Revert a change stored in a document's history.
 export function makeChangeFromHistory(doc, type, allowSelectionOnly) {
-  if (doc.cm && doc.cm.state.suppressEdits && !allowSelectionOnly) return
+  let suppress = doc.cm && doc.cm.state.suppressEdits
+  if (suppress && !allowSelectionOnly) return
 
   let hist = doc.history, event, selAfter = doc.sel
   let source = type == "undo" ? hist.done : hist.undone, dest = type == "undo" ? hist.undone : hist.done
@@ -110,8 +111,10 @@ export function makeChangeFromHistory(doc, type, allowSelectionOnly) {
         return
       }
       selAfter = event
-    }
-    else break
+    } else if (suppress) {
+      source.push(event);
+      return
+    } else break
   }
 
   // Build up a reverse change object to add to the opposite history
