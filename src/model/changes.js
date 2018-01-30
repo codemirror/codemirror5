@@ -112,7 +112,7 @@ export function makeChangeFromHistory(doc, type, allowSelectionOnly) {
       }
       selAfter = event
     } else if (suppress) {
-      source.push(event);
+      source.push(event)
       return
     } else break
   }
