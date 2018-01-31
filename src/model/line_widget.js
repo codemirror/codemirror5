@@ -73,6 +73,6 @@ export function addLineWidget(doc, handle, node, options) {
     }
     return true
   })
-  signalLater(cm, "lineWidgetAdded", cm, widget, typeof handle == "number" ? handle : lineNo(handle))
+  if (cm) signalLater(cm, "lineWidgetAdded", cm, widget, typeof handle == "number" ? handle : lineNo(handle))
   return widget
 }
