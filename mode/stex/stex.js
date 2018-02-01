@@ -117,6 +117,10 @@
         setState(state, function(source, state){ return inMathMode(source, state, "\\]"); });
         return "keyword";
       }
+      if (source.match("\\(")) {
+        setState(state, function(source, state){ return inMathMode(source, state, "\\)"); });
+        return "keyword";
+      }
       if (source.match("$$")) {
         setState(state, function(source, state){ return inMathMode(source, state, "$$"); });
         return "keyword";
