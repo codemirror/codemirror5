@@ -117,6 +117,12 @@
   MT("displayMath",
      "More [keyword $$]\t[variable-2 S][tag ^][variable-2 n][tag \\sum] [variable-2 i][keyword $$] other text");
 
+  MT("displayMath environment",
+     "[tag \\begin][bracket {][atom equation][bracket }] x [tag \\end][bracket {][atom equation][bracket }] other text");
+
+  MT("displayMath environment with label",
+     "[tag \\begin][bracket {][atom equation][bracket }][tag \\label][bracket {][atom eq1][bracket }] x [tag \\end][bracket {][atom equation][bracket }] other text~[tag \\ref][bracket {][atom eq1][bracket }]");
+
   MT("mathWithComment",
      "[keyword $][variable-2 x] [comment % $]",
      "[variable-2 y][keyword $] other text");
