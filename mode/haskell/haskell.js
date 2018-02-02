@@ -197,8 +197,8 @@ CodeMirror.defineMode("haskell", function(_config, modeConfig) {
       "\.\.", ":", "::", "=", "\\", "<-", "->", "@", "~", "=>");
 
     setType("builtin")(
-      "!!", "$!", "$", "&&", "+", "++", "-", ".", "/", "/=", "<", "<=", "=<<",
-      "==", ">", ">=", ">>", ">>=", "^", "^^", "||", "*", "**");
+      "!!", "$!", "$", "&&", "+", "++", "-", ".", "/", "/=", "<", "<=", "<$>",
+      "<*>", "=<<", "==", ">", ">=", ">>", ">>=", "^", "^^", "||", "*", "**");
 
     setType("builtin")(
       "Bool", "Bounded", "Char", "Double", "EQ", "Either", "Enum", "Eq",
@@ -223,7 +223,7 @@ CodeMirror.defineMode("haskell", function(_config, modeConfig) {
       "lcm", "length", "lex", "lines", "log", "logBase", "lookup", "map",
       "mapM", "mapM_", "max", "maxBound", "maximum", "maybe", "min", "minBound",
       "minimum", "mod", "negate", "not", "notElem", "null", "odd", "or",
-      "otherwise", "pi", "pred", "print", "product", "properFraction",
+      "otherwise", "pi", "pred", "print", "product", "properFraction", "pure",
       "putChar", "putStr", "putStrLn", "quot", "quotRem", "read", "readFile",
       "readIO", "readList", "readLn", "readParen", "reads", "readsPrec",
       "realToFrac", "recip", "rem", "repeat", "replicate", "return", "reverse",
