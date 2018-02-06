@@ -36,6 +36,7 @@ export function addLegacyProps(CodeMirror) {
   CodeMirror.modes = modes
   CodeMirror.mimeModes = mimeModes
   CodeMirror.resolveMode = resolveMode
+  CodeMirror.hasMode = hasMode
   CodeMirror.getMode = getMode
   CodeMirror.modeExtensions = modeExtensions
   CodeMirror.extendMode = extendMode
