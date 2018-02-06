@@ -90,15 +90,16 @@ CodeMirror.resolveMode = function(spec) {
   if (typeof spec == "string") return {name: spec};
   else return spec || {name: "null"};
 };
-function getModeFactory(spec) {
-  var modeName = CodeMirror.resolveMode(spec).name;
+function getModeFactory(spec, isResolved) {
+  var modeName = isResolved ? spec.name : CodeMirror.resolveMode(spec).name;
   return modes[modeName];
 }
 CodeMirror.hasMode = function (spec) {
   return typeof getModeFactory(spec) === "function";
 };
 CodeMirror.getMode = function (options, spec) {
-  var mfactory = getModeFactory(spec);
+  spec = CodeMirror.resolveMode(spec);
+  var mfactory = getModeFactory(spec, true);
   if (!mfactory) throw new Error("Unknown mode: " + spec);
   return mfactory(options, spec);
 };
