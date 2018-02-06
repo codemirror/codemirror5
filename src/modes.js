@@ -35,11 +35,20 @@ export function resolveMode(spec) {
   else return spec || {name: "null"}
 }
 
+export function getModeFactory(spec, isResolved) {
+  var modeName = isResolved ? spec.name : resolveMode(spec).name
+  return modes[modeName]
+}
+
+export function hasMode(spec) {
+  return typeof getModeFactory(spec) === "function"
+}
+
 // Given a mode spec (anything that resolveMode accepts), find and
 // initialize an actual mode object.
 export function getMode(options, spec) {
   spec = resolveMode(spec)
-  let mfactory = modes[spec.name]
+  let mfactory = getModeFactory(spec, true)
   if (!mfactory) return getMode(options, "text/plain")
   let modeObj = mfactory(options, spec)
   if (modeExtensions.hasOwnProperty(spec.name)) {
