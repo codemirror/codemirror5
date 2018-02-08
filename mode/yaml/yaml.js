@@ -17,6 +17,7 @@ CodeMirror.defineMode("yaml", function() {
   var keywordRegex = new RegExp("\\b(("+cons.join(")|(")+"))$", 'i');
 
   return {
+    lineComment: '#',
     token: function(stream, state) {
       var ch = stream.peek();
       var esc = state.escaped;
