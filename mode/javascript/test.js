@@ -66,6 +66,9 @@
   MT("import_dynamic",
      "[keyword import]([string 'baz']).[property then]")
 
+  MT("import_dynamic",
+     "[keyword const] [def t] [operator =] [keyword import]([string 'baz']).[property then]")
+
   MT("const",
      "[keyword function] [def f]() {",
      "  [keyword const] [[ [def a], [def b] ]] [operator =] [[ [number 1], [number 2] ]];",
