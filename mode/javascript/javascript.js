@@ -400,6 +400,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == "{") return contCommasep(objprop, "}", null, maybeop);
     if (type == "quasi") return pass(quasi, maybeop);
     if (type == "new") return cont(maybeTarget(noComma));
+    if (type == "import") return cont(expression);
     return cont();
   }
   function maybeexpression(type) {
@@ -726,6 +727,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   }
   function afterImport(type) {
     if (type == "string") return cont();
+    if (type == "(") return pass(expression);
     return pass(importSpec, maybeMoreImports, maybeFrom);
   }
   function importSpec(type, value) {
