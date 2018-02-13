@@ -638,7 +638,8 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   function maybeelse(type, value) {
     if (type == "keyword b" && value == "else") return cont(pushlex("form", "else"), statement, poplex);
   }
-  function forspec(type) {
+  function forspec(type, value) {
+    if (value == "await") return cont(forspec);
     if (type == "(") return cont(pushlex(")"), forspec1, expect(")"), poplex);
   }
   function forspec1(type) {
