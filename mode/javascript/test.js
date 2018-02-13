@@ -77,6 +77,9 @@
   MT("for/of",
      "[keyword for]([keyword let] [def of] [keyword of] [variable something]) {}");
 
+  MT("for await",
+     "[keyword for] [keyword await]([keyword let] [def of] [keyword of] [variable something]) {}");
+
   MT("generator",
      "[keyword function*] [def repeat]([def n]) {",
      "  [keyword for]([keyword var] [def i] [operator =] [number 0]; [variable-2 i] [operator <] [variable-2 n]; [operator ++][variable-2 i])",
