@@ -51,7 +51,9 @@
     while (cursor.findNext()) {
       var match = {from: cursor.from(), to: cursor.to()};
       if (match.from.line >= this.gap.to) break;
-      this.matches.splice(i++, 0, match);
+      if (!this.options.filter || this.options.filter(this.cm, match)) {
+        this.matches.splice(i++, 0, match);
+      }
       if (this.matches.length > maxMatches) break;
     }
     this.gap = null;
