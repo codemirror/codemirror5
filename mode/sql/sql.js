@@ -21,7 +21,8 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
       operatorChars  = parserConfig.operatorChars || /^[*+\-%<>!=&|~^]/,
       support        = parserConfig.support || {},
       hooks          = parserConfig.hooks || {},
-      dateSQL        = parserConfig.dateSQL || {"date" : true, "time" : true, "timestamp" : true};
+      dateSQL        = parserConfig.dateSQL || {"date" : true, "time" : true, "timestamp" : true},
+      backslashStringEscapes = parserConfig.backslashStringEscapes !== false
 
   function tokenBase(stream, state) {
     var ch = stream.next();
@@ -125,7 +126,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
           state.tokenize = tokenBase;
           break;
         }
-        escaped = !escaped && ch == "\\";
+        escaped = backslashStringEscapes && !escaped && ch == "\\";
       }
       return "string";
     };
@@ -292,6 +293,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     builtin: set("bigint numeric bit smallint decimal smallmoney int tinyint money float real char varchar text nchar nvarchar ntext binary varbinary image cursor timestamp hierarchyid uniqueidentifier sql_variant xml table "),
     atoms: set("false true null unknown"),
     operatorChars: /^[*+\-%<>!=]/,
+    backslashStringEscapes: false,
     dateSQL: set("date datetimeoffset datetime2 smalldatetime datetime time"),
     hooks: {
       "@":   hookVar
