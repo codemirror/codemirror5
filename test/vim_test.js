@@ -3648,6 +3648,11 @@ testVim('ex_substitute_same_line', function(cm, vim, helpers) {
   helpers.doEx('s/one/two/g');
   eq('one one\n two two', cm.getValue());
 }, { value: 'one one\n one one'});
+testVim('ex_substitute_alternate_separator', function(cm, vim, helpers) {
+  cm.setCursor(1, 0);
+  helpers.doEx('s#o/e#two#g');
+  eq('o/e o/e\n two two', cm.getValue());
+}, { value: 'o/e o/e\n o/e o/e'});
 testVim('ex_substitute_full_file', function(cm, vim, helpers) {
   cm.setCursor(1, 0);
   helpers.doEx('%s/one/two/g');
