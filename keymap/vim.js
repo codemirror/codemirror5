@@ -1426,7 +1426,7 @@
         } else {
           if (vim.visualMode) {
             showPrompt(cm, { onClose: onPromptClose, prefix: ':', value: '\'<,\'>',
-                onKeyDown: onPromptKeyDown});
+                onKeyDown: onPromptKeyDown, selectValueOnOpen: false});
           } else {
             showPrompt(cm, { onClose: onPromptClose, prefix: ':',
                 onKeyDown: onPromptKeyDown});
