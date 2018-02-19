@@ -255,7 +255,7 @@ function testJumplist(name, keys, endPos, startPos, dialog) {
     helpers.doKeys.apply(null, keys);
     helpers.assertCursorAt(endPos);
   }, {value: jumplistScene});
-};
+}
 testJumplist('jumplist_H', ['H', '<C-o>'], [5,2], [5,2]);
 testJumplist('jumplist_M', ['M', '<C-o>'], [2,2], [2,2]);
 testJumplist('jumplist_L', ['L', '<C-o>'], [2,2], [2,2]);
@@ -299,15 +299,15 @@ function testMotion(name, keys, endPos, startPos) {
     helpers.doKeys(keys);
     helpers.assertCursorAt(endPos);
   });
-};
+}
 
 function makeCursor(line, ch) {
   return new Pos(line, ch);
-};
+}
 
 function offsetCursor(cur, offsetLine, offsetCh) {
   return new Pos(cur.line + offsetLine, cur.ch + offsetCh);
-};
+}
 
 // Motion tests
 testMotion('|', '|', makeCursor(0, 0), makeCursor(0,4));
@@ -3909,7 +3909,7 @@ function testSubstituteConfirm(name, command, initialValue, expectedValue, keys,
       cm.openDialog = savedOpenDialog;
     }
   }, { value: initialValue });
-};
+}
 testSubstituteConfirm('ex_substitute_confirm_emptydoc',
     '%s/x/b/c', '', '', '', makeCursor(0, 0));
 testSubstituteConfirm('ex_substitute_confirm_nomatch',
