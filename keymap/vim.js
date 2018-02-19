@@ -841,7 +841,7 @@
         }
 
         function handleKeyNonInsertMode() {
-          if (handleMacroRecording() || handleEsc()) { return true; };
+          if (handleMacroRecording() || handleEsc()) { return true; }
 
           var keys = vim.inputState.keyBuffer = vim.inputState.keyBuffer + key;
           if (/^[1-9]\d*$/.test(keys)) { return true; }
@@ -4837,7 +4837,7 @@
       }
       if (!confirm) {
         replaceAll();
-        if (callback) { callback(); };
+        if (callback) { callback(); }
         return;
       }
       showPrompt(cm, {
@@ -4973,7 +4973,7 @@
             exitInsertMode(cm);
           }
         }
-      };
+      }
       macroModeState.isPlaying = false;
     }
 
@@ -5177,7 +5177,7 @@
         exitInsertMode(cm);
       }
       macroModeState.isPlaying = false;
-    };
+    }
 
     function repeatInsertModeChanges(cm, changes, repeat) {
       function keyHandler(binding) {
