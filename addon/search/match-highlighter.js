@@ -87,12 +87,20 @@
   }
 
   function addOverlay(cm, query, hasBoundary, style) {
+    function filter(cm, match) {
+      return boundariesAroundString(cm.getLine(match.from.line),
+                                    match.from.ch,
+                                    match.to.ch,
+                                    hasBoundary);
+    }
     var state = cm.state.matchHighlighter;
     cm.addOverlay(state.overlay = makeOverlay(query, hasBoundary, style));
     if (state.options.annotateScrollbar && cm.showMatchesOnScrollbar) {
-      var searchFor = hasBoundary ? new RegExp("\\b" + query + "\\b") : query;
-      state.matchesonscroll = cm.showMatchesOnScrollbar(searchFor, false,
-        {className: "CodeMirror-selection-highlight-scrollbar"});
+      state.matchesonscroll = cm.showMatchesOnScrollbar(query, false,
+        {
+          className: "CodeMirror-selection-highlight-scrollbar",
+          filter: hasBoundary ? filter : undefined
+        });
     }
   }
 
@@ -148,9 +156,13 @@
     } else return false;
   }
 
+  function boundariesAroundString(text, from, to, re) {
+    return (!from || !re.test(text.charAt(from - 1))) &&
+      (to == text.length || !re.test(text.charAt(to)));
+  }
+
   function boundariesAround(stream, re) {
-    return (!stream.start || !re.test(stream.string.charAt(stream.start - 1))) &&
-      (stream.pos == stream.string.length || !re.test(stream.string.charAt(stream.pos)));
+    return boundariesAroundString(stream.string, stream.start, stream.pos, re);
   }
 
   function makeOverlay(query, hasBoundary, style) {
