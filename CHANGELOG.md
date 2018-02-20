@@ -1,3 +1,31 @@
+## 5.35.0 (2018-02-20)
+
+### Bug fixes
+
+Fix problem where selection undo might change read-only documents.
+
+Fix crash when calling `addLineWidget` on a document that has no attached editor.
+
+[searchcursor addon](http://codemirror.net/doc/manual.html#addon_searchcursor): Fix behavior of `^` in multiline regexp mode.
+
+[match-highlighter addon](http://codemirror.net/doc/manual.html#addon_match-highlighter): Fix problem with matching words that have regexp special syntax in them.
+
+[sublime bindings](http://codemirror.net/demo/sublime.html): Fix `addCursorToSelection` for short lines.
+
+[javascript mode](http://codemirror.net/mode/javascript/): Support TypeScript intersection types, dynamic `import`.
+
+[stex mode](http://codemirror.net/mode/stex/): Fix parsing of `\(` `\)` delimiters, recognize more atom arguments.
+
+[haskell mode](http://codemirror.net/mode/haskell/): Highlight more builtins, support `<*` and `*>`.
+
+[sql mode](http://codemirror.net/mode/sql/): Make it possible to disable backslash escapes in strings for dialects that don't have them, do this for MS SQL.
+
+[dockerfile mode](http://codemirror.net/mode/dockerfile/): Highlight strings and ports, recognize more instructions.
+
+### New features
+
+[vim bindings](http://codemirror.net/demo/vim.html): Support alternative delimiters in replace command.
+
 ## 5.34.0 (2018-01-29)
 
 ### Bug fixes

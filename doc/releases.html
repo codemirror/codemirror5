@@ -30,6 +30,22 @@
 
   <h2>Version 5.x</h2>
 
+  <p class="rel">20-02-2018: <a href="http://codemirror.net/codemirror-5.35.0.zip">Version 5.35.0</a>:</p>
+
+  <ul>
+    <li>Fix problem where selection undo might change read-only documents.</li>
+    <li>Fix crash when calling <code>addLineWidget</code> on a document that has no attached editor.</li>
+    <li><a href="http://codemirror.net/doc/manual.html#addon_searchcursor">searchcursor addon</a>: Fix behavior of <code>^</code> in multiline regexp mode.</li>
+    <li><a href="http://codemirror.net/doc/manual.html#addon_match-highlighter">match-highlighter addon</a>: Fix problem with matching words that have regexp special syntax in them.</li>
+    <li><a href="http://codemirror.net/demo/sublime.html">sublime bindings</a>: Fix <code>addCursorToSelection</code> for short lines.</li>
+    <li><a href="http://codemirror.net/demo/vim.html">vim bindings</a>: Support alternative delimiters in replace command.</li>
+    <li><a href="http://codemirror.net/mode/javascript/">javascript mode</a>: Support TypeScript intersection types, dynamic <code>import</code>.</li>
+    <li><a href="http://codemirror.net/mode/stex/">stex mode</a>: Fix parsing of <code>\(</code> <code>\)</code> delimiters, recognize more atom arguments.</li>
+    <li><a href="http://codemirror.net/mode/haskell/">haskell mode</a>: Highlight more builtins, support <code>&lt;*</code> and <code>*&gt;</code>.</li>
+    <li><a href="http://codemirror.net/mode/sql/">sql mode</a>: Make it possible to disable backslash escapes in strings for dialects that don't have them, do this for MS SQL.</li>
+    <li><a href="http://codemirror.net/mode/dockerfile/">dockerfile mode</a>: Highlight strings and ports, recognize more instructions.</li>
+  </ul>
+
   <p class="rel">29-01-2018: <a href="http://codemirror.net/codemirror-5.34.0.zip">Version 5.34.0</a>:</p>
 
   <ul>
