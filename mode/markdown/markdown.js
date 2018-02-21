@@ -90,7 +90,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   ,   setextHeaderRE = /^ *(?:\={1,}|-{1,})\s*$/
   ,   textRE = /^[^#!\[\]*_\\<>` "'(~:]+/
   ,   fencedCodeRE = /^(~~~+|```+)[ \t]*([\w+#-]*)[^\n`]*$/
-  ,   linkDefRE = /^\s*\[[^\]]+?\]:\s*\S+(\s*\S*\s*)?$/ // naive link-definition
+  ,   linkDefRE = /^\s*\[[^\]]+?\]:.*$/ // naive link-definition
   ,   punctuation = /[!\"#$%&\'()*+,\-\.\/:;<=>?@\[\\\]^_`{|}~—]/
   ,   expandedTab = "    " // CommonMark specifies tab as 4 spaces
 
