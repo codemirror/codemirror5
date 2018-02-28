@@ -86,12 +86,12 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
   var hrRE = /^([*\-_])(?:\s*\1){2,}\s*$/
   ,   listRE = /^(?:[*\-+]|^[0-9]+([.)]))\s+/
-  ,   taskListRE = /^\[(x| )\](?=\s)/ // Must follow listRE
+  ,   taskListRE = /^\[(x| )\](?=\s)/i // Must follow listRE
   ,   atxHeaderRE = modeCfg.allowAtxHeaderWithoutSpace ? /^(#+)/ : /^(#+)(?: |$)/
   ,   setextHeaderRE = /^ *(?:\={1,}|-{1,})\s*$/
   ,   textRE = /^[^#!\[\]*_\\<>\$` "'(~:]+/
   ,   fencedCodeRE = /^(~~~+|```+)[ \t]*([\w+#-]*)[^\n`]*$/
-  ,   linkDefRE = /^\s*\[[^\]]+?\]:\s*\S+(\s*\S*\s*)?$/ // naive link-definition
+  ,   linkDefRE = /^\s*\[[^\]]+?\]:.*$/ // naive link-definition
   ,   punctuation = /[!\"#$%&\'()*+,\-\.\/:;<=>?@\[\\\]^_`{|}~—]/
   ,   expandedTab = "    " // CommonMark specifies tab as 4 spaces
   ,   fencedMathRE = /^(\$\$)[ \t]*([\w+#-]*)[^\n`]*$/
@@ -115,6 +115,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   function blankLine(state) {
     // Reset linkTitle state
     state.linkTitle = false;
+    state.linkHref = false;
+    state.linkText = false;
     // Reset EM state
     state.em = false;
     // Reset STRONG state
@@ -153,6 +155,12 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     if (state.indentationDiff === null) {
       state.indentationDiff = state.indentation;
       if (prevLineIsList) {
+        // Reset inline styles which shouldn't propagate aross list items
+        state.em = false;
+        state.strong = false;
+        state.code = false;
+        state.strikethrough = false;
+
         state.list = null;
         // While this list item's marker's indentation is less than the deepest
         //  list item's content's indentation,pop the deepest list item
@@ -424,7 +432,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     }
 
     if (state.taskList) {
-      var taskOpen = stream.match(taskListRE, true)[1] !== "x";
+      var taskOpen = stream.match(taskListRE, true)[1] === " ";
       if (taskOpen) state.taskOpen = true;
       else state.taskClosed = true;
       if (modeCfg.highlightFormatting) state.formatting = "task";
@@ -820,6 +828,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         formatting: false,
         linkText: s.linkText,
         linkTitle: s.linkTitle,
+        linkHref: s.linkHref,
         code: s.code,
         math: s.math,
         em: s.em,
@@ -865,12 +874,14 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
         state.trailingSpace = 0;
         state.trailingSpaceNewLine = false;
 
-        state.f = state.block;
-        if (state.f != htmlBlock) {
-          var indentation = stream.match(/^\s*/, true)[0].replace(/\t/g, expandedTab).length;
-          state.indentation = indentation;
-          state.indentationDiff = null;
-          if (indentation > 0) return null;
+        if (!state.localState) {
+          state.f = state.block;
+          if (state.f != htmlBlock) {
+            var indentation = stream.match(/^\s*/, true)[0].replace(/\t/g, expandedTab).length;
+            state.indentation = indentation;
+            state.indentationDiff = null;
+            if (indentation > 0) return null;
+          }
         }
       }
       return state.f(stream, state);
@@ -897,6 +908,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
   };
   return mode;
 }, "xml");
+
+CodeMirror.defineMIME("text/markdown", "markdown");
 
 CodeMirror.defineMIME("text/x-markdown", "markdown");
 
