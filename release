@@ -1,0 +1,6 @@
+#!/usr/bin/env node
+
+var execSync = require('child_process').execSync
+var script = process.platform === 'win32' ? '.\\release.cmd' : './release.sh'
+
+execSync(script, { stdio: 'inherit' })
