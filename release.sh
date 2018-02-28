@@ -53,6 +53,7 @@ mode/python/python.js \
 mode/shell/shell.js \
 mode/php/php.js \
 mode/sas/sas.js \
+mode/stex/stex.js \
 mode/sql/sql.js \
 mode/haskell/haskell.js \
 mode/coffeescript/coffeescript.js \
