@@ -1,28 +1,28 @@
-import { Display } from "../display/Display"
-import { onFocus, onBlur } from "../display/focus"
-import { setGuttersForLineNumbers, updateGutters } from "../display/gutters"
-import { maybeUpdateLineNumberWidth } from "../display/line_numbers"
-import { endOperation, operation, startOperation } from "../display/operations"
-import { initScrollbars } from "../display/scrollbars"
-import { onScrollWheel } from "../display/scroll_events"
-import { setScrollLeft, updateScrollTop } from "../display/scrolling"
-import { clipPos, Pos } from "../line/pos"
-import { posFromMouse } from "../measurement/position_measurement"
-import { eventInWidget } from "../measurement/widgets"
-import Doc from "../model/Doc"
-import { attachDoc } from "../model/document_data"
-import { Range } from "../model/selection"
-import { extendSelection } from "../model/selection_updates"
-import { captureRightClick, ie, ie_version, mobile, webkit } from "../util/browser"
-import { e_preventDefault, e_stop, on, signal, signalDOMEvent } from "../util/event"
-import { bind, copyObj, Delayed } from "../util/misc"
+import { Display } from "../display/Display.js"
+import { onFocus, onBlur } from "../display/focus.js"
+import { setGuttersForLineNumbers, updateGutters } from "../display/gutters.js"
+import { maybeUpdateLineNumberWidth } from "../display/line_numbers.js"
+import { endOperation, operation, startOperation } from "../display/operations.js"
+import { initScrollbars } from "../display/scrollbars.js"
+import { onScrollWheel } from "../display/scroll_events.js"
+import { setScrollLeft, updateScrollTop } from "../display/scrolling.js"
+import { clipPos, Pos } from "../line/pos.js"
+import { posFromMouse } from "../measurement/position_measurement.js"
+import { eventInWidget } from "../measurement/widgets.js"
+import Doc from "../model/Doc.js"
+import { attachDoc } from "../model/document_data.js"
+import { Range } from "../model/selection.js"
+import { extendSelection } from "../model/selection_updates.js"
+import { captureRightClick, ie, ie_version, mobile, webkit } from "../util/browser.js"
+import { e_preventDefault, e_stop, on, signal, signalDOMEvent } from "../util/event.js"
+import { bind, copyObj, Delayed } from "../util/misc.js"
 
-import { clearDragCursor, onDragOver, onDragStart, onDrop } from "./drop_events"
-import { ensureGlobalHandlers } from "./global_events"
-import { onKeyDown, onKeyPress, onKeyUp } from "./key_events"
-import { clickInGutter, onContextMenu, onMouseDown } from "./mouse_events"
-import { themeChanged } from "./utils"
-import { defaults, optionHandlers, Init } from "./options"
+import { clearDragCursor, onDragOver, onDragStart, onDrop } from "./drop_events.js"
+import { ensureGlobalHandlers } from "./global_events.js"
+import { onKeyDown, onKeyPress, onKeyUp } from "./key_events.js"
+import { clickInGutter, onContextMenu, onMouseDown } from "./mouse_events.js"
+import { themeChanged } from "./utils.js"
+import { defaults, optionHandlers, Init } from "./options.js"
 
 // A CodeMirror instance represents an editor. This is the object
 // that user code is usually dealing with.
@@ -143,7 +143,7 @@ function registerEventHandlers(cm) {
     return dx * dx + dy * dy > 20 * 20
   }
   on(d.scroller, "touchstart", e => {
-    if (!signalDOMEvent(cm, e) && !isMouseLikeTouchEvent(e)) {
+    if (!signalDOMEvent(cm, e) && !isMouseLikeTouchEvent(e) && !clickInGutter(cm, e)) {
       d.input.ensurePolled()
       clearTimeout(touchFinished)
       let now = +new Date

@@ -1,9 +1,9 @@
-import { getContextBefore, highlightLine, processLine } from "../line/highlight"
-import { copyState } from "../modes"
-import { bind } from "../util/misc"
+import { getContextBefore, highlightLine, processLine } from "../line/highlight.js"
+import { copyState } from "../modes.js"
+import { bind } from "../util/misc.js"
 
-import { runInOp } from "./operations"
-import { regLineChange } from "./view_tracking"
+import { runInOp } from "./operations.js"
+import { regLineChange } from "./view_tracking.js"
 
 // HIGHLIGHT WORKER
 

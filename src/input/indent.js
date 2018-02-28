@@ -1,10 +1,10 @@
-import { getContextBefore } from "../line/highlight"
-import { Pos } from "../line/pos"
-import { getLine } from "../line/utils_line"
-import { replaceRange } from "../model/changes"
-import { Range } from "../model/selection"
-import { replaceOneSelection } from "../model/selection_updates"
-import { countColumn, Pass, spaceStr } from "../util/misc"
+import { getContextBefore } from "../line/highlight.js"
+import { Pos } from "../line/pos.js"
+import { getLine } from "../line/utils_line.js"
+import { replaceRange } from "../model/changes.js"
+import { Range } from "../model/selection.js"
+import { replaceOneSelection } from "../model/selection_updates.js"
+import { countColumn, Pass, spaceStr } from "../util/misc.js"
 
 // Indent the given line. The how parameter can be "smart",
 // "add"/null, "subtract", or "prev". When aggressive is false

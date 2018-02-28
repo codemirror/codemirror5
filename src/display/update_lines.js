@@ -1,7 +1,7 @@
-import { heightAtLine } from "../line/spans"
-import { getLine, lineAtHeight, updateLineHeight } from "../line/utils_line"
-import { paddingTop, textHeight } from "../measurement/position_measurement"
-import { ie, ie_version } from "../util/browser"
+import { heightAtLine } from "../line/spans.js"
+import { getLine, lineAtHeight, updateLineHeight } from "../line/utils_line.js"
+import { paddingTop, textHeight } from "../measurement/position_measurement.js"
+import { ie, ie_version } from "../util/browser.js"
 
 // Read the actual heights of the rendered lines, and update their
 // stored heights to match.
@@ -33,8 +33,10 @@ export function updateHeightsInViewport(cm) {
 // Read and store the height of line widgets associated with the
 // given line.
 function updateWidgetHeight(line) {
-  if (line.widgets) for (let i = 0; i < line.widgets.length; ++i)
-    line.widgets[i].height = line.widgets[i].node.parentNode.offsetHeight
+  if (line.widgets) for (let i = 0; i < line.widgets.length; ++i) {
+    let w = line.widgets[i], parent = w.node.parentNode
+    if (parent) w.height = parent.offsetHeight
+  }
 }
 
 // Compute the lines that are visible in a given viewport (defaults

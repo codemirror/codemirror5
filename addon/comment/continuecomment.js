@@ -9,11 +9,6 @@
   else // Plain browser env
     mod(CodeMirror);
 })(function(CodeMirror) {
-  var modes = ["clike", "css", "javascript"];
-
-  for (var i = 0; i < modes.length; ++i)
-    CodeMirror.extendMode(modes[i], {blockCommentContinue: " * "});
-
   function continueComment(cm) {
     if (cm.getOption("disableInput")) return CodeMirror.Pass;
     var ranges = cm.listSelections(), mode, inserts = [];
@@ -27,10 +22,10 @@
       var insert = null;
       if (mode.blockCommentStart && mode.blockCommentContinue) {
         var line = cm.getLine(pos.line).slice(0, pos.ch)
-        var end = line.indexOf(mode.blockCommentEnd), found
+        var end = line.lastIndexOf(mode.blockCommentEnd), found
         if (end != -1 && end == pos.ch - mode.blockCommentEnd.length) {
           // Comment ended, don't continue it
-        } else if ((found = line.indexOf(mode.blockCommentStart)) > -1) {
+        } else if ((found = line.lastIndexOf(mode.blockCommentStart)) > -1 && found > end) {
           insert = line.slice(0, found)
           if (/\S/.test(insert)) {
             insert = ""

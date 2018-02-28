@@ -1,12 +1,12 @@
-import { signalLater } from "../util/operation_group"
-import { ensureCursorVisible } from "../display/scrolling"
-import { clipPos, cmp, Pos } from "../line/pos"
-import { getLine } from "../line/utils_line"
-import { hasHandler, signal, signalCursorActivity } from "../util/event"
-import { lst, sel_dontScroll } from "../util/misc"
+import { signalLater } from "../util/operation_group.js"
+import { ensureCursorVisible } from "../display/scrolling.js"
+import { clipPos, cmp, Pos } from "../line/pos.js"
+import { getLine } from "../line/utils_line.js"
+import { hasHandler, signal, signalCursorActivity } from "../util/event.js"
+import { lst, sel_dontScroll } from "../util/misc.js"
 
-import { addSelectionToHistory } from "./history"
-import { normalizeSelection, Range, Selection, simpleSelection } from "./selection"
+import { addSelectionToHistory } from "./history.js"
+import { normalizeSelection, Range, Selection, simpleSelection } from "./selection.js"
 
 // The 'scroll' parameter given to many of these indicated whether
 // the new cursor position should be scrolled into view after

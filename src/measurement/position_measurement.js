@@ -1,17 +1,16 @@
-import { moveVisually } from "../input/movement"
-import { buildLineContent, LineView } from "../line/line_data"
-import { clipPos, Pos } from "../line/pos"
-import { collapsedSpanAtEnd, heightAtLine, lineIsHidden, visualLine } from "../line/spans"
-import { getLine, lineAtHeight, lineNo, updateLineHeight } from "../line/utils_line"
-import { bidiOther, getBidiPartAt, getOrder } from "../util/bidi"
-import { chrome, android, ie, ie_version } from "../util/browser"
-import { elt, removeChildren, range, removeChildrenAndAdd } from "../util/dom"
-import { e_target } from "../util/event"
-import { hasBadZoomedRects } from "../util/feature_detection"
-import { countColumn, findFirst, isExtendingChar, scrollerGap, skipExtendingChars } from "../util/misc"
-import { updateLineForChanges } from "../display/update_line"
+import { buildLineContent, LineView } from "../line/line_data.js"
+import { clipPos, Pos } from "../line/pos.js"
+import { collapsedSpanAtEnd, heightAtLine, lineIsHidden, visualLine } from "../line/spans.js"
+import { getLine, lineAtHeight, lineNo, updateLineHeight } from "../line/utils_line.js"
+import { bidiOther, getBidiPartAt, getOrder } from "../util/bidi.js"
+import { chrome, android, ie, ie_version } from "../util/browser.js"
+import { elt, removeChildren, range, removeChildrenAndAdd } from "../util/dom.js"
+import { e_target } from "../util/event.js"
+import { hasBadZoomedRects } from "../util/feature_detection.js"
+import { countColumn, findFirst, isExtendingChar, scrollerGap, skipExtendingChars } from "../util/misc.js"
+import { updateLineForChanges } from "../display/update_line.js"
 
-import { widgetHeight } from "./widgets"
+import { widgetHeight } from "./widgets.js"
 
 // POSITION MEASUREMENT
 
@@ -293,14 +292,21 @@ function pageScrollY() {
   return window.pageYOffset || (document.documentElement || document.body).scrollTop
 }
 
+function widgetTopHeight(lineObj) {
+  let height = 0
+  if (lineObj.widgets) for (let i = 0; i < lineObj.widgets.length; ++i) if (lineObj.widgets[i].above)
+    height += widgetHeight(lineObj.widgets[i])
+  return height
+}
+
 // Converts a {top, bottom, left, right} box from line-local
 // coordinates into another coordinate system. Context may be one of
 // "line", "div" (display.lineDiv), "local"./null (editor), "window",
 // or "page".
 export function intoCoordSystem(cm, lineObj, rect, context, includeWidgets) {
-  if (!includeWidgets && lineObj.widgets) for (let i = 0; i < lineObj.widgets.length; ++i) if (lineObj.widgets[i].above) {
-    let size = widgetHeight(lineObj.widgets[i])
-    rect.top += size; rect.bottom += size
+  if (!includeWidgets) {
+    let height = widgetTopHeight(lineObj)
+    rect.top += height; rect.bottom += height
   }
   if (context == "line") return rect
   if (!context) context = "local"
@@ -376,7 +382,7 @@ export function cursorCoords(cm, pos, context, lineObj, preparedMeasure, varHeig
   if (!order) return get(sticky == "before" ? ch - 1 : ch, sticky == "before")
 
   function getBidi(ch, partPos, invert) {
-    let part = order[partPos], right = (part.level % 2) != 0
+    let part = order[partPos], right = part.level == 1
     return get(invert ? ch - 1 : ch, right != invert)
   }
   let partPos = getBidiPartAt(order, ch, sticky)
@@ -434,76 +440,145 @@ export function coordsChar(cm, x, y) {
 }
 
 function wrappedLineExtent(cm, lineObj, preparedMeasure, y) {
-  let measure = ch => intoCoordSystem(cm, lineObj, measureCharPrepared(cm, preparedMeasure, ch), "line")
+  y -= widgetTopHeight(lineObj)
   let end = lineObj.text.length
-  let begin = findFirst(ch => measure(ch - 1).bottom <= y, end, 0)
-  end = findFirst(ch => measure(ch).top > y, begin, end)
+  let begin = findFirst(ch => measureCharPrepared(cm, preparedMeasure, ch - 1).bottom <= y, end, 0)
+  end = findFirst(ch => measureCharPrepared(cm, preparedMeasure, ch).top > y, begin, end)
   return {begin, end}
 }
 
 export function wrappedLineExtentChar(cm, lineObj, preparedMeasure, target) {
+  if (!preparedMeasure) preparedMeasure = prepareMeasureForLine(cm, lineObj)
   let targetTop = intoCoordSystem(cm, lineObj, measureCharPrepared(cm, preparedMeasure, target), "line").top
   return wrappedLineExtent(cm, lineObj, preparedMeasure, targetTop)
 }
 
+// Returns true if the given side of a box is after the given
+// coordinates, in top-to-bottom, left-to-right order.
+function boxIsAfter(box, x, y, left) {
+  return box.bottom <= y ? false : box.top > y ? true : (left ? box.left : box.right) > x
+}
+
 function coordsCharInner(cm, lineObj, lineNo, x, y) {
+  // Move y into line-local coordinate space
   y -= heightAtLine(lineObj)
-  let begin = 0, end = lineObj.text.length
   let preparedMeasure = prepareMeasureForLine(cm, lineObj)
-  let pos
+  // When directly calling `measureCharPrepared`, we have to adjust
+  // for the widgets at this line.
+  let widgetHeight = widgetTopHeight(lineObj)
+  let begin = 0, end = lineObj.text.length, ltr = true
+
   let order = getOrder(lineObj, cm.doc.direction)
+  // If the line isn't plain left-to-right text, first figure out
+  // which bidi section the coordinates fall into.
   if (order) {
-    if (cm.options.lineWrapping) {
-      ;({begin, end} = wrappedLineExtent(cm, lineObj, preparedMeasure, y))
-    }
-    pos = new Pos(lineNo, Math.floor(begin + (end - begin) / 2))
-    let beginLeft = cursorCoords(cm, pos, "line", lineObj, preparedMeasure).left
-    let dir = beginLeft < x ? 1 : -1
-    let prevDiff, diff = beginLeft - x, prevPos
-    let steps = Math.ceil((end - begin) / 4)
-    outer: do {
-      prevDiff = diff
-      prevPos = pos
-      let i = 0
-      for (; i < steps; ++i) {
-        let prevPos = pos
-        pos = moveVisually(cm, lineObj, pos, dir)
-        if (pos == null || pos.ch < begin || end <= (pos.sticky == "before" ? pos.ch - 1 : pos.ch)) {
-          pos = prevPos
-          break outer
-        }
-      }
-      diff = cursorCoords(cm, pos, "line", lineObj, preparedMeasure).left - x
-      if (steps > 1) {
-        let diff_change_per_step = Math.abs(diff - prevDiff) / steps
-        steps = Math.min(steps, Math.ceil(Math.abs(diff) / diff_change_per_step))
-        dir = diff < 0 ? 1 : -1
-      }
-    } while (diff != 0 && (steps > 1 || ((dir < 0) != (diff < 0) && (Math.abs(diff) <= Math.abs(prevDiff)))))
-    if (Math.abs(diff) > Math.abs(prevDiff)) {
-      if ((diff < 0) == (prevDiff < 0)) throw new Error("Broke out of infinite loop in coordsCharInner")
-      pos = prevPos
-    }
-  } else {
-    let ch = findFirst(ch => {
-      let box = intoCoordSystem(cm, lineObj, measureCharPrepared(cm, preparedMeasure, ch), "line")
-      if (box.top > y) {
-        // For the cursor stickiness
-        end = Math.min(ch, end)
-        return true
-      }
-      else if (box.bottom <= y) return false
-      else if (box.left > x) return true
-      else if (box.right < x) return false
-      else return (x - box.left < box.right - x)
-    }, begin, end)
-    ch = skipExtendingChars(lineObj.text, ch, 1)
-    pos = new Pos(lineNo, ch, ch == end ? "before" : "after")
+    let part = (cm.options.lineWrapping ? coordsBidiPartWrapped : coordsBidiPart)
+                 (cm, lineObj, lineNo, preparedMeasure, order, x, y)
+    ltr = part.level != 1
+    // The awkward -1 offsets are needed because findFirst (called
+    // on these below) will treat its first bound as inclusive,
+    // second as exclusive, but we want to actually address the
+    // characters in the part's range
+    begin = ltr ? part.from : part.to - 1
+    end = ltr ? part.to : part.from - 1
   }
-  let coords = cursorCoords(cm, pos, "line", lineObj, preparedMeasure)
-  if (y < coords.top || coords.bottom < y) pos.outside = true
-  pos.xRel = x < coords.left ? -1 : (x > coords.right ? 1 : 0)
-  return pos
+
+  // A binary search to find the first character whose bounding box
+  // starts after the coordinates. If we run across any whose box wrap
+  // the coordinates, store that.
+  let chAround = null, boxAround = null
+  let ch = findFirst(ch => {
+    let box = measureCharPrepared(cm, preparedMeasure, ch)
+    box.top += widgetHeight; box.bottom += widgetHeight
+    if (!boxIsAfter(box, x, y, false)) return false
+    if (box.top <= y && box.left <= x) {
+      chAround = ch
+      boxAround = box
+    }
+    return true
+  }, begin, end)
+
+  let baseX, sticky, outside = false
+  // If a box around the coordinates was found, use that
+  if (boxAround) {
+    // Distinguish coordinates nearer to the left or right side of the box
+    let atLeft = x - boxAround.left < boxAround.right - x, atStart = atLeft == ltr
+    ch = chAround + (atStart ? 0 : 1)
+    sticky = atStart ? "after" : "before"
+    baseX = atLeft ? boxAround.left : boxAround.right
+  } else {
+    // (Adjust for extended bound, if necessary.)
+    if (!ltr && (ch == end || ch == begin)) ch++
+    // To determine which side to associate with, get the box to the
+    // left of the character and compare it's vertical position to the
+    // coordinates
+    sticky = ch == 0 ? "after" : ch == lineObj.text.length ? "before" :
+      (measureCharPrepared(cm, preparedMeasure, ch - (ltr ? 1 : 0)).bottom + widgetHeight <= y) == ltr ?
+      "after" : "before"
+    // Now get accurate coordinates for this place, in order to get a
+    // base X position
+    let coords = cursorCoords(cm, Pos(lineNo, ch, sticky), "line", lineObj, preparedMeasure)
+    baseX = coords.left
+    outside = y < coords.top || y >= coords.bottom
+  }
+
+  ch = skipExtendingChars(lineObj.text, ch, 1)
+  return PosWithInfo(lineNo, ch, sticky, outside, x - baseX)
+}
+
+function coordsBidiPart(cm, lineObj, lineNo, preparedMeasure, order, x, y) {
+  // Bidi parts are sorted left-to-right, and in a non-line-wrapping
+  // situation, we can take this ordering to correspond to the visual
+  // ordering. This finds the first part whose end is after the given
+  // coordinates.
+  let index = findFirst(i => {
+    let part = order[i], ltr = part.level != 1
+    return boxIsAfter(cursorCoords(cm, Pos(lineNo, ltr ? part.to : part.from, ltr ? "before" : "after"),
+                                   "line", lineObj, preparedMeasure), x, y, true)
+  }, 0, order.length - 1)
+  let part = order[index]
+  // If this isn't the first part, the part's start is also after
+  // the coordinates, and the coordinates aren't on the same line as
+  // that start, move one part back.
+  if (index > 0) {
+    let ltr = part.level != 1
+    let start = cursorCoords(cm, Pos(lineNo, ltr ? part.from : part.to, ltr ? "after" : "before"),
+                             "line", lineObj, preparedMeasure)
+    if (boxIsAfter(start, x, y, true) && start.top > y)
+      part = order[index - 1]
+  }
+  return part
+}
+
+function coordsBidiPartWrapped(cm, lineObj, _lineNo, preparedMeasure, order, x, y) {
+  // In a wrapped line, rtl text on wrapping boundaries can do things
+  // that don't correspond to the ordering in our `order` array at
+  // all, so a binary search doesn't work, and we want to return a
+  // part that only spans one line so that the binary search in
+  // coordsCharInner is safe. As such, we first find the extent of the
+  // wrapped line, and then do a flat search in which we discard any
+  // spans that aren't on the line.
+  let {begin, end} = wrappedLineExtent(cm, lineObj, preparedMeasure, y)
+  if (/\s/.test(lineObj.text.charAt(end - 1))) end--
+  let part = null, closestDist = null
+  for (let i = 0; i < order.length; i++) {
+    let p = order[i]
+    if (p.from >= end || p.to <= begin) continue
+    let ltr = p.level != 1
+    let endX = measureCharPrepared(cm, preparedMeasure, ltr ? Math.min(end, p.to) - 1 : Math.max(begin, p.from)).right
+    // Weigh against spans ending before this, so that they are only
+    // picked if nothing ends after
+    let dist = endX < x ? x - endX + 1e9 : endX - x
+    if (!part || closestDist > dist) {
+      part = p
+      closestDist = dist
+    }
+  }
+  if (!part) part = order[order.length - 1]
+  // Clip the part to the wrapped line.
+  if (part.from < begin) part = {from: begin, to: part.to, level: part.level}
+  if (part.to > end) part = {from: part.from, to: end, level: part.level}
+  return part
 }
 
 let measureText

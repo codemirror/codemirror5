@@ -1,6 +1,6 @@
-import { gecko, ie, ie_version, mobile, webkit } from "../util/browser"
-import { elt, eltP } from "../util/dom"
-import { scrollerGap } from "../util/misc"
+import { gecko, ie, ie_version, mobile, webkit } from "../util/browser.js"
+import { elt, eltP } from "../util/dom.js"
+import { scrollerGap } from "../util/misc.js"
 
 // The display handles the DOM integration, both for input reading
 // and content drawing. It holds references to DOM nodes and

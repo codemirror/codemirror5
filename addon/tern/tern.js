@@ -571,7 +571,7 @@
     return {type: "part",
             name: data.name,
             offsetLines: from.line,
-            text: doc.getRange(from, Pos(endLine, 0))};
+            text: doc.getRange(from, Pos(endLine, end.line == endLine ? null : 0))};
   }
 
   // Generic utilities
@@ -614,7 +614,8 @@
     var mouseOnTip = false, old = false;
     CodeMirror.on(tip, "mousemove", function() { mouseOnTip = true; });
     CodeMirror.on(tip, "mouseout", function(e) {
-      if (!CodeMirror.contains(tip, e.relatedTarget || e.toElement)) {
+      var related = e.relatedTarget || e.toElement
+      if (!related || !CodeMirror.contains(tip, related)) {
         if (old) clear();
         else mouseOnTip = false;
       }

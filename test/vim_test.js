@@ -255,7 +255,7 @@ function testJumplist(name, keys, endPos, startPos, dialog) {
     helpers.doKeys.apply(null, keys);
     helpers.assertCursorAt(endPos);
   }, {value: jumplistScene});
-};
+}
 testJumplist('jumplist_H', ['H', '<C-o>'], [5,2], [5,2]);
 testJumplist('jumplist_M', ['M', '<C-o>'], [2,2], [2,2]);
 testJumplist('jumplist_L', ['L', '<C-o>'], [2,2], [2,2]);
@@ -299,15 +299,15 @@ function testMotion(name, keys, endPos, startPos) {
     helpers.doKeys(keys);
     helpers.assertCursorAt(endPos);
   });
-};
+}
 
 function makeCursor(line, ch) {
   return new Pos(line, ch);
-};
+}
 
 function offsetCursor(cur, offsetLine, offsetCh) {
   return new Pos(cur.line + offsetLine, cur.ch + offsetCh);
-};
+}
 
 // Motion tests
 testMotion('|', '|', makeCursor(0, 0), makeCursor(0,4));
@@ -1386,6 +1386,19 @@ testVim('<C-x>/<C-a> search forward', function(cm, vim, helpers) {
     helpers.assertCursorAt(0, 11);
   });
 }, {value: '__jmp1 jmp2 jmp'});
+testVim('insert_ctrl_w', function(cm, vim, helpers) {
+  var curStart = makeCursor(0, 10);
+  cm.setCursor(curStart);
+  helpers.doKeys('a');
+  helpers.doKeys('<C-w>');
+  eq('word1/', cm.getValue());
+  var register = helpers.getRegisterController().getRegister();
+  eq('word2', register.toString());
+  is(!register.linewise);
+  var curEnd = makeCursor(0, 6);
+  eqCursorPos(curEnd, cm.getCursor());
+  eq('vim-insert', cm.getOption('keyMap'));
+}, { value: 'word1/word2' });
 testVim('a', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.doKeys('a');
@@ -1661,6 +1674,16 @@ testVim('mark\'', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('\'', '\'');
   helpers.assertCursorAt(2, 3);
+});
+testVim('mark.', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('O', 'testing', '<Esc>');
+  cm.setCursor(3, 3);
+  helpers.doKeys('\'', '.');
+  helpers.assertCursorAt(0, 0);
+  cm.setCursor(4, 4);
+  helpers.doKeys('`', '.');
+  helpers.assertCursorAt(0, 6);
 });
 testVim('jumpToMark_next', function(cm, vim, helpers) {
   cm.setCursor(2, 2);
@@ -3625,6 +3648,11 @@ testVim('ex_substitute_same_line', function(cm, vim, helpers) {
   helpers.doEx('s/one/two/g');
   eq('one one\n two two', cm.getValue());
 }, { value: 'one one\n one one'});
+testVim('ex_substitute_alternate_separator', function(cm, vim, helpers) {
+  cm.setCursor(1, 0);
+  helpers.doEx('s#o/e#two#g');
+  eq('o/e o/e\n two two', cm.getValue());
+}, { value: 'o/e o/e\n o/e o/e'});
 testVim('ex_substitute_full_file', function(cm, vim, helpers) {
   cm.setCursor(1, 0);
   helpers.doEx('%s/one/two/g');
@@ -3881,7 +3909,7 @@ function testSubstituteConfirm(name, command, initialValue, expectedValue, keys,
       cm.openDialog = savedOpenDialog;
     }
   }, { value: initialValue });
-};
+}
 testSubstituteConfirm('ex_substitute_confirm_emptydoc',
     '%s/x/b/c', '', '', '', makeCursor(0, 0));
 testSubstituteConfirm('ex_substitute_confirm_nomatch',
@@ -4212,4 +4240,250 @@ testVim('beforeSelectionChange', function(cm, vim, helpers) {
   eqCursorPos(cm.getCursor('head'), cm.getCursor('anchor'));
 }, { value: 'abc' });
 
+testVim('increment_binary', function(cm, vim, helpers) {
+  cm.setCursor(0, 4);
+  helpers.doKeys('<C-a>');
+  eq('0b001', cm.getValue());
+  helpers.doKeys('<C-a>');
+  eq('0b010', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('0b001', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('0b000', cm.getValue());
+  cm.setCursor(0, 0);
+  helpers.doKeys('<C-a>');
+  eq('0b001', cm.getValue());
+  helpers.doKeys('<C-a>');
+  eq('0b010', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('0b001', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('0b000', cm.getValue());
+}, { value: '0b000' });
 
+testVim('increment_octal', function(cm, vim, helpers) {
+  cm.setCursor(0, 2);
+  helpers.doKeys('<C-a>');
+  eq('001', cm.getValue());
+  helpers.doKeys('<C-a>');
+  eq('002', cm.getValue());
+  helpers.doKeys('<C-a>');
+  eq('003', cm.getValue());
+  helpers.doKeys('<C-a>');
+  eq('004', cm.getValue());
+  helpers.doKeys('<C-a>');
+  eq('005', cm.getValue());
+  helpers.doKeys('<C-a>');
+  eq('006', cm.getValue());
+  helpers.doKeys('<C-a>');
+  eq('007', cm.getValue());
+  helpers.doKeys('<C-a>');
+  eq('010', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('007', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('006', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('005', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('004', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('003', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('002', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('001', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('000', cm.getValue());
+  cm.setCursor(0, 0);
+  helpers.doKeys('<C-a>');
+  eq('001', cm.getValue());
+  helpers.doKeys('<C-a>');
+  eq('002', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('001', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('000', cm.getValue());
+}, { value: '000' });
+
+testVim('increment_decimal', function(cm, vim, helpers) {
+  cm.setCursor(0, 2);
+  helpers.doKeys('<C-a>');
+  eq('101', cm.getValue());
+  helpers.doKeys('<C-a>');
+  eq('102', cm.getValue());
+  helpers.doKeys('<C-a>');
+  eq('103', cm.getValue());
+  helpers.doKeys('<C-a>');
+  eq('104', cm.getValue());
+  helpers.doKeys('<C-a>');
+  eq('105', cm.getValue());
+  helpers.doKeys('<C-a>');
+  eq('106', cm.getValue());
+  helpers.doKeys('<C-a>');
+  eq('107', cm.getValue());
+  helpers.doKeys('<C-a>');
+  eq('108', cm.getValue());
+  helpers.doKeys('<C-a>');
+  eq('109', cm.getValue());
+  helpers.doKeys('<C-a>');
+  eq('110', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('109', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('108', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('107', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('106', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('105', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('104', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('103', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('102', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('101', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('100', cm.getValue());
+  cm.setCursor(0, 0);
+  helpers.doKeys('<C-a>');
+  eq('101', cm.getValue());
+  helpers.doKeys('<C-a>');
+  eq('102', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('101', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('100', cm.getValue());
+}, { value: '100' });
+
+testVim('increment_decimal_single_zero', function(cm, vim, helpers) {
+  helpers.doKeys('<C-a>');
+  eq('1', cm.getValue());
+  helpers.doKeys('<C-a>');
+  eq('2', cm.getValue());
+  helpers.doKeys('<C-a>');
+  eq('3', cm.getValue());
+  helpers.doKeys('<C-a>');
+  eq('4', cm.getValue());
+  helpers.doKeys('<C-a>');
+  eq('5', cm.getValue());
+  helpers.doKeys('<C-a>');
+  eq('6', cm.getValue());
+  helpers.doKeys('<C-a>');
+  eq('7', cm.getValue());
+  helpers.doKeys('<C-a>');
+  eq('8', cm.getValue());
+  helpers.doKeys('<C-a>');
+  eq('9', cm.getValue());
+  helpers.doKeys('<C-a>');
+  eq('10', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('9', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('8', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('7', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('6', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('5', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('4', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('3', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('2', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('1', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('0', cm.getValue());
+  cm.setCursor(0, 0);
+  helpers.doKeys('<C-a>');
+  eq('1', cm.getValue());
+  helpers.doKeys('<C-a>');
+  eq('2', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('1', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('0', cm.getValue());
+}, { value: '0' });
+
+testVim('increment_hexadecimal', function(cm, vim, helpers) {
+  cm.setCursor(0, 2);
+  helpers.doKeys('<C-a>');
+  eq('0x1', cm.getValue());
+  helpers.doKeys('<C-a>');
+  eq('0x2', cm.getValue());
+  helpers.doKeys('<C-a>');
+  eq('0x3', cm.getValue());
+  helpers.doKeys('<C-a>');
+  eq('0x4', cm.getValue());
+  helpers.doKeys('<C-a>');
+  eq('0x5', cm.getValue());
+  helpers.doKeys('<C-a>');
+  eq('0x6', cm.getValue());
+  helpers.doKeys('<C-a>');
+  eq('0x7', cm.getValue());
+  helpers.doKeys('<C-a>');
+  eq('0x8', cm.getValue());
+  helpers.doKeys('<C-a>');
+  eq('0x9', cm.getValue());
+  helpers.doKeys('<C-a>');
+  eq('0xa', cm.getValue());
+  helpers.doKeys('<C-a>');
+  eq('0xb', cm.getValue());
+  helpers.doKeys('<C-a>');
+  eq('0xc', cm.getValue());
+  helpers.doKeys('<C-a>');
+  eq('0xd', cm.getValue());
+  helpers.doKeys('<C-a>');
+  eq('0xe', cm.getValue());
+  helpers.doKeys('<C-a>');
+  eq('0xf', cm.getValue());
+  helpers.doKeys('<C-a>');
+  eq('0x10', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('0x0f', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('0x0e', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('0x0d', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('0x0c', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('0x0b', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('0x0a', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('0x09', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('0x08', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('0x07', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('0x06', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('0x05', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('0x04', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('0x03', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('0x02', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('0x01', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('0x00', cm.getValue());
+  cm.setCursor(0, 0);
+  helpers.doKeys('<C-a>');
+  eq('0x01', cm.getValue());
+  helpers.doKeys('<C-a>');
+  eq('0x02', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('0x01', cm.getValue());
+  helpers.doKeys('<C-x>');
+  eq('0x00', cm.getValue());
+}, { value: '0x0' });

@@ -1,21 +1,21 @@
-import { retreatFrontier } from "../line/highlight"
-import { startWorker } from "../display/highlight_worker"
-import { operation } from "../display/operations"
-import { regChange, regLineChange } from "../display/view_tracking"
-import { clipLine, clipPos, cmp, Pos } from "../line/pos"
-import { sawReadOnlySpans } from "../line/saw_special_spans"
-import { lineLength, removeReadOnlyRanges, stretchSpansOverChange, visualLine } from "../line/spans"
-import { getBetween, getLine, lineNo } from "../line/utils_line"
-import { estimateHeight } from "../measurement/position_measurement"
-import { hasHandler, signal, signalCursorActivity } from "../util/event"
-import { indexOf, lst, map, sel_dontScroll } from "../util/misc"
-import { signalLater } from "../util/operation_group"
+import { retreatFrontier } from "../line/highlight.js"
+import { startWorker } from "../display/highlight_worker.js"
+import { operation } from "../display/operations.js"
+import { regChange, regLineChange } from "../display/view_tracking.js"
+import { clipLine, clipPos, cmp, Pos } from "../line/pos.js"
+import { sawReadOnlySpans } from "../line/saw_special_spans.js"
+import { lineLength, removeReadOnlyRanges, stretchSpansOverChange, visualLine } from "../line/spans.js"
+import { getBetween, getLine, lineNo } from "../line/utils_line.js"
+import { estimateHeight } from "../measurement/position_measurement.js"
+import { hasHandler, signal, signalCursorActivity } from "../util/event.js"
+import { indexOf, lst, map, sel_dontScroll } from "../util/misc.js"
+import { signalLater } from "../util/operation_group.js"
 
-import { changeEnd, computeSelAfterChange } from "./change_measurement"
-import { isWholeLineUpdate, linkedDocs, updateDoc } from "./document_data"
-import { addChangeToHistory, historyChangeFromChange, mergeOldSpans, pushSelectionToHistory } from "./history"
-import { Range, Selection } from "./selection"
-import { setSelection, setSelectionNoUndo } from "./selection_updates"
+import { changeEnd, computeSelAfterChange } from "./change_measurement.js"
+import { isWholeLineUpdate, linkedDocs, updateDoc } from "./document_data.js"
+import { addChangeToHistory, historyChangeFromChange, mergeOldSpans, pushSelectionToHistory } from "./history.js"
+import { Range, Selection } from "./selection.js"
+import { setSelection, setSelectionNoUndo } from "./selection_updates.js"
 
 // UPDATING
 
@@ -85,7 +85,8 @@ function makeChangeInner(doc, change) {
 
 // Revert a change stored in a document's history.
 export function makeChangeFromHistory(doc, type, allowSelectionOnly) {
-  if (doc.cm && doc.cm.state.suppressEdits && !allowSelectionOnly) return
+  let suppress = doc.cm && doc.cm.state.suppressEdits
+  if (suppress && !allowSelectionOnly) return
 
   let hist = doc.history, event, selAfter = doc.sel
   let source = type == "undo" ? hist.done : hist.undone, dest = type == "undo" ? hist.undone : hist.done
@@ -110,8 +111,10 @@ export function makeChangeFromHistory(doc, type, allowSelectionOnly) {
         return
       }
       selAfter = event
-    }
-    else break
+    } else if (suppress) {
+      source.push(event)
+      return
+    } else break
   }
 
   // Build up a reverse change object to add to the opposite history
@@ -260,9 +263,9 @@ function makeChangeSingleDocInEditor(cm, change, spans) {
 
 export function replaceRange(doc, code, from, to, origin) {
   if (!to) to = from
-  if (cmp(to, from) < 0) { let tmp = to; to = from; from = tmp }
+  if (cmp(to, from) < 0) [from, to] = [to, from]
   if (typeof code == "string") code = doc.splitLines(code)
-  makeChange(doc, {from: from, to: to, text: code, origin: origin})
+  makeChange(doc, {from, to, text: code, origin})
 }
 
 // Rebasing/resetting history to deal with externally-sourced changes

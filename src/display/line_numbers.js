@@ -1,8 +1,8 @@
-import { lineNumberFor } from "../line/utils_line"
-import { compensateForHScroll } from "../measurement/position_measurement"
-import { elt } from "../util/dom"
+import { lineNumberFor } from "../line/utils_line.js"
+import { compensateForHScroll } from "../measurement/position_measurement.js"
+import { elt } from "../util/dom.js"
 
-import { updateGutterSpace } from "./update_display"
+import { updateGutterSpace } from "./update_display.js"
 
 // Re-align line numbers and gutter marks to compensate for
 // horizontal scrolling.

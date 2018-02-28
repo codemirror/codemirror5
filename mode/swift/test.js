@@ -142,6 +142,13 @@
      "[variable print][punctuation (][variable foo][property ._123][punctuation )]",
      "[variable print][punctuation (]")
 
+  MT("nested_comments",
+     "[comment /*]",
+     "[comment But wait /* this is a nested comment */ for real]",
+     "[comment /**** let * me * show * you ****/]",
+     "[comment ///// let / me / show / you /////]",
+     "[comment */]");
+
   // TODO: correctly identify when multiple variables are being declared
   // by use of a comma-separated list.
   // TODO: correctly identify when variables are being declared in a tuple.

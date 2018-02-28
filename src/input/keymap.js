@@ -1,7 +1,7 @@
-import { flipCtrlCmd, mac, presto } from "../util/browser"
-import { map } from "../util/misc"
+import { flipCtrlCmd, mac, presto } from "../util/browser.js"
+import { map } from "../util/misc.js"
 
-import { keyNames } from "./keynames"
+import { keyNames } from "./keynames.js"
 
 export let keyMap = {}
 
@@ -137,6 +137,9 @@ export function keyName(event, noShift) {
   if (presto && event.keyCode == 34 && event["char"]) return false
   let name = keyNames[event.keyCode]
   if (name == null || event.altGraphKey) return false
+  // Ctrl-ScrollLock has keyCode 3, same as Ctrl-Pause,
+  // so we'll use event.code when available (Chrome 48+, FF 38+, Safari 10.1+)
+  if (event.keyCode == 3 && event.code) name = event.code
   return addModifierNames(name, event, noShift)
 }
 

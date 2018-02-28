@@ -1,16 +1,16 @@
-import { clipPos } from "../line/pos"
-import { findMaxLine } from "../line/spans"
-import { displayWidth, measureChar, scrollGap } from "../measurement/position_measurement"
-import { signal } from "../util/event"
-import { activeElt } from "../util/dom"
-import { finishOperation, pushOperation } from "../util/operation_group"
+import { clipPos } from "../line/pos.js"
+import { findMaxLine } from "../line/spans.js"
+import { displayWidth, measureChar, scrollGap } from "../measurement/position_measurement.js"
+import { signal } from "../util/event.js"
+import { activeElt } from "../util/dom.js"
+import { finishOperation, pushOperation } from "../util/operation_group.js"
 
-import { ensureFocus } from "./focus"
-import { measureForScrollbars, updateScrollbars } from "./scrollbars"
-import { restartBlink } from "./selection"
-import { maybeScrollWindow, scrollPosIntoView, setScrollLeft, setScrollTop } from "./scrolling"
-import { DisplayUpdate, maybeClipScrollbars, postUpdateDisplay, setDocumentHeight, updateDisplayIfNeeded } from "./update_display"
-import { updateHeightsInViewport } from "./update_lines"
+import { ensureFocus } from "./focus.js"
+import { measureForScrollbars, updateScrollbars } from "./scrollbars.js"
+import { restartBlink } from "./selection.js"
+import { maybeScrollWindow, scrollPosIntoView, setScrollLeft, setScrollTop } from "./scrolling.js"
+import { DisplayUpdate, maybeClipScrollbars, postUpdateDisplay, setDocumentHeight, updateDisplayIfNeeded } from "./update_display.js"
+import { updateHeightsInViewport } from "./update_lines.js"
 
 // Operations are used to wrap a series of changes to the editor
 // state in such a way that each change won't have to update the
@@ -102,7 +102,7 @@ function endOperation_R2(op) {
   }
 
   if (op.updatedDisplay || op.selectionChanged)
-    op.preparedSelection = display.input.prepareSelection(op.focus)
+    op.preparedSelection = display.input.prepareSelection()
 }
 
 function endOperation_W2(op) {
@@ -115,7 +115,7 @@ function endOperation_W2(op) {
     cm.display.maxLineChanged = false
   }
 
-  let takeFocus = op.focus && op.focus == activeElt() && (!document.hasFocus || document.hasFocus())
+  let takeFocus = op.focus && op.focus == activeElt()
   if (op.preparedSelection)
     cm.display.input.showSelection(op.preparedSelection, takeFocus)
   if (op.updatedDisplay || op.startHeight != cm.doc.height)

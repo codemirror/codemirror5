@@ -24,6 +24,9 @@
   MT("atMediaUnknownFeatureValueKeyword",
      "[def @media] ([property orientation]: [error upsidedown]) { }");
 
+  MT("atMediaUppercase",
+     "[def @MEDIA] ([property orienTAtion]: [keyword landScape]) { }");
+
   MT("tagSelector",
      "[tag foo] { }");
 

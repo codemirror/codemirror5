@@ -19,8 +19,11 @@
       + (regexp.multiline ? "m" : "")
   }
 
-  function ensureGlobal(regexp) {
-    return regexp.global ? regexp : new RegExp(regexp.source, regexpFlags(regexp) + "g")
+  function ensureFlags(regexp, flags) {
+    var current = regexpFlags(regexp), target = current
+    for (var i = 0; i < flags.length; i++) if (target.indexOf(flags.charAt(i)) == -1)
+      target += flags.charAt(i)
+    return current == target ? regexp : new RegExp(regexp.source, target)
   }
 
   function maybeMultiline(regexp) {
@@ -28,7 +31,7 @@
   }
 
   function searchRegexpForward(doc, regexp, start) {
-    regexp = ensureGlobal(regexp)
+    regexp = ensureFlags(regexp, "g")
     for (var line = start.line, ch = start.ch, last = doc.lastLine(); line <= last; line++, ch = 0) {
       regexp.lastIndex = ch
       var string = doc.getLine(line), match = regexp.exec(string)
@@ -42,7 +45,7 @@
   function searchRegexpForwardMultiline(doc, regexp, start) {
     if (!maybeMultiline(regexp)) return searchRegexpForward(doc, regexp, start)
 
-    regexp = ensureGlobal(regexp)
+    regexp = ensureFlags(regexp, "gm")
     var string, chunk = 1
     for (var line = start.line, last = doc.lastLine(); line <= last;) {
       // This grows the search buffer in exponentially-sized chunks
@@ -51,6 +54,7 @@
       // searching for something that has tons of matches), but at the
       // same time, the amount of retries is limited.
       for (var i = 0; i < chunk; i++) {
+        if (line > last) break
         var curLine = doc.getLine(line++)
         string = string == null ? curLine : string + "\n" + curLine
       }
@@ -81,7 +85,7 @@
   }
 
   function searchRegexpBackward(doc, regexp, start) {
-    regexp = ensureGlobal(regexp)
+    regexp = ensureFlags(regexp, "g")
     for (var line = start.line, ch = start.ch, first = doc.firstLine(); line >= first; line--, ch = -1) {
       var string = doc.getLine(line)
       if (ch > -1) string = string.slice(0, ch)
@@ -94,7 +98,7 @@
   }
 
   function searchRegexpBackwardMultiline(doc, regexp, start) {
-    regexp = ensureGlobal(regexp)
+    regexp = ensureFlags(regexp, "gm")
     var string, chunk = 1
     for (var line = start.line, first = doc.firstLine(); line >= first;) {
       for (var i = 0; i < chunk; i++) {
@@ -159,7 +163,7 @@
         for (var i = 1; i < lines.length - 1; i++)
           if (fold(doc.getLine(line + i)) != lines[i]) continue search
         var end = doc.getLine(line + lines.length - 1), endString = fold(end), lastLine = lines[lines.length - 1]
-        if (end.slice(0, lastLine.length) != lastLine) continue search
+        if (endString.slice(0, lastLine.length) != lastLine) continue search
         return {from: Pos(line, adjustPos(orig, string, cutFrom, fold) + ch),
                 to: Pos(line + lines.length - 1, adjustPos(end, endString, lastLine.length, fold))}
       }
@@ -213,7 +217,7 @@
         return (reverse ? searchStringBackward : searchStringForward)(doc, query, pos, caseFold)
       }
     } else {
-      query = ensureGlobal(query)
+      query = ensureFlags(query, "gm")
       if (!options || options.multiline !== false)
         this.matches = function(reverse, pos) {
           return (reverse ? searchRegexpBackwardMultiline : searchRegexpForwardMultiline)(doc, query, pos)

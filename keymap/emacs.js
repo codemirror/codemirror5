@@ -30,16 +30,16 @@
 
   var lastKill = null;
 
-  function kill(cm, from, to, mayGrow, text) {
+  function kill(cm, from, to, ring, text) {
     if (text == null) text = cm.getRange(from, to);
 
-    if (mayGrow && lastKill && lastKill.cm == cm && posEq(from, lastKill.pos) && cm.isClean(lastKill.gen))
+    if (ring == "grow" && lastKill && lastKill.cm == cm && posEq(from, lastKill.pos) && cm.isClean(lastKill.gen))
       growRingTop(text);
-    else
+    else if (ring !== false)
       addToRing(text);
     cm.replaceRange("", from, to, "+delete");
 
-    if (mayGrow) lastKill = {cm: cm, pos: from, gen: cm.changeGeneration()};
+    if (ring == "grow") lastKill = {cm: cm, pos: from, gen: cm.changeGeneration()};
     else lastKill = null;
   }
 
@@ -151,22 +151,22 @@
     return f;
   }
 
-  function killTo(cm, by, dir) {
+  function killTo(cm, by, dir, ring) {
     var selections = cm.listSelections(), cursor;
     var i = selections.length;
     while (i--) {
       cursor = selections[i].head;
-      kill(cm, cursor, findEnd(cm, cursor, by, dir), true);
+      kill(cm, cursor, findEnd(cm, cursor, by, dir), ring);
     }
   }
 
-  function killRegion(cm) {
+  function killRegion(cm, ring) {
     if (cm.somethingSelected()) {
       var selections = cm.listSelections(), selection;
       var i = selections.length;
       while (i--) {
         selection = selections[i];
-        kill(cm, selection.anchor, selection.head);
+        kill(cm, selection.anchor, selection.head, ring);
       }
       return true;
     }
@@ -276,7 +276,7 @@
   // Actual keymap
 
   var keyMap = CodeMirror.keyMap.emacs = CodeMirror.normalizeKeyMap({
-    "Ctrl-W": function(cm) {kill(cm, cm.getCursor("start"), cm.getCursor("end"));},
+    "Ctrl-W": function(cm) {kill(cm, cm.getCursor("start"), cm.getCursor("end"), true);},
     "Ctrl-K": repeated(function(cm) {
       var start = cm.getCursor(), end = cm.clipPos(Pos(start.line));
       var text = cm.getRange(start, end);
@@ -284,7 +284,7 @@
         text += "\n";
         end = Pos(start.line + 1, 0);
       }
-      kill(cm, start, end, true, text);
+      kill(cm, start, end, "grow", text);
     }),
     "Alt-W": function(cm) {
       addToRing(cm.getSelection());
@@ -301,14 +301,14 @@
 
     "Ctrl-F": move(byChar, 1), "Ctrl-B": move(byChar, -1),
     "Right": move(byChar, 1), "Left": move(byChar, -1),
-    "Ctrl-D": function(cm) { killTo(cm, byChar, 1); },
-    "Delete": function(cm) { killRegion(cm) || killTo(cm, byChar, 1); },
-    "Ctrl-H": function(cm) { killTo(cm, byChar, -1); },
-    "Backspace": function(cm) { killRegion(cm) || killTo(cm, byChar, -1); },
+    "Ctrl-D": function(cm) { killTo(cm, byChar, 1, false); },
+    "Delete": function(cm) { killRegion(cm, false) || killTo(cm, byChar, 1, false); },
+    "Ctrl-H": function(cm) { killTo(cm, byChar, -1, false); },
+    "Backspace": function(cm) { killRegion(cm, false) || killTo(cm, byChar, -1, false); },
 
     "Alt-F": move(byWord, 1), "Alt-B": move(byWord, -1),
-    "Alt-D": function(cm) { killTo(cm, byWord, 1); },
-    "Alt-Backspace": function(cm) { killTo(cm, byWord, -1); },
+    "Alt-D": function(cm) { killTo(cm, byWord, 1, "grow"); },
+    "Alt-Backspace": function(cm) { killTo(cm, byWord, -1, "grow"); },
 
     "Ctrl-N": move(byLine, 1), "Ctrl-P": move(byLine, -1),
     "Down": move(byLine, 1), "Up": move(byLine, -1),
@@ -321,11 +321,11 @@
     "Ctrl-Up": move(byParagraph, -1), "Ctrl-Down": move(byParagraph, 1),
 
     "Alt-A": move(bySentence, -1), "Alt-E": move(bySentence, 1),
-    "Alt-K": function(cm) { killTo(cm, bySentence, 1); },
+    "Alt-K": function(cm) { killTo(cm, bySentence, 1, "grow"); },
 
-    "Ctrl-Alt-K": function(cm) { killTo(cm, byExpr, 1); },
-    "Ctrl-Alt-Backspace": function(cm) { killTo(cm, byExpr, -1); },
-    "Ctrl-Alt-F": move(byExpr, 1), "Ctrl-Alt-B": move(byExpr, -1),
+    "Ctrl-Alt-K": function(cm) { killTo(cm, byExpr, 1, "grow"); },
+    "Ctrl-Alt-Backspace": function(cm) { killTo(cm, byExpr, -1, "grow"); },
+    "Ctrl-Alt-F": move(byExpr, 1), "Ctrl-Alt-B": move(byExpr, -1, "grow"),
 
     "Shift-Ctrl-Alt-2": function(cm) {
       var cursor = cm.getCursor();
@@ -398,7 +398,7 @@
     "Ctrl-X F": "open",
     "Ctrl-X U": repeated("undo"),
     "Ctrl-X K": "close",
-    "Ctrl-X Delete": function(cm) { kill(cm, cm.getCursor(), bySentence(cm, cm.getCursor(), 1), true); },
+    "Ctrl-X Delete": function(cm) { kill(cm, cm.getCursor(), bySentence(cm, cm.getCursor(), 1), "grow"); },
     "Ctrl-X H": "selectAll",
 
     "Ctrl-Q Tab": repeated("insertTab"),

@@ -7,7 +7,8 @@
 CodeMirror is a versatile text editor implemented in JavaScript for
 the browser. It is specialized for editing code, and comes with over
 100 language modes and various addons that implement more advanced
-editing functionality.
+editing functionality. Every language comes with fully-featured code
+and syntax highlighting to help with reading and editing complex code.
 
 A rich programming API and a CSS theming system are available for
 customizing CodeMirror to fit your application, and extending it with
