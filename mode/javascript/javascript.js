@@ -266,16 +266,17 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     return true;
   }
   function register(varname) {
-    function inList(list) {
+    function inList(list, block) {
       for (var v = list; v; v = v.next)
-        if (v.name == varname) return true;
+        if (v.name == varname && (block === undefined || v.block === block)) return true;
       return false;
     }
     var state = cx.state;
     cx.marked = "def";
     if (state.context) {
-      if (inList(state.localVars)) return;
-      state.localVars = {name: varname, next: state.localVars};
+      var block = !(cx.state.lexical.info && cx.state.lexical.info.scope === "var");
+      if (inList(state.localVars, block)) return;
+      state.localVars = {name: varname, block: block, next: state.localVars};
     } else {
       if (inList(state.globalVars)) return;
       if (parserConfig.globalVars)
@@ -294,8 +295,25 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     cx.state.context = {prev: cx.state.context, vars: cx.state.localVars};
     cx.state.localVars = defaultVars;
   }
+  function pushblockcontext() {
+    cx.state.context = {prev: cx.state.context, vars: cx.state.localVars, block: true};
+    cx.state.localVars = defaultVars;
+  }
   function popcontext() {
-    cx.state.localVars = cx.state.context.vars;
+    if (cx.state.context.block) {
+      var newVars = {name: "this", next: {name: "arguments"}};
+      // drop block-scoped variables
+      for (var v = cx.state.localVars; v; v = v.next) {
+        if (!v.block) newVars = { name: v.name, scope: v.scope, next: newVars };
+      }
+      // inherit from previous scope
+      for (v = cx.state.context.vars; v; v = v.next) {
+        newVars = { name: v.name, scope: v.scope, next: newVars };
+      }
+      cx.state.localVars = newVars;
+    } else {
+      cx.state.localVars = cx.state.context.vars;
+    }
     cx.state.context = cx.state.context.prev;
   }
   function pushlex(type, info) {
@@ -329,12 +347,12 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   }
 
   function statement(type, value) {
-    if (type == "var") return cont(pushlex("vardef", value.length), vardef, expect(";"), poplex);
+    if (type == "var") return cont(pushlex("vardef", { scope: value, length: value.length }), vardef, expect(";"), poplex);
     if (type == "keyword a") return cont(pushlex("form"), parenExpr, statement, poplex);
     if (type == "keyword b") return cont(pushlex("form"), statement, poplex);
     if (type == "keyword d") return cx.stream.match(/^\s*$/, false) ? cont() : cont(pushlex("stat"), maybeexpression, expect(";"), poplex);
     if (type == "debugger") return cont(expect(";"));
-    if (type == "{") return cont(pushlex("}"), block, poplex);
+    if (type == "{") return cont(pushlex("}"), pushblockcontext, block, poplex, popcontext);
     if (type == ";") return cont();
     if (type == "if") {
       if (cx.state.lexical.info == "else" && cx.state.cc[cx.state.cc.length - 1] == poplex)
@@ -363,8 +381,8 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
         return cont(pushlex("stat"), maybelabel);
       }
     }
-    if (type == "switch") return cont(pushlex("form"), parenExpr, expect("{"), pushlex("}", "switch"),
-                                      block, poplex, poplex);
+    if (type == "switch") return cont(pushblockcontext, pushlex("form"), parenExpr, expect("{"), pushlex("}", "switch"),
+                                      block, poplex, poplex, popcontext);
     if (type == "case") return cont(expression, expect(":"));
     if (type == "default") return cont(expect(":"));
     if (type == "catch") return cont(pushlex("form"), pushcontext, maybeCatchBinding, statement, poplex, popcontext);
@@ -826,7 +844,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
         lexical = lexical.prev;
       var type = lexical.type, closing = firstChar == type;
 
-      if (type == "vardef") return lexical.indented + (state.lastType == "operator" || state.lastType == "," ? lexical.info + 1 : 0);
+      if (type == "vardef") return lexical.indented + (state.lastType == "operator" || state.lastType == "," ? lexical.info.length + 1 : 0);
       else if (type == "form" && firstChar == "{") return lexical.indented;
       else if (type == "form") return lexical.indented + indentUnit;
       else if (type == "stat")
