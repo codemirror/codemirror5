@@ -86,6 +86,12 @@
      "    [keyword yield] [variable-2 i];",
      "}");
 
+  MT("scoping",
+     "[keyword function] [def scoped]([def n]) {",
+     "  { [keyword var] [def i]; } [variable-2 i];",
+     "  { [keyword let] [def j]; } [variable j];",
+     "}");
+
   MT("quotedStringAddition",
      "[keyword let] [def f] [operator =] [variable a] [operator +] [string 'fatarrow'] [operator +] [variable c];");
 
