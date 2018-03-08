@@ -7,7 +7,7 @@
   else if (typeof define == "function" && define.amd) // AMD
     define(["../../lib/codemirror"], mod);
   else // Plain browser env
-    mod(CodeMirror);
+     mod(CodeMirror);
 })(function(CodeMirror) {
 "use strict";
 
@@ -228,8 +228,6 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   function inScope(state, varname) {
     for (var v = state.localVars; v; v = v.next)
       if (v.name == varname) return true;
-    for (var v = state.blockVars; v; v = v.next)
-      if (v.name == varname) return true;
     for (var cx = state.context; cx; cx = cx.prev) {
       for (var v = cx.vars; v; v = v.next)
         if (v.name == varname) return true;
@@ -268,21 +266,17 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     return true;
   }
   function register(varname) {
-    function inList(list) {
+    function inList(list, block) {
       for (var v = list; v; v = v.next)
-        if (v.name == varname) return true;
+        if (v.name == varname && (block === undefined || v.block == block)) return true;
       return false;
     }
     var state = cx.state;
     cx.marked = "def";
     if (state.context) {
-      if (cx.state.lexical.info && cx.state.lexical.info.binding == 'var') {
-        if (inList(state.localVars)) return;
-        state.localVars = {name: varname, next: state.localVars};
-      } else {
-        if (inList(state.blockVars)) return;
-        state.blockVars = {name: varname, next: state.blockVars};
-      }
+      var block = !(cx.state.lexical.info && cx.state.lexical.info.scope == "var");
+      if (inList(state.localVars, block)) return;
+      state.localVars = {name: varname, block: block, next: state.localVars};
     } else {
       if (inList(state.globalVars)) return;
       if (parserConfig.globalVars)
@@ -298,19 +292,23 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
 
   var defaultVars = {name: "this", next: {name: "arguments"}};
   function pushcontext() {
-    cx.state.context = {prev: cx.state.context, vars: cx.state.localVars};
+    cx.state.context = {prev: cx.state.context, vars: cx.state.localVars };
+    cx.state.localVars = defaultVars;
+  }
+  function pushblockcontext() {
+    cx.state.context = {prev: cx.state.context, vars: cx.state.localVars, block: true};
     cx.state.localVars = defaultVars;
   }
   function popcontext() {
-    cx.state.localVars = cx.state.context.vars;
-    cx.state.context = cx.state.context.prev;
-  }
-  function pushblockcontext() {
-    cx.state.context = {prev: cx.state.context, vars: cx.state.blockVars};
-    cx.state.blockVars = {};
-  }
-  function popblockcontext() {
-    cx.state.blockVars = cx.state.context.vars;
+    if (cx.state.context.block) {
+      var newVars = {name: "this", next: {name: "arguments"}};
+      for (var v = cx.state.context.vars; v; v = v.next) {
+        if (!v.block) newVars = { name: v.name, scope: v.scope, next: newVars };
+      }
+      cx.state.localVars = newVars;
+    } else {
+      cx.state.localVars = cx.state.context.vars;
+    }
     cx.state.context = cx.state.context.prev;
   }
   function pushlex(type, info) {
@@ -344,12 +342,12 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   }
 
   function statement(type, value) {
-    if (type == "var") return cont(pushlex("vardef", { binding: value, length: value.length }), vardef, expect(";"), poplex);
+    if (type == "var") return cont(pushlex("vardef", { scope: value, length: value.length }), vardef, expect(";"), poplex);
     if (type == "keyword a") return cont(pushlex("form"), parenExpr, statement, poplex);
     if (type == "keyword b") return cont(pushlex("form"), statement, poplex);
     if (type == "keyword d") return cx.stream.match(/^\s*$/, false) ? cont() : cont(pushlex("stat"), maybeexpression, expect(";"), poplex);
     if (type == "debugger") return cont(expect(";"));
-    if (type == "{") return cont(pushlex("}"), pushblockcontext, block, popblockcontext, poplex);
+    if (type == "{") return cont(pushlex("}"), pushblockcontext, block, popcontext, poplex);
     if (type == ";") return cont();
     if (type == "if") {
       if (cx.state.lexical.info == "else" && cx.state.cc[cx.state.cc.length - 1] == poplex)
@@ -800,7 +798,6 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
         cc: [],
         lexical: new JSLexical((basecolumn || 0) - indentUnit, 0, "block", false),
         localVars: parserConfig.localVars,
-        blockVars: parserConfig.blockVars,
         context: parserConfig.localVars && {vars: parserConfig.localVars},
         indented: basecolumn || 0
       };
