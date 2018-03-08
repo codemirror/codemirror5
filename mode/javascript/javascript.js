@@ -274,7 +274,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     var state = cx.state;
     cx.marked = "def";
     if (state.context) {
-      var block = !(cx.state.lexical.info && cx.state.lexical.info.scope == "var");
+      var block = !(cx.state.lexical.info && cx.state.lexical.info.scope === "var");
       if (inList(state.localVars, block)) return;
       state.localVars = {name: varname, block: block, next: state.localVars};
     } else {
@@ -302,7 +302,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   function popcontext() {
     if (cx.state.context.block) {
       var newVars = {name: "this", next: {name: "arguments"}};
-      for (var v = cx.state.context.vars; v; v = v.next) {
+      for (var v = cx.state.localVars; v; v = v.next) {
         if (!v.block) newVars = { name: v.name, scope: v.scope, next: newVars };
       }
       cx.state.localVars = newVars;
