@@ -52,9 +52,9 @@ CodeMirror.multiplexingMode = function(outer /*, others */) {
             state.innerActive = other;
 
             // Get the outer indent, making sure to handle CodeMirror.Pass
-            let outerIndent = 0;
+            var outerIndent = 0;
             if (outer.indent) {
-              let possibleOuterIndent = outer.indent(state.outer, "");
+              var possibleOuterIndent = outer.indent(state.outer, "");
               if (possibleOuterIndent !== CodeMirror.Pass) outerIndent = possibleOuterIndent;
             }
 
