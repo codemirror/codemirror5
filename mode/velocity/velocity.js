@@ -34,7 +34,7 @@ CodeMirror.defineMode("velocity", function() {
         state.beforeParams = false;
         var ch = stream.next();
         // start of unparsed string?
-        if ((ch == "'") && state.inParams) {
+        if ((ch == "'") && !state.inString && state.inParams) {
             state.lastTokenWasBuiltin = false;
             return chain(stream, state, tokenString(ch));
         }
@@ -82,7 +82,7 @@ CodeMirror.defineMode("velocity", function() {
         }
         // variable?
         else if (ch == "$") {
-            stream.eatWhile(/[\w\d\$_\.{}]/);
+            stream.eatWhile(/[\w\d\$_\.{}-]/);
             // is it one of the specials?
             if (specials && specials.propertyIsEnumerable(stream.current())) {
                 return "keyword";

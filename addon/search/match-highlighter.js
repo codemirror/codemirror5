@@ -16,81 +16,118 @@
 // highlighted only if the selected text is a word. showToken, when enabled,
 // will cause the current token to be highlighted when nothing is selected.
 // delay is used to specify how much time to wait, in milliseconds, before
-// highlighting the matches.
+// highlighting the matches. If annotateScrollbar is enabled, the occurences
+// will be highlighted on the scrollbar via the matchesonscrollbar addon.
 
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
-    mod(require("../../lib/codemirror"));
+    mod(require("../../lib/codemirror"), require("./matchesonscrollbar"));
   else if (typeof define == "function" && define.amd) // AMD
-    define(["../../lib/codemirror"], mod);
+    define(["../../lib/codemirror", "./matchesonscrollbar"], mod);
   else // Plain browser env
     mod(CodeMirror);
 })(function(CodeMirror) {
   "use strict";
 
-  var DEFAULT_MIN_CHARS = 2;
-  var DEFAULT_TOKEN_STYLE = "matchhighlight";
-  var DEFAULT_DELAY = 100;
-  var DEFAULT_WORDS_ONLY = false;
+  var defaults = {
+    style: "matchhighlight",
+    minChars: 2,
+    delay: 100,
+    wordsOnly: false,
+    annotateScrollbar: false,
+    showToken: false,
+    trim: true
+  }
 
   function State(options) {
-    if (typeof options == "object") {
-      this.minChars = options.minChars;
-      this.style = options.style;
-      this.showToken = options.showToken;
-      this.delay = options.delay;
-      this.wordsOnly = options.wordsOnly;
-    }
-    if (this.style == null) this.style = DEFAULT_TOKEN_STYLE;
-    if (this.minChars == null) this.minChars = DEFAULT_MIN_CHARS;
-    if (this.delay == null) this.delay = DEFAULT_DELAY;
-    if (this.wordsOnly == null) this.wordsOnly = DEFAULT_WORDS_ONLY;
+    this.options = {}
+    for (var name in defaults)
+      this.options[name] = (options && options.hasOwnProperty(name) ? options : defaults)[name]
     this.overlay = this.timeout = null;
+    this.matchesonscroll = null;
+    this.active = false;
   }
 
   CodeMirror.defineOption("highlightSelectionMatches", false, function(cm, val, old) {
     if (old && old != CodeMirror.Init) {
-      var over = cm.state.matchHighlighter.overlay;
-      if (over) cm.removeOverlay(over);
+      removeOverlay(cm);
       clearTimeout(cm.state.matchHighlighter.timeout);
       cm.state.matchHighlighter = null;
       cm.off("cursorActivity", cursorActivity);
+      cm.off("focus", onFocus)
     }
     if (val) {
-      cm.state.matchHighlighter = new State(val);
-      highlightMatches(cm);
+      var state = cm.state.matchHighlighter = new State(val);
+      if (cm.hasFocus()) {
+        state.active = true
+        highlightMatches(cm)
+      } else {
+        cm.on("focus", onFocus)
+      }
       cm.on("cursorActivity", cursorActivity);
     }
   });
 
   function cursorActivity(cm) {
     var state = cm.state.matchHighlighter;
+    if (state.active || cm.hasFocus()) scheduleHighlight(cm, state)
+  }
+
+  function onFocus(cm) {
+    var state = cm.state.matchHighlighter
+    if (!state.active) {
+      state.active = true
+      scheduleHighlight(cm, state)
+    }
+  }
+
+  function scheduleHighlight(cm, state) {
     clearTimeout(state.timeout);
-    state.timeout = setTimeout(function() {highlightMatches(cm);}, state.delay);
+    state.timeout = setTimeout(function() {highlightMatches(cm);}, state.options.delay);
+  }
+
+  function addOverlay(cm, query, hasBoundary, style) {
+    var state = cm.state.matchHighlighter;
+    cm.addOverlay(state.overlay = makeOverlay(query, hasBoundary, style));
+    if (state.options.annotateScrollbar && cm.showMatchesOnScrollbar) {
+      var searchFor = hasBoundary ? new RegExp("\\b" + query.replace(/[\\\[.+*?(){|^$]/g, "\\$&") + "\\b") : query;
+      state.matchesonscroll = cm.showMatchesOnScrollbar(searchFor, false,
+        {className: "CodeMirror-selection-highlight-scrollbar"});
+    }
+  }
+
+  function removeOverlay(cm) {
+    var state = cm.state.matchHighlighter;
+    if (state.overlay) {
+      cm.removeOverlay(state.overlay);
+      state.overlay = null;
+      if (state.matchesonscroll) {
+        state.matchesonscroll.clear();
+        state.matchesonscroll = null;
+      }
+    }
   }
 
   function highlightMatches(cm) {
     cm.operation(function() {
       var state = cm.state.matchHighlighter;
-      if (state.overlay) {
-        cm.removeOverlay(state.overlay);
-        state.overlay = null;
-      }
-      if (!cm.somethingSelected() && state.showToken) {
-        var re = state.showToken === true ? /[\w$]/ : state.showToken;
+      removeOverlay(cm);
+      if (!cm.somethingSelected() && state.options.showToken) {
+        var re = state.options.showToken === true ? /[\w$]/ : state.options.showToken;
         var cur = cm.getCursor(), line = cm.getLine(cur.line), start = cur.ch, end = start;
         while (start && re.test(line.charAt(start - 1))) --start;
         while (end < line.length && re.test(line.charAt(end))) ++end;
         if (start < end)
-          cm.addOverlay(state.overlay = makeOverlay(line.slice(start, end), re, state.style));
+          addOverlay(cm, line.slice(start, end), re, state.options.style);
         return;
       }
       var from = cm.getCursor("from"), to = cm.getCursor("to");
       if (from.line != to.line) return;
-      if (state.wordsOnly && !isWord(cm, from, to)) return;
-      var selection = cm.getRange(from, to).replace(/^\s+|\s+$/g, "");
-      if (selection.length >= state.minChars)
-        cm.addOverlay(state.overlay = makeOverlay(selection, false, state.style));
+      if (state.options.wordsOnly && !isWord(cm, from, to)) return;
+      var selection = cm.getRange(from, to)
+      if (state.options.trim) selection = selection.replace(/^\s+|\s+$/g, "")
+      if (selection.length >= state.options.minChars)
+        addOverlay(cm, selection, false, state.options.style);
     });
   }
 

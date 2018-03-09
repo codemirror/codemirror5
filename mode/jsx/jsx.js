@@ -25,9 +25,9 @@
                        context.prev && copyContext(context.prev))
   }
 
-  CodeMirror.defineMode("jsx", function(config) {
-    var xmlMode = CodeMirror.getMode(config, {name: "xml", allowMissing: true, multilineTagIndentPastTag: false})
-    var jsMode = CodeMirror.getMode(config, "javascript")
+  CodeMirror.defineMode("jsx", function(config, modeConfig) {
+    var xmlMode = CodeMirror.getMode(config, {name: "xml", allowMissing: true, multilineTagIndentPastTag: false, allowMissingTagName: true})
+    var jsMode = CodeMirror.getMode(config, modeConfig && modeConfig.base || "javascript")
 
     function flatXMLIndent(state) {
       var tagName = state.tagName
@@ -53,7 +53,22 @@
 
       if (stream.peek() == "{") {
         xmlMode.skipAttribute(cx.state)
-        state.context = new Context(CodeMirror.startState(jsMode, flatXMLIndent(cx.state)),
+
+        var indent = flatXMLIndent(cx.state), xmlContext = cx.state.context
+        // If JS starts on same line as tag
+        if (xmlContext && stream.match(/^[^>]*>\s*$/, false)) {
+          while (xmlContext.prev && !xmlContext.startOfLine)
+            xmlContext = xmlContext.prev
+          // If tag starts the line, use XML indentation level
+          if (xmlContext.startOfLine) indent -= config.indentUnit
+          // Else use JS indentation level
+          else if (cx.prev.state.lexical) indent = cx.prev.state.lexical.indented
+        // Else if inside of tag
+        } else if (cx.depth == 1) {
+          indent += config.indentUnit
+        }
+
+        state.context = new Context(CodeMirror.startState(jsMode, indent),
                                     jsMode, 0, state.context)
         return null
       }
@@ -129,4 +144,5 @@
   }, "xml", "javascript")
 
   CodeMirror.defineMIME("text/jsx", "jsx")
-})
+  CodeMirror.defineMIME("text/typescript-jsx", {name: "jsx", base: {name: "javascript", typescript: true}})
+});

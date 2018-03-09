@@ -24,8 +24,8 @@
   function at(line, ch, msg) {
     return function(cm) {
       eq(cm.listSelections().length, 1);
-      eqPos(cm.getCursor("head"), Pos(line, ch), msg);
-      eqPos(cm.getCursor("anchor"), Pos(line, ch), msg);
+      eqCursorPos(cm.getCursor("head"), Pos(line, ch), msg);
+      eqCursorPos(cm.getCursor("anchor"), Pos(line, ch), msg);
     };
   }
 
@@ -54,8 +54,8 @@
       if (sels.length != ranges.length)
         throw new Failure("Expected " + ranges.length + " selections, but found " + sels.length);
       for (var i = 0; i < sels.length; i++) {
-        eqPos(sels[i].anchor, ranges[i].anchor, "anchor " + i);
-        eqPos(sels[i].head, ranges[i].head, "head " + i);
+        eqCharPos(sels[i].anchor, ranges[i].anchor, "anchor " + i);
+        eqCharPos(sels[i].head, ranges[i].head, "head " + i);
       }
     };
   }
@@ -152,7 +152,9 @@
          Pos(0, 8), "selectScope", hasSel(0, 8, 2, 0),
          Pos(1, 2), "selectScope", hasSel(0, 8, 2, 0),
          Pos(1, 6), "selectScope", hasSel(1, 6, 1, 10),
-         Pos(1, 9), "selectScope", hasSel(1, 6, 1, 10));
+         Pos(1, 9), "selectScope", hasSel(1, 6, 1, 10),
+         "selectScope", hasSel(0, 8, 2, 0),
+         "selectScope", hasSel(0, 0, 2, 1));
 
   stTest("goToBracket", "foo(a) {\n  bar[1, 2];\n}",
          Pos(0, 0), "goToBracket", at(0, 0),
@@ -219,41 +221,16 @@
                                                    2, 4, 2, 6,
                                                    2, 7, 2, 7));
 
-  stTest("selectLinesUpward", "123\n345\n789\n012",
-         setSel(0, 1, 0, 1,
-                1, 1, 1, 3,
-                2, 0, 2, 0,
-                3, 0, 3, 0),
-         "selectLinesUpward",
-         hasSel(0, 1, 0, 1,
-                0, 3, 0, 3,
-                1, 0, 1, 0,
-                1, 1, 1, 3,
-                2, 0, 2, 0,
-                3, 0, 3, 0));
-
-  stTest("selectLinesDownward", "123\n345\n789\n012",
-         setSel(0, 1, 0, 1,
-                1, 1, 1, 3,
-                2, 0, 2, 0,
-                3, 0, 3, 0),
-         "selectLinesDownward",
-         hasSel(0, 1, 0, 1,
-                1, 1, 1, 3,
-                2, 0, 2, 0,
-                2, 3, 2, 3,
-                3, 0, 3, 0));
-
   stTest("sortLines", "c\nb\na\nC\nB\nA",
          "sortLines", val("A\nB\nC\na\nb\nc"),
          "undo",
          setSel(0, 0, 2, 0,
                 3, 0, 5, 0),
-         "sortLines", val("a\nb\nc\nA\nB\nC"),
-         hasSel(0, 0, 2, 1,
-                3, 0, 5, 1),
+         "sortLines", val("b\nc\na\nB\nC\nA"),
+         hasSel(0, 0, 2, 0,
+                3, 0, 5, 0),
          "undo",
-         setSel(1, 0, 4, 0), "sortLinesInsensitive", val("c\na\nB\nb\nC\nA"));
+         setSel(1, 0, 5, 0), "sortLinesInsensitive", val("c\na\nB\nb\nC\nA"));
 
   stTest("bookmarks", "abc\ndef\nghi\njkl",
          Pos(0, 1), "toggleBookmark",
@@ -273,6 +250,10 @@
                                    2, 1, 2, 2),
          "clearBookmarks",
          Pos(0, 0), "selectBookmarks", at(0, 0));
+
+  stTest("smartBackspace", "  foo\n    bar",
+         setSel(0, 2, 0, 2, 1, 4, 1, 4, 1, 6, 1, 6), "smartBackspace",
+         val("foo\n  br"))
 
   stTest("upAndDowncaseAtCursor", "abc\ndef  x\nghI",
          setSel(0, 1, 0, 3,

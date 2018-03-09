@@ -11,7 +11,7 @@
 })(function(CodeMirror) {
 "use strict";
 
-  // full haml mode. This handled embeded ruby and html fragments too
+  // full haml mode. This handled embedded ruby and html fragments too
   CodeMirror.defineMode("haml", function(config) {
     var htmlMode = CodeMirror.getMode(config, {name: "htmlmixed"});
     var rubyMode = CodeMirror.getMode(config, "ruby");
@@ -98,8 +98,8 @@
     return {
       // default to html mode
       startState: function() {
-        var htmlState = htmlMode.startState();
-        var rubyState = rubyMode.startState();
+        var htmlState = CodeMirror.startState(htmlMode);
+        var rubyState = CodeMirror.startState(rubyMode);
         return {
           htmlState: htmlState,
           rubyState: rubyState,

@@ -433,15 +433,16 @@ CodeMirror.defineMode("erlang", function(cmCfg) {
   }
 
   function maybe_drop_post(s) {
+    if (!s.length) return s
     var last = s.length-1;
 
     if (s[last].type === "dot") {
       return [];
     }
-    if (s[last].type === "fun" && s[last-1].token === "fun") {
+    if (last > 1 && s[last].type === "fun" && s[last-1].token === "fun") {
       return s.slice(0,last-1);
     }
-    switch (s[s.length-1].token) {
+    switch (s[last].token) {
       case "}":    return d(s,{g:["{"]});
       case "]":    return d(s,{i:["["]});
       case ")":    return d(s,{i:["("]});

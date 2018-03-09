@@ -485,7 +485,7 @@ CodeMirror.defineMode("hxml", function () {
 
       if (state.inString == false && ch == "'") {
         state.inString = true;
-        ch = stream.next();
+        stream.next();
       }
 
       if (state.inString == true) {

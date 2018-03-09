@@ -49,14 +49,18 @@ SELECT SQL_NO_CACHE DISTINCT
 	LIMIT 1 OFFSET 0;
 </textarea>
             </form>
-            <p><strong>MIME types defined:</strong> 
+            <p><strong>MIME types defined:</strong>
             <code><a href="?mime=text/x-sql">text/x-sql</a></code>,
             <code><a href="?mime=text/x-mysql">text/x-mysql</a></code>,
             <code><a href="?mime=text/x-mariadb">text/x-mariadb</a></code>,
             <code><a href="?mime=text/x-cassandra">text/x-cassandra</a></code>,
             <code><a href="?mime=text/x-plsql">text/x-plsql</a></code>,
             <code><a href="?mime=text/x-mssql">text/x-mssql</a></code>,
-            <code><a href="?mime=text/x-hive">text/x-hive</a></code>.
+            <code><a href="?mime=text/x-hive">text/x-hive</a></code>,
+            <code><a href="?mime=text/x-pgsql">text/x-pgsql</a></code>,
+            <code><a href="?mime=text/x-gql">text/x-gql</a></code>,
+            <code><a href="?mime=text/x-gpsql">text/x-gpsql</a></code>.
+            <code><a href="?mime=text/x-esper">text/x-esper</a></code>.
         </p>
 <script>
 window.onload = function() {
@@ -74,8 +78,8 @@ window.onload = function() {
     autofocus: true,
     extraKeys: {"Ctrl-Space": "autocomplete"},
     hintOptions: {tables: {
-      users: {name: null, score: null, birthDate: null},
-      countries: {name: null, population: null, size: null}
+      users: ["name", "score", "birthDate"],
+      countries: ["name", "population", "size"]
     }}
   });
 };

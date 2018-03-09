@@ -12,8 +12,8 @@
   "use strict";
 
   var keywords = ("this super static final const abstract class extends external factory " +
-    "implements get native operator set typedef with enum throw rethrow " +
-    "assert break case continue default in return new deferred async await " +
+    "implements get native set typedef with enum throw rethrow " +
+    "assert break case continue default in return new deferred async await covariant " +
     "try catch finally do else for if switch while import library export " +
     "part of show hide is as").split(" ");
   var blockKeywords = "try catch finally do else for if switch while".split(" ");
@@ -72,6 +72,12 @@
           return null;
         }
         return false;
+      },
+
+      "/": function(stream, state) {
+        if (!stream.eat("*")) return false
+        state.tokenize = tokenNestedComment(1)
+        return state.tokenize(stream, state)
       }
     }
   });
@@ -119,6 +125,27 @@
     stream.eatWhile(/[\w_]/);
     state.tokenize = popInterpolationStack(state);
     return "variable";
+  }
+
+  function tokenNestedComment(depth) {
+    return function (stream, state) {
+      var ch
+      while (ch = stream.next()) {
+        if (ch == "*" && stream.eat("/")) {
+          if (depth == 1) {
+            state.tokenize = null
+            break
+          } else {
+            state.tokenize = tokenNestedComment(depth - 1)
+            return state.tokenize(stream, state)
+          }
+        } else if (ch == "/" && stream.eat("*")) {
+          state.tokenize = tokenNestedComment(depth + 1)
+          return state.tokenize(stream, state)
+        }
+      }
+      return "comment"
+    }
   }
 
   CodeMirror.registerHelper("hintWords", "application/dart", keywords.concat(atoms).concat(builtins));

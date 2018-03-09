@@ -59,22 +59,29 @@
     CodeMirror.on(this.node, "DOMMouseScroll", onWheel);
   }
 
-  Bar.prototype.moveTo = function(pos, update) {
+  Bar.prototype.setPos = function(pos, force) {
     if (pos < 0) pos = 0;
     if (pos > this.total - this.screen) pos = this.total - this.screen;
-    if (pos == this.pos) return;
+    if (!force && pos == this.pos) return false;
     this.pos = pos;
     this.inner.style[this.orientation == "horizontal" ? "left" : "top"] =
       (pos * (this.size / this.total)) + "px";
-    if (update !== false) this.scroll(pos, this.orientation);
+    return true
   };
+
+  Bar.prototype.moveTo = function(pos) {
+    if (this.setPos(pos)) this.scroll(pos, this.orientation);
+  }
 
   var minButtonSize = 10;
 
   Bar.prototype.update = function(scrollSize, clientSize, barSize) {
-    this.screen = clientSize;
-    this.total = scrollSize;
-    this.size = barSize;
+    var sizeChanged = this.screen != clientSize || this.total != scrollSize || this.size != barSize
+    if (sizeChanged) {
+      this.screen = clientSize;
+      this.total = scrollSize;
+      this.size = barSize;
+    }
 
     var buttonSize = this.screen * (this.size / this.total);
     if (buttonSize < minButtonSize) {
@@ -83,8 +90,7 @@
     }
     this.inner.style[this.orientation == "horizontal" ? "width" : "height"] =
       buttonSize + "px";
-    this.inner.style[this.orientation == "horizontal" ? "left" : "top"] =
-      this.pos * (this.size / this.total) + "px";
+    this.setPos(this.pos, sizeChanged);
   };
 
   function SimpleScrollbars(cls, place, scroll) {
@@ -111,7 +117,6 @@
     if (needsV) {
       this.vert.update(measure.scrollHeight, measure.clientHeight,
                        measure.viewHeight - (needsH ? width : 0));
-      this.vert.node.style.display = "block";
       this.vert.node.style.bottom = needsH ? width + "px" : "0";
     }
     if (needsH) {
@@ -125,11 +130,11 @@
   };
 
   SimpleScrollbars.prototype.setScrollTop = function(pos) {
-    this.vert.moveTo(pos, false);
+    this.vert.setPos(pos);
   };
 
   SimpleScrollbars.prototype.setScrollLeft = function(pos) {
-    this.horiz.moveTo(pos, false);
+    this.horiz.setPos(pos);
   };
 
   SimpleScrollbars.prototype.clear = function() {

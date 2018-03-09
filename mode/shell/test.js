@@ -55,4 +55,19 @@
      "[builtin ls] [attribute -l] [attribute --human-readable]");
   MT("operator",
      "[def var][operator =]value");
+
+  MT("doubleParens",
+     "foo [quote $((bar))]")
+
+  MT("nested braces",
+     "[builtin echo] [def ${A[${B}]]}]")
+
+  MT("strings in parens",
+     "[def FOO][operator =]([quote $(<][string \"][def $MYDIR][string \"][quote /myfile grep ][string 'hello$'][quote )])")
+
+  MT ("string ending in dollar",
+     '[def a][operator =][string "xyz$"]; [def b][operator =][string "y"]')
+
+  MT ("quote ending in dollar",
+     "[quote $(echo a$)]")
 })();

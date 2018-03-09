@@ -53,13 +53,14 @@
   function autoCloseGT(cm) {
     if (cm.getOption("disableInput")) return CodeMirror.Pass;
     var ranges = cm.listSelections(), replacements = [];
+    var opt = cm.getOption("autoCloseTags");
     for (var i = 0; i < ranges.length; i++) {
       if (!ranges[i].empty()) return CodeMirror.Pass;
       var pos = ranges[i].head, tok = cm.getTokenAt(pos);
       var inner = CodeMirror.innerMode(cm.getMode(), tok.state), state = inner.state;
       if (inner.mode.name != "xml" || !state.tagName) return CodeMirror.Pass;
 
-      var opt = cm.getOption("autoCloseTags"), html = inner.mode.configuration == "html";
+      var html = inner.mode.configuration == "html";
       var dontCloseTags = (typeof opt == "object" && opt.dontCloseTags) || (html && htmlDontClose);
       var indentTags = (typeof opt == "object" && opt.indentTags) || (html && htmlIndent);
 
@@ -81,13 +82,14 @@
                          newPos: indent ? CodeMirror.Pos(pos.line + 1, 0) : CodeMirror.Pos(pos.line, pos.ch + 1)};
     }
 
+    var dontIndentOnAutoClose = (typeof opt == "object" && opt.dontIndentOnAutoClose);
     for (var i = ranges.length - 1; i >= 0; i--) {
       var info = replacements[i];
       cm.replaceRange(info.text, ranges[i].head, ranges[i].anchor, "+insert");
       var sel = cm.listSelections().slice(0);
       sel[i] = {head: info.newPos, anchor: info.newPos};
       cm.setSelections(sel);
-      if (info.indent) {
+      if (!dontIndentOnAutoClose && info.indent) {
         cm.indentLine(info.newPos.line, null, true);
         cm.indentLine(info.newPos.line + 1, null, true);
       }
@@ -97,6 +99,8 @@
   function autoCloseCurrent(cm, typingSlash) {
     var ranges = cm.listSelections(), replacements = [];
     var head = typingSlash ? "/" : "</";
+    var opt = cm.getOption("autoCloseTags");
+    var dontIndentOnAutoClose = (typeof opt == "object" && opt.dontIndentOnSlash);
     for (var i = 0; i < ranges.length; i++) {
       if (!ranges[i].empty()) return CodeMirror.Pass;
       var pos = ranges[i].head, tok = cm.getTokenAt(pos);
@@ -127,9 +131,11 @@
     }
     cm.replaceSelections(replacements);
     ranges = cm.listSelections();
-    for (var i = 0; i < ranges.length; i++)
-      if (i == ranges.length - 1 || ranges[i].head.line < ranges[i + 1].head.line)
-        cm.indentLine(ranges[i].head.line);
+    if (!dontIndentOnAutoClose) {
+        for (var i = 0; i < ranges.length; i++)
+            if (i == ranges.length - 1 || ranges[i].head.line < ranges[i + 1].head.line)
+                cm.indentLine(ranges[i].head.line);
+    }
   }
 
   function autoCloseSlash(cm) {

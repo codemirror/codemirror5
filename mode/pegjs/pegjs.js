@@ -24,7 +24,7 @@ CodeMirror.defineMode("pegjs", function (config) {
         inString: false,
         stringType: null,
         inComment: false,
-        inChracterClass: false,
+        inCharacterClass: false,
         braced: 0,
         lhs: true,
         localState: null
@@ -66,22 +66,22 @@ CodeMirror.defineMode("pegjs", function (config) {
           }
         }
         return "comment";
-      } else if (state.inChracterClass) {
-          while (state.inChracterClass && !stream.eol()) {
+      } else if (state.inCharacterClass) {
+          while (state.inCharacterClass && !stream.eol()) {
             if (!(stream.match(/^[^\]\\]+/) || stream.match(/^\\./))) {
-              state.inChracterClass = false;
+              state.inCharacterClass = false;
             }
           }
       } else if (stream.peek() === '[') {
         stream.next();
-        state.inChracterClass = true;
+        state.inCharacterClass = true;
         return 'bracket';
       } else if (stream.match(/^\/\//)) {
         stream.skipToEnd();
         return "comment";
       } else if (state.braced || stream.peek() === '{') {
         if (state.localState === null) {
-          state.localState = jsMode.startState();
+          state.localState = CodeMirror.startState(jsMode);
         }
         var token = jsMode.token(stream, state.localState);
         var text = stream.current();

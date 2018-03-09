@@ -108,10 +108,12 @@ CodeMirror.defineMode("yaml", function() {
         literal: false,
         escaped: false
       };
-    }
+    },
+    lineComment: "#"
   };
 });
 
 CodeMirror.defineMIME("text/x-yaml", "yaml");
+CodeMirror.defineMIME("text/yaml", "yaml");
 
 });

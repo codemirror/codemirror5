@@ -40,7 +40,7 @@
             state.state = FRONTMATTER
             return yamlMode.token(stream, state.inner)
           } else {
-            stream.state = BODY
+            state.state = BODY
             state.inner = CodeMirror.startState(innerMode)
             return innerMode.token(stream, state.inner)
           }
@@ -65,4 +65,4 @@
       }
     }
   })
-})
+});

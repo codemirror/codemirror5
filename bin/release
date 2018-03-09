@@ -16,12 +16,12 @@ function rewrite(file, f) {
   fs.writeFileSync(file, f(fs.readFileSync(file, "utf8")), "utf8");
 }
 
-rewrite("lib/codemirror.js", function(lib) {
+rewrite("src/edit/main.js", function(lib) {
   return lib.replace(/CodeMirror\.version = "\d+\.\d+\.\d+"/,
                      "CodeMirror.version = \"" + number + "\"");
 });
 function rewriteJSON(pack) {
-  return pack.replace(/"version":"\d+\.\d+\.\d+"/, "\"version\":\"" + number + "\"");
+  return pack.replace(/"version":\s*"\d+\.\d+\.\d+"/, "\"version\": \"" + number + "\"");
 }
 rewrite("package.json", rewriteJSON);
 rewrite("doc/manual.html", function(manual) {
@@ -32,14 +32,7 @@ if (bumpOnly) process.exit(0);
 
 child.exec("bash bin/authors.sh", function(){});
 
-var simple = number.slice(0, number.lastIndexOf("."));
-
-rewrite("doc/compress.html", function(cmp) {
-  return cmp.replace(/<option value="http:\/\/codemirror.net\/">HEAD<\/option>/,
-                     "<option value=\"http://codemirror.net/\">HEAD</option>\n        <option value=\"http://marijnhaverbeke.nl/git/codemirror?a=blob_plain;hb=" + number + ";f=\">" + simple + "</option>");
-});
-
 rewrite("index.html", function(index) {
-  return index.replace(/\.zip">\d+\.\d+<\/a>/,
-                       ".zip\">" + simple + "</a>");
+  return index.replace(/\.zip">\d+\.\d+\.\d+<\/a>/,
+                       ".zip\">" + number + "</a>");
 });

@@ -97,4 +97,18 @@ namespace = "comment_";
   test("dontMessWithStrings3", "javascript", function(cm) {
     cm.execCommand("toggleComment");
   }, "// console.log(\"// string\");", "console.log(\"// string\");");
+
+  test("includeLastLine", "javascript", function(cm) {
+    cm.execCommand("selectAll")
+    cm.execCommand("toggleComment")
+  }, "// foo\n// bar\nbaz", "// // foo\n// // bar\n// baz")
+
+  test("uncommentWithTrailingBlockEnd", "xml", function(cm) {
+    cm.execCommand("toggleComment")
+  }, "<!-- foo --> -->", "foo -->")
+
+  test("dontCommentInComment", "xml", function(cm) {
+    cm.setCursor(1, 0)
+    cm.execCommand("toggleComment")
+  }, "<!-- foo\nbar -->", "<!-- foo\nbar -->")
 })();
