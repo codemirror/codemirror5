@@ -29,7 +29,8 @@ eventMixin(Doc)
 
 import ContentEditableInput from "../input/ContentEditableInput.js"
 import TextareaInput from "../input/TextareaInput.js"
-CodeMirror.inputStyles = {"textarea": TextareaInput, "contenteditable": ContentEditableInput}
+import PasswordInput from "../input/PasswordInput.js"
+CodeMirror.inputStyles = {"textarea": TextareaInput, "contenteditable": ContentEditableInput, "password": PasswordInput}
 
 // MODE DEFINITION AND QUERYING
 
