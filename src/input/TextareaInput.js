@@ -30,11 +30,15 @@ export default class TextareaInput {
     this.composing = null
   }
 
+  _getHiddenInput() {
+    return hiddenTextarea()
+  }
+
   init(display) {
     let input = this, cm = this.cm
 
     // Wraps and hides input textarea
-    let div = this.wrapper = hiddenTextarea()
+    let div = this.wrapper = this._getHiddenInput()
     // The semihidden textarea that is focused when the editor is
     // focused, and receives input.
     let te = this.textarea = div.firstChild
