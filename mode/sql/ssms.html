@@ -44,7 +44,7 @@ IF OBJECT_ID ('dbo.Gloves', 'U') IS NOT NULL
 GO
 -- Create Gloves table.
 SELECT ProductModelID, Name
-  FROM Production.ProductModel
+  FROM Production.ProductModel WITH(NOLOCK)
  WHERE ProductModelID NOT IN (3, 4)
    AND Name LIKE '%foo%'
    AND Name != 'bar';
