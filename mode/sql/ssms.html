@@ -42,7 +42,7 @@ comment! */
 IF OBJECT_ID ('dbo.Gloves', 'U') IS NOT NULL
   DROP TABLE dbo.Gloves;
 GO
--- Create Gloves table.
+-- Select from product model table.
 SELECT ProductModelID, Name
   FROM Production.ProductModel WITH(NOLOCK)
  WHERE ProductModelID NOT IN (3, 4)
