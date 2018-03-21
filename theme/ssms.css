@@ -9,7 +9,7 @@
 .cm-s-ssms .CodeMirror-activeline-background { background: #ffffff; }
 .cm-s-ssms span.cm-string-2 { color: #FF00FF; }
 .cm-s-ssms span.cm-operator, 
-.cm-s-ssms span.cm-bracket, 
+.cm-s-ssms span.cm-brckt, 
 .cm-s-ssms span.cm-punctuation { color: darkgray; }
 .cm-s-ssms .CodeMirror-gutters { border-right: 3px solid #ffee62; background-color: #ffffff; }
 .cm-s-ssms div.CodeMirror-selected { background: #ADD6FF; }

@@ -99,14 +99,11 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     } else if (brackets.test(ch)) {
       // brackets
       stream.eatWhile(brackets);
-      return "bracket";
+      return "brckt";
     } else if (punctuations.test(ch)) {
       // punctuations
       stream.eatWhile(punctuations);
       return "punctuation";
-    } else if (/^[\(\),\;\[\]]/.test(ch)) {
-      // no highlighting
-      return null;
     } else if (ch == '{' &&
         (stream.match(/^( )*(d|D|t|T|ts|TS)( )*'[^']*'( )*}/) || stream.match(/^( )*(d|D|t|T|ts|TS)( )*"[^"]*"( )*}/))) {
       // dates (weird ODBC syntax)
