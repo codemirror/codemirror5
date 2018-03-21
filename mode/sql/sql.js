@@ -24,7 +24,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
       dateSQL        = parserConfig.dateSQL || {"date" : true, "time" : true, "timestamp" : true},
       backslashStringEscapes = parserConfig.backslashStringEscapes !== false,
       brackets       = parserConfig.brackets || /^[\{}\(\)\[\]]/,
-      punctuations   = parserConfig.punctuations || /^[;.,:/]/
+      punctuations   = parserConfig.punctuations || /^[;.,:]/
 
   function tokenBase(stream, state) {
     var ch = stream.next();
@@ -99,7 +99,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     } else if (brackets.test(ch)) {
       // brackets
       stream.eatWhile(brackets);
-      return "brckt";
+      return "bracket";
     } else if (punctuations.test(ch)) {
       // punctuations
       stream.eatWhile(punctuations);
