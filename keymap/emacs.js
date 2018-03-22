@@ -307,6 +307,7 @@
     "Backspace": function(cm) { killRegion(cm, false) || killTo(cm, byChar, -1, false); },
 
     "Alt-F": move(byWord, 1), "Alt-B": move(byWord, -1),
+    "Alt-Right": move(byWord, 1), "Alt-Left": move(byWord, -1),
     "Alt-D": function(cm) { killTo(cm, byWord, 1, "grow"); },
     "Alt-Backspace": function(cm) { killTo(cm, byWord, -1, "grow"); },
 
