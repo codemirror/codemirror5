@@ -194,7 +194,8 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
 
     blockCommentStart: "/*",
     blockCommentEnd: "*/",
-    lineComment: support.commentSlashSlash ? "//" : support.commentHash ? "#" : "--"
+    lineComment: support.commentSlashSlash ? "//" : support.commentHash ? "#" : "--",
+    closeBrackets: "()[]{}''\"\"``"
   };
 });
 
