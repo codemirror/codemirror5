@@ -1,8 +1,15 @@
 # CodeMirror
+
 [![Build Status](https://travis-ci.org/codemirror/CodeMirror.svg)](https://travis-ci.org/codemirror/CodeMirror)
 [![NPM version](https://img.shields.io/npm/v/codemirror.svg)](https://www.npmjs.org/package/codemirror)
 [![Join the chat at https://gitter.im/codemirror/CodeMirror](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/codemirror/CodeMirror)  
 [Funding status: ![maintainer happiness](https://marijnhaverbeke.nl/fund/status_s.png?again)](https://marijnhaverbeke.nl/fund/)
+
+**NOTE**: This is the source repository for the library, and not the
+distribution channel. You need to run a build step if you want to use
+this code. To install the software pre-built, get it from
+[NPM](https://www.npmjs.com/package/codemirror) or [the
+website](https://codemirror.net/codemirror.zip).
 
 CodeMirror is a versatile text editor implemented in JavaScript for
 the browser. It is specialized for editing code, and comes with over
