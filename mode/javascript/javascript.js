@@ -356,6 +356,9 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       } else if (isTS && value == "namespace") {
         cx.marked = "keyword"
         return cont(pushlex("form"), expression, block, poplex)
+      } else if (isTS && value == "abstract") {
+        cx.marked = "keyword"
+        return cont(statement)
       } else {
         return cont(pushlex("stat"), maybelabel);
       }

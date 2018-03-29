@@ -408,6 +408,9 @@
      "  [keyword private] [property bar]();",
      "}")
 
+  TS("abstract class",
+     "[keyword export] [keyword abstract] [keyword class] [def Foo] {}")
+
   var jsonld_mode = CodeMirror.getMode(
     {indentUnit: 2},
     {name: "javascript", jsonld: true}
