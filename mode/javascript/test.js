@@ -402,6 +402,12 @@
      "  [def META],",
      "}")
 
+  TS("parenthesized type",
+     "[keyword class] [def Foo] {",
+     "  [property x] [operator =] [keyword new] [variable A][operator <][type B], [type string][operator |](() [operator =>] [type void])[operator >]();",
+     "  [keyword private] [property bar]();",
+     "}")
+
   var jsonld_mode = CodeMirror.getMode(
     {indentUnit: 2},
     {name: "javascript", jsonld: true}
