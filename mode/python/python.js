@@ -147,9 +147,6 @@
           // if this is a nested format string (e.g. f' {   f"{10*10}" + "a" }' )
           // we do not format the nested expression and treat the nested format
           // string as regular string
-          if (state.fstr_state) {
-            console.log(`This is nested ${stream.peek()}`)
-          }
           state.tokenize = tokenStringFactory(stream.current());
           return state.tokenize(stream, state);
         } else {
