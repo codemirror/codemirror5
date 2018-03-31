@@ -30,6 +30,8 @@
     MT("before_equal_sign_" + c, "[variable a] [operator " + c + "=] [variable b]");
   }
 
-  MT("fValidStringPrefix", "[string f'this is a {formatted} string']");
+  MT("fValidStringPrefix", "[string f'this is a]{[variable formatted]}[string string']");
+  MT("fValidExpressioninFString", "[string f'expression ]{[number 100][operator *][number 5]}[string string']");
+  MT("fInvalidFString", "[error f'this is wrong}]");
   MT("uValidStringPrefix", "[string u'this is an unicode string']");
 })();
