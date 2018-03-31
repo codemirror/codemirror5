@@ -142,7 +142,7 @@
 
       // Handle Strings
       if (stream.match(stringPrefixes)) {
-        var isFmtString = stream.current().toLowerCase().includes('f');
+        var isFmtString = stream.current().toLowerCase().indexOf('f') !== -1;
         if (!isFmtString || state.fstr_state !== null) {
           // if this is a nested format string (e.g. f' {   f"{10*10}" + "a" }' )
           // we do not format the nested expression and treat the nested format
