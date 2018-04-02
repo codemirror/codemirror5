@@ -143,17 +143,8 @@
       // Handle Strings
       if (stream.match(stringPrefixes)) {
         var isFmtString = stream.current().toLowerCase().indexOf('f') !== -1;
-        if (!isFmtString || state.fstr_state !== null) {
-          // if this is a nested format string (e.g. f' {   f"{10*10}" + "a" }' )
-          // we do not format the nested expression and treat the nested format
-          // string as regular string
-          state.tokenize = tokenStringFactory(stream.current());
-          return state.tokenize(stream, state);
-        } else {
-          // need to do something more sophisticated
-          state.tokenize = formatStringFactory(stream.current());
-          return state.tokenize(stream, state);
-        }
+        state.tokenize = isFmtString ? formatStringFactory(stream.current()) : tokenStringFactory(stream.current());
+        return state.tokenize(stream, state);
       }
 
       for (var i = 0; i < operators.length; i++)
@@ -190,25 +181,30 @@
 
       var singleline = delimiter.length == 1;
       var OUTCLASS = "string";
+      var fstr_state = null;
 
       function tokenString(stream, state) {
-        if (state.fstr_state) {
+        if (fstr_state) {
           // inside f-str Expression
           if (stream.match(delimiter)) {
             // expression ends pre-maturally, but very common in editing
             // Could show error to remind users to close brace here
-            state.fstr_state = null;
+            fstr_state = null;
             return OUTCLASS;
           } else if (stream.match('{')) {
             // starting brace, if not eaten below
             return "punctuation";
           } else if (stream.match('}')) {
             // return to regular inside string state
-            state.fstr_state = null;
+            fstr_state = null;
             return "punctuation";
-          } else {
+          } else if (stream.match(stringPrefixes)) {
+			// treat nested format string as regular string
+            fstr_state.tokenize = tokenStringFactory(stream.current());
+            return fstr_state.tokenize(stream, fstr_state);
+          } else {	  
             // use tokenBaseInner to parse the expression
-            return tokenBaseInner(stream, state.fstr_state);
+            return tokenBaseInner(stream, fstr_state);
           }
         }
         while (!stream.eol()) {
@@ -225,7 +221,7 @@
             return OUTCLASS;
           } else if (stream.match('{', false)) {
             // switch to nested mode
-            state.fstr_state = {};
+            fstr_state = {};
             if (stream.current()) {
               return OUTCLASS;
             } else {
@@ -356,7 +352,6 @@
         return {
           tokenize: tokenBase,
           scopes: [{offset: basecolumn || 0, type: "py", align: null}],
-          fstr_state: null,
           indent: basecolumn || 0,
           lastToken: null,
           lambda: false,
