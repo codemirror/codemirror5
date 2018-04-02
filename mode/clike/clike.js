@@ -624,6 +624,10 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     defKeywords: words("class val var object interface fun"),
     atoms: words("true false null this"),
     hooks: {
+      "@": function(stream) {
+        stream.eatWhile(/[\w\$_]/);
+        return "meta";
+      },
       '"': function(stream, state) {
         state.tokenize = tokenKotlinString(stream.match('""'));
         return state.tokenize(stream, state);
