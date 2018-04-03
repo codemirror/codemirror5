@@ -254,14 +254,16 @@
       if (current == ":" && !state.lambda && top(state).type == "py")
         pushPyScope(state);
 
-      var delimiter_index = current.length == 1 ? "[({".indexOf(current) : -1;
-      if (delimiter_index != -1)
-        pushBracketScope(stream, state, "])}".slice(delimiter_index, delimiter_index+1));
+      if (current.length == 1 && !/string|comment/.test(style)) {
+        var delimiter_index = "[({".indexOf(current);
+        if (delimiter_index != -1)
+          pushBracketScope(stream, state, "])}".slice(delimiter_index, delimiter_index+1));
 
-      delimiter_index = "])}".indexOf(current);
-      if (delimiter_index != -1) {
-        if (top(state).type == current) state.indent = state.scopes.pop().offset - hangingIndent
-        else return ERRORCLASS;
+        delimiter_index = "])}".indexOf(current);
+        if (delimiter_index != -1) {
+          if (top(state).type == current) state.indent = state.scopes.pop().offset - hangingIndent
+          else return ERRORCLASS;
+        }
       }
       if (state.dedent > 0 && stream.eol() && top(state).type == "py") {
         if (state.scopes.length > 1) state.scopes.pop();
