@@ -165,10 +165,10 @@ CodeMirror.defineMode(
          * Returns "error" when reading a single quote. The purpose of this is
          * to prevent the clike base mode to accept strings in single quotes,
          * which is not legal in HCL.
-         * @param {CodeMirror.InputStream} stream Codemirror input stream.
+         * @param {CodeMirror.InputStream} _ Codemirror input stream.
          * @return {string} 'error' token type.
          */
-        '\'': function(stream) {
+        '\'': function(_) {
           return 'error';
         },
         '<': heredocTokenizer,
@@ -187,13 +187,12 @@ CodeMirror.defineMode(
          * continuation of the same "statement", applying additional indent.
          * This callback disables this by always returning ctx.indented.
          *
-         * @param {!Object} state HCL state object.
+         * @param {!Object} _ HCL state object.
          * @param {!Object} ctx HCL parser context.
-         * @param {string} textAfter text following the current position.
          * @return {(number|boolean)} number of spaces to indent with or false
          *     to fall back to clike's default behavior.
          */
-        'indent': function(state, ctx, textAfter) {
+        'indent': function(_, ctx) {
           if (ctx.type == 'statement') {
             return ctx.indented;
           }
