@@ -276,7 +276,18 @@
       start = nameCompletion(cur, token, result, editor);
     } else {
       addMatches(result, search, defaultTable, function(w) {return {text:w, className: "CodeMirror-hint-table CodeMirror-hint-default-table"};});
-      addMatches(result, search, tables, function(w) {return {text:w, className: "CodeMirror-hint-table"};});
+      addMatches(
+          result,
+          search,
+          tables,
+          function(w) {
+              if (w.text) {
+                  w = w.text;
+              }
+
+              return {text: w, className: "CodeMirror-hint-table"};
+          }
+      );
       if (!disableKeywords)
         addMatches(result, search, keywords, function(w) {return {text: w.toUpperCase(), className: "CodeMirror-hint-keyword"};});
     }
