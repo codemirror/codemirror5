@@ -74,28 +74,6 @@ var terraformConfig = {
   keywords: terraformKeywords,
 };
 
-/** @record */
-class hclState {
-  constructor() {
-    /**
-     * When non-null, holds a tokenizer function. Used for multi-line state.
-     * @type {?function(!CodeMirror.InputStream,!hclState):string}
-     */
-    this.tokenize;
-  }
-}
-
-/** @record */
-class hclContext {
-  constructor() {
-    /** @type {number} */
-    this.indented;
-
-    /** @type {string} */
-    this.type;
-  }
-}
-
 CodeMirror.defineMode(
     'hcl',
 
@@ -110,7 +88,7 @@ CodeMirror.defineMode(
        * intrast to clike's string tokenizer no backslash is required at the end
        * of the line.
        * @param {!CodeMirror.InputStream} stream Codemirror input stream.
-       * @param {!hclState} state HCL state object.
+       * @param {!Object} state HCL state object.
        * @return {string} 'string' token type.
        */
       function stringTokenizer(stream, state) {
@@ -130,7 +108,7 @@ CodeMirror.defineMode(
        * Creates a tokenizer that reads a heredoc string until the given
        * delimiter is encountered.
        * @param {string} delim heredoc delimiter.
-       * @return {function(!CodeMirror.InputStream,!hclState):string} tokenizer
+       * @return {function(!CodeMirror.InputStream,!Object):string} tokenizer
        */
       function heredocTokenizerFactory(delim) {
         return function(stream, state) {
@@ -150,7 +128,7 @@ CodeMirror.defineMode(
        * type. This function assumes that a '<' character has already been
        * consumed.
        * @param {!CodeMirror.InputStream} stream Codemirror input stream.
-       * @param {!hclState} state HCL state object.
+       * @param {!Object} state HCL state object.
        * @return {(string|boolean)} 'string' or false if not a heredoc string.
        */
       function heredocTokenizer(stream, state) {
@@ -176,7 +154,7 @@ CodeMirror.defineMode(
         /**
          * Consumes double quoted strings.
          * @param {!CodeMirror.InputStream} stream Codemirror input stream.
-         * @param {!hclState} state HCL state object.
+         * @param {!Object} state HCL state object.
          * @return {string} 'string' token type.
          */
         '"': function(stream, state) {
@@ -209,8 +187,8 @@ CodeMirror.defineMode(
          * continuation of the same "statement", applying additional indent.
          * This callback disables this by always returning ctx.indented.
          *
-         * @param {!hclState} state HCL state object.
-         * @param {!hclContext} ctx HCL parser context.
+         * @param {!Object} state HCL state object.
+         * @param {!Object} ctx HCL parser context.
          * @param {string} textAfter text following the current position.
          * @return {(number|boolean)} number of spaces to indent with or false
          *     to fall back to clike's default behavior.
@@ -232,7 +210,7 @@ CodeMirror.defineMode(
         /**
          * startState initializes and returns the initial state object.
          * @param {number=} basecolumn
-         * @return {!hclState} clike state object
+         * @return {!Object} clike state object
          */
         startState: function(basecolumn) {
           return clikeMode.startState(basecolumn);
@@ -241,7 +219,7 @@ CodeMirror.defineMode(
         /**
          * startState initializes and returns the initial state object.
          * @param {!CodeMirror.InputStream} stream Codemirror input stream.
-         * @param {!hclState} state HCL state object.
+         * @param {!Object} state HCL state object.
          * @return {?string} token type
          */
         token: function(stream, state) {
@@ -250,7 +228,7 @@ CodeMirror.defineMode(
 
         /**
          * indent returns the number of spaces to indent.
-         * @param {!hclState} state HCL state object.
+         * @param {!Object} state HCL state object.
          * @param {?string} textAfter text following the current position.
          * @return {number} number of spaces.
          */
