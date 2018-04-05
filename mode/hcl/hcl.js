@@ -30,7 +30,7 @@
  *
  * @dict
  */
-const terraformKeywords = {
+var terraformKeywords = {
   'atlas': true,
   'backend': true,
   'data': true,
@@ -48,7 +48,7 @@ const terraformKeywords = {
  *
  * @dict
  */
-const hclAtoms = {
+var hclAtoms = {
   'true': true,
   'false': true,
 };
@@ -59,7 +59,7 @@ const hclAtoms = {
  * @struct
  * @extends {CodeMirror.ModeConfig}
  */
-const hclConfig = {
+var hclConfig = {
   name: 'clike',
 };
 
@@ -69,7 +69,7 @@ const hclConfig = {
  * @struct
  * @extends {CodeMirror.ModeConfig}
  */
-const terraformConfig = {
+var terraformConfig = {
   name: 'clike',
   keywords: terraformKeywords,
 };
@@ -114,8 +114,8 @@ CodeMirror.defineMode(
        * @return {string} 'string' token type.
        */
       function stringTokenizer(stream, state) {
-        let escaped = false;
-        let next;
+        var escaped = false;
+        var next;
         while ((next = stream.next()) != null) {
           if (next == '"' && !escaped) {
             state.tokenize = null;
@@ -161,7 +161,7 @@ CodeMirror.defineMode(
 
         // read rest of line into delim
         /** @type {string} */
-        let delim = '';
+        var delim = '';
         while (stream.peek() != null) {
           delim += stream.next();
         }
@@ -170,7 +170,7 @@ CodeMirror.defineMode(
         return 'string';
       }
 
-      const modeConfig = parserConfig.modeConfig || terraformConfig;
+      var modeConfig = parserConfig.modeConfig || terraformConfig;
       modeConfig.atoms = hclAtoms;
       modeConfig.hooks = {
         /**
@@ -226,7 +226,7 @@ CodeMirror.defineMode(
       modeConfig.isOperatorChar = /=/;
 
       /** @type {!CodeMirror.Mode} */
-      const clikeMode = CodeMirror.getMode(config, modeConfig);
+      var clikeMode = CodeMirror.getMode(config, modeConfig);
 
       return {
         /**
