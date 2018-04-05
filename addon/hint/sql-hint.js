@@ -281,11 +281,13 @@
           search,
           tables,
           function(w) {
-              if (w.text) {
-                  w = w.text;
+              if (typeof w === 'object') {
+                  w.className =  "CodeMirror-hint-table";
+              } else {
+                  w = {text: w, className: "CodeMirror-hint-table"};
               }
 
-              return {text: w, className: "CodeMirror-hint-table"};
+              return w;
           }
       );
       if (!disableKeywords)
