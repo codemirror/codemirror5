@@ -509,6 +509,40 @@ testVim('{', function(cm, vim, helpers) {
   helpers.doKeys('6', '{');
   helpers.assertCursorAt(0, 0);
 }, { value: 'a\n\nb\nc\n\nd' });
+testVim('(', function(cm, vim, helpers) {
+  cm.setCursor(6, 23);
+  helpers.doKeys('(');
+  helpers.assertCursorAt(6, 14);
+  helpers.doKeys('2', '(');
+  helpers.assertCursorAt(5, 0);
+  helpers.doKeys('(');
+  helpers.assertCursorAt(4, 0);
+  helpers.doKeys('(');
+  helpers.assertCursorAt(3, 0);
+  helpers.doKeys('(');
+  helpers.assertCursorAt(2, 0);
+  helpers.doKeys('(');
+  helpers.assertCursorAt(0, 0);
+  helpers.doKeys('(');
+  helpers.assertCursorAt(0, 0);
+}, { value: 'sentence1.\n\n\nsentence2\n\nsentence3. sentence4\n   sentence5? sentence6!' });
+testVim(')', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('2', ')');
+  helpers.assertCursorAt(3, 0);
+  helpers.doKeys(')');
+  helpers.assertCursorAt(4, 0);
+  helpers.doKeys(')');
+  helpers.assertCursorAt(5, 0);
+  helpers.doKeys(')');
+  helpers.assertCursorAt(5, 11);
+  helpers.doKeys(')');
+  helpers.assertCursorAt(6, 14);
+  helpers.doKeys(')');
+  helpers.assertCursorAt(6, 23);
+  helpers.doKeys(')');
+  helpers.assertCursorAt(6, 23);
+}, { value: 'sentence1.\n\n\nsentence2\n\nsentence3. sentence4\n   sentence5? sentence6!' });
 testVim('paragraph_motions', function(cm, vim, helpers) {
   cm.setCursor(10, 0);
   helpers.doKeys('{');
