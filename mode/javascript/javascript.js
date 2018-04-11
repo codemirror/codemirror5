@@ -565,7 +565,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   function typeexpr(type, value) {
     if (value == "keyof" || value == "typeof") {
       cx.marked = "keyword"
-      return cont(value == "keyof" ? typeexpr : expression)
+      return cont(value == "keyof" ? typeexpr : expressionNoComma)
     }
     if (type == "variable" || value == "void") {
       cx.marked = "type"
