@@ -619,7 +619,9 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     }
 
     if (ch === ' ') {
-      if (stream.match(/ +$/, false)) {
+
+      if (matchTrailingSpaces(stream.string, stream.pos)) {
+      // if (matchTrailingSpaces(stream.string, stream.pos)) {
         state.trailingSpace++;
       } else if (state.trailingSpace) {
         state.trailingSpaceNewLine = true;
@@ -627,6 +629,34 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     }
 
     return getType(state);
+  }
+
+  /**
+   * Matches the behavior of stream.match(/ \s+/, false) for
+   * this one case but is vastly faster.
+   * @param {string} string 
+   * @param {number} startPos 
+   */
+  function matchTrailingSpaces(string, startPos) {
+    var hasMatch = false;
+    var matchIndex = -1;
+    var currentIndex = string.length - 1;
+
+    while (currentIndex >= 0 && currentIndex >= startPos && string.charAt(currentIndex) === ' ') {
+      matchIndex = currentIndex;
+      currentIndex--;
+      hasMatch = true;
+    }
+
+    matchIndex -= startPos;
+
+    if (hasMatch && matchIndex > 0) {
+      return null;
+    } else if (hasMatch && matchIndex === 0) {
+      return true;
+    } else {
+      return null;
+    }
   }
 
   function linkInline(stream, state) {
