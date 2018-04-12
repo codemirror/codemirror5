@@ -621,7 +621,6 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     if (ch === ' ') {
 
       if (matchTrailingSpaces(stream.string, stream.pos)) {
-      // if (matchTrailingSpaces(stream.string, stream.pos)) {
         state.trailingSpace++;
       } else if (state.trailingSpace) {
         state.trailingSpaceNewLine = true;
