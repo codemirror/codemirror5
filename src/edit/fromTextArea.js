@@ -38,6 +38,11 @@ export function fromTextArea(textarea, options) {
     }
   }
 
+  let _finishInit
+  if (typeof options.finishInit === 'function') {
+    _finishInit = options.finishInit
+  }
+
   options.finishInit = cm => {
     cm.save = save
     cm.getTextArea = () => textarea
@@ -51,6 +56,10 @@ export function fromTextArea(textarea, options) {
         if (typeof textarea.form.submit == "function")
           textarea.form.submit = realSubmit
       }
+    }
+
+    if (typeof options.finishInit === 'function') {
+      _finishInit(cm)
     }
   }
 
