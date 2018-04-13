@@ -38,6 +38,17 @@
     return state.scopes[state.scopes.length - 1];
   }
 
+  function clone(state) {
+    return {
+      tokenize: state.tokenize,
+      scopes: state.scopes.concat([]),
+      indent: state.indent,
+      lastToken: state.lastToken,
+      lambda: state.lambda,
+      dedent: state.dedent
+    }
+  }
+
   CodeMirror.defineMode("python", function(conf, parserConf) {
     var ERRORCLASS = "error";
 
@@ -201,10 +212,14 @@
           } else if (stream.match(stringPrefixes)) {
             // treat nested format string as regular string
             // to avoid tracking status of nested tokenizer
-            return tokenStringFactory(stream.current(), false)(stream, fstr_state);
+            var ret = tokenStringFactory(stream.current(), false)(stream, fstr_state);
+            fstr_state = clone(fstr_state);
+            return ret
           } else {
             // use tokenBaseInner to parse the expression
-            return tokenBaseInner(stream, fstr_state);
+            var ret = tokenBaseInner(stream, fstr_state);
+            fstr_state = clone(fstr_state);
+            return ret
           }
         }
         while (!stream.eol()) {
@@ -224,8 +239,15 @@
               // ignore {{ in f-str
               return OUTCLASS;
             } else if (stream.match('{', false)) {
-              // switch to nested mode
-              fstr_state = {};
+              // switch to nested mode with an intial state for nested expression
+              fstr_state = {
+                tokenize: tokenBaseInner,
+                scopes: [],
+                indent: 0,
+                lastToken: null,
+                lambda: false,
+                dedent: 0
+              };
               if (stream.current()) {
                 return OUTCLASS;
               } else {
