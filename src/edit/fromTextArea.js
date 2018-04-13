@@ -58,7 +58,7 @@ export function fromTextArea(textarea, options) {
       }
     }
 
-    if (typeof options.finishInit === 'function') {
+    if (typeof finishInit === 'function') {
       _finishInit(cm)
     }
   }
