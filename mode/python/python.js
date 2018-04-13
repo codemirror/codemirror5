@@ -38,6 +38,17 @@
     return state.scopes[state.scopes.length - 1];
   }
 
+  function clone(state) {
+    return {
+      tokenize: state.tokenize,
+      scopes: state.scopes.concat([]),
+      indent: state.indent,
+      lastToken: state.lastToken,
+      lambda: state.lambda,
+      dedent: state.dedent
+    }
+  }
+
   CodeMirror.defineMode("python", function(conf, parserConf) {
     var ERRORCLASS = "error";
 
@@ -62,7 +73,7 @@
       var identifiers = parserConf.identifiers|| /^[_A-Za-z\u00A1-\uFFFF][_A-Za-z0-9\u00A1-\uFFFF]*/;
       myKeywords = myKeywords.concat(["nonlocal", "False", "True", "None", "async", "await"]);
       myBuiltins = myBuiltins.concat(["ascii", "bytes", "exec", "print"]);
-      var stringPrefixes = new RegExp("^(([rbuf]|(br))?('{3}|\"{3}|['\"]))", "i");
+      var stringPrefixes = new RegExp("^(([rbuf]|(br)|(fr))?('{3}|\"{3}|['\"]))", "i");
     } else {
       var identifiers = parserConf.identifiers|| /^[_A-Za-z][_A-Za-z0-9]*/;
       myKeywords = myKeywords.concat(["exec", "print"]);
@@ -142,7 +153,8 @@
 
       // Handle Strings
       if (stream.match(stringPrefixes)) {
-        state.tokenize = tokenStringFactory(stream.current());
+        var isFmtString = stream.current().toLowerCase().indexOf('f') !== -1;
+        state.tokenize = tokenStringFactory(stream.current(), isFmtString);
         return state.tokenize(stream, state);
       }
 
@@ -174,16 +186,47 @@
       return ERRORCLASS;
     }
 
-    function tokenStringFactory(delimiter) {
+    function tokenStringFactory(delimiter, isFmtString) {
       while ("rubf".indexOf(delimiter.charAt(0).toLowerCase()) >= 0)
         delimiter = delimiter.substr(1);
 
       var singleline = delimiter.length == 1;
       var OUTCLASS = "string";
+      var fstr_state = null;
 
       function tokenString(stream, state) {
+        if (fstr_state) {
+          // inside f-str Expression
+          if (stream.match(delimiter)) {
+            // expression ends pre-maturally, but very common in editing
+            // Could show error to remind users to close brace here
+            fstr_state = null;
+            return OUTCLASS;
+          } else if (stream.match('{')) {
+            // starting brace, if not eaten below
+            return "punctuation";
+          } else if (stream.match('}')) {
+            // return to regular inside string state
+            fstr_state = null;
+            return "punctuation";
+          } else if (stream.match(stringPrefixes)) {
+            // treat nested format string as regular string
+            // to avoid tracking status of nested tokenizer
+            var ret = tokenStringFactory(stream.current(), false)(stream, fstr_state);
+            fstr_state = clone(fstr_state);
+            return ret
+          } else {
+            // use tokenBaseInner to parse the expression
+            var ret = tokenBaseInner(stream, fstr_state);
+            fstr_state = clone(fstr_state);
+            return ret
+          }
+        }
         while (!stream.eol()) {
-          stream.eatWhile(/[^'"\\]/);
+          if (isFmtString)
+            stream.eatWhile(/[^'"\{\}\\]/);
+          else
+            stream.eatWhile(/[^'"\\]/);
           if (stream.eat("\\")) {
             stream.next();
             if (singleline && stream.eol())
@@ -191,6 +234,35 @@
           } else if (stream.match(delimiter)) {
             state.tokenize = tokenBase;
             return OUTCLASS;
+          } else if (isFmtString) {
+            if (stream.match('{{')) {
+              // ignore {{ in f-str
+              return OUTCLASS;
+            } else if (stream.match('{', false)) {
+              // switch to nested mode with an intial state for nested expression
+              fstr_state = {
+                tokenize: tokenBaseInner,
+                scopes: [],
+                indent: 0,
+                lastToken: null,
+                lambda: false,
+                dedent: 0
+              };
+              if (stream.current()) {
+                return OUTCLASS;
+              } else {
+                // need to return something, so eat the starting {
+                stream.next();
+                return "punctuation";
+              }
+            } else if (stream.match('}}')) {
+              return OUTCLASS;
+            } else if (stream.match('}')) {
+              // single } in f-string is an error
+              return ERRORCLASS;
+            } else {
+              stream.eat(/['"]/);
+            }
           } else {
             stream.eat(/['"]/);
           }
