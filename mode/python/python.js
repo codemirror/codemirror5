@@ -143,7 +143,7 @@
       // Handle Strings
       if (stream.match(stringPrefixes)) {
         var isFmtString = stream.current().toLowerCase().indexOf('f') !== -1;
-        if (!isFmtString || state.fstr_state !== null) {
+        if (!isFmtString) {
           // if this is a nested format string (e.g. f' {   f"{10*10}" + "a" }' )
           // we do not format the nested expression and treat the nested format
           // string as regular string
@@ -151,7 +151,7 @@
           return state.tokenize(stream, state);
         } else {
           // need to do something more sophisticated
-          state.tokenize = formatStringFactory(stream.current());
+          state.tokenize = formatStringFactory(stream.current(), state.tokenize);
           return state.tokenize(stream, state);
         }
       }
@@ -184,33 +184,34 @@
       return ERRORCLASS;
     }
 
-    function formatStringFactory(delimiter) {
+    function formatStringFactory(delimiter, tokenOuter) {
       while ("rubf".indexOf(delimiter.charAt(0).toLowerCase()) >= 0)
         delimiter = delimiter.substr(1);
 
       var singleline = delimiter.length == 1;
       var OUTCLASS = "string";
 
-      function tokenString(stream, state) {
-        if (state.fstr_state) {
-          // inside f-str Expression
-          if (stream.match(delimiter)) {
-            // expression ends pre-maturally, but very common in editing
-            // Could show error to remind users to close brace here
-            state.fstr_state = null;
-            return OUTCLASS;
-          } else if (stream.match('{')) {
-            // starting brace, if not eaten below
-            return "punctuation";
-          } else if (stream.match('}')) {
-            // return to regular inside string state
-            state.fstr_state = null;
-            return "punctuation";
-          } else {
-            // use tokenBaseInner to parse the expression
-            return tokenBaseInner(stream, state.fstr_state);
-          }
+      function tokenFString(stream, state) {
+        // inside f-str Expression
+        if (stream.match(delimiter)) {
+          // expression ends pre-maturally, but very common in editing
+          // Could show error to remind users to close brace here
+          state.tokenize = tokenString
+          return OUTCLASS;
+        } else if (stream.match('{')) {
+          // starting brace, if not eaten below
+          return "punctuation";
+        } else if (stream.match('}')) {
+          // return to regular inside string state
+          state.tokenize = tokenString
+          return "punctuation";
+        } else {
+          // use tokenBaseInner to parse the expression
+          return tokenBaseInner(stream, state);
         }
+      }
+
+      function tokenString(stream, state) {
         while (!stream.eol()) {
           stream.eatWhile(/[^'"\{\}\\]/);
           if (stream.eat("\\")) {
@@ -218,14 +219,14 @@
             if (singleline && stream.eol())
               return OUTCLASS;
           } else if (stream.match(delimiter)) {
-            state.tokenize = tokenBase;
+            state.tokenize = tokenOuter;
             return OUTCLASS;
           } else if (stream.match('{{')) {
             // ignore {{ in f-str
             return OUTCLASS;
           } else if (stream.match('{', false)) {
             // switch to nested mode
-            state.fstr_state = {};
+            state.tokenize = tokenFString
             if (stream.current()) {
               return OUTCLASS;
             } else {
@@ -246,7 +247,7 @@
           if (parserConf.singleLineStringErrors)
             return ERRORCLASS;
           else
-            state.tokenize = tokenBase;
+            state.tokenize = tokenOuter;
         }
         return OUTCLASS;
       }
@@ -358,7 +359,6 @@
         return {
           tokenize: tokenBase,
           scopes: [{offset: basecolumn || 0, type: "py", align: null}],
-          fstr_state: null,
           indent: basecolumn || 0,
           lastToken: null,
           lambda: false,
