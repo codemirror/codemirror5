@@ -144,13 +144,9 @@
       if (stream.match(stringPrefixes)) {
         var isFmtString = stream.current().toLowerCase().indexOf('f') !== -1;
         if (!isFmtString) {
-          // if this is a nested format string (e.g. f' {   f"{10*10}" + "a" }' )
-          // we do not format the nested expression and treat the nested format
-          // string as regular string
           state.tokenize = tokenStringFactory(stream.current());
           return state.tokenize(stream, state);
         } else {
-          // need to do something more sophisticated
           state.tokenize = formatStringFactory(stream.current(), state.tokenize);
           return state.tokenize(stream, state);
         }
