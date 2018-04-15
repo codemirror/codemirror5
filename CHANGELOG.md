@@ -1,3 +1,27 @@
+## 5.36.0 (2018-03-20)
+
+### Bug fixes
+
+Make sure all document-level event handlers are registered on the document that the editor is part of.
+
+Fix issue that prevented edits whose origin starts with `+` from being combined in history events for an editor-less document.
+
+[multiplex addon](http://codemirror.net/demo/multiplex.html): Improve handling of indentation.
+
+[merge addon](http://codemirror.net/doc/manual.html#addon_merge): Use CSS `:after` element to style the scroll-lock icon.
+
+[javascript-hint addon](http://codemirror.net/doc/manual.html#addon_javascript-hint): Don't provide completions in JSON mode.
+
+[continuelist addon](http://codemirror.net/doc/manual.html#addon_continuelist): Fix numbering error.
+
+[show-hint addon](http://codemirror.net/doc/manual.html#addon_show-hint): Make `fromList` completion strategy act on the current token up to the cursor, rather than the entire token.
+
+[markdown mode](http://codemirror.net/mode/markdown/): Fix a regexp with potentially exponental complexity.
+
+### New features
+
+New theme: [lucario](http://codemirror.net/demo/theme.html#lucario).
+
 ## 5.35.0 (2018-02-20)
 
 ### Bug fixes

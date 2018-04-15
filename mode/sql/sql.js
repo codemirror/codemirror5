@@ -22,7 +22,9 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
       support        = parserConfig.support || {},
       hooks          = parserConfig.hooks || {},
       dateSQL        = parserConfig.dateSQL || {"date" : true, "time" : true, "timestamp" : true},
-      backslashStringEscapes = parserConfig.backslashStringEscapes !== false
+      backslashStringEscapes = parserConfig.backslashStringEscapes !== false,
+      brackets       = parserConfig.brackets || /^[\{}\(\)\[\]]/,
+      punctuation    = parserConfig.punctuation || /^[;.,:]/
 
   function tokenBase(stream, state) {
     var ch = stream.next();
@@ -65,9 +67,6 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
       // charset casting: _utf8'str', N'str', n'str'
       // ref: http://dev.mysql.com/doc/refman/5.5/en/string-literals.html
       return "keyword";
-    } else if (/^[\(\),\;\[\]]/.test(ch)) {
-      // no highlighting
-      return null;
     } else if (support.commentSlashSlash && ch == "/" && stream.eat("/")) {
       // 1-line comment
       stream.skipToEnd();
@@ -96,7 +95,15 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     } else if (operatorChars.test(ch)) {
       // operators
       stream.eatWhile(operatorChars);
-      return null;
+      return "operator";
+    } else if (brackets.test(ch)) {
+      // brackets
+      stream.eatWhile(brackets);
+      return "bracket";
+    } else if (punctuation.test(ch)) {
+      // punctuation
+      stream.eatWhile(punctuation);
+      return "punctuation";
     } else if (ch == '{' &&
         (stream.match(/^( )*(d|D|t|T|ts|TS)( )*'[^']*'( )*}/) || stream.match(/^( )*(d|D|t|T|ts|TS)( )*"[^"]*"( )*}/))) {
       // dates (weird ODBC syntax)
@@ -194,7 +201,8 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
 
     blockCommentStart: "/*",
     blockCommentEnd: "*/",
-    lineComment: support.commentSlashSlash ? "//" : support.commentHash ? "#" : "--"
+    lineComment: support.commentSlashSlash ? "//" : support.commentHash ? "#" : "--",
+    closeBrackets: "()[]{}''\"\"``"
   };
 });
 
@@ -288,11 +296,13 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
 
   CodeMirror.defineMIME("text/x-mssql", {
     name: "sql",
-    client: set("charset clear connect edit ego exit go help nopager notee nowarning pager print prompt quit rehash source status system tee"),
-    keywords: set(sqlKeywords + "begin trigger proc view index for add constraint key primary foreign collate clustered nonclustered declare exec"),
+    client: set("$partition binary_checksum checksum connectionproperty context_info current_request_id error_line error_message error_number error_procedure error_severity error_state formatmessage get_filestream_transaction_context getansinull host_id host_name isnull isnumeric min_active_rowversion newid newsequentialid rowcount_big xact_state object_id"),
+    keywords: set(sqlKeywords + "begin trigger proc view index for add constraint key primary foreign collate clustered nonclustered declare exec go if use index holdlock nolock nowait paglock readcommitted readcommittedlock readpast readuncommitted repeatableread rowlock serializable snapshot tablock tablockx updlock with"),
     builtin: set("bigint numeric bit smallint decimal smallmoney int tinyint money float real char varchar text nchar nvarchar ntext binary varbinary image cursor timestamp hierarchyid uniqueidentifier sql_variant xml table "),
-    atoms: set("false true null unknown"),
-    operatorChars: /^[*+\-%<>!=]/,
+    atoms: set("is not null like and or in left right between inner outer join all any some cross unpivot pivot exists"),
+    operatorChars: /^[*+\-%<>!=^\&|\/]/,
+    brackets: /^[\{}\(\)]/,
+    punctuation: /^[;.,:/]/,
     backslashStringEscapes: false,
     dateSQL: set("date datetimeoffset datetime2 smalldatetime datetime time"),
     hooks: {

@@ -32,13 +32,10 @@ export default class TextareaInput {
 
   init(display) {
     let input = this, cm = this.cm
+    this.createField(display)
+    const te = this.textarea
 
-    // Wraps and hides input textarea
-    let div = this.wrapper = hiddenTextarea()
-    // The semihidden textarea that is focused when the editor is
-    // focused, and receives input.
-    let te = this.textarea = div.firstChild
-    display.wrapper.insertBefore(div, display.wrapper.firstChild)
+    display.wrapper.insertBefore(this.wrapper, display.wrapper.firstChild)
 
     // Needed to hide big blue blinking cursor on Mobile Safari (doesn't seem to work in iOS 8 anymore)
     if (ios) te.style.width = "0px"
@@ -103,6 +100,14 @@ export default class TextareaInput {
         input.composing = null
       }
     })
+  }
+
+  createField(_display) {
+    // Wraps and hides input textarea
+    this.wrapper = hiddenTextarea()
+    // The semihidden textarea that is focused when the editor is
+    // focused, and receives input.
+    this.textarea = this.wrapper.firstChild
   }
 
   prepareSelection() {

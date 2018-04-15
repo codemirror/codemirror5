@@ -62,7 +62,7 @@
       var identifiers = parserConf.identifiers|| /^[_A-Za-z\u00A1-\uFFFF][_A-Za-z0-9\u00A1-\uFFFF]*/;
       myKeywords = myKeywords.concat(["nonlocal", "False", "True", "None", "async", "await"]);
       myBuiltins = myBuiltins.concat(["ascii", "bytes", "exec", "print"]);
-      var stringPrefixes = new RegExp("^(([rbuf]|(br))?('{3}|\"{3}|['\"]))", "i");
+      var stringPrefixes = new RegExp("^(([rbuf]|(br)|(fr))?('{3}|\"{3}|['\"]))", "i");
     } else {
       var identifiers = parserConf.identifiers|| /^[_A-Za-z][_A-Za-z0-9]*/;
       myKeywords = myKeywords.concat(["exec", "print"]);
@@ -142,8 +142,18 @@
 
       // Handle Strings
       if (stream.match(stringPrefixes)) {
-        state.tokenize = tokenStringFactory(stream.current());
-        return state.tokenize(stream, state);
+        var isFmtString = stream.current().toLowerCase().indexOf('f') !== -1;
+        if (!isFmtString) {
+          // if this is a nested format string (e.g. f' {   f"{10*10}" + "a" }' )
+          // we do not format the nested expression and treat the nested format
+          // string as regular string
+          state.tokenize = tokenStringFactory(stream.current());
+          return state.tokenize(stream, state);
+        } else {
+          // need to do something more sophisticated
+          state.tokenize = formatStringFactory(stream.current(), state.tokenize);
+          return state.tokenize(stream, state);
+        }
       }
 
       for (var i = 0; i < operators.length; i++)
@@ -172,6 +182,77 @@
       // Handle non-detected items
       stream.next();
       return ERRORCLASS;
+    }
+
+    function formatStringFactory(delimiter, tokenOuter) {
+      while ("rubf".indexOf(delimiter.charAt(0).toLowerCase()) >= 0)
+        delimiter = delimiter.substr(1);
+
+      var singleline = delimiter.length == 1;
+      var OUTCLASS = "string";
+
+      function tokenFString(stream, state) {
+        // inside f-str Expression
+        if (stream.match(delimiter)) {
+          // expression ends pre-maturally, but very common in editing
+          // Could show error to remind users to close brace here
+          state.tokenize = tokenString
+          return OUTCLASS;
+        } else if (stream.match('{')) {
+          // starting brace, if not eaten below
+          return "punctuation";
+        } else if (stream.match('}')) {
+          // return to regular inside string state
+          state.tokenize = tokenString
+          return "punctuation";
+        } else {
+          // use tokenBaseInner to parse the expression
+          return tokenBaseInner(stream, state);
+        }
+      }
+
+      function tokenString(stream, state) {
+        while (!stream.eol()) {
+          stream.eatWhile(/[^'"\{\}\\]/);
+          if (stream.eat("\\")) {
+            stream.next();
+            if (singleline && stream.eol())
+              return OUTCLASS;
+          } else if (stream.match(delimiter)) {
+            state.tokenize = tokenOuter;
+            return OUTCLASS;
+          } else if (stream.match('{{')) {
+            // ignore {{ in f-str
+            return OUTCLASS;
+          } else if (stream.match('{', false)) {
+            // switch to nested mode
+            state.tokenize = tokenFString
+            if (stream.current()) {
+              return OUTCLASS;
+            } else {
+              // need to return something, so eat the starting {
+              stream.next();
+              return "punctuation";
+            }
+          } else if (stream.match('}}')) {
+            return OUTCLASS;
+          } else if (stream.match('}')) {
+            // single } in f-string is an error
+            return ERRORCLASS;
+          } else {
+            stream.eat(/['"]/);
+          }
+        }
+        if (singleline) {
+          if (parserConf.singleLineStringErrors)
+            return ERRORCLASS;
+          else
+            state.tokenize = tokenOuter;
+        }
+        return OUTCLASS;
+      }
+      tokenString.isString = true;
+      return tokenString;
     }
 
     function tokenStringFactory(delimiter) {
@@ -254,14 +335,16 @@
       if (current == ":" && !state.lambda && top(state).type == "py")
         pushPyScope(state);
 
-      var delimiter_index = current.length == 1 ? "[({".indexOf(current) : -1;
-      if (delimiter_index != -1)
-        pushBracketScope(stream, state, "])}".slice(delimiter_index, delimiter_index+1));
+      if (current.length == 1 && !/string|comment/.test(style)) {
+        var delimiter_index = "[({".indexOf(current);
+        if (delimiter_index != -1)
+          pushBracketScope(stream, state, "])}".slice(delimiter_index, delimiter_index+1));
 
-      delimiter_index = "])}".indexOf(current);
-      if (delimiter_index != -1) {
-        if (top(state).type == current) state.indent = state.scopes.pop().offset - hangingIndent
-        else return ERRORCLASS;
+        delimiter_index = "])}".indexOf(current);
+        if (delimiter_index != -1) {
+          if (top(state).type == current) state.indent = state.scopes.pop().offset - hangingIndent
+          else return ERRORCLASS;
+        }
       }
       if (state.dedent > 0 && stream.eol() && top(state).type == "py") {
         if (state.scopes.length > 1) state.scopes.pop();
