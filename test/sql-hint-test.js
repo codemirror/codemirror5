@@ -41,7 +41,7 @@
   test("keywords", {
     value: "SEL",
     cursor: Pos(0, 3),
-    list: ["SELECT"],
+    list: [{"text":"SELECT","className":"CodeMirror-hint-keyword"}],
     from: Pos(0, 0),
     to: Pos(0, 3)
   });
@@ -49,7 +49,7 @@
   test("from", {
     value: "SELECT * fr",
     cursor: Pos(0, 11),
-    list: ["FROM"],
+    list: [{"text":"FROM","className":"CodeMirror-hint-keyword"}],
     from: Pos(0, 9),
     to: Pos(0, 11)
   });
@@ -58,7 +58,7 @@
     value: "SELECT xc",
     cursor: Pos(0, 9),
     tables: simpleTables,
-    list: ["xcountries"],
+    list: [{"text":"xcountries","className":"CodeMirror-hint-table"}],
     from: Pos(0, 7),
     to: Pos(0, 9)
   });
@@ -123,8 +123,11 @@
     value: "SELECT schem",
     cursor: Pos(0, 12),
     tables: schemaTables,
-    list: ["schema.users", "schema.countries",
-           "SCHEMA", "SCHEMA_NAME", "SCHEMAS"],
+    list: [{"text":"schema.users","className":"CodeMirror-hint-table"},
+        {"text":"schema.countries","className":"CodeMirror-hint-table"},
+        {"text":"SCHEMA","className":"CodeMirror-hint-keyword"},
+        {"text":"SCHEMA_NAME","className":"CodeMirror-hint-keyword"},
+        {"text":"SCHEMAS","className":"CodeMirror-hint-keyword"}],
     from: Pos(0, 7),
     to: Pos(0, 12)
   });
@@ -186,7 +189,7 @@
     value: "SELECT myt",
     cursor: Pos(0, 10),
     tables: displayTextTables,
-    list: [{text: "mytable", displayText: "mytable | The main table",}],
+    list: [{text: "mytable", displayText: "mytable | The main table", "className":"CodeMirror-hint-table"}],
     from: Pos(0, 7),
     to: Pos(0, 10)
   });
