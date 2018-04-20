@@ -29,7 +29,8 @@ CodeMirror.multiplexingMode = function(outer /*, others */) {
       return {
         outer: CodeMirror.startState(outer),
         innerActive: null,
-        inner: null
+        inner: null,
+        startingInner: false
       };
     },
 
@@ -37,7 +38,8 @@ CodeMirror.multiplexingMode = function(outer /*, others */) {
       return {
         outer: CodeMirror.copyState(outer, state.outer),
         innerActive: state.innerActive,
-        inner: state.innerActive && CodeMirror.copyState(state.innerActive.mode, state.inner)
+        inner: state.innerActive && CodeMirror.copyState(state.innerActive.mode, state.inner),
+        startingInner: state.startingInner
       };
     },
 
@@ -49,6 +51,7 @@ CodeMirror.multiplexingMode = function(outer /*, others */) {
           var found = indexOf(oldContent, other.open, stream.pos);
           if (found == stream.pos) {
             if (!other.parseDelimiters) stream.match(other.open);
+            else state.startingInner = true;
             state.innerActive = other;
 
             // Get the outer indent, making sure to handle CodeMirror.Pass
@@ -70,6 +73,15 @@ CodeMirror.multiplexingMode = function(outer /*, others */) {
         return outerToken;
       } else {
         var curInner = state.innerActive, oldContent = stream.string;
+        if (state.startingInner) {
+          state.startingInner = false;
+          var innerToken = curInner.mode.token(stream, state.inner);
+          if (curInner.innerStyle) {
+            if (innerToken) innerToken = innerToken + " " + curInner.innerStyle;
+            else innerToken = curInner.innerStyle;
+          }
+          return innerToken;
+        }
         if (!curInner.close && stream.sol()) {
           state.innerActive = state.inner = null;
           return this.token(stream, state);
