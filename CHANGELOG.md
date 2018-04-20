@@ -1,3 +1,21 @@
+## 5.37.0 (2018-04-20)
+
+### Bug fixes
+
+Suppress keypress events during composition, for platforms that don't properly do this themselves.
+
+[xml-fold addon](http://codemirror.net/demo/folding.html): Improve handling of line-wrapped opening tags.
+
+[javascript mode](http://codemirror.net/mode/javascript/): Improve TypeScript support.
+
+[python mode](http://codemirror.net/mode/python/): Highlight expressions inside format strings.
+
+### New features
+
+[vim bindings](http://codemirror.net/demo/vim.html): Add support for '(' and ')' movement.
+
+New themes: [idea](http://codemirror.net/demo/theme.html#idea), [ssms](http://codemirror.net/demo/theme.html#ssms), [gruvbox-dark](http://codemirror.net/demo/theme.html#gruvbox-dark).
+
 ## 5.36.0 (2018-03-20)
 
 ### Bug fixes
