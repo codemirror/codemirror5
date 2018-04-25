@@ -431,7 +431,7 @@ function domTextBetween(cm, from, to, fromLine, toLine) {
         walk(node.childNodes[i])
       if (isBlock) closing = true
     } else if (node.nodeType == 3) {
-      addText(node.nodeValue)
+      addText(node.nodeValue.replace(/\u00a0/g, " "))
     }
   }
   for (;;) {
